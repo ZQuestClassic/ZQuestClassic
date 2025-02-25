@@ -384,11 +384,14 @@ struct viewport_t
 	int32_t x;
 	int32_t y;
 	int32_t w;
+	// Note: height does not take into account that the bottom 8 pixels are not visible, for historical reasons.
+	// For that, use `viewport.visible_height(show_bottom_8px)` instead.
 	int32_t h;
 
 	bool intersects_with(int x, int y, int w, int h) const;
 	bool contains_point(int x, int y) const;
 	bool contains_or_on(const viewport_t& other) const;
+	int32_t visible_height(bool show_bottom_8px) const;
 	int32_t left() const;
 	int32_t right() const;
 	int32_t top() const;

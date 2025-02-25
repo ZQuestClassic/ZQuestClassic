@@ -2,13 +2,16 @@
 
 #include "allegro/gfx.h"
 #include "allegro/gui.h"
+#include "allegro/inline/draw.inl"
 #include "allegro5/joystick.h"
 #include "base/files.h"
 #include "base/render.h"
+#include "base/zdefs.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include <functional>
+#include <queue>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
@@ -449,6 +452,7 @@ void load_game_configs()
 	Maxfps = zc_get_config(cfg_sect,"maxfps",0);
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
 	SnapshotFormat = zc_get_config(cfg_sect,"snapshot_format",3);
+	ShowBottomPixels = zc_get_config(cfg_sect,"bottom_8_px",3);
 	SnapshotScale = zc_get_config(cfg_sect,"snapshot_scale",2);
 	NameEntryMode = zc_get_config(cfg_sect,"name_entry_mode",0);
 #ifdef __EMSCRIPTEN__
@@ -864,7 +868,7 @@ qword trianglelines[16]=
 	0x00000000000000FDULL,
 };
 
-word screen_triangles[28][32];
+word screen_triangles[29][32];
 
 // the ULL suffixes are to prevent this warning:
 // warning: integer constant is too large for "int32_t" type
@@ -1568,8 +1572,8 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 	y -= viewport.y;
 	black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
 	
-	int32_t w=256, h=224;
-	int32_t blockrows=28, blockcolumns=32;
+	int32_t w=framebuf->w, h=framebuf->h;
+	int32_t blockrows=h/8, blockcolumns=32;
 	int32_t xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
 	
 	for(int32_t blockrow=0; blockrow<blockrows; ++blockrow)  //30
@@ -1614,8 +1618,8 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 	y -= viewport.y;
 	black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
 	
-	int32_t w=256, h=224;
-	int32_t blockrows=28, blockcolumns=32;
+	int32_t w=framebuf->w, h=framebuf->h;
+	int32_t blockrows=h/8, blockcolumns=32;
 	int32_t xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
 	
 	for(int32_t blockrow=0; blockrow<blockrows; ++blockrow)  //30
@@ -1654,7 +1658,7 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 {
 	clear_to_color(tmp_scr,BLACK);
-	int32_t w=256, h=224;
+	int32_t w=dest->w, h=dest->h;
 	
 	switch(black_opening_shape)
 	{
@@ -1691,7 +1695,7 @@ void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 	{
 		int32_t distance=zc_max(abs(w/2-x),abs(h/2-y))/8;
 		
-		for(int32_t blockrow=0; blockrow<28; ++blockrow)  //30
+		for(int32_t blockrow=0; blockrow<h/8; ++blockrow)  //30
 		{
 			for(int32_t linerow=0; linerow<8; ++linerow)
 			{
@@ -1703,10 +1707,6 @@ void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 								  [zc_min(zc_max((((31+distance)*(max_a-a)/max_a)+((screen_triangles[blockrow][blockcolumn]&0x0FFF)-0x0100)-(15+distance)),0),15)]
 								  [linerow];
 					++triangleline;
-					
-					if(linerow==0)
-					{
-					}
 				}
 			}
 		}
@@ -3533,27 +3533,37 @@ void draw_lens_over()
 		last_width=width;
 	}
 	
-	masked_blit(lens_scr, framebuf, w-(HeroX()+8)+viewport.x, h-(HeroY()+8)+viewport.y, 0, playing_field_offset, 256, viewport.h - 8);
+	masked_blit(lens_scr, framebuf, w-(HeroX()+8)+viewport.x, h-(HeroY()+8)+viewport.y, 0, playing_field_offset, 256, viewport.h);
 	do_primitives(framebuf, SPLAYER_LENS_OVER, 0, playing_field_offset);
 }
 
-//----------------------------------------------------------------
+static void update_bmp_size(BITMAP** bmp_ptr, int w, int h)
+{
+	BITMAP* bmp = *bmp_ptr;
+	if (bmp->w == w && bmp->h == h)
+		return;
+
+	int depth = bitmap_color_depth(bmp);
+	destroy_bitmap(bmp);
+	*bmp_ptr = create_bitmap_ex(depth, w, h);
+}
 
 void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 {
-	//recreating a big bitmap every frame is highly sluggish.
 	static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
+	update_bmp_size(&wavebuf, 288, 240 - original_playing_field_offset);
+
 	clear_to_color(wavebuf, BLACK);
-	blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
+	blit(source,wavebuf,0,original_playing_field_offset,16,0,256,framebuf->h-original_playing_field_offset);
 	
 	int32_t ofs;
 	amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
 	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
-	int32_t amp2=168;
+	int32_t amp2 = viewport.visible_height(show_bottom_8px);
 	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY_2)) amp2*=2;
 	int32_t i=frame%amp2;
 	
-	for(int32_t j=0; j<168; j++)
+	for(int32_t j=0; j<viewport.visible_height(show_bottom_8px); j++)
 	{
 		if(j&1 && interpol)
 		{
@@ -3596,18 +3606,18 @@ void draw_fuzzy(int32_t fuzz)
 		
 	firsty = 1;
 	
-	for(y=0; y<224;)
+	for(y=0; y<framebuf->h;)
 	{
 		start = &(scrollbuf_old->line[y][256]);
 		
-		for(dy=0; dy<ystep && dy+y<224; dy++)
+		for(dy=0; dy<ystep && dy+y<framebuf->h; dy++)
 		{
 			si = start;
 			di = &(framebuf->line[y+dy][0]);
 			i = xstep;
 			firstx = 1;
 			
-			for(dx=0; dx<256; dx++)
+			for(dx=0; dx<framebuf->w; dx++)
 			{
 				*(di++) = *si;
 				
@@ -3639,9 +3649,11 @@ void draw_fuzzy(int32_t fuzz)
 
 void updatescr(bool allowwavy)
 {
-	static BITMAP *wavybuf = create_bitmap_ex(8,256,224);
-	static BITMAP *panorama = create_bitmap_ex(8,256,224);
-		
+	static BITMAP *wavybuf = create_bitmap_ex(8, framebuf->w, framebuf->h);
+	static BITMAP *panorama = create_bitmap_ex(8, framebuf->w, framebuf->h);
+	update_bmp_size(&wavybuf, framebuf->w, framebuf->h);
+	update_bmp_size(&panorama, framebuf->w, framebuf->h);
+
 	if(toogam)
 	{
 		textout_ex(framebuf,font,"no walls",8,216,1,-1);
@@ -3698,7 +3710,7 @@ void updatescr(bool allowwavy)
 		wavy = (DMaps[cur_dmap].flags&dmfWAVY ? 4 : 0);
 	}
 	
-	blit(framebuf, wavybuf, 0, 0, 0, 0, 256, 224);
+	blit(framebuf, wavybuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	
 	if(wavy && Playing && allowwavy)
 	{
@@ -3716,26 +3728,25 @@ void updatescr(bool allowwavy)
 	if(Playing && msgpos && !screenscrolling)
 	{
 		if(!(msg_bg_display_buf->clip))
-			blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
+			blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,176);
 		if(!(msg_portrait_display_buf->clip))
-			blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
+			blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,176);
 		if(!(msg_txt_display_buf->clip))
-			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
+			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,176);
 	}
 	
-	bool nosubscr = GameLoaded && (hero_scr->flags3&fNOSUBSCR && !(hero_scr->flags3&fNOSUBSCROFFSET));
+	bool nosubscr = GameLoaded && no_subscreen() && !(hero_scr->flags3&fNOSUBSCROFFSET);
 	
 	if(nosubscr)
 	{
-		rectfill(panorama,0,0,255,passive_subscreen_height/2,0);
-		rectfill(panorama,0,168+passive_subscreen_height/2,255,168+passive_subscreen_height-1,0);
-		blit(wavybuf,panorama,0,playing_field_offset,0,passive_subscreen_height/2,256,224-passive_subscreen_height);
+		clear_to_color(panorama, 0);
+		blit(wavybuf,panorama,0,playing_field_offset,0,playing_field_offset/2,256,framebuf->h-playing_field_offset);
 	}
 	
 	//TODO: Optimize blit 'overcalls' -Gleeok
 	BITMAP *source = nosubscr ? panorama : wavybuf;
-	blit(source,framebuf,0,0,0,0,256,224);
-	
+	blit(source, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+
 	update_hw_screen();
 }
 
@@ -3773,11 +3784,11 @@ int32_t onNonGUISnapshot()
 	}
 	while(num<99999 && exists(buf));
 
-	if ((hero_scr->flags3&fNOSUBSCR && !(hero_scr->flags3&fNOSUBSCROFFSET)) && !(key[KEY_ALT]))
+	if (no_subscreen() && !(hero_scr->flags3&fNOSUBSCROFFSET) && !key[KEY_ALT])
 	{
-		BITMAP *b = create_bitmap_ex(8,256,168);
+		BITMAP *b = create_bitmap_ex(8, 256, viewport.visible_height(show_bottom_8px));
 		clear_to_color(b,0);
-		blit(framebuf,b,0,passive_subscreen_height/2,0,0,256,168);
+		blit(framebuf,b,0,playing_field_offset/2,0,0,b->w,b->h);
 		alleg4_save_bitmap(b, SnapshotScale, buf, realpal ? temppal : RAMpal);
 		destroy_bitmap(b);
 	}
@@ -4368,6 +4379,40 @@ bool CheatModifierKeys()
 //9000:00:00, the highest even-thousand hour fitting within 32b signed. This is 375 *DAYS*.
 #define MAXTIME	 1944000000
 
+// (qr, value)
+static std::queue<std::pair<int, bool>> change_qr_queue;
+
+void enqueue_qr_change(int qr, bool value)
+{
+	change_qr_queue.push({qr, value});
+}
+
+// During regular play, QR changes issued through `syskey` / `System` and enqueued
+// and soon executed here.
+// During playing back a replay file, the replay system adds to the same queue and
+// is executed here too.
+// This is currently only used to allow users to configure qr_HIDE_BOTTOM_8_PIXELS, but
+// could be later extended to all QRs (perhaps as a cheat).
+void process_enqueued_qr_changes()
+{
+	if (replay_is_replaying())
+		replay_do_qrs();
+
+	while (!change_qr_queue.empty())
+	{
+		auto [qr, value] = change_qr_queue.front();
+		change_qr_queue.pop();
+
+		// Don't modify `quest_rules`, as that is used to store the canonical QR value which can be reset to
+		// via system menus. Changing the unpacked array is enough to modify the engine's behavior.
+		_qrs_unpacked[qr] = value;
+		apply_qr_rule(qr);
+
+		if (replay_is_recording())
+			replay_step_qr(qr, value);
+	}
+}
+
 void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
 	if(zcmusic!=NULL)
@@ -4375,7 +4420,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		zcmusic_poll();
 	}
 	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
-	
+
 	updatescr(allowwavy);
 
 	Advance=false;
@@ -4431,7 +4476,9 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		if (replay_version_check(11) || replay_version_check(6, 8))
 			replay_peek_input();
 	}
-	
+
+	process_enqueued_qr_changes();
+
 	load_control_called_this_frame = false;
 	
 	poll_keyboard();
@@ -4454,7 +4501,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	// is called just above, and in the paused loop above, so the queue-and-defer-slightly
 	// approach here means it doesn't matter which call adds the cheat.
 	cheats_execute_queued();
-	
+
 	if (replay_is_replaying())
 		replay_peek_quit();
 	if (GameFlags & GAMEFLAG_TRYQUIT)
@@ -4515,7 +4562,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 void zapout()
 {
 	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
-	blit(framebuf,scrollbuf_old,0,0,256,0,256,224);
+	blit(framebuf,scrollbuf_old,0,0,256,0,256,framebuf->h);
 	
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 	script_drawing_commands.Clear();
@@ -4538,7 +4585,7 @@ void zapin()
 	FFCore.warpScriptCheck();
 	draw_screen();
 	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
-	blit(framebuf,scrollbuf_old,0,0,256,0,256,224);
+	blit(framebuf,scrollbuf_old,0,0,256,0,256,framebuf->h);
 	
 	// zap out
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
@@ -4559,9 +4606,9 @@ void wavyout(bool showhero)
 {
 	draw_screen(showhero);
 	
-	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
+	BITMAP *wavebuf = create_bitmap_ex(8,288,framebuf->h);
 	clear_to_color(wavebuf,0);
-	blit(framebuf,wavebuf,0,0,16,0,256,224);
+	blit(framebuf,wavebuf,0,0,16,0,framebuf->w,framebuf->h);
 	
 	static PALETTE wavepal;
 	
@@ -4569,10 +4616,11 @@ void wavyout(bool showhero)
 	int32_t amplitude=8;
 	
 	int32_t wavelength=4;
+	int height = viewport.visible_height(show_bottom_8px);
 	double palpos=0, palstep=4, palstop=126;
-	
+
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
-	for(int32_t i=0; i<168; i+=wavelength)
+	for(int32_t i=0; i<height; i+=wavelength)
 	{
 		for(int32_t l=0; l<256; l++)
 		{
@@ -4594,7 +4642,7 @@ void wavyout(bool showhero)
 			update_hw_pal = true;
 		}
 		
-		for(int32_t j=0; j+playing_field_offset<224; j++)
+		for(int32_t j=0; j+playing_field_offset<framebuf->h; j++)
 		{
 			for(int32_t k=0; k<256; k++)
 			{
@@ -4602,7 +4650,7 @@ void wavyout(bool showhero)
 				
 				if((j<i)&&(j&1))
 				{
-					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/168.0))*amplitude);
+					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/height))*amplitude);
 				}
 				
 				framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
@@ -4625,9 +4673,9 @@ void wavyin()
 {
 	draw_screen();
 	
-	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
+	BITMAP *wavebuf = create_bitmap_ex(8,288,framebuf->h);
 	clear_to_color(wavebuf,0);
-	blit(framebuf,wavebuf,0,0,16,0,256,224);
+	blit(framebuf,wavebuf,0,0,16,0,framebuf->w,framebuf->h);
 	
 	static PALETTE wavepal;
 
@@ -4635,10 +4683,11 @@ void wavyin()
 	int32_t ofs;
 	int32_t amplitude=8;
 	int32_t wavelength=4;
-	double palpos=168, palstep=4, palstop=126;
+	int height = viewport.visible_height(show_bottom_8px);
+	double palpos=height, palstep=4, palstop=126;
 	
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
-	for(int32_t i=0; i<168; i+=wavelength)
+	for(int32_t i=0; i<height; i+=wavelength)
 	{
 		for(int32_t l=0; l<256; l++)
 		{
@@ -4660,15 +4709,15 @@ void wavyin()
 			update_hw_pal = true;
 		}
 		
-		for(int32_t j=0; j+playing_field_offset<224; j++)
+		for(int32_t j=0; j+playing_field_offset<framebuf->h; j++)
 		{
 			for(int32_t k=0; k<256; k++)
 			{
 				ofs=0;
 				
-				if((j<(167-i))&&(j&1))
+				if((j<(height-1-i))&&(j&1))
 				{
-					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/168.0))*amplitude);
+					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/height))*amplitude);
 				}
 				
 				framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
@@ -4746,8 +4795,8 @@ void openscreen(int32_t shape)
 		
 		if(x>0)
 		{
-			rectfill(framebuf,0,playing_field_offset,x,(viewport.h - 8 - 1)+playing_field_offset,0);
-			rectfill(framebuf,viewport.w-x,playing_field_offset,255,(viewport.h - 8 - 1)+playing_field_offset,0);
+			rectfill(framebuf,0,playing_field_offset,x,(viewport.h - 1)+playing_field_offset,0);
+			rectfill(framebuf,viewport.w-x,playing_field_offset,255,(viewport.h - 1)+playing_field_offset,0);
 		}
 		
 		advanceframe(true);
@@ -4795,8 +4844,8 @@ void closescreen(int32_t shape)
 		
 		if(x>0)
 		{
-			rectfill(framebuf,0,playing_field_offset,x,(viewport.h - 8 - 1)+playing_field_offset,0);
-			rectfill(framebuf,viewport.w-x,playing_field_offset,255,(viewport.h - 8 - 1)+playing_field_offset,0);
+			rectfill(framebuf,0,playing_field_offset,x,(viewport.h - 1)+playing_field_offset,0);
+			rectfill(framebuf,viewport.w-x,playing_field_offset,255,(viewport.h - 1)+playing_field_offset,0);
 		}
 		
 		advanceframe(true);
@@ -7095,6 +7144,13 @@ static NewMenu snapshot_format_menu
 	{ "&TGA", std::bind(onSetSnapshotFormat, ssfmtTGA) },
 };
 
+static NewMenu bottom_8_pixels_menu
+{
+	{ "&Default (qst)", std::bind(onSetBottom8Pixels, 0) },
+	{ "&On", std::bind(onSetBottom8Pixels, 1) },
+	{ "&Off", std::bind(onSetBottom8Pixels, 2) },
+};  
+
 static NewMenu controls_menu
 {
 	{ "Key&board...", onKeyboard },
@@ -7135,6 +7191,7 @@ enum
 {
 	MENUID_OPTIONS_PAUSE_BG,
 	MENUID_OPTIONS_EPILEPSYPROT,
+	MENUID_OPTIONS_SHOWBOTTOMPIXELS,
 };
 static NewMenu options_menu
 {
@@ -7143,6 +7200,7 @@ static NewMenu options_menu
 	{ "&Window Settings", &window_menu },
 	{ "Epilepsy Flash Reduction", onEpilepsy, MENUID_OPTIONS_EPILEPSYPROT },
 	{ "Pause In Background", onPauseInBackground, MENUID_OPTIONS_PAUSE_BG },
+	{ "Show Bottom 8 Pixels", &bottom_8_pixels_menu, MENUID_OPTIONS_SHOWBOTTOMPIXELS },
 	{ "More Options", call_zc_options_dlg },
 };
 enum
@@ -7448,6 +7506,60 @@ int32_t onSetSnapshotFormat(SnapshotType format)
 	return D_O_K;
 }
 
+int32_t onSetBottom8Pixels(int option)
+{
+	ShowBottomPixels = option;
+	zc_set_config("zeldadx", "bottom_8_px", option);
+	bottom_8_pixels_menu.select_only_index(option);
+
+	int qr = qr_HIDE_BOTTOM_8_PIXELS;
+	bool value = false;
+	if (option == 0)
+		value = get_bit(quest_rules, qr) != 0; // This is the original value, as set in the qst file (or via scripting).
+	else if (option == 1)
+		value = false;
+	else if (option == 2)
+		value = true;
+	enqueue_qr_change(qr, value);
+
+	return D_O_K;
+}
+
+void updateShowBottomPixels()
+{
+	if (!GameLoaded)
+		show_bottom_8px = false;
+	else
+		show_bottom_8px = !get_qr(qr_HIDE_BOTTOM_8_PIXELS);
+
+	int target_bitmap_height = show_bottom_8px ? 232 : 224;
+	if (framebuf->h != target_bitmap_height)
+	{
+		BITMAP* new_framebuf = create_bitmap_ex(8, 256, target_bitmap_height);
+		clear_bitmap(new_framebuf);
+		blit(framebuf, new_framebuf, 0, 0, 0, 0, new_framebuf->w, new_framebuf->h);
+
+		destroy_bitmap(framebuf);
+		destroy_bitmap(script_menu_buf);
+		destroy_bitmap(f6_menu_buf);
+		destroy_bitmap(darkscr_bmp);
+		destroy_bitmap(darkscr_bmp_trans);
+
+		framebuf = new_framebuf;
+		script_menu_buf = create_bitmap_ex(8, 256, target_bitmap_height);
+		f6_menu_buf = create_bitmap_ex(8, 256, target_bitmap_height);
+		darkscr_bmp = create_bitmap_ex(8, 256, target_bitmap_height);
+		darkscr_bmp_trans = create_bitmap_ex(8, 256, target_bitmap_height);
+
+		rti_game.a4_bitmap = framebuf;
+		rti_game.set_size(framebuf->w, framebuf->h);
+		al_set_new_bitmap_flags(ALLEGRO_CONVERT_BITMAP);
+		al_destroy_bitmap(rti_game.bitmap);
+		rti_game.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
+		al_destroy_bitmap(rti_infolayer.bitmap);
+		rti_infolayer.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
+	}
+}
 
 void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int32_t from,int32_t to)
 {
@@ -7619,6 +7731,7 @@ void System()
 			
 			options_menu.select_uid(MENUID_OPTIONS_EPILEPSYPROT, epilepsyFlashReduction);
 			options_menu.select_uid(MENUID_OPTIONS_PAUSE_BG, pause_in_background);
+			options_menu.disable_uid(MENUID_OPTIONS_SHOWBOTTOMPIXELS, replay_is_replaying());
 			
 			name_entry_mode_menu.select_only_index(NameEntryMode);
 			
@@ -7668,6 +7781,7 @@ void System()
 			replay_menu.select_uid(MENUID_REPLAY_SNAP_ALL, replay_is_snapshot_all_frames());
 			
 			snapshot_format_menu.select_only_index(SnapshotFormat);
+			bottom_8_pixels_menu.select_only_index(ShowBottomPixels);
 		}
 		
 		if(debug_enabled)

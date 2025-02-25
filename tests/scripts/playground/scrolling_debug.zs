@@ -34,7 +34,7 @@ dmapdata script ScrollingDebug
 		int x = 0;
 		int y = 0;
 		int w = Viewport->Width - 1;
-		int h = Viewport->Height - 9;
+		int h = Viewport->Height - (Game->FFRules[qr_HIDE_BOTTOM_8_PIXELS] ? 8 : 0) - 1;
 		Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, BLUE, 1, 0, 0, 0, false, 128);
 
 		// Draw some text over the top of the playing field.
@@ -162,7 +162,7 @@ dmapdata script ScrollingDebug
 			x = 0;
 			y = 0;
 			w = Viewport->Width - 1;
-			h = Viewport->Height - 9;
+			h = Viewport->Height - (Game->FFRules[qr_HIDE_BOTTOM_8_PIXELS] ? 8 : 0) - 1;
 			Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, BLUE, 1, 0, 0, 0, false, 128);
 		}
 		else
@@ -172,7 +172,7 @@ dmapdata script ScrollingDebug
 			x = Viewport->X;
 			y = Viewport->Y;
 			w = Viewport->Width - 1;
-			h = Viewport->Height - 9;
+			h = Viewport->Height - (Game->FFRules[qr_HIDE_BOTTOM_8_PIXELS] ? 8 : 0) - 1;
 			Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, BLUE, 1, 0, 0, 0, false, 128);
 		}
 

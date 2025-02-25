@@ -236,6 +236,8 @@ extern int32_t curr_tb_page;
 extern int32_t original_playing_field_offset;
 extern int32_t playing_field_offset;
 extern int32_t passive_subscreen_height;
+extern int32_t passive_subscreen_offset;
+extern bool show_bottom_8px;
 
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;

@@ -369,7 +369,7 @@ extern solid_object* switching_object;
 
 extern byte COOLSCROLL;
 
-extern int32_t SnapshotFormat, NameEntryMode;
+extern int32_t SnapshotFormat, NameEntryMode, ShowBottomPixels;
 extern byte SnapshotScale;
 
 extern int32_t add_asparkle, add_bsparkle;

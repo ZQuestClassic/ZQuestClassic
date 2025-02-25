@@ -35,6 +35,7 @@ bool replay_add_snapshot_frame(std::string frames_shorthand);
 void replay_peek_quit();
 void replay_peek_input();
 void replay_do_cheats();
+void replay_do_qrs();
 bool replay_is_assert_done();
 void replay_forget_input();
 void replay_stop(bool aborted = false);
@@ -48,6 +49,7 @@ void replay_step_comment_loadscr(int screen);
 void replay_step_gfx(uint32_t gfx_hash);
 void replay_step_quit(int quit_state);
 void replay_step_cheat(Cheat cheat, int arg1, int arg2, std::string arg3);
+void replay_step_qr(int qr, bool value);
 
 void replay_set_meta(std::string key, std::string value);
 void replay_set_meta(std::string key, int value);

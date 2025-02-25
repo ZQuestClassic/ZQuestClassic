@@ -975,6 +975,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Hero Position Exposed To Scripts When Scrolling", qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION,
 		"If disabled, the hero position will be accurately updated and clamped to the visible viewport during"
 		" each frame of a scroll. Otherwise, it will be off by a few pixels, especially towards the end of a scroll."},
+	{ "Hide Bottom 8 Pixels", qr_HIDE_BOTTOM_8_PIXELS,
+		"If enabled, the bottom 8 pixels of the screen are never shown."
+		" Note that if disabled, active subscreens are still only 168 pixels tall."},
 };
 
 static GUI::ListData enemiesRulesList

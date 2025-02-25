@@ -125,7 +125,7 @@ static void configure_render_tree()
 	int w = rti_game.width;
 	int h = rti_game.height;
 	float xscale = (float)resx/w;
-	float yscale = (float)resy/(h+12);
+	float yscale = (float)resy/(h+6);
 	bool keep_aspect_ratio = !stretchGame;
 	if (keep_aspect_ratio)
 		xscale = yscale = std::min(xscale, yscale);

@@ -49,7 +49,8 @@ class Viewport {
 
 	// Returns true if the given sprite is visible within the viewport.
 	//
-	// Note: this function ignores the fact that the bottom 8 pixels are never visible.
+	// Note: this function ignores the fact that the bottom 8 pixels may not be visible
+	// given [qr_HIDE_BOTTOM_8_PIXELS].
 	//
 	// @versionadded 3.0
 	bool Contains(sprite s)
@@ -63,7 +64,8 @@ class Viewport {
 
 	// Returns true if the given point is visible within the viewport.
 	//
-	// Note: this function ignores the fact that the bottom 8 pixels are never visible.
+	// Note: this function ignores the fact that the bottom 8 pixels may not be visible
+	// given [qr_HIDE_BOTTOM_8_PIXELS].
 	bool Contains(int x, int y)
 	{
 		return x >= this->X && x < this->X + this->Width && y >= this->Y && y < this->Y + this->Height;

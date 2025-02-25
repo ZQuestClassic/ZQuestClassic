@@ -322,8 +322,6 @@ void calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w,
 
 	bool extended_height_mode = (DMaps[dmap].flags & dmfEXTENDEDVIEWPORT) && world_h > 176;
 	viewport.w = 256;
-	// Note: the viewport height does not take into account that the bottom 8 pixels are not visible, for historical reasons.
-	// For that to be the case a few things must change in hero.cpp scrollscr and red_shift.
 	viewport.h = 176 + (extended_height_mode ? 56 : 0);
 
 	if (viewport_mode == ViewportMode::Script)
@@ -4377,17 +4375,17 @@ void draw_msgstr(byte layer)
 
 	if(!(msg_bg_display_buf->clip))
 	{
-		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,176);
 	}
 	
 	if(!(msg_portrait_display_buf->clip))
 	{
-		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,176);
 	}
 	
 	if(!(msg_txt_display_buf->clip))
 	{
-		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,176);
 	}
 }
 
@@ -4597,7 +4595,7 @@ void draw_screen(bool showhero, bool runGeneric)
 
 	set_draw_screen_clip(framebuf);
 
-	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
+	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 232);
 
 	// After this point, scrollbuf is no longer drawn to - so things like dosubscr have access to a "partially rendered" frame.
 	// I think only used for COOLSCROLL==0? Seems like a silly feature...
@@ -4611,11 +4609,11 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 	
 	// Draw some sprites onto framebuf
-	set_clip_rect(framebuf,0,0,256,224);
+	set_clip_rect(framebuf,0,0,256,232);
 	
 	if(!(pricesdisplaybuf->clip))
 	{
-		masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
+		masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,176);
 	}
 
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
@@ -4998,7 +4996,7 @@ void draw_screen(bool showhero, bool runGeneric)
 
 	// Draw some text on framebuf
 	
-	set_clip_rect(framebuf,0,0,256,224);
+	set_clip_rect(framebuf,0,0,256,232);
 	
 	// Draw the subscreen, without clipping
 	if(get_qr(qr_SUBSCREENOVERSPRITES))
@@ -7632,7 +7630,7 @@ void ViewMap()
 		
 		if(!redraw)
 		{
-			blit(scrollbuf_old,framebuf,256,0,0,0,256,224);
+			blit(scrollbuf_old,framebuf,256,0,0,0,256,232);
 		}
 		else
 		{
@@ -7641,7 +7639,7 @@ void ViewMap()
 						 int32_t(256+(int64_t(px)-mappic->w)*scale)/2,int32_t(224+(int64_t(py)-mappic->h)*scale)/2,
 						 int32_t(mappic->w*scale),int32_t(mappic->h*scale));
 						 
-			blit(framebuf,scrollbuf_old,0,0,256,0,256,224);
+			blit(framebuf,scrollbuf_old,0,0,256,0,256,232);
 			redraw=false;
 		}
 		

@@ -3,6 +3,7 @@
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/util.h"
+#include "base/zdefs.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
 #include "subscr.h"
@@ -25,27 +26,36 @@ extern int32_t directItemX;
 
 void put_active_subscr(int32_t y, int32_t pos)
 {
+	// Active subscreens do not yet get to use those 8 extra pixels. Until then,
+	// draw 8 black pixels at the top (as the active subscreen will move an additional
+	// 8 pixels and so must obscure the playing field somehow).
+	if (show_bottom_8px)
+	{
+		rectfill(framebuf, 0, y, framebuf->w, y+8-1, 0);
+		y += 8;
+	}
     show_custom_subscreen(framebuf, new_subscreen_active, 0, y, game->should_show_time(), pos);
 }
 
 void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 {
+	int distance = show_bottom_8px ? 176 : 168;
 	if(get_qr(qr_OLD_SUBSCR))
 	{
-		put_passive_subscr(dest,x,y+168,showtime,pos);
+		put_passive_subscr(dest,x,y+distance,showtime,pos);
 		put_active_subscr(y,pos);
 	}
 	else
 	{
 		put_active_subscr(y,pos);
-		put_passive_subscr(dest,x,y+168,showtime,pos);
+		put_passive_subscr(dest,x,y+distance,showtime,pos);
 	}
 }
 void dosubscr()
 {
 	PALETTE temppal;
 	
-	if(hero_scr->flags3&fNOSUBSCR)
+	if (no_subscreen())
 		return;
 	
 	if(usebombpal)
@@ -103,11 +113,13 @@ void dosubscr()
 		else pg.cursor_pos = 0;
 	}
 
+	int distance = show_bottom_8px ? 176 : 168;
 	int offy = is_extended_height_mode() ? 0 : passive_subscreen_height;
+
 	FFCore.initZScriptSubscreenScript();
 	subscrpg_clear_animation();
 	subscreen_open = true;
-	for(int32_t y = -168; y <= 0; y += 3*Hero.subscr_speed)
+	for(int32_t y = -distance; y <= 0; y += 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
 		{
@@ -125,7 +137,7 @@ void dosubscr()
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 		//fill in the screen with black to prevent the hall of mirrors effect
-		rectfill(framebuf, 0, 0, 255, 223, 0);
+		clear_to_color(framebuf, 0);
 
 		// With COOLSCROLL on, the subscreen crawls down over the playing field.
 		// Otherwise the playing field scrolls down past the bottom of the screen.
@@ -135,7 +147,7 @@ void dosubscr()
 		}
 		else
 		{
-			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+168+offy,256,-y);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance+passive_subscreen_height,256,-y+(show_bottom_8px?8:0));
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
@@ -441,9 +453,9 @@ void dosubscr()
 			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
-		
-		rectfill(framebuf, 0, 0, 255, 223, 0);
-		
+
+		clear_to_color(framebuf, 0);
+
 		if(compat && COOLSCROLL) //copy the playing field back onto the screen
 			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
 		//else nothing to do; the playing field has scrolled off the screen
@@ -471,7 +483,7 @@ void dosubscr()
 	}
 	while(!done);
 	subscrpg_clear_animation();
-	for(int32_t y = 0; y >= -168; y -= 3*Hero.subscr_speed)
+	for(int32_t y = 0; y >= -distance; y -= 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
 		{
@@ -489,7 +501,7 @@ void dosubscr()
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 		//fill in the screen with black to prevent the hall of mirrors effect
-		rectfill(framebuf, 0, 0, 255, 223, 0);
+		clear_to_color(framebuf, 0);
 		
 		if(COOLSCROLL)
 		{
@@ -497,7 +509,7 @@ void dosubscr()
 		}
 		else
 		{
-			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+168+offy,256,-y);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance+passive_subscreen_height,256,-y+(show_bottom_8px?8:0));
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
@@ -583,7 +595,8 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 
 	if(no_subscreen())
 	{
-		clear_to_color(subscr,0);
+		if (playing_field_offset)
+			rectfill(subscr, 0, 0, subscr->w, playing_field_offset, 0);
 		destroy_bitmap(subscr);
 		return;
 	}

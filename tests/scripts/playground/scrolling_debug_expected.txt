@@ -18,8 +18,8 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 21,
-    "symbols": 68,
-    "identifiers": 471,
+    "symbols": 70,
+    "identifiers": 483,
     "elided": true
   }
 }
@@ -229,7 +229,7 @@ PUSHR D2
 POP D2
 SETR SCREEN_DRAW_ORIGIN D2
 PUSHR D4
-CALLFUNC 0.0669; UsrFunc[void jankyOldScrollingVars()] Call
+CALLFUNC 0.0695; UsrFunc[void jankyOldScrollingVars()] Call
 POP D4
 GOTO 210; if() #100 Body End
 PUSHR D4; if() #100 Else Start
@@ -509,7 +509,7 @@ MODV D2 0.0003
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 528 ==; Test 'if'
+GOTOCMP 541 ==; Test 'if'
 WAITDRAW; InlineFunc[void Waitdraw()] Body AND if() #99 Body Start
 SETV D2 0.0001
 PUSHR D2
@@ -523,7 +523,20 @@ SETR D2 VIEWPORT_WIDTH
 SUBV D2 1
 STORE D2 0.0003
 SETR D2 VIEWPORT_HEIGHT
-SUBV D2 9
+PUSHR D2
+SETV D2 482
+PUSHR D2
+POP D0
+SETR D2 FFRULE
+COMPAREV D2 0
+GOTOCMP 507 ==
+SETV D2 8
+GOTO 508
+SETV D2 0
+POP D3
+SUBR D3 D2
+SETR D2 D3
+SUBV D2 1
 STORE D2 0.0002
 PUSHV 7; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0005
@@ -552,7 +565,7 @@ PUSHARGSV 0 0.0004
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-GOTO 570; if() #99 Body End
+GOTO 596; if() #99 Body End
 WAITDRAW; InlineFunc[void Waitdraw()] Body AND if() #99 Else Start
 SETV D2 0.0003
 PUSHR D2
@@ -566,7 +579,20 @@ SETR D2 VIEWPORT_WIDTH
 SUBV D2 1
 STORE D2 0.0003
 SETR D2 VIEWPORT_HEIGHT
-SUBV D2 9
+PUSHR D2
+SETV D2 482
+PUSHR D2
+POP D0
+SETR D2 FFRULE
+COMPAREV D2 0
+GOTOCMP 563 ==
+SETV D2 8
+GOTO 564
+SETV D2 0
+POP D3
+SUBR D3 D2
+SETR D2 D3
+SUBV D2 1
 STORE D2 0.0002
 PUSHV 7; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0005
@@ -725,7 +751,20 @@ SETR D2 VIEWPORT_WIDTH
 SUBV D2 1
 STORE D2 0.0003
 SETR D2 VIEWPORT_HEIGHT
-SUBV D2 9
+PUSHR D2
+SETV D2 482
+PUSHR D2
+POP D0
+SETR D2 FFRULE
+COMPAREV D2 0
+GOTOCMP 735 ==
+SETV D2 8
+GOTO 736
+SETV D2 0
+POP D3
+SUBR D3 D2
+SETR D2 D3
+SUBV D2 1
 STORE D2 0.0002
 PUSHV 7; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0005
@@ -928,7 +967,7 @@ SETR D2 GAMESCROLLING
 COMPAREV D2 -1
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 1000 ==; Test 'if'
+GOTOCMP 1039 ==; Test 'if'
 PUSHR D4; if() #423 Body Start
 SETV D2 0.0001; UsrFunc[int engineRound(int)] Params Start
 PUSHR D2

@@ -1,4 +1,5 @@
 #include "zc/replay.h"
+#include "base/qrs.h"
 #include "base/version.h"
 #include "base/zapp.h"
 #include "zc/zc_sys.h"
@@ -31,7 +32,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 38;
+static const int VERSION = 39;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -40,6 +41,7 @@ static const char TypeKeyUp = 'U';
 static const char TypeComment = 'C';
 static const char TypeQuit = 'Q';
 static const char TypeCheat = 'X';
+static const char TypeQR = 'Y';
 static const char TypeRng = 'R';
 static const char TypeKeyMap = 'K';
 static const char TypeMouse = 'V';
@@ -330,6 +332,26 @@ struct CheatReplayStep : ReplayStep
     }
 };
 
+struct QRReplayStep : ReplayStep
+{
+    int qr;
+    bool value;
+
+    QRReplayStep(int frame, int qr, bool value) : ReplayStep(frame, TypeQR), qr(qr), value(value)
+    {
+    }
+
+    void run()
+    {
+        // During replay, replay_do_qrs handles enqueuing qr changes.
+    }
+
+    std::string print()
+    {
+		return fmt::format("{} {} {} {}", type, frame, qr, value ? 1 : 0);
+    }
+};
+
 struct RngReplayStep : ReplayStep
 {
     int start_index;
@@ -481,6 +503,14 @@ static bool steps_are_equal(const ReplayStep* step1, const ReplayStep* step2)
 				cheat_replay_step->arg1 == cheat_record_step->arg1 &&
 				cheat_replay_step->arg2 == cheat_record_step->arg2 &&
 				cheat_replay_step->arg3 == cheat_record_step->arg3;
+		}
+		break;
+		case TypeQR:
+		{
+			auto qr_replay_step = static_cast<const QRReplayStep *>(step1);
+			auto qr_record_step = static_cast<const QRReplayStep *>(step2);
+			are_equal = qr_replay_step->qr == qr_record_step->qr &&
+				qr_replay_step->value == qr_record_step->value;
 		}
 		break;
 		case TypeRng:
@@ -760,6 +790,18 @@ static void load_replay(std::map<std::string, std::string>& meta_map, std::files
                     arg2 = -1;
             }
             replay_log.push_back(std::make_shared<CheatReplayStep>(frame, (Cheat)cheat, arg1, arg2, arg3));
+        }
+        else if (type == TypeQR)
+        {
+            int qr;
+            bool value;
+
+            iss >> qr;
+            iss >> value;
+
+            ASSERT(qr >= 0 && qr < qr_MAX);
+
+            replay_log.push_back(std::make_shared<QRReplayStep>(frame, qr, value));
         }
         else if (type == TypeRng)
         {
@@ -1598,6 +1640,20 @@ void replay_do_cheats()
     }
 }
 
+void replay_do_qrs()
+{
+    size_t i = replay_log_current_index;
+    while (i < replay_log.size() && replay_log[i]->frame == frame_count)
+    {
+        if (replay_log[i]->type == TypeQR)
+        {
+            auto qr_replay_step = static_cast<QRReplayStep *>(replay_log[i].get());
+            enqueue_qr_change(qr_replay_step->qr, qr_replay_step->value);
+        }
+        i++;
+    }
+}
+
 bool replay_is_assert_done()
 {
     return mode == ReplayMode::Assert && (assert_current_index == replay_log.size() || frame_count >= replay_log.back()->frame);
@@ -2017,6 +2073,12 @@ void replay_step_cheat(Cheat cheat, int arg1, int arg2, std::string arg3)
 {
     if (replay_is_recording())
         record_log.push_back(std::make_shared<CheatReplayStep>(frame_count, cheat, arg1, arg2, arg3));
+}
+
+void replay_step_qr(int qr, bool value)
+{
+    if (replay_is_recording())
+        record_log.push_back(std::make_shared<QRReplayStep>(frame_count, qr, value));
 }
 
 ReplayMode replay_get_mode()

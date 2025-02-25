@@ -2743,7 +2743,7 @@ static int scripting_write_pal_color(int c)
 	return scripting_use_8bit_colors ? c : _rgb_scale_6[c];
 }
 
-static void apply_qr_rule(int qr_id)
+void apply_qr_rule(int qr_id)
 {
 	bool value = get_qr(qr_id);
 	switch (qr_id)
@@ -2758,7 +2758,8 @@ static void apply_qr_rule(int qr_id)
 			can_neg_array = !value;
 			break;
 		case qr_SCRIPTS_6_BIT_COLOR:
-			if (get_qr(qr_SCRIPTS_6_BIT_COLOR))
+		{
+			if (value)
 			{
 				scripting_use_8bit_colors = false;
 				scripting_max_color_val = 63;
@@ -2769,11 +2770,18 @@ static void apply_qr_rule(int qr_id)
 				scripting_max_color_val = 255;
 			}
 			break;
+		}
+		case qr_HIDE_BOTTOM_8_PIXELS:
+		{
+			updateShowBottomPixels();
+			break;
+		}
 	}
 }
 
 static void apply_qr_rules()
 {
+	// apply_qr_rule(qr_HIDE_BOTTOM_8_PIXELS);
 	apply_qr_rule(qr_LTTPCOLLISION);
 	apply_qr_rule(qr_LTTPWALK);
 	apply_qr_rule(qr_SCRIPTS_6_BIT_COLOR);

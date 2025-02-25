@@ -36,6 +36,7 @@
 #include "subscr.h"
 #include "sfx.h"
 #include "md5.h"
+#include "zc/replay.h"
 #include "zc/zelda.h"
 #include "zinfo.h"
 #include "zc/ffscript.h"
@@ -3484,8 +3485,13 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_LANDING_SFX, 1);
 		set_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS, 1);
 	}
-	if (compatrule_version < 74 && !(tempheader.version_major == 2 && tempheader.version_minor == 55 && tempheader.version_patch >= 9))
+	if (compatrule_version < 74 && tempheader.compareVer(2, 55, 9) < 0)
 		set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, 1);
+	if (compatrule_version < 75 && tempheader.compareVer(2, 55, 9) < 0)
+	{
+		if (std::string(tempheader.title).starts_with("Yuurand"))
+			set_qr(qr_HIDE_BOTTOM_8_PIXELS, 1);
+	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

@@ -209,7 +209,7 @@ void ending()
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
-	draw_screen_clip_rect_y2=223;
+	draw_screen_clip_rect_y2=231;
 	
 	for(int32_t f=0; f<365; f++)
 	{
@@ -327,7 +327,7 @@ void ending()
 		
 		if(f==733)
 		{
-			blit(framebuf,scrollbuf_old,0,playing_field_offset!=0?168:0,0,0,256,passive_subscreen_height);
+			blit(framebuf,scrollbuf_old,0,playing_field_offset!=0?176:0,0,0,256,passive_subscreen_height);
 			
 			for(int32_t y=0; y<224; y++)
 			{
@@ -350,7 +350,7 @@ void ending()
 		
 		if(f==861)
 		{
-			blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?168:0,256,passive_subscreen_height);
+			blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?176:0,256,passive_subscreen_height);
 			try_zcmusic("zelda.nsf", qstpath, 1, ZC_MIDI_ENDING, get_emusic_volume());
 			
 			for(int32_t y=0; y<224; y++)
@@ -634,7 +634,7 @@ void ending_scripted()
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
-	draw_screen_clip_rect_y2=223;
+	draw_screen_clip_rect_y2=231;
    
 	for(int32_t f=0; f<77; f++)
 	{

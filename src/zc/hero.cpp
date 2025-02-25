@@ -31832,7 +31832,7 @@ void HeroClass::getTriforce(int32_t id2)
 				draw_screen_clip_rect_x1=curtain_x;
 				draw_screen_clip_rect_x2=255-curtain_x;
 				draw_screen_clip_rect_y1=0;
-				draw_screen_clip_rect_y2=223;
+				draw_screen_clip_rect_y2=231;
 			}
 		}
 	
@@ -31858,7 +31858,7 @@ void HeroClass::getTriforce(int32_t id2)
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
-	draw_screen_clip_rect_y2=223;
+	draw_screen_clip_rect_y2=231;
 	show_subscreen_items=true;
     
 	//Warp Hero out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
@@ -31888,9 +31888,9 @@ void red_shift()
     }
     
     // color scale the game screen
-    for(int32_t y=0; y<viewport.h-8; y++)
+    for(int32_t y=0; y<viewport.visible_height(show_bottom_8px); y++)
     {
-        for(int32_t x=0; x<256; x++)
+        for(int32_t x=0; x<framebuf->w; x++)
         {
             int c = framebuf->line[y+original_playing_field_offset][x];
 			int r = RAMpal[c].r / 4;
@@ -32224,7 +32224,7 @@ void HeroClass::heroDeathAnimation()
 				else
 				{
 					//draw only hero. otherwise black layers might cover him.
-					rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
+					rectfill(framebuf,0,playing_field_offset,255,167+8+playing_field_offset,0);
 					draw(framebuf);
 					blit(subscrbmp,framebuf,0,0,0,0,256,original_playing_field_offset);
 				}
