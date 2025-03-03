@@ -48,31 +48,45 @@
 # and use that as the frame argument.
 
 import argparse
-from argparse import ArgumentTypeError
-import subprocess
-import os
-import sys
-import re
+import functools
 import heapq
+import logging
+import os
 import pathlib
 import platform
-import functools
+import re
 import shutil
-from datetime import datetime, timezone
+import subprocess
+import sys
 import time
-import logging
+from argparse import ArgumentTypeError
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from time import sleep
 from timeit import default_timer as timer
 from typing import List
-from github import Github
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-import cutie
 
-from common import ReplayTestResults, RunResult, infer_gha_platform, download_release, maybe_get_downloaded_revision
-from run_test_workflow import collect_baseline_from_test_results, get_args_for_collect_baseline_from_test_results
-from compare_replays import create_compare_report, start_webserver, collect_many_test_results_from_dir, collect_many_test_results_from_ci
+import cutie
+from common import (
+    ReplayTestResults,
+    RunResult,
+    download_release,
+    infer_gha_platform,
+    maybe_get_downloaded_revision,
+)
+from compare_replays import (
+    collect_many_test_results_from_ci,
+    collect_many_test_results_from_dir,
+    create_compare_report,
+    start_webserver,
+)
+from github import Github
+from run_test_workflow import (
+    collect_baseline_from_test_results,
+    get_args_for_collect_baseline_from_test_results,
+)
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -811,7 +825,7 @@ class WebPlayerInterface:
 
 def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunResult:
     name = get_replay_name(replay_file)
-    result = RunResult(name=name, directory=output_dir.relative_to(test_results_dir).as_posix())
+    result = RunResult(name=name, directory=output_dir.relative_to(test_results_dir).as_posix(), path=str(replay_file))
     roundtrip_path = output_dir / f'{name}.roundtrip'
     allegro_log_path = output_dir / 'allegro.log'
     result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
@@ -993,8 +1007,8 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
     use_curses = False
     if sys.stdout.isatty() and not is_ci:
         try:
-            import curses
             import atexit
+            import curses
             use_curses = True
             # TODO: I can't figured out how to use emoji w/ curses.
             print_emoji = False

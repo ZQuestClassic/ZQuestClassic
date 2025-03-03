@@ -7,14 +7,12 @@ import shutil
 import subprocess
 import tarfile
 import zipfile
-
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import sleep
 from typing import Any, List, Literal, Optional, Tuple
 
 import requests
-
 from github import Github
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -27,6 +25,7 @@ test_builds_dir = root_dir / '.tmp/test_builds'
 class RunResult:
     name: str
     directory: str
+    path: str
     success: bool = False
     stopped: bool = False
     exit_code: int = None
