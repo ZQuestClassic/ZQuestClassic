@@ -54,6 +54,7 @@ static const std::vector<std::string> CheatStrings = {
 	"ShowHitbox",
 	"ShowFFCScripts",
 	"ShowInfoOpacity",
+	"HeroPosition",
 	"Last",
 };
 
@@ -143,6 +144,8 @@ std::string cheat_help(Cheat cheat)
 			return "Toggle listing currently running FFC scripts";
 		case ShowInfoOpacity:
 			return "Select the opacity of debug info, 0-255";
+		case HeroPosition:
+			return "Set Hero position on screen";
 	}
 	return "";
 }
@@ -417,6 +420,13 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
 	}
 	break;
 
+	case HeroPosition:
+	{
+		Hero.x = zslongToFix(arg1);
+		Hero.y = zslongToFix(arg2);
+	}
+	break;
+
     case None:
     case Last:
         break;
@@ -427,6 +437,7 @@ static bool instant_exec(Cheat cheat)
 {
 	switch(cheat)
 	{
+		case HeroPosition:
 		case ShowL0:
 		case ShowL1:
 		case ShowL2:
@@ -451,8 +462,11 @@ static bool instant_exec(Cheat cheat)
 void cheats_enqueue(Cheat cheat, int arg1, int arg2, std::string arg3)
 {
 	if(instant_exec(cheat))
+	{
+		replay_step_cheat(cheat, arg1, arg2, arg3);
 		cheats_execute(cheat, arg1, arg2, arg3);
-    else cheats.push({cheat, arg1, arg2, arg3});
+	}
+	else cheats.push({cheat, arg1, arg2, arg3});
 }
 
 void cheats_execute_queued()
