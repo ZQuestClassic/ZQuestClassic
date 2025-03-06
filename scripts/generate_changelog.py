@@ -3,7 +3,6 @@ import os
 import re
 import subprocess
 import sys
-
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List
@@ -415,6 +414,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         if m:
             body = body[0 : m.start()].strip()
         body = re.sub(r'^Co-authored-by: .+', '', body, flags=re.MULTILINE).strip()
+        body = re.sub(r'^\(cherry picked from commit .+\)$', '', body, flags=re.MULTILINE).strip()
         type, scope, oneline, drop = parse_scope_and_type(subject)
         if drop and should_drop_commits:
             continue
