@@ -1,11 +1,12 @@
 import argparse
-import re
 import os
+import re
 import subprocess
-from pathlib import Path
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List
-from git_hooks.common import valid_types, valid_scopes
+
+from git_hooks.common import valid_scopes, valid_types
 
 release_oneliners = {
     '2.55.0': 'The one that is official.',
@@ -357,6 +358,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         m = re.search(r'end changelog', body, re.IGNORECASE)
         if m:
             body = body[0:m.start()].strip()
+        body = re.sub(r'^\(cherry picked from commit .+\)$', '', body, flags=re.MULTILINE).strip()
         type, scope, oneline, drop = parse_scope_and_type(subject)
         if drop:
             continue
