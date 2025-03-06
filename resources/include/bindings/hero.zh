@@ -176,8 +176,8 @@ class hero {
 	// NOTE: This affects BOTH 4-way and 8-way movement, but ONLY if the quest
 	// rule `New Hero Movement` is enabled.
 	//
-	// NOTE: This has no effect on swim speed. To adjust swim speed, see
-	// [Game->Generic] (ex: [GEN_SIDESWIM_STEP_UP]).
+	// NOTE: This has no effect on sideview swim speed. To adjust that, use
+	// [GEN_SIDESWIM_STEP_SIDE] via [Game->Generic].
 	//
 	// @zasm_var HEROSTEPRATE
 	internal int Step;
