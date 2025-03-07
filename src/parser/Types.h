@@ -93,6 +93,7 @@ namespace ZScript
 		ZTID_PLAYER,
 		ZTID_SCREEN,
 		ZTID_REGION,
+		ZTID_VIEWPORT,
 		ZTID_FFC,
 		ZTID_ITEM,
 		ZTID_ITEMCLASS,
@@ -169,6 +170,8 @@ namespace ZScript
 				return "SCREEN";
 			case ZTID_REGION:
 				return "REGION";
+			case ZTID_VIEWPORT:
+				return "VIEWPORT";
 			case ZTID_FFC:
 				return "FFC";
 			case ZTID_ITEM:
@@ -290,6 +293,8 @@ namespace ZScript
 			return ZTID_SCREEN;
 		else if(name == "REGION")
 			return ZTID_REGION;
+		else if(name == "VIEWPORT")
+			return ZTID_VIEWPORT;
 		else if(name == "FFC")
 			return ZTID_FFC;
 		else if(name == "ITEMSPRITE")
@@ -473,6 +478,7 @@ namespace ZScript
 		static DataTypeClassConst PLAYER;
 		static DataTypeClassConst SCREEN;
 		static DataTypeClassConst REGION;
+		static DataTypeClassConst VIEWPORT;
 		static DataTypeClassConst AUDIO;
 		static DataTypeClassConst DEBUG;
 		static DataTypeClassConst GRAPHICS;

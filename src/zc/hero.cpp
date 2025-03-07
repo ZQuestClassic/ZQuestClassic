@@ -25720,7 +25720,9 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		if(y==0)   dir=down;
 		
 		if(y==160) dir=up;
-		
+
+		update_viewport();
+
 		if(dlevel)
 		{
 			// reset enemy kill counts
@@ -26066,6 +26068,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		if(y==0)   dir=down;
 		
 		if(y==160) dir=up;
+
+		update_viewport();
 		
 		markBmap(dir^1);
 		
@@ -26255,6 +26259,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			if(y==0)   dir=down;
 			
 			if(y==160) dir=up;
+
+			update_viewport();
 			
 			markBmap(dir^1);
 			
@@ -26825,6 +26831,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
         
 	
 		clear_darkroom_bitmaps();
+		update_viewport();
 		draw_screen(tmpscr);
 		if (canSideviewLadder()) setOnSideviewLadder(true);
         advanceframe(true);
@@ -27123,6 +27130,8 @@ void HeroClass::stepout() // Step out of item cellars and passageways
         x=pitx;
         y=pity;
     }
+
+	update_viewport();
     
     if(x+y == 0)
         x = y = 80;

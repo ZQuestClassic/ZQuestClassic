@@ -4790,10 +4790,10 @@ enum ASM_DEFINE
 #define SPRITEDATAID            0x14D0
 #define CLASS_THISKEY2          0x14D1
 #define RESRVD_VAR_Z3_01        0x14D2
-#define RESRVD_VAR_Z3_02        0x14D3
-#define RESRVD_VAR_Z3_03        0x14D4
-#define RESRVD_VAR_Z3_04        0x14D5
-#define RESRVD_VAR_Z3_05        0x14D6
+#define VIEWPORT_X              0x14D3
+#define VIEWPORT_Y              0x14D4
+#define VIEWPORT_WIDTH          0x14D5
+#define VIEWPORT_HEIGHT         0x14D6
 #define RESRVD_VAR_Z3_06        0x14D7
 #define RESRVD_VAR_Z3_07        0x14D8
 #define REGION_WIDTH            0x14D9

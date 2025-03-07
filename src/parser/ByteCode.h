@@ -1761,7 +1761,12 @@
 
 #define IDATAFLASHCSET           1652
 
-#define LAST_BYTECODE           1653
+#define VIEWPORT_X              1653
+#define VIEWPORT_Y              1654
+#define VIEWPORT_WIDTH          1655
+#define VIEWPORT_HEIGHT         1656
+
+#define LAST_BYTECODE           1657
 
 //} END OF BYTECODE
 

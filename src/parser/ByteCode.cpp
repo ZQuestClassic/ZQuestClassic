@@ -319,6 +319,15 @@ string ZScript::VarToString(int32_t ID)
 		case REFFFC:
 			return "REFFFC";
 		
+		case VIEWPORT_X:
+			return "VIEWPORT_X";
+		case VIEWPORT_Y:
+			return "VIEWPORT_Y";
+		case VIEWPORT_WIDTH:
+			return "VIEWPORT_WIDTH";
+		case VIEWPORT_HEIGHT:
+			return "VIEWPORT_HEIGHT";
+		
 		case REGION_WIDTH:
 			return "REGION_WIDTH";
 		case REGION_HEIGHT:

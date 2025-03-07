@@ -21,9 +21,8 @@ ffc script TriggerOnCursor
 				3,
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
 
-			// TODO
-			// x += Viewport->X;
-			// y += Viewport->Y;
+			x += Viewport->X;
+			y += Viewport->Y;
 			if (this->X < x && this->Y < y && this->X + 32 >= x && this->Y + 32 >= y)
 			{
 				Screen->TriggerSecrets(screen_index);

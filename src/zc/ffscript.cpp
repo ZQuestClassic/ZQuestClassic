@@ -8704,6 +8704,33 @@ int32_t get_register(const int32_t arg)
 			ret = currscr;
 		}
 		break;
+
+		///----------------------------------------------------------------------------------------------------//
+		//Viewport
+
+		case VIEWPORT_X:
+		{
+			ret = viewport.x * 10000;
+		}
+		break;
+
+		case VIEWPORT_Y:
+		{
+			ret = viewport.y * 10000;
+		}
+		break;
+
+		case VIEWPORT_WIDTH:
+		{
+			ret = 256 * 10000;
+		}
+		break;
+
+		case VIEWPORT_HEIGHT:
+		{
+			ret = 176 * 10000;
+		}
+		break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Game->GetComboX
@@ -47640,8 +47667,6 @@ script_variable ZASMVars[]=
 	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0, 0 },
 	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
 	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0, 0 },
-	{ "RESRVD_VAR_Z3_01", RESRVD_VAR_Z3_01, 0, 0 },
-	{ "RESRVD_VAR_Z3_02", RESRVD_VAR_Z3_02, 0, 0 },
 	{ "REGION_WIDTH", REGION_WIDTH, 0, 0},
 	{ "REGION_HEIGHT", REGION_HEIGHT, 0, 0},
 	{ "REGION_SCREEN_WIDTH", REGION_SCREEN_WIDTH, 0, 0},
@@ -47651,6 +47676,10 @@ script_variable ZASMVars[]=
 	{ "REGION_NUM_COMBOS", REGION_NUM_COMBOS, 0, 0},
 	{ "REGION_ID", REGION_ID, 0, 0},
 	{ "REGION_ORIGIN_SCREEN", REGION_ORIGIN_SCREEN, 0, 0},
+	{ "VIEWPORT_X", VIEWPORT_X, 0, 0},
+	{ "VIEWPORT_Y", VIEWPORT_Y, 0, 0},
+	{ "VIEWPORT_WIDTH", VIEWPORT_WIDTH, 0, 0},
+	{ "VIEWPORT_HEIGHT", VIEWPORT_HEIGHT, 0, 0},
 	{ "RESRVD_VAR_Z3_12", RESRVD_VAR_Z3_12, 0, 0 },
 	{ "LWPNLIFTLEVEL", LWPNLIFTLEVEL, 0, 0},
 	{ "LWPNLIFTTIME", LWPNLIFTTIME, 0, 0},
