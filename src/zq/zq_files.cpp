@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <stdio.h>
 
+#include "allegro/gui.h"
 #include "base/files.h"
 #include "base/misctypes.h"
 #include "base/qrs.h"
@@ -12,6 +13,7 @@
 #include "zq/zq_files.h"
 #include "base/zdefs.h"
 #include "dialog/alertfunc.h"
+#include "dialog/tilesetwizard.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
 #include "base/qst.h"
@@ -355,49 +357,8 @@ int32_t onNew()
 	if(checksave()==0)
 		return D_O_K;
 
-	std::string tileset_path;
-	while (tileset_path.empty())
-	{
-		int ret = -1;
-		if (is_headless()) ret = 0;
-		else
-		{
-			AlertFuncDialog("Choose a tileset",
-				"Cambria is a modern tileset with retro aesthetics.\n\nClassic is a minimalist tileset.",
-				""
-			).add_buttons(0,
-				{ "Cambria (recommended)", "Classic", "Choose from disk" },
-				ret
-			).show();
-		}
-		if (ret == -1)
-			return D_CLOSE;
-		if (ret == 0)
-			tileset_path = "tilesets/cambria.qst";
-		else if (ret == 1)
-			tileset_path = "modules/classic/default.qst";
-		else if (ret == 2)
-		{
-			if (get_qst_name("./tilesets") && fs::is_regular_file(temppath))
-				tileset_path = temppath;
-		}
-	}
-
-	NewQuestFile(tileset_path);
-	set_qr(qr_PARSER_SHORT_CIRCUIT, 1);
-	set_qr(qr_PARSER_TRUE_INT_SIZE, 1);
-	set_qr(qr_ANIMATECUSTOMWEAPONS, 0); //always OFF
-	alwaysOnRules();
-	if(RulesetDialog > 0)
-	{
-		PickRuleset();
-		PickRuleTemplate();
-	}
-	if(zc_get_config("zquest","auto_filenew_bugfixes",1))
-	{
-		applyRuleTemplate(ruletemplateFixCompat);
-	}
-	return D_O_K;
+	restore_mouse();
+	return call_tileset_wizard() ? D_O_K : D_CLOSE;
 }
 
 int32_t onSave()
@@ -628,18 +589,6 @@ int32_t onOpen()
 		return D_O_K;
 	
 	open_quest(temppath);
-	return D_O_K;
-}
-void call_tileset_wizard();
-int32_t onTileset()
-{
-	restore_mouse();
-	
-	if(checksave()==0)
-		return D_O_K;
-	
-	call_tileset_wizard();
-	
 	return D_O_K;
 }
 

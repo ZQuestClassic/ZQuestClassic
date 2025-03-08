@@ -998,6 +998,11 @@ namespace util
 		return m.first == b.end();
 	}
 
+	std::string get_filename(const fs::path& path)
+	{
+		return path.filename().string();
+	}
+
 	void open_web_link(std::string url)
 	{
 #ifdef __EMSCRIPTEN__

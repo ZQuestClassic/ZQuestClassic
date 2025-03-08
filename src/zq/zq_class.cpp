@@ -6608,12 +6608,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 	char buf[2048];
 	byte skip_flags[4];
 
-	// For File>New, don't clear the maps because tilesets (like Cambria) have a more friendly
-	// starter experience that way.
 	dword tileset_flags = 0;
-	if (loading_file_new)
-		tileset_flags = TILESET_CLEARSCRIPTS | TILESET_CLEARHEADER;
-
 	for(int32_t i=0; i<4; ++i)
 	{
 		skip_flags[i]=0;
@@ -6701,7 +6696,6 @@ int32_t load_quest(const char *filename, bool show_progress)
 
 int32_t load_tileset(const char *filename, dword tsetflags)
 {
-	char buf[2048];
 	byte skip_flags[4];
 	
 	for(int32_t i=0; i<4; ++i)
@@ -6714,6 +6708,9 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 		init_quest(DEFAULT_TILESET);
 	else
 	{
+		if(tsetflags & TILESET_BUGFIX)
+			applyRuleTemplate(ruletemplateFixCompat);
+
 		int32_t accessret = quest_access(filename, &header);
 		
 		if(accessret != 1)
@@ -6752,8 +6749,6 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 			refresh(rALL);
 			refresh_pal();
 			set_rules(quest_rules);
-			if(!zc_get_config("zquest","auto_filenew_bugfixes",1))
-				popup_bugfix_dlg("dsa_compatrule");
 			
 			if(bmap != NULL)
 			{

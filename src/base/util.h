@@ -102,6 +102,7 @@ namespace util
 	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext, bool force_suffix = false);
 	std::string create_temp_file_path(std::string final_destination);
 	bool is_subpath_of(const fs::path& base, const fs::path& sub);
+	std::string get_filename(const fs::path& path);
 	void open_web_link(std::string url);
 
 	template <typename T, std::size_t R, std::size_t C>
