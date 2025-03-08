@@ -964,6 +964,11 @@ namespace util
 							s.begin(), s.end());
 		return m.first == b.end();
 	}
+
+	std::string get_filename(const fs::path& path)
+	{
+		return path.filename().string();
+	}
 }
 
 using namespace util;

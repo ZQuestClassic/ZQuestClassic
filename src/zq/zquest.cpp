@@ -1076,7 +1076,6 @@ static NewMenu file_menu
 {
 	{ "&New", do_NewQuest },
 	{ "&Open", do_OpenQuest },
-	{ "&Load Tileset", onTileset },
 	{ "Recent", &recent_menu },
 	{},
 	{ "&Save", onSave, MENUID_FILE_SAVE },

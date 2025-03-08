@@ -678,7 +678,6 @@ const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1] =
 void domouse();
 void init_doorcombosets();
 
-int32_t onNew();
 int32_t PickRuleset();
 int32_t PickRuleTemplate();
 int32_t onOpen();

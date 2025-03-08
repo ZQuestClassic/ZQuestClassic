@@ -22062,6 +22062,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		map_autolayers.clear();
 		map_autolayers.resize(6*1);
 	}
+
 	if(loading_tileset_flags & TILESET_CLEARHEADER)
 	{
 		memset(Header->password, 0, sizeof(Header->password));
