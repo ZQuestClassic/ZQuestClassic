@@ -35,7 +35,7 @@ pick 7c8a5625c582a12b7d779cf6173f670543d25214 test: move zquest save classic_1st
 drop 2769fc99965e764f2b2f809ea935bb15d5db4213 build: fix windows compile
 
 subject 3c86a76b8d93c250bcf636ce19c3206be79b94c9 fix(zscript): 'delete' within a destructor being buggy
-subject d9d3ac8e44e73d1d73e43a1bc5af5eeb7edc5952 feat: option to disable transparent darkrooms stacking multiple transparent layers
+subject d188ece0e85762c8238e4081951da877a0b458e9 feat: option to disable transparent darkrooms stacking multiple transparent layers
 
 drop 287e74d84200c3abdd7f1750207a28200531a09d fix(zq): reenable floating selection for dense forest
 
