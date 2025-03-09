@@ -366,6 +366,9 @@ void MetadataVisitor::caseNamespace(ASTNamespace& host, void* param)
 
 void MetadataVisitor::caseScript(ASTScript& host, void* param)
 {
+	if (!host.script)
+		return;
+
 	std::string symbol_id = getSymbolId(host.script);
 	appendIdentifier(symbol_id, &host, getSelectionRange(*host.identifier));
 
