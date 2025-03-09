@@ -46,6 +46,7 @@ struct gamedata_header
 {
 	bool operator==(const gamedata_header&) const = default;
 
+	int sversion;
 	std::string qstpath;
 	std::string replay_file;
 	std::string name;
@@ -74,7 +75,7 @@ struct gamedata
 	word _maxcounter[MAX_COUNTERS];
 	word _counter[MAX_COUNTERS];
 	int16_t _dcounter[MAX_COUNTERS];
-	
+
 	char version[17];
 	bounded_vec<word,byte> lvlitems {MAXLEVELS, 0};
 	bounded_vec<word,byte> lvlkeys {MAXLEVELS, 0};

@@ -216,6 +216,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		auto& save = out_saves.emplace_back();
 		save.index = out_saves.size() - 1;
 		save.game = new gamedata();
+		save.game->header.sversion = section_version;
 		save.header = &save.game->header;
 		gamedata& game = *save.game;
 
@@ -569,6 +570,8 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		{
 			return 41;
 		}
+		for(int32_t j=0; j<48; j++)
+			game.header.pal[j]&=63;
 
 		if(section_version < 37)
 		{
@@ -2083,6 +2086,9 @@ expected<save_t*, std::string> saves_select(int32_t index)
 	else
 		save = r.value();
 
+	if (save->header->sversion > V_SAVEGAME)
+		return make_unexpected(fmt::format("This save was last saved in a newer version of ZC (save format version: {}).", save->header->sversion));
+
 	currgame = save->index;
 	game->Copy(*save->game);
 	unload_all_but(currgame);
@@ -2444,6 +2450,7 @@ bool saves_test()
 #endif
 
 	gamedata* game = new gamedata();
+	game->header.sversion = V_SAVEGAME;
 	game->header.qstpath = "somegame.qst";
 	game->header.title = "I am a test";
 	game->header.name = "test";
