@@ -30953,7 +30953,17 @@ void HeroClass::checkitems(int32_t index)
 	int32_t linked_parent = ptr->linked_parent;
 	// `screen_spawned` is probably same as `heroscr`, but could not be if the item moved around.
 	int32_t item_screen = ptr->screen_spawned;
-	mapscr* item_scr = get_scr(item_screen);
+	mapscr* item_scr = get_scr_maybe(cur_map, item_screen);
+
+	// I haven't observed this happening, but there are crash reports showing that an
+	// item sprite does not have a screen_spawned for the current screens.
+	// Only guess is that `set_forcegrab` kept the item around from the previous screen.
+	// https://zeldaclassic.sentry.io/share/issue/c13f5a3c5079463fb6901cfea26c695a/
+	if (!item_scr)
+	{
+		item_screen = get_screen_for_world_xy(ptr->x, ptr->y);
+		item_scr = get_scr(item_screen);
+	}
 
 	// For items grabbed while in a special screen.
 	if (cur_screen >= 128)
