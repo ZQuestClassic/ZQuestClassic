@@ -2477,7 +2477,7 @@ bool remove_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, uint d
 	for (int j = 0; j <= 6; j++)
 	{
 		mapscr* scr_2 = screen_handles[j].scr;
-		if (!scr_2 || !scr_2->is_valid()) continue;
+		if (!scr_2) continue;
 
 		rpos_handle.scr = scr_2;
 		rpos_handle.screen = screen;
@@ -4150,7 +4150,7 @@ void do_walkflags(const screen_handles_t& screen_handles, int32_t x, int32_t y)
 	{
 		scr = screen_handles[k + 1].scr;
 
-		if (scr->is_valid())
+		if (scr)
 		{
 			for(int32_t i=0; i<176; i++)
 			{
