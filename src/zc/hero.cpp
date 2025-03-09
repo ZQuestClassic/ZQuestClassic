@@ -21605,12 +21605,14 @@ void HeroClass::oldcheckbosslockblock()
 			{
 				found1 = true;
 				foundlayer = i;
+				cmb_screen_index = get_screen_for_world_xy(bx, by);
 				break;
 			}
 			else if (cmb2.type == cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2, by, 1, i))
 			{
 				found2 = true;
 				foundlayer = i;
+				cmb_screen_index = get_screen_for_world_xy(bx2, by);
 				break;
 			}
 		}
