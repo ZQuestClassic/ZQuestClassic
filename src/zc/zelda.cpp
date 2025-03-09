@@ -4835,7 +4835,8 @@ reload_for_replay_file:
 
 		// This is weird! One thing this does is prevent the "Continue" screen shown in `gameover` from
 		// rendering with the `fNOSUBSCR` flag set.
-		origin_scr->flags3 = 0;
+		if (origin_scr)
+			origin_scr->flags3 = 0;
 		Playing=Paused=false;
 		//Clear active script array ownership
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
