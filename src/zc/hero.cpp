@@ -28285,7 +28285,10 @@ struct nearby_scrolling_screen_t
 struct rect_t
 {
 	int l, r, t, b;
-	
+
+	rect_t() = default;
+	explicit rect_t(const viewport_t& viewport) : l(viewport.left()), r(viewport.right()), t(viewport.top()), b(viewport.bottom()) {}
+
 	void union_with(const rect_t& other)
 	{
 		l = std::min(l, other.l);
@@ -28298,6 +28301,11 @@ struct rect_t
 	{
 		return std::max(t, other.t) < std::min(b, other.b) && std::max(l, other.l) < std::min(r, other.r);
 	}
+
+	int left() const {return l;}
+	int right() const {return r;}
+	int top() const {return t;}
+	int bottom() const {return b;}
 };
 
 struct nearby_scrolling_screens_t
@@ -28309,8 +28317,14 @@ struct nearby_scrolling_screens_t
 	rect_t new_screens_rect;
 };
 
+// Returns all the screens (old and new region) that need to be rendered during scrolling, along
+// with thier draw offsets.
 // Note: The destination screen is hero_screen, the starting screen is scrolling_hero_screen.
-static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport, viewport_t new_viewport)
+// old_viewport_start: the viewport in the old region at start of scrolling
+// new_viewport_final: the viewport in the new region at end of scrolling
+// old_region_visible: the viewport in the old region that will be visible
+// new_region_visible: the viewport in the new region that will be visible
+static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport_start, viewport_t new_viewport_final, rect_t old_region_visible, rect_t new_region_visible)
 {
 	bool is_whistle_warp_scroll = HeroInOutgoingWhistleWarp();
 	int old_region = get_region_id(scrolling_map, scrolling_hero_screen);
@@ -28322,10 +28336,10 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	std::vector<std::tuple<mapscr*, bool, int, int>> old_screen_deltas;
 	std::vector<std::tuple<mapscr*, bool, int, int>> new_screen_deltas;
 
-	int old_screens_x0 = std::clamp(old_viewport.left() / 256, 0, 15);
-	int old_screens_x1 = std::clamp((old_viewport.right() - 1) / 256, 0, 15);
-	int old_screens_y0 = std::clamp(old_viewport.top() / 176, 0, 8);
-	int old_screens_y1 = std::clamp((old_viewport.bottom() - 1) / 176, 0, 8);
+	int old_screens_x0 = std::clamp(old_region_visible.left() / 256, 0, 15);
+	int old_screens_x1 = std::clamp((old_region_visible.right() - 1) / 256, 0, 15);
+	int old_screens_y0 = std::clamp(old_region_visible.top() / 176, 0, 8);
+	int old_screens_y1 = std::clamp((old_region_visible.bottom() - 1) / 176, 0, 8);
 	for (int x = old_screens_x0; x <= old_screens_x1; x++)
 	{
 		for (int y = old_screens_y0; y <= old_screens_y1; y++)
@@ -28348,19 +28362,19 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	{
 		// ... anchored at the current viewport.
 		if (scrolling_dir == right)
-			dx = old_viewport.right() - new_viewport.right();
+			dx = old_viewport_start.right() - new_viewport_final.right();
 		else
-			dx = old_viewport.left() - new_viewport.left();
+			dx = old_viewport_start.left() - new_viewport_final.left();
 
 		if (scrolling_dir == up)
-			dy = old_viewport.bottom() - new_viewport.bottom();
+			dy = old_viewport_start.bottom() - new_viewport_final.bottom();
 		else
-			dy = old_viewport.top() - new_viewport.top();
+			dy = old_viewport_start.top() - new_viewport_final.top();
 
-		if      (scrolling_dir == up) dy -= old_viewport.h;
-		else if (scrolling_dir == down) dy += old_viewport.h;
-		else if (scrolling_dir == left) dx -= old_viewport.w;
-		else if (scrolling_dir == right) dx += old_viewport.w;
+		if      (scrolling_dir == up) dy -= old_viewport_start.h;
+		else if (scrolling_dir == down) dy += old_viewport_start.h;
+		else if (scrolling_dir == left) dx -= old_viewport_start.w;
+		else if (scrolling_dir == right) dx += old_viewport_start.w;
 	}
 	else
 	{
@@ -28377,10 +28391,11 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		dy *= 176;
 	}
 
-	int new_screens_x0 = std::clamp(new_viewport.left() / 256, 0, 15);
-	int new_screens_x1 = std::clamp((new_viewport.right() - 1) / 256, 0, 15);
-	int new_screens_y0 = std::clamp(new_viewport.top() / 176, 0, 8);
-	int new_screens_y1 = std::clamp((new_viewport.bottom() - 1) / 176, 0, 8);
+	int new_screens_x0 = std::clamp(new_region_visible.left() / 256, 0, 15);
+	int new_screens_x1 = std::clamp((new_region_visible.right() - 1) / 256, 0, 15);
+	int new_screens_y0 = std::clamp(new_region_visible.top() / 176, 0, 8);
+	int new_screens_y1 = std::clamp((new_region_visible.bottom() - 1) / 176, 0, 8);
+
 	for (int x = new_screens_x0; x <= new_screens_x1; x++)
 	{
 		for (int y = new_screens_y0; y <= new_screens_y1; y++)
@@ -28434,7 +28449,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	// When old/new screens are possibly overlapping, reduce the drawing clip used for new screens based on the old viewport.
 	if (nearby_screens.has_overlapping_screens)
 	{
-		rect_t old_rect = {old_viewport.left(), old_viewport.right(), old_viewport.top(), old_viewport.bottom()};
+		rect_t old_rect = rect_t(old_viewport_start);
 
 		std::vector<rect_t> new_rects;
 		for (const auto& nearby_screen : nearby_screens.screens)
@@ -29053,11 +29068,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	mapscr* oldscr = special_warp_return_scr;
 	mapscr* newscr = get_scr(destmap, dest_screen);
 
-	// For the duration of the scrolling, the old region coordinate system is used for all drawing
-	// operations. This means that the new screens are drawn with offsets relative to the old
-	// coordinate system. These offsets are determined in get_nearby_scrolling_screens.
-	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport);
-
 	// Start scrolling with the previous pfo, and adjust during scrolling if necessary.
 	int new_playing_field_offset = playing_field_offset;
 	playing_field_offset = old_original_playing_field_offset;
@@ -29078,6 +29088,77 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		FFCore.ScrollingData[SCROLLDATA_NEW_HERO_X] = new_hero_x.getInt();
 		FFCore.ScrollingData[SCROLLDATA_NEW_HERO_Y] = new_hero_y.getInt();
 	}
+
+	// 0 for change playing field offset, then scroll.
+	// 1 for scroll, then change playing field offset.
+	// Prefer changing the playing field offset first then scrolling...
+	int pfo_mode = 0;
+	// ... except for when the new region has a larger viewport than the old one AND moving down.
+	// That scenario can't change the playing field offset first because it would have to show
+	// portions of the screen above the old one, which is bad.
+	if (dy == 1 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
+		pfo_mode = 1;
+	// ... or for the inverse.
+	if (dy == -1 && sign(new_playing_field_offset - old_original_playing_field_offset) == 1)
+		pfo_mode = 1;
+	// Similar.
+	if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
+		pfo_mode = 1;
+	int pfo_counter = abs(new_playing_field_offset - old_original_playing_field_offset);
+
+	// 0 for align, then scroll.
+	// 1 for scroll, then align.
+	int align_mode = 0;
+	int align_counter = abs(secondary_axis_alignment_amount);
+	// Align first, unless that would show screens outside the old region.
+	if (align_counter)
+	{
+		viewport_t old_world_rect;
+		old_world_rect.x = 0;
+		old_world_rect.y = 0;
+		old_world_rect.w = old_world_w;
+		old_world_rect.h = old_world_h;
+
+		viewport_t old_viewport_aligned = old_viewport;
+		old_viewport_aligned.x -= (dy ? secondary_axis_alignment_amount : 0);
+		old_viewport_aligned.y -= (dx ? secondary_axis_alignment_amount : 0);
+		// The playing field offset is changed before aligning, so apply the delta in this check.
+		old_viewport_aligned.y += new_playing_field_offset - old_original_playing_field_offset;
+		if (old_world_rect.contains_or_on(old_viewport_aligned))
+			align_mode = 0;
+		else
+			align_mode = 1;
+	}
+
+	// Determine the area that will be visible in the old and the new regions,
+	// taking into account any possible alignment. All screens within these
+	// area will be fetched by get_nearby_scrolling_screens.
+	rect_t old_region_visible = rect_t(old_viewport);
+	rect_t new_region_visible = rect_t(new_viewport);
+	if (secondary_axis_alignment_amount)
+	{
+		rect_t& r = align_mode == 0 ? old_region_visible : new_region_visible;
+		int delta = align_mode == 0 ? -secondary_axis_alignment_amount : secondary_axis_alignment_amount;
+		if (dy)
+		{
+			if (delta > 0)
+				r.r += delta;
+			else
+				r.l += delta;
+		}
+		else if (dx)
+		{
+			if (delta > 0)
+				r.b += delta;
+			else
+				r.t += delta;
+		}
+	}
+
+	// For the duration of the scrolling, the old region coordinate system is used for all drawing
+	// operations. This means that the new screens are drawn with offsets relative to the old
+	// coordinate system. These offsets are determined in get_nearby_scrolling_screens.
+	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport, old_region_visible, new_region_visible);
 
 	int sx = viewport.x + (scrolldir == left ? viewport.w : 0);
 	int sy = viewport.y + (scrolldir == up ? viewport.h : 0);
@@ -29188,47 +29269,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	bool end_frames = false;
 
 	scroll_counter *= delay;
-
-	// 0 for change playing field offset, then scroll.
-	// 1 for scroll, then change playing field offset.
-	// Prefer changing the playing field offset first then scrolling...
-	int pfo_mode = 0;
-	// ... except for when the new region has a larger viewport than the old one AND moving down.
-	// That scenario can't change the playing field offset first because it would have to show
-	// portions of the screen above the old one, which is bad.
-	if (dy == 1 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
-		pfo_mode = 1;
-	// ... or for the inverse.
-	if (dy == -1 && sign(new_playing_field_offset - old_original_playing_field_offset) == 1)
-		pfo_mode = 1;
-	// Similar.
-	if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
-		pfo_mode = 1;
-	int pfo_counter = abs(new_playing_field_offset - old_original_playing_field_offset);
-
-	// 0 for align, then scroll.
-	// 1 for scroll, then align.
-	int align_mode = 0;
-	int align_counter = abs(secondary_axis_alignment_amount);
-	// Align first, unless that would show screens outside the old region.
-	if (align_counter)
-	{
-		viewport_t old_world_rect;
-		old_world_rect.x = 0;
-		old_world_rect.y = 0;
-		old_world_rect.w = old_world_w;
-		old_world_rect.h = old_world_h;
-
-		viewport_t old_viewport_aligned = old_viewport;
-		old_viewport_aligned.x -= (dy ? secondary_axis_alignment_amount : 0);
-		old_viewport_aligned.y -= (dx ? secondary_axis_alignment_amount : 0);
-		// The playing field offset is changed before aligning, so apply the delta in this check.
-		old_viewport_aligned.y += new_playing_field_offset - old_original_playing_field_offset;
-		if (old_world_rect.contains_or_on(old_viewport_aligned))
-			align_mode = 0;
-		else
-			align_mode = 1;
-	}
 
 	if (get_qr(qr_NOSCROLL))
 	{
