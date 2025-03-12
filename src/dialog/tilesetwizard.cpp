@@ -19,7 +19,7 @@ void popup_bugfix_dlg(const char* cfg); //zq_class.cpp
 
 static const GUI::ListData tilesetList
 {
-	{ "Cambira (recommended)", cambria,
+	{ "Cambria (recommended)", cambria,
 		"Cambria is a modern tileset with retro aesthetics." },
 	{ "Classic", classic,
 		"Classic is a minimalist tileset." },
