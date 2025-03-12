@@ -184,6 +184,10 @@ class TestZEditor(unittest.TestCase):
                 root_dir / 'tests/replays/playground/playground.qst',
                 list((root_dir / 'tests/replays/playground').glob('*.zplay')),
             ),
+            (
+                root_dir / 'tests/replays/z3/z3.qst',
+                list((root_dir / 'tests/replays/z3').glob('*.zplay')),
+            ),
         ]
         for replay_path in (root_dir / 'tests/replays/scripting').glob('*.zplay'):
             # Somewhere between 2.53.1 and 2.55-alpha-1, simply resaving newbie_boss.qst
