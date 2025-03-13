@@ -20346,7 +20346,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                         changehop = false;
                     else if(wx>240&&cnt==2)
                         changehop = false;
-                    else if(wy>168)
+                    else if(wy>176 - (show_bottom_8px ? 0 : 8))
                         changehop = false;
                 }
 		if ((get_qr(qr_NO_HOPPING) || CanSideSwim()) && !isthissolid) changehop = false;
@@ -20414,7 +20414,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                 if(wx<0||wy<0);
                 else if(wx>248);
                 else if(wx>240&&cnt==2);
-                else if(wy>168);
+                else if(wy>176 - (show_bottom_8px ? 0 : 8));
                 else if(get_qr(qr_DROWN) && !ilswim);
 		//if(iswaterex(MAPCOMBO(wx,wy)) && iswaterex(MAPCOMBO(wx,wy)))
                 else if(iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
@@ -31861,7 +31861,7 @@ void HeroClass::heroDeathAnimation()
 				else
 				{
 					//draw only hero. otherwise black layers might cover him.
-					rectfill(framebuf,0,playing_field_offset,255,167+8+playing_field_offset,0);
+					rectfill(framebuf,0,playing_field_offset,framebuf->w,framebuf->h,0);
 					draw(framebuf);
 					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 				}

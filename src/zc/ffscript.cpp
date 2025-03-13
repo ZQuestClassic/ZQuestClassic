@@ -3217,7 +3217,7 @@ void apply_qr_rule(int qr_id)
 
 static void apply_qr_rules()
 {
-	// apply_qr_rule(qr_HIDE_BOTTOM_8_PIXELS);
+	apply_qr_rule(qr_HIDE_BOTTOM_8_PIXELS);
 	apply_qr_rule(qr_LTTPCOLLISION);
 	apply_qr_rule(qr_LTTPWALK);
 	apply_qr_rule(qr_ZS_NO_NEG_ARRAY);
