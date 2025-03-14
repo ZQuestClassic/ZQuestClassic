@@ -1802,7 +1802,7 @@ int32_t init_game()
 	updateShowBottomPixels();
 
 	// Apply the user's preference for this QR, but only if not replaying.
-	if (!replay_is_replaying())
+	if (!replay_is_replaying() && ShowBottomPixels != 0)
 	{
 		int qr = qr_HIDE_BOTTOM_8_PIXELS;
 		bool value = false;
