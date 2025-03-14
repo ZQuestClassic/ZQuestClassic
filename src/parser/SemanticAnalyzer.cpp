@@ -1769,7 +1769,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		auto* p = optparams[i - parcnt];
 		DataType const* getType = p->getReadType(scope, this);
 		if(getType)
-			checkCast(*getType, *host.binding->paramTypes[parcnt], &host);
+			checkCast(*getType, *host.binding->paramTypes[i], &host);
 		if(breakRecursion(host)) return;
 
 		auto* new_node = p->clone();
