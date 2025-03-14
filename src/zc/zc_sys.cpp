@@ -7527,6 +7527,11 @@ int32_t onSetBottom8Pixels(int option)
 
 void updateShowBottomPixels()
 {
+	// It's too tricky the allow modifying the screen height between opening and closing the
+	// active subscreen.
+	if (subscreen_open)
+		return;
+
 	if (!GameLoaded)
 		show_bottom_8px = false;
 	else

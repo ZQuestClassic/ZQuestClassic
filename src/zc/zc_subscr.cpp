@@ -24,12 +24,14 @@ extern int32_t directItemX;
 
 //DIALOG *sso_properties_dlg;
 
+static bool opening_subscr_show_bottom_8px;
+
 void put_active_subscr(int32_t y, int32_t pos)
 {
 	// Active subscreens do not yet get to use those 8 extra pixels. Until then,
 	// draw 8 black pixels at the top (as the active subscreen will move an additional
 	// 8 pixels and so must obscure the playing field somehow).
-	if (show_bottom_8px)
+	if (opening_subscr_show_bottom_8px)
 	{
 		rectfill(framebuf, 0, y, framebuf->w, y+8-1, 0);
 		y += 8;
@@ -39,7 +41,7 @@ void put_active_subscr(int32_t y, int32_t pos)
 
 void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 {
-	int distance = show_bottom_8px ? 176 : 168;
+	int distance = opening_subscr_show_bottom_8px ? 176 : 168;
 	if(get_qr(qr_OLD_SUBSCR))
 	{
 		put_passive_subscr(dest,x,y+distance,showtime,pos);
@@ -113,7 +115,9 @@ void dosubscr()
 		else pg.cursor_pos = 0;
 	}
 
-	int distance = show_bottom_8px ? 176 : 168;
+	opening_subscr_show_bottom_8px = show_bottom_8px;
+
+	int distance = opening_subscr_show_bottom_8px ? 176 : 168;
 	int offy = is_extended_height_mode() ? 0 : passive_subscreen_height;
 
 	FFCore.initZScriptSubscreenScript();
@@ -147,7 +151,7 @@ void dosubscr()
 		}
 		else
 		{
-			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance+passive_subscreen_height,256,-y+(show_bottom_8px?8:0));
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance+passive_subscreen_height,256,-y+(opening_subscr_show_bottom_8px?8:0));
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
@@ -509,7 +513,7 @@ void dosubscr()
 		}
 		else
 		{
-			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance+passive_subscreen_height,256,-y+(show_bottom_8px?8:0));
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance+passive_subscreen_height,256,-y+(opening_subscr_show_bottom_8px?8:0));
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
@@ -522,6 +526,7 @@ void dosubscr()
 	}
 	active_sub_yoff = -224;
 	subscreen_open = false;
+	updateShowBottomPixels(); // might have changed.
 	if(usebombpal)
 	{
 		memcpy(RAMpal, temppal, PAL_SIZE*sizeof(RGB));
