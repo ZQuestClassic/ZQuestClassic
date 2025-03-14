@@ -31775,7 +31775,7 @@ void HeroClass::heroDeathAnimation()
 					}
                     
 					//draw only hero. otherwise black layers might cover him.
-					rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
+					rectfill(framebuf,0,playing_field_offset,framebuf->w,framebuf->h,0);
 					draw(framebuf);
 					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 				}
