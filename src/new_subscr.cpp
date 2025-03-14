@@ -3075,7 +3075,7 @@ word SW_Clear::getH() const
 			hei = 56;
 			break;
 		case sstOVERLAY:
-			hei = 224;
+			hei = 224 + (get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
 			break;
 	}
 	return hei;

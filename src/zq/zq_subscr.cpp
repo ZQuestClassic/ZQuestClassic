@@ -478,7 +478,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			hei = 168;
 			break;
 		case sstOVERLAY:
-			hei = 224;
+			hei = 224 + (get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
 			break;
 	}
 	switch(msg)
@@ -2329,7 +2329,7 @@ void update_subscr_dlg(bool start)
 					break;
 				case sstOVERLAY:
 					strcpy(subscr_titlebuf,"Overlay Subscreen Editor");
-					hei = 224;
+					hei = 224 + (get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
 					winhei += 56;
 					break;
 			}
