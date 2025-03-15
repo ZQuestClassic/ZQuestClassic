@@ -1964,6 +1964,7 @@ struct ZCHEATS
 
 struct zquestheader
 {
+	std::string filename;
     char  id_str[31];
     int16_t zelda_version; // Deprecated
     char zelda_version_string[45];
@@ -2044,6 +2045,11 @@ struct zquestheader
 	int32_t compareDate() const;
 	int32_t compareVer() const;
 	int32_t compareVer(int major, int minor, int patch) const;
+
+	std::string hash() const;
+
+private:
+	mutable std::string _hash;
 };
 
 #define MFORMAT_MIDI 0

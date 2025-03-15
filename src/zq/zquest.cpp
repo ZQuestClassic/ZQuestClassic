@@ -24018,8 +24018,7 @@ static bool partial_load_test(const char* test_dir)
 		set_bit(skip_flags,i,1);
 	set_bit(skip_flags,skip_tiles,0);
 	set_bit(skip_flags,skip_header,0);
-	zquestheader tempheader;
-	memset(&tempheader, 0, sizeof(zquestheader));
+	zquestheader tempheader{};
 	auto ptux_path = fs::path(test_dir) / "quests/PTUX.qst";
 	ret = loadquest(ptux_path.string().c_str(), &tempheader, &QMisc, customtunes, false, skip_flags);
 

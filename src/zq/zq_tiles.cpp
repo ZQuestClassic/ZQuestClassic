@@ -3975,8 +3975,7 @@ void load_imagebuf()
 	bool compressed=false;
 	bool encrypted=false;
 	tiledata *hold=newtilebuf;
-	zquestheader tempheader;
-	memset(&tempheader, 0, sizeof(zquestheader));
+	zquestheader tempheader{};
 	
 	if(imagebuf)
 	{

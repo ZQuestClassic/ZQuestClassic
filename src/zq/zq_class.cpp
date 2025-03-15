@@ -29,7 +29,7 @@
 #include "sprite.h"
 #include "items.h"
 #include "zc/zc_sys.h"
-#include "md5.h"
+#include "base/md5.h"
 #include "hero_tiles.h"
 #include "subscr.h"
 #include "zq/zq_strings.h"

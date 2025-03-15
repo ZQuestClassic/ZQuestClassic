@@ -35,7 +35,7 @@
 #include "defdata.h"
 #include "subscr.h"
 #include "sfx.h"
-#include "md5.h"
+#include "base/md5.h"
 #include "zc/replay.h"
 #include "zc/zelda.h"
 #include "zinfo.h"
@@ -330,7 +330,7 @@ int32_t get_version_and_build(PACKFILE *f, word *version, word *build)
     byte temp_midi_flags[MIDIFLAGS_SIZE];
     memcpy(temp_midi_flags, midi_flags, MIDIFLAGS_SIZE);
     
-    zquestheader tempheader;
+    zquestheader tempheader{};
     
     if(!f)
     {
@@ -1887,6 +1887,8 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 	zprint2("[QUEST METADATA]\n");
 	if(path)
 		zprint2("Path: %s\n", path);
+	if(tempheader.title[0])
+		zprint2("Title: %s\n", tempheader.title);
 	zprint2("ZC Version: %s\n", tempheader.getVerStr());
 	if(tempheader.new_version_id_date_day)
 		zprint2("ZC Build Date: %d-%d-%d %s %s\n", tempheader.new_version_id_date_year, tempheader.new_version_id_date_month, tempheader.new_version_id_date_day, tempheader.build_timestamp, tempheader.build_timezone);
@@ -1901,6 +1903,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 {
 	int32_t dummy;
 	zquestheader tempheader{};
+	tempheader.filename = Header->filename;
 	char dummybuf[80];
 	byte temp_map_count;
 	byte temp_midi_flags[MIDIFLAGS_SIZE];
@@ -2695,7 +2698,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	
 	read_ext_zinfo = tempheader.external_zinfo;
 	
-	memcpy(Header, &tempheader, sizeof(tempheader));
+	*Header = tempheader;
 	map_count=temp_map_count;
 	memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
 
@@ -2711,11 +2714,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		return 0;
 
 	int32_t dummy;
-	zquestheader tempheader;
+	zquestheader tempheader = *Header;
 	word s_version=0;
 	dword compatrule_version=0;
-	
-	memcpy(&tempheader, Header, sizeof(tempheader));
 	
 	if(tempheader.zelda_version >= 0x193)
 	{
@@ -3491,9 +3492,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
-	
-	memcpy(Header, &tempheader, sizeof(tempheader));
-	
+
+	*Header = tempheader;
+
 	return 0;
 }
 
@@ -21474,8 +21475,8 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		reset_scripts();
 	}
 	
-    zquestheader tempheader;
-    memset(&tempheader, 0, sizeof(zquestheader));
+    zquestheader tempheader{};
+	tempheader.filename = filename;
 	zinfo tempzi;
 	tempzi.clear();
 	load_tmp_zi = &tempzi;
@@ -22174,7 +22175,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     
     if(!get_bit(skip_flags, skip_header))
     {
-        memcpy(Header, &tempheader, sizeof(tempheader));
+        *Header = tempheader;
     }
     if(!get_bit(skip_flags, skip_zinfo))
     {

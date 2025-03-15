@@ -7,6 +7,8 @@
 #include "sound/zcmusic.h"
 #include <fmt/format.h>
 #include "base/qrs.h"
+#include "base/md5.h"
+#include <fstream>
 
 using std::string;
 using std::ostringstream;
@@ -974,6 +976,34 @@ int32_t zquestheader::compareVer(int major, int minor, int patch) const
 	if(version_patch < patch)
 		return -1;
 	return 0;
+}
+
+std::string zquestheader::hash() const
+{
+	if (!_hash.empty())
+		return _hash;
+
+	cvs_MD5Context ctx;
+	cvs_MD5Init(&ctx);
+	size_t buffer_size = 1<<20; // 1 MB
+	char *buffer = new char[buffer_size];
+
+	std::ifstream fin(filename, std::ifstream::binary);
+	while (fin)
+	{
+		fin.read(buffer, buffer_size);
+		size_t count = fin.gcount();
+		if (!count)
+			break;
+		cvs_MD5Update(&ctx, (const uint8_t*)buffer, count);
+	}
+
+	uint8_t md5sum[16];
+	cvs_MD5Final(md5sum, &ctx);
+	_hash = util::make_hex_string(std::begin(md5sum), std::end(md5sum));
+	delete[] buffer;
+
+	return _hash;
 }
 
 //double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
