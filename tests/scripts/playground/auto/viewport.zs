@@ -106,8 +106,21 @@ generic script viewport
 {
 	void run()
 	{
-		Test::Init(27);
-		Test::loadRegion(10, 4);
+		Test::Init();
+
+		int screen = 0;
+		int map = Game->LoadDMapData(Test::TestingDmap)->Map;
+		for (int x = 0; x < 4; x++)
+		{
+			for (int y = 0; y < 4; y++)
+			{
+				mapdata scr = Game->LoadMapData(map, screen + x + y*16);
+				fillScreen(scr);
+			}
+		}
+		Test::loadRegion(screen, 4);
+		Player->Warp(Test::TestingDmap, 18);
+		Waitframe();
 
 		Viewport->Mode = VIEW_MODE_SCRIPT;
 
