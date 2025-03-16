@@ -94,7 +94,7 @@ def create_replay(test: Test):
         '-test',
         qst_path,
         '5',
-        '15',
+        '0',
         '-record',
         test.replay_path,
         '-replay-name',

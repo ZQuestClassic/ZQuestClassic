@@ -1,10 +1,15 @@
 namespace Test
 {
-	void Init(int dmap = 5, int screen = 15)
+	const int TestingDmap = 5;
+
+	void Init(int screen = 0)
 	{
-		printf("[Test] started: dmap %d screen %d\n", dmap, screen);
-		if (dmap != 5 || screen != 15)
-			Player->Warp(dmap, screen);
+		printf("[Test] started: dmap %d screen %d\n", TestingDmap, screen);
+		if (screen != 0)
+		{
+			Player->Warp(TestingDmap, screen);
+			Waitframe();
+		}
 	}
 
 	void End()
@@ -52,9 +57,33 @@ namespace Test
 			printf("[Test] failed test\n");
 		Game->Exit();
 	}
+
+	void loadRegion(int screen, int size)
+	{
+		int map = Game->LoadDMapData(Test::TestingDmap)->Map;
+		for (int x = 0; x < size; x++)
+		{
+			for (int y = 0; y < size; y++)
+			{
+				mapdata scr = Game->LoadMapData(map, screen + x + y*16);
+				scr->Valid = 1;
+				scr->RegionID = 1;
+			}
+		}
+		Player->Warp(Test::TestingDmap, screen);
+		Waitframe();
+	}
+
+	void reset(int screen)
+	{
+		int map = Game->LoadDMapData(Test::TestingDmap)->Map;
+		ClearRegion(map);
+		Player->Warp(Test::TestingDmap, 0);
+		Waitframe();
+	}
 }
 
-screendata script TestRunner
+dmapdata script TestRunner
 {
 	void run()
 	{

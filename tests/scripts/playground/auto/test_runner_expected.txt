@@ -17,16 +17,17 @@ stdout:
   "success": true,
   "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 9,
-    "symbols": 25,
-    "identifiers": 53,
+    "currentFileSymbols": 17,
+    "symbols": 40,
+    "identifiers": 97,
     "elided": true
   }
 }
 
 zasm:
 
-PUSHARGSV 0 0.0005; void run() Body Start
+PUSHR REFDMAPDATA; void run() Body Start
+PUSHARGSV 0 0.0004
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
 STORE D2 0.0003
@@ -50,7 +51,7 @@ LOAD D2 0.0001; if() #9 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 36 ==; Test 'if'
+GOTOCMP 37 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; if() #9 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
@@ -80,10 +81,10 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 58 ==; Test 'while'
+GOTOCMP 59 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 50; while() #1 End
-CALLFUNC 0.0061; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 51; while() #1 End
+CALLFUNC 0.0062; UsrFunc[void End()] Call AND [Opt:NeverRet]
 LOAD D3 0.0003
 DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
 PUSHV 0; Func[void End()] Body Start

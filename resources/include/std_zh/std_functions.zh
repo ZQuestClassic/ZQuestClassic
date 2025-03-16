@@ -3915,12 +3915,12 @@ void SetLevelSwitchState(int level, int switchNum, bool state)
 }
 
 //Returns the Nth combo pos of a combo based on a central point, and a direction.
-//For example, combo 22 + DIR_UPRIGHT returns `7`, 
+//For example, in a non-scrolling region: combo 22 + DIR_UPRIGHT returns `7`, 
 //as combo 7 is to the upper-right of combo 22.
 //Returns -1 on error. 
 int AdjacentCombo(int cmb, int dir)
 {
-	if (dir < 0 || dir > 15)
+	if (dir < 0 || dir > 15 || cmb < 0 || cmb >= NUM_COMBO_POS)
 		return -1;
 
 	dir = DirNormal(dir);

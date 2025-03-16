@@ -6,4 +6,5 @@
 #include "auto/optional_params.zs"
 #include "auto/scc.zs"
 #include "auto/sprites.zs"
+#include "auto/std_unit.zs"
 #include "auto/viewport.zs"

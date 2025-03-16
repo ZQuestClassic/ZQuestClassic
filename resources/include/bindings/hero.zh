@@ -742,7 +742,7 @@ class hero {
 	// @zasm_var LINKEQUIP
 	internal int Equipment;
 
-	// Warps link to the given screen in the given DMap, just like if he'd
+	// Warps link to the given screen in the given dmap, just like if he'd
 	// triggered an 'Insta-Warp'-type warp.
 	//
 	// Uses warp return square A of the screen the player is currently on,
@@ -753,7 +753,7 @@ class hero {
 	//   POP D2
 	//   POP D3
 	//   WARPR D3 D2
-	internal void Warp(int DMap, int screen);
+	internal void Warp(int dmap, int screen);
 
 	// @zasm
 	//   POP D2
