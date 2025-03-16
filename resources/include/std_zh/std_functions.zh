@@ -542,6 +542,18 @@ int ComboAt(int x, int y)
 	}
 }
 
+// Returns the combo position (`pos`) adjusted by the given `(x, y)` coordinates
+// in the current [Region].
+//
+// Example: `ComboAdjust(10, 16, 0)` gives the combo position one combo right of `10`.
+//
+// Coordinates outside the bounds of the current [Region] are clamped.
+int ComboAdjust(int pos, int x, int y)
+{
+	if (pos < 0 || pos >= 176) return -1;
+	return ComboAt(ComboX(pos) + x, ComboY(pos) + y);
+}
+
 //Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
 bool ComboFI(int x, int y, int flag)
 {
