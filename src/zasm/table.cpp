@@ -42,6 +42,7 @@ static constexpr script_command command_list[]=
 	{ "GOTOLESS", GOTOLESS, 1, { NUM }, 0, CMPUSED },
 	{ "GOTOMORE", GOTOMORE, 1, { NUM }, 0, CMPUSED },
 	{ "COMBO_AT", COMBO_AT, 2, { REG_RW, REG_R }, 0, 0 },
+	{ "COMBO_ADJUST", COMBO_ADJUST, 3, { REG_RW, REG_R, REG_R }, 0, 0 },
 	{ "QUIT", QUIT, 0, {}, 0, 0 },
 	{ "SINR", SINR, 2, { REG_W, REG_R }, 0, 0 },
 	{ "SINV", SINV, 2, { REG_W, NUM }, 0, 0 },

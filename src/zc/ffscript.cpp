@@ -30996,6 +30996,24 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			}
 
+			case COMBO_ADJUST:
+			{
+				rpos_t rpos = (rpos_t)(get_register(sarg1) / 10000);
+				if (!is_valid_rpos(rpos))
+				{
+					set_register(sarg1, -1);
+					break;
+				}
+
+				auto [x, y] = COMBOXY_REGION(rpos);
+				x += get_register(sarg2) / 10000;
+				y += get_register(sarg3) / 10000;
+				x = std::clamp(x, 0, world_w - 1);
+				y = std::clamp(y, 0, world_h - 1);
+				set_register(sarg1, (int)COMBOPOS_REGION(x, y) * 10000);
+				break;
+			}
+
 			//String.h functions 2.55 Alpha 23
 			case STRINGCOMPARE: FFCore.do_strcmp(); break;
 			case STRINGICOMPARE: FFCore.do_stricmp(); break;

@@ -59,7 +59,7 @@ Most scripts can be migrated by simply making the following changes:
 
 * for iterating every combo position, change 176 to `NUM_COMBO_POS`
 * for the max FFC id, use `MAX_FFC` (instead of 32 or 128 or whatever)
-* to translate x/y to a combo position, only use `ComboAt`
+* to translate x/y to a combo position, only use `ComboAt` or `ComboAdjust`
 * to check if something is out-of-bounds, change 256 / 176 to `Region->Width` / `Region->Height`
 * to check if something is out-of-view, use `Viewport->Contains(int x, int y)` / `Viewport->Contains(sprite s)`
 * set `Screen->DrawOrigin` to adjust the origin used by `Screen` drawing functions
@@ -120,7 +120,7 @@ By default, :ref:`Screen<globals_screen>` reads from the origin screen. Some scr
 
 Before regions, to iterate every combo on a screen you loop between 0 and 176 (exclusive). With regions, the upper value is instead `NUM_COMBO_POS` - when not in a region, this value is 176. To make scripts compatible with regions, replace 176 with `NUM_COMBO_POS`.
 
-To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position.
+To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position. Also, `ComboAdjust(pos, x, y)` will return the combo position relative to the given `pos` adjusted by `x` and `y` pixels.
 
 To access other screens of the current region, use `mapdata`. There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`:
 
