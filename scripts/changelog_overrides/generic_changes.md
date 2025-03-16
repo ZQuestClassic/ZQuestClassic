@@ -42,3 +42,5 @@ drop 287e74d84200c3abdd7f1750207a28200531a09d fix(zq): reenable floating selecti
 reword 88d94ba3c1917b36a3801e2d93a00f5f80554ec4 feat(zq): -smart-assign CLI switch to compile + assign
 Example usage: ./zeditor.exe -smart-assign your_quest.qst
 =end
+
+reword 86b88dff9c410348fc888a312d68745bda857b2e feat(zc): show bottom 8 pixels by default for most quests made prior to 2.55.9
