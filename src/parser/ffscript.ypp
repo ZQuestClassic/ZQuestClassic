@@ -1303,10 +1303,13 @@ Annotation_List :
 	Annotation_List COMMA Annotation {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		list->set.push_back((ASTAnnotation*)$3);
+		if (list->doc_comment.empty())
+			list->doc_comment = std::move(((ASTAnnotation*)$3)->doc_comment);
 		$$ = list;}
 	| Annotation {
 		ASTAnnotationList* list = new ASTAnnotationList(@$);
 		list->set.push_back((ASTAnnotation*)$1);
+		list->doc_comment = std::move(((ASTAnnotation*)$1)->doc_comment);
 		$$ = list;}
 	;
 
@@ -1315,32 +1318,38 @@ Annotation :
 		ASTString* key = (ASTString*)$2;
 		ASTString* val = (ASTString*)$4;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN NUMBER RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTFloat* val = (ASTFloat*)$4;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN LONGNUMBER RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTFloat* val = (ASTFloat*)$4;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN MINUS NUMBER RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTFloat* val = (ASTFloat*)$5;
 		val->negative = !val->negative;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN MINUS LONGNUMBER RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTFloat* val = (ASTFloat*)$5;
 		val->negative = !val->negative;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTAnnotation* a = new ASTAnnotation(key, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	;
 
@@ -1815,6 +1824,7 @@ Annotated_Enum:
 		ASTDataEnum* en = dynamic_cast<ASTDataEnum*>($2);
 		ASTCustomDataTypeDef* tdef = dynamic_cast<ASTCustomDataTypeDef*>($2);
 		if(tdef) en = tdef->definition.get();
+		if(tdef) tdef->doc_comment = std::move(list->doc_comment);
 		handle_annotations(list, [&](AnnotData& data)
 		{
 			auto& key = data.key;
