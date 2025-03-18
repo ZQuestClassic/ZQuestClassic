@@ -33,8 +33,6 @@ There is a new option to have an extended height viewport (applicable only when 
 
 The viewport height is only extended if the DMap flag is on, and if the current region is taller than one screen.
 
-Note: all this is ignoring the fact that the bottom 8 pixels has always and continues to be not shown (so minus 8 pixels in the height for the true visual viewport height).
-
 When in a scrolling region, enemies and their weapons are paused if they are outside the current viewport, with some buffer (48px). However, weapon/npc scripts still run.
 
 Player weapons are considered "out of bounds" when they leave the viewport. Most player weapons are deleted when they go out of bounds (unless `CollDetection` is false), such as arrows. But some weapon types have special behavior: for example, boomerangs just begin returning to the hero.
