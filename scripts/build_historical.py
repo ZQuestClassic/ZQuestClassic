@@ -183,26 +183,31 @@ def build_locally(revision: Revision, channel: str):
         arch_args = ['-A', 'win32']
         build_folder += '_win32'
 
-    if revision.commit_count >= archives.get_release_commit_count(
-        '5432f8ca67bfe371ba7407838a73d455ea75131b'
-    ):
-        cmake_generator_args = ['-G', 'Visual Studio 17 2022']
-        build_folder += '_vs2022'
-    elif revision.commit_count >= archives.get_release_commit_count(
-        '7ab5d08254f22c3bc6d67ae3ccaafe1e664d59d4'
-    ):
-        cmake_generator_args = ['-G', 'Visual Studio 16 2019']
-        build_folder += '_vs2019'
+    if channel == 'windows':
+        if revision.commit_count >= archives.get_release_commit_count(
+            '5432f8ca67bfe371ba7407838a73d455ea75131b'
+        ):
+            cmake_generator_args = ['-G', 'Visual Studio 17 2022']
+            build_folder += '_vs2022'
+        elif revision.commit_count >= archives.get_release_commit_count(
+            '7ab5d08254f22c3bc6d67ae3ccaafe1e664d59d4'
+        ):
+            cmake_generator_args = ['-G', 'Visual Studio 16 2019']
+            build_folder += '_vs2019'
+        else:
+            cmake_generator_args = ['-G', 'Visual Studio 15 2017']
+            build_folder += '_vs2017'
     else:
-        cmake_generator_args = ['-G', 'Visual Studio 15 2017']
-        build_folder += '_vs2017'
+        cmake_generator_args = ['-G', 'Ninja Multi-Config']
 
-    cmake_help = subprocess.check_output('cmake --help', encoding='utf-8')
+    cmake_help = subprocess.check_output(['cmake', '--help'], encoding='utf-8')
     cmake_gen = cmake_generator_args[1]
     if cmake_gen not in cmake_help:
-        err = f'Cannot configure with {cmake_gen}, as it is missing. Install it from https://visualstudio.microsoft.com/vs/older-downloads/ . Be sure to select the "C++ Desktop" addon, otherwise you won\'t get MSVC'
-        if '2017' in cmake_gen:
-            err += '\nYou will also need to install the "C++ MFC" component, otherwise afxres.h will not be found'
+        err = f'Cannot configure with {cmake_gen}, as it is missing.'
+        if channel == 'windows':
+            err += ' Install it from https://visualstudio.microsoft.com/vs/older-downloads/ . Be sure to select the "C++ Desktop" addon, otherwise you won\'t get MSVC'
+            if '2017' in cmake_gen:
+                err += '\nYou will also need to install the "C++ MFC" component, otherwise afxres.h will not be found'
         print(err)
         raise Exception(err)
 

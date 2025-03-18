@@ -26,6 +26,7 @@ def run_zc_command(binaries, command):
     cmd = cmd.replace('%zc', f'"{binaries["zc"]}"')
     cmd = cmd.replace('%zq', f'"{binaries["zq"]}"')
     cmd = cmd.replace('%zl', f'"{binaries["zl"]}"')
+    cmd = cmd.replace('%zs', f'"{binaries["zs"]}"')
     print(f'running command: {cmd}')
     return subprocess.Popen(cmd, cwd=cwd, shell=platform.system() != 'Windows')
 

@@ -53,10 +53,11 @@ class Revision:
     def binaries(self, channel: str):
         if self.is_local_build:
             try:
-                dir = _get_historical().build_locally(self)
+                dir = _get_historical().build_locally(self, channel)
             except KeyboardInterrupt:
                 exit(1)
-            except:
+            except Exception as e:
+                print(e)
                 return None
         else:
             dir = _download(self, channel)
@@ -230,14 +231,19 @@ def create_binary_paths(dir: Path, channel: str):
             zc_app_path / 'Contents/Resources', ['zeditor', 'zquest']
         )
         binaries['zl'] = zc_app_path / 'Contents/MacOS/zlauncher'
+        binaries['zs'] = common.find_path(
+            zc_app_path / 'Contents/Resources', ['zscript']
+        )
     elif channel == 'windows':
         binaries['zc'] = common.find_path(dir, ['zplayer.exe', 'zelda.exe'])
         binaries['zq'] = common.find_path(dir, ['zeditor.exe', 'zquest.exe'])
         binaries['zl'] = dir / 'zlauncher.exe'
+        binaries['zs'] = common.find_path(dir, ['zscript.exe'])
     elif channel == 'linux':
         binaries['zc'] = common.find_path(dir, ['bin/zplayer', 'zplayer', 'zelda'])
         binaries['zq'] = common.find_path(dir, ['bin/zeditor', 'zeditor', 'zquest'])
         binaries['zl'] = common.find_path(dir, ['bin/zlauncher', 'zlauncher'])
+        binaries['zs'] = common.find_path(dir, ['bin/zscript', 'zscript'])
 
     return binaries
 
@@ -377,6 +383,7 @@ class CLI:
 				- %zc is replaced with the path to the player
 				- %zq is the editor
 				- %zl is the launcher
+				- %zs is the zscript parser
 			
 			Example command to open the player in test mode: %zc -test someqst.qst 0 118
 			'''
