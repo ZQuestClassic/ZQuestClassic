@@ -15,15 +15,17 @@ enum Direction
 	DIR_DOWNRIGHT         = 7
 };
 
+// Enemy spawning patterns.
+// Used with [Screen->Pattern] / [mapdata::Pattern]
 enum EnemyPattern
 {
-	PATTERN_STANDARD,
-	PATTERN_SIDES,
-	PATTERN_SIDES_RANDOM,
-	PATTERN_CEILING,
-	PATTERN_CEILING_RANDOM,
-	PATTERN_STANDARD_RANDOM,
-	PATTERN_NO_SPAWNING
+	PATTERN_STANDARD, // Enemies spawn randomly among several pre-determined positions around the room
+	PATTERN_SIDES, // Enemies spawn entering from the sides of the screen (evenly between each side)
+	PATTERN_SIDES_RANDOM, // As PATTERN_SIDES, but enemies spawn randomly instead of evenly between each side
+	PATTERN_CEILING, // As PATTERN_STANDARD, but the enemies fall from the ceiling when spawning
+	PATTERN_CEILING_RANDOM, // As PATTERN_CEILING, but spawns completely randomly around the room
+	PATTERN_STANDARD_RANDOM, // As PATTERN_STANDARD, but spawns completely randomly around the room
+	PATTERN_NO_SPAWNING // Enemies do not spawn (until the pattern is changed)
 };
 
 // Indices for generic counters.
