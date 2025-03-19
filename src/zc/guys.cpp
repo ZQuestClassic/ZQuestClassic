@@ -18423,9 +18423,8 @@ static void activate_fireball_statues(mapscr* scr)
 		return;
 	}
 
-	for_every_rpos_in_screen(scr, [&](const rpos_handle_t& rpos_handle) {
-		if (rpos_handle.layer == 0)
-			activate_fireball_statue(rpos_handle);
+	for_every_rpos_in_screen_layer0(scr, [&](const rpos_handle_t& rpos_handle) {
+		activate_fireball_statue(rpos_handle);
 	});
 }
 

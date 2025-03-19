@@ -189,11 +189,12 @@ ZC_FORCE_INLINE void for_every_combo(T&& fn, bool include_ffcs = !get_qr(qr_OLD_
 
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&> && std::is_invocable_v<T, const ffc_handle_t&>
-ZC_FORCE_INLINE void for_every_combo_in_screen(mapscr* scr, T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY))
+ZC_FORCE_INLINE void for_every_combo_in_screen(const screen_handles_t& screen_handles, T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY))
 {
-	for_every_rpos_in_screen(scr, fn);
-	if (include_ffcs)
-		for_every_ffc_in_screen(scr, fn);
+	mapscr* base_scr = screen_handles[0].base_scr;
+	for_every_rpos_in_screen(screen_handles, fn);
+	if (include_ffcs && is_in_current_region(base_scr))
+		for_every_ffc_in_screen(base_scr, fn);
 }
 
 // Iterates over every ffc in the current region, until execution is requested to stop.
@@ -259,35 +260,42 @@ ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc(T&& fn)
 // Callback function: void fn(const rpos_handle_t& rpos_handle_t)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
-ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)
+ZC_FORCE_INLINE void for_every_rpos_in_screen(const screen_handles_t& screen_handles, T&& fn)
 {
-	auto [handles, count] = get_current_region_handles(scr);
+	mapscr* base_scr = screen_handles[0].base_scr;
 
-	if (handles != nullptr)
+	if (is_in_current_region(base_scr))
 	{
-		for (int i = 0; i < count; i++)
-		{
-			rpos_handle_t rpos_handle = handles[i];
-			for (int j = 0; j < 176; j++)
-			{
-				fn(rpos_handle);
-				rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
-				rpos_handle.pos += 1;
-			}
-		}
+		auto [handles, count] = get_current_region_handles(base_scr);
 
-		return;
+		if (handles != nullptr)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				rpos_handle_t rpos_handle = handles[i];
+				for (int j = 0; j < 176; j++)
+				{
+					fn(rpos_handle);
+					rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
+					rpos_handle.pos += 1;
+				}
+			}
+
+			return;
+		}
 	}
 
 	// Not in current region.
 
 	rpos_handle_t rpos_handle;
-	int map = scr->map;
-	int screen = scr->screen;
+	int screen = base_scr->screen;
 	rpos_handle.screen = screen;
 	for (int lyr = 0; lyr <= 6; ++lyr)
 	{
-		rpos_handle.scr = lyr == 0 ? scr : get_scr_layer(map, screen, lyr);
+		if (!screen_handles[lyr].scr)
+			continue;
+
+		rpos_handle.scr = screen_handles[lyr].scr;
 		rpos_handle.layer = lyr;
 		for (int pos = 0; pos < 176; ++pos)
 		{

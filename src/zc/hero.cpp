@@ -23740,7 +23740,7 @@ void HeroClass::checkspecial()
 			// Enemies have been defeated.
 
 			// generic 'Enemies->' trigger
-			for_every_combo_in_screen(scr, [&](const auto& handle) {
+			for_every_combo_in_screen(create_screen_handles(scr), [&](const auto& handle) {
 				auto& cmb = handle.combo();	
 				if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
