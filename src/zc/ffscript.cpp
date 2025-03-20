@@ -24288,7 +24288,7 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 	if(local)
 	{
 		//localRAM[0] is used as an invalid container, so 0 can be the NULL pointer in ZScript
-		for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
+		for(ptrval = 1; ptrval < NUM_ZSCRIPT_ARRAYS && localRAM[ptrval].Valid(); ptrval++) ;
 		
 		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
@@ -24314,7 +24314,7 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 	else
 	{
 		//Globals are only allocated here at first play, otherwise in init_game
-		for(ptrval = 0; game->globalRAM[ptrval].Valid(); ptrval++) ;
+		for(ptrval = 0; ptrval < game->globalRAM.size() && game->globalRAM[ptrval].Valid(); ptrval++) ;
 		
 		if(ptrval >= game->globalRAM.size())
 		{

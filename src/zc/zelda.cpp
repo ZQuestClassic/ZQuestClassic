@@ -460,7 +460,7 @@ void initZScriptGlobalScript(int32_t ID)
 
 dword getNumGlobalArrays()
 {
-    word scommand, ret = 0;
+	word scommand, ret = 0;
 	auto& init_script = *globalscripts[GLOBAL_SCRIPT_INIT];
 	if (!init_script.valid())
 		return 0;
@@ -469,14 +469,14 @@ dword getNumGlobalArrays()
 	uint32_t start_pc = init_script.pc, end_pc = init_script.end_pc;
 
 	for (auto pc = start_pc; pc < end_pc; pc++)
-    {
-        scommand = zasm[pc].command;
-        
-        if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
-            ret++;
-    }
+	{
+		scommand = zasm[pc].command;
+		
+		if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
+			ret++;
+	}
 
-    return ret;
+	return ret;
 }
 
 //movingblock mblock2; //mblock[4]?

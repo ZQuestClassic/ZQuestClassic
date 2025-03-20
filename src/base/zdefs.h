@@ -1820,6 +1820,8 @@ struct script_id {
 
 typedef uint16_t zasm_script_id;
 
+// In 3.0+ there is exactly one zasm script shared by all scripts.
+// Prior, each script has its own chunk of zasm.
 struct zasm_script
 {
 	zasm_script() = default;
@@ -1864,7 +1866,7 @@ struct script_data
 	
 	bool valid() const
 	{
-		return zasm_script && zasm_script->valid();
+		return end_pc && zasm_script && zasm_script->valid();
 	}
 	
 	void disable()

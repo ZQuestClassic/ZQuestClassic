@@ -46,21 +46,6 @@ struct script_slot_data
 	{
 		return scriptname == "";
 	}
-	
-	std::string const* getFormatStr()
-	{
-		switch(format)
-		{
-			case SCRIPT_FORMAT_DEFAULT:
-				return &DEFAULT_FORMAT;
-			case SCRIPT_FORMAT_INVALID:
-				return &INVALID_FORMAT;
-		}
-		return &DEFAULT_FORMAT;
-	}
-	
-	static const std::string DEFAULT_FORMAT;
-	static const std::string INVALID_FORMAT;
 };
 
 extern std::map<int32_t, script_slot_data > ffcmap;

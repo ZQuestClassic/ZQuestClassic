@@ -420,8 +420,6 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 CompileZScriptDialog::CompileZScriptDialog()
 {}
 
-static int32_t Type_Checked = 0, lowcombo = 0, highcombo = 65279, damage = 4;
-
 void CompileZScriptDialog::updateLabels()
 {
 	char buf[64];

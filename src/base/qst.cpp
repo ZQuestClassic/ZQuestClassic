@@ -12934,8 +12934,8 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	}
 	if(!p_igetl(&script->pc, f))
 		return qe_invalid;
-
-	// TODO ! ZASM MERGE init_script.end_pc is not set ... zquest gets end_pc but never writes in write_one_ffscript. so this break getNumGlobalArrays
+	if(!p_igetl(&script->end_pc, f))
+		return qe_invalid;
 
 	assert(zasm_scripts.size() == 1);
 	auto& zs = zasm_scripts[0];

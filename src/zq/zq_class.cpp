@@ -12297,7 +12297,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTFFC; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, ffscripts[i]);
             
             if(ret!=0)
             {
@@ -12307,7 +12307,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTITEM; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, itemscripts[i]);
             
             if(ret!=0)
             {
@@ -12317,7 +12317,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, guyscripts[i]);
             
             if(ret!=0)
             {
@@ -12328,7 +12328,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		script_data *fake = new script_data(ScriptType::None, 0);
         for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &fake);
+            int32_t ret = write_one_ffscript(f, Header, i, fake);
             
             if(ret!=0)
             {
@@ -12339,7 +12339,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, screenscripts[i]);
             
             if(ret!=0)
             {
@@ -12349,7 +12349,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, globalscripts[i]);
             
             if(ret!=0)
             {
@@ -12359,7 +12359,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
         for(int32_t i=0; i<NUMSCRIPTHERO; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &playerscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, playerscripts[i]);
             
             if(ret!=0)
             {
@@ -12369,7 +12369,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
         for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, lwpnscripts[i]);
             
             if(ret!=0)
             {
@@ -12379,7 +12379,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, ewpnscripts[i]);
             
             if(ret!=0)
             {
@@ -12389,7 +12389,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
 		for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, dmapscripts[i]);
             
             if(ret!=0)
             {
@@ -12399,7 +12399,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, itemspritescripts[i]);
             
             if(ret!=0)
             {
@@ -12409,7 +12409,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, comboscripts[i]);
             
             if(ret!=0)
             {
@@ -12423,7 +12423,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		}
 		for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &genericscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, genericscripts[i]);
             
             if(ret!=0)
             {
@@ -12437,7 +12437,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		}
 		for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &subscreenscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, subscreenscripts[i]);
             
             if(ret!=0)
             {
@@ -13015,10 +13015,11 @@ int32_t write_quest_zasm(PACKFILE *f)
     }
 	return 0;
 }
-int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data **script)
+
+int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data *script)
 {
 	//Metadata
-	zasm_meta const& tmeta = (*script)->meta;
+	zasm_meta const& tmeta = script->meta;
 	if(!p_iputw(tmeta.zasm_v,f))
 		new_return(1);
 	if(!p_iputw(tmeta.meta_v,f))
@@ -13097,9 +13098,13 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data **s
 		if(!p_putc(tmeta.initd_type[q],f))
 			new_return(24);
 	}
-	
-	if(!p_iputl((*script)->pc, f))
+
+	if(!p_iputl(script->pc, f))
 		new_return(25);
+
+	if(!p_iputl(script->end_pc, f))
+		new_return(26);
+
     return 0;
 }
 
