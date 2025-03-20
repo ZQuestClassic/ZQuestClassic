@@ -1825,14 +1825,15 @@ typedef uint16_t zasm_script_id;
 struct zasm_script
 {
 	zasm_script() = default;
-	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
-	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
+	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})), entry_pcs() {}
+	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})), entry_pcs() {}
 
 	zasm_script_id id;
 	bool optimized;
 	std::string name;
 	size_t size;
 	std::vector<ffscript> zasm;
+	std::set<size_t> entry_pcs;
 
 	// TODO: remove the necessity of this terminal command being here.
 	bool valid() const
@@ -1854,7 +1855,7 @@ struct script_data
 	// Exclusive.
 	uint32_t end_pc;
 
-	script_data(ScriptType type, int index) : id({type, index}) {}
+	script_data(ScriptType type, int index) : meta(), id({type, index}), pc(0), end_pc(0) {}
 
 	std::string name() const
 	{

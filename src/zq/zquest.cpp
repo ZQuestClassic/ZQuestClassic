@@ -20959,6 +20959,7 @@ bool handle_slot(script_slot_data& slotdata, script_data* scriptdata)
 	{
 		scriptdata->meta.zero();
 		scriptdata->pc = 0;
+		scriptdata->end_pc = 0;
 	}
 	return true;
 }

@@ -98,8 +98,10 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 	bool legacy_calling_mode =
 		calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR || calling_mode == StructuredZasm::CALLING_MODE_GOTO_RETURN;
 
-	// Starts with implicit first function ("run").
+	// All the entry points are obviously functions (ex: "run");
 	std::set<pc_t> function_start_pcs_set = {0};
+	for (pc_t pc : script->entry_pcs)
+		function_start_pcs_set.insert(pc);
 
 	for (pc_t i = 0; i < script->size; i++)
 	{

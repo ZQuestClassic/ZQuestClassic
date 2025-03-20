@@ -304,12 +304,12 @@ void jit_set_enabled(bool enabled)
 	is_enabled = enabled;
 }
 
-JittedScriptHandle *jit_create_script_handle(zasm_script *script, refInfo *ri)
+JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)
 {
 	if (!script)
 		return nullptr;
 
-	auto fn = compile_if_needed(script);
+	auto fn = compile_if_needed(script->zasm_script.get());
 	if (!fn)
 		return nullptr;
 

@@ -20,7 +20,7 @@ using namespace asmjit;
 struct JittedScriptHandle
 {
 	JittedFunction fn;
-	zasm_script *script;
+	script_data *script;
 	refInfo *ri;
 	intptr_t call_stack_rets[100];
 	uint32_t call_stack_ret_index;
@@ -29,7 +29,7 @@ struct JittedScriptHandle
 typedef int32_t (*JittedFunctionImpl)(int32_t *registers, int32_t *global_registers,
 								  int32_t *stack, uint32_t *stack_index, uint32_t *pc,
 								  intptr_t *call_stack_rets, uint32_t *call_stack_ret_index,
-								  uint32_t *wait_index);
+								  uint32_t *wait_index, uint32_t start_pc);
 
 static JitRuntime rt;
 
@@ -50,6 +50,7 @@ struct CompilationState
 	x86::Gp ptrCallStackRets;
 	x86::Gp ptrCallStackRetIndex;
 	x86::Gp ptrWaitIndex;
+	x86::Gp startPc;
 };
 
 extern ScriptDebugHandle* runtime_script_debug_handle;
@@ -689,7 +690,7 @@ JittedFunction jit_compile_script(zasm_script* script)
 	// cc.addDiagnosticOptions(DiagnosticOptions::kRAAnnotate | DiagnosticOptions::kRADebugAll);
 
 	// Setup parameters.
-	cc.addFunc(FuncSignatureT<int32_t, int32_t *, int32_t *, int32_t *, uint16_t *, uint32_t *, intptr_t *, uint32_t *, uint32_t *>(state.calling_convention));
+	cc.addFunc(FuncSignatureT<int32_t, int32_t *, int32_t *, int32_t *, uint16_t *, uint32_t *, intptr_t *, uint32_t *, uint32_t *, uint32_t>(state.calling_convention));
 	state.ptrRegisters = cc.newIntPtr("registers_ptr");
 	state.ptrGlobalRegisters = cc.newIntPtr("global_registers_ptr");
 	state.ptrStack = cc.newIntPtr("stack_ptr");
@@ -698,6 +699,7 @@ JittedFunction jit_compile_script(zasm_script* script)
 	state.ptrCallStackRets = cc.newIntPtr("call_stack_rets_ptr");
 	state.ptrCallStackRetIndex = cc.newIntPtr("call_stack_ret_index_ptr");
 	state.ptrWaitIndex = cc.newIntPtr("wait_index_ptr");
+	state.startPc = cc.newUInt32("start_pc");
 	cc.setArg(0, state.ptrRegisters);
 	cc.setArg(1, state.ptrGlobalRegisters);
 	cc.setArg(2, state.ptrStack);
@@ -706,6 +708,7 @@ JittedFunction jit_compile_script(zasm_script* script)
 	cc.setArg(5, state.ptrCallStackRets);
 	cc.setArg(6, state.ptrCallStackRetIndex);
 	cc.setArg(7, state.ptrWaitIndex);
+	cc.setArg(8, state.startPc);
 
 	state.vRetVal = cc.newInt32("return_val");
 	zero(cc, state.vRetVal); // RUNSCRIPT_OK
@@ -765,6 +768,16 @@ JittedFunction jit_compile_script(zasm_script* script)
 		goto_labels[script->zasm[i].arg1] = cc.newLabel();
 	}
 
+	// Also add script entry functions.
+	if (script->name == "single-slot")
+	{
+		for (size_t pc : script->entry_pcs)
+		{
+			if (!goto_labels.contains(pc))
+				goto_labels[pc] = cc.newLabel();
+		}
+	}
+
 	auto structured_zasm = zasm_construct_structured(script);
 
 	// Create a return label for every function call.
@@ -809,6 +822,16 @@ JittedFunction jit_compile_script(zasm_script* script)
 
 	cc.jmp(target, annotation);
 	cc.bind(L_Start);
+
+	// Jump to entry function.
+	if (script->name == "single-slot")
+	{
+		for (size_t pc : script->entry_pcs)
+		{
+			cc.cmp(state.startPc, pc);
+			cc.je(goto_labels.at(pc));
+		}
+	}
 
 	// Next, transform each ZASM command to the equivalent assembly.
 	size_t label_index = 0;
@@ -1648,14 +1671,13 @@ JittedFunction jit_compile_script(zasm_script* script)
 	return (JittedFunction)fn;
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(zasm_script *script, refInfo* ri, JittedFunction fn)
+JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunction fn)
 {
 	JittedScriptHandle *jitted_script = new JittedScriptHandle;
 	jitted_script->call_stack_ret_index = 0;
 	jitted_script->script = script;
 	jitted_script->ri = ri;
 	jitted_script->fn = fn;
-	// TODO ! need to "jump" to the script's position.
 	return jitted_script;
 }
 
@@ -1674,7 +1696,7 @@ int jit_run_script(JittedScriptHandle *jitted_script)
 		*stack, &jitted_script->ri->sp,
 		&jitted_script->ri->pc,
 		jitted_script->call_stack_rets, &jitted_script->call_stack_ret_index,
-		&jitted_script->ri->wait_index);
+		&jitted_script->ri->wait_index, jitted_script->script->pc);
 }
 
 void jit_delete_script_handle(JittedScriptHandle *jitted_script)

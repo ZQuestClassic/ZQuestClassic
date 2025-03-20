@@ -30208,7 +30208,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		auto it = jitted_scripts.find(key);
 		if (it == jitted_scripts.end())
 		{
-			jitted_scripts[key] = jitted_script = jit_create_script_handle(curscript->zasm_script.get(), ri);
+			jitted_scripts[key] = jitted_script = jit_create_script_handle(curscript, ri);
 		}
 		else
 		{
