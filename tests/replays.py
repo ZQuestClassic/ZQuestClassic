@@ -383,8 +383,7 @@ class CLIPlayerInterface:
             output_dir,
             '-script-runtime-debug-folder',
             str(output_dir / 'zscript-debug'),
-            # TODO !!
-            # '-optimize-zasm',
+            '-optimize-zasm',
         ]
 
         if extra_args:

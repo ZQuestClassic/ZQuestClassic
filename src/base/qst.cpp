@@ -11949,7 +11949,7 @@ extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
-static std::vector<const script_data*> read_scripts;
+static std::vector<const script_data*> read_zasm_scripts;
 
 int32_t readffscript(PACKFILE *f, zquestheader *Header)
 {
@@ -11958,7 +11958,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	byte numscripts=0;
 	numscripts=numscripts; //to avoid unused variables warnings
 	int32_t ret;
-	read_scripts.clear();
+	read_zasm_scripts.clear();
 	zasm_scripts.clear();
 	
 	//section version info
@@ -12639,8 +12639,9 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	std::optional<word> zscript_version;
 	if (s_version >= 16)
 	{
-		for (auto script : read_scripts)
+		for (auto script : read_zasm_scripts)
 		{
+			// TODO ! how is the first script ffscript_v == 0? what broke?
 			if (script->meta.ffscript_v == 0 || script->meta.ffscript_v > s_version)
 				break;
 
@@ -12661,7 +12662,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			al_trace("WARNING: Setting zscript version to section version as fallback.\n");
 	}
 	setZScriptVersion(zscript_version.value_or(s_version));
-	read_scripts.clear();
+	read_zasm_scripts.clear();
 
 	return 0;
 }
@@ -12941,8 +12942,11 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	auto& zs = zasm_scripts[0];
 	script->zasm_script = zs;
 
-	if (script->end_pc)
+	if (script->valid())
+	{
 		zs->entry_pcs.insert(script->pc);
+		read_zasm_scripts.push_back(script);
+	}
 
 	return 0;
 }
@@ -13215,9 +13219,11 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 	script->zasm_script = zs;
 	script->pc = 0;
 	script->end_pc = zs->size;
-	zs->entry_pcs.insert(0);
 	if (script->valid())
-		read_scripts.push_back(script);
+	{
+		zs->entry_pcs.insert(0);
+		read_zasm_scripts.push_back(script);
+	}
 
 	return 0;
 }

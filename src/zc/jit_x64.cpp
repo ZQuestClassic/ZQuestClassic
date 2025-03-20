@@ -831,7 +831,7 @@ JittedFunction jit_compile_script(zasm_script* script)
 			cc.cmp(state.startPc, pc);
 			cc.je(goto_labels.at(pc));
 		}
-	}
+	} // else, just fall through to the first instruction.
 
 	// Next, transform each ZASM command to the equivalent assembly.
 	size_t label_index = 0;
