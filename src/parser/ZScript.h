@@ -108,8 +108,6 @@ namespace ZScript
 		Function* getRun() const {return runFunc;}
 		
 		bool isPrototypeRun() const;
-		
-		std::vector<std::shared_ptr<Opcode>> code;
 
 	protected:
 		Script(Program& program);

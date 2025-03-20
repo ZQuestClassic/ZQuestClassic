@@ -26,6 +26,7 @@ stdout:
 
 zasm:
 
+QUIT; void run() Body
 PUSHARGSV 0 0.0008; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 6 0
@@ -91,6 +92,3 @@ LOAD D3 0
 DEALLOCATEMEMR D3
 POPARGS D5 0.0008
 QUIT; void run() Body End
-
-
-QUIT; void run() Body

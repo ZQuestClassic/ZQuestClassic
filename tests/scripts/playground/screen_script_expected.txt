@@ -26,6 +26,7 @@ stdout:
 
 zasm:
 
+QUIT; void run() Body
 PUSHR D0; void run(int, int) Params
 PUSHR D1
 PUSHARGSV 0 0.0002; void run(int, int) Body Start
@@ -60,7 +61,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 49 ==; Test 'if'
+GOTOCMP 50 ==; Test 'if'
 LOAD D2 0; if() #422 Body Start
 PUSHR D2
 POP D0
@@ -129,7 +130,4 @@ PUSHV 128; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, in
 DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 10; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
-
-
-QUIT; void run() Body
+GOTO 11; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End

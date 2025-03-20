@@ -26,6 +26,7 @@ stdout:
 
 zasm:
 
+QUIT; void run() Body
 PUSHR D0; void run(int, int) Params
 PUSHR D1
 PUSHR REFFFC; void run(int, int) Body Start
@@ -130,7 +131,7 @@ PUSHR D2
 LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
-GOTOCMP 137 >=
+GOTOCMP 138 >=
 LOAD D2 0.0007
 PUSHR D2
 POP REFSPRITE
@@ -139,7 +140,7 @@ PUSHR D2
 LOAD D2 0
 POP D3
 COMPARER D3 D2
-GOTOCMP 137 >=
+GOTOCMP 138 >=
 LOAD D2 0.0007
 PUSHR D2
 POP REFSPRITE
@@ -149,7 +150,7 @@ PUSHR D2
 LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
-GOTOCMP 137 <
+GOTOCMP 138 <
 LOAD D2 0.0007
 PUSHR D2
 POP REFSPRITE
@@ -159,16 +160,13 @@ PUSHR D2
 LOAD D2 0
 POP D3
 COMPARER D3 D2
-GOTOCMP 137 <
+GOTOCMP 138 <
 SETV D2 1
-GOTO 138
+GOTO 139
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 142 ==; Test 'if'
+GOTOCMP 143 ==; Test 'if'
 LOAD D2 0.0008; InlineFunc[void screendata::TriggerSecrets(int)] Params AND if() #422 Body Start
 REGION_TRIGGER_SECRETS D2; InlineFunc[void screendata::TriggerSecrets(int)] Body AND if() #422 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 56; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
-
-
-QUIT; void run() Body
+GOTO 57; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End

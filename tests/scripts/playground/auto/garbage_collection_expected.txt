@@ -50,6 +50,14 @@ stdout:
 
 zasm:
 
+SETV GD1 0; void run() Body Start
+SETV GD3 0
+MARK_TYPE_REG GD5 0.0008
+SETV GD5 0
+ALLOCATEGMEMV D2 10 0.0008
+SETR GD4 D2
+SETV GD2 0
+QUIT; void run() Body End
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0 0.0004
 SETR D4 SP2
@@ -75,7 +83,7 @@ LOAD D2 0.0001; if() #423 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 37 ==; Test 'if'
+GOTOCMP 45 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; if() #423 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
@@ -105,32 +113,18 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 59 ==; Test 'while'
+GOTOCMP 67 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
-GOTO 51; while() #2 End
-CALLFUNC 0.0062; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 59; while() #2 End
+CALLFUNC 0.2525; UsrFunc[void End()] Call AND [Opt:NeverRet]
 LOAD D3 0.0003
 DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
-PUSHV 0; Func[void End()] Body Start
-SETR D4 SP2
-ALLOCATEMEMV D2 13 0
-STORE D2 0
-WRITEPODSTRING D2 "[Test] done\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
-
-
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHARGSV 0 0.0054
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.2456; UsrFunc[void Init(int)] Call
+CALLFUNC 0.2537; UsrFunc[void Init(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0053
@@ -147,7 +141,7 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0052
@@ -161,12 +155,12 @@ LOAD D2 0.0052; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0051
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 16 0
 STORE D2 0.0050
@@ -178,18 +172,18 @@ LOAD D2 0.0052; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0050
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0052
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0052
@@ -206,12 +200,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0051
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0050
@@ -223,7 +217,7 @@ LOAD D2 0.0051; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0050
 DEALLOCATEMEMR D3
@@ -239,18 +233,18 @@ LOAD D2 0.0051; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0049
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0051
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0051
@@ -267,12 +261,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0050
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0049
@@ -284,18 +278,18 @@ LOAD D2 0.0050; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0049
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0050
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0050
@@ -312,13 +306,13 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0049
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.2613; ClassFunc[Hat Hat::Hat()] Constructor Call
+CALLFUNC 0.2694; ClassFunc[Hat Hat::Hat()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2
@@ -337,20 +331,20 @@ ZCLASS_READ D2 0.0001; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0048
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 2; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0049
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 PEEK D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0049
@@ -367,7 +361,7 @@ DEALLOCATEMEMR D3
 LOADRNG; InlineFunc[randgen randgen::randgen()] Body
 STORE_OBJECT D2 0.0048
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0047
@@ -379,14 +373,14 @@ LOAD D2 0.0048; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0047
 DEALLOCATEMEMR D3
 REF_REMOVE 0.0048
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0048
@@ -415,12 +409,12 @@ LOAD D2 0.0046; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0045
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 REF_REMOVE 0.0046
 ALLOCATEMEMV D2 18 0
@@ -433,7 +427,7 @@ LOAD D2 0.0047; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0046
 DEALLOCATEMEMR D3
@@ -464,12 +458,12 @@ LOAD D2 0.0045; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0044
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 REF_REMOVE 0.0045
 ALLOCATEMEMV D2 18 0
@@ -482,7 +476,7 @@ LOAD D2 0.0046; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0045
 DEALLOCATEMEMR D3
@@ -501,11 +495,11 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 6 0
 STORE D2 0.0045
@@ -515,7 +509,7 @@ LOAD D2 0.0045; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0045
 DEALLOCATEMEMR D3
@@ -534,7 +528,7 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 GC; InlineFunc[void GC()] Body
@@ -546,7 +540,7 @@ LOAD D2 0.0044; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0044
 DEALLOCATEMEMR D3
@@ -565,13 +559,13 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 10; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_READ D2 0
 STORE D2 0.0043
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 4 0
 STORE D2 0.0042
@@ -582,7 +576,7 @@ PUSHR D2
 LOAD D2 0.0043
 PUSHR D2
 PUSHV 10; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0042
 DEALLOCATEMEMR D3
@@ -594,7 +588,7 @@ LOAD D2 0.0041; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0041
 DEALLOCATEMEMR D3
@@ -614,7 +608,7 @@ STOREV 0 0.0042
 REF_REMOVE 0.0042
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0042
@@ -631,7 +625,7 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 10; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_READ D2 0
@@ -639,7 +633,7 @@ PUSHR D2
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 20; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_READ D2 0
@@ -647,7 +641,7 @@ POP D3
 ADDR D2 D3
 STORE D2 0.0041
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 4 0
 STORE D2 0.0040
@@ -658,7 +652,7 @@ PUSHR D2
 LOAD D2 0.0041
 PUSHR D2
 PUSHV 30; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0040
 DEALLOCATEMEMR D3
@@ -670,7 +664,7 @@ LOAD D2 0.0039; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0039
 DEALLOCATEMEMR D3
@@ -691,7 +685,7 @@ PUSHR D2
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_READ D2 0
@@ -705,7 +699,7 @@ PUSHR D2
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_READ D2 0
@@ -725,14 +719,14 @@ PUSHR D2
 LOAD D2 0.0040
 PUSHR D2
 PUSHV 3; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0039
 DEALLOCATEMEMR D3
 GC; InlineFunc[void GC()] Body
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0040
@@ -755,21 +749,21 @@ PUSHR D2
 PUSHR CLASS_THISKEY; InlineFunc[long RefCount(untyped)] Params Start
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0039
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 PEEK D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0039
@@ -786,12 +780,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0038
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 LOAD D2 0.0038
 SET_OBJECT GD5 D2
@@ -805,24 +799,24 @@ LOAD D2 0.0038; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0037
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0038
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 SETV D2 0
 SET_OBJECT GD5 D2
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0038
@@ -839,16 +833,16 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0037
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 PEEK D4
 LOAD D2 0.0037; UsrFunc[void usePerson1(Person)] Params Start
 PUSHR D2; UsrFunc[void usePerson1(Person)] Params End
-CALLFUNC 0.2624; UsrFunc[void usePerson1(Person)] Call
+CALLFUNC 0.2705; UsrFunc[void usePerson1(Person)] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0036
@@ -860,18 +854,18 @@ LOAD D2 0.0037; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0036
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0037
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0037
@@ -889,16 +883,16 @@ PUSHR D4
 PUSHR CLASS_THISKEY; UsrFunc[void usePerson2(Person)] Params Start
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2; UsrFunc[void usePerson2(Person)] Params End
-CALLFUNC 0.2645; UsrFunc[void usePerson2(Person)] Call
+CALLFUNC 0.2726; UsrFunc[void usePerson2(Person)] Call
 PEEK D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 PEEK D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0036
@@ -916,11 +910,11 @@ PUSHR D4
 PUSHR CLASS_THISKEY; UsrFunc[Person usePerson3(Person)] Params Start
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D2; UsrFunc[Person usePerson3(Person)] Params End
-CALLFUNC 0.2672; UsrFunc[Person usePerson3(Person)] Call
+CALLFUNC 0.2753; UsrFunc[Person usePerson3(Person)] Call
 POP D4
 STORE_OBJECT D2 0.0035
 ALLOCATEMEMV D2 12 0
@@ -933,12 +927,12 @@ LOAD D2 0.0035; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0034
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0033
@@ -950,18 +944,18 @@ LOAD D2 0.0035; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0033
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0035
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0035
@@ -976,11 +970,11 @@ POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0035
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2565; UsrFunc[Person createPerson1()] Call
+CALLFUNC 0.2646; UsrFunc[Person createPerson1()] Call
 POP D4
 STORE_OBJECT D2 0.0034
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0033
@@ -992,18 +986,18 @@ LOAD D2 0.0034; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0033
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0034
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0034
@@ -1018,11 +1012,11 @@ POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0034
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2598; UsrFunc[Person createPerson2()] Call
+CALLFUNC 0.2679; UsrFunc[Person createPerson2()] Call
 POP D4
 STORE_OBJECT D2 0.0033
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0032
@@ -1034,18 +1028,18 @@ LOAD D2 0.0033; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0032
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0033
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0033
@@ -1060,14 +1054,14 @@ POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0033
 DEALLOCATEMEMR D3
 PUSHARGSR D4 0.0002; UsrFunc[Person usePerson3(Person)] Params Start
-CALLFUNC 0.2598; UsrFunc[Person createPerson2()] Call
+CALLFUNC 0.2679; UsrFunc[Person createPerson2()] Call
 POP D4
 PUSHR D2; UsrFunc[Person usePerson3(Person)] Params End
-CALLFUNC 0.2672; UsrFunc[Person usePerson3(Person)] Call
+CALLFUNC 0.2753; UsrFunc[Person usePerson3(Person)] Call
 POP D4
 STORE_OBJECT D2 0.0032
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0031
@@ -1079,18 +1073,18 @@ LOAD D2 0.0032; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0031
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0032
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0032
@@ -1107,7 +1101,7 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0031
@@ -1121,20 +1115,20 @@ LOAD D2 0.0031; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0030
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 PEEK D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 REF_REMOVE 0.0031
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0031
@@ -1151,12 +1145,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0030
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0029
@@ -1168,7 +1162,7 @@ LOAD D2 0.0030; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0029
 DEALLOCATEMEMR D3
@@ -1184,7 +1178,7 @@ LOAD D2 0.0030; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0027
 DEALLOCATEMEMR D3
@@ -1200,20 +1194,20 @@ LOAD D2 0.0030; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0003; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0025
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0030
 REF_REMOVE 0.0028
 REF_REMOVE 0.0026
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0030
@@ -1230,7 +1224,7 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0029
@@ -1242,14 +1236,14 @@ LOAD D2 0.0028; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 1; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0028
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0027
@@ -1261,12 +1255,12 @@ LOAD D2 0.0026; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 2; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0026
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 16 0
 STORE D2 0.0025
@@ -1278,7 +1272,7 @@ LOAD D2 0.0029; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0025
 DEALLOCATEMEMR D3
@@ -1292,7 +1286,7 @@ LOAD D2 0.0027; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0024
 DEALLOCATEMEMR D3
@@ -1306,7 +1300,7 @@ LOAD D2 0.0023; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 1; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0023
 DEALLOCATEMEMR D3
@@ -1320,7 +1314,7 @@ LOAD D2 0.0029; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
@@ -1334,7 +1328,7 @@ LOAD D2 0.0027; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0021
 DEALLOCATEMEMR D3
@@ -1342,7 +1336,7 @@ REF_REMOVE 0.0029
 REF_REMOVE 0.0027
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0029
@@ -1359,12 +1353,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0028
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 LOAD D2 0.0028
 PUSHR D2
@@ -1391,7 +1385,7 @@ LOAD D2 0.0028; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0003; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0027
 DEALLOCATEMEMR D3
@@ -1411,18 +1405,18 @@ LOAD D2 0.0028; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0026
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0028
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 SETV D2 0
 PUSHR D2
@@ -1432,7 +1426,7 @@ POP D2
 WRITEPODARRAYVR 5 D2
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0028
@@ -1449,32 +1443,32 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0027
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0026
 PUSHR D4
 PUSHV 2; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0026
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 PEEK D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0027
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0027
@@ -1491,12 +1485,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0026
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 PUSHR GD4; InlineFunc[bool ArrayPushBack(Person[], Person)] Params Start
 LOAD D2 0.0026
@@ -1514,7 +1508,7 @@ LOAD D2 0.0026; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0025
 DEALLOCATEMEMR D3
@@ -1532,7 +1526,7 @@ LOAD D2 0.0024; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0023
 DEALLOCATEMEMR D3
@@ -1550,7 +1544,7 @@ LOAD D2 0.0024; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
@@ -1558,7 +1552,7 @@ REF_REMOVE 0.0026
 REF_REMOVE 0.0024
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0026
@@ -1575,12 +1569,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0025
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 1 0.0008
 PUSHR D2
@@ -1604,7 +1598,7 @@ READPODARRAYV D2 0; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
@@ -1613,7 +1607,7 @@ DEALLOCATEMEMR D3
 REF_REMOVE 0.0025
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0025
@@ -1634,7 +1628,7 @@ PUSHR D0
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 POP D0
@@ -1642,7 +1636,7 @@ WRITEPODARRAYVR 0 D2
 POP D2
 STORE D2 0.0023
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0022
@@ -1657,7 +1651,7 @@ READPODARRAYV D2 0; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
@@ -1665,7 +1659,7 @@ LOAD D3 0.0023
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0024
@@ -1686,7 +1680,7 @@ PUSHR D0
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 POP D0
@@ -1694,10 +1688,10 @@ WRITEPODARRAYVR 0 D2
 POP D2
 STORE D2 0.0022
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 PEEK D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 LOAD D2 0.0022; InlineFunc[void ResizeArray(Person[], int)] Params Start
 PUSHR D2
@@ -1706,7 +1700,7 @@ POP D2; InlineFunc[void ResizeArray(Person[], int)] Body Start
 RESIZEARRAYR D2 D3; InlineFunc[void ResizeArray(Person[], int)] Body End
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
@@ -1725,14 +1719,14 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0022
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0021
@@ -1744,7 +1738,7 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0020
@@ -1756,7 +1750,7 @@ LOAD D2 0.0021; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0020
 DEALLOCATEMEMR D3
@@ -1764,7 +1758,7 @@ REF_REMOVE 0.0022
 REF_REMOVE 0.0021
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0022
@@ -1781,12 +1775,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0021
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 LOAD D2 0.0021
 PUSHR D2
@@ -1805,7 +1799,7 @@ LOAD D2 0.0021; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0020
 DEALLOCATEMEMR D3
@@ -1818,7 +1812,7 @@ LOAD D2 0.0021; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 1; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0021
 DEALLOCATEMEMR D3
@@ -1831,7 +1825,7 @@ LOAD D2 0.0020; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0020
 DEALLOCATEMEMR D3
@@ -1850,19 +1844,19 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0018
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0017
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 LOAD D2 0.0017
 PUSHR D2
@@ -1888,7 +1882,7 @@ LOAD D2 0.0018; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0016
 DEALLOCATEMEMR D3
@@ -1902,7 +1896,7 @@ LOAD D2 0.0017; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0015
 DEALLOCATEMEMR D3
@@ -1922,7 +1916,7 @@ READPODARRAYV D2 0; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0014
 DEALLOCATEMEMR D3
@@ -1936,7 +1930,7 @@ LOAD D2 0.0018; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 2; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0018
 DEALLOCATEMEMR D3
@@ -1949,7 +1943,7 @@ LOAD D2 0.0017; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0017
 DEALLOCATEMEMR D3
@@ -1976,19 +1970,19 @@ LOAD D2 0.0015; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0014
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0015
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0013
@@ -2000,7 +1994,7 @@ LOAD D2 0.0015; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0013
 DEALLOCATEMEMR D3
@@ -2016,18 +2010,18 @@ LOAD D2 0.0015; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0012
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0015
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0015
@@ -2044,7 +2038,7 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE D2 0.0014
@@ -2058,7 +2052,7 @@ LOAD D2 0.0014; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0013
 DEALLOCATEMEMR D3
@@ -2070,12 +2064,12 @@ LOAD D2 0.0012; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 1; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0012
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 10 0
 STORE D2 0.0011
@@ -2085,7 +2079,7 @@ LOAD D2 0.0011; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0011
 DEALLOCATEMEMR D3
@@ -2104,14 +2098,14 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE D2 0.0013
 LOAD D2 0.0013
 STORE_OBJECT D2 0.0012
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0011
@@ -2123,7 +2117,7 @@ LOAD D2 0.0013; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0011
 DEALLOCATEMEMR D3
@@ -2136,7 +2130,7 @@ LOAD D2 0.0013; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0013
 DEALLOCATEMEMR D3
@@ -2155,14 +2149,14 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE D2 0.0011
 LOAD D2 0.0011
 STORE_OBJECT D2 0.0010
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0009
@@ -2174,7 +2168,7 @@ LOAD D2 0.0011; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0009
 DEALLOCATEMEMR D3
@@ -2182,7 +2176,7 @@ SETV D2 0
 STORE_OBJECT D2 0.0010
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0010
 ALLOCATEMEMV D2 6 0
@@ -2193,7 +2187,7 @@ LOAD D2 0.0011; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0011
 DEALLOCATEMEMR D3
@@ -2212,12 +2206,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0009
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0007
@@ -2229,7 +2223,7 @@ LOAD D2 0.0009; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0007
 DEALLOCATEMEMR D3
@@ -2237,7 +2231,7 @@ SETV D2 0
 STORE_OBJECT D2 0.0009
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0009
 ALLOCATEMEMV D2 6 0
@@ -2248,7 +2242,7 @@ LOAD D2 0.0009; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0009
 DEALLOCATEMEMR D3
@@ -2269,12 +2263,12 @@ STORE D2 0.0007
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0006
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 LOAD D2 0.0006
 PUSHR D2
@@ -2298,14 +2292,14 @@ LOAD D2 0.0006; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
 REF_REMOVE 0.0006
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 LOAD D3 0.0007
 DEALLOCATEMEMR D3
@@ -2324,12 +2318,12 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0006
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 12 0
 STORE D2 0.0005
@@ -2341,7 +2335,7 @@ LOAD D2 0.0006; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
@@ -2350,7 +2344,7 @@ LOAD D2 0.0004; for() #152 LoopTest
 COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2276 ==; for() #152 TestFail?
+GOTOCMP 2345 ==; for() #152 TestFail?
 ALLOCATEMEMV D2 12 0; for() #152 Body Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "RefCount(a)"
@@ -2361,7 +2355,7 @@ LOAD D2 0.0006; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0003
 DEALLOCATEMEMR D3
@@ -2377,37 +2371,37 @@ LOAD D2 0.0006; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 PEEK D4
 PUSHV 2; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0002
 REF_REMOVE 0; for() #152 Body End
 LOAD D2 0.0004; for() #152 LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 2222; for() #152 End
+GOTO 2291; for() #152 End
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0006
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0006
@@ -2426,14 +2420,14 @@ LOAD D2 0.0005; for() #153 LoopTest
 COMPAREV D2 300
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2324 ==; for() #153 TestFail?
+GOTOCMP 2393 ==; for() #153 TestFail?
 LOADRNG; InlineFunc[randgen Game::LoadRNG()] Body AND for() #153 Body Start
 STORE_OBJECT D2 0.0004
 LOAD D2 0.0004; if() #426 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 2319 ==; Test 'if'
+GOTOCMP 2388 ==; Test 'if'
 ALLOCATEMEMV D2 28 0; if() #426 Body Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "failed to allocate randgen\n"
@@ -2447,7 +2441,7 @@ REF_REMOVE 0.0004; for() #153 Body End
 LOAD D2 0.0005; for() #153 LoopIncrement
 ADDV D2 1
 STORE D2 0.0005
-GOTO 2298; for() #153 End
+GOTO 2367; for() #153 End
 GC; InlineFunc[void GC()] Body
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0005
@@ -2479,7 +2473,7 @@ LOAD D2 0.0004; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
@@ -2493,21 +2487,21 @@ LOAD D2 0.0003; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 PEEK D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 SETV D2 0
 STORE_OBJECT D2 0.0003
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 PUSHV 256; InlineFunc[bitmap bitmap::bitmap(int, int)] Params Start
 SETV D1 256; InlineFunc[bitmap bitmap::bitmap(int, int)] Params End
@@ -2524,18 +2518,18 @@ LOAD D2 0.0004; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 REF_REMOVE 0.0004
 REF_REMOVE 0.0003
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0004
@@ -2552,34 +2546,46 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0003
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 PEEK D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 LOAD D2 0.0003; InlineFunc[void GlobalObject(untyped)] Params
 ZCLASS_GLOBALIZE D2; InlineFunc[void GlobalObject(untyped)] Body
 REF_REMOVE 0.0003
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
-CALLFUNC 0.2518; UsrFunc[void checkCountWithGC(int)] Call
+CALLFUNC 0.2599; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 SETR D2 GD3; while() #3 Test
 COMPAREV D2 100
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2454 ==; Test 'while'
+GOTOCMP 2523 ==; Test 'while'
 PUSHR D4; while() #3 Body Start
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4; while() #3 Body End
-GOTO 2445; while() #3 End
+GOTO 2514; while() #3 End
 POPARGS D5 0.0055
 QUIT; void run() Body End
+PUSHV 0; Func[void End()] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 13 0
+STORE D2 0
+WRITEPODSTRING D2 "[Test] done\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 PUSHV 0; Func[void Init(int)] Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 35 0
@@ -2598,7 +2604,7 @@ LOAD D2 0.0001; if() #422 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 2480 ==; Test 'if'
+GOTOCMP 2561 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #422 Body Start
 LOAD D2 0.0001; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -2612,7 +2618,7 @@ LOAD D2 0.0001; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.2492; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.2573; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 POPARGS D5 0.0003
 RETURNFUNC; Func[void check(char32[], int, int)] Body End
@@ -2625,7 +2631,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 2516 ==; Test 'if'
+GOTOCMP 2597 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; if() #427 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
@@ -2651,7 +2657,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 2541 ==; Test 'if'
+GOTOCMP 2622 ==; Test 'if'
 ALLOCATEMEMV D2 6 0; if() #424 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "count"
@@ -2661,7 +2667,7 @@ PUSHR D2
 PUSHR GD1
 LOAD D2 0.0001
 PUSHR D2; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3; if() #424 Body End
@@ -2673,7 +2679,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 2563 ==; Test 'if'
+GOTOCMP 2644 ==; Test 'if'
 ALLOCATEMEMV D2 16 0; if() #425 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "count (post GC)"
@@ -2683,7 +2689,7 @@ PUSHR D2
 PUSHR GD1
 LOAD D2 0.0001
 PUSHR D2; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3; if() #425 Body End
@@ -2694,7 +2700,7 @@ SETR D4 SP2
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0
@@ -2703,7 +2709,7 @@ REF_AUTORELEASE D2
 REF_REMOVE 0
 POP D5; return End
 RETURNFUNC; Func[Person createPerson1()] Body End
-SETV D2 0.2710; Func[Person Person::Person(int)] Body Start
+SETV D2 0.2791; Func[Person Person::Person(int)] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0002,0.0003}
 ZCLASS_MARK_TYPE {0.0002,0.0008,0.0001,0.0008}
@@ -2726,7 +2732,7 @@ SETR D4 SP2; Func[Person createPerson2()] Body Start
 PUSHR CLASS_THISKEY; return Start
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 REF_AUTORELEASE D2
@@ -2737,7 +2743,7 @@ SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
 RETURNFUNC; Func[void yield()] Body End
-SETV D2 0.2704; Func[Hat Hat::Hat()] Body Start
+SETV D2 0.2785; Func[Hat Hat::Hat()] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0}
 SETR D4 SP2
@@ -2762,7 +2768,7 @@ LOAD D2 0.0001; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3
@@ -2776,7 +2782,7 @@ REF_INC 0.0001
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ALLOCATEMEMV D2 17 0
@@ -2789,7 +2795,7 @@ LOAD D2 0.0001; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3
@@ -2803,11 +2809,11 @@ REF_INC 0.0001
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
-CALLFUNC 0.2579; ClassFunc[Person Person::Person(int)] Constructor Call
+CALLFUNC 0.2660; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.2607; UsrFunc[void yield()] Call
+CALLFUNC 0.2688; UsrFunc[void yield()] Call
 POP D4
 ALLOCATEMEMV D2 17 0
 STORE D2 0
@@ -2819,7 +2825,7 @@ LOAD D2 0.0001; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.2482; UsrFunc[void check(char32[], int, int)] Call
+CALLFUNC 0.2563; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3
@@ -2840,13 +2846,3 @@ SETR D2 GD1
 SUBV D2 1
 SETR GD1 D2
 RETURNFUNC; Func[void ~Person::Person()] Body End
-
-
-SETV GD1 0; void run() Body Start
-SETV GD3 0
-MARK_TYPE_REG GD5 0.0008
-SETV GD5 0
-ALLOCATEGMEMV D2 10 0.0008
-SETR GD4 D2
-SETV GD2 0
-QUIT; void run() Body End

@@ -26,6 +26,7 @@ stdout:
 
 zasm:
 
+QUIT; void run() Body
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0 0.0004
 SETR D4 SP2
@@ -51,7 +52,7 @@ LOAD D2 0.0001; if() #423 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 37 ==; Test 'if'
+GOTOCMP 38 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; if() #423 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
@@ -81,26 +82,12 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 59 ==; Test 'while'
+GOTOCMP 60 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
-GOTO 51; while() #2 End
-CALLFUNC 0.0062; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 52; while() #2 End
+CALLFUNC 0.0670; UsrFunc[void End()] Call AND [Opt:NeverRet]
 LOAD D3 0.0003
 DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
-PUSHV 0; Func[void End()] Body Start
-SETR D4 SP2
-ALLOCATEMEMV D2 13 0
-STORE D2 0
-WRITEPODSTRING D2 "[Test] done\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
-
-
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHV 0
 SETR D4 SP2
@@ -108,61 +95,61 @@ STOREV 0 0
 PUSHR D4
 LOAD D2 0; UsrFunc[void Init(int)] Params Start
 PUSHR D2; UsrFunc[void Init(int)] Params End
-CALLFUNC 0.0620; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0682; UsrFunc[void Init(int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 3; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV 1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 1; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV 16; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 7; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV 17; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 5; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV -1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 2; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV -1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 9999; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 2; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV -1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHV 0; InlineFunc[int ComboAdjust(int, int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 16
@@ -172,7 +159,7 @@ POP D2
 COMBO_ADJUST D2 D1 D0; InlineFunc[int ComboAdjust(int, int, int)] Body End
 PUSHR D2
 PUSHV 1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHV 1; InlineFunc[int ComboAdjust(int, int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 32
@@ -182,7 +169,7 @@ POP D2
 COMBO_ADJUST D2 D1 D0; InlineFunc[int ComboAdjust(int, int, int)] Body End
 PUSHR D2
 PUSHV 35; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHV 0; InlineFunc[int ComboAdjust(int, int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV -16
@@ -192,133 +179,133 @@ POP D2
 COMBO_ADJUST D2 D1 D0; InlineFunc[int ComboAdjust(int, int, int)] Body End
 PUSHR D2
 PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void loadRegion(int, int)] Params Start
 PUSHR D2
 PUSHV 3; UsrFunc[void loadRegion(int, int)] Params End
-CALLFUNC 0.0646; UsrFunc[void loadRegion(int, int)] Call
+CALLFUNC 0.0708; UsrFunc[void loadRegion(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 3; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV 1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 1; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV 16; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 7; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV 17; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 175; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 3; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4; InlineFunc[int ComboAt(int, int)] Params Start
 PUSHV 175; UsrFunc[int ComboX(int)] Params
-CALLFUNC 0.0463; UsrFunc[int ComboX(int)] Call
+CALLFUNC 0.0525; UsrFunc[int ComboX(int)] Call
 POP D4
 ADDV D2 16
 PUSHR D2
 PUSHR D4
 PUSHV 175; UsrFunc[int ComboY(int)] Params
-CALLFUNC 0.0506; UsrFunc[int ComboY(int)] Call
+CALLFUNC 0.0568; UsrFunc[int ComboY(int)] Call
 POP D4
 SETR D3 D2; InlineFunc[int ComboAt(int, int)] Params End
 POP D2; InlineFunc[int ComboAt(int, int)] Body Start
 COMBO_AT D2 D3; InlineFunc[int ComboAt(int, int)] Body End
 PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 175; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 1; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4; InlineFunc[int ComboAt(int, int)] Params Start
 PUSHV 175; UsrFunc[int ComboX(int)] Params
-CALLFUNC 0.0463; UsrFunc[int ComboX(int)] Call
+CALLFUNC 0.0525; UsrFunc[int ComboX(int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
 PUSHV 175; UsrFunc[int ComboY(int)] Params
-CALLFUNC 0.0506; UsrFunc[int ComboY(int)] Call
+CALLFUNC 0.0568; UsrFunc[int ComboY(int)] Call
 POP D4
 ADDV D2 16
 SETR D3 D2; InlineFunc[int ComboAt(int, int)] Params End
 POP D2; InlineFunc[int ComboAt(int, int)] Body Start
 COMBO_AT D2 D3; InlineFunc[int ComboAt(int, int)] Body End
 PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 175; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 7; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4; InlineFunc[int ComboAt(int, int)] Params Start
 PUSHV 175; UsrFunc[int ComboX(int)] Params
-CALLFUNC 0.0463; UsrFunc[int ComboX(int)] Call
+CALLFUNC 0.0525; UsrFunc[int ComboX(int)] Call
 POP D4
 ADDV D2 16
 PUSHR D2
 PUSHR D4
 PUSHV 175; UsrFunc[int ComboY(int)] Params
-CALLFUNC 0.0506; UsrFunc[int ComboY(int)] Call
+CALLFUNC 0.0568; UsrFunc[int ComboY(int)] Call
 POP D4
 ADDV D2 16
 SETR D3 D2; InlineFunc[int ComboAt(int, int)] Params End
 POP D2; InlineFunc[int ComboAt(int, int)] Body Start
 COMBO_AT D2 D3; InlineFunc[int ComboAt(int, int)] Body End
 PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 5; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV -1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 2; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV -1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 9999; UsrFunc[int AdjacentCombo(int, int)] Params Start
 PUSHV 2; UsrFunc[int AdjacentCombo(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[int AdjacentCombo(int, int)] Call
+CALLFUNC 0.0337; UsrFunc[int AdjacentCombo(int, int)] Call
 POP D4
 PUSHR D2
 PUSHV -1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHV 0; InlineFunc[int ComboAdjust(int, int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 16
@@ -328,7 +315,7 @@ POP D2
 COMBO_ADJUST D2 D1 D0; InlineFunc[int ComboAdjust(int, int, int)] Body End
 PUSHR D2
 PUSHV 1; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHV 175; InlineFunc[int ComboAdjust(int, int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV -16
@@ -338,7 +325,7 @@ POP D2
 COMBO_ADJUST D2 D1 D0; InlineFunc[int ComboAdjust(int, int, int)] Body End
 PUSHR D2
 PUSHV 174; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHV 175; InlineFunc[int ComboAdjust(int, int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 16
@@ -348,7 +335,7 @@ POP D2
 COMBO_ADJUST D2 D1 D0; InlineFunc[int ComboAdjust(int, int, int)] Body End
 PUSHR D2
 PUSHV 336; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHV 175; InlineFunc[int ComboAdjust(int, int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 32
@@ -358,7 +345,7 @@ POP D2
 COMBO_ADJUST D2 D1 D0; InlineFunc[int ComboAdjust(int, int, int)] Body End
 PUSHR D2
 PUSHV 721; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHV 0; InlineFunc[int ComboAdjust(int, int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV -16
@@ -368,152 +355,152 @@ POP D2
 COMBO_ADJUST D2 D1 D0; InlineFunc[int ComboAdjust(int, int, int)] Body End
 PUSHR D2
 PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0743; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0805; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void reset(int)] Params Start
 PUSHR D2; UsrFunc[void reset(int)] Params End
-CALLFUNC 0.0722; UsrFunc[void reset(int)] Call
+CALLFUNC 0.0784; UsrFunc[void reset(int)] Call
 POP D4
-CALLFUNC 0.0608; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0670; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0002; Func[int AdjacentCombo(int, int)] Body Start
 SETR D4 SP2
 LOAD D2 0.0002; if() #1 Test
 COMPAREV D2 0
-GOTOCMP 294 <
+GOTOCMP 356 <
 LOAD D2 0.0002
 COMPAREV D2 15
-GOTOCMP 294 >
+GOTOCMP 356 >
 LOAD D2 0.0003
 COMPAREV D2 0
-GOTOCMP 294 <
+GOTOCMP 356 <
 LOAD D2 0.0003
 PUSHR D2
 SETR D2 REGION_NUM_COMBOS
 POP D3
 COMPARER D3 D2
-GOTOCMP 294 >=
+GOTOCMP 356 >=
 SETV D2 0
-GOTO 295
+GOTO 357
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 299 ==; Test 'if'
+GOTOCMP 361 ==; Test 'if'
 SETV D2 -1; return Start AND if() #1 Body Start
-GOTO 422; return End AND if() #1 Body End
+GOTO 484; return End AND if() #1 Body End
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[int DirNormal(int)] Params Start
 PUSHR D2; UsrFunc[int DirNormal(int)] Params End
-CALLFUNC 0.0424; UsrFunc[int DirNormal(int)] Call
+CALLFUNC 0.0486; UsrFunc[int DirNormal(int)] Call
 POP D4
 STORE D2 0.0002
 PUSHR D4
 LOAD D2 0.0003; UsrFunc[int ComboX(int)] Params Start
 PUSHR D2; UsrFunc[int ComboX(int)] Params End
-CALLFUNC 0.0463; UsrFunc[int ComboX(int)] Call
+CALLFUNC 0.0525; UsrFunc[int ComboX(int)] Call
 POP D4
 DIVV D2 16
 STORE D2 0.0001
 PUSHR D4
 LOAD D2 0.0003; UsrFunc[int ComboY(int)] Params Start
 PUSHR D2; UsrFunc[int ComboY(int)] Params End
-CALLFUNC 0.0506; UsrFunc[int ComboY(int)] Call
+CALLFUNC 0.0568; UsrFunc[int ComboY(int)] Call
 POP D4
 DIVV D2 16
 STORE D2 0
 LOAD D2 0.0002; if() #2 Test
 COMPAREV D2 0
-GOTOCMP 330 ==
+GOTOCMP 392 ==
 LOAD D2 0.0002
 COMPAREV D2 4
-GOTOCMP 330 ==
+GOTOCMP 392 ==
 LOAD D2 0.0002
 COMPAREV D2 5
-GOTOCMP 330 ==
+GOTOCMP 392 ==
 SETV D2 0
-GOTO 331
+GOTO 393
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 336 ==; Test 'if'
+GOTOCMP 398 ==; Test 'if'
 LOAD D2 0; if() #2 Body Start
 SUBV D2 1
 STORE D2 0; if() #2 Body End
 LOAD D2 0.0002; if() #3 Test
 COMPAREV D2 1
-GOTOCMP 347 ==
+GOTOCMP 409 ==
 LOAD D2 0.0002
 COMPAREV D2 6
-GOTOCMP 347 ==
+GOTOCMP 409 ==
 LOAD D2 0.0002
 COMPAREV D2 7
-GOTOCMP 347 ==
+GOTOCMP 409 ==
 SETV D2 0
-GOTO 348
+GOTO 410
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 353 ==; Test 'if'
+GOTOCMP 415 ==; Test 'if'
 LOAD D2 0; if() #3 Body Start
 ADDV D2 1
 STORE D2 0; if() #3 Body End
 LOAD D2 0.0002; if() #4 Test
 COMPAREV D2 2
-GOTOCMP 364 ==
+GOTOCMP 426 ==
 LOAD D2 0.0002
 COMPAREV D2 4
-GOTOCMP 364 ==
+GOTOCMP 426 ==
 LOAD D2 0.0002
 COMPAREV D2 6
-GOTOCMP 364 ==
+GOTOCMP 426 ==
 SETV D2 0
-GOTO 365
+GOTO 427
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 370 ==; Test 'if'
+GOTOCMP 432 ==; Test 'if'
 LOAD D2 0.0001; if() #4 Body Start
 SUBV D2 1
 STORE D2 0.0001; if() #4 Body End
 LOAD D2 0.0002; if() #5 Test
 COMPAREV D2 3
-GOTOCMP 381 ==
+GOTOCMP 443 ==
 LOAD D2 0.0002
 COMPAREV D2 5
-GOTOCMP 381 ==
+GOTOCMP 443 ==
 LOAD D2 0.0002
 COMPAREV D2 7
-GOTOCMP 381 ==
+GOTOCMP 443 ==
 SETV D2 0
-GOTO 382
+GOTO 444
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 387 ==; Test 'if'
+GOTOCMP 449 ==; Test 'if'
 LOAD D2 0.0001; if() #5 Body Start
 ADDV D2 1
 STORE D2 0.0001; if() #5 Body End
 LOAD D2 0.0001; if() #6 Test
 COMPAREV D2 0
-GOTOCMP 409 <
+GOTOCMP 471 <
 LOAD D2 0
 COMPAREV D2 0
-GOTOCMP 409 <
+GOTOCMP 471 <
 LOAD D2 0.0001
 PUSHR D2
 SETR D2 REGION_SCREEN_WIDTH
 MULTV D2 16
 POP D3
 COMPARER D3 D2
-GOTOCMP 409 >=
+GOTOCMP 471 >=
 LOAD D2 0
 PUSHR D2
 SETR D2 REGION_SCREEN_HEIGHT
 MULTV D2 11
 POP D3
 COMPARER D3 D2
-GOTOCMP 409 >=
+GOTOCMP 471 >=
 SETV D2 0
-GOTO 410
+GOTO 472
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 414 ==; Test 'if'
+GOTOCMP 476 ==; Test 'if'
 SETV D2 -1; return Start AND if() #6 Body Start
-GOTO 422; return End AND if() #6 Body End
+GOTO 484; return End AND if() #6 Body End
 LOAD D2 0.0001; InlineFunc[int ComboAt(int, int)] Params Start AND return Start
 MULTV D2 16
 PUSHR D2
@@ -528,38 +515,38 @@ SETR D4 SP2; Func[int DirNormal(int)] Body Start
 LOAD D2 0; switch() #9 Key
 SETR SWITCHKEY D2; Store key
 COMPAREV SWITCHKEY 8
-GOTOCMP 444 ==; case '80000'
+GOTOCMP 506 ==; case '80000'
 COMPAREV SWITCHKEY 9
-GOTOCMP 446 ==; case '90000'
+GOTOCMP 508 ==; case '90000'
 COMPAREV SWITCHKEY 10
-GOTOCMP 448 ==; case '100000'
+GOTOCMP 510 ==; case '100000'
 COMPAREV SWITCHKEY 11
-GOTOCMP 450 ==; case '110000'
+GOTOCMP 512 ==; case '110000'
 COMPAREV SWITCHKEY 12
-GOTOCMP 452 ==; case '120000'
+GOTOCMP 514 ==; case '120000'
 COMPAREV SWITCHKEY 13
-GOTOCMP 454 ==; case '130000'
+GOTOCMP 516 ==; case '130000'
 COMPAREV SWITCHKEY 14
-GOTOCMP 456 ==; case '140000'
+GOTOCMP 518 ==; case '140000'
 COMPAREV SWITCHKEY 15
-GOTOCMP 458 ==; case '150000'
-GOTO 460; switch() #9 NoMatch
+GOTOCMP 520 ==; case '150000'
+GOTO 522; switch() #9 NoMatch
 SETV D2 0; Case block AND return Start
-GOTO 461; return End
+GOTO 523; return End
 SETV D2 5; Case block AND return Start
-GOTO 461; return End
+GOTO 523; return End
 SETV D2 3; Case block AND return Start
-GOTO 461; return End
+GOTO 523; return End
 SETV D2 7; Case block AND return Start
-GOTO 461; return End
+GOTO 523; return End
 SETV D2 1; Case block AND return Start
-GOTO 461; return End
+GOTO 523; return End
 SETV D2 6; Case block AND return Start
-GOTO 461; return End
+GOTO 523; return End
 SETV D2 2; Case block AND return Start
-GOTO 461; return End
+GOTO 523; return End
 SETV D2 4; Case block AND return Start
-GOTO 461; return End
+GOTO 523; return End
 LOAD D2 0; Case block AND return Start
 POP D5; return End
 RETURNFUNC; Func[int DirNormal(int)] Body End
@@ -567,7 +554,7 @@ PUSHARGSV 0 0.0004; Func[int ComboX(int)] Body Start
 SETR D4 SP2
 SETR D2 REGION_ID; if() #23 Test
 COMPAREV D2 0
-GOTOCMP 501 ==; Test 'if'
+GOTOCMP 563 ==; Test 'if'
 LOAD D2 0.0004; InlineFunc[int Floor(int)] Params Start AND if() #23 Body Start
 DIVV D2 176; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
@@ -600,7 +587,7 @@ MODV D2 16
 MULTV D2 16
 POP D3
 ADDR D2 D3
-GOTO 504; return End AND if() #23 Body End
+GOTO 566; return End AND if() #23 Body End
 LOAD D2 0.0004; return Start AND if() #23 Else Start
 MODV D2 16
 MULTV D2 16
@@ -610,7 +597,7 @@ PUSHARGSV 0 0.0004; Func[int ComboY(int)] Body Start
 SETR D4 SP2
 SETR D2 REGION_ID; if() #24 Test
 COMPAREV D2 0
-GOTOCMP 537 ==; Test 'if'
+GOTOCMP 599 ==; Test 'if'
 LOAD D2 0.0004; InlineFunc[int Floor(int)] Params Start AND if() #24 Body Start
 DIVV D2 176; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
@@ -636,7 +623,7 @@ LOAD D2 0
 ANDV D2 240
 POP D3
 ADDR D2 D3
-GOTO 539; return End AND if() #24 Body End
+GOTO 601; return End AND if() #24 Body End
 LOAD D2 0.0004; return Start AND if() #24 Else Start
 ANDV D2 240
 POPARGS D5 0.0005; return End AND if() #24 Else End
@@ -649,7 +636,7 @@ PUSHV 0
 PUSHV 16
 PUSHV 8
 PUSHV 0; UsrFunc[void SetRegion(int, int, int, int, int)] Params End
-CALLFUNC 0.0553; UsrFunc[void SetRegion(int, int, int, int, int)] Call
+CALLFUNC 0.0615; UsrFunc[void SetRegion(int, int, int, int, int)] Call
 POP D4
 POP D5
 RETURNFUNC; Func[void ClearRegion(int)] Body End
@@ -663,7 +650,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 606 ==; for() #96 TestFail?
+GOTOCMP 668 ==; for() #96 TestFail?
 STOREV 0 0.0001; for() #97 setup AND for() #96 Body Start
 LOAD D2 0.0001; for() #97 LoopTest
 PUSHR D2
@@ -672,7 +659,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 602 ==; for() #97 TestFail?
+GOTOCMP 664 ==; for() #97 TestFail?
 LOAD D2 0.0006; for() #97 Body Start
 PUSHR D2
 LOAD D2 0.0002
@@ -701,11 +688,11 @@ SETR MAPDATAREGIONID D2; for() #97 Body End
 LOAD D2 0.0001; for() #97 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 565; for() #97 End
+GOTO 627; for() #97 End
 LOAD D2 0.0002; for() #96 Body End AND for() #96 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 556; for() #96 End
+GOTO 618; for() #96 End
 POPARGS D5 0.0008
 RETURNFUNC; Func[void SetRegion(int, int, int, int, int)] Body End
 PUSHV 0; Func[void End()] Body Start
@@ -738,7 +725,7 @@ LOAD D2 0.0001; if() #422 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 644 ==; Test 'if'
+GOTOCMP 706 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #422 Body Start
 LOAD D2 0.0001; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -763,7 +750,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 715 ==; for() #150 TestFail?
+GOTOCMP 777 ==; for() #150 TestFail?
 STOREV 0 0.0001; for() #151 setup AND for() #150 Body Start
 LOAD D2 0.0001; for() #151 LoopTest
 PUSHR D2
@@ -772,7 +759,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 711 ==; for() #151 TestFail?
+GOTOCMP 773 ==; for() #151 TestFail?
 LOAD D2 0.0003; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start AND for() #151 Body Start
 PUSHR D2
 LOAD D2 0.0005
@@ -810,11 +797,11 @@ SETR MAPDATAREGIONID D2; for() #151 Body End
 LOAD D2 0.0001; for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 665; for() #151 End
+GOTO 727; for() #151 End
 LOAD D2 0.0002; for() #150 Body End AND for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 656; for() #150 End
+GOTO 718; for() #150 End
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 LOAD D2 0.0005; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -834,7 +821,7 @@ STORE D2 0
 PUSHR D4
 LOAD D2 0; UsrFunc[void ClearRegion(int)] Params Start
 PUSHR D2; UsrFunc[void ClearRegion(int)] Params End
-CALLFUNC 0.0541; UsrFunc[void ClearRegion(int)] Call
+CALLFUNC 0.0603; UsrFunc[void ClearRegion(int)] Call
 POP D4
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 SETV D2 0; InlineFunc[void hero::Warp(int, int)] Params End
@@ -852,7 +839,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 767 ==; Test 'if'
+GOTOCMP 829 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; if() #424 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
@@ -869,6 +856,3 @@ DEALLOCATEMEMR D3
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #424 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
-
-
-QUIT; void run() Body

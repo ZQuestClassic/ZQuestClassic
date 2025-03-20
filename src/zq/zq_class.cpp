@@ -12292,11 +12292,12 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         }
         
         writesize=0;
+		
+		write_quest_zasm(f);
         
         for(int32_t i=0; i<NUMSCRIPTFFC; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12307,7 +12308,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         for(int32_t i=0; i<NUMSCRIPTITEM; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12318,7 +12318,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12330,7 +12329,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &fake);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12342,7 +12340,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12353,7 +12350,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12364,7 +12360,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         for(int32_t i=0; i<NUMSCRIPTHERO; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &playerscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12375,7 +12370,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12386,7 +12380,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12397,7 +12390,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12408,7 +12400,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12419,7 +12410,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12434,7 +12424,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &genericscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12449,7 +12438,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &subscreenscripts[i]);
-            fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
             {
@@ -12966,194 +12954,153 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
     //the irony is that it causes an "unreachable code" warning.
 }
 
-int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_data **script)
+int32_t write_quest_zasm(PACKFILE *f)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    i=i;
-    
-    size_t num_commands = (*script)->zasm_script ? (*script)->zasm_script->size : 0;
+	extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
+	auto& zasm = zasm_scripts[0]->zasm;
+    size_t num_commands = zasm.size();
     
     if(!p_iputl(num_commands,f))
-    {
-        new_return(6);
-    }
-	
-	//Metadata
-	zasm_meta const& tmeta = (*script)->meta;
-	if(!p_iputw(tmeta.zasm_v,f))
-	{
-		new_return(7);
-	}
-	
-	if(!p_iputw(tmeta.meta_v,f))
-	{
-		new_return(8);
-	}
-	
-	if(!p_iputw(tmeta.ffscript_v,f))
-	{
-		new_return(9);
-	}
-	
-	if(!p_putc((int)tmeta.script_type,f))
-	{
-		new_return(10);
-	}
-	
-	for(int32_t q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.run_idens[q],f))
-			new_return(11);
-	}
-	
-	for(int32_t q = 0; q < 8; ++q)
-	{
-		if(!p_putc(tmeta.run_types[q],f))
-		{
-			new_return(12);
-		}
-	}
-	
-	if(!p_putc(tmeta.flags,f))
-	{
-		new_return(13);
-	}
-	
-	if(!p_iputw(tmeta.compiler_v1,f))
-	{
-		new_return(14);
-	}
-	
-	if(!p_iputw(tmeta.compiler_v2,f))
-	{
-		new_return(15);
-	}
-	
-	if(!p_iputw(tmeta.compiler_v3,f))
-	{
-		new_return(16);
-	}
-	
-	if(!p_iputw(tmeta.compiler_v4,f))
-	{
-		new_return(17);
-	}
-	
-	if(!p_putcstr(tmeta.script_name,f))
-		new_return(18);
-	if(!p_putcstr(tmeta.author,f))
-		new_return(19);
-	for(auto q = 0; q < 10; ++q)
-	{
-		if(!p_putcstr(tmeta.attributes[q],f))
-			new_return(27);
-		if(!p_putwstr(tmeta.attributes_help[q],f))
-			new_return(28);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.attribytes[q],f))
-			new_return(29);
-		if(!p_putwstr(tmeta.attribytes_help[q],f))
-			new_return(30);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.attrishorts[q],f))
-			new_return(31);
-		if(!p_putwstr(tmeta.attrishorts_help[q],f))
-			new_return(32);
-	}
-	for(auto q = 0; q < 16; ++q)
-	{
-		if(!p_putcstr(tmeta.usrflags[q],f))
-			new_return(33);
-		if(!p_putwstr(tmeta.usrflags_help[q],f))
-			new_return(34);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.initd[q],f))
-			new_return(35);
-		if(!p_putwstr(tmeta.initd_help[q],f))
-			new_return(36);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putc(tmeta.initd_type[q],f))
-			new_return(37);
-	}
+        new_return(1);
 	
     for(int32_t j=0; j<num_commands; j++)
     {
-        auto& zas = (*script)->zasm_script->zasm[j];
-        if(!p_iputw(zas.command,f))
-        {
-            new_return(20);
-        }
+        auto& zas = zasm[j];
         
         if(zas.command==0xFFFF)
-        {
-            break;
-        }
+            continue;
         else
         {
+			if(!p_iputw(zas.command,f))
+				new_return(2);
+			
             if(!p_iputl(zas.arg1,f))
-            {
-                new_return(21);
-            }
+                new_return(3);
             
             if(!p_iputl(zas.arg2,f))
-            {
-                new_return(22);
-            }
+                new_return(4);
             
             if(!p_iputl(zas.arg3,f))
-            {
-                new_return(23);
-            }
+                new_return(5);
 			
 			uint32_t sz = 0;
 			if(zas.strptr)
 				sz = zas.strptr->size();
 			if(!p_iputl(sz,f))
-			{
-                new_return(23);
-			}
+				new_return(6);
 			if(sz)
 			{
 				auto& str = *zas.strptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
 					if(!p_putc(str[q],f))
-					{
-						new_return(24);
-					}
+						new_return(7);
 				}
 			}
 			sz = 0;
 			if(zas.vecptr)
 				sz = zas.vecptr->size();
 			if(!p_iputl(sz,f))
-			{
-                new_return(25);
-			}
+				new_return(8);
 			if(sz) //vector found
 			{
 				auto& vec = *zas.vecptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
 					if(!p_iputl(vec[q],f))
-					{
-						new_return(26);
-					}
+						new_return(9);
 				}
 			}
         }
     }
-    
-    new_return(0);
+	return 0;
+}
+int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data **script)
+{
+	//Metadata
+	zasm_meta const& tmeta = (*script)->meta;
+	if(!p_iputw(tmeta.zasm_v,f))
+		new_return(1);
+	if(!p_iputw(tmeta.meta_v,f))
+		new_return(2);
+	if(!p_iputw(tmeta.ffscript_v,f))
+		new_return(3);
+	if(!p_putc((int)tmeta.script_type,f))
+		new_return(4);
+	
+	for(int32_t q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.run_idens[q],f))
+			new_return(5);
+	}
+	
+	for(int32_t q = 0; q < 8; ++q)
+		if(!p_putc(tmeta.run_types[q],f))
+			new_return(6);
+	
+	if(!p_putc(tmeta.flags,f))
+		new_return(7);
+	
+	if(!p_iputw(tmeta.compiler_v1,f))
+		new_return(8);
+	
+	if(!p_iputw(tmeta.compiler_v2,f))
+		new_return(9);
+	
+	if(!p_iputw(tmeta.compiler_v3,f))
+		new_return(10);
+	
+	if(!p_iputw(tmeta.compiler_v4,f))
+		new_return(11);
+	
+	if(!p_putcstr(tmeta.script_name,f))
+		new_return(12);
+	if(!p_putcstr(tmeta.author,f))
+		new_return(13);
+	for(auto q = 0; q < 10; ++q)
+	{
+		if(!p_putcstr(tmeta.attributes[q],f))
+			new_return(14);
+		if(!p_putwstr(tmeta.attributes_help[q],f))
+			new_return(15);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.attribytes[q],f))
+			new_return(16);
+		if(!p_putwstr(tmeta.attribytes_help[q],f))
+			new_return(17);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.attrishorts[q],f))
+			new_return(18);
+		if(!p_putwstr(tmeta.attrishorts_help[q],f))
+			new_return(19);
+	}
+	for(auto q = 0; q < 16; ++q)
+	{
+		if(!p_putcstr(tmeta.usrflags[q],f))
+			new_return(20);
+		if(!p_putwstr(tmeta.usrflags_help[q],f))
+			new_return(21);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.initd[q],f))
+			new_return(22);
+		if(!p_putwstr(tmeta.initd_help[q],f))
+			new_return(23);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putc(tmeta.initd_type[q],f))
+			new_return(24);
+	}
+	
+	if(!p_iputl((*script)->pc, f))
+		new_return(25);
+    return 0;
 }
 
 extern SAMPLE customsfxdata[WAV_COUNT];

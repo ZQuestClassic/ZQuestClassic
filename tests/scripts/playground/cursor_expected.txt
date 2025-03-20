@@ -26,6 +26,7 @@ stdout:
 
 zasm:
 
+QUIT; void run() Body
 PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0 0.0002
@@ -56,7 +57,4 @@ PUSHV 128; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, i
 DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 5; while() #2 End AND [Opt:NeverRet] AND void run(int) Body End
-
-
-QUIT; void run() Body
+GOTO 6; while() #2 End AND [Opt:NeverRet] AND void run(int) Body End
