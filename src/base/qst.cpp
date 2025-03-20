@@ -12848,8 +12848,15 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	if(s_version < 27)
 		return read_old_ffscript(f, script_index, s_version, script, zmeta_version);
 
-	char b33[34] = { 0 };
-	b33[33] = 0;
+	char exists;
+	if (!p_getc(&exists, f))
+		return qe_invalid;
+	if (!exists)
+	{
+		script->disable();
+		return 0;
+	}
+
 	//Read meta
 	{
 		zasm_meta temp_meta;

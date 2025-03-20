@@ -13018,9 +13018,16 @@ int32_t write_quest_zasm(PACKFILE *f)
 
 int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data *script)
 {
-	// TODO ! just skip script if no data....
+	if (!script->valid())
+	{
+		if (!p_putc(0, f))
+			new_return(-1);
+		return 0;
+	}
 
-	//Metadata
+	if (!p_putc(1, f))
+		new_return(-1);
+
 	zasm_meta const& tmeta = script->meta;
 	if(!p_iputw(tmeta.zasm_v,f))
 		new_return(1);
