@@ -154,7 +154,7 @@ extern int32_t scrolling_destdmap, cur_dmap;
 extern int32_t alignment_arrow_timer;
 extern int32_t  Flip,Combo,CSet;
 extern int32_t  Flags,Flag,menutype;
-extern int32_t MouseScroll, SavePaths, CycleOn, NoScreenPreview,WarnOnInitChanged,
+extern int32_t MouseScroll, SavePaths, CycleOn, NoScreenPreview,
 	DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags,DragCenterOfSquares;
 extern uint8_t InvalidBG;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
@@ -484,8 +484,6 @@ int32_t onImportEWPNScript();
 int32_t onImportGScript();
 int32_t onCompileScript();
 int32_t onSlotPreview();
-int32_t onSlotAssign();
-int32_t onImportZASM();
 
 
 typedef struct item_struct

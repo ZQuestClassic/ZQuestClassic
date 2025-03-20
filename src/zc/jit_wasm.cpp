@@ -13,6 +13,8 @@
 
 // Useful command for quickly verifying valid WASM is generated:
 /*
+	first, configure build w/ JIT_BACKEND=wasm
+
 	cmake --build build --config Debug -t  zplayer &&
 	rm -rf build/Debug/wasm/playground/playground.qst &&
 	./build/Debug/zplayer -replay $PWD/tests/replays/playground/maths.zplay -headless -jit -jit-save-wasm -jit-precompile -frame 0 -replay-exit-when-done &&
@@ -45,7 +47,7 @@
 struct JittedScriptHandle
 {
 	JittedFunction fn;
-	zasm_script *script;
+	script_data *script;
 	refInfo *ri;
 	uint32_t handle_id;
 	pc_t call_stack_rets[100];
@@ -69,6 +71,7 @@ struct CompilationState
 	uint8_t l_idx_stack;
 	uint8_t l_idx_ret_stack;
 	uint8_t l_idx_ret_stack_index;
+	uint32_t l_idx_start_pc;
 
 	uint8_t g_idx_ri;
 	uint8_t g_idx_global_d;
@@ -77,6 +80,7 @@ struct CompilationState
 	uint8_t g_idx_ret_stack_index;
 	uint8_t g_idx_sp;
 	uint8_t g_idx_target_block_id;
+	uint32_t g_idx_start_pc;
 };
 
 #ifdef __EMSCRIPTEN__
@@ -402,6 +406,33 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	// 
 	// this is gold: https://dl.acm.org/doi/pdf/10.1145/3547621
 	// this may help too :https://dl.acm.org/doi/pdf/10.1145/512976.512979
+
+	// Handle jumping to the correct initial block when calling the entry function.
+	if (script->name == "@single")
+	{
+		wasm.emitGlobalGet(g_idx_target_block_id);
+		wasm.emitI32Eqz();
+		wasm.emitIf();
+
+		for (auto sd : script->script_datas)
+		{
+			if (!cfg.start_pc_to_block_id.contains(sd->pc))
+				continue;
+
+			auto block_id = cfg.start_pc_to_block_id.at(sd->pc);
+
+			wasm.emitI32Const(sd->pc);
+			wasm.emitGlobalGet(state.g_idx_start_pc);
+			wasm.emitI32Eq();
+
+			wasm.emitIf();
+			wasm.emitI32Const(block_id + 1);
+			wasm.emitGlobalSet(g_idx_target_block_id);
+			wasm.emitEnd();
+		}
+
+		wasm.emitEnd();
+	}
 
 	wasm.emitLoop();
 	pc_t num_blocks = cfg.block_starts.size();
@@ -1261,11 +1292,14 @@ JittedFunction jit_compile_script(zasm_script* script)
 	state.f_idx_set_register = comp.builder.importFunction("set_register", 2, 0);
 	state.f_idx_runtime_debug = comp.builder.importFunction("runtime_debug", 2, 0);
 
+	// params
 	state.l_idx_ri = 0;
 	state.l_idx_global_d = 1;
 	state.l_idx_stack = 2;
 	state.l_idx_ret_stack = 3;
 	state.l_idx_ret_stack_index = 4;
+	state.l_idx_start_pc = 5;
+	// params ended
 
 	state.g_idx_ri = comp.builder.addGlobal("ri");
 	state.g_idx_global_d = comp.builder.addGlobal("global_d");
@@ -1274,8 +1308,9 @@ JittedFunction jit_compile_script(zasm_script* script)
 	state.g_idx_ret_stack_index = comp.builder.addGlobal("ret_stack_index");
 	state.g_idx_sp = comp.builder.addGlobal("sp");
 	state.g_idx_target_block_id = comp.builder.addGlobal("target_block_id");
+	state.g_idx_start_pc = comp.builder.addGlobal("start_pc");
 
-	pc_t fn_run_idx = comp.builder.declareFunction({WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, {});
+	pc_t fn_run_idx = comp.builder.declareFunction({WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, {});
 	comp.builder.exportFunction(fn_run_idx, "run");
 
 	auto yielding_fns = zasm_find_yielding_functions(script, structured_zasm);
@@ -1326,6 +1361,8 @@ JittedFunction jit_compile_script(zasm_script* script)
 		wasm.emitGlobalSet(state.g_idx_stack);
 		wasm.emitLocalGet(state.l_idx_ret_stack);
 		wasm.emitGlobalSet(state.g_idx_ret_stack);
+		wasm.emitLocalGet(state.l_idx_start_pc);
+		wasm.emitGlobalSet(state.g_idx_start_pc);
 
 		// g_idx_sp = ri->sp
 		{
@@ -1348,10 +1385,46 @@ JittedFunction jit_compile_script(zasm_script* script)
 			wasm.emitGlobalSet(state.g_idx_ret_stack_index);
 		}
 
-		// The first ZASM function we compiled marks the entry point. This is typically fn_yielder_idx,
-		// but if their is no yielding then it's the first function compiled. Regardless, it always
-		// maps to the original ZASM at pc 0.
-		wasm.emitCall(function_id_to_idx.begin()->second);
+		// Dispatch to the correct starting function.
+		if (script->name == "@single")
+		{
+			// Handle calling the entry function on the first call (when ri->wait_index is 0).
+			wasm.emitGlobalGet(state.g_idx_target_block_id);
+			wasm.emitI32Eqz();
+			wasm.emitIf();
+
+			// First handle synchronous functions - scripts that never call `WaitX`.
+			for (auto sd : script->script_datas)
+			{
+				pc_t fn_id = structured_zasm.start_pc_to_function.at(sd->pc);
+				if (yielding_fns.contains(fn_id))
+					continue;
+
+				pc_t fn_idx = function_id_to_idx.at(fn_id);
+
+				wasm.emitI32Const(sd->pc);
+				wasm.emitGlobalGet(state.g_idx_start_pc);
+				wasm.emitI32Eq();
+
+				wasm.emitIf();
+				wasm.emitCall(fn_idx); // call then return.
+				wasm.emitReturn();
+				wasm.emitEnd();
+			}
+
+			wasm.emitEnd();
+
+			// If this script is not synchronous, call the yielder function (which will again handle jumping to the
+			// correct entry block for the first call).
+			wasm.emitCall(fn_yielder_idx);
+		}
+		else
+		{
+			// The first ZASM function we compiled marks the entry point. This is typically fn_yielder_idx,
+			// but if their is no yielding then it's the first function compiled. Regardless, it always
+			// maps to the original ZASM at pc 0.
+			wasm.emitCall(function_id_to_idx.begin()->second);
+		}
 
 		// ri->sp = g_idx_sp
 		{
@@ -1404,13 +1477,13 @@ JittedFunction jit_compile_script(zasm_script* script)
 	return new int(module_id);
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(zasm_script *script, refInfo* ri, JittedFunction fn)
+JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunction fn)
 {
 	int module_id = *((int*)fn);
 	int handle_id = em_create_wasm_handle(module_id);
 	if (!handle_id)
 	{
-		jit_printf("jit: Error creating wasm handle. script: %s id: %d\n", script->name.c_str(), script->id);
+		jit_printf("jit: Error creating wasm handle. script: %s id: %d\n", script->zasm_script->name.c_str(), script->id);
 		return nullptr;
 	}
 
@@ -1433,12 +1506,13 @@ int jit_run_script(JittedScriptHandle *jitted_script)
 {
 	extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
 
-	uintptr_t* ptr = (uintptr_t*)malloc(sizeof(uintptr_t) * 5);
+	uintptr_t* ptr = (uintptr_t*)malloc(sizeof(uintptr_t) * 6);
 	ptr[0] = (uintptr_t)&*jitted_script->ri;
 	ptr[1] = (uintptr_t)&game->global_d;
 	ptr[2] = (uintptr_t)&*stack;
 	ptr[3] = (uintptr_t)&jitted_script->call_stack_rets;
 	ptr[4] = (uintptr_t)&jitted_script->call_stack_ret_index;
+	ptr[5] = jitted_script->script->pc;
 
 	current_jitted_script = jitted_script;
 	int return_code = em_poll_wasm_handle(jitted_script->handle_id, (uintptr_t)ptr);

@@ -1926,4 +1926,6 @@ void ornextflag(bool flag);
 int32_t get_mi();
 int32_t get_total_mi();
 
+bool pc_overflow(dword pc, bool print_err = true);
+
 #endif

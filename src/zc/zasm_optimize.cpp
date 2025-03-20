@@ -623,7 +623,7 @@ static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, b
 				// D5 is a special "null" register - it is never valid to read
 				// from it, so we are free to remove writes.
 				// ...except for the initial script call, which may have set initd[5].
-				if (!(prev_arg1 == arg1 || (ctx.fn.id != 0 && prev_arg1 == D(5))))
+				if (!(prev_arg1 == arg1 || (!ctx.fn.is_entry_function && prev_arg1 == D(5))))
 					break;
 
 				start--;
@@ -2575,6 +2575,7 @@ OptimizeResults zasm_optimize(zasm_script* script)
 	}
 
 	script->optimized = true;
+
 	return results;
 }
 
@@ -2704,6 +2705,9 @@ void zasm_optimize_run_for_file(std::string path)
 		zasm += lines[i] + "\n";
 
 	auto script = zasm_from_string(zasm);
+	// Configures the first function as the "entry".
+	script.script_datas.emplace_back(new script_data(ScriptType::None, 0));
+	script.script_datas.back()->pc = 0;
 
 	// Just in case there is a minor roundtrip difference, resave the input.
 	{

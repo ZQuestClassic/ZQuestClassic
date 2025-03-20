@@ -1,5 +1,5 @@
 ; comparisons, random stuff (3)
-Function #0
+Function #0 (run_none-0)
     0: SETR            D6               D4          [Block 0 -> 1, 2]
     1: ADDV            D6               730000
     2: LOADI           D2               D6

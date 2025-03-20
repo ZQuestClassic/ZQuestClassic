@@ -1,6 +1,6 @@
 ; The condition at GOTOTRUE cannot be known when branching from line 3,
 ; because the source of D3 is a value from the stack.
-Function #0
+Function #0 (run_none-0)
     0: COMPAREV        D2               1           [Block 0 -> 1, 2]
     1: SETMOREI        D2
     2: COMPAREV        D2               0

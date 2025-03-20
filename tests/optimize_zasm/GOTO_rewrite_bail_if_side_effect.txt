@@ -1,5 +1,5 @@
 ; GOTO rewrite, bail if side effect
-Function #0
+Function #0 (run_none-0)
     0: PUSHR           D4                           [Block 0 -> 1, 2]
     1: COMPAREV        D2               0
     2: GOTOTRUE        4
