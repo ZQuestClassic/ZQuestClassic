@@ -1655,6 +1655,7 @@ JittedScriptHandle *jit_create_script_handle_impl(zasm_script *script, refInfo* 
 	jitted_script->script = script;
 	jitted_script->ri = ri;
 	jitted_script->fn = fn;
+	// TODO ! need to "jump" to the script's position.
 	return jitted_script;
 }
 

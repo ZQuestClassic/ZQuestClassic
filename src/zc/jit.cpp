@@ -179,7 +179,10 @@ static void create_compile_tasks(script_data *scripts[], size_t start, size_t ma
 		auto script = scripts[i];
 		if (script && script->valid() && !compiled_functions.contains(script->zasm_script->id))
 		{
-			pending_scripts.push_back(script->zasm_script.get());
+			if (std::find(pending_scripts.begin(), pending_scripts.end(), script->zasm_script.get()) == pending_scripts.end())
+			{
+				pending_scripts.push_back(script->zasm_script.get());
+			}
 		}
 	}
 }

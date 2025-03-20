@@ -1595,7 +1595,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		}
 	}
 	
-	if(got_initialized)
+	if (got_initialized)
 		ri->pc = curscript->pc;
 	
 	return got_initialized;
@@ -24289,11 +24289,12 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 	{
 		//localRAM[0] is used as an invalid container, so 0 can be the NULL pointer in ZScript
 		for(ptrval = 1; ptrval < NUM_ZSCRIPT_ARRAYS && localRAM[ptrval].Valid(); ptrval++) ;
-		
+
 		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
 			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
 			ptrval = 0;
+			DCHECK(false);
 		}
 		else
 		{
@@ -24319,9 +24320,12 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 		if(ptrval >= game->globalRAM.size())
 		{
 			al_trace("Invalid pointer value of %u passed to global allocate\n", ptrval);
+			ptrval = 0;
 			//this shouldn't happen, unless people are putting ALLOCATEGMEM in their ZASM scripts where they shouldn't be
+			DCHECK(false);
+			return ptrval;
 		}
-		
+
 		ZScriptArray &a = game->globalRAM[ptrval];
 		
 		a.Resize(size);
@@ -34395,7 +34399,7 @@ int32_t run_script_int(bool is_jitted)
 			if ( ri->pc == MAX_PC ) //rolled over from overflow?
 			{
 				Z_scripterrlog("Script PC overflow! Too many ZASM lines?\n");
-				ri->pc = 0;
+				ri->pc = curscript->pc;
 				scommand = 0xFFFF;
 			}
 		}
