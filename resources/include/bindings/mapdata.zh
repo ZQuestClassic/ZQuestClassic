@@ -176,7 +176,7 @@ enum ScreenState
 	ST_LIGHTBEAM          = 15  // If set, the light triggers on the screen have been triggered
 };
 
-// Represents a single map screen.
+// Represents map screen(s).
 //
 // Depending on how the `mapdata` was loaded, it may represent different things.
 //
