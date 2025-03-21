@@ -153,7 +153,10 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 		}
 
 		// Don't include 0xFFFF as part of the last function.
-		function_final_pcs.push_back(script->size - 1); // TODO ! upstream this fix
+		if (script->zasm.back().command == 0xFFFF)
+			function_final_pcs.push_back(script->size - 2);
+		else
+			function_final_pcs.push_back(script->size - 1);
 
 		// Just so std::lower_bound below will work for last function.
 		function_start_pcs.push_back(script->size);
