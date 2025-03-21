@@ -100,8 +100,8 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 
 	// All the entry points are obviously functions (ex: "run");
 	std::set<pc_t> function_start_pcs_set = {0};
-	for (pc_t pc : script->entry_pcs)
-		function_start_pcs_set.insert(pc);
+	for (auto sd : script->script_datas)
+		function_start_pcs_set.insert(sd->pc);
 
 	for (pc_t i = 0; i < script->size; i++)
 	{
@@ -176,8 +176,15 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 		ASSERT(*it == b);
 		pc_t call_pc = std::distance(function_start_pcs.begin(), it);
 
-		functions[call_pc].called_by_functions.insert(callee_pc);
+		functions.at(call_pc).called_by_functions.insert(callee_pc);
 		// functions[callee_pc].calls_functions.insert(call_pc);
+	}
+
+	for (auto sd : script->script_datas)
+	{
+		auto& fn = functions.at(start_pc_to_function.at(sd->pc));
+		fn.name = fmt::format("run_{}", sd->name());
+		fn.is_entry_function = true;
 	}
 
 	return {functions, function_calls, start_pc_to_function, calling_mode};

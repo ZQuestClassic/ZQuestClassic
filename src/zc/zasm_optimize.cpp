@@ -623,7 +623,7 @@ static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, b
 				// D5 is a special "null" register - it is never valid to read
 				// from it, so we are free to remove writes.
 				// ...except for the initial script call, which may have set initd[5].
-				if (!(prev_arg1 == arg1 || (ctx.fn.id != 0 && prev_arg1 == D(5))))
+				if (!(prev_arg1 == arg1 || (!ctx.fn.is_entry_function && prev_arg1 == D(5))))
 					break;
 
 				start--;
@@ -656,10 +656,10 @@ static void optimize_conseq_additive(OptContext& ctx)
 {
 	add_context_cfg(ctx);
 	optimize_conseq_additive_impl(ctx, PUSHR, PUSHARGSR);
-	optimize_conseq_additive_impl(ctx, PUSHV, PUSHARGSV);
-	optimize_conseq_additive_impl(ctx, PUSHVARGR, PUSHVARGSR);
-	optimize_conseq_additive_impl(ctx, PUSHVARGV, PUSHVARGSV);
-	optimize_conseq_additive_impl(ctx, POP, POPARGS, true);
+	// optimize_conseq_additive_impl(ctx, PUSHV, PUSHARGSV);
+	// optimize_conseq_additive_impl(ctx, PUSHVARGR, PUSHVARGSR);
+	// optimize_conseq_additive_impl(ctx, PUSHVARGV, PUSHVARGSV);
+	// optimize_conseq_additive_impl(ctx, POP, POPARGS, true);
 }
 
 // SETR, ADDV, LOADI -> LOAD
@@ -2486,7 +2486,8 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> fun
 	{"reduce_comparisons", optimize_reduce_comparisons},
 	{"propagate_values", optimize_propagate_values},
 	{"unreachable_blocks_2", optimize_unreachable_blocks},
-	{"dead_code", optimize_dead_code},
+	// TODO !
+	// {"dead_code", optimize_dead_code},
 };
 
 static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair<std::string, std::function<void(OptContext&)>> pass)

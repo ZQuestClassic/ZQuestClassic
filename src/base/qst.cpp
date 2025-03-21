@@ -12951,7 +12951,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 
 	if (script->valid())
 	{
-		zs->entry_pcs.insert(script->pc);
+		zs->script_datas.push_back(script);
 		read_scripts.push_back(script);
 	}
 
@@ -13228,7 +13228,7 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 	script->end_pc = zs->size;
 	if (script->valid())
 	{
-		zs->entry_pcs.insert(0);
+		zs->script_datas.push_back(script);
 		read_scripts.push_back(script);
 	}
 

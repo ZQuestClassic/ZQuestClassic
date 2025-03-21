@@ -1819,21 +1819,22 @@ struct script_id {
 };
 
 typedef uint16_t zasm_script_id;
+struct script_data;
 
 // In 3.0+ there is exactly one zasm script shared by all scripts.
 // Prior, each script has its own chunk of zasm.
 struct zasm_script
 {
 	zasm_script() = default;
-	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})), entry_pcs() {}
-	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})), entry_pcs() {}
+	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})), script_datas() {}
+	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})), script_datas() {}
 
 	zasm_script_id id;
 	bool optimized;
 	std::string name;
 	size_t size;
 	std::vector<ffscript> zasm;
-	std::set<size_t> entry_pcs;
+	std::vector<script_data*> script_datas;
 
 	// TODO: remove the necessity of this terminal command being here.
 	bool valid() const

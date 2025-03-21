@@ -18,6 +18,7 @@ struct ZasmFunction
 	pc_t start_pc;
 	pc_t final_pc;
 	bool may_yield;
+	bool is_entry_function;
 	std::set<pc_t> called_by_functions;
 	// Currently nothing needs this.
 	// std::set<pc_t> calls_functions;

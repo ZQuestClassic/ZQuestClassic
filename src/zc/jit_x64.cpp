@@ -771,10 +771,10 @@ JittedFunction jit_compile_script(zasm_script* script)
 	// Also add script entry functions.
 	if (script->name == "single-slot")
 	{
-		for (size_t pc : script->entry_pcs)
+		for (auto sd : script->script_datas)
 		{
-			if (!goto_labels.contains(pc))
-				goto_labels[pc] = cc.newLabel();
+			if (!goto_labels.contains(sd->pc))
+				goto_labels[sd->pc] = cc.newLabel();
 		}
 	}
 
@@ -826,10 +826,10 @@ JittedFunction jit_compile_script(zasm_script* script)
 	// Jump to entry function.
 	if (script->name == "single-slot")
 	{
-		for (size_t pc : script->entry_pcs)
+		for (auto sd : script->script_datas)
 		{
-			cc.cmp(state.startPc, pc);
-			cc.je(goto_labels.at(pc));
+			cc.cmp(state.startPc, sd->pc);
+			cc.je(goto_labels.at(sd->pc));
 		}
 	} // else, just fall through to the first instruction.
 
