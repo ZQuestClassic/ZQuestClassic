@@ -10,7 +10,7 @@ rewrite 23: 3 -> 1 commands
 23: ADDR            D4               D4     
 24: NOP            
 25: NOP            
-Function #0
+Function #0 (run_none-0)
     0: SETR            D4               SP2         [Block 0 -> ]
     1: PUSHARGSR       SP2              1
     2: LOAD            D2               7

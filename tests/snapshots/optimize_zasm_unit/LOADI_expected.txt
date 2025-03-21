@@ -1,4 +1,4 @@
-Function #0
+Function #0 (run_none-0)
     0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
     1: NOP
     2: NOP

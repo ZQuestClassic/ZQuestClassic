@@ -27,7 +27,7 @@ rewrite 0: 4 -> 2 commands
 1: GOTOCMP         5                >      
 2: NOP            
 3: NOP            
-Function #0
+Function #0 (run_none-0)
     0: COMPAREV        D2               1337        [Block 0 -> 1, 2]
     1: GOTOCMP         5                >
     2: NOP                                          [Block 1 -> 2]

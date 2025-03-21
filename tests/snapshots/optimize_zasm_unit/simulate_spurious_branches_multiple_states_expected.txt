@@ -82,7 +82,7 @@ rewrite 18: 7 -> 2 commands
 22: NOP            
 23: NOP            
 24: NOP            
-Function #0
+Function #0 (run_none-0)
     0: NOP                                          [Block 0 -> 1, 3]
     1: NOP
     2: SETR            D0               GD37

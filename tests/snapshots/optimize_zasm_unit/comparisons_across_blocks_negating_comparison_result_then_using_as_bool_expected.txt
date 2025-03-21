@@ -23,7 +23,7 @@ rewrite 1: GOTOCMP         5                !=
 
 0: COMPAREV        D2               0      
 1: GOTOCMP         5                !=     
-Function #0
+Function #0 (run_none-0)
     0: COMPAREV        D2               0           [Block 0 -> 1, 2]
     1: GOTOCMP         5                !=
     2: LOAD            D2               2           [Block 1 -> 2]

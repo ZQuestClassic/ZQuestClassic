@@ -1,5 +1,5 @@
 ; comparisons, if-short-circuiting across blocks (2)
-Function #0
+Function #0 (run_none-0)
     0: COMPARER        D2               D3          [Block 0 -> 1, 2]
     1: SETTRUEI        D2
     2: COMPAREV        D2               0

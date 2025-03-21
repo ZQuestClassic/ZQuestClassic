@@ -154,7 +154,7 @@ rewrite 20: 8 -> 2 commands
 25: NOP            
 26: NOP            
 27: NOP            
-Function #0
+Function #0 (run_none-0)
     0: TRACEV          1                            [Block 0 -> 1, 3]
     1: COMPAREV        D2               0
     2: GOTOCMP         10               ==

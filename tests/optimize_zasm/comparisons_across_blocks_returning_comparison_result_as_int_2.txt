@@ -1,6 +1,6 @@
 ; comparisons across blocks, returning comparison result as int (2)
 ; Source: end of Function #8 in stellar_seas_randomizer.qst/zasm-ffc-44-TheFitnessGramPacerTest.txt
-Function #0
+Function #0 (run_none-0)
     0: TRACEV          1                            [Block 0 -> ]
     1: CALLFUNC        3                            [Call Function #1]
     2: QUIT

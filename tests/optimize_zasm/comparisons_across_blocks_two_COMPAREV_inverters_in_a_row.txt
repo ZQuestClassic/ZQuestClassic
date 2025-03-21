@@ -1,7 +1,7 @@
 ; comparisons across blocks, two COMPAREV inverters in a row
 ; `COMPAREV D2 0` twice in a row is equivalent to just once.
 ; Source: Function #0 L201 playground.qst/zasm-ffc-3-LttP_Bumper.txt
-Function #0
+Function #0 (run_none-0)
     0: COMPAREV        D2               40000       [Block 0 -> 1, 2]
     1: SETCMP          D2               <
     2: COMPAREV        D2               0

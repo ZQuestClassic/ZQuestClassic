@@ -6,7 +6,7 @@
 ; where initd[5] could be set.
 ; Subsequent PUSHs before a function call always leave a singular PUSH just before the call,
 ; since that is how the structured zasm creation detects function calls in old ZASM.
-Function #0
+Function #0 (run_none-0)
     0: TRACEV          1337                         [Block 0 -> ]
     1: PUSHR           D5
     2: PUSHR           D2

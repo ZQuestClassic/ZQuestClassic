@@ -1,5 +1,5 @@
 ; comparisons, if COMPAREV w/ SETCMP CMP_LE
-Function #0
+Function #0 (run_none-0)
     0: COMPAREV        D2               1337        [Block 0 -> 1, 2]
     1: SETCMP          D2               <=
     2: COMPAREV        D2               0

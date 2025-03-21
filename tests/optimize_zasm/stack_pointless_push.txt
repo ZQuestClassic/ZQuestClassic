@@ -2,7 +2,7 @@
 ; Function #2 - function calls necessitate push/pop
 ; Function #4 - stack count must even out to remove push/pop
 ; Function #5 - if value is popped off stack before matching pop, must keep
-Function #0
+Function #0 (run_none-0)
     0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
     1: CALLFUNC        39                           [Call Function #2]
     2: CALLFUNC        54                           [Call Function #4]

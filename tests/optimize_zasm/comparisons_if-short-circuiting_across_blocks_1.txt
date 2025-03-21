@@ -6,7 +6,7 @@
 ; This ZASM does short circuiting logic. Each segment jumps to a common node upon failure, before it then jumps to
 ; the block following the non-true edge of the conditional.
 ; It is rewritten to jump directly to the final block, as long as there are no side effects it would skip.
-Function #0
+Function #0 (run_none-0)
     0: COMPARER        D3               D2          [Block 0 -> 1, 2]
     1: SETCMP          D2               I<
     2: COMPAREV        D2               0

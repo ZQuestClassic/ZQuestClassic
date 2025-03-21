@@ -656,10 +656,10 @@ static void optimize_conseq_additive(OptContext& ctx)
 {
 	add_context_cfg(ctx);
 	optimize_conseq_additive_impl(ctx, PUSHR, PUSHARGSR);
-	// optimize_conseq_additive_impl(ctx, PUSHV, PUSHARGSV);
-	// optimize_conseq_additive_impl(ctx, PUSHVARGR, PUSHVARGSR);
-	// optimize_conseq_additive_impl(ctx, PUSHVARGV, PUSHVARGSV);
-	// optimize_conseq_additive_impl(ctx, POP, POPARGS, true);
+	optimize_conseq_additive_impl(ctx, PUSHV, PUSHARGSV);
+	optimize_conseq_additive_impl(ctx, PUSHVARGR, PUSHVARGSR);
+	optimize_conseq_additive_impl(ctx, PUSHVARGV, PUSHVARGSV);
+	optimize_conseq_additive_impl(ctx, POP, POPARGS, true);
 }
 
 // SETR, ADDV, LOADI -> LOAD
@@ -2705,6 +2705,9 @@ void zasm_optimize_run_for_file(std::string path)
 		zasm += lines[i] + "\n";
 
 	auto script = zasm_from_string(zasm);
+	// Configures the first function as the "entry".
+	script.script_datas.emplace_back(new script_data(ScriptType::None, 0));
+	script.script_datas.back()->pc = 0;
 
 	// Just in case there is a minor roundtrip difference, resave the input.
 	{

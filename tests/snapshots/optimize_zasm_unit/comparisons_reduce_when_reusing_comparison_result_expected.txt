@@ -120,7 +120,7 @@ rewrite 26: GOTOCMP         28               >=
 
 25: COMPAREV        D2               1      
 26: GOTOCMP         28               >=     
-Function #0
+Function #0 (run_none-0)
     0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
     1: CALLFUNC        19                           [Call Function #2]
     2: NOP

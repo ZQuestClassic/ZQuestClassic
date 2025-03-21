@@ -1,5 +1,5 @@
 ; comparisons across blocks, using comparison result as int
-Function #0
+Function #0 (run_none-0)
     0: COMPAREV        D2               0           [Block 0 -> 1, 2]
     1: GOTOFALSE       5
     2: LOADD           D2               20000       [Block 1 -> 2]

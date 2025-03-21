@@ -6,7 +6,7 @@ rewrite 17: 3 -> 2 commands
 17: SETR            D2               LINKY  
 18: ADDV            D2               80000  
 19: NOP            
-Function #0
+Function #0 (run_none-0)
     0: SETR            D4               SP2         [Block 0 -> ]
     1: PUSHARGSR       SP2              2
     2: LOAD            D2               7
