@@ -16,7 +16,6 @@
 #include <base/new_menu.h>
 
 #include "dialog/info_lister.h"
-#include "zscriptversion.h"
 #ifdef __APPLE__
 // malloc.h is deprecated, but malloc also lives in stdlib
 #include <stdlib.h>
@@ -26511,7 +26510,4 @@ extern "C" void get_shareable_url()
 }
 #endif
 
-void setZScriptVersion(int32_t v)
-{
-	ZScriptVersion::setVersion(v); // TODO ! inline?
-}
+void setZScriptVersion(int32_t v){}

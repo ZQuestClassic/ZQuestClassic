@@ -45,7 +45,7 @@
 struct JittedScriptHandle
 {
 	JittedFunction fn;
-	zasm_script *script;
+	script_data *script;
 	refInfo *ri;
 	uint32_t handle_id;
 	pc_t call_stack_rets[100];
@@ -1404,13 +1404,13 @@ JittedFunction jit_compile_script(zasm_script* script)
 	return new int(module_id);
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(zasm_script *script, refInfo* ri, JittedFunction fn)
+JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunction fn)
 {
 	int module_id = *((int*)fn);
 	int handle_id = em_create_wasm_handle(module_id);
 	if (!handle_id)
 	{
-		jit_printf("jit: Error creating wasm handle. script: %s id: %d\n", script->name.c_str(), script->id);
+		jit_printf("jit: Error creating wasm handle. script: %s id: %d\n", script->zasm_script->name.c_str(), script->id);
 		return nullptr;
 	}
 

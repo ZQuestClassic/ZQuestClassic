@@ -44,7 +44,6 @@
 #include "zq/render_minimap.h"
 #include "base/mapscr.h"
 #include "iter.h"
-#include "zscriptversion.h"
 #include <fmt/format.h>
 #include <filesystem>
 
@@ -12252,7 +12251,7 @@ extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 {
-	if (ZScriptVersion::getVersion() <= 26)
+	if (QMisc.zscript_last_compiled_version <= 26)
 		return writeffscript_old(f, Header);
 
     dword section_id       = ID_FFSCRIPT;
