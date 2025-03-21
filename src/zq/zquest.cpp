@@ -16,6 +16,7 @@
 #include <base/new_menu.h>
 
 #include "dialog/info_lister.h"
+#include "zscriptversion.h"
 #ifdef __APPLE__
 // malloc.h is deprecated, but malloc also lives in stdlib
 #include <stdlib.h>
@@ -135,7 +136,6 @@
 #endif
 
 #define MIDI_TRACK_BUFFER_SIZE 50
-void setZScriptVersion(int32_t) { } //bleh...
 extern CConsoleLoggerEx parser_console;
 
 using ZScript::disassembled_script_data;
@@ -26510,3 +26510,8 @@ extern "C" void get_shareable_url()
 	}, filepath, Map.getCurrMap(), Map.getCurrScr());
 }
 #endif
+
+void setZScriptVersion(int32_t v)
+{
+	ZScriptVersion::setVersion(v); // TODO ! inline?
+}

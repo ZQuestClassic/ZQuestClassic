@@ -19,6 +19,11 @@ public:
         CurrentVersion = newVersion;
     }
 
+	static inline int32_t getVersion()
+    {
+        return CurrentVersion;
+    }
+
     static inline bool gc()
     {
         return CurrentVersion >= 25;
