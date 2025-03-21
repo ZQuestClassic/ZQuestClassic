@@ -2486,8 +2486,7 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> fun
 	{"reduce_comparisons", optimize_reduce_comparisons},
 	{"propagate_values", optimize_propagate_values},
 	{"unreachable_blocks_2", optimize_unreachable_blocks},
-	// TODO !
-	// {"dead_code", optimize_dead_code},
+	{"dead_code", optimize_dead_code},
 };
 
 static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair<std::string, std::function<void(OptContext&)>> pass)
