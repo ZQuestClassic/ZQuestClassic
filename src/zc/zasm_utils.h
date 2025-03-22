@@ -82,8 +82,6 @@ std::string zasm_to_string(const zasm_script* script, bool top_functions = false
 
 void zasm_for_every_script(bool parallel, std::function<void(zasm_script*)> zasm_script);
 
-std::string zasm_analyze_duplication();
-
 std::pair<bool, bool> get_command_rw(int command, int arg);
 
 #endif

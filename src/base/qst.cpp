@@ -12641,7 +12641,6 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	{
 		for (auto script : read_scripts)
 		{
-			// TODO ! how is the first script ffscript_v == 0? what broke?
 			if (script->meta.ffscript_v == 0 || script->meta.ffscript_v > s_version)
 				break;
 

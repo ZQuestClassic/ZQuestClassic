@@ -440,9 +440,9 @@ static uint64_t generate_function_hash(const zasm_script* script, const Structur
 
 		if (command == GOTO && structured_zasm.function_calls.contains(i))
 		{
-			const auto& function_call = structured_zasm.functions.at(structured_zasm.start_pc_to_function.at(arg1));
+			const auto& fn = structured_zasm.functions.at(structured_zasm.start_pc_to_function.at(arg1));
 			// TODO: just an estimate.
-			data.push_back(function_call.final_pc - function_call.start_pc + 1);
+			data.push_back(fn.final_pc - fn.start_pc + 1);
 		}
 		else if (command == GOTO || command == GOTOLESS || command == GOTOMORE || command == GOTOTRUE || command == GOTOFALSE)
 		{
@@ -501,56 +501,6 @@ static uint64_t generate_function_hash(const zasm_script* script, const Structur
 	}
 
 	return XXH64(data.data(), data.size(), 0);
-}
-
-struct FunctionSummary {
-	size_t length;
-	size_t count;
-};
-
-static void hash_all_functions(const zasm_script* script, std::map<uint64_t, FunctionSummary>& function_counts, size_t& total_length)
-{
-	auto structured_zasm = zasm_construct_structured(script);
-	for (auto& function : structured_zasm.functions)
-	{
-		auto hash = generate_function_hash(script, structured_zasm, function);
-		if (function_counts.contains(hash))
-		{
-			function_counts.at(hash).count += 1;
-		}
-		else
-		{
-			function_counts[hash] = {function.final_pc - function.start_pc + 1, 1};
-		}
-
-		total_length += function.final_pc - function.start_pc + 1;
-	}
-}
-
-std::string zasm_analyze_duplication()
-{
-	std::map<uint64_t, FunctionSummary> function_counts;
-	size_t total_length = 0;
-
-	zasm_for_every_script(false, [&](auto script){
-		hash_all_functions(script, function_counts, total_length);
-	});
-
-	size_t all_duplicates = 0;
-	for (auto [a, b] : function_counts)
-	{
-		if (b.count > 1)
-		{
-			size_t dupe = (b.count - 1) * b.length;
-			all_duplicates += dupe;
-			printf("count: %zu length: %zu dupe: %zu\n", b.count, b.length, dupe);
-		}
-	}
-
-	printf("all_duplicates: %zu (%d%%)\n", all_duplicates, (int)(all_duplicates * 100.0 / total_length));
-
-	std::stringstream ss;
-	return ss.str();
 }
 
 void zasm_for_every_script(bool parallel, std::function<void(zasm_script*)> fn)

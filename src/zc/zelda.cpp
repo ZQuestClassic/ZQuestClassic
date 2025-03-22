@@ -4023,27 +4023,6 @@ void do_extract_zasm_command(const char* quest_path)
 	exit(0);
 }
 
-void do_analyze_zasm_duplication_command(const char* quest_path)
-{
-	// We need to init some stuff before loading a quest file will work.
-	int fake_errno = 0;
-	allegro_errno = &fake_errno;
-	get_qst_buffers();
-	allocate_crap();
-
-	byte skip_flags[] = {0, 0, 0, 0};
-	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
-	if (ret)
-		exit(ret);
-
-	DEBUG_PRINT_TO_FILE = true;
-	strcpy(qstpath, quest_path);
-
-	printf("%s\n", zasm_analyze_duplication().c_str());
-
-	exit(0);
-}
-
 int main(int argc, char **argv)
 {
 	int test_zc_arg = used_switch(argc, argv, "-test-zc");
@@ -4139,12 +4118,6 @@ int main(int argc, char **argv)
 	if (extract_zasm_arg > 0)
 	{
 		do_extract_zasm_command(argv[extract_zasm_arg+1]);
-	}
-
-	int analyze_zasm_duplication_arg = used_switch(argc, argv, "-analyze-zasm-duplication");
-	if (analyze_zasm_duplication_arg > 0)
-	{
-		do_analyze_zasm_duplication_command(argv[analyze_zasm_duplication_arg+1]);
 	}
 
 	int create_save_arg = used_switch(argc,argv,"-create-save");
