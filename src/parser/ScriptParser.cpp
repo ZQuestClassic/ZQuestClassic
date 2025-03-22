@@ -900,7 +900,8 @@ void ScriptAssembler::assemble()
 	assemble_scripts();
 	gather_labels();
 	link_functions();
-	optimize_output();
+	// TODO ! way too slow right now.
+	// optimize_output();
 	finalize_labels();
 }
 
