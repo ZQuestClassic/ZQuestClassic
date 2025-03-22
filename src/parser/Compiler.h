@@ -152,6 +152,7 @@ namespace ZScript
 	private:
 		vector<shared_ptr<Opcode>>& ginit;
 		
+		vector<Function*> used_functions;
 		vector<shared_ptr<Opcode>> rval;
 		map<Script*,std::pair<int32_t,int32_t>> runlabels;
 		vector<int32_t*> runlbl_ptrs;
@@ -162,7 +163,9 @@ namespace ZScript
 		void assemble_scripts();
 		void gather_labels();
 		void link_functions();
-		void optimize_output();
+		void optimize();
+		void optimize_function(Function* fn);
+		void output_code();
 		void finalize_labels();
 	};
 	

@@ -900,8 +900,8 @@ void ScriptAssembler::assemble()
 	assemble_scripts();
 	gather_labels();
 	link_functions();
-	// TODO ! way too slow right now.
-	// optimize_output();
+	optimize();
+	output_code();
 	finalize_labels();
 }
 
@@ -1101,31 +1101,25 @@ void ScriptAssembler::link_functions()
 		unprocessedLabels.erase(label);
 	}
 
-	for (std::set<int32_t>::iterator it = usedLabels.begin();
-	     it != usedLabels.end(); ++it)
+	for (int32_t label : usedLabels)
 	{
-		int32_t label = *it;
 		Function* function =
 			find<Function*>(functionsByLabel, label).value_or(nullptr);
-		if (!function) continue;
-
-		vector<shared_ptr<Opcode>> functionCode = function->getCode();
-		auto rv_sz = rval.size();
-		for (vector<shared_ptr<Opcode>>::iterator it = functionCode.begin();
-		     it != functionCode.end(); ++it)
-			addOpcode2(rval, (*it)->makeClone());
-		if(rval.size() == rv_sz+1)
-			rval.back()->mergeComment(fmt::format("Func[{}] Body",function->getUnaliasedSignature(true).asString()));
-		else if(rval.size() > rv_sz)
-		{
-			rval[rv_sz]->mergeComment(fmt::format("Func[{}] Body Start",function->getUnaliasedSignature(true).asString()));
-			rval.back()->mergeComment(fmt::format("Func[{}] Body End",function->getUnaliasedSignature(true).asString()));
-		}
+		if (function)
+			used_functions.push_back(function);
 	}
 }
 
-void ScriptAssembler::optimize_output()
+void ScriptAssembler::optimize()
 {
+	for (auto fn : used_functions)
+		optimize_function(fn);
+}
+
+void ScriptAssembler::optimize_function(Function* fn)
+{
+	vector<shared_ptr<Opcode>> rval = fn->takeCode();
+
 	// Run automatic optimizations
 	{
 		{ //macros
@@ -1601,6 +1595,28 @@ void ScriptAssembler::optimize_output()
 				}
 			}
 		END_OPT_PASS()
+	}
+
+	fn->giveCode(rval);
+}
+
+// Insert every used function's code into `rval`.
+void ScriptAssembler::output_code()
+{
+	for (auto fn : used_functions)
+	{
+		vector<shared_ptr<Opcode>> functionCode = fn->getCode();
+		auto rv_sz = rval.size();
+		for (vector<shared_ptr<Opcode>>::iterator it = functionCode.begin();
+				it != functionCode.end(); ++it)
+			addOpcode2(rval, (*it)->makeClone());
+		if(rval.size() == rv_sz+1)
+			rval.back()->mergeComment(fmt::format("Func[{}] Body",fn->getUnaliasedSignature(true).asString()));
+		else if(rval.size() > rv_sz)
+		{
+			rval[rv_sz]->mergeComment(fmt::format("Func[{}] Body Start" ,fn->getUnaliasedSignature(true).asString()));
+			rval.back()->mergeComment(fmt::format("Func[{}] Body End" ,fn->getUnaliasedSignature(true).asString()));
+		}
 	}
 }
 
