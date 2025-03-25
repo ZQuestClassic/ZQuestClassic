@@ -20890,7 +20890,7 @@ bool HeroClass::checksoliddamage()
 			for (int32_t k = initk; k <= 2; k++)
 			{
 				auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, i);
-				auto& cmb = rpos_handle.combo();	
+				auto& cmb = rpos_handle.combo();
 				t = cmb.type;
 				if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
 					t = cNONE;
@@ -20905,6 +20905,7 @@ bool HeroClass::checksoliddamage()
 				}
 				if (dir < left) bx += (k % 2) ? 7 : 8;
 				else by += (k % 2) ? 7 : 8;
+				if (!is_in_world_bounds(bx, by)) break;
 				if (get_qr(qr_LENIENT_SOLID_DAMAGE)) break;
 			}
 		}
