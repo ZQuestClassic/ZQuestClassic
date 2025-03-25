@@ -2372,46 +2372,32 @@ bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, 
 
 	mapscr* s = screen_handles[0].scr;
 	int screen = s->screen;
+	bool is_active_screen = is_in_current_region(s);
 
-	rpos_handle_t rpos_handle;
-	rpos_handle.screen = screen;
-	rpos_handle.layer = 0;
-	for (int j = 0; j <= 6; j++)
-	{
-		mapscr* scr = screen_handles[0].scr;
-		if (!scr->is_valid()) continue;
-
-		rpos_handle.scr = scr;
-		rpos_handle.layer = j;
-		
-		for (int32_t i=0; i<176; i++)
+	for_every_rpos_in_screen(screen_handles, [&](const rpos_handle_t& rpos_handle) {
+		if(triggers && force_ex_trigger(rpos_handle, xflag))
+			didit = true;
+		else switch (rpos_handle.ctype())
 		{
-			rpos_handle.rpos = POS_TO_RPOS(i, screen);
-			rpos_handle.pos = i;
-			if(triggers && force_ex_trigger(rpos_handle, xflag))
-				didit = true;
-			else switch (rpos_handle.ctype())
+			case cLOCKBLOCK: case cLOCKBLOCK2:
+			case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
+			case cCHEST: case cCHEST2:
+			case cLOCKEDCHEST: case cLOCKEDCHEST2:
+			case cBOSSCHEST: case cBOSSCHEST2:
 			{
-				case cLOCKBLOCK: case cLOCKBLOCK2:
-				case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
-				case cCHEST: case cCHEST2:
-				case cLOCKEDCHEST: case cLOCKEDCHEST2:
-				case cBOSSCHEST: case cBOSSCHEST2:
+				auto& cmb = rpos_handle.combo();
+				if(!(cmb.usrflags&cflag16)) return; //custom state instead of normal state
+				if(cmb.attribytes[5] == xflag)
 				{
-					auto& cmb = rpos_handle.combo();
-					if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
-					if(cmb.attribytes[5] == xflag)
-					{
-						rpos_handle.increment_data();
-						didit=true;
-					}
-					break;
+					rpos_handle.increment_data();
+					didit=true;
 				}
+				break;
 			}
 		}
-	}
+	});
 
-	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
+	if (is_active_screen && !get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = s->numFFC();
 		int screen_index_offset = get_region_screen_offset(screen);
@@ -2472,30 +2458,15 @@ bool remove_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, uint d
 
 	mapscr* scr = screen_handles[0].scr;
 	int screen = scr->screen;
+	bool is_active_screen = is_in_current_region(scr);
 
-	rpos_handle_t rpos_handle;
-	rpos_handle.screen = screen;
-	rpos_handle.layer = 0;
-	for (int j = 0; j <= 6; j++)
-	{
-		mapscr* scr_2 = screen_handles[j].scr;
-		if (!scr_2) continue;
+	for_every_rpos_in_screen(screen_handles, [&](const rpos_handle_t& rpos_handle) {
+		if (triggers && force_ex_door_trigger(rpos_handle, dir, ind))
+			didit = true;
+		else; //future door combo types?
+	});
 
-		rpos_handle.scr = scr_2;
-		rpos_handle.screen = screen;
-		rpos_handle.layer = j;
-		
-		for (int32_t i=0; i<176; i++)
-		{
-			rpos_handle.rpos = POS_TO_RPOS(i, screen);
-			rpos_handle.pos = i;
-			if(triggers && force_ex_door_trigger(rpos_handle, dir, ind))
-				didit = true;
-			else; //future door combo types?
-		}
-	}
-
-	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
+	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY) && is_active_screen)
 	{
 		word c = scr->numFFC();
 		int screen_index_offset = get_region_screen_offset(screen);

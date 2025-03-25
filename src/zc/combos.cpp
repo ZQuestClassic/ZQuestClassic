@@ -2372,7 +2372,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 		combo_caches::drawing.refresh(rpos_handle.data());
 	}
 	
-	if(cmb.trigcopycat) //has a copycat set
+	if(cmb.trigcopycat && is_in_current_region(rpos_handle.base_scr())) //has a copycat set
 		trig_copycat(cid, rpos_handle);
 }
 
