@@ -36655,7 +36655,7 @@ string get_filestr(const bool relative, bool is_file) //Used for 'FileSystem' fu
 		return "";
 	}
 
-	return user_path;
+	return resolved_path;
 }
 
 void FFScript::do_checkdir(const bool is_dir)
