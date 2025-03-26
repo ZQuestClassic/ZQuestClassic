@@ -20580,6 +20580,7 @@ void putmsg()
 				}
 				else
 				{
+					if (!msgscr) msgscr = hero_scr;
 					msgstr=MsgStrings[msgstr].nextstring;
 					ssc_tile_hei_buf = -1;
 					if(!msgstr && enqueued_str)
