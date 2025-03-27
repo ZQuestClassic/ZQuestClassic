@@ -66,7 +66,9 @@ def try_run(args, **kwargs):
 
 def get_most_recent_rev(revision: Revision, release_platform: str):
     most_recent_rev = None
-    for rev in archives.get_revisions(release_platform, include_test_builds=True):
+    for rev in archives.get_revisions(
+        release_platform, 'main', include_test_builds=True
+    ):
         if rev.commit_count == -1:
             continue
         if rev.is_local_build:

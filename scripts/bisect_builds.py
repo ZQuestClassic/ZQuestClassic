@@ -37,6 +37,7 @@ parser.add_argument(
     help='Includes all commits and builds locally if prebuilt binaries are not present. Uses a temporary checkout at .tmp/local_build_working_dir',
 )
 parser.add_argument('--platform', default=common.get_release_platform())
+parser.add_argument('--channel', default='main')
 parser.add_argument(
     '-c',
     '--command',
@@ -53,7 +54,11 @@ root_dir = script_dir.parent
 archives_dir = root_dir / '.tmp/archives'
 memory = Memory(root_dir / '.tmp/bisect_builds', verbose=0)
 
-commit_counts = archives.get_commit_counts()
+if args.channel == 'main':
+    branch = 'main'
+elif args.channel == '2.55':
+    branch = 'releases/2.55'
+commit_counts = archives.get_commit_counts(branch)
 
 
 def AskIsGoodBuild():
@@ -206,6 +211,7 @@ def run_bisect(revisions: List[Revision]):
 
 revisions = archives.get_revisions(
     args.platform,
+    args.channel,
     include_test_builds=args.test_builds,
     may_build_locally=args.local_builds,
 )

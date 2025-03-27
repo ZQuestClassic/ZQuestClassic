@@ -65,11 +65,14 @@ class Revision:
         return create_binary_paths(dir, release_platform)
 
 
+# For a given branch, assign a number (commit count) to every commit. Commits are
+# numbered in order from oldest to newest - the older the commit, the smaller
+# the commit count.
 @functools.cache
-def get_commit_counts():
+def get_commit_counts(branch: str):
     commit_counts = {}
     shas = subprocess.check_output(
-        ['git', 'log', '--format=format:%H', '--reverse', '--first-parent'],
+        ['git', 'log', '--format=format:%H', '--reverse', '--first-parent', branch],
         encoding='utf-8',
     ).splitlines()
     for i, sha in enumerate(shas):
@@ -77,28 +80,35 @@ def get_commit_counts():
     return commit_counts
 
 
-def get_release_commit_count(sha: str):
-    commit_counts = get_commit_counts()
+def get_release_commit_count(branch: str, sha: str):
+    commit_counts = get_commit_counts(branch)
     if sha not in commit_counts:
         raise Exception(f'no commit count found: {sha}')
     return commit_counts[sha]
 
 
 @memory.cache
-def get_release_commit_count_of_tag(tag: str):
+def get_release_commit_count_of_tag(branch: str, tag: str):
     sha = git_helpers.rev_parse(tag)
     try:
-        return get_release_commit_count(sha)
+        return get_release_commit_count(branch, sha)
     except:
         pass
 
-    sha = git_helpers.tag_to_sha_on_main(tag)
+    sha = git_helpers.tag_to_sha_on_branch(tag, branch)
     try:
-        return get_release_commit_count(sha)
+        return get_release_commit_count(branch, sha)
     except:
         pass
 
-    raise Exception(f'can not find main commit for tag: {tag}')
+    return None
+
+
+def get_release_commit_count_of_tag_or_raise(branch: str, tag: str):
+    commit_count = get_release_commit_count_of_tag(branch, tag)
+    if commit_count == None:
+        raise Exception(f'can not find {branch} commit for tag: {tag}')
+    return commit_count
 
 
 @memory.cache
@@ -110,15 +120,21 @@ def has_release_package(tag: str, release_platform: str):
         return False
 
 
-def revision_count_supports_platform(revision_count: int, platform_str: str):
+def revision_count_supports_platform(
+    revision_count: int, platform_str: str, branch: str
+):
     if platform_str == 'windows':
         return True
-    if platform_str == 'mac' and revision_count < get_release_commit_count_of_tag(
-        '2.55-alpha-108'
+    if (
+        platform_str == 'mac'
+        and revision_count
+        < get_release_commit_count_of_tag_or_raise(branch, '2.55-alpha-108')
     ):
         return False
-    if platform_str == 'linux' and revision_count < get_release_commit_count_of_tag(
-        '2.55-alpha-112'
+    if (
+        platform_str == 'linux'
+        and revision_count
+        < get_release_commit_count_of_tag_or_raise(branch, '2.55-alpha-112')
     ):
         return False
     return True
@@ -159,8 +175,8 @@ def get_download_urls(release_platform: str):
     return urls_by_commitish
 
 
-def get_local_builds(revisions=[]):
-    commit_counts = get_commit_counts()
+def get_local_builds(branch: str, revisions=[]):
+    commit_counts = get_commit_counts(branch)
     for sha, commit_count in commit_counts.items():
         if not next((r for r in revisions if r.commit_count == commit_count), None):
             r = Revision(sha, commit_count, type='local')
@@ -171,35 +187,67 @@ def get_local_builds(revisions=[]):
 
 
 def get_revisions(
-    release_platform: str, include_test_builds=True, may_build_locally=False
+    release_platform: str,
+    channel: str,
+    include_test_builds=True,
+    may_build_locally=False,
 ):
     revisions: List[Revision] = []
 
-    # TODO maybe use: git tag --merged=main 'nightly*' '2.55-alpha-???' --sort=committerdate
-    tags = subprocess.check_output(
-        ['git', '-P', 'tag', '--sort=committerdate'], encoding='utf-8'
-    ).splitlines()
+    if channel == 'main':
+        branch = 'main'
+        tags = subprocess.check_output(
+            [
+                'git',
+                '-P',
+                'tag',
+                '--merged=main',
+                '--sort=committerdate',
+                'nightly*',
+                '2.55-alpha-???',
+                '3.*',
+            ],
+            encoding='utf-8',
+        ).splitlines()
+    elif channel == '2.55':
+        branch = 'releases/2.55'
+        tags = subprocess.check_output(
+            [
+                'git',
+                '-P',
+                'tag',
+                '--merged=releases/2.55',
+                '--sort=committerdate',
+                'nightly*',
+                '2.55-alpha-???',
+                '2.55.*',
+            ],
+            encoding='utf-8',
+        ).splitlines()
+    else:
+        raise Exception(f'unknown channel: {channel}')
+
+    ignore_commit_counts = []
 
     for tag in tags:
-        if not any(tag.startswith(pre) for pre in ['2.55', '3', 'nightly']):
-            continue
+        commit_count = get_release_commit_count_of_tag(branch, tag)
 
-        try:
-            commit_count = get_release_commit_count_of_tag(tag)
-        except:
-            commit_count = -1
-
-        if commit_count != -1 and not revision_count_supports_platform(
-            commit_count, release_platform
+        if commit_count != None and not revision_count_supports_platform(
+            commit_count, release_platform, branch
         ):
+            ignore_commit_counts.append(commit_count)
             continue
 
         # Every release after this one will have binaries, but before only some do.
-        if commit_count != -1 and commit_count < get_release_commit_count_of_tag(
-            '2.55-alpha-107'
+        if commit_count != None and commit_count < get_release_commit_count_of_tag(
+            branch, '2.55-alpha-107'
         ):
             if not has_release_package(tag, release_platform):
+                ignore_commit_counts.append(commit_count)
                 continue
+
+        if commit_count == None:
+            commit_count = -1
 
         revisions.append(Revision(tag, commit_count, type='release'))
 
@@ -209,11 +257,14 @@ def get_revisions(
             if any(r for r in revisions if r.tag == commitish):
                 continue
 
-            commit_count = get_release_commit_count_of_tag(commitish)
+            commit_count = get_release_commit_count_of_tag(branch, commitish)
+            if commit_count == None or commit_count in ignore_commit_counts:
+                continue
+
             revisions.append(Revision(commitish, commit_count, type='test'))
 
     if may_build_locally:
-        revisions = get_local_builds(revisions)
+        revisions = get_local_builds(branch, revisions)
         revisions = [r for r in revisions if not _get_historical().local_build_error(r)]
 
     revisions = [r for r in revisions if r.commit_count != -1]
@@ -232,7 +283,7 @@ def create_binary_paths(dir: Path, release_platform: str):
         binaries['zq'] = common.find_path(
             zc_app_path / 'Contents/Resources', ['zeditor', 'zquest']
         )
-        binaries['zl'] = zc_app_path / 'Contents/MacOS/zlauncher'
+        binaries['zl'] = zc_app_path / 'Contents/Resources/zlauncher'
         binaries['zs'] = common.find_path(
             zc_app_path / 'Contents/Resources', ['zscript']
         )
@@ -304,10 +355,7 @@ def _download(revision: Revision, release_platform: str):
         return dest
 
     tag = revision.tag
-    if '.z3' in revision.tag:
-        prefix = f'https://github.com/connorjclark/ZeldaClassic/releases/download/{tag}/{tag}-'
-    else:
-        prefix = f'{bucket_url}/{tag}/'
+    prefix = f'{bucket_url}/{tag}/'
 
     if release_platform == 'windows':
         urls = [
@@ -335,14 +383,14 @@ def _download(revision: Revision, release_platform: str):
         found_url = url
         break
 
-    # Fall back to using the GitHub API.
     if not found_url:
+        print(f'Not found on {bucket_url}, falling back to using the GitHub API')
         url = get_gh_release_package_url(revision.tag, release_platform)
+        r = requests.get(url)
 
     dest.mkdir(parents=True, exist_ok=True)
     print(f'downloading {url}', file=os.sys.stderr)
 
-    r = requests.get(url)
     if release_platform == 'mac':
         (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
         subprocess.check_call(
@@ -395,6 +443,7 @@ class CLI:
 
         base = argparse.ArgumentParser(add_help=False)
         base.add_argument('--platform', default=common.get_release_platform())
+        base.add_argument('--channel', default='main')
 
         list_cmd = subparsers.add_parser('list', parents=[base])
         list_cmd.add_argument(
@@ -432,7 +481,9 @@ class CLI:
         print(download(args.tag_or_sha, args.platform))
 
     def list(self, args):
-        revisions = get_revisions(args.platform, include_test_builds=args.test_builds)
+        revisions = get_revisions(
+            args.platform, args.channel, include_test_builds=args.test_builds
+        )
         for revision in revisions:
             if revision.commit_count == -1:
                 print(f'@? {revision.tag}')
@@ -440,14 +491,8 @@ class CLI:
                 print(f'@{revision.commit_count} {revision.tag}')
 
     def run(self, args):
-        revisions = get_revisions(
-            args.platform, include_test_builds=True, may_build_locally=True
-        )
-        revision = next(r for r in revisions if r.tag == args.tag_or_sha)
-        binaries = revision.binaries(args.platform)
-        if not binaries:
-            raise Exception('failed to find revision')
-
+        binary_dir = download(args.tag_or_sha, args.platform)
+        binaries = create_binary_paths(binary_dir, args.platform)
         p = common.run_zc_command(binaries, ' '.join(args.command_args))
         exit(p.wait())
 

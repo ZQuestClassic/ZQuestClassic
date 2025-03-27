@@ -29,8 +29,8 @@ def is_ancestor(maybe_ancestor_sha: str, sha: str):
 
 
 @memory.cache
-def tag_to_sha_on_main(tag: str):
-    args = f'git rev-list {tag}..main --ancestry-path --merges --reverse'.split(' ')
+def tag_to_sha_on_branch(tag: str, branch: str):
+    args = f'git rev-list {tag}..{branch} --ancestry-path --merges --reverse'.split(' ')
     out = subprocess.check_output(args, encoding='utf-8')
     lines = out.splitlines()
     if not lines:
