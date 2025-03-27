@@ -24700,7 +24700,10 @@ int32_t main(int32_t argc,char **argv)
 		else
 		{
 			if (onNew() == D_CLOSE)
+			{
+				Z_message("User canceled creating new quest, closing.\n");
 				exit(0);
+			}
 
 			//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
 			filepath[0]=temppath[0]=0;

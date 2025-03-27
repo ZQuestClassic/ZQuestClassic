@@ -37,6 +37,10 @@ public:
 		runner.run(*static_cast<T*>(this));
 		while(rerun_dlg)
 		{
+			do
+			{
+				rest(1);
+			}
 			while(gui_mouse_b()); //wait for mouseup
 			rerun_dlg = false;
 			runner.clear();
