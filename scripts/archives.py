@@ -50,19 +50,19 @@ class Revision:
     def dir(self):
         return archives_dir / self.type / self.tag
 
-    def binaries(self, channel: str):
+    def binaries(self, release_platform: str):
         if self.is_local_build:
             try:
-                dir = _get_historical().build_locally(self, channel)
+                dir = _get_historical().build_locally(self, release_platform)
             except KeyboardInterrupt:
                 exit(1)
             except Exception as e:
                 print(e)
                 return None
         else:
-            dir = _download(self, channel)
+            dir = _download(self, release_platform)
 
-        return create_binary_paths(dir, channel)
+        return create_binary_paths(dir, release_platform)
 
 
 @functools.cache
@@ -102,9 +102,9 @@ def get_release_commit_count_of_tag(tag: str):
 
 
 @memory.cache
-def has_release_package(tag: str, channel: str):
+def has_release_package(tag: str, release_platform: str):
     try:
-        url = get_gh_release_package_url(tag, channel)
+        url = get_gh_release_package_url(tag, release_platform)
         return bool(url)
     except:
         return False
@@ -125,7 +125,7 @@ def revision_count_supports_platform(revision_count: int, platform_str: str):
 
 
 @functools.cache
-def get_download_urls(channel: str):
+def get_download_urls(release_platform: str):
     keys = s3_helpers.list_bucket(bucket_url)
 
     keys_by_commitish = {}
@@ -138,7 +138,7 @@ def get_download_urls(channel: str):
     urls_by_commitish = {}
     for commitish, keys in keys_by_commitish.items():
         key = None
-        if channel == 'windows':
+        if release_platform == 'windows':
             if len(keys) == 1:
                 key = keys[0]
             else:
@@ -149,9 +149,9 @@ def get_download_urls(channel: str):
                     key = next((k for k in keys if 'x64' in k), None) or next(
                         (k for k in keys if 'x86' in k), None
                     )
-        elif channel == 'mac':
+        elif release_platform == 'mac':
             key = next((k for k in keys if k.endswith('.dmg')), None)
-        elif channel == 'linux':
+        elif release_platform == 'linux':
             key = next((k for k in keys if k.startswith('linux')), None)
         if key:
             urls_by_commitish[commitish] = f'{bucket_url}/{key}'
@@ -170,7 +170,9 @@ def get_local_builds(revisions=[]):
     return revisions
 
 
-def get_revisions(channel: str, include_test_builds=True, may_build_locally=False):
+def get_revisions(
+    release_platform: str, include_test_builds=True, may_build_locally=False
+):
     revisions: List[Revision] = []
 
     # TODO maybe use: git tag --merged=main 'nightly*' '2.55-alpha-???' --sort=committerdate
@@ -188,7 +190,7 @@ def get_revisions(channel: str, include_test_builds=True, may_build_locally=Fals
             commit_count = -1
 
         if commit_count != -1 and not revision_count_supports_platform(
-            commit_count, channel
+            commit_count, release_platform
         ):
             continue
 
@@ -196,13 +198,13 @@ def get_revisions(channel: str, include_test_builds=True, may_build_locally=Fals
         if commit_count != -1 and commit_count < get_release_commit_count_of_tag(
             '2.55-alpha-107'
         ):
-            if not has_release_package(tag, channel):
+            if not has_release_package(tag, release_platform):
                 continue
 
         revisions.append(Revision(tag, commit_count, type='release'))
 
     if include_test_builds:
-        urls_by_commitish = get_download_urls(channel)
+        urls_by_commitish = get_download_urls(release_platform)
         for commitish in urls_by_commitish.keys():
             if any(r for r in revisions if r.tag == commitish):
                 continue
@@ -219,10 +221,10 @@ def get_revisions(channel: str, include_test_builds=True, may_build_locally=Fals
     return revisions
 
 
-def create_binary_paths(dir: Path, channel: str):
+def create_binary_paths(dir: Path, release_platform: str):
     binaries = {'dir': dir}
 
-    if channel == 'mac':
+    if release_platform == 'mac':
         zc_app_path = next(dir.glob('*.app'))
         binaries['zc'] = common.find_path(
             zc_app_path / 'Contents/Resources', ['zplayer', 'zelda']
@@ -234,12 +236,12 @@ def create_binary_paths(dir: Path, channel: str):
         binaries['zs'] = common.find_path(
             zc_app_path / 'Contents/Resources', ['zscript']
         )
-    elif channel == 'windows':
+    elif release_platform == 'windows':
         binaries['zc'] = common.find_path(dir, ['zplayer.exe', 'zelda.exe'])
         binaries['zq'] = common.find_path(dir, ['zeditor.exe', 'zquest.exe'])
         binaries['zl'] = dir / 'zlauncher.exe'
         binaries['zs'] = common.find_path(dir, ['zscript.exe'])
-    elif channel == 'linux':
+    elif release_platform == 'linux':
         binaries['zc'] = common.find_path(dir, ['bin/zplayer', 'zplayer', 'zelda'])
         binaries['zq'] = common.find_path(dir, ['bin/zeditor', 'zeditor', 'zquest'])
         binaries['zl'] = common.find_path(dir, ['bin/zlauncher', 'zlauncher'])
@@ -258,15 +260,15 @@ def get_repo():
 
 
 # TODO: remove this when uploading releases to s3 bucket is automated.
-def get_gh_release_package_url(tag: str, channel: str):
+def get_gh_release_package_url(tag: str, release_platform: str):
     repo = get_repo()
     release = repo.get_release(tag)
     assets = list(release.get_assets())
 
     asset = None
-    if channel == 'mac':
+    if release_platform == 'mac':
         asset = next((asset for asset in assets if asset.name.endswith('.dmg')), None)
-    elif channel == 'windows':
+    elif release_platform == 'windows':
         if len(assets) == 1:
             asset = assets[0]
         else:
@@ -274,7 +276,7 @@ def get_gh_release_package_url(tag: str, channel: str):
             asset = next(
                 (asset for asset in assets if 'x64' in asset.name), None
             ) or next((asset for asset in assets if 'x86' in asset.name), None)
-    elif channel == 'linux':
+    elif release_platform == 'linux':
         asset = next(
             asset
             for asset in assets
@@ -287,16 +289,16 @@ def get_gh_release_package_url(tag: str, channel: str):
     return asset.browser_download_url
 
 
-def download(tag_or_sha: Revision, channel: str):
+def download(tag_or_sha: Revision, release_platform: str):
     if len(tag_or_sha) == 40:
         type = 'test'
     else:
         type = 'release'
     revision = Revision(tag_or_sha, -1, type)
-    return _download(revision, channel)
+    return _download(revision, release_platform)
 
 
-def _download(revision: Revision, channel: str):
+def _download(revision: Revision, release_platform: str):
     dest = revision.dir()
     if dest.exists() and list(dest.glob('*')):
         return dest
@@ -307,21 +309,21 @@ def _download(revision: Revision, channel: str):
     else:
         prefix = f'{bucket_url}/{tag}/'
 
-    if channel == 'windows':
+    if release_platform == 'windows':
         urls = [
             f'{prefix}windows-x64.zip',
             f'{prefix}windows-x86.zip',
         ]
-    elif channel == 'mac':
+    elif release_platform == 'mac':
         urls = [
             f'{prefix}mac.dmg',
         ]
-    elif channel == 'linux':
+    elif release_platform == 'linux':
         urls = [
             f'{prefix}linux.tar.gz',
         ]
     else:
-        raise Exception(f'unexpected channel: {channel}')
+        raise Exception(f'unexpected release_platform: {release_platform}')
 
     found_url = None
     for url in urls:
@@ -335,13 +337,13 @@ def _download(revision: Revision, channel: str):
 
     # Fall back to using the GitHub API.
     if not found_url:
-        url = get_gh_release_package_url(revision.tag, channel)
+        url = get_gh_release_package_url(revision.tag, release_platform)
 
     dest.mkdir(parents=True, exist_ok=True)
     print(f'downloading {url}', file=os.sys.stderr)
 
     r = requests.get(url)
-    if channel == 'mac':
+    if release_platform == 'mac':
         (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
         subprocess.check_call(
             [
@@ -392,7 +394,7 @@ class CLI:
         subparsers = parser.add_subparsers(dest='command')
 
         base = argparse.ArgumentParser(add_help=False)
-        base.add_argument('--channel', default=common.get_channel())
+        base.add_argument('--platform', default=common.get_release_platform())
 
         list_cmd = subparsers.add_parser('list', parents=[base])
         list_cmd.add_argument(
@@ -427,10 +429,10 @@ class CLI:
         getattr(self, args.command)(args)
 
     def download(self, args):
-        print(download(args.tag_or_sha, args.channel))
+        print(download(args.tag_or_sha, args.platform))
 
     def list(self, args):
-        revisions = get_revisions(args.channel, include_test_builds=args.test_builds)
+        revisions = get_revisions(args.platform, include_test_builds=args.test_builds)
         for revision in revisions:
             if revision.commit_count == -1:
                 print(f'@? {revision.tag}')
@@ -439,10 +441,10 @@ class CLI:
 
     def run(self, args):
         revisions = get_revisions(
-            args.channel, include_test_builds=True, may_build_locally=True
+            args.platform, include_test_builds=True, may_build_locally=True
         )
         revision = next(r for r in revisions if r.tag == args.tag_or_sha)
-        binaries = revision.binaries(args.channel)
+        binaries = revision.binaries(args.platform)
         if not binaries:
             raise Exception('failed to find revision')
 
@@ -450,7 +452,7 @@ class CLI:
         exit(p.wait())
 
     def backfill_local_builds(self, args):
-        _get_historical().backfill(args.channel)
+        _get_historical().backfill(args.platform)
 
 
 if __name__ == '__main__':

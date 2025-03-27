@@ -16,6 +16,7 @@ from time import sleep
 from timeit import default_timer as timer
 from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Tuple, Union
 
+from common import get_release_platform
 from lib.replay_helpers import parse_result_txt_file, read_replay_meta
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -26,19 +27,6 @@ replays_dir = script_dir / 'replays'
 is_ci = 'CI' in os.environ
 
 
-# TODO: this is a duplicated function
-def get_channel():
-    system = platform.system()
-    if system == 'Darwin':
-        return 'mac'
-    elif system == 'Windows':
-        return 'windows'
-    elif system == 'Linux':
-        return 'linux'
-    else:
-        raise Exception(f'unexpected system: {system}')
-
-
 ASSERT_FAILED_EXIT_CODE = 120
 
 estimate_divisor = 1
@@ -46,9 +34,9 @@ estimate_divisor = 1
 
 def configure_estimate_multiplier(build_folder: Path, build_type: str):
     global estimate_divisor
-    channel = get_channel()
+    release_platform = get_release_platform()
     is_ci = 'CI' in os.environ
-    is_mac_ci = is_ci and channel == 'mac'
+    is_mac_ci = is_ci and release_platform == 'mac'
     is_web = 'build_emscripten' in str(build_folder)
     is_web_ci = is_web and is_ci
     is_coverage = build_folder.name == 'Coverage' or build_type == 'Coverage'
@@ -664,14 +652,14 @@ def _run_replay_test(
             exit_code = player_interface.get_exit_code()
             result.exit_code = exit_code
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
-                result.exceptions.append(
-                    f'failed w/ exit code {exit_code}'
-                )
+                result.exceptions.append(f'failed w/ exit code {exit_code}')
 
                 stderr_path = output_dir / 'stderr.txt'
                 if stderr_path.exists():
                     lines = stderr_path.read_text().splitlines()
-                    assert_line = next((l for l in lines if l.startswith('CHECK failed at')), None)
+                    assert_line = next(
+                        (l for l in lines if l.startswith('CHECK failed at')), None
+                    )
                     if assert_line:
                         result.exceptions.append(assert_line)
 

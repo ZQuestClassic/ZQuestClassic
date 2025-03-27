@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List
 
 
-def get_channel():
+def get_release_platform() -> ['mac', 'windows', 'linux']:
     system = platform.system()
     if system == 'Darwin':
         return 'mac'

@@ -11,7 +11,6 @@
 
 import argparse
 import os
-import platform
 
 from pathlib import Path
 from typing import List
@@ -37,7 +36,7 @@ parser.add_argument(
     default=False,
     help='Includes all commits and builds locally if prebuilt binaries are not present. Uses a temporary checkout at .tmp/local_build_working_dir',
 )
-parser.add_argument('--channel', default=common.get_channel())
+parser.add_argument('--platform', default=common.get_release_platform())
 parser.add_argument(
     '-c',
     '--command',
@@ -54,8 +53,6 @@ root_dir = script_dir.parent
 archives_dir = root_dir / '.tmp/archives'
 memory = Memory(root_dir / '.tmp/bisect_builds', verbose=0)
 
-system = platform.system()
-channel = args.channel
 commit_counts = archives.get_commit_counts()
 
 
@@ -133,7 +130,7 @@ def run_bisect(revisions: List[Revision]):
         )
 
         print(f'checking {rev}')
-        binaries = rev.binaries(args.channel)
+        binaries = rev.binaries(args.platform)
 
         down_pivot = int((pivot - lower) / 2) + lower
         up_pivot = int((upper - pivot) / 2) + pivot
@@ -208,7 +205,7 @@ def run_bisect(revisions: List[Revision]):
 
 
 revisions = archives.get_revisions(
-    args.channel,
+    args.platform,
     include_test_builds=args.test_builds,
     may_build_locally=args.local_builds,
 )

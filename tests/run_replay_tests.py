@@ -61,7 +61,7 @@ from typing import List
 
 import cutie
 
-from common import get_recent_release_tag
+from common import get_recent_release_tag, get_release_platform
 from compare_replays import (
     collect_many_test_results_from_ci,
     collect_many_test_results_from_dir,
@@ -640,18 +640,9 @@ def prompt_to_create_compare_report():
         elif selected_index == 1:
             tag = most_recent_stable
 
-        system = platform.system()
-        if system == 'Darwin':
-            channel = 'mac'
-        elif system == 'Windows':
-            channel = 'windows'
-        elif system == 'Linux':
-            channel = 'linux'
-        else:
-            raise Exception(f'unexpected system: {system}')
-
-        build_dir = archives.download(tag, channel)
-        if channel == 'mac':
+        release_platform = get_release_platform()
+        build_dir = archives.download(tag, release_platform)
+        if release_platform == 'mac':
             zc_app_path = next(build_dir.glob('*.app'))
             build_dir = zc_app_path / 'Contents/Resources'
 

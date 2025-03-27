@@ -1,6 +1,7 @@
 import difflib
 import json
 import os
+import platform
 import subprocess
 import sys
 import unittest
@@ -12,6 +13,19 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 releases_dir = root_dir / '.tmp/releases'
 test_builds_dir = root_dir / '.tmp/test_builds'
+
+
+# TODO: this is a duplicated function
+def get_release_platform() -> ['mac', 'windows', 'linux']:
+    system = platform.system()
+    if system == 'Darwin':
+        return 'mac'
+    elif system == 'Windows':
+        return 'windows'
+    elif system == 'Linux':
+        return 'linux'
+    else:
+        raise Exception(f'unexpected system: {system}')
 
 
 def get_recent_release_tag(args: List[str]):
