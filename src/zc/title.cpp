@@ -1137,6 +1137,7 @@ static void select_game(bool skip = false)
 		{
 			if (register_name())
 			{
+				saveslot = saves_count()-1;
 				if (auto r = saves_select(saveslot); !r)
 				{
 					enter_sys_pal();
