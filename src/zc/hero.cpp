@@ -23402,6 +23402,7 @@ void HeroClass::handleSpotlights()
 		if(had_spotlight)
 		{
 			istrig.clear();
+			istrig.resize(region_num_rpos);
 			clear_bitmap(lightbeam_bmp);
 		}
 		lightbeam_present = false;
