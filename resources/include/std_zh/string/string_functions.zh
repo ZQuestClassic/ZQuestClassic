@@ -1030,7 +1030,7 @@ namespace std
 		void printf(char32[] formatstr,int a0=0,int a1=0,int a2=0,int a3=0,int a4=0,int a5=0,int a6=0,int a7=0,
 								  int a8=0,int a9=0,int aa=0,int ab=0,int ac=0,int ad=0,int ae=0,int af=0)
 		{
-			char32 buffer[0x200]; //Max TraceS length is 512
+			char32 buffer[0x200]; //Max Trace length is 512
 			sprintf(buffer,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
 			TraceS(buffer);
 		}

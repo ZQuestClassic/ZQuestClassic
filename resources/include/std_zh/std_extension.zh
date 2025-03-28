@@ -591,7 +591,7 @@ lweapon EWeaponToLWeapon(eweapon a)
 	int type = EWeaponToLWeaponType(a->Type);
 	if ( type == -1 ) //invalid
 	{
-		TraceS("Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting."); TraceNL(); 
+		Trace("Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting.");
 		lweapon nullwpn; return nullwpn;
 	}
 	//if ( type == -1 ) return type;
@@ -648,7 +648,8 @@ void EWeaponToLWeapon(eweapon a, lweapon b)
 	int type = EWeaponToLWeaponType(a->Type);
 	if ( type == -1 ) //invalid
 	{
-		TraceS("Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting."); TraceNL(); return;
+		Trace("Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting.");
+		return;
 	}
 	//if ( type == -1 ) return type;
 	b->ID = type;
@@ -1066,7 +1067,7 @@ void LWeaponToEWeapon(lweapon a, eweapon b){
 	int type = LWeaponToEWeaponType(a->Type);
 	if ( type == -1 ) //invalid
 	{
-		TraceS("Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting."); TraceNL(); 
+		Trace("Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting.");
 		return;
 	}
 	b->ID = type;
@@ -1122,7 +1123,7 @@ eweapon LWeaponToEWeapon(lweapon a){
 	int type = LWeaponToEWeaponType(a->Type);
 	if ( type == -1 ) //invalid
 	{
-		TraceS("Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting."); TraceNL(); 
+		Trace("Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting.");
 		eweapon nullwpn; return nullwpn;
 	}
 	eweapon b = Screen->CreateEWeapon(type);
@@ -2571,7 +2572,7 @@ void TraceArrayB(bool[] arr, int size)
 	TraceNL();
 	for ( int q = 0; q < size; q++ ) 
 	{
-		TraceB(arr[q]); TraceS(" ");
+		Trace(arr[q]); TraceS(" ");
 		if ( q % 10 == 0 ) TraceNL();
 	}
 }
@@ -2588,11 +2589,11 @@ void TraceArrayB(bool[] arr, int size, bool verbose)
 	if ( verbose ) 
 	{
 		//ZScript has no facility to read a pointer ID of an array with a type of bool, ffc, item, *weapon, or itemdata.
-		TraceNL(); TraceS("Tracing Boolean Array: "); TraceNL();
+		TraceNL(); Trace("Tracing Boolean Array: ");
 		
 		for ( int q = 0; q < size; q++ ) 
 		{
-			TraceS("Index: "); Trace(q); TraceS("is : "); TraceB(arr[q]); TraceS(" ");
+			TraceS("Index: "); Trace(q); TraceS("is : "); Trace(arr[q]); TraceS(" ");
 			TraceNL();
 		}
 	}
@@ -2600,7 +2601,7 @@ void TraceArrayB(bool[] arr, int size, bool verbose)
 	{
 		TraceNL();
 		for ( int q = 0; q < size; q++ ) {
-			TraceB(arr[q]); TraceS(" ");
+			Trace(arr[q]); TraceS(" ");
 			if ( q % 10 == 0 ) TraceNL();
 		}	
 	}
@@ -2616,5 +2617,5 @@ void TraceStr(char32[] ptr, int value)
 //As TraceStr, but for boolean values.
 void TraceStrB(char32[] ptr, bool val)
 {
-	TraceNL(); TraceS(ptr); TraceB(val); TraceNL();
+	TraceNL(); TraceS(ptr); Trace(val); TraceNL();
 }

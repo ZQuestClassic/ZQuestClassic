@@ -47,7 +47,7 @@ void forceWarp(int warpnum)
 			}
 		}
 	}
-	TraceS("No free ffcs exist to use for forceWarp()\n");
+	Trace("No free ffcs exist to use for forceWarp()");
 }
 
 // Sets then immediately initiates a side warp (0-3)
@@ -70,7 +70,7 @@ void scriptWarp(int dmap, int screen, int type, int warpnum)
 			}
 		}
 	}
-	TraceS("No free ffcs exist to use for scriptWarp()\n");
+	Trace("No free ffcs exist to use for scriptWarp()");
 }
 // This is an overload of the above that automatically chooses Sidewarp D.
 void scriptWarp(int dmap, int screen, int type)

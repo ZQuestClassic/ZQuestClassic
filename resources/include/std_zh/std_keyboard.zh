@@ -104,7 +104,6 @@ char32 KeyToChar(int key, bool shifted) { return KeyToChar(key,shifted,(Input->M
 
 char32 KeyToChar(int key, bool shifted, bool caps)
 {
-	//TraceS("KeyToChar bool shifted is: "); TraceB(shifted);
 	if ( shifted )
 	{
 		switch(key)

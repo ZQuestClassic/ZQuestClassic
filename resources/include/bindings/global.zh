@@ -166,13 +166,27 @@ internal void Trace(long val);
 // nonzero, or "false" if the value is 0. Includes a newline character after the
 // value.
 //
+// @deprecated_alias TraceB
 // @zasm
 //   POP D2
 //   TRACE2R D2
-internal void TraceB(bool val);
+internal void Trace(bool val);
+
+// Prints the passed string to the output console. Includes a newline character
+// after the string.
+//
+// To print a string without an extra newline, use [TraceS].
+//
+// @zasm
+//   POP D2
+//   TRACE6 D2
+//   TRACE3
+internal void Trace(char32[] string);
 
 // Prints the passed string to the output console. Does not include a newline
 // character after the string.
+//
+// To print a string with an extra newline, use [Trace].
 //
 // @zasm
 //   POP D3
