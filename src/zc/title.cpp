@@ -319,7 +319,7 @@ static bool register_name()
 //  clear_bitmap(framebuf);
 	rectfill(framebuf,32,56,223,151,0);
 	list_saves();
-	blit(framebuf,scrollbuf,0,0,0,0,256,224);
+	blit(framebuf,scrollbuf,0,0,0,0,framebuf->w,framebuf->h);
 	
 	int32_t pos=s%3;
 	int32_t y=((NameEntryMode2>0)?0:(pos*24))+72;
@@ -417,7 +417,7 @@ static bool register_name()
 		}
 		
 		advanceframe(true);
-		blit(framebuf,scrollbuf,0,0,0,0,256,224);
+		blit(framebuf,scrollbuf,0,0,0,0,framebuf->w,framebuf->h);
 		
 	}
 	
@@ -654,7 +654,7 @@ static bool register_name()
 		}
 		
 		new_game->set_name(name);
-		blit(scrollbuf,framebuf,0,0,0,0,256,224);
+		blit(scrollbuf,framebuf,0,0,0,0,framebuf->w,framebuf->h);
 		list_save(&new_game->header, s, 56+((NameEntryMode2>0)?0:(pos*24)));
 		
 		int32_t x2=letter_grid_x + grid_x*letter_grid_spacing;
@@ -1042,13 +1042,13 @@ static int32_t game_details(save_t* save)
 		
 		if(rBbtn())
 		{
-			blit(scrollbuf,framebuf,0,0,0,0,256,224);
+			blit(scrollbuf,framebuf,0,0,0,0,framebuf->w,framebuf->h);
 			return 0;
 		}
 		
 		if(rSbtn())
 		{
-			blit(framebuf,scrollbuf,0,0,0,0,256,224);
+			blit(framebuf,scrollbuf,0,0,0,0,framebuf->w,framebuf->h);
 			return 1;
 		}
 
@@ -1125,7 +1125,7 @@ static void select_game(bool skip = false)
 		disabledKeys[KEY_ESC] = mode != 0;
 
 		sfxdat=1;
-		blit(scrollbuf,framebuf,0,0,0,0,256,224);
+		blit(scrollbuf,framebuf,0,0,0,0,framebuf->w,framebuf->h);
 		list_saves();
 		draw_cursor(pos,mode);
 		advanceframe(true);
