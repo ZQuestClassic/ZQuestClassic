@@ -94,7 +94,7 @@ jobs:
         name: Install Dependencies
         uses: crazy-max/ghaction-chocolatey@2ae99523e93879734d432250f87e2c45c379cd60
         with:
-          args: install .github/dependencies.config -y
+          args: install .github/dependencies.config -y --allow-downgrade
       - name: Install LLVM and Clang
         if: inputs.compiler == 'clang' && runner.os == 'Linux'
         uses: KyleMayes/install-llvm-action@v1
