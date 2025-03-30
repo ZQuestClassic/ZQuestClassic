@@ -927,7 +927,7 @@ bool movingblock::animate(int32_t)
 				});
 			}
 			
-			if(oldflag>=mfPUSHUDINS && (oldflag < mfPUSHRINS || get_qr(qr_BROKEN_PUSHBLOCK_FLAG_CLONING))
+			if(oldflag>=mfPUSHUDINS && (oldflag <= mfPUSHRINS || get_qr(qr_BROKEN_PUSHBLOCK_FLAG_CLONING))
 				&& !(trigger && !(no_trig_replace && trig_is_layer))
 				&& !bhole)
 			{
