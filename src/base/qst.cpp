@@ -3486,7 +3486,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_LANDING_SFX, 1);
 		set_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS, 1);
 	}
-	if (compatrule_version < 74 && tempheader.compareVer(2, 55, 9) < 0)
+	if (compatrule_version < 74 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 9) < 0))
 		set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
