@@ -6447,18 +6447,26 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	
 	*/
 	
-	int32_t bitmapIndex = sdci[2]/10000;
 	int32_t usr_bitmap_index = sdci[2];
-	if ( bitmapIndex > 10000 )
+	int32_t bitmapIndex;
+
+	if (usr_bitmap_index < 0)
 	{
-		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int32_t> 8;
+		// Handles zscript values for RT_SCREEN, etc.
+		bitmapIndex = usr_bitmap_index / 10000;
 	}
-	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
+	else if (usr_bitmap_index - 10 >= -2 && usr_bitmap_index - 10 <= rtBMP6)
 	{
+		// Handles Game->LoadBitmapID, which sets the bitmap pointer as a "long" int.
+		bitmapIndex = usr_bitmap_index - 10;
+	}
+	else
+	{
+		// This is a user bitmap.
 		bitmapIndex = usr_bitmap_index;
 		yoffset = 0;
 	}
-	
+
 	int32_t sx = sdci[3]/10000;
 	int32_t sy = sdci[4]/10000;
 	int32_t sw = sdci[5]/10000;
@@ -7784,19 +7792,27 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	*/
 	
 	int32_t srcyoffset = yoffset, srcxoffset = xoffset;
-	int32_t bitmapIndex = sdci[2]/10000;
-	int32_t usr_bitmap_index = sdci[2];
 
-	if ( bitmapIndex > 10000 )
+	int32_t usr_bitmap_index = sdci[2];
+	int32_t bitmapIndex;
+
+	if (usr_bitmap_index < 0)
 	{
-		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int32_t> 8;
+		// Handles zscript values for RT_SCREEN, etc.
+		bitmapIndex = usr_bitmap_index / 10000;
 	}
-	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
+	else if (usr_bitmap_index - 10 >= -2 && usr_bitmap_index - 10 <= rtBMP6)
 	{
+		// Handles Game->LoadBitmapID, which sets the bitmap pointer as a "long" int.
+		bitmapIndex = usr_bitmap_index - 10;
+	}
+	else
+	{
+		// This is a user bitmap.
 		bitmapIndex = usr_bitmap_index;
 		srcyoffset = 0;
 	}
-	
+
 	int32_t sx = sdci[3]/10000;
 	int32_t sy = sdci[4]/10000;
 	int32_t sw = sdci[5]/10000;
