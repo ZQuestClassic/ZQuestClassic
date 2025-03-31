@@ -94,17 +94,34 @@ else
 fi
 
 cd "$packages_dir"
-rm -f ZQuestClassic.dmg
-create-dmg \
-  --volname "ZQuestClassic" \
-  --volicon "$contents/Resources/icons.icns" \
-  --window-pos 200 120 \
-  --window-size 800 400 \
-  --icon-size 100 \
-  --icon "ZQuest Classic.app" 200 190 \
-  --hide-extension "ZQuest Classic.app" \
-  --app-drop-link 600 185 \
-  ZQuestClassic.dmg \
-  "$mac_package_dir"
+
+# Retry this command a few times - in GHA it randomly fails with
+# "hdiutil: create failed - Resource busy".
+# See https://github.com/create-dmg/create-dmg/issues/143
+n=0
+until [ "$n" -ge 5 ]
+do
+  rm -f ZQuestClassic.dmg
+  create-dmg \
+    --volname "ZQuestClassic" \
+    --volicon "$contents/Resources/icons.icns" \
+    --window-pos 200 120 \
+    --window-size 800 400 \
+    --icon-size 100 \
+    --icon "ZQuest Classic.app" 200 190 \
+    --hide-extension "ZQuest Classic.app" \
+    --app-drop-link 600 185 \
+    ZQuestClassic.dmg \
+    "$mac_package_dir" && break
+
+  n=$((n+1))
+  if [ $n -eq 5 ]; then
+    echo "Failed to create dmg."
+    exit 1
+  fi
+
+  echo "Failed to create dmg ... trying again."
+  sleep 15
+done
 
 echo "Done!"
