@@ -124,7 +124,7 @@ jobs:
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgGitCommitId: b322364f06308bdd24823f9d8f03fe0cc86fd46f
+          vcpkgGitCommitId: b02e341c927f16d991edbd915d8ea43eac52096c
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         run: vcpkg install libogg libvorbis curl dumb
 
