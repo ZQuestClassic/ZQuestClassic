@@ -138,6 +138,11 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+      - name: Install cmake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.31.6'
+
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
         with:

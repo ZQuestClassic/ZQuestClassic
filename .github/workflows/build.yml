@@ -67,6 +67,11 @@ jobs:
     outputs:
       package-name: ${{ steps.set-package-name.outputs.package-name }}
     steps:
+      - name: Install cmake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.31.6'
+
       # Install dependencies.
       - if: ${{ contains(inputs.runs-on, 'mac') }}
         name: Build and install Bison
