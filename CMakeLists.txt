@@ -166,35 +166,29 @@ if(NOT EMSCRIPTEN)
 	FetchContent_Declare(
 		zlib
 		GIT_REPOSITORY
-			https://github.com/Mizux/zlib.git
+			https://github.com/madler/zlib.git
 		GIT_TAG
-			19d7d6b32ee3af4ed4bdec415f42f518c93b5025
+			v1.3.1
 		EXCLUDE_FROM_ALL
 	)
 	set(BUILD_SHARED_LIBS ON)
 	FetchContent_MakeAvailable(zlib)
 
-	if(NOT ZLIB_LIBRARIES)
-		set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
-		set(ZLIB_LIBRARY ZLIB::ZLIB)
-		set(ZLIB_LIBRARIES ZLIB::ZLIB)
-	endif()
-
-	set(PNG_BUILD_ZLIB ON CACHE BOOL "")
-	set(PNG_STATIC OFF CACHE BOOL "")
-	set(PNG_TESTS OFF CACHE BOOL "")
+	set(ZLIB_ROOT "${zlib_SOURCE_DIR}" CACHE INTERNAL "Root for the zlib library, used by libpng")
+	set(PNG_STATIC OFF CACHE INTERNAL BOOL "")
+	set(PNG_TESTS OFF CACHE INTERNAL BOOL "")
 	FetchContent_Declare(
 		png
 		GIT_REPOSITORY
-			https://github.com/glennrp/libpng.git
+			https://github.com/pnggroup/libpng
 		GIT_TAG
-			v1.6.38
+			v1.6.47
 		EXCLUDE_FROM_ALL
 	)
 	FetchContent_MakeAvailable(png)
 
 	if(NOT PNG_LIBRARIES)
-		set(PNG_LIBRARIES png)
+		set(PNG_LIBRARIES png_shared)
 		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
 		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
 	endif()
