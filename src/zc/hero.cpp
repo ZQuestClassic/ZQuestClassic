@@ -28299,6 +28299,17 @@ struct rect_t
 		b = std::max(b, other.b);
 	}
 
+	void intersect_with(const rect_t& other)
+	{
+		l = std::max(l, other.l);
+		r = std::min(r, other.r);
+		t = std::max(t, other.t);
+		b = std::min(b, other.b);
+
+		if (l > r || t > b)
+			l = r = t = b = 0;
+	}
+
 	bool intersects_with(const rect_t& other) const
 	{
 		return std::max(t, other.t) < std::min(b, other.b) && std::max(l, other.l) < std::min(r, other.r);
@@ -28351,6 +28362,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 				continue;
 
 			mapscr* base_scr = old_temporary_screens[screen*7];
+			CHECK(base_scr);
 			bool use_new_screens = false;
 			int offx = get_region_relative_dx(screen, scrolling_region.origin_screen) * 256;
 			int offy = get_region_relative_dy(screen, scrolling_region.origin_screen) * 176;
@@ -29108,6 +29120,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		pfo_mode = 1;
 	int pfo_counter = abs(new_playing_field_offset - old_original_playing_field_offset);
 
+	viewport_t old_world_rect;
+	old_world_rect.x = 0;
+	old_world_rect.y = 0;
+	old_world_rect.w = old_world_w;
+	old_world_rect.h = old_world_h;
+
+	viewport_t new_world_rect;
+	new_world_rect.x = 0;
+	new_world_rect.y = 0;
+	new_world_rect.w = world_w;
+	new_world_rect.h = world_h;
+
 	// 0 for align, then scroll.
 	// 1 for scroll, then align.
 	int align_mode = 0;
@@ -29115,12 +29139,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	// Align first, unless that would show screens outside the old region.
 	if (align_counter)
 	{
-		viewport_t old_world_rect;
-		old_world_rect.x = 0;
-		old_world_rect.y = 0;
-		old_world_rect.w = old_world_w;
-		old_world_rect.h = old_world_h;
-
 		viewport_t old_viewport_aligned = old_viewport;
 		old_viewport_aligned.x -= (dy ? secondary_axis_alignment_amount : 0);
 		old_viewport_aligned.y -= (dx ? secondary_axis_alignment_amount : 0);
@@ -29156,6 +29174,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 				r.t += delta;
 		}
 	}
+
+	old_region_visible.intersect_with(rect_t(old_world_rect));
+	new_region_visible.intersect_with(rect_t(new_world_rect));
 
 	// For the duration of the scrolling, the old region coordinate system is used for all drawing
 	// operations. This means that the new screens are drawn with offsets relative to the old
