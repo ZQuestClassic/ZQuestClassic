@@ -5457,7 +5457,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	int32_t type = scr_cmb.type;
 	int32_t flag = MAPFLAGL(lyr,bx,by);
 	int32_t flag2 = scr_cmb.flag;
-	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, lyr - 1);
+	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, lyr);
 	int32_t i = rpos_handle.pos;
 	
 	bool pound=false;
