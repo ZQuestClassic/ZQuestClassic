@@ -29552,9 +29552,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			do_primitives(framebuf, 0, 0, playing_field_offset);
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
-			bool primitives = is_new_screen;
-			do_layer(framebuf, 0, screen_handles[1], offx, offy, primitives);
+			do_layer(framebuf, 0, screen_handles[1], offx, offy);
 		});
+		do_layer_primitives(framebuf, 1);
 
 		if (get_qr(qr_FFCSCROLL))
 		{
@@ -29579,14 +29579,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			mapscr* base_scr = screen_handles[0].base_scr;
-			bool primitives = is_new_screen;
-
-			if(!(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)))
-			{
-				primitives &= !(oldscr->flags7&fLAYER2BG);
-				do_layer(framebuf, 0, screen_handles[2], offx, offy, primitives);
-			}
+			if (!(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)))
+				do_layer(framebuf, 0, screen_handles[2], offx, offy);
 		});
+
+		if (!(oldscr->flags7&fLAYER2BG) && !(XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)))
+			do_layer_primitives(framebuf, 2);
 
 		if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
@@ -29656,33 +29654,48 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		}
 
 		RESTORE_HERO_POS;
-		
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
-			bool is_destination = screen == dest_screen;
 
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			mapscr* base_scr = screen_handles[0].base_scr;
-			if(!(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)))
-			{
-				bool primitives = is_destination && !(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG));
-				do_layer(framebuf, 0, screen_handles[3], offx, offy, primitives);
-			}
-			
-			do_layer(framebuf, 0, screen_handles[4], offx, offy, is_new_screen); //layer 4
+			if (!(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)))
+				do_layer(framebuf, 0, screen_handles[3], offx, offy);
+		});
+
+		if (!(XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)))
+			do_layer_primitives(framebuf, 3);
+
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+			do_layer(framebuf, 0, screen_handles[4], offx, offy); //layer 4
+		});
+
+		do_layer_primitives(framebuf, 4);
+
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			do_layer(framebuf, -1, screen_handles[0], offx, offy); //overhead combos
-			if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
+			if (get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 			{
 				do_layer(framebuf, -1, screen_handles[1], offx, offy); //overhead combos
 				do_layer(framebuf, -1, screen_handles[2], offx, offy); //overhead combos
 			}
-
-			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_destination); //layer 5
-			{
-				int draw_ffc_x = is_new_screen ? new_ffc_offset_x : 0;
-				int draw_ffc_y = is_new_screen ? new_ffc_offset_y : 0;
-				do_layer(framebuf, -4, screen_handles[0], draw_ffc_x, draw_ffc_y); //overhead FFCs
-			}
-			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_destination); //layer 6
 		});
+
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+			do_layer(framebuf, 0, screen_handles[5], offx, offy); //layer 5
+		});
+
+		do_layer_primitives(framebuf, 5);
+
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+			int draw_ffc_x = is_new_screen ? new_ffc_offset_x : 0;
+			int draw_ffc_y = is_new_screen ? new_ffc_offset_y : 0;
+			do_layer(framebuf, -4, screen_handles[0], draw_ffc_x, draw_ffc_y); //overhead FFCs
+		});
+
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+			do_layer(framebuf, 0, screen_handles[6], offx, offy); //layer 6
+		});
+
+		do_layer_primitives(framebuf, 6);
 
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6))
 		{

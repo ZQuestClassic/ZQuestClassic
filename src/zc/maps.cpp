@@ -3708,96 +3708,96 @@ bool lenscheck(mapscr* scr, int layer)
 	return true;
 }
 
-void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives)
+void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y)
 {
-    bool showlayer = true;
+	bool showlayer = true;
 	mapscr* base_scr = screen_handle.base_scr;
 	int layer = screen_handle.layer;
-    
-    switch(type ? type : layer)
-    {
-    case -4:
-    case -3:
-        if(!show_ffcs)
-        {
-            showlayer = false;
-        }
-        
-        break;
-        
-    case -2:
-        if(!show_layer_push)
-        {
-            showlayer = false;
-        }
-        
-        break;
-        
-    case -1:
-        if(!show_layer_over)
-        {
-            showlayer = false;
-        }
-        
-        break;
-        
-    case 1:
-        if(!show_layer_1)
-        {
-            showlayer = false;
-        }
-        
-        break;
-        
-    case 2:
-        if(!show_layer_2)
-        {
-            showlayer = false;
-        }
-        
-        break;
-        
-    case 3:
-        if(!show_layer_3)
-        {
-            showlayer = false;
-        }
-        
-        break;
-        
-    case 4:
-        if(!show_layer_4)
-        {
-            showlayer = false;
-        }
-        
-        break;
-        
-    case 5:
-        if(!show_layer_5)
-        {
-            showlayer = false;
-        }
-        
-        break;
-        
-    case 6:
-        if(!show_layer_6)
-        {
-            showlayer = false;
-        }
-        
-        break;
-    }
-	
-    if(!type && (layer==(int32_t)(base_scr->lens_layer&7)+1) && ((base_scr->lens_layer&llLENSSHOWS && !lensclk) || (base_scr->lens_layer&llLENSHIDES && lensclk)))
-    {
-		if(!lenscheck(base_scr,layer))
-        	showlayer = false;
-    }
 
-    if(showlayer)
-    {
+	switch(type ? type : layer)
+	{
+	case -4:
+	case -3:
+		if(!show_ffcs)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case -2:
+		if(!show_layer_push)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case -1:
+		if(!show_layer_over)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 1:
+		if(!show_layer_1)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 2:
+		if(!show_layer_2)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 3:
+		if(!show_layer_3)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 4:
+		if(!show_layer_4)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 5:
+		if(!show_layer_5)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 6:
+		if(!show_layer_6)
+		{
+			showlayer = false;
+		}
+		
+		break;
+	}
+
+	if(!type && (layer==(int32_t)(base_scr->lens_layer&7)+1) && ((base_scr->lens_layer&llLENSSHOWS && !lensclk) || (base_scr->lens_layer&llLENSHIDES && lensclk)))
+	{
+		if(!lenscheck(base_scr,layer))
+			showlayer = false;
+	}
+
+	if(showlayer)
+	{
 		if (screen_handle.scr && (type || !(base_scr->hidelayers & (1 << (layer)))))
 		{
 			do_scrolling_layer(bmp, type, screen_handle, x, y);
@@ -3805,12 +3805,73 @@ void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, i
 				if(mblock2.draw(bmp,layer))
 					do_primitives(bmp, SPLAYER_MOVINGBLOCK, 0, playing_field_offset);
 		}
-        
-        if(!type && drawprimitives && layer > 0 && layer <= 6)
-        {
-            do_primitives(bmp, layer, 0, playing_field_offset);
-        }
-    }
+	}
+}
+
+void do_layer_primitives(BITMAP *bmp, int32_t layer)
+{
+	bool showlayer = true;
+	
+	switch(layer)
+	{
+
+	case 1:
+		if(!show_layer_1)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 2:
+		if(!show_layer_2)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 3:
+		if(!show_layer_3)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 4:
+		if(!show_layer_4)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 5:
+		if(!show_layer_5)
+		{
+			showlayer = false;
+		}
+		
+		break;
+		
+	case 6:
+		if(!show_layer_6)
+		{
+			showlayer = false;
+		}
+		
+		break;
+	}
+	
+	if ((layer==(int32_t)(origin_scr->lens_layer&7)+1) && ((origin_scr->lens_layer&llLENSSHOWS && !lensclk) || (origin_scr->lens_layer&llLENSHIDES && lensclk)))
+	{
+		if(!lenscheck(origin_scr,layer))
+			showlayer = false;
+	}
+
+	if (showlayer)
+		do_primitives(bmp, layer, 0, playing_field_offset);
 }
 
 // Called by do_walkflags
@@ -4392,23 +4453,34 @@ void draw_screen(bool showhero, bool runGeneric)
 
 	auto nearby_screens = get_nearby_screens();
 
+	// Handle layer 2/3 possibly being background layers.
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
-		if(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
-		{
-			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true);
-			if (screen == cur_screen) particles.draw(framebuf, true, 1);
-			if (screen == cur_screen) draw_msgstr(2);
-		}
-		
-		if(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
-		{
-			do_layer(scrollbuf, 0, screen_handles[3], offx, offy, true);
-			if (screen == cur_screen) particles.draw(framebuf, true, 2);
-			if (screen == cur_screen) draw_msgstr(3);
-		}
+		if (XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			do_layer(scrollbuf, 0, screen_handles[2], offx, offy);
 	});
 
+	if (XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+	{
+		do_layer_primitives(scrollbuf, 2);
+		particles.draw(framebuf, true, 1);
+		draw_msgstr(2);
+	}
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].base_scr;
+		if (XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+			do_layer(scrollbuf, 0, screen_handles[3], offx, offy);
+	});
+
+	if (XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+	{
+		do_layer_primitives(scrollbuf, 3);
+		particles.draw(framebuf, true, 2);
+		draw_msgstr(3);
+	}
+
+	// Draw the main combo screens ("layer 0").
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		if (lenscheck(base_scr, 0))
@@ -4471,9 +4543,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-		do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
+		do_layer(scrollbuf, 0, screen_handles[1], offx, offy); // LAYER 1
 	});
 
+	do_layer_primitives(scrollbuf, 1);
 	particles.draw(framebuf, true, 0);
 	draw_msgstr(1);
 
@@ -4482,16 +4555,19 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_layer(scrollbuf, -3, handle, 0, 0); // freeform combos!
 	});
 
+	// Handle layer 2 NOT being used as background layers.
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
-		if(!XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
-		{
-			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
-		}
+		if (!XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			do_layer(scrollbuf, 0, screen_handles[2], offx, offy);
 	});
 
-	particles.draw(framebuf, true, 1);
-	draw_msgstr(2);
+	if(!XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+	{
+		do_layer_primitives(scrollbuf, 2);
+		particles.draw(framebuf, true, 1);
+		draw_msgstr(2);
+	}
 
 	do_primitives(framebuf, SPLAYER_FFC_DRAW, 0, playing_field_offset);
 
@@ -4789,22 +4865,29 @@ void draw_screen(bool showhero, bool runGeneric)
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
 		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 
+	// Handle layer 3 NOT being used as background layers.
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
+		if (!XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+			do_layer(framebuf, 0, screen_handles[3], offx, offy);
+	});
 
-		if(!XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
-		{
-			do_layer(framebuf, 0, screen_handles[3], offx, offy, true);
-			if (screen == cur_screen) particles.draw(framebuf, true, 2);
-			if (screen == cur_screen) draw_msgstr(3);
-		}
-		
-		do_layer(framebuf, 0, screen_handles[4], offx, offy, true);
-		//do_primitives(framebuf, 3, 0,playing_field_offset);//don't uncomment me
-		
-		if (screen == cur_screen) particles.draw(framebuf, true, 3);
-		if (screen == cur_screen) draw_msgstr(4);
+	if(!XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+	{
+		do_layer_primitives(framebuf, 3);
+		particles.draw(framebuf, true, 2);
+		draw_msgstr(3);
+	}
 
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		do_layer(framebuf, 0, screen_handles[4], offx, offy);
+	});
+
+	do_layer_primitives(framebuf, 4);
+	particles.draw(framebuf, true, 3);
+	draw_msgstr(4);
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		do_layer(framebuf, -1, screen_handles[0], offx, offy);
 		if (get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 		{
@@ -4813,10 +4896,6 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	// if (!is_extended_height_mode() && is_in_scrolling_region() && get_qr(qr_SUBSCREENOVERSPRITES))
-	// {
-	// 	rectfill(framebuf, 0, 0, 256, playing_field_offset - 1, 0);
-	// }
 	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB, 0, playing_field_offset);
 	
 	particles.draw(framebuf, true, -1);
@@ -4886,9 +4965,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-		do_layer(framebuf, 0, screen_handles[5], offx, offy, true);
+		do_layer(framebuf, 0, screen_handles[5], offx, offy);
 	});
 
+	do_layer_primitives(framebuf, 5);
 	particles.draw(framebuf, true, 4);
 	draw_msgstr(5);
 
@@ -4900,9 +4980,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, 0, playing_field_offset);
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-		do_layer(framebuf, 0, screen_handles[6], offx, offy, true);
+		do_layer(framebuf, 0, screen_handles[6], offx, offy);
 	});
 
+	do_layer_primitives(framebuf, 6);
 	particles.draw(framebuf, true, 5);
 
 	// Handle low drawn darkness
@@ -7478,7 +7559,7 @@ void ViewMap()
 					do_layer(screen_bmp,-2, screen_handles[2], xx, yy);
 				}
 			}
-			do_layer(screen_bmp, -3, screen_handles[0], xx, yy, 2); // Freeform com!
+			do_layer(screen_bmp, -3, screen_handles[0], xx, yy); // Freeform com!
 			
 			if(!XOR((scr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(screen_bmp, 0, screen_handles[3], xx, yy);
 

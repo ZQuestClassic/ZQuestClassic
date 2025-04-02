@@ -746,7 +746,6 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t y
     
     if(v.empty())
         return;
-        //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
     int32_t* pos = &v[0];
     int32_t sz = v.size();
@@ -828,8 +827,6 @@ void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t
 	int32_t col = sdci[4]/10000;
 	int32_t op = sdci[5]/10000;
     
-	//bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0) || (get_qr(qr_BITMAPOFFSETFIX)!=0) );
-	//Z_scripterrlog("Broken offset rule for Polygon() is: %s\n", brokenOffset ? "ON" : "OFF");
     std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
@@ -842,7 +839,6 @@ void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t
     
     if(v.empty())
         return;
-        //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
     int32_t* pos = &v[0];
     int32_t sz = v.size();
@@ -852,12 +848,13 @@ void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t
 		numpoints = sz/2;
 	if(numpoints < 1)
 		return; //Don't draw 0 or negative point count
-    
-    //Fix the draw Y offset. -Z 20th June, 2019
-    for ( int32_t q = 1; q < sz; q+=2 )
-    {
-		pos[q] += yoffset;
-    }
+
+	for (int32_t i = 0; i < sz; i += 2)
+	{
+		pos[i] += xoffset;
+		pos[i + 1] += yoffset;
+	}
+
 	if(op <= 127) //translucent
 	{
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
@@ -865,7 +862,6 @@ void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t
 	else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	
 	polygon(bmp, numpoints, (int32_t*)pos, col);
-	//polygon(bmp, (sdci[2]/10000), &v, col);
 	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
@@ -882,7 +878,7 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 	
 	if ( sdci[DRAWCMD_BMP_TARGET] <= 0 ) 
 	{
-		Z_scripterrlog("bitmap->Rectangle() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
+		Z_scripterrlog("bitmap->Polygon() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
 		return;
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[DRAWCMD_BMP_TARGET]);
@@ -894,7 +890,7 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
     
     if(!v_ptr)
     {
-        al_trace("Screen->Polygon: Vector pointer is null! Internal error. \n");
+        al_trace("bitmap->Polygon: Vector pointer is null! Internal error. \n");
         return;
     }
     
@@ -902,7 +898,6 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
     
     if(v.empty())
         return;
-        //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
     int32_t* pos = &v[0];
     int32_t sz = v.size();
@@ -912,12 +907,13 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 		numpoints = sz/2;
 	if(numpoints < 1)
 		return; //Don't draw 0 or negative point count
-    
-    //Fix the draw Y offset. -Z 20th June, 2019
-    for ( int32_t q = 1; q < sz; q+=2 )
-    {
-		pos[q] += yoffset;    
-    }
+
+	for (int32_t i = 0; i < sz; i += 2)
+	{
+		pos[i] += xoffset;
+		pos[i + 1] += yoffset;
+	}
+
 	if(op <= 127) //translucent
 	{
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
@@ -925,7 +921,6 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 	else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	
 	polygon(refbmp, numpoints, (int32_t*)pos, col);
-	//polygon(refbmp, (sdci[2]/10000), &v, col);
 	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
@@ -1475,7 +1470,6 @@ void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     
     if(v.empty())
         return;
-        //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
     int32_t* pos = &v[0];
     int32_t sz = v.size();

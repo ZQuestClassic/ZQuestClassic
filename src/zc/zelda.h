@@ -384,7 +384,7 @@ extern mapscr scrolling_screen;
 // The top-left screen of the currently loaded region.
 extern mapscr* origin_scr;
 // This is typically used as the previous screen before doing a warp to a special room,
-// but it is also used (by scripting) to hold the previous screen during scrolling.
+// but it is also used (by scripting) to hold the previous origin screen during scrolling.
 extern mapscr special_warp_return_scrs[7];
 // &special_warp_return_scrs[0]
 extern mapscr* special_warp_return_scr;
