@@ -577,5 +577,5 @@ void ttip_uninstall_all()
 // // Needed for other things in zcbase to resolve.
 // void replay_step_comment(std::string comment) {}
 // bool fake_pack_writing=false;
-// bool replay_is_active() {return false;}
-// bool replay_version_check(int min, int max) {return false;}
+bool replay_is_active() {return false;}
+bool replay_version_check(int min, int max) {return false;}
