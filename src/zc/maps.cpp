@@ -390,9 +390,9 @@ void update_heroscr()
 		hero_scr = get_scr(hero_screen);
 		Hero.screen_spawned = hero_screen;
 		playLevelMusic();
-		if (game->get_regionmapping() == REGION_MAPPING_PHYSICAL)
-			mark_visited(hero_screen); // Mark each screen the hero steps foot in as visited
 	}
+	if (game->get_regionmapping() == REGION_MAPPING_PHYSICAL)
+		mark_visited(new_screen); // Mark each screen the hero steps foot in as visited
 }
 
 mapscr* determine_hero_screen_from_coords()
