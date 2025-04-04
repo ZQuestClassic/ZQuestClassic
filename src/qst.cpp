@@ -3456,6 +3456,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		// Note: in 3.0, this is only sometimes enabled for quests prior to 2.55.9.
 		set_qr(qr_HIDE_BOTTOM_8_PIXELS, 1);
 	}
+
+	// Older than 2.55.10?
+	if (tempheader.compareVer(2, 55, 10) < 0 && strcmp(tempheader.author, "zcdev") != 0)
+	{
+		set_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN, 1);
+	}
 	
 	memcpy(Header, &tempheader, sizeof(tempheader));
 	
