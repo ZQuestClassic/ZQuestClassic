@@ -1044,7 +1044,7 @@ async function main() {
   loadRatings();
   loadCache();
 
-  const browser = await puppeteer.launch({headless: 'new'});
+  const browser = await puppeteer.launch({headless: false});
   const page = await browser.newPage();
   await page.setUserAgent('zcdev');
 
