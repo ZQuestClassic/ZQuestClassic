@@ -28774,10 +28774,12 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 	//}
 
 	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", cur_dmap, DMaps[cur_dmap].name,cur_screen); return false; }
-	int32_t mapID = (DMaps[dmap].map+1);
-	int32_t dest_dmap_xoff = DMaps[dmap].xoff;	
+	int32_t dest_map = DMaps[dmap].map;
+	int32_t mapID = dest_map + 1;
+	int32_t dest_dmap_xoff = DMaps[dmap].xoff;
+	int32_t dest_screen = dest_dmap_xoff + screen;
 	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
-	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + dest_dmap_xoff + screen)];
+	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + dest_screen)];
 	if ( warpFlags&warpFlagNOSTEPFORWARD ) FFCore.temp_no_stepforward = 1;
 	int32_t wx = 0, wy = 0;
 	if ( warpDestX < 0 )
@@ -28810,7 +28812,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 	}
 	else 
 	{
-		if ( (unsigned)warpDestX < 256 && (unsigned)warpDestY < 176 )
+		region_t region;
+		int rx, ry;
+		calculate_region(dest_map, dest_screen, region, rx, ry);
+		if ( (unsigned)warpDestX < region.width && (unsigned)warpDestY < region.height )
 		{
 			wx = warpDestX;
 			wy = warpDestY;
@@ -28820,7 +28825,6 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Hero->WarpEx()\n",warpDestX,warpDestY);
 			return false;
 		}
-		
 	} 
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
@@ -28909,6 +28913,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			
 			Hero.x = (zfix)wx;
 			Hero.y = (zfix)wy;
+			update_viewport();
 			
 			switch(heroFacesDir)
 			{
@@ -28940,10 +28945,6 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			}
 			
 			markBmap(Hero.dir^1, hero_screen);
-
-			Hero.x += region_scr_dx * 256;
-			Hero.y += region_scr_dy * 176;
-			update_viewport();
 			
 			if(iswaterex_z3(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), -1, Hero.x, Hero.y+8, true) && _walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) && current_item(itype_flippers))
 			{
@@ -29036,6 +29037,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			//Move Hero's coordinates
 			Hero.x = (zfix)wx;
 			Hero.y = (zfix)wy;
+			update_viewport();
+
 			//set his dir
 			switch(heroFacesDir)
 			{
@@ -29066,10 +29069,6 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 						Hero.dir=up;
 					}
 			}
-
-			Hero.x += region_scr_dx * 256;
-			Hero.y += region_scr_dy * 176;
-			update_viewport();
 			
 			if(dlevel)
 			{
