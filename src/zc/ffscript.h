@@ -952,6 +952,9 @@ void do_set_music_speed(const bool v);
 void do_get_music_length();
 void do_set_music_loop();
 
+bool doesResolveToScreenBitmap(int32_t bitmap_id);
+bool doesResolveToDeprecatedSystemBitmap(int32_t bitmap_id);
+
 BITMAP* GetScriptBitmap(int32_t id, bool skipError = false);
 
 int32_t highest_valid_user_bitmap();

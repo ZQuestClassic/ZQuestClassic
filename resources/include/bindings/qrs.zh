@@ -399,6 +399,7 @@ enum QR
 	qr_SCRIPTS_6_BIT_COLOR = 60*8, // Scripts use 6-bit color (0-63) instead of 8-bit (0-255)
 	qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, // Fix Hero Position Exposed To Scripts When Scrolling
 	qr_HIDE_BOTTOM_8_PIXELS, // Hide Bottom 8 Pixels
+	qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN, // Broken Script Drawing Bitmap Draw Origin
 
 	qr_OLD_SCRIPT_VOLUME = 70 * 8,	// Compatibility (>>>) Old (Buggy) ZScript Volume Access
 	qr_OLD_DMAP_INTRO_STRINGS,	// Compatibility (>>>) Old DMap Titles and Intros

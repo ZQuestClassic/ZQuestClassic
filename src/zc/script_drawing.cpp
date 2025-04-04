@@ -1,6 +1,8 @@
 //! ritate_sprite_trans doesn't seem to be supported by or allegro header !?
 
 //glibc 2.28 and later require this: -Z
+#include <optional>
+#include <utility>
 #ifdef __GNUG__
 	#define ALLEGRO_NO_FIX_ALIASES
 #endif
@@ -28,6 +30,74 @@ extern script_bitmaps scb;
 
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
+
+static int32_t secondary_draw_origin_xoff;
+static int32_t secondary_draw_origin_yoff;
+
+static std::optional<std::pair<int, int>> get_draw_origin_offset(DrawOrigin draw_origin, int draw_origin_target_uid, int xoff, int yoff)
+{
+	int xoffset;
+	int yoffset;
+	if (draw_origin == DrawOrigin::Region)
+	{
+		xoffset = xoff - viewport.x;
+		yoffset = yoff - viewport.y;
+	}
+	else if (draw_origin == DrawOrigin::RegionScrollingNew)
+	{
+		xoffset = xoff + FFCore.ScrollingData[SCROLLDATA_NRX];
+		yoffset = yoff + FFCore.ScrollingData[SCROLLDATA_NRY];
+	}
+	else if (draw_origin == DrawOrigin::PlayingField)
+	{
+		xoffset = xoff;
+		yoffset = yoff;
+	}
+	else if (draw_origin == DrawOrigin::Screen)
+	{
+		xoffset = 0;
+		yoffset = 0;
+	}
+	else if (draw_origin == DrawOrigin::Sprite)
+	{
+		sprite* draw_origin_target = sprite::getByUID(draw_origin_target_uid);
+		if (!draw_origin_target)
+		{
+			Z_scripterrlog("Warning: Ignoring draw command using DRAW_ORIGIN_SPRITE with non-existent sprite uid: %d.\n", draw_origin_target_uid);
+			return std::nullopt;
+		}
+
+		xoffset = xoff - viewport.x + draw_origin_target->x.getInt();
+		yoffset = yoff - viewport.y + draw_origin_target->y.getInt();
+	}
+	else
+	{
+		// Unexpected.
+		xoffset = 0;
+		yoffset = 0;
+	}
+
+	return std::make_pair(xoffset, yoffset);
+}
+
+std::pair<int, bool> resolveScriptingBitmapId(int scripting_bitmap_id)
+{
+	if (scripting_bitmap_id < 0)
+	{
+		// Handles zscript values for RT_SCREEN, etc.
+		return {scripting_bitmap_id / 10000, false};
+	}
+	else if (scripting_bitmap_id - 10 >= -2 && scripting_bitmap_id - 10 <= rtBMP6)
+	{
+		// Handles Game->LoadBitmapID, which sets the bitmap pointer as a "long" int.
+		return {scripting_bitmap_id - 10, false};
+	}
+	else
+	{
+		// This is a user bitmap.
+		return {scripting_bitmap_id, true};
+	}
+}
 
 inline double sd_log2( double n )  
 {  
@@ -6442,31 +6512,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	*/
 	
 	int32_t usr_bitmap_index = sdci[2];
-	int32_t bitmapIndex;
+	auto [bitmapIndex, is_user_bitmap] = resolveScriptingBitmapId(usr_bitmap_index);
 
-	if (usr_bitmap_index < 0)
-	{
-		// Handles zscript values for RT_SCREEN, etc.
-		bitmapIndex = usr_bitmap_index / 10000;
-	}
-	else if (usr_bitmap_index - 10 >= -2 && usr_bitmap_index - 10 <= rtBMP6)
-	{
-		// Handles Game->LoadBitmapID, which sets the bitmap pointer as a "long" int.
-		bitmapIndex = usr_bitmap_index - 10;
-	}
-	else
-	{
-		// This is a user bitmap.
-		bitmapIndex = usr_bitmap_index;
-		yoffset = 0;
-	}
 
 	int32_t sx = sdci[3]/10000;
 	int32_t sy = sdci[4]/10000;
 	int32_t sw = sdci[5]/10000;
-	//Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
 	int32_t sh = sdci[6]/10000;
-	//Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
 	int32_t dx = sdci[7]/10000;
 	int32_t dy = sdci[8]/10000;
 	int32_t dw = sdci[9]/10000;
@@ -6479,16 +6531,25 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	bool masked = (sdci[16] != 0);
 	
 	int32_t ref = 0;
-	
-	dx = dx + xoffset;
-	dy = dy + yoffset;
-	
-	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
-	//Do we need to also check the render target and do the same thing if the 
-		//dest == -2 and the render target is not RT_SCREEN?
-		
+
+	if (get_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN))
+	{
+		if (is_user_bitmap)
+			yoffset = 0;
+
+		dx += xoffset;
+		dy += yoffset;
+	}
+	else
+	{
+		dx += secondary_draw_origin_xoff;
+		dy += secondary_draw_origin_yoff;
+
+		sx += xoffset;
+		sy += yoffset;
+	}
+
 	ref = sdci[DRAWCMD_BMP_TARGET];
-		
 	
 	if ( ref <= 0 )
 	{
@@ -7784,35 +7845,16 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	//sdci[16]=mask
 	
 	*/
-	
+
 	int32_t srcyoffset = yoffset, srcxoffset = xoffset;
 
 	int32_t usr_bitmap_index = sdci[2];
-	int32_t bitmapIndex;
-
-	if (usr_bitmap_index < 0)
-	{
-		// Handles zscript values for RT_SCREEN, etc.
-		bitmapIndex = usr_bitmap_index / 10000;
-	}
-	else if (usr_bitmap_index - 10 >= -2 && usr_bitmap_index - 10 <= rtBMP6)
-	{
-		// Handles Game->LoadBitmapID, which sets the bitmap pointer as a "long" int.
-		bitmapIndex = usr_bitmap_index - 10;
-	}
-	else
-	{
-		// This is a user bitmap.
-		bitmapIndex = usr_bitmap_index;
-		srcyoffset = 0;
-	}
+	auto [bitmapIndex, is_user_bitmap] = resolveScriptingBitmapId(usr_bitmap_index);
 
 	int32_t sx = sdci[3]/10000;
 	int32_t sy = sdci[4]/10000;
 	int32_t sw = sdci[5]/10000;
-	//Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
 	int32_t sh = sdci[6]/10000;
-	//Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
 	int32_t dx = sdci[7]/10000;
 	int32_t dy = sdci[8]/10000;
 	int32_t dw = sdci[9]/10000;
@@ -7825,22 +7867,30 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	bool masked = (sdci[16] != 0);
 	
 	int32_t ref = 0;
-	
-	//These should go down farther, should they not? -V
-	//dx = dx + xoffset;
-	//dy = dy + yoffset;
-	
-	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
-	if ( (bitmapIndex) != -2 && (bitmapIndex) != -1 ) srcyoffset = 0; //Don't crop. 
-	//Do we need to also check the render target and do the same thing if the 
-		//dest == -2 and the render target is not RT_SCREEN?
-	dx = dx + xoffset;
-	dy = dy + yoffset;
-	sx = sx + srcxoffset;
-	sy = sy + srcyoffset;
-		
+
+	if (get_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN))
+	{
+		if (is_user_bitmap)
+			srcyoffset = 0;
+		if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
+		if ( (bitmapIndex) != -2 && (bitmapIndex) != -1 ) srcyoffset = 0; //Don't crop. 
+
+		dx += xoffset;
+		dy += yoffset;
+
+		sx += srcxoffset;
+		sy += srcyoffset;
+	}
+	else
+	{
+		dx += xoffset;
+		dy += yoffset;
+
+		sx += secondary_draw_origin_xoff;
+		sy += secondary_draw_origin_yoff;
+	}
+
 	ref = sdci[DRAWCMD_BMP_TARGET];
-		
 	
 	if ( ref <= 0 )
 	{
@@ -11819,10 +11869,9 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 
 		DrawOrigin draw_origin = command.draw_origin;
 
-		// get the correct render target, if set.
+		// get the correct render target, if set via Screen->SetRenderTarget
+		// Note: This is a deprecated feature.
 		BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[DRAWCMD_CURRENT_TARGET]);
-		// TODO: the way this is used is unusual. bitmaps can be of any size, yet this clips based on a fixed size.
-		// Should just remove all clipping at this layer, the underlying draw functions clip anyway.
 		bool isTargetOffScreenBmp;
 
 		if(!bmp)
@@ -11832,49 +11881,33 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 		}
 		else
 		{
-			draw_origin = DrawOrigin::Screen;
+			// Render target was set to a internal bitmap (but not the screen bitmap).
 			isTargetOffScreenBmp = true;
+			draw_origin = DrawOrigin::Screen;
 		}
 
-		int32_t xoffset;
-		int32_t yoffset;
-		if (draw_origin == DrawOrigin::Region)
+		int xoffset, yoffset;
+		if (auto r = get_draw_origin_offset(draw_origin, command.draw_origin_target, xoff, yoff))
 		{
-			xoffset = xoff - viewport.x;
-			yoffset = yoff - viewport.y;
-		}
-		else if (draw_origin == DrawOrigin::RegionScrollingNew)
-		{
-			xoffset = xoff + FFCore.ScrollingData[SCROLLDATA_NRX];
-			yoffset = yoff + FFCore.ScrollingData[SCROLLDATA_NRY];
-		}
-		else if (draw_origin == DrawOrigin::PlayingField)
-		{
-			xoffset = xoff;
-			yoffset = yoff;
-		}
-		else if (draw_origin == DrawOrigin::Screen)
-		{
-			xoffset = 0;
-			yoffset = 0;
-		}
-		else if (draw_origin == DrawOrigin::Sprite)
-		{
-			sprite* spr = sprite::getByUID(command.draw_origin_target);
-			if (!spr)
-			{
-				Z_scripterrlog("Warning: Ignoring draw command using DRAW_ORIGIN_SPRITE with non-existent sprite uid: %d.\n", command.draw_origin_target);
-				continue;
-			}
-
-			xoffset = xoff - viewport.x + spr->x.getInt();
-			yoffset = yoff - viewport.y + spr->y.getInt();
+			std::tie(xoffset, yoffset) = *r;
 		}
 		else
 		{
-			// Unexpected.
-			xoffset = 0;
-			yoffset = 0;
+			continue;
+		}
+
+		secondary_draw_origin_xoff = 0;
+		secondary_draw_origin_yoff = 0;
+		if (command.secondary_draw_origin != DrawOrigin::Default)
+		{
+			if (auto r = get_draw_origin_offset(command.secondary_draw_origin, command.secondary_draw_origin_target, xoff, yoff))
+			{
+				std::tie(secondary_draw_origin_xoff, secondary_draw_origin_yoff) = *r;
+			}
+			else
+			{
+				continue;
+			}
 		}
 
 		switch(sdci[0])

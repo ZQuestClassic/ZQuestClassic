@@ -978,6 +978,9 @@ static GUI::ListData compatRulesList
 	{ "Hide Bottom 8 Pixels", qr_HIDE_BOTTOM_8_PIXELS,
 		"If enabled, the bottom 8 pixels of the screen are never shown."
 		" Note that if disabled, active subscreens are still only 168 pixels tall, though overlay subscreens would be 230 instead of 224."},
+	{ "Broken Script Drawing Bitmap Draw Origin", qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN,
+		"If enabled, bitmap draw commands incorrectly use Screen->DrawOrigin, resulting in unexpected offsets for bitmap drawing."
+		" This only affects quests made in 2.55.9 or later."},
 };
 
 static GUI::ListData enemiesRulesList

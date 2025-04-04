@@ -3,6 +3,7 @@
 #include "auto/arrays.zs"
 #include "auto/bitmap_load_rt_screen.zs"
 #include "auto/classes.zs"
+#include "auto/compat_qrs.zs"
 #include "auto/garbage_collection.zs"
 #include "auto/optional_params.zs"
 #include "auto/scc.zs"

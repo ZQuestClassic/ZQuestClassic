@@ -1,0 +1,547 @@
+stderr:
+
+Compiling 'compat_qrs.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+compat_qrs.zs Line 15 @ Columns 15-33 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
+
+13            Hero->Y = 50;
+14    
+15            bitmap b1 = Game->CreateBitmap(16, 16);
+                          ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new bitmap(width, height)` instead!
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 14
+        },
+        "end": {
+          "line": 14,
+          "character": 32
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.\nUse `new bitmap(width, height)` instead!"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 6,
+    "symbols": 30,
+    "identifiers": 123,
+    "elided": true
+  }
+}
+
+zasm:
+
+PUSHR REFDMAPDATA; void run() Body Start
+PUSHARGSV 0 0.0004
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE D2 0.0003
+LOAD D2 0.0003; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0
+STORE D2 0.0002
+WRITEPODSTRING D2 "[Test] Running %s\n"
+LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+LOAD D2 0.0003
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0.0002
+DEALLOCATEMEMR D3
+LOAD D2 0.0003; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() #9 Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 37 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; if() #9 Body Start
+STORE D2 0
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #9 Body End
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() #1 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 59 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
+GOTO 51; while() #1 End
+CALLFUNC 0.0062; UsrFunc[void End()] Call AND [Opt:NeverRet]
+LOAD D3 0.0003
+DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
+PUSHV 0; Func[void End()] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 13 0
+STORE D2 0
+WRITEPODSTRING D2 "[Test] done\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+
+
+PUSHR REFGENERICDATA; void run() Body Start
+PUSHARGSV 0 0.0004
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0316; UsrFunc[void Init(int)] Call
+PEEK D4
+PUSHV 0; UsrFunc[void loadRegion(int, int)] Params Start
+PUSHV 4; UsrFunc[void loadRegion(int, int)] Params End
+CALLFUNC 0.0342; UsrFunc[void loadRegion(int, int)] Call
+POP D4
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
+SETV D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body
+SETV D2 130
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+SETV D2 50
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+PUSHV 16; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start
+SETV D1 16; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
+POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
+SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
+STORE_OBJECT D2 0.0003
+SETV D2 -1; InlineFunc[bitmap Game::LoadBitmapID(int)] Params
+LOADBITMAPDATAR D2; InlineFunc[bitmap Game::LoadBitmapID(int)] Body Start
+SETR D2 REFBITMAP; InlineFunc[bitmap Game::LoadBitmapID(int)] Body End
+STORE_OBJECT D2 0.0002
+SETV D2 1
+PUSHR D2
+SETV D2 483
+PUSHR D2
+POP D0
+POP D2
+SETR FFRULE D2
+STOREV 0 0.0001
+STOREV 90 0
+LOAD D2 0.0001; while() #2 Test
+PUSHR D2
+ADDV D2 1
+STORE D2 0.0001
+PEEK D2
+LOAD D2 0
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 114 ==; Test 'while'
+LOAD D2 0.0003; InlineFunc[void bitmap::Clear(int)] Params Start AND while() #2 Body Start
+PUSHR D2
+PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
+CLEARBITMAP; InlineFunc[void bitmap::Clear(int)] Body Start
+POPARGS D5 0.0002; InlineFunc[void bitmap::Clear(int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Params Start
+PUSHR D2
+PUSHARGSV 0 0.0003
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_TILE
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_CSET
+PUSHV 128; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Params End
+BMPFASTTILER; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Body Start
+POPARGS D5 0.0007; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Params Start
+PUSHR D2
+PUSHV 0
+PUSHV 113
+PUSHV 1
+PUSHV 255; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Params End
+BMPREPLCOLOR; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Body Start
+POPARGS D5 0.0005; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
+PUSHR D2
+PUSHV 6
+PUSHV -1
+PUSHARGSV 0 0.0002
+PUSHARGSV 16 0.0002
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_X
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+SUBV D2 16
+PUSHR D2
+PUSHARGSV 16 0.0002
+PUSHARGSV 0 0.0005
+PUSHV 1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
+BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
+POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body End
+GOTO 53; while() #2 End
+SETV D2 0
+STORE D2 0.0001
+LOAD D2 0.0001; while() #3 Test
+PUSHR D2
+ADDV D2 1
+STORE D2 0.0001
+PEEK D2
+LOAD D2 0
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 178 ==; Test 'while'
+LOAD D2 0.0003; InlineFunc[void bitmap::Clear(int)] Params Start AND while() #3 Body Start
+PUSHR D2
+PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
+CLEARBITMAP; InlineFunc[void bitmap::Clear(int)] Body Start
+POPARGS D5 0.0002; InlineFunc[void bitmap::Clear(int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Params Start
+PUSHR D2
+PUSHARGSV 0 0.0003
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_TILE
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_CSET
+PUSHV 128; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Params End
+BMPFASTTILER; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Body Start
+POPARGS D5 0.0007; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Params Start
+PUSHR D2
+PUSHV 0
+PUSHV 113
+PUSHV 1
+PUSHV 255; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Params End
+BMPREPLCOLOR; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Body Start
+POPARGS D5 0.0005; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
+PUSHR D2
+PUSHV 6
+LOAD D2 0.0002
+PUSHR D2
+PUSHARGSV 0 0.0002
+PUSHARGSV 16 0.0002
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_X
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+SUBV D2 16
+PUSHR D2
+PUSHARGSV 16 0.0002
+PUSHARGSV 0 0.0005
+PUSHV 1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
+BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
+POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
+GOTO 116; while() #3 End
+SETV D2 0
+PUSHR D2
+SETV D2 483
+PUSHR D2
+POP D0
+POP D2
+SETR FFRULE D2
+SETV D2 0
+STORE D2 0.0001
+LOAD D2 0.0001; while() #4 Test
+PUSHR D2
+ADDV D2 1
+STORE D2 0.0001
+PEEK D2
+LOAD D2 0
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 248 ==; Test 'while'
+LOAD D2 0.0003; InlineFunc[void bitmap::Clear(int)] Params Start AND while() #4 Body Start
+PUSHR D2
+PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
+CLEARBITMAP; InlineFunc[void bitmap::Clear(int)] Body Start
+POPARGS D5 0.0002; InlineFunc[void bitmap::Clear(int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Params Start
+PUSHR D2
+PUSHARGSV 0 0.0003
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_TILE
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_CSET
+PUSHV 128; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Params End
+BMPFASTTILER; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Body Start
+POPARGS D5 0.0007; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Params Start
+PUSHR D2
+PUSHV 0
+PUSHV 113
+PUSHV 1
+PUSHV 255; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Params End
+BMPREPLCOLOR; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Body Start
+POPARGS D5 0.0005; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
+PUSHR D2
+PUSHV 6
+PUSHV -1
+PUSHARGSV 0 0.0002
+PUSHARGSV 16 0.0002
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_X
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+SUBV D2 16
+PUSHR D2
+PUSHARGSV 16 0.0002
+PUSHARGSV 0 0.0005
+PUSHV 1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
+BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
+POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #4 Body End
+GOTO 187; while() #4 End
+SETV D2 0
+STORE D2 0.0001
+LOAD D2 0.0001; while() #5 Test
+PUSHR D2
+ADDV D2 1
+STORE D2 0.0001
+PEEK D2
+LOAD D2 0
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 312 ==; Test 'while'
+LOAD D2 0.0003; InlineFunc[void bitmap::Clear(int)] Params Start AND while() #5 Body Start
+PUSHR D2
+PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
+CLEARBITMAP; InlineFunc[void bitmap::Clear(int)] Body Start
+POPARGS D5 0.0002; InlineFunc[void bitmap::Clear(int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Params Start
+PUSHR D2
+PUSHARGSV 0 0.0003
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_TILE
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_CSET
+PUSHV 128; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Params End
+BMPFASTTILER; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Body Start
+POPARGS D5 0.0007; InlineFunc[void bitmap::FastTile(int, int, int, int, int, int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Params Start
+PUSHR D2
+PUSHV 0
+PUSHV 113
+PUSHV 1
+PUSHV 255; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Params End
+BMPREPLCOLOR; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Body Start
+POPARGS D5 0.0005; InlineFunc[void bitmap::ReplaceColors(int, int, int, int)] Body End
+LOAD D2 0.0003; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
+PUSHR D2
+PUSHV 6
+LOAD D2 0.0002
+PUSHR D2
+PUSHARGSV 0 0.0002
+PUSHARGSV 16 0.0002
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_X
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+SUBV D2 16
+PUSHR D2
+PUSHARGSV 16 0.0002
+PUSHARGSV 0 0.0005
+PUSHV 1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
+BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
+POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #5 Body End
+GOTO 250; while() #5 End
+REF_REMOVE 0.0003
+REF_REMOVE 0.0002
+POPARGS D5 0.0005
+QUIT; void run() Body End
+PUSHV 0; Func[void Init(int)] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 35 0
+STORE D2 0
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+LOAD D2 0.0001; if() #8 Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 340 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
+LOAD D2 0.0001; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
+POPARGS D5 0.0002
+RETURNFUNC; Func[void Init(int)] Body End
+PUSHARGSV 0 0.0004; Func[void loadRegion(int, int)] Body Start
+SETR D4 SP2
+SETV D2 5; InlineFunc[dmapdata Game::LoadDMapData(int)] Params
+LOADDMAPDATAR D2; InlineFunc[dmapdata Game::LoadDMapData(int)] Body Start
+SETR D2 REFDMAPDATA; InlineFunc[dmapdata Game::LoadDMapData(int)] Body End
+PUSHR D2
+POP REFDMAPDATA
+SETR D2 DMAPDATAMAP
+STORE D2 0.0003
+STOREV 0 0.0002; for() #3 setup
+LOAD D2 0.0002; for() #3 LoopTest
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 411 ==; for() #3 TestFail?
+STOREV 0 0.0001; for() #4 setup AND for() #3 Body Start
+LOAD D2 0.0001; for() #4 LoopTest
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 407 ==; for() #4 TestFail?
+LOAD D2 0.0003; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start AND for() #4 Body Start
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+MULTV D2 16
+POP D3
+ADDR D2 D3
+SETR D1 D2; InlineFunc[mapdata Game::LoadMapData(int, int)] Params End
+POP D0; InlineFunc[mapdata Game::LoadMapData(int, int)] Body Start
+SETR D2 LOADMAPDATA; InlineFunc[mapdata Game::LoadMapData(int, int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFMAPDATA
+SETR MAPDATAVALID D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFMAPDATA
+SETR MAPDATAREGIONID D2; for() #4 Body End
+LOAD D2 0.0001; for() #4 LoopIncrement
+ADDV D2 1
+STORE D2 0.0001
+GOTO 361; for() #4 End
+LOAD D2 0.0002; for() #3 Body End AND for() #3 LoopIncrement
+ADDV D2 1
+STORE D2 0.0002
+GOTO 352; for() #3 End
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
+LOAD D2 0.0005; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body
+POPARGS D5 0.0006
+RETURNFUNC; Func[void loadRegion(int, int)] Body End
+
+
+QUIT; void run() Body

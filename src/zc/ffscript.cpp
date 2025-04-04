@@ -27849,22 +27849,10 @@ INLINE void set_user_bitmap_command_args(const int32_t j, const word numargs)
 		script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
 }
 
-void do_drawing_command(const int32_t script_command)
+static DrawOrigin get_draw_origin_for_screen_draw_command()
 {
-	if (FFCore.skipscriptdraws)
-		return;
-	int32_t j = script_drawing_commands.GetNext();
-	
-	if(j == -1)  //out of drawing command space
-	{
-		Z_scripterrlog("Max draw primitive limit reached\n");
-		return;
-	}
-
-	script_drawing_commands[j][0] = script_command;
-	script_drawing_commands[j][DRAWCMD_CURRENT_TARGET] = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
-
 	DrawOrigin draw_origin = ri->screen_draw_origin;
+
 	if (draw_origin == DrawOrigin::Default)
 	{
 		bool in_scrolling_region = is_in_scrolling_region() || (screenscrolling && scrolling_region.screen_count > 1);
@@ -27885,8 +27873,48 @@ void do_drawing_command(const int32_t script_command)
 			draw_origin = DrawOrigin::Region;
 	}
 
-	script_drawing_commands[j].draw_origin = draw_origin;
-	script_drawing_commands[j].draw_origin_target = ri->screen_draw_origin_target;
+	return draw_origin;
+}
+
+static DrawOrigin get_draw_origin_for_bitmap_draw_command()
+{
+	return DrawOrigin::Screen;
+}
+
+static std::pair<DrawOrigin, int> get_draw_origin_for_draw_command(bool is_screen_draw, int scripting_bitmap_id)
+{
+	if (get_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN))
+		return {get_draw_origin_for_screen_draw_command(), ri->screen_draw_origin_target};
+
+	auto [bitmap_id, _] = resolveScriptingBitmapId(scripting_bitmap_id);
+
+	if (FFCore.doesResolveToDeprecatedSystemBitmap(bitmap_id))
+		return {DrawOrigin::Screen, 0};
+
+	if (FFCore.doesResolveToScreenBitmap(bitmap_id))
+		return {get_draw_origin_for_screen_draw_command(), ri->screen_draw_origin_target};
+
+	if (!is_screen_draw)
+		return {get_draw_origin_for_bitmap_draw_command(), 0};
+
+	return {DrawOrigin::Screen, 0};
+}
+
+static void do_drawing_command(int32_t script_command, bool is_screen_draw)
+{
+	if (FFCore.skipscriptdraws)
+		return;
+
+	int32_t j = script_drawing_commands.GetNext();
+	if(j == -1)  //out of drawing command space
+	{
+		Z_scripterrlog("Max draw primitive limit reached\n");
+		return;
+	}
+
+	script_drawing_commands[j] = {};
+	script_drawing_commands[j][0] = script_command;
+	script_drawing_commands[j][DRAWCMD_CURRENT_TARGET] = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
 
 	switch(script_command)
 	{
@@ -28408,28 +28436,37 @@ void do_drawing_command(const int32_t script_command)
 			set_user_bitmap_command_args(j, 6); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+6); break;
 		case BITMAPGETPIXEL:
 		{
-			//UNUSED
-			// for(int32_t q = 0; q < 20; q++)
-			// {
-				// Z_scripterrlog("getpixel SH::read_stack(ri->sp+%d) is: %d\n", q, SH::read_stack(ri->sp+q));
-			// }
 			set_user_bitmap_command_args(j, 3); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+3);
 			break;
 		}
 		case BMPBLIT:	
 		{
 			set_user_bitmap_command_args(j, 16); 
-			//for(int32_t q = 0; q < 8; ++q )
-			//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
-			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+16);
+
+			int bmp_target = SH::read_stack(ri->sp+16);
+			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = bmp_target;
+
+			if (!get_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN))
+			{
+				int bmp_dest = script_drawing_commands[j][2];
+				auto [draw_origin, draw_origin_target] = get_draw_origin_for_draw_command(is_screen_draw, bmp_dest);
+				script_drawing_commands[j].secondary_draw_origin = draw_origin;
+				script_drawing_commands[j].secondary_draw_origin_target = draw_origin_target;
+			}
 			break;
 		}
 		case BMPBLITTO:	
 		{
 			set_user_bitmap_command_args(j, 16); 
-			//for(int32_t q = 0; q < 8; ++q )
-			//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
 			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+16);
+
+			if (!get_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN))
+			{
+				int bmp_source = script_drawing_commands[j][2];
+				auto [draw_origin, draw_origin_target] = get_draw_origin_for_draw_command(is_screen_draw, bmp_source);
+				script_drawing_commands[j].secondary_draw_origin = draw_origin;
+				script_drawing_commands[j].secondary_draw_origin_target = draw_origin_target;
+			}
 			break;
 		}
 		case TILEBLIT:
@@ -28529,6 +28566,17 @@ void do_drawing_command(const int32_t script_command)
 			break;			
 		}
 	}
+
+	int bmp_target;
+	if (is_screen_draw)
+		bmp_target = zscriptDrawingRenderTarget->GetCurrentRenderTarget() + 10;
+	else
+		bmp_target = script_drawing_commands[j][DRAWCMD_BMP_TARGET];
+
+	auto [draw_origin, draw_origin_target] = get_draw_origin_for_draw_command(is_screen_draw, bmp_target);
+	script_drawing_commands[j].draw_origin = draw_origin;
+	script_drawing_commands[j].draw_origin_target = draw_origin_target;
+
 	script_drawing_commands.mark_dirty(script_drawing_commands[j][1]/10000);
 }
 
@@ -32136,9 +32184,11 @@ int32_t run_script_int(bool is_jitted)
 			case DRAWSCREENR:
 			case POLYGONR:
 			case FRAMER:
-				do_drawing_command(scommand);
+			case TILEBLIT:
+			case COMBOBLIT:
+				do_drawing_command(scommand, true);
 				break;
-			
+				
 			case BMPRECTR:	
 			case BMPCIRCLER:
 			case BMPARCR:
@@ -32175,8 +32225,6 @@ int32_t run_script_int(bool is_jitted)
 			case BITMAPGETPIXEL:
 			case BMPBLIT:
 			case BMPBLITTO:
-			case TILEBLIT:
-			case COMBOBLIT:
 			case BMPTILEBLIT:
 			case BMPCOMBOBLIT:
 			case BMPMODE7:
@@ -32194,20 +32242,20 @@ int32_t run_script_int(bool is_jitted)
 			case BMPMASKBLIT:
 			case BMPMASKBLIT2:
 			case BMPMASKBLIT3:
-				do_drawing_command(scommand);
+				do_drawing_command(scommand, false);
 				break;
 			case READBITMAP:
 			{
 				uint32_t bitref = SH::read_stack(ri->sp+2);
 				if(user_bitmap* b = checkBitmap(bitref,"Read()",false,true))
-					do_drawing_command(scommand);
+					do_drawing_command(scommand, false);
 				else //If the pointer isn't allocated, attempt to allocate it first
 				{
 					bitref = FFCore.get_free_bitmap();
 					ri->d[rEXP2] = bitref; //Return to ptr
 					if(bitref) SH::write_stack(ri->sp+2,bitref); //Write the ref, for the drawing command to read
 					else break; //No ref allocated; don't enqueue the drawing command.
-					do_drawing_command(scommand);
+					do_drawing_command(scommand, false);
 				}
 				break;
 			}
@@ -32215,7 +32263,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				ri->d[rEXP2] = SH::read_stack(ri->sp+3);
 				if(user_bitmap* b = checkBitmap(ri->d[rEXP2],"Create()",false,true))
-					do_drawing_command(scommand);
+					do_drawing_command(scommand, false);
 				else //If the pointer isn't allocated
 				{
 					int32_t w = SH::read_stack(ri->sp) / 10000;
@@ -35263,6 +35311,49 @@ uint32_t FFScript::create_user_bitmap_ex(int32_t w, int32_t h)
 	bmp->u_bmp = create_bitmap_ex(8,w,h);
 	clear_bitmap(bmp->u_bmp);
 	return bmp->id;
+}
+
+bool FFScript::doesResolveToScreenBitmap(int32_t bitmap_id)
+{
+	if (bitmap_id == rtSCREEN)
+		return true;
+
+	if (bitmap_id == -2)
+	{
+		int curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+		if (curr_rt >= 0 && curr_rt < 7) 
+			return false;
+
+		return true;
+	}
+
+	return false;
+}
+
+bool FFScript::doesResolveToDeprecatedSystemBitmap(int32_t bitmap_id)
+{
+	switch (bitmap_id)
+	{
+		case rtBMP0:
+		case rtBMP1:
+		case rtBMP2:
+		case rtBMP3:
+		case rtBMP4:
+		case rtBMP5:
+		case rtBMP6:
+		{
+			return true;
+		}
+	}
+
+	if (bitmap_id == -2)
+	{
+		int curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+		if (curr_rt >= 0 && curr_rt < 7) 
+			return true;
+	}
+
+	return false;
 }
 
 BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)

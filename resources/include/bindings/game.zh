@@ -1189,9 +1189,9 @@ class Game {
 	//   SETR D2 REFSHOPDATA
 	internal shopdata LoadInfoShopData(int shop);
 
-	// Loads a [bitmap] pointer for one of the old-style render target `RT_`
-	// bitmaps.
+	// Loads a [bitmap] pointer for one of the old-style render target bitmaps.
 	//
+	// @param [RenderTarget] id
 	// @zasm
 	//   POP D2
 	//   LOADBITMAPDATAR D2

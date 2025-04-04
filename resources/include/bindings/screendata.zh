@@ -1001,6 +1001,13 @@ class screendata {
 	// Each script has its own copy of this variable, meaning other scripts can't change
 	// a script's draw origin unexpectedly.
 	//
+	// A [bitmap] loaded via [Game->LoadBitmapID] and [RT_SCREEN] also use this draw origin,
+	// including when referencing [RT_SCREEN] in [bitmap::Blit], [bitmap::BlitTo] or
+	// [bitmap::DrawPlane].
+	//
+	// When using the deprecated [SetRenderTarget] w/ [RT_BITMAP0] (or the other internal
+	// bitmaps), this value is ignored.
+	//
 	// Defaults to [DRAW_ORIGIN_DEFAULT].
 	//
 	// @versionadded 2.55.9
