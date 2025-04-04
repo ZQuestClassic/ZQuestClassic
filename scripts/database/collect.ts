@@ -335,6 +335,7 @@ async function fetchExternalMusic(page: puppeteer.Page, quest: QuestManifest, re
 
 async function getLatestPzcId(page: puppeteer.Page, type: EntryType) {
   await page.goto(`https://www.purezc.net/index.php?page=${type}&sort=added`, { waitUntil: 'networkidle2' });
+  console.log(page.url());
   console.log(await page.evaluate(() => document.body.textContent));
   return await page.evaluate(() => {
     // @ts-expect-error
@@ -1044,7 +1045,7 @@ async function main() {
   loadRatings();
   loadCache();
 
-  const browser = await puppeteer.launch({headless: false});
+  const browser = await puppeteer.launch({headless: 'new'});
   const page = await browser.newPage();
   await page.setUserAgent('zcdev');
 
