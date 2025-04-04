@@ -1045,6 +1045,7 @@ async function main() {
 
   const browser = await puppeteer.launch({headless: 'new'});
   const page = await browser.newPage();
+  await page.setUserAgent('zcdev');
 
   // Needed for scraping author ids.
   const isLoggedIn = PZC_UN && PZC_PW;
@@ -1191,6 +1192,7 @@ A: No.
       try {
         console.log(`[${id}]`);
         await processPurezcId(page, type, i);
+        await new Promise(resolve => setTimeout(resolve, 3000));
       } catch (e) {
         console.error(`[${id}]`, e);
         console.error(`[${id}]`, 'will try again next run');
@@ -1227,6 +1229,7 @@ A: No.
         seenAuthors.add(author.id);
 
         const lastLogin = await getLastLoginDate(page, author.id);
+        await new Promise(resolve => setTimeout(resolve, 3000));
         authorsMap.set(author.id, {id: author.id, name: author.name, lastLogin});
       }
 
@@ -1258,6 +1261,7 @@ A: No.
         ratings.push(...result);
 
         if (await page.$('.next')) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
           await Promise.all([
             page.click('.next'),
             page.waitForNavigation(),
