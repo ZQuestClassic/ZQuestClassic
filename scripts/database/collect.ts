@@ -335,6 +335,7 @@ async function fetchExternalMusic(page: puppeteer.Page, quest: QuestManifest, re
 
 async function getLatestPzcId(page: puppeteer.Page, type: EntryType) {
   await page.goto(`https://www.purezc.net/index.php?page=${type}&sort=added`, { waitUntil: 'networkidle2' });
+  console.log(await page.evaluate(() => document.body.textContent));
   return await page.evaluate(() => {
     // @ts-expect-error
     return Number(new URL(document.querySelector('tbody td a').href).searchParams.get('id'));
@@ -1185,6 +1186,8 @@ A: No.
     const type = TYPE;
     const start = START || 1;
     const max = MAX || await getLatestPzcId(page, type);
+    console.log({max});
+    if (process.env)process.exit(1);
     console.log(`processing ${max - start + 1} ${type}`);
     for (let i = start; i <= max; i++) {
       const id = `${type}/purezc/${i}`;
