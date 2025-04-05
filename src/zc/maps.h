@@ -394,6 +394,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 void do_walkflags(const std::array<screen_handle_t, 7>& screen_handles ,int32_t x, int32_t y);
 void do_walkflags(int32_t x, int32_t y);
 void do_effectflags(mapscr* scr, int32_t x, int32_t y);
+void do_primitives(BITMAP *bmp, int32_t type);
 void do_primitives(BITMAP *bmp, int32_t type, int32_t x, int32_t y);
 void do_script_draws(BITMAP *bmp, mapscr *scr, int32_t x, int32_t y, bool hideLayer7 = false);
 void calc_darkroom_combos(int map, int screen, int offx, int offy);

@@ -253,7 +253,6 @@ int32_t  pan(int32_t x);
 int32_t  onSetSnapshotFormat(SnapshotType format);
 int32_t onSetBottom8Pixels(int option);
 void updateShowBottomPixels();
-void zc_putpixel(int32_t layer, int32_t x, int32_t y, int32_t cset, int32_t color, int32_t timer);
 int32_t onKeyboardEntry();
 int32_t onLetterGridEntry();
 int32_t onExtLetterGridEntry();

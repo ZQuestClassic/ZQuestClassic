@@ -3534,7 +3534,7 @@ void draw_lens_over()
 	}
 	
 	masked_blit(lens_scr, framebuf, w-(HeroX()+8)+viewport.x, h-(HeroY()+8)+viewport.y, 0, playing_field_offset, 256, viewport.h);
-	do_primitives(framebuf, SPLAYER_LENS_OVER, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_LENS_OVER);
 }
 
 static void update_bmp_size(BITMAP** bmp_ptr, int w, int h)
@@ -4040,37 +4040,37 @@ int32_t onSecretsCheatPerm()
 
 int32_t onShowLayer0()
 {
-	show_layer_0 = !show_layer_0;
+	show_layers[0] = !show_layers[0];
 	return D_O_K;
 }
 int32_t onShowLayer1()
 {
-	show_layer_1 = !show_layer_1;
+	show_layers[1] = !show_layers[1];
 	return D_O_K;
 }
 int32_t onShowLayer2()
 {
-	show_layer_2 = !show_layer_2;
+	show_layers[2] = !show_layers[2];
 	return D_O_K;
 }
 int32_t onShowLayer3()
 {
-	show_layer_3 = !show_layer_3;
+	show_layers[3] = !show_layers[3];
 	return D_O_K;
 }
 int32_t onShowLayer4()
 {
-	show_layer_4 = !show_layer_4;
+	show_layers[4] = !show_layers[4];
 	return D_O_K;
 }
 int32_t onShowLayer5()
 {
-	show_layer_5 = !show_layer_5;
+	show_layers[5] = !show_layers[5];
 	return D_O_K;
 }
 int32_t onShowLayer6()
 {
-	show_layer_6 = !show_layer_6;
+	show_layers[6] = !show_layers[6];
 	return D_O_K;
 }
 int32_t onShowLayerO()
@@ -7755,13 +7755,13 @@ void System()
 			cheat_menu.select_uid(MENUID_CHEAT_IGNORESV, ignoreSideview);
 			cheat_menu.select_uid(MENUID_CHEAT_GOFAST, gofast);
 			
-			show_menu.select_uid(MENUID_SHOW_L0, show_layer_0);
-			show_menu.select_uid(MENUID_SHOW_L1, show_layer_1);
-			show_menu.select_uid(MENUID_SHOW_L2, show_layer_2);
-			show_menu.select_uid(MENUID_SHOW_L3, show_layer_3);
-			show_menu.select_uid(MENUID_SHOW_L4, show_layer_4);
-			show_menu.select_uid(MENUID_SHOW_L5, show_layer_5);
-			show_menu.select_uid(MENUID_SHOW_L6, show_layer_6);
+			show_menu.select_uid(MENUID_SHOW_L0, show_layers[0]);
+			show_menu.select_uid(MENUID_SHOW_L1, show_layers[1]);
+			show_menu.select_uid(MENUID_SHOW_L2, show_layers[2]);
+			show_menu.select_uid(MENUID_SHOW_L3, show_layers[3]);
+			show_menu.select_uid(MENUID_SHOW_L4, show_layers[4]);
+			show_menu.select_uid(MENUID_SHOW_L5, show_layers[5]);
+			show_menu.select_uid(MENUID_SHOW_L6, show_layers[6]);
 			show_menu.select_uid(MENUID_SHOW_OVER, show_layer_over);
 			show_menu.select_uid(MENUID_SHOW_PUSH, show_layer_push);
 			show_menu.select_uid(MENUID_SHOW_SPR, show_sprites);
@@ -9330,8 +9330,3 @@ void update_keys()
 	}
 }
 
-void zc_putpixel(int32_t layer, int32_t x, int32_t y, int32_t cset, int32_t color, int32_t timer)
-{
-	timer=timer;
-	particles.add(new particle(zfix(x), zfix(y), layer, cset, color));
-}

@@ -3197,7 +3197,7 @@ void HeroClass::draw(BITMAP* dest)
 herodraw_end:
 	xofs=oxofs;
 	yofs=oyofs;
-	do_primitives(dest, SPLAYER_PLAYER_DRAW, 0, playing_field_offset);
+	do_primitives(dest, SPLAYER_PLAYER_DRAW);
 }
 
 void HeroClass::masked_draw(BITMAP* dest)
@@ -28566,7 +28566,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	dither_offx = 0;
 	dither_offy = 0;
 
-	do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_DARKROOM_UNDER);
 	set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 	if (hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
 	{
@@ -28589,7 +28589,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	color_map = &trans_table;
 	
 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-	do_primitives(framebuf, SPLAYER_DARKROOM_OVER, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_DARKROOM_OVER);
 }
 
 void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdmap)
@@ -29537,8 +29537,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		// Draw screens' background layer primitives together, after their layers' combos.
 		// Not ideal, but probably good enough for all realistic purposes.
 		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
-		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG)) do_primitives(framebuf, 2, 0, playing_field_offset);
-		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_primitives(framebuf, 3, 0, playing_field_offset);
+		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG)) do_primitives(framebuf, 2);
+		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_primitives(framebuf, 3);
 
 		combotile_add_y = is_unsmooth_vertical_scrolling ? -3 : 0;
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
@@ -29549,7 +29549,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		combotile_add_y = 0;
 
 		if (lenscheck(newscr, 0))
-			do_primitives(framebuf, 0, 0, playing_field_offset);
+			do_primitives(framebuf, 0);
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			do_layer(framebuf, 0, screen_handles[1], offx, offy);
@@ -29597,7 +29597,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 				}
 			});
 
-			do_primitives(framebuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_PUSHBLOCK);
 		}
 
 		if (show_walkflags || show_effectflags)
@@ -29705,7 +29705,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		put_passive_subscr(framebuf, 0, 0, game->should_show_time(), sspUP);
 
 		if(get_qr(qr_SUBSCREENOVERSPRITES))
-			do_primitives(framebuf, 7, 0, playing_field_offset);
+			do_primitives(framebuf, 7);
 		
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6))
 		{
@@ -33232,14 +33232,14 @@ void HeroClass::explode(int32_t type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
@@ -33252,7 +33252,7 @@ void HeroClass::explode(int32_t type)
                         }
                         else
                         {
-                            particles.add(new pDivineEscapeDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
