@@ -704,7 +704,6 @@ weapon::weapon(weapon const & other):
     ref_o_tile(other.ref_o_tile),	//int32_t
 	script_wrote_otile(other.script_wrote_otile),
     temp1(other.temp1),			//int32_t		Misc var.
-    behind(other.behind),		//bool		Should it be drawn behind Hero, NPC, and other sprites?
 	autorotate(other.autorotate),
     linked_parent(other.linked_parent),	//int32_t		A flagset that determines of the weapon can collect an item.
 	unblockable(other.unblockable),

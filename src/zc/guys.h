@@ -307,6 +307,7 @@ protected:
 	virtual void drawzcboss(BITMAP *dest);
 	// similar to the overblock function--can do up to a 32x32 sprite
 	void drawblock(BITMAP *dest,int32_t mask);
+	virtual bool can_drawshadow() const;
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	void masked_draw(BITMAP *dest,int32_t mx,int32_t my,int32_t mw,int32_t mh);
 	virtual void init_size_flags();

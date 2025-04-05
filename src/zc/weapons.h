@@ -47,7 +47,6 @@ public:
     int32_t o_speed, o_type, frames, o_flip, ref_o_tile;
 	byte script_wrote_otile;
     int32_t temp1;
-    bool behind;
     bool autorotate;
 	byte linkedItem;
 	byte unblockable;
