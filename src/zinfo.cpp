@@ -610,7 +610,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 {
 	dword section_id=ID_ZINFO;
 	dword section_version=V_ZINFO;
-	dword section_cversion=CV_ZINFO;
 	dword section_size=0;
 	
 	//section id
@@ -625,7 +624,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -793,7 +792,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 {
 	int32_t dummy;
-	word section_version, section_cversion;
+	word section_version;
 	z.clear();
 	if(!f)
 		return 0;
@@ -805,7 +804,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	if(!p_igetw(&section_version,f))
 		return qe_invalid;
 	
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 		return qe_invalid;
 	
 	if(!p_igetl(&dummy,f))

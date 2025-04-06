@@ -4009,8 +4009,7 @@ void load_imagebuf()
 	imagetype=filetype(imagepath);
 	
 	dword section_id;
-	dword section_version;
-	dword section_cversion;
+	word section_version;
 	
 	switch(imagetype)
 	{
@@ -4109,7 +4108,7 @@ error:
 			goto error2;
 		}
 		
-		if(!p_igetw(&section_cversion,f))
+		if(!read_deprecated_section_cversion(f))
 		{
 			goto error2;
 		}
@@ -8639,7 +8638,6 @@ static void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_s
 int32_t readtilefile(PACKFILE *f)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
@@ -8655,12 +8653,11 @@ int32_t readtilefile(PACKFILE *f)
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readoneweapon section_version: %d\n", section_version);
-	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
 
 	if ( zversion > ZELDA_VERSION )
 	{
@@ -8668,9 +8665,9 @@ int32_t readtilefile(PACKFILE *f)
 		return 0;
 	}
 	
-	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	else if ( ( section_version > V_TILES ))
 	{
-		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -8735,7 +8732,6 @@ int32_t readtilefile(PACKFILE *f)
 int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
@@ -8751,12 +8747,11 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readoneweapon section_version: %d\n", section_version);
-	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
 
 	if ( zversion > ZELDA_VERSION )
 	{
@@ -8764,9 +8759,9 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 		return 0;
 	}
 	
-	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	else if ( ( section_version > V_TILES ))
 	{
-		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -8843,7 +8838,6 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
@@ -8859,12 +8853,11 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readoneweapon section_version: %d\n", section_version);
-	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
 
 	if ( zversion > ZELDA_VERSION )
 	{
@@ -8872,9 +8865,9 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 		return 0;
 	}
 	
-	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	else if ( ( section_version > V_TILES ))
 	{
-		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -8942,7 +8935,6 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 {
 	dword section_version=V_TILES;
-	dword section_cversion=CV_TILES;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	
@@ -8959,7 +8951,7 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 		return 0;
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		return 0;
 	}
@@ -12681,7 +12673,7 @@ int32_t readcombo_loop(PACKFILE* f, word section_version, newcombo& temp_combo);
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb);
 
 int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t zversion,
-	dword section_version, dword section_cversion, int32_t index, int32_t count)
+	dword section_version, int32_t index, int32_t count)
 {
 	newcombo temp_combo;
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
@@ -12971,7 +12963,6 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
@@ -12987,7 +12978,7 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
@@ -12998,9 +12989,9 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 		return 0;
 	}
 	
-	else if ( ( section_version > V_COMBOS ) || ( section_version == V_COMBOS && section_cversion > CV_COMBOS ) )
+	else if ( ( section_version > V_COMBOS ))
 	{
-		al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -13018,19 +13009,17 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 		return 0;
 	}
 	if(start > -1) index = start;
-	// al_trace("Reading combo: index(%d)\n", index);
 	
 	//tile count
 	if(!p_igetl(&count,f))
 	{
 		return 0;
 	}
-	// al_trace("Reading combo: count(%d)\n", count);
 	reset_combo_animations();
 	reset_combo_animations2();
 	
 	if(section_version < 33)
-		return readcombofile_old(f,skip,nooverwrite,zversion,section_version,section_cversion,index,count);
+		return readcombofile_old(f,skip,nooverwrite,zversion,section_version,index,count);
 	
 	newcombo temp_combo;
 	size_t end = index+count;
@@ -13057,7 +13046,6 @@ int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, 
 int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 {
 	dword section_version=V_COMBOS;
-	dword section_cversion=CV_COMBOS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	
@@ -13074,7 +13062,7 @@ int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 		return 0;
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		return 0;
 	}
@@ -13111,7 +13099,6 @@ int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 int32_t readcomboaliasfile(PACKFILE *f)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	word tempword = 0;
@@ -13128,12 +13115,11 @@ int32_t readcomboaliasfile(PACKFILE *f)
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readoneweapon section_version: %d\n", section_version);
-	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
 
 	if ( zversion > ZELDA_VERSION )
 	{
@@ -13141,9 +13127,9 @@ int32_t readcomboaliasfile(PACKFILE *f)
 		return 0;
 	}
 	
-	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
+	else if ( ( section_version > V_COMBOALIASES ))
 	{
-		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -13251,7 +13237,6 @@ int32_t readcomboaliasfile(PACKFILE *f)
 int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
@@ -13267,21 +13252,20 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readcomboaliasfile_to_location section_version: %d\n", section_version);
-	al_trace("readcomboaliasfile_to_location section_cversion: %d\n", section_cversion);
 
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
+	else if ( ( section_version > V_COMBOALIASES ))
 	{
-		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -13388,7 +13372,6 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 {
 	al_trace("Running writecomboaliasfile\n");
 	dword section_version=V_COMBOALIASES;
-	dword section_cversion=CV_COMBOALIASES;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	
@@ -13405,7 +13388,7 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 		return 0;
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		return 0;
 	}

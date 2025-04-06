@@ -1324,7 +1324,6 @@ int32_t onExport_ZGP()
 int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststart)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	int32_t doorscount = 0;
@@ -1348,7 +1347,7 @@ int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststa
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
@@ -1385,9 +1384,9 @@ int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststa
 		return 0;
 	}
 	
-	else if ( ( section_version > V_DOORS ) || ( section_version == V_DOORS && section_cversion > CV_DOORS ) )
+	else if ( ( section_version > V_DOORS ))
 	{
-		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -1592,7 +1591,6 @@ int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststa
 int32_t writezdoorsets(PACKFILE *f, int32_t first = 0, int32_t count = door_combo_set_count)
 {
 	dword section_version=V_DOORS;
-	dword section_cversion=CV_DOORS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	int32_t doorscount = door_combo_set_count;
@@ -1611,7 +1609,7 @@ int32_t writezdoorsets(PACKFILE *f, int32_t first = 0, int32_t count = door_comb
 	{
 		return 0;
 	}
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		return 0;
 	}
@@ -1831,7 +1829,6 @@ int32_t writezdoorsets(PACKFILE *f, int32_t first = 0, int32_t count = door_comb
 int32_t writeonezdoorset(PACKFILE *f, int32_t index)
 {
 	dword section_version=V_DOORS;
-	dword section_cversion=CV_DOORS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	int32_t doorscount = door_combo_set_count;
@@ -1850,7 +1847,7 @@ int32_t writeonezdoorset(PACKFILE *f, int32_t index)
 	{
 		return 0;
 	}
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		return 0;
 	}
@@ -2055,7 +2052,6 @@ int32_t writeonezdoorset(PACKFILE *f, int32_t index)
 int32_t readonezdoorset(PACKFILE *f, int32_t index)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	int32_t doorscount = 0;
@@ -2078,7 +2074,7 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index)
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
@@ -2102,9 +2098,9 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	else if ( ( section_version > V_DOORS ) || ( section_version == V_DOORS && section_cversion > CV_DOORS ) )
+	else if ( ( section_version > V_DOORS ))
 	{
-		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d)\n", section_version);
 		return 0;
 		
 	}

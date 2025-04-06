@@ -173,45 +173,6 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 //= V_SHOPS is under V_MISC
 
-/*
-  * Compatible version number of the different section types
-  * Basically, the last version number that this section type
-  * is just an extension of (ie. new variables are stuck on the end)
-  * instead of a complete rewrite (or variables added to the middle).
-  * If this and the version number are the same, then this is
-  * a total reworking of the section and probably won't be able
-  * to be read by anything that was written for a previous version.
-  */
-#define CV_HEADER          3
-#define CV_RULES           1
-#define CV_STRINGS         2
-#define CV_MISC            7
-#define CV_TILES           1
-#define CV_COMBOS          1
-#define CV_CSETS           1
-#define CV_MAPS            9
-#define CV_DMAPS           1
-#define CV_DOORS           1
-#define CV_ITEMS          15
-#define CV_WEAPONS         1
-#define CV_COLORS          1
-#define CV_ICONS           1
-#define CV_GRAPHICSPACK    1
-#define CV_INITDATA       15
-#define CV_GUYS            4
-#define CV_MIDIS           3
-#define CV_CHEATS          1
-#define CV_SAVEGAME        5
-#define CV_COMBOALIASES    1
-#define CV_HEROSPRITES     1
-#define CV_SUBSCREEN       3
-#define CV_ITEMDROPSETS    1
-#define CV_FFSCRIPT        1
-#define CV_SFX             5
-#define CV_FAVORITES       1
-#define CV_ZINFO           0
-
-
 // Loose Object Version Metadata
 // If the version is 0, it is ther original.
 // 'Higher Versions' use negative numbers, so -1 is newer than 0, -2 is newer than -1.

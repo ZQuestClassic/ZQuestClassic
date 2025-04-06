@@ -8,6 +8,9 @@
 struct miscQdata;
 struct MsgStr;
 
+bool write_deprecated_section_cversion(word section_version, PACKFILE* f);
+bool read_deprecated_section_cversion(PACKFILE* f);
+
 struct script_slot_data
 {
 	std::string slotname;
@@ -221,10 +224,10 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes);
 int32_t readcheatcodes(PACKFILE *f, zquestheader *Header);
 int32_t readinitdata(PACKFILE *f, zquestheader *Header);
 int32_t readffscript(PACKFILE *f, zquestheader *Header);
-int32_t read_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, word s_version, word s_cversion, script_data *script, word zmeta_version);
+int32_t read_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, word s_version, script_data *script, word zmeta_version);
 int32_t readsfx(PACKFILE *f, zquestheader *Header);
-int32_t readitemdropsets(PACKFILE *f, word version, word build);
-int32_t readfavorites(PACKFILE *f, int32_t, word);
+int32_t readitemdropsets(PACKFILE *f, word version);
+int32_t readfavorites(PACKFILE *f, int32_t);
 
 int32_t readsubscreens(PACKFILE *f);
 int32_t read_old_subscreens(PACKFILE *f, word s_version);

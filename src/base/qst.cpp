@@ -107,6 +107,19 @@ bool mapsread=false;
 bool fixffcs=false;
 bool fixpolsvoice=false;
 
+// Each section had a separate, secondary versioning number, but it was never really utilized for
+// its intended purpose so it's been removed. But we still write something in this field.
+bool write_deprecated_section_cversion(word section_version, PACKFILE* f)
+{
+	return p_iputw(section_version, f);
+}
+
+bool read_deprecated_section_cversion(PACKFILE* f)
+{
+	word unused;
+	return p_igetw(&unused, f);
+}
+
 void script_slot_data::update()
 {
 	switch (format)
@@ -1077,7 +1090,7 @@ static bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Mi
         
     case ID_FAVORITES:
         // favorite combos and aliases
-        ret=readfavorites(f, version, build);
+        ret=readfavorites(f, version);
         break;
         
     default:
@@ -3670,7 +3683,6 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 	{
 		int32_t dummy_int;
 		word s_version;
-		word s_cversion;
 		
 		//section version info
 		if(!p_igetw(&s_version,f))
@@ -3680,7 +3692,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 	
 		FFCore.quest_format[vStrings] = s_version;
 		
-		if(!p_igetw(&s_cversion,f))
+		if(!read_deprecated_section_cversion(f))
 		{
 			return qe_invalid;
 		}
@@ -4422,7 +4434,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	dmap tempDMap;
 	
 	int32_t dummy;
-	word s_version=0, s_cversion=0;
+	word s_version=0;
 	byte padding;
 
 	char legacy_title[22];
@@ -4452,7 +4464,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		FFCore.quest_format[vDMaps] = s_version;
 		
 		
-		if(!p_igetw(&s_cversion,f))
+		if(!read_deprecated_section_cversion(f))
 		{
 			return qe_invalid;
 		}
@@ -5052,7 +5064,7 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	Header=Header;
 	
 	miscQdata temp_misc;
-	word s_version=0, s_cversion=0;
+	word s_version=0;
 	int32_t tempsize=0;
 	word dummyw;
 	
@@ -5068,7 +5080,7 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	
 	al_trace("Misc Colours section version: %d\n", s_version);
 	
-	if(!p_igetw(&s_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return qe_invalid;
 	}
@@ -5272,7 +5284,7 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
 {
     miscQdata temp_misc;
-    word s_version=0, s_cversion=0;
+    word s_version=0;
     byte icons;
     int32_t tempsize=0;
     
@@ -5286,7 +5298,7 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
     
     FFCore.quest_format[vIcons] = s_version;
     
-    if(!p_igetw(&s_cversion,f))
+    if(!read_deprecated_section_cversion(f))
     {
         return qe_invalid;
     }
@@ -5339,7 +5351,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	word ponds=16, pondsize=72, expansionsize=98*2;
 	byte tempbyte, padding;
 	miscQdata temp_misc;
-	word s_version=0, s_cversion=0;
+	word s_version=0;
 	word swaptmp;
 	int32_t tempsize=0;
 	
@@ -5367,7 +5379,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		
 		FFCore.quest_format[vMisc] = s_version;
 		
-		if(!p_igetw(&s_cversion,f))
+		if(!read_deprecated_section_cversion(f))
 		{
 			return qe_invalid;
 		}
@@ -6162,7 +6174,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
     int32_t  dummy;
     word items_to_read=MAXITEMS;
     itemdata tempitem;
-    word s_version=0, s_cversion=0;
+    word s_version=0;
     word dummy_word;
     
     if(version < 0x186)
@@ -6182,7 +6194,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 	
 	FFCore.quest_format[vItems] = s_version;
         
-        if(!p_igetw(&s_cversion,f))
+        if(!read_deprecated_section_cversion(f))
         {
             return qe_invalid;
         }
@@ -9424,7 +9436,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
     int32_t dummy;
     byte padding;
     wpndata tempweapon;
-    word s_version=0, s_cversion=0;
+    word s_version=0;
     
     
     if(Header->zelda_version < 0x186)
@@ -9449,7 +9461,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 	
 	FFCore.quest_format[vWeaponSprites] = s_version;
         
-        if(!p_igetw(&s_cversion,f))
+        if(!read_deprecated_section_cversion(f))
         {
             return qe_invalid;
         }
@@ -9977,14 +9989,12 @@ int32_t init_combo_classes()
     return 0;
 }
 
-int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites)
+int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites)
 {
     bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_herosprites);
     if (should_skip) return 0;
 
 	assert(v_herosprites < 6);
-	//these are here to bypass compiler warnings about unused arguments
-	cv_herosprites=cv_herosprites;
 	
 	zinit.hero_swim_speed=67; //default
 	setupherotiles(zinit.heroAnimationStyle);
@@ -10351,11 +10361,8 @@ void setSprite(int32_t* arr, int32_t tile, int32_t flip, int32_t ext)
     arr[spr_extend] = (ext > 2 ? 0 : ext);
 }
 //Used to read the player sprites as int32_t, not word. 
-int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites)
+int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	cv_herosprites=cv_herosprites;
-	
 	zinit.hero_swim_speed=67; //default
 	setupherotiles(zinit.heroAnimationStyle);
 	setupherodefenses();
@@ -11236,7 +11243,7 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
     Header=Header;
     
     dword dummy;
-    word s_version=0, s_cversion=0;
+    word s_version=0;
     
     //section version info
     if(!p_igetw(&s_version,f))
@@ -11246,7 +11253,7 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
     
     FFCore.quest_format[vHeroSprites] = s_version;
     
-    if(!p_igetw(&s_cversion,f))
+    if(!read_deprecated_section_cversion(f))
     {
         return qe_invalid;
     }
@@ -11258,9 +11265,9 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
     }
     if ( s_version >= 6 ) 
     {
-	    return readherosprites3(f, s_version, dummy);
+	    return readherosprites3(f, s_version);
     }
-    else return readherosprites2(f, s_version, dummy);
+    else return readherosprites2(f, s_version);
 }
 
 int32_t read_old_subscreens(PACKFILE *f, word s_version)
@@ -11813,12 +11820,12 @@ int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
 
 int32_t readsubscreens(PACKFILE *f)
 {
-	word s_version, s_cversion;
+	word s_version;
 	dword dummy;
 	if(!p_igetw(&s_version,f))
 		return qe_invalid;
 	FFCore.quest_format[vSubscreen] = s_version;
-	if(!p_igetw(&s_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 		return qe_invalid;
 	if(!p_igetl(&dummy,f)) //section size
 		return qe_invalid;
@@ -11962,7 +11969,7 @@ static std::vector<const script_data*> read_scripts;
 int32_t readffscript(PACKFILE *f, zquestheader *Header)
 {
 	int32_t dummy;
-	word s_version=0, s_cversion=0, zmeta_version=0;
+	word s_version=0, zmeta_version=0;
 	byte numscripts=0;
 	numscripts=numscripts; //to avoid unused variables warnings
 	int32_t ret;
@@ -11977,7 +11984,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	
 	FFCore.quest_format[vFFScript] = s_version;
 	
-	if(!p_igetw(&s_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return qe_invalid;
 	}
@@ -12002,7 +12009,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	//finally...  section data
 	for(int32_t i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
 	{
-		ret = read_one_ffscript(f, Header, i, s_version, s_cversion, ffscripts[i], zmeta_version);
+		ret = read_one_ffscript(f, Header, i, s_version, ffscripts[i], zmeta_version);
 		
 		if (ret)
 		{
@@ -12028,7 +12035,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	{
 		for(int32_t i = 0; i < NUMSCRIPTITEM; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, itemscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, itemscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12038,7 +12045,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i = 0; i < NUMSCRIPTGUYS; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, guyscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, guyscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12049,7 +12056,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		script_data *fake = new script_data(ScriptType::None, 0);
 		for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, fake, zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, fake, zmeta_version);
 			
 			if (ret)
 			{
@@ -12060,7 +12067,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	
 		for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, screenscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, screenscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12072,7 +12079,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12084,7 +12091,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBAL255OLD; ++i)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12101,7 +12108,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBAL253; ++i)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12133,7 +12140,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBALOLD; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12171,7 +12178,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTHERO; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, playerscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, playerscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12183,7 +12190,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTHEROOLD; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, playerscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, playerscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12205,7 +12212,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, ewpnscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, ewpnscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12214,7 +12221,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, dmapscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, dmapscripts[i], zmeta_version);
 			
 				if (ret)
 				{
@@ -12227,7 +12234,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, lwpnscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, lwpnscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12236,7 +12243,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, ewpnscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, ewpnscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12245,7 +12252,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, dmapscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, dmapscripts[i], zmeta_version);
 			
 				if (ret)
 				{
@@ -12258,7 +12265,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, itemspritescripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, itemspritescripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12270,7 +12277,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, comboscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, comboscripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12287,7 +12294,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < numgenscripts; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, genericscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, genericscripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12304,7 +12311,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < numsubscripts; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, subscreenscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, subscreenscripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12774,7 +12781,7 @@ void reset_scripts()
 	}
 }
 
-int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, word s_version, word , script_data *script, word zmeta_version)
+int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, word s_version, script_data *script, word zmeta_version)
 {
 	ASSERT(script);
 
@@ -13076,7 +13083,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 	Header=Header;
 	
 	int32_t dummy;
-	word s_version=0, s_cversion=0;
+	word s_version=0;
 	//int32_t ret;
 	SAMPLE temp_sample = {};
 	temp_sample.loop_start=0;
@@ -13091,7 +13098,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 	
 	FFCore.quest_format[vSFX] = s_version;
 	
-	if(!p_igetw(&s_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return qe_invalid;
 	}
@@ -13383,12 +13390,13 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
         }
         
 	FFCore.quest_format[vGuys] = guyversion;
-	
+
+		// Note: this is the only instance where "cversion" is ever used.
         if(!p_igetw(&guy_cversion,f))
         {
             return qe_invalid;
         }
-        al_trace("Guy CVersion is: %d\n", guy_cversion);
+
         //section size
         if(!p_igetl(&dummy,f))
         {
@@ -13609,7 +13617,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
     
     if(guyversion<=2)
     {
-        return readherosprites2(f, guyversion==2?0:-1, 0);
+        return readherosprites2(f, guyversion==2?0:-1);
     }
     
     if(guyversion > 3)
@@ -17231,33 +17239,10 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	int32_t dummy;
 	byte padding;
 	newcombo temp_combo;
-	//word section_cversion=0;
 
 	if (!should_skip)
 	for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
 		combobuf[q].clear();
-
-	// if(version > 0x192)
-	// {
-		// //section version info
-		// if(!p_igetw(&section_version,f))
-		// {
-			// return qe_invalid;
-		// }
-		
-		// FFCore.quest_format[vCombos] = section_version;
-		
-		// if(!p_igetw(&section_cversion,f))
-		// {
-			// return qe_invalid;
-		// }
-		
-		// //section size
-		// if(!p_igetl(&dummy,f))
-		// {
-			// return qe_invalid;
-		// }
-	// }
 
 	if(version < 0x174)
 	{
@@ -18061,12 +18046,12 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 	update_combo(temp_combo, s_version);
 	return 0;
 }
+
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_combos);
 
 	word section_version=0;
-	word section_cversion=0;
 	word combos_used=0;
 	int32_t dummy;
 	byte padding;
@@ -18088,7 +18073,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			return qe_invalid;
 		}
 		FFCore.quest_format[vCombos] = section_version;
-		if(!p_igetw(&section_cversion,f))
+		if(!read_deprecated_section_cversion(f))
 		{
 			return qe_invalid;
 		}
@@ -18689,7 +18674,6 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 
     int32_t tiles_used=0;
 	word section_version = 0;
-	word section_cversion = 0;
 	int32_t section_size= 0;
     byte *temp_tile = new byte[tilesize(tf32Bit)];
 	
@@ -18725,7 +18709,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
             
 			FFCore.quest_format[vTiles] = section_version;
 			
-            if(!p_igetw(&section_cversion,f))
+            if(!read_deprecated_section_cversion(f))
             {
                 delete[] temp_tile;
                 return qe_invalid;
@@ -19187,11 +19171,10 @@ int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
     return 0;
 }
 
-int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word s_cversion, zinitdata& temp_zinit)
+int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zinitdata& temp_zinit)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_initdata);
 
-	int32_t dummy;
 	byte padding, tempbyte;
 	
 	// Legacy item properties (now integrated into itemdata)
@@ -20623,7 +20606,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_initdata);
 	
 	int32_t dummy;
-	word s_version=0, s_cversion=0;
+	word s_version=0;
 	byte padding;
 	
 	if(Header->zelda_version > 0x192)
@@ -20632,7 +20615,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		FFCore.quest_format[vInitData] = s_version;
 		
-		if(!p_igetw(&s_cversion,f))
+		if(!read_deprecated_section_cversion(f))
 			return qe_invalid;
 		
 		//section size
@@ -20642,7 +20625,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	
 	if(s_version < 37)
 	{
-		if(auto ret = readinitdata_old(f,Header,s_version,s_cversion,temp_zinit))
+		if(auto ret = readinitdata_old(f,Header,s_version,temp_zinit))
 			return ret;
 	}
 	else
@@ -20855,15 +20838,14 @@ void setupitemdropsets()
 }
 */
 
-int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
+int32_t readitemdropsets(PACKFILE *f, int32_t version)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_itemdropsets);
 
-    build=build; // here to prevent compiler warnings
     dword dummy_dword;
     word item_drop_sets_to_read=0;
     item_drop_object tempitemdrop;
-    word s_version=0, s_cversion=0;
+    word s_version=0;
     
 	if (!should_skip)
 	for(int32_t i=0; i<MAXITEMDROPSETS; i++)
@@ -20883,7 +20865,7 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
 	
 	FFCore.quest_format[vItemDropsets] = s_version;
         
-        if(!p_igetw(&s_cversion,f))
+        if(!read_deprecated_section_cversion(f))
         {
             return qe_invalid;
         }
@@ -20974,7 +20956,7 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
     return 0;
 }
 
-int32_t readfavorites(PACKFILE *f, int32_t, word)
+int32_t readfavorites(PACKFILE *f, int32_t)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_favorites);
 
@@ -20982,7 +20964,7 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	dword dummy_dword;
 	word num_favorite_combos;
 	word num_favorite_combo_aliases;
-	word s_version=0, s_cversion=0;
+	word s_version=0;
 	
 	//section version info
 	if(!p_igetw(&s_version,f))
@@ -20993,7 +20975,7 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	if (!should_skip)
 		FFCore.quest_format[vFavourites] = s_version;
 	
-	if(!p_igetw(&s_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return qe_invalid;
 	}
@@ -21243,8 +21225,7 @@ static int maybe_skip_section(PACKFILE* f, dword& section_id, const byte* skip_f
 			return qe_invalid;
 		}
 
-		word c_version;
-		if (!p_igetw(&c_version,f))
+		if (!read_deprecated_section_cversion(f))
 		{
 			return qe_invalid;
 		}
@@ -21970,7 +21951,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
                 }
                 
                 box_out("Reading Item Drop Sets...");
-                ret=readitemdropsets(f, tempheader.zelda_version, tempheader.build);
+                ret=readitemdropsets(f, tempheader.zelda_version);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -21987,7 +21968,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
                 }
                 
                 box_out("Reading Favorite Combos...");
-                ret=readfavorites(f, tempheader.zelda_version, tempheader.build);
+                ret=readfavorites(f, tempheader.zelda_version);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22049,8 +22030,8 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 			{ "Tunes", ID_MIDIS, [&](){ return readtunes(f, &tempheader, tunes); }},
 			{ "Cheat Codes", ID_CHEATS, [&](){ return readcheatcodes(f, &tempheader); }},
 			{ "Init. Data", ID_INITDATA, [&](){ return readinitdata(f, &tempheader); }},
-			{ "Custom Hero Sprite Data", ID_HEROSPRITES, [&](){ return readherosprites2(f, -1, 0); }},
-			{ "Up Default Item Drop Sets", ID_ITEMDROPSETS, [&](){ return readitemdropsets(f, -1, 0); }},
+			{ "Custom Hero Sprite Data", ID_HEROSPRITES, [&](){ return readherosprites2(f, -1); }},
+			{ "Up Default Item Drop Sets", ID_ITEMDROPSETS, [&](){ return readitemdropsets(f, -1); }},
 		};
 
 		legacy_skip_flags = skip_flags;

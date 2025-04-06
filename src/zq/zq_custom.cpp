@@ -375,7 +375,6 @@ void edit_itemdata(int32_t index)
 int32_t readoneitem(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
-	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	itemdata tempitem;
@@ -399,21 +398,20 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readoneitem section_version: %d\n", section_version);
-	al_trace("readoneitem section_cversion: %d\n", section_cversion);
 	
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zitem packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	else if ( ( section_version > V_ITEMS ) || ( section_version == V_ITEMS && section_cversion < CV_ITEMS ) )
+	else if ( ( section_version > V_ITEMS ) )
 	{
-		al_trace("Cannot read .zitem packfile made using V_ITEMS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zitem packfile made using V_ITEMS (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -908,7 +906,6 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 {
 	
 	dword section_version=V_ITEMS;
-	dword section_cversion=CV_ITEMS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	
@@ -927,7 +924,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -1478,7 +1475,6 @@ static int32_t copiedGuy;
 int32_t readonenpc(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
-	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	guydata tempguy;
@@ -1502,21 +1498,20 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readonenpc section_version: %d\n", section_version);
-	al_trace("readonenpc section_cversion: %d\n", section_cversion);
 	
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .znpc packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	else if ( ( section_version > V_GUYS ) || ( section_version == V_GUYS && section_cversion < CV_GUYS ) )
+	else if ( ( section_version > V_GUYS ) )
 	{
-		al_trace("Cannot read .znpc packfile made using V_GUYS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .znpc packfile made using V_GUYS (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -1936,7 +1931,6 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 {
 	
 	dword section_version=V_GUYS;
-	dword section_cversion=CV_GUYS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	
@@ -1955,7 +1949,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}

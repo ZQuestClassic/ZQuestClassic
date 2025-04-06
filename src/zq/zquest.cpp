@@ -12623,7 +12623,6 @@ const char *weaponlist_num(int32_t index, int32_t *list_size)
 int32_t writeoneweapon(PACKFILE *f, int32_t index)
 {
     dword section_version=V_WEAPONS;
-    dword section_cversion=CV_WEAPONS;
     int32_t zversion = ZELDA_VERSION;
     int32_t zbuild = VERSION_BUILD;
     int32_t iid = biw[index].i;
@@ -12643,7 +12642,7 @@ int32_t writeoneweapon(PACKFILE *f, int32_t index)
 	    return 0;
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version, f))
     {
 	    return 0;
     }
@@ -12698,7 +12697,6 @@ int32_t writeoneweapon(PACKFILE *f, int32_t index)
 int32_t readoneweapon(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
-	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	wpndata tempwpnspr;
@@ -12719,12 +12717,11 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readoneweapon section_version: %d\n", section_version);
-	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
 
 	if ( zversion > ZELDA_VERSION )
 	{
@@ -12732,9 +12729,9 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	else if ( ( section_version > V_WEAPONS ) || ( section_version == V_WEAPONS && section_cversion < CV_WEAPONS ) )
+	else if ( ( section_version > V_WEAPONS ) )
 	{
-		al_trace("Cannot read .zwpnspr packfile made using V_WEAPONS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zwpnspr packfile made using V_WEAPONS (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -14068,7 +14065,6 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
 {
     
     dword section_version=V_DMAPS;
-    dword section_cversion=CV_DMAPS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	
@@ -14091,7 +14087,7 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
 		new_return(2);
 	}
     
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version, f))
 	{
 		new_return(3);
 	}
@@ -14367,7 +14363,6 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
 int32_t readsomedmaps(PACKFILE *f)
 {
 	dword section_version = 0;
-	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	dmap tempdmap{};
@@ -14402,7 +14397,7 @@ int32_t readsomedmaps(PACKFILE *f)
 		return 0;
 	}
     
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
@@ -14437,16 +14432,15 @@ int32_t readsomedmaps(PACKFILE *f)
 	
 	
 	al_trace("readsomedmaps section_version: %d\n", section_version);
-	al_trace("readsomedmaps section_cversion: %d\n", section_cversion);
     
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	else if (( section_version > V_DMAPS ) || ( section_version == V_DMAPS && section_cversion > CV_DMAPS ) ) 
+	else if (( section_version > V_DMAPS )) 
 	{
-		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d)\n", section_version);
 		return 0;
 	}
 	else
@@ -14726,7 +14720,6 @@ int32_t writeonedmap(PACKFILE *f, int32_t i)
 {
     
     dword section_version=V_DMAPS;
-    dword section_cversion=CV_DMAPS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	
@@ -14749,7 +14742,7 @@ int32_t writeonedmap(PACKFILE *f, int32_t i)
 		new_return(2);
 	}
     
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version, f))
 	{
 		new_return(3);
 	}
@@ -15000,7 +14993,6 @@ int32_t writeonedmap(PACKFILE *f, int32_t i)
 int32_t readonedmap(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
-	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	dmap tempdmap{};
@@ -15037,12 +15029,11 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 		return 0;
 	}
     
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readonedmap section_version: %d\n", section_version);
-	al_trace("readonedmap section_cversion: %d\n", section_cversion);
     
 	
 	if ( datatype_version < 0 )
@@ -15069,9 +15060,9 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	else if (( section_version > V_DMAPS ) || ( section_version == V_DMAPS && section_cversion > CV_DMAPS ) ) 
+	else if (( section_version > V_DMAPS )) 
 	{
-		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d)\n", section_version);
 		return 0;
 	}
 	else

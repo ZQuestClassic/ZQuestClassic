@@ -5893,8 +5893,7 @@ bool load_combo_alias(const char *path)
 bool load_zgp(const char *path)
 {
     dword section_id;
-    dword section_version;
-    dword section_cversion;
+    word section_version;
     PACKFILE *f=pack_fopen_password(path,F_READ,"");
     
     if(!f)
@@ -5918,7 +5917,7 @@ bool load_zgp(const char *path)
         return 2;
     }
     
-    if(!p_igetw(&section_cversion,f))
+    if(!read_deprecated_section_cversion(f))
     {
         return 3;
     }
@@ -6119,7 +6118,6 @@ bool save_zgp(const char *path)
         
     dword section_id=ID_GRAPHICSPACK;
     dword section_version=V_GRAPHICSPACK;
-    dword section_cversion=CV_GRAPHICSPACK;
     
     //section id
     if(!p_mputl(section_id,f))
@@ -6133,7 +6131,7 @@ bool save_zgp(const char *path)
         return 2;
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         return 3;
     }
@@ -6214,7 +6212,6 @@ bool save_subscreen(const char *path, ZCSubscreen const& savefrom)
         
     dword section_id=ID_SUBSCREEN;
     dword s_version=V_SUBSCREEN;
-    dword s_cversion=CV_SUBSCREEN;
     
     if(!p_mputl(section_id,f))
     {
@@ -6228,7 +6225,7 @@ bool save_subscreen(const char *path, ZCSubscreen const& savefrom)
         return false;
     }
     
-    if(!p_iputw(s_cversion,f))
+    if(!write_deprecated_section_cversion(s_version,f))
     {
         pack_fclose(f);
         return false;
@@ -6254,7 +6251,6 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
         
     dword section_id;
     dword s_version;
-    dword s_cversion;
     
     if(!p_mgetl(&section_id,f))
     {
@@ -6274,7 +6270,7 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
         return false;
     }
     
-    if(!p_igetw(&s_cversion,f))
+    if(!read_deprecated_section_cversion(f))
     {
         pack_fclose(f);
         return false;
@@ -6792,7 +6788,6 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
 {
     dword section_id=ID_HEADER;
     dword section_version=V_HEADER;
-    dword section_cversion=CV_HEADER;
     dword section_size=0;
     
     //file header string
@@ -6813,7 +6808,7 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(4);
     }
@@ -7130,7 +7125,6 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_RULES;
     dword section_version=V_RULES;
-    dword section_cversion=CV_RULES;
     dword section_size=0;
     
     //section id
@@ -7145,7 +7139,7 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -7197,7 +7191,6 @@ int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_DOORS;
     dword section_version=V_DOORS;
-    dword section_cversion=CV_DOORS;
     dword section_size=0;
     
     //section id
@@ -7212,7 +7205,7 @@ int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -7461,7 +7454,6 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
     word dmap_count=count_dmaps();
     dword section_id=ID_DMAPS;
     dword section_version=V_DMAPS;
-    dword section_cversion=CV_DMAPS;
     dword section_size=0;
     
     //section id
@@ -7476,7 +7468,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -7771,7 +7763,6 @@ int32_t writemisccolors(PACKFILE *f, zquestheader *Header)
 	
 	dword section_id=ID_COLORS;
 	dword section_version=V_COLORS;
-	dword section_cversion=CV_COLORS;
 	dword section_size = 0;
 	
 	//section id
@@ -7787,7 +7778,7 @@ int32_t writemisccolors(PACKFILE *f, zquestheader *Header)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -7973,7 +7964,6 @@ int32_t writegameicons(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_ICONS;
     dword section_version=V_ICONS;
-    dword section_cversion=CV_ICONS;
     dword section_size = 0;
     
     //section id
@@ -7988,7 +7978,7 @@ int32_t writegameicons(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -8036,7 +8026,6 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 	
 	dword section_id=ID_MISC;
 	dword section_version=V_MISC;
-	dword section_cversion=CV_MISC;
 	word shops=count_shops(&QMisc);
 	word infos=count_infos(&QMisc);
 	word warprings=count_warprings(&QMisc);
@@ -8056,7 +8045,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -8288,7 +8277,6 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_ITEMS;
     dword section_version=V_ITEMS;
-    dword section_cversion=CV_ITEMS;
     //  dword section_size=0;
     dword section_size = 0;
     
@@ -8304,7 +8292,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -8813,7 +8801,6 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_WEAPONS;
     dword section_version=V_WEAPONS;
-    dword section_cversion=CV_WEAPONS;
     dword section_size = 0;
     
     //section id
@@ -8828,7 +8815,7 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -9422,7 +9409,6 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 {
 	dword section_id=ID_MAPS;
 	dword section_version=V_MAPS;
-	dword section_cversion=CV_MAPS;
 	dword section_size = 0;
 	
 	//section id
@@ -9437,7 +9423,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -9853,7 +9839,6 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
     word combos_used;
     dword section_id=ID_COMBOS;
     dword section_version=V_COMBOS;
-    dword section_cversion=CV_COMBOS;
     //  dword section_size=0;
     combos_used = count_combos()-start_combo;
     combos_used = zc_min(combos_used, max_combos);
@@ -9872,7 +9857,7 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -9929,7 +9914,6 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
     
     dword section_id=ID_COMBOALIASES;
     dword section_version=V_COMBOALIASES;
-    dword section_cversion=CV_COMBOALIASES;
     dword section_size=0;
     
     //section id
@@ -9944,7 +9928,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10139,7 +10123,6 @@ int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, w
     
     dword section_id=ID_CSETS;
     dword section_version=V_CSETS;
-    dword section_cversion=CV_CSETS;
     int32_t palcycles = count_palcycles(&QMisc);
 // int32_t palcyccount = count_palcycles(&QMisc);
     dword section_size = 0;
@@ -10157,7 +10140,7 @@ int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, w
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10243,7 +10226,6 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
     
     dword section_id=ID_STRINGS;
     dword section_version=V_STRINGS;
-    dword section_cversion=CV_STRINGS;
     dword section_size = 0;
     
     //section id
@@ -10258,7 +10240,7 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10679,7 +10661,6 @@ int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, in
     int32_t tiles_used;
     dword section_id=ID_TILES;
     dword section_version=V_TILES;
-    dword section_cversion=CV_TILES;
 	al_trace("Counting tiles used\n");
     tiles_used = count_tiles(newtilebuf)-start_tile;
     tiles_used = zc_min(tiles_used, max_tiles);
@@ -10699,7 +10680,7 @@ int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, in
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10802,7 +10783,6 @@ int32_t writemidis(PACKFILE *f)
 {
     dword section_id=ID_MIDIS;
     dword section_version=V_MIDIS;
-    dword section_cversion=CV_MIDIS;
     dword section_size = 0;
     
     //section id
@@ -10817,7 +10797,7 @@ int32_t writemidis(PACKFILE *f)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10909,7 +10889,6 @@ int32_t writecheats(PACKFILE *f, zquestheader *Header)
 {
     dword section_id=ID_CHEATS;
     dword section_version=V_CHEATS;
-    dword section_cversion=CV_CHEATS;
     dword section_size = 0;
     
     //section id
@@ -10924,7 +10903,7 @@ int32_t writecheats(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10983,7 +10962,6 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 	
 	dword section_id=ID_GUYS;
 	dword section_version=V_GUYS;
-	dword section_cversion=CV_GUYS;
 	dword section_size=0;
 	
 	//section id
@@ -10998,7 +10976,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -11563,7 +11541,6 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_HEROSPRITES;
     dword section_version=V_HEROSPRITES;
-    dword section_cversion=CV_HEROSPRITES;
     dword section_size=0;
     
     //section id
@@ -11578,7 +11555,7 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -12151,7 +12128,6 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 {
 	dword section_id=ID_SUBSCREEN;
 	dword section_version=V_SUBSCREEN;
-	dword section_cversion=CV_SUBSCREEN;
 	dword section_size=0;
 	
 	//section id
@@ -12166,7 +12142,7 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -12253,7 +12229,6 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 {
     dword section_id       = ID_FFSCRIPT;
     dword section_version  = V_FFSCRIPT;
-    dword section_cversion = CV_FFSCRIPT;
     dword section_size     = 0;
 	dword zasmmeta_version = METADATA_V;
     byte numscripts        = 0;
@@ -12271,7 +12246,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -13166,7 +13141,6 @@ int32_t writesfx(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_SFX;
     dword section_version=V_SFX;
-    dword section_cversion=CV_SFX;
     dword section_size=0;
     
     //section id
@@ -13181,7 +13155,7 @@ int32_t writesfx(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -13294,7 +13268,6 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 {
 	dword section_id=ID_INITDATA;
 	dword section_version=V_INITDATA;
-	dword section_cversion=CV_INITDATA;
 	dword section_size = 0;
 	
 	zinit.last_map=Map.getCurrMap();
@@ -13313,7 +13286,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -13502,7 +13475,6 @@ int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_ITEMDROPSETS;
     dword section_version=V_ITEMDROPSETS;
-    dword section_cversion=CV_ITEMDROPSETS;
     //  dword section_size=0;
     dword section_size = 0;
     word num_item_drop_sets=count_item_drop_sets();
@@ -13519,7 +13491,7 @@ int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -13586,7 +13558,6 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 {
 	dword section_id=ID_FAVORITES;
 	dword section_version=V_FAVORITES;
-	dword section_cversion=CV_FAVORITES;
 	dword section_size = 0;
 	
 	//section id
@@ -13601,7 +13572,7 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}

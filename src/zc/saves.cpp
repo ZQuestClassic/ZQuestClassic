@@ -168,7 +168,6 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 	int32_t templong = 0;
 	int32_t section_id=0;
 	word section_version=0;
-	word section_cversion=0;
 	dword section_size = 0;
 	
 	//section id
@@ -183,7 +182,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		return 2;
 	}
 	
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 3;
 	}
@@ -1179,7 +1178,6 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 
 	int32_t section_id=ID_SAVEGAME;
 	int32_t section_version=V_SAVEGAME;
-	int32_t section_cversion=CV_SAVEGAME;
 	int32_t section_size=0;
 	game.normalize();
 	
@@ -1191,7 +1189,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_iputw(section_version,f))
 		return 2;
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 		return 3;
 	
 	//section size
