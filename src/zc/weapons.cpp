@@ -477,7 +477,7 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 
 			if (cmb.triggerflags[2] & trigflags)
 			{
-				do_trigger_combo(rpos_handle);
+				do_trigger_combo(rpos_handle, 0, wptr);
 				ret = true;
 			}
 		}
