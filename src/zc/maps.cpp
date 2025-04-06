@@ -4686,7 +4686,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		if(get_qr(qr_NOFLICKER) || (frame&1))
 		{
-			// Just clips items if in a repeating, smooth maze.
+			// Just clips sprites if in a repeating, smooth maze.
 			bool do_clip = maze_state.active && maze_state.loopy;
 
 			for(int32_t i=0; i<Ewpns.Count(); i++)

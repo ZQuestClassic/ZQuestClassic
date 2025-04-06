@@ -2184,6 +2184,8 @@ void sprite_list::draw_smooth_maze(BITMAP* dest)
 	{
 		if (sprites[i]->screen_spawned != maze_state.scr->screen)
 			set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+		else
+			clear_clip_rect(dest);
 		sprites[i]->draw(dest);
 	}
 
