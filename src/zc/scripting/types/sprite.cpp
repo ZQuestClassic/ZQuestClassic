@@ -18,6 +18,11 @@ static bool is_player()
 	return ri->spriteref == 1;
 }
 
+static bool is_enemy(sprite* s)
+{
+	return dynamic_cast<enemy*>(s);
+}
+
 static bool enemy_has_hero(sprite* s)
 {
 	if (auto e = dynamic_cast<enemy*>(s); e)
@@ -285,7 +290,8 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 			if (auto s = get_sprite(ri->itemref, "sprite->MoveFlags[]"))
 			{
 				int index = ri->d[rINDEX] / 10000;
-				if (BC::checkBounds(index, 0, 10, "sprite->MoveFlags[]") != SH::_NoError)
+				int limit = is_enemy(s) ? 15 : 10;
+				if (BC::checkBounds(index, 0, limit, "sprite->MoveFlags[]") != SH::_NoError)
 					return 0;
 
 				return (s->moveflags & (1<<index)) ? 10000 : 0;
@@ -754,7 +760,8 @@ bool sprite_set_register(int32_t reg, int32_t value)
 			if (auto s = get_sprite(ri->spriteref, "MoveFlags[]"))
 			{
 				int index = ri->d[rINDEX] / 10000;
-				if (BC::checkBounds(index, 0, 10, "sprite->MoveFlags[]") != SH::_NoError)
+				int limit = is_enemy(s) ? 15 : 10;
+				if (BC::checkBounds(index, 0, limit, "sprite->MoveFlags[]") != SH::_NoError)
 					break;
 
 				move_flags bit = (move_flags)(1<<index);
