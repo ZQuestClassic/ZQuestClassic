@@ -1229,6 +1229,22 @@ static ScriptEngineData& get_script_engine_data(ScriptType type, int index)
 	return scriptEngineDatas[{type, index}];
 }
 
+static bool script_engine_data_exists(ScriptType type, int index)
+{
+	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::ScriptedPassiveSubscreen || type == ScriptType::ScriptedActiveSubscreen)
+	{
+		// `index` is used for dmapref, not for different script engine data.
+		index = 0;
+	}
+	if (type == ScriptType::EngineSubscreen)
+	{
+		// `index` is used for subdataref, not for different script engine data.
+		index = 0;
+	}
+
+	return scriptEngineDatas.contains({type, index});
+}
+
 static ScriptEngineData& get_script_engine_data(ScriptType type)
 {
 	return get_script_engine_data(type, 0);
@@ -2312,8 +2328,22 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 		if (script_object->own_clear(scriptType, UID))
 		{
 			ids_to_clear.push_back(script_object->id);
+			script_object->owned_type = ScriptType::None;
+			script_object->owned_i = 0;
 		}
 	}
+
+	if (ZScriptVersion::gc() && script_engine_data_exists(scriptType, UID))
+	{
+		auto& data = get_script_engine_data(scriptType, UID);
+		for (uint32_t offset : data.ref.stack_pos_is_object)
+		{
+			uint32_t id = data.stack[offset];
+			ids_to_clear.push_back(id);
+		}
+		data.ref.stack_pos_is_object.clear();
+	}
+
 	if (ZScriptVersion::gc())
 	{
 		for (auto id : ids_to_clear)
@@ -2352,8 +2382,27 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 		if (script_object->owned_type == scriptType)
 		{
 			ids_to_clear.push_back(script_object->id);
+			script_object->owned_type = ScriptType::None;
+			script_object->owned_i = 0;
 		}
 	}
+
+	if (ZScriptVersion::gc())
+	{
+		for (auto& [key, data] : scriptEngineDatas)
+		{
+			if (key.first != scriptType)
+				continue;
+
+			for (uint32_t offset : data.ref.stack_pos_is_object)
+			{
+				uint32_t id = data.stack[offset];
+				ids_to_clear.push_back(id);
+			}
+			data.ref.stack_pos_is_object.clear();
+		}
+	}
+
 	if (ZScriptVersion::gc())
 	{
 		for (auto id : ids_to_clear)
@@ -2392,8 +2441,24 @@ void FFScript::deallocateAllScriptOwned()
 		if (script_object->own_clear_any())
 		{
 			ids_to_clear.push_back(script_object->id);
+			script_object->owned_type = ScriptType::None;
+			script_object->owned_i = 0;
 		}
 	}
+
+	if (ZScriptVersion::gc())
+	{
+		for (auto& [key, data] : scriptEngineDatas)
+		{
+			for (uint32_t offset : data.ref.stack_pos_is_object)
+			{
+				uint32_t id = data.stack[offset];
+				ids_to_clear.push_back(id);
+			}
+			data.ref.stack_pos_is_object.clear();
+		}
+	}
+
 	if (ZScriptVersion::gc())
 	{
 		for (auto id : ids_to_clear)
@@ -2425,8 +2490,24 @@ void FFScript::deallocateAllScriptOwnedCont()
 		if (script_object->own_clear_cont())
 		{
 			ids_to_clear.push_back(script_object->id);
+			script_object->owned_type = ScriptType::None;
+			script_object->owned_i = 0;
 		}
 	}
+
+	if (ZScriptVersion::gc())
+	{
+		for (auto& [key, data] : scriptEngineDatas)
+		{
+			for (uint32_t offset : data.ref.stack_pos_is_object)
+			{
+				uint32_t id = data.stack[offset];
+				ids_to_clear.push_back(id);
+			}
+			data.ref.stack_pos_is_object.clear();
+		}
+	}
+
 	if (ZScriptVersion::gc())
 	{
 		for (auto id : ids_to_clear)
