@@ -2528,10 +2528,10 @@ bool handle_trigger_conditionals(newcombo const& cmb, int32_t cx, int32_t cy, bo
 	}
 	
 	if(cmb.triggerflags[3] & combotriggerCOND_DARK)
-		if(!get_lights())
+		if(!get_lights(get_scr_for_world_xy(cx, cy)))
 			return false;
 	if(cmb.triggerflags[3] & combotriggerCOND_NODARK)
-		if(get_lights())
+		if(get_lights(get_scr_for_world_xy(cx, cy)))
 			return false;
 	
 	auto dmap_level = cmb.trigdmlevel > -1 ? cmb.trigdmlevel : dlevel;

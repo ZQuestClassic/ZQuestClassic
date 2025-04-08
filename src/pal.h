@@ -29,6 +29,7 @@ extern void fade(int32_t level,bool blackall,bool fromblack);
 extern void lighting(bool existslight, bool setnaturaldark = false, int32_t specialstate = pal_litRESET);
 extern void lightingInstant();
 extern bool get_lights();
+extern bool get_lights(mapscr* scr);
 extern void set_lights(bool state, int32_t specialstate = pal_litRESET);
 extern void toggle_lights(int32_t specialstate = pal_litRESET);
 extern void dryuplake();

@@ -4986,37 +4986,37 @@ void draw_screen(bool showhero, bool runGeneric)
 	do_layer_primitives(framebuf, 6);
 	particles.draw(framebuf, true, 5);
 
+	bool any_dark = false;
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].scr;
+		any_dark |= is_dark(base_scr);
+	});
+
 	// Handle low drawn darkness
-	bool draw_dark = false;
-	if(get_qr(qr_NEW_DARKROOM) && room_is_dark)
+	if(get_qr(qr_NEW_DARKROOM) && any_dark)
 	{
 		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 			mapscr* base_scr = screen_handles[0].scr;
-			if (base_scr->flags&fDARK)
+			if (is_dark(base_scr))
 			{
 				calc_darkroom_combos(cur_map, screen, offx, offy + playing_field_offset);
-				draw_dark = true;
 			}
 		});
 		if(showhero)
 			Hero.calc_darkroom_hero(0, -playing_field_offset);
-		if (draw_dark)
-		{
-			for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-				mapscr* base_scr = screen_handles[0].scr;
-				bool should_be_dark = (base_scr->flags & fDARK);
-				if (!should_be_dark)
-				{
-					offy += playing_field_offset;
-					rectfill(darkscr_bmp, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
-					rectfill(darkscr_bmp_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
-				}
-			});
-		}
+		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+			mapscr* base_scr = screen_handles[0].scr;
+			if (!is_dark(base_scr))
+			{
+				offy += playing_field_offset;
+				rectfill(darkscr_bmp, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+				rectfill(darkscr_bmp_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+			}
+		});
 	}
 	
 	//Darkroom if under the subscreen
-	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && draw_dark && room_is_dark)
+	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && any_dark)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
@@ -5066,7 +5066,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	draw_msgstr(6);
 	
 	// Handle high-drawn darkness
-	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && draw_dark && room_is_dark)
+	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && any_dark)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
@@ -5685,6 +5685,29 @@ void clear_darkroom_bitmaps()
 	clear_to_color(darkscr_bmp_trans, game->get_darkscr_color());
 }
 
+bool is_dark(const mapscr* scr)
+{
+	bool dark = scr->flags&fDARK;
+	if (region_is_lit) return !dark;
+	return dark;
+}
+
+bool scrolling_is_dark(const mapscr* scr)
+{
+	bool dark = scr->flags&fDARK;
+	if (scrolling_region_is_lit) return !dark;
+	return dark;
+}
+
+bool is_any_dark()
+{
+	bool dark = false;
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		dark |= (bool)(scr->flags & fDARK);
+	});
+	return dark;
+}
+
 static mapscr prev_origin_scrs[7];
 static std::set<int> loadscr_ffc_script_ids_to_remove;
 
@@ -6159,10 +6182,8 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 		original_playing_field_offset = 56;
 	}
 
-	room_is_dark = false;
-	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
-		room_is_dark |= (bool)(scr->flags & fDARK);
-	});
+	region_is_lit = false;
+	is_any_room_dark = is_any_dark();
 
 	game->load_portal();
 	throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);

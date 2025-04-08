@@ -25752,7 +25752,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		loadscr(cur_dmap, destscr, -1, overlay);
 		scr = hero_scr;
 
-		if((scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
+		if (is_dark(scr) && !get_qr(qr_NEW_DARKROOM))
 		{
 			if(get_qr(qr_FADE))
 			{
@@ -27249,7 +27249,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     loadscr(cur_dmap, home_screen, 255, false);                                   // bogus direction
     draw_screen(false);
     
-    if(get_qr(qr_NEW_DARKROOM) || !(hero_scr->flags&fDARK))
+    if(get_qr(qr_NEW_DARKROOM) || !is_dark(hero_scr))
     {
         darkroom = naturaldark = false;
         fade(DMaps[cur_dmap].color,true,true);
@@ -28543,8 +28543,8 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].scr;
-		bool should_be_dark = (base_scr->flags & fDARK);
-		if (!should_be_dark)
+		bool dark = is_new_screen ? is_dark(base_scr) : scrolling_is_dark(base_scr);
+		if (!dark)
 		{
 			offy += playing_field_offset;
 			rectfill(darkscr_bmp, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
@@ -28554,7 +28554,8 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].scr;
-		if (base_scr->flags&fDARK)
+		bool dark = is_new_screen ? is_dark(base_scr) : scrolling_is_dark(base_scr);
+		if (dark)
 		{
 			dither_offx = is_new_screen ? -new_region_offset_x : 0;
 			dither_offy = is_new_screen ? -new_region_offset_y : 0;
@@ -28878,6 +28879,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	scrolling_dir = (direction) scrolldir;
 	scrolling_hero_screen = hero_screen;
 	scrolling_region = cur_region;
+	scrolling_region_is_lit = region_is_lit;
 
 	int32_t scx = get_qr(qr_FASTDNGN) ? 30 : 0;
 	if(get_qr(qr_VERYFASTSCROLLING)) //just a minor adjustment.
@@ -29252,7 +29254,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		
 		// The naturaldark state can be read/set by an FFC script before
 		// fade() or lighting() is called.
-		naturaldark = !get_qr(qr_NEW_DARKROOM) && (newscr->flags & fDARK);
+		naturaldark = !get_qr(qr_NEW_DARKROOM) && is_dark(newscr);
 		
 		if(newscr->oceansfx != oldscr->oceansfx)	adjust_sfx(oldscr->oceansfx, 128, false);
 		
@@ -29284,7 +29286,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	bool draw_dark = false;
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].scr;
-		draw_dark = draw_dark || (base_scr->flags&fDARK);
+		bool dark = is_new_screen ? is_dark(base_scr) : scrolling_is_dark(base_scr);
+		draw_dark |= dark;
 	});
 
 	int no_move = 0;

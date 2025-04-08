@@ -503,26 +503,35 @@ void lightingInstant()
 bool get_lights()
 {
 	if(get_qr(qr_NEW_DARKROOM))
-		return !room_is_dark;
-	return !room_is_dark || stayLit;
+		return !region_is_lit;
+	return !region_is_lit || stayLit;
+}
+bool get_lights(mapscr* scr)
+{
+	bool dark = is_dark(scr);
+	if(get_qr(qr_NEW_DARKROOM))
+		return !dark;
+	return !dark || stayLit;
 }
 void set_lights(bool state, int32_t specialstate)
 {
-	room_is_dark = !state;
+	region_is_lit = !state;
 	if(!get_qr(qr_NEW_DARKROOM))
 	{
 		naturaldark = !state;
 		lighting(false, false);
 	}
+	is_any_room_dark = is_any_dark();
 }
 void toggle_lights(int32_t specialstate)
 {
-	room_is_dark = get_lights();
+	region_is_lit = get_lights();
 	if(!get_qr(qr_NEW_DARKROOM))
 	{
-		naturaldark = room_is_dark;
+		naturaldark = region_is_lit;
 		lighting(false, false);
 	}
+	is_any_room_dark = is_any_dark();
 }
 byte drycolors[11] = {0x12,0x11,0x22,0x21,0x31,0x32,0x33,0x35,0x34,0x36,0x37};
 

@@ -405,6 +405,9 @@ void showbombeddoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t offx, int32
 void openshutters(mapscr* scr);
 void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_overlay=false, bool no_x80_dir=false);
 void clear_darkroom_bitmaps();
+bool is_dark(const mapscr* scr);
+bool scrolling_is_dark(const mapscr* scr);
+bool is_any_dark();
 std::array<mapscr, 7> loadscr2(int32_t screen);
 void loadscr_old(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay);
 void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y);

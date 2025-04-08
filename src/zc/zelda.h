@@ -353,9 +353,19 @@ extern bool drawguys,debug_enabled,watch;
 extern bool down_control_states[controls::btnLast];
 extern bool F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
-extern bool darkroom,naturaldark,BSZ;
-// True if the current region is 'dark'.
-extern bool room_is_dark;
+extern bool BSZ;
+// Used by classic/NES dark rooms. In dark rooms, this is only false if there is a light in the
+// room.
+extern bool darkroom;
+// Used by classic/NES dark rooms. Ignoring any possible lights in the room, this is true if the
+// room is a dark room.
+extern bool naturaldark;
+// Used by "new' dark rooms. If true, the "darkness" state of any screen is flipped.
+extern bool region_is_lit;
+// Used by "new' dark rooms. If true, the "darkness" state of any old screen during scrolling is flipped.
+extern bool scrolling_region_is_lit;
+// Cached value of is_any_dark() - true if any screen in the region is dark (new).
+extern bool is_any_room_dark;
 extern bool hookshot_used, hookshot_frozen, pull_hero, hs_fix, hs_switcher, cheat_superman, gofast, checkhero;
 extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;

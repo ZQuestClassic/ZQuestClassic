@@ -361,7 +361,10 @@ bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
     drawguys= false,watch= false;
-bool room_is_dark=false, darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
+bool BSZ= false;
+
+bool region_is_lit, scrolling_region_is_lit, darkroom, naturaldark;
+bool is_any_room_dark;
 
 bool down_control_states[controls::btnLast] = {false};
 bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
@@ -1638,7 +1641,7 @@ void init_game_vars(bool is_cont_game = false)
 	script_hero_sprite = 0; 
 	script_hero_flip = -1; 
 	script_hero_cset = -1;
-	room_is_dark=darkroom=naturaldark=false;
+	region_is_lit=darkroom=naturaldark=false;
 	sle_x=sle_y=newscr_clk=0;
 	Bwpn=Awpn=Xwpn=Ywpn=-1;
 	FFCore.kb_typing_mode = false;
@@ -2327,7 +2330,7 @@ int32_t cont_game()
 	ALLOFF();
 	whistleclk=-1;
 	currcset=DMaps[cur_dmap].color;
-	room_is_dark=darkroom=naturaldark=false;
+	region_is_lit=darkroom=naturaldark=false;
 	special_warp_return_scr->zero_memory();
 	clear_temporary_screens();
 	
@@ -2479,7 +2482,7 @@ void restart_level()
 		
 	ALLOFF();
 	whistleclk=-1;
-	room_is_dark=darkroom=naturaldark=false;
+	region_is_lit=darkroom=naturaldark=false;
 	special_warp_return_scr->zero_memory();
 	clear_temporary_screens();
 	
