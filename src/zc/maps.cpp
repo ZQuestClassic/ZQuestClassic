@@ -4245,7 +4245,10 @@ void calc_darkroom_combos(int map, int screen, int offx, int offy)
 			}
 		}
 	}
+}
 
+void calc_darkroom_ffcs(int map, int screen, int offx, int offy)
+{
 	mapscr* scr = get_scr(map, screen);
 	word c = scr->numFFC();
 	for(int q = 0; q < c; ++q)
@@ -5000,6 +5003,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			if (is_dark(base_scr))
 			{
 				calc_darkroom_combos(cur_map, screen, offx, offy + playing_field_offset);
+				calc_darkroom_ffcs(cur_map, screen, 0, playing_field_offset);
 			}
 		});
 		if(showhero)

@@ -27990,6 +27990,7 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 
 static zfix new_hero_x, new_hero_y;
 static int new_region_offset_x, new_region_offset_y;
+static int new_ffc_offset_x, new_ffc_offset_y;
 static region_t scrolling_new_region;
 
 void HeroClass::run_scrolling_script_old(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
@@ -28560,6 +28561,10 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 			dither_offx = is_new_screen ? -new_region_offset_x : 0;
 			dither_offy = is_new_screen ? -new_region_offset_y : 0;
 			calc_darkroom_combos(cur_map, screen, offx, offy + playing_field_offset);
+
+			int offx = is_new_screen ? new_ffc_offset_x : 0;
+			int offy = is_new_screen ? new_ffc_offset_y : 0;
+			calc_darkroom_ffcs(cur_map, screen, offx, offy + playing_field_offset);
 		}
 	});
 
@@ -29312,8 +29317,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	// specific screen's combos in do_scrolling_layer. But since their coordinates are in the new
 	// region's coordinate system, an offset of the difference between the two coordinate systems is
 	// needed.
-	int new_ffc_offset_x = new_region_offset_x;
-	int new_ffc_offset_y = new_region_offset_y;
+	new_ffc_offset_x = new_region_offset_x;
+	new_ffc_offset_y = new_region_offset_y;
 	if (is_warping)
 	{
 		new_ffc_offset_x = 0;
