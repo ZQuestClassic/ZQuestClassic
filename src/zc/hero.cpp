@@ -22319,7 +22319,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		didsign = true;
 	}
 endsigns:
-	if(cpos_get(get_rpos_handle_for_world_xy(fx, fy, found_lyr)).trig_cd) return;
+	if(fx != -1 && fy != -1 && cpos_get(get_rpos_handle_for_world_xy(fx, fy, found_lyr)).trig_cd) return;
 	switch(dir)
 	{
 		case down:
@@ -22343,7 +22343,7 @@ endsigns:
 	{
 		if (foundffc)
 			do_trigger_combo(foundffc.value(), didsign ? ctrigIGNORE_SIGN : 0);
-		else 
+		else if (fx != -1 && fy != -1)
 			do_trigger_combo(get_rpos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
 	}
 	else if(didprompt)
@@ -28555,17 +28555,14 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].scr;
-		bool dark = is_new_screen ? is_dark(base_scr) : scrolling_is_dark(base_scr);
-		if (dark)
-		{
-			dither_offx = is_new_screen ? -new_region_offset_x : 0;
-			dither_offy = is_new_screen ? -new_region_offset_y : 0;
-			calc_darkroom_combos(cur_map, screen, offx, offy + playing_field_offset);
 
-			int offx = is_new_screen ? new_ffc_offset_x : 0;
-			int offy = is_new_screen ? new_ffc_offset_y : 0;
-			calc_darkroom_ffcs(cur_map, screen, offx, offy + playing_field_offset);
-		}
+		dither_offx = is_new_screen ? -new_region_offset_x : 0;
+		dither_offy = is_new_screen ? -new_region_offset_y : 0;
+		calc_darkroom_combos(base_scr, offx, offy + playing_field_offset);
+
+		int offx2 = is_new_screen ? new_region_offset_x : 0;
+		int offy2 = is_new_screen ? new_region_offset_y : 0;
+		calc_darkroom_ffcs(base_scr, offx2, offy2 + playing_field_offset);
 	});
 
 	Hero.calc_darkroom_hero(0, -playing_field_offset);

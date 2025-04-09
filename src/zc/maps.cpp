@@ -4229,8 +4229,11 @@ void do_effectflags(mapscr* scr, int32_t x, int32_t y)
 	}
 }
 
-void calc_darkroom_combos(int map, int screen, int offx, int offy)
+void calc_darkroom_combos(mapscr* scr, int offx, int offy)
 {
+	int map = scr->map;
+	int screen = scr->screen;
+
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = get_scr_layer(map, screen, lyr);
@@ -4247,9 +4250,8 @@ void calc_darkroom_combos(int map, int screen, int offx, int offy)
 	}
 }
 
-void calc_darkroom_ffcs(int map, int screen, int offx, int offy)
+void calc_darkroom_ffcs(mapscr* scr, int offx, int offy)
 {
-	mapscr* scr = get_scr(map, screen);
 	word c = scr->numFFC();
 	for(int q = 0; q < c; ++q)
 	{
@@ -5000,11 +5002,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 			mapscr* base_scr = screen_handles[0].scr;
-			if (is_dark(base_scr))
-			{
-				calc_darkroom_combos(cur_map, screen, offx, offy + playing_field_offset);
-				calc_darkroom_ffcs(cur_map, screen, 0, playing_field_offset);
-			}
+			calc_darkroom_combos(base_scr, offx, offy + playing_field_offset);
+			calc_darkroom_ffcs(base_scr, 0, playing_field_offset);
 		});
 		if(showhero)
 			Hero.calc_darkroom_hero(0, -playing_field_offset);
