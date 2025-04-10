@@ -2501,15 +2501,17 @@ int32_t get_cmb_trigctrcost(newcombo const& cmb)
 }
 
 // Return true if the condition passes.
-static bool check_dark_trigger_conditional(mapscr* scr, newcombo const& cmb, bool expect_lit)
+static bool check_dark_trigger_conditional(bool is_active_screen, mapscr* scr, newcombo const& cmb, bool expect_lit)
 {
 	if (get_qr(qr_INVERTED_DARK_COMBO_TRIGGERS)) expect_lit = !expect_lit;
-	bool lit = get_lights(scr);
+	bool lit = is_active_screen ? get_lights(scr) : !(scr->flags&fDARK);
 	return expect_lit == lit;
 }
 
 static bool handle_trigger_conditionals(mapscr* scr, newcombo const& cmb, int32_t cx, int32_t cy, bool& hasitem)
 {
+	bool is_active_screen = is_in_current_region(scr);
+
 	if(cmb.triggeritem) //Item requirement
 	{
 		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
@@ -2525,33 +2527,36 @@ static bool handle_trigger_conditionals(mapscr* scr, newcombo const& cmb, int32_
 		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
 		if(cmb.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
 		{
-			if(d < cmb.trigprox) //inside, cancel
+			if(d < cmb.trigprox || !is_active_screen) //inside, cancel
 				return false;
 		}
 		else //trigger inside the radius
 		{
-			if(d >= cmb.trigprox) //outside, cancel
+			if(d >= cmb.trigprox && is_active_screen) //outside, cancel
 				return false;
 		}
 	}
 
 	if((cmb.triggerflags[3] & combotriggerCOND_DARK))
-		if(!check_dark_trigger_conditional(scr, cmb, false))
+		if(!check_dark_trigger_conditional(is_active_screen, scr, cmb, false))
 			return false;
 	if((cmb.triggerflags[3] & combotriggerCOND_NODARK))
-		if(!check_dark_trigger_conditional(scr, cmb, true))
+		if(!check_dark_trigger_conditional(is_active_screen, scr, cmb, true))
 			return false;
-	
-	auto dmap_level = cmb.trigdmlevel > -1 ? cmb.trigdmlevel : dlevel;
-	if(cmb.triggerflags[3] & combotriggerLITEM_COND)
-		if((cmb.trig_levelitems & game->lvlitems[dmap_level]) != cmb.trig_levelitems)
-			return false;
-	if(cmb.triggerflags[3] & combotriggerLITEM_REVCOND)
-		if((cmb.trig_levelitems & game->lvlitems[dmap_level]) == cmb.trig_levelitems)
-			return false;
+
+	if (is_active_screen || cmb.trigdmlevel > -1)
+	{
+		auto dmap_level = cmb.trigdmlevel > -1 ? cmb.trigdmlevel : dlevel;
+		if(cmb.triggerflags[3] & combotriggerLITEM_COND)
+			if((cmb.trig_levelitems & game->lvlitems[dmap_level]) != cmb.trig_levelitems)
+				return false;
+		if(cmb.triggerflags[3] & combotriggerLITEM_REVCOND)
+			if((cmb.trig_levelitems & game->lvlitems[dmap_level]) == cmb.trig_levelitems)
+				return false;
+	}
 	
 	auto ctrcost = get_cmb_trigctrcost(cmb);
-	if((cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+	if(is_active_screen && (cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
 		if(game->get_counter(cmb.trigctr) >= ctrcost)
 		{
@@ -2765,14 +2770,15 @@ void handle_trigger_results(mapscr* scr, newcombo const& cmb, int32_t cx, int32_
 }
 
 // Triggers a combo at a given position.
+// TODO: combine w/ the ffc function into a single function, via combined_handle_t.
 bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon* w)
 {
-	cpos_info& timer = rpos_handle.info();
 	int32_t cid = rpos_handle.data();
 	auto [cx, cy] = rpos_handle.xy();
 
 	int32_t ocs = rpos_handle.cset();
 	auto& cmb = rpos_handle.combo();
+	mapscr* base_scr = rpos_handle.base_scr();
 	bool hasitem = false;
 	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
 	{
@@ -2796,17 +2802,23 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 		if(force_ex_door_trigger(rpos_handle))
 			return true;
 	}
-	if(!handle_trigger_conditionals(rpos_handle.base_scr(), cmb, cx, cy, hasitem))
+
+	if(!handle_trigger_conditionals(base_scr, cmb, cx, cy, hasitem))
 		return false;
 	
 	if (w)
 	{
 		check_bit = w->rposes_checked.contains({rpos_handle.layer, rpos_handle.rpos});
 	}
+	
+	static cpos_info null_info;
+	bool is_active_screen = is_in_current_region(base_scr);
+	cpos_info& timer = is_active_screen ? rpos_handle.info() : null_info;
+
 	bool dorun = !timer.trig_cd;
 	if(dorun)
 	{
-		if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
+		if (is_active_screen && ((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
 		{
 			switch(cmb.type)
 			{
@@ -2914,8 +2926,8 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 		
 		if(!check_bit)
 		{
-			mapscr* base_scr = rpos_handle.base_scr();
-			handle_trigger_results(base_scr, cmb, cx, cy, hasitem, used_bit, special);
+			if (is_active_screen)
+				handle_trigger_results(base_scr, cmb, cx, cy, hasitem, used_bit, special);
 			
 			if(cmb.trigchange)
 			{
@@ -2928,21 +2940,24 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 				rpos_handle.set_cset((ocs+cmb.trigcschange) & 0xF);
 			}
 			
-			if(cmb.triggerflags[0] & combotriggerRESETANIM)
+			if (is_active_screen)
 			{
-				newcombo& rcmb = rpos_handle.combo();
-				rcmb.tile = rcmb.o_tile;
-				rcmb.cur_frame=0;
-				rcmb.aclk = 0;
-				combo_caches::drawing.refresh(rpos_handle.data());
+				if(cmb.triggerflags[0] & combotriggerRESETANIM)
+				{
+					newcombo& rcmb = rpos_handle.combo();
+					rcmb.tile = rcmb.o_tile;
+					rcmb.cur_frame=0;
+					rcmb.aclk = 0;
+					combo_caches::drawing.refresh(rpos_handle.data());
+				}
+
+				if(cmb.trigcopycat) //has a copycat set
+					trig_copycat(cid, rpos_handle);
+
+				timer.updateData(rpos_handle.data());
+				if(cmb.trigcooldown)
+					timer.trig_cd = cmb.trigcooldown;
 			}
-			
-			if(cmb.trigcopycat) //has a copycat set
-				trig_copycat(cid, rpos_handle);
-			
-			timer.updateData(rpos_handle.data());
-			if(cmb.trigcooldown)
-				timer.trig_cd = cmb.trigcooldown;
 		}
 		if (w && used_bit)
 		{
@@ -2953,7 +2968,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	if(w)
 		do_weapon_fx(w,cmb);
 	
-	if(dorun && cmb.trig_genscr)
+	if (is_active_screen && dorun && cmb.trig_genscr)
 		FFCore.runGenericFrozenEngine(cmb.trig_genscr);
 	return true;
 }
@@ -2967,10 +2982,10 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w
 		return false; //Changers can't trigger!
 
 	int32_t cid = ffc_handle.data();
-	cpos_info& timer = ffc_handle.info();
 	int32_t ocs = ffc->cset;
 	auto [cx, cy] = ffc_handle.xy();
 	auto& cmb = ffc_handle.combo();
+	mapscr* base_scr = ffc_handle.scr;
 	bool hasitem = false;
 	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
 	{
@@ -2993,6 +3008,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w
 		if(force_ex_door_trigger_ffc(ffc_handle))
 			return true;
 	}
+
 	if(!handle_trigger_conditionals(ffc_handle.scr, cmb, cx, cy, hasitem))
 		return false;
 	
@@ -3000,10 +3016,15 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w
 	{
 		check_bit = w->ffcs_checked.contains(ffc);
 	}
+
+	static cpos_info null_info;
+	bool is_active_screen = is_in_current_region(base_scr);
+	cpos_info& timer = is_active_screen ? ffc_handle.info() : null_info;
+
 	bool dorun = !timer.trig_cd;
 	if(dorun)
 	{
-		if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
+		if (is_active_screen && ((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
 		{
 			switch(cmb.type)
 			{
@@ -3111,7 +3132,8 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w
 		
 		if(!check_bit)
 		{
-			handle_trigger_results(ffc_handle.scr, cmb, cx, cy, hasitem, used_bit, special);
+			if (is_active_screen)
+				handle_trigger_results(ffc_handle.scr, cmb, cx, cy, hasitem, used_bit, special);
 			
 			if(cmb.trigchange)
 			{
@@ -3123,25 +3145,28 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w
 				used_bit = true;
 				ffc->cset = (ocs+cmb.trigcschange) & 0xF;
 			}
-			
-			if(cmb.triggerflags[0] & combotriggerRESETANIM)
+
+			if (is_active_screen)
 			{
-				newcombo& rcmb = combobuf[ffc_handle.data()];
-				rcmb.tile = rcmb.o_tile;
-				rcmb.cur_frame=0;
-				rcmb.aclk = 0;
-				combo_caches::drawing.refresh(ffc_handle.data());
+				if(cmb.triggerflags[0] & combotriggerRESETANIM)
+				{
+					newcombo& rcmb = combobuf[ffc_handle.data()];
+					rcmb.tile = rcmb.o_tile;
+					rcmb.cur_frame=0;
+					rcmb.aclk = 0;
+					combo_caches::drawing.refresh(ffc_handle.data());
+				}
+				
+				if(cmb.trigcopycat) //has a copycat set
+					trig_copycat(cid, ffc_handle);
+				
+				if (ffc_handle.ffc->flags & ffc_changer)
+					timer.updateData(-1);
+				else timer.updateData(ffc_handle.data());
+				
+				if(cmb.trigcooldown)
+					timer.trig_cd = cmb.trigcooldown;
 			}
-			
-			if(cmb.trigcopycat) //has a copycat set
-				trig_copycat(cid, ffc_handle);
-			
-			if (ffc_handle.ffc->flags & ffc_changer)
-				timer.updateData(-1);
-			else timer.updateData(ffc_handle.data());
-			
-			if(cmb.trigcooldown)
-				timer.trig_cd = cmb.trigcooldown;
 		}
 		if (w && used_bit)
 		{
@@ -3152,7 +3177,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w
 	if(w)
 		do_weapon_fx(w,cmb);
 	
-	if(dorun && cmb.trig_genscr)
+	if (is_active_screen && dorun && cmb.trig_genscr)
 		FFCore.runGenericFrozenEngine(cmb.trig_genscr);
 	return true;
 }
