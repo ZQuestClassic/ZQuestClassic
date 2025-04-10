@@ -2500,7 +2500,15 @@ int32_t get_cmb_trigctrcost(newcombo const& cmb)
 	return ctrcost;
 }
 
-bool handle_trigger_conditionals(newcombo const& cmb, int32_t cx, int32_t cy, bool& hasitem)
+// Return true if the condition passes.
+static bool check_dark_trigger_conditional(mapscr* scr, newcombo const& cmb, bool expect_lit)
+{
+	if (get_qr(qr_INVERTED_DARK_COMBO_TRIGGERS)) expect_lit = !expect_lit;
+	bool lit = get_lights(scr);
+	return expect_lit == lit;
+}
+
+static bool handle_trigger_conditionals(mapscr* scr, newcombo const& cmb, int32_t cx, int32_t cy, bool& hasitem)
 {
 	if(cmb.triggeritem) //Item requirement
 	{
@@ -2526,12 +2534,12 @@ bool handle_trigger_conditionals(newcombo const& cmb, int32_t cx, int32_t cy, bo
 				return false;
 		}
 	}
-	
-	if(cmb.triggerflags[3] & combotriggerCOND_DARK)
-		if(!get_lights(get_scr_for_world_xy(cx, cy)))
+
+	if((cmb.triggerflags[3] & combotriggerCOND_DARK))
+		if(!check_dark_trigger_conditional(scr, cmb, false))
 			return false;
-	if(cmb.triggerflags[3] & combotriggerCOND_NODARK)
-		if(get_lights(get_scr_for_world_xy(cx, cy)))
+	if((cmb.triggerflags[3] & combotriggerCOND_NODARK))
+		if(!check_dark_trigger_conditional(scr, cmb, true))
 			return false;
 	
 	auto dmap_level = cmb.trigdmlevel > -1 ? cmb.trigdmlevel : dlevel;
@@ -2788,7 +2796,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 		if(force_ex_door_trigger(rpos_handle))
 			return true;
 	}
-	if(!handle_trigger_conditionals(cmb, cx, cy, hasitem))
+	if(!handle_trigger_conditionals(rpos_handle.base_scr(), cmb, cx, cy, hasitem))
 		return false;
 	
 	if (w)
@@ -2985,7 +2993,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w
 		if(force_ex_door_trigger_ffc(ffc_handle))
 			return true;
 	}
-	if(!handle_trigger_conditionals(cmb, cx, cy, hasitem))
+	if(!handle_trigger_conditionals(ffc_handle.scr, cmb, cx, cy, hasitem))
 		return false;
 	
 	if(w)

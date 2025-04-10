@@ -3503,6 +3503,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, 1);
 	if (compatrule_version < 75 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
 		set_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN, 1);
+	if (compatrule_version < 76 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
+		set_qr(qr_INVERTED_DARK_COMBO_TRIGGERS, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

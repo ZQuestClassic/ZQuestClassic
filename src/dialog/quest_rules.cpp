@@ -981,6 +981,8 @@ static GUI::ListData compatRulesList
 	{ "Broken Script Drawing Bitmap Draw Origin", qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN,
 		"If enabled, bitmap draw commands incorrectly use Screen->DrawOrigin, resulting in unexpected offsets for bitmap drawing."
 		" This only affects quests made in 2.55.9 or later."},
+	{ "Inverted Dark Combo Triggers", qr_INVERTED_DARK_COMBO_TRIGGERS,
+		"If enabled, the combo trigger conditions for darkness / no darkness are inverted."},
 };
 
 static GUI::ListData enemiesRulesList
