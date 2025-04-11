@@ -29916,6 +29916,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		auto sprite = (decoration*)decorations.spr(i);
 		if (!sprite->is_drawn_with_offset())
 			decorations.remove(sprite); // TODO: improve deletions by adding remove_by_index
+		else if (old_region.region_id || new_region.region_id)
+			sprite->yofs = playing_field_offset;
 	}
 
 	newscr_clk = frame;
