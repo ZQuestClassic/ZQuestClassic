@@ -28772,12 +28772,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	int step = get_scroll_step(scrolldir);
 	int delay = get_scroll_delay(scrolldir);
 
-	int scroll_counter, dx, dy;
+	int scroll_counter, scroll_amount, dx, dy;
 	int secondary_axis_alignment_amount;
 	auto calc_scroll_data = [&](){
 		int scroll_height = std::min(viewport.h, new_viewport.h);
 		int scroll_width = std::min(viewport.w, new_viewport.w);
-		int scroll_amount = scrolldir == up || scrolldir == down ? scroll_height : scroll_width;
+		scroll_amount = scrolldir == up || scrolldir == down ? scroll_height : scroll_width;
 		scroll_counter = scroll_amount / step;
 
 		dx = 0;
@@ -29108,20 +29108,32 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	// 0 for change playing field offset, then scroll.
 	// 1 for scroll, then change playing field offset.
-	// Prefer changing the playing field offset first then scrolling...
 	int pfo_mode = 0;
-	// ... except for when the new region has a larger viewport than the old one AND moving down.
-	// That scenario can't change the playing field offset first because it would have to show
-	// portions of the screen above the old one, which is bad.
-	if (dy == 1 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
+
+	if (dy == 1)
+		pfo_mode = 0;
+	else if (dy == -1)
 		pfo_mode = 1;
-	// ... or for the inverse.
-	if (dy == -1 && sign(new_playing_field_offset - old_original_playing_field_offset) == 1)
+	else if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
 		pfo_mode = 1;
-	// Similar.
-	if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
-		pfo_mode = 1;
+
 	int pfo_counter = abs(new_playing_field_offset - old_original_playing_field_offset);
+
+	// If scrolling first and the final pfo is less, reduce the scroll distance.
+	if (pfo_mode == 1 && new_playing_field_offset > old_original_playing_field_offset)
+	{
+		scroll_amount += new_playing_field_offset - old_original_playing_field_offset;
+		scroll_counter = scroll_amount / step;
+	}
+
+	// If adjusting pfo first and the final pfo is more, increase the scroll distance.
+	// Also make the pfo adjust instantly.
+	if (pfo_mode == 0 && new_playing_field_offset < old_original_playing_field_offset)
+	{
+		scroll_amount -= new_playing_field_offset - old_original_playing_field_offset;
+		scroll_counter = scroll_amount / step;
+		pfo_counter = 1;
+	}
 
 	viewport_t old_world_rect;
 	old_world_rect.x = 0;
