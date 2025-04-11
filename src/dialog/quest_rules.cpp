@@ -988,6 +988,10 @@ static GUI::ListData compatRulesList
 	{ "Broken Sideview Icy Floor", qr_BROKEN_ICY_FLOOR_SIDEVIEW,
 		"If enabled, 'Icy Floor' combos will use the same collision checks in sideview as overview."
 		" If disabled, icy floor takes effect underneath your feet (the combo you are *standing on*) instead." },
+	{ "Strings on Layer 6 Draw Above Layer 7", qr_LAYER6_STRINGS_OVER_SUBSCREEN,
+		"If enabled, message strings set to draw to layer '6' will actually draw over the subscreen and layer 7 script draws."
+		"\nIf disabled, these strings draw directly UNDER the subscreen instead."
+		"\nHas no effect at all if `Subscreen Appears Above Sprites` is unchecked." + QRHINT({qr_SUBSCREENOVERSPRITES})},
 };
 
 static GUI::ListData enemiesRulesList
