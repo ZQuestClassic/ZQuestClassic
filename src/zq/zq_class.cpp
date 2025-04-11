@@ -4261,6 +4261,7 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.eh = ffc.hit_height,
 		.flags = ffc.flags,
 		.initd = initd_arr,
+		.layer = ffc.layer
 	};
 }
 
@@ -4287,6 +4288,7 @@ void set_ffc_command::execute()
 	mapscr_ptr->ffTileWidth(i, data.tw);
 	mapscr_ptr->ffTileHeight(i, data.th);
 	std::copy(std::begin(data.initd), std::end(data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
+	mapscr_ptr->ffcs[i].layer = data.layer;
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
 }
@@ -4313,6 +4315,7 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffTileWidth(i, prev_data.tw);
 	mapscr_ptr->ffTileHeight(i, prev_data.th);
 	std::copy(std::begin(prev_data.initd), std::end(prev_data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
+	mapscr_ptr->ffcs[i].layer = prev_data.layer;
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
 }
@@ -9393,9 +9396,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 				return qe_invalid;
 		}
 
-		if(!p_putc(0,f))
-			return qe_invalid;
-		if(!p_putc(0,f))
+		if(!p_putc(tempffc.layer,f))
 			return qe_invalid;
 	}
 	

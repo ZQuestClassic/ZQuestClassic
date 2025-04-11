@@ -2912,6 +2912,8 @@ static constexpr script_variable variable_list[]=
 	{ "COMBODTRIGSHIELDJINX", COMBODTRIGSHIELDJINX, 0 },
 
 	{ "IDATAFLASHCSET", IDATAFLASHCSET, 0 },
+	
+	{ "FFCLAYER", FFCLAYER, 0},
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -3609,6 +3611,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case XD2:
 		case YD:
 		case YD2:
+		case FFCLAYER:
 			return REFFFC;
 
 		case COMBODACLK:

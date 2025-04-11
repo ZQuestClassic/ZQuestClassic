@@ -3145,8 +3145,10 @@ enum ASM_DEFINE
 
 #define IDATAFLASHCSET          0x15F1
 
+#define FFCLAYER          0x15F2
 
-#define NUMVARIABLES            0x15F2
+
+#define NUMVARIABLES            0x15F3
 
 //} End variables
 

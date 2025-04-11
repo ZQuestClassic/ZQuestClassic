@@ -147,7 +147,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS          50
 #define V_CSETS            6 //palette data
-#define V_MAPS            32
+#define V_MAPS            33
 #define V_DMAPS           22
 #define V_DOORS            1
 #define V_ITEMS           59
@@ -2251,7 +2251,7 @@ enum //Special hardcoded draw layers
 	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
 	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
 	SPLAYER_DARKROOM_OVER, //Over dark room darkness
-	SPLAYER_FFC_DRAW, //Non-Overhead ffcs
+	SPLAYER_FFC_DRAW, //Non-Overhead ffcs // deprecated
 	SPLAYER_LENS_UNDER_1, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_UNDER_2, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_OVER, //Lens drawing blackness to cover most of the screen

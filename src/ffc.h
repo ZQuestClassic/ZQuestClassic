@@ -60,6 +60,7 @@ public:
 	cpos_info info;
 	bool script_wait_draw;
 	word data;
+	byte layer = 1;
 	
 	ffcdata() = default;
 	virtual void solid_update(bool push = true) override;

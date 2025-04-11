@@ -938,7 +938,7 @@ enum SpecialDrawLayer
 	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
 	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
 	SPLAYER_DARKROOM_OVER, //Over dark room darkness
-	SPLAYER_FFC_DRAW, //Non-Overhead ffcs
+	SPLAYER_FFC_DRAW, //Non-Overhead ffcs - Draws during a timing above layer 1 and 2
 	SPLAYER_LENS_UNDER_1, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_UNDER_2, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_OVER //Lens drawing blackness to cover most of the screen

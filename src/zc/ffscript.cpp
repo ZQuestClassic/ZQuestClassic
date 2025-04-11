@@ -3042,6 +3042,11 @@ int32_t get_register(int32_t arg)
 				ret = ffc->tysz * 10000;
 			break;
 			
+		case FFCLAYER:
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Layer"))
+				ret = ffc->layer * 10000;
+			break;
+			
 		case FFLINK:
 			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Link"))
 				ret = ffc->link * 10000;
@@ -13409,6 +13414,11 @@ void set_register(int32_t arg, int32_t value)
 		case FFTHEIGHT:
 			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->TileHeight"))
 				ffc->tysz = vbound(value/10000, 1, 4);
+			break;
+			
+		case FFCLAYER:
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Layer"))
+				ffc->layer = vbound(value/10000, 0, 7);
 			break;
 			
 		case FFLINK:

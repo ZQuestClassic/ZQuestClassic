@@ -3569,6 +3569,41 @@ static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_
 	end_y   = MIN(11, ceil((bmp->h - y) / 16.0));
 }
 
+void do_ffc_layer(BITMAP* bmp, int32_t layer, const screen_handle_t& screen_handle, int32_t x, int32_t y)
+{
+	if(!show_ffcs) return;
+	mapscr* scr = screen_handle.scr;
+	mapscr* base_scr = screen_handle.base_scr;
+	
+	y += playing_field_offset;
+
+	bool is_bg_layer = layer < -1;
+	int real_layer = is_bg_layer ? abs(layer) : layer;
+	for(int32_t i = (base_scr->numFFC()-1); i >= 0; --i)
+	{
+		if (base_scr->ffcs[i].data == 0)
+			continue;
+		if(real_layer == 2 && (is_bg_layer != XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)))
+			continue;
+		else if (real_layer == 3 && (is_bg_layer != XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)))
+			continue;
+		if (real_layer > -1 && base_scr->ffcs[i].layer != real_layer)
+			continue;
+
+		if (screenscrolling && (base_scr->ffcs[i].flags & ffc_carryover) != 0 && screen_handle.screen != scrolling_hero_screen)
+			continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr.
+
+		base_scr->ffcs[i].draw_ffc(bmp, x, y, (layer==-1));
+	}
+}
+void _do_current_ffc_layer(BITMAP* bmp, int32_t layer)
+{
+	if(!show_ffcs) return;
+	for_every_base_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		screen_handle_t handle = {base_scr, base_scr, base_scr->screen, 0};
+		do_ffc_layer(bmp, layer, handle, 0, 0);
+	});
+}
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y)
 {
 	mapscr* scr = screen_handle.scr;
@@ -3714,81 +3749,23 @@ void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, i
 	bool showlayer = true;
 	mapscr* base_scr = screen_handle.base_scr;
 	int layer = screen_handle.layer;
-
-	switch(type ? type : layer)
+	int target = type ? type : layer;
+	switch(target)
 	{
-	case -4:
-	case -3:
-		if(!show_ffcs)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case -2:
-		if(!show_layer_push)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case -1:
-		if(!show_layer_over)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 1:
-		if(!show_layer_1)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 2:
-		if(!show_layer_2)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 3:
-		if(!show_layer_3)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 4:
-		if(!show_layer_4)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 5:
-		if(!show_layer_5)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 6:
-		if(!show_layer_6)
-		{
-			showlayer = false;
-		}
-		
-		break;
+		case -2:
+			if(!show_layer_push)
+				showlayer = false;
+			break;
+			
+		case -1:
+			if(!show_layer_over)
+				showlayer = false;
+			break;
+			
+		case 1: case 2: case 3:
+		case 4: case 5: case 6:
+			showlayer = show_layers[target];
+			break;
 	}
 
 	if(!type && (layer==(int32_t)(base_scr->lens_layer&7)+1) && ((base_scr->lens_layer&llLENSSHOWS && !lensclk) || (base_scr->lens_layer&llLENSHIDES && lensclk)))
@@ -3804,7 +3781,7 @@ void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, i
 			do_scrolling_layer(bmp, type, screen_handle, x, y);
 			if(!type && !get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 				if(mblock2.draw(bmp,layer))
-					do_primitives(bmp, SPLAYER_MOVINGBLOCK, 0, playing_field_offset);
+					do_primitives(bmp, SPLAYER_MOVINGBLOCK);
 		}
 	}
 }
@@ -3813,66 +3790,19 @@ void do_layer_primitives(BITMAP *bmp, int32_t layer)
 {
 	bool showlayer = true;
 	
-	switch(layer)
+	if(layer >= 0 && layer <= 6)
 	{
-
-	case 1:
-		if(!show_layer_1)
+		showlayer = show_layers[layer];
+		
+		if ((layer==(int32_t)(origin_scr->lens_layer&7)+1) && ((origin_scr->lens_layer&llLENSSHOWS && !lensclk) || (origin_scr->lens_layer&llLENSHIDES && lensclk)))
 		{
-			showlayer = false;
+			if(!lenscheck(origin_scr,layer))
+				showlayer = false;
 		}
-		
-		break;
-		
-	case 2:
-		if(!show_layer_2)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 3:
-		if(!show_layer_3)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 4:
-		if(!show_layer_4)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 5:
-		if(!show_layer_5)
-		{
-			showlayer = false;
-		}
-		
-		break;
-		
-	case 6:
-		if(!show_layer_6)
-		{
-			showlayer = false;
-		}
-		
-		break;
 	}
 	
-	if ((layer==(int32_t)(origin_scr->lens_layer&7)+1) && ((origin_scr->lens_layer&llLENSSHOWS && !lensclk) || (origin_scr->lens_layer&llLENSHIDES && lensclk)))
-	{
-		if(!lenscheck(origin_scr,layer))
-			showlayer = false;
-	}
-
 	if (showlayer)
-		do_primitives(bmp, layer, 0, playing_field_offset);
+		do_primitives(bmp, layer);
 }
 
 // Called by do_walkflags
@@ -4411,23 +4341,24 @@ static void for_every_nearby_screen(const nearby_screens_t& nearby_screens, cons
 		fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy);
 }
 
-void draw_msgstr(byte layer)
+static void draw_msgstr(byte layer, BITMAP* dest = nullptr)
 {
 	if(layer != msgstr_layer) return;
+	if(!dest) dest = framebuf;
 
 	if(!(msg_bg_display_buf->clip))
 	{
-		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,176);
+		blit_msgstr_bg(dest,0,0,0,playing_field_offset,256,176);
 	}
 	
 	if(!(msg_portrait_display_buf->clip))
 	{
-		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,176);
+		blit_msgstr_prt(dest,0,0,0,playing_field_offset,256,176);
 	}
 	
 	if(!(msg_txt_display_buf->clip))
 	{
-		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,176);
+		blit_msgstr_fg(dest,0,0,0,playing_field_offset,256,176);
 	}
 }
 
@@ -4469,9 +4400,11 @@ void draw_screen(bool showhero, bool runGeneric)
 	if (XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 	{
 		do_layer_primitives(scrollbuf, 2);
-		particles.draw(framebuf, true, 1);
-		draw_msgstr(2);
+		particles.draw(scrollbuf, true, 2);
 	}
+	_do_current_ffc_layer(scrollbuf, -2);
+	if (XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+		draw_msgstr(2, scrollbuf);
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
@@ -4482,9 +4415,11 @@ void draw_screen(bool showhero, bool runGeneric)
 	if (XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 	{
 		do_layer_primitives(scrollbuf, 3);
-		particles.draw(framebuf, true, 2);
-		draw_msgstr(3);
+		particles.draw(scrollbuf, true, 3);
 	}
+	_do_current_ffc_layer(scrollbuf, -3);
+	if (XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+		draw_msgstr(3, scrollbuf);
 
 	// Draw the main combo screens ("layer 0").
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
@@ -4499,21 +4434,21 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		if(!get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 			if(mblock2.draw(scrollbuf,0))
-				do_primitives(scrollbuf, SPLAYER_MOVINGBLOCK, 0, playing_field_offset);
+				do_primitives(scrollbuf, SPLAYER_MOVINGBLOCK);
 	}
 
 	// Lens hints, then primitives, then particles.
 	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_qr(qr_OLDLENSORDER))
 	{
 		draw_lens_under(scrollbuf, false);
-		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, 0, playing_field_offset);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1);
 	}
 	
-	if(show_layer_0 && lenscheck(hero_scr,0))
-		do_primitives(scrollbuf, 0, 0, playing_field_offset);
-		
-	particles.draw(framebuf, true, -3);
-	draw_msgstr(0);
+	if(show_layers[0] && lenscheck(hero_scr,0))
+		do_primitives(scrollbuf, 0);
+	particles.draw(scrollbuf, true, 0);
+	_do_current_ffc_layer(scrollbuf, 0);
+	draw_msgstr(0, scrollbuf);
 
 	set_draw_screen_clip(scrollbuf);
 
@@ -4553,13 +4488,9 @@ void draw_screen(bool showhero, bool runGeneric)
 	});
 
 	do_layer_primitives(scrollbuf, 1);
-	particles.draw(framebuf, true, 0);
-	draw_msgstr(1);
-
-	for_every_base_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
-		screen_handle_t handle = {base_scr, base_scr, base_scr->screen, 0};
-		do_layer(scrollbuf, -3, handle, 0, 0); // freeform combos!
-	});
+	particles.draw(scrollbuf, true, 1);
+	_do_current_ffc_layer(scrollbuf, 1);
+	draw_msgstr(1, scrollbuf);
 
 	// Handle layer 2 NOT being used as background layers.
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
@@ -4571,11 +4502,12 @@ void draw_screen(bool showhero, bool runGeneric)
 	if(!XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 	{
 		do_layer_primitives(scrollbuf, 2);
-		particles.draw(framebuf, true, 1);
-		draw_msgstr(2);
+		particles.draw(scrollbuf, true, 2);
+		_do_current_ffc_layer(scrollbuf, 2);
+		draw_msgstr(2, scrollbuf);
 	}
 
-	do_primitives(framebuf, SPLAYER_FFC_DRAW, 0, playing_field_offset);
+	do_primitives(scrollbuf, SPLAYER_FFC_DRAW);
 
 	if(get_qr(qr_LAYER12UNDERCAVE))
 	{
@@ -4619,7 +4551,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 		});
 
-		do_primitives(scrollbuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
+		do_primitives(scrollbuf, SPLAYER_PUSHBLOCK);
 	}
 
 	// Show walkflags cheat
@@ -4641,11 +4573,11 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(get_qr(qr_OLDLENSORDER))
 		{
 			draw_lens_under(scrollbuf, false);
-			do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, 0, playing_field_offset);
+			do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1);
 		}
 		
 		draw_lens_under(scrollbuf, true);
-		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_2, 0, playing_field_offset);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_2);
 	}
 	
 	// Blit those layers onto framebuf
@@ -4700,14 +4632,14 @@ void draw_screen(bool showhero, bool runGeneric)
 				if(((weapon *)Ewpns.spr(i))->behind)
 					Ewpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW);
 			
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(((weapon *)Lwpns.spr(i))->behind)
 					Lwpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW);
 
 			if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 			{
@@ -4726,12 +4658,12 @@ void draw_screen(bool showhero, bool runGeneric)
 				auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
 				set_clip_rect(framebuf, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
 			}
-			do_primitives(framebuf, SPLAYER_NPC_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_NPC_DRAW);
 			if (do_clip)
 				clear_clip_rect(framebuf);
 
 			chainlinks.draw(framebuf,true);
-			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW);
 			//Lwpns.draw(framebuf,true);
 			
 			for(int32_t i=0; i<Ewpns.Count(); i++)
@@ -4739,14 +4671,14 @@ void draw_screen(bool showhero, bool runGeneric)
 				if(!((weapon *)Ewpns.spr(i))->behind)
 					Ewpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW);
 			
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(!((weapon *)Lwpns.spr(i))->behind)
 					Lwpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW);
 
 			if (do_clip)
 				items.draw_smooth_maze(framebuf);
@@ -4758,7 +4690,7 @@ void draw_screen(bool showhero, bool runGeneric)
 				auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
 				set_clip_rect(framebuf, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
 			}
-			do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW);
 			if (do_clip)
 				clear_clip_rect(framebuf);
 		}
@@ -4769,14 +4701,14 @@ void draw_screen(bool showhero, bool runGeneric)
 				if(((weapon *)Ewpns.spr(i))->behind)
 					Ewpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW);
 		
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(((weapon *)Lwpns.spr(i))->behind)
 					Lwpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW);
 			
 			if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 			{
@@ -4784,12 +4716,12 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 			
 			items.draw(framebuf,false);
-			do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW);
 			chainlinks.draw(framebuf,false);
-			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW);
 			//Lwpns.draw(framebuf,false);
 			guys.draw(framebuf,false);
-			do_primitives(framebuf, SPLAYER_NPC_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_NPC_DRAW);
 			
 			for(int32_t i=0; i<Ewpns.Count(); i++)
 			{
@@ -4798,7 +4730,7 @@ void draw_screen(bool showhero, bool runGeneric)
 					Ewpns.spr(i)->draw(framebuf);
 				}
 			}
-			do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW);
 		
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
@@ -4807,7 +4739,7 @@ void draw_screen(bool showhero, bool runGeneric)
 					Lwpns.spr(i)->draw(framebuf);
 				}
 			}
-			do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW);
 		}
 		
 		guys.draw2(framebuf,true);
@@ -4822,7 +4754,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
 			mblock2.draw(framebuf,-1);
-			do_primitives(framebuf, SPLAYER_MOVINGBLOCK, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_MOVINGBLOCK);
 		}
 		if(!Hero.isSwimming())
 		{
@@ -4863,7 +4795,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			//Jumping enemies in front of Hero.
 			guys.spr(i)->draw(framebuf);
 		}
-		do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW);
 	}
 	
 	// Draw some layers onto framebuf
@@ -4881,7 +4813,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	if(!XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 	{
 		do_layer_primitives(framebuf, 3);
-		particles.draw(framebuf, true, 2);
+		particles.draw(framebuf, true, 3);
+		_do_current_ffc_layer(framebuf, 3);
 		draw_msgstr(3);
 	}
 
@@ -4890,7 +4823,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	});
 
 	do_layer_primitives(framebuf, 4);
-	particles.draw(framebuf, true, 3);
+	particles.draw(framebuf, true, 4);
+	_do_current_ffc_layer(framebuf, 4);
 	draw_msgstr(4);
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
@@ -4902,9 +4836,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB, 0, playing_field_offset);
-	
-	particles.draw(framebuf, true, -1);
+	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB);
 	
 	// Draw some flying sprites onto framebuf
 	clear_clip_rect(framebuf);
@@ -4917,7 +4849,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		decorations.draw2(framebuf,false);
 		Hero.draw(framebuf);
 		chainlinks.draw(framebuf,true);
-		do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW);
 		
 		for(int32_t i=0; i<Lwpns.Count(); i++)
 		{
@@ -4926,7 +4858,7 @@ void draw_screen(bool showhero, bool runGeneric)
 				Lwpns.spr(i)->draw(framebuf);
 			}
 		}
-		do_primitives(framebuf, SPLAYER_LWEAP_ABOVE_DRAW, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_LWEAP_ABOVE_DRAW);
 		
 		decorations.draw(framebuf,false);
 	}
@@ -4948,13 +4880,13 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 		}
 	}
-	do_primitives(framebuf, SPLAYER_NPC_AIRBORNE_DRAW, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_NPC_AIRBORNE_DRAW);
 	
 	// Draw the Moving Fairy above layer 3
 	for(int32_t i=0; i<items.Count(); i++)
 		if(itemsbuf[items.spr(i)->id].family == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
 			items.spr(i)->draw(framebuf);
-	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW);
 	
 	// Draw some layers onto framebuf
 
@@ -4975,22 +4907,21 @@ void draw_screen(bool showhero, bool runGeneric)
 	});
 
 	do_layer_primitives(framebuf, 5);
-	particles.draw(framebuf, true, 4);
+	particles.draw(framebuf, true, 5);
+	_do_current_ffc_layer(framebuf, 5);
 	draw_msgstr(5);
+	
+	_do_current_ffc_layer(framebuf, -1); // 'overhead' freeform combos
 
-	for_every_base_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
-		screen_handle_t handle = {base_scr, base_scr, base_scr->screen, 0};
-		do_layer(framebuf, -4, handle, 0, 0); // overhead freeform combos!
-	});
-
-	do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_OVERHEAD_FFC);
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		do_layer(framebuf, 0, screen_handles[6], offx, offy);
 	});
 
 	do_layer_primitives(framebuf, 6);
-	particles.draw(framebuf, true, 5);
+	particles.draw(framebuf, true, 6);
+	_do_current_ffc_layer(framebuf, 6);
 
 	bool any_dark = false;
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
@@ -5022,7 +4953,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	//Darkroom if under the subscreen
 	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && any_dark)
 	{
-		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 		if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
@@ -5045,7 +4976,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-		do_primitives(framebuf, SPLAYER_DARKROOM_OVER, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_DARKROOM_OVER);
 	}
 
 	if (is_extended_height_mode() && lensclk && !FFCore.system_suspend[susptLENS])
@@ -5066,7 +4997,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		put_passive_subscr(framebuf, 0, 0, game->should_show_time(), sspUP);
 		
 		// Draw primitives over subscren
-		do_primitives(framebuf, 7, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
+		do_primitives(framebuf, 7); //Layer '7' appears above subscreen if quest rule is set
 	}
 	
 	if(get_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN))
@@ -5075,7 +5006,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	// Handle high-drawn darkness
 	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && any_dark)
 	{
-		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 		if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
@@ -5098,9 +5029,10 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-		do_primitives(framebuf, SPLAYER_DARKROOM_OVER, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_DARKROOM_OVER);
 	}
 	
+	_do_current_ffc_layer(framebuf, 7);
 	draw_msgstr(7);
 	
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
@@ -6626,7 +6558,7 @@ void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y)
 	x -= viewport.x;
 	y -= viewport.y;
 
-	if (!scr->is_valid()||!show_layer_0||scr->hidelayers & 1)
+	if (!scr->is_valid()||!show_layers[0]||scr->hidelayers & 1)
 	{
 		rectfill(dest,x,y,x+255,y+175,0);
 		return;
@@ -6650,7 +6582,7 @@ void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y)
 
 static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, int32_t x, int32_t y)
 {
-	if (!show_layer_0)
+	if (!show_layers[0])
 	{
 		return;
 	}
@@ -6687,7 +6619,7 @@ static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, in
 
 void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y)
 {
-	if (!scr->is_valid() || !show_layer_0)
+	if (!scr->is_valid() || !show_layers[0])
 		return;
 
 	x -= viewport.x;

@@ -343,9 +343,9 @@ int32_t skipcont=0;
 
 bool palette_user_tinted = false;
 
-bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true,
-//oveheard combos     //pushblocks
-     show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
+bool show_layers[7] = {true,true,true,true,true,true,true};
+     //oveheard combos     //pushblocks
+bool show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
@@ -1595,7 +1595,7 @@ void init_game_vars(bool is_cont_game = false)
 	if (!is_cont_game)
 	{
 		cheat=0;
-		show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
+		show_layers[0]=show_layers[1]=show_layers[2]=show_layers[3]=show_layers[4]=show_layers[5]=show_layers[6]=true;
 		show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
 		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
 	}
@@ -2753,14 +2753,14 @@ void do_magic_casting()
                     {
                         if(itemsbuf[magicitem].misc1==1)  // Twilight
                         {
-                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(itemsbuf[magicitem].misc1==2)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
@@ -2773,7 +2773,7 @@ void do_magic_casting()
                         }
                         else
                         {
-                            particles.add(new pDivineEscapeDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
