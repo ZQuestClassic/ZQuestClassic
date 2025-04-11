@@ -19440,27 +19440,47 @@ newmove_slide:
 		dir = conv_forcedir;
 	if(!is_conveyor_stunned)
 	{
-		bool is_inair = (z > 0 || fakez > 0);
+		bool is_inair = (z > 0 || fakez > 0) || (sideview_mode() && !get_qr(qr_BROKEN_ICY_FLOOR_SIDEVIEW) && !isStanding(true));
 		auto ic = ice_combo;
 		if(!is_inair) //maintain momentum when jumping
 		{
 			const int sens = 2;
-			auto ty = y+(bigHitbox?0:8);
-			int xs[] = {x+7, x+sens, x+sens, x+15-sens, x+15-sens};
-			int ys[] = {y+(bigHitbox?8:12), ty+sens, y+15-sens, ty+sens, y+15-sens};
-			bool found = false;
-			for(int q = 0; q < 5; ++q)
+			if(sideview_mode() && !get_qr(qr_BROKEN_ICY_FLOOR_SIDEVIEW)) // check *below you* in sideview
 			{
-				auto ice = get_icy(xs[q], ys[q], ICY_PLAYER);
-				if(ice)
+				int xs[] = {x+sens, x+15-sens};
+				bool found = false;
+				for(int q = 0; q < 2; ++q)
 				{
-					ic = ice_combo = ice;
-					found = true;
-					break;
+					auto ice = get_icy(xs[q], y+16, ICY_PLAYER);
+					if(ice)
+					{
+						ic = ice_combo = ice;
+						found = true;
+						break;
+					}
 				}
+				if(!found)
+					ic = ice_combo = 0;
 			}
-			if(!found)
-				ic = ice_combo = 0;
+			else
+			{
+				auto ty = y+(bigHitbox?0:8);
+				int xs[] = {x+7, x+sens, x+sens, x+15-sens, x+15-sens};
+				int ys[] = {y+(bigHitbox?8:12), ty+sens, y+15-sens, ty+sens, y+15-sens};
+				bool found = false;
+				for(int q = 0; q < 5; ++q)
+				{
+					auto ice = get_icy(xs[q], ys[q], ICY_PLAYER);
+					if(ice)
+					{
+						ic = ice_combo = ice;
+						found = true;
+						break;
+					}
+				}
+				if(!found)
+					ic = ice_combo = 0;
+			}
 		}
 		if(script_ice_combo)
 		{
