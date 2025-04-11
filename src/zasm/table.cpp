@@ -2914,6 +2914,7 @@ static constexpr script_variable variable_list[]=
 	{ "IDATAFLASHCSET", IDATAFLASHCSET, 0 },
 	
 	{ "FFCLAYER", FFCLAYER, 0},
+	{ "GAMELAYERZTHRESHOLDS", GAMELAYERZTHRESHOLDS, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -3270,6 +3271,7 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case GAMEEVENTDATA:
 		case GAMEGENERICD:
 		case GAMEGRAVITY:
+		case GAMELAYERZTHRESHOLDS:
 		case GAMEGSWITCH:
 		case GAMEGUYCOUNT:
 		case GAMEGUYCOUNTD:

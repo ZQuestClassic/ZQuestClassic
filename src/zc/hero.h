@@ -184,7 +184,6 @@ class HeroClass : public sprite
 	
 	void execute(WalkflagInfo info);
 	
-	
 public:
 	std::map<int16_t, int32_t> usecounts;
 	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg,inair;

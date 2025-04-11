@@ -529,7 +529,6 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
 			if ( ((unsigned)indx) > 3 )
-			//if(indx < 0 || indx > 2)
 			{
 				ret = -10000;
 				Z_scripterrlog("Invalid index used to access Game->Gravity[]: %d\n", indx);
@@ -551,6 +550,21 @@ std::optional<int32_t> game_get_register(int32_t reg)
 						ret = zinit.air_drag.getZLong();
 						break;
 				}
+			}
+			break;
+		}
+		
+		case GAMELAYERZTHRESHOLDS:
+		{
+			int32_t indx = ri->d[rINDEX]/10000;
+			if ( ((unsigned)indx) >= SPRITE_THRESHOLD_MAX )
+			{
+				ret = -10000;
+				Z_scripterrlog("Invalid index used to access Game->LayerZThreshold[]: %d\n", indx);
+			}
+			else
+			{
+				ret = zinit.sprite_z_thresholds[indx] * 10000;
 			}
 			break;
 		}
@@ -993,6 +1007,20 @@ bool game_set_register(int32_t reg, int32_t value)
 						zinit.air_drag = zslongToFix(value);
 						break;
 				}
+			}
+			break;
+		}
+		
+		case GAMELAYERZTHRESHOLDS:
+		{
+			int32_t indx = ri->d[rINDEX]/10000;
+			if(indx < 0 || indx >= SPRITE_THRESHOLD_MAX)
+			{
+				Z_scripterrlog("Invalid index used to access Game->LayerZThreshold[]: %d\n", indx);
+			}
+			else
+			{
+				zinit.sprite_z_thresholds[indx] = value / 10000;
 			}
 			break;
 		}

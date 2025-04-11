@@ -243,6 +243,9 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 	
 	alwaysOnRules(); //Set on things that should ALWAYS be on.
 	
+	static const int r_NON_MODERN[] = {
+		qr_OLDSPRITEDRAWS, qr_CLASSIC_DRAWING_ORDER,
+	};
 	static const int r_FIXES[] = {
 		qr_FREEFORM, qr_SAFEENEMYFADE, qr_ITEMSONEDGES, qr_HERODUNGEONPOSFIX, qr_RLFIX,
 		qr_NOLEVEL3FIX, qr_BOMBHOLDFIX, qr_HOLDNOSTOPMUSIC, qr_CAVEEXITNOSTOPMUSIC,
@@ -250,15 +253,15 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		qr_TRAPPOSFIX, qr_NOBORDER, qr_SUBSCREENOVERSPRITES,
 		qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFHERO2,
 		qr_NOITEMOFFSET, qr_LADDERANYWHERE, qr_TRUEFIXEDBOMBSHIELD, qr_NOTMPNORET, qr_NOFLASHDEATH, qr_BROKENSTATUES, 
-		qr_DYING_ENEMIES_IGNORE_STUN, qr_SHOP_ITEMS_VANISH, qr_EXPANDEDLTM, qr_CORRECTED_EW_BRANG_ANIM
+		qr_DYING_ENEMIES_IGNORE_STUN, qr_SHOP_ITEMS_VANISH, qr_EXPANDEDLTM, qr_CORRECTED_EW_BRANG_ANIM,
 	};
 	static const int rNES[] = {
-		qr_OLDPICKUP, qr_OLDSTYLEWARP, qr_OLDSPRITEDRAWS,
+		qr_OLDPICKUP, qr_OLDSTYLEWARP,
 	};
 	static const int rBSZ[] = {
 		qr_TIME, qr_NOBOMBPALFLASH, qr_NEWENEMYTILES, qr_FASTDNGN, qr_SMOOTHVERTICALSCROLLING,
 		qr_COOLSCROLL, qr_BSZELDA, qr_SOLIDBLK, qr_HESITANTPUSHBLOCKS, qr_INSTABURNFLAGS,
-		qr_FADE, qr_EXPANDEDLTM, qr_OLDSPRITEDRAWS,
+		qr_FADE, qr_EXPANDEDLTM,
 	};
 	static const int rZ3[] = {
 		qr_DROWN, qr_HIDECARRIEDITEMS, qr_ALLOWMSGBYPASS, qr_ALLOWFASTMSG, qr_MSGDISAPPEAR,
@@ -284,9 +287,6 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		qr_CONVEYORS_L1_L2, qr_CONVEYORS_ALL_LAYERS,
 		qr_EW_FIRE_EMITS_LIGHT, qr_BLOCKS_DROWN,
 	};
-	static const int rMODERN_O[] = {
-		qr_OLDSPRITEDRAWS
-	};
 	static const int rMODERN_TMPL[] = {
 		ruletemplateFixCompat, ruletemplateNewSubscreen,
 	};
@@ -294,18 +294,24 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 	{
 		case rulesetNES: // Authentic NES
 		{
+			for(auto qr : r_NON_MODERN)
+				set_qr(qr, 1, qrptr);
 			for(auto qr : rNES)
 				set_qr(qr, 1, qrptr);
 			break;
 		}
 		case rulesetFixedNES: // Fixed NES
 		{
+			for(auto qr : r_NON_MODERN)
+				set_qr(qr, 1, qrptr);
 			for(auto qr : r_FIXES)
 				set_qr(qr, 1, qrptr);
 			break;
 		}
 		case rulesetBSZ: // BS Zelda
 		{
+			for(auto qr : r_NON_MODERN)
+				set_qr(qr, 1, qrptr);
 			for(auto qr : r_FIXES)
 				set_qr(qr, 1, qrptr);
 			for(auto qr : rBSZ)
@@ -314,6 +320,8 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		}
 		case rulesetZ3: // Zelda 3-esque
 		{
+			for(auto qr : r_NON_MODERN)
+				set_qr(qr, 1, qrptr);
 			for(auto qr : r_FIXES)
 				set_qr(qr, 1, qrptr);
 			for(auto qr : rBSZ)
@@ -330,8 +338,6 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 				set_qr(qr, 1, qrptr);
 			for(auto qr : rZ3)
 				set_qr(qr, 1, qrptr);
-			for(auto qr : rMODERN_O)
-				set_qr(qr, 0, qrptr);
 			for(auto qr : rMODERN)
 				set_qr(qr, 1, qrptr);
 			for(auto tmpl : rMODERN_TMPL)

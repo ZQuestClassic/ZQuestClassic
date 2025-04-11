@@ -155,7 +155,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        41
+#define V_INITDATA        42
 #define V_GUYS            53
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -168,7 +168,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       77
+#define V_COMPATRULE       78
 #define V_ZINFO            4
 
 //= V_SHOPS is under V_MISC

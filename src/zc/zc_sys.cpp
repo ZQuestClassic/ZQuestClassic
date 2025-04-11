@@ -3866,17 +3866,25 @@ int32_t onSaveMapPic()
 			int xx = 0;
 			int yy = -playing_field_offset;
 
-			if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
-			{
-				do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
-				do_ffc_layer(_screen_draw_buffer, -2, screen_handles[0], xx, yy);
-			}
+			if(get_qr(qr_CLASSIC_DRAWING_ORDER))
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+				{
+					do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+					do_ffc_layer(_screen_draw_buffer, -2, screen_handles[0], xx, yy);
+				}
 
 			if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 			{
 				do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
 				do_ffc_layer(_screen_draw_buffer, -3, screen_handles[0], xx, yy);
 			}
+
+			if(!get_qr(qr_CLASSIC_DRAWING_ORDER))
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+				{
+					do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+					do_ffc_layer(_screen_draw_buffer, -2, screen_handles[0], xx, yy);
+				}
 
 			if(lenscheck(scr,0))
 				putscr(scr, _screen_draw_buffer, 0, 0);
