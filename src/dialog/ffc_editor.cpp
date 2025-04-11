@@ -42,6 +42,7 @@ void ffdata::clear()
 {
 	memset(this, 0, sizeof(ffdata));
 	fwid = fhei = 15;
+	layer = 1;
 }
 void ffdata::load(mapscr* scr, int32_t ind)
 {
@@ -59,6 +60,7 @@ void ffdata::load(mapscr* scr, int32_t ind)
 	delay = ffc.delay;
 	flags = ffc.flags;
 	link = ffc.link;
+	layer = ffc.layer;
 	twid = scr->ffTileWidth(ind)-1;
 	thei = scr->ffTileHeight(ind)-1;
 	fwid = scr->ffEffectWidth(ind)-1;
@@ -89,6 +91,7 @@ void ffdata::save(mapscr* scr, int32_t screen, int32_t ind)
 		.eh = (byte)(fhei+1),
 		.flags = flags,
 		.initd = initd,
+		.layer = layer,
 	});
 }
 
@@ -105,6 +108,7 @@ ffdata& ffdata::operator=(ffdata const& other)
 	delay = other.delay;
 	flags = other.flags;
 	link = other.link;
+	layer = other.layer;
 	twid = other.twid;
 	thei = other.thei;
 	fwid = other.fwid;
@@ -129,6 +133,22 @@ FFCDialog::FFCDialog(mapscr* scr, int32_t screen, int32_t ffind, ffdata const& i
 }
 
 //{ Macros
+#define NOSWAP_FIELD(str, mem, lb, hb, info) \
+Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?", \
+		onPressFunc = []() \
+		{ \
+			InfoDialog(str,info).show(); \
+		}),\
+Label(text = str, hAlign = 1.0), \
+TextField( \
+	type = GUI::TextField::type::INT_DECIMAL, \
+	low = lb, high = hb, val = mem, \
+	leftPadding = 0_px, fitParent = true, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		mem = val; \
+	})
+
 #define SWAPFIELD(str, mem, lb, hb, info) \
 Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?", \
 		onPressFunc = []() \
@@ -368,7 +388,11 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 							{
 								ffc.link = (byte)val;
 							}
-						)
+						),
+						//
+						NOSWAP_FIELD("Layer:", ffc.layer, 0, 7, 
+							"The layer (0-7) the ffc will be drawn on. Ignored if 'Draw Over' is checked."
+							" Will draw above the combos AND script draws on the specified layer.")
 					),
 					cmb_container = Column(width = 128_px + 5_px + 1_em + text_length(GUI_DEF_FONT, "Combo: 99999"), height = 128_px,
 						cmbsw = SelComboSwatch(vAlign = 0.0, hAlign = 0.0,
@@ -387,8 +411,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 				TabRef(name = "Flags", Column(
 					Rows<2>(
 						Label(text = "Standard Flags", colSpan = 2),
-						CHECKB("Draw Over", ffc_overlay, "The FFC draws on a higher draw layer than it would otherwise if"
-							" enabled."),
+						CHECKB("Draw Over", ffc_overlay, "If enabled, the FFC draws on a special timing above Layer 5, ignoring the 'Layer' setting."),
 						CHECKB("Ethereal", ffc_ethereal, "If enabled, the FFC has no 'effect', and is not checked"
 							" for any combo type related effects."),
 						CHECKB("Translucent", ffc_trans, "The FFC draws transparently"),

@@ -11838,6 +11838,10 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 // Draw commands can vary in terms of the origin/coordinate system to draw as. This
 // is controlled via `DrawOrigin`. Previous to `DrawOrigin`, this always drew
 // relative to the playing field (except for offscreen bitmaps).
+void do_primitives(BITMAP *targetBitmap, int32_t type)
+{
+	do_primitives(targetBitmap, type, 0, playing_field_offset);
+}
 void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yoff)
 {
 	color_map = &trans_table2;

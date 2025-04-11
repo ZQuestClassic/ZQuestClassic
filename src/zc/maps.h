@@ -387,6 +387,7 @@ std::pair<int32_t, int32_t> nextscr2(int32_t dir);
 std::pair<int32_t, int32_t> nextscr2(int m, int s, int32_t dir);
 void bombdoor(int32_t x,int32_t y);
 bool lenscheck(mapscr* scr, int layer);
+void do_ffc_layer(BITMAP* bmp, int32_t layer, const screen_handle_t& screen_handle, int32_t x, int32_t y);
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y);
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y);
 void do_layer_primitives(BITMAP *bmp, int32_t layer);
@@ -394,6 +395,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 void do_walkflags(const std::array<screen_handle_t, 7>& screen_handles ,int32_t x, int32_t y);
 void do_walkflags(int32_t x, int32_t y);
 void do_effectflags(mapscr* scr, int32_t x, int32_t y);
+void do_primitives(BITMAP *bmp, int32_t type);
 void do_primitives(BITMAP *bmp, int32_t type, int32_t x, int32_t y);
 void do_script_draws(BITMAP *bmp, mapscr *scr, int32_t x, int32_t y, bool hideLayer7 = false);
 void calc_darkroom_combos(mapscr* scr, int offx, int offy);

@@ -58,6 +58,11 @@ class ffc {
 	// @zasm_var DATA
 	internal int Data;
 
+	// The layer the FFC draws on. Unused if [FFCF_OVERLAY] is set.
+	//
+	// @zasm_var FFCLAYER
+	internal int Layer;
+
 	// The FFC script ID running on this FFC.
 	//
 	// @zasm_var FFSCRIPT
@@ -87,7 +92,10 @@ class ffc {
 	//
 	// @zasm_var YD2
 	internal int Ay;
-
+	
+	// Flags for the FFC.
+	//
+	// @index [FFCFlag]
 	// @zasm_var FFFLAGSD
 	internal bool Flags[];
 

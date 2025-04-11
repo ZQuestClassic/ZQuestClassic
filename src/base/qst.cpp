@@ -17024,9 +17024,14 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				if(!p_igetl(&(tempffc.initd[q]),f))
 					return qe_invalid;
 			}
-			if(!p_getc(&(tempbyte),f))
-				return qe_invalid;
-			if(!p_getc(&(tempbyte),f))
+			if(version < 33)
+			{
+				if(!p_getc(&(tempbyte),f))
+					return qe_invalid;
+				if(!p_getc(&(tempbyte),f))
+					return qe_invalid;
+			}
+			else if(!p_getc(&(tempffc.layer),f))
 				return qe_invalid;
 			
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)

@@ -35,6 +35,7 @@ void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 	#ifdef IS_PLAYER
 	if ((flags&ffc_lensinvis) && lensclk) return; //If lens is active and ffc is invis to lens, don't draw
 	if ((flags&ffc_lensvis) && !lensclk) return; //If FFC does not require lens, or lens is active, draw
+	if(!(flags&ffc_overlay) != !overlay) return; //force cast both of these to boolean. They're both not, so same as if they weren't not.
 	
 	if (switch_hooked)
 	{
@@ -55,24 +56,21 @@ void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 	}
 	#endif
 	
-	if(!(flags&ffc_overlay) == !overlay) //force cast both of these to boolean. They're both not, so same as if they weren't not.
-	{
 #ifdef IS_PLAYER
-		int32_t tx = x + xofs - viewport.x;
-		int32_t ty = y + yofs - viewport.y;
+	int32_t tx = x + xofs - viewport.x;
+	int32_t ty = y + yofs - viewport.y;
 #else
-		int32_t tx = x + xofs;
-		int32_t ty = y + yofs;
+	int32_t tx = x + xofs;
+	int32_t ty = y + yofs;
 #endif
 
-		if(flags&ffc_trans)
-		{
-			overcomboblocktranslucent(dest, tx, ty, data, cset, txsz, tysz,128);
-		}
-		else
-		{
-			overcomboblock(dest, tx, ty, data, cset, txsz, tysz);
-		}
+	if(flags&ffc_trans)
+	{
+		overcomboblocktranslucent(dest, tx, ty, data, cset, txsz, tysz,128);
+	}
+	else
+	{
+		overcomboblock(dest, tx, ty, data, cset, txsz, tysz);
 	}
 }
 

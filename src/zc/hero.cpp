@@ -3197,7 +3197,7 @@ void HeroClass::draw(BITMAP* dest)
 herodraw_end:
 	xofs=oxofs;
 	yofs=oyofs;
-	do_primitives(dest, SPLAYER_PLAYER_DRAW, 0, playing_field_offset);
+	do_primitives(dest, SPLAYER_PLAYER_DRAW);
 }
 
 void HeroClass::masked_draw(BITMAP* dest)
@@ -28588,7 +28588,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	dither_offx = 0;
 	dither_offy = 0;
 
-	do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_DARKROOM_UNDER);
 	set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 	if (hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
 	{
@@ -28611,7 +28611,30 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	color_map = &trans_table;
 	
 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-	do_primitives(framebuf, SPLAYER_DARKROOM_OVER, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_DARKROOM_OVER);
+}
+
+static void do_ffc_scroll_layer(BITMAP* dest, int layer, const nearby_scrolling_screens_t& nearby_screens, int xoff, int yoff)
+{
+	if(!get_qr(qr_FFCSCROLL))
+		return;
+	// Draw all FFCs from the previous region.
+	for (int i = 0; i < FFCore.ScrollingScreensAll.size(); i += 7)
+	{
+		mapscr* scr = FFCore.ScrollingScreensAll[i];
+		if (!scr)
+			continue;
+
+		auto screen_handle = screen_handle_t{scr, scr, scr->screen, 0};
+		do_ffc_layer(dest, layer, screen_handle, 0, 0);
+	}
+
+	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+		if (!is_new_screen)
+			return;
+
+		do_ffc_layer(dest, layer, screen_handles[0], xoff, yoff);
+	});
 }
 
 void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdmap)
@@ -29559,14 +29582,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			mapscr* base_scr = screen_handles[0].base_scr;
 			if(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(framebuf, 0, screen_handles[2], offx, offy);
+		});
+		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG))
+			do_primitives(framebuf, 2);
+		do_ffc_scroll_layer(framebuf, -2, nearby_screens, new_region_offset_x, new_region_offset_y);
+		
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+			mapscr* base_scr = screen_handles[0].base_scr;
 			if(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(framebuf, 0, screen_handles[3], offx, offy);
 		});
-
-		// Draw screens' background layer primitives together, after their layers' combos.
-		// Not ideal, but probably good enough for all realistic purposes.
-		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
-		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG)) do_primitives(framebuf, 2, 0, playing_field_offset);
-		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_primitives(framebuf, 3, 0, playing_field_offset);
+		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG))
+			do_primitives(framebuf, 3);
+		do_ffc_scroll_layer(framebuf, -3, nearby_screens, new_region_offset_x, new_region_offset_y);
 
 		combotile_add_y = is_unsmooth_vertical_scrolling ? -3 : 0;
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
@@ -29577,33 +29604,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		combotile_add_y = 0;
 
 		if (lenscheck(newscr, 0))
-			do_primitives(framebuf, 0, 0, playing_field_offset);
+			do_primitives(framebuf, 0);
 
+		do_ffc_scroll_layer(framebuf, 0, nearby_screens, new_region_offset_x, new_region_offset_y);
+		
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			do_layer(framebuf, 0, screen_handles[1], offx, offy);
 		});
 		do_layer_primitives(framebuf, 1);
-
-		if (get_qr(qr_FFCSCROLL))
-		{
-			// Draw all FFCs from the previous region.
-			for (int i = 0; i < FFCore.ScrollingScreensAll.size(); i += 7)
-			{
-				mapscr* scr = FFCore.ScrollingScreensAll[i];
-				if (!scr)
-					continue;
-
-				auto screen_handle = screen_handle_t{scr, scr, scr->screen, 0};
-				do_layer(framebuf, -3, screen_handle, 0, 0); // ffcs
-			}
-
-			for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
-				if (!is_new_screen)
-					return;
-
-				do_layer(framebuf, -3, screen_handles[0], new_region_offset_x, new_region_offset_y); // ffcs
-			});
-		}
+		
+		do_ffc_scroll_layer(framebuf, 1, nearby_screens, new_region_offset_x, new_region_offset_y);
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			mapscr* base_scr = screen_handles[0].base_scr;
@@ -29612,7 +29622,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		});
 
 		if (!(oldscr->flags7&fLAYER2BG) && !(XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)))
+		{
 			do_layer_primitives(framebuf, 2);
+			do_ffc_scroll_layer(framebuf, 2, nearby_screens, new_region_offset_x, new_region_offset_y);
+		}
 
 		if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
@@ -29625,7 +29638,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 				}
 			});
 
-			do_primitives(framebuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_PUSHBLOCK);
 		}
 
 		if (show_walkflags || show_effectflags)
@@ -29691,12 +29704,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		if (!(XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)))
 			do_layer_primitives(framebuf, 3);
+		do_ffc_scroll_layer(framebuf, 3, nearby_screens, new_region_offset_x, new_region_offset_y);
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			do_layer(framebuf, 0, screen_handles[4], offx, offy); //layer 4
 		});
 
 		do_layer_primitives(framebuf, 4);
+		do_ffc_scroll_layer(framebuf, 4, nearby_screens, new_region_offset_x, new_region_offset_y);
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			do_layer(framebuf, -1, screen_handles[0], offx, offy); //overhead combos
@@ -29712,18 +29727,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		});
 
 		do_layer_primitives(framebuf, 5);
-
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
-			int draw_ffc_x = is_new_screen ? new_region_offset_x : 0;
-			int draw_ffc_y = is_new_screen ? new_region_offset_y : 0;
-			do_layer(framebuf, -4, screen_handles[0], draw_ffc_x, draw_ffc_y); //overhead FFCs
-		});
+		do_ffc_scroll_layer(framebuf, 5, nearby_screens, new_region_offset_x, new_region_offset_y);
+		
+		do_ffc_scroll_layer(framebuf, -1, nearby_screens, new_region_offset_x, new_region_offset_y);
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			do_layer(framebuf, 0, screen_handles[6], offx, offy); //layer 6
 		});
 
 		do_layer_primitives(framebuf, 6);
+		do_ffc_scroll_layer(framebuf, 6, nearby_screens, new_region_offset_x, new_region_offset_y);
 
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6))
 		{
@@ -29733,7 +29746,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		put_passive_subscr(framebuf, 0, 0, game->should_show_time(), sspUP);
 
 		if(get_qr(qr_SUBSCREENOVERSPRITES))
-			do_primitives(framebuf, 7, 0, playing_field_offset);
+			do_primitives(framebuf, 7);
+		do_ffc_scroll_layer(framebuf, 7, nearby_screens, new_region_offset_x, new_region_offset_y);
 		
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6))
 		{
@@ -33262,14 +33276,14 @@ void HeroClass::explode(int32_t type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
@@ -33282,7 +33296,7 @@ void HeroClass::explode(int32_t type)
                         }
                         else
                         {
-                            particles.add(new pDivineEscapeDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));

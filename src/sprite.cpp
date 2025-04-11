@@ -2569,7 +2569,7 @@ void sprite::explode(int32_t type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(x+j, y-z-fakez+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
+                            particles.add(new pTwilight(x+j, y-z-fakez+i, 6, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
@@ -2579,7 +2579,7 @@ void sprite::explode(int32_t type)
                         
 			else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(x+j, y-z-fakez+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
+                            particles.add(new pTwilight(x+j, y-z-fakez+i, 6, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
@@ -2592,7 +2592,7 @@ void sprite::explode(int32_t type)
                         }
                         else //explode
                         {
-                            particles.add(new pDivineEscapeDust(x+j, y-z-fakez+i, 5, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(x+j, y-z-fakez+i, 6, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
@@ -2639,14 +2639,14 @@ void sprite::explode(int32_t type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
+                            particles.add(new pTwilight(x+j, y-z+i, 6, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(x+j, y-z()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
+                            particles.add(new pTwilight(x+j, y-z()+i, 6, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
@@ -2659,7 +2659,7 @@ void sprite::explode(int32_t type)
                         }
                         else
                         {
-                            particles.add(new pDivineEscapeDust(x+j, y-z+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(x+j, y-z+i, 6, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));

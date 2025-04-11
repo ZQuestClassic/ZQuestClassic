@@ -146,6 +146,7 @@ public:
 		int ew, eh;
 		ffc_flags flags;
 		std::array<int, 8> initd;
+		byte layer;
 		bool operator==(data_t const&) const = default;
 	};
 	static data_t create_data(const ffcdata& ffc);
