@@ -4503,9 +4503,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		do_layer_primitives(scrollbuf, 2);
 		particles.draw(scrollbuf, true, 2);
-		_do_current_ffc_layer(scrollbuf, 2);
-		draw_msgstr(2, scrollbuf);
 	}
+	_do_current_ffc_layer(scrollbuf, 2);
+	if(!XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+		draw_msgstr(2, scrollbuf);
 
 	do_primitives(scrollbuf, SPLAYER_FFC_DRAW);
 
@@ -4814,9 +4815,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		do_layer_primitives(framebuf, 3);
 		particles.draw(framebuf, true, 3);
-		_do_current_ffc_layer(framebuf, 3);
-		draw_msgstr(3);
 	}
+	_do_current_ffc_layer(framebuf, 3);
+	if(!XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+		draw_msgstr(3);
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		do_layer(framebuf, 0, screen_handles[4], offx, offy);
