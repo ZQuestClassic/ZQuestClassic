@@ -479,10 +479,11 @@ bool movingblock::animate(int32_t)
 	//Check for icy blocks/floors that might continue the slide
 	if(!grav_step && done && !no_icy && !fallclk && !drownclk)
 	{
+		int icy_cid = get_icy(endx+8,endy+8 + ((isSideViewGravity() && !get_qr(qr_BROKEN_ICY_FLOOR_SIDEVIEW)) ? 16 : 0),ICY_BLOCK);
 		if(new_block)
 		{
 			if(((block_cmb.usrflags&cflag7) || //icy blocks keep sliding?
-				(!(block_cmb.usrflags&cflag10) && get_icy(endx+8,endy+8,ICY_BLOCK))))
+				(!(block_cmb.usrflags&cflag10) && icy_cid)))
 			{
 				bool canslide = true;
 				auto new_endx = endx, new_endy = endy;
@@ -507,31 +508,9 @@ bool movingblock::animate(int32_t)
 					canslide = false;
 				else
 				{
-					bool solid = false;
-					int iflag = 0, pflag = 0;
-					switch(dir)
-					{
-						case up:
-							solid = _walkflag(endx,endy-8,2);
-							pflag = MAPFLAG2(blockLayer-1,endx,endy-8);
-							iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy-8);
-							break;
-						case down:
-							solid = _walkflag(endx,endy+24,2);
-							pflag = MAPFLAG2(blockLayer-1,endx,endy+24);
-							iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy+24);
-							break;
-						case left:
-							solid = _walkflag(endx-16,endy+8,2);
-							pflag = MAPFLAG2(blockLayer-1,endx-16,endy+8);
-							iflag = MAPCOMBOFLAG2(blockLayer-1,endx-16,endy+8);
-							break;
-						case right:
-							solid = _walkflag(endx+16,endy+8,2);
-							pflag = MAPFLAG2(blockLayer-1,endx+16,endy+8);
-							iflag = MAPCOMBOFLAG2(blockLayer-1,endx+16,endy+8);
-							break;
-					}
+					bool solid = _walkflag(new_endx,new_endy+8,2);
+					int pflag = MAPFLAG2(blockLayer-1,new_endx,new_endy+8);
+					int iflag = MAPCOMBOFLAG2(blockLayer-1,new_endx,new_endy+8);
 					if(get_qr(qr_SOLIDBLK))
 					{
 						if(solid && iflag != mfBLOCKHOLE && pflag != mfBLOCKHOLE)
@@ -553,7 +532,7 @@ bool movingblock::animate(int32_t)
 				}
 			}
 		}
-		else if(int c = get_icy(x+8,y+8,ICY_BLOCK))
+		else if(icy_cid)
 		{
 			bool canslide = true;
 			auto new_endx = endx, new_endy = endy;
@@ -576,31 +555,9 @@ bool movingblock::animate(int32_t)
 				canslide = false;
 			else
 			{
-				bool solid = false;
-				int iflag = 0, pflag = 0;
-				switch(dir)
-				{
-					case up:
-						solid = _walkflag(endx,endy-8,2);
-						pflag = MAPFLAG2(blockLayer-1,endx,endy-8);
-						iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy-8);
-						break;
-					case down:
-						solid = _walkflag(endx,endy+24,2);
-						pflag = MAPFLAG2(blockLayer-1,endx,endy+24);
-						iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy+24);
-						break;
-					case left:
-						solid = _walkflag(endx-16,endy+8,2);
-						pflag = MAPFLAG2(blockLayer-1,endx-16,endy+8);
-						iflag = MAPCOMBOFLAG2(blockLayer-1,endx-16,endy+8);
-						break;
-					case right:
-						solid = _walkflag(endx+16,endy+8,2);
-						pflag = MAPFLAG2(blockLayer-1,endx+16,endy+8);
-						iflag = MAPCOMBOFLAG2(blockLayer-1,endx+16,endy+8);
-						break;
-				}
+				bool solid = _walkflag(new_endx,new_endy+8,2);
+				int pflag = MAPFLAG2(blockLayer-1,new_endx,new_endy+8);
+				int iflag = MAPCOMBOFLAG2(blockLayer-1,new_endx,new_endy+8);
 				if(get_qr(qr_SOLIDBLK))
 				{
 					if(solid || iflag == mfBLOCKHOLE || pflag == mfBLOCKHOLE)

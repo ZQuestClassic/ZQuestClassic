@@ -985,6 +985,9 @@ static GUI::ListData compatRulesList
 		" This only affects quests made in 2.55.9 or later."},
 	{ "Inverted Dark Combo Triggers", qr_INVERTED_DARK_COMBO_TRIGGERS,
 		"If enabled, the combo trigger conditions for darkness / no darkness are inverted."},
+	{ "Broken Sideview Icy Floor", qr_BROKEN_ICY_FLOOR_SIDEVIEW,
+		"If enabled, 'Icy Floor' combos will use the same collision checks in sideview as overview."
+		" If disabled, icy floor takes effect underneath your feet (the combo you are *standing on*) instead." },
 };
 
 static GUI::ListData enemiesRulesList
