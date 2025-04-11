@@ -3511,6 +3511,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN, 1);
 	}
 	
+	if (compatrule_version < 78)
+	{
+		set_qr(qr_CLASSIC_DRAWING_ORDER, 1);
+		set_qr(qr_OLD_WEAPON_DRAW_ANIMATE_TIMING, 1);
+	}
+
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
@@ -20815,7 +20821,24 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 			}
 		}
+		
+		if(s_version >= 42)
+		{
+			for(int q = 0; q < SPRITE_THRESHOLD_MAX; ++q)
+				if(!p_igetw(&temp_zinit.sprite_z_thresholds[q], f))
+					return qe_invalid;
+		}
 	}
+	
+	if(s_version < 42)
+	{
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_GROUND] = temp_zinit.jump_hero_layer_threshold;
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_3] = temp_zinit.jump_hero_layer_threshold;
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_4] = temp_zinit.jump_hero_layer_threshold;
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_OVERHEAD] = word(-1);
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_5] = word(-1);
+	}
+	
 	if (should_skip)
 		return 0;
 

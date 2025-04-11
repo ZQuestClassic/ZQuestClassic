@@ -120,6 +120,7 @@ sprite::sprite(): solid_object()
 	spr_spawn_anim_clk = 0;
 	spr_spawn_anim_frm = 0;
 	hide_hitbox = false;
+	behind = false;
 }
 
 sprite::sprite(sprite const & other):
@@ -150,7 +151,8 @@ sprite::sprite(sprite const & other):
 	spr_death_anim_frm(other.spr_death_anim_frm),
 	spr_spawn_anim_frm(other.spr_spawn_anim_frm),
 	glowRad(other.glowRad), glowShape(other.glowShape),
-	ignore_delete(other.ignore_delete)
+	ignore_delete(other.ignore_delete),
+	behind(other.behind)
 {
     uid = 0;
 	screen_spawned = other.screen_spawned;
@@ -344,6 +346,16 @@ int32_t sprite::real_z(zfix fz)
 int32_t sprite::fake_z(zfix fz)
 {
     return fz.getInt();
+}
+
+zfix sprite::total_z() const
+{
+	return z+fakez;
+}
+
+zfix sprite::center_y() const
+{
+	return y + yofs + (tysz * 8);
 }
 
 int32_t sprite::get_pit() //Returns combo ID of pit that sprite WOULD fall into; no side-effects
@@ -1936,6 +1948,10 @@ void sprite::drawcloaked(BITMAP* dest)
         rectfill(dest,x+hxofs,sy+hyofs-fakez,x+hxofs+hit_width-1,sy+hyofs+hit_height-fakez-1,vc(id));
 }
 
+bool sprite::can_drawshadow() const
+{
+	return true;
+}
 void sprite::drawshadow(BITMAP* dest,bool translucent)
 {
 	if(extend == 4 || shadowtile==0 || id<0)
@@ -1979,6 +1995,31 @@ int32_t sprite::run_script(int32_t mode)
 ALLEGRO_COLOR sprite::hitboxColor(byte opacity) const
 {
 	return al_map_rgba(255,0,255,opacity);
+}
+
+bool SpriteSorter::operator()(sprite* s1, sprite* s2) const
+{
+	auto zdiff = s1->total_z() - s2->total_z();
+	if(zdiff) return zdiff < 0; // lower Z sorts earlier
+	
+	bool shadow_1 = bool(dynamic_cast<tempsprite_shadow*>(s1));
+	bool shadow_2 = bool(dynamic_cast<tempsprite_shadow*>(s2));
+	if(shadow_1 != shadow_2) return shadow_1; // shadows draw behind other sprites
+	
+	if(s1->behind != s2->behind) return s1->behind; // behind acts as a tiebreaker, bypassing ysort
+	
+	if(get_qr(qr_YSORT_SPRITES))
+	{
+		auto ydiff = s1->center_y() - s2->center_y();
+		if(ydiff) return ydiff < 0; // lower Y sorts earlier at same z
+	}
+	
+	// The Hero always wins tiebreaks (draws over other things)
+	if(s1->getUID() == 1) return false;
+	if(s2->getUID() == 1) return true;
+	
+	// lower UID sorts earlier as final tiebreaker
+	return s1->getUID() < s2->getUID();
 }
 
 sprite_list::sprite_list() : count(0), active_iterator(0), max_sprites(255),
@@ -2864,6 +2905,24 @@ bool breakable::animate(int32_t)
 	}
 #endif
 	return false;
+}
+
+tempsprite_shadow::tempsprite_shadow(sprite* parent)
+	: sprite(), parent(parent)
+{
+	if(parent) // Copy the parent's y position/size, for y-sorting
+	{
+		y = parent->y;
+		tysz = parent->tysz;
+	}
+	z = fakez = 0; // shadow is on the ground, so 0 z
+	behind = false; // shadow is never 'behind'
+}
+
+void tempsprite_shadow::draw(BITMAP* dest)
+{
+	if(parent)
+		parent->drawshadow(dest, get_qr(qr_TRANSSHADOWS)!=0);
 }
 
 //x1,y1 = top of left line

@@ -19,6 +19,15 @@ enum
 	REGION_MAPPING_PHYSICAL,
 	REGION_MAPPING_MAX
 };
+enum
+{
+	SPRITE_THRESHOLD_GROUND,
+	SPRITE_THRESHOLD_3,
+	SPRITE_THRESHOLD_4,
+	SPRITE_THRESHOLD_OVERHEAD,
+	SPRITE_THRESHOLD_5,
+	SPRITE_THRESHOLD_MAX
+};
 struct zinitdata
 {
 	byte items[MAXITEMS/8];
@@ -84,6 +93,8 @@ struct zinitdata
 	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC};
 	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
 	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0}};
+	
+	word sprite_z_thresholds[SPRITE_THRESHOLD_MAX];
 	
 	bool get_item(size_t ind) const {return get_bit(items,ind);}
 	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
