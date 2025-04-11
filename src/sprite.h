@@ -269,6 +269,7 @@ public:
     byte undercset;
 	byte blockLayer;
 	zfix step;
+	zfix grav_step;
 	bool force_many;
 	bool no_icy;
 	bool new_block;
@@ -282,6 +283,7 @@ public:
     void push_new(zfix bx,zfix by,int32_t d,int32_t f,zfix spd);
 	bool check_hole() const;
 	bool check_trig() const;
+	bool check_side_fall() const;
 	bool active() const;
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);

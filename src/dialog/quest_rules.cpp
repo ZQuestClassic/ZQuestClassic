@@ -262,6 +262,8 @@ static GUI::ListData comboRulesList
 		" time, ALL blocks on triggers will click into place."},
 	{ "Blocks Drown In Liquid", qr_BLOCKS_DROWN,
 		"Pushable blocks can drown in liquid, similarly to the hero."},
+	{ "Pushblocks Fall In Sideview", qr_PUSHBLOCKS_FALL_IN_SIDEVIEW,
+		"Pushable blocks fall in sideview (after being pushed only)" },
 	{ "Burn Flags Are Triggered Instantly", qr_INSTABURNFLAGS, 
 		"Makes it so Fire weapons instantly trigger secrets upon touching"
 		" a burn spot. If this rule is disabled, fire weapons need to linger"

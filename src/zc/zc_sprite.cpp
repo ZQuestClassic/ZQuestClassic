@@ -140,7 +140,7 @@ void movingblock::clear()
 	flip = 0;
 	blockLayer = 0;
 	clk = 0;
-	step = 0;
+	step = grav_step = 0;
 	blockinfo.clear();
 	solid_update(false);
 }
@@ -160,6 +160,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 {
 	new_block = false;
 	step = 0.5;
+	grav_step = 0;
 	trigger=false;
 	x=bx;
 	y=by;
@@ -219,6 +220,7 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 {
 	new_block = true;
 	step = spd;
+	grav_step = 0;
 	trigger=false;
 	x=bx;
 	y=by;
@@ -295,6 +297,24 @@ bool movingblock::check_hole() const
 		}
 	}
 	return false;
+}
+
+bool movingblock::check_side_fall() const
+{
+	if(!isSideViewGravity()) return false;
+	if(!(new_block ? (combobuf[bcombo].usrflags&cflag11) : get_qr(qr_PUSHBLOCKS_FALL_IN_SIDEVIEW)))
+		return false;
+	
+	if(endy+24 < 0 || endy+24 > world_h-8)	
+		return false;
+	
+	int pflag = MAPFLAG2(blockLayer-1,endx,endy+24);
+	int iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy+24);
+	if(pflag == mfNOBLOCKS || iflag == mfNOBLOCKS)
+		return false;
+	if(checkSVLadderPlatform(endx, endy+24))
+		return false;
+	return !_walkflag(endx, endy+24, 2);
 }
 
 bool movingblock::check_trig() const
@@ -385,11 +405,11 @@ bool movingblock::animate(int32_t)
 	bool done = false;
 	
 	//Move
-	move(step);
+	move(grav_step ? grav_step : step);
 	zfix ox = x, oy = y; //grab the x/y after moving, before any snapping
 	
 	//Check if the block has reached the next grid-alignment
-	if(new_block)
+	if(new_block || grav_step)
 	{
 		switch(dir)
 		{
@@ -418,6 +438,30 @@ bool movingblock::animate(int32_t)
 	}
 	else done = (--clk==0);
 	
+	//Check for sideview gravity
+	if(check_side_fall())
+	{
+		if(done || grav_step) // Only apply upon "clicking into place" over the pit, or if already falling
+		{
+			zfix grav = zslongToFix(zinit.gravity);
+			grav_step = zc_min(grav_step+grav, zfix(zinit.terminalv));
+			
+			if(done) // was about to snap into place, but falls instead
+			{
+				endy += 16; //already sanity checked in check_side_fall()
+				done = false;
+				clk = 32;
+				
+				end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
+				end_pos = end_rpos_handle.pos;
+				m = end_rpos_handle.scr;
+				m0 = get_scr_for_world_xy(endx, endy);
+				
+				dir = down;
+			}
+		}
+	}
+	
 	//Check if the block is falling into a pitfall (if aligned)
 	if(done)
 	{
@@ -433,7 +477,7 @@ bool movingblock::animate(int32_t)
 	}
 	
 	//Check for icy blocks/floors that might continue the slide
-	if(done && !no_icy && !fallclk && !drownclk)
+	if(!grav_step && done && !no_icy && !fallclk && !drownclk)
 	{
 		if(new_block)
 		{
@@ -793,6 +837,11 @@ bool movingblock::animate(int32_t)
 		}
 		else
 		{
+			if(grav_step)
+			{
+				x = endx;
+				y = endy;
+			}
 			trigger = false; bhole = false;
 			
 			int32_t f1 = end_rpos_handle.sflag();

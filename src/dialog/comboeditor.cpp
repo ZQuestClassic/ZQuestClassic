@@ -1912,6 +1912,8 @@ void ComboEditorDialog::loadComboType()
 				" (as opposed to being pushable an infinite number of times).";
 			l_flag[9] = "Ignores Icy Floor";
 			h_flag[9] = "Does not slide on icy floors";
+			l_flag[10] = "Obeys Gravity";
+			h_flag[10] = "Falls down in sideview until it hits the floor (when pushed, NOT passively)";
 			
 			l_attrishort[0] = "Push Speed";
 			h_attrishort[0] = "If 0 or less, uses the default push speed of 0.5 pixels per frame."
