@@ -3866,14 +3866,29 @@ int32_t onSaveMapPic()
 			int xx = 0;
 			int yy = -playing_field_offset;
 
-			if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+			if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			{
+				do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, -2, screen_handles[0], xx, yy);
+			}
 
-			if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
+			if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+			{
+				do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, -3, screen_handles[0], xx, yy);
+			}
 
-			if(lenscheck(scr,0)) putscr(scr, _screen_draw_buffer, 0, 0);
+			if(lenscheck(scr,0))
+				putscr(scr, _screen_draw_buffer, 0, 0);
+			do_ffc_layer(_screen_draw_buffer, 0, screen_handles[0], xx, yy);
 			do_layer(_screen_draw_buffer, 0, screen_handles[1], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 1, screen_handles[0], xx, yy);
 			
-			if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+			if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			{
+				do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, 2, screen_handles[0], xx, yy);
+			}
 			
 			putscrdoors(scr, _screen_draw_buffer, xx, yy);
 			if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
@@ -3885,11 +3900,15 @@ int32_t onSaveMapPic()
 					do_layer(_screen_draw_buffer, -2, screen_handles[2], xx, yy);
 				}
 			}
-			do_layer(_screen_draw_buffer, -3, screen_handles[0], xx, yy); // Freeform combos!
 			
-			if(!XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
+			if(!XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+			{
+				do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, 3, screen_handles[0], xx, yy);
+			}
 			
 			do_layer(_screen_draw_buffer, 0, screen_handles[4], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 4, screen_handles[0], xx, yy);
 			do_layer(_screen_draw_buffer, -1, screen_handles[0], xx, yy);
 			if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 			{
@@ -3897,7 +3916,12 @@ int32_t onSaveMapPic()
 				do_layer(_screen_draw_buffer, -1, screen_handles[2], xx, yy);
 			}
 			do_layer(_screen_draw_buffer, 0, screen_handles[5], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 5, screen_handles[0], xx, yy);
+			if(replay_version_check(40))
+				do_ffc_layer(_screen_draw_buffer, -1, screen_handles[0], xx, yy);
 			do_layer(_screen_draw_buffer, 0, screen_handles[6], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 6, screen_handles[0], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 7, screen_handles[0], xx, yy);
 
 			blit(_screen_draw_buffer, mappic, 0, 0, x*256, y*176, 256, 176);
 		}

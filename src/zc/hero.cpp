@@ -29622,10 +29622,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		});
 
 		if (!(oldscr->flags7&fLAYER2BG) && !(XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)))
-		{
 			do_layer_primitives(framebuf, 2);
-			do_ffc_scroll_layer(framebuf, 2, nearby_screens, new_region_offset_x, new_region_offset_y);
-		}
+		do_ffc_scroll_layer(framebuf, 2, nearby_screens, new_region_offset_x, new_region_offset_y);
 
 		if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
