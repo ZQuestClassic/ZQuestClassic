@@ -970,6 +970,10 @@ static GUI::ListData compatRulesList
 	{ "Broken Script Drawing Bitmap Draw Origin", qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN,
 		"If enabled, bitmap draw commands incorrectly use Screen->DrawOrigin, resulting in unexpected offsets for bitmap drawing."
 		" This only affects quests made in 2.55.9 or later."},
+	{ "Strings on Layer 6 Draw Above Layer 7", qr_LAYER6_STRINGS_OVER_SUBSCREEN,
+		"If enabled, message strings set to draw to layer '6' will actually draw over the subscreen and layer 7 script draws."
+		"\nIf disabled, these strings draw directly UNDER the subscreen instead."
+		"\nHas no effect at all if `Subscreen Appears Above Sprites` is unchecked." + QRHINT({qr_SUBSCREENOVERSPRITES})},
 };
 
 static GUI::ListData enemiesRulesList

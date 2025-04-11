@@ -4498,8 +4498,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//12. Draw some text on framebuf
 	
 	set_clip_rect(framebuf,0,0,256,232);
-	
-	draw_msgstr(6);
+	if(!get_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN))
+		draw_msgstr(6);
 	
 	//13. Draw the subscreen, without clipping
 	if(get_qr(qr_SUBSCREENOVERSPRITES))
@@ -4509,6 +4509,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		// Draw primitives over subscren
 		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
 	}
+
+	if(get_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN))
+		draw_msgstr(6);
 	
 	//14. Handle high-drawn darkness
 	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
