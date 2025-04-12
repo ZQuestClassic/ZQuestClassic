@@ -4568,6 +4568,8 @@ int main(int argc, char **argv)
 	if (used_switch(argc, argv, "-replay-save-games") > 0)
 		saves_enable_save_current_replay();
 
+reload_for_replay_file:
+
 	int replay_arg = used_switch(argc, argv, "-replay");
 	int snapshot_arg = used_switch(argc, argv, "-snapshot");
 	int record_arg = used_switch(argc, argv, "-record");
@@ -4705,7 +4707,6 @@ int main(int argc, char **argv)
 	em_mark_ready_status();
 #endif
 	
-reload_for_replay_file:
 	if (load_replay_file_deffered_called)
 	{
 		load_replay_file(load_replay_file_mode, load_replay_file_filename, -1);
