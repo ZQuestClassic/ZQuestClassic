@@ -144,10 +144,7 @@ static void do_freeclass()
 
 void user_object_init()
 {
-	for (auto id : script_object_ids_by_type[user_objects.type])
-	{
-		user_objects[id].clear_nodestruct();
-	}
+	user_objects.clear();
 }
 
 std::optional<int32_t> user_object_run_command(word command)

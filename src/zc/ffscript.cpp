@@ -2433,51 +2433,20 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 	}
 }
 
+// Only called when resetting the engine. Don't keep anything.
 void FFScript::deallocateAllScriptOwned()
 {
-	std::vector<uint32_t> ids_to_clear;
-	for (auto& script_object : script_objects | std::views::values)
-	{
-		if (script_object->own_clear_any())
-		{
-			ids_to_clear.push_back(script_object->id);
-			script_object->owned_type = ScriptType::None;
-			script_object->owned_i = 0;
-		}
-	}
+	script_object_ids_by_type.clear();
+	script_objects.clear();
+	next_script_object_id_freelist.clear();
 
-	if (ZScriptVersion::gc())
-	{
-		for (auto& [key, data] : scriptEngineDatas)
-		{
-			for (uint32_t offset : data.ref.stack_pos_is_object)
-			{
-				uint32_t id = data.stack[offset];
-				ids_to_clear.push_back(id);
-			}
-			data.ref.stack_pos_is_object.clear();
-		}
-	}
-
-	if (ZScriptVersion::gc())
-	{
-		for (auto id : ids_to_clear)
-			script_object_ref_dec(id);
-	}
-	else
-	{
-		for (auto id : ids_to_clear)
-			delete_script_object(id);
-	}
-
-	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(localRAM[i].Valid())
 		{
 			// Unowned arrays are ALSO deallocated!
 			arrayOwner[i].clear();
-			deallocateArray(i);
+			localRAM[i].Clear();
 		}
 	}
 }

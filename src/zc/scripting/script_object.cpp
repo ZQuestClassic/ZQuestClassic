@@ -26,7 +26,7 @@ static bool is_reserved_object_id(uint32_t id)
 
 static uint32_t get_next_script_object_id()
 {
-	const auto ID_FREELIST_FILL_AMOUNT = 1000;
+	const uint32_t ID_FREELIST_FILL_AMOUNT = 1000;
 
 	if (next_script_object_id_freelist.empty())
 	{
