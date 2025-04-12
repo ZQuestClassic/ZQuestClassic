@@ -3506,10 +3506,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (compatrule_version < 76 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
 		set_qr(qr_INVERTED_DARK_COMBO_TRIGGERS, 1);
 	if (compatrule_version < 77 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
-	{
 		set_qr(qr_BROKEN_ICY_FLOOR_SIDEVIEW, 1);
-		set_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN, 1);
-	}
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -22154,6 +22151,9 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		al_trace("Note: qr_HIDE_BOTTOM_8_PIXELS %s via compat rule\n", should_hide ? "enabled" : "disabled");
 		if (should_hide)
 			set_qr(qr_HIDE_BOTTOM_8_PIXELS, 1);
+
+		if (FFCore.quest_format[vCompatRule] < 77 && Header->is_z3)
+			set_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN, 1);
 	}
 
     if(get_qr(qr_CONTFULL_DEP) && !get_bit(skip_flags, skip_rules) && !get_bit(skip_flags, skip_initdata))
