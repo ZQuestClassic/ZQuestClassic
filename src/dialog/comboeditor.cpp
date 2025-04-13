@@ -2726,8 +2726,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					TRIGFLAG(87, "Enemies->"),
 					IBTN("Triggers when screen secrets trigger"),
 					TRIGFLAG(88, "Secrets->"),
-					IBTN("Triggers when screen loads, after levelstates and exstates have triggered. Is also affected by requirements."),
-					TRIGFLAG(128,"Trigger on entry")
+					IBTN("Triggers when screen/region loads, after levelstates and exstates are applied"),
+					TRIGFLAG(128,"Triggers when screen loads")
 				)
 			)
 		)),

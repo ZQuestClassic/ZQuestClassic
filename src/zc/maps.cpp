@@ -1172,7 +1172,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	
 	for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
 		auto& cmb = handle.combo();	
-		if (cmb.triggerflags[4] & combotriggerSCREENENTRY)
+		if (cmb.triggerflags[4] & combotriggerSCREENLOAD)
 		{
 			do_trigger_combo(handle);
 		}
@@ -5849,7 +5849,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 		clear_xstatecombos_mi(screen_handles, mi, true);
 		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
 			auto& cmb = handle.combo();	
-			if (cmb.triggerflags[4] & combotriggerSCREENENTRY)
+			if (cmb.triggerflags[4] & combotriggerSCREENLOAD)
 			{
 				do_trigger_combo(handle);
 			}
@@ -6301,7 +6301,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	
 	for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
 		auto& cmb = handle.combo();	
-		if (cmb.triggerflags[4] & combotriggerSCREENENTRY)
+		if (cmb.triggerflags[4] & combotriggerSCREENLOAD)
 		{
 			do_trigger_combo(handle);
 		}

@@ -156,6 +156,7 @@ enum ComboTriggerFlag
 	TRIGFLAG_TINT_CLEAR, //Graphics->'->Clear Tint' - Clears the palette tint.
 	TRIGFLAG_ONLY_GROUNDED_WEAPONS, //Weapons->Other->'Only Grounded Weapons' - weapons with Z > 0 won't trigger the combo
 	TRIGFLAG_COUNTER_WEALTH_MEDAL, //Counter/Items->'Apply Discount' - Wealth Medal items discount the counter cost
+	TRIGFLAG_SCREEN_LOAD, // Triggers when screen/region loads, after levelstates and exstates are applied
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
 };
