@@ -5,6 +5,7 @@
 #include "auto/classes.zs"
 #include "auto/compat_qrs.zs"
 #include "auto/garbage_collection.zs"
+#include "auto/instant_reload_on_death.zs"
 #include "auto/optional_params.zs"
 #include "auto/scc.zs"
 #include "auto/script_drawing.zs"
