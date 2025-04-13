@@ -1428,7 +1428,12 @@ void titlescreen(int32_t lsave)
 		return;
 	}
 
-	updateShowBottomPixels();
+	if (q == qRELOAD)
+	{
+		zcmusic_stop(zcmusic);
+		init_game();
+		return;
+	}
 
 	if (saves_current_selection() != -1)
 	{
@@ -1438,6 +1443,8 @@ void titlescreen(int32_t lsave)
 
 	if (replay_is_active())
 		replay_quit();
+
+	updateShowBottomPixels();
 
 	if(!Quit)
 	{
