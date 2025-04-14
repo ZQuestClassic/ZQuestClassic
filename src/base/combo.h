@@ -302,7 +302,7 @@ struct newcombo
 #define combotriggerCOUNTERDISCOUNT     0x80000000
 
 //triggerflags[4]
-// #define combotrigger                    0x00000001
+#define combotriggerSCREENLOAD         0x00000001
 // #define combotrigger                    0x00000002
 // #define combotrigger                    0x00000004
 // #define combotrigger                    0x00000008

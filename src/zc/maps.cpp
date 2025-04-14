@@ -1164,10 +1164,19 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	{
 	    remove_screenstatecombos2(screen_handles, false, cBOSSCHEST, cBOSSCHEST2);
 	}
+	
 
 	int mi = mapind(map, screen);
 	clear_xdoors_mi(screen_handles, mi);
 	clear_xstatecombos_mi(screen_handles, mi);
+	
+	for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
+		auto& cmb = handle.combo();	
+		if (cmb.triggerflags[4] & combotriggerSCREENLOAD)
+		{
+			do_trigger_combo(handle);
+		}
+	});
 }
 
 std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t screen, int32_t layer, bool secrets, bool secrets_do_replay_comment)
@@ -5644,7 +5653,7 @@ bool is_any_dark()
 {
 	bool dark = false;
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
-		dark |= (bool)(scr->flags & fDARK);
+		dark |= (bool)(is_dark(scr));
 	});
 	return dark;
 }
@@ -5838,6 +5847,13 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 		
 		clear_xdoors_mi(screen_handles, mi, true);
 		clear_xstatecombos_mi(screen_handles, mi, true);
+		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
+			auto& cmb = handle.combo();	
+			if (cmb.triggerflags[4] & combotriggerSCREENLOAD)
+			{
+				do_trigger_combo(handle);
+			}
+		});
 	}
 
 	// check doors
@@ -5993,6 +6009,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 		}
 	}
 	reset_combo_animations2();
+	region_is_lit = false;
 
 	// Legacy features (combo and ffc overlays) may need the previous origin screens during loading
 	// of the new ones.
@@ -6122,8 +6139,6 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 		mblock2.yofs = Hero.yofs = playing_field_offset = 56;
 		original_playing_field_offset = 56;
 	}
-
-	region_is_lit = false;
 	is_any_room_dark = is_any_dark();
 
 	game->load_portal();
@@ -6283,6 +6298,14 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	
 	clear_xdoors(screen_handles, true);
 	clear_xstatecombos(screen_handles, true);
+	
+	for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
+		auto& cmb = handle.combo();	
+		if (cmb.triggerflags[4] & combotriggerSCREENLOAD)
+		{
+			do_trigger_combo(handle);
+		}
+	});
 
 	// check doors
 	if (isdungeon(destdmap, screen))
