@@ -8808,7 +8808,7 @@ heroanimate_skip_liftwpn:;
 				}
 			}
 		}
-		if(fakez<=0&&!(moveflags & FLAG_NO_FAKE_Z))
+		else if(fakez<=0&&!(moveflags & FLAG_NO_FAKE_Z))
 		{
 			if (z <= 0 || (moveflags & FLAG_NO_REAL_Z))
 			{
