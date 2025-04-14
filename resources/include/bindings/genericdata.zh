@@ -45,6 +45,7 @@ class genericdata {
 	// script will wait until any event which has a value of 'true' in this
 	// array occurs.
 	//
+	// @index [GenericScriptEvent]
 	// @zasm_var GENDATAEVENTSTATE
 	internal bool EventListen[];
 

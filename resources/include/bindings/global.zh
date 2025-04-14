@@ -26,7 +26,7 @@ enum StoredMemoryBitflags
 	SRAM_MAPDATA                   = 0x20,
 };
 
-// Used with [WaitEvent].
+// Used with [WaitEvent], [genericdata::EventListen].
 enum GenericScriptEvent
 {
 	GENSCR_EVENT_NIL = -1, //N/A (error value)
@@ -47,7 +47,7 @@ enum GenericScriptEvent
 	GENSCR_EVENT_POST_COLLECT_ITEM, //After item is collected (post hold if held)
 	GENSCR_EVENT_PLAYER_FALL, //Hero falls in a pitfall
 	GENSCR_EVENT_PLAYER_DROWN, //Hero drowns
-	GENSCR_NUMEVENT
+	GENSCR_NUMEVENT //N/A (max value)
 };
 
 enum ScriptTiming
@@ -132,7 +132,7 @@ internal void WaitTo(ScriptTiming timing, bool at_least = false);
 //
 // @zasm
 //   WAITEVENT
-internal int WaitEvent();
+internal GenericScriptEvent WaitEvent();
 
 // Prints the passed value to the output console. Includes a newline character
 // after the value.

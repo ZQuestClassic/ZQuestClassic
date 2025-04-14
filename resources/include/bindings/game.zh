@@ -612,8 +612,8 @@ class Game {
 
 	// A variably-sized array containing information about the current event.
 	// This should be accessed from [genericdata] after returning from
-	// [WaitEvent]. Depending on what event `WaitEvent()` returns, a different set
-	// of constants should be used to access this array.
+	// [WaitEvent]. Depending on what [GenericScriptEvent] is returned by `WaitEvent()`,
+	// a different set of constants should be used to access this array.
 	//
 	// @zasm_var GAMEEVENTDATA
 	internal untyped EventData[];
