@@ -1018,22 +1018,15 @@ inline bool EnemyEditorDialog::NoDefenses()
 	return local_guyref.family == eeROCK || local_guyref.family == eeTRAP || local_guyref.family == eeDONGO || local_guyref.family == eeGANON;
 }
 
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::DefenseField(auto* indexs, bool _dobutton)
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::DefenseField(const std::vector<int>& indices, bool _dobutton)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
 	std::shared_ptr<GUI::Grid> grid = Rows<3>();
-	for (int32_t q = 0; q < sizeof(indexs)+1; q++)
+	for (int32_t q = 0; q < indices.size(); q++)
 	{
-		int32_t index = indexs[q];
-		if (index == -1)
-		{
-			grid->add(_d);
-			grid->add(_d);
-			grid->add(_d);
-			return grid;
-		}
+		int32_t index = indices[q];
 		GUI::ListItem& li = list_defenses.accessItem(index);
 		ddl_defenses[index] = DropDownList(
 			disabled = NoDefenses(),
@@ -1482,10 +1475,10 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			))
 		))
 	);
-	int32_t defensearray1[10] = { edefBRANG,edefBOMB,edefSBOMB,edefARROW,edefFIRE,edefWAND,edefMAGIC,edefHOOKSHOT,edefHAMMER,edefSWORD };
-	int32_t defensearray2[10] = { edefBEAM,edefREFBEAM,edefREFMAGIC,edefREFBALL,edefREFROCK,edefSTOMP,edefBYRNA,edefWhistle,edefSwitchHook,-1};
-	int32_t defensearray3[10] = { edefTHROWN,edefREFARROW,edefREFFIRE,edefREFFIRE2,-1,-1,-1,-1,-1,-1 };
-	int32_t defensearray4[10] = { edefSCRIPT01, edefSCRIPT02, edefSCRIPT03, edefSCRIPT04, edefSCRIPT05, edefSCRIPT06, edefSCRIPT07, edefSCRIPT08, edefSCRIPT09, edefSCRIPT10 };
+	std::vector<int> defensearray1 = { edefBRANG,edefBOMB,edefSBOMB,edefARROW,edefFIRE,edefWAND,edefMAGIC,edefHOOKSHOT,edefHAMMER,edefSWORD };
+	std::vector<int> defensearray2 = { edefBEAM,edefREFBEAM,edefREFMAGIC,edefREFBALL,edefREFROCK,edefSTOMP,edefBYRNA,edefWhistle,edefSwitchHook};
+	std::vector<int> defensearray3 = { edefTHROWN,edefREFARROW,edefREFFIRE,edefREFFIRE2 };
+	std::vector<int> defensearray4 = { edefSCRIPT01, edefSCRIPT02, edefSCRIPT03, edefSCRIPT04, edefSCRIPT05, edefSCRIPT06, edefSCRIPT07, edefSCRIPT08, edefSCRIPT09, edefSCRIPT10 };
 	auto defenses_tab = TabPanel(
 		ptr = &guy_tabs[5],
 		TabRef(name = "Defenses", TabPanel(
