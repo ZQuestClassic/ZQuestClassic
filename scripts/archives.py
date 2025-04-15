@@ -493,7 +493,7 @@ class CLI:
     def run(self, args):
         binary_dir = download(args.tag_or_sha, args.platform)
         binaries = create_binary_paths(binary_dir, args.platform)
-        p = common.run_zc_command(binaries, ' '.join(args.command_args))
+        p = common.run_zc_command(binaries, args.command_args)
         exit(p.wait())
 
     def backfill_local_builds(self, args):

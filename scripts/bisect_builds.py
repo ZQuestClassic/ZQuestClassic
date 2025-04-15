@@ -2,15 +2,16 @@
 #   python scripts/bisect_builds.py --good 2.55-alpha-108 --bad 2.55-alpha-109
 #   python scripts/bisect_builds.py --bad 2.55-alpha-108 --good 2.55-alpha-109
 #
-# You can automate running a command on each bisect script, like this:
-#   -c '%zq'
-#   -c '%zc -test "/absolute/path/to/quest.qst" 0 119'
+# You can automate running a command on each bisect script by giving the command after `--`, like this:
+#   python scripts/bisect_builds.py ... -- %zq
+#   python scripts/bisect_builds.py ... -- %zc -test "/absolute/path/to/quest.qst" 0 119
 #
 # Use the '--local_builds' flag to build additional commits locally. This will take much longer, so
 # run without first to get a more narrow range.
 
 import argparse
 import os
+import sys
 
 from pathlib import Path
 from typing import List
@@ -39,15 +40,26 @@ parser.add_argument(
 parser.add_argument('--platform', default=common.get_release_platform())
 parser.add_argument('--channel', default='main')
 parser.add_argument(
-    '-c',
-    '--command',
+    '--',
+    dest='command',
+    nargs='+',
     help='command to run on each step. \'%%zc\' is replaced with the path to the player, \'%%zq\' is the editor, and \'%%zl\' is the launcher',
 )
 parser.add_argument(
     '--check_return_code', action=argparse.BooleanOptionalAction, default=False
 )
 
-args = parser.parse_args()
+# Grab all the arguments after '--'.
+argv = sys.argv[1:]
+idx = argv.index('--') if '--' in argv else -1
+unparsed = argv[idx + 1 :] if idx >= 0 else None
+
+# Give argparse the rest.
+argv = argv[:idx] if idx >= 0 else argv
+args = parser.parse_args(argv)
+
+# Replace the contents of the dummy argument with the unparsed args.
+args.command = unparsed
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
