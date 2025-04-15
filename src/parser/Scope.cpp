@@ -14,13 +14,11 @@
 #include "ZScript.h"
 #include "zasm/table.h"
 #include "zasm/serialize.h"
-#include <sstream>
 
 using namespace ZScript;
 using namespace util;
 using std::set;
 using std::shared_ptr;
-using std::unique_ptr;
 
 ////////////////////////////////////////////////////////////////
 // Scope
@@ -45,8 +43,8 @@ void Scope::invalidateStackSize()
 
 void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 {
-	auto parsed_comment = fn->getNode()->getParsedDocComment();
-	if (parsed_comment.contains("delete"))
+	auto parsed_comment = fn->getNode()->getParsedComment();
+	if (parsed_comment.contains_tag("delete"))
 	{
 		fn->setFlag(FUNCFLAG_NIL);
 		return;
@@ -55,58 +53,43 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	// All internal binding functions are inline.
 	fn->setFlag(FUNCFLAG_INLINE);
 
-	if (parsed_comment.contains("alias"))
+	for (auto alias : parsed_comment.get_multi_tag("alias"))
 	{
-		std::vector<std::string> aliases;
-		util::split(parsed_comment["alias"], aliases, '\x1f');
-		for (auto& alias : aliases)
-		{
-			auto alias_fn = new Function();
-			alias_fn->name = alias;
-			alias_fn->alias(fn);
-			addAlias(alias_fn, handler);
-		}
+		auto alias_fn = new Function();
+		alias_fn->name = alias;
+		alias_fn->alias(fn);
+		addAlias(alias_fn, handler);
 	}
 
-	if (parsed_comment.contains("deprecated_alias"))
+	for (auto alias : parsed_comment.get_multi_tag("deprecated_alias"))
 	{
-		std::vector<std::string> aliases;
-		util::split(parsed_comment["deprecated_alias"], aliases, '\x1f');
-		for (auto& alias : aliases)
-		{
-			auto alias_fn = new Function();
-			alias_fn->name = alias;
-			alias_fn->alias(fn);
-			alias_fn->setFlag(FUNCFLAG_DEPRECATED);
-			alias_fn->setInfo(fmt::format("Use {} instead", fn->name));
-			addAlias(alias_fn, handler);
-		}
+		auto alias_fn = new Function();
+		alias_fn->name = alias;
+		alias_fn->alias(fn);
+		alias_fn->setFlag(FUNCFLAG_DEPRECATED);
+		alias_fn->setInfo(fmt::format("Use {} instead", fn->name));
+		addAlias(alias_fn, handler);
 	}
 
-	if (parsed_comment.contains("exit"))
+	if (parsed_comment.contains_tag("exit"))
 		fn->setFlag(FUNCFLAG_EXITS|FUNCFLAG_NEVER_RETURN);
-	if (parsed_comment.contains("deprecated"))
+	if (auto depr_message = parsed_comment.get_tag("deprecated"))
 	{
 		fn->setFlag(FUNCFLAG_DEPRECATED);
-		fn->setInfo(parsed_comment["deprecated"]);
+		fn->setInfo(*depr_message);
 	}
-	if (parsed_comment.contains("reassign_ptr"))
+	if (parsed_comment.contains_tag("reassign_ptr"))
 		fn->setIntFlag(IFUNCFLAG_REASSIGNPTR);
 
-	if (parsed_comment.contains("vargs"))
+	if (auto vargs = parsed_comment.get_tag("vargs"))
 	{
-		fn->extra_vargs = std::stoi(parsed_comment["vargs"]);
+		fn->extra_vargs = std::stoi(*vargs);
 		fn->setFlag(FUNCFLAG_VARARGS);
 	}
 
-	auto it = parsed_comment.find("zasm");
 	std::vector<std::string> zasm_lines;
-	if (it != parsed_comment.cend())
-	{
-		const auto& zasm_str = it->second;
-		std::vector<std::string> zasm;
-		util::split(zasm_str, zasm_lines, '\n');
-	}
+	if (auto zasm = parsed_comment.get_tag("zasm"))
+		util::split(*zasm, zasm_lines, '\n');
 
 	int stack_change = fn->numParams();
 	if (fn->getClass() && !fn->getClass()->internalRefVarString.empty() && !fn->getFlag(FUNCFLAG_CONSTRUCTOR) && !fn->getFlag(FUNCFLAG_DESTRUCTOR))

@@ -10,11 +10,11 @@ namespace ZScript
 
 #include <list>
 #include <vector>
-#include <map>
 #include <memory>
 #include <string>
 #include "base/ints.h"
 #include "base/headers.h"
+#include "parser/CommentUtils.h"
 #include "y.tab.hpp"
 #include "Compiler.h"
 #include "CompileOption.h"
@@ -270,7 +270,7 @@ namespace ZScript
 		bool reachable() const {return isReachable;}
 		void mark_reachable(bool b = true) {isReachable = b;}
 
-		std::map<std::string, std::string> getParsedDocComment() const;
+		ParsedComment getParsedComment() const;
 	
 		// Subclass Predicates (replacing typeof and such).
 		virtual bool isTypeArrow() const {return false;}

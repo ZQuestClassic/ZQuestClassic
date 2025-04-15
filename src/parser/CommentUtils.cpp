@@ -2,11 +2,119 @@
 #include "parser/AST.h"
 #include "parser/Scope.h"
 #include "parser/ZScript.h"
+#include <optional>
 #include <regex>
 #include <string>
 #include <vector>
 
 using namespace ZScript;
+
+ParsedComment::ParsedComment(const std::string& comment)
+{
+	if (comment.empty())
+		return;
+
+	std::vector<std::string> desc_lines;
+
+	std::string current_key;
+	std::vector<std::string> lines;
+	util::split(comment, lines, '\n');
+	for (auto& line : lines)
+	{
+		bool starts_with_at = false;
+		for (char& c : line)
+		{
+			if (c == ' ' || c == '\t') continue;
+			if (c == '@') starts_with_at = true;
+			break;
+		}
+
+		if (starts_with_at)
+		{
+			util::trimstr(line);
+
+			size_t index = line.find_first_of(' ');
+			if (index == -1)
+			{
+				current_key = line.substr(1);
+				line = "";
+			}
+			else
+			{
+				current_key = line.substr(1, index - 1);
+				line = line.substr(index + 1);
+			}
+		}
+
+		if (current_key.empty())
+		{
+			desc_lines.push_back(line);
+			continue;
+		}
+
+		util::trimstr(line);
+
+		if (!starts_with_at)
+		{
+			if (!line.empty())
+				tags.back().second += "\n" + line;
+			continue;
+		}
+
+		tags.emplace_back(current_key, line);
+	}
+
+	bool in_list = false;
+	for (auto& line : desc_lines)
+	{
+		util::trimstr(line);
+
+		if (in_list)
+		{
+			if (line.empty())
+			{
+				in_list = false;
+				continue;
+			}
+			if (line[0] == '-') continue;
+			line = "  " + line;
+		}
+		else
+		{
+			if (line.empty()) continue;
+			if (line[0] == '-')
+			{
+				in_list = true;
+				line = "\n" + line; // Helps rst generation.
+				continue;
+			}
+		}
+	}
+
+	description = fmt::format("{}", fmt::join(desc_lines, "\n"));
+}
+
+bool ParsedComment::contains_tag(const std::string& key) const
+{
+	for (auto& a : tags)
+		if (a.first == key) return true;
+	return false;
+}
+
+std::optional<std::string> ParsedComment::get_tag(const std::string& key) const
+{
+	for (auto& [k, v] : tags)
+		if (k == key) return v;
+	return std::nullopt;
+}
+
+std::vector<std::string> ParsedComment::get_multi_tag(const std::string& key) const
+{
+	std::vector<std::string> result;
+	for (auto& [k, v] : tags)
+		if (k == key) result.push_back(v);
+	return result;
+}
 
 static std::map<const AST*, uint16_t> symbolMap;
 static uint16_t nextSymbolId = 1;
@@ -53,7 +161,7 @@ static ASTExprIdentifier parseExprIdentifier(const std::string& str)
 	return ident;
 }
 
-static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params, std::vector<ParseCommentResult>& matches, std::string& comment, int start_index, int end_index)
+static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params, std::vector<CommentSymbolParseResult>& matches, std::string& comment, int start_index, int end_index)
 {
 	// identifier, followed by an optional and non-captured "[]" or "()"
 	static std::string p_ident = "(#?[a-zA-Z_][->:a-zA-Z0-9_]*)(?:\\[\\]|\\(\\))?";
@@ -83,7 +191,7 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 			if((*it)[2].matched)
 				link_text = (*it)[2].str();
 		}
-		ParseCommentResult match{symbol_name, (int)pos, (int)len, link_text, nullptr};
+		CommentSymbolParseResult match{symbol_name, (int)pos, (int)len, link_text, nullptr};
 		matches.emplace_back(match);
 		it++;
 	}
@@ -234,13 +342,13 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 	}
 }
 
-std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const AST* node, bool check_params)
+std::vector<CommentSymbolParseResult> parseForSymbolLinks(std::string comment, const AST* node, bool check_params)
 {
 	Scope* scope = scope = node->getScope();
 	if (!scope)
 		return {};
 
-	std::vector<ParseCommentResult> matches;
+	std::vector<CommentSymbolParseResult> matches;
 
 	// Text within back ticks should not be parsed.
 	bool in_backticks = false;

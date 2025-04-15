@@ -374,8 +374,6 @@ class subscreenwidget {
 
 	// The widget's Shadow Type.
 	//
-	// @value [ShadowType]
-	//
 	// - [SUBWIDG_TEXT]
 	// - [SUBWIDG_TEXTBOX]
 	// - [SUBWIDG_TIME]
@@ -385,6 +383,7 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	//
+	// @value [ShadowType]
 	// @zasm_var SUBWIDGTY_SHADOWTY
 	internal int ShadowType;
 

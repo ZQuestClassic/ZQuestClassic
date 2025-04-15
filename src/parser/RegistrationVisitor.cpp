@@ -221,7 +221,7 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 
 void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 {
-	auto parsed_comment = var->getParsedDocComment();
+	auto parsed_comment = var->getParsedComment();
 
 	int refvar = NUL;
 	UserClass* user_class = nullptr;
@@ -233,7 +233,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 
 	for (auto decl : var->getDeclarations())
 	{
-		if (parsed_comment.contains("zasm_var") && parsed_comment.contains("zasm_internal_array"))
+		if (parsed_comment.contains_tag("zasm_var") && parsed_comment.contains_tag("zasm_internal_array"))
 		{
 			handleError(CompileError::BadInternal(decl, "Only one of @zasm_var, @zasm_internal_array is allowed"));
 			continue;
@@ -241,7 +241,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 
 		// Internal variables in classes must have a zasm_var/zasm_internal_array. Currently, global internal variables
 		// may not have one, in which case it defaults to a constant zero.
-		if (user_class && !parsed_comment.contains("zasm_var") && !parsed_comment.contains("zasm_internal_array"))
+		if (user_class && !parsed_comment.contains_tag("zasm_var") && !parsed_comment.contains_tag("zasm_internal_array"))
 		{
 			handleError(CompileError::BadInternal(decl, "Expected one of @zasm_var, @zasm_internal_array"));
 			continue;
@@ -249,24 +249,24 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 
 		bool is_constant_zero = false;
 		int fn_value;
-		if (parsed_comment.contains("zasm_var"))
+		if (auto zasm_var = parsed_comment.get_tag("zasm_var"))
 		{
-			if (auto sv = get_script_variable(parsed_comment["zasm_var"]))
+			if (auto sv = get_script_variable(*zasm_var))
 			{
 				fn_value = *sv;
 			}
 			else
 			{
-				handleError(CompileError::BadInternal(decl, fmt::format("Invalid ZASM register: {}", parsed_comment["zasm_var"])));
+				handleError(CompileError::BadInternal(decl, fmt::format("Invalid ZASM register: {}", *zasm_var)));
 				continue;
 			}
 		}
-		else if (parsed_comment.contains("zasm_internal_array"))
+		else if (auto zasm_internal_arr = parsed_comment.get_tag("zasm_internal_array"))
 		{
 			try {
-				fn_value = std::stoi(parsed_comment["zasm_internal_array"]);
+				fn_value = std::stoi(*zasm_internal_arr);
 			} catch (std::exception ex) {
-				handleError(CompileError::BadInternal(decl, fmt::format("Invalid internal array: {} (must be an integer)", parsed_comment["zasm_internal_array"])));
+				handleError(CompileError::BadInternal(decl, fmt::format("Invalid internal array: {} (must be an integer)", *zasm_internal_arr)));
 				continue;
 			}
 
@@ -279,10 +279,10 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 		}
 
 		auto& ty = decl->manager->type;
-		bool is_internal_arr = parsed_comment.contains("zasm_internal_array");
+		bool is_internal_arr = parsed_comment.contains_tag("zasm_internal_array");
 		bool is_arr = ty.isArray();
 		auto var_type = is_internal_arr ? &ty : ty.baseType(*scope, nullptr);
-		bool deprecated = parsed_comment.contains("deprecated");
+		auto deprecated = parsed_comment.get_tag("deprecated");
 
 		// Add a getter.
 		{
@@ -296,7 +296,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 			if (deprecated)
 			{
 				fn->setFlag(FUNCFLAG_DEPRECATED);
-				fn->setInfo(parsed_comment["deprecated"]);
+				fn->setInfo(*deprecated);
 			}
 			if (is_internal_arr)
 				fn->setFlag(FUNCFLAG_INTARRAY);
@@ -310,7 +310,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 		}
 
 		// Add deprecated getters.
-		if (parsed_comment.contains("deprecated_getter"))
+		if (auto deprecated_getter = parsed_comment.get_tag("deprecated_getter"))
 		{
 			if (is_arr || is_internal_arr)
 			{
@@ -318,7 +318,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 				continue;
 			}
 
-			std::string getter_name = parsed_comment["deprecated_getter"];
+			std::string getter_name = *deprecated_getter;
 			std::vector<const DataType*> params;
 			if (refvar != NUL)
 				params.push_back(user_class->getType());
@@ -346,7 +346,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 			if (deprecated)
 			{
 				fn->setFlag(FUNCFLAG_DEPRECATED);
-				fn->setInfo(parsed_comment["deprecated"]);
+				fn->setInfo(*deprecated);
 			}
 			if (var->readonly)
 				fn->setFlag(FUNCFLAG_READ_ONLY);
@@ -363,13 +363,12 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 
 void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 {
-	auto parsed_comment = host.getParsedDocComment();
+	auto parsed_comment = host.getParsedComment();
 	UserClass* parent_class = nullptr;
-	if (parsed_comment.contains("extends"))
+	if (auto parent_class_name = parsed_comment.get_tag("extends"))
 	{
-		std::string parent_class_name = parsed_comment["extends"];
 		ASTExprIdentifier ident{};
-		ident.components.push_back(parent_class_name);
+		ident.components.push_back(*parent_class_name);
 		if (auto type = lookupDataType(*scope, ident, nullptr))
 		{
 			if (auto custom_type = dynamic_cast<const DataTypeCustom*>(type); custom_type)
@@ -377,7 +376,7 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		}
 		else
 		{
-			handleError(CompileError::BadInternal(&host, fmt::format("Unknown class \"{}\" in @extends", parent_class_name)));
+			handleError(CompileError::BadInternal(&host, fmt::format("Unknown class \"{}\" in @extends", *parent_class_name)));
 		}
 	}
 
@@ -393,9 +392,9 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 
 	UserClass& user_class = *host.user_class;
 
-	if (parsed_comment.contains("zasm_ref"))
+	if (auto zasm_ref = parsed_comment.get_tag("zasm_ref"))
 	{
-		user_class.internalRefVarString = parsed_comment["zasm_ref"];
+		user_class.internalRefVarString = *zasm_ref;
 		user_class.internalRefVar = user_class.internalRefVarString.empty() ? NUL : StringToVar(user_class.internalRefVarString);
 	}
 	else

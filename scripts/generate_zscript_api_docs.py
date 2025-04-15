@@ -265,35 +265,30 @@ def parse_doc_type(type_str: str) -> Type:
 def parse_doc_comment(x) -> Optional[Comment]:
     if x.get('comment'):
         text = x['comment']['text']
-        tags = []
-        for k, v in x['comment']['tags'].items():
-            if v == True:
-                tags.append((k, True))
-                continue
+        tags = x['comment']['tags']
 
-            records = v.split('\x1f')
-            for record in records:
-                tags.append((k, record))
-
-            SINGLE_VALUE_TAGS = [
-                'delete',
-                'deprecated_getter',
-                'deprecated',
-                'exit',
-                'extends',
-                'index',
-                'length',
-                'reassign_ptr',
-                'value',
-                'vargs',
-                'zasm_internal_array',
-                'zasm_ref',
-                'zasm_var',
-            ]
-            if len(records) > 1 and k in SINGLE_VALUE_TAGS:
+        SINGLE_VALUE_TAGS = [
+            'delete',
+            'deprecated_getter',
+            'deprecated',
+            'exit',
+            'extends',
+            'index',
+            'length',
+            'reassign_ptr',
+            'value',
+            'vargs',
+            'zasm_internal_array',
+            'zasm_ref',
+            'zasm_var',
+        ]
+        for tag in SINGLE_VALUE_TAGS:
+            count = len([t for t in tags if t[0] == tag])
+            if count > 1:
                 raise Exception(
-                    f'tag cannot have multiple values: {x}\n\nTag: {v}\n\nComment: {text}'
+                    f'@{tag} cannot have multiple values.\n\nComment: {text}\n\nTags: {tags}'
                 )
+
         return Comment(text=text, tags=tags)
 
     return None
