@@ -1522,7 +1522,7 @@ static NewMenu etc_menu
 	{},
 	{ "&Debug Console", toggleConsole, MENUID_ETC_DEBUG_CONSOLE },
 	{ "Clear Quest Filepath", onClearQuestFilepath },
-	{ "&Take ZQ Snapshot", onSnapshot },
+	{ "&Take ZQ Snapshot", onMenuSnapshot },
 	{ "Take &Screen Snapshot", onMapscrSnapshot },
 };
 

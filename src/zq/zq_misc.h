@@ -271,6 +271,7 @@ void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int3
 void KeyFileName(char *kfname);
 
 int32_t onSpacebar();
+int32_t onMenuSnapshot();
 int32_t onSnapshot();
 char const* getSnapName();
 int32_t onMapscrSnapshot();
