@@ -1122,7 +1122,7 @@ static NewMenu ss_edit_menu
 	{},
 	{ "&Wizards", &ss_wizard_menu },
 	{},
-	{ "&Take Snapshot", "&Z", onSnapshot },
+	{ "&Take Snapshot", "&Z", onMenuSnapshot },
 };
 
 int32_t onSubscrViewInfo()

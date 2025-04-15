@@ -22,6 +22,7 @@
 #include <sstream>
 #include "zinfo.h"
 #include <fmt/format.h>
+#include "zq/render.h"
 
 #include "metadata/metadata.h"
 
@@ -840,6 +841,25 @@ char const* getSnapName()
 	return snapbuf;
 }
 
+int32_t onMenuSnapshot()
+{
+	if(!rti_dialogs.has_children()) //sanity, technically shouldn't be hit
+		return onSnapshot();
+	
+	// Remove the last child to hide the menu
+	auto& children = rti_dialogs.get_children();
+	auto last = children.back();
+	children.pop_back();
+	
+	render_zq();
+	
+	onSnapshot();
+	
+	children.push_back(last);
+	
+	return D_O_K;
+}
+
 int32_t onSnapshot()
 {
 	if (!al_save_bitmap(getSnapName(), al_get_backbuffer(all_get_display())))
@@ -850,6 +870,7 @@ int32_t onSnapshot()
 
 // TODO: take snapshot of current zoom level, not just the current screen.
 // Will want to use the same code as "View Map" so multiple palettes could be used.
+// Maybe allow snapshot of current region, possibly as a separate button?
 int32_t onMapscrSnapshot()
 {
 	bool useflags = (CHECK_CTRL_CMD); //Only use visibility flags (flags, walkability, etc) if CTRL is held
