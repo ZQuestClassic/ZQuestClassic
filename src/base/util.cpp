@@ -113,6 +113,14 @@ namespace util
 		return result;
 	}
 
+	std::string longest_common_prefix(const std::string& str1, const std::string& str2)
+	{
+		int i = 0;
+		while (i < str1.length() && i < str2.length() && str1[i] == str2[i])
+			i++;
+		return str1.substr(0, i);
+	}
+
 	std::string read_text_file(fs::path path)
 	{
 		auto ss = std::ostringstream{};

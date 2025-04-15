@@ -290,7 +290,7 @@ enum ItemPickupBitflags
 	IP_ALWAYSGRAB                  = 0x2000, // Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons).
 };
 
-// Used with [itemdata::Attributes].
+// Used with [itemdata::Attributes], [itemdata::LAttributes] - index 0 is blocking, index 1 is reflecting.
 // @deprecated Use [BlockBitflags] instead!
 enum BlockBitflagsInt
 {
@@ -313,7 +313,7 @@ enum BlockBitflagsInt
 	BLOCKFLAG_SCRIPT7              = 0x10000,
 };
 
-// Used with [itemdata::LAttributes].
+// Used with [itemdata::Attributes], [itemdata::LAttributes].
 @Bitflags("long")
 enum BlockBitflags
 {
@@ -576,8 +576,11 @@ class itemdata {
 	// @zasm_var IDATAGAINLOWER
 	internal bool GainLower;
 
-	// The 10 item attributes.
+	// The item's Attributes.
 	//
+	// @index 0: block, 1: reflect
+	// @value 0: [BlockBitflags], 1: [BlockBitflags]
+	// @length 10
 	// @zasm_var IDATAATTRIB
 	internal untyped Attributes[];
 
@@ -586,6 +589,9 @@ class itemdata {
 	// An editor value of `1` will read as `1L`, or `0.0001`. This allows all
 	// values to "fit".
 	//
+	// @index 0: block, 1: reflect
+	// @value 0: [BlockBitflags], 1: [BlockBitflags]
+	// @length 10
 	// @zasm_var IDATAATTRIB_L
 	internal long LAttributes[];
 

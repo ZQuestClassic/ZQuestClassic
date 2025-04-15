@@ -211,6 +211,9 @@ void DocVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 	DataType const* baseType = host.baseType->resolve_ornull(*scope, this);
 	(*symbol)["type"] = baseType->isLong() ? "long" : "int";
 
+	if (auto prefix = host.getDocumentationPrefix(); prefix && !prefix->empty())
+		(*symbol)["prefix"] = *prefix;
+
 	auto prev_active = active;
 	active = &(*symbol)["children"];
 	for (auto* decl : host.getDeclarations())

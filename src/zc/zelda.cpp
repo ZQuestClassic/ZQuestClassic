@@ -4877,7 +4877,6 @@ reload_for_replay_file:
 				//Run Global script OnExit
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 
-				// TODO ! comes back here twice...
 				if(!skipcont&&!get_qr(qr_NOCONTINUE)) game_over(get_qr(qr_NOSAVE));
 				
 				if(Quit==qSAVE)

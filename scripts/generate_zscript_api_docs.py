@@ -159,6 +159,7 @@ class Enum:
     loc: Location
     comment: Comment
     name: str
+    prefix: str
     members: list[EnumMember]
 
 
@@ -361,18 +362,26 @@ def parse_doc_symbol(x, parent=None) -> File:
         loc = parse_location(x)
         comment = parse_doc_comment(x)
         name = x['name']
+        prefix = x.get('prefix', None)
         members = [parse_doc_enum_member(m) for m in x['children']]
 
         # For now, give unnamed enums a fake name.
         # TODO: Eventually, let's just update enums to have names.
         if not name:
-            if members:
-                name = next((x for x in members[0].name.split('_') if x), 'UnknownEnum')
+            if prefix:
+                name = prefix[0:-1]  # remove trailing _
+            elif members:
+                name = members[0].name
             else:
                 name = 'UnknownEnum'
 
         return Enum(
-            symbol_id=symbol_id, loc=loc, comment=comment, name=name, members=members
+            symbol_id=symbol_id,
+            loc=loc,
+            comment=comment,
+            name=name,
+            prefix=prefix,
+            members=members,
         )
     elif kind in [SymbolKind.Function, SymbolKind.Constructor]:
         symbol_id = x['id']
