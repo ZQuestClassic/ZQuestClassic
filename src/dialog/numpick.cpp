@@ -361,8 +361,6 @@ NumPickDialog::NumPickDialog(string const& lbl,optional<string> inf,
 	optional<int32_t>& retv, int32_t snum, bool zsint, int32_t vmax, int32_t vmin)
 	: retv(retv), labeltext(lbl), local_val(snum), zsint(zsint), min(vmin), max(vmax)
 {
-	if(max == min && !max)
-		max = -1;
 	retv = nullopt;
 	infostr = inf;
 }
