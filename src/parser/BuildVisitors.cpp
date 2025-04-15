@@ -1951,7 +1951,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		commentStartEnd(targ_sz, fmt::format("Proto{} Visit Params",func_comment));
 		
 		//Set the return to the default value
-		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR) && parsing_user_class <= puc_vars)
+		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR))
 		{
 			ClassScope* cscope = func.getInternalScope()->getClass();
 			UserClass& user_class = cscope->user_class;
