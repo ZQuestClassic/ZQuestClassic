@@ -29157,13 +29157,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		pfo_mode = 0;
 	else if (dy == -1)
 		pfo_mode = 1;
-	else if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
+	else if (old_region_scr_dy == 0 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
 		pfo_mode = 1;
 
 	int pfo_counter = abs(new_playing_field_offset - old_original_playing_field_offset);
 
-	// If scrolling first and the final pfo is less, reduce the scroll distance.
-	if (pfo_mode == 1 && new_playing_field_offset > old_original_playing_field_offset)
+	// When scrolling up/down, and if scrolling first and the final pfo is less, reduce the scroll distance.
+	if (dy && pfo_mode == 1 && new_playing_field_offset > old_original_playing_field_offset)
 	{
 		scroll_amount += new_playing_field_offset - old_original_playing_field_offset;
 		scroll_counter = scroll_amount / step;
@@ -29171,7 +29171,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	// If adjusting pfo first and the final pfo is more, increase the scroll distance.
 	// Also make the pfo adjust instantly.
-	if (pfo_mode == 0 && new_playing_field_offset < old_original_playing_field_offset)
+	if (dy && pfo_mode == 0 && new_playing_field_offset < old_original_playing_field_offset)
 	{
 		scroll_amount -= new_playing_field_offset - old_original_playing_field_offset;
 		scroll_counter = scroll_amount / step;
@@ -29201,7 +29201,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		old_viewport_aligned.x -= (dy ? secondary_axis_alignment_amount : 0);
 		old_viewport_aligned.y -= (dx ? secondary_axis_alignment_amount : 0);
 		// The playing field offset is changed before aligning, so apply the delta in this check.
-		old_viewport_aligned.y += new_playing_field_offset - old_original_playing_field_offset;
+		if (pfo_mode == 0)
+			old_viewport_aligned.y += new_playing_field_offset - old_original_playing_field_offset;
 		if (old_world_rect.contains_or_on(old_viewport_aligned))
 			align_mode = 0;
 		else
@@ -29556,9 +29557,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		{
 			int delta = (align_counter - abs(secondary_axis_alignment_amount)) * sign(secondary_axis_alignment_amount);
 			if (scrolldir == up || scrolldir == down) viewport.x = initial_viewport.x + delta;
-			else                                      viewport.y = initial_viewport.y + delta;
-			if (dx)
-				viewport.y += playing_field_offset - old_original_playing_field_offset;
+			else                                      viewport.y = initial_viewport.y + delta + (playing_field_offset - old_original_playing_field_offset);
 		}
 
 		FFCore.ScrollingData[SCROLLDATA_NX] = nx - viewport.x;
