@@ -287,7 +287,7 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		}
 		case SPRITE_MOVE_FLAGS:
 		{
-			if (auto s = get_sprite(ri->itemref, "sprite->MoveFlags[]"))
+			if (auto s = get_sprite(ri->spriteref, "MoveFlags[]"))
 			{
 				int index = ri->d[rINDEX] / 10000;
 				int limit = is_enemy(s) ? 15 : 10;
