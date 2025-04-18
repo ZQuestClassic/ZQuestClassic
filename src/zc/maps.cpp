@@ -4378,15 +4378,8 @@ static void set_draw_screen_clip(BITMAP* bmp)
 	set_clip_rect(bmp, draw_screen_clip_rect_x1, draw_screen_clip_rect_y1, draw_screen_clip_rect_x2, draw_screen_clip_rect_y2);
 }
 
-void draw_screen(bool showhero, bool runGeneric)
+static void draw_screen_old(bool showhero, bool runGeneric)
 {
-	clear_info_bmp();
-	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
-	{
-		FFCore.doScriptMenuDraws();
-		return;
-	}
-	
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 
 	clear_bitmap(framebuf);
@@ -4636,7 +4629,20 @@ void draw_screen(bool showhero, bool runGeneric)
 		{
 			// Just clips sprites if in a repeating, smooth maze.
 			bool do_clip = maze_state.active && maze_state.loopy;
-
+			
+			if(!get_qr(qr_OLD_WEAPON_DRAW_ANIMATE_TIMING))
+			{
+				if (do_clip)
+				{
+					Ewpns.drawshadow_smooth_maze(framebuf,get_qr(qr_TRANSSHADOWS));
+					Lwpns.drawshadow_smooth_maze(framebuf,get_qr(qr_TRANSSHADOWS));
+				}
+				else
+				{
+					Ewpns.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS),true);
+					Lwpns.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS),true);
+				}
+			}
 			for(int32_t i=0; i<Ewpns.Count(); i++)
 			{
 				if(((weapon *)Ewpns.spr(i))->behind)
@@ -5048,6 +5054,596 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
+}
+static void draw_sprites(BITMAP* dest, set<sprite*, SpriteSorter>& sprite_set, set<sprite*, SpriteSorter>::iterator& it, word upto_z)
+{
+	bool checkz = upto_z != word(-1); // max value represents "infinity" height
+	if(it == sprite_set.end() || (checkz && (*it)->total_z() >= upto_z))
+		return; // no sprites to draw remaining
+	// Just clips sprites if in a repeating, smooth maze.
+	bool do_clip = maze_state.active && maze_state.loopy;
+	
+	
+	if(do_clip)
+	{
+		int maze_screen = maze_state.scr->screen;
+		auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
+		set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+	}
+	while(it != sprite_set.end() && (!checkz || (*it)->total_z() < upto_z))
+	{
+		sprite* spr = *it;
+		if(spr == &Hero) // Draw the Hero
+		{
+			decorations.draw2(dest,true);
+			Hero.draw(dest);
+			decorations.draw(dest,true);
+			
+			// Draw enemies holding the Hero directly above the Hero
+			for(int32_t i=0; i<guys.Count(); i++)
+			{
+				if(((enemy*)guys.spr(i))->family == eeWALK)
+					if(((eStalfos*)guys.spr(i))->hashero)
+						guys.spr(i)->draw(dest);
+				else if(((enemy*)guys.spr(i))->family == eeWALLM)
+					if(((eWallM*)guys.spr(i))->hashero)
+						guys.spr(i)->draw(dest);
+			}
+		}
+		else if(spr == &mblock2) // Draw the moving pushblock
+		{
+			mblock2.draw(dest, -1);
+			do_primitives(dest, SPLAYER_MOVINGBLOCK);
+		}
+		else if(enemy* e = dynamic_cast<enemy*>(spr))
+		{
+			e->draw(dest);
+			e->draw2(dest); // used specifically for eGleeok/esGleeok
+		}
+		else spr->draw(dest);
+		++it;
+	}
+	if(do_clip)
+		clear_clip_rect(dest);
+}
+
+void draw_screen(bool showhero, bool runGeneric)
+{
+	clear_info_bmp();
+	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
+	{
+		FFCore.doScriptMenuDraws();
+		return;
+	}
+	if(get_qr(qr_CLASSIC_DRAWING_ORDER))
+	{
+		draw_screen_old(showhero, runGeneric);
+		return;
+	}
+	
+	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
+
+	clear_bitmap(framebuf);
+	clear_clip_rect(framebuf);
+	
+	int32_t cmby2=0;
+	
+	// Draw some background layers
+	clear_bitmap(scrollbuf);
+
+	auto nearby_screens = get_nearby_screens();
+	
+	for(int layer : script_drawing_commands.get_dirty_layers_in_range(-7, -4)) // can make `-7` more negative to allow further script negative layers
+		do_primitives(scrollbuf, layer);
+	
+	// Handle layer 2/3 possibly being background layers.
+	// Actually use proper ordering (-3 < -2)
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].base_scr;
+		if (XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+			do_layer(scrollbuf, 0, screen_handles[3], offx, offy);
+	});
+	
+	if (XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+	{
+		do_layer_primitives(scrollbuf, 3);
+		particles.draw(scrollbuf, true, 3);
+	}
+	_do_current_ffc_layer(scrollbuf, -3);
+	if (XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+		draw_msgstr(3, scrollbuf);
+	
+	do_primitives(scrollbuf, -3);
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].base_scr;
+		if (XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			do_layer(scrollbuf, 0, screen_handles[2], offx, offy);
+	});
+
+	if (XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+	{
+		do_layer_primitives(scrollbuf, 2);
+		particles.draw(scrollbuf, true, 2);
+	}
+	_do_current_ffc_layer(scrollbuf, -2);
+	if (XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+		draw_msgstr(2, scrollbuf);
+	
+	do_primitives(scrollbuf, -2);
+	do_primitives(scrollbuf, -1);
+	
+	// Draw the main combo screens ("layer 0").
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].base_scr;
+		if (lenscheck(base_scr, 0))
+		{
+			putscr(base_scr, scrollbuf, offx, offy + playing_field_offset);
+		}
+	});
+
+	if (lenscheck(hero_scr, 0))
+	{
+		if(!get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+			if(mblock2.draw(scrollbuf,0))
+				do_primitives(scrollbuf, SPLAYER_MOVINGBLOCK);
+	}
+
+	// Lens hints, then primitives, then particles.
+	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_qr(qr_OLDLENSORDER))
+	{
+		draw_lens_under(scrollbuf, false);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1);
+	}
+	
+	if(show_layers[0] && lenscheck(hero_scr,0))
+		do_primitives(scrollbuf, 0);
+	particles.draw(scrollbuf, true, 0);
+	_do_current_ffc_layer(scrollbuf, 0);
+	draw_msgstr(0, scrollbuf);
+
+	set_draw_screen_clip(scrollbuf);
+
+	if(!(get_qr(qr_LAYER12UNDERCAVE)))
+	{
+		if(showhero &&
+				((Hero.getAction()==climbcovertop)||(Hero.getAction()==climbcoverbottom)))
+		{
+			if(Hero.getAction()==climbcovertop)
+			{
+				cmby2=16;
+			}
+			else if(Hero.getAction()==climbcoverbottom)
+			{
+				cmby2=-16;
+			}
+			
+			decorations.draw2(scrollbuf,true);
+			Hero.draw(scrollbuf);
+			decorations.draw(scrollbuf,true);
+			int32_t ccx = (int32_t)Hero.getClimbCoverX();
+			int32_t ccy = (int32_t)Hero.getClimbCoverY();
+			
+			overcombo(scrollbuf,ccx-viewport.x,ccy+cmby2+playing_field_offset-viewport.y,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+			putcombo(scrollbuf,ccx-viewport.x,ccy+playing_field_offset-viewport.y,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
+			
+			if(int32_t(Hero.getX())&15)
+			{
+				overcombo(scrollbuf,ccx+16-viewport.x,ccy+cmby2+playing_field_offset-viewport.y,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+				putcombo(scrollbuf,ccx+16-viewport.x,ccy+playing_field_offset-viewport.y,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
+			}
+		}
+	}
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		do_layer(scrollbuf, 0, screen_handles[1], offx, offy); // LAYER 1
+	});
+
+	do_layer_primitives(scrollbuf, 1);
+	particles.draw(scrollbuf, true, 1);
+	_do_current_ffc_layer(scrollbuf, 1);
+	draw_msgstr(1, scrollbuf);
+
+	// Handle layer 2 NOT being used as background layers.
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].base_scr;
+		if (!XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			do_layer(scrollbuf, 0, screen_handles[2], offx, offy);
+	});
+
+	if(!XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+	{
+		do_layer_primitives(scrollbuf, 2);
+		particles.draw(scrollbuf, true, 2);
+	}
+	_do_current_ffc_layer(scrollbuf, 2);
+	if(!XOR(origin_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+		draw_msgstr(2, scrollbuf);
+
+	do_primitives(scrollbuf, SPLAYER_FFC_DRAW);
+
+	if(get_qr(qr_LAYER12UNDERCAVE))
+	{
+		if(showhero &&
+				((Hero.getAction()==climbcovertop)||(Hero.getAction()==climbcoverbottom)))
+		{
+			if(Hero.getAction()==climbcovertop)
+			{
+				cmby2=16;
+			}
+			else if(Hero.getAction()==climbcoverbottom)
+			{
+				cmby2=-16;
+			}
+			
+			decorations.draw2(scrollbuf,true);
+			Hero.draw(scrollbuf);
+			decorations.draw(scrollbuf,true);
+			int32_t ccx = (int32_t)(Hero.getClimbCoverX());
+			int32_t ccy = (int32_t)(Hero.getClimbCoverY());
+			
+			overcombo(scrollbuf,ccx-viewport.x,ccy+cmby2+playing_field_offset-viewport.y,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+			putcombo(scrollbuf,ccx-viewport.x,ccy+playing_field_offset-viewport.y,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
+			
+			if(int32_t(Hero.getX())&15)
+			{
+				overcombo(scrollbuf,ccx+16-viewport.x,ccy+cmby2+playing_field_offset-viewport.y,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+				putcombo(scrollbuf,ccx+16-viewport.x,ccy+playing_field_offset-viewport.y,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
+			}
+		}
+	}
+
+	if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+	{
+		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+			do_layer(scrollbuf, -2, screen_handles[0], offx, offy); // push blocks!
+			if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+			{
+				do_layer(scrollbuf, -2, screen_handles[1], offx, offy); // push blocks!
+				do_layer(scrollbuf, -2, screen_handles[2], offx, offy); // push blocks!
+			}
+		});
+
+		do_primitives(scrollbuf, SPLAYER_PUSHBLOCK);
+	}
+
+	// Show walkflags cheat
+	if (show_walkflags || show_effectflags)
+	{
+		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+			do_walkflags(screen_handles, offx, offy);
+			do_effectflags(screen_handles[0].base_scr, offx, offy);
+		});
+
+		do_walkflags(0, 0);
+	}
+
+	putscrdoors(nearby_screens, scrollbuf, 0, playing_field_offset);
+	
+	// Lens hints, doors etc.
+	if(lensclk || (get_debug() && zc_getkey(KEY_L)))
+	{
+		if(get_qr(qr_OLDLENSORDER))
+		{
+			draw_lens_under(scrollbuf, false);
+			do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1);
+		}
+		
+		draw_lens_under(scrollbuf, true);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_2);
+	}
+	
+	// Blit those layers onto framebuf
+
+	set_draw_screen_clip(framebuf);
+
+	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 232);
+
+	// After this point, scrollbuf is no longer drawn to - so things like dosubscr have access to a "partially rendered" frame.
+	// I think only used for COOLSCROLL==0? Seems like a silly feature...
+
+	// Draw the subscreen, without clipping
+	if(!get_qr(qr_SUBSCREENOVERSPRITES))
+	{
+		bool dotime = false;
+		if (replay_version_check(22)) dotime = game->should_show_time();
+		put_passive_subscr(framebuf, 0, 0, dotime, sspUP);
+	}
+	
+	// Draw some sprites onto framebuf
+	set_clip_rect(framebuf,0,0,256,232);
+	
+	if(!(pricesdisplaybuf->clip))
+	{
+		masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,176);
+	}
+
+	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
+		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+
+	if(showhero && ((Hero.getAction()!=climbcovertop)&&(Hero.getAction()!=climbcoverbottom)))
+	{
+		Hero.draw_under(framebuf);
+		
+		if(Hero.isSwimming())
+		{
+			decorations.draw2(framebuf,true);
+			Hero.draw(framebuf);
+			decorations.draw(framebuf,true);
+		}
+	}
+	
+	set<sprite*, SpriteSorter> sorted_sprites;
+	vector<sprite*> temp_sprites;
+	std::function<bool(sprite&)> add_sprite = [&](sprite& spr)
+		{
+			sorted_sprites.insert(&spr);
+			return false;
+		};
+	if(drawguys)
+	{
+		Ewpns.forEach(add_sprite);
+		Lwpns.forEach(add_sprite);
+		chainlinks.forEach(add_sprite);
+		items.forEach(add_sprite);
+		bool show_enemy_shadows = (get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1));
+		Lwpns.forEach([&](sprite& spr)
+			{
+				sorted_sprites.insert(&spr);
+				if(spr.total_z() > 0 && spr.can_drawshadow())
+				{
+					tempsprite_shadow* shadow = new tempsprite_shadow(&spr);
+					sorted_sprites.insert(shadow);
+					temp_sprites.push_back(shadow);
+				}
+				return false;
+			});
+		guys.forEach([&](sprite& spr)
+			{
+				sorted_sprites.insert(&spr);
+				if(show_enemy_shadows && spr.total_z() > 0 && spr.can_drawshadow())
+				{
+					tempsprite_shadow* shadow = new tempsprite_shadow(&spr);
+					sorted_sprites.insert(shadow);
+					temp_sprites.push_back(shadow);
+				}
+				return false;
+			});
+	}
+	if(showhero && Hero.getAction() != climbcovertop
+		&& Hero.getAction() != climbcoverbottom && !Hero.isSwimming())
+	{
+		sorted_sprites.insert(&Hero);
+		if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
+		{
+			tempsprite_shadow* shadow = new tempsprite_shadow(&Hero);
+			sorted_sprites.insert(shadow);
+			temp_sprites.push_back(shadow);
+		}
+	}
+	if(mirror_portal.destdmap > -1)
+		sorted_sprites.insert(&mirror_portal);
+	portals.forEach(add_sprite);
+	if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+		sorted_sprites.insert(&mblock2);
+	auto sprite_it = sorted_sprites.begin();
+	
+	draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_GROUND]);
+	
+	// Draw some layers onto framebuf
+	set_draw_screen_clip(framebuf);
+	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
+		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+
+	// Handle layer 3 NOT being used as background layers.
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].base_scr;
+		if (!XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+			do_layer(framebuf, 0, screen_handles[3], offx, offy);
+	});
+
+	draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_3]);
+	
+	if(!XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+	{
+		do_layer_primitives(framebuf, 3);
+		particles.draw(framebuf, true, 3);
+	}
+	_do_current_ffc_layer(framebuf, 3);
+	if(!XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+		draw_msgstr(3);
+	
+	
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		do_layer(framebuf, 0, screen_handles[4], offx, offy);
+	});
+	
+	draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_4]);
+	
+	do_layer_primitives(framebuf, 4);
+	particles.draw(framebuf, true, 4);
+	_do_current_ffc_layer(framebuf, 4);
+	draw_msgstr(4);
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		do_layer(framebuf, -1, screen_handles[0], offx, offy);
+		if (get_qr(qr_OVERHEAD_COMBOS_L1_L2))
+		{
+			do_layer(framebuf, -1, screen_handles[1], offx, offy);
+			do_layer(framebuf, -1, screen_handles[2], offx, offy);
+		}
+	});
+
+	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB);
+	
+	// Draw some flying sprites onto framebuf
+	clear_clip_rect(framebuf);
+	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
+		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+
+	draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_OVERHEAD]);
+	
+	// Draw the Moving Fairy above layer 3
+	for(int32_t i=0; i<items.Count(); i++)
+		if(itemsbuf[items.spr(i)->id].family == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
+			items.spr(i)->draw(framebuf);
+	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW);
+	
+	// Draw some layers onto framebuf
+
+	set_draw_screen_clip(framebuf);
+
+	if (lightbeam_present)
+	{
+		color_map = &trans_table2;
+		if(get_qr(qr_LIGHTBEAM_TRANSPARENT))
+			draw_trans_sprite(framebuf, lightbeam_bmp, 0, playing_field_offset);
+		else 
+			masked_blit(lightbeam_bmp, framebuf, 0, 0, 0, playing_field_offset, 256, 176);
+		color_map = &trans_table;
+	}
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		do_layer(framebuf, 0, screen_handles[5], offx, offy);
+	});
+
+	draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_5]);
+	
+	do_layer_primitives(framebuf, 5);
+	particles.draw(framebuf, true, 5);
+	_do_current_ffc_layer(framebuf, 5);
+	draw_msgstr(5);
+	
+	_do_current_ffc_layer(framebuf, -1); // 'overhead' freeform combos
+
+	do_primitives(framebuf, SPLAYER_OVERHEAD_FFC);
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		do_layer(framebuf, 0, screen_handles[6], offx, offy);
+	});
+
+	draw_sprites(framebuf, sorted_sprites, sprite_it, word(-1));
+	
+	do_layer_primitives(framebuf, 6);
+	particles.draw(framebuf, true, 6);
+	_do_current_ffc_layer(framebuf, 6);
+
+	// Handle low drawn darkness
+	bool draw_dark = false;
+	if(get_qr(qr_NEW_DARKROOM) && room_is_dark)
+	{
+		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+			mapscr* base_scr = screen_handles[0].scr;
+			if (base_scr->flags&fDARK)
+			{
+				calc_darkroom_combos(cur_map, screen, offx, offy + playing_field_offset);
+				draw_dark = true;
+			}
+		});
+		if(showhero)
+			Hero.calc_darkroom_hero(0, -playing_field_offset);
+		if (draw_dark)
+		{
+			for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+				mapscr* base_scr = screen_handles[0].scr;
+				bool should_be_dark = (base_scr->flags & fDARK);
+				if (!should_be_dark)
+				{
+					offy += playing_field_offset;
+					rectfill(darkscr_bmp, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+					rectfill(darkscr_bmp_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+				}
+			});
+		}
+	}
+	
+	//Darkroom if under the subscreen
+	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && draw_dark && room_is_dark)
+	{
+		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER);
+		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+		if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
+		{
+			ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
+		}
+		
+		color_map = &trans_table2;
+		if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
+		{
+			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
+			if(get_qr(qr_NEWDARK_TRANS_STACKING))
+				draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
+		}
+		else
+		{
+			masked_blit(darkscr_bmp, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
+		}
+		color_map = &trans_table;
+		
+		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		do_primitives(framebuf, SPLAYER_DARKROOM_OVER);
+	}
+
+	if (is_extended_height_mode() && lensclk && !FFCore.system_suspend[susptLENS])
+	{
+		draw_lens_over();
+		--lensclk;
+	}
+
+	// Draw some text on framebuf
+	
+	set_clip_rect(framebuf,0,0,256,232);
+
+	draw_msgstr(6);
+	
+	// Draw the subscreen, without clipping
+	if(get_qr(qr_SUBSCREENOVERSPRITES))
+	{
+		put_passive_subscr(framebuf, 0, 0, game->should_show_time(), sspUP);
+		
+		// Draw primitives over subscren
+		do_primitives(framebuf, 7); //Layer '7' appears above subscreen if quest rule is set
+	}
+	
+	// Handle high-drawn darkness
+	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && draw_dark && room_is_dark)
+	{
+		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER);
+		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+		if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
+		{
+			ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
+		}
+		
+		color_map = &trans_table2;
+		if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
+		{
+			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
+			if(get_qr(qr_NEWDARK_TRANS_STACKING))
+				draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
+		}
+		else
+		{
+			masked_blit(darkscr_bmp, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
+		}
+		color_map = &trans_table;
+		
+		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		do_primitives(framebuf, SPLAYER_DARKROOM_OVER);
+	}
+	
+	_do_current_ffc_layer(framebuf, 7);
+	draw_msgstr(7);
+	
+	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
+	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
+	
+	for(sprite* spr : temp_sprites)
+		delete spr;
 }
 
 // TODO: separate setting door data and drawing door
@@ -6590,7 +7186,8 @@ void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y)
 	}
 	
 	bool over = XOR(scr->flags7&fLAYER2BG,DMaps[cur_dmap].flags&dmfLAYER2BG)
-		|| XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG);
+		|| XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)
+		|| !get_qr(qr_CLASSIC_DRAWING_ORDER);
 
 	int start_x, end_x, start_y, end_y;
 	get_bounds_for_draw_cmb_calls(dest, x, y, start_x, end_x, start_y, end_y);
@@ -7525,17 +8122,25 @@ void ViewMap()
 			int xx = 0;
 			int yy = -playing_field_offset;
 			
-			if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
-			{
-				do_layer(screen_bmp, 0, screen_handles[2], xx, yy);
-				do_ffc_layer(screen_bmp, -2, screen_handles[0], xx, yy);
-			}
+			if(get_qr(qr_CLASSIC_DRAWING_ORDER))
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+				{
+					do_layer(screen_bmp, 0, screen_handles[2], xx, yy);
+					do_ffc_layer(screen_bmp, -2, screen_handles[0], xx, yy);
+				}
 			
 			if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 			{
 				do_layer(screen_bmp, 0, screen_handles[3], xx, yy);
 				do_ffc_layer(screen_bmp, -3, screen_handles[0], xx, yy);
 			}
+			
+			if(!get_qr(qr_CLASSIC_DRAWING_ORDER))
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+				{
+					do_layer(screen_bmp, 0, screen_handles[2], xx, yy);
+					do_ffc_layer(screen_bmp, -2, screen_handles[0], xx, yy);
+				}
 			
 			if(lenscheck(scr,0)) putscr(scr, screen_bmp, 0, 0);
 			do_ffc_layer(screen_bmp, 0, screen_handles[0], xx, yy);

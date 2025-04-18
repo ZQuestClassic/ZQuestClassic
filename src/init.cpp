@@ -1154,6 +1154,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	ARRAY_PROP(map) \
 	ARRAY_PROP(mcguffin) \
 	ARRAY_PROP(mcounter) \
+	ARRAY_PROP(sprite_z_thresholds) \
 	BITSTR_PROP(flags)
 
 static int DELTA_VERSION = 1;

@@ -84,6 +84,19 @@ TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
 Label(text = name, hAlign = 0.0), \
 VAL_FIELD_IMPL<t>(minval, maxval, &local_zinit.member, dis)
 
+#define ZTHRESH_FIELD(name, idx) \
+Label(text = name, hAlign = 0.0), \
+TextField(maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
+	hAlign = 1.0, low = -1, high = 65534, \
+	val = (local_zinit.sprite_z_thresholds[idx] == word(-1) ? -1 : local_zinit.sprite_z_thresholds[idx]), \
+	width = 4.5_em, \
+	fitParent = true, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_zinit.sprite_z_thresholds[idx] = word(val); \
+	} \
+)
+
 #define DEC_VAL_FIELD(name, minval, maxval, numPlaces, member, dis) \
 Label(text = name, hAlign = 0.0), \
 TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
@@ -551,7 +564,14 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Rows<3>(
 								margins = 0_px,
 								padding = 0_px,
-								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC), INFOBTN("Some objects draw higher-layer when their Z is greater than this value"),
+								VAL_FIELD(byte, "Magic Drain Rate:", 0, 255, magicdrainrate, false),
+								INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
+									" 'Learn Half Magic' room, this value is halved (rounded down)."
+									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
+									" >-1, that piece will only show up when its 'Show' value is equal to"
+									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
+									" your starting value is high enough, you can allow stacking several"
+									" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true),
 								VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC), INFOBTN("Multiplier of the subscreen's fall speed"),
 								VAL_FIELD(byte,"Hero Damage Mult:",1,255,hero_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by the Hero."),
 								VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by enemies."),
@@ -572,18 +592,38 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								COLOR_FIELD("Flicker Color:", spriteflickercolor, false), INFOBTN("If not color 0, sprites will flicker to this color. Will not work with 'Old (Faster) Sprite Drawing'" + QRHINT({ qr_HEROFLICKER, qr_ENEMIESFLICKER, qr_OLDSPRITEDRAWS })),
 								VAL_FIELD(byte, "Flicker Transparency Passes:", 0, 3, spriteflickertransp, false), INFOBTN("How many transparency passes the flicker effect uses. 0 will be a solid color" + QRHINT({ qr_HEROFLICKER, qr_ENEMIESFLICKER, qr_OLDSPRITEDRAWS })),
 								VAL_FIELD(byte, "Heart Pieces:", 0, 255, hcp, false), INFOBTN("Number of Heart Pieces the Hero starts with"),
-								VAL_FIELD(byte, "HP Per HC:", 1, 255, hcp_per_hc, false), INFOBTN("Number of Heart Pieces to create a new Heart Container"),
-								//
-								VAL_FIELD(byte, "Magic Drain Rate:", 0, 255, magicdrainrate, false),
-								INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
-									" 'Learn Half Magic' room, this value is halved (rounded down)."
-									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
-									" >-1, that piece will only show up when its 'Show' value is equal to"
-									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
-									" your starting value is high enough, you can allow stacking several"
-									" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true)
-									)
-								//
+								VAL_FIELD(byte, "HP Per HC:", 1, 255, hcp_per_hc, false), INFOBTN("Number of Heart Pieces to create a new Heart Container")
+							)
+						)
+					)),
+					TabRef(name = "Draw Order", Row(
+						Column(vAlign = 0.0,
+							Rows<3>(
+								margins = 0_px, padding = 0_px,
+								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC),
+								INFOBTN("Some objects draw higher-layer when their Z is greater than this value."
+									"\nOnly used when 'Classic Drawing Order' is enabled." + QRHINT({qr_CLASSIC_DRAWING_ORDER}))
+							),
+							Row(
+								margins = 0_px, padding = 0_px,
+								Label(text = "New Drawing Height Thresholds"),
+								INFOBTN("Only used when 'Classic Drawing Order' is disabled."
+									"\nEach of these values represents a Z-threshold for a given sprite draw timing."
+									" At the specified timing, all sprites will be drawn which have a Z lower than the specified value"
+									" (and have not already been drawn that frame)."
+									"\nTo 'disable' a draw timing, set its' value equal to the value of the timing listed above it."
+									"\nAny sprites higher than the last threshold, will be drawn automatically at a final timing."
+									"\nTo draw every sprite remaining, enter the value '-1'."
+									+ QRHINT({qr_CLASSIC_DRAWING_ORDER}))
+							),
+							Rows<3>(
+								margins = 0_px, padding = 0_px,
+								ZTHRESH_FIELD("Ground Z Threshold:", SPRITE_THRESHOLD_GROUND), INFOBTN("Sprites with Z below this threshold will draw above all of the 'ground' (between layer 2 and layer 3)"),
+								ZTHRESH_FIELD("Layer 3 Z Threshold:", SPRITE_THRESHOLD_3), INFOBTN("Sprites with Z between the prior threshold and this threshold will draw on layer 3"),
+								ZTHRESH_FIELD("Layer 4 Z Threshold:", SPRITE_THRESHOLD_4), INFOBTN("Sprites with Z between the prior threshold and this threshold will draw on layer 4"),
+								ZTHRESH_FIELD("Overhead Z Threshold:", SPRITE_THRESHOLD_OVERHEAD), INFOBTN("Sprites with Z between the prior threshold and this threshold will draw just above 'Overhead' combos"),
+								ZTHRESH_FIELD("Layer 5 Z Threshold:", SPRITE_THRESHOLD_5), INFOBTN("Sprites with Z between the prior threshold and this threshold will draw on layer 5.\nSprites with Z at or above this threshold will draw on layer 6.")
+							)
 						)
 					)),
 					TabRef(name = "Movement", Row(
