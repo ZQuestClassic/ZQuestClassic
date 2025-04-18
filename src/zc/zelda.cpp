@@ -84,7 +84,6 @@ extern bool epilepsyFlashReduction;
 	std::ostringstream lxconsole_oss;
 #endif
 extern char runningItemScripts[256];
-extern char modulepath[2048];
 
 extern char zc_builddate[80];
 extern char zc_aboutstr[80];
@@ -1534,8 +1533,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		std::ostringstream oss;
 		if(ret == qe_no_qst)
 		{
-			oss << qst_error[ret] << ". Press the 'A' button twice to select a custom quest,"
-				"\nor load a module that has a default " << ordinal(qst_num+1) << " quest.";
+			oss << qst_error[ret] << ". Press the 'A' button twice to select a custom quest.";
 		}
 		else
 		{
@@ -4172,8 +4170,6 @@ int main(int argc, char **argv)
 	}
 
 	bool onlyInstance=true;
-//	refresh_select_screen = 0;
-	memset(modulepath, 0, sizeof(modulepath));
 	FFCore.clear_combo_scripts();
 
 	memset(zc_builddate,0,80);

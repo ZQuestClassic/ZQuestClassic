@@ -94,7 +94,6 @@ byte use_save_indicator;
 int32_t paused_midi_pos = 0;
 byte midi_suspended = 0;
 byte zc_192b163_warp_compatibility;
-char modulepath[2048];
 bool epilepsyFlashReduction;
 signed char pause_in_background_menu_init = 0;
 byte pause_in_background = 0;

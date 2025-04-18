@@ -2153,18 +2153,6 @@ enum
     idBP_MAGICPERCENT, idBP_MASTERPERCENT, idBP_MAX
 };
 
-///////////////
-/// MODULES ///
-///////////////
-
-// TODO: we would like to remove the module system / loading from datafiles eventually.
-
-enum { zelda_dat, fonts_dat, sfx_dat };
-
-#define titleScreen250 0
-#define titleScreen210 10
-#define titleScreenMAIN 20
-
 INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
