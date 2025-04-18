@@ -32,7 +32,8 @@ def run_zc_command(binaries, args):
         args2.append(arg)
 
     print(f'running command: {shlex.join(args2)}')
-    return subprocess.Popen(args2, cwd=cwd, shell=platform.system() == 'Windows')
+    shell = True if platform.system() == 'Windows' else args2[0] != 'bash'
+    return subprocess.Popen(args2, cwd=cwd, shell=shell)
 
 
 def find_path(dir: Path, one_of: List[str]):
