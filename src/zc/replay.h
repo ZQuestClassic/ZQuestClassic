@@ -65,7 +65,7 @@ bool replay_has_meta(std::string key);
 ReplayMode replay_get_mode();
 int replay_get_version();
 // Return true if replay mode is active, and the current version is between [min/max) (inclusive/exclusive).
-// If `max` is -1, returns true for all versions greater than min; and when replay mode is not active.
+// If `max` is -1, returns true for all versions greater than or equal to min; and when replay mode is not active.
 bool replay_version_check(int min, int max = -1);
 int replay_get_frame();
 void replay_set_output_dir(std::filesystem::path dir);

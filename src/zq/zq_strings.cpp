@@ -24,7 +24,7 @@ int32_t strlist_del();
 int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
 void build_bistringcat_list();
 const char *stringcatlist(int32_t index, int32_t *list_size);
-std::string parse_msg_str(std::string const& s);
+std::string parse_to_legacy_msg_str_encoding(std::string const& s);
 int32_t msg_code_operands(byte cc);
 int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c);
 void strlist_rclick_func(int32_t index, int32_t x, int32_t y);
@@ -202,24 +202,11 @@ char *strip_extra_spaces(char *string)
 				i++;
 			}
 		}
-		else if(*tmpsrc && (*tmpsrc < 32 || *tmpsrc > 126))
-		{
-			for(int32_t numops=msg_code_operands(*tmpsrc-1); numops>0; numops--)
-			{
-				tmpsrc++;
-				
-				if((byte)(*tmpsrc)==255)
-				{
-					tmpsrc+=2;
-				}
-			}
-		}
 		
 		tmpsrc++;
 	}
 	
 	*tmpsrc=0;
-	//  memcpy(string,src,len);
 	strcpy(string,src);
 	free(src);
 	return string;
@@ -230,7 +217,7 @@ void strip_extra_spaces(std::string &string)
 	string = string.substr(string.find_first_not_of(' '), string.find_last_not_of(' '));
 }
 
-void scc_insert(char* buf, size_t& msgptr,byte cc,size_t limit = -1)
+bool scc_insert(char* buf, size_t& msgptr,byte cc,size_t limit = -1)
 {
 	switch(cc) //special scc inserts
 	{
@@ -255,7 +242,11 @@ void scc_insert(char* buf, size_t& msgptr,byte cc,size_t limit = -1)
 			if(msgptr >= limit) break;
 			buf[msgptr++] = ')';
 			break;
+		default:
+			return false;
 	}
+
+	return true;
 }
 
 char *MsgString(int32_t index, bool show_number, bool pad_number)
@@ -281,61 +272,58 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 	
 	char *t = new char[71];
 	memset(t, 0, 71);
-	uint32_t i=0;
-	uint32_t length = MsgStrings[index].s.size();
-	//return s;
 	
 	size_t msgptr=0;
-	//remove preceding spaces;
-	for(; i<length && (MsgStrings[index].s[i]==' ' || MsgStrings[index].s[i]<32 || MsgStrings[index].s[i]>126);)
+
+	auto msg_it = MsgStrings[index].create_iterator();
+
+	msg_it.next();
+
+	// Skip leading spaces.
+	while (!msg_it.done())
 	{
-		byte c = MsgStrings[index].s[i];
-		++i;
-		if(c!=' ')  // Is it a control code?
+		if (msg_it.state == MsgStr::iterator::COMMAND)
 		{
-			for(int32_t numops=msg_code_operands(c-1); numops>0; numops--)
+			if (scc_insert(t, msgptr, msg_it.command.code, 70))
 			{
-				i++;
-				if(i>=length) break; //sanity!
-				if((byte)(MsgStrings[index].s[i])==255)
-					i+=2;
+				msg_it.next();
+				break;
 			}
-			scc_insert(t,msgptr,c-1,70);
-			if(msgptr) break;
 		}
+		else if (msg_it.state == MsgStr::iterator::CHARACTER)
+		{
+			if (msg_it.character != " ")
+				break;
+		}
+
+		msg_it.next();
 	}
-	
-	
-	for(; msgptr<70 && i<MsgStrings[index].s.size(); i++)
+
+	while (!msg_it.done() && msgptr < 70)
 	{
-		byte c = MsgStrings[index].s[i];
-		if(i<length && c>=32 && c<=126)
+		if (msg_it.state == MsgStr::iterator::COMMAND)
 		{
-			t[msgptr++]=c;
+			scc_insert(t, msgptr, msg_it.command.code, 70);
 		}
-		else if(i<length && c)
+		else if (!msg_it.character.empty())
 		{
-			for(int32_t numops=msg_code_operands(c-1); numops>0; numops--)
-			{
-				i++;
-				if(i>=length) break; //sanity!
-				if((byte)(MsgStrings[index].s[i])==255)
-					i+=2;
-			}
-			scc_insert(t,msgptr,c-1,70);
+			t[msgptr++] = msg_it.character[0];
 		}
+
+		msg_it.next();
 	}
-	
+
 	for(; msgptr<=70; msgptr++)
 		t[msgptr]=0;
-		
+
 	strip_extra_spaces(t);
 	if(show_number)
 		strcat(s, t);
 	else
 		strcpy(s, t);
-	
+
 	delete[] t;
+
 	return s;
 }
 
@@ -469,7 +457,7 @@ int32_t onStrings()
 			
 			init_msgstr(&(MsgStrings[msg_count]));
 			MsgStrings[msg_count].listpos = msg_count;
-			MsgStrings[msg_count++].s = "<New String>";
+			MsgStrings[msg_count++].setFromLegacyEncoding("<New String>");
 		}
 		
 		strlist_dlg[7].dp=msgmore_xstring;
@@ -662,35 +650,7 @@ int32_t onStrings()
 					MsgStrings[index].y = 32;
 					MsgStrings[index].w = 24 * 8;
 					MsgStrings[index].h = 3 * 8;
-					MsgStrings[index].listpos = pos; // Since the stuff below isn't being run, do this instead
-
-
-					/*// Go through strings with higher listpos and decrement listpos
-					for(int32_t j=MsgStrings[index].listpos; j<msg_count; j++)
-					{
-						MsgStrings[addtomsglist(j)].listpos--;
-					}
-					// Delete string
-					for(int32_t i=index; i<msg_strings_size-1; i++)
-						MsgStrings[i]=MsgStrings[i+1];
-					// This is now inaccurate
-					msglistcache.clear();
-					reset_msgstr(msg_strings_size-1);
-					--msg_count;
-					int32_t sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
-
-					for(int32_t s=0; s<sc; s++)                           //room strings
-					{
-						fix_string(TheMaps[s].str, index);
-					}
-					for(int32_t i=0; i<16; i++)                           //info strings
-					{
-						for(int32_t j=0; j<3; j++)
-						{
-							fix_string(QMisc.info[i].str[j], index);
-						}
-					}
-					fix_string(QMisc.endstring, index);              //ending string */
+					MsgStrings[index].listpos = pos;
 					// Fix the quick-category menu
 					strlist_dlg[17].d1 = 0;
 					build_bistringcat_list();
@@ -750,12 +710,6 @@ int32_t onStrings()
 			{
 				// Select the new message
 				strlist_dlg[2].d1 = MsgStrings[index].listpos;
-				// if((editmsg_dlg[32].flags&D_SELECTED)!=0)
-				// {
-					// int32_t prev=msg_at_pos(MsgStrings[index].listpos-1);
-					// MsgStrings[prev].nextstring=index;
-				// }
-				// editmsg_dlg[27].flags=(MsgStrings[index].stringflags&STRINGFLAG_CONT)?D_SELECTED:0;
 			}
 			else if(lp>=0)              // Canceled or edited an existing string
 				strlist_dlg[2].d1 = lp; // Select previously selected message
@@ -773,6 +727,7 @@ int32_t onStrings()
 }
 
 char namebuf[9] = "[NAME]";
+
 // Returns the actual string of a given listpos
 int32_t addtomsglist(int32_t index, bool allow_numerical_sort)
 {
@@ -854,8 +809,7 @@ void strip_trailing_spaces(std::string& str)
 	str = str.substr(0, str.find_last_not_of(' ')+1);
 }
 
-//Not really the right usage of "parse"...
-std::string parse_msg_str(std::string const& s)
+std::string parse_to_legacy_msg_str_encoding(std::string const& s)
 {
 	std::string smsg;
 	
@@ -910,30 +864,6 @@ std::string parse_msg_str(std::string const& s)
 	return smsg;
 }
 
-//Make sure this is synchronised with parsemsgcode in guys.cpp!
-static int32_t ssc_tile_hei = -1;
-word grab_next_argument(std::string const& s2, uint32_t* i)
-{
-	if(s2.size() <= *i)
-		return 0;
-	byte val=s2[(*i)++]-1;
-	word ret=val;
-	
-	if(s2.size() <= (*i)+1)
-		return ret;
-	// If an argument is succeeded by 255, then it's a three-byte argument -
-	// between 254 and 65535 (or whatever the maximum actually is)
-	if((uint8_t)(s2[(*i)]) == 255)
-	{
-		val=s2[(*i)+1];
-		word next=val;
-		ret += 254*next;
-		(*i)+=2;
-	}
-	
-	return ret;
-}
-
 int32_t mprvfont=0;
 int32_t mprvflags=0;
 int32_t mprvvspace=0;
@@ -942,121 +872,6 @@ int32_t mprvnextstring=0;
 int32_t mprvw=0;
 int32_t mprvh=0;
 
-// Returns true if the given character should be encoded as a control code.
-// lastWasSCC indicates whether this is immediately after a control code.
-static inline bool isSCC(char character, bool lastWasSCC)
-{
-	// Non-ASCII character
-	if(character<32 || character>126)
-		return true;
-	
-	// Numeral after a control code
-	if(lastWasSCC && character>='0' && character<='9')
-		return true;
-	
-	// Backslash
-	if(character=='\\')
-		return true;
-	
-	return false;
-}
-
-// Load a stored string into msgbuf for editing.
-char* encode_msg_str(std::string const& message)
-{
-	memset(msgbuf, 0, sizeof(msgbuf));
-	char const* str = message.c_str();
-	int len = strlen(str);
-	int32_t strPos=0;
-	int32_t msgbufPos=0;
-	byte nextChar;
-	char sccBuf[30]; // For string control codes
-	char sccArgBuf[10];
-	word sccArg;
-	int32_t sccNumArgs;
-	bool lastWasSCC=false;
-	
-	while(msgbufPos<MSGBUF_SIZE && strPos< MSGBUF_SIZE)
-	{
-		nextChar=str[strPos];
-		
-		if(nextChar=='\0')
-			return msgbuf;
-			
-		// Most regular text characters get put directly into msgbuf
-		if(!isSCC(nextChar, lastWasSCC))
-		{
-			msgbuf[msgbufPos]=nextChar;
-			lastWasSCC=false;
-			msgbufPos++;
-			strPos++;
-		}
-		
-		// String control codes...
-		else
-		{
-			// ASCII character as control code
-			if(nextChar>=32 && nextChar <= 126)
-			{
-				sprintf(sccBuf, "\\%d", nextChar-1);
-				strPos++;
-			}
-			else
-			{
-				// Load the code into sccBuf. The code is stored one higher
-				// than its actual value to ensure that it's not null.
-				nextChar--;
-				sprintf(sccBuf, "\\%hu", (word)nextChar);
-				strPos++;
-				
-				// One at a time, read arguments and append them to sccBuf
-				for(sccNumArgs=msg_code_operands(nextChar); sccNumArgs>0; sccNumArgs--)
-				{
-					// If strPos hasn't gone past the end of the string,
-					// just drop the control code.
-					if(strPos>=len)
-						return msgbuf;
-						
-					// If the argument is 253 or less, it's stored in one byte
-					// with one added so that it's not null.
-					nextChar=str[strPos];
-					sccArg=nextChar-1;
-					strPos++;
-					
-					// If there are at least two more bytes to read, they may
-					// be part of the same argument.
-					if(strPos<=len-2)
-					{
-						// If the next byte is 255, add the byte after that
-						// times 254 to the argument.
-						nextChar=str[strPos];
-						
-						if(nextChar==255)
-						{
-							nextChar=str[strPos+1];
-							sccArg+=254*nextChar;
-							strPos+=2;
-						}
-					}
-					
-					// Append the argument to sccBuf.
-					if(sccArg == MAX_SCC_ARG)
-						strcpy(sccArgBuf, "\\-1");
-					else sprintf(sccArgBuf, "\\%hu", sccArg);
-					strcat(sccBuf, sccArgBuf);
-				}
-			}
-			
-			// Finally, copy the control code into msgbuf
-			strcat(msgbuf, sccBuf);
-			msgbufPos+=strlen(sccBuf);
-			
-			// And remember that we just entered a string control code
-			lastWasSCC=true;
-		}
-	}
-	return msgbuf;
-}
 char* encode_msg_str(int32_t index)
 {
 	if(index==msg_count) //New string?
@@ -1064,7 +879,10 @@ char* encode_msg_str(int32_t index)
 		memset(msgbuf, 0, sizeof(msgbuf));
 		return msgbuf;
 	}
-	return encode_msg_str(MsgStrings[index].s.c_str());
+
+	std::string str = MsgStrings[index].serialize();
+	strncpy(msgbuf, str.c_str(), sizeof(msgbuf));
+	return msgbuf;
 }
 
 // Fix the strings if they were broken
@@ -1110,9 +928,8 @@ void rebuild_string_list()
 void reset_msgstr(int32_t index)
 {
 	bound(index,0,msg_strings_size-1);
-	MsgStrings[index].s = "";
+	MsgStrings[index].setFromLegacyEncoding("");
 	MsgStrings[index].nextstring=0;
-	//memset(MsgStrings[index].expansion, 0, 32);
 }
 
 // Get the number of the message at the given list position
@@ -1133,78 +950,12 @@ int32_t msg_at_pos(int32_t pos)
 
 bool is_msgc(byte cc)
 {
-	switch(cc)
-	{
-		case MSGC_COLOUR: case MSGC_SPEED: case MSGC_GOTOIFGLOBAL:
-		case MSGC_GOTOIFRAND: case MSGC_GOTOIF: case MSGC_GOTOIFCTR:
-		case MSGC_GOTOIFCTRPC: case MSGC_GOTOIFTRI:
-		case MSGC_GOTOIFTRICOUNT: case MSGC_CTRUP: case MSGC_CTRDN:
-		case MSGC_CTRSET: case MSGC_CTRUPPC: case MSGC_CTRDNPC:
-		case MSGC_CTRSETPC: case MSGC_GIVEITEM: case MSGC_TAKEITEM:
-		case MSGC_WARP: case MSGC_SETSCREEND: case MSGC_SFX:
-		case MSGC_MIDI: case MSGC_NAME: case MSGC_GOTOIFCREEND:
-		//case MSGC_CHANGEPORTRAIT:
-		case MSGC_NEWLINE: case MSGC_SHDCOLOR:
-		case MSGC_SHDTYPE: case MSGC_DRAWTILE: case MSGC_ENDSTRING:
-		case MSGC_WAIT_ADVANCE: case MSGC_SETUPMENU:
-		case MSGC_MENUCHOICE: case MSGC_RUNMENU:
-		case MSGC_GOTOMENUCHOICE: case MSGC_TRIGSECRETS:
-		case MSGC_SETSCREENSTATE: case MSGC_SETSCREENSTATER:
-		case MSGC_FONT: case MSGC_RUN_FRZ_GENSCR: case MSGC_TRIG_CMB_COPYCAT:
-			return true;
-	}
-	return false;
+	return get_scc_command_num_args(cc).has_value();
 }
+
 int32_t msg_code_operands(byte cc)
 {
-	switch(cc)
-	{
-		case MSGC_WARP:
-			return 6; //dmap, screen, x, y, effect, sound
-		
-		//portrait tile, x, y, width, height
-		case MSGC_CHANGEPORTRAIT:
-		case MSGC_GOTOIFCREEND:
-		case MSGC_DRAWTILE:
-		case MSGC_SETUPMENU:
-		case MSGC_MENUCHOICE:
-			return 5;
-		
-		case MSGC_SETSCREEND:
-		case MSGC_SETSCREENSTATER:
-			return 4;
-
-		case MSGC_GOTOIFGLOBAL:
-		case MSGC_GOTOIFCTRPC:
-		case MSGC_GOTOIFCTR:
-			return 3;
-			
-		case MSGC_COLOUR:
-		case MSGC_SHDCOLOR:
-		case MSGC_CTRUP:
-		case MSGC_CTRDN:
-		case MSGC_CTRSET:
-		case MSGC_CTRUPPC:
-		case MSGC_CTRDNPC:
-		case MSGC_CTRSETPC:
-		case MSGC_GOTOIF:
-		case MSGC_GOTOIFTRI:
-		case MSGC_GOTOIFTRICOUNT:
-		case MSGC_GOTOIFRAND:
-		case MSGC_GOTOMENUCHOICE:
-		case MSGC_SETSCREENSTATE:
-		case MSGC_RUN_FRZ_GENSCR:
-			return 2;
-			
-		case MSGC_NEWLINE:
-		case MSGC_NAME:
-		case MSGC_RUNMENU:
-		case MSGC_ENDSTRING:
-		case MSGC_WAIT_ADVANCE:
-			return 0;
-	}
-	
-	return 1;
+	return get_scc_command_num_args(cc).value_or(0);
 }
 
 

@@ -83,7 +83,9 @@ void do_setmessage(const bool v)
 	if(BC::checkMessage(ID, "Game->SetMessage") != SH::_NoError)
 		return;
 	
-	ArrayH::getString(arrayptr, MsgStrings[ID].s, MSG_NEW_SIZE);
+	std::string text;
+	ArrayH::getString(arrayptr, text, MSG_NEW_SIZE);
+	MsgStrings[ID].setFromLegacyEncoding(text);
 }
 
 void do_getdmapname(const bool v)

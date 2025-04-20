@@ -3515,8 +3515,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 
 void init_msgstr(MsgStr *str)
 {
-	str->s = "";
-	str->s.shrink_to_fit();
+	str->setFromLegacyEncoding("");
 	str->nextstring=0;
     str->tile=0;
     str->cset=0;
@@ -3559,7 +3558,7 @@ void init_msgstrings(int32_t start, int32_t end)
     
     if(start==0)
     {
-		MsgStrings[0].s = "(None)";
+		MsgStrings[0].setFromLegacyEncoding("(None)");
         MsgStrings[0].listpos = 0;
     }
 }
@@ -3640,7 +3639,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			}
 			
 			buf[74] = '\0';
-			tempMsgString.s = buf;
+			tempMsgString.setFromLegacyEncoding(buf);
 				
 			if(!p_getc(&tempbyte,f))
 			{
@@ -3676,7 +3675,9 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			}
 			
 			if (!should_skip)
+			{
 				MsgStrings[x] = tempMsgString;
+			}
 		}
 	}
 	else
@@ -3709,12 +3710,10 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		}
 		
-		if(temp_msg_count >= msg_strings_size)
+		if(temp_msg_count >= msg_strings_size && !should_skip)
 		{
 			Z_message("Reallocating string buffer...\n");
 			
-			// if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
-				// return qe_nomem;
 			delete[] MsgStrings;
 			MsgStrings = new MsgStr[MAXMSGS];
 			msg_strings_size = MAXMSGS;
@@ -3722,13 +3721,13 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			{
 				MsgStrings[q].clear();
 			}
-			//memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
 		}
 		
 		//reset the message strings
 		if(s_version < 7)
 			set_qr(qr_OLD_STRING_EDITOR_MARGINS,true);
-		init_msgstrings(0,msg_strings_size);
+		if (!should_skip)
+			init_msgstrings(0,msg_strings_size);
 		
 		int32_t string_length=(s_version<2)?73:145;
 		
@@ -3769,7 +3768,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			if(s_version<2)
 			{
 				buf[72] = '\0';
-				tempMsgString.s = buf;
+				tempMsgString.setFromLegacyEncoding(buf);
 			}
 			else
 			{
@@ -3784,7 +3783,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 				}
 				if(string_length > 8192) string_length = 8192;
 				buf[string_length]='\0'; //Force-terminate
-				tempMsgString.s = buf;
+				tempMsgString.setFromLegacyEncoding(buf);
 				
 				if ( s_version >= 6 )
 				{
@@ -3940,8 +3939,11 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 					}
 				}
 			}
-			
-			MsgStrings[i].copyAll(tempMsgString);
+
+			if (!should_skip)
+			{
+				MsgStrings[i].copyAll(tempMsgString);
+			}
 		}
 	}
 	

@@ -19895,27 +19895,6 @@ void setupscreen()
 	}
 }
 
-// Increments msgptr and returns the control code argument pointed at.
-word grab_next_argument()
-{
-	if(unsigned(msgptr+1)>=MsgStrings[msgstr].s.size()) return 0;
-	byte val=MsgStrings[msgstr].s[++msgptr]-1;
-	word ret=val;
-	
-	// If an argument is succeeded by 255, then it's a three-byte argument -
-	// between 254 and 65535 (or whatever the maximum actually is)
-	if((unsigned(msgptr+2)<MsgStrings[msgstr].s.size())
-		&& uint8_t(MsgStrings[msgstr].s[msgptr+1]) == 255)
-	{
-		val=MsgStrings[msgstr].s[msgptr+2];
-		word next=val;
-		ret += 254*next;
-		msgptr+=2;
-	}
-	
-	return ret;
-}
-
 enum
 {
 	MNU_CURSOR_TILE, MNU_CURSOR_CSET,
@@ -19951,7 +19930,6 @@ void clr_msg_data()
 	memset(msg_menu_data, 0, sizeof(msg_menu_data));
 }
 
-static bool doing_name_insert = false;
 static char namebuf[9] = {0};
 static char* nameptr = NULL;
 static int32_t ssc_tile_hei = -1, ssc_tile_hei_buf = -1;
@@ -20036,11 +20014,13 @@ bool bottom_margin_clip()
 }
 
 void update_msgstr();
-bool parsemsgcode()
+
+static bool parsemsgcode(const StringCommand& command)
 {
-	if(msgptr>=MsgStrings[msgstr].s.size()) return false;
-	byte c = byte(MsgStrings[msgstr].s[msgptr]-1);
-	switch(c)
+	auto& args = command.args;
+	int last_arg = 0;
+
+	switch (command.code)
 	{
 		case MSGC_NEWLINE:
 		{
@@ -20054,49 +20034,49 @@ bool parsemsgcode()
 		
 		case MSGC_COLOUR:
 		{
-			int32_t cset = (grab_next_argument());
-			msgcolour = CSET(cset)+(grab_next_argument());
+			int32_t cset = args[0];
+			msgcolour = CSET(cset)+(args[1]);
 			return true;
 		}
 		
 		case MSGC_SHDCOLOR:
 		{
-			int32_t cset = (grab_next_argument());
-			msg_shdcol = CSET(cset)+(grab_next_argument());
+			int32_t cset = args[0];
+			msg_shdcol = CSET(cset)+args[1];
 			return true;
 		}
 		case MSGC_SHDTYPE:
 		{
-			msg_shdtype = grab_next_argument();
+			msg_shdtype = args[0];
 			return true;
 		}
 		
 		case MSGC_SPEED:
 		{
-			msgspeed=grab_next_argument();
+			msgspeed=args[0];
 			return true;
 		}
 		
 		case MSGC_CTRUP:
 		{
-			int32_t a1 = grab_next_argument();
-			int32_t a2 = grab_next_argument();
+			int32_t a1 = args[0];
+			int32_t a2 = args[1];
 			game->change_counter(a2, a1);
 			return true;
 		}
 		
 		case MSGC_CTRDN:
 		{
-			int32_t a1 = grab_next_argument();
-			int32_t a2 = grab_next_argument();
+			int32_t a1 = args[0];
+			int32_t a2 = args[1];
 			game->change_counter(-a2, a1);
 			return true;
 		}
 		
 		case MSGC_CTRSET:
 		{
-			int32_t a1 = grab_next_argument();
-			int32_t a2 = grab_next_argument();
+			int32_t a1 = args[0];
+			int32_t a2 = args[1];
 			game->set_counter(vbound(a2, 0, game->get_maxcounter(a1)), a1);
 			return true;
 		}
@@ -20105,15 +20085,14 @@ bool parsemsgcode()
 		case MSGC_CTRDNPC:
 		case MSGC_CTRSETPC:
 		{
-			int32_t code = MsgStrings[msgstr].s[msgptr]-1;
-			int32_t counter = grab_next_argument();
-			int32_t amount = grab_next_argument();
+			int32_t counter = args[0];
+			int32_t amount = args[1];
 			amount = int32_t(vbound(amount*0.01, 0.0, 1.0)*game->get_maxcounter(counter));
 			
-			if(code==MSGC_CTRDNPC)
+			if(command.code==MSGC_CTRDNPC)
 				amount*=-1;
 				
-			if(code==MSGC_CTRSETPC)
+			if(command.code==MSGC_CTRSETPC)
 				game->set_counter(amount, counter);
 			else
 				game->change_counter(amount, counter);
@@ -20123,7 +20102,7 @@ bool parsemsgcode()
 		
 		case MSGC_GIVEITEM:
 		{
-			int32_t itemID = grab_next_argument();
+			int32_t itemID = args[0];
 			
 			getitem(itemID, true);
 			if ( !FFCore.doscript(ScriptType::Item, itemID) && (((unsigned)itemID) < 256) )
@@ -20137,12 +20116,12 @@ bool parsemsgcode()
 		
 		case MSGC_WARP:
 		{
-			int32_t dmap =  grab_next_argument();
-			int32_t scrn =  grab_next_argument();
-			int32_t dx =  grab_next_argument();
-			int32_t dy =  grab_next_argument();
-			int32_t wfx =  grab_next_argument();
-			int32_t sfx =  grab_next_argument();
+			int32_t dmap =  args[0];
+			int32_t scrn =  args[1];
+			int32_t dx =  args[2];
+			int32_t dy =  args[3];
+			int32_t wfx =  args[4];
+			int32_t sfx =  args[5];
 			if(dx >= MAX_SCC_ARG) dx = -1;
 			if(dy >= MAX_SCC_ARG) dy = -1;
 			FFCore.warp_player(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
@@ -20152,16 +20131,16 @@ bool parsemsgcode()
 		
 		case MSGC_SETSCREEND:
 		{
-			int32_t dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
-			int32_t screen =     grab_next_argument();
-			int32_t reg =     grab_next_argument();
-			int32_t val =     grab_next_argument();
+			int32_t dmap =     (args[0]<<7); //dmap and screen may be transposed here.
+			int32_t screen =     args[1];
+			int32_t reg =     args[2];
+			int32_t val =     args[3];
 			FFCore.set_screen_d(screen + dmap, reg, val);
 			return true;
 		}
 		case MSGC_TAKEITEM:
 		{
-			int32_t itemID = grab_next_argument();
+			int32_t itemID = args[0];
 			if ( FFCore.doscript(ScriptType::Item, itemID) )
 			{
 				FFCore.doscript(ScriptType::Item, itemID) = 4; //Val of 4 means 'clear stack and quit'
@@ -20189,13 +20168,13 @@ bool parsemsgcode()
 			
 		case MSGC_SFX:
 		{
-			sfx((int32_t)grab_next_argument(),128);
+			sfx(args[0],128);
 			return true;
 		}
 		
 		case MSGC_MIDI:
 		{
-			int32_t music = (int32_t)(grab_next_argument());
+			int32_t music = args[0];
 			
 			if(music==0)
 				music_stop();
@@ -20205,17 +20184,9 @@ bool parsemsgcode()
 			return true;
 		}
 		
-		case MSGC_NAME:
-		{
-			doing_name_insert = true;
-			sprintf(namebuf, "%s", game->get_name());
-			nameptr = namebuf;
-			return true;
-		}
-		
 		case MSGC_FONT:
 		{
-			int fontid = grab_next_argument();
+			int fontid = args[0];
 			int oh = text_height(msgfont);
 			msgfont = get_zc_font(fontid);
 			int nh = text_height(msgfont);
@@ -20226,8 +20197,8 @@ bool parsemsgcode()
 		}
 		case MSGC_RUN_FRZ_GENSCR:
 		{
-			word scr_id = grab_next_argument();
-			bool force_redraw = grab_next_argument()!=0;
+			word scr_id = args[0];
+			bool force_redraw = args[1]!=0;
 			if(force_redraw)
 			{
 				update_msgstr();
@@ -20238,11 +20209,11 @@ bool parsemsgcode()
 		}
 		case MSGC_DRAWTILE:
 		{
-			int32_t tl = grab_next_argument();
-			int32_t cs = grab_next_argument();
-			int32_t t_wid = grab_next_argument();
-			int32_t t_hei = grab_next_argument();
-			int32_t fl = grab_next_argument();
+			int32_t tl = args[0];
+			int32_t cs = args[1];
+			int32_t t_wid = args[2];
+			int32_t t_hei = args[3];
+			int32_t fl = args[4];
 			
 			if(cursor_x+MsgStrings[msgstr].hspace + t_wid > msg_w-msg_margins[right])
 			{
@@ -20262,26 +20233,28 @@ bool parsemsgcode()
 		
 		case MSGC_GOTOIFRAND:
 		{
-			int32_t odds = (int32_t)(grab_next_argument());
-			
+			int32_t odds = args[0];
+
+			last_arg = 1;
 			if(!odds || !(zc_oldrand()%odds))
 				goto switched;
-				
-			(void)grab_next_argument();
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFGLOBAL:
 		{
-			int32_t arg = (int32_t)grab_next_argument();
+			int32_t arg = args[0];
 			int32_t d = zc_min(7,arg);
 			int32_t s = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-			arg = (int32_t)grab_next_argument();
-			
+			arg = args[1];
+
 			if(game->screen_d[s][d] >= arg)
+			{
+				last_arg = 2;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
@@ -20292,88 +20265,97 @@ bool parsemsgcode()
 		
 		case MSGC_GOTOIFCREEND:
 		{
-			int32_t dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
-			int32_t screen =     grab_next_argument();
-			int32_t reg =     grab_next_argument();
-			int32_t val =     grab_next_argument();
-			//int32_t nxtstr = grab_next_argument();
+			int32_t dmap =     (args[0]<<7); //dmap and screen may be transposed here.
+			int32_t screen =     args[1];
+			int32_t reg =     args[2];
+			int32_t val =     args[3];
 			if ( FFCore.get_screen_d(screen + dmap, reg) >= val )
 			{
+				last_arg = 4;
 				goto switched;
 			}
-			(void)grab_next_argument();
 			return true;
 		}
 		
 		case MSGC_GOTOIF:
 		{
-			int32_t it = (int32_t)grab_next_argument();
+			int32_t it = args[0];
 			
 			if(unsigned(it)<MAXITEMS && game->item[it])
+			{
+				last_arg = 1;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFCTR:
 		{
-			if(game->get_counter(grab_next_argument())>=grab_next_argument())
+			if(game->get_counter(args[0]) >= args[1])
+			{
+				last_arg = 2;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFCTRPC:
 		{
-			int32_t counter = grab_next_argument();
-			int32_t amount = (int32_t)(((grab_next_argument())/100)*game->get_maxcounter(counter));
+			int32_t counter = args[0];
+			int32_t amount = (int32_t)((args[1]/100)*game->get_maxcounter(counter));
 			
 			if(game->get_counter(counter)>=amount)
+			{
+				last_arg = 2;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFTRICOUNT:
 		{
-			if(TriforceCount() >= (int32_t)(grab_next_argument()))
+			if(TriforceCount() >= args[0])
+			{
+				last_arg = 1;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFTRI:
 		{
-			int32_t lev = (int32_t)(grab_next_argument());
+			int32_t lev = args[0];
 			
 			if(lev<MAXLEVELS && game->lvlitems[lev]&liTRIFORCE)
+			{
+				last_arg = 1;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_SETUPMENU:
 		{
-			msg_menu_data[MNU_CURSOR_TILE] = grab_next_argument();
-			msg_menu_data[MNU_CURSOR_CSET] = grab_next_argument();
-			msg_menu_data[MNU_CURSOR_WID] = grab_next_argument();
-			msg_menu_data[MNU_CURSOR_HEI] = grab_next_argument();
-			msg_menu_data[MNU_CURSOR_FLIP] = grab_next_argument();
+			msg_menu_data[MNU_CURSOR_TILE] = args[0];
+			msg_menu_data[MNU_CURSOR_CSET] = args[1];
+			msg_menu_data[MNU_CURSOR_WID] = args[2];
+			msg_menu_data[MNU_CURSOR_HEI] = args[3];
+			msg_menu_data[MNU_CURSOR_FLIP] = args[4];
 			return true;
 		}
 		
 		case MSGC_MENUCHOICE:
 		{
-			int32_t pos = grab_next_argument();
-			int32_t upos = grab_next_argument();
-			int32_t dpos = grab_next_argument();
-			int32_t lpos = grab_next_argument();
-			int32_t rpos = grab_next_argument();
+			int32_t pos = args[0];
+			int32_t upos = args[1];
+			int32_t dpos = args[2];
+			int32_t lpos = args[3];
+			int32_t rpos = args[4];
 			if(cursor_x+MsgStrings[msgstr].hspace + msg_menu_data[MNU_CURSOR_WID] > msg_w-msg_margins[right])
 			{
 				ssc_tile_hei = ssc_tile_hei_buf;
@@ -20404,10 +20386,13 @@ bool parsemsgcode()
 		
 		case MSGC_GOTOMENUCHOICE:
 		{
-			int32_t choice = grab_next_argument();
+			int32_t choice = args[0];
 			if(msg_menu_data[MNU_CHOSEN] == choice)
+			{
+				last_arg = 1;
 				goto switched;
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
@@ -20424,7 +20409,7 @@ bool parsemsgcode()
 		}
 		case MSGC_TRIGSECRETS:
 		{
-			bool perm = (bool)grab_next_argument();
+			bool perm = args[0];
 			trigger_secrets_for_screen(TriggerSource::SCC, msgscr, false);
 			if(perm)
 				setmapflag(msgscr, mSECRET);
@@ -20432,20 +20417,20 @@ bool parsemsgcode()
 		}
 		case MSGC_TRIG_CMB_COPYCAT:
 		{
-			int copy_id = (int)grab_next_argument();
+			int copy_id = args[0];
 			if(copy_id == byte(copy_id))
 				trig_copycat(copy_id);
 			return true;
 		}
 		case MSGC_SETSCREENSTATE:
 		{
-			int32_t flag = int32_t(grab_next_argument());
+			int32_t flag = args[0];
 			if(unsigned(flag)>=mMAXIND)
 			{
 				Z_error("SCC 133: Flag %d is invalid\n", flag);
 				return true;
 			}
-			bool state = bool(grab_next_argument());
+			bool state = args[1];
 			if(state)
 				setmapflag(msgscr, 1<<flag);
 			else
@@ -20454,8 +20439,8 @@ bool parsemsgcode()
 		}
 		case MSGC_SETSCREENSTATER:
 		{
-			int32_t map = (int32_t)grab_next_argument();
-			int32_t scrid = (int32_t)grab_next_argument();
+			int32_t map = args[0];
+			int32_t scrid = args[1];
 			if(map < 1 || map > map_count)
 			{
 				Z_error("SCC 134: Map %d is invalid\n", map);
@@ -20467,13 +20452,13 @@ bool parsemsgcode()
 				return true;
 			}
 			
-			int32_t flag = int32_t(grab_next_argument());
+			int32_t flag = args[2];
 			if(unsigned(flag)>=mMAXIND)
 			{
 				Z_error("SCC 134: Flag %d is invalid\n", flag);
 				return true;
 			}
-			bool state = bool(grab_next_argument());
+			bool state = args[3];
 			if(state)
 				setmapflag_mi(msgscr, mapind(map,scrid),1<<flag);
 			else
@@ -20481,495 +20466,182 @@ bool parsemsgcode()
 			return true;
 		}
 switched:
-		int32_t lev = (int32_t)(grab_next_argument());
+		int32_t lev = args[last_arg];
 		if(lev && get_qr(qr_SCC_GOTO_RESPECTS_CONTFLAG)
 			&& (MsgStrings[lev].stringflags & STRINGFLAG_CONT))
 		{
-			msgstr=lev;
-			msgpos=msgptr=0;
-			msgfont=setmsgfont();
+			setmsg(lev);
 		}
 		else
 		{
 			donewmsg(msgscr, lev);
 			ssc_tile_hei_buf = -1;
 		}
-		msgptr--; // To counteract it being incremented after this routine is called.
 		putprices(false);
 		return true;
 	}
-	
+
 	return false;
 }
 
-// Wraps the message string... probably.
-void wrapmsgstr(char *s3)
+static std::string parsemsgcode2(const StringCommand& command)
 {
-	int32_t j=0;
-	
-	if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
+	if (command.code == MSGC_NAME)
 	{
-		if(msgspace)
-		{
-			char c = MsgStrings[msgstr].s[msgptr];
-			if(c != ' ' && c >= 32 && c <= 126)
-			{
-				for(int32_t k=0; MsgStrings[msgstr].s[msgptr+k] && MsgStrings[msgstr].s[msgptr+k] != ' '; k++)
-				{
-					if(MsgStrings[msgstr].s[msgptr+k] >= 32 && MsgStrings[msgstr].s[msgptr+k] <= 126) s3[j++] = MsgStrings[msgstr].s[msgptr+k];
-				}
-				
-				s3[j] = 0;
-				msgspace = false;
-			}
-			else
-			{
-				s3[0] = c;
-				s3[1] = 0;
-			}
-		}
-		else
-		{
-			s3[0] = MsgStrings[msgstr].s[msgptr];
-			s3[1] = 0;
-			
-			if(s3[0] == ' ') msgspace=true;
-		}
+		return game->get_name();
 	}
 	else
 	{
-		s3[0] = MsgStrings[msgstr].s[msgptr];
-		s3[1] = 0;
+		parsemsgcode(command);
 	}
+
+	return "";
 }
 
-// Returns true if the pointer is at a string's
-// null terminator or a trailing space
-bool atend(char const* str)
+static bool putmsgchar(bool play_sfx)
 {
-	int32_t i=0;
-	
-	while(str[i]==' ')
-		i++;
-		
-	return str[i]=='\0';
+	DCHECK(msg_it->state == MsgStr::iterator::CHARACTER);
+	DCHECK(!msg_it->character.empty());
+
+	if (bottom_margin_clip())
+		return false;
+
+	// If the current word would overflow the margins, increment cursor to the next line.
+	const char* rem_word = msg_it->remaining_word();
+	int tlength = text_length(msgfont, rem_word) + ((int32_t)strlen(rem_word)*MsgStrings[msgstr].hspace);
+	if (cursor_x+tlength > (msg_w-msg_margins[right]) &&
+		((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)) ? true : strcmp(rem_word," ")!=0))
+	{
+		ssc_tile_hei = ssc_tile_hei_buf;
+		int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
+		ssc_tile_hei_buf = -1;
+		cursor_y += thei + MsgStrings[msgstr].vspace;
+		if (bottom_margin_clip()) return false;
+
+		cursor_x = msg_margins[left];
+	}
+
+	if (play_sfx)
+		sfx(MsgStrings[msgstr].sfx);
+
+	// Print the character (unless it's just a space).
+	if (msg_it->character != " ")
+		textout_styled_aligned_ex(msg_txt_bmp_buf, msgfont, msg_it->character.c_str(), cursor_x, cursor_y, msg_shdtype, sstaLEFT, msgcolour, msg_shdcol, -1);
+
+	// Move the cursor.
+	cursor_x += msgfont->vtable->text_length(msgfont, msg_it->character.c_str());
+	if (msg_it->character != " ")
+		cursor_x += MsgStrings[msgstr].hspace;
+
+	return true;
 }
 
-void putmsg()
+enum msg_tick_result {msg_tick_exit, msg_tick_break, msg_tick_continue};
+
+static void msg_tick_end(bool disappear = false);
+static msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 {
-	bool oldmargin = get_qr(qr_OLD_STRING_EDITOR_MARGINS)!=0;
-	if(!msgorig) msgorig=msgstr;
-	
-	if(wait_advance && linkedmsgclk < 1)
-		linkedmsgclk = 1;
-	if(linkedmsgclk>0)
+	if (msg_it->done())
+		return msg_tick_exit;
+
+	if (!do_run_menu)
 	{
-		if(linkedmsgclk==1)
+		while (msg_it->state == MsgStr::iterator::COMMAND && !do_run_menu)
 		{
-			if(do_end_str||cAbtn()||cBbtn())
+			bool one_frame_command_delay = !replay_version_check(41);
+			std::string text = parsemsgcode2(msg_it->command);
+			if (text.empty())
 			{
-				do_end_str = false;
-				linkedmsgclk = 0;
-				if(wait_advance)
-				{
-					wait_advance = false;
-				}
-				else
-				{
-					if (!msgscr) msgscr = hero_scr;
-					msgstr=MsgStrings[msgstr].nextstring;
-					ssc_tile_hei_buf = -1;
-					if(!msgstr && enqueued_str)
-					{
-						msgstr = enqueued_str;
-						enqueued_str = 0;
-					}
-					if(!msgstr)
-					{
-						msgfont=get_zc_font(font_zfont);
-						
-						if(msgscr->room!=rGRUMBLE)
-							blockpath=false;
-							
-						dismissmsg();
-						goto disappear;
-					}
-					
-					donewmsg(msgscr, msgstr);
-					putprices(false);
-				}
-			}
-		}
-		else
-		{
-			--linkedmsgclk;
-		}
-	}
-	if(wait_advance) return; //Waiting for buttonpress
-	
-	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip()))
-	{
-		if(!msgstr)
-			msgorig=0;
-			
-		msg_active = false;
-		return;
-	}
-	
-	msg_onscreen = true; // Now the message is onscreen (see donewmsg()).
-	
-	char s3[145];
-	int32_t tlength;
-	
-	// Bypass the string with the B button!
-	if(((cBbtn())&&(get_qr(qr_ALLOWMSGBYPASS))) || msgspeed==0)
-	{
-		//finish writing out the string
-		while(msgptr<MsgStrings[msgstr].s.size() && !atend(MsgStrings[msgstr].s.c_str()+msgptr))
-		{
-			if(msgspeed && !(cBbtn() && get_qr(qr_ALLOWMSGBYPASS)))
-				goto breakout; // break out if message speed was changed to non-zero
-			else if(!do_run_menu && !doing_name_insert && !parsemsgcode())
-			{
-				if(bottom_margin_clip())
-					break;
-					
-				wrapmsgstr(s3);
-				
-				if(MsgStrings[msgstr].s[msgptr]==' ')
-				{
-					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
-					
-					if(cursor_x+tlength > (msg_w-msg_margins[right])
-					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-							? true : strcmp(s3," ")!=0))
-					{
-						ssc_tile_hei = ssc_tile_hei_buf;
-						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-						ssc_tile_hei_buf = -1;
-						cursor_y += thei + MsgStrings[msgstr].vspace;
-						if(bottom_margin_clip()) break;
-						cursor_x=msg_margins[left];
-					}
-					
-					char buf[2] = {0};
-					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
-					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-					
-					cursor_x+=tlength;
-				}
-				else
-				{
-					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-					if(cursor_x+tlength > (msg_w-msg_margins[right])
-					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-							? true : strcmp(s3," ")!=0))
-					{
-						ssc_tile_hei = ssc_tile_hei_buf;
-						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-						ssc_tile_hei_buf = -1;
-						cursor_y += thei + MsgStrings[msgstr].vspace;
-						if(bottom_margin_clip()) break;
-						cursor_x=msg_margins[left];
-					}
-					
-					sfx(MsgStrings[msgstr].sfx);
-					
-					char buf[2] = {0};
-					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
-					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-					
-					cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
-					cursor_x += MsgStrings[msgstr].hspace;
-				}
-				
-				msgpos++;
-			}
-			if(do_run_menu)
-			{
-				if(runMenuCursor())
-				{
-					do_run_menu = false;
-				}
-				else break;
-			}
-			if(doing_name_insert)
-			{
-				if(*nameptr)
-				{
-					if(bottom_margin_clip())
-						break;
-					
-					char s3[9] = {0};
-					
-					if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
-					{
-						strcpy(s3, nameptr);
-					}
-					else
-					{
-						s3[0] = *nameptr;
-						s3[1] = 0;
-					}
-					
-					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-					
-					if(cursor_x+tlength > (msg_w-msg_margins[right])
-					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-							? true : strcmp(s3," ")!=0))
-					{
-						ssc_tile_hei = ssc_tile_hei_buf;
-						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-						ssc_tile_hei_buf = -1;
-						cursor_y += thei + MsgStrings[msgstr].vspace;
-						if(bottom_margin_clip()) break;
-						cursor_x=msg_margins[left];
-					}
-					
-					sfx(MsgStrings[msgstr].sfx);
-					
-					char buf[2] = {0};
-					sprintf(buf,"%c",*nameptr);
-					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-					
-					cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
-					cursor_x += MsgStrings[msgstr].hspace;
-					++nameptr;
-					continue; //don't advance the msgptr, as the next char in it was not processed!
-				}
-				else doing_name_insert = false;
-			}
-			++msgptr;
-			if(do_end_str)
-				goto strendcheck;
-			if(wait_advance)
-				return;
-			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
-			{
-				if(MsgStrings[msgstr].nextstring)
-				{
-					if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-					{
-						msgstr=MsgStrings[msgstr].nextstring;
-						msgpos=msgptr=0;
-						msgfont=setmsgfont();
-					}
-				}
-			}
-		}
-		
-		if (!do_run_menu)
-		{
-			msgclk = 72;
-			msgpos = 10000;
-		}
-	}
-	else
-	{
-breakout:
-		word tempspeed = msgspeed;
-		if (do_run_menu)
-			tempspeed = 0;
-		if(((msgclk++)%(tempspeed+1)<tempspeed)&&((!cAbtn())||(!get_qr(qr_ALLOWFASTMSG))))
-			return;
-	}
-	
-	// Start writing the string
-	if(msgptr == 0)
-	{
-		while(MsgStrings[msgstr].s[msgptr]==' ')
-		{
-			tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
-			
-			if(cursor_x+tlength > (msg_w-msg_margins[right])
-			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-					? 1 : strcmp(s3," ")!=0))
-			{
-				ssc_tile_hei = ssc_tile_hei_buf;
-				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-				ssc_tile_hei_buf = -1;
-				cursor_y += thei + MsgStrings[msgstr].vspace;
-				if(bottom_margin_clip()) break;
-				cursor_x=msg_margins[left];
-			}
-			
-			cursor_x+=tlength;
-			++msgptr;
-			++msgpos;
-			
-			// The "Continue From Previous" feature
-			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
-			{
-				if(MsgStrings[msgstr].nextstring)
-				{
-					if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-					{
-						msgstr=MsgStrings[msgstr].nextstring;
-						msgpos=msgptr=0;
-						msgfont=setmsgfont();
-					}
-				}
-			}
-		}
-	}
-	
-reparsesinglechar:
-	// Continue printing the string!
-	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && !bottom_margin_clip())
-	{
-		if(!do_run_menu && !doing_name_insert && !parsemsgcode())
-		{
-			wrapmsgstr(s3);
-			
-			tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-			
-			if(cursor_x+tlength > (msg_w-msg_margins[right])
-			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-					? true : strcmp(s3," ")!=0))
-			{
-				ssc_tile_hei = ssc_tile_hei_buf;
-				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-				ssc_tile_hei_buf = -1;
-				cursor_y += thei + MsgStrings[msgstr].vspace;
-				if(bottom_margin_clip()) goto strendcheck;
-				cursor_x=msg_margins[left];
-				//if(space) s3[0]=0;
-			}
-			
-			sfx(MsgStrings[msgstr].sfx);
-			
-			char buf[2] = {0};
-			sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
-			
-			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-			
-			cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
-			cursor_x += MsgStrings[msgstr].hspace;
-			msgpos++;
-		}
-		if(do_end_str)
-			goto strendcheck;
-		if(wait_advance)
-		{
-			++msgptr;
-			return;
-		}
-		else if(do_run_menu)
-		{
-			if(runMenuCursor())
-			{
-				do_run_menu = false;
-				++msgptr;
-				goto reparsesinglechar;
-			}
-		}
-		else if(doing_name_insert && *nameptr)
-		{
-			char s3[9] = {0};
-			
-			if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
-			{
-				strcpy(s3, nameptr);
+				msg_it->set_buffer("");
+				// Advance the iterator to run many commands in one frame.
+				if (!one_frame_command_delay)
+					msg_it->next();
 			}
 			else
 			{
-				s3[0] = *nameptr;
-				s3[1] = 0;
+				msg_it->set_buffer(text);
+				msg_it->next();
+				if (one_frame_command_delay)
+					msg_it->post_segment_delay = 1;
 			}
-			
-			tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-			
-			if(cursor_x+tlength > (msg_w-msg_margins[right])
-			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-					? true : strcmp(s3," ")!=0))
-			{
-				ssc_tile_hei = ssc_tile_hei_buf;
-				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-				ssc_tile_hei_buf = -1;
-				cursor_y += thei + MsgStrings[msgstr].vspace;
-				if(bottom_margin_clip()) goto strendcheck;
-				cursor_x=msg_margins[left];
-			}
-			
-			sfx(MsgStrings[msgstr].sfx);
-			
-			char buf[2] = {0};
-			sprintf(buf,"%c",*nameptr);
-			
-			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-			
-			cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
-			cursor_x += MsgStrings[msgstr].hspace;
-			++nameptr;
 		}
-		else
+
+		if (msg_it->state == MsgStr::iterator::CHARACTER)
 		{
-			doing_name_insert = false;
-			msgptr++;
-			
-			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
-			{
-				if(MsgStrings[msgstr].nextstring)
-				{
-					if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-					{
-						msgstr=MsgStrings[msgstr].nextstring;
-						msgpos=msgptr=0;
-						msgfont=setmsgfont();
-					}
-				}
-			}
-			
-			if(MsgStrings[msgstr].s.size() > unsigned(msgptr+1)
-				&& (MsgStrings[msgstr].s[msgptr]==' ')
-				&& (MsgStrings[msgstr].s[msgptr+1]==' '))
-			{
-				while(MsgStrings[msgstr].s[msgptr]==' ')
-				{
-					msgspace = true;
-					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
-					
-					if(cursor_x+tlength > (msg_w-msg_margins[right])
-					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-							? true : strcmp(s3," ")!=0))
-					{
-						ssc_tile_hei = ssc_tile_hei_buf;
-						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-						ssc_tile_hei_buf = -1;
-						cursor_y += thei + MsgStrings[msgstr].vspace;
-						if(bottom_margin_clip()) break;
-						cursor_x=msg_margins[left];
-					}
-					
-					cursor_x+=tlength;
-					++msgpos;
-					++msgptr;
-					
-					if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
-					{
-						if(MsgStrings[msgstr].nextstring)
-						{
-							if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-							{
-								msgstr=MsgStrings[msgstr].nextstring;
-								msgpos=msgptr=0;
-								msgfont=setmsgfont();
-							}
-						}
-					}
-				}
-			}
+			if (!putmsgchar(play_sfx)) return msg_tick_break;
 		}
 	}
-strendcheck:
+
+	bool wait_advance_check_early = !burst_mode;
+
+	if (wait_advance_check_early)
+	{
+		if (do_end_str)
+		{
+			msg_tick_end();
+			return msg_tick_exit;
+		}
+
+		if (wait_advance)
+		{
+			msg_it->next();
+			return msg_tick_exit;
+		}
+	}
+
+	if (do_run_menu)
+	{
+		if (runMenuCursor())
+		{
+			do_run_menu = false;
+			if (!burst_mode)
+			{
+				msg_it->next();
+				return msg_tick(play_sfx, burst_mode);
+			}
+		}
+		else return msg_tick_break;
+	}
+
+	msg_it->next();
+
+	if (!wait_advance_check_early)
+	{
+		if (do_end_str)
+		{
+			msg_tick_end();
+			return msg_tick_exit;
+		}
+
+		if (wait_advance)
+			return msg_tick_exit;
+	}
+
+	if (msg_it->done() && MsgStrings[msgstr].nextstring)
+	{
+		if (MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
+			setmsg(MsgStrings[msgstr].nextstring);
+	}
+
+	return msg_tick_continue;
+}
+
+static void msg_tick_end(bool disappear)
+{
+	if (disappear)
+		goto disappear;
+
 	// Done printing the string
-	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip() || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
+	if (do_end_str || !do_run_menu && (msg_it->done() || bottom_margin_clip()) && !linkedmsgclk)
 	{
 		if(!do_end_str)
-			while(parsemsgcode()); // Finish remaining control codes
+		{
+			while (msg_it->state == MsgStr::iterator::COMMAND)
+			{
+				parsemsgcode2(msg_it->command);
+				msg_it->next();
+			}
+		}
 			
 		// Go to next string, or make it disappear by going to string 0.
 		if(MsgStrings[msgstr].nextstring!=0 || get_qr(qr_MSGDISAPPEAR) || enqueued_str)
@@ -21017,6 +20689,155 @@ disappear:
 			}
 		}
 	}
+}
+
+static void msg_consume_spaces()
+{
+	while (msg_it->character == " ")
+	{
+		if (!putmsgchar(false)) break;
+
+		// Advance the iterator.
+		msg_it->next();
+
+		// The "Continue From Previous" feature
+		if (msg_it->state == MsgStr::iterator::DONE)
+		{
+			if(MsgStrings[msgstr].nextstring)
+			{
+				if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
+				{
+					setmsg(MsgStrings[msgstr].nextstring);
+				}
+			}
+		}
+	}
+}
+
+void putmsg()
+{
+	if(!msgorig) msgorig=msgstr;
+	
+	if(wait_advance && linkedmsgclk < 1)
+		linkedmsgclk = 1;
+	if(linkedmsgclk>0)
+	{
+		if(linkedmsgclk==1)
+		{
+			if(do_end_str||cAbtn()||cBbtn())
+			{
+				do_end_str = false;
+				linkedmsgclk = 0;
+				if(wait_advance)
+				{
+					wait_advance = false;
+				}
+				else
+				{
+					if (!msgscr) msgscr = hero_scr;
+					msgstr=MsgStrings[msgstr].nextstring;
+					ssc_tile_hei_buf = -1;
+					if(!msgstr && enqueued_str)
+					{
+						msgstr = enqueued_str;
+						enqueued_str = 0;
+					}
+					if(!msgstr)
+					{
+						msgfont=get_zc_font(font_zfont);
+						
+						if(msgscr->room!=rGRUMBLE)
+							blockpath=false;
+							
+						dismissmsg();
+						msg_tick_end(true);
+						return;
+					}
+					
+					donewmsg(msgscr, msgstr);
+					putprices(false);
+				}
+			}
+		}
+		else
+		{
+			--linkedmsgclk;
+		}
+	}
+	if(wait_advance) return; //Waiting for buttonpress
+	
+	if(!do_run_menu && (!msgstr || msg_it->done() || bottom_margin_clip()))
+	{
+		if(!msgstr)
+			msgorig=0;
+
+		msg_active = false;
+		msg_it.reset();
+		return;
+	}
+	
+	msg_onscreen = true; // Now the message is onscreen (see donewmsg()).
+
+	if (msg_it->state == MsgStr::iterator::NOT_STARTED)
+	{
+		msg_it->next();
+		msg_consume_spaces();
+	}
+
+	// If the player is holding down the B button, or if msgspeed is 0, process as many characters
+	// as possible. This skips the character-by-character animation that usually renders a string
+	// slowly over many frames.
+	if ((cBbtn() && get_qr(qr_ALLOWMSGBYPASS)) || msgspeed == 0)
+	{
+		while (!msg_it->done())
+		{
+			if (msgspeed && !(cBbtn() && get_qr(qr_ALLOWMSGBYPASS)))
+				goto breakout; // break out if message speed was changed to non-zero
+
+			auto tick = msg_tick(msg_it->character != " ", true);
+			if (tick == msg_tick_break)
+				break;
+			if (tick == msg_tick_exit)
+				return;
+		}
+
+		if (!do_run_menu)
+		{
+			msgclk = 72;
+		}
+	}
+	else
+	{
+breakout:
+		word tempspeed = msgspeed;
+		if (do_run_menu)
+			tempspeed = 0;
+		if(((msgclk++)%(tempspeed+1)<tempspeed)&&((!cAbtn())||(!get_qr(qr_ALLOWFASTMSG))))
+			return;
+	}
+
+	// Process the next msg tick.
+	// This will either print a single character, or process a single string command (with one
+	// exception).
+	if (!msg_it->done() && !bottom_margin_clip())
+	{
+		// This may run an additional tick in the case of a string menu finishing: the first
+		// tick wraps up the menu, and then a second tick processes the next character or command.
+		auto tick = msg_tick(true, false);
+		if (tick == msg_tick_break)
+		{
+			msg_tick_end();
+			return;
+		}
+		if (tick == msg_tick_exit)
+			return;
+
+		// If the next two characters are spaces, consume all upcoming spaces now.
+		if (!msg_it->done() && msg_it->peek(0) == " " && msg_it->peek(1) == " ")
+			msg_consume_spaces();
+	}
+
+	msg_tick_end();
 }
 
 int32_t message_more_y()

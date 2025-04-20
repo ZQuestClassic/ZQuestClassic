@@ -317,7 +317,6 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			)
 		)
 	);
-	bool hasParams = is_msgc(curscc) && msg_code_operands(curscc) > 0;
 	cur_args = args[curscc];
 	switch(curscc)
 	{

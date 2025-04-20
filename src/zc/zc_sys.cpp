@@ -3724,7 +3724,7 @@ void updatescr(bool allowwavy)
 	if(Playing && !Paused)
 		++light_wave_clk;
 	
-	if(Playing && msgpos && !screenscrolling)
+	if(Playing && msg_active && !screenscrolling)
 	{
 		if(!(msg_bg_display_buf->clip))
 			blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,176);

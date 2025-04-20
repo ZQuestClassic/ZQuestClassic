@@ -6963,11 +6963,12 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 		for(size_t q = 0; q < msg_count; ++q)
 		{
 			MsgStr& str = MsgStrings[q];
+			std::string text = str.serialize();
 			bool fulltile = str.stringflags & STRINGFLAG_FULLTILE;
 			movelist->add_tile(&str.tile, fulltile ? (str.w/16_zf).getCeil() : 2,
-				fulltile ? (str.h/16_zf).getCeil() : 2, fmt::format("{} (BG): '{}'", q, util::snip(str.s,100)));
+				fulltile ? (str.h/16_zf).getCeil() : 2, fmt::format("{} (BG): '{}'", q, util::snip(text,100)));
 			movelist->add_tile(&str.portrait_tile, str.portrait_tw, str.portrait_th,
-				fmt::format("{} (Port.): '{}'", q, util::snip(str.s,100)));
+				fmt::format("{} (Port.): '{}'", q, util::snip(text,100)));
 		}
 		if(!every_proc && !movelist->check_prot())
 			return false;

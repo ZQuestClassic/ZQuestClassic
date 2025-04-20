@@ -641,6 +641,13 @@ def prompt_to_create_compare_report():
             tag = args.baseline_version
             print(f'using baseline version: {tag}\n')
         else:
+            # Get latest tags.
+            subprocess.run(
+                ['git', 'fetch', 'upstream'],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
             most_recent_nightly = get_recent_release_tag(
                 ['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*']
             )

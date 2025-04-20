@@ -262,8 +262,6 @@ char       palnames[MAXLEVELS][PALNAMESIZE];
 bool ewind_restart=false;
 
 word     msgclk = 0, msgstr = 0, enqueued_str = 0,
-         msgpos = 0,	// screen position of the next character.
-         msgptr = 0,	// position within the string of the next character.
          msgcolour = 0,	// colour to use for the displayed text.
          msgspeed = 0,	// delay between each character (5 = default).
          msg_w = 0,
@@ -274,6 +272,7 @@ word     msgclk = 0, msgstr = 0, enqueued_str = 0,
          msg_xpos=0,
          msg_ypos=0,
          msgorig=0;
+std::optional<MsgStr::iterator> msg_it;
 mapscr* msgscr;
 int16_t msg_margins[4] = {0};
 byte msgstr_layer = 6;
@@ -749,6 +748,13 @@ FONT *setmsgfont()
 	return get_zc_font(MsgStrings[msgstr].font);
 }
 
+void setmsg(int str)
+{
+	msgstr = str;
+	msg_it = MsgStrings[msgstr].create_iterator();
+	msgfont = setmsgfont();
+}
+
 void msg_bg(MsgStr const& msg)
 {
 	if(msg.tile == 0) return;
@@ -833,10 +839,9 @@ void donewmsg(mapscr* scr, int32_t str)
     linkedmsgclk=0;
     msg_active = true;
     // Don't set msg_onscreen - not onscreen just yet
-    msgstr = str;
+	setmsg(str);
 	msgscr = scr;
     msgorig = msgstr;
-    msgfont = setmsgfont();
     msgcolour=QMisc.colors.msgtext;
     msgspeed=zinit.msg_speed;
 	msgstr_layer=MsgStrings[msgstr].drawlayer;
@@ -857,7 +862,7 @@ void donewmsg(mapscr* scr, int32_t str)
     clear_bitmap(msg_menu_bmp_buf);
     clear_bitmap(msg_bg_bmp_buf);
     clear_bitmap(msg_portrait_bmp_buf);
-    msgclk=msgpos=msgptr=0;
+    msgclk=0;
     msgspace=true;
     msg_w=MsgStrings[msgstr].w;
     msg_h=MsgStrings[msgstr].h;
@@ -887,7 +892,8 @@ void donewmsg(mapscr* scr, int32_t str)
 void dismissmsg()
 {
     linkedmsgclk=0;
-    msgstr = msgclk=msgpos=msgptr=0;
+    msgstr = msgclk=0;
+    msg_it.reset();
     cursor_x=0;
     cursor_y=0;
 	prt_tile=0;

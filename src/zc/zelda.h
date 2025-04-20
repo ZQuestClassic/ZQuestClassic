@@ -1,8 +1,10 @@
 #ifndef ZELDA_H_
 #define ZELDA_H_
 
+#include <optional>
 #include <vector>
 #include <map>
+#include "base/msgstr.h"
 #include "base/zdefs.h"
 #include "base/initdata.h"
 #include "base/zc_array.h"
@@ -265,7 +267,7 @@ extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of bla
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
 */
 extern bool ewind_restart;
-extern word     msgclk, msgstr, enqueued_str, msgpos, msgptr, msg_count, msgcolour, msgspeed,msg_w,
+extern word     msgclk, msgstr, enqueued_str, msg_count, msgcolour, msgspeed,msg_w,
        msg_h,
        msg_count,
        msgorig,
@@ -273,6 +275,7 @@ extern word     msgclk, msgstr, enqueued_str, msgpos, msgptr, msg_count, msgcolo
        msg_ypos,
        cursor_x,
        cursor_y;
+extern std::optional<MsgStr::iterator> msg_it;
 extern mapscr* msgscr;
 extern int16_t msg_margins[4];
 extern int32_t prt_tile;

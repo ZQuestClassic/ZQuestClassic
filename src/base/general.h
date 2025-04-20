@@ -4,6 +4,13 @@
 #include "base/ints.h"
 #include "base/zfix.h"
 
+#include <string>
+#include <utility>
+#include <vector>
+
+template <typename T>
+using value_and_warnings = std::pair<T, std::vector<std::string>>;
+
 int32_t get_bit(byte const* bitstr,int32_t bit);
 void set_bit(byte *bitstr,int32_t bit,bool val);
 bool toggle_bit(byte *bitstr,int32_t bit);

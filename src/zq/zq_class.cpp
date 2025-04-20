@@ -10466,10 +10466,9 @@ int32_t writestrings_text(PACKFILE *f)
             {
                 return qe_invalid;
             }
-            
-            encode_msg_str(str);
-            
-            if(!pfwrite(&msgbuf,(int32_t)strlen(msgbuf),f))
+
+			std::string text = MsgStrings[str].serialize();
+            if (!pfwrite(text.c_str(), text.size(), f))
             {
                 return qe_invalid;
             }
@@ -10483,12 +10482,8 @@ int32_t writestrings_tsv(PACKFILE *f)
 {
 	std::stringstream ss;
 
-	int32_t str;
 	std::vector<std::pair<std::string, std::function<std::string(const MsgStr&)>>> fields = {
-		{ "message", [&](auto& msg){
-			encode_msg_str(str);
-			return msgbuf;
-		}},
+		{ "message", [&](auto& msg){ return msg.serialize(); }},
 		{ "next", [](auto& msg){ return std::to_string(msg.nextstring); } },
 		{ "tile", [](auto& msg){ return std::to_string(msg.tile); } },
 		{ "cset", [](auto& msg){ return std::to_string(msg.cset); } },
@@ -10529,8 +10524,7 @@ int32_t writestrings_tsv(PACKFILE *f)
 
 	for(int32_t i=1; i<msg_count; i++)
 	{
-		str = i;
-		auto& msg = MsgStrings[str];
+		auto& msg = MsgStrings[i];
 		for (auto& [name, fn] : fields)
 		{
 			std::string text = fn(msg);
@@ -10551,12 +10545,12 @@ int32_t writestrings_tsv(PACKFILE *f)
     new_return(0);
 }
 
-std::string parse_msg_str(std::string const& s);
+std::string parse_to_legacy_msg_str_encoding(std::string const& s);
 
 void parse_strings_tsv(std::string tsv)
 {
 	std::map<std::string, std::function<void(MsgStr&, const std::string&)>> fields = {
-		{ "message", [](auto& msg, auto& text){ msg.s = parse_msg_str(text); } },
+		{ "message", [](auto& msg, auto& text){ msg.setFromLegacyEncoding(parse_to_legacy_msg_str_encoding(text)); } },
 		{ "next", [](auto& msg, auto& text){ msg.nextstring = std::stoi(text); } },
 		{ "tile", [](auto& msg, auto& text){ msg.tile = std::stoi(text); } },
 		{ "cset", [](auto& msg, auto& text){ msg.cset = std::stoi(text); } },

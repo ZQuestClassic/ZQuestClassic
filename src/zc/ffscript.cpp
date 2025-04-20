@@ -27556,7 +27556,9 @@ void FFScript::do_messagedata_setstring(const bool v)
 	if(BC::checkMessage(ID, "messagesata->Set()") != SH::_NoError)
 		return;
 	
-	ArrayH::getString(arrayptr, MsgStrings[ID].s, MSG_NEW_SIZE);
+	std::string s;
+	ArrayH::getString(arrayptr, s, MSG_NEW_SIZE);
+	MsgStrings[ID].setFromLegacyEncoding(s);
 }
 void FFScript::do_messagedata_getstring(const bool v)
 {

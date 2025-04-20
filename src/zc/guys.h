@@ -3,6 +3,7 @@
 
 #include <list>
 #include <optional>
+#include "base/scc.h"
 #include "sprite.h"
 #include "zc/weapons.h"
 #include "base/zfix.h"
@@ -886,7 +887,7 @@ void moneysign();
 void putprices(bool sign);
 void setupscreen();
 FONT *setmsgfont();
-bool parsemsgcode();
+void setmsg(int str);
 void putmsg();
 int32_t message_more_y();
 

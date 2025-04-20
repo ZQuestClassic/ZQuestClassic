@@ -594,6 +594,7 @@ set(zcbase_sources
 	src/base/qst.cpp
 	src/base/random.cpp
 	src/base/render.cpp
+	src/base/scc.cpp
 	src/base/sin1.cpp
 	src/base/util.cpp
 	src/base/version.cpp
