@@ -3507,7 +3507,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_INVERTED_DARK_COMBO_TRIGGERS, 1);
 	if (compatrule_version < 77 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
 		set_qr(qr_BROKEN_ICY_FLOOR_SIDEVIEW, 1);
-	
+	if (compatrule_version < 78 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
+		set_qr(qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET, 1);
+
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);

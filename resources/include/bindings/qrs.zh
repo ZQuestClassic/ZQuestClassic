@@ -401,6 +401,7 @@ enum QR
 	qr_HIDE_BOTTOM_8_PIXELS, // Hide Bottom 8 Pixels
 	qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN, // Broken Script Drawing Bitmap Draw Origin
 	qr_INVERTED_DARK_COMBO_TRIGGERS, // Inverted Dark Combo Triggers
+	qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET, // Scripts Screen->DrawLight Functions Have No Offset
 
 	qr_OLD_SCRIPT_VOLUME = 70 * 8,	// Compatibility (>>>) Old (Buggy) ZScript Volume Access
 	qr_OLD_DMAP_INTRO_STRINGS,	// Compatibility (>>>) Old DMap Titles and Intros

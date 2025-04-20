@@ -983,6 +983,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Script Drawing Bitmap Draw Origin", qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN,
 		"If enabled, bitmap draw commands incorrectly use Screen->DrawOrigin, resulting in unexpected offsets for bitmap drawing."
 		" This only affects quests made in 2.55.9 or later."},
+	{ "Scripts Screen->DrawLight Functions Have No Offset", qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET,
+		"If enabled, the Screen->DrawLight functions never add the playing field offset, and the draw command is done instantly."
+		" When disabled, those functions respect Screen->DrawOrigin, and use the SPLAYER_DARKROOM_UNDER draw timing."},
 	{ "Inverted Dark Combo Triggers", qr_INVERTED_DARK_COMBO_TRIGGERS,
 		"If enabled, the combo trigger conditions for darkness / no darkness are inverted."},
 	{ "Broken Sideview Icy Floor", qr_BROKEN_ICY_FLOOR_SIDEVIEW,

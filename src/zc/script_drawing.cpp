@@ -12160,6 +12160,67 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 			case BMPSHIFTCOLOR: do_bmpshiftcol(bmp, sdci, xoffset, yoffset); break;
 			case BMPMASKDRAW: do_bmpmaskdraw(bmp, sdci, xoffset, yoffset); break;
 			case BMPMASKBLIT: do_bmpmaskblit(bmp, sdci, xoffset, yoffset); break;
+
+			// The following are special cases, in that the target bitmap is fixed (darkscr_bmp).
+
+			case DRAWLIGHT_CONE:
+			{
+				int32_t cx = sdci[2]/10000 + xoffset;
+				int32_t cy = sdci[3]/10000 + yoffset;
+				int32_t dir = sdci[4]/10000;
+				int32_t length = sdci[5];
+				int32_t transp_rad = sdci[6];
+				int32_t dith_rad = sdci[7];
+				int32_t dith_type = sdci[8];
+				int32_t dith_arg = sdci[9];
+
+				if(length >= 0) length /= 10000;
+				else length = game->get_light_rad()*2;
+				if(!length) break;
+				if(dir < 0) break;
+				else dir = NORMAL_DIR(dir);
+				if(transp_rad >= 0) transp_rad /= 10000;
+				if(dith_rad >= 0) dith_rad /= 10000;
+				if(dith_type >= 0) dith_type /= 10000;
+				if(dith_arg >= 0) dith_arg /= 10000;
+
+				// Undo the inherit offset applied within the function. xoffset/yoffset handles for us here.
+				cx += viewport.x;
+				cy += viewport.y;
+
+				doDarkroomCone(cx,cy,length,dir,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+			}
+			break;
+
+			case DRAWLIGHT_CIRCLE:
+			case DRAWLIGHT_SQUARE:
+			{
+				int32_t cx = sdci[2]/10000 + xoffset;
+				int32_t cy = sdci[3]/10000 + yoffset;
+				int32_t radius = sdci[4];
+				int32_t transp_rad = sdci[5];
+				int32_t dith_rad = sdci[6];
+				int32_t dith_type = sdci[7];
+				int32_t dith_arg = sdci[8];
+
+				if(radius >= 0) radius /= 10000;
+				else radius = game->get_light_rad();
+				if(!radius) break;
+				if(transp_rad >= 0) transp_rad /= 10000;
+				if(dith_rad >= 0) dith_rad /= 10000;
+				if(dith_type >= 0) dith_type /= 10000;
+				if(dith_arg >= 0) dith_arg /= 10000;
+
+				// Undo the inherit offset applied within the function. xoffset/yoffset handles for us here.
+				cx += viewport.x;
+				cy += viewport.y;
+
+				if (sdci[0] == DRAWLIGHT_CIRCLE)
+					doDarkroomCircle(cx,cy,radius,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				else
+					doDarkroomSquare(cx,cy,radius,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+			}
+			break;
 		}
 	}
 	

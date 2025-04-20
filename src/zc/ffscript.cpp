@@ -28625,6 +28625,20 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+4);
 			break;			
 		}
+
+		case DRAWLIGHT_CONE:
+		case DRAWLIGHT_CIRCLE:
+		case DRAWLIGHT_SQUARE:
+		{
+			// These draw commands implicitly draw at the SPLAYER_DARKROOM_UNDER timing.
+			// Shift the given args up by one.
+			int num_args = script_command == DRAWLIGHT_CONE ? 8 : 7;
+			set_drawing_command_args(j, num_args);
+			for (int i = num_args; i >= 1; i--)
+				script_drawing_commands[j][i + 1] = script_drawing_commands[j][i];
+			script_drawing_commands[j][1] = SPLAYER_DARKROOM_UNDER * 10000;
+			break;
+		}
 	}
 
 	int bmp_target;
@@ -32147,68 +32161,83 @@ int32_t run_script_int(bool is_jitted)
 			
 			case DRAWLIGHT_CIRCLE:
 			{
-				static const int ARGS = 7;
-				zfix cx = zslongToFix(SH::read_stack(ri->sp + (ARGS-1)));
-				zfix cy = zslongToFix(SH::read_stack(ri->sp + (ARGS-2)));
-				int radius = SH::read_stack(ri->sp + (ARGS-3));
-				int transp_rad = SH::read_stack(ri->sp + (ARGS-4));
-				int dith_rad = SH::read_stack(ri->sp + (ARGS-5));
-				int dith_type = SH::read_stack(ri->sp + (ARGS-6));
-				int dith_arg = SH::read_stack(ri->sp + (ARGS-7));
-				if(radius >= 0) radius /= 10000;
-				else radius = game->get_light_rad();
-				if(!radius) break;
-				if(transp_rad >= 0) transp_rad /= 10000;
-				if(dith_rad >= 0) dith_rad /= 10000;
-				if(dith_type >= 0) dith_type /= 10000;
-				if(dith_arg >= 0) dith_arg /= 10000;
-				
-				doDarkroomCircle(cx,cy,radius,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				if (get_qr(qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET))
+				{
+					static const int ARGS = 7;
+					zfix cx = zslongToFix(SH::read_stack(ri->sp + (ARGS-1)));
+					zfix cy = zslongToFix(SH::read_stack(ri->sp + (ARGS-2)));
+					int radius = SH::read_stack(ri->sp + (ARGS-3));
+					int transp_rad = SH::read_stack(ri->sp + (ARGS-4));
+					int dith_rad = SH::read_stack(ri->sp + (ARGS-5));
+					int dith_type = SH::read_stack(ri->sp + (ARGS-6));
+					int dith_arg = SH::read_stack(ri->sp + (ARGS-7));
+					if(radius >= 0) radius /= 10000;
+					else radius = game->get_light_rad();
+					if(!radius) break;
+					if(transp_rad >= 0) transp_rad /= 10000;
+					if(dith_rad >= 0) dith_rad /= 10000;
+					if(dith_type >= 0) dith_type /= 10000;
+					if(dith_arg >= 0) dith_arg /= 10000;
+					
+					doDarkroomCircle(cx,cy,radius,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				}
+				else do_drawing_command(scommand, true);
+
 				break;
 			}
 			case DRAWLIGHT_SQUARE:
 			{
-				static const int ARGS = 7;
-				zfix cx = zslongToFix(SH::read_stack(ri->sp + (ARGS-1)));
-				zfix cy = zslongToFix(SH::read_stack(ri->sp + (ARGS-2)));
-				int radius = SH::read_stack(ri->sp + (ARGS-3));
-				int transp_rad = SH::read_stack(ri->sp + (ARGS-4));
-				int dith_rad = SH::read_stack(ri->sp + (ARGS-5));
-				int dith_type = SH::read_stack(ri->sp + (ARGS-6));
-				int dith_arg = SH::read_stack(ri->sp + (ARGS-7));
-				if(radius >= 0) radius /= 10000;
-				else radius = game->get_light_rad();
-				if(!radius) break;
-				if(transp_rad >= 0) transp_rad /= 10000;
-				if(dith_rad >= 0) dith_rad /= 10000;
-				if(dith_type >= 0) dith_type /= 10000;
-				if(dith_arg >= 0) dith_arg /= 10000;
-				
-				doDarkroomSquare(cx,cy,radius,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				if (get_qr(qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET))
+				{
+					static const int ARGS = 7;
+					zfix cx = zslongToFix(SH::read_stack(ri->sp + (ARGS-1)));
+					zfix cy = zslongToFix(SH::read_stack(ri->sp + (ARGS-2)));
+					int radius = SH::read_stack(ri->sp + (ARGS-3));
+					int transp_rad = SH::read_stack(ri->sp + (ARGS-4));
+					int dith_rad = SH::read_stack(ri->sp + (ARGS-5));
+					int dith_type = SH::read_stack(ri->sp + (ARGS-6));
+					int dith_arg = SH::read_stack(ri->sp + (ARGS-7));
+					if(radius >= 0) radius /= 10000;
+					else radius = game->get_light_rad();
+					if(!radius) break;
+					if(transp_rad >= 0) transp_rad /= 10000;
+					if(dith_rad >= 0) dith_rad /= 10000;
+					if(dith_type >= 0) dith_type /= 10000;
+					if(dith_arg >= 0) dith_arg /= 10000;
+
+					doDarkroomSquare(cx,cy,radius,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				}
+				else do_drawing_command(scommand, true);
+
 				break;
 			}
 			case DRAWLIGHT_CONE:
 			{
-				static const int ARGS = 8;
-				zfix cx = zslongToFix(SH::read_stack(ri->sp + (ARGS-1)));
-				zfix cy = zslongToFix(SH::read_stack(ri->sp + (ARGS-2)));
-				int dir = SH::read_stack(ri->sp + (ARGS-3)) / 10000;
-				int radius = SH::read_stack(ri->sp + (ARGS-4));
-				int transp_rad = SH::read_stack(ri->sp + (ARGS-5));
-				int dith_rad = SH::read_stack(ri->sp + (ARGS-6));
-				int dith_type = SH::read_stack(ri->sp + (ARGS-7));
-				int dith_arg = SH::read_stack(ri->sp + (ARGS-8));
-				if(radius >= 0) radius /= 10000;
-				else radius = game->get_light_rad()*2;
-				if(!radius) break;
-				if(dir < 0) break;
-				else dir = NORMAL_DIR(dir);
-				if(transp_rad >= 0) transp_rad /= 10000;
-				if(dith_rad >= 0) dith_rad /= 10000;
-				if(dith_type >= 0) dith_type /= 10000;
-				if(dith_arg >= 0) dith_arg /= 10000;
+				if (get_qr(qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET))
+				{
+					static const int ARGS = 8;
+					zfix cx = zslongToFix(SH::read_stack(ri->sp + (ARGS-1)));
+					zfix cy = zslongToFix(SH::read_stack(ri->sp + (ARGS-2)));
+					int dir = SH::read_stack(ri->sp + (ARGS-3)) / 10000;
+					int length = SH::read_stack(ri->sp + (ARGS-4));
+					int transp_rad = SH::read_stack(ri->sp + (ARGS-5));
+					int dith_rad = SH::read_stack(ri->sp + (ARGS-6));
+					int dith_type = SH::read_stack(ri->sp + (ARGS-7));
+					int dith_arg = SH::read_stack(ri->sp + (ARGS-8));
+					if(length >= 0) length /= 10000;
+					else length = game->get_light_rad()*2;
+					if(!length) break;
+					if(dir < 0) break;
+					else dir = NORMAL_DIR(dir);
+					if(transp_rad >= 0) transp_rad /= 10000;
+					if(dith_rad >= 0) dith_rad /= 10000;
+					if(dith_type >= 0) dith_type /= 10000;
+					if(dith_arg >= 0) dith_arg /= 10000;
+	
+					doDarkroomCone(cx,cy,length,dir,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				}
+				else do_drawing_command(scommand, true);
 
-				doDarkroomCone(cx,cy,radius,dir,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}
 			
