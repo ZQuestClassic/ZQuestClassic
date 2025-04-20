@@ -82,7 +82,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: mymindstorm/setup-emsdk@v12
+      - uses: mymindstorm/setup-emsdk@v14
         with:
           version: "3.1.64"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
