@@ -10,6 +10,7 @@
 #include <vector>
 #include <sstream>
 
+#include "allegro/file.h"
 #include "subscr.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
@@ -1557,7 +1558,8 @@ std::string create_replay_path_for_save(const gamedata_header& header)
 {
 	fs::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
 	fs::create_directory(replay_file_dir);
-	std::string filename_prefix = fmt::format("{}-{}", header.title, header.name);
+	std::string qst_name = !header.title.empty() ? header.title : get_filename(qstpath);
+	std::string filename_prefix = fmt::format("{}-{}", qst_name, header.name);
 	sanitize(filename_prefix);
 	return create_new_file_path(replay_file_dir, filename_prefix, REPLAY_EXTENSION).string();
 }
