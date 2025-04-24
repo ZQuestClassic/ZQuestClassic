@@ -200,7 +200,9 @@ exclgroup.add_argument(
     help='Play back the replay, without updating or asserting.',
 )
 exclgroup.add_argument(
-    '--update', action='store_true', help='Update the replays, accepting any graphical changes (unless --frame is also set, see comment at top of run_replay_tests.py).'
+    '--update',
+    action='store_true',
+    help='Update the replays, accepting any graphical changes (unless --frame is also set, see comment at top of run_replay_tests.py).',
 )
 exclgroup.add_argument(
     '--assert',
@@ -612,18 +614,23 @@ def prompt_to_create_compare_report():
         most_recent_nightly = get_recent_release_tag(
             ['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*']
         )
-        most_recent_stable = get_recent_release_tag(
-            [
-                '--match',
-                '*.*.*',
-                '--match',
-                '2.55-alpha-*',
-                '--exclude',
-                '*.*.*-nightly*',
-                '--exclude',
-                '*.*.*-prerelease*',
-            ]
-        )
+        try:
+            archives_255_output = subprocess.check_output(
+                [
+                    'python',
+                    script_dir / '../scripts/archives.py',
+                    'list',
+                    '--channel',
+                    '2.55',
+                ],
+                encoding='utf-8',
+            ).strip()
+            most_recent_stable = archives_255_output.splitlines()[-1].split(' ')[1]
+        except e as Exception:
+            print('error finding latest stable version, using 2.55.9 instead')
+            print(e)
+            most_recent_stable = '2.55.9'
+
         print('Select a release build to use: ')
         selected_index = cutie.select(
             [
