@@ -960,6 +960,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[0], "Can't catch fairies", "If checked, no longer catches fairies"
 				" it collides with");
 			_SET(flag[1], "Right-handed", "Swaps swing direction of the weapon");
+			_SET(actionsnd[0], "Swing Sound", "Sound played when swinging the net");
 			break;
 		}
 		case itype_mirror:
