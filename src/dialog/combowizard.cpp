@@ -2263,10 +2263,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[0] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							low = 1, high = 214748, val = damage,
+							low = 1, high = 214748, val = damage / 10000,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								damage = val;
+								damage = val * 10000;
 							}),
 						INFOBTN("The damage of the spawned weapon.")
 					),
