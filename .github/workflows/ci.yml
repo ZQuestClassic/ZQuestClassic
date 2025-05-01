@@ -93,7 +93,7 @@ jobs:
           node-version: 20.x
       # puppeteer caches Chrome in ~/.ccache/puppeteer, but only on npm install. Which means
       # restored caches from actions/setup-node will never install Chrome.
-      - run: npm rm puppeteer && npm add puppeteer@23.3.0
+      - run: npm rm puppeteer && npm add puppeteer@24.7.2
 
       - run: sudo apt-get update && sudo apt-get install ccache ninja-build libdumb1-dev flex bison
 
