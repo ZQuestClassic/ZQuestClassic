@@ -164,7 +164,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        12
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         26
+#define V_FFSCRIPT         27
 #define V_SFX              8
 #define V_FAVORITES        4
 
@@ -1392,7 +1392,7 @@ public:
 	
 	int32_t d[8]; //d registers
 	uint32_t sp; //stack pointer for current script
-	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
+	dword wait_index; // nth WaitX instruction (0 being script entry) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
 	
 	uint32_t ffcref;
@@ -1653,19 +1653,31 @@ struct ffscript
 	int32_t arg1, arg2, arg3;
 	std::vector<int32_t> *vecptr;
 	std::string *strptr;
-	ffscript()
+	ffscript() : vecptr(), strptr()
 	{
-		command = 0xFFFF;
-		arg1 = 0;
-		arg2 = 0;
-		arg3 = 0;
-		vecptr = nullptr;
-		strptr = nullptr;
+		clear();
 	}
-	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0, int32_t arg3 = 0): command(command), arg1(arg1), arg2(arg2), arg3(arg3)
+	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0, int32_t arg3 = 0)
+		: command(command), arg1(arg1), arg2(arg2), arg3(arg3),
+		vecptr(nullptr), strptr(nullptr)
+	{}
+	ffscript(ffscript const& other) : vecptr(), strptr()
 	{
-		vecptr = nullptr;
-		strptr = nullptr;
+		other.copy(*this);
+	}
+	ffscript(ffscript&& other) : vecptr(), strptr()
+	{
+		other.give(*this);
+	}
+	ffscript& operator=(ffscript const& other)
+	{
+		other.copy(*this);
+		return *this;
+	}
+	ffscript& operator=(ffscript&& other)
+	{
+		other.give(*this);
+		return *this;
 	}
 	~ffscript()
 	{
@@ -1680,6 +1692,7 @@ struct ffscript
 			strptr = nullptr;
 		}
 	}
+	
 	void give(ffscript& other)
 	{
 		other.command = command;
@@ -1709,7 +1722,7 @@ struct ffscript
 			strptr = nullptr;
 		}
 	}
-	void copy(ffscript& other)
+	void copy(ffscript& other) const
 	{
 		other.clear();
 		other.command = command;
@@ -1767,18 +1780,22 @@ struct script_id {
 };
 
 typedef uint16_t zasm_script_id;
+struct script_data;
 
+// In 3.0+ there is exactly one zasm script shared by all scripts.
+// Prior, each script has its own chunk of zasm.
 struct zasm_script
 {
 	zasm_script() = default;
-	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
-	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
+	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})), script_datas() {}
+	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})), script_datas() {}
 
 	zasm_script_id id;
 	bool optimized;
 	std::string name;
 	size_t size;
 	std::vector<ffscript> zasm;
+	std::vector<script_data*> script_datas;
 
 	// TODO: remove the necessity of this terminal command being here.
 	bool valid() const
@@ -1792,12 +1809,15 @@ struct script_data
 	// The zasm instructions used by this script.
 	// In quests before 3.0, each script had its own chunk of zasm.
 	// Since 3.0 all scripts share the same chunk.
-	// TODO: The previous comment is not true _yet_, but will be when the "mergeslots3" branch is merged.
 	std::shared_ptr<::zasm_script> zasm_script = nullptr;
 	zasm_meta meta;
 	script_id id;
+	// Start of script within `zasm_script`.
+	uint32_t pc;
+	// Exclusive.
+	uint32_t end_pc;
 
-	script_data(ScriptType type, int index) : id({type, index}) {}
+	script_data(ScriptType type, int index) : meta(), id({type, index}), pc(0), end_pc(0) {}
 
 	std::string name() const
 	{
@@ -1809,12 +1829,14 @@ struct script_data
 	
 	bool valid() const
 	{
-		return zasm_script && zasm_script->valid();
+		return end_pc && zasm_script && zasm_script->valid();
 	}
 	
 	void disable()
 	{
 		zasm_script = nullptr;
+		pc = 0;
+		end_pc = 0;
 	}
 };
 

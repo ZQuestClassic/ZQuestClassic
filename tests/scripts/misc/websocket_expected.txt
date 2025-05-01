@@ -26,6 +26,7 @@ stdout:
 
 zasm:
 
+QUIT; void run() Body
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHARGSV 0 0.0010
 SETR D4 SP2
@@ -57,10 +58,10 @@ SETR D2 WEBSOCKET_STATE
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 36 ==; Test 'if'
+GOTOCMP 37 ==; Test 'if'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #99 Body Start
-GOTO 25; continue 1;
-GOTO 67; if() #99 Body End
+GOTO 26; continue 1;
+GOTO 68; if() #99 Body End
 LOAD D2 0.0007; if() #422 Test AND if() #99 Else Start
 PUSHR D2
 POP REFWEBSOCKET
@@ -68,7 +69,7 @@ SETR D2 WEBSOCKET_STATE
 COMPAREV D2 0.0003
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 67 ==; Test 'if'
+GOTOCMP 68 ==; Test 'if'
 ALLOCATEMEMV D2 0 0; if() #422 Body Start
 STORE D2 0.0005
 LOAD D2 0.0007; InlineFunc[void websocket::GetError(char32[])] Params Start
@@ -89,7 +90,7 @@ LOAD D3 0.0004
 DEALLOCATEMEMR D3
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
-GOTO 225; break 1;
+GOTO 226; break 1;
 LOAD D3 0.0005
 DEALLOCATEMEMR D3; if() #422 Body End
 LOAD D2 0.0007; if() #99 Else End AND if() #423 Test
@@ -99,7 +100,7 @@ SETR D2 WEBSOCKET_STATE
 COMPAREV D2 0.0001
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 89 ==; Test 'if'
+GOTOCMP 90 ==; Test 'if'
 ALLOCATEMEMV D2 23 0; if() #423 Body Start
 STORE D2 0.0005
 WRITEPODSTRING D2 "Failed to connect: %l\n"
@@ -113,10 +114,10 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
-GOTO 225; break 1; AND if() #423 Body End
+GOTO 226; break 1; AND if() #423 Body End
 LOAD D2 0.0006; unless() #424 Test
 COMPAREV D2 0
-GOTOCMP 129 !=; Test 'unless'
+GOTOCMP 130 !=; Test 'unless'
 ALLOCATEMEMV D2 12 0; unless() #424 Body Start
 STORE D2 0.0005
 WRITEPODSTRING D2 "Connected!\n"
@@ -159,7 +160,7 @@ PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_HAS_MESSAGE
 COMPAREV D2 0
-GOTOCMP 223 ==; Test 'while'
+GOTOCMP 224 ==; Test 'while'
 LOAD D2 0.0007; InlineFunc[untyped[] websocket::Receive()] Params Start AND while() #3 Body Start
 SETR REFWEBSOCKET D2; InlineFunc[untyped[] websocket::Receive()] Params End
 WEBSOCKET_RECEIVE D2; InlineFunc[untyped[] websocket::Receive()] Body
@@ -173,7 +174,7 @@ LOAD D2 0.0004; if() #100 Test
 COMPAREV D2 0.0001
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 161 ==; Test 'if'
+GOTOCMP 162 ==; Test 'if'
 ALLOCATEMEMV D2 22 0; if() #100 Body Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "got text message: %s\n"
@@ -185,12 +186,12 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0003
 DEALLOCATEMEMR D3
-GOTO 129; if() #100 Body End
+GOTO 130; if() #100 Body End
 LOAD D2 0.0004; if() #101 Test AND if() #100 Else Start
 COMPAREV D2 0.0002
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 211 ==; Test 'if'
+GOTOCMP 212 ==; Test 'if'
 LOAD D2 0.0005; InlineFunc[int SizeOfArray(untyped[])] Params AND if() #101 Body Start
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 STORE D2 0.0003
@@ -213,7 +214,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 129 ==; for() #150 TestFail?
+GOTOCMP 130 ==; for() #150 TestFail?
 ALLOCATEMEMV D2 8 0; for() #150 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "%d: %l\n"
@@ -234,8 +235,8 @@ DEALLOCATEMEMR D3; for() #150 Body End
 LOAD D2 0.0001; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 181; for() #150 End
-GOTO 129; if() #101 Body End
+GOTO 182; for() #150 End
+GOTO 130; if() #101 Body End
 ALLOCATEMEMV D2 40 0; if() #101 Else Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "got message, but with unknown type: %l\n"
@@ -247,12 +248,9 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0003
 DEALLOCATEMEMR D3; if() #101 Else End
-GOTO 129; if() #100 Else End AND while() #3 Body End AND while() #3 End
+GOTO 130; if() #100 Else End AND while() #3 Body End AND while() #3 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 25; while() #2 End
+GOTO 26; while() #2 End
 REF_REMOVE 0.0007
 POPARGS D5 0.0011
 QUIT; void run() Body End
-
-
-QUIT; void run() Body

@@ -1,6 +1,6 @@
 ; GOTO rewrite, SETV resulting in constant expression for comparison
 ; Source: yuurand.qst/zasm-ffc-1.txt Line 71
-Function #0
+Function #0 (run_none-0)
     0: PUSHR           D4                           [Block 0 -> 1, 2]
     1: COMPAREV        D2               0
     2: GOTOTRUE        4

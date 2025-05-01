@@ -110,7 +110,7 @@ extern byte monochrome_console;
 static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
 // Values may be null.
-static std::map<std::pair<zasm_script*, refInfo*>, JittedScriptHandle*> jitted_scripts;
+static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
 int32_t jitted_uncompiled_command_count;
 
 CScriptDrawingCommands scriptdraws;
@@ -1437,6 +1437,11 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		case ScriptType::Global:
 		{
 			curscript = globalscripts[script];
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				data.initialized = 1;
+			}
 		}
 		break;
 		
@@ -1473,6 +1478,11 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		{
 			curscript = playerscripts[script];
 			ri->screenref = hero_screen;
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				data.initialized = 1;
+			}
 		}
 		break;
 		
@@ -1600,7 +1610,10 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			break;
 		}
 	}
-
+	
+	if (got_initialized)
+		ri->pc = curscript->pc;
+	
 	return got_initialized;
 }
 
@@ -24335,12 +24348,13 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 	if(local)
 	{
 		//localRAM[0] is used as an invalid container, so 0 can be the NULL pointer in ZScript
-		for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
-		
+		for(ptrval = 1; ptrval < NUM_ZSCRIPT_ARRAYS && localRAM[ptrval].Valid(); ptrval++) ;
+
 		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
 			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
 			ptrval = 0;
+			DCHECK(false);
 		}
 		else
 		{
@@ -24361,14 +24375,17 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 	else
 	{
 		//Globals are only allocated here at first play, otherwise in init_game
-		for(ptrval = 0; game->globalRAM[ptrval].Valid(); ptrval++) ;
+		for(ptrval = 0; ptrval < game->globalRAM.size() && game->globalRAM[ptrval].Valid(); ptrval++) ;
 		
 		if(ptrval >= game->globalRAM.size())
 		{
 			al_trace("Invalid pointer value of %u passed to global allocate\n", ptrval);
+			ptrval = 0;
 			//this shouldn't happen, unless people are putting ALLOCATEGMEM in their ZASM scripts where they shouldn't be
+			DCHECK(false);
+			return ptrval;
 		}
-		
+
 		ZScriptArray &a = game->globalRAM[ptrval];
 		
 		a.Resize(size);
@@ -30124,6 +30141,124 @@ void goto_err(char const* opname)
 	}
 }
 
+static void script_exit_cleanup(bool no_dealloc)
+{
+	ScriptType type = curScriptType;
+	word script = curScriptNum;
+	int32_t i = curScriptIndex;
+
+	switch(type)
+	{
+		case ScriptType::FFC:
+		{
+			if (auto ffc = ResolveFFCWithID(i, "QUIT"))
+				ffc->script = 0;
+			auto& data = get_script_engine_data(type, i);
+			data.doscript = false;
+		}
+		break;
+
+		case ScriptType::Screen:
+			get_scr(i)->script = 0;
+		case ScriptType::Global:
+		case ScriptType::Hero:
+		case ScriptType::DMap:
+		case ScriptType::OnMap:
+		case ScriptType::ScriptedActiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen:
+		case ScriptType::EngineSubscreen:
+		case ScriptType::Combo:
+		{
+			auto& data = get_script_engine_data(type, i);
+			data.doscript = false;
+		}
+		break;
+		case ScriptType::NPC:
+		{
+			auto& data = get_script_engine_data(type, i);
+			data.doscript = false;
+			data.initialized = false;
+			int index = GuyH::getNPCIndex(i);
+			if (index != -1)
+				guys.spr(index)->weaponscript = 0;
+		}
+		break;
+		case ScriptType::Lwpn:
+		{
+			auto& data = get_script_engine_data(type, i);
+			data.doscript = false;
+			data.initialized = false;
+			int index = LwpnH::getLWeaponIndex(i);
+			if (index != -1)
+				Lwpns.spr(index)->weaponscript = 0;
+		}
+		break;
+		case ScriptType::Ewpn:
+		{
+			auto& data = get_script_engine_data(type, i);
+			data.doscript = false;
+			data.initialized = false;
+			int index = ItemH::getItemIndex(i);
+			if (index != -1)
+				Ewpns.spr(index)->weaponscript = 0;
+		}
+		break;
+		case ScriptType::ItemSprite:
+		{
+			auto& data = get_script_engine_data(type, i);
+			data.doscript = false;
+			data.initialized = false;
+			int index = ItemH::getItemIndex(i);
+			if (index != -1)
+				items.spr(index)->script = 0;
+		}
+		break;
+		
+		case ScriptType::Generic:
+			user_genscript::get(script).quit();
+			break;
+		
+		case ScriptType::GenericFrozen:
+			FFCore.doscript(ScriptType::GenericFrozen, gen_frozen_index-1) = false;
+			break;
+
+		case ScriptType::Item:
+		{
+			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+			int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+			auto& data = get_script_engine_data(ScriptType::Item, i);
+			if ( !collect )
+			{
+				if ( (itemsbuf[i].flags&item_passive_script) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+				data.doscript = 0;
+				data.ref.Clear();
+			}
+			else
+			{
+				data.doscript = 0;
+				data.ref.Clear();
+			}
+			data.initialized = false;
+			break;
+		}
+	}
+	if(!no_dealloc)
+		switch(type)
+		{
+			case ScriptType::Item:
+			{
+				bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+				int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+				FFScript::deallocateAllScriptOwned(ScriptType::Item, new_i);
+				break;
+			}
+			
+			default:
+				FFScript::deallocateAllScriptOwned(type, i);
+				break;
+		}
+}
+
 int32_t run_script(ScriptType type, word script, int32_t i)
 {
 	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
@@ -30178,24 +30313,23 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	// Because qst.cpp likes to write script_data without setting this.
 	curscript->meta.script_type = type;
 
-	// No need to do anything if the script is not valid.
-	// An example of this is found in `playground.qst` player scripts, which have scripts with
-	// a single 0xFFFF command.
-	// Can't actually do this because we must unset `doscript` via the `scommand == 0xFFFF` handling in run_script_int.
-	// Otherwise can get freeze, like in ending.cpp
-	// if (!curscript->valid())
-	// 	return RUNSCRIPT_OK;
+	// If script isn't valid, we don't have a `pc` to start from... just exit.
+	if(!curscript->valid())
+	{
+		script_exit_cleanup(false);
+		return RUNSCRIPT_OK;
+	}
 
 	script_funcrun = false;
 
 	JittedScriptHandle* jitted_script = nullptr;
 	if (jit_is_enabled())
 	{
-		auto key = std::make_pair(curscript->zasm_script.get(), ri);
+		auto key = std::make_pair(curscript, ri);
 		auto it = jitted_scripts.find(key);
 		if (it == jitted_scripts.end())
 		{
-			jitted_scripts[key] = jitted_script = jit_create_script_handle(curscript->zasm_script.get(), ri);
+			jitted_scripts[key] = jitted_script = jit_create_script_handle(curscript, ri);
 		}
 		else
 		{
@@ -30543,7 +30677,6 @@ int32_t run_script_int(bool is_jitted)
 				// No need to do a bounds check - the last command should always be 0xFFFF.
 				if (is_debugging)
 					break;
-
 				while (zasm[ri->pc + 1].command == NOP)
 					ri->pc++;
 				break;
@@ -34402,7 +34535,7 @@ int32_t run_script_int(bool is_jitted)
 			if ( ri->pc == MAX_PC ) //rolled over from overflow?
 			{
 				Z_scripterrlog("Script PC overflow! Too many ZASM lines?\n");
-				ri->pc = 0;
+				ri->pc = curscript->pc;
 				scommand = 0xFFFF;
 			}
 		}
@@ -34478,117 +34611,7 @@ int32_t run_script_int(bool is_jitted)
 	
 	if(scommand == 0xFFFF) //Quit/command list end reached/bad command
 	{
-		switch(type)
-		{
-			case ScriptType::FFC:
-			{
-				if (auto ffc = ResolveFFCWithID(i, "QUIT"))
-					ffc->script = 0;
-				auto& data = get_script_engine_data(type, i);
-				data.doscript = false;
-			}
-			break;
-
-			case ScriptType::Screen:
-				get_scr(i)->script = 0;
-			case ScriptType::Global:
-			case ScriptType::Hero:
-			case ScriptType::DMap:
-			case ScriptType::OnMap:
-			case ScriptType::ScriptedActiveSubscreen:
-			case ScriptType::ScriptedPassiveSubscreen:
-			case ScriptType::EngineSubscreen:
-			case ScriptType::Combo:
-			{
-				auto& data = get_script_engine_data(type, i);
-				data.doscript = false;
-			}
-			break;
-			case ScriptType::NPC:
-			{
-				auto& data = get_script_engine_data(type, i);
-				data.doscript = false;
-				data.initialized = false;
-				int index = GuyH::getNPCIndex(i);
-				if (index != -1)
-					guys.spr(index)->weaponscript = 0;
-			}
-			break;
-			case ScriptType::Lwpn:
-			{
-				auto& data = get_script_engine_data(type, i);
-				data.doscript = false;
-				data.initialized = false;
-				int index = LwpnH::getLWeaponIndex(i);
-				if (index != -1)
-					Lwpns.spr(index)->weaponscript = 0;
-			}
-			break;
-			case ScriptType::Ewpn:
-			{
-				auto& data = get_script_engine_data(type, i);
-				data.doscript = false;
-				data.initialized = false;
-				int index = ItemH::getItemIndex(i);
-				if (index != -1)
-					Ewpns.spr(index)->weaponscript = 0;
-			}
-			break;
-			case ScriptType::ItemSprite:
-			{
-				auto& data = get_script_engine_data(type, i);
-				data.doscript = false;
-				data.initialized = false;
-				int index = ItemH::getItemIndex(i);
-				if (index != -1)
-					items.spr(index)->script = 0;
-			}
-			break;
-			
-			case ScriptType::Generic:
-				user_genscript::get(script).quit();
-				break;
-			
-			case ScriptType::GenericFrozen:
-				FFCore.doscript(ScriptType::GenericFrozen, gen_frozen_index-1) = false;
-				break;
-
-			case ScriptType::Item:
-			{
-				bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-				int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-				auto& data = get_script_engine_data(ScriptType::Item, i);
-				if ( !collect )
-				{
-					if ( (itemsbuf[i].flags&item_passive_script) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
-					data.doscript = 0;
-					data.ref.Clear();
-				}
-				else
-				{
-					data.doscript = 0;
-					data.ref.Clear();
-				}
-				data.initialized = false;
-				break;
-			}
-		}
-		if(!no_dealloc)
-			switch(type)
-			{
-				case ScriptType::Item:
-				{
-					bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-					int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-					FFScript::deallocateAllScriptOwned(ScriptType::Item, new_i);
-					break;
-				}
-				
-				default:
-					FFScript::deallocateAllScriptOwned(type, i);
-					break;
-			}
-
+		script_exit_cleanup(no_dealloc);
 		return RUNSCRIPT_STOPPED;
 	}
 	else

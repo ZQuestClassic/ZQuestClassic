@@ -50,6 +50,7 @@ stdout:
 
 zasm:
 
+QUIT; void run() Body
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0 0.0004
 SETR D4 SP2
@@ -75,7 +76,7 @@ LOAD D2 0.0001; if() #9 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 37 ==; Test 'if'
+GOTOCMP 38 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; if() #9 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
@@ -105,36 +106,22 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 59 ==; Test 'while'
+GOTOCMP 60 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 51; while() #1 End
-CALLFUNC 0.0062; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 52; while() #1 End
+CALLFUNC 0.0378; UsrFunc[void End()] Call AND [Opt:NeverRet]
 LOAD D3 0.0003
 DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
-PUSHV 0; Func[void End()] Body Start
-SETR D4 SP2
-ALLOCATEMEMV D2 13 0
-STORE D2 0
-WRITEPODSTRING D2 "[Test] done\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
-
-
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHARGSV 0 0.0004
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0316; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0390; UsrFunc[void Init(int)] Call
 PEEK D4
 PUSHV 0; UsrFunc[void loadRegion(int, int)] Params Start
 PUSHV 4; UsrFunc[void loadRegion(int, int)] Params End
-CALLFUNC 0.0342; UsrFunc[void loadRegion(int, int)] Call
+CALLFUNC 0.0416; UsrFunc[void loadRegion(int, int)] Call
 POP D4
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 SETV D2 0; InlineFunc[void hero::Warp(int, int)] Params End
@@ -187,7 +174,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 114 ==; Test 'while'
+GOTOCMP 176 ==; Test 'while'
 LOAD D2 0.0003; InlineFunc[void bitmap::Clear(int)] Params Start AND while() #2 Body Start
 PUSHR D2
 PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
@@ -237,7 +224,7 @@ PUSHV 1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int
 BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body End
-GOTO 53; while() #2 End
+GOTO 115; while() #2 End
 SETV D2 0
 STORE D2 0.0001
 LOAD D2 0.0001; while() #3 Test
@@ -250,7 +237,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 178 ==; Test 'while'
+GOTOCMP 240 ==; Test 'while'
 LOAD D2 0.0003; InlineFunc[void bitmap::Clear(int)] Params Start AND while() #3 Body Start
 PUSHR D2
 PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
@@ -301,7 +288,7 @@ PUSHV 1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int
 BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
-GOTO 116; while() #3 End
+GOTO 178; while() #3 End
 SETV D2 0
 PUSHR D2
 SETV D2 483
@@ -321,7 +308,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 248 ==; Test 'while'
+GOTOCMP 310 ==; Test 'while'
 LOAD D2 0.0003; InlineFunc[void bitmap::Clear(int)] Params Start AND while() #4 Body Start
 PUSHR D2
 PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
@@ -371,7 +358,7 @@ PUSHV 1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int
 BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #4 Body End
-GOTO 187; while() #4 End
+GOTO 249; while() #4 End
 SETV D2 0
 STORE D2 0.0001
 LOAD D2 0.0001; while() #5 Test
@@ -384,7 +371,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 312 ==; Test 'while'
+GOTOCMP 374 ==; Test 'while'
 LOAD D2 0.0003; InlineFunc[void bitmap::Clear(int)] Params Start AND while() #5 Body Start
 PUSHR D2
 PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
@@ -435,11 +422,23 @@ PUSHV 1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int
 BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #5 Body End
-GOTO 250; while() #5 End
+GOTO 312; while() #5 End
 REF_REMOVE 0.0003
 REF_REMOVE 0.0002
 POPARGS D5 0.0005
 QUIT; void run() Body End
+PUSHV 0; Func[void End()] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 13 0
+STORE D2 0
+WRITEPODSTRING D2 "[Test] done\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 PUSHV 0; Func[void Init(int)] Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 35 0
@@ -458,7 +457,7 @@ LOAD D2 0.0001; if() #8 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 340 ==; Test 'if'
+GOTOCMP 414 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
 LOAD D2 0.0001; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -483,7 +482,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 411 ==; for() #3 TestFail?
+GOTOCMP 485 ==; for() #3 TestFail?
 STOREV 0 0.0001; for() #4 setup AND for() #3 Body Start
 LOAD D2 0.0001; for() #4 LoopTest
 PUSHR D2
@@ -492,7 +491,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 407 ==; for() #4 TestFail?
+GOTOCMP 481 ==; for() #4 TestFail?
 LOAD D2 0.0003; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start AND for() #4 Body Start
 PUSHR D2
 LOAD D2 0.0005
@@ -530,11 +529,11 @@ SETR MAPDATAREGIONID D2; for() #4 Body End
 LOAD D2 0.0001; for() #4 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 361; for() #4 End
+GOTO 435; for() #4 End
 LOAD D2 0.0002; for() #3 Body End AND for() #3 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 352; for() #3 End
+GOTO 426; for() #3 End
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 LOAD D2 0.0005; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -542,6 +541,3 @@ WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body
 POPARGS D5 0.0006
 RETURNFUNC; Func[void loadRegion(int, int)] Body End
-
-
-QUIT; void run() Body

@@ -49,21 +49,6 @@ struct script_slot_data
 	{
 		return scriptname == "";
 	}
-	
-	bool isDisassembled()
-	{
-		return (format == SCRIPT_FORMAT_DISASSEMBLED);
-	}
-	
-	bool isImportedZASM()
-	{
-		return (format == SCRIPT_FORMAT_ZASM);
-	}
-	
-	bool isZASM()
-	{
-		return (isDisassembled() || isImportedZASM());
-	}
 };
 
 extern std::map<int32_t, script_slot_data > ffcmap;
@@ -224,7 +209,9 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes);
 int32_t readcheatcodes(PACKFILE *f, zquestheader *Header);
 int32_t readinitdata(PACKFILE *f, zquestheader *Header);
 int32_t readffscript(PACKFILE *f, zquestheader *Header);
+int32_t read_quest_zasm(PACKFILE *f, word s_version);
 int32_t read_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, word s_version, script_data *script, word zmeta_version);
+int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, script_data *script, word zmeta_version);
 int32_t readsfx(PACKFILE *f, zquestheader *Header);
 int32_t readitemdropsets(PACKFILE *f, word version);
 int32_t readfavorites(PACKFILE *f, int32_t);

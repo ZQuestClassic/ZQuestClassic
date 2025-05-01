@@ -26,11 +26,9 @@ stdout:
 
 zasm:
 
+QUIT; void run() Body
 PUSHR REFDMAPDATA; void run() Body Start
 SETR D4 SP2
 TRACEV 999; InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
 POP D5
 QUIT; void run() Body End
-
-
-QUIT; void run() Body

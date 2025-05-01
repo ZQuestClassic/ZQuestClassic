@@ -2542,6 +2542,13 @@ stdout:
 
 zasm:
 
+SETV GD1 1; void run() Body Start
+SETV GD2 1
+SETV GD3 1
+SETV GD4 0
+SETV GD5 2
+SETV GD6 0
+QUIT; void run() Body End
 PUSHR D0; void run(int, int, int, int, int) Params
 PUSHR D1
 PUSHR D2
@@ -2571,12 +2578,12 @@ LOAD D3 0.0010
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params
-CALLFUNC 0.0114; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call
+CALLFUNC 0.0121; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0120; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0127; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0009
@@ -2612,7 +2619,7 @@ STORE_OBJECT D2 0.0007
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0120; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0127; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0006
@@ -2634,14 +2641,14 @@ LOAD D0 0.0001; for(each) #1 EndArrayCheck
 ARRAYSIZE D0
 LOAD D3 0.0002
 COMPARER D3 D2
-GOTOCMP 101 >=; for(each) #1 to Else
+GOTOCMP 108 >=; for(each) #1 to Else
 READPODARRAYR D2 D3; for(each) #1 Next Index
 STORE D2 0
 ADDV D3 1
 STORE D3 0.0002
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start
 TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End
-GOTO 89; for(each) #1 End
+GOTO 96; for(each) #1 End
 STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
@@ -2676,12 +2683,3 @@ POP D5
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Car Car::Car(int)] Body End
-
-
-SETV GD1 1; void run() Body Start
-SETV GD2 1
-SETV GD3 1
-SETV GD4 0
-SETV GD5 2
-SETV GD6 0
-QUIT; void run() Body End

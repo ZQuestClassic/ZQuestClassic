@@ -1,4 +1,4 @@
-Function #0
+Function #0 (run_none-0)
     0: PUSHV           0                            [Block 0 -> ]
     1: SETR            D4               SP
     2: PUSHR           D4

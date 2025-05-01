@@ -10,7 +10,7 @@ rewrite 9: 3 -> 1 commands
 9: TRACEV          3               
 10: NOP            
 11: NOP            
-Function #0
+Function #0 (run_none-0)
     0: PUSHV           0                            [Block 0 -> ]
     1: SETR            D4               SP2
     2: PUSHR           SP2

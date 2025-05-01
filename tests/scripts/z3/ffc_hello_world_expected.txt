@@ -26,131 +26,9 @@ stdout:
 
 zasm:
 
-PUSHARGSV 0 0.0006; void run() Body Start
-SETR D4 SP2
-SETV D2 0.0003
-PUSHR D2
-POP D2
-SETR SCREEN_DRAW_ORIGIN D2
-WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #2 Body [Opt:AlwaysOn] Start
-STOREV 1 0.0004; for() #150 setup
-LOAD D2 0.0004; for() #150 LoopTest
-PUSHR D2
-SETR D2 MAX_FFC_ID
-POP D3
-COMPARER D3 D2
-SETCMP D2 I<
-COMPAREV D2 0
-GOTOCMP 61 ==; for() #150 TestFail?
-LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #150 Body Start
-LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
-STORE D2 0.0003
-LOAD D2 0.0003; unless() #422 Test
-PUSHR D2
-POP REFFFC
-SETR D2 DATA
-COMPAREV D2 0
-GOTOCMP 57 ==; Test 'unless' AND continue 1; AND unless() #422 Body
-STOREV 5 0.0002
-LOAD D2 0.0003
-PUSHR D2
-POP REFSPRITE
-SETR D2 SPRITE_X
-ADDV D2 8
-STORE D2 0.0001
-LOAD D2 0.0003
-PUSHR D2
-POP REFSPRITE
-SETR D2 SPRITE_Y
-PUSHR D2
-LOAD D2 0.0002
-POP D3
-SUBR D3 D2
-SETR D2 D3
-STORE D2 0
-PUSHV 6; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOAD D2 0.0001
-PUSHR D2
-LOAD D2 0
-PUSHR D2
-LOAD D2 0.0002
-PUSHR D2
-PUSHR GD2
-PUSHV 1
-PUSHARGSV 0 0.0003
-PUSHV 1
-PUSHV 128; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params End
-CIRCLER; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End AND for() #150 Body End
-LOAD D2 0.0004; for() #150 LoopIncrement
-ADDV D2 1
-STORE D2 0.0004
-GOTO 9; for() #150 End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 7; while() #2 End AND [Opt:NeverRet] AND void run() Body End
-
-
-PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0005
-SETR D4 SP2
-SETV D2 0.0003
-PUSHR D2
-POP D2
-SETR SCREEN_DRAW_ORIGIN D2
-WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #3 Body [Opt:AlwaysOn] Start
-STOREV 1 0.0004; for() #151 setup
-LOAD D2 0.0004; for() #151 LoopTest
-PUSHR D2
-SETR D2 MAX_FFC_ID
-POP D3
-COMPARER D3 D2
-SETCMP D2 I<
-COMPAREV D2 0
-GOTOCMP 58 ==; for() #151 TestFail?
-LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #151 Body Start
-LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
-STORE D2 0.0003
-LOAD D2 0.0003; unless() #423 Test
-PUSHR D2
-POP REFFFC
-SETR D2 DATA
-COMPAREV D2 0
-GOTOCMP 54 ==; Test 'unless' AND continue 1; AND unless() #423 Body
-STOREV 3 0.0002
-LOAD D2 0.0003
-PUSHR D2
-POP REFSPRITE
-SETR D2 SPRITE_X
-ADDV D2 8
-STORE D2 0.0001
-LOAD D2 0.0003
-PUSHR D2
-POP REFSPRITE
-SETR D2 SPRITE_Y
-ADDV D2 18
-STORE D2 0
-PUSHV 6; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOAD D2 0.0001
-PUSHR D2
-LOAD D2 0
-PUSHR D2
-LOAD D2 0.0002
-PUSHR D2
-PUSHR GD2
-PUSHV 1
-PUSHARGSV 0 0.0003
-PUSHV 1
-PUSHV 128; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params End
-CIRCLER; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End AND for() #151 Body End
-LOAD D2 0.0004; for() #151 LoopIncrement
-ADDV D2 1
-STORE D2 0.0004
-GOTO 10; for() #151 End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3 Body [Opt:AlwaysOn] End
-GOTO 8; while() #3 End AND [Opt:NeverRet] AND void run() Body End
-
-
+SETV GD1 114; void run() Body Start
+SETV GD2 116
+QUIT; void run() Body End
 PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0 0.0008
@@ -207,7 +85,7 @@ POP D2
 COMPAREV D2 30
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 79 ==; Test 'if'
+GOTOCMP 82 ==; Test 'if'
 ALLOCATEMEMV D2 43 0; if() #424 Body Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "FFC script is running, ID: %d x: %d y: %d\n"
@@ -248,9 +126,9 @@ ANDV32 D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 101 ==
+GOTOCMP 104 ==
 SETV D2 0.0003
-GOTO 102
+GOTO 105
 SETV D2 0
 PUSHR D2
 POP D2
@@ -279,9 +157,125 @@ PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, i
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #4 Body [Opt:AlwaysOn] End
-GOTO 48; while() #4 End AND [Opt:NeverRet] AND void run(int) Body End
-
-
-SETV GD1 114; void run() Body Start
-SETV GD2 116
-QUIT; void run() Body End
+GOTO 51; while() #4 End AND [Opt:NeverRet] AND void run(int) Body End
+PUSHARGSV 0 0.0006; void run() Body Start
+SETR D4 SP2
+SETV D2 0.0003
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #2 Body [Opt:AlwaysOn] Start
+STOREV 1 0.0004; for() #150 setup
+LOAD D2 0.0004; for() #150 LoopTest
+PUSHR D2
+SETR D2 MAX_FFC_ID
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 193 ==; for() #150 TestFail?
+LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #150 Body Start
+LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
+STORE D2 0.0003
+LOAD D2 0.0003; unless() #422 Test
+PUSHR D2
+POP REFFFC
+SETR D2 DATA
+COMPAREV D2 0
+GOTOCMP 189 ==; Test 'unless' AND continue 1; AND unless() #422 Body
+STOREV 5 0.0002
+LOAD D2 0.0003
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_X
+ADDV D2 8
+STORE D2 0.0001
+LOAD D2 0.0003
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+SUBR D3 D2
+SETR D2 D3
+STORE D2 0
+PUSHV 6; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params Start
+LOAD D2 0.0001
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+LOAD D2 0.0002
+PUSHR D2
+PUSHR GD2
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHV 1
+PUSHV 128; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params End
+CIRCLER; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End AND for() #150 Body End
+LOAD D2 0.0004; for() #150 LoopIncrement
+ADDV D2 1
+STORE D2 0.0004
+GOTO 141; for() #150 End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
+GOTO 139; while() #2 End AND [Opt:NeverRet] AND void run() Body End
+PUSHR REFDMAPDATA; void run() Body Start
+PUSHARGSV 0 0.0005
+SETR D4 SP2
+SETV D2 0.0003
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_ORIGIN D2
+WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #3 Body [Opt:AlwaysOn] Start
+STOREV 1 0.0004; for() #151 setup
+LOAD D2 0.0004; for() #151 LoopTest
+PUSHR D2
+SETR D2 MAX_FFC_ID
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 252 ==; for() #151 TestFail?
+LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #151 Body Start
+LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
+STORE D2 0.0003
+LOAD D2 0.0003; unless() #423 Test
+PUSHR D2
+POP REFFFC
+SETR D2 DATA
+COMPAREV D2 0
+GOTOCMP 248 ==; Test 'unless' AND continue 1; AND unless() #423 Body
+STOREV 3 0.0002
+LOAD D2 0.0003
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_X
+ADDV D2 8
+STORE D2 0.0001
+LOAD D2 0.0003
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+ADDV D2 18
+STORE D2 0
+PUSHV 6; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params Start
+LOAD D2 0.0001
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+LOAD D2 0.0002
+PUSHR D2
+PUSHR GD2
+PUSHV 1
+PUSHARGSV 0 0.0003
+PUSHV 1
+PUSHV 128; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params End
+CIRCLER; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End AND for() #151 Body End
+LOAD D2 0.0004; for() #151 LoopIncrement
+ADDV D2 1
+STORE D2 0.0004
+GOTO 204; for() #151 End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3 Body [Opt:AlwaysOn] End
+GOTO 202; while() #3 End AND [Opt:NeverRet] AND void run() Body End

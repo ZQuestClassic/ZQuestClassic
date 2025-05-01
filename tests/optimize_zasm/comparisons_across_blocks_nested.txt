@@ -1,7 +1,7 @@
 ; comparisons across blocks, nested
 ; Source: Function #16 L1622 playground.qst/zasm-ffc-4-Armos_LttP.txt
 ; This one gets processed in two passes.
-Function #0
+Function #0 (run_none-0)
     0: TRACEV          1                            [Block 0 -> 1, 2]
     1: COMPAREV        D2               0
     2: GOTOTRUE        6

@@ -3,7 +3,7 @@
 ; pops N items from the stack, and the last one is written to the register.
 ; D5 is special - its the null register. So POPs to that can be combined
 ; with POPs to another register.
-Function #0
+Function #0 (run_none-0)
     0: TRACEV          1337                         [Block 0 -> ]
     1: CALLFUNC        6                            [Call Function #1]
     2: CALLFUNC        11                           [Call Function #2]
