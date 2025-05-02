@@ -170,6 +170,7 @@ def get_args_for_collect_baseline_from_test_results(
     test_results_paths: List[Path],
 ) -> List[str]:
     failing_segments_by_replay = {}
+    name_to_path = {}
     for path in test_results_paths:
         test_results_json = json.loads(path.read_text('utf-8'))
         test_results = ReplayTestResults(**test_results_json)
@@ -181,6 +182,8 @@ def get_args_for_collect_baseline_from_test_results(
             if run.failing_frame == None:
                 print(f'{path}: no failing_frame for {run.name}, skipping')
                 continue
+
+            name_to_path[run.name] = run.path
 
             if run.name not in failing_segments_by_replay:
                 failing_segments_by_replay[run.name] = []
@@ -196,7 +199,11 @@ def get_args_for_collect_baseline_from_test_results(
 
     args = []
     for replay_name, failing_segments in failing_segments_by_replay.items():
-        args.append(f'--filter={replay_name}')
+        replay_path = Path(name_to_path[replay_name])
+        if replay_path.is_relative_to(script_dir / 'replays'):
+            args.append(f'--filter={replay_name}')
+        else:
+            args.append(name_to_path[replay_name])
         ranges = []
         for start, end in failing_segments:
             # Add some context around these snapshot ranges.

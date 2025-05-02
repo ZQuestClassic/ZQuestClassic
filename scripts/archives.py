@@ -375,6 +375,7 @@ def _download(revision: Revision, release_platform: str):
 
     found_url = None
     for url in urls:
+        print(f'downloading {url}', file=os.sys.stderr)
         r = requests.get(url)
         if not r.ok:
             print(f'not found: {url}', file=os.sys.stderr)
@@ -389,7 +390,6 @@ def _download(revision: Revision, release_platform: str):
         r = requests.get(url)
 
     dest.mkdir(parents=True, exist_ok=True)
-    print(f'downloading {url}', file=os.sys.stderr)
 
     if release_platform == 'mac':
         (dest / 'ZQuestClassic.dmg').write_bytes(r.content)

@@ -998,7 +998,6 @@ if mode == 'assert':
             not is_ci
             and not args.no_report_on_failure
             and sys.stdout.isatty()
-            and replays_dir == script_dir / 'replays'
         ):
             prompt_to_create_compare_report()
         exit(2)
