@@ -166,7 +166,7 @@ class Database:
     def download_release(self, release: Release):
         for resource in release.resources:
             # I'm pretty sure no quest needs these files to run.
-            # There are big/there's many of them, so skip if just needing
+            # They are big/there's many of them, so skip if just needing
             # to download a release for runtime execution.
             ext = resource.split('.')[-1]
             if ext in ['jpg', 'bmp', 'png', 'gif', 'zip']:

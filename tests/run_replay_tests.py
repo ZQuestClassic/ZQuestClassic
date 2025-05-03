@@ -180,6 +180,10 @@ parser.add_argument(
     '--no_console', action='store_true', help='Prevent the debug console from opening'
 )
 parser.add_argument(
+    '--baseline_version',
+    help='The ZC version to use for generating the baseline for the compare report',
+)
+parser.add_argument(
     '--no_report_on_failure',
     action='store_true',
     help='Do not prompt to create compare report',
@@ -236,7 +240,10 @@ if args.show:
 
 if args.replays:
     tests = [Path(x) for x in args.replays]
-    replays_dir = tests[0].parent
+    if len(tests) > 1:
+        replays_dir = Path(os.path.commonpath(tests))
+    else:
+        replays_dir = tests[0].parent
 else:
     tests = list(replays_dir.rglob('*.zplay'))
 
@@ -268,6 +275,14 @@ def group_arg(raw_values: List[str], allow_concat=False):
             if '=' in raw_value:
                 for replay, value in [raw_value.split('=')]:
                     replay_full_path = replays_dir / replay
+
+                    # If absolute path can't be found, use a looser match of just the filename.
+                    if replay_full_path not in tests:
+                        for test in tests:
+                            if test.name == replay:
+                                replay_full_path = test
+                                break
+
                     if replay_full_path not in tests:
                         raise Exception(f'unknown test {replay}')
                     if replay_full_path in arg_by_replay:
@@ -585,17 +600,21 @@ def prompt_to_create_compare_report():
     # print(selected_test_names)
 
     test_runs = []
+    selected_index = None
 
-    print('How should we get the baseline run?')
-    selected_index = cutie.select(
-        [
-            'Collect from disk',
-            'Run locally',
-            'Run new job in GitHub Actions (requires token)',
-            'Collect from finished job in GitHub Actions (requires token)',
-        ]
-    )
-    print()
+    if args.baseline_version:
+        selected_index = 1
+    else:
+        print('How should we get the baseline run?')
+        selected_index = cutie.select(
+            [
+                'Collect from disk',
+                'Run locally',
+                'Run new job in GitHub Actions (requires token)',
+                'Collect from finished job in GitHub Actions (requires token)',
+            ]
+        )
+        print()
 
     local_baseline_dir = root_dir / '.tmp/local-baseline'
 
@@ -611,41 +630,45 @@ def prompt_to_create_compare_report():
         print()
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
-        most_recent_nightly = get_recent_release_tag(
-            ['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*']
-        )
-        try:
-            archives_255_output = subprocess.check_output(
+        if args.baseline_version:
+            tag = args.baseline_version
+            print(f'using baseline version: {tag}\n')
+        else:
+            most_recent_nightly = get_recent_release_tag(
+                ['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*']
+            )
+            try:
+                archives_255_output = subprocess.check_output(
+                    [
+                        'python',
+                        script_dir / '../scripts/archives.py',
+                        'list',
+                        '--channel',
+                        '2.55',
+                    ],
+                    encoding='utf-8',
+                ).strip()
+                most_recent_stable = archives_255_output.splitlines()[-1].split(' ')[1]
+            except e as Exception:
+                print('error finding latest stable version, using 2.55.9 instead')
+                print(e)
+                most_recent_stable = '2.55.9'
+
+            print('Select a release build to use: ')
+            selected_index = cutie.select(
                 [
-                    'python',
-                    script_dir / '../scripts/archives.py',
-                    'list',
-                    '--channel',
-                    '2.55',
-                ],
-                encoding='utf-8',
-            ).strip()
-            most_recent_stable = archives_255_output.splitlines()[-1].split(' ')[1]
-        except e as Exception:
-            print('error finding latest stable version, using 2.55.9 instead')
-            print(e)
-            most_recent_stable = '2.55.9'
+                    # TODO
+                    # 'Most recent passing build from CI',
+                    f'Most recent nightly ({most_recent_nightly})',
+                    f'Most recent stable ({most_recent_stable})',
+                ]
+            )
+            print()
 
-        print('Select a release build to use: ')
-        selected_index = cutie.select(
-            [
-                # TODO
-                # 'Most recent passing build from CI',
-                f'Most recent nightly ({most_recent_nightly})',
-                f'Most recent stable ({most_recent_stable})',
-            ]
-        )
-        print()
-
-        if selected_index == 0:
-            tag = most_recent_nightly
-        elif selected_index == 1:
-            tag = most_recent_stable
+            if selected_index == 0:
+                tag = most_recent_nightly
+            elif selected_index == 1:
+                tag = most_recent_stable
 
         release_platform = get_release_platform()
         build_dir = archives.download(tag, release_platform)
@@ -994,11 +1017,7 @@ if mode == 'assert':
         print('all replay tests passed')
     else:
         print(f'{len(failing_replays)} replay tests failed')
-        if (
-            not is_ci
-            and not args.no_report_on_failure
-            and sys.stdout.isatty()
-        ):
+        if not is_ci and not args.no_report_on_failure and sys.stdout.isatty():
             prompt_to_create_compare_report()
         exit(2)
 else:

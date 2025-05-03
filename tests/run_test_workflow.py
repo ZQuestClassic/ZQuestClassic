@@ -198,12 +198,13 @@ def get_args_for_collect_baseline_from_test_results(
                 )
 
     args = []
+    last_args = []
     for replay_name, failing_segments in failing_segments_by_replay.items():
         replay_path = Path(name_to_path[replay_name])
         if replay_path.is_relative_to(script_dir / 'replays'):
             args.append(f'--filter={replay_name}')
         else:
-            args.append(name_to_path[replay_name])
+            last_args.append(name_to_path[replay_name])
         ranges = []
         for start, end in failing_segments:
             # Add some context around these snapshot ranges.
@@ -214,6 +215,8 @@ def get_args_for_collect_baseline_from_test_results(
         args.append(f'--snapshot={replay_name}={intervals_str}')
         max_frame = max([segment[1] for segment in ranges])
         args.append(f'--frame={replay_name}={max_frame}')
+
+    args.extend(last_args)
 
     if not args:
         raise Exception('all failing replays were invalid')
