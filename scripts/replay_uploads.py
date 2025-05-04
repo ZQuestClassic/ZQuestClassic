@@ -188,6 +188,8 @@ def run_replays_process(args):
             root_dir / 'tests/run_replay_tests.py',
             '--test_results_folder',
             test_results_folder,
+            '--root_replays_folder',
+            replays_dir,
             *args,
         ]
     )

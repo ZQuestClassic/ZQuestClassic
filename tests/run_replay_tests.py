@@ -231,6 +231,11 @@ parser.add_argument(
     nargs='*',
     help='If provided, will only run these replays rather than those in tests/replays',
 )
+parser.add_argument(
+    '--root_replays_folder',
+    type=dir_path,
+    help='Replays run names are made by taking the relative path to this folder. Only used if `replays` positional arg is used',
+)
 
 args = parser.parse_args()
 
@@ -240,7 +245,9 @@ if args.show:
 
 if args.replays:
     tests = [Path(x) for x in args.replays]
-    if len(tests) > 1:
+    if args.root_replays_folder:
+        replays_dir = args.root_replays_folder
+    elif len(tests) > 1:
         replays_dir = Path(os.path.commonpath(tests))
     else:
         replays_dir = tests[0].parent
@@ -279,7 +286,7 @@ def group_arg(raw_values: List[str], allow_concat=False):
                     # If absolute path can't be found, use a looser match of just the filename.
                     if replay_full_path not in tests:
                         for test in tests:
-                            if test.name == replay:
+                            if test.name == Path(replay).name:
                                 replay_full_path = test
                                 break
 
@@ -686,6 +693,8 @@ def prompt_to_create_compare_report():
             str(build_dir),
             '--test_results_folder',
             str(local_baseline_dir),
+            '--root_replays_folder',
+            str(replays_dir),
             '--retries=2',
             *get_args_for_collect_baseline_from_test_results([test_results_path]),
         ]
