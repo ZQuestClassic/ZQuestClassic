@@ -1746,27 +1746,28 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 
 	return true;
 }
-void BasicScope::decr_stack_recursive(optional<int32_t> offset)
+void BasicScope::decr_stack_recursive(int32_t offset)
 {
-	if(offset)
-	{
-		bool skip = true;
-		for(auto& offs : stackOffsets_)
-			if(offs.second >= *offset)
-			{
-				skip = false;
-				break;
-			}
-		if(skip)
-			return;
-	}
+	bool skip = true;
+	for(auto& offs : stackOffsets_)
+		if(offs.second > offset)
+		{
+			skip = false;
+			break;
+		}
+	if(skip)
+		return;
+
 	--stackDepth_;
 	for(auto& offs : stackOffsets_)
-		--offs.second;
+	{
+		if (offs.second > offset)
+			--offs.second;
+	}
 	for(auto child : getChildren())
 	{
 		BasicScope* scope = static_cast<BasicScope*>(child);
-		scope->decr_stack_recursive();
+		scope->decr_stack_recursive(offset);
 	}
 }
 bool BasicScope::remove(Datum& datum)

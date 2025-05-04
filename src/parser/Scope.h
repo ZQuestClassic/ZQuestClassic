@@ -416,7 +416,7 @@ namespace ZScript
 
 		virtual bool can_add(Datum&, CompileErrorHandler* errorHandler = nullptr);
 		virtual bool add(Datum&, CompileErrorHandler*);
-		void decr_stack_recursive(optional<int32_t> offset = nullopt);
+		void decr_stack_recursive(int32_t offset);
 		
 	private:
 		// Disabled since it's easy to call by accident instead of the Scope*
