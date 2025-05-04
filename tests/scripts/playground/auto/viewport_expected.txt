@@ -142,13 +142,13 @@ COMPAREV D2 0
 GOTOCMP 117 ==; Test 'if'
 SETV D2 59; InlineFunc[void Audio::PlaySound(int)] Params AND if() #424 Body Start
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #424 Body End
-LOAD D2 0.0004; if() #100 Test
+LOAD D2 0.0004; if() #97 Test
 PUSHR D2
 POP REFLWPN
 SETR D2 LWPNVX
 COMPAREV D2 0
 GOTOCMP 168 ==; Test 'if'
-SETV D2 0; if() #425 Test AND if() #100 Body Start
+SETV D2 0; if() #425 Test AND if() #97 Body Start
 PUSHR D2
 POP D0
 SETR D2 BUTTONINPUT
@@ -192,8 +192,8 @@ SETR SPRITE_Y D2
 LOAD D2 0.0003
 ADDV D2 1
 STORE D2 0.0003; if() #426 Body End
-GOTO 212; if() #100 Body End
-SETV D2 2; if() #427 Test AND if() #100 Else Start
+GOTO 212; if() #97 Body End
+SETV D2 2; if() #427 Test AND if() #97 Else Start
 PUSHR D2
 POP D0
 SETR D2 BUTTONINPUT
@@ -237,7 +237,7 @@ SETR SPRITE_X D2
 LOAD D2 0.0003
 SUBV D2 1
 STORE D2 0.0003; if() #428 Body End
-SETV D2 4; if() #100 Else End AND if() #429 Test
+SETV D2 4; if() #97 Else End AND if() #429 Test
 PUSHR D2
 POP D0
 SETR D2 BUTTONINPUT
@@ -508,16 +508,16 @@ LOAD D2 0.0001
 POP D3
 ADDR D2 D3
 STORE D2 0.0002
-LOAD D2 0.0002; if() #101 Test
+LOAD D2 0.0002; if() #98 Test
 COMPAREV D2 -360
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 492 ==; Test 'if'
-LOAD D2 0.0002; if() #101 Body Start
+LOAD D2 0.0002; if() #98 Body Start
 ADDV D2 360
 STORE D2 0.0002
-GOTO 500; if() #101 Body End
-LOAD D2 0.0002; if() #431 Test AND if() #101 Else Start
+GOTO 500; if() #98 Body End
+LOAD D2 0.0002; if() #431 Test AND if() #98 Else Start
 COMPAREV D2 360
 SETCMP D2 I>
 COMPAREV D2 0
@@ -525,7 +525,7 @@ GOTOCMP 500 ==; Test 'if'
 LOAD D2 0.0002; if() #431 Body Start
 SUBV D2 360
 STORE D2 0.0002; if() #431 Body End
-WAITFRAME; if() #101 Else End AND InlineFunc[void Waitframe()] Body AND for() #156 Body End
+WAITFRAME; if() #98 Else End AND InlineFunc[void Waitframe()] Body AND for() #156 Body End
 LOAD D2 0; for() #156 LoopIncrement
 ADDV D2 1
 STORE D2 0

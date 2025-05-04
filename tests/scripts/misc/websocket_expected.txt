@@ -51,7 +51,7 @@ LOAD D2 0.0007; InlineFunc[void websocket::Own()] Params Start
 SETR REFWEBSOCKET D2; InlineFunc[void websocket::Own()] Params End
 WEBSOCKET_OWN; InlineFunc[void websocket::Own()] Body
 STOREV 0 0.0006
-LOAD D2 0.0007; if() #99 Test AND while(true) #2 Body [Opt:AlwaysOn] Start
+LOAD D2 0.0007; if() #96 Test AND while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
@@ -59,10 +59,10 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 37 ==; Test 'if'
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #99 Body Start
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #96 Body Start
 GOTO 26; continue 1;
-GOTO 68; if() #99 Body End
-LOAD D2 0.0007; if() #422 Test AND if() #99 Else Start
+GOTO 68; if() #96 Body End
+LOAD D2 0.0007; if() #422 Test AND if() #96 Else Start
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
@@ -93,7 +93,7 @@ DEALLOCATEMEMR D3
 GOTO 226; break 1;
 LOAD D3 0.0005
 DEALLOCATEMEMR D3; if() #422 Body End
-LOAD D2 0.0007; if() #99 Else End AND if() #423 Test
+LOAD D2 0.0007; if() #96 Else End AND if() #423 Test
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
@@ -170,12 +170,12 @@ PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_MESSAGE_TYPE
 STORE D2 0.0004
-LOAD D2 0.0004; if() #100 Test
+LOAD D2 0.0004; if() #97 Test
 COMPAREV D2 0.0001
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 162 ==; Test 'if'
-ALLOCATEMEMV D2 22 0; if() #100 Body Start
+ALLOCATEMEMV D2 22 0; if() #97 Body Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "got text message: %s\n"
 LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
@@ -186,13 +186,13 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0003
 DEALLOCATEMEMR D3
-GOTO 130; if() #100 Body End
-LOAD D2 0.0004; if() #101 Test AND if() #100 Else Start
+GOTO 130; if() #97 Body End
+LOAD D2 0.0004; if() #98 Test AND if() #97 Else Start
 COMPAREV D2 0.0002
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 212 ==; Test 'if'
-LOAD D2 0.0005; InlineFunc[int SizeOfArray(untyped[])] Params AND if() #101 Body Start
+LOAD D2 0.0005; InlineFunc[int SizeOfArray(untyped[])] Params AND if() #98 Body Start
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 STORE D2 0.0003
 ALLOCATEMEMV D2 34 0
@@ -236,8 +236,8 @@ LOAD D2 0.0001; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
 GOTO 182; for() #150 End
-GOTO 130; if() #101 Body End
-ALLOCATEMEMV D2 40 0; if() #101 Else Start
+GOTO 130; if() #98 Body End
+ALLOCATEMEMV D2 40 0; if() #98 Else Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "got message, but with unknown type: %l\n"
 LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
@@ -247,8 +247,8 @@ PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0003
-DEALLOCATEMEMR D3; if() #101 Else End
-GOTO 130; if() #100 Else End AND while() #3 Body End AND while() #3 End
+DEALLOCATEMEMR D3; if() #98 Else End
+GOTO 130; if() #97 Else End AND while() #3 Body End AND while() #3 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 26; while() #2 End
 REF_REMOVE 0.0007

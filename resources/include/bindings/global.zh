@@ -1043,3 +1043,27 @@ internal long RefCount(untyped object_ptr);
 // @zasm
 //   GC
 internal void GC();
+
+// Helper function for reading bitflags. For example:
+//
+// ```
+// bool v = ReadBitflags(cd->TrigSpawnItemPickup, IP_TRIGGERSECRETS);
+// ```
+bool ReadBitflags<T>(T bitflags, T flag)
+{
+	return bitflags & flag;
+}
+
+// Helper function for modifying bitflags. For example, the following updates
+// the [IP_TRIGGERSECRETS] flag to be true:
+//
+// ```
+// cd->TrigSpawnItemPickup = AdjustBitflags(cd->TrigSpawnItemPickup, IP_TRIGGERSECRETS, true);
+// ```
+T AdjustBitflags<T>(T bitflags, T flag, bool value)
+{
+	if (value)
+		return bitflags | flag;
+	else
+		return bitflags & ~flag;
+}

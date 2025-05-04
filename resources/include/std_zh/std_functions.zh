@@ -2769,8 +2769,7 @@ int ScreenItem()
 void SetDMapFlag(int dmap, int flag, bool state)
 {
 	dmapdata dm = Game->LoadDMapData(dmap);
-	if(state) dm->Flags |= flag;
-	else dm->Flags ~= flag;
+	dm->Flags = AdjustBitflags(dm->Flags, flag, state);
 }
 
 //Writes items to both the A and the b item slots.
@@ -2867,13 +2866,11 @@ void SetLayerComboT(int layer, int pos, int val)
 //Gives or removes a level item from Link's inventory
 void SetLevelItem(int level, int itm, bool state)
 {
-	if(state) Game->LItems[level] |= itm;
-	else Game->LItems[level] &= ~itm;
+	Game->LItems[level] = AdjustBitflags(Game->LItems[level], itm, state);
 }
 void SetLevelItem(int itm, bool state)
 {
-	if(state) Game->LItems[Game->CurLevel] |= itm;
-	else Game->LItems[Game->CurLevel] &= ~itm;
+	Game->LItems[Game->CurLevel] = AdjustBitflags(Game->LItems[Game->CurLevel], itm, state);
 }
 
 //Helper function to set mapdata->Flags[] bits.

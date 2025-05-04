@@ -690,10 +690,10 @@ LOAD D2 0.0001
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 11 D2
-LOAD D2 0.0004; if() #100 Test
+LOAD D2 0.0004; if() #97 Test
 COMPAREV D2 0
 GOTOCMP 682 ==; Test 'if'
-LOAD D2 0.0004; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Params Start AND if() #100 Body Start
+LOAD D2 0.0004; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Params Start AND if() #97 Body Start
 PUSHR D2
 LOAD D2 0.0014
 PUSHR D2
@@ -706,8 +706,8 @@ LOAD D2 0.0006
 PUSHR D2; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Params End
 BMPPOLYGONR; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Body End
-GOTO 693; if() #100 Body End
-LOAD D2 0.0014; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params Start AND if() #100 Else Start
+GOTO 693; if() #97 Body End
+LOAD D2 0.0014; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params Start AND if() #97 Else Start
 PUSHR D2
 PUSHV 6
 LOAD D2 0.0001
@@ -717,7 +717,7 @@ PUSHR D2
 LOAD D2 0.0006
 PUSHR D2; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params End
 POLYGONR; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body Start
-POPARGS D5 0.0005; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body End AND if() #100 Else End
+POPARGS D5 0.0005; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body End AND if() #97 Else End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 REF_REMOVE 0.0004

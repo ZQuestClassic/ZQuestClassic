@@ -75,24 +75,24 @@ GOTO 38; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 PUSHR D0; void run(int) Params
 PUSHR REFITEMCLASS; void run(int) Body Start
 SETR D4 SP2
-LOAD D2 0.0001; if() #437 Test
+LOAD D2 0.0001; if() #434 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 62 ==; Test 'if'
-SETV D2 -1; if() #437 Body Start
+SETV D2 -1; if() #434 Body Start
 PUSHR D2
 SETR D2 GD26
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 6 D2
-GOTO 68; if() #437 Body End
-LOAD D2 0.0001; if() #437 Else Start
+GOTO 68; if() #434 Body End
+LOAD D2 0.0001; if() #434 Else Start
 PUSHR D2
 SETR D2 GD26
 SETR D0 D2
 POP D2
-WRITEPODARRAYVR 6 D2; if() #437 Else End
+WRITEPODARRAYVR 6 D2; if() #434 Else End
 POPARGS D5 0.0002
 QUIT; void run(int) Body End
 PUSHR D0; void run(int) Params
@@ -737,7 +737,7 @@ ADDV D2 1
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0.0005
-PUSHR D4; if() #288 Test
+PUSHR D4; if() #285 Test
 LOAD D2 0.0005; UsrFunc[bool __IsScriptNameChar(int, bool)] Params Start
 PUSHR D2
 PUSHV 1; UsrFunc[bool __IsScriptNameChar(int, bool)] Params End
@@ -745,7 +745,7 @@ CALLFUNC 1.4527; UsrFunc[bool __IsScriptNameChar(int, bool)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 814 ==; Test 'if'
-STOREV 0 0.0004; if() #288 Body Start
+STOREV 0 0.0004; if() #285 Body Start
 LOAD D2 0.0006; for() #146 setup
 ADDV D2 1
 STORE D2 0.0006
@@ -838,8 +838,8 @@ LOAD D3 0
 DEALLOCATEMEMR D3
 LOAD D3 0.0002
 DEALLOCATEMEMR D3; if() #553 Body End
-GOTO 907; if() #288 Body End
-LOAD D2 0.0005; if() #554 Test AND if() #288 Else Start
+GOTO 907; if() #285 Body End
+LOAD D2 0.0005; if() #554 Test AND if() #285 Else Start
 COMPAREV D2 48
 GOTOCMP 820 <
 LOAD D2 0.0005
@@ -932,7 +932,7 @@ WRITEPODARRAYVR 1 D2
 LOAD D2 0.0006
 SUBV D2 1
 STORE D2 0.0006; if() #554 Body End
-LOAD D2 0.0006; if() #288 Else End AND if() #552 Body End AND for() #145 Body End AND for() #145 LoopIncrement
+LOAD D2 0.0006; if() #285 Else End AND if() #552 Body End AND for() #145 Body End AND for() #145 LoopIncrement
 ADDV D2 1
 STORE D2 0.0006
 GOTO 691; for() #145 End
@@ -2071,7 +2071,7 @@ GOTOCMP 2046 ==; Test 'if'
 LOAD D2 0.0001; if() #488 Body Start
 ADDV D2 6.2832
 STORE D2 0.0001; if() #488 Body End
-LOAD D2 0.0001; if() #186 Test
+LOAD D2 0.0001; if() #185 Test
 COMPAREV D2 0.3927
 GOTOCMP 2054 <
 LOAD D2 0.0001
@@ -2082,60 +2082,60 @@ GOTO 2055
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 2060 ==; Test 'if'
-SETV D2 3; if() #186 Body Start
+SETV D2 3; if() #185 Body Start
 STORE D2 0
-GOTO 2110; if() #186 Body End
-LOAD D2 0.0001; if() #187 Test AND if() #186 Else Start
+GOTO 2110; if() #185 Body End
+LOAD D2 0.0001; if() #186 Test AND if() #185 Else Start
 COMPAREV D2 1.1781
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 2068 ==; Test 'if'
-SETV D2 7; if() #187 Body Start
+SETV D2 7; if() #186 Body Start
 STORE D2 0
-GOTO 2110; if() #187 Body End
-LOAD D2 0.0001; if() #188 Test AND if() #187 Else Start
+GOTO 2110; if() #186 Body End
+LOAD D2 0.0001; if() #187 Test AND if() #186 Else Start
 COMPAREV D2 1.9635
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 2076 ==; Test 'if'
-SETV D2 1; if() #188 Body Start
+SETV D2 1; if() #187 Body Start
 STORE D2 0
-GOTO 2110; if() #188 Body End
-LOAD D2 0.0001; if() #189 Test AND if() #188 Else Start
+GOTO 2110; if() #187 Body End
+LOAD D2 0.0001; if() #188 Test AND if() #187 Else Start
 COMPAREV D2 2.7489
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 2084 ==; Test 'if'
-SETV D2 6; if() #189 Body Start
+SETV D2 6; if() #188 Body Start
 STORE D2 0
-GOTO 2110; if() #189 Body End
-LOAD D2 0.0001; if() #190 Test AND if() #189 Else Start
+GOTO 2110; if() #188 Body End
+LOAD D2 0.0001; if() #189 Test AND if() #188 Else Start
 COMPAREV D2 3.5343
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 2092 ==; Test 'if'
-SETV D2 2; if() #190 Body Start
+SETV D2 2; if() #189 Body Start
 STORE D2 0
-GOTO 2110; if() #190 Body End
-LOAD D2 0.0001; if() #191 Test AND if() #190 Else Start
+GOTO 2110; if() #189 Body End
+LOAD D2 0.0001; if() #190 Test AND if() #189 Else Start
 COMPAREV D2 4.3197
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 2100 ==; Test 'if'
-SETV D2 4; if() #191 Body Start
+SETV D2 4; if() #190 Body Start
 STORE D2 0
-GOTO 2110; if() #191 Body End
-LOAD D2 0.0001; if() #192 Test AND if() #191 Else Start
+GOTO 2110; if() #190 Body End
+LOAD D2 0.0001; if() #191 Test AND if() #190 Else Start
 COMPAREV D2 5.1051
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 2108 ==; Test 'if'
-SETV D2 0; if() #192 Body Start
+SETV D2 0; if() #191 Body Start
 STORE D2 0
-GOTO 2110; if() #192 Body End
-SETV D2 5; if() #192 Else Start
-STORE D2 0; if() #192 Else End
-LOAD D2 0.0002; if() #191 Else End AND if() #190 Else End AND if() #189 Else End AND if() #188 Else End AND if() #187 Else End AND if() #186 Else End AND if() #489 Test
+GOTO 2110; if() #191 Body End
+SETV D2 5; if() #191 Else Start
+STORE D2 0; if() #191 Else End
+LOAD D2 0.0002; if() #190 Else End AND if() #189 Else End AND if() #188 Else End AND if() #187 Else End AND if() #186 Else End AND if() #185 Else End AND if() #489 Test
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -2166,13 +2166,13 @@ POPARGS D5 0.0003
 RETURNFUNC; Func[void SetEWeaponDir(eweapon)] Body End
 PUSHV 0; Func[void SetEWeaponRotation(eweapon)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; if() #210 Test
+LOAD D2 0.0001; if() #209 Test
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGULAR
 COMPAREV D2 0
 GOTOCMP 2222 ==; Test 'if'
-LOAD D2 0.0001; if() #210 Body Start
+LOAD D2 0.0001; if() #209 Body Start
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGLE
@@ -2186,7 +2186,7 @@ GOTOCMP 2161 ==; Test 'if'
 LOAD D2 0; if() #494 Body Start
 ADDV D2 6.2832
 STORE D2 0; if() #494 Body End
-LOAD D2 0; if() #211 Test
+LOAD D2 0; if() #210 Test
 COMPAREV D2 0.7854
 GOTOCMP 2169 <
 LOAD D2 0
@@ -2197,7 +2197,22 @@ GOTO 2170
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 2182 ==; Test 'if'
-SETV D2 4; if() #211 Body Start
+SETV D2 4; if() #210 Body Start
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_FLIP D2
+GOTO 2302; if() #210 Body End
+LOAD D2 0; if() #211 Test AND if() #210 Else Start
+COMPAREV D2 2.3562
+SETCMP D2 I<=
+COMPAREV D2 0
+GOTOCMP 2197 ==; Test 'if'
+SETV D2 3; if() #211 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -2208,11 +2223,11 @@ POP REFSPRITE
 SETR SPRITE_FLIP D2
 GOTO 2302; if() #211 Body End
 LOAD D2 0; if() #212 Test AND if() #211 Else Start
-COMPAREV D2 2.3562
-SETCMP D2 I<=
+COMPAREV D2 3.9270
+SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2197 ==; Test 'if'
-SETV D2 3; if() #212 Body Start
+GOTOCMP 2212 ==; Test 'if'
+SETV D2 7; if() #212 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -2222,12 +2237,7 @@ POP D2
 POP REFSPRITE
 SETR SPRITE_FLIP D2
 GOTO 2302; if() #212 Body End
-LOAD D2 0; if() #213 Test AND if() #212 Else Start
-COMPAREV D2 3.9270
-SETCMP D2 I<
-COMPAREV D2 0
-GOTOCMP 2212 ==; Test 'if'
-SETV D2 7; if() #213 Body Start
+SETV D2 0; if() #212 Else Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -2235,19 +2245,9 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_FLIP D2
-GOTO 2302; if() #213 Body End
-SETV D2 0; if() #213 Else Start
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-POP D2
-POP REFSPRITE
-SETR SPRITE_FLIP D2; if() #213 Else End
-GOTO 2302; if() #212 Else End AND if() #211 Else End AND if() #210 Body End
-PUSHR D4; if() #210 Else Start
+SETR SPRITE_FLIP D2; if() #212 Else End
+GOTO 2302; if() #211 Else End AND if() #210 Else End AND if() #209 Body End
+PUSHR D4; if() #209 Else Start
 LOAD D2 0.0001; UsrFunc[int __NormalizeDir(int)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -2255,7 +2255,7 @@ PUSHR SPRITE_DIR; UsrFunc[int __NormalizeDir(int)] Params End
 CALLFUNC 0.2440; UsrFunc[int __NormalizeDir(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #214 Test
+LOAD D2 0; if() #213 Test
 COMPAREV D2 0
 GOTOCMP 2241 ==
 LOAD D2 0
@@ -2269,7 +2269,7 @@ GOTO 2242
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 2254 ==; Test 'if'
-SETV D2 0; if() #214 Body Start
+SETV D2 0; if() #213 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -2278,8 +2278,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_FLIP D2
-GOTO 2302; if() #214 Body End
-LOAD D2 0; if() #215 Test AND if() #214 Else Start
+GOTO 2302; if() #213 Body End
+LOAD D2 0; if() #214 Test AND if() #213 Else Start
 COMPAREV D2 1
 GOTOCMP 2265 ==
 LOAD D2 0
@@ -2293,7 +2293,22 @@ GOTO 2266
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 2278 ==; Test 'if'
-SETV D2 3; if() #215 Body Start
+SETV D2 3; if() #214 Body Start
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_FLIP D2
+GOTO 2302; if() #214 Body End
+LOAD D2 0; if() #215 Test AND if() #214 Else Start
+COMPAREV D2 2
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 2293 ==; Test 'if'
+SETV D2 7; if() #215 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -2303,12 +2318,7 @@ POP D2
 POP REFSPRITE
 SETR SPRITE_FLIP D2
 GOTO 2302; if() #215 Body End
-LOAD D2 0; if() #216 Test AND if() #215 Else Start
-COMPAREV D2 2
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 2293 ==; Test 'if'
-SETV D2 7; if() #216 Body Start
+SETV D2 4; if() #215 Else Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -2316,18 +2326,8 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_FLIP D2
-GOTO 2302; if() #216 Body End
-SETV D2 4; if() #216 Else Start
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-POP D2
-POP REFSPRITE
-SETR SPRITE_FLIP D2; if() #216 Else End
-POPARGS D5 0.0002; if() #215 Else End AND if() #214 Else End AND if() #210 Else End
+SETR SPRITE_FLIP D2; if() #215 Else End
+POPARGS D5 0.0002; if() #214 Else End AND if() #213 Else End AND if() #209 Else End
 RETURNFUNC; Func[void SetEWeaponRotation(eweapon)] Body End
 SETR D4 SP2; Func[int __UnblockableDir(int)] Body Start
 LOAD D2 0; if() #683 Test
@@ -2545,12 +2545,12 @@ STOREV 0 0.0004
 STOREV 0 0.0003
 STOREV 0 0.0002
 STOREV 0 0.0001
-LOAD D2 0.0009; if() #302 Test
+LOAD D2 0.0009; if() #299 Test
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2642 ==; Test 'if'
-SETR D2 GD13; if() #302 Body Start
+SETR D2 GD13; if() #299 Body Start
 MULTV D2 16
 SETV D2 16
 PUSHR D2
@@ -2666,13 +2666,13 @@ GOTOCMP 2640 !=; Test 'unless'
 SETV D2 0; return Start AND unless() #580 Body Start
 GOTO 3293; return End AND unless() #580 Body End
 SETV D2 1; return Start
-GOTO 3293; return End AND if() #302 Body End
-LOAD D2 0.0009; if() #303 Test AND if() #302 Else Start
+GOTO 3293; return End AND if() #299 Body End
+LOAD D2 0.0009; if() #300 Test AND if() #299 Else Start
 COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2775 ==; Test 'if'
-SETR D2 GD13; if() #303 Body Start
+SETR D2 GD13; if() #300 Body Start
 MULTV D2 16
 SETV D2 16
 PUSHR D2
@@ -2799,13 +2799,13 @@ GOTOCMP 2773 !=; Test 'unless'
 SETV D2 0; return Start AND unless() #583 Body Start
 GOTO 3293; return End AND unless() #583 Body End
 SETV D2 1; return Start
-GOTO 3293; return End AND if() #303 Body End
-LOAD D2 0.0009; if() #304 Test AND if() #303 Else Start
+GOTO 3293; return End AND if() #300 Body End
+LOAD D2 0.0009; if() #301 Test AND if() #300 Else Start
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2915 ==; Test 'if'
-PUSHR D4; if() #584 Test AND if() #304 Body Start
+PUSHR D4; if() #584 Test AND if() #301 Body Start
 CALLFUNC 0.6394; UsrFunc[bool IsSideview()] Call
 POP D4
 COMPAREV D2 0
@@ -2939,13 +2939,13 @@ GOTOCMP 2913 !=; Test 'unless'
 SETV D2 0; return Start AND unless() #587 Body Start
 GOTO 3293; return End AND unless() #587 Body End
 SETV D2 1; return Start
-GOTO 3293; return End AND if() #304 Body End
-LOAD D2 0.0009; if() #305 Test AND if() #304 Else Start
+GOTO 3293; return End AND if() #301 Body End
+LOAD D2 0.0009; if() #302 Test AND if() #301 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3048 ==; Test 'if'
-SETR D2 GD12; if() #305 Body Start
+SETR D2 GD12; if() #302 Body Start
 MULTV D2 16
 SETV D2 16
 PUSHR D2
@@ -3072,13 +3072,13 @@ GOTOCMP 3046 !=; Test 'unless'
 SETV D2 0; return Start AND unless() #590 Body Start
 GOTO 3293; return End AND unless() #590 Body End
 SETV D2 1; return Start
-GOTO 3293; return End AND if() #305 Body End
-LOAD D2 0.0009; if() #306 Test AND if() #305 Else Start
+GOTO 3293; return End AND if() #302 Body End
+LOAD D2 0.0009; if() #303 Test AND if() #302 Else Start
 COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3109 ==; Test 'if'
-STOREV 0 0; if() #306 Body Start
+STOREV 0 0; if() #303 Body Start
 SETR D2 GD1
 PUSHR D2
 LOAD D2 0.0008
@@ -3133,13 +3133,13 @@ POP D3
 ADDR D2 D3
 SETR GD2 D2
 LOAD D2 0; return Start
-GOTO 3293; return End AND if() #306 Body End
-LOAD D2 0.0009; if() #307 Test AND if() #306 Else Start
+GOTO 3293; return End AND if() #303 Body End
+LOAD D2 0.0009; if() #304 Test AND if() #303 Else Start
 COMPAREV D2 5
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3170 ==; Test 'if'
-STOREV 0 0; if() #307 Body Start
+STOREV 0 0; if() #304 Body Start
 SETR D2 GD1
 PUSHR D2
 LOAD D2 0.0008
@@ -3194,13 +3194,13 @@ POP D3
 ADDR D2 D3
 SETR GD2 D2
 LOAD D2 0; return Start
-GOTO 3293; return End AND if() #307 Body End
-LOAD D2 0.0009; if() #308 Test AND if() #307 Else Start
+GOTO 3293; return End AND if() #304 Body End
+LOAD D2 0.0009; if() #305 Test AND if() #304 Else Start
 COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3231 ==; Test 'if'
-STOREV 0 0; if() #308 Body Start
+STOREV 0 0; if() #305 Body Start
 SETR D2 GD1
 PUSHR D2
 LOAD D2 0.0008
@@ -3255,13 +3255,13 @@ SUBR D3 D2
 SETR D2 D3
 SETR GD2 D2
 LOAD D2 0; return Start
-GOTO 3293; return End AND if() #308 Body End
-LOAD D2 0.0009; if() #309 Test AND if() #308 Else Start
+GOTO 3293; return End AND if() #305 Body End
+LOAD D2 0.0009; if() #306 Test AND if() #305 Else Start
 COMPAREV D2 7
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3292 ==; Test 'if'
-STOREV 0 0; if() #309 Body Start
+STOREV 0 0; if() #306 Body Start
 SETR D2 GD1
 PUSHR D2
 LOAD D2 0.0008
@@ -3316,9 +3316,9 @@ SUBR D3 D2
 SETR D2 D3
 SETR GD2 D2
 LOAD D2 0; return Start
-GOTO 3293; return End AND if() #309 Body End
-SETV D2 0; return Start AND if() #309 Else Start
-POPARGS D5 0.0010; return End AND if() #309 Else End AND if() #308 Else End AND if() #307 Else End AND if() #306 Else End AND if() #305 Else End AND if() #304 Else End AND if() #303 Else End AND if() #302 Else End
+GOTO 3293; return End AND if() #306 Body End
+SETV D2 0; return Start AND if() #306 Else Start
+POPARGS D5 0.0010; return End AND if() #306 Else End AND if() #305 Else End AND if() #304 Else End AND if() #303 Else End AND if() #302 Else End AND if() #301 Else End AND if() #300 Else End AND if() #299 Else End
 RETURNFUNC; Func[bool __Ghost_CanMoveSingle(int, int, int, bool)] Body End
 PUSHV 0; Func[bool Ghost_CanMovePixel(int, int, bool)] Body Start
 SETR D4 SP2
@@ -3950,7 +3950,7 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3984 ==; Test 'if'
-SETR D2 GD20; if() #338 Test AND if() #637 Body Start
+SETR D2 GD20; if() #335 Test AND if() #637 Body Start
 COMPAREV D2 0
 GOTOCMP 3930 <=
 SETV D2 1
@@ -3958,7 +3958,7 @@ GOTO 3931
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 3948 ==; Test 'if'
-SETR D2 GD26; if() #338 Body Start
+SETR D2 GD26; if() #335 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
@@ -3972,8 +3972,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_CSET D2
-GOTO 3984; if() #338 Body End
-LOAD D2 0.0001; if() #339 Test AND if() #338 Else Start
+GOTO 3984; if() #335 Body End
+LOAD D2 0.0001; if() #336 Test AND if() #335 Else Start
 PUSHR D2
 POP REFNPC
 SETR D2 NPCMFLAGS
@@ -3982,7 +3982,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 3972 ==; Test 'if'
-SETR D2 GD26; if() #339 Body Start
+SETR D2 GD26; if() #336 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
@@ -3996,8 +3996,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_CSET D2
-GOTO 3984; if() #339 Body End
-LOAD D2 0; if() #638 Test AND if() #339 Else Start
+GOTO 3984; if() #336 Body End
+LOAD D2 0; if() #638 Test AND if() #336 Else Start
 COMPAREV D2 0
 GOTOCMP 3984 ==; Test 'if'
 SETR D2 GD11; if() #638 Body Start
@@ -4009,7 +4009,7 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_CSET D2; if() #638 Body End
-POPARGS D5 0.0003; if() #339 Else End AND if() #338 Else End AND if() #637 Body End
+POPARGS D5 0.0003; if() #336 Else End AND if() #335 Else End AND if() #637 Body End
 RETURNFUNC; Func[void __Ghost_UpdateFlashing(ffc, npc)] Body End
 PUSHARGSV 0 0.0004; Func[void __Ghost_DrawShadow(npc)] Body Start
 SETR D4 SP2
@@ -4045,7 +4045,7 @@ STOREV 0 0.0003
 STOREV 0 0.0002
 STOREV 0 0.0001
 STOREV 0 0
-SETR D2 GD12; if() #310 Test
+SETR D2 GD12; if() #307 Test
 COMPAREV D2 3
 GOTOCMP 4028 <
 SETR D2 GD13
@@ -4056,7 +4056,7 @@ GOTO 4029
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 4077 ==; Test 'if'
-SETR D2 GD1; if() #310 Body Start
+SETR D2 GD1; if() #307 Body Start
 PUSHR D2
 SETR D2 GD12
 SUBV D2 1
@@ -4086,23 +4086,23 @@ ADDR D2 D3
 STORE D2 0.0002
 SETV D2 1
 STORE D2 0
-PUSHR D4; if() #311 Test
+PUSHR D4; if() #308 Test
 PUSHV 65540; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.3520; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 4070 ==; Test 'if'
-SETV D2 27400; if() #311 Body Start
+SETV D2 27400; if() #308 Body Start
 STORE D2 0.0001
-GOTO 4131; if() #311 Body End
-SETR D2 GD26; if() #311 Else Start
+GOTO 4131; if() #308 Body End
+SETR D2 GD26; if() #308 Else Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
 ADDV D2 27400
-STORE D2 0.0001; if() #311 Else End
-GOTO 4131; if() #310 Body End
-SETR D2 GD1; if() #310 Else Start
+STORE D2 0.0001; if() #308 Else End
+GOTO 4131; if() #307 Body End
+SETR D2 GD1; if() #307 Else Start
 PUSHR D2
 SETR D2 GD12
 SUBV D2 2
@@ -4132,16 +4132,16 @@ ADDR D2 D3
 STORE D2 0.0002
 SETV D2 2
 STORE D2 0
-PUSHR D4; if() #312 Test
+PUSHR D4; if() #309 Test
 PUSHV 65540; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.3520; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 4116 ==; Test 'if'
-SETV D2 27392; if() #312 Body Start
+SETV D2 27392; if() #309 Body Start
 STORE D2 0.0001
-GOTO 4131; if() #312 Body End
-SETR D2 GD26; if() #312 Else Start
+GOTO 4131; if() #309 Body End
+SETR D2 GD26; if() #309 Else Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 4
@@ -4155,8 +4155,8 @@ READPODARRAYV D2 4
 POP D3
 MULTR D2 D3
 ADDV D2 27392
-STORE D2 0.0001; if() #312 Else End
-PUSHV 1; if() #310 Else End AND InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if(true) #313 [Opt:AlwaysOn]
+STORE D2 0.0001; if() #309 Else End
+PUSHV 1; if() #307 Else End AND InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if(true) #310 [Opt:AlwaysOn]
 LOAD D2 0.0003
 PUSHR D2
 LOAD D2 0.0002
@@ -5945,10 +5945,10 @@ POP REFSPRITE
 SETR SPRITE_CSET D2
 LOAD D2 0
 SETR GD11 D2
-LOAD D2 0.0002; if() #316 Test
+LOAD D2 0.0002; if() #313 Test
 COMPAREV D2 0
 GOTOCMP 5944 ==; Test 'if'
-LOAD D2 0.0003; if() #316 Body Start
+LOAD D2 0.0003; if() #313 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -5968,8 +5968,8 @@ PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_JUMP
 SETR GD5 D2
-GOTO 5976; if() #316 Body End
-LOAD D2 0.0004; if() #316 Else Start
+GOTO 5976; if() #313 Body End
+LOAD D2 0.0004; if() #313 Else Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -6000,7 +6000,7 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_JUMP D2; if() #316 Else End
+SETR SPRITE_JUMP D2; if() #313 Else End
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
@@ -6044,7 +6044,7 @@ COMPAREV D2 1
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 6094 ==; Test 'if'
-SETV D2 3; if(true) #317 [Opt:AlwaysOn] AND if() #603 Body Start
+SETV D2 3; if(true) #314 [Opt:AlwaysOn] AND if() #603 Body Start
 PUSHR D2
 LOAD D2 0.0003
 POP D3
@@ -6128,7 +6128,7 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_X_OFFSET D2
-LOAD D2 0.0003; if() #318 Test
+LOAD D2 0.0003; if() #315 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCMFLAGS
@@ -6137,7 +6137,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 6125 ==; Test 'if'
-SETV D2 1; if() #318 Body Start
+SETV D2 1; if() #315 Body Start
 PUSHR D2
 LOAD D2 0.0004
 POP D3
@@ -6149,8 +6149,8 @@ POP D0
 POP D2
 POP REFFFC
 SETR FFFLAGSD D2
-GOTO 6137; if() #318 Body End
-SETV D2 0; if() #318 Else Start
+GOTO 6137; if() #315 Body End
+SETV D2 0; if() #315 Else Start
 PUSHR D2
 LOAD D2 0.0004
 POP D3
@@ -6161,7 +6161,7 @@ PUSHR D2
 POP D0
 POP D2
 POP REFFFC
-SETR FFFLAGSD D2; if() #318 Else End
+SETR FFFLAGSD D2; if() #315 Else End
 LOAD D2 0.0003
 PUSHR D2
 POP REFNPC
@@ -6675,13 +6675,13 @@ POPARGS D5 0.0005; return End
 RETURNFUNC; Func[bool Ghost_Waitframe(ffc, npc, bool, bool)] Body End
 PUSHARGSV 0 0.0002; Func[void __Ghost_WaitframePart1(ffc, npc, bool)] Body Start
 SETR D4 SP2
-SETR D2 GD17; if() #340 Test
+SETR D2 GD17; if() #337 Test
 ANDV D2 4
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 6666 ==; Test 'if'
-SETR D2 GD4; if() #340 Body Start
+SETR D2 GD4; if() #337 Body Start
 PUSHR D2
 LOAD D2 0.0003
 POP D3
@@ -6690,17 +6690,17 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_DIR D2
-GOTO 6763; if() #340 Body End
-LOAD D2 0.0002; if() #341 Test AND if() #340 Else Start
+GOTO 6763; if() #337 Body End
+LOAD D2 0.0002; if() #338 Test AND if() #337 Else Start
 COMPAREV D2 0
 GOTOCMP 6675 ==; Test 'if'
-LOAD D2 0.0003; if() #341 Body Start
+LOAD D2 0.0003; if() #338 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_DIR
 SETR GD4 D2
-GOTO 6763; if() #341 Body End
-PUSHR D4; if() #639 Test AND if() #341 Else Start
+GOTO 6763; if() #338 Body End
+PUSHR D4; if() #639 Test AND if() #338 Else Start
 PUSHV 64; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.3520; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
@@ -6737,13 +6737,13 @@ POP D3
 SUBR D3 D2
 SETR D2 D3
 STORE D2 0
-PUSHR D4; if() #342 Test
+PUSHR D4; if() #339 Test
 PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.3520; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 6732 ==; Test 'if'
-PUSHR D4; if() #342 Body Start
+PUSHR D4; if() #339 Body Start
 LOAD D2 0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int WrapRadians(int)] Params Start AND UsrFunc[int AngleDir8(int)] Params Start
 PUSHR D2
 LOAD D2 0
@@ -6756,8 +6756,8 @@ PUSHR D2; UsrFunc[int AngleDir8(int)] Params End
 CALLFUNC 0.0197; UsrFunc[int AngleDir8(int)] Call
 POP D4
 SETR GD4 D2
-GOTO 6763; if() #342 Body End
-LOAD D2 0.0001; InlineFunc[int Abs(int)] Params AND if() #343 Test AND if() #342 Else Start
+GOTO 6763; if() #339 Body End
+LOAD D2 0.0001; InlineFunc[int Abs(int)] Params AND if() #340 Test AND if() #339 Else Start
 ABS D2; InlineFunc[int Abs(int)] Body
 PUSHR D2
 LOAD D2 0; InlineFunc[int Abs(int)] Params
@@ -6767,28 +6767,28 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 6753 ==; Test 'if'
-LOAD D2 0.0001; if() #344 Test AND if() #343 Body Start
+LOAD D2 0.0001; if() #341 Test AND if() #340 Body Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6750 ==; Test 'if'
-SETV D2 2; if() #344 Body Start
+SETV D2 2; if() #341 Body Start
 SETR GD4 D2
-GOTO 6763; if() #344 Body End
-SETV D2 3; if() #344 Else Start
-SETR GD4 D2; if() #344 Else End
-GOTO 6763; if() #343 Body End
-LOAD D2 0; if() #345 Test AND if() #343 Else Start
+GOTO 6763; if() #341 Body End
+SETV D2 3; if() #341 Else Start
+SETR GD4 D2; if() #341 Else End
+GOTO 6763; if() #340 Body End
+LOAD D2 0; if() #342 Test AND if() #340 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6761 ==; Test 'if'
-SETV D2 0; if() #345 Body Start
+SETV D2 0; if() #342 Body Start
 SETR GD4 D2
-GOTO 6763; if() #345 Body End
-SETV D2 1; if() #345 Else Start
-SETR GD4 D2; if() #345 Else End
-SETR D2 GD4; if() #343 Else End AND if() #342 Else End AND if() #639 Body End AND if() #341 Else End AND if() #340 Else End
+GOTO 6763; if() #342 Body End
+SETV D2 1; if() #342 Else Start
+SETR GD4 D2; if() #342 Else End
+SETR D2 GD4; if() #340 Else End AND if() #339 Else End AND if() #639 Body End AND if() #338 Else End AND if() #337 Else End
 PUSHR D2
 LOAD D2 0.0003
 POP D3
@@ -6801,7 +6801,7 @@ SETR D2 GD1
 SETR GD18 D2
 SETR D2 GD2
 SETR GD19 D2
-SETR D2 GD10; if() #346 Test
+SETR D2 GD10; if() #343 Test
 COMPAREV D2 0
 GOTOCMP 6784 ==
 SETR D2 GD10
@@ -6812,7 +6812,7 @@ GOTO 6785
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6808 ==; Test 'if'
-LOAD D2 0.0004; if() #640 Test AND if() #346 Body Start
+LOAD D2 0.0004; if() #640 Test AND if() #343 Body Start
 PUSHR D2
 POP REFFFC
 SETR D2 DATA
@@ -6832,14 +6832,14 @@ PUSHR D3
 POP D2
 POP REFFFC
 SETR DATA D2; if() #640 Body End
-GOTO 6904; if() #346 Body End
-PUSHR D4; if() #347 Test AND if() #346 Else Start
+GOTO 6904; if() #343 Body End
+PUSHR D4; if() #344 Test AND if() #343 Else Start
 PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.3520; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 6846 ==; Test 'if'
-LOAD D2 0.0004; if() #641 Test AND if() #347 Body Start
+LOAD D2 0.0004; if() #641 Test AND if() #344 Body Start
 PUSHR D2
 POP REFFFC
 SETR D2 DATA
@@ -6870,14 +6870,14 @@ PUSHR D3
 POP D2
 POP REFFFC
 SETR DATA D2; if() #641 Body End
-GOTO 6904; if() #347 Body End
-PUSHR D4; if() #348 Test AND if() #347 Else Start
+GOTO 6904; if() #344 Body End
+PUSHR D4; if() #345 Test AND if() #344 Else Start
 PUSHV 256; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.3520; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 6884 ==; Test 'if'
-LOAD D2 0.0004; if() #642 Test AND if() #348 Body Start
+LOAD D2 0.0004; if() #642 Test AND if() #345 Body Start
 PUSHR D2
 POP REFFFC
 SETR D2 DATA
@@ -6908,8 +6908,8 @@ PUSHR D3
 POP D2
 POP REFFFC
 SETR DATA D2; if() #642 Body End
-GOTO 6904; if() #348 Body End
-LOAD D2 0.0004; if() #643 Test AND if() #348 Else Start
+GOTO 6904; if() #345 Body End
+LOAD D2 0.0004; if() #643 Test AND if() #345 Else Start
 PUSHR D2
 POP REFFFC
 SETR D2 DATA
@@ -6929,7 +6929,7 @@ PUSHR D3
 POP D2
 POP REFFFC
 SETR DATA D2; if() #643 Body End
-LOAD D2 0.0004; if() #348 Else End AND if() #347 Else End AND if() #346 Else End AND if() #644 Test
+LOAD D2 0.0004; if() #345 Else End AND if() #344 Else End AND if() #343 Else End AND if() #644 Test
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_TILE_W
@@ -7063,7 +7063,7 @@ CALLFUNC 0.3520; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 7097 ==; Test 'if'
-SETR D2 GD3; if() #349 Test AND if() #648 Body Start
+SETR D2 GD3; if() #346 Test AND if() #648 Body Start
 COMPAREV D2 32
 GOTOCMP 7052 <
 LOAD D2 0.0004
@@ -7080,7 +7080,7 @@ GOTO 7053
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 7068 ==; Test 'if'
-SETV D2 1; if() #349 Body Start
+SETV D2 1; if() #346 Body Start
 PUSHR D2
 LOAD D2 0.0004
 POP D3
@@ -7092,8 +7092,8 @@ POP D0
 POP D2
 POP REFFFC
 SETR FFFLAGSD D2
-GOTO 7097; if() #349 Body End
-SETR D2 GD3; if() #649 Test AND if() #349 Else Start
+GOTO 7097; if() #346 Body End
+SETR D2 GD3; if() #649 Test AND if() #346 Else Start
 COMPAREV D2 32
 GOTOCMP 7082 >=
 LOAD D2 0.0004
@@ -7122,7 +7122,7 @@ POP D0
 POP D2
 POP REFFFC
 SETR FFFLAGSD D2; if() #649 Body End
-SETR D2 GD14; if() #349 Else End AND if() #648 Body End
+SETR D2 GD14; if() #346 Else End AND if() #648 Body End
 PUSHR D2
 LOAD D2 0.0003
 POP D3
@@ -7140,13 +7140,13 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_CSET D2
-SETR D2 GD17; if() #350 Test
+SETR D2 GD17; if() #347 Test
 ANDV D2 8
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 7131 ==; Test 'if'
-SETR D2 GD11; if() #350 Body Start
+SETR D2 GD11; if() #347 Body Start
 PUSHR D2
 LOAD D2 0.0004
 POP D3
@@ -7155,8 +7155,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_CSET D2
-GOTO 7145; if() #350 Body End
-SETR D2 GD20; if() #650 Test AND if() #350 Else Start
+GOTO 7145; if() #347 Body End
+SETR D2 GD20; if() #650 Test AND if() #347 Else Start
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
@@ -7170,7 +7170,7 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_CSET D2; if() #650 Body End
-PUSHR D4; if() #350 Else End
+PUSHR D4; if() #347 Else End
 LOAD D2 0.0003; UsrFunc[void __Ghost_DrawShadow(npc)] Params Start
 PUSHR D2; UsrFunc[void __Ghost_DrawShadow(npc)] Params End
 CALLFUNC 0.3986; UsrFunc[void __Ghost_DrawShadow(npc)] Call
@@ -7861,7 +7861,7 @@ PUSHR D2; UsrFunc[int __NormalizeDir(int)] Params End
 CALLFUNC 0.2440; UsrFunc[int __NormalizeDir(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #217 Test
+LOAD D2 0; if() #216 Test
 COMPAREV D2 0
 GOTOCMP 7847 ==
 LOAD D2 0
@@ -7875,7 +7875,7 @@ GOTO 7848
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 7860 ==; Test 'if'
-SETV D2 0; if() #217 Body Start
+SETV D2 0; if() #216 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -7884,8 +7884,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_FLIP D2
-GOTO 7908; if() #217 Body End
-LOAD D2 0; if() #218 Test AND if() #217 Else Start
+GOTO 7908; if() #216 Body End
+LOAD D2 0; if() #217 Test AND if() #216 Else Start
 COMPAREV D2 1
 GOTOCMP 7871 ==
 LOAD D2 0
@@ -7899,7 +7899,22 @@ GOTO 7872
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 7884 ==; Test 'if'
-SETV D2 3; if() #218 Body Start
+SETV D2 3; if() #217 Body Start
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_FLIP D2
+GOTO 7908; if() #217 Body End
+LOAD D2 0; if() #218 Test AND if() #217 Else Start
+COMPAREV D2 2
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 7899 ==; Test 'if'
+SETV D2 7; if() #218 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -7909,12 +7924,7 @@ POP D2
 POP REFSPRITE
 SETR SPRITE_FLIP D2
 GOTO 7908; if() #218 Body End
-LOAD D2 0; if() #219 Test AND if() #218 Else Start
-COMPAREV D2 2
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 7899 ==; Test 'if'
-SETV D2 7; if() #219 Body Start
+SETV D2 4; if() #218 Else Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -7922,36 +7932,26 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_FLIP D2
-GOTO 7908; if() #219 Body End
-SETV D2 4; if() #219 Else Start
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-POP D2
-POP REFSPRITE
-SETR SPRITE_FLIP D2; if() #219 Else End
-POPARGS D5 0.0002; if() #218 Else End AND if() #217 Else End
+SETR SPRITE_FLIP D2; if() #218 Else End
+POPARGS D5 0.0002; if() #217 Else End AND if() #216 Else End
 RETURNFUNC; Func[void SetEWeaponRotation(eweapon, int)] Body End
 SETR D4 SP2; Func[int Sign(int)] Body Start
-LOAD D2 0; if() #235 Test
+LOAD D2 0; if() #232 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7918 ==; Test 'if'
-SETV D2 1; return Start AND if() #235 Body Start
-GOTO 7926; return End AND if() #235 Body End
-LOAD D2 0; if() #236 Test AND if() #235 Else Start
+SETV D2 1; return Start AND if() #232 Body Start
+GOTO 7926; return End AND if() #232 Body End
+LOAD D2 0; if() #233 Test AND if() #232 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 7925 ==; Test 'if'
-SETV D2 -1; return Start AND if() #236 Body Start
-GOTO 7926; return End AND if() #236 Body End
-SETV D2 0; return Start AND if() #236 Else Start
-POP D5; return End AND if() #236 Else End AND if() #235 Else End
+SETV D2 -1; return Start AND if() #233 Body Start
+GOTO 7926; return End AND if() #233 Body End
+SETV D2 0; return Start AND if() #233 Else Start
+POP D5; return End AND if() #233 Else End AND if() #232 Else End
 RETURNFUNC; Func[int Sign(int)] Body End
 SETR D4 SP2; Func[void StartGhostZH()] Body Start
 PUSHR D4
@@ -7980,7 +7980,7 @@ POP REFSPRITE
 SETR D2 SPRITE_Y
 STORE D2 0.0005
 STOREV 1 0.0004
-LOAD D2 0.0007; if() #245 Test
+LOAD D2 0.0007; if() #242 Test
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -7992,7 +7992,7 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8348 ==; Test 'if'
-LOAD D2 0.0007; if() #526 Test AND if() #245 Body Start
+LOAD D2 0.0007; if() #526 Test AND if() #242 Body Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8003,7 +8003,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 8190 ==; Test 'if'
-LOAD D2 0.0007; if() #246 Test AND if() #526 Body Start
+LOAD D2 0.0007; if() #243 Test AND if() #526 Body Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8014,7 +8014,7 @@ COMPAREV D2 6
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 8063 ==; Test 'if'
-LOAD D2 0.0007; if() #247 Test AND if() #246 Body Start
+LOAD D2 0.0007; if() #244 Test AND if() #243 Body Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8025,13 +8025,13 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8006 ==; Test 'if'
-PUSHR D4; if() #247 Body Start
+PUSHR D4; if() #244 Body Start
 LOAD D2 0.0007; UsrFunc[void __UpdateEWMSineWave(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __UpdateEWMSineWave(eweapon)] Params End
 CALLFUNC 0.9079; UsrFunc[void __UpdateEWMSineWave(eweapon)] Call
 POP D4
-GOTO 8190; if() #247 Body End
-LOAD D2 0.0007; if() #248 Test AND if() #247 Else Start
+GOTO 8190; if() #244 Body End
+LOAD D2 0.0007; if() #245 Test AND if() #244 Else Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8042,13 +8042,13 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8023 ==; Test 'if'
-PUSHR D4; if() #248 Body Start
+PUSHR D4; if() #245 Body Start
 LOAD D2 0.0007; UsrFunc[void __UpdateEWMHoming(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __UpdateEWMHoming(eweapon)] Params End
 CALLFUNC 0.9261; UsrFunc[void __UpdateEWMHoming(eweapon)] Call
 POP D4
-GOTO 8190; if() #248 Body End
-LOAD D2 0.0007; if() #249 Test AND if() #248 Else Start
+GOTO 8190; if() #245 Body End
+LOAD D2 0.0007; if() #246 Test AND if() #245 Else Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8059,13 +8059,13 @@ COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8040 ==; Test 'if'
-PUSHR D4; if() #249 Body Start
+PUSHR D4; if() #246 Body Start
 LOAD D2 0.0007; UsrFunc[void __UpdateEWMHomingReaim(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __UpdateEWMHomingReaim(eweapon)] Params End
 CALLFUNC 0.9473; UsrFunc[void __UpdateEWMHomingReaim(eweapon)] Call
 POP D4
-GOTO 8190; if() #249 Body End
-LOAD D2 0.0007; if() #250 Test AND if() #249 Else Start
+GOTO 8190; if() #246 Body End
+LOAD D2 0.0007; if() #247 Test AND if() #246 Else Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8076,19 +8076,19 @@ COMPAREV D2 5
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8057 ==; Test 'if'
-PUSHR D4; if() #250 Body Start
+PUSHR D4; if() #247 Body Start
 LOAD D2 0.0007; UsrFunc[void __UpdateEWMRandom(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __UpdateEWMRandom(eweapon)] Params End
 CALLFUNC 0.9814; UsrFunc[void __UpdateEWMRandom(eweapon)] Call
 POP D4
-GOTO 8190; if() #250 Body End
-PUSHR D4; if() #250 Else Start
+GOTO 8190; if() #247 Body End
+PUSHR D4; if() #247 Else Start
 LOAD D2 0.0007; UsrFunc[void __UpdateEWMRandomReaim(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __UpdateEWMRandomReaim(eweapon)] Params End
 CALLFUNC 0.9934; UsrFunc[void __UpdateEWMRandomReaim(eweapon)] Call
-POP D4; if() #250 Else End
-GOTO 8190; if() #249 Else End AND if() #248 Else End AND if() #247 Else End AND if() #246 Body End
-LOAD D2 0.0007; if() #251 Test AND if() #246 Else Start
+POP D4; if() #247 Else End
+GOTO 8190; if() #246 Else End AND if() #245 Else End AND if() #244 Else End AND if() #243 Body End
+LOAD D2 0.0007; if() #248 Test AND if() #243 Else Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8099,7 +8099,7 @@ COMPAREV D2 7
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8098 ==; Test 'if'
-LOAD D2 0.0007; if() #251 Body Start
+LOAD D2 0.0007; if() #248 Body Start
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -8122,8 +8122,8 @@ CALLFUNC 1.0246; UsrFunc[void __UpdateEWMVeer(eweapon)] Call
 POP D4
 SETV D2 0
 STORE D2 0.0004
-GOTO 8190; if() #251 Body End
-LOAD D2 0.0007; if() #252 Test AND if() #251 Else Start
+GOTO 8190; if() #248 Body End
+LOAD D2 0.0007; if() #249 Test AND if() #248 Else Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8134,13 +8134,13 @@ COMPAREV D2 15
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8115 ==; Test 'if'
-PUSHR D4; if() #252 Body Start
+PUSHR D4; if() #249 Body Start
 LOAD D2 0.0007; UsrFunc[void __UpdateEWMThrow(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __UpdateEWMThrow(eweapon)] Params End
 CALLFUNC 1.0778; UsrFunc[void __UpdateEWMThrow(eweapon)] Call
 POP D4
-GOTO 8190; if() #252 Body End
-LOAD D2 0.0007; if() #253 Test AND if() #252 Else Start
+GOTO 8190; if() #249 Body End
+LOAD D2 0.0007; if() #250 Test AND if() #249 Else Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8151,13 +8151,13 @@ COMPAREV D2 19
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8132 ==; Test 'if'
-PUSHR D4; if() #253 Body Start
+PUSHR D4; if() #250 Body Start
 LOAD D2 0.0007; UsrFunc[void __UpdateEWMFall(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __UpdateEWMFall(eweapon)] Params End
 CALLFUNC 1.1088; UsrFunc[void __UpdateEWMFall(eweapon)] Call
 POP D4
-GOTO 8190; if() #253 Body End
-LOAD D2 0.0007; if() #254 Test AND if() #253 Else Start
+GOTO 8190; if() #250 Body End
+LOAD D2 0.0007; if() #251 Test AND if() #250 Else Start
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -8168,7 +8168,7 @@ COMPAREV D2 20
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8167 ==; Test 'if'
-LOAD D2 0.0007; if() #254 Body Start
+LOAD D2 0.0007; if() #251 Body Start
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -8191,8 +8191,8 @@ CALLFUNC 1.1354; UsrFunc[void __UpdateEWMDrift(eweapon)] Call
 POP D4
 SETV D2 0
 STORE D2 0.0004
-GOTO 8190; if() #254 Body End
-LOAD D2 0.0007; if() #254 Else Start
+GOTO 8190; if() #251 Body End
+LOAD D2 0.0007; if() #251 Else Start
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -8214,8 +8214,8 @@ PUSHR D2; UsrFunc[void __UpdateEWMDriftWait(eweapon)] Params End
 CALLFUNC 1.1858; UsrFunc[void __UpdateEWMDriftWait(eweapon)] Call
 POP D4
 SETV D2 0
-STORE D2 0.0004; if() #254 Else End
-LOAD D2 0.0007; if() #253 Else End AND if() #252 Else End AND if() #251 Else End AND if() #246 Else End AND if() #526 Body End AND if() #527 Test
+STORE D2 0.0004; if() #251 Else End
+LOAD D2 0.0007; if() #250 Else End AND if() #249 Else End AND if() #248 Else End AND if() #243 Else End AND if() #526 Body End AND if() #527 Test
 PUSHR D2
 SETV D2 11
 PUSHR D2
@@ -8226,7 +8226,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 8658 ==; Test 'if'
-LOAD D2 0.0007; if() #255 Test AND if() #527 Body Start
+LOAD D2 0.0007; if() #252 Test AND if() #527 Body Start
 PUSHR D2
 SETV D2 11
 PUSHR D2
@@ -8237,7 +8237,7 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8248 ==; Test 'if'
-LOAD D2 0.0007; if() #255 Body Start
+LOAD D2 0.0007; if() #252 Body Start
 PUSHR D2
 SETV D2 12
 PUSHR D2
@@ -8272,8 +8272,8 @@ LOAD D2 0.0007; UsrFunc[void KillEWeapon(eweapon)] Params Start
 PUSHR D2; UsrFunc[void KillEWeapon(eweapon)] Params End
 CALLFUNC 0.7689; UsrFunc[void KillEWeapon(eweapon)] Call
 POP D4; if() #528 Body End
-GOTO 8658; if() #255 Body End
-LOAD D2 0.0007; if() #256 Test AND if() #255 Else Start
+GOTO 8658; if() #252 Body End
+LOAD D2 0.0007; if() #253 Test AND if() #252 Else Start
 PUSHR D2
 SETV D2 11
 PUSHR D2
@@ -8284,7 +8284,7 @@ COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8298 ==; Test 'if'
-LOAD D2 0.0007; InlineFunc[int Distance(int, int, int, int)] Params Start AND if() #529 Test AND if() #256 Body Start
+LOAD D2 0.0007; InlineFunc[int Distance(int, int, int, int)] Params Start AND if() #529 Test AND if() #253 Body Start
 PUSHR D2
 POP REFSPRITE
 PUSHR SPRITE_X
@@ -8322,8 +8322,8 @@ LOAD D2 0.0007; UsrFunc[void KillEWeapon(eweapon)] Params Start
 PUSHR D2; UsrFunc[void KillEWeapon(eweapon)] Params End
 CALLFUNC 0.7689; UsrFunc[void KillEWeapon(eweapon)] Call
 POP D4; if() #529 Body End
-GOTO 8658; if() #256 Body End
-LOAD D2 0.0007; if() #530 Test AND if() #256 Else Start
+GOTO 8658; if() #253 Body End
+LOAD D2 0.0007; if() #530 Test AND if() #253 Else Start
 PUSHR D2
 SETV D2 11
 PUSHR D2
@@ -8372,8 +8372,8 @@ LOAD D2 0.0007; UsrFunc[void KillEWeapon(eweapon)] Params Start
 PUSHR D2; UsrFunc[void KillEWeapon(eweapon)] Params End
 CALLFUNC 0.7689; UsrFunc[void KillEWeapon(eweapon)] Call
 POP D4; if() #531 Body End
-GOTO 8658; if() #530 Body End AND if() #256 Else End AND if() #255 Else End AND if() #527 Body End AND if() #245 Body End
-LOAD D2 0.0007; if() #532 Test AND if() #245 Else Start
+GOTO 8658; if() #530 Body End AND if() #253 Else End AND if() #252 Else End AND if() #527 Body End AND if() #242 Body End
+LOAD D2 0.0007; if() #532 Test AND if() #242 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8397,7 +8397,7 @@ GOTO 8370
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 8658 ==; Test 'if'
-LOAD D2 0.0007; if() #257 Test AND if() #532 Body Start
+LOAD D2 0.0007; if() #254 Test AND if() #532 Body Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8408,13 +8408,13 @@ COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 8389 ==; Test 'if'
-PUSHR D4; if() #257 Body Start
+PUSHR D4; if() #254 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeathPrototype(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeathPrototype(eweapon)] Params End
 CALLFUNC 1.2393; UsrFunc[void __DoEWeaponDeathPrototype(eweapon)] Call
 POP D4
-GOTO 8658; if() #257 Body End
-LOAD D2 0.0007; if() #258 Test AND if() #257 Else Start
+GOTO 8658; if() #254 Body End
+LOAD D2 0.0007; if() #255 Test AND if() #254 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8425,7 +8425,7 @@ COMPAREV D2 8
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 8523 ==; Test 'if'
-LOAD D2 0.0007; if() #259 Test AND if() #258 Body Start
+LOAD D2 0.0007; if() #256 Test AND if() #255 Body Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8436,7 +8436,7 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8421 ==; Test 'if'
-SETV D2 0; if() #259 Body Start
+SETV D2 0; if() #256 Body Start
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -8445,8 +8445,8 @@ PUSHR D3
 POP D2
 POP REFEWPN
 SETR EWPNDEAD D2
-GOTO 8658; if() #259 Body End
-LOAD D2 0.0007; if() #260 Test AND if() #259 Else Start
+GOTO 8658; if() #256 Body End
+LOAD D2 0.0007; if() #257 Test AND if() #256 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8457,13 +8457,13 @@ COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8438 ==; Test 'if'
-PUSHR D4; if() #260 Body Start
+PUSHR D4; if() #257 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeathAimAtLink(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeathAimAtLink(eweapon)] Params End
 CALLFUNC 1.2804; UsrFunc[void __DoEWeaponDeathAimAtLink(eweapon)] Call
 POP D4
-GOTO 8658; if() #260 Body End
-LOAD D2 0.0007; if() #261 Test AND if() #260 Else Start
+GOTO 8658; if() #257 Body End
+LOAD D2 0.0007; if() #258 Test AND if() #257 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8474,13 +8474,13 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8455 ==; Test 'if'
-PUSHR D4; if() #261 Body Start
+PUSHR D4; if() #258 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeathExplode(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeathExplode(eweapon)] Params End
 CALLFUNC 1.2977; UsrFunc[void __DoEWeaponDeathExplode(eweapon)] Call
 POP D4
-GOTO 8658; if() #261 Body End
-LOAD D2 0.0007; if() #262 Test AND if() #261 Else Start
+GOTO 8658; if() #258 Body End
+LOAD D2 0.0007; if() #259 Test AND if() #258 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8491,13 +8491,13 @@ COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8472 ==; Test 'if'
-PUSHR D4; if() #262 Body Start
+PUSHR D4; if() #259 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeathSBombExplode(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeathSBombExplode(eweapon)] Params End
 CALLFUNC 1.3021; UsrFunc[void __DoEWeaponDeathSBombExplode(eweapon)] Call
 POP D4
-GOTO 8658; if() #262 Body End
-LOAD D2 0.0007; if() #263 Test AND if() #262 Else Start
+GOTO 8658; if() #259 Body End
+LOAD D2 0.0007; if() #260 Test AND if() #259 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8508,13 +8508,13 @@ COMPAREV D2 5
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8489 ==; Test 'if'
-PUSHR D4; if() #263 Body Start
+PUSHR D4; if() #260 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeath4FireballsHV(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeath4FireballsHV(eweapon)] Params End
 CALLFUNC 1.3065; UsrFunc[void __DoEWeaponDeath4FireballsHV(eweapon)] Call
 POP D4
-GOTO 8658; if() #263 Body End
-LOAD D2 0.0007; if() #264 Test AND if() #263 Else Start
+GOTO 8658; if() #260 Body End
+LOAD D2 0.0007; if() #261 Test AND if() #260 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8525,13 +8525,13 @@ COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8506 ==; Test 'if'
-PUSHR D4; if() #264 Body Start
+PUSHR D4; if() #261 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeath4FireballsDiag(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeath4FireballsDiag(eweapon)] Params End
 CALLFUNC 1.3123; UsrFunc[void __DoEWeaponDeath4FireballsDiag(eweapon)] Call
 POP D4
-GOTO 8658; if() #264 Body End
-LOAD D2 0.0007; if() #533 Test AND if() #264 Else Start
+GOTO 8658; if() #261 Body End
+LOAD D2 0.0007; if() #533 Test AND if() #261 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8547,8 +8547,8 @@ LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeath4FireballsRand(eweapon)] Params Sta
 PUSHR D2; UsrFunc[void __DoEWeaponDeath4FireballsRand(eweapon)] Params End
 CALLFUNC 1.3181; UsrFunc[void __DoEWeaponDeath4FireballsRand(eweapon)] Call
 POP D4; if() #533 Body End
-GOTO 8658; if() #264 Else End AND if() #263 Else End AND if() #262 Else End AND if() #261 Else End AND if() #260 Else End AND if() #259 Else End AND if() #258 Body End
-LOAD D2 0.0007; if() #265 Test AND if() #258 Else Start
+GOTO 8658; if() #261 Else End AND if() #260 Else End AND if() #259 Else End AND if() #258 Else End AND if() #257 Else End AND if() #256 Else End AND if() #255 Body End
+LOAD D2 0.0007; if() #262 Test AND if() #255 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8559,13 +8559,13 @@ COMPAREV D2 8
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8540 ==; Test 'if'
-PUSHR D4; if() #265 Body Start
+PUSHR D4; if() #262 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeath8Fireballs(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeath8Fireballs(eweapon)] Params End
 CALLFUNC 1.3291; UsrFunc[void __DoEWeaponDeath8Fireballs(eweapon)] Call
 POP D4
-GOTO 8658; if() #265 Body End
-LOAD D2 0.0007; if() #266 Test AND if() #265 Else Start
+GOTO 8658; if() #262 Body End
+LOAD D2 0.0007; if() #263 Test AND if() #262 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8576,13 +8576,13 @@ COMPAREV D2 9
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8557 ==; Test 'if'
-PUSHR D4; if() #266 Body Start
+PUSHR D4; if() #263 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeath4FiresHV(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeath4FiresHV(eweapon)] Params End
 CALLFUNC 1.3349; UsrFunc[void __DoEWeaponDeath4FiresHV(eweapon)] Call
 POP D4
-GOTO 8658; if() #266 Body End
-LOAD D2 0.0007; if() #267 Test AND if() #266 Else Start
+GOTO 8658; if() #263 Body End
+LOAD D2 0.0007; if() #264 Test AND if() #263 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8593,13 +8593,13 @@ COMPAREV D2 10
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8574 ==; Test 'if'
-PUSHR D4; if() #267 Body Start
+PUSHR D4; if() #264 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeath4FiresDiag(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeath4FiresDiag(eweapon)] Params End
 CALLFUNC 1.3409; UsrFunc[void __DoEWeaponDeath4FiresDiag(eweapon)] Call
 POP D4
-GOTO 8658; if() #267 Body End
-LOAD D2 0.0007; if() #268 Test AND if() #267 Else Start
+GOTO 8658; if() #264 Body End
+LOAD D2 0.0007; if() #265 Test AND if() #264 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8610,13 +8610,13 @@ COMPAREV D2 11
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8591 ==; Test 'if'
-PUSHR D4; if() #268 Body Start
+PUSHR D4; if() #265 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeath4FiresRand(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeath4FiresRand(eweapon)] Params End
 CALLFUNC 1.3469; UsrFunc[void __DoEWeaponDeath4FiresRand(eweapon)] Call
 POP D4
-GOTO 8658; if() #268 Body End
-LOAD D2 0.0007; if() #269 Test AND if() #268 Else Start
+GOTO 8658; if() #265 Body End
+LOAD D2 0.0007; if() #266 Test AND if() #265 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8627,13 +8627,13 @@ COMPAREV D2 12
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8608 ==; Test 'if'
-PUSHR D4; if() #269 Body Start
+PUSHR D4; if() #266 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeath8Fires(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeath8Fires(eweapon)] Params End
 CALLFUNC 1.3581; UsrFunc[void __DoEWeaponDeath8Fires(eweapon)] Call
 POP D4
-GOTO 8658; if() #269 Body End
-LOAD D2 0.0007; if() #270 Test AND if() #269 Else Start
+GOTO 8658; if() #266 Body End
+LOAD D2 0.0007; if() #267 Test AND if() #266 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8644,13 +8644,13 @@ COMPAREV D2 13
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8625 ==; Test 'if'
-PUSHR D4; if() #270 Body Start
+PUSHR D4; if() #267 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeathSpawnNPC(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeathSpawnNPC(eweapon)] Params End
 CALLFUNC 1.3686; UsrFunc[void __DoEWeaponDeathSpawnNPC(eweapon)] Call
 POP D4
-GOTO 8658; if() #270 Body End
-LOAD D2 0.0007; if() #271 Test AND if() #270 Else Start
+GOTO 8658; if() #267 Body End
+LOAD D2 0.0007; if() #268 Test AND if() #267 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8661,13 +8661,13 @@ COMPAREV D2 14
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8642 ==; Test 'if'
-PUSHR D4; if() #271 Body Start
+PUSHR D4; if() #268 Body Start
 LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeathSingleFire(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeathSingleFire(eweapon)] Params End
 CALLFUNC 1.3733; UsrFunc[void __DoEWeaponDeathSingleFire(eweapon)] Call
 POP D4
-GOTO 8658; if() #271 Body End
-LOAD D2 0.0007; if() #534 Test AND if() #271 Else Start
+GOTO 8658; if() #268 Body End
+LOAD D2 0.0007; if() #534 Test AND if() #268 Else Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
@@ -8683,7 +8683,7 @@ LOAD D2 0.0007; UsrFunc[void __DoEWeaponDeathRunScript(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __DoEWeaponDeathRunScript(eweapon)] Params End
 CALLFUNC 1.3784; UsrFunc[void __DoEWeaponDeathRunScript(eweapon)] Call
 POP D4; if() #534 Body End
-LOAD D2 0.0007; if() #271 Else End AND if() #270 Else End AND if() #269 Else End AND if() #268 Else End AND if() #267 Else End AND if() #266 Else End AND if() #265 Else End AND if() #258 Else End AND if() #257 Else End AND if() #532 Body End AND if() #245 Else End AND if() #535 Test
+LOAD D2 0.0007; if() #268 Else End AND if() #267 Else End AND if() #266 Else End AND if() #265 Else End AND if() #264 Else End AND if() #263 Else End AND if() #262 Else End AND if() #255 Else End AND if() #254 Else End AND if() #532 Body End AND if() #242 Else End AND if() #535 Test
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -8708,7 +8708,7 @@ LOAD D2 0.0007; UsrFunc[void DrawEWeaponShadow(eweapon)] Params Start
 PUSHR D2; UsrFunc[void DrawEWeaponShadow(eweapon)] Params End
 CALLFUNC 0.1224; UsrFunc[void DrawEWeaponShadow(eweapon)] Call
 POP D4; if() #536 Body End
-LOAD D2 0.0007; if() #535 Body End AND if() #272 Test
+LOAD D2 0.0007; if() #535 Body End AND if() #269 Test
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -8720,7 +8720,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 8966 ==; Test 'if'
-SETV D2 1000; if() #272 Body Start
+SETV D2 1000; if() #269 Body Start
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -8759,20 +8759,20 @@ GOTOCMP 9077 !=; Test 'if' AND return (Void) AND if() #538 Body
 STOREV 0 0.0003
 STOREV 0 0.0002
 STOREV 0 0.0001
-LOAD D2 0.0007; if() #273 Test
+LOAD D2 0.0007; if() #270 Test
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGULAR
 COMPAREV D2 0
 GOTOCMP 8747 ==; Test 'if'
-LOAD D2 0.0007; InlineFunc[int RadtoDeg(int)] Params Start AND if() #273 Body Start
+LOAD D2 0.0007; InlineFunc[int RadtoDeg(int)] Params Start AND if() #270 Body Start
 PUSHR D2
 POP REFEWPN
 SETR D3 EWPNANGLE; InlineFunc[int RadtoDeg(int)] Params End
 RADTODEG D2 D3; InlineFunc[int RadtoDeg(int)] Body
 STORE D2 0.0001
-GOTO 8813; if() #273 Body End
-PUSHR D4; if() #273 Else Start
+GOTO 8813; if() #270 Body End
+PUSHR D4; if() #270 Else Start
 LOAD D2 0.0007; UsrFunc[int __NormalizeDir(int)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -8780,68 +8780,68 @@ PUSHR SPRITE_DIR; UsrFunc[int __NormalizeDir(int)] Params End
 CALLFUNC 0.2440; UsrFunc[int __NormalizeDir(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #274 Test
+LOAD D2 0; if() #271 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8763 ==; Test 'if'
-SETV D2 -90; if() #274 Body Start
+SETV D2 -90; if() #271 Body Start
 STORE D2 0.0001
-GOTO 8813; if() #274 Body End
-LOAD D2 0; if() #275 Test AND if() #274 Else Start
+GOTO 8813; if() #271 Body End
+LOAD D2 0; if() #272 Test AND if() #271 Else Start
 COMPAREV D2 5
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8771 ==; Test 'if'
-SETV D2 -45; if() #275 Body Start
+SETV D2 -45; if() #272 Body Start
 STORE D2 0.0001
-GOTO 8813; if() #275 Body End
-LOAD D2 0; if() #276 Test AND if() #275 Else Start
+GOTO 8813; if() #272 Body End
+LOAD D2 0; if() #273 Test AND if() #272 Else Start
 COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8779 ==; Test 'if'
-SETV D2 0; if() #276 Body Start
+SETV D2 0; if() #273 Body Start
 STORE D2 0.0001
-GOTO 8813; if() #276 Body End
-LOAD D2 0; if() #277 Test AND if() #276 Else Start
+GOTO 8813; if() #273 Body End
+LOAD D2 0; if() #274 Test AND if() #273 Else Start
 COMPAREV D2 7
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8787 ==; Test 'if'
-SETV D2 45; if() #277 Body Start
+SETV D2 45; if() #274 Body Start
 STORE D2 0.0001
-GOTO 8813; if() #277 Body End
-LOAD D2 0; if() #278 Test AND if() #277 Else Start
+GOTO 8813; if() #274 Body End
+LOAD D2 0; if() #275 Test AND if() #274 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8795 ==; Test 'if'
-SETV D2 90; if() #278 Body Start
+SETV D2 90; if() #275 Body Start
 STORE D2 0.0001
-GOTO 8813; if() #278 Body End
-LOAD D2 0; if() #279 Test AND if() #278 Else Start
+GOTO 8813; if() #275 Body End
+LOAD D2 0; if() #276 Test AND if() #275 Else Start
 COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8803 ==; Test 'if'
-SETV D2 135; if() #279 Body Start
+SETV D2 135; if() #276 Body Start
 STORE D2 0.0001
-GOTO 8813; if() #279 Body End
-LOAD D2 0; if() #280 Test AND if() #279 Else Start
+GOTO 8813; if() #276 Body End
+LOAD D2 0; if() #277 Test AND if() #276 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8811 ==; Test 'if'
-SETV D2 180; if() #280 Body Start
+SETV D2 180; if() #277 Body Start
 STORE D2 0.0001
-GOTO 8813; if() #280 Body End
-SETV D2 -135; if() #280 Else Start
-STORE D2 0.0001; if() #280 Else End
-LOAD D2 0.0004; if() #279 Else End AND if() #278 Else End AND if() #277 Else End AND if() #276 Else End AND if() #275 Else End AND if() #274 Else End AND if() #273 Else End AND if() #281 Test
+GOTO 8813; if() #277 Body End
+SETV D2 -135; if() #277 Else Start
+STORE D2 0.0001; if() #277 Else End
+LOAD D2 0.0004; if() #276 Else End AND if() #275 Else End AND if() #274 Else End AND if() #273 Else End AND if() #272 Else End AND if() #271 Else End AND if() #270 Else End AND if() #278 Test
 COMPAREV D2 0
 GOTOCMP 8855 ==; Test 'if'
-LOAD D2 0.0007; if() #281 Body Start
+LOAD D2 0.0007; if() #278 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -8879,8 +8879,8 @@ MULTR D2 D3
 POP D3
 ADDR D2 D3
 STORE D2 0.0002
-GOTO 8871; if() #281 Body End
-LOAD D2 0.0007; if() #281 Else Start
+GOTO 8871; if() #278 Body End
+LOAD D2 0.0007; if() #278 Else Start
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -8895,7 +8895,7 @@ PUSHR D2
 POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD
-STORE D2 0.0002; if() #281 Else End
+STORE D2 0.0002; if() #278 Else End
 LOAD D2 0.0006; unless() #539 Test
 PUSHR D2
 LOAD D2 0.0003
@@ -8926,7 +8926,7 @@ CALLFUNC 0.0178; UsrFunc[int Angle(int, int, int, int)] Call
 POP D4
 STORE D2 0.0001; unless() #539 Body End
 STOREV 0 0
-LOAD D2 0.0001; if() #282 Test
+LOAD D2 0.0001; if() #279 Test
 COMPAREV D2 0
 GOTOCMP 8909 <
 LOAD D2 0.0001
@@ -8937,11 +8937,11 @@ GOTO 8910
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 8915 ==; Test 'if'
-SETV D2 0; if() #282 Body Start
+SETV D2 0; if() #279 Body Start
 STORE D2 0
-GOTO 8917; if() #282 Body End
-SETV D2 2; if() #282 Else Start
-STORE D2 0; if() #282 Else End
+GOTO 8917; if() #279 Body End
+SETV D2 2; if() #279 Else Start
+STORE D2 0; if() #279 Else End
 PUSHV 4; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0003
 PUSHR D2
@@ -8990,8 +8990,8 @@ PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-GOTO 9023; if() #272 Body End
-LOAD D2 0.0007; if() #540 Test AND if() #272 Else Start
+GOTO 9023; if() #269 Body End
+LOAD D2 0.0007; if() #540 Test AND if() #269 Else Start
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -9003,7 +9003,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 9006 ==; Test 'if'
-SETR D2 GD26; if() #283 Test AND if() #540 Body Start
+SETR D2 GD26; if() #280 Test AND if() #540 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -9012,7 +9012,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 8997 ==; Test 'if'
-SETV D2 1000; if() #283 Body Start
+SETV D2 1000; if() #280 Body Start
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -9021,8 +9021,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_X_OFFSET D2
-GOTO 9006; if() #283 Body End
-SETV D2 0; if() #283 Else Start
+GOTO 9006; if() #280 Body End
+SETV D2 0; if() #280 Else Start
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -9030,7 +9030,7 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_X_OFFSET D2; if() #283 Else End
+SETR SPRITE_X_OFFSET D2; if() #280 Else End
 LOAD D2 0.0007; if() #540 Body End AND if() #541 Test
 PUSHR D2
 SETV D2 15
@@ -9048,7 +9048,7 @@ LOAD D2 0.0007; UsrFunc[void SetEWeaponRotation(eweapon)] Params Start
 PUSHR D2; UsrFunc[void SetEWeaponRotation(eweapon)] Params End
 CALLFUNC 0.2139; UsrFunc[void SetEWeaponRotation(eweapon)] Call
 POP D4; if() #541 Body End
-LOAD D2 0.0007; if() #272 Else End AND if() #542 Test
+LOAD D2 0.0007; if() #269 Else End AND if() #542 Test
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -9338,7 +9338,7 @@ SUBR D3 D2
 SETR D2 D3; InlineFunc[int Abs(int)] Params End
 ABS D2; InlineFunc[int Abs(int)] Body
 STORE D2 0
-LOAD D2 0; if() #372 Test
+LOAD D2 0; if() #369 Test
 PUSHR D2
 LOAD D2 0.0003
 PUSHR D2
@@ -9368,7 +9368,7 @@ GOTO 9341
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 9353 ==; Test 'if'
-LOAD D2 0.0001; if() #372 Body Start
+LOAD D2 0.0001; if() #369 Body Start
 PUSHR D2
 LOAD D2 0.0003
 POP D3
@@ -9377,8 +9377,8 @@ PUSHR D3
 POP D2
 POP REFEWPN
 SETR EWPNANGLE D2
-GOTO 9420; if() #372 Body End
-PUSHR D4; if() #373 Test AND if() #372 Else Start
+GOTO 9420; if() #369 Body End
+PUSHR D4; if() #370 Test AND if() #369 Else Start
 LOAD D2 0.0002; UsrFunc[int Sign(int)] Params Start
 PUSHR D2
 LOAD D2 0.0001
@@ -9399,7 +9399,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9397 ==; Test 'if'
-LOAD D2 0.0003; if() #373 Body Start
+LOAD D2 0.0003; if() #370 Body Start
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGLE
@@ -9421,8 +9421,8 @@ PUSHR D3
 POP D2
 POP REFEWPN
 SETR EWPNANGLE D2
-GOTO 9420; if() #373 Body End
-LOAD D2 0.0003; if() #373 Else Start
+GOTO 9420; if() #370 Body End
+LOAD D2 0.0003; if() #370 Else Start
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGLE
@@ -9444,8 +9444,8 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFEWPN
-SETR EWPNANGLE D2; if() #373 Else End
-PUSHR D4; if() #372 Else End
+SETR EWPNANGLE D2; if() #370 Else End
+PUSHR D4; if() #369 Else End
 LOAD D2 0.0003; UsrFunc[void SetEWeaponDir(eweapon)] Params Start
 PUSHR D2; UsrFunc[void SetEWeaponDir(eweapon)] Params End
 CALLFUNC 0.2029; UsrFunc[void SetEWeaponDir(eweapon)] Call
@@ -9529,7 +9529,7 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2; if() #698 Body End
-LOAD D2 0.0001; if() #374 Test
+LOAD D2 0.0001; if() #371 Test
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -9540,7 +9540,7 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 9603 ==; Test 'if'
-LOAD D2 0.0001; if() #374 Body Start
+LOAD D2 0.0001; if() #371 Body Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -9570,7 +9570,7 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9812 ==; Test 'if'
-LOAD D2 0.0001; if() #375 Test AND if() #699 Body Start
+LOAD D2 0.0001; if() #372 Test AND if() #699 Body Start
 PUSHR D2
 SETV D2 9
 PUSHR D2
@@ -9581,13 +9581,13 @@ COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 9562 ==; Test 'if'
-PUSHR D4; if() #375 Body Start
+PUSHR D4; if() #372 Body Start
 LOAD D2 0.0001; UsrFunc[void KillEWeapon(eweapon)] Params Start
 PUSHR D2; UsrFunc[void KillEWeapon(eweapon)] Params End
 CALLFUNC 0.7689; UsrFunc[void KillEWeapon(eweapon)] Call
 POP D4
-GOTO 9812; if() #375 Body End
-LOAD D2 0.0001; if() #375 Else Start
+GOTO 9812; if() #372 Body End
+LOAD D2 0.0001; if() #372 Else Start
 PUSHR D2
 SETV D2 9
 PUSHR D2
@@ -9626,9 +9626,9 @@ PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
-SETR SPRITE_MISCD D2; if() #375 Else End
-GOTO 9812; if() #699 Body End AND if() #374 Body End
-LOAD D2 0.0001; if() #374 Else Start
+SETR SPRITE_MISCD D2; if() #372 Else End
+GOTO 9812; if() #699 Body End AND if() #371 Body End
+LOAD D2 0.0001; if() #371 Else Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -9734,7 +9734,7 @@ LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon)] Params Start
 PUSHR D2; UsrFunc[void SetEWeaponRotation(eweapon)] Params End
 CALLFUNC 0.2139; UsrFunc[void SetEWeaponRotation(eweapon)] Call
 POP D4; if() #701 Body End
-LOAD D2 0.0001; if() #700 Body End AND if() #376 Test
+LOAD D2 0.0001; if() #700 Body End AND if() #373 Test
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -9746,7 +9746,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 9735 ==; Test 'if'
-LOAD D2 0.0001; if() #376 Body Start
+LOAD D2 0.0001; if() #373 Body Start
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGLE
@@ -9759,8 +9759,8 @@ PUSHR D3
 POP D2
 POP REFEWPN
 SETR EWPNANGLE D2
-GOTO 9812; if() #376 Body End
-LOAD D2 0.0001; if() #702 Test AND if() #376 Else Start
+GOTO 9812; if() #373 Body End
+LOAD D2 0.0001; if() #702 Test AND if() #373 Else Start
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -9795,49 +9795,49 @@ SETR D2 SPRITE_MISCD
 SUBV2 0 D2
 ANDV D2 6
 STORE D2 0
-LOAD D2 0; if() #377 Test
+LOAD D2 0; if() #374 Test
 COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9782 ==; Test 'if'
-PUSHR D4; if() #377 Body Start
+PUSHR D4; if() #374 Body Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 0; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
 POP D4
-GOTO 9812; if() #377 Body End
-LOAD D2 0; if() #378 Test AND if() #377 Else Start
+GOTO 9812; if() #374 Body End
+LOAD D2 0; if() #375 Test AND if() #374 Else Start
 COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9794 ==; Test 'if'
-PUSHR D4; if() #378 Body Start
+PUSHR D4; if() #375 Body Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 3; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
 POP D4
-GOTO 9812; if() #378 Body End
-LOAD D2 0; if() #379 Test AND if() #378 Else Start
+GOTO 9812; if() #375 Body End
+LOAD D2 0; if() #376 Test AND if() #375 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9806 ==; Test 'if'
-PUSHR D4; if() #379 Body Start
+PUSHR D4; if() #376 Body Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 1; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
 POP D4
-GOTO 9812; if() #379 Body End
-PUSHR D4; if() #379 Else Start
+GOTO 9812; if() #376 Body End
+PUSHR D4; if() #376 Else Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 2; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
-POP D4; if() #379 Else End
-POPARGS D5 0.0002; if() #378 Else End AND if() #377 Else End AND if() #702 Body End AND if() #376 Else End AND if() #374 Else End
+POP D4; if() #376 Else End
+POPARGS D5 0.0002; if() #375 Else End AND if() #374 Else End AND if() #702 Body End AND if() #373 Else End AND if() #371 Else End
 RETURNFUNC; Func[void __UpdateEWMHomingReaim(eweapon)] Body End
 SETR D4 SP2; Func[void __UpdateEWMRandom(eweapon)] Body Start
 LOAD D2 0
@@ -9990,7 +9990,7 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2; if() #706 Body End
-LOAD D2 0.0001; if() #380 Test
+LOAD D2 0.0001; if() #377 Test
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -10001,7 +10001,7 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 10064 ==; Test 'if'
-LOAD D2 0.0001; if() #380 Body Start
+LOAD D2 0.0001; if() #377 Body Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -10031,7 +10031,7 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10244 ==; Test 'if'
-LOAD D2 0.0001; if() #381 Test AND if() #707 Body Start
+LOAD D2 0.0001; if() #378 Test AND if() #707 Body Start
 PUSHR D2
 SETV D2 9
 PUSHR D2
@@ -10042,13 +10042,13 @@ COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 10023 ==; Test 'if'
-PUSHR D4; if() #381 Body Start
+PUSHR D4; if() #378 Body Start
 LOAD D2 0.0001; UsrFunc[void KillEWeapon(eweapon)] Params Start
 PUSHR D2; UsrFunc[void KillEWeapon(eweapon)] Params End
 CALLFUNC 0.7689; UsrFunc[void KillEWeapon(eweapon)] Call
 POP D4
-GOTO 10244; if() #381 Body End
-LOAD D2 0.0001; if() #381 Else Start
+GOTO 10244; if() #378 Body End
+LOAD D2 0.0001; if() #378 Else Start
 PUSHR D2
 SETV D2 9
 PUSHR D2
@@ -10087,9 +10087,9 @@ PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
-SETR SPRITE_MISCD D2; if() #381 Else End
-GOTO 10244; if() #707 Body End AND if() #380 Body End
-LOAD D2 0.0001; if() #380 Else Start
+SETR SPRITE_MISCD D2; if() #378 Else End
+GOTO 10244; if() #707 Body End AND if() #377 Body End
+LOAD D2 0.0001; if() #377 Else Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -10179,7 +10179,7 @@ LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon)] Params Start
 PUSHR D2; UsrFunc[void SetEWeaponRotation(eweapon)] Params End
 CALLFUNC 0.2139; UsrFunc[void SetEWeaponRotation(eweapon)] Call
 POP D4; if() #709 Body End
-LOAD D2 0.0001; if() #708 Body End AND if() #382 Test
+LOAD D2 0.0001; if() #708 Body End AND if() #379 Test
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -10191,7 +10191,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 10180 ==; Test 'if'
-LOAD D2 0.0001; if() #382 Body Start
+LOAD D2 0.0001; if() #379 Body Start
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGLE
@@ -10204,8 +10204,8 @@ PUSHR D3
 POP D2
 POP REFEWPN
 SETR EWPNANGLE D2
-GOTO 10244; if() #382 Body End
-LOAD D2 0.0001; if() #710 Test AND if() #382 Else Start
+GOTO 10244; if() #379 Body End
+LOAD D2 0.0001; if() #710 Test AND if() #379 Else Start
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -10227,49 +10227,49 @@ SETR D2 SPRITE_MISCD
 SUBV2 0 D2
 ANDV D2 6
 STORE D2 0
-LOAD D2 0; if() #383 Test
+LOAD D2 0; if() #380 Test
 COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10214 ==; Test 'if'
-PUSHR D4; if() #383 Body Start
+PUSHR D4; if() #380 Body Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 0; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
 POP D4
-GOTO 10244; if() #383 Body End
-LOAD D2 0; if() #384 Test AND if() #383 Else Start
+GOTO 10244; if() #380 Body End
+LOAD D2 0; if() #381 Test AND if() #380 Else Start
 COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10226 ==; Test 'if'
-PUSHR D4; if() #384 Body Start
+PUSHR D4; if() #381 Body Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 3; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
 POP D4
-GOTO 10244; if() #384 Body End
-LOAD D2 0; if() #385 Test AND if() #384 Else Start
+GOTO 10244; if() #381 Body End
+LOAD D2 0; if() #382 Test AND if() #381 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10238 ==; Test 'if'
-PUSHR D4; if() #385 Body Start
+PUSHR D4; if() #382 Body Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 1; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
 POP D4
-GOTO 10244; if() #385 Body End
-PUSHR D4; if() #385 Else Start
+GOTO 10244; if() #382 Body End
+PUSHR D4; if() #382 Else Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 2; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
-POP D4; if() #385 Else End
-POPARGS D5 0.0002; if() #384 Else End AND if() #383 Else End AND if() #710 Body End AND if() #382 Else End AND if() #380 Else End
+POP D4; if() #382 Else End
+POPARGS D5 0.0002; if() #381 Else End AND if() #380 Else End AND if() #710 Body End AND if() #379 Else End AND if() #377 Else End
 RETURNFUNC; Func[void __UpdateEWMRandomReaim(eweapon)] Body End
 PUSHV 0; Func[void __UpdateEWMVeer(eweapon)] Body Start
 SETR D4 SP2
@@ -10351,12 +10351,12 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-LOAD D2 0; if() #393 Test
+LOAD D2 0; if() #390 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10361 ==; Test 'if'
-LOAD D2 0.0001; if() #393 Body Start
+LOAD D2 0.0001; if() #390 Body Start
 PUSHR D2
 SETV D2 5
 PUSHR D2
@@ -10385,13 +10385,13 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-GOTO 10718; if() #393 Body End
-LOAD D2 0; if() #394 Test AND if() #393 Else Start
+GOTO 10718; if() #390 Body End
+LOAD D2 0; if() #391 Test AND if() #390 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10395 ==; Test 'if'
-LOAD D2 0.0001; if() #394 Body Start
+LOAD D2 0.0001; if() #391 Body Start
 PUSHR D2
 SETV D2 5
 PUSHR D2
@@ -10419,12 +10419,147 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-GOTO 10718; if() #394 Body End
-LOAD D2 0; if() #395 Test AND if() #394 Else Start
+GOTO 10718; if() #391 Body End
+LOAD D2 0; if() #392 Test AND if() #391 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10430 ==; Test 'if'
+LOAD D2 0.0001; if() #392 Body Start
+PUSHR D2
+SETV D2 4
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 6
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+GOTO 10718; if() #392 Body End
+LOAD D2 0; if() #393 Test AND if() #392 Else Start
+COMPAREV D2 3
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 10464 ==; Test 'if'
+LOAD D2 0.0001; if() #393 Body Start
+PUSHR D2
+SETV D2 4
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 6
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+GOTO 10718; if() #393 Body End
+LOAD D2 0; if() #394 Test AND if() #393 Else Start
+COMPAREV D2 4
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 10530 ==; Test 'if'
+LOAD D2 0.0001; if() #394 Body Start
+PUSHR D2
+SETV D2 4
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 6
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 5
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 6
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 5
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+GOTO 10718; if() #394 Body End
+LOAD D2 0; if() #395 Test AND if() #394 Else Start
+COMPAREV D2 5
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 10595 ==; Test 'if'
 LOAD D2 0.0001; if() #395 Body Start
 PUSHR D2
 SETV D2 4
@@ -10440,9 +10575,9 @@ PUSHR D2
 POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
 POP D3
-SUBR D3 D2
-SETR D2 D3
+ADDR D2 D3
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -10454,12 +10589,42 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 5
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 6
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 5
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
 GOTO 10718; if() #395 Body End
 LOAD D2 0; if() #396 Test AND if() #395 Else Start
-COMPAREV D2 3
+COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 10464 ==; Test 'if'
+GOTOCMP 10660 ==; Test 'if'
 LOAD D2 0.0001; if() #396 Body Start
 PUSHR D2
 SETV D2 4
@@ -10475,6 +10640,37 @@ PUSHR D2
 POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 5
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 6
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
 POP D3
 ADDR D2 D3
 PUSHR D2
@@ -10482,210 +10678,14 @@ LOAD D2 0.0001
 POP D3
 PUSHR D2
 PUSHR D3
-SETV D2 4
+SETV D2 5
 PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
 GOTO 10718; if() #396 Body End
-LOAD D2 0; if() #397 Test AND if() #396 Else Start
-COMPAREV D2 4
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 10530 ==; Test 'if'
-LOAD D2 0.0001; if() #397 Body Start
-PUSHR D2
-SETV D2 4
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 6
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 4
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 5
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 6
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 5
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-GOTO 10718; if() #397 Body End
-LOAD D2 0; if() #398 Test AND if() #397 Else Start
-COMPAREV D2 5
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 10595 ==; Test 'if'
-LOAD D2 0.0001; if() #398 Body Start
-PUSHR D2
-SETV D2 4
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 6
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 4
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 5
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 6
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 5
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-GOTO 10718; if() #398 Body End
-LOAD D2 0; if() #399 Test AND if() #398 Else Start
-COMPAREV D2 6
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 10660 ==; Test 'if'
-LOAD D2 0.0001; if() #399 Body Start
-PUSHR D2
-SETV D2 4
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 6
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 4
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 5
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 6
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 5
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-GOTO 10718; if() #399 Body End
-LOAD D2 0.0001; if() #399 Else Start
+LOAD D2 0.0001; if() #396 Else Start
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -10742,8 +10742,8 @@ PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
-SETR SPRITE_MISCD D2; if() #399 Else End
-LOAD D2 0.0001; if() #398 Else End AND if() #397 Else End AND if() #396 Else End AND if() #395 Else End AND if() #394 Else End AND if() #393 Else End
+SETR SPRITE_MISCD D2; if() #396 Else End
+LOAD D2 0.0001; if() #395 Else End AND if() #394 Else End AND if() #393 Else End AND if() #392 Else End AND if() #391 Else End AND if() #390 Else End
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -10898,12 +10898,12 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-PUSHR D4; unless() #387 Test AND if(true) #386 [Opt:AlwaysOn]
+PUSHR D4; unless() #384 Test AND if(true) #383 [Opt:AlwaysOn]
 CALLFUNC 0.6394; UsrFunc[bool IsSideview()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 10894 !=; Test 'unless'
-LOAD D2 0.0001; unless() #387 Body Start
+LOAD D2 0.0001; unless() #384 Body Start
 PUSHR D2
 SETV D2 7
 PUSHR D2
@@ -10918,8 +10918,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_Z D2
-GOTO 10914; unless() #387 Body End
-SETR D2 REGION_HEIGHT; unless() #387 Else Start
+GOTO 10914; unless() #384 Body End
+SETR D2 REGION_HEIGHT; unless() #384 Else Start
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -10938,8 +10938,8 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_Y D2; unless() #387 Else End
-LOAD D2 0.0001; if() #388 Test
+SETR SPRITE_Y D2; unless() #384 Else End
+LOAD D2 0.0001; if() #385 Test
 PUSHR D2
 SETV D2 7
 PUSHR D2
@@ -10950,7 +10950,7 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 10977 ==; Test 'if'
-PUSHR D4; unless() #712 Test AND if(true) #389 [Opt:AlwaysOn] AND if() #388 Body Start
+PUSHR D4; unless() #712 Test AND if(true) #386 [Opt:AlwaysOn] AND if() #385 Body Start
 LOAD D2 0.0001; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -11001,9 +11001,9 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2; unless() #712 Body End
-GOTO 11086; if() #388 Body End
-STOREV 0 0; if() #388 Else Start
-LOAD D2 0.0001; if() #390 Test
+GOTO 11086; if() #385 Body End
+STOREV 0 0; if() #385 Else Start
+LOAD D2 0.0001; if() #387 Test
 PUSHR D2
 SETV D2 10
 PUSHR D2
@@ -11013,7 +11013,7 @@ SETR D2 SPRITE_MISCD
 ANDV D2 2
 COMPAREV D2 0
 GOTOCMP 11035 ==; Test 'if'
-LOAD D2 0.0001; if() #391 Test AND if() #390 Body Start
+LOAD D2 0.0001; if() #388 Test AND if() #387 Body Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -11024,7 +11024,7 @@ COMPAREV D2 -0.5000
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 11032 ==; Test 'if'
-LOAD D2 0.0001; if() #391 Body Start
+LOAD D2 0.0001; if() #388 Body Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -11056,16 +11056,16 @@ PUSHR D3
 POP D2
 POP REFEWPN
 SETR EWPNSTEP D2
-GOTO 11037; if() #391 Body End
-SETV D2 1; if() #391 Else Start
-STORE D2 0; if() #391 Else End
-GOTO 11037; if() #390 Body End
-SETV D2 1; if() #390 Else Start
-STORE D2 0; if() #390 Else End
+GOTO 11037; if() #388 Body End
+SETV D2 1; if() #388 Else Start
+STORE D2 0; if() #388 Else End
+GOTO 11037; if() #387 Body End
+SETV D2 1; if() #387 Else Start
+STORE D2 0; if() #387 Else End
 LOAD D2 0; if() #713 Test
 COMPAREV D2 0
 GOTOCMP 11086 ==; Test 'if'
-LOAD D2 0.0001; if() #392 Test AND if() #713 Body Start
+LOAD D2 0.0001; if() #389 Test AND if() #713 Body Start
 PUSHR D2
 SETV D2 10
 PUSHR D2
@@ -11075,7 +11075,7 @@ SETR D2 SPRITE_MISCD
 ANDV D2 1
 COMPAREV D2 0
 GOTOCMP 11065 ==; Test 'if'
-SETV D2 0; if() #392 Body Start
+SETV D2 0; if() #389 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -11089,8 +11089,8 @@ LOAD D2 0.0001; UsrFunc[void KillEWeapon(eweapon)] Params Start
 PUSHR D2; UsrFunc[void KillEWeapon(eweapon)] Params End
 CALLFUNC 0.7689; UsrFunc[void KillEWeapon(eweapon)] Call
 POP D4
-GOTO 11086; if() #392 Body End
-SETV D2 0; if() #392 Else Start
+GOTO 11086; if() #389 Body End
+SETV D2 0; if() #389 Else Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -11110,8 +11110,8 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFEWPN
-SETR EWPNSTEP D2; if() #392 Else End
-POPARGS D5 0.0002; if() #713 Body End AND if() #388 Else End
+SETR EWPNSTEP D2; if() #389 Else End
+POPARGS D5 0.0002; if() #713 Body End AND if() #385 Else End
 RETURNFUNC; Func[void __UpdateEWMThrow(eweapon)] Body End
 PUSHV 0; Func[void __UpdateEWMFall(eweapon)] Body Start
 SETR D4 SP2
@@ -11153,12 +11153,12 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-PUSHR D4; unless() #367 Test AND if(true) #366 [Opt:AlwaysOn]
+PUSHR D4; unless() #364 Test AND if(true) #363 [Opt:AlwaysOn]
 CALLFUNC 0.6394; UsrFunc[bool IsSideview()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 11149 !=; Test 'unless'
-LOAD D2 0.0001; unless() #367 Body Start
+LOAD D2 0.0001; unless() #364 Body Start
 PUSHR D2
 SETV D2 7
 PUSHR D2
@@ -11173,8 +11173,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_Z D2
-GOTO 11179; unless() #367 Body End
-LOAD D2 0.0001; unless() #367 Else Start
+GOTO 11179; unless() #364 Body End
+LOAD D2 0.0001; unless() #364 Else Start
 PUSHR D2
 SETV D2 7
 PUSHR D2
@@ -11203,7 +11203,7 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_Y_OFFSET D2; unless() #367 Else End
+SETR SPRITE_Y_OFFSET D2; unless() #364 Else End
 LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
 PUSHR D2
 SETV D2 6
@@ -11226,7 +11226,7 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-LOAD D2 0.0001; if() #691 Test AND if(true) #368 [Opt:AlwaysOn]
+LOAD D2 0.0001; if() #691 Test AND if(true) #365 [Opt:AlwaysOn]
 PUSHR D2
 SETV D2 7
 PUSHR D2
@@ -11267,7 +11267,7 @@ POP D4
 COMPAREV D2 0
 GOTOCMP 11352 !=; Test 'unless'
 STOREV 0 0; unless() #692 Body Start
-LOAD D2 0.0001; if() #369 Test
+LOAD D2 0.0001; if() #366 Test
 PUSHR D2
 SETV D2 10
 PUSHR D2
@@ -11279,7 +11279,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 11301 ==; Test 'if'
-LOAD D2 0.0001; if() #370 Test AND if() #369 Body Start
+LOAD D2 0.0001; if() #367 Test AND if() #366 Body Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -11290,7 +11290,7 @@ COMPAREV D2 -0.5000
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 11298 ==; Test 'if'
-LOAD D2 0.0001; if() #370 Body Start
+LOAD D2 0.0001; if() #367 Body Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -11322,16 +11322,16 @@ PUSHR D3
 POP D2
 POP REFEWPN
 SETR EWPNSTEP D2
-GOTO 11303; if() #370 Body End
-SETV D2 1; if() #370 Else Start
-STORE D2 0; if() #370 Else End
-GOTO 11303; if() #369 Body End
-SETV D2 1; if() #369 Else Start
-STORE D2 0; if() #369 Else End
+GOTO 11303; if() #367 Body End
+SETV D2 1; if() #367 Else Start
+STORE D2 0; if() #367 Else End
+GOTO 11303; if() #366 Body End
+SETV D2 1; if() #366 Else Start
+STORE D2 0; if() #366 Else End
 LOAD D2 0; if() #693 Test
 COMPAREV D2 0
 GOTOCMP 11352 ==; Test 'if'
-LOAD D2 0.0001; if() #371 Test AND if() #693 Body Start
+LOAD D2 0.0001; if() #368 Test AND if() #693 Body Start
 PUSHR D2
 SETV D2 10
 PUSHR D2
@@ -11341,7 +11341,7 @@ SETR D2 SPRITE_MISCD
 ANDV D2 1
 COMPAREV D2 0
 GOTOCMP 11331 ==; Test 'if'
-SETV D2 0; if() #371 Body Start
+SETV D2 0; if() #368 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -11355,8 +11355,8 @@ LOAD D2 0.0001; UsrFunc[void KillEWeapon(eweapon)] Params Start
 PUSHR D2; UsrFunc[void KillEWeapon(eweapon)] Params End
 CALLFUNC 0.7689; UsrFunc[void KillEWeapon(eweapon)] Call
 POP D4
-GOTO 11352; if() #371 Body End
-SETV D2 0; if() #371 Else Start
+GOTO 11352; if() #368 Body End
+SETV D2 0; if() #368 Else Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -11376,7 +11376,7 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFEWPN
-SETR EWPNSTEP D2; if() #371 Else End
+SETR EWPNSTEP D2; if() #368 Else End
 POPARGS D5 0.0002; if() #693 Body End AND unless() #692 Body End AND if() #691 Body End
 RETURNFUNC; Func[void __UpdateEWMFall(eweapon)] Body End
 PUSHV 0; Func[void __UpdateEWMDrift(eweapon)] Body Start
@@ -11459,12 +11459,12 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-LOAD D2 0; if() #351 Test
+LOAD D2 0; if() #348 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11469 ==; Test 'if'
-LOAD D2 0.0001; if() #351 Body Start
+LOAD D2 0.0001; if() #348 Body Start
 PUSHR D2
 SETV D2 5
 PUSHR D2
@@ -11493,13 +11493,13 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-GOTO 11826; if() #351 Body End
-LOAD D2 0; if() #352 Test AND if() #351 Else Start
+GOTO 11826; if() #348 Body End
+LOAD D2 0; if() #349 Test AND if() #348 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11503 ==; Test 'if'
-LOAD D2 0.0001; if() #352 Body Start
+LOAD D2 0.0001; if() #349 Body Start
 PUSHR D2
 SETV D2 5
 PUSHR D2
@@ -11527,12 +11527,147 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-GOTO 11826; if() #352 Body End
-LOAD D2 0; if() #353 Test AND if() #352 Else Start
+GOTO 11826; if() #349 Body End
+LOAD D2 0; if() #350 Test AND if() #349 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11538 ==; Test 'if'
+LOAD D2 0.0001; if() #350 Body Start
+PUSHR D2
+SETV D2 4
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+GOTO 11826; if() #350 Body End
+LOAD D2 0; if() #351 Test AND if() #350 Else Start
+COMPAREV D2 3
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 11572 ==; Test 'if'
+LOAD D2 0.0001; if() #351 Body Start
+PUSHR D2
+SETV D2 4
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+GOTO 11826; if() #351 Body End
+LOAD D2 0; if() #352 Test AND if() #351 Else Start
+COMPAREV D2 4
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 11638 ==; Test 'if'
+LOAD D2 0.0001; if() #352 Body Start
+PUSHR D2
+SETV D2 4
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 5
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 5
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+GOTO 11826; if() #352 Body End
+LOAD D2 0; if() #353 Test AND if() #352 Else Start
+COMPAREV D2 5
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 11703 ==; Test 'if'
 LOAD D2 0.0001; if() #353 Body Start
 PUSHR D2
 SETV D2 4
@@ -11548,9 +11683,9 @@ PUSHR D2
 POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
 POP D3
-SUBR D3 D2
-SETR D2 D3
+ADDR D2 D3
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -11562,12 +11697,42 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 5
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 5
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
 GOTO 11826; if() #353 Body End
 LOAD D2 0; if() #354 Test AND if() #353 Else Start
-COMPAREV D2 3
+COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 11572 ==; Test 'if'
+GOTOCMP 11768 ==; Test 'if'
 LOAD D2 0.0001; if() #354 Body Start
 PUSHR D2
 SETV D2 4
@@ -11583,6 +11748,37 @@ PUSHR D2
 POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 5
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
 POP D3
 ADDR D2 D3
 PUSHR D2
@@ -11590,210 +11786,14 @@ LOAD D2 0.0001
 POP D3
 PUSHR D2
 PUSHR D3
-SETV D2 4
+SETV D2 5
 PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
 GOTO 11826; if() #354 Body End
-LOAD D2 0; if() #355 Test AND if() #354 Else Start
-COMPAREV D2 4
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 11638 ==; Test 'if'
-LOAD D2 0.0001; if() #355 Body Start
-PUSHR D2
-SETV D2 4
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 4
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 5
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 5
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-GOTO 11826; if() #355 Body End
-LOAD D2 0; if() #356 Test AND if() #355 Else Start
-COMPAREV D2 5
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 11703 ==; Test 'if'
-LOAD D2 0.0001; if() #356 Body Start
-PUSHR D2
-SETV D2 4
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 4
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 5
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 5
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-GOTO 11826; if() #356 Body End
-LOAD D2 0; if() #357 Test AND if() #356 Else Start
-COMPAREV D2 6
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 11768 ==; Test 'if'
-LOAD D2 0.0001; if() #357 Body Start
-PUSHR D2
-SETV D2 4
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 4
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 5
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 5
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-GOTO 11826; if() #357 Body End
-LOAD D2 0.0001; if() #357 Else Start
+LOAD D2 0.0001; if() #354 Else Start
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -11850,8 +11850,8 @@ PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
-SETR SPRITE_MISCD D2; if() #357 Else End
-LOAD D2 0.0001; if() #356 Else End AND if() #355 Else End AND if() #354 Else End AND if() #353 Else End AND if() #352 Else End AND if() #351 Else End
+SETR SPRITE_MISCD D2; if() #354 Else End
+LOAD D2 0.0001; if() #353 Else End AND if() #352 Else End AND if() #351 Else End AND if() #350 Else End AND if() #349 Else End AND if() #348 Else End
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -11893,7 +11893,7 @@ POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD
 STORE D2 0
-LOAD D2 0.0001; if() #358 Test
+LOAD D2 0.0001; if() #355 Test
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -11904,7 +11904,7 @@ COMPAREV D2 16
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 11950 ==; Test 'if'
-LOAD D2 0.0001; if() #358 Body Start
+LOAD D2 0.0001; if() #355 Body Start
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -11974,8 +11974,8 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-GOTO 11969; if() #358 Body End
-LOAD D2 0.0001; if() #358 Else Start
+GOTO 11969; if() #355 Body End
+LOAD D2 0.0001; if() #355 Else Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -11993,13 +11993,13 @@ PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
-SETR SPRITE_MISCD D2; if() #358 Else End
-LOAD D2 0; if() #359 Test
+SETR SPRITE_MISCD D2; if() #355 Else End
+LOAD D2 0; if() #356 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12004 ==; Test 'if'
-LOAD D2 0.0001; if() #359 Body Start
+LOAD D2 0.0001; if() #356 Body Start
 PUSHR D2
 SETV D2 5
 PUSHR D2
@@ -12028,13 +12028,13 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-GOTO 12361; if() #359 Body End
-LOAD D2 0; if() #360 Test AND if() #359 Else Start
+GOTO 12361; if() #356 Body End
+LOAD D2 0; if() #357 Test AND if() #356 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12038 ==; Test 'if'
-LOAD D2 0.0001; if() #360 Body Start
+LOAD D2 0.0001; if() #357 Body Start
 PUSHR D2
 SETV D2 5
 PUSHR D2
@@ -12062,12 +12062,147 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-GOTO 12361; if() #360 Body End
-LOAD D2 0; if() #361 Test AND if() #360 Else Start
+GOTO 12361; if() #357 Body End
+LOAD D2 0; if() #358 Test AND if() #357 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12073 ==; Test 'if'
+LOAD D2 0.0001; if() #358 Body Start
+PUSHR D2
+SETV D2 4
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+GOTO 12361; if() #358 Body End
+LOAD D2 0; if() #359 Test AND if() #358 Else Start
+COMPAREV D2 3
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 12107 ==; Test 'if'
+LOAD D2 0.0001; if() #359 Body Start
+PUSHR D2
+SETV D2 4
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+GOTO 12361; if() #359 Body End
+LOAD D2 0; if() #360 Test AND if() #359 Else Start
+COMPAREV D2 4
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 12173 ==; Test 'if'
+LOAD D2 0.0001; if() #360 Body Start
+PUSHR D2
+SETV D2 4
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 5
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 5
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+GOTO 12361; if() #360 Body End
+LOAD D2 0; if() #361 Test AND if() #360 Else Start
+COMPAREV D2 5
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 12238 ==; Test 'if'
 LOAD D2 0.0001; if() #361 Body Start
 PUSHR D2
 SETV D2 4
@@ -12083,9 +12218,9 @@ PUSHR D2
 POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
 POP D3
-SUBR D3 D2
-SETR D2 D3
+ADDR D2 D3
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -12097,12 +12232,42 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 5
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 5
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
 GOTO 12361; if() #361 Body End
 LOAD D2 0; if() #362 Test AND if() #361 Else Start
-COMPAREV D2 3
+COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 12107 ==; Test 'if'
+GOTOCMP 12303 ==; Test 'if'
 LOAD D2 0.0001; if() #362 Body Start
 PUSHR D2
 SETV D2 4
@@ -12118,6 +12283,37 @@ PUSHR D2
 POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2 4
+PUSHR D2
+POP D0
+POP D2
+POP REFSPRITE
+SETR SPRITE_MISCD D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 5
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 10
+PUSHR D2
+POP D0
+POP REFSPRITE
+SETR D2 SPRITE_MISCD
+MULTV D2 0.7071
 POP D3
 ADDR D2 D3
 PUSHR D2
@@ -12125,210 +12321,14 @@ LOAD D2 0.0001
 POP D3
 PUSHR D2
 PUSHR D3
-SETV D2 4
+SETV D2 5
 PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
 GOTO 12361; if() #362 Body End
-LOAD D2 0; if() #363 Test AND if() #362 Else Start
-COMPAREV D2 4
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 12173 ==; Test 'if'
-LOAD D2 0.0001; if() #363 Body Start
-PUSHR D2
-SETV D2 4
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 4
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 5
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 5
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-GOTO 12361; if() #363 Body End
-LOAD D2 0; if() #364 Test AND if() #363 Else Start
-COMPAREV D2 5
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 12238 ==; Test 'if'
-LOAD D2 0.0001; if() #364 Body Start
-PUSHR D2
-SETV D2 4
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 4
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 5
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 5
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-GOTO 12361; if() #364 Body End
-LOAD D2 0; if() #365 Test AND if() #364 Else Start
-COMPAREV D2 6
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 12303 ==; Test 'if'
-LOAD D2 0.0001; if() #365 Body Start
-PUSHR D2
-SETV D2 4
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 4
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 5
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 10
-PUSHR D2
-POP D0
-POP REFSPRITE
-SETR D2 SPRITE_MISCD
-MULTV D2 0.7071
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-SETV D2 5
-PUSHR D2
-POP D0
-POP D2
-POP REFSPRITE
-SETR SPRITE_MISCD D2
-GOTO 12361; if() #365 Body End
-LOAD D2 0.0001; if() #365 Else Start
+LOAD D2 0.0001; if() #362 Else Start
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -12385,8 +12385,8 @@ PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
-SETR SPRITE_MISCD D2; if() #365 Else End
-LOAD D2 0.0001; if() #364 Else End AND if() #363 Else End AND if() #362 Else End AND if() #361 Else End AND if() #360 Else End AND if() #359 Else End
+SETR SPRITE_MISCD D2; if() #362 Else End
+LOAD D2 0.0001; if() #361 Else End AND if() #360 Else End AND if() #359 Else End AND if() #358 Else End AND if() #357 Else End AND if() #356 Else End
 PUSHR D2
 SETV D2 4
 PUSHR D2
@@ -12544,7 +12544,7 @@ SETR D2 D3
 DIVV D2 100
 RSHIFTV D2 0
 STORE D2 0.0008
-LOAD D2 0.0011; if() #298 Test
+LOAD D2 0.0011; if() #295 Test
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_EXTEND
@@ -12552,7 +12552,7 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12570 ==; Test 'if'
-LOAD D2 0.0011; if() #298 Body Start
+LOAD D2 0.0011; if() #295 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -12594,8 +12594,8 @@ MULTR D2 D3
 POP D3
 ADDR D2 D3
 STORE D2 0.0006
-GOTO 12582; if() #298 Body End
-LOAD D2 0.0011; if() #298 Else Start
+GOTO 12582; if() #295 Body End
+LOAD D2 0.0011; if() #295 Else Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -12606,13 +12606,13 @@ PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
 ADDV D2 8
-STORE D2 0.0006; if() #298 Else End
-LOAD D2 0.0008; if() #299 Test
+STORE D2 0.0006; if() #295 Else End
+LOAD D2 0.0008; if() #296 Test
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12635 ==; Test 'if'
-STOREV 0 0.0001; for() #160 setup AND if() #299 Body Start
+STOREV 0 0.0001; for() #160 setup AND if() #296 Body Start
 LOAD D2 0.0001; for() #160 LoopTest
 PUSHR D2
 LOAD D2 0.0004
@@ -12659,13 +12659,13 @@ POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD; InlineFunc[void Audio::PlaySound(int)] Params End
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
-GOTO 12793; if() #299 Body End
-LOAD D2 0.0008; if() #300 Test AND if() #299 Else Start
+GOTO 12793; if() #296 Body End
+LOAD D2 0.0008; if() #297 Test AND if() #296 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12675 ==; Test 'if'
-STOREV 0 0.0001; for() #161 setup AND if() #300 Body Start
+STOREV 0 0.0001; for() #161 setup AND if() #297 Body Start
 LOAD D2 0.0001; for() #161 LoopTest
 PUSHR D2
 LOAD D2 0.0004
@@ -12699,13 +12699,13 @@ POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD; InlineFunc[void Audio::PlaySound(int)] Params End
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
-GOTO 12793; if() #300 Body End
-LOAD D2 0.0004; if() #301 Test AND if() #300 Else Start
+GOTO 12793; if() #297 Body End
+LOAD D2 0.0004; if() #298 Test AND if() #297 Else Start
 COMPAREV D2 1
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 12748 ==; Test 'if'
-SETV D2 0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND if() #301 Body Start
+SETV D2 0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND if() #298 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -12772,8 +12772,8 @@ LOAD D2 0; for() #162 LoopIncrement
 ADDV D2 1
 STORE D2 0
 GOTO 12710; for() #162 End
-GOTO 12785; if() #301 Body End
-LOAD D2 0.0004; if() #565 Test AND if() #301 Else Start
+GOTO 12785; if() #298 Body End
+LOAD D2 0.0004; if() #565 Test AND if() #298 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
@@ -12810,15 +12810,15 @@ ARCTANR D2; InlineFunc[int ArcTan(int, int)] Body End
 PUSHR D2; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Params End
 CALLFUNC 1.4577; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Call
 POP D4; if() #565 Body End
-LOAD D2 0.0009; if() #301 Else End AND InlineFunc[void Audio::PlaySound(int)] Params Start
+LOAD D2 0.0009; if() #298 Else End AND InlineFunc[void Audio::PlaySound(int)] Params Start
 PUSHR D2
 SETV D2 2
 PUSHR D2
 POP D0
 POP REFSPRITE
 SETR D2 SPRITE_MISCD; InlineFunc[void Audio::PlaySound(int)] Params End
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #300 Else End
-SETV D2 0; if() #299 Else End
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #297 Else End
+SETV D2 0; if() #296 Else End
 PUSHR D2
 LOAD D2 0.0011
 POP D3
@@ -12859,7 +12859,7 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-LOAD D2 0.0001; if() #293 Test
+LOAD D2 0.0001; if() #290 Test
 PUSHR D2
 SETV D2 14
 PUSHR D2
@@ -12870,7 +12870,7 @@ COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 12899 ==; Test 'if'
-PUSHR D4; if() #293 Body Start
+PUSHR D4; if() #290 Body Start
 LOAD D2 0.0001; UsrFunc[int RadianAngle(int, int, int, int)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -12923,14 +12923,14 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-GOTO 12975; if() #293 Body End
-LOAD D2 0.0001; if() #294 Test AND if() #293 Else Start
+GOTO 12975; if() #290 Body End
+LOAD D2 0.0001; if() #291 Test AND if() #290 Else Start
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGULAR
 COMPAREV D2 0
 GOTOCMP 12924 ==; Test 'if'
-LOAD D2 0.0001; if() #294 Body Start
+LOAD D2 0.0001; if() #291 Body Start
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGLE
@@ -12948,8 +12948,8 @@ LOAD D2 0.0001; UsrFunc[void SetEWeaponDir(eweapon)] Params Start
 PUSHR D2; UsrFunc[void SetEWeaponDir(eweapon)] Params End
 CALLFUNC 0.2029; UsrFunc[void SetEWeaponDir(eweapon)] Call
 POP D4
-GOTO 12975; if() #294 Body End
-LOAD D2 0.0001; if() #294 Else Start
+GOTO 12975; if() #291 Body End
+LOAD D2 0.0001; if() #291 Else Start
 PUSHR D2
 SETV D2 14
 PUSHR D2
@@ -12958,49 +12958,49 @@ POP REFSPRITE
 SETR D2 SPRITE_MISCD
 ANDV D2 6
 STORE D2 0
-LOAD D2 0; if() #295 Test
+LOAD D2 0; if() #292 Test
 COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12945 ==; Test 'if'
-PUSHR D4; if() #295 Body Start
+PUSHR D4; if() #292 Body Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 0; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
 POP D4
-GOTO 12975; if() #295 Body End
-LOAD D2 0; if() #296 Test AND if() #295 Else Start
+GOTO 12975; if() #292 Body End
+LOAD D2 0; if() #293 Test AND if() #292 Else Start
 COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12957 ==; Test 'if'
-PUSHR D4; if() #296 Body Start
+PUSHR D4; if() #293 Body Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 3; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
 POP D4
-GOTO 12975; if() #296 Body End
-LOAD D2 0; if() #297 Test AND if() #296 Else Start
+GOTO 12975; if() #293 Body End
+LOAD D2 0; if() #294 Test AND if() #293 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12969 ==; Test 'if'
-PUSHR D4; if() #297 Body Start
+PUSHR D4; if() #294 Body Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 1; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
 POP D4
-GOTO 12975; if() #297 Body End
-PUSHR D4; if() #297 Else Start
+GOTO 12975; if() #294 Body End
+PUSHR D4; if() #294 Else Start
 LOAD D2 0.0001; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params Start
 PUSHR D2
 PUSHV 2; UsrFunc[void SetEWeaponRotation(eweapon, int)] Params End
 CALLFUNC 0.7829; UsrFunc[void SetEWeaponRotation(eweapon, int)] Call
-POP D4; if() #297 Else End
-POPARGS D5 0.0002; if() #296 Else End AND if() #295 Else End AND if() #294 Else End AND if() #293 Else End
+POP D4; if() #294 Else End
+POPARGS D5 0.0002; if() #293 Else End AND if() #292 Else End AND if() #291 Else End AND if() #290 Else End
 RETURNFUNC; Func[void __DoEWeaponDeathAimAtLink(eweapon)] Body End
 SETR D4 SP2; Func[void __DoEWeaponDeathExplode(eweapon)] Body Start
 PUSHR D4
@@ -13208,13 +13208,13 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void __DoEWeaponDeath4FireballsDiag(eweapon)] Body End
 PUSHV 0; Func[void __DoEWeaponDeath4FireballsRand(eweapon)] Body Start
 SETR D4 SP2
-SETV D3 2; InlineFunc[int Rand(int)] Params AND if() #291 Test
+SETV D3 2; InlineFunc[int Rand(int)] Params AND if() #288 Test
 RNDR D2 D3; InlineFunc[int Rand(int)] Body
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 13235 ==; Test 'if'
-STOREV 0 0; for() #150 setup AND if() #291 Body Start
+STOREV 0 0; for() #150 setup AND if() #288 Body Start
 LOAD D2 0; for() #150 LoopTest
 COMPAREV D2 4
 SETCMP D2 I<
@@ -13259,8 +13259,8 @@ LOAD D2 0; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0
 GOTO 13190; for() #150 End
-GOTO 13280; if() #291 Body End
-STOREV 4 0; for() #151 setup AND if() #291 Else Start
+GOTO 13280; if() #288 Body End
+STOREV 4 0; for() #151 setup AND if() #288 Else Start
 LOAD D2 0; for() #151 LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
@@ -13305,7 +13305,7 @@ LOAD D2 0; for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0
 GOTO 13236; for() #151 End
-SETV D2 0; if() #291 Else End
+SETV D2 0; if() #288 Else End
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -13496,13 +13496,13 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void __DoEWeaponDeath4FiresDiag(eweapon)] Body End
 PUSHV 0; Func[void __DoEWeaponDeath4FiresRand(eweapon)] Body Start
 SETR D4 SP2
-SETV D3 2; InlineFunc[int Rand(int)] Params AND if() #292 Test
+SETV D3 2; InlineFunc[int Rand(int)] Params AND if() #289 Test
 RNDR D2 D3; InlineFunc[int Rand(int)] Body
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 13523 ==; Test 'if'
-STOREV 0 0; for() #154 setup AND if() #292 Body Start
+STOREV 0 0; for() #154 setup AND if() #289 Body Start
 LOAD D2 0; for() #154 LoopTest
 COMPAREV D2 4
 SETCMP D2 I<
@@ -13547,8 +13547,8 @@ LOAD D2 0; for() #154 LoopIncrement
 ADDV D2 1
 STORE D2 0
 GOTO 13478; for() #154 End
-GOTO 13568; if() #292 Body End
-STOREV 4 0; for() #155 setup AND if() #292 Else Start
+GOTO 13568; if() #289 Body End
+STOREV 4 0; for() #155 setup AND if() #289 Else Start
 LOAD D2 0; for() #155 LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
@@ -13593,7 +13593,7 @@ LOAD D2 0; for() #155 LoopIncrement
 ADDV D2 1
 STORE D2 0
 GOTO 13524; for() #155 End
-SETV D2 13; if() #292 Else End AND InlineFunc[void Audio::PlaySound(int)] Params
+SETV D2 13; if() #289 Else End AND InlineFunc[void Audio::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
 SETV D2 0
 PUSHR D2
@@ -13978,7 +13978,7 @@ RETURNFUNC; Func[void __DoEWeaponDeathRunScript(eweapon)] Body End
 PUSHARGSV 0 0.0002; Func[void UpdateEWeapons()] Body Start
 SETR D4 SP2
 STOREV 0 0.0001
-SETR D2 LINKACTION; unless() #284 Test
+SETR D2 LINKACTION; unless() #281 Test
 COMPAREV D2 4
 GOTOCMP 13967 ==
 SETR D2 LINKACTION
@@ -13995,7 +13995,7 @@ GOTO 13968
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 14017 !=; Test 'unless'
-SETR D2 EWPNCOUNT; for() #143 setup AND unless() #284 Body Start
+SETR D2 EWPNCOUNT; for() #143 setup AND unless() #281 Body Start
 STORE D2 0
 LOAD D2 0; for() #143 LoopTest
 COMPAREV D2 0
@@ -14041,8 +14041,8 @@ LOAD D2 0; for() #143 LoopIncrement
 SUBV D2 1
 STORE D2 0
 GOTO 13972; for() #143 End
-GOTO 14063; unless() #284 Body End
-SETR D2 EWPNCOUNT; for() #144 setup AND unless() #284 Else Start
+GOTO 14063; unless() #281 Body End
+SETR D2 EWPNCOUNT; for() #144 setup AND unless() #281 Else Start
 STORE D2 0
 LOAD D2 0; for() #144 LoopTest
 COMPAREV D2 0
@@ -14088,7 +14088,7 @@ LOAD D2 0; for() #144 LoopIncrement
 SUBV D2 1
 STORE D2 0
 GOTO 14019; for() #144 End
-POPARGS D5 0.0002; unless() #284 Else End
+POPARGS D5 0.0002; unless() #281 Else End
 RETURNFUNC; Func[void UpdateEWeapons()] Body End
 PUSHARGSV 0 0.0002; Func[void __UpdateEWeaponVisualFlags(eweapon)] Body Start
 SETR D4 SP2
@@ -14117,7 +14117,7 @@ LOAD D2 0.0002; UsrFunc[void DrawEWeaponShadow(eweapon)] Params Start
 PUSHR D2; UsrFunc[void DrawEWeaponShadow(eweapon)] Params End
 CALLFUNC 0.1224; UsrFunc[void DrawEWeaponShadow(eweapon)] Call
 POP D4; if() #715 Body End
-LOAD D2 0.0002; if() #714 Body End AND if() #400 Test
+LOAD D2 0.0002; if() #714 Body End AND if() #397 Test
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -14129,7 +14129,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 14284 ==; Test 'if'
-SETV D2 1000; if() #400 Body Start
+SETV D2 1000; if() #397 Body Start
 PUSHR D2
 LOAD D2 0.0002
 POP D3
@@ -14161,20 +14161,20 @@ SETV D2 0
 COMPAREV D2 0
 GOTOCMP 14341 !=; Test 'if' AND return (Void) AND if() #716 Body
 STOREV 0 0.0001
-LOAD D2 0.0002; if() #401 Test
+LOAD D2 0.0002; if() #398 Test
 PUSHR D2
 POP REFEWPN
 SETR D2 EWPNANGULAR
 COMPAREV D2 0
 GOTOCMP 14149 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int RadtoDeg(int)] Params Start AND if() #401 Body Start
+LOAD D2 0.0002; InlineFunc[int RadtoDeg(int)] Params Start AND if() #398 Body Start
 PUSHR D2
 POP REFEWPN
 SETR D3 EWPNANGLE; InlineFunc[int RadtoDeg(int)] Params End
 RADTODEG D2 D3; InlineFunc[int RadtoDeg(int)] Body
 STORE D2 0.0001
-GOTO 14215; if() #401 Body End
-PUSHR D4; if() #401 Else Start
+GOTO 14215; if() #398 Body End
+PUSHR D4; if() #398 Else Start
 LOAD D2 0.0002; UsrFunc[int __NormalizeDir(int)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -14182,66 +14182,66 @@ PUSHR SPRITE_DIR; UsrFunc[int __NormalizeDir(int)] Params End
 CALLFUNC 0.2440; UsrFunc[int __NormalizeDir(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #402 Test
+LOAD D2 0; if() #399 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 14165 ==; Test 'if'
-SETV D2 -90; if() #402 Body Start
+SETV D2 -90; if() #399 Body Start
 STORE D2 0.0001
-GOTO 14215; if() #402 Body End
-LOAD D2 0; if() #403 Test AND if() #402 Else Start
+GOTO 14215; if() #399 Body End
+LOAD D2 0; if() #400 Test AND if() #399 Else Start
 COMPAREV D2 5
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 14173 ==; Test 'if'
-SETV D2 -45; if() #403 Body Start
+SETV D2 -45; if() #400 Body Start
 STORE D2 0.0001
-GOTO 14215; if() #403 Body End
-LOAD D2 0; if() #404 Test AND if() #403 Else Start
+GOTO 14215; if() #400 Body End
+LOAD D2 0; if() #401 Test AND if() #400 Else Start
 COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 14181 ==; Test 'if'
-SETV D2 0; if() #404 Body Start
+SETV D2 0; if() #401 Body Start
 STORE D2 0.0001
-GOTO 14215; if() #404 Body End
-LOAD D2 0; if() #405 Test AND if() #404 Else Start
+GOTO 14215; if() #401 Body End
+LOAD D2 0; if() #402 Test AND if() #401 Else Start
 COMPAREV D2 7
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 14189 ==; Test 'if'
-SETV D2 45; if() #405 Body Start
+SETV D2 45; if() #402 Body Start
 STORE D2 0.0001
-GOTO 14215; if() #405 Body End
-LOAD D2 0; if() #406 Test AND if() #405 Else Start
+GOTO 14215; if() #402 Body End
+LOAD D2 0; if() #403 Test AND if() #402 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 14197 ==; Test 'if'
-SETV D2 90; if() #406 Body Start
+SETV D2 90; if() #403 Body Start
 STORE D2 0.0001
-GOTO 14215; if() #406 Body End
-LOAD D2 0; if() #407 Test AND if() #406 Else Start
+GOTO 14215; if() #403 Body End
+LOAD D2 0; if() #404 Test AND if() #403 Else Start
 COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 14205 ==; Test 'if'
-SETV D2 135; if() #407 Body Start
+SETV D2 135; if() #404 Body Start
 STORE D2 0.0001
-GOTO 14215; if() #407 Body End
-LOAD D2 0; if() #408 Test AND if() #407 Else Start
+GOTO 14215; if() #404 Body End
+LOAD D2 0; if() #405 Test AND if() #404 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 14213 ==; Test 'if'
-SETV D2 180; if() #408 Body Start
+SETV D2 180; if() #405 Body Start
 STORE D2 0.0001
-GOTO 14215; if() #408 Body End
-SETV D2 -135; if() #408 Else Start
-STORE D2 0.0001; if() #408 Else End
-STOREV 0 0; if() #407 Else End AND if() #406 Else End AND if() #405 Else End AND if() #404 Else End AND if() #403 Else End AND if() #402 Else End AND if() #401 Else End
-LOAD D2 0.0001; if() #409 Test
+GOTO 14215; if() #405 Body End
+SETV D2 -135; if() #405 Else Start
+STORE D2 0.0001; if() #405 Else End
+STOREV 0 0; if() #404 Else End AND if() #403 Else End AND if() #402 Else End AND if() #401 Else End AND if() #400 Else End AND if() #399 Else End AND if() #398 Else End
+LOAD D2 0.0001; if() #406 Test
 COMPAREV D2 0
 GOTOCMP 14224 <
 LOAD D2 0.0001
@@ -14252,11 +14252,11 @@ GOTO 14225
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 14230 ==; Test 'if'
-SETV D2 0; if() #409 Body Start
+SETV D2 0; if() #406 Body Start
 STORE D2 0
-GOTO 14232; if() #409 Body End
-SETV D2 2; if() #409 Else Start
-STORE D2 0; if() #409 Else End
+GOTO 14232; if() #406 Body End
+SETV D2 2; if() #406 Else Start
+STORE D2 0; if() #406 Else End
 PUSHV 4; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0002
 PUSHR D2
@@ -14308,8 +14308,8 @@ PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-GOTO 14341; if() #400 Body End
-LOAD D2 0.0002; if() #717 Test AND if() #400 Else Start
+GOTO 14341; if() #397 Body End
+LOAD D2 0.0002; if() #717 Test AND if() #397 Else Start
 PUSHR D2
 SETV D2 15
 PUSHR D2
@@ -14321,7 +14321,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 14324 ==; Test 'if'
-SETR D2 GD26; if() #410 Test AND if() #717 Body Start
+SETR D2 GD26; if() #407 Test AND if() #717 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -14330,7 +14330,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 14315 ==; Test 'if'
-SETV D2 1000; if() #410 Body Start
+SETV D2 1000; if() #407 Body Start
 PUSHR D2
 LOAD D2 0.0002
 POP D3
@@ -14339,8 +14339,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_X_OFFSET D2
-GOTO 14324; if() #410 Body End
-SETV D2 0; if() #410 Else Start
+GOTO 14324; if() #407 Body End
+SETV D2 0; if() #407 Else Start
 PUSHR D2
 LOAD D2 0.0002
 POP D3
@@ -14348,7 +14348,7 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_X_OFFSET D2; if() #410 Else End
+SETR SPRITE_X_OFFSET D2; if() #407 Else End
 LOAD D2 0.0002; if() #717 Body End AND if() #718 Test
 PUSHR D2
 SETV D2 15
@@ -14366,7 +14366,7 @@ LOAD D2 0.0002; UsrFunc[void SetEWeaponRotation(eweapon)] Params Start
 PUSHR D2; UsrFunc[void SetEWeaponRotation(eweapon)] Params End
 CALLFUNC 0.2139; UsrFunc[void SetEWeaponRotation(eweapon)] Call
 POP D4; if() #718 Body End
-POPARGS D5 0.0003; if() #400 Else End
+POPARGS D5 0.0003; if() #397 Else End
 RETURNFUNC; Func[void __UpdateEWeaponVisualFlags(eweapon)] Body End
 SETR D4 SP2; Func[void UpdateGhostZH1()] Body Start
 PUSHR D4
@@ -14386,7 +14386,7 @@ SETR D2 CURDSCR
 POP D3
 ADDR D2 D3
 STORE D2 0
-SETR D2 GD26; if() #285 Test
+SETR D2 GD26; if() #282 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 7
@@ -14397,7 +14397,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 14385 ==; Test 'if'
-SETV D2 0; if() #285 Body Start
+SETV D2 0; if() #282 Body Start
 PUSHR D2
 SETR D2 GD26
 SETR D0 D2
@@ -14409,8 +14409,8 @@ SETR D2 GD26
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 7 D2
-GOTO 14403; if() #285 Body End
-SETR D2 GD26; if() #545 Test AND if() #285 Else Start
+GOTO 14403; if() #282 Body End
+SETR D2 GD26; if() #545 Test AND if() #282 Else Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 6
@@ -14428,7 +14428,7 @@ SETR D2 GD26
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 6 D2; if() #545 Body End
-POP D5; if() #285 Else End
+POP D5; if() #282 Else End
 RETURNFUNC; Func[void UpdateGhostZHData1()] Body End
 SETR D4 SP2; Func[void UpdateGhostZH2()] Body Start
 PUSHR D4
@@ -14451,7 +14451,7 @@ SETR D2 GD26
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 1 D2
-SETR D2 GD26; if() #286 Test
+SETR D2 GD26; if() #283 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -14460,7 +14460,7 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 14446 ==; Test 'if'
-SETR D2 GD26; if() #286 Body Start
+SETR D2 GD26; if() #283 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -14470,8 +14470,8 @@ SETR D2 GD26
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2
-GOTO 14456; if() #286 Body End
-SETR D2 GD26; if() #286 Else Start
+GOTO 14456; if() #283 Body End
+SETR D2 GD26; if() #283 Else Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -14480,7 +14480,7 @@ PUSHR D2
 SETR D2 GD26
 SETR D0 D2
 POP D2
-WRITEPODARRAYVR 0 D2; if() #286 Else End
+WRITEPODARRAYVR 0 D2; if() #283 Else End
 SETR D2 GD26; if(true) #546 [Opt:AlwaysOn]
 PUSHR D2
 POP D0
@@ -14634,7 +14634,7 @@ SETR D2 SPRITE_MISCD; InlineFunc[void eweapon::UseSprite(int)] Params End
 POP D3; InlineFunc[void eweapon::UseSprite(int)] Body Start
 SETR REFEWPN D3
 EWPNUSESPRITER D2; InlineFunc[void eweapon::UseSprite(int)] Body End AND if() #558 Body End
-LOAD D2 0.0004; if() #289 Test
+LOAD D2 0.0004; if() #286 Test
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_EXTEND
@@ -14642,7 +14642,7 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 14745 ==; Test 'if'
-SETV D2 3; if() #289 Body Start
+SETV D2 3; if() #286 Body Start
 PUSHR D2
 LOAD D2 0
 POP D3
@@ -14769,8 +14769,8 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_Y D2
-GOTO 14765; if() #289 Body End
-LOAD D2 0.0003; if() #289 Else Start
+GOTO 14765; if() #286 Body End
+LOAD D2 0.0003; if() #286 Else Start
 SUBV D2 8
 PUSHR D2
 LOAD D2 0
@@ -14789,7 +14789,7 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_Y D2; if() #289 Else End
+SETR SPRITE_Y D2; if() #286 Else End
 LOAD D2 0.0004
 PUSHR D2
 SETV D2 4
@@ -14907,7 +14907,7 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-LOAD D2 0.0004; if() #290 Test
+LOAD D2 0.0004; if() #287 Test
 PUSHR D2
 SETV D2 8
 PUSHR D2
@@ -14930,7 +14930,7 @@ GOTO 14903
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 14922 ==; Test 'if'
-PUSHR D4; if() #290 Body Start
+PUSHR D4; if() #287 Body Start
 LOAD D2 0; UsrFunc[int __GetEWeaponThrowHeight(eweapon)] Params Start
 PUSHR D2; UsrFunc[int __GetEWeaponThrowHeight(eweapon)] Params End
 CALLFUNC 0.7711; UsrFunc[int __GetEWeaponThrowHeight(eweapon)] Call
@@ -14946,8 +14946,8 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-GOTO 14940; if() #290 Body End
-LOAD D2 0.0004; if() #290 Else Start
+GOTO 14940; if() #287 Body End
+LOAD D2 0.0004; if() #287 Else Start
 PUSHR D2
 SETV D2 9
 PUSHR D2
@@ -14964,7 +14964,7 @@ PUSHR D2
 POP D0
 POP D2
 POP REFSPRITE
-SETR SPRITE_MISCD D2; if() #290 Else End
+SETR SPRITE_MISCD D2; if() #287 Else End
 LOAD D2 0.0004
 PUSHR D2
 SETV D2 11

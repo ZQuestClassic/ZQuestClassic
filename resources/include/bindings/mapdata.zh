@@ -440,11 +440,13 @@ class mapdata {
 
 	// The `No Reset` carryover flags.
 	//
+	// @value [NoResetBitflags]
 	// @zasm_var MAPDATANORESET
 	internal int NoReset;
 
 	// The `No Carry Over` carryover flags.
 	//
+	// @value [NoCarryBitflags]
 	// @zasm_var MAPDATANOCARRY
 	internal int NoCarry;
 
