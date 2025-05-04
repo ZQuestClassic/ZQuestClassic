@@ -33,6 +33,7 @@ enum DMapFlag
 	DMFS_TRUECELLARENEMIES,   //True Cellar Enemies
 	DMFS_BUNNY,               //Become Bunny with no Pearl
 	DMFS_MIRRORCONTINUE,      //Mirror Continues instead of Warping
+	DMFS_EXTENDEDVIEWPORT,    //If checked, the viewport extends into the part of the screen normally occupied by the passive subscreen.
 	DMFS_MAX
 };
 
@@ -193,7 +194,7 @@ class dmapdata {
 	//
 	// @index [DMapFlag]
 	// @zasm_var DMAPDATAFLAGARR
-	internal int Flagset[];
+	internal bool Flagset[];
 
 	// If true, the dmap is treated as sideview by default; screens with the
 	// sideview flag enabled will toggle sideview back *off*.
