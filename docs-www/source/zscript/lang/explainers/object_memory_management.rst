@@ -92,3 +92,8 @@ and will still be valid on reloading the save. This includes all variables and a
 	the garbage collector runs or an object destructor is called is an implementation detail that
 	may change. Do NOT implement critical game functionality in destructors - doing so will result
 	in unpredictable behavior, and may break your quest in future versions of ZC.
+
+Examples
+--------
+
+* To pass objects between scripts via `InitD` (or similar int/untyped variables), you must ensure something else retains the object else it may be destroyed before the target script can load it. `Read this discussion for more information <https://discord.com/channels/876899628556091432/1365314060543070329/1365502641236344923>`_.
