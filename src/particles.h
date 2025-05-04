@@ -64,6 +64,7 @@ class particle_list
 	mutable particle* lastRequested;
 public:
 	particle_list();
+	// Note: these are NOT sprite uids. Separate system. Particles are not sprites.
 	particle *getByUID(int32_t uid);
 	void clear();
 	particle *at(int32_t index);

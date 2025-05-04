@@ -10,8 +10,10 @@ class ItemH : public SH
 {
 
 public:
-	static int32_t loadItem(const int32_t iid, const char * const funcvar);
-	static int32_t getItemIndex(const int32_t iid);
+	static int32_t loadItem(int32_t uid, const char* what);
+	static int32_t getItemIndex(int32_t uid);
+	static item* getItem();
+	static void clearTemp();
 };
 
 std::optional<int32_t> item_get_register(int32_t reg);

@@ -15,6 +15,8 @@ extern refInfo *ri;
 
 namespace {
 
+static item *tempitem = NULL;
+
 item *checkItem(int32_t iid)
 {
 	item *s = (item *)items.getByUID(iid);
@@ -63,40 +65,34 @@ bool do_itemsprite_delete()
 
 } // end namespace
 
-int32_t ItemH::loadItem(const int32_t iid, const char * const funcvar)
+int32_t ItemH::loadItem(int32_t uid, const char* what)
 {
-	if ( !iid ) 
-	{
-		//can never be zero?
-		Z_scripterrlog("The item pointer used for %s is NULL or uninitialised.", funcvar);
+	tempitem = ResolveItemSprite(uid, what);
+	if (!tempitem) 
 		return _InvalidSpriteUID;
-	}
-	
-	auto tempitem = (item *) items.getByUID(iid);
-	
-	if(tempitem == NULL)
-	{
-		Z_scripterrlog("Invalid item with UID %ld passed to %s\nItems on screen have UIDs ", iid, funcvar);
-		
-		for(word i = 0; i < items.Count(); i++)
-			Z_scripterrlog("%ld ", items.spr(i)->getUID());
-			
-		Z_scripterrlog("\n");
-		return _InvalidSpriteUID;
-	}
-	
+
 	return _NoError;
 }
 
-int32_t ItemH::getItemIndex(const int32_t iid)
+int32_t ItemH::getItemIndex(int32_t uid)
 {
 	for(word i = 0; i < items.Count(); i++)
 	{
-		if(items.spr(i)->getUID() == iid)
+		if(items.spr(i)->getUID() == uid)
 			return i;
 	}
 	
 	return -1;
+}
+
+item *ItemH::getItem()
+{
+	return tempitem;
+}
+
+void ItemH::clearTemp()
+{
+	tempitem = NULL;
 }
 
 std::optional<int32_t> item_get_register(int32_t reg)

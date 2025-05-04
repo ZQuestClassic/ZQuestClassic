@@ -16,26 +16,11 @@ extern char *guy_string[];
 
 // For the "npc" type - also called "guys" internally, and backed by the "enemy" class... :)
 
-int32_t GuyH::loadNPC(const int32_t eid, const char * const funcvar)
+int32_t GuyH::loadNPC(const int32_t uid, const char* what)
 {
-	if ( !eid ) 
-	{
-		//can never be zero?
-		Z_scripterrlog("The npc pointer used for %s is NULL or uninitialised.\n", funcvar);
+	tempenemy = ResolveNpc(uid, what);
+	if (!tempenemy) 
 		return _InvalidSpriteUID;
-	}
-	tempenemy = (enemy *) guys.getByUID(eid);
-	
-	if(tempenemy == NULL)
-	{
-		Z_scripterrlog("Invalid NPC with UID %ld passed to %s\nNPCs on screen have UIDs ", eid, funcvar);
-		
-		for(word i = 0; i < guys.Count(); i++)
-			Z_scripterrlog("%ld ", guys.spr(i)->getUID());
-			
-		Z_scripterrlog("\n");
-		return _InvalidSpriteUID;
-	}
 	
 	return _NoError;
 }
@@ -45,8 +30,6 @@ enemy *GuyH::getNPC()
 	return tempenemy;
 }
 
-// Currently only used in a context where the enemy is known to be valid,
-// so there's no need to print an error
 int32_t GuyH::getNPCIndex(const int32_t eid)
 {
 	for(word i = 0; i < guys.Count(); i++)
@@ -138,12 +121,8 @@ namespace {
 
 void do_npcattack()
 {
-	
 	if(GuyH::loadNPC(ri->guyref, "npc->Attack()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//e->FireWeapon();
-		//we could just do: 
 		GuyH::getNPC()->FireWeapon();
 	}
 }
@@ -156,8 +135,6 @@ void do_npc_newdir()
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->NewDir()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
 		if ( sz != -1 ) 
 		{
 			if ( sz != 3 ) 
@@ -182,8 +159,6 @@ void do_npc_constwalk()
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
 		if ( sz != -1 ) 
 		{
 			if ( sz != 3 ) 
@@ -207,8 +182,6 @@ void do_npc_varwalk()
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
 		if ( sz == 3 ) 
 		{
 			
@@ -228,8 +201,6 @@ void do_npc_varwalk8()
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk8()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
 		if ( sz == 4 ) 
 		{
 			GuyH::getNPC()->variable_walk_8( (am.get(0)/10000), (am.get(1)/10000),
@@ -256,8 +227,6 @@ void do_npc_constwalk8()
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk8()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
 		if ( sz == 3 ) 
 		{
 			GuyH::getNPC()->constant_walk_8( (am.get(0)/10000), (am.get(1)/10000),
@@ -278,8 +247,6 @@ void do_npc_haltwalk()
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
 		if ( sz == 5 ) 
 		{
 			GuyH::getNPC()->halting_walk( (am.get(0)/10000), (am.get(1)/10000),
@@ -299,8 +266,6 @@ void do_npc_haltwalk8()
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk8()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
 		if ( sz == 6 ) 
 		{
 			
@@ -322,8 +287,6 @@ void do_npc_floatwalk()
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->FloatingWalk()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
 		if ( sz == 3 ) 
 		{
 			
@@ -348,9 +311,7 @@ void do_npc_breathefire()
 	bool seek = (get_register(sarg1));
 	if(GuyH::loadNPC(ri->guyref, "npc->BreathAttack()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		GuyH::getNPC()->FireBreath(seek);
-		
 	}
 }
 
@@ -364,8 +325,6 @@ void do_npc_newdir8()
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->NewDir8()") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
 		if ( sz == 3 ) 
 		{
 			
@@ -593,12 +552,8 @@ void do_getnpcdata_getname()
 
 void do_isdeadnpc()
 {
-	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 	if(GuyH::loadNPC(ri->guyref, "npc->isDead") == SH::_NoError)
 	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//int32_t dead = (int32_t)e->Dead(GuyH::getNPCIndex(ri->guyref));
-		//GuyH::getNPC()->Dead(GuyH::getNPCIndex(ri->guyref));
 		set_register(sarg1,
 			((GuyH::getNPC()->dying && !GuyH::getNPC()->immortal)
 				? 10000 : 0));

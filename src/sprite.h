@@ -12,7 +12,6 @@
 struct itemdata;
 struct newcombo;
 using std::map;
-// this code needs some patching for use in zquest.cc
 
 extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
@@ -191,7 +190,6 @@ class sprite_list
 	int32_t active_iterator;
     bool delete_active_iterator;
 	int32_t max_sprites;
-    map<int32_t, int32_t> containedUIDs;
     // Cache requests from scripts
     mutable int32_t lastUIDRequested;
     mutable sprite* lastSpriteRequested;
@@ -214,7 +212,8 @@ public:
     int32_t getMisc(int32_t j);
 	int32_t getMax() {return max_sprites;}
 	void setMax(int32_t max) {max_sprites = (max < SLMAX ? max : SLMAX);}
-    bool del(int32_t j, bool force = false, bool may_defer = true);
+    bool del(int32_t index, bool force = false, bool may_defer = true);
+	bool del(sprite* spr, bool force = false, bool may_defer = true);
     void draw(BITMAP* dest,bool lowfirst);
     void drawshadow(BITMAP* dest,bool translucent, bool lowfirst);
 	void draw_smooth_maze(BITMAP* dest);
@@ -252,10 +251,6 @@ public:
     int32_t idLast(int32_t id);
     
 	void forEach(std::function<bool(sprite&)> proc);
-	
-private:
-
-    void checkConsistency(); //for debugging
 };
 
 class movingblock : public sprite

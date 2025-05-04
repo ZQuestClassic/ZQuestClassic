@@ -33,9 +33,7 @@
 #define ZSCRIPT_MAX_STRING_CHARS 214748
 
 #define MAX_ZQ_LAYER 6
-#define MAX_DRAW_LAYER 7
 #define MIN_ZQ_LAYER 0
-#define MIN_DRAW_LAYER 0
 #define MAX_FLAGS 512
 
 #define SRAM_VERSION 2
@@ -1018,10 +1016,6 @@ void do_monochromatic(const bool v);
 void gfxmonohue();
 void Tint();
 void clearTint();
-//Advances the game frame without checking 'Quit' variable status.
-//Used for making scripts such as Hero's onWin and onDeath scripts
-//run for multiple frames.
-void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
 void initZScriptOnMapScript();
@@ -1079,51 +1073,6 @@ int32_t getEWeaponByScriptUID(int32_t sUID);
 void do_lweapon_delete();
 void do_eweapon_delete();
 
-
-	static INLINE int32_t ZSbound_byte(int32_t val)
-	{
-		return vbound(val,0,ZS_BYTE);
-	}
-	static INLINE int32_t ZSbound_char(int32_t val)
-	{
-		return vbound(val,0,ZS_CHAR);
-	}
-	static INLINE int32_t ZSbound_word(int32_t val)
-	{
-		return vbound(val,0,ZS_WORD);
-	}
-	static INLINE int32_t ZSbound_short(int32_t val)
-	{
-		return vbound(val,0,ZS_SHORT);
-	}
-	static INLINE int32_t ZSbound_long(int32_t val)
-	{
-		return vbound(val,0,ZS_LONG);
-	}
-	static INLINE int32_t ZSbound_fix(int32_t val)
-	{
-		return vbound(val,0,ZS_FIX);
-	}
-	
-static void set_screenwarpReturnY(mapscr *m, int32_t d, int32_t value);
-static void set_screenenemy(mapscr *m, int32_t index, int32_t value);
-static void set_screenlayeropacity(mapscr *m, int32_t d, int32_t value);
-static void set_screensecretcombo(mapscr *m, int32_t d, int32_t value);
-static void set_screensecretcset(mapscr *m, int32_t d, int32_t value);
-static void set_screensecretflag(mapscr *m, int32_t d, int32_t value);
-static void set_screenlayermap(mapscr *m, int32_t d, int32_t value);
-static void set_screenlayerscreen(mapscr *m, int32_t d, int32_t value);
-static void set_screenpath(mapscr *m, int32_t d, int32_t value);
-static void set_screenwarpReturnX(mapscr *m, int32_t d, int32_t value);
-static void set_screenGuy(mapscr *m, int32_t value);
-static void set_screenString(mapscr *m, int32_t value);
-static void set_screenRoomtype(mapscr *m, int32_t value);
-static void set_screenEntryX(mapscr *m, int32_t value);
-static void set_screenEntryY(mapscr *m, int32_t value);
-static void set_screenitem(mapscr *m, int32_t value);
-static void set_screenundercombo(mapscr *m, int32_t value);
-static void set_screenundercset(mapscr *m, int32_t value);
-static void set_screenatchall(mapscr *m, int32_t value);
 static void deallocateArray(const int32_t ptrval);
 static int32_t get_screen_d(int32_t index1, int32_t index2);
 static void set_screen_d(int32_t index1, int32_t index2, int32_t val);
@@ -1137,12 +1086,6 @@ static void do_closescreenshape();
 static void do_wavyin();
 static void do_wavyout();
 static void do_triggersecret(const bool v);
-static void do_changeffcscript(const bool v);
-
-static void setHeroDiagonal(bool v);
-static bool getHeroDiagonal();
-static bool getHeroBigHitbox();
-static void setHeroBigHitbox(bool v);
 
 
 
@@ -1529,6 +1472,10 @@ void clearScriptHelperData();
 int32_t get_screenflags(mapscr *m, int32_t flagset);
 int32_t get_screeneflags(mapscr *m, int32_t flagset);
 
+sprite* ResolveBaseSprite(int32_t uid, const char* what);
+item* ResolveItemSprite(int32_t uid, const char* what);
+enemy* ResolveNpc(int32_t uid, const char* what);
+
 // Defines for script flags
 #define TRUEFLAG          0x0001
 #define MOREFLAG          0x0002
@@ -1727,7 +1674,7 @@ class BC : public SH
 {
 public:
 
-	static INLINE int32_t checkMapID(const int32_t ID, const char * const str)
+	static INLINE int32_t checkMapID(const int32_t ID, const char* str)
 	{
 		//return checkBounds(ID, 0, map_count-1, str);
 		if(ID < 0 || ID > map_count-1)
@@ -1739,145 +1686,145 @@ public:
 		return _NoError;
 	}
 	
-	static INLINE int32_t checkDMapID(const int32_t ID, const char * const str)
+	static INLINE int32_t checkDMapID(const int32_t ID, const char* str)
 	{
 		return checkBounds(ID, 0, MAXDMAPS-1, str);
 	}
 	
-	static INLINE int32_t checkComboPos(const int32_t pos, const char * const str)
+	static INLINE int32_t checkComboPos(const int32_t pos, const char* str)
 	{
 		return checkBoundsPos(pos, 0, 175, str);
 	}
 
-	static INLINE int32_t checkComboRpos(const rpos_t rpos, const char * const str)
+	static INLINE int32_t checkComboRpos(const rpos_t rpos, const char* str)
 	{
 		return checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, str);
 	}
 
-	static INLINE int32_t checkTile(const int32_t pos, const char * const str)
+	static INLINE int32_t checkTile(const int32_t pos, const char* str)
 	{
 		return checkBounds(pos, 0, NEWMAXTILES-1, str);
 	}
 	
-	static INLINE int32_t checkCombo(const int32_t pos, const char * const str)
+	static INLINE int32_t checkCombo(const int32_t pos, const char* str)
 	{
 		return checkBounds(pos, 0, MAXCOMBOS-1, str);
 	}
 	
-	static INLINE int32_t checkMisc(const int32_t a, const char * const str)
+	static INLINE int32_t checkMisc(const int32_t a, const char* str)
 	{
 		return checkBounds(a, 0, 15, str);
 	}
 	
-	 static INLINE int32_t checkMisc32(const int32_t a, const char * const str)
+	 static INLINE int32_t checkMisc32(const int32_t a, const char* str)
 	{
 		return checkBounds(a, 0, 31, str);
 	}
 	
-	static INLINE int32_t checkMessage(const int32_t ID, const char * const str)
+	static INLINE int32_t checkMessage(const int32_t ID, const char* str)
 	{
 		return checkBounds(ID, 0, msg_strings_size-1, str);
 	}
 	
-	static INLINE int32_t checkLayer(const int32_t layer, const char * const str)
+	static INLINE int32_t checkLayer(const int32_t layer, const char* str)
 	{
 		return checkBounds(layer, 0, 6, str);
 	}
 	
-	static INLINE int32_t checkFFC(ffc_id_t id, const char * const str)
+	static INLINE int32_t checkFFC(ffc_id_t id, const char* str)
 	{
 		return checkBounds(id, 0, MAX_FFCID, str);
 	}
 
-	static INLINE int32_t checkMapdataFFC(int index, const char * const str)
+	static INLINE int32_t checkMapdataFFC(int index, const char* str)
 	{
 		return checkBoundsOneIndexed(index, 0, MAXFFCS-1, str);
 	}
 	
-	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
+	static INLINE int32_t checkGuyIndex(const int32_t index, const char* str)
 	{
 		return checkBoundsOneIndexed(index, 0, guys.Count()-1, str);
 	}
 	
-	static INLINE int32_t checkItemIndex(const int32_t index, const char * const str)
+	static INLINE int32_t checkItemIndex(const int32_t index, const char* str)
 	{
 		return checkBoundsOneIndexed(index, 0, items.Count()-1, str);
 	}
 	
-	static INLINE int32_t checkEWeaponIndex(const int32_t index, const char * const str)
+	static INLINE int32_t checkEWeaponIndex(const int32_t index, const char* str)
 	{
 		return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1, str);
 	}
 	
-	static INLINE int32_t checkLWeaponIndex(const int32_t index, const char * const str)
+	static INLINE int32_t checkLWeaponIndex(const int32_t index, const char* str)
 	{
 		return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1, str);
 	}
 	
-	static INLINE int32_t checkGuyID(const int32_t ID, const char * const str)
+	static INLINE int32_t checkGuyID(const int32_t ID, const char* str)
 	{
 		//return checkBounds(ID, 0, MAXGUYS-1, str); //Can't create NPC ID 0
 		return checkBounds(ID, 1, MAXGUYS-1, str);
 	}
 	
-	static INLINE int32_t checkItemID(const int32_t ID, const char * const str)
+	static INLINE int32_t checkItemID(const int32_t ID, const char* str)
 	{
 		return checkBounds(ID, 0, MAXITEMS-1, str);
 	}
 	
-	static INLINE int32_t checkWeaponID(const int32_t ID, const char * const str)
+	static INLINE int32_t checkWeaponID(const int32_t ID, const char* str)
 	{
 		return checkBounds(ID, 0, MAXWPNS-1, str);
 	}
 	
-	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID, const char * const str)
+	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID, const char* str)
 	{
 		return checkBounds(ID, 0, MAXWPNS-1, str);
 	}
 	
-	static INLINE int32_t checkSFXID(const int32_t ID, const char * const str)
+	static INLINE int32_t checkSFXID(const int32_t ID, const char* str)
 	{
 		return checkBounds(ID, 0, WAV_COUNT-1, str);
 	}
 	
-	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* what)
 	{
 		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n, funcvar);
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n, what);
 			return _OutOfBounds;
 		}
 		
 		return _NoError;
 	}
 	
-	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* what)
 	{
 		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
+			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, what);
 			return _OutOfBounds;
 		}
         
 		return _NoError;
 	}
 
-	static INLINE int32_t checkBoundsRpos(const rpos_t n, const rpos_t boundlow, const rpos_t boundup, const char * const funcvar)
+	static INLINE int32_t checkBoundsRpos(const rpos_t n, const rpos_t boundlow, const rpos_t boundup, const char* what)
 	{
 		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
+			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, what);
 			return _OutOfBounds;
 		}
         
 		return _NoError;
 	}
 	
-	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* what)
 	{
 		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n+1, funcvar);
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n+1, what);
 			return _OutOfBounds;
 		}
 		

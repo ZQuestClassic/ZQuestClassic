@@ -770,38 +770,6 @@ weapon::weapon(weapon const & other):
 
 {
 	weaponscript = other.weaponscript;
-	//script_wrote_otile = 0;
-	//if ( isLWeapon ) goto skip_eweapon_script_init;
-	//eweapons
-	//if ( parentid > -1 && parentid != Hero.getUID() 
-	//	&& !ScriptGenerated //Don't try to read the parent script for a script-generated eweapon!
-	//) 
-	//{
-	//	enemy *s = (enemy *)guys.getByUID(parentid);
-	//
-	//	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
-	//	parent_script_UID = s->script_UID;
-	//	for ( int32_t q = 0; q < INITIAL_D; q++ ) 
-	//	{
-	//		//Z_scripterrlog("(weapon::weapon(weapon const & other)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
-	//	
-	//		weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
-	//		
-	//	}
-		
-	//}
-	//skip_eweapon_script_init:
-	//if ( parentitem > -1 ) //lweapons
-	//{
-	//	
-	//	weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
-	//	for ( int32_t q = 0; q < INITIAL_D; q++ ) 
-	//	{
-	//		weap_initd[q] = itemsbuf[parentitem].weap_initiald[q];
-	//		
-	//	}
-		
-	//}
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	for( int32_t q = 0; q < WPNSPR_MAX; q++ )
@@ -822,8 +790,6 @@ weapon::weapon(weapon const & other):
 	}
     
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
-    //memset(stack,0,sizeof(stack));
-    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
     
     //Weapon Editor Arrays
     for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
@@ -849,25 +815,6 @@ weapon::weapon(weapon const & other):
     }
     script_wrote_otile = 0;
     
-    //if ( parentitem > -1 )
-    //{
-	//weaponscript = itemsbuf[parentitem].weaponscript;
-    //}
-    
-	//! END Weapon Editor
-    
-    /*for (int32_t i=0; i<8; ++i)
-    {
-      d[i]=other.d[i];
-    }
-    for (int32_t i=0; i<2; ++i)
-    {
-      a[i]=other.a[i];
-    }*/
-    
-    
-    //if ( parentid > 0 ) wpnsprite = guysbuf[parentid].wpnsprite;
-    //else wpnsprite  = -1;
     doAutoRotate(true);
 }
 
@@ -1122,22 +1069,12 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	if ( isLW ) goto skip_eweapon_script;
 	if ( prntid > -1 && prntid != Hero.getUID()  ) //eweapon scripts
 	{
-		
-		//Z_scripterrlog("Eweapon created with a prntid of: %d\n",prntid);
 		enemy *s = (enemy *)guys.getByUID(prntid);
-		//int32_t parent_enemy_id = 0;
-		//parent_enemy_id = s->id & 0xFFF;
-		//Z_scripterrlog("The enemy ID that created it was: %d\n",s->id & 0xFFF);
-		//weaponscript = guysbuf[prntid].weaponscript;
 		weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
 		parent_script_UID = s->script_UID;
-		//Z_scripterrlog("parentUID %d\n", parent_script_UID);
 		for ( int32_t q = 0; q < 8; q++ )
 		{
-			//load InitD
-			//Z_scripterrlog("(weapon::weapon(zfix)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
 			weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
-				
 		}
 	}
 	skip_eweapon_script:
@@ -1172,8 +1109,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	minX = minY = maxX = maxY = 0;
 	rundeath = false;
 	shd_aclk = shd_aframe = 0;
-	//memset(stack,0,sizeof(stack));
-	//memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
 	
 	int32_t itemid = parentitem;
 	itemdata const& parent = itemsbuf[unsigned(parentitem) < MAXITEMS ? parentitem : -1];
@@ -4212,10 +4147,8 @@ bool weapon::animate(int32_t index)
 		case wScript10:
 		{
 			if ( ScriptGenerated && !isLWeapon ) break; //Return early for eweapons. We handle those elsewhere. 
-			//Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
 			if ( parentitem > -1 || (isLWeapon && ScriptGenerated) )
 			{
-				//Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			
@@ -4847,7 +4780,6 @@ bool weapon::animate(int32_t index)
 		case wArrow:
 		case wRefArrow:
 		{
-			//Z_scripterrlog("Arrow weaponscript is: %d\n", weaponscript);
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			if(weapon_dying_frame)
 			{
@@ -7976,7 +7908,6 @@ void weapon::draw(BITMAP *dest)
 					//tile = o_tile; //This will overwrite the tile on the calls above, so we can't do it. Fuck it. 
 				//}
 			}
-			//Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
 		}
 		break;
 	}
@@ -8170,7 +8101,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     isLWeapon = 0;
     ScriptGenerated = 0;
     LOADGFX(usesprite);
-    //Z_scripterrlog("After calling LOADGFX(), the dummy weapon o_tile is: %d\n", o_tile);
     step=0;
     weaponscript = 0;
 	weapon_dying_frame = false;

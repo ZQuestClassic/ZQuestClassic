@@ -34,22 +34,9 @@ static bool enemy_has_hero(sprite* s)
 	return false;
 }
 
-static sprite* get_sprite(int uid, const char* context)
+static sprite* get_sprite(int uid, const char* what)
 {
-	if (!uid)
-	{
-		Z_scripterrlog("The pointer is NULL or uninitialised (sprite->%s).\n", context);
-		return nullptr;
-	}
-
-	sprite* s = sprite::getByUID(uid);
-	if (!s)
-	{
-		Z_scripterrlog("Invalid pointer for UID %ld (sprite->%s).\n", uid, context);
-		return nullptr;
-	}
-
-	return s;
+	return ResolveBaseSprite(uid, what);
 }
 
 static bool as_float(sprite* s)

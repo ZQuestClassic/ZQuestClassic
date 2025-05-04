@@ -2019,9 +2019,6 @@ bool sprite_list::swap(int32_t a,int32_t b)
     sprite *c = sprites[a];
     sprites[a] = sprites[b];
     sprites[b] = c;
-    containedUIDs[sprites[a]->getUID()] = a;
-    containedUIDs[sprites[b]->getUID()] = b;
-// checkConsistency();
     return true;
 }
 
@@ -2034,14 +2031,11 @@ bool sprite_list::add(sprite *s)
     }
     
     s->registerUID();
-    containedUIDs[s->getUID()] = count;
     sprites[count++]=s;
-    //checkConsistency();
     return true;
 }
 
 bool sprite_list::remove(sprite *s)
-// removes pointer from list but doesn't delete it
 {
 	if(s->ignore_delete) return false;
     if(s==lastSpriteRequested)
@@ -2049,12 +2043,7 @@ bool sprite_list::remove(sprite *s)
         lastUIDRequested=0;
         lastSpriteRequested=0;
     }
-    
-    map<int32_t, int32_t>::iterator it = containedUIDs.find(s->getUID());
-    
-    if(it != containedUIDs.end())
-        containedUIDs.erase(it);
-        
+   
     int32_t j=0;
     
     for(; j<count; j++)
@@ -2062,13 +2051,12 @@ bool sprite_list::remove(sprite *s)
             goto gotit;
             
     return false;
-    
+
 gotit:
 
     for(int32_t i=j; i<count-1; i++)
     {
         sprites[i]=sprites[i+1];
-        containedUIDs[sprites[i]->getUID()] = i;
     }
     
     --count;
@@ -2116,48 +2104,48 @@ int32_t sprite_list::getMisc(int32_t j)
     return sprites[j]->misc;
 }
 
-bool sprite_list::del(int32_t j, bool force, bool may_defer)
+bool sprite_list::del(int32_t index, bool force, bool may_defer)
 {
-	if(j<0||j>=count)
+	if(index<0||index>=count)
 		return false;
 	
-	if(!force && sprites[j]->ignore_delete) return false;
+	if(!force && sprites[index]->ignore_delete) return false;
 
 	// If this sprite is currently running its `animate` function, just mark it for deletion
 	// to avoid crashing. This allows the sprite to finish its logic even after being told to
 	// go away.
-	if(may_defer && active_iterator == j)
+	if(may_defer && active_iterator == index)
 	{
 		delete_active_iterator = true;
 		// Remove from list so fewer things interact with it.
 		// TODO: better to remove by index.
-		remove(sprites[j]);
+		remove(sprites[index]);
 		return false;
 	}
 	
-	map<int32_t, int32_t>::iterator it = containedUIDs.find(sprites[j]->getUID());
-	
-	if(it != containedUIDs.end())
-		containedUIDs.erase(it);
-	
-	if(sprites[j]==lastSpriteRequested)
+	if(sprites[index]==lastSpriteRequested)
 	{
 		lastUIDRequested=0;
 		lastSpriteRequested=0;
 	}
 	
-	delete sprites[j];
+	delete sprites[index];
 	
-	for(int32_t i=j; i<count-1; i++)
+	for(int32_t i=index; i<count-1; i++)
 	{
 		sprites[i]=sprites[i+1];
-		containedUIDs[sprites[i]->getUID()] = i;
 	}
 	
 	--count;
-	if(j<=active_iterator) --active_iterator;
-	//checkConsistency();
+	if(index<=active_iterator) --active_iterator;
 	return true;
+}
+
+bool sprite_list::del(sprite* spr, bool force, bool may_defer)
+{
+	int index = find(spr);
+	if (index == -1) return false;
+	return del(index, force, may_defer);
 }
 
 void sprite_list::draw(BITMAP* dest,bool lowfirst)
@@ -2502,29 +2490,20 @@ int32_t sprite_list::idLast(int32_t id)
 
 sprite * sprite_list::getByUID(int32_t uid)
 {
-    if(uid==lastUIDRequested)
-        return lastSpriteRequested;
-    
-    map<int32_t, int32_t>::iterator it = containedUIDs.find(uid);
-    
-    if(it != containedUIDs.end())
-    {
-        // Only update cache if requested sprite was found
-        lastUIDRequested=uid;
-        lastSpriteRequested=spr(it->second);
-        return lastSpriteRequested;
-    }
-        
-    return NULL;
-}
+	if (uid==lastUIDRequested)
+		return lastSpriteRequested;
 
-void sprite_list::checkConsistency()
-{
-    assert((int32_t)containedUIDs.size() == count);
-    assert(lastUIDRequested==0 || containedUIDs.find(lastUIDRequested)!=containedUIDs.end());
-    
-    for(int32_t i=0; i<count; i++)
-        assert(sprites[i] == getByUID(sprites[i]->getUID()));
+	auto s = sprite::getByUID(uid);
+
+	if (s)
+	{
+		// Only update cache if requested sprite was found
+		lastUIDRequested=uid;
+		lastSpriteRequested=s;
+		return lastSpriteRequested;
+	}
+
+	return NULL;
 }
 
 void sprite_list::forEach(std::function<bool(sprite&)> proc)
@@ -2538,23 +2517,6 @@ void sprite_list::forEach(std::function<bool(sprite&)> proc)
 
 void sprite::explode(int32_t type)
 {
-	al_trace("Trying to explode enemy tile: %d\n",tile);
-	
-	/*
-	tiledata *temptilebuf = NULL;
-	memset(temptilebuf, 0, sizeof(temptilebuf));
-	static int32_t tempx, tempy;
-	static byte herotilebuf[256];
-	int32_t ltile=0;
-	int32_t lflip=0;
-	unpack_tile(temptilebuf, tile, flip, true);
-	//unpack_tile(temptilebuf, tile, flip, true);
-	//unpack_tile(temptilebuf, o_tile, 0, true);
-	memcpy(herotilebuf, temptilebuf, 256);
-	tempx=x;
-	tempy=y;
-	*/
-	
 	byte spritetilebuf[256];
 	int32_t ltile=0;
 	int32_t lflip=0;
@@ -2618,61 +2580,6 @@ void sprite::setCanFlicker(bool v)
 {
 	can_flicker = v;
 }
-
-
-/*
-void sprite::explode(int32_t type)
-{
-	static int32_t tempx, tempy;
-	static byte herotilebuf[256];
-	int32_t ltile=0;
-	int32_t lflip=0;
-	unpack_tile(newtilebuf, tile, flip, true);
-	memcpy(herotilebuf, unpackbuf, 256);
-	tempx=x;
-	tempy=y;
-	for(int32_t i=0; i<16; ++i)
-	{
-                for(int32_t j=0; j<16; ++j)
-                {
-                    if(herotilebuf[i*16+j])
-                    {
-                        if(type==0)  // Twilight
-                        {
-                            particles.add(new pTwilight(x+j, y-z+i, 6, 0, 0, (zc_oldrand()%8)+i*4));
-                            int32_t k=particles.Count()-1;
-                            particle *p = (particles.at(k));
-                            p->step=3;
-                        }
-                        else if(type ==1)  // Sands of Hours
-                        {
-                            particles.add(new pTwilight(x+j, y-z()+i, 6, 1, 2, (zc_oldrand()%16)+i*2));
-                            int32_t k=particles.Count()-1;
-                            particle *p = (particles.at(k));
-                            p->step=4;
-                            
-                            if(zc_oldrand()%10 < 2)
-                            {
-                                p->color=1;
-                                p->cset=0;
-                            }
-                        }
-                        else
-                        {
-                            particles.add(new pDivineEscapeDust(x+j, y-z+i, 6, 6, herotilebuf[i*16+j], zc_oldrand()%96));
-                            
-                            int32_t k=particles.Count()-1;
-                            particle *p = (particles.at(k));
-                            p->angular=true;
-                            p->angle=zc_oldrand();
-                            p->step=(((double)j)/8);
-                            p->yofs=yofs;
-                        }
-                    }
-                }
-	}
-}
-*/
 
 //Moving Block 
 

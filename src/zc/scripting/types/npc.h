@@ -10,12 +10,10 @@ class GuyH : public SH
 {
 
 public:
-	static int32_t loadNPC(const int32_t eid, const char * const funcvar);
+	static int32_t loadNPC(const int32_t eid, const char* what);
 	
 	static enemy *getNPC();
 	
-	// Currently only used in a context where the enemy is known to be valid,
-	// so there's no need to print an error
 	static int32_t getNPCIndex(const int32_t eid);
 	
 	static int32_t getNPCDMisc(const byte a);
