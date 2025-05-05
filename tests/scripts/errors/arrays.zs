@@ -52,6 +52,10 @@ void main()
 
 	SizeOfArray(arr); // Exact match.
 	SizeOfArray(arr2); // int casts to int[] (no warning)
+
+	// OK.
+	// https://discord.com/channels/876899628556091432/1295149938031722547
+	ffc f = Screen->FFCs[0];
 }
 
 void fnOverloaded(int[] arr)

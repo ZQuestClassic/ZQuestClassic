@@ -5,19 +5,19 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-arrays.zs Line 69 @ Columns 37-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+arrays.zs Line 73 @ Columns 37-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
-67    void fnOldStyleArray(int arr)
-68    {
-69        printf("fnOldStyleArray(int arr)", arr[0]);
+71    void fnOldStyleArray(int arr)
+72    {
+73        printf("fnOldStyleArray(int arr)", arr[0]);
                                              ^~~~~~
 
 
-arrays.zs Line 80 @ Columns 3-9 - Error S109: Arrays should be explicitly typed - change `int` to `int[]`
+arrays.zs Line 84 @ Columns 3-9 - Error S109: Arrays should be explicitly typed - change `int` to `int[]`
 
-78            #option LEGACY_ARRAYS off
-79    
-80            arr[0];
+82            #option LEGACY_ARRAYS off
+83    
+84            arr[0];
               ^~~~~~
 
 
@@ -97,11 +97,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 68,
+          "line": 72,
           "character": 36
         },
         "end": {
-          "line": 68,
+          "line": 72,
           "character": 42
         }
       },
@@ -111,11 +111,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 79,
+          "line": 83,
           "character": 2
         },
         "end": {
-          "line": 79,
+          "line": 83,
           "character": 8
         }
       },
@@ -236,9 +236,9 @@ stdout:
     }
   ],
   "metadata": {
-    "currentFileSymbols": 18,
-    "symbols": 24,
-    "identifiers": 63,
+    "currentFileSymbols": 19,
+    "symbols": 28,
+    "identifiers": 67,
     "elided": true
   }
 }

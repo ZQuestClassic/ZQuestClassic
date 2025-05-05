@@ -1854,7 +1854,7 @@ bool ASTExprIndex::isConstant() const
 DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	DataType const* type = array->getReadType(scope, errorHandler);
-	if (type && type->isArray() && !array->isTypeArrowNonUsrClass())
+	if (type && type->isArray())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
 		type = &atype->getElementType();
@@ -1865,7 +1865,7 @@ DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* err
 DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	DataType const* type = array->getWriteType(scope, errorHandler);
-	if (type && type->isArray() && !array->isTypeArrowNonUsrClass())
+	if (type && type->isArray())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
 		type = &atype->getElementType();
