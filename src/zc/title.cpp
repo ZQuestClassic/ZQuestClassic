@@ -1672,8 +1672,6 @@ void game_over(int32_t type)
 		if (pos != 0)
 		{
 			if (replay_get_mode() == ReplayMode::Record) replay_save();
-			if (!replay_is_replaying())
-				replay_stop();
 		}
 	}
 }
