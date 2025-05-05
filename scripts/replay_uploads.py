@@ -360,26 +360,6 @@ def debug_replay(replay_path: Path):
     bad_version = archives.get_revisions(common.get_release_platform(), 'main')[-1].tag
     print(f'assuming good: {good_version}, bad: {bad_version}')
 
-    test_results = run_replays_process_with_version(
-        good_version, [tmp_path, '--update']
-    )
-    if not test_results.runs[-1][0].success:
-        print(
-            f'was not able to update the replay with the assumed "good" version: {good_version}.'
-        )
-        tmp_path.unlink()
-        tmp_trimmed_path.unlink()
-        sys.exit(1)
-
-    shutil.copyfile(tmp_trimmed_path, tmp_path)
-    test_results = run_replays_process_with_version(bad_version, [tmp_path, '--update'])
-    if test_results.runs[-1][0].success:
-        print(
-            f'was able to update the replay with the assumed "bad" version: {bad_version}.'
-        )
-        tmp_path.unlink()
-        sys.exit(1)
-
     print('Running bisect...')
     output = subprocess.check_output(
         [

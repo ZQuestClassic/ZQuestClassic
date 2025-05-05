@@ -119,7 +119,7 @@ class TestZEditor(unittest.TestCase):
 
         test_cases = [
             ('classic_1st.zplay', 'classic_1st.qst'),
-            # TODO: fails
+            # TODO: https://discord.com/channels/876899628556091432/1368485306394738718
             # ('freedom_in_chains.zplay', 'freedom_in_chains.qst'),
             ('ss_jenny.zplay', 'ss_jenny.qst'),
         ]

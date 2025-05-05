@@ -26,6 +26,12 @@ parser = argparse.ArgumentParser(description='Runs a bisect using prebuilt relea
 parser.add_argument('--good')
 parser.add_argument('--bad')
 parser.add_argument(
+    '--validate_range',
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help='Before starting bisect, validate that the good/bad versions are accurate. Defaults to true.',
+)
+parser.add_argument(
     '--test_builds',
     action=argparse.BooleanOptionalAction,
     default=True,
@@ -81,6 +87,27 @@ def AskIsGoodBuild():
             return response
 
 
+def check_revision(revision: Revision):
+    print(f'checking {revision}')
+    binaries = revision.binaries(args.platform)
+
+    if not binaries:
+        answer = 'u'
+    elif args.command:
+        p = common.run_zc_command(binaries, args.command)
+        if args.check_return_code:
+            retcode = p.wait()
+            answer = 'g' if retcode == 0 else 'b'
+            print(f'code: {retcode}, answer: {answer}')
+        else:
+            answer = AskIsGoodBuild()
+            p.terminate()
+    else:
+        answer = AskIsGoodBuild()
+
+    return answer
+
+
 def run_bisect(revisions: List[Revision]):
     tags = [r.tag for r in revisions]
     if args.bad not in tags:
@@ -100,6 +127,17 @@ def run_bisect(revisions: List[Revision]):
     skipped = []
     goods = [upper if good_rev > bad_rev else 0]
     bads = [upper if good_rev <= bad_rev else 0]
+
+    if args.validate_range:
+        print(f'Validating good revision: {revisions[good_rev].tag}')
+        answer = check_revision(revisions[good_rev])
+        if answer != 'g':
+            raise Exception(f'Expected good revision was not good. Got: {answer}')
+
+        print(f'Validating bad revision: {revisions[bad_rev].tag}')
+        answer = check_revision(revisions[bad_rev])
+        if answer != 'b':
+            raise Exception(f'Expected bad revision was not bad. Got: {answer}')
 
     while upper - lower > 1:
         if pivot in skipped:
@@ -146,25 +184,11 @@ def run_bisect(revisions: List[Revision]):
             f'changelog of current range: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}'
         )
 
-        print(f'checking {rev}')
-        binaries = rev.binaries(args.platform)
-
         down_pivot = int((pivot - lower) / 2) + lower
         up_pivot = int((upper - pivot) / 2) + pivot
 
-        if not binaries:
-            answer = 'u'
-        elif args.command:
-            p = common.run_zc_command(binaries, args.command)
-            if args.check_return_code:
-                retcode = p.wait()
-                answer = 'g' if retcode == 0 else 'b'
-                print(f'code: {retcode}, answer: {answer}')
-            else:
-                answer = AskIsGoodBuild()
-                p.terminate()
-        else:
-            answer = AskIsGoodBuild()
+        print(f'checking {rev}')
+        answer = check_revision(rev)
 
         if answer == 'q':
             raise SystemExit()
