@@ -1695,8 +1695,6 @@ void save_game(bool savepoint)
 	
 	flushItemCache();
 	
-	if(zqtesting_mode) return;
-	
 	saves_write();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
