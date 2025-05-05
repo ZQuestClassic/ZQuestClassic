@@ -118,13 +118,17 @@ class TestZEditor(unittest.TestCase):
             return
 
         test_cases = [
-            ('classic_1st.zplay', 'classic_1st.qst'),
-            # TODO: https://discord.com/channels/876899628556091432/1368485306394738718
-            # ('freedom_in_chains.zplay', 'freedom_in_chains.qst'),
-            ('ss_jenny.zplay', 'ss_jenny.qst'),
+            ('classic_1st.zplay', 'classic_1st.qst', []),
+            ('ss_jenny.zplay', 'ss_jenny.qst', []),
+            # Mostly works. See https://discord.com/channels/876899628556091432/1368485306394738718/1368803385289211976
+            (
+                'freedom_in_chains.zplay',
+                'freedom_in_chains.qst',
+                ['--replay', '--frame', '90000'],
+            ),
         ]
 
-        for zplay_path, qst_path in test_cases:
+        for zplay_path, qst_path, extra_args in test_cases:
             with self.subTest(msg=zplay_path):
                 load_qst_path = (
                     qst_path
@@ -154,7 +158,7 @@ class TestZEditor(unittest.TestCase):
                 replay_path.write_text(replay_content)
 
                 output_dir = tmp_dir / 'output' / replay_path.name
-                self.run_replay(output_dir, [replay_path])
+                self.run_replay(output_dir, [replay_path, *extra_args])
 
     def test_compile_and_quick_assign(self):
         if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':

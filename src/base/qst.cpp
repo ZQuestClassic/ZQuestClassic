@@ -12656,7 +12656,14 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	{
 		for (auto script : read_scripts)
 		{
-			if (script->meta.ffscript_v == 0 || script->meta.ffscript_v > s_version)
+			if (script->meta.ffscript_v == 0)
+			{
+				// These scripts were saved in a version prior to this field being set.
+				// See https://discord.com/channels/876899628556091432/1368485306394738718
+				zscript_version = 16;
+				break;
+			}
+			if (script->meta.ffscript_v > s_version)
 				break;
 
 			if (!zscript_version.has_value())
