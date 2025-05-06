@@ -347,6 +347,10 @@ string ZScript::VarToString(int32_t ID)
 			return "SCREEN_INDEX";
 		case SCREEN_DRAW_ORIGIN:
 			return "SCREEN_DRAW_ORIGIN";
+		case SCREEN_FLAG:
+			return "SCREEN_FLAG";
+		case MAPDATA_FLAG:
+			return "MAPDATA_FLAG";
 		
 		case REFMAPDATA: return "REFMAPDATA";
 		case REFSCREENDATA: return "REFSCREENDATA";

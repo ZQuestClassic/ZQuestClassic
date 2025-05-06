@@ -3352,59 +3352,6 @@ enum //Indexes for messagedata->Flags
 	MSGFLAG_TRANS_FG     // If the text should be translucent
 };
 
-//Flags for GetMapscreenFlag, SetMapscreenFlag
-enum mapscreenflags
-{
-	// Room Types
-	MSF_INTERIOR, MSF_DUNGEON, MSF_SIDEVIEW,
-	
-	// View
-	MSF_INVISLINK, MSF_NOLINKMARKER, MSF_NOSUBSCREEN, MSF_NOOFFSET, MSF_LAYER3BG,
-	MSF_LAYER2BG, MSF_DARKROOM,
-	
-	// Secrets
-	MSF_BLOCKSHUT, MSF_TEMPSECRETS, MSF_TRIGPERM, MSF_ALLTRIGFLAGS,
-	
-	// Warp
-	MSF_AUTODIRECT, MSF_SENDSIRECT, MSF_MAZEPATHS, MSF_MAZEOVERRIDE, MSF_SPRITECARRY,
-	MSF_DIRECTTIMEDWARPS, MSF_SECRETSISABLETIMEWRP, MSF_RANDOMTIMEDWARP,
-	
-	// Item
-	MSF_HOLDUP, MSF_FALLS,
-	
-	// Combo
-	MSF_MIDAIR, MSF_CYCLEINIT, MSF_IGNOREBOOTS, MSF_TOGGLERINGS,
-	
-	// Save
-	MSF_SAVECONTHERE, MSF_SAVEONENTRY, MSF_CONTHERE, MSF_NOCONTINUEWARP,
-	
-	// FFC
-	MSF_WRAPFFC, MSF_NOCARRYOVERFFC, 
-	
-	// Whistle 
-	MSF_STAIRS, MSF_PALCHANGE, MSF_DRYLAKE,
-	
-	// Enemies
-	MSF_INVISIBLEENEMIES, MSF_TRAPS_IGNORE_SOLID, MSF_EMELIESALWAYSRETURN, MSF_ENEMIES_ITEM, MSF_ENEMEIS_SECRET,
-	MSF_ENEMIES_SECRET_PERM,
-	
-	// Misc
-	MSF_ALLOW_LADDER, MSF_NO_DIVING, MSF_SFXONENTRY, MSF_LENSEFFECT,
-		 
-	//Custom / Script 
-	MSF_SCRIPT1,
-	MSF_CUSTOM1 = MSF_SCRIPT1,
-	MSF_SCRIPT2,
-	MSF_CUSTOM2 = MSF_SCRIPT2,
-	MSF_SCRIPT3,
-	MSF_CUSTOM3 = MSF_SCRIPT3,
-	MSF_SCRIPT4,
-	MSF_CUSTOM4 = MSF_SCRIPT4,
-	MSF_SCRIPT5,
-	MSF_CUSTOM5 = MSF_SCRIPT5,
-	MSF_LAST
-};
-
 enum HeroMoveFlag
 {
 	HEROMV_OBEYS_GRAVITY,
@@ -4415,3 +4362,107 @@ enum // Flags for SUBWIDG_BTNCOUNTER
 //} End section for subscreen type-specific flag constants
 //} End section for engine subscreen stuff
 
+
+// Screen flags, used with [Screen->Flag] and [mapdata::Flag].
+enum ScreenFlag
+{
+	// Room type
+	SFL_INTERIOR = 40, // aka 'Cave'.
+	SFL_DUNGEON = 41,
+	SFL_SIDEVIEW = 51,
+
+	// View
+	SFL_INVISIBLE_HERO = 19, // Hide Hero.
+	SFL_NO_HERO_MARKER = 52,
+	SFL_NO_SUBSCREEN = 20,
+	SFL_NO_SUBSCREEN_OFFSET = 22,
+	SFL_LAYER2BG = 49, // Layer 2 is background.
+	SFL_LAYER3BG = 48, // Layer 3 is background.
+	SFL_DARK_ROOM = 2,
+	SFL_DARK_DITHER = 67,
+	SFL_DARK_TRANS = 68,
+
+	// Secrets
+	SFL_SHUTTERS = 0, // Block->Shutters
+	SFL_TEMP_SECRETS = 36, // Secrets are temporary.
+	SFL_TRIGGERS_PERM = 42, // All Triggers->Perm Secret.
+	SFL_ALL_TRIGGER_FLAGS = 45, // All Triggers->16-31.
+	SFL_SECRET_SFX = 12, // Play Secret SFX on Entry.
+
+	// Warp
+	SFL_WARP_AUTO_DIRECT = 34, // Auto Warps are Direct.
+	SFL_WARP_SENSITIVE_DIRECT = 35, // Sensitive warps are Direct.
+	SFL_WARP_TIMED_DIRECT = 26, // Timed Warp is Direct.
+	SFL_WARP_UP = 8, // Side warp.
+	SFL_WARP_DOWN = 9, // Side warp.
+	SFL_WARP_LEFT = 10, // Side warp.
+	SFL_WARP_RIGHT = 11, // Side warp.
+	SFL_WARP_TIMED_RANDOM = 32,
+	SFL_WARP_SPRITE_CARRYOVER = 21,
+	SFL_WARP_MIRROR_DISABLE = 69,
+	SFL_WARP_TIMED_SECRETS_DISABLE = 27, // Secrets Disable Timed Warp.
+
+	// Maze
+	SFL_MAZE = 6, // Use maze path.
+	SFL_MAZE_OVERRIDES_SIDE_WARPS = 61,
+	SFL_MAZE_CAN_GET_LOST = 72,
+	SFL_MAZE_LOOPY = 73,
+
+	// Items
+	SFL_ITEM_HOLD_UP = 16, // Hold up item.
+	SFL_ITEM_FALLS = 50, // Falls from ceiling.
+	SFL_SECRETS_ITEM = 62, // Secrets reveal item.
+	SFL_ITEM_SECRETS = 63, // Item triggers secrets.
+	SFL_ITEM_SECRETS_PERM = 64, // Item triggers secrets, permanently.
+	SFL_ITEM_RETURNS = 65, // Regular item always returns.
+	SFL_SPECIAL_ITEM_RETURNS = 66, // Special item always returns.
+
+	// Combos
+	SFL_MIDAIR = 13, // Combos Affect Midair Hero.
+	SFL_CYCLE_INIT = 17, // Cycle combos on screen init.
+	SFL_IGNORE_BOOTS = 33, // Damage combos ignores boots.
+	SFL_TOGGLE_RINGS = 46, // Toggle 'Rings Affect Combos'.
+
+	// Save
+	SFL_SAVE_ON_ENTRY = 31, // Save game on entry.
+	SFL_CONTINUE_HERE = 43,
+	SFL_SAVE_CONTINUE_HERE = 30, // Save Point->Continue. When saving at a 'Save' combo on this screen, set this as the continue screen.
+	SFL_NO_CONTINUE_HERE = 44, // No continue Here after warp. 
+
+	// FFC
+	SFL_FFC_WRAP = 47, // FFCs wrap around screen.
+	SFL_FFC_NO_CARRYOVER = 39, // If set, no FFC will carryover (even w/ the FFC's "carryover" flag set).
+
+	// Whistle
+	SFL_WHISTLE = 4, // Whistle->Stairs.
+	SFL_WHISTLE_PALETTE = 54,
+	SFL_WHISTLE_DRY_LAKE = 55,
+
+	// Enemies
+	SFL_ENEMIES_INVISIBLE = 18, // Hide enemies.
+	SFL_ENEMIES_RETURN = 23, // Enemies always return.
+	SFL_ENEMIES_ITEM = 1, // Killing enemies spawns screen item.
+	SFL_ENEMIES_SECRETS = 15, // Enemies->Secrets.
+	SFL_ENEMIES_SECRETS_PERM = 28, // Enemies->Secrets (perm).
+	SFL_ENEMIES_CHAIN_TRIGGERS = 70, // Chain 'Enemies->' Triggers.
+	SFL_TRAPS_IGNORE_SOLID = 14, // Traps Ignore Solidity.
+	SFL_ENEMIES_LEADER = 85, // Ringleader. The first enemy listed in the screen's enemy list will be a 'Ringleader'. When this enemy dies, all other enemies will die.
+	SFL_ENEMIES_CARRY_ITEM = 86,
+	SFL_ENEMIES_BOSS = 87, // Dungeon boss.
+
+	// Enemies (spawn)
+	SFL_ENEMY_SPAWN_ZORA = 80, // Spawns a zora enemy on entry.
+	SFL_ENEMY_SPAWN_TRAP_CORNER = 81,
+	SFL_ENEMY_SPAWN_TRAP_MIDDLE = 82,
+	SFL_ENEMY_SPAWN_ROCKS = 83,
+	SFL_ENEMY_SPAWN_SHOOTER = 84,
+
+	// Misc
+	SFL_TOGGLE_LADDER = 5, // Toggle allow ladder.
+	SFL_TOGGLE_DIVING = 38, // Toggle allow diving.
+	SFL_SCRIPT_1 = 56,
+	SFL_SCRIPT_2 = 57,
+	SFL_SCRIPT_3 = 58,
+	SFL_SCRIPT_4 = 59,
+	SFL_SCRIPT_5 = 60
+};

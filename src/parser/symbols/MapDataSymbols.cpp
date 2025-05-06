@@ -221,8 +221,11 @@ static AccessorTable MapDataTable[] =
 	{ "getMIDI",                    0,         ZTID_FLOAT,   MAPDATASCREENMIDI,                0,  { ZTID_MAPDATA },{} },
 	{ "setMIDI",                    0,          ZTID_VOID,   MAPDATASCREENMIDI,                0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getFlags[]",                 0,         ZTID_FLOAT,   MAPDATAFLAGS,                     0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
-	{ "setFlags[]",                 0,          ZTID_VOID,   MAPDATAFLAGS,                     0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getFlags[]",                 0,         ZTID_FLOAT,   MAPDATAFLAGS,                     FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{},0,"Use '->Flag[]' instead!" },
+	{ "setFlags[]",                 0,          ZTID_VOID,   MAPDATAFLAGS,                     FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use '->Flag[]' instead!" },
+
+	{ "getFlag[]",                 0,         ZTID_BOOL,   MAPDATA_FLAG,                     0,  { ZTID_MAPDATA, ZTID_BOOL },{} },
+	{ "setFlag[]",                 0,          ZTID_VOID,   MAPDATA_FLAG,                     0,  { ZTID_MAPDATA, ZTID_BOOL, ZTID_BOOL },{} },
 	
 	{ "getComboD[]",                0,         ZTID_FLOAT,   MAPDATACOMBODD,                   0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "setComboD[]",                0,          ZTID_VOID,   MAPDATACOMBODD,                   0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },

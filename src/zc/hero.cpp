@@ -25976,7 +25976,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 						 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
 					
-		if(!(tmpscr->flags3&fIWARPFULLSCREEN))
+		if(!(tmpscr->flags3&fIWARP_SPRITE_CARRYOVER))
 		{
 			//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
 			bool wasswimming = (action == swimming);
@@ -26168,7 +26168,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 					 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
 					 
-			if(!(tmpscr->flags3&fIWARPFULLSCREEN))
+			if(!(tmpscr->flags3&fIWARP_SPRITE_CARRYOVER))
 			{
 				//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
 				bool wasswimming = (action == swimming);
@@ -29497,7 +29497,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	map_bkgsfx(true);
 	
-	if(newscr->flags2&fSECRET)
+	if(newscr->flags2&fSECRET_SFX)
 	{
 		sfx(newscr->secretsfx);
 	}

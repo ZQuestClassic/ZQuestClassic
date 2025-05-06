@@ -1768,7 +1768,10 @@
 
 #define SCREEN_DRAW_ORIGIN      1657
 
-#define LAST_BYTECODE           1658
+#define SCREEN_FLAG             1658
+#define MAPDATA_FLAG            1659
+
+#define LAST_BYTECODE           1660
 
 //} END OF BYTECODE
 

@@ -15731,7 +15731,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				WAV_ROAR;
 		}
 		
-		if(temp_mapscr->flags&128) //fSEA
+		if(temp_mapscr->flags&128) //fSEA_SFX
 		{
 			temp_mapscr->oceansfx=WAV_SEA;
 		}

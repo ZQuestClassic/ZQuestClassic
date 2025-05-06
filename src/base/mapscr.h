@@ -162,14 +162,14 @@ private:
 #define fWHISTLE            0x10
 #define fLADDER             0x20
 #define fMAZE               0x40
-#define fSEA                0x80 // DEFUNCT
+#define fSEA_SFX            0x80 // DEFUNCT
 
 // flags2
-#define wfUP                0x01 // What's this?
-#define wfDOWN              0x02 // What's this?
-#define wfLEFT              0x04 // What's this?
-#define wfRIGHT             0x08 // What's this?
-#define fSECRET             0x10
+#define wfUP                0x01 // Side warp
+#define wfDOWN              0x02 // Side warp
+#define wfLEFT              0x04 // Side warp
+#define wfRIGHT             0x08 // Side warp
+#define fSECRET_SFX         0x10
 #define fAIRCOMBOS          0x20
 #define fFLOATTRAPS         0x40
 #define fCLEARSECRET        0x80
@@ -180,7 +180,7 @@ private:
 #define fINVISROOM          0x04
 #define fINVISHERO          0x08
 #define fNOSUBSCR           0x10
-#define fIWARPFULLSCREEN    0x20
+#define fIWARP_SPRITE_CARRYOVER    0x20
 #define fNOSUBSCROFFSET     0x40
 #define fENEMIESRETURN      0x80
 
@@ -238,7 +238,7 @@ private:
 //flags9
 #define fITEMSECRETPERM     0x01
 #define fITEMRETURN         0x02
-#define fBELOWRETURN        0x04
+#define fBELOWRETURN        0x04 // Special Item Always Returns
 #define fDARK_DITHER        0x08
 #define fDARK_TRANS         0x10
 #define fDISABLE_MIRROR     0x20
