@@ -9697,6 +9697,11 @@ heroanimate_skip_liftwpn:;
 					FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
 					FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
 					ALLOFF(true,true);
+					if(lift_wpn)
+					{
+						delete lift_wpn;
+						lift_wpn = nullptr;
+					}
 					GameFlags |= GAMEFLAG_NO_F6;
 					if(!debug_enabled)
 					{
