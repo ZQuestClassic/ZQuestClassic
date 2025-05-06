@@ -30647,7 +30647,11 @@ void do_isvalidlwpn()
 			set_register(sarg1, 10000);
 			return;
 		}
-		
+	if(Hero.lift_wpn && Hero.lift_wpn->getUID() == WID)
+	{
+		set_register(sarg1, 10000);
+		return;
+	}
 	set_register(sarg1, 0);
 }
 
@@ -30664,7 +30668,12 @@ void do_isvalidewpn()
 			set_register(sarg1, 10000);
 			return;
 		}
-		
+	// unsure how an ewpn would be lifted, but, checking just to be safe
+	if(Hero.lift_wpn && Hero.lift_wpn->getUID() == WID)
+	{
+		set_register(sarg1, 10000);
+		return;
+	}
 	set_register(sarg1, 0);
 }
 
