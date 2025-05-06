@@ -50,7 +50,6 @@ struct mapscr
 	byte itemx;
 	byte itemy;
 	word color;
-	byte enemyflags;
 	byte door[4] = {dNONE,dNONE,dNONE,dNONE}; //need to add a dmapscreendoor command.
 	word tilewarpdmap[4];
 	byte tilewarpscr[4];
@@ -78,6 +77,8 @@ struct mapscr
 	byte flags8;
 	byte flags9;
 	byte flags10;
+	byte flags11; // Used to be `enemyflags`.
+	// The value of Damage Combo Sensitivity for the screen
 	byte csensitive = 1;
 	word noreset;
 	word nocarry;
@@ -247,7 +248,7 @@ private:
 #define fZ3_SCROLLING_WHEN  0x01
 // ----
 
-// enemy flags
+// flags11 aka enemy flags
 #define efZORA          1
 #define efTRAP4         2
 #define efTRAP2         4

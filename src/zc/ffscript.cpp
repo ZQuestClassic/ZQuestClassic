@@ -806,14 +806,14 @@ int32_t get_screeneflags(mapscr *m, int32_t flagset)
 	switch(flagset)
 	{
 		case 0:
-			flagval |= m->enemyflags&0x1F;
+			flagval |= m->flags11&0x1F;
 			break;
 			
 		case 1:
-			ornextflag(m->enemyflags&32);
-			ornextflag(m->enemyflags&64);
+			ornextflag(m->flags11&32);
+			ornextflag(m->flags11&64);
 			ornextflag(m->flags3&4);
-			ornextflag(m->enemyflags&128);
+			ornextflag(m->flags11&128);
 			ornextflag((m->flags2>>4)&4);
 			break;
 			
@@ -9130,7 +9130,7 @@ int32_t get_register(const int32_t arg)
 		case SCREENDATAITEMX:		GET_SCREENDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
 		case SCREENDATAITEMY:		GET_SCREENDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
 		case SCREENDATACOLOUR: 		GET_SCREENDATA_VAR_INT32(color, "CSet"); break;	//w
-		case SCREENDATAENEMYFLAGS: 	GET_SCREENDATA_VAR_BYTE(enemyflags, "EnemyFlags");	break;	//b
+		case SCREENDATAENEMYFLAGS: 	GET_SCREENDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
 		case SCREENDATADOOR: 		GET_SCREENDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
 		case SCREENDATATILEWARPDMAP: 	GET_SCREENDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
 		case SCREENDATATILEWARPSCREEN: 	GET_SCREENDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
@@ -9346,6 +9346,7 @@ int32_t get_register(const int32_t arg)
 				case 7: ret = (tmpscr->flags8 * 10000); break;
 				case 8: ret = (tmpscr->flags9 * 10000); break;
 				case 9: ret = (tmpscr->flags10 * 10000); break;
+				case 10: ret = (tmpscr->flags11 * 10000); break;
 				default:
 				{
 					Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
@@ -9355,7 +9356,6 @@ int32_t get_register(const int32_t arg)
 				}
 			}
 			break;
-			//GET_SCREENDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
 		}
 
 		case SCREENSECRETSTRIGGERED:
@@ -10173,7 +10173,7 @@ int32_t get_register(const int32_t arg)
 		case MAPDATAITEMX:		GET_MAPDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
 		case MAPDATAITEMY:		GET_MAPDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
 		case MAPDATACOLOUR: 		GET_MAPDATA_VAR_INT32(color, "CSet"); break;	//w
-		case MAPDATAENEMYFLAGS: 	GET_MAPDATA_VAR_BYTE(enemyflags, "EnemyFlags");	break;	//b
+		case MAPDATAENEMYFLAGS: 	GET_MAPDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
 		case MAPDATADOOR: 		GET_MAPDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
 		case MAPDATATILEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
 		case MAPDATATILEWARPSCREEN: 	GET_MAPDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
@@ -10599,7 +10599,7 @@ int32_t get_register(const int32_t arg)
 		{
 			if(mapscr *m = GetMapscr(ri->mapsref))
 			{
-				if ( get_qr(qr_OLDMAPDATAFLAGS) )
+				if ( get_qr(qr_OLDMAPDATAFLAGS) ) // TODO wtf, this QR was never used?
 				{
 					ret = get_screenflags(m,vbound(ri->d[rINDEX] / 10000,0,9));
 				}
@@ -10619,6 +10619,7 @@ int32_t get_register(const int32_t arg)
 						case 7: ret = (m->flags8 * 10000); break;
 						case 8: ret = (m->flags9 * 10000); break;
 						case 9: ret = (m->flags10 * 10000); break;
+						case 10: ret = (m->flags11 * 10000); break;
 						default:
 						{
 							Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
@@ -10636,7 +10637,6 @@ int32_t get_register(const int32_t arg)
 			}
 			
 			break;
-			//GET_MAPDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
 		}
 
 		case MAPDATAMISCD:
@@ -22081,7 +22081,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAITEMX:		SET_SCREENDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
 		case SCREENDATAITEMY:		SET_SCREENDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
 		case SCREENDATACOLOUR: 		SET_SCREENDATA_VAR_INT32(color, "CSet"); break;	//w
-		case SCREENDATAENEMYFLAGS: 	SET_SCREENDATA_VAR_BYTE(enemyflags, "EnemyFlags");	break;	//b
+		case SCREENDATAENEMYFLAGS: 	SET_SCREENDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
 		case SCREENDATADOOR: 		SET_SCREENDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
 		case SCREENDATATILEWARPDMAP: 	SET_SCREENDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
 		case SCREENDATATILEWARPSCREEN: 	SET_SCREENDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
@@ -22341,6 +22341,7 @@ void set_register(int32_t arg, int32_t value)
 				case 7: tmpscr->flags8 = (value / 10000); break;
 				case 8: tmpscr->flags9 = (value / 10000); break;
 				case 9: tmpscr->flags10 = (value / 10000); break;
+				case 10: tmpscr->flags11 = (value / 10000); break;
 				default:
 				{
 					Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
@@ -22349,7 +22350,6 @@ void set_register(int32_t arg, int32_t value)
 				}
 			}
 			break;
-			//GET_SCREENDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
 		}
 		
 		case SCREENDATAGUYCOUNT:
@@ -23074,7 +23074,7 @@ void set_register(int32_t arg, int32_t value)
 		case MAPDATAITEMX:		SET_MAPDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
 		case MAPDATAITEMY:		SET_MAPDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
 		case MAPDATACOLOUR: 		SET_MAPDATA_VAR_INT32(color, "CSet"); break;	//w
-		case MAPDATAENEMYFLAGS: 	SET_MAPDATA_VAR_BYTE(enemyflags, "EnemyFlags");	break;	//b
+		case MAPDATAENEMYFLAGS: 	SET_MAPDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
 		case MAPDATADOOR: 		SET_MAPDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
 		case MAPDATATILEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
 		case MAPDATATILEWARPSCREEN: 	SET_MAPDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
@@ -23625,6 +23625,7 @@ void set_register(int32_t arg, int32_t value)
 					case 7: m->flags8 = (value / 10000); break;
 					case 8: m->flags9 = (value / 10000); break;
 					case 9: m->flags10 = (value / 10000); break;
+					case 10: m->flags11 = (value / 10000); break;
 					default:
 					{
 						Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
@@ -23637,7 +23638,6 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Flags[]");
 			}
 			break;
-			//SET_MAPDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
 		}
 
 		case MAPDATAMISCD:
@@ -51658,7 +51658,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
 			
-			if(!p_putc(m->enemyflags,f))
+			if(!p_putc(m->flags11,f))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -52264,7 +52264,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
 			
-			if(!p_getc(&(m->enemyflags),f))
+			if(!p_getc(&(m->flags11),f))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}

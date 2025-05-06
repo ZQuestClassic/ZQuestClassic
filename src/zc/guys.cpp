@@ -19011,7 +19011,7 @@ void loaditem()
 				hasitem=8;
 			else if(tmpscr->flags&fITEM)
 				hasitem=1;
-			else if(tmpscr->enemyflags&efCARRYITEM)
+			else if(tmpscr->flags11&efCARRYITEM)
 				hasitem=4; // Will be set to 2 by roaming_item
 			else
 				items.add(new item((zfix)tmpscr->itemx,
@@ -19130,7 +19130,7 @@ bool ok2add(int32_t id)
 
 void activate_fireball_statue(int32_t pos)
 {
-	if(!(tmpscr->enemyflags&efFIREBALLS) || statueID<0)
+	if(!(tmpscr->flags11&efFIREBALLS) || statueID<0)
 	{
 		return;
 	}
@@ -19184,7 +19184,7 @@ void activate_fireball_statue(int32_t pos)
 
 void activate_fireball_statues()
 {
-	if(!(tmpscr->enemyflags&efFIREBALLS))
+	if(!(tmpscr->flags11&efFIREBALLS))
 	{
 		return;
 	}
@@ -19199,13 +19199,13 @@ void load_default_enemies()
 {
 	wallm_load_clk=frame-80;
 	
-	if(tmpscr->enemyflags&efZORA)
+	if(tmpscr->flags11&efZORA)
 	{
 		if(zoraID>=0)
 			addenemy(-16, -16, zoraID, 0);
 	}
 	
-	if(tmpscr->enemyflags&efTRAP4)
+	if(tmpscr->flags11&efTRAP4)
 	{
 		if(cornerTrapID>=0)
 		{
@@ -19262,7 +19262,7 @@ void load_default_enemies()
 		}
 	}
 	
-	if(tmpscr->enemyflags&efTRAP2)
+	if(tmpscr->flags11&efTRAP2)
 	{
 		if(centerTrapID>=-1)
 		{
@@ -19274,7 +19274,7 @@ void load_default_enemies()
 		}
 	}
 	
-	if(tmpscr->enemyflags&efROCKS)
+	if(tmpscr->flags11&efROCKS)
 	{
 		if(rockID>=0)
 		{
@@ -20038,7 +20038,7 @@ placed_enemy:
 	
 	if(placed)
 	{
-		if(i==0 && tmpscr->enemyflags&efLEADER)
+		if(i==0 && tmpscr->flags11&efLEADER)
 		{
 			int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
 			
@@ -20115,7 +20115,7 @@ void loadenemies()
 		return;
 		
 	// check if it's the dungeon boss and it has been beaten before
-	if(tmpscr->enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
+	if(tmpscr->flags11&efBOSS && game->lvlitems[dlevel]&liBOSS)
 	{
 		loaded_enemies = true;
 		return;

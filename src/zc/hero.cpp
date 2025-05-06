@@ -23759,7 +23759,7 @@ void HeroClass::checkspecial()
 	}
         
     // set boss flag when boss is gone
-    if(loaded_enemies && tmpscr->enemyflags&efBOSS && !hasmainguy)
+    if(loaded_enemies && tmpscr->flags11&efBOSS && !hasmainguy)
     {
         game->lvlitems[dlevel]|=liBOSS;
         stop_sfx(tmpscr->bosssfx);

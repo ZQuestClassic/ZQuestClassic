@@ -4827,6 +4827,7 @@ void zmap::PasteScreenData(const mapscr& copymapscr)
         screens[currscr].flags8 = copymapscr.flags8;
         screens[currscr].flags9 = copymapscr.flags9;
         screens[currscr].flags10 = copymapscr.flags10;
+        screens[currscr].flags11 = copymapscr.flags11;
         screens[currscr].item = copymapscr.item;
         screens[currscr].hasitem = copymapscr.hasitem;
         screens[currscr].itemx = copymapscr.itemx;
@@ -4841,7 +4842,6 @@ void zmap::PasteScreenData(const mapscr& copymapscr)
         screens[currscr].path[3] = copymapscr.path[3];
         screens[currscr].pattern = copymapscr.pattern;
         screens[currscr].exitdir = copymapscr.exitdir;
-        screens[currscr].enemyflags = copymapscr.enemyflags;
         screens[currscr].screen_midi = copymapscr.screen_midi;
         screens[currscr].stairx = copymapscr.stairx;
         screens[currscr].stairy = copymapscr.stairy;
@@ -8950,7 +8950,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		|| screen.flags5 || screen.flags6
 		|| screen.flags7 || screen.flags8
 		|| screen.flags9 || screen.flags10
-		|| screen.enemyflags)
+		|| screen.flags11)
 		scr_has_flags |= SCRHAS_FLAGS;
 	
 	if(screen.pattern)
@@ -9191,7 +9191,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			return qe_invalid;
 		if(!p_putc(screen.flags10,f))
 			return qe_invalid;
-		if(!p_putc(screen.enemyflags,f))
+		if(!p_putc(screen.flags11,f))
 			return qe_invalid;
 	}
 	if(scr_has_flags & SCRHAS_ENEMY)
