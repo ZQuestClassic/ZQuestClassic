@@ -61,7 +61,7 @@ RETURNFUNC; Func[void addHeader(char32[])] Body End
 PUSHARGSV 0 0.0003; Func[void addLine(char32[], int, int, int, int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0002
-LOAD D2 0.0005; switch() #55 Key
+LOAD D2 0.0005; switch() #51 Key
 SETR SWITCHKEY D2; Store key
 COMPAREV SWITCHKEY 0
 GOTOCMP 45 ==; case '0'
@@ -69,7 +69,7 @@ COMPAREV SWITCHKEY 2
 GOTOCMP 51 ==; case '20000'
 COMPAREV SWITCHKEY 1
 GOTOCMP 58 ==; case '10000'
-GOTO 58; switch() #55 NoMatch
+GOTO 58; switch() #51 NoMatch
 SETR D2 GD2; Case block
 PUSHR D2
 POP D0
@@ -90,7 +90,7 @@ FONTHEIGHTR D2; InlineFunc[int Text::FontHeight(int)] Body
 STORE D2 0.0001
 SETR D2 GD1
 STORE_OBJECT D2 0
-SETR D2 GD2; if() #422 Test
+SETR D2 GD2; if() #420 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -112,7 +112,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 98 ==; Test 'if'
-PUSHR D4; if() #422 Body Start
+PUSHR D4; if() #420 Body Start
 LOAD D2 0; UsrFunc[void resize(int)] Params Start
 PUSHR D2
 POP REFBITMAP
@@ -122,7 +122,7 @@ PUSHR D2; UsrFunc[void resize(int)] Params End
 CALLFUNC 0.0165; UsrFunc[void resize(int)] Call
 POP D4
 SETR D2 GD1
-STORE_OBJECT D2 0; if() #422 Body End
+STORE_OBJECT D2 0; if() #420 Body End
 LOAD D2 0; InlineFunc[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
 PUSHR D2
 PUSHV 0
@@ -192,7 +192,7 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void addLine(char32[], int)] Body End
 PUSHARGSV 0 0.0002; Func[void resize(int)] Body Start
 SETR D4 SP2
-SETR D2 GD1; if() #426 Test
+SETR D2 GD1; if() #424 Test
 PUSHR D2
 POP REFBITMAP
 SETR D2 BITMAPHEIGHT
@@ -202,7 +202,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 217 !=; Test 'if' AND return (Void) AND if() #426 Body
+GOTOCMP 217 !=; Test 'if' AND return (Void) AND if() #424 Body
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 LOAD D2 0.0002
@@ -344,11 +344,11 @@ GOTO 317
 SETV D2 0
 ADDV D2 224
 STORE D2 0.0001
-LOAD D2 0.0001; if() #424 Test
+LOAD D2 0.0001; if() #422 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 362 !=; Test 'if' AND return (Void) AND if() #424 Body
+GOTOCMP 362 !=; Test 'if' AND return (Void) AND if() #422 Body
 LOAD D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I<
@@ -360,13 +360,13 @@ GOTO 333
 SETV D2 0
 SUBV D2 56
 STORE D2 0
-LOAD D2 0.0002; if() #425 Test
+LOAD D2 0.0002; if() #423 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 342 ==; Test 'if'
-SETV D2 0; if() #425 Body Start
-STORE D2 0.0002; if() #425 Body End
+SETV D2 0; if() #423 Body Start
+STORE D2 0.0002; if() #423 Body End
 SETR D2 GD1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
 PUSHR D2
 PUSHV 7

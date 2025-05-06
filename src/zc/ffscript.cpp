@@ -753,7 +753,7 @@ int32_t get_screenflags(mapscr *m, int32_t flagset)
 			ornextflag(m->flags8&0x80);
 			ornextflag(m->flags9&0x01);
 			ornextflag(m->flags9&0x02);
-			ornextflag(m->flags9&0x04);
+			ornextflag(m->flags9&fBELOWRETURN);
 			break;
 			
 		case 5: // Combo
@@ -7004,6 +7004,20 @@ int32_t get_register(int32_t arg)
 		case SCREENEFLAGSD:
 			ret = get_screeneflags(get_scr(ri->screenref),vbound(ri->d[rINDEX] / 10000,0,2));
 			break;
+		
+		case SCREEN_FLAG:
+		{
+			int32_t index = ri->d[rINDEX] / 10000;
+			if (BC::checkBounds(index, 0, 8*11 - 1, "Screen->Flag[]") != SH::_NoError)
+			{
+				ret = 0;
+				break;
+			}
+
+			mapscr* scr = get_scr(ri->screenref);
+			ret = (&scr->flags)[index/8] & (1 << (index%8)) ? 10000 : 0;
+			break;
+		}
 			
 		case NPCCOUNT:
 			ret = guys.Count()*10000;
@@ -8209,6 +8223,25 @@ int32_t get_register(int32_t arg)
 				}
 			}
 			else Z_scripterrlog("mapdata->GetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+
+		case MAPDATA_FLAG:
+		{
+			if (mapscr* scr = ResolveMapdata(ri->mapsref, "mapdata::Flag[]"))
+			{
+				int32_t index = ri->d[rINDEX] / 10000;
+				if (BC::checkBounds(index, 0, 8*11 - 1, "mapdata::Flag[]") != SH::_NoError)
+				{
+					ret = 0;
+					break;
+				}
+	
+				ret = (&scr->flags)[index/8] & (1 << (index%8)) ? 10000 : 0;
+				break;
+			}
+
+			ret = 0;
 			break;
 		}
 
@@ -17749,6 +17782,21 @@ void set_register(int32_t arg, int32_t value)
 		case QUAKE:
 			quakeclk=value/10000;
 			break;
+
+		case SCREEN_FLAG:
+		{
+			int32_t index = ri->d[rINDEX] / 10000;
+			if (BC::checkBounds(index, 0, 8*11 - 1, "Screen->Flag[]") != SH::_NoError)
+			{
+				break;
+			}
+
+			mapscr* scr = get_scr(ri->screenref);
+			byte& flag = (&scr->flags)[index/8];
+			bool v = value;
+			SETFLAG(flag, 1 << (index%8), v);
+			break;
+		}
 			
 		case ROOMTYPE:
 			get_scr(ri->screenref)->room=value/10000; break; //this probably doesn't work too well...

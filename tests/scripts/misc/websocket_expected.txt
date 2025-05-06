@@ -62,7 +62,7 @@ GOTOCMP 37 ==; Test 'if'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #96 Body Start
 GOTO 26; continue 1;
 GOTO 68; if() #96 Body End
-LOAD D2 0.0007; if() #422 Test AND if() #96 Else Start
+LOAD D2 0.0007; if() #420 Test AND if() #96 Else Start
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
@@ -70,7 +70,7 @@ COMPAREV D2 0.0003
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 68 ==; Test 'if'
-ALLOCATEMEMV D2 0 0; if() #422 Body Start
+ALLOCATEMEMV D2 0 0; if() #420 Body Start
 STORE D2 0.0005
 LOAD D2 0.0007; InlineFunc[void websocket::GetError(char32[])] Params Start
 PUSHR D2
@@ -92,8 +92,8 @@ LOAD D3 0.0005
 DEALLOCATEMEMR D3
 GOTO 226; break 1;
 LOAD D3 0.0005
-DEALLOCATEMEMR D3; if() #422 Body End
-LOAD D2 0.0007; if() #96 Else End AND if() #423 Test
+DEALLOCATEMEMR D3; if() #420 Body End
+LOAD D2 0.0007; if() #96 Else End AND if() #421 Test
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
@@ -101,7 +101,7 @@ COMPAREV D2 0.0001
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 90 ==; Test 'if'
-ALLOCATEMEMV D2 23 0; if() #423 Body Start
+ALLOCATEMEMV D2 23 0; if() #421 Body Start
 STORE D2 0.0005
 WRITEPODSTRING D2 "Failed to connect: %l\n"
 LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
@@ -114,11 +114,11 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
-GOTO 226; break 1; AND if() #423 Body End
-LOAD D2 0.0006; unless() #424 Test
+GOTO 226; break 1; AND if() #421 Body End
+LOAD D2 0.0006; unless() #422 Test
 COMPAREV D2 0
 GOTOCMP 130 !=; Test 'unless'
-ALLOCATEMEMV D2 12 0; unless() #424 Body Start
+ALLOCATEMEMV D2 12 0; unless() #422 Body Start
 STORE D2 0.0005
 WRITEPODSTRING D2 "Connected!\n"
 LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
@@ -154,7 +154,7 @@ WEBSOCKET_SEND D2 D3; InlineFunc[void websocket::Send(char32[], WebsocketType)] 
 LOAD D3 0.0003
 DEALLOCATEMEMR D3
 SETV D2 1
-STORE D2 0.0006; unless() #424 Body End
+STORE D2 0.0006; unless() #422 Body End
 LOAD D2 0.0007; while() #3 Test
 PUSHR D2
 POP REFWEBSOCKET

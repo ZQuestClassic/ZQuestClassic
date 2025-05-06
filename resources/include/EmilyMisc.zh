@@ -1439,7 +1439,7 @@ namespace Emily
 					int timeout = 60;
 					do
 					{
-						Screen->Flags[SF_VIEW] ~= SFV_NOSUBSCREEN;
+						Screen->Flag[SFL_NO_SUBSCREEN] = false;
 						colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
 						Waitframe();
 					}
@@ -1573,7 +1573,7 @@ namespace Emily
 						int timeout = 60;
 						do
 						{
-							Screen->Flags[SF_VIEW] ~= SFV_NOSUBSCREEN;
+							Screen->Flag[SFL_NO_SUBSCREEN] = false;
 							colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
 							Waitframe();
 						}

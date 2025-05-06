@@ -39,7 +39,8 @@ int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
     for(int i=0; i<NUM_COMBO_POS; i++)
     {
         // Screen edges in NES dungeon
-        if((Screen->Flags[SF_ROOMTYPE]&010b)!=0 && (i<32 || i>143 || i%16<2 || i%16>13))
+        
+        if(Screen->Flag[SFL_DUNGEON] && (i<32 || i>143 || i%16<2 || i%16>13))
             tileRatings[i]=-1;
         // Water
         else if(IsWater(i))
@@ -545,9 +546,10 @@ void __Ghost_ShrinkAway(ffc this, npc ghost)
     int layer;
     int opacity;
     
+    
     if(this->Flags[FFCF_OVERLAY])
         layer=4;
-    else if((Screen->Flags[SF_VIEW]&10000b)!=0) // Layer 2 is background
+    else if (Screen->Flag[SFL_LAYER2BG]) // Layer 2 is background
         layer=1;
     else
         layer=2;

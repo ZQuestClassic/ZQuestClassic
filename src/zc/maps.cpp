@@ -2646,7 +2646,7 @@ static void log_trigger_secret_reason(TriggerSource source)
 			case TriggerSource::EnemiesScreenFlag: source_str = "the 'Enemies->Secret' screen flag"; break;
 			case TriggerSource::SecretsScreenState: source_str = "the 'Secrets' screen state"; break;
 			case TriggerSource::Script: source_str = "a script"; break;
-			case TriggerSource::ItemsSecret: source_str = "Items->Secret"; break;
+			case TriggerSource::ItemsSecret: source_str = "Items->Secrets"; break;
 			case TriggerSource::GenericCombo: source_str = "Generic Combo"; break;
 			case TriggerSource::LightTrigger: source_str = "Light Triggers"; break;
 			case TriggerSource::SCC: source_str = "by SCC"; break;

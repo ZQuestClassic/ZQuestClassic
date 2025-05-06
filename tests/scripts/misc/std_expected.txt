@@ -117,16 +117,16 @@ COMPARER D3 D2
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 106 ==; for() #85 TestFail?
-LOAD D2 0; if() #259 Test AND for() #85 Body Start
+LOAD D2 0; if() #257 Test AND for() #85 Body Start
 PUSHR D2
 POP D0
 SETR D2 GAMELITEMSD
 ANDV D2 1
 COMPAREV D2 0
 GOTOCMP 102 ==; Test 'if'
-LOAD D2 0.0001; if() #259 Body Start
+LOAD D2 0.0001; if() #257 Body Start
 ADDV D2 1
-STORE D2 0.0001; if() #259 Body End
+STORE D2 0.0001; if() #257 Body End
 LOAD D2 0; for() #85 Body End AND for() #85 LoopIncrement
 ADDV D2 1
 STORE D2 0
@@ -135,7 +135,7 @@ LOAD D2 0.0001; return Start
 POPARGS D5 0.0003; return End
 RETURNFUNC; Func[int NumTriforcePieces(int)] Body End
 SETR D4 SP2; Func[void Tango_ActivateMenu()] Body Start
-SETR D2 GD2; if() #356 Test
+SETR D2 GD2; if() #354 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 23
@@ -143,11 +143,11 @@ COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 123 ==; Test 'if'
-PUSHR D4; if() #356 Body Start
+PUSHR D4; if() #354 Body Start
 PUSHV 301; UsrFunc[void __Tango_LogError(int)] Params
 CALLFUNC 0.0139; UsrFunc[void __Tango_LogError(int)] Call
 POP D4
-GOTO 138; return (Void) AND if() #356 Body End
+GOTO 138; return (Void) AND if() #354 Body End
 SETV D2 0
 PUSHR D2
 SETR D2 GD2
@@ -166,7 +166,7 @@ POP D4
 RETURNFUNC; Func[void Tango_ActivateMenu()] Body End
 PUSHARGSV 0 0.0002; Func[void __Tango_LogError(int)] Body Start
 SETR D4 SP2
-SETV D2 300; if(true) #510 [Opt:AlwaysOn]
+SETV D2 300; if(true) #508 [Opt:AlwaysOn]
 PUSHR D2
 SETR D2 GD2
 SETR D0 D2
@@ -212,7 +212,7 @@ SETR INPUTPRESSB D2
 RETURNFUNC; Func[void __Tango_UnpressMenu()] Body End
 PUSHARGSV 0 0.0002; Func[void __Tango_ScrollToMenuCursor(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0002; if() #590 Test
+LOAD D2 0.0002; if() #588 Test
 COMPAREV D2 0
 GOTOCMP 201 <
 LOAD D2 0.0002
@@ -228,17 +228,17 @@ SETV D2 0
 GOTO 202
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 274 !=; Test 'if' AND return (Void) AND if() #590 Body
+GOTOCMP 274 !=; Test 'if' AND return (Void) AND if() #588 Body
 SETR D2 GD2
 PUSHR D2
 POP D0
 READPODARRAYV D2 24
 STORE D2 0.0001
-LOAD D2 0.0001; if() #591 Test
+LOAD D2 0.0001; if() #589 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 274 !=; Test 'if' AND return (Void) AND if() #591 Body
+GOTOCMP 274 !=; Test 'if' AND return (Void) AND if() #589 Body
 SETR D2 GD2
 PUSHR D2
 LOAD D2 0.0002
@@ -274,7 +274,7 @@ PUSHR D3; UsrFunc[void Tango_ScrollSlot(int, int)] Params End
 CALLFUNC 0.1557; UsrFunc[void Tango_ScrollSlot(int, int)] Call
 POP D4
 GOTO 274; if() #294 Body End
-LOAD D2 0; if() #592 Test AND if() #294 Else Start
+LOAD D2 0; if() #590 Test AND if() #294 Else Start
 PUSHR D2
 SETR D2 GD2
 PUSHR D2
@@ -285,7 +285,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 274 ==; Test 'if'
-PUSHR D4; if() #592 Body Start
+PUSHR D4; if() #590 Body Start
 LOAD D2 0.0001; UsrFunc[void Tango_ScrollSlot(int, int)] Params Start
 PUSHR D2
 LOAD D2 0
@@ -298,7 +298,7 @@ POP D3
 SUBR D3 D2
 PUSHR D3; UsrFunc[void Tango_ScrollSlot(int, int)] Params End
 CALLFUNC 0.1557; UsrFunc[void Tango_ScrollSlot(int, int)] Call
-POP D4; if() #592 Body End
+POP D4; if() #590 Body End
 POPARGS D5 0.0003; if() #294 Else End
 RETURNFUNC; Func[void __Tango_ScrollToMenuCursor(int)] Body End
 SETR D4 SP2; Func[void __Tango_SetCursorMovement(int, int)] Body Start
@@ -400,7 +400,7 @@ RETURNFUNC; Func[void Tango_SetMenuFlags(int)] Body End
 PUSHV 0; Func[bool __Tango_ValidateSlot(int)] Body Start
 SETR D4 SP2
 STOREV 1 0
-LOAD D2 0.0001; if() #629 Test
+LOAD D2 0.0001; if() #627 Test
 COMPAREV D2 0
 GOTOCMP 383 <
 LOAD D2 0.0001
@@ -411,9 +411,9 @@ GOTO 384
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 388 ==; Test 'if'
-SETV D2 0; if() #629 Body Start
-STORE D2 0; if() #629 Body End
-LOAD D2 0.0001; if() #630 Test
+SETV D2 0; if() #627 Body Start
+STORE D2 0; if() #627 Body End
+LOAD D2 0.0001; if() #628 Test
 PUSHR D2
 LOAD D2 0.0001
 LSHIFTV D2 0
@@ -422,31 +422,31 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 399 ==; Test 'if'
-SETV D2 0; if() #630 Body Start
-STORE D2 0; if() #630 Body End
-LOAD D2 0; unless() #631 Test
+SETV D2 0; if() #628 Body Start
+STORE D2 0; if() #628 Body End
+LOAD D2 0; unless() #629 Test
 COMPAREV D2 0
 GOTOCMP 408 !=; Test 'unless'
-PUSHR D4; unless() #631 Body Start
+PUSHR D4; unless() #629 Body Start
 PUSHV 403; UsrFunc[void __Tango_LogError(int, untyped)] Params Start
 LOAD D2 0.0001
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped)] Params End
 CALLFUNC 0.1443; UsrFunc[void __Tango_LogError(int, untyped)] Call
-POP D4; unless() #631 Body End
+POP D4; unless() #629 Body End
 LOAD D2 0; return Start
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[bool __Tango_ValidateSlot(int)] Body End
 PUSHV 0; Func[int Tango_GetSlotStyleAttribute(int, int)] Body Start
 SETR D4 SP2
-PUSHR D4; unless() #375 Test
+PUSHR D4; unless() #373 Test
 LOAD D2 0.0002; UsrFunc[bool __Tango_ValidateSlot(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_ValidateSlot(int)] Params End
 CALLFUNC 0.0372; UsrFunc[bool __Tango_ValidateSlot(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 422 !=; Test 'unless'
-SETV D2 -10; return Start AND unless() #375 Body Start
-GOTO 439; return End AND unless() #375 Body End
+SETV D2 -10; return Start AND unless() #373 Body Start
+GOTO 439; return End AND unless() #373 Body End
 SETR D2 GD5
 PUSHR D2
 LOAD D2 0.0002
@@ -541,7 +541,7 @@ POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int
 POPARGS D5 0.0006
 RETURNFUNC; Func[void __Tango_ClearSlotBitmap(int)] Body End
 SETR D4 SP2; Func[void __Tango_IncScreenFreeze()] Body Start
-SETR D2 GD2; if() #487 Test
+SETR D2 GD2; if() #485 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 11
@@ -567,7 +567,7 @@ SETR D2 INPUTPRESSB; return Start
 RETURNFUNC; return End AND Func[bool __Tango_PressSuperSpeed()] Body End
 PUSHV 0; Func[void Tango_AddMenuChoice(int, int, int)] Body Start
 SETR D4 SP2
-SETR D2 GD2; if() #363 Test
+SETR D2 GD2; if() #361 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 23
@@ -575,11 +575,11 @@ COMPAREV D2 20
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 555 ==; Test 'if'
-PUSHR D4; if() #363 Body Start
+PUSHR D4; if() #361 Body Start
 PUSHV 302; UsrFunc[void __Tango_LogError(int)] Params
 CALLFUNC 0.0139; UsrFunc[void __Tango_LogError(int)] Call
 POP D4
-GOTO 601; return (Void) AND if() #363 Body End
+GOTO 601; return (Void) AND if() #361 Body End
 SETR D2 GD2
 PUSHR D2
 POP D0
@@ -630,13 +630,13 @@ POPARGS D5 0.0004
 RETURNFUNC; Func[void Tango_AddMenuChoice(int, int, int)] Body End
 PUSHARGSV 0 0.0003; Func[void __Tango_LoadMessage(int, int, bool, int)] Body Start
 SETR D4 SP2
-PUSHR D4; unless() #501 Test
+PUSHR D4; unless() #499 Test
 LOAD D2 0.0006; UsrFunc[bool __Tango_ValidateSlot(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_ValidateSlot(int)] Params End
 CALLFUNC 0.0372; UsrFunc[bool __Tango_ValidateSlot(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 671 ==; Test 'unless' AND return (Void) AND unless() #501 Body
+GOTOCMP 671 ==; Test 'unless' AND return (Void) AND unless() #499 Body
 PUSHR D4
 LOAD D2 0.0006; UsrFunc[void __Tango_SetCurrentSlot(int)] Params Start
 PUSHR D2; UsrFunc[void __Tango_SetCurrentSlot(int)] Params End
@@ -647,14 +647,14 @@ PUSHR D2; UsrFunc[int __Tango_FindDestStart(bool)] Params End
 CALLFUNC 0.5307; UsrFunc[int __Tango_FindDestStart(bool)] Call
 POP D4
 STORE D2 0.0002
-PUSHR D4; unless() #502 Test
+PUSHR D4; unless() #500 Test
 LOAD D2 0.0005; UsrFunc[bool __Tango_ValidateMessage(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_ValidateMessage(int)] Params End
 CALLFUNC 0.7681; UsrFunc[bool __Tango_ValidateMessage(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 645 !=; Test 'unless'
-PUSHR D4; unless() #502 Body Start
+PUSHR D4; unless() #500 Body Start
 PUSHV 101; UsrFunc[void __Tango_LogError(int, untyped)] Params Start
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped)] Params End
@@ -669,7 +669,7 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
-GOTO 671; return (Void) AND unless() #502 Body End
+GOTO 671; return (Void) AND unless() #500 Body End
 ALLOCATEMEMV D2 256 0
 STORE D2 0.0001
 LOAD D2 0.0005; InlineFunc[void Game::GetMessage(int, char32[])] Params Start
@@ -700,37 +700,37 @@ POPARGS D5 0.0007
 RETURNFUNC; Func[void __Tango_LoadMessage(int, int, bool, int)] Body End
 PUSHARGSV 0 0.0003; Func[void Tango_ClearSlot(int)] Body Start
 SETR D4 SP2
-PUSHR D4; unless() #365 Test
+PUSHR D4; unless() #363 Test
 LOAD D2 0.0003; UsrFunc[bool __Tango_ValidateSlot(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_ValidateSlot(int)] Params End
 CALLFUNC 0.0372; UsrFunc[bool __Tango_ValidateSlot(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 958 ==; Test 'unless' AND return (Void) AND unless() #365 Body
-PUSHR D4; if() #366 Test
+GOTOCMP 958 ==; Test 'unless' AND return (Void) AND unless() #363 Body
+PUSHR D4; if() #364 Test
 LOAD D2 0.0003; UsrFunc[bool Tango_SlotIsActive(int)] Params Start
 PUSHR D2; UsrFunc[bool Tango_SlotIsActive(int)] Params End
 CALLFUNC 0.0960; UsrFunc[bool Tango_SlotIsActive(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 705 ==; Test 'if'
-PUSHR D4; if() #366 Body Start
+PUSHR D4; if() #364 Body Start
 LOAD D2 0.0003; UsrFunc[int Tango_GetSlotStyleAttribute(int, int)] Params Start
 PUSHR D2
 PUSHV 35; UsrFunc[int Tango_GetSlotStyleAttribute(int, int)] Params End
 CALLFUNC 0.0411; UsrFunc[int Tango_GetSlotStyleAttribute(int, int)] Call
 POP D4
 STORE D2 0.0002
-LOAD D2 0.0002; if() #367 Test
+LOAD D2 0.0002; if() #365 Test
 ANDV D2 512
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 705 ==; Test 'if'
-PUSHR D4; if() #367 Body Start
+PUSHR D4; if() #365 Body Start
 CALLFUNC 0.0997; UsrFunc[void __Tango_DecScreenFreeze()] Call
-POP D4; if() #367 Body End
-LOAD D2 0.0003; if() #366 Body End
+POP D4; if() #365 Body End
+LOAD D2 0.0003; if() #364 Body End
 MULTV D2 24
 STORE D2 0.0002
 LOAD D2 0.0003
@@ -961,7 +961,7 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
-PUSHR D4; if() #368 Test
+PUSHR D4; if() #366 Test
 CALLFUNC 0.1016; UsrFunc[bool Tango_MenuIsActive()] Call
 POP D4
 COMPAREV D2 0
@@ -980,22 +980,22 @@ GOTO 953
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 958 ==; Test 'if'
-PUSHR D4; if() #368 Body Start
+PUSHR D4; if() #366 Body Start
 CALLFUNC 0.1024; UsrFunc[void __Tango_MenuCancel()] Call
-POP D4; if() #368 Body End
+POP D4; if() #366 Body End
 POPARGS D5 0.0004
 RETURNFUNC; Func[void Tango_ClearSlot(int)] Body End
 PUSHARGSV 0 0.0002; Func[bool Tango_SlotIsActive(int)] Body Start
 SETR D4 SP2
-PUSHR D4; unless() #398 Test
+PUSHR D4; unless() #396 Test
 LOAD D2 0.0002; UsrFunc[bool __Tango_ValidateSlot(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_ValidateSlot(int)] Params End
 CALLFUNC 0.0372; UsrFunc[bool __Tango_ValidateSlot(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 971 !=; Test 'unless'
-SETV D2 0; return Start AND unless() #398 Body Start
-GOTO 995; return End AND unless() #398 Body End
+SETV D2 0; return Start AND unless() #396 Body Start
+GOTO 995; return End AND unless() #396 Body End
 LOAD D2 0.0002
 MULTV D2 24
 STORE D2 0.0001
@@ -1006,7 +1006,7 @@ ADDV D2 1
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0
-LOAD D2 0; if() #399 Test
+LOAD D2 0; if() #397 Test
 COMPAREV D2 0
 GOTOCMP 989 ==
 LOAD D2 0
@@ -1017,8 +1017,8 @@ GOTO 990
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 994 ==; Test 'if'
-SETV D2 0; return Start AND if() #399 Body Start
-GOTO 995; return End AND if() #399 Body End
+SETV D2 0; return Start AND if() #397 Body Start
+GOTO 995; return End AND if() #397 Body End
 SETV D2 1; return Start
 POPARGS D5 0.0003; return End
 RETURNFUNC; Func[bool Tango_SlotIsActive(int)] Body End
@@ -1033,7 +1033,7 @@ SETR D2 GD2
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 11 D2
-SETR D2 GD2; if() #436 Test
+SETR D2 GD2; if() #434 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 11
@@ -1050,7 +1050,7 @@ COMPAREV D2 -214747.9999
 SETCMP D2 I>
 RETURNFUNC; return End AND Func[bool Tango_MenuIsActive()] Body End
 SETR D4 SP2; Func[void __Tango_MenuCancel()] Body Start
-SETR D2 GD2; if() #513 Test
+SETR D2 GD2; if() #511 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 33
@@ -1058,14 +1058,14 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1041 ==; Test 'if'
-PUSHR D4; if() #513 Body Start
+PUSHR D4; if() #511 Body Start
 SETR D2 GD2; UsrFunc[void Tango_SaveMenuState(int[])] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 33
 PUSHR D2; UsrFunc[void Tango_SaveMenuState(int[])] Params End
 CALLFUNC 0.1451; UsrFunc[void Tango_SaveMenuState(int[])] Call
-POP D4; if() #513 Body End
+POP D4; if() #511 Body End
 SETV D2 0
 PUSHR D2
 SETR D2 GD2
@@ -1100,7 +1100,7 @@ RETURNFUNC; Func[void __Tango_MenuCancel()] Body End
 PUSHV 0; Func[bool __Tango_ValidateStyle(int)] Body Start
 SETR D4 SP2
 STOREV 1 0
-LOAD D2 0.0001; if() #638 Test
+LOAD D2 0.0001; if() #636 Test
 COMPAREV D2 0
 GOTOCMP 1083 <
 LOAD D2 0.0001
@@ -1111,9 +1111,9 @@ GOTO 1084
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 1088 ==; Test 'if'
-SETV D2 0; if() #638 Body Start
-STORE D2 0; if() #638 Body End
-LOAD D2 0.0001; if() #639 Test
+SETV D2 0; if() #636 Body Start
+STORE D2 0; if() #636 Body End
+LOAD D2 0.0001; if() #637 Test
 PUSHR D2
 LOAD D2 0.0001
 LSHIFTV D2 0
@@ -1122,17 +1122,17 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 1099 ==; Test 'if'
-SETV D2 0; if() #639 Body Start
-STORE D2 0; if() #639 Body End
-LOAD D2 0; unless() #640 Test
+SETV D2 0; if() #637 Body Start
+STORE D2 0; if() #637 Body End
+LOAD D2 0; unless() #638 Test
 COMPAREV D2 0
 GOTOCMP 1108 !=; Test 'unless'
-PUSHR D4; unless() #640 Body Start
+PUSHR D4; unless() #638 Body Start
 PUSHV 401; UsrFunc[void __Tango_LogError(int, untyped)] Params Start
 LOAD D2 0.0001
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped)] Params End
 CALLFUNC 0.1443; UsrFunc[void __Tango_LogError(int, untyped)] Call
-POP D4; unless() #640 Body End
+POP D4; unless() #638 Body End
 LOAD D2 0; return Start
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[bool __Tango_ValidateStyle(int)] Body End
@@ -1160,7 +1160,7 @@ LOAD D2 0; for() #144 Body Start
 MULTV D2 24
 ADDV D2 1
 STORE D2 0.0001
-SETR D2 GD5; if() #514 Test
+SETR D2 GD5; if() #512 Test
 PUSHR D2
 LOAD D2 0.0001
 POP D0
@@ -1168,7 +1168,7 @@ READPODARRAYR D2 D2
 COMPAREV D2 5
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 1153 !=; Test 'if' AND continue 1; AND if() #514 Body
+GOTOCMP 1153 !=; Test 'if' AND continue 1; AND if() #512 Body
 SETV D2 7
 PUSHR D2
 SETR D2 GD5
@@ -1191,14 +1191,14 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 15
 STORE D2 0
-LOAD D2 0; if() #434 Test
+LOAD D2 0; if() #432 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 1173 ==; Test 'if'
-SETV D2 0; return Start AND if() #434 Body Start
-GOTO 1187; return End AND if() #434 Body End
-LOAD D2 0; if() #435 Test
+SETV D2 0; return Start AND if() #432 Body Start
+GOTO 1187; return End AND if() #432 Body End
+LOAD D2 0; if() #433 Test
 PUSHR D2
 SETR D2 GD2
 PUSHR D2
@@ -1209,8 +1209,8 @@ COMPARER D3 D2
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 1186 ==; Test 'if'
-SETV D2 0; return Start AND if() #435 Body Start
-GOTO 1187; return End AND if() #435 Body End
+SETV D2 0; return Start AND if() #433 Body Start
+GOTO 1187; return End AND if() #433 Body End
 SETV D2 1; return Start
 POP D5; return End
 RETURNFUNC; Func[bool __Tango_CursorPosIsValid()] Body End
@@ -1252,14 +1252,14 @@ POP D4
 POP D5
 RETURNFUNC; Func[void Tango_LogUndefinedVariable(int)] Body End
 SETR D4 SP2; Func[int Tango_GetSlotVar(int, int)] Body Start
-PUSHR D4; if() #376 Test
+PUSHR D4; if() #374 Test
 LOAD D2 0.0001; UsrFunc[bool __Tango_ValidateSlot(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_ValidateSlot(int)] Params End
 CALLFUNC 0.0372; UsrFunc[bool __Tango_ValidateSlot(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 1245 ==; Test 'if'
-SETR D2 GD5; return Start AND if() #376 Body Start
+SETR D2 GD5; return Start AND if() #374 Body Start
 PUSHR D2
 LOAD D2 0.0001
 MULTV D2 24
@@ -1269,7 +1269,7 @@ POP D3
 ADDR D2 D3
 POP D0
 READPODARRAYR D2 D2
-GOTO 1246; return End AND if() #376 Body End
+GOTO 1246; return End AND if() #374 Body End
 SETV D2 -10; return Start
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[int Tango_GetSlotVar(int, int)] Body End
@@ -1293,11 +1293,11 @@ LOAD D2 0
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0.0001
-LOAD D2 0.0001; if() #379 Test
+LOAD D2 0.0001; if() #377 Test
 COMPAREV D2 32
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 1302 !=; Test 'if' AND continue 1; AND if() #379 Body
+GOTOCMP 1302 !=; Test 'if' AND continue 1; AND if() #377 Body
 LOAD D2 0.0003; if() #95 Test
 PUSHR D2
 POP D0
@@ -1335,15 +1335,15 @@ LOAD D2 0.0002; return Start
 POPARGS D5 0.0005; return End
 RETURNFUNC; Func[int Tango_GetStringWidth(char32[], int[])] Body End
 SETR D4 SP2; Func[int Tango_GetStyleAttribute(int, int)] Body Start
-PUSHR D4; unless() #380 Test
+PUSHR D4; unless() #378 Test
 LOAD D2 0.0001; UsrFunc[bool __Tango_ValidateStyle(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_ValidateStyle(int)] Params End
 CALLFUNC 0.1072; UsrFunc[bool __Tango_ValidateStyle(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 1319 !=; Test 'unless'
-SETV D2 -10; return Start AND unless() #380 Body Start
-GOTO 1329; return End AND unless() #380 Body End
+SETV D2 -10; return Start AND unless() #378 Body Start
+GOTO 1329; return End AND unless() #378 Body End
 SETR D2 GD3; return Start
 PUSHR D2
 LOAD D2 0.0001
@@ -1482,7 +1482,7 @@ SETR D2 GD2; InlineFunc[int SizeOfArray(untyped[])] Params
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 14
 STORE D2 0.0001
-LOAD D2 0.0002; InlineFunc[int SizeOfArray(int[])] Params AND if() #387 Test
+LOAD D2 0.0002; InlineFunc[int SizeOfArray(int[])] Params AND if() #385 Test
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
 PUSHR D2
 LOAD D2 0.0001
@@ -1491,7 +1491,7 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 1476 ==; Test 'if'
-PUSHR D4; if() #387 Body Start
+PUSHR D4; if() #385 Body Start
 PUSHV 405; UsrFunc[void __Tango_LogError(int, untyped, untyped)] Params Start
 LOAD D2 0.0002; InlineFunc[int SizeOfArray(int[])] Params
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
@@ -1500,7 +1500,7 @@ LOAD D2 0.0001
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped, untyped)] Params End
 CALLFUNC 0.0441; UsrFunc[void __Tango_LogError(int, untyped, untyped)] Call
 POP D4
-GOTO 1534; return (Void) AND if() #387 Body End
+GOTO 1534; return (Void) AND if() #385 Body End
 STOREV 0 0; for() #113 setup
 LOAD D2 0; for() #113 LoopTest
 PUSHR D2
@@ -1587,7 +1587,7 @@ SETR D4 SP2
 LOAD D2 0.0002
 MULTV D2 24
 STORE D2 0
-SETR D2 GD5; if() #389 Test
+SETR D2 GD5; if() #387 Test
 PUSHR D2
 LOAD D2 0
 ADDV D2 1
@@ -1596,13 +1596,13 @@ READPODARRAYR D2 D2
 COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 1676 !=; Test 'if' AND return (Void) AND if() #389 Body
+GOTOCMP 1676 !=; Test 'if' AND return (Void) AND if() #387 Body
 LOAD D2 0.0001; if() #96 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 1600 ==; Test 'if'
-LOAD D2 0.0001; if() #390 Test AND if() #96 Body Start
+LOAD D2 0.0001; if() #388 Test AND if() #96 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -1616,16 +1616,16 @@ COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 1639 ==; Test 'if'
-SETR D2 GD5; if() #390 Body Start
+SETR D2 GD5; if() #388 Body Start
 PUSHR D2
 LOAD D2 0
 ADDV D2 15
 POP D0
 READPODARRAYR D2 D2
 SUBV2 0 D2
-STORE D2 0.0001; if() #390 Body End
+STORE D2 0.0001; if() #388 Body End
 GOTO 1639; if() #96 Body End
-LOAD D2 0.0001; if() #391 Test AND if() #96 Else Start
+LOAD D2 0.0001; if() #389 Test AND if() #96 Else Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -1647,7 +1647,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1639 ==; Test 'if'
-SETR D2 GD5; if() #391 Body Start
+SETR D2 GD5; if() #389 Body Start
 PUSHR D2
 LOAD D2 0
 ADDV D2 16
@@ -1663,7 +1663,7 @@ READPODARRAYR D2 D2
 POP D3
 SUBR D3 D2
 SETR D2 D3
-STORE D2 0.0001; if() #391 Body End
+STORE D2 0.0001; if() #389 Body End
 SETR D2 GD5; if() #96 Else End
 PUSHR D2
 LOAD D2 0
@@ -1683,7 +1683,7 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
-SETR D2 GD2; if() #392 Test
+SETR D2 GD2; if() #390 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 24
@@ -1694,13 +1694,13 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1676 ==; Test 'if'
-PUSHR D4; if() #392 Body Start
+PUSHR D4; if() #390 Body Start
 PUSHV 0; UsrFunc[void __Tango_ShiftMenu(int, int)] Params Start
 LOAD D2 0.0001
 SUBV2 0 D2
 PUSHR D2; UsrFunc[void __Tango_ShiftMenu(int, int)] Params End
 CALLFUNC 0.1678; UsrFunc[void __Tango_ShiftMenu(int, int)] Call
-POP D4; if() #392 Body End
+POP D4; if() #390 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void Tango_ScrollSlot(int, int)] Body End
 PUSHARGSV 0 0.0002; Func[void __Tango_ShiftMenu(int, int)] Body Start
@@ -1863,7 +1863,7 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 7 D2
 GOTO 1870; if() #333 Body End
-SETR D2 GD2; if() #628 Test AND if() #333 Else Start
+SETR D2 GD2; if() #626 Test AND if() #333 Else Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 7
@@ -1871,7 +1871,7 @@ COMPAREV D2 3
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 1870 ==; Test 'if'
-ALLOCATEMEMV D2 81 0; if() #628 Body Start
+ALLOCATEMEMV D2 81 0; if() #626 Body Start
 WRITEPODSTRING D2 "tango.zh error: The saved data is invalid for the current version of this quest."
 STORE D2 0.0002
 ALLOCATEMEMV D2 70 0
@@ -1894,7 +1894,7 @@ WRITEPODARRAYVR 13 D2
 LOAD D3 0
 DEALLOCATEMEMR D3
 LOAD D3 0.0002
-DEALLOCATEMEMR D3; if() #628 Body End
+DEALLOCATEMEMR D3; if() #626 Body End
 POPARGS D5 0.0004; if() #333 Else End
 RETURNFUNC; Func[void __Tango_ValidateSavedVersion()] Body End
 PUSHARGSV 0 0.0002; Func[void Tango_SuspendSlot(int)] Body Start
@@ -1909,7 +1909,7 @@ LOAD D2 0.0001
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0
-LOAD D2 0; if() #401 Test
+LOAD D2 0; if() #399 Test
 COMPAREV D2 0
 GOTOCMP 1892 ==
 LOAD D2 0
@@ -1919,7 +1919,7 @@ SETV D2 0
 GOTO 1893
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 1906 !=; Test 'if' AND return (Void) AND if() #401 Body
+GOTOCMP 1906 !=; Test 'if' AND return (Void) AND if() #399 Body
 LOAD D2 0
 MODV D2 100
 ADDV D2 100
@@ -1948,7 +1948,7 @@ LOAD D2 0; for() #132 Body Start
 MULTV D2 24
 ADDV D2 1
 STORE D2 0.0003
-SETR D2 GD5; if() #451 Test
+SETR D2 GD5; if() #449 Test
 PUSHR D2
 LOAD D2 0.0003
 POP D0
@@ -1957,11 +1957,11 @@ COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1968 ==; Test 'if'
-LOAD D2 0; if() #451 Body Start
+LOAD D2 0; if() #449 Body Start
 MULTV D2 24
 ADDV D2 2
 STORE D2 0.0002
-SETR D2 GD5; if() #452 Test
+SETR D2 GD5; if() #450 Test
 PUSHR D2
 LOAD D2 0.0002
 POP D0
@@ -1973,7 +1973,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1968 ==; Test 'if'
-SETV D2 1; if() #452 Body Start
+SETV D2 1; if() #450 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -1992,8 +1992,8 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 SETV D2 1
-STORE D2 0.0001; if() #452 Body End
-LOAD D2 0; if() #451 Body End AND for() #132 Body End AND for() #132 LoopIncrement
+STORE D2 0.0001; if() #450 Body End
+LOAD D2 0; if() #449 Body End AND for() #132 Body End AND for() #132 LoopIncrement
 ADDV D2 1
 STORE D2 0
 GOTO 1914; for() #132 End
@@ -2013,12 +2013,12 @@ CALLFUNC 0.1016; UsrFunc[bool Tango_MenuIsActive()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 1993 ==; Test 'if'
-PUSHR D4; if() #403 Body Start
+PUSHR D4; if() #401 Body Start
 CALLFUNC 0.2195; UsrFunc[void __Tango_UpdateMenu()] Call
 POP D4
 SETV D2 1
-STORE D2 0.0001; if() #403 Body End
-SETR D2 GD2; if() #404 Test
+STORE D2 0.0001; if() #401 Body End
+SETR D2 GD2; if() #402 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 8
@@ -2027,7 +2027,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2021 ==; Test 'if'
-PUSHR D4; if() #98 Test AND if() #404 Body Start
+PUSHR D4; if() #98 Test AND if() #402 Body Start
 CALLFUNC 0.2347; UsrFunc[bool __Tango_InputMenu()] Call
 POP D4
 COMPAREV D2 0
@@ -2046,7 +2046,7 @@ SETR D2 GD2
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 8 D2; if() #98 Else End
-STOREV 0 0; if() #404 Body End AND for() #115 setup
+STOREV 0 0; if() #402 Body End AND for() #115 setup
 LOAD D2 0; for() #115 LoopTest
 COMPAREV D2 2
 SETCMP D2 I<
@@ -2068,13 +2068,13 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 8
 STORE D2 0
-LOAD D2 0; if() #405 Test
+LOAD D2 0; if() #403 Test
 ANDV D2 1
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2061 ==; Test 'if'
-PUSHR D4; if() #99 Test AND if() #405 Body Start
+PUSHR D4; if() #99 Test AND if() #403 Body Start
 CALLFUNC 0.2739; UsrFunc[bool __Tango_InputSpeedup()] Call
 POP D4
 COMPAREV D2 0
@@ -2086,13 +2086,13 @@ GOTO 2061; if() #99 Body End
 LOAD D2 0; if() #99 Else Start
 ANDV D2 -2
 STORE D2 0; if() #99 Else End
-LOAD D2 0; if() #405 Body End AND if() #406 Test
+LOAD D2 0; if() #403 Body End AND if() #404 Test
 ANDV D2 2
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2079 ==; Test 'if'
-PUSHR D4; if() #100 Test AND if() #406 Body Start
+PUSHR D4; if() #100 Test AND if() #404 Body Start
 CALLFUNC 0.2754; UsrFunc[bool __Tango_InputSuperSpeed()] Call
 POP D4
 COMPAREV D2 0
@@ -2104,13 +2104,13 @@ GOTO 2079; if() #100 Body End
 LOAD D2 0; if() #100 Else Start
 ANDV D2 -3
 STORE D2 0; if() #100 Else End
-LOAD D2 0; if() #406 Body End AND if() #407 Test
+LOAD D2 0; if() #404 Body End AND if() #405 Test
 ANDV D2 4
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2097 ==; Test 'if'
-PUSHR D4; if() #101 Test AND if() #407 Body Start
+PUSHR D4; if() #101 Test AND if() #405 Body Start
 CALLFUNC 0.2769; UsrFunc[bool __Tango_InputAdvance()] Call
 POP D4
 COMPAREV D2 0
@@ -2122,7 +2122,7 @@ GOTO 2097; if() #101 Body End
 LOAD D2 0; if() #101 Else Start
 ANDV D2 -5
 STORE D2 0; if() #101 Else End
-LOAD D2 0; if() #407 Body End AND if() #408 Test
+LOAD D2 0; if() #405 Body End AND if() #406 Test
 ANDV D2 16
 COMPAREV D2 0
 GOTOCMP 2106 !=
@@ -2134,12 +2134,12 @@ GOTO 2107
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 2115 ==; Test 'if'
-PUSHR D4; if() #408 Body Start
+PUSHR D4; if() #406 Body Start
 CALLFUNC 0.2784; UsrFunc[void __Tango_UnpressAll()] Call
 POP D4
 LOAD D2 0
 ANDV D2 -17
-STORE D2 0; if() #408 Body End
+STORE D2 0; if() #406 Body End
 LOAD D2 0
 PUSHR D2
 SETR D2 GD2
@@ -2160,7 +2160,7 @@ SETR D2 CURDSCR
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-SETR D2 GD2; if() #431 Test
+SETR D2 GD2; if() #429 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 9
@@ -2171,7 +2171,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2193 ==; Test 'if'
-LOAD D2 0.0003; if() #431 Body Start
+LOAD D2 0.0003; if() #429 Body Start
 PUSHR D2
 SETR D2 GD2
 SETR D0 D2
@@ -2197,7 +2197,7 @@ PUSHR D2; UsrFunc[int __Tango_GetSlotFlags(int)] Params End
 CALLFUNC 0.3881; UsrFunc[int __Tango_GetSlotFlags(int)] Call
 POP D4
 STORE D2 0.0001
-LOAD D2 0.0001; if() #432 Test
+LOAD D2 0.0001; if() #430 Test
 ANDV D2 8
 COMPAREV D2 0
 GOTOCMP 2181 ==
@@ -2209,20 +2209,20 @@ GOTO 2182
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 2189 ==; Test 'if'
-PUSHR D4; if() #432 Body Start
+PUSHR D4; if() #430 Body Start
 LOAD D2 0; UsrFunc[void Tango_ClearSlot(int)] Params Start
 PUSHR D2; UsrFunc[void Tango_ClearSlot(int)] Params End
 CALLFUNC 0.0673; UsrFunc[void Tango_ClearSlot(int)] Call
-POP D4; if() #432 Body End
+POP D4; if() #430 Body End
 LOAD D2 0; for() #127 Body End AND for() #127 LoopIncrement
 ADDV D2 1
 STORE D2 0
 GOTO 2155; for() #127 End
-POPARGS D5 0.0004; if() #431 Body End
+POPARGS D5 0.0004; if() #429 Body End
 RETURNFUNC; Func[void __Tango_CheckScreenChange()] Body End
 PUSHARGSV 0 0.0003; Func[void __Tango_UpdateMenu()] Body Start
 SETR D4 SP2
-SETR D2 GD2; if() #625 Test
+SETR D2 GD2; if() #623 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 10
@@ -2230,12 +2230,12 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2211 ==; Test 'if'
-SETV D2 0; if() #625 Body Start
+SETV D2 0; if() #623 Body Start
 PUSHR D2
 SETR D2 GD2
 SETR D0 D2
 POP D2
-WRITEPODARRAYVR 10 D2; if() #625 Body End
+WRITEPODARRAYVR 10 D2; if() #623 Body End
 SETR D2 GD2
 PUSHR D2
 POP D0
@@ -2505,12 +2505,12 @@ COMPAREV D2 0
 GOTOCMP 2480 ==; Test 'if'
 GOTO 2737; return (Void) AND if() #311 Body Start
 GOTO 2499; if() #311 Body End
-LOAD D2 0.0004; if() #607 Test AND if() #311 Else Start
+LOAD D2 0.0004; if() #605 Test AND if() #311 Else Start
 COMPAREV D2 7
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2499 ==; Test 'if'
-SETV D2 1; if() #607 Body Start
+SETV D2 1; if() #605 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -2523,7 +2523,7 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
-GOTO 2737; return (Void) AND if() #607 Body End
+GOTO 2737; return (Void) AND if() #605 Body End
 PUSHR D4; if() #311 Else End
 PUSHV 35; UsrFunc[int __Tango_GetCurrStyleData(int)] Params
 CALLFUNC 0.3802; UsrFunc[int __Tango_GetCurrStyleData(int)] Call
@@ -2536,13 +2536,13 @@ POP D0
 READPODARRAYV D2 4
 ADDV D2 19
 STORE D2 0.0001
-LOAD D2 0.0003; if() #608 Test
+LOAD D2 0.0003; if() #606 Test
 ANDV D2 1
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2558 ==; Test 'if'
-SETR D2 GD2; if() #608 Body Start
+SETR D2 GD2; if() #606 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 8
@@ -2561,12 +2561,12 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2551 ==; Test 'if'
-PUSHR D4; unless() #609 Test AND if() #312 Body Start
+PUSHR D4; unless() #607 Test AND if() #312 Body Start
 CALLFUNC 0.2739; UsrFunc[bool __Tango_InputSpeedup()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 2558 !=; Test 'unless'
-SETV D2 0; unless() #609 Body Start
+SETV D2 0; unless() #607 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -2574,22 +2574,22 @@ LOAD D2 0.0001
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; unless() #609 Body End
+WRITEPODARRAYRR D3 D2; unless() #607 Body End
 GOTO 2558; if() #312 Body End
-PUSHR D4; if() #610 Test AND if() #312 Else Start
+PUSHR D4; if() #608 Test AND if() #312 Else Start
 CALLFUNC 0.2739; UsrFunc[bool __Tango_InputSpeedup()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 2558 ==; Test 'if'
-SETV D2 1; if() #610 Body Start
-STORE D2 0.0002; if() #610 Body End
-LOAD D2 0.0003; if() #312 Else End AND if() #608 Body End AND if() #611 Test
+SETV D2 1; if() #608 Body Start
+STORE D2 0.0002; if() #608 Body End
+LOAD D2 0.0003; if() #312 Else End AND if() #606 Body End AND if() #609 Test
 ANDV D2 2
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2605 ==; Test 'if'
-SETR D2 GD2; if() #611 Body Start
+SETR D2 GD2; if() #609 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 8
@@ -2608,12 +2608,12 @@ COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2598 ==; Test 'if'
-PUSHR D4; unless() #612 Test AND if() #313 Body Start
+PUSHR D4; unless() #610 Test AND if() #313 Body Start
 CALLFUNC 0.2754; UsrFunc[bool __Tango_InputSuperSpeed()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 2605 !=; Test 'unless'
-SETV D2 0; unless() #612 Body Start
+SETV D2 0; unless() #610 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -2621,30 +2621,30 @@ LOAD D2 0.0001
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; unless() #612 Body End
+WRITEPODARRAYRR D3 D2; unless() #610 Body End
 GOTO 2605; if() #313 Body End
-PUSHR D4; if() #613 Test AND if() #313 Else Start
+PUSHR D4; if() #611 Test AND if() #313 Else Start
 CALLFUNC 0.2754; UsrFunc[bool __Tango_InputSuperSpeed()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 2605 ==; Test 'if'
-SETV D2 2; if() #613 Body Start
-STORE D2 0.0002; if() #613 Body End
-LOAD D2 0.0003; if() #313 Else End AND if() #611 Body End AND if() #614 Test
+SETV D2 2; if() #611 Body Start
+STORE D2 0.0002; if() #611 Body End
+LOAD D2 0.0003; if() #313 Else End AND if() #609 Body End AND if() #612 Test
 ANDV D2 64
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2613 ==; Test 'if'
-SETV D2 2; if() #614 Body Start
-STORE D2 0.0002; if() #614 Body End
-LOAD D2 0.0003; if() #615 Test
+SETV D2 2; if() #612 Body Start
+STORE D2 0.0002; if() #612 Body End
+LOAD D2 0.0003; if() #613 Test
 ANDV D2 16
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 2629 ==; Test 'if'
-SETR D2 GD2; if() #615 Body Start
+SETR D2 GD2; if() #613 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 8
@@ -2653,13 +2653,13 @@ PUSHR D2
 SETR D2 GD2
 SETR D0 D2
 POP D2
-WRITEPODARRAYVR 8 D2; if() #615 Body End
-LOAD D2 0.0004; if() #616 Test
+WRITEPODARRAYVR 8 D2; if() #613 Body End
+LOAD D2 0.0004; if() #614 Test
 COMPAREV D2 8
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2703 ==; Test 'if'
-PUSHR D4; if() #616 Body Start
+PUSHR D4; if() #614 Body Start
 PUSHV 2; UsrFunc[int __Tango_GetCurrSlotData(int)] Params
 CALLFUNC 0.3018; UsrFunc[int __Tango_GetCurrSlotData(int)] Call
 POP D4
@@ -2706,12 +2706,12 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 GOTO 2703; if() #315 Body End
-PUSHR D4; if() #617 Test AND if() #315 Else Start
+PUSHR D4; if() #615 Test AND if() #315 Else Start
 CALLFUNC 0.0537; UsrFunc[bool __Tango_PressSuperSpeed()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 2703 ==; Test 'if'
-SETV D2 2; if() #617 Body Start
+SETV D2 2; if() #615 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -2719,7 +2719,7 @@ LOAD D2 0.0001
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; if() #617 Body End
+WRITEPODARRAYRR D3 D2; if() #615 Body End
 GOTO 2703; if() #315 Else End AND if() #314 Body End
 PUSHR D4; if() #314 Else Start
 PUSHV 2; UsrFunc[void __Tango_SetCurrSlotData(int, int)] Params Start
@@ -2728,7 +2728,7 @@ ADDV D2 1
 PUSHR D2; UsrFunc[void __Tango_SetCurrSlotData(int, int)] Params End
 CALLFUNC 0.3927; UsrFunc[void __Tango_SetCurrSlotData(int, int)] Call
 POP D4; if() #314 Else End
-LOAD D2 0.0004; if() #616 Body End AND if() #316 Test
+LOAD D2 0.0004; if() #614 Body End AND if() #316 Test
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
@@ -2750,18 +2750,18 @@ PUSHR D2; UsrFunc[void __Tango_UpdateAdvancing(int)] Params End
 CALLFUNC 1.2142; UsrFunc[void __Tango_UpdateAdvancing(int)] Call
 POP D4
 GOTO 2737; if() #317 Body End
-LOAD D2 0.0004; if() #618 Test AND if() #317 Else Start
+LOAD D2 0.0004; if() #616 Test AND if() #317 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2737 ==; Test 'if'
-PUSHR D4; if() #618 Body Start
+PUSHR D4; if() #616 Body Start
 LOAD D2 0.0003; UsrFunc[void __Tango_UpdateFinishedSlot(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[void __Tango_UpdateFinishedSlot(int, int)] Params End
 CALLFUNC 1.2279; UsrFunc[void __Tango_UpdateFinishedSlot(int, int)] Call
-POP D4; if() #618 Body End
+POP D4; if() #616 Body End
 POPARGS D5 0.0005; if() #317 Else End AND if() #316 Else End
 RETURNFUNC; Func[void __Tango_UpdateCurrentSlot()] Body End
 SETR D4 SP2; Func[bool __Tango_InputSpeedup()] Body Start
@@ -2972,7 +2972,7 @@ PUSHV 1; UsrFunc[int __Tango_GetCurrSlotData(int)] Params
 CALLFUNC 0.3018; UsrFunc[int __Tango_GetCurrSlotData(int)] Call
 POP D4
 STORE D2 0.0003
-LOAD D2 0.0003; if() #409 Test
+LOAD D2 0.0003; if() #407 Test
 COMPAREV D2 0
 GOTOCMP 2955 ==
 LOAD D2 0.0003
@@ -2983,14 +2983,14 @@ GOTO 2956
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 2961 ==; Test 'if'
-PUSHR D4; if() #409 Body Start
+PUSHR D4; if() #407 Body Start
 CALLFUNC 0.3033; UsrFunc[void __Tango_DrawToScreen()] Call
-POP D4; if() #409 Body End
+POP D4; if() #407 Body End
 LOAD D2 0.0002; for() #116 Body End AND for() #116 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
 GOTO 2933; for() #116 End
-PUSHR D4; if() #410 Test
+PUSHR D4; if() #408 Test
 CALLFUNC 0.1016; UsrFunc[bool Tango_MenuIsActive()] Call
 POP D4
 COMPAREV D2 0
@@ -3006,10 +3006,10 @@ GOTO 2979
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 2984 ==; Test 'if'
-PUSHR D4; if() #410 Body Start
+PUSHR D4; if() #408 Body Start
 CALLFUNC 0.3200; UsrFunc[void __Tango_DrawMenuCursor()] Call
-POP D4; if() #410 Body End
-SETR D2 GD2; if() #411 Test
+POP D4; if() #408 Body End
+SETR D2 GD2; if() #409 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 13
@@ -3017,7 +3017,7 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 3016 ==; Test 'if'
-ALLOCATEMEMV D2 22 0; if() #411 Body Start
+ALLOCATEMEMV D2 22 0; if() #409 Body Start
 WRITEPODSTRING D2 "tango.zh error logged"
 STORE D2 0
 PUSHV 6; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
@@ -3040,7 +3040,7 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 13 D2
 LOAD D3 0
-DEALLOCATEMEMR D3; if() #411 Body End
+DEALLOCATEMEMR D3; if() #409 Body End
 POPARGS D5 0.0004
 RETURNFUNC; Func[void Tango_Update2()] Body End
 SETR D4 SP2; Func[int __Tango_GetCurrSlotData(int)] Body Start
@@ -3174,12 +3174,12 @@ PUSHR D2; UsrFunc[void __Tango_DrawComboBackdrop(int, int, int)] Params End
 CALLFUNC 0.4084; UsrFunc[void __Tango_DrawComboBackdrop(int, int, int)] Call
 POP D4
 GOTO 3168; if() #132 Body End
-LOAD D2 0.0003; if() #445 Test AND if() #132 Else Start
+LOAD D2 0.0003; if() #443 Test AND if() #132 Else Start
 COMPAREV D2 7
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3168 ==; Test 'if'
-PUSHR D4; if() #445 Body Start
+PUSHR D4; if() #443 Body Start
 SETR D2 GD3; UsrFunc[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
@@ -3192,13 +3192,13 @@ PUSHR D2
 LOAD D2 0.0001
 PUSHR D2; UsrFunc[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Params End
 CALLFUNC 0.4143; UsrFunc[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Call
-POP D4; if() #445 Body End
-LOAD D2 0; if() #132 Else End AND if() #131 Else End AND if() #130 Else End AND if() #446 Test
+POP D4; if() #443 Body End
+LOAD D2 0; if() #132 Else End AND if() #131 Else End AND if() #130 Else End AND if() #444 Test
 COMPAREV D2 0
 GOTOCMP 3174 ==; Test 'if'
-PUSHR D4; if() #446 Body Start
+PUSHR D4; if() #444 Body Start
 CALLFUNC 0.3200; UsrFunc[void __Tango_DrawMenuCursor()] Call
-POP D4; if() #446 Body End
+POP D4; if() #444 Body End
 PUSHR D4
 LOAD D2 0.0005; UsrFunc[void __Tango_TransferText(int, int, int, int)] Params Start
 PUSHR D2
@@ -3210,27 +3210,27 @@ LOAD D2 0.0001
 PUSHR D2; UsrFunc[void __Tango_TransferText(int, int, int, int)] Params End
 CALLFUNC 0.5070; UsrFunc[void __Tango_TransferText(int, int, int, int)] Call
 POP D4
-LOAD D2 0; if() #447 Test
+LOAD D2 0; if() #445 Test
 COMPAREV D2 0
 GOTOCMP 3195 ==; Test 'if'
-PUSHR D4; if() #447 Body Start
+PUSHR D4; if() #445 Body Start
 LOAD D2 0.0002; UsrFunc[void __Tango_DrawMenuScrollIndicators(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2; UsrFunc[void __Tango_DrawMenuScrollIndicators(int, int)] Params End
 CALLFUNC 0.4702; UsrFunc[void __Tango_DrawMenuScrollIndicators(int, int)] Call
-POP D4; if() #447 Body End
+POP D4; if() #445 Body End
 PUSHR D4
 CALLFUNC 0.4881; UsrFunc[void __Tango_DrawMoreIcon()] Call
 POP D4
 POPARGS D5 0.0006
 RETURNFUNC; Func[void __Tango_DrawToScreen()] Body End
 SETR D4 SP2; Func[void __Tango_DrawMenuCursor()] Body Start
-PUSHR D4; unless() #438 Test
+PUSHR D4; unless() #436 Test
 CALLFUNC 0.1159; UsrFunc[bool __Tango_CursorPosIsValid()] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 3243 ==; Test 'unless' AND return (Void) AND unless() #438 Body
+GOTOCMP 3243 ==; Test 'unless' AND return (Void) AND unless() #436 Body
 PUSHV 6; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 SETR D2 GD2
 PUSHR D2
@@ -3296,13 +3296,13 @@ GOTOCMP 3271 ==; Test 'if'
 SETV D2 9; if() #116 Body Start
 STORE D2 0
 GOTO 3278; if() #116 Body End
-LOAD D2 0.0003; if() #428 Test AND if() #116 Else Start
+LOAD D2 0.0003; if() #426 Test AND if() #116 Else Start
 COMPAREV D2 37.4073
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3278 ==; Test 'if'
-SETV D2 16; if() #428 Body Start
-STORE D2 0; if() #428 Body End
+SETV D2 16; if() #426 Body Start
+STORE D2 0; if() #426 Body End
 LOAD D2 0; if() #116 Else End AND if() #115 Else End AND if() #114 Else End
 PUSHR D2
 LOAD D2 0.0001
@@ -3337,7 +3337,7 @@ LOAD D2 0.0001; return Start
 POPARGS D5 0.0004; return End
 RETURNFUNC; Func[int __Tango_AddPadding(int, int, int)] Body End
 SETR D4 SP2; Func[void __Tango_SetChar(int, int)] Body Start
-LOAD D2 0.0001; if() #593 Test
+LOAD D2 0.0001; if() #591 Test
 PUSHR D2
 SETR D2 GD2
 PUSHR D2
@@ -3348,11 +3348,11 @@ COMPARER D3 D2
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 3328 ==; Test 'if'
-PUSHR D4; if() #593 Body Start
+PUSHR D4; if() #591 Body Start
 PUSHV 103; UsrFunc[void __Tango_LogError(int)] Params
 CALLFUNC 0.0139; UsrFunc[void __Tango_LogError(int)] Call
 POP D4
-GOTO 3337; return (Void) AND if() #593 Body End
+GOTO 3337; return (Void) AND if() #591 Body End
 LOAD D2 0
 PUSHR D2
 SETR D2 GD4
@@ -3414,41 +3414,41 @@ DEALLOCATEMEMR D3
 POPARGS D5 0.0003
 RETURNFUNC; Func[void __Tango_AppendMessage(int, int)] Body End
 SETR D4 SP2; Func[bool __Tango_IsSpecialDataMarker(int)] Body Start
-LOAD D2 0; if() #488 Test
+LOAD D2 0; if() #486 Test
 COMPAREV D2 -300
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3396 ==; Test 'if'
-SETV D2 1; return Start AND if() #488 Body Start
-GOTO 3425; return End AND if() #488 Body End
-LOAD D2 0; if() #489 Test
+SETV D2 1; return Start AND if() #486 Body Start
+GOTO 3425; return End AND if() #486 Body End
+LOAD D2 0; if() #487 Test
 COMPAREV D2 -400
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3403 ==; Test 'if'
-SETV D2 1; return Start AND if() #489 Body Start
-GOTO 3425; return End AND if() #489 Body End
-LOAD D2 0; if() #490 Test
+SETV D2 1; return Start AND if() #487 Body Start
+GOTO 3425; return End AND if() #487 Body End
+LOAD D2 0; if() #488 Test
 COMPAREV D2 -100
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3410 ==; Test 'if'
-SETV D2 1; return Start AND if() #490 Body Start
-GOTO 3425; return End AND if() #490 Body End
-LOAD D2 0; if() #491 Test
+SETV D2 1; return Start AND if() #488 Body Start
+GOTO 3425; return End AND if() #488 Body End
+LOAD D2 0; if() #489 Test
 COMPAREV D2 -200
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3417 ==; Test 'if'
-SETV D2 1; return Start AND if() #491 Body Start
-GOTO 3425; return End AND if() #491 Body End
-LOAD D2 0; if() #492 Test
+SETV D2 1; return Start AND if() #489 Body Start
+GOTO 3425; return End AND if() #489 Body End
+LOAD D2 0; if() #490 Test
 COMPAREV D2 -600
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3424 ==; Test 'if'
-SETV D2 1; return Start AND if() #492 Body Start
-GOTO 3425; return End AND if() #492 Body End
+SETV D2 1; return Start AND if() #490 Body Start
+GOTO 3425; return End AND if() #490 Body End
 SETV D2 0; return Start
 POP D5; return End
 RETURNFUNC; Func[bool __Tango_IsSpecialDataMarker(int)] Body End
@@ -3519,7 +3519,7 @@ LOAD D2 0.0005
 ADDV D2 1
 STORE D2 0.0005
 GOTO 3439; if() #179 Body End
-PUSHR D4; if() #493 Test AND if() #179 Else Start
+PUSHR D4; if() #491 Test AND if() #179 Else Start
 LOAD D2 0.0007; UsrFunc[bool __Tango_ParseTopLevelCode(char32[], int, int, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0006
@@ -3533,13 +3533,13 @@ CALLFUNC 0.7230; UsrFunc[bool __Tango_ParseTopLevelCode(char32[], int, int, int[
 POP D4
 COMPAREV D2 0
 GOTOCMP 3515 ==; Test 'if'
-PUSHR D4; if() #493 Body Start
+PUSHR D4; if() #491 Body Start
 LOAD D2 0.0005; UsrFunc[void __Tango_SetChar(int, int)] Params Start
 PUSHR D2
 PUSHV 0; UsrFunc[void __Tango_SetChar(int, int)] Params End
 CALLFUNC 0.3311; UsrFunc[void __Tango_SetChar(int, int)] Call
 POP D4
-GOTO 3718; break 1; AND if() #493 Body End
+GOTO 3718; break 1; AND if() #491 Body End
 LOAD D2 0.0003
 PUSHR D2
 POP D0
@@ -3550,7 +3550,7 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 1
 STORE D2 0.0005
-SETR D2 GD4; if() #494 Test
+SETR D2 GD4; if() #492 Test
 PUSHR D2
 LOAD D2 0.0005
 SUBV D2 1
@@ -3560,14 +3560,14 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3439 ==; Test 'if'
-LOAD D2 0.0005; if() #180 Test AND if() #494 Body Start
+LOAD D2 0.0005; if() #180 Test AND if() #492 Body Start
 COMPAREV D2 2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 3542 ==; Test 'if'
 GOTO 3718; break 1; AND if() #180 Body Start
 GOTO 3439; if() #180 Body End
-SETR D2 GD4; if() #495 Test AND if() #180 Else Start
+SETR D2 GD4; if() #493 Test AND if() #180 Else Start
 PUSHR D2
 LOAD D2 0.0005
 SUBV D2 2
@@ -3577,8 +3577,8 @@ COMPAREV D2 -100
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 3439 ==; Test 'if'
-GOTO 3718; break 1; AND if() #495 Body
-GOTO 3439; if() #180 Else End AND if() #494 Body End AND if() #179 Else End AND if() #178 Body End
+GOTO 3718; break 1; AND if() #493 Body
+GOTO 3439; if() #180 Else End AND if() #492 Body End AND if() #179 Else End AND if() #178 Body End
 LOAD D2 0.0002; if() #181 Test AND if() #178 Else Start
 COMPAREV D2 0
 GOTOCMP 3565 <=
@@ -3593,7 +3593,7 @@ GOTO 3566
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 3599 ==; Test 'if'
-PUSHR D4; if() #496 Test AND if() #181 Body Start
+PUSHR D4; if() #494 Test AND if() #181 Body Start
 LOAD D2 0.0007; UsrFunc[bool __Tango_LoadStringControlCode(char32[], int, int, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0006
@@ -3606,13 +3606,13 @@ CALLFUNC 0.7519; UsrFunc[bool __Tango_LoadStringControlCode(char32[], int, int, 
 POP D4
 COMPAREV D2 0
 GOTOCMP 3588 ==; Test 'if'
-PUSHR D4; if() #496 Body Start
+PUSHR D4; if() #494 Body Start
 LOAD D2 0.0005; UsrFunc[void __Tango_SetChar(int, int)] Params Start
 PUSHR D2
 PUSHV 0; UsrFunc[void __Tango_SetChar(int, int)] Params End
 CALLFUNC 0.3311; UsrFunc[void __Tango_SetChar(int, int)] Call
 POP D4
-GOTO 3718; break 1; AND if() #496 Body End
+GOTO 3718; break 1; AND if() #494 Body End
 LOAD D2 0.0003
 PUSHR D2
 POP D0
@@ -3624,7 +3624,7 @@ POP D0
 READPODARRAYV D2 1
 STORE D2 0.0005
 GOTO 3439; if() #181 Body End
-LOAD D2 0.0001; if() #497 Test AND if() #181 Else Start
+LOAD D2 0.0001; if() #495 Test AND if() #181 Else Start
 COMPAREV D2 0
 GOTOCMP 3604 ==
 SETV D2 1
@@ -3632,7 +3632,7 @@ GOTO 3605
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 3699 ==; Test 'if'
-STOREV 0 0; if() #497 Body Start
+STOREV 0 0; if() #495 Body Start
 LOAD D2 0.0002; if() #182 Test
 COMPAREV D2 40
 SETCMP D2 I==
@@ -3665,7 +3665,7 @@ GOTOCMP 3640 ==; Test 'if'
 SETV D2 4; if() #185 Body Start
 STORE D2 0
 GOTO 3659; if() #185 Body End
-LOAD D2 0.0002; if() #498 Test AND if() #185 Else Start
+LOAD D2 0.0002; if() #496 Test AND if() #185 Else Start
 COMPAREV D2 41
 GOTOCMP 3654 ==
 LOAD D2 0.0002
@@ -3682,14 +3682,14 @@ GOTO 3655
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 3659 ==; Test 'if'
-SETV D2 -1; if() #498 Body Start
-STORE D2 0; if() #498 Body End
-LOAD D2 0; if() #185 Else End AND if() #184 Else End AND if() #183 Else End AND if() #182 Else End AND if() #499 Test
+SETV D2 -1; if() #496 Body Start
+STORE D2 0; if() #496 Body End
+LOAD D2 0; if() #185 Else End AND if() #184 Else End AND if() #183 Else End AND if() #182 Else End AND if() #497 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 3699 ==; Test 'if'
-LOAD D2 0; if() #186 Test AND if() #499 Body Start
+LOAD D2 0; if() #186 Test AND if() #497 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
@@ -3723,19 +3723,19 @@ STORE D2 0.0005; if() #186 Else End
 LOAD D2 0.0006
 ADDV D2 2
 STORE D2 0.0006
-GOTO 3439; continue 1; AND if() #499 Body End
-PUSHR D4; if() #497 Body End
+GOTO 3439; continue 1; AND if() #497 Body End
+PUSHR D4; if() #495 Body End
 LOAD D2 0.0005; UsrFunc[void __Tango_SetChar(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[void __Tango_SetChar(int, int)] Params End
 CALLFUNC 0.3311; UsrFunc[void __Tango_SetChar(int, int)] Call
 POP D4
-LOAD D2 0.0002; if() #500 Test
+LOAD D2 0.0002; if() #498 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3718 !=; Test 'if' AND break 1; AND if() #500 Body
+GOTOCMP 3718 !=; Test 'if' AND break 1; AND if() #498 Body
 LOAD D2 0.0006
 ADDV D2 1
 STORE D2 0.0006
@@ -3911,7 +3911,7 @@ SETR D4 SP2
 LOAD D2 0.0002
 MULTV D2 24
 STORE D2 0.0001
-SETR D2 GD5; if() #480 Test
+SETR D2 GD5; if() #478 Test
 PUSHR D2
 LOAD D2 0.0001
 POP D0
@@ -3920,8 +3920,8 @@ COMPAREV D2 -10
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3897 ==; Test 'if'
-SETV D2 0; return Start AND if() #480 Body Start
-GOTO 3910; return End AND if() #480 Body End
+SETV D2 0; return Start AND if() #478 Body Start
+GOTO 3910; return End AND if() #478 Body End
 SETR D2 GD5
 PUSHR D2
 LOAD D2 0.0001
@@ -3979,14 +3979,14 @@ POP D0
 READPODARRAYV D2 4
 STORE D2 0.0001
 STOREV 1 0
-LOAD D2 0.0002; if() #433 Test
+LOAD D2 0.0002; if() #431 Test
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3962 ==; Test 'if'
-LOAD D2 0; if() #433 Body Start
+LOAD D2 0; if() #431 Body Start
 MULTV D2 5
-STORE D2 0; if() #433 Body End
+STORE D2 0; if() #431 Body End
 PUSHVARGV 0; InlineFunc[int Max(int, int)] Params Start
 SETR D2 GD5
 PUSHR D2
@@ -4542,12 +4542,12 @@ SUBR D3 D2
 SETR D2 D3
 STORE D2 0.0002
 GOTO 4536; if() #127 Body End
-LOAD D2 0.0007; if() #437 Test AND if() #127 Else Start
+LOAD D2 0.0007; if() #435 Test AND if() #127 Else Start
 COMPAREV D2 8
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 4536 ==; Test 'if'
-LOAD D2 0.0002; if() #437 Body Start
+LOAD D2 0.0002; if() #435 Body Start
 PUSHR D2
 PUSHR D4
 LOAD D2 0.0006; UsrFunc[int Tango_GetStringWidth(char32[], int[])] Params Start
@@ -4560,7 +4560,7 @@ MULTV D2 0.5000
 POP D3
 SUBR D3 D2
 SETR D2 D3
-STORE D2 0.0002; if() #437 Body End
+STORE D2 0.0002; if() #435 Body End
 STOREV 0 0; if() #127 Else End AND for() #130 setup
 LOAD D2 0.0006; for() #130 LoopTest
 PUSHR D2
@@ -4605,12 +4605,12 @@ POPARGS D5 0.0008
 RETURNFUNC; Func[void __Tango_DrawFrameText(int, int[], int[], int, int, int, int)] Body End
 PUSHV 0; Func[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0008; if() #551 Test
+LOAD D2 0.0008; if() #549 Test
 COMPAREV D2 32
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 4693 ==; Test 'if'
-LOAD D2 0.0007; if() #219 Test AND if() #551 Body Start
+LOAD D2 0.0007; if() #219 Test AND if() #549 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -4657,7 +4657,7 @@ PUSHV 128; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, in
 DRAWCHARR; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body Start
 POPARGS D5 0.0010; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body End
 GOTO 4693; if() #220 Body End
-LOAD D2 0.0007; if() #552 Test AND if() #220 Else Start
+LOAD D2 0.0007; if() #550 Test AND if() #220 Else Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -4665,7 +4665,7 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 4693 ==; Test 'if'
-LOAD D2 0.0007; if() #552 Body Start
+LOAD D2 0.0007; if() #550 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 3
@@ -4691,7 +4691,7 @@ LOAD D2 0.0006
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #552 Body End
+POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #550 Body End
 GOTO 4693; if() #220 Else End AND if() #219 Body End
 LOAD D2 0.0001; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #219 Else Start
 PUSHR D2
@@ -4718,7 +4718,7 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #219 Else End
-PUSHR D4; if() #551 Body End AND return Start
+PUSHR D4; if() #549 Body End AND return Start
 LOAD D2 0.0008; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0007
@@ -4734,12 +4734,12 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 5
 STORE D2 0
-PUSHR D4; if() #439 Test
+PUSHR D4; if() #437 Test
 CALLFUNC 0.4801; UsrFunc[bool __Tango_MenuCanScrollUp()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 4754 ==; Test 'if'
-PUSHV 6; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Params Start AND if() #439 Body Start
+PUSHV 6; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Params Start AND if() #437 Body Start
 LOAD D2 0.0002
 PUSHR D2
 SETR D2 GD3
@@ -4778,13 +4778,13 @@ READPODARRAYR D2 D2
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Params End
 FASTCOMBOR; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0006; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body End AND if() #439 Body End
-PUSHR D4; if() #440 Test
+POPARGS D5 0.0006; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body End AND if() #437 Body End
+PUSHR D4; if() #438 Test
 CALLFUNC 0.4841; UsrFunc[bool __Tango_MenuCanScrollDown()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 4799 ==; Test 'if'
-PUSHV 6; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Params Start AND if() #440 Body Start
+PUSHV 6; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Params Start AND if() #438 Body Start
 LOAD D2 0.0002
 PUSHR D2
 SETR D2 GD3
@@ -4823,7 +4823,7 @@ READPODARRAYR D2 D2
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Params End
 FASTCOMBOR; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0006; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body End AND if() #440 Body End
+POPARGS D5 0.0006; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body End AND if() #438 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void __Tango_DrawMenuScrollIndicators(int, int)] Body End
 PUSHV 0; Func[bool __Tango_MenuCanScrollUp()] Body Start
@@ -4839,7 +4839,7 @@ COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 4838 ==; for() #143 TestFail?
-SETR D2 GD2; if() #512 Test AND for() #143 Body Start
+SETR D2 GD2; if() #510 Test AND for() #143 Body Start
 PUSHR D2
 LOAD D2 0
 MULTV D2 3
@@ -4857,8 +4857,8 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 4834 ==; Test 'if'
-SETV D2 1; return Start AND if() #512 Body Start
-GOTO 4839; return End AND if() #512 Body End
+SETV D2 1; return Start AND if() #510 Body Start
+GOTO 4839; return End AND if() #510 Body End
 LOAD D2 0; for() #143 Body End AND for() #143 LoopIncrement
 SUBV D2 1
 STORE D2 0
@@ -4879,7 +4879,7 @@ COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 4878 ==; for() #142 TestFail?
-SETR D2 GD2; if() #511 Test AND for() #142 Body Start
+SETR D2 GD2; if() #509 Test AND for() #142 Body Start
 PUSHR D2
 LOAD D2 0
 MULTV D2 3
@@ -4897,8 +4897,8 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 4874 ==; Test 'if'
-SETV D2 1; return Start AND if() #511 Body Start
-GOTO 4879; return End AND if() #511 Body End
+SETV D2 1; return Start AND if() #509 Body Start
+GOTO 4879; return End AND if() #509 Body End
 LOAD D2 0; for() #142 Body End AND for() #142 LoopIncrement
 SUBV D2 1
 STORE D2 0
@@ -4939,7 +4939,7 @@ GOTOCMP 4914 ==; Test 'if'
 SETV D2 1; if() #128 Body Start
 STORE D2 0.0006
 GOTO 4943; if() #128 Body End
-SETR D2 GD5; if() #441 Test AND if() #128 Else Start
+SETR D2 GD5; if() #439 Test AND if() #128 Else Start
 PUSHR D2
 LOAD D2 0.0007
 ADDV D2 1
@@ -4949,7 +4949,7 @@ COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 4943 ==; Test 'if'
-LOAD D2 0.0004; if() #442 Test AND if() #441 Body Start
+LOAD D2 0.0004; if() #440 Test AND if() #439 Body Start
 ANDV D2 128
 COMPAREV D2 0
 GOTOCMP 4938 ==
@@ -4966,11 +4966,11 @@ GOTO 4939
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 4943 ==; Test 'if'
-SETV D2 1; if() #442 Body Start
-STORE D2 0.0006; if() #442 Body End
-LOAD D2 0.0006; if() #441 Body End AND if() #128 Else End AND unless() #443 Test
+SETV D2 1; if() #440 Body Start
+STORE D2 0.0006; if() #440 Body End
+LOAD D2 0.0006; if() #439 Body End AND if() #128 Else End AND unless() #441 Test
 COMPAREV D2 0
-GOTOCMP 5009 ==; Test 'unless' AND return (Void) AND unless() #443 Body
+GOTOCMP 5009 ==; Test 'unless' AND return (Void) AND unless() #441 Body
 SETR D2 GD3
 PUSHR D2
 LOAD D2 0.0005
@@ -4978,11 +4978,11 @@ ADDV D2 31
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0.0003
-LOAD D2 0.0003; if() #444 Test
+LOAD D2 0.0003; if() #442 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 5009 !=; Test 'if' AND return (Void) AND if() #444 Body
+GOTOCMP 5009 !=; Test 'if' AND return (Void) AND if() #442 Body
 SETR D2 GD3
 PUSHR D2
 LOAD D2 0.0005
@@ -5161,7 +5161,7 @@ ADDV D2 9
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0
-SETR D2 GD5; if() #598 Test
+SETR D2 GD5; if() #596 Test
 PUSHR D2
 LOAD D2 0.0010
 ADDV D2 1
@@ -5171,7 +5171,7 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 5158 ==; Test 'if'
-LOAD D2 0; if() #598 Body Start
+LOAD D2 0; if() #596 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -5182,7 +5182,7 @@ READPODARRAYR D2 D2
 POP D3
 SUBR D3 D2
 SETR D2 D3
-STORE D2 0; if() #598 Body End
+STORE D2 0; if() #596 Body End
 PUSHARGSV 6 0.0002; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
 LOAD D2 0.0003
 PUSHR D2
@@ -5204,7 +5204,7 @@ PUSHV 0
 PUSHV 1; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
 BITMAPR; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
-SETR D2 GD3; if() #599 Test
+SETR D2 GD3; if() #597 Test
 PUSHR D2
 LOAD D2 0.0009
 ADDV D2 35
@@ -5226,7 +5226,7 @@ GOTO 5199
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 5288 ==; Test 'if'
-SETR D2 GD16; if() #599 Body Start
+SETR D2 GD16; if() #597 Body Start
 PUSHR D2
 LOAD D2 0.0006
 ADDV D2 4
@@ -5312,7 +5312,7 @@ PUSHV 16
 PUSHV 0
 PUSHV 1; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
 BITMAPR; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
-POPARGS D5 0.0012; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body End AND if() #599 Body End
+POPARGS D5 0.0012; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body End AND if() #597 Body End
 POPARGS D5 0.0011
 RETURNFUNC; Func[void __Tango_TransferText(int, int, int, int)] Body End
 SETR D4 SP2; Func[int __Tango_EatSpaces(char32[], int)] Body Start
@@ -5339,11 +5339,11 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 1
 STORE D2 0.0001
-LOAD D2 0.0002; unless() #448 Test
+LOAD D2 0.0002; unless() #446 Test
 COMPAREV D2 0
 GOTOCMP 5319 !=; Test 'unless'
-LOAD D2 0.0001; return Start AND unless() #448 Body Start
-GOTO 5348; return End AND unless() #448 Body End
+LOAD D2 0.0001; return Start AND unless() #446 Body Start
+GOTO 5348; return End AND unless() #446 Body End
 SETR D2 GD2
 PUSHR D2
 POP D0
@@ -5377,13 +5377,13 @@ POPARGS D5 0.0003; return End
 RETURNFUNC; Func[int __Tango_FindDestStart(bool)] Body End
 PUSHV 0; Func[int __Tango_FindSrcStart(char32[], char32)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; if() #449 Test
+LOAD D2 0.0001; if() #447 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 5359 ==; Test 'if'
-SETV D2 0; return Start AND if() #449 Body Start
-GOTO 5389; return End AND if() #449 Body End
+SETV D2 0; return Start AND if() #447 Body Start
+GOTO 5389; return End AND if() #447 Body End
 STOREV 1 0; for() #131 setup
 LOAD D2 0.0002; for() #131 LoopTest
 PUSHR D2
@@ -5394,7 +5394,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 5388 ==; for() #131 TestFail?
-LOAD D2 0.0002; if() #450 Test AND for() #131 Body Start
+LOAD D2 0.0002; if() #448 Test AND for() #131 Body Start
 PUSHR D2
 LOAD D2 0
 SUBV D2 1
@@ -5407,8 +5407,8 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 5384 ==; Test 'if'
-LOAD D2 0; return Start AND if() #450 Body Start
-GOTO 5389; return End AND if() #450 Body End
+LOAD D2 0; return Start AND if() #448 Body Start
+GOTO 5389; return End AND if() #448 Body End
 LOAD D2 0; for() #131 Body End AND for() #131 LoopIncrement
 ADDV D2 1
 STORE D2 0
@@ -5423,12 +5423,12 @@ STOREV 100000 0.0004
 STOREV 0 0.0003
 STOREV 0 0.0002
 STOREV 0 0.0001
-LOAD D2 0.0007; if() #453 Test
+LOAD D2 0.0007; if() #451 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 5414 ==; Test 'if'
-SETV D2 45; if() #453 Body Start
+SETV D2 45; if() #451 Body Start
 PUSHR D2
 LOAD D2 0.0008
 SETR D0 D2
@@ -5438,7 +5438,7 @@ SETV D2 1
 STORE D2 0.0005
 LOAD D2 0.0007
 SUBV2 0 D2
-STORE D2 0.0007; if() #453 Body End
+STORE D2 0.0007; if() #451 Body End
 STOREV 0 0; for() #133 setup
 LOAD D2 0; for() #133 LoopTest
 COMPAREV D2 10
@@ -5465,7 +5465,7 @@ GOTO 5438
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 5467 ==; Test 'if'
-LOAD D2 0.0003; if() #454 Test AND if() #133 Body Start
+LOAD D2 0.0003; if() #452 Test AND if() #133 Body Start
 COMPAREV D2 0
 GOTOCMP 5448 >
 LOAD D2 0.0002
@@ -5476,7 +5476,7 @@ GOTO 5449
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 5510 ==; Test 'if'
-LOAD D2 0.0003; if() #454 Body Start
+LOAD D2 0.0003; if() #452 Body Start
 ADDV D2 48
 PUSHR D2
 LOAD D2 0.0008
@@ -5490,7 +5490,7 @@ LOAD D2 0.0005
 ADDV D2 1
 STORE D2 0.0005
 SETV D2 1
-STORE D2 0.0002; if() #454 Body End
+STORE D2 0.0002; if() #452 Body End
 GOTO 5510; if() #133 Body End
 LOAD D2 0.0003; if() #134 Test AND if() #133 Else Start
 COMPAREV D2 0
@@ -5553,12 +5553,12 @@ GOTOCMP 5528 ==; Test 'if'
 SETV D2 1; if() #135 Body Start
 STORE D2 0.0002
 GOTO 5545; if() #135 Body End
-LOAD D2 0.0004; if() #455 Test AND if() #135 Else Start
+LOAD D2 0.0004; if() #453 Test AND if() #135 Else Start
 COMPAREV D2 0.1000
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 5545 ==; Test 'if'
-SETV D2 46; if() #455 Body Start
+SETV D2 46; if() #453 Body Start
 PUSHR D2
 LOAD D2 0.0008
 PUSHR D2
@@ -5569,7 +5569,7 @@ POP D2
 WRITEPODARRAYRR D3 D2
 LOAD D2 0.0005
 ADDV D2 1
-STORE D2 0.0005; if() #455 Body End
+STORE D2 0.0005; if() #453 Body End
 LOAD D2 0; if() #135 Else End AND for() #133 Body End AND for() #133 LoopIncrement
 ADDV D2 1
 STORE D2 0
@@ -5643,13 +5643,13 @@ PUSHV 35; UsrFunc[int __Tango_GetCurrStyleData(int)] Params
 CALLFUNC 0.3802; UsrFunc[int __Tango_GetCurrStyleData(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #456 Test
+LOAD D2 0; if() #454 Test
 ANDV D2 512
 COMPAREV D2 0
 GOTOCMP 5625 ==; Test 'if'
-PUSHR D4; if() #456 Body Start
+PUSHR D4; if() #454 Body Start
 CALLFUNC 0.0997; UsrFunc[void __Tango_DecScreenFreeze()] Call
-POP D4; if() #456 Body End
+POP D4; if() #454 Body End
 PUSHR D4
 PUSHV 1; UsrFunc[void __Tango_SetCurrSlotData(int, int)] Params Start
 PUSHV 0; UsrFunc[void __Tango_SetCurrSlotData(int, int)] Params End
@@ -5885,18 +5885,18 @@ DEALLOCATEMEMR D3
 POPARGS D5 0.0006
 RETURNFUNC; Func[void __Tango_FuncOrdinal(int, int)] Body End
 SETR D4 SP2; Func[int __Tango_GetOrdinal(int)] Body Start
-LOAD D2 0; if() #478 Test
+LOAD D2 0; if() #476 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 5868 ==; Test 'if'
-LOAD D2 0; if() #478 Body Start
+LOAD D2 0; if() #476 Body Start
 SUBV2 0 D2
-STORE D2 0; if() #478 Body End
+STORE D2 0; if() #476 Body End
 LOAD D2 0
 MODV D2 100
 STORE D2 0
-LOAD D2 0; if() #479 Test
+LOAD D2 0; if() #477 Test
 COMPAREV D2 11
 GOTOCMP 5882 ==
 LOAD D2 0
@@ -5910,8 +5910,8 @@ GOTO 5883
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 5887 ==; Test 'if'
-SETV D2 0; return Start AND if() #479 Body Start
-GOTO 5889; return End AND if() #479 Body End
+SETV D2 0; return Start AND if() #477 Body Start
+GOTO 5889; return End AND if() #477 Body End
 LOAD D2 0; return Start
 MODV D2 10
 POP D5; return End
@@ -5970,14 +5970,14 @@ POPARGS D5 0.0003
 RETURNFUNC; Func[void __Tango_FuncSaveName(int)] Body End
 PUSHARGSV 0 0.0002; Func[void __Tango_FuncString(char32[], int)] Body Start
 SETR D4 SP2
-PUSHR D4; unless() #457 Test
+PUSHR D4; unless() #455 Test
 LOAD D2 0.0003; UsrFunc[bool __Tango_ValidateString(char32[])] Params Start
 PUSHR D2; UsrFunc[bool __Tango_ValidateString(char32[])] Params End
 CALLFUNC 0.6007; UsrFunc[bool __Tango_ValidateString(char32[])] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 5968 !=; Test 'unless'
-PUSHR D4; unless() #457 Body Start
+PUSHR D4; unless() #455 Body Start
 PUSHV 205; UsrFunc[void __Tango_LogError(int, untyped)] Params Start
 LOAD D2 0.0003
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped)] Params End
@@ -5992,7 +5992,7 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
-GOTO 6005; return (Void) AND unless() #457 Body End
+GOTO 6005; return (Void) AND unless() #455 Body End
 LOAD D2 0.0003; InlineFunc[int strlen(char32[])] Params Start AND InlineFunc[int Min(int, int)] Params Start
 SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
 STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
@@ -6040,14 +6040,14 @@ GOTOCMP 6015 !=; Test 'unless'
 SETV D2 0; return Start AND unless() #336 Body Start
 GOTO 6024; return End
 GOTO 6023; unless() #336 Body End
-LOAD D2 0; InlineFunc[int SizeOfArray(char32[])] Params AND if() #637 Test AND unless() #336 Else Start
+LOAD D2 0; InlineFunc[int SizeOfArray(char32[])] Params AND if() #635 Test AND unless() #336 Else Start
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 6023 ==; Test 'if'
-SETV D2 0; return Start AND if() #637 Body Start
-GOTO 6024; return End AND if() #637 Body End
+SETV D2 0; return Start AND if() #635 Body Start
+GOTO 6024; return End AND if() #635 Body End
 SETV D2 1; unless() #336 Else End AND return Start
 POP D5; return End
 RETURNFUNC; Func[bool __Tango_ValidateString(char32[])] Body End
@@ -6186,28 +6186,28 @@ PUSHV 10; UsrFunc[int __Tango_GetCurrSlotData(int)] Params
 CALLFUNC 0.3018; UsrFunc[int __Tango_GetCurrSlotData(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #459 Test
+LOAD D2 0; if() #457 Test
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 6168 ==; Test 'if'
-LOAD D2 0; return Start AND if() #459 Body Start
-GOTO 6184; return End AND if() #459 Body End
+LOAD D2 0; return Start AND if() #457 Body Start
+GOTO 6184; return End AND if() #457 Body End
 PUSHR D4
 PUSHV 8; UsrFunc[int __Tango_GetCurrSlotData(int)] Params
 CALLFUNC 0.3018; UsrFunc[int __Tango_GetCurrSlotData(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #460 Test
+LOAD D2 0; if() #458 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6183 ==; Test 'if'
-PUSHR D4; if() #460 Body Start
+PUSHR D4; if() #458 Body Start
 PUSHV 10; UsrFunc[int __Tango_GetCurrStyleData(int)] Params
 CALLFUNC 0.3802; UsrFunc[int __Tango_GetCurrStyleData(int)] Call
 POP D4
-STORE D2 0; if() #460 Body End
+STORE D2 0; if() #458 Body End
 LOAD D2 0; return Start
 POP D5; return End
 RETURNFUNC; Func[int __Tango_GetCurrentCSet()] Body End
@@ -6218,28 +6218,28 @@ PUSHV 11; UsrFunc[int __Tango_GetCurrSlotData(int)] Params
 CALLFUNC 0.3018; UsrFunc[int __Tango_GetCurrSlotData(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #461 Test
+LOAD D2 0; if() #459 Test
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 6200 ==; Test 'if'
-LOAD D2 0; return Start AND if() #461 Body Start
-GOTO 6216; return End AND if() #461 Body End
+LOAD D2 0; return Start AND if() #459 Body Start
+GOTO 6216; return End AND if() #459 Body End
 PUSHR D4
 PUSHV 9; UsrFunc[int __Tango_GetCurrSlotData(int)] Params
 CALLFUNC 0.3018; UsrFunc[int __Tango_GetCurrSlotData(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #462 Test
+LOAD D2 0; if() #460 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6215 ==; Test 'if'
-PUSHR D4; if() #462 Body Start
+PUSHR D4; if() #460 Body Start
 PUSHV 11; UsrFunc[int __Tango_GetCurrStyleData(int)] Params
 CALLFUNC 0.3802; UsrFunc[int __Tango_GetCurrStyleData(int)] Call
 POP D4
-STORE D2 0; if() #462 Body End
+STORE D2 0; if() #460 Body End
 LOAD D2 0; return Start
 POP D5; return End
 RETURNFUNC; Func[int __Tango_GetCurrentColor()] Body End
@@ -6250,16 +6250,16 @@ PUSHV 14; UsrFunc[int __Tango_GetCurrSlotData(int)] Params
 CALLFUNC 0.3018; UsrFunc[int __Tango_GetCurrSlotData(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #463 Test
+LOAD D2 0; if() #461 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6235 ==; Test 'if'
-PUSHR D4; if() #463 Body Start
+PUSHR D4; if() #461 Body Start
 PUSHV 13; UsrFunc[int __Tango_GetCurrStyleData(int)] Params
 CALLFUNC 0.3802; UsrFunc[int __Tango_GetCurrStyleData(int)] Call
 POP D4
-STORE D2 0; if() #463 Body End
+STORE D2 0; if() #461 Body End
 LOAD D2 0; return Start
 POP D5; return End
 RETURNFUNC; Func[int __Tango_GetCurrentSFX()] Body End
@@ -6281,13 +6281,13 @@ CALLFUNC 0.3802; UsrFunc[int __Tango_GetCurrStyleData(int)] Call
 POP D4
 GOTO 6264; return End
 GOTO 6263; if() #146 Body End
-LOAD D2 0; if() #464 Test AND if() #146 Else Start
+LOAD D2 0; if() #462 Test AND if() #146 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6263 ==; Test 'if'
-SETV D2 0; return Start AND if() #464 Body Start
-GOTO 6264; return End AND if() #464 Body End
+SETV D2 0; return Start AND if() #462 Body Start
+GOTO 6264; return End AND if() #462 Body End
 LOAD D2 0; if() #146 Else End AND return Start
 POP D5; return End
 RETURNFUNC; Func[int __Tango_GetCurrentSpeed()] Body End
@@ -6319,13 +6319,13 @@ POP D5; return End
 RETURNFUNC; Func[int __Tango_GetLineHeight()] Body End
 PUSHARGSV 0 0.0012; Func[int __Tango_GetNextMenuPos(int)] Body Start
 SETR D4 SP2
-PUSHR D4; unless() #465 Test
+PUSHR D4; unless() #463 Test
 CALLFUNC 0.1159; UsrFunc[bool __Tango_CursorPosIsValid()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 6301 !=; Test 'unless'
-SETV D2 0; return Start AND unless() #465 Body Start
-GOTO 6724; return End AND unless() #465 Body End
+SETV D2 0; return Start AND unless() #463 Body Start
+GOTO 6724; return End AND unless() #463 Body End
 SETR D2 GD2
 PUSHR D2
 POP D0
@@ -6367,14 +6367,14 @@ COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 6716 ==; for() #140 TestFail?
-LOAD D2 0; if() #466 Test AND for() #140 Body Start
+LOAD D2 0; if() #464 Test AND for() #140 Body Start
 PUSHR D2
 LOAD D2 0.0011
 POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 6712 !=; Test 'if' AND continue 1; AND if() #466 Body
+GOTOCMP 6712 !=; Test 'if' AND continue 1; AND if() #464 Body
 SETV D2 0
 STORE D2 0.0001
 SETR D2 GD2
@@ -6405,14 +6405,14 @@ GOTO 6378
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6542 ==; Test 'if'
-LOAD D2 0.0004; if() #467 Test AND if() #147 Body Start
+LOAD D2 0.0004; if() #465 Test AND if() #147 Body Start
 PUSHR D2
 LOAD D2 0.0009
 POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 6712 !=; Test 'if' AND continue 1; AND if() #467 Body
+GOTOCMP 6712 !=; Test 'if' AND continue 1; AND if() #465 Body
 LOAD D2 0.0005; InlineFunc[int Abs(int)] Params Start
 PUSHR D2
 LOAD D2 0.0010
@@ -6446,7 +6446,7 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 6450 ==; Test 'if'
-LOAD D2 0.0002; if() #468 Test AND if() #150 Body Start
+LOAD D2 0.0002; if() #466 Test AND if() #150 Body Start
 COMPAREV D2 0
 GOTOCMP 6444 <
 LOAD D2 0.0002
@@ -6472,10 +6472,10 @@ GOTO 6445
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6703 ==; Test 'if'
-SETV D2 1; if() #468 Body Start
-STORE D2 0.0001; if() #468 Body End
+SETV D2 1; if() #466 Body Start
+STORE D2 0.0001; if() #466 Body End
 GOTO 6703; if() #150 Body End
-LOAD D2 0.0002; if() #469 Test AND if() #150 Else Start
+LOAD D2 0.0002; if() #467 Test AND if() #150 Else Start
 COMPAREV D2 0
 GOTOCMP 6459 >=
 LOAD D2 0.0002
@@ -6501,15 +6501,15 @@ GOTO 6474
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6703 ==; Test 'if'
-SETV D2 1; if() #469 Body Start
-STORE D2 0.0001; if() #469 Body End
+SETV D2 1; if() #467 Body Start
+STORE D2 0.0001; if() #467 Body End
 GOTO 6703; if() #150 Else End AND if() #149 Body End
 LOAD D2 0.0006; if() #151 Test AND if() #149 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6513 ==; Test 'if'
-LOAD D2 0.0002; if() #470 Test AND if() #151 Body Start
+LOAD D2 0.0002; if() #468 Test AND if() #151 Body Start
 COMPAREV D2 0
 GOTOCMP 6507 >
 LOAD D2 0.0002
@@ -6535,10 +6535,10 @@ GOTO 6508
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6703 ==; Test 'if'
-SETV D2 1; if() #470 Body Start
-STORE D2 0.0001; if() #470 Body End
+SETV D2 1; if() #468 Body Start
+STORE D2 0.0001; if() #468 Body End
 GOTO 6703; if() #151 Body End
-LOAD D2 0.0002; if() #471 Test AND if() #151 Else Start
+LOAD D2 0.0002; if() #469 Test AND if() #151 Else Start
 COMPAREV D2 0
 GOTOCMP 6522 <=
 LOAD D2 0.0002
@@ -6564,17 +6564,17 @@ GOTO 6537
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6703 ==; Test 'if'
-SETV D2 1; if() #471 Body Start
-STORE D2 0.0001; if() #471 Body End
+SETV D2 1; if() #469 Body Start
+STORE D2 0.0001; if() #469 Body End
 GOTO 6703; if() #151 Else End AND if() #149 Else End AND if() #148 Else End AND if() #147 Body End
-LOAD D2 0.0005; if() #472 Test AND if() #147 Else Start
+LOAD D2 0.0005; if() #470 Test AND if() #147 Else Start
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 6712 !=; Test 'if' AND continue 1; AND if() #472 Body
+GOTOCMP 6712 !=; Test 'if' AND continue 1; AND if() #470 Body
 LOAD D2 0.0005
 PUSHR D2
 LOAD D2 0.0010
@@ -6608,7 +6608,7 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 6612 ==; Test 'if'
-LOAD D2 0.0003; if() #473 Test AND if() #154 Body Start
+LOAD D2 0.0003; if() #471 Test AND if() #154 Body Start
 COMPAREV D2 0
 GOTOCMP 6606 <
 LOAD D2 0.0003
@@ -6634,10 +6634,10 @@ GOTO 6607
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6703 ==; Test 'if'
-SETV D2 1; if() #473 Body Start
-STORE D2 0.0001; if() #473 Body End
+SETV D2 1; if() #471 Body Start
+STORE D2 0.0001; if() #471 Body End
 GOTO 6703; if() #154 Body End
-LOAD D2 0.0003; if() #474 Test AND if() #154 Else Start
+LOAD D2 0.0003; if() #472 Test AND if() #154 Else Start
 COMPAREV D2 0
 GOTOCMP 6621 >=
 LOAD D2 0.0003
@@ -6663,15 +6663,15 @@ GOTO 6636
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6703 ==; Test 'if'
-SETV D2 1; if() #474 Body Start
-STORE D2 0.0001; if() #474 Body End
+SETV D2 1; if() #472 Body Start
+STORE D2 0.0001; if() #472 Body End
 GOTO 6703; if() #154 Else End AND if() #153 Body End
 LOAD D2 0.0007; if() #155 Test AND if() #153 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6675 ==; Test 'if'
-LOAD D2 0.0003; if() #475 Test AND if() #155 Body Start
+LOAD D2 0.0003; if() #473 Test AND if() #155 Body Start
 COMPAREV D2 0
 GOTOCMP 6669 >
 LOAD D2 0.0003
@@ -6697,10 +6697,10 @@ GOTO 6670
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6703 ==; Test 'if'
-SETV D2 1; if() #475 Body Start
-STORE D2 0.0001; if() #475 Body End
+SETV D2 1; if() #473 Body Start
+STORE D2 0.0001; if() #473 Body End
 GOTO 6703; if() #155 Body End
-LOAD D2 0.0003; if() #476 Test AND if() #155 Else Start
+LOAD D2 0.0003; if() #474 Test AND if() #155 Else Start
 COMPAREV D2 0
 GOTOCMP 6684 <=
 LOAD D2 0.0003
@@ -6726,17 +6726,17 @@ GOTO 6699
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 6703 ==; Test 'if'
-SETV D2 1; if() #476 Body Start
-STORE D2 0.0001; if() #476 Body End
-LOAD D2 0.0001; if() #155 Else End AND if() #153 Else End AND if() #152 Else End AND if() #147 Else End AND if() #477 Test
+SETV D2 1; if() #474 Body Start
+STORE D2 0.0001; if() #474 Body End
+LOAD D2 0.0001; if() #155 Else End AND if() #153 Else End AND if() #152 Else End AND if() #147 Else End AND if() #475 Test
 COMPAREV D2 0
 GOTOCMP 6712 ==; Test 'if'
-LOAD D2 0; if() #477 Body Start
+LOAD D2 0; if() #475 Body Start
 STORE D2 0.0008
 LOAD D2 0.0003
 STORE D2 0.0007
 LOAD D2 0.0002
-STORE D2 0.0006; if() #477 Body End
+STORE D2 0.0006; if() #475 Body End
 LOAD D2 0; for() #140 Body End AND for() #140 LoopIncrement
 SUBV D2 1
 STORE D2 0
@@ -6824,7 +6824,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 6814 ==; Test 'while'
-LOAD D2 0.0002; if() #481 Test AND while() #8 Body Start
+LOAD D2 0.0002; if() #479 Test AND while() #8 Body Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -6833,8 +6833,8 @@ COMPAREV D2 32
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 6810 ==; Test 'if'
-LOAD D2 0; if() #481 Body Start
-STORE D2 0.0001; if() #481 Body End
+LOAD D2 0; if() #479 Body Start
+STORE D2 0.0001; if() #479 Body End
 LOAD D2 0
 ADDV D2 1
 STORE D2 0; while() #8 Body End
@@ -6875,16 +6875,16 @@ PUSHARGSV 0 0.0002; Func[int __Tango_GetVar(int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0001
 STOREV 0 0
-LOAD D2 0.0002; if() #482 Test
+LOAD D2 0.0002; if() #480 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6860 ==; Test 'if'
-SETV D2 1; if() #482 Body Start
+SETV D2 1; if() #480 Body Start
 STORE D2 0
 LOAD D2 0.0002
 SUBV2 0 D2
-STORE D2 0.0002; if() #482 Body End
+STORE D2 0.0002; if() #480 Body End
 LOAD D2 0.0002; if() #165 Test
 COMPAREV D2 0.0034
 SETCMP D2 I==
@@ -7016,12 +7016,12 @@ PUSHR D2; UsrFunc[int Tango_GetCustomVar(int)] Params End
 CALLFUNC 0.1189; UsrFunc[int Tango_GetCustomVar(int)] Call
 POP D4
 STORE D2 0.0001; if() #176 Else End
-LOAD D2 0; if() #175 Else End AND if() #174 Else End AND if() #173 Else End AND if() #172 Else End AND if() #171 Else End AND if() #170 Else End AND if() #169 Else End AND if() #168 Else End AND if() #167 Else End AND if() #166 Else End AND if() #165 Else End AND if() #483 Test
+LOAD D2 0; if() #175 Else End AND if() #174 Else End AND if() #173 Else End AND if() #172 Else End AND if() #171 Else End AND if() #170 Else End AND if() #169 Else End AND if() #168 Else End AND if() #167 Else End AND if() #166 Else End AND if() #165 Else End AND if() #481 Test
 COMPAREV D2 0
 GOTOCMP 6997 ==; Test 'if'
-LOAD D2 0.0001; if() #483 Body Start
+LOAD D2 0.0001; if() #481 Body Start
 SUBV2 0 D2
-STORE D2 0.0001; if() #483 Body End
+STORE D2 0.0001; if() #481 Body End
 LOAD D2 0.0001; return Start
 POPARGS D5 0.0003; return End
 RETURNFUNC; Func[int __Tango_GetVar(int)] Body End
@@ -7035,7 +7035,7 @@ LOAD D2 0.0003
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0
-LOAD D2 0; if() #484 Test
+LOAD D2 0; if() #482 Test
 COMPAREV D2 0
 GOTOCMP 7021 ==
 LOAD D2 0
@@ -7048,13 +7048,13 @@ SETV D2 0
 GOTO 7022
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 7055 !=; Test 'if' AND break 1; AND if() #484 Body
-LOAD D2 0; if() #485 Test
+GOTOCMP 7055 !=; Test 'if' AND break 1; AND if() #482 Body
+LOAD D2 0; if() #483 Test
 COMPAREV D2 32
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 7041 ==; Test 'if'
-LOAD D2 0.0001; if() #485 Body Start
+LOAD D2 0.0001; if() #483 Body Start
 PUSHR D2
 PUSHR D4
 LOAD D2 0; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params Start
@@ -7065,17 +7065,17 @@ CALLFUNC 0.3846; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Call
 POP D4
 POP D3
 ADDR D2 D3
-STORE D2 0.0001; if() #485 Body End
-PUSHR D4; if() #486 Test
+STORE D2 0.0001; if() #483 Body End
+PUSHR D4; if() #484 Test
 LOAD D2 0; UsrFunc[bool __Tango_IsSpecialDataMarker(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_IsSpecialDataMarker(int)] Params End
 CALLFUNC 0.3388; UsrFunc[bool __Tango_IsSpecialDataMarker(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 7051 ==; Test 'if'
-LOAD D2 0.0003; if() #486 Body Start
+LOAD D2 0.0003; if() #484 Body Start
 ADDV D2 1
-STORE D2 0.0003; if() #486 Body End
+STORE D2 0.0003; if() #484 Body End
 LOAD D2 0.0003
 ADDV D2 1
 STORE D2 0.0003; while(true) #9 Body [Opt:AlwaysOn] End
@@ -7323,7 +7323,7 @@ LOAD D2 0.0005
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0.0001
-LOAD D2 0.0001; unless() #527 Test
+LOAD D2 0.0001; unless() #525 Test
 COMPAREV D2 48
 GOTOCMP 7306 <
 LOAD D2 0.0001
@@ -7334,14 +7334,14 @@ GOTO 7307
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 7317 !=; Test 'unless'
-PUSHR D4; unless() #527 Body Start
+PUSHR D4; unless() #525 Body Start
 PUSHV 106; UsrFunc[void __Tango_LogError(int, untyped)] Params Start
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped)] Params End
 CALLFUNC 0.1443; UsrFunc[void __Tango_LogError(int, untyped)] Call
 POP D4
 SETV D2 1; return Start
-GOTO 7517; return End AND unless() #527 Body End
+GOTO 7517; return End AND unless() #525 Body End
 PUSHR D4
 LOAD D2 0.0006; UsrFunc[int __Tango_ReadNumber(char32[], int, bool, int[])] Params Start
 PUSHR D2
@@ -7454,7 +7454,7 @@ POP D4
 LOAD D2 0.0004
 ADDV D2 2
 STORE D2 0.0004
-PUSHR D4; if() #528 Test
+PUSHR D4; if() #526 Test
 LOAD D2 0.0006; UsrFunc[bool __Tango_ParseArguments(char32[], int, int, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0005
@@ -7468,8 +7468,8 @@ CALLFUNC 0.8902; UsrFunc[bool __Tango_ParseArguments(char32[], int, int, int[])]
 POP D4
 COMPAREV D2 0
 GOTOCMP 7445 ==; Test 'if'
-SETV D2 1; return Start AND if() #528 Body Start
-GOTO 7517; return End AND if() #528 Body End
+SETV D2 1; return Start AND if() #526 Body Start
+GOTO 7517; return End AND if() #526 Body End
 LOAD D2 0.0003
 PUSHR D2
 POP D0
@@ -7516,7 +7516,7 @@ CALLFUNC 0.1443; UsrFunc[void __Tango_LogError(int, untyped)] Call
 POP D4
 SETV D2 1; return Start
 GOTO 7517; return End AND if() #203 Else End
-LOAD D2 0.0004; if() #201 Else End AND if() #200 Else End AND if() #529 Test
+LOAD D2 0.0004; if() #201 Else End AND if() #200 Else End AND if() #527 Test
 PUSHR D2
 SETR D2 GD2
 PUSHR D2
@@ -7527,8 +7527,8 @@ COMPARER D3 D2
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 7504 ==; Test 'if'
-SETV D2 1; return Start AND if() #529 Body Start
-GOTO 7517; return End AND if() #529 Body End
+SETV D2 1; return Start AND if() #527 Body Start
+GOTO 7517; return End AND if() #527 Body End
 LOAD D2 0.0005
 PUSHR D2
 LOAD D2 0.0003
@@ -7600,18 +7600,18 @@ POP D4
 SETV D2 1; return Start
 GOTO 7679; return End
 GOTO 7583; if() #187 Body End
-LOAD D2 0.0001; if() #506 Test AND if() #187 Else Start
+LOAD D2 0.0001; if() #504 Test AND if() #187 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 7583 ==; Test 'if'
-LOAD D2 0.0001; if() #506 Body Start
+LOAD D2 0.0001; if() #504 Body Start
 ADDV D2 256
-STORE D2 0.0001; if() #506 Body End
+STORE D2 0.0001; if() #504 Body End
 LOAD D2 0.0006; if() #187 Else End
 ADDV D2 1
 STORE D2 0.0006
-LOAD D2 0.0007; if() #507 Test
+LOAD D2 0.0007; if() #505 Test
 PUSHR D2
 LOAD D2 0.0006
 POP D0
@@ -7630,7 +7630,7 @@ GOTO 7603
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 7650 ==; Test 'if'
-LOAD D2 0.0007; if() #507 Body Start
+LOAD D2 0.0007; if() #505 Body Start
 PUSHR D2
 LOAD D2 0.0006
 ADDV D2 1
@@ -7652,14 +7652,14 @@ POP D4
 SETV D2 1; return Start
 GOTO 7679; return End
 GOTO 7635; if() #188 Body End
-LOAD D2 0; if() #508 Test AND if() #188 Else Start
+LOAD D2 0; if() #506 Test AND if() #188 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 7635 ==; Test 'if'
-LOAD D2 0; if() #508 Body Start
+LOAD D2 0; if() #506 Body Start
 ADDV D2 256
-STORE D2 0; if() #508 Body End
+STORE D2 0; if() #506 Body End
 LOAD D2 0.0001; if() #188 Else End
 PUSHR D2
 LOAD D2 0
@@ -7674,7 +7674,7 @@ ADDR D2 D3
 STORE D2 0.0001
 LOAD D2 0.0006
 ADDV D2 2
-STORE D2 0.0006; if() #507 Body End
+STORE D2 0.0006; if() #505 Body End
 LOAD D2 0.0001
 PUSHR D2
 SETR D2 GD4
@@ -7707,7 +7707,7 @@ SETV D2 0; return Start
 POPARGS D5 0.0008; return End
 RETURNFUNC; Func[bool __Tango_LoadStringControlCode(char32[], int, int, int[])] Body End
 SETR D4 SP2; Func[bool __Tango_ValidateMessage(int)] Body Start
-LOAD D2 0; if() #627 Test
+LOAD D2 0; if() #625 Test
 COMPAREV D2 0
 GOTOCMP 7694 <=
 LOAD D2 0
@@ -7722,14 +7722,14 @@ GOTO 7695
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 7699 ==; Test 'if'
-SETV D2 0; return Start AND if() #627 Body Start
-GOTO 7700; return End AND if() #627 Body End
+SETV D2 0; return Start AND if() #625 Body Start
+GOTO 7700; return End AND if() #625 Body End
 SETV D2 1; return Start
 POP D5; return End
 RETURNFUNC; Func[bool __Tango_ValidateMessage(int)] Body End
 PUSHV 0; Func[void __Tango_MenuSelect(int)] Body Start
 SETR D4 SP2
-SETR D2 GD2; if() #515 Test
+SETR D2 GD2; if() #513 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 33
@@ -7737,14 +7737,14 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7720 ==; Test 'if'
-PUSHR D4; if() #515 Body Start
+PUSHR D4; if() #513 Body Start
 SETR D2 GD2; UsrFunc[void Tango_SaveMenuState(int[])] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 33
 PUSHR D2; UsrFunc[void Tango_SaveMenuState(int[])] Params End
 CALLFUNC 0.1451; UsrFunc[void Tango_SaveMenuState(int[])] Call
-POP D4; if() #515 Body End
+POP D4; if() #513 Body End
 LOAD D2 0.0001
 MULTV D2 3
 ADDV D2 34
@@ -7775,7 +7775,7 @@ SETR D2 GD2
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 8 D2
-SETR D2 GD2; if() #516 Test
+SETR D2 GD2; if() #514 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 14
@@ -7784,9 +7784,9 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7762 ==; Test 'if'
-PUSHR D4; if() #516 Body Start
+PUSHR D4; if() #514 Body Start
 CALLFUNC 0.1111; UsrFunc[void Tango_DeactivateMenu()] Call
-POP D4; if() #516 Body End
+POP D4; if() #514 Body End
 POPARGS D5 0.0002
 RETURNFUNC; Func[void __Tango_MenuSelect(int)] Body End
 PUSHARGSV 0 0.0010; Func[bool __Tango_NeedsNewLine(int, int)] Body Start
@@ -7863,12 +7863,12 @@ READPODARRAYR D2 D2
 POP D3
 ADDR D2 D3
 STORE D2 0.0004
-LOAD D2 0.0009; if() #517 Test
+LOAD D2 0.0009; if() #515 Test
 COMPAREV D2 -400
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7857 ==; Test 'if'
-PUSHR D4; if() #517 Body Start
+PUSHR D4; if() #515 Body Start
 LOAD D2 0.0010; UsrFunc[int __Tango_RunFunction(int, bool)] Params Start
 ADDV D2 2
 PUSHR D2
@@ -7881,7 +7881,7 @@ LOAD D2 0.0010
 ADDV D2 2
 POP D0
 READPODARRAYR D2 D2
-STORE D2 0.0009; if() #517 Body End
+STORE D2 0.0009; if() #515 Body End
 LOAD D2 0.0009; if() #190 Test
 COMPAREV D2 33
 SETCMP D2 I<=
@@ -7906,14 +7906,14 @@ GOTO 7888; if() #190 Body End
 SETV D2 1; return Start AND if() #190 Else Start
 GOTO 7971; return End AND if() #190 Else End
 GOTO 7888; if() #189 Body End
-LOAD D2 0.0009; if() #518 Test AND if() #189 Else Start
+LOAD D2 0.0009; if() #516 Test AND if() #189 Else Start
 COMPAREV D2 32
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 7888 ==; Test 'if'
-SETV D2 0; return Start AND if() #518 Body Start
-GOTO 7971; return End AND if() #518 Body End
-PUSHR D4; if() #189 Else End AND unless() #519 Test
+SETV D2 0; return Start AND if() #516 Body Start
+GOTO 7971; return End AND if() #516 Body End
+PUSHR D4; if() #189 Else End AND unless() #517 Test
 LOAD D2 0.0009; UsrFunc[bool __Tango_CharacterWillFit(char32, int[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0005
@@ -7926,8 +7926,8 @@ CALLFUNC 0.3826; UsrFunc[bool __Tango_CharacterWillFit(char32, int[], int, int)]
 POP D4
 COMPAREV D2 0
 GOTOCMP 7903 !=; Test 'unless'
-SETV D2 1; return Start AND unless() #519 Body Start
-GOTO 7971; return End AND unless() #519 Body End
+SETV D2 1; return Start AND unless() #517 Body Start
+GOTO 7971; return End AND unless() #517 Body End
 STOREV 0 0.0002
 SETR D2 GD2
 PUSHR D2
@@ -7966,22 +7966,22 @@ SETV D2 1; if() #191 Body Start
 STORE D2 0.0002
 GOTO 7953; break 1;
 GOTO 7949; if() #191 Body End
-LOAD D2 0.0009; if() #520 Test AND if() #191 Else Start
+LOAD D2 0.0009; if() #518 Test AND if() #191 Else Start
 COMPAREV D2 33
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 7949 ==; Test 'if'
-SETV D2 0; if() #520 Body Start
+SETV D2 0; if() #518 Body Start
 STORE D2 0.0002
-GOTO 7953; break 1; AND if() #520 Body End
+GOTO 7953; break 1; AND if() #518 Body End
 LOAD D2 0; if() #191 Else End AND for() #145 Body End AND for() #145 LoopIncrement
 SUBV D2 1
 STORE D2 0
 GOTO 7912; for() #145 End
-LOAD D2 0.0002; if() #521 Test
+LOAD D2 0.0002; if() #519 Test
 COMPAREV D2 0
 GOTOCMP 7970 ==; Test 'if'
-PUSHR D4; return Start AND if() #521 Body Start
+PUSHR D4; return Start AND if() #519 Body Start
 LOAD D2 0.0010; UsrFunc[bool __Tango_WordWillFit(int, int[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0005
@@ -7994,7 +7994,7 @@ CALLFUNC 0.8601; UsrFunc[bool __Tango_WordWillFit(int, int[], int, int)] Call
 POP D4
 COMPAREV D2 0
 SETCMP D2 I==
-GOTO 7971; return End AND if() #521 Body End
+GOTO 7971; return End AND if() #519 Body End
 SETV D2 0; return Start
 POPARGS D5 0.0012; return End
 RETURNFUNC; Func[bool __Tango_NeedsNewLine(int, int)] Body End
@@ -8017,16 +8017,16 @@ STORE D2 0.0004
 STOREV 0 0.0003
 STOREV 0 0.0002
 STOREV 0 0.0001
-LOAD D2 0.0008; if() #566 Test
+LOAD D2 0.0008; if() #564 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 8002 ==; Test 'if'
-SETV D2 1; if() #566 Body Start
+SETV D2 1; if() #564 Body Start
 STORE D2 0.0001
 LOAD D2 0.0008
 SUBV2 0 D2
-STORE D2 0.0008; if() #566 Body End
+STORE D2 0.0008; if() #564 Body End
 STOREV 0 0; for() #149 setup
 SETV D2 1; for() #149 LoopTest
 COMPAREV D2 0
@@ -8041,26 +8041,26 @@ PUSHR D2; UsrFunc[int __Tango_ReadArgLength(int)] Params End
 CALLFUNC 1.1432; UsrFunc[int __Tango_ReadArgLength(int)] Call
 POP D4
 STORE D2 0.0006
-LOAD D2 0.0006; if() #567 Test
+LOAD D2 0.0006; if() #565 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 8063 !=; Test 'if' AND break 1; AND if() #567 Body
-LOAD D2 0; if() #568 Test
+GOTOCMP 8063 !=; Test 'if' AND break 1; AND if() #565 Body
+LOAD D2 0; if() #566 Test
 COMPAREV D2 4
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 8036 ==; Test 'if'
-LOAD D2 0; if() #569 Test AND if() #568 Body Start
+LOAD D2 0; if() #567 Test AND if() #566 Body Start
 COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8059 ==; Test 'if'
-PUSHR D4; if() #569 Body Start
+PUSHR D4; if() #567 Body Start
 PUSHV 204; UsrFunc[void __Tango_LogError(int)] Params
 CALLFUNC 0.0139; UsrFunc[void __Tango_LogError(int)] Call
-POP D4; if() #569 Body End
-GOTO 8059; continue 1; AND if() #568 Body End
+POP D4; if() #567 Body End
+GOTO 8059; continue 1; AND if() #566 Body End
 PUSHR D4
 LOAD D2 0.0010; UsrFunc[int __Tango_ReadArg(int)] Params Start
 PUSHR D2
@@ -8088,10 +8088,10 @@ LOAD D2 0; for() #149 LoopIncrement
 ADDV D2 1
 STORE D2 0
 GOTO 8003; for() #149 End
-LOAD D2 0.0009; if() #570 Test
+LOAD D2 0.0009; if() #568 Test
 COMPAREV D2 0
 GOTOCMP 8077 ==; Test 'if'
-PUSHR D4; if() #570 Body Start
+PUSHR D4; if() #568 Body Start
 LOAD D2 0.0010; UsrFunc[void __Tango_Delete(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0010
@@ -8101,7 +8101,7 @@ POP D3
 ADDR D2 D3
 PUSHR D2; UsrFunc[void __Tango_Delete(int, int)] Params End
 CALLFUNC 0.3986; UsrFunc[void __Tango_Delete(int, int)] Call
-POP D4; if() #570 Body End
+POP D4; if() #568 Body End
 SETV D2 1
 STORE D2 0.0002
 LOAD D2 0.0008; if() #243 Test
@@ -8601,23 +8601,23 @@ POP D4
 GOTO 8576; if() #272 Body End
 SETV D2 0; if() #272 Else Start
 STORE D2 0.0002; if() #272 Else End
-LOAD D2 0.0002; if() #271 Else End AND if() #270 Else End AND if() #269 Else End AND if() #268 Else End AND if() #267 Else End AND if() #259 Else End AND if() #251 Else End AND if() #243 Else End AND unless() #571 Test
+LOAD D2 0.0002; if() #271 Else End AND if() #270 Else End AND if() #269 Else End AND if() #268 Else End AND if() #267 Else End AND if() #259 Else End AND if() #251 Else End AND if() #243 Else End AND unless() #569 Test
 COMPAREV D2 0
 GOTOCMP 8587 !=; Test 'unless'
-PUSHR D4; unless() #571 Body Start
+PUSHR D4; unless() #569 Body Start
 LOAD D2 0.0008; UsrFunc[int __Tango_RunCustomFunction(int, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[int __Tango_RunCustomFunction(int, int[])] Params End
 CALLFUNC 1.1501; UsrFunc[int __Tango_RunCustomFunction(int, int[])] Call
 POP D4
-STORE D2 0.0003; unless() #571 Body End
-LOAD D2 0.0001; if() #572 Test
+STORE D2 0.0003; unless() #569 Body End
+LOAD D2 0.0001; if() #570 Test
 COMPAREV D2 0
 GOTOCMP 8593 ==; Test 'if'
-LOAD D2 0.0003; if() #572 Body Start
+LOAD D2 0.0003; if() #570 Body Start
 SUBV2 0 D2
-STORE D2 0.0003; if() #572 Body End
+STORE D2 0.0003; if() #570 Body End
 LOAD D2 0.0003; return Start
 LOAD D3 0.0004
 DEALLOCATEMEMR D3
@@ -8711,7 +8711,7 @@ POP D4; if() #193 Else End
 LOAD D2 0.0004
 ADDV D2 2
 STORE D2 0.0004
-PUSHR D4; if() #522 Test
+PUSHR D4; if() #520 Test
 LOAD D2 0.0006; UsrFunc[bool __Tango_ParseArguments(char32[], int, int, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0005
@@ -8725,8 +8725,8 @@ CALLFUNC 0.8902; UsrFunc[bool __Tango_ParseArguments(char32[], int, int, int[])]
 POP D4
 COMPAREV D2 0
 GOTOCMP 8702 ==; Test 'if'
-SETV D2 1; return Start AND if() #522 Body Start
-GOTO 8774; return End AND if() #522 Body End
+SETV D2 1; return Start AND if() #520 Body Start
+GOTO 8774; return End AND if() #520 Body End
 LOAD D2 0.0002
 PUSHR D2
 POP D0
@@ -8953,17 +8953,17 @@ GOTOCMP 8941 ==; Test 'if'
 LOAD D2 0.0005; if() #195 Body Start
 ADDV D2 1
 STORE D2 0.0005
-LOAD D2 0.0001; if() #523 Test
+LOAD D2 0.0001; if() #521 Test
 COMPAREV D2 0
 GOTOCMP 9110 ==; Test 'if'
-PUSHR D4; if() #523 Body Start
+PUSHR D4; if() #521 Body Start
 PUSHV 105; UsrFunc[void __Tango_LogError(int, untyped)] Params Start
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped)] Params End
 CALLFUNC 0.1443; UsrFunc[void __Tango_LogError(int, untyped)] Call
 POP D4
 SETV D2 1; return Start
-GOTO 9123; return End AND if() #523 Body End
+GOTO 9123; return End AND if() #521 Body End
 GOTO 9110; break 1;
 GOTO 8906; if() #195 Body End
 LOAD D2 0.0002; if() #196 Test AND if() #195 Else Start
@@ -8980,7 +8980,7 @@ LOAD D2 0.0005
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0.0002
-LOAD D2 0.0002; unless() #524 Test
+LOAD D2 0.0002; unless() #522 Test
 COMPAREV D2 97
 GOTOCMP 8963 <
 LOAD D2 0.0002
@@ -8991,15 +8991,15 @@ GOTO 8964
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 8974 !=; Test 'unless'
-PUSHR D4; unless() #524 Body Start
+PUSHR D4; unless() #522 Body Start
 PUSHV 105; UsrFunc[void __Tango_LogError(int, untyped)] Params Start
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped)] Params End
 CALLFUNC 0.1443; UsrFunc[void __Tango_LogError(int, untyped)] Call
 POP D4
 SETV D2 1; return Start
-GOTO 9123; return End AND unless() #524 Body End
-PUSHR D4; if() #525 Test
+GOTO 9123; return End AND unless() #522 Body End
+PUSHR D4; if() #523 Test
 LOAD D2 0.0006; UsrFunc[bool __Tango_ParseArgumentCode(char32[], int, int, bool, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0005
@@ -9014,8 +9014,8 @@ CALLFUNC 0.8621; UsrFunc[bool __Tango_ParseArgumentCode(char32[], int, int, bool
 POP D4
 COMPAREV D2 0
 GOTOCMP 8991 ==; Test 'if'
-SETV D2 1; return Start AND if() #525 Body Start
-GOTO 9123; return End AND if() #525 Body End
+SETV D2 1; return Start AND if() #523 Body Start
+GOTO 9123; return End AND if() #523 Body End
 PUSHR D4
 LOAD D2 0.0006; UsrFunc[int __Tango_EatSpaces(char32[], int)] Params Start
 PUSHR D2
@@ -9109,17 +9109,17 @@ COMPAREV D2 45
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9101 ==; Test 'if'
-LOAD D2 0.0001; if() #526 Test AND if() #199 Body Start
+LOAD D2 0.0001; if() #524 Test AND if() #199 Body Start
 COMPAREV D2 0
 GOTOCMP 9095 ==; Test 'if'
-PUSHR D4; if() #526 Body Start
+PUSHR D4; if() #524 Body Start
 PUSHV 105; UsrFunc[void __Tango_LogError(int, untyped)] Params Start
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped)] Params End
 CALLFUNC 0.1443; UsrFunc[void __Tango_LogError(int, untyped)] Call
 POP D4
 SETV D2 1; return Start
-GOTO 9123; return End AND if() #526 Body End
+GOTO 9123; return End AND if() #524 Body End
 SETV D2 1
 STORE D2 0.0001
 LOAD D2 0.0005
@@ -9475,7 +9475,7 @@ COMPAREV D2 32
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 9523 ==; Test 'if'
-SETR D2 GD5; if() #531 Test AND if() #207 Body Start
+SETR D2 GD5; if() #529 Test AND if() #207 Body Start
 PUSHR D2
 LOAD D2 0.0016
 ADDV D2 21
@@ -9485,7 +9485,7 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9485 ==; Test 'if'
-SETV D2 0; if() #531 Body Start
+SETV D2 0; if() #529 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -9509,7 +9509,7 @@ ADDV D2 15
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; if() #531 Body End
+WRITEPODARRAYRR D3 D2; if() #529 Body End
 LOAD D2 0.0012
 COMPAREV D2 32
 SETCMP D2 I==
@@ -9523,7 +9523,7 @@ LOAD D2 0.0010
 PUSHR D2; UsrFunc[void __Tango_PrintNextChar(int, char32, int[])] Params End
 CALLFUNC 0.9289; UsrFunc[void __Tango_PrintNextChar(int, char32, int[])] Call
 POP D4
-LOAD D2 0.0012; if() #532 Test
+LOAD D2 0.0012; if() #530 Test
 COMPAREV D2 32
 GOTOCMP 9512 <=
 LOAD D2 0.0007
@@ -9540,10 +9540,10 @@ GOTO 9513
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 9519 ==; Test 'if'
-PUSHR D4; InlineFunc[void Audio::PlaySound(int)] Params Start AND if() #532 Body Start
+PUSHR D4; InlineFunc[void Audio::PlaySound(int)] Params Start AND if() #530 Body Start
 CALLFUNC 0.6218; UsrFunc[int __Tango_GetCurrentSFX()] Call
 POP D4; InlineFunc[void Audio::PlaySound(int)] Params End
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #532 Body End
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #530 Body End
 LOAD D2 0.0013
 ADDV D2 1
 STORE D2 0.0013
@@ -9589,7 +9589,7 @@ POP D4
 LOAD D2 0.0013
 ADDV D2 6
 STORE D2 0.0013
-SETR D2 GD2; if() #533 Test
+SETR D2 GD2; if() #531 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 12
@@ -9597,7 +9597,7 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 9839 ==; Test 'if'
-SETR D2 GD2; if() #533 Body Start
+SETR D2 GD2; if() #531 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 5
@@ -9624,7 +9624,7 @@ PUSHR D2
 SETR D2 GD2
 SETR D0 D2
 POP D2
-WRITEPODARRAYVR 12 D2; if() #533 Body End
+WRITEPODARRAYVR 12 D2; if() #531 Body End
 GOTO 9839; if() #210 Body End
 LOAD D2 0.0012; if() #211 Test AND if() #210 Else Start
 COMPAREV D2 -1000
@@ -9669,7 +9669,7 @@ PUSHV 1; UsrFunc[int __Tango_RunFunction(int, bool)] Params End
 CALLFUNC 0.7973; UsrFunc[int __Tango_RunFunction(int, bool)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #534 Test
+LOAD D2 0; if() #532 Test
 COMPAREV D2 0
 GOTOCMP 9652 <=
 LOAD D2 0.0007
@@ -9680,8 +9680,8 @@ GOTO 9653
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 9839 ==; Test 'if'
-SETV D2 1; if() #534 Body Start
-STORE D2 0.0014; if() #534 Body End
+SETV D2 1; if() #532 Body Start
+STORE D2 0.0014; if() #532 Body End
 GOTO 9839; if() #213 Body End
 LOAD D2 0.0012; if() #214 Test AND if() #213 Else Start
 COMPAREV D2 -600
@@ -9694,7 +9694,7 @@ PUSHR D2; UsrFunc[int __Tango_RunFlowControl(int)] Params End
 CALLFUNC 1.0778; UsrFunc[int __Tango_RunFlowControl(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #535 Test
+LOAD D2 0; if() #533 Test
 COMPAREV D2 0
 GOTOCMP 9677 <=
 LOAD D2 0.0007
@@ -9705,24 +9705,24 @@ GOTO 9678
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 9839 ==; Test 'if'
-SETV D2 1; if() #535 Body Start
-STORE D2 0.0014; if() #535 Body End
+SETV D2 1; if() #533 Body Start
+STORE D2 0.0014; if() #533 Body End
 GOTO 9839; if() #214 Body End
 LOAD D2 0.0012; if() #215 Test AND if() #214 Else Start
 COMPAREV D2 -10000
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9740 ==; Test 'if'
-LOAD D2 0.0007; unless() #536 Test AND if() #215 Body Start
+LOAD D2 0.0007; unless() #534 Test AND if() #215 Body Start
 COMPAREV D2 0
 GOTOCMP 9698 !=; Test 'unless'
-PUSHR D4; unless() #536 Body Start
+PUSHR D4; unless() #534 Body Start
 LOAD D2 0.0015; UsrFunc[void __Tango_InitializeMenu(int)] Params Start
 PUSHR D2; UsrFunc[void __Tango_InitializeMenu(int)] Params End
 CALLFUNC 0.7058; UsrFunc[void __Tango_InitializeMenu(int)] Call
 POP D4
 SETV D2 1
-STORE D2 0.0007; unless() #536 Body End
+STORE D2 0.0007; unless() #534 Body End
 PUSHR D4
 LOAD D2 0.0013; UsrFunc[void __Tango_ReadChoice(int, int, int, int)] Params Start
 PUSHR D2
@@ -9821,7 +9821,7 @@ ADDV D2 14
 POP D0
 READPODARRAYR D2 D2; InlineFunc[void Audio::PlaySound(int)] Params End
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
-SETR D2 GD3; if() #537 Test
+SETR D2 GD3; if() #535 Test
 PUSHR D2
 LOAD D2 0.0015
 ADDV D2 35
@@ -9838,7 +9838,7 @@ GOTO 9811
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 10055 ==; Test 'if'
-SETV D2 90; if() #537 Body Start
+SETV D2 90; if() #535 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -9847,20 +9847,20 @@ ADDV D2 2
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; if() #537 Body End
+WRITEPODARRAYRR D3 D2; if() #535 Body End
 GOTO 10055; break 1;
 GOTO 9839; if() #217 Body End
-LOAD D2 0.0012; if() #538 Test AND if() #217 Else Start
+LOAD D2 0.0012; if() #536 Test AND if() #217 Else Start
 COMPAREV D2 -1
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 9836 ==; Test 'if'
-PUSHR D4; if() #538 Body Start
+PUSHR D4; if() #536 Body Start
 PUSHV 201; UsrFunc[void __Tango_LogError(int, untyped)] Params Start
 LOAD D2 0.0012
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped)] Params End
 CALLFUNC 0.1443; UsrFunc[void __Tango_LogError(int, untyped)] Call
-POP D4; if() #538 Body End
+POP D4; if() #536 Body End
 LOAD D2 0.0013
 ADDV D2 1
 STORE D2 0.0013; if() #217 Else End
@@ -9870,7 +9870,7 @@ LOAD D2 0.0013
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0.0012
-LOAD D2 0.0012; if() #539 Test
+LOAD D2 0.0012; if() #537 Test
 COMPAREV D2 33
 GOTOCMP 9853 >=
 LOAD D2 0.0012
@@ -9881,7 +9881,7 @@ GOTO 9854
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 9872 ==; Test 'if'
-LOAD D2 0.0018; if() #540 Test AND if() #539 Body Start
+LOAD D2 0.0018; if() #538 Test AND if() #537 Body Start
 COMPAREV D2 2
 GOTOCMP 9867 ==
 LOAD D2 0.0007
@@ -9895,26 +9895,26 @@ GOTO 9868
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 9872 ==; Test 'if'
-SETV D2 1; if() #540 Body Start
-STORE D2 0.0008; if() #540 Body End
-LOAD D2 0.0009; if() #539 Body End AND unless() #541 Test
+SETV D2 1; if() #538 Body Start
+STORE D2 0.0008; if() #538 Body End
+LOAD D2 0.0009; if() #537 Body End AND unless() #539 Test
 COMPAREV D2 0
 GOTOCMP 9883 !=; Test 'unless'
-PUSHR D4; unless() #541 Body Start
+PUSHR D4; unless() #539 Body Start
 LOAD D2 0.0017; UsrFunc[bool __Tango_NeedsNewLine(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0013
 PUSHR D2; UsrFunc[bool __Tango_NeedsNewLine(int, int)] Params End
 CALLFUNC 0.7764; UsrFunc[bool __Tango_NeedsNewLine(int, int)] Call
 POP D4
-STORE D2 0.0009; unless() #541 Body End
-LOAD D2 0.0009; if() #542 Test
+STORE D2 0.0009; unless() #539 Body End
+LOAD D2 0.0009; if() #540 Test
 COMPAREV D2 0
 GOTOCMP 10018 ==; Test 'if'
-LOAD D2 0.0003; if() #543 Test AND if() #542 Body Start
+LOAD D2 0.0003; if() #541 Test AND if() #540 Body Start
 COMPAREV D2 0
 GOTOCMP 9914 ==; Test 'if'
-SETR D2 GD5; if() #543 Body Start
+SETR D2 GD5; if() #541 Body Start
 PUSHR D2
 LOAD D2 0.0016
 ADDV D2 4
@@ -9938,19 +9938,19 @@ ADDV D2 4
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; if() #543 Body End
+WRITEPODARRAYRR D3 D2; if() #541 Body End
 PUSHR D4
 LOAD D2 0.0007; UsrFunc[int __Tango_StartNewLine(bool)] Params Start
 PUSHR D2; UsrFunc[int __Tango_StartNewLine(bool)] Params End
 CALLFUNC 1.1284; UsrFunc[int __Tango_StartNewLine(bool)] Call
 POP D4
 STORE D2 0.0005
-LOAD D2 0.0005; if() #544 Test
+LOAD D2 0.0005; if() #542 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 10013 ==; Test 'if'
-LOAD D2 0.0007; if() #218 Test AND if() #544 Body Start
+LOAD D2 0.0007; if() #218 Test AND if() #542 Body Start
 COMPAREV D2 0
 GOTOCMP 9933 !=
 LOAD D2 0.0018
@@ -9961,7 +9961,7 @@ GOTO 9934
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 10001 ==; Test 'if'
-SETR D2 GD5; if() #545 Test AND if() #218 Body Start
+SETR D2 GD5; if() #543 Test AND if() #218 Body Start
 PUSHR D2
 LOAD D2 0.0016
 ADDV D2 15
@@ -9979,7 +9979,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9973 ==; Test 'if'
-SETR D2 GD5; if() #545 Body Start
+SETR D2 GD5; if() #543 Body Start
 PUSHR D2
 LOAD D2 0.0016
 ADDV D2 15
@@ -9997,7 +9997,7 @@ ADDV D2 15
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; if() #545 Body End
+WRITEPODARRAYRR D3 D2; if() #543 Body End
 SETR D2 GD5
 PUSHR D2
 LOAD D2 0.0016
@@ -10017,14 +10017,14 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
-LOAD D2 0.0007; if() #546 Test
+LOAD D2 0.0007; if() #544 Test
 COMPAREV D2 0
 GOTOCMP 10013 ==; Test 'if'
-PUSHR D4; if() #546 Body Start
+PUSHR D4; if() #544 Body Start
 LOAD D2 0.0005; UsrFunc[void __Tango_ShiftMenuUp(int)] Params Start
 PUSHR D2; UsrFunc[void __Tango_ShiftMenuUp(int)] Params End
 CALLFUNC 1.1346; UsrFunc[void __Tango_ShiftMenuUp(int)] Call
-POP D4; if() #546 Body End
+POP D4; if() #544 Body End
 GOTO 10013; if() #218 Body End
 LOAD D2 0.0005; if() #218 Else Start
 PUSHR D2
@@ -10038,15 +10038,15 @@ POP D2
 WRITEPODARRAYRR D3 D2
 SETV D2 1
 STORE D2 0.0014; if() #218 Else End
-LOAD D2 0.0004; if() #544 Body End AND if() #547 Test
+LOAD D2 0.0004; if() #542 Body End AND if() #545 Test
 COMPAREV D2 0
 GOTOCMP 10018 ==; Test 'if'
-SETV D2 1; if() #547 Body Start
-STORE D2 0.0008; if() #547 Body End
-LOAD D2 0.0008; if() #542 Body End AND if() #548 Test
+SETV D2 1; if() #545 Body Start
+STORE D2 0.0008; if() #545 Body End
+LOAD D2 0.0008; if() #540 Body End AND if() #546 Test
 COMPAREV D2 0
 GOTOCMP 9436 ==; Test 'if'
-SETR D2 GD5; if() #548 Body Start
+SETR D2 GD5; if() #546 Body Start
 PUSHR D2
 LOAD D2 0.0016
 ADDV D2 2
@@ -10067,7 +10067,7 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
-SETR D2 GD5; if() #549 Test
+SETR D2 GD5; if() #547 Test
 PUSHR D2
 LOAD D2 0.0016
 ADDV D2 2
@@ -10077,16 +10077,16 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 9436 ==; Test 'if'
-SETV D2 1; if() #549 Body Start
-STORE D2 0.0014; if() #549 Body End
-GOTO 9436; if() #548 Body End AND until() #12 Body End AND until() #12 End
-LOAD D2 0.0004; if() #550 Test
+SETV D2 1; if() #547 Body Start
+STORE D2 0.0014; if() #547 Body End
+GOTO 9436; if() #546 Body End AND until() #12 Body End AND until() #12 End
+LOAD D2 0.0004; if() #548 Test
 COMPAREV D2 0
 GOTOCMP 10062 ==; Test 'if'
-PUSHR D4; InlineFunc[void Audio::PlaySound(int)] Params Start AND if() #550 Body Start
+PUSHR D4; InlineFunc[void Audio::PlaySound(int)] Params Start AND if() #548 Body Start
 CALLFUNC 0.6218; UsrFunc[int __Tango_GetCurrentSFX()] Call
 POP D4; InlineFunc[void Audio::PlaySound(int)] Params End
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #550 Body End
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #548 Body End
 LOAD D2 0.0013
 PUSHR D2
 SETR D2 GD5
@@ -10198,7 +10198,7 @@ COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10199 ==; Test 'if'
-LOAD D2 0.0001; if() #575 Test AND if() #276 Body Start
+LOAD D2 0.0001; if() #573 Test AND if() #276 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10215,21 +10215,21 @@ COMPARER D3 D2
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 10666 ==; Test 'if'
-PUSHR D4; if() #575 Body Start
+PUSHR D4; if() #573 Body Start
 LOAD D2 0.0001; UsrFunc[void __Tango_FuncGoto(int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
 PUSHR D2; UsrFunc[void __Tango_FuncGoto(int)] Params End
 CALLFUNC 0.5632; UsrFunc[void __Tango_FuncGoto(int)] Call
-POP D4; if() #575 Body End
+POP D4; if() #573 Body End
 GOTO 10666; if() #276 Body End
 LOAD D2 0.0004; if() #277 Test AND if() #276 Else Start
 COMPAREV D2 5
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10223 ==; Test 'if'
-LOAD D2 0.0001; InlineFunc[int Rand(int)] Params Start AND if() #576 Test AND if() #277 Body Start
+LOAD D2 0.0001; InlineFunc[int Rand(int)] Params Start AND if() #574 Test AND if() #277 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10239,21 +10239,21 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10666 ==; Test 'if'
-PUSHR D4; if() #576 Body Start
+PUSHR D4; if() #574 Body Start
 LOAD D2 0.0001; UsrFunc[void __Tango_FuncGoto(int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
 PUSHR D2; UsrFunc[void __Tango_FuncGoto(int)] Params End
 CALLFUNC 0.5632; UsrFunc[void __Tango_FuncGoto(int)] Call
-POP D4; if() #576 Body End
+POP D4; if() #574 Body End
 GOTO 10666; if() #277 Body End
 LOAD D2 0.0004; if() #278 Test AND if() #277 Else Start
 COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10246 ==; Test 'if'
-LOAD D2 0.0001; if() #577 Test AND if() #278 Body Start
+LOAD D2 0.0001; if() #575 Test AND if() #278 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10262,21 +10262,21 @@ POP D0
 SETR D2 LINKITEMD
 COMPAREV D2 0
 GOTOCMP 10666 ==; Test 'if'
-PUSHR D4; if() #577 Body Start
+PUSHR D4; if() #575 Body Start
 LOAD D2 0.0001; UsrFunc[void __Tango_FuncGoto(int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
 PUSHR D2; UsrFunc[void __Tango_FuncGoto(int)] Params End
 CALLFUNC 0.5632; UsrFunc[void __Tango_FuncGoto(int)] Call
-POP D4; if() #577 Body End
+POP D4; if() #575 Body End
 GOTO 10666; if() #278 Body End
 LOAD D2 0.0004; if() #279 Test AND if() #278 Else Start
 COMPAREV D2 7
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10277 ==; Test 'if'
-LOAD D2 0.0001; if() #578 Test AND if() #279 Body Start
+LOAD D2 0.0001; if() #576 Test AND if() #279 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10293,21 +10293,21 @@ COMPARER D3 D2
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 10666 ==; Test 'if'
-PUSHR D4; if() #578 Body Start
+PUSHR D4; if() #576 Body Start
 LOAD D2 0.0001; UsrFunc[void __Tango_FuncGoto(int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
 PUSHR D2; UsrFunc[void __Tango_FuncGoto(int)] Params End
 CALLFUNC 0.5632; UsrFunc[void __Tango_FuncGoto(int)] Call
-POP D4; if() #578 Body End
+POP D4; if() #576 Body End
 GOTO 10666; if() #279 Body End
 LOAD D2 0.0004; if() #280 Test AND if() #279 Else Start
 COMPAREV D2 8
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10320 ==; Test 'if'
-LOAD D2 0.0001; if() #579 Test AND if() #280 Body Start
+LOAD D2 0.0001; if() #577 Test AND if() #280 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10336,21 +10336,21 @@ COMPARER D3 D2
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 10666 ==; Test 'if'
-PUSHR D4; if() #579 Body Start
+PUSHR D4; if() #577 Body Start
 LOAD D2 0.0001; UsrFunc[void __Tango_FuncGoto(int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
 PUSHR D2; UsrFunc[void __Tango_FuncGoto(int)] Params End
 CALLFUNC 0.5632; UsrFunc[void __Tango_FuncGoto(int)] Call
-POP D4; if() #579 Body End
+POP D4; if() #577 Body End
 GOTO 10666; if() #280 Body End
 LOAD D2 0.0004; if() #281 Test AND if() #280 Else Start
 COMPAREV D2 9
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10346 ==; Test 'if'
-LOAD D2 0.0001; if() #580 Test AND if() #281 Body Start
+LOAD D2 0.0001; if() #578 Test AND if() #281 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10362,16 +10362,16 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 10666 ==; Test 'if'
-PUSHR D4; if() #580 Body Start
+PUSHR D4; if() #578 Body Start
 LOAD D2 0.0001; UsrFunc[void __Tango_FuncGoto(int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
 PUSHR D2; UsrFunc[void __Tango_FuncGoto(int)] Params End
 CALLFUNC 0.5632; UsrFunc[void __Tango_FuncGoto(int)] Call
-POP D4; if() #580 Body End
+POP D4; if() #578 Body End
 GOTO 10666; if() #281 Body End
-PUSHR D4; if() #581 Test AND if() #281 Else Start
+PUSHR D4; if() #579 Test AND if() #281 Else Start
 PUSHV 8; UsrFunc[int NumTriforcePieces(int)] Params
 CALLFUNC 0.0080; UsrFunc[int NumTriforcePieces(int)] Call
 POP D4
@@ -10385,14 +10385,14 @@ COMPARER D3 D2
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 10666 ==; Test 'if'
-PUSHR D4; if() #581 Body Start
+PUSHR D4; if() #579 Body Start
 LOAD D2 0.0001; UsrFunc[void __Tango_FuncGoto(int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
 PUSHR D2; UsrFunc[void __Tango_FuncGoto(int)] Params End
 CALLFUNC 0.5632; UsrFunc[void __Tango_FuncGoto(int)] Call
-POP D4; if() #581 Body End
+POP D4; if() #579 Body End
 GOTO 10666; if() #281 Else End AND if() #280 Else End AND if() #279 Else End AND if() #278 Else End AND if() #277 Else End AND if() #276 Else End AND if() #275 Else End AND if() #274 Else End AND if() #273 Body End
 LOAD D2 0.0004; if() #282 Test AND if() #273 Else Start
 COMPAREV D2 11
@@ -10681,16 +10681,16 @@ POP D0
 READPODARRAYV D2 0; InlineFunc[void Audio::PlaySound(int)] Params End
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
 GOTO 10666; if() #290 Body End
-LOAD D2 0.0004; if() #582 Test AND if() #290 Else Start
+LOAD D2 0.0004; if() #580 Test AND if() #290 Else Start
 COMPAREV D2 22
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10666 ==; Test 'if'
-LOAD D2 0.0001; InlineFunc[void Audio::PlayMIDI(int)] Params Start AND if() #582 Body Start
+LOAD D2 0.0001; InlineFunc[void Audio::PlayMIDI(int)] Params Start AND if() #580 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0; InlineFunc[void Audio::PlayMIDI(int)] Params End
-PLAYMIDIR D2; InlineFunc[void Audio::PlayMIDI(int)] Body AND if() #582 Body End
+PLAYMIDIR D2; InlineFunc[void Audio::PlayMIDI(int)] Body AND if() #580 Body End
 LOAD D2 0.0003; if() #290 Else End AND if() #289 Else End AND if() #288 Else End AND if() #287 Else End AND if() #286 Else End AND if() #285 Else End AND if() #284 Else End AND if() #283 Else End AND if() #282 Else End AND if() #273 Else End AND return Start
 ADDV D2 1
 LOAD D3 0.0001
@@ -10730,12 +10730,12 @@ PUSHR D2; UsrFunc[int __Tango_ReadArg(int)] Params End
 CALLFUNC 1.1388; UsrFunc[int __Tango_ReadArg(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0.0003; if() #573 Test
+LOAD D2 0.0003; if() #571 Test
 COMPAREV D2 0.0542
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10720 ==; Test 'if'
-LOAD D2 0; if() #573 Body Start
+LOAD D2 0; if() #571 Body Start
 PUSHR D2
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[int __Tango_GetVar(int)] Params Start
@@ -10744,7 +10744,7 @@ CALLFUNC 0.6846; UsrFunc[int __Tango_GetVar(int)] Call
 POP D4
 POP D3
 ADDR D2 D3
-STORE D2 0; if() #573 Body End
+STORE D2 0; if() #571 Body End
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[void __Tango_SetVar(int, int)] Params Start
 PUSHR D2
@@ -10752,10 +10752,10 @@ LOAD D2 0
 PUSHR D2; UsrFunc[void __Tango_SetVar(int, int)] Params End
 CALLFUNC 1.1510; UsrFunc[void __Tango_SetVar(int, int)] Call
 POP D4
-LOAD D2 0.0004; if() #574 Test
+LOAD D2 0.0004; if() #572 Test
 COMPAREV D2 0
 GOTOCMP 10742 ==; Test 'if'
-PUSHR D4; if() #574 Body Start
+PUSHR D4; if() #572 Body Start
 LOAD D2 0.0005; UsrFunc[void __Tango_Delete(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0005
@@ -10766,7 +10766,7 @@ POP D3
 ADDR D2 D3
 PUSHR D2; UsrFunc[void __Tango_Delete(int, int)] Params End
 CALLFUNC 0.3986; UsrFunc[void __Tango_Delete(int, int)] Call
-POP D4; if() #574 Body End
+POP D4; if() #572 Body End
 POPARGS D5 0.0006
 RETURNFUNC; Func[void __Tango_RunSetter(int, bool)] Body End
 SETR D4 SP2; Func[void __Tango_SetAlternateColor(int)] Body Start
@@ -10816,12 +10816,12 @@ STOREV 0 0.0005
 STOREV 1 0.0004
 STOREV 0 0.0003
 STOREV 0 0.0002
-LOAD D2 0.0006; if() #560 Test
+LOAD D2 0.0006; if() #558 Test
 COMPAREV D2 0.2441
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 10812 ==; Test 'if'
-PUSHR D4; if() #560 Body Start
+PUSHR D4; if() #558 Body Start
 LOAD D2 0.0007; UsrFunc[int __Tango_ReadArgLength(int)] Params Start
 ADDV D2 2
 PUSHR D2; UsrFunc[int __Tango_ReadArgLength(int)] Params End
@@ -10836,7 +10836,7 @@ CALLFUNC 1.1388; UsrFunc[int __Tango_ReadArg(int)] Call
 POP D4
 COMPAREV D2 0
 SETCMP D2 I!=
-STORE D2 0.0002; if() #560 Body End
+STORE D2 0.0002; if() #558 Body End
 LOAD D2 0.0006; if() #234 Test
 COMPAREV D2 0.0069
 SETCMP D2 I==
@@ -10900,7 +10900,7 @@ COMPAREV D2 11.9678
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10933 ==; Test 'if'
-LOAD D2 0.0002; if() #561 Test AND if() #237 Body Start
+LOAD D2 0.0002; if() #559 Test AND if() #237 Body Start
 COMPAREV D2 0
 GOTOCMP 10886 ==
 PUSHR D4
@@ -10914,7 +10914,7 @@ GOTO 10887
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 11030 ==; Test 'if'
-PUSHR D4; if() #561 Body Start
+PUSHR D4; if() #559 Body Start
 PUSHV 20; UsrFunc[void __Tango_SetCurrSlotData(int, int)] Params Start
 PUSHV 1; UsrFunc[void __Tango_SetCurrSlotData(int, int)] Params End
 CALLFUNC 0.3927; UsrFunc[void __Tango_SetCurrSlotData(int, int)] Call
@@ -10957,13 +10957,13 @@ PUSHR D2
 PUSHV 0; UsrFunc[void __Tango_RunSetter(int, bool)] Params End
 CALLFUNC 1.0675; UsrFunc[void __Tango_RunSetter(int, bool)] Call
 POP D4; if() #238 Else End
-GOTO 11030; if() #561 Body End AND if() #237 Body End
+GOTO 11030; if() #559 Body End AND if() #237 Body End
 LOAD D2 0.0006; if() #239 Test AND if() #237 Else Start
 COMPAREV D2 0.2441
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10973 ==; Test 'if'
-PUSHR D4; if() #562 Test AND if() #239 Body Start
+PUSHR D4; if() #560 Test AND if() #239 Body Start
 PUSHV 20; UsrFunc[int __Tango_GetCurrSlotData(int)] Params
 CALLFUNC 0.3018; UsrFunc[int __Tango_GetCurrSlotData(int)] Call
 POP D4
@@ -10971,7 +10971,7 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11030 ==; Test 'if'
-SETR D2 GD4; if() #240 Test AND if() #562 Body Start
+SETR D2 GD4; if() #240 Test AND if() #560 Body Start
 PUSHR D2
 LOAD D2 0.0007
 ADDV D2 2
@@ -10997,16 +10997,16 @@ PUSHR D2
 PUSHV 0; UsrFunc[void __Tango_RunSetter(int, bool)] Params End
 CALLFUNC 1.0675; UsrFunc[void __Tango_RunSetter(int, bool)] Call
 POP D4; if() #240 Else End
-GOTO 11030; if() #562 Body End AND if() #239 Body End
+GOTO 11030; if() #560 Body End AND if() #239 Body End
 LOAD D2 0.0006; if() #241 Test AND if() #239 Else Start
 COMPAREV D2 5.8497
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11023 ==; Test 'if'
-LOAD D2 0.0002; if() #563 Test AND if() #241 Body Start
+LOAD D2 0.0002; if() #561 Test AND if() #241 Body Start
 COMPAREV D2 0
 GOTOCMP 11030 ==; Test 'if'
-SETR D2 GD4; if() #242 Test AND if() #563 Body Start
+SETR D2 GD4; if() #242 Test AND if() #561 Body Start
 PUSHR D2
 LOAD D2 0.0007
 ADDV D2 2
@@ -11046,19 +11046,19 @@ POP D4; if() #242 Else End
 SETV D2 1
 STORE D2 0.0005
 SETV D2 0
-STORE D2 0.0004; if() #563 Body End
+STORE D2 0.0004; if() #561 Body End
 GOTO 11030; if() #241 Body End
-LOAD D2 0.0002; unless() #564 Test AND if() #241 Else Start
+LOAD D2 0.0002; unless() #562 Test AND if() #241 Else Start
 COMPAREV D2 0
 GOTOCMP 11030 !=; Test 'unless'
-SETV D2 1; unless() #564 Body Start
+SETV D2 1; unless() #562 Body Start
 STORE D2 0.0005
 SETV D2 0
-STORE D2 0.0004; unless() #564 Body End
-LOAD D2 0.0004; if() #241 Else End AND if() #239 Else End AND if() #237 Else End AND if() #234 Else End AND if() #565 Test
+STORE D2 0.0004; unless() #562 Body End
+LOAD D2 0.0004; if() #241 Else End AND if() #239 Else End AND if() #237 Else End AND if() #234 Else End AND if() #563 Test
 COMPAREV D2 0
 GOTOCMP 11056 ==; Test 'if'
-LOAD D2 0.0007; if() #565 Body Start
+LOAD D2 0.0007; if() #563 Body Start
 ADDV D2 4
 STORE D2 0
 SETR D2 GD4; while() #15 Test
@@ -11080,7 +11080,7 @@ PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void __Tango_Delete(int, int)] Params End
 CALLFUNC 0.3986; UsrFunc[void __Tango_Delete(int, int)] Call
-POP D4; if() #565 Body End
+POP D4; if() #563 Body End
 LOAD D2 0.0005; return Start
 POPARGS D5 0.0008; return End
 RETURNFUNC; Func[int __Tango_RunFlowControl(int)] Body End
@@ -11191,12 +11191,12 @@ PUSHV 35; UsrFunc[int __Tango_GetCurrStyleData(int)] Params
 CALLFUNC 0.3802; UsrFunc[int __Tango_GetCurrStyleData(int)] Call
 POP D4
 STORE D2 0.0005
-LOAD D2 0.0005; if() #596 Test
+LOAD D2 0.0005; if() #594 Test
 ANDV D2 256
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 11282 !=; Test 'if' AND return (Void) AND if() #596 Body
+GOTOCMP 11282 !=; Test 'if' AND return (Void) AND if() #594 Body
 SETR D2 GD2
 PUSHR D2
 POP D0
@@ -11299,14 +11299,14 @@ PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-LOAD D2 0.0006; if() #597 Test
+LOAD D2 0.0006; if() #595 Test
 COMPAREV D2 0
 GOTOCMP 11282 ==; Test 'if'
-PUSHR D4; if() #597 Body Start
+PUSHR D4; if() #595 Body Start
 LOAD D2 0; UsrFunc[void __Tango_ShiftMenuRight(int)] Params Start
 PUSHR D2; UsrFunc[void __Tango_ShiftMenuRight(int)] Params End
 CALLFUNC 1.2010; UsrFunc[void __Tango_ShiftMenuRight(int)] Call
-POP D4; if() #597 Body End
+POP D4; if() #595 Body End
 POPARGS D5 0.0008
 RETURNFUNC; Func[void __Tango_TransferCenteredLine(int, bool)] Body End
 PUSHV 0; Func[int __Tango_StartNewLine(bool)] Body Start
@@ -11505,14 +11505,14 @@ LOAD D2 0.0002; if() #225 Body Start
 ADDV D2 1
 STORE D2 0.0002
 GOTO 11488; if() #225 Body End
-LOAD D2 0.0001; if() #553 Test AND if() #225 Else Start
+LOAD D2 0.0001; if() #551 Test AND if() #225 Else Start
 COMPAREV D2 -500
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11488 ==; Test 'if'
-LOAD D2 0.0002; if() #553 Body Start
+LOAD D2 0.0002; if() #551 Body Start
 SUBV D2 1
-STORE D2 0.0002; if() #553 Body End
+STORE D2 0.0002; if() #551 Body End
 LOAD D2 0; if() #225 Else End
 ADDV D2 1
 STORE D2 0; do-while() #1 Body End
@@ -11619,13 +11619,13 @@ PUSHV 35; UsrFunc[int __Tango_GetCurrStyleData(int)] Params
 CALLFUNC 0.3802; UsrFunc[int __Tango_GetCurrStyleData(int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #594 Test
+LOAD D2 0; if() #592 Test
 ANDV D2 512
 COMPAREV D2 0
 GOTOCMP 11601 ==; Test 'if'
-PUSHR D4; if() #594 Body Start
+PUSHR D4; if() #592 Body Start
 CALLFUNC 0.0997; UsrFunc[void __Tango_DecScreenFreeze()] Call
-POP D4; if() #594 Body End
+POP D4; if() #592 Body End
 PUSHR D4
 PUSHV 0; UsrFunc[void __Tango_SetCurrSlotData(int, int)] Params Start
 LOAD D2 0.0002
@@ -11652,13 +11652,13 @@ PUSHV 35; UsrFunc[int Tango_GetStyleAttribute(int, int)] Params End
 CALLFUNC 0.1309; UsrFunc[int Tango_GetStyleAttribute(int, int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #595 Test
+LOAD D2 0; if() #593 Test
 ANDV D2 512
 COMPAREV D2 0
 GOTOCMP 11678 ==; Test 'if'
-PUSHR D4; if() #595 Body Start
+PUSHR D4; if() #593 Body Start
 CALLFUNC 0.0515; UsrFunc[void __Tango_IncScreenFreeze()] Call
-POP D4; if() #595 Body End
+POP D4; if() #593 Body End
 GOTO 11678; if() #307 Body End
 LOAD D2 0.0003; if() #308 Test AND if() #307 Else Start
 COMPAREV D2 0.0024
@@ -11724,7 +11724,7 @@ ADDV D2 17
 POP D0
 READPODARRAYR D2 D2
 STORE D2 0
-SETR D2 GD5; if() #585 Test
+SETR D2 GD5; if() #583 Test
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 15
@@ -11742,6 +11742,103 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11736 ==; Test 'if'
+SETR D2 GD5; if() #583 Body Start
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 15
+POP D0
+READPODARRAYR D2 D2
+PUSHR D2
+LOAD D2 0
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 GD5
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 15
+SETR D3 D2
+POP D0
+POP D2
+WRITEPODARRAYRR D3 D2; if() #583 Body End
+SETR D2 GD5
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 16
+POP D0
+READPODARRAYR D2 D2
+PUSHR D2
+LOAD D2 0
+POP D3
+ADDR D2 D3
+PUSHR D2
+SETR D2 GD5
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 16
+SETR D3 D2
+POP D0
+POP D2
+WRITEPODARRAYRR D3 D2
+SETV D2 0
+PUSHR D2
+SETR D2 GD5
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 17
+SETR D3 D2
+POP D0
+POP D2
+WRITEPODARRAYRR D3 D2
+SETV D2 1; return Start
+GOTO 12008; return End AND if() #291 Body End
+STOREV 4 0; if() #291 Else Start
+LOAD D2 0.0002; if() #584 Test
+COMPAREV D2 1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 11776 ==; Test 'if'
+LOAD D2 0; if() #584 Body Start
+MULTV D2 5
+STORE D2 0; if() #584 Body End
+SETR D2 GD5; if() #292 Test
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 17
+POP D0
+READPODARRAYR D2 D2
+PUSHR D2
+LOAD D2 0
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<=
+COMPAREV D2 0
+GOTOCMP 11864 ==; Test 'if'
+SETR D2 GD5; if() #292 Body Start
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 17
+POP D0
+READPODARRAYR D2 D2
+STORE D2 0
+SETR D2 GD5; if() #585 Test
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 15
+POP D0
+READPODARRAYR D2 D2
+PUSHR D2
+SETR D2 GD5
+PUSHR D2
+LOAD D2 0.0001
+ADDV D2 16
+POP D0
+READPODARRAYR D2 D2
+POP D3
+COMPARER D3 D2
+SETCMP D2 I>=
+COMPAREV D2 0
+GOTOCMP 11833 ==; Test 'if'
 SETR D2 GD5; if() #585 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -11791,103 +11888,6 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 SETV D2 1; return Start
-GOTO 12008; return End AND if() #291 Body End
-STOREV 4 0; if() #291 Else Start
-LOAD D2 0.0002; if() #586 Test
-COMPAREV D2 1
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 11776 ==; Test 'if'
-LOAD D2 0; if() #586 Body Start
-MULTV D2 5
-STORE D2 0; if() #586 Body End
-SETR D2 GD5; if() #292 Test
-PUSHR D2
-LOAD D2 0.0001
-ADDV D2 17
-POP D0
-READPODARRAYR D2 D2
-PUSHR D2
-LOAD D2 0
-POP D3
-COMPARER D3 D2
-SETCMP D2 I<=
-COMPAREV D2 0
-GOTOCMP 11864 ==; Test 'if'
-SETR D2 GD5; if() #292 Body Start
-PUSHR D2
-LOAD D2 0.0001
-ADDV D2 17
-POP D0
-READPODARRAYR D2 D2
-STORE D2 0
-SETR D2 GD5; if() #587 Test
-PUSHR D2
-LOAD D2 0.0001
-ADDV D2 15
-POP D0
-READPODARRAYR D2 D2
-PUSHR D2
-SETR D2 GD5
-PUSHR D2
-LOAD D2 0.0001
-ADDV D2 16
-POP D0
-READPODARRAYR D2 D2
-POP D3
-COMPARER D3 D2
-SETCMP D2 I>=
-COMPAREV D2 0
-GOTOCMP 11833 ==; Test 'if'
-SETR D2 GD5; if() #587 Body Start
-PUSHR D2
-LOAD D2 0.0001
-ADDV D2 15
-POP D0
-READPODARRAYR D2 D2
-PUSHR D2
-LOAD D2 0
-POP D3
-ADDR D2 D3
-PUSHR D2
-SETR D2 GD5
-PUSHR D2
-LOAD D2 0.0001
-ADDV D2 15
-SETR D3 D2
-POP D0
-POP D2
-WRITEPODARRAYRR D3 D2; if() #587 Body End
-SETR D2 GD5
-PUSHR D2
-LOAD D2 0.0001
-ADDV D2 16
-POP D0
-READPODARRAYR D2 D2
-PUSHR D2
-LOAD D2 0
-POP D3
-ADDR D2 D3
-PUSHR D2
-SETR D2 GD5
-PUSHR D2
-LOAD D2 0.0001
-ADDV D2 16
-SETR D3 D2
-POP D0
-POP D2
-WRITEPODARRAYRR D3 D2
-SETV D2 0
-PUSHR D2
-SETR D2 GD5
-PUSHR D2
-LOAD D2 0.0001
-ADDV D2 17
-SETR D3 D2
-POP D0
-POP D2
-WRITEPODARRAYRR D3 D2
-SETV D2 1; return Start
 GOTO 12008; return End AND if() #292 Body End
 SETR D2 GD5; if() #293 Test AND if() #292 Else Start
 PUSHR D2
@@ -11899,7 +11899,7 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11931 ==; Test 'if'
-SETR D2 GD5; if() #588 Test AND if() #293 Body Start
+SETR D2 GD5; if() #586 Test AND if() #293 Body Start
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 15
@@ -11917,7 +11917,7 @@ COMPARER D3 D2
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 11911 ==; Test 'if'
-SETR D2 GD5; if() #588 Body Start
+SETR D2 GD5; if() #586 Body Start
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 2
@@ -11935,7 +11935,7 @@ ADDV D2 2
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; if() #588 Body End
+WRITEPODARRAYRR D3 D2; if() #586 Body End
 SETR D2 GD5
 PUSHR D2
 LOAD D2 0.0001
@@ -11956,7 +11956,7 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 GOTO 11987; if() #293 Body End
-SETR D2 GD5; if() #589 Test AND if() #293 Else Start
+SETR D2 GD5; if() #587 Test AND if() #293 Else Start
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 15
@@ -11974,7 +11974,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11968 ==; Test 'if'
-SETR D2 GD5; if() #589 Body Start
+SETR D2 GD5; if() #587 Body Start
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 15
@@ -11992,7 +11992,7 @@ ADDV D2 15
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; if() #589 Body End
+WRITEPODARRAYRR D3 D2; if() #587 Body End
 SETR D2 GD5
 PUSHR D2
 LOAD D2 0.0001
@@ -12103,7 +12103,7 @@ POP D0
 READPODARRAYV D2 4
 STORE D2 0.0001
 STOREV 1 0
-SETR D2 GD5; if() #600 Test
+SETR D2 GD5; if() #598 Test
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 2
@@ -12113,12 +12113,12 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 12105 ==; Test 'if'
-PUSHR D4; if() #600 Body Start
+PUSHR D4; if() #598 Body Start
 LOAD D2 0.0002; UsrFunc[void __Tango_CountDown(int)] Params Start
 PUSHR D2; UsrFunc[void __Tango_CountDown(int)] Params End
 CALLFUNC 0.3946; UsrFunc[void __Tango_CountDown(int)] Call
 POP D4
-SETR D2 GD5; if() #601 Test
+SETR D2 GD5; if() #599 Test
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 2
@@ -12128,9 +12128,9 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 12105 ==; Test 'if'
-SETV D2 0; if() #601 Body Start
-STORE D2 0; if() #601 Body End
-SETR D2 GD5; if() #600 Body End AND if() #602 Test
+SETV D2 0; if() #599 Body Start
+STORE D2 0; if() #599 Body End
+SETR D2 GD5; if() #598 Body End AND if() #600 Test
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 17
@@ -12140,12 +12140,12 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 12132 ==; Test 'if'
-PUSHR D4; if() #602 Body Start
+PUSHR D4; if() #600 Body Start
 LOAD D2 0.0002; UsrFunc[bool __Tango_Scroll(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_Scroll(int)] Params End
 CALLFUNC 1.1680; UsrFunc[bool __Tango_Scroll(int)] Call
 POP D4
-SETR D2 GD5; if() #603 Test
+SETR D2 GD5; if() #601 Test
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 17
@@ -12155,27 +12155,27 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 12132 ==; Test 'if'
-SETV D2 0; if() #603 Body Start
-STORE D2 0; if() #603 Body End
-LOAD D2 0; if() #602 Body End AND if() #604 Test
+SETV D2 0; if() #601 Body Start
+STORE D2 0; if() #601 Body End
+LOAD D2 0; if() #600 Body End AND if() #602 Test
 COMPAREV D2 0
 GOTOCMP 12140 ==; Test 'if'
-PUSHR D4; if() #604 Body Start
+PUSHR D4; if() #602 Body Start
 LOAD D2 0.0002; UsrFunc[void __Tango_Process(int)] Params Start
 PUSHR D2; UsrFunc[void __Tango_Process(int)] Params End
 CALLFUNC 0.9373; UsrFunc[void __Tango_Process(int)] Call
-POP D4; if() #604 Body End
+POP D4; if() #602 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void __Tango_UpdateActiveSlot(int)] Body End
 PUSHARGSV 0 0.0002; Func[void __Tango_UpdateAdvancing(int)] Body Start
 SETR D4 SP2
-PUSHR D4; unless() #606 Test AND if(true) #605 [Opt:AlwaysOn]
+PUSHR D4; unless() #604 Test AND if(true) #603 [Opt:AlwaysOn]
 LOAD D2 0.0002; UsrFunc[bool __Tango_Scroll(int)] Params Start
 PUSHR D2; UsrFunc[bool __Tango_Scroll(int)] Params End
 CALLFUNC 1.1680; UsrFunc[bool __Tango_Scroll(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 12277 ==; Test 'unless' AND return (Void) AND unless() #606 Body
+GOTOCMP 12277 ==; Test 'unless' AND return (Void) AND unless() #604 Body
 SETR D2 GD2
 PUSHR D2
 POP D0
@@ -12333,7 +12333,7 @@ LOAD D2 0.0002; UsrFunc[void __Tango_CountDown(int)] Params Start
 PUSHR D2; UsrFunc[void __Tango_CountDown(int)] Params End
 CALLFUNC 0.3946; UsrFunc[void __Tango_CountDown(int)] Call
 POP D4
-SETR D2 GD5; if() #620 Test
+SETR D2 GD5; if() #618 Test
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 2
@@ -12343,8 +12343,8 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12396 ==; Test 'if'
-SETV D2 1; if() #620 Body Start
-STORE D2 0; if() #620 Body End
+SETV D2 1; if() #618 Body Start
+STORE D2 0; if() #618 Body End
 GOTO 12396; if() #320 Body End
 SETV D2 1; if() #320 Else Start
 STORE D2 0; if() #320 Else End
@@ -12373,7 +12373,7 @@ SETR D2 GD2
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 8 D2
-PUSHR D4; if() #322 Test AND if(true) #621 [Opt:AlwaysOn]
+PUSHR D4; if() #322 Test AND if(true) #619 [Opt:AlwaysOn]
 CALLFUNC 0.0534; UsrFunc[bool __Tango_PressSpeedup()] Call
 POP D4
 COMPAREV D2 0
@@ -12389,12 +12389,12 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 GOTO 12396; if() #322 Body End
-PUSHR D4; if() #622 Test AND if() #322 Else Start
+PUSHR D4; if() #620 Test AND if() #322 Else Start
 CALLFUNC 0.0537; UsrFunc[bool __Tango_PressSuperSpeed()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 12396 ==; Test 'if'
-SETV D2 2; if() #622 Body Start
+SETV D2 2; if() #620 Body Start
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -12403,7 +12403,7 @@ ADDV D2 19
 SETR D3 D2
 POP D0
 POP D2
-WRITEPODARRAYRR D3 D2; if() #622 Body End
+WRITEPODARRAYRR D3 D2; if() #620 Body End
 GOTO 12396; if() #322 Else End AND if() #321 Body End
 SETR D2 GD5; if() #321 Else Start
 PUSHR D2
@@ -12421,10 +12421,10 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2; if() #321 Else End
-LOAD D2 0; if() #319 Else End AND if() #623 Test
+LOAD D2 0; if() #319 Else End AND if() #621 Test
 COMPAREV D2 0
 GOTOCMP 12427 ==; Test 'if'
-SETR D2 GD5; if() #323 Test AND if() #623 Body Start
+SETR D2 GD5; if() #323 Test AND if() #621 Body Start
 PUSHR D2
 LOAD D2 0.0001
 ADDV D2 18
@@ -12434,35 +12434,35 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12424 ==; Test 'if'
-LOAD D2 0.0003; if() #624 Test AND if() #323 Body Start
+LOAD D2 0.0003; if() #622 Test AND if() #323 Body Start
 ANDV D2 128
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 12427 ==; Test 'if'
-PUSHR D4; if() #624 Body Start
+PUSHR D4; if() #622 Body Start
 SETR D2 GD2; UsrFunc[void Tango_ClearSlot(int)] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
 PUSHR D2; UsrFunc[void Tango_ClearSlot(int)] Params End
 CALLFUNC 0.0673; UsrFunc[void Tango_ClearSlot(int)] Call
-POP D4; if() #624 Body End
+POP D4; if() #622 Body End
 GOTO 12427; if() #323 Body End
 PUSHR D4; if() #323 Else Start
 CALLFUNC 0.3741; UsrFunc[void __Tango_BeginAdvancing()] Call
 POP D4; if() #323 Else End
-POPARGS D5 0.0004; if() #623 Body End
+POPARGS D5 0.0004; if() #621 Body End
 RETURNFUNC; Func[void __Tango_UpdateFinishedSlot(int, int)] Body End
 SETR D4 SP2; Func[void __Tango_UpdateCursorMovement()] Body Start
-SETR D2 GD2; if() #619 Test
+SETR D2 GD2; if() #617 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 31
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 12515 !=; Test 'if' AND return (Void) AND if() #619 Body
+GOTOCMP 12515 !=; Test 'if' AND return (Void) AND if() #617 Body
 SETR D2 GD2
 PUSHR D2
 POP D0

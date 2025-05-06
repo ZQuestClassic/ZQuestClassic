@@ -172,7 +172,7 @@ bool ghost2__OnSidePlatform(int x, int y, int xOff, int yOff, int h, int w)
 	{
 		if( Screen->isSolid( (x + xOff + i), (y + yOff) + h ) )
 		{
-			if( (Screen->Flags[SF_ROOMTYPE]&4) )
+			if (Screen->Flag[SFL_SIDEVIEW])
 			{
 				return true;
 			}

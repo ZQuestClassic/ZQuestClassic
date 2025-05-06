@@ -50,14 +50,6 @@ enum DrawOrigin
 	DRAW_ORIGIN_SPRITE = 6L,
 };
 
-// Screen enemy flag groups. Used with [Screen->EFlags].
-enum ScreenEnemyFlagGroup
-{
-	SEF_SPAWN                      = 0, // Corresponds to [ScreenEnemyFlagSpawn].
-	SEF_LIST1                      = 1, // Corresponds to [ScreenEnemyFlagList1].
-	SEF_LIST2                      = 2, // Corresponds to [ScreenEnemyFlagList2].
-};
-
 // Polygon rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing functions. ie; Polygon, Quad, or Triangle
 // For more detail on these polygon rendering modes, see https://github.com/ZQuestClassic/ZQuestClassic/blob/main/third_party/allegro_legacy/docs/src/allegro._tx#L7808.
 enum PolygonRenderMode
@@ -90,8 +82,113 @@ enum SpriteList
 	SL_PARTICLES                   = 5, // Farore's Wind particles.
 };
 
+// Screen flags, used with [Screen->Flag] and [mapdata::Flag].
+enum ScreenFlag
+{
+	// Room type
+	SFL_INTERIOR = 40, // aka 'Cave'.
+	SFL_DUNGEON = 41,
+	SFL_SIDEVIEW = 51,
+
+	// View
+	SFL_INVISIBLE_HERO = 19, // Hide Hero.
+	SFL_NO_HERO_MARKER = 52,
+	SFL_NO_SUBSCREEN = 20,
+	SFL_NO_SUBSCREEN_OFFSET = 22,
+	SFL_LAYER2BG = 49, // Layer 2 is background.
+	SFL_LAYER3BG = 48, // Layer 3 is background.
+	SFL_DARK_ROOM = 2,
+	SFL_DARK_DITHER = 67,
+	SFL_DARK_TRANS = 68,
+
+	// Secrets
+	SFL_SHUTTERS = 0, // Block->Shutters
+	SFL_TEMP_SECRETS = 36, // Secrets are temporary.
+	SFL_TRIGGERS_PERM = 42, // All Triggers->Perm Secret.
+	SFL_ALL_TRIGGER_FLAGS = 45, // All Triggers->16-31.
+	SFL_SECRET_SFX = 12, // Play Secret SFX on Entry.
+
+	// Warp
+	SFL_WARP_AUTO_DIRECT = 34, // Auto Warps are Direct.
+	SFL_WARP_SENSITIVE_DIRECT = 35, // Sensitive warps are Direct.
+	SFL_WARP_TIMED_DIRECT = 26, // Timed Warp is Direct.
+	SFL_WARP_UP = 8, // Side warp.
+	SFL_WARP_DOWN = 9, // Side warp.
+	SFL_WARP_LEFT = 10, // Side warp.
+	SFL_WARP_RIGHT = 11, // Side warp.
+	SFL_WARP_TIMED_RANDOM = 32,
+	SFL_WARP_SPRITE_CARRYOVER = 21,
+	SFL_WARP_MIRROR_DISABLE = 69,
+	SFL_WARP_TIMED_SECRETS_DISABLE = 27, // Secrets Disable Timed Warp.
+
+	// Maze
+	SFL_MAZE = 6, // Use maze path.
+	SFL_MAZE_OVERRIDES_SIDE_WARPS = 61,
+	SFL_MAZE_CAN_GET_LOST = 72,
+	SFL_MAZE_LOOPY = 73,
+
+	// Items
+	SFL_ITEM_HOLD_UP = 16, // Hold up item.
+	SFL_ITEM_FALLS = 50, // Falls from ceiling.
+	SFL_SECRETS_ITEM = 62, // Secrets reveal item.
+	SFL_ITEM_SECRETS = 63, // Item triggers secrets.
+	SFL_ITEM_SECRETS_PERM = 64, // Item triggers secrets, permanently.
+	SFL_ITEM_RETURNS = 65, // Regular item always returns.
+	SFL_SPECIAL_ITEM_RETURNS = 66, // Special item always returns.
+
+	// Combos
+	SFL_MIDAIR = 13, // Combos Affect Midair Hero.
+	SFL_CYCLE_INIT = 17, // Cycle combos on screen init.
+	SFL_IGNORE_BOOTS = 33, // Damage combos ignores boots.
+	SFL_TOGGLE_RINGS = 46, // Toggle 'Rings Affect Combos'.
+
+	// Save
+	SFL_SAVE_ON_ENTRY = 31, // Save game on entry.
+	SFL_CONTINUE_HERE = 43,
+	SFL_SAVE_CONTINUE_HERE = 30, // Save Point->Continue. When saving at a 'Save' combo on this screen, set this as the continue screen.
+	SFL_NO_CONTINUE_HERE = 44, // No continue Here after warp. 
+
+	// FFC
+	SFL_FFC_WRAP = 47, // FFCs wrap around screen.
+	SFL_FFC_NO_CARRYOVER = 39, // If set, no FFC will carryover (even w/ the FFC's "carryover" flag set).
+
+	// Whistle
+	SFL_WHISTLE = 4, // Whistle->Stairs.
+	SFL_WHISTLE_PALETTE = 54,
+	SFL_WHISTLE_DRY_LAKE = 55,
+
+	// Enemies
+	SFL_ENEMIES_INVISIBLE = 18, // Hide enemies.
+	SFL_ENEMIES_RETURN = 23, // Enemies always return.
+	SFL_ENEMIES_ITEM = 1, // Killing enemies spawns screen item.
+	SFL_ENEMIES_SECRETS = 15, // Enemies->Secrets.
+	SFL_ENEMIES_SECRETS_PERM = 28, // Enemies->Secrets (perm).
+	SFL_ENEMIES_CHAIN_TRIGGERS = 70, // Chain 'Enemies->' Triggers.
+	SFL_TRAPS_IGNORE_SOLID = 14, // Traps Ignore Solidity.
+	SFL_ENEMIES_LEADER = 85, // Ringleader. The first enemy listed in the screen's enemy list will be a 'Ringleader'. When this enemy dies, all other enemies will die.
+	SFL_ENEMIES_CARRY_ITEM = 86,
+	SFL_ENEMIES_BOSS = 87, // Dungeon boss.
+
+	// Enemies (spawn)
+	SFL_ENEMY_SPAWN_ZORA = 80, // Spawns a zora enemy on entry.
+	SFL_ENEMY_SPAWN_TRAP_CORNER = 81,
+	SFL_ENEMY_SPAWN_TRAP_MIDDLE = 82,
+	SFL_ENEMY_SPAWN_ROCKS = 83,
+	SFL_ENEMY_SPAWN_SHOOTER = 84,
+
+	// Misc
+	SFL_TOGGLE_LADDER = 5, // Toggle allow ladder.
+	SFL_TOGGLE_DIVING = 38, // Toggle allow diving.
+	SFL_SCRIPT_1 = 56,
+	SFL_SCRIPT_2 = 57,
+	SFL_SCRIPT_3 = 58,
+	SFL_SCRIPT_4 = 59,
+	SFL_SCRIPT_5 = 60,
+};
+
 // Screen Flag groups, used with [Screen->Flags].
 // See Screen Data dialog for what flags are contained in each group.
+// @deprecated
 enum ScreenFlagGroup
 {
 	SF_ROOMTYPE, // Corresponds to [ScreenFlagRoomType].
@@ -107,6 +204,7 @@ enum ScreenFlagGroup
 	SF_LAST,
 };
 
+// @deprecated
 enum ScreenFlagRoomType
 {
 	SFR_INTERIOR,
@@ -116,6 +214,7 @@ enum ScreenFlagRoomType
 	SFR_LAST
 };
 
+// @deprecated
 enum ScreenFlagView
 {
 	SFV_INVISLINK,
@@ -131,6 +230,7 @@ enum ScreenFlagView
 	SFV_LAST
 };
 
+// @deprecated
 enum ScreenFlagSecrets
 {
 	SFS_BLOCKSHUT, //Block->Shutters
@@ -141,6 +241,7 @@ enum ScreenFlagSecrets
 	SFS_LAST
 };
 
+// @deprecated
 enum ScreenFlagWarp
 {
 	SFW_AUTODIRECT, //Auto Warps are Direct
@@ -155,6 +256,7 @@ enum ScreenFlagWarp
 	SFW_LAST
 };
 
+// @deprecated
 enum ScreenFlagItems
 {
 	SFI_HOLDUP, //Hold up item.
@@ -168,9 +270,10 @@ enum ScreenFlagItems
 	SFI_LAST
 };
 
+// @deprecated
 enum ScreenFlagCombos
 {
-	SFC_MIDAIR, //Combos affect midair Link
+	SFC_MIDAIR, //Combos affect midair Hero.
 	SFC_CYCLEINIT, //Cycle combos on screen init.
 	SFC_IGNOREBOOTS,  //Damage combos ignore boots. 
 	SFC_TOGGLERINGS,  //Toggle 'Rings Affect Combos'
@@ -178,16 +281,18 @@ enum ScreenFlagCombos
 	SFC_LAST
 };
 
+// @deprecated
 enum ScreenFlagSave
 {
-	SFSV_SAVECONTHERE, //Save Point->ontinue here.
+	SFSV_SAVECONTHERE, //Save Point->Continue here.
 	SFSV_SAVEONENTRY, //Save game on entry.
-	SFSV_CONTHERE,  //Comtinue here.
+	SFSV_CONTHERE,  //Continue here.
 	SFSV_NOCONTINUEWARP,  //No continue Here after warp. 
 	
 	SFSV_LAST
 };
 
+// @deprecated
 enum ScreenFlagFFC
 {
 	SFF_WRAP,   //Freeform Combos Wrap Around
@@ -196,6 +301,7 @@ enum ScreenFlagFFC
 	SFF_LAST
 };
 
+// @deprecated
 enum ScreenFlagMisc
 {
 	SFM_ALLOW_LADDER,   //Toggle 'Allow Ladder'
@@ -209,6 +315,7 @@ enum ScreenFlagMisc
 	SFM_LAST
 };
 
+// @deprecated
 enum ScreenFlagWhistle
 {
 	SFWH_STAIRS = 0, //Whistle->Stairs
@@ -218,7 +325,17 @@ enum ScreenFlagWhistle
 	SFWH_LAST
 };
 
+// Screen enemy flag groups. Used with [Screen->EFlags].
+// @deprecated
+enum ScreenEnemyFlagGroup
+{
+	SEF_SPAWN                      = 0, // Corresponds to [ScreenEnemyFlagSpawn].
+	SEF_LIST1                      = 1, // Corresponds to [ScreenEnemyFlagList1].
+	SEF_LIST2                      = 2, // Corresponds to [ScreenEnemyFlagList2].
+};
+
 // See [ScreenEnemyFlagGroup].
+// @deprecated
 enum ScreenEnemyFlagSpawn
 {
 	SEFSP_ZORA,
@@ -231,6 +348,7 @@ enum ScreenEnemyFlagSpawn
 };
 
 // See [ScreenEnemyFlagGroup].
+// @deprecated
 enum ScreenEnemyFlagList1
 {
 	SEFL1_RINGLEADER,
@@ -243,6 +361,7 @@ enum ScreenEnemyFlagList1
 };
 
 // See [ScreenEnemyFlagGroup].
+// @deprecated
 enum ScreenEnemyFlagList2
 {
 	SEFL2_ALWAYSRET,
@@ -419,21 +538,37 @@ class screendata {
 	// @zasm_var EWPNCOUNT
 	internal const int NumEWeapons;
 
+	// The boolean flags for the screen.
+	//
+	// This only refers to the screen denoted by [Index].
+	//
+	// @index [ScreenFlag]
+	// @zasm_var SCREEN_FLAG
+	internal bool Flag[];
+
 	// Multiple bitflags, split into groups.
 	//
+	// This only refers to the screen denoted by [Index].
+	//
+	// @deprecated Use [Flag] instead.
 	// @index [ScreenFlagGroup]
 	// @value Varies based on [ScreenFlagGroup]
 	// @zasm_var SCREENFLAGSD
-	internal int Flags[];
+	internal const int Flags[];
 
 	// Multiple bitflags related to screen enemies, split into groups.
 	//
+	// This only refers to the screen denoted by [Index].
+	//
+	// @deprecated Use [Flag] instead.
 	// @index [ScreenEnemyFlagGroup]
 	// @value Varies based on [ScreenEnemyFlagGroup]
 	// @zasm_var SCREENEFLAGSD
-	internal int EFlags[];
+	internal const int EFlags[];
 
 	// The special room type.
+	//
+	// This only refers to the screen denoted by [Index].
 	//
 	// @value [RoomType]
 	// @zasm_var ROOMTYPE
@@ -882,13 +1017,16 @@ class screendata {
 	// @zasm_var SCREENDATAHASITEM
 	internal int HasItem;
 
-	// @deprecated
+	// Each entry is a separate 8-bit flag.
+	//
+	// @deprecated Use [Flag] instead.
+	// @length 10
 	// @zasm_var SCREENDATAFLAGS
 	internal int ScreenFlags[];
 
 	// A flagset for enemies on the screen (E.Flags).
 	//
-	// @deprecated Use [EFlags] instead!
+	// @deprecated Use [Flag] instead!
 	// @zasm_var SCREENDATAENEMYFLAGS
 	internal int EnemyFlags;
 

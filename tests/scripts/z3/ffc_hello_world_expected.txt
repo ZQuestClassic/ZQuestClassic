@@ -77,7 +77,7 @@ LOAD D3 0.0005
 DEALLOCATEMEMR D3
 STOREV 0 0.0004
 WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #4 Body [Opt:AlwaysOn] Start
-LOAD D2 0.0004; if() #424 Test
+LOAD D2 0.0004; if() #422 Test
 PUSHR D2
 ADDV D2 1
 STORE D2 0.0004
@@ -86,7 +86,7 @@ COMPAREV D2 30
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 82 ==; Test 'if'
-ALLOCATEMEMV D2 43 0; if() #424 Body Start
+ALLOCATEMEMV D2 43 0; if() #422 Body Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "FFC script is running, ID: %d x: %d y: %d\n"
 LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
@@ -106,7 +106,7 @@ PUSHVARGR SPRITE_Y; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0003
-DEALLOCATEMEMR D3; if() #424 Body End
+DEALLOCATEMEMR D3; if() #422 Body End
 LOAD D2 0.0008
 PUSHR D2
 POP REFSPRITE
@@ -177,12 +177,12 @@ GOTOCMP 193 ==; for() #150 TestFail?
 LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #150 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0.0003
-LOAD D2 0.0003; unless() #422 Test
+LOAD D2 0.0003; unless() #420 Test
 PUSHR D2
 POP REFFFC
 SETR D2 DATA
 COMPAREV D2 0
-GOTOCMP 189 ==; Test 'unless' AND continue 1; AND unless() #422 Body
+GOTOCMP 189 ==; Test 'unless' AND continue 1; AND unless() #420 Body
 STOREV 5 0.0002
 LOAD D2 0.0003
 PUSHR D2
@@ -240,12 +240,12 @@ GOTOCMP 252 ==; for() #151 TestFail?
 LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #151 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0.0003
-LOAD D2 0.0003; unless() #423 Test
+LOAD D2 0.0003; unless() #421 Test
 PUSHR D2
 POP REFFFC
 SETR D2 DATA
 COMPAREV D2 0
-GOTOCMP 248 ==; Test 'unless' AND continue 1; AND unless() #423 Body
+GOTOCMP 248 ==; Test 'unless' AND continue 1; AND unless() #421 Body
 STOREV 3 0.0002
 LOAD D2 0.0003
 PUSHR D2

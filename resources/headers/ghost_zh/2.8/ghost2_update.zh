@@ -200,7 +200,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
                     if(__Ghost_IsFlickering(ghost) &&
                        (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
                         __HideFFCAndWait(this);
-                    else if((Screen->EFlags[SEF_LIST1]&100b)!=0 &&
+                    else if(Screen->Flag[SFL_ENEMIES_INVISIBLE] &&
                       !__HaveAmulet())
                         __HideFFCAndWait(this);
                     else
@@ -213,7 +213,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
                     if(__Ghost_IsFlickering(ghost) &&
                        (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)==0)
                         __HideFFCAndWait(this);
-                    else if((Screen->EFlags[SEF_LIST1]&100b)!=0 &&
+                    else if(Screen->Flag[SFL_ENEMIES_INVISIBLE] &&
                       !__HaveAmulet())
                         __HideFFCAndWait(this);
                     else

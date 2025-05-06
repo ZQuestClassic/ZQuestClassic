@@ -893,7 +893,7 @@ void __Ghost_FixCoords()
         newX+=16;
     Ghost_X=newX;
     
-    if((Screen->Flags[SF_ROOMTYPE]&100b)!=0) // If sideview
+    if (Screen->Flag[SFL_SIDEVIEW])
     {
         float newY=(Ghost_Y&0xF8);
         if((Ghost_Y&4)!=0)

@@ -1404,315 +1404,6 @@ bool GetLevelItem(int itm)
 	return (Game->LItems[Game->CurLevel]&itm);
 }
 
-//Gets mapdata EFlags, similar to ScreenEFlag()
-//Uses a mapdata pointer.
-int GetMapScreenEFlag(mapdata md, int category, int flag)
-{
-	int catsizes[] = {5,5,5}; //this is what the editor shows.
-	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway.
-	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
-	if(flag < 0 || flag >= catsizes[category]) return -1;
-	return md->EFlags[category]&(1<<flag);
-}
-
-//Gets mapdata EFlags, similar to ScreenEFlag()
-//Uses map an screen integer values.
-int GetMapScreenEFlag(int mapid, int scr, int category, int flag)
-{
-	mapdata m = Game->LoadMapData(mapid, scr);
-	int catsizes[] = {5,5,5}; //this is what the editor shows.
-	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway.
-	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
-	if(flag < 0 || flag >= catsizes[category]) return -1;
-	return m->EFlags[category]&(1<<flag);
-}
-
-
-//Helper function to get mapdata->Flags[] values
-//See the enum mapscreenflags for legal flags.
-//Accepts a mapdata pointer.
-bool GetMapscreenFlag(mapdata m, mapscreenflags flagid)
-{
-	switch(flagid)
-	{
-		//0, flags
-		case MSF_BLOCKSHUT:
-			return (m->Flags[0]&1);
-		case MSF_ENEMIES_ITEM:
-			return (m->Flags[0]&2);
-		case MSF_DARKROOM:
-			return (m->Flags[0]&4);
-		//8 IS A DUMMY PROC
-		case MSF_STAIRS:
-			return (m->Flags[0]&16);
-		case MSF_ALLOW_LADDER:
-			return (m->Flags[0]&32);
-		case MSF_MAZEPATHS:
-			return (m->Flags[0]&64);
-		case MSF_SFXONENTRY:
-			return (m->Flags[0]&128);
-
-		//1, flags2
-		//what, no 1?
-		case MSF_MIDAIR:
-			return ((m->Flags[1]>>4)&2);
-		case MSF_TRAPS_IGNORE_SOLID:
-			return ((m->Flags[1]>>4)&4);
-		case MSF_ENEMEIS_SECRET:
-			return ((m->Flags[1]>>4)&8);
-
-		//2, flags3
-		case MSF_HOLDUP:
-			return (m->Flags[2]&1);
-		case MSF_CYCLEINIT:
-			return (m->Flags[2]&2);
-		case MSF_INVISIBLEENEMIES:
-			return (m->Flags[2]&4);
-		case MSF_INVISLINK:
-			return (m->Flags[2]&8);
-		case MSF_NOSUBSCREEN:
-			return (m->Flags[2]&16);
-		case MSF_SPRITECARRY:
-			return (m->Flags[2]&32);
-		case MSF_NOOFFSET:
-			return (m->Flags[2]&64);
-		case MSF_EMELIESALWAYSRETURN:
-			return (m->Flags[2]&128);
-
-		//3, flags4
-		//1 AND 2 ARE APPARENTLY UNUSED?
-		case MSF_DIRECTTIMEDWARPS:
-			return (m->Flags[3]&4);
-		case MSF_SECRETSISABLETIMEWRP:
-			return (m->Flags[3]&8);
-		case MSF_ENEMIES_SECRET_PERM:
-			return (m->Flags[3]&16);
-		//32 IS NOT USED
-		case MSF_SAVECONTHERE:
-			return (m->Flags[3]&64);
-		case MSF_SAVEONENTRY:
-			return (m->Flags[3]&128);
-
-		//4, flags5
-		//no 1?
-		case MSF_RANDOMTIMEDWARP:
-			return (m->Flags[4]&1);
-		case MSF_IGNOREBOOTS:
-			return (m->Flags[4]&2);
-		case MSF_AUTODIRECT:
-			return (m->Flags[4]&4);
-		case MSF_SENDSIRECT:
-			return (m->Flags[4]&8);
-		case MSF_TEMPSECRETS:
-			return (m->Flags[4]&16);
-		//no 32?
-		case MSF_NO_DIVING:
-			return (m->Flags[4]&64);
-		case MSF_NOCARRYOVERFFC:
-			return (m->Flags[4]&128);
-
-		//5, flags6
-		case MSF_INTERIOR:
-			return (m->Flags[5]&1);
-		case MSF_DUNGEON:
-			return (m->Flags[5]&2);
-		case MSF_TRIGPERM:
-			return (m->Flags[5]&4);
-		case MSF_CONTHERE:
-			return (m->Flags[5]&8);
-		case MSF_NOCONTINUEWARP:
-			return (m->Flags[5]&16);
-		case MSF_ALLTRIGFLAGS:
-			return (m->Flags[5]&32);
-		case MSF_TOGGLERINGS:
-			return (m->Flags[5]&64);
-		case MSF_WRAPFFC:
-			return (m->Flags[5]&128);
-
-		//6, flags7
-		case MSF_LAYER3BG:
-			return (m->Flags[6]&1);
-		case MSF_LAYER2BG:
-			return (m->Flags[6]&2);
-		case MSF_FALLS:
-			return (m->Flags[6]&4);
-		case MSF_SIDEVIEW:
-			return (m->Flags[6]&8);
-		case MSF_NOLINKMARKER:
-			return (m->Flags[6]&16);
-		case MSF_PALCHANGE:
-			return (m->Flags[6]&64);
-		case MSF_DRYLAKE:
-			return (m->Flags[6]&128);
-
-		//7, flags8
-		case MSF_SCRIPT1:
-			return (m->Flags[7]&1);
-		case MSF_SCRIPT2:
-			return (m->Flags[7]&2);
-		case MSF_SCRIPT3:
-			return (m->Flags[7]&4);
-		case MSF_SCRIPT4:
-			return (m->Flags[7]&8);
-		case MSF_SCRIPT5:
-			return (m->Flags[7]&16);
-		case MSF_LENSEFFECT:
-			return (m->Flags[7]&32);
-		case MSF_MAZEOVERRIDE:
-			return (m->Flags[7]&64);
-
-		default:
-		{
-			printf("Invalid flag id (%d) passed to GetMapscreenFlag()\n", flagid); return 0;
-		}
-	}
-}
-
-
-
-//Helper function to get mapdata->Flags[] values
-//See the enum mapscreenflags for legal flags.
-//Accepts a map ID and a screen ID.
-bool GetMapscreenFlag(int mapid, int scr, mapscreenflags flagid)
-{
-	mapdata m = Game->LoadMapData(mapid, scr);
-	switch(flagid)
-	{
-		//0, flags
-		case MSF_BLOCKSHUT:
-			return (m->Flags[0]&1);
-		case MSF_ENEMIES_ITEM:
-			return (m->Flags[0]&2);
-		case MSF_DARKROOM:
-			return (m->Flags[0]&4);
-		//8 IS A DUMMY PROC
-		case MSF_STAIRS:
-			return (m->Flags[0]&16);
-		case MSF_ALLOW_LADDER:
-			return (m->Flags[0]&32);
-		case MSF_MAZEPATHS:
-			return (m->Flags[0]&64);
-		case MSF_SFXONENTRY:
-			return (m->Flags[0]&128);
-
-		//1, flags2
-		//what, no 1?
-		case MSF_MIDAIR:
-			return ((m->Flags[1]>>4)&2);
-		case MSF_TRAPS_IGNORE_SOLID:
-			return ((m->Flags[1]>>4)&4);
-		case MSF_ENEMEIS_SECRET:
-			return ((m->Flags[1]>>4)&8);
-
-		//2, flags3
-		case MSF_HOLDUP:
-			return (m->Flags[2]&1);
-		case MSF_CYCLEINIT:
-			return (m->Flags[2]&2);
-		case MSF_INVISIBLEENEMIES:
-			return (m->Flags[2]&4);
-		case MSF_INVISLINK:
-			return (m->Flags[2]&8);
-		case MSF_NOSUBSCREEN:
-			return (m->Flags[2]&16);
-		case MSF_SPRITECARRY:
-			return (m->Flags[2]&32);
-		case MSF_NOOFFSET:
-			return (m->Flags[2]&64);
-		case MSF_EMELIESALWAYSRETURN:
-			return (m->Flags[2]&128);
-
-		//3, flags4
-		//1 AND 2 ARE APPARENTLY UNUSED?
-		case MSF_DIRECTTIMEDWARPS:
-			return (m->Flags[3]&4);
-		case MSF_SECRETSISABLETIMEWRP:
-			return (m->Flags[3]&8);
-		case MSF_ENEMIES_SECRET_PERM:
-			return (m->Flags[3]&16);
-		//32 IS NOT USED
-		case MSF_SAVECONTHERE:
-			return (m->Flags[3]&64);
-		case MSF_SAVEONENTRY:
-			return (m->Flags[3]&128);
-
-		//4, flags5
-		//no 1?
-		case MSF_RANDOMTIMEDWARP:
-			return (m->Flags[4]&1);
-		case MSF_IGNOREBOOTS:
-			return (m->Flags[4]&2);
-		case MSF_AUTODIRECT:
-			return (m->Flags[4]&4);
-		case MSF_SENDSIRECT:
-			return (m->Flags[4]&8);
-		case MSF_TEMPSECRETS:
-			return (m->Flags[4]&16);
-		//no 32?
-		case MSF_NO_DIVING:
-			return (m->Flags[4]&64);
-		case MSF_NOCARRYOVERFFC:
-			return (m->Flags[4]&128);
-
-		//5, flags6
-		case MSF_INTERIOR:
-			return (m->Flags[5]&1);
-		case MSF_DUNGEON:
-			return (m->Flags[5]&2);
-		case MSF_TRIGPERM:
-			return (m->Flags[5]&4);
-		case MSF_CONTHERE:
-			return (m->Flags[5]&8);
-		case MSF_NOCONTINUEWARP:
-			return (m->Flags[5]&16);
-		case MSF_ALLTRIGFLAGS:
-			return (m->Flags[5]&32);
-		case MSF_TOGGLERINGS:
-			return (m->Flags[5]&64);
-		case MSF_WRAPFFC:
-			return (m->Flags[5]&128);
-
-		//6, flags7
-		case MSF_LAYER3BG:
-			return (m->Flags[6]&1);
-		case MSF_LAYER2BG:
-			return (m->Flags[6]&2);
-		case MSF_FALLS:
-			return (m->Flags[6]&4);
-		case MSF_SIDEVIEW:
-			return (m->Flags[6]&8);
-		case MSF_NOLINKMARKER:
-			return (m->Flags[6]&16);
-		case MSF_PALCHANGE:
-			return (m->Flags[6]&64);
-		case MSF_DRYLAKE:
-			return (m->Flags[6]&128);
-
-		//7, flags8
-		case MSF_SCRIPT1:
-			return (m->Flags[7]&1);
-		case MSF_SCRIPT2:
-			return (m->Flags[7]&2);
-		case MSF_SCRIPT3:
-			return (m->Flags[7]&4);
-		case MSF_SCRIPT4:
-			return (m->Flags[7]&8);
-		case MSF_SCRIPT5:
-			return (m->Flags[7]&16);
-		case MSF_LENSEFFECT:
-			return (m->Flags[7]&32);
-		case MSF_MAZEOVERRIDE:
-			return (m->Flags[7]&64);
-
-		default:
-		{
-			printf("Invalid flag id (%d) passed to GetMapscreenFlag()\n", flagid); return 0;
-		}
-	}
-}
-
-
-
 //Puts a ZQE Message String into a client array string 'ptr'
 void GetMessage(int ID, char32[] ptr)
 {
@@ -1925,9 +1616,9 @@ bool IsBackgroundLayer(int layer)
 	switch(layer)
 	{
 		case 2:
-			return ( ((Screen->Flags[SF_VIEW]&(1<<SFV_LAYER2BG)) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER2ISBACKGROUND])) ? true : false );
+			return Screen->Flag[SFL_LAYER2BG] ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER2ISBACKGROUND]) ? true : false;
 		case 3:
-			return ( ((Screen->Flags[SF_VIEW]&(1<<SFV_LAYER3BG)) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER3ISBACKGROUND])) ? true : false );
+			return Screen->Flag[SFL_LAYER3BG] ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER3ISBACKGROUND]) ? true : false;
 		default: return false;
 	}
 }
@@ -1939,9 +1630,9 @@ bool IsBackgroundLayer(int layer, mapdata m)
 	switch(layer)
 	{
 		case 2:
-			return ( ((m->Flags[SF_VIEW]&(1<<SFV_LAYER2BG)) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER2ISBACKGROUND])) ? true : false );
+			return ( ((m->Flag[SFL_LAYER2BG]) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER2ISBACKGROUND])) ? true : false );
 		case 3:
-			return ( ((m->Flags[SF_VIEW]&(1<<SFV_LAYER3BG)) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER3ISBACKGROUND])) ? true : false );
+			return ( ((m->Flag[SFL_LAYER3BG]) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER3ISBACKGROUND])) ? true : false );
 		default: return false;
 	}
 }
@@ -1998,13 +1689,13 @@ bool InputRightClick()
 //Returns true if the present screen is a dungen type.
 bool IsDungeon()
 {
-	return ((Screen->Flags[SF_ROOMTYPE] & 1) || Game->LoadDMapData(Game->CurDMap)->Type == DMAP_DUNGEON);
+	return (Screen->Flag[SFL_DUNGEON] || Game->LoadDMapData(Game->CurDMap)->Type == DMAP_DUNGEON);
 }
 
 //Returns true if Link is on a Dungeon (flagged) screen
 bool IsDungeonFlag()
 {
-	return Screen->Flags[SF_ROOMTYPE] & 1;
+	return Screen->Flag[SFL_DUNGEON];
 }
 
 //Returns true if the integer is even.
@@ -2016,7 +1707,7 @@ bool IsEven(int x)
 //Returns true if Link is on an Interior (flagged) screen
 bool IsInteriorFlag()
 {
-	return Screen->Flags[SF_ROOMTYPE] & 2;
+	return Screen->Flag[SFL_INTERIOR];
 }
 
 //Returns true if the integer is odd.
@@ -2038,7 +1729,7 @@ bool IsPit(int position)
 //Returns true if Link is on a sideview screen
 bool IsSideview()
 {
-	return ((Screen->Flags[SF_ROOMTYPE] & 4) ^^ (Game->LoadDMapData(Game->CurDMap)->Sideview));
+	return ((Screen->Flag[SFL_SIDEVIEW]) ^^ (Game->LoadDMapData(Game->CurDMap)->Sideview));
 }
 
 // Returns true if the combo at the given position is water.
@@ -2691,8 +2382,11 @@ void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr)
 
 //Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
+// @deprecated Use [Screen->Flag] instead!
 int ScreenEFlag(int category, int flag)
 {
+	#option WARN_DEPRECATED off
+
 	int catsizes[] = {SEFSP_LAST,SEFL1_LAST,SEFL2_LAST}; //this is what the editor shows.
 	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway.
 	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
@@ -2702,8 +2396,11 @@ int ScreenEFlag(int category, int flag)
 
 //Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
+// @deprecated Use [mapdata::Flag] instead!
 int ScreenEFlag(int m, int scr, int category, int flag)
 {
+	#option WARN_DEPRECATED off
+
 	mapdata md = Game->LoadMapData(m,scr);
 	int catsizes[] = {SEFSP_LAST,SEFL1_LAST,SEFL2_LAST}; //this is what the editor shows.
 	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway.
@@ -2714,8 +2411,11 @@ int ScreenEFlag(int m, int scr, int category, int flag)
 
 //Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
+// @deprecated Use [mapdata::Flag] instead!
 int ScreenEFlag(mapdata md, int category, int flag)
 {
+	#option WARN_DEPRECATED off
+
 	int catsizes[] = {SEFSP_LAST,SEFL1_LAST,SEFL2_LAST}; //this is what the editor shows.
 	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway.
 	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
@@ -2725,8 +2425,11 @@ int ScreenEFlag(mapdata md, int category, int flag)
 
 //Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
+// @deprecated Use [Screen->Flag] instead!
 int ScreenFlag(int category, int flag)
 {
+	#option WARN_DEPRECATED off
+
 	int catsizes[] = {SFR_LAST,SFV_LAST,SFS_LAST,SFW_LAST,SFI_LAST,SFC_LAST,SFSV_LAST,SFF_LAST,SFWH_LAST,SFM_LAST}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7.
 	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
@@ -2735,8 +2438,11 @@ int ScreenFlag(int category, int flag)
 
 //Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
+// @deprecated Use [mapdata::Flag] instead!
 int ScreenFlag(int m, int scr, int category, int flag)
 {
+	#option WARN_DEPRECATED off
+
 	mapdata md = Game->LoadMapData(m,scr);
 	int catsizes[] = {SFR_LAST,SFV_LAST,SFS_LAST,SFW_LAST,SFI_LAST,SFC_LAST,SFSV_LAST,SFF_LAST,SFWH_LAST,SFM_LAST}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7.
 	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
@@ -2746,8 +2452,11 @@ int ScreenFlag(int m, int scr, int category, int flag)
 
 //Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
+// @deprecated Use [mapdata::Flag] instead!
 int ScreenFlag(mapdata m, int category, int flag)
 {
+	#option WARN_DEPRECATED off
+
 	int catsizes[] = {SFR_LAST,SFV_LAST,SFS_LAST,SFW_LAST,SFI_LAST,SFC_LAST,SFSV_LAST,SFF_LAST,SFWH_LAST,SFM_LAST}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7.
 	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
@@ -2871,293 +2580,6 @@ void SetLevelItem(int level, int itm, bool state)
 void SetLevelItem(int itm, bool state)
 {
 	Game->LItems[Game->CurLevel] = AdjustBitflags(Game->LItems[Game->CurLevel], itm, state);
-}
-
-//Helper function to set mapdata->Flags[] bits.
-//See the enum mapscreenflags for legal flags.
-//Accepts a mapdata pointer.
-void SetMapscreenFlag(mapdata m, mapscreenflags flagid, bool state)
-{
-	switch(flagid)
-	{
-		//0, flags
-		case MSF_BLOCKSHUT:
-			(state) ? (m->Flags[0] |=1) : (m->Flags[0] ~=1); break;
-		case MSF_ENEMIES_ITEM:
-			(state) ? (m->Flags[0] |=2) : (m->Flags[0] ~=2); break;
-		case MSF_DARKROOM:
-			(state) ? (m->Flags[0] |=4) : (m->Flags[0] ~=4); break;
-		//8 IS A DUMMY PROC
-		case MSF_STAIRS:
-			(state) ? (m->Flags[0] |=16) : (m->Flags[0] ~=16); break;
-		case MSF_ALLOW_LADDER:
-			(state) ? (m->Flags[0] |=32) : (m->Flags[0] ~=32); break;
-		case MSF_MAZEPATHS:
-			(state) ? (m->Flags[0] |=64) : (m->Flags[0] ~=64); break;
-		case MSF_SFXONENTRY:
-			(state) ? (m->Flags[0] |=128) : (m->Flags[0] ~=128); break;
-
-		//1, flags2
-		//what, no 1?
-		case MSF_MIDAIR:
-			(state) ? (m->Flags[1] |=2>>4) : (m->Flags[1] ~=2>>4); break;
-		case MSF_TRAPS_IGNORE_SOLID:
-			(state) ? (m->Flags[1] |=4>>4) : (m->Flags[1] ~=4>>4); break;
-		case MSF_ENEMEIS_SECRET:
-			(state) ? (m->Flags[1] |=8>>4) : (m->Flags[1] ~=8>>4); break;
-
-		//2, flags3
-		case MSF_HOLDUP:
-			(state) ? (m->Flags[2] |=1) : (m->Flags[2] ~=1); break;
-		case MSF_CYCLEINIT:
-			(state) ? (m->Flags[2] |=2) : (m->Flags[2] ~=2); break;
-		case MSF_INVISIBLEENEMIES:
-			(state) ? (m->Flags[2] |=4) : (m->Flags[2] ~=4); break;
-		case MSF_INVISLINK:
-			(state) ? (m->Flags[2] |=8) : (m->Flags[2] ~=8); break;
-		case MSF_NOSUBSCREEN:
-			(state) ? (m->Flags[2] |=16) : (m->Flags[2] ~=16); break;
-		case MSF_SPRITECARRY:
-			(state) ? (m->Flags[2] |=32) : (m->Flags[2] ~=32); break;
-		case MSF_NOOFFSET:
-			(state) ? (m->Flags[2] |=64) : (m->Flags[2] ~=64); break;
-		case MSF_EMELIESALWAYSRETURN:
-			(state) ? (m->Flags[2] |=128) : (m->Flags[2] ~=128); break;
-
-		//3, flags4
-		//1 AND 2 ARE APPARENTLY UNUSED?
-		case MSF_DIRECTTIMEDWARPS:
-			(state) ? (m->Flags[3] |=4) : (m->Flags[3] ~=4); break;
-		case MSF_SECRETSISABLETIMEWRP:
-			(state) ? (m->Flags[3] |=8) : (m->Flags[3] ~=8); break;
-		case MSF_ENEMIES_SECRET_PERM:
-			(state) ? (m->Flags[3] |=16) : (m->Flags[3] ~=16); break;
-		//32 IS NOT USED
-		case MSF_SAVECONTHERE:
-			(state) ? (m->Flags[3] |=64) : (m->Flags[3] ~=64); break;
-		case MSF_SAVEONENTRY:
-			(state) ? (m->Flags[3] |=128) : (m->Flags[3] ~=128); break;
-
-		//4, flags5
-		//no 1?
-		case MSF_RANDOMTIMEDWARP:
-			(state) ? (m->Flags[4] |=1) : (m->Flags[4] ~=1); break;
-		case MSF_IGNOREBOOTS:
-			(state) ? (m->Flags[4] |=2) : (m->Flags[4] ~=2); break;
-		case MSF_AUTODIRECT:
-			(state) ? (m->Flags[4] |=4) : (m->Flags[4] ~=4); break;
-		case MSF_SENDSIRECT:
-			(state) ? (m->Flags[4] |=8) : (m->Flags[4] ~=8); break;
-		case MSF_TEMPSECRETS:
-			(state) ? (m->Flags[4] |=16) : (m->Flags[4] ~=16); break;
-		//no 32?
-		case MSF_NO_DIVING:
-			(state) ? (m->Flags[4] |=64) : (m->Flags[4] ~=64); break;
-		case MSF_NOCARRYOVERFFC:
-			(state) ? (m->Flags[4] |=128) : (m->Flags[4] ~=128); break;
-
-
-		//5, flags6
-		case MSF_INTERIOR:
-			(state) ? (m->Flags[5] |=1) : (m->Flags[5] ~=1); break;
-		case MSF_DUNGEON:
-			(state) ? (m->Flags[5] |=2) : (m->Flags[5] ~=2); break;
-		case MSF_TRIGPERM:
-			(state) ? (m->Flags[5] |=4) : (m->Flags[5] ~=4); break;
-		case MSF_CONTHERE:
-			(state) ? (m->Flags[5] |=8) : (m->Flags[5] ~=8); break;
-		case MSF_NOCONTINUEWARP:
-			(state) ? (m->Flags[5] |=16) : (m->Flags[5] ~=16); break;
-		case MSF_ALLTRIGFLAGS:
-			(state) ? (m->Flags[5] |=32) : (m->Flags[5] ~=32); break;
-		case MSF_TOGGLERINGS:
-			(state) ? (m->Flags[5] |=64) : (m->Flags[5] ~=64); break;
-		case MSF_WRAPFFC:
-			(state) ? (m->Flags[5] |=128) : (m->Flags[5] ~=128); break;
-
-		//6, flags7
-		case MSF_LAYER3BG:
-			(state) ? (m->Flags[6] |=1) : (m->Flags[6] ~=1); break;
-		case MSF_LAYER2BG:
-			(state) ? (m->Flags[6] |=2) : (m->Flags[6] ~=2); break;
-		case MSF_FALLS:
-			(state) ? (m->Flags[6] |=4) : (m->Flags[6] ~=4); break;
-		case MSF_SIDEVIEW:
-			(state) ? (m->Flags[6] |=8) : (m->Flags[6] ~=8); break;
-		case MSF_NOLINKMARKER:
-			(state) ? (m->Flags[6] |=16) : (m->Flags[6] ~=16); break;
-		//32 IS UNUSED
-		case MSF_PALCHANGE:
-			(state) ? (m->Flags[6] |=64) : (m->Flags[6] ~=64); break;
-		case MSF_DRYLAKE:
-			(state) ? (m->Flags[6] |=128) : (m->Flags[6] ~=128); break;
-
-		//7, flags8
-		case MSF_SCRIPT1:
-			(state) ? (m->Flags[7] |=1) : (m->Flags[7] ~=1); break;
-		case MSF_SCRIPT2:
-			(state) ? (m->Flags[7] |=2) : (m->Flags[7] ~=2); break;
-		case MSF_SCRIPT3:
-			(state) ? (m->Flags[7] |=4) : (m->Flags[7] ~=4); break;
-		case MSF_SCRIPT4:
-			(state) ? (m->Flags[7] |=8) : (m->Flags[7] ~=8); break;
-		case MSF_SCRIPT5:
-			(state) ? (m->Flags[7] |=16) : (m->Flags[7] ~=16); break;
-		case MSF_LENSEFFECT:
-			(state) ? (m->Flags[7] |=32) : (m->Flags[7] ~=32); break;
-		case MSF_MAZEOVERRIDE:
-			(state) ? (m->Flags[7] |=64) : (m->Flags[7] ~=64); break;
-
-
-		default:
-		{
-			printf("Invalid flag id (%d) passed to SetMapscreenFlag()\n", flagid);  break;
-		}
-	}
-}
-
-//Helper function to set mapdata->Flags[] bits.
-//See the enum mapscreenflags for legal flags.
-//Accepts a map ID, and a screen ID.
-void SetMapscreenFlag(int mapid, int scr, mapscreenflags flagid, bool state)
-{
-	mapdata m = Game->LoadMapData(mapid, scr);
-	switch(flagid)
-	{
-		//0, flags
-		case MSF_BLOCKSHUT:
-			(state) ? (m->Flags[0] |=1) : (m->Flags[0] ~=1); break;
-		case MSF_ENEMIES_ITEM:
-			(state) ? (m->Flags[0] |=2) : (m->Flags[0] ~=2); break;
-		case MSF_DARKROOM:
-			(state) ? (m->Flags[0] |=4) : (m->Flags[0] ~=4); break;
-		//8 IS A DUMMY PROC
-		case MSF_STAIRS:
-			(state) ? (m->Flags[0] |=16) : (m->Flags[0] ~=16); break;
-		case MSF_ALLOW_LADDER:
-			(state) ? (m->Flags[0] |=32) : (m->Flags[0] ~=32); break;
-		case MSF_MAZEPATHS:
-			(state) ? (m->Flags[0] |=64) : (m->Flags[0] ~=64); break;
-		case MSF_SFXONENTRY:
-			(state) ? (m->Flags[0] |=128) : (m->Flags[0] ~=128); break;
-
-		//1, flags2
-		//what, no 1?
-		case MSF_MIDAIR:
-			(state) ? (m->Flags[1] |=2>>4) : (m->Flags[1] ~=2>>4); break;
-		case MSF_TRAPS_IGNORE_SOLID:
-			(state) ? (m->Flags[1] |=4>>4) : (m->Flags[1] ~=4>>4); break;
-		case MSF_ENEMEIS_SECRET:
-			(state) ? (m->Flags[1] |=8>>4) : (m->Flags[1] ~=8>>4); break;
-
-		//2, flags3
-		case MSF_HOLDUP:
-			(state) ? (m->Flags[2] |=1) : (m->Flags[2] ~=1); break;
-		case MSF_CYCLEINIT:
-			(state) ? (m->Flags[2] |=2) : (m->Flags[2] ~=2); break;
-		case MSF_INVISIBLEENEMIES:
-			(state) ? (m->Flags[2] |=4) : (m->Flags[2] ~=4); break;
-		case MSF_INVISLINK:
-			(state) ? (m->Flags[2] |=8) : (m->Flags[2] ~=8); break;
-		case MSF_NOSUBSCREEN:
-			(state) ? (m->Flags[2] |=16) : (m->Flags[2] ~=16); break;
-		case MSF_SPRITECARRY:
-			(state) ? (m->Flags[2] |=32) : (m->Flags[2] ~=32); break;
-		case MSF_NOOFFSET:
-			(state) ? (m->Flags[2] |=64) : (m->Flags[2] ~=64); break;
-		case MSF_EMELIESALWAYSRETURN:
-			(state) ? (m->Flags[2] |=128) : (m->Flags[2] ~=128); break;
-
-		//3, flags4
-		//1 AND 2 ARE APPARENTLY UNUSED?
-		case MSF_DIRECTTIMEDWARPS:
-			(state) ? (m->Flags[3] |=4) : (m->Flags[3] ~=4); break;
-		case MSF_SECRETSISABLETIMEWRP:
-			(state) ? (m->Flags[3] |=8) : (m->Flags[3] ~=8); break;
-		case MSF_ENEMIES_SECRET_PERM:
-			(state) ? (m->Flags[3] |=16) : (m->Flags[3] ~=16); break;
-		//32 IS NOT USED
-		case MSF_SAVECONTHERE:
-			(state) ? (m->Flags[3] |=64) : (m->Flags[3] ~=64); break;
-		case MSF_SAVEONENTRY:
-			(state) ? (m->Flags[3] |=128) : (m->Flags[3] ~=128); break;
-
-		//4, flags5
-		//no 1?
-		case MSF_RANDOMTIMEDWARP:
-			(state) ? (m->Flags[4] |=1) : (m->Flags[4] ~=1); break;
-		case MSF_IGNOREBOOTS:
-			(state) ? (m->Flags[4] |=2) : (m->Flags[4] ~=2); break;
-		case MSF_AUTODIRECT:
-			(state) ? (m->Flags[4] |=4) : (m->Flags[4] ~=4); break;
-		case MSF_SENDSIRECT:
-			(state) ? (m->Flags[4] |=8) : (m->Flags[4] ~=8); break;
-		case MSF_TEMPSECRETS:
-			(state) ? (m->Flags[4] |=16) : (m->Flags[4] ~=16); break;
-		//no 32?
-		case MSF_NO_DIVING:
-			(state) ? (m->Flags[4] |=64) : (m->Flags[4] ~=64); break;
-		case MSF_NOCARRYOVERFFC:
-			(state) ? (m->Flags[4] |=128) : (m->Flags[4] ~=128); break;
-
-
-		//5, flags6
-		case MSF_INTERIOR:
-			(state) ? (m->Flags[5] |=1) : (m->Flags[5] ~=1); break;
-		case MSF_DUNGEON:
-			(state) ? (m->Flags[5] |=2) : (m->Flags[5] ~=2); break;
-		case MSF_TRIGPERM:
-			(state) ? (m->Flags[5] |=4) : (m->Flags[5] ~=4); break;
-		case MSF_CONTHERE:
-			(state) ? (m->Flags[5] |=8) : (m->Flags[5] ~=8); break;
-		case MSF_NOCONTINUEWARP:
-			(state) ? (m->Flags[5] |=16) : (m->Flags[5] ~=16); break;
-		case MSF_ALLTRIGFLAGS:
-			(state) ? (m->Flags[5] |=32) : (m->Flags[5] ~=32); break;
-		case MSF_TOGGLERINGS:
-			(state) ? (m->Flags[5] |=64) : (m->Flags[5] ~=64); break;
-		case MSF_WRAPFFC:
-			(state) ? (m->Flags[5] |=128) : (m->Flags[5] ~=128); break;
-
-		//6, flags7
-		case MSF_LAYER3BG:
-			(state) ? (m->Flags[6] |=1) : (m->Flags[6] ~=1); break;
-		case MSF_LAYER2BG:
-			(state) ? (m->Flags[6] |=2) : (m->Flags[6] ~=2); break;
-		case MSF_FALLS:
-			(state) ? (m->Flags[6] |=4) : (m->Flags[6] ~=4); break;
-		case MSF_SIDEVIEW:
-			(state) ? (m->Flags[6] |=8) : (m->Flags[6] ~=8); break;
-		case MSF_NOLINKMARKER:
-			(state) ? (m->Flags[6] |=16) : (m->Flags[6] ~=16); break;
-		//32 IS UNUSED
-		case MSF_PALCHANGE:
-			(state) ? (m->Flags[6] |=64) : (m->Flags[6] ~=64); break;
-		case MSF_DRYLAKE:
-			(state) ? (m->Flags[6] |=128) : (m->Flags[6] ~=128); break;
-
-		//7, flags8
-		case MSF_SCRIPT1:
-			(state) ? (m->Flags[7] |=1) : (m->Flags[7] ~=1); break;
-		case MSF_SCRIPT2:
-			(state) ? (m->Flags[7] |=2) : (m->Flags[7] ~=2); break;
-		case MSF_SCRIPT3:
-			(state) ? (m->Flags[7] |=4) : (m->Flags[7] ~=4); break;
-		case MSF_SCRIPT4:
-			(state) ? (m->Flags[7] |=8) : (m->Flags[7] ~=8); break;
-		case MSF_SCRIPT5:
-			(state) ? (m->Flags[7] |=16) : (m->Flags[7] ~=16); break;
-		case MSF_LENSEFFECT:
-			(state) ? (m->Flags[7] |=32) : (m->Flags[7] ~=32); break;
-		case MSF_MAZEOVERRIDE:
-			(state) ? (m->Flags[7] |=64) : (m->Flags[7] ~=64); break;
-
-
-		default:
-		{
-			printf("Invalid flag id (%d) passed to SetMapscreenFlag()\n", flagid);  break;
-		}
-	}
 }
 
 //Sets bit 'bit' of Screen->D[] register 'd' to 'state'

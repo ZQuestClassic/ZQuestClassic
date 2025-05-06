@@ -123,7 +123,7 @@ SETR D2 VIEWPORT_Y
 POP D3
 ADDR D2 D3
 STORE D2 0
-LOAD D2 0.0007; if() #422 Test
+LOAD D2 0.0007; if() #420 Test
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -166,7 +166,7 @@ GOTO 139
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 143 ==; Test 'if'
-LOAD D2 0.0008; InlineFunc[void screendata::TriggerSecrets(int)] Params AND if() #422 Body Start
-REGION_TRIGGER_SECRETS D2; InlineFunc[void screendata::TriggerSecrets(int)] Body AND if() #422 Body End
+LOAD D2 0.0008; InlineFunc[void screendata::TriggerSecrets(int)] Params AND if() #420 Body Start
+REGION_TRIGGER_SECRETS D2; InlineFunc[void screendata::TriggerSecrets(int)] Body AND if() #420 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 57; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End

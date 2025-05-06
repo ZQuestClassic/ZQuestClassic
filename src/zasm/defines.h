@@ -3146,9 +3146,10 @@ enum ASM_DEFINE
 #define IDATAFLASHCSET          0x15F1
 
 #define FFCLAYER          0x15F2
+#define SCREEN_FLAG       0x15F3
+#define MAPDATA_FLAG      0x15F4
 
-
-#define NUMVARIABLES            0x15F3
+#define NUMVARIABLES            0x15F5
 
 //} End variables
 

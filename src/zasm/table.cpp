@@ -2914,6 +2914,8 @@ static constexpr script_variable variable_list[]=
 	{ "IDATAFLASHCSET", IDATAFLASHCSET, 0 },
 	
 	{ "FFCLAYER", FFCLAYER, 0},
+	{ "SCREEN_FLAG", SCREEN_FLAG, 0},
+	{ "MAPDATA_FLAG", MAPDATA_FLAG, 0},
 };
 
 // Don't rely on `command_list` to be indexed by command.

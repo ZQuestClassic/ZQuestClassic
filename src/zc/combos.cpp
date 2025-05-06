@@ -992,7 +992,7 @@ bool trigger_warp(const combined_handle_t& handle)
 	}
 	
 	auto wflag = 0;
-	if(scr->flags3&fIWARPFULLSCREEN) wflag |= warpFlagDONTCLEARSPRITES;
+	if(scr->flags3&fIWARP_SPRITE_CARRYOVER) wflag |= warpFlagDONTCLEARSPRITES;
 	//Queue the warp for the next frame, as doing anything else breaks terribly
 	FFCore.queueWarp(wtype, tdm, tscr, wx, wy, weff, wsfx, wflag, -1);
 	return true;

@@ -1224,12 +1224,12 @@ class Game {
 	//   SETR D2 REFDROPS
 	internal dropsetdata LoadDropset(int id);
 
-	// @deprecate Use `new randgen()` instead.
+	// @deprecated Use `new randgen()` instead.
 	// @zasm
 	//   LOADRNG
 	internal randgen LoadRNG();
 
-	// @deprecate Use `new stack()` instead.
+	// @deprecated Use `new stack()` instead.
 	// @zasm
 	//   LOADSTACK
 	internal stack LoadStack();

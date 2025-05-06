@@ -649,8 +649,15 @@ class mapdata {
 	// @zasm_var MAPDATASCREENMIDI
 	internal int MIDI;
 
+	// The boolean flags for the screen.
+	//
+	// @index [ScreenFlag]
+	// @zasm_var MAPDATA_FLAG
+	internal bool Flag[];
+
 	// Multiple bitflags, split into groups.
 	//
+	// @deprecated Use [Flag] instead!
 	// @index [ScreenFlagGroup]
 	// @value Varies based on [ScreenFlagGroup]
 	// @zasm_var MAPDATAFLAGS
@@ -658,6 +665,7 @@ class mapdata {
 
 	// Multiple bitflags related to screen enemies, split into groups.
 	//
+	// @deprecated Use [Flag] instead!
 	// @index [ScreenEnemyFlagGroup]
 	// @value Varies based on [ScreenEnemyFlagGroup]
 	// @zasm_var MAPDATASCREENEFLAGSD
@@ -800,13 +808,13 @@ class mapdata {
 	// @zasm_var MAPDATAHASITEM
 	internal int HasItem;
 
-	// @deprecated Use [Flags] instead!
+	// @deprecated Use [Flag] instead!
 	// @zasm_var MAPDATASCREENFLAGSD
 	internal const int SFlags[];
 
 	// Bitflags for enemies on the screen (E.Flags).
 	//
-	// @deprecated Use [EFlags] instead!
+	// @deprecated Use [Flag] instead!
 	// @zasm_var MAPDATAENEMYFLAGS
 	internal int EnemyFlags;
 
