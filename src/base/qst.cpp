@@ -15629,7 +15629,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		temp_mapscr->color = (word) tempbyte;
 	}
 	
-	if(!p_getc(&(temp_mapscr->enemyflags),f))
+	if(!p_getc(&(temp_mapscr->flags11),f))
 	{
 		return qe_invalid;
 	}
@@ -17024,7 +17024,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->flags10),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->enemyflags),f))
+			if(!p_getc(&(temp_mapscr->flags11),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_ENEMY)

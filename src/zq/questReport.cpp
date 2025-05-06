@@ -1687,7 +1687,7 @@ void itemLocationReport()
                 newnode->screen=s;
                 newnode->extra1=-1;
                 newnode->extra2=-1;
-                newnode->enemy=(ts->flags&fITEM ? -1 : (ts->enemyflags&efCARRYITEM) ? ts->enemy[0] : 0);
+                newnode->enemy=(ts->flags&fITEM ? -1 : (ts->flags11&efCARRYITEM) ? ts->enemy[0] : 0);
                 newnode->pal=ts->color;
                 newnode->next=NULL;
                 tempnode->next=newnode;

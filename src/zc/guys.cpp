@@ -18237,7 +18237,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 				screen_item_set_state(screen, ScreenItemState::WhenTriggerSecrets);
 			else if(scr->flags&fITEM)
 				screen_item_set_state(screen, ScreenItemState::WhenKillEnemies);
-			else if(scr->enemyflags&efCARRYITEM)
+			else if(scr->flags11&efCARRYITEM)
 				screen_item_set_state(screen, ScreenItemState::MustGiveToEnemy); // Will be set to CarriedByEnemy in roaming_item
 			else
 			{
@@ -18364,7 +18364,7 @@ static bool ok2add(mapscr* scr, int32_t id)
 
 static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 {
-	if (!(rpos_handle.scr->enemyflags&efFIREBALLS) || statueID<0)
+	if (!(rpos_handle.scr->flags11&efFIREBALLS) || statueID<0)
 	{
 		return;
 	}
@@ -18418,7 +18418,7 @@ static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 
 static void activate_fireball_statues(mapscr* scr)
 {
-	if (!(scr->enemyflags&efFIREBALLS))
+	if (!(scr->flags11&efFIREBALLS))
 	{
 		return;
 	}
@@ -18435,13 +18435,13 @@ void load_default_enemies(mapscr* scr)
 
 	wallm_load_clk=frame-80;
 	
-	if(scr->enemyflags&efZORA)
+	if(scr->flags11&efZORA)
 	{
 		if(zoraID>=0)
 			addenemy(screen, dx - 16, dy - 16, zoraID, 0);
 	}
 	
-	if(scr->enemyflags&efTRAP4)
+	if(scr->flags11&efTRAP4)
 	{
 		if(cornerTrapID>=0)
 		{
@@ -18497,7 +18497,7 @@ void load_default_enemies(mapscr* scr)
 		}
 	});
 	
-	if(scr->enemyflags&efTRAP2)
+	if(scr->flags11&efTRAP2)
 	{
 		if(centerTrapID>=-1)
 		{
@@ -18509,7 +18509,7 @@ void load_default_enemies(mapscr* scr)
 		}
 	}
 	
-	if(scr->enemyflags&efROCKS)
+	if(scr->flags11&efROCKS)
 	{
 		if(rockID>=0)
 		{
@@ -19285,7 +19285,7 @@ placed_enemy:
 	
 	if(placed)
 	{
-		if(i==0 && scr->enemyflags&efLEADER)
+		if(i==0 && scr->flags11&efLEADER)
 		{
 			enemy* e = find_guy_first_for_id(screen, scr->enemy[i], 0xFFF);
 			if (e)
@@ -19460,7 +19460,7 @@ void loadenemies()
 		state.loaded_enemies = true;
 
 		// check if it's the dungeon boss and it has been beaten before
-		if (scr->enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
+		if (scr->flags11&efBOSS && game->lvlitems[dlevel]&liBOSS)
 			return;
 
 		int32_t loadcnt = 10;
