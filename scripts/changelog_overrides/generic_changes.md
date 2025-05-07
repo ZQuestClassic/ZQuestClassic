@@ -44,3 +44,6 @@ Example usage: ./zeditor.exe -smart-assign your_quest.qst
 =end
 
 reword 86b88dff9c410348fc888a312d68745bda857b2e feat(zc): show bottom 8 pixels by default for most quests made prior to 2.55.9
+
+reword 62a494305b682a58c83104b47145245698f56d6f fix(zscript): `lweapon->isValid()` now accurate for lifted weapons
+reword d7869fc0452d70aff8c797ae96bad62bccb31d92 fix(zc): lifted weapon not disappearing on death
