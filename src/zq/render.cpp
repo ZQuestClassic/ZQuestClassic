@@ -10,6 +10,7 @@ extern bool DragAspect;
 static auto rti_root = RenderTreeItem("root");
 static auto rti_screen = LegacyBitmapRTI("screen");
 static bool screen_never_freeze;
+static bool center_root_rti = true;
 
 RenderTreeItem& gui_mouse_target()
 {
@@ -85,8 +86,8 @@ static void configure_render_tree()
 		if(DragAspect)
 			xscale = yscale = std::min(xscale,yscale);
 		rti_root.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
+			.x = center_root_rti ? (int)(resx - w*xscale) / 2 : 0,
+			.y = center_root_rti ? (int)(resy - h*yscale) / 2 : 0,
 			.xscale = xscale,
 			.yscale = yscale,
 		});
@@ -116,6 +117,11 @@ static void configure_render_tree()
 RenderTreeItem* get_root_rti()
 {
 	return &rti_root;
+}
+
+void set_center_root_rti(bool center)
+{
+	center_root_rti = center;
 }
 
 RenderTreeItem* get_screen_rti()

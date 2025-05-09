@@ -4599,13 +4599,16 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 
 	if(isviewingmap)
 	{
+		set_center_root_rti(false);
+
 		int sw = rti_map_view.width / 16;
 		int sh = rti_map_view.height / 8;
 		int screen = Map.getCurrScr();
 		if (screen >= 0x00 && screen <= 0x7F)
 		{
-			int dw = al_get_display_width(all_get_display()) / get_root_rti()->get_transform().xscale;
-			int dh = al_get_display_height(all_get_display()) / get_root_rti()->get_transform().yscale;
+			auto root_transform = get_root_rti()->get_transform();
+			int dw = al_get_display_width(all_get_display()) / root_transform.xscale;
+			int dh = al_get_display_height(all_get_display()) / root_transform.yscale;
 			mapx = (-(screen % 16) * sw - sw/2 + dw/2);
 			mapy = (-(screen / 16) * sh - sh/2 + dh/2);
 		}
@@ -4628,8 +4631,9 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		if (isviewingmap)
 		{
 			float scale = *scale2;
-			int dw = al_get_display_width(all_get_display()) / get_root_rti()->get_transform().xscale;
-			int dh = al_get_display_height(all_get_display()) / get_root_rti()->get_transform().yscale;
+			auto root_transform = get_root_rti()->get_transform();
+			int dw = al_get_display_width(all_get_display()) / root_transform.xscale;
+			int dh = al_get_display_height(all_get_display()) / root_transform.yscale;
 			mapx = std::max(mapx, (int)(-w*scale + dw));
 			mapy = std::max(mapy, (int)(-h*scale + dh));
 			mapx = std::min(mapx, 0);
@@ -4821,6 +4825,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	popup_zqdialog_end();
 	position_mouse_z(0);
 	viewer_overlay_rti.remove();
+	set_center_root_rti(true);
 	close_the_map();
 	return D_O_K;
 }
