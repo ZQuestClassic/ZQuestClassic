@@ -4614,20 +4614,20 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		}
 	}
 
-	int w, h;
-	if (isviewingmap)
-	{
-		w = rti_map_view.width;
-		h = rti_map_view.height;
-	}
-	else
-	{
-		w = (*pictoview)->w;
-		h = (*pictoview)->h;
-	}
-
 	do
 	{
+		int w, h;
+		if (isviewingmap)
+		{
+			w = rti_map_view.width;
+			h = rti_map_view.height;
+		}
+		else
+		{
+			w = (*pictoview)->w;
+			h = (*pictoview)->h;
+		}
+
 		if (isviewingmap)
 		{
 			float scale = *scale2;
