@@ -31280,12 +31280,6 @@ void HeroClass::getTriforce(int32_t id2)
 	chainlinks.clear();
     
 	kill_subscr_items();
-	
-	//decorations.clear();
-	if(!COOLSCROLL)
-	{
-		show_subscreen_items=false;
-	}
     
 	sfx(itemsbuf[id2].playsound);
 	if ( !(itemsbuf[id2].flags & ITEM_FLAG11) ) music_stop();
@@ -31351,6 +31345,12 @@ void HeroClass::getTriforce(int32_t id2)
 		{
 			return;
 		}
+
+		if(!COOLSCROLL)
+		{
+			show_subscreen_items=false;
+		}
+
 		if(f==40)
 		{
 			actiontype oldaction = action;
