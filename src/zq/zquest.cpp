@@ -26149,12 +26149,6 @@ void ZQ_ClearQuestPath()
 
 //FFCore
 
-int32_t FFScript::GetScriptObjectUID(int32_t type)
-{
-	++script_UIDs[type];
-	return script_UIDs[type];
-}
-
 void FFScript::init()
 {
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
@@ -26169,7 +26163,6 @@ void FFScript::init()
 	music_update_flags = 0;
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	
-	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	int32_t usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
 	FF_hero_action = 0;

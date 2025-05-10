@@ -176,12 +176,6 @@ enum{
 	scdrDRAW_DURING_WIPES, scdrLAST
 };
 
-//UID types for ->Script_UID
-enum
-{
-	UID_TYPE_NPC, UID_TYPE_WEAPON, UID_TYPE_ITEM, UID_TYPES
-};
-
 //Quest Version Information Categories
 //These reflect the version details from when the quest was last saved.
 enum 
@@ -907,7 +901,6 @@ byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game
 byte system_suspend[susptLAST];
 
 int32_t coreflags;
-int32_t script_UIDs[UID_TYPES];
 int32_t usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
 byte music_update_cond, music_update_flags;
 
@@ -977,8 +970,6 @@ int32_t getCombodataPos(int32_t c, ScriptType scripttype);
 int32_t getCombodataY(int32_t c, ScriptType scripttype);
 int32_t getCombodataX(int32_t c, ScriptType scripttype);
 
-int32_t GetScriptObjectUID(int32_t type);
-
 void SetFFEngineFlag(int32_t flag, bool v);
 void SetItemMessagePlayed(int32_t itm);
 bool GetItemMessagePlayed(int32_t itm);
@@ -1001,10 +992,6 @@ void do_loadnpc_by_script_uid(const bool v);
 void do_loaditem_by_script_uid(const bool v);
 void do_loadlweapon_by_script_uid(const bool v);
 void do_loadeweapon_by_script_uid(const bool v);
-
-int32_t getEnemyByScriptUID(int32_t sUID);
-int32_t getLWeaponByScriptUID(int32_t sUID);
-int32_t getEWeaponByScriptUID(int32_t sUID);
 
 //Deletion functions
 void do_lweapon_delete();

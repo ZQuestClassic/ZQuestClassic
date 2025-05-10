@@ -740,7 +740,6 @@ weapon::weapon(weapon const & other):
     collectflags(other.collectflags),	//int32_t		A flagset that determines of the weapon can collect an item.
     duplicates(other.duplicates),	//int32_t		A flagset that determines of the weapon can collect an item.
     quantity_iterator(other.quantity_iterator),	//int32_t		A flagset that determines of the weapon can collect an item.
-    script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON)),
 //Enemy Editor Weapon Sprite
     wpnsprite(other.wpnsprite),
     specialinfo(other.specialinfo),
@@ -748,8 +747,7 @@ weapon::weapon(weapon const & other):
     isLWeapon(other.isLWeapon),
 	linkedItem(other.linkedItem),
 	//weaponscript(other.weaponscript),
-	parent_script_UID(other.parent_script_UID), //Theoretical: Should the parent remain the same, or change to the weapon that spawned the copy?
-	//script_UID(other.script_UID), //Should never be identical. Should get a new script_UID if needed.
+	parent_uid(other.parent_uid), //Theoretical: Should the parent remain the same, or change to the weapon that spawned the copy?
 	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
 	weapon_dying_frame(other.weapon_dying_frame),
 	weap_timeout(other.weap_timeout),
@@ -788,8 +786,6 @@ weapon::weapon(weapon const & other):
 		dummy_float[i]=other.dummy_float[i];
 		dummy_bool[i]=other.dummy_bool[i];
 	}
-    
-	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
     
     //Weapon Editor Arrays
     for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
@@ -1024,7 +1020,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	quantity_iterator = 0;
 	weapon_dying_frame = false;
 	weap_timeout = 0;
-	parent_script_UID = 0;
+	parent_uid = 0;
 	unblockable = 0;
 	misc_wflags = WFLAG_NONE;
 	last_burnstate = 0;
@@ -1071,7 +1067,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	{
 		enemy *s = (enemy *)guys.getByUID(prntid);
 		weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
-		parent_script_UID = s->script_UID;
+		parent_uid = s->getUID();
 		for ( int32_t q = 0; q < 8; q++ )
 		{
 			weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
@@ -1100,7 +1096,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	linkedItem = 0;
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 		memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
-	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 		
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other HeroCLass items. 
 	//This will need an input in the params! -Z
@@ -3171,13 +3166,6 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 	}
 	return ret;
 }
-
-int32_t weapon::getScriptUID() { return script_UID; }
-void weapon::setScriptUID(int32_t new_id) { script_UID = new_id; }
-
-int32_t weapon::getParentScriptUID() { return parent_script_UID; }
-void weapon::setParentScriptUID(int32_t new_id) { parent_script_UID = new_id; }
-
 
 bool weapon::isHeroWeapon()
 {

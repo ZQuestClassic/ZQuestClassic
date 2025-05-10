@@ -877,6 +877,22 @@ static T* ResolveSprite(int32_t uid, const char* name, const char* what)
 	return nullptr;
 }
 
+template <typename T>
+static T* ResolveSprite2(int32_t uid, const char* name, const char* context)
+{
+	if (auto s = sprite::getByUID(uid))
+	{
+		if (auto s2 = dynamic_cast<T*>(s))
+			return s2;
+
+		Z_scripterrlog("Invalid sprite: tried to reference %s via %s, using UID = %ld - but that sprite is not a %s\n", name, context, uid, name);
+		return nullptr;
+	}
+
+	Z_scripterrlog("Invalid sprite: tried to reference %s via %s, using UID = %ld - but that sprite does not exist\n", name, context, uid);
+	return nullptr;
+}
+
 sprite* ResolveBaseSprite(int32_t uid, const char* what)
 {
 	return ResolveSprite<sprite>(uid, "sprite", what);
@@ -890,6 +906,39 @@ item* ResolveItemSprite(int32_t uid, const char* what)
 enemy* ResolveNpc(int32_t uid, const char* what)
 {
 	return ResolveSprite<enemy>(uid, "npc", what);
+}
+
+static weapon* ResolveEWeapon_checkSpriteList(int32_t uid, const char* what)
+{
+	// Check here first (for the error logging.)
+	const char* name = "eweapon";
+	const char* context = "Screen->LoadEWeaponByUID";
+	auto spr = ResolveSprite2<weapon>(uid, name, context);
+
+	// Double check this is from the right sprite list.
+	if (spr && !Ewpns.getByUID(uid))
+	{
+		Z_scripterrlog("Invalid sprite: tried to reference %s via %s, using UID = %ld - but that sprite is not a %s\n", name, context, uid, name);
+		return nullptr;
+	}
+
+	return spr;
+}
+
+static weapon* ResolveLWeapon_checkSpriteList(int32_t uid, const char* context)
+{
+	// Check here first (for the error logging.)
+	const char* name = "lweapon";
+	auto spr = ResolveSprite2<weapon>(uid, name, context);
+
+	// Double check this is from the right sprite list.
+	if (spr && !Lwpns.getByUID(uid))
+	{
+		Z_scripterrlog("Invalid sprite: tried to reference %s via %s, using UID = %ld - but that sprite is not a %s\n", name, context, uid, name);
+		return nullptr;
+	}
+
+	return spr;
 }
 
 ///------------------------------------------------//
@@ -5174,8 +5223,8 @@ int32_t get_register(int32_t arg)
 		}
 		
 		case LWEAPONSCRIPTUID:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptUID")))
-				ret=(((weapon*)(s))->script_UID); //literal, not *10000
+			if(0!=(s=checkLWpn(ri->lwpn,"UID")))
+				ret=(((weapon*)(s))->getUID());
 				
 			break;
 
@@ -5802,14 +5851,14 @@ int32_t get_register(int32_t arg)
 			break;
 		
 		case EWEAPONSCRIPTUID:
-			if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
-				ret=(((weapon*)(s))->script_UID); //literal, not *10000
+			if(0!=(s=checkEWpn(ri->ewpn, "UID")))
+				ret=(((weapon*)(s))->getUID());
 				
 			break;
 		
 		case EWPNPARENTUID:
 			if(0!=(s=checkEWpn(ri->ewpn, "ParentUID")))
-				ret=(((weapon*)(s))->parent_script_UID); //literal, not *10000
+				ret=(((weapon*)(s))->parent_uid);
 				
 			break;
 		
@@ -6011,19 +6060,6 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		
-		/*
-		case LWEAPONSCRIPTUID:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptUID")))
-				ret=(((weapon*)(s))->getScriptUID()); //literal, not *10000
-				
-			break;
-		case EWEAPONSCRIPTUID:
-			if(0!=(s=checkLWpn(ri->ewpn,"ScriptUID")))
-				ret=(((weapon*)(s))->getScriptUID()); //literal, not *10000
-				
-			break;
-		*/
-			
 		case GAMEPLAYFIELDOFS:
 			ret = playing_field_offset*10000;
 			break;
@@ -16629,7 +16665,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case EWPNPARENTUID:
 			if(0!=(s=checkEWpn(ri->ewpn, "ParentUID")))
-			(((weapon*)(s))->parent_script_UID) = value; //literal, not *10000
+			(((weapon*)(s))->parent_uid) = value; //literal, not *10000
 			break;
 		
 		case EWPNPARENT:
@@ -36447,13 +36483,6 @@ int32_t FFScript::getHeroAction()
 	if ( special_action != -1 ) return special_action; //spin, dive, charge
 	else return FF_hero_action; //everything else
 }
-//get_bit
-
-int32_t FFScript::GetScriptObjectUID(int32_t type)
-{
-	++script_UIDs[type];
-	return script_UIDs[type];
-}
 
 void FFScript::init()
 {
@@ -36472,8 +36501,6 @@ void FFScript::init()
 	music_update_flags = 0;
 	//quest_format : is this properly initialised?
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
-	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
-	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
 
 	usr_midi_volume = midi_volume;
 	usr_digi_volume = digi_volume;
@@ -42775,86 +42802,37 @@ defWpnSprite FFScript::getDefWeaponSprite(int32_t wpnid)
 	}
 };
 
-
-int32_t FFScript::getEnemyByScriptUID(int32_t sUID)
-{
-	
-	for(word i = 0; i < guys.Count(); i++)
-		{
-			enemy *w = (enemy*)guys.spr(i);
-			if ( w ->script_UID == sUID ) return i;
-		}
-	return -1;
-}
-
-int32_t FFScript::getLWeaponByScriptUID(int32_t sUID)
-{
-	
-	for(word i = 0; i < Lwpns.Count(); i++)
-		{
-			weapon *w = (weapon*)Lwpns.spr(i);
-			if ( w ->script_UID == sUID ) return i;
-		}
-	return -1;
-}
-
-int32_t FFScript::getEWeaponByScriptUID(int32_t sUID)
-{
-	
-	for(word i = 0; i < Ewpns.Count(); i++)
-		{
-			weapon *w = (weapon*)Ewpns.spr(i);
-			if ( w ->script_UID == sUID ) return i;
-		}
-	return -1;
-}
-
-
 void FFScript::do_loadlweapon_by_script_uid(const bool v)
 {
-	int32_t sUID = SH::get_arg(sarg1, v); //literal, not div by 10000
-
-	int32_t indx = FFCore.getLWeaponByScriptUID(sUID);
-	if ( indx > -1 ) 
-		ri->lwpn = Lwpns.spr(indx)->getUID();
+	int32_t uid = SH::get_arg(sarg1, v);
+	if (ResolveLWeapon_checkSpriteList(uid, "Screen->LoadLWeaponByUID"))
+		ri->lwpn = uid;
 	else
 	{
 		ri->lwpn = 0;
-		if(get_qr(qr_LOG_INVALID_UID_LOAD))
-			Z_scripterrlog("There is no valid LWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
 	}
 }
 
 void FFScript::do_loadeweapon_by_script_uid(const bool v)
 {
-	
-	int32_t sUID = SH::get_arg(sarg1, v); //literal, not div by 10000
-
-	int32_t indx = FFCore.getEWeaponByScriptUID(sUID);
-	if ( indx > -1 ) 
-		ri->ewpn = Ewpns.spr(indx)->getUID();
+	int32_t uid = SH::get_arg(sarg1, v);
+	if (ResolveEWeapon_checkSpriteList(uid, "Screen->LoadEWeaponByUID"))
+		ri->ewpn = uid;
 	else
 	{
 		ri->ewpn = 0;
-		if(get_qr(qr_LOG_INVALID_UID_LOAD))
-			Z_scripterrlog("There is no valid EWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
 	}
 }
 
 
 void FFScript::do_loadnpc_by_script_uid(const bool v)
 {
-	
-	int32_t sUID = SH::get_arg(sarg1, v); //literal, not div by 10000
-
-	int32_t indx = FFCore.getEnemyByScriptUID(sUID);
-	if ( indx > -1 ) 
-		ri->guyref = guys.spr(indx)->getUID();
+	int32_t uid = SH::get_arg(sarg1, v);
+	if (ResolveSprite2<enemy>(uid, "enemy", "Screen->LoadNPCByUID"))
+		ri->guyref = uid;
 	else
 	{
 		ri->guyref = 0;
-		if(get_qr(qr_LOG_INVALID_UID_LOAD))
-			Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
 	}
 }
 

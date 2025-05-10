@@ -3530,7 +3530,7 @@ bool HeroClass::checkstab()
 			if (h == -1) 
 			{ 
 				e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; 
-				e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
+				e->hitby[HIT_BY_LWEAPON_UID] = w->getUID();
 				e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
 				if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].family; 
 				else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
@@ -6296,15 +6296,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 				if (!get_qr(qr_BROKENHITBY) && w)
 				{
 					sethitHeroUID(HIT_BY_LWEAPON,(indx+1));
-					if (get_qr(qr_BROKENHITBY))
-					{
-						sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
-					}
-					else
-					{
-						
-						sethitHeroUID(HIT_BY_LWEAPON_UID,w->getScriptUID());
-					}
+					sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
 					sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,w->getUID());
 					sethitHeroUID(HIT_BY_LWEAPON_TYPE, w->id);
 					if (w->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, w->parentitem);
@@ -6403,15 +6395,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 					if (!get_qr(qr_BROKENHITBY) && w)
 					{
 						sethitHeroUID(HIT_BY_LWEAPON,(indx+1));
-						if (get_qr(qr_BROKENHITBY))
-						{
-							sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
-						}
-						else
-						{
-							
-							sethitHeroUID(HIT_BY_LWEAPON_UID,w->getScriptUID());
-						}
+						sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
 						sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,w->getUID());
 						sethitHeroUID(HIT_BY_LWEAPON_TYPE, w->id);
 						if (w->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, w->parentitem);
@@ -6532,15 +6516,7 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 		if (w)
 		{
 			sethitHeroUID(HIT_BY_EWEAPON, (indx + 1));
-			if (get_qr(qr_BROKENHITBY))
-			{
-				sethitHeroUID(HIT_BY_EWEAPON_UID, w->getUID());
-			}
-			else
-			{
-
-				sethitHeroUID(HIT_BY_EWEAPON_UID, w->getScriptUID());
-			}
+			sethitHeroUID(HIT_BY_EWEAPON_UID, w->getUID());
 			sethitHeroUID(HIT_BY_EWEAPON_ENGINE_UID, w->getUID());
 			sethitHeroUID(HIT_BY_EWEAPON_TYPE, w->id);
 		}
@@ -6702,15 +6678,7 @@ void HeroClass::checkhit()
 					if (!get_qr(qr_BROKENHITBY) && w)
 					{
 						sethitHeroUID(HIT_BY_LWEAPON,(i+1));
-						if (get_qr(qr_BROKENHITBY))
-						{
-							sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
-						}
-						else
-						{
-							
-							sethitHeroUID(HIT_BY_LWEAPON_UID,w->getScriptUID());
-						}
+						sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
 						sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,w->getUID());
 						sethitHeroUID(HIT_BY_LWEAPON_TYPE, w->id);
 						if (w->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, w->parentitem);
@@ -6811,15 +6779,7 @@ void HeroClass::checkhit()
 						if (!get_qr(qr_BROKENHITBY) && w)
 						{
 							sethitHeroUID(HIT_BY_LWEAPON,(i+1));
-							if (get_qr(qr_BROKENHITBY))
-							{
-								sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
-							}
-							else
-							{
-								
-								sethitHeroUID(HIT_BY_LWEAPON_UID,w->getScriptUID());
-							}
+							sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
 							sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,w->getUID());
 							sethitHeroUID(HIT_BY_LWEAPON_TYPE, w->id);
 							if (w->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, w->parentitem);
@@ -6950,15 +6910,7 @@ void HeroClass::checkhit()
 			if (lwpnspr)
 			{
 				sethitHeroUID(HIT_BY_LWEAPON, (hit2 + 1));
-				if (get_qr(qr_BROKENHITBY))
-				{
-					sethitHeroUID(HIT_BY_LWEAPON_UID, lwpnspr->getUID());
-				}
-				else
-				{
-
-					sethitHeroUID(HIT_BY_LWEAPON_UID, lwpnspr->getScriptUID());
-				}
+				sethitHeroUID(HIT_BY_LWEAPON_UID, lwpnspr->getUID());
 				sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID, lwpnspr->getUID());
 				sethitHeroUID(HIT_BY_LWEAPON_TYPE, lwpnspr->id);
 				if (lwpnspr->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, lwpnspr->parentitem);
@@ -7023,15 +6975,7 @@ void HeroClass::checkhit()
 			if (ewpnspr)
 			{
 				sethitHeroUID(HIT_BY_EWEAPON, (hit2 + 1));
-				if (get_qr(qr_BROKENHITBY))
-				{
-					sethitHeroUID(HIT_BY_EWEAPON_UID, ewpnspr->getUID());
-				}
-				else
-				{
-
-					sethitHeroUID(HIT_BY_EWEAPON_UID, ewpnspr->getScriptUID());
-				}
+				sethitHeroUID(HIT_BY_EWEAPON_UID, ewpnspr->getUID());
 				sethitHeroUID(HIT_BY_EWEAPON_ENGINE_UID, ewpnspr->getUID());
 				sethitHeroUID(HIT_BY_EWEAPON_TYPE, ewpnspr->id);
 			}
@@ -7492,14 +7436,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		game->set_life(zc_max(game->get_life()-dmg,0));
 		sethitHeroUID(HIT_BY_NPC,(hit2+1));
 		sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
-		if (get_qr(qr_BROKENHITBY))
-		{
-			sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
-		}
-		else
-		{
-			sethitHeroUID(HIT_BY_NPC_UID,enemyptr->script_UID);
-		}
+		sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
 		sethitHeroUID(HIT_BY_NPC_ENGINE_UID,enemyptr->getUID());
 		sethitHeroUID(HIT_BY_NPC_ID, enemyptr->id);
 		sethitHeroUID(HIT_BY_NPC_TYPE, enemyptr->family);

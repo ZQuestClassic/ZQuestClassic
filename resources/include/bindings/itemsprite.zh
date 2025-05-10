@@ -125,7 +125,7 @@ class itemsprite {
 	// @zasm_var ITEMFORCEGRAB
 	internal bool ForceGrab;
 
-	// @deprecated
+	// @deprecated - This is now just the internal engine ID, which is the same as doing `<int>some_sprite`.
 	// @zasm_var ITEMSCRIPTUID
 	internal const int UID;
 

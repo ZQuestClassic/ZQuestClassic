@@ -78,11 +78,7 @@ public:
 	int32_t hitby[NUM_HIT_TYPES_USED];
 	int16_t firesfx;
 	bool isCore;
-	int16_t parentCore; 
-	int32_t script_UID; 	//used to determine the UID of an enemy by the user (in scripts), plus
-			//in-engine assignment of children to a parent and
-			//for future use in npc scripts (as the ref for `this`)--the easy way to determine to
-			//what npc a script on the stack is bound.
+	int16_t parentCore;
 	
 	int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
 	int32_t SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
@@ -101,7 +97,7 @@ public:
 	word weaponscript;
 	int32_t weap_initiald[8];
 	byte stickclk;
-	int32_t parent_script_UID;
+	int32_t parent_uid;
    
 	int32_t editorflags; //Enemy editor flags 1 to 16
 	
@@ -122,9 +118,6 @@ public:
 	byte burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
 	byte specialsfx; //weapon specialsfx.
-
-	int32_t getScriptUID();
-	void setScriptUID(int32_t new_id);
 	
 	zfix  getX();
 	zfix  getY();
@@ -873,8 +866,8 @@ int32_t getGuyIndex(const int32_t eid);
 void killfairynew(item const &itemfairy);
 int32_t addenemy(int32_t screen,int32_t x,int32_t y,int32_t id,int32_t clk);
 int32_t addenemy_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk);
-int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID);
-int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_scriptUID);
+int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_uid);
+int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_uid);
 bool isjumper(int32_t id);
 bool canfall(int32_t id);
 void addfires();

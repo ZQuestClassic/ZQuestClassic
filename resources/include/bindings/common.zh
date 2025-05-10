@@ -834,18 +834,20 @@ enum HitIndex
 	HIT_BY_LWEAPON                 = 2,
 	HIT_BY_FFC                     = 3,  // Unimplemented.
 	HIT_BY_NPC_UID                 = 4,  // [Hero] only. The scripting UID of the enemy, used with [Screen->LoadNPCByUID].
-	HIT_BY_EWEAPON_UID             = 5,  // [Hero] only.
-	HIT_BY_LWEAPON_UID             = 6,
+	HIT_BY_EWEAPON_UID             = 5,  // [Hero] only. The scripting UID of the eweapon, used with [Screen->LoadEWeaponByUID].
+	HIT_BY_LWEAPON_UID             = 6,  // [Hero] only. The scripting UID of the leweapon, used with [Screen->LoadLWeaponByUID].
 	HIT_BY_FFC_UID                 = 7,  // Unimplemented.
 	HIT_BY_LWEAPON_PARENT_ID       = 8,  // The item id of the item that the weapon that hit came from. -1 if the lweapon is script created.
 	HIT_BY_LWEAPON_PARENT_FAMILY   = 9,  // The item class of the item that the weapon that hit came from (see [ItemType]). -1 if the lweapon is script created.
 	HIT_BY_NPC_TYPE                = 10, // [Hero] only. The enemy class of the enemy that hit the [Hero] (see [NPCType]).
 	HIT_BY_EWEAPON_TYPE            = 11, // [Hero] only. The ID of the weapon that hit (see [LWeaponType] and [EWeaponType]).
 	// The internal UID used by the engine for the thing.
-	// Can cast these to their respective types. For example: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`
 	HIT_BY_LWEAPON_TYPE            = 12,
+	// Can cast to an npc: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`.
 	HIT_BY_NPC_PTR                 = 13,
+	// Can cast to an eweapon: `eweapon wpn = <eweapon>(Hero->HitBy[HIT_BY_EWEAPON_PTR])`.
 	HIT_BY_EWEAPON_PTR             = 14,
+	// Can cast to an lweapon: `lweapon wpn = <lweapon>(Hero->HitBy[HIT_BY_LWEAPON_PTR])`.
 	HIT_BY_LWEAPON_PTR             = 15,
 	HIT_BY_NPC_ID                  = 16, // The ID of the enemy that did the hit.
 };

@@ -1100,10 +1100,10 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCSCRIPTUID:
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptUID") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->UID") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((GuyH::getNPC()->getScriptUID())); //literal, not *10000
+				ret = ((GuyH::getNPC()->getUID()));
 				
 			break;
 		
@@ -1111,15 +1111,10 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			if(GuyH::loadNPC(ri->guyref, "npc->ParentUID") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((GuyH::getNPC()->parent_script_UID)); //literal, not *10000
+				ret = ((GuyH::getNPC()->parent_uid)); //literal, not *10000
 				
 			break;
-		
-		//case EWPNPARENTUID:
-			//if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
-			//	ret=(((weapon*)(s))->parent_script_UID); //literal, not *10000
-				
-			
+
 		case NPCMFLAGS:
 			if(GuyH::loadNPC(ri->guyref, "npc->MiscFlags") != SH::_NoError)
 				ret = -10000;
@@ -2006,7 +2001,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		case NPCPARENTUID:
 			if(GuyH::loadNPC(ri->guyref, "npc->ParentUID") == SH::_NoError)
 			{
-				GuyH::getNPC()->parent_script_UID = value; //literal, not *10000
+				GuyH::getNPC()->parent_uid = value; //literal, not *10000
 			}
 			break;
 		

@@ -453,7 +453,7 @@ enum QR
 	qr_OLD_PRINTF_ARGS,	// ZScript (>>>) Old printf() args
 	qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN,	// ZScript (>>>) Passive Subscreen Script runs during wipes/refills
 	qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,	// ZScript (>>>) Writing Screen->EntryX, EntryY Resets Spawn Points
-	qr_LOG_INVALID_UID_LOAD,	// ZScript (>>>) Log on Loading Invalid UID
+	qr_LOG_INVALID_UID_LOAD,	// @deprecated Does nothing now.
 	qr_COMBODATA_INITD_MULT_TENK,	// ZScript (>>>) Broken Combodata->InitD[]
 	qr_ZS_NO_NEG_ARRAY,	// ZScript (>>>) Disable accessing negative array indices
 	qr_PRINTF_NO_0FILL,	// ZScript (>>>) No prinft() 0-fill

@@ -56,17 +56,17 @@ public:
 	zfix xofs,yofs,zofs;
     zfix shadowxofs,shadowyofs;
     // no hzofs - it's always equal to zofs.
-    int32_t hzsz; // hit z-height
-	// tile width
-    int32_t txsz = -1;
-	// tile height
-	int32_t tysz = -1;
     /*
-     * Explanation of hzsz:
+     * hit z-height
      * Hzsz is how "tall" a sprite is.
      * To jump over a sprite, you must be higher than its z+hzsz.
      * Enemies have hzsz of 0 so that Hero can jump over them (see LA.)
      */
+    int32_t hzsz;
+	// tile width
+    int32_t txsz = -1;
+	// tile height
+	int32_t tysz = -1;
     int32_t id;
     zfix slopeid;
     byte onplatid = 0;

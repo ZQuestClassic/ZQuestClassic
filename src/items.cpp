@@ -312,14 +312,6 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	itemdata const& itm = itemsbuf[id];
 	from_dropset = -1;
 	pickupexstate = -1;
-
-	#ifndef IS_EDITOR
-	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
-	//Sadly, this also stores UIDs for all dummy objects, including subscreen and other stuff. 
-	//if ( !isDummy && ( pickup == 0x100 || pickup <= 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
-	//if it is on the screen
-	//if ( x > 0 && x < 256 && y > 56 && y < 256 && !isDummy && ( pickup == 0x100 || pickup == 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
-	#endif
 	
 	if(id<0 || id>MAXITEMS) //>, not >= for dummy items such as the HC Piece display in the subscreen
 		return;
@@ -537,16 +529,6 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 	}
 	return lastid;
 #endif
-}
-
-int32_t item::getScriptUID()
-{
-	return script_UID;
-}
-
-void item::setScriptUID(int32_t new_id)
-{
-	script_UID = new_id;
 }
 
 void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash)

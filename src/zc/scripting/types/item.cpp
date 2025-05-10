@@ -203,7 +203,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 		case ITEMSCRIPTUID:
 			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)s->script_UID); //Literal, not *10000
+				ret=((int32_t)s->getUID());
 			}
 			break;
 		

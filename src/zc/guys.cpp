@@ -423,7 +423,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	hitsfx=d->hitsfx;
 	deadsfx=d->deadsfx;
 	bosspal=d->bosspal;
-	parent_script_UID = 0;
+	parent_uid = 0;
 	
 	frozentile = d->frozentile;
 	
@@ -435,7 +435,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	//firesfx = 0; //t.b.a -Z
 	isCore = true; //t.b.a
 	parentCore = 0; //t.b.a
-	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
 	
 	firesfx = d->firesfx;
 	for ( int32_t q = 0; q < 32; q++ ) movement[q] = d->movement[q];
@@ -576,8 +575,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	specialsfx = d->specialsfx;
 }
 
-int32_t enemy::getScriptUID() { return script_UID; }
-void enemy::setScriptUID(int32_t new_id) { script_UID = new_id; }
 enemy::~enemy()
 {
 	FFCore.deallocateAllScriptOwned(ScriptType::NPC, getUID());
@@ -1977,7 +1974,7 @@ void enemy::FireWeapon()
 			
 			for(int32_t i=0; i<bats; i++)
 			{
-				if(addchild(screen_spawned,x,y,dmisc3,-10, this->script_UID))
+				if(addchild(screen_spawned,x,y,dmisc3,-10, this->getUID()))
 				{
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 				}
@@ -2016,7 +2013,7 @@ void enemy::FireWeapon()
 					
 					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Hero.getX())>=32)||(abs(y2-Hero.getY())>=32)))
 					{
-						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
+						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->getUID()))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
@@ -2865,7 +2862,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
 			((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
 			((enemy*)guys.spr(guys.Count()-1))->script_spawned = this->script_spawned;
-			((enemy*)guys.spr(guys.Count()-1))->script_UID = this->script_UID;
 			((enemy*)guys.spr(guys.Count()-1))->sclk = 0;
 			
 			
@@ -12060,7 +12056,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			for(int32_t i=0; i<bats; i++)
 			{
 				// Summon bats (or anything)
-				if(addchild(screen_spawned, x,y,dmisc3,-10, this->script_UID))
+				if(addchild(screen_spawned, x,y,dmisc3,-10, this->getUID()))
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			}
 			sfx(firesfx, pan(int32_t(x)));
@@ -12093,7 +12089,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 					
 					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Hero.getX())>=32 || abs(y2-Hero.getY())>=32))
 					{
-						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
+						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->getUID()))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
@@ -13753,7 +13749,7 @@ bool eMoldorm::animate(int32_t index)
 			
 			segment->o_tile=tile; //I refuse to fuck with adding scripttile to segmented enemies. -Z
 		//Script your own blasted segmented bosses!! -Z
-			segment->parent_script_UID = this->script_UID;
+			segment->parent_uid = this->getUID();
 			if((i==index+segcnt)&&(i!=index+1))                   //tail
 			{
 				segment->dummy_int[1]=2;
@@ -14059,7 +14055,7 @@ bool eLanmola::animate(int32_t index)
 		}
 		
 		segment->o_tile=o_tile;
-		segment->parent_script_UID = this->script_UID;
+		segment->parent_uid = this->getUID();
 		if((i==index+segcnt)&&(i!=index+1))
 		{
 			segment->dummy_int[1]=1;                //tail
@@ -14322,12 +14318,12 @@ bool eManhandla::animate(int32_t index)
 			if(!dmisc2)
 			{
 				cur_arm->o_tile=o_tile+40;
-				cur_arm->parent_script_UID = this->script_UID;
+				cur_arm->parent_uid = this->getUID();
 			}
 			else
 			{
 				cur_arm->o_tile=o_tile+160;
-				cur_arm->parent_script_UID = this->script_UID;
+				cur_arm->parent_uid = this->getUID();
 			}
 		}
 	}
@@ -14842,7 +14838,7 @@ bool eGleeok::animate(int32_t index)
 	{
 		enemy *head = ((enemy*)guys.spr(index+i+1));
 		head->dummy_int[1]=necktile;
-		head->parent_script_UID = this->script_UID;
+		head->parent_uid = this->getUID();
 		
 		if(get_qr(qr_NEWENEMYTILES))
 		{
@@ -15491,13 +15487,13 @@ bool ePatra::animate(int32_t index)
 			{
 				((enemy*)guys.spr(i))->o_tile=d->e_tile+dmisc8;
 				enemy *s = ((enemy*)guys.spr(i));
-				s->parent_script_UID = this->script_UID;
+				s->parent_uid = this->getUID();
 			}
 			else
 			{
 				((enemy*)guys.spr(i))->o_tile=o_tile+1;
 				enemy *s = ((enemy*)guys.spr(i));
-				s->parent_script_UID = this->script_UID;
+				s->parent_uid = this->getUID();
 			}
 			
 			((enemy*)guys.spr(i))->cs=dmisc9;
@@ -16960,12 +16956,12 @@ int32_t addenemy(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk)
 	return addenemy_z(screen,x,y,0,id,clk);
 }
 
-int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID)
+int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_uid)
 {
-	return addchild_z(screen,x,y,0,id,clk, parent_scriptUID);
+	return addchild_z(screen,x,y,0,id,clk, parent_uid);
 }
 
-int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_scriptUID)
+int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_uid)
 {
 	if(id <= 0) return 0;
 	
@@ -17236,7 +17232,7 @@ int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int3
 	}
 	
 	((enemy*)e)->ceiling = (z && canfall(id));
-	((enemy*)e)->parent_script_UID = parent_scriptUID;
+	((enemy*)e)->parent_uid = parent_uid;
 			
 	
 	if(!guys.add(e))
@@ -21061,7 +21057,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					int indx = Lwpns.find(w);
 					if(indx > -1)
 						e->hitby[HIT_BY_LWEAPON] = indx+1;
-					e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
+					e->hitby[HIT_BY_LWEAPON_UID] = w->getUID();
 					e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
 					if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].family; 
 					else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;

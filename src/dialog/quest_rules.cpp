@@ -903,9 +903,7 @@ static GUI::ListData compatRulesList
 	{ "Fake-solid Pushblocks", qr_MOVINGBLOCK_FAKE_SOLID,
 		"If enabled, pushblocks will not use 'real' solidity." },
 	{ "Broken ->HitBY UIDs", qr_BROKENHITBY,
-		"If enabled, ->HitBy[HIT_BY_(thing)_UID] will use the real engine uid instead of the script uid,"
-		" and both Hero fire and bomb weapons won't work with HitBy if they hurt the Hero." 
-		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."},
+		"If enabled, both Hero fire and bomb weapons won't work with HitBy if they hurt the Hero."},
 	{ "Broken Moving && Air Bombs", qr_BROKEN_MOVING_BOMBS,
 		"If enabled, bombs exploding while moving will behave oddly and broken, and bomb explosions"
 		" will continue obeying gravity." },
@@ -1674,7 +1672,6 @@ GUI::ListData instructionRulesList
 		"Instead of filling all extra arguments with '0',"
 		" just leave them unchanged." },
 	{ "Writing Screen->EntryX, EntryY Resets Spawn Points", qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS },
-	{ "Log on Loading Invalid UID", qr_LOG_INVALID_UID_LOAD },
 	{ "Broken Combodata->InitD[]", qr_COMBODATA_INITD_MULT_TENK },
 	{ "Script writes to Hero->Step don't carry over", qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER },
 	{ "Disable accessing negative array indexes", qr_ZS_NO_NEG_ARRAY, "If enabled,"

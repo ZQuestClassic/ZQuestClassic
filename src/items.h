@@ -74,7 +74,6 @@ public:
     int32_t fairyUID;
     word pstring; //pickup string
     word pickup_string_flags;
-    //int32_t script_UID;
     int32_t family;
     byte lvl;
     int32_t linked_parent;
@@ -83,10 +82,6 @@ public:
 	int8_t pickupexstate;
 	bool noSound;
 	bool noHoldSound;
-
-    int32_t script_UID;
-    int32_t getScriptUID();
-    void setScriptUID(int32_t new_id);
 
 	void load_gfx(itemdata const& itm);
 
