@@ -13,8 +13,26 @@ enum MoveFlag
 {
 	MV_OBEYS_GRAVITY,
 	MV_CAN_PITFALL,
-	MV_NO_FAKE_Z = 8,
-	MV_NO_REAL_Z
+	MV_CAN_PIT_WALK,
+	MV_CAN_WATERDROWN,
+	MV_CAN_WATER_WALK,
+	MV_ONLY_WATER_WALK,
+	MV_ONLY_SHALLOW_WATER_WALK,
+	MV_ONLY_PIT_WALK,
+	MV_NO_FAKE_Z,
+	MV_NO_REAL_Z,
+	// [npc] only.
+	MV_USE_FAKE_Z,
+	// [npc] only.
+	MV_IGNORE_SOLIDITY,
+	// [npc] only.
+	MV_IGNORE_BLOCKFLAGS,
+	// [npc] only.
+	MV_IGNORE_SCREENEDGE,
+	// [npc] only.
+	MV_USE_SCRIPTED_MOVEMENT_ENGINE,
+	// [npc] only.
+	MV_NOT_PUSHABLE_BY_SOLIDS
 };
 
 // Base class for (most) script-exposed engine sprites.
