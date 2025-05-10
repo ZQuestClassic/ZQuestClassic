@@ -33,11 +33,11 @@ def get_recent_release_tag(args: List[str]):
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
 
 
-def parse_json(json_str: str):
+def parse_json(json_str: str, context: str):
     try:
         return json.loads(json_str)
     except Exception as e:
-        print(f'could not parse json:\n{json_str}', file=sys.stderr)
+        print(f'could not parse json:\n{json_str}\n\n{context}', file=sys.stderr)
         raise e
 
 

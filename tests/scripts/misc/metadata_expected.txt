@@ -787,11 +787,11 @@ stdout:
                 "selectionRange": {
                   "start": {
                     "line": 91,
-                    "character": 8
+                    "character": 13
                   },
                   "end": {
-                    "line": 93,
-                    "character": 9
+                    "line": 91,
+                    "character": 14
                   }
                 },
                 "children": []
@@ -812,11 +812,11 @@ stdout:
                 "selectionRange": {
                   "start": {
                     "line": 91,
-                    "character": 8
+                    "character": 13
                   },
                   "end": {
-                    "line": 93,
-                    "character": 9
+                    "line": 91,
+                    "character": 14
                   }
                 },
                 "children": []
@@ -1679,11 +1679,11 @@ stdout:
           "range": {
             "start": {
               "line": 91,
-              "character": 8
+              "character": 13
             },
             "end": {
-              "line": 93,
-              "character": 9
+              "line": 91,
+              "character": 14
             }
           },
           "uri": "URI"
@@ -1694,11 +1694,11 @@ stdout:
           "range": {
             "start": {
               "line": 91,
-              "character": 8
+              "character": 13
             },
             "end": {
-              "line": 93,
-              "character": 9
+              "line": 91,
+              "character": 14
             }
           },
           "uri": "URI"
@@ -2347,7 +2347,7 @@ stdout:
       {
         "loc": {
           "line": 91,
-          "character": 8,
+          "character": 13,
           "length": 1
         },
         "symbol": "__LOOP_ITER"
@@ -2355,7 +2355,7 @@ stdout:
       {
         "loc": {
           "line": 91,
-          "character": 8,
+          "character": 13,
           "length": 1
         },
         "symbol": "__LOOP_ARR"

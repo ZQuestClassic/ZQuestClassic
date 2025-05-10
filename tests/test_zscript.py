@@ -109,7 +109,7 @@ class TestZScript(ZCTestCase):
                     c += recursive_len(child['children'])
                 return c
 
-        data = parse_json(stdout)
+        data = parse_json(stdout, context=f'stderr:\n\n{stderr}')
         metadata = data.get('metadata')
         if metadata:
             if elide_metadata:
