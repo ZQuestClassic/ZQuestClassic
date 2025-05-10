@@ -15098,7 +15098,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				}
 			}
 
-			if (guyversion < 48)
+			if (guyversion < 49)
 			{
 				if (tempguy.family == eeWALK && (tempguy.attributes[6]==e7tPERMJINX || tempguy.attributes[6]==e7tTEMPJINX || tempguy.attributes[6]==e7tUNJINX)) //BUBBLE CHECK
 				{
