@@ -1557,19 +1557,36 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					GuyFlag(guy_ignoretmpnr, "Ignores 'Temp No Return'")
 				)
 			)),
-			TabRef(name = "Movement", Column(
+			TabRef(name = "Movement", Row(
 				Frame(title = "Basic Movement", hAlign = 1.0, fitParent = true,
-					Column(hAlign = 1.0, fitParent = true,
+					Rows<2>(hAlign = 1.0, fitParent = true,
+						_d,
 						MoveFlag(move_obeys_grav, "Obeys Gravity"),
+						_d,
 						MoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
+						_d,
 						MoveFlag(move_can_pitwalk, "Can Walk Over Pitfalls"),
+						_d,
 						MoveFlag(move_can_waterdrown, "Can Drown In Liquid"),
+						_d,
 						MoveFlag(move_can_waterwalk, "Can Walk On Liquid"),
+						_d,
 						MoveFlag(move_new_movement, "Use 'Scripted Movement' for engine movement"),
-						MoveFlag(move_not_pushable, "Cannot be pushed by moving solid objects")
+						_d,
+						MoveFlag(move_not_pushable, "Cannot be pushed by moving solid objects"),
+						INFOBTN("The FakeJump value will not apply for this enemy"),
+						MoveFlag(move_no_fake_z, "No FakeZ"),
+						INFOBTN("The Jump value will not apply for this enemy"),
+						MoveFlag(move_no_real_z, "No Real Z"),
+						INFOBTN("The enemy will move using FakeJump instead of a normal Jump for any *engine* Z-axis movement."
+							" This means the enemy will not actually be in the Z-axis, even though it looks like it- allowing the enemy"
+							" to, for example, be hit by ground-based weapons even while 'in the air'"),
+						MoveFlag(move_use_fake_z, "Use FakeZ instead of Real Z")
 					)
 				),
 				Frame(title = "Scripted Movement", hAlign = 1.0, fitParent = true,
+					info = "These settings apply to scripted movement using 'MoveXY' or related functions,"
+						" and to engine movement if the \"Use 'Scripted Movement' for engine movement\" flag is active.",
 					Column(hAlign = 1.0, fitParent = true,
 						MoveFlag(move_only_waterwalk, "Can ONLY walk on Liquid"),
 						MoveFlag(move_only_shallow_waterwalk, "Can ONLY walk on Shallow Liquid"),
