@@ -30,23 +30,23 @@ enum StoredMemoryBitflags
 enum GenericScriptEvent
 {
 	GENSCR_EVENT_NIL = -1, //N/A (error value)
-	GENSCR_EVENT_INIT, //When loading in from a save/new quest
+	GENSCR_EVENT_INIT, //When loading in from a save/new quest.
 	GENSCR_EVENT_CONTINUE, //When F6->Continue
 	GENSCR_EVENT_FFC_PRELOAD, //When FFCs run 'on screen init'
 	GENSCR_EVENT_CHANGE_SCREEN, //When the screen changes
 	GENSCR_EVENT_CHANGE_DMAP, //When the dmap changes
 	GENSCR_EVENT_CHANGE_LEVEL, //When the level changes
-	GENSCR_EVENT_HERO_HIT_1, //Hero is hit, before ring applied
-	GENSCR_EVENT_HERO_HIT_2, //Hero is hit, after ring applied
-	GENSCR_EVENT_COLLECT_ITEM, //Item is collected
-	GENSCR_EVENT_ENEMY_DROP_ITEM_1, //Enemy drops item (before item created)
-	GENSCR_EVENT_ENEMY_DROP_ITEM_2, //Enemy drops item (if & after item created)
-	GENSCR_EVENT_ENEMY_DEATH, //Enemy dying
-	GENSCR_EVENT_ENEMY_HIT1, //Enemy hit, before defenses
-	GENSCR_EVENT_ENEMY_HIT2, //Enemy hit, after defenses
-	GENSCR_EVENT_POST_COLLECT_ITEM, //After item is collected (post hold if held)
-	GENSCR_EVENT_PLAYER_FALL, //Hero falls in a pitfall
-	GENSCR_EVENT_PLAYER_DROWN, //Hero drowns
+	GENSCR_EVENT_HERO_HIT_1, //Hero is hit, before ring applied. [Game->EventData] indexed via [EventDataIndex_HeroHit].
+	GENSCR_EVENT_HERO_HIT_2, //Hero is hit, after ring applied. [Game->EventData] indexed via [EventDataIndex_HeroHit].
+	GENSCR_EVENT_COLLECT_ITEM, //Item is collected. [Game->EventData] indexed via [EventDataIndex_CollectItem].
+	GENSCR_EVENT_ENEMY_DROP_ITEM_1, //Enemy drops item (before item created). [Game->EventData] indexed via [EventDataIndex_EnemyDropItem1].
+	GENSCR_EVENT_ENEMY_DROP_ITEM_2, //Enemy drops item (if & after item created). [Game->EventData] indexed via [EventDataIndex_EnemyDropItem2].
+	GENSCR_EVENT_ENEMY_DEATH, //Enemy dying. [Game->EventData] indexed via [EventDataIndex_EnemyDeath].
+	GENSCR_EVENT_ENEMY_HIT1, //Enemy hit, before defenses. [Game->EventData] indexed via [EventDataIndex_EnemyHit].
+	GENSCR_EVENT_ENEMY_HIT2, //Enemy hit, after defenses. [Game->EventData] indexed via [EventDataIndex_EnemyHit].
+	GENSCR_EVENT_POST_COLLECT_ITEM, //After item is collected (post hold if held).
+	GENSCR_EVENT_PLAYER_FALL, //Hero falls in a pitfall. [Game->EventData] indexed via [EventDataIndex_PlayerFallDrown].
+	GENSCR_EVENT_PLAYER_DROWN, //Hero drowns. [Game->EventData] indexed via [EventDataIndex_PlayerFallDrown].
 	GENSCR_NUMEVENT //N/A (max value)
 };
 
