@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-01-13 08:29:44</td>
+      <td>2025-05-10 03:10:39</td>
     </tr>
   </table>
 </div>
@@ -73,7 +73,7 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l574">resetLexer() (line 574)</a></td><td>called 110358 times, returned 110358 times</td><td>60.0%</td></tr>
+    <tr><td><a href="#l568">resetLexer() (line 568)</a></td><td>called 55556 times, returned 55556 times</td><td>60.0%</td></tr>
   </table>
 </details>
 
@@ -3222,7 +3222,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[0-9]*\.?[0-9]+ 	{</td>
+      <td class="src ">(?:([0-9]_?)*[0-9]\.|\.)?(?:[0-9]_?)*[0-9] 	{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l449" href="#l449">449</a></td>
@@ -3243,7 +3243,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[0-9]+L 	{</td>
+      <td class="src ">(?:[0-9]_?)*[0-9]L 	{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l452" href="#l452">452</a></td>
@@ -3264,7 +3264,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">0x[0-9a-fA-F]+ 		{</td>
+      <td class="src ">0x(?:[0-9a-fA-F]_?)*[0-9a-fA-F] 		{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l455" href="#l455">455</a></td>
@@ -3285,7 +3285,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">0x[0-9a-fA-F]+L 		{</td>
+      <td class="src ">0x(?:[0-9a-fA-F]_?)*[0-9a-fA-F]L 		{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l458" href="#l458">458</a></td>
@@ -3306,7 +3306,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[0-1]+b			{</td>
+      <td class="src ">(?:[0-1]_?)*[0-1]b			{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l461" href="#l461">461</a></td>
@@ -3327,7 +3327,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[0-1]+Lb			{</td>
+      <td class="src ">(?:[0-1]_?)*[0-1](?:Lb|bL)			{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l464" href="#l464">464</a></td>
@@ -3348,14 +3348,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[0-1]+bL			{</td>
+      <td class="src ">0b(?:[0-1]_?)*[0-1]			{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l467" href="#l467">467</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );</td>
+      <td class="src ">	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY_2, yylloc) );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l468" href="#l468">468</a></td>
@@ -3369,14 +3369,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">0b[0-1]+			{</td>
+      <td class="src ">0b(?:[0-1]_?)*[0-1]L			{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l470" href="#l470">470</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY_2, yylloc) );</td>
+      <td class="src ">	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY_2, yylloc) );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l471" href="#l471">471</a></td>
@@ -3390,14 +3390,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">0b[0-1]+L			{</td>
+      <td class="src ">(?:[0-7]_?)*[0-7]o 		{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l473" href="#l473">473</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY_2, yylloc) );</td>
+      <td class="src ">	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL, yylloc) );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l474" href="#l474">474</a></td>
@@ -3411,14 +3411,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[0-7]+o 		{</td>
+      <td class="src ">(?:[0-7]_?)*[0-7](?:oL|Lo) 		{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l476" href="#l476">476</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL, yylloc) );</td>
+      <td class="src ">	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l477" href="#l477">477</a></td>
@@ -3432,14 +3432,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[0-7]+oL 		{</td>
+      <td class="src ">0o(?:[0-7]_?)*[0-7] 		{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l479" href="#l479">479</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );</td>
+      <td class="src ">	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL_2, yylloc) );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l480" href="#l480">480</a></td>
@@ -3453,14 +3453,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[0-7]+Lo 		{</td>
+      <td class="src ">0o(?:[0-7]_?)*[0-7]L 		{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l482" href="#l482">482</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );</td>
+      <td class="src ">	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL_2, yylloc) );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l483" href="#l483">483</a></td>
@@ -3474,35 +3474,35 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">0o[0-7]+ 		{</td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l485" href="#l485">485</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL_2, yylloc) );</td>
+      <td class="src "> /* Char */</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l486" href="#l486">486</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">}</td>
+      <td class="src ">\&#39;[^\\&#39;][^\\&#39;]+\&#39; {</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l487" href="#l487">487</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">0o[0-7]+L 		{</td>
+      <td class="src ">	ERR_VALUE( SINGLECHAR, ASTString(yytext, yylloc),</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l488" href="#l488">488</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL_2, yylloc) );</td>
+      <td class="src ">		&#34;ERROR: expected a single character value - did you mean to use double quotes for a string?&#34; );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l489" href="#l489">489</a></td>
@@ -3516,105 +3516,105 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src ">\&#39;[^\&#39;]?\&#39; {</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l491" href="#l491">491</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "> /* Char */</td>
+      <td class="src ">	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l492" href="#l492">492</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">\&#39;[^\\&#39;][^\\&#39;]+\&#39; {</td>
+      <td class="src ">}</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l493" href="#l493">493</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	ERR_VALUE( SINGLECHAR, ASTString(yytext, yylloc),</td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l494" href="#l494">494</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		&#34;ERROR: expected a single character value - did you mean to use double quotes for a string?&#34; );</td>
+      <td class="src ">\&#39;\\[^\n]\&#39;	{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l495" href="#l495">495</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">}</td>
+      <td class="src ">	switch(yytext[yyleng-2])</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l496" href="#l496">496</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">\&#39;[^\&#39;]?\&#39; {</td>
+      <td class="src ">	{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l497" href="#l497">497</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );</td>
+      <td class="src ">		case &#39;a&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l498" href="#l498">498</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">}</td>
+      <td class="src ">			yytext[yyleng-3] = &#39;\a&#39;;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l499" href="#l499">499</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src ">			break;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l500" href="#l500">500</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">\&#39;\\[^\n]\&#39;	{</td>
+      <td class="src ">		case &#39;b&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l501" href="#l501">501</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	switch(yytext[yyleng-2])</td>
+      <td class="src ">			yytext[yyleng-3] = &#39;\b&#39;;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l502" href="#l502">502</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	{</td>
+      <td class="src ">			break;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l503" href="#l503">503</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;a&#39;:</td>
+      <td class="src ">		case &#39;f&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l504" href="#l504">504</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			yytext[yyleng-3] = &#39;\a&#39;;</td>
+      <td class="src ">			yytext[yyleng-3] = &#39;\f&#39;;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l505" href="#l505">505</a></td>
@@ -3628,14 +3628,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;b&#39;:</td>
+      <td class="src ">		case &#39;n&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l507" href="#l507">507</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			yytext[yyleng-3] = &#39;\b&#39;;</td>
+      <td class="src ">			yytext[yyleng-3] = &#39;\n&#39;;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l508" href="#l508">508</a></td>
@@ -3649,14 +3649,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;f&#39;:</td>
+      <td class="src ">		case &#39;r&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l510" href="#l510">510</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			yytext[yyleng-3] = &#39;\f&#39;;</td>
+      <td class="src ">			yytext[yyleng-3] = &#39;\r&#39;;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l511" href="#l511">511</a></td>
@@ -3670,14 +3670,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;n&#39;:</td>
+      <td class="src ">		case &#39;t&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l513" href="#l513">513</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			yytext[yyleng-3] = &#39;\n&#39;;</td>
+      <td class="src ">			yytext[yyleng-3] = &#39;\t&#39;;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l514" href="#l514">514</a></td>
@@ -3691,14 +3691,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;r&#39;:</td>
+      <td class="src ">		case &#39;v&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l516" href="#l516">516</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			yytext[yyleng-3] = &#39;\r&#39;;</td>
+      <td class="src ">			yytext[yyleng-3] = &#39;\v&#39;;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l517" href="#l517">517</a></td>
@@ -3712,35 +3712,35 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;t&#39;:</td>
+      <td class="src ">		case &#39;\&#39;&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l519" href="#l519">519</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			yytext[yyleng-3] = &#39;\t&#39;;</td>
+      <td class="src ">		case &#39;\\&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l520" href="#l520">520</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			break;</td>
+      <td class="src ">		case &#39;\&#34;&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l521" href="#l521">521</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;v&#39;:</td>
+      <td class="src ">		case &#39;\?&#39;:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l522" href="#l522">522</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			yytext[yyleng-3] = &#39;\v&#39;;</td>
+      <td class="src ">			yytext[yyleng-3] = yytext[yyleng-2];</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l523" href="#l523">523</a></td>
@@ -3754,224 +3754,224 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;\&#39;&#39;:</td>
+      <td class="src ">		default:</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l525" href="#l525">525</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;\\&#39;:</td>
+      <td class="src ">			ERR_VALUE( SINGLECHAR, ASTString(yytext, yylloc),</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l526" href="#l526">526</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;\&#34;&#39;:</td>
+      <td class="src ">				&#34;ERROR: Unknown escape character.&#34; );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l527" href="#l527">527</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		case &#39;\?&#39;:</td>
+      <td class="src ">	}</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l528" href="#l528">528</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			yytext[yyleng-3] = yytext[yyleng-2];</td>
+      <td class="src ">	yytext[yyleng-2] = yytext[yyleng-1];</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l529" href="#l529">529</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			break;</td>
+      <td class="src ">	yytext[yyleng-1] = 0;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l530" href="#l530">530</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		default:</td>
+      <td class="src ">	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l531" href="#l531">531</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">			ERR_VALUE( SINGLECHAR, ASTString(yytext, yylloc),</td>
+      <td class="src ">}</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l532" href="#l532">532</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">				&#34;ERROR: Unknown escape character.&#34; );</td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l533" href="#l533">533</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	}</td>
+      <td class="src ">\&#39;\\x[0-9a-fA-F][0-9a-fA-F]?\&#39; {</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l534" href="#l534">534</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	yytext[yyleng-2] = yytext[yyleng-1];</td>
+      <td class="src ">	int32_t x = yytext[yyleng-3]==&#39;x&#39; ? yyleng-3 : yyleng-4;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l535" href="#l535">535</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	yytext[yyleng-1] = 0;</td>
+      <td class="src ">	std::stringstream escstr;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l536" href="#l536">536</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );</td>
+      <td class="src ">	escstr.str(&#34;&#34;);</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l537" href="#l537">537</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">}</td>
+      <td class="src ">	escstr &lt;&lt; yytext[x+1];</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l538" href="#l538">538</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src ">	if(yytext[x+2]!=&#39;\&#39;&#39;)</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l539" href="#l539">539</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">\&#39;\\x[0-9a-fA-F][0-9a-fA-F]?\&#39; {</td>
+      <td class="src ">		escstr &lt;&lt; yytext[x+2];</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l540" href="#l540">540</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	int32_t x = yytext[yyleng-3]==&#39;x&#39; ? yyleng-3 : yyleng-4;</td>
+      <td class="src ">	std::stringstream buf;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l541" href="#l541">541</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	std::stringstream escstr;</td>
+      <td class="src ">	int32_t temp;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l542" href="#l542">542</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	escstr.str(&#34;&#34;);</td>
+      <td class="src ">	buf &lt;&lt; std::hex &lt;&lt; escstr.str();</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l543" href="#l543">543</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	escstr &lt;&lt; yytext[x+1];</td>
+      <td class="src ">	buf &gt;&gt; temp;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l544" href="#l544">544</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	if(yytext[x+2]!=&#39;\&#39;&#39;)</td>
+      <td class="src ">	yytext[x-1] = (char)temp;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l545" href="#l545">545</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		escstr &lt;&lt; yytext[x+2];</td>
+      <td class="src ">	yytext[x] = &#39;\&#39;&#39;;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l546" href="#l546">546</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	std::stringstream buf;</td>
+      <td class="src ">	//Clear the extra space</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l547" href="#l547">547</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	int32_t temp;</td>
+      <td class="src ">	for(int32_t q = x+1; q &lt; yyleng; ++q)</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l548" href="#l548">548</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	buf &lt;&lt; std::hex &lt;&lt; escstr.str();</td>
+      <td class="src ">		yytext[q] = 0;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l549" href="#l549">549</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	buf &gt;&gt; temp;</td>
+      <td class="src ">	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l550" href="#l550">550</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	yytext[x-1] = (char)temp;</td>
+      <td class="src ">}</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l551" href="#l551">551</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	yytext[x] = &#39;\&#39;&#39;;</td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l552" href="#l552">552</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	//Clear the extra space</td>
+      <td class="src "> /* Whitespace */</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l553" href="#l553">553</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	for(int32_t q = x+1; q &lt; yyleng; ++q)</td>
+      <td class="src ">[ \t\r]*\n	{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l554" href="#l554">554</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">		yytext[q] = 0;</td>
+      <td class="src ">	NEWLINE;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l555" href="#l555">555</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );</td>
+      <td class="src ">	first_identifier_for_line = nullptr;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l556" href="#l556">556</a></td>
@@ -3985,49 +3985,49 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src ">[ \t\r]+	ADVANCE;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l558" href="#l558">558</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "> /* Whitespace */</td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l559" href="#l559">559</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[ \t\r]*\n	{</td>
+      <td class="src "> /* Error */</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l560" href="#l560">560</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	NEWLINE;</td>
+      <td class="src "> .		{</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l561" href="#l561">561</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	first_identifier_for_line = nullptr;</td>
+      <td class="src ">	yyerrmsg(&#34;ERROR: Unknown Character&#34;);</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l562" href="#l562">562</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">}</td>
+      <td class="src ">	TERMINATE;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l563" href="#l563">563</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">[ \t\r]+	ADVANCE;</td>
+      <td class="src ">}</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l564" href="#l564">564</a></td>
@@ -4041,145 +4041,103 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "> /* Error */</td>
+      <td class="src ">%%</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l566" href="#l566">566</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "> .		{</td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l567" href="#l567">567</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src ">	yyerrmsg(&#34;ERROR: Unknown Character&#34;);</td>
+      <td class="src ">void resetLexer() {</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l568" href="#l568">568</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src ">	TERMINATE;</td>
+      <td class="linecount coveredLine">55556</td>
+      <td class="src coveredLine">	YY_FLUSH_BUFFER;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l569" href="#l569">569</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 54715 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 841 times.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount "></td>
-      <td class="src ">}</td>
+      <td class="linecount coveredLine">55556</td>
+      <td class="src coveredLine">	BEGIN( INITIAL );</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l570" href="#l570">570</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount coveredLine">55556</td>
+      <td class="src coveredLine">	yyrow = 1;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l571" href="#l571">571</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src ">%%</td>
+      <td class="linecount coveredLine">55556</td>
+      <td class="src coveredLine">	yycol = 1;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l572" href="#l572">572</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount coveredLine">55556</td>
+      <td class="src coveredLine">	doImportStr = 0;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l573" href="#l573">573</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src ">void resetLexer() {</td>
+      <td class="linecount coveredLine">55556</td>
+      <td class="src coveredLine">	special_state = st_none;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l574" href="#l574">574</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">110358</td>
-      <td class="src coveredLine">	YY_FLUSH_BUFFER;</td>
+      <td class="linecount coveredLine">55556</td>
+      <td class="src coveredLine">	comment_str.str(&#34;&#34;);</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l575" href="#l575">575</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/2</summary>
+        <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 109524 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 834 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 55556 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
+          <div class="takenBranch">&check; Branch 3 taken 55556 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">110358</td>
-      <td class="src coveredLine">	BEGIN( INITIAL );</td>
+      <td class="linecount partialCoveredLine">55556</td>
+      <td class="src partialCoveredLine">	first_identifier_for_line = nullptr;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l576" href="#l576">576</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">110358</td>
-      <td class="src coveredLine">	yyrow = 1;</td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l577" href="#l577">577</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">110358</td>
-      <td class="src coveredLine">	yycol = 1;</td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l578" href="#l578">578</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">110358</td>
-      <td class="src coveredLine">	doImportStr = 0;</td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l579" href="#l579">579</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">110358</td>
-      <td class="src coveredLine">	special_state = st_none;</td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l580" href="#l580">580</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">110358</td>
-      <td class="src coveredLine">	comment_str.str(&#34;&#34;);</td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l581" href="#l581">581</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/4</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 110358 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 110358 times.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount partialCoveredLine">110358</td>
-      <td class="src partialCoveredLine">	first_identifier_for_line = nullptr;</td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l582" href="#l582">582</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">110358</td>
+      <td class="linecount coveredLine">55556</td>
       <td class="src coveredLine">}</td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l583" href="#l583">583</a></td>
+      <td class="lineno"><a id="l577" href="#l577">577</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
