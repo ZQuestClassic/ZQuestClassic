@@ -16,9 +16,9 @@ extern char *guy_string[];
 
 // For the "npc" type - also called "guys" internally, and backed by the "enemy" class... :)
 
-int32_t GuyH::loadNPC(const int32_t uid, const char* what)
+int32_t GuyH::loadNPC(const int32_t uid)
 {
-	tempenemy = ResolveNpc(uid, what);
+	tempenemy = ResolveNpc(uid);
 	if (!tempenemy) 
 		return _InvalidSpriteUID;
 	
@@ -121,7 +121,7 @@ namespace {
 
 void do_npcattack()
 {
-	if(GuyH::loadNPC(ri->guyref, "npc->Attack()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		GuyH::getNPC()->FireWeapon();
 	}
@@ -133,13 +133,13 @@ void do_npc_newdir()
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->NewDir()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz != -1 ) 
 		{
 			if ( sz != 3 ) 
 			{
-				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
+				scripting_log_error_with_context("Invalid array size: {}", sz);
 				return;
 			}
 			GuyH::getNPC()->newdir((am.get(0)/10000), (am.get(1)/10000),
@@ -157,13 +157,13 @@ void do_npc_constwalk()
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz != -1 ) 
 		{
 			if ( sz != 3 ) 
 			{
-				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
+				scripting_log_error_with_context("Invalid array size: {}", sz);
 				return;
 			}
 			GuyH::getNPC()->constant_walk( (am.get(0)/10000), (am.get(1)/10000),
@@ -180,7 +180,7 @@ void do_npc_varwalk()
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz == 3 ) 
 		{
@@ -188,7 +188,7 @@ void do_npc_varwalk()
 			GuyH::getNPC()->variable_walk( (am.get(0)/10000), (am.get(1)/10000),
 				(am.get(2)/10000) );
 		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
+		else scripting_log_error_with_context("Invalid array size: {}", sz);
 	}
 }
 
@@ -199,7 +199,7 @@ void do_npc_varwalk8()
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk8()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz == 4 ) 
 		{
@@ -214,7 +214,7 @@ void do_npc_varwalk8()
 				(am.get(6)/10000), (am.get(7)/10000)
 			);
 		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
+		else scripting_log_error_with_context("Invalid array size: {}", sz);
 	}
 }
 
@@ -225,7 +225,7 @@ void do_npc_constwalk8()
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk8()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz == 3 ) 
 		{
@@ -233,7 +233,7 @@ void do_npc_constwalk8()
 				(am.get(2)/10000) );
 		}
 		
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
+		else scripting_log_error_with_context("Invalid array size: {}", sz);
 	}
 }
 
@@ -245,7 +245,7 @@ void do_npc_haltwalk()
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz == 5 ) 
 		{
@@ -253,7 +253,7 @@ void do_npc_haltwalk()
 				(am.get(2)/10000), (am.get(3)/10000),
 				(am.get(4)/10000));
 		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
+		else scripting_log_error_with_context("Invalid array size: {}", sz);
 	}
 }
 
@@ -264,7 +264,7 @@ void do_npc_haltwalk8()
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk8()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz == 6 ) 
 		{
@@ -273,7 +273,7 @@ void do_npc_haltwalk8()
 				(am.get(2)/10000), (am.get(3)/10000),
 				(am.get(4)/10000),(am.get(5)/10000));
 		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
+		else scripting_log_error_with_context("Invalid array size: {}", sz);
 	}
 }
 
@@ -285,7 +285,7 @@ void do_npc_floatwalk()
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->FloatingWalk()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz == 3 ) 
 		{
@@ -302,14 +302,14 @@ void do_npc_floatwalk()
 				(am.get(4)/10000),(am.get(5)/10000),
 				(am.get(6)/10000));
 		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
+		else scripting_log_error_with_context("Invalid array size: {}", sz);
 	}
 }
 
 void do_npc_breathefire()
 {
 	bool seek = (get_register(sarg1));
-	if(GuyH::loadNPC(ri->guyref, "npc->BreathAttack()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		GuyH::getNPC()->FireBreath(seek);
 	}
@@ -323,7 +323,7 @@ void do_npc_newdir8()
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->NewDir8()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz == 3 ) 
 		{
@@ -340,14 +340,14 @@ void do_npc_newdir8()
 				(am.get(4)/10000),(am.get(5)/10000),
 				(am.get(6)/10000));
 		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
+		else scripting_log_error_with_context("Invalid array size: {}", sz);
 	}
 }
 
 int32_t npc_collision()
 {
 	int32_t isColl = 0;
-	if(GuyH::loadNPC(ri->guyref, "npc->Collision()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		int32_t _obj_type = (ri->d[rINDEX] / 10000);
 		int32_t _obj_ptr = (ri->d[rINDEX2]);
@@ -405,7 +405,7 @@ int32_t npc_collision()
 
 int32_t npc_linedup()
 {
-	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		int32_t range = (ri->d[rINDEX] / 10000);
 		bool dir8 = (ri->d[rINDEX2]);
@@ -419,7 +419,7 @@ int32_t npc_linedup()
 void do_npc_hero_in_range(const bool v)
 {
 	int32_t dist = get_register(sarg1) / 10000;
-	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		bool in_range = GuyH::getNPC()->HeroInRange(dist);
 		set_register(sarg1, (in_range ? 10000 : 0)); //This isn't setting the right value, it seems. 
@@ -435,7 +435,7 @@ void do_npc_simulate_hit(const bool v)
 	int32_t sz = am.size();
 	bool ishit = false;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->SimulateHit()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		if ( sz == 2 ) //type and pointer
 		{
@@ -464,7 +464,7 @@ void do_npc_knockback(const bool v)
 	int32_t spd = vbound(ri->d[rINDEX] / 10000, 0, 255);
 	bool ret = false;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->Knockback()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		ret = GuyH::getNPC()->knockback(time, dir, spd);
 	}
@@ -498,7 +498,7 @@ void do_npc_add(const bool v)
 	}
 	
 	
-	if(BC::checkGuyID(id, "npc->Create()") != SH::_NoError)
+	if(BC::checkGuyID(id) != SH::_NoError)
 		return;
 		
 	//If we make a segmented enemy there'll be more than one sprite created
@@ -527,7 +527,7 @@ void do_getnpcname()
 {
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->GetName") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 		return;
 		
 	word ID = (GuyH::getNPC()->id & 0xFFF);
@@ -552,7 +552,7 @@ void do_getnpcdata_getname()
 
 void do_isdeadnpc()
 {
-	if(GuyH::loadNPC(ri->guyref, "npc->isDead") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		set_register(sarg1,
 			((GuyH::getNPC()->dying && !GuyH::getNPC()->immortal)
@@ -564,7 +564,7 @@ void do_isdeadnpc()
 
 void do_canslidenpc()
 {
-	if(GuyH::loadNPC(ri->guyref, "npc->CanSlide") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		set_register(sarg1, ((GuyH::getNPC()->can_slide()) ? 10000 : 0));
 	}
@@ -573,7 +573,7 @@ void do_canslidenpc()
 
 void do_slidenpc()
 {
-	if(GuyH::loadNPC(ri->guyref, "npc->Slide()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		set_register(sarg1, ((GuyH::getNPC()->slide())*10000));
 	}
@@ -582,7 +582,7 @@ void do_slidenpc()
 
 void do_npc_stopbgsfx()
 {
-	if(GuyH::loadNPC(ri->guyref, "npc->StopBGSFX()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		GuyH::getNPC()->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
 	}
@@ -590,7 +590,7 @@ void do_npc_stopbgsfx()
 
 void do_npc_delete()
 {
-	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		auto ind = GuyH::getNPCIndex(ri->guyref);
 		GuyH::getNPC()->stop_bgsfx(ind);
@@ -603,7 +603,7 @@ void do_npc_canmove(const bool v)
 	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
 	int32_t sz = ArrayH::getSize(arrayptr);
 
-	if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") == SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		ArrayManager am(arrayptr);
 		if(am.invalid()) return;
@@ -662,7 +662,7 @@ void do_breakshield()
 
 void do_repairshield()
 {
-	if (GuyH::loadNPC(ri->guyref, "npc->RepairShield()") == SH::_NoError)
+	if (GuyH::loadNPC(ri->guyref) == SH::_NoError)
 	{
 		GuyH::getNPC()->repair_shield();
 	}
@@ -676,16 +676,16 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 
 	switch (reg)
 	{
-		#define GET_NPC_VAR_INT(member, str) \
+		#define GET_NPC_VAR_INT(member) \
 		{ \
-			if(GuyH::loadNPC(ri->guyref, str) != SH::_NoError) \
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) \
 				ret = -10000; \
 			else \
 				ret = GuyH::getNPC()->member * 10000; \
 		}
 
 		case NPCDIR:
-			if(GuyH::loadNPC(ri->guyref, "npc->Dir") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = zc_max(GuyH::getNPC()->dir * 10000, 0);
@@ -693,7 +693,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 			
 		case NPCHITDIR:
-			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->hitdir * 10000);
@@ -701,7 +701,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 			
 		case NPCSLIDECLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->sclk * 10000);
@@ -709,7 +709,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 			
 		case NPCHALTCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->clk2 * 10000);
@@ -717,7 +717,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 			
 		case NPCFRAME:
-			if(GuyH::loadNPC(ri->guyref, "npc->Frame") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->clk * 10000);
@@ -725,7 +725,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 			
 		case NPCMOVESTATUS:
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->movestatus * 10000);
@@ -733,7 +733,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 			
 		case NPCFADING:
-			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->fading * 10000);
@@ -741,120 +741,119 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 			
 		case NPCRATE:
-			GET_NPC_VAR_INT(rate, "npc->Rate") break;
+			GET_NPC_VAR_INT(rate) break;
 			
 		case NPCHOMING:
-			GET_NPC_VAR_INT(homing, "npc->Homing") break;
+			GET_NPC_VAR_INT(homing) break;
 			
 		case NPCFRAMERATE:
-			GET_NPC_VAR_INT(frate, "npc->ASpeed") break;
+			GET_NPC_VAR_INT(frate) break;
 			
 		case NPCHALTRATE:
-			GET_NPC_VAR_INT(hrate, "npc->HaltRate") break;
+			GET_NPC_VAR_INT(hrate) break;
 		
 		case NPCRANDOM:
-			GET_NPC_VAR_INT(rate, "npc->Random") break;
+			GET_NPC_VAR_INT(rate) break;
 			
 		case NPCDRAWTYPE:
-			GET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
+			GET_NPC_VAR_INT(drawstyle) break;
 		
 		case NPCHP:
-			GET_NPC_VAR_INT(hp, "npc->HP") break;
+			GET_NPC_VAR_INT(hp) break;
 
 		case NPCORIGINALHP:
-			GET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
+			GET_NPC_VAR_INT(starting_hp) break;
 			
 		case NPCCOLLDET:
-			GET_NPC_VAR_INT(scriptcoldet, "npc->ColDetection") break;
+			GET_NPC_VAR_INT(scriptcoldet) break;
 		
 		case NPCENGINEANIMATE:
-			GET_NPC_VAR_INT(do_animation, "npc->Animation") break;
+			GET_NPC_VAR_INT(do_animation) break;
 			
 		case NPCSTUN:
-			GET_NPC_VAR_INT(stunclk, "npc->Stun") break;
+			GET_NPC_VAR_INT(stunclk) break;
 			
 		case NPCHUNGER:
-			GET_NPC_VAR_INT(grumble, "npc->Hunger") break;
+			GET_NPC_VAR_INT(grumble) break;
 		
 		case NPCWEAPSPRITE:
-			GET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
+			GET_NPC_VAR_INT(wpnsprite) break;
 			
 		case NPCTYPE:
-			GET_NPC_VAR_INT(family, "npc->Type") break;
+			GET_NPC_VAR_INT(family) break;
 			
 		case NPCDP:
-			GET_NPC_VAR_INT(dp, "npc->Damage") break;
+			GET_NPC_VAR_INT(dp) break;
 			
 		case NPCWDP:
-			GET_NPC_VAR_INT(wdp, "npc->WeaponDamage") break;
+			GET_NPC_VAR_INT(wdp) break;
 			
 		case NPCOTILE:
-			GET_NPC_VAR_INT(o_tile, "npc->OriginalTile") break;
+			GET_NPC_VAR_INT(o_tile) break;
 			
 		case NPCTILE:
-			GET_NPC_VAR_INT(tile, "npc->Tile") break;
+			GET_NPC_VAR_INT(tile) break;
 		
 		case NPCSCRIPTTILE:
-			GET_NPC_VAR_INT(scripttile, "npc->ScriptTile") break;
+			GET_NPC_VAR_INT(scripttile) break;
 			
 		case NPCSCRIPTFLIP:
-			GET_NPC_VAR_INT(scriptflip, "npc->ScriptFlip") break;
+			GET_NPC_VAR_INT(scriptflip) break;
 			
 		case NPCWEAPON:
-			GET_NPC_VAR_INT(wpn, "npc->Weapon") break;
+			GET_NPC_VAR_INT(wpn) break;
 			
 		case NPCITEMSET:
-			GET_NPC_VAR_INT(item_set, "npc->ItemSet") break;
+			GET_NPC_VAR_INT(item_set) break;
 			
 		case NPCCSET:
-			GET_NPC_VAR_INT(cs, "npc->CSet") break;
+			GET_NPC_VAR_INT(cs) break;
 			
 		case NPCBOSSPAL:
-			GET_NPC_VAR_INT(bosspal, "npc->BossPal") break;
+			GET_NPC_VAR_INT(bosspal) break;
 			
 		case NPCBGSFX:
-			GET_NPC_VAR_INT(bgsfx, "npc->SFX") break;
+			GET_NPC_VAR_INT(bgsfx) break;
 			
 		case NPCEXTEND:
-			GET_NPC_VAR_INT(extend, "npc->Extend") break;
+			GET_NPC_VAR_INT(extend) break;
 			
 		case NPCHXOFS:
-			GET_NPC_VAR_INT(hxofs, "npc->HitXOffset") break;
+			GET_NPC_VAR_INT(hxofs) break;
 			
 		case NPCHYOFS:
-			GET_NPC_VAR_INT(hyofs, "npc->HitYOffset") break;
+			GET_NPC_VAR_INT(hyofs) break;
 			
 		case NPCHXSZ:
-			GET_NPC_VAR_INT(hit_width, "npc->HitWidth") break;
+			GET_NPC_VAR_INT(hit_width) break;
 			
 		case NPCHYSZ:
-			GET_NPC_VAR_INT(hit_height, "npc->HitHeight") break;
+			GET_NPC_VAR_INT(hit_height) break;
 			
 		case NPCHZSZ:
-			GET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
+			GET_NPC_VAR_INT(hzsz) break;
 		
 		case NPCROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"npc->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1;
 				break;
 			}
-			GET_NPC_VAR_INT(rotation, "npc->Rotation")
+			GET_NPC_VAR_INT(rotation)
 			break;
 
 		case NPCTXSZ:
-			GET_NPC_VAR_INT(txsz, "npc->TileWidth") break;
+			GET_NPC_VAR_INT(txsz) break;
 			
 		case NPCTYSZ:
-			GET_NPC_VAR_INT(tysz, "npc->TileHeight") break;
+			GET_NPC_VAR_INT(tysz) break;
 		
 
 		//And zfix
-		#define GET_NPC_VAR_FIX(member, str) \
+		#define GET_NPC_VAR_FIX(member) \
 		{ \
-			if(GuyH::loadNPC(ri->guyref, str) != SH::_NoError) \
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) \
 			{ \
 				ret = -10000; \
 				break; \
@@ -866,7 +865,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		case NPCX:
 		//GET_NPC_VAR_FIX(x, "npc->X") break;     
 		{
-			if(GuyH::loadNPC(ri->guyref, "X") != SH::_NoError) 
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) 
 			{
 				ret = -10000; 
 			}
@@ -893,7 +892,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		
 		case NPCSUBMERGED:
 		{
-			if(GuyH::loadNPC(ri->guyref, "Submerged()") != SH::_NoError) 
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) 
 			{
 				ret = -10000; 
 			}    
@@ -909,7 +908,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		case NPCY:
 			//GET_NPC_VAR_FIX(y, "npc->Y") break;
 		{
-			if(GuyH::loadNPC(ri->guyref, "Y") != SH::_NoError) 
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) 
 			{
 				ret = -10000; 
 			}
@@ -931,7 +930,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		case NPCZ:
 			//GET_NPC_VAR_FIX(z, "npc->Z") break;
 		{
-			if(GuyH::loadNPC(ri->guyref, "Z") != SH::_NoError) 
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) 
 			{
 				ret = -10000; 
 			}
@@ -950,20 +949,20 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		}
 			
 		case NPCXOFS:
-			GET_NPC_VAR_FIX(xofs, "npc->DrawXOffset") break;
+			GET_NPC_VAR_FIX(xofs) break;
 			
 		case NPCYOFS:
-			GET_NPC_VAR_FIX(yofs, "npc->DrawYOffset") ret-=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)*10000;
+			GET_NPC_VAR_FIX(yofs) ret-=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)*10000;
 			break;
 		case NPCSHADOWXOFS:
-			GET_NPC_VAR_FIX(shadowxofs, "npc->ShadowXOffset") break;
+			GET_NPC_VAR_FIX(shadowxofs) break;
 			
 		case NPCSHADOWYOFS:
-			GET_NPC_VAR_FIX(shadowyofs, "npc->ShadowYOffset") break;
+			GET_NPC_VAR_FIX(shadowyofs) break;
 			
 		case NPCTOTALDYOFFS:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->TotalDYOffset") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 			{
 				ret = -10000;
 			}
@@ -977,11 +976,11 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		}
 			
 		case NPCZOFS:
-			GET_NPC_VAR_FIX(zofs, "npc->DrawZOffset") break;
+			GET_NPC_VAR_FIX(zofs) break;
 			
 			//These variables are all different to the templates (casting for jump and step is slightly non-standard)
 		case NPCJUMP:
-			if(GuyH::loadNPC(ri->guyref, "npc->Jump") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 			{
@@ -992,7 +991,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCFAKEJUMP:
-			if(GuyH::loadNPC(ri->guyref, "npc->FakeJump") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 			{
@@ -1006,11 +1005,10 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		case NPCSCALE:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"npc->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if(GuyH::loadNPC(ri->guyref, "npc->Scale") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (int32_t(GuyH::getNPC()->scale) * 100.0);
@@ -1018,35 +1016,35 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCIMMORTAL:
-			if(GuyH::loadNPC(ri->guyref, "npc->Immortal") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = GuyH::getNPC()->immortal ? 10000 : 0;
 			break;
 		
 		case NPCNOSLIDE:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoSlide") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSLIDE) ? 10000 : 0;
 			break;
 		
 		case NPCNOSCRIPTKB:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoScriptKnockback") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSCRIPTKNOCKBACK) ? 10000 : 0;
 			break;
 		
 		case NPCKNOCKBACKSPEED:
-			if(GuyH::loadNPC(ri->guyref, "npc->SlideSpeed") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = GuyH::getNPC()->knockbackSpeed * 10000;
 			break;
 			
 		case NPCSTEP:
-			if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 			{
@@ -1075,7 +1073,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCGRAVITY:
-			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((GuyH::getNPC()->moveflags & move_obeys_grav) ? 10000 : 0);
@@ -1084,7 +1082,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		
 			
 		case NPCID:
-			if(GuyH::loadNPC(ri->guyref, "npc->ID") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->id & 0xFFF) * 10000;
@@ -1092,7 +1090,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCISCORE:
-			if(GuyH::loadNPC(ri->guyref, "npc->isCore") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((GuyH::getNPC()->isCore) ? 10000 : 0);
@@ -1100,7 +1098,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCSCRIPTUID:
-			if(GuyH::loadNPC(ri->guyref, "npc->UID") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((GuyH::getNPC()->getUID()));
@@ -1108,7 +1106,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCPARENTUID:
-			if(GuyH::loadNPC(ri->guyref, "npc->ParentUID") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((GuyH::getNPC()->parent_uid)); //literal, not *10000
@@ -1116,7 +1114,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 
 		case NPCMFLAGS:
-			if(GuyH::loadNPC(ri->guyref, "npc->MiscFlags") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = GuyH::getMFlags() * 10000;
@@ -1128,8 +1126,8 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->Defense[]") != SH::_NoError ||
-					BC::checkBounds(a, 0, (edefLAST255), "npc->Defense[]") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError ||
+					BC::checkBounds(a, 0, (edefLAST255)) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = GuyH::getNPC()->defense[a] * 10000;
@@ -1140,7 +1138,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 
-			if(GuyH::loadNPC(ri->guyref, "npc->HitBy[]") != SH::_NoError )
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError )
 			{
 				ret = -10000; break;
 			}
@@ -1187,8 +1185,8 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptDefense") != SH::_NoError ||
-					BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX, "npc->ScriptDefense") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError ||
+					BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = GuyH::getNPC()->defense[a+edefSCRIPT01] * 10000;
@@ -1200,8 +1198,8 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->Misc") != SH::_NoError ||
-					BC::checkMisc32(a, "npc->Misc") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError ||
+					BC::checkMisc32(a) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = GuyH::getNPC()->miscellaneous[a];
@@ -1211,7 +1209,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") != SH::_NoError )
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError )
 				ret = -10000;
 			else
 			{
@@ -1223,7 +1221,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		
 		case NPCSCRIPT:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Script") != SH::_NoError )
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError )
 				ret = -10000;
 			else
 			{
@@ -1237,8 +1235,8 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->Attributes") != SH::_NoError ||
-					BC::checkBounds(a, 0, ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ? 31 : 15 ), "npc->Attributes") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError ||
+					BC::checkBounds(a, 0, ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ? 31 : 15 )) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = GuyH::getNPCDMisc(a) * 10000;
@@ -1246,7 +1244,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		break;
 		
 			case NPCINVINC:
-			if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (int32_t)GuyH::getNPC()->hclk * 10000;
@@ -1254,7 +1252,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCHASITEM:
-			if(GuyH::loadNPC(ri->guyref, "npc->HasItem") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = 0;
 			else
 				ret = GuyH::getNPC()->itemguy?10000:0;
@@ -1262,7 +1260,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCRINGLEAD:
-			if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = 0;
 			else
 				ret = GuyH::getNPC()->leader?10000:0;
@@ -1270,7 +1268,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 		
 		case NPCSUPERMAN:
-			if(GuyH::loadNPC(ri->guyref, "npc->Invincible") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (int32_t)GuyH::getNPC()->superman * 10000;
@@ -1280,7 +1278,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		case NPCSHIELD:
 		{
 			int32_t indx = ri->d[rINDEX];
-			if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				switch(indx)
 				{
@@ -1325,18 +1323,18 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		break;
 		
 		case NPCFROZENTILE:
-			GET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
+			GET_NPC_VAR_INT(frozentile); break;
 		
 		case NPCFROZENCSET:
-			GET_NPC_VAR_INT(frozencset, "npc->FrozenCSet"); break;
+			GET_NPC_VAR_INT(frozencset); break;
 		
 		case NPCFROZEN:
-			GET_NPC_VAR_INT(frozenclock, "npc->Frozen"); break;
+			GET_NPC_VAR_INT(frozenclock); break;
 		
 		
 		case NPCBEHAVIOUR: 
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Behaviour[]") != SH::_NoError) 
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) 
 			{
 				ret = -10000;
 				break;
@@ -1386,28 +1384,28 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		}
 		
 		case NPCFALLCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Falling") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->fallclk * 10000;
 			}
 			break;
 		
 		case NPCFALLCMB:
-			if(GuyH::loadNPC(ri->guyref, "npc->FallCombo") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->fallCombo * 10000;
 			}
 			break;
 			
 		case NPCDROWNCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Drowning") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->drownclk * 10000;
 			}
 			break;
 		
 		case NPCDROWNCMB:
-			if(GuyH::loadNPC(ri->guyref, "npc->DrownCombo") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->drownCombo * 10000;
 			}
@@ -1415,7 +1413,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		
 		case NPCFAKEZ:
 		{
-			if(GuyH::loadNPC(ri->guyref, "FakeZ") != SH::_NoError) 
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) 
 			{
 				ret = -10000; 
 			}
@@ -1435,10 +1433,10 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		
 		case NPCMOVEFLAGS:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 15, "npc->MoveFlags[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, 15) != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -1450,61 +1448,61 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		}
 		
 		case NPCGLOWRAD:
-			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->glowRad * 10000;
 			}
 			break;
 			
 		case NPCGLOWSHP:
-			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->glowShape * 10000;
 			}
 			break;
 			
 		case NPCSHADOWSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->ShadowSprite") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->spr_shadow * 10000;
 			}
 			break;
 		case NPCSPAWNSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->SpawnSprite") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->spr_spawn * 10000;
 			}
 			break;
 		case NPCDEATHSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->DeathSprite") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->spr_death * 10000;
 			}
 			break;
 		case NPCSWHOOKED:
-			if(GuyH::loadNPC(ri->guyref, "npc->SwitchHooked") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case NPCCANFLICKER:
-			if(GuyH::loadNPC(ri->guyref, "npc->InvFlicker") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->getCanFlicker() ? 10000 : 0;
 			}
 			break;
 		case NPCFLICKERCOLOR:
-			GET_NPC_VAR_INT(flickercolor, "npc->FlickerColor") break;
+			GET_NPC_VAR_INT(flickercolor) break;
 		case NPCFLASHINGCSET:
 		{
-			if (GuyH::loadNPC(ri->guyref, "npc->FlashingCSet") != SH::_NoError)
+			if (GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = GuyH::getNPC()->getFlashingCSet() * 10000;
 			break;
 		}
 		case NPCFLICKERTRANSP:
-			GET_NPC_VAR_INT(flickertransp, "npc->FlickerTransparencyPasses") break;
+			GET_NPC_VAR_INT(flickertransp) break;
 		
 		case NPCCOLLISION:
 			ret = npc_collision();
@@ -1515,7 +1513,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 
 		case NPCFIRESFX:
-			GET_NPC_VAR_INT(firesfx, "npc->WeaponSFX") break;
+			GET_NPC_VAR_INT(firesfx) break;
 
 		default: return std::nullopt;
 	}
@@ -1529,7 +1527,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 	{
 		case NPCX:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->X") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
@@ -1543,11 +1541,10 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"npc->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(GuyH::loadNPC(ri->guyref, "npc->Scale") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->scale = (value / 100.0);
 			}
@@ -1555,14 +1552,14 @@ bool npc_set_register(int32_t reg, int32_t value)
 		break;
 		
 		case NPCIMMORTAL:
-			if(GuyH::loadNPC(ri->guyref, "npc->Immortal") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->immortal = (value ? true : false);
 			}
 			break;
 		
 		case NPCNOSLIDE:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoSlide") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if(value)
 				{
@@ -1576,7 +1573,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 			break;
 		
 		case NPCNOSCRIPTKB:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoScriptKnockback") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if(value)
 				{
@@ -1590,7 +1587,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 			break;
 		
 		case NPCKNOCKBACKSPEED:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoKnockback") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->knockbackSpeed = vbound(value/10000, 0, 255);
 			}
@@ -1605,7 +1602,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 			
 		case NPCY:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Y") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				zfix oldy = GuyH::getNPC()->y;
 				GuyH::getNPC()->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
@@ -1619,7 +1616,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCZ:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Z") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if(!never_in_air(GuyH::getNPC()->id))
 				{
@@ -1637,7 +1634,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCJUMP:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Jump") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if(canfall(GuyH::getNPC()->id))
 					GuyH::getNPC()->fall =zslongToFix(value)*-100;
@@ -1650,7 +1647,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCFAKEJUMP:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->FakeJump") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if(canfall(GuyH::getNPC()->id))
 					GuyH::getNPC()->fakefall =zslongToFix(value)*-100;
@@ -1663,7 +1660,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCSTEP:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Step") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{	
@@ -1685,7 +1682,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCGRAVITY:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if(value)
 					GuyH::getNPC()->moveflags |= move_obeys_grav;
@@ -1697,28 +1694,28 @@ bool npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCXOFS:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->DrawXOffset") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->xofs = zfix(value / 10000);
 		}
 		break;
 		
 		case NPCYOFS:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->DrawYOffset") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->yofs = zfix(value / 10000) + (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 		}
 		break;
 		
 		case NPCSHADOWXOFS:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->ShadowXOffset") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->shadowxofs = zfix(value / 10000);
 		}
 		break;
 		
 		case NPCSHADOWYOFS:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->ShadowYOffset") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->shadowyofs = zfix(value / 10000);
 		}
 		break;
@@ -1730,118 +1727,117 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"npc->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(GuyH::loadNPC(ri->guyref, "npc->Rotation") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->rotation = (value / 10000);
 		}
 		break;
 		
 		case NPCZOFS:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->DrawZOffset") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->zofs = zfix(value / 10000);
 		}
 		break;
 		
-		#define SET_NPC_VAR_INT(member, str) \
+		#define SET_NPC_VAR_INT(member) \
 		{ \
-			if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError) \
 				GuyH::getNPC()->member = value / 10000; \
 		}
 		
 		
 		case NPCISCORE:
-			if(GuyH::loadNPC(ri->guyref, "npc->isCore") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			GuyH::getNPC()->isCore = ( (value / 10000) ? true : false );
 			break;
 		
 		
 		case NPCDIR:
-			SET_NPC_VAR_INT(dir, "npc->Dir") break;
+			SET_NPC_VAR_INT(dir) break;
 			
 		case NPCHITDIR:
-			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				(GuyH::getNPC()->hitdir) = vbound(value/10000, 0, 3);
 				
 			break;
 			
 		case NPCSLIDECLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				GuyH::getNPC()->sclk = value/10000;//vbound(value/10000,0,255);
 				
 			break;
 			
 		case NPCFADING:
-			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				(GuyH::getNPC()->fading) = vbound(value/10000,0,4);
 				
 			break;
 			
 		case NPCHALTCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
 				
 			break;
 			
 		case NPCFRAME:
-			if(GuyH::loadNPC(ri->guyref, "npc->Frame") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
 				
 			break;
 		
 		case NPCMOVESTATUS:
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				(GuyH::getNPC()->movestatus) = vbound(value/10000,0,3);
 				
 			break;
 			
 		case NPCRATE:
-			SET_NPC_VAR_INT(rate, "npc->Rate") break;
+			SET_NPC_VAR_INT(rate) break;
 			
 		case NPCHOMING:
-			SET_NPC_VAR_INT(homing, "npc->Homing") break;
+			SET_NPC_VAR_INT(homing) break;
 			
 		case NPCFRAMERATE:
-			SET_NPC_VAR_INT(frate, "npc->ASpeed") break;
+			SET_NPC_VAR_INT(frate) break;
 			
 		case NPCHALTRATE:
-			SET_NPC_VAR_INT(hrate, "npc->HaltRate") break;
+			SET_NPC_VAR_INT(hrate) break;
 		
 		case NPCRANDOM:
-			SET_NPC_VAR_INT(rate, "npc->Random") break;
+			SET_NPC_VAR_INT(rate) break;
 			
 		case NPCDRAWTYPE:
-			SET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
+			SET_NPC_VAR_INT(drawstyle) break;
 			
 		case NPCHP:
-			SET_NPC_VAR_INT(hp, "npc->HP") break;
+			SET_NPC_VAR_INT(hp) break;
 		
 		case NPCORIGINALHP:
-			SET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
+			SET_NPC_VAR_INT(starting_hp) break;
 			
-			//case NPCID:        SET_NPC_VAR_INT(id, "npc->ID") break; ~Disallowed
+			//case NPCID:        SET_NPC_VAR_INT(id) break; ~Disallowed
 		case NPCDP:
-			SET_NPC_VAR_INT(dp, "npc->Damage") break;
+			SET_NPC_VAR_INT(dp) break;
 			
 		case NPCTYPE:
 		{
-			SET_NPC_VAR_INT(family, "npc->Type") break;
+			SET_NPC_VAR_INT(family) break;
 		}
 		
 		case NPCWDP:
-			SET_NPC_VAR_INT(wdp, "npc->WeaponDamage") break;
+			SET_NPC_VAR_INT(wdp) break;
 			
 		case NPCITEMSET:
-			SET_NPC_VAR_INT(item_set, "npc->ItemSet") break;
+			SET_NPC_VAR_INT(item_set) break;
 			
 		case NPCBOSSPAL:
-			SET_NPC_VAR_INT(bosspal, "npc->BossPal") break;
+			SET_NPC_VAR_INT(bosspal) break;
 			
 		case NPCBGSFX:
-			if(GuyH::loadNPC(ri->guyref, "npc->SFX") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				enemy *en=GuyH::getNPC();
 				int32_t newSFX = value / 10000;
@@ -1858,41 +1854,41 @@ bool npc_set_register(int32_t reg, int32_t value)
 			
 			
 		case NPCEXTEND:
-			SET_NPC_VAR_INT(extend, "npc->Extend") break;
+			SET_NPC_VAR_INT(extend) break;
 			
 		case NPCHXOFS:
-			SET_NPC_VAR_INT(hxofs, "npc->HitXOffset") break;
+			SET_NPC_VAR_INT(hxofs) break;
 			
 		case NPCHYOFS:
-			SET_NPC_VAR_INT(hyofs, "npc->HitYOffset") break;
+			SET_NPC_VAR_INT(hyofs) break;
 			
 		case NPCHXSZ:
-			SET_NPC_VAR_INT(hit_width, "npc->HitWidth") break;
+			SET_NPC_VAR_INT(hit_width) break;
 			
 		case NPCHYSZ:
-			SET_NPC_VAR_INT(hit_height, "npc->HitHeight") break;
+			SET_NPC_VAR_INT(hit_height) break;
 			
 		case NPCHZSZ:
-			SET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
+			SET_NPC_VAR_INT(hzsz) break;
 			
 		case NPCCOLLDET:
-			SET_NPC_VAR_INT(scriptcoldet, "npc->CollDetection") break;
+			SET_NPC_VAR_INT(scriptcoldet) break;
 			
 		case NPCENGINEANIMATE:
-			SET_NPC_VAR_INT(do_animation, "npc->Animation") break;
+			SET_NPC_VAR_INT(do_animation) break;
 			
 		case NPCSTUN:
-			SET_NPC_VAR_INT(stunclk, "npc->Stun") break;
+			SET_NPC_VAR_INT(stunclk) break;
 			
 		case NPCHUNGER:
-			SET_NPC_VAR_INT(grumble, "npc->Hunger") break;
+			SET_NPC_VAR_INT(grumble) break;
 		
 		case NPCWEAPSPRITE:
-			SET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
+			SET_NPC_VAR_INT(wpnsprite) break;
 			
 		case NPCCSET:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->CSet") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->cs = (value / 10000) & 0xF;
 				if(GuyH::getNPC()->family == eeLEV) GuyH::getNPC()->dcset = (value / 10000) & 0xF;
@@ -1905,8 +1901,8 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t height = value / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->TileWidth") == SH::_NoError &&
-					BC::checkBounds(height, 0, 20, "npc->TileWidth") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
+					BC::checkIndex(height, 0, 20) == SH::_NoError)
 				GuyH::getNPC()->txsz = height;
 		}
 		break;
@@ -1915,8 +1911,8 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t width = value / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->TileHeight") == SH::_NoError &&
-					BC::checkBounds(width, 0, 20, "npc->TileHeight") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
+					BC::checkBounds(width, 0, 20) == SH::_NoError)
 				GuyH::getNPC()->tysz = width;
 		}
 		break;
@@ -1925,8 +1921,8 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t tile = value / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->OriginalTile") == SH::_NoError &&
-					BC::checkTile(tile, "npc->OriginalTile") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
+					BC::checkTile(tile) == SH::_NoError)
 				GuyH::getNPC()->o_tile = tile;
 		}
 		break;
@@ -1935,22 +1931,22 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t tile = value / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->Tile") == SH::_NoError &&
-					BC::checkTile(tile, "npc->Tile") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
+					BC::checkTile(tile) == SH::_NoError)
 				GuyH::getNPC()->tile = tile;
 		}
 		break;
 		
 		case NPCSCRIPTTILE:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptTile") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->scripttile = vbound((value/10000),-1, NEWMAXTILES-1);
 		}
 		break;
 		
 		case NPCSCRIPTFLIP:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptFlip") == SH::_NoError )
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError )
 				GuyH::getNPC()->scriptflip = vbound(value/10000, -1, 127);
 		}
 		break;
@@ -1959,8 +1955,8 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t weapon = value / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->Weapon") == SH::_NoError &&
-					BC::checkBounds(weapon, 0, MAXWPNS-1, "npc->Weapon") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
+					BC::checkBounds(weapon, 0, MAXWPNS-1) == SH::_NoError)
 			{
 				GuyH::getNPC()->wpn = weapon;
 			
@@ -1982,8 +1978,8 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->Defense") == SH::_NoError &&
-					BC::checkBounds(a, 0, (edefLAST255), "npc->Defense") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
+					BC::checkBounds(a, 0, (edefLAST255)) == SH::_NoError)
 			{
 				if ( ( get_qr(qr_250WRITEEDEFSCRIPT) ) && a == edefSCRIPT ) 
 				{
@@ -1999,7 +1995,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		break;
 		
 		case NPCPARENTUID:
-			if(GuyH::loadNPC(ri->guyref, "npc->ParentUID") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->parent_uid = value; //literal, not *10000
 			}
@@ -2009,7 +2005,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->HitBy[]") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				switch(indx)
 				{
@@ -2053,8 +2049,8 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptDefense") == SH::_NoError &&
-					BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX, "npc->ScriptDefense") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
+					BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX) == SH::_NoError)
 				GuyH::getNPC()->defense[a+edefSCRIPT01] = value / 10000;
 		}
 		break;
@@ -2063,8 +2059,8 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->Misc") == SH::_NoError &&
-					BC::checkMisc32(a, "npc->Misc") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
+					BC::checkMisc32(a) == SH::_NoError)
 				GuyH::getNPC()->miscellaneous[a] = value;
 				
 		}
@@ -2075,7 +2071,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				//enemy *e = (enemy*)guys.spr(ri->guyref);
 				//e->initD[a] = value; 
@@ -2086,7 +2082,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCSCRIPT:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
@@ -2104,8 +2100,8 @@ bool npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
-					BC::checkBounds(a, 0, 31, "npc->Attributes") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
+					BC::checkBounds(a, 0, 31) == SH::_NoError)
 		
 			switch(a)
 			{
@@ -2149,28 +2145,28 @@ bool npc_set_register(int32_t reg, int32_t value)
 			
 		case NPCINVINC:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->hclk = (int32_t)value/10000;
 		}
 		break;
 		
 		case NPCSUPERMAN:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Invincible") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->superman = (int32_t)value/10000;
 		}
 		break;
 		
 		case NPCHASITEM:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->HasItem") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->itemguy = (value/10000)?1:0;
 		}
 		break;
 		
 		case NPCRINGLEAD:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				GuyH::getNPC()->leader = (value/10000)?1:0;
 		}
 		break;
@@ -2178,7 +2174,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		case NPCSHIELD:
 		{
 			int32_t indx = ri->d[rINDEX];
-			if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				switch(indx)
 				{
@@ -2218,15 +2214,15 @@ bool npc_set_register(int32_t reg, int32_t value)
 		break;
 		
 		case NPCFROZENTILE:
-			SET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
+			SET_NPC_VAR_INT(frozentile); break;
 		case NPCFROZENCSET:
-			SET_NPC_VAR_INT(frozencset, "npc->FrozenCSet"); break;
+			SET_NPC_VAR_INT(frozencset); break;
 		case NPCFROZEN:
-			SET_NPC_VAR_INT(frozenclock, "npc->Frozen"); break;
+			SET_NPC_VAR_INT(frozenclock); break;
 		
 		case NPCBEHAVIOUR: 
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Behaviour[]") != SH::_NoError) 
+			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) 
 			{
 				break;
 			}
@@ -2290,7 +2286,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 			break;
 		}
 		case NPCFALLCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Falling") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if(GuyH::getNPC()->fallclk != 0 && value == 0)
 				{
@@ -2302,13 +2298,13 @@ bool npc_set_register(int32_t reg, int32_t value)
 			}
 			break;
 		case NPCFALLCMB:
-			if(GuyH::loadNPC(ri->guyref, "npc->FallCombo") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case NPCDROWNCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Drowning") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				if(GuyH::getNPC()->drownclk != 0 && value == 0)
 				{
@@ -2320,13 +2316,13 @@ bool npc_set_register(int32_t reg, int32_t value)
 			}
 			break;
 		case NPCDROWNCMB:
-			if(GuyH::loadNPC(ri->guyref, "npc->DrowningCombo") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 		case NPCFAKEZ:
 			{
-				if(GuyH::loadNPC(ri->guyref, "npc->FakeZ") == SH::_NoError)
+				if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				{
 					if(!never_in_air(GuyH::getNPC()->id))
 					{
@@ -2343,10 +2339,10 @@ bool npc_set_register(int32_t reg, int32_t value)
 			break;
 		case NPCMOVEFLAGS:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 15, "npc->MoveFlags[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, 15) == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					move_flags bit = (move_flags)(1<<indx);
@@ -2360,32 +2356,32 @@ bool npc_set_register(int32_t reg, int32_t value)
 		}
 		
 		case NPCGLOWRAD:
-			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 		case NPCGLOWSHP:
-			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case NPCSHADOWSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->ShadowSprite") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->spr_shadow = vbound(value/10000,0,255);
 			}
 			break;
 		case NPCSPAWNSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->SpawnSprite") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->spr_spawn = vbound(value/10000,0,255);
 			}
 			break;
 		case NPCDEATHSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->DeathSprite") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->spr_death = vbound(value/10000,0,255);
 			}
@@ -2393,26 +2389,26 @@ bool npc_set_register(int32_t reg, int32_t value)
 		case NPCSWHOOKED:
 			break; //read-only
 		case NPCCANFLICKER:
-			if(GuyH::loadNPC(ri->guyref, "npc->InvFlicker") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->setCanFlicker(value != 0);
 			}
 			break;
 		case NPCFLICKERCOLOR:
-			if (GuyH::loadNPC(ri->guyref, "npc->FlickerColor") == SH::_NoError)
+			if (GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->flickercolor = vbound(value/10000,-1,255);
 			}
 			break;
 		case NPCFLICKERTRANSP:
-			if (GuyH::loadNPC(ri->guyref, "npc->FlickerTransparencyPasses") == SH::_NoError)
+			if (GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->flickertransp = vbound(value / 10000, -1, 255);
 			}
 			break;
 
 		case NPCFIRESFX:
-			if (GuyH::loadNPC(ri->guyref, "npc->WeaponSFX") == SH::_NoError)
+			if (GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->firesfx = vbound(value / 10000, 0, 255);
 			}
@@ -2512,7 +2508,7 @@ std::optional<int32_t> npc_run_command(word command)
 		case NPCMOVEPAUSED:
 		{
 			ri->d[rEXP1] = 0;
-			if(GuyH::loadNPC(ri->guyref, "npc->MovePaused()") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ri->d[rEXP1] = GuyH::getNPC()->is_move_paused() ? 10000 : 0;
 			}
@@ -2524,7 +2520,7 @@ std::optional<int32_t> npc_run_command(word command)
 			zfix px = zslongToFix(ri->d[rEXP2]);
 			int32_t special = ri->d[rEXP1] / 10000;
 			ri->d[rEXP1] = 0;
-			if(GuyH::loadNPC(ri->guyref, "npc->Move()") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ri->d[rEXP1] = GuyH::getNPC()->moveDir(dir, px, special) ? 10000 : 0;
 			}
@@ -2536,7 +2532,7 @@ std::optional<int32_t> npc_run_command(word command)
 			zfix px = zslongToFix(ri->d[rEXP2]);
 			int32_t special = ri->d[rEXP1] / 10000;
 			ri->d[rEXP1] = 0;
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveAtAngle()") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ri->d[rEXP1] = GuyH::getNPC()->moveAtAngle(degrees, px, special) ? 10000 : 0;
 			}
@@ -2548,7 +2544,7 @@ std::optional<int32_t> npc_run_command(word command)
 			zfix dy = zslongToFix(ri->d[rEXP2]);
 			int32_t special = ri->d[rEXP1] / 10000;
 			ri->d[rEXP1] = 0;
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveXY()") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ri->d[rEXP1] = GuyH::getNPC()->movexy(dx, dy, special) ? 10000 : 00;
 			}
@@ -2560,7 +2556,7 @@ std::optional<int32_t> npc_run_command(word command)
 			zfix px = zslongToFix(ri->d[rEXP2]);
 			int32_t special = ri->d[rEXP1] / 10000;
 			ri->d[rEXP1] = 0;
-			if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ri->d[rEXP1] = GuyH::getNPC()->can_moveDir(dir, px, special) ? 10000 : 0;
 			}
@@ -2572,7 +2568,7 @@ std::optional<int32_t> npc_run_command(word command)
 			zfix px = zslongToFix(ri->d[rEXP2]);
 			int32_t special = ri->d[rEXP1] / 10000;
 			ri->d[rEXP1] = 0;
-			if(GuyH::loadNPC(ri->guyref, "npc->CanMoveAtAngle()") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ri->d[rEXP1] = GuyH::getNPC()->can_moveAtAngle(degrees, px, special) ? 10000 : 0;
 			}
@@ -2584,7 +2580,7 @@ std::optional<int32_t> npc_run_command(word command)
 			zfix dy = zslongToFix(ri->d[rEXP2]);
 			int32_t special = ri->d[rEXP1] / 10000;
 			ri->d[rEXP1] = 0;
-			if(GuyH::loadNPC(ri->guyref, "npc->CanMoveXY()") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ri->d[rEXP1] = GuyH::getNPC()->can_movexy(dx, dy, special) ? 10000 : 0;
 			}
@@ -2594,7 +2590,7 @@ std::optional<int32_t> npc_run_command(word command)
 		{
 			ri->guyref = SH::read_stack(ri->sp + 6);
 			ri->d[rEXP1] = 0;
-			if(GuyH::loadNPC(ri->guyref, "npc->CanPlace()") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				zfix nx = zslongToFix(SH::read_stack(ri->sp + 5));
 				zfix ny = zslongToFix(SH::read_stack(ri->sp + 4));
@@ -2609,7 +2605,7 @@ std::optional<int32_t> npc_run_command(word command)
 		case NPCISFLICKERFRAME:
 		{
 			ri->d[rEXP1] = 0;
-			if (GuyH::loadNPC(ri->guyref, "npc->isFlickerFrame()") == SH::_NoError)
+			if (GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				ri->d[rEXP1] = GuyH::getNPC()->is_hitflickerframe(get_qr(qr_OLDSPRITEDRAWS)) ? 10000 : 0;
 			}

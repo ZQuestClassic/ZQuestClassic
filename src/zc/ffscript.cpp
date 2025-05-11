@@ -96,6 +96,46 @@ using namespace util;
 using namespace util;
 using std::ostringstream;
 
+static ASM_DEFINE current_zasm_command;
+static uint32_t current_zasm_register;
+// If set, the next call to scripting_log_error_with_context will use this string in addition to whatever
+// current_zasm_command and current_zasm_register refer to. Must unset after manually.
+std::string current_zasm_extra_context;
+// If set, the next call to scripting_log_error_with_context will use this string instead of whatever
+// current_zasm_command and current_zasm_register refer to. Must unset after manually.
+std::string current_zasm_context;
+
+void scripting_log_error_with_context(std::string text)
+{
+	if (current_zasm_context.empty())
+	{
+		std::vector<const char*> context;
+
+		const char* register_string = scripting_get_zasm_register_context_string(current_zasm_register);
+		if (register_string)
+			context.push_back(register_string);
+
+		const char* command_string = scripting_get_zasm_command_context_string(current_zasm_command);
+		if (command_string)
+			context.push_back(command_string);
+
+		if (!current_zasm_extra_context.empty())
+			context.push_back(current_zasm_extra_context.c_str());
+
+		if (context.size())
+			current_zasm_context = fmt::format("{}", fmt::join(context, ", "));
+		else
+		{
+			Z_scripterrlog("%s\n", text.c_str());
+			return;
+		}
+	}
+
+	Z_scripterrlog("%s | %s\n", current_zasm_context.c_str(), text.c_str());
+	current_zasm_context = "";
+	current_zasm_extra_context = "";
+}
+
 // (type, index) => ScriptEngineData
 std::map<std::pair<ScriptType, int>, ScriptEngineData> scriptEngineDatas;
 
@@ -142,8 +182,14 @@ void script_bitmaps::update()
 user_bitmap& script_bitmaps::get(int32_t id)
 {
 	static user_bitmap fake;
-	if (auto bitmap = user_bitmaps.check(id, "script drawing"))
+
+	current_zasm_context = "script drawing";
+	if (auto bitmap = user_bitmaps.check(id))
+	{
+		current_zasm_context = "";
 		return *bitmap;
+	}
+
 	return fake;
 }
 
@@ -291,11 +337,6 @@ static int create_mapdata_temp_ref(mapdata_type type, int screen, int layer)
 		ref |= ((screen & 0xFF) << 8);
 	ref |= ((layer & 0xFF) << 16);
 	return -ref-1;
-}
-
-mapscr* GetMapscr(int32_t mapref)
-{
-	return decode_mapdata_ref(mapref).scr;
 }
 
 mapscr* GetScrollingMapscr(int layer, int x, int y)
@@ -862,79 +903,68 @@ int32_t get_ref_map_index(int32_t ref)
 }
 
 template <typename T>
-static T* ResolveSprite(int32_t uid, const char* name, const char* what)
+static T* ResolveSprite(int32_t uid, const char* name)
 {
+	if (!uid)
+	{
+		scripting_log_error_with_context("Invalid sprite: null pointer");
+		return nullptr;
+	}
+
 	if (auto s = sprite::getByUID(uid))
 	{
 		if (auto s2 = dynamic_cast<T*>(s))
 			return s2;
 
-		Z_scripterrlog("Invalid sprite: tried to reference %s->%s, using UID = %ld - but that sprite is not a %s\n", name, what, uid, name);
+		scripting_log_error_with_context("Invalid sprite using UID = {} - but that sprite is not a {}", uid, name);
 		return nullptr;
 	}
 
-	Z_scripterrlog("Invalid sprite: tried to reference %s->%s, using UID = %ld - but that sprite does not exist\n", name, what, uid);
+	scripting_log_error_with_context("Invalid sprite using UID = {} - but that sprite does not exist", uid);
 	return nullptr;
 }
 
-template <typename T>
-static T* ResolveSprite2(int32_t uid, const char* name, const char* context)
+sprite* ResolveBaseSprite(int32_t uid)
 {
-	if (auto s = sprite::getByUID(uid))
-	{
-		if (auto s2 = dynamic_cast<T*>(s))
-			return s2;
-
-		Z_scripterrlog("Invalid sprite: tried to reference %s via %s, using UID = %ld - but that sprite is not a %s\n", name, context, uid, name);
-		return nullptr;
-	}
-
-	Z_scripterrlog("Invalid sprite: tried to reference %s via %s, using UID = %ld - but that sprite does not exist\n", name, context, uid);
-	return nullptr;
+	return ResolveSprite<sprite>(uid, "sprite");
 }
 
-sprite* ResolveBaseSprite(int32_t uid, const char* what)
+item* ResolveItemSprite(int32_t uid)
 {
-	return ResolveSprite<sprite>(uid, "sprite", what);
+	return ResolveSprite<item>(uid, "item");
 }
 
-item* ResolveItemSprite(int32_t uid, const char* what)
+enemy* ResolveNpc(int32_t uid)
 {
-	return ResolveSprite<item>(uid, "item", what);
+	return ResolveSprite<enemy>(uid, "npc");
 }
 
-enemy* ResolveNpc(int32_t uid, const char* what)
-{
-	return ResolveSprite<enemy>(uid, "npc", what);
-}
-
-static weapon* ResolveEWeapon_checkSpriteList(int32_t uid, const char* what)
+static weapon* ResolveEWeapon_checkSpriteList(int32_t uid)
 {
 	// Check here first (for the error logging.)
 	const char* name = "eweapon";
-	const char* context = "Screen->LoadEWeaponByUID";
-	auto spr = ResolveSprite2<weapon>(uid, name, context);
+	auto spr = ResolveSprite<weapon>(uid, name);
 
 	// Double check this is from the right sprite list.
 	if (spr && !Ewpns.getByUID(uid))
 	{
-		Z_scripterrlog("Invalid sprite: tried to reference %s via %s, using UID = %ld - but that sprite is not a %s\n", name, context, uid, name);
+		scripting_log_error_with_context("Invalid sprite using UID = {} - but that sprite is not a {}", uid, name);
 		return nullptr;
 	}
 
 	return spr;
 }
 
-static weapon* ResolveLWeapon_checkSpriteList(int32_t uid, const char* context)
+static weapon* ResolveLWeapon_checkSpriteList(int32_t uid)
 {
 	// Check here first (for the error logging.)
 	const char* name = "lweapon";
-	auto spr = ResolveSprite2<weapon>(uid, name, context);
+	auto spr = ResolveSprite<weapon>(uid, name);
 
 	// Double check this is from the right sprite list.
 	if (spr && !Lwpns.getByUID(uid))
 	{
-		Z_scripterrlog("Invalid sprite: tried to reference %s via %s, using UID = %ld - but that sprite is not a %s\n", name, context, uid, name);
+		scripting_log_error_with_context("Invalid sprite using UID = {} - but that sprite is not a {}", uid, name);
 		return nullptr;
 	}
 
@@ -1034,9 +1064,9 @@ public:
 		}
 	};
 	
-	static int32_t loadWeapon(const int32_t uid, const char* what)
+	static int32_t loadWeapon(const int32_t uid)
 	{
-		tempweapon = ResolveSprite<weapon>(uid, "lweapon", what);
+		tempweapon = ResolveSprite<weapon>(uid, "lweapon");
 		if (!tempweapon)
 			return _InvalidSpriteUID;
 		
@@ -1148,9 +1178,9 @@ public:
 		}
 	};
 
-	static int32_t loadWeapon(const int32_t uid, const char* what)
+	static int32_t loadWeapon(const int32_t uid)
 	{
-		tempweapon = ResolveSprite<weapon>(uid, "eweapon", what);
+		tempweapon = ResolveSprite<weapon>(uid, "eweapon");
 		if (!tempweapon)
 			return _InvalidSpriteUID;
 		
@@ -1587,50 +1617,46 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 	return got_initialized;
 }
 
-static ffcdata *ResolveFFCWithID(ffc_id_t id, const char *what)
+static ffcdata *ResolveFFCWithID(ffc_id_t id)
 {
-	if (BC::checkFFC(id, what) != SH::_NoError)
+	if (BC::checkFFC(id) != SH::_NoError)
 		return nullptr;
 
 	ffcdata* ffc = get_ffc(id);
 	if (!ffc)
-	{
-		Z_scripterrlog("Script attempted to reference a nonexistent FFC!\n");
-		Z_scripterrlog("You were trying to reference the %s of an FFC with ID = %ld\n", what, id);
-	}
+		scripting_log_error_with_context("Invalid ffc using ID = {}", id);
 
 	return ffc;
 }
 
-static ffcdata *ResolveFFC(int32_t ffcref, const char *what)
+static ffcdata *ResolveFFC(int32_t ffcref)
 {
 	if (ZScriptVersion::ffcRefIsSpriteId())
-		return ResolveSprite<ffcdata>(ffcref, "ffc", what);
+		return ResolveSprite<ffcdata>(ffcref, "ffc");
 
-	return ResolveFFCWithID(ffcref, what);
+	return ResolveFFCWithID(ffcref);
 }
 
-// TODO: convert most/all of the `GetMapscr` to this.
-static mapscr* ResolveMapdata(int32_t mapref, const char* context)
+static mapscr* ResolveMapdata(int32_t mapref)
 {
 	auto result = decode_mapdata_ref(mapref);
 	if (!result.scr)
-		Z_scripterrlog("mapdata id (%d) is invalid (mapdata->%s)\n", mapref, context); 
+		scripting_log_error_with_context("mapdata id is invalid: {}", mapref);
 	return result.scr;
 }
 
-static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* context)
+static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos)
 {
 	auto result = decode_mapdata_ref(mapref);
 	if (!result.scr)
 	{
-		Z_scripterrlog("mapdata id (%d) is invalid (%s)\n", mapref, context); 
+		scripting_log_error_with_context("mapdata id is invalid: {}", mapref);
 		return rpos_handle_t{};
 	}
 
 	if (result.scrolling())
 	{
-		Z_scripterrlog("mapdata id (%d) is invalid (%s), screen is not scrolling right now\n", mapref, context);
+		scripting_log_error_with_context("mapdata id is invalid: {} - screen is not scrolling right now", mapref);
 		return rpos_handle_t{};
 	}
 
@@ -1638,7 +1664,7 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 	if (result.type == mapdata_type::TemporaryCurrentRegion)
 	{
 		rpos_t rpos = (rpos_t)pos;
-		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
+		if (BC::checkComboRpos(rpos) != SH::_NoError)
 			return rpos_handle_t{};
 
 		return get_rpos_handle(rpos, result.layer);
@@ -1649,7 +1675,7 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 	{
 		rpos_t rpos = (rpos_t)pos;
 		rpos_t max = (rpos_t)(scrolling_region.screen_count * 176 - 1);
-		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max, context) != SH::_NoError)
+		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max) != SH::_NoError)
 			return rpos_handle_t{};
 
 		int origin_screen = scrolling_region.origin_screen;
@@ -1665,7 +1691,7 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 	}
 
 	// Otherwise, access is limited to just one screen.
-	if (BC::checkComboPos(pos, context) != SH::_NoError)
+	if (BC::checkComboPos(pos) != SH::_NoError)
 		return rpos_handle_t{};
 
 	if (result.type == mapdata_type::CanonicalScreen)
@@ -1680,22 +1706,22 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 	}
 
 	rpos_t rpos = POS_TO_RPOS(pos, result.screen);
-	if (BC::checkComboRpos(rpos, context) != SH::_NoError)
+	if (BC::checkComboRpos(rpos) != SH::_NoError)
 		return rpos_handle_t{};
 
 	return {result.scr, result.screen, result.layer, rpos, pos};
 }
 
-static ffc_handle_t ResolveMapdataFFC(int32_t mapref, int index, const char* context)
+static ffc_handle_t ResolveMapdataFFC(int32_t mapref, int index)
 {
 	index -= 1;
-	if (BC::checkMapdataFFC(index, context) != SH::_NoError)
+	if (BC::checkMapdataFFC(index) != SH::_NoError)
 		return ffc_handle_t{};
 
 	auto result = decode_mapdata_ref(mapref);
 	if (!result.scr)
 	{
-		Z_scripterrlog("mapdata id (%d) is invalid (%s)\n", mapref, context);
+		scripting_log_error_with_context("mapdata id is invalid: {}", mapref);
 		return ffc_handle_t{};
 	}
 
@@ -2238,7 +2264,7 @@ bool ArrayManager::push(int32_t val, int indx)
 	if(_invalid) return false;
 	if(!aptr)
 	{
-		Z_scripterrlog("Special internal array '%d' not valid for operation 'Push'\n", ptr);
+		scripting_log_error_with_context("Special internal array '{}' not valid for operation 'Push'", ptr);
 		return false;
 	}
 	if(aptr->Size() == ZCARRAY_MAX_SIZE)
@@ -2468,23 +2494,24 @@ void FFScript::deallocateAllScriptOwnedCont()
 	}
 }
 
-weapon *checkLWpn(int32_t uid, const char *what)
+weapon *checkLWpn(int32_t uid)
 {
-	return ResolveSprite<weapon>(uid, "lweapon", what);
+	return ResolveSprite<weapon>(uid, "lweapon");
 }
 
-weapon *checkEWpn(int32_t uid, const char *what)
+weapon *checkEWpn(int32_t uid)
 {
-	return ResolveSprite<weapon>(uid, "eweapon", what);
+	return ResolveSprite<weapon>(uid, "eweapon");
 }
 
-user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool skipError = false)
+user_file *checkFile(int32_t ref, bool req_file = false, bool skipError = false)
 {
-	user_file* file = user_files.check(ref, what, skipError);
+	user_file* file = user_files.check(ref, skipError);
 	if (file && req_file && !file->file)
 	{
 		if (skipError) return NULL;
-		Z_scripterrlog("Script attempted to reference an invalid file!\n");
+
+		scripting_log_error_with_context("Script attempted to reference an invalid file!");
 		Z_scripterrlog("File with UID = %ld does not have an open file connection!\n", ref);
 		Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
 		return NULL;
@@ -2492,37 +2519,36 @@ user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool 
 	return file;
 }
 
-user_genscript *checkGenericScr(int32_t ref, const char *what)
+user_genscript *checkGenericScr(int32_t ref)
 {
-	if(ref < 1 || ref >= NUMSCRIPTSGENERIC)
-	{
-		Z_scripterrlog("Invalid gendata pointer access (%ld) for '->%s'\n", ref, what);
+	if (BC::checkBounds(ref, 1, NUMSCRIPTSGENERIC-1) != SH::_NoError)
 		return NULL;
-	}
+
 	return &user_genscript::get(ref);
 }
 extern portal mirror_portal;
-portal *checkPortal(int32_t ref, const char *what, bool skiperr = false)
+portal *checkPortal(int32_t ref, bool skiperr = false)
 {
 	if(ref == -1)
 		return &mirror_portal;
+
 	portal* p = (portal*)portals.getByUID(ref);
 	if(!p)
 	{
 		if(!skiperr)
-			Z_scripterrlog("Invalid portal pointer access (%ld) for '->%s'\n", ref, what);
+			scripting_log_error_with_context("Invalid portal pointer: {}", ref);
 		return nullptr;
 	}
 	return p;
 }
 
-savedportal *checkSavedPortal(int32_t ref, const char* what, bool skiperr = false)
+savedportal *checkSavedPortal(int32_t ref, bool skiperr = false)
 {
 	savedportal* sp = game->getSavedPortal(ref);
 	if(!sp)
 	{
 		if(!skiperr)
-			Z_scripterrlog("Invalid savedportal pointer access (%ld) for '->%s'\n", ref, what);
+			scripting_log_error_with_context("Invalid savedportal pointer: {}", ref);
 		return nullptr;
 	}
 	return sp;
@@ -2545,53 +2571,53 @@ int32_t getPortalFromSaved(savedportal* p)
 	return prtl ? prtl->getUID() : 0;
 }
 
-user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
+user_dir *checkDir(int32_t ref,  bool skipError = false)
 {
-	return user_dirs.check(ref, what, skipError);
+	return user_dirs.check(ref, skipError);
 }
 
-user_stack *checkStack(int32_t ref, const char *what, bool skipError = false)
+user_stack *checkStack(int32_t ref, bool skipError = false)
 {
-	return user_stacks.check(ref, nullptr, skipError);
+	return user_stacks.check(ref, skipError);
 }
 
-user_rng *checkRNG(int32_t ref, const char *what, bool skipError = false)
+user_rng *checkRNG(int32_t ref, bool skipError = false)
 {
 	// A null RNG pointer is special-case, access engine rng.
 	if (ref == 0) return &nulrng;
-	return user_rngs.check(ref, nullptr, skipError);
+	return user_rngs.check(ref, skipError);
 }
 
-user_paldata* checkPalData(int32_t ref, const char* what, bool skipError = false)
+user_paldata* checkPalData(int32_t ref, bool skipError = false)
 {
-	return user_paldatas.check(ref, what, skipError);
+	return user_paldatas.check(ref, skipError);
 }
 
-bottletype *checkBottleData(int32_t ref, const char *what, bool skipError = false)
+bottletype *checkBottleData(int32_t ref, bool skipError = false)
 {
 	if(ref > 0 && ref <= 64)
 	{
 		return &QMisc.bottle_types[ref-1];
 	}
 	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent BottleData!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a BottleData with UID = %ld\n", what, ref);
+
+	scripting_log_error_with_context("Invalid {} using UID = {}", "BottleData", ref);
 	return NULL;
 }
 
-bottleshoptype *checkBottleShopData(int32_t ref, const char *what, bool skipError = false)
+bottleshoptype *checkBottleShopData(int32_t ref, bool skipError = false)
 {
 	if(ref > 0 && ref <= 256)
 	{
 		return &QMisc.bottle_shop_types[ref-1];
 	}
 	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent BottleShopData!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a BottleShopData with UID = %ld\n", what, ref);
+
+	scripting_log_error_with_context("Invalid {} using UID = {}", "BottleData", ref);
 	return NULL;
 }
 
-user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, bool skipError = false)
+user_bitmap *checkBitmap(int32_t ref, bool req_valid = false, bool skipError = false)
 {
 	switch (ref - 10)
 	{
@@ -2607,23 +2633,19 @@ user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, 
 			zprint2("Please report this as a bug!\n");
 
 			if(skipError) return NULL;
-			Z_scripterrlog("Script attempted to reference a nonexistent bitmap!\n");
-			if(what)
-				Z_scripterrlog("You were trying to reference the '%s' of a bitmap with UID = %ld\n", what, ref);
-			else
-				Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
+
+			scripting_log_error_with_context("Tried to reference a non-existent bitmap with UID = {}", ref);
 			return NULL;
-			break;
 
 		default:
 		{
-			user_bitmap* b = user_bitmaps.check(ref, what, skipError);
+			user_bitmap* b = user_bitmaps.check(ref, skipError);
 			if (req_valid && (!b || !b->u_bmp))
 			{
 				if (skipError) return NULL;
-				Z_scripterrlog("Script attempted to reference an invalid bitmap!\n");
-				Z_scripterrlog("Bitmap with UID = %ld does not have a valid memory bitmap!\n",ref);
-				Z_scripterrlog("Use '->Create()' to create a memory bitmap.\n");
+
+				scripting_log_error_with_context("Tried to reference an invalid user bitmap with UID = {}.", ref);
+				Z_scripterrlog("Did you forget to create the bitmap with `new bitmap()` or `->Create()`?.\n");
 				return NULL;
 			}
 			return b;
@@ -2632,7 +2654,7 @@ user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, 
 }
 
 extern const std::string subscr_names[sstMAX];
-ZCSubscreen *checkSubData(int32_t ref, const char *what, int req_ty = -1)
+ZCSubscreen *checkSubData(int32_t ref, int req_ty = -1)
 {
 	auto [ptr,ty] = load_subdata(ref);
 	if(ptr)
@@ -2641,16 +2663,16 @@ ZCSubscreen *checkSubData(int32_t ref, const char *what, int req_ty = -1)
 			return ptr;
 		else
 		{
-			Z_scripterrlog("Wrong type of SubscreenData accessed! Expecting type '%s', but found '%s'\n",
-				subscr_names[req_ty].c_str(), subscr_names[ty].c_str());
+			scripting_log_error_with_context("Wrong type of SubscreenData accessed! Expecting type '{}', but found '{}'",
+				subscr_names[req_ty], subscr_names[ty]);
 		}
 	}
-	else Z_scripterrlog("Script attempted to reference a nonexistent SubscreenData!\n");
+	else scripting_log_error_with_context("Script attempted to reference a nonexistent SubscreenData!");
 	
-	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenData with UID = %ld\n", what, ref);
+	scripting_log_error_with_context("You were trying to reference an invalid SubscreenData with UID = {}", ref);
 	return NULL;
 }
-SubscrPage *checkSubPage(int32_t ref, const char *what, int req_ty = -1)
+SubscrPage *checkSubPage(int32_t ref, int req_ty = -1)
 {
 	auto [ptr,ty] = load_subpage(ref);
 	if(ptr)
@@ -2659,16 +2681,16 @@ SubscrPage *checkSubPage(int32_t ref, const char *what, int req_ty = -1)
 			return ptr;
 		else
 		{
-			Z_scripterrlog("Wrong type of Subscreen accessed! Expecting type '%s', but found '%s'\n",
-				subscr_names[req_ty].c_str(), subscr_names[ty].c_str());
+			scripting_log_error_with_context("Wrong type of Subscreen accessed! Expecting type '{}', but found '{}'",
+				subscr_names[req_ty], subscr_names[ty]);
 		}
 	}
-	else Z_scripterrlog("Script attempted to reference a nonexistent SubscreenPage!\n");
+	else scripting_log_error_with_context("Script attempted to reference a nonexistent SubscreenPage!");
 	
-	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenPage with UID = %ld\n", what, ref);
+	scripting_log_error_with_context("You were trying to reference an invalid SubscreenPage with UID = {}", ref);
 	return NULL;
 }
-SubscrWidget *checkSubWidg(int32_t ref, const char *what, int req_widg_ty = -1, int req_sub_ty = -1)
+SubscrWidget *checkSubWidg(int32_t ref, int req_widg_ty = -1, int req_sub_ty = -1)
 {
 	auto [ptr,ty] = load_subwidg(ref);
 	if(ptr)
@@ -2680,28 +2702,27 @@ SubscrWidget *checkSubWidg(int32_t ref, const char *what, int req_widg_ty = -1, 
 			else
 			{
 				auto listdata = GUI::ZCListData::subscr_widgets();
-				Z_scripterrlog("Wrong type of SubscreenWidget accessed! Expecting type '%s', but found '%s'\n",
-					listdata.findText(req_widg_ty).c_str(), listdata.findText(ptr->getType()).c_str());
+				scripting_log_error_with_context("Wrong type of SubscreenWidget accessed! Expecting type '{}', but found '{}'",
+					listdata.findText(req_widg_ty), listdata.findText(ptr->getType()));
 			}
 		}
 		else
 		{
-			Z_scripterrlog("Wrong type of Subscreen accessed! Expecting subscreen type '%s', but found '%s'\n",
-				subscr_names[req_sub_ty].c_str(), subscr_names[ty].c_str());
+			scripting_log_error_with_context("Wrong type of Subscreen accessed! Expecting subscreen type '{}', but found '{}'",
+				subscr_names[req_sub_ty], subscr_names[ty]);
 		}
 	}
-	else Z_scripterrlog("Script attempted to reference a nonexistent SubscreenWidget!\n");
-	
-	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenWidget with UID = %ld\n", what, ref);
+	else scripting_log_error_with_context("Script attempted to reference a nonexistent SubscreenWidget!");
+
+	scripting_log_error_with_context("You were trying to reference an invalid SubscreenWidget with UID = {}", ref);
 	return NULL;
 }
 
-void bad_subwidg_type(string const& name, bool func, byte type)
+static void bad_subwidg_type(bool func, byte type)
 {
 	auto tyname = type < widgMAX ? subwidg_internal_names[type].c_str() : "";
-	Z_scripterrlog("Widget type %d '%s' does not have a '%s' %s!\n",
-		type, tyname, name.c_str(),
-		func ? "function" : "value");
+	scripting_log_error_with_context("Widget type {} '{}' does not have this {}!",
+		type, tyname, func ? "function" : "value");
 }
 
 // TODO: Remove this.
@@ -2711,7 +2732,7 @@ int32_t item_flag(item_flags flag)
 {
 	if(unsigned(ri->idata) >= MAXITEMS)
 	{
-		Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+		scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 		return 0;
 	}
 	return (itemsbuf[ri->idata].flags & flag) ? 10000 : 0;
@@ -2720,7 +2741,7 @@ void item_flag(item_flags flag, bool val)
 {
 	if(unsigned(ri->idata) >= MAXITEMS)
 	{
-		Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+		scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 		return;
 	}
 	SETFLAG(itemsbuf[ri->idata].flags, flag, val);
@@ -2785,23 +2806,23 @@ static void apply_qr_rules()
 }
 
 //Forward decl
-int32_t do_msgheight(int32_t msg, char const* str);
-int32_t do_msgwidth(int32_t msg, char const* str);
+int32_t do_msgheight(int32_t msg);
+int32_t do_msgwidth(int32_t msg);
 //
 
 template <typename T, size_t N>
-static int read_array(const T(&arr)[N], int index, const char* context)
+static int read_array(const T(&arr)[N], int index)
 {
-	if (BC::checkBounds(index, 0, N - 1, context) != SH::_NoError)
+	if (BC::checkIndex(index, 0, N - 1) != SH::_NoError)
 		return -1;
 
 	return arr[index];
 }
 
 template <typename T, size_t N>
-static bool write_array(T(&arr)[N], int index, T value, const char* context)
+static bool write_array(T(&arr)[N], int index, T value)
 {
-	if (BC::checkBounds(index, 0, N - 1, context) != SH::_NoError)
+	if (BC::checkIndex(index, 0, N - 1) != SH::_NoError)
 		return false;
 
 	arr[index] = value;
@@ -2818,18 +2839,21 @@ int32_t get_register(int32_t arg)
 		return game->global_d[arg - GD(0)];
 
 	int32_t ret = 0;
-	
-	#define GET_SPRITEDATA_VAR_INT(member, str) \
+
+	#define GET_SPRITEDATA_VAR_INT(member) \
 	{ \
 		if(unsigned(ri->spritedataref) > (MAXWPNS-1) )    \
 		{ \
 			ret = -10000; \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritedataref*10000));\
+			scripting_log_error_with_context("Invalid Sprite ID: {}", ri->spritedataref*10000); \
 		} \
 		else \
 			ret = (wpnsbuf[ri->spritedataref].member * 10000); \
 	}
-	
+
+	current_zasm_register = arg;
+
+	// Do not ever use `return` in these cases!
 	switch(arg)
 	{
 		case MAX_FFC_ID:
@@ -2879,91 +2903,91 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//FFC Variables
 		case DATA:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Data"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->data * 10000;
 			break;
 			
 		case FFSCRIPT:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Script"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->script * 10000;
 			break;
 			
 		case FCSET:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->CSet"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->cset * 10000;
 			break;
 			
 		case DELAY:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Delay"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->delay * 10000;
 			break;
 			
 		case FX:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->X"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->x.getZLong();
 			break;
 			
 		case FY:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Y"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->y.getZLong();
 			break;
 			
 		case XD:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Vx"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->vx.getZLong();
 			break;
 			
 		case YD:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Vy"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->vy.getZLong();
 			break;
 		case FFCID:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->ID"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ret = (get_region_screen_offset(ffc->screen_spawned) * MAXFFCS + ffc->index + 1) * 10000;
 			break;
 			
 		case XD2:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Ax"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->ax.getZLong();
 			break;
 			
 		case YD2:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Ay"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->ay.getZLong();
 			break;
 			
 		case FFFLAGSD:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Flags[]"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = (ffc->flags >> (ri->d[rINDEX] / 10000)) & 1 ? 10000 : 0;
 			break;
 			
 		case FFCWIDTH:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->EffectWidth"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->hit_width * 10000;
 			break;
 			
 		case FFCHEIGHT:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->EffectHeight"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->hit_height * 10000;
 			break;
 			
 		case FFTWIDTH:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->TileWidth"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->txsz * 10000;
 			break;
 			
 		case FFTHEIGHT:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->TileHeight"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->tysz * 10000;
 			break;
 			
 		case FFCLAYER:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Layer"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->layer * 10000;
 			break;
 			
 		case FFLINK:
-			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Link"))
+			if(auto ffc = ResolveFFC(ri->ffcref))
 				ret = ffc->link * 10000;
 			break;
 			
@@ -2971,11 +2995,11 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(BC::checkMisc(a, "ffc->Misc") != SH::_NoError)
+			if(BC::checkMisc(a) != SH::_NoError)
 				ret = -10000;
 			else
 			{
-				if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Misc[]"))
+				if(auto ffc = ResolveFFC(ri->ffcref))
 					ret = ffc->miscellaneous[a];
 			}
 		}
@@ -2985,11 +3009,11 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
 			
-			if(BC::checkBounds(a, 0, 7, "ffc->InitD") != SH::_NoError)
+			if(BC::checkIndex(a, 0, 7) != SH::_NoError)
 				ret = -10000;
 			else
 			{
-				if(auto ffc = ResolveFFC(ri->ffcref, "ffc->InitD[]"))
+				if(auto ffc = ResolveFFC(ri->ffcref))
 					ret = ffc->initd[a];
 			}
 		}
@@ -3076,23 +3100,13 @@ int32_t get_register(int32_t arg)
 			
 		case LINKACTION:
 		{
-			//Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getHeroAction());
-			//int32_t act = FFCore.getHeroAction() * 10000;
 			ret = FFCore.getHeroAction() * 10000;
-			//Z_scripterrlog("The present 'action' return value is: %d\n", act);
-			//ret = act;
-			//ret=(int32_t)(Hero.getAction())*10000;
 			break;
 		}
 		
 		case HEROHEALTHBEEP:
 		{
-			//Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getHeroAction());
-			//int32_t act = FFCore.getHeroAction() * 10000;
 			ret = heart_beep ? ( heart_beep_timer * 10000 ) : 0;
-			//Z_scripterrlog("The present 'action' return value is: %d\n", act);
-			//ret = act;
-			//ret=(int32_t)(Hero.getAction())*10000;
 			break;
 		}
 			
@@ -3200,8 +3214,7 @@ int32_t get_register(int32_t arg)
 		case LINKROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Hero->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
 			ret = (int32_t)(Hero.rotation)*10000;
@@ -3211,8 +3224,7 @@ int32_t get_register(int32_t arg)
 		{
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Hero->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
 			ret = (int32_t)(Hero.scale*100.0);
@@ -3411,7 +3423,7 @@ int32_t get_register(int32_t arg)
 		case HEROMOVEFLAGS:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(BC::checkBounds(indx, 0, 10, "Hero->MoveFlags[]") != SH::_NoError)
+			if(BC::checkIndex(indx, 0, 10) != SH::_NoError)
 				ret = 0; //false
 			else
 			{
@@ -3423,7 +3435,7 @@ int32_t get_register(int32_t arg)
 		case HEROLIFTFLAGS:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(BC::checkBounds(indx, 0, NUM_LIFTFL-1, "Hero->LiftFlags[]") != SH::_NoError)
+			if(BC::checkIndex(indx, 0, NUM_LIFTFL-1) != SH::_NoError)
 				ret = 0; //false
 			else
 			{
@@ -3701,19 +3713,19 @@ int32_t get_register(int32_t arg)
 			ret=button_press[13]?10000:0;
 			break;
 			
-		case INPUTPRESSAXISUP:
+		case PRESSAXISUP:
 			ret=button_press[14]?10000:0;
 			break;
 			
-		case INPUTPRESSAXISDOWN:
+		case PRESSAXISDOWN:
 			ret=button_press[15]?10000:0;
 			break;
 			
-		case INPUTPRESSAXISLEFT:
+		case PRESSAXISLEFT:
 			ret=button_press[16]?10000:0;
 			break;
 			
-		case INPUTPRESSAXISRIGHT:
+		case PRESSAXISRIGHT:
 			ret=button_press[17]?10000:0;
 			break;
 			
@@ -3751,19 +3763,19 @@ int32_t get_register(int32_t arg)
 
 		case RAWKEY:
 		{
-			bool pressed = read_array(key_current_frame, ri->d[rINDEX]/10000, "Input->KeyRaw") != 0;
+			bool pressed = read_array(key_current_frame, ri->d[rINDEX]/10000) != 0;
 			ret = pressed?10000:0;
 		}
 		break;
 		
 		case KEYINPUT:
 		{
-			ret = read_array(KeyInput, ri->d[rINDEX]/10000, "Input->Key") * 10000;
+			ret = read_array(KeyInput, ri->d[rINDEX]/10000) * 10000;
 			break;
 		}
 		case KEYPRESS:
 		{
-			ret = read_array(KeyPress, ri->d[rINDEX]/10000, "Input->KeyPress") * 10000;
+			ret = read_array(KeyPress, ri->d[rINDEX]/10000) * 10000;
 			break;
 		}
 		
@@ -3810,14 +3822,14 @@ int32_t get_register(int32_t arg)
 		case DISABLEKEY:
 		{
 			//Input->DisableKey(int32_t key)
-			ret = read_array(disabledKeys, ri->d[rINDEX]/10000, "Input->DisableKey") * 10000;
+			ret = read_array(disabledKeys, ri->d[rINDEX]/10000) * 10000;
 			break;
 		}
 		
 		case DISABLEBUTTON:
 		{
 			//Input->DisableButton(int32_t cb)
-			ret = read_array(disable_control, ri->d[rINDEX]/10000, "Input->DisableButton") * 10000;
+			ret = read_array(disable_control, ri->d[rINDEX]/10000) * 10000;
 			break;
 		}
 
@@ -3871,7 +3883,7 @@ int32_t get_register(int32_t arg)
 				}
 				default:
 				{
-					Z_scripterrlog("Invalid index passed to Input->Mouse[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					rv = -10000;
 					break;
 				}
@@ -3890,7 +3902,7 @@ int32_t get_register(int32_t arg)
 		case IDATAUSEWPN:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3899,7 +3911,7 @@ int32_t get_register(int32_t arg)
 		case IDATAUSEDEF:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3908,7 +3920,7 @@ int32_t get_register(int32_t arg)
 		case IDATAWRANGE:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3917,7 +3929,7 @@ int32_t get_register(int32_t arg)
 		case IDATAMAGICTIMER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3926,7 +3938,7 @@ int32_t get_register(int32_t arg)
 		case IDATAMAGICTIMER2:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3936,7 +3948,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3948,7 +3960,7 @@ int32_t get_register(int32_t arg)
 		case IDATADURATION:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3958,7 +3970,7 @@ int32_t get_register(int32_t arg)
 		case IDATADUPLICATES:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3967,7 +3979,7 @@ int32_t get_register(int32_t arg)
 		case IDATADRAWLAYER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3976,7 +3988,7 @@ int32_t get_register(int32_t arg)
 		case IDATACOLLECTFLAGS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = 0;
 				break;
 			}
@@ -3985,7 +3997,7 @@ int32_t get_register(int32_t arg)
 		case IDATAWEAPONSCRIPT:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -3995,7 +4007,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4007,7 +4019,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4018,7 +4030,7 @@ int32_t get_register(int32_t arg)
 		case IDATAWEAPHXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4027,7 +4039,7 @@ int32_t get_register(int32_t arg)
 		case IDATAWEAPHYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4036,7 +4048,7 @@ int32_t get_register(int32_t arg)
 		case IDATAWEAPHXSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4045,7 +4057,7 @@ int32_t get_register(int32_t arg)
 		case IDATAWEAPHYSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4054,7 +4066,7 @@ int32_t get_register(int32_t arg)
 		case IDATAWEAPHZSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4063,7 +4075,7 @@ int32_t get_register(int32_t arg)
 		case IDATAWEAPXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4072,7 +4084,7 @@ int32_t get_register(int32_t arg)
 		case IDATAWEAPYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4081,7 +4093,7 @@ int32_t get_register(int32_t arg)
 		case IDATAHXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4090,7 +4102,7 @@ int32_t get_register(int32_t arg)
 		case IDATAHYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4099,7 +4111,7 @@ int32_t get_register(int32_t arg)
 		case IDATAHXSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4108,7 +4120,7 @@ int32_t get_register(int32_t arg)
 		case IDATAHYSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4117,7 +4129,7 @@ int32_t get_register(int32_t arg)
 		case IDATAHZSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4126,7 +4138,7 @@ int32_t get_register(int32_t arg)
 		case IDATADXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4135,7 +4147,7 @@ int32_t get_register(int32_t arg)
 		case IDATADYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4144,7 +4156,7 @@ int32_t get_register(int32_t arg)
 		case IDATATILEW:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4153,7 +4165,7 @@ int32_t get_register(int32_t arg)
 		case IDATATILEH:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4162,7 +4174,7 @@ int32_t get_register(int32_t arg)
 		case IDATAPICKUP:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4171,7 +4183,7 @@ int32_t get_register(int32_t arg)
 		case IDATAOVERRIDEFL:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = 0;
 				break;
 			}
@@ -4181,7 +4193,7 @@ int32_t get_register(int32_t arg)
 		case IDATATILEWWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4190,7 +4202,7 @@ int32_t get_register(int32_t arg)
 		case IDATATILEHWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4199,7 +4211,7 @@ int32_t get_register(int32_t arg)
 		case IDATAOVERRIDEFLWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = 0;
 				break;
 			}
@@ -4209,7 +4221,7 @@ int32_t get_register(int32_t arg)
 		case IDATAFAMILY:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4219,7 +4231,7 @@ int32_t get_register(int32_t arg)
 		case IDATALEVEL:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4234,7 +4246,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4246,7 +4258,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4275,7 +4287,7 @@ int32_t get_register(int32_t arg)
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4285,7 +4297,7 @@ int32_t get_register(int32_t arg)
 		case IDATAMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4295,7 +4307,7 @@ int32_t get_register(int32_t arg)
 		case IDATACOUNTER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4305,7 +4317,7 @@ int32_t get_register(int32_t arg)
 		case IDATAPSOUND:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4314,7 +4326,7 @@ int32_t get_register(int32_t arg)
 		case IDATAUSESOUND:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4324,7 +4336,7 @@ int32_t get_register(int32_t arg)
 		case IDATAUSESOUND2:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4334,7 +4346,7 @@ int32_t get_register(int32_t arg)
 		case IDATAPOWER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4345,7 +4357,7 @@ int32_t get_register(int32_t arg)
 		case IDATAID:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				//Don't error here //Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				//Don't error here //scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4356,7 +4368,7 @@ int32_t get_register(int32_t arg)
 		case IDATASCRIPT:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4365,7 +4377,7 @@ int32_t get_register(int32_t arg)
 		case IDATASPRSCRIPT:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4378,7 +4390,7 @@ int32_t get_register(int32_t arg)
 			int vscale = (arg==IDATAATTRIB_L)?1:10000;
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -1*vscale;
 				break;
 			}
@@ -4416,7 +4428,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4444,7 +4456,7 @@ int32_t get_register(int32_t arg)
 				case 9:
 					ret=(itemsbuf[ri->idata].wpn10)*10000; break;
 				default:
-					Z_scripterrlog("Invalid index to itemdata->Sprites[]: %d\n", index);
+					scripting_log_error_with_context("Invalid index: {}", index);
 					ret = -10000;
 					break;
 			}
@@ -4454,14 +4466,14 @@ int32_t get_register(int32_t arg)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
 			if(index < 0 || index >= WPNSPR_MAX)
 			{
-				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
+				scripting_log_error_with_context("Invalid index: {}", index);
 				ret = -10000;
 				break;
 			}
@@ -4472,14 +4484,14 @@ int32_t get_register(int32_t arg)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
 			if(index < 0 || index >= WPNSPR_MAX)
 			{
-				Z_scripterrlog("Invalid index to itemdata->BurnLightRadius[]: %d\n", index);
+				scripting_log_error_with_context("Invalid index: {}", index);
 				ret = -10000;
 				break;
 			}
@@ -4490,7 +4502,7 @@ int32_t get_register(int32_t arg)
 		case IDATALTM:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = 0;
 				break;
 			}
@@ -4500,7 +4512,7 @@ int32_t get_register(int32_t arg)
 		case IDATAPSCRIPT:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4510,7 +4522,7 @@ int32_t get_register(int32_t arg)
 		case IDATAPSTRING:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4519,7 +4531,7 @@ int32_t get_register(int32_t arg)
 		case IDATAPFLAGS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = 0;
 				break;
 			}
@@ -4529,7 +4541,7 @@ int32_t get_register(int32_t arg)
 		case IDATAMAGCOST:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4538,7 +4550,7 @@ int32_t get_register(int32_t arg)
 		case IDATACOST2:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4548,7 +4560,7 @@ int32_t get_register(int32_t arg)
 		case IDATACOSTCOUNTER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4557,7 +4569,7 @@ int32_t get_register(int32_t arg)
 		case IDATACOSTCOUNTER2:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4567,7 +4579,7 @@ int32_t get_register(int32_t arg)
 		case IDATAMINHEARTS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4577,7 +4589,7 @@ int32_t get_register(int32_t arg)
 		case IDATATILE:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4587,7 +4599,7 @@ int32_t get_register(int32_t arg)
 		case IDATAMISC:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4597,7 +4609,7 @@ int32_t get_register(int32_t arg)
 		case IDATACSET:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4613,7 +4625,7 @@ int32_t get_register(int32_t arg)
 		case IDATAFLASHCSET:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4623,7 +4635,7 @@ int32_t get_register(int32_t arg)
 		case IDATAFRAMES:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4638,7 +4650,7 @@ int32_t get_register(int32_t arg)
 		case IDATAASPEED:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4648,7 +4660,7 @@ int32_t get_register(int32_t arg)
 		case IDATADELAY:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
@@ -4674,7 +4686,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = 0;
 				break;
 			}
@@ -4749,12 +4761,12 @@ int32_t get_register(int32_t arg)
 			int32_t a = ri->d[rINDEX] / 10000;
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				ret = -10000;
 				break;
 			}
-			
-			if(BC::checkBounds(a, 0, 7, "itemdata->InitD") != SH::_NoError)
+
+			if(BC::checkBounds(a, 0, 7) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = itemsbuf[ri->idata].initiald[a];
@@ -4764,7 +4776,7 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//LWeapon Variables
 		case LWPNSPECIAL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Special")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((int32_t)((weapon*)(s))->specialinfo)*10000;
 			
 				
@@ -4773,17 +4785,16 @@ int32_t get_register(int32_t arg)
 		case LWPNSCALE:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"lweapon->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((int32_t)((weapon*)(s))->scale)*100.0;
 				
 			break;
 		
 		case LWPNX:
-			if(0!=(s=checkLWpn(ri->lwpn,"X")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -4803,7 +4814,7 @@ int32_t get_register(int32_t arg)
 		}
 	
 		case LWPNY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -4815,7 +4826,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case LWPNZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -4828,7 +4839,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case LWPNJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -4837,7 +4848,7 @@ int32_t get_register(int32_t arg)
 			break;
 		
 		case LWPNFAKEJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn,"FakeJump")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -4846,19 +4857,19 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case LWPNDIR:
-			if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->dir*10000;
 				
 			break;
 		 
 		case LWPNGRAVITY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret= (((weapon*)(s))->moveflags & move_obeys_grav) ? 10000 : 0;
 				
 			break;
 			
 		case LWPNSTEP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
@@ -4880,13 +4891,13 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case LWPNANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Angle")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(int32_t)(((weapon*)(s))->angle*10000);
 				
 			break;
 		
 		case LWPNDEGANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DegAngle")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret=(int32_t)(((weapon*)(s))->angle*(180.0 / PI)*10000);
 			}
@@ -4894,7 +4905,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case LWPNVX:
-			if(0!=(s=checkLWpn(ri->lwpn,"Vx")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if (((weapon*)(s))->angular)
 					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
@@ -4924,7 +4935,7 @@ int32_t get_register(int32_t arg)
 			break;
 		
 		case LWPNVY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Vy")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if (((weapon*)(s))->angular)
 					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
@@ -4953,109 +4964,109 @@ int32_t get_register(int32_t arg)
 			break;
 				
 		case LWPNANGULAR:
-			if(0!=(s=checkLWpn(ri->lwpn,"Angular")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->angular*10000;
 				
 			break;
 			
 		case LWPNAUTOROTATE:
-			if(0!=(s=checkLWpn(ri->lwpn,"AutoRotate")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->autorotate*10000;
 				
 			break;
 			
 		case LWPNBEHIND:
-			if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->behind*10000;
 				
 			break;
 			
 		case LWPNDRAWTYPE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawStyle")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->drawstyle*10000;
 				
 			break;
 			
 		case LWPNPOWER:
-			if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->power*10000;
 				
 			break;
 		/*
 		case LWPNRANGE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Range")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->scriptrange*10000;
 				
 			break;
 		*/        
 		case LWPNDEAD:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->dead*10000;
 				
 			break;
 			
 		case LWPNID:
-			if(0!=(s=checkLWpn(ri->lwpn,"ID")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->id*10000;
 				
 			break;
 			
 		case LWPNTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Tile")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->tile*10000;
 				
 			break;
 		
 		case LWPNSCRIPTTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptTile")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->scripttile*10000;
 				
 			break;
 		
 		case LWPNSCRIPTFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptFlip")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->scriptflip*10000;
 				
 			break;
 			
 		case LWPNCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"CSet")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->cs*10000;
 				
 			break;
 			
 		case LWPNFLASHCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"FlashCSet")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->o_cset>>4)*10000;
 				
 			break;
 			
 		case LWPNFRAMES:
-			if(0!=(s=checkLWpn(ri->lwpn,"NumFrames")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->frames*10000;
 				
 			break;
 			
 		case LWPNFRAME:
-			if(0!=(s=checkLWpn(ri->lwpn,"Frame")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->aframe*10000;
 				
 			break;
 			
 		case LWPNASPEED:
-			if(0!=(s=checkLWpn(ri->lwpn,"ASpeed")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->o_speed*10000;
 				
 			break;
 			
 		case LWPNFLASH:
-			if(0!=(s=checkLWpn(ri->lwpn,"Flash")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->flash*10000;
 				
 			break;
 			
 		case LWPNFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Flip")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->flip*10000;
 				
 			break;
@@ -5065,104 +5076,104 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case LWPNEXTEND:
-			if(0!=(s=checkLWpn(ri->lwpn,"Extend")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->extend*10000;
 				
 			break;
 			
 		case LWPNOTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->o_tile*10000;
 				
 			break;
 			
 		case LWPNOCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"OriginalCSet")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->o_cset&15)*10000;
 				
 			break;
 			
 		case LWPNHXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitXOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->hxofs)*10000;
 				
 			break;
 			
 		case LWPNHYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitYOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->hyofs)*10000;
 				
 			break;
 			
 		case LWPNXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawXOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((int32_t)(((weapon*)(s))->xofs))*10000;
 				
 			break;
 			
 		case LWPNYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 			
 		case LWPNSHADOWXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowXOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((int32_t)(((weapon*)(s))->shadowxofs))*10000;
 				
 			break;
 			
 		case LWPNSHADOWYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowYOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((int32_t)(((weapon*)(s))->shadowyofs))*10000;
 				
 			break;
 			
 		case LWPNTOTALDYOFFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"TotalDYOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret = ((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000;
 			break;
 			
 		case LWPNZOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawZOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((int32_t)(((weapon*)(s))->zofs))*10000;
 				
 			break;
 			
 		case LWPNHXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitWidth")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->hit_width)*10000;
 				
 			break;
 			
 		case LWPNHYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitHeight")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->hit_height)*10000;
 				
 			break;
 			
 		case LWPNHZSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitZHeight")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->hzsz)*10000;
 				
 			break;
 			
 		case LWPNTXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"TileWidth")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->txsz)*10000;
 				
 			break;
 			
 		case LWPNTYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"TileHeight")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->tysz)*10000;
 				
 			break;
 			
 		case LWPNMISCD:
-			if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				ret=(((weapon*)(s))->miscellaneous[a]);
@@ -5171,43 +5182,43 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case LWPNCOLLDET:
-			if(0!=(s=checkLWpn(ri->lwpn,"CollDetection")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->scriptcoldet)*10000;
 				
 			break;
 		
 		case LWPNENGINEANIMATE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->do_animation)*10000;
 				
 			break;
 		
 		case LWPNPARENT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->parentitem)*10000;
 				
 			break;
 
 		case LWPNLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Level")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->type)*10000;
 				
 			break;
 		
 		case LWPNSCRIPT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Script")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->weaponscript)*10000;
 				
 			break;
 		
 		case LWPNUSEWEAPON:
-			if(0!=(s=checkLWpn(ri->lwpn,"Weapon")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->useweapon)*10000;
 				
 			break;
 		
 		case LWPNUSEDEFENCE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Defense")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->usedefence)*10000;
 				
 			break;
@@ -5215,7 +5226,7 @@ int32_t get_register(int32_t arg)
 		case LWPNINITD:
 		{
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
-			if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret=(((weapon*)(s))->weap_initd[a]);
 			}
@@ -5223,7 +5234,7 @@ int32_t get_register(int32_t arg)
 		}
 		
 		case LWEAPONSCRIPTUID:
-			if(0!=(s=checkLWpn(ri->lwpn,"UID")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=(((weapon*)(s))->getUID());
 				
 			break;
@@ -5231,45 +5242,44 @@ int32_t get_register(int32_t arg)
 		case LWPNROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"lweapon->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->rotation*10000;
 				
 			break;
 		
 		case LWPNFALLCLK:
-			if(0!=(s=checkLWpn(ri->lwpn,"Falling")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->fallclk * 10000;
 			}
 			break;
 		
 		case LWPNFALLCMB:
-			if(0!=(s=checkLWpn(ri->lwpn,"FallCombo")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->fallCombo * 10000;
 			}
 			break;
 		
 		case LWPNDROWNCLK:
-			if(0!=(s=checkLWpn(ri->lwpn,"Drowning")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->drownclk * 10000;
 			}
 			break;
 		
 		case LWPNDROWNCMB:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrownCombo")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->drownCombo * 10000;
 			}
 			break;
 			
 		case LWPNFAKEZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"FakeZ")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -5282,10 +5292,10 @@ int32_t get_register(int32_t arg)
 		
 		case LWPNMOVEFLAGS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "lweapon->MoveFlags[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, 10) != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -5297,10 +5307,10 @@ int32_t get_register(int32_t arg)
 		}
 		case LWPNFLAGS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, WFLAG_MAX-1) != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -5312,10 +5322,10 @@ int32_t get_register(int32_t arg)
 		}
 		case LWPNSPRITES:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, WPNSPR_MAX-1) != SH::_NoError)
 					ret = -10000;
 				else
 					ret = ((weapon*)(s))->misc_wsprites[indx]*10000;
@@ -5324,10 +5334,10 @@ int32_t get_register(int32_t arg)
 		}
 		case LWPNBURNLIGHTRADIUS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"BurnLightRadius[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->BurnLightRadius[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, WPNSPR_MAX-1) != SH::_NoError)
 					ret = -10000;
 				else
 					ret = ((weapon*)(s))->light_rads[indx]*10000;
@@ -5336,88 +5346,88 @@ int32_t get_register(int32_t arg)
 		}
 		
 		case LWPNGLOWRAD:
-			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->glowRad * 10000;
 			}
 			break;
 			
 		case LWPNGLOWSHP:
-			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->glowShape * 10000;
 			}
 			break;
 			
 		case LWPNUNBL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Unblockable")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->unblockable * 10000;
 			}
 			break;
 			
 		case LWPNSHADOWSPR:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowSprite")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->spr_shadow * 10000;
 			}
 			break;
 		case LWSWHOOKED:
-			if(0!=(s=checkLWpn(ri->lwpn,"SwitchHooked")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case LWPNTIMEOUT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Timeout")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->weap_timeout * 10000;
 			}
 			break;
 		case LWPNDEATHITEM:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathItem")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->death_spawnitem * 10000;
 			}
 			break;
 		case LWPNDEATHDROPSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathDropset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->death_spawndropset * 10000;
 			}
 			break;
 		case LWPNDEATHIPICKUP:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathItemPFlags")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->death_item_pflags * 10000;
 			}
 			break;
 		case LWPNDEATHSPRITE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathSprite")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->death_sprite * 10000;
 			}
 			break;
 		case LWPNDEATHSFX:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathSFX")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->death_sfx * 10000;
 			}
 			break;
 		case LWPNLIFTLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftLevel")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->lift_level * 10000;
 			}
 			break;
 		case LWPNLIFTTIME:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftTime")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->lift_time * 10000;
 			}
 			break;
 		case LWPNLIFTHEIGHT:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftHeight")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				ret = ((weapon*)(s))->lift_height.getZLong();
 			}
@@ -5428,17 +5438,16 @@ int32_t get_register(int32_t arg)
 		case EWPNSCALE:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"eweapon->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn, "Scale")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((int32_t)((weapon*)(s))->scale)*100.0;
 				
 			break;
 
 		case EWPNX:
-			if(0!=(s=checkEWpn(ri->ewpn, "X")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -5457,7 +5466,7 @@ int32_t get_register(int32_t arg)
 		}
 	
 		case EWPNY:
-			if(0!=(s=checkEWpn(ri->ewpn, "Y")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -5469,7 +5478,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case EWPNZ:
-			if(0!=(s=checkEWpn(ri->ewpn, "Z")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -5481,7 +5490,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case EWPNJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -5490,7 +5499,7 @@ int32_t get_register(int32_t arg)
 			break;
 		
 		case EWPNFAKEJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn, "FakeJump")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -5499,25 +5508,25 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case EWPNDIR:
-			if(0!=(s=checkEWpn(ri->ewpn, "Dir")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->dir*10000;
 				
 			break;
 			
 		case EWPNLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn, "Level")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->type*10000;
 				
 			break;
 			
 		case EWPNGRAVITY:
-			if(0!=(s=checkEWpn(ri->ewpn, "Gravity")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((((weapon*)(s))->moveflags & move_obeys_grav) ? 10000 : 0);
 				
 			break;
 			
 		case EWPNSTEP:
-			if(0!=(s=checkEWpn(ri->ewpn, "Step")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
@@ -5537,13 +5546,13 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case EWPNANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Angle")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(int32_t)(((weapon*)(s))->angle*10000);
 				
 			break;
 			
 		case EWPNDEGANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DegAngle")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret=(int32_t)(((weapon*)(s))->angle*(180.0 / PI)*10000);
 			}
@@ -5551,7 +5560,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case EWPNVX:
-			if(0!=(s=checkEWpn(ri->ewpn,"Vx")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if (((weapon*)(s))->angular)
 					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
@@ -5580,7 +5589,7 @@ int32_t get_register(int32_t arg)
 			break;
 		
 		case EWPNVY:
-			if(0!=(s=checkEWpn(ri->ewpn,"Vy")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if (((weapon*)(s))->angular)
 					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
@@ -5610,103 +5619,103 @@ int32_t get_register(int32_t arg)
 			
 			
 		case EWPNANGULAR:
-			if(0!=(s=checkEWpn(ri->ewpn,"Angular")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->angular*10000;
 				
 			break;
 			
 		case EWPNAUTOROTATE:
-			if(0!=(s=checkEWpn(ri->ewpn,"AutoRotate")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->autorotate*10000;
 				
 			break;
 			
 		case EWPNBEHIND:
-			if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->behind*10000;
 				
 			break;
 			
 		case EWPNDRAWTYPE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawStyle")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->drawstyle*10000;
 				
 			break;
 			
 		case EWPNPOWER:
-			if(0!=(s=checkEWpn(ri->ewpn,"Damage")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->power*10000;
 				
 			break;
 			
 		case EWPNDEAD:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeadState")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->dead*10000;
 				
 			break;
 			
 		case EWPNID:
-			if(0!=(s=checkEWpn(ri->ewpn,"ID")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->id*10000;
 				
 			break;
 			
 		case EWPNTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Tile")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->tile*10000;
 				
 			break;
 		
 		case EWPNSCRIPTTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"ScriptTile")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->scripttile*10000;
 				
 			break;
 		
 		case EWPNSCRIPTFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn,"ScriptFlip")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->scriptflip*10000;
 				
 			break;
 			
 		case EWPNCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"CSet")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->cs*10000;
 				
 			break;
 			
 		case EWPNFLASHCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"FlashCSet")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->o_cset>>4)*10000;
 				
 			break;
 			
 		case EWPNFRAMES:
-			if(0!=(s=checkEWpn(ri->ewpn,"NumFrames")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->frames*10000;
 				
 			break;
 			
 		case EWPNFRAME:
-			if(0!=(s=checkEWpn(ri->ewpn,"Frame")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->aframe*10000;
 				
 			break;
 			
 		case EWPNASPEED:
-			if(0!=(s=checkEWpn(ri->ewpn,"ASpeed")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->o_speed*10000;
 				
 			break;
 			
 		case EWPNFLASH:
-			if(0!=(s=checkEWpn(ri->ewpn,"Flash")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->flash*10000;
 				
 			break;
 			
 		case EWPNFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn,"Flip")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->flip*10000;
 				
 			break;
@@ -5714,11 +5723,10 @@ int32_t get_register(int32_t arg)
 		case EWPNROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"eweapon->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'");
 				break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->rotation*10000;
 				
 			break;
@@ -5728,103 +5736,103 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case EWPNEXTEND:
-			if(0!=(s=checkEWpn(ri->ewpn,"Extend")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->extend*10000;
 				
 			break;
 			
 		case EWPNOTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"OriginalTile")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->o_tile*10000;
 				
 			break;
 			
 		case EWPNOCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"OriginalCSet")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->o_cset&15)*10000;
 				
 			break;
 			
 		case EWPNHXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitXOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->hxofs)*10000;
 				
 			break;
 			
 		case EWPNHYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitYOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->hyofs)*10000;
 				
 			break;
 			
 		case EWPNXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawXOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((int32_t)(((weapon*)(s))->xofs))*10000;
 				
 			break;
 			
 		case EWPNYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 			
 		case EWPNSHADOWXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowXOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((int32_t)(((weapon*)(s))->shadowxofs))*10000;
 				
 			break;
 			
 		case EWPNSHADOWYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowYOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((int32_t)(((weapon*)(s))->shadowyofs))*10000;
 				
 			break;
 		case EWPNTOTALDYOFFS:
-			if(0!=(s=checkLWpn(ri->ewpn,"TotalDYOffset")))
+			if(0!=(s=checkLWpn(ri->ewpn)))
 				ret = ((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0) * 10000);
 			break;
 			
 		case EWPNZOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawZOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((int32_t)(((weapon*)(s))->zofs))*10000;
 				
 			break;
 			
 		case EWPNHXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitWidth")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->hit_width)*10000;
 				
 			break;
 			
 		case EWPNHYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitHeight")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->hit_height)*10000;
 				
 			break;
 			
 		case EWPNHZSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitZHeight")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->hzsz)*10000;
 				
 			break;
 			
 		case EWPNTXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"TileWidth")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->txsz)*10000;
 				
 			break;
 			
 		case EWPNTYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"TileHeight")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->tysz)*10000;
 				
 			break;
 			
 		case EWPNMISCD:
-			if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				ret=(((weapon*)(s))->miscellaneous[a]);
@@ -5833,37 +5841,37 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case EWPNCOLLDET:
-			if(0!=(s=checkEWpn(ri->ewpn,"CollDetection")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->scriptcoldet)*10000;
 				
 			break;
 		
 		case EWPNENGINEANIMATE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->do_animation)*10000;
 				
 			break;
 		
 		case EWPNPARENT:
-			if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret= ((get_qr(qr_OLDEWPNPARENT)) ? (((weapon*)(s))->parentid)*10000 : (((weapon*)(s))->parentid));
 		
 			break;
 		
 		case EWEAPONSCRIPTUID:
-			if(0!=(s=checkEWpn(ri->ewpn, "UID")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->getUID());
 				
 			break;
 		
 		case EWPNPARENTUID:
-			if(0!=(s=checkEWpn(ri->ewpn, "ParentUID")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->parent_uid);
 				
 			break;
 		
 		case EWPNSCRIPT:
-			if(0!=(s=checkEWpn(ri->ewpn,"Script")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=(((weapon*)(s))->weaponscript)*10000;
 				
 			break;
@@ -5871,7 +5879,7 @@ int32_t get_register(int32_t arg)
 		case EWPNINITD:
 		{
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
-			if(0!=(s=checkEWpn(ri->ewpn,"InitD[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret=(((weapon*)(s))->weap_initd[a]);
 			}
@@ -5879,34 +5887,34 @@ int32_t get_register(int32_t arg)
 		}
 		
 		case EWPNFALLCLK:
-			if(0!=(s=checkEWpn(ri->ewpn,"Falling")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->fallclk * 10000;
 			}
 			break;
 		
 		case EWPNFALLCMB:
-			if(0!=(s=checkEWpn(ri->ewpn,"FallCombo")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->fallCombo * 10000;
 			}
 			break;
 		
 		case EWPNDROWNCLK:
-			if(0!=(s=checkEWpn(ri->ewpn,"Drowning")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->drownclk * 10000;
 			}
 			break;
 		
 		case EWPNDROWNCMB:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrownCombo")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->drownCombo * 10000;
 			}
 			break;
 		case EWPNFAKEZ:
-			if(0!=(s=checkEWpn(ri->ewpn, "FakeZ")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -5919,10 +5927,10 @@ int32_t get_register(int32_t arg)
 		
 		case EWPNMOVEFLAGS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "eweapon->MoveFlags[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, 10) != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -5934,10 +5942,10 @@ int32_t get_register(int32_t arg)
 		}
 		case EWPNFLAGS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, WFLAG_MAX-1) != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -5949,10 +5957,10 @@ int32_t get_register(int32_t arg)
 		}
 		case EWPNSPRITES:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"Sprites[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, WPNSPR_MAX-1) != SH::_NoError)
 					ret = -10000;
 				else
 					ret = ((weapon*)(s))->misc_wsprites[indx]*10000;
@@ -5961,10 +5969,10 @@ int32_t get_register(int32_t arg)
 		}
 		case EWPNBURNLIGHTRADIUS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"BurnLightRadius[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->BurnLightRadius[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, WPNSPR_MAX-1) != SH::_NoError)
 					ret = -10000;
 				else
 					ret = ((weapon*)(s))->light_rads[indx]*10000;
@@ -5973,88 +5981,88 @@ int32_t get_register(int32_t arg)
 		}
 		
 		case EWPNGLOWRAD:
-			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->glowRad * 10000;
 			}
 			break;
 			
 		case EWPNGLOWSHP:
-			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->glowShape * 10000;
 			}
 			break;
 			
 		case EWPNUNBL:
-			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->unblockable * 10000;
 			}
 			break;
 			
 		case EWPNSHADOWSPR:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowSprite")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->spr_shadow * 10000;
 			}
 			break;
 		case EWSWHOOKED:
-			if(0!=(s=checkEWpn(ri->ewpn,"SwitchHooked")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case EWPNTIMEOUT:
-			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->weap_timeout * 10000;
 			}
 			break;
 		case EWPNDEATHITEM:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathItem")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->death_spawnitem * 10000;
 			}
 			break;
 		case EWPNDEATHDROPSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathDropset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->death_spawndropset * 10000;
 			}
 			break;
 		case EWPNDEATHIPICKUP:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathItemPFlags")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->death_item_pflags * 10000;
 			}
 			break;
 		case EWPNDEATHSPRITE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathSprite")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->death_sprite * 10000;
 			}
 			break;
 		case EWPNDEATHSFX:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathSFX")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->death_sfx * 10000;
 			}
 			break;
 		case EWPNLIFTLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftLevel")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->lift_level * 10000;
 			}
 			break;
 		case EWPNLIFTTIME:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftTime")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->lift_time * 10000;
 			}
 			break;
 		case EWPNLIFTHEIGHT:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftHeight")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				ret = ((weapon*)(s))->lift_height.getZLong();
 			}
@@ -6086,7 +6094,7 @@ int32_t get_register(int32_t arg)
 		{
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
-				Z_scripterrlog("Bad index Screen->LensShows[%d]\n",ind);
+				scripting_log_error_with_context("Invalid index: {}", ind);
 			else ret = (get_scr(ri->screenref)->lens_show & (1<<ind)) ? 10000 : 0;
 			break;
 		}
@@ -6094,7 +6102,7 @@ int32_t get_register(int32_t arg)
 		{
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
-				Z_scripterrlog("Bad index Screen->LensHides[%d]\n",ind);
+				scripting_log_error_with_context("Invalid index: {}", ind);
 			else ret = (get_scr(ri->screenref)->lens_hide & (1<<ind)) ? 10000 : 0;
 			break;
 		}
@@ -6112,7 +6120,7 @@ int32_t get_register(int32_t arg)
 			size_t indx = ri->d[rINDEX]/10000;
 			if(indx >= game->scriptDataSize(index))
 			{
-				Z_scripterrlog("Invalid index passed to Screen->Data[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				break;
 			}
 			ret = game->screen_data[index][indx];
@@ -6187,7 +6195,7 @@ int32_t get_register(int32_t arg)
 			int32_t mi = ri->d[rINDEX] / 10000;
 			mi -= 8*((ri->d[rINDEX] / 10000) / MAPSCRS);
 			
-			if(BC::checkMapID(mi>>7, "Game->GetScreenState") == SH::_NoError)
+			if(BC::checkMapID(mi>>7) == SH::_NoError)
 				ret=(game->maps[mi] >> (ri->d[rINDEX2] / 10000) & 1) ? 10000 : 0;
 			else
 				ret=0;
@@ -6243,12 +6251,12 @@ int32_t get_register(int32_t arg)
 	//BottleTypes
 		case BOTTLECOUNTER:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Counter[]"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottledata->Counter[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000L;
 					break;
 				}
@@ -6260,12 +6268,12 @@ int32_t get_register(int32_t arg)
 		
 		case BOTTLEAMOUNT:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Amount[]"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottledata->Amount[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000L;
 					break;
 				}
@@ -6277,12 +6285,12 @@ int32_t get_register(int32_t arg)
 		
 		case BOTTLEPERCENT:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "IsPercent[]"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottledata->IsPercent[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000L;
 					break;
 				}
@@ -6294,12 +6302,12 @@ int32_t get_register(int32_t arg)
 		
 		case BOTTLEFLAGS:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Flags[]"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 3)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottledata->Flags[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000L;
 					break;
 				}
@@ -6320,7 +6328,7 @@ int32_t get_register(int32_t arg)
 		
 		case BOTTLENEXT:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "NextType"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				ret = 10000L * ptr->next_type;
 			}
@@ -6331,12 +6339,12 @@ int32_t get_register(int32_t arg)
 	//BottleShops
 		case BSHOPFILL:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Fill[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Fill[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000L;
 					break;
 				}
@@ -6348,12 +6356,12 @@ int32_t get_register(int32_t arg)
 		
 		case BSHOPCOMBO:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Combo[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Combo[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000L;
 					break;
 				}
@@ -6365,12 +6373,12 @@ int32_t get_register(int32_t arg)
 		
 		case BSHOPCSET:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "CSet[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->CSet[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000L;
 					break;
 				}
@@ -6382,12 +6390,12 @@ int32_t get_register(int32_t arg)
 		
 		case BSHOPPRICE:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Price[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Price[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000L;
 					break;
 				}
@@ -6399,12 +6407,12 @@ int32_t get_register(int32_t arg)
 		
 		case BSHOPSTR:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "InfoString[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->InfoString[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000L;
 					break;
 				}
@@ -6416,10 +6424,10 @@ int32_t get_register(int32_t arg)
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Screen->ComboX
-		#define GET_COMBO_VAR(member, str) \
+		#define GET_COMBO_VAR(member) \
 		{ \
 		rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000); \
-		if(BC::checkComboRpos(rpos, str) != SH::_NoError) \
+		if(BC::checkComboRpos(rpos) != SH::_NoError) \
 		{ \
 		    ret = -10000; \
 		} \
@@ -6428,18 +6436,18 @@ int32_t get_register(int32_t arg)
 		}
 
 		case COMBODD:
-			GET_COMBO_VAR(data,  "Screen->ComboD[]") break;
+			GET_COMBO_VAR(data) break;
 			
 		case COMBOCD:
-			GET_COMBO_VAR(cset,  "Screen->ComboC[]") break;
+			GET_COMBO_VAR(cset) break;
 			
 		case COMBOFD:
-			GET_COMBO_VAR(sflag, "Screen->ComboF[]") break;
+			GET_COMBO_VAR(sflag) break;
 			
-		#define GET_COMBO_VAR_BUF(member, str) \
+		#define GET_COMBO_VAR_BUF(member) \
 		{ \
 		    rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000); \
-		    if(BC::checkComboRpos(rpos, str) != SH::_NoError) \
+		    if(BC::checkComboRpos(rpos) != SH::_NoError) \
 		    { \
 			ret = -10000; \
 		    } \
@@ -6448,16 +6456,16 @@ int32_t get_register(int32_t arg)
 		}
 			
 		case COMBOTD:
-			GET_COMBO_VAR_BUF(type, "Screen->ComboT[]") break;
+			GET_COMBO_VAR_BUF(type) break;
 			
 		case COMBOID:
-			GET_COMBO_VAR_BUF(flag, "Screen->ComboI[]") break;
+			GET_COMBO_VAR_BUF(flag) break;
 			
 		case COMBOSD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
 			
-			if(BC::checkComboRpos(rpos, "Screen->ComboS[]") != SH::_NoError)
+			if(BC::checkComboRpos(rpos) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (get_rpos_handle(rpos, 0).combo().walk & 0xF) * 10000;
@@ -6468,7 +6476,7 @@ int32_t get_register(int32_t arg)
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
 			
-			if(BC::checkComboRpos(rpos, "Screen->ComboE[]") != SH::_NoError)
+			if(BC::checkComboRpos(rpos) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((get_rpos_handle(rpos, 0).combo().walk & 0xF0)>>4) * 10000;
@@ -6562,47 +6570,45 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//Screen Information
 		
-			#define	GET_SCREENDATA_VAR_INT32(member, str) \
+			#define	GET_SCREENDATA_VAR_INT32(member) \
 		{ \
 			ret = (get_scr(ri->screenref)->member *10000); \
 		} \
 
-		#define	GET_SCREENDATA_VAR_INT16(member, str) \
+		#define	GET_SCREENDATA_VAR_INT16(member) \
 		{ \
 			ret = (get_scr(ri->screenref)->member *10000); \
 		} \
 
-		#define	GET_SCREENDATA_VAR_BYTE(member, str) \
+		#define	GET_SCREENDATA_VAR_BYTE(member) \
 		{ \
 			ret = (get_scr(ri->screenref)->member *10000); \
 		} \
 		
-		#define GET_SCREENDATA_VAR_INDEX32(member, str, indexbound) \
+		#define GET_SCREENDATA_VAR_INDEX32(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			ret = (get_scr(ri->screenref)->member[indx] *10000); \
 		} \
 		
-		#define GET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
+		#define GET_SCREENDATA_VAR_INDEX16(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			ret = (get_scr(ri->screenref)->member[indx] *10000); \
 		} \
 		
-		#define GET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
+		#define GET_SCREENDATA_BYTE_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			ret = (get_scr(ri->screenref)->member[indx] *10000); \
 		} \
 		
 		//byte
-		#define GET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
+		#define GET_SCREENDATA_LAYER_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
-			if(indx < 1 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", str, indx); \
 				ret = -10000; \
 			} \
 			else \
@@ -6611,13 +6617,11 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 		
-		
-		#define GET_SCREENDATA_BOOL_INDEX(member, str, indexbound) \
+		#define GET_SCREENDATA_BOOL_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
 				ret = -10000; \
 			} \
 			else \
@@ -6633,10 +6637,10 @@ int32_t get_register(int32_t arg)
 			ret = (get_scr(ri->screenref)->member&flag) ? 10000 : 0); \
 		} \
 		
-		case SCREENDATAVALID:		GET_SCREENDATA_VAR_BYTE(valid, "Valid"); break;		//b
-		case SCREENDATAGUY: 		GET_SCREENDATA_VAR_BYTE(guy, "Guy"); break;		//b
-		case SCREENDATASTRING:		GET_SCREENDATA_VAR_INT32(str, "String"); break;		//w
-		case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
+		case SCREENDATAVALID:		GET_SCREENDATA_VAR_BYTE(valid); break;		//b
+		case SCREENDATAGUY: 		GET_SCREENDATA_VAR_BYTE(guy); break;		//b
+		case SCREENDATASTRING:		GET_SCREENDATA_VAR_INT32(str); break;		//w
+		case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room);	break;		//b
 		case SCREENDATAITEM:
 		{
 			mapscr* scr = get_scr(ri->screenref);
@@ -6645,49 +6649,49 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
-		case SCREENDATAHASITEM: 		GET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
-		case SCREENDATATILEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-		//case SCREENDATATILEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
-		case SCREENDATADOORCOMBOSET: 	GET_SCREENDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
-		case SCREENDATAWARPRETX:	 	GET_SCREENDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
-		case SCREENDATAWARPRETY:	 	GET_SCREENDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
-		case SCREENDATAWARPRETURNC: 	GET_SCREENDATA_VAR_INT32(warpreturnc, "WarpReturnC"); break;	//w
-		case SCREENDATASTAIRX: 		GET_SCREENDATA_VAR_BYTE(stairx, "StairsX"); break;	//b
-		case SCREENDATASTAIRY: 		GET_SCREENDATA_VAR_BYTE(stairy, "StairsY"); break;	//b
-		case SCREENDATAITEMX:		GET_SCREENDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
-		case SCREENDATAITEMY:		GET_SCREENDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
-		case SCREENDATACOLOUR: 		GET_SCREENDATA_VAR_INT32(color, "CSet"); break;	//w
-		case SCREENDATAENEMYFLAGS: 	GET_SCREENDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
-		case SCREENDATADOOR: 		GET_SCREENDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
-		case SCREENDATATILEWARPDMAP: 	GET_SCREENDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
-		case SCREENDATATILEWARPSCREEN: 	GET_SCREENDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
-		case SCREENDATAEXITDIR: 		GET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
-		case SCREENDATAENEMY: 		GET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
-		case SCREENDATAPATTERN: 		GET_SCREENDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
-		case SCREENDATASIDEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-		//case SCREENDATASIDEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
-		case SCREENDATAWARPARRIVALX: 	GET_SCREENDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
-		case SCREENDATAWARPARRIVALY: 	GET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
-		case SCREENDATAPATH: 		GET_SCREENDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
-		case SCREENDATASIDEWARPSC: 	GET_SCREENDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
-		case SCREENDATASIDEWARPDMAP: 	GET_SCREENDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
-		case SCREENDATASIDEWARPINDEX: 	GET_SCREENDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
-		case SCREENDATAUNDERCOMBO: 	GET_SCREENDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
-		case SCREENDATAUNDERCSET:	 	GET_SCREENDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
-		case SCREENDATACATCHALL:	 	GET_SCREENDATA_VAR_INT32(catchall,	"Catchall"); break; //W
+		case SCREENDATAHASITEM: 		GET_SCREENDATA_VAR_BYTE(hasitem); break;	//b
+		case SCREENDATATILEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(tilewarptype, 3); break;	//b, 4 of these
+		//case SCREENDATATILEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags); break;	//b, tilewarpoverlayflags
+		case SCREENDATADOORCOMBOSET: 	GET_SCREENDATA_VAR_INT32(door_combo_set); break;	//w
+		case SCREENDATAWARPRETX:	 	GET_SCREENDATA_BYTE_INDEX(warpreturnx, 3); break;	//b, 4 of these
+		case SCREENDATAWARPRETY:	 	GET_SCREENDATA_BYTE_INDEX(warpreturny, 3); break;	//b, 4 of these
+		case SCREENDATAWARPRETURNC: 	GET_SCREENDATA_VAR_INT32(warpreturnc); break;	//w
+		case SCREENDATASTAIRX: 		GET_SCREENDATA_VAR_BYTE(stairx); break;	//b
+		case SCREENDATASTAIRY: 		GET_SCREENDATA_VAR_BYTE(stairy); break;	//b
+		case SCREENDATAITEMX:		GET_SCREENDATA_VAR_BYTE(itemx); break; //itemx
+		case SCREENDATAITEMY:		GET_SCREENDATA_VAR_BYTE(itemy); break;	//itemy
+		case SCREENDATACOLOUR: 		GET_SCREENDATA_VAR_INT32(color); break;	//w
+		case SCREENDATAENEMYFLAGS: 	GET_SCREENDATA_VAR_BYTE(flags11);	break;	//b
+		case SCREENDATADOOR: 		GET_SCREENDATA_BYTE_INDEX(door, 3); break;	//b, 4 of these
+		case SCREENDATATILEWARPDMAP: 	GET_SCREENDATA_VAR_INDEX32(tilewarpdmap, 3); break;	//w, 4 of these
+		case SCREENDATATILEWARPSCREEN: 	GET_SCREENDATA_BYTE_INDEX(tilewarpscr, 3); break;	//b, 4 of these
+		case SCREENDATAEXITDIR: 		GET_SCREENDATA_VAR_BYTE(exitdir); break;	//b
+		case SCREENDATAENEMY: 		GET_SCREENDATA_VAR_INDEX32(enemy, 9); break;	//w, 10 of these
+		case SCREENDATAPATTERN: 		GET_SCREENDATA_VAR_BYTE(pattern); break;	//b
+		case SCREENDATASIDEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(sidewarptype, 3); break;	//b, 4 of these
+		//case SCREENDATASIDEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags); break;	//b
+		case SCREENDATAWARPARRIVALX: 	GET_SCREENDATA_VAR_BYTE(warparrivalx); break;	//b
+		case SCREENDATAWARPARRIVALY: 	GET_SCREENDATA_VAR_BYTE(warparrivaly); break;	//b
+		case SCREENDATAPATH: 		GET_SCREENDATA_BYTE_INDEX(path, 3); break;	//b, 4 of these
+		case SCREENDATASIDEWARPSC: 	GET_SCREENDATA_BYTE_INDEX(sidewarpscr, 3); break;	//b, 4 of these
+		case SCREENDATASIDEWARPDMAP: 	GET_SCREENDATA_VAR_INDEX32(sidewarpdmap, 3); break;	//w, 4 of these
+		case SCREENDATASIDEWARPINDEX: 	GET_SCREENDATA_VAR_BYTE(sidewarpindex); break;	//b
+		case SCREENDATAUNDERCOMBO: 	GET_SCREENDATA_VAR_INT32(undercombo); break;	//w
+		case SCREENDATAUNDERCSET:	 	GET_SCREENDATA_VAR_BYTE(undercset); break; //b
+		case SCREENDATACATCHALL:	 	GET_SCREENDATA_VAR_INT32(catchall); break; //W
 
-		case SCREENDATACSENSITIVE: 	GET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
-		case SCREENDATANORESET: 		GET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
-		case SCREENDATANOCARRY: 		GET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-		case SCREENDATALAYERMAP:	 	GET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
-		case SCREENDATALAYERSCREEN: 	GET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
-		case SCREENDATALAYEROPACITY: 	GET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
+		case SCREENDATACSENSITIVE: 	GET_SCREENDATA_VAR_BYTE(csensitive); break;	//B
+		case SCREENDATANORESET: 		GET_SCREENDATA_VAR_INT32(noreset); break;	//W
+		case SCREENDATANOCARRY: 		GET_SCREENDATA_VAR_INT32(nocarry); break;	//W
+		case SCREENDATALAYERMAP:	 	GET_SCREENDATA_LAYER_INDEX(layermap, 6); break;	//B, 6 OF THESE
+		case SCREENDATALAYERSCREEN: 	GET_SCREENDATA_LAYER_INDEX(layerscreen, 6); break;	//B, 6 OF THESE
+		case SCREENDATALAYEROPACITY: 	GET_SCREENDATA_LAYER_INDEX(layeropacity, 6); break;	//B, 6 OF THESE
 		case SCREENDATALAYERINVIS: 	
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(indx < 0 || indx > 6 )
 			{
-				Z_scripterrlog("Invalid Index passed to Screen->LayerInvisible[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = 0;
 			}
 			else
@@ -6701,7 +6705,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(indx < 0 || indx > 7 )
 			{
-				Z_scripterrlog("Invalid Index passed to Screen->HideScriptLayer[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = 0;
 			}
 			else
@@ -6710,24 +6714,24 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
-		case SCREENDATATIMEDWARPTICS: 	GET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
-		case SCREENDATANEXTMAP: 		GET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
-		case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
-		case SCREENDATASECRETCOMBO: 	GET_SCREENDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
-		case SCREENDATASECRETCSET: 	GET_SCREENDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
-		case SCREENDATASECRETFLAG: 	GET_SCREENDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
+		case SCREENDATATIMEDWARPTICS: 	GET_SCREENDATA_VAR_INT32(timedwarptics); break;	//W
+		case SCREENDATANEXTMAP: 		GET_SCREENDATA_VAR_BYTE(nextmap); break;	//B
+		case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr); break;	//B
+		case SCREENDATASECRETCOMBO: 	GET_SCREENDATA_VAR_INDEX32(secretcombo, 127); break;	//W, 128 OF THESE
+		case SCREENDATASECRETCSET: 	GET_SCREENDATA_BYTE_INDEX(secretcset, 127); break;	//B, 128 OF THESE
+		case SCREENDATASECRETFLAG: 	GET_SCREENDATA_BYTE_INDEX(secretflag, 127); break;	//B, 128 OF THESE
 		case SCREENDATAVIEWX: 		break;//GET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
 		case SCREENDATAVIEWY: 		break;//GET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
 		case SCREENDATASCREENWIDTH: 	break;//GET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 		case SCREENDATASCREENHEIGHT: 	break;//GET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
-		case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
-		case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
+		case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x); break;	//B
+		case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y); break;	//B
 		//Number of ffcs that are in use (have valid data
 		// Note: that is totally not what its doing.
 		case SCREENDATANUMFF: 	
 		{
 			int id = ri->d[rINDEX] / 10000;
-			if (auto ffc = ResolveFFCWithID(id, "Screen->NumFFCs"))
+			if (auto ffc = ResolveFFCWithID(id))
 				ret = ffc->data != 0 ? 10000 : 0;
 			break;
 		}
@@ -6736,7 +6740,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (indx < 0 || indx > MAX_FFCID)
 			{
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", indx, "FFCRunning");
+				scripting_log_error_with_context("Invalid index: %d", (indx));
 				ret = -10000;
 			}
 			else
@@ -6765,16 +6769,16 @@ int32_t get_register(int32_t arg)
 		}
 		break;
 
-		case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
-		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
-		case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
-		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+		case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_BYTE(oceansfx); break;	//B
+		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_BYTE(bosssfx); break;	//B
+		case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_BYTE(secretsfx); break;	//B
+		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_BYTE(holdupsfx); break; //B
 		case SCREENDATASCREENMIDI:
 		{
 			ret = ((get_scr(ri->screenref)->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
 			break;
 		}
-		case SCREENDATALENSLAYER:	 	GET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+		case SCREENDATALENSLAYER:	 	GET_SCREENDATA_VAR_BYTE(lens_layer); break;	//B, OLD QUESTS ONLY?
 
 		case SCREENSIDEWARPID: 
 		{
@@ -6939,7 +6943,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case SCRDOORD:
-			ret = read_array(get_scr(ri->screenref)->door, ri->d[rINDEX]/10000, "Screen->Door") * 10000;
+			ret = read_array(get_scr(ri->screenref)->door, ri->d[rINDEX]/10000) * 10000;
 			break;
 
 		case SCREENSCRIPT:
@@ -6947,13 +6951,13 @@ int32_t get_register(int32_t arg)
 			break;
 
 		case SCREENINITD:
-			ret = read_array(get_scr(ri->screenref)->screeninitd, ri->d[rINDEX]/10000, "Screen->InitD");
+			ret = read_array(get_scr(ri->screenref)->screeninitd, ri->d[rINDEX]/10000);
 			break;
 
 		case MAPDATAINITDARRAY:
 		{
-			if (auto scr = ResolveMapdata(ri->mapsref, "InitD[]"))
-				ret = read_array(scr->screeninitd, ri->d[rINDEX]/10000, "Screen->InitD");
+			if (auto scr = ResolveMapdata(ri->mapsref))
+				ret = read_array(scr->screeninitd, ri->d[rINDEX]/10000);
 			break;
 		}
 
@@ -6962,15 +6966,14 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(indx < 0 || indx > 6 )
 			{
-				Z_scripterrlog("Invalid Index passed to mapdata->LayerInvisible[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = 0;
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
+				mapscr *m = ResolveMapdata(ri->mapsref);
 				if ( !m )
 				{
-						Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","LayerInvisible");
 						ret = -10000;
 				}
 				else
@@ -6990,10 +6993,9 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
+				mapscr *m = ResolveMapdata(ri->mapsref);
 				if ( !m )
 				{
-						Z_scripterrlog("Script attempted to use a mapdata->DisableScriptDraws on a pointer that is uninitialised\n");
 						ret = -10000;
 				}
 				else
@@ -7044,7 +7046,7 @@ int32_t get_register(int32_t arg)
 		case SCREEN_FLAG:
 		{
 			int32_t index = ri->d[rINDEX] / 10000;
-			if (BC::checkBounds(index, 0, 8*11 - 1, "Screen->Flag[]") != SH::_NoError)
+			if (BC::checkIndex(index, 0, 8*11 - 1) != SH::_NoError)
 			{
 				ret = 0;
 				break;
@@ -7276,8 +7278,8 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//spritedata sp-> Variables
 			
-		case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(tile, "Tile") break;
-		case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc, "Misc") break;
+		case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(tile) break;
+		case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc) break;
 		case SPRITEDATACSETS:
 		{
 			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
@@ -7300,9 +7302,9 @@ int32_t get_register(int32_t arg)
 			ret = (((wpnsbuf[ri->spritedataref].csets & 0xF0)>>4) * 10000);
 			break;
 		}
-		case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
-		case SPRITEDATASPEED: GET_SPRITEDATA_VAR_INT(speed, "Speed") break;
-		case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
+		case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames) break;
+		case SPRITEDATASPEED: GET_SPRITEDATA_VAR_INT(speed) break;
+		case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type) break;
 		case SPRITEDATAFLAGS:
 		{
 			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
@@ -7335,174 +7337,160 @@ int32_t get_register(int32_t arg)
 		
 		///----------------------------------------------------------------------------------------------------//
 		//mapdata m-> variables
-		#define	GET_MAPDATA_VAR_INT32(member, str) \
+		#define	GET_MAPDATA_VAR_INT32(member) \
 		{ \
-			if ( mapscr *m = GetMapscr(ri->mapsref) ) \
+			if ( mapscr *m = ResolveMapdata(ri->mapsref) ) \
 			{ \
 				ret = (m->member *10000); \
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 				ret = -10000; \
 			} \
 		} \
 
-		#define	GET_MAPDATA_VAR_INT16(member, str) \
+		#define	GET_MAPDATA_VAR_INT16(member) \
 		{ \
-			if ( mapscr *m = GetMapscr(ri->mapsref) ) \
+			if ( mapscr *m = ResolveMapdata(ri->mapsref) ) \
 			{ \
 				ret = (m->member *10000); \
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 				ret = -10000; \
 			} \
 		} \
 
-		#define	GET_MAPDATA_VAR_BYTE(member, str) \
+		#define	GET_MAPDATA_VAR_BYTE(member) \
 		{ \
-			if ( mapscr *m = GetMapscr(ri->mapsref) ) \
+			if ( mapscr *m = ResolveMapdata(ri->mapsref) ) \
 			{ \
 				ret = (m->member *10000); \
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 				ret = -10000; \
 			} \
 		} \
 		
-		#define GET_MAPDATA_VAR_INDEX32(member, str, indexbound) \
+		#define GET_MAPDATA_VAR_INDEX32(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 				ret = -10000; \
 			} \
 			else \
 			{ \
-				if (mapscr *m = GetMapscr(ri->mapsref)) \
+				if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 				{ \
 					ret = (m->member[indx] *10000); \
 				} \
 				else \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 					ret = -10000; \
 				} \
 			} \
 		} \
 		
-		#define GET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
+		#define GET_MAPDATA_VAR_INDEX16(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 				ret = -10000; \
 			} \
 			else \
 			{ \
-				if (mapscr *m = GetMapscr(ri->mapsref)) \
+				if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 				{ \
 					ret = (m->member[indx] *10000); \
 				} \
 				else \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 					ret = -10000; \
 				} \
 			} \
 		} \
 		
-		#define GET_MAPDATA_BYTE_INDEX(member, str, indexbound) \
+		#define GET_MAPDATA_BYTE_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 				ret = -10000; \
 			} \
 			else \
 			{ \
-				if (mapscr *m = GetMapscr(ri->mapsref)) \
+				if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 				{ \
 					ret = (m->member[indx] *10000); \
 				} \
 				else \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 					ret = -10000; \
 				} \
 			} \
 		} \
 		
-		#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
+		#define GET_MAPDATA_LAYER_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
-			if(indx < 1 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 				ret = -10000; \
 			} \
 			else \
 			{ \
-				if (mapscr *m = GetMapscr(ri->mapsref)) \
+				if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 				{ \
 					ret = (m->member[indx-1] *10000); \
 				} \
 				else \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 					ret = -10000; \
 				} \
 			} \
 		} \
 		
-		#define GET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
+		#define GET_MAPDATA_BOOL_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 				ret = -10000; \
 			} \
 			else \
 			{ \
-				if (mapscr *m = GetMapscr(ri->mapsref)) \
+				if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 				{ \
 					ret = (m->member[indx]?10000:0); \
 				} \
 				else \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 					ret = -10000; \
 				} \
 			} \
 		} \
 		
-		#define GET_MAPDATA_FLAG(member, str) \
+		#define GET_MAPDATA_FLAG(member) \
 		{ \
 			int32_t flag =  (value/10000);  \
-			if (mapscr *m = GetMapscr(ri->mapsref)) \
+			if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				ret = (m->member&flag) ? 10000 : 0); \
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 				ret = -10000; \
 			} \
 		} \
 		
-		#define GET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
+		#define GET_MAPDATA_FFCPOS_INDEX32(member, indexbound) \
 		{ \
 			int32_t index = (ri->d[rINDEX] / 10000); \
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str)) \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index)) \
 			{ \
 				ret = (handle.ffc->member).getZLong(); \
 			} \
@@ -7512,10 +7500,10 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 		
-		#define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
+		#define GET_MAPDATA_FFC_INDEX32(member, indexbound) \
 		{ \
 			int32_t index = (ri->d[rINDEX] / 10000); \
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str)) \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index)) \
 			{ \
 				ret = (handle.ffc->member)*10000; \
 			} \
@@ -7525,10 +7513,10 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 
-		#define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
+		#define GET_MAPDATA_FFC_INDEX32(member, indexbound) \
 		{ \
 			int32_t index = (ri->d[rINDEX] / 10000); \
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str)) \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index)) \
 			{ \
 				ret = (handle.ffc->member)*10000; \
 			} \
@@ -7548,13 +7536,13 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 
-		case MAPDATAVALID:		GET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
-		case MAPDATAGUY: 		GET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
-		case MAPDATASTRING:		GET_MAPDATA_VAR_INT32(str, "String"); break;		//w
-		case MAPDATAROOM: 		GET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
+		case MAPDATAVALID:		GET_MAPDATA_VAR_BYTE(valid); break;		//b
+		case MAPDATAGUY: 		GET_MAPDATA_VAR_BYTE(guy); break;		//b
+		case MAPDATASTRING:		GET_MAPDATA_VAR_INT32(str); break;		//w
+		case MAPDATAROOM: 		GET_MAPDATA_VAR_BYTE(room);	break;		//b
 		case MAPDATAITEM:
 		{
-			if ( mapscr *m = GetMapscr(ri->mapsref) )
+			if ( mapscr *m = ResolveMapdata(ri->mapsref) )
 			{
 				if(m->hasitem)
 					ret = (m->item *10000);
@@ -7562,82 +7550,81 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Item"); \
 				ret = -10000;
 			}
 			break;
 		}
 		case MAPDATAREGIONID:
 		{
-			if (auto scr = ResolveMapdata(ri->mapsref, "RegionID"))
+			if (auto scr = ResolveMapdata(ri->mapsref))
 				ret = get_region_id(scr->map, scr->screen) * 10000;
 			break;
 		}
-		case MAPDATAHASITEM: 		GET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
-		case MAPDATATILEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-		//case MAPDATATILEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
-		case MAPDATADOORCOMBOSET: 	GET_MAPDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
-		case MAPDATAWARPRETX:	 	GET_MAPDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
-		case MAPDATAWARPRETY:	 	GET_MAPDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
-		case MAPDATAWARPRETURNC: 	GET_MAPDATA_VAR_INT32(warpreturnc, "WarpReturnC"); break;	//w
-		case MAPDATASTAIRX: 		GET_MAPDATA_VAR_BYTE(stairx, "StairsX"); break;	//b
-		case MAPDATASTAIRY: 		GET_MAPDATA_VAR_BYTE(stairy, "StairsY"); break;	//b
-		case MAPDATAITEMX:		GET_MAPDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
-		case MAPDATAITEMY:		GET_MAPDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
-		case MAPDATACOLOUR: 		GET_MAPDATA_VAR_INT32(color, "CSet"); break;	//w
-		case MAPDATAENEMYFLAGS: 	GET_MAPDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
-		case MAPDATADOOR: 		GET_MAPDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
-		case MAPDATATILEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
-		case MAPDATATILEWARPSCREEN: 	GET_MAPDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
-		case MAPDATAEXITDIR: 		GET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
-		case MAPDATAENEMY: 		GET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
-		case MAPDATAPATTERN: 		GET_MAPDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
-		case MAPDATASIDEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-		//case MAPDATASIDEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
-		case MAPDATAWARPARRIVALX: 	GET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
-		case MAPDATAWARPARRIVALY: 	GET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
-		case MAPDATAPATH: 		GET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
-		case MAPDATASIDEWARPSC: 	GET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
-		case MAPDATASIDEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
-		case MAPDATASIDEWARPINDEX: 	GET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
-		case MAPDATAUNDERCOMBO: 	GET_MAPDATA_VAR_INT32(undercombo, "UnderCombo"); break;	//w
-		case MAPDATAUNDERCSET:	 	GET_MAPDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
-		case MAPDATACATCHALL:	 	GET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
+		case MAPDATAHASITEM: 		GET_MAPDATA_VAR_BYTE(hasitem); break;	//b
+		case MAPDATATILEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(tilewarptype, 3); break;	//b, 4 of these
+		//case MAPDATATILEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(tilewarpoverlayflags); break;	//b, tilewarpoverlayflags
+		case MAPDATADOORCOMBOSET: 	GET_MAPDATA_VAR_INT32(door_combo_set); break;	//w
+		case MAPDATAWARPRETX:	 	GET_MAPDATA_BYTE_INDEX(warpreturnx, 3); break;	//b, 4 of these
+		case MAPDATAWARPRETY:	 	GET_MAPDATA_BYTE_INDEX(warpreturny, 3); break;	//b, 4 of these
+		case MAPDATAWARPRETURNC: 	GET_MAPDATA_VAR_INT32(warpreturnc); break;	//w
+		case MAPDATASTAIRX: 		GET_MAPDATA_VAR_BYTE(stairx); break;	//b
+		case MAPDATASTAIRY: 		GET_MAPDATA_VAR_BYTE(stairy); break;	//b
+		case MAPDATAITEMX:		GET_MAPDATA_VAR_BYTE(itemx); break; //itemx
+		case MAPDATAITEMY:		GET_MAPDATA_VAR_BYTE(itemy); break;	//itemy
+		case MAPDATACOLOUR: 		GET_MAPDATA_VAR_INT32(color); break;	//w
+		case MAPDATAENEMYFLAGS: 	GET_MAPDATA_VAR_BYTE(flags11);	break;	//b
+		case MAPDATADOOR: 		GET_MAPDATA_BYTE_INDEX(door, 3); break;	//b, 4 of these
+		case MAPDATATILEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(tilewarpdmap, 3); break;	//w, 4 of these
+		case MAPDATATILEWARPSCREEN: 	GET_MAPDATA_BYTE_INDEX(tilewarpscr, 3); break;	//b, 4 of these
+		case MAPDATAEXITDIR: 		GET_MAPDATA_VAR_BYTE(exitdir); break;	//b
+		case MAPDATAENEMY: 		GET_MAPDATA_VAR_INDEX32(enemy, 9); break;	//w, 10 of these
+		case MAPDATAPATTERN: 		GET_MAPDATA_VAR_BYTE(pattern); break;	//b
+		case MAPDATASIDEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(sidewarptype, 3); break;	//b, 4 of these
+		//case MAPDATASIDEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(sidewarpoverlayflags); break;	//b
+		case MAPDATAWARPARRIVALX: 	GET_MAPDATA_VAR_BYTE(warparrivalx); break;	//b
+		case MAPDATAWARPARRIVALY: 	GET_MAPDATA_VAR_BYTE(warparrivaly); break;	//b
+		case MAPDATAPATH: 		GET_MAPDATA_BYTE_INDEX(path, 3); break;	//b, 4 of these
+		case MAPDATASIDEWARPSC: 	GET_MAPDATA_BYTE_INDEX(sidewarpscr, 3); break;	//b, 4 of these
+		case MAPDATASIDEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(sidewarpdmap, 3); break;	//w, 4 of these
+		case MAPDATASIDEWARPINDEX: 	GET_MAPDATA_VAR_BYTE(sidewarpindex); break;	//b
+		case MAPDATAUNDERCOMBO: 	GET_MAPDATA_VAR_INT32(undercombo); break;	//w
+		case MAPDATAUNDERCSET:	 	GET_MAPDATA_VAR_BYTE(undercset); break; //b
+		case MAPDATACATCHALL:	 	GET_MAPDATA_VAR_INT32(catchall); break; //W
 
-		case MAPDATACSENSITIVE: 	GET_MAPDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
-		case MAPDATANORESET: 		GET_MAPDATA_VAR_INT32(noreset, "NoReset"); break;	//W
-		case MAPDATANOCARRY: 		GET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-		case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
-		case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
-		case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
-		case MAPDATATIMEDWARPTICS: 	GET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
-		case MAPDATANEXTMAP: 		GET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
-		case MAPDATANEXTSCREEN: 	GET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
-		case MAPDATASECRETCOMBO: 	GET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
-		case MAPDATASECRETCSET: 	GET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
-		case MAPDATASECRETFLAG: 	GET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
+		case MAPDATACSENSITIVE: 	GET_MAPDATA_VAR_BYTE(csensitive); break;	//B
+		case MAPDATANORESET: 		GET_MAPDATA_VAR_INT32(noreset); break;	//W
+		case MAPDATANOCARRY: 		GET_MAPDATA_VAR_INT32(nocarry); break;	//W
+		case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, 6); break;	//B, 6 OF THESE
+		case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, 6); break;	//B, 6 OF THESE
+		case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, 6); break;	//B, 6 OF THESE
+		case MAPDATATIMEDWARPTICS: 	GET_MAPDATA_VAR_INT32(timedwarptics); break;	//W
+		case MAPDATANEXTMAP: 		GET_MAPDATA_VAR_BYTE(nextmap); break;	//B
+		case MAPDATANEXTSCREEN: 	GET_MAPDATA_VAR_BYTE(nextscr); break;	//B
+		case MAPDATASECRETCOMBO: 	GET_MAPDATA_VAR_INDEX32(secretcombo, 127); break;	//W, 128 OF THESE
+		case MAPDATASECRETCSET: 	GET_MAPDATA_BYTE_INDEX(secretcset, 127); break;	//B, 128 OF THESE
+		case MAPDATASECRETFLAG: 	GET_MAPDATA_BYTE_INDEX(secretflag, 127); break;	//B, 128 OF THESE
 
 		case MAPDATAVIEWX: 		break;//GET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
-		case MAPDATASCRIPT: 		GET_MAPDATA_VAR_INT32(script, "Script"); break;	//W
+		case MAPDATASCRIPT: 		GET_MAPDATA_VAR_INT32(script); break;	//W
 		case MAPDATAVIEWY: 		break;//GET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
 		case MAPDATASCREENWIDTH: 	break;//GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 		case MAPDATASCREENHEIGHT: 	break;//GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
-		case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
-		case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-		case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(data, "FFCData", MAXFFCS-1); break;  //W, MAXFFCS OF THESE
-		case MAPDATAFFCSET:         GET_MAPDATA_FFC_INDEX32(cset, "FFCCSet", MAXFFCS-1); break;  //B, MAXFFCS
-		case MAPDATAFFDELAY:        GET_MAPDATA_FFC_INDEX32(delay, "FFCDelay", MAXFFCS-1); break;    //W, MAXFFCS
-		case MAPDATAFFX:        GET_MAPDATA_FFCPOS_INDEX32(x, "FFCX", MAXFFCS-1); break; //INT32, MAXFFCS OF THESE
-		case MAPDATAFFY:        GET_MAPDATA_FFCPOS_INDEX32(y, "FFCY", MAXFFCS-1); break; //..
-		case MAPDATAFFXDELTA:       GET_MAPDATA_FFCPOS_INDEX32(vx, "FFCVx", MAXFFCS-1); break;   //..
-		case MAPDATAFFYDELTA:       GET_MAPDATA_FFCPOS_INDEX32(vy, "FFCVy", MAXFFCS-1); break;   //..
-		case MAPDATAFFXDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ax, "FFCAx", MAXFFCS-1); break;  //..
-		case MAPDATAFFYDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ay, "FFCAy", MAXFFCS-1); break;  //..
-		case MAPDATAFFFLAGS:        GET_MAPDATA_FFC_INDEX32(flags, "FFCFlags", MAXFFCS-1); break;    //INT16, MAXFFCS OF THESE
+		case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x); break;	//B
+		case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y); break;	//B
+		case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(data, MAXFFCS-1); break;  //W, MAXFFCS OF THESE
+		case MAPDATAFFCSET:         GET_MAPDATA_FFC_INDEX32(cset, MAXFFCS-1); break;  //B, MAXFFCS
+		case MAPDATAFFDELAY:        GET_MAPDATA_FFC_INDEX32(delay, MAXFFCS-1); break;    //W, MAXFFCS
+		case MAPDATAFFX:        GET_MAPDATA_FFCPOS_INDEX32(x, MAXFFCS-1); break; //INT32, MAXFFCS OF THESE
+		case MAPDATAFFY:        GET_MAPDATA_FFCPOS_INDEX32(y, MAXFFCS-1); break; //..
+		case MAPDATAFFXDELTA:       GET_MAPDATA_FFCPOS_INDEX32(vx, MAXFFCS-1); break;   //..
+		case MAPDATAFFYDELTA:       GET_MAPDATA_FFCPOS_INDEX32(vy, MAXFFCS-1); break;   //..
+		case MAPDATAFFXDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ax, MAXFFCS-1); break;  //..
+		case MAPDATAFFYDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ay, MAXFFCS-1); break;  //..
+		case MAPDATAFFFLAGS:        GET_MAPDATA_FFC_INDEX32(flags, MAXFFCS-1); break;    //INT16, MAXFFCS OF THESE
 		case MAPDATASIDEWARPID: 
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = (((m->flags2 >> indx) & 1)
 					? (m->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
@@ -7646,7 +7633,6 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","SideWarpID");
 				ret = -10000;
 			} 
 			break;
@@ -7656,7 +7642,7 @@ int32_t get_register(int32_t arg)
 		{
 			int index = ri->d[rINDEX] / 10000;
 
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "NumFFCs[]"))
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index))
 			{
 				ret = (handle.data() != 0) ? 10000 : 0;
 			}
@@ -7675,13 +7661,12 @@ int32_t get_register(int32_t arg)
 				Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
 				ret = 0;
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = (m->tilewarpoverlayflags & (1<<indx))?10000:0;
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
 				ret = 0;
 			}
 			break;
@@ -7695,13 +7680,12 @@ int32_t get_register(int32_t arg)
 				Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
 				ret = 0;
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = (m->sidewarpoverlayflags & (1<<indx))?10000:0;
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
 				ret = 0;
 			}
 			break;
@@ -7716,13 +7700,12 @@ int32_t get_register(int32_t arg)
 				Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
 				
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = ((m->warpreturnc>>(indx*2))&3) * 10000;
 			}
 			else 
 			{ 
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","str"); 
 				ret = -10000;
 			}
 			break;
@@ -7737,13 +7720,12 @@ int32_t get_register(int32_t arg)
 				Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
 				
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = ((m->warpreturnc>>(8+(indx*2)))&3) * 10000;
 			}
 			else 
 			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","str"); 
 				ret = -10000; 
 			}
 			break;
@@ -7751,7 +7733,7 @@ int32_t get_register(int32_t arg)
 		
 		case MAPDATAFFWIDTH:       
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t indx = (ri->d[rINDEX] / 10000)-1;
 				if ( indx < 0 || indx > MAXFFCS-1 )
@@ -7764,7 +7746,6 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
 				ret = -10000;
 			}
 			break;
@@ -7772,7 +7753,7 @@ int32_t get_register(int32_t arg)
 		
 		case MAPDATAFFHEIGHT:      
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t indx = (ri->d[rINDEX] / 10000)-1;
 				if ( indx < 0 || indx > MAXFFCS-1 )
@@ -7785,7 +7766,6 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
 				ret = -10000;
 			}
 			break;
@@ -7794,7 +7774,7 @@ int32_t get_register(int32_t arg)
 		 
 		case MAPDATAFFEFFECTWIDTH:     
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t indx = (ri->d[rINDEX] / 10000)-1;
 				if ( indx < 0 || indx > MAXFFCS-1 )
@@ -7807,7 +7787,6 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
 				ret = -10000;
 			}
 			break;
@@ -7815,7 +7794,7 @@ int32_t get_register(int32_t arg)
 		
 		case MAPDATAFFEFFECTHEIGHT:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t indx = (ri->d[rINDEX] / 10000)-1;
 				if ( indx < 0 || indx > MAXFFCS-1 )
@@ -7828,15 +7807,14 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
 				ret = -10000;
 			}
 			break;
 		}
 			
 		 
-		case MAPDATAFFLINK:         GET_MAPDATA_FFC_INDEX32(link, "FFCLink", MAXFFCS-1); break;
-		case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(script, "FFCScript", MAXFFCS-1); break;
+		case MAPDATAFFLINK:         GET_MAPDATA_FFC_INDEX32(link, MAXFFCS-1); break;
+		case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(script, MAXFFCS-1); break;
 
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
@@ -7844,14 +7822,13 @@ int32_t get_register(int32_t arg)
 			int32_t index = (ri->d[rINDEX]/10000);
 			int32_t d_index = ri->d[rINDEX2]/10000;
 
-			if (BC::checkBounds(d_index, 0, 7, "mapdata->FFCInitD[]") != SH::_NoError)
+			if (BC::checkBounds(d_index, 0, 7) != SH::_NoError)
 				break;
 
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "mapdata->FFCInitD[]"))
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index))
 				ret = handle.ffc->initd[d_index];
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCInitD[]");
 				ret = -10000;
 			}
 			break;
@@ -7871,13 +7848,12 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				if (mapscr *m = GetMapscr(ri->mapsref))
+				if (mapscr *m = ResolveMapdata(ri->mapsref))
 				{
 					ret = get_script_engine_data(ScriptType::FFC, indx).initialized ? 10000 : 0;
 				}
 				else
 				{
-					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n", "FFCRunning");
 					ret = -10000;
 				}
 			}
@@ -7903,46 +7879,43 @@ int32_t get_register(int32_t arg)
 		}
 		break;
 
-		case MAPDATAOCEANSFX:	 	GET_MAPDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
-		case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
-		case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
-		case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+		case MAPDATAOCEANSFX:	 	GET_MAPDATA_VAR_BYTE(oceansfx); break;	//B
+		case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_BYTE(bosssfx); break;	//B
+		case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_BYTE(secretsfx); break;	//B
+		case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_BYTE(holdupsfx); break; //B
 		case MAPDATASCREENMIDI:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = ((m->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","MIDI");
 				ret = -10000;
 			}
 			break;
 		}
-		case MAPDATALENSLAYER:	 	GET_MAPDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+		case MAPDATALENSLAYER:	 	GET_MAPDATA_VAR_BYTE(lens_layer); break;	//B, OLD QUESTS ONLY?
 		case MAPDATAMAP:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = getMap(ri->mapsref) * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Map");
 				ret = -10000;
 			}
 			break;
 		}
 		case MAPDATASCREEN:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = getScreen(ri->mapsref) * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Screen");
 				ret = -10000;
 			}
 			break;
@@ -7950,7 +7923,7 @@ int32_t get_register(int32_t arg)
 
 		case MAPDATAFLAGS: 
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				if ( get_qr(qr_OLDMAPDATAFLAGS) ) // TODO wtf, this QR was never used?
 				{
@@ -7985,7 +7958,6 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Flags[]");
 				ret = -10000;
 			}
 			
@@ -8003,16 +7975,15 @@ int32_t get_register(int32_t arg)
 			}
 			if( ((unsigned)indx) > 7 )
 			{
-				Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
+				scripting_log_error_with_context("Tried to reference an out-of-bounds array index for a screen's D[] array ({}); valid indices are from 0 to 7.", indx);
 				ret = -10000;
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = (game->screen_d[mi][indx]) * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","D[]");
 				ret = -10000;
 			}
 			break;
@@ -8021,7 +7992,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBODD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboD[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				ret = rpos_handle.data() * 10000;
 			}
@@ -8035,7 +8006,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOCD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboC[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				ret = rpos_handle.cset() * 10000;
 			}
@@ -8049,7 +8020,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOFD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboF[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				ret = rpos_handle.sflag() * 10000;
 			}
@@ -8063,7 +8034,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOTD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboT[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				ret = rpos_handle.ctype() * 10000;
 			}
@@ -8077,7 +8048,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOID:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboI[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				ret = rpos_handle.cflag() * 10000;
 			}
@@ -8091,7 +8062,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOSD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboS[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				ret = (rpos_handle.combo().walk & 0xF) * 10000;
 			}
@@ -8105,7 +8076,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOED:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboE[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				ret = ((rpos_handle.combo().walk & 0xF0)>>4) * 10000;
 			}
@@ -8118,7 +8089,7 @@ int32_t get_register(int32_t arg)
 		
 		case MAPDATASCREENSTATED:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t mi = get_mi(ri->mapsref);
 				if(mi<0) {ret = 0;break;}
@@ -8126,14 +8097,13 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","State[]", ri->mapsref);
 				ret = 0;
 			}
 			break;
 		}
 		case MAPDATAEXSTATED:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t mi = get_mi(ri->mapsref);
 				if(mi<0) {ret = 0;break;}
@@ -8141,7 +8111,6 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","State[]", ri->mapsref);
 				ret = 0;
 			}
 			break;
@@ -8152,9 +8121,8 @@ int32_t get_register(int32_t arg)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index mapdata->LensShows[%d]\n",ind);
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 				ret = (m->lens_show & (1<<ind)) ? 10000 : 0;
-			else Z_scripterrlog("mapdata->LensShows[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATALENSHIDES:
@@ -8163,28 +8131,26 @@ int32_t get_register(int32_t arg)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index mapdata->LensHides[%d]\n",ind);
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 				ret = (m->lens_hide & (1<<ind)) ? 10000 : 0;
-			else Z_scripterrlog("mapdata->LensHides[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATASCRDATASIZE:
 		{
 			ret = -10000;
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int index = get_ref_map_index(ri->mapsref);
 				if (index < 0) break;
 
 				ret = 10000*game->scriptDataSize(index);
 			}
-			else Z_scripterrlog("mapdata->DataSize pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATASCRDATA:
 		{
 			ret = -10000;
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int mapindex = get_ref_map_index(ri->mapsref);
 				if (mapindex < 0) break;
@@ -8194,18 +8160,16 @@ int32_t get_register(int32_t arg)
 					Z_scripterrlog("Invalid index passed to mapdata->Data[]: %d\n", indx);
 				else ret = game->screen_data[mapindex][indx];
 			}
-			else Z_scripterrlog("mapdata->Data[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATASCREENFLAGSD:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = get_screenflags(m,vbound(ri->d[rINDEX] / 10000,0,9));
 			}
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","SFlags[]", ri->mapsref);
 				ret = -10000;
 			}
 			break;
@@ -8213,20 +8177,19 @@ int32_t get_register(int32_t arg)
 			
 		case MAPDATASCREENEFLAGSD:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				ret = get_screeneflags(m,vbound(ri->d[rINDEX] / 10000,0,2));
 			}
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","EFlags[]", ri->mapsref);
 				ret = -10000;
 			}
 			break;
 		}
 		case MAPDATAGUYCOUNT:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int mi = get_mi(ri->mapsref);
 				if(mi > -1)
@@ -8236,13 +8199,12 @@ int32_t get_register(int32_t arg)
 				}
 			}
 			ret = -10000;
-			Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
 		case MAPDATAEXDOOR:
 		{
 			ret = 0;
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int mi = get_mi(ri->mapsref);
 				if(mi < 0) break;
@@ -8258,16 +8220,15 @@ int32_t get_register(int32_t arg)
 					ret = (game->xdoors[mi][dir]&bit) ? 10000 : 0;
 				}
 			}
-			else Z_scripterrlog("mapdata->GetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 
 		case MAPDATA_FLAG:
 		{
-			if (mapscr* scr = ResolveMapdata(ri->mapsref, "mapdata::Flag[]"))
+			if (mapscr* scr = ResolveMapdata(ri->mapsref))
 			{
 				int32_t index = ri->d[rINDEX] / 10000;
-				if (BC::checkBounds(index, 0, 8*11 - 1, "mapdata::Flag[]") != SH::_NoError)
+				if (BC::checkIndex(index, 0, 8*11 - 1) != SH::_NoError)
 				{
 					ret = 0;
 					break;
@@ -8462,7 +8423,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = -10000;
 				break;
 			}
@@ -8476,7 +8437,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->InitD[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = -10000;
 				break;
 			}
@@ -8494,7 +8455,7 @@ int32_t get_register(int32_t arg)
 				case 1: { ret = ((word)DMaps[ri->dmapsref].minimap_2_tile) * 10000; break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->MiniMapTile[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000;
 					break;
 				}
@@ -8510,7 +8471,7 @@ int32_t get_register(int32_t arg)
 				case 1: { ret = ((byte)DMaps[ri->dmapsref].minimap_2_cset) * 10000; break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->MiniMapCSet[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000;
 					break;
 				}
@@ -8526,7 +8487,7 @@ int32_t get_register(int32_t arg)
 				case 1: { ret = ((word)DMaps[ri->dmapsref].largemap_2_tile) * 10000; break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->MapTile[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000;
 					break;
 				}
@@ -8542,7 +8503,7 @@ int32_t get_register(int32_t arg)
 				case 1: { ret = ((byte)DMaps[ri->dmapsref].largemap_2_cset) * 10000; break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->MapCSet[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					ret = -10000;
 					break;
 				}
@@ -8570,7 +8531,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > (MAXITEMS-1) ) 
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = -10000;
 				break;
 			}
@@ -8584,7 +8545,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( ((unsigned)indx) > 31 )
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->Flags[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = -10000;
 				break;
 			}
@@ -8628,7 +8589,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (indx < 0 || indx > 2)
 			{
-				Z_scripterrlog("Invalid Index passed to Audio->MusicRefreshFlags[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 			}
 			ret = ((FFCore.music_update_flags >> indx) & 1) ? 10000 : 0; break;
 		}
@@ -8649,7 +8610,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->SubInitD[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = -10000;
 				break;
 			}
@@ -8664,7 +8625,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->MapInitD[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = -10000;
 				break;
 			}
@@ -8680,7 +8641,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->dmapsref >= MAXDMAPS)
 			{
-				Z_scripterrlog("Invalid DMap reference used for dmapdata->Charted[]: %d\n", ri->dmapsref);
+				scripting_log_error_with_context("Invalid dmap reference: {}", ri->dmapsref);
 			}
 			// else if((DMaps[get_currdmap()].type&dmfTYPE) == dmOVERW)
 			// {
@@ -8688,7 +8649,7 @@ int32_t get_register(int32_t arg)
 			// }
 			else if(((unsigned)(screen)) > 127)
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", screen);
+				scripting_log_error_with_context("Invalid screen: {}", screen);
 			}
 			else 
 			{
@@ -8709,7 +8670,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Next") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 			{
 				ret = -10000; break;
 			}
@@ -8724,7 +8685,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Tile") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].tile) * 10000;
@@ -8735,7 +8696,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->CSet") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].cset) * 10000;
@@ -8745,7 +8706,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Transparent") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((MsgStrings[ID].trans)?10000:0);
@@ -8755,7 +8716,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Font") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = (int32_t)MsgStrings[ID].font * 10000;
@@ -8765,7 +8726,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->X") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].x) * 10000;
@@ -8775,7 +8736,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Y") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].y) * 10000;
@@ -8785,7 +8746,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Width") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].w) * 10000;
@@ -8795,7 +8756,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Height") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].h) * 10000;
@@ -8805,7 +8766,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Sound") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].sfx) * 10000;
@@ -8815,7 +8776,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->ListPosition") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].listpos) * 10000;
@@ -8825,7 +8786,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->VSpace") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].vspace) * 10000;
@@ -8835,7 +8796,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->HSpace") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].hspace) * 10000;
@@ -8845,7 +8806,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Flags") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else 
 				ret = ((int32_t)MsgStrings[ID].stringflags) * 10000;
@@ -8856,13 +8817,13 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > 3 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to messagedata->Margins[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				ret = -10000;
 				break;
 			}
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->Margins[]") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((int32_t)MsgStrings[ID].margins[indx]) * 10000;
@@ -8872,7 +8833,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitTile") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((int32_t)MsgStrings[ID].portrait_tile) * 10000;
@@ -8882,7 +8843,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitCSet") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((int32_t)MsgStrings[ID].portrait_cset) * 10000;
@@ -8892,7 +8853,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitX") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((int32_t)MsgStrings[ID].portrait_x) * 10000;
@@ -8902,7 +8863,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitY") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((int32_t)MsgStrings[ID].portrait_y) * 10000;
@@ -8912,7 +8873,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitTileWidth") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((int32_t)MsgStrings[ID].portrait_tw) * 10000;
@@ -8922,7 +8883,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitTileHeight") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = ((int32_t)MsgStrings[ID].portrait_th) * 10000;
@@ -8932,7 +8893,7 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitTileHeight") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = int32_t(MsgStrings[ID].s.size()) * 10000;
@@ -8940,12 +8901,12 @@ int32_t get_register(int32_t arg)
 		}
 		case MESSAGEDATATEXTWID:
 		{
-			ret = do_msgwidth(ri->zmsgref, "messagedata->TextWidth")*10000;
+			ret = do_msgwidth(ri->zmsgref)*10000;
 			break;
 		}
 		case MESSAGEDATATEXTHEI:
 		{
-			ret = do_msgheight(ri->zmsgref, "messagedata->TextHeight")*10000;
+			ret = do_msgheight(ri->zmsgref)*10000;
 			break;
 		}
 		case MESSAGEDATAFLAGSARR: //BOOL, 7
@@ -8953,7 +8914,7 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->Flags[]") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
 			{
@@ -8990,11 +8951,11 @@ int32_t get_register(int32_t arg)
 
 		///----------------------------------------------------------------------------------------------------//
 		//combodata cd-> Getter variables
-		#define	GET_COMBO_VAR_INT(member, str) \
+		#define	GET_COMBO_VAR_INT(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -9003,11 +8964,11 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 
-		#define	GET_COMBO_VAR_BYTE(member, str) \
+		#define	GET_COMBO_VAR_BYTE(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -9016,11 +8977,11 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 		
-		#define	GET_COMBO_VAR_DWORD(member, str) \
+		#define	GET_COMBO_VAR_DWORD(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -9029,17 +8990,17 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 		
-		#define GET_COMBO_VAR_INDEX(member, str, indexbound) \
+		#define GET_COMBO_VAR_INDEX(member, indexbound) \
 		{ \
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 					ret = -10000; \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					scripting_log_error_with_context("Invalid Array Index: {}", indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -9048,17 +9009,17 @@ int32_t get_register(int32_t arg)
 				} \
 		}
 
-		#define GET_COMBO_BYTE_INDEX(member, str, indexbound) \
+		#define GET_COMBO_BYTE_INDEX(member, indexbound) \
 		{ \
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 					ret = -10000; \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					scripting_log_error_with_context("Invalid Array Index: {}", indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -9067,12 +9028,12 @@ int32_t get_register(int32_t arg)
 				} \
 		}
 		
-		#define GET_COMBO_FLAG(member, str, indexbound) \
+		#define GET_COMBO_FLAG(member, indexbound) \
 		{ \
 			int32_t flag =  (value/10000);  \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -9082,11 +9043,11 @@ int32_t get_register(int32_t arg)
 
 		//comboclass macros
 
-		#define	GET_COMBOCLASS_VAR_INT(member, str) \
+		#define	GET_COMBOCLASS_VAR_INT(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -9095,11 +9056,11 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 
-		#define	GET_COMBOCLASS_VAR_BYTE(member, str) \
+		#define	GET_COMBOCLASS_VAR_BYTE(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -9108,11 +9069,11 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 		
-		#define	GET_COMBOCLASS_VAR_DWORD(member, str) \
+		#define	GET_COMBOCLASS_VAR_DWORD(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -9121,17 +9082,17 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 		
-		#define GET_COMBOCLASS_VAR_INDEX(member, str, indexbound) \
+		#define GET_COMBOCLASS_VAR_INDEX(member, indexbound) \
 		{ \
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 					ret = -10000; \
 				} \
 				else if ( indx < 0 || indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					scripting_log_error_with_context("Invalid Array Index: {}", indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -9140,17 +9101,17 @@ int32_t get_register(int32_t arg)
 				} \
 		}
 
-		#define GET_COMBOCLASS_BYTE_INDEX(member, str, indexbound) \
+		#define GET_COMBOCLASS_BYTE_INDEX(member, indexbound) \
 		{ \
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 					ret = -10000; \
 				} \
 				else if ( indx < 0 || indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					scripting_log_error_with_context("Invalid Array Index: {}", indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -9159,12 +9120,12 @@ int32_t get_register(int32_t arg)
 				} \
 		}
 		
-		#define GET_COMBOCLASS_FLAG(member, str, indexbound) \
+		#define GET_COMBOCLASS_FLAG(member, indexbound) \
 		{ \
 			int32_t flag =  (value/10000);  \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -9185,7 +9146,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname.c_str() );
+				scripting_log_error_with_context("Can only be called by combodata scripts, but you tried to use it from script type {}, script token {}", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname);
 				ret = -10000;
 			}
 			break;
@@ -9200,8 +9161,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("combodata->Y() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname.c_str() );
-				ret = -10000;
+				scripting_log_error_with_context("Can only be called by combodata scripts, but you tried to use it from script type {}, script token {}", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname);				ret = -10000;
 			}
 			break;
 		}
@@ -9214,8 +9174,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname.c_str() );
-				ret = -10000;
+				scripting_log_error_with_context("Can only be called by combodata scripts, but you tried to use it from script type {}, script token {}", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname);				ret = -10000;
 			}
 			break;
 		}
@@ -9228,24 +9187,23 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("combodata->Layer() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname.c_str() );
-				ret = -10000;
+				scripting_log_error_with_context("Can only be called by combodata scripts, but you tried to use it from script type {}, script token {}", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname);				ret = -10000;
 			}
 			break;
 		}
 		
 		//NEWCOMBO STRUCT
-		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
-		case COMBODOTILE:		GET_COMBO_VAR_DWORD(o_tile, "OriginalTile"); break;			//word
-		case COMBODFRAME:		GET_COMBO_VAR_BYTE(cur_frame, "Frame"); break;				//char
-		case COMBODACLK:		GET_COMBO_VAR_BYTE(aclk, "AClk"); break;				//char
-		case COMBODASPEED:		GET_COMBO_VAR_BYTE(speed, "ASpeed"); break;					//char
-		case COMBODFLIP:		GET_COMBO_VAR_BYTE(flip, "Flip"); break;					//char
+		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile); break;					//word
+		case COMBODOTILE:		GET_COMBO_VAR_DWORD(o_tile); break;			//word
+		case COMBODFRAME:		GET_COMBO_VAR_BYTE(cur_frame); break;				//char
+		case COMBODACLK:		GET_COMBO_VAR_BYTE(aclk); break;				//char
+		case COMBODASPEED:		GET_COMBO_VAR_BYTE(speed); break;					//char
+		case COMBODFLIP:		GET_COMBO_VAR_BYTE(flip); break;					//char
 		case COMBODWALK:
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Walk");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				ret = -10000;
 			}
 			else
@@ -9258,7 +9216,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Effect");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				ret = -10000;
 			}
 			else
@@ -9267,12 +9225,12 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
-		case COMBODTYPE:		GET_COMBO_VAR_BYTE(type, "Type"); break;					//char
+		case COMBODTYPE:		GET_COMBO_VAR_BYTE(type); break;					//char
 		case COMBODCSET:
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				ret = -10000;
 			}
 			else
@@ -9286,7 +9244,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2Flags");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else
 			{
@@ -9295,27 +9253,27 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 		case COMBODFOO:			break;						//W
-		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(script, "Script"); break;						//W
-		case COMBODFRAMES:		GET_COMBO_VAR_BYTE(frames, "Frames"); break;					//C
-		case COMBODNEXTD:		GET_COMBO_VAR_INT(nextcombo, "NextData"); break;					//W
-		case COMBODNEXTC:		GET_COMBO_VAR_BYTE(nextcset, "NextCSet"); break;				//C
-		case COMBODFLAG:		GET_COMBO_VAR_BYTE(flag, "Flag"); break;					//C
-		case COMBODSKIPANIM:		GET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;				//C
-		case COMBODNEXTTIMER:		GET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;				//W
-		case COMBODAKIMANIMY:		GET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;				//C
-		case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;				//C
-		case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;				//C , 6 INDICES
+		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(script); break;						//W
+		case COMBODFRAMES:		GET_COMBO_VAR_BYTE(frames); break;					//C
+		case COMBODNEXTD:		GET_COMBO_VAR_INT(nextcombo); break;					//W
+		case COMBODNEXTC:		GET_COMBO_VAR_BYTE(nextcset); break;				//C
+		case COMBODFLAG:		GET_COMBO_VAR_BYTE(flag); break;					//C
+		case COMBODSKIPANIM:		GET_COMBO_VAR_BYTE(skipanim); break;				//C
+		case COMBODNEXTTIMER:		GET_COMBO_VAR_DWORD(nexttimer); break;				//W
+		case COMBODAKIMANIMY:		GET_COMBO_VAR_BYTE(skipanimy); break;				//C
+		case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags); break;				//C
+		case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, 6); break;				//C , 6 INDICES
 		case COMBODATTRIBUTES:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Attributes[]");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				ret = -10000;
 			}
 			else if ( indx < 0 || indx > 4 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "Attributes[]");
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 				ret = -10000;
 			}
 			else
@@ -9330,12 +9288,12 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				ret = -10000;
 			}
 			else if ( ((unsigned)indx) > 8 )
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 				ret = -10000;
 			} 
 			else 
@@ -9344,19 +9302,19 @@ int32_t get_register(int32_t arg)
 			} 
 			break;
 		}
-		case COMBODATTRIBYTES: 		GET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 8); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
-		case COMBODATTRISHORTS: 		GET_COMBO_VAR_INDEX(attrishorts,	"Attrishorts[]", 8); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBYTES: 		GET_COMBO_VAR_INDEX(attribytes, 8); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRISHORTS: 		GET_COMBO_VAR_INDEX(attrishorts, 8); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGARR:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Flags[]", (ri->combosref * 10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				ret = 0;
 			}
 			else if (((unsigned)indx) > 15)
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Flags[]", indx);
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 				ret = 0;
 			}
 			else
@@ -9370,12 +9328,12 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "GenFlags[]", (ri->combosref * 10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				ret = 0;
 			}
 			else if (((unsigned)indx) > 1)
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "GenFlags[]", indx);
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 				ret = 0;
 			}
 			else
@@ -9384,19 +9342,19 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
-		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
-		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 6);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags); break;				//LONG
+		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, 6);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERFLAGS2:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if ( unsigned(indx) >= 32*6 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
 			else
 			{
@@ -9410,11 +9368,11 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerButton[]");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if ( unsigned(indx) >= 8 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TriggerButton[]");
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
 			else
 			{
@@ -9427,7 +9385,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerItem");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].triggeritem) * 10000;
 			break;
@@ -9437,7 +9395,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerTimer");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigtimer) * 10000;
 			break;
@@ -9447,7 +9405,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerSFX");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigsfx) * 10000;
 			break;
@@ -9457,7 +9415,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerChange");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigchange) * 10000;
 			break;
@@ -9467,7 +9425,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerProximity");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigprox) * 10000;
 			break;
@@ -9477,7 +9435,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerLightBeam");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].triglbeam) * 10000;
 			break;
@@ -9487,7 +9445,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCounter");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigctr) * 10000;
 			break;
@@ -9497,7 +9455,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigctramnt) * 10000;
 			break;
@@ -9507,7 +9465,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCooldown: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigcooldown) * 10000;
 			break;
@@ -9517,7 +9475,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCopycat: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigcopycat) * 10000;
 			break;
@@ -9527,7 +9485,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerSpawnItemPickup: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].spawnip) * 10000;
 			break;
@@ -9537,7 +9495,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExState: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].exstate) * 10000;
 			break;
@@ -9547,7 +9505,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorDir: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].exdoor_dir) * 10000;
 			break;
@@ -9557,7 +9515,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorIndex: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].exdoor_ind) * 10000;
 			break;
@@ -9567,7 +9525,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnEnemy: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].spawnenemy) * 10000;
 			break;
@@ -9577,7 +9535,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnItem: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].spawnitem) * 10000;
 			break;
@@ -9587,7 +9545,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigCSetChange: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigcschange) * 10000;
 			break;
@@ -9597,7 +9555,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLItems: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trig_levelitems) * 10000;
 			break;
@@ -9607,7 +9565,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigDMapLvl: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trigdmlevel) * 10000;
 			break;
@@ -9616,7 +9574,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintR: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				break;
 			}
 			else ret = scripting_read_pal_color(combobuf[ri->combosref].trigtint[0]) * 10000;
@@ -9626,7 +9584,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintG: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = scripting_read_pal_color(combobuf[ri->combosref].trigtint[1]) * 10000;
 			break;
@@ -9635,7 +9593,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintG: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = scripting_read_pal_color(combobuf[ri->combosref].trigtint[2]) * 10000;
 			break;
@@ -9645,7 +9603,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLvlPal: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].triglvlpalette;
 			break;
@@ -9655,7 +9613,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigBossPal: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].trigbosspalette;
 			break;
@@ -9665,7 +9623,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigQuakeTimer: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].trigquaketime;
 			break;
@@ -9675,7 +9633,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigWavyTimer: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].trigwavytime;
 			break;
@@ -9685,7 +9643,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSwordJinx: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].trig_swjinxtime;
 			break;
@@ -9695,7 +9653,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigItemJinx: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].trig_itmjinxtime;
 			break;
@@ -9705,7 +9663,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigShieldJinx: %d\n", (ri->combosref * 10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].trig_shieldjinxtime;
 			break;
@@ -9715,7 +9673,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigStun: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].trig_stuntime;
 			break;
@@ -9725,7 +9683,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigBunny: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].trig_bunnytime;
 			break;
@@ -9735,7 +9693,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigPushTime: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = 10000 * combobuf[ri->combosref].trig_pushtime;
 			break;
@@ -9745,7 +9703,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCombo: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftcmb) * 10000;
 			break;
@@ -9755,7 +9713,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCSet: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftcs) * 10000;
 			break;
@@ -9765,7 +9723,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCombo: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftundercmb) * 10000;
 			break;
@@ -9775,7 +9733,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCSet: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftundercs) * 10000;
 			break;
@@ -9785,7 +9743,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftDamage: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftdmg) * 10000;
 			break;
@@ -9795,7 +9753,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftLevel: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftlvl) * 10000;
 			break;
@@ -9805,7 +9763,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftItem: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftitm) * 10000;
 			break;
@@ -9816,12 +9774,12 @@ int32_t get_register(int32_t arg)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftFlags[]: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				break;
 			}
 			if ( unsigned(indx) > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to combodata->LiftFlags[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				break;
 			}
 			ret = (combobuf[ri->combosref].liftflags & (1<<indx)) ? 10000 : 0;
@@ -9832,7 +9790,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXType: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftgfx) * 10000;
 			break;
@@ -9842,7 +9800,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXSprite: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftsprite) * 10000;
 			break;
@@ -9852,7 +9810,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftSFX: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftsfx) * 10000;
 			break;
@@ -9862,7 +9820,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSprite: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftbreaksprite) * 10000;
 			break;
@@ -9872,7 +9830,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSFX: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].liftbreaksfx) * 10000;
 			break;
@@ -9882,7 +9840,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftHeight: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].lifthei) * 10000;
 			break;
@@ -9892,7 +9850,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftTime: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].lifttime) * 10000;
 			break;
@@ -9902,7 +9860,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftWeaponItem: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].lift_parent_item) * 10000;
 			break;
@@ -9912,7 +9870,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLevelState: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trig_lstate) * 10000;
 			break;
@@ -9922,7 +9880,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGlobalState: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trig_gstate) * 10000;
 			break;
@@ -9932,7 +9890,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroup: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trig_group) * 10000;
 			break;
@@ -9942,7 +9900,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroupVal: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trig_group_val) * 10000;
 			break;
@@ -9952,7 +9910,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGStateTimer: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trig_statetime) * 10000;
 			break;
@@ -9962,78 +9920,78 @@ int32_t get_register(int32_t arg)
 			ret = -10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGenScript: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else ret = (combobuf[ri->combosref].trig_genscr) * 10000;
 			break;
 		}
 		
-		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
+		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel); break;				//LONG
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
 		//COMBOCLASS STRUCT
 		//case COMBODNAME:		//CHAR[64], STRING
-		case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies, "BlockNPC"); break;			//C
-		case COMBODBLOCKHOLE:		GET_COMBOCLASS_VAR_BYTE(block_hole, "BlockHole"); break;			//C
-		case COMBODBLOCKTRIG:		GET_COMBOCLASS_VAR_BYTE(block_trigger,	"BlockTrigger"); break; 		//C
-		case COMBODBLOCKWEAPON:		GET_COMBOCLASS_BYTE_INDEX(block_weapon,	"BlockWeapon[]", 32); break;		//C, 32 INDICES
-		case COMBODCONVXSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_x_speed, "ConveyorSpeedX"); break;		//SHORT
-		case COMBODCONVYSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_y_speed, "ConveyorSpeedY"); break;		//SHORT
-		case COMBODSPAWNNPC:		GET_COMBOCLASS_VAR_DWORD(create_enemy, "SpawnNPC"); break;			//W
-		case COMBODSPAWNNPCWHEN:	GET_COMBOCLASS_VAR_BYTE(create_enemy_when, "SpawnNPCWhen"); break;		//C
-		case COMBODSPAWNNPCCHANGE:	GET_COMBOCLASS_VAR_INT(create_enemy_change, "SpawnNPCChange"); break;		//LONG
-		case COMBODDIRCHANGETYPE:	GET_COMBOCLASS_VAR_BYTE(directional_change_type, "DirChange"); break;		//C
-		case COMBODDISTANCECHANGETILES:	GET_COMBOCLASS_VAR_INT(distance_change_tiles, "DistanceChangeTiles"); break; 	//LONG
-		case COMBODDIVEITEM:		GET_COMBOCLASS_VAR_DWORD(dive_item, "DiveItem"); break;				//SHORT
-		case COMBODDOCK:		GET_COMBOCLASS_VAR_BYTE(dock, "Dock"); break;					//C
-		case COMBODFAIRY:		GET_COMBOCLASS_VAR_BYTE(fairy, "Fairy"); break;					//C
-		case COMBODFFATTRCHANGE:	GET_COMBOCLASS_VAR_BYTE(ff_combo_attr_change, "FFCAttributeChange"); break;	//C
-		case COMBODFOORDECOTILE:	GET_COMBOCLASS_VAR_INT(foot_decorations_tile, "DecorationTile"); break;		//LONG
-		case COMBODFOORDECOTYPE:	GET_COMBOCLASS_VAR_BYTE(foot_decorations_type, "DecorationType"); break;	//C
-		case COMBODHOOKSHOTPOINT:	GET_COMBOCLASS_VAR_BYTE(hookshot_grab_point, "Hookshot"); break;		//C
-		case COMBODLADDERPASS:		GET_COMBOCLASS_VAR_BYTE(ladder_pass, "Ladder"); break;				//C
-		case COMBODLOCKBLOCK:		GET_COMBOCLASS_VAR_BYTE(lock_block_type, "LockBlock"); break;			//C
-		case COMBODLOCKBLOCKCHANGE:	GET_COMBOCLASS_VAR_INT(lock_block_change, "LockBlockChange"); break;		//LONG
-		case COMBODMAGICMIRROR:		GET_COMBOCLASS_VAR_BYTE(magic_mirror_type, "Mirror"); break;			//C
-		case COMBODMODHPAMOUNT:		GET_COMBOCLASS_VAR_DWORD(modify_hp_amount, "DamageAmount"); break;		//SHORT
-		case COMBODMODHPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_hp_delay, "DamageDelay"); break;			//C
-		case COMBODMODHPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_hp_type,	"DamageType"); break; 			//C
-		case COMBODNMODMPAMOUNT:	GET_COMBOCLASS_VAR_DWORD(modify_mp_amount, "MagicAmount"); break;		//SHORT
-		case COMBODMODMPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_mp_delay, "MagicDelay"); break;			//C
-		case COMBODMODMPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType");	break;			//C
-		case COMBODNOPUSHBLOCK:		GET_COMBOCLASS_VAR_BYTE(no_push_blocks, "NoPushBlocks"); break;			//C
-		case COMBODOVERHEAD:		GET_COMBOCLASS_VAR_BYTE(overhead, "Overhead"); break;				//C
-		case COMBODPLACENPC:		GET_COMBOCLASS_VAR_BYTE(place_enemy, "PlaceNPC"); break;			//C
-		case COMBODPUSHDIR:		GET_COMBOCLASS_VAR_BYTE(push_direction,	"PushDir"); break; 			//C
-		case COMBODPUSHWAIT:		GET_COMBOCLASS_VAR_BYTE(push_wait, "PushDelay"); break;				//C
-		case COMBODPUSHHEAVY:		GET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy"); break;				//C
-		case COMBODPUSHED:		GET_COMBOCLASS_VAR_BYTE(pushed, "Pushed"); break;				//C
-		case COMBODRAFT:		GET_COMBOCLASS_VAR_BYTE(raft, "Raft"); break;					//C
-		case COMBODRESETROOM:		GET_COMBOCLASS_VAR_BYTE(reset_room, "ResetRoom"); break;			//C
-		case COMBODSAVEPOINTTYPE:	GET_COMBOCLASS_VAR_BYTE(save_point_type, "SavePoint"); break;			//C
-		case COMBODSCREENFREEZETYPE:	GET_COMBOCLASS_VAR_BYTE(screen_freeze_type, "FreezeScreen"); break;		//C
-		case COMBODSECRETCOMBO:		GET_COMBOCLASS_VAR_BYTE(secret_combo, "SecretCombo"); break;			//C
-		case COMBODSINGULAR:		GET_COMBOCLASS_VAR_BYTE(singular, "Singular"); break;				//C
-		case COMBODSLOWWALK:		GET_COMBOCLASS_VAR_BYTE(slow_movement, "SlowWalk"); break;			//C
-		case COMBODSTATUETYPE:		GET_COMBOCLASS_VAR_BYTE(statue_type, "Statue"); break;				//C
-		case COMBODSTEPTYPE:		GET_COMBOCLASS_VAR_BYTE(step_type, "Step"); break;				//C
-		case COMBODSTEPCHANGEINTO:	GET_COMBOCLASS_VAR_INT(step_change_to, "StepChange"); break;			//LONG
-		case COMBODSTRIKEWEAPONS:	GET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32); break;			//BYTE, 32 INDICES. 
-		case COMBODSTRIKEREMNANTS:	GET_COMBOCLASS_VAR_INT(strike_remnants,	"StrikeRemnants"); break;		//LONG
-		case COMBODSTRIKEREMNANTSTYPE:	GET_COMBOCLASS_VAR_BYTE(strike_remnants_type, "StrikeRemnantsType"); break;	//C
-		case COMBODSTRIKECHANGE:	GET_COMBOCLASS_VAR_INT(strike_change, "StrikeChange"); break;			//LONG
-		case COMBODSTRIKEITEM:		GET_COMBOCLASS_VAR_DWORD(strike_item, "StrikeItem"); break;			//SHORT
-		case COMBODTOUCHITEM:		GET_COMBOCLASS_VAR_DWORD(touch_item, "TouchItem"); break;			//SHORT
-		case COMBODTOUCHSTAIRS:		GET_COMBOCLASS_VAR_BYTE(touch_stairs, "TouchStairs"); break;			//C
-		case COMBODTRIGGERTYPE:		GET_COMBOCLASS_VAR_BYTE(trigger_type, "TriggerType"); break;			//C
-		case COMBODTRIGGERSENS:		GET_COMBOCLASS_VAR_BYTE(trigger_sensitive, "TriggerSensitivity"); break;	//C
-		case COMBODWARPTYPE:		GET_COMBOCLASS_VAR_BYTE(warp_type, "Warp"); break;				//C
-		case COMBODWARPSENS:		GET_COMBOCLASS_VAR_BYTE(warp_sensitive,	"WarpSensitivity"); break; 		//C
-		case COMBODWARPDIRECT:		GET_COMBOCLASS_VAR_BYTE(warp_direct, "WarpDirect"); break;			//C
-		case COMBODWARPLOCATION:	GET_COMBOCLASS_VAR_BYTE(warp_location, "WarpLocation"); break;			//C
-		case COMBODWATER:		GET_COMBOCLASS_VAR_BYTE(water, "Liquid"); break;					//C
-		case COMBODWHISTLE:		GET_COMBOCLASS_VAR_BYTE(whistle, "Whistle"); break;				//C
-		case COMBODWINGAME:		GET_COMBOCLASS_VAR_BYTE(win_game, "WinGame"); break; 				//C
-		case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeaponLevel"); break;		//C
+		case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies); break;			//C
+		case COMBODBLOCKHOLE:		GET_COMBOCLASS_VAR_BYTE(block_hole); break;			//C
+		case COMBODBLOCKTRIG:		GET_COMBOCLASS_VAR_BYTE(block_trigger); break; 		//C
+		case COMBODBLOCKWEAPON:		GET_COMBOCLASS_BYTE_INDEX(block_weapon, 32); break;		//C, 32 INDICES
+		case COMBODCONVXSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_x_speed); break;		//SHORT
+		case COMBODCONVYSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_y_speed); break;		//SHORT
+		case COMBODSPAWNNPC:		GET_COMBOCLASS_VAR_DWORD(create_enemy); break;			//W
+		case COMBODSPAWNNPCWHEN:	GET_COMBOCLASS_VAR_BYTE(create_enemy_when); break;		//C
+		case COMBODSPAWNNPCCHANGE:	GET_COMBOCLASS_VAR_INT(create_enemy_change); break;		//LONG
+		case COMBODDIRCHANGETYPE:	GET_COMBOCLASS_VAR_BYTE(directional_change_type); break;		//C
+		case COMBODDISTANCECHANGETILES:	GET_COMBOCLASS_VAR_INT(distance_change_tiles); break; 	//LONG
+		case COMBODDIVEITEM:		GET_COMBOCLASS_VAR_DWORD(dive_item); break;				//SHORT
+		case COMBODDOCK:		GET_COMBOCLASS_VAR_BYTE(dock); break;					//C
+		case COMBODFAIRY:		GET_COMBOCLASS_VAR_BYTE(fairy); break;					//C
+		case COMBODFFATTRCHANGE:	GET_COMBOCLASS_VAR_BYTE(ff_combo_attr_change); break;	//C
+		case COMBODFOORDECOTILE:	GET_COMBOCLASS_VAR_INT(foot_decorations_tile); break;		//LONG
+		case COMBODFOORDECOTYPE:	GET_COMBOCLASS_VAR_BYTE(foot_decorations_type); break;	//C
+		case COMBODHOOKSHOTPOINT:	GET_COMBOCLASS_VAR_BYTE(hookshot_grab_point); break;		//C
+		case COMBODLADDERPASS:		GET_COMBOCLASS_VAR_BYTE(ladder_pass); break;				//C
+		case COMBODLOCKBLOCK:		GET_COMBOCLASS_VAR_BYTE(lock_block_type); break;			//C
+		case COMBODLOCKBLOCKCHANGE:	GET_COMBOCLASS_VAR_INT(lock_block_change); break;		//LONG
+		case COMBODMAGICMIRROR:		GET_COMBOCLASS_VAR_BYTE(magic_mirror_type); break;			//C
+		case COMBODMODHPAMOUNT:		GET_COMBOCLASS_VAR_DWORD(modify_hp_amount); break;		//SHORT
+		case COMBODMODHPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_hp_delay); break;			//C
+		case COMBODMODHPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_hp_type); break; 			//C
+		case COMBODNMODMPAMOUNT:	GET_COMBOCLASS_VAR_DWORD(modify_mp_amount); break;		//SHORT
+		case COMBODMODMPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_mp_delay); break;			//C
+		case COMBODMODMPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_mp_type);	break;			//C
+		case COMBODNOPUSHBLOCK:		GET_COMBOCLASS_VAR_BYTE(no_push_blocks); break;			//C
+		case COMBODOVERHEAD:		GET_COMBOCLASS_VAR_BYTE(overhead); break;				//C
+		case COMBODPLACENPC:		GET_COMBOCLASS_VAR_BYTE(place_enemy); break;			//C
+		case COMBODPUSHDIR:		GET_COMBOCLASS_VAR_BYTE(push_direction); break; 			//C
+		case COMBODPUSHWAIT:		GET_COMBOCLASS_VAR_BYTE(push_wait); break;				//C
+		case COMBODPUSHHEAVY:		GET_COMBOCLASS_VAR_BYTE(push_weight); break;				//C
+		case COMBODPUSHED:		GET_COMBOCLASS_VAR_BYTE(pushed); break;				//C
+		case COMBODRAFT:		GET_COMBOCLASS_VAR_BYTE(raft); break;					//C
+		case COMBODRESETROOM:		GET_COMBOCLASS_VAR_BYTE(reset_room); break;			//C
+		case COMBODSAVEPOINTTYPE:	GET_COMBOCLASS_VAR_BYTE(save_point_type); break;			//C
+		case COMBODSCREENFREEZETYPE:	GET_COMBOCLASS_VAR_BYTE(screen_freeze_type); break;		//C
+		case COMBODSECRETCOMBO:		GET_COMBOCLASS_VAR_BYTE(secret_combo); break;			//C
+		case COMBODSINGULAR:		GET_COMBOCLASS_VAR_BYTE(singular); break;				//C
+		case COMBODSLOWWALK:		GET_COMBOCLASS_VAR_BYTE(slow_movement); break;			//C
+		case COMBODSTATUETYPE:		GET_COMBOCLASS_VAR_BYTE(statue_type); break;				//C
+		case COMBODSTEPTYPE:		GET_COMBOCLASS_VAR_BYTE(step_type); break;				//C
+		case COMBODSTEPCHANGEINTO:	GET_COMBOCLASS_VAR_INT(step_change_to); break;			//LONG
+		case COMBODSTRIKEWEAPONS:	GET_COMBOCLASS_BYTE_INDEX(strike_weapons, 32); break;			//BYTE, 32 INDICES. 
+		case COMBODSTRIKEREMNANTS:	GET_COMBOCLASS_VAR_INT(strike_remnants); break;		//LONG
+		case COMBODSTRIKEREMNANTSTYPE:	GET_COMBOCLASS_VAR_BYTE(strike_remnants_type); break;	//C
+		case COMBODSTRIKECHANGE:	GET_COMBOCLASS_VAR_INT(strike_change); break;			//LONG
+		case COMBODSTRIKEITEM:		GET_COMBOCLASS_VAR_DWORD(strike_item); break;			//SHORT
+		case COMBODTOUCHITEM:		GET_COMBOCLASS_VAR_DWORD(touch_item); break;			//SHORT
+		case COMBODTOUCHSTAIRS:		GET_COMBOCLASS_VAR_BYTE(touch_stairs); break;			//C
+		case COMBODTRIGGERTYPE:		GET_COMBOCLASS_VAR_BYTE(trigger_type); break;			//C
+		case COMBODTRIGGERSENS:		GET_COMBOCLASS_VAR_BYTE(trigger_sensitive); break;	//C
+		case COMBODWARPTYPE:		GET_COMBOCLASS_VAR_BYTE(warp_type); break;				//C
+		case COMBODWARPSENS:		GET_COMBOCLASS_VAR_BYTE(warp_sensitive); break; 		//C
+		case COMBODWARPDIRECT:		GET_COMBOCLASS_VAR_BYTE(warp_direct); break;			//C
+		case COMBODWARPLOCATION:	GET_COMBOCLASS_VAR_BYTE(warp_location); break;			//C
+		case COMBODWATER:		GET_COMBOCLASS_VAR_BYTE(water); break;					//C
+		case COMBODWHISTLE:		GET_COMBOCLASS_VAR_BYTE(whistle); break;				//C
+		case COMBODWINGAME:		GET_COMBOCLASS_VAR_BYTE(win_game); break; 				//C
+		case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl); break;		//C
 
 
 		
@@ -10545,7 +10503,7 @@ int32_t get_register(int32_t arg)
 
 		case BITMAPWIDTH:
 		{
-			if (auto bmp = user_bitmaps.check(ri->bitmapref, "->Width"); bmp && bmp->u_bmp)
+			if (auto bmp = user_bitmaps.check(ri->bitmapref); bmp && bmp->u_bmp)
 			{
 				ret = bmp->width * 10000;
 			}
@@ -10558,7 +10516,7 @@ int32_t get_register(int32_t arg)
 
 		case BITMAPHEIGHT:
 		{
-			if (auto bmp = user_bitmaps.check(ri->bitmapref, "->Height"); bmp && bmp->u_bmp)
+			if (auto bmp = user_bitmaps.check(ri->bitmapref); bmp && bmp->u_bmp)
 			{
 				ret = bmp->height * 10000;
 			}
@@ -10572,7 +10530,7 @@ int32_t get_register(int32_t arg)
 		//File->
 		case FILEPOS:
 		{
-			if(user_file* f = checkFile(ri->fileref, "Pos", true))
+			if(user_file* f = checkFile(ri->fileref, true))
 			{
 				ret = ftell(f->file); //NOT *10000 -V
 			}
@@ -10581,7 +10539,7 @@ int32_t get_register(int32_t arg)
 		}
 		case FILEEOF:
 		{
-			if(user_file* f = checkFile(ri->fileref, "EOF", true))
+			if(user_file* f = checkFile(ri->fileref, true))
 			{
 				ret = feof(f->file) ? 10000L : 0L; //Boolean
 			}
@@ -10590,7 +10548,7 @@ int32_t get_register(int32_t arg)
 		}
 		case FILEERR:
 		{
-			if(user_file* f = checkFile(ri->fileref, "Error", true))
+			if(user_file* f = checkFile(ri->fileref, true))
 			{
 				ret = ferror(f->file) * 10000L;
 			}
@@ -10602,7 +10560,7 @@ int32_t get_register(int32_t arg)
 		//Directory->
 		case DIRECTORYSIZE:
 		{
-			if(user_dir* dr = checkDir(ri->directoryref, "Size()", true))
+			if(user_dir* dr = checkDir(ri->directoryref, true))
 			{
 				ret = dr->size() * 10000L;
 			}
@@ -10614,7 +10572,7 @@ int32_t get_register(int32_t arg)
 		//Stack->
 		case STACKSIZE:
 		{
-			if(user_stack* st = checkStack(ri->stackref, "Size", true))
+			if(user_stack* st = checkStack(ri->stackref, true))
 			{
 				ret = st->size(); //NOT *10000
 			}
@@ -10623,7 +10581,7 @@ int32_t get_register(int32_t arg)
 		}
 		case STACKFULL:
 		{
-			if(user_stack* st = checkStack(ri->stackref, "Full", true))
+			if(user_stack* st = checkStack(ri->stackref, true))
 			{
 				ret = st->full() ? 10000L : 0L;
 			}
@@ -10727,19 +10685,19 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case GDD: // Unused, remove?
-			ret = read_array(game->global_d, ri->d[rINDEX] / 10000, "GDD");
+			ret = read_array(game->global_d, ri->d[rINDEX] / 10000);
 			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		
 		case PALDATACOLOR:
 		{
-			if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->GetColor()"))
+			if (user_paldata* pd = checkPalData(ri->paldataref))
 			{
 				int32_t ind = ri->d[rINDEX] / 10000; // get_register(sarg1) / 10000;
 				if (unsigned(ind) >= PALDATA_NUM_COLORS)
 				{
-					Z_scripterrlog("Invalid color index (%d) passed to paldata->GetColor(). Valid indices are 0-255.\n", ind);
+					scripting_log_error_with_context("Invalid color index: {}. Valid indices are 0-255", ind);
 					ret = -10000;
 					break;
 				}
@@ -10774,7 +10732,7 @@ int32_t get_register(int32_t arg)
 		case GENDATARUNNING:
 		{
 			ret = 0;
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Running"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				ret = scr->doscript() ? 10000L : 0L;
 			}
@@ -10783,7 +10741,7 @@ int32_t get_register(int32_t arg)
 		case GENDATASIZE:
 		{
 			ret = 0;
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "DataSize"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				ret = scr->dataSize()*10000;
 			}
@@ -10792,12 +10750,12 @@ int32_t get_register(int32_t arg)
 		case GENDATAEXITSTATE:
 		{
 			ret = 0;
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ExitState"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= GENSCR_NUMST)
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->ExitState[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ret = (scr->exitState & (1<<indx)) ? 10000L : 0;
@@ -10807,12 +10765,12 @@ int32_t get_register(int32_t arg)
 		case GENDATARELOADSTATE:
 		{
 			ret = 0;
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ReloadState"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= GENSCR_NUMST)
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->ReloadState[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ret = (scr->reloadState & (1<<indx)) ? 10000L : 0;
@@ -10822,12 +10780,12 @@ int32_t get_register(int32_t arg)
 		case GENDATAEVENTSTATE:
 		{
 			ret = 0;
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "EventListen"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= GENSCR_NUMEVENT)
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->EventListen[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ret = (scr->eventstate & (1<<indx)) ? 10000L : 0;
@@ -10837,12 +10795,12 @@ int32_t get_register(int32_t arg)
 		case GENDATADATA:
 		{
 			ret = 0;
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Data[]"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= scr->dataSize())
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->Data[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ret = scr->data[indx];
@@ -10852,12 +10810,12 @@ int32_t get_register(int32_t arg)
 		case GENDATAINITD:
 		{
 			ret = 0;
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "InitD[]"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->InitD[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ret = scr->initd[indx];
@@ -10870,77 +10828,77 @@ int32_t get_register(int32_t arg)
 		case PORTALX:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(ri->portalref, "X"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->x.getZLong();
 			break;
 		}
 		case PORTALY:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(ri->portalref, "Y"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->y.getZLong();
 			break;
 		}
 		case PORTALDMAP:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(ri->portalref, "DMap"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->destdmap*10000;
 			break;
 		}
 		case PORTALSCREEN:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(ri->portalref, "Screen"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->destscr*10000;
 			break;
 		}
 		case PORTALACLK:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(ri->portalref, "AClk"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->aclk*10000;
 			break;
 		}
 		case PORTALAFRM:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(ri->portalref, "AFrame"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->aframe*10000;
 			break;
 		}
 		case PORTALOTILE:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(ri->portalref, "OriginalTile"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->o_tile*10000;
 			break;
 		}
 		case PORTALASPD:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(ri->portalref, "ASpeed"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->aspd*10000;
 			break;
 		}
 		case PORTALFRAMES:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(ri->portalref, "Frames"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->frames*10000;
 			break;
 		}
 		case PORTALSAVED:
 		{
 			ret = 0;
-			if(portal* p = checkPortal(ri->portalref, "SavedPortal"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->saved_data;
 			break;
 		}
 		case PORTALCLOSEDIS:
 		{
 			ret = 0;
-			if(portal* p = checkPortal(ri->portalref, "CloseDisabled"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->prox_active ? 0 : 10000; //Inverted
 			break;
 		}
@@ -10957,84 +10915,84 @@ int32_t get_register(int32_t arg)
 		case PORTALWARPSFX:
 		{
 			ret = 0;
-			if(portal* p = checkPortal(ri->portalref, "WarpSFX"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->wsfx ? 0 : 10000;
 			break;
 		}
 		case PORTALWARPVFX:
 		{
 			ret = 0;
-			if(portal* p = checkPortal(ri->portalref, "WarpEffect"))
+			if(portal* p = checkPortal(ri->portalref))
 				ret = p->weffect ? 0 : 10000;
 			break;
 		}
 		case SAVEDPORTALX:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "X"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = p->x;
 			break;
 		}
 		case SAVEDPORTALY:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Y"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = p->y;
 			break;
 		}
 		case SAVEDPORTALSRCDMAP:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "SrcDMap"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = p->srcdmap * 10000;
 			break;
 		}
 		case SAVEDPORTALDESTDMAP:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "DestDMap"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = p->destdmap * 10000;
 			break;
 		}
 		case SAVEDPORTALSRCSCREEN:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "SrcScreen"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = p->srcscr * 10000;
 			break;
 		}
 		case SAVEDPORTALDSTSCREEN:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "DestScreen"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = p->destscr * 10000;
 			break;
 		}
 		case SAVEDPORTALWARPSFX:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "WarpSFX"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = p->sfx * 10000;
 			break;
 		}
 		case SAVEDPORTALWARPVFX:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "WarpEffect"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = p->warpfx * 10000;
 			break;
 		}
 		case SAVEDPORTALSPRITE:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Sprite"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = p->spr * 10000;
 			break;
 		}
 		case SAVEDPORTALPORTAL:
 		{
 			ret = 0;
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Portal"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				ret = getPortalFromSaved(p);
 			break;
 		}
@@ -11079,14 +11037,14 @@ int32_t get_register(int32_t arg)
 		
 		case SUBDATACURPG:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CurPage"))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 				if(sub->sub_type == sstACTIVE)
 					ret = 10000*sub->curpage;
 			break;
 		}
 		case SUBDATANUMPG:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "NumPages"))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 			{
 				if(sub->sub_type == sstACTIVE)
 					ret = 10000*sub->pages.size();
@@ -11096,7 +11054,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATAPAGES:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Pages[]"))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				size_t sz = sub->sub_type == sstACTIVE ? sub->pages.size() : 1;
@@ -11115,13 +11073,13 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATYPE:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Type"))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 				ret = sub->sub_type*10000;
 			break;
 		}
 		case SUBDATAFLAGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Flags[]"))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				size_t sz = 0;
@@ -11150,7 +11108,7 @@ int32_t get_register(int32_t arg)
 		///---- ACTIVE SUBSCREENS ONLY
 		case SUBDATACURSORPOS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CursorPos", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				SubscrPage& pg = sub->cur_page();
 				ret = pg.cursor_pos * 10000;
@@ -11159,13 +11117,13 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATASCRIPT:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Script", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				ret = sub->script * 10000;
 			break;
 		}
 		case SUBDATAINITD:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "InitD[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -11180,7 +11138,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATABTNLEFT:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageLeft[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -11195,7 +11153,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATABTNRIGHT:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageRight[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -11210,7 +11168,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSLEFTTY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftType", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_left;
 				ret = trans.type * 10000;
@@ -11219,7 +11177,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSLEFTSFX:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftSFX", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_left;
 				ret = trans.tr_sfx * 10000;
@@ -11228,7 +11186,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSLEFTFLAGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftFlags[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_left;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -11244,7 +11202,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSLEFTARGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftArgs[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_left;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -11260,7 +11218,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSRIGHTTY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightType", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_right;
 				ret = trans.type * 10000;
@@ -11269,7 +11227,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSRIGHTSFX:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightSFX", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_right;
 				ret = trans.tr_sfx * 10000;
@@ -11278,7 +11236,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSRIGHTFLAGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightFlags[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_right;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -11294,7 +11252,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSRIGHTARGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightArgs[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_right;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -11310,31 +11268,31 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATASELECTORDSTX:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestX", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				ret = sub->selector_setting.x * 10000;
 			break;
 		}
 		case SUBDATASELECTORDSTY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestY", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				ret = sub->selector_setting.y * 10000;
 			break;
 		}
 		case SUBDATASELECTORDSTW:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestW", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				ret = sub->selector_setting.w * 10000;
 			break;
 		}
 		case SUBDATASELECTORDSTH:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestH", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				ret = sub->selector_setting.h * 10000;
 			break;
 		}
 		case SUBDATASELECTORWID:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestWid", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11349,7 +11307,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATASELECTORHEI:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestHei", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11364,7 +11322,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATASELECTORTILE:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorTile", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11379,7 +11337,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATASELECTORCSET:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorCSet", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11397,7 +11355,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATASELECTORFLASHCSET:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFlashCSet", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11415,7 +11373,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATASELECTORFRM:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFrames", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11430,7 +11388,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATASELECTORASPD:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorASpeed", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11445,7 +11403,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATASELECTORDELAY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDelay", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11462,7 +11420,7 @@ int32_t get_register(int32_t arg)
 		case SUBDATATRANSCLK:
 		{
 			ret = -10000;
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransClock", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				if(sub != new_subscreen_active)
 					Z_scripterrlog("'subscreendata->TransClock' is only"
@@ -11474,7 +11432,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSTY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransType", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = subscr_pg_transition;
 				if(sub != new_subscreen_active)
@@ -11487,7 +11445,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSFLAGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFlags[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = subscr_pg_transition;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -11506,7 +11464,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSARGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransArgs[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = subscr_pg_transition;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -11525,7 +11483,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSFROMPG:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFromPage", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				if(sub != new_subscreen_active)
 					Z_scripterrlog("'subscreendata->TransFromPage' is only"
@@ -11537,7 +11495,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBDATATRANSTOPG:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransToPage", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				if(sub != new_subscreen_active)
 					Z_scripterrlog("'subscreendata->TransToPage' is only"
@@ -11551,26 +11509,25 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		case SUBPGINDEX: 
 		{
-			if(SubscrPage* pg = checkSubPage(ri->subpageref, "Index"))
+			if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				ret = pg->getIndex() * 10000;
 			break;
 		}
 		case SUBPGNUMWIDG: 
 		{
-			if(SubscrPage* pg = checkSubPage(ri->subpageref, "NumWidgets"))
+			if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				ret = pg->size() * 10000;
 			break;
 		}
 		case SUBPGWIDGETS: 
 		{
-			if(SubscrPage* pg = checkSubPage(ri->subpageref, "Widgets[]"))
+			if(SubscrPage* pg = checkSubPage(ri->subpageref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				size_t sz = pg->size();
 				if(indx >= sz)
 				{
-					Z_scripterrlog("Bad index '%d' to array "
-						"'subscreenpage->Widgets[]' of size '%d'\n", indx, sz);
+					scripting_log_error_with_context("Bad index '{}' for array of size '{}'", indx, sz);
 				}
 				else
 				{
@@ -11582,7 +11539,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBPGSUBDATA: 
 		{
-			if(SubscrPage* pg = checkSubPage(ri->subpageref, "SubData"))
+			if(SubscrPage* pg = checkSubPage(ri->subpageref))
 			{
 				auto [sub,ty,_pgid,_ind] = from_subref(ri->subpageref);
 				ret = get_subref(sub,ty,0,0);
@@ -11591,7 +11548,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBPGCURSORPOS: 
 		{
-			if(SubscrPage* pg = checkSubPage(ri->subpageref, "CursorPos"))
+			if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				ret = pg->cursor_pos * 10000;
 			break;
 		}
@@ -11599,13 +11556,13 @@ int32_t get_register(int32_t arg)
 		///---- ANY WIDGET TYPE
 		case SUBWIDGTYPE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Type"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->getType();
 			break;
 		}
 		case SUBWIDGINDEX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Index"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto [_sub,_ty,_pgid,ind] = from_subref(ri->subwidgref);
 				ret = 10000*ind;
@@ -11614,7 +11571,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGDISPITM:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "DisplayItem"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				ret = 10000*widg->getDisplayItem();
 			}
@@ -11622,7 +11579,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGEQPITM:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "EquipItem"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				ret = 10000*widg->getItemVal();
 			}
@@ -11630,7 +11587,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGPAGE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Page"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto [sub,ty,pgid,_ind] = from_subref(ri->subwidgref);
 				ret = get_subref(sub,ty,pgid,0);
@@ -11639,13 +11596,13 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGPOS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Pos"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->pos;
 			break;
 		}
 		case SUBWIDGPOSES:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PosDirs"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 4)
@@ -11677,7 +11634,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGPOSFLAG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VisibleFlags"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= sspNUM)
@@ -11691,55 +11648,55 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "X"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->x;
 			break;
 		}
 		case SUBWIDGY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Y"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->y;
 			break;
 		}
 		case SUBWIDGW:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "W"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->w;
 			break;
 		}
 		case SUBWIDGH:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "H"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->h;
 			break;
 		}
 		case SUBWIDG_DISPX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "X"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->getX();
 			break;
 		}
 		case SUBWIDG_DISPY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Y"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->getY();
 			break;
 		}
 		case SUBWIDG_DISPW:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "W"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->getW();
 			break;
 		}
 		case SUBWIDG_DISPH:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "H"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				ret = 10000*widg->getH();
 			break;
 		}
 		case SUBWIDGGENFLAG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GenFlags"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCRFLAG_GEN_COUNT)
@@ -11753,7 +11710,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGFLAG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flags"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				byte sz = widg->numFlags();
@@ -11769,31 +11726,31 @@ int32_t get_register(int32_t arg)
 		///---- ACTIVE SUBSCREENS ONLY
 		case SUBWIDGSELECTORDSTX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestX", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				ret = 10000*widg->selector_override.x;
 			break;
 		}
 		case SUBWIDGSELECTORDSTY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestY", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				ret = 10000*widg->selector_override.y;
 			break;
 		}
 		case SUBWIDGSELECTORDSTW:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestW", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				ret = 10000*widg->selector_override.w;
 			break;
 		}
 		case SUBWIDGSELECTORDSTH:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestH", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				ret = 10000*widg->selector_override.h;
 			break;
 		}
 		case SUBWIDGSELECTORWID:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestWid", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11807,7 +11764,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGSELECTORHEI:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestHei", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11821,7 +11778,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGSELECTORTILE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorTile", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11835,7 +11792,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGSELECTORCSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorCSet", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11849,7 +11806,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGSELECTORFLASHCSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorFlashCSet", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11863,7 +11820,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGSELECTORFRM:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorFrames", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11877,7 +11834,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGSELECTORASPD:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorASpeed", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11891,7 +11848,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGSELECTORDELAY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDelay", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -11906,13 +11863,13 @@ int32_t get_register(int32_t arg)
 				
 		case SUBWIDGPRESSSCRIPT:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PressScript", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				ret = 10000*widg->generic_script;
 			break;
 		}
 		case SUBWIDGPRESSINITD:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PressInitD[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -11926,7 +11883,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGBTNPRESS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "BtnPressScript[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -11940,7 +11897,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGBTNPG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "BtnPageChange[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -11954,20 +11911,20 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGPGMODE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageMode", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				ret = 10000*widg->pg_mode;
 			break;
 		}
 		case SUBWIDGPGTARG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TargetPage", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				ret = 10000*widg->pg_targ;
 			break;
 		}
 		
 		case SUBWIDGTRANSPGTY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransType", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				auto& trans = widg->pg_trans;
 				ret = 10000*trans.type;
@@ -11976,7 +11933,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTRANSPGSFX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransSFX", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				auto& trans = widg->pg_trans;
 				ret = 10000*trans.tr_sfx;
@@ -11985,7 +11942,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTRANSPGFLAGS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransFlags[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				auto& trans = widg->pg_trans;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -12000,7 +11957,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTRANSPGARGS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransArgs[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				auto& trans = widg->pg_trans;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -12016,7 +11973,7 @@ int32_t get_register(int32_t arg)
 		///---- VARYING WIDGET TYPES
 		case SUBWIDGTY_CSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CSet[]"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				size_t sz = 0;
@@ -12036,7 +11993,7 @@ int32_t get_register(int32_t arg)
 						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("CSet[]", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12072,7 +12029,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_TILE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Tile"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				size_t sz = 0;
@@ -12092,7 +12049,7 @@ int32_t get_register(int32_t arg)
 						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("Tile[]", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12128,7 +12085,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_FONT:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Font"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12158,7 +12115,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_MMapTitle*)widg)->fontid;
 						break;
 					default:
-						bad_subwidg_type("Font", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12167,7 +12124,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_ALIGN:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Align"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12194,7 +12151,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_MMapTitle*)widg)->align;
 						break;
 					default:
-						bad_subwidg_type("Align", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12203,7 +12160,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_SHADOWTY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShadowType"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12233,7 +12190,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_MMapTitle*)widg)->shadtype;
 						break;
 					default:
-						bad_subwidg_type("ShadowType", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12242,7 +12199,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_TXT:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12275,7 +12232,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_TriFrame*)widg)->c_number.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorText", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12283,7 +12240,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_SHD:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12313,7 +12270,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_MMapTitle*)widg)->c_shadow.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorShadow", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12321,7 +12278,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_BG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12354,7 +12311,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_Clear*)widg)->c_bg.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorBG", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12363,7 +12320,7 @@ int32_t get_register(int32_t arg)
 		
 		case SUBWIDGTY_COLOR_TXT2:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText2"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12375,7 +12332,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_BtnCounter*)widg)->c_text2.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorText2", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12383,7 +12340,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_SHD2:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow2"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12395,7 +12352,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_BtnCounter*)widg)->c_shadow2.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorShadow2", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12403,7 +12360,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_BG2:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG2"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12415,7 +12372,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_BtnCounter*)widg)->c_bg2.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorBG2", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12423,7 +12380,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_OLINE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorOutline"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12438,7 +12395,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_TriFrame*)widg)->c_outline.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorOutline", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12446,7 +12403,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_FILL:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorFill"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12455,7 +12412,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_Rect*)widg)->c_fill.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorFill", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12463,7 +12420,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_BUTTON:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Button"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12475,7 +12432,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_BtnCounter*)widg)->btn;
 						break;
 					default:
-						bad_subwidg_type("Button", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12484,7 +12441,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COUNTERS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counter[]"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				size_t sz = 0;
@@ -12499,7 +12456,7 @@ int32_t get_register(int32_t arg)
 						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("Counter[]", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12524,7 +12481,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_MINDIG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MinDigits"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12539,7 +12496,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_Counters*)widg)->digits;
 						break;
 					default:
-						bad_subwidg_type("MinDigits", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12548,7 +12505,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_MAXDIG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MaxDigits"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12560,7 +12517,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_BtnCounter*)widg)->maxdigits;
 						break;
 					default:
-						bad_subwidg_type("MaxDigits", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12569,7 +12526,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_INFITM:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteItem"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12586,7 +12543,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->inf_item;
 						break;
 					default:
-						bad_subwidg_type("InfiniteItem", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12595,7 +12552,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_INFCHAR:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteChar"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12610,7 +12567,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*byte(((SW_BtnCounter*)widg)->infchar);
 						break;
 					default:
-						bad_subwidg_type("InfiniteChar", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12618,7 +12575,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COSTIND:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CostIndex"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12627,7 +12584,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_BtnCounter*)widg)->costind;
 						break;
 					default:
-						bad_subwidg_type("CostIndex", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -1;
 						break;
 				}
@@ -12636,7 +12593,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_PLAYER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorPlayer"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12648,7 +12605,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_LMap*)widg)->c_plr.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorPlayer", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12656,7 +12613,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_CMPBLNK:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassBlink"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12665,7 +12622,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_MMap*)widg)->c_cmp_blink.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorCompassBlink", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12673,7 +12630,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_CMPOFF:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassOff"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12682,7 +12639,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_MMap*)widg)->c_cmp_off.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorCompassOff", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12690,7 +12647,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_COLOR_ROOM:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorRoom"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12699,7 +12656,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_LMap*)widg)->c_room.get_int_color();
 						break;
 					default:
-						bad_subwidg_type("ColorRoom", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12707,7 +12664,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_ITEMCLASS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemClass"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12716,7 +12673,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_ItemSlot*)widg)->iclass;
 						break;
 					default:
-						bad_subwidg_type("ItemClass", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12724,7 +12681,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_ITEMID:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemID"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12733,7 +12690,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_ItemSlot*)widg)->iid;
 						break;
 					default:
-						bad_subwidg_type("ItemID", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12741,7 +12698,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_FRAMETILE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameTile"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12750,7 +12707,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_TriFrame*)widg)->frame_tile;
 						break;
 					default:
-						bad_subwidg_type("FrameTile", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12758,7 +12715,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_FRAMECSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameCSet"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12767,7 +12724,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_TriFrame*)widg)->frame_cset;
 						break;
 					default:
-						bad_subwidg_type("FrameCSet", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12775,7 +12732,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_PIECETILE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceTile"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12784,7 +12741,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_TriFrame*)widg)->piece_tile;
 						break;
 					default:
-						bad_subwidg_type("PieceTile", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12792,7 +12749,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_PIECECSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceCSet"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12801,7 +12758,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_TriFrame*)widg)->piece_cset;
 						break;
 					default:
-						bad_subwidg_type("PieceCSet", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12809,7 +12766,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_FLIP:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flip"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12824,7 +12781,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_MiniTile*)widg)->flip;
 						break;
 					default:
-						bad_subwidg_type("Flip", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12832,7 +12789,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_NUMBER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Number"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12841,7 +12798,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_McGuffin*)widg)->number;
 						break;
 					default:
-						bad_subwidg_type("Number", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -12849,7 +12806,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_CORNER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Corner"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				size_t sz = 0;
@@ -12866,7 +12823,7 @@ int32_t get_register(int32_t arg)
 						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("Corner[]", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12893,7 +12850,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_FRAMES:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Frames"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12904,7 +12861,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->frames;
 						break;
 					default:
-						bad_subwidg_type("Frames", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12913,7 +12870,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_SPEED:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Speed"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12924,7 +12881,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->speed;
 						break;
 					default:
-						bad_subwidg_type("Speed", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12933,7 +12890,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_DELAY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Delay"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12944,7 +12901,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->delay;
 						break;
 					default:
-						bad_subwidg_type("Delay", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12953,7 +12910,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_CONTAINER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Container"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12964,7 +12921,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->container;
 						break;
 					default:
-						bad_subwidg_type("Container", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12973,7 +12930,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_GAUGE_WID:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeWid"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -12984,7 +12941,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*(((SW_GaugePiece*)widg)->gauge_wid+1);
 						break;
 					default:
-						bad_subwidg_type("GaugeWid", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -12993,7 +12950,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_GAUGE_HEI:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeHei"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13004,7 +12961,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*(((SW_GaugePiece*)widg)->gauge_hei+1);
 						break;
 					default:
-						bad_subwidg_type("GaugeHei", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13013,7 +12970,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_UNITS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Units"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13024,7 +12981,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*(((SW_GaugePiece*)widg)->unit_per_frame+1);
 						break;
 					default:
-						bad_subwidg_type("Units", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13033,7 +12990,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_HSPACE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "HSpace"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13044,7 +13001,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->hspace;
 						break;
 					default:
-						bad_subwidg_type("HSpace", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13053,7 +13010,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_VSPACE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VSpace"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13064,7 +13021,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->vspace;
 						break;
 					default:
-						bad_subwidg_type("VSpace", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13073,7 +13030,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_GRIDX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridX"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13084,7 +13041,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->grid_xoff;
 						break;
 					default:
-						bad_subwidg_type("GridX", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13093,7 +13050,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_GRIDY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridY"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13104,7 +13061,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->grid_yoff;
 						break;
 					default:
-						bad_subwidg_type("GridY", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13113,7 +13070,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_ANIMVAL:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "AnimVal"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13124,7 +13081,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_GaugePiece*)widg)->anim_val;
 						break;
 					default:
-						bad_subwidg_type("AnimVal", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13133,7 +13090,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_SHOWDRAIN:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShowDrain"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13142,7 +13099,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_MagicGaugePiece*)widg)->showdrain;
 						break;
 					default:
-						bad_subwidg_type("ShowDrain", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13151,7 +13108,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_PERCONTAINER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PerContainer"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13160,7 +13117,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_MiscGaugePiece*)widg)->per_container;
 						break;
 					default:
-						bad_subwidg_type("PerContainer", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13169,7 +13126,7 @@ int32_t get_register(int32_t arg)
 		}
 		case SUBWIDGTY_TABSIZE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TabSize"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto ty = widg->getType();
 				switch(ty)
@@ -13181,7 +13138,7 @@ int32_t get_register(int32_t arg)
 						ret = 10000*((SW_SelectedText*)widg)->tabsize;
 						break;
 					default:
-						bad_subwidg_type("TabSize", false, ty);
+						bad_subwidg_type(false, ty);
 						ret = -10000;
 						break;
 				}
@@ -13197,7 +13154,9 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 	}
-		
+
+	current_zasm_register = 0;
+
 	return ret;
 }
 
@@ -13242,7 +13201,10 @@ void set_register(int32_t arg, int32_t value)
 			wpnsbuf[ri->spritedataref].member = vbound((value / 10000),0,255); \
 		} \
 	} \
-	
+
+	current_zasm_register = arg;
+
+	// Do not ever use `return` in these cases!
 	switch(arg)
 	{
 		//debug ri->d[]
@@ -13256,14 +13218,14 @@ void set_register(int32_t arg, int32_t value)
 	///----------------------------------------------------------------------------------------------------//
 	//FFC Variables
 		case DATA:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Data"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 			{
 				zc_ffc_set(*ffc, vbound(value/10000,0,MAXCOMBOS-1));
 			}
 			break;
 		
 		case FFSCRIPT:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Script"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 			{
 				ffc->script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
 				for(int32_t i=0; i<16; i++)
@@ -13279,32 +13241,32 @@ void set_register(int32_t arg, int32_t value)
 			
 			
 		case FCSET:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->CSet"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->cset = (value/10000)&15;
 			break;
 			
 		case DELAY:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Delay"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->delay = value/10000;
 			break;
 			
 		case FX:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->X"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->x = zslongToFix(value);
 			break;
 			
 		case FY:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Y"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->y=zslongToFix(value);
 			break;
 			
 		case XD:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Vx"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->vx=zslongToFix(value);
 			break;
 			
 		case YD:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Vy"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->vy=zslongToFix(value);
 			break;
 		
@@ -13312,17 +13274,17 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case XD2:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Ax"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->ax=zslongToFix(value);
 			break;
 			
 		case YD2:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Ay"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->ay=zslongToFix(value);
 			break;
 			
 		case FFFLAGSD:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Flags[]"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 			{
 				ffc_flags flag = (ffc_flags)(1<<((ri->d[rINDEX])/10000));
 				SETFLAG(ffc->flags, flag, value);
@@ -13332,32 +13294,32 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case FFCWIDTH:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->EffectWidth"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->hit_width = (value/10000);
 			break;
 			
 		case FFCHEIGHT:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->EffectHeight"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->hit_height = (value/10000);
 			break;
 			
 		case FFTWIDTH:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->TileWidth"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->txsz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFTHEIGHT:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->TileHeight"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->tysz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFCLAYER:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Layer"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->layer = vbound(value/10000, 0, 7);
 			break;
 			
 		case FFLINK:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Link"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				(ffc->link)=vbound(value/10000, 0, MAXFFCS-1); // Allow "ffc->Link = 0" to unlink ffc.
 			//0 is none, setting this before made it impssible to clear it. -Z
 			break;
@@ -13365,23 +13327,23 @@ void set_register(int32_t arg, int32_t value)
 		case FFMISCD:
 		{
 			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Misc[]"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				ffc->miscellaneous[a]=value;
 			break;
 		}
 		
 		case FFINITDD:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->InitD[]") )
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				(ffc->initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
 			break;
 			
 		case FFCLASTCHANGERX:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->LastChangerX") )
+			if (auto ffc = ResolveFFC(ri->ffcref) )
 				ffc->changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 			
 		case FFCLASTCHANGERY:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->LastChangerY") )
+			if (auto ffc = ResolveFFC(ri->ffcref) )
 				ffc->changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 		
@@ -13895,8 +13857,7 @@ void set_register(int32_t arg, int32_t value)
 		case LINKROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Hero->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
 			(Hero.rotation)=(value/10000);
@@ -13906,8 +13867,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Hero->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
 			(Hero.scale)=(value/100.0);
@@ -14201,7 +14161,7 @@ void set_register(int32_t arg, int32_t value)
 		case HEROMOVEFLAGS:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(BC::checkBounds(indx, 0, 10, "Hero->MoveFlags[]") == SH::_NoError)
+			if(BC::checkIndex(indx, 0, 10) == SH::_NoError)
 			{
 				//All bits, in order, of a single byte; just use bitwise
 				move_flags bit = (move_flags)(1<<indx);
@@ -14215,7 +14175,7 @@ void set_register(int32_t arg, int32_t value)
 		case HEROLIFTFLAGS:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(BC::checkBounds(indx, 0, NUM_LIFTFL-1, "Hero->LiftFlags[]") == SH::_NoError)
+			if(BC::checkIndex(indx, 0, NUM_LIFTFL-1) == SH::_NoError)
 			{
 				lift_flags bit = (lift_flags)(1<<indx);
 				if(value)
@@ -14295,7 +14255,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			if(value)
 			{
-				if(weapon* wpn = checkLWpn(value,"Hero->LiftedWeapon"))
+				if(weapon* wpn = checkLWpn(value))
 				{
 					if(wpn == Hero.lift_wpn) break;
 					Hero.lift_wpn = wpn;
@@ -14513,19 +14473,19 @@ void set_register(int32_t arg, int32_t value)
 			button_press[13]=(value?true:false);
 			break;
 			
-		case INPUTPRESSAXISUP:
+		case PRESSAXISUP:
 			button_press[14]=(value?true:false);
 			break;
 			
-		case INPUTPRESSAXISDOWN:
+		case PRESSAXISDOWN:
 			button_press[15]=(value?true:false);
 			break;
 			
-		case INPUTPRESSAXISLEFT:
+		case PRESSAXISLEFT:
 			button_press[16]=(value?true:false);
 			break;
 			
-		case INPUTPRESSAXISRIGHT:
+		case PRESSAXISRIGHT:
 			button_press[17]=(value?true:false);
 			break;
 			
@@ -14588,14 +14548,14 @@ void set_register(int32_t arg, int32_t value)
 		case RAWKEY:
 		{
 			int32_t keyid = ri->d[rINDEX]/10000;
-			if (write_array(key_current_frame, keyid, (bool)value, "Input->KeyRaw"))
+			if (write_array(key_current_frame, keyid, (bool)value))
 				key[keyid] = _key[keyid] = (bool)value;
 		}
 		break;
 		
 		case KEYINPUT:
 		{
-			write_array(KeyInput, ri->d[rINDEX]/10000, (value/10000)!=0, "Input->Key");
+			write_array(KeyInput, ri->d[rINDEX]/10000, (value/10000)!=0);
 			switch(ri->d[rINDEX]/10000)
 			{
 				case KEY_F6: onTryQuit(); break;
@@ -14606,7 +14566,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case KEYPRESS:
 		{
-			write_array(KeyPress, ri->d[rINDEX]/10000, (value/10000)!=0, "Input->KeyPress");
+			write_array(KeyPress, ri->d[rINDEX]/10000, (value/10000)!=0);
 			break;
 		}
 		
@@ -14664,7 +14624,7 @@ void set_register(int32_t arg, int32_t value)
 					break;
 
 				default:
-					write_array(disabledKeys, keyid, (bool)value, "Input->DisableKey");
+					write_array(disabledKeys, keyid, (bool)value);
 			}
 			break;
 		}
@@ -14672,7 +14632,7 @@ void set_register(int32_t arg, int32_t value)
 		case DISABLEBUTTON:
 		{
 			//Input->DisableButton(int32_t cb, bool disable)
-			write_array(disable_control, ri->d[rINDEX]/10000, (bool)value, "Input->DisableButton");
+			write_array(disable_control, ri->d[rINDEX]/10000, (bool)value);
 			break;
 		}
 		
@@ -14721,7 +14681,7 @@ void set_register(int32_t arg, int32_t value)
 				}
 				default:
 				{
-					Z_scripterrlog("Invalid index passed to Input->Mouse[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 				}
 			}
 				
@@ -14735,7 +14695,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAFAMILY:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].family)=vbound(value/10000,0, 254);
@@ -14745,7 +14705,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAUSEWPN:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].useweapon)=vbound(value/10000, 0, 255);
@@ -14753,7 +14713,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAUSEDEF:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].usedefence)=vbound(value/10000, 0, 255);
@@ -14761,7 +14721,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAWRANGE:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weaprange)=vbound(value/10000, 0, 255);
@@ -14769,7 +14729,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAMAGICTIMER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].magiccosttimer[0])=vbound(value/10000, 0, 214747);
@@ -14777,7 +14737,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAMAGICTIMER2:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].magiccosttimer[1])=vbound(value/10000, 0, 214747);
@@ -14785,7 +14745,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATADURATION:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weapduration)=vbound(value/10000, 0, 255);
@@ -14794,7 +14754,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATADUPLICATES:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].duplicates)=vbound(value/10000, 0, 255);
@@ -14802,7 +14762,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATADRAWLAYER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].drawlayer)=vbound(value/10000, 0, 7);
@@ -14810,7 +14770,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATACOLLECTFLAGS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			//int32_t a = ri->d[rINDEX] / 10000;
@@ -14819,7 +14779,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAWEAPONSCRIPT:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weaponscript)=vbound(value/10000, 0, 255);
@@ -14828,7 +14788,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,31);
@@ -14839,7 +14799,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
@@ -14849,7 +14809,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAWEAPHXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weap_hxofs)=(value/10000);
@@ -14857,7 +14817,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAWEAPHYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weap_hyofs)=(value/10000);
@@ -14865,7 +14825,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAWEAPHXSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weap_hxsz)=(value/10000);
@@ -14873,7 +14833,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAWEAPHYSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weap_hysz)=(value/10000);
@@ -14881,7 +14841,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAWEAPHZSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weap_hzsz)=(value/10000);
@@ -14889,7 +14849,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAWEAPXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weap_xofs)=(value/10000);
@@ -14897,7 +14857,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAWEAPYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weap_yofs)=(value/10000);
@@ -14907,7 +14867,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAHXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].hxofs)=(value/10000);
@@ -14915,7 +14875,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAHYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].hyofs)=(value/10000);
@@ -14923,7 +14883,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAHXSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].hxsz)=(value/10000);
@@ -14931,7 +14891,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAHYSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].hysz)=(value/10000);
@@ -14939,7 +14899,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAHZSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].hzsz)=(value/10000);
@@ -14947,7 +14907,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATADXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].xofs)=(value/10000);
@@ -14955,7 +14915,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATADYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].yofs)=(value/10000);
@@ -14963,7 +14923,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATATILEW:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].tilew)=(value/10000);
@@ -14971,7 +14931,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATATILEH:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].tileh)=(value/10000);
@@ -14979,7 +14939,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAPICKUP:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].pickup)=(value/10000);
@@ -14987,7 +14947,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAOVERRIDEFL:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].overrideFLAGS)=(value/10000);
@@ -14996,7 +14956,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATATILEWWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weap_tilew)=(value/10000);
@@ -15004,7 +14964,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATATILEHWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weap_tileh)=(value/10000);
@@ -15012,7 +14972,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAOVERRIDEFLWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].weapoverrideFLAGS)=(value/10000);
@@ -15022,7 +14982,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
@@ -15033,7 +14993,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATALEVEL:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].fam_type)=vbound(value/10000, 0, 512);
@@ -15046,7 +15006,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			int32_t v = vbound(value/10000, -9999, 16383);
@@ -15058,7 +15018,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			SETFLAG(itemsbuf[ri->idata].amount, 0x8000, value!=0);
@@ -15085,7 +15045,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].setmax)=value/10000;
@@ -15094,7 +15054,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].max)=value/10000;
@@ -15103,7 +15063,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAPOWER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].power)=value/10000;
@@ -15112,7 +15072,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATACOUNTER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].count)=vbound(value/10000,0,31);
@@ -15121,7 +15081,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAPSOUND:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].playsound)=vbound(value/10000, 0, 255);
@@ -15130,7 +15090,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAUSESOUND:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].usesound)=vbound(value/10000, 0, 255);
@@ -15139,7 +15099,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAUSESOUND2:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].usesound2)=vbound(value/10000, 0, 255);
@@ -15168,7 +15128,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
@@ -15251,7 +15211,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATASCRIPT:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			FFScript::deallocateAllScriptOwned(ScriptType::Item, ri->idata);
@@ -15260,7 +15220,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATASPRSCRIPT:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].sprite_script=vbound(value/10000,0,255);
@@ -15274,7 +15234,7 @@ void set_register(int32_t arg, int32_t value)
 			int val = value/((arg==IDATAATTRIB_L)?1:10000);
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
@@ -15313,7 +15273,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
@@ -15341,7 +15301,7 @@ void set_register(int32_t arg, int32_t value)
 				case 9:
 					itemsbuf[ri->idata].wpn10 = val; break;
 				default:
-					Z_scripterrlog("Invalid index to itemdata->Sprites[]: %d\n", index);
+					scripting_log_error_with_context("Invalid index: {}", index);
 					break;
 			}
 			break;
@@ -15350,13 +15310,13 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
 			if(index < 0 || index >= WPNSPR_MAX)
 			{
-				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
+				scripting_log_error_with_context("Invalid index: {}", index);
 				break;
 			}
 			itemsbuf[ri->idata].burnsprs[index] = vbound(value/10000, 0, 255);
@@ -15366,13 +15326,13 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
 			if(index < 0 || index >= WPNSPR_MAX)
 			{
-				Z_scripterrlog("Invalid index to itemdata->BurnLightRadius[]: %d\n", index);
+				scripting_log_error_with_context("Invalid index: {}", index);
 				break;
 			}
 			itemsbuf[ri->idata].light_rads[index] = vbound(value/10000, 0, 255);
@@ -15383,7 +15343,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			auto new_value = value/10000;
@@ -15397,7 +15357,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			//Need to get collect script ref, not standard idata ref!
@@ -15410,7 +15370,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAPSTRING:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].pstring=vbound(value/10000, 1, 255);
@@ -15418,7 +15378,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAPFLAGS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].pickup_string_flags=vbound(value/10000, 0, 214748);
@@ -15427,7 +15387,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAMAGCOST:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].cost_amount[0]=vbound(value/10000,32767,-32768);
@@ -15435,7 +15395,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATACOST2:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].cost_amount[1]=vbound(value/10000,32767,-32768);
@@ -15444,7 +15404,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATACOSTCOUNTER:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].cost_counter[0]=(vbound(value/10000,-1,32));
@@ -15452,7 +15412,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATACOSTCOUNTER2:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].cost_counter[1]=(vbound(value/10000,-1,32));
@@ -15461,7 +15421,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAMINHEARTS:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].pickup_hearts=vbound(value/10000, 0, 214748);
@@ -15470,7 +15430,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATATILE:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].tile=vbound(value/10000, 0, NEWMAXTILES-1);
@@ -15479,7 +15439,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAMISC:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].misc_flags=value/10000;
@@ -15488,7 +15448,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATACSET:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 
@@ -15504,7 +15464,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAFLASHCSET:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 
@@ -15519,7 +15479,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAFRAMES:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			(itemsbuf[ri->idata].frames)=vbound(value/10000, 0, 214748);
@@ -15528,7 +15488,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAASPEED:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].speed=vbound(value/10000, 0, 214748);
@@ -15537,7 +15497,7 @@ void set_register(int32_t arg, int32_t value)
 		case IDATADELAY:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			itemsbuf[ri->idata].delay=vbound(value/10000, 0, 214748);
@@ -15549,11 +15509,11 @@ void set_register(int32_t arg, int32_t value)
 			int32_t a = ri->d[rINDEX] / 10000;
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
 			
-			if(BC::checkBounds(a, 0, 7, "itemdata->InitD") == SH::_NoError)
+			if(BC::checkBounds(a, 0, 7) == SH::_NoError)
 				itemsbuf[ri->idata].initiald[a] = value;
 		}
 		break;
@@ -15564,17 +15524,16 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNSCALE:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"lweapon->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->scale=(zfix)(value/100.0);
 				
 			break;
 		
 		case LWPNX:
-			if(0!=(s=checkLWpn(ri->lwpn,"X")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->x=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 			break;
 		
@@ -15586,13 +15545,13 @@ void set_register(int32_t arg, int32_t value)
 		}
 			
 		case LWPNY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->y=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 			break;
 			
 		case LWPNZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->z < 0) ((weapon*)s)->z = 0_zf;
@@ -15601,19 +15560,19 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->fall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case LWPNFAKEJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn,"FakeJump")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->fakefall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case LWPNDIR:
-			if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)s)->dir=(value/10000);
 				((weapon*)s)->doAutoRotate(true);
@@ -15622,13 +15581,13 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNSPECIAL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Special")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->specialinfo=(value/10000);
 				
 			break;
 		 
 		case LWPNGRAVITY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if(value)
 					((weapon*)s)->moveflags |= move_obeys_grav;
@@ -15638,7 +15597,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNSTEP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				// fp math is bad for replay, so always ignore this QR when replay is active.
 				// TODO: can we just delete this QR? Would it actually break anything? For now,
@@ -15664,7 +15623,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Angle")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)s)->angle=(double)(value/10000.0);
 				((weapon*)(s))->doAutoRotate();
@@ -15673,7 +15632,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNDEGANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DegAngle")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				double rangle = (value / 10000.0) * (PI / 180.0);
 				((weapon*)s)->angle=(double)(rangle);
@@ -15683,7 +15642,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNVX:
-			if(0!=(s=checkLWpn(ri->lwpn,"Vx")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				double vy;
 				double vx = (value / 10000.0);
@@ -15718,7 +15677,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case LWPNVY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Vy")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				double vx;
 				double vy = (value / 10000.0);
@@ -15753,7 +15712,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNANGULAR:
-			if(0!=(s=checkLWpn(ri->lwpn,"Angular")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)s)->angular=(value!=0);
 				((weapon*)(s))->doAutoRotate(false, true);
@@ -15762,7 +15721,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNAUTOROTATE:
-			if(0!=(s=checkLWpn(ri->lwpn,"AutoRotate")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)s)->autorotate=(value!=0);
 				((weapon*)(s))->doAutoRotate(false, true);
@@ -15771,30 +15730,30 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNBEHIND:
-			if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->behind=(value!=0);
 				
 			break;
 			
 		case LWPNDRAWTYPE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawStyle")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->drawstyle=(value/10000);
 				
 			break;
 			
 		case LWPNPOWER:
-			if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->power=(value/10000);
 				
 			break;
 		/*
 		case LWPNRANGE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Range")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			((weapon*)s)->scriptrange=vbound((value/10000),0,512); //Allow it to move off-screen. -Z           
 			break;
 		*/        
 		case LWPNDEAD:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				auto dead = value/10000;
 				((weapon*)s)->dead=dead;
@@ -15803,67 +15762,67 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNID:
-			if(0!=(s=checkLWpn(ri->lwpn,"ID")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->id=(value/10000);
 				
 			break;
 			
 		case LWPNTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Tile")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->tile=(value/10000);
 				
 			break;
 		
 		case LWPNSCRIPTTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptTile")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->scripttile=vbound((value/10000),-1,NEWMAXTILES-1);
 				
 			break;
 		
 		case LWPNSCRIPTFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptFlip")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->scriptflip=vbound((value/10000),-1,127);
 				
 			break;
 			
 		case LWPNCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"CSet")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->cs=(value/10000)&15;
 				
 			break;
 			
 		case LWPNFLASHCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"FlashCSet")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->o_cset)|=(value/10000)<<4;
 				
 			break;
 			
 		case LWPNFRAMES:
-			if(0!=(s=checkLWpn(ri->lwpn,"NumFrames")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->frames=(value/10000);
 				
 			break;
 			
 		case LWPNFRAME:
-			if(0!=(s=checkLWpn(ri->lwpn,"Frame")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->aframe=(value/10000);
 				
 			break;
 			
 		case LWPNASPEED:
-			if(0!=(s=checkLWpn(ri->lwpn,"ASpeed")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->o_speed=(value/10000);
 				
 			break;
 			
 		case LWPNFLASH:
-			if(0!=(s=checkLWpn(ri->lwpn,"Flash")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->flash=(value/10000);
 				
 			break;
 			
 		case LWPNFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Flip")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->flip=(value/10000);
 				
 			break;
@@ -15871,23 +15830,22 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"lweapon->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->rotation=(value/10000);
 				
 			break;
 			
 		case LWPNEXTEND:
-			if(0!=(s=checkLWpn(ri->lwpn,"Extend")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->extend=(value/10000);
 				
 			break;
 			
 		case LWPNOTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 					((weapon*)s)->o_tile=(value/10000);
 					((weapon*)s)->ref_o_tile=(value/10000);
@@ -15899,43 +15857,43 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNOCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"OriginalCSet")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->o_cset)|=(value/10000)&15;
 				
 			break;
 			
 		case LWPNHXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitXOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->hxofs)=(value/10000);
 				
 			break;
 			
 		case LWPNHYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitYOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->hyofs)=(value/10000);
 				
 			break;
 			
 		case LWPNXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawXOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->xofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case LWPNYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
 		
 		case LWPNSHADOWXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowXOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->shadowxofs)=(zfix)(value/10000);
 				
 			break;
 		
 		case LWPNSHADOWYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowYOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->shadowyofs)=(zfix)(value/10000);
 				
 			break;
@@ -15944,43 +15902,43 @@ void set_register(int32_t arg, int32_t value)
 			break; //READ-ONLY
 			
 		case LWPNZOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawZOffset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->zofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case LWPNHXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitWidth")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->hit_width)=(value/10000);
 				
 			break;
 			
 		case LWPNHYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitHeight")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->hit_height)=(value/10000);
 				
 			break;
 			
 		case LWPNHZSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitZHeight")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->hzsz)=(value/10000);
 				
 			break;
 			
 		case LWPNTXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"TileWidth")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->txsz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case LWPNTYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"TileHeight")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)s)->tysz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case LWPNMISCD:
-			if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				(((weapon*)(s))->miscellaneous[a])=value;
@@ -15989,13 +15947,13 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNCOLLDET:
-			if(0!=(s=checkLWpn(ri->lwpn,"CollDetection")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)(s))->scriptcoldet) = value;
 
 			break;
 		
 		case LWPNENGINEANIMATE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)(s))->do_animation)=value;
 				
 			break;
@@ -16004,19 +15962,19 @@ void set_register(int32_t arg, int32_t value)
 		{
 			//int32_t pitm = (vbound(value/10000,1,(MAXITEMS-1)));
 					
-			if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)(s))->parentitem)=(vbound(value/10000,-1,(MAXITEMS-1)));
 			break;
 		}
 
 		case LWPNLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Level")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 				(((weapon*)(s))->type)=value/10000;
 				
 			break;
 		
 		case LWPNSCRIPT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Script")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
@@ -16029,13 +15987,13 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case LWPNUSEWEAPON:
-			if(0!=(s=checkLWpn(ri->lwpn,"Weapon")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			(((weapon*)(s))->useweapon)=vbound(value/10000,0,255);
 				
 			break;
 		
 		case LWPNUSEDEFENCE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Defense")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			(((weapon*)(s))->usedefence)=vbound(value/10000,0,255);
 				
 			break;
@@ -16043,14 +16001,14 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNINITD:
 		{
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
-			if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				(((weapon*)(s))->weap_initd[a])=value;
 			}
 			break;
 		}
 		case LWPNFALLCLK:
-			if(0!=(s=checkLWpn(ri->lwpn,"Falling")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if(((weapon*)(s))->fallclk != 0 && value == 0)
 				{
@@ -16062,13 +16020,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case LWPNFALLCMB:
-			if(0!=(s=checkLWpn(ri->lwpn,"FallCombo")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case LWPNDROWNCLK:
-			if(0!=(s=checkLWpn(ri->lwpn,"Drowning")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				if(((weapon*)(s))->drownclk != 0 && value == 0)
 				{
@@ -16080,13 +16038,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case LWPNDROWNCMB:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrownCombo")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case LWPNFAKEZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"FakeZ")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = 0_zf;
@@ -16096,10 +16054,10 @@ void set_register(int32_t arg, int32_t value)
 			
 		case LWPNMOVEFLAGS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "lweapon->MoveFlags[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, 10) == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					move_flags bit = (move_flags)(1<<indx);
@@ -16113,10 +16071,10 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case LWPNFLAGS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, WFLAG_MAX-1) == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					weapon_flags bit = weapon_flags(1<<indx);
@@ -16130,48 +16088,48 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case LWPNSPRITES:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, WPNSPR_MAX-1) == SH::_NoError)
 					((weapon*)(s))->misc_wsprites[indx] = vbound(value/10000,0,255);
 			}
 			break;
 		}
 		case LWPNBURNLIGHTRADIUS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"BurnLightRadius[]")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->BurnLightRadius[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, WPNSPR_MAX-1) == SH::_NoError)
 					((weapon*)(s))->light_rads[indx] = vbound(value/10000,0,255);
 			}
 			break;
 		}
 		
 		case LWPNGLOWRAD:
-			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case LWPNGLOWSHP:
-			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case LWPNUNBL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Unblockable")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
 			}
 			break;
 			
 		case LWPNSHADOWSPR:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowSprite")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
 			}
@@ -16179,55 +16137,55 @@ void set_register(int32_t arg, int32_t value)
 		case LWSWHOOKED:
 			break; //read-only
 		case LWPNTIMEOUT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Timeout")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
 			}
 			break;
 		case LWPNDEATHITEM:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathItem")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
 			}
 			break;
 		case LWPNDEATHDROPSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathDropset")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
 			}
 			break;
 		case LWPNDEATHIPICKUP:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathItemPFlags")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->death_item_pflags = value/10000;
 			}
 			break;
 		case LWPNDEATHSPRITE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathSprite")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
 			}
 			break;
 		case LWPNDEATHSFX:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathSFX")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->death_sfx = vbound(value/10000,0,WAV_COUNT);
 			}
 			break;
 		case LWPNLIFTLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftLevel")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->lift_level = vbound(value/10000,0,255);
 			}
 			break;
 		case LWPNLIFTTIME:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftTime")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->lift_time = vbound(value/10000,0,255);
 			}
 			break;
 		case LWPNLIFTHEIGHT:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftHeight")))
+			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
 				((weapon*)(s))->lift_height = zslongToFix(value);
 			}
@@ -16238,17 +16196,16 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNSCALE:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"eweapon->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn,"Scale")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->scale=(zfix)(value/100.0);
 				
 			break;
 		
 		case EWPNX:
-			if(0!=(s=checkEWpn(ri->ewpn,"X")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->x = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
@@ -16261,13 +16218,13 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case EWPNY:
-			if(0!=(s=checkEWpn(ri->ewpn,"Y")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->y = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
 			
 		case EWPNZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"Z")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->z < 0) ((weapon*)s)->z = 0_zf;
@@ -16276,19 +16233,19 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn,"Jump")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->fall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case EWPNFAKEJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn,"FakeJump")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->fakefall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case EWPNDIR:
-			if(0!=(s=checkEWpn(ri->ewpn,"Dir")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)s)->dir=(value/10000);
 				((weapon*)s)->doAutoRotate(true);
@@ -16297,13 +16254,13 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn,"Level")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->type=(value/10000);
 				
 			break;
 		  
 		case EWPNGRAVITY:
-			if(0!=(s=checkEWpn(ri->ewpn,"Gravity")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if(value)
 					((weapon*)s)->moveflags |= move_obeys_grav;
@@ -16313,7 +16270,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNSTEP:
-			if(0!=(s=checkEWpn(ri->ewpn,"Step")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
@@ -16334,7 +16291,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Angle")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)s)->angle=(double)(value/10000.0);
 				((weapon*)(s))->doAutoRotate();
@@ -16343,7 +16300,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNDEGANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DegAngle")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				double rangle = (value / 10000.0) * (PI / 180.0);
 				((weapon*)s)->angle=(double)(rangle);
@@ -16353,7 +16310,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNVX:
-			if(0!=(s=checkEWpn(ri->ewpn,"Vx")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				double vy;
 				double vx = (value / 10000.0);
@@ -16388,7 +16345,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case EWPNVY:
-			if(0!=(s=checkEWpn(ri->ewpn,"Vy")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				double vx;
 				double vy = (value / 10000.0);
@@ -16423,7 +16380,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNANGULAR:
-			if(0!=(s=checkEWpn(ri->ewpn,"Angular")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)s)->angular=(value!=0);
 				((weapon*)(s))->doAutoRotate(false, true);
@@ -16432,7 +16389,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNAUTOROTATE:
-			if(0!=(s=checkEWpn(ri->ewpn,"AutoRotate")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)s)->autorotate=(value!=0);
 				((weapon*)(s))->doAutoRotate(false, true);
@@ -16441,25 +16398,25 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNBEHIND:
-			if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->behind=(value!=0);
 				
 			break;
 			
 		case EWPNDRAWTYPE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawStyle")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->drawstyle=(value/10000);
 				
 			break;
 			
 		case EWPNPOWER:
-			if(0!=(s=checkEWpn(ri->ewpn,"Damage")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->power=(value/10000);
 				
 			break;
 			
 		case EWPNDEAD:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeadState")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				auto dead = value/10000;
 				((weapon*)s)->dead=dead;
@@ -16469,67 +16426,67 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNID:
-			if(0!=(s=checkEWpn(ri->ewpn,"ID")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->id=(value/10000);
 				
 			break;
 			
 		case EWPNTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Tile")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->tile=(value/10000);
 				
 			break;
 			
 		case EWPNSCRIPTTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"ScriptTile")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->scripttile=vbound((value/10000),-1, NEWMAXTILES-1);
 				
 			break;
 		
 		case EWPNSCRIPTFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn,"ScriptFlip")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->scriptflip=vbound((value/10000),-1, 127);
 				
 			break;
 			
 		case EWPNCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"CSet")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->cs=(value/10000)&15;
 				
 			break;
 			
 		case EWPNFLASHCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"FlashCSet")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->o_cset)|=(value/10000)<<4;
 				
 			break;
 			
 		case EWPNFRAMES:
-			if(0!=(s=checkEWpn(ri->ewpn,"NumFrames")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->frames=(value/10000);
 				
 			break;
 			
 		case EWPNFRAME:
-			if(0!=(s=checkEWpn(ri->ewpn,"Frame")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->aframe=(value/10000);
 				
 			break;
 			
 		case EWPNASPEED:
-			if(0!=(s=checkEWpn(ri->ewpn,"ASpeed")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->o_speed=(value/10000);
 				
 			break;
 			
 		case EWPNFLASH:
-			if(0!=(s=checkEWpn(ri->ewpn,"Flash")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->flash=(value/10000);
 				
 			break;
 			
 		case EWPNFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn,"Flip")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->flip=(value/10000);
 				
 			break;
@@ -16537,23 +16494,22 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"eweapon->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'");
 				break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->rotation=(value/10000);
 				
 			break;
 			
 		case EWPNEXTEND:
-			if(0!=(s=checkEWpn(ri->ewpn,"Extend")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->extend=(value/10000);
 				
 			break;
 			
 		case EWPNOTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"OriginalTile")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)s)->o_tile=(value/10000);
 				((weapon*)s)->ref_o_tile=(value/10000);
@@ -16562,31 +16518,31 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNOCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"OriginalCSet")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->o_cset)|=(value/10000)&15;
 				
 			break;
 			
 		case EWPNHXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitXOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->hxofs)=(value/10000);
 				
 			break;
 			
 		case EWPNHYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitYOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->hyofs)=(value/10000);
 				
 			break;
 			
 		case EWPNXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawXOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->xofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
@@ -16594,55 +16550,55 @@ void set_register(int32_t arg, int32_t value)
 			break; //READ-ONLY
 			
 		case EWPNSHADOWXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowXOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->shadowxofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNSHADOWYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowYOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->shadowyofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNZOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawZOffset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->zofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNHXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitWidth")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->hit_width)=(value/10000);
 				
 			break;
 			
 		case EWPNHYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitHeight")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->hit_height)=(value/10000);
 				
 			break;
 			
 		case EWPNHZSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitZHeight")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->hzsz)=(value/10000);
 				
 			break;
 			
 		case EWPNTXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"TileWidth")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->txsz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case EWPNTYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"TileHeight")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)s)->tysz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case EWPNMISCD:
-			if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				(((weapon*)(s))->miscellaneous[a])=value;
@@ -16651,31 +16607,31 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNCOLLDET:
-			if(0!=(s=checkEWpn(ri->ewpn,"CollDetection")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)(s))->scriptcoldet)=value;
 				
 			break;
 		
 		case EWPNENGINEANIMATE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)(s))->do_animation)=value;
 				
 			break;
 		
 		
 		case EWPNPARENTUID:
-			if(0!=(s=checkEWpn(ri->ewpn, "ParentUID")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			(((weapon*)(s))->parent_uid) = value; //literal, not *10000
 			break;
 		
 		case EWPNPARENT:
-			if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				(((weapon*)(s))->parentid)= ( (get_qr(qr_OLDEWPNPARENT)) ? value / 10000 : value );
 				
 			break;
 		
 		case EWPNSCRIPT:
-			if(0!=(s=checkEWpn(ri->ewpn,"Script")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
@@ -16690,14 +16646,14 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNINITD:
 		{
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
-			if(0!=(s=checkEWpn(ri->ewpn,"InitD[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				(((weapon*)(s))->weap_initd[a])=value;
 			}
 			break;
 		}
 		case EWPNFALLCLK:
-			if(0!=(s=checkEWpn(ri->ewpn,"Falling")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if(((weapon*)(s))->fallclk != 0 && value == 0)
 				{
@@ -16709,13 +16665,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case EWPNFALLCMB:
-			if(0!=(s=checkEWpn(ri->ewpn,"FallCombo")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case EWPNDROWNCLK:
-			if(0!=(s=checkEWpn(ri->ewpn,"Drowning")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				if(((weapon*)(s))->drownclk != 0 && value == 0)
 				{
@@ -16727,13 +16683,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case EWPNDROWNCMB:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrownCombo")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case EWPNFAKEZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"FakeZ")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = 0_zf;
@@ -16743,10 +16699,10 @@ void set_register(int32_t arg, int32_t value)
 			
 		case EWPNMOVEFLAGS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "eweapon->MoveFlags[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, 10) == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					move_flags bit = (move_flags)(1<<indx);
@@ -16760,10 +16716,10 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case EWPNFLAGS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, WFLAG_MAX-1) == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					weapon_flags bit = weapon_flags(1<<indx);
@@ -16777,47 +16733,47 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case EWPNSPRITES:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"Sprites[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, WPNSPR_MAX-1) == SH::_NoError)
 					((weapon*)(s))->misc_wsprites[indx] = vbound(value/10000,0,255);
 			}
 			break;
 		}
 		case EWPNBURNLIGHTRADIUS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"BurnLightRadius[]")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->BurnLightRadius[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, WPNSPR_MAX-1) == SH::_NoError)
 					((weapon*)(s))->light_rads[indx] = vbound(value/10000,0,255);
 			}
 			break;
 		}
 		
 		case EWPNGLOWRAD:
-			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 		case EWPNGLOWSHP:
-			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case EWPNUNBL:
-			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
 			}
 			break;
 			
 		case EWPNSHADOWSPR:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowSprite")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
 			}
@@ -16825,54 +16781,54 @@ void set_register(int32_t arg, int32_t value)
 		case EWSWHOOKED:
 			break; //read-only
 		case EWPNTIMEOUT:
-			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
 			}
 			break;case EWPNDEATHITEM:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathItem")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
 			}
 			break;
 		case EWPNDEATHDROPSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathDropset")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
 			}
 			break;
 		case EWPNDEATHIPICKUP:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathItemPFlags")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->death_item_pflags = value/10000;
 			}
 			break;
 		case EWPNDEATHSPRITE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathSprite")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
 			}
 			break;
 		case EWPNDEATHSFX:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathSFX")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->death_sfx = vbound(value/10000,0,WAV_COUNT);
 			}
 			break;
 		case EWPNLIFTLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftLevel")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->lift_level = vbound(value/10000,0,255);
 			}
 			break;
 		case EWPNLIFTTIME:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftTime")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->lift_time = vbound(value/10000,0,255);
 			}
 			break;
 		case EWPNLIFTHEIGHT:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftHeight")))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
 				((weapon*)(s))->lift_height = zslongToFix(value);
 			}
@@ -16951,7 +16907,7 @@ void set_register(int32_t arg, int32_t value)
 	//BottleTypes
 		case BOTTLECOUNTER:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Counter[]"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				int32_t ctr = vbound(value/10000, -1, MAX_COUNTERS-1);
@@ -16967,7 +16923,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case BOTTLEAMOUNT:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Amount[]"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				int32_t amnt = vbound(value/10000, 0, 65535);
@@ -16983,7 +16939,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case BOTTLEPERCENT:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "IsPercent[]"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
@@ -16998,7 +16954,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case BOTTLEFLAGS:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Flags[]"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 3)
@@ -17022,7 +16978,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case BOTTLENEXT:
 		{
-			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "NextType"))
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef))
 			{
 				ptr->next_type = vbound(value/10000, 0, 64);
 			}
@@ -17032,12 +16988,12 @@ void set_register(int32_t arg, int32_t value)
 	//BottleShops
 		case BSHOPFILL:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Fill[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Fill[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ptr->fill[indx] = vbound(value/10000, 0, 64);
@@ -17047,12 +17003,12 @@ void set_register(int32_t arg, int32_t value)
 		
 		case BSHOPCOMBO:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Combo[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Combo[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ptr->comb[indx] = vbound(value/10000, 0, MAXCOMBOS-1);
@@ -17062,12 +17018,12 @@ void set_register(int32_t arg, int32_t value)
 		
 		case BSHOPCSET:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "CSet[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->CSet[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ptr->cset[indx] = vbound(value/10000, 0, 11);
@@ -17077,12 +17033,12 @@ void set_register(int32_t arg, int32_t value)
 		
 		case BSHOPPRICE:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Price[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Price[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ptr->price[indx] = vbound(value/10000, 0, 65535);
@@ -17092,12 +17048,12 @@ void set_register(int32_t arg, int32_t value)
 		
 		case BSHOPSTR:
 		{
-			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "InfoString[]"))
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(unsigned(indx) > 2)
 				{
-					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->InfoString[].\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				ptr->str[indx] = vbound(value/10000, 0, 65535);
@@ -17258,25 +17214,19 @@ void set_register(int32_t arg, int32_t value)
 
 	case VIEWPORT_TARGET:
 	{
-		sprite* s = sprite::getByUID(value);
-		if (!s)
-		{
-			Z_scripterrlog("Invalid pointer for UID %d (setting '%s').\n", value, "Viewport->Target");
-			return;
-		}
-
-		set_viewport_sprite(s);
+		if (auto s = ResolveBaseSprite(value))
+			set_viewport_sprite(s);
 	}
 	break;
 
 	case VIEWPORT_MODE:
 	{
 		int val = value;
-		if (BC::checkBounds(val, (int)ViewportMode::First, (int)ViewportMode::Last, "Viewport->Mode") != SH::_NoError)
+		if (BC::checkBounds(val, (int)ViewportMode::First, (int)ViewportMode::Last) != SH::_NoError)
 		{
-			Z_scripterrlog("invalid value for Viewport->Mode: %d\n", val);
-			return;
+			break;
 		}
+
 		viewport_mode = (ViewportMode)val;
 	}
 	break;
@@ -17296,10 +17246,9 @@ void set_register(int32_t arg, int32_t value)
 	case VIEWPORT_WIDTH:
 	{
 		int val = value / 10000;
-		if (BC::checkBounds(val, 0, 256, "Viewport->Width") != SH::_NoError)
-		{
-			return;
-		}
+		if (BC::checkBounds(val, 0, 256) != SH::_NoError)
+			break;
+
 		viewport.w = val;
 	}
 	break;
@@ -17307,10 +17256,9 @@ void set_register(int32_t arg, int32_t value)
 	case VIEWPORT_HEIGHT:
 	{
 		int val = value / 10000;
-		if (BC::checkBounds(val, 0, 232, "Viewport->Height") != SH::_NoError)
-		{
-			return;
-		}
+		if (BC::checkBounds(val, 0, 232) != SH::_NoError)
+			break;
+
 		viewport.h = val;
 	}
 	break;
@@ -17354,11 +17302,10 @@ void set_register(int32_t arg, int32_t value)
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
-			if(indx < 1 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 1, indexbound) == SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+				get_scr(ri->screenref)->member[indx-1] = vbound((value / 10000),0,255); \
 			} \
-			else get_scr(ri->screenref)->member[indx-1] = vbound((value / 10000),0,255); \
 		}
 		///max screen id is higher! vbound properly... -Z
 		#define SET_SCREENDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
@@ -17366,9 +17313,8 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			int32_t scrn_id = value/10000; \
 			if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
-			if(indx < 1 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
 			else if ( scrn_id > MAPSCRS ) \
 			{ \
@@ -17767,7 +17713,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case GDD:
-			write_array(game->global_d, ri->d[rINDEX] / 10000, value, "GDD");
+			write_array(game->global_d, ri->d[rINDEX] / 10000, value);
 			break;
 			
 		case SDDD:
@@ -17779,7 +17725,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case SCREENINITD:
-			write_array(get_scr(ri->screenref)->screeninitd, ri->d[rINDEX]/10000, value, "Screen->InitD");
+			write_array(get_scr(ri->screenref)->screeninitd, ri->d[rINDEX]/10000, value);
 			break;
 		
 		case SCREENSCRIPT:
@@ -17802,7 +17748,7 @@ void set_register(int32_t arg, int32_t value)
 			mapscr* scr = get_scr(ri->screenref);
 			int index = ri->d[rINDEX]/10000;
 			byte val = value/10000;
-			if (write_array(scr->door, index, val, "Screen->Door"))
+			if (write_array(scr->door, index, val))
 				putdoor(scr, scrollbuf, index, val, true, true);
 			break;
 		}
@@ -17822,7 +17768,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREEN_FLAG:
 		{
 			int32_t index = ri->d[rINDEX] / 10000;
-			if (BC::checkBounds(index, 0, 8*11 - 1, "Screen->Flag[]") != SH::_NoError)
+			if (BC::checkIndex(index, 0, 8*11 - 1) != SH::_NoError)
 			{
 				break;
 			}
@@ -17863,21 +17809,17 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case SCREEN_DRAW_ORIGIN:
-			if (BC::checkBounds(value, (int)DrawOrigin::First, (int)DrawOrigin::Last, "Screen-DrawOrigin") != SH::_NoError)
-				return;
+			if (BC::checkBounds(value, (int)DrawOrigin::First, (int)DrawOrigin::Last) != SH::_NoError)
+				break;
 
 			ri->screen_draw_origin = (DrawOrigin)value;
 			break;
 
 		case SCREEN_DRAW_ORIGIN_TARGET:
 		{
-			if (!sprite::getByUID(value))
-			{
-				Z_scripterrlog("Invalid pointer for UID %d (setting '%s').\n", value, "Screen->DrawOriginTarget");
-				return;
-			}
+			if (ResolveBaseSprite(value))
+				ri->screen_draw_origin_target = value;
 
-			ri->screen_draw_origin_target = value;
 			break;
 		}
 
@@ -17995,176 +17937,134 @@ void set_register(int32_t arg, int32_t value)
 	//mapdata m-> Variables
 		//mapdata m-> Variables
 		
-		#define	SET_MAPDATA_VAR_INT32(member, str) \
+		#define	SET_MAPDATA_VAR_INT32(member) \
 		{ \
-			if (mapscr *m = GetMapscr(ri->mapsref)) \
+			if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				m->member = vbound((value / 10000),-214747,214747); \
 			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
-			} \
 			break; \
 		} \
 		
-		#define	SET_MAPDATA_VAR_INT16(member, str) \
+		#define	SET_MAPDATA_VAR_INT16(member) \
 		{ \
-			if (mapscr *m = GetMapscr(ri->mapsref)) \
+			if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				m->member = vbound((value / 10000),0,32767); \
 			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
-			} \
 			break; \
 		} \
 
-		#define	SET_MAPDATA_VAR_BYTE(member, str) \
+		#define	SET_MAPDATA_VAR_BYTE(member) \
 		{ \
-			if (mapscr *m = GetMapscr(ri->mapsref)) \
+			if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				m->member = vbound((value / 10000),0,255); \
 			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
-			} \
 			break; \
 		} \
 		
-		#define SET_MAPDATA_VAR_INDEX32(member, str, indexbound) \
+		#define SET_MAPDATA_VAR_INDEX32(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
+			else if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				m->member[indx] = vbound((value / 10000),-214747,214747); \
 			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
-			} \
 			break; \
 		} \
 		
-		#define SET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
+		#define SET_MAPDATA_VAR_INDEX16(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
+			else if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				m->member[indx] = vbound((value / 10000),-32767,32767); \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
 			break; \
 		} \
 
-		#define SET_MAPDATA_BYTE_INDEX(member, str, indexbound) \
+		#define SET_MAPDATA_BYTE_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
+			else if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				m->member[indx] = vbound((value / 10000),0,255); \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
 			break; \
 		}\
 		
-		#define SET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
+		#define SET_MAPDATA_LAYER_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
-			if(indx < 1 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
+			else if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				m->member[indx-1] = vbound((value / 10000),0,255); \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
 			break; \
 		} \
 		
-		#define SET_MAPDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
+		#define SET_MAPDATA_LAYERSCREEN_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
 			if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
 			int32_t scrn_id = value/10000; \
-			if(indx < 1 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
 			else if ( scrn_id > MAPSCRS ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
 				Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
 			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
+			else if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				m->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
 			break; \
 		}\
 		
-		#define SET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
+		#define SET_MAPDATA_BOOL_INDEX(member, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
+			else if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				m->member[indx] =( (value/10000) ? 1 : 0 ); \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
 			break; \
 		} \
 
 
-		#define SET_FFC_MAPDATA_BOOL_INDEX(member, str, indexbound) \
+		#define SET_FFC_MAPDATA_BOOL_INDEX(member, indexbound) \
 		{ \
 			int32_t index = ri->d[rINDEX] / 10000; \
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str)) \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index)) \
 			{ \
 				handle.ffc->member =( (value/10000) ? 1 : 0 ); \
 			} \
 			break; \
 		} \
 		
-		#define SET_MAPDATA_FLAG(member, str) \
+		#define SET_MAPDATA_FLAG(member) \
 		{ \
 			int32_t flag =  (value/10000);  \
-			if (mapscr *m = GetMapscr(ri->mapsref)) \
+			if (mapscr *m = ResolveMapdata(ri->mapsref)) \
 			{ \
 				if ( flag != 0 ) \
 				{ \
@@ -18172,71 +18072,63 @@ void set_register(int32_t arg, int32_t value)
 				} \
 				else m->.member|= ~flag; \
 			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
-			} \
 			break; \
 		} \
 		
-		#define SET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
+		#define SET_MAPDATA_FFCPOS_INDEX32(member, indexbound) \
 		{ \
 			int32_t index = (ri->d[rINDEX] / 10000); \
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str)) \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index)) \
 			{ \
 				handle.ffc->member = zslongToFix(value); \
 			} \
 			break; \
 		} \
 		
-		#define SET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
+		#define SET_MAPDATA_FFC_INDEX32(member, indexbound) \
 		{ \
 			int32_t index = (ri->d[rINDEX] / 10000); \
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str)) \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index)) \
 			{ \
 				handle.ffc->member = value/10000; \
 			} \
 			break; \
 		} \
 
-		#define SET_MAPDATA_FFC_INDEX_VBOUND(member, str, min, max) \
+		#define SET_MAPDATA_FFC_INDEX_VBOUND(member, min, max) \
 		{ \
 			int32_t v = value/10000; \
 			int32_t index = (ri->d[rINDEX] / 10000); \
 			if(v < min || v > max ) \
 			{ \
-				Z_scripterrlog("Invalid value passed to mapdata->%s[%d]: %d\n", str, (index+1), v); \
+				scripting_log_error_with_context("Invalid value: {}", v); \
 			} \
-			else if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str)) \
+			else if (auto handle = ResolveMapdataFFC(ri->mapsref, index)) \
 			{ \
 				handle.ffc->member = v; \
 			} \
 			break; \
 		} \
 		
-		case MAPDATAVALID:		SET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
-		case MAPDATAGUY: 		SET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
-		case MAPDATASTRING:		SET_MAPDATA_VAR_INT32(str, "String"); break;		//w
-		case MAPDATAROOM: 		SET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
+		case MAPDATAVALID:		SET_MAPDATA_VAR_BYTE(valid); break;		//b
+		case MAPDATAGUY: 		SET_MAPDATA_VAR_BYTE(guy); break;		//b
+		case MAPDATASTRING:		SET_MAPDATA_VAR_INT32(str); break;		//w
+		case MAPDATAROOM: 		SET_MAPDATA_VAR_BYTE(room);	break;		//b
 		case MAPDATAITEM:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				auto v = vbound((value / 10000),-1,255);
 				if(v > -1)
 					m->item = v;
 				m->hasitem = v > -1;
 			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Item");
-			}
 			break;
 		}
 		case MAPDATAREGIONID:
 		{
 			int region_id = value / 10000;
-			if (BC::checkBounds(region_id, 0, 9, "mapdata->RegionID") != SH::_NoError)
+			if (BC::checkBounds(region_id, 0, 9) != SH::_NoError)
 				break;
 
 			auto result = decode_mapdata_ref(ri->mapsref);
@@ -18248,32 +18140,32 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
-					Z_scripterrlog("mapdata->RegionID may only be set for canonical screens");
+					scripting_log_error_with_context("This may only be set for canonical screens");
 				}
 			}
 			else
 			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","RegionID");
+				scripting_log_error_with_context("mapdata pointer is either invalid or uninitialised");
 			}
 			break;
 		}
-		case MAPDATAHASITEM: 		SET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
-		case MAPDATATILEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-		//case MAPDATATILEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
-		case MAPDATADOORCOMBOSET: 	SET_MAPDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
-		case MAPDATAWARPRETX:	 	SET_MAPDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
-		case MAPDATAWARPRETY:	 	SET_MAPDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
-		case MAPDATAWARPRETURNC: 	SET_MAPDATA_VAR_INT32(warpreturnc, "WarpReturnC"); break;	//w
-		case MAPDATASTAIRX: 		SET_MAPDATA_VAR_BYTE(stairx, "StairsX"); break;	//b
-		case MAPDATASTAIRY: 		SET_MAPDATA_VAR_BYTE(stairy, "StairsY"); break;	//b
-		case MAPDATAITEMX:		SET_MAPDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
-		case MAPDATAITEMY:		SET_MAPDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
-		case MAPDATACOLOUR: 		SET_MAPDATA_VAR_INT32(color, "CSet"); break;	//w
-		case MAPDATAENEMYFLAGS: 	SET_MAPDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
-		case MAPDATADOOR: 		SET_MAPDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
-		case MAPDATATILEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
-		case MAPDATATILEWARPSCREEN: 	SET_MAPDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
-		case MAPDATAEXITDIR: 		SET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
+		case MAPDATAHASITEM: 		SET_MAPDATA_VAR_BYTE(hasitem); break;	//b
+		case MAPDATATILEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(tilewarptype, 3); break;	//b, 4 of these
+		//case MAPDATATILEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(tilewarpoverlayflags); break;	//b, tilewarpoverlayflags
+		case MAPDATADOORCOMBOSET: 	SET_MAPDATA_VAR_INT32(door_combo_set); break;	//w
+		case MAPDATAWARPRETX:	 	SET_MAPDATA_BYTE_INDEX(warpreturnx, 3); break;	//b, 4 of these
+		case MAPDATAWARPRETY:	 	SET_MAPDATA_BYTE_INDEX(warpreturny, 3); break;	//b, 4 of these
+		case MAPDATAWARPRETURNC: 	SET_MAPDATA_VAR_INT32(warpreturnc); break;	//w
+		case MAPDATASTAIRX: 		SET_MAPDATA_VAR_BYTE(stairx); break;	//b
+		case MAPDATASTAIRY: 		SET_MAPDATA_VAR_BYTE(stairy); break;	//b
+		case MAPDATAITEMX:		SET_MAPDATA_VAR_BYTE(itemx); break; //itemx
+		case MAPDATAITEMY:		SET_MAPDATA_VAR_BYTE(itemy); break;	//itemy
+		case MAPDATACOLOUR: 		SET_MAPDATA_VAR_INT32(color); break;	//w
+		case MAPDATAENEMYFLAGS: 	SET_MAPDATA_VAR_BYTE(flags11);	break;	//b
+		case MAPDATADOOR: 		SET_MAPDATA_BYTE_INDEX(door, 3); break;	//b, 4 of these
+		case MAPDATATILEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(tilewarpdmap, 3); break;	//w, 4 of these
+		case MAPDATATILEWARPSCREEN: 	SET_MAPDATA_BYTE_INDEX(tilewarpscr, 3); break;	//b, 4 of these
+		case MAPDATAEXITDIR: 		SET_MAPDATA_VAR_BYTE(exitdir); break;	//b
 		case MAPDATAENEMY: 
 		{ 
 			int32_t indx = (ri->d[rINDEX] / 10000);
@@ -18286,27 +18178,23 @@ void set_register(int32_t arg, int32_t value)
 			{ 
 				Z_scripterrlog("Invaid enemy ID (%d) passed to mapdata->%s.", enemyid,"Enemy[]");
 			} 
-			else if (mapscr *m = GetMapscr(ri->mapsref)) 
+			else if (mapscr *m = ResolveMapdata(ri->mapsref)) 
 			{ 
 				m->enemy[indx] = enemyid; 
-			} 
-			else 
-			{ 
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","Enemy[]");
 			} 
 			break;
 		} 
 		//case MAPDATAENEMY: 		SET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
-		case MAPDATAPATTERN: 		SET_MAPDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
-		case MAPDATASIDEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-		//case MAPDATASIDEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
-		case MAPDATAWARPARRIVALX: 	SET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
-		case MAPDATAWARPARRIVALY: 	SET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
-		case MAPDATAPATH: 		SET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
-		case MAPDATASIDEWARPSC: 	SET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
+		case MAPDATAPATTERN: 		SET_MAPDATA_VAR_BYTE(pattern); break;	//b
+		case MAPDATASIDEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(sidewarptype, 3); break;	//b, 4 of these
+		//case MAPDATASIDEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(sidewarpoverlayflags); break;	//b
+		case MAPDATAWARPARRIVALX: 	SET_MAPDATA_VAR_BYTE(warparrivalx); break;	//b
+		case MAPDATAWARPARRIVALY: 	SET_MAPDATA_VAR_BYTE(warparrivaly); break;	//b
+		case MAPDATAPATH: 		SET_MAPDATA_BYTE_INDEX(path, 3); break;	//b, 4 of these
+		case MAPDATASIDEWARPSC: 	SET_MAPDATA_BYTE_INDEX(sidewarpscr, 3); break;	//b, 4 of these
 		case MAPDATAINITDARRAY:	 	
 		{
-			SET_MAPDATA_BYTE_INDEX(screeninitd, "InitD", 7);
+			SET_MAPDATA_BYTE_INDEX(screeninitd, 7);
 			break;
 		}
 
@@ -18321,7 +18209,7 @@ void set_register(int32_t arg, int32_t value)
 			else
 			{
 				
-				if (mapscr *m = GetMapscr(ri->mapsref))
+				if (mapscr *m = ResolveMapdata(ri->mapsref))
 				{
 					if(value)
 					{
@@ -18331,10 +18219,6 @@ void set_register(int32_t arg, int32_t value)
 					{
 						m->hidelayers &= ~(1<<indx);
 					}
-				}
-				else
-				{
-					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","LayerInvisible");
 				}
 			}
 			break;
@@ -18348,7 +18232,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				if (mapscr *m = GetMapscr(ri->mapsref))
+				if (mapscr *m = ResolveMapdata(ri->mapsref))
 				{
 					if(value)
 					{
@@ -18358,10 +18242,6 @@ void set_register(int32_t arg, int32_t value)
 					{
 						m->hidescriptlayers |= (1<<indx);
 					}
-				}
-				else
-				{	
-					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","DisableScriptDraw");
 				}
 			}
 			break;
@@ -18374,14 +18254,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				if ( value ) m->tilewarpoverlayflags |= (1<<indx);
 				else m->tilewarpoverlayflags &= ~(1<<indx);
-			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
 			}
 			break;
 		}
@@ -18393,39 +18269,35 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				if ( value ) m->sidewarpoverlayflags |= (1<<indx);
 				else m->sidewarpoverlayflags &= ~(1<<indx);
 			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
-			}
 			break;
 		}
 
-		case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
-		case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
-		case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "UnderCombo"); break;	//w
-		case MAPDATAUNDERCSET:	 	SET_MAPDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
-		case MAPDATACATCHALL:	 	SET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
+		case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(sidewarpdmap, 3); break;	//w, 4 of these
+		case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex); break;	//b
+		case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo); break;	//w
+		case MAPDATAUNDERCSET:	 	SET_MAPDATA_VAR_BYTE(undercset); break; //b
+		case MAPDATACATCHALL:	 	SET_MAPDATA_VAR_INT32(catchall); break; //W
 
-		case MAPDATACSENSITIVE: 	SET_MAPDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
-		case MAPDATANORESET: 		SET_MAPDATA_VAR_INT32(noreset, "NoReset"); break;	//W
-		case MAPDATANOCARRY: 		SET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
+		case MAPDATACSENSITIVE: 	SET_MAPDATA_VAR_BYTE(csensitive); break;	//B
+		case MAPDATANORESET: 		SET_MAPDATA_VAR_INT32(noreset); break;	//W
+		case MAPDATANOCARRY: 		SET_MAPDATA_VAR_INT32(nocarry); break;	//W
 		//! Layer arrays should be a size of 7, and return the current screen / map / and OP_OPAQUE 
 		//! if you try to read 0, so that they correspond to actual layer IDs. 
 		//! 
-		case MAPDATALAYERMAP:	 	SET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
-		case MAPDATALAYERSCREEN: 	SET_MAPDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
-		case MAPDATALAYEROPACITY: 	SET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
-		case MAPDATATIMEDWARPTICS: 	SET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
-		case MAPDATANEXTMAP: 		SET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
-		case MAPDATANEXTSCREEN: 	SET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
-		case MAPDATASECRETCOMBO: 	SET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
-		case MAPDATASECRETCSET: 	SET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
-		case MAPDATASECRETFLAG: 	SET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
+		case MAPDATALAYERMAP:	 	SET_MAPDATA_LAYER_INDEX(layermap, 6); break;	//B, 6 OF THESE
+		case MAPDATALAYERSCREEN: 	SET_MAPDATA_LAYERSCREEN_INDEX(layerscreen, 6); break;	//B, 6 OF THESE
+		case MAPDATALAYEROPACITY: 	SET_MAPDATA_LAYER_INDEX(layeropacity, 6); break;	//B, 6 OF THESE
+		case MAPDATATIMEDWARPTICS: 	SET_MAPDATA_VAR_INT32(timedwarptics); break;	//W
+		case MAPDATANEXTMAP: 		SET_MAPDATA_VAR_BYTE(nextmap); break;	//B
+		case MAPDATANEXTSCREEN: 	SET_MAPDATA_VAR_BYTE(nextscr); break;	//B
+		case MAPDATASECRETCOMBO: 	SET_MAPDATA_VAR_INDEX32(secretcombo, 127); break;	//W, 128 OF THESE
+		case MAPDATASECRETCSET: 	SET_MAPDATA_BYTE_INDEX(secretcset, 127); break;	//B, 128 OF THESE
+		case MAPDATASECRETFLAG: 	SET_MAPDATA_BYTE_INDEX(secretflag, 127); break;	//B, 128 OF THESE
 		case MAPDATAVIEWX: 		break;//SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
 		case MAPDATASCRIPT:
 		{
@@ -18454,32 +18326,32 @@ void set_register(int32_t arg, int32_t value)
 		case MAPDATAVIEWY: 		break;//SET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
 		case MAPDATASCREENWIDTH: 	break;//SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 		case MAPDATASCREENHEIGHT: 	break;//SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
-		case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
-		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
+		case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x); break;	//B
+		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y); break;	//B
 		case MAPDATAFFDATA:         
 		{
 			int32_t index = (ri->d[rINDEX] / 10000);
 
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "FFCData"))
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index))
 			{
 				zc_ffc_set(*handle.ffc, value/10000);
 			}
 			break;  //W, MAXFFCS OF THESE
 		}
-		case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(cset, "FFCCSet", MAXFFCS-1); break;  //B, MAXFFCS
-		case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(delay, "FFCDelay", MAXFFCS-1); break;    //W, MAXFFCS
-		case MAPDATAFFX:        SET_MAPDATA_FFCPOS_INDEX32(x, "FFCX", MAXFFCS-1); break; //INT32, MAXFFCS OF THESE
-		case MAPDATAFFY:        SET_MAPDATA_FFCPOS_INDEX32(y, "FFCY", MAXFFCS-1); break; //..
-		case MAPDATAFFXDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vx, "FFCVx", MAXFFCS-1); break;   //..
-		case MAPDATAFFYDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vy, "FFCVy", MAXFFCS-1); break;   //..
-		case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ax, "FFCAx", MAXFFCS-1); break;  //..
-		case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ay, "FFCAy", MAXFFCS-1); break;  //..
+		case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(cset, MAXFFCS-1); break;  //B, MAXFFCS
+		case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(delay, MAXFFCS-1); break;    //W, MAXFFCS
+		case MAPDATAFFX:        SET_MAPDATA_FFCPOS_INDEX32(x, MAXFFCS-1); break; //INT32, MAXFFCS OF THESE
+		case MAPDATAFFY:        SET_MAPDATA_FFCPOS_INDEX32(y, MAXFFCS-1); break; //..
+		case MAPDATAFFXDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vx, MAXFFCS-1); break;   //..
+		case MAPDATAFFYDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vy, MAXFFCS-1); break;   //..
+		case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ax, MAXFFCS-1); break;  //..
+		case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ay, MAXFFCS-1); break;  //..
 		
 		case MAPDATAFFFLAGS:
 		{
 			int32_t index = (ri->d[rINDEX] / 10000);
 
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "FFCFlags"))
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index))
 			{
 				handle.ffc->flags = (ffc_flags)(value/10000);
 				handle.ffc->updateSolid();
@@ -18497,7 +18369,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			
 			int32_t indx = ri->d[rINDEX] / 10000; //dir
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
 				if(new_warp_return == -1)
@@ -18512,10 +18384,6 @@ void set_register(int32_t arg, int32_t value)
 					m->sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
 				}
 			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","SideWarpID"); 
-			} 
 			break;
 		} 
 
@@ -18526,14 +18394,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				 Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t wrindex = vbound(value/10000, 0, 3);
 				m->warpreturnc = (m->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
-			} 
-			else
-			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","str"); 
 			}
 			break;
 		}
@@ -18545,16 +18409,12 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( ((unsigned)indx) > 3)
 			{
-				 Z_scripterrlog("Invalid Array Index passed to MAPDATA->SideWarpReturnSquare[]: %d\n", indx);
+				 Z_scripterrlog("Invalid Array Index passed to mapdata->SideWarpReturnSquare[]: %d\n", indx);
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t wrindex = vbound(value/10000, 0, 3);
 				m->warpreturnc = (m->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
-			} 
-			else
-			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","str"); 
 			}
 			break;
 		}
@@ -18570,13 +18430,9 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileWidth[]: %d\n", value/10000);
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				m->ffTileWidth(indx, (value/10000));
-			}
-			else
-			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
 			}
 			break;
 		}  
@@ -18592,13 +18448,9 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileHeight[]: %d\n", value/10000);
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				m->ffTileHeight(indx, (value/10000));
-			}
-			else
-			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
 			}
 			break;
 			
@@ -18615,13 +18467,9 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCEffectWidth[]: %d\n", value/10000);
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				m->ffEffectWidth(indx, (value/10000));
-			}
-			else
-			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
 			}
 			break;
 		}
@@ -18637,29 +18485,25 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid HEIGHT value passed to MapData->FFCEffectHeight[]: %d\n", value/10000);
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				m->ffEffectHeight(indx, (value/10000));
-			}
-			else
-			{
-				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
 			}
 			break;
 		}
 		 
-		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, "FFCLink", 0, MAXFFCS-1); break;  //B, MAXFFCS OF THESE
-		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, "FFCScript", 0, MAXFFCS-1); break; //W, 32 OF THESE
+		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, 0, MAXFFCS-1); break;  //B, MAXFFCS OF THESE
+		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, 0, MAXFFCS-1); break; //W, 32 OF THESE
 
 		case MAPDATAINTID:
 		{
 			int32_t index = (ri->d[rINDEX]/10000);
 			int32_t dindex = ri->d[rINDEX2]/10000;
 
-			if (BC::checkBounds(dindex, 0, 7, "mapdata->FFCInitD[]") != SH::_NoError)
+			if (BC::checkBounds(dindex, 0, 7) != SH::_NoError)
 				break;
 
-			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "mapdata->FFCInitD[]"))
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index))
 				handle.ffc->initd[dindex] = value;
 			break;
 		}	
@@ -18673,13 +18517,9 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", "FFCRunning", indx);
 			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				get_script_engine_data(ScriptType::FFC, indx).initialized = (value/10000) ? true : false;
-			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n", "FFCRunning");
 			}
 		}
 		break;
@@ -18702,7 +18542,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case MAPDATAOCEANSFX:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t v = vbound(value/10000, 0, 255);
 				if(m == hero_scr && m->oceansfx != v)
@@ -18713,35 +18553,27 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else m->oceansfx = v;
 			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","OceanSFX");
-			}
 			break;
 		}
-		case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
-		case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
-		case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+		case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_BYTE(bosssfx); break;	//B
+		case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_BYTE(secretsfx); break;	//B
+		case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_BYTE(holdupsfx); break; //B
 		case MAPDATASCREENMIDI:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				m->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
 			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","MIDI");
-			}
 			break;
 		}
-		case MAPDATALENSLAYER:	 	SET_MAPDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+		case MAPDATALENSLAYER:	 	SET_MAPDATA_VAR_BYTE(lens_layer); break;	//B, OLD QUESTS ONLY?
 			
 
 		case MAPDATAFLAGS: 
 		{
 			int32_t flagid = (ri->d[rINDEX])/10000;
 			//bool valtrue = ( value ? 10000 : 0);
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				switch(flagid)
 				{
@@ -18763,16 +18595,12 @@ void set_register(int32_t arg, int32_t value)
 					}
 				}
 			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Flags[]");
-			}
 			break;
 		}
 
 		case MAPDATAMISCD:
 		{
-			if(mapscr* m = GetMapscr(ri->mapsref))
+			if(mapscr* m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t indx = (ri->d[rINDEX])/10000;
 				int32_t mi = get_mi(ri->mapsref);
@@ -18788,10 +18616,6 @@ void set_register(int32_t arg, int32_t value)
 					break;
 				}
 			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","D[]");
-			}
 			break;
 		}
 
@@ -18802,12 +18626,12 @@ void set_register(int32_t arg, int32_t value)
 			if ( ((unsigned) val) >= MAXCOMBOS )
 			{
 				Z_scripterrlog("Invalid combo ID %d used to write to mapdata->ComboD[]\n", val);
-				return;
+				break;
 			}
 
 			int pos = ri->d[rINDEX] / 10000;
 			auto result = decode_mapdata_ref(ri->mapsref);
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboD[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				if (result.current())
 					screen_combo_modify_preroutine(rpos_handle);
@@ -18824,12 +18648,12 @@ void set_register(int32_t arg, int32_t value)
 			if ( ((unsigned) val) >= 15 )
 			{
 				Z_scripterrlog("Invalid CSet ID %d used to write to mapdata->ComboC[]\n", val);
-				return;
+				break;
 			}
 
 			int pos = ri->d[rINDEX] / 10000;
 			auto result = decode_mapdata_ref(ri->mapsref);
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboC[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				if (result.current())
 					screen_combo_modify_preroutine(rpos_handle);
@@ -18846,11 +18670,11 @@ void set_register(int32_t arg, int32_t value)
 			if ( ((unsigned) val) >= 256 )
 			{
 				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboF[]\n", val);
-				return;
+				break;
 			}
 
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboF[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				rpos_handle.set_sflag(val);
 			}
@@ -18863,12 +18687,12 @@ void set_register(int32_t arg, int32_t value)
 			if ( ((unsigned) val) >= cMAX )
 			{
 				Z_scripterrlog("Invalid Type ID %d used to write to mapdata->ComboT[]\n", val);
-				return;
+				break;
 			}
 
 			int pos = ri->d[rINDEX] / 10000;
 			auto result = decode_mapdata_ref(ri->mapsref);
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboT[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				auto cid = rpos_handle.data();
 				if (result.current())
@@ -18886,11 +18710,11 @@ void set_register(int32_t arg, int32_t value)
 			if ( ((unsigned) val) >= 256 )
 			{
 				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboI[]\n", val);
-				return;
+				break;
 			}
 			
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboI[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				rpos_handle.combo().flag = value/10000;
 			}
@@ -18903,11 +18727,11 @@ void set_register(int32_t arg, int32_t value)
 			if ( ((unsigned) val) >= 16 )
 			{
 				Z_scripterrlog("Invalid Solidity %d used to write to mapdata->ComboS[]\n", val);
-				return;
+				break;
 			}
 
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboS[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0x0F;
@@ -18922,11 +18746,11 @@ void set_register(int32_t arg, int32_t value)
 			if ( ((unsigned) val) >= 16 )
 			{
 				Z_scripterrlog("Invalid Solidity %d used to write to mapdata->ComboE[]\n", val);
-				return;
+				break;
 			}
 			
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboE[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0xF0;
@@ -18937,29 +18761,21 @@ void set_register(int32_t arg, int32_t value)
 
 		case MAPDATASCREENSTATED:
 		{
-			if(mapscr* m = GetMapscr(ri->mapsref))
+			if(mapscr* m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t mi = get_mi(ri->mapsref);
 				if(mi<0) break;
 				(value)?setmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag_mi(mi, 1 << ((ri->d[rINDEX]) / 10000));
 			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","State[]");
-			}
 		}
 		break;
 		case MAPDATAEXSTATED:
 		{
-			if(mapscr* m = GetMapscr(ri->mapsref))
+			if(mapscr* m = ResolveMapdata(ri->mapsref))
 			{
 				int32_t mi = get_mi(ri->mapsref);
 				if(mi<0) break;
 				(value)?setxmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag_mi(mi, 1 << ((ri->d[rINDEX]) / 10000));
-			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","State[]");
 			}
 			break;
 		}
@@ -18968,12 +18784,11 @@ void set_register(int32_t arg, int32_t value)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index mapdata->LensShows[%d]\n",ind);
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				SETFLAG(m->lens_show, 1<<ind, value);
 				if(value) m->lens_hide &= ~(1<<ind);
 			}
-			else Z_scripterrlog("mapdata->LensShows[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATALENSHIDES:
@@ -18981,29 +18796,27 @@ void set_register(int32_t arg, int32_t value)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index mapdata->LensHides[%d]\n",ind);
-			else if (mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				SETFLAG(m->lens_hide, 1<<ind, value);
 				if(value) m->lens_show &= ~(1<<ind);
 			}
-			else Z_scripterrlog("mapdata->LensHides[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATASCRDATASIZE:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int index = get_ref_map_index(ri->mapsref);
 				if (index < 0) break;
 
 				game->scriptDataResize(index, value/10000);
 			}
-			else Z_scripterrlog("mapdata->DataSize pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATASCRDATA:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int mapindex = get_ref_map_index(ri->mapsref);
 				if (mapindex < 0) break;
@@ -19013,12 +18826,11 @@ void set_register(int32_t arg, int32_t value)
 					Z_scripterrlog("Invalid index passed to mapdata->Data[]: %d\n", indx);
 				else game->screen_data[mapindex][indx] = value;
 			}
-			else Z_scripterrlog("mapdata->Data[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATAGUYCOUNT:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int mi = get_mi(ri->mapsref);
 				if(mi > -1)
@@ -19027,12 +18839,11 @@ void set_register(int32_t arg, int32_t value)
 					break;
 				}
 			}
-			else Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
 		case MAPDATAEXDOOR:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref))
 			{
 				int mi = get_mi(ri->mapsref);
 				if(mi < 0) break;
@@ -19045,7 +18856,6 @@ void set_register(int32_t arg, int32_t value)
 				else
 					set_xdoorstate_mi(mi, dir, ind);
 			}
-			else Z_scripterrlog("mapdata->SetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 
@@ -19227,7 +19037,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx); break;
+				scripting_log_error_with_context("Invalid index: {}", indx); break;
 			}
 			else
 			{
@@ -19239,7 +19049,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->InitD[]: %d\n", indx); break;
+				scripting_log_error_with_context("Invalid index: {}", indx); break;
 			}
 			else
 			{
@@ -19255,7 +19065,7 @@ void set_register(int32_t arg, int32_t value)
 				case 1: { DMaps[ri->dmapsref].minimap_2_tile = ((word)(value / 10000)); break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->MiniMapTile[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 			}
@@ -19270,7 +19080,7 @@ void set_register(int32_t arg, int32_t value)
 				case 1: { DMaps[ri->dmapsref].minimap_2_cset= ((byte)(value / 10000)); break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->MiniMapCSet[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 			}
@@ -19285,7 +19095,7 @@ void set_register(int32_t arg, int32_t value)
 				case 1: { DMaps[ri->dmapsref].largemap_2_tile = ((word)(value / 10000)); break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->LargeMapTile[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 			}
@@ -19300,7 +19110,7 @@ void set_register(int32_t arg, int32_t value)
 				case 1: { DMaps[ri->dmapsref].largemap_2_cset= ((byte)(value / 10000)); break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->LargeMapCSet[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 			}
@@ -19420,7 +19230,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (indx < 0 || indx > 1)
 			{
-				Z_scripterrlog("Invalid Index passed to Audio->MusicRefreshFlags[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				break;
 			}
 			SETFLAG(FFCore.music_update_flags, 1 << indx, value);
@@ -19456,7 +19266,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->SubInitD[]: %d\n", indx); break;
+				scripting_log_error_with_context("Invalid index: {}", indx);
 			}
 			else
 			{
@@ -19469,7 +19279,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if ( indx < 0 || indx > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->MapInitD[]: %d\n", indx); break;
+				scripting_log_error_with_context("Invalid index: {}", indx);
 			}
 			else
 			{
@@ -19490,7 +19300,7 @@ void set_register(int32_t arg, int32_t value)
 			// }
 			else if(((unsigned)(screen)) > 127)
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", screen);
+				scripting_log_error_with_context("Invalid screen: {}", screen);
 			}
 			else 
 			{
@@ -19513,7 +19323,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Next") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].nextstring = vbound((value/10000), 0, (msg_count-1));
@@ -19524,7 +19334,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Tile") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].tile = vbound((value/10000), 0, (NEWMAXTILES));
@@ -19535,7 +19345,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->CSet") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].cset = ((byte)vbound((value/10000), 0, 15));
@@ -19545,7 +19355,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Transparent") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				(MsgStrings[ID].trans) = ((value)?true:false);
@@ -19555,7 +19365,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Font") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].font = ((byte)vbound((value/10000), 0, 255));
@@ -19565,7 +19375,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->X") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].x = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
@@ -19575,7 +19385,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Y") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].y = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
@@ -19585,7 +19395,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Width") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].w = ((uint16_t)vbound((value/10000), 0, USHRT_MAX));
@@ -19595,7 +19405,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Height") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].h = ((uint16_t)vbound((value/10000), 0, USHRT_MAX));
@@ -19605,7 +19415,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Sound") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].sfx = ((byte)vbound((value/10000), 0, 255));
@@ -19615,7 +19425,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->ListPosition") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].listpos = vbound((value/10000), 1, (msg_count-1));
@@ -19625,7 +19435,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->VSpace") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].vspace = ((byte)vbound((value/10000), 0, 255));
@@ -19635,7 +19445,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->HSpace") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].hspace = ((byte)vbound((value/10000), 0, 255));
@@ -19645,7 +19455,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;	
 
-			if(BC::checkMessage(ID, "messagedata->Flags") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
 				MsgStrings[ID].stringflags = ((byte)vbound((value/10000), 0, 255));
@@ -19661,7 +19471,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->Margins[]") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
 				MsgStrings[ID].margins[indx] = ((byte)vbound((value/10000), 0, 255));
@@ -19671,7 +19481,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitTile") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
 				MsgStrings[ID].portrait_tile = vbound((value/10000), 0, (NEWMAXTILES));
@@ -19681,7 +19491,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitCSet") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
 				MsgStrings[ID].portrait_cset = ((byte)vbound((value/10000), 0, 15));
@@ -19691,7 +19501,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitX") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
 				MsgStrings[ID].portrait_x = ((byte)vbound((value/10000), 0, 255));
@@ -19701,7 +19511,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitY") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
 				MsgStrings[ID].portrait_y = ((byte)vbound((value/10000), 0, 255));
@@ -19711,7 +19521,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitTileWidth") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
 				MsgStrings[ID].portrait_tw = ((byte)vbound((value/10000), 0, 16));
@@ -19721,7 +19531,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->PortraitTileHeight") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
 				MsgStrings[ID].portrait_th = ((byte)vbound((value/10000), 0, 14));
@@ -19732,7 +19542,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			int32_t ID = ri->zmsgref;
 			
-			if(BC::checkMessage(ID, "messagedata->Flags[]") != SH::_NoError)
+			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
 			{
@@ -19773,11 +19583,11 @@ void set_register(int32_t arg, int32_t value)
 	///----------------------------------------------------------------------------------------------------//
 	//combodata cd-> Setter Variables
 	//newcombo	
-		#define	SET_COMBO_VAR_INT(member, str) \
+		#define	SET_COMBO_VAR_INT(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -19788,11 +19598,11 @@ void set_register(int32_t arg, int32_t value)
 			} \
 		} \
 		
-		#define	SET_COMBO_VAR_DWORD(member, str) \
+		#define	SET_COMBO_VAR_DWORD(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -19802,11 +19612,11 @@ void set_register(int32_t arg, int32_t value)
 			} \
 		} \
 
-		#define	SET_COMBO_VAR_BYTE(member, str) \
+		#define	SET_COMBO_VAR_BYTE(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -19816,16 +19626,16 @@ void set_register(int32_t arg, int32_t value)
 			} \
 		} \
 		
-		#define SET_COMBO_VAR_INDEX(member, str, indexbound) \
+		#define SET_COMBO_VAR_INDEX(member, indexbound) \
 		{ \
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					scripting_log_error_with_context("Invalid Array Index: {}", indx); \
 				} \
 				else \
 				{ \
@@ -19835,16 +19645,16 @@ void set_register(int32_t arg, int32_t value)
 				} \
 		}
 		
-		#define SET_COMBO_VAR_INDEX2(member, str, indexbound, low, high) \
+		#define SET_COMBO_VAR_INDEX2(member, indexbound, low, high) \
 		{ \
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					scripting_log_error_with_context("Invalid Array Index: {}", indx); \
 				} \
 				else \
 				{ \
@@ -19852,16 +19662,16 @@ void set_register(int32_t arg, int32_t value)
 				} \
 		}
 
-		#define SET_COMBO_BYTE_INDEX(member, str, indexbound) \
+		#define SET_COMBO_BYTE_INDEX(member, indexbound) \
 		{ \
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				} \
 				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					scripting_log_error_with_context("Invalid Array Index: {}", indx); \
 				} \
 				else \
 				{ \
@@ -19869,12 +19679,12 @@ void set_register(int32_t arg, int32_t value)
 				} \
 		}
 		
-		#define SET_COMBO_FLAG(member, str) \
+		#define SET_COMBO_FLAG(member) \
 		{ \
 			int32_t flag =  (value/10000);  \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -19887,11 +19697,11 @@ void set_register(int32_t arg, int32_t value)
 		} \
 		
 		//comboclass
-		#define	SET_COMBOCLASS_VAR_INT(member, str) \
+		#define	SET_COMBOCLASS_VAR_INT(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -19899,11 +19709,11 @@ void set_register(int32_t arg, int32_t value)
 			} \
 		} \
 		
-		#define	SET_COMBOCLASS_VAR_DWORD(member, str) \
+		#define	SET_COMBOCLASS_VAR_DWORD(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -19911,11 +19721,11 @@ void set_register(int32_t arg, int32_t value)
 			} \
 		} \
 
-		#define	SET_COMBOCLASS_VAR_BYTE(member, str) \
+		#define	SET_COMBOCLASS_VAR_BYTE(member) \
 		{ \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -19923,16 +19733,16 @@ void set_register(int32_t arg, int32_t value)
 			} \
 		} \
 		
-		#define SET_COMBOCLASS_VAR_INDEX(member, str, indexbound) \
+		#define SET_COMBOCLASS_VAR_INDEX(member, indexbound) \
 		{ \
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				} \
 				else if ( indx < 0 || indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					scripting_log_error_with_context("Invalid Array Index: {}", indx); \
 				} \
 				else \
 				{ \
@@ -19940,16 +19750,16 @@ void set_register(int32_t arg, int32_t value)
 				} \
 		}
 
-		#define SET_COMBOCLASS_BYTE_INDEX(member, str, indexbound) \
+		#define SET_COMBOCLASS_BYTE_INDEX(member, indexbound) \
 		{ \
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+					scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 				} \
 				else if ( indx < 0 || indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+					scripting_log_error_with_context("Invalid Array Index: {}", indx); \
 				} \
 				else \
 				{ \
@@ -19962,7 +19772,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t flag =  (value/10000);  \
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000)); \
 			} \
 			else \
 			{ \
@@ -19975,12 +19785,12 @@ void set_register(int32_t arg, int32_t value)
 		} \
 		
 		//NEWCOMBO STRUCT
-		case COMBODTILE:	SET_COMBO_VAR_INT(tile, "Tile"); break;						//word
+		case COMBODTILE:	SET_COMBO_VAR_INT(tile); break;						//word
 		case COMBODOTILE:
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "OriginalTile");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else
 			{
@@ -19998,16 +19808,16 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
-		case COMBODFRAME:		SET_COMBO_VAR_BYTE(cur_frame, "Frame"); break;				//char
-		case COMBODACLK:		SET_COMBO_VAR_BYTE(aclk, "AClk"); break;				//char
-		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(script, "Script"); break;						//word
-		case COMBODASPEED:	SET_COMBO_VAR_BYTE(speed, "ASpeed"); break;						//char
-		case COMBODFLIP:	SET_COMBO_VAR_BYTE(flip, "Flip"); break;						//char
+		case COMBODFRAME:		SET_COMBO_VAR_BYTE(cur_frame); break;				//char
+		case COMBODACLK:		SET_COMBO_VAR_BYTE(aclk); break;				//char
+		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(script); break;						//word
+		case COMBODASPEED:	SET_COMBO_VAR_BYTE(speed); break;						//char
+		case COMBODFLIP:	SET_COMBO_VAR_BYTE(flip); break;						//char
 		case COMBODWALK:
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Walk");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else
 			{
@@ -20020,7 +19830,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Effect");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else
 			{
@@ -20033,7 +19843,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->Type: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else
 			{
@@ -20047,7 +19857,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else
 			{
@@ -20063,7 +19873,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2Flags");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else
 			{
@@ -20075,25 +19885,25 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		case COMBODFOO:		break;							//W
-		case COMBODFRAMES:	SET_COMBO_VAR_BYTE(frames, "Frames"); break;						//C
-		case COMBODNEXTD:	SET_COMBO_VAR_INT(nextcombo, "NextData"); break;						//W
-		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcset, "NextCSet"); break;					//C
-		case COMBODFLAG:	SET_COMBO_VAR_BYTE(flag, "Flag"); break;						//C
-		case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;					//C
-		case COMBODNEXTTIMER:	SET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;					//W
-		case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;					//C
-		case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
-		case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;					//C , 6 INDICES
+		case COMBODFRAMES:	SET_COMBO_VAR_BYTE(frames); break;						//C
+		case COMBODNEXTD:	SET_COMBO_VAR_INT(nextcombo); break;						//W
+		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcset); break;					//C
+		case COMBODFLAG:	SET_COMBO_VAR_BYTE(flag); break;						//C
+		case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim); break;					//C
+		case COMBODNEXTTIMER:	SET_COMBO_VAR_DWORD(nexttimer); break;					//W
+		case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy); break;					//C
+		case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags); break;					//C
+		case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, 6); break;					//C , 6 INDICES
 		case COMBODATTRIBUTES:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Attributes[]");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if ( indx < 0 || indx > 4 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "Attributes[]");
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
 			else
 			{
@@ -20106,11 +19916,11 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if ( ((unsigned)indx) > 8 )
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			} 
 			else 
 			{ 
@@ -20120,18 +19930,18 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		
-		case COMBODATTRIBYTES: 	SET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 8); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
-		case COMBODATTRISHORTS: 	SET_COMBO_VAR_INDEX2(attrishorts,	"Attrishorts[]", 8, -32768, 32767); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBYTES: 	SET_COMBO_VAR_INDEX(attribytes, 8); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRISHORTS: 	SET_COMBO_VAR_INDEX2(attrishorts, 8, -32768, 32767); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGARR:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Flags[]", (ri->combosref * 10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if (((unsigned)indx) > 15)
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Flags[]", indx);
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
 			else
 			{
@@ -20144,11 +19954,11 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "GenFlags[]", (ri->combosref * 10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if (((unsigned)indx) > 0)
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "GenFlags[]", indx);
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
 			else
 			{
@@ -20156,18 +19966,18 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
-		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
-		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 6);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags); break;					//LONG
+		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, 6);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERFLAGS2:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if ( unsigned(indx) >= 32*6 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
 			else
 			{
@@ -20180,11 +19990,11 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerButton[]");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if ( unsigned(indx) >= 8 )
 			{
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TriggerButton[]");
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
 			else
 			{
@@ -20196,7 +20006,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerItem");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].triggeritem = vbound(value/10000,0,255);
 			break;
@@ -20205,7 +20015,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerTimer");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else
 			{
@@ -20219,7 +20029,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerSFX");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigsfx = vbound(value/10000,0,255);
 			break;
@@ -20228,7 +20038,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerChange");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigchange = vbound(value/10000,-65535,65535);
 			break;
@@ -20237,7 +20047,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerProximity");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigprox = vbound(value/10000,0,65535);
 			break;
@@ -20246,7 +20056,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerLightBeam");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].triglbeam = vbound(value/10000,0,32);
 			break;
@@ -20255,7 +20065,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCounter");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigctr = vbound(value/10000, 0, MAX_COUNTERS-1);
 			break;
@@ -20264,7 +20074,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigctramnt = vbound(value/10000, -65535, 65535);
 			break;
@@ -20274,7 +20084,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCooldown: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigcooldown = vbound(value/10000, 0, 255);
 			break;
@@ -20283,7 +20093,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCopycat: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigcopycat = vbound(value/10000, 0, 255);
 			break;
@@ -20293,7 +20103,7 @@ void set_register(int32_t arg, int32_t value)
 			const int32_t allowed_pflags = ipHOLDUP | ipTIMER | ipSECRETS | ipCANGRAB;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerSpawnItemPickup: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].spawnip = (value/10000)&allowed_pflags;
 			break;
@@ -20302,7 +20112,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExState: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].exstate = vbound(value/10000, -1, 31);
 			break;
@@ -20311,7 +20121,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorDir: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].exdoor_dir = vbound(value/10000, -1, 3);
 			break;
@@ -20320,7 +20130,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorIndex: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].exdoor_ind = vbound(value/10000, 0, 7);
 			break;
@@ -20329,7 +20139,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnEnemy: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].spawnenemy = vbound(value/10000, 0, 511);
 			break;
@@ -20338,7 +20148,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnItem: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].spawnitem = vbound(value/10000, -255, 255);
 			break;
@@ -20347,7 +20157,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigCSetChange: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigcschange = vbound(value/10000, -15, 15);
 			break;
@@ -20356,7 +20166,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLItems: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_levelitems = (value/10000)&liALL;
 			break;
@@ -20365,7 +20175,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigDMapLvl: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigdmlevel = vbound(value/10000, -1, MAXDMAPS-1);
 			break;
@@ -20374,7 +20184,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintR: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigtint[0] =
 				scripting_write_pal_color(vbound(value/10000, -scripting_max_color_val, scripting_max_color_val));
@@ -20384,7 +20194,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintG: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigtint[1] =
 				scripting_write_pal_color(vbound(value/10000, -scripting_max_color_val, scripting_max_color_val));
@@ -20394,7 +20204,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintB: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigtint[2] =
 				scripting_write_pal_color(vbound(value/10000, -scripting_max_color_val, scripting_max_color_val));
@@ -20404,7 +20214,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLvlPal: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].triglvlpalette = vbound(value/10000, -1, 512);
 			break;
@@ -20413,7 +20223,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigBossPal: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigbosspalette = vbound(value/10000, -1, 29);
 			break;
@@ -20422,7 +20232,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigQuakeTimer: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigquaketime = zc_max(value/10000, -1);
 			break;
@@ -20431,7 +20241,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigWavyTimer: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trigwavytime = zc_max(value/10000, -1);
 			break;
@@ -20440,7 +20250,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSwordJinx: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_swjinxtime = zc_max(value/10000, -2);
 			break;
@@ -20449,7 +20259,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigItemJinx: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_itmjinxtime = zc_max(value/10000, -2);
 			break;
@@ -20458,7 +20268,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigShieldJinx: %d\n", (ri->combosref * 10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_shieldjinxtime = zc_max(value / 10000, -2);
 			break;
@@ -20467,7 +20277,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigStun: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_bunnytime = zc_max(value/10000, -2);
 			break;
@@ -20476,7 +20286,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigBunny: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_bunnytime = zc_max(value/10000, -2);
 			break;
@@ -20485,7 +20295,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigPushTime: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_pushtime = vbound(value/10000, 0, 255);
 			break;
@@ -20494,7 +20304,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCombo: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftcmb = vbound(value/10000, 0, MAXCOMBOS);
 			break;
@@ -20503,7 +20313,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCSet: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftcs = vbound(value/10000, 0, 13);
 			break;
@@ -20512,7 +20322,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCombo: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftundercmb = vbound(value/10000, 0, MAXCOMBOS);
 			break;
@@ -20521,7 +20331,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCSet: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftundercs = vbound(value/10000, 0, 13);
 			break;
@@ -20530,7 +20340,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftDamage: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftdmg = vbound(value/10000, 0, 255);
 			break;
@@ -20539,7 +20349,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftLevel: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftlvl = vbound(value/10000, 0, 255);
 			break;
@@ -20548,7 +20358,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftItem: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftitm = vbound(value/10000, 0, 255);
 			break;
@@ -20558,12 +20368,12 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftFlags[]: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 				break;
 			}
 			if ( unsigned(indx) > 7 ) 
 			{
-				Z_scripterrlog("Invalid index supplied to combodata->LiftFlags[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 				break;
 			}
 			SETFLAG(combobuf[ri->combosref].liftflags, (lift_flags)(1<<indx), value);
@@ -20573,7 +20383,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXType: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftgfx = vbound(value/10000, 0, 2);
 			break;
@@ -20582,7 +20392,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXSprite: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftsprite = vbound(value/10000, 0, 255);
 			break;
@@ -20591,7 +20401,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftSFX: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftsfx = vbound(value/10000, 0, 255);
 			break;
@@ -20600,7 +20410,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSprite: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftbreaksprite = vbound(value/10000, -4, 255);
 			break;
@@ -20609,7 +20419,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSFX: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].liftbreaksfx = vbound(value/10000, 0, 255);
 			break;
@@ -20618,7 +20428,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftHeight: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].lifthei = vbound(value/10000, 0, 255);
 			break;
@@ -20627,7 +20437,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftTime: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].lifttime = vbound(value/10000, 0, 255);
 			break;
@@ -20636,7 +20446,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftWeaponItem: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].lift_parent_item = vbound(value/10000, 0, 255);
 			break;
@@ -20645,7 +20455,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLevelState: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_lstate = vbound(value/10000, 0, 31);
 			break;
@@ -20654,7 +20464,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGlobalState: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_gstate = vbound(value/10000, 0, 255);
 			break;
@@ -20663,7 +20473,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroup: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_group = vbound(value/10000, 0, 255);
 			break;
@@ -20672,7 +20482,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroupVal: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_group_val = vbound(value/10000, 0, 65535);
 			break;
@@ -20681,7 +20491,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGStateTimer: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_statetime = vbound(value/10000, 0, 214748);
 			break;
@@ -20690,12 +20500,12 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGenScript: %d\n", (ri->combosref*10000));
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].trig_genscr = vbound(value/10000, 0, 65535);
 			break;
 		}
-		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
+		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel); break;				//LONG
 	
 	
 		
@@ -20703,68 +20513,68 @@ void set_register(int32_t arg, int32_t value)
 
 		//COMBOCLASS STRUCT
 		//case COMBODNAME:		//CHAR[64], STRING
-		case COMBODBLOCKNPC:		SET_COMBOCLASS_VAR_BYTE(block_enemies, "BlockNPC"); break;			//C
-		case COMBODBLOCKHOLE:		SET_COMBOCLASS_VAR_BYTE(block_hole, "BlockHole"); break;			//C
-		case COMBODBLOCKTRIG:		SET_COMBOCLASS_VAR_BYTE(block_trigger,	"BlockTrigger"); break; 		//C
-		case COMBODBLOCKWEAPON:		SET_COMBOCLASS_BYTE_INDEX(block_weapon, "BlockWeapon[]", 32); break;			//C, 32 INDICES
-		case COMBODCONVXSPEED:		SET_COMBOCLASS_VAR_DWORD(conveyor_x_speed, "ConveyorSpeedX"); break;		//SHORT
-		case COMBODCONVYSPEED:		SET_COMBOCLASS_VAR_DWORD(conveyor_y_speed, "ConveyorSpeedY"); break;		//SHORT
-		case COMBODSPAWNNPC:		SET_COMBOCLASS_VAR_DWORD(create_enemy, "SpawnNPC"); break;			//W
-		case COMBODSPAWNNPCWHEN:	SET_COMBOCLASS_VAR_BYTE(create_enemy_when, "SpawnNPCWhen"); break;		//C
-		case COMBODSPAWNNPCCHANGE:	SET_COMBOCLASS_VAR_INT(create_enemy_change, "SpawnNPCChange"); break;		//LONG
-		case COMBODDIRCHANGETYPE:	SET_COMBOCLASS_VAR_BYTE(directional_change_type, "DirChange"); break;		//C
-		case COMBODDISTANCECHANGETILES:	SET_COMBOCLASS_VAR_INT(distance_change_tiles, "DistanceChangeTiles"); break; 	//LONG
-		case COMBODDIVEITEM:		SET_COMBOCLASS_VAR_DWORD(dive_item, "DiveItem"); break;				//SHORT
-		case COMBODDOCK:		SET_COMBOCLASS_VAR_BYTE(dock, "Dock"); break;					//C
-		case COMBODFAIRY:		SET_COMBOCLASS_VAR_BYTE(fairy, "Fairy"); break;					//C
-		case COMBODFFATTRCHANGE:	SET_COMBOCLASS_VAR_BYTE(ff_combo_attr_change, "FFCAttributeChange"); break;	//C
-		case COMBODFOORDECOTILE:	SET_COMBOCLASS_VAR_INT(foot_decorations_tile, "DecorationTile"); break;		//LONG
-		case COMBODFOORDECOTYPE:	SET_COMBOCLASS_VAR_BYTE(foot_decorations_type, "DecorationType"); break;	//C
-		case COMBODHOOKSHOTPOINT:	SET_COMBOCLASS_VAR_BYTE(hookshot_grab_point, "Hookshot"); break;		//C
-		case COMBODLADDERPASS:		SET_COMBOCLASS_VAR_BYTE(ladder_pass, "Ladder"); break;				//C
-		case COMBODLOCKBLOCK:		SET_COMBOCLASS_VAR_BYTE(lock_block_type, "LockBlock"); break;			//C
-		case COMBODLOCKBLOCKCHANGE:	SET_COMBOCLASS_VAR_INT(lock_block_change, "LockBlockChange"); break;		//LONG
-		case COMBODMAGICMIRROR:		SET_COMBOCLASS_VAR_BYTE(magic_mirror_type, "Mirror"); break;			//C
-		case COMBODMODHPAMOUNT:		SET_COMBOCLASS_VAR_DWORD(modify_hp_amount, "DamageAmount"); break;		//SHORT
-		case COMBODMODHPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_hp_delay, "DamageDelay"); break;			//C
-		case COMBODMODHPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_hp_type,	"DamageType"); break; 			//C
-		case COMBODNMODMPAMOUNT:	SET_COMBOCLASS_VAR_DWORD(modify_mp_amount, "MagicAmount"); break;		//SHORT
-		case COMBODMODMPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_mp_delay, "MagicDelay"); break;			//C
-		case COMBODMODMPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType"); break;				//C
-		case COMBODNOPUSHBLOCK:		SET_COMBOCLASS_VAR_BYTE(no_push_blocks, "NoPushBlocks"); break;			//C
-		case COMBODOVERHEAD:		SET_COMBOCLASS_VAR_BYTE(overhead, "Overhead"); break;				//C
-		case COMBODPLACENPC:		SET_COMBOCLASS_VAR_BYTE(place_enemy, "PlaceNPC"); break;			//C
-		case COMBODPUSHDIR:		SET_COMBOCLASS_VAR_BYTE(push_direction,	"PushDir"); break; 			//C
-		case COMBODPUSHWAIT:		SET_COMBOCLASS_VAR_BYTE(push_wait, "PushDelay"); break;				//C
-		case COMBODPUSHHEAVY:		SET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy"); break;				//C
-		case COMBODPUSHED:		SET_COMBOCLASS_VAR_BYTE(pushed, "Pushed"); break;				//C
-		case COMBODRAFT:		SET_COMBOCLASS_VAR_BYTE(raft, "Raft"); break;					//C
-		case COMBODRESETROOM:		SET_COMBOCLASS_VAR_BYTE(reset_room, "ResetRoom"); break;			//C
-		case COMBODSAVEPOINTTYPE:	SET_COMBOCLASS_VAR_BYTE(save_point_type, "SavePoint"); break;			//C
-		case COMBODSCREENFREEZETYPE:	SET_COMBOCLASS_VAR_BYTE(screen_freeze_type, "FreezeScreen"); break;		//C
-		case COMBODSECRETCOMBO:		SET_COMBOCLASS_VAR_BYTE(secret_combo, "SecretCombo"); break;			//C
-		case COMBODSINGULAR:		SET_COMBOCLASS_VAR_BYTE(singular, "Singular"); break;				//C
-		case COMBODSLOWWALK:		SET_COMBOCLASS_VAR_BYTE(slow_movement, "SlowWalk"); break;			//C
-		case COMBODSTATUETYPE:		SET_COMBOCLASS_VAR_BYTE(statue_type, "Statue"); break;				//C
-		case COMBODSTEPTYPE:		SET_COMBOCLASS_VAR_BYTE(step_type, "Step"); break;				//C
-		case COMBODSTEPCHANGEINTO:	SET_COMBOCLASS_VAR_INT(step_change_to, "StepChange"); break;			//LONG
-		case COMBODSTRIKEWEAPONS:	SET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32); break;			//BYTE, 32 INDICES. 
-		case COMBODSTRIKEREMNANTS:	SET_COMBOCLASS_VAR_INT(strike_remnants,	"StrikeRemnants"); break;		//LONG
-		case COMBODSTRIKEREMNANTSTYPE:	SET_COMBOCLASS_VAR_BYTE(strike_remnants_type, "StrikeRemnantsType"); break;	//C
-		case COMBODSTRIKECHANGE:	SET_COMBOCLASS_VAR_INT(strike_change, "StrikeChange"); break;			//LONG
-		case COMBODSTRIKEITEM:		SET_COMBOCLASS_VAR_DWORD(strike_item, "StrikeItem"); break;			//SHORT
-		case COMBODTOUCHITEM:		SET_COMBOCLASS_VAR_DWORD(touch_item, "TouchItem"); break;			//SHORT
-		case COMBODTOUCHSTAIRS:		SET_COMBOCLASS_VAR_BYTE(touch_stairs, "TouchStairs"); break;			//C
-		case COMBODTRIGGERTYPE:		SET_COMBOCLASS_VAR_BYTE(trigger_type, "TriggerType"); break;			//C
-		case COMBODTRIGGERSENS:		SET_COMBOCLASS_VAR_BYTE(trigger_sensitive, "TriggerSensitivity"); break;	//C
-		case COMBODWARPTYPE:		SET_COMBOCLASS_VAR_BYTE(warp_type, "Warp"); break;				//C
-		case COMBODWARPSENS:		SET_COMBOCLASS_VAR_BYTE(warp_sensitive,	"WarpSensitivity"); break; 		//C
-		case COMBODWARPDIRECT:		SET_COMBOCLASS_VAR_BYTE(warp_direct, "WarpDirect"); break;			//C
-		case COMBODWARPLOCATION:	SET_COMBOCLASS_VAR_BYTE(warp_location, "WarpLocation"); break;			//C
-		case COMBODWATER:		SET_COMBOCLASS_VAR_BYTE(water, "Liquid"); break;					//C
-		case COMBODWHISTLE:		SET_COMBOCLASS_VAR_BYTE(whistle, "Whistle"); break;				//C
-		case COMBODWINGAME:		SET_COMBOCLASS_VAR_BYTE(win_game, "WinGame"); break; 				//C
-		case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeaponLevel"); break;		//C
+		case COMBODBLOCKNPC:		SET_COMBOCLASS_VAR_BYTE(block_enemies); break;			//C
+		case COMBODBLOCKHOLE:		SET_COMBOCLASS_VAR_BYTE(block_hole); break;			//C
+		case COMBODBLOCKTRIG:		SET_COMBOCLASS_VAR_BYTE(block_trigger); break; 		//C
+		case COMBODBLOCKWEAPON:		SET_COMBOCLASS_BYTE_INDEX(block_weapon, 32); break;			//C, 32 INDICES
+		case COMBODCONVXSPEED:		SET_COMBOCLASS_VAR_DWORD(conveyor_x_speed); break;		//SHORT
+		case COMBODCONVYSPEED:		SET_COMBOCLASS_VAR_DWORD(conveyor_y_speed); break;		//SHORT
+		case COMBODSPAWNNPC:		SET_COMBOCLASS_VAR_DWORD(create_enemy); break;			//W
+		case COMBODSPAWNNPCWHEN:	SET_COMBOCLASS_VAR_BYTE(create_enemy_when); break;		//C
+		case COMBODSPAWNNPCCHANGE:	SET_COMBOCLASS_VAR_INT(create_enemy_change); break;		//LONG
+		case COMBODDIRCHANGETYPE:	SET_COMBOCLASS_VAR_BYTE(directional_change_type); break;		//C
+		case COMBODDISTANCECHANGETILES:	SET_COMBOCLASS_VAR_INT(distance_change_tiles); break; 	//LONG
+		case COMBODDIVEITEM:		SET_COMBOCLASS_VAR_DWORD(dive_item); break;				//SHORT
+		case COMBODDOCK:		SET_COMBOCLASS_VAR_BYTE(dock); break;					//C
+		case COMBODFAIRY:		SET_COMBOCLASS_VAR_BYTE(fairy); break;					//C
+		case COMBODFFATTRCHANGE:	SET_COMBOCLASS_VAR_BYTE(ff_combo_attr_change); break;	//C
+		case COMBODFOORDECOTILE:	SET_COMBOCLASS_VAR_INT(foot_decorations_tile); break;		//LONG
+		case COMBODFOORDECOTYPE:	SET_COMBOCLASS_VAR_BYTE(foot_decorations_type); break;	//C
+		case COMBODHOOKSHOTPOINT:	SET_COMBOCLASS_VAR_BYTE(hookshot_grab_point); break;		//C
+		case COMBODLADDERPASS:		SET_COMBOCLASS_VAR_BYTE(ladder_pass); break;				//C
+		case COMBODLOCKBLOCK:		SET_COMBOCLASS_VAR_BYTE(lock_block_type); break;			//C
+		case COMBODLOCKBLOCKCHANGE:	SET_COMBOCLASS_VAR_INT(lock_block_change); break;		//LONG
+		case COMBODMAGICMIRROR:		SET_COMBOCLASS_VAR_BYTE(magic_mirror_type); break;			//C
+		case COMBODMODHPAMOUNT:		SET_COMBOCLASS_VAR_DWORD(modify_hp_amount); break;		//SHORT
+		case COMBODMODHPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_hp_delay); break;			//C
+		case COMBODMODHPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_hp_type); break; 			//C
+		case COMBODNMODMPAMOUNT:	SET_COMBOCLASS_VAR_DWORD(modify_mp_amount); break;		//SHORT
+		case COMBODMODMPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_mp_delay); break;			//C
+		case COMBODMODMPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_mp_type); break;				//C
+		case COMBODNOPUSHBLOCK:		SET_COMBOCLASS_VAR_BYTE(no_push_blocks); break;			//C
+		case COMBODOVERHEAD:		SET_COMBOCLASS_VAR_BYTE(overhead); break;				//C
+		case COMBODPLACENPC:		SET_COMBOCLASS_VAR_BYTE(place_enemy); break;			//C
+		case COMBODPUSHDIR:		SET_COMBOCLASS_VAR_BYTE(push_direction); break; 			//C
+		case COMBODPUSHWAIT:		SET_COMBOCLASS_VAR_BYTE(push_wait); break;				//C
+		case COMBODPUSHHEAVY:		SET_COMBOCLASS_VAR_BYTE(push_weight); break;				//C
+		case COMBODPUSHED:		SET_COMBOCLASS_VAR_BYTE(pushed); break;				//C
+		case COMBODRAFT:		SET_COMBOCLASS_VAR_BYTE(raft); break;					//C
+		case COMBODRESETROOM:		SET_COMBOCLASS_VAR_BYTE(reset_room); break;			//C
+		case COMBODSAVEPOINTTYPE:	SET_COMBOCLASS_VAR_BYTE(save_point_type); break;			//C
+		case COMBODSCREENFREEZETYPE:	SET_COMBOCLASS_VAR_BYTE(screen_freeze_type); break;		//C
+		case COMBODSECRETCOMBO:		SET_COMBOCLASS_VAR_BYTE(secret_combo); break;			//C
+		case COMBODSINGULAR:		SET_COMBOCLASS_VAR_BYTE(singular); break;				//C
+		case COMBODSLOWWALK:		SET_COMBOCLASS_VAR_BYTE(slow_movement); break;			//C
+		case COMBODSTATUETYPE:		SET_COMBOCLASS_VAR_BYTE(statue_type); break;				//C
+		case COMBODSTEPTYPE:		SET_COMBOCLASS_VAR_BYTE(step_type); break;				//C
+		case COMBODSTEPCHANGEINTO:	SET_COMBOCLASS_VAR_INT(step_change_to); break;			//LONG
+		case COMBODSTRIKEWEAPONS:	SET_COMBOCLASS_BYTE_INDEX(strike_weapons, 32); break;			//BYTE, 32 INDICES. 
+		case COMBODSTRIKEREMNANTS:	SET_COMBOCLASS_VAR_INT(strike_remnants); break;		//LONG
+		case COMBODSTRIKEREMNANTSTYPE:	SET_COMBOCLASS_VAR_BYTE(strike_remnants_type); break;	//C
+		case COMBODSTRIKECHANGE:	SET_COMBOCLASS_VAR_INT(strike_change); break;			//LONG
+		case COMBODSTRIKEITEM:		SET_COMBOCLASS_VAR_DWORD(strike_item); break;			//SHORT
+		case COMBODTOUCHITEM:		SET_COMBOCLASS_VAR_DWORD(touch_item); break;			//SHORT
+		case COMBODTOUCHSTAIRS:		SET_COMBOCLASS_VAR_BYTE(touch_stairs); break;			//C
+		case COMBODTRIGGERTYPE:		SET_COMBOCLASS_VAR_BYTE(trigger_type); break;			//C
+		case COMBODTRIGGERSENS:		SET_COMBOCLASS_VAR_BYTE(trigger_sensitive); break;	//C
+		case COMBODWARPTYPE:		SET_COMBOCLASS_VAR_BYTE(warp_type); break;				//C
+		case COMBODWARPSENS:		SET_COMBOCLASS_VAR_BYTE(warp_sensitive); break; 		//C
+		case COMBODWARPDIRECT:		SET_COMBOCLASS_VAR_BYTE(warp_direct); break;			//C
+		case COMBODWARPLOCATION:	SET_COMBOCLASS_VAR_BYTE(warp_location); break;			//C
+		case COMBODWATER:		SET_COMBOCLASS_VAR_BYTE(water); break;					//C
+		case COMBODWHISTLE:		SET_COMBOCLASS_VAR_BYTE(whistle); break;				//C
+		case COMBODWINGAME:		SET_COMBOCLASS_VAR_BYTE(win_game); break; 				//C
+		case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl); break;		//C
 
 
 
@@ -21345,7 +21155,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case PALDATACOLOR:
 		{
-			if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->SetColor()"))
+			if (user_paldata* pd = checkPalData(ri->paldataref))
 			{
 				int32_t ind = ri->d[rINDEX] / 10000;
 				if (unsigned(ind) >= PALDATA_NUM_COLORS)
@@ -21379,7 +21189,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case GENDATARUNNING:
 		{
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Running"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				if(value)
 					scr->launch();
@@ -21389,7 +21199,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case GENDATASIZE:
 		{
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "DataSize"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				scr->dataResize(value/10000);
 			}
@@ -21397,12 +21207,12 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case GENDATAEXITSTATE:
 		{
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ExitState"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= GENSCR_NUMST)
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->ReloadState[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				SETFLAG(scr->exitState, (1<<indx), value);
@@ -21411,12 +21221,12 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case GENDATARELOADSTATE:
 		{
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ReloadState"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= GENSCR_NUMST)
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->ReloadState[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				SETFLAG(scr->reloadState, (1<<indx), value);
@@ -21425,12 +21235,12 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case GENDATAEVENTSTATE:
 		{
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "EventListen"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= GENSCR_NUMEVENT)
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->EventListen[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				SETFLAG(scr->eventstate, (1<<indx), value);
@@ -21439,12 +21249,12 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case GENDATADATA:
 		{
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Data[]"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= scr->dataSize())
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->Data[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				scr->data[indx] = value;
@@ -21453,12 +21263,12 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case GENDATAINITD:
 		{
-			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "InitD[]"))
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
 				{
-					Z_scripterrlog("Invalid index passed to genericdata->InitD[]: %d\n", indx);
+					scripting_log_error_with_context("Invalid index: {}", indx);
 					break;
 				}
 				scr->initd[indx] = value;
@@ -21470,73 +21280,73 @@ void set_register(int32_t arg, int32_t value)
 		
 		case PORTALX:
 		{
-			if(portal* p = checkPortal(ri->portalref, "X"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->x = zslongToFix(value);
 			break;
 		}
 		case PORTALY:
 		{
-			if(portal* p = checkPortal(ri->portalref, "Y"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->y = zslongToFix(value);
 			break;
 		}
 		case PORTALDMAP:
 		{
-			if(portal* p = checkPortal(ri->portalref, "DMap"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->destdmap = vbound(value/10000,-1,MAXDMAPS-1);
 			break;
 		}
 		case PORTALSCREEN:
 		{
-			if(portal* p = checkPortal(ri->portalref, "Screen"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->destscr = vbound(value/10000,0,255);
 			break;
 		}
 		case PORTALACLK:
 		{
-			if(portal* p = checkPortal(ri->portalref, "AClk"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->aclk = vbound(value/10000, 0, 9999);
 			break;
 		}
 		case PORTALAFRM:
 		{
-			if(portal* p = checkPortal(ri->portalref, "AFrame"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->aframe = vbound(value/10000, 0, 9999);
 			break;
 		}
 		case PORTALOTILE:
 		{
-			if(portal* p = checkPortal(ri->portalref, "OriginalTile"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->o_tile = vbound(value/10000, 0, NEWMAXTILES-1);
 			break;
 		}
 		case PORTALASPD:
 		{
-			if(portal* p = checkPortal(ri->portalref, "ASpeed"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->aspd = vbound(value/10000, 0, 9999);
 			break;
 		}
 		case PORTALFRAMES:
 		{
-			if(portal* p = checkPortal(ri->portalref, "Frames"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->frames = vbound(value/10000, 0, 9999);
 			break;
 		}
 		case PORTALSAVED:
 		{
 			if(ri->portalref < 0 || value < 0) break;
-			if(portal* p = checkPortal(ri->portalref, "SavedPortal"))
+			if(portal* p = checkPortal(ri->portalref))
 			{
 				if(!value)
 					p->saved_data = 0;
-				else if(savedportal* sp = checkSavedPortal(value, "portal->SavedPortal"))
+				else if(savedportal* sp = checkSavedPortal(value))
 					p->saved_data = sp->getUID();
 			}
 			break;
 		}
 		case PORTALCLOSEDIS:
 		{
-			if(portal* p = checkPortal(ri->portalref, "CloseDisabled"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->prox_active = value==0; //Inverted
 			break;
 		}
@@ -21552,84 +21362,84 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case PORTALWARPSFX:
 		{
-			if(portal* p = checkPortal(ri->portalref, "WarpSFX"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->wsfx = vbound(value/10000,0,255);
 			break;
 		}
 		case PORTALWARPVFX:
 		{
-			if(portal* p = checkPortal(ri->portalref, "WarpEffect"))
+			if(portal* p = checkPortal(ri->portalref))
 				p->weffect = vbound(value/10000,0,255);
 			break;
 		}
 		case SAVEDPORTALX:
 		{
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "X"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				p->x = value;
 			break;
 		}
 		case SAVEDPORTALY:
 		{
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Y"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				p->y = value;
 			break;
 		}
 		case SAVEDPORTALSRCDMAP:
 		{
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "SrcDMap"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				p->srcdmap = vbound(value/10000, -1, MAXDMAPS-1);
 			break;
 		}
 		case SAVEDPORTALDESTDMAP:
 		{
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "DestDMap"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				p->destdmap = vbound(value/10000, -1, MAXDMAPS-1);
 			break;
 		}
 		case SAVEDPORTALSRCSCREEN:
 		{
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "SrcScreen"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				p->srcscr = vbound(value/10000,0,255);
 			break;
 		}
 		case SAVEDPORTALDSTSCREEN:
 		{
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "DestScreen"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				p->destscr = vbound(value/10000,0,255);
 			break;
 		}
 		case SAVEDPORTALWARPSFX:
 		{
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "WarpSFX"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				p->sfx = vbound(value/10000,0,255);
 			break;
 		}
 		case SAVEDPORTALWARPVFX:
 		{
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "WarpEffect"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				p->warpfx = vbound(value/10000,0,255);
 			break;
 		}
 		case SAVEDPORTALSPRITE:
 		{
-			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Sprite"))
+			if(savedportal* p = checkSavedPortal(ri->saveportalref))
 				p->spr = vbound(value/10000,0,255);
 			break;
 		}
 		case SAVEDPORTALPORTAL:
 		{
 			if(ri->saveportalref < 0 || value < 0) break;
-			if(savedportal* sp = checkSavedPortal(ri->saveportalref, "Portal"))
+			if(savedportal* sp = checkSavedPortal(ri->saveportalref))
 			{
 				int32_t id = getPortalFromSaved(sp);
 				if(id == value) break; //no change
-				portal* p = checkPortal(value,"savedportal->Portal");
+				portal* p = checkPortal(value);
 				if(p)
 				{
 					p->saved_data = sp->getUID();
 					if(id > 0)
 					{
-						portal* p = checkPortal(id,"THIS SHOULD NOT APPEAR");
+						portal* p = checkPortal(id);
 						p->saved_data = 0;
 					}
 				}
@@ -21686,14 +21496,14 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SUBDATACURPG:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CurPage"))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 				if(sub->sub_type == sstACTIVE)
 					sub->curpage = vbound(value/10000,0,sub->pages.size()-1);
 			break;
 		}
 		case SUBDATANUMPG:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "NumPages"))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 				if(sub->sub_type == sstACTIVE && value >= 10000)
 				{
 					size_t sz = value/10000;
@@ -21709,7 +21519,7 @@ void set_register(int32_t arg, int32_t value)
 		case SUBDATATYPE: break; //READONLY
 		case SUBDATAFLAGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Flags[]"))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				size_t sz = 0;
@@ -21738,7 +21548,7 @@ void set_register(int32_t arg, int32_t value)
 		///---- ACTIVE SUBSCREENS ONLY
 		case SUBDATACURSORPOS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CursorPos", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				SubscrPage& pg = sub->cur_page();
 				//Should this be sanity checked? Or should nulling out
@@ -21749,13 +21559,13 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATASCRIPT:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Script", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				sub->script = vbound(value/10000,0,NUMSCRIPTSSUBSCREEN-1);
 			break;
 		}
 		case SUBDATAINITD:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "InitD[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -21770,7 +21580,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATABTNLEFT:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageLeft[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -21785,7 +21595,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATABTNRIGHT:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageRight[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -21800,7 +21610,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSLEFTTY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftType", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_left;
 				trans.type = vbound(value/10000,0,sstrMAX-1);
@@ -21809,7 +21619,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSLEFTSFX:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftSFX", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_left;
 				trans.tr_sfx = vbound(value/10000,0,255);
@@ -21818,7 +21628,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSLEFTFLAGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftFlags[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_left;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -21834,7 +21644,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSLEFTARGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftArgs[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_left;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -21850,7 +21660,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSRIGHTTY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightType", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_right;
 				trans.type = vbound(value/10000,0,sstrMAX-1);
@@ -21859,7 +21669,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSRIGHTSFX:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightSFX", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_right;
 				trans.tr_sfx = vbound(value/10000,0,255);
@@ -21868,7 +21678,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSRIGHTFLAGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightFlags[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_right;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -21884,7 +21694,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSRIGHTARGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightArgs[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = sub->trans_right;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -21900,31 +21710,31 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATASELECTORDSTX:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestX", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				sub->selector_setting.x = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBDATASELECTORDSTY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestY", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				sub->selector_setting.y = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBDATASELECTORDSTW:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestW", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				sub->selector_setting.w = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBDATASELECTORDSTH:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestH", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 				sub->selector_setting.h = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBDATASELECTORWID:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestWid", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -21939,7 +21749,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATASELECTORHEI:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestHei", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -21954,7 +21764,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATASELECTORTILE:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorTile", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -21969,7 +21779,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATASELECTORCSET:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorCSet", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -21987,7 +21797,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATASELECTORFLASHCSET:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFlashCSet", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22005,7 +21815,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATASELECTORFRM:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFrames", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22020,7 +21830,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATASELECTORASPD:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorASpeed", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22035,7 +21845,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATASELECTORDELAY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDelay", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22051,7 +21861,7 @@ void set_register(int32_t arg, int32_t value)
 		///---- CURRENTLY OPEN ACTIVE SUBSCREEN ONLY
 		case SUBDATATRANSCLK:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransClock", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				if(sub != new_subscreen_active)
 					Z_scripterrlog("'subscreendata->TransClock' is only"
@@ -22075,7 +21885,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSTY:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransType", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = subscr_pg_transition;
 				if(sub != new_subscreen_active)
@@ -22088,7 +21898,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSFLAGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFlags[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = subscr_pg_transition;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -22107,7 +21917,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSARGS:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransArgs[]", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				auto& trans = subscr_pg_transition;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -22126,7 +21936,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSFROMPG:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFromPage", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				if(sub != new_subscreen_active)
 					Z_scripterrlog("'subscreendata->TransFromPage' is only"
@@ -22138,7 +21948,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBDATATRANSTOPG:
 		{
-			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransToPage", sstACTIVE))
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, sstACTIVE))
 			{
 				if(sub != new_subscreen_active)
 					Z_scripterrlog("'subscreendata->TransToPage' is only"
@@ -22156,7 +21966,7 @@ void set_register(int32_t arg, int32_t value)
 		case SUBPGSUBDATA: break; //READ-ONLY
 		case SUBPGCURSORPOS:
 		{
-			if(SubscrPage* pg = checkSubPage(ri->subpageref, "CursorPos"))
+			if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				pg->cursor_pos = vbound(value/10000,0,255);
 			break;
 		}
@@ -22169,13 +21979,13 @@ void set_register(int32_t arg, int32_t value)
 		case SUBWIDGEQPITM: break; //READ-ONLY
 		case SUBWIDGPOS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Pos"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				widg->pos = vbound(value/10000,0,255);
 			break;
 		}
 		case SUBWIDGPOSES:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PosDirs"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 4)
@@ -22207,7 +22017,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGPOSFLAG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VisibleFlags"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= sspNUM)
@@ -22224,31 +22034,31 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "X"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				widg->x = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBWIDGY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Y"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				widg->y = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBWIDGW:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "W"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				widg->w = vbound(value/10000,0,65535);
 			break;
 		}
 		case SUBWIDGH:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "H"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				widg->h = vbound(value/10000,0,65535);
 			break;
 		}
 		case SUBWIDGGENFLAG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GenFlags"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCRFLAG_GEN_COUNT)
@@ -22265,7 +22075,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGFLAG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flags"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				byte sz = widg->numFlags();
@@ -22284,31 +22094,31 @@ void set_register(int32_t arg, int32_t value)
 		///---- ACTIVE SUBSCREENS ONLY
 		case SUBWIDGSELECTORDSTX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestX", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				widg->selector_override.x = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBWIDGSELECTORDSTY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestY", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				widg->selector_override.y = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBWIDGSELECTORDSTW:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestW", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				widg->selector_override.w = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBWIDGSELECTORDSTH:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestH", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				widg->selector_override.h = vbound(value/10000,-32768,32767);
 			break;
 		}
 		case SUBWIDGSELECTORWID:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestWid", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22323,7 +22133,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGSELECTORHEI:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestHei", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22338,7 +22148,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGSELECTORTILE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorTile", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22353,7 +22163,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGSELECTORCSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorCSet", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22371,7 +22181,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGSELECTORFLASHCSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorFlashCSet", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22389,7 +22199,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGSELECTORFRM:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorFrames", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22404,7 +22214,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGSELECTORASPD:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorASpeed", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22419,7 +22229,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGSELECTORDELAY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDelay", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
@@ -22435,13 +22245,13 @@ void set_register(int32_t arg, int32_t value)
 				
 		case SUBWIDGPRESSSCRIPT:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PressScript", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				widg->generic_script = vbound(value/10000,0,NUMSCRIPTSGENERIC-1);
 			break;
 		}
 		case SUBWIDGPRESSINITD:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PressInitD[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -22456,7 +22266,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGBTNPRESS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "BtnPressScript[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -22471,7 +22281,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGBTNPG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "BtnPageChange[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				if(indx >= 8)
@@ -22486,20 +22296,20 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGPGMODE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageMode", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				widg->pg_mode = vbound(value/10000,0,PGGOTO_MAX-1);
 			break;
 		}
 		case SUBWIDGPGTARG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TargetPage", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 				widg->pg_targ = vbound(value/10000,0,MAX_SUBSCR_PAGES-1);
 			break;
 		}
 		
 		case SUBWIDGTRANSPGTY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransType", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				auto& trans = widg->pg_trans;
 				trans.type = vbound(value/10000,0,sstrMAX-1);
@@ -22508,7 +22318,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTRANSPGSFX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransSFX", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				auto& trans = widg->pg_trans;
 				trans.tr_sfx = vbound(value/10000,0,255);
@@ -22517,7 +22327,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTRANSPGFLAGS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransFlags[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				auto& trans = widg->pg_trans;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -22533,7 +22343,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTRANSPGARGS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransArgs[]", sstACTIVE))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, sstACTIVE))
 			{
 				auto& trans = widg->pg_trans;
 				size_t indx = ri->d[rINDEX]/10000;
@@ -22550,7 +22360,7 @@ void set_register(int32_t arg, int32_t value)
 		///---- VARYING WIDGET TYPES
 		case SUBWIDGTY_CSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CSet"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,-sscsMAX,15);
 				size_t indx = ri->d[rINDEX]/10000;
@@ -22571,7 +22381,7 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("CSet[]", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 				if(!sz) break;
@@ -22607,7 +22417,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_TILE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Tile[]"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,NEWMAXTILES-1);
 				size_t indx = ri->d[rINDEX]/10000;
@@ -22628,7 +22438,7 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("Tile[]", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 				if(!sz) break;
@@ -22664,7 +22474,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_FONT:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Font"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,font_max-1);
 				auto ty = widg->getType();
@@ -22695,7 +22505,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_MMapTitle*)widg)->fontid = val;
 						break;
 					default:
-						bad_subwidg_type("Font", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22703,7 +22513,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_ALIGN:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Align"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,sstaMAX-1);
 				auto ty = widg->getType();
@@ -22731,7 +22541,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_MMapTitle*)widg)->align = val;
 						break;
 					default:
-						bad_subwidg_type("Align", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22739,7 +22549,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_SHADOWTY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShadowType"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,sstsMAX-1);
 				auto ty = widg->getType();
@@ -22770,7 +22580,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_MMapTitle*)widg)->shadtype = val;
 						break;
 					default:
-						bad_subwidg_type("ShadowType", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22778,7 +22588,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COLOR_TXT:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -22812,7 +22622,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_TriFrame*)widg)->c_number.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorText", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22820,7 +22630,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COLOR_SHD:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -22851,7 +22661,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_MMapTitle*)widg)->c_shadow.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorShadow", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22859,7 +22669,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COLOR_BG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -22893,7 +22703,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_Clear*)widg)->c_bg.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorBG", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22902,7 +22712,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SUBWIDGTY_COLOR_TXT2:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText2"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -22915,7 +22725,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_BtnCounter*)widg)->c_text2.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorText2", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22923,7 +22733,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COLOR_SHD2:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow2"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -22936,7 +22746,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_BtnCounter*)widg)->c_shadow2.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorShadow2", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22944,7 +22754,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COLOR_BG2:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG2"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -22957,7 +22767,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_BtnCounter*)widg)->c_bg2.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorBG2", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22966,7 +22776,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SUBWIDGTY_COLOR_OLINE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorOutline"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -22982,7 +22792,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_TriFrame*)widg)->c_outline.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorOutline", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -22991,7 +22801,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SUBWIDGTY_COLOR_FILL:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorFill"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -23001,7 +22811,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_Rect*)widg)->c_fill.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorFill", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23009,7 +22819,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_BUTTON:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Button"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,3);
 				auto ty = widg->getType();
@@ -23022,7 +22832,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_BtnCounter*)widg)->btn = val;
 						break;
 					default:
-						bad_subwidg_type("Button", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23030,7 +22840,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COUNTERS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counter[]"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,sscMIN+1,MAX_COUNTERS-1);
 				size_t indx = ri->d[rINDEX]/10000;
@@ -23046,7 +22856,7 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("Counter[]", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 				if(!sz) break;
@@ -23070,7 +22880,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_MINDIG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MinDigits"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,5);
 				auto ty = widg->getType();
@@ -23086,7 +22896,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_Counters*)widg)->digits = val;
 						break;
 					default:
-						bad_subwidg_type("MinDigits", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23094,7 +22904,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_MAXDIG:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MaxDigits"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,5);
 				auto ty = widg->getType();
@@ -23107,7 +22917,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_BtnCounter*)widg)->maxdigits = val;
 						break;
 					default:
-						bad_subwidg_type("MaxDigits", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23115,7 +22925,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_INFITM:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteItem"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,-1,MAXITEMS-1);
 				auto ty = widg->getType();
@@ -23133,7 +22943,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->inf_item = val;
 						break;
 					default:
-						bad_subwidg_type("InfiniteItem", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23141,7 +22951,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_INFCHAR:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteChar"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				char val = vbound(value/10000,0,255);
 				auto ty = widg->getType();
@@ -23157,7 +22967,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_Counters*)widg)->infchar = val;
 						break;
 					default:
-						bad_subwidg_type("InfiniteChar", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23165,7 +22975,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COSTIND:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CostIndex"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,1);
 				auto ty = widg->getType();
@@ -23175,7 +22985,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_BtnCounter*)widg)->costind = val;
 						break;
 					default:
-						bad_subwidg_type("CostIndex", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23183,7 +22993,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COLOR_PLAYER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorPlayer"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -23196,7 +23006,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_LMap*)widg)->c_plr.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorPlayer", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23204,7 +23014,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COLOR_CMPBLNK:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassBlink"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -23214,7 +23024,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_MMap*)widg)->c_cmp_blink.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorCompassBlink", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23222,7 +23032,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COLOR_CMPOFF:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassOff"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -23232,7 +23042,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_MMap*)widg)->c_cmp_off.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorCompassOff", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23240,7 +23050,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COLOR_ROOM:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorRoom"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
@@ -23250,7 +23060,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_LMap*)widg)->c_room.set_int_color(val);
 						break;
 					default:
-						bad_subwidg_type("ColorRoom", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23258,7 +23068,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_ITEMCLASS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemClass"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,itype_maxusable-1);
 				auto ty = widg->getType();
@@ -23268,7 +23078,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_ItemSlot*)widg)->iclass = val;
 						break;
 					default:
-						bad_subwidg_type("ItemClass", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23276,7 +23086,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_ITEMID:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemID"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,-1,MAXITEMS-1);
 				auto ty = widg->getType();
@@ -23286,7 +23096,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_ItemSlot*)widg)->iid = val;
 						break;
 					default:
-						bad_subwidg_type("ItemID", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23294,7 +23104,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_FRAMETILE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameTile"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,NEWMAXTILES-1);
 				auto ty = widg->getType();
@@ -23304,7 +23114,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_TriFrame*)widg)->frame_tile = val;
 						break;
 					default:
-						bad_subwidg_type("FrameTile", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23312,7 +23122,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_FRAMECSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameCSet"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,15);
 				auto ty = widg->getType();
@@ -23322,7 +23132,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_TriFrame*)widg)->frame_cset = val;
 						break;
 					default:
-						bad_subwidg_type("FrameCSet", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23330,7 +23140,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_PIECETILE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceTile"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,NEWMAXTILES-1);
 				auto ty = widg->getType();
@@ -23340,7 +23150,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_TriFrame*)widg)->piece_tile = val;
 						break;
 					default:
-						bad_subwidg_type("PieceTile", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23348,7 +23158,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_PIECECSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceCSet"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,15);
 				auto ty = widg->getType();
@@ -23358,7 +23168,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_TriFrame*)widg)->piece_cset = val;
 						break;
 					default:
-						bad_subwidg_type("PieceCSet", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23366,7 +23176,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_FLIP:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flip"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,15);
 				auto ty = widg->getType();
@@ -23382,7 +23192,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_MiniTile*)widg)->flip = val;
 						break;
 					default:
-						bad_subwidg_type("Flip", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23390,7 +23200,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_NUMBER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Number"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,255);
 				auto ty = widg->getType();
@@ -23400,7 +23210,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_McGuffin*)widg)->number = val;
 						break;
 					default:
-						bad_subwidg_type("Number", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23408,7 +23218,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_CORNER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Corner[]"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,3);
 				size_t indx = ri->d[rINDEX]/10000;
@@ -23426,7 +23236,7 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("Corner[]", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 				if(!sz) break;
@@ -23452,7 +23262,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_FRAMES:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Frames"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,1,65535);
 				auto ty = widg->getType();
@@ -23464,7 +23274,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->frames = val;
 						break;
 					default:
-						bad_subwidg_type("Frames", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23472,7 +23282,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_SPEED:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Speed"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,1,65535);
 				auto ty = widg->getType();
@@ -23484,7 +23294,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->speed = val;
 						break;
 					default:
-						bad_subwidg_type("Speed", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23492,7 +23302,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_DELAY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Delay"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,65535);
 				auto ty = widg->getType();
@@ -23504,7 +23314,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->delay = val;
 						break;
 					default:
-						bad_subwidg_type("Delay", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23512,7 +23322,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_CONTAINER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Container"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,65535);
 				auto ty = widg->getType();
@@ -23524,7 +23334,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->container = val;
 						break;
 					default:
-						bad_subwidg_type("Container", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23532,7 +23342,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_GAUGE_WID:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeWid"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,1,32)-1;
 				auto ty = widg->getType();
@@ -23544,7 +23354,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->gauge_wid = val;
 						break;
 					default:
-						bad_subwidg_type("GaugeWid", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23552,7 +23362,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_GAUGE_HEI:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeHei"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,1,32)-1;
 				auto ty = widg->getType();
@@ -23564,7 +23374,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->gauge_hei = val;
 						break;
 					default:
-						bad_subwidg_type("GaugeHei", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23572,7 +23382,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_UNITS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Units"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,1,256);
 				auto ty = widg->getType();
@@ -23584,7 +23394,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->unit_per_frame = val-1;
 						break;
 					default:
-						bad_subwidg_type("Units", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23592,7 +23402,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_HSPACE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "HSpace"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,-128,127);
 				auto ty = widg->getType();
@@ -23604,7 +23414,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->hspace = val;
 						break;
 					default:
-						bad_subwidg_type("HSpace", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23612,7 +23422,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_VSPACE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VSpace"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,-128,127);
 				auto ty = widg->getType();
@@ -23624,7 +23434,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->vspace = val;
 						break;
 					default:
-						bad_subwidg_type("VSpace", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23632,7 +23442,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_GRIDX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridX"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,-32768,32767);
 				auto ty = widg->getType();
@@ -23644,7 +23454,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->grid_xoff = val;
 						break;
 					default:
-						bad_subwidg_type("GridX", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23652,7 +23462,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_GRIDY:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridY"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,-32768,32767);
 				auto ty = widg->getType();
@@ -23664,7 +23474,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->grid_yoff = val;
 						break;
 					default:
-						bad_subwidg_type("GridY", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23672,7 +23482,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_ANIMVAL:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "AnimVal"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,65535);
 				auto ty = widg->getType();
@@ -23684,7 +23494,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_GaugePiece*)widg)->anim_val = val;
 						break;
 					default:
-						bad_subwidg_type("AnimVal", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23692,7 +23502,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_SHOWDRAIN:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShowDrain"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,-1,32767);
 				auto ty = widg->getType();
@@ -23702,7 +23512,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_MagicGaugePiece*)widg)->showdrain = val;
 						break;
 					default:
-						bad_subwidg_type("ShowDrain", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23710,7 +23520,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_PERCONTAINER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PerContainer"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,1,65535);
 				auto ty = widg->getType();
@@ -23720,7 +23530,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_MiscGaugePiece*)widg)->per_container = val;
 						break;
 					default:
-						bad_subwidg_type("PerContainer", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23728,7 +23538,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_TABSIZE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TabSize"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
 				auto val = vbound(value/10000,0,255);
 				auto ty = widg->getType();
@@ -23741,7 +23551,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_SelectedText*)widg)->tabsize = val;
 						break;
 					default:
-						bad_subwidg_type("TabSize", false, ty);
+						bad_subwidg_type(false, ty);
 						break;
 				}
 			}
@@ -23752,6 +23562,8 @@ void set_register(int32_t arg, int32_t value)
 		default:
 			scripting_engine_set_register(arg, value);
 	}
+
+	current_zasm_register = 0;
 } //end set_register
 
 static std::map<std::string, int> name_to_slot_index_ffcmap;
@@ -23818,32 +23630,47 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 	{
 		case INTARR_SCREEN_NPC:
 		{
-			if(BC::checkGuyIndex(indx, "Screen->NPCs[]") != SH::_NoError)
+			current_zasm_context = "Screen->NPCs[]";
+			if(BC::checkGuyIndex(indx) != SH::_NoError)
 				return 0;
+			current_zasm_context = "";
+
 			return guys.spr(indx)->getUID();
 		}
 		case INTARR_SCREEN_ITEMSPR:
 		{
-			if(BC::checkItemIndex(indx, "Screen->Items[]") != SH::_NoError)
+			current_zasm_context = "Screen->Items[]";
+			if(BC::checkItemIndex(indx) != SH::_NoError)
 				return 0;
+			current_zasm_context = "";
+
 			return items.spr(indx)->getUID();
 		}
 		case INTARR_SCREEN_LWPN:
 		{
-			if(BC::checkLWeaponIndex(indx, "Screen->LWeapons[]") != SH::_NoError)
+			current_zasm_context = "Screen->LWeapons[]";
+			if(BC::checkLWeaponIndex(indx) != SH::_NoError)
 				return 0;
+			current_zasm_context = "";
+
 			return Lwpns.spr(indx)->getUID();
 		}
 		case INTARR_SCREEN_EWPN:
 		{
-			if(BC::checkEWeaponIndex(indx, "Screen->EWeapons[]") != SH::_NoError)
+			current_zasm_context = "Screen->EWeapons[]";
+			if(BC::checkEWeaponIndex(indx) != SH::_NoError)
 				return 0;
+			current_zasm_context = "";
+
 			return Ewpns.spr(indx)->getUID();
 		}
 		case INTARR_SCREEN_FFC:
 		{
-			if (auto ffc = ResolveFFCWithID(indx, "Screen->FFCs"))
+			current_zasm_context = "Screen->FFCs[]";
+			if (auto ffc = ResolveFFCWithID(indx))
 			{
+				current_zasm_context = "";
+
 				if (ZScriptVersion::ffcRefIsSpriteId())
 					return ffc->getUID();
 
@@ -23854,19 +23681,25 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 		}
 		case INTARR_SCREEN_PORTALS:
 		{
-			if(BC::checkBoundsOneIndexed(indx, 0, portals.Count()-1, "Screen->Portals[]") != SH::_NoError)
+			current_zasm_context = "Screen->Portals[]";
+			if(BC::checkBoundsOneIndexed(indx, 0, portals.Count()-1) != SH::_NoError)
 				return 0;
+			current_zasm_context = "";
+
 			return portals.spr(indx)->getUID();
 		}
 		case INTARR_SAVPRTL:
 		{
-			if(BC::checkBoundsOneIndexed(indx, 0, game->user_portals.size()-1, "Game->SavedPortals[]") != SH::_NoError)
+			current_zasm_context = "Game->SavedPortals[]";
+			if(BC::checkBoundsOneIndexed(indx, 0, game->user_portals.size()-1) != SH::_NoError)
 				return 0;
+			current_zasm_context = "";
+
 			return (indx+1)*10000;
 		}
 		default:
 		{
-			Z_scripterrlog("Unknown internal array '%d' read from!\n", ptr);
+			scripting_log_error_with_context("Unknown internal array '{}' read from!", ptr);
 			return 0;
 		}
 	}
@@ -23876,30 +23709,30 @@ void set_int_arr(const int32_t ptr, int32_t indx, int32_t val)
 	switch(ptr)
 	{
 		case INTARR_SCREEN_NPC:
-			Z_scripterrlog("Read-only array 'Screen->NPCs' cannot be written to!\n");
+			scripting_log_error_with_context("Read-only array 'Screen->NPCs' cannot be written to!");
 			return;
 		case INTARR_SCREEN_ITEMSPR:
-			Z_scripterrlog("Read-only array 'Screen->Items' cannot be written to!\n");
+			scripting_log_error_with_context("Read-only array 'Screen->Items' cannot be written to!");
 			return;
 		case INTARR_SCREEN_LWPN:
-			Z_scripterrlog("Read-only array 'Screen->LWeapons' cannot be written to!\n");
+			scripting_log_error_with_context("Read-only array 'Screen->LWeapons' cannot be written to!");
 			return;
 		case INTARR_SCREEN_EWPN:
-			Z_scripterrlog("Read-only array 'Screen->EWeapons' cannot be written to!\n");
+			scripting_log_error_with_context("Read-only array 'Screen->EWeapons' cannot be written to!");
 			return;
 		case INTARR_SCREEN_FFC:
-			Z_scripterrlog("Read-only array 'Screen->FFCs' cannot be written to!\n");
+			scripting_log_error_with_context("Read-only array 'Screen->FFCs' cannot be written to!");
 			return;
 		case INTARR_SCREEN_PORTALS:
-			Z_scripterrlog("Read-only array 'Screen->Portals' cannot be written to!\n");
+			scripting_log_error_with_context("Read-only array 'Screen->Portals' cannot be written to!");
 			return;
 		case INTARR_SAVPRTL:
-			Z_scripterrlog("Read-only array 'Game->SavedPortals' cannot be written to!\n");
+			scripting_log_error_with_context("Read-only array 'Game->SavedPortals' cannot be written to!");
 			return;
 		
 		default:
 		{
-			Z_scripterrlog("Unknown internal array '%d' written to!\n", ptr);
+			scripting_log_error_with_context("Unknown internal array '{}' written to!", ptr);
 			return;
 		}
 	}
@@ -23938,7 +23771,7 @@ int32_t sz_int_arr(const int32_t ptr)
 		}
 		default:
 		{
-			Z_scripterrlog("Unknown internal array '%d' size read!\n", ptr);
+			scripting_log_error_with_context("Unknown internal array '{}' size read!", ptr);
 			return -1;
 		}
 	}
@@ -23952,7 +23785,7 @@ void retstack_push(int32_t val)
 {
 	if(ri->retsp >= ret_stack->size())
 	{
-		Z_scripterrlog("RetStack over or underflow, retstack pointer = %ld\n", ri->retsp);
+		scripting_log_error_with_context("RetStack over or underflow, retstack pointer = {}", ri->retsp);
 		return;
 	}
 	ret_stack->at(ri->retsp++) = val;
@@ -24008,7 +23841,7 @@ void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
 		case ScriptType::FFC:
 			if (sarg1 == FFSCRIPT)
 			{
-				if (auto ffc = ResolveFFC(ri->ffcref, "SET"); ffc && ffc->index == whichUID)
+				if (auto ffc = ResolveFFC(ri->ffcref); ffc && ffc->index == whichUID)
 					allowed = false;
 			}
 			break;
@@ -24423,7 +24256,7 @@ void do_div(bool v, const bool inv = false)
 	
 	if(temp == 0)
 	{
-		Z_scripterrlog("Script attempted to divide %ld by zero!\n", temp2);
+		scripting_log_error_with_context("Script attempted to divide {} by zero!", temp2);
 		set_register(destreg, int32_t(sign(temp2) * MAX_SIGNED_32));
 	}
 	else
@@ -24442,7 +24275,7 @@ void do_mod(bool v, const bool inv = false)
 	
 	if(temp == 0)
 	{
-		Z_scripterrlog("Script attempted to modulo %ld by zero!\n",temp2);
+		scripting_log_error_with_context("Script attempted to modulo {} by zero!", temp2);
 		temp = 1;
 	}
 	
@@ -24853,25 +24686,25 @@ void do_charwidth()
 	delete[] cstr;
 }
 
-int32_t do_msgwidth(int32_t msg, char const* str)
+int32_t do_msgwidth(int32_t ID)
 {
-	if(BC::checkMessage(msg, str) != SH::_NoError)
+	if(BC::checkMessage(ID) != SH::_NoError)
 	{
 		return -1;
 	}
 	
-	int32_t v = text_length(get_zc_font(MsgStrings[msg].font),
-		MsgStrings[msg].s.substr(0,MsgStrings[msg].s.find_last_not_of(' ')+1).c_str());
+	int32_t v = text_length(get_zc_font(MsgStrings[ID].font),
+		MsgStrings[ID].s.substr(0,MsgStrings[ID].s.find_last_not_of(' ')+1).c_str());
 	return v;
 }
 
-int32_t do_msgheight(int32_t msg, char const* str)
+int32_t do_msgheight(int32_t ID)
 {
-	if(BC::checkMessage(msg, str) != SH::_NoError)
+	if(BC::checkMessage(ID) != SH::_NoError)
 	{
 		return -1;
 	}
-	return text_height(get_zc_font(MsgStrings[msg].font));
+	return text_height(get_zc_font(MsgStrings[ID].font));
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -25023,7 +24856,7 @@ void do_mapdataissolid()
 	auto result = decode_mapdata_ref(ri->mapsref);
 	if (!result.scr)
 	{
-		Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","isSolid()");
+		scripting_log_error_with_context("mapdata pointer is either invalid or uninitialised");
 		set_register(sarg1,10000);
 	}
 	else
@@ -25063,7 +24896,7 @@ void do_mapdataissolid_layer()
 	auto result = decode_mapdata_ref(ri->mapsref);
 	if (!result.scr)
 	{
-		Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","isSolidLayer()");
+		scripting_log_error_with_context("mapdata pointer is either invalid or uninitialised");
 		set_register(sarg1,10000);
 	}
 	else
@@ -25071,7 +24904,7 @@ void do_mapdataissolid_layer()
 		int32_t x = int32_t(ri->d[rINDEX] / 10000);
 		int32_t y = int32_t(ri->d[rINDEX2] / 10000);
 		int32_t layer = int32_t(ri->d[rEXP1] / 10000);
-		if(BC::checkBounds(layer, 0, 6, "mapdata->isSolidLayer()") != SH::_NoError)
+		if(BC::checkBounds(layer, 0, 6) != SH::_NoError)
 		{
 			set_register(sarg1,10000);
 		}
@@ -25111,7 +24944,7 @@ void do_issolid_layer()
 	int32_t x = int32_t(ri->d[rINDEX] / 10000);
 	int32_t y = int32_t(ri->d[rINDEX2] / 10000);
 	int32_t layer = int32_t(ri->d[rEXP1] / 10000);
-	if(BC::checkBounds(layer, 0, 6, "Screen->isSolidLayer()") != SH::_NoError)
+	if(BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
 		set_register(sarg1,10000);
 	}
@@ -25128,11 +24961,23 @@ void do_setsidewarp()
 	int32_t dmap   = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t type   = SH::read_stack(ri->sp + 0) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->SetSideWarp") != SH::_NoError ||
-			BC::checkBounds(scrn, -1, 0x87, "Screen->SetSideWarp") != SH::_NoError ||
-			BC::checkBounds(dmap, -1, MAXDMAPS - 1, "Screen->SetSideWarp") != SH::_NoError ||
-			BC::checkBounds(type, -1, wtMAX - 1, "Screen->SetSideWarp") != SH::_NoError)
+	current_zasm_extra_context = "warp";
+	if (BC::checkBounds(warp, -1, 3) != SH::_NoError)
 		return;
+
+	current_zasm_extra_context = "screen";
+	if (BC::checkBounds(scrn, -1, 0x87) != SH::_NoError)
+		return;
+
+	current_zasm_extra_context = "dmap";
+	if (BC::checkBounds(dmap, -1, MAXDMAPS - 1) != SH::_NoError)
+		return;
+
+	current_zasm_extra_context = "type";
+	if (BC::checkBounds(type, -1, wtMAX - 1) != SH::_NoError)
+		return;
+
+	current_zasm_extra_context = "";
 	
 	mapscr* scr = get_scr(ri->screenref);
 		
@@ -25152,13 +24997,25 @@ void do_settilewarp()
 	int32_t scrn = SH::read_stack(ri->sp + 2) / 10000;
 	int32_t dmap   = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t type   = SH::read_stack(ri->sp + 0) / 10000;
-	
-	if(BC::checkBounds(warp, -1, 3, "Screen->SetTileWarp") != SH::_NoError ||
-			BC::checkBounds(scrn, -1, 0x87, "Screen->SetTileWarp") != SH::_NoError ||
-			BC::checkBounds(dmap, -1, MAXDMAPS - 1, "Screen->SetTileWarp") != SH::_NoError ||
-			BC::checkBounds(type, -1, wtMAX - 1, "Screen->SetTileWarp") != SH::_NoError)
+
+	current_zasm_extra_context = "warp";
+	if (BC::checkBounds(warp, -1, 3) != SH::_NoError)
 		return;
-	
+
+	current_zasm_extra_context = "screen";
+	if (BC::checkBounds(scrn, -1, 0x87) != SH::_NoError)
+		return;
+
+	current_zasm_extra_context = "dmap";
+	if (BC::checkBounds(dmap, -1, MAXDMAPS - 1) != SH::_NoError)
+		return;
+
+	current_zasm_extra_context = "type";
+	if (BC::checkBounds(type, -1, wtMAX - 1) != SH::_NoError)
+		return;
+
+	current_zasm_extra_context = "";
+
 	mapscr* scr = get_scr(ri->screenref);
 		
 	if(scrn > -1)
@@ -25175,7 +25032,7 @@ void do_getsidewarpdmap(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetSideWarpDMap") != SH::_NoError)
+	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -25188,7 +25045,7 @@ void do_getsidewarpscr(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetSideWarpScreen") != SH::_NoError)
+	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -25201,7 +25058,7 @@ void do_getsidewarptype(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetSideWarpType") != SH::_NoError)
+	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -25214,7 +25071,7 @@ void do_gettilewarpdmap(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetTileWarpDMap") != SH::_NoError)
+	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -25227,7 +25084,7 @@ void do_gettilewarpscr(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetTileWarpScreen") != SH::_NoError)
+	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -25240,7 +25097,7 @@ void do_gettilewarptype(const bool v)
 {
 	int32_t warp = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(warp, -1, 3, "Screen->GetTileWarpType") != SH::_NoError)
+	if(BC::checkBounds(warp, -1, 3) != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
@@ -25253,7 +25110,7 @@ void do_layerscreen()
 {
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
 	
-	if(BC::checkBounds(layer, 0, 5, "Screen->LayerScreen") != SH::_NoError || get_scr(ri->screenref)->layermap[layer] == 0)
+	if(BC::checkBounds(layer, 0, 5) != SH::_NoError || get_scr(ri->screenref)->layermap[layer] == 0)
 		set_register(sarg1, -10000);
 	else
 		set_register(sarg1, get_scr(ri->screenref)->layerscreen[layer] * 10000);
@@ -25263,7 +25120,7 @@ void do_layermap()
 {
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
 	
-	if(BC::checkBounds(layer, 0, 5, "Screen->LayerMap") != SH::_NoError || get_scr(ri->screenref)->layermap[layer] == 0)
+	if(BC::checkBounds(layer, 0, 5) != SH::_NoError || get_scr(ri->screenref)->layermap[layer] == 0)
 		set_register(sarg1, -10000);
 	else
 		set_register(sarg1, get_scr(ri->screenref)->layermap[layer] * 10000);
@@ -25275,7 +25132,7 @@ void do_triggersecrets(int screen)
 {
 	if (!is_in_current_region(screen))
 	{
-		Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen);
+		scripting_log_error_with_context("Must be given a screen in the current region. got: {}", screen);
 		return;
 	}
 
@@ -25428,7 +25285,7 @@ void do_isvalidewpn()
 
 void do_lwpnmakeangular()
 {
-	if(LwpnH::loadWeapon(ri->lwpn, "lweapon->MakeAngular") == SH::_NoError)
+	if(LwpnH::loadWeapon(ri->lwpn) == SH::_NoError)
 	{
 		if (!LwpnH::getWeapon()->angular)
 		{
@@ -25478,7 +25335,7 @@ void do_lwpnmakeangular()
 
 void do_lwpnmakedirectional()
 {
-	if(LwpnH::loadWeapon(ri->lwpn, "lweapon->MakeDirectional") == SH::_NoError)
+	if(LwpnH::loadWeapon(ri->lwpn) == SH::_NoError)
 	{
 		if (LwpnH::getWeapon()->angular)
 		{
@@ -25491,7 +25348,7 @@ void do_lwpnmakedirectional()
 
 void do_ewpnmakeangular()
 {
-	if(EwpnH::loadWeapon(ri->ewpn, "eweapon->MakeAngular") == SH::_NoError)
+	if(EwpnH::loadWeapon(ri->ewpn) == SH::_NoError)
 	{
 		if (!EwpnH::getWeapon()->angular)
 		{
@@ -25541,7 +25398,7 @@ void do_ewpnmakeangular()
 
 void do_ewpnmakedirectional()
 {
-	if(EwpnH::loadWeapon(ri->lwpn, "eweapon->MakeDirectional") == SH::_NoError)
+	if(EwpnH::loadWeapon(ri->lwpn) == SH::_NoError)
 	{
 		if (EwpnH::getWeapon()->angular)
 		{
@@ -25556,10 +25413,10 @@ void do_lwpnusesprite(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkWeaponMiscSprite(ID, "lweapon->UseSprite") != SH::_NoError)
+	if(BC::checkWeaponMiscSprite(ID) != SH::_NoError)
 		return;
 		
-	if(LwpnH::loadWeapon(ri->lwpn, "lweapon->UseSprite") == SH::_NoError)
+	if(LwpnH::loadWeapon(ri->lwpn) == SH::_NoError)
 		LwpnH::getWeapon()->LOADGFX(ID);
 }
 
@@ -25567,10 +25424,10 @@ void do_ewpnusesprite(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkWeaponMiscSprite(ID, "eweapon->UseSprite") != SH::_NoError)
+	if(BC::checkWeaponMiscSprite(ID) != SH::_NoError)
 		return;
 		
-	if(EwpnH::loadWeapon(ri->ewpn, "eweapon->UseSprite") == SH::_NoError)
+	if(EwpnH::loadWeapon(ri->ewpn) == SH::_NoError)
 		EwpnH::getWeapon()->LOADGFX(ID);
 }
 
@@ -25578,10 +25435,10 @@ void do_portalusesprite()
 {
 	int32_t ID = get_register(sarg1) / 10000;
 	
-	if(BC::checkWeaponMiscSprite(ID, "portal->UseSprite") != SH::_NoError)
+	if(BC::checkWeaponMiscSprite(ID) != SH::_NoError)
 		return;
 	
-	if(portal* p = checkPortal(ri->portalref, "UseSprite()"))
+	if(portal* p = checkPortal(ri->portalref))
 		p->LOADGFX(ID);
 }
 
@@ -25589,7 +25446,7 @@ void do_clearsprites(const bool v)
 {
 	int32_t spritelist = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkBounds(spritelist, 0, 5, "Screen->ClearSprites") != SH::_NoError)
+	if(BC::checkBounds(spritelist, 0, 5) != SH::_NoError)
 		return;
 		
 	switch(spritelist)
@@ -25625,7 +25482,7 @@ void do_loadlweapon(const bool v)
 {
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkLWeaponIndex(index, "Screen->LoadLWeapon") != SH::_NoError)
+	if(BC::checkLWeaponIndex(index) != SH::_NoError)
 		ri->lwpn = 0; //MAX_DWORD; //Now NULL
 	else
 	{
@@ -25638,7 +25495,7 @@ void do_loadeweapon(const bool v)
 {
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkEWeaponIndex(index, "Screen->LoadEWeapon") != SH::_NoError)
+	if(BC::checkEWeaponIndex(index) != SH::_NoError)
 		ri->ewpn = 0; //MAX_DWORD; //Now NULL
 	else
 	{
@@ -25650,7 +25507,7 @@ void do_loaditem(const bool v)
 {
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkItemIndex(index, "Screen->LoadItem") != SH::_NoError)
+	if(BC::checkItemIndex(index) != SH::_NoError)
 		ri->itemref = 0; //MAX_DWORD; //Now NULL
 	else
 	{
@@ -25664,7 +25521,7 @@ void do_loaditemdata(const bool v)
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
 	//I *think* this is the right check ~Joe
-	if(BC::checkItemID(ID, "Game->LoadItemData") != SH::_NoError)
+	if(BC::checkItemID(ID) != SH::_NoError)
 	{
 		ri->idata = -1; //new null value
 		return;
@@ -25676,7 +25533,7 @@ void do_loadnpc(const bool v)
 {
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkGuyIndex(index, "Screen->LoadNPC") != SH::_NoError)
+	if(BC::checkGuyIndex(index) != SH::_NoError)
 		ri->guyref = 0; // MAX_DWORD;
 	else
 	{
@@ -25790,7 +25647,7 @@ void FFScript::do_loaddirectory()
 	std::string resolved_path = parse_user_path(user_path, error, false);
 	if (resolved_path.empty())
 	{
-		Z_scripterrlog("Error - %s\n", error.c_str());
+		scripting_log_error_with_context("Error: {}", error);
 		return;
 	}
 
@@ -25798,13 +25655,13 @@ void FFScript::do_loaddirectory()
 	{
 		ri->directoryref = user_dirs.get_free();
 		if(!ri->directoryref) return;
-		user_dir* d = checkDir(ri->directoryref, "LoadDirectory", true);
+		user_dir* d = checkDir(ri->directoryref, true);
 		set_register(sarg1, ri->directoryref);
 		d->setPath(resolved_path.c_str());
 		return;
 	}
 
-	Z_scripterrlog("Path '%s' is empty or points to a file; must point to a directory!\n", resolved_path.c_str());
+	scripting_log_error_with_context("Path '{}' points to a file; must point to a directory!", resolved_path);
 	ri->directoryref = 0;
 	set_register(sarg1, 0);
 }
@@ -25821,7 +25678,7 @@ void FFScript::do_loaddropset(const bool v)
 	
 	if ( ID < 0 || ID > MAXITEMDROPSETS )
 	{
-		Z_scripterrlog("Invalid Dropset ID passed to Game->LoadDropset(): %d\n", ID);
+		scripting_log_error_with_context("Invalid Dropset ID: {}", ID);
 		ri->dropsetref = MAX_DWORD;
 	}
 		
@@ -25834,7 +25691,7 @@ void FFScript::do_loadbottle(const bool v)
 	
 	if ( ID < 1 || ID > 64 )
 	{
-		Z_scripterrlog("Invalid BottleType ID passed to Game->LoadBottleData(): %d\n", ID);
+		scripting_log_error_with_context("Invalid BottleType ID: {}", ID);
 		ri->bottletyperef = 0;
 	}
 	else ri->bottletyperef = ID;
@@ -25843,10 +25700,10 @@ void FFScript::do_loadbottle(const bool v)
 void FFScript::do_loadbottleshop(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	
+
 	if ( ID < 0 || ID > 255 )
 	{
-		Z_scripterrlog("Invalid BottleShopType ID passed to Game->LoadBottleShopData(): %d\n", ID);
+		scripting_log_error_with_context("Invalid BottleShopType ID: {}", ID);
 		ri->bottleshopref = 0;
 	}
 	else ri->bottleshopref = ID+1;
@@ -25857,7 +25714,7 @@ void FFScript::do_loadgenericdata(const bool v)
 	
 	if ( ID < 1 || ID > NUMSCRIPTSGENERIC )
 	{
-		Z_scripterrlog("Invalid GenericData ID passed to Game->LoadGenericData(): %d\n", ID);
+		scripting_log_error_with_context("Invalid GenericData ID: {}", ID);
 		ri->genericdataref = 0;
 	}
 	else ri->genericdataref = ID;
@@ -25940,7 +25797,7 @@ void FFScript::do_create_rgb()
 	int max_value = scripting_max_color_val;
 	if (unsigned(r) > max_value || unsigned(g) > max_value || unsigned(b) > max_value)
 	{
-		Z_scripterrlog("R/G/B values passed to Graphics->CreateRGB() should range from 0-%d.\n", max_value);
+		scripting_log_error_with_context("R/G/B values should range from 0-{}", max_value);
 	}
 
 	r = vbound(r, 0, max_value);
@@ -25972,7 +25829,7 @@ void FFScript::do_convert_from_rgb()
 
 	if (zscript_array_size < target_size)
 	{
-		Z_scripterrlog("Array supplied to 'Graphics->ConvertFromRGB' not large enough. Should be at least size %d\n", target_size);
+		scripting_log_error_with_context("Array not large enough. Should be at least size {}", target_size);
 		return;
 	}
 	
@@ -26009,7 +25866,7 @@ void FFScript::do_convert_to_rgb()
 
 	if (zscript_array_size < target_size)
 	{
-		Z_scripterrlog("Array supplied to 'Graphics->ConvertToRGB' not large enough. Should be at least size %d\n", target_size);
+		scripting_log_error_with_context("Array not large enough. Should be at least size {}", target_size);
 		return;
 	}
 
@@ -26025,7 +25882,7 @@ void FFScript::do_convert_to_rgb()
 
 void FFScript::do_paldata_load_level()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadLevelPalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
 		//Load CSets 2-4
@@ -26045,7 +25902,7 @@ void FFScript::do_paldata_load_level()
 
 void FFScript::do_paldata_load_sprite()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadSpritePalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t page = get_register(sarg1) / 10000;
 
@@ -26055,7 +25912,7 @@ void FFScript::do_paldata_load_sprite()
 		case 0: pageoffset += 0;  break;
 		case 1: pageoffset += 15; break;
 		default:
-			Z_scripterrlog("Invalid page (%d) passed to paldata->LoadSpritePalette(). Valid pages are 0 or 1. Aborting.\n", page);
+			scripting_log_error_with_context("Invalid page: {}. Valid pages are 0 or 1. Aborting.", page);
 			return;
 		}
 		for (int32_t q = 0; q < 15; ++q)
@@ -26068,7 +25925,7 @@ void FFScript::do_paldata_load_sprite()
 
 void FFScript::do_paldata_load_main()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadMainPalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		for (int32_t q = 0; q <= 15; ++q)
 		{
@@ -26080,7 +25937,7 @@ void FFScript::do_paldata_load_main()
 
 void FFScript::do_paldata_load_cycle()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadCyclePalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
 		for (int32_t q = 4; q <= 12; ++q)
@@ -26093,7 +25950,7 @@ void FFScript::do_paldata_load_cycle()
 
 void FFScript::do_paldata_load_bitmap()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadBitmapPalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t pathptr = get_register(sarg1) / 10000;
 		string user_path, str;
@@ -26152,7 +26009,7 @@ void FFScript::do_paldata_load_bitmap()
 
 void FFScript::do_paldata_write_level()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteLevelPalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
 		bool changed = false;
@@ -26222,7 +26079,7 @@ void FFScript::do_paldata_write_level()
 
 void FFScript::do_paldata_write_levelcset()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteLevelCSet()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
 		int32_t cs = get_register(sarg2) / 10000;
@@ -26313,7 +26170,7 @@ void FFScript::do_paldata_write_levelcset()
 
 void FFScript::do_paldata_write_sprite()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteSpritePalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t page = get_register(sarg1) / 10000;
 
@@ -26366,7 +26223,7 @@ void FFScript::do_paldata_write_sprite()
 
 void FFScript::do_paldata_write_spritecset()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteSpritePalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t page = get_register(sarg1) / 10000;
 		int32_t cs = get_register(sarg2) / 10000;
@@ -26422,7 +26279,7 @@ void FFScript::do_paldata_write_spritecset()
 
 void FFScript::do_paldata_write_main()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteMainPalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		bool changed = false;
 		for (int32_t q = 0; q <= 15; ++q)
@@ -26444,7 +26301,7 @@ void FFScript::do_paldata_write_main()
 
 void FFScript::do_paldata_write_maincset()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteMainCSet()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t cs = get_register(sarg1) / 10000;
 
@@ -26473,7 +26330,7 @@ void FFScript::do_paldata_write_maincset()
 
 void FFScript::do_paldata_write_cycle()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteCyclePalette()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
 		for (int32_t q = 4; q <= 12; ++q)
@@ -26489,7 +26346,7 @@ void FFScript::do_paldata_write_cycle()
 
 void FFScript::do_paldata_write_cyclecset()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteCycleCSet()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
 		int32_t cs = get_register(sarg2) / 10000;
@@ -26528,7 +26385,7 @@ void FFScript::do_paldata_write_cyclecset()
 
 void FFScript::do_paldata_colorvalid()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->ColorValid()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t ind = get_register(sarg1) / 10000;
 		if (unsigned(ind) >= PALDATA_NUM_COLORS)
@@ -26551,7 +26408,7 @@ void FFScript::do_paldata_colorvalid()
 
 void FFScript::do_paldata_clearcolor()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->SetColor()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t ind = get_register(sarg1) / 10000;
 		if (unsigned(ind) >= PALDATA_NUM_COLORS)
@@ -26565,7 +26422,7 @@ void FFScript::do_paldata_clearcolor()
 
 void FFScript::do_paldata_clearcset()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->ClearCSet()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t cs = get_register(sarg1) / 10000;
 		if (unsigned(cs) > 15)
@@ -26582,24 +26439,17 @@ void FFScript::do_paldata_clearcset()
 
 int32_t FFScript::do_paldata_getrgb(int32_t v)
 {
-	const char* fname = "";
-	switch (v)
-	{
-		case 0: fname = "paldata->R[]"; break;
-		case 1: fname = "paldata->G[]"; break;
-		case 2: fname = "paldata->B[]"; break;
-	}
-	if (user_paldata* pd = checkPalData(ri->paldataref, fname))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t ind = ri->d[rINDEX] / 10000;
 		if (unsigned(ind) >= PALDATA_NUM_COLORS)
 		{
-			Z_scripterrlog("Invalid color index (%d) passed to %s. Valid indices are 0-255.\n", ind, fname);
+			scripting_log_error_with_context("Invalid color index ({}). Valid indices are 0-255.", ind);
 			return -10000;
 		}
 		if (!get_bit(pd->colors_used, ind))
 		{
-			Z_scripterrlog("%s tried to access unused color %d.\n", fname, ind);
+			scripting_log_error_with_context("Tried to access unused color {}.", ind);
 			return -10000;
 		}
 		switch (v)
@@ -26617,29 +26467,22 @@ int32_t FFScript::do_paldata_getrgb(int32_t v)
 
 void FFScript::do_paldata_setrgb(int32_t v, int32_t val)
 {
-	const char* fname = "";
-	switch (v)
-	{
-		case 0: fname = "paldata->R[]"; break;
-		case 1: fname = "paldata->G[]"; break;
-		case 2: fname = "paldata->B[]"; break;
-	}
-	if (user_paldata* pd = checkPalData(ri->paldataref, fname))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t ind = ri->d[rINDEX] / 10000;
 		if (unsigned(ind) >= PALDATA_NUM_COLORS)
 		{
-			Z_scripterrlog("Invalid color index (%d) passed to %s. Valid indices are 0-255. Aborting.\n", ind, fname);
+			scripting_log_error_with_context("Invalid color index ({})Valid indices are 0-255. Aborting.", ind);
 			return;
 		}
 		if (unsigned(val) > scripting_max_color_val)
 		{
-			Z_scripterrlog("RGB value(%d) passed to %s is out of range. RGB values range from 0 - %d.\n", val, fname, scripting_max_color_val);
+			scripting_log_error_with_context("RGB value({}) is out of range. RGB values range from 0 - {}.", val, scripting_max_color_val);
 			val = vbound(val, 0, scripting_max_color_val);
 		}
 		if (!get_bit(pd->colors_used, ind))
 		{
-			Z_scripterrlog("%s tried to access unused color %d.\n", fname, ind);
+			scripting_log_error_with_context("Tried to access unused color {}.", ind);
 			return;
 		}
 		switch (v)
@@ -26660,15 +26503,15 @@ void FFScript::do_paldata_setrgb(int32_t v, int32_t val)
 void FFScript::do_paldata_mix()
 {
 	int32_t ref = SH::read_stack(ri->sp + 4);
-	if (user_paldata* pd = checkPalData(ref, "paldata->Mix()"))
+	if (user_paldata* pd = checkPalData(ref))
 	{
 		int32_t ref1 = SH::read_stack(ri->sp + 3);
 		int32_t ref2 = SH::read_stack(ri->sp + 2);
 		double percent = SH::read_stack(ri->sp + 1)/10000.0;
 		int32_t color_space = SH::read_stack(ri->sp + 0)/10000;
-		if (user_paldata* pd_start = checkPalData(ref1, "paldata->Mix()"))
+		if (user_paldata* pd_start = checkPalData(ref1))
 		{
-			if (user_paldata* pd_end = checkPalData(ref2, "paldata->Mix()"))
+			if (user_paldata* pd_end = checkPalData(ref2))
 			{
 				pd->mix(pd_start, pd_end, percent, color_space);
 			}
@@ -26679,16 +26522,16 @@ void FFScript::do_paldata_mix()
 void FFScript::do_paldata_mixcset()
 {
 	int32_t ref = SH::read_stack(ri->sp + 5);
-	if (user_paldata* pd = checkPalData(ref, "paldata->MixCSet()"))
+	if (user_paldata* pd = checkPalData(ref))
 	{
 		int32_t ref1 = SH::read_stack(ri->sp + 4);
 		int32_t ref2 = SH::read_stack(ri->sp + 3);
 		int32_t cset = SH::read_stack(ri->sp + 2) / 10000;
 		double percent = SH::read_stack(ri->sp + 1) / 10000.0;
 		int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
-		if (user_paldata* pd_start = checkPalData(ref1, "paldata->MixCSet()"))
+		if (user_paldata* pd_start = checkPalData(ref1))
 		{
-			if (user_paldata* pd_end = checkPalData(ref2, "paldata->MixCSet()"))
+			if (user_paldata* pd_end = checkPalData(ref2))
 			{
 				if (unsigned(cset) > 15)
 				{
@@ -26703,10 +26546,10 @@ void FFScript::do_paldata_mixcset()
 
 void FFScript::do_paldata_copy()
 {
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->Copy()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t ref_dest = get_register(sarg1);
-		if (user_paldata* pd_dest = checkPalData(ref_dest, "paldata->Copy()"))
+		if (user_paldata* pd_dest = checkPalData(ref_dest))
 		{
 			for (int32_t q = 0; q < PALDATA_NUM_COLORS; ++q)
 			{
@@ -26723,12 +26566,12 @@ void FFScript::do_paldata_copy()
 void FFScript::do_paldata_copycset()
 {
 	ri->paldataref = SH::read_stack(ri->sp + 3);
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->CopyCSet()"))
+	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
 		int32_t ref_dest = SH::read_stack(ri->sp + 2);
 		int32_t cs = SH::read_stack(ri->sp + 1) / 10000;
 		int32_t cs_dest = SH::read_stack(ri->sp + 0) / 10000;
-		if (user_paldata* pd_dest = checkPalData(ref_dest, "paldata->CopyCSet()"))
+		if (user_paldata* pd_dest = checkPalData(ref_dest))
 		{
 			if (unsigned(cs) > 15)
 			{
@@ -27405,7 +27248,7 @@ void FFScript::do_getDMapData_dmapname(const bool v)
 	int32_t ID = ri->dmapsref;
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	
-	if(BC::checkDMapID(ID, "dmapdata->GetName()") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	if(ArrayH::setArray(arrayptr, string(DMaps[ID].name)) == SH::_Overflow)
@@ -27419,7 +27262,7 @@ void FFScript::do_setDMapData_dmapname(const bool v)
 
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "dmapdata->SetName()") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 		
@@ -27433,7 +27276,7 @@ void FFScript::do_getDMapData_dmaptitle(const bool v)
 	int32_t ID = ri->dmapsref;
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	
-	if(BC::checkDMapID(ID, "dmapdata->GetTitle()") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
@@ -27451,7 +27294,7 @@ void FFScript::do_setDMapData_dmaptitle(const bool v)
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
 
-	if(BC::checkDMapID(ID, "dmapdata->SetTitle()") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 
 	if (get_qr(qr_OLD_DMAP_INTRO_STRINGS))
@@ -27474,7 +27317,7 @@ void FFScript::do_getDMapData_dmapintro(const bool v)
 	int32_t ID = ri->dmapsref;
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	
-	if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
@@ -27487,7 +27330,7 @@ void FFScript::do_setDMapData_dmapintro(const bool v)
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "dmapdata->SetIntro()") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 		
@@ -27501,7 +27344,7 @@ void FFScript::do_getDMapData_music(const bool v)
 	int32_t ID = ri->dmapsref;
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	
-	if(BC::checkDMapID(ID, "dmapdata->GetMusic()") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	if(ArrayH::setArray(arrayptr, string(DMaps[ID].tmusic)) == SH::_Overflow)
@@ -27514,7 +27357,7 @@ void FFScript::do_setDMapData_music(const bool v)
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "dmapdata->SetMusic()") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 		
@@ -27553,7 +27396,7 @@ void FFScript::do_messagedata_setstring(const bool v)
 {
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	int32_t ID = ri->zmsgref;
-	if(BC::checkMessage(ID, "messagesata->Set()") != SH::_NoError)
+	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
 	
 	std::string s;
@@ -27565,7 +27408,7 @@ void FFScript::do_messagedata_getstring(const bool v)
 	int32_t ID = ri->zmsgref;
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	
-	if(BC::checkMessage(ID, "messagedata->Get()") != SH::_NoError)
+	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
 		
 	if(ArrayH::setArray(arrayptr, MsgStrings[ID].s) == SH::_Overflow)
@@ -27578,7 +27421,7 @@ void FFScript::do_loadcombodata(const bool v)
 	
 	if ( (unsigned)ID > (MAXCOMBOS-1) )
 	{
-		Z_scripterrlog("Invalid Combo ID passed to Game->LoadComboData: %d\n", ID);
+		scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 		ri->combosref = 0;
 	}
 
@@ -27589,7 +27432,7 @@ void FFScript::do_loadmapdata_tempscr(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
 
-	if (BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
+	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
 		ri->mapsref = 0;
 		set_register(sarg1, ri->mapsref);
@@ -27605,7 +27448,7 @@ void FFScript::do_loadmapdata_tempscr2(const bool v)
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
 	int32_t screen = SH::get_arg(sarg2, v) / 10000;
 
-	if (BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
+	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
 		ri->mapsref = 0;
 		set_register(sarg1, ri->mapsref);
@@ -27614,7 +27457,7 @@ void FFScript::do_loadmapdata_tempscr2(const bool v)
 
 	if (!is_in_current_region(screen))
 	{
-		Z_scripterrlog("Game->LoadTempScreen() must be given a screen in the current region. got: %d\n", screen);
+		scripting_log_error_with_context("Must use a screen in the current region. got: {}", screen);
 		ri->mapsref = 0;
 		set_register(sarg1, ri->mapsref);
 		return;
@@ -27629,13 +27472,13 @@ static void do_loadtmpscrforcombopos(const bool v)
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
 	rpos_t rpos = (rpos_t)(SH::get_arg(sarg2, v) / 10000);
 
-	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
+	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos) != SH::_NoError)
 	{
 		ri->mapsref = 0;
 		set_register(sarg1, ri->mapsref);
 		return;
 	}
-	if (BC::checkBounds(layer, 0, 6, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
+	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
 		ri->mapsref = 0;
 		set_register(sarg1, ri->mapsref);
@@ -27649,7 +27492,7 @@ void FFScript::do_loadmapdata_scrollscr(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
 
-	if (BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
+	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
 		ri->mapsref = 0;
 		set_register(sarg1, ri->mapsref);
@@ -27665,7 +27508,7 @@ void FFScript::do_loadmapdata_scrollscr2(const bool v)
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
 	int32_t screen = SH::get_arg(sarg2, v) / 10000;
 
-	if (BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
+	if (BC::checkBounds(layer, 0, 6) != SH::_NoError)
 	{
 		ri->mapsref = 0;
 		set_register(sarg1, ri->mapsref);
@@ -27674,7 +27517,7 @@ void FFScript::do_loadmapdata_scrollscr2(const bool v)
 
 	if (!is_in_scrolling_region(screen))
 	{
-		Z_scripterrlog("Game->LoadScrollingScreen() must be given a screen in the current scrolling region. got: %d\n", screen);
+		scripting_log_error_with_context("Must use a screen in the current scrolling region. got: {}", screen);
 		ri->mapsref = 0;
 		set_register(sarg1, ri->mapsref);
 		return;
@@ -27748,7 +27591,7 @@ void do_createlweapon(const bool v)
 {
 	const int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkWeaponID(ID, "Screen->CreateLWeapon") != SH::_NoError)
+	if(BC::checkWeaponID(ID) != SH::_NoError)
 		return;
 	
 	if ( Lwpns.has_space() )
@@ -27791,7 +27634,7 @@ void do_createeweapon(const bool v)
 {
 	const int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkWeaponID(ID, "Screen->CreateEWeapon") != SH::_NoError)
+	if(BC::checkWeaponID(ID) != SH::_NoError)
 		return;
 		
 	if ( Ewpns.has_space() )
@@ -27823,7 +27666,7 @@ void do_createitem(const bool v)
 {
 	const int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkItemID(ID, "Screen->CreateItem") != SH::_NoError)
+	if(BC::checkItemID(ID) != SH::_NoError)
 		return;
 
 	if ( items.has_space() )
@@ -27845,7 +27688,7 @@ void do_createnpc(const bool v)
 {
 	const int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkGuyID(ID, "Screen->CreateNPC") != SH::_NoError)
+	if(BC::checkGuyID(ID) != SH::_NoError)
 		return;
 		
 	//If we make a segmented enemy there'll be more than one sprite created
@@ -27876,7 +27719,7 @@ void do_message(const bool v)
 {
 	const int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkMessage(ID, "Screen->Message") != SH::_NoError)
+	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
 		
 	if(ID == 0)
@@ -28660,7 +28503,7 @@ void do_sfx(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkSFXID(ID, "Audio->PlaySound") != SH::_NoError)
+	if(BC::checkSFXID(ID) != SH::_NoError)
 		return;
 		
 	sfx(ID);
@@ -28674,7 +28517,7 @@ void do_sfx_ex(const bool restart)
 	int32_t freq = SH::read_stack(ri->sp + 1);
 	bool loop = SH::read_stack(ri->sp) / 10000;
 
-	if (BC::checkSFXID(ID, restart?"Audio->PlaySound":"Audio->AdjustSound") != SH::_NoError)
+	if (BC::checkSFXID(ID) != SH::_NoError)
 		return;
 
 	if (!restart && !sfx_allocated(ID))
@@ -29550,7 +29393,7 @@ void stop_sfx(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	int32_t sfx = (int32_t)ID;
-	if(BC::checkSFXID(ID, "Game->EndSound") != SH::_NoError)
+	if(BC::checkSFXID(ID) != SH::_NoError)
 		return;
 	stop_sfx(sfx);
 }
@@ -29559,7 +29402,7 @@ void pause_sfx(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	int32_t sfx = (int32_t)ID;
-	if(BC::checkSFXID(ID, "Game->PauseSound") != SH::_NoError)
+	if(BC::checkSFXID(ID) != SH::_NoError)
 		return;
 	pause_sfx(sfx);
 }
@@ -29568,7 +29411,7 @@ void resume_sfx(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	int32_t sfx = (int32_t)ID;
-	if(BC::checkSFXID(ID, "Game->ResumeSound") != SH::_NoError)
+	if(BC::checkSFXID(ID) != SH::_NoError)
 		return;
 	resume_sfx(sfx);
 }
@@ -29701,7 +29544,7 @@ void do_get_enh_music_filename(const bool v)
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	
-	if(BC::checkDMapID(ID, "Game->GetDMapMusicFilename") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	if(ArrayH::setArray(arrayptr, string(DMaps[ID].tmusic)) == SH::_Overflow)
@@ -29712,7 +29555,7 @@ void do_get_enh_music_track(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkDMapID(ID, "Game->GetDMapMusicTrack") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	set_register(sarg1, (DMaps[ID].tmusictrack+1)*10000);
@@ -29725,7 +29568,7 @@ void do_set_dmap_enh_music(const bool v)
 	int32_t track = (SH::read_stack(ri->sp + 0) / 10000)-1;
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "Game->SetDMapEnhancedMusic") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	ArrayH::getString(arrayptr, filename_str, 56);
@@ -29814,7 +29657,7 @@ void do_getitemname()
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	if(unsigned(ri->idata) >= MAXITEMS)
 	{
-		Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+		scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 		return;
 	}
 	
@@ -29890,8 +29733,8 @@ void do_overlaytile(const bool v, const bool v2)
 	int32_t tile = SH::get_arg(sarg1, v) / 10000;
 	int32_t tile2 = SH::get_arg(sarg2, v2) / 10000;
 	
-	if(BC::checkTile(tile, "OverlayTile") != SH::_NoError ||
-			BC::checkTile(tile2, "OverlayTile") != SH::_NoError)
+	if(BC::checkTile(tile) != SH::_NoError ||
+			BC::checkTile(tile2) != SH::_NoError)
 		return;
 		
 	//Could add an arg for the CSet or something instead of just passing 0, currently only 8-bit is supported
@@ -29903,8 +29746,8 @@ void do_fliprotatetile(const bool v, const bool v2)
 	int32_t tile = SH::get_arg(sarg1, v) / 10000;
 	int32_t tile2 = SH::get_arg(sarg2, v2) / 10000;
 	
-	if(BC::checkTile(tile, "FlipRotateTile") != SH::_NoError ||
-			BC::checkTile(tile2, "FlipRotateTile") != SH::_NoError)
+	if(BC::checkTile(tile) != SH::_NoError ||
+			BC::checkTile(tile2) != SH::_NoError)
 		return;
 		
 	//fliprotatetile
@@ -29917,7 +29760,7 @@ void do_settilepixel()
 	int32_t y = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t val = SH::read_stack(ri->sp + 0) / 10000;
 	
-	if(BC::checkTile(tile, "SetTilePixel") != SH::_NoError)
+	if(BC::checkTile(tile) != SH::_NoError)
 		return;
 		
 	x = vbound(x, 0, 15);
@@ -29936,7 +29779,7 @@ void do_gettilepixel()
 	int32_t y = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t cs = SH::read_stack(ri->sp + 0) / 10000;
 
-	if(BC::checkTile(tile, "GetTilePixel") != SH::_NoError)
+	if(BC::checkTile(tile) != SH::_NoError)
 		return;
 		
 	x = vbound(x, 0, 15);
@@ -29951,8 +29794,8 @@ void do_shifttile(const bool v, const bool v2)
 	int32_t tile = SH::get_arg(sarg1, v) / 10000;
 	int32_t tile2 = SH::get_arg(sarg2, v2) / 10000;
 	
-	if(BC::checkTile(tile, "ShiftTile") != SH::_NoError ||
-			BC::checkTile(tile2, "ShiftTile") != SH::_NoError)
+	if(BC::checkTile(tile) != SH::_NoError ||
+			BC::checkTile(tile2) != SH::_NoError)
 		return;
 		
 	//shifttile
@@ -29962,7 +29805,7 @@ void do_cleartile(const bool v)
 {
 	int32_t tile = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkTile(tile, "ClearTile") != SH::_NoError)
+	if(BC::checkTile(tile) != SH::_NoError)
 		return;
 		
 	reset_tile(newtilebuf, tile, newtilebuf[tile].format);
@@ -29972,7 +29815,7 @@ void do_combotile(const bool v)
 {
 	int32_t combo = SH::get_arg(sarg2, v) / 10000;
 	
-	if(BC::checkCombo(combo, "Game->ComboTile") != SH::_NoError)
+	if(BC::checkCombo(combo) != SH::_NoError)
 		return;
 		
 	set_register(sarg1, combobuf[combo].tile * 10000);
@@ -30035,7 +29878,7 @@ int32_t get_own_i(ScriptType type)
 		case ScriptType::NPC:
 			return ri->guyref;
 		case ScriptType::FFC:
-			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Data"))
+			if (auto ffc = ResolveFFC(ri->ffcref))
 				return ffc->index;
 	}
 	return 0;
@@ -30130,7 +29973,7 @@ static void script_exit_cleanup(bool no_dealloc)
 	{
 		case ScriptType::FFC:
 		{
-			if (auto ffc = ResolveFFCWithID(i, "QUIT"))
+			if (auto ffc = ResolveFFCWithID(i))
 				ffc->script = 0;
 			auto& data = get_script_engine_data(type, i);
 			data.doscript = false;
@@ -30229,6 +30072,8 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	curScriptType=type;
 	curScriptNum=script;
 	curScriptIndex=i;
+	current_zasm_register=0;
+	current_zasm_command=(ASM_DEFINE)0; // this is actually SETV, but we never will print that as a context string, so it's fine.
 	//numInstructions=0; //DON'T CLEAR THIS OR IT CAN HARDLOCK! -Em
 
 	if (!(type >= ScriptType::First && type <= ScriptType::Last))
@@ -30436,6 +30281,8 @@ int32_t run_script_int(bool is_jitted)
 		sarg3 = op.arg3;
 		sargstr = op.strptr;
 		sargvec = op.vecptr;
+
+		current_zasm_command = (ASM_DEFINE)op.command;
 
 		if (is_debugging && (!is_jitted || commands_run > 0))
 		{
@@ -31041,7 +30888,7 @@ int32_t run_script_int(bool is_jitted)
 				}
 
 				int ffc_id = get_register(sarg1) / 10000 - 1;
-				if (auto ffc = ResolveFFCWithID(ffc_id, "Screen->LoadFFC"))
+				if (auto ffc = ResolveFFCWithID(ffc_id))
 					set_register(sarg1, ffc->getUID());
 				else
 					set_register(sarg1, 0);
@@ -31061,14 +30908,14 @@ int32_t run_script_int(bool is_jitted)
 
 				if (!is_in_current_region(screen))
 				{
-					Z_scripterrlog("Screen->LoadFFC must be given a screen in the current region. got: %d\n", screen);
+					scripting_log_error_with_context("Must use a screen in the current region. got: {}", screen);
 					break;
 				}
-				if (BC::checkMapdataFFC(index, "Screen->LoadFFC") != SH::_NoError)
+				if (BC::checkMapdataFFC(index) != SH::_NoError)
 					break;
 
 				ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + index;
-				if (auto ffc = ResolveFFCWithID(ffc_id, "Screen->LoadFFC"))
+				if (auto ffc = ResolveFFCWithID(ffc_id))
 					set_register(sarg1, ffc->getUID());
 				else
 					set_register(sarg1, 0);
@@ -31192,10 +31039,10 @@ int32_t run_script_int(bool is_jitted)
 				do_charwidth();
 				break;
 			case MESSAGEWIDTHR:
-				ri->d[rEXP1] = 10000* do_msgwidth(get_register(sarg1)/10000, "Text->MessageWidth()");
+				ri->d[rEXP1] = 10000* do_msgwidth(get_register(sarg1)/10000);
 				break;
 			case MESSAGEHEIGHTR:
-				ri->d[rEXP1] = 10000* do_msgheight(get_register(sarg1)/10000, "Text->MessageHeight()");
+				ri->d[rEXP1] = 10000* do_msgheight(get_register(sarg1)/10000);
 				break;
 			//
 
@@ -31960,13 +31807,13 @@ int32_t run_script_int(bool is_jitted)
 			case PALDATACOPYCSET:
 				FFCore.do_paldata_copycset(); break;
 			case PALDATAFREE:
-				if (user_paldata* pd = checkPalData(ri->paldataref, "Free()", true))
+				if (user_paldata* pd = checkPalData(ri->paldataref, true))
 				{
 					free_script_object(pd->id);
 				}
 				break;
 			case PALDATAOWN:
-				if (user_paldata* pd = checkPalData(ri->paldataref, "Own()", false))
+				if (user_paldata* pd = checkPalData(ri->paldataref, false))
 				{
 					own_script_object(pd, type, i);
 				}
@@ -32232,7 +32079,7 @@ int32_t run_script_int(bool is_jitted)
 				int screen = get_register(sarg1) / 10000;
 				if (!is_in_current_region(screen))
 				{
-					Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen);
+					scripting_log_error_with_context("Must use a screen in the current region. got: {}", screen);
 					break;
 				}
 
@@ -32428,7 +32275,7 @@ int32_t run_script_int(bool is_jitted)
 			case READBITMAP:
 			{
 				uint32_t bitref = SH::read_stack(ri->sp+2);
-				if(user_bitmap* b = checkBitmap(bitref,"Read()",false,true))
+				if(user_bitmap* b = checkBitmap(bitref,false,true))
 					do_drawing_command(scommand, false);
 				else //If the pointer isn't allocated, attempt to allocate it first
 				{
@@ -32443,7 +32290,7 @@ int32_t run_script_int(bool is_jitted)
 			case REGENERATEBITMAP:
 			{
 				ri->d[rEXP2] = SH::read_stack(ri->sp+3);
-				if(user_bitmap* b = checkBitmap(ri->d[rEXP2],"Create()",false,true))
+				if(user_bitmap* b = checkBitmap(ri->d[rEXP2],false,true))
 					do_drawing_command(scommand, false);
 				else //If the pointer isn't allocated
 				{
@@ -32473,7 +32320,7 @@ int32_t run_script_int(bool is_jitted)
 				if(FFCore.isSystemBitref(ri->bitmapref))
 					break; //Don't attempt to own system bitmaps!
 
-				if (auto bitmap = checkBitmap(ri->bitmapref, "Own()", false))
+				if (auto bitmap = checkBitmap(ri->bitmapref, false))
 					own_script_object(bitmap, type, i);
 				break;
 			}
@@ -32483,7 +32330,7 @@ int32_t run_script_int(bool is_jitted)
 				int bmpid = get_register(sarg1);
 				if(FFCore.isSystemBitref(bmpid))
 					break; //Don't attempt to own system bitmaps!
-				user_bitmap* b = checkBitmap(bmpid, nullptr, false);
+				user_bitmap* b = checkBitmap(bmpid, false);
 				if(!b) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
@@ -32493,7 +32340,7 @@ int32_t run_script_int(bool is_jitted)
 			case OBJ_OWN_PALDATA:
 			{
 				int palid = get_register(sarg1);
-				user_paldata* pd = checkPalData(palid, nullptr, false);
+				user_paldata* pd = checkPalData(palid, false);
 				if(!pd) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
@@ -32503,7 +32350,7 @@ int32_t run_script_int(bool is_jitted)
 			case OBJ_OWN_FILE:
 			{
 				int fileid = get_register(sarg1);
-				user_file* f = checkFile(fileid, nullptr, false);
+				user_file* f = checkFile(fileid, false);
 				if(!f) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
@@ -32513,7 +32360,7 @@ int32_t run_script_int(bool is_jitted)
 			case OBJ_OWN_DIR:
 			{
 				int dirid = get_register(sarg1);
-				user_dir* dr = checkDir(dirid, nullptr, false);
+				user_dir* dr = checkDir(dirid, false);
 				if(!dr) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
@@ -32523,7 +32370,7 @@ int32_t run_script_int(bool is_jitted)
 			case OBJ_OWN_STACK:
 			{
 				int stackid = get_register(sarg1);
-				user_stack* st = checkStack(stackid, nullptr, false);
+				user_stack* st = checkStack(stackid, false);
 				if(!st) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
@@ -32533,7 +32380,7 @@ int32_t run_script_int(bool is_jitted)
 			case OBJ_OWN_RNG:
 			{
 				int rngid = get_register(sarg1);
-				user_rng* r = checkRNG(rngid, nullptr, false);
+				user_rng* r = checkRNG(rngid, false);
 				if(!r) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
@@ -32681,7 +32528,7 @@ int32_t run_script_int(bool is_jitted)
 				int fy = SH::read_stack(ri->sp + 2) / 10000;
 				bool recolor = SH::read_stack(ri->sp + 1)!=0;
 				bool scale = SH::read_stack(ri->sp + 0)!=0;
-				if(user_bitmap* b = checkBitmap(bmpptr,nullptr,true))
+				if(user_bitmap* b = checkBitmap(bmpptr,true))
 				{
 					custom_mouse(b->u_bmp,fx,fy,recolor,scale);
 				}
@@ -32834,7 +32681,7 @@ int32_t run_script_int(bool is_jitted)
 				int32_t lyr = get_register(sarg1) / 10000;
 				int32_t pos = get_register(sarg2) / 10000;
 				rpos_t rpos = (rpos_t)pos;
-				if (BC::checkComboRpos(rpos, "Screen->TriggerCombo") != SH::_NoError)
+				if (BC::checkComboRpos(rpos) != SH::_NoError)
 				{
 					break;
 				}
@@ -32848,7 +32695,7 @@ int32_t run_script_int(bool is_jitted)
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
 				set_register(sarg1,0);
 				if(Hero.switchhookclk) break; //Already switching!
-				if(GuyH::loadNPC(ri->guyref, "npc->Switch()") == SH::_NoError)
+				if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 				{
 					switching_object = guys.getByUID(ri->guyref);
 					hooked_comborpos = rpos_t::None;
@@ -32865,7 +32712,7 @@ int32_t run_script_int(bool is_jitted)
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
 				set_register(sarg1,0);
 				if(Hero.switchhookclk) break; //Already switching!
-				if(ItemH::loadItem(ri->itemref, "item->Switch()") == SH::_NoError)
+				if(ItemH::loadItem(ri->itemref) == SH::_NoError)
 				{
 					switching_object = ItemH::getItem();
 					hooked_comborpos = rpos_t::None;
@@ -32882,7 +32729,7 @@ int32_t run_script_int(bool is_jitted)
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
 				set_register(sarg1,0);
 				if(Hero.switchhookclk) break; //Already switching!
-				if(LwpnH::loadWeapon(ri->lwpn, "lweapon->Switch()") == SH::_NoError)
+				if(LwpnH::loadWeapon(ri->lwpn) == SH::_NoError)
 				{
 					switching_object = LwpnH::getWeapon();
 					hooked_comborpos = rpos_t::None;
@@ -32899,7 +32746,7 @@ int32_t run_script_int(bool is_jitted)
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
 				set_register(sarg1,0);
 				if(Hero.switchhookclk) break; //Already switching!
-				if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Switch()") == SH::_NoError)
+				if(EwpnH::loadWeapon(ri->ewpn) == SH::_NoError)
 				{
 					switching_object = EwpnH::getWeapon();
 					hooked_comborpos = rpos_t::None;
@@ -33016,7 +32863,7 @@ int32_t run_script_int(bool is_jitted)
 				auto lwuid = SH::read_stack(ri->sp + 2);
 				auto lifttime = SH::read_stack(ri->sp + 1)/10000;
 				auto liftheight = zslongToFix(SH::read_stack(ri->sp + 0));
-				if(weapon* wpn = checkLWpn(lwuid,"Hero->Lift()"))
+				if(weapon* wpn = checkLWpn(lwuid))
 				{
 					Hero.lift(wpn, lifttime, liftheight);
 					if(Lwpns.find(wpn) > -1)
@@ -33061,7 +32908,7 @@ int32_t run_script_int(bool is_jitted)
 			case LOADSAVPORTAL:
 			{
 				auto val = get_register(sarg1)/10000;
-				savedportal* prt = checkSavedPortal(val,"Game->LoadSavedPortal");
+				savedportal* prt = checkSavedPortal(val);
 				ri->saveportalref = ri->d[rEXP1] = prt ? val : 0;
 				break;
 			}
@@ -33079,7 +32926,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case PORTALREMOVE:
 			{
-				if(portal* p = checkPortal(ri->portalref, "Remove", true))
+				if(portal* p = checkPortal(ri->portalref, true))
 				{
 					if(p == &mirror_portal)
 						p->clear();
@@ -33097,7 +32944,7 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			case SAVEDPORTALREMOVE:
 			{
-				if(savedportal* sp = checkSavedPortal(ri->saveportalref, "Remove", true))
+				if(savedportal* sp = checkSavedPortal(ri->saveportalref, true))
 				{
 					if(sp == &(game->saved_mirror_portal))
 						sp->clear();
@@ -33132,7 +32979,7 @@ int32_t run_script_int(bool is_jitted)
 			case SAVEDPORTALGENERATE:
 			{
 				auto retval = 0;
-				if(savedportal* sp = checkSavedPortal(ri->saveportalref, "Generate"))
+				if(savedportal* sp = checkSavedPortal(ri->saveportalref))
 				{
 					retval = getPortalFromSaved(sp);
 					if(!retval)
@@ -33165,7 +33012,7 @@ int32_t run_script_int(bool is_jitted)
 				}
 				else
 				{
-					if(GuyH::loadNPC(ri->guyref, "npc->Explode()") == SH::_NoError)
+					if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 					{
 						GuyH::getNPC()->explode(mode);
 					}
@@ -33183,7 +33030,7 @@ int32_t run_script_int(bool is_jitted)
 				}
 				else
 				{
-					if(ItemH::loadItem(ri->itemref, "item->Explode()") == SH::_NoError)
+					if(ItemH::loadItem(ri->itemref) == SH::_NoError)
 					{
 						ItemH::getItem()->explode(mode);
 					}
@@ -33199,7 +33046,7 @@ int32_t run_script_int(bool is_jitted)
 				}
 				else
 				{
-					if(LwpnH::loadWeapon(ri->lwpn, "lweapon->Explode()") == SH::_NoError)
+					if(LwpnH::loadWeapon(ri->lwpn) == SH::_NoError)
 					{
 						LwpnH::getWeapon()->explode(mode);
 					}
@@ -33215,7 +33062,7 @@ int32_t run_script_int(bool is_jitted)
 				}
 				else
 				{
-					if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Explode()") == SH::_NoError)
+					if(EwpnH::loadWeapon(ri->ewpn) == SH::_NoError)
 					{
 						EwpnH::getWeapon()->explode(mode);
 					}
@@ -33715,7 +33562,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case FILEOWN:
 			{
-				user_file* f = checkFile(ri->fileref, "Own()", false);
+				user_file* f = checkFile(ri->fileref, false);
 				if(f) own_script_object(f, type, i);
 				break;
 			}
@@ -33857,7 +33704,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case DIRECTORYOWN:
 			{
-				if(user_dir* dr = checkDir(ri->directoryref, "Own()"))
+				if(user_dir* dr = checkDir(ri->directoryref))
 				{
 					own_script_object(dr, type, i);
 				}
@@ -33866,7 +33713,7 @@ int32_t run_script_int(bool is_jitted)
 			//Stack
 			case STACKFREE:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "Free()", true))
+				if(user_stack* st = checkStack(ri->stackref, true))
 				{
 					free_script_object(st->id);
 				}
@@ -33874,7 +33721,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKOWN:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "Own()"))
+				if(user_stack* st = checkStack(ri->stackref))
 				{
 					own_script_object(st, type, i);
 				}
@@ -33882,7 +33729,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKCLEAR:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "Clear()"))
+				if(user_stack* st = checkStack(ri->stackref))
 				{
 					st->clearStack();
 				}
@@ -33890,7 +33737,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKGET:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "Get()", true))
+				if(user_stack* st = checkStack(ri->stackref, true))
 				{
 					int32_t indx = get_register(sarg1); //NOT /10000
 					set_register(sarg1, st->get(indx)); //NOT *10000
@@ -33900,7 +33747,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKSET:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "Set()", true))
+				if(user_stack* st = checkStack(ri->stackref, true))
 				{
 					int32_t indx = get_register(sarg1); //NOT /10000
 					int32_t val = get_register(sarg2); //NOT /10000
@@ -33910,7 +33757,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKPOPBACK:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "PopBack()", true))
+				if(user_stack* st = checkStack(ri->stackref, true))
 				{
 					set_register(sarg1, st->pop_back()); //NOT *10000
 				}
@@ -33919,7 +33766,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKPOPFRONT:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "PopFront()", true))
+				if(user_stack* st = checkStack(ri->stackref, true))
 				{
 					set_register(sarg1, st->pop_front()); //NOT *10000
 				}
@@ -33928,7 +33775,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKPEEKBACK:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "PeekBack()", true))
+				if(user_stack* st = checkStack(ri->stackref, true))
 				{
 					set_register(sarg1, st->peek_back()); //NOT *10000
 				}
@@ -33937,7 +33784,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKPEEKFRONT:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "PeekFront()", true))
+				if(user_stack* st = checkStack(ri->stackref, true))
 				{
 					set_register(sarg1, st->peek_front()); //NOT *10000
 				}
@@ -33946,7 +33793,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKPUSHBACK:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "PushBack()", true))
+				if(user_stack* st = checkStack(ri->stackref, true))
 				{
 					int32_t val = get_register(sarg1); //NOT /10000
 					st->push_back(val);
@@ -33955,7 +33802,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case STACKPUSHFRONT:
 			{
-				if(user_stack* st = checkStack(ri->stackref, "PushFront()", true))
+				if(user_stack* st = checkStack(ri->stackref, true))
 				{
 					int32_t val = get_register(sarg1); //NOT /10000
 					st->push_front(val);
@@ -33990,68 +33837,68 @@ int32_t run_script_int(bool is_jitted)
 			
 			//{ Randgen Stuff
 			case RNGRAND1:
-				if(user_rng* r = checkRNG(ri->rngref, "Rand()"))
+				if(user_rng* r = checkRNG(ri->rngref))
 				{
 					ri->d[rEXP1] = r->rand(214748, -214748)*10000L;
 				}
 				else ri->d[rEXP1] = -10000L;
 				break;
 			case RNGRAND2:
-				if(user_rng* r = checkRNG(ri->rngref, "Rand(int32_t)"))
+				if(user_rng* r = checkRNG(ri->rngref))
 				{
 					set_register(sarg1,r->rand(get_register(sarg1)/10000L)*10000L);
 				}
 				else set_register(sarg1,-10000L);
 				break;
 			case RNGRAND3:
-				if(user_rng* r = checkRNG(ri->rngref, "Rand(int32_t,int32_t)"))
+				if(user_rng* r = checkRNG(ri->rngref))
 				{
 					set_register(sarg1,r->rand(get_register(sarg1)/10000L, get_register(sarg2)/10000L)* 10000L);
 				}
 				else set_register(sarg1,-10000L);
 				break;
 			case RNGLRAND1:
-				if(user_rng* r = checkRNG(ri->rngref, "LRand()"))
+				if(user_rng* r = checkRNG(ri->rngref))
 				{
 					ri->d[rEXP1] = r->rand();
 				}
 				else ri->d[rEXP1] = -10000L;
 				break;
 			case RNGLRAND2:
-				if(user_rng* r = checkRNG(ri->rngref, "LRand(int32_t)"))
+				if(user_rng* r = checkRNG(ri->rngref))
 				{
 					ri->d[rEXP1] = r->rand(get_register(sarg1));
 				}
 				else ri->d[rEXP1] = -10000L;
 				break;
 			case RNGLRAND3:
-				if(user_rng* r = checkRNG(ri->rngref, "LRand(int32_t,int32_t)"))
+				if(user_rng* r = checkRNG(ri->rngref))
 				{
 					ri->d[rEXP1] = r->rand(get_register(sarg1), get_register(sarg2));
 				}
 				else ri->d[rEXP1] = -10000L;
 				break;
 			case RNGSEED:
-				if(user_rng* r = checkRNG(ri->rngref, "SRand(int32_t)"))
+				if(user_rng* r = checkRNG(ri->rngref))
 				{
 					r->srand(get_register(sarg1));
 				}
 				break;
 			case RNGRSEED:
-				if(user_rng* r = checkRNG(ri->rngref, "SRand()"))
+				if(user_rng* r = checkRNG(ri->rngref))
 				{
 					ri->d[rEXP1] = r->srand();
 				}
 				else ri->d[rEXP1] = -10000;
 				break;
 			case RNGFREE:
-				if(user_rng* r = checkRNG(ri->rngref, "Free()", true))
+				if(user_rng* r = checkRNG(ri->rngref, true))
 				{
 					free_script_object(r->id);
 				}
 				break;
 			case RNGOWN:
-				if(user_rng* r = checkRNG(ri->rngref, "Own()", false))
+				if(user_rng* r = checkRNG(ri->rngref, false))
 				{
 					own_script_object(r, type, i);
 				}
@@ -34070,7 +33917,7 @@ int32_t run_script_int(bool is_jitted)
 			
 			case SUBDATA_GET_NAME:
 			{
-				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "GetName"))
+				if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 				{
 					auto aptr = get_register(sarg1) / 10000;
 					if(ArrayH::setArray(aptr, sub->name, true) == SH::_Overflow)
@@ -34081,7 +33928,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case SUBDATA_SET_NAME:
 			{
-				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SetName"))
+				if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 				{
 					auto aptr = get_register(sarg1) / 10000;
 					ArrayH::getString(aptr, sub->name);
@@ -34091,7 +33938,7 @@ int32_t run_script_int(bool is_jitted)
 			case SUBDATA_SWAP_PAGES:
 			{
 				ri->subdataref = SH::read_stack(ri->sp+2);
-				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SwapPages"))
+				if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 				{
 					int p1 = SH::read_stack(ri->sp+1) / 10000;
 					int p2 = SH::read_stack(ri->sp+0) / 10000;
@@ -34106,7 +33953,7 @@ int32_t run_script_int(bool is_jitted)
 			case SUBPAGE_SWAP_WIDG:
 			{
 				ri->subpageref = SH::read_stack(ri->sp+2);
-				if(SubscrPage* pg = checkSubPage(ri->subpageref, "SwapWidgets"))
+				if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				{
 					int p1 = SH::read_stack(ri->sp+1) / 10000;
 					int p2 = SH::read_stack(ri->sp+0) / 10000;
@@ -34122,7 +33969,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				ri->d[rEXP1] = 0;
 				ri->subpageref = SH::read_stack(ri->sp+1);
-				if(SubscrPage* pg = checkSubPage(ri->subpageref, "FindWidget", sstACTIVE))
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, sstACTIVE))
 				{
 					int cursorpos = SH::read_stack(ri->sp+0) / 10000;
 					if(auto* widg = pg->get_widg_pos(cursorpos,false))
@@ -34141,7 +33988,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				ri->d[rEXP1] = 0;
 				ri->subpageref = SH::read_stack(ri->sp+1);
-				if(SubscrPage* pg = checkSubPage(ri->subpageref, "GetWidget"))
+				if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				{
 					int aptr = SH::read_stack(ri->sp+0) / 10000;
 					std::string lbl;
@@ -34163,7 +34010,7 @@ int32_t run_script_int(bool is_jitted)
 				#define SUBSEL_FLAG_NO_NONEQUIP 0x01
 				#define SUBSEL_FLAG_NEED_ITEM 0x02
 				ri->subpageref = SH::read_stack(ri->sp+3);
-				if(SubscrPage* pg = checkSubPage(ri->subpageref, "SelectorMove"))
+				if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				{
 					int flags = SH::read_stack(ri->sp+0) / 10000;
 					int dir = SH::read_stack(ri->sp+1) / 10000;
@@ -34194,7 +34041,7 @@ int32_t run_script_int(bool is_jitted)
 			case SUBPAGE_NEW_WIDG:
 			{
 				ri->subpageref = SH::read_stack(ri->sp+1);
-				if(SubscrPage* pg = checkSubPage(ri->subpageref, "CreateWidget"))
+				if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				{
 					if(pg->size() == 0x2000)
 						break; //Page is full!
@@ -34214,7 +34061,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case SUBPAGE_DELETE:
 			{
-				if(SubscrPage* pg = checkSubPage(ri->subpageref, "Delete"))
+				if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				{
 					auto [sub,_ty] = load_subdata(ri->subpageref);
 					sub->delete_page(pg->getIndex());
@@ -34223,7 +34070,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case SUBWIDG_GET_SELTEXT_OVERRIDE:
 			{
-				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetSelTextOverride"))
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
 					auto aptr = get_register(sarg1) / 10000;
 					if(ArrayH::setArray(aptr, widg->override_text, true) == SH::_Overflow)
@@ -34234,7 +34081,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case SUBWIDG_SET_SELTEXT_OVERRIDE:
 			{
-				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetSelTextOverride"))
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
 					auto aptr = get_register(sarg1) / 10000;
 					ArrayH::getString(aptr, widg->override_text);
@@ -34243,7 +34090,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case SUBWIDG_GET_LABEL:
 			{
-				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetLabel"))
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
 					auto aptr = get_register(sarg1) / 10000;
 					if(ArrayH::setArray(aptr, widg->label, true) == SH::_Overflow)
@@ -34254,7 +34101,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case SUBWIDG_SET_LABEL:
 			{
-				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetLabel"))
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
 					auto aptr = get_register(sarg1) / 10000;
 					ArrayH::getString(aptr, widg->label);
@@ -34263,7 +34110,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case SUBWIDG_TY_GETTEXT:
 			{
-				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetText"))
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
 					std::string const* str = nullptr;
 					byte ty = widg->getType();
@@ -34276,7 +34123,7 @@ int32_t run_script_int(bool is_jitted)
 							str = &((SW_TextBox*)widg)->text;
 							break;
 						default:
-							bad_subwidg_type("GetText()", true, ty);
+							bad_subwidg_type(true, ty);
 							break;
 					}
 					if(str)
@@ -34291,7 +34138,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case SUBWIDG_TY_SETTEXT:
 			{
-				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetText"))
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
 					std::string* str = nullptr;
 					byte ty = widg->getType();
@@ -34304,7 +34151,7 @@ int32_t run_script_int(bool is_jitted)
 							str = &((SW_TextBox*)widg)->text;
 							break;
 						default:
-							bad_subwidg_type("SetText()", true, ty);
+							bad_subwidg_type(true, ty);
 							break;
 					}
 					if(str)
@@ -34800,7 +34647,7 @@ bool FFScript::get_scriptfile_path(char* buf, const char* path)
 
 void check_file_error(int32_t ref)
 {
-	if(user_file* f = checkFile(ref, "", true, true))
+	if(user_file* f = checkFile(ref, true, true))
 	{
 		int32_t err = ferror(f->file);
 		if(err != 0)
@@ -34828,11 +34675,11 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 		return;
 	}
 
-	user_file* f = checkFile(ri->fileref, "Open()", false, true);
+	user_file* f = checkFile(ri->fileref, false, true);
 	if(!f) //auto-allocate
 	{
 		ri->fileref = user_files.get_free();
-		f = checkFile(ri->fileref, "Open()", false, true);
+		f = checkFile(ri->fileref, false, true);
 	}
 	ri->d[rEXP2] = ri->fileref; //Returns to the variable!
 	if(f)
@@ -34872,7 +34719,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 
 void FFScript::do_fremove()
 {
-	if(user_file* f = checkFile(ri->fileref, "Remove()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		zprint2("Removing file %d\n", ri->fileref);
 		ri->d[rEXP1] = f->do_remove() ? 0L : 10000L;
@@ -34882,7 +34729,7 @@ void FFScript::do_fremove()
 
 void FFScript::do_fclose()
 {
-	if(user_file* f = checkFile(ri->fileref, "Close()", false, true))
+	if(user_file* f = checkFile(ri->fileref, false, true))
 	{
 		f->close();
 	}
@@ -34899,26 +34746,26 @@ void FFScript::do_allocate_file()
 
 void FFScript::do_deallocate_file()
 {
-	user_file* f = checkFile(ri->fileref, "Free()", false, true);
+	user_file* f = checkFile(ri->fileref, false, true);
 	if(f) free_script_object(f->id);
 }
 
 void FFScript::do_file_isallocated() //Returns true if file is allocated
 {
-	user_file* f = checkFile(ri->fileref, "isAllocated()", false, true);
+	user_file* f = checkFile(ri->fileref, false, true);
 	ri->d[rEXP1] = (f) ? 10000L : 0L;
 }
 
 void FFScript::do_file_isvalid() //Returns true if file is allocated and has an open FILE*
 {
-	user_file* f = checkFile(ri->fileref, "isValid()", true, true);
+	user_file* f = checkFile(ri->fileref, true, true);
 	ri->d[rEXP1] = (f) ? 10000L : 0L;
 }
 
 void FFScript::do_fflush()
 {
 	ri->d[rEXP1] = 0L;
-	if(user_file* f = checkFile(ri->fileref, "Flush()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		if(!fflush(f->file))
 			ri->d[rEXP1] = 10000L;
@@ -34928,7 +34775,7 @@ void FFScript::do_fflush()
 
 void FFScript::do_file_readchars()
 {
-	if(user_file* f = checkFile(ri->fileref, "ReadChars()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		uint32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t count = get_register(sarg2) / 10000;
@@ -34973,7 +34820,7 @@ void FFScript::do_file_readchars()
 }
 void FFScript::do_file_readbytes()
 {
-	if(user_file* f = checkFile(ri->fileref, "ReadBytes()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		uint32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t count = get_register(sarg2) / 10000;
@@ -35002,7 +34849,7 @@ void FFScript::do_file_readbytes()
 }
 void FFScript::do_file_readstring()
 {
-	if(user_file* f = checkFile(ri->fileref, "ReadString()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ArrayManager am(arrayptr);
@@ -35043,7 +34890,7 @@ void FFScript::do_file_readstring()
 }
 void FFScript::do_file_readints()
 {
-	if(user_file* f = checkFile(ri->fileref, "ReadInts()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		uint32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t count = get_register(sarg2) / 10000;
@@ -35073,7 +34920,7 @@ void FFScript::do_file_readints()
 }
 void FFScript::do_file_writechars()
 {
-	if(user_file* f = checkFile(ri->fileref, "WriteChars()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		int32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t count = get_register(sarg2) / 10000;
@@ -35097,7 +34944,7 @@ void FFScript::do_file_writechars()
 
 void FFScript::do_file_writebytes()
 {
-	if(user_file* f = checkFile(ri->fileref, "WriteBytes()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		uint32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t arg = get_register(sarg2) / 10000;
@@ -35129,7 +34976,7 @@ void FFScript::do_file_writebytes()
 }
 void FFScript::do_file_writestring()
 {
-	if(user_file* f = checkFile(ri->fileref, "WriteString()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		string output;
@@ -35148,7 +34995,7 @@ void FFScript::do_file_writestring()
 }
 void FFScript::do_file_writeints()
 {
-	if(user_file* f = checkFile(ri->fileref, "WriteInts()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		uint32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t count = get_register(sarg2) / 10000;
@@ -35180,7 +35027,7 @@ void FFScript::do_file_writeints()
 
 void FFScript::do_file_getchar()
 {
-	if(user_file* f = checkFile(ri->fileref, "GetChar()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		ri->d[rEXP1] = fgetc(f->file) * 10000L;
 		check_file_error(ri->fileref);
@@ -35190,7 +35037,7 @@ void FFScript::do_file_getchar()
 }
 void FFScript::do_file_putchar()
 {
-	if(user_file* f = checkFile(ri->fileref, "PutChar()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		int32_t c = get_register(sarg1) / 10000;
 		if(char(c) != c)
@@ -35206,7 +35053,7 @@ void FFScript::do_file_putchar()
 }
 void FFScript::do_file_ungetchar()
 {
-	if(user_file* f = checkFile(ri->fileref, "UngetChar()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		int32_t c = get_register(sarg1) / 10000;
 		if(char(c) != c)
@@ -35223,7 +35070,7 @@ void FFScript::do_file_ungetchar()
 
 void FFScript::do_file_seek()
 {
-	if(user_file* f = checkFile(ri->fileref, "Seek()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		int32_t pos = get_register(sarg1); //NOT /10000 -V
 		int32_t origin = get_register(sarg2) ? SEEK_CUR : SEEK_SET;
@@ -35235,7 +35082,7 @@ void FFScript::do_file_seek()
 }
 void FFScript::do_file_rewind()
 {
-	if(user_file* f = checkFile(ri->fileref, "Rewind()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		//fseek(f->file, 0L, SEEK_END);
 		rewind(f->file);
@@ -35244,7 +35091,7 @@ void FFScript::do_file_rewind()
 }
 void FFScript::do_file_clearerr()
 {
-	if(user_file* f = checkFile(ri->fileref, "ClearError()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		clearerr(f->file);
 	}
@@ -35252,7 +35099,7 @@ void FFScript::do_file_clearerr()
 
 void FFScript::do_file_geterr()
 {
-	if(user_file* f = checkFile(ri->fileref, "GetError()", true))
+	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		int32_t err = ferror(f->file);
 		int32_t arrayptr = get_register(sarg1) / 10000;
@@ -35272,21 +35119,21 @@ void FFScript::do_file_geterr()
 
 void FFScript::do_directory_get()
 {
-	if(user_dir* dr = checkDir(ri->directoryref, "GetFilename()", true))
+	if(user_dir* dr = checkDir(ri->directoryref, true))
 	{
 		int32_t indx = get_register(sarg1) / 10000L;
 		int32_t arrayptr = get_register(sarg2) / 10000L;
 		char buf[2048] = {0};
 		set_register(sarg1, dr->get(indx, buf) ? 10000L : 0L);
 		if(ArrayH::setArray(arrayptr, string(buf)) == SH::_Overflow)
-			Z_scripterrlog("Array supplied to 'directory->GetFilename()' not large enough\n");
+			scripting_log_error_with_context("Array is not large enough");
 	}
 	else set_register(sarg1, 0L);
 }
 
 void FFScript::do_directory_reload()
 {
-	if(user_dir* dr = checkDir(ri->directoryref, "Reload()", true))
+	if(user_dir* dr = checkDir(ri->directoryref, true))
 	{
 		dr->refresh();
 	}
@@ -35294,7 +35141,7 @@ void FFScript::do_directory_reload()
 
 void FFScript::do_directory_free()
 {
-	if(user_dir* dr = checkDir(ri->directoryref, "Free()", true))
+	if(user_dir* dr = checkDir(ri->directoryref, true))
 	{
 		free_script_object(dr->id);
 	}
@@ -35313,7 +35160,7 @@ void FFScript::do_isvalidbitmap()
 
 	if (id >= 0)
 	{
-		auto bmp = user_bitmaps.check(id, "", true);
+		auto bmp = user_bitmaps.check(id, true);
 		if (bmp && bmp->u_bmp)
 		{
 			set_register(sarg1, 10000);
@@ -35329,7 +35176,7 @@ void FFScript::do_isallocatedbitmap()
 
 	if (id >= 0)
 	{
-		auto bmp = user_bitmaps.check(id, "", true);
+		auto bmp = user_bitmaps.check(id, true);
 		if (bmp)
 		{
 			set_register(sarg1, 10000);
@@ -35430,7 +35277,7 @@ BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
 		}
 	}
 
-	if (auto bitmap = checkBitmap(id, NULL, true, skipError))
+	if (auto bitmap = checkBitmap(id, true, skipError))
 		return bitmap->u_bmp;
 
 	return nullptr;
@@ -35455,7 +35302,7 @@ void FFScript::do_deallocate_bitmap()
 	}
 
 	// Bitmaps are not deallocated right away, but deferred until the next call to scb.update()
-	if (auto b = checkBitmap(ri->bitmapref, "Free()", false, true))
+	if (auto b = checkBitmap(ri->bitmapref, false, true))
 		b->free_obj();
 }
 
@@ -37494,7 +37341,7 @@ int32_t FFScript::getTime(int32_t type)
 
 void FFScript::do_lweapon_delete()
 {
-	if(0!=(s=checkLWpn(ri->lwpn,"Remove()")))
+	if(0!=(s=checkLWpn(ri->lwpn)))
 	{
 		if(s==Hero.lift_wpn)
 		{
@@ -37507,7 +37354,7 @@ void FFScript::do_lweapon_delete()
 
 void FFScript::do_eweapon_delete()
 {
-	if(0!=(s=checkEWpn(ri->ewpn,"Remove()")))
+	if(0!=(s=checkEWpn(ri->ewpn)))
 	{
 		Ewpns.del(s);
 	}
@@ -42807,7 +42654,7 @@ defWpnSprite FFScript::getDefWeaponSprite(int32_t wpnid)
 void FFScript::do_loadlweapon_by_script_uid(const bool v)
 {
 	int32_t uid = SH::get_arg(sarg1, v);
-	if (ResolveLWeapon_checkSpriteList(uid, "Screen->LoadLWeaponByUID"))
+	if (ResolveLWeapon_checkSpriteList(uid))
 		ri->lwpn = uid;
 	else
 	{
@@ -42818,7 +42665,7 @@ void FFScript::do_loadlweapon_by_script_uid(const bool v)
 void FFScript::do_loadeweapon_by_script_uid(const bool v)
 {
 	int32_t uid = SH::get_arg(sarg1, v);
-	if (ResolveEWeapon_checkSpriteList(uid, "Screen->LoadEWeaponByUID"))
+	if (ResolveEWeapon_checkSpriteList(uid))
 		ri->ewpn = uid;
 	else
 	{
@@ -42830,7 +42677,7 @@ void FFScript::do_loadeweapon_by_script_uid(const bool v)
 void FFScript::do_loadnpc_by_script_uid(const bool v)
 {
 	int32_t uid = SH::get_arg(sarg1, v);
-	if (ResolveSprite2<enemy>(uid, "enemy", "Screen->LoadNPCByUID"))
+	if (ResolveSprite<enemy>(uid, "enemy"))
 		ri->guyref = uid;
 	else
 	{
@@ -42854,66 +42701,6 @@ void FFScript::clear_combo_script(const rpos_handle_t& rpos_handle)
 	combo_id_cache[index] = -1;
 	combopos_modified = index;
 	clear_script_engine_data(ScriptType::Combo, index);
-}
-
-int32_t FFScript::getComboDataLayer(int32_t c, ScriptType scripttype)
-{
-	if ( scripttype != ScriptType::Combo )
-	{
-		Z_scripterrlog("combodata->Layer() only runs from combo scripts, not from script type &s\n", ScriptTypeToString(scripttype));
-		return -1;
-	}
-	else
-	{
-		int32_t l = 0;
-		for (int32_t q = 176; q < 1232; q+= 176 )
-		{
-			if ( c < q )
-			{
-				return l;
-			}
-			++l;
-		}
-		return -1;
-	}
-}
-
-int32_t FFScript::getCombodataPos(int32_t c, ScriptType scripttype)
-{
-	if ( scripttype != ScriptType::Combo )
-	{
-		Z_scripterrlog("combodata->Pos() only runs from combo scripts, not from script type &s\n", ScriptTypeToString(scripttype));
-		return -1;
-	}
-	else return ((c%176));
-}
-
-int32_t FFScript::getCombodataX(int32_t c, ScriptType scripttype)
-{
-	if ( scripttype != ScriptType::Combo )
-	{
-		Z_scripterrlog("combodata->X() only runs from combo scripts, not from script type &s\n", ScriptTypeToString(scripttype));
-		return -1;
-	}
-	else
-	{
-		int32_t pos = getCombodataPos(c, scripttype);
-		return COMBOX(pos);
-	}
-}
-
-int32_t FFScript::getCombodataY(int32_t c, ScriptType scripttype)
-{
-	if ( scripttype != ScriptType::Combo )
-	{
-		Z_scripterrlog("combodata->Y() only runs from combo scripts, not from script type &s\n", ScriptTypeToString(scripttype));
-		return -1;
-	}
-	else
-	{
-		int32_t pos = getCombodataPos(c, scripttype);
-		return COMBOY(pos);
-	}
 }
 
 int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)

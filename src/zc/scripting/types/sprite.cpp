@@ -34,9 +34,9 @@ static bool enemy_has_hero(sprite* s)
 	return false;
 }
 
-static sprite* get_sprite(int uid, const char* what)
+static sprite* get_sprite(int uid)
 {
-	return ResolveBaseSprite(uid, what);
+	return ResolveBaseSprite(uid);
 }
 
 static bool as_float(sprite* s)
@@ -53,49 +53,49 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 			if (is_player())
 				return cur_screen * 10000;
 
-			if (auto s = get_sprite(ri->spriteref, "SpawnScreen"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->screen_spawned * 10000;
 			break;
 		}
 		case SPRITE_X:
 		{
-			if (auto s = get_sprite(ri->spriteref, "X"))
+			if (auto s = get_sprite(ri->spriteref))
 				return as_float(s) ? s->x.getZLong() : int(s->x) * 10000;
 			return 0;
 		}
 		case SPRITE_Y:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Y"))
+			if (auto s = get_sprite(ri->spriteref))
 				return as_float(s) ? s->y.getZLong() : int(s->y) * 10000;
 			return 0;
 		}
 		case SPRITE_Z:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Z"))
+			if (auto s = get_sprite(ri->spriteref))
 				return as_float(s) ? s->z.getZLong() : int(s->z) * 10000;
 			return 0;
 		}
 		case SPRITE_FAKE_Z:
 		{
-			if (auto s = get_sprite(ri->spriteref, "FakeZ"))
+			if (auto s = get_sprite(ri->spriteref))
 				return as_float(s) ? s->fakez.getZLong() : int(s->fakez) * 10000;
 			return 0;
 		}
 		case SPRITE_X_OFFSET:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrawXOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->xofs * 10000;
 			return 0;
 		}
 		case SPRITE_Y_OFFSET:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrawYOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				return (s->yofs - (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset)) * 10000;
 			return 0;
 		}
 		case SPRITE_Z_OFFSET:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrawZOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->zofs * 10000;
 			return 0;
 		}
@@ -103,23 +103,23 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		{
 			if (get_qr(qr_OLDSPRITEDRAWS))
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n", "sprite->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				return 0;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Rotation"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->rotation * 10000;
 			return 0;
 		}
 		case SPRITE_DIR:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Dir"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->dir * 10000;
 			return 0;
 		}
 		case SPRITE_TILE:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Tile"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->tile * 10000;
 			return 0;
 		}
@@ -129,25 +129,25 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 			if (is_player())
 				return script_hero_sprite * 10000;
 
-			if (auto s = get_sprite(ri->spriteref, "ScriptTile"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->scripttile * 10000;
 			return 0;
 		}
 		case SPRITE_TILE_W:
 		{
-			if (auto s = get_sprite(ri->spriteref, "TileWidth"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->txsz * 10000;
 			return 0;
 		}
 		case SPRITE_TILE_H:
 		{
-			if (auto s = get_sprite(ri->spriteref, "TileHeight"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->tysz * 10000;
 			return 0;
 		}
 		case SPRITE_CSET:
 		{
-			if (auto s = get_sprite(ri->spriteref, "CSet"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				if (auto ffc = dynamic_cast<ffcdata*>(s))
 					return ffc->cset * 10000;
@@ -163,23 +163,23 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		{
 			if (get_qr(qr_OLDSPRITEDRAWS))
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n", "sprite->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				return 0;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Scale"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->scale * 100;
 			return 0;
 		}
 		case SPRITE_DRAW_STYLE:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrawStyle"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->drawstyle * 10000;
 			return 0;
 		}
 		case SPRITE_JUMP:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Jump"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				int32_t ret = s->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED) && !is_player()) ret = trunc(ret / 10000) * 10000;
@@ -189,7 +189,7 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		}
 		case SPRITE_FAKE_JUMP:
 		{
-			if (auto s = get_sprite(ri->spriteref, "FakeJump"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				int32_t ret = s->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED) && !is_player()) ret = trunc(ret / 10000) * 10000;
@@ -199,13 +199,13 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		}
 		case SPRITE_GRAVITY:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Gravity"))
+			if (auto s = get_sprite(ri->spriteref))
 				return (s->moveflags & move_obeys_grav) ? 10000 : 0;
 			return 0;
 		}
 		case SPRITE_FLIP:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Flip"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->flip * 10000;
 			return 0;
 		}
@@ -214,71 +214,71 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 			// TODO: use sprite::scriptflip
 			if (is_player())
 				return script_hero_flip * 10000;
-			if (auto s = get_sprite(ri->spriteref, "ScriptFlip"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->scriptflip * 10000;
 			return 0;
 		}
 		case SPRITE_ENGINE_ANIMATE:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Animation"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->do_animation * 10000;
 			return 0;
 		}
 		case SPRITE_EXTEND:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Extend"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->extend * 10000;
 			return 0;
 		}
 		case SPRITE_HIT_WIDTH:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitWidth"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->hit_width * 10000;
 			return 0;
 		}
 		case SPRITE_HIT_HEIGHT:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitHeight"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->hit_height * 10000;
 			return 0;
 		}
 		case SPRITE_HIT_ZHEIGHT:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitZHeight"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->hzsz * 10000;
 			return 0;
 		}
 		case SPRITE_HIT_OFFSET_X:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitXOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->hxofs * 10000;
 			return 0;
 		}
 		case SPRITE_HIT_OFFSET_Y:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitYOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->hyofs * 10000;
 			return 0;
 		}
 		case SPRITE_FALL_CLK:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Falling"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->fallclk * 10000;
 			return 0;
 		}
 		case SPRITE_FALL_CMB:
 		{
-			if (auto s = get_sprite(ri->spriteref, "FallCombo"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->fallCombo * 10000;
 			return 0;
 		}
 		case SPRITE_MOVE_FLAGS:
 		{
-			if (auto s = get_sprite(ri->spriteref, "MoveFlags[]"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				int index = ri->d[rINDEX] / 10000;
 				int limit = is_enemy(s) ? 15 : 10;
-				if (BC::checkBounds(index, 0, limit, "sprite->MoveFlags[]") != SH::_NoError)
+				if (BC::checkIndex(index, 0, limit) != SH::_NoError)
 					return 0;
 
 				return (s->moveflags & (1<<index)) ? 10000 : 0;
@@ -287,49 +287,49 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		}
 		case SPRITE_LIGHT_RADIUS:
 		{
-			if (auto s = get_sprite(ri->spriteref, "LightRadius"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->glowRad * 10000;
 			return 0;
 		}
 		case SPRITE_LIGHT_SHAPE:
 		{
-			if (auto s = get_sprite(ri->spriteref, "LightShape"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->glowShape * 10000;
 			return 0;
 		}
 		case SPRITE_SWHOOKED:
 		{
-			if (auto s = get_sprite(ri->spriteref, "SwitchHooked"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->switch_hooked * 10000;
 			return 0;
 		}
 		case SPRITE_SHADOW_SPR:
 		{
-			if (auto s = get_sprite(ri->spriteref, "ShadowSprite"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->spr_shadow * 10000;
 			return 0;
 		}
 		case SPRITE_DROWN_CLK:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Drowning"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->drownclk * 10000;
 			return 0;
 		}
 		case SPRITE_DROWN_CMB:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrownCombo"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->drownCombo * 10000;
 			return 0;
 		}
 		case SPRITE_SHADOW_XOFS:
 		{
-			if (auto s = get_sprite(ri->spriteref, "ShadowXOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->shadowxofs * 10000;
 			return 0;
 		}
 		case SPRITE_SHADOW_YOFS:
 		{
-			if (auto s = get_sprite(ri->spriteref, "ShadowYOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				return s->shadowyofs * 10000;
 			return 0;
 		}
@@ -339,15 +339,15 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 			if (is_player())
 				return Hero.miscellaneous[vbound(ri->d[rINDEX]/10000,0,31)];
 
-			if (auto s = get_sprite(ri->spriteref, "Misc[]"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				int index = ri->d[rINDEX] / 10000;
-				if (auto f = dynamic_cast<ffcdata*>(s))
+				if (dynamic_cast<ffcdata*>(s))
 				{
-					if (BC::checkMisc(index, "sprite->Misc[]") != SH::_NoError)
+					if (BC::checkMisc(index) != SH::_NoError)
 						return 0;
 				}
-				else if (BC::checkMisc32(index, "sprite->Misc[]") != SH::_NoError)
+				else if (BC::checkMisc32(index) != SH::_NoError)
 					break;
 
 				return s->miscellaneous[index];
@@ -375,7 +375,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "X"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				s->x = as_float(s) ? zslongToFix(value) : zfix(value/10000);
 				if (enemy_has_hero(s))
@@ -394,7 +394,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Y"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				s->y = as_float(s) ? zslongToFix(value) : zfix(value/10000);
 				if (enemy_has_hero(s))
@@ -413,7 +413,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Z"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				s->z = as_float(s) ? zslongToFix(value) : zfix(value/10000);
 				if (s->z < 0)
@@ -434,7 +434,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "FakeZ"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				s->fakez = as_float(s) ? zslongToFix(value) : zfix(value/10000);
 				if (s->fakez < 0)
@@ -446,19 +446,19 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_X_OFFSET:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrawXOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->xofs = value/10000;
 			break;
 		}
 		case SPRITE_Y_OFFSET:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrawYOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->yofs = value/10000 + (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			break;
 		}
 		case SPRITE_Z_OFFSET:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrawZOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->zofs = value/10000;
 			break;
 		}
@@ -466,11 +466,11 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		{
 			if (get_qr(qr_OLDSPRITEDRAWS))
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n", "sprite->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Rotation"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->rotation = value / 10000;
 			break;
 		}
@@ -484,7 +484,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Dir"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				s->dir = value / 10000;
 				if (auto w = dynamic_cast<weapon*>(s))
@@ -495,17 +495,17 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		case SPRITE_TILE:
 		{
 			int tile = value / 10000;
-			if (BC::checkTile(tile, "sprite->Tile") != SH::_NoError)
+			if (BC::checkTile(tile) != SH::_NoError)
 				break;
 
-			if (auto s = get_sprite(ri->spriteref, "Tile"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->tile = tile;
 			break;
 		}
 		case SPRITE_SCRIPT_TILE:
 		{
 			int tile = value / 10000;
-			if (BC::checkBounds(tile, -1, NEWMAXTILES-1, "sprite->ScriptTile") != SH::_NoError)
+			if (BC::checkBounds(tile, -1, NEWMAXTILES-1) != SH::_NoError)
 				break;
 
 			// TODO: use sprite::scriptile
@@ -514,13 +514,13 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				script_hero_sprite = tile;
 				break;
 			}
-			if (auto s = get_sprite(ri->spriteref, "ScriptTile"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->scripttile = tile;
 			break;
 		}
 		case SPRITE_TILE_W:
 		{
-			if (auto s = get_sprite(ri->spriteref, "TileWidth"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				int height = value / 10000;
 				if (dynamic_cast<ffcdata*>(s))
@@ -530,14 +530,14 @@ bool sprite_set_register(int32_t reg, int32_t value)
 					break;
 				}
 
-				if (BC::checkBounds(height, 0, 20, "sprite->TileWidth") == SH::_NoError)
+				if (BC::checkBounds(height, 0, 20) == SH::_NoError)
 					s->txsz = height;
 			}
 			break;
 		}
 		case SPRITE_TILE_H:
 		{
-			if (auto s = get_sprite(ri->spriteref, "TileHeight"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				int height = value / 10000;
 				if (dynamic_cast<ffcdata*>(s))
@@ -547,14 +547,14 @@ bool sprite_set_register(int32_t reg, int32_t value)
 					break;
 				}
 
-				if (BC::checkBounds(height, 0, 20, "sprite->TileHeight") == SH::_NoError)
+				if (BC::checkBounds(height, 0, 20) == SH::_NoError)
 					s->tysz = height;
 			}
 			break;
 		}
 		case SPRITE_CSET:
 		{
-			if (auto s = get_sprite(ri->spriteref, "CSet"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				if (auto ffc = dynamic_cast<ffcdata*>(s))
 				{
@@ -580,17 +580,17 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		{
 			if (get_qr(qr_OLDSPRITEDRAWS))
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n", "sprite->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Scale"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->scale = value / 100;
 			break;
 		}
 		case SPRITE_DRAW_STYLE:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrawStyle"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->drawstyle = value/10000;
 			break;
 		}
@@ -602,7 +602,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Jump"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				if (auto e = dynamic_cast<enemy*>(s))
 				{
@@ -625,7 +625,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "FakeJump"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				if (auto e = dynamic_cast<enemy*>(s))
 				{
@@ -642,13 +642,13 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_GRAVITY:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Gravity"))
+			if (auto s = get_sprite(ri->spriteref))
 				SETFLAG(s->moveflags, move_obeys_grav, value);
 			break;
 		}
 		case SPRITE_FLIP:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Flip"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->flip = value / 10000;
 			break;
 		}
@@ -662,49 +662,49 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "ScriptFlip"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->scriptflip = vbound(value / 10000, -1, 127);
 			break;
 		}
 		case SPRITE_ENGINE_ANIMATE:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Animation"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->do_animation = value;
 			break;
 		}
 		case SPRITE_EXTEND:
 		{
-			if (auto s = get_sprite(ri->spriteref, "Extend"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->extend = value / 10000;
 			break;
 		}
 		case SPRITE_HIT_WIDTH:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitWidth"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->hit_width = value / 10000;
 			break;
 		}
 		case SPRITE_HIT_HEIGHT:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitHeight"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->hit_height = value / 10000;
 			break;
 		}
 		case SPRITE_HIT_ZHEIGHT:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitZHeight"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->hzsz = value / 10000;
 			break;
 		}
 		case SPRITE_HIT_OFFSET_X:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitXOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->hxofs = value / 10000;
 			break;
 		}
 		case SPRITE_HIT_OFFSET_Y:
 		{
-			if (auto s = get_sprite(ri->spriteref, "HitYOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->hyofs = value / 10000;
 			break;
 		}
@@ -721,7 +721,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Falling"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				if (s->fallclk != 0 && value == 0)
 				{
@@ -738,17 +738,17 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_FALL_CMB:
 		{
-			if (auto s = get_sprite(ri->spriteref, "FallCombo"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->fallCombo = vbound(value / 10000, 0, MAXCOMBOS - 1);
 			break;
 		}
 		case SPRITE_MOVE_FLAGS:
 		{
-			if (auto s = get_sprite(ri->spriteref, "MoveFlags[]"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				int index = ri->d[rINDEX] / 10000;
 				int limit = is_enemy(s) ? 15 : 10;
-				if (BC::checkBounds(index, 0, limit, "sprite->MoveFlags[]") != SH::_NoError)
+				if (BC::checkIndex(index, 0, limit) != SH::_NoError)
 					break;
 
 				move_flags bit = (move_flags)(1<<index);
@@ -758,13 +758,13 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_LIGHT_RADIUS:
 		{
-			if (auto s = get_sprite(ri->spriteref, "LightRadius"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->glowRad = vbound(value / 10000, 0, 255);
 			break;
 		}
 		case SPRITE_LIGHT_SHAPE:
 		{
-			if (auto s = get_sprite(ri->spriteref, "LightShape"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->glowShape = vbound(value / 10000, 0, 255);
 			break;
 		}
@@ -775,7 +775,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_SHADOW_SPR:
 		{
-			if (auto s = get_sprite(ri->spriteref, "ShadowSprite"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->spr_shadow = vbound(value / 10000, 0, 255);
 			break;
 		}
@@ -797,7 +797,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Drowning"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				if (s->drownclk != 0 && value == 0)
 				{
@@ -815,19 +815,19 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_DROWN_CMB:
 		{
-			if (auto s = get_sprite(ri->spriteref, "DrownCombo"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->drownCombo = vbound(value / 10000, 0, MAXCOMBOS - 1);
 			break;
 		}
 		case SPRITE_SHADOW_XOFS:
 		{
-			if (auto s = get_sprite(ri->spriteref, "ShadowXOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->shadowxofs = value / 10000;
 			break;
 		}
 		case SPRITE_SHADOW_YOFS:
 		{
-			if (auto s = get_sprite(ri->spriteref, "ShadowYOffset"))
+			if (auto s = get_sprite(ri->spriteref))
 				s->shadowyofs = value / 10000;
 			break;
 		}
@@ -840,16 +840,16 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 			}
 
-			if (auto s = get_sprite(ri->spriteref, "Misc[]"))
+			if (auto s = get_sprite(ri->spriteref))
 			{
 				int index = ri->d[rINDEX] / 10000;
-				if (auto f = dynamic_cast<ffcdata*>(s))
+				if (dynamic_cast<ffcdata*>(s))
 				{
 					// TODO: allow ffcs to use all 32
-					if (BC::checkMisc(index, "sprite->Misc[]") != SH::_NoError)
+					if (BC::checkMisc(index) != SH::_NoError)
 						break;
 				}
-				else if (BC::checkMisc32(index, "sprite->Misc[]") != SH::_NoError)
+				else if (BC::checkMisc32(index) != SH::_NoError)
 					break;
 
 				s->miscellaneous[index] = value;

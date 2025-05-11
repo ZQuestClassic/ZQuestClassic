@@ -10,7 +10,7 @@ class ItemH : public SH
 {
 
 public:
-	static int32_t loadItem(int32_t uid, const char* what);
+	static int32_t loadItem(int32_t uid);
 	static int32_t getItemIndex(int32_t uid);
 	static item* getItem();
 	static void clearTemp();

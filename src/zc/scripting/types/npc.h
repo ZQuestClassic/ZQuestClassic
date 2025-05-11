@@ -10,7 +10,7 @@ class GuyH : public SH
 {
 
 public:
-	static int32_t loadNPC(const int32_t eid, const char* what);
+	static int32_t loadNPC(const int32_t eid);
 	
 	static enemy *getNPC();
 	

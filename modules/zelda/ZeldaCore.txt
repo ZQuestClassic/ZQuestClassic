@@ -28,6 +28,7 @@ src/zc/saves.cpp
 src/zc/db_rng.cpp
 src/zc/zc_ffc.cpp
 src/music_playback.cpp
+src/zc/scripting/context_strings.cpp
 src/zc/scripting/script_object.cpp
 src/zc/scripting/types/game.cpp
 src/zc/scripting/types/item.cpp

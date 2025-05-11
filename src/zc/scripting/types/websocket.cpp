@@ -82,7 +82,7 @@ std::optional<int32_t> websocket_get_register(int32_t reg)
 		case WEBSOCKET_STATE:
 		{
 			ret = 0;
-			auto ws = user_websockets.check(ri->websocketref, "->State");
+			auto ws = user_websockets.check(ri->websocketref);
 			if (!ws) break;
 
 			ret = (int)ws->get_state();
@@ -91,7 +91,7 @@ std::optional<int32_t> websocket_get_register(int32_t reg)
 		case WEBSOCKET_HAS_MESSAGE:
 		{
 			ret = 0;
-			auto ws = user_websockets.check(ri->websocketref, "->HasMessage");
+			auto ws = user_websockets.check(ri->websocketref);
 			if (!ws) break;
 
 			ret = ws->has_message() * 10000;
@@ -100,7 +100,7 @@ std::optional<int32_t> websocket_get_register(int32_t reg)
 		case WEBSOCKET_MESSAGE_TYPE:
 		{
 			ret = 0;
-			auto ws = user_websockets.check(ri->websocketref, "->MessageType");
+			auto ws = user_websockets.check(ri->websocketref);
 			if (!ws) break;
 
 			ret = (int)ws->last_message_type;
@@ -128,7 +128,7 @@ std::optional<int32_t> websocket_run_command(word command)
 	{
 		case WEBSOCKET_OWN:
 		{
-			if (auto ws = user_websockets.check(ri->websocketref, "Own()"))
+			if (auto ws = user_websockets.check(ri->websocketref))
 			{
 				own_script_object(ws, type, i);
 			}
@@ -162,7 +162,7 @@ std::optional<int32_t> websocket_run_command(word command)
 		}
 		case WEBSOCKET_FREE:
 		{
-			if (auto ws = user_websockets.check(ri->websocketref, "Free()", true))
+			if (auto ws = user_websockets.check(ri->websocketref, true))
 			{
 				free_script_object(ws->id);
 			}
@@ -171,7 +171,7 @@ std::optional<int32_t> websocket_run_command(word command)
 		case WEBSOCKET_ERROR:
 		{
 			int32_t arrayptr = get_register(sarg1) / 10000;
-			if (auto ws = user_websockets.check(ri->websocketref, "GetError()"))
+			if (auto ws = user_websockets.check(ri->websocketref))
 			{
 				ArrayH::setArray(arrayptr, ws->get_error(), true);
 			}
@@ -185,14 +185,15 @@ std::optional<int32_t> websocket_run_command(word command)
 		{
 			int32_t type = get_register(sarg1);
 			int32_t arrayptr = get_register(sarg2) / 10000;
-			if (BC::checkBounds(type, 1, 2, "Send() type") != SH::_NoError)
-			{
+
+			current_zasm_extra_context = "WebsocketType";
+			if (BC::checkBounds(type, 1, 2) != SH::_NoError)
 				break;
-			}
+			current_zasm_extra_context = "";
 
 			std::string message;
 			ArrayH::getString(arrayptr, message);
-			if (auto ws = user_websockets.check(ri->websocketref, "Send()"))
+			if (auto ws = user_websockets.check(ri->websocketref))
 			{
 				ws->send((WebSocketMessageType)type, message);
 			}
@@ -200,7 +201,7 @@ std::optional<int32_t> websocket_run_command(word command)
 		}
 		case WEBSOCKET_RECEIVE:
 		{
-			if (auto ws = user_websockets.check(ri->websocketref, "Receive()"))
+			if (auto ws = user_websockets.check(ri->websocketref))
 			{
 				if (!ws->has_message())
 				{

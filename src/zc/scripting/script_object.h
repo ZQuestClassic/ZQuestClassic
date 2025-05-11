@@ -70,7 +70,7 @@ struct UserDataContainer
 		return object->id;
 	}
 
-	T* check(uint32_t id, const char* what = nullptr, bool skipError = false)
+	T* check(uint32_t id, bool skipError = false)
 	{
 		if (util::contains(script_object_ids_by_type[type], id))
 		{
@@ -80,11 +80,7 @@ struct UserDataContainer
 
 		if (skipError) return NULL;
 
-		Z_scripterrlog("Script attempted to reference a nonexistent %s!\n", name);
-		if (what)
-			Z_scripterrlog("You were trying to reference the '%s' of a %s with UID = %ld\n", what, name, id);
-		else
-			Z_scripterrlog("You were trying to reference with UID = %ld\n", id);
+		scripting_log_error_with_context("Invalid {} using UID = {}", name, id);
 		return NULL;
 	}
 };

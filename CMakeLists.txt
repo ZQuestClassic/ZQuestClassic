@@ -516,6 +516,13 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Cl
 	add_compile_options(-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.)
 endif()
 
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(is_multi_config)
+	set(BUILD_FOLDER "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+else()
+	set(BUILD_FOLDER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+endif()
+
 #############################################################
 # Allegro Graphics Addons
 #############################################################
@@ -892,6 +899,22 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND WIN32)
 	target_compile_definitions(zplayer PRIVATE ZC_WIN_32)
 endif()
 
+# For some reason compilation fails in CI, but only for ubuntu clang job...
+#   Linking CXX executable RelWithDebInfo/zscript
+#   /usr/bin/ld: /usr/bin/ld: DWARF error: invalid or unhandled FORM value: 0x23
+#   RelWithDebInfo/libzcbase.a(zsys.cpp.o): in function `temp_name(char*)':
+if(NOT EMSCRIPTEN AND NOT (DEFINED ENV{CI} AND CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+	file(GLOB_RECURSE zscript_binding_files "resources/include/bindings/*.zh")
+	set(gen_zscript_context_strings scripts/generate_zasm_context_strings.py zscript ${zscript_binding_files})
+	add_custom_command(
+		COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_zasm_context_strings.py --build_folder "${BUILD_FOLDER}"
+		OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp
+		DEPENDS ${gen_zscript_context_strings}
+	)
+	add_custom_target(gen_zscript_context_strings DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp)
+	add_dependencies(zplayer gen_zscript_context_strings)
+endif()
+
 #############################################################
 # ZQuest
 #############################################################
@@ -1182,13 +1205,6 @@ if(WIN32)
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS /W0)
 else()
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS -Wno-everything)
-endif()
-
-get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if(is_multi_config)
-	set(BUILD_FOLDER "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
-else()
-	set(BUILD_FOLDER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 endif()
 
 add_custom_command(

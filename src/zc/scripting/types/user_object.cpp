@@ -3,6 +3,7 @@
 #include "base/general.h"
 #include "base/zdefs.h"
 #include "zasm/defines.h"
+#include "zc/ffscript.h"
 #include "zc/scripting/script_object.h"
 #include "zscriptversion.h"
 #include <optional>
@@ -101,7 +102,7 @@ static void do_readclass()
 	dword id = get_register(sarg1);
 	ri->d[rEXP1] = 0;
 	int32_t ind = sarg2;
-	if (auto obj = user_objects.check(id, nullptr, true))
+	if (auto obj = user_objects.check(id, true))
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
@@ -118,7 +119,7 @@ static void do_writeclass()
 {
 	dword id = get_register(sarg1);
 	int32_t ind = sarg2;
-	if (auto obj = user_objects.check(id, nullptr, true))
+	if (auto obj = user_objects.check(id, true))
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
@@ -184,7 +185,7 @@ std::optional<int32_t> user_object_run_command(word command)
 		}
 		case ZCLASS_OWN:
 		{
-			if (auto obj = user_objects.check(get_register(sarg1), nullptr, true))
+			if (auto obj = user_objects.check(get_register(sarg1), true))
 			{
 				obj->setGlobal(false);
 				own_script_object(obj, type, i);
@@ -200,7 +201,7 @@ std::optional<int32_t> user_object_run_command(word command)
 		}
 		case ZCLASS_GLOBALIZE:
 		{
-			if (auto obj = user_objects.check(get_register(sarg1), nullptr, true))
+			if (auto obj = user_objects.check(get_register(sarg1), true))
 			{
 				obj->setGlobal(true);
 				own_script_object(obj, ScriptType::None, 0);
@@ -213,7 +214,8 @@ std::optional<int32_t> user_object_run_command(word command)
 			assert(vec.size() % 2 == 0);
 
 			uint32_t id = ri->thiskey;
-			if (auto obj = user_objects.check(id, "ZCLASS_MARK_TYPE"))
+			current_zasm_context = "ZCLASS_MARK_TYPE";
+			if (auto obj = user_objects.check(id))
 			{
 				for (size_t i = 0; i < vec.size(); i += 2)
 				{
@@ -237,6 +239,8 @@ std::optional<int32_t> user_object_run_command(word command)
 					}
 				}
 			}
+			current_zasm_context = "";
+
 			break;
 		}
 		case OBJ_OWN_CLASS:

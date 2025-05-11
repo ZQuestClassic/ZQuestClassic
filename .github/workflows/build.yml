@@ -251,6 +251,9 @@ jobs:
           mkdir ${{ inputs.config }}/packages
           mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
 
+      # Fail if any changes were written to any source files.
+      - run: git diff --cached --exit-code
+
       # Make build result available to other workflows.
       - uses: actions/upload-artifact@v4
         with:

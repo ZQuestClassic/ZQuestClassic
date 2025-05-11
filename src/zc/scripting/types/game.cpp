@@ -68,7 +68,7 @@ void do_getmessage(const bool v)
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	
-	if(BC::checkMessage(ID, "Game->GetMessage") != SH::_NoError)
+	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
 		
 	if(ArrayH::setArray(arrayptr, MsgStrings[ID].s) == SH::_Overflow)
@@ -80,7 +80,7 @@ void do_setmessage(const bool v)
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	
-	if(BC::checkMessage(ID, "Game->SetMessage") != SH::_NoError)
+	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
 	
 	std::string text;
@@ -93,7 +93,7 @@ void do_getdmapname(const bool v)
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	
-	if(BC::checkDMapID(ID, "Game->GetDMapName") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	if(ArrayH::setArray(arrayptr, string(DMaps[ID].name)) == SH::_Overflow)
@@ -107,7 +107,7 @@ void do_setdmapname(const bool v)
 
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "Game->SetDMapName") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	ArrayH::getString(arrayptr, filename_str, 22);
@@ -120,7 +120,7 @@ void do_getdmaptitle(const bool v)
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	
-	if(BC::checkDMapID(ID, "Game->GetDMapTitle") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
@@ -139,7 +139,7 @@ void do_setdmaptitle(const bool v)
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "Game->SetDMapTitle") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	if (get_qr(qr_OLD_DMAP_INTRO_STRINGS))
@@ -162,7 +162,7 @@ void do_getdmapintro(const bool v)
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	
-	if(BC::checkDMapID(ID, "Game->GetDMapIntro") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
@@ -176,7 +176,7 @@ void do_setdmapintro(const bool v)
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "Game->SetDMapIntro") != SH::_NoError)
+	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
 	ArrayH::getString(arrayptr, filename_str, 73);
@@ -403,7 +403,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			if ( indx < 0 || indx > 31 )
 			{
 				ret = -10000;
-				Z_scripterrlog("Invalid index used to access Game->Misc: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 			}
 			else
 			{
@@ -469,7 +469,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( ((unsigned)inx) > sprMAX )
 			{
-				Z_scripterrlog("Invalid index %d supplied to Game->MiscSprites[].\n", inx);
+				scripting_log_error_with_context("Invalid index: {}", inx);
 				ret = -10000;
 			}
 			else
@@ -483,7 +483,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( ((unsigned)inx) > sfxMAX )
 			{
-				Z_scripterrlog("Invalid index %d supplied to Game->MiscSFX[].\n", inx);
+				scripting_log_error_with_context("Invalid index: {}", inx);
 				ret = -10000;
 			}
 			else
@@ -497,7 +497,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			int32_t ind = (ri->d[rINDEX])/10000;
 			if(unsigned(ind) >= itype_max)
 			{
-				Z_scripterrlog("Invalid index %d supplied to Game->OverrideItems[].\n", ind);
+				scripting_log_error_with_context("Invalid index: {}", ind);
 				ret = -20000;
 			}
 			else ret = game->OverrideItems[ind] * 10000;
@@ -522,7 +522,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		{
 			int32_t ind = (ri->d[rINDEX])/10000;
 			if(unsigned(ind)>255)
-				Z_scripterrlog("Invalid index %d supplied to Game->TrigGroups[]\n",ind);
+				scripting_log_error_with_context("Invalid index: {}", ind);
 			ret = cpos_trig_group_count(ind)*10000;
 			break;
 		}
@@ -534,7 +534,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			//if(indx < 0 || indx > 2)
 			{
 				ret = -10000;
-				Z_scripterrlog("Invalid index used to access Game->Gravity[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 			}
 			else
 			{
@@ -562,7 +562,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			int32_t indx = ri->d[rINDEX]/10000;
 			if ( ((unsigned)indx) >= SZ_SCROLLDATA )
 			{
-				Z_scripterrlog("Invalid index used to access Game->Scrolling[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 			}
 			else
 			{
@@ -657,38 +657,38 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		}
 		break;
 
-		#define GET_DMAP_VAR(member, str) \
+		#define GET_DMAP_VAR(member) \
 		{ \
 			int32_t ID = ri->d[rINDEX] / 10000; \
-			if(BC::checkDMapID(ID, str) != SH::_NoError) \
+			if(BC::checkDMapID(ID) != SH::_NoError) \
 				ret = -10000; \
 			else \
 				ret = DMaps[ID].member * 10000; \
 		}
 
 		case DMAPFLAGSD:
-			GET_DMAP_VAR(flags,   "Game->DMapFlags")    break;
+			GET_DMAP_VAR(flags)    break;
 			
 		case DMAPLEVELD:
-			GET_DMAP_VAR(level,   "Game->DMapLevel")    break;
+			GET_DMAP_VAR(level)    break;
 			
 		case DMAPCOMPASSD:
-			GET_DMAP_VAR(compass, "Game->DMapCompass")  break;
+			GET_DMAP_VAR(compass)  break;
 			
 		case DMAPCONTINUED:
-			GET_DMAP_VAR(cont,    "Game->DMapContinue") break;
+			GET_DMAP_VAR(cont) break;
 		
 		case DMAPLEVELPAL:
-			GET_DMAP_VAR(color,   "Game->DMapPalette")    break; 
+			GET_DMAP_VAR(color)    break; 
 			
 		case DMAPOFFSET:
-			GET_DMAP_VAR(xoff,    "Game->DMapOffset")   break;
+			GET_DMAP_VAR(xoff)   break;
 			
 		case DMAPMAP:
 		{
 			int32_t ID = ri->d[rINDEX] / 10000;
 			
-			if(BC::checkDMapID(ID, "Game->DMapMap") != SH::_NoError)
+			if(BC::checkDMapID(ID) != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (DMaps[ID].map+1) * 10000;
@@ -700,7 +700,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		{
 			int32_t ID = ri->d[rINDEX] / 10000;
 			
-			if(BC::checkDMapID(ID, "Game->DMapMIDI") == SH::_NoError)
+			if(BC::checkDMapID(ID) == SH::_NoError)
 			{
 				// Based on play_DmapMusic
 				switch(DMaps[ID].midi)
@@ -847,7 +847,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			int32_t indx = ri->d[rINDEX]/10000;
 			if ( indx < 0 || indx > 31 )
 			{
-				Z_scripterrlog("Invalid index used to access Game->Misc: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 			}
 			else 
 			{
@@ -911,7 +911,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( ((unsigned)inx) > sprMAX )
 			{
-				Z_scripterrlog("Invalid index %d supplied to Game->MiscSprites[].\n", inx);
+				scripting_log_error_with_context("Invalid index: {}", inx);
 			}
 			else
 			{
@@ -924,7 +924,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( ((unsigned)inx) > sfxMAX )
 			{
-				Z_scripterrlog("Invalid index %d supplied to Game->MiscSFX[].\n", inx);
+				scripting_log_error_with_context("Invalid index: {}", inx);
 			}
 			else
 			{
@@ -937,7 +937,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			int32_t ind = (ri->d[rINDEX])/10000;
 			if(unsigned(ind) >= itype_max)
 			{
-				Z_scripterrlog("Invalid index %d supplied to Game->OverrideItems[].\n", ind);
+				scripting_log_error_with_context("Invalid index: {}", ind);
 			}
 			else
 			{
@@ -976,7 +976,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			int32_t indx = ri->d[rINDEX]/10000;
 			if(indx < 0 || indx > 3)
 			{
-				Z_scripterrlog("Invalid index used to access Game->Gravity[]: %d\n", indx);
+				scripting_log_error_with_context("Invalid index: {}", indx);
 			}
 			else
 			{
@@ -1144,24 +1144,24 @@ bool game_set_register(int32_t reg, int32_t value)
 		}
 		break;
 
-		#define SET_DMAP_VAR(member, str) \
+		#define SET_DMAP_VAR(member) \
 		{ \
 			int32_t ID = ri->d[rINDEX] / 10000; \
-			if(BC::checkDMapID(ID, str) == SH::_NoError) \
+			if(BC::checkDMapID(ID) == SH::_NoError) \
 				DMaps[ID].member = value / 10000; \
 		}
 
 		case DMAPFLAGSD:
-			SET_DMAP_VAR(flags, "Game->DMapFlags") break;
+			SET_DMAP_VAR(flags) break;
 			
 		case DMAPLEVELD:
-			SET_DMAP_VAR(level, "Game->DMapLevel") break;
+			SET_DMAP_VAR(level) break;
 			
 		case DMAPCOMPASSD:
-			SET_DMAP_VAR(compass, "Game->DMapCompass") break;
+			SET_DMAP_VAR(compass) break;
 			
 		case DMAPCONTINUED:
-			SET_DMAP_VAR(cont, "Game->DMapContinue") break;
+			SET_DMAP_VAR(cont) break;
 			
 		case DMAPLEVELPAL:
 		{
@@ -1169,7 +1169,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			int32_t pal = value/10000;
 			pal = vbound(pal, 0, 0x1FF);
 				
-			if(BC::checkDMapID(ID, "Game->DMapPalette") == SH::_NoError) 
+			if(BC::checkDMapID(ID) == SH::_NoError) 
 				DMaps[ID].color = pal;
 
 			if(ID == cur_dmap)
@@ -1184,7 +1184,7 @@ bool game_set_register(int32_t reg, int32_t value)
 		{
 			int32_t ID = ri->d[rINDEX] / 10000;
 			
-			if(BC::checkDMapID(ID, "Game->DMapMIDI") == SH::_NoError)
+			if(BC::checkDMapID(ID) == SH::_NoError)
 			{
 				// Based on play_DmapMusic
 				switch(value / 10000)
@@ -1218,7 +1218,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			int32_t mi = ri->d[rINDEX]/10000;
 			mi -= 8*(mi/MAPSCRS);
 			
-			if(BC::checkMapID(mi>>7, "Game->SetScreenState") == SH::_NoError)
+			if(BC::checkMapID(mi>>7) == SH::_NoError)
 			{
 				if (value)
 					setmapflag_mi(mi, 1<<(ri->d[rINDEX2]/10000));

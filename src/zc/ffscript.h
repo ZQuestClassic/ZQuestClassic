@@ -12,9 +12,22 @@
 #include <deque>
 #include <bitset>
 #include "zasm/defines.h"
+#include "zc/scripting/context_strings.h"
 #include "zc/zelda.h"
 #include "zc/replay.h"
 #include "zc/hero.h"
+
+extern std::string current_zasm_context;
+extern std::string current_zasm_extra_context;
+
+void scripting_log_error_with_context(std::string text);
+
+template <typename... Args>
+static void scripting_log_error_with_context(fmt::format_string<Args...> s, Args&&... args)
+{
+    std::string text = fmt::format(s, std::forward<Args>(args)...);
+	scripting_log_error_with_context(text);
+}
 
 #define ZS_BYTE 255
 #define ZS_CHAR 255
@@ -965,10 +978,6 @@ bool& waitdraw(ScriptType type, int index = 0);
 //Combo Scripts
 void clear_combo_scripts();
 void clear_combo_script(const rpos_handle_t& rpos_handle);
-int32_t getComboDataLayer(int32_t c, ScriptType scripttype);
-int32_t getCombodataPos(int32_t c, ScriptType scripttype);
-int32_t getCombodataY(int32_t c, ScriptType scripttype);
-int32_t getCombodataX(int32_t c, ScriptType scripttype);
 
 void SetFFEngineFlag(int32_t flag, bool v);
 void SetItemMessagePlayed(int32_t itm);
@@ -1396,9 +1405,9 @@ void clearScriptHelperData();
 int32_t get_screenflags(mapscr *m, int32_t flagset);
 int32_t get_screeneflags(mapscr *m, int32_t flagset);
 
-sprite* ResolveBaseSprite(int32_t uid, const char* what);
-item* ResolveItemSprite(int32_t uid, const char* what);
-enemy* ResolveNpc(int32_t uid, const char* what);
+sprite* ResolveBaseSprite(int32_t uid);
+item* ResolveItemSprite(int32_t uid);
+enemy* ResolveNpc(int32_t uid);
 
 // Defines for script flags
 #define TRUEFLAG          0x0001
@@ -1549,7 +1558,7 @@ public:
 	{
 		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
 		{
-			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+			scripting_log_error_with_context("Invalid index: {}, array size: {}", index, size);
 			return _OutOfBounds;
 		}
 		
@@ -1598,157 +1607,149 @@ class BC : public SH
 {
 public:
 
-	static INLINE int32_t checkMapID(const int32_t ID, const char* str)
+	static INLINE int32_t checkMapID(const int32_t ID)
 	{
-		//return checkBounds(ID, 0, map_count-1, str);
-		if(ID < 0 || ID > map_count-1)
+		return checkBounds(ID, 0, map_count-1);
+	}
+	
+	static INLINE int32_t checkDMapID(const int32_t ID)
+	{
+		return checkBounds(ID, 0, MAXDMAPS-1);
+	}
+	
+	static INLINE int32_t checkComboPos(const int32_t pos)
+	{
+		return checkBoundsPos(pos, 0, 175);
+	}
+
+	static INLINE int32_t checkComboRpos(const rpos_t rpos)
+	{
+		return checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos);
+	}
+
+	static INLINE int32_t checkTile(const int32_t pos)
+	{
+		return checkBounds(pos, 0, NEWMAXTILES-1);
+	}
+	
+	static INLINE int32_t checkCombo(const int32_t pos)
+	{
+		return checkBounds(pos, 0, MAXCOMBOS-1);
+	}
+	
+	static INLINE int32_t checkMisc(const int32_t a)
+	{
+		return checkBounds(a, 0, 15);
+	}
+	
+	 static INLINE int32_t checkMisc32(const int32_t a)
+	{
+		return checkBounds(a, 0, 31);
+	}
+	
+	static INLINE int32_t checkMessage(const int32_t ID)
+	{
+		return checkBounds(ID, 0, msg_strings_size-1);
+	}
+	
+	static INLINE int32_t checkLayer(const int32_t layer)
+	{
+		return checkBounds(layer, 0, 6);
+	}
+	
+	static INLINE int32_t checkFFC(ffc_id_t id)
+	{
+		return checkBoundsOneIndexed(id, 0, MAX_FFCID);
+	}
+
+	static INLINE int32_t checkMapdataFFC(int index)
+	{
+		return checkBounds(index, 0, MAXFFCS-1);
+	}
+	
+	static INLINE int32_t checkGuyIndex(const int32_t index)
+	{
+		return checkBoundsOneIndexed(index, 0, guys.Count()-1);
+	}
+	
+	static INLINE int32_t checkItemIndex(const int32_t index)
+	{
+		return checkBoundsOneIndexed(index, 0, items.Count()-1);
+	}
+	
+	static INLINE int32_t checkEWeaponIndex(const int32_t index)
+	{
+		return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1);
+	}
+	
+	static INLINE int32_t checkLWeaponIndex(const int32_t index)
+	{
+		return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1);
+	}
+	
+	static INLINE int32_t checkGuyID(const int32_t ID)
+	{
+		//return checkBounds(ID, 0, MAXGUYS-1); //Can't create NPC ID 0
+		return checkBounds(ID, 1, MAXGUYS-1);
+	}
+	
+	static INLINE int32_t checkItemID(const int32_t ID)
+	{
+		return checkBounds(ID, 0, MAXITEMS-1);
+	}
+	
+	static INLINE int32_t checkWeaponID(const int32_t ID)
+	{
+		return checkBounds(ID, 0, MAXWPNS-1);
+	}
+	
+	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID)
+	{
+		return checkBounds(ID, 0, MAXWPNS-1);
+	}
+	
+	static INLINE int32_t checkSFXID(const int32_t ID)
+	{
+		return checkBounds(ID, 0, WAV_COUNT-1);
+	}
+	
+	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* term = "value")
+	{
+		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", ID+1, str);
+			scripting_log_error_with_context("Invalid {}: {} - must be >= {} and <= {}", term, n, boundlow, boundup);
 			return _OutOfBounds;
 		}
 		
 		return _NoError;
 	}
-	
-	static INLINE int32_t checkDMapID(const int32_t ID, const char* str)
+
+	static INLINE int32_t checkIndex(const int32_t n, const int32_t boundlow, const int32_t boundup)
 	{
-		return checkBounds(ID, 0, MAXDMAPS-1, str);
+		return checkBounds(n, boundlow, boundup, "index");
 	}
 	
-	static INLINE int32_t checkComboPos(const int32_t pos, const char* str)
+	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup)
 	{
-		return checkBoundsPos(pos, 0, 175, str);
+		return checkBounds(n, boundlow, boundup, "position");
 	}
 
-	static INLINE int32_t checkComboRpos(const rpos_t rpos, const char* str)
-	{
-		return checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, str);
-	}
-
-	static INLINE int32_t checkTile(const int32_t pos, const char* str)
-	{
-		return checkBounds(pos, 0, NEWMAXTILES-1, str);
-	}
-	
-	static INLINE int32_t checkCombo(const int32_t pos, const char* str)
-	{
-		return checkBounds(pos, 0, MAXCOMBOS-1, str);
-	}
-	
-	static INLINE int32_t checkMisc(const int32_t a, const char* str)
-	{
-		return checkBounds(a, 0, 15, str);
-	}
-	
-	 static INLINE int32_t checkMisc32(const int32_t a, const char* str)
-	{
-		return checkBounds(a, 0, 31, str);
-	}
-	
-	static INLINE int32_t checkMessage(const int32_t ID, const char* str)
-	{
-		return checkBounds(ID, 0, msg_strings_size-1, str);
-	}
-	
-	static INLINE int32_t checkLayer(const int32_t layer, const char* str)
-	{
-		return checkBounds(layer, 0, 6, str);
-	}
-	
-	static INLINE int32_t checkFFC(ffc_id_t id, const char* str)
-	{
-		return checkBounds(id, 0, MAX_FFCID, str);
-	}
-
-	static INLINE int32_t checkMapdataFFC(int index, const char* str)
-	{
-		return checkBoundsOneIndexed(index, 0, MAXFFCS-1, str);
-	}
-	
-	static INLINE int32_t checkGuyIndex(const int32_t index, const char* str)
-	{
-		return checkBoundsOneIndexed(index, 0, guys.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkItemIndex(const int32_t index, const char* str)
-	{
-		return checkBoundsOneIndexed(index, 0, items.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkEWeaponIndex(const int32_t index, const char* str)
-	{
-		return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkLWeaponIndex(const int32_t index, const char* str)
-	{
-		return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkGuyID(const int32_t ID, const char* str)
-	{
-		//return checkBounds(ID, 0, MAXGUYS-1, str); //Can't create NPC ID 0
-		return checkBounds(ID, 1, MAXGUYS-1, str);
-	}
-	
-	static INLINE int32_t checkItemID(const int32_t ID, const char* str)
-	{
-		return checkBounds(ID, 0, MAXITEMS-1, str);
-	}
-	
-	static INLINE int32_t checkWeaponID(const int32_t ID, const char* str)
-	{
-		return checkBounds(ID, 0, MAXWPNS-1, str);
-	}
-	
-	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID, const char* str)
-	{
-		return checkBounds(ID, 0, MAXWPNS-1, str);
-	}
-	
-	static INLINE int32_t checkSFXID(const int32_t ID, const char* str)
-	{
-		return checkBounds(ID, 0, WAV_COUNT-1, str);
-	}
-	
-	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* what)
+	static INLINE int32_t checkBoundsRpos(const rpos_t n, const rpos_t boundlow, const rpos_t boundup)
 	{
 		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n, what);
-			return _OutOfBounds;
-		}
-		
-		return _NoError;
-	}
-	
-	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* what)
-	{
-		if(n < boundlow || n > boundup)
-		{
-			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, what);
-			return _OutOfBounds;
-		}
-        
-		return _NoError;
-	}
-
-	static INLINE int32_t checkBoundsRpos(const rpos_t n, const rpos_t boundlow, const rpos_t boundup, const char* what)
-	{
-		if(n < boundlow || n > boundup)
-		{
-			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, what);
+			scripting_log_error_with_context("Invalid position: {} - must be >= {} and <= {}", (int)n, (int)boundlow, (int)boundup);
 			return _OutOfBounds;
 		}
         
 		return _NoError;
 	}
 	
-	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* what)
+	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup)
 	{
 		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n+1, what);
+			scripting_log_error_with_context("Invalid index: {} - must be >= {} and < {}", n + 1, boundlow + 1, boundup + 1);
 			return _OutOfBounds;
 		}
 		
@@ -1759,7 +1760,7 @@ public:
 	{
 		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
 		{
-			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+			scripting_log_error_with_context("Invalid index: {}, array size: {}", index, size);
 			return _OutOfBounds;
 		}
 		

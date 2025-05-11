@@ -65,9 +65,9 @@ bool do_itemsprite_delete()
 
 } // end namespace
 
-int32_t ItemH::loadItem(int32_t uid, const char* what)
+int32_t ItemH::loadItem(int32_t uid)
 {
-	tempitem = ResolveItemSprite(uid, what);
+	tempitem = ResolveItemSprite(uid);
 	if (!tempitem) 
 		return _InvalidSpriteUID;
 
@@ -104,8 +104,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 		case ITEMSCALE:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"item->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
 			if (auto s = checkItem(ri->itemref))
@@ -374,8 +373,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 		case ITEMROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"item->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
 			if (auto s = checkItem(ri->itemref))
@@ -539,7 +537,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, 10) != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -691,8 +689,7 @@ bool item_set_register(int32_t reg, int32_t value)
 		case ITEMSCALE:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"item->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
 			if (auto s = checkItem(ri->itemref))
@@ -907,8 +904,7 @@ bool item_set_register(int32_t reg, int32_t value)
 		case ITEMROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"item->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
 			if (auto s = checkItem(ri->itemref))
@@ -1167,7 +1163,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, 10) == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					move_flags bit = (move_flags)(1<<indx);
