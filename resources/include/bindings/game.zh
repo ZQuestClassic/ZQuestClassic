@@ -283,7 +283,7 @@ enum EventDataIndex_PlayerFallDrown //[Game->EventData] indexes for [GENSCR_EVEN
 	GENEV_PLAYER_FALLDROWN_COMBO //The combo ID the [Hero] is falling/drowning into.
 };
 
-//constants for [GENEV_ITEMCOL_TYPE] index of [EventData]
+//constants for [GENEV_ITEMCOL_TYPE] index of [Game->EventData]
 enum ItemCollectEventType
 {
 	GENEVT_ICTYPE_COLLECT, //Hero collected the item
@@ -292,7 +292,7 @@ enum ItemCollectEventType
 	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag. Only [GENEV_ITEMCOL_NULLIFY] can be edited here
 };
 
-// constants for [GENEV_HEROHIT_HITTYPE] / [GENEV_HEROHIT_HITTYPE2] indexes of [EventData]
+// constants for [GENEV_HEROHIT_HITTYPE] / [GENEV_HEROHIT_HITTYPE2] indexes of [Game->EventData]
 enum ObjectType
 {
 	OBJTYPE_NONE = -1,
