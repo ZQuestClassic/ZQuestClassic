@@ -108,13 +108,6 @@ static AccessorTable GlobalTable[] =
 	{ "SRand",                   0,          ZTID_VOID,   -1,          0,  { ZTID_LONG },{} },
 	{ "SRand",                   1,          ZTID_LONG,   -1,          0,  {},{} },
 	{ "Untype",                  0,       ZTID_UNTYPED,   -1,    FL_DEPR,  { ZTID_UNTYPED },{},0,"Use casting '<untyped>(var)' instead!" },
-	{ "Byte",                    0,       ZTID_FLOAT,   -1,      FL_DEPR,  { ZTID_FLOAT },{} },
-	{ "Int8",                    0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
-	{ "SignedByte",              0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
-	{ "Word",                    0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
-	{ "Int16",                   0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
-	{ "Short",                   0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
-	{ "Integer",                 0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
 	{ "GetScriptRAM",            0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_FLOAT },{} },
 	{ "SetScriptRAM",            0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetGlobalRAM",            0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_FLOAT },{} },
@@ -956,76 +949,6 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 
-	{
-		Function* function = getFunction("Byte");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OByte(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("Int8");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OByte(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("SignedByte");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OSByte(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("Word");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OWord(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("Int16");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OWord(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("Short");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OShort(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("Integer");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OToInteger(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
 	{
 		Function* function = getFunction("Floor");
 		int32_t label = function->getLabel();
