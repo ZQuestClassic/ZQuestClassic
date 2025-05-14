@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-05-10 03:10:39</td>
+      <td>2025-05-14 03:25:00</td>
     </tr>
   </table>
 </div>
@@ -81,7 +81,7 @@
     <tr><td><a href="#l68">ItemH::loadItem(int, char const*) (line 68)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l98">item_get_register(int) (line 98)</a></td><td>called 237373074 times, returned 237373074 times</td><td>39.0%</td></tr>
     <tr><td><a href="#l1250">item_run_command(unsigned short) (line 1250)</a></td><td>called 1179874 times, returned 1179874 times</td><td>90.0%</td></tr>
-    <tr><td><a href="#l626">item_set_register(int, int) (line 626)</a></td><td>called 34806261 times, returned 34651423 times</td><td>31.0%</td></tr>
+    <tr><td><a href="#l626">item_set_register(int, int) (line 626)</a></td><td>called 34806261 times, returned 34651295 times</td><td>31.0%</td></tr>
   </table>
 </details>
 
@@ -1747,7 +1747,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">ret</span><span class="o">=</span><span class="p">((</span><span class="kt">int32_t</span><span class="p">)</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">script_UID</span><span class="p">);</span><span class="w"> </span><span class="c1">//Literal, not *10000</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">ret</span><span class="o">=</span><span class="p">((</span><span class="kt">int32_t</span><span class="p">)</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">getUID</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l207" href="#l207">207</a></td>

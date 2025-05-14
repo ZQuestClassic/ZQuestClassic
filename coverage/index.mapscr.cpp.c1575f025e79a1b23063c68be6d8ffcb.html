@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-05-10 03:10:39</td>
+      <td>2025-05-14 03:25:00</td>
     </tr>
   </table>
 </div>
@@ -75,9 +75,9 @@
     </tr>
     <tr><td><a href="#l67">determine_region_size(std::array&lt;unsigned char, 128ul&gt; const&amp;, int, int&amp;, int&amp;, int&amp;, int&amp;) (line 67)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l108">get_all_region_descriptions(std::vector&lt;region_description, std::allocator&lt;region_description&gt; &gt;&amp;, std::array&lt;unsigned char, 128ul&gt; const&amp;) (line 108)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l331">get_canonical_scr(int, int) (line 331)</a></td><td>called 223559234 times, returned 223559234 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l331">get_canonical_scr(int, int) (line 331)</a></td><td>called 223558416 times, returned 223558416 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l336">map_scr_xy_to_index(int, int) (line 336)</a></td><td>called 68229966 times, returned 68229966 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l317">map_screen_index(int, int) (line 317)</a></td><td>called 307971241 times, returned 307971241 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l317">map_screen_index(int, int) (line 317)</a></td><td>called 307970423 times, returned 307970423 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l248">mapscr::ensureFFC(unsigned long) (line 248)</a></td><td>called 1023380 times, returned 1023380 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l179">mapscr::ffEffectHeight(unsigned long) const (line 179)</a></td><td>called 79293886 times, returned 79293886 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l184">mapscr::ffEffectHeight(unsigned long, unsigned char) (line 184)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -90,7 +90,7 @@
     <tr><td><a href="#l312">mapscr::ffcCountMarkDirty() (line 312)</a></td><td>called 5196448 times, returned 5196448 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l253">mapscr::getFFC(unsigned long) (line 253)</a></td><td>called 1084650329 times, returned 1084650329 times</td><td>90.0%</td></tr>
     <tr><td><a href="#l281">mapscr::getFFCHandle(int, int) (line 281)</a></td><td>called 443111078 times, returned 443111078 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l288">mapscr::numFFC() (line 288)</a></td><td>called 2026579586 times, returned 2026579586 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l288">mapscr::numFFC() (line 288)</a></td><td>called 2026560772 times, returned 2026560772 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l240">mapscr::resizeFFC(unsigned long) (line 240)</a></td><td>called 744506 times, returned 744506 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l214">mapscr::shinkToFitFFCs() (line 214)</a></td><td>called 1912346 times, returned 1912346 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l209">mapscr::zero_memory() (line 209)</a></td><td>called 19721 times, returned 19721 times</td><td>100.0%</td></tr>
@@ -2233,7 +2233,7 @@
       <td class="lineno"><a id="l288" href="#l288">288</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2026579586</td>
+      <td class="linecount coveredLine">2026560772</td>
       <td class="src coveredLine"><span class="n">word</span><span class="w"> </span><span class="n">mapscr</span><span class="o">::</span><span class="n">numFFC</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -2249,19 +2249,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2025279707 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 2025260893 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 1299879 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">2026579586</td>
+      <td class="linecount coveredLine">2026560772</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">ffc_count_dirty</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l291" href="#l291">291</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2025279707</td>
+      <td class="linecount coveredLine">2025260893</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">num_ffcs</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -2417,7 +2417,7 @@
       <td class="lineno"><a id="l310" href="#l310">310</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2026579586</td>
+      <td class="linecount coveredLine">2026560772</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2466,7 +2466,7 @@
       <td class="lineno"><a id="l317" href="#l317">317</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">307971241</td>
+      <td class="linecount coveredLine">307970423</td>
       <td class="src coveredLine"><span class="kt">int</span><span class="w"> </span><span class="n">map_screen_index</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2480,7 +2480,7 @@
       <td class="lineno"><a id="l319" href="#l319">319</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">307971241</td>
+      <td class="linecount coveredLine">307970423</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">map</span><span class="o">*</span><span class="n">MAPSCRS</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">screen</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -2592,7 +2592,7 @@
       <td class="lineno"><a id="l331" href="#l331">331</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">223559234</td>
+      <td class="linecount coveredLine">223558416</td>
       <td class="src coveredLine"><span class="k">const</span><span class="w"> </span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">get_canonical_scr</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2606,7 +2606,7 @@
       <td class="lineno"><a id="l333" href="#l333">333</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">223559234</td>
+      <td class="linecount coveredLine">223558416</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">TheMaps</span><span class="p">[</span><span class="n">map_screen_index</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">screen</span><span class="p">)];</span></td>
     </tr>
     <tr class="source-line">
