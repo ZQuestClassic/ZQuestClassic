@@ -950,65 +950,6 @@ internal int ComboAdjust(int pos, int x, int y);
 //   POP D2
 internal constexpr untyped Untype(untyped value);
 
-// Clamps and returns [n] sized to an unsigned byte, with appropriate overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOBYTE D2
-internal int Byte(int n);
-
-// Clamps and returns [n] sized to an unsigned byte, with appropriate overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOBYTE D2
-internal int Int8(int n);
-
-// Clamps and returns [n] sized to a signed byte, with appropriate overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOSIGNEDBYTE D2
-internal int SignedByte(int n);
-
-// Clamps and returns [n] sized to an unsigned 16-bit integer, with appropriate
-// overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOWORD D2
-internal int Word(int n);
-
-// Clamps and returns [n] sized to an unsigned 16-bit integer, with appropriate
-// overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOWORD D2
-internal int Int16(int n);
-
-// Clamps and returns [n] sized to a signed 16-bit integer, with appropriate
-// overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOSHORT D2
-internal int Short(int n);
-
-// Truncates n to an integer.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOINTEGER D2
-internal int Integer(int n);
-
 // @deprecated
 // @zasm
 //   POP D0
