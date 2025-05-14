@@ -3044,23 +3044,6 @@ int Floor(float n);
 int Ceiling(float n);
  * Truncates n to the nearest integer, rounding upwards.
 
-int Integer(float n);
- * Truncates n to an integer.
-
-untyped Byte(untyped n);
-untyped Int8(untyped n);
- * Clamps and returns 'n' sized to an unsigned byte, with appropriate oberflow.
- 
-untyped Word(untyped n);
-untyped Int16(untyped n);
- * Clamps and returns 'n' sized to an unsigned 16-bit integer, with appropriate overflow.
-
-untyped Short(untyped n);
- * Clamps and returns 'n' sized to a signed 16-bit integer, with appropriate overflow.
-
-untyped SignedByte(untyped n);
- * Clamps and returns 'n' sized to a signed byte, with appropriate overflow.
-
 void SaveSRAM("filename.zcsram", int flags);
 void LoadSRAM("filename.zcsram", int flags);
  * Saves or loads the internal datatype dats to a .zcsram file.
