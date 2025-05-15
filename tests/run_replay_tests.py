@@ -1291,21 +1291,22 @@ def prompt_to_create_compare_report():
         print()
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
-        most_recent_nightly = get_recent_release_tag('nightly-*')
-        most_recent_alpha = get_recent_release_tag('2.55-alpha-*')
+        # most_recent_nightly = get_recent_release_tag('nightly-*')
+        most_recent_stable = get_recent_release_tag('2.55.*')
         print('Select a release build to use: ')
         selected_index = cutie.select([
             # TODO
             # 'Most recent passing build from CI (requires token)',
-            f'Most recent nightly ({most_recent_nightly}) (requires token)',
-            f'Most recent alpha ({most_recent_alpha}) (requires token)',
+            # f'Most recent nightly ({most_recent_nightly}) (requires token)',
+            f'Most recent stable ({most_recent_stable}) (requires token)',
         ])
         print()
 
-        if selected_index == 0:
-            tag = most_recent_nightly
-        elif selected_index == 1:
-            tag = most_recent_alpha
+        # if selected_index == 0:
+        #     tag = most_recent_nightly
+        # elif selected_index == 1:
+        #     tag = most_recent_stable
+        tag = most_recent_stable
 
         system = platform.system()
         if system == 'Darwin':
