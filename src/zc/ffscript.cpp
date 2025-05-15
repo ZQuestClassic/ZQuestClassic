@@ -3043,13 +3043,31 @@ bottleshoptype *checkBottleShopData(int32_t ref, const char *what, bool skipErro
 
 user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, bool skipError = false)
 {
-	int32_t ind = ref - 10;
-	if(ind >= firstUserGeneratedBitmap && ind < MAX_USER_BITMAPS)
+	switch (ref - 10)
 	{
-		user_bitmap* b = &(scb.script_created_bitmaps[ind]);
-		if(b->reserved())
+		case rtSCREEN:
+		case rtBMP0:
+		case rtBMP1:
+		case rtBMP2:
+		case rtBMP3:
+		case rtBMP4:
+		case rtBMP5:
+		case rtBMP6:
+			zprint2("Internal error: 'checkBitmap()' recieved ref pointing to system bitmap!\n");
+			zprint2("Please report this as a bug!\n");
+
+			if(skipError) return NULL;
+
+			if(what)
+				Z_scripterrlog("You were trying to reference the '%s' of a bitmap with UID = %ld\n", what, ref);
+			else
+				Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
+			return NULL;
+
+		default:
 		{
-			if(req_valid && !b->u_bmp)
+			user_bitmap* b = &(scb.script_created_bitmaps[ref-10]);
+			if (req_valid && (!b || !b->u_bmp))
 			{
 				if(skipError) return NULL;
 				Z_scripterrlog("Script attempted to reference an invalid bitmap!\n");
@@ -3060,30 +3078,6 @@ user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, 
 			return b;
 		}
 	}
-	else
-	{
-		switch(ind)
-		{
-			case rtSCREEN:
-			case rtBMP0:
-			case rtBMP1:
-			case rtBMP2:
-			case rtBMP3:
-			case rtBMP4:
-			case rtBMP5:
-			case rtBMP6:
-				zprint2("Internal error: 'checkBitmap()' recieved ref pointing to system bitmap!\n");
-				zprint2("Please report this as a bug!\n");
-				break;
-		}
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent bitmap!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a bitmap with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
 }
 
 extern const std::string subscr_names[sstMAX];
@@ -13104,9 +13098,9 @@ int32_t get_register(const int32_t arg)
 
 		case BITMAPWIDTH:
 		{
-			//if ( scb.script_created_bitmaps[ri->bitmapref].u_bmp ) 
+			//if ( scb.script_created_bitmaps[ri->bitmapref-10].u_bmp ) 
 			//{
-			//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->w * 10000;
+			//	ret = scb.script_created_bitmaps[ri->bitmapref-10].u_bmp->w * 10000;
 			//}
 			//else ret = 0;
 			ret = scb.script_created_bitmaps[ri->bitmapref-10].width * 10000;
@@ -30079,16 +30073,10 @@ void FFScript::do_graphics_getpixel()
 	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0) || (get_qr(qr_BITMAPOFFSETFIX)!=0) );
 	int32_t ref = (ri->d[rEXP1]);
 	
-	if ( ref == -10000 || ref == -20000 || ref >= 10000 ) //Bitmaps Loaded by LoadBitmapID have values of -10000 to 70000
-	{
-		ref /= 10000;
-	}
-	else ref -= 10; //Bitmaps other than those loaded by LoadBitmapID
-	
 	BITMAP *bitty = FFCore.GetScriptBitmap(ref);
 	int32_t xpos  = ri->d[rINDEX2] / 10000;
 	
-	if(!brokenOffset && ref == -1 )
+	if(!brokenOffset && (ref-10) == -1 )
 	{
 		yoffset = 56; //should this be -56?
 	}
@@ -41330,7 +41318,7 @@ bool FFScript::doesResolveToDeprecatedSystemBitmap(int32_t bitmap_id)
 
 BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
 {
-	switch(id)
+	switch(id - 10)
 	{
 		case rtSCREEN:
 		case rtBMP0:
@@ -41345,7 +41333,7 @@ BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
 		}
 		default: 
 		{
-			if(user_bitmap* b = checkBitmap(id+10, NULL, true, skipError))
+			if(user_bitmap* b = checkBitmap(id, NULL, true, skipError))
 			{
 				return b->u_bmp;
 			}
