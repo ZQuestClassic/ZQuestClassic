@@ -852,6 +852,7 @@ int32_t onMenuSnapshot()
 	children.pop_back();
 	
 	render_zq();
+	render_zq(); // Need to draw a second time for Mac, for some reason.
 	
 	onSnapshot();
 	
