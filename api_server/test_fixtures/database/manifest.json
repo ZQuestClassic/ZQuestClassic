@@ -1,5 +1,9 @@
 {
 	"quests/purezc/1": {
+		"id": "quests/purezc/1",
+		"type": "quests",
+		"name": "1st",
+		"defaultPath": "quests/purezc/1/r01/classic_1st.qst",
 		"releases": [
 			{
 				"name": "r01",

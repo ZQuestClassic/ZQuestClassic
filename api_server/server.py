@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import uuid
 
 from http import HTTPStatus
@@ -13,6 +14,9 @@ from werkzeug.exceptions import HTTPException
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
+
+sys.path.append(str((root_dir / 'scripts').absolute()))
+import database
 
 app = Flask(__name__)
 app.config.from_prefixed_env()
@@ -28,29 +32,6 @@ def is_valid_uuid(val):
         return True
     except ValueError:
         return False
-
-
-def load_manifest():
-    manifest_path = data_dir / 'manifest.json'
-    manifest = json.loads(manifest_path.read_text())
-    qst_hash_dict = {}
-    quests = []
-    for entry_id, qst in manifest.items():
-        if not entry_id.startswith('quests'):
-            continue
-
-        for release in qst['releases']:
-            for i, resource in enumerate(release['resources']):
-                if not release['resourceHashes']:
-                    break
-                if resource.endswith('.qst'):
-                    qst_hash = release['resourceHashes'][i]
-                    path = f'{entry_id}/{release["name"]}/{resource}'
-                    qst_hash_dict[qst_hash] = path
-                    # quests.append({'name': qst['name'], 'filename': resource, 'hash': qst_hash})
-                    quests.append({'hash': qst_hash})
-    print(f'found {len(quests)} quests')
-    return quests, qst_hash_dict
 
 
 def connect_s3():
@@ -96,7 +77,13 @@ def parse_replay(replay_text: str) -> Tuple[Dict[str, str], List[str]]:
 
 
 s3 = connect_s3() if app.config.get('PRODUCTION') else None
-quest_list, qst_hash_dict = load_manifest()
+db = database.Database(data_dir / 'database')
+
+qst_keys_by_hash = db.get_qst_keys_by_hash()
+quest_list = []
+for qst_hash in qst_keys_by_hash.keys():
+    quest_list.append({'hash': qst_hash})
+print(f'found {len(quest_list)} quests')
 
 replay_guid_to_path = {}
 for path in replays_dir.rglob('*.zplay'):
@@ -138,7 +125,7 @@ def replays(uuid):
     if int(meta.get('length')) != len(steps):
         return {'error': 'invalid length'}, HTTPStatus.BAD_REQUEST
 
-    if qst_hash not in qst_hash_dict:
+    if qst_hash not in qst_keys_by_hash:
         return {'error': 'unknown qst'}, HTTPStatus.BAD_REQUEST
 
     key = f'{qst_hash}/{uuid}.zplay'

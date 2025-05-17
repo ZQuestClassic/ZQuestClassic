@@ -74,7 +74,11 @@ class Database:
         self._load_manifest()
 
     def _load_manifest(self):
-        self.data = json.loads(self.download('manifest.json').read_text())
+        if os.environ.get('ZC_DATABASE_SKIP_MANIFEST_UPDATE'):
+            manifest_path = self.path / 'manifest.json'
+        else:
+            manifest_path = self.download('manifest.json')
+        self.data = json.loads(manifest_path.read_text())
 
         self.quests = []
         for entry in self.data.values():
