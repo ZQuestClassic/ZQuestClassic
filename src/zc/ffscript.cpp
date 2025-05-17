@@ -24018,6 +24018,23 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 
+		case MAPDATA_FLAG:
+		{
+			if (mapscr *scr = GetMapscr(ri->mapsref))
+			{
+				int32_t index = ri->d[rINDEX] / 10000;
+				if (BC::checkBounds(index, 0, 8*11 - 1, "mapdata::Flag") != SH::_NoError)
+				{
+					break;
+				}
+	
+				byte& flag = (&scr->flags)[index/8];
+				bool v = value;
+				SETFLAG(flag, 1 << (index%8), v);
+			} else Z_scripterrlog("mapdata::Flag[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+
 		
 	///----------------------------------------------------------------------------------------------------//
 	//shopdata sd-> Variables
