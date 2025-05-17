@@ -47,3 +47,25 @@ reword 86b88dff9c410348fc888a312d68745bda857b2e feat(zc): show bottom 8 pixels b
 
 reword 62a494305b682a58c83104b47145245698f56d6f fix(zscript): `lweapon->isValid()` now accurate for lifted weapons
 reword d7869fc0452d70aff8c797ae96bad62bccb31d92 fix(zc): lifted weapon not disappearing on death
+
+# ! various fixes of bugs only introduced in 3.0 prerelease builds
+drop 1782559d7e3bd63725c069e1411f453ca75fac9f fix(zc): Pound combos on layers changing the wrong layer's combo
+drop 664bedf36632237ec9fb886509c49de3ade0e88c fix(zc): combo trigger conditionals for dark/not dark no longer inverted
+drop a3cd7723bf674b9770d54253d2282e697a7a9579 fix(zc): Push (Right, Many) only pushing once
+drop cb07f7ca5d6c40b2551ea954018d61de1c7d95a9 fix(zc): Icy Floor collision in sideview
+drop 97e1435e81a9ef8ede7c614e876395a343fd9af9 fix(zq): add missing moveflags to enemy editor
+drop 49fcf283f445ed496257f04218e25a7c4c3198d8 fix(zq): square misalignment in zoomed-out expanded mode
+drop 02bc0f4ffba35b6bd81fbdc3e783f2574b543885 fix(zscript): a couple of small errors in recent optimizations
+drop c043aaae32f611d5b74c05ebfcc9b2a1ca4beff5 fix(zq): next-screen-preview visual bugs re: zoom out
+drop 2f845b504556032a00ac0c0a181a04a210f39b7f fix(zscript): fix many internal functions
+drop 0903ecdc18ec6b1a7542e287218988928b497839 fix(zq): Screen Enemies Dialog not setting "Dirty" State for saving
+drop ab5f763155939f2025ca8980084bb86404c2dd09 fix(zq): enemy editor spawn/death sprites swapped
+drop 2d2c5de928d38512a80bd8b079ff3de3983017a1 fix(zq): combo alias cursor visual issues
+drop aa467263cdf9d92eaaf7ab6e2ca4a8fee54ccf17 misc(zc): add -analyze-zasm-duplication for finding duplicated functions
+drop 1152e5548ac155eba7ea08ff410d7b4e3b130319 fix(zc): Region 'Physical' mapping option not working outside of regions
+drop 6be636e6d7c83d294de1c73019c29b97670bd537 fix(zq): description of 'Consume w/o trig' triggerflag was misleading
+drop 41139dde14d5cfa964c555695f478feb320c9dd0 fix: use correct app id in zalleg_setup_allegro
+drop 35505498d5a8e2c2668eb7a1d21715ed9af3900a fix(zq): add missing sideview ladder flags to top row of item cellar and passageway
+
+reword 383b5d34a6d33963e0a0caef3f6ff2c1c49d920b refactor(zq): upgrade sprite data list dialog
+reword c4a6d8b720e294688fa688828f276e2caf5c1584 refactor(zq): clean up `Quest->Audio->MIDIs` lister
