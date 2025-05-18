@@ -54,6 +54,7 @@ class Database:
     def __init__(self, path: Path = default_db_path):
         print(f'[database] init {path}')
         self.path = path
+        # No key needed for read operations.
         s3 = boto3.resource(
             's3',
             region_name='nyc3',
@@ -181,6 +182,11 @@ class Database:
             key = f'{release.id}/{resource}'
             self.download(key)
 
+        quest = next(q for q in self.quests if release in q.releases)
+        for music in quest.data['music']:
+            key = f'{quest.id}/music/{music}'
+            self.download(key)
+
     def get_qst_keys_by_hash(self) -> dict[str, (str, Release)]:
         qst_key_by_hash = {}
 
@@ -193,6 +199,16 @@ class Database:
                         qst_key_by_hash[resource_hash] = (key, release)
 
         return qst_key_by_hash
+
+    # self.bucket is read-only, but this method can be used to get a writable bucket.
+    def get_writable_bucket(self):
+        boto3.setup_default_session(profile_name='zc-database-write')
+        s3 = boto3.resource(
+            's3',
+            region_name='nyc3',
+            endpoint_url='https://nyc3.digitaloceanspaces.com',
+        )
+        return s3.Bucket('zc-data')
 
 
 if __name__ == '__main__':
