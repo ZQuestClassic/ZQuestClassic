@@ -1,2 +1,2 @@
 # Restart once a day to periodically update manifest.json
-0 1 * * * /bin/systemctl try-restart zc
+0 1 * * * root /bin/systemctl try-restart zc
