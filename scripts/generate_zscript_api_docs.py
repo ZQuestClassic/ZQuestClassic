@@ -258,24 +258,30 @@ def add_comment(symbol):
     def format_comment(text: str) -> str:
         return indent(sanitize(text), 3)
 
-    if symbol.comment and symbol.comment.text:
+    interesting_tags = [
+        'alias',
+        'deprecated_alias',
+        'deprecated_future',
+        'deprecated_getter',
+        'index',
+        'length',
+        'param',
+        'value',
+        'versionadded',
+        'versionchanged',
+        'versionremoved',
+    ]
+    has_comment_or_interesting_tags = symbol.comment and (
+        symbol.comment.text
+        or next((t for t in symbol.comment.tags if t[0] in interesting_tags), None)
+    )
+
+    if has_comment_or_interesting_tags:
         add('')
         add('.. rst-class:: classref-comment')
         add('')
         for tag, value in symbol.comment.tags:
             if tag in [
-                'alias',
-                'deprecated_alias',
-                'deprecated_getter',
-                'index',
-                'length',
-                'param',
-                'value',
-            ]:
-                add(format_comment(f'`{tag}` ' + value))
-                add('')
-                add('')
-            elif tag in [
                 'versionadded',
                 'versionchanged',
                 'versionremoved',
@@ -284,6 +290,10 @@ def add_comment(symbol):
                 add(format_comment(f'.. {tag}:: {data[0].strip()}'))
                 if len(data) > 1:
                     add(format_comment(indent(f'{data[1].strip()}', 3)))
+                add('')
+                add('')
+            elif tag in interesting_tags:
+                add(format_comment(f'`{tag}` ' + value))
                 add('')
                 add('')
         add('')

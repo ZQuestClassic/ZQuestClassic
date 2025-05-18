@@ -16553,8 +16553,6 @@ void set_register(int32_t arg, int32_t value)
 				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
-		case EWPNTOTALDYOFFS:
-			break; //READ-ONLY
 			
 		case EWPNSHADOWXOFS:
 			if(0!=(s=checkEWpn(ri->ewpn)))

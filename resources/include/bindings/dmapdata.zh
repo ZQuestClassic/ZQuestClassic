@@ -246,7 +246,7 @@ class dmapdata {
 
 	// The flags used by the DMap. These are OR'd together. See [DMapBitflags].
 	//
-	// @future_deprecated Use [Flagset] instead!
+	// @deprecated_future Use [Flagset] instead!
 	// @value [DMapBitflags]
 	// @zasm_var DMAPDATAFLAGS
 	internal int Flags;

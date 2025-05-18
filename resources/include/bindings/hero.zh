@@ -106,6 +106,16 @@ enum WarpBitflags
 	WARP_FLAG_NOSTEPFORWARD        = 0x10000,                     // Prevent Stepping forward in dungeon screens (experimental).
 };
 
+// Mouse button bitflags, used with [Hero->InputMouseB].
+// @deprecated Use [MouseIndex] and [Input->Mouse] instead!
+@Bitflags("int")
+enum MouseButtonBitflags
+{
+	MB_LEFTCLICK                   = 0x1,
+	MB_RIGHTCLICK                  = 0x2,
+	MB_MIDDLECLICK                 = 0x4,
+};
+
 // Contains functions and variables related to the playable hero character.
 //
 // Access with `Hero->`.
@@ -614,126 +624,6 @@ class hero {
 	// @zasm_var HEROICEENTRYMAXFRAMES
 	internal int IceEntryMaxFrames;
 
-	// @zasm_var INPUTSTART
-	internal bool InputStart;
-
-	// @zasm_var INPUTMAP
-	internal bool InputMap;
-
-	// @zasm_var INPUTUP
-	internal bool InputUp;
-
-	// @zasm_var INPUTDOWN
-	internal bool InputDown;
-
-	// @zasm_var INPUTLEFT
-	internal bool InputLeft;
-
-	// @zasm_var INPUTRIGHT
-	internal bool InputRight;
-
-	// @zasm_var INPUTA
-	internal bool InputA;
-
-	// @zasm_var INPUTB
-	internal bool InputB;
-
-	// @zasm_var INPUTL
-	internal bool InputL;
-
-	// @zasm_var INPUTR
-	internal bool InputR;
-
-	// @zasm_var INPUTEX1
-	internal bool InputEx1;
-
-	// @zasm_var INPUTEX2
-	internal bool InputEx2;
-
-	// @zasm_var INPUTEX3
-	internal bool InputEx3;
-
-	// @zasm_var INPUTEX4
-	internal bool InputEx4;
-
-	// @zasm_var INPUTPRESSSTART
-	internal bool PressStart;
-
-	// @zasm_var INPUTPRESSUP
-	internal bool PressUp;
-
-	// @zasm_var INPUTPRESSDOWN
-	internal bool PressDown;
-
-	// @zasm_var INPUTPRESSLEFT
-	internal bool PressLeft;
-
-	// @zasm_var INPUTPRESSRIGHT
-	internal bool PressRight;
-
-	// @zasm_var INPUTPRESSA
-	internal bool PressA;
-
-	// @zasm_var INPUTPRESSB
-	internal bool PressB;
-
-	// @zasm_var INPUTPRESSL
-	internal bool PressL;
-
-	// @zasm_var INPUTPRESSR
-	internal bool PressR;
-
-	// @zasm_var INPUTPRESSEX1
-	internal bool PressEx1;
-
-	// @zasm_var INPUTPRESSEX2
-	internal bool PressEx2;
-
-	// @zasm_var INPUTPRESSEX3
-	internal bool PressEx3;
-
-	// @zasm_var INPUTPRESSEX4
-	internal bool PressEx4;
-
-	// @zasm_var INPUTMOUSEX
-	internal int InputMouseX;
-
-	// @zasm_var INPUTMOUSEY
-	internal int InputMouseY;
-
-	// @zasm_var INPUTMOUSEZ
-	internal int InputMouseZ;
-
-	// @zasm_var INPUTMOUSEB
-	internal int InputMouseB;
-
-	// @zasm_var INPUTAXISUP
-	internal bool InputAxisUp;
-
-	// @zasm_var INPUTAXISDOWN
-	internal bool InputAxisDown;
-
-	// @zasm_var INPUTAXISLEFT
-	internal bool InputAxisLeft;
-
-	// @zasm_var INPUTAXISRIGHT
-	internal bool InputAxisRight;
-
-	// @zasm_var PRESSAXISUP
-	internal bool PressAxisUp;
-
-	// @zasm_var PRESSAXISDOWN
-	internal bool PressAxisDown;
-
-	// @zasm_var PRESSAXISLEFT
-	internal bool PressAxisLeft;
-
-	// @zasm_var PRESSAXISRIGHT
-	internal bool PressAxisRight;
-
-	// @zasm_var INPUTPRESSMAP
-	internal bool PressMap;
-
 	// @zasm_var HEROTOTALDYOFFS
 	internal const int TotalDYOffset;
 
@@ -981,6 +871,167 @@ class hero {
 	//   POP D0
 	//   SETR D2 LINKOFLIP
 	internal int GetOriginalFlip(int hero_sprite_id, int dir);
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTSTART
+	internal bool InputStart;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTMAP
+	internal bool InputMap;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTUP
+	internal bool InputUp;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTDOWN
+	internal bool InputDown;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTLEFT
+	internal bool InputLeft;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTRIGHT
+	internal bool InputRight;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTA
+	internal bool InputA;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTB
+	internal bool InputB;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTL
+	internal bool InputL;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTR
+	internal bool InputR;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTEX1
+	internal bool InputEx1;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTEX2
+	internal bool InputEx2;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTEX3
+	internal bool InputEx3;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTEX4
+	internal bool InputEx4;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTPRESSSTART
+	internal bool PressStart;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTPRESSUP
+	internal bool PressUp;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSDOWN
+	internal bool PressDown;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSLEFT
+	internal bool PressLeft;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSRIGHT
+	internal bool PressRight;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSA
+	internal bool PressA;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSB
+	internal bool PressB;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSL
+	internal bool PressL;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSR
+	internal bool PressR;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSEX1
+	internal bool PressEx1;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSEX2
+	internal bool PressEx2;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSEX3
+	internal bool PressEx3;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSEX4
+	internal bool PressEx4;
+
+	// @deprecated_future Use [Input->Mouse] instead!
+	// @zasm_var INPUTMOUSEX
+	internal int InputMouseX;
+
+	// @deprecated_future Use [Input->Mouse] instead!
+	// @zasm_var INPUTMOUSEY
+	internal int InputMouseY;
+
+	// @deprecated_future Use [Input->Mouse] instead!
+	// @zasm_var INPUTMOUSEZ
+	internal int InputMouseZ;
+
+	// @deprecated_future Use [Input->Mouse] instead!
+	// @value [MouseButtonBitflags]
+	// @zasm_var INPUTMOUSEB
+	internal int InputMouseB;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTAXISUP
+	internal bool InputAxisUp;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTAXISDOWN
+	internal bool InputAxisDown;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTAXISLEFT
+	internal bool InputAxisLeft;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTAXISRIGHT
+	internal bool InputAxisRight;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var PRESSAXISUP
+	internal bool PressAxisUp;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var PRESSAXISDOWN
+	internal bool PressAxisDown;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var PRESSAXISLEFT
+	internal bool PressAxisLeft;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var PRESSAXISRIGHT
+	internal bool PressAxisRight;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSMAP
+	internal bool PressMap;
 }
 
 // 1 is the sprite uid for Hero.
