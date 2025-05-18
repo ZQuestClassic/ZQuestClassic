@@ -16,6 +16,7 @@
 #include <fmt/format.h>
 //
 
+#include "base/expected.h"
 #include "base/handles.h"
 #include "base/general.h"
 #include "base/mapscr.h"
@@ -156,7 +157,7 @@ int32_t jitted_uncompiled_command_count;
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
 
-static std::string parse_user_path(const std::string& user_path, std::string& error, bool is_file);
+static expected<std::string, std::string> parse_user_path(const std::string& user_path, bool is_file);
 
 static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {script_object_type::dir, "directory"};
 static UserDataContainer<user_file, MAX_USER_FILES> user_files = {script_object_type::file, "file"};
@@ -25660,13 +25661,12 @@ void FFScript::do_loaddirectory()
 	string user_path;
 	ArrayH::getString(arrayptr, user_path, 2048);
 
-	std::string error;
-	std::string resolved_path = parse_user_path(user_path, error, false);
-	if (resolved_path.empty())
+	std::string resolved_path;
+	if (auto r = parse_user_path(user_path, false); !r)
 	{
-		scripting_log_error_with_context("Error: {}", error);
+		scripting_log_error_with_context("Error: {}", r.error());
 		return;
-	}
+	} else resolved_path = r.value();
 
 	if (checkPath(resolved_path.c_str(), true))
 	{
@@ -25975,15 +25975,11 @@ void FFScript::do_paldata_load_bitmap()
 
 		if (get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 		{
-			std::string error;
-			std::string resolved_path = parse_user_path(user_path, error, true);
-			if (resolved_path.empty())
+			if (auto r = parse_user_path(user_path, true); !r)
 			{
-				Z_scripterrlog("Error: - %s\n", error.c_str());
+				scripting_log_error_with_context("Error: {}", r.error());
 				return;
-			}
-
-			str = resolved_path;
+			} else str = r.value();
 		}
 		else
 		{
@@ -28205,13 +28201,11 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 
 			if (get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 			{
-				std::string error;
-				std::string resolved_path = parse_user_path(user_path, error, true);
-				if (resolved_path.empty())
+				if (auto r = parse_user_path(user_path, true); !r)
 				{
-					Z_scripterrlog("Error: - %s\n", error.c_str());
+					scripting_log_error_with_context("Error: {}", r.error());
 					return;
-				}
+				} else user_path = r.value();
 			}
 			else
 			{
@@ -28230,13 +28224,11 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 
 			if (get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 			{
-				std::string error;
-				std::string resolved_path = parse_user_path(user_path, error, true);
-				if (resolved_path.empty())
+				if (auto r = parse_user_path(user_path, true); !r)
 				{
-					Z_scripterrlog("Error: - %s\n", error.c_str());
+					scripting_log_error_with_context("Error: {}", r.error());
 					return;
-				}
+				} else user_path = r.value();
 			}
 			else
 			{
@@ -34562,23 +34554,18 @@ void FFScript::user_websockets_init()
 static std::set<std::string> banned_extensions = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk"};
 
 // If the path is valid, returns an absolute path under the quest "Files" directory.
-// If not valid, an empty string is returned and `error` is set to the reason why.
-static std::string parse_user_path(const std::string& user_path, std::string& error, bool is_file)
+static expected<std::string, std::string> parse_user_path(const std::string& user_path, bool is_file)
 {
 	// First check for non-portable path characters.
 	static const char* invalid_chars = "<>|?*&^$#\":";
 	if (auto index = user_path.find_first_of(invalid_chars) != string::npos)
 	{
-		error = fmt::format("Bad path: {} - invalid character {}", user_path, user_path[index]);
-		return "";
+		return make_unexpected(fmt::format("Bad path: {} - invalid character {}", user_path, user_path[index]));
 	}
 	for (char c : user_path)
 	{
 		if (c < 32)
-		{
-			error = fmt::format("Bad path: {} - invalid control character {:#x}", user_path, c);
-			return "";
-		}
+			return make_unexpected(fmt::format("Bad path: {} - invalid control character {:#x}", user_path, c));
 	}
 
 	// Any leading slashes are ignored.
@@ -34592,9 +34579,8 @@ static std::string parse_user_path(const std::string& user_path, std::string& er
 	auto normalized_path = fs::path(path).lexically_normal();
 	if (!normalized_path.empty() && normalized_path.begin()->string() == "..")
 	{
-		error = fmt::format("Bad path: {} (resolved to {}) - cannot access filesystem outside {} (too many ..?)",
-			path, normalized_path.string(), files_path.string());
-		return "";
+		return make_unexpected(fmt::format("Bad path: {} (resolved to {}) - cannot access filesystem outside {} (too many ..?)",
+			path, normalized_path.string(), files_path.string()));
 	}
 
 	auto resolved_path = files_path / normalized_path;
@@ -34607,9 +34593,8 @@ static std::string parse_user_path(const std::string& user_path, std::string& er
 	bool is_subpath = mismatch_pair.second == files_path.end();
 	if (!is_subpath)
 	{
-		error = fmt::format("Bad path: {} (resolved to {}) - cannot access filesystem outside {}",
-			user_path, resolved_path.string(), files_path.string());
-		return "";
+		return make_unexpected(fmt::format("Bad path: {} (resolved to {}) - cannot access filesystem outside {}",
+			user_path, resolved_path.string(), files_path.string()));
 	}
 
 	// Any extension other than banned ones, including no extension, is allowed.
@@ -34617,17 +34602,11 @@ static std::string parse_user_path(const std::string& user_path, std::string& er
 	{
 		auto ext = resolved_path.extension().string();
 		if (banned_extensions.find(ext) != banned_extensions.end())
-		{
-			error = fmt::format("Bad path: {} - banned extension", user_path);
-			return "";
-		}
+			return make_unexpected(fmt::format("Bad path: {} - banned extension", user_path));
 	}
 
 	if (is_file && !resolved_path.has_filename())
-	{
-		error = fmt::format("Bad path: {} - missing filename", user_path);
-		return "";
-	}
+		return make_unexpected(fmt::format("Bad path: {} - missing filename", user_path));
 
 	// https://stackoverflow.com/a/31976060/2788187
 	if (is_file)
@@ -34644,10 +34623,7 @@ static std::string parse_user_path(const std::string& user_path, std::string& er
 		banned |= fname.ends_with(".") || fname.ends_with(" ");
 
 		if (banned)
-		{
-			error = fmt::format("Bad path: {} - banned filename", user_path);
-			return "";
-		}
+			return make_unexpected(fmt::format("Bad path: {} - banned filename", user_path));
 	}
 
 	return resolved_path.string();
@@ -34684,13 +34660,12 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 	ri->d[rEXP1] = 0L; //Presume failure; update to 10000L on success
 	ri->d[rEXP2] = 0;
 
-	std::string error;
-	std::string resolved_path = parse_user_path(user_path, error, true);
-	if (resolved_path.empty())
+	std::string resolved_path;
+	if (auto r = parse_user_path(user_path, true); !r)
 	{
-		Z_scripterrlog("Error: - %s\n", error.c_str());
+		scripting_log_error_with_context("Error: {}", r.error());
 		return;
-	}
+	} else resolved_path = r.value();
 
 	user_file* f = checkFile(ri->fileref, false, true);
 	if(!f) //auto-allocate
@@ -36539,15 +36514,11 @@ string get_filestr(const bool relative, bool is_file) //Used for 'FileSystem' fu
 		return user_path;
 	}
 
-	std::string error;
-	std::string resolved_path = parse_user_path(user_path, error, is_file);
-	if (resolved_path.empty())
+	if (auto r = parse_user_path(user_path, is_file); !r)
 	{
-		Z_scripterrlog("Error - %s\n", error.c_str());
+		scripting_log_error_with_context("Error: {}", r.error());
 		return "";
-	}
-
-	return resolved_path;
+	} else return r.value();
 }
 
 void FFScript::do_checkdir(const bool is_dir)
