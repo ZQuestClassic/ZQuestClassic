@@ -6785,7 +6785,13 @@ int32_t get_register(int32_t arg)
 		{
 			mapscr* scr = get_scr(ri->screenref);
 			int32_t indx = ri->d[rINDEX] / 10000;
-			
+
+			if (BC::checkBounds(indx, 0, 3) != BC::_NoError)
+			{
+				ret = -10000;
+				break;
+			}
+
 			ret = (((scr->flags2 >> indx) & 1)
 				? (scr->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
 				: -1 //Returns -1 if no warp is set
@@ -7625,7 +7631,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATASIDEWARPID: 
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
-			if (mapscr *m = ResolveMapdata(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref); m && BC::checkBounds(indx, 0, 3) == BC::_NoError)
 			{
 				ret = (((m->flags2 >> indx) & 1)
 					? (m->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
@@ -17582,7 +17588,9 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENSIDEWARPID:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000; //dir
-			
+			if (BC::checkBounds(indx, 0, 3) != BC::_NoError)
+				break;
+
 			int32_t new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
 			auto scr = get_scr(ri->screenref);
 			if(new_warp_return == -1)
@@ -18370,7 +18378,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			
 			int32_t indx = ri->d[rINDEX] / 10000; //dir
-			if (mapscr *m = ResolveMapdata(ri->mapsref))
+			if (mapscr *m = ResolveMapdata(ri->mapsref); m && BC::checkBounds(indx, 0, 3) == BC::_NoError)
 			{
 				int32_t new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
 				if(new_warp_return == -1)
