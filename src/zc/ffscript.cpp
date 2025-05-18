@@ -33202,8 +33202,8 @@ int32_t run_script_int(bool is_jitted)
 			
 			case GETNPCDATATILE: FFScript::getNPCData_tile(); break;
 			case GETNPCDATAEHEIGHT: FFScript::getNPCData_e_height(); break;
-			case GETNPCDATAFLAGS: FFScript::getNPCData_flags(); break; //fixme
-			case GETNPCDATAFLAGS2: FFScript::getNPCData_flags2(); break; //fixme
+			case GETNPCDATAFLAGS: FFScript::getNPCData_flags(); break;
+			case GETNPCDATAFLAGS2: FFScript::getNPCData_flags2(); break;
 			case GETNPCDATAWIDTH: FFScript::getNPCData_width(); break;
 			case GETNPCDATAHEIGHT: FFScript::getNPCData_height(); break;
 			case GETNPCDATASTILE: FFScript::getNPCData_s_tile(); break;
@@ -35690,8 +35690,34 @@ void FFScript::do_triggersecret(const bool v)
 		set_register(sarg1, (guysbuf[ID].member&flag) ? 10000 : 0); \
 }
 
-void FFScript::getNPCData_flags(){ GET_NPCDATA_FUNCTION_VAR_INT(flags); } //FIX ME
-void FFScript::getNPCData_flags2(){ GET_NPCDATA_FUNCTION_VAR_INT(flags); } //FIX ME
+uint32_t get_upper_half_uint64(uint64_t value)
+{
+	return value >> 32;
+}
+
+uint32_t get_lower_half_uint64(uint64_t value)
+{
+	return value & 0xFFFFFFFF;
+}
+
+// Defunct.
+void FFScript::getNPCData_flags(){
+	int32_t ID = get_register(sarg2) / 10000;
+	if(ID < 1 || ID > (MAXGUYS-1))
+		set_register(sarg1, -10000);
+	else
+		set_register(sarg1, get_upper_half_uint64(guysbuf[ID].flags) * 10000);
+}
+
+// Defunct.
+void FFScript::getNPCData_flags2(){ 
+	int32_t ID = get_register(sarg2) / 10000;
+	if(ID < 1 || ID > (MAXGUYS-1))
+		set_register(sarg1, -10000);
+	else
+		set_register(sarg1, get_lower_half_uint64(guysbuf[ID].flags) * 10000);
+}
+
 void FFScript::getNPCData_tile() { GET_NPCDATA_FUNCTION_VAR_INT(tile); }
 void FFScript::getNPCData_width(){ GET_NPCDATA_FUNCTION_VAR_INT(width); } 
 void FFScript::getNPCData_height(){ GET_NPCDATA_FUNCTION_VAR_INT(height); } 
@@ -35832,8 +35858,41 @@ void do_getdmapintro(const bool v)
 	}\
 }
 
-void FFScript::setNPCData_flags(){SET_NPCDATA_FUNCTION_VAR_ENUM(flags,ZS_DWORD);} //FIX ME
-void FFScript::setNPCData_flags2(){SET_NPCDATA_FUNCTION_VAR_ENUM(flags,ZS_DWORD);} //FIX ME
+static uint64_t set_upper_half_uint64(uint64_t num, uint32_t half)
+{
+	uint64_t lower = num & 0x00000000FFFFFFFF;
+	return lower | ((uint64_t)half << 32);
+}
+
+static uint64_t set_lower_half_uint64(uint64_t num, uint32_t half)
+{
+	uint64_t upper = num & 0xFFFFFFFF00000000;
+	return upper | half;
+}
+
+// Defunct.
+void FFScript::setNPCData_flags(){
+	int32_t ID = get_register(sarg1) / 10000;
+	int32_t val = get_register(sarg2) / 10000;
+	if(ID < 1 || ID > (MAXGUYS-1))
+		set_register(sarg1, -10000);
+	else
+	{
+		guysbuf[ID].flags = (guy_flags)set_upper_half_uint64(guysbuf[ID].flags, vbound(val, 0, 0x7FFFFFFF));
+	}
+}
+
+// Defunct.
+void FFScript::setNPCData_flags2(){
+	int32_t ID = get_register(sarg1) / 10000;
+	int32_t val = get_register(sarg2) / 10000;
+	if(ID < 1 || ID > (MAXGUYS-1))
+		set_register(sarg1, -10000);
+	else
+	{
+		guysbuf[ID].flags = (guy_flags)set_lower_half_uint64(guysbuf[ID].flags, vbound(val, 0, 0x7FFFFFFF));
+	}
+}
 void FFScript::setNPCData_tile() { SET_NPCDATA_FUNCTION_VAR_INT(tile, ZS_WORD); }
 void FFScript::setNPCData_width(){SET_NPCDATA_FUNCTION_VAR_INT(width,ZS_BYTE);}
 void FFScript::setNPCData_height(){SET_NPCDATA_FUNCTION_VAR_INT(height,ZS_BYTE);}
