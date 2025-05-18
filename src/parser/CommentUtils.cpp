@@ -163,8 +163,9 @@ static ASTExprIdentifier parseExprIdentifier(const std::string& str)
 
 static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params, std::vector<CommentSymbolParseResult>& matches, std::string& comment, int start_index, int end_index)
 {
-	// identifier, followed by an optional and non-captured "[]" or "()"
-	static std::string p_ident = "(#?[a-zA-Z_][->:a-zA-Z0-9_]*)(?:\\[\\]|\\(\\))?";
+	// identifier, followed by an optional and non-captured "[]" or "()".
+	// Identifier might be prepended by a hint like "enum ".
+	static std::string p_ident = "((?:(?:\\w+) )?#?[a-zA-Z_][->:a-zA-Z0-9_]*)(?:\\[\\]|\\(\\))?";
 	static std::string p_regex = fmt::format("\\[{}(?:\\|([^\\]]+))?\\]", p_ident);
 	// Supports:
 	// [symbol]
@@ -191,17 +192,40 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 			if((*it)[2].matched)
 				link_text = (*it)[2].str();
 		}
-		CommentSymbolParseResult match{symbol_name, (int)pos, (int)len, link_text, nullptr};
+
+		CommentSymbolSymbolHint symbol_hint = CommentSymbolSymbolHint::None;
+		auto space_it = symbol_name.find(' ');
+		if (space_it != std::string::npos)
+		{
+			std::string text = symbol_name.substr(0, space_it);
+
+			if (text == "var")
+				symbol_hint = CommentSymbolSymbolHint::Variable;
+			else if (text == "fun")
+				symbol_hint = CommentSymbolSymbolHint::Function;
+			else if (text == "enum")
+				symbol_hint = CommentSymbolSymbolHint::Enum;
+			else
+				logDebugMessage(fmt::format("could not symbol hint from \"{}\"", symbol_name).c_str());
+
+			symbol_name = symbol_name.substr(space_it + 1);
+		}
+
+		CommentSymbolParseResult match{symbol_name, symbol_hint, (int)pos, (int)len, link_text, nullptr};
 		matches.emplace_back(match);
 		it++;
 	}
 
 	for (auto it = matches.begin(); it != matches.end(); it++)
 	{
-		auto& [symbol_name, pos, len, link_text, symbol_node] = *it;
+		auto& [symbol_name, symbol_hint, pos, len, link_text, symbol_node] = *it;
 		
 		if(symbol_name.starts_with("#"))
 			continue; // link to external docs, not a symbol
+
+		bool try_functions = symbol_hint == CommentSymbolSymbolHint::None || symbol_hint == CommentSymbolSymbolHint::Function;
+		bool try_variables = (symbol_hint == CommentSymbolSymbolHint::None || symbol_hint == CommentSymbolSymbolHint::Variable) && check_params;
+		bool try_enums = symbol_hint == CommentSymbolSymbolHint::None || symbol_hint == CommentSymbolSymbolHint::Enum;
 
 		bool had_link_text = !link_text.empty();
 		if (!had_link_text)
@@ -211,17 +235,23 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 		bool is_array = false;
 		bool is_fn = false;
 		std::optional<std::string> enum_prefix;
-		auto fn = lookupGetter(*scope, symbol_name);
-		if (!fn)
-			fn = lookupSetter(*scope, symbol_name);
-		if (!fn)
+		Function* fn = nullptr;
+
+		if (try_functions)
 		{
-			// TODO: possibly support param types for overloaded functions: `CenterX(npc, bool)`
-			ident = parseExprIdentifier(symbol_name);
-			auto fns = lookupFunctions(*scope, ident.components, ident.delimiters, {}, false, false, true);
-			if (!fns.empty())
-				fn = fns[0];
+			fn = lookupGetter(*scope, symbol_name);
+			if (!fn)
+				fn = lookupSetter(*scope, symbol_name);
+			if (!fn)
+			{
+				// TODO: possibly support param types for overloaded functions: `CenterX(npc, bool)`
+				ident = parseExprIdentifier(symbol_name);
+				auto fns = lookupFunctions(*scope, ident.components, ident.delimiters, {}, false, false, true);
+				if (!fns.empty())
+					fn = fns[0];
+			}
 		}
+
 		if (fn && fn->node)
 		{
 			symbol_node = fn->node;
@@ -232,47 +262,110 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 			ident = parseExprIdentifier(symbol_name);
 		}
 
-		// Parameter?
-		bool was_param = false;
-		if (!symbol_node)
+		if (try_variables)
 		{
-			if (auto fn_node = dynamic_cast<const ASTFuncDecl*>(node))
+			// Parameter?
+			bool was_param = false;
+			if (!symbol_node)
 			{
-				for (auto param_node : fn_node->parameters.data())
+				if (auto fn_node = dynamic_cast<const ASTFuncDecl*>(node))
 				{
-					if (param_node->getName() == symbol_name)
+					for (auto param_node : fn_node->parameters.data())
 					{
-						symbol_node = param_node;
-						was_param = true;
-						break;
+						if (param_node->getName() == symbol_name)
+						{
+							symbol_node = param_node;
+							was_param = true;
+							break;
+						}
+					}
+				}
+			}
+			if (!check_params && was_param)
+			{
+				// Linkifying parameters is not useful for docs generation, and breaks stuff. So ignore.
+				symbol_node = nullptr;
+				continue;
+			}
+
+			if (!symbol_node)
+			{
+				if (auto datum = lookupDatum(*scope, ident, nullptr))
+				{
+					symbol_node = datum->getNode();
+					is_array = datum->type.isArray();
+				}
+			}
+			if (!symbol_node)
+			{
+				if (auto datum = lookupClassVars(*scope, ident, nullptr))
+				{
+					symbol_node = datum->getNode();
+					is_array = datum->type.isArray();
+				}
+			}
+		}
+
+		// Resolve class fields, like [itemdata::Counter]
+		if (!symbol_node && ident.components.size()	== 2 && ident.delimiters[0] == "::" && (try_variables || try_functions))
+		{
+			std::string prop = ident.components[1];
+			ident.delimiters.pop_back();
+			ident.components.pop_back();
+			if (auto type = lookupDataType(*scope, ident, nullptr))
+			{
+				ident.components[0] = prop;
+				if (try_variables)
+				{
+					if (auto datum = lookupClassVars(type->getUsrClass()->getScope(), ident, nullptr))
+					{
+						symbol_node = datum->getNode();
+						is_array = datum->type.isArray();
+					}
+				}
+				if (!symbol_node && try_functions)
+				{
+					auto fns = lookupClassFuncs(*type->getUsrClass(), ident.components[0], {}, &type->getUsrClass()->getScope(), true);
+					if (!fns.empty())
+					{
+						symbol_node = fns[0]->getNode();
+						is_fn = true;
 					}
 				}
 			}
 		}
-		if (!check_params && was_param)
-		{
-			// Linkifying parameters is not useful for docs generation, and breaks stuff. So ignore.
-			symbol_node = nullptr;
-			continue;
-		}
 
-		if (!symbol_node)
+		// Resolve variable fields, like [Game->Counter]
+		if (!symbol_node && ident.components.size()	== 2 && ident.delimiters[0] == "->" && (try_variables || try_functions))
 		{
+			std::string prop = ident.components[1];
+			ident.delimiters.pop_back();
+			ident.components.pop_back();
 			if (auto datum = lookupDatum(*scope, ident, nullptr))
 			{
-				symbol_node = datum->getNode();
-				is_array = datum->type.isArray();
+				ident.components[0] = prop;
+				if (try_variables)
+				{
+					if (auto field = lookupClassVars(datum->type.getUsrClass()->getScope(), ident, nullptr))
+					{
+						symbol_node = field->getNode();
+						is_array = field->type.isArray();
+					}
+				}
+
+				if (!symbol_node && try_functions)
+				{
+					auto fns = lookupClassFuncs(*datum->type.getUsrClass(), ident.components[0], {}, &datum->type.getUsrClass()->getScope(), true);
+					if (!fns.empty())
+					{
+						symbol_node = fns[0]->getNode();
+						is_fn = true;
+					}
+				}
 			}
 		}
-		if (!symbol_node)
-		{
-			if (auto datum = lookupClassVars(*scope, ident, nullptr))
-			{
-				symbol_node = datum->getNode();
-				is_array = datum->type.isArray();
-			}
-		}
-		if (!symbol_node)
+
+		if (!symbol_node && try_enums)
 		{
 			if (auto type = lookupDataType(*scope, ident, nullptr))
 			{
@@ -284,47 +377,7 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 				}
 			}
 		}
-		// Resolve class fields, like [itemdata::Counter]
-		if (!symbol_node && ident.components.size()	== 2 && ident.delimiters[0] == "::")
-		{
-			std::string prop = ident.components[1];
-			ident.delimiters.pop_back();
-			ident.components.pop_back();
-			if (auto type = lookupDataType(*scope, ident, nullptr))
-			{
-				ident.components[0] = prop;
-				if (auto datum = lookupClassVars(type->getUsrClass()->getScope(), ident, nullptr))
-				{
-					symbol_node = datum->getNode();
-					is_array = datum->type.isArray();
-				}
-			}
-		}
-		// Resolve variable fields, like [Game->Counter]
-		if (!symbol_node && ident.components.size()	== 2 && ident.delimiters[0] == "->")
-		{
-			std::string prop = ident.components[1];
-			ident.delimiters.pop_back();
-			ident.components.pop_back();
-			if (auto datum = lookupDatum(*scope, ident, nullptr))
-			{
-				ident.components[0] = prop;
-				if (auto field = lookupClassVars(datum->type.getUsrClass()->getScope(), ident, nullptr))
-				{
-					symbol_node = field->getNode();
-					is_array = field->type.isArray();
-				}
-				if (!symbol_node)
-				{
-					auto fns = lookupClassFuncs(*datum->type.getUsrClass(), ident.components[0], {}, &datum->type.getUsrClass()->getScope(), true);
-					if (!fns.empty())
-					{
-						symbol_node = fns[0]->getNode();
-						is_fn = true;
-					}
-				}
-			}
-		}
+
 		// TODO: obviously, there's a lot of code smell above. Can we make a better `lookupSymbol` method?
 
 		if (!had_link_text)

@@ -29,7 +29,7 @@ class bottledata {
 	// @zasm_var BOTTLEPERCENT
 	internal bool IsPercent[];
 
-	// @index [BottleFlag]
+	// @index [enum BottleFlag]
 	// @zasm_var BOTTLEFLAGS
 	internal bool Flags[];
 

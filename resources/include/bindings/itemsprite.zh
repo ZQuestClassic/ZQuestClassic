@@ -10,11 +10,13 @@ class itemsprite {
 	// @delete
 	internal itemsprite();
 
-	// @value [ItemID]
+	// @value [enum ItemID]
+
 	// @zasm_var ITEMID
 	internal int ID;
 
-	// @value [ItemType]
+	// @value [enum ItemType]
+
 	// @zasm_var ITEMFAMILY
 	internal int Type;
 
@@ -71,7 +73,8 @@ class itemsprite {
 
 	// The item pickup bitflags.
 	//
-	// @value [ItemPickupBitflags]
+	// @value [enum ItemPickupBitflags]
+
 	// @zasm_var ITEMPICKUP
 	internal int Pickup;
 
@@ -104,7 +107,8 @@ class itemsprite {
 
 	// The bitflags associated with the pickup string.
 	//
-	// @value [PickupStringBitflags]
+	// @value [enum PickupStringBitflags]
+
 	// @zasm_var ITEMPSTRINGFLAGS
 	internal int PickupStringFlags;
 

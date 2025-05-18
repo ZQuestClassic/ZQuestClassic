@@ -31,13 +31,13 @@ class genericdata {
 
 	// Arrays of exit and reload conditions. All states default to `false`.
 	//
-	// @index [GenericScriptStateIndex]
+	// @index [enum GenericScriptStateIndex]
 	// @zasm_var GENDATAEXITSTATE
 	internal bool ExitState[];
 
 	// Arrays of exit and reload conditions. All states default to `false`.
 	//
-	// @index [GenericScriptStateIndex]
+	// @index [enum GenericScriptStateIndex]
 	// @zasm_var GENDATARELOADSTATE
 	internal bool ReloadState[];
 
@@ -45,7 +45,7 @@ class genericdata {
 	// script will wait until any event which has a value of 'true' in this
 	// array occurs.
 	//
-	// @index [GenericScriptEvent]
+	// @index [enum GenericScriptEvent]
 	// @zasm_var GENDATAEVENTSTATE
 	internal bool EventListen[];
 

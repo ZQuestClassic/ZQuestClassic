@@ -120,7 +120,8 @@ class dmapdata {
 	// @zasm_var DMAPDATACONTINUE
 	internal int Continue;
 
-	// @value [DMapType]
+	// @value [enum DMapType]
+
 	// @zasm_var DMAPDATATYPE
 	internal int Type;
 
@@ -192,7 +193,7 @@ class dmapdata {
 
 	// All of the dmap's flags.
 	//
-	// @index [DMapFlag]
+	// @index [enum DMapFlag]
 	// @zasm_var DMAPDATAFLAGARR
 	internal bool Flagset[];
 
@@ -247,7 +248,8 @@ class dmapdata {
 	// The flags used by the DMap. These are OR'd together. See [DMapBitflags].
 	//
 	// @deprecated_future Use [Flagset] instead!
-	// @value [DMapBitflags]
+	// @value [enum DMapBitflags]
+
 	// @zasm_var DMAPDATAFLAGS
 	internal int Flags;
 

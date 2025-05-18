@@ -14,7 +14,8 @@ class subscreenwidget {
 
 	// The widget's type.
 	//
-	// @value [SubscreenWidgetType]
+	// @value [enum SubscreenWidgetType]
+
 	// @zasm_var SUBWIDGTYPE
 	internal const int Type;
 
@@ -55,7 +56,7 @@ class subscreenwidget {
 	//
 	// Only used if the widget is selectable (see [GenFlags]).
 	//
-	// @index [Direction]
+	// @index [enum Direction]
 	// @zasm_var SUBWIDGPOSES
 	internal int PosDirs[];
 
@@ -354,7 +355,8 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	//
-	// @value [Font]
+	// @value [enum Font]
+
 	// @zasm_var SUBWIDGTY_FONT
 	internal int Font;
 
@@ -368,7 +370,8 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	//
-	// @value [TextAlignment]
+	// @value [enum TextAlignment]
+
 	// @zasm_var SUBWIDGTY_ALIGN
 	internal int Align;
 
@@ -383,7 +386,8 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	//
-	// @value [ShadowType]
+	// @value [enum ShadowType]
+
 	// @zasm_var SUBWIDGTY_SHADOWTY
 	internal int ShadowType;
 
@@ -476,14 +480,16 @@ class subscreenwidget {
 	// - [SUBWIDG_BTNITM]
 	// - [SUBWIDG_BTNCOUNTER]
 	//
-	// @value [SubscreenItemButton]
+	// @value [enum SubscreenItemButton]
+
 	// @zasm_var SUBWIDGTY_BUTTON
 	internal int Button;
 
 	// The counter(s) associated with the widget.
 	//
 	// @length [SUBWIDG_COUNTER] - 3 values, [SUBWIDG_MISCGAUGE] - 1 value
-	// @value [CounterIndex]
+	// @value [enum CounterIndex]
+
 	// @zasm_var SUBWIDGTY_COUNTERS
 	internal int Counter[];
 

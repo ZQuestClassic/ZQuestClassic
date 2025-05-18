@@ -255,7 +255,8 @@ class combodata {
 
 	// The solidity bitmask of the combo (same as [Screen->ComboS]).
 	//
-	// @value [ComboSolidityBitflags]
+	// @value [enum ComboSolidityBitflags]
+
 	// @zasm_var COMBODWALK
 	internal int Walk;
 
@@ -264,7 +265,8 @@ class combodata {
 	// @zasm_var COMBODEFFECT
 	internal int Effect;
 
-	// @value [ComboType]
+	// @value [enum ComboType]
+
 	// @zasm_var COMBODTYPE
 	internal int Type;
 
@@ -303,7 +305,8 @@ class combodata {
 
 	// The inherent flag of the combo.
 	//
-	// @value [ComboFlag]
+	// @value [enum ComboFlag]
+
 	// @zasm_var COMBODFLAG
 	internal int Flag;
 
@@ -320,7 +323,8 @@ class combodata {
 
 	// The combo's animation flags.
 	//
-	// @value [AnimationBitflags]
+	// @value [enum AnimationBitflags]
+
 	// @zasm_var COMBODANIMFLAGS
 	internal int AnimFlags;
 
@@ -344,7 +348,7 @@ class combodata {
 
 	// The trigger flags of the combo.
 	//
-	// @index [ComboTriggerFlag]
+	// @index [enum ComboTriggerFlag]
 	// @zasm_var COMBODTRIGGERFLAGS2
 	internal bool TrigFlags[];
 
@@ -355,7 +359,7 @@ class combodata {
 
 	// The combo's general flags.
 	//
-	// @index [ComboGeneralFlag]
+	// @index [enum ComboGeneralFlag]
 	// @zasm_var COMBODGENFLAGARR
 	internal bool GenFlags[];
 
@@ -421,7 +425,8 @@ class combodata {
 	//
 	// Only these bitflags are used: [IP_HOLDUP], [IP_TIMEOUT], [IP_TRIGGERSECRETS], and [IP_ALWAYSGRAB].
 	//
-	// @value [ItemPickupBitflags]
+	// @value [enum ItemPickupBitflags]
+
 	// @zasm_var COMBODTRIGITEMPICKUP
 	internal int TrigSpawnItemPickup;
 
@@ -632,7 +637,7 @@ class combodata {
 
 	// The combo lift flags.
 	//
-	// @index [ComboLiftFlag]
+	// @index [enum ComboLiftFlag]
 	// @zasm_var COMBODLIFTFLAGS
 	internal bool LiftFlags[];
 

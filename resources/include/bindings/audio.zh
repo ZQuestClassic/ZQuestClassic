@@ -110,13 +110,14 @@ class Audio {
 	// Controls how often the engine refreshes the currently playing music while
 	// changing screens.
 	//
-	// @value [MusicRefreshMode]
+	// @value [enum MusicRefreshMode]
+
 	// @zasm_var MUSICUPDATECOND
 	internal int MusicRefresh;
 
 	// Flags for handling extra effects on MusicRefresh.
 	//
-	// @index [MusicRefreshFlag]
+	// @index [enum MusicRefreshFlag]
 	// @zasm_var MUSICUPDATEFLAGS
 	internal bool MusicRefreshFlags[];
 

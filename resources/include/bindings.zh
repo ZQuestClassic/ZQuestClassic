@@ -71,6 +71,7 @@
 //
 // Additionally, text wrapped in square brackets is linkified if they resolve to another symbol.
 // For example: [bitmap], [Screen->ComboC], [bitmap::GetPixel].
+// If the symbol name is ambiguous, it can be prefixed with one of: var, fun, enum.
 
 import "bindings/common.zh"
 import "bindings/sprite.zh"

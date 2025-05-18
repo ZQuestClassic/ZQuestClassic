@@ -372,17 +372,20 @@ class itemdata {
 	// @delete
 	internal itemdata();
 
-	// @value [ItemID]
+	// @value [enum ItemID]
+
 	// @zasm_var IDATAID
 	internal const int ID;
 
-	// @value [ItemType]
+	// @value [enum ItemType]
+
 	// @zasm_var IDATAFAMILY
 	internal int Type;
 
 	// Exactly the same as [Type] - use that instead.
 	//
-	// @value [ItemType]
+	// @value [enum ItemType]
+
 	// @zasm_var IDATAFAMILY
 	internal int Family;
 
@@ -414,7 +417,8 @@ class itemdata {
 
 	// The counter to increase when this item is picked up.
 	//
-	// @value [CounterIndex]
+	// @value [enum CounterIndex]
+
 	// @zasm_var IDATACOUNTER
 	internal int Counter;
 
@@ -481,7 +485,8 @@ class itemdata {
 
 	// The bitflags associated with the pickup string.
 	//
-	// @value [PickupStringBitflags]
+	// @value [enum PickupStringBitflags]
+
 	// @zasm_var IDATAPFLAGS
 	internal int PickupStringFlags;
 
@@ -517,7 +522,8 @@ class itemdata {
 
 	// Misc bitflags for the item graphics.
 	//
-	// @value [ItemMiscBitflags]
+	// @value [enum ItemMiscBitflags]
+
 	// @zasm_var IDATAMISC
 	internal int MiscFlags;
 
@@ -719,21 +725,24 @@ class itemdata {
 
 	// The item pickup bitflags.
 	//
-	// @value [ItemPickupBitflags]
+	// @value [enum ItemPickupBitflags]
+
 	// @zasm_var IDATAPICKUP
 	internal int Pickup;
 
 	// Bitflags representing all the checkboxes for which sizes to
 	// apply from the itemdata.
 	//
-	// @value [SizeOverrideBitflags]
+	// @value [enum SizeOverrideBitflags]
+
 	// @zasm_var IDATAOVERRIDEFL
 	internal int SizeFlags;
 
 	// Bitflags representing all the checkboxes for which sizes to
 	// apply from the itemdata, for any [lweapon] created by this item.
 	//
-	// @value [SizeOverrideBitflags]
+	// @value [enum SizeOverrideBitflags]
+
 	// @zasm_var IDATAOVERRIDEFLWEAP
 	internal int WeaponSizeFlags;
 
@@ -791,13 +800,13 @@ class itemdata {
 	// The sprites used for making the weapon change appearance when lit on
 	// fire.
 	//
-	// @index [ItemBurnIndex]
+	// @index [enum ItemBurnIndex]
 	// @zasm_var IDATABURNINGSPR
 	internal int BurnSprites[];
 
 	// The burning light radii from `Graphics->Sprites->Burning`.
 	//
-	// @index [ItemBurnIndex]
+	// @index [enum ItemBurnIndex]
 	// @zasm_var IDATABURNINGLIGHTRAD
 	internal int BurnLightRadius[];
 

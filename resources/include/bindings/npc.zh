@@ -231,19 +231,22 @@ class npc {
 	// @delete
 	internal npc();
 
-	// @value [NPCID]
+	// @value [enum NPCID]
+
 	// @zasm_var NPCID
 	internal const int ID;
 
 	// The type, or 'npc class' of the npc.
 	//
-	// @value [NPCType]
+	// @value [enum NPCType]
+
 	// @zasm_var NPCTYPE
 	internal int Type;
 
 	// Exactly the same as [Type], use that instead.
 	//
-	// @value [NPCType]
+	// @value [enum NPCType]
+
 	// @zasm_var NPCTYPE
 	internal int Family;
 
@@ -267,7 +270,8 @@ class npc {
 
 	// The death effect for the npc.
 	//
-	// @value [NPCFade]
+	// @value [enum NPCFade]
+
 	// @zasm_var NPCFADING
 	internal int Fading;
 
@@ -290,7 +294,8 @@ class npc {
 
 	// The movement status of an npc, usually flying.
 	//
-	// @value [NPCMoveStatus]
+	// @value [enum NPCMoveStatus]
+
 	// @zasm_var NPCMOVESTATUS
 	internal int MoveStatus;
 
@@ -316,13 +321,15 @@ class npc {
 
 	// The weapon type used by the npc.
 	//
-	// @value [NPCWeapon]
+	// @value [enum NPCWeapon]
+
 	// @zasm_var NPCWEAPON
 	internal int Weapon;
 
 	// The Dropset ID that this npc will drop from when killed.
 	//
-	// @value [ItemSet]
+	// @value [enum ItemSet]
+
 	// @zasm_var NPCITEMSET
 	internal int ItemSet;
 
@@ -333,7 +340,8 @@ class npc {
 	// @zasm_var NPCITEMSET
 	internal int Dropset;
 
-	// @value [BossPal]
+	// @value [enum BossPal]
+
 	// @zasm_var NPCBOSSPAL
 	internal int BossPal;
 
@@ -355,7 +363,8 @@ class npc {
 	// @zasm_var NPCDD
 	internal untyped Attributes[];
 
-	// @value [NPCMiscBitflags]
+	// @value [enum NPCMiscBitflags]
+
 	// @zasm_var NPCMFLAGS
 	internal int MiscFlags;
 
@@ -375,8 +384,9 @@ class npc {
 
 	// The defense categories for the npc.
 	//
-	// @index [NPCDefenseIndex]
-	// @value [NPCDefenseType]
+	// @index [enum NPCDefenseIndex]
+	// @value [enum NPCDefenseType]
+
 	// @zasm_var NPCDEFENSED
 	internal int Defense[];
 
@@ -412,7 +422,7 @@ class npc {
 	// Some lweapons, notably some melee weapons such as swords (but not sword
 	// beams), and boomerangs are not yet implemented in this mechanic.
 	//
-	// @index [HitIndex]
+	// @index [enum HitIndex]
 	// @zasm_var NPCHITBY
 	internal untyped HitBy[];
 
@@ -458,7 +468,7 @@ class npc {
 
 	// The shield status of the npc.
 	//
-	// @index [NPCShieldIndex]
+	// @index [enum NPCShieldIndex]
 	// @zasm_var NPCSHIELD
 	internal bool Shield[];
 

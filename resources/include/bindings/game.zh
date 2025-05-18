@@ -414,34 +414,35 @@ class Game {
 
 	// The value of each of the game's counters.
 	//
-	// @index [CounterIndex]
+	// @index [enum CounterIndex]
 	// @value `0–65535`
 	// @zasm_var GAMECOUNTERD
 	internal int Counter[];
 
 	// The max value of each of the game's counters.
 	//
-	// @index [CounterIndex]
+	// @index [enum CounterIndex]
 	// @value `0–65535`
 	// @zasm_var GAMEMCOUNTERD
 	internal int MCounter[];
 
 	// The value of each of the game's drain counters.
 	//
-	// @index [CounterIndex]
+	// @index [enum CounterIndex]
 	// @value `-32768–32767`
 	// @zasm_var GAMEDCOUNTERD
 	internal int DCounter[];
 
 	// Generic values related to the game.
 	//
-	// @index [GenericIndex]
+	// @index [enum GenericIndex]
 	// @zasm_var GAMEGENERICD
 	internal untyped Generic[];
 
 	// Contains a bitflags of the "Level Items".
 	//
-	// @value [LevelItemBitflags]
+	// @value [enum LevelItemBitflags]
+
 	// @zasm_var GAMELITEMSD
 	internal int LItems[];
 
@@ -504,7 +505,7 @@ class Game {
 
 	// The values of all Quest Rules.
 	//
-	// @index [QR]
+	// @index [enum QR]
 	// @zasm_var FFRULE
 	internal bool FFRules[];
 
@@ -578,7 +579,7 @@ class Game {
 
 	// Values related to gravity.
 	//
-	// @index [GravityIndex]
+	// @index [enum GravityIndex]
 	// @zasm_var GAMEGRAVITY
 	internal int Gravity[];
 
@@ -598,19 +599,19 @@ class Game {
 	//    Screen->DrawOrigin = DRAW_ORIGIN_WORLD; // This is the default in a scrolling region.
 	//    Screen->DrawTile(x, y, ...)
 	//```
-	// @index [ScrollingIndex]
+	// @index [enum ScrollingIndex]
 	// @zasm_var GAMESCROLLING
 	internal const int Scrolling[];
 
 	// The `Quest->Graphics->Sprites->Misc Sprites` values.
 	//
-	// @index [MiscSpriteIndex]
+	// @index [enum MiscSpriteIndex]
 	// @zasm_var GAMEMISCSPR
 	internal int MiscSprites[];
 
 	// The `Quest->Audio->Misc SFX` values.
 	//
-	// @index [MiscSfx]
+	// @index [enum MiscSfx]
 	// @zasm_var GAMEMISCSFX
 	internal int MiscSFX[];
 
@@ -625,7 +626,8 @@ class Game {
 	// Which mouse cursor should be displayed during gameplay.
 	// [ZCM_BLANK] is the default, and it resets on visiting the title screen.
 	//
-	// @value [MouseCursor]
+	// @value [enum MouseCursor]
+
 	// @zasm_var GAMEMOUSECURSOR
 	internal int MouseCursor;
 

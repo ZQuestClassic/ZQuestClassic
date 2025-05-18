@@ -95,7 +95,7 @@ class ffc {
 	
 	// Flags for the FFC.
 	//
-	// @index [FFCFlag]
+	// @index [enum FFCFlag]
 	// @zasm_var FFFLAGSD
 	internal bool Flags[];
 

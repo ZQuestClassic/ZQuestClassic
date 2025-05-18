@@ -146,7 +146,8 @@ class hero {
 	// @zasm_var LINKMAXMP
 	internal int MaxMP;
 
-	// @value [HeroAction]
+	// @value [enum HeroAction]
+
 	// @zasm_var LINKACTION
 	internal int Action;
 
@@ -238,7 +239,7 @@ class hero {
 
 	// Stores the ID/UIDs of objects that hurt the Hero this frame.
 	//
-	// @index [HitIndex]
+	// @index [enum HitIndex]
 	// @zasm_var LINKHITBY
 	internal untyped HitBy[];
 
@@ -519,7 +520,7 @@ class hero {
 
 	// When the engine lifts an object, it will overwrite these flags.
 	//
-	// @index [LiftFlag]
+	// @index [enum LiftFlag]
 	// @zasm_var HEROLIFTFLAGS
 	internal bool LiftFlags[];
 
@@ -562,7 +563,8 @@ class hero {
 	// @zasm_var HEROFLASHINGCSET
 	internal const int FlashingCSet;
 
-	// @value [HeroSliding]
+	// @value [enum HeroSliding]
+
 	// @zasm_var HEROSLIDING
 	internal const int Sliding;
 
@@ -993,7 +995,8 @@ class hero {
 	internal int InputMouseZ;
 
 	// @deprecated_future Use [Input->Mouse] instead!
-	// @value [MouseButtonBitflags]
+	// @value [enum MouseButtonBitflags]
+
 	// @zasm_var INPUTMOUSEB
 	internal int InputMouseB;
 

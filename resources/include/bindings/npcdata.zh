@@ -207,13 +207,15 @@ class npcdata {
 
 	// The type, or 'npc class' of the npc.
 	//
-	// @value [NPCType]
+	// @value [enum NPCType]
+
 	// @zasm_var NPCDATAFAMILY
 	internal int Type;
 
 	// Exactly the same as [Type], use that instead.
 	//
-	// @value [NPCType]
+	// @value [enum NPCType]
+
 	// @zasm_var NPCDATAFAMILY
 	internal int Family;
 
@@ -308,7 +310,8 @@ class npcdata {
 
 	// The weapon type used by the npc.
 	//
-	// @value [NPCWeapon]
+	// @value [enum NPCWeapon]
+
 	// @zasm_var NPCDATAWEAPON
 	internal int Weapon;
 
@@ -444,15 +447,17 @@ class npcdata {
 
 	// The defense categories for the npc.
 	//
-	// @index [NPCDefenseIndex]
-	// @value [NPCDefenseType]
+	// @index [enum NPCDefenseIndex]
+	// @value [enum NPCDefenseType]
+
 	// @zasm_var NPCDATADEFENSE
 	internal int Defense[];
 
 	// A set of flags that determine if the values for the Enemy Editor 'Size'
 	// tab are rendered by the engine.
 	//
-	// @value [SizeOverrideBitflags]
+	// @value [enum SizeOverrideBitflags]
+
 	// @zasm_var NPCDATASIZEFLAG
 	internal bool SizeFlags;
 

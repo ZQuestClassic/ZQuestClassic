@@ -451,13 +451,15 @@ class screendata {
 
 	// The combo type of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
-	// @value [ComboType]
+	// @value [enum ComboType]
+
 	// @zasm_var COMBOTD
 	internal int ComboT[];
 
 	// The solidity bitflags of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
-	// @value [ComboSolidityBitflags]
+	// @value [enum ComboSolidityBitflags]
+
 	// @zasm_var COMBOSD
 	internal int ComboS[];
 
@@ -466,14 +468,15 @@ class screendata {
 	// @zasm_var COMBOED
 	internal int ComboE[];
 
-	// @index [DoorIndex]
-	// @value [DoorType]
+	// @index [enum DoorIndex]
+	// @value [enum DoorType]
+
 	// @zasm_var SCRDOORD
 	internal int Door[];
 
 	// The 32 screen states used by this screen.
 	//
-	// @index [ScreenState]
+	// @index [enum ScreenState]
 	// @zasm_var SCREENSTATED
 	internal bool State[];
 
@@ -510,7 +513,8 @@ class screendata {
 	// bitmap drawing. 2.55's [bitmap] effectively obsolete the render target
 	// system, and should be used instead of this.
 	//
-	// @value [RenderTarget]
+	// @value [enum RenderTarget]
+
 	// @zasm_var GETRENDERTARGET
 	internal const int GetRenderTarget;
 
@@ -542,7 +546,7 @@ class screendata {
 	//
 	// This only refers to the screen denoted by [Index].
 	//
-	// @index [ScreenFlag]
+	// @index [enum ScreenFlag]
 	// @zasm_var SCREEN_FLAG
 	internal bool Flag[];
 
@@ -550,8 +554,8 @@ class screendata {
 	//
 	// This only refers to the screen denoted by [Index].
 	//
-	// @deprecated Use [Flag] instead.
-	// @index [ScreenFlagGroup]
+	// @deprecated Use [var Flag] instead.
+	// @index [enum ScreenFlagGroup]
 	// @value Varies based on [ScreenFlagGroup]
 	// @zasm_var SCREENFLAGSD
 	internal const int Flags[];
@@ -560,8 +564,8 @@ class screendata {
 	//
 	// This only refers to the screen denoted by [Index].
 	//
-	// @deprecated Use [Flag] instead.
-	// @index [ScreenEnemyFlagGroup]
+	// @deprecated Use [var Flag] instead.
+	// @index [enum ScreenEnemyFlagGroup]
 	// @value Varies based on [ScreenEnemyFlagGroup]
 	// @zasm_var SCREENEFLAGSD
 	internal const int EFlags[];
@@ -570,7 +574,8 @@ class screendata {
 	//
 	// This only refers to the screen denoted by [Index].
 	//
-	// @value [RoomType]
+	// @value [enum RoomType]
+
 	// @zasm_var ROOMTYPE
 	internal int RoomType;
 
@@ -630,8 +635,9 @@ class screendata {
 	// The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// @index [TileWarpIndex]
-	// @value [WarpType]
+	// @index [enum TileWarpIndex]
+	// @value [enum WarpType]
+
 	// @zasm_var SCREENDATATILEWARPTYPE
 	internal int TileWarpType[];
 
@@ -698,15 +704,17 @@ class screendata {
 
 	// The enemy 'Spawn Pattern'.
 	//
-	// @value [EnemyPattern]
+	// @value [enum EnemyPattern]
+
 	// @zasm_var SCREENDATAPATTERN
 	internal int Pattern;
 
 	// The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// @index [SideWarpIndex]
-	// @value [WarpType]
+	// @index [enum SideWarpIndex]
+	// @value [enum WarpType]
+
 	// @zasm_var SCREENDATASIDEWARPTYPE
 	internal int SideWarpType[];
 
@@ -778,14 +786,16 @@ class screendata {
 
 	// Which parts of the screen state that won't reset on reentry.
 	//
-	// @value [NoResetBitflags]
+	// @value [enum NoResetBitflags]
+
 	// @zasm_var SCREENDATANORESET
 	internal int NoReset;
 
 	// For screen state carryovers, which parts of the screen state that won't carry over to the
 	// target screen.
 	//
-	// @value [NoCarryBitflags]
+	// @value [enum NoCarryBitflags]
+
 	// @zasm_var SCREENDATANOCARRY
 	internal int NoCarry;
 
@@ -863,20 +873,21 @@ class screendata {
 
 	// The Combo IDs used by 'Secret Combos' on this screen.
 	//
-	// @index [SecretComboIndex]
+	// @index [enum SecretComboIndex]
 	// @zasm_var SCREENDATASECRETCOMBO
 	internal int SecretCombo[];
 
 	// The CSets used by 'Secret Combos' on this screen.
 	//
-	// @index [SecretComboIndex]
+	// @index [enum SecretComboIndex]
 	// @zasm_var SCREENDATASECRETCSET
 	internal int SecretCSet[];
 
 	// The Combo Flags used by 'Secret Combos' on this screen.
 	//
-	// @index [SecretComboIndex]
-	// @value [ComboFlag]
+	// @index [enum SecretComboIndex]
+	// @value [enum ComboFlag]
+
 	// @zasm_var SCREENDATASECRETFLAG
 	internal int SecretFlags[];
 
@@ -1019,7 +1030,7 @@ class screendata {
 
 	// Each entry is a separate 8-bit flag.
 	//
-	// @deprecated Use [Flag] instead.
+	// @deprecated Use [var Flag] instead.
 	// @length 10
 	// @zasm_var SCREENDATAFLAGS
 	internal int ScreenFlags[];

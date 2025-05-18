@@ -37,7 +37,8 @@ class messagedata {
 
 	// The font to display the message in.
 	//
-	// @value [Font]
+	// @value [enum Font]
+
 	// @zasm_var MESSAGEDATAFONT
 	internal int Font;
 
@@ -81,7 +82,7 @@ class messagedata {
 	// @zasm_var MESSAGEDATAHSPACE
 	internal int HSpace;
 
-	// @index [MessageFlag]
+	// @index [enum MessageFlag]
 	// @zasm_var MESSAGEDATAFLAGSARR
 	internal bool Flags[];
 

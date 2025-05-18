@@ -204,62 +204,64 @@ class Input {
 
 	// Whether the given button is down (or 'pressed').
 	//
-	// @index [Button]
+	// @index [enum Button]
 	// @zasm_var BUTTONPRESS
 	internal bool Press[];
 
 	// Whether the given button is down (or 'pressed').
 	//
-	// @index [Button]
+	// @index [enum Button]
 	// @zasm_var BUTTONINPUT
 	internal bool Button[];
 
 	// Returns true if the respective key was just pressed this frame.
 	//
-	// @index [KeyCode]
+	// @index [enum KeyCode]
 	// @zasm_var KEYPRESS
 	internal bool KeyPress[];
 
 	// Returns true if the respective key is down this frame.
 	//
-	// @index [KeyCode]
+	// @index [enum KeyCode]
 	// @zasm_var KEYINPUT
 	internal bool Key[];
 
-	// @index [MouseIndex]
+	// @index [enum MouseIndex]
 	// @zasm_var MOUSEARR
 	internal untyped Mouse[];
 
 	// For each button, the keyboard key that is bound to that button.
 	//
-	// @index [Button]
-	// @value [KeyCode]
+	// @index [enum Button]
+	// @value [enum KeyCode]
+
 	// @zasm_var KEYBINDINGS
 	internal int KeyBindings[];
 
 	// The state of the modifier keys.
 	//
-	// @value [KeyModifierBitflags]
+	// @value [enum KeyModifierBitflags]
+
 	// @zasm_var KEYMODIFIERS
 	internal int ModifierKeys;
 
 	// Whether a given keyboard key is disabled from having
 	// any in-engine effect.
 	//
-	// @index [KeyCode]
+	// @index [enum KeyCode]
 	// @zasm_var DISABLEKEY
 	internal bool DisableKey[];
 
 	// Whether a given button is disabled from having any in-engine effect.
 	//
-	// @index [Button]
+	// @index [enum Button]
 	// @zasm_var DISABLEBUTTON
 	internal bool DisableButton[];
 
 	// Similar to [Press], except that it only returns presses from a joystick
 	// device, not a keyboard.
 	//
-	// @index [Button]
+	// @index [enum Button]
 	// @zasm_var JOYPADPRESS
 	internal const bool Joypad[];
 

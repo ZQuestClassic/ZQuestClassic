@@ -129,7 +129,8 @@ class lweapon {
 	// @zasm_var LWPNFLASHCSET
 	internal int FlashCSet;
 
-	// @value [WeaponDeadState]
+	// @value [enum WeaponDeadState]
+
 	// @zasm_var LWPNDEAD
 	internal int DeadState;
 
@@ -218,7 +219,8 @@ class lweapon {
 
 	// Unblockable bitflags.
 	//
-	// @value [UnblockableBitflags]
+	// @value [enum UnblockableBitflags]
+
 	// @zasm_var LWPNUNBL
 	internal int Unblockable;
 
@@ -255,7 +257,7 @@ class lweapon {
 
 	// A set of weapon flags.
 	//
-	// @index [WeaponFlag]
+	// @index [enum WeaponFlag]
 	// @zasm_var LWPNFLAGS
 	internal bool Flags[];
 
@@ -306,7 +308,7 @@ class lweapon {
 
 	// The burning light radii associated with sprites of the weapon.
 	//
-	// @index [WeaponSpriteIndex]
+	// @index [enum WeaponSpriteIndex]
 	// @zasm_var LWPNBURNLIGHTRADIUS
 	internal int BurnLightRadius[];
 

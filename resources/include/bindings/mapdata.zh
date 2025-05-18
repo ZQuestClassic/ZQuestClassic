@@ -251,7 +251,8 @@ class mapdata {
 
 	// The special room type.
 	//
-	// @value [RoomType]
+	// @value [enum RoomType]
+
 	// @zasm_var MAPDATAROOM
 	internal int RoomType;
 
@@ -263,7 +264,8 @@ class mapdata {
 	// The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// @value [WarpType]
+	// @value [enum WarpType]
+
 	// @zasm_var MAPDATATILEWARPTYPE
 	internal int TileWarpType[];
 
@@ -326,8 +328,9 @@ class mapdata {
 
 	// The 4 door states of the screen.
 	//
-	// @index [DoorIndex]
-	// @value [DoorType]
+	// @index [enum DoorIndex]
+	// @value [enum DoorType]
+
 	// @zasm_var MAPDATADOOR
 	internal int Door[];
 
@@ -353,14 +356,16 @@ class mapdata {
 
 	// The spawn pattern for the screen enemies.
 	//
-	// @value [EnemyPattern]
+	// @value [enum EnemyPattern]
+
 	// @zasm_var MAPDATAPATTERN
 	internal int Pattern;
 
 	// The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// @value [WarpType]
+	// @value [enum WarpType]
+
 	// @zasm_var MAPDATASIDEWARPTYPE
 	internal int SideWarpType[];
 
@@ -397,7 +402,8 @@ class mapdata {
 	// [SIDEWARP_NONE] if there is no sidewarp in that direction.
 	//
 	// @index [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
-	// @value [SideWarpIndex]
+	// @value [enum SideWarpIndex]
+
 	// @zasm_var MAPDATASIDEWARPID
 	internal int SideWarpID[];
 
@@ -440,13 +446,15 @@ class mapdata {
 
 	// The `No Reset` carryover flags.
 	//
-	// @value [NoResetBitflags]
+	// @value [enum NoResetBitflags]
+
 	// @zasm_var MAPDATANORESET
 	internal int NoReset;
 
 	// The `No Carry Over` carryover flags.
 	//
-	// @value [NoCarryBitflags]
+	// @value [enum NoCarryBitflags]
+
 	// @zasm_var MAPDATANOCARRY
 	internal int NoCarry;
 
@@ -651,22 +659,22 @@ class mapdata {
 
 	// The boolean flags for the screen.
 	//
-	// @index [ScreenFlag]
+	// @index [enum ScreenFlag]
 	// @zasm_var MAPDATA_FLAG
 	internal bool Flag[];
 
 	// Multiple bitflags, split into groups.
 	//
-	// @deprecated Use [Flag] instead!
-	// @index [ScreenFlagGroup]
+	// @deprecated Use [var Flag] instead!
+	// @index [enum ScreenFlagGroup]
 	// @value Varies based on [ScreenFlagGroup]
 	// @zasm_var MAPDATAFLAGS
 	internal int Flags[];
 
 	// Multiple bitflags related to screen enemies, split into groups.
 	//
-	// @deprecated Use [Flag] instead!
-	// @index [ScreenEnemyFlagGroup]
+	// @deprecated Use [var Flag] instead!
+	// @index [enum ScreenEnemyFlagGroup]
 	// @value Varies based on [ScreenEnemyFlagGroup]
 	// @zasm_var MAPDATASCREENEFLAGSD
 	internal const int EFlags[];
@@ -722,7 +730,7 @@ class mapdata {
 
 	// The screen states used for this screen.
 	//
-	// @index [ScreenState]
+	// @index [enum ScreenState]
 	// @zasm_var MAPDATASCREENSTATED
 	internal bool State[];
 
@@ -808,13 +816,13 @@ class mapdata {
 	// @zasm_var MAPDATAHASITEM
 	internal int HasItem;
 
-	// @deprecated Use [Flag] instead!
+	// @deprecated Use [var Flag] instead!
 	// @zasm_var MAPDATASCREENFLAGSD
 	internal const int SFlags[];
 
 	// Bitflags for enemies on the screen (E.Flags).
 	//
-	// @deprecated Use [Flag] instead!
+	// @deprecated Use [var Flag] instead!
 	// @zasm_var MAPDATAENEMYFLAGS
 	internal int EnemyFlags;
 

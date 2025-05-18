@@ -112,7 +112,8 @@ class eweapon {
 	// @zasm_var EWPNFLASHCSET
 	internal int FlashCSet;
 
-	// @value [WeaponDeadState]
+	// @value [enum WeaponDeadState]
+
 	// @zasm_var EWPNDEAD
 	internal int DeadState;
 
@@ -172,7 +173,8 @@ class eweapon {
 
 	// Unblockable bitflags.
 	//
-	// @value [UnblockableBitflags]
+	// @value [enum UnblockableBitflags]
+
 	// @zasm_var EWPNUNBL
 	internal int Unblockable;
 
@@ -209,7 +211,7 @@ class eweapon {
 
 	// The weapon's flags.
 	//
-	// @index [WeaponFlag]
+	// @index [enum WeaponFlag]
 	// @zasm_var EWPNFLAGS
 	internal bool Flags[];
 
@@ -262,7 +264,7 @@ class eweapon {
 
 	// The burning light radii associated with sprites of the weapon.
 	//
-	// @index [WeaponSpriteIndex]
+	// @index [enum WeaponSpriteIndex]
 	// @zasm_var EWPNBURNLIGHTRADIUS
 	internal int BurnLightRadius[];
 

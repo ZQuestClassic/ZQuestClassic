@@ -26,8 +26,17 @@ struct ParsedComment {
 
 uint16_t getSymbolId(const ZScript::AST* node);
 
+enum class CommentSymbolSymbolHint
+{
+	None,
+	Variable,
+	Function,
+	Enum,
+};
+
 struct CommentSymbolParseResult {
 	std::string symbol_name;
+	CommentSymbolSymbolHint symbol_hint;
 	int pos;
 	int len;
 	std::string link_text;

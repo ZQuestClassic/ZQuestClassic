@@ -108,7 +108,8 @@ class sprite {
 	// The direction that the sprite is facing. Used by certain weapon types
 	// to determine movement, shield deflection and such.
 	//
-	// @value [Direction]
+	// @value [enum Direction]
+
 	// @zasm_var SPRITE_DIR
 	internal int Dir;
 
@@ -180,7 +181,8 @@ class sprite {
 
 	// The drawing style to use.
 	//
-	// @value [DrawStyle]
+	// @value [enum DrawStyle]
+
 	// @zasm_var SPRITE_DRAW_STYLE
 	internal int DrawStyle;
 
@@ -278,7 +280,8 @@ class sprite {
 
 	// The sprite's movement flags.
 	//
-	// @value [MoveFlag]
+	// @value [enum MoveFlag]
+
 	// @zasm_var SPRITE_MOVE_FLAGS
 	internal bool MoveFlags[];
 
@@ -289,7 +292,8 @@ class sprite {
 
 	// The shape of light emitted by this sprite.
 	//
-	// @value [LightShape]
+	// @value [enum LightShape]
+
 	// @zasm_var SPRITE_LIGHT_SHAPE
 	internal int LightShape;
 
@@ -302,7 +306,8 @@ class sprite {
 
 	// The [spritedata] ID to use for the sprite's shadow.
 	//
-	// @value [SpriteID]
+	// @value [enum SpriteID]
+
 	// @zasm_var SPRITE_SHADOW_SPR
 	internal int ShadowSprite;
 
