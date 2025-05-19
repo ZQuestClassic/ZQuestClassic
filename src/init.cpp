@@ -17,6 +17,7 @@
 #include "zc/zelda.h"
 #include "zinfo.h"
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 
 

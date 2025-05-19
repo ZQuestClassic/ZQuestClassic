@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 std::string zasm_var_to_string(int32_t var)
 {

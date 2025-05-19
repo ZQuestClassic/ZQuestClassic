@@ -6,6 +6,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <fmt/ranges.h>
 
 using namespace ZScript;
 

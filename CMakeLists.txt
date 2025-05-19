@@ -455,6 +455,9 @@ if(MSVC)
 	# Build in parallel - speeds up the build on multicore machines.
 	add_compile_options(/MP)
 
+	# Require for fmt.
+	add_compile_options(/utf-8)
+
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")

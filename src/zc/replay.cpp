@@ -17,6 +17,7 @@
 #include <filesystem>
 #include <chrono>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 #define XXH_STATIC_LINKING_ONLY
 #define XXH_IMPLEMENTATION

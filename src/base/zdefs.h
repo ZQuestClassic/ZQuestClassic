@@ -31,6 +31,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <cstring>
+#include <memory>
 #include <set>
 #include <assert.h>
 #include <algorithm>

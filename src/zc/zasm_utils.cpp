@@ -6,6 +6,7 @@
 #include "zasm/table.h"
 #include <cstdint>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <xxhash.h>
 #include <vector>
 #include <sstream>

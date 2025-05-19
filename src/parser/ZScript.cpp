@@ -6,6 +6,7 @@
 #include "DataStructs.h"
 #include "Types.h"
 #include "Scope.h"
+#include <fmt/ranges.h>
 
 
 using namespace ZScript;
