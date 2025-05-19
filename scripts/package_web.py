@@ -98,7 +98,7 @@ copy_from_build('{zplayer.data,zplayer.data.js}', '')
 if 'zplayer' in targets:
     (dist_dir / 'play').mkdir(exist_ok=True)
     shutil.copy2(build_dir / 'zplayer.html', dist_dir / 'play/index.html')
-    copy_from_build('zplayer.{wasm,js,worker.js}', '')
+    copy_from_build('zplayer.{wasm,js}', '')
     replace_in(
         'zplayer.js',
         r'if ?\(SDL2.audio.scriptProcessorNode',
@@ -108,7 +108,7 @@ if 'zplayer' in targets:
 if 'zeditor' in targets:
     (dist_dir / 'create').mkdir(exist_ok=True)
     shutil.copy2(build_dir / 'zeditor.html', dist_dir / 'create/index.html')
-    copy_from_build('zeditor.{wasm,js,worker.js}', '')
+    copy_from_build('zeditor.{wasm,js}', '')
     copy_from_build('{zeditor.data,zeditor.data.js}', '')
     replace_in(
         'zeditor.js',
