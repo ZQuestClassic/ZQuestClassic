@@ -3,6 +3,7 @@
 #include "zc/ffscript.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 extern refInfo *ri;
 std::string ZASMVarToString(int32_t arg);

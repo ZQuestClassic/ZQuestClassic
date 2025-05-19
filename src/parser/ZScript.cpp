@@ -8,6 +8,7 @@
 #include "Scope.h"
 #include "zc/ffscript.h"
 extern FFScript FFCore;
+#include <fmt/ranges.h>
 
 
 using namespace ZScript;

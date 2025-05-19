@@ -542,6 +542,9 @@ if(MSVC)
 	# armasm64 rejects them.
 	add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/MP>")
 
+	# Require for fmt.
+	add_compile_options(/utf-8)
+
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")
