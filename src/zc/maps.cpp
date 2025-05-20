@@ -6105,7 +6105,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 
 	for (int index : loadscr_ffc_script_ids_to_remove)
 	{
-		FFCore.deallocateAllScriptOwned(ScriptType::FFC, index, false);
+		FFCore.deallocateAllScriptOwned(ScriptType::FFC, index);
 		FFCore.reset_script_engine_data(ScriptType::FFC, index);
 	}
 

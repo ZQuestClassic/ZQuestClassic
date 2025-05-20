@@ -428,7 +428,7 @@ enum QR
 	qr_TRACESCRIPTIDS,			// ZScript (>>>) Print Script Metadata on Traces
 	qr_FIXDRUNKINPUTS,			// ZScript (>>>) Writing to INPUT Overrides Drunk State
 	qr_32BIT_BINARY,			// Compilation (>>>) Binary Operations use true 32-bit Int
-	qr_ALWAYS_DEALLOCATE_ARRAYS,		// ZScript (>>>) Always Deallocate Arrays
+	qr_ALWAYS_DEALLOCATE_ARRAYS,		// @deprected Defunct.
 	qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,	// ZScript (>>>) Hero OnDeath script runs AFTER engine death animation
 	qr_DISALLOW_SETTING_RAFTING,		// ZScript (>>>) Don't Allow Setting Action to Rafting
 	qr_WEAPONS_EXTRA_FRAME,			// ZScript (>>>) Weapons Live One Extra Frame With WDS_DEAD

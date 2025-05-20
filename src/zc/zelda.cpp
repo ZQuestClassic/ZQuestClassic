@@ -1007,6 +1007,38 @@ void Z_scripterrlog(const char * const format,...)
     }
 }
 
+// TODO: remove if Z_scripterrlog ever is changed to ignore qr_SCRIPTERRLOG, at least for allegro.log.
+// Use this for logs that are too important to not show somewhere.
+void Z_scripterrlog_force_trace(const char * const format,...)
+{
+	char buf[2048];
+
+	if(get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+	{
+		FFCore.TraceScriptIDs(true);
+		
+		va_list ap;
+		va_start(ap, format);
+		vsnprintf(buf, 2048, format, ap);
+		va_end(ap);
+		al_trace("%s",buf);
+		
+		if ( console_enabled ) 
+		{
+			zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		}
+	}
+	else
+	{
+		va_list ap;
+		va_start(ap, format);
+		vsnprintf(buf, 2048, format, ap);
+		va_end(ap);
+		al_trace("%s",buf);
+	}
+}
+
 #include "sprite.h"
 movingblock mblock2;
 portal mirror_portal;

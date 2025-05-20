@@ -2317,7 +2317,7 @@ std::string ArrayManager::asString(std::function<char const*(int32_t)> formatter
 	return oss.str();
 }
 
-void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways)
+void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID)
 {
 	std::vector<uint32_t> ids_to_clear;
 	for (auto& script_object : script_objects | std::views::values)
@@ -2350,18 +2350,6 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	{
 		for (auto id : ids_to_clear)
 			delete_script_object(id);
-	}
-
-	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
-	{
-		//Keep 2.50.2 behavior if QR unchecked.
-		switch(scriptType)
-		{
-			case ScriptType::FFC:
-			case ScriptType::Item:
-			case ScriptType::Global:
-				return;
-		}
 	}
 
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -2409,18 +2397,6 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 	{
 		for (auto id : ids_to_clear)
 			delete_script_object(id);
-	}
-
-	if (!get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
-	{
-		//Keep 2.50.2 behavior if QR unchecked.
-		switch(scriptType)
-		{
-			case ScriptType::FFC:
-			case ScriptType::Item:
-			case ScriptType::Global:
-				return;
-		}
 	}
 
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -24109,7 +24085,7 @@ void do_own_array(int arrindx, ScriptType scriptType, const int32_t UID)
 	
 	if(am.internal())
 	{
-		Z_scripterrlog("Cannot 'OwnArray()' an internal array '%d'\n", arrindx);
+		Z_scripterrlog_force_trace("Cannot 'OwnArray()' an internal array '%d'\n", arrindx);
 		return;
 	}
 	if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
@@ -24124,9 +24100,9 @@ void do_own_array(int arrindx, ScriptType scriptType, const int32_t UID)
 			arrayOwner[arrindx].specOwned = true;
 		}
 		else if(arrindx < 0) //object array
-			Z_scripterrlog("Cannot 'OwnArray()' an object-based array '%d'\n", arrindx);
+			Z_scripterrlog_force_trace("Cannot 'OwnArray()' an object-based array '%d'\n", arrindx);
 	}
-	else Z_scripterrlog("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
+	else Z_scripterrlog_force_trace("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
 }
 void do_destroy_array()
 {
@@ -24136,7 +24112,7 @@ void do_destroy_array()
 	
 	if(am.internal())
 	{
-		Z_scripterrlog("Cannot 'DestroyArray()' an internal array '%d'\n", arrindx);
+		Z_scripterrlog_force_trace("Cannot 'DestroyArray()' an internal array '%d'\n", arrindx);
 		return;
 	}
 	
@@ -24156,9 +24132,9 @@ void do_destroy_array()
 			arrayOwner[arrindx].specCleared = true;
 		}
 		else if(arrindx < 0) //object array
-			Z_scripterrlog("Cannot 'DestroyArray()' an object-based array '%d'\n", arrindx);
+			Z_scripterrlog_force_trace("Cannot 'DestroyArray()' an object-based array '%d'\n", arrindx);
 	}
-	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
+	else Z_scripterrlog_force_trace("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 
 dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type)
@@ -24167,7 +24143,7 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 	
 	if(size < 0)
 	{
-		Z_scripterrlog("Array initialized to invalid size of %d\n", size);
+		Z_scripterrlog_force_trace("Array initialized to invalid size of %d\n", size);
 		return 0;
 	}
 	
@@ -24178,7 +24154,7 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 
 		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
-			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
+			Z_scripterrlog_force_trace("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
 			ptrval = 0;
 			DCHECK(false);
 		}
@@ -24205,7 +24181,7 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 		
 		if(ptrval >= game->globalRAM.size())
 		{
-			al_trace("Invalid pointer value of %u passed to global allocate\n", ptrval);
+			Z_scripterrlog_force_trace("Invalid pointer value of %u passed to global allocate\n", ptrval);
 			ptrval = 0;
 			//this shouldn't happen, unless people are putting ALLOCATEGMEM in their ZASM scripts where they shouldn't be
 			DCHECK(false);

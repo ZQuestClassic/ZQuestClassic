@@ -1708,7 +1708,6 @@ GUI::ListData bugfixRulesList
 		" run all scripts, and will not clear draw commands during each frame of scrolling."
 		" It also will not run prewaitdraw scripts at the end of scrolling (for when dmap did not change)."},
 	{ "GetPixel returns color / 10000", qr_BROKEN_GETPIXEL_VALUE },
-	{ "Always Deallocate Arrays", qr_ALWAYS_DEALLOCATE_ARRAYS },
 	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS },
 	{ "Broken WarpEx Music", qr_OLD_BROKEN_WARPEX_MUSIC,
 		"If enabled, script WarpEx music will use the old behavior for the 'WARP_FLAG_PLAYMUSIC'."

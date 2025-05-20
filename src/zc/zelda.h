@@ -74,6 +74,7 @@ void set_debug(bool d);
 
 void Z_eventlog(const char *format, ...);
 void Z_scripterrlog(const char * const format, ...);
+void Z_scripterrlog_force_trace(const char * const format, ...);
 void zprint(const char * const format, ...);
 void zprint2(const char * const format, ...);
 
