@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-05-18 06:19:19</td>
+      <td>2025-05-20 09:00:59</td>
     </tr>
   </table>
 </div>
@@ -940,444 +940,451 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;crashpad_handler.exe&quot;</span><span class="p">))</span></td>
+      <td class="src "><span class="w">	</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;licenses&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">data_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;licenses&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">copy_options</span><span class="o">::</span><span class="n">recursive</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l123" href="#l123">123</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;crashpad_handler.exe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">data_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;crashpad_handler.exe&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;crashpad_handler.exe&quot;</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l124" href="#l124">124</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;crashpad_handler.exe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">data_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;crashpad_handler.exe&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l125" href="#l125">125</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Copy all .dlls</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l126" href="#l126">126</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ALLEGRO_FS_ENTRY</span><span class="w"> </span><span class="o">*</span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_create_fs_entry</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Copy all .dlls</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l127" href="#l127">127</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">al_get_fs_entry_mode</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ALLEGRO_FILEMODE_ISDIR</span><span class="p">))</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ALLEGRO_FS_ENTRY</span><span class="w"> </span><span class="o">*</span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_create_fs_entry</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;Failed to copy dlls&quot;</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">al_get_fs_entry_mode</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ALLEGRO_FILEMODE_ISDIR</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l129" href="#l129">129</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">al_open_directory</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span><span class="w"> </span><span class="p">{</span></td>
+      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;Failed to copy dlls&quot;</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">al_trace</span><span class="p">(</span><span class="s">&quot;Error opening directory: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_fs_entry_name</span><span class="p">(</span><span class="n">entry</span><span class="p">));</span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">al_open_directory</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l131" href="#l131">131</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;Failed to copy dlls&quot;</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="n">al_trace</span><span class="p">(</span><span class="s">&quot;Error opening directory: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_fs_entry_name</span><span class="p">(</span><span class="n">entry</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l132" href="#l132">132</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;Failed to copy dlls&quot;</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ALLEGRO_FS_ENTRY</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l134" href="#l134">134</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nb">true</span><span class="p">)</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ALLEGRO_FS_ENTRY</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l135" href="#l135">135</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nb">true</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l136" href="#l136">136</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_read_directory</span><span class="p">(</span><span class="n">entry</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l137" href="#l137">137</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">next</span><span class="p">)</span></td>
+      <td class="src "><span class="w">		</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_read_directory</span><span class="p">(</span><span class="n">entry</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l138" href="#l138">138</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="k">break</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">next</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l139" href="#l139">139</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span></td>
+      <td class="src "><span class="w">			</span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l140" href="#l140">140</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_fs_entry_name</span><span class="p">(</span><span class="n">next</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l141" href="#l141">141</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_fs_entry_name</span><span class="p">(</span><span class="n">next</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l142" href="#l142">142</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">extension</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;.dll&quot;</span><span class="p">)</span></td>
+      <td class="src "><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l143" href="#l143">143</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span></td>
+      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">extension</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;.dll&quot;</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l144" href="#l144">144</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">data_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">path</span><span class="p">.</span><span class="n">filename</span><span class="p">());</span></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l145" href="#l145">145</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">}</span></td>
+      <td class="src "><span class="w">			</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">data_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">path</span><span class="p">.</span><span class="n">filename</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l146" href="#l146">146</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">al_destroy_fs_entry</span><span class="p">(</span><span class="n">next</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l147" href="#l147">147</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+      <td class="src "><span class="w">		</span><span class="n">al_destroy_fs_entry</span><span class="p">(</span><span class="n">next</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l148" href="#l148">148</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">al_close_directory</span><span class="p">(</span><span class="n">entry</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l149" href="#l149">149</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">al_close_directory</span><span class="p">(</span><span class="n">entry</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l150" href="#l150">150</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">ofstream</span><span class="w"> </span><span class="n">out</span><span class="p">(</span><span class="n">data_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;zc_args.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">out</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-only &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">quoted</span><span class="p">(</span><span class="n">quest_path</span><span class="p">.</span><span class="n">filename</span><span class="p">().</span><span class="n">string</span><span class="p">())</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">ofstream</span><span class="w"> </span><span class="n">out</span><span class="p">(</span><span class="n">data_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;zc_args.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l152" href="#l152">152</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">out</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-window-title &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">quoted</span><span class="p">(</span><span class="n">package_name</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">out</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-only &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">quoted</span><span class="p">(</span><span class="n">quest_path</span><span class="p">.</span><span class="n">filename</span><span class="p">().</span><span class="n">string</span><span class="p">())</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">out</span><span class="p">.</span><span class="n">close</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="n">out</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-window-title &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">quoted</span><span class="p">(</span><span class="n">package_name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l154" href="#l154">154</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">out</span><span class="p">.</span><span class="n">close</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l155" href="#l155">155</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="n">extra_dir</span><span class="p">))</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="n">extra_dir</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">extra_dir</span><span class="p">,</span><span class="w"> </span><span class="n">data_dir</span><span class="p">,</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">copy_options</span><span class="o">::</span><span class="n">recursive</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">copy_options</span><span class="o">::</span><span class="n">overwrite_existing</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l158" href="#l158">158</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+      <td class="src "><span class="w">		</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">extra_dir</span><span class="p">,</span><span class="w"> </span><span class="n">data_dir</span><span class="p">,</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">copy_options</span><span class="o">::</span><span class="n">recursive</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">copy_options</span><span class="o">::</span><span class="n">overwrite_existing</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l159" href="#l159">159</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">exe_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">package_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">path</span><span class="p">(</span><span class="n">package_name</span><span class="p">).</span><span class="n">replace_extension</span><span class="p">(</span><span class="s">&quot;exe&quot;</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;zstandalone.exe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">exe_path</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">exe_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">package_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">path</span><span class="p">(</span><span class="n">package_name</span><span class="p">).</span><span class="n">replace_extension</span><span class="p">(</span><span class="s">&quot;exe&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l162" href="#l162">162</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;zstandalone.exe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">exe_path</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">icon_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extra_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;icon.png&quot;</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// TODO: support .ico</span></td>
+      <td class="src "><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">icon_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extra_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;icon.png&quot;</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// https://stackoverflow.com/questions/20729156/find-out-number-of-icons-in-an-icon-resource-using-win32-api</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// TODO: support .ico</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l166" href="#l166">166</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// https://en.wikipedia.org/wiki/ICO_(file_format)</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// https://stackoverflow.com/questions/20729156/find-out-number-of-icons-in-an-icon-resource-using-win32-api</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l167" href="#l167">167</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// https://devblogs.microsoft.com/oldnewthing/20120720-00/?p=7083</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// https://en.wikipedia.org/wiki/ICO_(file_format)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l168" href="#l168">168</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Basically, I need to extract each icon inside a .ico container to a RT_ICON.</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// https://devblogs.microsoft.com/oldnewthing/20120720-00/?p=7083</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// if (!fs::exists(icon_path))</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Basically, I need to extract each icon inside a .ico container to a RT_ICON.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l170" href="#l170">170</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// 	icon_path = extra_dir / &quot;icon.ico&quot;;</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// if (!fs::exists(icon_path))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l171" href="#l171">171</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="n">icon_path</span><span class="p">))</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// 	icon_path = extra_dir / &quot;icon.ico&quot;;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l172" href="#l172">172</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">icon_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;assets/zc/ZC_Icon.png&quot;</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="n">icon_path</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l173" href="#l173">173</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="n">icon_path</span><span class="p">))</span></td>
+      <td class="src "><span class="w">		</span><span class="n">icon_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">root_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;assets/zc/ZC_Icon.png&quot;</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l174" href="#l174">174</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fs</span><span class="o">::</span><span class="n">exists</span><span class="p">(</span><span class="n">icon_path</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l175" href="#l175">175</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">set_icon</span><span class="p">(</span><span class="n">exe_path</span><span class="p">.</span><span class="n">wstring</span><span class="p">(),</span><span class="w"> </span><span class="n">icon_path</span><span class="p">.</span><span class="n">wstring</span><span class="p">());</span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l176" href="#l176">176</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">icon_path</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">extra_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;icon.png&quot;</span><span class="p">)</span></td>
+      <td class="src "><span class="w">		</span><span class="n">set_icon</span><span class="p">(</span><span class="n">exe_path</span><span class="p">.</span><span class="n">wstring</span><span class="p">(),</span><span class="w"> </span><span class="n">icon_path</span><span class="p">.</span><span class="n">wstring</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l177" href="#l177">177</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">icon_path</span><span class="p">,</span><span class="w"> </span><span class="n">data_dir</span><span class="p">,</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">copy_options</span><span class="o">::</span><span class="n">overwrite_existing</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">icon_path</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">extra_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;icon.png&quot;</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l178" href="#l178">178</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+      <td class="src "><span class="w">			</span><span class="n">fs</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">icon_path</span><span class="p">,</span><span class="w"> </span><span class="n">data_dir</span><span class="p">,</span><span class="w"> </span><span class="n">fs</span><span class="o">::</span><span class="n">copy_options</span><span class="o">::</span><span class="n">overwrite_existing</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l179" href="#l179">179</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l180" href="#l180">180</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">nullopt</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l181" href="#l181">181</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#else</span></td>
+      <td class="src "><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">nullopt</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l182" href="#l182">182</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#else</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l183" href="#l183">183</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;Not implemented&quot;</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l183" href="#l183">183</a></td>
+      <td class="lineno"><a id="l184" href="#l184">184</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l184" href="#l184">184</a></td>
+      <td class="lineno"><a id="l185" href="#l185">185</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l185" href="#l185">185</a></td>
+      <td class="lineno"><a id="l186" href="#l186">186</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
