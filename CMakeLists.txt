@@ -505,9 +505,9 @@ list(APPEND IMAGELIBS al5img)
 
 # Remove once generally available in all compilers for c++ 20.
 add_library(fmt STATIC
-	src/fmt/format.cc
+	third_party/fmt/src/format.cc
 )
-target_include_directories(fmt PUBLIC include/fmt)
+target_include_directories(fmt PUBLIC third_party/fmt/include)
 
 set(zcbase_sources
 	src/base/about.cpp
