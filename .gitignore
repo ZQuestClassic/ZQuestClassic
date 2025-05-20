@@ -143,8 +143,6 @@ src/base/version_header.h
 venv
 *.log
 ZQ_BUFFER
-web/playground/zscript.data.js
-web/playground/zscript.mjs
 
 api_server/secrets.sh
 

@@ -17,7 +17,7 @@ dist_dir = build_dir / 'packages/web'
 root_dir = script_dir / '..'
 web_dir = root_dir / 'web'
 
-targets = [args.target] if args.target else ['zplayer', 'zeditor']
+targets = [args.target] if args.target else ['zplayer', 'zeditor', 'playground']
 
 
 def expand_braces(text, seen=None):
@@ -26,7 +26,7 @@ def expand_braces(text, seen=None):
     if seen is None:
         seen = set()
 
-    spans = [m.span() for m in re.finditer("\{[^\{\}]*\}", text)][::-1]
+    spans = [m.span() for m in re.finditer(r'\{[^\{\}]*\}', text)][::-1]
     alts = [text[start + 1 : stop - 1].split(",") for start, stop in spans]
 
     if len(spans) == 0:
@@ -116,9 +116,17 @@ if 'zeditor' in targets:
         'if(SDL2.audio?.scriptProcessorNode',
     )
 
+if 'playground' in targets:
+    if (dist_dir / 'zscript').exists():
+        shutil.rmtree(dist_dir / 'zscript')
+    shutil.copytree(build_dir / 'playground', dist_dir / 'zscript')
+    copy_from_build('{zscript-playground.data,zscript-playground.data.js}', 'zscript')
+
+
 copy_from_build_if_exists('zplayer.wasm.debug.wasm', '')
 copy_from_build_if_exists('zeditor.wasm.debug.wasm', '')
-copy_from_build('zscript.{wasm,mjs}', '')
+copy_from_build_if_exists('zscript.wasm.debug.wasm', '')
+copy_from_build_if_exists('zscript.{wasm,mjs}', '')
 
 copy_recursively(web_dir / 'icons', dist_dir)
 shutil.copy2(web_dir / 'manifest.json', dist_dir)
@@ -127,5 +135,5 @@ shutil.copytree(root_dir / 'timidity', dist_dir / 'timidity')
 shutil.copytree(build_dir / 'packages/web_lazy_files', dist_dir / 'files')
 
 (dist_dir / 'index.html').write_text(
-    '<a href=create>create</a> <br> <a href=play>play</a>'
+    '<a href=create>create</a> <br> <a href=play>play</a> <br> <a href=zscript>zscript playground</a>'
 )

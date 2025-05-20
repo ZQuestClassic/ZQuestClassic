@@ -1,9 +1,8 @@
-import Module from './zscript.data.js';
-import ZScript from './zscript.mjs';
-
 async function createModule() {
+  const [zscriptData, zscriptModule] = [await import('./zscript-playground.data.js'), await import('../zscript.mjs')];
+  const Module = zscriptData.default;
   Module.noInitialRun = true;
-  await ZScript(Module);
+  await zscriptModule.default(Module);
   Module.compileScript = Module.cwrap('compile_script', 'int', ['string']);
   return Module;
 }

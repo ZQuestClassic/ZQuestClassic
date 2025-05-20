@@ -182,14 +182,14 @@ echo "
 done configuring emscripten build.
 
 to build the web version:
-  cmake --build build_emscripten --config Release -t web
+  cmake --build build_emscripten --config Debug -t web
 
 to build just a single app:
-  cmake --build build_emscripten --config Release -t web_zplayer
-  cmake --build build_emscripten --config Release -t web_zeditor
+  cmake --build build_emscripten --config Debug -t web_zplayer
+  cmake --build build_emscripten --config Debug -t web_zeditor
 
 you only need to re-run configure_emscripten.sh if something in this file is changed
 
 be sure to start a local webserver in the web package folder:
-  cd build_emscripten/Release/packages/web && npx statikk --port 8000 --coi
+  cd build_emscripten/Debug/packages/web && npx statikk --port 8000 --coi
 "

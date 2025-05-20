@@ -35,22 +35,24 @@ add_custom_target(main_bundle DEPENDS ${BUILD_FOLDER}/main.js)
 add_dependencies(main_bundle zscript)
 
 set(playground_bundle_command
-    npm install --quiet && npx esbuild --bundle main.js --outfile=${BUILD_FOLDER}/main.js --sourcemap
+    npm install --quiet && node build.js --build_folder ${BUILD_FOLDER}
     $<$<NOT:$<CONFIG:Debug>>:--minify>
 )
 add_custom_command(
-    OUTPUT ${BUILD_FOLDER}/playground.js
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT ${BUILD_FOLDER}/playground/playground.js ${BUILD_FOLDER}/playground/playground.worker.js
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/playground
     COMMAND ${playground_bundle_command}
     COMMAND_EXPAND_LISTS
     DEPENDS
+        playground/build.js
+        playground/logger.ts
         playground/playground.ts
+        playground/playground.worker.ts
         package-lock.json
         package.json
     VERBATIM
 )
-add_custom_target(playground_bundle DEPENDS ${BUILD_FOLDER}/playground.js)
-add_dependencies(playground_bundle zscript)
+add_custom_target(web_zscript_playground DEPENDS ${BUILD_FOLDER}/playground/playground.js ${BUILD_FOLDER}/playground/playground.worker.js zscript)
 
 function (create_web_target target)
     add_custom_command(
@@ -62,9 +64,10 @@ function (create_web_target target)
             styles.css
             package_web_resources
             ${package_web_resources_gen_files}
+            ${target}
         VERBATIM
     )
-    add_custom_target(html_${target} DEPENDS ${BUILD_FOLDER}/${target}.html)
+    add_custom_target(html_${target} DEPENDS ${target} ${BUILD_FOLDER}/${target}.html)
 
     # For packaging just this target.
     add_custom_command(
@@ -73,7 +76,7 @@ function (create_web_target target)
         VERBATIM
     )
     add_custom_target(web_${target} DEPENDS web_${target}.stamp)
-    add_dependencies(web_${target} html_${target} ${target} main_bundle)
+    add_dependencies(web_${target} html_${target} main_bundle)
     set_source_files_properties(web_${target}.stamp PROPERTIES SYMBOLIC 1)
 endfunction()
 
@@ -87,5 +90,5 @@ add_custom_command(
     VERBATIM
 )
 add_custom_target(web DEPENDS web.stamp)
-add_dependencies(web zplayer html_zplayer zeditor html_zeditor zscript main_bundle playground_bundle)
+add_dependencies(web html_zplayer html_zeditor main_bundle web_zscript_playground)
 set_source_files_properties(web.stamp PROPERTIES SYMBOLIC 1)
