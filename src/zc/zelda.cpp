@@ -109,7 +109,6 @@ static zc_randgen drunk_rng;
 #include "init.h"
 #include <assert.h>
 #include "zc/rendertarget.h"
-#include "zconsole.h"
 #include "base/win32.h"
 
 #ifdef _MSC_VER
@@ -421,9 +420,6 @@ ArrayOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
-
-DebugConsole DebugConsole::singleton = DebugConsole();
-ZASMSTackTrace ZASMSTackTrace::singleton = ZASMSTackTrace();
 
 
 void setZScriptVersion(int32_t s_version)

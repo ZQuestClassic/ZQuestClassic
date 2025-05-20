@@ -54,7 +54,6 @@
 #include "zc/title.h"
 #include "particles.h"
 #include "sound/zcmusic.h"
-#include "zconsole.h"
 #include "zc/ffscript.h"
 #include "dialog/info.h"
 #include "dialog/alert.h"
