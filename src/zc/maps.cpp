@@ -3777,7 +3777,7 @@ void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, i
 			break;
 	}
 
-	if(!type && (layer==(int32_t)(base_scr->lens_layer&7)+1) && ((base_scr->lens_layer&llLENSSHOWS && !lensclk) || (base_scr->lens_layer&llLENSHIDES && lensclk)))
+	if(!type)
 	{
 		if(!lenscheck(base_scr,layer))
 			showlayer = false;
@@ -3803,11 +3803,8 @@ void do_layer_primitives(BITMAP *bmp, int32_t layer)
 	{
 		showlayer = show_layers[layer];
 		
-		if ((layer==(int32_t)(origin_scr->lens_layer&7)+1) && ((origin_scr->lens_layer&llLENSSHOWS && !lensclk) || (origin_scr->lens_layer&llLENSHIDES && lensclk)))
-		{
-			if(!lenscheck(origin_scr,layer))
-				showlayer = false;
-		}
+		if(!lenscheck(origin_scr,layer))
+			showlayer = false;
 	}
 	
 	if (showlayer)
