@@ -130,7 +130,7 @@ void dosubscr()
 			load_control_state();
 			script_drawing_commands.Clear();
 		}
-		// active_sub_yoff = y-playing_field_offset;
+		active_sub_yoff = y-playing_field_offset;
 		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
 			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
 		do_dcounters();
