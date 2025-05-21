@@ -10,7 +10,7 @@ case "$(uname -sr)" in
 
    Linux*)
         ulimit -c unlimited
-        sudo -E xvfb-run --auto-servernum python -Xutf8 "$@"
+        xvfb-run --auto-servernum python -Xutf8 "$@"
         ;;
 
    CYGWIN*|MINGW*|MINGW32*|MSYS*)
