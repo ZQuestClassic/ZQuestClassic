@@ -20766,7 +20766,7 @@ void putmsg()
 	}
 	if(wait_advance) return; //Waiting for buttonpress
 	
-	if(!do_run_menu && (!msgstr || msg_it->done() || bottom_margin_clip()))
+	if(!do_run_menu && (!msgstr || !msg_it || msg_it->done() || bottom_margin_clip()))
 	{
 		if(!msgstr)
 			msgorig=0;
@@ -20775,7 +20775,10 @@ void putmsg()
 		msg_it.reset();
 		return;
 	}
-	
+
+	if (!msg_it)
+		return;
+
 	msg_onscreen = true; // Now the message is onscreen (see donewmsg()).
 
 	if (msg_it->state == MsgStr::iterator::NOT_STARTED)
