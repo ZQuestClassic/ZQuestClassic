@@ -33,7 +33,7 @@ void put_active_subscr(int32_t y, int32_t pos)
 	// 8 pixels and so must obscure the playing field somehow).
 	if (opening_subscr_show_bottom_8px)
 	{
-		rectfill(framebuf, 0, y, framebuf->w, y+8-1, 0);
+		rectfill(framebuf, 0, y, framebuf->w, y+8-1, BLACK);
 		y += 8;
 	}
     show_custom_subscreen(framebuf, new_subscreen_active, 0, y, game->should_show_time(), pos);
@@ -141,7 +141,7 @@ void dosubscr()
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 		//fill in the screen with black to prevent the hall of mirrors effect
-		clear_to_color(framebuf, 0);
+		clear_to_color(framebuf, BLACK);
 
 		// With COOLSCROLL on, the subscreen crawls down over the playing field.
 		// Otherwise the playing field scrolls down past the bottom of the screen.
@@ -458,7 +458,7 @@ void dosubscr()
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 
-		clear_to_color(framebuf, 0);
+		clear_to_color(framebuf, BLACK);
 
 		if(compat && COOLSCROLL) //copy the playing field back onto the screen
 			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
@@ -505,7 +505,7 @@ void dosubscr()
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 		//fill in the screen with black to prevent the hall of mirrors effect
-		clear_to_color(framebuf, 0);
+		clear_to_color(framebuf, BLACK);
 		
 		if(COOLSCROLL)
 		{
