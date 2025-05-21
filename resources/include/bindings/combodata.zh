@@ -676,6 +676,16 @@ class combodata {
 	//
 	// @zasm_var COMBODLIFTTIME
 	internal int LiftTime;
+	
+	// The radius of light that will be emitted by the lifted weapon.
+	//
+	// @zasm_var COMBODLIFTLIGHTRAD
+	internal int LiftLightRadius;
+	
+	// The [LightShape] the lifted weapon will use, if light is emitted.
+	//
+	// @zasm_var COMBODLIFTLIGHTSHAPE
+	internal int LiftLightShape;
 
 	// If >0, the weapon will behave specially based on the provided item ID.
 	//

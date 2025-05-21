@@ -9572,6 +9572,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
 		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
 		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16
+		|| tmp_cmb.liftlightrad || tmp_cmb.liftlightshape
 		|| tmp_cmb.lift_parent_item)
 		combo_has_flags |= CHAS_LIFT;
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
@@ -9784,6 +9785,10 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 68;
 		if(!p_putc(tmp_cmb.lift_parent_item,f))
 			return 78;
+		if(!p_putc(tmp_cmb.liftlightrad,f))
+			return 96;
+		if(!p_putc(tmp_cmb.liftlightshape,f))
+			return 97;
 	}
 	if(combo_has_flags&CHAS_GENERAL)
 	{

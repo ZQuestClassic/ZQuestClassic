@@ -131,6 +131,8 @@ struct newcombo
 	byte lifthei = 8;
 	byte lifttime = 16;
 	byte lift_parent_item;
+	byte liftlightrad;
+	byte liftlightshape;
 	word prompt_cid;
 	byte prompt_cs;
 	int16_t prompt_x = 12;

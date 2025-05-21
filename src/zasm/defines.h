@@ -3149,7 +3149,10 @@ enum ASM_DEFINE
 #define SCREEN_FLAG       0x15F3
 #define MAPDATA_FLAG      0x15F4
 
-#define NUMVARIABLES            0x15F5
+#define COMBODLIFTLIGHTRAD      0x15F5
+#define COMBODLIFTLIGHTSHAPE      0x15F6
+
+#define NUMVARIABLES            0x15F7
 
 //} End variables
 

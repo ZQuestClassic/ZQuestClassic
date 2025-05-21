@@ -3284,6 +3284,8 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 	
 	w->death_sprite = cmb.liftbreaksprite;
 	w->death_sfx = cmb.liftbreaksfx;
+	w->glowRad = cmb.liftlightrad;
+	w->glowShape = cmb.liftlightshape;
 	
 	Hero.lift(w, cmb.lifttime, cmb.lifthei);
 	

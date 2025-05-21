@@ -2916,6 +2916,9 @@ static constexpr script_variable variable_list[]=
 	{ "FFCLAYER", FFCLAYER, 0},
 	{ "SCREEN_FLAG", SCREEN_FLAG, 0},
 	{ "MAPDATA_FLAG", MAPDATA_FLAG, 0},
+	
+	{ "COMBODLIFTLIGHTRAD", COMBODLIFTLIGHTRAD, 0},
+	{ "COMBODLIFTLIGHTSHAPE", COMBODLIFTLIGHTSHAPE, 0},
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -3665,6 +3668,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODLIFTLEVEL:
 		case COMBODLIFTSFX:
 		case COMBODLIFTTIME:
+		case COMBODLIFTLIGHTRAD:
+		case COMBODLIFTLIGHTSHAPE:
 		case COMBODLIFTUNDERCMB:
 		case COMBODLIFTUNDERCS:
 		case COMBODLIFTWEAPONITEM:

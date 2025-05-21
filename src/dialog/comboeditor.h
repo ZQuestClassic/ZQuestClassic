@@ -84,7 +84,8 @@ private:
 	
 	GUI::ListData list_ctype, list_flag, list_combscript, list_sfx, list_genscr,
 		list_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes,
-		list_lift_parent_items, list_sprites_0none, list_dirs4n, list_0_7;
+		list_lift_parent_items, list_sprites_0none, list_dirs4n, list_0_7,
+		list_light_shapes;
 	
 	
 	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL(byte* data, byte min, byte max);

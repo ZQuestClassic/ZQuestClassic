@@ -61,6 +61,7 @@ namespace GUI::ZCListData
 	GUI::ListData const& warpeffects();
 	GUI::ListData const& screenstate();
 	GUI::ListData const& subscr_widgets();
+	GUI::ListData const& light_shapes();
 	GUI::ListData const& dmaptypes();
 	GUI::ListData const& alignments();
 	GUI::ListData const& buttons();

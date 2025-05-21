@@ -408,6 +408,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case COMBODLIFTHEIGHT: return "combodata::LiftHeight";
 		case COMBODLIFTITEM: return "combodata::LiftItem";
 		case COMBODLIFTLEVEL: return "combodata::LiftLevel";
+		case COMBODLIFTLIGHTRAD: return "combodata::LiftLightRadius";
+		case COMBODLIFTLIGHTSHAPE: return "combodata::LiftLightShape";
 		case COMBODLIFTSFX: return "combodata::LiftSFX";
 		case COMBODLIFTTIME: return "combodata::LiftTime";
 		case COMBODLIFTUNDERCS: return "combodata::LiftUnderCSet";

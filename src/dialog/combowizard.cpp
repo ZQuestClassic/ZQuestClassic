@@ -84,7 +84,8 @@ ComboWizardDialog::ComboWizardDialog(ComboEditorDialog& parent) : local_ref(pare
 	list_items(GUI::ZCListData::items(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_counters(GUI::ZCListData::counters(true,true)),
-	list_dirs(GUI::ZCListData::dirs(8,false))
+	list_dirs(GUI::ZCListData::dirs(8,false)),
+	list_torch_shapes(GUI::ZCListData::light_shapes())
 {
 	memset(rs_sz, 0, sizeof(rs_sz));
 }
@@ -107,13 +108,6 @@ static const GUI::ListData list_chest_content
 	{ "Screen->D[5]", -15 },
 	{ "Screen->D[6]", -16 },
 	{ "Screen->D[7]", -17 },
-};
-
-static const GUI::ListData list_torch_shapes
-{
-	{ "Circle", 0 },
-	{ "Cone", 1 },
-	{ "Square", 2 }
 };
 
 void ComboWizardDialog::setRadio(size_t rs, size_t ind)

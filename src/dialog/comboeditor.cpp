@@ -90,6 +90,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_deftypes(GUI::ZCListData::deftypes()),
 	list_dirs4n(GUI::ZCListData::dirs(4,true)),
 	list_0_7(GUI::ListData::numbers(false,0,8)),
+	list_light_shapes(GUI::ZCListData::light_shapes()),
 	list_lift_parent_items(GUI::ZCListData::items(true).filter(
 		[&](GUI::ListItem& itm)
 		{
@@ -3732,7 +3733,16 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.lift_parent_item = val;
 									}),
-								IBTN("What item to use to create the lift weapon. If '(None)', a basic 'Thrown' weapon will be created from the lift glove item.")
+								IBTN("What item to use to create the lift weapon. If '(None)', a basic 'Thrown' weapon will be created from the lift glove item."),
+								Label(text = "Glow Shape:"),
+								DropDownList(data = list_light_shapes,
+									fitParent = true, selectedValue = local_comboref.liftlightshape,
+									width = 300_px,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.liftlightshape = val;
+									}),
+								IBTN("The shape of light the lifted weapon emits, if emitting light.")
 							)
 						)
 					),
@@ -3883,6 +3893,17 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									local_comboref.lifttime = val;
 								}),
 							IBTN("The time, in frames, it takes to lift the combo")
+							,
+							//
+							Label(text = "Glow Radius"),
+							TextField(
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_comboref.liftlightrad,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.liftlightrad = val;
+								}),
+							IBTN("The light radius, in pixels, of the lifted weapon")
 							
 						)
 					)

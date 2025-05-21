@@ -1262,6 +1262,18 @@ GUI::ListData const& GUI::ZCListData::subscr_widgets()
 	return subscrWidgets;
 }
 
+static const GUI::ListData list_light_shapes
+{
+	{ "Circle", 0 },
+	{ "Cone", 1 },
+	{ "Square", 2 }
+};
+
+GUI::ListData const& GUI::ZCListData::light_shapes()
+{
+	return list_light_shapes;
+}
+
 static const GUI::ListData dmap_types
 {
 	{ "NES Dungeon", dmDNGN },

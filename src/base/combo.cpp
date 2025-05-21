@@ -106,6 +106,8 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(lifthei != 8) return false;
 	if(lifttime != 16) return false;
 	if(lift_parent_item) return false;
+	if(liftlightrad) return false;
+	if(liftlightshape) return false;
 	if(prompt_cid) return false;
 	if(prompt_cs) return false;
 	if(prompt_x != 12) return false;
@@ -279,6 +281,8 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		lifthei = other.lifthei;
 		lifttime = other.lifttime;
 		lift_parent_item = other.lift_parent_item;
+		liftlightrad = other.liftlightrad;
+		liftlightshape = other.liftlightshape;
 	}
 	if(flags.get(CMB_ADVP_GEN_MOVESPEED))
 	{

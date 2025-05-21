@@ -9839,6 +9839,26 @@ int32_t get_register(int32_t arg)
 			else ret = (combobuf[ri->combosref].lifttime) * 10000;
 			break;
 		}
+		case COMBODLIFTLIGHTRAD:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else ret = (combobuf[ri->combosref].liftlightrad) * 10000;
+			break;
+		}
+		case COMBODLIFTLIGHTSHAPE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else ret = (combobuf[ri->combosref].liftlightshape) * 10000;
+			break;
+		}
 		case COMBODLIFTWEAPONITEM:
 		{
 			ret = -10000;
@@ -20441,6 +20461,24 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else combobuf[ri->combosref].lifttime = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTLIGHTRAD:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else combobuf[ri->combosref].liftlightrad = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTLIGHTSHAPE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else combobuf[ri->combosref].liftlightshape = vbound(value/10000, 0, 2);
 			break;
 		}
 		case COMBODLIFTWEAPONITEM:
