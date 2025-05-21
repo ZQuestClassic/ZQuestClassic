@@ -581,6 +581,10 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							),
 							Columns<3>(
 								DummyWidget(),
+								INFOBTN("If checked, the layer is revealed when the lens is active (thus, it is hidden by default)."),
+								INFOBTN("If checked, the layer is hidden when the lens is active."),
+								//
+								DummyWidget(),
 								Label(text = "Show:"),
 								Label(text = "Hide:"),
 								//
