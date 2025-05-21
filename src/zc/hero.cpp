@@ -11109,8 +11109,12 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 void HeroClass::handle_lift(bool dec)
 {
 	if(lift_wpn)
+	{
 		lift_wpn->fakez = 0;
+		lift_wpn->dir = dir;
+	}
 	else liftclk = 0;
+	
 	if(liftclk <= (dec?1:0))
 	{
 		liftclk = 0;
