@@ -555,7 +555,9 @@ void ComboWizardDialog::endUpdate()
 			SETFLAG(local_ref.usrflags,cflag2,dropty>0);
 			SETFLAG(local_ref.usrflags,cflag11,dropty==2);
 			
-			if(getRadio(2)==0)
+			size_t sfxty = getRadio(2);
+			SETFLAG(local_ref.usrflags,cflag3,sfxty==1);
+			if(sfxty==0)
 				local_ref.attribytes[2] = 0;
 			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
 			break;
@@ -580,7 +582,9 @@ void ComboWizardDialog::endUpdate()
 					break;
 			}
 			
-			if(getRadio(2)==0)
+			size_t sfxty = getRadio(2);
+			SETFLAG(local_ref.usrflags,cflag3,sfxty==1);
+			if(sfxty==0)
 				local_ref.attribytes[2] = 0;
 			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
 			break;
