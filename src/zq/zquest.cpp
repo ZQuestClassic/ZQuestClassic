@@ -20949,9 +20949,11 @@ bool handle_slot(script_slot_data& slotdata, script_data* scriptdata)
 		scriptdata->meta = data.meta;
 		scriptdata->pc = data.pc;
 		scriptdata->end_pc = data.end_pc;
+		scriptdata->zasm_script = zasm_scripts[0];
 	}
 	else if(scriptdata)
 	{
+		scriptdata->zasm_script = nullptr;
 		scriptdata->meta.zero();
 		scriptdata->pc = 0;
 		scriptdata->end_pc = 0;
