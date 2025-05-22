@@ -7,6 +7,18 @@ enum SubscreenItemButton
 	NUM_ITMBTN
 };
 
+enum ConditionType
+{
+	CONDTY_NONE,
+	CONDTY_EQ, // ==
+	CONDTY_NEQ, // !=
+	CONDTY_GREATER, // >
+	CONDTY_GREATEREQ, // >=
+	CONDTY_LESS, // <
+	CONDTY_LESSEQ, // <=
+	NUM_CONDTY
+};
+
 // @zasm_ref REFSUBSCREENWIDG
 class subscreenwidget {
 	// @delete
