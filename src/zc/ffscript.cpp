@@ -12314,6 +12314,9 @@ int32_t get_register(int32_t arg)
 					case widgBGCOLOR:
 						ret = 10000*((SW_Clear*)widg)->c_bg.get_int_color();
 						break;
+					case widgCOUNTERPERCBAR:
+						ret = 10000*((SW_CounterPercentBar*)widg)->c_bg.get_int_color();
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -12415,6 +12418,9 @@ int32_t get_register(int32_t arg)
 					case widgRECT:
 						ret = 10000*((SW_Rect*)widg)->c_fill.get_int_color();
 						break;
+					case widgCOUNTERPERCBAR:
+						ret = 10000*((SW_CounterPercentBar*)widg)->c_fill.get_int_color();
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -12455,7 +12461,7 @@ int32_t get_register(int32_t arg)
 					case widgCOUNTER:
 						sz = 3;
 						break;
-					case widgMISCGAUGE:
+					case widgMISCGAUGE: case widgCOUNTERPERCBAR:
 						sz = 1;
 						break;
 					default:
@@ -12478,6 +12484,9 @@ int32_t get_register(int32_t arg)
 						break;
 					case widgMISCGAUGE:
 						ret = ((SW_MiscGaugePiece*)widg)->counter*10000;
+						break;
+					case widgCOUNTERPERCBAR:
+						ret = ((SW_CounterPercentBar*)widg)->counter*10000;
 						break;
 				}
 			}
@@ -22741,6 +22750,9 @@ void set_register(int32_t arg, int32_t value)
 					case widgBGCOLOR:
 						((SW_Clear*)widg)->c_bg.set_int_color(val);
 						break;
+					case widgCOUNTERPERCBAR:
+						((SW_CounterPercentBar*)widg)->c_bg.set_int_color(val);
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -22848,6 +22860,9 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgRECT:
 						((SW_Rect*)widg)->c_fill.set_int_color(val);
+						break;
+					case widgCOUNTERPERCBAR:
+						((SW_CounterPercentBar*)widg)->c_fill.set_int_color(val);
 						break;
 					default:
 						bad_subwidg_type(false, ty);

@@ -570,6 +570,14 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid = Column(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
+			case widgCOUNTERPERCBAR:
+			{
+				SW_CounterPercentBar* w = dynamic_cast<SW_CounterPercentBar*>(local_subref);
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_fill, "Fill Color", 1),
+					MISC_COLOR_SEL(w->c_bg, "BG Color", 2));
+				break;
+			}
 		}
 	}
 	
@@ -1475,6 +1483,23 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Piece #:", hAlign = 1.0),
 					NUM_FIELD(w->number,0,999)
 				);
+				break;
+			}
+			case widgCOUNTERPERCBAR:
+			{
+				SW_CounterPercentBar* w = dynamic_cast<SW_CounterPercentBar*>(local_subref);
+				attrib_grid = Rows<3>(
+					Label(text = "Counter", hAlign = 1.0),
+					DDL(w->counter, list_counters),
+					INFOBTN("The counter for this percentage bar."),
+					CBOX(w->flags, SUBSCR_COUNTERPERCBAR_TRANSP, "Transparent", 2),
+					INFOBTN("If checked, the bar is drawn transparently (both empty and full parts)"),
+					CBOX(w->flags, SUBSCR_COUNTERPERCBAR_VERTICAL, "Vertical", 2),
+					INFOBTN("If checked, the bar is filled vertically instead of horizontally"),
+					CBOX(w->flags, SUBSCR_COUNTERPERCBAR_INVERT, "Invert", 2),
+					INFOBTN("If checked, the bar fill direction is reversed (top-to-bottom or right-to-left)")
+				);
+				
 				break;
 			}
 			default: attrib_grid = Column(Label(text = "ERROR")); break;

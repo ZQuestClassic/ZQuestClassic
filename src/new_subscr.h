@@ -175,7 +175,7 @@ enum //new subscreen object types
 	widgOLDCTR, widgMMAPTITLE, widgMMAP, widgLMAP, widgBGCOLOR,
 	widgITEMSLOT, widgMCGUFF_FRAME, widgMCGUFF, widgTILEBLOCK, widgMINITILE,
 	widgSELECTOR, widgLGAUGE, widgMGAUGE, widgTEXTBOX, widgSELECTEDTEXT,
-	widgMISCGAUGE, widgBTNCOUNTER,
+	widgMISCGAUGE, widgBTNCOUNTER, widgCOUNTERPERCBAR,
 	widgMAX
 };
 extern const std::string subwidg_internal_names[widgMAX];
@@ -1032,6 +1032,25 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_COUNTERPERCBAR_TRANSP   SUBSCRFLAG_SPEC_01
+#define SUBSCR_COUNTERPERCBAR_VERTICAL SUBSCRFLAG_SPEC_02
+#define SUBSCR_COUNTERPERCBAR_INVERT   SUBSCRFLAG_SPEC_03
+#define SUBSCR_NUMFLAG_COUNTERPERCBAR  3
+struct SW_CounterPercentBar : public SubscrWidget
+{
+	int16_t counter;
+	SubscrColorInfo c_fill, c_bg;
+	SW_CounterPercentBar() = default;
+	SW_CounterPercentBar(byte ty);
+	
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
+};
 
 #define MAX_SUBSCR_PAGES 255
 struct SubscrPage

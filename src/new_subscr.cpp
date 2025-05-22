@@ -5001,6 +5001,93 @@ int32_t SW_SelectedText::write(PACKFILE *f) const
 	return 0;
 }
 
+byte SW_CounterPercentBar::getType() const
+{
+	return widgCOUNTERPERCBAR;
+}
+void SW_CounterPercentBar::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	auto c1 = c_fill.get_color();
+	auto c2 = c_bg.get_color();
+	if(!c1 && !c2) return;
+	
+	if(flags&SUBSCR_COUNTERPERCBAR_TRANSP)
+		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	
+	auto cur = get_ssc_ctr(counter);
+	auto max = get_ssc_ctrmax(counter);
+	zfix perc = max ? vbound((zfix(cur)/max), 1_zf, 0_zf) : 0_zf;
+	auto x2 = x+xofs, y2 = y+yofs;
+	bool vertical = (flags&SUBSCR_COUNTERPERCBAR_VERTICAL);
+	bool invert = bool(flags&SUBSCR_COUNTERPERCBAR_INVERT) != vertical; // vertical naturally inverts
+	if(invert)
+	{
+		perc = 1_zf - perc;
+		zc_swap(c1, c2);
+	}
+	if(flags&SUBSCR_COUNTERPERCBAR_VERTICAL)
+	{
+		word ys = word((perc * zfix(h)).getInt());
+		if(c1 > -1 && ys)
+			rectfill(dest, x2, y2, x2+w-1, y2+ys-1, c1);
+		if(c2 > -1)
+			rectfill(dest, x2, y2+ys, x2+w-1, y2+h-ys-1, c2);
+	}
+	else
+	{
+		word xs = word((perc * zfix(w)).getInt());
+		if(c1 > -1 && xs)
+			rectfill(dest, x2, y2, x2+xs-1, y2+h-1, c1);
+		if(c2 > -1)
+			rectfill(dest, x2+xs, y2, x2+w-xs-1, y2+h-1, c2);
+	}
+	
+	if(flags&SUBSCR_COUNTERPERCBAR_TRANSP)
+		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+}
+SubscrWidget* SW_CounterPercentBar::clone() const
+{
+	return new SW_CounterPercentBar(*this);
+}
+bool SW_CounterPercentBar::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_CounterPercentBar const* other = dynamic_cast<SW_CounterPercentBar const*>(src);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
+	
+	counter = other->counter;
+	c_fill = other->c_fill;
+	c_bg = other->c_bg;
+	return true;
+}
+int32_t SW_CounterPercentBar::read(PACKFILE *f, word s_version)
+{
+	if(auto ret = SubscrWidget::read(f,s_version))
+		return ret;
+	
+	if(!p_igetw(&counter, f))
+		return qe_invalid;
+	if(auto ret = c_fill.read(f,s_version))
+		return ret;
+	if(auto ret = c_bg.read(f,s_version))
+		return ret;
+	return 0;
+}
+int32_t SW_CounterPercentBar::write(PACKFILE *f) const
+{
+	if(auto ret = SubscrWidget::write(f))
+		return ret;
+	if(!p_iputw(counter, f))
+		new_return(1);
+	if(auto ret = c_fill.write(f))
+		return ret;
+	if(auto ret = c_bg.write(f))
+		return ret;
+	return 0;
+}
+
 
 SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 {
@@ -5178,6 +5265,9 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 			break;
 		case widgSELECTEDTEXT:
 			widg = new SW_SelectedText();
+			break;
+		case widgCOUNTERPERCBAR:
+			widg = new SW_CounterPercentBar();
 			break;
 		case widgNULL:
 			if(!ALLOW_NULL_WIDGET) break;

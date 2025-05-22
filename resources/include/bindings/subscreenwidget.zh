@@ -447,6 +447,7 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	// - [SUBWIDG_BGCOLOR]
+	// - [SUBWIDG_COUNTERPERCBAR]
 	//
 	// @zasm_var SUBWIDGTY_COLOR_BG
 	internal int ColorBG;
@@ -471,6 +472,7 @@ class subscreenwidget {
 	// The widget's color index used for fill
 	//
 	// - [SUBWIDG_RECT]
+	// - [SUBWIDG_COUNTERPERCBAR]
 	//
 	// @zasm_var SUBWIDGTY_COLOR_FILL
 	internal int ColorFill;
@@ -487,7 +489,7 @@ class subscreenwidget {
 
 	// The counter(s) associated with the widget.
 	//
-	// @length [SUBWIDG_COUNTER] - 3 values, [SUBWIDG_MISCGAUGE] - 1 value
+	// @length [SUBWIDG_COUNTER] - 3 values, [SUBWIDG_MISCGAUGE] - 1 value, [SUBWIDG_COUNTERPERCBAR] - 1 value
 	// @value [enum CounterIndex]
 
 	// @zasm_var SUBWIDGTY_COUNTERS
