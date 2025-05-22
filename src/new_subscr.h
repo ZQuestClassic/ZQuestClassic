@@ -230,7 +230,9 @@ enum // special tiles
 int old_ssc_to_new_ctr(int ssc);
 enum // custom negative counters
 {
-	sscMIN = -10,
+	sscMIN = -18,
+	sscBTNCTRA_1, sscBTNCTRB_1, sscBTNCTRX_1, sscBTNCTRY_1,
+	sscBTNCTRA_0, sscBTNCTRB_0, sscBTNCTRX_0, sscBTNCTRY_0,
 	sscGENKEYMAGIC, sscGENKEYNOMAGIC, sscLEVKEYMAGIC, sscLEVKEYNOMAGIC,
 	sscANYKEYMAGIC, sscANYKEYNOMAGIC, sscMAXHP, sscMAXMP, sscNONE = -1
 };
