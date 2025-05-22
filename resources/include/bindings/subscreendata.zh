@@ -77,11 +77,14 @@ enum //Visibility Flags
 	SUBVISIB_MAX
 };
 
-enum //Widget genflags
+enum SubscreenWidgetGenFlag
 {
-	SUBW_GENFL_SELECTABLE,
-	SUBW_GENFL_PGMODE_NOWRAP,
-	SUBW_GENFL_SELECTOR_OVERRIDE,
+	SUBW_GENFL_SELECTABLE, // If the widget is "selectable" by the subscreen cursor
+	SUBW_GENFL_PGMODE_NOWRAP, // If going left from the leftmost page or right from the rightmost page should do nothing instead of wrapping, when changing pages
+	SUBW_GENFL_SELECTOR_OVERRIDE, // If this widget uses a customly overridden subscreen selector cursor graphic
+	SUBW_GENFL_REQ_COUNTER_MAX, // If the counter requirement should use the "max" of the counter, instead of it's plain value
+	SUBW_GENFL_REQ_COUNTER_PERC, // If the counter requirement should use the "percentage of max" of the counter, instead of it's plain value (overrides [SUBW_GENFL_REQ_COUNTER_MAX])
+	SUBW_GENFL_REQ_INVERT_LITEM, // If the LItem requirement should require *not having any of the LItems*, instead of having all of the LItems
 	SUBW_GENFL_MAX
 };
 

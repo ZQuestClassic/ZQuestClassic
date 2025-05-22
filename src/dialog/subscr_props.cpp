@@ -13,9 +13,11 @@
 #include "base/misctypes.h"
 #include "subscr_transition.h"
 #include "subscr_macros.h"
+#include "items.h"
 
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern ZCSubscreen subscr_edit;
+extern itemdata *itemsbuf;
 
 static bool dlg_retval = false;
 bool call_subscrprop_dialog(SubscrWidget* widg, int32_t obj_ind)
@@ -32,6 +34,7 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_aligns(GUI::ZCListData::alignments()),
 	list_buttons(GUI::ZCListData::buttons()),
 	list_items(GUI::ZCListData::items(true)),
+	list_items_no_none(GUI::ZCListData::items(true, false)),
 	list_counters(GUI::ZCListData::ss_counters(true)), //All counters
 	list_counters2(GUI::ZCListData::ss_counters(true,true)), //All counters, no (None)
 	list_itemclass(GUI::ZCListData::itemclass(true)),
@@ -75,6 +78,16 @@ static const GUI::ListData list_pgmode
 	{ "Next", PGGOTO_NEXT },
 	{ "Prev", PGGOTO_PREV },
 	{ "Target", PGGOTO_TRG },
+};
+static const GUI::ListData list_condty
+{
+	{ "(None)", CONDTY_NONE },
+	{ "==", CONDTY_EQ },
+	{ "!=", CONDTY_NEQ },
+	{ ">", CONDTY_GREATER },
+	{ ">=", CONDTY_GREATEREQ },
+	{ "<", CONDTY_LESS },
+	{ "<=", CONDTY_LESSEQ },
 };
 
 #define MISC_COLOR_SEL(var, txt, num) \
@@ -264,9 +277,18 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::GEN_INITD(int ind)
 	);
 }
 
+enum
+{
+	CI_REQ,
+	CI_PICKED,
+	CI_REQ_NOT,
+	NUM_CI
+};
+
 static size_t sprop_tabs[widgMAX] = {0};
 static size_t sprop_tab_sel = 0;
 static char tbuf[1025] = {0};
+static int cond_item_sels[NUM_CI] = {0};
 std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 {
 	using namespace GUI::Builder;
@@ -1732,6 +1754,211 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				)
 			)
 		)));
+	cond_item_sels[CI_REQ] = local_subref->req_owned_items.empty() ? -1 : *(local_subref->req_owned_items.begin());
+	cond_item_sels[CI_PICKED] = 0;
+	cond_item_sels[CI_REQ_NOT] = local_subref->req_unowned_items.empty() ? -1 : *(local_subref->req_unowned_items.begin());
+	updateConditions();
+	std::shared_ptr<GUI::List> cond_itms_list;
+	tpan->add(TabRef(name = "Conditions",
+		TabPanel(
+			TabRef(name = "Items",
+				Columns<4>(
+					Row(padding = 0_px,
+						Label(text = "Required Owned Items"),
+						INFOBTN("Widget will not exist unless these items are owned.")
+					),
+					req_item_list = List(minheight = 100_px,
+						data = list_reqitems,
+						focused = true,
+						selectedValue = cond_item_sels[CI_REQ],
+						onSelectFunc = [&](int32_t val)
+						{
+							cond_item_sels[CI_REQ] = val;
+						}
+					),
+					Row(padding = 0_px,
+						Label(text = "Required Unowned Items"),
+						INFOBTN("Widget will not exist if any of these items are owned.")
+					),
+					req_not_item_list = List(minheight = 100_px,
+						data = list_reqnotitems,
+						focused = true,
+						selectedValue = cond_item_sels[CI_REQ_NOT],
+						onSelectFunc = [&](int32_t val)
+						{
+							cond_item_sels[CI_REQ_NOT] = val;
+						}
+					),
+					Column(rowSpan = 2,
+						Button(text = "->",
+							onPressFunc = [&]()
+							{
+								local_subref->req_owned_items.erase(cond_item_sels[CI_REQ]);
+								updateConditions();
+							}),
+						Button(text = "<-",
+							onPressFunc = [&]()
+							{
+								local_subref->req_owned_items.insert(cond_item_sels[CI_PICKED]);
+								updateConditions();
+							})
+					),
+					Column(rowSpan = 2,
+						Button(text = "->",
+							onPressFunc = [&]()
+							{
+								local_subref->req_unowned_items.erase(cond_item_sels[CI_REQ_NOT]);
+								updateConditions();
+							}),
+						Button(text = "<-",
+							onPressFunc = [&]()
+							{
+								local_subref->req_unowned_items.insert(cond_item_sels[CI_PICKED]);
+								updateConditions();
+							})
+					),
+					Label(text = "Items"),
+					cond_itms_list = List(minheight = 300_px, fitParent = true, rowSpan = 3,
+						data = list_items_no_none.filter([&](GUI::ListItem& itm)
+							{
+								if(itm.value < 0 || itm.value >= MAXITEMS)
+									return false;
+								itemdata const& idata = itemsbuf[itm.value];
+								return bool(idata.flags & item_gamedata); // only ownable items are usable
+							}),
+						isABC = true,
+						focused = true,
+						selectedIndex = 0,
+						onSelectFunc = [&](int32_t val)
+						{
+							cond_item_sels[CI_PICKED] = val;
+						}
+					)
+				)
+			),
+			TabRef(name = "Other",
+				Column(
+					Frame(title = "Counter Requirement", info = "If either the counter or the operator is 'None', no counter will be checked."
+						" If 'Percentage Value' is checked, the percent of total of the selected counter will be compared;"
+						" else if 'Max Value' is checked, the max value of the selected counter will be compared. If neither is checked,"
+						" the current value of the counter will be compared.",
+						Column(
+							Row(
+								DropDownList(data = list_counters,
+									fitParent = true,
+									selectedValue = local_subref->req_counter,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_subref->req_counter = val;
+									}),
+								DropDownList(data = list_condty,
+									fitParent = true,
+									selectedValue = local_subref->req_counter_cond_type,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_subref->req_counter_cond_type = val;
+									}),
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 65535, val = local_subref->req_counter_val,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_subref->req_counter_val = val;
+									})
+							),
+							Row(
+								Checkbox(
+									text = "Max Value", hAlign = 0.0,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_COUNTER_MAX,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_COUNTER_MAX,state);
+									}),
+								Checkbox(
+									text = "Percentage Value", hAlign = 0.0,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_COUNTER_PERC,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_COUNTER_PERC,state);
+									})
+							)
+						)
+					),
+					Frame(title = "Level Items", info = "All checked LItems are required, unless 'Invert' is checked, then it is required to have none instead.",
+						Row(
+							Rows<2>(
+								INFOBTN("The Hero has the McGuffin for the specified level"),
+								Checkbox(
+									text = "McGuffin", hAlign = 0.0,
+									checked = local_subref->req_litems & liTRIFORCE,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liTRIFORCE,state);
+									}),
+								INFOBTN("The Hero has the Map for the specified level"),
+								Checkbox(
+									text = "Map", hAlign = 0.0,
+									checked = local_subref->req_litems & liMAP,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liMAP,state);
+									}),
+								INFOBTN("The Hero has the Compass for the specified level"),
+								Checkbox(
+									text = "Compass", hAlign = 0.0,
+									checked = local_subref->req_litems & liCOMPASS,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liCOMPASS,state);
+									}),
+								INFOBTN("The Hero has cleared the 'Dungeon Boss' room for the specified level"),
+								Checkbox(
+									text = "Boss Killed", hAlign = 0.0,
+									checked = local_subref->req_litems & liBOSS,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liBOSS,state);
+									}),
+								INFOBTN("The Hero has the Boss Key for the specified level"),
+								Checkbox(
+									text = "Boss Key", hAlign = 0.0,
+									checked = local_subref->req_litems & liBOSSKEY,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liBOSSKEY,state);
+									})
+							),
+							Rows<3>(
+								Label(text = "For Level:"),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -1, high = MAXLEVELS, val = local_subref->req_litem_level,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_subref->req_litem_level = val;
+									}),
+								INFOBTN("The required litems will be for this specified level. Specifying '-1' will require the items"
+									" for the *current* level."),
+								Checkbox(
+									text = "Invert", hAlign = 1.0, colSpan = 2,
+									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_LITEM,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_LITEM,state);
+									}
+								),
+								INFOBTN("If checked, it will be required to have NONE of the LItems instead of ALL of the LItems.")
+							)
+						)
+					)
+				)
+			)
+		)
+	));
 	tpan->add(TabRef(name = "Script",
 		Row(
 			Label(text = "Label:"),
@@ -1766,6 +1993,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			)
 		)
 	);
+	cond_item_sels[CI_PICKED] = cond_itms_list->getSelectedValue();
 	updateSelectable();
 	updateAttr();
 	refr_info();
@@ -1828,6 +2056,47 @@ void SubscrPropDialog::updateColors()
 			break;
 		}
 	}
+}
+void SubscrPropDialog::updateConditions()
+{
+	bool req_item_empty = local_subref->req_owned_items.empty(), req_not_item_empty = local_subref->req_unowned_items.empty();
+	list_reqitems.clear();
+	if(req_item_empty)
+		list_reqitems.add("---", -1);
+	else for(auto iid : local_subref->req_owned_items)
+	{
+		list_reqitems.add(GUI::ListItem(list_items_no_none.accessItem(iid)));
+	}
+	
+	list_reqnotitems.clear();
+	if(req_not_item_empty)
+		list_reqnotitems.add("---", -1);
+	else for(auto iid : local_subref->req_unowned_items)
+	{
+		list_reqnotitems.add(GUI::ListItem(list_items_no_none.accessItem(iid)));
+	}
+	
+	if(req_item_list)
+	{
+		req_item_list->setListData(list_reqitems);
+		
+		if(req_item_empty)
+			req_item_list->setSelectedValue(-1);
+		else req_item_list->setSelectedValue(cond_item_sels[CI_REQ]);
+		
+		cond_item_sels[CI_REQ] = req_item_list->getSelectedValue();
+	}
+	if(req_not_item_list)
+	{
+		req_not_item_list->setListData(list_reqnotitems);
+		
+		if(req_not_item_empty)
+			req_not_item_list->setSelectedValue(-1);
+		else req_not_item_list->setSelectedValue(cond_item_sels[CI_REQ_NOT]);
+		
+		cond_item_sels[CI_REQ_NOT] = req_not_item_list->getSelectedValue();
+	}
+	pendDraw();
 }
 
 void SubscrPropDialog::update_wh()

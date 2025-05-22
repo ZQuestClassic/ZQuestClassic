@@ -1728,6 +1728,19 @@ public:
 	{
 		return checkBounds(n, boundlow, boundup, "index");
 	}
+
+	// Typical array indexing: >= 0 and < len.
+	// TODO: use this in all index bound checks.
+	static INLINE int32_t checkIndex2(int32_t n, int32_t len)
+	{
+		if(n < 0 || n >= len)
+		{
+			scripting_log_error_with_context("Invalid index: {} - must be >= 0 and < {}", n, len);
+			return _OutOfBounds;
+		}
+
+		return _NoError;
+	}
 	
 	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup)
 	{
