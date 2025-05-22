@@ -1407,6 +1407,10 @@ SubscrWidget* create_new_widget_of(int32_t type, int x, int y, bool runDialog)
 			widg->w = 16;
 			widg->h = 16;
 			break;
+		case widgCOUNTERPERCBAR:
+			widg->w = 64;
+			widg->h = 6;
+			break;
 	}
 	
 	int32_t temp_cso=curr_widg;

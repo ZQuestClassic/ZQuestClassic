@@ -1257,6 +1257,7 @@ static const GUI::ListData subscrWidgets =
 	{ "Gauge Piece: Counter", widgMISCGAUGE, "Allows building highly customizable gauges"
 		" for any counter" },
 	{ "Button Counter", widgBTNCOUNTER, "Shows a counter used by a specified button as a cost" },
+	{ "Counter Percentage Bar", widgCOUNTERPERCBAR, "Shows a colored bar filled for a specified counter" },
 };
 
 GUI::ListData const& GUI::ZCListData::subscr_widgets()
