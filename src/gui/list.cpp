@@ -22,6 +22,10 @@ void List::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
 	jwinListData = newListData.getJWin(&widgFont);
+	if(alDialog)
+	{
+		alDialog.message(MSG_START, 0);
+	}
 }
 
 void List::setSelectedValue(int32_t value)
@@ -31,7 +35,7 @@ void List::setSelectedValue(int32_t value)
 	if(alDialog)
 	{
 		setIndex();
-		alDialog->d1 = alDialog->d2=selectedIndex;
+		alDialog->d1 = selectedIndex;
 	}
 }
 
@@ -59,10 +63,14 @@ void List::setSelectedIndex(int32_t index, bool offset)
 
 int32_t List::getSelectedValue() const
 {
-	if(alDialog)
+	if(alDialog && listData)
 	{
 		int32_t index = alDialog->d1;
 		return listData->getValue(index);
+	}
+	else if(selectedIndex > -1 && listData)
+	{
+		return listData->getValue(selectedIndex);
 	}
 	else
 		return selectedValue;
