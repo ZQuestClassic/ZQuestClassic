@@ -7,6 +7,18 @@ enum SubscreenItemButton
 	NUM_ITMBTN
 };
 
+enum ConditionType
+{
+	CONDTY_NONE,
+	CONDTY_EQ, // ==
+	CONDTY_NEQ, // !=
+	CONDTY_GREATER, // >
+	CONDTY_GREATEREQ, // >=
+	CONDTY_LESS, // <
+	CONDTY_LESSEQ, // <=
+	NUM_CONDTY
+};
+
 // @zasm_ref REFSUBSCREENWIDG
 class subscreenwidget {
 	// @delete
@@ -135,7 +147,8 @@ class subscreenwidget {
 
 	// The general flags for subscreen widgets.
 	// These are usually applicable regardless of widget type.
-	// Use the 'SUBW_GENFL_' constants to access.
+	//
+	// @index [enum SubscreenWidgetGenFlag]
 	//
 	// @zasm_var SUBWIDGGENFLAG
 	internal bool GenFlags[];
@@ -146,7 +159,66 @@ class subscreenwidget {
 	//
 	// @zasm_var SUBWIDGFLAG
 	internal bool Flags[];
-
+	
+	// Any items set true here must be owned for the widget to be active/visible.
+	//
+	// @index [enum ItemID]
+	//
+	// @zasm_var SUBWIDGREQOWNITEMS
+	internal bool RequiredOwnedItems[];
+	
+	// Any items set true here must NOT be owned for the widget to be active/visible.
+	//
+	// @index [enum ItemID]
+	//
+	// @zasm_var SUBWIDGREQUNOWNITEMS
+	internal bool RequiredUnownedItems[];
+	
+	// The counter this widget requires to be active/visible.
+	// Must relate to the [RequiredCounterValue] based on the [RequiredCounterCond].
+	// - If [CR_NONE], no requirement will be checked.
+	// - If [SUBW_GENFL_REQ_COUNTER_PERC] is set, then the percentage this counter is full will be compared
+	// - Otherwise, if [SUBW_GENFL_REQ_COUNTER_MAX] is set, then the max value of this counter will be compared
+	// - Otherwise, this counter's value will be compared
+	//
+	// @value [enum CounterIndex]
+	//
+	// @zasm_var SUBWIDGREQCOUNTER
+	internal int RequiredCounter;
+	
+	// The counter operation this widget requires to be active/visible.
+	// The [RequiredCounter] must relate to the [RequiredCounterValue] by this operation.
+	// If [CONDTY_NONE], no requirement will be checked.
+	//
+	// @value [enum ConditionType]
+	//
+	// @zasm_var SUBWIDGREQCOUNTERCOND
+	internal int RequiredCounterCond;
+	
+	// The counter value this widget requires to be active/visible.
+	// The [RequiredCounter] must relate to this value based on the [RequiredCounterCond].
+	//
+	// @zasm_var SUBWIDGREQCOUNTERVAL
+	internal int RequiredCounterValue;
+	
+	// The Level Items that are required to be owned (or unowned, if [SUBW_GENFL_REQ_INVERT_LITEM] is set)
+	//
+	// @value [enum LevelItemBitflags]
+	//
+	// @zasm_var SUBWIDGREQLITEMS
+	internal int RequiredLItems;
+	
+	// The Level that [RequiredLItems] are checked for. If set to '-1', uses the
+	// current level.
+	//
+	// @zasm_var SUBWIDGREQLITEMLEVEL
+	internal int RequiredLItemLevel;
+	
+	// If set to 'true', the widget will not be active/visible.
+	//
+	// @zasm_var SUBWIDGREQSCRIPTDISABLED
+	internal bool ScriptDisabled;
+	
 	// The X/Y/W/H offsets for the selector on this widget, if the selector is
 	// overridden (see [GenFlags]).
 	//
@@ -840,4 +912,19 @@ class subscreenwidget {
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_TY_SETTEXT D2
 	internal void SetText(char32[] str);
+	
+	// Checks the requirements / conditions of this widget.
+	// See [RequiredOwnedItems], [RequiredUnownedItems], [RequiredCounter], [RequiredLItems], [ScriptDisabled]
+	//
+	// @zasm
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_CHECK_CONDITIONS D2
+	internal bool CheckConditions();
+	
+	// Checks that the widget is visible- meaning, it both passes [CheckConditions] and [VisibleFlags].
+	//
+	// @zasm
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_CHECK_VISIBLE D2
+	internal bool CheckVisible();
 }

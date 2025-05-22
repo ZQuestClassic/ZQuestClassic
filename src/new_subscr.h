@@ -23,6 +23,18 @@ extern bool subscr_itemless, subscr_pg_animating;
 void subscrpg_clear_animation();
 bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& parent);
 
+enum
+{
+	CONDTY_NONE,
+	CONDTY_EQ, // ==
+	CONDTY_NEQ, // !=
+	CONDTY_GREATER, // >
+	CONDTY_GREATEREQ, // >=
+	CONDTY_LESS, // <
+	CONDTY_LESSEQ, // <=
+	CONDTY_MAX
+};
+
 //Old subscreen stuff
 struct subscreen_object
 {
@@ -260,7 +272,10 @@ enum //PGGOTO modes
 #define SUBSCRFLAG_SELECTABLE         0x00000001
 #define SUBSCRFLAG_PGGOTO_NOWRAP      0x00000002
 #define SUBSCRFLAG_SELOVERRIDE        0x00000004
-#define SUBSCRFLAG_GEN_COUNT 3
+#define SUBSCRFLAG_REQ_COUNTER_MAX    0x00000008
+#define SUBSCRFLAG_REQ_COUNTER_PERC   0x00000010
+#define SUBSCRFLAG_REQ_INVERT_LITEM   0x00000020
+#define SUBSCRFLAG_GEN_COUNT 5
 
 #define SUBSCRFLAG_SPEC_01            0x00000001
 #define SUBSCRFLAG_SPEC_02            0x00000002
@@ -307,6 +322,19 @@ struct SubscrWidget
 	
 	std::string label;
 	
+	//Conditionals
+	std::set<byte> req_owned_items;
+	std::set<byte> req_unowned_items;
+	
+	int16_t req_counter = crNONE;
+	word req_counter_val;
+	byte req_counter_cond_type = CONDTY_NONE;
+	
+	byte req_litems;
+	int16_t req_litem_level = -1;
+	
+	bool is_disabled;
+	
 	//if SUBSCRFLAG_SELECTABLE...
 	
 	//Selector position, and directionals
@@ -348,6 +376,8 @@ struct SubscrWidget
 	
 	void check_btns(byte btnflgs, ZCSubscreen& parent) const;
 	std::string getTypeName() const;
+	
+	bool check_conditions() const;
 	
 	void replay_rand_compat(byte pos) const;
 	

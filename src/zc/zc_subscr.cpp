@@ -24,6 +24,7 @@ extern int32_t directItemX;
 
 //DIALOG *sso_properties_dlg;
 
+int current_subscr_pos = sspUP;
 static bool opening_subscr_show_bottom_8px;
 
 void put_active_subscr(int32_t y, int32_t pos)
@@ -53,6 +54,7 @@ void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 		put_passive_subscr(dest,x,y+distance,showtime,pos);
 	}
 }
+
 void dosubscr()
 {
 	PALETTE temppal;
@@ -123,6 +125,7 @@ void dosubscr()
 	FFCore.initZScriptSubscreenScript();
 	subscrpg_clear_animation();
 	subscreen_open = true;
+	current_subscr_pos = sspSCROLLING;
 	for(int32_t y = -distance; y <= 0; y += 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
@@ -164,6 +167,7 @@ void dosubscr()
 			return;
 	}
 	active_sub_yoff = -playing_field_offset;
+	current_subscr_pos = sspDOWN;
 	bool done=false;
 
 	// Consume whatever input was registered during opening animation.
@@ -487,6 +491,7 @@ void dosubscr()
 	}
 	while(!done);
 	subscrpg_clear_animation();
+	current_subscr_pos = sspSCROLLING;
 	for(int32_t y = 0; y >= -distance; y -= 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
@@ -526,6 +531,7 @@ void dosubscr()
 	}
 	active_sub_yoff = -224;
 	subscreen_open = false;
+	current_subscr_pos = sspUP;
 	updateShowBottomPixels(); // might have changed.
 	if(usebombpal)
 	{
