@@ -42,6 +42,8 @@ const char *ssfont2_str[] =
 };
 const char *icounter_str2[-(sscMIN+1)]=
 {
+	"Button A [1]", "Button B [1]", "Button X [1]", "Button Y [1]",
+	"Button A [0]", "Button B [0]", "Button X [0]", "Button Y [0]",
     "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
     "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic",
 	"Max Life", "Max Magic"

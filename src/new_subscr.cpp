@@ -179,8 +179,64 @@ int old_ssc_to_new_ctr(int ssc)
 			return crNONE;
 	}
 }
+static int simplify_counter(int ctr)
+{
+	switch(ctr)
+	{
+		case sscBTNCTRA_0:
+		{
+			itemdata const& itm = itemsbuf[Awpn&0xFF];
+			if(!itm.cost_amount[0]) return crNONE;
+			return itm.cost_counter[0];
+		}
+		case sscBTNCTRA_1:
+		{
+			itemdata const& itm = itemsbuf[Awpn&0xFF];
+			if(!itm.cost_amount[1]) return crNONE;
+			return itm.cost_counter[1];
+		}
+		case sscBTNCTRB_0:
+		{
+			itemdata const& itm = itemsbuf[Bwpn&0xFF];
+			if(!itm.cost_amount[0]) return crNONE;
+			return itm.cost_counter[0];
+		}
+		case sscBTNCTRB_1:
+		{
+			itemdata const& itm = itemsbuf[Bwpn&0xFF];
+			if(!itm.cost_amount[1]) return crNONE;
+			return itm.cost_counter[1];
+		}
+		case sscBTNCTRX_0:
+		{
+			itemdata const& itm = itemsbuf[Xwpn&0xFF];
+			if(!itm.cost_amount[0]) return crNONE;
+			return itm.cost_counter[0];
+		}
+		case sscBTNCTRX_1:
+		{
+			itemdata const& itm = itemsbuf[Xwpn&0xFF];
+			if(!itm.cost_amount[1]) return crNONE;
+			return itm.cost_counter[1];
+		}
+		case sscBTNCTRY_0:
+		{
+			itemdata const& itm = itemsbuf[Ywpn&0xFF];
+			if(!itm.cost_amount[0]) return crNONE;
+			return itm.cost_counter[0];
+		}
+		case sscBTNCTRY_1:
+		{
+			itemdata const& itm = itemsbuf[Ywpn&0xFF];
+			if(!itm.cost_amount[1]) return crNONE;
+			return itm.cost_counter[1];
+		}
+	}
+	return ctr;
+}
 word get_ssc_ctrmax(int ctr)
 {
+	ctr = simplify_counter(ctr);
 	if(ctr == crNONE)
 		return 0;
 	if(zq_view_maxctr)
@@ -225,6 +281,7 @@ word get_ssc_ctrmax(int ctr)
 }
 word get_ssc_ctr(int ctr, bool* infptr = nullptr)
 {
+	ctr = simplify_counter(ctr);
 	if(ctr == crNONE)
 		return 0;
 	dword ret = 0;
