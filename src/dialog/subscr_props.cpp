@@ -1842,7 +1842,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			),
 			TabRef(name = "Other",
 				Column(
-					Frame(title = "Counter Requirement",
+					Frame(title = "Counter Requirement", info = "If either the counter or the operator is 'None', no counter will be checked."
+						" If 'Percentage Value' is checked, the percent of total of the selected counter will be compared;"
+						" else if 'Max Value' is checked, the max value of the selected counter will be compared. If neither is checked,"
+						" the current value of the counter will be compared.",
 						Column(
 							Row(
 								DropDownList(data = list_counters,
