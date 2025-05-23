@@ -147,7 +147,8 @@ class subscreenwidget {
 
 	// The general flags for subscreen widgets.
 	// These are usually applicable regardless of widget type.
-	// Use the 'SUBW_GENFL_' constants to access.
+	//
+	// @index [enum SubscreenWidgetGenFlag]
 	//
 	// @zasm_var SUBWIDGGENFLAG
 	internal bool GenFlags[];
@@ -175,9 +176,10 @@ class subscreenwidget {
 	
 	// The counter this widget requires to be active/visible.
 	// Must relate to the [RequiredCounterValue] based on the [RequiredCounterCond].
-	// If [CR_NONE], no requirement will be checked.
-	// If [SUBW_GENFL_REQ_MAXCOUNTER] is set, then the MAX of this counter will be used,
-	// instead of it's current value.
+	// - If [CR_NONE], no requirement will be checked.
+	// - If [SUBW_GENFL_REQ_COUNTER_PERC] is set, then the percentage this counter is full will be compared
+	// - Otherwise, if [SUBW_GENFL_REQ_COUNTER_MAX] is set, then the max value of this counter will be compared
+	// - Otherwise, this counter's value will be compared
 	//
 	// @value [enum CounterIndex]
 	//

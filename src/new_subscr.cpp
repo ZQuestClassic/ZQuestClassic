@@ -1445,31 +1445,36 @@ bool SubscrWidget::check_conditions() const
 	}
 	if(req_counter != crNONE && req_counter_cond_type != CONDTY_NONE)
 	{
-		auto val = (genflags&SUBSCRFLAG_REQ_MAXCOUNTER) ? get_ssc_ctrmax(req_counter) : get_ssc_ctr(req_counter);
+		zfix val = get_ssc_ctr(req_counter);
+		if(genflags&SUBSCRFLAG_REQ_COUNTER_PERC)
+			val = (val / get_ssc_ctrmax(req_counter)) * 100_zf;
+		else if(genflags&SUBSCRFLAG_REQ_COUNTER_MAX)
+			val = get_ssc_ctrmax(req_counter);
+		zfix targ_val = req_counter_val;
 		switch(req_counter_cond_type)
 		{
 			case CONDTY_EQ:
-				if(!(val == req_counter_val))
+				if(!(val == targ_val))
 					return false;
 				break;
 			case CONDTY_NEQ:
-				if(!(val != req_counter_val))
+				if(!(val != targ_val))
 					return false;
 				break;
 			case CONDTY_GREATER:
-				if(!(val > req_counter_val))
+				if(!(val > targ_val))
 					return false;
 				break;
 			case CONDTY_GREATEREQ:
-				if(!(val >= req_counter_val))
+				if(!(val >= targ_val))
 					return false;
 				break;
 			case CONDTY_LESS:
-				if(!(val < req_counter_val))
+				if(!(val < targ_val))
 					return false;
 				break;
 			case CONDTY_LESSEQ:
-				if(!(val <= req_counter_val))
+				if(!(val <= targ_val))
 					return false;
 				break;
 		}

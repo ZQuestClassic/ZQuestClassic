@@ -1843,36 +1843,47 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			TabRef(name = "Other",
 				Column(
 					Frame(title = "Counter Requirement",
-						Rows<3>(
-							DropDownList(data = list_counters,
-								fitParent = true,
-								selectedValue = local_subref->req_counter,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_subref->req_counter = val;
-								}),
-							DropDownList(data = list_condty,
-								fitParent = true,
-								selectedValue = local_subref->req_counter_cond_type,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_subref->req_counter_cond_type = val;
-								}),
-							TextField(
-								fitParent = true,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 65535, val = local_subref->req_counter_val,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_subref->req_counter_val = val;
-								}),
-							Checkbox(
-								text = "Max Value", hAlign = 0.0,
-								checked = local_subref->genflags & SUBSCRFLAG_REQ_MAXCOUNTER,
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_MAXCOUNTER,state);
-								})
+						Column(
+							Row(
+								DropDownList(data = list_counters,
+									fitParent = true,
+									selectedValue = local_subref->req_counter,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_subref->req_counter = val;
+									}),
+								DropDownList(data = list_condty,
+									fitParent = true,
+									selectedValue = local_subref->req_counter_cond_type,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_subref->req_counter_cond_type = val;
+									}),
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 65535, val = local_subref->req_counter_val,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_subref->req_counter_val = val;
+									})
+							),
+							Row(
+								Checkbox(
+									text = "Max Value", hAlign = 0.0,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_COUNTER_MAX,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_COUNTER_MAX,state);
+									}),
+								Checkbox(
+									text = "Percentage Value", hAlign = 0.0,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_COUNTER_PERC,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_COUNTER_PERC,state);
+									})
+							)
 						)
 					),
 					Frame(title = "Level Items", info = "All checked LItems are required, unless 'Invert' is checked, then it is required to have none instead.",
