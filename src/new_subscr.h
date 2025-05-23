@@ -322,8 +322,8 @@ struct SubscrWidget
 	std::string label;
 	
 	//Conditionals
-	std::set<byte> req_items;
-	std::set<byte> req_items_not;
+	std::set<byte> req_owned_items;
+	std::set<byte> req_unowned_items;
 	
 	int16_t req_counter = crNONE;
 	word req_counter_val;

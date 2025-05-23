@@ -11737,7 +11737,7 @@ int32_t get_register(int32_t arg)
 					Z_scripterrlog("Bad index '%d' to array "
 						"'subscreenwidget->RequiredOwnedItems[%d]'\n", indx, MAXITEMS);
 				}
-				else ret = widg->req_items.contains(indx) ? 10000 : 0;
+				else ret = widg->req_owned_items.contains(indx) ? 10000 : 0;
 			}
 			break;
 		}
@@ -11751,7 +11751,7 @@ int32_t get_register(int32_t arg)
 					Z_scripterrlog("Bad index '%d' to array "
 						"'subscreenwidget->RequiredUnownedItems[%d]'\n", indx, MAXITEMS);
 				}
-				else ret = widg->req_items_not.contains(indx) ? 10000 : 0;
+				else ret = widg->req_unowned_items.contains(indx) ? 10000 : 0;
 			}
 			break;
 		}
@@ -22234,9 +22234,9 @@ void set_register(int32_t arg, int32_t value)
 				else
 				{
 					if(value)
-						widg->req_items.insert(indx);
+						widg->req_owned_items.insert(indx);
 					else
-						widg->req_items.erase(indx);
+						widg->req_owned_items.erase(indx);
 				}
 			}
 			break;
@@ -22254,9 +22254,9 @@ void set_register(int32_t arg, int32_t value)
 				else
 				{
 					if(value)
-						widg->req_items_not.insert(indx);
+						widg->req_unowned_items.insert(indx);
 					else
-						widg->req_items_not.erase(indx);
+						widg->req_unowned_items.erase(indx);
 				}
 			}
 			break;

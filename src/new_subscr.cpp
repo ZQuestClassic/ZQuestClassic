@@ -1175,8 +1175,8 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 	flags = src->flags;
 	genflags = src->genflags;
 	posflags = src->posflags;
-	req_items = src->req_items;
-	req_items_not = src->req_items_not;
+	req_owned_items = src->req_owned_items;
+	req_unowned_items = src->req_unowned_items;
 	req_counter = src->req_counter;
 	req_counter_val = src->req_counter_val;
 	req_counter_cond_type = src->req_counter_cond_type;
@@ -1290,21 +1290,21 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 		byte iid;
 		if(!p_igetw(&count,f))
 			return qe_invalid;
-		req_items.clear();
+		req_owned_items.clear();
 		for(word q = 0; q < count; ++q)
 		{
 			if(!p_getc(&iid,f))
 				return qe_invalid;
-			req_items.insert(iid);
+			req_owned_items.insert(iid);
 		}
 		if(!p_igetw(&count,f))
 			return qe_invalid;
-		req_items_not.clear();
+		req_unowned_items.clear();
 		for(word q = 0; q < count; ++q)
 		{
 			if(!p_getc(&iid,f))
 				return qe_invalid;
-			req_items_not.insert(iid);
+			req_unowned_items.insert(iid);
 		}
 		if(!p_igetw(&req_counter,f))
 			return qe_invalid;
@@ -1394,14 +1394,14 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 				return ret;
 		}
 	}
-	if(!p_iputw(req_items.size(),f))
+	if(!p_iputw(req_owned_items.size(),f))
 		new_return(1);
-	for(byte iid : req_items)
+	for(byte iid : req_owned_items)
 		if(!p_putc(iid,f))
 			new_return(1);
-	if(!p_iputw(req_items_not.size(),f))
+	if(!p_iputw(req_unowned_items.size(),f))
 		new_return(1);
-	for(byte iid : req_items_not)
+	for(byte iid : req_unowned_items)
 		if(!p_putc(iid,f))
 			new_return(1);
 	if(!p_iputw(req_counter,f))
@@ -1433,12 +1433,12 @@ bool SubscrWidget::check_conditions() const
 #ifdef IS_PLAYER
 	if(is_disabled) // script-disable condition
 		return false;
-	for(auto iid : req_items)
+	for(auto iid : req_owned_items)
 	{
 		if(!game->get_item(iid))
 			return false;
 	}
-	for(auto iid : req_items_not)
+	for(auto iid : req_unowned_items)
 	{
 		if(game->get_item(iid))
 			return false;

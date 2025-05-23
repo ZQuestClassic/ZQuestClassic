@@ -1754,9 +1754,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				)
 			)
 		)));
-	cond_item_sels[CI_REQ] = local_subref->req_items.empty() ? -1 : *(local_subref->req_items.begin());
+	cond_item_sels[CI_REQ] = local_subref->req_owned_items.empty() ? -1 : *(local_subref->req_owned_items.begin());
 	cond_item_sels[CI_PICKED] = 0;
-	cond_item_sels[CI_REQ_NOT] = local_subref->req_items_not.empty() ? -1 : *(local_subref->req_items_not.begin());
+	cond_item_sels[CI_REQ_NOT] = local_subref->req_unowned_items.empty() ? -1 : *(local_subref->req_unowned_items.begin());
 	updateConditions();
 	std::shared_ptr<GUI::List> cond_itms_list;
 	std::shared_ptr<GUI::Label> tmplbl;
@@ -1796,13 +1796,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						Button(text = "->",
 							onPressFunc = [&]()
 							{
-								local_subref->req_items.erase(cond_item_sels[CI_REQ]);
+								local_subref->req_owned_items.erase(cond_item_sels[CI_REQ]);
 								updateConditions();
 							}),
 						Button(text = "<-",
 							onPressFunc = [&]()
 							{
-								local_subref->req_items.insert(cond_item_sels[CI_PICKED]);
+								local_subref->req_owned_items.insert(cond_item_sels[CI_PICKED]);
 								updateConditions();
 							})
 					),
@@ -1810,13 +1810,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						Button(text = "->",
 							onPressFunc = [&]()
 							{
-								local_subref->req_items_not.erase(cond_item_sels[CI_REQ_NOT]);
+								local_subref->req_unowned_items.erase(cond_item_sels[CI_REQ_NOT]);
 								updateConditions();
 							}),
 						Button(text = "<-",
 							onPressFunc = [&]()
 							{
-								local_subref->req_items_not.insert(cond_item_sels[CI_PICKED]);
+								local_subref->req_unowned_items.insert(cond_item_sels[CI_PICKED]);
 								updateConditions();
 							})
 					),
@@ -2049,11 +2049,11 @@ void SubscrPropDialog::updateColors()
 }
 void SubscrPropDialog::updateConditions()
 {
-	bool req_item_empty = local_subref->req_items.empty(), req_not_item_empty = local_subref->req_items_not.empty();
+	bool req_item_empty = local_subref->req_owned_items.empty(), req_not_item_empty = local_subref->req_unowned_items.empty();
 	list_reqitems.clear();
 	if(req_item_empty)
 		list_reqitems.add("---", -1);
-	else for(auto iid : local_subref->req_items)
+	else for(auto iid : local_subref->req_owned_items)
 	{
 		list_reqitems.add(GUI::ListItem(list_items_no_none.accessItem(iid)));
 	}
@@ -2061,7 +2061,7 @@ void SubscrPropDialog::updateConditions()
 	list_reqnotitems.clear();
 	if(req_not_item_empty)
 		list_reqnotitems.add("---", -1);
-	else for(auto iid : local_subref->req_items_not)
+	else for(auto iid : local_subref->req_unowned_items)
 	{
 		list_reqnotitems.add(GUI::ListItem(list_items_no_none.accessItem(iid)));
 	}
