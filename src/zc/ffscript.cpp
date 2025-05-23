@@ -11727,6 +11727,70 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
+		case SUBWIDGREQOWNITEMS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= MAXITEMS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->RequiredOwnedItems[%d]'\n", indx, MAXITEMS);
+				}
+				else ret = widg->req_items.contains(indx) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBWIDGREQUNOWNITEMS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= MAXITEMS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->RequiredUnownedItems[%d]'\n", indx, MAXITEMS);
+				}
+				else ret = widg->req_items_not.contains(indx) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBWIDGREQCOUNTER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				ret = 10000 * widg->req_counter;
+			break;
+		}
+		case SUBWIDGREQCOUNTERCOND:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				ret = 10000 * widg->req_counter_cond_type;
+			break;
+		}
+		case SUBWIDGREQCOUNTERVAL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				ret = 10000 * widg->req_counter_val;
+			break;
+		}
+		case SUBWIDGREQLITEMS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				ret = 10000 * widg->req_litems;
+			break;
+		}
+		case SUBWIDGREQLITEMLEVEL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				ret = 10000 * widg->req_litem_level;
+			break;
+		}
+		case SUBWIDGREQSCRIPTDISABLED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				ret = widg->is_disabled ? 10000 : 0;
+			break;
+		}
 		///---- ACTIVE SUBSCREENS ONLY
 		case SUBWIDGSELECTORDSTX:
 		{
@@ -22155,6 +22219,82 @@ void set_register(int32_t arg, int32_t value)
 					SETFLAG(widg->flags, 1<<indx, value);
 				}
 			}
+			break;
+		}
+		case SUBWIDGREQOWNITEMS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= MAXITEMS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->RequiredOwnedItems[%d]'\n", indx, MAXITEMS);
+				}
+				else
+				{
+					if(value)
+						widg->req_items.insert(indx);
+					else
+						widg->req_items.erase(indx);
+				}
+			}
+			break;
+		}
+		case SUBWIDGREQUNOWNITEMS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= MAXITEMS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->RequiredUnownedItems[%d]'\n", indx, MAXITEMS);
+				}
+				else
+				{
+					if(value)
+						widg->req_items_not.insert(indx);
+					else
+						widg->req_items_not.erase(indx);
+				}
+			}
+			break;
+		}
+		case SUBWIDGREQCOUNTER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				widg->req_counter = vbound(value/10000,sscMIN,MAX_COUNTERS);
+			break;
+		}
+		case SUBWIDGREQCOUNTERCOND:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				widg->req_counter_cond_type = vbound(value/10000,CONDTY_NONE,CONDTY_MAX-1);
+			break;
+		}
+		case SUBWIDGREQCOUNTERVAL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				widg->req_counter_val = vbound(value/10000,0,65535);
+			break;
+		}
+		case SUBWIDGREQLITEMS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				widg->req_litems = vbound(value/10000,0,liALL);
+			break;
+		}
+		case SUBWIDGREQLITEMLEVEL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				widg->req_litem_level = vbound(value/10000,-1,MAXLEVELS);
+			break;
+		}
+		case SUBWIDGREQSCRIPTDISABLED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				widg->is_disabled = value != 0;
 			break;
 		}
 		///---- ACTIVE SUBSCREENS ONLY

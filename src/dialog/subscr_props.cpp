@@ -1765,7 +1765,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			TabRef(name = "Items",
 				Columns<4>(
 					Row(padding = 0_px,
-						Label(text = "Required Items"),
+						Label(text = "Required Owned Items"),
 						INFOBTN("Widget will not exist unless these items are owned.")
 					),
 					req_item_list = List(minheight = 100_px,
@@ -1779,7 +1779,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						}
 					),
 					Row(padding = 0_px,
-						Label(text = "Anti-Required Items"),
+						Label(text = "Required Unowned Items"),
 						INFOBTN("Widget will not exist if any of these items are owned.")
 					),
 					req_not_item_list = List(minheight = 100_px,

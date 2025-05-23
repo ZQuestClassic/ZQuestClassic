@@ -1124,6 +1124,14 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SUBWIDGDISPITM: return "subscreenwidget::DisplayItem";
 		case SUBWIDGEQPITM: return "subscreenwidget::EquipItem";
 		case SUBWIDGFLAG: return "subscreenwidget::Flags[]";
+		case SUBWIDGREQOWNITEMS: return "subscreenwidget::RequiredOwnedItems[]";
+		case SUBWIDGREQUNOWNITEMS: return "subscreenwidget::RequiredUnownedItems[]";
+		case SUBWIDGREQCOUNTER: return "subscreenwidget::RequiredCounter";
+		case SUBWIDGREQCOUNTERCOND: return "subscreenwidget::RequiredCounterCond";
+		case SUBWIDGREQCOUNTERVAL: return "subscreenwidget::RequiredCounterValue";
+		case SUBWIDGREQLITEMS: return "subscreenwidget::RequiredLItems";
+		case SUBWIDGREQLITEMLEVEL: return "subscreenwidget::RequiredLItemLevel";
+		case SUBWIDGREQSCRIPTDISABLED: return "subscreenwidget::ScriptDisabled";
 		case SUBWIDGTY_FLIP: return "subscreenwidget::Flip";
 		case SUBWIDGTY_FONT: return "subscreenwidget::Font";
 		case SUBWIDGTY_FRAMECSET: return "subscreenwidget::FrameCSet";

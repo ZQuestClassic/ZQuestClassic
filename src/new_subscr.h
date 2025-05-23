@@ -32,6 +32,7 @@ enum
 	CONDTY_GREATEREQ, // >=
 	CONDTY_LESS, // <
 	CONDTY_LESSEQ, // <=
+	CONDTY_MAX
 };
 
 //Old subscreen stuff
