@@ -1875,8 +1875,75 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								})
 						)
 					),
-					Frame(title = "Level Items",
-						Label(text = "TODO")
+					Frame(title = "Level Items", info = "All checked LItems are required, unless 'Invert' is checked, then it is required to have none instead.",
+						Row(
+							Rows<2>(
+								INFOBTN("The Hero has the McGuffin for the specified level"),
+								Checkbox(
+									text = "McGuffin", hAlign = 0.0,
+									checked = local_subref->req_litems & liTRIFORCE,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liTRIFORCE,state);
+									}),
+								INFOBTN("The Hero has the Map for the specified level"),
+								Checkbox(
+									text = "Map", hAlign = 0.0,
+									checked = local_subref->req_litems & liMAP,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liMAP,state);
+									}),
+								INFOBTN("The Hero has the Compass for the specified level"),
+								Checkbox(
+									text = "Compass", hAlign = 0.0,
+									checked = local_subref->req_litems & liCOMPASS,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liCOMPASS,state);
+									}),
+								INFOBTN("The Hero has cleared the 'Dungeon Boss' room for the specified level"),
+								Checkbox(
+									text = "Boss Killed", hAlign = 0.0,
+									checked = local_subref->req_litems & liBOSS,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liBOSS,state);
+									}),
+								INFOBTN("The Hero has the Boss Key for the specified level"),
+								Checkbox(
+									text = "Boss Key", hAlign = 0.0,
+									checked = local_subref->req_litems & liBOSSKEY,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->req_litems,liBOSSKEY,state);
+									})
+							),
+							Rows<3>(
+								Label(text = "For Level:"),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -1, high = MAXLEVELS, val = local_subref->req_litem_level,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_subref->req_litem_level = val;
+									}),
+								INFOBTN("The required litems will be for this specified level. Specifying '-1' will require the items"
+									" for the *current* level."),
+								Checkbox(
+									text = "Invert", hAlign = 1.0, colSpan = 2,
+									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_LITEM,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_LITEM,state);
+									}
+								),
+								INFOBTN("If checked, it will be required to have NONE of the LItems instead of ALL of the LItems.")
+							)
+						)
 					)
 				)
 			)

@@ -1180,6 +1180,8 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 	req_counter = src->req_counter;
 	req_counter_val = src->req_counter_val;
 	req_counter_cond_type = src->req_counter_cond_type;
+	req_litems = src->req_litems;
+	req_litem_level = src->req_litem_level;
 	is_disabled = src->is_disabled;
 	if(all)
 	{
@@ -1310,6 +1312,10 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 			return qe_invalid;
 		if(!p_getc(&req_counter_cond_type,f))
 			return qe_invalid;
+		if(!p_getc(&req_litems,f))
+			return qe_invalid;
+		if(!p_igetw(&req_litem_level,f))
+			return qe_invalid;
 		byte tempb;
 		if(!p_getc(&tempb,f))
 			return qe_invalid;
@@ -1404,6 +1410,10 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_putc(req_counter_cond_type,f))
 		new_return(1);
+	if(!p_putc(req_litems,f))
+		new_return(1);
+	if(!p_iputw(req_litem_level,f))
+		new_return(1);
 	if(!p_putc(is_disabled?1:0,f))
 		new_return(1);
 	return 0;
@@ -1462,6 +1472,17 @@ bool SubscrWidget::check_conditions() const
 				if(!(val <= req_counter_val))
 					return false;
 				break;
+		}
+	}
+	if(req_litems)
+	{
+		auto target_lvl = req_litem_level < 0 ? get_dlevel() : req_litem_level;
+		if(!(target_lvl < 0 || target_lvl >= MAXLEVELS))
+		{
+			bool inverted = genflags&SUBSCRFLAG_REQ_INVERT_LITEM;
+			auto litems = game->lvlitems[target_lvl]&req_litems;
+			if(inverted ? litems != 0 : litems != req_litems)
+				return false;
 		}
 	}
 #endif

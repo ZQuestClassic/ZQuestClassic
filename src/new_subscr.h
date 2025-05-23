@@ -272,7 +272,8 @@ enum //PGGOTO modes
 #define SUBSCRFLAG_PGGOTO_NOWRAP      0x00000002
 #define SUBSCRFLAG_SELOVERRIDE        0x00000004
 #define SUBSCRFLAG_REQ_MAXCOUNTER     0x00000008
-#define SUBSCRFLAG_GEN_COUNT 4
+#define SUBSCRFLAG_REQ_INVERT_LITEM   0x00000010
+#define SUBSCRFLAG_GEN_COUNT 5
 
 #define SUBSCRFLAG_SPEC_01            0x00000001
 #define SUBSCRFLAG_SPEC_02            0x00000002
@@ -326,6 +327,9 @@ struct SubscrWidget
 	int16_t req_counter = crNONE;
 	word req_counter_val;
 	byte req_counter_cond_type = CONDTY_NONE;
+	
+	byte req_litems;
+	int16_t req_litem_level = -1;
 	
 	bool is_disabled;
 	

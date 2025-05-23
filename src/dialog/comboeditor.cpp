@@ -2999,7 +2999,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = MAXDMAPS, val = local_comboref.trigdmlevel,
+								low = -1, high = MAXLEVELS, val = local_comboref.trigdmlevel,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_comboref.trigdmlevel = val;
