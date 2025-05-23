@@ -1759,7 +1759,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	cond_item_sels[CI_REQ_NOT] = local_subref->req_unowned_items.empty() ? -1 : *(local_subref->req_unowned_items.begin());
 	updateConditions();
 	std::shared_ptr<GUI::List> cond_itms_list;
-	std::shared_ptr<GUI::Label> tmplbl;
 	tpan->add(TabRef(name = "Conditions",
 		TabPanel(
 			TabRef(name = "Items",
@@ -1774,7 +1773,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						selectedValue = cond_item_sels[CI_REQ],
 						onSelectFunc = [&](int32_t val)
 						{
-							// tmplbl->setText(fmt::format("{}", val));
 							cond_item_sels[CI_REQ] = val;
 						}
 					),
@@ -1788,7 +1786,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						selectedValue = cond_item_sels[CI_REQ_NOT],
 						onSelectFunc = [&](int32_t val)
 						{
-							// tmplbl->setText(fmt::format("{}", val));
 							cond_item_sels[CI_REQ_NOT] = val;
 						}
 					),
@@ -1820,7 +1817,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								updateConditions();
 							})
 					),
-					tmplbl = Label(text = "Items"),
+					Label(text = "Items"),
 					cond_itms_list = List(minheight = 300_px, fitParent = true, rowSpan = 3,
 						data = list_items_no_none.filter([&](GUI::ListItem& itm)
 							{
@@ -1834,7 +1831,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						selectedIndex = 0,
 						onSelectFunc = [&](int32_t val)
 						{
-							// tmplbl->setText(fmt::format("{}", val));
 							cond_item_sels[CI_PICKED] = val;
 						}
 					)
