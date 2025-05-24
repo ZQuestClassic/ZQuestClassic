@@ -1943,6 +1943,8 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case SUBPAGE_FIND_WIDGET_BY_LABEL: return "subscreenpage::GetWidget()";
 		case SUBPAGE_MOVE_SEL: return "subscreenpage::SelectorMove()";
 		case SUBPAGE_SWAP_WIDG: return "subscreenpage::SwapWidgets()";
+		case SUBWIDG_CHECK_CONDITIONS: return "subscreenwidget::CheckConditions()";
+		case SUBWIDG_CHECK_VISIBLE: return "subscreenwidget::CheckVisible()";
 		case SUBWIDG_GET_LABEL: return "subscreenwidget::GetLabel()";
 		case SUBWIDG_GET_SELTEXT_OVERRIDE: return "subscreenwidget::GetSelTextOverride()";
 		case SUBWIDG_TY_GETTEXT: return "subscreenwidget::GetText()";

@@ -912,4 +912,19 @@ class subscreenwidget {
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_TY_SETTEXT D2
 	internal void SetText(char32[] str);
+	
+	// Checks the requirements / conditions of this widget.
+	// See [RequiredOwnedItems], [RequiredUnownedItems], [RequiredCounter], [RequiredLItems], [ScriptDisabled]
+	//
+	// @zasm
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_CHECK_CONDITIONS D2
+	internal bool CheckConditions();
+	
+	// Checks that the widget is visible- meaning, it both passes [CheckConditions] and [VisibleFlags].
+	//
+	// @zasm
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_CHECK_VISIBLE D2
+	internal bool CheckVisible();
 }

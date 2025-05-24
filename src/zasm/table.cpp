@@ -1166,6 +1166,8 @@ static constexpr script_command command_list[]=
 	{ "BMPCOMBOBLIT", BMPCOMBOBLIT, 0, {}, 0, 0 },
 	{ "LOAD_FFC", LOAD_FFC, 1, {REG_RW}, 0, 0},
 	{ "REPAIRSHIELD", REPAIRSHIELD, 1, { REG_R }, 0, 0 },
+	{ "SUBWIDG_CHECK_CONDITIONS", SUBWIDG_CHECK_CONDITIONS, 1, { REG_R }, 0, 0 },
+	{ "SUBWIDG_CHECK_VISIBLE", SUBWIDG_CHECK_VISIBLE, 1, { REG_R }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=

@@ -34329,6 +34329,23 @@ int32_t run_script_int(bool is_jitted)
 				}
 				break;
 			}
+			case SUBWIDG_CHECK_CONDITIONS:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				{
+					set_register(sarg1, widg->check_conditions() ? 10000 : 0);
+				}
+				break;
+			}
+			case SUBWIDG_CHECK_VISIBLE:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+				{
+					extern int current_subscr_pos;
+					set_register(sarg1, widg->visible(current_subscr_pos, game->should_show_time()) ? 10000 : 0);
+				}
+				break;
+			}
 			case SUBWIDG_TY_GETTEXT:
 			{
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
