@@ -69,3 +69,5 @@ drop 35505498d5a8e2c2668eb7a1d21715ed9af3900a fix(zq): add missing sideview ladd
 
 reword 383b5d34a6d33963e0a0caef3f6ff2c1c49d920b refactor(zq): upgrade sprite data list dialog
 reword c4a6d8b720e294688fa688828f276e2caf5c1584 refactor(zq): clean up `Quest->Audio->MIDIs` lister
+
+drop 14267e6b6fd29a990b66438ed35ccb9e79d9ce74 feat: subscreen minimap compass can point to boss instead of McGuffin

@@ -2919,6 +2919,8 @@ static constexpr script_variable variable_list[]=
 	
 	{ "COMBODLIFTLIGHTRAD", COMBODLIFTLIGHTRAD, 0},
 	{ "COMBODLIFTLIGHTSHAPE", COMBODLIFTLIGHTSHAPE, 0},
+	
+	{ "SUBWIDGTY_LITEMS", SUBWIDGTY_LITEMS, 0},
 };
 
 // Don't rely on `command_list` to be indexed by command.

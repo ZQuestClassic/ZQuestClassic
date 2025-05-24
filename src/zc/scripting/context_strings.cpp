@@ -1141,6 +1141,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SUBWIDGTY_INFITM: return "subscreenwidget::InfiniteItem";
 		case SUBWIDGTY_ITEMID: return "subscreenwidget::ItemID";
 		case SUBWIDGTY_ITEMCLASS: return "subscreenwidget::ItemType";
+		case SUBWIDGTY_LITEMS: return "subscreenwidget::LItems";
 		case SUBWIDGTY_MAXDIG: return "subscreenwidget::MaxDigits";
 		case SUBWIDGTY_MINDIG: return "subscreenwidget::MinDigits";
 		case SUBWIDGTY_NUMBER: return "subscreenwidget::Number";

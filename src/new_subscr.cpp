@@ -2882,7 +2882,6 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 	auto const& thedmap = DMaps[get_sub_dmap()];
 	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(thedmap.map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
 	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(thedmap.flags&dmfNOCOMPASS);
-	bool cmp_on_boss = (flags&SUBSCR_MMAP_CMPONBOSS);
 	zcolors const& c = QMisc.colors;
 	int32_t type = (thedmap.type&dmfTYPE);
 	
@@ -2961,8 +2960,11 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			{
 				int32_t c2 = c_cmp_off.get_color();
 				
-				if(!(game->lvlitems[get_dlevel()]&(cmp_on_boss ? liBOSS : liTRIFORCE)) && (frame&16))
-					c2 = c_cmp_blink.get_color();
+				if(frame&16)
+				{
+					if((game->lvlitems[get_dlevel()] & compass_litems) != compass_litems) // if you don't have all of them, keep blinking
+						c2 = c_cmp_blink.get_color();
+				}
 					
 				int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
 				int32_t cy = ((thedmap.compass&0xF0)>>2)+ty+8;
@@ -3008,6 +3010,7 @@ bool SW_MMap::copy_prop(SubscrWidget const* src, bool all)
 	SW_MMap const* other = dynamic_cast<SW_MMap const*>(src);
 	if(!SubscrWidget::copy_prop(other,all))
 		return false;
+	compass_litems = other->compass_litems;
 	c_plr = other->c_plr;
 	c_cmp_blink = other->c_cmp_blink;
 	c_cmp_off = other->c_cmp_off;
@@ -3017,6 +3020,11 @@ int32_t SW_MMap::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
+	if(s_version >= 13)
+	{
+		if(!p_getc(&compass_litems,f))
+			return qe_invalid;
+	}
 	if(auto ret = c_plr.read(f,s_version))
 		return ret;
 	if(auto ret = c_cmp_blink.read(f,s_version))
@@ -3029,6 +3037,8 @@ int32_t SW_MMap::write(PACKFILE *f) const
 {
 	if(auto ret = SubscrWidget::write(f))
 		return ret;
+	if(!p_putc(compass_litems,f))
+		new_return(1);
 	if(auto ret = c_plr.write(f))
 		return ret;
 	if(auto ret = c_cmp_blink.write(f))

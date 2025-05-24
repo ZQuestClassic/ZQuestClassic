@@ -765,6 +765,13 @@ class subscreenwidget {
 	//
 	// @zasm_var SUBWIDGTY_TABSIZE
 	internal int TabSize;
+	
+	// The level items that cause the compass marker to stop blinking
+	//
+	// - [SUBWIDG_MMAP]
+	//
+	// @zasm_var SUBWIDGTY_LITEMS
+	internal int LItems;
 
 	// Gets the selected text override for this widget.
 	//

@@ -1125,16 +1125,26 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
 				mergetype = mtFORCE_TAB;
-				attrib_grid = Rows<2>(
-					CBOX(w->flags, SUBSCR_MMAP_SHOWMAP, "Show Map", 1),
-					INFOBTN("Show the map itself. If unchecked, only the markers for 'Show Hero' and 'Show Compass' will be drawn."),
-					CBOX(w->flags, SUBSCR_MMAP_SHOWPLR, "Show Hero", 1),
-					INFOBTN("Show the hero's current position on the map."),
-					CBOX(w->flags, SUBSCR_MMAP_SHOWCMP, "Show Compass", 1),
-					INFOBTN("Show the compass marker, which points to the player's destination. Will blink between two colors until"
-						" the McGuffin is collected, or until the boss is dead if 'Compass Points To Boss' is checked."),
-					CBOX(w->flags, SUBSCR_MMAP_CMPONBOSS, "Compass Points To Boss", 1),
-					INFOBTN("The compass stops blinking when the boss is dead, instead of when the McGuffin is collected.")
+				attrib_grid = Row(
+					Rows<2>(
+						CBOX(w->flags, SUBSCR_MMAP_SHOWMAP, "Show Map", 1),
+						INFOBTN("Show the map itself. If unchecked, only the markers for 'Show Hero' and 'Show Compass' will be drawn."),
+						CBOX(w->flags, SUBSCR_MMAP_SHOWPLR, "Show Hero", 1),
+						INFOBTN("Show the hero's current position on the map."),
+						CBOX(w->flags, SUBSCR_MMAP_SHOWCMP, "Show Compass", 1),
+						INFOBTN("Show the compass marker, which points to the player's destination. Will blink between two colors until"
+							" all of the specified level items are collected.")
+					),
+					Frame(title = "Compass Blink Stops",
+						info = "The compass marker will stop blinking when all of these are collected for the current level",
+						Column(
+							CBOX(w->compass_litems, liTRIFORCE, "McGuffin", 1),
+							CBOX(w->compass_litems, liMAP, "Map", 1),
+							CBOX(w->compass_litems, liCOMPASS, "Compass", 1),
+							CBOX(w->compass_litems, liBOSS, "Boss Killed", 1),
+							CBOX(w->compass_litems, liBOSSKEY, "Boss Key", 1)
+						)
+					)
 				);
 				break;
 			}

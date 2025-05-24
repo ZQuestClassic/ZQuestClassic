@@ -3152,7 +3152,9 @@ enum ASM_DEFINE
 #define COMBODLIFTLIGHTRAD      0x15F5
 #define COMBODLIFTLIGHTSHAPE      0x15F6
 
-#define NUMVARIABLES            0x15F7
+#define SUBWIDGTY_LITEMS      0x15F7
+
+#define NUMVARIABLES            0x15F8
 
 //} End variables
 

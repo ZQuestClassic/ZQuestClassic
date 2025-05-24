@@ -662,11 +662,11 @@ private:
 #define SUBSCR_MMAP_SHOWMAP           SUBSCRFLAG_SPEC_01
 #define SUBSCR_MMAP_SHOWPLR           SUBSCRFLAG_SPEC_02
 #define SUBSCR_MMAP_SHOWCMP           SUBSCRFLAG_SPEC_03
-#define SUBSCR_MMAP_CMPONBOSS         SUBSCRFLAG_SPEC_04
-#define SUBSCR_NUMFLAG_MMAP           4
+#define SUBSCR_NUMFLAG_MMAP           3
 struct SW_MMap : public SubscrWidget
 {
 	SubscrColorInfo c_plr, c_cmp_blink, c_cmp_off;
+	byte compass_litems = liTRIFORCE;
 	
 	SW_MMap() = default;
 	SW_MMap(subscreen_object const& old);

@@ -13158,6 +13158,24 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
+		case SUBWIDGTY_LITEMS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->compass_litems;
+						break;
+					default:
+						bad_subwidg_type(false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 
 		default:
@@ -23603,6 +23621,24 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					case widgSELECTEDTEXT:
 						((SW_SelectedText*)widg)->tabsize = val;
+						break;
+					default:
+						bad_subwidg_type(false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_LITEMS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+			{
+				auto val = vbound(value/10000,0,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						((SW_MMap*)widg)->compass_litems = val;
 						break;
 					default:
 						bad_subwidg_type(false, ty);
