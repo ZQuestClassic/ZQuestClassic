@@ -2825,6 +2825,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 	auto const& thedmap = DMaps[get_sub_dmap()];
 	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(thedmap.map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
 	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(thedmap.flags&dmfNOCOMPASS);
+	bool cmp_on_boss = (flags&SUBSCR_MMAP_CMPONBOSS);
 	zcolors const& c = QMisc.colors;
 	int32_t type = (thedmap.type&dmfTYPE);
 	
@@ -2903,7 +2904,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			{
 				int32_t c2 = c_cmp_off.get_color();
 				
-				if(!has_item(itype_triforcepiece, -1) && (frame&16))
+				if(!(game->lvlitems[get_dlevel()]&(cmp_on_boss ? liBOSS : liTRIFORCE)) && (frame&16))
 					c2 = c_cmp_blink.get_color();
 					
 				int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
