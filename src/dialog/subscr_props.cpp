@@ -1159,12 +1159,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					),
 					Frame(title = "Compass Blink Stops",
 						info = "The compass marker will stop blinking when all of these are collected for the current level",
-						Column(
+						Columns<4>(
 							CBOX(w->compass_litems, liTRIFORCE, "McGuffin", 1),
 							CBOX(w->compass_litems, liMAP, "Map", 1),
 							CBOX(w->compass_litems, liCOMPASS, "Compass", 1),
 							CBOX(w->compass_litems, liBOSS, "Boss Killed", 1),
-							CBOX(w->compass_litems, liBOSSKEY, "Boss Key", 1)
+							CBOX(w->compass_litems, liBOSSKEY, "Boss Key", 1),
+							CBOX(w->compass_litems, liCUSTOM01, "Custom 01", 1),
+							CBOX(w->compass_litems, liCUSTOM02, "Custom 02", 1),
+							CBOX(w->compass_litems, liCUSTOM03, "Custom 03", 1)
 						)
 					)
 				);
@@ -1887,47 +1890,23 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					),
 					Frame(title = "Level Items", info = "All checked LItems are required, unless 'Invert' is checked, then it is required to have none instead.",
 						Row(
-							Rows<2>(
+							Rows_Columns<2, 4>(
 								INFOBTN("The Hero has the McGuffin for the specified level"),
-								Checkbox(
-									text = "McGuffin", hAlign = 0.0,
-									checked = local_subref->req_litems & liTRIFORCE,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_subref->req_litems,liTRIFORCE,state);
-									}),
+								CBOX(local_subref->req_litems, liTRIFORCE, "McGuffin", 1),
 								INFOBTN("The Hero has the Map for the specified level"),
-								Checkbox(
-									text = "Map", hAlign = 0.0,
-									checked = local_subref->req_litems & liMAP,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_subref->req_litems,liMAP,state);
-									}),
+								CBOX(local_subref->req_litems, liMAP, "Map", 1),
 								INFOBTN("The Hero has the Compass for the specified level"),
-								Checkbox(
-									text = "Compass", hAlign = 0.0,
-									checked = local_subref->req_litems & liCOMPASS,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_subref->req_litems,liCOMPASS,state);
-									}),
+								CBOX(local_subref->req_litems, liCOMPASS, "Compass", 1),
 								INFOBTN("The Hero has cleared the 'Dungeon Boss' room for the specified level"),
-								Checkbox(
-									text = "Boss Killed", hAlign = 0.0,
-									checked = local_subref->req_litems & liBOSS,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_subref->req_litems,liBOSS,state);
-									}),
+								CBOX(local_subref->req_litems, liBOSS, "Boss Killed", 1),
 								INFOBTN("The Hero has the Boss Key for the specified level"),
-								Checkbox(
-									text = "Boss Key", hAlign = 0.0,
-									checked = local_subref->req_litems & liBOSSKEY,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_subref->req_litems,liBOSSKEY,state);
-									})
+								CBOX(local_subref->req_litems, liBOSSKEY, "Boss Key", 1),
+								INFOBTN("The Hero has the 'Custom 01' for the specified level"),
+								CBOX(local_subref->req_litems, liCUSTOM01, "Custom 01", 1),
+								INFOBTN("The Hero has the 'Custom 02' for the specified level"),
+								CBOX(local_subref->req_litems, liCUSTOM02, "Custom 02", 1),
+								INFOBTN("The Hero has the 'Custom 03' for the specified level"),
+								CBOX(local_subref->req_litems, liCUSTOM03, "Custom 03", 1)
 							),
 							Rows<3>(
 								Label(text = "For Level:"),

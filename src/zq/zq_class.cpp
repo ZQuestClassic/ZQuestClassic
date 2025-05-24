@@ -14178,16 +14178,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		for(int q = 0; q < MAXITEMS/8; ++q)
 			if(!p_putc(zinit.items[q], f))
 				new_return(5);
-		for(int q = 0; q < MAXLEVELS/8; ++q)
+		for(int q = 0; q < MAXLEVELS; ++q)
 		{
-			if(!p_putc(zinit.map[q], f))
+			if(!p_putc(zinit.litems[q], f))
 				new_return(6);
-			if(!p_putc(zinit.compass[q], f))
-				new_return(7);
-			if(!p_putc(zinit.boss_key[q], f))
-				new_return(8);
-			if(!p_putc(zinit.mcguffin[q], f))
-				new_return(9);
 		}
 		if(!p_putbvec(zinit.level_keys, f))
 			new_return(10);

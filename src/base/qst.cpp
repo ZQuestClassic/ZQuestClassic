@@ -19838,68 +19838,40 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
 		for(int q = 0; q < 8; ++q)
-			set_bit(temp_zinit.mcguffin, q+1, get_bitl(tempbyte, q));
+			SETFLAG(temp_zinit.litems[q+1], liTRIFORCE, get_bitl(tempbyte, q));
 		
+		int level_count = 32;
 		if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
+			level_count = 64;
+		byte tmp_map[64];
+		byte tmp_compass[64];
+		for(int32_t i=0; i<level_count; i++)
+			if(!p_getc(&tmp_map[i],f))
+				return qe_invalid;
+		for(int32_t i=0; i<level_count; i++)
+			if(!p_getc(&tmp_compass[i],f))
+				return qe_invalid;
+		for(int q = 0; q < level_count*8; ++q)
 		{
-			for(int32_t i=0; i<64; i++)
-			{
-				if(!p_getc(&temp_zinit.map[i],f))
-				{
-					return qe_invalid;
-				}
-			}
-			
-			for(int32_t i=0; i<64; i++)
-			{
-				if(!p_getc(&temp_zinit.compass[i],f))
-				{
-					return qe_invalid;
-				}
-			}
-		}
-		else
-		{
-			for(int32_t i=0; i<32; i++)
-			{
-				if(!p_getc(&temp_zinit.map[i],f))
-				{
-					return qe_invalid;
-				}
-			}
-			
-			for(int32_t i=0; i<32; i++)
-			{
-				if(!p_getc(&temp_zinit.compass[i],f))
-				{
-					return qe_invalid;
-				}
-			}
+			SETFLAG(temp_zinit.litems[q], liMAP, get_bit(tmp_map, q));
+			SETFLAG(temp_zinit.litems[q], liCOMPASS, get_bit(tmp_compass, q));
 		}
 		
 		if((Header->zelda_version > 0x192)||
 				//new only
 				((Header->zelda_version == 0x192)&&(Header->build>173)))
 		{
-			if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
+			byte tmp_boss_key[64];
+			for(int32_t i=0; i<level_count; i++)
 			{
-				for(int32_t i=0; i<64; i++)
+				if(!p_getc(&tmp_boss_key[i],f))
 				{
-					if(!p_getc(&temp_zinit.boss_key[i],f))
-					{
-						return qe_invalid;
-					}
+					return qe_invalid;
 				}
 			}
-			else
+			for(int q = 0; q < level_count*8; ++q)
 			{
-				for(int32_t i=0; i<32; i++)
-				{
-					if(!p_getc(&temp_zinit.boss_key[i],f))
-					{
-						return qe_invalid;
-					}
-				}
+				SETFLAG(temp_zinit.litems[q], liBOSSKEY, get_bit(tmp_boss_key, q));
 			}
 		}
 		
@@ -20041,12 +20013,17 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 		//old only
 		if((Header->zelda_version == 0x192)&&(Header->build<174))
 		{
+			byte tmp_boss_key[32];
 			for(int32_t i=0; i<32; i++)
 			{
-				if(!p_getc(&temp_zinit.boss_key[i],f))
+				if(!p_getc(&tmp_boss_key[i],f))
 				{
 					return qe_invalid;
 				}
+			}
+			for(int q = 0; q < 32*8; ++q)
+			{
+				SETFLAG(temp_zinit.litems[q], liBOSSKEY, get_bit(tmp_boss_key, q));
 			}
 		}
 		
@@ -20850,16 +20827,38 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		for(int q = 0; q < MAXITEMS/8; ++q)
 			if(!p_getc(&temp_zinit.items[q], f))
 				return qe_invalid;
-		for(int q = 0; q < MAXLEVELS/8; ++q)
+		if(s_version >= 42)
 		{
-			if(!p_getc(&temp_zinit.map[q], f))
-				return qe_invalid;
-			if(!p_getc(&temp_zinit.compass[q], f))
-				return qe_invalid;
-			if(!p_getc(&temp_zinit.boss_key[q], f))
-				return qe_invalid;
-			if(!p_getc(&temp_zinit.mcguffin[q], f))
-				return qe_invalid;
+			for(int q = 0; q < MAXLEVELS; ++q)
+			{
+				if(!p_getc(&temp_zinit.litems[q], f))
+					return qe_invalid;
+			}
+		}
+		else
+		{
+			byte tmp_map[MAXLEVELS/8];
+			byte tmp_compass[MAXLEVELS/8];
+			byte tmp_boss_key[MAXLEVELS/8];
+			byte tmp_mcguffin[MAXLEVELS/8];
+			for(int q = 0; q < MAXLEVELS/8; ++q)
+			{
+				if(!p_getc(&tmp_map[q], f))
+					return qe_invalid;
+				if(!p_getc(&tmp_compass[q], f))
+					return qe_invalid;
+				if(!p_getc(&tmp_boss_key[q], f))
+					return qe_invalid;
+				if(!p_getc(&tmp_mcguffin[q], f))
+					return qe_invalid;
+			}
+			for(int q = 0; q < MAXLEVELS; ++q)
+			{
+				SETFLAG(temp_zinit.litems[q], liMAP, get_bit(tmp_map, q));
+				SETFLAG(temp_zinit.litems[q], liCOMPASS, get_bit(tmp_compass, q));
+				SETFLAG(temp_zinit.litems[q], liBOSSKEY, get_bit(tmp_boss_key, q));
+				SETFLAG(temp_zinit.litems[q], liTRIFORCE, get_bit(tmp_mcguffin, q));
+			}
 		}
 		if(!p_getbvec(&temp_zinit.level_keys, f))
 			return qe_invalid;
