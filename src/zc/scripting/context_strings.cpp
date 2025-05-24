@@ -1158,6 +1158,14 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SUBWIDGPOSES: return "subscreenwidget::PosDirs[]";
 		case SUBWIDGPRESSINITD: return "subscreenwidget::PressInitD[]";
 		case SUBWIDGPRESSSCRIPT: return "subscreenwidget::PressScript";
+		case SUBWIDGREQCOUNTER: return "subscreenwidget::RequiredCounter";
+		case SUBWIDGREQCOUNTERCOND: return "subscreenwidget::RequiredCounterCond";
+		case SUBWIDGREQCOUNTERVAL: return "subscreenwidget::RequiredCounterValue";
+		case SUBWIDGREQLITEMLEVEL: return "subscreenwidget::RequiredLItemLevel";
+		case SUBWIDGREQLITEMS: return "subscreenwidget::RequiredLItems";
+		case SUBWIDGREQOWNITEMS: return "subscreenwidget::RequiredOwnedItems[]";
+		case SUBWIDGREQUNOWNITEMS: return "subscreenwidget::RequiredUnownedItems[]";
+		case SUBWIDGREQSCRIPTDISABLED: return "subscreenwidget::ScriptDisabled";
 		case SUBWIDGSELECTORASPD: return "subscreenwidget::SelectorASpeed[]";
 		case SUBWIDGSELECTORCSET: return "subscreenwidget::SelectorCSet[]";
 		case SUBWIDGSELECTORDELAY: return "subscreenwidget::SelectorDelay[]";
@@ -1935,6 +1943,8 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case SUBPAGE_FIND_WIDGET_BY_LABEL: return "subscreenpage::GetWidget()";
 		case SUBPAGE_MOVE_SEL: return "subscreenpage::SelectorMove()";
 		case SUBPAGE_SWAP_WIDG: return "subscreenpage::SwapWidgets()";
+		case SUBWIDG_CHECK_CONDITIONS: return "subscreenwidget::CheckConditions()";
+		case SUBWIDG_CHECK_VISIBLE: return "subscreenwidget::CheckVisible()";
 		case SUBWIDG_GET_LABEL: return "subscreenwidget::GetLabel()";
 		case SUBWIDG_GET_SELTEXT_OVERRIDE: return "subscreenwidget::GetSelTextOverride()";
 		case SUBWIDG_TY_GETTEXT: return "subscreenwidget::GetText()";

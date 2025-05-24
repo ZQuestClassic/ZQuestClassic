@@ -31,7 +31,7 @@ public:
 	void setSelectedValue(int32_t value);
 
 	/* Selects the list item with the given index. */
-	void setSelectedIndex(int32_t index, bool offset = true);
+	void setSelectedIndex(int32_t index, bool offset = false);
 
 	/* Returns the value of the currently selected item. */
 	int32_t getSelectedValue() const;

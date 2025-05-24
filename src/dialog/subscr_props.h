@@ -8,6 +8,7 @@
 #include <gui/label.h>
 #include <gui/frame.h>
 #include <gui/button.h>
+#include <gui/list.h>
 #include <gui/tabpanel.h>
 #include <zq/gui/misc_color_sel.h>
 #include <zq/gui/misc_cset_sel.h>
@@ -50,6 +51,8 @@ protected:
 	std::shared_ptr<GUI::TextField> seltfs[1];
 	std::shared_ptr<GUI::Button> selbtns[1];
 	
+	std::shared_ptr<GUI::List> req_item_list, req_not_item_list;
+	
 	std::shared_ptr<GUI::Label> geninitd_lbl[8];
 	std::shared_ptr<GUI::Button> geninitd_btn[8];
 	
@@ -67,11 +70,12 @@ protected:
 	
 	GUI::ListData list_font, list_shadtype, list_aligns, list_buttons, list_items,
 		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx,
-		list_costinds;
+		list_costinds, list_items_no_none, list_reqitems, list_reqnotitems;
 	
 	void updateSelectable();
 	void updateAttr();
 	void updateColors();
+	void updateConditions();
 	void update_wh();
 	void refr_info();
 };
