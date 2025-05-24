@@ -627,6 +627,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case IDATAPSCRIPT: return "itemdata::PScript";
 		case IDATAPSTRING: return "itemdata::PString";
 		case IDATAPICKUP: return "itemdata::Pickup";
+		case IDATAPICKUPLITEMLEVEL: return "itemdata::PickupLItemLevel";
+		case IDATAPICKUPLITEMS: return "itemdata::PickupLItems";
 		case IDATAPSOUND: return "itemdata::PickupSound";
 		case IDATAPFLAGS: return "itemdata::PickupStringFlags";
 		case IDATAPOWER: return "itemdata::Power";

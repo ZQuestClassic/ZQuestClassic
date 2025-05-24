@@ -726,15 +726,25 @@ class itemdata {
 	// The item pickup bitflags.
 	//
 	// @value [enum ItemPickupBitflags]
-
 	// @zasm_var IDATAPICKUP
 	internal int Pickup;
+	
+	// The Level Items that will be granted when the item is collected. See [PickupLItemLevel].
+	//
+	// @value [enum LevelItemBitflags]
+	// @zasm_var IDATAPICKUPLITEMS
+	internal int PickupLItems;
+	
+	// The Level that [PickupLItems] will be granted for when the item is collected.
+	//
+	// @value -1 for 'current level', otherwise number of a specific 'level' (-1 <= x < [NUM_LEVELS])
+	// @zasm_var IDATAPICKUPLITEMLEVEL
+	internal int PickupLItemLevel;
 
 	// Bitflags representing all the checkboxes for which sizes to
 	// apply from the itemdata.
 	//
 	// @value [enum SizeOverrideBitflags]
-
 	// @zasm_var IDATAOVERRIDEFL
 	internal int SizeFlags;
 
@@ -742,7 +752,6 @@ class itemdata {
 	// apply from the itemdata, for any [lweapon] created by this item.
 	//
 	// @value [enum SizeOverrideBitflags]
-
 	// @zasm_var IDATAOVERRIDEFLWEAP
 	internal int WeaponSizeFlags;
 

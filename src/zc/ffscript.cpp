@@ -4513,7 +4513,25 @@ int32_t get_register(int32_t arg)
 				ret = 0;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].pickup_string_flags)*10000;
+			ret = (itemsbuf[ri->idata].pickup_string_flags)*10000;
+			break;
+		case IDATAPICKUPLITEMS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
+				ret = 0;
+				break;
+			}
+			ret = (itemsbuf[ri->idata].pickup_litems)*10000;
+			break;
+		case IDATAPICKUPLITEMLEVEL:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
+				ret = 0;
+				break;
+			}
+			ret = (itemsbuf[ri->idata].pickup_litem_level)*10000;
 			break;
 		//Magic cost
 		case IDATAMAGCOST:
@@ -15465,6 +15483,22 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			itemsbuf[ri->idata].pickup_string_flags=vbound(value/10000, 0, 214748);
+			break;
+		case IDATAPICKUPLITEMS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
+				break;
+			}
+			itemsbuf[ri->idata].pickup_litems = vbound(value/10000, 0, 214748) & liALL;
+			break;
+		case IDATAPICKUPLITEMLEVEL:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
+				break;
+			}
+			itemsbuf[ri->idata].pickup_litem_level = vbound(value/10000, -1, MAXLEVELS-1);
 			break;
 		//magic cost
 		case IDATAMAGCOST:
