@@ -139,6 +139,9 @@ enum LevelItemBitflags
 	LI_COMPASS                     = 0x04, // The Compass of this Level has been obtained.
 	LI_BOSS                        = 0x08, // A "Dungeon Boss" enemy has been slain.
 	LI_BOSSKEY                     = 0x10, // The Boss Key of this Level has been obtained.
+	LI_CUSTOM01                    = 0x20, // The Custom01 flag of this Level has been set.
+	LI_CUSTOM02                    = 0x40, // The Custom02 flag of this Level has been set.
+	LI_CUSTOM03                    = 0x80, // The Custom03 flag of this Level has been set.
 };
 
 // Used with [Game->GameOverScreen].

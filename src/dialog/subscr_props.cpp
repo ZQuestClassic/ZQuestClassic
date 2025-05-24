@@ -1137,12 +1137,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					),
 					Frame(title = "Compass Blink Stops",
 						info = "The compass marker will stop blinking when all of these are collected for the current level",
-						Column(
+						Columns<4>(
 							CBOX(w->compass_litems, liTRIFORCE, "McGuffin", 1),
 							CBOX(w->compass_litems, liMAP, "Map", 1),
 							CBOX(w->compass_litems, liCOMPASS, "Compass", 1),
 							CBOX(w->compass_litems, liBOSS, "Boss Killed", 1),
-							CBOX(w->compass_litems, liBOSSKEY, "Boss Key", 1)
+							CBOX(w->compass_litems, liBOSSKEY, "Boss Key", 1),
+							CBOX(w->compass_litems, liCUSTOM1, "Custom 1", 1),
+							CBOX(w->compass_litems, liCUSTOM2, "Custom 2", 1),
+							CBOX(w->compass_litems, liCUSTOM3, "Custom 3", 1)
 						)
 					)
 				);

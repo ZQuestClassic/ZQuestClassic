@@ -31,10 +31,8 @@ private:
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> sBombMax;
 	std::shared_ptr<GUI::Label> l_lab[10];
-	std::shared_ptr<GUI::Checkbox> l_maps[10];
-	std::shared_ptr<GUI::Checkbox> l_comp[10];
-	std::shared_ptr<GUI::Checkbox> l_bkey[10];
-	std::shared_ptr<GUI::Checkbox> l_mcguff[10];
+	std::shared_ptr<GUI::Checkbox> l_comp[10], l_maps[10], l_bkey[10], l_mcguff[10],
+		l_bkill[10], l_custom1[10], l_custom2[10], l_custom3[10];
 	std::shared_ptr<GUI::TextField> l_keys[10];
 	std::shared_ptr<GUI::Switcher> icswitcher;
 	std::shared_ptr<GUI::Button> genscr_btn;
