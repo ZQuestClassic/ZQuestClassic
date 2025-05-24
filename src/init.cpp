@@ -1036,19 +1036,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_spriteflickertransp(zinit2->spriteflickertransp);
 	
 	for(int32_t i=0; i<MAXLEVELS; i++)
-	{
-		// Kludge to prevent one bit (liBOSS) which isn't
-		// completely stored in Init Data, from being erased when this is run in-game.
-		if(freshquest)
-			game2->lvlitems[i]=0;
-		else
-			game2->lvlitems[i]&=~(liMAP|liCOMPASS|liBOSSKEY|liTRIFORCE);
-			
-		game2->lvlitems[i]|=get_bit(zinit2->map,i)?liMAP:0;
-		game2->lvlitems[i]|=get_bit(zinit2->compass,i)?liCOMPASS:0;
-		game2->lvlitems[i]|=get_bit(zinit2->boss_key,i)?liBOSSKEY:0;
-		game2->lvlitems[i]|=get_bit(zinit2->mcguffin,i)?liTRIFORCE:0;
-	}
+		game2->lvlitems[i] = zinit2->litems[i];
 	game2->lvlkeys = zinit2->level_keys;
 	
 	game2->set_magic(zc_min(zinit2->counter[crMAGIC],zinit2->mcounter[crMAGIC]));
@@ -1141,8 +1129,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(transdark_percent)
 
 #define LIST_ARRAY_PROPS \
-	ARRAY_PROP(boss_key) \
-	ARRAY_PROP(compass) \
 	ARRAY_PROP(counter) \
 	BITSTR_PROP(gen_doscript) \
 	VEC_PROP(gen_eventstate) \
@@ -1152,12 +1138,11 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	VEC_PROP_2D(gen_data) \
 	ARRAY_PROP(items) \
 	VEC_PROP(level_keys) \
-	ARRAY_PROP(map) \
-	ARRAY_PROP(mcguffin) \
+	ARRAY_PROP(litems) \
 	ARRAY_PROP(mcounter) \
 	BITSTR_PROP(flags)
 
-static int DELTA_VERSION = 1;
+static int DELTA_VERSION = 2;
 string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 {
 	vector<string> tokens;
@@ -1271,10 +1256,10 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 				result->new = as_int op offs; \
 				continue; \
 			}
-			#define DEPRPROP_BIT_IOFFS(old,new,bits,offs) if(key == #old) \
+			#define DEPRPROP_LITEM_BIT(old,flag) if(key == #old) \
 			{ \
-				for(int q = 0; q < bits; ++q) \
-					set_bit(result->new, q+offs, get_bitl(as_int,q)!=0); \
+				for(int q = 0; q < 8; ++q) \
+					SETFLAG(result->litems[index[0]+q], flag, get_bitl(as_int, index[0]+q)); \
 				continue; \
 			}
 			if(delta_version < 1)
@@ -1308,7 +1293,12 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 				{
 					DEPRPROP(super_bombs,counter[crSBOMBS]);
 					DEPRPROP_OFFS(start_heart,counter[crLIFE],*,result->hp_per_heart);
-					DEPRPROP_BIT_IOFFS(triforce,mcguffin,8,1);
+					if (key == "triforce")
+					{
+						for(int q = 0; q < 8; ++q)
+							SETFLAG(result->litems[q+1], liTRIFORCE, get_bitl(as_int,q));
+						continue;
+					}
 					DEPRPROP(rupies,counter[crMONEY]);
 					DEPRPROP(keys,counter[crKEYS]);
 					DEPRPROP(arrows,counter[crARROWS]);
@@ -1328,7 +1318,14 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 					DEPRPROP_IGNORE(usecustomsfx);
 				}
 			}
-			#undef DEPRPROP_BIT_IOFFS
+			if(delta_version < 2)
+			{
+				DEPRPROP_LITEM_BIT(map, liMAP)
+				DEPRPROP_LITEM_BIT(compass, liCOMPASS)
+				DEPRPROP_LITEM_BIT(boss_key, liBOSSKEY)
+				DEPRPROP_LITEM_BIT(mcguffin, liTRIFORCE)
+			}
+			#undef DEPRPROP_LITEM_BIT
 			#undef DEPRPROP_OFFS
 			#undef DEPRPROP
 			#undef ARRAY_DEPRPROP_IOFS

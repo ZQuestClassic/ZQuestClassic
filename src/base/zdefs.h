@@ -156,7 +156,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        41
+#define V_INITDATA        42
 #define V_GUYS            53
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -254,8 +254,10 @@ if(close_button_quit) \
 #define liCOMPASS       0x04
 #define liBOSS          0x08
 #define liBOSSKEY       0x10
+#define liCUSTOM01      0x20
+#define liCUSTOM02      0x40
+#define liCUSTOM03      0x80
 
-#define liALLUSED       0x1F
 #define liALL           0xFF
 
 // sprite drawing flag bits

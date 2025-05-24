@@ -167,30 +167,23 @@ std::shared_ptr<GUI::Widget> InitDataDialog::LEVEL_FIELD(int ind)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-
+#define LEVEL_CBOX(arr, flag) \
+arr[ind] = Checkbox(checked = local_zinit.litems[ind+levelsOffset]&flag, \
+	onToggleFunc = [&, ind](bool state) \
+	{ \
+		SETFLAG(local_zinit.litems[ind+levelsOffset], flag, state); \
+	})
 	return Row(
 		padding = 0_px,
 		l_lab[ind] = Label(text = std::to_string(ind), width = 3_em, textAlign = 2),
-		l_maps[ind] = Checkbox(checked = get_bit(local_zinit.map,ind+levelsOffset),
-			onToggleFunc = [&, ind](bool state)
-			{
-				set_bit(local_zinit.map, ind+levelsOffset, state);
-			}),
-		l_comp[ind] = Checkbox(checked = get_bit(local_zinit.compass,ind+levelsOffset),
-			onToggleFunc = [&, ind](bool state)
-			{
-				set_bit(local_zinit.compass, ind+levelsOffset, state);
-			}),
-		l_bkey[ind] = Checkbox(checked = get_bit(local_zinit.boss_key,ind+levelsOffset),
-			onToggleFunc = [&, ind](bool state)
-			{
-				set_bit(local_zinit.boss_key, ind+levelsOffset, state);
-			}),
-		l_mcguff[ind] = Checkbox(checked = get_bit(local_zinit.mcguffin,ind+levelsOffset),
-			onToggleFunc = [&, ind](bool state)
-			{
-				set_bit(local_zinit.mcguffin, ind+levelsOffset, state);
-			}),
+		LEVEL_CBOX(l_maps, liMAP),
+		LEVEL_CBOX(l_comp, liCOMPASS),
+		LEVEL_CBOX(l_bkey, liBOSSKEY),
+		LEVEL_CBOX(l_mcguff, liTRIFORCE),
+		LEVEL_CBOX(l_bkill, liBOSS),
+		LEVEL_CBOX(l_custom1, liCUSTOM01),
+		LEVEL_CBOX(l_custom2, liCUSTOM02),
+		LEVEL_CBOX(l_custom3, liCUSTOM03),
 		l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
 			val = local_zinit.level_keys[ind+levelsOffset], high = 255,
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
@@ -198,6 +191,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::LEVEL_FIELD(int ind)
 				local_zinit.level_keys[ind+levelsOffset] = val;
 			})
 	);
+#undef LEVEL_CBOX
 }
 
 std::shared_ptr<GUI::Widget> InitDataDialog::BTN_100(int val)
@@ -493,33 +487,49 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						BTN_10(80),
 						BTN_10(90)
 					),
-					Columns<6>(
-						Row(
-							DummyWidget(width = 3_em),
-							Label(text = "M", textAlign = 0, width = 14_px+12_px),
-							Label(text = "C", textAlign = 0, width = 14_px+12_px),
-							Label(text = "B", textAlign = 0, width = 14_px+12_px),
-							Label(text = "T", textAlign = 0, width = 14_px+12_px),
-							Label(text = "Key", textAlign = 1, width = 2.5_em)
-						),
-						LEVEL_FIELD(0),
-						LEVEL_FIELD(1),
-						LEVEL_FIELD(2),
-						LEVEL_FIELD(3),
-						LEVEL_FIELD(4),
-						Row(
-							DummyWidget(width = 3_em),
-							Label(text = "M", textAlign = 0, width = 14_px+12_px),
-							Label(text = "C", textAlign = 0, width = 14_px+12_px),
-							Label(text = "B", textAlign = 0, width = 14_px+12_px),
-							Label(text = "T", textAlign = 0, width = 14_px+12_px),
-							Label(text = "Key", textAlign = 1, width = 2.5_em)
-						),
-						LEVEL_FIELD(5),
-						LEVEL_FIELD(6),
-						LEVEL_FIELD(7),
-						LEVEL_FIELD(8),
-						LEVEL_FIELD(9)
+					Frame(title = "Level Items",
+						info = "M = Map"
+							"\nC = Compass"
+							"\nB = Boss Key"
+							"\nT = Dungeon Treasure (McGuffin)"
+							"\nD = Boss Defeated"
+							"\nC1, C2, C3 = Custom LItems",
+						Columns<6>(
+							Row(
+								DummyWidget(width = 3_em),
+								Label(text = "M", textAlign = 0, width = 14_px+12_px),
+								Label(text = "C", textAlign = 0, width = 14_px+12_px),
+								Label(text = "B", textAlign = 0, width = 14_px+12_px),
+								Label(text = "T", textAlign = 0, width = 14_px+12_px),
+								Label(text = "D", textAlign = 0, width = 14_px+12_px),
+								Label(text = "C1", textAlign = 0, width = 14_px+12_px),
+								Label(text = "C2", textAlign = 0, width = 14_px+12_px),
+								Label(text = "C3", textAlign = 0, width = 14_px+12_px),
+								Label(text = "Key", textAlign = 1, width = 2.5_em)
+							),
+							LEVEL_FIELD(0),
+							LEVEL_FIELD(1),
+							LEVEL_FIELD(2),
+							LEVEL_FIELD(3),
+							LEVEL_FIELD(4),
+							Row(
+								DummyWidget(width = 3_em),
+								Label(text = "M", textAlign = 0, width = 14_px+12_px),
+								Label(text = "C", textAlign = 0, width = 14_px+12_px),
+								Label(text = "B", textAlign = 0, width = 14_px+12_px),
+								Label(text = "T", textAlign = 0, width = 14_px+12_px),
+								Label(text = "D", textAlign = 0, width = 14_px+12_px),
+								Label(text = "C1", textAlign = 0, width = 14_px+12_px),
+								Label(text = "C2", textAlign = 0, width = 14_px+12_px),
+								Label(text = "C3", textAlign = 0, width = 14_px+12_px),
+								Label(text = "Key", textAlign = 1, width = 2.5_em)
+							),
+							LEVEL_FIELD(5),
+							LEVEL_FIELD(6),
+							LEVEL_FIELD(7),
+							LEVEL_FIELD(8),
+							LEVEL_FIELD(9)
+						)
 					)
 				)),
 				TabRef(name = "Vars", TabPanel(ptr = &vartab,
@@ -708,10 +718,14 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				if(q+levelsOffset > 511)
 					break;
 				l_lab[q]->setText(std::to_string(q+levelsOffset));
-				l_maps[q]->setChecked(get_bit(local_zinit.map,q+levelsOffset));
-				l_comp[q]->setChecked(get_bit(local_zinit.compass,q+levelsOffset));
-				l_bkey[q]->setChecked(get_bit(local_zinit.boss_key,q+levelsOffset));
-				l_mcguff[q]->setChecked(get_bit(local_zinit.boss_key,q+levelsOffset));
+				l_maps[q]->setChecked(local_zinit.litems[q+levelsOffset] & liMAP);
+				l_comp[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCOMPASS);
+				l_bkey[q]->setChecked(local_zinit.litems[q+levelsOffset] & liBOSSKEY);
+				l_mcguff[q]->setChecked(local_zinit.litems[q+levelsOffset] & liTRIFORCE);
+				l_bkill[q]->setChecked(local_zinit.litems[q+levelsOffset] & liBOSS);
+				l_custom1[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCUSTOM01);
+				l_custom2[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCUSTOM02);
+				l_custom3[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCUSTOM03);
 				l_keys[q]->setVal(local_zinit.level_keys[q+levelsOffset]);
 			}
 		}
