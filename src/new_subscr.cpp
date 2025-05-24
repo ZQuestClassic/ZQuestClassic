@@ -590,7 +590,64 @@ int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 	switch(type)
 	{
 		case ssctSYSTEM:
-			ret=(color==-1)?color:vc(color);
+			if(color == -1)
+				ret = -1;
+			else if(get_qr(qr_BROKEN_SYSTEM_COLORS))
+				ret = vc(color);
+			else
+			{
+				switch(color)
+				{
+					case 0:
+						ret = makecol(0, 0, 0);
+						break;
+					case 1:
+						ret = makecol(0, 0, 170);
+						break;
+					case 2:
+						ret = makecol(0, 157, 0);
+						break;
+					case 3:
+						ret = makecol(0, 170, 170);
+						break;
+					case 4:
+						ret = makecol(178, 36, 36);
+						break;
+					case 5:
+						ret = makecol(170, 0, 170);
+						break;
+					case 6:
+						ret = makecol(165, 105, 8);
+						break;
+					case 7:
+						ret = makecol(170, 170, 170);
+						break;
+					case 8:
+						ret = makecol(85, 85, 85);
+						break;
+					case 9:
+						ret = makecol(85, 85, 255);
+						break;
+					case 10:
+						ret = makecol(85, 255, 85);
+						break;
+					case 11:
+						ret = makecol(85, 255, 255);
+						break;
+					case 12:
+						ret = makecol(255, 85, 85);
+						break;
+					case 13:
+						ret = makecol(255, 85, 255);
+						break;
+					case 14:
+						ret = makecol(255, 255, 85);
+						break;
+					case 15:
+						ret = makecol(255, 255, 255);
+						break;
+				}
+			}
 			break;
 			
 		case ssctMISC:
