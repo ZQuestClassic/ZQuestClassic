@@ -207,11 +207,12 @@ enum // Flags for SUBWIDG_MMAPTITLE
 	SUBW_MMAPTITLE_FLAG_ONELINE,
 	SUBW_MMAPTITLE_NUMFLAGS
 };
-enum // Flags for SUBWIDG_MMAP
+enum // Flags for [SUBWIDG_MMAP]
 {
-	SUBW_MMAP_FLAG_SHOWMAP,
-	SUBW_MMAP_FLAG_SHOWPLAYER,
-	SUBW_MMAP_FLAG_SHOWCOMPASS,
+	SUBW_MMAP_FLAG_SHOWMAP, // If the map itself is drawn
+	SUBW_MMAP_FLAG_SHOWPLAYER, // If the player marker is drawn
+	SUBW_MMAP_FLAG_SHOWCOMPASS, // If the compass marker is drawn
+	SUBW_MMAP_FLAG_COMPASSONBOSS, // If the compass marker blinks for the boss being alive, rather than the McGuffin being uncollected.
 	SUBW_MMAP_NUMFLAGS
 };
 enum // Flags for SUBWIDG_LMAP

@@ -493,9 +493,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
 				col_grid = Column(
-					MISC_COLOR_SEL(w->c_plr, "Hero Color", 1),
-					MISC_COLOR_SEL(w->c_cmp_blink, "Compass Blink Color", 2),
-					MISC_COLOR_SEL(w->c_cmp_off, "Compass Const Color", 3));
+					MISC_COLOR_SEL_EX(w->c_plr, "Hero Color", 1, info = "The color of the 'you are here' position"),
+					MISC_COLOR_SEL_EX(w->c_cmp_blink, "Compass Blink Color", 2, info = "The color the compass marker blinks to, when active"),
+					MISC_COLOR_SEL_EX(w->c_cmp_off, "Compass Const Color", 3, info = "The color the compass marker stays when inactive, and blinks from while active"));
 				break;
 			}
 			case widgMMAPTITLE:
@@ -1117,10 +1117,16 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
 				mergetype = mtFORCE_TAB;
-				attrib_grid = Column(
+				attrib_grid = Rows<2>(
 					CBOX(w->flags, SUBSCR_MMAP_SHOWMAP, "Show Map", 1),
+					INFOBTN("Show the map itself. If unchecked, only the markers for 'Show Hero' and 'Show Compass' will be drawn."),
 					CBOX(w->flags, SUBSCR_MMAP_SHOWPLR, "Show Hero", 1),
-					CBOX(w->flags, SUBSCR_MMAP_SHOWCMP, "Show Compass", 1)
+					INFOBTN("Show the hero's current position on the map."),
+					CBOX(w->flags, SUBSCR_MMAP_SHOWCMP, "Show Compass", 1),
+					INFOBTN("Show the compass marker, which points to the player's destination. Will blink between two colors until"
+						" the McGuffin is collected, or until the boss is dead if 'Compass Points To Boss' is checked."),
+					CBOX(w->flags, SUBSCR_MMAP_CMPONBOSS, "Compass Points To Boss", 1),
+					INFOBTN("The compass stops blinking when the boss is dead, instead of when the McGuffin is collected.")
 				);
 				break;
 			}
