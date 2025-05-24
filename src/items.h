@@ -5,6 +5,7 @@
 #include "base/flags.h"
 #include "base/initdata.h"
 #include "base/zfix.h"
+#include "sfx.h"
 #include "sprite.h"
 
 namespace flags {
@@ -164,7 +165,7 @@ struct itemdata
     word amount;
     int16_t setmax;
     word max;
-    byte playsound;
+    byte playsound = WAV_SCALE;
     word collect_script;
 //  byte exp[10];                                             // not used
     int32_t initiald[INITIAL_D];
@@ -234,6 +235,9 @@ struct itemdata
     word sprite_script;
 	
 	char display_name[256];
+	
+	byte pickup_litems;
+	int16_t pickup_litem_level = -1;
 	
 	std::string get_name(bool init = false, bool plain = false) const;
 	//helper functions because stupid shit

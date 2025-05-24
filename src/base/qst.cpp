@@ -6256,10 +6256,9 @@ int32_t readitems(PACKFILE *f, word version, word build)
     
     for(int32_t i=0; i<items_to_read; i++)
     {
-        memset(&tempitem, 0, sizeof(itemdata));
-        reset_itembuf(&tempitem,i);
-        
-	    
+		tempitem = itemdata();
+		reset_itembuf(&tempitem,i);
+		
 		if ( s_version > 35 ) //expanded tiles	
 		{    
 			if(!p_igetl(&tempitem.tile,f))
@@ -6999,6 +6998,14 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					if(!p_getc(&tempitem.light_rads[q],f))
 						return qe_invalid;
 			}
+		}
+		
+		if ( s_version >= 60 )
+		{
+			if(!p_getc(&tempitem.pickup_litems,f))
+				return qe_invalid;
+			if(!p_igetw(&tempitem.pickup_litem_level,f))
+				return qe_invalid;
 		}
         
 		if (!should_skip)
@@ -9386,7 +9393,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		if(tempitem.fam_type==0)  // Always do this
 			tempitem.fam_type=1;
 			
-		memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
+		itemsbuf[i] = tempitem;
 	}
 
 	return 0;
@@ -9406,22 +9413,22 @@ void init_def_items()
 void reset_itembuf(itemdata *item, int32_t id)
 {
 	init_def_items();
-    if(id<iLast)
-    {
-        // Copy everything *EXCEPT* the tile, misc, cset, frames, speed, delay and ltm.
-        word tile = item->tile;
-        byte miscs = item->misc_flags, cset = item->csets, frames = item->frames, speed = item->speed, delay = item->delay;
-        int32_t ltm = item->ltm;
-        
-        memcpy(item,&default_items[id],sizeof(itemdata));
-        item->tile = tile;
-        item->misc_flags = miscs;
-        item->csets = cset;
-        item->frames = frames;
-        item->speed = speed;
-        item->delay = delay;
-        item->ltm = ltm;
-    }
+	if(id<iLast)
+	{
+		// Copy everything *EXCEPT* the tile, misc, cset, frames, speed, delay and ltm.
+		word tile = item->tile;
+		byte miscs = item->misc_flags, cset = item->csets, frames = item->frames, speed = item->speed, delay = item->delay;
+		int32_t ltm = item->ltm;
+		
+		*item = default_items[id];
+		item->tile = tile;
+		item->misc_flags = miscs;
+		item->csets = cset;
+		item->frames = frames;
+		item->speed = speed;
+		item->delay = delay;
+		item->ltm = ltm;
+	}
 }
 
 void reset_itemname(int32_t id)

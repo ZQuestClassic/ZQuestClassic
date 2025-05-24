@@ -3165,7 +3165,10 @@ enum ASM_DEFINE
 #define SUBWIDGREQLITEMLEVEL      0x15FE
 #define SUBWIDGREQSCRIPTDISABLED      0x15FF
 
-#define NUMVARIABLES            0x1600
+#define IDATAPICKUPLITEMS      0x1600
+#define IDATAPICKUPLITEMLEVEL      0x1601
+
+#define NUMVARIABLES            0x1602
 
 //} End variables
 

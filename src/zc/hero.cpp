@@ -30721,7 +30721,15 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			}
 		}
 	}
-
+	
+	if(idat.pickup_litems)
+	{
+		auto lvl = idat.pickup_litem_level;
+		if(lvl < 0)
+			lvl = dlevel;
+		game->lvlitems[lvl] |= idat.pickup_litems;
+	}
+	
 	if(idat.playsound&&!nosound)
 	{
 		sfx(idat.playsound);
