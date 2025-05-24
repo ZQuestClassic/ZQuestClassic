@@ -993,6 +993,11 @@ static GUI::ListData compatRulesList
 		"If enabled, message strings set to draw to layer '6' will actually draw over the subscreen and layer 7 script draws."
 		"\nIf disabled, these strings draw directly UNDER the subscreen instead."
 		"\nHas no effect at all if `Subscreen Appears Above Sprites` is unchecked." + QRHINT({qr_SUBSCREENOVERSPRITES})},
+	{ "Broken System Colors", qr_BROKEN_SYSTEM_COLORS,
+		"If enabled, subscreen editor 'system colors' will simply use cset 14's colors,"
+		" which will look different in the editor than the player, and is not consistent."
+		"\nIf disabled, these colors still may look different in the editor than the player-"
+		" but they will be the closest matching color in the player's palette to the color in the editor." },
 };
 
 static GUI::ListData enemiesRulesList
