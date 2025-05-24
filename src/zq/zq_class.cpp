@@ -8779,6 +8779,10 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 				if(!p_putc(itemsbuf[i].light_rads[q], f))
 					new_return(94);
 			}
+			if(!p_putc(itemsbuf[i].pickup_litems, f))
+				new_return(95);
+			if(!p_iputw(itemsbuf[i].pickup_litem_level, f))
+				new_return(96);
         }
         
         if(writecycle==0)
