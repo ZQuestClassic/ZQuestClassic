@@ -644,7 +644,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 								screen_misc_data.resize(val);
 								databtn->setDisabled(!val);
 							}),
-						INFOBTN("The starting size of the screen's 'Data' array."),
+						INFOBTN("The starting size of the screen's 'Screen->Data[]' array."),
 						//
 						databtn = Button(colSpan = 3, fitParent = true,
 							text = "Edit Starting Data",
