@@ -2642,16 +2642,16 @@ static void log_trigger_secret_reason(TriggerSource source)
 		switch (source)
 		{
 			case TriggerSource::Singular: break;
-			case TriggerSource::Unspecified: source_str = "by unspecified means"; break;
+			case TriggerSource::Unspecified: source_str = "unspecified means"; break;
 			case TriggerSource::EnemiesScreenFlag: source_str = "the 'Enemies->Secret' screen flag"; break;
 			case TriggerSource::SecretsScreenState: source_str = "the 'Secrets' screen state"; break;
 			case TriggerSource::Script: source_str = "a script"; break;
 			case TriggerSource::ItemsSecret: source_str = "Items->Secrets"; break;
 			case TriggerSource::GenericCombo: source_str = "Generic Combo"; break;
 			case TriggerSource::LightTrigger: source_str = "Light Triggers"; break;
-			case TriggerSource::SCC: source_str = "by SCC"; break;
-			case TriggerSource::CheatTemp: source_str = "by Cheat (Temp)"; break;
-			case TriggerSource::CheatPerm: source_str = "by Cheat (Perm)"; break;
+			case TriggerSource::SCC: source_str = "SCC"; break;
+			case TriggerSource::CheatTemp: source_str = "Cheat (Temp)"; break;
+			case TriggerSource::CheatPerm: source_str = "Cheat (Perm)"; break;
 		}
 		Z_eventlog("Screen Secrets triggered by %s\n", source_str);
 	}
