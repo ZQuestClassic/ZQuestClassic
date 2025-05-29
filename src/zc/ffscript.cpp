@@ -13181,7 +13181,7 @@ int32_t get_register(int32_t arg)
 		default:
 		{
 			if (auto r = scripting_engine_get_register(arg))
-				return *r;
+				ret = *r;
 			break;
 		}
 	}
