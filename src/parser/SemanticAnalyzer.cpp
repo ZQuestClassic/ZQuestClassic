@@ -1761,12 +1761,17 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	if(host.binding->getFlag(FUNCFLAG_READ_ONLY))
 		handleError(CompileError::ReadOnly(&host, host.binding->getUnaliasedSignature().asString()));
 
-	auto parcnt = host.binding->paramTypes.size() - host.binding->numOptionalParams;
+	if (!host.binding->node || host.binding->getFlag(FUNCFLAG_VARARGS))
+		return;
+
+	auto num_params = host.binding->paramTypes.size();
+	auto num_required_params = host.binding->paramTypes.size() - host.binding->numOptionalParams;
+	auto num_provided_params = host.parameters.size();
 	auto& optparams = host.binding->node->optparams;
 
-	for (int i = host.parameters.size(); i < host.binding->paramTypes.size(); i++)
+	for (int i = num_provided_params; i < num_params; i++)
 	{
-		auto* p = optparams[i - parcnt];
+		auto* p = optparams[i - num_required_params];
 		DataType const* getType = p->getReadType(scope, this);
 		if(getType)
 			checkCast(*getType, *host.binding->paramTypes[i], &host);

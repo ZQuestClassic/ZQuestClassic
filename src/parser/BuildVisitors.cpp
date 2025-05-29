@@ -1923,6 +1923,8 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 	else addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(EXP1)));
 }
 
+// TODO: refactor/simplify this function - function calling should mostly share the same code no matter if for
+// a class, internal function, or free-function.
 void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
@@ -2191,8 +2193,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				VISIT_USEVAL(arg, INITCTX);
 				push_param();
 			}
+			pushcount++;
 		}
-		pushcount += (num_used_params-vargcount);
+
 		if(vargs)
 		{
 			if(auto offs = pushcount-1)
@@ -2252,14 +2255,14 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
 		bool user_vargs = vargs && !func.isInternal();
 		auto num_used_params = host.parameters.size();
-		auto num_actual_params = host.parameters.size() - (user_vargs ? 1 : 0);
+		auto num_actual_params = func.paramTypes.size() - (user_vargs ? 1 : 0);
 		if(host.left->isTypeArrow())
 			--num_actual_params; //Don't count the arrow param!
 		size_t vargcount = 0;
 		size_t used_opt_params = 0;
 		int v = num_used_params-num_actual_params;
 		(v>0 ? vargcount : used_opt_params) = abs(v);
-		size_t pushcount = num_used_params;
+		size_t pushcount = 0;
 
 		if(user_vargs)
 		{
@@ -2280,7 +2283,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			commentBack("Allocate Vargs array");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			commentBack("Push the Vargs array pointer");
-			++pushcount;
+			pushcount++;
 		}
 		commentStartEnd(targ_sz, fmt::format("{}{} Vargs",comment_pref,func_comment));
 		//push the stack frame pointer
@@ -2290,16 +2293,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			++pushcount;
 		}
 		targ_sz = commentTarget();
-		// If the function is a pointer function (->func()) we need to push the
-		// left-hand-side.
-		if (host.left->isTypeArrow() && !(func.getIntFlag(IFUNCFLAG_SKIPPOINTER)))
-		{
-			//load the value of the left-hand of the arrow into EXP1
-			VISIT_USEVAL(static_cast<ASTExprArrow&>(*host.left).left.get(), INITCTX);
-			//push it onto the stack
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-			++pushcount;
-		}
 		
 		//push the parameters, in forward order
 		size_t param_indx = 0;
@@ -2322,9 +2315,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				VISIT_USEVAL(arg, INITCTX);
 				push_param();
 			}
+			pushcount++;
 		}
-		
-		// pushcount += (num_used_params-vargcount);
+
 		if(vargs && (vargcount || user_vargs))
 		{
 			if(user_vargs)

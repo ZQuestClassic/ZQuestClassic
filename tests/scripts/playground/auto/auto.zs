@@ -11,4 +11,5 @@
 #include "auto/script_drawing.zs"
 #include "auto/sprites.zs"
 #include "auto/std_unit.zs"
+#include "auto/varargs.zs"
 #include "auto/viewport.zs"

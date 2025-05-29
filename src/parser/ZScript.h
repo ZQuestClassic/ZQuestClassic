@@ -464,7 +464,7 @@ namespace ZScript
 		int32_t numOptionalParams;
 		int32_t id;
 
-		ASTFuncDecl* node;
+		ASTFuncDecl* node; // May be null (see @deprecated_getter).
 		Datum* thisVar;
 		Function* aliased_func; //the function this is an alias for, if any
 		ASTDataDecl* data_decl_source_node; // Only if this Function was created via @deprecated_getter
