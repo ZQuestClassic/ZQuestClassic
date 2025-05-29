@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-05-29 05:18:59</td>
+      <td>2025-05-29 08:39:38</td>
     </tr>
   </table>
 </div>
@@ -78,7 +78,7 @@
     <tr><td><a href="#l62">d_line_proc(int, DIALOG*, int) (line 62)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l870">d_maxbombsedit_proc(int, DIALOG*, int) (line 870)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l951">doInit(zinitdata*, bool) (line 951)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l963">resetItems(gamedata*, zinitdata*, bool) (line 963)</a></td><td>called 216 times, returned 216 times</td><td>97.0%</td></tr>
+    <tr><td><a href="#l963">resetItems(gamedata*, zinitdata*, bool) (line 963)</a></td><td>called 217 times, returned 217 times</td><td>97.0%</td></tr>
     <tr><td><a href="#l1161">serialize_init_data_delta[abi:cxx11](zinitdata*, zinitdata*) (line 1161)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1085">unsigned long countof&lt;107ul, unsigned short&gt;(unsigned short (&amp;) [107ul]) (line 1085)</a></td><td>called 216 times, returned 216 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1085">unsigned long countof&lt;32ul, unsigned char&gt;(unsigned char (&amp;) [32ul]) (line 1085)</a></td><td>called 9 times, returned 9 times</td><td>100.0%</td></tr>
@@ -6563,7 +6563,7 @@
       <td class="lineno"><a id="l924" href="#l924">924</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">413</td>
+      <td class="linecount coveredLine">414</td>
       <td class="src coveredLine"><span class="n">ListData</span><span class="w"> </span><span class="nf">dmap_list</span><span class="p">(</span><span class="n">dmaplist</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">font</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -6836,7 +6836,7 @@
       <td class="lineno"><a id="l963" href="#l963">963</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">resetItems</span><span class="p">(</span><span class="n">gamedata</span><span class="w"> </span><span class="o">*</span><span class="n">game2</span><span class="p">,</span><span class="w"> </span><span class="n">zinitdata</span><span class="w"> </span><span class="o">*</span><span class="n">zinit2</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">freshquest</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -6850,14 +6850,14 @@
       <td class="lineno"><a id="l965" href="#l965">965</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_maxlife</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crLIFE</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l966" href="#l966">966</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_maxbombs</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crBOMBS</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
@@ -6867,39 +6867,39 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 181 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 35 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 36 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_maxcounter</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crBOMBS</span><span class="p">]</span><span class="o">/</span><span class="n">zc_max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">bomb_ratio</span><span class="p">),</span><span class="w"> </span><span class="mi">6</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l968" href="#l968">968</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_maxmagic</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crMAGIC</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l969" href="#l969">969</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_maxarrows</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crARROWS</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l970" href="#l970">970</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_maxcounter</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crMONEY</span><span class="p">],</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l971" href="#l971">971</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_maxcounter</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crKEYS</span><span class="p">],</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -6922,12 +6922,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 55296 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 216 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 55552 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 217 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">55512</td>
+      <td class="linecount coveredLine">55769</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">MAXITEMS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -6943,14 +6943,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2758 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 52538 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 2726 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 2822 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 52730 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 2790 times.</div>
           <div class="takenBranch">&check; Branch 3 taken 32 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">55296</td>
+      <td class="linecount coveredLine">55552</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">get_item</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">item_gamedata</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -6974,18 +6974,18 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 254 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2472 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 2536 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">2726</td>
+      <td class="linecount coveredLine">2790</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">get_item</span><span class="p">(</span><span class="n">i</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l980" href="#l980">980</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2472</td>
+      <td class="linecount coveredLine">2536</td>
       <td class="src coveredLine"><span class="w">				</span><span class="n">getitem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="nb">true</span><span class="p">,</span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -7013,7 +7013,7 @@
       <td class="lineno"><a id="l984" href="#l984">984</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2726</td>
+      <td class="linecount coveredLine">2790</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -7027,7 +7027,7 @@
       <td class="lineno"><a id="l986" href="#l986">986</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">52570</td>
+      <td class="linecount coveredLine">52762</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_item_no_flush</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -7041,7 +7041,7 @@
       <td class="lineno"><a id="l988" href="#l988">988</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">55296</td>
+      <td class="linecount coveredLine">55552</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">items_off</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -7071,26 +7071,26 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 55296 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 55552 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">55296</td>
+      <td class="linecount partialCoveredLine">55552</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">get_currdmap</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l993" href="#l993">993</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">55296</td>
+      <td class="linecount coveredLine">55552</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">items_off</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">DMaps</span><span class="p">[</span><span class="n">get_currdmap</span><span class="p">()].</span><span class="n">disableditems</span><span class="p">[</span><span class="n">i</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l994" href="#l994">994</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">55296</td>
+      <td class="linecount coveredLine">55552</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -7104,7 +7104,7 @@
       <td class="lineno"><a id="l996" href="#l996">996</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">flushItemCache</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -7127,19 +7127,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 216 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 217 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">216</td>
+      <td class="linecount partialCoveredLine">217</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_life</span><span class="p">(</span><span class="n">zc_max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">crLIFE</span><span class="p">]));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1000" href="#l1000">1000</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_bombs</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">crBOMBS</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
@@ -7155,14 +7155,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 42 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 43 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 174 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 42 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 43 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">216</td>
+      <td class="linecount partialCoveredLine">217</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">crBOMBS</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crBOMBS</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_item</span><span class="p">(</span><span class="n">iBombs</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -7176,14 +7176,14 @@
       <td class="lineno"><a id="l1004" href="#l1004">1004</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_keys</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">crKEYS</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1005" href="#l1005">1005</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_sbombs</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">crSBOMBS</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
@@ -7200,15 +7200,15 @@
         <summary class="linebranchSummary">5/6</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 180 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 36 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 37 times.</div>
           <div class="takenBranch">&check; Branch 2 taken 5 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 31 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 32 times.</div>
           <div class="notTakenBranch">&cross; Branch 4 not taken.</div>
-          <div class="takenBranch">&check; Branch 5 taken 36 times.</div>
+          <div class="takenBranch">&check; Branch 5 taken 37 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">216</td>
+      <td class="linecount partialCoveredLine">217</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">crSBOMBS</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crBOMBS</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="n">zc_max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">bomb_ratio</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_item</span><span class="p">(</span><span class="n">iSBomb</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -7222,196 +7222,196 @@
       <td class="lineno"><a id="l1009" href="#l1009">1009</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_HCpieces</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hcp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1010" href="#l1010">1010</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_rupies</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">crMONEY</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1011" href="#l1011">1011</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_hcp_per_hc</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hcp_per_hc</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1012" href="#l1012">1012</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_cont_hearts</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">cont_heart</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1013" href="#l1013">1013</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_cont_percent</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">flags</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">INIT_FL_CONTPERCENT</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1014" href="#l1014">1014</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_hp_per_heart</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hp_per_heart</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1015" href="#l1015">1015</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_mp_per_block</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">magic_per_block</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1016" href="#l1016">1016</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_hero_dmgmult</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hero_damage_multiplier</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1017" href="#l1017">1017</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_regionmapping</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">region_mapping</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1018" href="#l1018">1018</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_ene_dmgmult</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">ene_damage_multiplier</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1019" href="#l1019">1019</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_dither_type</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">dither_type</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1020" href="#l1020">1020</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_dither_arg</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">dither_arg</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1021" href="#l1021">1021</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_dither_perc</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">dither_percent</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1022" href="#l1022">1022</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_light_rad</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">def_lightrad</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1023" href="#l1023">1023</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_transdark_perc</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">transdark_percent</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1024" href="#l1024">1024</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_darkscr_color</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">darkcol</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1025" href="#l1025">1025</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_light_wave_rate</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">light_wave_rate</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1026" href="#l1026">1026</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_light_wave_size</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">light_wave_size</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1027" href="#l1027">1027</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_watergrav</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">swimgravity</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1028" href="#l1028">1028</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_sideswim_up</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">heroSideswimUpStep</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1029" href="#l1029">1029</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_sideswim_side</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">heroSideswimSideStep</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1030" href="#l1030">1030</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_sideswim_down</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">heroSideswimDownStep</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1031" href="#l1031">1031</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_sideswim_jump</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">exitWaterJump</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1032" href="#l1032">1032</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_bunny_ltm</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">bunny_ltm</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1033" href="#l1033">1033</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_switchhookstyle</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">switchhookstyle</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1034" href="#l1034">1034</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_spriteflickerspeed</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">spriteflickerspeed</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1035" href="#l1035">1035</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_spriteflickercolor</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">spriteflickercolor</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1036" href="#l1036">1036</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_spriteflickertransp</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">spriteflickertransp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -7427,12 +7427,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 110592 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 216 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 111104 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 217 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">110808</td>
+      <td class="linecount coveredLine">111321</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">MAXLEVELS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -7462,19 +7462,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 100352 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 100864 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 10240 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">110592</td>
+      <td class="linecount coveredLine">111104</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">freshquest</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1043" href="#l1043">1043</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">100352</td>
+      <td class="linecount coveredLine">100864</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">lvlitems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -7502,42 +7502,42 @@
       <td class="lineno"><a id="l1047" href="#l1047">1047</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">110592</td>
+      <td class="linecount coveredLine">111104</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">lvlitems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">|=</span><span class="n">get_bit</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">map</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">?</span><span class="n">liMAP</span><span class="o">:</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1048" href="#l1048">1048</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">110592</td>
+      <td class="linecount coveredLine">111104</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">lvlitems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">|=</span><span class="n">get_bit</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">compass</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">?</span><span class="n">liCOMPASS</span><span class="o">:</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1049" href="#l1049">1049</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">110592</td>
+      <td class="linecount coveredLine">111104</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">lvlitems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">|=</span><span class="n">get_bit</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">boss_key</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">?</span><span class="n">liBOSSKEY</span><span class="o">:</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1050" href="#l1050">1050</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">110592</td>
+      <td class="linecount coveredLine">111104</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">lvlitems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">|=</span><span class="n">get_bit</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcguffin</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">?</span><span class="n">liTRIFORCE</span><span class="o">:</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1051" href="#l1051">1051</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">110592</td>
+      <td class="linecount coveredLine">111104</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1052" href="#l1052">1052</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">lvlkeys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">level_keys</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -7554,25 +7554,25 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 4 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 212 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 213 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_magic</span><span class="p">(</span><span class="n">zc_min</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">crMAGIC</span><span class="p">],</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">crMAGIC</span><span class="p">]));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1055" href="#l1055">1055</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_magicdrainrate</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">magicdrainrate</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1056" href="#l1056">1056</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_canslash</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">flags</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">INIT_FL_CANSLASH</span><span class="p">)</span><span class="o">?</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -7586,7 +7586,7 @@
       <td class="lineno"><a id="l1058" href="#l1058">1058</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_arrows</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">crARROWS</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
@@ -7602,12 +7602,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 21600 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 216 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 21700 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 217 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">21816</td>
+      <td class="linecount coveredLine">21917</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">q</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -7621,21 +7621,21 @@
       <td class="lineno"><a id="l1062" href="#l1062">1062</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">21600</td>
+      <td class="linecount coveredLine">21700</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_counter</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">q</span><span class="o">+</span><span class="n">crCUSTOM1</span><span class="p">],</span><span class="w"> </span><span class="n">q</span><span class="o">+</span><span class="w"> </span><span class="n">crCUSTOM1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1063" href="#l1063">1063</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">21600</td>
+      <td class="linecount coveredLine">21700</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">set_maxcounter</span><span class="p">(</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">q</span><span class="o">+</span><span class="n">crCUSTOM1</span><span class="p">],</span><span class="w"> </span><span class="n">q</span><span class="o">+</span><span class="n">crCUSTOM1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1064" href="#l1064">1064</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">21600</td>
+      <td class="linecount coveredLine">21700</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -7652,11 +7652,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 20 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 196 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 197 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">freshquest</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -7670,56 +7670,56 @@
       <td class="lineno"><a id="l1068" href="#l1068">1068</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">196</td>
+      <td class="linecount coveredLine">197</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">gen_doscript</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">gen_doscript</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1069" href="#l1069">1069</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">196</td>
+      <td class="linecount coveredLine">197</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">gen_exitState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">gen_exitState</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1070" href="#l1070">1070</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">196</td>
+      <td class="linecount coveredLine">197</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">gen_reloadState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">gen_reloadState</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1071" href="#l1071">1071</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">196</td>
+      <td class="linecount coveredLine">197</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">gen_initd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">gen_initd</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1072" href="#l1072">1072</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">196</td>
+      <td class="linecount coveredLine">197</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">gen_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">gen_data</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1073" href="#l1073">1073</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">196</td>
+      <td class="linecount coveredLine">197</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">gen_eventstate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">gen_eventstate</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1074" href="#l1074">1074</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">196</td>
+      <td class="linecount coveredLine">197</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">screen_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">screen_data</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1075" href="#l1075">1075</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">196</td>
+      <td class="linecount coveredLine">197</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -7733,21 +7733,21 @@
       <td class="lineno"><a id="l1077" href="#l1077">1077</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">swim_mult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hero_swim_mult</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1078" href="#l1078">1078</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">swim_div</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hero_swim_div</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1079" href="#l1079">1079</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game2</span><span class="o">-&gt;</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -7761,14 +7761,14 @@
       <td class="lineno"><a id="l1081" href="#l1081">1081</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">flushItemCache</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1082" href="#l1082">1082</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">216</td>
+      <td class="linecount coveredLine">217</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
