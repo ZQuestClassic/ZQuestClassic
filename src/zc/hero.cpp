@@ -11581,6 +11581,8 @@ bool HeroClass::startwpn(int32_t itemid)
 						run = true;
 					else if((bt->flags & BTFLAG_CUREITJINX) && itemclk)
 						run = true;
+					else if((bt->flags & BTFLAG_CURESHJINX) && shieldjinxclk)
+						run = true;
 				}
 				if(run || (bt->flags&BTFLAG_ALLOWIFFULL))
 				{
@@ -11591,6 +11593,8 @@ bool HeroClass::startwpn(int32_t itemid)
 					}
 					if(bt->flags & BTFLAG_CUREITJINX)
 						itemclk = 0;
+					if(bt->flags & BTFLAG_CURESHJINX)
+						shieldjinxclk = 0;
 					if(!paidmagic)
 						paymagiccost(itemid);
 					stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
