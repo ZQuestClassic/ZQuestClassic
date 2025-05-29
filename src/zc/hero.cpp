@@ -11774,9 +11774,23 @@ bool HeroClass::startwpn(int32_t itemid)
 				}
 				word max = std::max(toFill[0], std::max(toFill[1], toFill[2]));
 				bool run = max > 0;
+				bool check_jinxes = true;
 				if(get_qr(qr_NO_BOTTLE_IF_ANY_COUNTER_FULL))
-					run = ((bt->counter[0] > -1 && !toFill[0]) || (bt->counter[1] > -1 && !toFill[1]) || (bt->counter[2] > -1 && !toFill[2]));
-				else
+				{
+					for(int q = 0; q < 3; ++q)
+					{
+						if(bt->counter[q] > -1)
+						{
+							check_jinxes = false;
+							if(!toFill[q])
+							{
+								run = false;
+								break;
+							}
+						}
+					}
+				}
+				if(check_jinxes)
 				{
 					if((bt->flags & BTFLAG_CURESWJINX) && swordclk)
 						run = true;
