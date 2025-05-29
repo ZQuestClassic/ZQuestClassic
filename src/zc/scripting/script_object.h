@@ -8,6 +8,8 @@
 
 #include <map>
 #include <memory>
+#include <set>
+#include <vector>
 
 extern std::map<uint32_t, std::unique_ptr<user_abstract_obj>> script_objects;
 extern std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
@@ -23,6 +25,7 @@ user_abstract_obj* get_script_object_checked(uint32_t id);
 void own_script_object(user_abstract_obj* object, ScriptType type, int i);
 void free_script_object(uint32_t id);
 void delete_script_object(uint32_t id);
+std::set<uint32_t> find_script_objects_reachable_from_global_roots();
 void run_gc();
 void maybe_run_gc();
 

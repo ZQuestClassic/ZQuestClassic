@@ -6,7 +6,6 @@
 #include "credits.zs"
 #include "cursor.zs"
 #include "dmap_trace.zs"
-#include "global_objects.zs"
 #include "maths.zs"
 #include "modify_input.zs"
 #include "prime.zs"

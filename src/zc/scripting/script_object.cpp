@@ -4,6 +4,7 @@
 #include "zscriptversion.h"
 
 #include <ranges>
+#include <utility>
 
 // TODO: make these static.
 std::map<uint32_t, std::unique_ptr<user_abstract_obj>> script_objects;
@@ -269,18 +270,14 @@ void free_script_object(uint32_t id)
 		delete_script_object(id);
 }
 
-// Find unreachable objects via mark-and-sweep, and destroy them.
-// This handles cyclical objects.
-// It should not be called very often as it can be expensive.
-// Note: Most objects are cleared up via reference counting
-// (when ref_count is zero in script_object_ref_dec).
-void run_gc()
+// Returns set of object ids that are reachable from root objects.
+static auto run_mark_and_sweep(bool only_include_global_roots)
 {
+	std::set<uint32_t> live_object_ids;
+
 	std::vector<user_abstract_obj*> all_objects;
 	for (auto& [id, object] : script_objects)
 		all_objects.push_back(object.get());
-
-	std::set<uint32_t> live_object_ids;
 
 	for (auto& object : all_objects)
 	{
@@ -301,25 +298,28 @@ void run_gc()
 			}
 		}
 	}
-	for (auto& aptr : localRAM)
-	{
-		if (aptr.HoldsObjects())
-		{
-			for (int i = 0; i < aptr.Size(); i++)
-			{
-				live_object_ids.insert(aptr[i]);
-			}
-		}
-	}
 	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
 	{
 		if (game->global_d_types[i] != script_object_type::none)
 			live_object_ids.insert(game->global_d[i]);
 	}
-	for (auto& data : scriptEngineDatas | std::views::values)
+	if (!only_include_global_roots)
 	{
-		for (int i : data.ref.stack_pos_is_object)
-			live_object_ids.insert(data.stack[i]);
+		for (auto& aptr : localRAM)
+		{
+			if (aptr.HoldsObjects())
+			{
+				for (int i = 0; i < aptr.Size(); i++)
+				{
+					live_object_ids.insert(aptr[i]);
+				}
+			}
+		}
+		for (auto& data : scriptEngineDatas | std::views::values)
+		{
+			for (int i : data.ref.stack_pos_is_object)
+				live_object_ids.insert(data.stack[i]);
+		}
 	}
 
 	// Insert all root objects into worklist.
@@ -399,6 +399,24 @@ void run_gc()
 			}
 		}
 	}
+
+	return std::make_pair(live_object_ids, all_objects);
+}
+
+std::set<uint32_t> find_script_objects_reachable_from_global_roots()
+{
+	auto [live_object_ids, _] = run_mark_and_sweep(true);
+	return live_object_ids;
+}
+
+// Find unreachable objects via mark-and-sweep, and destroy them.
+// This handles cyclical objects.
+// It should not be called very often as it can be expensive.
+// Note: Most objects are cleared up via reference counting
+// (when ref_count is zero in script_object_ref_dec).
+void run_gc()
+{
+	auto [live_object_ids, all_objects] = run_mark_and_sweep(false);
 
 	// Delete unreachable objects.
 	for (auto& object : all_objects)
