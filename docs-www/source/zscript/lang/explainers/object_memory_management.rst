@@ -89,8 +89,8 @@ On save, an object persists to the save file (including all its variables and ar
 been globalized via |GlobalObject|, or if it is reachable from a global variable or array (note:
 untyped or int arrays do not count).
 
-.. caution::
-	Prior to 3.0, only globalized objects persist to the save file.
+.. versionchanged:: 3.0
+	Prior to this version, only globalized objects persist to the save file.
 
 .. caution::
 	You should not expect destructors to run at any specific time, or even at all. You should only
