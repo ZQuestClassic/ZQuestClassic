@@ -11224,7 +11224,7 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites)
 				if (!p_getc(&def, f))
 					return qe_invalid;
 
-				hero_defence[q] = def;
+				hero_defenses[q] = def;
 			}
 		}
 		else
@@ -11232,7 +11232,7 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites)
 			int32_t num_defense = wMax;
 			for (int32_t q = 0; q < num_defense; q++)
 			{
-				hero_defence[q] = 0;
+				hero_defenses[q] = 0;
 			}
 		}
 	}

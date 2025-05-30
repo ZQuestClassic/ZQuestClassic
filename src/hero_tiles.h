@@ -22,7 +22,10 @@ extern int32_t script_hero_sprite;
 extern int32_t script_hero_cset;
 extern int32_t script_hero_flip;
 
-extern byte hero_defence[wMax];
+extern int32_t hero_animation_speed;
+extern int32_t liftspeed;
+
+extern byte hero_defenses[wMax];
 
 extern int32_t hammeroffsets[4];
 
@@ -30,7 +33,7 @@ extern int32_t old_floatspr, old_slashspr, herospr;
 extern int32_t walkspr[4][3];                                   //dir,                           tile/flip/extend
 extern int32_t stabspr[4][3];                                   //dir,                           tile/flip/extend
 extern int32_t slashspr[4][3];                                  //dir,                           tile/flip/extend
-extern int32_t revslashspr[4][3];                             //dir,                     tile/flip/extend
+extern int32_t revslashspr[4][3];                               //dir,                     tile/flip/extend
 extern int32_t floatspr[4][3];                                  //dir,                           tile/flip/extend
 extern int32_t swimspr[4][3];                                   //dir,                           tile/flip/extend
 extern int32_t divespr[4][3];                                   //dir,                           tile/flip/extend
@@ -53,7 +56,7 @@ extern int32_t liftingwalkspr[4][3];                            //dir,          
 extern int32_t stunnedspr[4][3];                                //dir,                           tile/flip/extend
 extern int32_t stunned_waterspr[4][3];                          //dir,                           tile/flip/extend
 extern int32_t drowningspr[4][3];                               //dir,                           tile/flip/extend
-extern int32_t sidedrowningspr[4][3];                               //dir,                           tile/flip/extend
+extern int32_t sidedrowningspr[4][3];                           //dir,                           tile/flip/extend
 extern int32_t drowning_lavaspr[4][3];                          //dir,                           tile/flip/extend
 extern int32_t sideswimspr[4][3];                               //dir,                           tile/flip/extend
 extern int32_t sideswimslashspr[4][3];                          //dir,                           tile/flip/extend

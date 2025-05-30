@@ -24997,7 +24997,6 @@ void load_size_poses()
 	init_bitmap(&menu3,zq_screen_w,zq_screen_h);
 	
 	center_zq_class_dialogs();
-	center_zq_custom_dialogs();
 	center_zq_files_dialogs();
 	center_zq_subscreen_dialogs();
 	center_zq_tiles_dialogs();
