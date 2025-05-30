@@ -979,6 +979,13 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(actionsnd[1], "Continue Sound", "Sound played for a continue warp");
 			break;
 		}
+		case itype_lkey:
+		{
+			_SET(flag[0], "Specific Level", "If checked, grants a key for a specific level, instead of the 'current' level");
+			if(FLAG(1))
+				_SET(misc[0], "Key Level", "The level to grant a key for");
+			break;
+		}
 	}
 	#undef _SET
 	#undef FLAG

@@ -30793,14 +30793,20 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			
 			clock_zoras.clear();
 				
-			clockclk=itemsbuf[id&0xFF].misc1;
+			clockclk=idat.misc1;
 			sfx(idat.usesound);
 		}
 		break;
 		
 		case itype_lkey:
-			if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++;
+		{
+			auto lvl = dlevel;
+			if(idat.flags & item_flag1) // custom level
+				lvl = vbound(idat.misc1, 0, MAXLEVELS-1);
+			if(game->lvlkeys[lvl]<255)
+				game->lvlkeys[lvl]++;
 			break;
+		}
 			
 		case itype_ring:
 		case itype_magicring:
@@ -30960,8 +30966,14 @@ void takeitem(int32_t id)
 			break;
 			
 		case itype_lkey:
-			if(game->lvlkeys[dlevel]) game->lvlkeys[dlevel]--;
+		{
+			auto lvl = dlevel;
+			if(idat.flags & item_flag1) // custom level
+				lvl = vbound(idat.misc1, 0, MAXLEVELS-1);
+			if(game->lvlkeys[lvl])
+				game->lvlkeys[lvl]--;
 			break;
+		}
 			
 		case itype_ring:
 			if((get_qr(qr_OVERWORLDTUNIC) != 0) || (cur_screen<128 || dlevel))
