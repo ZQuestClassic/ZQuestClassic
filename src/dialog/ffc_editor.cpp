@@ -8,22 +8,17 @@
 
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern int32_t Combo, CSet;
-static int32_t tCSet;
 static bool edited = false;
 bool call_ffc_dialog(int32_t ffcombo, mapscr* scr, int screen)
 {
-	tCSet = CSet;
 	edited = false;
 	FFCDialog(scr,screen,ffcombo).show();
-	//if(edited) CSet = tCSet;
 	return edited;
 }
 bool call_ffc_dialog(int32_t ffcombo, ffdata const& init, mapscr* scr, int screen)
 {
-	tCSet = CSet;
 	edited = false;
 	FFCDialog(scr,screen,ffcombo,init).show();
-	if(edited) CSet = tCSet;
 	return edited;
 }
 
@@ -403,7 +398,6 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 							{
 								ffc.data = cmb;
 								ffc.cset = c;
-								tCSet = c;
 							}
 						)
 					)
@@ -536,9 +530,8 @@ bool FFCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			[[fallthrough]];
 		case message::PLUSCS:
 			if(ffctab) break;
-			tCSet = (tCSet+(m?11:1))%12;
-			cmbsw->setCSet(tCSet);
-			ffc.cset = tCSet;
+			ffc.cset = WRAP_CS(ffc.cset+(m?-1:1));
+			cmbsw->setCSet(ffc.cset);
 			break;
 	}
 	return false;
