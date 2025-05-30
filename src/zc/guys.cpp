@@ -7764,6 +7764,9 @@ int32_t enemy::wpnsfx(int32_t wpn)
 
 int32_t enemy::run_script(int32_t mode)
 {
+	void push_ri();
+	void pop_ri();
+
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
 	if (script <= 0 || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
 		return RUNSCRIPT_OK;
@@ -7773,10 +7776,13 @@ int32_t enemy::run_script(int32_t mode)
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;
 	bool& waitdraw = FFCore.waitdraw(scrty, uid);
+	push_ri();
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(ScriptType::NPC, script, uid);
+			ret = ZScriptVersion::RunScript(ScriptType::NPC, script, uid);
+			break;
+
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
@@ -7785,6 +7791,7 @@ int32_t enemy::run_script(int32_t mode)
 			}
 			break;
 	}
+	pop_ri();
 	return ret;
 }
 ALLEGRO_COLOR enemy::hitboxColor(byte opacity) const
