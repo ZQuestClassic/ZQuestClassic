@@ -1021,7 +1021,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			for(uint32_t objind = 0; objind < sz; ++objind)
 			{
 				saved_user_object s_ob{};
-				s_ob.obj.fake = true;
+
 				if(!p_igetl(&s_ob.obj.id,f))
 					return 84;
 				//user_object
@@ -1029,6 +1029,15 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				if(!p_getc(&tempbyte,f))
 					return 85;
 				bool reserved = tempbyte!=0;
+
+				if (section_version >= 43)
+				{
+					if(!p_getc(&tempbyte,f))
+						return 85;
+
+					obj.global = tempbyte!=0;
+				}
+
 				//Don't need to save owned_type,owned_i?
 				uint32_t datsz;
 				if(!p_igetl(&datsz,f))
@@ -1405,6 +1414,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		user_object const& obj = s_ob.obj;
 		// removed: obj.reserved
 		if(!p_putc(1,f))
+			return 85;
+		if(!p_putc(obj.global ? 1 : 0, f))
 			return 85;
 		//Don't need to save owned_type,owned_i?
 		uint32_t datsz = obj.data.size();

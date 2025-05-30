@@ -120,7 +120,6 @@ void init_script_objects()
 	}
 	for (auto object : get_user_objects())
 	{
-		assert(object->isGlobal());
 		for (int i = 0; i < object->owned_vars; i++)
 		{
 			if (!object->isMemberObjectType(i))
