@@ -49,7 +49,6 @@ private:
 	template <typename T>
 	std::shared_ptr<GUI::Widget> VAL_FIELD_IMPL(T minval, T maxval, T* member, bool dis);
 	std::shared_ptr<GUI::Widget> COUNTER_FRAME(int ctr);
-	std::shared_ptr<GUI::Widget> LEVEL_FIELD(int ind);
 	std::shared_ptr<GUI::Widget> BTN_100(int val);
 	std::shared_ptr<GUI::Widget> BTN_10(int val);
 };
