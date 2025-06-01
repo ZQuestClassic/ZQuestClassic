@@ -428,7 +428,13 @@ class screendata {
 	//
 	// @zasm_var SDD
 	internal untyped D[];
-
+	
+	// The [combodata] of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Read-only, modify by editing the [ComboD] ID.
+	//
+	// @zasm_var COMBODATAD
+	internal const combodata ComboData[];
+	
 	// The combo ID of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// @zasm_var COMBODD
@@ -445,11 +451,13 @@ class screendata {
 	internal int ComboF[];
 
 	// The inherent flag of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Editing this modifies the actual [combodata] of the combo.
 	//
 	// @zasm_var COMBOID
 	internal int ComboI[];
 
 	// The combo type of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Editing this modifies the actual [combodata] of the combo.
 	//
 	// @value [enum ComboType]
 
@@ -457,6 +465,7 @@ class screendata {
 	internal int ComboT[];
 
 	// The solidity bitflags of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Editing this modifies the actual [combodata] of the combo.
 	//
 	// @value [enum ComboSolidityBitflags]
 
@@ -464,6 +473,7 @@ class screendata {
 	internal int ComboS[];
 
 	// The effect area bitflags of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Editing this modifies the actual [combodata] of the combo.
 	//
 	// @zasm_var COMBOED
 	internal int ComboE[];

@@ -3168,7 +3168,10 @@ enum ASM_DEFINE
 #define IDATAPICKUPLITEMS      0x1600
 #define IDATAPICKUPLITEMLEVEL      0x1601
 
-#define NUMVARIABLES            0x1602
+#define COMBODATAD      0x1602
+#define MAPDATACOMBODATAD      0x1603
+
+#define NUMVARIABLES            0x1604
 
 //} End variables
 

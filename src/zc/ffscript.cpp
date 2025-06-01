@@ -6431,6 +6431,14 @@ int32_t get_register(int32_t arg)
 		    ret = get_scr_for_rpos(rpos)->member[RPOS_TO_POS(rpos)]*10000; \
 		}
 
+		case COMBODATAD:
+		{
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if(BC::checkComboRpos(rpos) != SH::_NoError)
+				ret = -10000;
+			else ret = get_scr_for_rpos(rpos)->data[RPOS_TO_POS(rpos)];
+			break;
+		}
 		case COMBODD:
 			GET_COMBO_VAR(data) break;
 			
@@ -7991,6 +7999,15 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 
+		case MAPDATACOMBODATAD:
+		{
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos))
+				ret = rpos_handle.data();
+			else
+				ret = -10000;
+			break;
+		}
 		case MAPDATACOMBODD:
 		{
 			int pos = ri->d[rINDEX] / 10000;

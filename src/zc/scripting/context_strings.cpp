@@ -262,6 +262,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SCREENDATACATCHALL: return "Screen->Catchall";
 		case COMBOCD: return "Screen->ComboC[]";
 		case COMBODD: return "Screen->ComboD[]";
+		case COMBODATAD: return "Screen->ComboData[]";
 		case COMBOED: return "Screen->ComboE[]";
 		case COMBOFD: return "Screen->ComboF[]";
 		case COMBOID: return "Screen->ComboI[]";
@@ -734,6 +735,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case MAPDATACATCHALL: return "mapdata::Catchall";
 		case MAPDATACOMBOCD: return "mapdata::ComboC[]";
 		case MAPDATACOMBODD: return "mapdata::ComboD[]";
+		case MAPDATACOMBODATAD: return "mapdata::ComboData[]";
 		case MAPDATACOMBOED: return "mapdata::ComboE[]";
 		case MAPDATACOMBOFD: return "mapdata::ComboF[]";
 		case MAPDATACOMBOID: return "mapdata::ComboI[]";

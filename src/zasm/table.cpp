@@ -2935,6 +2935,9 @@ static constexpr script_variable variable_list[]=
 	
 	{ "IDATAPICKUPLITEMS", IDATAPICKUPLITEMS, 0 },
 	{ "IDATAPICKUPLITEMLEVEL", IDATAPICKUPLITEMLEVEL, 0 },
+	
+	{ "COMBODATAD", COMBODATAD, 0 },
+	{ "MAPDATACOMBODATAD", MAPDATACOMBODATAD, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -3238,6 +3241,8 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case COMBODATTRISHORTS:
 		case COMBODBLOCKWEAPON:
 		case COMBODD:
+		case COMBODATAD:
+		case MAPDATACOMBODATAD:
 		case COMBODEXPANSION:
 		case COMBODGENFLAGARR:
 		case COMBODSTRIKEWEAPONS:

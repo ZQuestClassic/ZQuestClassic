@@ -678,6 +678,13 @@ class mapdata {
 	// @value Varies based on [ScreenEnemyFlagGroup]
 	// @zasm_var MAPDATASCREENEFLAGSD
 	internal const int EFlags[];
+	
+	// The [combodata] placed at each position on the screen.
+	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
+	// @zasm_var MAPDATACOMBODATAD
+	internal const combodata ComboData[];
 
 	// The Combo ID placed at each position on the screen.
 	//
