@@ -10701,6 +10701,12 @@ mapscr *getmapscreen(int32_t map_index, int32_t screen, int32_t layer)   //retur
 	return &(TheMaps[index]);
 }
 
+static bool transparent_combo(int32_t id)
+{
+	if(unsigned(id) >= MAXCOMBOS) return false;
+	return bool(combobuf[id].animflags & AF_TRANSPARENT);
+}
+
 void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transparent)
 {
 	for(int32_t i(0); i < 176; ++i)
@@ -10708,7 +10714,7 @@ void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transpar
 		const int32_t x2 = ((i&15)<<4) + x;
 		const int32_t y2 = (i&0xF0) + y;
 		
-		if(transparent)
+		if(transparent != transparent_combo(m.data[i]))
 		{
 			overcomboblocktranslucent(b, x2, y2, m.data[i], m.cset[i], 1, 1, 128);
 		}
@@ -11147,83 +11153,78 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 
 void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
-    //sdci[1]=layer
-    //sdci[2]=map
-    //sdci[3]=screen
-    //sdci[4]=layer
-    //sdci[5]=x
-    //sdci[6]=y
-    //sdci[7]=rotation
-    //sdci[8]=opacity
-    
-    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t screen = sdci[3]/10000;
-    int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
-    int32_t x = sdci[5]/10000;
-    int32_t y = sdci[6]/10000;
-    int32_t x1 = x + xoffset;
-    int32_t y1 = y + yoffset;
-    int32_t rotation = sdci[7]/10000;
-    int32_t opacity = sdci[8]/10000;
-    
-    uint32_t index = (uint32_t)map_screen_index(map, screen);
-    const mapscr* m = getmapscreen(map, screen, sourceLayer);
-    
-    if(!m) //no need to log it.
-        return;
+	//sdci[1]=layer
+	//sdci[2]=map
+	//sdci[3]=screen
+	//sdci[4]=layer
+	//sdci[5]=x
+	//sdci[6]=y
+	//sdci[7]=rotation
+	//sdci[8]=opacity
+	
+	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+	int32_t screen = sdci[3]/10000;
+	int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
+	int32_t x = sdci[5]/10000;
+	int32_t y = sdci[6]/10000;
+	int32_t x1 = x + xoffset;
+	int32_t y1 = y + yoffset;
+	int32_t rotation = sdci[7]/10000;
+	int32_t opacity = sdci[8]/10000;
+	
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
+	const mapscr* m = getmapscreen(map, screen, sourceLayer);
+	
+	if(!m) //no need to log it.
+		return;
 
 	if(index >= TheMaps.size())
 	{
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
-    
-    const mapscr & l = *m;
-    
-    BITMAP* b = bmp;
-    
-    if(rotation != 0)
-        b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
-    const int32_t maxX = isOffScreen ? 512 : 256;
-    const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
-    bool transparent = opacity <= 128;
-    
-    if(rotation != 0) // rotate
-    {
-        draw_mapscr(b, l, x1, y1, transparent);
-        
-        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
-        script_drawing_commands.ReleaseSubBitmap(b);
-    }
-    else
-    {
-        for(int32_t i(0); i < 176; ++i)
-        {
-            const int32_t x2 = ((i&15)<<4) + x1;
-            const int32_t y2 = (i&0xF0) + y1;
-            
-            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
-            {
-                if(opacity < 128)
-		{	
-		    overcomboblocktranslucent(b, x2, y2, l.data[i], l.cset[i], 1, 1, 128);
+	
+	const mapscr & l = *m;
+	
+	BITMAP* b = bmp;
+	
+	if(rotation != 0)
+		b = script_drawing_commands.AquireSubBitmap(256, 176);
 		
 		
-                    //overtiletranslucent16(b, tile, x2, y2, l.cset[i], c.flip, opacity);
-		}
-                else
+	const int32_t maxX = isOffScreen ? 512 : 256;
+	const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
+	bool transparent = opacity <= 128;
+	
+	if(rotation != 0) // rotate
+	{
+		draw_mapscr(b, l, x1, y1, transparent);
+		
+		rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+		script_drawing_commands.ReleaseSubBitmap(b);
+	}
+	else
+	{
+		for(int32_t i(0); i < 176; ++i)
 		{
-		    overcomboblock(b, x2, y2, l.data[i], l.cset[i], 1, 1);
-                    //overtile16(b, tile, x2, y2, l.cset[i], c.flip);
+			const int32_t x2 = ((i&15)<<4) + x1;
+			const int32_t y2 = (i&0xF0) + y1;
+			
+			if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+			{
+				if(opacity < 128 != transparent_combo(l.data[i]))
+				{	
+					overcomboblocktranslucent(b, x2, y2, l.data[i], l.cset[i], 1, 1, 128);
+				}
+				else
+				{
+					overcomboblock(b, x2, y2, l.data[i], l.cset[i], 1, 1);
+				}
+			}
 		}
-                //putcombo( b, xx, yy, l.data[i], l.cset[i] );
-            }
-        }
-    }
-    
-    //putscr
+	}
+	
+	//putscr
 }
 
 
@@ -11356,7 +11357,7 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
                 auto& c = GET_DRAWING_COMBO(l.data[i]);
                 const int32_t tile = combo_tile(c, x2, y2);
 
-                if(opacity < 128)
+                if(opacity < 128 != transparent_combo(l.data[i]))
                     overtiletranslucent16(refbmp, tile, x2, y2, l.cset[i], c.flip, opacity);
                 else
                     overtile16(refbmp, tile, x2, y2, l.cset[i], c.flip);
