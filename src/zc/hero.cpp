@@ -8242,7 +8242,7 @@ heroanimate_skip_liftwpn:;
 					{
 						if(on_sideview_solid_oldpos(this, false, 0, 0, q))
 						{
-							ydiff = q;
+							ydiff = q-1;
 							break;
 						}
 					}
