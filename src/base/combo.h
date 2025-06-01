@@ -67,11 +67,18 @@ enum
 	CMB_ADVP_SZ
 };
 
+// flags for 'side_walk' - repeated 4 times, '<< (2*dir)' for each dir
+#define SIDEWALK_NONE   0x00
+#define SIDEWALK_OUT    0x01
+#define SIDEWALK_IN     0x02
+#define SIDEWALK_BOTH   0x03
+
 struct newcombo
 {
 	int32_t tile;
 	byte flip;
 	byte walk = 0xF0;
+	byte side_walk = 0x00; // 2 bits per dir
 	byte type;
 	byte csets;
 	byte frames;

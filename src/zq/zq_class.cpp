@@ -9611,6 +9611,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		
 		if(!p_putc(tmp_cmb.csets,f))
 			return 10;
+		
+		if(!p_putc(tmp_cmb.side_walk,f))
+			return 10;
 	}
 	if(combo_has_flags&CHAS_SCRIPT)
 	{

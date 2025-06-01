@@ -418,6 +418,7 @@ void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y);
 bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstate);
+bool sidewalk_flag(zfix sx, zfix sy, zfix& dx, zfix& dy);
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer = -1, bool notLink = false);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt, mapscr* m);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2);

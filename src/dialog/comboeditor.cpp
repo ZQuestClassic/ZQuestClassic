@@ -2123,6 +2123,14 @@ static const GUI::ListData listdata_lift_gfx
 	{"Sprite Data GFX", 2}
 };
 
+static const GUI::ListData listdata_side_solidity
+{
+	{"Nonsolid", SIDEWALK_NONE},
+	{"Solid when going outward", SIDEWALK_OUT},
+	{"Solid when going inward", SIDEWALK_IN},
+	{"Solid", SIDEWALK_BOTH},
+};
+
 //{ Macros
 
 #define DISABLE_WEAP_DATA true
@@ -3455,15 +3463,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						l_cset = Label(text = std::to_string(CSet), hAlign = 0.0)
 					),
 					Column(padding = 0_px,
-						Rows<6>(
+						Rows<4>(
 							Label(text = "Tile", hAlign = 0.5, colSpan = 2),
-							Label(text = "Solid", hAlign = 1.0, rightPadding = 0_px),
-							Button(leftPadding = 0_px, forceFitH = true, text = "?",
-								onPressFunc = []()
-								{
-									InfoDialog("Solidity","The pink-highlighted corners of the combo will be treated"
-										" as solid walls.").show();
-								}),
 							Label(text = "CSet2", hAlign = 1.0, rightPadding = 0_px),
 							Button(leftPadding = 0_px, forceFitH = true, text = "?",
 								onPressFunc = []()
@@ -3486,15 +3487,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									CSet = (c&0xF)%14;
 									l_flip->setText(std::to_string(f));
 									updateAnimation();
-								}
-							),
-							cswatchs[0] = CornerSwatch(colSpan = 2,
-								val = solidity_to_flag(local_comboref.walk&0xF),
-								color = vc(12),
-								onSelectFunc = [&](int32_t val)
-								{
-									local_comboref.walk &= ~0xF;
-									local_comboref.walk |= solidity_to_flag(val);
 								}
 							),
 							cswatchs[1] = CornerSwatch(colSpan = 2,
@@ -3529,15 +3521,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									updateCSet();
 								}
 							),
-							cswatchs[2] = CornerSwatch(colSpan = 2,
-								val = solidity_to_flag((local_comboref.walk&0xF0)>>4),
-								color = vc(10),
-								onSelectFunc = [&](int32_t val)
-								{
-									local_comboref.walk &= ~0xF0;
-									local_comboref.walk |= solidity_to_flag(val)<<4;
-								}
-							),
 							Label(text = "Preview", hAlign = 0.5,colSpan = 2),
 							Label(text = "Cycle", hAlign = 1.0, rightPadding = 0_px),
 							Button(leftPadding = 0_px, forceFitH = true, text = "?",
@@ -3546,13 +3529,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									InfoDialog("Cycle","When the combo's animation has completed once,"
 										" the combo will be changed to the 'Cycle' combo, unless the 'Cycle'"
 										" combo is set to Combo 0.").show();
-								}),
-							Label(text = "Effect", hAlign = 1.0, rightPadding = 0_px),
-							Button(leftPadding = 0_px, forceFitH = true, text = "?",
-								onPressFunc = []()
-								{
-									InfoDialog("Effect","The combo type takes effect only in the lime-highlighted"
-										" corners of the combo.").show();
 								})
 						),
 						Checkbox(
@@ -3596,6 +3572,78 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							{
 								SETFLAG(local_comboref.animflags,AF_TRANSPARENT,state);
 							}
+						)
+					)
+				)),
+				TabRef(name = "Solidity", Column(
+					Rows<4>(
+						Label(text = "Solid", hAlign = 1.0, rightPadding = 0_px),
+						Button(leftPadding = 0_px, forceFitH = true, text = "?",
+							onPressFunc = []()
+							{
+								InfoDialog("Solidity","The pink-highlighted corners of the combo will be treated"
+									" as solid walls.").show();
+							}),
+						Label(text = "Effect", hAlign = 1.0, rightPadding = 0_px),
+						Button(leftPadding = 0_px, forceFitH = true, text = "?",
+							onPressFunc = []()
+							{
+								InfoDialog("Effect","The combo type takes effect only in the lime-highlighted"
+									" corners of the combo.").show();
+							}),
+						cswatchs[0] = CornerSwatch(colSpan = 2,
+							val = solidity_to_flag(local_comboref.walk&0xF),
+							color = vc(12),
+							onSelectFunc = [&](int32_t val)
+							{
+								local_comboref.walk &= ~0xF;
+								local_comboref.walk |= solidity_to_flag(val);
+							}
+						),
+						cswatchs[2] = CornerSwatch(colSpan = 2,
+								val = solidity_to_flag((local_comboref.walk&0xF0)>>4),
+								color = vc(10),
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.walk &= ~0xF0;
+									local_comboref.walk |= solidity_to_flag(val)<<4;
+								}
+							)
+					),
+					Frame(info = "Allows making the side edge of the combo solid, possibly only 1-way",
+						Rows<2>(
+							Label(text = "Top Side:", hAlign = 1.0),
+							DropDownList(data = listdata_side_solidity, fitParent = true,
+								selectedValue = (local_comboref.side_walk << (2*up)) & SIDEWALK_BOTH,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.side_walk &= ~(SIDEWALK_BOTH << (2*up));
+									local_comboref.side_walk |= (val & SIDEWALK_BOTH) << (2*up);
+								}),
+							Label(text = "Bottom Side:", hAlign = 1.0),
+							DropDownList(data = listdata_side_solidity, fitParent = true,
+								selectedValue = (local_comboref.side_walk << (2*down)) & SIDEWALK_BOTH,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.side_walk &= ~(SIDEWALK_BOTH << (2*down));
+									local_comboref.side_walk |= (val & SIDEWALK_BOTH) << (2*down);
+								}),
+							Label(text = "Left Side:", hAlign = 1.0),
+							DropDownList(data = listdata_side_solidity, fitParent = true,
+								selectedValue = (local_comboref.side_walk << (2*left)) & SIDEWALK_BOTH,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.side_walk &= ~(SIDEWALK_BOTH << (2*left));
+									local_comboref.side_walk |= (val & SIDEWALK_BOTH) << (2*left);
+								}),
+							Label(text = "Right Side:", hAlign = 1.0),
+							DropDownList(data = listdata_side_solidity, fitParent = true,
+								selectedValue = (local_comboref.side_walk << (2*right)) & SIDEWALK_BOTH,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.side_walk &= ~(SIDEWALK_BOTH << (2*right));
+									local_comboref.side_walk |= (val & SIDEWALK_BOTH) << (2*right);
+								})
 						)
 					)
 				)),

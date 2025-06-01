@@ -18320,6 +18320,20 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		}
 	}
 	
+	if(dx || dy)
+		for(zfix sx : {x, x+15.9999_zf})
+			for(zfix sy : {y, y+15.9999_zf})
+			{
+				zfix destx = sx+dx, desty = sy+dy;
+				if(sidewalk_flag(sx, sy, destx, desty))
+				{
+					if(earlyret) return false;
+					ret = false;
+					dx = destx-sx;
+					dy = desty-sy;
+				}
+			}
+	
 	bool skipdmg = earlyret || get_qr(qr_LENIENT_SOLID_DAMAGE) || get_qr(qr_NOSOLIDDAMAGECOMBOS) || hclk || ((z>0||fakez>0) && !(hero_scr->flags2&fAIRCOMBOS));
 	if(dx)
 	{

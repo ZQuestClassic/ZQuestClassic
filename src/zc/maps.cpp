@@ -3944,6 +3944,14 @@ static void put_walkflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
 	// Draw damage combos
 	bool dmg = combo_class_buf[c.type].modify_hp_amount;
 	
+	if(c.side_walk & (SIDEWALK_BOTH << (2*up)))
+		al_draw_line(xx, yy, xx+16, yy, col_solid, 1);
+	if(c.side_walk & (SIDEWALK_BOTH << (2*down)))
+		al_draw_line(xx, yy+15, xx+16, yy+15, col_solid, 1);
+	if(c.side_walk & (SIDEWALK_BOTH << (2*left)))
+		al_draw_line(xx, yy, xx, yy+16, col_solid, 1);
+	if(c.side_walk & (SIDEWALK_BOTH << (2*right)))
+		al_draw_line(xx+15, yy, xx+15, yy+16, col_solid, 1);
 	for(int32_t i=0; i<4; i++)
 	{
 		int32_t tx=((i&2)<<2)+xx;
@@ -4006,7 +4014,7 @@ static void put_walkflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
 				al_draw_filled_rectangle(tx,ty,tx+8,ty+8,*color);
 			}
 		}
-		
+			
 		if(dmg)
 		{
 			for(int32_t k=0; k<8; k+=2)
@@ -6762,6 +6770,92 @@ bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstat
 	if (y >= max_y) return false;
 	
 	return _walkflag_new(x, y, switchblockstate) || (cnt != 1 && _walkflag_new(x + 8, y, switchblockstate));
+}
+
+// Collision ray from (sx,sy) to (dx,dy), returns 'true' on collision, (dx,dy) out-parameter the collided point
+// Collides with the sides of combos, specifically the 'newcombo.side_walk' bits.
+bool sidewalk_flag(zfix sx, zfix sy, zfix& dx, zfix& dy)
+{
+	if(sx < 0 || sx >= world_w || sy < 0 || sy >= world_w)
+	{
+		dx = sx; dy = sy;
+		return true; // started out of bounds
+	}
+	int x_inc = sign(dx-sx);
+	int y_inc = sign(dy-sy);
+	auto xdir = dx < sx ? left : right;
+	auto ydir = dy < sy ? up : down;
+	zfix x = sx, y = sy;
+	while(x != dx || y != dy)
+	{
+		if(x != dx)
+		{
+			int ix = x.getFloor();
+			if(ix + x_inc < 0 || ix + x_inc >= world_w)
+			{
+				dx = vbound(ix+x_inc, world_w, 0);
+				return true; // out of bounds
+			}
+			if(((ix + x_inc) % 16) != (ix % 16)) // cross combo boundary
+			{
+				int iy = y.getFloor();
+				byte fromflags = 0, toflags = 0;
+				auto frompos = COMBOPOS(ix%256, iy%176);
+				auto topos = COMBOPOS((ix+x_inc)%256, iy%176);
+				for(int layer = 0; layer <= 2; ++layer)
+				{
+					mapscr* fromscr = get_scr_for_world_xy_layer(ix, iy, layer);
+					mapscr* toscr = get_scr_for_world_xy_layer(ix+x_inc, iy, layer);
+					
+					fromflags |= combobuf[fromscr->data[frompos]].side_walk;
+					toflags |= combobuf[fromscr->data[topos]].side_walk;
+				}
+				if(((fromflags >> (2*xdir)) & SIDEWALK_OUT)
+					|| ((toflags >> (2*oppositeDir[xdir])) & SIDEWALK_IN))
+				{
+					dx = ix;
+					return true; // collided with a side
+				}
+			}
+			x += x_inc;
+			if(sign(dx-x) != x_inc)
+				x = dx;
+		}
+		if(y != dy)
+		{
+			int iy = y.getFloor();
+			if(iy + y_inc < 0 || iy + y_inc >= world_h)
+			{
+				dy = vbound(iy+y_inc, world_h, 0);
+				return true; // out of bounds
+			}
+			if(((iy + y_inc) % 16) != (iy % 16)) // cross combo boundary
+			{
+				int ix = x.getFloor();
+				byte fromflags = 0, toflags = 0;
+				auto frompos = COMBOPOS(ix%256, iy%176);
+				auto topos = COMBOPOS(ix%256, (iy+y_inc)%176);
+				for(int layer = 0; layer <= 2; ++layer)
+				{
+					mapscr* fromscr = get_scr_for_world_xy_layer(ix, iy, layer);
+					mapscr* toscr = get_scr_for_world_xy_layer(ix, iy+y_inc, layer);
+					
+					fromflags |= combobuf[fromscr->data[frompos]].side_walk;
+					toflags |= combobuf[fromscr->data[topos]].side_walk;
+				}
+				if(((fromflags >> (2*ydir)) & SIDEWALK_OUT)
+					|| ((toflags >> (2*oppositeDir[ydir])) & SIDEWALK_IN))
+				{
+					dy = iy;
+					return true; // collided with a side
+				}
+			}
+			y += y_inc;
+			if(sign(dy-y) != y_inc)
+				y = dy;
+		}
+	}
+	return false;
 }
 
 static bool effectflag(int32_t x, int32_t y, int32_t layer)

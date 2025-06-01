@@ -21,6 +21,7 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(flip) return false;
 	if(walk&0xF) return false;
 	if(!ignoreEff && (walk&0xF0)!=0xF0) return false;
+	if(side_walk) return false;
 	if(type) return false;
 	if(csets) return false;
 	if(frames) return false;
@@ -176,7 +177,10 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 	if(flags.get(CMB_ADVP_CSET2))
 		csets = other.csets;
 	if(flags.get(CMB_ADVP_SOLIDITY))
+	{
 		walk = (walk&0xF0) | (other.walk&0x0F);
+		side_walk = other.side_walk;
+	}
 	if(flags.get(CMB_ADVP_ANIM))
 	{
 		frames = other.frames;
