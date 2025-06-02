@@ -159,6 +159,7 @@ struct newcombo
 	byte spr_appear, spr_disappear, spr_walking, spr_standing, spr_falling, spr_drowning, spr_lava_drowning;
 	
 	vector<combo_trigger> triggers;
+	byte only_gentrig;
 	
 	void set_tile(int32_t newtile);
 	void clear();

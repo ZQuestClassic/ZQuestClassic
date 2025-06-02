@@ -1171,10 +1171,16 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	clear_xstatecombos_mi(screen_handles, mi);
 	
 	for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
+		auto cid = handle.data();
 		auto& cmb = handle.combo();	
-		if (cmb.triggerflags[4] & combotriggerSCREENLOAD)
+		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
 		{
-			do_trigger_combo(handle);
+			auto& trig = cmb.triggers[idx];
+			if (trig.triggerflags[4] & combotriggerSCREENLOAD)
+			{
+				do_trigger_combo(handle, idx);
+				if(handle.data() != cid) break;
+			}
 		}
 	});
 }
@@ -2385,7 +2391,7 @@ bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, 
 	bool is_active_screen = is_in_current_region(s);
 
 	for_every_rpos_in_screen(screen_handles, [&](const rpos_handle_t& rpos_handle) {
-		if(triggers && force_ex_trigger(rpos_handle, xflag))
+		if(triggers && force_ex_trigger_any(rpos_handle, xflag))
 			didit = true;
 		else switch (rpos_handle.ctype())
 		{
@@ -2415,7 +2421,7 @@ bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, 
 		{
 			auto ffc_handle = *s->getFFCHandle(i, screen_index_offset);
 			auto& cmb = ffc_handle.combo();
-			if(triggers && force_ex_trigger_ffc(ffc_handle, xflag))
+			if(triggers && force_ex_trigger_ffc_any(ffc_handle, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
@@ -2471,7 +2477,7 @@ bool remove_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, uint d
 	bool is_active_screen = is_in_current_region(scr);
 
 	for_every_rpos_in_screen(screen_handles, [&](const rpos_handle_t& rpos_handle) {
-		if (triggers && force_ex_door_trigger(rpos_handle, dir, ind))
+		if (triggers && force_ex_door_trigger_any(rpos_handle, dir, ind))
 			didit = true;
 		else; //future door combo types?
 	});
@@ -2483,7 +2489,7 @@ bool remove_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, uint d
 		for (uint8_t i = 0; i < c; i++)
 		{
 			auto ffc_handle = *scr->getFFCHandle(i, screen_index_offset);
-			if (triggers && force_ex_door_trigger_ffc(ffc_handle, dir, ind))
+			if (triggers && force_ex_door_trigger_ffc_any(ffc_handle, dir, ind))
 				didit = true;
 			else; //future door combo types?
 		}
@@ -2724,8 +2730,17 @@ void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles,
 	if (from_active_screen)
 	{
 		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
-			if (handle.combo().triggerflags[2] & combotriggerSECRETSTR)
-				do_trigger_combo(handle, ctrigSECRETS);
+			auto cid = handle.data();
+			auto& cmb = handle.combo();	
+			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			{
+				auto& trig = cmb.triggers[idx];
+				if (trig.triggerflags[2] & combotriggerSECRETSTR)
+				{
+					do_trigger_combo(handle, idx, ctrigSECRETS);
+					if(handle.data() != cid) break;
+				}
+			}
 		});
 	}
 
@@ -5617,9 +5632,19 @@ void openshutters(mapscr* scr)
 	
 	auto& combo_cache = combo_caches::shutter;
 	for_every_combo_in_screen(create_screen_handles(scr), [&](const auto& handle) {
-		auto& cmb = combo_cache.minis[handle.data()];
-		if (cmb.shutter)
-			do_trigger_combo(handle);
+		// auto& cmb = combo_cache.minis[handle.data()];
+		// if (cmb.shutter)
+		auto cid = handle.data();
+		auto& cmb = handle.combo();
+		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		{
+			auto& trig = cmb.triggers[idx];
+			if(trig..triggerflags[0] & combotriggerSHUTTER)
+			{
+				do_trigger_combo(handle, idx);
+				if(handle.data() != cid) break;
+			}
+		}
 	});
 
 	if(opened_door)
@@ -5845,10 +5870,16 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 		clear_xdoors_mi(screen_handles, mi, true);
 		clear_xstatecombos_mi(screen_handles, mi, true);
 		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
+			auto cid = handle.data();
 			auto& cmb = handle.combo();	
-			if (cmb.triggerflags[4] & combotriggerSCREENLOAD)
+			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
 			{
-				do_trigger_combo(handle);
+				auto& trig = cmb.triggers[idx];
+				if (trig.triggerflags[4] & combotriggerSCREENLOAD)
+				{
+					do_trigger_combo(handle, idx);
+					if(handle.data() != cid) break;
+				}
 			}
 		});
 	}
@@ -6297,10 +6328,16 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	clear_xstatecombos(screen_handles, true);
 	
 	for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
+		auto cid = handle.data();
 		auto& cmb = handle.combo();	
-		if (cmb.triggerflags[4] & combotriggerSCREENLOAD)
+		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
 		{
-			do_trigger_combo(handle);
+			auto& trig = cmb.triggers[idx];
+			if (trig.triggerflags[4] & combotriggerSCREENLOAD)
+			{
+				do_trigger_combo(handle, idx);
+				if(handle.data() != cid) break;
+			}
 		}
 	});
 
@@ -7107,9 +7144,17 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 		int pos = rpos_handle.pos;
 		newcombo const& cmb = combobuf[scr->data[pos]];
 		if(is_active_screen)
-			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
-				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo(rpos_handle, ctrigSWITCHSTATE);
+			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			{
+				auto& trig = cmb.triggers[idx];
+				if((trig.triggerflags[3] & combotriggerTRIGLEVELSTATE) && trig.trig_lstate < 32)
+					if(flags&(1<<trig.trig_lstate))
+					{
+						auto oldcombo = rpos_handle.data();
+						do_trigger_combo(rpos_handle, ctrigSWITCHSTATE);
+						if(rpos_handle.data() != oldcombo) break;
+					}
+			}
 		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32
 			&& !(cmb.usrflags & cflag11)) //global state
 		{
@@ -7229,9 +7274,17 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 		{
 			auto ffc_handle = *m->getFFCHandle(q, screen_index_offset);
 			auto& cmb = ffc_handle.combo();
-			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
-				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo(ffc_handle, ctrigSWITCHSTATE);
+			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			{
+				auto& trig = cmb.triggers[idx];
+				if((trig.triggerflags[3] & combotriggerTRIGLEVELSTATE) && trig.trig_lstate < 32)
+					if(flags&(1<<trig.trig_lstate))
+					{
+						auto oldcombo = ffc_handle.data();
+						do_trigger_combo(ffc_handle, ctrigSWITCHSTATE);
+						if(ffc_handle.data() != oldcombo) break;
+					}
+			}
 		}
 	}
 }
@@ -7270,9 +7323,18 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 
 			if (is_active_screen)
 			{
-				if (mini_cmb.trigger_global_state)
-					if (states[combobuf[cid].trig_gstate])
-						do_trigger_combo(get_rpos_handle_for_screen(screen, lyr, pos), ctrigSWITCHSTATE);
+				// if (mini_cmb.trigger_global_state)
+				auto& cmb = combobuf[cid];
+				for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+				{
+					auto& trig = cmb.triggers[idx];
+					if (states[trig.trig_gstate])
+					{
+						auto rpos_handle = get_rpos_handle_for_screen(screen, lyr, pos);
+						do_trigger_combo(rpos_handle, ctrigSWITCHSTATE);
+						if(rpos_handle.data() != cid) break;
+					}
+				}
 			}
 
 			if (!mini_cmb.has_global_state)
@@ -7396,10 +7458,16 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 		{
 			auto ffc_handle = *base_scr->getFFCHandle(q, screen_index_offset);
 			int cid = ffc_handle.data();
-			auto& mini_cmb = combo_cache.minis[cid];
-			if (mini_cmb.trigger_global_state)
-				if (states[combobuf[cid].trig_gstate])
+			// auto& mini_cmb = combo_cache.minis[cid];
+			// if (mini_cmb.trigger_global_state)
+			auto& cmb = combobuf[cid];
+			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			{
+				auto& trig = cmb.triggers[idx];
+				if (states[trig.trig_gstate])
 					do_trigger_combo(ffc_handle, ctrigSWITCHSTATE);
+				if(ffc_handle.data() != cid) break;
+			}
 		}
 	}
 }

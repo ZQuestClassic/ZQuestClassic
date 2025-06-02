@@ -18183,6 +18183,14 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(ret)
 					return ret;
 			}
+			
+			if(s_version < 52)
+			{
+				if(!temp_combo.triggers.empty())
+					temp_combo.only_gentrig = (temp_combo.triggers[0].triggerflags[0] & combotriggerONLYGENTRIG);
+			}
+			else if(!p_getc(&temp_combo.only_gentrig,f))
+				return qe_invalid;
 		}
 		if(combo_has_flags&CHAS_LIFT)
 		{

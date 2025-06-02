@@ -9736,7 +9736,12 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		if(!p_putc(sz,f))
 			return 34;
 		for(byte q = 0; q < sz; ++q)
-			writecombo_triggers_loop(f, section_version, tmp_cmb.triggers[q]);
+		{
+			auto ret = writecombo_triggers_loop(f, section_version, tmp_cmb.triggers[q]);
+			if(ret) return ret;
+		}
+		if(!p_putc(tmp_cmb.only_gentrig,f))
+			return 35;
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{

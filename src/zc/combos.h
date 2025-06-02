@@ -60,14 +60,18 @@ void trigger_save(newcombo const& cmb, mapscr* scr);
 
 void trig_copycat(byte copyid);
 
-void do_ex_trigger(const rpos_handle_t& rpos_handle);
-void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle);
-bool force_ex_trigger(const rpos_handle_t& rpos_handle, char xstate = -1);
-bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, char xstate = -1);
-bool force_ex_door_trigger(const rpos_handle_t& rpos_handle, int dir = -1, uint ind = 0);
-bool force_ex_door_trigger_ffc(const ffc_handle_t& ffc_handle, int dir = -1, uint ind = 0);
-bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special = 0, weapon* w = NULL);
-bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special = 0, weapon* w = NULL);
+void do_ex_trigger(const rpos_handle_t& rpos_handle, size_t idx);
+void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx);
+bool force_ex_trigger(const rpos_handle_t& rpos_handle, size_t idx, char xstate = -1);
+bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx, char xstate = -1);
+bool force_ex_trigger_any(const rpos_handle_t& rpos_handle, char xstate = -1);
+bool force_ex_trigger_ffc_any(const ffc_handle_t& ffc_handle, char xstate = -1);
+bool force_ex_door_trigger(const rpos_handle_t& rpos_handle, size_t idx, int dir = -1, uint ind = 0);
+bool force_ex_door_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx, int dir = -1, uint ind = 0);
+bool force_ex_door_trigger_any(const rpos_handle_t& rpos_handle, int dir = -1, uint ind = 0);
+bool force_ex_door_trigger_ffc_any(const ffc_handle_t& ffc_handle, int dir = -1, uint ind = 0);
+bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t special = 0, weapon* w = NULL);
+bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t special = 0, weapon* w = NULL);
 
 bool do_lift_combo(const rpos_handle_t&, int32_t gloveid);
 
@@ -145,7 +149,8 @@ namespace combo_caches
 		{
 			type = combo.type;
 			sfx_loop = combo.sfx_loop;
-			trigtimer = combo.trigtimer;
+			// TODO TriggerSplit
+			// trigtimer = combo.trigtimer;
 		}
 	};
 	extern combo_cache<minicombo_cpos_update> cpos_update;
@@ -158,8 +163,9 @@ namespace combo_caches
 		minicombo_trigger_group() = default;
 		minicombo_trigger_group(const newcombo& combo)
 		{
-			less = combo.triggerflags[3] & combotriggerTGROUP_LESS;
-			greater = combo.triggerflags[3] & combotriggerTGROUP_GREATER;
+			// TODO TriggerSplit
+			// less = combo.triggerflags[3] & combotriggerTGROUP_LESS;
+			// greater = combo.triggerflags[3] & combotriggerTGROUP_GREATER;
 		}
 	};
 	extern combo_cache<minicombo_trigger_group> trigger_group;
@@ -183,7 +189,8 @@ namespace combo_caches
 		minicombo_shutter() = default;
 		minicombo_shutter(const newcombo& combo)
 		{
-			shutter = combo.triggerflags[0] & combotriggerSHUTTER;
+			// TODO TriggerSplit
+			// shutter = combo.triggerflags[0] & combotriggerSHUTTER;
 		}
 	};
 	extern combo_cache<minicombo_shutter> shutter;
@@ -258,7 +265,8 @@ namespace combo_caches
 		minicombo_spotlight() = default;
 		minicombo_spotlight(const newcombo& combo)
 		{
-			trigger = combo.triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF);
+			// TODO TriggerSplit
+			// trigger = combo.triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF);
 			target = combo.type == cLIGHTTARGET;
 		}
 	};
