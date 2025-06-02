@@ -203,7 +203,8 @@ namespace combo_caches
 		minicombo_gswitch() = default;
 		minicombo_gswitch(const newcombo& combo)
 		{
-			trigger_global_state = combo.triggerflags[3] & combotriggerTRIGGLOBALSTATE;
+			// TODO TriggerSplit
+			// trigger_global_state = combo.triggerflags[3] & combotriggerTRIGGLOBALSTATE;
 			has_global_state = combo.usrflags & cflag11;
 		}
 	};
@@ -251,8 +252,9 @@ namespace combo_caches
 		minicombo_lens() = default;
 		minicombo_lens(const newcombo& combo)
 		{
-			on = combo.triggerflags[1] & combotriggerLENSON;
-			off = combo.triggerflags[1] & combotriggerLENSOFF;
+			// TODO TriggerSplit
+			// on = combo.triggerflags[1] & combotriggerLENSON;
+			// off = combo.triggerflags[1] & combotriggerLENSOFF;
 		}
 	};
 	extern combo_cache<minicombo_lens> lens;

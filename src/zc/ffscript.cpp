@@ -9385,7 +9385,11 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 			}
 			else if(auto* trig = get_first_combo_trigger())
+			{
 				ret = trig->triggerflags[indx] * 10000;
+				if(indx == 0)
+					SETFLAG(ret, combotriggerONLYGENTRIG, combobuf[ri->combosref].only_gentrig);
+			}
 			break;
 		}
 		case COMBODTRIGGERFLAGS2:
@@ -9401,7 +9405,11 @@ int32_t get_register(int32_t arg)
 				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
 			else if(auto* trig = get_first_combo_trigger())
-				ret = (trig->triggerflags[indx/32] & (1<<indx%32)) ? 10000L : 0L;
+			{
+				if(indx/32 == 0 && (1<<indx%32) == combotriggerONLYGENTRIG)
+					ret = combobuf[ri->combosref].only_gentrig ? 10000L : 0L;
+				else ret = (trig->triggerflags[indx/32] & (1<<indx%32)) ? 10000L : 0L;
+			}
 			break;
 		}
 		case COMBODTRIGGERBUTTON:
@@ -20202,6 +20210,8 @@ void set_register(int32_t arg, int32_t value)
 			{
 				screen_combo_modify_pre(ri->combosref);
 				trig->triggerflags[indx] = vbound((value / 10000),0,214747);
+				if(indx == 0)
+					combobuf[ri->comboref].only_gentrig = trig->triggerflags[0] & combotriggerONLYGENTRIG;
 				screen_combo_modify_post(ri->combosref);
 			}
 			break;
@@ -20218,7 +20228,11 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
 			else if(auto* trig = get_first_combo_trigger())
+			{
 				SETFLAG(trig->triggerflags[indx/32],1<<(indx%32),value);
+				if(indx/32 == 0 && (1<<indx%32) == combotriggerONLYGENTRIG)
+					combobuf[ri->comboref].only_gentrig = value;
+			}
 			break;
 		}
 		case COMBODTRIGGERBUTTON:
