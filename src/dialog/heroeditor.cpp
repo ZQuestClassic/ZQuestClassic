@@ -295,183 +295,8 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 			))
 		))
 	);
+	
 
-	auto liquidtab = TabPanel(
-		ptr = &hero_tabs[3],
-		TabRef(name = "Liquid", TabPanel(
-			ptr = &hero_tabs[4],
-			TabRef(name = "Float", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_float, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_float, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_float, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_float, dir = right)
-					//
-				)
-			)),
-			TabRef(name = "Swim", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_swim, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_swim, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_swim, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_swim, dir = right)
-					//
-				)
-			)),
-			TabRef(name = "Dive", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_dive, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_dive, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_dive, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_dive, dir = right)
-					//
-				)
-			)),
-			TabRef(name = "Drown", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_drown, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_drown, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_drown, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_drown, dir = right)
-					//
-				)
-			)),
-			TabRef(name = "Hold", Column(
-				Rows<2>(
-					Label(text = "1 Hand", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_waterhold1, dir = up),
-					//
-					Label(text = "2 Hands", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_waterhold2, dir = up)
-					//
-				)
-			)),
-			TabRef(name = "Lava Drown", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_lavadrown, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_lavadrown, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_lavadrown, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_lavadrown, dir = right)
-					//
-				)
-			))
-		))
-	);
-
-	auto sideliquidtab = TabPanel(
-		ptr = &hero_tabs[5],
-		TabRef(name = "Sprites (Side Liquid)", TabPanel(
-			&hero_tabs[6],
-			TabRef(name = "Swim", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswim, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswim, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswim, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswim, dir = right)
-					//
-				)
-			)),
-			TabRef(name = "S. Slash", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimslash, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimslash, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimslash, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimslash, dir = right)
-					//
-				)
-			)),
-			TabRef(name = "S. Stab", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimstab, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimstab, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimstab, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimstab, dir = right)
-					//
-				)
-			)),
-			TabRef(name = "S. Pound", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimpound, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimpound, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimpound, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimpound, dir = right)
-					//
-				)
-			)),
-			TabRef(name = "S. Charge", Column(
-				Rows<4>(
-					Label(text = "Up", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimcharge, dir = up),
-					Label(text = "Down", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimcharge, dir = down),
-					//
-					Label(text = "Left", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimcharge, dir = left),
-					Label(text = "Right", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sideswimcharge, dir = right)
-				)
-			)),
-			TabRef(name = "S. Misc", Column(
-				Rows<4>(
-					Label(text = "1 Hand", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sidewaterhold1, dir = up),
-					Label(text = "2 Hands", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sidewaterhold2, dir = up),
-					//
-					Label(text = "Casting", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sidewaterhold2, dir = up),
-					Label(text = "Drown", hAlign = 1.0),
-					SelHeroTileSwatch(heroSprite = ls_sidedrown, dir = up)
-					//
-				)
-			))
-		))
-	);
 
 	auto defensetab = TabPanel(
 		ptr = &hero_tabs[7],
@@ -886,6 +711,182 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						local_defenses[wScript10] = val;
 					}),
 				_d
+			))
+		))
+	);
+
+	auto liquidtab = TabPanel(
+		ptr = &hero_tabs[3],
+		TabRef(name = "Sprites (Liquid)", TabPanel(
+			ptr = &hero_tabs[4],
+			TabRef(name = "Float", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_float, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_float, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_float, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_float, dir = right)
+					//
+				)
+			)),
+			TabRef(name = "Swim", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_swim, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_swim, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_swim, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_swim, dir = right)
+					//
+				)
+			)),
+			TabRef(name = "Dive", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_dive, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_dive, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_dive, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_dive, dir = right)
+					//
+				)
+			)),
+			TabRef(name = "Drown", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_drown, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_drown, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_drown, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_drown, dir = right)
+					//
+				)
+			)),
+			TabRef(name = "Hold", Column(
+				Rows<2>(
+					Label(text = "1 Hand", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_waterhold1, dir = up),
+					Label(text = "2 Hands", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_waterhold2, dir = up)
+				)
+			)),
+			TabRef(name = "Lava Drown", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_lavadrown, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_lavadrown, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_lavadrown, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_lavadrown, dir = right)
+					//
+				)
+			))
+		))
+	);
+
+	auto sideliquidtab = TabPanel(
+		ptr = &hero_tabs[5],
+		TabRef(name = "Sprites (Side Liquid)", TabPanel(
+			ptr = &hero_tabs[6],
+			TabRef(name = "Swim", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswim, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswim, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswim, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswim, dir = right)
+					//
+				)
+			)),
+			TabRef(name = "S. Slash", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimslash, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimslash, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimslash, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimslash, dir = right)
+					//
+				)
+			)),
+			TabRef(name = "S. Stab", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimstab, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimstab, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimstab, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimstab, dir = right)
+					//
+				)
+			)),
+			TabRef(name = "S. Pound", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimpound, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimpound, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimpound, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimpound, dir = right)
+					//
+				)
+			)),
+			TabRef(name = "Charge", Column(
+				Rows<4>(
+					Label(text = "Up", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimcharge, dir = up),
+					Label(text = "Down", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimcharge, dir = down),
+					//
+					Label(text = "Left", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimcharge, dir = left),
+					Label(text = "Right", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimcharge, dir = right)
+					//
+				)
+			)),
+			TabRef(name = "Misc", Column(
+				Rows<4>(
+					Label(text = "1 Hand", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sidewaterhold1, dir = up),
+					Label(text = "2 Hands", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sidewaterhold2, dir = up),
+					//
+					Label(text = "Casting", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sideswimcast, dir = up),
+					Label(text = "Drown", hAlign = 1.0),
+					SelHeroTileSwatch(heroSprite = ls_sidedrown, dir = up)
+					//
+				)
 			))
 		))
 	);
