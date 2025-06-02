@@ -422,7 +422,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 			)),
 			TabRef(name = "Enemy 2", Rows<3>(
 				Label(text = "Fire Trail Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[11] = DropDownList(
+				ddl_defenses[10] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[ewFireTrail],
@@ -433,7 +433,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Flame Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[12] = DropDownList(
+				ddl_defenses[11] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[ewFlame],
@@ -444,7 +444,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Wind Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[13] = DropDownList(
+				ddl_defenses[12] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[ewWind],
@@ -455,7 +455,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Flame 2 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[14] = DropDownList(
+				ddl_defenses[13] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[ewFlame2],
@@ -466,7 +466,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Flame 2 Trail Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[15] = DropDownList(
+				ddl_defenses[14] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[ewFlame2Trail],
@@ -477,7 +477,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Ice Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[16] = DropDownList(
+				ddl_defenses[15] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[ewIce],
@@ -488,7 +488,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Fireball 2 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[17] = DropDownList(
+				ddl_defenses[16] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[ewFireball2],
@@ -501,7 +501,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 			)),
 			TabRef(name = "Other", Rows<3>(
 				Label(text = "Candle Fire Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[18] = DropDownList(
+				ddl_defenses[17] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wFire],
@@ -512,7 +512,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Player Bomb Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[19] = DropDownList(
+				ddl_defenses[18] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wBomb],
@@ -523,7 +523,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Refl. Magic Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[20] = DropDownList(
+				ddl_defenses[19] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wRefMagic],
@@ -534,7 +534,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Refl. Fireball Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[21] = DropDownList(
+				ddl_defenses[20] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wRefFireball],
@@ -545,7 +545,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Refl. Rock Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[22] = DropDownList(
+				ddl_defenses[21] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wRefRock],
@@ -556,7 +556,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Refl. Sword Beam Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[23] = DropDownList(
+				ddl_defenses[22] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wRefBeam],
@@ -567,7 +567,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Refl. Arrow Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[24] = DropDownList(
+				ddl_defenses[23] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wRefArrow],
@@ -578,7 +578,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Refl. Fire Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[25] = DropDownList(
+				ddl_defenses[24] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wRefFire],
@@ -589,7 +589,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Refl. Fire 2 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[26] = DropDownList(
+				ddl_defenses[25] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wRefFire2],
@@ -602,7 +602,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 			)),
 			TabRef(name = "Custom", Rows<3>(
 				Label(text = "Custom Weapon 1 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[27] = DropDownList(
+				ddl_defenses[26] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript1],
@@ -613,7 +613,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Custom Weapon 2 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[28] = DropDownList(
+				ddl_defenses[27] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript2],
@@ -624,7 +624,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Custom Weapon 3 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[29] = DropDownList(
+				ddl_defenses[28] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript3],
@@ -635,7 +635,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Custom Weapon 4 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[30] = DropDownList(
+				ddl_defenses[29] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript4],
@@ -646,7 +646,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Custom Weapon 5 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[31] = DropDownList(
+				ddl_defenses[30] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript5],
@@ -657,7 +657,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Custom Weapon 6 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[32] = DropDownList(
+				ddl_defenses[31] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript6],
@@ -668,7 +668,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Custom Weapon 7 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[33] = DropDownList(
+				ddl_defenses[32] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript7],
@@ -679,7 +679,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Custom Weapon 8 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[34] = DropDownList(
+				ddl_defenses[33] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript8],
@@ -690,7 +690,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Custom Weapon 9 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[35] = DropDownList(
+				ddl_defenses[34] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript9],
@@ -701,7 +701,7 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 					}),
 				_d,
 				Label(text = "Custom Weapon 10 Defense:", hAlign = 1.0, rightPadding = DEFAULT_PADDING * 1.5),
-				ddl_defenses[36] = DropDownList(
+				ddl_defenses[35] = DropDownList(
 					data = list_deftypes,
 					hAlign = 0.0,
 					selectedValue = local_defenses[wScript10],
