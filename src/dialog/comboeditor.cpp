@@ -2116,6 +2116,19 @@ void ComboEditorDialog::updateWarnings()
 	}
 	warnbtn->setDisabled(warnings.empty());
 }
+void ComboEditorDialog::updateTriggerIndex()
+{
+	trigbtnAddCursor->setDisabled(local_comboref.triggers.size() >= 255);
+	trigbtnAddEnd->setDisabled(local_comboref.triggers.size() >= 255);
+	trigbtnCopy->setDisabled(trigger_index < 0);
+	trigbtnEdit->setDisabled(trigger_index < 0);
+	trigbtnDelete->setDisabled(trigger_index < 0);
+	trigbtnPasteNewCursor->setDisabled(trigger_index < 0 || local_comboref.triggers.size() >= 255 || !copied_trigger);
+	trigbtnPasteNewEnd->setDisabled(local_comboref.triggers.size() >= 255 || !copied_trigger);
+	trigbtnPaste->setDisabled(trigger_index < 0 || !copied_trigger);
+	trigbtnUp->setDisabled(trigger_index < 1);
+	trigbtnDown->setDisabled(trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1);
+}
 
 static const GUI::ListData listdata_lift_gfx
 {
@@ -2371,7 +2384,13 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	else if (trigger_index >= local_comboref.triggers.size())
 		trigger_index = int(local_comboref.triggers.size()) - 1;
 	
-	list_triggers = GUI::ListData::numbers(false, 0, local_comboref.triggers.size());
+	list_triggers = GUI::ListData::numbers(false, 0, local_comboref.triggers.size()).filter(
+		[&](GUI::ListItem& itm)
+		{
+			itm.text = fmt::format("{} ({:03})", local_comboref.triggers[itm.value].label, itm.value);
+			return true;
+		}
+	);
 	
 	window = Window(
 		use_vsync = true,
@@ -2690,6 +2709,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									onSelectFunc = [&](int32_t val)
 									{
 										trigger_index = val;
+										updateTriggerIndex();
 									}
 								),
 								Row(
@@ -2706,30 +2726,31 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								)
 							),
 							Columns<5>(
-								Button(text = "Add (at cursor)", disabled = local_comboref.triggers.size() >= 255,
+								trigbtnAddCursor = Button(text = "Add (at cursor)",
 									onPressFunc = [&]()
 									{
 										add_combo_trigger(trigger_index+1);
 									}),
-								Button(text = "Add (at end)", disabled = local_comboref.triggers.size() >= 255,
+								trigbtnAddEnd = Button(text = "Add (at end)",
 									onPressFunc = [&]()
 									{
 										add_combo_trigger(local_comboref.triggers.size());
 									}),
-								Button(text = "Copy", disabled = trigger_index < 0,
+								trigbtnCopy = Button(text = "Copy",
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0) return;
 										copied_trigger = local_comboref.triggers[trigger_index];
 										refresh_dlg();
 									}),
-								Button(text = "Edit", disabled = trigger_index < 0,
+								trigbtnEdit = Button(text = "Edit",
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0) return;
-										call_trigger_editor(*this, size_t(trigger_index));
+										if(call_trigger_editor(*this, size_t(trigger_index)))
+											refresh_dlg();
 									}),
-								Button(text = "Delete", disabled = trigger_index < 0,
+								trigbtnDelete = Button(text = "Delete",
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0) return;
@@ -2747,24 +2768,24 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										}
 									}),
 								//
-								Button(text = "Paste New (at cursor)", disabled = local_comboref.triggers.size() >= 255 || !copied_trigger,
+								trigbtnPasteNewCursor = Button(text = "Paste New (at cursor)",
 									onPressFunc = [&]()
 									{
 										add_combo_trigger(trigger_index+1, true);
 									}),
-								Button(text = "Paste New (at end)", disabled = local_comboref.triggers.size() >= 255 || !copied_trigger,
+								trigbtnPasteNewEnd = Button(text = "Paste New (at end)",
 									onPressFunc = [&]()
 									{
 										add_combo_trigger(local_comboref.triggers.size(), true);
 									}),
-								Button(text = "Paste", disabled = trigger_index < 0 || !copied_trigger,
+								trigbtnPaste = Button(text = "Paste",
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0 || !copied_trigger) return;
 										local_comboref.triggers[trigger_index] = *copied_trigger;
 										refresh_dlg();
 									}),
-								Button(text = "Up", disabled = trigger_index < 1,
+								trigbtnUp = Button(text = "Up",
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 1) return;
@@ -2772,7 +2793,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										--trigger_index;
 										refresh_dlg();
 									}),
-								Button(text = "Down", disabled = trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1,
+								trigbtnDown = Button(text = "Down",
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1) return;
@@ -2780,7 +2801,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										++trigger_index;
 										refresh_dlg();
 									})
-									
 							)
 						)
 					)
@@ -3316,6 +3336,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	refreshScript();
 	updateAnimation();
 	updateWarnings();
+	updateTriggerIndex();
 #if DEVLEVEL > 0
 	if(force_wizard)
 	{

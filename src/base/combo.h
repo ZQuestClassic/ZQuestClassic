@@ -69,6 +69,7 @@ enum
 
 struct combo_trigger
 {
+	string label;
 	int32_t triggerflags[6];
 	int32_t triggerlevel;
 	byte triggerbtn;

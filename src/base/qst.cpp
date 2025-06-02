@@ -17947,6 +17947,10 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 
 int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp_trigger)
 {
+	if(s_version >= 52)
+		if(!p_getcstr(&temp_trigger.label,f))
+			return qe_invalid;
+	
 	int numtrigs = s_version < 36 ? 3 : 6;
 	for ( int32_t q = 0; q < numtrigs; q++ )
 		if(!p_igetl(&temp_trigger.triggerflags[q],f))

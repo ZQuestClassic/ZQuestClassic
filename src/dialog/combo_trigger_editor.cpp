@@ -94,10 +94,23 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 	
 	window = Window(
 		use_vsync = true,
-		title = fmt::format("Combo Trigger Editor ({})", index),
+		title = fmt::format("Combo Trigger Editor ({}: {})", index, local_ref.label),
 		info = "Edit combo triggers, setting up their causes, conditions, and effects.",
 		onClose = message::CANCEL,
 		Column(
+			Row(
+				Label(text = "Label:"),
+				TextField(
+					text = local_ref.label,
+					maxLength = 64,
+					onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
+					{
+						local_ref.label = str;
+						window->setTitle(fmt::format("Combo Trigger Editor ({}: {})", index, local_ref.label));
+					}
+				),
+				INFOBTN("Name of this trigger, shown in the combo editor menu.")
+			),
 			TabPanel(
 				ptr = &trig_tabs[0],
 				TabRef(name = "Weapons", TabPanel(
