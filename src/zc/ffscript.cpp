@@ -341,15 +341,6 @@ static int create_mapdata_temp_ref(mapdata_type type, int screen, int layer)
 	return -ref-1;
 }
 
-combo_trigger* get_first_combo_trigger()
-{
-	if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
-		return nullptr;
-	if(combobuf[ri->combosref].triggers.empty())
-		return &(combobuf[ri->combosref].triggers.emplace_back());
-	return &(combobuf[ri->combosref].triggers[0]);
-}
-
 mapscr* GetScrollingMapscr(int layer, int x, int y)
 {
 	if (!screenscrolling)
@@ -980,6 +971,15 @@ static weapon* ResolveLWeapon_checkSpriteList(int32_t uid)
 	}
 
 	return spr;
+}
+
+combo_trigger* get_first_combo_trigger()
+{
+	if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+		return nullptr;
+	if(combobuf[ri->combosref].triggers.empty())
+		return &(combobuf[ri->combosref].triggers.emplace_back());
+	return &(combobuf[ri->combosref].triggers[0]);
 }
 
 ///------------------------------------------------//
@@ -20211,7 +20211,7 @@ void set_register(int32_t arg, int32_t value)
 				screen_combo_modify_pre(ri->combosref);
 				trig->triggerflags[indx] = vbound((value / 10000),0,214747);
 				if(indx == 0)
-					combobuf[ri->comboref].only_gentrig = trig->triggerflags[0] & combotriggerONLYGENTRIG;
+					combobuf[ri->combosref].only_gentrig = trig->triggerflags[0] & combotriggerONLYGENTRIG;
 				screen_combo_modify_post(ri->combosref);
 			}
 			break;
@@ -20231,7 +20231,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				SETFLAG(trig->triggerflags[indx/32],1<<(indx%32),value);
 				if(indx/32 == 0 && (1<<indx%32) == combotriggerONLYGENTRIG)
-					combobuf[ri->comboref].only_gentrig = value;
+					combobuf[ri->combosref].only_gentrig = value;
 			}
 			break;
 		}
@@ -33072,7 +33072,7 @@ int32_t run_script_int(bool is_jitted)
 					break;
 				}
 
-				set_register(sarg1, do_trigger_combo(get_rpos_handle(rpos, lyr)) ? 10000 : 0);
+				set_register(sarg1, do_trigger_combo(get_rpos_handle(rpos, lyr), 0) ? 10000 : 0);
 				break;
 			}
 			

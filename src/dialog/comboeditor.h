@@ -86,7 +86,7 @@ private:
 	GUI::ListData list_ctype, list_flag, list_combscript, list_sfx, list_genscr,
 		list_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes,
 		list_lift_parent_items, list_sprites_0none, list_dirs4n, list_0_7,
-		list_light_shapes;
+		list_light_shapes, list_triggers;
 	
 	
 	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL(byte* data, byte min, byte max);
@@ -96,6 +96,7 @@ private:
 	std::shared_ptr<GUI::Widget> CMB_ATTRISHORT(int index);
 	std::shared_ptr<GUI::Widget> CMB_ATTRIBUTE(int index);
 	friend bool call_combo_editor(int32_t index);
+	friend bool call_trigger_editor(ComboEditorDialog& dlg, size_t index);
 	friend class ComboWizardDialog;
 	friend class ComboTriggerDialog;
 };

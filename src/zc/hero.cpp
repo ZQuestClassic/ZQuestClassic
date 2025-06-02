@@ -10010,7 +10010,7 @@ heroanimate_skip_liftwpn:;
 		int32_t ind=0;
 		
 		//AUTOMATIC TRIGGER CODE
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
 			if (trig.triggerflags[1]&combotriggerAUTOMATIC)
@@ -10071,7 +10071,7 @@ heroanimate_skip_liftwpn:;
 		
 		auto cid = ffc_handle.data();
 		auto& cmb = ffc_handle.combo();
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
 			if (trig.triggerflags[1]&combotriggerAUTOMATIC)
@@ -12932,7 +12932,7 @@ bool HeroClass::doattack()
 
 						auto cid = handle.data();
 						auto& cmb = handle.combo();
-						for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+						for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 						{
 							auto& trig = cmb.triggers[idx];
 							if (trig.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
@@ -13070,7 +13070,7 @@ void handle_lens_triggers(int32_t l_id)
 		// if (enabled ? cmb.on : cmb.off)
 		auto cid = handle.data();
 		auto& cmb = handle.combo();
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
 			if(trig.triggerflags[1] & (enabled ? combotriggerLENSON : combotriggerLENSOFF))
@@ -22062,7 +22062,7 @@ void HeroClass::checkgenpush(rpos_t rpos)
 		auto rpos_handle = get_rpos_handle(rpos, layer);
 		auto cid = rpos_handle.data();
 		auto& cmb = rpos_handle.combo();
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
 			if (trig.triggerflags[1] & combotriggerPUSH)
@@ -22121,7 +22121,7 @@ void HeroClass::checkgenpush()
 			{
 				auto& cmb3 = ffc_handle.combo();
 				
-				for(size_t idx = 0 : idx < cmb3.triggers.size(); ++idx)
+				for(size_t idx = 0; idx < cmb3.triggers.size(); ++idx)
 				{
 					auto& trig = cmb3.triggers[idx];
 					if(trig.triggerflags[1] & combotriggerPUSH)
@@ -22396,17 +22396,17 @@ endsigns:
 			break;
 	}
 	bool found_a_trigger_dir = false;
-	for(auto& trig : cmb.triggers)
+	for (size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
-		if(!trig.triggerflags[0] & dir_trigflag) continue;
+		if(!(trig.triggerflags[0] & dir_trigflag)) continue;
 		found_a_trigger_dir = true;
 		if(trig.triggerbtn && (getIntBtnInput(trig.triggerbtn, true, true, false, false) || checkIntBtnVal(trig.triggerbtn, signInput)))
 		{
 			if (foundffc)
-				do_trigger_combo(foundffc.value(), didsign ? ctrigIGNORE_SIGN : 0);
+				do_trigger_combo(foundffc.value(), idx, didsign ? ctrigIGNORE_SIGN : 0);
 			else if (fx != -1 && fy != -1)
-				do_trigger_combo(get_rpos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
+				do_trigger_combo(get_rpos_handle_for_world_xy(fx, fy, found_lyr), idx, didsign ? ctrigIGNORE_SIGN : 0);
 		}
 	}
 	if(!found_a_trigger_dir || didprompt)
@@ -23511,7 +23511,7 @@ void HeroClass::handleSpotlights()
 		{
 			auto cid = rpos_handle.data();
 			auto& cmb = rpos_handle.combo();
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				int32_t trigflag = trig.triglbeam ? (1 << (trig.triglbeam-1)) : ~0;
@@ -23523,7 +23523,6 @@ void HeroClass::handleSpotlights()
 					if(rpos_handle.data() != cid) break;
 				}
 			}
-			return false;
 		}
 	});
 
@@ -23564,7 +23563,7 @@ void HeroClass::handleSpotlights()
 		{
 			auto cid = ffc_handle.data();
 			auto& cmb = ffc_handle.combo();
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				int32_t trigflag = trig.triglbeam ? (1 << (trig.triglbeam-1)) : ~0;
@@ -23576,7 +23575,6 @@ void HeroClass::handleSpotlights()
 					if(ffc_handle.data() != cid) break;
 				}
 			}
-			return false;
 		}
 	});
 
@@ -23826,7 +23824,7 @@ void HeroClass::checkspecial()
 			for_every_combo_in_screen(create_screen_handles(scr), [&](const auto& handle) {
 				auto& cmb = handle.combo();	
 				auto cid = handle.data();
-				for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
 					auto& trig = cmb.triggers[idx];
 					if (trig.triggerflags[2] & combotriggerENEMIESKILLED)
@@ -24500,7 +24498,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				if ((z > 0 || fakez > 0) && !(rpos_handle.base_scr()->flags2 & fAIRCOMBOS))
 					continue;
 				auto& cmb = rpos_handle.combo();
-				for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
 					auto& trig = cmb.triggers[idx];
 					if (trig.triggerflags[2] & (combotriggerSTEP|combotriggerSTEPSENS) || types[p] == cSTEP)
@@ -24533,7 +24531,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 					bool did_trig = false;
 					auto& cmb = rpos_handle.combo();
 					auto cid = rpos_handle.data();
-					for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+					for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 					{
 						auto& trig = cmb.triggers[idx];
 						if (canNormalStep && (trig.triggerflags[0] & combotriggerSTEP))
@@ -24550,7 +24548,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 					auto rpos_handle = get_rpos_handle(sensRposes[p], lyr);
 					auto& cmb = rpos_handle.combo();
 					auto cid = rpos_handle.data();
-					for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+					for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 					{
 						auto& trig = cmb.triggers[idx];
 						if (trig.triggerflags[0] & combotriggerSTEPSENS)
@@ -24579,7 +24577,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				auto& cmb = ffc_handle.combo();
 				auto cid = ffc_handle.data();
-				for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
 					auto& trig = cmb.triggers[idx];
 					if (trig.triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
@@ -24605,7 +24603,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			auto rpos_handle = get_rpos_handle(rpos, lyr);
 			auto& cmb = rpos_handle.combo();
 			auto cid = rpos_handle.data();
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				if (trig.triggerflags[3] & combotriggerDIVETRIG)
@@ -24623,7 +24621,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				auto rpos_handle_2 = get_rpos_handle(rposes[q], lyr);
 				auto& cmb = rpos_handle_2.combo();
 				auto cid = rpos_handle_2.data();
-				for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
 					auto& trig = cmb.triggers[idx];
 					if (trig.triggerflags[3] & combotriggerDIVESENSTRIG)
@@ -24641,7 +24639,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			auto cid = ffc_handle.data();
 			if(ffcIsAt(ffc_handle, x+8, y+8))
 			{
-				for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
 					auto& trig = cmb.triggers[idx];
 					if (trig.triggerflags[3] & combotriggerDIVETRIG)
@@ -24657,7 +24655,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(ffcIsAt(ffc_handle, xposes[q], yposes[q]))
 				{
-					for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+					for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 					{
 						auto& trig = cmb.triggers[idx];
 						if (trig.triggerflags[3] & combotriggerDIVESENSTRIG)

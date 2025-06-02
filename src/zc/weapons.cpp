@@ -144,12 +144,12 @@ static bool MatchComboTrigger(weapon *w, combo_trigger const& trig)
 	return ret;
 }
 
-int FindComboTriggerMatch(weapon *w, int combo_id, size_t start_idx)
+int FindComboTriggerMatch(weapon *w, int combo_id, int start_idx)
 {
 	if(screenIsScrolling()) return false;
 	if(w->no_triggers()) return false;
 	newcombo const& cmb = combobuf[combo_id];
-	for(size_t idx = start_idx : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = start_idx; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
 		if(MatchComboTrigger(w, trig))
@@ -435,11 +435,11 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 			for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 				if (ffcIsAt(ffc_handle, bx, by))
 				{
-					int trig_idx;
+					int trig_idx = -1;
 					auto cid = ffc_handle.data();
 					do
 					{
-						trig_idx = FindComboTriggerMatch(w, cid, trig_idx);
+						trig_idx = FindComboTriggerMatch(w, cid, trig_idx + 1);
 						if(trig_idx >= 0)
 							do_trigger_combo(ffc_handle, trig_idx, 0, w);
 					} while(ffc_handle.data() == cid && trig_idx >= 0);
@@ -455,10 +455,10 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 	by=TRUNCATE_TILE(by);
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
 	int32_t cid = rpos_handle.data();
-	int trig_idx;
+	int trig_idx = -1;
 	do
 	{
-		trig_idx = FindComboTriggerMatch(w, cid, trig_idx);
+		trig_idx = FindComboTriggerMatch(w, cid, trig_idx + 1);
 		if(trig_idx >= 0)
 			do_trigger_combo(rpos_handle, trig_idx, 0, w);
 	} while(rpos_handle.data() == cid && trig_idx >= 0);
@@ -494,7 +494,7 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 			auto rpos_handle = get_rpos_handle(rpos, q);
 			auto& cmb = rpos_handle.combo();
 
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				if (w->z > 0 && (trig.triggerflags[3] & combotriggerONLY_GROUND_WPN))
@@ -514,7 +514,7 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		ffcdata& ffc = *ffc_handle.ffc;
 		auto& cmb = ffc_handle.combo();
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
 			if (w->z > 0 && (trig.triggerflags[3] & combotriggerONLY_GROUND_WPN))

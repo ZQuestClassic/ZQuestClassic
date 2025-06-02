@@ -1,5 +1,5 @@
+#include "combo_trigger_editor.h"
 #include "comboeditor.h"
-#include "combowizard.h"
 #include "gui/key.h"
 #include "info.h"
 #include "alert.h"
@@ -24,12 +24,13 @@ bool call_trigger_editor(ComboEditorDialog& parentdlg, size_t index)
 {
 	if(index >= parentdlg.local_comboref.triggers.size()) return false;
 	edited = false;
-	ComboTriggerDialog(parentdlg, parentdlg.local_comboref.triggers[index]).show();
+	ComboTriggerDialog(parentdlg, parentdlg.local_comboref.triggers[index], index).show();
 	return edited;
 }
 
-ComboTriggerDialog::ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigger& trigger):
-	local_ref(trigger), dest_ref(trigger), parent(parentdlg), parent_comboref(parentdlg.local_comboref)
+ComboTriggerDialog::ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigger& trigger, size_t index):
+	local_ref(trigger), dest_ref(trigger), parent(parentdlg),
+	parent_comboref(parentdlg.local_comboref), index(index)
 {}
 
 //{ Macros
@@ -93,8 +94,8 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 	
 	window = Window(
 		use_vsync = true,
-		title = "Combo Trigger Editor",
-		info = "Edit combo triggers, setting up their causes, conditions, and effects."
+		title = fmt::format("Combo Trigger Editor ({})", index),
+		info = "Edit combo triggers, setting up their causes, conditions, and effects.",
 		onClose = message::CANCEL,
 		Column(
 			TabPanel(
@@ -437,18 +438,14 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							TRIGFLAG(19,"Invert Proximity Req"),
 							IBTN("Triggers every frame automatically"),
 							TRIGFLAG(47,"Always Triggered"),
-							IBTN("The combo will ignore methods of triggering its standard effects that"
-								" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
-								" unless the 'Sword' weapon trigger is checked."),
-							TRIGFLAG(29,"Only Gen Triggers"),
+							IBTN("Triggers when screen/region loads, after levelstates and exstates are applied"),
+							TRIGFLAG(128,"Triggers when screen loads"),
 							IBTN("Triggers when room shutters would open"),
 							TRIGFLAG(27,"Shutter->"),
 							IBTN("Triggers when all enemies are defeated"),
 							TRIGFLAG(87, "Enemies->"),
 							IBTN("Triggers when screen secrets trigger"),
-							TRIGFLAG(88, "Secrets->"),
-							IBTN("Triggers when screen/region loads, after levelstates and exstates are applied"),
-							TRIGFLAG(128,"Triggers when screen loads")
+							TRIGFLAG(88, "Secrets->")
 						)
 					)
 				)),
@@ -507,7 +504,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, vAlign = 0.0,
 							hAlign = 1.0,
 							Label(text = "SFX:", hAlign = 1.0),
-							DropDownList(data = list_sfx,
+							DropDownList(data = parent.list_sfx,
 								vPadding = 0_px,
 								fitParent = true, selectedValue = local_ref.trigsfx,
 								onSelectFunc = [&](int32_t val)
@@ -517,7 +514,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							IBTN_T("Trigger SFX", "If the value is >0, the combo will"
 								" play the specified SFX when triggered."),
 							Label(text = "RunFrozen:", hAlign = 1.0),
-							DropDownList(data = list_genscr,
+							DropDownList(data = parent.list_genscr,
 								vPadding = 0_px,
 								fitParent = true, selectedValue = local_ref.trig_genscr,
 								onSelectFunc = [&](int32_t val)
@@ -616,7 +613,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						Row(padding = 0_px,
 							Rows<3>(
 								Label(text = "Counter:", fitParent = true),
-								DropDownList(data = list_counters_nn,
+								DropDownList(data = parent.list_counters_nn,
 									fitParent = true,
 									selectedValue = local_ref.trigctr,
 									onSelectFunc = [&](int32_t val)
@@ -933,7 +930,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							" 'TrigGroup Less->' and 'TrigGroup Greater->'. 0-65535."),
 						//
 						Label(text = "ExDoor Dir:", fitParent = true),
-						DropDownList(data = list_dirs4n, fitParent = true,
+						DropDownList(data = parent.list_dirs4n, fitParent = true,
 							selectedValue = local_ref.exdoor_dir,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -946,7 +943,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							" automatically trigger without any effects other than combo/cset change."),
 						//
 						Label(text = "ExDoor Index:", fitParent = true),
-						DropDownList(data = list_0_7, fitParent = true,
+						DropDownList(data = parent.list_0_7, fitParent = true,
 							selectedValue = local_ref.exdoor_ind,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -1131,6 +1128,7 @@ bool ComboTriggerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(!hasCTypeEffects(parent_comboref.type))
 				local_ref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
 			edited = true;
+			dest_ref = local_ref;
 			return true;
 		}
 		case message::CANCEL:

@@ -1023,7 +1023,7 @@ bool movingblock::animate(int32_t)
 			}
 		}
 		newcombo const& blockcmb = combobuf[bcombo];
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < blockcmb.triggers.size(); ++idx)
 		{
 			auto& trig = blockcmb.triggers[idx];
 			if(trig.triggerflags[3] & combotriggerPUSHEDTRIG)

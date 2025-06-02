@@ -7013,7 +7013,7 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 		for(int32_t q = 0; q < MAXCOMBOS; ++q)
 		{
 			newcombo& cmb = combobuf[q];
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				if(trig.trigchange)

@@ -2281,7 +2281,7 @@ static bool do_copycat_trigger(const rpos_handle_t& rpos_handle)
 	auto cid = rpos_handle.data();
 	auto& cmb = rpos_handle.combo();
 	bool ret = false;
-	for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
 		if(trig.trigcopycat == copycat_id)
@@ -2301,7 +2301,7 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 	auto cid = ffc_handle.data();
 	auto& cmb = ffc_handle.combo();
 	bool ret = false;
-	for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
 		if(trig.trigcopycat == copycat_id)
@@ -2458,7 +2458,7 @@ bool force_ex_trigger_any(const rpos_handle_t& rpos_handle, char xstate)
 	auto cid = rpos_handle.data();
 	auto& cmb = rpos_handle.combo();
 	bool ret = false;
-	for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		if(force_ex_trigger(rpos_handle, idx, xstate))
 		{
@@ -2474,7 +2474,7 @@ bool force_ex_trigger_ffc_any(const ffc_handle_t& ffc_handle, char xstate)
 	auto cid = ffc_handle.data();
 	auto& cmb = ffc_handle.combo();
 	bool ret = false;
-	for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		if(force_ex_trigger_ffc(ffc_handle, idx, xstate))
 		{
@@ -2490,7 +2490,7 @@ bool force_ex_door_trigger(const rpos_handle_t& rpos_handle, size_t idx, int dir
 	if (dir > 3 || ind > 7) return false;
 
 	auto& cmb = rpos_handle.combo();
-	if(cmb.triggers.size() <= idx) return;
+	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
 	if(trig.exdoor_dir > -1 && (dir < 0 || (dir == trig.exdoor_dir && ind == trig.exdoor_ind)))
 	{
@@ -2507,7 +2507,7 @@ bool force_ex_door_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx, int d
 	if (dir > 3 || ind > 7) return false;
 
 	auto& cmb = ffc_handle.combo();
-	if(cmb.triggers.size() <= idx) return;
+	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
 	if(trig.exdoor_dir > -1 && (dir < 0 || (dir == trig.exdoor_dir && ind == trig.exdoor_ind)))
 	{
@@ -2520,14 +2520,14 @@ bool force_ex_door_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx, int d
 	return false;
 }
 
-bool force_ex_door_trigger_any(const rpos_handle_t& rpos_handle, size_t idx, int dir, uint ind)
+bool force_ex_door_trigger_any(const rpos_handle_t& rpos_handle, int dir, uint ind)
 {
 	if (dir > 3 || ind > 7) return false;
 
 	auto cid = rpos_handle.data();
 	auto& cmb = rpos_handle.combo();
 	bool ret = false;
-	for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		if(force_ex_door_trigger(rpos_handle, idx, dir, ind))
 		{
@@ -2537,14 +2537,14 @@ bool force_ex_door_trigger_any(const rpos_handle_t& rpos_handle, size_t idx, int
 	}
 	return ret;
 }
-bool force_ex_door_trigger_ffc_any(const ffc_handle_t& ffc_handle, size_t idx, int dir, uint ind)
+bool force_ex_door_trigger_ffc_any(const ffc_handle_t& ffc_handle, int dir, uint ind)
 {
 	if (dir > 3 || ind > 7) return false;
 
 	auto cid = ffc_handle.data();
 	auto& cmb = ffc_handle.combo();
 	bool ret = false;
-	for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		if(force_ex_door_trigger_ffc(ffc_handle, idx, dir, ind))
 		{
@@ -2601,7 +2601,7 @@ static bool check_dark_trigger_conditional(bool is_active_screen, mapscr* scr, b
 	return expect_lit == lit;
 }
 
-static bool handle_trigger_conditionals(mapscr* scr, combo_trigger& trig, int32_t cx, int32_t cy, bool& hasitem)
+static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, int32_t cx, int32_t cy, bool& hasitem)
 {
 	bool is_active_screen = is_in_current_region(scr);
 
@@ -2868,7 +2868,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 {
 	auto& cmb = rpos_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
-	combo_trigger& trig = cmb.triggers[idx];
+	auto& trig = cmb.triggers[idx];
 	
 	int32_t cid = rpos_handle.data();
 	auto [cx, cy] = rpos_handle.xy();
@@ -2889,7 +2889,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	bool used_bit = false;
 	
 	bool force_ex_ret = false;
-	for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& ex_trig = cmb.triggers[idx];
 		if(ex_trig.exstate > -1)
@@ -3087,7 +3087,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	if (get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 	auto& cmb = ffc_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
-	combo_trigger& trig = cmb.triggers[idx];
+	auto& trig = cmb.triggers[idx];
 
 	ffcdata* ffc = ffc_handle.ffc;
 	if (ffc->flags & ffc_changer)
@@ -3110,7 +3110,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	bool used_bit = false;
 	
 	bool force_ex_ret = false;
-	for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& ex_trig = cmb.triggers[idx];
 		if(ex_trig.exstate > -1)
@@ -3550,11 +3550,12 @@ void trig_trigger_groups()
 		int cid = handle.data();
 		// auto* mini_cmb = &combo_cache.minis[cid];
 
+		bool recheck = false;
 		do
 		{
 			auto& cmb = combobuf[cid];
-			bool recheck = false;
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			recheck = false;
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				bool ok = false;
@@ -3660,7 +3661,7 @@ static void cpos_update_cache(newcombo const& cmb, int add)
 	if(cmb.type == cSPOTLIGHT)
 		cpos_spotlight_count += add;
 	
-	for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
 		if(trig.triggerflags[3] & combotriggerTGROUP_CONTRIB)
@@ -3739,7 +3740,7 @@ void cpos_update() //updates with side-effects
 			sfx_no_repeat(mini_cmb.sfx_loop);
 		
 		auto& cmb = combobuf[cid];
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
 			if (trig.trigtimer)
@@ -3800,7 +3801,7 @@ void cpos_update() //updates with side-effects
 			sfx_no_repeat(mini_cmb.sfx_loop);
 		
 		auto& cmb = combobuf[cid];
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
 			if (trig.trigtimer)
@@ -3808,7 +3809,7 @@ void cpos_update() //updates with side-effects
 				if(++timer.clk >= trig.trigtimer)
 				{
 					timer.clk = 0;
-					do_trigger_combo(ffc_handle);
+					do_trigger_combo(ffc_handle, idx);
 					timer.updateData(f.data);
 					if(f.data != cid)
 					{

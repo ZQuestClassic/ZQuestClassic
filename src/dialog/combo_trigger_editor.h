@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_COMBOEDITOR_H_
-#define ZC_DIALOG_COMBOEDITOR_H_
+#ifndef ZC_DIALOG_COMBOTRIGGEREDITOR_H_
+#define ZC_DIALOG_COMBOTRIGGEREDITOR_H_
 
 #include "comboeditor.h"
 #include <gui/dialog.h>
@@ -32,9 +32,10 @@ private:
 	combo_trigger local_ref;
 	combo_trigger& dest_ref;
 	newcombo const& parent_comboref;
+	size_t index;
 	ComboEditorDialog const& parent;
 	
-	ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigger& trigger);
+	ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigger& trigger, size_t index);
 	
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Label> l_minmax_trig;

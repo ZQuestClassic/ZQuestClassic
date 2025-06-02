@@ -1173,7 +1173,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
 		auto cid = handle.data();
 		auto& cmb = handle.combo();	
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
 			if (trig.triggerflags[4] & combotriggerSCREENLOAD)
@@ -2732,7 +2732,7 @@ void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles,
 		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
 			auto cid = handle.data();
 			auto& cmb = handle.combo();	
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				if (trig.triggerflags[2] & combotriggerSECRETSTR)
@@ -5636,10 +5636,10 @@ void openshutters(mapscr* scr)
 		// if (cmb.shutter)
 		auto cid = handle.data();
 		auto& cmb = handle.combo();
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
-			if(trig..triggerflags[0] & combotriggerSHUTTER)
+			if(trig.triggerflags[0] & combotriggerSHUTTER)
 			{
 				do_trigger_combo(handle, idx);
 				if(handle.data() != cid) break;
@@ -5872,7 +5872,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
 			auto cid = handle.data();
 			auto& cmb = handle.combo();	
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				if (trig.triggerflags[4] & combotriggerSCREENLOAD)
@@ -6330,7 +6330,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
 		auto cid = handle.data();
 		auto& cmb = handle.combo();	
-		for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
 			if (trig.triggerflags[4] & combotriggerSCREENLOAD)
@@ -7144,7 +7144,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 		int pos = rpos_handle.pos;
 		newcombo const& cmb = combobuf[scr->data[pos]];
 		if(is_active_screen)
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				if((trig.triggerflags[3] & combotriggerTRIGLEVELSTATE) && trig.trig_lstate < 32)
@@ -7274,7 +7274,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 		{
 			auto ffc_handle = *m->getFFCHandle(q, screen_index_offset);
 			auto& cmb = ffc_handle.combo();
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				if((trig.triggerflags[3] & combotriggerTRIGLEVELSTATE) && trig.trig_lstate < 32)
@@ -7325,7 +7325,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 			{
 				// if (mini_cmb.trigger_global_state)
 				auto& cmb = combobuf[cid];
-				for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
 					auto& trig = cmb.triggers[idx];
 					if (states[trig.trig_gstate])
@@ -7461,7 +7461,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 			// auto& mini_cmb = combo_cache.minis[cid];
 			// if (mini_cmb.trigger_global_state)
 			auto& cmb = combobuf[cid];
-			for(size_t idx = 0 : idx < cmb.triggers.size(); ++idx)
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
 				if (states[trig.trig_gstate])
