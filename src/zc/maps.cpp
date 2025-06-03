@@ -7323,16 +7323,18 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 
 			if (is_active_screen)
 			{
-				// if (mini_cmb.trigger_global_state)
-				auto& cmb = combobuf[cid];
-				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+				if (mini_cmb.trigger_global_state)
 				{
-					auto& trig = cmb.triggers[idx];
-					if (states[trig.trig_gstate])
+					auto& cmb = combobuf[cid];
+					for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 					{
-						auto rpos_handle = get_rpos_handle_for_screen(screen, lyr, pos);
-						do_trigger_combo(rpos_handle, ctrigSWITCHSTATE);
-						if(rpos_handle.data() != cid) break;
+						auto& trig = cmb.triggers[idx];
+						if ((trig.triggerflags[3] & combotriggerTRIGGLOBALSTATE) && states[trig.trig_gstate])
+						{
+							auto rpos_handle = get_rpos_handle_for_screen(screen, lyr, pos);
+							do_trigger_combo(rpos_handle, ctrigSWITCHSTATE);
+							if(rpos_handle.data() != cid) break;
+						}
 					}
 				}
 			}

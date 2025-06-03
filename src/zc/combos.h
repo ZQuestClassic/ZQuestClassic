@@ -215,9 +215,16 @@ namespace combo_caches
 		minicombo_gswitch() = default;
 		minicombo_gswitch(const newcombo& combo)
 		{
-			// TODO TriggerSplit
-			// trigger_global_state = combo.triggerflags[3] & combotriggerTRIGGLOBALSTATE;
 			has_global_state = combo.usrflags & cflag11;
+			trigger_global_state = false;
+			for(auto& trig : combo.triggers)
+			{
+				if(trig.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
+				{
+					trigger_global_state = true;
+					break;
+				}
+			}
 		}
 	};
 	extern combo_cache<minicombo_gswitch> gswitch;
