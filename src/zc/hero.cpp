@@ -23508,7 +23508,7 @@ void HeroClass::handleSpotlights()
 				else istrigged = false;
 			}
 		}
-		else //if (mini_cmb.trigger)
+		else if (mini_cmb.trigger)
 		{
 			auto cid = rpos_handle.data();
 			auto& cmb = rpos_handle.combo();

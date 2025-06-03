@@ -291,9 +291,16 @@ namespace combo_caches
 		minicombo_spotlight() = default;
 		minicombo_spotlight(const newcombo& combo)
 		{
-			// TODO TriggerSplit
-			// trigger = combo.triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF);
 			target = combo.type == cLIGHTTARGET;
+			trigger = false;
+			for(auto& trig : combo.triggers)
+			{
+				if(trig.triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
+				{
+					trigger = true;
+					break;
+				}
+			}
 		}
 	};
 	extern combo_cache<minicombo_spotlight> spotlight;
