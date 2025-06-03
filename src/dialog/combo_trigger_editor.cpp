@@ -334,14 +334,14 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						),
 						Frame(
 							Rows<2>(
-								IBTN("Only weapons with Z=0 will count for this combo's triggers. (No effect in sideview)"),
+								IBTN("Only weapons with Z=0 will count for this trigger. (No effect in sideview)"),
 								TRIGFLAG(126,"Only Grounded Weapons")
 							)
 						)
 					)),
 					TabRef(name = "Weapon Effects", Column(
 						Frame(fitParent = true, title = "Weapon Effects",
-							info = "Trigger effects related to the weapon that triggered this combo. These"
+							info = "Trigger effects related to the weapon that triggered this trigger. These"
 								" effects will not occur if the combo is triggered by a non-weapon trigger.",
 							Rows<2>(hAlign = 0.0,
 								IBTN("Destroy the triggering weapon"),
@@ -852,10 +852,10 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									IBTN("The level flags set for 'Req Flags:' must NOT ALL (some is ok) be on for this to trigger."
 										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
 									TRIGFLAG(122,"Require Not All"),
-									IBTN("The level flags set for 'Req Flags:' will be enabled when this combo triggers."
+									IBTN("The level flags set for 'Req Flags:' will be enabled when this trigger triggers."
 										" If '->Unset' is also checked, the flags will be toggled instead."),
 									TRIGFLAG(123,"->Set"),
-									IBTN("The level flags set for 'Req Flags:' will be disabled when this combo triggers."
+									IBTN("The level flags set for 'Req Flags:' will be disabled when this trigger triggers."
 										" If '->Set' is also checked, the flags will be toggled instead."),
 									TRIGFLAG(124,"->Unset")
 								)
@@ -971,8 +971,8 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							}),
 						DummyWidget(),
 						IBTN_T("Copycat", "If the value is > 0, the combo is linked to that copycat ID."
-							"\nIf this combo is triggered, all other linked combos will also trigger,"
-							"\nand if any other linked combo triggers, this combo will trigger."),
+							"\nIf this trigger is triggered, all other linked combos will also trigger,"
+							"\nand if any other linked trigger triggers, this trigger will trigger."),
 						//
 						Label(text = "LevelState:", fitParent = true),
 						TextField(
@@ -1054,7 +1054,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								local_ref.exdoor_dir = val;
 							}),
 						DummyWidget(),
-						IBTN("If not '(None)', triggering this combo sets the extra doorstate"
+						IBTN("If not '(None)', triggering this trigger sets the extra doorstate"
 							" in the specified direction (of the index set for 'ExDoor Index')."
 							" Additionally, if that door state is already set, the combo will"
 							" automatically trigger without any effects other than combo/cset change."),
@@ -1089,9 +1089,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						TRIGFLAG(99, "->GlobalState"),
 						IBTN("This combo contributes to its Trigger Group."),
 						TRIGFLAG(109, "Contributes To TrigGroup",3),
-						IBTN("When the number of combos that contribute to this combo's Trigger Group is LESS than the Trigger Group Val, trigger this combo."),
+						IBTN("When the number of combos that contribute to this trigger's Trigger Group is LESS than the Trigger Group Val, trigger this trigger."),
 						TRIGFLAG(110, "TrigGroup Less->"),
-						IBTN("When the number of combos that contribute to this combo's Trigger Group is GREATER than the Trigger Group Val, trigger this combo."),
+						IBTN("When the number of combos that contribute to this trigger's Trigger Group is GREATER than the Trigger Group Val, trigger this trigger."),
 						TRIGFLAG(111, "TrigGroup Greater->")
 					)
 				)),
