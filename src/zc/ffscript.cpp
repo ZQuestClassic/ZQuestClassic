@@ -33949,6 +33949,18 @@ int32_t run_script_int(bool is_jitted)
 				set_register(sarg1, do_trigger_combo(get_rpos_handle(rpos, lyr), 0) ? 10000 : 0);
 				break;
 			}
+			case SCRTRIGGERCOMBO2:
+			{
+				int32_t lyr = get_register(sarg1) / 10000;
+				int32_t pos = get_register(sarg2) / 10000;
+				int32_t idx = get_register(sarg3) / 10000;
+				rpos_t rpos = (rpos_t)pos;
+				if (BC::checkComboRpos(rpos) != SH::_NoError)
+					break;
+
+				set_register(sarg1, do_trigger_combo(get_rpos_handle(rpos, lyr), idx) ? 10000 : 0);
+				break;
+			}
 			
 			case SWITCHNPC:
 			{

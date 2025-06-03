@@ -1697,7 +1697,7 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case TILEBLIT: return "Screen->TileBlit()";
 		case TRIANGLER: return "Screen->Triangle()";
 		case TRIANGLE3DR: return "Screen->Triangle3D()";
-		case SCRTRIGGERCOMBO: return "Screen->TriggerCombo()";
+		case SCRTRIGGERCOMBO2: return "Screen->TriggerCombo()";
 		case SECRETS: return "Screen->TriggerSecrets()";
 		case REGION_TRIGGER_SECRETS: return "Screen->TriggerSecrets()";
 		case WAVYIN: return "Screen->WavyIn()";

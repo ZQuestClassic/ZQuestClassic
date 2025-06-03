@@ -1168,6 +1168,7 @@ static constexpr script_command command_list[]=
 	{ "REPAIRSHIELD", REPAIRSHIELD, 1, { REG_R }, 0, 0 },
 	{ "SUBWIDG_CHECK_CONDITIONS", SUBWIDG_CHECK_CONDITIONS, 1, { REG_W }, 0, 0 },
 	{ "SUBWIDG_CHECK_VISIBLE", SUBWIDG_CHECK_VISIBLE, 1, { REG_W }, 0, 0 },
+	{ "SCRTRIGGERCOMBO2", SCRTRIGGERCOMBO2, 3, { REG_RW, REG_R, REG_R }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=
