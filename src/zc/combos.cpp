@@ -2923,8 +2923,9 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	static cpos_info null_info;
 	bool is_active_screen = is_in_current_region(base_scr);
 	cpos_info& timer = is_active_screen ? rpos_handle.info() : null_info;
+	cpos_trig_info& trig_info = timer.trig_data[idx];
 
-	bool dorun = !timer.trig_cd;
+	bool dorun = !trig_info.cooldown;
 	if(dorun)
 	{
 		if (is_active_screen && ((trig.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
@@ -3065,7 +3066,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 
 				timer.updateData(rpos_handle.data());
 				if(trig.trigcooldown)
-					timer.trig_cd = trig.trigcooldown;
+					trig_info.cooldown = trig.trigcooldown;
 			}
 		}
 		if (w && used_bit)
@@ -3144,8 +3145,9 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	static cpos_info null_info;
 	bool is_active_screen = is_in_current_region(base_scr);
 	cpos_info& timer = is_active_screen ? ffc_handle.info() : null_info;
-
-	bool dorun = !timer.trig_cd;
+	cpos_trig_info& trig_info = timer.trig_data[idx];
+	
+	bool dorun = !trig_info.cooldown;
 	if(dorun)
 	{
 		if (is_active_screen && ((trig.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
@@ -3289,7 +3291,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 				else timer.updateData(ffc_handle.data());
 				
 				if(trig.trigcooldown)
-					timer.trig_cd = trig.trigcooldown;
+					trig_info.cooldown = trig.trigcooldown;
 			}
 		}
 		if (w && used_bit)
@@ -3739,23 +3741,33 @@ void cpos_update() //updates with side-effects
 		if (mini_cmb.sfx_loop)
 			sfx_no_repeat(mini_cmb.sfx_loop);
 		
-		auto& cmb = combobuf[cid];
-		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+		bool do_trigger_timer = mini_cmb.trigtimer;
+		newcombo const* cmb;
+		if(do_trigger_timer)
+			cmb = &combobuf[cid];
+		
+		for(size_t idx = 0; idx < 255; ++idx)
 		{
-			auto& trig = cmb.triggers[idx];
-			if (trig.trigtimer)
+			if(idx >= timer.trig_data.capacity())
+				break;
+			cpos_trig_info& trig_info = timer.trig_data[idx];
+			if(do_trigger_timer && idx < cmb->triggers.size())
 			{
-				if(++timer.clk >= trig.trigtimer)
+				auto& trig = cmb->triggers[idx];
+				if (trig.trigtimer)
 				{
-					timer.clk = 0;
-					do_trigger_combo(rpos_handle, idx);
-					timer.updateData(rpos_handle.data());
-					if(rpos_handle.data() != cid)
-						break;
+					if(++trig_info.clk >= trig.trigtimer)
+					{
+						trig_info.clk = 0;
+						do_trigger_combo(rpos_handle, idx);
+						timer.updateData(rpos_handle.data());
+						if(rpos_handle.data() != cid)
+							do_trigger_timer = false; // 'break', but only out of the trigtimer part of the loop
+					}
 				}
 			}
+			if(trig_info.cooldown) --trig_info.cooldown;
 		}
-		if(timer.trig_cd) --timer.trig_cd;
 		handle_cpos_type(mini_cmb.type,timer,rpos_handle);
 	});
 
@@ -3800,26 +3812,33 @@ void cpos_update() //updates with side-effects
 		if (mini_cmb.sfx_loop)
 			sfx_no_repeat(mini_cmb.sfx_loop);
 		
-		auto& cmb = combobuf[cid];
-		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+		bool do_trigger_timer = mini_cmb.trigtimer;
+		newcombo const* cmb;
+		if(do_trigger_timer)
+			cmb = &combobuf[cid];
+		
+		for(size_t idx = 0; idx < 255; ++idx)
 		{
-			auto& trig = cmb.triggers[idx];
-			if (trig.trigtimer)
+			if(idx >= timer.trig_data.capacity())
+				break;
+			cpos_trig_info& trig_info = timer.trig_data[idx];
+			if(do_trigger_timer && idx < cmb->triggers.size())
 			{
-				if(++timer.clk >= trig.trigtimer)
+				auto& trig = cmb->triggers[idx];
+				if (trig.trigtimer)
 				{
-					timer.clk = 0;
-					do_trigger_combo(ffc_handle, idx);
-					timer.updateData(f.data);
-					if(f.data != cid)
+					if(++trig_info.clk >= trig.trigtimer)
 					{
-						cid = f.data;
-						break;
+						trig_info.clk = 0;
+						do_trigger_combo(ffc_handle, idx);
+						timer.updateData(f.data);
+						if(f.data != cid)
+							do_trigger_timer = false; // 'break', but only out of the trigtimer part of the loop
 					}
 				}
 			}
+			if(trig_info.cooldown) --trig_info.cooldown;
 		}
-		if(timer.trig_cd) --timer.trig_cd;
 		if(mini_cmb.type == cSHOOTER)
 			handle_shooter(combobuf[cid], timer, wx, wy);
 	});

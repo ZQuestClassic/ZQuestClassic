@@ -142,15 +142,22 @@ namespace combo_caches
 	{
 		byte type;
 		byte sfx_loop;
-		byte trigtimer;
+		bool trigtimer;
 
 		minicombo_cpos_update() = default;
 		minicombo_cpos_update(const newcombo& combo)
 		{
 			type = combo.type;
 			sfx_loop = combo.sfx_loop;
-			// TODO TriggerSplit
-			// trigtimer = combo.trigtimer;
+			trigtimer = false;
+			for(auto& trig : combo.triggers)
+			{
+				if(trig.trigtimer)
+				{
+					trigtimer = true;
+					break;
+				}
+			}
 		}
 	};
 	extern combo_cache<minicombo_cpos_update> cpos_update;

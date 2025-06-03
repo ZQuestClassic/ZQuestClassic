@@ -2,6 +2,14 @@
 #define CPOS_INFO_H_
 
 #include "base/ints.h"
+#include "base/containers.h"
+
+struct cpos_trig_info
+{
+	byte clk;
+	byte cooldown;
+	bool operator==(cpos_trig_info const& other) const = default;
+};
 
 enum
 {
@@ -13,13 +21,13 @@ enum
 struct cpos_info
 {
 	int32_t data;
-	byte clk;
 	word type_clk;
-	byte trig_cd;
 	byte pushes[4];
 	bool crumbling, appeared;
 	
 	byte sfx_onchange, spr_onchange;
+	
+	bounded_vec<byte,cpos_trig_info> trig_data = {255};
 	
 	void push(int dir, bool cancel = false);
 	word sumpush() const;

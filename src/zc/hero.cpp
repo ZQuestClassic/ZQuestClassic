@@ -22379,7 +22379,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		didsign = true;
 	}
 endsigns:
-	if(fx != -1 && fy != -1 && cpos_get(get_rpos_handle_for_world_xy(fx, fy, found_lyr)).trig_cd) return;
+	auto& cpos = cpos_get(get_rpos_handle_for_world_xy(fx, fy, found_lyr));
 	int dir_trigflag;
 	switch(dir)
 	{
@@ -22402,6 +22402,8 @@ endsigns:
 		auto& trig = cmb.triggers[idx];
 		if(!(trig.triggerflags[0] & dir_trigflag)) continue;
 		found_a_trigger_dir = true;
+		auto& trig_data = cpos.trig_data[idx];
+		if(fx != -1 && fy != -1 && trig_data.cooldown) continue;
 		if(trig.triggerbtn && (getIntBtnInput(trig.triggerbtn, true, true, false, false) || checkIntBtnVal(trig.triggerbtn, signInput)))
 		{
 			if (foundffc)
@@ -22419,8 +22421,11 @@ endsigns:
 		prompt_x = cmb.attrishorts[0];
 		prompt_y = cmb.attrishorts[1];
 	}
-	else for(auto& trig : cmb.triggers)
+	else for (size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
+		auto& trig_data = cpos.trig_data[idx];
+		if(fx != -1 && fy != -1 && trig_data.cooldown) continue;
+		auto& trig = cmb.triggers[idx];
 		if(trig.prompt_cid)
 		{
 			prompt_combo = trig.prompt_cid;
