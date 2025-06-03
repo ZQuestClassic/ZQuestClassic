@@ -55,6 +55,6 @@ IntermediateData::IntermediateData(FunctionData const& functionData)
 // OpcodeContext
 
 OpcodeContext::OpcodeContext(ZScript::TypeStore* typeStore)
-	: typeStore(typeStore), returns_object(false)
+	: typeStore(typeStore)
 {}
 

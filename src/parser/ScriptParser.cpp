@@ -703,14 +703,31 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 												new VarArgument(SP2)));
 			if (puc == puc_construct)
 				addOpcode2(funccode, new OPushRegister(new VarArgument(CLASS_THISKEY2)));
+
+			// Retain references from parameters that are objects.
+			// Callers pushed them on the stack, and here we mark that part of the stack
+			// as retaining an object.
+			for (auto&& datum : function.getInternalScope()->getLocalData())
+			{
+				// Exclude 'this' for now.
+				if (dynamic_cast<BuiltinVariable*>(datum))
+					continue;
+
+				if (!datum->type.isObject())
+					continue;
+
+				auto position = lookupStackPosition(*scope, *datum);
+				assert(position);
+				if (!position)
+					continue;
+
+				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
+				addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
+			}
+			
 			CleanupVisitor cv(program, scope);
 			node.execute(cv);
 			OpcodeContext oc(typeStore);
-			if (puc != puc_construct)
-			{
-				auto returnType = function.returnType;
-				oc.returns_object = returnType && returnType->isObject();
-			}
 			BuildOpcodes bo(program, scope);
 			bo.parsing_user_class = puc;
 			node.execute(bo, &oc);
@@ -726,6 +743,19 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			}
 			else
 			{
+				// Release references from parameters that are objects.
+				for (auto&& datum : function.getInternalScope()->getLocalData())
+				{
+					// Exclude 'this' for now.
+					if (dynamic_cast<BuiltinVariable*>(datum))
+						continue;
+
+					auto position = lookupStackPosition(*scope, *datum);
+					assert(position);
+					if (datum->type.isObject() && position)
+						addOpcode2(funccode, new ORefRemove(new LiteralArgument(*position)));
+				}
+
 				// Pop off everything
 				Opcode* next;
 				if(stackSize)
@@ -820,25 +850,25 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 												new VarArgument(SP2)));
 
 			// Retain references from parameters that are objects.
+			// Callers pushed them on the stack, and here we mark that part of the stack
+			// as retaining an object.
 			for (auto&& datum : function.getInternalScope()->getLocalData())
 			{
+				if (!datum->type.isObject())
+					continue;
+
 				auto position = lookupStackPosition(*scope, *datum);
 				assert(position);
 				if (!position)
 					continue;
 
-				if (datum->type.isObject() && datum->getName() != "this")
-				{
-					addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
-					addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
-				}
+				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
+				addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
 			}
 
 			CleanupVisitor cv(program, scope);
 			node.execute(cv);
 			OpcodeContext oc(typeStore);
-			auto returnType = function.returnType;
-			oc.returns_object = returnType && returnType->isObject();
 			BuildOpcodes bo(program,scope);
 			node.execute(bo, &oc);
 
@@ -861,7 +891,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				{
 					auto position = lookupStackPosition(*scope, *datum);
 					assert(position);
-					if (datum->type.isObject() && position && datum->getName() != "this")
+					if (datum->type.isObject() && position)
 						addOpcode2(funccode, new ORefRemove(new LiteralArgument(*position)));
 				}
 				

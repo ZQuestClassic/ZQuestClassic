@@ -3037,6 +3037,7 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 	{
 		case LOAD:
 		case LOADD:
+		case MARK_TYPE_STACK:
 		case STORE:
 		case STOREV:
 		case STORED:
