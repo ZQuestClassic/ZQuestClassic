@@ -3216,8 +3216,9 @@ enum ASM_DEFINE
 #define COMBODTRIGGERS       0x162D
 #define COMBODNUMTRIGGERS    0x162E
 #define REFCOMBOTRIGGER      0x162F
+#define COMBODONLYGEN        0x1630
 
-#define NUMVARIABLES            0x1630
+#define NUMVARIABLES            0x1631
 
 //} End variables
 

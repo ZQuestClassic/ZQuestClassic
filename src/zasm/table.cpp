@@ -2983,6 +2983,7 @@ static constexpr script_variable variable_list[]=
 	{ "COMBODTRIGGERS", COMBODTRIGGERS, 0 },
 	{ "COMBODNUMTRIGGERS", COMBODNUMTRIGGERS, 0 },
 	{ "REFCOMBOTRIGGER", REFCOMBOTRIGGER, 0 },
+	{ "COMBODONLYGEN", COMBODONLYGEN, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.

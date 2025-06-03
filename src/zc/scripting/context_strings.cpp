@@ -420,6 +420,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case COMBODNEXTD: return "combodata::NextData";
 		case COMBODNEXTTIMER: return "combodata::NextTimer";
 		case COMBODNUMTRIGGERS: return "combodata::NumTriggers";
+		case COMBODONLYGEN: return "combodata::OnlyGenTriggers";
 		case COMBODOTILE: return "combodata::OriginalTile";
 		case COMBOPOSR: return "combodata::Pos";
 		case COMBODATASCRIPT: return "combodata::Script";

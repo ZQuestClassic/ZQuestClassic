@@ -10101,6 +10101,16 @@ int32_t get_register(int32_t arg)
 			else ret = combobuf[ri->combosref].triggers.size() * 10000;
 			break;
 		}
+		case COMBODONLYGEN:
+		{
+			ret = 0;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else ret = combobuf[ri->combosref].only_gentrig ? 10000 : 0;
+			break;
+		}
 		//COMBOCLASS STRUCT
 		//case COMBODNAME:		//CHAR[64], STRING
 		case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies); break;			//C
@@ -21295,6 +21305,16 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 				combobuf[ri->combosref].triggers.resize(vbound(value / 10000, 0, MAX_COMBO_TRIGGERS));
+			break;
+		}
+		case COMBODONLYGEN:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else
+				combobuf[ri->combosref].only_gentrig = value != 0 ? 1 : 0;
 			break;
 		}
 	

@@ -385,6 +385,11 @@ class combodata {
 	//
 	// @zasm_var COMBODNUMTRIGGERS
 	internal int NumTriggers;
+	
+	// If true, don't allow the combo to trigger via it's normal trigger methods (ex: bush via slashing)
+	//
+	// @zasm_var COMBODONLYGEN
+	internal bool OnlyGenTriggers;
 
 	// The trigger flags of the combo.
 	//
