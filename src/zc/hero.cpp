@@ -22396,7 +22396,10 @@ endsigns:
 			dir_trigflag = combotriggerBTN_RIGHT;
 			break;
 	}
-	bool found_a_trigger_dir = false;
+	bool found_a_trigger_dir = false, did_trigger = false;
+	rpos_handle_t rpos_handle;
+	if(fx != -1 && fy != -1)
+		rpos_handle = get_rpos_handle_for_world_xy(fx, fy, found_lyr);
 	for (size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
@@ -22406,13 +22409,17 @@ endsigns:
 		if(fx != -1 && fy != -1 && trig_data.cooldown) continue;
 		if(trig.triggerbtn && (getIntBtnInput(trig.triggerbtn, true, true, false, false) || checkIntBtnVal(trig.triggerbtn, signInput)))
 		{
+			did_trigger = true;
+			int oldcombo = (foundffc ? foundffc->data() : rpos_handle.data());
 			if (foundffc)
 				do_trigger_combo(foundffc.value(), idx, didsign ? ctrigIGNORE_SIGN : 0);
 			else if (fx != -1 && fy != -1)
-				do_trigger_combo(get_rpos_handle_for_world_xy(fx, fy, found_lyr), idx, didsign ? ctrigIGNORE_SIGN : 0);
+				do_trigger_combo(rpos_handle, idx, didsign ? ctrigIGNORE_SIGN : 0);
+			if ((foundffc ? foundffc->data() : rpos_handle.data()) != oldcombo)
+				break;
 		}
 	}
-	if(!found_a_trigger_dir || didprompt)
+	if(!found_a_trigger_dir || didprompt || did_trigger)
 		return;
 	else if(cmb.type == cBUTTONPROMPT)
 	{
