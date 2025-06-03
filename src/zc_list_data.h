@@ -68,6 +68,8 @@ namespace GUI::ZCListData
 	GUI::ListData const& autocombotypes();
 	GUI::ListData const& scripttypes();
 	GUI::ListData const& patterntypes();
+	GUI::ListData const& heroanimations();
+	GUI::ListData const& swimtypes();
 }
 
 #endif

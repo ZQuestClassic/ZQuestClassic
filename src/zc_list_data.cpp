@@ -1374,3 +1374,27 @@ GUI::ListData const& GUI::ZCListData::patterntypes()
 {
 	return pattern_types;
 };
+
+static const GUI::ListData hero_animations
+{
+	{ "Classic", 0},
+	{ "BS-Zelda", 1},
+	{ "Zelda 3", 2},
+	{ "Zelda 3 (Slow-Walk)", 3},
+};
+
+static const GUI::ListData swim_types
+{
+	{ "Slow", 50},
+	{ "Fast", 67},
+};
+
+GUI::ListData const& GUI::ZCListData::heroanimations()
+{
+	return hero_animations;
+}
+
+GUI::ListData const& GUI::ZCListData::swimtypes()
+{
+	return swim_types;
+}

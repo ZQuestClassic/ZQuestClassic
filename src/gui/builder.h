@@ -31,6 +31,7 @@
 #ifdef IS_EDITOR
 #include "zq/gui/seltile_swatch.h"
 #include "zq/gui/selcombo_swatch.h"
+#include "zq/gui/selherotile_swatch.h"
 #include "zq/gui/tileanim_frame.h"
 #include "zq/gui/msgstr_preview.h"
 #include "zq/gui/palette_frame.h"
@@ -237,6 +238,11 @@ inline std::shared_ptr<SelComboSwatch> makeSelComboSwatch()
 inline std::shared_ptr<CornerSwatch> makeCornerSwatch()
 {
 	return std::make_shared<CornerSwatch>();
+}
+
+inline std::shared_ptr<SelHeroTileSwatch> makeSelHeroTileSwatch()
+{
+	return std::make_shared<SelHeroTileSwatch>();
 }
 
 inline std::shared_ptr<TileFrame> makeTileFrame()
@@ -568,6 +574,13 @@ ZCGUI_BUILDER_START(CornerSwatch)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(CornerSwatch, CornerSwatch, makeCornerSwatch)
+
+ZCGUI_BUILDER_START(SelHeroTileSwatch)
+	ZCGUI_ACCEPT_PROP(heroSprite, setHeroSprite, int32_t)
+	ZCGUI_ACCEPT_PROP(dir, setDir, int32_t)
+	ZCGUI_ACCEPT_PROP(frames, setFrames, int32_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(SelHeroTileSwatch, SelHeroTileSwatch, makeSelHeroTileSwatch)
 
 ZCGUI_BUILDER_START(TileFrame)
 	ZCGUI_ACCEPT_PROP(tile, setTile, int32_t)
