@@ -2923,9 +2923,8 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	static cpos_info null_info;
 	bool is_active_screen = is_in_current_region(base_scr);
 	cpos_info& timer = is_active_screen ? rpos_handle.info() : null_info;
-	cpos_trig_info& trig_info = timer.trig_data[idx];
 
-	bool dorun = !trig_info.cooldown;
+	bool dorun = !timer.trig_data[idx].cooldown;
 	if(dorun)
 	{
 		if (is_active_screen && ((trig.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
@@ -3065,8 +3064,9 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 					trig_copycat(cid, rpos_handle, trig.trigcopycat);
 
 				timer.updateData(rpos_handle.data());
-				if(trig.trigcooldown)
-					trig_info.cooldown = trig.trigcooldown;
+
+				if (trig.trigcooldown)
+					timer.trig_data[idx].cooldown = trig.trigcooldown;
 			}
 		}
 		if (w && used_bit)
@@ -3145,9 +3145,8 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	static cpos_info null_info;
 	bool is_active_screen = is_in_current_region(base_scr);
 	cpos_info& timer = is_active_screen ? ffc_handle.info() : null_info;
-	cpos_trig_info& trig_info = timer.trig_data[idx];
-	
-	bool dorun = !trig_info.cooldown;
+
+	bool dorun = !timer.trig_data[idx].cooldown;
 	if(dorun)
 	{
 		if (is_active_screen && ((trig.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
@@ -3289,9 +3288,9 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 				if (ffc_handle.ffc->flags & ffc_changer)
 					timer.updateData(-1);
 				else timer.updateData(ffc_handle.data());
-				
-				if(trig.trigcooldown)
-					trig_info.cooldown = trig.trigcooldown;
+
+				if (trig.trigcooldown)
+					timer.trig_data[idx].cooldown = trig.trigcooldown;
 			}
 		}
 		if (w && used_bit)
