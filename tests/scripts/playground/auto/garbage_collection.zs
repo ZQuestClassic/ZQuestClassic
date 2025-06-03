@@ -21,6 +21,7 @@ class Person
 	int age;
 	Person children[3];
 	Hat hat;
+	Person lastPersonShookHandsWith;
 
 	Person(int age = 0)
 	{
@@ -31,6 +32,26 @@ class Person
 	~Person()
 	{
 		count--;
+	}
+
+	void shakeHands(Person other)
+	{
+		// TODO: currently the implicit `this` variable does not retain a reference.
+		// Otherwise this would be 2.
+		Test::AssertEqual(RefCount(this), 1L, "RefCount(this)");
+		Test::AssertEqual(RefCount(other), 2L, "RefCount(other)");
+
+		lastPersonShookHandsWith = other;
+	}
+
+	void waitThenShakeHands(Person other)
+	{
+		Waitframe();
+
+		Test::AssertEqual(RefCount(this), 1L, "RefCount(this)");
+		Test::AssertEqual(RefCount(other), 2L, "RefCount(other)");
+
+		lastPersonShookHandsWith = other;
 	}
 }
 
@@ -47,7 +68,7 @@ generic script garbage_collection
 
 	void check(char32[] context, int actual, int expected)
 	{
-		Test::AssertEqual(actual, expected);
+		Test::AssertEqual(actual, expected, context);
 	}
 
 	// Checks count is expected value, even if GC runs.
@@ -125,6 +146,35 @@ generic script garbage_collection
 		}
 		yield();
 		checkCountWithGC(0);
+
+		printf("=== Test %d - custom object functions === \n", ++tests);
+		{
+			Person a = new Person();
+			Person b = new Person();
+			yield();
+
+			a->shakeHands(b);
+			check("RefCount(a)", RefCount(a), 1L);
+			check("RefCount(b)", RefCount(b), 2L);
+
+			checkCountWithGC(2);
+		}
+		checkCountWithGC(0);
+
+		// TODO: currently does not work. The `this` variable is a bit special codegen-wise
+		// (I think the stack position may be wrong or invalid for it). See ScriptParser::generateOCode.
+		// printf("=== Test %d - custom object functions, called on loose object === \n", ++tests);
+		// {
+		// 	Person a = new Person();
+		// 	Person b = new Person();
+		// 	yield();
+		//
+		// 	new Person()->waitThenShakeHands(b);
+		// 	check("RefCount(b)", RefCount(b), 1L);
+		//
+		// 	checkCountWithGC(1);
+		// }
+		// checkCountWithGC(0);
 
 		printf("=== Test %d === \n", ++tests);
 		{
@@ -260,6 +310,146 @@ generic script garbage_collection
 
 		printf("=== Test %d === \n", ++tests);
 		{
+			Person a = usePerson4(new Person());
+			yield();
+			check("RefCount(a)", RefCount(a), 1L);
+			checkCountWithGC(1);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - simple block === \n", ++tests);
+		{
+			Person a = new Person();
+			yield();
+
+			{
+				auto b = a;
+				check("RefCount(b)", RefCount(b), 2L);
+			}
+			check("RefCount(a)", RefCount(a), 1L);
+		}
+
+		printf("=== Test %d - if === \n", ++tests);
+		{
+			Person a = new Person();
+			yield();
+
+			if (a)
+			{
+				auto b = a;
+				check("RefCount(b)", RefCount(b), 2L);
+			}
+			check("RefCount(a)", RefCount(a), 1L);
+		}
+
+		printf("=== Test %d - if w/ declaration === \n", ++tests);
+		{
+			Person a = new Person();
+			yield();
+
+			if (auto b = a)
+				check("RefCount(b)", RefCount(b), 2L);
+			check("RefCount(a)", RefCount(a), 1L);
+		}
+
+		printf("=== Test %d - while === \n", ++tests);
+		{
+			Person a = new Person();
+			yield();
+
+			int i = 0;
+			while (i < 3)
+			{
+				check("RefCount(a)", RefCount(a), 1L);
+				auto b = a;
+				check("RefCount(b)", RefCount(b), 2L);
+
+				i++;
+			}
+
+			check("RefCount(a)", RefCount(a), 1L);
+
+			i = 0;
+			while (i < 3)
+			{
+				check("RefCount(a)", RefCount(a), 1L);
+				auto b = a;
+				check("RefCount(b)", RefCount(b), 2L);
+
+				i++;
+			}
+			else
+			{
+				check("RefCount(a)", RefCount(a), 1L);
+				int b1 = 123;
+				auto b2 = a;
+				check("RefCount(b2)", RefCount(b2), 2L);
+			}
+
+			check("RefCount(a)", RefCount(a), 1L);
+
+			i = 0;
+			while (i < 3)
+			{
+				if (i == 2) break;
+
+				check("RefCount(a)", RefCount(a), 1L);
+				auto b = a;
+				check("RefCount(b)", RefCount(b), 2L);
+
+				i++;
+			}
+
+			check("RefCount(a)", RefCount(a), 1L);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - if w/ declaration inside while === \n", ++tests);
+		{
+			Person a = new Person();
+			yield();
+
+			while (a)
+			{
+				auto b1 = a;
+				check("RefCount(b1)", RefCount(b1), 2L);
+
+				if (auto b2 = a)
+				{
+					check("RefCount(b2)", RefCount(b2), 3L);
+
+					auto b3 = a;
+					check("RefCount(b3)", RefCount(b3), 4L);
+
+					break;
+				}
+			}
+			check("RefCount(a)", RefCount(a), 1L);
+		}
+		checkCountWithGC(0);
+
+		// The next two tests excercise breaking from inner scopes when outer scopes still retain an
+		// object.
+		printf("=== Test %d === \n", ++tests);
+		{
+			Person a = usePerson5(new Person(), false);
+			yield();
+			check("RefCount(a)", RefCount(a), 1L);
+			checkCountWithGC(1);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d === \n", ++tests);
+		{
+			Person a = usePerson5(new Person(), true);
+			yield();
+			check("RefCount(a)", RefCount(a), 1L);
+			checkCountWithGC(1);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d === \n", ++tests);
+		{
 			Person a = createPerson1();
 			yield();
 			check("RefCount(a)", RefCount(a), 1L);
@@ -279,6 +469,15 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			Person a = usePerson3(createPerson2());
+			yield();
+			check("RefCount(a)", RefCount(a), 1L);
+			checkCountWithGC(1);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d === \n", ++tests);
+		{
+			Person a = createPerson3();
 			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 			checkCountWithGC(1);
@@ -605,6 +804,109 @@ generic script garbage_collection
 		return person;
 	}
 
+	Person usePerson4(Person person)
+	{
+		yield();
+		check("(a) RefCount(person)", RefCount(person), 1L);
+		return person;
+	}
+
+	Person usePerson5(Person person, bool exitEarlier)
+	{
+		yield();
+		check("(a) RefCount(person)", RefCount(person), 1L);
+
+		auto a = person;
+		check("(b) RefCount(person)", RefCount(a), 2L);
+
+		if (person)
+		{
+			auto b = person;
+			check("(c) RefCount(person)", RefCount(b), 3L);
+
+			while (person)
+			{
+				auto c = person;
+				check("(d) RefCount(person)", RefCount(c), 4L);
+				if (c) break;
+			}
+
+			check("(e) RefCount(person)", RefCount(b), 3L);
+
+			while (person)
+			{
+				auto c = person;
+				if (c)
+				{
+					auto d = c;
+					check("(f) RefCount(person)", RefCount(d), 5L);
+					break;
+				}
+			}
+
+			check("(g) RefCount(person)", RefCount(b), 3L);
+
+			while (exitEarlier)
+			{
+				int c = 13;
+				c = 14;
+				if (c) return person;
+			}
+
+			check("(g2) RefCount(person)", RefCount(b), 3L);
+
+			auto b2 = person;
+			check("(g3) RefCount(person)", RefCount(b2), 4L);
+			b2 = NULL;
+
+			switch (count)
+			{
+				case 1:
+				{
+					auto c = person;
+					check("(h) RefCount(person)", RefCount(c), 4L);
+					break;
+				}
+				default: Quit();
+			}
+
+			check("(g4) RefCount(person)", RefCount(person), 3L);
+
+			while (true)
+			{
+				auto b2 = person;
+
+				switch (count)
+				{
+					case 1:
+					{
+						auto c = person;
+						check("(i) RefCount(person)", RefCount(c), 5L);
+						break 2; // break while
+					}
+					default: Quit();
+				}
+			}
+
+			check("(g5) RefCount(person)", RefCount(person), 3L);
+
+			while (person)
+			{
+				auto d = person;
+				check("(j) RefCount(person)", RefCount(d), 4L);
+
+				if (d)
+				{
+					auto e = person;
+					check("(k) RefCount(person)", RefCount(e), 5L);
+					if (e) return e;
+				}
+			}
+		}
+
+		return NULL;
+	}
+
 	Person createPerson1()
 	{
 		auto person = new Person();
@@ -614,5 +916,12 @@ generic script garbage_collection
 	Person createPerson2()
 	{
 		return new Person();
+	}
+
+	Person createPerson3()
+	{
+		auto person = new Person();
+		if (person) return person;
+		else return NULL;
 	}
 }
