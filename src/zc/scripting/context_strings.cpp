@@ -1798,6 +1798,9 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case BOTTLENAMESET: return "bottledata::SetName()";
 		case BSHOPNAMEGET: return "bottleshopdata::GetName()";
 		case BSHOPNAMESET: return "bottleshopdata::SetName()";
+		case COMBOD_GET_TRIGGER: return "combodata::GetTrigger()";
+		case CMBTRIG_GET_LABEL: return "combotrigger::GetLabel()";
+		case CMBTRIG_SET_LABEL: return "combotrigger::SetLabel()";
 		case CONVERTCASE: return "convcase()";
 		case DIRECTORYFREE: return "directory::Free()";
 		case DIRECTORYGET: return "directory::GetFilename()";

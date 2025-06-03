@@ -408,4 +408,23 @@ class combotrigger {
 	//
 	// @zasm_var CMBTRIGPUSHTIME
 	internal int PushTime;
+
+	// Gets the label for this trigger.
+	//
+	// If the buffer provided is too small, it will *automatically be resized to
+	// fit*.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFCOMBOTRIGGER
+	//   CMBTRIG_GET_LABEL D2
+	internal void GetLabel(char32[] buf);
+
+	// Sets the label for this widget.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFCOMBOTRIGGER
+	//   CMBTRIG_SET_LABEL D2
+	internal void SetLabel(char32[] str);
 }

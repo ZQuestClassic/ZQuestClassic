@@ -391,6 +391,14 @@ class combodata {
 	// @zasm_var COMBODONLYGEN
 	internal bool OnlyGenTriggers;
 
+	// Gets the first trigger of this combo whose name exactly matches 'buf'.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFCOMBOTRIGGER
+	//   COMBOD_GET_TRIGGER D2
+	internal combotrigger GetTrigger(char32[] buf);
+
 	// The trigger flags of the combo.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::Flags] instead!

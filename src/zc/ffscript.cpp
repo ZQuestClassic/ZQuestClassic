@@ -35451,7 +35451,54 @@ int32_t run_script_int(bool is_jitted)
 				}
 				break;
 			}
-
+			
+			case COMBOD_GET_TRIGGER:
+			{
+				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+				{
+					scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+				}
+				else
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					string name;
+					ArrayH::getString(aptr, name, 256);
+					newcombo const& cmb = combobuf[ri->combosref];
+					int32_t ret = 0;
+					for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+					{
+						if(cmb.triggers[idx].label == name)
+						{
+							ret = dword(ri->combosref) | (dword(idx)<<24);
+							break;
+						}
+					}
+					
+					set_register(sarg1, ret);
+				}
+				break;
+			}
+			case CMBTRIG_GET_LABEL:
+			{
+				if(auto* trig = get_combo_trigger(ri->combotrigref))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					if(ArrayH::setArray(aptr, trig->label, true) == SH::_Overflow)
+						Z_scripterrlog("Array supplied to 'combotrigger->GetLabel()' not large enough,"
+							" and couldn't be resized!\n");
+				}
+				break;
+			}
+			case CMBTRIG_SET_LABEL:
+			{
+				if (auto* trig = get_combo_trigger(ri->combotrigref))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					ArrayH::getString(aptr, trig->label);
+				}
+				break;
+			}
+			
 			case REF_INC:
 			{
 				int offset = ri->d[rSFRAME] + sarg1;
