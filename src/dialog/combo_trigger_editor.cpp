@@ -80,6 +80,110 @@ Button( \
 )
 //}
 
+static bool has_weapon_cause(combo_trigger const& trig)
+{
+	if(trig.triggerflags[0] & (
+		combotriggerSWORD|combotriggerSWORDBEAM|combotriggerBRANG|combotriggerBOMB|combotriggerSBOMB|
+		combotriggerLITBOMB|combotriggerLITSBOMB|combotriggerARROW|combotriggerFIRE|combotriggerWHISTLE|
+		combotriggerBAIT|combotriggerWAND|combotriggerMAGIC|combotriggerWIND|combotriggerREFMAGIC|
+		combotriggerREFFIREBALL|combotriggerREFROCK|combotriggerHAMMER|combotriggerEWFIREBALL)) return true;
+	if(trig.triggerflags[1] & (
+		combotriggerHOOKSHOT|combotriggerSPARKLE|combotriggerBYRNA|combotriggerREFBEAM|combotriggerSTOMP|
+		combotriggerSCRIPT01|combotriggerSCRIPT02|combotriggerSCRIPT03|combotriggerSCRIPT04|combotriggerSCRIPT05|
+		combotriggerSCRIPT06|combotriggerSCRIPT07|combotriggerSCRIPT08|combotriggerSCRIPT09|combotriggerSCRIPT10|
+		combotriggerEWARROW|combotriggerEWBRANG|combotriggerEWSWORD|combotriggerEWROCK))
+		return true;
+	if(trig.triggerflags[2] & (
+		combotriggerEWSCRIPT01|combotriggerEWSCRIPT02|combotriggerEWSCRIPT03|combotriggerEWSCRIPT04|combotriggerEWSCRIPT05|
+		combotriggerEWSCRIPT06|combotriggerEWSCRIPT07|combotriggerEWSCRIPT08|combotriggerEWSCRIPT09|combotriggerEWSCRIPT10|
+		combotriggerEWMAGIC|combotriggerEWBBLAST|combotriggerEWSBBLAST|combotriggerEWLITBOMB|combotriggerEWLITSBOMB|
+		combotriggerEWFIRETRAIL|combotriggerEWFLAME|combotriggerEWWIND|combotriggerEWFLAME2|
+		combotriggerTHROWN|combotriggerQUAKESTUN|combotriggerSQUAKESTUN|combotriggerANYFIRE|
+		combotriggerSTRONGFIRE|combotriggerMAGICFIRE|combotriggerDIVINEFIRE)) return true;
+	if(trig.triggerflags[3] & (combotriggerLWREFARROW|combotriggerLWREFFIRE|combotriggerLWREFFIRE2)) return true;
+	return false;
+}
+static bool has_trigger_cause(combo_trigger const& trig)
+{
+	if(trig.triggerbtn && (trig.triggerflags[0] & (combotriggerBTN_TOP|combotriggerBTN_BOTTOM|
+		combotriggerBTN_LEFT|combotriggerBTN_RIGHT))) return true;
+	if(trig.trigtimer) return true;
+	if(trig.triggerflags[0] & (
+		combotriggerSWORD|combotriggerSWORDBEAM|combotriggerBRANG|combotriggerBOMB|combotriggerSBOMB|
+		combotriggerLITBOMB|combotriggerLITSBOMB|combotriggerARROW|combotriggerFIRE|combotriggerWHISTLE|
+		combotriggerBAIT|combotriggerWAND|combotriggerMAGIC|combotriggerWIND|combotriggerREFMAGIC|
+		combotriggerREFFIREBALL|combotriggerREFROCK|combotriggerHAMMER|combotriggerSTEP|combotriggerSTEPSENS|
+		combotriggerSHUTTER|combotriggerEWFIREBALL)) return true;
+	if(trig.triggerflags[1] & (
+		combotriggerHOOKSHOT|combotriggerSPARKLE|combotriggerBYRNA|combotriggerREFBEAM|combotriggerSTOMP|
+		combotriggerSCRIPT01|combotriggerSCRIPT02|combotriggerSCRIPT03|combotriggerSCRIPT04|combotriggerSCRIPT05|
+		combotriggerSCRIPT06|combotriggerSCRIPT07|combotriggerSCRIPT08|combotriggerSCRIPT09|combotriggerSCRIPT10|
+		combotriggerAUTOMATIC|combotriggerLIGHTON|combotriggerLIGHTOFF|combotriggerPUSH|combotriggerLENSON|
+		combotriggerLENSOFF|combotriggerEWARROW|combotriggerEWBRANG|combotriggerEWSWORD|combotriggerEWROCK))
+		return true;
+	if(trig.triggerflags[2] & (
+		combotriggerEWSCRIPT01|combotriggerEWSCRIPT02|combotriggerEWSCRIPT03|combotriggerEWSCRIPT04|combotriggerEWSCRIPT05|
+		combotriggerEWSCRIPT06|combotriggerEWSCRIPT07|combotriggerEWSCRIPT08|combotriggerEWSCRIPT09|combotriggerEWSCRIPT10|
+		combotriggerEWMAGIC|combotriggerEWBBLAST|combotriggerEWSBBLAST|combotriggerEWLITBOMB|combotriggerEWLITSBOMB|
+		combotriggerEWFIRETRAIL|combotriggerEWFLAME|combotriggerEWWIND|combotriggerEWFLAME2|combotriggerENEMIESKILLED|
+		combotriggerSECRETSTR|combotriggerTHROWN|combotriggerQUAKESTUN|combotriggerSQUAKESTUN|combotriggerANYFIRE|
+		combotriggerSTRONGFIRE|combotriggerMAGICFIRE|combotriggerDIVINEFIRE)) return true;
+	if(trig.triggerflags[3] & (
+		combotriggerTRIGLEVELSTATE|combotriggerTRIGGLOBALSTATE|combotriggerTGROUP_LESS|combotriggerTGROUP_GREATER|
+		combotriggerPUSHEDTRIG|combotriggerDIVETRIG|combotriggerDIVESENSTRIG|combotriggerLWREFARROW|combotriggerLWREFFIRE|
+		combotriggerLWREFFIRE2)) return true;
+	if(trig.triggerflags[4] & (combotriggerSCREENLOAD)) return true;
+	return false;
+}
+static bool has_trigger_effect(combo_trigger const& trig)
+{
+	if(trig.triggerflags[0] & (combotriggerRESETANIM|combotriggerCMBTYPEFX|combotriggerKILLWPN)) return true;
+	if(trig.triggerflags[1] & (combotriggerCONSUMEITEM|combotriggerCOUNTEREAT|combotriggerSECRETS)) return true;
+	if(trig.triggerflags[3] & (combotriggerLEVELSTATE|combotriggerGLOBALSTATE|combotriggerKILLENEMIES|combotriggerCLEARENEMIES|
+		combotriggerCLEARLWEAPONS|combotriggerCLEAREWEAPONS|combotriggerIGNITE_ANYFIRE|combotriggerIGNITE_STRONGFIRE|
+		combotriggerIGNITE_MAGICFIRE|combotriggerIGNITE_DIVINEFIRE|combotriggerTOGGLEDARK|combotriggerLITEM_SET|
+		combotriggerLITEM_UNSET|combotriggerTINT_CLEAR)) return true;
+	if(trig.trigsfx) return true;
+	if(trig.trigchange) return true;
+	if(trig.trigcschange) return true;
+	if(trig.spawnitem) return true;
+	if(trig.spawnenemy) return true;
+	if(trig.exdoor_dir != -1) return true;
+	if(trig.exstate != -1) return true;
+	if(trig.trigcopycat) return true;
+	if(trig.trigcooldown) return true;
+	if(trig.trig_genscr) return true;
+	if(trig.trigtint[0]) return true;
+	if(trig.trigtint[1]) return true;
+	if(trig.trigtint[2]) return true;
+	if(trig.triglvlpalette != -1) return true;
+	if(trig.trigbosspalette != -1) return true;
+	if(trig.trigwavytime != -1) return true;
+	if(trig.trigquaketime != -1) return true;
+	if(trig.trig_swjinxtime != -2) return true;
+	if(trig.trig_itmjinxtime != -2) return true;
+	if(trig.trig_shieldjinxtime != -2) return true;
+	if(trig.trig_stuntime != -2) return true;
+	if(trig.trig_bunnytime != -2) return true;
+	return false;
+}
+
+void ComboTriggerDialog::updateWarnings()
+{
+	warnings.clear();
+	if(!has_trigger_cause(local_ref))
+		warnings.emplace_back("Trigger has no 'Cause', and will never be triggered!");
+	if(!has_trigger_effect(local_ref))
+		warnings.emplace_back("Trigger has no 'Effect', and will do nothing!");
+	if((local_ref.triggerflags[0] & (combotriggerKILLWPN)) || (local_ref.triggerflags[3] & (combotriggerIGNITE_ANYFIRE|
+		combotriggerIGNITE_STRONGFIRE|combotriggerIGNITE_MAGICFIRE|combotriggerIGNITE_DIVINEFIRE|combotriggerSEPARATEWEAPON)))
+	{
+		if(!has_weapon_cause(local_ref))
+			warnings.emplace_back("Trigger has weapon-specific 'Effect'(s), but no weapon-based causes!");
+	}
+	
+	warnbtn->setDisabled(warnings.empty());
+}
 
 static size_t trig_tabs[5] = {0};
 const std::string minstr = "Min Level (Applies to all):";
@@ -1096,6 +1200,10 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 					text = "OK",
 					minwidth = 90_px,
 					onClick = message::OK),
+				warnbtn = Button(
+					text = "Warnings",
+					minwidth = 90_px,
+					onClick = message::WARNINGS),
 				Button(
 					text = "Clear",
 					minwidth = 90_px,
@@ -1109,6 +1217,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 	);
 	
 	cteff_tflag->setDisabled(!hasCTypeEffects(parent_comboref.type));
+	updateWarnings();
 	
 	l_minmax_trig->setText((local_ref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
@@ -1136,8 +1245,30 @@ bool ComboTriggerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			return false;
 		}
+		
+		case message::WARNINGS:
+		{
+			updateWarnings();
+			if(warnings.size())
+				displayinfo("Warnings",warnings,"The following issues were found with this trigger:");
+			return false;
+		}
 		case message::OK:
 		{
+			updateWarnings();
+			if(warnings.size())
+			{
+				bool cancel = false;
+				AlertDialog alert("Warnings",warnings,[&](bool ret,bool)
+					{
+						if(!ret) cancel = true;
+					});
+				alert.setSubtext("The following issues were found with this trigger:");
+				alert.show();
+				if(cancel)
+					return false;
+			}
+			
 			if(!hasCTypeEffects(parent_comboref.type))
 				local_ref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
 			edited = true;
