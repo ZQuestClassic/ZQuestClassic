@@ -3746,7 +3746,7 @@ void cpos_update() //updates with side-effects
 		if(do_trigger_timer)
 			cmb = &combobuf[cid];
 		
-		for(size_t idx = 0; idx < 255; ++idx)
+		for(size_t idx = 0; idx < MAX_COMBO_TRIGGERS; ++idx)
 		{
 			if(idx >= timer.trig_data.capacity())
 				break;
@@ -3817,7 +3817,7 @@ void cpos_update() //updates with side-effects
 		if(do_trigger_timer)
 			cmb = &combobuf[cid];
 		
-		for(size_t idx = 0; idx < 255; ++idx)
+		for(size_t idx = 0; idx < MAX_COMBO_TRIGGERS; ++idx)
 		{
 			if(idx >= timer.trig_data.capacity())
 				break;

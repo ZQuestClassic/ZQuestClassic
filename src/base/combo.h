@@ -25,6 +25,7 @@ enum lift_flags : uint8_t
 #define NUM_COMBO_ATTRIBYTES            8
 #define NUM_COMBO_ATTRISHORTS           8
 
+#define MAX_COMBO_TRIGGERS              255
 ///user flags
 #define cflag1                          0x00001
 #define cflag2                          0x00002

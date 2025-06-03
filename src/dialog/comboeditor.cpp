@@ -2118,13 +2118,13 @@ void ComboEditorDialog::updateWarnings()
 }
 void ComboEditorDialog::updateTriggerIndex()
 {
-	trigbtnAddCursor->setDisabled(local_comboref.triggers.size() >= 255);
-	trigbtnAddEnd->setDisabled(local_comboref.triggers.size() >= 255);
+	trigbtnAddCursor->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS);
+	trigbtnAddEnd->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS);
 	trigbtnCopy->setDisabled(trigger_index < 0);
 	trigbtnEdit->setDisabled(trigger_index < 0);
 	trigbtnDelete->setDisabled(trigger_index < 0);
-	trigbtnPasteNewCursor->setDisabled(trigger_index < 0 || local_comboref.triggers.size() >= 255 || !copied_trigger);
-	trigbtnPasteNewEnd->setDisabled(local_comboref.triggers.size() >= 255 || !copied_trigger);
+	trigbtnPasteNewCursor->setDisabled(trigger_index < 0 || local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS || !copied_trigger);
+	trigbtnPasteNewEnd->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS || !copied_trigger);
 	trigbtnPaste->setDisabled(trigger_index < 0 || !copied_trigger);
 	trigbtnUp->setDisabled(trigger_index < 1);
 	trigbtnDown->setDisabled(trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1);
@@ -2359,7 +2359,7 @@ int32_t solidity_to_flag(int32_t val)
 void ComboEditorDialog::add_combo_trigger(size_t pos, bool copied)
 {
 	if(copied && !copied_trigger) return;
-	if(local_comboref.triggers.size() >= 255) return;
+	if(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS) return;
 	combo_trigger& trig = *local_comboref.triggers.emplace(std::next(local_comboref.triggers.begin(), pos));
 	
 	if(copied)
