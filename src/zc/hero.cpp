@@ -24507,7 +24507,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
 					auto& trig = cmb.triggers[idx];
-					if (trig.triggerflags[2] & (combotriggerSTEP|combotriggerSTEPSENS) || types[p] == cSTEP)
+					if (trig.triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS) || types[p] == cSTEP)
 					{
 						hasStep[p] = true;
 						break;
