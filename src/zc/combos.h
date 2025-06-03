@@ -194,8 +194,15 @@ namespace combo_caches
 		minicombo_shutter() = default;
 		minicombo_shutter(const newcombo& combo)
 		{
-			// TODO TriggerSplit
-			// shutter = combo.triggerflags[0] & combotriggerSHUTTER;
+			shutter = false;
+			for(auto& trig : combo.triggers)
+			{
+				if(trig.triggerflags[0] & combotriggerSHUTTER)
+				{
+					shutter = true;
+					break;
+				}
+			}
 		}
 	};
 	extern combo_cache<minicombo_shutter> shutter;

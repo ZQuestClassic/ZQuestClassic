@@ -5632,8 +5632,8 @@ void openshutters(mapscr* scr)
 	
 	auto& combo_cache = combo_caches::shutter;
 	for_every_combo_in_screen(create_screen_handles(scr), [&](const auto& handle) {
-		// auto& cmb = combo_cache.minis[handle.data()];
-		// if (cmb.shutter)
+		if (!combo_cache.minis[handle.data()].shutter)
+			return;
 		auto cid = handle.data();
 		auto& cmb = handle.combo();
 		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
