@@ -13066,9 +13066,10 @@ void handle_lens_triggers(int32_t l_id)
 	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & item_flag6);
 	auto& combo_cache = combo_caches::lens;
 	for_every_combo([&](const auto& handle) {
-		// auto& cmb = combo_cache.minis[handle.data()];
-		// if (enabled ? cmb.on : cmb.off)
 		auto cid = handle.data();
+		auto& mini_cmb = combo_cache.minis[cid];
+		if (!(enabled ? mini_cmb.on : mini_cmb.off))
+			return;
 		auto& cmb = handle.combo();
 		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{

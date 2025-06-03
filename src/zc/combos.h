@@ -264,9 +264,21 @@ namespace combo_caches
 		minicombo_lens() = default;
 		minicombo_lens(const newcombo& combo)
 		{
-			// TODO TriggerSplit
-			// on = combo.triggerflags[1] & combotriggerLENSON;
-			// off = combo.triggerflags[1] & combotriggerLENSOFF;
+			on = false;
+			off = false;
+			for(auto& trig : combo.triggers)
+			{
+				if(trig.triggerflags[1] & combotriggerLENSON)
+				{
+					on = true;
+					if(off) break;
+				}
+				if(trig.triggerflags[1] & combotriggerLENSOFF)
+				{
+					off = true;
+					if(on) break;
+				}
+			}
 		}
 	};
 	extern combo_cache<minicombo_lens> lens;
