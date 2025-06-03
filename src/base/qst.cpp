@@ -18191,7 +18191,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 			if(s_version < 52)
 			{
 				if(!temp_combo.triggers.empty())
-					temp_combo.only_gentrig = (temp_combo.triggers[0].triggerflags[0] & combotriggerONLYGENTRIG);
+					temp_combo.only_gentrig = (temp_combo.triggers[0].triggerflags[0] & combotriggerONLYGENTRIG) ? 1 : 0;
 			}
 			else if(!p_getc(&temp_combo.only_gentrig,f))
 				return qe_invalid;
