@@ -3748,14 +3748,12 @@ void cpos_update() //updates with side-effects
 		
 		for(size_t idx = 0; idx < MAX_COMBO_TRIGGERS; ++idx)
 		{
-			if(idx >= timer.trig_data.capacity())
-				break;
-			cpos_trig_info& trig_info = timer.trig_data[idx];
 			if(do_trigger_timer && idx < cmb->triggers.size())
 			{
 				auto& trig = cmb->triggers[idx];
 				if (trig.trigtimer)
 				{
+					cpos_trig_info& trig_info = timer.trig_data[idx];
 					if(++trig_info.clk >= trig.trigtimer)
 					{
 						trig_info.clk = 0;
@@ -3766,7 +3764,11 @@ void cpos_update() //updates with side-effects
 					}
 				}
 			}
-			if(trig_info.cooldown) --trig_info.cooldown;
+			if (idx < timer.trig_data.capacity())
+			{
+				cpos_trig_info& trig_info = timer.trig_data[idx];
+				if (trig_info.cooldown) --trig_info.cooldown;
+			}
 		}
 		handle_cpos_type(mini_cmb.type,timer,rpos_handle);
 	});
@@ -3819,25 +3821,27 @@ void cpos_update() //updates with side-effects
 		
 		for(size_t idx = 0; idx < MAX_COMBO_TRIGGERS; ++idx)
 		{
-			if(idx >= timer.trig_data.capacity())
-				break;
-			cpos_trig_info& trig_info = timer.trig_data[idx];
-			if(do_trigger_timer && idx < cmb->triggers.size())
+			if (do_trigger_timer && idx < cmb->triggers.size())
 			{
 				auto& trig = cmb->triggers[idx];
 				if (trig.trigtimer)
 				{
-					if(++trig_info.clk >= trig.trigtimer)
+					cpos_trig_info& trig_info = timer.trig_data[idx];
+					if (++trig_info.clk >= trig.trigtimer)
 					{
 						trig_info.clk = 0;
 						do_trigger_combo(ffc_handle, idx);
 						timer.updateData(f.data);
-						if(f.data != cid)
+						if (f.data != cid)
 							do_trigger_timer = false; // 'break', but only out of the trigtimer part of the loop
 					}
 				}
 			}
-			if(trig_info.cooldown) --trig_info.cooldown;
+			if (idx < timer.trig_data.capacity())
+			{
+				cpos_trig_info& trig_info = timer.trig_data[idx];
+				if (trig_info.cooldown) --trig_info.cooldown;
+			}
 		}
 		if(mini_cmb.type == cSHOOTER)
 			handle_shooter(combobuf[cid], timer, wx, wy);
