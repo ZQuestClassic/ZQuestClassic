@@ -1411,6 +1411,7 @@ public:
 	dword fileref, comboidref, directoryref, rngref, stackref, paldataref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
+	dword combotrigref;
 	int32_t portalref, saveportalref;
 	int32_t websocketref;
 	dword subdataref, subpageref, subwidgref;

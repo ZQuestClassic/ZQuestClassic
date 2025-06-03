@@ -973,6 +973,7 @@ static weapon* ResolveLWeapon_checkSpriteList(int32_t uid)
 	return spr;
 }
 
+// For compat, get the first `combo_trigger` of the current `ri->combosref`
 combo_trigger* get_first_combo_trigger()
 {
 	if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
@@ -980,6 +981,31 @@ combo_trigger* get_first_combo_trigger()
 	if(combobuf[ri->combosref].triggers.empty())
 		return &(combobuf[ri->combosref].triggers.emplace_back());
 	return &(combobuf[ri->combosref].triggers[0]);
+}
+// Get the combo trigger pointed to by `ref` (usually ri->combotrigref)
+combo_trigger* get_combo_trigger(dword ref)
+{
+	byte idx = (ref >> 24) & 0xFF;
+	dword cid = ref & 0x00FFFFFF;
+	if(cid >= MAXCOMBOS)
+	{
+		scripting_log_error_with_context("Invalid combotrigger ID: {}-{}", idx, cid);
+		return nullptr;
+	}
+	newcombo& cmb = combobuf[cid];
+	if(idx >= cmb.triggers.size())
+	{
+		scripting_log_error_with_context("Invalid combotrigger ID: {}-{}", idx, cid);
+		return nullptr;
+	}
+	return &(cmb.triggers[idx]);
+}
+// Get the combo ID of the trigger pointed to by `ref` (usually ri->combotrigref)
+dword get_combo_from_trigger_ref(dword ref)
+{
+	dword cid = ref & 0x00FFFFFF;
+	DCHECK(cid < MAXCOMBOS);
+	return cid;
 }
 
 ///------------------------------------------------//
@@ -10044,6 +10070,37 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
+		case COMBODTRIGGERS:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", (ri->combosref*10000));
+				ret = -10000;
+				break;
+			}
+			newcombo& cmb = combobuf[ri->combosref];
+			if ( unsigned(indx) >= zc_min(cmb.triggers.size(), MAX_COMBO_TRIGGERS) )
+			{
+				scripting_log_error_with_context("Invalid Array Index: {}", indx);
+				ret = -10000;
+			}
+			else
+			{
+				ret = dword(ri->combosref) | dword(indx) << 24;
+			}
+			break;
+		}
+		case COMBODNUMTRIGGERS:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else ret = combobuf[ri->combosref].triggers.size() * 10000;
+			break;
+		}
 		//COMBOCLASS STRUCT
 		//case COMBODNAME:		//CHAR[64], STRING
 		case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies); break;			//C
@@ -10111,6 +10168,419 @@ int32_t get_register(int32_t arg)
 
 
 		
+		///----------------------------------------------------------------------------------------------------//
+		case CMBTRIGFLAGS:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				if(indx/32 == 0 && (1<<indx%32) == combotriggerONLYGENTRIG)
+					ret = combobuf[get_combo_from_trigger_ref(ri->combotrigref)].only_gentrig ? 10000L : 0L;
+				else ret = (trig->triggerflags[indx/32] & (1<<indx%32)) ? 10000L : 0L;
+			}
+			else ret = 0;
+			break;
+		}
+		case CMBTRIGBUTTON:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = (trig->triggerbtn & (1<<indx)) ? 10000L : 0L;
+			}
+			else ret = 0;
+			break;
+		}
+		case CMBTRIGWPNLEVEL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->triggerlevel * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGREQITEM:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->triggeritem * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGTIMER:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigtimer * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGSFX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigsfx * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGCHANGECMB:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigchange * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGCSETCHANGE:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigcschange * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGPROX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigprox * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGLIGHTBEAM:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->triglbeam * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGCTR:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigctr * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGCTRAMNT:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigctramnt * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGCOOLDOWN:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigcooldown * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGCOPYCAT:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigcopycat * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGITEMPICKUP:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->spawnip * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGEXSTATE:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->exstate * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGEXDOORDIR:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->exdoor_dir * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGEXDOORIND:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->exdoor_ind * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGSPAWNENEMY:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->spawnenemy * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGSPAWNITEM:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->spawnitem * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGLSTATE:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_lstate * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGSTATE:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_gstate * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGTIMER:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_statetime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGENSCRIPT:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_genscr * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGROUP:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_group * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGROUPVAL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_group_val * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGLITEMS:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_levelitems * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGDMAPLVL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigdmlevel * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGTINTR:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigtint[0] * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGTINTG:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigtint[1] * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGTINTB:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigtint[2] * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGLVLPAL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->triglvlpalette * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGBOSSPAL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigbosspalette * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGQUAKETIME:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigquaketime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGWAVYTIME:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trigwavytime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGSWORDJINX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_swjinxtime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGITEMJINX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_itmjinxtime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGSHIELDJINX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_shieldjinxtime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGSTUN:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_stuntime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGBUNNY:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_bunnytime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGPUSHTIME:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_pushtime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		//npcdata nd-> variables
 			
@@ -10738,6 +11208,7 @@ int32_t get_register(int32_t arg)
 		case REFMAPDATA: ret = ri->mapsref; break;
 		case REFSCREENDATA: ret = ri->screenref; break;
 		case REFCOMBODATA: ret = ri->combosref; break;
+		case REFCOMBOTRIGGER: ret = ri->combotrigref; break;
 		case REFSPRITEDATA: ret = ri->spritedataref; break;
 		case REFBITMAP: ret = ri->bitmapref; break;
 		case REFNPCCLASS: ret = ri->npcdataref; break;
@@ -20444,7 +20915,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if(auto* trig = get_first_combo_trigger())
-				trig->trigdmlevel = vbound(value/10000, -1, MAXDMAPS-1);
+				trig->trigdmlevel = vbound(value/10000, -1, MAXLEVELS-1);
 			break;
 		}
 		case COMBODTRIGTINTR:
@@ -20816,7 +21287,16 @@ void set_register(int32_t arg, int32_t value)
 				trig->triggerlevel = vbound(value/10000, 0, 214747);
 			break;
 		}
-	
+		case COMBODNUMTRIGGERS:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else
+				combobuf[ri->combosref].triggers.resize(vbound(value / 10000, 0, MAX_COMBO_TRIGGERS));
+			break;
+		}
 	
 		
 
@@ -20888,8 +21368,381 @@ void set_register(int32_t arg, int32_t value)
 
 
 
-	///----------------------------------------------------------------------------------------------------//
-	//npcdata nd-> Variables
+		///----------------------------------------------------------------------------------------------------//
+		case CMBTRIGFLAGS:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				SETFLAG(trig->triggerflags[indx/32],1<<(indx%32),value);
+				if(indx/32 == 0 && (1<<indx%32) == combotriggerONLYGENTRIG)
+					combobuf[get_combo_from_trigger_ref(ri->combotrigref)].only_gentrig = value;
+			}
+			break;
+		}
+		case CMBTRIGBUTTON:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				SETFLAG(trig->triggerbtn, 1<<indx, value);
+			}
+			break;
+		}
+		case CMBTRIGWPNLEVEL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->triggerlevel = vbound(value/10000, 0, 214748);
+			}
+			break;
+		}
+		case CMBTRIGREQITEM:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->triggeritem = vbound(value/10000, 0, MAXITEMS-1);
+			}
+			break;
+		}
+		case CMBTRIGTIMER:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigtimer = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case CMBTRIGSFX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigsfx = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case CMBTRIGCHANGECMB:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigchange = value/10000;
+			}
+			break;
+		}
+		case CMBTRIGCSETCHANGE:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigcschange = vbound(value/10000, -128, 127);
+			}
+			break;
+		}
+		case CMBTRIGPROX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigprox = vbound(value/10000, 0, 65535);
+			}
+			break;
+		}
+		case CMBTRIGLIGHTBEAM:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->triglbeam = vbound(value/10000,0,32);
+			}
+			break;
+		}
+		case CMBTRIGCTR:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigctr = vbound(value/10000, 0, MAX_COUNTERS-1);
+			}
+			break;
+		}
+		case CMBTRIGCTRAMNT:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigctramnt = vbound(value/10000, -65535, 65535);
+			}
+			break;
+		}
+		case CMBTRIGCOOLDOWN:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigcooldown = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case CMBTRIGCOPYCAT:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigcopycat = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case CMBTRIGITEMPICKUP:
+		{
+			const int32_t allowed_pflags = ipHOLDUP | ipTIMER | ipSECRETS | ipCANGRAB;
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->spawnip = (value/10000)&allowed_pflags;
+			}
+			break;
+		}
+		case CMBTRIGEXSTATE:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->exstate = vbound(value/10000, -1, 31);
+			}
+			break;
+		}
+		case CMBTRIGEXDOORDIR:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->exdoor_dir = vbound(value/10000, -1, 3);
+			}
+			break;
+		}
+		case CMBTRIGEXDOORIND:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->exdoor_ind = vbound(value/10000, 0, 7);
+			}
+			break;
+		}
+		case CMBTRIGSPAWNENEMY:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->spawnenemy = vbound(value/10000, 0, 511);
+			}
+			break;
+		}
+		case CMBTRIGSPAWNITEM:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->spawnitem = vbound(value/10000, -255, 255);
+			}
+			break;
+		}
+		case CMBTRIGLSTATE:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_lstate = vbound(value/10000, 0, 31);
+			}
+			break;
+		}
+		case CMBTRIGGSTATE:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_gstate = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case CMBTRIGGTIMER:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_statetime = vbound(value/10000, 0, 214748);
+			}
+			break;
+		}
+		case CMBTRIGGENSCRIPT:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_genscr = vbound(value/10000, 0, 65535);
+			}
+			break;
+		}
+		case CMBTRIGGROUP:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_group = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case CMBTRIGGROUPVAL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_group_val = vbound(value/10000, 0, 65535);
+			}
+			break;
+		}
+		case CMBTRIGLITEMS:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_levelitems = (value/10000) & liALL;
+			}
+			break;
+		}
+		case CMBTRIGDMAPLVL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigdmlevel = vbound(value/10000, -1, MAXLEVELS-1);
+			}
+			break;
+		}
+		case CMBTRIGTINTR:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigtint[0] = scripting_write_pal_color(vbound(value/10000, -scripting_max_color_val, scripting_max_color_val));
+			}
+			break;
+		}
+		case CMBTRIGTINTG:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigtint[1] = scripting_write_pal_color(vbound(value/10000, -scripting_max_color_val, scripting_max_color_val));
+			}
+			break;
+		}
+		case CMBTRIGTINTB:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigtint[2] = scripting_write_pal_color(vbound(value/10000, -scripting_max_color_val, scripting_max_color_val));
+			}
+			break;
+		}
+		case CMBTRIGLVLPAL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->triglvlpalette = vbound(value/10000, -1, 512);
+			}
+			break;
+		}
+		case CMBTRIGBOSSPAL:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigbosspalette = vbound(value/10000, -1, 29);
+			}
+			break;
+		}
+		case CMBTRIGQUAKETIME:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigquaketime = zc_max(value/10000, -1);
+			}
+			break;
+		}
+		case CMBTRIGWAVYTIME:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trigwavytime = zc_max(value/10000, -1);
+			}
+			break;
+		}
+		case CMBTRIGSWORDJINX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_swjinxtime = zc_max(value/10000, -2);
+			}
+			break;
+		}
+		case CMBTRIGITEMJINX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_itmjinxtime = zc_max(value/10000, -2);
+			}
+			break;
+		}
+		case CMBTRIGSHIELDJINX:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_shieldjinxtime = zc_max(value/10000, -2);
+			}
+			break;
+		}
+		case CMBTRIGSTUN:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_stuntime = zc_max(value/10000, -2);
+			}
+			break;
+		}
+		case CMBTRIGBUNNY:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_bunnytime = zc_max(value/10000, -2);
+			}
+			break;
+		}
+		case CMBTRIGPUSHTIME:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_pushtime = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		///----------------------------------------------------------------------------------------------------//
+		//npcdata nd-> Variables
 		
 		#define	SET_NPCDATA_VAR_INT(member, str) \
 		{ \
@@ -21425,6 +22278,7 @@ void set_register(int32_t arg, int32_t value)
 		case REFMAPDATA: ri->mapsref = value; break;
 		case REFSCREENDATA: ri->screenref = value; break;
 		case REFCOMBODATA: ri->combosref = value; break;
+		case REFCOMBOTRIGGER: ri->combotrigref = value; break;
 		case REFSPRITEDATA: ri->spritedataref = value; break;
 		case REFBITMAP: ri->bitmapref = value; break;
 		case REFNPCCLASS: ri->npcdataref = value; break;
