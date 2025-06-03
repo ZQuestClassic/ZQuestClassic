@@ -157,15 +157,20 @@ namespace combo_caches
 
 	struct minicombo_trigger_group
 	{
-		bool less : 1;
-		bool greater : 1;
+		bool tgroup : 1;
 
 		minicombo_trigger_group() = default;
 		minicombo_trigger_group(const newcombo& combo)
 		{
-			// TODO TriggerSplit
-			// less = combo.triggerflags[3] & combotriggerTGROUP_LESS;
-			// greater = combo.triggerflags[3] & combotriggerTGROUP_GREATER;
+			tgroup = false;
+			for(auto& trig : combo.triggers)
+			{
+				if(trig.triggerflags[3] & (combotriggerTGROUP_LESS|combotriggerTGROUP_GREATER))
+				{
+					tgroup = true;
+					break;
+				}
+			}
 		}
 	};
 	extern combo_cache<minicombo_trigger_group> trigger_group;

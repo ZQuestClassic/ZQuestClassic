@@ -3548,11 +3548,12 @@ void trig_trigger_groups()
 		}
 
 		int cid = handle.data();
-		// auto* mini_cmb = &combo_cache.minis[cid];
 
 		bool recheck = false;
 		do
 		{
+			if (!combo_cache.minis[cid].tgroup)
+				break;
 			auto& cmb = combobuf[cid];
 			recheck = false;
 			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
@@ -3579,7 +3580,6 @@ void trig_trigger_groups()
 
 				if (cid != cid2)
 				{
-					// mini_cmb = &combo_cache.minis[cid2];
 					cid = cid2;
 					recheck = true;
 					break;
