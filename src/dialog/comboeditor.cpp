@@ -2363,17 +2363,14 @@ void ComboEditorDialog::add_combo_trigger(size_t pos, bool copied)
 	combo_trigger& trig = *local_comboref.triggers.emplace(std::next(local_comboref.triggers.begin(), pos));
 	
 	if(copied)
-	{
 		trig = *copied_trigger;
-		refresh_dlg();
-	}
-	else if(call_trigger_editor(*this, pos))
+	else if(!call_trigger_editor(*this, pos))
 	{
-		trigger_index = pos;
-		refresh_dlg();
-	}
-	else
 		local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), pos));
+		return;
+	}
+	trigger_index = pos;
+	refresh_dlg();
 }
 
 std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
