@@ -776,6 +776,13 @@ GUI::ListData GUI::ZCListData::dirs(int count, bool none)
 		ls.add(dirstrs[q],q);
 	return ls;
 }
+GUI::ListData GUI::ZCListData::doorsets()
+{
+	GUI::ListData ls;
+	for (int q = 0; q < door_combo_set_count; q++)
+		ls.add(DoorComboSetNames[q].c_str(), q);
+	return ls;
+}
 //SCRIPTS
 static void load_scriptnames(std::set<std::string> &names, std::map<std::string, int32_t> &vals,
 	std::map<int32_t, script_slot_data> scrmap, int32_t count)
@@ -1397,4 +1404,22 @@ GUI::ListData const& GUI::ZCListData::heroanimations()
 GUI::ListData const& GUI::ZCListData::swimtypes()
 {
 	return swim_types;
+}
+
+static const GUI::ListData door_types
+{
+	{ "(None)", dNONE},
+	{ "Wall", dWALL},
+	{ "Open", dOPEN},
+	{ "Locked", dLOCKED},
+	{ "Shutter", dSHUTTER},
+	{ "Bombable", dBOMB},
+	{ "Walk-through", dWALK},
+	{ "1-Way Shutter", d1WAYSHUTTER},
+	{ "Boss", dBOSS}
+};
+
+GUI::ListData const& GUI::ZCListData::doortypes()
+{
+	return door_types;
 }
