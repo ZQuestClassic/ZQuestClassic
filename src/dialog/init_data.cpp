@@ -58,6 +58,10 @@ void InitDataDialog::setOfs(size_t ofs)
 		l_comp[q]->setVisible(vis);
 		l_bkey[q]->setVisible(vis);
 		l_mcguff[q]->setVisible(vis);
+		l_bkill[q]->setVisible(vis);
+		l_custom1[q]->setVisible(vis);
+		l_custom2[q]->setVisible(vis);
+		l_custom3[q]->setVisible(vis);
 		l_keys[q]->setVisible(vis);
 	}
 }
@@ -161,37 +165,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::VAL_FIELD_IMPL(T minval, T maxval, 
 			*member = val;
 		}
 	);
-}
-
-std::shared_ptr<GUI::Widget> InitDataDialog::LEVEL_FIELD(int ind)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-#define LEVEL_CBOX(arr, flag) \
-arr[ind] = Checkbox(checked = local_zinit.litems[ind+levelsOffset]&flag, \
-	onToggleFunc = [&, ind](bool state) \
-	{ \
-		SETFLAG(local_zinit.litems[ind+levelsOffset], flag, state); \
-	})
-	return Row(
-		padding = 0_px,
-		l_lab[ind] = Label(text = std::to_string(ind), width = 3_em, textAlign = 2),
-		LEVEL_CBOX(l_maps, liMAP),
-		LEVEL_CBOX(l_comp, liCOMPASS),
-		LEVEL_CBOX(l_bkey, liBOSSKEY),
-		LEVEL_CBOX(l_mcguff, liTRIFORCE),
-		LEVEL_CBOX(l_bkill, liBOSS),
-		LEVEL_CBOX(l_custom1, liCUSTOM01),
-		LEVEL_CBOX(l_custom2, liCUSTOM02),
-		LEVEL_CBOX(l_custom3, liCUSTOM03),
-		l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
-			val = local_zinit.level_keys[ind+levelsOffset], high = 255,
-			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_zinit.level_keys[ind+levelsOffset] = val;
-			})
-	);
-#undef LEVEL_CBOX
 }
 
 std::shared_ptr<GUI::Widget> InitDataDialog::BTN_100(int val)
@@ -456,6 +429,51 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	
 	std::shared_ptr<GUI::TabPanel> tabs;
 	
+	std::shared_ptr<GUI::Grid> litem_grid = Rows_Columns<10, 6>(spacing = isZC ? 1_px : DEFAULT_PADDING);
+	// fill the litems via loop
+	for(int ind = 0; ind < 10; ++ind)
+	{
+		if(ind % 5 == 0) // add header
+		{
+			litem_grid->add(_d);
+			litem_grid->add(Label(text = "M", padding = 0_px));
+			litem_grid->add(Label(text = "C", padding = 0_px));
+			litem_grid->add(Label(text = "B", padding = 0_px));
+			litem_grid->add(Label(text = "T", padding = 0_px));
+			litem_grid->add(Label(text = "D", padding = 0_px));
+			litem_grid->add(Label(text = "C1", padding = 0_px));
+			litem_grid->add(Label(text = "C2", padding = 0_px));
+			litem_grid->add(Label(text = "C3", padding = 0_px));
+			litem_grid->add(Label(text = "Key", padding = 0_px));
+		}
+		#define LEVEL_CBOX(arr, flag) \
+		arr[ind] = Checkbox(checked = local_zinit.litems[ind+levelsOffset]&flag, \
+			padding = 0_px, \
+			onToggleFunc = [&, ind](bool state) \
+			{ \
+				SETFLAG(local_zinit.litems[ind+levelsOffset], flag, state); \
+			})
+		litem_grid->add(l_lab[ind] = Label(text = std::to_string(ind),
+			textAlign = 2, hAlign = 1.0, minwidth = 2_em
+		));
+		litem_grid->add(LEVEL_CBOX(l_maps, liMAP));
+		litem_grid->add(LEVEL_CBOX(l_comp, liCOMPASS));
+		litem_grid->add(LEVEL_CBOX(l_bkey, liBOSSKEY));
+		litem_grid->add(LEVEL_CBOX(l_mcguff, liTRIFORCE));
+		litem_grid->add(LEVEL_CBOX(l_bkill, liBOSS));
+		litem_grid->add(LEVEL_CBOX(l_custom1, liCUSTOM01));
+		litem_grid->add(LEVEL_CBOX(l_custom2, liCUSTOM02));
+		litem_grid->add(LEVEL_CBOX(l_custom3, liCUSTOM03));
+		litem_grid->add(l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
+			val = local_zinit.level_keys[ind+levelsOffset], high = 255, padding = 0_px,
+			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_zinit.level_keys[ind+levelsOffset] = val;
+			}
+		));
+		#undef LEVEL_CBOX
+	}
+	
 	window = Window(
 		padding = 3_px,
 		title = "Init Data",
@@ -494,42 +512,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							"\nT = Dungeon Treasure (McGuffin)"
 							"\nD = Boss Defeated"
 							"\nC1, C2, C3 = Custom LItems",
-						Columns<6>(
-							Row(
-								DummyWidget(width = 3_em),
-								Label(text = "M", textAlign = 0, width = 14_px+12_px),
-								Label(text = "C", textAlign = 0, width = 14_px+12_px),
-								Label(text = "B", textAlign = 0, width = 14_px+12_px),
-								Label(text = "T", textAlign = 0, width = 14_px+12_px),
-								Label(text = "D", textAlign = 0, width = 14_px+12_px),
-								Label(text = "C1", textAlign = 0, width = 14_px+12_px),
-								Label(text = "C2", textAlign = 0, width = 14_px+12_px),
-								Label(text = "C3", textAlign = 0, width = 14_px+12_px),
-								Label(text = "Key", textAlign = 1, width = 2.5_em)
-							),
-							LEVEL_FIELD(0),
-							LEVEL_FIELD(1),
-							LEVEL_FIELD(2),
-							LEVEL_FIELD(3),
-							LEVEL_FIELD(4),
-							Row(
-								DummyWidget(width = 3_em),
-								Label(text = "M", textAlign = 0, width = 14_px+12_px),
-								Label(text = "C", textAlign = 0, width = 14_px+12_px),
-								Label(text = "B", textAlign = 0, width = 14_px+12_px),
-								Label(text = "T", textAlign = 0, width = 14_px+12_px),
-								Label(text = "D", textAlign = 0, width = 14_px+12_px),
-								Label(text = "C1", textAlign = 0, width = 14_px+12_px),
-								Label(text = "C2", textAlign = 0, width = 14_px+12_px),
-								Label(text = "C3", textAlign = 0, width = 14_px+12_px),
-								Label(text = "Key", textAlign = 1, width = 2.5_em)
-							),
-							LEVEL_FIELD(5),
-							LEVEL_FIELD(6),
-							LEVEL_FIELD(7),
-							LEVEL_FIELD(8),
-							LEVEL_FIELD(9)
-						)
+						litem_grid
 					)
 				)),
 				TabRef(name = "Vars", TabPanel(ptr = &vartab,

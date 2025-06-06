@@ -12105,7 +12105,7 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 		
         for (int32_t q = 0; q < wMax; q++) // Hero defense values
         {
-            if (!p_putc(hero_defence[q], f))
+            if (!p_putc(hero_defenses[q], f))
                 new_return(15);
         }
 		//}

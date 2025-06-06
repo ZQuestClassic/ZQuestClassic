@@ -57,7 +57,7 @@ extern int32_t draw_screen_clip_rect_y1;
 extern int32_t draw_screen_clip_rect_y2;
 
 int32_t hero_count = -1;
-int32_t hero_animation_speed = 1; //lower is faster animation
+extern int32_t hero_animation_speed; //lower is faster animation
 static int32_t z3step = 2;
 static zfix hero_newstep(1.5);
 static zfix hero_newstep_diag(1.5);
@@ -1778,7 +1778,7 @@ void HeroClass::init()
 	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
 	for ( int32_t q = 0; q < wMax; q++ ) 
 	{
-		defence[q] = hero_defence[q]; //we will need to have a Hero section in the quest load/save code! -Z Added 3/26/21 - Jman
+		defence[q] = hero_defenses[q]; //we will need to have a Hero section in the quest load/save code! -Z Added 3/26/21 - Jman
 	}
 	
 	clear_ice();
