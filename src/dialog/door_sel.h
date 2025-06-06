@@ -14,24 +14,26 @@ class DoorSelDialog : public GUI::Dialog<DoorSelDialog>
 {
 public:
 	enum class message {
-		OK, CANCEL, CLEAR
+		REFR_INFO, OK, CANCEL, CLEAR
 	};
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	DoorSelDialog();
+	DoorSelDialog(mapscr const& ref);
 	GUI::ListData list_doortypes, list_doorsets;
 
-	mapscr* m;
+	mapscr const& screen;
 	byte doors[4];
-	word dcs;
-	word old_dcs;
+	word door_combo_set;
+	word old_door_combo_set;
 
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Widget> DoorDDL(byte direction);
-
+	
+	void set_doors();
+	
 	friend bool call_doorseldialog();
 };
 #endif

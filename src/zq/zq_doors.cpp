@@ -30,7 +30,7 @@ word door_combo_set_count;
 int32_t onDoors()
 {
     call_doorseldialog();
-    refresh(rMAP + rCOMBOS);
+    refresh(rMAP | rCOMBOS);
     return D_O_K;
 }
 

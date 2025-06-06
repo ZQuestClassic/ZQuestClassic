@@ -3,25 +3,59 @@
 #include "gui/key.h"
 #include "alert.h"
 #include "zc_list_data.h"
+#include "zq/render.h"
+#include "zq/zq_misc.h"
+#include "zq/zquest.h"
 
 using std::string;
 using std::to_string;
 
 extern bool saved;
 
-static bool edited = false;
+void set_dlg_active(bool active)
+{
+	pause_dlg_tint(active);
+	zq_set_screen_never_freeze(active);
+}
+#define DOORSEL_INFOBTN(inf) \
+Button(forceFitH = true, text = "?", \
+	onClick = message::REFR_INFO, \
+	onPressFunc = [=]() \
+	{ \
+		set_dlg_active(false); \
+		displayinfo("Info",inf); \
+		set_dlg_active(true); \
+	})
 
 bool call_doorseldialog()
 {
-	edited = false;
-	DoorSelDialog().show();
+	set_dlg_active(true);
+	Map.StartListCommand();
+	DoorSelDialog(*Map.CurrScr()).show();
+	set_dlg_active(false);
 	return true;
 }
 
-DoorSelDialog::DoorSelDialog() :
+DoorSelDialog::DoorSelDialog(mapscr const& ref) :
+	screen(ref),
 	list_doortypes(GUI::ZCListData::doortypes()),
 	list_doorsets(GUI::ZCListData::doorsets())
-{}
+{
+	door_combo_set = (old_door_combo_set = screen.door_combo_set);
+	for (int q = 0; q < 4; q++)
+		doors[q] = screen.door[q];;
+}
+
+void DoorSelDialog::set_doors()
+{
+	//Recover the combos that were there previously!
+	Map.RevokeListCommand();
+	Map.StartListCommand();
+	Map.DoSetDCSCommand(door_combo_set);
+	for (int q = 0; q < 4; q++)
+		Map.DoPutDoorCommand(q,doors[q],door_combo_set!=old_door_combo_set);
+	refresh(rMAP | rNOCURSOR);
+}
 
 std::shared_ptr<GUI::Widget> DoorSelDialog::DoorDDL(byte dir)
 {
@@ -31,11 +65,11 @@ std::shared_ptr<GUI::Widget> DoorSelDialog::DoorDDL(byte dir)
 	return DropDownList(
 		data = list_doortypes,
 		selectedValue = doors[dir],
-		fitParent = true,
-		width = 6_em,
-		onSelectFunc = [&](int32_t val)
+		minwidth = 6_em,
+		onSelectFunc = [&, dir](int32_t val)
 		{
 			doors[dir] = val;
+			set_doors();
 		}
 	);
 }
@@ -46,34 +80,27 @@ std::shared_ptr<GUI::Widget> DoorSelDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 
-	m = Map.CurrScr();
-	memcpy(doors, m->door, 4);
-	dcs = m->door_combo_set;
-	old_dcs = dcs;
-
 	window = Window(
 		title = "Select Door",
 		onClose = message::CANCEL,
 		Column(
-			Label(text = "Note: This only apply to 'NES Dungeon style' screens!", vAlign = 0, topPadding = 0.25_em, bottomPadding = 0.5_em),
-			//
-			DoorDDL(up),
-			//
-			Row(DoorDDL(left), DoorDDL(right)),
-			//
-			DoorDDL(down),
-			//
-			Label(text = "Door Combo Set", vAlign = 0, topPadding = 0.25_em, bottomPadding = 0.5_em),
-			//
-			DropDownList(
-				data = list_doorsets,
-				selectedValue = dcs,
-				fitParent = true,
-				onSelectFunc = [&](int32_t val) {
-					dcs = val; 
-					if (dcs != old_dcs)
-						edited = true;
-				}
+			Label(text = "Note: This only applies to 'NES Dungeon style' screens!"),
+			Column(
+				DoorDDL(up),
+				Row(DoorDDL(left), DoorDDL(right)),
+				DoorDDL(down)
+			),
+			Rows<2>(
+				Label(text = "Door Combo Set"),
+				DropDownList(
+					data = list_doorsets,
+					selectedValue = door_combo_set,
+					fitParent = true,
+					onSelectFunc = [&](int32_t val) {
+						door_combo_set = val;
+						set_doors();
+					}
+				)
 			),
 			Row(hPadding = 1_em,
 				Button(width = 90_px, text = "Ok", onClick = message::OK),
@@ -92,33 +119,24 @@ bool DoorSelDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::CLEAR:
 		{
-			for (int q = 0; q < 4; q++) doors[q] = dNONE;
+			for (int q = 0; q < 4; q++)
+				doors[q] = dNONE;
+			set_doors();
 			rerun_dlg = true;
-			return false;
-			break;
+			return true;
 		}
 		case message::OK:
 		{
-			for (int q = 0; q < 4; q++) {
-				if(doors[q] != m->door[q]) {
-					edited = true;
-					break;
-				}
-			}
-			if (edited)
-			{
-				for (int q = 0; q < 4; q++)
-					m->door[q] = doors[q];
-				m->door_combo_set = dcs;
-				saved = false;
-			}
+			Map.FinishListCommand();
+			saved = false;
+			return true;
 		}
-		[[fallthrough]];
 		case message::CANCEL:
 		default:
 		{
+			Map.RevokeListCommand();
 			return true;
-			break;
 		}
 	}
 }
+
