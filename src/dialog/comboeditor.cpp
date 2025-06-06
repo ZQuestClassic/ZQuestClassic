@@ -2727,16 +2727,19 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							Columns<5>(
 								trigbtnAddCursor = Button(text = "Add (at cursor)",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										add_combo_trigger(trigger_index+1);
 									}),
 								trigbtnAddEnd = Button(text = "Add (at end)",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										add_combo_trigger(local_comboref.triggers.size());
 									}),
 								trigbtnCopy = Button(text = "Copy",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0) return;
@@ -2744,6 +2747,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										refresh_dlg();
 									}),
 								trigbtnEdit = Button(text = "Edit",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0) return;
@@ -2751,6 +2755,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 											refresh_dlg();
 									}),
 								trigbtnDelete = Button(text = "Delete",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0) return;
@@ -2769,16 +2774,19 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									}),
 								//
 								trigbtnPasteNewCursor = Button(text = "Paste New (at cursor)",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										add_combo_trigger(trigger_index+1, true);
 									}),
 								trigbtnPasteNewEnd = Button(text = "Paste New (at end)",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										add_combo_trigger(local_comboref.triggers.size(), true);
 									}),
 								trigbtnPaste = Button(text = "Paste",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0 || !copied_trigger) return;
@@ -2786,6 +2794,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										refresh_dlg();
 									}),
 								trigbtnUp = Button(text = "Up",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 1) return;
@@ -2794,6 +2803,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										refresh_dlg();
 									}),
 								trigbtnDown = Button(text = "Down",
+									fitParent = true,
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1) return;
