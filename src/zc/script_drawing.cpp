@@ -9602,6 +9602,12 @@ mapscr *getmapscreen(int32_t map_index, int32_t screen_index, int32_t layer)   /
 	return &(TheMaps[index]);
 }
 
+static bool transparent_combo(int32_t id)
+{
+	if(unsigned(id) >= MAXCOMBOS) return false;
+	return bool(combobuf[id].animflags & AF_TRANSPARENT);
+}
+
 void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transparent)
 {
 	for(int32_t i(0); i < 176; ++i)
@@ -9609,7 +9615,7 @@ void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transpar
 		const int32_t x2 = ((i&15)<<4) + x;
 		const int32_t y2 = (i&0xF0) + y;
 		
-		if(transparent)
+		if(transparent != transparent_combo(m.data[i]))
 		{
 			overcomboblocktranslucent(b, x2, y2, m.data[i], m.cset[i], 1, 1, 128);
 		}
@@ -10118,7 +10124,7 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
                 const newcombo & c = combobuf[ l.data[i] ];
                 const int32_t tile = combo_tile(c, x2, y2);
                 
-                if(opacity < 128)
+                if(opacity < 128 != transparent_combo(l.data[i]))
 		{	
 		    overcomboblocktranslucent(b, x2, y2, l.data[i], l.cset[i], 1, 1, 128);
 		
@@ -10268,8 +10274,8 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
             {
                 const newcombo & c = combobuf[ l.data[i] ];
                 const int32_t tile = combo_tile(c, x2, y2);
-                
-                if(opacity < 128)
+				
+                if(opacity < 128 != transparent_combo(l.data[i]))
                     overtiletranslucent16(refbmp, tile, x2, y2, l.cset[i], c.flip, opacity);
                 else
                     overtile16(refbmp, tile, x2, y2, l.cset[i], c.flip);
