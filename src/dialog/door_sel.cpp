@@ -15,7 +15,7 @@ bool call_doorseldialog()
 {
 	edited = false;
 	DoorSelDialog().show();
-	return edited;
+	return true;
 }
 
 DoorSelDialog::DoorSelDialog() :
@@ -107,18 +107,18 @@ bool DoorSelDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			if (edited)
 			{
-				memcpy(m->door, doors, 4);
+				for (int q = 0; q < 4; q++)
+					m->door[q] = doors[q];
 				m->door_combo_set = dcs;
+				saved = false;
 			}
-			return true;
-			break;
 		}
+		[[fallthrough]];
 		case message::CANCEL:
+		default:
 		{
 			return true;
 			break;
 		}
-		default:
-			return false;
 	}
 }
