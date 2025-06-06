@@ -25,6 +25,7 @@ enum lift_flags : uint8_t
 #define NUM_COMBO_ATTRIBYTES            8
 #define NUM_COMBO_ATTRISHORTS           8
 
+#define MAX_COMBO_TRIGGERS              255
 ///user flags
 #define cflag1                          0x00001
 #define cflag2                          0x00002
@@ -67,26 +68,9 @@ enum
 	CMB_ADVP_SZ
 };
 
-struct newcombo
+struct combo_trigger
 {
-	int32_t tile;
-	byte flip;
-	byte walk = 0xF0;
-	byte type;
-	byte csets;
-	byte frames;
-	byte speed;
-	word nextcombo;
-	byte nextcset;
-	byte flag;
-	byte skipanim;
-	word nexttimer;
-	byte skipanimy;
-	byte animflags;
-	byte expansion[6];
-	int32_t attributes[NUM_COMBO_ATTRIBUTES]; // combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
-	int32_t usrflags; // combodata->Flags
-	int16_t genflags; // general flags
+	string label;
 	int32_t triggerflags[6];
 	int32_t triggerlevel;
 	byte triggerbtn;
@@ -117,6 +101,36 @@ struct newcombo
 	int16_t trigquaketime = -1, trigwavytime = -1;
 	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_shieldjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
 	byte trig_pushtime = 8;
+	word prompt_cid;
+	byte prompt_cs;
+	int16_t prompt_x = 12;
+	int16_t prompt_y = -8;
+	
+	bool is_blank() const;
+	void clear();
+	bool operator==(combo_trigger const& other) const = default;
+};
+
+struct newcombo
+{
+	int32_t tile;
+	byte flip;
+	byte walk = 0xF0;
+	byte type;
+	byte csets;
+	byte frames;
+	byte speed;
+	word nextcombo;
+	byte nextcset;
+	byte flag;
+	byte skipanim;
+	word nexttimer;
+	byte skipanimy;
+	byte animflags;
+	byte expansion[6];
+	int32_t attributes[NUM_COMBO_ATTRIBUTES]; // combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
+	int32_t usrflags; // combodata->Flags
+	int16_t genflags; // general flags
 	lift_flags liftflags;
 	byte liftlvl;
 	byte liftsfx;
@@ -133,10 +147,6 @@ struct newcombo
 	byte lift_parent_item;
 	byte liftlightrad;
 	byte liftlightshape;
-	word prompt_cid;
-	byte prompt_cs;
-	int16_t prompt_x = 12;
-	int16_t prompt_y = -8;
 	std::string label;
 	byte attribytes[NUM_COMBO_ATTRIBYTES];
 	int16_t attrishorts[NUM_COMBO_ATTRISHORTS];
@@ -150,6 +160,9 @@ struct newcombo
 	zfix speed_add;
 	byte sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing, sfx_tap, sfx_landing, sfx_falling, sfx_drowning, sfx_lava_drowning;
 	byte spr_appear, spr_disappear, spr_walking, spr_standing, spr_falling, spr_drowning, spr_lava_drowning;
+	
+	vector<combo_trigger> triggers;
+	byte only_gentrig;
 	
 	void set_tile(int32_t newtile);
 	void clear();

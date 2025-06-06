@@ -1673,14 +1673,15 @@ class screendata {
 	//   SCREENDOSPAWN
 	internal bool SpawnScreenEnemies();
 
-	// Attempts to trigger the combo at 'layer,pos'. Returns true on success,
-	// false on failure.
+	// Attempts to trigger the combo at 'layer,pos', with it's trigger number 'trig_index'.
+	// Returns true on success, false on failure.
 	//
 	// @zasm
+	//   POP D1
 	//   POP D3
 	//   POP D2
-	//   SCRTRIGGERCOMBO D2 D3
-	internal bool TriggerCombo(int layer, int pos);
+	//   SCRTRIGGERCOMBO2 D2 D3 D1
+	internal bool TriggerCombo(int layer, int pos, int trig_index = 0);
 
 	// Returns the number of the given object type that are present on the
 	// current screen.

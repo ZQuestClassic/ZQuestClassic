@@ -9510,6 +9510,100 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 	new_return(0);
 }
 
+int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigger const& tmp_trig)
+{
+	if(!p_putcstr(tmp_trig.label,f))
+		return 22;
+	for ( int32_t q = 0; q < 6; q++ )
+		if(!p_iputl(tmp_trig.triggerflags[q],f))
+			return 22;
+	if(!p_iputl(tmp_trig.triggerlevel,f))
+		return 23;
+	if(!p_putc(tmp_trig.triggerbtn,f))
+		return 34;
+	if(!p_putc(tmp_trig.triggeritem,f))
+		return 35;
+	if(!p_putc(tmp_trig.trigtimer,f))
+		return 36;
+	if(!p_putc(tmp_trig.trigsfx,f))
+		return 37;
+	if(!p_iputl(tmp_trig.trigchange,f))
+		return 38;
+	if(!p_iputw(tmp_trig.trigprox,f))
+		return 39;
+	if(!p_putc(tmp_trig.trigctr,f))
+		return 40;
+	if(!p_iputl(tmp_trig.trigctramnt,f))
+		return 41;
+	if(!p_putc(tmp_trig.triglbeam,f))
+		return 42;
+	if(!p_putc(tmp_trig.trigcschange,f))
+		return 43;
+	if(!p_iputw(tmp_trig.spawnitem,f))
+		return 44;
+	if(!p_iputw(tmp_trig.spawnenemy,f))
+		return 45;
+	if(!p_putc(tmp_trig.exstate,f))
+		return 46;
+	if(!p_iputl(tmp_trig.spawnip,f))
+		return 47;
+	if(!p_putc(tmp_trig.trigcopycat,f))
+		return 48;
+	if(!p_putc(tmp_trig.trigcooldown,f))
+		return 49;
+	if(!p_iputw(tmp_trig.prompt_cid,f))
+		return 50;
+	if(!p_putc(tmp_trig.prompt_cs,f))
+		return 51;
+	if(!p_iputw(tmp_trig.prompt_x,f))
+		return 52;
+	if(!p_iputw(tmp_trig.prompt_y,f))
+		return 53;
+	if(!p_putc(tmp_trig.trig_lstate,f))
+		return 69;
+	if(!p_putc(tmp_trig.trig_gstate,f))
+		return 70;
+	if(!p_iputl(tmp_trig.trig_statetime,f))
+		return 71;
+	if(!p_iputw(tmp_trig.trig_genscr,f))
+		return 72;
+	if(!p_putc(tmp_trig.trig_group,f))
+		return 76;
+	if(!p_iputw(tmp_trig.trig_group_val,f))
+		return 77;
+	if(!p_putc(tmp_trig.exdoor_dir,f))
+		return 89;
+	if(!p_putc(tmp_trig.exdoor_ind,f))
+		return 90;
+	if(!p_putc(tmp_trig.trig_levelitems,f))
+		return 91;
+	if(!p_iputw(tmp_trig.trigdmlevel,f))
+		return 92;
+	for(int q = 0; q < 3; ++q)
+		if(!p_iputw(tmp_trig.trigtint[q],f))
+			return 93;
+	if(!p_iputw(tmp_trig.triglvlpalette,f))
+		return 94;
+	if(!p_iputw(tmp_trig.trigbosspalette,f))
+		return 95;
+	if(!p_iputw(tmp_trig.trigquaketime,f))
+		return 96;
+	if(!p_iputw(tmp_trig.trigwavytime,f))
+		return 97;
+	if(!p_iputw(tmp_trig.trig_swjinxtime,f))
+		return 98;
+	if(!p_iputw(tmp_trig.trig_itmjinxtime,f))
+		return 99;
+	if(!p_iputw(tmp_trig.trig_stuntime,f))
+		return 100;
+	if(!p_iputw(tmp_trig.trig_bunnytime,f))
+		return 101;
+	if(!p_putc(tmp_trig.trig_pushtime,f))
+		return 102;
+	if (!p_iputw(tmp_trig.trig_shieldjinxtime, f))
+		return 103;
+	return 0;
+}
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb)
 {
 	//Check what needs writing
@@ -9523,34 +9617,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			break;
 		}
 	}
-	if (tmp_cmb.triggerflags[0] || tmp_cmb.triggerflags[1]
-		|| tmp_cmb.triggerflags[2] || tmp_cmb.triggerflags[3]
-		|| tmp_cmb.triggerflags[4] || tmp_cmb.triggerflags[5]
-		|| tmp_cmb.triggerlevel || tmp_cmb.trig_lstate
-		|| tmp_cmb.trig_gstate || tmp_cmb.trig_statetime
-		|| tmp_cmb.triggerbtn || tmp_cmb.triggeritem
-		|| tmp_cmb.trigtimer || tmp_cmb.trigsfx
-		|| tmp_cmb.trigchange || tmp_cmb.trigprox
-		|| tmp_cmb.trigctr || tmp_cmb.trigctramnt
-		|| tmp_cmb.triglbeam || tmp_cmb.trigcschange
-		|| tmp_cmb.spawnitem || tmp_cmb.spawnenemy
-		|| tmp_cmb.exstate > -1 || tmp_cmb.spawnip
-		|| tmp_cmb.exdoor_dir > -1
-		|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown
-		|| tmp_cmb.trig_genscr || tmp_cmb.trig_group
-		|| tmp_cmb.trig_group_val || tmp_cmb.trig_levelitems
-		|| tmp_cmb.trigdmlevel > -1
-		|| tmp_cmb.triglvlpalette > -1 || tmp_cmb.trigbosspalette > -1
-		|| tmp_cmb.trigquaketime > -1 || tmp_cmb.trigwavytime > -1
-		|| tmp_cmb.trig_swjinxtime > -2 || tmp_cmb.trig_itmjinxtime > -2
-		|| tmp_cmb.trig_stuntime > -2 || tmp_cmb.trig_bunnytime > -2
-		|| tmp_cmb.trig_pushtime != 8 || tmp_cmb.trig_shieldjinxtime > -2
-		|| tmp_cmb.prompt_cid || tmp_cmb.prompt_cs
-		|| tmp_cmb.prompt_x != 12 || tmp_cmb.prompt_y != -8)
+	if (!tmp_cmb.triggers.empty())
 		combo_has_flags |= CHAS_TRIG;
-	else for(int q = 0; q < 3; ++q)
-		if(tmp_cmb.trigtint[q])
-			combo_has_flags |= CHAS_TRIG;
 	if(tmp_cmb.usrflags || tmp_cmb.genflags)
 		combo_has_flags |= CHAS_FLAG;
 	if(tmp_cmb.frames || tmp_cmb.speed || tmp_cmb.nextcombo
@@ -9666,94 +9734,16 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 	}
 	if(combo_has_flags&CHAS_TRIG)
 	{
-		for ( int32_t q = 0; q < 6; q++ ) 
-			if(!p_iputl(tmp_cmb.triggerflags[q],f))
-				return 22;
-		if(!p_iputl(tmp_cmb.triggerlevel,f))
-			return 23;
-		if(!p_putc(tmp_cmb.triggerbtn,f))
+		byte sz = zc_min(tmp_cmb.triggers.size(), 255);
+		if(!p_putc(sz,f))
 			return 34;
-		if(!p_putc(tmp_cmb.triggeritem,f))
+		for(byte q = 0; q < sz; ++q)
+		{
+			auto ret = writecombo_triggers_loop(f, section_version, tmp_cmb.triggers[q]);
+			if(ret) return ret;
+		}
+		if(!p_putc(tmp_cmb.only_gentrig,f))
 			return 35;
-		if(!p_putc(tmp_cmb.trigtimer,f))
-			return 36;
-		if(!p_putc(tmp_cmb.trigsfx,f))
-			return 37;
-		if(!p_iputl(tmp_cmb.trigchange,f))
-			return 38;
-		if(!p_iputw(tmp_cmb.trigprox,f))
-			return 39;
-		if(!p_putc(tmp_cmb.trigctr,f))
-			return 40;
-		if(!p_iputl(tmp_cmb.trigctramnt,f))
-			return 41;
-		if(!p_putc(tmp_cmb.triglbeam,f))
-			return 42;
-		if(!p_putc(tmp_cmb.trigcschange,f))
-			return 43;
-		if(!p_iputw(tmp_cmb.spawnitem,f))
-			return 44;
-		if(!p_iputw(tmp_cmb.spawnenemy,f))
-			return 45;
-		if(!p_putc(tmp_cmb.exstate,f))
-			return 46;
-		if(!p_iputl(tmp_cmb.spawnip,f))
-			return 47;
-		if(!p_putc(tmp_cmb.trigcopycat,f))
-			return 48;
-		if(!p_putc(tmp_cmb.trigcooldown,f))
-			return 49;
-		if(!p_iputw(tmp_cmb.prompt_cid,f))
-			return 50;
-		if(!p_putc(tmp_cmb.prompt_cs,f))
-			return 51;
-		if(!p_iputw(tmp_cmb.prompt_x,f))
-			return 52;
-		if(!p_iputw(tmp_cmb.prompt_y,f))
-			return 53;
-		if(!p_putc(tmp_cmb.trig_lstate,f))
-			return 69;
-		if(!p_putc(tmp_cmb.trig_gstate,f))
-			return 70;
-		if(!p_iputl(tmp_cmb.trig_statetime,f))
-			return 71;
-		if(!p_iputw(tmp_cmb.trig_genscr,f))
-			return 72;
-		if(!p_putc(tmp_cmb.trig_group,f))
-			return 76;
-		if(!p_iputw(tmp_cmb.trig_group_val,f))
-			return 77;
-		if(!p_putc(tmp_cmb.exdoor_dir,f))
-			return 89;
-		if(!p_putc(tmp_cmb.exdoor_ind,f))
-			return 90;
-		if(!p_putc(tmp_cmb.trig_levelitems,f))
-			return 91;
-		if(!p_iputw(tmp_cmb.trigdmlevel,f))
-			return 92;
-		for(int q = 0; q < 3; ++q)
-			if(!p_iputw(tmp_cmb.trigtint[q],f))
-				return 93;
-		if(!p_iputw(tmp_cmb.triglvlpalette,f))
-			return 94;
-		if(!p_iputw(tmp_cmb.trigbosspalette,f))
-			return 95;
-		if(!p_iputw(tmp_cmb.trigquaketime,f))
-			return 96;
-		if(!p_iputw(tmp_cmb.trigwavytime,f))
-			return 97;
-		if(!p_iputw(tmp_cmb.trig_swjinxtime,f))
-			return 98;
-		if(!p_iputw(tmp_cmb.trig_itmjinxtime,f))
-			return 99;
-		if(!p_iputw(tmp_cmb.trig_stuntime,f))
-			return 100;
-		if(!p_iputw(tmp_cmb.trig_bunnytime,f))
-			return 101;
-		if(!p_putc(tmp_cmb.trig_pushtime,f))
-			return 102;
-		if (!p_iputw(tmp_cmb.trig_shieldjinxtime, f))
-			return 103;
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{

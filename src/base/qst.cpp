@@ -17480,6 +17480,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	for(int32_t i=0; i<combos_used; i++)
 	{
 		temp_combo.clear();
+		combo_trigger& temp_trigger = temp_combo.triggers.emplace_back();
 		
 		if ( section_version >= 11 )
 		{
@@ -17591,64 +17592,64 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			if(section_version>=10) //combo trigger flags
 			{
 				for ( int32_t q = 0; q < 3; q++ )
-					if(!p_igetl(&temp_combo.triggerflags[q],f))
+					if(!p_igetl(&temp_trigger.triggerflags[q],f))
 						return qe_invalid;
 			}
 			else if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
 			{
 				for ( int32_t q = 0; q < 2; q++ )
-					if(!p_igetl(&temp_combo.triggerflags[q],f))
+					if(!p_igetl(&temp_trigger.triggerflags[q],f))
 						return qe_invalid;
 			}
 			if(section_version >= 9)
-				if(!p_igetl(&temp_combo.triggerlevel,f))
+				if(!p_igetl(&temp_trigger.triggerlevel,f))
 					return qe_invalid;
 			if(section_version >= 22)
-				if(!p_getc(&temp_combo.triggerbtn,f))
+				if(!p_getc(&temp_trigger.triggerbtn,f))
 					return qe_invalid;
 			if(section_version >= 24)
 			{
-				if(!p_getc(&temp_combo.triggeritem,f))
+				if(!p_getc(&temp_trigger.triggeritem,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.trigtimer,f))
+				if(!p_getc(&temp_trigger.trigtimer,f))
 					return qe_invalid;
 			}
 			if(section_version >= 25)
-				if(!p_getc(&temp_combo.trigsfx,f))
+				if(!p_getc(&temp_trigger.trigsfx,f))
 					return qe_invalid;
 			if(section_version >= 27)
-				if(!p_igetl(&temp_combo.trigchange,f))
+				if(!p_igetl(&temp_trigger.trigchange,f))
 					return qe_invalid;
 			
 			if(section_version >= 29)
 			{
-				if(!p_igetw(&temp_combo.trigprox,f))
+				if(!p_igetw(&temp_trigger.trigprox,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.trigctr,f))
+				if(!p_getc(&temp_trigger.trigctr,f))
 					return qe_invalid;
-				if(!p_igetl(&temp_combo.trigctramnt,f))
+				if(!p_igetl(&temp_trigger.trigctramnt,f))
 					return qe_invalid;
 			}
 			if(section_version >= 30)
-				if(!p_getc(&temp_combo.triglbeam,f))
+				if(!p_getc(&temp_trigger.triglbeam,f))
 					return qe_invalid;
 			if(section_version >= 31)
 			{
-				if(!p_getc(&temp_combo.trigcschange,f))
+				if(!p_getc(&temp_trigger.trigcschange,f))
 					return qe_invalid;
-				if(!p_igetw(&temp_combo.spawnitem,f))
+				if(!p_igetw(&temp_trigger.spawnitem,f))
 					return qe_invalid;
-				if(!p_igetw(&temp_combo.spawnenemy,f))
+				if(!p_igetw(&temp_trigger.spawnenemy,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.exstate,f))
+				if(!p_getc(&temp_trigger.exstate,f))
 					return qe_invalid;
-				if(!p_igetl(&temp_combo.spawnip,f))
+				if(!p_igetl(&temp_trigger.spawnip,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.trigcopycat,f))
+				if(!p_getc(&temp_trigger.trigcopycat,f))
 					return qe_invalid;
 			}
 			if(section_version >= 32)
-				if(!p_getc(&temp_combo.trigcooldown,f))
+				if(!p_getc(&temp_trigger.trigcooldown,f))
 					return qe_invalid;
 			
 			if(section_version>=12) //combo label
@@ -17748,7 +17749,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 				case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
 				case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 				case cTRIGGERGENERIC: case cCSWITCH:
-					temp_combo.triggerflags[0] |= combotriggerCMBTYPEFX;
+					temp_trigger.triggerflags[0] |= combotriggerCMBTYPEFX;
 			}
 		}
 		if(section_version < 25)
@@ -17770,12 +17771,12 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		
 		if(section_version < 27)
 		{
-			if(temp_combo.triggerflags[0] & 0x00040000) //'next'
-				temp_combo.trigchange = 1;
-			else if(temp_combo.triggerflags[0] & 0x00080000) //'prev'
-				temp_combo.trigchange = -1;
-			else temp_combo.trigchange = 0;
-			temp_combo.triggerflags[0] &= ~(0x00040000|0x00080000);
+			if(temp_trigger.triggerflags[0] & 0x00040000) //'next'
+				temp_trigger.trigchange = 1;
+			else if(temp_trigger.triggerflags[0] & 0x00080000) //'prev'
+				temp_trigger.trigchange = -1;
+			else temp_trigger.trigchange = 0;
+			temp_trigger.triggerflags[0] &= ~(0x00040000|0x00080000);
 		}
 		if(section_version < 28)
 		{
@@ -17828,6 +17829,9 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 					break;
 			}
 		}
+		
+		if(temp_trigger.is_blank())
+			temp_combo.triggers.clear();
 		
 		update_combo(temp_combo, section_version);
 		
@@ -17940,6 +17944,141 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	setup_combo_animations2();
 	return 0;
 }
+
+int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp_trigger)
+{
+	if(s_version >= 52)
+		if(!p_getcstr(&temp_trigger.label,f))
+			return qe_invalid;
+	
+	int numtrigs = s_version < 36 ? 3 : 6;
+	for ( int32_t q = 0; q < numtrigs; q++ )
+		if(!p_igetl(&temp_trigger.triggerflags[q],f))
+			return qe_invalid;
+	if(!p_igetl(&temp_trigger.triggerlevel,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.triggerbtn,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.triggeritem,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.trigtimer,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.trigsfx,f))
+		return qe_invalid;
+	if(!p_igetl(&temp_trigger.trigchange,f))
+		return qe_invalid;
+	if(!p_igetw(&temp_trigger.trigprox,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.trigctr,f))
+		return qe_invalid;
+	if(!p_igetl(&temp_trigger.trigctramnt,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.triglbeam,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.trigcschange,f))
+		return qe_invalid;
+	if(!p_igetw(&temp_trigger.spawnitem,f))
+		return qe_invalid;
+	if(!p_igetw(&temp_trigger.spawnenemy,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.exstate,f))
+		return qe_invalid;
+	if(!p_igetl(&temp_trigger.spawnip,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.trigcopycat,f))
+		return qe_invalid;
+	if(!p_getc(&temp_trigger.trigcooldown,f))
+		return qe_invalid;
+	if(s_version >= 35)
+	{
+		if(!p_igetw(&temp_trigger.prompt_cid,f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.prompt_cs,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.prompt_x,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.prompt_y,f))
+			return qe_invalid;
+	}
+	if(s_version >= 36)
+	{
+		if(!p_getc(&temp_trigger.trig_lstate,f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.trig_gstate,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_trigger.trig_statetime,f))
+			return qe_invalid;
+	}
+	if(s_version >= 37)
+	{
+		if(!p_igetw(&temp_trigger.trig_genscr,f))
+			return qe_invalid;
+	}
+	if(s_version >= 38)
+	{
+		if(!p_getc(&temp_trigger.trig_group,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trig_group_val,f))
+			return qe_invalid;
+	}
+	if(s_version >= 45)
+	{
+		if(!p_getc(&temp_trigger.exdoor_dir,f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.exdoor_ind,f))
+			return qe_invalid;
+	}
+	if(s_version >= 46)
+	{
+		if(!p_getc(&temp_trigger.trig_levelitems,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trigdmlevel,f))
+			return qe_invalid;
+		if(s_version >= 48)
+		{
+			for(int q = 0; q < 3; ++q)
+				if(!p_igetw(&temp_trigger.trigtint[q],f))
+					return qe_invalid;
+		}
+		else
+		{
+			for(int q = 0; q < 3; ++q)
+				if(!p_getc(&temp_trigger.trigtint[q],f))
+					return qe_invalid;
+			for(int q = 0; q < 3; ++q)
+			{
+				int v = temp_trigger.trigtint[q];
+				int va = abs(v);
+				temp_trigger.trigtint[q] = _rgb_scale_6[va] * sign(v);
+			}
+		}
+		if(!p_igetw(&temp_trigger.triglvlpalette,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trigbosspalette,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trigquaketime,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trigwavytime,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trig_swjinxtime,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trig_itmjinxtime,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trig_stuntime,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trig_bunnytime,f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.trig_pushtime,f))
+			return qe_invalid;
+	}
+	if(s_version >= 47)
+	{
+		if (!p_igetw(&temp_trigger.trig_shieldjinxtime, f))
+			return qe_invalid;
+	}
+	return 0;
+}
+
 int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 {
 	byte combo_has_flags;
@@ -18036,131 +18175,26 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		}
 		if(combo_has_flags&CHAS_TRIG)
 		{
-			int numtrigs = s_version < 36 ? 3 : 6;
-			for ( int32_t q = 0; q < numtrigs; q++ )
-				if(!p_igetl(&temp_combo.triggerflags[q],f))
+			byte count = 1;
+			if(s_version >= 52)
+				if(!p_getc(&count, f))
 					return qe_invalid;
-			if(!p_igetl(&temp_combo.triggerlevel,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.triggerbtn,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.triggeritem,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.trigtimer,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.trigsfx,f))
-				return qe_invalid;
-			if(!p_igetl(&temp_combo.trigchange,f))
-				return qe_invalid;
-			if(!p_igetw(&temp_combo.trigprox,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.trigctr,f))
-				return qe_invalid;
-			if(!p_igetl(&temp_combo.trigctramnt,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.triglbeam,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.trigcschange,f))
-				return qe_invalid;
-			if(!p_igetw(&temp_combo.spawnitem,f))
-				return qe_invalid;
-			if(!p_igetw(&temp_combo.spawnenemy,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.exstate,f))
-				return qe_invalid;
-			if(!p_igetl(&temp_combo.spawnip,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.trigcopycat,f))
-				return qe_invalid;
-			if(!p_getc(&temp_combo.trigcooldown,f))
-				return qe_invalid;
-			if(s_version >= 35)
+			
+			for(byte q = 0; q < count; ++q)
 			{
-				if(!p_igetw(&temp_combo.prompt_cid,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.prompt_cs,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.prompt_x,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.prompt_y,f))
-					return qe_invalid;
+				combo_trigger& temp_trigger = temp_combo.triggers.emplace_back();
+				auto ret = readcombo_triggers_loop(f, s_version, temp_trigger);
+				if(ret)
+					return ret;
 			}
-			if(s_version >= 36)
+			
+			if(s_version < 52)
 			{
-				if(!p_getc(&temp_combo.trig_lstate,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.trig_gstate,f))
-					return qe_invalid;
-				if(!p_igetl(&temp_combo.trig_statetime,f))
-					return qe_invalid;
+				if(!temp_combo.triggers.empty())
+					temp_combo.only_gentrig = (temp_combo.triggers[0].triggerflags[0] & combotriggerONLYGENTRIG) ? 1 : 0;
 			}
-			if(s_version >= 37)
-			{
-				if(!p_igetw(&temp_combo.trig_genscr,f))
-					return qe_invalid;
-			}
-			if(s_version >= 38)
-			{
-				if(!p_getc(&temp_combo.trig_group,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.trig_group_val,f))
-					return qe_invalid;
-			}
-			if(s_version >= 45)
-			{
-				if(!p_getc(&temp_combo.exdoor_dir,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.exdoor_ind,f))
-					return qe_invalid;
-			}
-			if(s_version >= 46)
-			{
-				if(!p_getc(&temp_combo.trig_levelitems,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.trigdmlevel,f))
-					return qe_invalid;
-				if(s_version >= 48)
-				{
-					for(int q = 0; q < 3; ++q)
-						if(!p_igetw(&temp_combo.trigtint[q],f))
-							return qe_invalid;
-				}
-				else
-				{
-					for(int q = 0; q < 3; ++q)
-						if(!p_getc(&temp_combo.trigtint[q],f))
-							return qe_invalid;
-					for(int q = 0; q < 3; ++q)
-					{
-						int v = temp_combo.trigtint[q];
-						int va = abs(v);
-						temp_combo.trigtint[q] = _rgb_scale_6[va] * sign(v);
-					}
-				}
-				if(!p_igetw(&temp_combo.triglvlpalette,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.trigbosspalette,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.trigquaketime,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.trigwavytime,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.trig_swjinxtime,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.trig_itmjinxtime,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.trig_stuntime,f))
-					return qe_invalid;
-				if(!p_igetw(&temp_combo.trig_bunnytime,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.trig_pushtime,f))
-					return qe_invalid;
-			}
-			if(s_version >= 47)
-			{
-				if (!p_igetw(&temp_combo.trig_shieldjinxtime, f))
-					return qe_invalid;
-			}
+			else if(!p_getc(&temp_combo.only_gentrig,f))
+				return qe_invalid;
 		}
 		if(combo_has_flags&CHAS_LIFT)
 		{

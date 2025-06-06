@@ -7013,8 +7013,12 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 		for(int32_t q = 0; q < MAXCOMBOS; ++q)
 		{
 			newcombo& cmb = combobuf[q];
-			if(cmb.trigchange)
-				combo_links.add_to(q, q+cmb.trigchange);
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+			{
+				auto& trig = cmb.triggers[idx];
+				if(trig.trigchange)
+					combo_links.add_to(q, q+trig.trigchange);
+			}
 			bool next = cmb.flag == mfSECRETSNEXT;
 			switch(cmb.type)
 			{
@@ -7071,7 +7075,8 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 			ADDC(&cmb.nextcombo, fmt::format("{} - Combo Cycle", lbl));
 			ADDC(&cmb.liftcmb, fmt::format("{} - Lift Combo", lbl));
 			ADDC(&cmb.liftundercmb, fmt::format("{} - Lift Undercombo", lbl));
-			ADDC(&cmb.prompt_cid, fmt::format("{} - Triggers ButtonPrompt", lbl));
+			for(auto& trig : cmb.triggers)
+				ADDC(&trig.prompt_cid, fmt::format("{} - Triggers ButtonPrompt", lbl));
 			
 			//type-specific
 			char const* type_name = ZI.getComboTypeName(cmb.type);
@@ -12680,6 +12685,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		temp_combo.clear();
+		combo_trigger& temp_trigger = temp_combo.triggers.emplace_back();
 		if(!p_igetw(&temp_combo.tile,f))
 		{
 			return 0;
@@ -12769,19 +12775,19 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}	 
 				for ( int32_t q = 0; q < 3; q++ ) 
 				{
-					if(!p_igetl(&temp_combo.triggerflags[q],f))
+					if(!p_igetl(&temp_trigger.triggerflags[q],f))
 					{
 						return 0;
 					}
 				}
 				   
-				if(!p_igetl(&temp_combo.triggerlevel,f))
+				if(!p_igetl(&temp_trigger.triggerlevel,f))
 				{
 						return 0;
 				}
 				if(section_version >= 22)
 				{
-					if(!p_getc(&temp_combo.triggerbtn,f))
+					if(!p_getc(&temp_trigger.triggerbtn,f))
 					{
 						return 0;
 					}
@@ -12793,23 +12799,23 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 						case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
 						case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 						case cTRIGGERGENERIC: case cCSWITCH:
-							temp_combo.triggerflags[0] |= combotriggerCMBTYPEFX;
+							temp_trigger.triggerflags[0] |= combotriggerCMBTYPEFX;
 					}
 				}
 				if(section_version >= 24)
 				{
-					if(!p_getc(&temp_combo.triggeritem,f))
+					if(!p_getc(&temp_trigger.triggeritem,f))
 					{
 						return 0;
 					}
-					if(!p_getc(&temp_combo.trigtimer,f))
+					if(!p_getc(&temp_trigger.trigtimer,f))
 					{
 						return 0;
 					}
 				}
 				if(section_version >= 25)
 				{
-					if(!p_getc(&temp_combo.trigsfx,f))
+					if(!p_getc(&temp_trigger.trigsfx,f))
 					{
 						return 0;
 					}
@@ -12835,95 +12841,95 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				if(section_version >= 27)
 				{
-					if(!p_igetl(&temp_combo.trigchange,f))
+					if(!p_igetl(&temp_trigger.trigchange,f))
 					{
 						return qe_invalid;
 					}
 				}
 				else
 				{
-					if(temp_combo.triggerflags[0] & 0x00040000) //'next'
-						temp_combo.trigchange = 1;
-					else if(temp_combo.triggerflags[0] & 0x00080000) //'prev'
-						temp_combo.trigchange = -1;
-					else temp_combo.trigchange = 0;
-					temp_combo.triggerflags[0] &= ~(0x00040000|0x00080000);
+					if(temp_trigger.triggerflags[0] & 0x00040000) //'next'
+						temp_trigger.trigchange = 1;
+					else if(temp_trigger.triggerflags[0] & 0x00080000) //'prev'
+						temp_trigger.trigchange = -1;
+					else temp_trigger.trigchange = 0;
+					temp_trigger.triggerflags[0] &= ~(0x00040000|0x00080000);
 				}
 				if(section_version >= 29)
 				{
-					if(!p_igetw(&temp_combo.trigprox,f))
+					if(!p_igetw(&temp_trigger.trigprox,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_getc(&temp_combo.trigctr,f))
+					if(!p_getc(&temp_trigger.trigctr,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_igetl(&temp_combo.trigctramnt,f))
+					if(!p_igetl(&temp_trigger.trigctramnt,f))
 					{
 						return qe_invalid;
 					}
 				}
 				else
 				{
-					temp_combo.trigprox = 0;
-					temp_combo.trigctr = 0;
-					temp_combo.trigctramnt = 0;
+					temp_trigger.trigprox = 0;
+					temp_trigger.trigctr = 0;
+					temp_trigger.trigctramnt = 0;
 				}
 				if(section_version >= 30)
 				{
-					if(!p_getc(&temp_combo.triglbeam,f))
+					if(!p_getc(&temp_trigger.triglbeam,f))
 					{
 						return qe_invalid;
 					}
 				}
-				else temp_combo.triglbeam = 0;
+				else temp_trigger.triglbeam = 0;
 				if(section_version >= 31)
 				{
-					if(!p_getc(&temp_combo.trigcschange,f))
+					if(!p_getc(&temp_trigger.trigcschange,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_igetw(&temp_combo.spawnitem,f))
+					if(!p_igetw(&temp_trigger.spawnitem,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_igetw(&temp_combo.spawnenemy,f))
+					if(!p_igetw(&temp_trigger.spawnenemy,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_getc(&temp_combo.exstate,f))
+					if(!p_getc(&temp_trigger.exstate,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_igetl(&temp_combo.spawnip,f))
+					if(!p_igetl(&temp_trigger.spawnip,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_getc(&temp_combo.trigcopycat,f))
+					if(!p_getc(&temp_trigger.trigcopycat,f))
 					{
 						return qe_invalid;
 					}
 				}
 				else
 				{
-					temp_combo.trigcschange = 0;
-					temp_combo.spawnitem = 0;
-					temp_combo.spawnenemy = 0;
-					temp_combo.exstate = -1;
-					temp_combo.spawnip = 0;
-					temp_combo.trigcopycat = 0;
+					temp_trigger.trigcschange = 0;
+					temp_trigger.spawnitem = 0;
+					temp_trigger.spawnenemy = 0;
+					temp_trigger.exstate = -1;
+					temp_trigger.spawnip = 0;
+					temp_trigger.trigcopycat = 0;
 				}
 				if(section_version >= 32)
 				{
-					if(!p_getc(&temp_combo.trigcooldown,f))
+					if(!p_getc(&temp_trigger.trigcooldown,f))
 					{
 						return qe_invalid;
 					}
 				}
 				else
 				{
-					temp_combo.trigcooldown = 0;
+					temp_trigger.trigcooldown = 0;
 				}
 				char label[12];
 				label[11] = '\0';

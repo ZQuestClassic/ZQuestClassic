@@ -3918,7 +3918,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     int32_t flag2 = MAPCOMBOFLAGL(layer,bx,by);
     int32_t cid = MAPCOMBOL(layer,bx,by);
     int32_t type = combobuf[cid].type;
-	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+	if(combobuf[cid].only_gentrig)
 		type = cNONE;
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
@@ -4043,7 +4043,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		ignorescreen = true;
 	}
-	else if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
+	else if(cmb.only_gentrig)
 		ignorescreen = true;
 	
 	
@@ -4051,7 +4051,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		ignoreffc = true;
 	}
-	else if(cmb_ff.triggerflags[0] & combotriggerONLYGENTRIG)
+	else if(cmb_ff.only_gentrig)
 		ignoreffc = true;
 	
 	if(!isCuttableType(type) &&
@@ -4439,7 +4439,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     int32_t flag2 = MAPCOMBOFLAGL(layer,bx,by);
     int32_t cid = MAPCOMBOL(layer,bx,by);
     int32_t type = combobuf[cid].type;
-	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+	if(combobuf[cid].only_gentrig)
 		type = cNONE;
 	
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
@@ -4574,19 +4574,19 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     int32_t flag = MAPFLAG(bx,by);
     int32_t flag2 = MAPCOMBOFLAG(bx,by);
     int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
-	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+	if(combobuf[cid].only_gentrig)
 		type = cNONE;
     byte dontignore = 0;
     byte dontignoreffc = 0;
     
-	    if (isCuttableType(type) && MatchComboTrigger(w, cid))
+	    if (isCuttableType(type) && FindComboTriggerMatch(w, cid) > -1)
 	    {
 		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
 		dontignore = 1;
 	    }
     
 	    /*to-do, ffcs
-	    if (isCuttableType(type2) && MatchComboTrigger(w, cid))
+	    if (isCuttableType(type2) && FindComboTriggerMatch(w, cid) > -1)
 	    {
 		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
 		dontignoreffc = 1;
@@ -4612,7 +4612,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[current_ffc_handle->data()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[current_ffc_handle->data()].only_gentrig)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4903,8 +4903,8 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     int32_t cid = MAPCOMBO(bx,by);
    
     //Z_scripterrlog("check_wand_block2 MatchComboTrigger() returned: %d\n", );
-    if(w->useweapon != wWand && !MatchComboTrigger (w, cid)) return;
-    if ( MatchComboTrigger (w, cid) ) dontignore = 1;
+    if(w->useweapon != wWand && FindComboTriggerMatch (w, cid) < 0) return;
+    if ( FindComboTriggerMatch (w, cid) != -1 ) dontignore = 1;
     
     //first things first
     if(z>8||fakez>8) return;
@@ -4987,7 +4987,7 @@ void HeroClass::check_slash_block(weapon *w)
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
     int32_t i = rpos_handle.pos;
         
-	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+	if(combobuf[cid].only_gentrig)
 		type = cNONE;
     bool ignorescreen=false;
     bool ignoreffc=false;
@@ -5003,7 +5003,7 @@ void HeroClass::check_slash_block(weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[current_ffc_handle->data()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[current_ffc_handle->data()].only_gentrig)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -7050,7 +7050,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	{
 		cid[0] = layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1);
 		newcombo& cmb = combobuf[cid[0]];
-		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
 				hp_mod[0] = cmb.attributes[0] / -10000L;
@@ -7063,7 +7063,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	{
 		cid[1] = layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2);
 		newcombo& cmb = combobuf[cid[1]];
-		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
 				hp_mod[1] = cmb.attributes[0] / -10000L;
@@ -7076,7 +7076,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	{
 		cid[2] = layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1);
 		newcombo& cmb = combobuf[cid[2]];
-		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
 				hp_mod[2] = cmb.attributes[0] / -10000L;
@@ -7089,7 +7089,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	{
 		cid[3] = layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2);
 		newcombo& cmb = combobuf[cid[3]];
-		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
 				hp_mod[3] = cmb.attributes[0] / -10000L;
@@ -7167,7 +7167,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		ffc_ids[0] = ffc_handle ? ffc_handle->id : -1;
 		cid[4] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[4]];
-		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
 				hp_mod[0] = cmb.attributes[0]/-10000L;
@@ -7182,7 +7182,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		ffc_ids[1] = ffc_handle ? ffc_handle->id : -1;
 		cid[5] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[5]];
-		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
 				hp_mod[1] = cmb.attributes[0]/-10000L;
@@ -7197,7 +7197,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		ffc_ids[2] = ffc_handle ? ffc_handle->id : -1;
 		cid[6] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[6]];
-		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
 				hp_mod[2] = cmb.attributes[0]/-10000L;
@@ -7212,7 +7212,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		ffc_ids[3] = ffc_handle ? ffc_handle->id : -1;
 		cid[7] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[7]];
-		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
 				hp_mod[3] = cmb.attributes[0]/-10000L;
@@ -9998,6 +9998,7 @@ heroanimate_skip_liftwpn:;
 	// Global Combo Effects (AUTO STUFF)
 	bool awarp = false;
 	for_some_rpos([&](const rpos_handle_t& rpos_handle) {
+		auto cid = rpos_handle.data();
 		newcombo const& cmb = rpos_handle.combo();
 
 		if (!get_qr(qr_AUTOCOMBO_ANY_LAYER))
@@ -10009,13 +10010,18 @@ heroanimate_skip_liftwpn:;
 		int32_t ind=0;
 		
 		//AUTOMATIC TRIGGER CODE
-		if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
-			do_trigger_combo(rpos_handle);
+			auto& trig = cmb.triggers[idx];
+			if (trig.triggerflags[1]&combotriggerAUTOMATIC)
+			{
+				do_trigger_combo(rpos_handle, idx);
+				if(rpos_handle.data() != cid) break;
+			}
 		}
 		
 		//AUTO WARP CODE
-		if (!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+		if (!(cmb.only_gentrig))
 		{
 			if(cmb.type==cAWARPA)
 			{
@@ -10063,14 +10069,19 @@ heroanimate_skip_liftwpn:;
 	for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 		int32_t ind=0;
 		
+		auto cid = ffc_handle.data();
 		auto& cmb = ffc_handle.combo();
-		
-		if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
-			do_trigger_combo(ffc_handle);
+			auto& trig = cmb.triggers[idx];
+			if (trig.triggerflags[1]&combotriggerAUTOMATIC)
+			{
+				do_trigger_combo(ffc_handle, idx);
+				if(ffc_handle.data() != cid) break;
+			}
 		}
 		
-		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+		if(!(cmb.only_gentrig))
 		{
 			if(cmb.type==cAWARPA)
 			{
@@ -12919,13 +12930,21 @@ bool HeroClass::doattack()
 						if (distance(x, y, cx, cy) > rad)
 							return;
 
+						auto cid = handle.data();
 						auto& cmb = handle.combo();
-						if (cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
+						for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 						{
-							if ((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
-								? hmrlvl <= cmb.triggerlevel
-								: hmrlvl >= cmb.triggerlevel)
-								do_trigger_combo(handle);
+							auto& trig = cmb.triggers[idx];
+							if (trig.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
+							{
+								if ((trig.triggerflags[0]&combotriggerINVERTMINMAX)
+									? hmrlvl <= trig.triggerlevel
+									: hmrlvl >= trig.triggerlevel)
+								{
+									do_trigger_combo(handle, idx);
+									if(handle.data() != cid) break;
+								}
+							}
 						}
 					});
 				}
@@ -13047,10 +13066,19 @@ void handle_lens_triggers(int32_t l_id)
 	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & item_flag6);
 	auto& combo_cache = combo_caches::lens;
 	for_every_combo([&](const auto& handle) {
-		auto& cmb = combo_cache.minis[handle.data()];
-		if (enabled ? cmb.on : cmb.off)
+		auto cid = handle.data();
+		auto& mini_cmb = combo_cache.minis[cid];
+		if (!(enabled ? mini_cmb.on : mini_cmb.off))
+			return;
+		auto& cmb = handle.combo();
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
-			do_trigger_combo(handle);
+			auto& trig = cmb.triggers[idx];
+			if(trig.triggerflags[1] & (enabled ? combotriggerLENSON : combotriggerLENSOFF))
+			{
+				do_trigger_combo(handle, idx);
+				if(handle.data() != cid) break;
+			}
 		}
 	});
 }
@@ -20859,7 +20887,7 @@ bool HeroClass::checksoliddamage()
 
 	newcombo const& cmb = combobuf[MAPCOMBO(bx, by)];
 	int32_t t = cmb.type;
-	if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
+	if(cmb.only_gentrig)
 		t = cNONE;
 	int32_t initbx = bx;
 	int32_t initby = by;
@@ -20876,7 +20904,7 @@ bool HeroClass::checksoliddamage()
 				auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, i);
 				auto& cmb = rpos_handle.combo();
 				t = cmb.type;
-				if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
+				if(cmb.only_gentrig)
 					t = cNONE;
 				// Solid damage combos use pushing>0, hence the code is here.
 				if (!get_qr(qr_LESS_AWFUL_SIDESPIKES) || !isSideViewHero() || (dir != down && (dir != up || getOnSideviewLadder())))
@@ -21369,7 +21397,7 @@ void HeroClass::oldchecklockblock()
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
 	newcombo const& cmb = combobuf[cid1];
 	newcombo const& cmb2 = combobuf[cid2];
-	if((cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1)))
+	if((cmb.type==cLOCKBLOCK && !(cmb.only_gentrig) && _effectflag(bx,by,1, -1)))
 	{
 		// Context: https://discord.com/channels/876899628556091432/1278165595321405554
 		// Layer 0 is overridden by Locked Doors (but only for dungeons) - in that case, checklocked will clear these combos
@@ -21380,7 +21408,7 @@ void HeroClass::oldchecklockblock()
 			foundlayer = 0;
 		}
 	}
-	else if (cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1))
+	else if (cmb2.type==cLOCKBLOCK && !(cmb2.only_gentrig) && _effectflag(bx2,by,1, -1))
 	{
 		bool ignore_layer_0 = isdungeon() && islockeddoor(bx2,by,dLOCKED);
 		if (!ignore_layer_0)
@@ -21428,13 +21456,13 @@ void HeroClass::oldchecklockblock()
 					if (combobuf[cid2].type == cBRIDGE && _effectflag_layer(bx2,by,1)) continue;
 				}
 			}
-			if(cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))
+			if(cmb.type==cLOCKBLOCK && !(cmb.only_gentrig) && _effectflag(bx,by,1, i))
 			{
 				found1=true;
 				foundlayer = i+1;
 				break;
 			}
-			else if(cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, i))
+			else if(cmb2.type==cLOCKBLOCK && !(cmb2.only_gentrig) && _effectflag(bx2,by,1, i))
 			{
 				found2=true;
 				foundlayer = i+1;
@@ -21522,7 +21550,7 @@ void HeroClass::oldcheckbosslockblock()
 	newcombo const& cmb2 = combobuf[cid2];
 	int cmb_screen_index = 0;
 
-	if((cmb.type==cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1)))
+	if((cmb.type==cBOSSLOCKBLOCK && !(cmb.only_gentrig) && _effectflag(bx,by,1, -1)))
 	{
 		// Context: https://discord.com/channels/876899628556091432/1278165595321405554
 		// Layer 0 is overridden by Locked Doors (but only for dungeons) - in that case, checklocked will clear these combos
@@ -21534,7 +21562,7 @@ void HeroClass::oldcheckbosslockblock()
 			cmb_screen_index = get_screen_for_world_xy(bx, by);
 		}
 	}
-	else if (cmb2.type==cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1))
+	else if (cmb2.type==cBOSSLOCKBLOCK && !(cmb2.only_gentrig) && _effectflag(bx2,by,1, -1))
 	{
 		bool ignore_layer_0 = isdungeon() && islockeddoor(bx2,by,dBOSS);
 		if (!ignore_layer_0)
@@ -21586,14 +21614,14 @@ void HeroClass::oldcheckbosslockblock()
 					}
 				}
 			}
-			if (cmb.type == cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx, by, 1, i))
+			if (cmb.type == cBOSSLOCKBLOCK && !(cmb.only_gentrig) && _effectflag(bx, by, 1, i))
 			{
 				found1 = true;
 				foundlayer = i;
 				cmb_screen_index = get_screen_for_world_xy(bx, by);
 				break;
 			}
-			else if (cmb2.type == cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2, by, 1, i))
+			else if (cmb2.type == cBOSSLOCKBLOCK && !(cmb2.only_gentrig) && _effectflag(bx2, by, 1, i))
 			{
 				found2 = true;
 				foundlayer = i;
@@ -21855,7 +21883,7 @@ void HeroClass::checkchest(int32_t type)
 	
 	newcombo const* cmb = &combobuf[MAPCOMBO(bx,by)];
 	
-	if(cmb->type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1))
+	if(cmb->type==type && !(cmb->only_gentrig) && _effectflag(bx,by,1, -1))
 	{
 		found = MAPCOMBO(bx,by);
 		fx = bx; fy = by;
@@ -21874,7 +21902,7 @@ void HeroClass::checkchest(int32_t type)
 	if(found<0)
 	{
 		cmb = &combobuf[MAPCOMBO(bx2,by2)];
-		if(cmb->type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by2,1, -1))
+		if(cmb->type==type && !(cmb->only_gentrig) && _effectflag(bx2,by2,1, -1))
 		{
 			found = MAPCOMBO(bx2,by2);
 			for (int32_t i = 0; i < 6; ++i)
@@ -21908,7 +21936,7 @@ void HeroClass::checkchest(int32_t type)
 		for(int32_t i=0; i<6; i++)
 		{
 			cmb = &combobuf[MAPCOMBO2(i,bx,by)];
-			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))
+			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && !(cmb->only_gentrig) && _effectflag(bx,by,1, i))
 			{
 				found = MAPCOMBO2(i,bx,by);
 				for(int32_t j = i+1; j < 6; ++j)
@@ -21938,7 +21966,7 @@ void HeroClass::checkchest(int32_t type)
 				}
 			}
 			cmb = &combobuf[MAPCOMBO2(i,bx2,by2)];
-			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by2,1, i))
+			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==type && !(cmb->only_gentrig) && _effectflag(bx2,by2,1, i))
 			{
 				found = MAPCOMBO2(i,bx2,by2);
 				for(int32_t j = i+1; j < 6; ++j)
@@ -22033,11 +22061,19 @@ void HeroClass::checkgenpush(rpos_t rpos)
 	for (int layer = 0; layer < 7; ++layer)
 	{
 		auto rpos_handle = get_rpos_handle(rpos, layer);
-		auto& cmb = rpos_handle.combo();	
-		if (cmb.triggerflags[1] & combotriggerPUSH)
+		auto cid = rpos_handle.data();
+		auto& cmb = rpos_handle.combo();
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
-			if (pushing && !(pushing % zc_max(1, cmb.trig_pushtime)))
-				do_trigger_combo(rpos_handle);
+			auto& trig = cmb.triggers[idx];
+			if (trig.triggerflags[1] & combotriggerPUSH)
+			{
+				if (pushing && !(pushing % zc_max(1, trig.trig_pushtime)))
+				{
+					do_trigger_combo(rpos_handle, idx);
+					if(rpos_handle.data() != cid) break;
+				}
+			}
 		}
 	}
 }
@@ -22085,12 +22121,17 @@ void HeroClass::checkgenpush()
 			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
 				auto& cmb3 = ffc_handle.combo();
-				if(cmb3.triggerflags[1] & combotriggerPUSH)
+				
+				for(size_t idx = 0; idx < cmb3.triggers.size(); ++idx)
 				{
-					if(pushing && !(pushing % zc_max(1,cmb3.trig_pushtime)))
+					auto& trig = cmb3.triggers[idx];
+					if(trig.triggerflags[1] & combotriggerPUSH)
 					{
-						do_trigger_combo(ffc_handle);
-						return false;
+						if(pushing && !(pushing % zc_max(1,trig.trig_pushtime)))
+						{
+							do_trigger_combo(ffc_handle, idx);
+							return false;
+						}
 					}
 				}
 			}
@@ -22143,8 +22184,15 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	int32_t tmp_cid = MAPCOMBO(bx, by);
 	int32_t screen = get_screen_for_world_xy(bx, by);
 	newcombo const* tmp_cmb = &combobuf[tmp_cid];
-	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
-		|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
+	bool has_trigger_button = false;
+	for(auto& trig : tmp_cmb->triggers)
+		if(trig.triggerbtn)
+		{
+			has_trigger_button = true;
+			break;
+		}
+	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->only_gentrig))
+		|| has_trigger_button) && _effectflag(bx,by,1, -1))
 	{
 		found = tmp_cid;
 		found_screen = screen;
@@ -22164,8 +22212,15 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	tmp_cid = MAPCOMBO(bx2,by2);
 	screen = get_screen_for_world_xy(bx2, by2);
 	tmp_cmb = &combobuf[tmp_cid];
-	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
-		|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
+	has_trigger_button = false;
+	for(auto& trig : tmp_cmb->triggers)
+		if(trig.triggerbtn)
+		{
+			has_trigger_button = true;
+			break;
+		}
+	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->only_gentrig))
+		|| has_trigger_button) && _effectflag(bx2,by2,1, -1))
 	{
 		found = tmp_cid;
 		found_screen = screen;
@@ -22189,8 +22244,15 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
 				tmp_cmb = &ffc_handle.combo();
-				if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
-				|| tmp_cmb->triggerbtn) && true) //!TODO: FFC effect flag?
+				has_trigger_button = false;
+				for(auto& trig : tmp_cmb->triggers)
+					if(trig.triggerbtn)
+					{
+						has_trigger_button = true;
+						break;
+					}
+				if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->only_gentrig))
+				|| has_trigger_button) && true) //!TODO: FFC effect flag?
 				{
 					return true;
 				}
@@ -22207,8 +22269,15 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		{
 			tmp_cid = MAPCOMBO2(i,bx,by);
 			tmp_cmb = &combobuf[tmp_cid];
-			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
-				|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, i))
+			has_trigger_button = false;
+			for(auto& trig : tmp_cmb->triggers)
+				if(trig.triggerbtn)
+				{
+					has_trigger_button = true;
+					break;
+				}
+			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->only_gentrig))
+				|| has_trigger_button) && _effectflag(bx,by,1, i))
 			{
 				found = tmp_cid;
 				found_screen = screen;
@@ -22229,8 +22298,15 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 			screen = get_screen_for_world_xy(bx2, by2);
 			tmp_cid = MAPCOMBO2(i,bx2,by2);
 			tmp_cmb = &combobuf[tmp_cid];
-			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
-				|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, i))
+			has_trigger_button = false;
+			for(auto& trig : tmp_cmb->triggers)
+				if(trig.triggerbtn)
+				{
+					has_trigger_button = true;
+					break;
+				}
+			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->only_gentrig))
+				|| has_trigger_button) && _effectflag(bx2,by2,1, i))
 			{
 				found = tmp_cid;
 				found_screen = screen;
@@ -22258,7 +22334,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	byte signInput = 0;
 	bool didsign = false, didprompt = false;
-	if(cmb.type == cSIGNPOST && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+	if(cmb.type == cSIGNPOST && !(cmb.only_gentrig))
 	{
 		switch(dir)
 		{
@@ -22303,34 +22379,47 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		didsign = true;
 	}
 endsigns:
-	if(fx != -1 && fy != -1 && cpos_get(get_rpos_handle_for_world_xy(fx, fy, found_lyr)).trig_cd) return;
+	auto& cpos = cpos_get(get_rpos_handle_for_world_xy(fx, fy, found_lyr));
+	int dir_trigflag;
 	switch(dir)
 	{
 		case down:
-			if(!(cmb.triggerflags[0] & combotriggerBTN_TOP))
-				return;
+			dir_trigflag = combotriggerBTN_TOP;
 			break;
 		case up:
-			if(!(cmb.triggerflags[0] & combotriggerBTN_BOTTOM))
-				return;
+			dir_trigflag = combotriggerBTN_BOTTOM;
 			break;
 		case right:
-			if(!(cmb.triggerflags[0] & combotriggerBTN_LEFT))
-				return;
+			dir_trigflag = combotriggerBTN_LEFT;
 			break;
 		case left:
-			if(!(cmb.triggerflags[0] & combotriggerBTN_RIGHT))
-				return;
+			dir_trigflag = combotriggerBTN_RIGHT;
 			break;
 	}
-	if(cmb.triggerbtn && (getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput)))
+	bool found_a_trigger_dir = false, did_trigger = false;
+	rpos_handle_t rpos_handle;
+	if(fx != -1 && fy != -1)
+		rpos_handle = get_rpos_handle_for_world_xy(fx, fy, found_lyr);
+	for (size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
-		if (foundffc)
-			do_trigger_combo(foundffc.value(), didsign ? ctrigIGNORE_SIGN : 0);
-		else if (fx != -1 && fy != -1)
-			do_trigger_combo(get_rpos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
+		auto& trig = cmb.triggers[idx];
+		if(!(trig.triggerflags[0] & dir_trigflag)) continue;
+		found_a_trigger_dir = true;
+		auto& trig_data = cpos.trig_data[idx];
+		if(fx != -1 && fy != -1 && trig_data.cooldown) continue;
+		if(trig.triggerbtn && (getIntBtnInput(trig.triggerbtn, true, true, false, false) || checkIntBtnVal(trig.triggerbtn, signInput)))
+		{
+			did_trigger = true;
+			int oldcombo = (foundffc ? foundffc->data() : rpos_handle.data());
+			if (foundffc)
+				do_trigger_combo(foundffc.value(), idx, didsign ? ctrigIGNORE_SIGN : 0);
+			else if (fx != -1 && fy != -1)
+				do_trigger_combo(rpos_handle, idx, didsign ? ctrigIGNORE_SIGN : 0);
+			if ((foundffc ? foundffc->data() : rpos_handle.data()) != oldcombo)
+				break;
+		}
 	}
-	else if(didprompt)
+	if(!found_a_trigger_dir || didprompt || did_trigger)
 		return;
 	else if(cmb.type == cBUTTONPROMPT)
 	{
@@ -22339,12 +22428,19 @@ endsigns:
 		prompt_x = cmb.attrishorts[0];
 		prompt_y = cmb.attrishorts[1];
 	}
-	else if(cmb.prompt_cid)
+	else for (size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
-		prompt_combo = cmb.prompt_cid;
-		prompt_cset = cmb.prompt_cs;
-		prompt_x = cmb.prompt_x;
-		prompt_y = cmb.prompt_y;
+		auto& trig_data = cpos.trig_data[idx];
+		if(fx != -1 && fy != -1 && trig_data.cooldown) continue;
+		auto& trig = cmb.triggers[idx];
+		if(trig.prompt_cid)
+		{
+			prompt_combo = trig.prompt_cid;
+			prompt_cset = trig.prompt_cs;
+			prompt_x = trig.prompt_x;
+			prompt_y = trig.prompt_y;
+			break;
+		}
 	}
 }
 
@@ -22595,7 +22691,7 @@ int32_t touchcombo(int32_t x,int32_t y)
 	}
 	if (!_effectflag(x,y,1, -1)) return 0;
 	newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
-	if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
+	if(cmb.only_gentrig)
 		return 0;
 	switch(cmb.type)
 	{
@@ -23426,13 +23522,19 @@ void HeroClass::handleSpotlights()
 		}
 		else if (mini_cmb.trigger)
 		{
+			auto cid = rpos_handle.data();
 			auto& cmb = rpos_handle.combo();
-			int32_t trigflag = cmb.triglbeam ? (1 << (cmb.triglbeam-1)) : ~0;
-			bool trigged = (istrig[(int)rpos_handle.rpos]&trigflag);
-			if(trigged ? (cmb.triggerflags[1] & combotriggerLIGHTON)
-				: (cmb.triggerflags[1] & combotriggerLIGHTOFF))
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
-				do_trigger_combo(rpos_handle);
+				auto& trig = cmb.triggers[idx];
+				int32_t trigflag = trig.triglbeam ? (1 << (trig.triglbeam-1)) : ~0;
+				bool trigged = (istrig[(int)rpos_handle.rpos]&trigflag);
+				if(trigged ? (trig.triggerflags[1] & combotriggerLIGHTON)
+					: (trig.triggerflags[1] & combotriggerLIGHTOFF))
+				{
+					do_trigger_combo(rpos_handle, idx);
+					if(rpos_handle.data() != cid) break;
+				}
 			}
 		}
 	});
@@ -23470,15 +23572,21 @@ void HeroClass::handleSpotlights()
 				else istrigged = false;
 			}
 		}
-		else if (mini_cmb.trigger)
+		else //if (mini_cmb.trigger)
 		{
+			auto cid = ffc_handle.data();
 			auto& cmb = ffc_handle.combo();
-			int32_t trigflag = cmb.triglbeam ? (1 << (cmb.triglbeam-1)) : ~0;
-			bool trigged = (istrig[(int)rpos]&trigflag);
-			if(trigged ? (cmb.triggerflags[1] & combotriggerLIGHTON)
-				: (cmb.triggerflags[1] & combotriggerLIGHTOFF))
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
-				do_trigger_combo(ffc_handle);
+				auto& trig = cmb.triggers[idx];
+				int32_t trigflag = trig.triglbeam ? (1 << (trig.triglbeam-1)) : ~0;
+				bool trigged = (istrig[(int)rpos]&trigflag);
+				if(trigged ? (trig.triggerflags[1] & combotriggerLIGHTON)
+					: (trig.triggerflags[1] & combotriggerLIGHTOFF))
+				{
+					do_trigger_combo(ffc_handle, idx);
+					if(ffc_handle.data() != cid) break;
+				}
 			}
 		}
 	});
@@ -23728,9 +23836,15 @@ void HeroClass::checkspecial()
 			// generic 'Enemies->' trigger
 			for_every_combo_in_screen(create_screen_handles(scr), [&](const auto& handle) {
 				auto& cmb = handle.combo();	
-				if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
+				auto cid = handle.data();
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
-					do_trigger_combo(handle);
+					auto& trig = cmb.triggers[idx];
+					if (trig.triggerflags[2] & combotriggerENEMIESKILLED)
+					{
+						do_trigger_combo(handle, idx);
+						if(handle.data() != cid) break;
+					}
 				}
 			});
 
@@ -23924,7 +24038,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			newcombo const& cmb = combobuf[comboid];
 			int32_t stype = cmb.type;
 			int32_t warpsound = cmb.attribytes[0];
-			if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
+			if(cmb.only_gentrig)
 				stype = cNONE;
 			if(stype==cSWARPA)
 			{
@@ -24203,7 +24317,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	// Change B, C and D warps into A, for the comparison below...
 	for(int32_t i=0; i<4; i++)
 	{
-		if(combobuf[cids[i]].triggerflags[0] & combotriggerONLYGENTRIG)
+		if(combobuf[cids[i]].only_gentrig)
 		{
 			types[i] = cNONE;
 			continue;
@@ -24396,12 +24510,18 @@ void HeroClass::checkspecial2(int32_t *ls)
 				auto rpos_handle = get_rpos_handle(rposes[p], lyr);
 				if ((z > 0 || fakez > 0) && !(rpos_handle.base_scr()->flags2 & fAIRCOMBOS))
 					continue;
-
-				if (rpos_handle.combo().triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS) || types[p] == cSTEP)
+				auto& cmb = rpos_handle.combo();
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
-					hasStep[p] = true;
-					break;
+					auto& trig = cmb.triggers[idx];
+					if (trig.triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS) || types[p] == cSTEP)
+					{
+						hasStep[p] = true;
+						break;
+					}
 				}
+				if(hasStep[p])
+					break;
 			}
 		}
 		bool canNormalStep = true;
@@ -24421,18 +24541,34 @@ void HeroClass::checkspecial2(int32_t *ls)
 				if (rposes[p] != rpos_t::None)
 				{
 					auto rpos_handle = get_rpos_handle(rposes[p], lyr);
-					if (canNormalStep && (rpos_handle.combo().triggerflags[0] & combotriggerSTEP))
+					bool did_trig = false;
+					auto& cmb = rpos_handle.combo();
+					auto cid = rpos_handle.data();
+					for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 					{
-						do_trigger_combo(rpos_handle);
-						if (rposes[p] == sensRposes[p]) continue;
+						auto& trig = cmb.triggers[idx];
+						if (canNormalStep && (trig.triggerflags[0] & combotriggerSTEP))
+						{
+							do_trigger_combo(rpos_handle, idx);
+							did_trig = true;
+							if(rpos_handle.data() != cid) break;
+						}
 					}
+					if (did_trig && rposes[p] == sensRposes[p]) continue;
 				}
 				if (sensRposes[p] != rpos_t::None)
 				{
 					auto rpos_handle = get_rpos_handle(sensRposes[p], lyr);
-					if (rpos_handle.combo().triggerflags[0] & combotriggerSTEPSENS)
+					auto& cmb = rpos_handle.combo();
+					auto cid = rpos_handle.data();
+					for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 					{
-						do_trigger_combo(rpos_handle);
+						auto& trig = cmb.triggers[idx];
+						if (trig.triggerflags[0] & combotriggerSTEPSENS)
+						{
+							do_trigger_combo(rpos_handle, idx);
+							if(rpos_handle.data() != cid) break;
+						}
 					}
 				}
 			}
@@ -24452,9 +24588,16 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 			if (found)
 			{
-				if (ffc_handle.combo().triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
+				auto& cmb = ffc_handle.combo();
+				auto cid = ffc_handle.data();
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
-					do_trigger_combo(ffc_handle);
+					auto& trig = cmb.triggers[idx];
+					if (trig.triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
+					{
+						do_trigger_combo(ffc_handle, idx);
+						if(ffc_handle.data() != cid) break;
+					}
 				}
 			}
 		});
@@ -24469,12 +24612,19 @@ void HeroClass::checkspecial2(int32_t *ls)
 		auto rposes = getRposes(x1,y1,x2,y2);
 		for(auto lyr = 0; lyr < 7; ++lyr)
 		{
-			auto rpos_handle = get_rpos_handle(rpos, lyr);
 			bool didtrig = false;
-			if (rpos_handle.combo().triggerflags[3] & combotriggerDIVETRIG)
+			auto rpos_handle = get_rpos_handle(rpos, lyr);
+			auto& cmb = rpos_handle.combo();
+			auto cid = rpos_handle.data();
+			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
-				do_trigger_combo(rpos_handle);
-				didtrig = true;
+				auto& trig = cmb.triggers[idx];
+				if (trig.triggerflags[3] & combotriggerDIVETRIG)
+				{
+					do_trigger_combo(rpos_handle, idx);
+					didtrig = true;
+					if(rpos_handle.data() != cid) break;
+				}
 			}
 			for(auto q = 0; q < 4; ++q)
 			{
@@ -24482,26 +24632,54 @@ void HeroClass::checkspecial2(int32_t *ls)
 				if(rposes[q] == rpos && didtrig) continue;
 
 				auto rpos_handle_2 = get_rpos_handle(rposes[q], lyr);
-				if (rpos_handle_2.combo().triggerflags[3] & combotriggerDIVESENSTRIG)
-					do_trigger_combo(rpos_handle_2);
+				auto& cmb = rpos_handle_2.combo();
+				auto cid = rpos_handle_2.data();
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+				{
+					auto& trig = cmb.triggers[idx];
+					if (trig.triggerflags[3] & combotriggerDIVESENSTRIG)
+					{
+						do_trigger_combo(rpos_handle_2, idx);
+						if(rpos_handle_2.data() != cid) break;
+					}
+				}
 			}
 		}
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+			bool did_trig = false;
 			auto& cmb = ffc_handle.combo();
-			if ((cmb.triggerflags[3] & combotriggerDIVETRIG) && ffcIsAt(ffc_handle, x+8, y+8))
+			auto cid = ffc_handle.data();
+			if(ffcIsAt(ffc_handle, x+8, y+8))
 			{
-				do_trigger_combo(ffc_handle);
-			}
-			else if(cmb.triggerflags[3] & combotriggerDIVESENSTRIG)
-			{
-				for(auto q = 0; q < 4; ++q)
+				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
-					if(ffcIsAt(ffc_handle, xposes[q], yposes[q]))
+					auto& trig = cmb.triggers[idx];
+					if (trig.triggerflags[3] & combotriggerDIVETRIG)
 					{
-						do_trigger_combo(ffc_handle);
-						break;
+						do_trigger_combo(ffc_handle, idx);
+						did_trig = true;
+						if(ffc_handle.data() != cid) break;
 					}
+				}
+			}
+			if(did_trig) return;
+			for(auto q = 0; q < 4; ++q)
+			{
+				if(ffcIsAt(ffc_handle, xposes[q], yposes[q]))
+				{
+					for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+					{
+						auto& trig = cmb.triggers[idx];
+						if (trig.triggerflags[3] & combotriggerDIVESENSTRIG)
+						{
+							do_trigger_combo(ffc_handle, idx);
+							did_trig = true;
+							if(ffc_handle.data() != cid) break;
+						}
+					}
+					if(did_trig)
+						break;
 				}
 			}
 		});
@@ -24555,7 +24733,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		if(combobuf[cids[i]].triggerflags[0] & combotriggerONLYGENTRIG)
+		if(combobuf[cids[i]].only_gentrig)
 		{
 			if(types[i] == cSAVE || types[i] == cSAVE2)
 			{
@@ -24670,7 +24848,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 
 	for(int32_t i=0; i<4; i++)
 	{
-		if(combobuf[cids[i]].triggerflags[0] & combotriggerONLYGENTRIG)
+		if(combobuf[cids[i]].only_gentrig)
 		{
 			types[i] = cNONE;
 			continue;

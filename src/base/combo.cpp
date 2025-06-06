@@ -4,6 +4,16 @@
 
 std::vector<newcombo> combobuf;
 
+bool combo_trigger::is_blank() const
+{
+	return *this == combo_trigger();
+}
+
+void combo_trigger::clear()
+{
+	*this = combo_trigger();
+}
+
 void newcombo::set_tile(int32_t newtile)
 {
 	o_tile = newtile;
@@ -38,46 +48,6 @@ bool newcombo::is_blank(bool ignoreEff) const
 		if(attributes[q]) return false;
 	if(usrflags) return false;
 	if(genflags) return false;
-	for(auto q = 0; q < 6; ++q)
-		if(triggerflags[q]) return false;
-	if(triggerlevel) return false;
-	if(triggerbtn) return false;
-	if(triggeritem) return false;
-	if(trigtimer) return false;
-	if(trigsfx) return false;
-	if(trigchange) return false;
-	if(trigprox) return false;
-	if(trigctr) return false;
-	if(trigctramnt) return false;
-	if(triglbeam) return false;
-	if(trigcschange) return false;
-	if(spawnitem) return false;
-	if(spawnenemy) return false;
-	if(exstate > -1) return false;
-	if(exdoor_dir > -1) return false;
-	if(spawnip) return false;
-	if(trigcopycat) return false;
-	if(trigcooldown) return false;
-	if(trig_lstate) return false;
-	if(trig_gstate) return false;
-	if(trig_statetime) return false;
-	if(trig_genscr) return false;
-	if(trig_group) return false;
-	if(trig_group_val) return false;
-	if(trig_levelitems) return false;
-	if(trigdmlevel > -1) return false;
-	for(int q = 0; q < 3; ++q)
-		if(trigtint[q]) return false;
-	if(triglvlpalette > -1) return false;
-	if(trigbosspalette > -1) return false;
-	if(trigquaketime > -1) return false;
-	if(trigwavytime > -1) return false;
-	if(trig_swjinxtime > -2) return false;
-	if(trig_itmjinxtime > -2) return false;
-	if(trig_shieldjinxtime > -2) return false;
-	if(trig_stuntime > -2) return false;
-	if(trig_bunnytime > -2) return false;
-	if(trig_pushtime != 8) return false;
 	if(!label.empty()) return false;
 	for(auto q = 0; q < NUM_COMBO_ATTRIBYTES; ++q)
 		if(attribytes[q]) return false;
@@ -108,10 +78,6 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(lift_parent_item) return false;
 	if(liftlightrad) return false;
 	if(liftlightshape) return false;
-	if(prompt_cid) return false;
-	if(prompt_cs) return false;
-	if(prompt_x != 12) return false;
-	if(prompt_y != -8) return false;
 	
 	if(speed_mult != 1) return false;
 	if(speed_div != 1) return false;
@@ -135,6 +101,8 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(sfx_falling) return false;
 	if(sfx_drowning) return false;
 	if(sfx_lava_drowning) return false;
+	
+	if(!triggers.empty()) return false;
 	return true;
 }
 
@@ -216,53 +184,7 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 	if(flags.get(CMB_ADVP_EFFECT))
 		walk = (walk&0x0F) | (other.walk&0xF0);
 	if(flags.get(CMB_ADVP_TRIGGERS))
-	{
-		for(int32_t q = 0; q < 6; ++q)
-			triggerflags[q] = other.triggerflags[q];
-		triggerlevel = other.triggerlevel;
-		triggerbtn = other.triggerbtn;
-		prompt_cid = other.prompt_cid;
-		prompt_cs = other.prompt_cs;
-		prompt_x = other.prompt_x;
-		prompt_y = other.prompt_y;
-		triggeritem = other.triggeritem;
-		trigtimer = other.trigtimer;
-		trigsfx = other.trigsfx;
-		trigchange = other.trigchange;
-		trigprox = other.trigprox;
-		trigctr = other.trigctr;
-		trigctramnt = other.trigctramnt;
-		triglbeam = other.triglbeam;
-		trigcschange = other.trigcschange;
-		spawnitem = other.spawnitem;
-		spawnenemy = other.spawnenemy;
-		exstate = other.exstate;
-		exdoor_dir = other.exdoor_dir;
-		exdoor_ind = other.exdoor_ind;
-		spawnip = other.spawnip;
-		trigcopycat = other.trigcopycat;
-		trigcooldown = other.trigcooldown;
-		trig_lstate = other.trig_lstate;
-		trig_gstate = other.trig_gstate;
-		trig_statetime = other.trig_statetime;
-		trig_genscr = other.trig_genscr;
-		trig_group = other.trig_group;
-		trig_group_val = other.trig_group_val;
-		trig_levelitems = other.trig_levelitems;
-		trigdmlevel = other.trigdmlevel;
-		for(int q = 0; q < 3; ++q)
-			trigtint[q] = other.trigtint[q];
-		triglvlpalette = other.triglvlpalette;
-		trigbosspalette = other.trigbosspalette;
-		trigquaketime = other.trigquaketime;
-		trigwavytime = other.trigwavytime;
-		trig_swjinxtime = other.trig_swjinxtime;
-		trig_itmjinxtime = other.trig_itmjinxtime;
-		trig_shieldjinxtime = other.trig_shieldjinxtime;
-		trig_stuntime = other.trig_stuntime;
-		trig_bunnytime = other.trig_bunnytime;
-		trig_pushtime = other.trig_pushtime;
-	}
+		triggers = other.triggers;
 	if(flags.get(CMB_ADVP_LIFTING))
 	{
 		liftcmb = other.liftcmb;

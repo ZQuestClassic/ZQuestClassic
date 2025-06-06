@@ -166,7 +166,7 @@ public:
 	virtual optional<ScriptType> get_scrtype() const {return isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn;}
 };
 
-bool MatchComboTrigger(weapon *w, int32_t comboid);
+int FindComboTriggerMatch(weapon *w, int combo_id, int start_idx = 0);
 void killgenwpn(weapon* w);
 void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid, 
 	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, bool single16);

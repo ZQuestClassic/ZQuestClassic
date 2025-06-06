@@ -1023,9 +1023,12 @@ bool movingblock::animate(int32_t)
 			}
 		}
 		newcombo const& blockcmb = combobuf[bcombo];
-		if(blockcmb.triggerflags[3] & combotriggerPUSHEDTRIG)
+		for(size_t idx = 0; idx < blockcmb.triggers.size(); ++idx)
 		{
-			do_trigger_combo(end_rpos_handle);
+			auto& trig = blockcmb.triggers[idx];
+			if(trig.triggerflags[3] & combotriggerPUSHEDTRIG)
+				do_trigger_combo(end_rpos_handle, idx);
+			if(end_rpos_handle.data() != bcombo) break;
 		}
 		clear();
 	}

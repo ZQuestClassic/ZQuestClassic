@@ -1,5 +1,6 @@
 #include "comboeditor.h"
 #include "combowizard.h"
+#include "combo_trigger_editor.h"
 #include "gui/key.h"
 #include "info.h"
 #include "alert.h"
@@ -25,6 +26,7 @@ using std::to_string;
 
 static size_t cmb_tabs[5] = {0};
 static bool combo_use_script_data = true;
+static optional<combo_trigger> copied_trigger;
 
 bool hasCTypeEffects(int32_t type)
 {
@@ -2070,7 +2072,6 @@ void ComboEditorDialog::loadComboType()
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		l_attributes[q]->setText(l_attribute[q]);
 	}
-	cteff_tflag->setDisabled(!hasCTypeEffects(local_comboref.type));
 	wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
 	updateWarnings();
 	pendDraw();
@@ -2114,6 +2115,19 @@ void ComboEditorDialog::updateWarnings()
 			break;
 	}
 	warnbtn->setDisabled(warnings.empty());
+}
+void ComboEditorDialog::updateTriggerIndex()
+{
+	trigbtnAddCursor->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS);
+	trigbtnAddEnd->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS);
+	trigbtnCopy->setDisabled(trigger_index < 0);
+	trigbtnEdit->setDisabled(trigger_index < 0);
+	trigbtnDelete->setDisabled(trigger_index < 0);
+	trigbtnPasteNewCursor->setDisabled(trigger_index < 0 || local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS || !copied_trigger);
+	trigbtnPasteNewEnd->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS || !copied_trigger);
+	trigbtnPaste->setDisabled(trigger_index < 0 || !copied_trigger);
+	trigbtnUp->setDisabled(trigger_index < 1);
+	trigbtnDown->setDisabled(trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1);
 }
 
 static const GUI::ListData listdata_lift_gfx
@@ -2306,32 +2320,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
 	);
 }
 
-std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char* str, int cspan, bool right)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	if(index < 0)
-	{
-		return Checkbox(
-			text = str, hAlign = right ? 1.0 : 0.0, colSpan = cspan,
-			boxPlacement = right ? GUI::Checkbox::boxPlacement::RIGHT : GUI::Checkbox::boxPlacement::LEFT,
-			fitParent = true, disabled = true
-		);
-	}
-	
-	return Checkbox(
-		text = str, hAlign = right ? 1.0 : 0.0,
-		boxPlacement = right ? GUI::Checkbox::boxPlacement::RIGHT : GUI::Checkbox::boxPlacement::LEFT,
-		checked = (local_comboref.triggerflags[index/32] & (1<<(index%32))),
-		fitParent = true, colSpan = cspan,
-		onToggleFunc = [&, index](bool state)
-		{
-			SETFLAG(local_comboref.triggerflags[index/32],(1<<(index%32)),state);
-		}
-	);
-}
-
 #define MISCFLAG(member, bit, str) \
 Checkbox( \
 	text = str, hAlign = 0.0, \
@@ -2367,1000 +2355,46 @@ int32_t solidity_to_flag(int32_t val)
 	return (val&0b1001) | (val&0b0100)>>1 | (val&0b0010)<<1;
 }
 
-const std::string minstr = "Min Level (Applies to all):";
-const std::string maxstr = "Max Level (Applies to all):";
+
+void ComboEditorDialog::add_combo_trigger(size_t pos, bool copied)
+{
+	if(copied && !copied_trigger) return;
+	if(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS) return;
+	combo_trigger& trig = *local_comboref.triggers.emplace(std::next(local_comboref.triggers.begin(), pos));
+	
+	if(copied)
+		trig = *copied_trigger;
+	else if(!call_trigger_editor(*this, pos))
+	{
+		local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), pos));
+		return;
+	}
+	trigger_index = pos;
+	refresh_dlg();
+}
+
 std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
-
-	char titlebuf[256];
-	sprintf(titlebuf, "Combo Editor (%d)", index);
-	auto triggers_tab = TabPanel(
-		ptr = &cmb_tabs[2],
-		TabRef(name = "Weapons", TabPanel(
-			ptr = &cmb_tabs[3],
-			TabRef(name = "LWeapons", Row(
-				Frame(title = "LW Types", info = "Triggered by any lweapon matching these types and this level requirement",
-					Column(
-						Row(
-							l_minmax_trig = Label(text = "Min Level (Applies to all):"),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 214748, val = local_comboref.triggerlevel,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_comboref.triggerlevel = val;
-								}),
-							Checkbox(
-								text = "Max level instead", hAlign = 0.0,
-								checked = (local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX)),
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_comboref.triggerflags[0],(combotriggerINVERTMINMAX),state);
-									l_minmax_trig->setText(state ? maxstr : minstr);
-								})
-						),
-						Rows<4>(
-							TRIGFLAG(0,"Sword"),
-							TRIGFLAG(1,"Sword Beam"),
-							TRIGFLAG(2,"Boomerang"),
-							TRIGFLAG(3,"Bomb Boom"),
-							TRIGFLAG(4,"Super Bomb Boom"),
-							TRIGFLAG(5,"Placed Bomb"),
-							TRIGFLAG(6,"Placed Super Bomb"),
-							TRIGFLAG(7,"Arrow"),
-							TRIGFLAG(8,"Fire"),
-							TRIGFLAG(9,"Whistle"),
-							TRIGFLAG(10,"Bait"),
-							TRIGFLAG(11,"Wand"),
-							TRIGFLAG(12,"Magic"),
-							TRIGFLAG(13,"Wind"),
-							TRIGFLAG(14,"Refl. Magic"),
-							TRIGFLAG(15,"Refl. Fireball"),
-							TRIGFLAG(16,"Refl. Rock"),
-							TRIGFLAG(115,"Refl. Arrow"),
-							TRIGFLAG(116,"Refl. Fire"),
-							TRIGFLAG(117,"Refl. Fire 2"),
-							TRIGFLAG(17,"Hammer"),
-							TRIGFLAG(32,"Hookshot"),
-							TRIGFLAG(33,"Sparkle"),
-							TRIGFLAG(34,"Byrna"),
-							TRIGFLAG(35,"Refl. Beam"),
-							TRIGFLAG(36,"Stomp"),
-							TRIGFLAG(89, "Thrown"),
-							TRIGFLAG(90, "Quake Hammer"),
-							TRIGFLAG(91, "S. Quake Hammer"),
-							TRIGFLAG(37,"Custom Weapon 1"),
-							TRIGFLAG(38,"Custom Weapon 2"),
-							TRIGFLAG(39,"Custom Weapon 3"),
-							TRIGFLAG(40,"Custom Weapon 4"),
-							TRIGFLAG(41,"Custom Weapon 5"),
-							TRIGFLAG(42,"Custom Weapon 6"),
-							TRIGFLAG(43,"Custom Weapon 7"),
-							TRIGFLAG(44,"Custom Weapon 8"),
-							TRIGFLAG(45,"Custom Weapon 9"),
-							TRIGFLAG(46,"Custom Weapon 10")
-						)
-					)
-				)
-			)),
-			TabRef(name = "EWeapons", Row(
-				Frame(title = "EW Types", info = "Triggered by any eweapon matching these types",
-					Column(
-						Rows<4>(
-							TRIGFLAG(31,"Fireball"),
-							TRIGFLAG(60,"Arrow"),
-							TRIGFLAG(61,"Boomerang"),
-							TRIGFLAG(62,"Sword"),
-							TRIGFLAG(63,"Rock"),
-							TRIGFLAG(74,"Magic"),
-							TRIGFLAG(75,"Bomb Blast"),
-							TRIGFLAG(76,"SBomb Blast"),
-							TRIGFLAG(77,"Lit Bomb"),
-							TRIGFLAG(78,"Lit SBomb"),
-							TRIGFLAG(79,"Fire Trail"),
-							TRIGFLAG(80,"Flame"),
-							TRIGFLAG(81,"Wind"),
-							TRIGFLAG(82,"Flame 2"),
-							TRIGFLAG(64,"Custom Weapon 1"),
-							TRIGFLAG(65,"Custom Weapon 2"),
-							TRIGFLAG(66,"Custom Weapon 3"),
-							TRIGFLAG(67,"Custom Weapon 4"),
-							TRIGFLAG(68,"Custom Weapon 5"),
-							TRIGFLAG(69,"Custom Weapon 6"),
-							TRIGFLAG(70,"Custom Weapon 7"),
-							TRIGFLAG(71,"Custom Weapon 8"),
-							TRIGFLAG(72,"Custom Weapon 9"),
-							TRIGFLAG(73,"Custom Weapon 10")
-						)
-					)
-				)
-			)),
-			TabRef(name = "Other", Row(
-				Frame(title = "Burning", info = "Triggered by weapons (lweapon or eweapon) burning with particular levels of fire"
-					+ QRHINT({qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS}),
-					Rows<2>(
-						IBTN("Triggered by weapons burning with 'Normal' type fire.\nNote: Many engine fire sources will *always* count as 'Normal Fire', regardless of other settings."),
-						TRIGFLAG(92, "Normal Fire"),
-						IBTN("Triggered by weapons burning with 'Strong' type fire"),
-						TRIGFLAG(93, "Strong Fire"),
-						IBTN("Triggered by weapons burning with 'Magic' type fire"),
-						TRIGFLAG(94, "Magic Fire"),
-						IBTN("Triggered by weapons burning with 'Divine' type fire"),
-						TRIGFLAG(95, "Divine Fire")
-					)
-				),
-				Frame(
-					Rows<2>(
-						IBTN("Only weapons with Z=0 will count for this combo's triggers. (No effect in sideview)"),
-						TRIGFLAG(126,"Only Grounded Weapons")
-					)
-				)
-			)),
-			TabRef(name = "Weapon Effects", Column(
-				Frame(fitParent = true, title = "Weapon Effects",
-					info = "Trigger effects related to the weapon that triggered this combo. These"
-						" effects will not occur if the combo is triggered by a non-weapon trigger.",
-					Rows<2>(hAlign = 0.0,
-						IBTN("Destroy the triggering weapon"),
-						TRIGFLAG(30, "Kill Triggering Weapon"),
-						IBTN("Light the triggering weapon on fire, making it trigger 'Normal Fire' triggers."),
-						TRIGFLAG(104, "Ignite Weapon (Normal)"),
-						IBTN("Light the triggering weapon on fire, making it trigger 'Strong Fire' triggers."),
-						TRIGFLAG(105, "Ignite Weapon (Strong)"),
-						IBTN("Light the triggering weapon on fire, making it trigger 'Magic Fire' triggers."),
-						TRIGFLAG(106, "Ignite Weapon (Magic)"),
-						IBTN("Light the triggering weapon on fire, making it trigger 'Divine Fire' triggers."),
-						TRIGFLAG(107, "Ignite Weapon (Divine)")
-					)
-				),
-				Frame(vPadding = 0_px, fitParent = true,
-					Rows<2>(hAlign = 0.0,
-						IBTN("If triggered by a weapon, only the effects from the 'Weapon Effects'"
-							" section will occur- all other flags will only apply to non-weapon triggers."),
-						TRIGFLAG(108,"Weapon Separate Triggers")
-					)
-				)
-			))
-		)),
-		TabRef(name = "Other", Column(
-			Row(padding = 0_px,
-				Column(framed = true, vAlign = 1.0,
-					Row(padding = 0_px,
-						Label(text = "Buttons:"),
-						trig_buttons_field = TextField(
-							fitParent = true,
-							bottomPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 255, val = local_comboref.triggerbtn,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.triggerbtn = val;
-							}),
-						Button(
-							width = 1.5_em, padding = 0_px, forceFitH = true,
-							text = "P", hAlign = 1.0, onPressFunc = [&]()
-							{
-								int32_t flags = local_comboref.triggerbtn;
-								static const vector<CheckListInfo> button_names =
-								{
-									{ "A" },
-									{ "B" },
-									{ "L" },
-									{ "R" },
-									{ "Ex1" },
-									{ "Ex2" },
-									{ "Ex3" },
-									{ "Ex4" },
-								};
-								if(!call_checklist_dialog("Select 'Buttons'",button_names,flags))
-									return;
-								local_comboref.triggerbtn = flags;
-								trig_buttons_field->setVal(local_comboref.triggerbtn);
-							}
-						),
-						IBTN_T("Button Triggers","Buttons used while standing"
-							" against the combo from a direction with the 'Btn: [dir]'"
-							" flag checked for that side will trigger the combo."
-							"\nUse the 'P' button to pick the flags for this value.")
-					),
-					Column(
-						TRIGFLAG(20,"Btn: Top"),
-						TRIGFLAG(21,"Btn: Bottom"),
-						TRIGFLAG(22,"Btn: Left"),
-						TRIGFLAG(23,"Btn: Right")
-					)
-				),
-				Rows<3>(framed = true, vAlign = 1.0,
-					Label(text = "Button Prompt:"),
-					SelComboSwatch(
-							showvals = true,
-							combo = local_comboref.prompt_cid,
-							cset = local_comboref.prompt_cs,
-							onSelectFunc = [&](int32_t cmb, int32_t c)
-							{
-								local_comboref.prompt_cid = cmb;
-								local_comboref.prompt_cs = c;
-							}
-						),
-					IBTN("Combo to display when within range to press the triggering button."),
-					Label(text = "Prompt Xoffset:"),
-					TextField(
-						fitParent = true,
-						bottomPadding = 0_px,
-						type = GUI::TextField::type::INT_DECIMAL,
-						low = -32768, high = 32767, val = local_comboref.prompt_x,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_comboref.prompt_x = val;
-						}),
-					IBTN("X Offset of the prompt combo from the Hero."),
-					Label(text = "Prompt Yoffset:"),
-					TextField(
-						fitParent = true,
-						bottomPadding = 0_px,
-						type = GUI::TextField::type::INT_DECIMAL,
-						low = -32768, high = 32767, val = local_comboref.prompt_y,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_comboref.prompt_y = val;
-						}),
-					IBTN("Y Offset of the prompt combo from the Hero.")
-				),
-				Rows<3>(framed = true, vAlign = 1.0,
-					Label(text = "Proximity:", fitParent = true),
-					TextField(
-						fitParent = true,
-						vPadding = 0_px,
-						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 5000, val = local_comboref.trigprox,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_comboref.trigprox = (word)val;
-						}),
-					IBTN_T("Proximity Requirement","If the value is >0, the combo "
-						" will only trigger if the Hero is within that number of pixels of the combo."
-						"\nIf 'Invert Proximity Req' is checked, the Hero must be FARTHER than that distance instead."
-						"\n\nThis is a 'Condition'. It won't trigger the combo on"
-						" its own, but it must apply for other triggers to work."),
-					Label(text = "LightBeam:", fitParent = true),
-					TextField(
-						fitParent = true,
-						vPadding = 0_px,
-						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 32, val = local_comboref.triglbeam,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_comboref.triglbeam = (byte)val;
-						}),
-					IBTN_T("LightBeam Requirement", "Interacts with the 'Light On' / 'Light Off' flags."
-						" If '0', any light beam counts for those flags."
-						"\nIf '1-32', only a matching light beam counts for those flags."),
-					Label(text = "Timer:", fitParent = true),
-					TextField(
-						fitParent = true,
-						vPadding = 0_px,
-						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 255, val = local_comboref.trigtimer,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_comboref.trigtimer = val;
-						}),
-					IBTN_T("Timed Trigger", "If the value is >0, the combo will"
-						" trigger itself every 'n' frames."),
-					Label(text = "Cooldown:", fitParent = true),
-					TextField(
-						fitParent = true,
-						vPadding = 0_px,
-						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 255, val = local_comboref.trigcooldown,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_comboref.trigcooldown = val;
-						}),
-					IBTN_T("Trigger Cooldown", "If the value is >0, the combo will"
-						" be unable to be triggered for 'n' frames after being triggered."),
-					Label(text = "Push Time:", fitParent = true),
-					TextField(
-						fitParent = true,
-						vPadding = 0_px,
-						type = GUI::TextField::type::INT_DECIMAL,
-						low = 0, high = 255, val = local_comboref.trig_pushtime,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_comboref.trig_pushtime = val;
-						}),
-					IBTN_T("Push Time", "The number of frames you need to push against a block for 'Push->' to activate.")
-				)
-			),
-			Row(padding = 0_px,
-				Rows_Columns<4,6>(framed = true, vAlign = 0.0,
-					IBTN("Triggers when stepped on"),
-					TRIGFLAG(25,"Step->"),
-					IBTN("Triggers when stepped on by even a pixel"),
-					TRIGFLAG(26,"Step-> (Sensitive)"),
-					//
-					IBTN("Triggered when hit by a Light Beam matching the 'LightBeam' value"),
-					TRIGFLAG(55,"Light On->"),
-					IBTN("Triggered when NOT hit by a Light Beam matching the 'LightBeam' value"),
-					TRIGFLAG(56,"Light Off->"),
-					//
-					IBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
-						+ " with 'Triggers Lens Trigflag' checked is activated."),
-					TRIGFLAG(58,"Lens On->"),
-					IBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
-						+ " with 'Triggers Lens Trigflag' checked is NOT activated."),
-					TRIGFLAG(59,"Lens Off->"),
-					//
-					IBTN("Triggered when the Hero pushes against the combo"),
-					TRIGFLAG(57,"Push->"),
-					IBTN("Triggered when the combo is pushed as a pushblock (after it settles into the new position)."),
-					TRIGFLAG(112,"Pushed->"),
-					//
-					IBTN("Triggers when the Hero dives on this combo"),
-					TRIGFLAG(113, "Dive->"),
-					IBTN("Triggers when the Hero dives on this combo (more sensitive hitbox)"),
-					TRIGFLAG(114, "Dive-> (Sensitive)"),
-					//
-					IBTN("Can only trigger if the room is darkened."
-						"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-					TRIGFLAG(119, "Req. Darkness"),
-					IBTN("Can only trigger if the room is NOT darkened."
-						"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-					TRIGFLAG(120, "Req. No Darkness"),
-					//
-					IBTN("'Proximity:' requires the Hero to be far away, instead of close"),
-					TRIGFLAG(19,"Invert Proximity Req"),
-					IBTN("Triggers every frame automatically"),
-					TRIGFLAG(47,"Always Triggered"),
-					IBTN("The combo will ignore methods of triggering its standard effects that"
-						" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
-						" unless the 'Sword' weapon trigger is checked."),
-					TRIGFLAG(29,"Only Gen Triggers"),
-					IBTN("Triggers when room shutters would open"),
-					TRIGFLAG(27,"Shutter->"),
-					IBTN("Triggers when all enemies are defeated"),
-					TRIGFLAG(87, "Enemies->"),
-					IBTN("Triggers when screen secrets trigger"),
-					TRIGFLAG(88, "Secrets->"),
-					IBTN("Triggers when screen/region loads, after levelstates and exstates are applied"),
-					TRIGFLAG(128,"Triggers when screen loads")
-				)
-			)
-		)),
-		TabRef(name = "Effects", Rows<2>(
-				Rows_Columns<2,4>(framed = true, vAlign = 1.0, hAlign = 1.0,
-					IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
-						" unless 'Temporary Secrets' screen data flag is checked."),
-					TRIGFLAG(48,"Triggers Secrets"),
-					IBTN("Triggering the combo toggles the screen's \"darkness\". This resets upon leaving the screen."),
-					TRIGFLAG(118,"Toggle Darkness"),
-					IBTN("After triggering, the combo animation is reset. If the combo has changed"
-						" (by any trigger effect), the new combo is the one that resets."),
-					TRIGFLAG(18,"Reset Anim"),
-					IBTN("Triggering the combo will cause its inherent type-based effects to occur."
-						" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
-						" Not available for all combo types; will be greyed out when unavailable."),
-					cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
-					//
-					IBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
-					TRIGFLAG(100, "Kill Enemies"),
-					IBTN("Delete all enemies on screen."),
-					TRIGFLAG(101, "Clear Enemies"),
-					IBTN("Delete all LWeapons on screen."),
-					TRIGFLAG(102, "Clear LWeapons"),
-					IBTN("Delete all EWeapons on screen."),
-					TRIGFLAG(103, "Clear EWeapons")
-				),
-				Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, vAlign = 1.0,
-					Label(text = "Combo Change:", fitParent = true),
-					TextField(
-						fitParent = true,
-						vPadding = 0_px,
-						type = GUI::TextField::type::INT_DECIMAL,
-						low = -65535, high = 65535, val = local_comboref.trigchange,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_comboref.trigchange = val;
-						}),
-					IBTN_T("Combo Change","If the value is not 0, the combo will"
-						" change by that much when triggered."
-						"\nEx. '1' causes '->Next', '-1' causes '->Prev'."),
-					Label(text = "CSet Change:", fitParent = true),
-					TextField(
-						fitParent = true,
-						vPadding = 0_px,
-						type = GUI::TextField::type::INT_DECIMAL,
-						low = -15, high = 15, val = local_comboref.trigcschange,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_comboref.trigcschange = val;
-						}),
-					IBTN_T("CSet Change","If the value is not 0, the cset will"
-						" change by that much when triggered."
-						"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.")
-				),
-				Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, vAlign = 0.0,
-					hAlign = 1.0,
-					Label(text = "SFX:", hAlign = 1.0),
-					DropDownList(data = list_sfx,
-						vPadding = 0_px,
-						fitParent = true, selectedValue = local_comboref.trigsfx,
-						onSelectFunc = [&](int32_t val)
-						{
-							local_comboref.trigsfx = val;
-						}),
-					IBTN_T("Trigger SFX", "If the value is >0, the combo will"
-						" play the specified SFX when triggered."),
-					Label(text = "RunFrozen:", hAlign = 1.0),
-					DropDownList(data = list_genscr,
-						vPadding = 0_px,
-						fitParent = true, selectedValue = local_comboref.trig_genscr,
-						onSelectFunc = [&](int32_t val)
-						{
-							local_comboref.trig_genscr = val;
-						}),
-					IBTN_T("Run Frozen Generic Script", "The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)")
-				),
-				Frame(title = "Status Effects",
-					Rows<3>(padding = 0_px,
-						Label(text = "Sword Jinx:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_swjinxtime,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.trig_swjinxtime = val;
-							}),
-						IBTN("Sets the duration of the 'Sword Jinx' status effect."
-							"\n'-2' indicates not to do anything."
-							"\n'-1' inflicts the status indefinitely, until cured."
-							"\n'0' cures the status."
-							"\nAny value above 0 inflicts the status for that many frames."),
-						//
-						Label(text = "Item Jinx:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_itmjinxtime,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.trig_itmjinxtime = val;
-							}),
-						IBTN("Sets the duration of the 'Item Jinx' status effect."
-							"\n'-2' indicates not to do anything."
-							"\n'-1' inflicts the status indefinitely, until cured."
-							"\n'0' cures the status."
-							"\nAny value above 0 inflicts the status for that many frames."),
-						//
-						Label(text = "Shield Jinx:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_shieldjinxtime,
-							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-							{
-								local_comboref.trig_shieldjinxtime = val;
-							}),
-						IBTN("Sets the duration of the 'Shield Jinx' status effect."
-							"\n'-2' indicates not to do anything."
-							"\n'-1' inflicts the status indefinitely, until cured."
-							"\n'0' cures the status."
-							"\nAny value above 0 inflicts the status for that many frames."),
-						//
-						Label(text = "Stun:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_stuntime,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.trig_stuntime = val;
-							}),
-						IBTN("Sets the duration of the 'Stun' status effect."
-							"\n'-2' indicates not to do anything."
-							"\n'-1' inflicts the status indefinitely, until cured."
-							"\n'0' cures the status."
-							"\nAny value above 0 inflicts the status for that many frames."),
-						//
-						Label(text = "Bunny:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_bunnytime,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.trig_bunnytime = val;
-							}),
-						IBTN("Sets the duration of the 'Bunny' status effect."
-							"\n'-2' indicates not to do anything."
-							"\n'-1' inflicts the status indefinitely, until cured."
-							"\n'0' cures the status."
-							"\nAny value above 0 inflicts the status for that many frames.")
-					)
-				)
-			)
-		),
-		TabRef(name = "Counters/Items", Column(
-			Frame(title = "Counters",
-				Row(padding = 0_px,
-					Rows<3>(
-						Label(text = "Counter:", fitParent = true),
-						DropDownList(data = list_counters_nn,
-							fitParent = true,
-							selectedValue = local_comboref.trigctr,
-							onSelectFunc = [&](int32_t val)
-							{
-								local_comboref.trigctr = val;
-							}
-						),
-						IBTN_T("Counter", "Which counter to use for the various counter effects"),
-						Label(text = "Amount:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = -65535, high = 65535, val = local_comboref.trigctramnt,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.trigctramnt = val;
-							}),
-						IBTN_T("Counter Amount", "The amount of the counter to use for the various counter effects")
-					),
-					Rows<2>(
-						IBTN("Only trigger if the specified counter has at least the specified amount."
-							"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-						TRIGFLAG(51,"Require >="),
-						IBTN("Only trigger if the specified counter has less than the specified amount."
-							"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-						TRIGFLAG(52,"Require <"),
-						IBTN("If the counter has the specified amount, consume it."
-							" Negative amount will add to the counter."),
-						TRIGFLAG(53,"Consume amount"),
-						IBTN("The 'Consume Amount' will occur even if the combo does not meet its' *counter based* trigger conditions."),
-						TRIGFLAG(54,"Consume w/o trig"),
-						IBTN(fmt::format("The Consume Amount will be discounted based on the Hero's current '{}' item.", ZI.getItemClassName(itype_wealthmedal))),
-						TRIGFLAG(127,"Apply Discount")
-					)
-				)
-			),
-			Row(padding = 0_px,
-				Frame(title = "Items", vAlign = 0.0,
-					Column(padding = 0_px,
-						Rows<3>(
-							Label(text = "Req Item:", fitParent = true),
-							TextField(
-								fitParent = true,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.triggeritem,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_comboref.triggeritem = val;
-								}),
-							IBTN_T("Item Requirement","If the value is >0, the item "
-								" id set here must be owned to trigger the combo."
-								"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
-								"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering."
-								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-							TRIGFLAG(49,"Invert Item Req",2,true),
-							IBTN("'Req Item:' must NOT be owned to trigger"),
-							TRIGFLAG(50,"Consume Item Req",2,true),
-							IBTN("'Req Item:' will be taken when triggering")
-						)
-					)
-				),
-				Frame(title = "Level Flags", vAlign = 0.0,
-					Column(padding = 0_px,
-						Rows<4>(
-							Label(text = "Req Flags:", fitParent = true),
-							req_litems_field = TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.trig_levelitems,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_comboref.trig_levelitems = val;
-								}),
-							Button(
-								width = 1.5_em, padding = 0_px, forceFitH = true,
-								text = "P", hAlign = 1.0, onPressFunc = [&]()
-								{
-									int32_t flags = local_comboref.trig_levelitems;
-									static const vector<CheckListInfo> litem_names =
-									{
-										{ "McGuffin", "The Hero has the McGuffin for the 'Trig DMap Level'" },
-										{ "Map", "The Hero has the Map for the 'Trig DMap Level'" },
-										{ "Compass", "The Hero has the Compass for the 'Trig DMap Level'" },
-										{ "Boss Killed", "The Hero has cleared the 'Dungeon Boss' room for the 'Trig DMap Level'" },
-										{ "Boss Key", "The Hero has the Boss Key for the 'Trig DMap Level'" },
-										{ "Custom 1", "The Hero has the Custom 1 state for the 'Trig DMap Level'" },
-										{ "Custom 2", "The Hero has the Custom 2 state for the 'Trig DMap Level'" },
-										{ "Custom 3", "The Hero has the Custom 3 state for the 'Trig DMap Level'" },
-									};
-									if(!call_checklist_dialog("Select 'Req Flags'",litem_names,flags))
-										return;
-									local_comboref.trig_levelitems = flags;
-									req_litems_field->setVal(local_comboref.trig_levelitems);
-								}
-							),
-							IBTN("See 'Require All', 'Require Not All', '->Set', and '->Unset' below."
-								"\nUse the 'P' button to pick the flags for this value."),
-							//
-							Label(text = "Trig DMap Level", fitParent = true),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = MAXLEVELS, val = local_comboref.trigdmlevel,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_comboref.trigdmlevel = val;
-								}),
-							DummyWidget(),
-							IBTN("The dmap level referenced by 'Req Flags'."
-								" If '-1', uses the current dmap's level.")
-						),
-						Rows_Columns<2,2>(
-							IBTN("The level flags set for 'Req Flags:' must ALL be on for this to trigger."
-								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-							TRIGFLAG(121,"Require All"),
-							IBTN("The level flags set for 'Req Flags:' must NOT ALL (some is ok) be on for this to trigger."
-								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-							TRIGFLAG(122,"Require Not All"),
-							IBTN("The level flags set for 'Req Flags:' will be enabled when this combo triggers."
-								" If '->Unset' is also checked, the flags will be toggled instead."),
-							TRIGFLAG(123,"->Set"),
-							IBTN("The level flags set for 'Req Flags:' will be disabled when this combo triggers."
-								" If '->Set' is also checked, the flags will be toggled instead."),
-							TRIGFLAG(124,"->Unset")
-						)
-					)
-				)
-			)
-		)),
-		TabRef(name = "States/Spawning", Rows<3>(
-			Rows<4>(framed = true, fitParent = true,
-				Label(text = "Spawn Item:", fitParent = true),
-				TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					low = -255, high = 255, val = local_comboref.spawnitem,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.spawnitem = val;
-					}),
-				DummyWidget(),
-				IBTN_T("Spawn Item", "If the value is >0, the item "
-					" id set here will be spawned when the combo is triggered."
-					"\nIf the value is <0, it will be treated as a dropset to drop."
-					"\nIf 'Spawns Special Item' is checked, the item will count as the room's special item,"
-					"\nnot spawning if the special item state is already set."
-					"\nIf 'Trigger ExState after item pickup' is checked, the combo will not set its'"
-					"\nExState on being triggered, instead setting it when the item is picked up."),
-				//
-				Label(text = "Spawned Item Pickup:", fitParent = true),
-				spawned_ip_field = TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					maxLength = 12, val = local_comboref.spawnip,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.spawnip = val;
-					}),
-				Button(
-					width = 1.5_em, padding = 0_px, forceFitH = true,
-					text = "P", hAlign = 1.0, onPressFunc = [&]()
-					{
-						int32_t flags = local_comboref.spawnip;
-						static const vector<CheckListInfo> pickups =
-						{
-							{ CheckListInfo::DISABLED, "Large Collision Rectangle (INTERNAL)" },
-							{ "Hold Up Item" },
-							{ CheckListInfo::DISABLED, "Sets Screen State ST_ITEM" },
-							{ CheckListInfo::DISABLED, "Dummy Item" },
-							{ CheckListInfo::DISABLED, "Shop Item (INTERNAL)" },
-							{ CheckListInfo::DISABLED, "Pay for Info (INTERNAL)" },
-							{ CheckListInfo::DISABLED, "Item Fades" },
-							{ CheckListInfo::DISABLED, "Enemy Carries Item" },
-							{ "Item Disappears" },
-							{ CheckListInfo::DISABLED, "Big McGuffin (INTERNAL)" },
-							{ CheckListInfo::DISABLED, "Invisible" },
-							{ CheckListInfo::DISABLED, "Triggers Screen State ST_SP_ITEM" },
-							{ "Triggers Screen Secrets" },
-							{ "Always Grabbable" },
-							{ CheckListInfo::DISABLED },
-							{ CheckListInfo::DISABLED },
-						};
-						if(!call_checklist_dialog("Select 'Spawned Item Pickup'",pickups,flags))
-							return;
-						local_comboref.spawnip = flags;
-						spawned_ip_field->setVal(local_comboref.spawnip);
-					}
-				),
-				IBTN_T("Spawn Item Pickup", "Represents the pickup flags of the spawned item."
-					" Only some flags are valid. Click the 'P' button for a selector list."),
-				//
-				Label(text = "Spawn Enemy:", fitParent = true),
-				TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					low = 0, high = 511, val = local_comboref.spawnenemy,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.spawnenemy = val;
-					}),
-				DummyWidget(),
-				IBTN_T("Spawn Enemy","If the value is >0, the enemy "
-					" id set here will be spawned when the combo is triggered."
-					"\nIf 'Trigger ExState after enemy kill' is checked, the combo will not set its'"
-					"\nExState on being triggered, instead setting it when the enemy is defeated."),
-				//
-				Label(text = "ExState:", fitParent = true),
-				TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					low = -1, high = 31, val = local_comboref.exstate,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.exstate = val;
-					}),
-				DummyWidget(),
-				IBTN_T("ExState", "If the value is >=0, the exstate"
-					" id set here will be set when the combo is triggered,"
-					"\nand if the exstate set here is already set, the combo will automatically trigger"
-					"\nwithout any effects other than combo/cset change."),
-				//
-				Label(text = "Copycat:", fitParent = true),
-				TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					low = 0, high = 255, val = local_comboref.trigcopycat,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.trigcopycat = val;
-					}),
-				DummyWidget(),
-				IBTN_T("Copycat", "If the value is > 0, the combo is linked to that copycat ID."
-					"\nIf this combo is triggered, all other linked combos will also trigger,"
-					"\nand if any other linked combo triggers, this combo will trigger."),
-				//
-				Label(text = "LevelState:", fitParent = true),
-				TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					low = 0, high = 31, val = local_comboref.trig_lstate,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.trig_lstate = val;
-					}),
-				DummyWidget(),
-				IBTN_T("LevelState", "The LevelState used by the flags"
-					" '->LevelState' and 'LevelState->'. 0-31."),
-				//
-				Label(text = "GlobalState:", fitParent = true),
-				TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					low = 0, high = 255, val = local_comboref.trig_gstate,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.trig_gstate = val;
-					}),
-				DummyWidget(),
-				IBTN_T("GlobalState", "The GlobalState used by the flags"
-					" '->GlobalState' and 'GlobalState->'. 0-255."),
-				//
-				Label(text = "GlobalState Timer:", fitParent = true),
-				TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					low = 0, high = 214748, val = local_comboref.trig_statetime,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.trig_statetime = val;
-					}),
-				DummyWidget(),
-				IBTN_T("GlobalState Timer", "If this value is >0,"
-					" then the 'GlobalState->' flag will trigger a timed global"
-					" state with this duration, in frames, instead of toggling"
-					" the global state."),
-				//
-				Label(text = "Trigger Group:", fitParent = true),
-				TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					low = 0, high = 255, val = local_comboref.trig_group,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.trig_group = val;
-					}),
-				DummyWidget(),
-				IBTN_T("Trigger Group", "The Trigger Group used by the flags"
-					" 'TrigGroup Less->', 'TrigGroup Greater->', and '->TrigGroup'. 0-255."),
-				//
-				Label(text = "Trigger Group Val:", fitParent = true),
-				TextField(
-					fitParent = true,
-					vPadding = 0_px,
-					type = GUI::TextField::type::INT_DECIMAL,
-					low = 0, high = 65535, val = local_comboref.trig_group_val,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.trig_group_val = val;
-					}),
-				DummyWidget(),
-				IBTN_T("Trigger Group Val", "The value used by the flags"
-					" 'TrigGroup Less->' and 'TrigGroup Greater->'. 0-65535."),
-				//
-				Label(text = "ExDoor Dir:", fitParent = true),
-				DropDownList(data = list_dirs4n, fitParent = true,
-					selectedValue = local_comboref.exdoor_dir,
-					onSelectFunc = [&](int32_t val)
-					{
-						local_comboref.exdoor_dir = val;
-					}),
-				DummyWidget(),
-				IBTN("If not '(None)', triggering this combo sets the extra doorstate"
-					" in the specified direction (of the index set for 'ExDoor Index')."
-					" Additionally, if that door state is already set, the combo will"
-					" automatically trigger without any effects other than combo/cset change."),
-				//
-				Label(text = "ExDoor Index:", fitParent = true),
-				DropDownList(data = list_0_7, fitParent = true,
-					selectedValue = local_comboref.exdoor_ind,
-					onSelectFunc = [&](int32_t val)
-					{
-						local_comboref.exdoor_ind = val;
-					}),
-				DummyWidget(),
-				IBTN("Which door index of the specified direction to use. (See ? for 'ExDoor Dir' for more info)")
-			),
-			Rows<4>(framed = true, fitParent = true,
-				IBTN("'Spawn Item' will be linked to the room's Special Item state"),
-				TRIGFLAG(83, "Spawns Special Item",3),
-				IBTN("The item spawned by the combo will automatically be collected by the Hero."),
-				TRIGFLAG(86, "Spawned Item auto-collects",3),
-				IBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
-				TRIGFLAG(84, "Trigger ExState after item pickup",3),
-				IBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
-				TRIGFLAG(85, "Trigger ExState after enemy kill",3),
-				IBTN("This combo is triggered when the level-based switch state specified as 'LevelState' is toggled."),
-				TRIGFLAG(96, "LevelState->"),
-				IBTN("When triggered, toggles the level-based switch state specified as 'LevelState'."),
-				TRIGFLAG(97, "->LevelState"),
-				IBTN("This combo is triggered when the globalswitch state specified as 'GlobalState' is toggled."),
-				TRIGFLAG(98, "GlobalState->"),
-				IBTN("When triggered, toggles the global switch state specified as 'GlobalState'."
-					"\nIf 'GlobalState Timer' is >0, resets the timer of the state to the specified value instead of toggling it."),
-				TRIGFLAG(99, "->GlobalState"),
-				IBTN("This combo contributes to its Trigger Group."),
-				TRIGFLAG(109, "Contributes To TrigGroup",3),
-				IBTN("When the number of combos that contribute to this combo's Trigger Group is LESS than the Trigger Group Val, trigger this combo."),
-				TRIGFLAG(110, "TrigGroup Less->"),
-				IBTN("When the number of combos that contribute to this combo's Trigger Group is GREATER than the Trigger Group Val, trigger this combo."),
-				TRIGFLAG(111, "TrigGroup Greater->")
-			)
-		)),
-		TabRef(name = "Graphics", Rows<2>(
-			Frame(title = "Tint", fitParent = true, Column(
-				Rows<2>(
-					Label(text = "Tint Palette R/G/B:", fitParent = true),
-					_d,
-					Row(
-						TextField(
-							fitParent = true, padding = 0_px,
-							type = GUI::TextField::type::NOSWAP_ZSINT,
-							swap_type = nswapLDEC,
-							low = -255, high = 255, val = local_comboref.trigtint[0],
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.trigtint[0] = val;
-							}),
-						TextField(
-							fitParent = true, padding = 0_px,
-							type = GUI::TextField::type::NOSWAP_ZSINT,
-							swap_type = nswapLDEC,
-							low = -255, high = 255, val = local_comboref.trigtint[1],
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.trigtint[1] = val;
-							}),
-						TextField(
-							fitParent = true, padding = 0_px,
-							type = GUI::TextField::type::NOSWAP_ZSINT,
-							swap_type = nswapLDEC,
-							low = -255, high = 255, val = local_comboref.trigtint[2],
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.trigtint[2] = val;
-							})
-					),
-					IBTN("Applies a tint to the palette, same as the script 'Graphics->Tint()'."
-						"Can be cleared using the '->ClearTint' flag."),
-					TRIGFLAG(125,"->ClearTint",1,true),
-					IBTN("Clears all 'tint' from the palette, same as the script 'Graphics->ClearTint()'."
-						" Runs before the above 'Tint Palette' effect, if both are set.")
-				)
-			)),
-			Frame(title = "Palette", fitParent = true, Rows<3>(
-				Label(text = "Load Level Palette", fitParent = true),
-				TextField(
-					fitParent = true, padding = 0_px,
-					type = GUI::TextField::type::SWAP_SSHORT,
-					swap_type = nswapHEX,
-					low = -1, high = 512, val = local_comboref.triglvlpalette,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.triglvlpalette = val;
-					}),
-				IBTN("Loads the specified level palette over the current level palette."
-					" '-1' for 'none'."),
-				//
-				Label(text = "Load Boss Palette", fitParent = true),
-				TextField(
-					fitParent = true, padding = 0_px,
-					type = GUI::TextField::type::SWAP_SSHORT,
-					swap_type = nswapDEC,
-					low = -1, high = 29, val = local_comboref.trigbosspalette,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.trigbosspalette = val;
-					}),
-				IBTN("Loads the specified level palette over the current boss palette."
-					" '-1' for 'none'.")
-			)),
-			Frame(title = "VFX", fitParent = true, Rows<3>(
-				Label(text = "Quake", fitParent = true),
-				TextField(
-					fitParent = true, padding = 0_px,
-					type = GUI::TextField::type::NOSWAP_ZSINT,
-					swap_type = nswapLDEC,
-					low = -1, high = 999999, val = local_comboref.trigquaketime,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.trigquaketime = val;
-					}),
-				IBTN("Sets the quake timer to the specified duration."
-					" '-1' for 'none'."),
-				//
-				Label(text = "Wavy", fitParent = true),
-				TextField(
-					fitParent = true, padding = 0_px,
-					type = GUI::TextField::type::NOSWAP_ZSINT,
-					swap_type = nswapLDEC,
-					low = -1, high = 999999, val = local_comboref.trigwavytime,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-					{
-						local_comboref.trigwavytime = val;
-					}),
-				IBTN("Sets the wavy timer to the specified duration."
-					" '-1' for 'none'.")
-			))
-		))
+	
+	if (trigger_index < 0 && !local_comboref.triggers.empty())
+		trigger_index = 0;
+	else if (trigger_index >= local_comboref.triggers.size())
+		trigger_index = int(local_comboref.triggers.size()) - 1;
+	
+	list_triggers = GUI::ListData::numbers(false, 0, local_comboref.triggers.size()).filter(
+		[&](GUI::ListItem& itm)
+		{
+			itm.text = fmt::format("{} ({:03})", local_comboref.triggers[itm.value].label, itm.value);
+			return true;
+		}
 	);
+	
 	window = Window(
 		use_vsync = true,
-		title = titlebuf,
+		title = fmt::format("Combo Editor ({})", index),
 		info = "Edit combos, setting up their graphics, effects, and attributes.\n"
 			"Hotkeys:\n"
 			"-/+: Change CSet\n"
@@ -3664,7 +2698,123 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						CMB_ATTRIBUTE(3)
 					)
 				)),
-				TabRef(name = "Triggers", triggers_tab),
+				TabRef(name = "Triggers", Column(
+					Frame(
+						Row(
+							Column(
+								triggerList = List(
+									data = list_triggers,
+									disabled = local_comboref.triggers.empty(),
+									selectedValue = trigger_index,
+									onSelectFunc = [&](int32_t val)
+									{
+										trigger_index = val;
+										updateTriggerIndex();
+									}
+								),
+								Row(
+									IBTN("The combo will ignore methods of triggering its standard effects that"
+										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
+										" unless the 'Sword' weapon trigger is checked."),
+									Checkbox(text = "Only Gen Triggers",
+										checked = local_comboref.only_gentrig&1, fitParent = true,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_comboref.only_gentrig,1,state);
+										}
+									)
+								)
+							),
+							Columns<5>(
+								trigbtnAddCursor = Button(text = "Add (at cursor)",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										add_combo_trigger(trigger_index+1);
+									}),
+								trigbtnAddEnd = Button(text = "Add (at end)",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										add_combo_trigger(local_comboref.triggers.size());
+									}),
+								trigbtnCopy = Button(text = "Copy",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										if(trigger_index < 0) return;
+										copied_trigger = local_comboref.triggers[trigger_index];
+										refresh_dlg();
+									}),
+								trigbtnEdit = Button(text = "Edit",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										if(trigger_index < 0) return;
+										if(call_trigger_editor(*this, size_t(trigger_index)))
+											refresh_dlg();
+									}),
+								trigbtnDelete = Button(text = "Delete",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										if(trigger_index < 0) return;
+										bool doclear = false;
+										AlertDialog("Are you sure?",
+											"Deleting a trigger cannot be undone!",
+											[&](bool ret,bool)
+											{
+												doclear = ret;
+											}).show();
+										if(doclear)
+										{
+											local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), trigger_index));
+											refresh_dlg();
+										}
+									}),
+								//
+								trigbtnPasteNewCursor = Button(text = "Paste New (at cursor)",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										add_combo_trigger(trigger_index+1, true);
+									}),
+								trigbtnPasteNewEnd = Button(text = "Paste New (at end)",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										add_combo_trigger(local_comboref.triggers.size(), true);
+									}),
+								trigbtnPaste = Button(text = "Paste",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										if(trigger_index < 0 || !copied_trigger) return;
+										local_comboref.triggers[trigger_index] = *copied_trigger;
+										refresh_dlg();
+									}),
+								trigbtnUp = Button(text = "Up",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										if(trigger_index < 1) return;
+										zc_swap(local_comboref.triggers[trigger_index], local_comboref.triggers[trigger_index-1]);
+										--trigger_index;
+										refresh_dlg();
+									}),
+								trigbtnDown = Button(text = "Down",
+									fitParent = true,
+									onPressFunc = [&]()
+									{
+										if(trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1) return;
+										zc_swap(local_comboref.triggers[trigger_index], local_comboref.triggers[trigger_index+1]);
+										++trigger_index;
+										refresh_dlg();
+									})
+							)
+						)
+					)
+				)),
 				TabRef(name = "Lifting", Row(
 					Frame(
 						padding = 0_px,
@@ -3912,7 +3062,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)
 				)),
 				TabRef(name = "General", TabPanel(
-					ptr = &cmb_tabs[4],
+					ptr = &cmb_tabs[1],
 					TabRef(name = "SFX",
 						Rows<3>(
 							Label(text = "Appears:"),
@@ -4193,11 +3343,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 		)
 	);
 	
-	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
-		? maxstr : minstr);
 	refreshScript();
 	updateAnimation();
 	updateWarnings();
+	updateTriggerIndex();
 #if DEVLEVEL > 0
 	if(force_wizard)
 	{
@@ -4328,7 +3477,10 @@ void ComboEditorDialog::updateFlip(int nflip)
 void ComboEditorDialog::apply_combo()
 {
 	if(!hasCTypeEffects(local_comboref.type))
-		local_comboref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
+	{
+		for(combo_trigger& trig : local_comboref.triggers)
+			trig.triggerflags[0] &= ~combotriggerCMBTYPEFX;
+	}
 	combobuf[index] = local_comboref;
 	saved = false;
 	edited = true;
