@@ -30,7 +30,11 @@ enum ComboTriggerFlag
 	TRIGFLAG_STEP_SENS, //Other->'Step-> (Sensitive)' - Triggered by 'Step->Sensitive'
 	TRIGFLAG_SHUTTER, //Other->'Shutter->' - Triggered by 'Shutter->'
 	TRIGFLAG_CTYPE_EFFECTS, //Effects->'->ComboType Effects' - On trigger, cause the combo's type-related effects to occur. (ex: opening a chest)
-	TRIGFLAG_ONLY_GENTRIG, //Other->'Only Gen Triggers' - Don't allow the combo to trigger via it's normal trigger methods (ex: bush via slashing)
+	// Don't allow the combo to trigger via it's normal trigger methods (ex: bush via slashing)
+	// Changing this for any trigger changes it for the whole combo
+	//
+	// @deprecated Use [combodata->OnlyGenTriggers] instead!
+	TRIGFLAG_ONLY_GENTRIG,
 	TRIGFLAG_KILL_WEAPON, //Weapons->Effects->'Kill Triggering Weapon' - If triggered by a weapon, kill the weapon.
 	TRIGFLAG_EW_FIREBALL, //Weapons->EWeapons->Fireball - Triggered by Fireball EWeapons
 	TRIGFLAG_HOOKSHOT, //Weapons->LWeapons->Hookshot - Triggered by Hookshot LWeapons
