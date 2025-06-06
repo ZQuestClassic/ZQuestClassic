@@ -27,85 +27,6 @@ extern bool saved;
 
 word door_combo_set_count;
 
-
-
-const char *doors_string[9]= {"(None)","Wall","Open","Locked","Shutter","Bombable","Walk-through","1-Way Shutter","Boss"};
-
-const char *doorslist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        if(index>8)
-            index=8;
-            
-        return doors_string[index];
-    }
-    
-    *list_size=9;
-    return NULL;
-}
-
-static const char *sidestr[4] = {"Top","Bottom","Left","Right"};
-
-int32_t door_to_index(int32_t door)
-{
-    switch(door)
-    {
-		case dWALL:
-		case dOPEN:
-		case dLOCKED:
-			return door+1;
-			
-		case dSHUTTER:
-			return 4;
-			
-		case dBOMB:
-			return 5;
-			
-		case dWALK:
-			return 6;
-			
-		case d1WAYSHUTTER:
-			return 7;
-			
-		case dBOSS:
-			return 8;
-    }
-    
-    return 0;
-}
-int32_t index_to_door(int32_t indx)
-{
-    switch(indx)
-    {
-		case 1: return dWALL;
-		case 2: return dOPEN;
-		case 3: return dLOCKED;
-		case 4: return dSHUTTER;
-		case 5: return dBOMB;
-		case 6: return dWALK;
-		case 7: return d1WAYSHUTTER;
-		case 8: return dBOSS;
-    }
-    
-    return dNONE;
-}
-
-void edit_door(int32_t side)
-{
-    char sidename[80];
-    sprintf(sidename, "Select %s Door Type", sidestr[side]);
-    int32_t ret = select_data(sidename, door_to_index(Map.CurrScr()->door[side]),
-		doorslist, get_zc_font(font_lfont));
-    
-    if(ret!=-1)
-        Map.DoPutDoorCommand(side, index_to_door(ret));
-}
-
-const char *doorcombosetlist(int32_t index, int32_t *list_size);
-
-static ListData doorcomboset_list(&doorcombosetlist, &font);
-
 int32_t onDoors()
 {
     call_doorseldialog();
@@ -1611,7 +1532,6 @@ int32_t onDoorCombos()
 
 void center_zq_door_dialogs()
 {
-    //jwin_center_dialog(door_select_dlg);
     jwin_center_dialog(doorcomboset_dlg);
     jwin_center_dialog(doorcombosetlist_dlg);
 }
