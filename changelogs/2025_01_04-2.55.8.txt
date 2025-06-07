@@ -33,8 +33,8 @@ zc: Add limit to `genericdata->RunFrozen()` recursion to prevent crashing
   Running too many frozen scripts at once caused a stack overflow crash, now it causes a script error message.
 
 zc: prevent potential crash from show walkability cheat
-zc: remove ladder during warp (#1017)
-zc: when charging duration of Charge Ring is 0, use default time instead (#1023)
+zc: remove ladder during warp
+zc: when charging duration of Charge Ring is 0, use default time instead
 zc: remove jittery 1px gap when pushing blocks right/down
 zc: step triggers ignoring z-axis
 zc: triggered autowarp combos now use sidewarps
@@ -59,7 +59,7 @@ zq: set explicit width for combo lifting drop-down lists
 zq: typo in push flag help text
 zq: crash on importing combo aliases
 zq: 'delay' animation preview was calculated wrong
-zq: remove hidden combo selection mode toggled with spacebar (#1051)
+zq: remove hidden combo selection mode toggled with spacebar
   Pressing space changed how combo selection worked in a way that often confused
   users. There was also no visible indication of this, so it was extra bad. This
   mode was perhaps useful for something in the combo selector dialog, but outside
@@ -91,7 +91,7 @@ link to docs.zquestclassic.com/zscript in zscript.txt, ZScript_Additions.txt
 
 # Refactors
 
-zq: rename boomerang range attribute to duration (#1048)
+zq: rename boomerang range attribute to duration
 zq: in Load Tileset wizard, enable all clear options by default
 std_zh: remove DMFS_SIDEVIEW since it was never implemented
 zscript: log errors in ghost_zh when creating an enemy fails
