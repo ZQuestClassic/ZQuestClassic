@@ -100,6 +100,7 @@ src/dialog/sfxdata.cpp
 src/dialog/midieditor.cpp
 src/dialog/mapstyles.cpp
 src/dialog/heroeditor.cpp
+src/dialog/door_sel.cpp
 
 ## End of ZQuest GUI module
 )

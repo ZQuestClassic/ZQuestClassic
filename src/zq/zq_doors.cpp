@@ -16,6 +16,7 @@
 #include "zq/zquest.h"
 #include "dialog/alert.h"
 #include "zq/render.h"
+#include "dialog/door_sel.h"
 
 extern void restore_mouse();
 extern zquestheader header;
@@ -26,208 +27,11 @@ extern bool saved;
 
 word door_combo_set_count;
 
-
-
-const char *doors_string[9]= {"(None)","Wall","Open","Locked","Shutter","Bombable","Walk-through","1-Way Shutter","Boss"};
-
-const char *doorslist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        if(index>8)
-            index=8;
-            
-        return doors_string[index];
-    }
-    
-    *list_size=9;
-    return NULL;
-}
-
-static const char *sidestr[4] = {"Top","Bottom","Left","Right"};
-
-int32_t door_to_index(int32_t door)
-{
-    switch(door)
-    {
-		case dWALL:
-		case dOPEN:
-		case dLOCKED:
-			return door+1;
-			
-		case dSHUTTER:
-			return 4;
-			
-		case dBOMB:
-			return 5;
-			
-		case dWALK:
-			return 6;
-			
-		case d1WAYSHUTTER:
-			return 7;
-			
-		case dBOSS:
-			return 8;
-    }
-    
-    return 0;
-}
-int32_t index_to_door(int32_t indx)
-{
-    switch(indx)
-    {
-		case 1: return dWALL;
-		case 2: return dOPEN;
-		case 3: return dLOCKED;
-		case 4: return dSHUTTER;
-		case 5: return dBOMB;
-		case 6: return dWALK;
-		case 7: return d1WAYSHUTTER;
-		case 8: return dBOSS;
-    }
-    
-    return dNONE;
-}
-
-void edit_door(int32_t side)
-{
-    char sidename[80];
-    sprintf(sidename, "Select %s Door Type", sidestr[side]);
-    int32_t ret = select_data(sidename, door_to_index(Map.CurrScr()->door[side]),
-		doorslist, get_zc_font(font_lfont));
-    
-    if(ret!=-1)
-        Map.DoPutDoorCommand(side, index_to_door(ret));
-}
-
-const char *doorcombosetlist(int32_t index, int32_t *list_size);
-
-static ListData doorcomboset_list(&doorcombosetlist, &font);
-
-static DIALOG door_select_dlg[] =
-{
-    /* (dialog proc)         (x)   (y)   (w)   (h)    (fg)                (bg)                 (key)      (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,         40,   32,   240,  164,   vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Select Door", NULL, NULL },
-    { d_timer_proc,           0,    0,     0,    0,   0,                   0,                     0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     119,   87,    81,   15,   vc(14),              vc(9),                 0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     119,  117,    81,   15,   vc(14),              vc(9),                 0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,      82,  102,    75,   15,   vc(14),              vc(9),                 0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    //5
-	{ jwin_button_proc,     158,  102,    75,   15,   vc(14),              vc(9),                 0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,      86,  171,    61,   21,   vc(14),              vc(1),                27,       D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
-    { jwin_button_proc,     170,  171,    61,   21,   vc(14),              vc(1),                27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_text_proc,        64,  142,   120,    8,   vc(15),              vc(1),                 0,       0,          0,             0, (void *) "Door Combo Set:",                                   NULL, NULL },
-    { jwin_droplist_proc,    64,  150,   192,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],    0,       D_EXIT,     1,             0, (void *) &doorcomboset_list,                                  NULL, NULL },
-    //10
-	{ jwin_text_proc,        48,   48,   150,    8,   vc(15),              vc(1),                 0,       0,          0,             0, (void *) "Note: This only applies to 'NES Dungeon' screens!", NULL, NULL },
-    { jwin_button_proc,     119,   64,    81,   15,   vc(14),              vc(1),                27,       D_EXIT,     0,             0, (void *) "Clear", NULL, NULL },
-    { NULL,                   0,    0,     0,    0,   0,                   0,                     0,       0,          0,             0,       NULL,                                                         NULL, NULL }
-};
-
-
 int32_t onDoors()
 {
-	restore_mouse();
-	door_select_dlg[0].dp2 = get_zc_font(font_lfont);
-		
-	if(Map.getCurrMap()>=Map.getMapCount())
-		return D_O_K;
-	mapscr* m = Map.CurrScr();
-	
-	bool done=false;
-	int32_t ret=0;
-	
-	byte doors[4];
-	memcpy(doors,m->door,4);
-	word dcs = m->door_combo_set;
-	word old_dcs = dcs;
-	
-	door_select_dlg[9].d1 = dcs;
-	
-	// Put the names of the door types on the buttons.
-	for(int32_t i=0; i<4; i++)
-		door_select_dlg[i+2].dp = (void *)doors_string[door_to_index(doors[i])];
-	
-	large_dialog(door_select_dlg, 1.5);
-	
-	pause_dlg_tint(true);
-	zq_set_screen_never_freeze(true);
-	Map.StartListCommand();
-	do
-	{
-		ret = do_zqdialog(door_select_dlg,-1);
-		
-		switch(ret)
-		{
-			case 2: case 3: case 4: case 5:
-				pause_dlg_tint(false);
-				zq_set_screen_never_freeze(false);
-				edit_door(ret-2);
-				pause_dlg_tint(true);
-				zq_set_screen_never_freeze(true);
-				if(doors[ret-2] != dNONE && m->door[ret-2] == dNONE)
-				{
-					doors[ret-2] = dNONE;
-					//Recover the combos that were there previously!
-					Map.RevokeListCommand();
-					Map.StartListCommand();
-					Map.DoSetDCSCommand(dcs);
-					for(int32_t i=0; i<4; i++)
-						Map.DoPutDoorCommand(i,doors[i],dcs!=old_dcs);
-				}
-				else doors[ret-2] = m->door[ret-2];
-				door_select_dlg[ret].dp = (void *)doors_string[door_to_index(doors[ret-2])];
-				break;
-			case 9:
-				if(dcs != door_select_dlg[9].d1)
-				{
-					Map.DoSetDCSCommand((dcs = door_select_dlg[9].d1));
-					for(int32_t i=0; i<4; i++)
-						Map.DoPutDoorCommand(i,doors[i],true);
-				}
-				break;
-			case 6:
-			{
-				//cleanup the command to be minimal-needed for the effect
-				Map.RevokeListCommand();
-				Map.StartListCommand();
-                Map.DoSetDCSCommand(dcs);
-				for(int32_t i=0; i<4; i++)
-					Map.DoPutDoorCommand(i,doors[i],dcs!=old_dcs);
-				Map.FinishListCommand();
-				done = true;
-				saved = false;
-				break;
-			}	
-			case 0:
-			case 7:
-				Map.RevokeListCommand();
-				done=true;
-				break;
-			case 11:
-				if(alert_confirm("Clear Doors?", "Clear all doors to '(None)'?"))
-				{
-					// Clear any changes already made
-					Map.RevokeListCommand();
-					Map.StartListCommand();
-                    Map.DoSetDCSCommand(dcs); //..except the dcs
-					for(int32_t i=0; i<4; i++)
-					{
-						Map.DoPutDoorCommand(i,dNONE);
-						doors[i] = dNONE;
-						door_select_dlg[i+2].dp = (void *)doors_string[0];
-					}
-				}
-				break;
-		}
-		refresh(rMAP | rNOCURSOR);
-	}
-	while(!done);
-	pause_dlg_tint(false);
-	zq_set_screen_never_freeze(false);
-	
-	return D_O_K;
+    call_doorseldialog();
+    refresh(rMAP | rCOMBOS);
+    return D_O_K;
 }
 
 DoorComboSet working_dcs;
@@ -1728,7 +1532,6 @@ int32_t onDoorCombos()
 
 void center_zq_door_dialogs()
 {
-    jwin_center_dialog(door_select_dlg);
     jwin_center_dialog(doorcomboset_dlg);
     jwin_center_dialog(doorcombosetlist_dlg);
 }

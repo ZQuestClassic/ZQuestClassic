@@ -556,11 +556,7 @@ void build_biw_list();
 const char *weaponlist(int32_t index, int32_t *list_size);
 const char *weaponlist_num(int32_t index, int32_t *list_size);
 
-//char *doors_string[8]={"wall","passage","locked","shutter","bombable","walk thru","1-way shutter","boss"};
-const char *doorslist(int32_t index, int32_t *list_size);
-void edit_door(int32_t side);
 int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
-const char *doorcombosetlist(int32_t index, int32_t *list_size);
 int32_t onDoors();
 int32_t onScrData();
 int32_t onScreenScript();
@@ -654,8 +650,6 @@ int32_t onEditSFX(int32_t index);
 
 void fix_dcs(int32_t index, int32_t dir);
 void editdoorcomboset(int32_t index);
-
-const char *doorcombosetlist(int32_t index, int32_t *list_size);
 
 int32_t doorcombosetlist_del();
 int32_t copydcs();
