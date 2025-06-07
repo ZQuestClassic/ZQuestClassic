@@ -807,10 +807,10 @@ untyped : A special datatype that can be cast to and from any other type.
 		Object type for storing palettes
 	
 	portal :
-		pointer to one of the on-screen 'portals' (See ZScript_Docs.html)
+		pointer to one of the on-screen 'portals'
 	
 	savedportal :
-		Object type for storing portal data that saves with the save file (See ZScript_Docs.html)
+		Object type for storing portal data that saves with the save file
 	
 	subscreendata :
 		Object type for reading/modifying engine Subscreens

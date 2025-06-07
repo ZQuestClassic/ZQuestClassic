@@ -142,10 +142,6 @@ jobs:
       - if: ${{ !inputs.cache }}
         run: echo "CCACHE_DISABLE=1" >> "$GITHUB_ENV"
 
-      - name: Build ZScript docs
-        if: inputs.official
-        run: python webdocs/docjson_main.py --in webdocs/zsdocs_main.json --out resources/docs/ZScript_Docs.html -c
-
       # Configure build.
       - if: inputs.compiler == 'gcc'
         run: |

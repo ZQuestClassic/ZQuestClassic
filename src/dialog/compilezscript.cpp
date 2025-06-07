@@ -570,8 +570,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		
 		case message::DOCS:
-			if(fileexists("docs/ZScript_Docs.html"))
-				launch_file("docs/ZScript_Docs.html");
+			util::open_web_link("https://docs.zquestclassic.com/zscript/");
 			return false;
 		
 		case message::STD_ZH:
