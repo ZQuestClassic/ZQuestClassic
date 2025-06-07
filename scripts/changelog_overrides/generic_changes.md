@@ -66,8 +66,10 @@ drop 1152e5548ac155eba7ea08ff410d7b4e3b130319 fix(zc): Region 'Physical' mapping
 drop 6be636e6d7c83d294de1c73019c29b97670bd537 fix(zq): description of 'Consume w/o trig' triggerflag was misleading
 drop 41139dde14d5cfa964c555695f478feb320c9dd0 fix: use correct app id in zalleg_setup_allegro
 drop 35505498d5a8e2c2668eb7a1d21715ed9af3900a fix(zq): add missing sideview ladder flags to top row of item cellar and passageway
+drop 7f249ee2ec123fefdbc69b968d8f99fe71bf5c82 fix(zscript): fix broken array literals when declared as array pointers
 
 reword 383b5d34a6d33963e0a0caef3f6ff2c1c49d920b refactor(zq): upgrade sprite data list dialog
 reword c4a6d8b720e294688fa688828f276e2caf5c1584 refactor(zq): clean up `Quest->Audio->MIDIs` lister
+reword 35c95f6cc8bdaf374cfef3bf06a4370e573a9cae refactor(zq)!: update door selector to zcgui (#1098)
 
 drop 14267e6b6fd29a990b66438ed35ccb9e79d9ce74 feat: subscreen minimap compass can point to boss instead of McGuffin
