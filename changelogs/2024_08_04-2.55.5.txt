@@ -23,7 +23,7 @@ capture allegro 5 systems logging in allegro.log
 crash in native file picker from bad string
 sprite drawing not deleting all bitmaps it created
 crash when file prompt initial path has no slash
-zc: kill all sound effects for passageways, item cellars, and when stepping out of a warp (#942)
+zc: kill all sound effects for passageways, item cellars, and when stepping out of a warp
 zc: [windows] save path being cut off in log
 zc: resolve replay qst against quests dir, handle missing file better
 zc: prevent replay save from happening on title screen

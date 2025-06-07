@@ -408,6 +408,9 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         if hash in overrides and overrides[hash][0] == 'drop':
             continue
 
+        # Remove GitHub PR number. The commit URL will link to this anyway.
+        subject = re.sub(r' \(#\d+\)$', '', subject).strip()
+
         body = subprocess.check_output(
             f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8'
         ).strip()

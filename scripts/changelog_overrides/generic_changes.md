@@ -70,6 +70,6 @@ drop 7f249ee2ec123fefdbc69b968d8f99fe71bf5c82 fix(zscript): fix broken array lit
 
 reword 383b5d34a6d33963e0a0caef3f6ff2c1c49d920b refactor(zq): upgrade sprite data list dialog
 reword c4a6d8b720e294688fa688828f276e2caf5c1584 refactor(zq): clean up `Quest->Audio->MIDIs` lister
-reword 35c95f6cc8bdaf374cfef3bf06a4370e573a9cae refactor(zq)!: update door selector to zcgui (#1098)
+reword 35c95f6cc8bdaf374cfef3bf06a4370e573a9cae refactor(zq)!: update door selector to zcgui
 
 drop 14267e6b6fd29a990b66438ed35ccb9e79d9ce74 feat: subscreen minimap compass can point to boss instead of McGuffin
