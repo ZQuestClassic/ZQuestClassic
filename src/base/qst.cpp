@@ -3505,12 +3505,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET, 1);
 	if (compatrule_version < 79)
 		set_qr(qr_BROKEN_SYSTEM_COLORS, 1);
+	if (compatrule_version < 80)
+		set_qr(qr_ZS_OLD_SUSPEND_FFC, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
-	if (compatrule_version < 80)
-		set_qr(qr_PARSER_BOOL_TRUE_DECIMAL, 1);
 
 	*Header = tempheader;
 
