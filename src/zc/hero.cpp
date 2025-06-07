@@ -30115,7 +30115,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	{
 		if (old_dmap == new_dmap || (replay_version_check(0, 15)))
 		{
-			ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false); //Prewaitdraw
+			run_scrolling_script_int(false); // not ZScriptVersion::RunScrollingScript; scrolling is over
 		}
 	}
 
