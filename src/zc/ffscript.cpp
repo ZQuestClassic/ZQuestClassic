@@ -35798,8 +35798,7 @@ int32_t ffscript_engine(const bool preload)
 		throwGenScriptEvent(GENSCR_EVENT_FFC_PRELOAD);
 	}
 
-	//run screen script, first
-	if (!FFCore.system_suspend[susptSCREENSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+	if (!FFCore.system_suspend[susptSCREENSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !get_qr(qr_ZS_OLD_SUSPEND_FFC))
 	{
 		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 			if ((preload && scr->preloadscript) || !preload)
@@ -35809,11 +35808,25 @@ int32_t ffscript_engine(const bool preload)
 					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);
 				}
 			}
-		});
+			});
 	}
 
 	if (!FFCore.system_suspend[susptFFCSCRIPTS])
 	{
+		//intentional it's for compatability
+		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && get_qr(qr_ZS_OLD_SUSPEND_FFC))
+		{
+			for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if ((preload && scr->preloadscript) || !preload)
+				{
+					if (scr->script > 0 && FFCore.doscript(ScriptType::Screen, scr->screen))
+					{
+						ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);
+					}
+				}
+				});
+		}
+
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if(ffc_handle.ffc->script == 0)
 				return;

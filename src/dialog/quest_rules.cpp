@@ -1686,6 +1686,7 @@ GUI::ListData instructionRulesList
 	{ "Game->Generic[GEN_CONTINUEHEARTS] is in 'Hearts'", qr_SCRIPT_CONTHP_IS_HEARTS,
 		"If checked, read/write to 'Game->Generic[GEN_CONTINUEHEARTS]' is in 'Hearts'. Otherwise,"
 		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)"}
+	
 };
 
 GUI::ListData objectRulesList
@@ -1723,6 +1724,9 @@ GUI::ListData bugfixRulesList
 	{ "Old 'Hero->Warp' Return Square", qr_OLD_HERO_WARP_RETSQUARE,
 		"If checked, 'Hero->Warp()' uses the return square of the current screen's Sidewarp A."
 		" Otherwise, it uses return square A." },
+	{ "Game->Suspend[susptFFCSCRIPTS] suspends screen scripts", qr_ZS_OLD_SUSPEND_FFC,
+		"If checked, setting 'Game->Suspend[susptFFCSCRIPTS]' will suspend screen scripts."
+		"\nIf disabled only the ffcscripts will be suspended."}
 };
 
 extern GUI::ListData compileSettingList;
