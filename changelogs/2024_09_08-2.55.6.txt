@@ -3,7 +3,7 @@ https://zquestclassic.com/releases/2.55.6
 # Features
 
 
-configurable charge step for enemy rope walk style (#953)
+configurable charge step for enemy rope walk style
   If "Walk Attr." (aka misc attribute 10) is >0, enemies with the "Rope" walk style will use that custom value
   for the charging step.
 
