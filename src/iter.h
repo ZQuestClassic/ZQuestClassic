@@ -98,6 +98,11 @@ ZC_FORCE_INLINE void for_every_visible_rpos_layer0(T&& fn)
 	int x1 = std::ceil(viewport.right() / 16.0);
 	int y1 = std::ceil(viewport.bottom() / 16.0);
 
+	x0 = std::clamp(x0, 0, cur_region.screen_width * 16 - 1);
+	x1 = std::clamp(x1, 0, cur_region.screen_width * 16 - 1);
+	y0 = std::clamp(y0, 0, cur_region.screen_height * 11 - 1);
+	y1 = std::clamp(y1, 0, cur_region.screen_height * 11 - 1);
+
 	for (int x = x0; x <= x1; x++)
 	{
 		for (int y = y0; y <= y1; y++)
