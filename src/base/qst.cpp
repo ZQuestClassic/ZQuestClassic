@@ -9391,6 +9391,16 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					break;
 			}
 		}
+		if (s_version < 61)
+		{
+			switch (tempitem.family)
+			{
+				case itype_sword:
+					tempitem.usesound2 = WAV_BEAM;
+					break;
+			}
+		}
+
 		
 		if(tempitem.fam_type==0)  // Always do this
 			tempitem.fam_type=1;
