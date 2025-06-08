@@ -30939,7 +30939,10 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 				if(unsigned(ids[q]) >= MAXITEMS) continue;
 				if(pscript)
 					collectitem_script(ids[q]);
-				getitem(ids[q], true, true);
+
+				int32_t newid = get_progressive_item(ids[q]);
+				if (newid > -1)
+					getitem(newid, true, true);
 			}
 		}
 		break;

@@ -507,6 +507,7 @@ struct prog_item_data
 	}
 };
 static void _get_progressive_item(int32_t itmid, prog_item_data& data)
+//checks progressive items, bundles, and everything between
 {
 #ifdef IS_EDITOR
 	return;
@@ -548,7 +549,7 @@ static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 				if(game->get_maxcounter(hcitem.count) >= hcitem.max)
 					continue;
 		}
-		else if(targItem.family == itype_progressive_itm)
+		else if (targItem.family == itype_progressive_itm || targItem.family == itype_itmbundle)
 		{
 			prog_item_data subdata = data.make_child();
 			_get_progressive_item(id, subdata);
@@ -584,7 +585,7 @@ int32_t get_progressive_item(int32_t itmid, bool lastOwned)
 	_get_progressive_item(itmid, data);
 	if(data.errored)
 	{
-		Z_error("Failed to parse progressive item '%d'; infinite loop!\n", itmid);
+		Z_error("Failed to parse progressive item or item bundle '%d'; infinite loop!\n", itmid);
 		return -1;
 	}
 	if(lastOwned) return data.last_id;
