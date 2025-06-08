@@ -31108,7 +31108,9 @@ void takeitem(int32_t id)
 			for(auto q = 0; q < 10; ++q)
 			{
 				if(unsigned(ids[q]) >= MAXITEMS) continue;
-				takeitem(ids[q]);
+				int32_t newid = get_progressive_item(ids[q], true);
+				if (newid > -1)
+					takeitem(newid);
 			}
 		}
 		break;
@@ -31187,7 +31189,9 @@ void HeroClass::handle_triforce(mapscr* scr, int32_t id)
 			for(auto q = 0; q < 10; ++q)
 			{
 				if(unsigned(ids[q]) >= MAXITEMS) continue;
-				handle_triforce(scr, ids[q]);
+				int32_t newid = get_progressive_item(ids[q], true);
+				if (newid > -1)
+					handle_triforce(scr, newid);
 			}
 		}
 		break;
