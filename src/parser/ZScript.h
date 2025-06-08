@@ -108,8 +108,6 @@ namespace ZScript
 		Function* getRun() const {return runFunc;}
 		
 		bool isPrototypeRun() const;
-		
-		std::vector<std::shared_ptr<Opcode>> code;
 
 	protected:
 		Script(Program& program);
@@ -198,7 +196,8 @@ namespace ZScript
 		void setParentClass(UserClass* c) {parentClass = c;}
 		UserClass* getParentClass() const {return parentClass;}
 		
-		std::string internalRefVar;
+		std::string internalRefVarString;
+		int internalRefVar;
 		std::vector<int32_t> members;
 	protected:
 		UserClass(Program& program, ASTClass& user_class);
@@ -326,6 +325,24 @@ namespace ZScript
 		ASTDataDecl& node;
 		std::optional<int32_t> globalId;
 	};
+
+	class InternalVariable : public Datum
+	{
+	public:
+		static InternalVariable* create(
+				Scope&, ASTDataDecl&, DataType const&,
+				CompileErrorHandler* = NULL);
+
+		std::optional<std::string> getName() const {return node.getName();}
+		std::optional<std::string> getDocComment() const {return node.doc_comment;}
+		ASTDataDecl* getNode() const {return &node;}
+		Function* readfn;
+		Function* writefn;
+	private:
+		InternalVariable(Scope& scope, ASTDataDecl& node, DataType const& type);
+
+		ASTDataDecl& node;
+	};
 	
 	//A UserClass variable
 	class UserClassVar : public Datum
@@ -444,12 +461,13 @@ namespace ZScript
 		std::vector<Datum*> paramDatum;
 		std::vector<DataType const*> templ_bound_ts;
 		
-		std::vector<int32_t> opt_vals;
+		int32_t numOptionalParams;
 		int32_t id;
 
-		ASTFuncDecl* node;
+		ASTFuncDecl* node; // May be null (see @deprecated_getter).
 		Datum* thisVar;
 		Function* aliased_func; //the function this is an alias for, if any
+		ASTDataDecl* data_decl_source_node; // Only if this Function was created via @deprecated_getter
 
 		// Get the opcodes.
 		std::vector<std::shared_ptr<Opcode>> const& getCode() const

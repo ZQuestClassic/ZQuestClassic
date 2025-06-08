@@ -1,8 +1,9 @@
 name: "Update database"
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 8 * * *"
+  # This is currently not working from GHA due to anti-bot measures.
+  # schedule:
+  #   - cron: "0 8 * * *"
 
 jobs:
   update-database:

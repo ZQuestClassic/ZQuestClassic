@@ -6,7 +6,7 @@
 #include "DataStructs.h"
 #include "Types.h"
 #include "Scope.h"
-#include "zc/ffscript.h"
+#include <fmt/ranges.h>
 
 
 using namespace ZScript;
@@ -387,6 +387,24 @@ std::optional<int32_t> Variable::getCompileTimeValue(bool getinitvalue) const
 	return std::nullopt;
 }
 
+// ZScript::InternalVariable
+
+InternalVariable* InternalVariable::create(
+		Scope& scope, ASTDataDecl& node, DataType const& type,
+		CompileErrorHandler* errorHandler)
+{
+	InternalVariable* variable = new InternalVariable(scope, node, type);
+	if (variable->tryAddToScope(errorHandler)) return variable;
+	delete variable;
+	return NULL;
+}
+
+InternalVariable::InternalVariable(Scope& scope, ASTDataDecl& node, DataType const& type)
+	: Datum(scope, type), readfn(nullptr), writefn(nullptr), node(node)
+{
+	node.manager = this;
+}
+
 // ZScript::UserClassVar
 
 UserClassVar* UserClassVar::create(
@@ -554,8 +572,8 @@ Function::Function(DataType const* returnType, string const& name,
 				   vector<DataType const*> paramTypes, vector<shared_ptr<const string>> paramNames, int32_t id,
 				   int32_t flags, int32_t internal_flags, bool prototype, optional<int32_t> defaultReturn)
 	: returnType(returnType), name(name), hasPrefixType(false), isFromTypeTemplate(false),
-	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
-	  node(NULL), internalScope(NULL), externalScope(NULL), thisVar(NULL),
+	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), numOptionalParams(), id(id),
+	  node(NULL), data_decl_source_node(NULL), internalScope(NULL), externalScope(NULL), thisVar(NULL),
 	  internal_flags(internal_flags), prototype(prototype),
 	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags),
 	  aliased_func(nullptr), paramDatum(), templ_bound_ts()
@@ -800,6 +818,7 @@ static const cache_entry* getSourceCodeCacheEntry(const std::string& fname)
 		entry->lines.push_back(count);
 		count += line.size() + 1;
 	}
+	entry->lines.push_back(count);
 
 	return entry;
 }

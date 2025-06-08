@@ -24,7 +24,6 @@ src/parser/MetadataVisitor.cpp
 src/parser/DocVisitor.cpp
 src/parser/Types.cpp
 src/parser/ZScript.cpp
-
 ## End of ZQuest ZScript module
 )
 

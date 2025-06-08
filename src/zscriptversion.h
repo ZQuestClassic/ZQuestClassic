@@ -9,6 +9,8 @@
 #include "base/zdefs.h"
 #include "zc/ffscript.h"
 
+extern FFScript FFCore;
+
 class ZScriptVersion
 {
 public:

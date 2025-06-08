@@ -10,11 +10,11 @@ namespace ZScript
 
 #include <list>
 #include <vector>
-#include <map>
 #include <memory>
 #include <string>
 #include "base/ints.h"
 #include "base/headers.h"
+#include "parser/CommentUtils.h"
 #include "y.tab.hpp"
 #include "Compiler.h"
 #include "CompileOption.h"
@@ -270,7 +270,7 @@ namespace ZScript
 		bool reachable() const {return isReachable;}
 		void mark_reachable(bool b = true) {isReachable = b;}
 
-		std::map<std::string, std::string> getParsedDocComment() const;
+		ParsedComment getParsedComment() const;
 	
 		// Subclass Predicates (replacing typeof and such).
 		virtual bool isTypeArrow() const {return false;}
@@ -939,7 +939,7 @@ namespace ZScript
 		const ASTString* getImportString() const {return import_str_.get();}
 		ASTFile* getTree() {return tree_.get();}
 		ASTFile const* getTree() const {return tree_.get();}
-		void giveTree(ASTFile* tree) {tree_ = tree;}
+		void giveTree(std::shared_ptr<ASTFile> tree) {tree_ = tree;}
 		bool isInclude() const {return include_;}
 		bool wasChecked() const {return checked;}
 		void check() {checked = true;}
@@ -950,7 +950,7 @@ namespace ZScript
 		bool checked;
 		bool validated;
 		bool include_;
-		owning_ptr<ASTFile> tree_;
+		std::shared_ptr<ASTFile> tree_;
 		owning_ptr<ASTString> import_str_;
 	};
 	
@@ -1009,9 +1009,8 @@ namespace ZScript
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
 		owning_vector<ASTDataDecl> param_template;
-		owning_vector<ASTExprConst> optparams;
+		owning_vector<ASTExpr> optparams;
 		owning_vector<ASTString> templates;
-		std::vector<int32_t> optvals;
 		owning_ptr<ASTBlock> block;
 		std::vector<std::shared_ptr<DataTypeTemplate>> template_types;
 		std::string invalidMsg;
@@ -1069,6 +1068,7 @@ namespace ZScript
 
 		std::optional<LocationData> getIdentifierLocation() const;
 		std::string getName() const;
+		std::optional<std::string> getDocumentationPrefix() const;
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		virtual bool isEnum() const {return true;}
 		
@@ -1883,9 +1883,11 @@ namespace ZScript
 		{
 			auto leftType = left->getReadType(scope, errorHandler);
 			auto rightType = right->getReadType(scope, errorHandler);
-			if (leftType->isBitflagsEnum() || rightType->isBitflagsEnum())
+			if (!leftType)
+				left->getReadType(scope, errorHandler);
+			if ((leftType && leftType->isBitflagsEnum()) || rightType->isBitflagsEnum())
 				return leftType;
-			if (leftType->isLong() || rightType->isLong())
+			if ((leftType && leftType->isLong()) || rightType->isLong())
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}

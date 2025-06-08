@@ -1,6 +1,30 @@
-#include "bindings/sprite.zh"
+// Used with [ffc::Flags].
+enum FFCFlag
+{
+	FFCF_OVERLAY                   = 0,  // Draw Over (draw between layers 4 and 5).
+	FFCF_TRANS                     = 1,  // Translucent.
+	FFCF_SOLID                     = 2,  // Solidity (Partially Implemented).
+	FFCF_CARRYOVER                 = 3,  // Carry Over.
+	FFCF_STATIONARY                = 4,  // Stationary.
+	FFCF_CHANGER                   = 5,  // Is A Changer.
+	FFCF_PRELOAD                   = 6,  // Run Script On Screen Init.
+	FFCF_LENSVIS                   = 7,  // Only Visible to Lens of Truth.
+	FFCF_RESET                     = 8,  // Script Resets When Carried Over.
+	FFCF_ETHEREAL                  = 9,  // The FFC's Combo Type is ignored.
+	FFCF_IGNOREHOLDUP              = 10, // The FFC is updated while Link is holding up an item.
+	FFCF_IGNORECHANGER             = 11, // The FFC ignores changers.
+	FFCF_IMPRECISIONCHANGER        = 12, // The FFC is affected by changers if it is within 1px on both axis, not subpixel alignment.
+	FFCF_LENSINVIS                 = 13, // Not visible to the lens of truth.
+};
 
-// "Freeform combo" represent combos that may move freely around the
+const int MIN_FFC = 1;
+
+// The highest FFC ID possible for the current [Region].
+//
+// @zasm_var MAX_FFC_ID
+internal const int MAX_FFC;
+
+// "Freeform combo" (FFC) represent combos that may move freely around the
 // screen, not tied to the grid.
 //
 // Load with [Screen->LoadFFC].
@@ -11,10 +35,33 @@ class ffc {
 	// @delete
 	internal ffc();
 
-	// The combo used by the FFC for its visuals and type.
+	// The FFC's ID. Valid values are between 1 and [MAX_FFC].
+	//
+	// The general formula for an FFC's ID is the following:
+	//
+	// >  id = (screen region offset)*128 + (index into screen's ffc array) + 1
+	//
+	// where "screen region offset" refers to the index of the screen in the
+	// current region, like so:
+	//
+	// ```
+	//   0 1 2
+	//   3 4 5
+	//   6 7 8
+	// ```
+	//
+	// @zasm_var FFCID
+	internal const int ID;
+
+	// The combo ID used by the FFC for its visuals and type.
 	//
 	// @zasm_var DATA
 	internal int Data;
+
+	// The layer the FFC draws on. Unused if [FFCF_OVERLAY] is set.
+	//
+	// @zasm_var FFCLAYER
+	internal int Layer;
 
 	// The FFC script ID running on this FFC.
 	//
@@ -45,7 +92,10 @@ class ffc {
 	//
 	// @zasm_var YD2
 	internal int Ay;
-
+	
+	// Flags for the FFC.
+	//
+	// @index [enum FFCFlag]
 	// @zasm_var FFFLAGSD
 	internal bool Flags[];
 
@@ -72,11 +122,6 @@ class ffc {
 	//
 	// @zasm_var FFINITDD
 	internal untyped InitD[];
-
-	// the screen index of the FFC.
-	//
-	// @zasm_var FFCID
-	internal const int ID;
 
 	// @zasm_var FFCLASTCHANGERX
 	internal int LastChangerX;

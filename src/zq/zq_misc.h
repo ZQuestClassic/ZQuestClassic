@@ -1,6 +1,7 @@
 #ifndef ZQ_MISC_H_
 #define ZQ_MISC_H_
 
+#include "base/mapscr.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/fonts.h"
@@ -182,6 +183,7 @@ int32_t onRules2();
 int32_t onCheats();
 int32_t onStrings();
 int32_t onDmaps();
+int32_t onRegions();
 int32_t onTiles();
 int32_t onCombos();
 int32_t onMidis();
@@ -269,6 +271,7 @@ void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int3
 void KeyFileName(char *kfname);
 
 int32_t onSpacebar();
+int32_t onMenuSnapshot();
 int32_t onSnapshot();
 char const* getSnapName();
 int32_t onMapscrSnapshot();

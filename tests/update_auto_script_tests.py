@@ -61,6 +61,7 @@ def compile():
         str(root_dir / 'resources/include'),
         str(root_dir / 'resources/headers'),
         str(root_dir / 'tests/scripts/playground'),
+        str(root_dir / 'tests/scripts'),
     ]
     (run_target.get_build_folder() / 'includepaths.txt').write_text(
         ';'.join(include_paths)
@@ -93,7 +94,7 @@ def create_replay(test: Test):
         '-test',
         qst_path,
         '5',
-        '15',
+        '0',
         '-record',
         test.replay_path,
         '-replay-name',

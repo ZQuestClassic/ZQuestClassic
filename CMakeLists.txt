@@ -162,7 +162,9 @@ endif()
 # deps
 #############################################################
 
-if(NOT EMSCRIPTEN)
+# Local windows development is for some reason more finnicky to setup with the very latest
+# zlib/png. For now, use older versions locally.
+if(MSVC AND NOT (DEFINED ENV{CI} OR ZC_OFFICIAL) AND NOT ZLIB_LIBRARIES)
 	FetchContent_Declare(
 		zlib
 		GIT_REPOSITORY
@@ -195,6 +197,36 @@ if(NOT EMSCRIPTEN)
 
 	if(NOT PNG_LIBRARIES)
 		set(PNG_LIBRARIES png)
+		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+	endif()
+elseif(NOT EMSCRIPTEN)
+	FetchContent_Declare(
+		zlib
+		GIT_REPOSITORY
+			https://github.com/madler/zlib.git
+		GIT_TAG
+			v1.3.1
+		EXCLUDE_FROM_ALL
+	)
+	set(BUILD_SHARED_LIBS ON)
+	FetchContent_MakeAvailable(zlib)
+
+	set(ZLIB_ROOT "${zlib_SOURCE_DIR}" CACHE INTERNAL "Root for the zlib library, used by libpng")
+	set(PNG_STATIC OFF CACHE INTERNAL BOOL "")
+	set(PNG_TESTS OFF CACHE INTERNAL BOOL "")
+	FetchContent_Declare(
+		png
+		GIT_REPOSITORY
+			https://github.com/pnggroup/libpng
+		GIT_TAG
+			v1.6.47
+		EXCLUDE_FROM_ALL
+	)
+	FetchContent_MakeAvailable(png)
+
+	if(NOT PNG_LIBRARIES)
+		set(PNG_LIBRARIES png_shared)
 		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
 		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
 	endif()
@@ -423,6 +455,9 @@ if(MSVC)
 	# Build in parallel - speeds up the build on multicore machines.
 	add_compile_options(/MP)
 
+	# Require for fmt.
+	add_compile_options(/utf-8)
+
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")
@@ -477,6 +512,20 @@ else()
 	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3)
 endif()
 
+# Make __FILE__ relative to the source directory.
+if(MSVC)
+	add_compile_options("/d1trimfile:$(SolutionDir)")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	add_compile_options(-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.)
+endif()
+
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(is_multi_config)
+	set(BUILD_FOLDER "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+else()
+	set(BUILD_FOLDER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+endif()
+
 #############################################################
 # Allegro Graphics Addons
 #############################################################
@@ -523,9 +572,9 @@ list(APPEND IMAGELIBS al5img)
 
 # Remove once generally available in all compilers for c++ 20.
 add_library(fmt STATIC
-	src/fmt/format.cc
+	third_party/fmt/src/format.cc
 )
-target_include_directories(fmt PUBLIC include/fmt)
+target_include_directories(fmt PUBLIC third_party/fmt/include)
 
 set(zcbase_sources
 	src/base/about.cpp
@@ -540,12 +589,13 @@ set(zcbase_sources
 	src/base/fonts.cpp
 	src/base/general.cpp
 	src/base/gui.cpp
+	src/base/handles.cpp
 	src/base/hotkey.cpp
 	src/base/initdata.cpp
 	src/base/jwinfsel.cpp
 	src/base/mapscr.cpp
+	src/base/md5.cpp
 	src/base/misctypes.cpp
-	src/base/module.cpp
 	src/base/msgstr.cpp
 	src/base/new_menu.cpp
 	src/base/packfile.cpp
@@ -554,6 +604,7 @@ set(zcbase_sources
 	src/base/qst.cpp
 	src/base/random.cpp
 	src/base/render.cpp
+	src/base/scc.cpp
 	src/base/sin1.cpp
 	src/base/util.cpp
 	src/base/version.cpp
@@ -566,7 +617,7 @@ set(zcbase_sources
 	src/base/zsys.cpp
 )
 if (EMSCRIPTEN)
-    list(APPEND zcbase_sources src/base/emscripten_utils.cpp)
+	list(APPEND zcbase_sources src/base/emscripten_utils.cpp)
 endif()
 add_library(zcbase STATIC ${zcbase_sources})
 target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
@@ -851,6 +902,22 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND WIN32)
 	target_compile_definitions(zplayer PRIVATE ZC_WIN_32)
 endif()
 
+# For some reason compilation fails in CI, but only for ubuntu clang job...
+#   Linking CXX executable RelWithDebInfo/zscript
+#   /usr/bin/ld: /usr/bin/ld: DWARF error: invalid or unhandled FORM value: 0x23
+#   RelWithDebInfo/libzcbase.a(zsys.cpp.o): in function `temp_name(char*)':
+if(NOT EMSCRIPTEN AND NOT (DEFINED ENV{CI} AND CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+	file(GLOB_RECURSE zscript_binding_files "resources/include/bindings/*.zh")
+	set(gen_zscript_context_strings scripts/generate_zasm_context_strings.py zscript ${zscript_binding_files})
+	add_custom_command(
+		COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_zasm_context_strings.py --build_folder "${BUILD_FOLDER}"
+		OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp
+		DEPENDS ${gen_zscript_context_strings}
+	)
+	add_custom_target(gen_zscript_context_strings DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp)
+	add_dependencies(zplayer gen_zscript_context_strings)
+endif()
+
 #############################################################
 # ZQuest
 #############################################################
@@ -981,9 +1048,9 @@ endif()
 #############################################################
 
 if (EMSCRIPTEN)
-	target_link_options(zplayer PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_em_do_commands,_em_get_register,_em_set_register,_em_runtime_script_debug")
+	target_link_options(zplayer PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_em_do_commands,_em_get_register,_em_set_register,_em_runtime_script_debug -s EXPORTED_RUNTIME_METHODS=cwrap,wasmMemory,HEAPU8,HEAP32")
 	target_link_options(zeditor PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
-	target_link_options(zscript PRIVATE "SHELL:-no-pthread -s EXPORTED_FUNCTIONS=_compile_script -s EXTRA_EXPORTED_RUNTIME_METHODS=['FS','PROXYFS']")
+	target_link_options(zscript PRIVATE "SHELL:-no-pthread -s EXPORTED_FUNCTIONS=_main,_compile_script -s EXPORTED_RUNTIME_METHODS=cwrap,FS,PROXYFS")
 	set_target_properties(zscript PROPERTIES SUFFIX ".mjs")
 endif()
 
@@ -1022,6 +1089,12 @@ set(zc_msvc_errors
 	# /we5038
 	# /we4265
 )
+
+foreach(target IN LISTS zc_targets)
+	target_compile_definitions(${target} PRIVATE ZC_APP_NAME="${target}")
+	target_compile_definitions(${target} PRIVATE "$<$<CONFIG:DEBUG>:DCHECK_IS_ON>")
+	target_compile_definitions(${target} PRIVATE "$<$<CONFIG:ASAN>:DCHECK_IS_ON>")
+endforeach()
 
 if(WANT_SENTRY)
 	set(SENTRY_VERSION 0.6.6)
@@ -1135,13 +1208,6 @@ if(WIN32)
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS /W0)
 else()
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS -Wno-everything)
-endif()
-
-get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if(is_multi_config)
-	set(BUILD_FOLDER "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
-else()
-	set(BUILD_FOLDER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 endif()
 
 add_custom_command(

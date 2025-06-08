@@ -1,6 +1,7 @@
 #include "allegro/gui.h"
 #include "base/files.h"
-#define MIDI_TRACK_BUFFER_SIZE 50
+#include "base/mapscr.h"
+#include "dialog/edit_region.h"
 
 #include <memory>
 #include <stdio.h>
@@ -55,9 +56,6 @@
 #include "dialog/alertfunc.h"
 #include "zq/gui/edit_autocombo.h"
 
-particle_list particles;
-void setZScriptVersion(int32_t) { } //bleh...
-
 #include <al5_img.h>
 #include <loadpng.h>
 #include <fmt/format.h>
@@ -98,6 +96,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "base/qst.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
+#include "base/process_management.h"
 #include "play_midi.h"
 #include "sound/zcmusic.h"
 
@@ -114,9 +113,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/zq_custom.h" // custom items and guys
 #include "zq/zq_strings.h"
 #include "zq/questReport.h"
-#include "zq/ffasmexport.h"
 #include <fstream>
-#include "base/module.h"
 #include "drawing.h"
 #include "zconsole/ConsoleLogger.h"
 #include "colorname.h"
@@ -124,10 +121,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/package.h"
 #include "zq/zq_files.h"
 #include "music_playback.h"
-
-extern CConsoleLoggerEx parser_console;
-
-namespace fs = std::filesystem;
 
 //Windows mmemory tools
 #ifdef _WIN32
@@ -141,7 +134,14 @@ namespace fs = std::filesystem;
 #include <emscripten/emscripten.h>
 #endif
 
-//SDL_Surface *sdl_screen;
+#define MIDI_TRACK_BUFFER_SIZE 50
+extern CConsoleLoggerEx parser_console;
+
+using ZScript::disassembled_script_data;
+void write_script(vector<shared_ptr<ZScript::Opcode>> const& zasm, string& dest,
+	bool commented, map<string,disassembled_script_data>* scr_meta_map);
+
+namespace fs = std::filesystem;
 
 #if defined(ALLEGRO_WINDOWS)
 static const char *data_path_name   = "win_data_path";
@@ -194,7 +194,6 @@ extern byte monochrome_console;
 extern CConsoleLoggerEx zscript_coloured_console;
 
 uint8_t console_is_open = 0;
-uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 bool is_zq_replay_test = false;
 
 #include "base/util.h"
@@ -213,8 +212,8 @@ FFScript FFCore;
 
 void load_size_poses();
 void do_previewtext();
-bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode);
-void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
+bool do_slots(vector<shared_ptr<ZScript::Opcode>> const& zasm,
+	map<string, disassembled_script_data> &scripts, int assign_mode);
 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
@@ -226,7 +225,6 @@ ComboPosition mouse_combo_pos;
 int32_t original_playing_field_offset=0;
 int32_t playing_field_offset=original_playing_field_offset;
 int32_t passive_subscreen_height=56;
-int32_t passive_subscreen_offset=0;
 
 bool disable_saving=false, OverwriteProtection;
 bool halt=false;
@@ -427,7 +425,6 @@ int32_t mouse_scroll_h;
 int32_t mapscreen_x, mapscreen_y, showedges, showallpanels;
 // The scale of the entire mapscreen area. This varies based on compact/extended mode.
 static int mapscreen_screenunit_scale;
-// Would love to have no limit, but our screen bitmap has too low a resolution at the moment.
 // The scale of an individual screen being drawn. This is `mapscreen_screenunit_scale / Map.getViewSize()`.
 static double mapscreen_single_scale;
 // 4 is roughly the largest value where things render okay. Beyond that, our low bitmap resolution results in tons
@@ -656,12 +653,12 @@ extern int CheckerCol1, CheckerCol2;
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 0, GridColor = 15, ShowCurScreenOutline = 1,
+int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 0, ShowRegionGrid = 0, GridColor = 15, ShowCurScreenOutline = 1,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
 	TileProtection = 0, ComboProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
 	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
-	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
+	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0,
 	DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0,
 	ActiveLayerHighlight = 0, DragCenterOfSquares = 0;
 uint8_t InvalidBG = 0;
@@ -1161,7 +1158,6 @@ static NewMenu file_menu
 {
 	{ "&New", do_NewQuest },
 	{ "&Open", do_OpenQuest },
-	{ "&Load Tileset", onTileset },
 	{ "Recent", &recent_menu },
 	{},
 	{ "&Save", onSave, MENUID_FILE_SAVE },
@@ -1301,6 +1297,7 @@ static NewMenu quest_menu
 	{ "&Hero", onCustomHero },
 	{ "&Strings", onStrings },
 	{ "&DMaps", onDmaps },
+	{ "&Regions", onRegions },
 	{ "I&nit Data", onInit },
 	{ "Misc D&ata ", &misc_menu },
 	{ "&ZInfo", onZInfo },
@@ -1480,6 +1477,7 @@ enum
 	MENUID_VIEW_SCRIPTNAMES,
 	MENUID_VIEW_GRID,
 	MENUID_VIEW_SCREENGRID,
+	MENUID_VIEW_REGIONGRID,
 	MENUID_VIEW_CURSCROUTLINE,
 	MENUID_VIEW_DARKNESS,
 	MENUID_VIEW_L2BG,
@@ -1502,6 +1500,7 @@ NewMenu view_menu
 	{ "Show Script &Names", onToggleShowScripts, MENUID_VIEW_SCRIPTNAMES },
 	{ "Show &Grid", onGridToggle, MENUID_VIEW_GRID },
 	{ "Show Screen G&rid", onToggleScreenGrid, MENUID_VIEW_SCREENGRID },
+	{ "Show Region Grid", onToggleRegionGrid, MENUID_VIEW_REGIONGRID },
 	{ "Show Current Screen Outline", onToggleCurrentScreenOutline, MENUID_VIEW_CURSCROUTLINE },
 	{ "Show &Darkness", onShowDarkness, MENUID_VIEW_DARKNESS },
 	{ "Layer 2 is Background", onLayer2BG, MENUID_VIEW_L2BG },
@@ -1613,7 +1612,7 @@ static NewMenu etc_menu
 	{},
 	{ "&Debug Console", toggleConsole, MENUID_ETC_DEBUG_CONSOLE },
 	{ "Clear Quest Filepath", onClearQuestFilepath },
-	{ "&Take ZQ Snapshot", onSnapshot },
+	{ "&Take ZQ Snapshot", onMenuSnapshot },
 	{ "Take &Screen Snapshot", onMapscrSnapshot },
 };
 
@@ -1623,8 +1622,6 @@ static NewMenu zscript_menu
 	{},
 	{ "&Compiler Settings", onZScriptCompilerSettings },
 	{ "&Quest Script Settings", onZScriptSettings },
-	{},
-	{ "&Import ZASM Script", onImportZASM },
 };
 
 void set_console_state()
@@ -1727,6 +1724,13 @@ int32_t onToggleScreenGrid()
 {
 	ShowScreenGrid=!ShowScreenGrid;
 	zc_set_config("zquest","show_screen_grid",ShowScreenGrid);
+	return D_O_K;
+}
+
+int32_t onToggleRegionGrid()
+{
+	ShowRegionGrid=!ShowRegionGrid;
+	zc_set_config("zquest","show_region_grid",ShowRegionGrid);
 	return D_O_K;
 }
 
@@ -2996,7 +3000,6 @@ static ListData autosave_list(autosavelist, &font);
 static ListData autosave_list2(autosavelist2, &font);
 static ListData color_list(colorlist, &font);
 static ListData snapshotformat_list(snapshotformatlist, &font);
-void init_ffpos();
 
 const char *dm_names[dm_max]=
 {
@@ -3102,9 +3105,6 @@ int32_t onCopy()
     if(prv_mode)
     {
         Map.set_prvcmb(Map.get_prvcmb()==0?1:0);
-        
-        init_ffpos();
-        
         return D_O_K;
     }
     
@@ -4599,37 +4599,41 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 
 	if(isviewingmap)
 	{
+		set_center_root_rti(false);
+
 		int sw = rti_map_view.width / 16;
 		int sh = rti_map_view.height / 8;
-		int scr = Map.getCurrScr();
-		if (scr >= 0x00 && scr <= 0x7F)
+		int screen = Map.getCurrScr();
+		if (screen >= 0x00 && screen <= 0x7F)
 		{
-			int dw = al_get_display_width(all_get_display()) / get_root_rti()->get_transform().xscale;
-			int dh = al_get_display_height(all_get_display()) / get_root_rti()->get_transform().yscale;
-			mapx = (-(scr % 16) * sw - sw/2 + dw/2);
-			mapy = (-(scr / 16) * sh - sh/2 + dh/2);
+			auto root_transform = get_root_rti()->get_transform();
+			int dw = al_get_display_width(all_get_display()) / root_transform.xscale;
+			int dh = al_get_display_height(all_get_display()) / root_transform.yscale;
+			mapx = (-(screen % 16) * sw - sw/2 + dw/2);
+			mapy = (-(screen / 16) * sh - sh/2 + dh/2);
 		}
-	}
-
-	int w, h;
-	if (isviewingmap)
-	{
-		w = rti_map_view.width;
-		h = rti_map_view.height;
-	}
-	else
-	{
-		w = (*pictoview)->w;
-		h = (*pictoview)->h;
 	}
 
 	do
 	{
+		int w, h;
+		if (isviewingmap)
+		{
+			w = rti_map_view.width;
+			h = rti_map_view.height;
+		}
+		else
+		{
+			w = (*pictoview)->w;
+			h = (*pictoview)->h;
+		}
+
 		if (isviewingmap)
 		{
 			float scale = *scale2;
-			int dw = al_get_display_width(all_get_display()) / get_root_rti()->get_transform().xscale;
-			int dh = al_get_display_height(all_get_display()) / get_root_rti()->get_transform().yscale;
+			auto root_transform = get_root_rti()->get_transform();
+			int dw = al_get_display_width(all_get_display()) / root_transform.xscale;
+			int dh = al_get_display_height(all_get_display()) / root_transform.yscale;
 			mapx = std::max(mapx, (int)(-w*scale + dw));
 			mapy = std::max(mapy, (int)(-h*scale + dh));
 			mapx = std::min(mapx, 0);
@@ -4821,6 +4825,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	popup_zqdialog_end();
 	position_mouse_z(0);
 	viewer_overlay_rti.remove();
+	set_center_root_rti(true);
 	close_the_map();
 	return D_O_K;
 }
@@ -5927,6 +5932,12 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 			}
 
+			int startxint = mapscreen_x+(showedges?int(16*mapscreen_single_scale):0);
+			int startyint = mapscreen_y+(showedges?int(16*mapscreen_single_scale):0);
+			int endxint = startx + 256*mapscreen_screenunit_scale - 1;
+			int endyint = starty + 176*mapscreen_screenunit_scale - 1;
+			set_clip_rect(menu1,startxint,startyint,endxint,endyint);
+
 			if(ShowGrid)
 			{
 				int w = num_combos_width;
@@ -5977,6 +5988,28 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 			}
 
+			// Draw a rect around regions.
+			if (ShowRegionGrid && Map.getViewSize() > 1)
+			{
+				for (const auto& region_description : Map.get_region_descriptions())
+				{
+					int sx = region_description.screen % 16;
+					int sy = region_description.screen / 16;
+					int sw = region_description.w;
+					int sh = region_description.h;
+
+					int mw = 256 * mapscreen_single_scale;
+					int mh = 176 * mapscreen_single_scale;
+					int mx = sx - (Map.getViewScr() % 16);
+					int my = sy - (Map.getViewScr() / 16);
+					int x0 = mapscreen_x + (showedges ? (16 * mapscreen_single_scale) : 0) + mx * mw;
+					int y0 = mapscreen_y + (showedges ? (16 * mapscreen_single_scale) : 0) + my * mh;
+					rect(menu1, x0+2, y0+2, x0 + mw*sw - 2, y0 + mh*sh - 2, vc(1));
+					rect(menu1, x0+1, y0+1, x0 + mw*sw - 1, y0 + mh*sh - 1, vc(15));
+					rect(menu1, x0, y0, x0 + mw*sw, y0 + mh*sh, vc(1));
+				}
+			}
+
 			// Draw a black-yellow-black rect around the currently selected screen.
 			if (ShowCurScreenOutline && Map.getViewSize() > 1)
 			{
@@ -5986,11 +6019,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				int my = (Map.getCurrScr() / 16) - (Map.getViewScr() / 16);
 				int x0 = mapscreen_x + (showedges ? (16 * mapscreen_single_scale) : 0) + mx * mw;
 				int y0 = mapscreen_y + (showedges ? (16 * mapscreen_single_scale) : 0) + my * mh;
-				dotted_rect(menu1, x0+1, y0+1, x0 + mw - 1, y0 + mh - 1, vc(1), vc(0));
-				rect(menu1, x0, y0, x0 + mw, y0 + mh, vc(14));
-				dotted_rect(menu1, x0-1, y0-1, x0 + mw + 1, y0 + mh + 1, vc(1), vc(0));
+				dotted_rect(menu1, x0+2, y0+2, x0 + mw - 2, y0 + mh - 2, vc(1), vc(0));
+				rect(menu1, x0+1, y0+1, x0 + mw - 1, y0 + mh - 1, vc(14));
+				dotted_rect(menu1, x0, y0, x0 + mw, y0 + mh, vc(1), vc(0));
 			}
-			
+
+			clear_clip_rect(menu1);
+
 			// Map tabs
 			font = get_custom_font(CFONT_GUI);
 			
@@ -7612,7 +7647,7 @@ byte relational_source_grid[256]=
 static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe = false)
 {
 	combo_auto &ca = combo_autos[combo_auto_pos];
-	int scr = Map.getScreenForPosition(combo_pos);
+	int screen = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 
 	if (ca.valid())
@@ -7621,117 +7656,117 @@ static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe
 		{
 			case AUTOCOMBO_BASIC:
 			{
-				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_Z1:
 			{
-				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_RELATIONAL:
 			{
-				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DGNCARVE:
 			{
-				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DOR:
 			{
-				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_TILING:
 			{
 				if (pressframe && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
-					int32_t x = (scr % 16) * 16 + (pos % 16);
-					int32_t y = (scr / 16) * 11 + (pos / 16);
+					int32_t x = (screen % 16) * 16 + (pos % 16);
+					int32_t y = (screen / 16) * 11 + (pos / 16);
 					byte w = (ca.getArg() & 0xF) + 1;
 					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
 					ca.setOffsets(x % w, y % h);
 				}
-				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_REPLACE:
 			{
-				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DENSEFOREST:
 			{
 				if (pressframe && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
-					int32_t x = (scr % 16) * 16 + (pos % 16);
-					int32_t y = (scr / 16) * 11 + (pos / 16);
+					int32_t x = (screen % 16) * 16 + (pos % 16);
+					int32_t y = (screen / 16) * 11 + (pos / 16);
 					ca.setOffsets(x % 2, y % 2);
 				}
-				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_EXTEND:
 			{
 				if (CHECK_CTRL_CMD)
 					break;
-				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 		}
@@ -7748,7 +7783,7 @@ static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe
 static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int32_t arg = 0)
 {
 	combo_auto ca = combo_autos[combo_auto_pos];
-	int scr = Map.getScreenForPosition(combo_pos);
+	int screen = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 
 	if (ca.valid())
@@ -7757,20 +7792,20 @@ static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int
 		{
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				ap.flip_all_connected(scr, pos, 2048);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				ap.flip_all_connected(screen, pos, 2048);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
 				switch (cmd)
 				{
 					case 0: // Flip
-						ap.flip_all_connected(scr, pos, 2048);
+						ap.flip_all_connected(screen, pos, 2048);
 						break;
 					case 1: // Grow
-						ap.resize_connected(scr, pos, 2048, vbound(arg, 1, 9));
+						ap.resize_connected(screen, pos, 2048, vbound(arg, 1, 9));
 						break;
 				}
 			}
@@ -7781,7 +7816,7 @@ static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int
 static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 {
 	combo_auto& ca = combo_autos[combo_auto_pos];
-	int scr = Map.getScreenForPosition(combo_pos);
+	int screen = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 	int cid = 0;
 
@@ -7791,45 +7826,45 @@ static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 		{
 			case AUTOCOMBO_BASIC:
 			{
-				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 
 			case AUTOCOMBO_Z1:
 			{
-				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_RELATIONAL:
 			{
-				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DGNCARVE:
 			{
-				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DOR:
 			{
-				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_TILING:
@@ -7837,33 +7872,33 @@ static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 				std::pair<byte, byte> offs = ca.getOffsets();
 				if (!clicked && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
-					int32_t x = (scr % 16) * 16 + (pos % 16);
-					int32_t y = (scr / 16) * 11 + (pos / 16);
+					int32_t x = (screen % 16) * 16 + (pos % 16);
+					int32_t y = (screen / 16) * 11 + (pos / 16);
 					byte w = (ca.getArg() & 0xF) + 1;
 					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
 					offs.first = (x % w);
 					offs.second = (y % h);
 				}
-				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_REPLACE:
 			{
-				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DENSEFOREST:
 			{
-				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_EXTEND:
 			{
-				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 		}
@@ -12593,7 +12628,6 @@ const char *weaponlist_num(int32_t index, int32_t *list_size)
 int32_t writeoneweapon(PACKFILE *f, int32_t index)
 {
     dword section_version=V_WEAPONS;
-    dword section_cversion=CV_WEAPONS;
     int32_t zversion = ZELDA_VERSION;
     int32_t zbuild = VERSION_BUILD;
     int32_t iid = biw[index].i;
@@ -12613,7 +12647,7 @@ int32_t writeoneweapon(PACKFILE *f, int32_t index)
 	    return 0;
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version, f))
     {
 	    return 0;
     }
@@ -12668,7 +12702,6 @@ int32_t writeoneweapon(PACKFILE *f, int32_t index)
 int32_t readoneweapon(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
-	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	wpndata tempwpnspr;
@@ -12689,12 +12722,11 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readoneweapon section_version: %d\n", section_version);
-	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
 
 	if ( zversion > ZELDA_VERSION )
 	{
@@ -12702,9 +12734,9 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	else if ( ( section_version > V_WEAPONS ) || ( section_version == V_WEAPONS && section_cversion < CV_WEAPONS ) )
+	else if ( ( section_version > V_WEAPONS ) )
 	{
-		al_trace("Cannot read .zwpnspr packfile made using V_WEAPONS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zwpnspr packfile made using V_WEAPONS (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -13986,11 +14018,12 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 		{
 			if (x + xoff < 0 || x + xoff > 15)
 				continue;
-			mapscr* scr = &TheMaps[themap * MAPSCRS + y * 16 + x + (large ? xoff : 0)];
+
+			const mapscr* scr = get_canonical_scr(themap, y * 16 + x + (large ? xoff : 0));
 			if (!(scr->valid & mVALID))
 				continue;
-			al_draw_filled_rectangle(dx + (x * col_width), dy + (y * l), dx + (x * col_width + col_width), dy + ((y * l) + l), real_lc1(scr->color));
 
+			al_draw_filled_rectangle(dx + (x * col_width), dy + (y * l), dx + (x * col_width + col_width), dy + ((y * l) + l), real_lc1(scr->color));
 			al_draw_filled_rectangle(dx + (x * col_width + dot_offset), dy + (y * l + 3), dx + (x * col_width + dot_offset + dot_width), dy + (y * l + l - 3), real_lc2(scr->color));
 		}
 	}
@@ -14009,8 +14042,6 @@ const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
     return bidmaps[index].first.c_str();
 }
 
-
-//droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData dmapscript_list(dmapscriptdroplist, &a4fonts[font_pfont]);
 
 //int32_t selectdmapxy[6] = {90,142,164,150,164,160};
@@ -14039,7 +14070,6 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
 {
     
     dword section_version=V_DMAPS;
-    dword section_cversion=CV_DMAPS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	
@@ -14062,7 +14092,7 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
 		new_return(2);
 	}
     
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version, f))
 	{
 		new_return(3);
 	}
@@ -14338,7 +14368,6 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
 int32_t readsomedmaps(PACKFILE *f)
 {
 	dword section_version = 0;
-	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	dmap tempdmap{};
@@ -14373,7 +14402,7 @@ int32_t readsomedmaps(PACKFILE *f)
 		return 0;
 	}
     
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
@@ -14408,16 +14437,15 @@ int32_t readsomedmaps(PACKFILE *f)
 	
 	
 	al_trace("readsomedmaps section_version: %d\n", section_version);
-	al_trace("readsomedmaps section_cversion: %d\n", section_cversion);
     
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	else if (( section_version > V_DMAPS ) || ( section_version == V_DMAPS && section_cversion > CV_DMAPS ) ) 
+	else if (( section_version > V_DMAPS )) 
 	{
-		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d)\n", section_version);
 		return 0;
 	}
 	else
@@ -14697,7 +14725,6 @@ int32_t writeonedmap(PACKFILE *f, int32_t i)
 {
     
     dword section_version=V_DMAPS;
-    dword section_cversion=CV_DMAPS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	
@@ -14720,7 +14747,7 @@ int32_t writeonedmap(PACKFILE *f, int32_t i)
 		new_return(2);
 	}
     
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version, f))
 	{
 		new_return(3);
 	}
@@ -14971,7 +14998,6 @@ int32_t writeonedmap(PACKFILE *f, int32_t i)
 int32_t readonedmap(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
-	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	dmap tempdmap{};
@@ -15008,12 +15034,11 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 		return 0;
 	}
     
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
 	al_trace("readonedmap section_version: %d\n", section_version);
-	al_trace("readonedmap section_cversion: %d\n", section_cversion);
     
 	
 	if ( datatype_version < 0 )
@@ -15040,9 +15065,9 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	else if (( section_version > V_DMAPS ) || ( section_version == V_DMAPS && section_cversion > CV_DMAPS ) ) 
+	else if (( section_version > V_DMAPS )) 
 	{
-		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d)\n", section_version);
 		return 0;
 	}
 	else
@@ -15423,6 +15448,31 @@ int32_t onDmaps()
     return D_O_K;
 }
 
+int32_t onRegions()
+{
+	bool valid = false;
+	for (int i = 0; i < MAPSCRS; i++)
+	{
+		if (Map.Scr(i)->is_valid())
+		{
+			valid = true;
+			break;
+		}
+	}
+
+	if (valid)
+	{
+    	call_edit_region_dialog(Map.getCurrMap());
+		Map.regions_mark_dirty();
+	}
+	else
+	{
+		InfoDialog("Invalid maps", "There must be at least one valid screen in a map to configure regions").show();
+	}
+
+    return D_O_K;
+}
+
 int32_t onMidis()
 {
     stopMusic();
@@ -15689,11 +15739,11 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 				auto gr = (yind < 8 ? dm.grid[yind] : 0);
 				for(int xind = (yind == 8 ? 0 : val_offset); xind < scrw; ++xind)
 				{
-					int scr = xind+(yind*16);
-					if(scr > max)
+					int screen_index = xind+(yind*16);
+					if(screen_index > max)
 						continue;
 					int fr = FR_MENU;
-					if(scr == d->d1)
+					if(screen_index == d->d1)
 						fr = FR_GREEN;
 					else if(!is_overworld && xind < 8 && (gr&(1<<(8-xind-1))))
 						fr = FR_MENU_INV;
@@ -16379,23 +16429,43 @@ const char *dirlist(int32_t index, int32_t *list_size)
 
 static ListData path_dlg_list(dirlist, &font);
 
+static const char *wipestr[] = {"None", "Circle", "Oval", "Triangle", "SMAS", "Fade Black"};
+// enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
+const char *wipelist(int32_t index, int32_t *list_size)
+{
+    if(index>=0)
+    {
+        if(index>5)
+            index=5;
+
+        return wipestr[index];
+    }
+    
+    *list_size=6;
+    return NULL;
+}
+
+static ListData wipe_effect_dlg_list(wipelist, &font);
+
 static DIALOG path_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,      80,   57,   161,  164,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Maze Path", NULL, NULL },
+    { jwin_win_proc,      80,   57,   161,  182,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Maze Path", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { jwin_text_proc,       94,   106,   192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "1st", NULL, NULL },
     { jwin_text_proc,       94,   124,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "2nd", NULL, NULL },
     { jwin_text_proc,       94,   142,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "3rd", NULL, NULL },
     { jwin_text_proc,       94,   160,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "4th", NULL, NULL },
     { jwin_text_proc,       94,   178,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Exit", NULL, NULL },
+	{ jwin_text_proc,       94,   196,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Wipe effect", NULL, NULL },
     { jwin_droplist_proc,   140,  102,   80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  120,   80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  138,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  156,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  174,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
-    { jwin_button_proc,     90,   194,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  194,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_droplist_proc,   140,  192,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &wipe_effect_dlg_list, NULL, NULL },
+    { jwin_button_proc,     90,   212,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     170,  212,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onHelp, NULL, NULL },
     { jwin_text_proc,       87,   82,   192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "A Lost Woods-style maze screen", NULL, NULL },
     { jwin_text_proc,       87,   92,   192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with a normal and secret exit.", NULL, NULL },
@@ -16408,9 +16478,10 @@ int32_t onPath()
     path_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<4; i++)
-        path_dlg[i+7].d1 = Map.CurrScr()->path[i];
+        path_dlg[i+8].d1 = Map.CurrScr()->path[i];
         
-    path_dlg[11].d1 = Map.CurrScr()->exitdir;
+    path_dlg[12].d1 = Map.CurrScr()->exitdir;
+	path_dlg[13].d1 = Map.CurrScr()->maze_transition_wipe;
     
     large_dialog(path_dlg);
         
@@ -16418,11 +16489,13 @@ int32_t onPath()
     
     do
     {
-        ret=do_zqdialog(path_dlg,7);
-        
-        if(ret==12) for(int32_t i=0; i<4; i++)
+        ret=do_zqdialog(path_dlg,8);
+
+        if(ret==14)
+        {
+            for(int32_t i=0; i<4; i++)
             {
-                if(path_dlg[i+7].d1 == path_dlg[11].d1)
+                if(path_dlg[i+8].d1 == path_dlg[12].d1)
                 {
                     if(jwin_alert("Exit Problem","One of the path's directions is","also the normal Exit direction! Continue?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
                         ret = -1;
@@ -16430,17 +16503,19 @@ int32_t onPath()
                     break;
                 }
             }
+        }
     }
     while(ret == -1);
     
-    if(ret==12)
+    if(ret==14)
     {
         saved=false;
         
         for(int32_t i=0; i<4; i++)
-            Map.CurrScr()->path[i] = path_dlg[i+7].d1;
+            Map.CurrScr()->path[i] = path_dlg[i+8].d1;
             
-        Map.CurrScr()->exitdir = path_dlg[11].d1;
+        Map.CurrScr()->exitdir = path_dlg[12].d1;
+		Map.CurrScr()->maze_transition_wipe = path_dlg[13].d1;
         
         if(!(Map.CurrScr()->flags&fMAZE))
             if(jwin_alert("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?","(Go to 'Screen Data' to turn it off.)",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==1)
@@ -20379,46 +20454,6 @@ void clearAssignSlotDlg()
 	assignscript_dlg[13].flags = 0;
 }
 
-int32_t onSlotAssign()
-{
-	clearAssignSlotDlg();
-	//Clear right-hand side of names
-	asffcscripts.clear();
-	asffcscripts.push_back("<none>");
-	asglobalscripts.clear();
-	asglobalscripts.push_back("<none>");
-	asitemscripts.clear();
-	asitemscripts.push_back("<none>");
-	asnpcscripts.clear();
-	asnpcscripts.push_back("<none>");
-	aseweaponscripts.clear();
-	aseweaponscripts.push_back("<none>");
-	aslweaponscripts.clear();
-	aslweaponscripts.push_back("<none>");
-	asplayerscripts.clear();
-	asplayerscripts.push_back("<none>");
-	asdmapscripts.clear();
-	asdmapscripts.push_back("<none>");
-	asscreenscripts.clear();
-	asscreenscripts.push_back("<none>");
-	asitemspritescripts.clear();
-	asitemspritescripts.push_back("<none>");
-	
-	ascomboscripts.clear();
-	ascomboscripts.push_back("<none>");
-	asgenericscripts.clear();
-	asgenericscripts.push_back("<none>");
-	assubscreenscripts.clear();
-	assubscreenscripts.push_back("<none>");
-	//Declare new script vector
-	map<string, disassembled_script_data> scripts;
-	
-	do_script_disassembly(scripts, false);
-	
-	do_slots(scripts, false);
-	return D_O_K;
-}
-
 void inc_script_name(string& name)
 {
 	size_t pos = name.find_last_not_of("0123456789");
@@ -20434,228 +20469,6 @@ void inc_script_name(string& name)
 		oss << name.substr(0,pos) << val+1;
 	}
 	name = oss.str();
-}
-
-void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile)
-{
-	clearAssignSlotDlg();
-	bool skipDisassembled = fromCompile && try_recovering_missing_scripts == 0;
-	for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
-	{
-		if(scripts.find(globalmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[globalmap[i].scriptname].first.script_type != ScriptType::Global)
-			{
-				while(scripts.find(globalmap[i].scriptname) != scripts.end())
-					inc_script_name(globalmap[i].scriptname);
-			}
-			else continue;
-		}
-		switch(i)
-		{
-			case GLOBAL_SCRIPT_INIT:
-			{
-				break;
-			}
-			default:
-				if(!globalmap[i].isEmpty())
-				{
-					globalmap[i].format = SCRIPT_FORMAT_INVALID;
-				}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTFFC-1; ++i)
-	{
-		if(scripts.find(ffcmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[ffcmap[i].scriptname].first.script_type != ScriptType::FFC)
-			{
-				while(scripts.find(ffcmap[i].scriptname) != scripts.end())
-					inc_script_name(ffcmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!ffcmap[i].isEmpty())
-		{
-			ffcmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTITEM-1; ++i)
-	{
-		if(scripts.find(itemmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[itemmap[i].scriptname].first.script_type != ScriptType::Item)
-			{
-				while(scripts.find(itemmap[i].scriptname) != scripts.end())
-					inc_script_name(itemmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!itemmap[i].isEmpty())
-		{
-			itemmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTGUYS-1; ++i)
-	{
-		if(scripts.find(npcmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[npcmap[i].scriptname].first.script_type != ScriptType::NPC)
-			{
-				while(scripts.find(npcmap[i].scriptname) != scripts.end())
-					inc_script_name(npcmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!npcmap[i].isEmpty())
-		{
-			npcmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
-	{
-		if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[lwpnmap[i].scriptname].first.script_type != ScriptType::Lwpn)
-			{
-				while(scripts.find(lwpnmap[i].scriptname) != scripts.end())
-					inc_script_name(lwpnmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!lwpnmap[i].isEmpty())
-		{
-			lwpnmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
-	{
-		if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[ewpnmap[i].scriptname].first.script_type != ScriptType::Ewpn)
-			{
-				while(scripts.find(ewpnmap[i].scriptname) != scripts.end())
-					inc_script_name(ewpnmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!ewpnmap[i].isEmpty())
-		{
-			ewpnmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTHERO-1; ++i)
-	{
-		if(scripts.find(playermap[i].scriptname) != scripts.end())
-		{
-			if(scripts[playermap[i].scriptname].first.script_type != ScriptType::Hero)
-			{
-				while(scripts.find(playermap[i].scriptname) != scripts.end())
-					inc_script_name(playermap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!playermap[i].isEmpty())
-		{
-			playermap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSDMAP-1; ++i)
-	{
-		if(scripts.find(dmapmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[dmapmap[i].scriptname].first.script_type != ScriptType::DMap)
-			{
-				while(scripts.find(dmapmap[i].scriptname) != scripts.end())
-					inc_script_name(dmapmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!dmapmap[i].isEmpty())
-		{
-			dmapmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSCREEN-1; ++i)
-	{
-		if(scripts.find(screenmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[screenmap[i].scriptname].first.script_type != ScriptType::Screen)
-			{
-				while(scripts.find(screenmap[i].scriptname) != scripts.end())
-					inc_script_name(screenmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!screenmap[i].isEmpty())
-		{
-			screenmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE-1; ++i)
-	{
-		if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
-		{
-			if(scripts[itemspritemap[i].scriptname].first.script_type != ScriptType::ItemSprite)
-			{
-				while(scripts.find(itemspritemap[i].scriptname) != scripts.end())
-					inc_script_name(itemspritemap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!itemspritemap[i].isEmpty())
-		{
-			itemspritemap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA-1; ++i)
-	{
-		if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[comboscriptmap[i].scriptname].first.script_type != ScriptType::Combo)
-			{
-				while(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
-					inc_script_name(comboscriptmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!comboscriptmap[i].isEmpty())
-		{
-			comboscriptmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSGENERIC-1; ++i)
-	{
-		if(scripts.find(genericmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[genericmap[i].scriptname].first.script_type != ScriptType::Generic)
-			{
-				while(scripts.find(genericmap[i].scriptname) != scripts.end())
-					inc_script_name(genericmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!genericmap[i].isEmpty())
-		{
-			genericmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSSUBSCREEN-1; ++i)
-	{
-		if(scripts.find(subscreenmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[subscreenmap[i].scriptname].first.script_type != ScriptType::EngineSubscreen)
-			{
-				while(scripts.find(subscreenmap[i].scriptname) != scripts.end())
-					inc_script_name(subscreenmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!subscreenmap[i].isEmpty())
-		{
-			subscreenmap[i].format = SCRIPT_FORMAT_INVALID;
-		}
-	}
 }
 
 enum script_slot_type
@@ -20690,8 +20503,6 @@ script_slot_type getType(ScriptType type)
 	}
 }
 #define SLOTMSGFLAG_MISSING		0x01
-#define SLOTMSGFLAG_PRESERVED	0x02
-#define SLOTMSGFLAG_IMPORTED	0x04
 #define SLOTMSG_SIZE			512
 bool checkSkip(int32_t format, byte flags)
 {
@@ -20701,10 +20512,6 @@ bool checkSkip(int32_t format, byte flags)
 			return (flags != 0);
 		case SCRIPT_FORMAT_INVALID:
 			return ((flags & SLOTMSGFLAG_MISSING)==0);
-		case SCRIPT_FORMAT_DISASSEMBLED:
-			return ((flags & SLOTMSGFLAG_PRESERVED)==0);
-		case SCRIPT_FORMAT_ZASM:
-			return ((flags & SLOTMSGFLAG_IMPORTED)==0);
 		default: return true;
 	}
 }
@@ -20857,11 +20664,6 @@ void setup_scriptslot_dlg(char* buf, byte flags)
 	strcpy(buf, "Slots with matching names have been updated.\n");
 	if(flags & SLOTMSGFLAG_MISSING)
 		strcat(buf,"Scripts prefixed with '--' were not found, and will not function.\n");
-	if(flags & SLOTMSGFLAG_PRESERVED)
-		strcat(buf,	"Scripts prefixed with '++' were not found, but have been preserved.\n"
-		            "    These scripts may not function correctly if they use global variables.\n");
-	if(flags & SLOTMSGFLAG_IMPORTED)
-		strcat(buf,"Scripts prefixed with '==' are imported ZASM scripts.\n");
 	strcat(buf,"Global scripts named 'Init' will be appended to '~Init'");
 	//
 	SETFLAG(assignscript_dlg[13].flags, D_SELECTED, doslots_log_output);
@@ -20910,12 +20712,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(ffcmap[i].isZASM())
-			{
-				if(ffcmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(ffcmap[i].scriptname) != scripts.end())
+			if(scripts.find(ffcmap[i].scriptname) != scripts.end())
 				ffcmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -20931,12 +20728,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		globalmap[i].slotname=fmt::format("{}:",global_slotnames[i]);
 		if(!globalmap[i].isEmpty())
 		{
-			if(globalmap[i].isZASM())
-			{
-				if(globalmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(globalmap[i].scriptname) != scripts.end() || globalmap[i].scriptname == "~Init")
+			if(scripts.find(globalmap[i].scriptname) != scripts.end() || globalmap[i].scriptname == "~Init")
 				globalmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Unloaded
 			{
@@ -20953,12 +20745,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(itemmap[i].isZASM())
-			{
-				if(itemmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(itemmap[i].scriptname) != scripts.end())
+			if(scripts.find(itemmap[i].scriptname) != scripts.end())
 				itemmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -20976,12 +20763,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(npcmap[i].isZASM())
-			{
-				if(npcmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(npcmap[i].scriptname) != scripts.end())
+			if(scripts.find(npcmap[i].scriptname) != scripts.end())
 				npcmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -20999,12 +20781,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(ewpnmap[i].isZASM())
-			{
-				if(ewpnmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
+			if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
 				ewpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -21022,12 +20799,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(lwpnmap[i].isZASM())
-			{
-				if(lwpnmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
+			if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
 				lwpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -21043,12 +20815,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		playermap[i].slotname=fmt::format("{}:",player_slotnames[i]);
 		if(!playermap[i].isEmpty())
 		{
-			if(playermap[i].isZASM())
-			{
-				if(playermap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(playermap[i].scriptname) != scripts.end())
+			if(scripts.find(playermap[i].scriptname) != scripts.end())
 				playermap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Unloaded
 			{
@@ -21065,12 +20832,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(screenmap[i].isZASM())
-			{
-				if(screenmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(screenmap[i].scriptname) != scripts.end())
+			if(scripts.find(screenmap[i].scriptname) != scripts.end())
 				screenmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -21088,12 +20850,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(dmapmap[i].isZASM())
-			{
-				if(dmapmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(dmapmap[i].scriptname) != scripts.end())
+			if(scripts.find(dmapmap[i].scriptname) != scripts.end())
 				dmapmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -21111,12 +20868,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(itemspritemap[i].isZASM())
-			{
-				if(itemspritemap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
+			if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
 				itemspritemap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -21134,12 +20886,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(comboscriptmap[i].isZASM())
-			{
-				if(comboscriptmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
+			if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
 				comboscriptmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -21157,12 +20904,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(genericmap[i].isZASM())
-			{
-				if(genericmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(genericmap[i].scriptname) != scripts.end())
+			if(scripts.find(genericmap[i].scriptname) != scripts.end())
 				genericmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -21180,12 +20922,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(subscreenmap[i].isZASM())
-			{
-				if(subscreenmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(subscreenmap[i].scriptname) != scripts.end())
+			if(scripts.find(subscreenmap[i].scriptname) != scripts.end())
 				subscreenmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -21204,23 +20941,22 @@ void doClearSlots(byte* flags);
 extern byte compile_success_sample, compile_error_sample,
 	compile_finish_sample, compile_audio_volume;
 static map<string, disassembled_script_data> *doslot_scripts = nullptr;
-bool handle_slot(script_slot_data& slotdata, int indx, script_data** scriptdata)
+bool handle_slot(script_slot_data& slotdata, script_data* scriptdata)
 {
 	if(slotdata.hasScriptData())
 	{
-		string scriptstr;
-		(*doslot_scripts)[slotdata.scriptname].write(scriptstr, doslots_log_output, false, doslots_comment_output);
-		if (parse_script_string(scriptdata[indx],scriptstr,false) != D_O_K)
-			return false;
-		
-		if(slotdata.isDisassembled()) scriptdata[indx]->meta.setFlag(ZMETA_DISASSEMBLED);
-		else if(slotdata.isImportedZASM()) scriptdata[indx]->meta.setFlag(ZMETA_IMPORTED);
+		auto& data = (*doslot_scripts)[slotdata.scriptname];
+		scriptdata->meta = data.meta;
+		scriptdata->pc = data.pc;
+		scriptdata->end_pc = data.end_pc;
+		scriptdata->zasm_script = zasm_scripts[0];
 	}
-	else if(scriptdata[indx])
+	else if(scriptdata)
 	{
-		delete scriptdata[indx];
-		// script_data::id is not used in editor, so should be fine for now.
-		scriptdata[indx] = new script_data(ScriptType::None, 0);
+		scriptdata->zasm_script = nullptr;
+		scriptdata->meta.zero();
+		scriptdata->pc = 0;
+		scriptdata->end_pc = 0;
 	}
 	return true;
 }
@@ -21228,7 +20964,7 @@ bool handle_slot_map(map<int32_t, script_slot_data>& mp, int offs, script_data**
 {
 	for(auto it = mp.begin(); it != mp.end(); it++)
 	{
-		if(!handle_slot(it->second, it->first+offs, scriptdata))
+		if(!handle_slot(it->second, scriptdata[it->first + offs]))
 			return false;
 	}
 	return true;
@@ -21308,7 +21044,8 @@ void smart_slot_type(map<string, disassembled_script_data> &scripts,
 	}
 }
 
-bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
+bool do_slots(vector<shared_ptr<ZScript::Opcode>> const& zasm,
+	map<string, disassembled_script_data> &scripts, int assign_mode)
 {
 	large_dialog(assignscript_dlg);
 	int32_t ret = 3;
@@ -21750,16 +21487,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						break;
 					}
 				}
-				zasm_meta* meta = target ? &target->first : nullptr;
-				if(devpwd() && CHECK_CTRL_CMD)
-				{
-					string str;
-					target->write(str, false, false, (assignscript_dlg[51].flags == D_SELECTED), true);
-					set_al_clipboard(str);
-					displayinfo("Clipboard Copy","Copied ZASM of selected script to clipboard");
-				}
-				else if(meta)
-					showScriptInfo(meta);
+				if(target)
+					showScriptInfo(&target->meta);
 				break;
 			}
 		
@@ -21862,16 +21591,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						break;
 					}
 				}
-				zasm_meta* meta = target ? &target->first : nullptr;
-				if(devpwd() && CHECK_CTRL_CMD)
-				{
-					string str;
-					target->write(str, false, false, (assignscript_dlg[51].flags == D_SELECTED), true);
-					set_al_clipboard(str);
-					displayinfo("Clipboard Copy","Copied ZASM of selected script to clipboard");
-				}
-				else if(meta)
-					showScriptInfo(meta);
+				if(target)
+					showScriptInfo(&target->meta);
 				break;
 			}
 			
@@ -21907,7 +21628,23 @@ auto_do_slots:
 	doslot_scripts = &scripts;
 	//OK
 	{
+		if(doslots_log_output)
+		{
+			string outstr;
+			write_script(zasm, outstr, doslots_comment_output, doslot_scripts);
+			safe_al_trace(outstr);
+		}
 		auto start_assign_time = std::chrono::steady_clock::now();
+		string zasm_str;
+		write_script(zasm, zasm_str, false, nullptr);
+
+		std::vector<ffscript> zasm;
+		if(parse_script_string(zasm, zasm_str, false))
+			goto exit_do_slots;
+
+		zasm_scripts.clear();
+		zasm_scripts.emplace_back(std::make_shared<zasm_script>(std::move(zasm)));
+
 		if(!handle_slot_map(ffcmap, 1, ffscripts))
 			goto exit_do_slots;
 		if(!handle_slot_map(globalmap, 0, globalscripts))
@@ -22038,8 +21775,6 @@ static DIALOG clearslots_dlg[] =
     { jwin_droplist_proc,   50,      28+16,   70,   16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, (void *) &slottype_sel_list, NULL, NULL },
 	{ jwin_radio_proc,      40,      34+00,   81,   9,      vc(14),             vc(1),              0,   D_SELECTED, 0,  0, (void *) "Clear Script Type:", NULL, NULL },
 	{ jwin_radio_proc,      40,      34+32,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Missing (--) Slots", NULL, NULL },
-	{ jwin_radio_proc,      40,      34+48,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Preserved (++) Slots", NULL, NULL },
-	{ jwin_radio_proc,      40,      34+64,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Imported (==) Slots", NULL, NULL },
 	{ jwin_radio_proc,      40,      34+80,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear All", NULL, NULL },
     { d_timer_proc,         0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL },
     { NULL,                 0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL }
@@ -22053,20 +21788,10 @@ void doClearSlots(byte* flags)
 	clearslots_dlg[4].flags |= D_SELECTED;
 	clearslots_dlg[5].flags &= ~D_SELECTED;
 	clearslots_dlg[6].flags &= ~D_SELECTED;
-	clearslots_dlg[7].flags &= ~D_SELECTED;
-	clearslots_dlg[8].flags &= ~D_SELECTED;
 	if(((*flags) & SLOTMSGFLAG_MISSING) == 0)
 		clearslots_dlg[5].flags |= D_DISABLED;
 	else
 		clearslots_dlg[5].flags &= ~D_DISABLED;
-	if(((*flags) & SLOTMSGFLAG_PRESERVED) == 0)
-		clearslots_dlg[6].flags |= D_DISABLED;
-	else
-		clearslots_dlg[6].flags &= ~D_DISABLED;
-	if(((*flags) & SLOTMSGFLAG_IMPORTED) == 0)
-		clearslots_dlg[7].flags |= D_DISABLED;
-	else
-		clearslots_dlg[7].flags &= ~D_DISABLED;
 	//}
 	
 	large_dialog(clearslots_dlg);
@@ -22088,19 +21813,7 @@ void doClearSlots(byte* flags)
 					clearAllSlots(q,SLOTMSGFLAG_MISSING);
 				break;
 			}
-			case 6: //Clear Preserved
-			{
-				for(int32_t q = 0; q <= 10; ++q)
-					clearAllSlots(q,SLOTMSGFLAG_PRESERVED);
-				break;
-			}
-			case 7: //Clear Imported ZASM
-			{
-				for(int32_t q = 0; q <= 10; ++q)
-					clearAllSlots(q,SLOTMSGFLAG_IMPORTED);
-				break;
-			}
-			case 8: //Clear ALL
+			case 6: //Clear ALL
 			{
 				for(int32_t q = 0; q <= 10; ++q)
 					clearAllSlots(q);
@@ -22143,210 +21856,6 @@ extern ListData lweaponscript_list;
 extern ListData npcscript_list;
 extern ListData eweaponscript_list;
 extern ListData comboscript_list;
-
-static EXT_LIST zasm_extlist[] =
-{
-	{ (char *)"ZASM Files (*.zasm)",                        (char *)"zasm"                                     },
-	{ NULL,                                                  NULL                                              }
-};
-
-int32_t onImportZASM()
-{
-	importzasm_dlg[0].dp2 = get_zc_font(font_lfont);
-	importzasm_dlg[4].dp = (void*)&ffscript_list;
-	if(!prompt_for_existing_file_compat("Import Script (.zasm)","zasm",zasm_extlist,datapath,false))
-	{
-		return D_O_K;
-	}
-	script_data *temp_slot = new script_data(ScriptType::None, 0);
-	if(parse_script_file(temp_slot, temppath, false) == D_CLOSE)
-	{
-		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-		delete temp_slot;
-		return D_O_K;
-	}
-
-    std::string namebuf;
-	if(temp_slot->meta.valid()) //Found metadata
-	{
-		importzasm_dlg[3].d1 = getType(temp_slot->meta.script_type);
-		namebuf = temp_slot->meta.script_name;
-		switch(importzasm_dlg[3].d1)
-		{
-			default: //Shouldn't occur, but to be safe
-			case type_ffc:
-				importzasm_dlg[4].dp = (void*)&ffscript_sel_dlg_list;
-				break;
-			case type_global:
-				importzasm_dlg[4].dp = (void*)&gscript_sel_dlg_list;
-				break;
-			case type_itemdata:
-				importzasm_dlg[4].dp = (void*)&itemscript_sel_dlg_list;
-				break;
-			case type_npc:
-				importzasm_dlg[4].dp = (void*)&npcscript_sel_dlg_list;
-				break;
-			case type_lweapon:
-				importzasm_dlg[4].dp = (void*)&lweaponscript_sel_dlg_list;
-				break;
-			case type_eweapon:
-				importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
-				break;
-			case type_hero:
-				importzasm_dlg[4].dp = (void*)&playerscript_sel_dlg_list;
-				break;
-			case type_dmap:
-				importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
-				break;
-			case type_screen:
-				importzasm_dlg[4].dp = (void*)&screenscript_sel_dlg_list;
-				break;
-			case type_itemsprite:
-				importzasm_dlg[4].dp = (void*)&itemspritescript_sel_dlg_list;
-				break;
-			case type_combo:
-				importzasm_dlg[4].dp = (void*)&comboscript_sel_dlg_list;
-				break;
-		}
-		importzasm_dlg[4].d1 = 0;
-	}
-	else
-	{
-		importzasm_dlg[3].d1 = 0;
-		importzasm_dlg[4].dp = (void*)&ffscript_list;
-		importzasm_dlg[4].d1 = 0;
-	}
-	importzasm_dlg[8].dp = (void*)namebuf.c_str();
-	bool confirmed = false;
-	int32_t indx = 1;
-	while(!confirmed)
-	{
-		large_dialog(importzasm_dlg);
-		indx = do_zqdialog(importzasm_dlg, indx);
-		switch(indx)
-		{
-			case 1: //confirm; exit dlg
-			{
-				if(!namebuf[0]) break; //No name?
-				script_data **slot = NULL;
-				script_slot_data *map = NULL;
-				//{ Find script choice
-				int32_t scriptInd = importzasm_dlg[4].d1;
-				switch(importzasm_dlg[3].d1)
-				{
-					case type_ffc:
-						slot = &ffscripts[scriptInd];
-						map = &ffcmap[scriptInd];
-						break;
-					case type_global:
-						slot = &globalscripts[scriptInd];
-						map = &globalmap[scriptInd];
-						break;
-					case type_itemdata:
-						slot = &itemscripts[scriptInd];
-						map = &itemmap[scriptInd];
-						break;
-					case type_npc:
-						slot = &guyscripts[scriptInd];
-						map = &npcmap[scriptInd];
-						break;
-					case type_lweapon:
-						slot = &lwpnscripts[scriptInd];
-						map = &lwpnmap[scriptInd];
-						break;
-					case type_eweapon:
-						slot = &ewpnscripts[scriptInd];
-						map = &ewpnmap[scriptInd];
-						break;
-					case type_hero:
-						slot = &playerscripts[scriptInd];
-						map = &playermap[scriptInd];
-						break;
-					case type_dmap:
-						slot = &dmapscripts[scriptInd];
-						map = &dmapmap[scriptInd];
-						break;
-					case type_screen:
-						slot = &screenscripts[scriptInd];
-						map = &screenmap[scriptInd];
-						break;
-					case type_itemsprite:
-						slot = &itemspritescripts[scriptInd];
-						map = &itemspritemap[scriptInd];
-						break;
-					case type_combo:
-						slot = &comboscripts[scriptInd];
-						map = &comboscriptmap[scriptInd];
-						break;
-					case type_generic:
-						slot = &genericscripts[scriptInd];
-						map = &genericmap[scriptInd];
-						break;
-					case type_subscreen:
-						slot = &subscreenscripts[scriptInd];
-						map = &subscreenmap[scriptInd];
-						break;
-				}
-				//}
-				if(!slot) break; //Not found?
-				*slot = std::move(temp_slot);
-				map->format = SCRIPT_FORMAT_ZASM;
-				map->updateName(namebuf);
-				confirmed = true;
-				break;
-			}
-			case 0: case 2: //Close dlg
-			{
-				delete temp_slot;
-				return D_O_K;
-			}
-			case 3: //Type select
-			{
-				switch(importzasm_dlg[3].d1)
-				{
-					default: //Shouldn't occur, but to be safe
-					case type_ffc:
-						importzasm_dlg[4].dp = (void*)&ffscript_sel_dlg_list;
-						break;
-					case type_global:
-						importzasm_dlg[4].dp = (void*)&gscript_sel_dlg_list;
-						break;
-					case type_itemdata:
-						importzasm_dlg[4].dp = (void*)&itemscript_sel_dlg_list;
-						break;
-					case type_npc:
-						importzasm_dlg[4].dp = (void*)&npcscript_sel_dlg_list;
-						break;
-					case type_lweapon:
-						importzasm_dlg[4].dp = (void*)&lweaponscript_sel_dlg_list;
-						break;
-					case type_eweapon:
-						importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
-						break;
-					case type_hero:
-						importzasm_dlg[4].dp = (void*)&playerscript_sel_dlg_list;
-						break;
-					case type_dmap:
-						importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
-						break;
-					case type_screen:
-						importzasm_dlg[4].dp = (void*)&screenscript_sel_dlg_list;
-						break;
-					case type_itemsprite:
-						importzasm_dlg[4].dp = (void*)&itemspritescript_sel_dlg_list;
-						break;
-					case type_combo:
-						importzasm_dlg[4].dp = (void*)&comboscript_sel_dlg_list;
-						break;
-				}
-				importzasm_dlg[4].d1 = 0;
-				break;
-			}
-		}
-	}
-	delete temp_slot;
-	return D_O_K;
-}
 
 void center_zscript_dialogs()
 {
@@ -23597,6 +23106,11 @@ int32_t get_homescr()
     return DMaps[zinit.start_dmap].cont;
 }
 
+int get_screen_for_world_xy(int x, int y)
+{
+	return -1;
+}
+
 int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bunny)
 {
     //TODO remove as special case?? -DD
@@ -23812,6 +23326,30 @@ static void allocate_crap()
 	}
 }
 
+static void handle_sentry_tags()
+{
+	static bool sentry_first_time = true;
+
+	static MapCursor sentry_last_map_cursor;
+	if (Map.getCursor() != sentry_last_map_cursor || sentry_first_time)
+	{
+		sentry_last_map_cursor = Map.getCursor();
+		zapp_reporting_set_tag("cursor.map", sentry_last_map_cursor.map);
+		zapp_reporting_set_tag("cursor.screen", sentry_last_map_cursor.screen);
+		zapp_reporting_set_tag("cursor.viewscr", sentry_last_map_cursor.viewscr);
+		zapp_reporting_set_tag("cursor.size", sentry_last_map_cursor.size);
+	}
+
+	static bool sentry_last_is_compact;
+	if (is_compact != sentry_last_is_compact || sentry_first_time)
+	{
+		sentry_last_is_compact = is_compact;
+		zapp_reporting_set_tag("compact", sentry_last_is_compact);
+	}
+
+	sentry_first_time = false;
+}
+
 // Removes the top layer encoding from a quest file. See open_quest_file.
 // This has zero impact on the contents of the quest file. There should be no way for this to
 // break anything.
@@ -23894,7 +23432,8 @@ int32_t exittimer = 10000, exittimer2 = 100;
 
 static bool partial_load_test(const char* test_dir)
 {
-	int ret = load_quest("quests/Z1 Recreations/classic_1st.qst", false);
+	auto classic_path = fs::path(test_dir) / "replays/classic_1st.qst";
+	int ret = load_quest(classic_path.string().c_str(), false);
 	if (ret)
 	{
 		printf("failed to load classic_1st.qst: ret == %d\n", ret);
@@ -23909,8 +23448,7 @@ static bool partial_load_test(const char* test_dir)
 		set_bit(skip_flags,i,1);
 	set_bit(skip_flags,skip_tiles,0);
 	set_bit(skip_flags,skip_header,0);
-	zquestheader tempheader;
-	memset(&tempheader, 0, sizeof(zquestheader));
+	zquestheader tempheader{};
 	auto ptux_path = fs::path(test_dir) / "quests/PTUX.qst";
 	ret = loadquest(ptux_path.string().c_str(), &tempheader, &QMisc, customtunes, false, skip_flags);
 
@@ -24026,7 +23564,7 @@ int32_t main(int32_t argc,char **argv)
 		do_copy_qst_command(input_filename, output_filename);
 	}
 
-	Z_title("%s, %s",ZQ_EDITOR_NAME, getVersionString());
+	Z_title("ZQuest Classic Editor, %s", getVersionString());
 
 	if(!get_qst_buffers())
 	{
@@ -24164,7 +23702,6 @@ int32_t main(int32_t argc,char **argv)
 	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",1);
 	DisableCompileConsole        = zc_get_config("zquest","internal_compile_console",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
-	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
 	MMapCursorStyle				= zc_get_config("zquest","cursorblink_style",1);
 	LayerDitherBG				= zc_get_config("zquest", "layer_dither_bg", -1);
 	LayerDitherSz				= zc_get_config("zquest", "layer_dither_sz", 3);
@@ -24174,6 +23711,7 @@ int32_t main(int32_t argc,char **argv)
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	ShowCurScreenOutline			= zc_get_config("zquest","show_current_screen_outline",1);
 	ShowScreenGrid				   = zc_get_config("zquest","show_screen_grid",0);
+	ShowRegionGrid				   = zc_get_config("zquest","show_region_grid",1);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
 	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
@@ -24591,7 +24129,10 @@ int32_t main(int32_t argc,char **argv)
 		else
 		{
 			if (onNew() == D_CLOSE)
+			{
+				Z_message("User canceled creating new quest, closing.\n");
 				exit(0);
+			}
 
 			//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
 			filepath[0]=temppath[0]=0;
@@ -24692,14 +24233,14 @@ int32_t main(int32_t argc,char **argv)
 	brush_menu.select_uid(MENUID_BRUSH_COMBOBRUSH, ComboBrush);
 	brush_menu.select_uid(MENUID_BRUSH_FLOATBRUSH, FloatBrush);
 	
-	init_ffpos();
-	
 	call_foo_dlg();
 
 	application_has_loaded = true;
 
 	while(!exiting_program)
 	{
+		handle_sentry_tags();
+
 #ifdef _WIN32
 		if(zqUseWin32Proc != FALSE)
 			win32data.Update(Frameskip); //experimental win32 fixes
@@ -24751,6 +24292,7 @@ int32_t main(int32_t argc,char **argv)
 		view_menu.select_uid(MENUID_VIEW_SCRIPTNAMES, ShowFFScripts);
 		view_menu.select_uid(MENUID_VIEW_GRID, ShowGrid);
 		view_menu.select_uid(MENUID_VIEW_SCREENGRID, ShowScreenGrid);
+		view_menu.select_uid(MENUID_VIEW_REGIONGRID, ShowRegionGrid);
 		view_menu.select_uid(MENUID_VIEW_CURSCROUTLINE, ShowCurScreenOutline);
 		view_menu.select_uid(MENUID_VIEW_DARKNESS, get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK));
 		view_menu.select_uid(MENUID_VIEW_L2BG, ViewLayer2BG);
@@ -25455,7 +24997,6 @@ void load_size_poses()
 	init_bitmap(&menu3,zq_screen_w,zq_screen_h);
 	
 	center_zq_class_dialogs();
-	center_zq_custom_dialogs();
 	center_zq_files_dialogs();
 	center_zq_subscreen_dialogs();
 	center_zq_tiles_dialogs();
@@ -26117,9 +25658,6 @@ int32_t save_config_file()
     chop_path(midipath2);
     chop_path(imagepath2);
     chop_path(tmusicpath2);
-    
-	zc_set_config("ZCMODULE","current_module",moduledata.module_name);
-	//
 	write_includepaths();
 	
     zc_set_config("zquest",data_path_name,datapath2);
@@ -26612,12 +26150,6 @@ void ZQ_ClearQuestPath()
 
 //FFCore
 
-int32_t FFScript::GetScriptObjectUID(int32_t type)
-{
-	++script_UIDs[type];
-	return script_UIDs[type];
-}
-
 void FFScript::init()
 {
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
@@ -26632,7 +26164,6 @@ void FFScript::init()
 	music_update_flags = 0;
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	
-	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	int32_t usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
 	FF_hero_action = 0;
@@ -26666,11 +26197,6 @@ void FFScript::init()
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
 	initIncludePaths();
-	for(int32_t q = 0; q < 7; ++q)
-	{
-		tempScreens[q] = NULL;
-		ScrollingScreens[q] = NULL;
-	}
 }
 
 void FFScript::updateIncludePaths()
@@ -26796,9 +26322,6 @@ int32_t FFScript::getTime(int32_t type)
 }
 
 extern const char *itemclass_help_string_defaults[itype_max];
-//ZModule Functions
-
-
 
 /* end */
 
@@ -26846,10 +26369,6 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format, Params&&...
 }
 
 int32_t getpitfall(int32_t x, int32_t y){return 0;}
-
-int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck){return 0;}
-
-int32_t MAPCOMBOzq(int32_t x, int32_t y){return 0;}
 
 bool update_hw_pal = false;
 void update_hw_screen()
@@ -26934,6 +26453,10 @@ void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
 	return;
 }
+bool is_in_scrolling_region()
+{
+	return false;
+}
 
 void enter_sys_pal(){}
 void exit_sys_pal(){}
@@ -26944,7 +26467,7 @@ bool replay_is_replaying() {return false;}
 bool replay_version_check(int min, int max) {return false;}
 bool replay_is_debug() {return false;}
 int32_t item::run_script(int32_t mode){return 0;};
-ffcdata* slopes_getFFC(int index)
+ffcdata* slopes_getFFC(int id)
 {
 	return nullptr;
 }
@@ -26979,3 +26502,5 @@ extern "C" void get_shareable_url()
 	}, filepath, Map.getCurrMap(), Map.getCurrScr());
 }
 #endif
+
+void setZScriptVersion(int32_t v){}

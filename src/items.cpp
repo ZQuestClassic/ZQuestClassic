@@ -10,10 +10,6 @@
 
 char *item_string[MAXITEMS];
 
-#ifndef IS_EDITOR
-	extern ZModule zcm;
-#endif
-
 int32_t fairy_cnt=0;
 
 item::~item()
@@ -70,7 +66,7 @@ bool item::animate(int32_t)
 			return false;
 		}
 #ifndef IS_EDITOR
-		if(isSideViewGravity())
+		if(isSideViewGravity() && !subscreenItem)
 		{
 			if((
 					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(x,y)) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
@@ -155,11 +151,13 @@ bool item::animate(int32_t)
 #endif
 	}
 	
+#ifndef IS_EDITOR
 	// Maybe it fell off the bottom in sideview, or was moved by a script.
-	if(y>352 || y<-176 || x<-256 || x > 512)
+	if(y>world_h+176 || y<-176 || x<-256 || x > world_w+256)
 	{
 		return true;
 	}
+#endif
 	
 	if((++clk)>=0x8000)
 	{
@@ -297,6 +295,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 {
 	x=X;
 	y=Y;
+	screen_spawned=get_screen_for_world_xy(x.getInt(), y.getInt());
 	z=Z;
 	id=i;
 	pickup=p;
@@ -313,14 +312,6 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	itemdata const& itm = itemsbuf[id];
 	from_dropset = -1;
 	pickupexstate = -1;
-
-	#ifndef IS_EDITOR
-	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
-	//Sadly, this also stores UIDs for all dummy objects, including subscreen and other stuff. 
-	//if ( !isDummy && ( pickup == 0x100 || pickup <= 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
-	//if it is on the screen
-	//if ( x > 0 && x < 256 && y > 56 && y < 256 && !isDummy && ( pickup == 0x100 || pickup == 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
-	#endif
 	
 	if(id<0 || id>MAXITEMS) //>, not >= for dummy items such as the HC Piece display in the subscreen
 		return;
@@ -600,16 +591,6 @@ int32_t get_progressive_item(int32_t itmid, bool lastOwned)
 	return data.ret_id;
 }
 
-int32_t item::getScriptUID()
-{
-	return script_UID;
-}
-
-void item::setScriptUID(int32_t new_id)
-{
-	script_UID = new_id;
-}
-
 void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash)
 {
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
@@ -674,6 +655,17 @@ void dummyitem_animate(item* dummy, int32_t clk)
 }
 void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 {
+#ifdef IS_PLAYER
+	// When drawing to the framebuf, sprite::draw translates from world coordinates to
+	// screen coordinates. However, putitem3 expects just screen coordinates. So convert
+	// to world coordinates.
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		x += viewport.x;
+		y += viewport.y;
+	}
+#endif
+
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
 	temp.xofs=temp.yofs=0;
 	temp.hide_hitbox = true;

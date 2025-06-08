@@ -1,0 +1,75 @@
+enum ViewportMode
+{
+	// Position the viewport such that the [Viewport::Target] is in the middle of it (but bounded by the edges of the current region).
+	VIEW_MODE_CENTER_AND_BOUND = 0L,
+	// Position the viewport such that the [Viewport::Target] is in the middle of it, always. Screens outside the current region are rendered as black.
+	VIEW_MODE_CENTER = 1L,
+	// Disable the engine's updating of the viewport on every frame, and instead defer to values set by scripts.
+	VIEW_MODE_SCRIPT = 2L
+};
+
+// Defines the visible portion of the current [Region] - aka, what the player currently sees.
+//
+// For an example usage, see: https://github.com/ZQuestClassic/ZQuestClassic/blob/main/tests/scripts/playground/auto/viewport.zs
+//
+// @versionadded 2.55.9 Basic, read-only access
+// @versionchanged 3.0 Full access via [Viewport->Mode]
+class Viewport {
+	// @delete
+	internal Viewport();
+
+	// Defaults to [VIEW_MODE_CENTER_AND_BOUND], and is reset at the beginning of scrolling.
+	//
+	// @zasm_var VIEWPORT_MODE
+	internal ViewportMode Mode;
+
+	// The sprite that the viewport is centered around. If this sprite no longer exists,
+	// this will be reset to the [Hero] sprite.
+	//
+	// Defaults to [Hero], and is reset at the beginning of scrolling.
+	//
+	// @zasm_var VIEWPORT_TARGET
+	internal sprite Target;
+
+	// Unless [Mode] is [VIEW_MODE_SCRIPT], this is updated every frame by the engine.
+	//
+	// @zasm_var VIEWPORT_X
+	internal int X;
+
+	// Unless [Mode] is [VIEW_MODE_SCRIPT], this is updated every frame by the engine.
+	//
+	// @zasm_var VIEWPORT_Y
+	internal int Y;
+
+	// @zasm_var VIEWPORT_WIDTH
+	internal const int Width;
+
+	// @zasm_var VIEWPORT_HEIGHT
+	internal const int Height;
+
+	// Returns true if the given sprite is visible within the viewport.
+	//
+	// Note: this function ignores the fact that the bottom 8 pixels may not be visible
+	// given [qr_HIDE_BOTTOM_8_PIXELS].
+	//
+	// @versionadded 3.0
+	bool Contains(sprite s)
+	{
+		int t = s->Y;
+		int b = s->Y + s->TileHeight*16;
+		int l = s->X;
+		int r = s->X + s->TileWidth*16;
+		return this->X <= r && this->X + this->Width > l && this->Y <= b && this->Y + this->Height > t;
+	}
+
+	// Returns true if the given point is visible within the viewport.
+	//
+	// Note: this function ignores the fact that the bottom 8 pixels may not be visible
+	// given [qr_HIDE_BOTTOM_8_PIXELS].
+	bool Contains(int x, int y)
+	{
+		return x >= this->X && x < this->X + this->Width && y >= this->Y && y < this->Y + this->Height;
+	}
+}
+
+internal const Viewport Viewport;

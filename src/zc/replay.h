@@ -35,6 +35,7 @@ bool replay_add_snapshot_frame(std::string frames_shorthand);
 void replay_peek_quit();
 void replay_peek_input();
 void replay_do_cheats();
+void replay_do_qrs();
 bool replay_is_assert_done();
 void replay_forget_input();
 void replay_stop(bool aborted = false);
@@ -44,10 +45,11 @@ void replay_save(std::filesystem::path path);
 void replay_stop_manual_takeover();
 
 void replay_step_comment(std::string comment);
-void replay_step_comment_loadscr(int screen_index);
+void replay_step_comment_loadscr(int screen);
 void replay_step_gfx(uint32_t gfx_hash);
 void replay_step_quit(int quit_state);
 void replay_step_cheat(Cheat cheat, int arg1, int arg2, std::string arg3);
+void replay_step_qr(int qr, bool value);
 
 void replay_set_meta(std::string key, std::string value);
 void replay_set_meta(std::string key, int value);
@@ -63,7 +65,7 @@ bool replay_has_meta(std::string key);
 ReplayMode replay_get_mode();
 int replay_get_version();
 // Return true if replay mode is active, and the current version is between [min/max) (inclusive/exclusive).
-// If `max` is -1, returns true for all versions greater than min; and when replay mode is not active.
+// If `max` is -1, returns true for all versions greater than or equal to min; and when replay mode is not active.
 bool replay_version_check(int min, int max = -1);
 int replay_get_frame();
 void replay_set_output_dir(std::filesystem::path dir);

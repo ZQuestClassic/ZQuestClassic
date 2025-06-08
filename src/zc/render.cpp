@@ -4,6 +4,7 @@
 #include "zc/maps.h"
 #include "sprite.h"
 #include "zc/guys.h"
+#include "iter.h"
 #include "base/qst.h"
 #include "base/gui.h"
 #include "base/zapp.h"
@@ -124,7 +125,7 @@ static void configure_render_tree()
 	int w = rti_game.width;
 	int h = rti_game.height;
 	float xscale = (float)resx/w;
-	float yscale = (float)resy/(h+12);
+	float yscale = (float)resy/(h+6);
 	bool keep_aspect_ratio = !stretchGame;
 	if (keep_aspect_ratio)
 		xscale = yscale = std::min(xscale, yscale);
@@ -339,16 +340,15 @@ void render_zc()
 		lines_right.push_back("SAVING ...");
 	if (show_ff_scripts)
 	{
-		for (int i = 0; i < tmpscr->numFFC(); i++)
-		{
-			if (tmpscr->ffcs[i].script)
-				lines_right.push_back(ffcmap[tmpscr->ffcs[i].script-1].scriptname);
-		}
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+			if (ffc_handle.ffc->script)
+				lines_right.push_back(ffcmap[ffc_handle.ffc->script-1].scriptname);
+		});
 	}
 
 	ALLEGRO_BITMAP* bitmap = al_get_backbuffer(all_get_display());
-	render_text_lines(bitmap, a5font, lines_left, TextJustify::left, TextAlign::bottom, font_scale);
-	render_text_lines(bitmap, a5font, lines_right, TextJustify::right, TextAlign::bottom, font_scale);
+	render_text_lines(bitmap, a5font, lines_left, TextJustify::left, TextAlignment::bottom, font_scale);
+	render_text_lines(bitmap, a5font, lines_right, TextJustify::right, TextAlignment::bottom, font_scale);
 
 	if (render_get_debug())
 		render_tree_draw_debug(&rti_root);

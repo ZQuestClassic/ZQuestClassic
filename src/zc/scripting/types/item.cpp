@@ -15,6 +15,8 @@ extern refInfo *ri;
 
 namespace {
 
+static item *tempitem = NULL;
+
 item *checkItem(int32_t iid)
 {
 	item *s = (item *)items.getByUID(iid);
@@ -63,40 +65,34 @@ bool do_itemsprite_delete()
 
 } // end namespace
 
-int32_t ItemH::loadItem(const int32_t iid, const char * const funcvar)
+int32_t ItemH::loadItem(int32_t uid)
 {
-	if ( !iid ) 
-	{
-		//can never be zero?
-		Z_scripterrlog("The item pointer used for %s is NULL or uninitialised.", funcvar);
+	tempitem = ResolveItemSprite(uid);
+	if (!tempitem) 
 		return _InvalidSpriteUID;
-	}
-	
-	auto tempitem = (item *) items.getByUID(iid);
-	
-	if(tempitem == NULL)
-	{
-		Z_scripterrlog("Invalid item with UID %ld passed to %s\nItems on screen have UIDs ", iid, funcvar);
-		
-		for(word i = 0; i < items.Count(); i++)
-			Z_scripterrlog("%ld ", items.spr(i)->getUID());
-			
-		Z_scripterrlog("\n");
-		return _InvalidSpriteUID;
-	}
-	
+
 	return _NoError;
 }
 
-int32_t ItemH::getItemIndex(const int32_t iid)
+int32_t ItemH::getItemIndex(int32_t uid)
 {
 	for(word i = 0; i < items.Count(); i++)
 	{
-		if(items.spr(i)->getUID() == iid)
+		if(items.spr(i)->getUID() == uid)
 			return i;
 	}
 	
 	return -1;
+}
+
+item *ItemH::getItem()
+{
+	return tempitem;
+}
+
+void ItemH::clearTemp()
+{
+	tempitem = NULL;
 }
 
 std::optional<int32_t> item_get_register(int32_t reg)
@@ -108,8 +104,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 		case ITEMSCALE:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"item->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
 			if (auto s = checkItem(ri->itemref))
@@ -207,7 +202,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 		case ITEMSCRIPTUID:
 			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)s->script_UID); //Literal, not *10000
+				ret=((int32_t)s->getUID());
 			}
 			break;
 		
@@ -378,8 +373,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 		case ITEMROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"item->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
 			if (auto s = checkItem(ri->itemref))
@@ -543,7 +537,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") != SH::_NoError)
+				if(BC::checkIndex(indx, 0, 10) != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -695,8 +689,7 @@ bool item_set_register(int32_t reg, int32_t value)
 		case ITEMSCALE:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"item->Scale");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
 			if (auto s = checkItem(ri->itemref))
@@ -911,8 +904,7 @@ bool item_set_register(int32_t reg, int32_t value)
 		case ITEMROTATION:
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"item->Rotation");
+				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
 			if (auto s = checkItem(ri->itemref))
@@ -1035,10 +1027,10 @@ bool item_set_register(int32_t reg, int32_t value)
 				//}
 				
 				// If making it a carried item,
-				// alter hasitem and set an itemguy.
+				// alter item state and set an itemguy.
 				if((s->pickup & ipENEMY) < (newpickup & ipENEMY))
 				{
-					hasitem |= 2;
+					screen_item_set_state(s->screen_spawned, ScreenItemState::CarriedByEnemy);
 					bool hasitemguy = false;
 					
 					for(int32_t i=0; i<guys.Count(); i++)
@@ -1100,9 +1092,9 @@ bool item_set_register(int32_t reg, int32_t value)
 						}
 					}
 					
-					if(more_carried_items()<=1)  // 1 includes this own item.
+					if(more_carried_items(s->screen_spawned)<=1)  // 1 includes this own item.
 					{
-						hasitem &= ~2;
+						screen_item_set_state(s->screen_spawned, ScreenItemState::None);
 					}
 				}
 				
@@ -1171,7 +1163,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") == SH::_NoError)
+				if(BC::checkIndex(indx, 0, 10) == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					move_flags bit = (move_flags)(1<<indx);

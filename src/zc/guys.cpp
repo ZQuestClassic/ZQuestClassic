@@ -1,4 +1,7 @@
+#include "base/handles.h"
+#include "base/zdefs.h"
 #include <cstring>
+#include <optional>
 #include <stdio.h>
 #include "base/combo.h"
 #include "base/general.h"
@@ -26,10 +29,8 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 #include "zc/combos.h"
-extern particle_list particles;
+#include "iter.h"
 
-extern ZModule zcm;
-extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
 int32_t repaircharge=0;
@@ -38,16 +39,11 @@ bool learnslash=false;
 int32_t wallm_load_clk=0;
 int32_t sle_x,sle_y,sle_cnt,sle_clk=0;
 int32_t vhead=0;
-int32_t guycarryingitem=0;
 
 char *guy_string[eMAXGUYS];
 
-void never_return(int32_t index);
 void playLevelMusic();
 
-// If an enemy is this far out of the playing field, just remove it.
-#define OUTOFBOUNDS ((int32_t)y>((isSideViewGravity() && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
-//#define NEWOUTOFBOUNDS ((int32_t)y>32767 || y<-32767 || x<-32767 || x > 32767)
 #define IGNORE_SIDEVIEW_PLATFORMS (editorflags & ENEMY_FLAG14)
 #define OFFGRID_ENEMY (editorflags & ENEMY_FLAG15)
 
@@ -64,17 +60,32 @@ void do_fix(zfix& coord, int32_t val, bool nearest_half = false)
 	coord = c;
 }
 
-bool NEWOUTOFBOUNDS(zfix x, zfix y, zfix z)
+static bool OUTOFBOUNDS(int32_t id, int32_t x, int32_t y)
+{
+	if (y > world_h + (isSideViewGravity() && canfall(id) ? 16 : 176)) return true;
+	if (y < -176) return true;
+	if (x < -256) return true;
+	if (x > world_w+256) return true;
+	return false;
+}
+
+bool NEWOUTOFBOUNDS(int32_t x, int32_t y, int32_t z)
 {
 	return 
 	(
-		(((int32_t)y) > FFCore.enemy_removal_point[spriteremovalY2]) 
-		|| (((int32_t)y) < FFCore.enemy_removal_point[spriteremovalY1]) 
-		|| (((int32_t)x) < FFCore.enemy_removal_point[spriteremovalX1]) 
-		|| (((int32_t)x) > FFCore.enemy_removal_point[spriteremovalX2]) 
-		|| (((int32_t)z) < FFCore.enemy_removal_point[spriteremovalZ1]) 
-		|| (((int32_t)z) > FFCore.enemy_removal_point[spriteremovalZ2])
+		(y > FFCore.enemy_removal_point[spriteremovalY2]) 
+		|| (y < FFCore.enemy_removal_point[spriteremovalY1]) 
+		|| (x < FFCore.enemy_removal_point[spriteremovalX1]) 
+		|| (x > FFCore.enemy_removal_point[spriteremovalX2]) 
+		|| (z < FFCore.enemy_removal_point[spriteremovalZ1]) 
+		|| (z > FFCore.enemy_removal_point[spriteremovalZ2])
 	);
+}
+
+static void position_relative_to_screen(zfix& x, zfix& y, int32_t rx, int32_t ry)
+{
+	x = rx + (x.getInt()/256)*256;
+	y = ry + (y.getInt()/176)*176;
 }
 
 namespace
@@ -134,9 +145,10 @@ void identifyCFEnemies()
 	}
 }
 
-int32_t random_layer_enemy()
+int32_t random_layer_enemy(int screen)
 {
-	int32_t cnt=count_layer_enemies();
+	int32_t cnt=count_layer_enemies(screen);
+	mapscr* base_scr = get_scr(screen);
 	
 	if(cnt==0)
 	{
@@ -148,9 +160,9 @@ int32_t random_layer_enemy()
 	
 	for(int32_t i=0; i<6; ++i)
 	{
-		if(tmpscr->layermap[i]!=0)
+		if(base_scr->layermap[i]!=0)
 		{
-			mapscr *layerscreen=&TheMaps[(tmpscr->layermap[i]-1)*MAPSCRS]+tmpscr->layerscreen[i];
+			const mapscr* layerscreen = get_canonical_scr(base_scr->layermap[i]-1, base_scr->layerscreen[i]);
 			
 			for(int32_t j=0; j<10; ++j)
 			{
@@ -170,15 +182,17 @@ int32_t random_layer_enemy()
 	return eNONE;
 }
 
-int32_t count_layer_enemies()
+int32_t count_layer_enemies(int screen)
 {
 	int32_t cnt=0;
-	
+
+	mapscr* base_scr = get_scr(screen);
+
 	for(int32_t i=0; i<6; ++i)
 	{
-		if(tmpscr->layermap[i]!=0)
+		if (base_scr->layermap[i])
 		{
-			mapscr *layerscreen=&TheMaps[(tmpscr->layermap[i]-1)*MAPSCRS]+tmpscr->layerscreen[i];
+			const mapscr* layerscreen = get_canonical_scr(base_scr->layermap[i]-1, base_scr->layerscreen[i]);
 			
 			for(int32_t j=0; j<10; ++j)
 			{
@@ -197,23 +211,21 @@ int32_t hero_on_wall()
 {
 	zfix lx = Hero.getX();
 	zfix ly = Hero.getY();
-	
-	
-	
-	if(lx>=48 && lx<=192)
+
+	if(lx>=48 && lx<=world_w-64)
 	{
 		if(ly==32)  return up+1;
 		
-		if(ly==128) return down+1;
+		if(ly==world_h-48) return down+1;
 	}
-	
-	if(ly>=48 && ly<=112)
+
+	if(ly>=48 && ly<=world_h-64)
 	{
 		if(lx==32)  return left+1;
 		
-		if(lx==208) return right+1;
+		if(lx==world_w-48) return right+1;
 	}
-	
+
 	return 0;
 }
 
@@ -278,7 +290,7 @@ bool enemy::groundblocked(int32_t dx, int32_t dy, bool isKB)
 		   // Check for ladder-only combos which aren't dried water
 		   (combo_class_buf[c].ladder_pass&1 && !iswater_type(c)) ||
 		   // Check for drownable water
-		   (water_blocks && !(isSideViewGravity()) && (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true, false, false)));
+		   (water_blocks && !(isSideViewGravity()) && (iswaterex_z3(MAPCOMBO(dx,dy), -1, dx, dy, false, false, true, false, false)));
 }
 
 // Returns true iff enemy is floating and blocked by a combo type or flag.
@@ -292,7 +304,7 @@ bool enemy::flyerblocked(int32_t dx, int32_t dy, int32_t special, bool isKB)
 			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
 			 (MAPFLAG(dx,dy)==mfNOENEMY)||
 			 (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)||
-			 (water_blocks && iswaterex(MAPCOMBO(dx, dy), currmap, currscr, -1, dx,dy, false, false, true)) ||
+			 (water_blocks && iswaterex_z3(MAPCOMBO(dx, dy), -1, dx,dy, false, false, true)) ||
 			 (pit_blocks && ispitfall(dx,dy))));
 }
 // Returns true iff a combo type or flag precludes enemy movement.
@@ -310,7 +322,7 @@ bool groundblocked(int32_t dx, int32_t dy, guydata const& gd)
 		   // Check for ladder-only combos which aren't dried water
 		   (combo_class_buf[c].ladder_pass&1 && !iswater_type(c)) ||
 		   // Check for drownable water
-		   (water_blocks && !(isSideViewGravity()) && (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)));
+		   (water_blocks && !(isSideViewGravity()) && (iswaterex_z3(MAPCOMBO(dx,dy), -1, dx, dy, false, false, true)));
 }
 
 // Returns true iff enemy is floating and blocked by a combo type or flag.
@@ -323,7 +335,7 @@ bool flyerblocked(int32_t dx, int32_t dy, int32_t special, guydata const& gd)
 			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
 			 (MAPFLAG(dx,dy)==mfNOENEMY)||
 			 (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)||
-			 (water_blocks && iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)) ||
+			 (water_blocks && iswaterex_z3(MAPCOMBO(dx,dy), -1, dx, dy, false, false, true)) ||
 			 (pit_blocks && ispitfall(dx,dy))));
 }
 
@@ -331,6 +343,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 {
 	x=X;
 	y=Y;
+	screen_spawned=get_screen_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
 	clk=Clk;
 	floor_y=y;
@@ -410,7 +423,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	hitsfx=d->hitsfx;
 	deadsfx=d->deadsfx;
 	bosspal=d->bosspal;
-	parent_script_UID = 0;
+	parent_uid = 0;
 	
 	frozentile = d->frozentile;
 	
@@ -422,7 +435,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	//firesfx = 0; //t.b.a -Z
 	isCore = true; //t.b.a
 	parentCore = 0; //t.b.a
-	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
 	
 	firesfx = d->firesfx;
 	for ( int32_t q = 0; q < 32; q++ ) movement[q] = d->movement[q];
@@ -441,9 +453,8 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	stickclk = 0;
 	submerged = false;
 	didScriptThisFrame = false;
-	ffcactivated = 0;
+	ffcactivated = std::nullopt;
 	hitdir = -1;
-	dialogue_str = 0; //set by spawn flags. 
 	editorflags = d->editorflags; //set by Enemy Editor 
 	//Set the drawing flag for this sprite.
 	if ( (editorflags&ENEMY_FLAG12) ) { drawflags |= sprdrawflagALWAYSOLDDRAWS; }
@@ -564,8 +575,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	specialsfx = d->specialsfx;
 }
 
-int32_t enemy::getScriptUID() { return script_UID; }
-void enemy::setScriptUID(int32_t new_id) { script_UID = new_id; }
 enemy::~enemy()
 {
 	FFCore.deallocateAllScriptOwned(ScriptType::NPC, getUID());
@@ -593,7 +602,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	if(!(moveflags & move_ignore_screenedge)
 		&& ((input_x<(16-nb)) || (input_y<zc_max(16-yg-nb,0))
-			|| ((input_x+hit_width-1) >= (240+nb)) || ((input_y+hit_height-1) >= (160+nb))))
+			|| ((input_x+hit_width-1) >= (world_w-16+nb)) || ((input_y+hit_height-1) >= (world_h-16+nb))))
 		return true;
 	
 	if(!(moveflags & move_can_pitwalk) && (!(moveflags & move_can_pitfall) || !kb)) //Don't walk into pits, unless being knocked back
@@ -617,7 +626,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 		case spw_wizzrobe: // fall through
 		case spw_floater: // Special case for fliers and wizzrobes - hack!
 			{
-				if(isdungeon() && !(moveflags & move_ignore_screenedge))
+				if(isdungeon(screen_spawned) && !(moveflags & move_ignore_screenedge))
 				{
 					if(dy < 32-yg || dy >= 144) return true;
 					if(dx < 32 || dx >= 224) return true;
@@ -629,23 +638,28 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 			}
 	}
 	
-	dx &= ~7;
-	dy &= ~7;
+	dx = TRUNCATE_HALF_TILE(dx);
+	dy = TRUNCATE_HALF_TILE(dy);
 	
 	if(!flying && !(moveflags & move_ignore_blockflags) && groundblocked(dx,dy,kb)) return true;
 
-	if (dx < 0 || dx > 255 || dy < 0 || dy > 175)
+	if (dx < 0 || dx >= world_w || dy < 0 || dy >= world_h)
 		return !(moveflags & move_ignore_screenedge);
-	//_walkflag code
-	mapscr *s1, *s2;
-	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:NULL;
-	s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:NULL;
+	
+	// TODO: could this reuse _walkflag?
 
-	int32_t cpos=(dx>>4)+(dy&0xF0);
-	int32_t ci = tmpscr->data[cpos], ci1 = (s1?s1:tmpscr)->data[cpos], ci2 = (s2?s2:tmpscr)->data[cpos];
-	newcombo const& c = combobuf[ci];
-	newcombo const& c1 = combobuf[ci1];
-	newcombo const& c2 = combobuf[ci2];
+	//_walkflag code
+	mapscr* s0 = get_scr_for_world_xy_layer(dx, dy, 0);
+	mapscr* s1 = s0->layermap[0]-1 >= 0 ? get_scr_for_world_xy_layer(dx, dy, 1) : nullptr;
+	mapscr* s2 = s0->layermap[1]-1 >= 0 ? get_scr_for_world_xy_layer(dx, dy, 2) : nullptr;
+	if (!s1 || !s1->valid) s1 = s0;
+	if (!s2 || !s2->valid) s2 = s0;
+	
+	int32_t cpos = COMBOPOS(dx%256, dy%176);
+	int32_t ci = s0->data[cpos], ci1 = (s1?s1:s0)->data[cpos], ci2 = (s2?s2:s0)->data[cpos];
+	newcombo c = combobuf[ci];
+	newcombo c1 = combobuf[ci1];
+	newcombo c2 = combobuf[ci2];
 	
 	int32_t b=1;
 	if(dx&8) b<<=2;
@@ -653,9 +667,9 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	#define iwtr(cmb, x, y, shallow) \
 		(shallow \
-			? iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, true, false) \
-				&& !iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false) \
-			: iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false))
+			? iswaterex_z3(cmb, -1, dx, dy, false, false, false, true, false) \
+				&& !iswaterex_z3(cmb, -1, dx, dy, false, false, false, false, false) \
+			: iswaterex_z3(cmb, -1, dx, dy, false, false, false, false, false))
 	bool wtr = iwtr(ci, dx, dy, false);
 	bool shwtr = iwtr(ci, dx, dy, true);
 	bool pit = ispitfall(dx,dy);
@@ -1003,7 +1017,7 @@ bool enemy::do_falling(int32_t index)
 			else if(dying) //Give 1 frame for script revival
 			{
 				if(flags&guy_never_return)
-					never_return(index);
+					never_return(screen_spawned, index);
 				
 				if(leader)
 					kill_em_all();
@@ -1043,7 +1057,7 @@ bool enemy::do_drowning(int32_t index)
 			else if(dying) //Give 1 frame for script revival
 			{
 				if(flags&guy_never_return)
-					never_return(index);
+					never_return(screen_spawned, index);
 				
 				if(leader)
 					kill_em_all();
@@ -1084,7 +1098,7 @@ bool enemy::Dead(int32_t index)
 	{
 		if(deathexstate > -1 && deathexstate < 32)
 		{
-			setxmapflag(1<<deathexstate);
+			setxmapflag(screen_spawned, 1<<deathexstate);
 			deathexstate = -1;
 		}
 		--clk2;
@@ -1096,7 +1110,7 @@ bool enemy::Dead(int32_t index)
 		if(clk2==0)
 		{
 			if(flags&guy_never_return)
-				never_return(index);
+				never_return(screen_spawned, index);
 				
 			if(leader)
 				kill_em_all();
@@ -1201,7 +1215,7 @@ bool enemy::animate(int32_t index)
 	{
 	//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
 	}
-	else if ( (OUTOFBOUNDS) )
+	else if (OUTOFBOUNDS(id, x, y))
 	{
 		hp=-1000; //kill it, as it is not immortal, and no quest bit or rule is enabled
 	}
@@ -1415,10 +1429,10 @@ bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int
 	int32_t yg = (special==spw_floater)?8:0;
 	int32_t nb = get_qr(qr_NOBORDER) ? 16 : 0;
 	
-	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
+	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
 		
-	bool isInDungeon = isdungeon();
+	bool isInDungeon = isdungeon(screen_spawned);
 	if(isInDungeon || special==spw_wizzrobe)
 	{
 		if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
@@ -1455,9 +1469,9 @@ bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int
 			return false;
 		}
 	}
-	
-	dx&=(special==spw_halfstep)?(~7):(~15);
-	dy&=(special==spw_halfstep || isSideViewGravity())?(~7):(~15);
+
+	dx = CLEAR_LOW_BITS(dx, special == spw_halfstep ? 3 : 4);
+	dy = CLEAR_LOW_BITS(dy, special == spw_halfstep || isSideViewGravity() ? 3 : 4);
 	
 	if(special==spw_water)
 		return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
@@ -1471,15 +1485,15 @@ bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 	bool kb = false;
 	int32_t nb = get_qr(qr_NOBORDER) ? 16 : 0;
 	
-	if(dx<16-nb || dy<zc_max(16-nb,0) || dx>=240+nb || dy>=160+nb)
+	if(dx<16-nb || dy<zc_max(16-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
 		
-	if(isdungeon())
+	if(isdungeon(screen_spawned))
 	{
-		if((dy<32) || (dy>=144))
+		if((dy<32) || (dy>=world_h-32))
 			return true;
 			
-		if((dx<32) || (dx>=224))
+		if((dx<32) || (dx>=world_w-32))
 			return true;
 	}
 	
@@ -1504,6 +1518,7 @@ bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 	}
 }
 
+// returns true if cannot walk
 bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb)
 {
 	if(moveflags & move_new_movement)
@@ -1552,16 +1567,16 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 	}
 	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
 	
-	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
+	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
 		
-	bool isInDungeon = isdungeon();
+	bool isInDungeon = isdungeon(screen_spawned);
 	if(isInDungeon || special==spw_wizzrobe)
 	{
-		if((input_x>=32 && dy<32-yg) || (input_y>-1000 && input_y<=144 && dy>=144))
+		if((input_x>=32 && dy<32-yg) || (input_y>-1000 && input_y<=world_h-32 && dy>=world_h-32))
 			return true;
 			
-		if((input_x>=32 && dx<32) || (input_x>-1000 && input_x<224 && dx>=224))
+		if((input_x>=32 && dx<32) || (input_x>-1000 && input_x<world_w-32 && dx>=world_w-32))
 			if(special!=spw_door) // walk in door way
 				return true;
 	}
@@ -1576,7 +1591,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 	switch(special)
 	{
 		case spw_clipbottomright:
-			if(dy>=128 || dx>=208) return true;
+			if(dy>=world_h-48 || dx>=world_w-48) return true;
 			break;
 		case spw_clipright:
 			break; //if(input_x>=208) return true; break;
@@ -1586,15 +1601,15 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 			{
 				if(isInDungeon)
 				{
-					if(dy < 32-yg || dy >= 144) return true;
-					if(dx < 32 || dx >= 224) return true;
+					if(dy < 32-yg || dy >= world_h-32) return true;
+					if(dx < 32 || dx >= world_w-32) return true;
 				}
 				return false;
 			}
 	}
 	
-	dx&=(special==spw_halfstep)?(~7):(~15);
-	dy&=(special==spw_halfstep || isSideViewGravity())?(~7):(~15);
+	dx = CLEAR_LOW_BITS(dx, special == spw_halfstep ? 3 : 4);
+	dy = CLEAR_LOW_BITS(dy, special == spw_halfstep || isSideViewGravity() ? 3 : 4);
 	
 	if(special==spw_water)
 		return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
@@ -1619,7 +1634,7 @@ bool enemy::isOnSideviewPlatform()
 	int32_t usehei = (SIZEflags&OVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if(!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)&&fall<0)
 		return false;
-	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true; //Bottom of the map
+	if(y + usehei >= world_h && cur_screen>=0x70 && !(get_scr_for_world_xy(x, y)->flags2&wfDOWN)) return true; //Bottom of the map
 	if(check_slope(x, y+1, usewid, usehei)) return true;
 	for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
 	{
@@ -1655,18 +1670,6 @@ void enemy::death_sfx()
 
 void enemy::move(zfix dx,zfix dy)
 {
-	/*if(FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && FFCore.getQuestHeaderInfo(vBuild) >= 50 )
-	{
-	switch(family)
-	{
-		case eeFIRE:
-		case eeOTHER:
-			return;
-		default: break;
-	}
-	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
-	}
-	*/
 	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !(moveflags & move_obeys_grav) || !enemycanfall(id)))
 	{
 		x+=dx;
@@ -1676,17 +1679,6 @@ void enemy::move(zfix dx,zfix dy)
 
 void enemy::move(zfix s)
 {
-	/*if(FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && FFCore.getQuestHeaderInfo(vBuild) >= 50 )
-	{
-	switch(family)
-	{
-		case eeFIRE:
-		case eeOTHER:
-			return;
-		default: break;
-	}
-	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
-	}*/
 	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id) || !(moveflags & move_obeys_grav)))
 	{
 		sprite::move(s);
@@ -1726,7 +1718,7 @@ void enemy::leave_item()
 			else itm = (new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
 		}
 		itm->from_dropset = thedropset;
-		items.add(itm);
+		add_item_for_screen(screen_spawned, itm);
 		
 		ev.push_back(getUID());
 		ev.push_back(itm->getUID());
@@ -1982,11 +1974,10 @@ void enemy::FireWeapon()
 			
 			for(int32_t i=0; i<bats; i++)
 			{
-				if(addchild(x,y,dmisc3,-10, this->script_UID))
-		{
+				if(addchild(screen_spawned,x,y,dmisc3,-10, this->getUID()))
+				{
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
-			
-		}
+				}
 			}
 
 			sfx(firesfx, pan(int32_t(x)));
@@ -1997,7 +1988,7 @@ void enemy::FireWeapon()
 	
 	case e1tSUMMONLAYER: // Summoner
 	{
-		if(count_layer_enemies()==0)
+		if(count_layer_enemies(screen_spawned)==0)
 		{
 			break;
 		}
@@ -2011,7 +2002,7 @@ void enemy::FireWeapon()
 			
 			for(int32_t i=0; i<newguys; i++)
 			{
-				int32_t id2=vbound(random_layer_enemy(),eSTART,eMAXGUYS-1);
+				int32_t id2=vbound(random_layer_enemy(screen_spawned),eSTART,eMAXGUYS-1);
 				int32_t x2=0;
 				int32_t y2=0;
 				
@@ -2022,7 +2013,7 @@ void enemy::FireWeapon()
 					
 					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Hero.getX())>=32)||(abs(y2-Hero.getY())>=32)))
 					{
-						if(addchild(x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
+						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->getUID()))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
@@ -2871,7 +2862,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
 			((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
 			((enemy*)guys.spr(guys.Count()-1))->script_spawned = this->script_spawned;
-			((enemy*)guys.spr(guys.Count()-1))->script_UID = this->script_UID;
 			((enemy*)guys.spr(guys.Count()-1))->sclk = 0;
 			
 			
@@ -2934,7 +2924,8 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				default:
 					hp = -1000; break;
 			}
-			++game->guys[(currmap*MAPSCRSNORMAL)+currscr];
+			int mi = mapind(cur_map, screen_spawned);
+			++game->guys[mi];
 			return 1;
 			
 		}
@@ -2942,9 +2933,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		{
 			for ( int32_t q = 0; q < dmisc4; q++ )
 			{
-				addenemy(
-					//ex,ey,
-					x,y,
+				addenemy(screen_spawned,x,y,
 						dmisc3+0x1000,-15);
 				
 			}
@@ -2960,7 +2949,8 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			{
 				int32_t x2=16*((zc_oldrand()%12)+2);
 				int32_t y2=16*((zc_oldrand()%7)+2);
-				addenemy(
+				addenemy(screen_spawned,
+					//(x+(txsz*16)/2),(y+(tysz*16)/2)
 					x2,y2,
 						dmisc3+0x1000,-15);
 				
@@ -3003,7 +2993,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		
 		case edTRIGGERSECRETS:
 		{
-			hidden_entrance(0, true, false, -4);
+			trigger_secrets_for_screen(TriggerSource::Unspecified, screen_spawned, false);
 			return -1;
 		}
 		
@@ -3148,7 +3138,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				case eeDIG: case eeGHOMA: case eeLANM: case eePATRA: case eeGANON:
 					return 0;
 			}
-			hooked_combopos = -1;
+			hooked_comborpos = rpos_t::None;
 			hooked_layerbits = 0;
 			switching_object = this;
 			switch_hooked = true;
@@ -3354,7 +3344,7 @@ int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
 		sfx(WAV_CHINK,pan(int32_t(x)));
 		return 1;
 	case edTRIGGERSECRETS:
-		hidden_entrance(0, true, false, -4);
+		trigger_secrets_for_screen(TriggerSource::Unspecified, screen_spawned, false);
 		break;
 		
 	case edIGNOREL1:
@@ -4050,7 +4040,8 @@ void enemy::draw(BITMAP *dest)
 		}	
 	}
 	//Room specific
-	if (tmpscr->flags3&fINVISROOM)
+	mapscr* scr = get_scr(screen_spawned);
+	if (scr->flags3&fINVISROOM)
 	{
 		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
 		!((itemsbuf[Hero.getLastLensID()].flags & item_flag5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
@@ -4256,8 +4247,10 @@ void enemy::drawzcboss(BITMAP *dest)
 	{
 		cs = getFlashingCSet();
 	}
+
+	mapscr* scr = get_scr(screen_spawned);
 	
-	if((tmpscr->flags3&fINVISROOM) &&
+	if((scr->flags3&fINVISROOM) &&
 			!(current_item(itype_amulet)) &&
 			!(get_qr(qr_LENSSEESENEMIES) &&
 			  lensclk) && family!=eeGANON)
@@ -4371,7 +4364,8 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 		return;
 	}
 	
-	if(((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
+	mapscr* scr = get_scr(screen_spawned);
+	if(((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
 			(darkroom))
 	{
 		return;
@@ -4499,11 +4493,11 @@ void enemy::try_death(bool force_kill)
 		ev.clear();
 		if(isSaved) return;
 		
-		if(itemguy && (hasitem&2)!=0)
+		if (itemguy && get_screen_state(screen_spawned).item_state == ScreenItemState::CarriedByEnemy)
 		{
 			for(int32_t i=0; i<items.Count(); i++)
 			{
-				if(((item*)items.spr(i))->pickup&ipENEMY)
+				if(((item*)items.spr(i))->pickup&ipENEMY && screen_spawned == ((item*)items.spr(i))->screen_spawned)
 				{
 					if (!get_qr(qr_BROKEN_ITEM_CARRYING))
 					{
@@ -4551,12 +4545,11 @@ void enemy::try_death(bool force_kill)
 		
 		if(itemguy)
 		{
-			hasitem&=~2;
+			screen_item_set_state(screen_spawned, ScreenItemState::None);
 			item_set=0;
 		}
-		
-		if(currscr<128 && count_enemy && !script_spawned)
-			game->guys[(currmap<<7)+currscr]-=1;
+		if (screen_spawned < 128 && count_enemy && !script_spawned)
+			game->guys[mapind(cur_map, screen_spawned)] -= 1;
 	}
 }
 
@@ -4571,30 +4564,25 @@ void enemy::fix_coords(bool bound)
 	if ((get_qr(qr_OUTOFBOUNDSENEMIES) ? 1 : 0) ^ ((editorflags&ENEMY_FLAG11)?1:0)) return;
 	if(moveflags & move_ignore_screenedge) bound = false;
 	
-	
 	if(bound)
 	{
+		int w = world_w;
+		int h = world_h;
+
 		if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 		{
-		x=vbound(x, 0_zf, (( guysbuf[id].SIZEflags&OVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256_zf -((txsz-1)*16)) : 240_zf));
-		y=vbound(y, 0_zf,(( guysbuf[id].SIZEflags&OVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176_zf -((txsz-1)*16)) : 160_zf));
+			x=vbound(x, 0, (( guysbuf[id].SIZEflags&OVERRIDE_TILE_WIDTH && !isflier(id) ) ? (w-((txsz-1)*16)) : w-16));
+			y=vbound(y, 0,(( guysbuf[id].SIZEflags&OVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (h-((txsz-1)*16)) : h-16));
 		}
 		else
 		{
-		   x=vbound(x, 0_zf,240_zf);
-			y=vbound(y, 0_zf,160_zf);
+		    x=vbound(x, 0, w-16); 
+			y=vbound(y, 0, h-16);
 		}
 	}
 	
-	if(!OUTOFBOUNDS)
+	if(!OUTOFBOUNDS(id, x, y))
 	{
-		/*x=((int32_t(x)&0xF0)+((int32_t(x)&8)?16:0));
-		
-		if(isSideViewGravity())
-			y=((int32_t(y)&0xF8)+((int32_t(y)&4)?8:0));
-		else
-			y=((int32_t(y)&0xF0)+((int32_t(y)&8)?16:0));
-		*/
 		do_fix(x, 16, true);
 		if(isSideViewGravity())
 			do_fix(y,8,true);
@@ -5240,6 +5228,7 @@ void enemy::newdir_8(int32_t newrate,int32_t newhoming,int32_t special,int32_t d
 	// can't move straight, must turn
 	int32_t i=0;
 	
+	// TODO: speed this up!
 	for(; i<32; i++)  // Try random dir
 	{
 		ndir=(zc_oldrand()&7)+8;
@@ -5295,8 +5284,6 @@ int32_t enemy::slide()
 		if(!OFFGRID_ENEMY)
 		{
 			//Fix to grid
-			//x = (int32_t(x)+8)-((int32_t(x)+8)%16);
-			//y = (int32_t(y)+8)-((int32_t(y)+8)%16);
 			do_fix(x, 16, true);
 			do_fix(y, 16, true);
 		}
@@ -5390,9 +5377,9 @@ int32_t enemy::slide()
 				if(y < 0)
 					y = 0;
 				else if((int32_t(y)&15) > 7)
-					y=(int32_t(y)&0xF0)+16;
+					y = TRUNCATE_TILE(int32_t(y)) + 16;
 				else
-					y=(int32_t(y)&0xF0);
+					y = TRUNCATE_TILE(int32_t(y));
 					
 				break;
 				
@@ -5401,9 +5388,9 @@ int32_t enemy::slide()
 				if(x < 0)
 					x = 0;
 				else if((int32_t(x)&15) > 7)
-					x=(int32_t(x)&0xF0)+16;
+					x = TRUNCATE_TILE(int32_t(x)) + 16;
 				else
-					x=(int32_t(x)&0xF0);
+					x = TRUNCATE_TILE(int32_t(x));
 					
 				break;
 			}
@@ -5445,7 +5432,7 @@ bool enemy::fslide()
 		sclk=0;
 		return false;
 	}
-	
+
 	--sclk;
 	
 	switch(sclk>>8)
@@ -5460,7 +5447,7 @@ bool enemy::fslide()
 		break;
 		
 	case down:
-		if(y>=160)
+		if(y>=world_h-16)
 		{
 			sclk=0;
 			return false;
@@ -5478,7 +5465,7 @@ bool enemy::fslide()
 		break;
 		
 	case right:
-		if(x>=240)
+		if(x>=world_w-16)
 		{
 			sclk=0;
 			return false;
@@ -5513,18 +5500,18 @@ bool enemy::fslide()
 		case up:
 		case down:
 			if((int32_t(y)&15) > 7)
-				y=(int32_t(y)&0xF0)+16;
+				y = TRUNCATE_TILE(int32_t(y)) + 16;
 			else
-				y=(int32_t(y)&0xF0);
+				y = TRUNCATE_TILE(int32_t(y));
 				
 			break;
 			
 		case left:
 		case right:
 			if((int32_t(x)&15) > 7)
-				x=(int32_t(x)&0xF0)+16;
+				x = TRUNCATE_TILE(int32_t(x)) + 16;
 			else
-				x=(int32_t(x)&0xF0);
+				x = TRUNCATE_TILE(int32_t(x));
 				
 			break;
 		}
@@ -5613,9 +5600,9 @@ bool enemy::runKnockback()
 						if(x < 0)
 							x = 0;
 						else if((int32_t(x)&15) > 7)
-							x=(int32_t(x)&0xF0)+16;
+							x = TRUNCATE_TILE(int32_t(x)) + 16;
 						else
-							x=(int32_t(x)&0xF0);
+							x = TRUNCATE_TILE(int32_t(x));
 						break;
 				}
 				switch(kb_dir)
@@ -5627,9 +5614,9 @@ bool enemy::runKnockback()
 						if(y < 0)
 							y = 0;
 						else if((int32_t(y)&15) > 7)
-							y=(int32_t(y)&0xF0)+16;
+							y = TRUNCATE_TILE(int32_t(y)) + 16;
 						else
-							y=(int32_t(y)&0xF0);
+							y = TRUNCATE_TILE(int32_t(y));
 						break;
 				}
 				break;
@@ -5653,9 +5640,9 @@ bool enemy::runKnockback()
 							if(x < 0)
 								x = 0;
 							else if((int32_t(x)&7) > 3)
-								x=(int32_t(x)&0xF8)+8;
+								x = TRUNCATE_HALF_TILE(int32_t(x)) + 8;
 							else
-								x=(int32_t(x)&0xF8);
+								x = TRUNCATE_HALF_TILE(int32_t(x));
 							break;
 					}
 					switch(kb_dir)
@@ -5667,9 +5654,9 @@ bool enemy::runKnockback()
 							if(y < 0)
 								y = 0;
 							else if((int32_t(y)&7) > 3)
-								y=(int32_t(y)&0xF8)+8;
+								y = TRUNCATE_HALF_TILE(int32_t(y)) + 8;
 							else
-								y=(int32_t(y)&0xF8);
+								y = TRUNCATE_HALF_TILE(int32_t(y));
 							break;
 					}
 				}
@@ -5684,9 +5671,9 @@ bool enemy::runKnockback()
 							if(x < 0)
 								x = 0;
 							else if((int32_t(x)&15) > 7)
-								x=(int32_t(x)&0xF0)+16;
+								x = TRUNCATE_TILE(int32_t(x)) + 16;
 							else
-								x=(int32_t(x)&0xF0);
+								x = TRUNCATE_TILE(int32_t(x));
 							break;
 					}
 					switch(kb_dir)
@@ -5698,9 +5685,9 @@ bool enemy::runKnockback()
 							if(y < 0)
 								y = 0;
 							else if((int32_t(y)&15) > 7)
-								y=(int32_t(y)&0xF0)+16;
+								y = TRUNCATE_TILE(int32_t(y)) + 16;
 							else
-								y=(int32_t(y)&0xF0);
+								y = TRUNCATE_TILE(int32_t(y));
 							break;
 					}
 				}
@@ -5719,7 +5706,7 @@ void enemy::newdir(int32_t newrate,int32_t newhoming,int32_t special)
 {
 	int32_t ndir=-1;
 	
-	if(grumble != 0 && (zc_oldrand()&3)<abs(grumble)) //yes, I know checking if grumble is equal to if grumble == 0, but the latter makes the intention more clear to less experienced coders who might join.
+	if(grumble != 0 && (zc_oldrand()&3)<abs(grumble))
 	{
 		int32_t i = Lwpns.idFirst(wBait);
 		if(i >= 0) //idfirst returns -1 if it can't find any
@@ -7777,6 +7764,9 @@ int32_t enemy::wpnsfx(int32_t wpn)
 
 int32_t enemy::run_script(int32_t mode)
 {
+	void push_ri();
+	void pop_ri();
+
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
 	if (script <= 0 || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
 		return RUNSCRIPT_OK;
@@ -7786,10 +7776,13 @@ int32_t enemy::run_script(int32_t mode)
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;
 	bool& waitdraw = FFCore.waitdraw(scrty, uid);
+	push_ri();
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(ScriptType::NPC, script, uid);
+			ret = ZScriptVersion::RunScript(ScriptType::NPC, script, uid);
+			break;
+
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
@@ -7798,6 +7791,7 @@ int32_t enemy::run_script(int32_t mode)
 			}
 			break;
 	}
+	pop_ri();
 	return ret;
 }
 ALLEGRO_COLOR enemy::hitboxColor(byte opacity) const
@@ -7819,7 +7813,7 @@ guy::guy(zfix X,zfix Y,int32_t Id,int32_t Clk,bool mg) : enemy(X,Y,Id,Clk)
 	hit_width=12;
 	hit_height=17;
 	
-	if(!superman && (!isdungeon() || id==gFAIRY || id==gFIRE || id==gZELDA))
+	if(!superman && (!isdungeon(screen_spawned) || id==gFAIRY || id==gFIRE || id==gZELDA))
 	{
 		superman = 1;
 		hxofs=1000;
@@ -7847,8 +7841,8 @@ bool guy::animate(int32_t index)
 		
 		if(!get_qr(qr_NOGUYFIRES))
 		{
-			addenemy(BSZ?64:72,68,eSHOOTFBALL,0);
-			addenemy(BSZ?176:168,68,eSHOOTFBALL,0);
+			addenemy(screen_spawned,BSZ?64:72,68,eSHOOTFBALL,0);
+			addenemy(screen_spawned,BSZ?176:168,68,eSHOOTFBALL,0);
 		}
 	}
 	
@@ -7906,7 +7900,7 @@ bool eFire::animate(int32_t index)
 			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
-				y = y.getInt() & 0xF0;
+				y = TRUNCATE_TILE(y.getInt());
 			}
 			
 			return Dead(index);
@@ -8017,7 +8011,7 @@ bool eOther::animate(int32_t index)
 			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
-				y = y.getInt() & 0xF0;
+				y = TRUNCATE_TILE(y.getInt());
 			}
 			
 			return Dead(index);
@@ -8128,7 +8122,7 @@ bool eScript::animate(int32_t index)
 			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
-				y = y.getInt() & 0xF0;
+				y = TRUNCATE_TILE(y.getInt());
 			}
 			
 			return Dead(index);
@@ -8241,7 +8235,7 @@ bool eFriendly::animate(int32_t index)
 			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
-				y = y.getInt() & 0xF0;
+				y = TRUNCATE_TILE(y.getInt());
 			}
 			
 			return Dead(index);
@@ -8309,55 +8303,58 @@ void eFriendly::repair_shield()
 }
 
 
-void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
+void enemy::removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcactive)
 {
 	if (ffcactive) 
 	{
-		removearmosffc(ffcactive-1);
+		removearmosffc(*ffcactive);
 		return;
 	}
 	if(did_armos)
 	{
 		return;
 	}
-	
+
+	auto rpos_handle = get_rpos_handle_for_world_xy(ax, ay, 0);
+	mapscr* scr = rpos_handle.scr;
+	ax = TRUNCATE_TILE(ax);
+	ay = TRUNCATE_TILE(ay);
+
 	did_armos=true;
-	ax&=0xF0;
-	ay&=0xF0;
-	int32_t cd = (ax>>4)+ay;
-	int32_t f = MAPFLAG(ax,ay);
-	int32_t f2 = MAPCOMBOFLAG(ax,ay);
-	
-	if(combobuf[tmpscr->data[cd]].type!=cARMOS)
+	int32_t cd = rpos_handle.pos;
+	int32_t f = rpos_handle.sflag();
+	int32_t f2 = rpos_handle.cflag();
+
+	if (rpos_handle.ctype() != cARMOS)
 	{
 		return;
 	}
 	
-	tmpscr->data[cd] = tmpscr->undercombo;
-	tmpscr->cset[cd] = tmpscr->undercset;
-	tmpscr->sflag[cd] = 0;
+	scr->data[cd] = scr->undercombo;
+	scr->cset[cd] = scr->undercset;
+	scr->sflag[cd] = 0;
 	
 	if(f == mfARMOS_SECRET || f2 == mfARMOS_SECRET)
 	{
-		tmpscr->data[cd] = tmpscr->secretcombo[sSTAIRS];
-		tmpscr->cset[cd] = tmpscr->secretcset[sSTAIRS];
-		tmpscr->sflag[cd]=tmpscr->secretflag[sSTAIRS];
-		sfx(tmpscr->secretsfx);
+		scr->data[cd] = scr->secretcombo[sSTAIRS];
+		scr->cset[cd] = scr->secretcset[sSTAIRS];
+		scr->sflag[cd]=scr->secretflag[sSTAIRS];
+		sfx(scr->secretsfx);
 	}
 	
 	if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN))
+		if(!getmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
 		{
-			additem(ax,ay,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-			sfx(tmpscr->secretsfx);
+			additem(ax,ay,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+			sfx(scr->secretsfx);
 		}
 	}
 	
-	putcombo(scrollbuf,ax,ay,tmpscr->data[cd],tmpscr->cset[cd]);
+	putcombo(scrollbuf,ax,ay,scr->data[cd],scr->cset[cd]);
 }
 
-void enemy::removearmosffc(int32_t pos)
+void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
 {
 	if(did_armos)
 	{
@@ -8365,8 +8362,9 @@ void enemy::removearmosffc(int32_t pos)
 	}
 	
 	did_armos=true;
-	ffcdata& ffc = tmpscr->getFFC(pos);
-	newcombo const& cmb = combobuf[ffc.data];
+	ffcdata& ffc = *ffc_handle.ffc;
+	mapscr* scr = ffc_handle.scr;
+	auto& cmb = ffc_handle.combo();
 	int32_t f2 = cmb.flag;
 	
 	if(cmb.type!=cARMOS)
@@ -8374,26 +8372,26 @@ void enemy::removearmosffc(int32_t pos)
 		return;
 	}
 	
-	zc_ffc_set(ffc, tmpscr->undercombo);
-	ffc.cset = tmpscr->undercset;
+	ffc_handle.set_data(scr->undercombo);
+	ffc_handle.set_cset(scr->undercset);
 	
 	if(f2 == mfARMOS_SECRET)
 	{
-		zc_ffc_set(ffc, tmpscr->secretcombo[sSTAIRS]);
-		ffc.cset = tmpscr->secretcset[sSTAIRS];
-		sfx(tmpscr->secretsfx);
+		ffc_handle.set_data(scr->secretcombo[sSTAIRS]);
+		ffc_handle.set_cset(scr->secretcset[sSTAIRS]);
+		sfx(scr->secretsfx);
 	}
 	
 	if(f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN))
+		if(!getmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
 		{
-			additem(ffc.x,ffc.y,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-			sfx(tmpscr->secretsfx);
+			additem(ffc.x,ffc.y,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+			sfx(scr->secretsfx);
 		}
 	}
 	
-	putcombo(scrollbuf,ffc.x,ffc.y,ffc.data,ffc.cset);
+	putcombo(scrollbuf,ffc.x,ffc.y,ffc_handle.data(),ffc.cset);
 }
 
 
@@ -8431,15 +8429,19 @@ bool eGhini::animate(int32_t index)
 			misc=1;
 			clk3=32;
 			fading=0;
-			if (ffcactivated > 0) 
+			if (ffcactivated) 
 			{
-				guygridffc[ffcactivated-1] = 0;
-				removearmosffc(ffcactivated-1);
+				activation_counters_ffc[ffcactivated->id] = 0;
+				removearmosffc(*ffcactivated);
 			}
 			else 
 			{
-				guygrid[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=0;
-				removearmos(x,y);
+				rpos_t rpos = COMBOPOS_REGION_B(x, y);
+				if (rpos != rpos_t::None)
+				{
+					activation_counters[(int)rpos] = 0;
+					removearmos(x,y);
+				}
 			}
 		}
 	}
@@ -8522,7 +8524,7 @@ bool eTektite::animate(int32_t index)
 				
 				if(y<32)  clk2+=2;                                  // make them come down from top of screen
 				
-				if(y>112) clk2-=2;                                  // make them go back up
+				if(y>world_h-64) clk2-=2;                                  // make them go back up
 				
 				cstart=c = 9-((r&31)>>3);                           // time before gravity kicks in
 			}
@@ -8637,13 +8639,13 @@ bool eTektite::animate(int32_t index)
 			
 			if(x<=16-nb)  clk3=right;
 			
-			if(x>=224+nb) clk3=left;
+			if(x>=world_w-32+nb) clk3=left;
 			
 			x += (clk3==left) ? -1 : 1;
 			
-			if((--clk2<=0 && y>=16-nb) || y>=144+nb)
+			if((--clk2<=0 && y>=16-nb) || y>=world_h-32+nb)
 			{
-				if(y>=144+nb && get_qr(qr_ENEMIESZAXIS))
+				if(y>=world_h-32+nb && get_qr(qr_ENEMIESZAXIS))
 				{
 					step=0-step;
 					y--;
@@ -8936,7 +8938,6 @@ bool eLeever::animate(int32_t index)
 	
 	if(clk>=0 && !slide())
 	{
-//    switch(d->misc1)
 		switch(dmisc1)
 		{
 		case 0:      //line of sight
@@ -9103,15 +9104,11 @@ bool eLeever::canplace(int32_t d2)
 	int32_t nx=HeroX();
 	int32_t ny=HeroY();
 	
-	if(d2<left) ny&=0xF0;
-	else       nx&=0xF0;
+	if(d2<left) ny=TRUNCATE_TILE(ny);
+	else        nx=TRUNCATE_TILE(nx);
 	
 	switch(d2)
 	{
-//    case up:    ny-=((d->misc1==0)?32:48); break;
-//    case down:  ny+=((d->misc1==0)?32:48); if(ny-HeroY()<32) ny+=((d->misc1==0)?16:0); break;
-//    case left:  nx-=((d->misc1==0)?32:48); break;
-//    case right: nx+=((d->misc1==0)?32:48); if(nx-HeroX()<32) nx+=((d->misc1==0)?16:0); break;
 	case up:
 		ny-=((dmisc1==0||dmisc1==2)?32:48);
 		break;
@@ -9538,7 +9535,8 @@ bool eTrap::trapmove(int32_t ndir)
 {
 	if(get_qr(qr_MEANTRAPS))
 	{
-		if(tmpscr->flags2&fFLOATTRAPS)
+		mapscr* scr = get_scr(screen_spawned);
+		if(scr->flags2&fFLOATTRAPS)
 			return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 			
 		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
@@ -9589,7 +9587,7 @@ bool eTrap::clip()
 			break;
 			
 		case down:
-			if(y>=160)         return true;
+			if(y>=world_h-16)         return true;
 			
 			break;
 			
@@ -9599,7 +9597,7 @@ bool eTrap::clip()
 			break;
 			
 		case right:
-			if(x>=240)         return true;
+			if(x>=world_w-16)         return true;
 			
 			break;
 			
@@ -9609,17 +9607,17 @@ bool eTrap::clip()
 			break;
 			
 		case l_down:
-			if(y>=160||x<=0)   return true;
+			if(y>=world_h-16||x<=0)   return true;
 			
 			break;
 			
 		case r_up:
-			if(y<=0||x>=240)   return true;
+			if(y<=0||x>=world_w-16)   return true;
 			
 			break;
 			
 		case r_down:
-			if(y>=160||x>=240) return true;
+			if(y>=world_h-16||x>=world_w-16) return true;
 			
 			break;
 		}
@@ -9787,7 +9785,8 @@ bool eTrap2::animate(int32_t index)
 
 bool eTrap2::trapmove(int32_t ndir)
 {
-	if(tmpscr->flags2&fFLOATTRAPS)
+	mapscr* scr = get_scr(screen_spawned);
+	if(scr->flags2&fFLOATTRAPS)
 		return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 		
 	return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
@@ -9803,7 +9802,7 @@ bool eTrap2::clip()
 		break;
 		
 	case down:
-		if(y>=160) return true;
+		if(y>=world_h-16) return true;
 		
 		break;
 		
@@ -9813,7 +9812,7 @@ bool eTrap2::clip()
 		break;
 		
 	case right:
-		if(x>=240) return true;
+		if(x>=world_w-16) return true;
 		
 		break;
 	}
@@ -9930,7 +9929,7 @@ bool eRock::animate(int32_t index)
 			
 			++clk3;
 		}
-		else if(y<176)
+		else if(y<world_h)
 			clk3=0;                                               // next bounce
 		else
 			clk2 = -(zc_oldrand()&63);                                  // back to top
@@ -10466,11 +10465,6 @@ eZora::eZora(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	Clk=Clk;
 	mainguy=false;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
-	/*if((x>-17 && x<0) && iswaterex(tmpscr->data[(((int32_t)y&0xF0)+((int32_t)x>>4))]))
-	{
-	  clk=1;
-	}*/
-	//nets+880;
 	if (SIZEflags != 0) init_size_flags();;
 }
 
@@ -10533,7 +10527,7 @@ bool eZora::animate(int32_t index)
 	
 	if(watch)
 	{
-		++clock_zoras[id];
+		clock_zoras.push_back({screen_spawned, id});
 		return true;
 	}
 	
@@ -10552,13 +10546,17 @@ bool eZora::animate(int32_t index)
 		
 		while(!placed && t<160)
 		{
-			int32_t watertype = iswaterex(tmpscr->data[pos2], currmap, currscr, -1, ((pos2)%16*16), ((pos2)&0xF0), false, true, true, (bool)(editorflags & ENEMY_FLAG7));
+			rpos_t rpos = POS_TO_RPOS(pos2, screen_spawned);
+			auto [sx, sy] = COMBOXY_REGION(rpos);
+			mapscr* s = get_scr(screen_spawned);
+
+			int32_t watertype = iswaterex_z3(s->data[pos2], -1, sx, sy, false, true, true, (bool)(editorflags & ENEMY_FLAG7));
 			if(watertype && ((editorflags & ENEMY_FLAG6) || 
 			((combobuf[watertype].usrflags&cflag1) && (editorflags & ENEMY_FLAG5))
 			|| (!(combobuf[watertype].usrflags&cflag1) && !(editorflags & ENEMY_FLAG5))) && (pos2&15)>0 && (pos2&15)<15)
 			{
-				x=(pos2&15)<<4;
-				y=pos2&0xF0;
+				x=sx;
+				y=sy;
 				if (!(editorflags & ENEMY_FLAG8)) hp=guysbuf[id&0xFFF].hp;       // refill life each time, unless the flag is checked.
 				hxofs=1000;                                                      // avoid hit detection
 				stunclk=0;
@@ -10607,7 +10605,7 @@ bool eZora::animate(int32_t index)
 
 void eZora::draw(BITMAP *dest)
 {
-	if(clk<3)
+	if (isSubmerged())
 		return;
 		
 	update_enemy_frame();
@@ -10616,7 +10614,7 @@ void eZora::draw(BITMAP *dest)
 
 bool eZora::isSubmerged() const
 {
-	return ( clk < 3 );
+	return clk < 3;
 }
 
 eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
@@ -10731,14 +10729,13 @@ bool eStalfos::animate(int32_t index)
 		int32_t id2=dmisc3;
 		for(int32_t i=0; i < dmisc4; i++)
 		{
-//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
-			if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
+			if(addenemy(screen_spawned,x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
 				((enemy*)guys.spr(kids+i))->count_enemy = false;
 		}
 		
-		if(itemguy) // Hand down the carried item
+		if (itemguy && guys.Count()) // Hand down the carried item
 		{
-			guycarryingitem = guys.Count()-1;
+			int guycarryingitem = guys.Count()-1;
 			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
 			itemguy = false;
 		}
@@ -10754,36 +10751,7 @@ bool eStalfos::animate(int32_t index)
 			
 		return true;
 	}
-	/*
-	else if((dmisc2==e2tSPLITHIT && (hp<=0 && !immortal) &&!slide()))  //Possible vires fix; or could cause goodness knows what. -Z
-	{
-		stop_bgsfx(index);
-		int32_t kids = guys.Count();
-		int32_t id2=dmisc3;
-		
-		for(int32_t i=0; i < dmisc4; i++)
-		{
-//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
-			if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : (i<<12)),-21-(i%4)))
-				((enemy*)guys.spr(kids+i))->count_enemy = false;
-		}
-		
-		if(itemguy) // Hand down the carried item
-		{
-			guycarryingitem = guys.Count()-1;
-			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
-			itemguy = false;
-		}
-		
-		if(hashero)
-		{
-			Hero.setEaten(0);
-			hashero=false;
-		}
-					
-		return true;
-	}
-	*/
+	
 	if(fading)
 	{
 		if(++clk4 > 60)
@@ -10798,7 +10766,7 @@ bool eStalfos::animate(int32_t index)
 			
 		//if a custom size (not 16px by 16px)
 		if (ffcactivated)
-			removearmosffc(ffcactivated-1); 
+			removearmosffc(*ffcactivated); 
 		else
 		{
 			if (txsz > 1 || tysz > 1 || (SIZEflags&OVERRIDE_HIT_WIDTH) || (SIZEflags&OVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
@@ -10823,29 +10791,6 @@ bool eStalfos::animate(int32_t index)
 			}
 			else removearmos(x,y); 
 		}
-		/*
-		if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
-		{
-			 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
-			for(int32_t dx = 0; dx < hxsz; dx += 16)
-			{
-				for(int32_t dy = 0; dy < hysz; dy += 16)
-				{
-					removearmos((int32_t)x+dx+hxofs,(int32_t)y+dy+hyofs+1,ffcactivated);
-					did_armos = false;
-				}
-				removearmos((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-1,ffcactivated);
-				did_armos = false;
-			}
-			for(int32_t dy = 0; dy < hysz; dy += 16)
-			{
-				removearmos((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-1,ffcactivated);
-				did_armos = false;
-			}
-			removearmos((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-1,ffcactivated);
-		}
-				else removearmos(x,y,ffcactivated);
-		*/		
 	   
 		}
 				
@@ -11288,11 +11233,11 @@ bool eStalfos::animate(int32_t index)
 		
 		for(int32_t i=0; i<dmisc4; i++)
 		{
-			if(addenemy(x,y,id2,-24))
+			if(addenemy(screen_spawned,x,y,id2,-24))
 			{
 				if(itemguy) // Hand down the carried item
 				{
-					guycarryingitem = guys.Count()-1;
+					int guycarryingitem = guys.Count()-1;
 					((enemy*)guys.spr(guycarryingitem))->itemguy = true;
 					itemguy = false;
 				}
@@ -11316,16 +11261,6 @@ bool eStalfos::animate(int32_t index)
 
 void eStalfos::draw(BITMAP *dest)
 {
-	/*if ((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && misc<=0) //Submerged
-	{
-	  clk4--; //Kludge
-	  return;
-	}*/
-	
-	/*if ((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && misc>1)
-	{
-	  cs = dcset;
-	}*/
 	update_enemy_frame();
 	
 	if(!fallclk&&!drownclk&&(dmisc2==e2tBOMBCHU)&&dashing)
@@ -11340,16 +11275,6 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 {
 	int32_t tempy=yofs;
 	
-	/*
-	  if (clk6 && dir>=left && !get_qr(qr_ENEMIESZAXIS)) {
-		flip = 0;
-		int32_t f2=get_qr(qr_NEWENEMYTILES)?
-		  (clk/(frate/4)):((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[spr_shadow].tile+f2;
-		yofs+=(((int32_t)y+17)&0xF0)-y;
-		yofs+=8;
-	  }
-	*/
 	if((dmisc9 == e9tPOLSVOICE || dmisc9==e9tVIRE) && !get_qr(qr_ENEMIESZAXIS))
 	{
 		flip = 0;
@@ -11605,10 +11530,6 @@ bool eStalfos::WeaponOut()
 		{
 			return true;
 		}
-		
-		/*if (bgsfx > 0 && guys.idCount(id) < 2) // count self
-		  stop_sfx(bgsfx);
-		*/
 	}
 	
 	return false;
@@ -11704,13 +11625,13 @@ bool eKeese::animate(int32_t index)
 				int32_t kids = guys.Count();
 				bool success = false;
 				int32_t id2=dmisc3;
-				success = 0 != addenemy((zfix)x,(zfix)y,id2,-24);
+				success = 0 != addenemy(screen_spawned,(zfix)x,(zfix)y,id2,-24);
 				
 				if(success)
 				{
 					if(itemguy) // Hand down the carried item
 					{
-						guycarryingitem = guys.Count()-1;
+						int guycarryingitem = guys.Count()-1;
 						((enemy*)guys.spr(guycarryingitem))->itemguy = true;
 						itemguy = false;
 					}
@@ -11905,7 +11826,7 @@ bool eWizzrobe::animate(int32_t index)
 								
 						while(!placed && t<160)
 						{
-							if(isdungeon())
+							if(isdungeon(screen_spawned))
 							{
 								x=((zc_oldrand()%12)+2)*16;
 								y=((zc_oldrand()%7)+2)*16;
@@ -11915,7 +11836,9 @@ bool eWizzrobe::animate(int32_t index)
 								x=((zc_oldrand()%14)+1)*16;
 								y=((zc_oldrand()%9)+1)*16;
 							}
-									
+
+							std::tie(x, y) = translate_screen_coordinates_to_world(screen_spawned, x, y);
+
 							if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Hero.getX())>=32)||(abs(y-Hero.getY())>=32)))
 							{
 								placed=true;
@@ -11963,7 +11886,7 @@ bool eWizzrobe::animate(int32_t index)
 					
 					while(!placed && t<160)
 					{
-						if(isdungeon())
+						if(isdungeon(screen_spawned))
 						{
 							x=((zc_oldrand()%12)+2)*16;
 							y=((zc_oldrand()%7)+2)*16;
@@ -11973,6 +11896,8 @@ bool eWizzrobe::animate(int32_t index)
 							x=((zc_oldrand()%14)+1)*16;
 							y=((zc_oldrand()%9)+1)*16;
 						}
+
+						std::tie(x, y) = translate_screen_coordinates_to_world(screen_spawned, x, y);
 						
 						if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Hero.getX())>=32)||(abs(y-Hero.getY())>=32)))
 						{
@@ -12138,7 +12063,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			for(int32_t i=0; i<bats; i++)
 			{
 				// Summon bats (or anything)
-				if(addchild(x,y,dmisc3,-10, this->script_UID))
+				if(addchild(screen_spawned, x,y,dmisc3,-10, this->getUID()))
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			}
 			sfx(firesfx, pan(int32_t(x)));
@@ -12146,7 +12071,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	}
 	else if(dmisc2==3)  //summon from layer
 	{
-		if(count_layer_enemies()==0)
+		if(count_layer_enemies(screen_spawned)==0)
 		{
 			return;
 		}
@@ -12160,7 +12085,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			
 			for(int32_t i=0; i<newguys; i++)
 			{
-				int32_t id2=vbound(random_layer_enemy(),eSTART,eMAXGUYS-1);
+				int32_t id2=vbound(random_layer_enemy(screen_spawned),eSTART,eMAXGUYS-1);
 				int32_t x2=0;
 				int32_t y2=0;
 				
@@ -12171,7 +12096,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 					
 					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Hero.getX())>=32 || abs(y2-Hero.getY())>=32))
 					{
-						if(addchild(x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
+						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->getUID()))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
@@ -12364,11 +12289,11 @@ void eWizzrobe::wizzrobe_newdir(int32_t homing)
 	// if they're already there, they should move toward the center
 	if(x<32)
 		dir=right;
-	else if(x>=224)
+	else if(x>=world_w-32)
 		dir=left;
 	else if(y<32)
 		dir=down;
-	else if(y>=144)
+	else if(y>=world_h-32)
 		dir=up;
 	else
 		newdir(4,homing,spw_wizzrobe);
@@ -12705,8 +12630,7 @@ eAquamentus::eAquamentus(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	//these are here to bypass compiler warnings about unused arguments
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x = dmisc1 ? 64 : 176;
-		y = 64;
+		position_relative_to_screen(x, y, dmisc1 ? 64 : 176, 64);
 	}
 	else { x = X; y = Y; }
 	
@@ -12766,6 +12690,7 @@ bool eAquamentus::animate(int32_t index)
 		clk3=32;
 	}
 	
+	int screen_x = x.getInt()%256;
 	if(!((clk4+1)&63))
 	{
 		int32_t d2=(zc_oldrand()%3)+1;
@@ -12777,24 +12702,24 @@ bool eAquamentus::animate(int32_t index)
 		
 		if(dmisc1)
 		{
-			if(x<=40)
+			if(screen_x<=40)
 			{
 				dir=right;
 			}
 			
-			if(x>=104)
+			if(screen_x>=104)
 			{
 				dir=left;
 			}
 		}
 		else
 		{
-			if(x<=136)
+			if(screen_x<=136)
 			{
 				dir=right;
 			}
 			
-			if(x>=200)
+			if(screen_x>=200)
 			{
 				dir=left;
 			}
@@ -12888,11 +12813,9 @@ bool eAquamentus::hit(weapon *w)
 
 eGohma::eGohma(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)  // enemy((zfix)128,(zfix)48,Id,0)
 {
-	
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x = 128;
-		y = 48;
+		position_relative_to_screen(x, y, 128, 48);
 	}
 	else { x = X; y = Y; }
 	
@@ -12939,7 +12862,7 @@ bool eGohma::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		if (ffcactivated) removearmosffc(ffcactivated-1);
+		if (ffcactivated) removearmosffc(*ffcactivated);
 		else
 		{
 			removearmos(zc_max(x-16, 0_zf),y);
@@ -13233,27 +13156,27 @@ bool eBigDig::animate(int32_t index)
 	case 2:
 		for(int32_t i=0; i<dmisc5; i++)
 		{
-			addenemy(x,y,dmisc1+0x1000,-15);
+			addenemy(screen_spawned,x,y,dmisc1+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc6; i++)
 		{
-			addenemy(x,y,dmisc2+0x1000,-15);
+			addenemy(screen_spawned,x,y,dmisc2+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc7; i++)
 		{
-			addenemy(x,y,dmisc3+0x1000,-15);
+			addenemy(screen_spawned,x,y,dmisc3+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc8; i++)
 		{
-			addenemy(x,y,dmisc4+0x1000,-15);
+			addenemy(screen_spawned,x,y,dmisc4+0x1000,-15);
 		}
 		
 		if(itemguy) // Hand down the carried item
 		{
-			guycarryingitem = guys.Count()-1;
+			int guycarryingitem = guys.Count()-1;
 			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
 			itemguy = false;
 		}
@@ -13388,306 +13311,6 @@ void eBigDig::init_size_flags()
 	if ((SIZEflags & OVERRIDE_DRAW_Z_OFFSET) != 0) zofs = d->zofs;
 }
 
-/*
-eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
-{
-	hxofs=hyofs=8;
-	hzsz=16; //can't be jumped.
-	clk2=70;
-	misc=-1;
-	mainguy=!getmapflag();
-}
-
-bool eGanon::animate(int32_t index)
-{
-	if(switch_hooked) return enemy::animate(index);
-	if(dying)
-	
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y,ffcactivated);
-	}
-	
-	switch(misc)
-	{
-	case -1:
-		misc=0;
-		
-	case 0:
-		if(++clk2>72 && !(zc_oldrand()&3))
-		{
-			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
-			sfx(wpnsfx(wpn),pan(int32_t(x)));
-			clk2=0;
-		}
-		
-		Stunclk=0;
-		constant_walk(rate,homing,spw_none);
-		break;
-		
-	case 1:
-	case 2:
-		if(--Stunclk<=0)
-		{
-			int32_t r=zc_oldrand();
-			
-			if(r&1)
-			{
-				y=96;
-				
-				if(r&2)
-					x=160;
-				else
-					x=48;
-					
-				if(tooclose(x,y,48))
-					x=208-x;
-			}
-			
-		//if ( editorflags & ENEMY_FLAG15 && current_item_id(itype_amulet,false) >= 2 ) //visible to Amulet 2
-		//{
-	//	loadpalset(9,pSprite(spBROWN)); //make Ganon visible?
-	//    }
-		//    else
-	//    {
-		loadpalset(csBOSS,pSprite(d->bosspal));
-	//    }
-			misc=0;
-		}
-		
-		break;
-		
-	case 3:
-	{
-		if(hclk>0)
-			break;
-			
-		misc=4;
-		clk=0;
-		hxofs=1000;
-		loadpalset(9,pSprite(spPILE));
-		music_stop();
-		stop_sfx(WAV_ROAR);
-		
-		if(deadsfx>0) sfx(deadsfx,pan(int32_t(x)));
-		
-		sfx(WAV_GANON);
-		//Ganon's dustpile; fall in sideview. -Z
-			item *dustpile = new item(x+8,y+8,(zfix)0,iPile,ipDUMMY,0);
-		dustpile->linked_parent = eeGANON;
-			setmapflag();
-		//items.add(new item(x+8,y+8,(zfix)0,iPile,ipDUMMY,0));
-		break;
-	}
-		
-	case 4:
-		if(clk>=80)
-		{
-			misc=5;
-			
-			if(getmapflag())
-			{
-				game->lvlitems[dlevel]|=liBOSS;
-				//play_DmapMusic();
-				playLevelMusic();
-				return true;
-			}
-			
-			sfx(WAV_CLEARED);
-			items.add(new item(x+8,y+8,(zfix)0,iBigTri,ipBIGTRI,0));
-			setmapflag();
-		}
-		
-		break;
-	}
-	
-	//if ( editorflags & ENEMY_FLAG15 ) //visible to Amulet 2
-	//{
-	//if ( current_item_id(itype_amulet,false) >= 2 )
-	//{
-	///	loadpalset(9,pSprite(spBROWN)); //make Ganon visible?
-	//}
-	//}
-	
-	
-	return enemy::animate(index);
-}
-
-
-int32_t eGanon::takehit(weapon *w, weapon* realweap)
-{
-	//these are here to bypass compiler warnings about unused arguments
-	int32_t wpnId = w->id;
-	int32_t power = w->power;
-	int32_t enemyHitWeapon = w->parentitem;
-	
-	switch(misc)
-	{
-		case 0:
-		{
-			//if we're not using the editor defences, and Ganon isn't hit by a sword, return.
-		if(wpnId!=wSword && !(editorflags & ENEMY_FLAG14))
-			return 0;
-		
-		//if we are not using the new defences, just reduce his HP
-		if (!(editorflags & ENEMY_FLAG14)) 
-		{
-			hp-=power;
-			if(hp>0)
-			{
-				misc=1;
-				Stunclk=64;
-			}
-			else
-			{
-				loadpalset(csBOSS,pSprite(spBROWN));
-				misc=2;
-				Stunclk=284;
-				hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
-			}
-			
-			sfx(WAV_EHIT,pan(int32_t(x)));
-			
-			if(hitsfx>0) sfx(hitsfx,pan(int32_t(x)));
-			
-			return 1;
-		}
-		//otherwise, resolve his defence. 
-		else 
-		{
-				int32_t def = enemy::takehit(w,realweap); //This works, but it instantly kills him if it does enough damage.
-			if(hp>0)
-			{
-				misc=1;
-				Stunclk=64;
-			}
-			else
-			{
-				loadpalset(csBOSS,pSprite(spBROWN));
-				misc=2;
-				Stunclk=284;
-				hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
-			}
-			
-			sfx(WAV_EHIT,pan(int32_t(x)));
-			
-			if(hitsfx>0) sfx(hitsfx,pan(int32_t(x)));
-			
-			
-			return 1;
-		}
-		} 
-		case 2:
-		{
-		if 
-		(
-			( dmisc14 > 0 && !enemyHitWeapon == dmisc14 ) //special weapon needed to kill ganon specified in editor
-			|| //or nothing specified, use silver arrows+
-			( dmisc14 <= 0 && (wpnId!=wArrow || (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_arrow))<4))
-		)
-		return 0;
-		{
-			misc=3;
-			hclk=81;
-			loadpalset(9,pSprite(spBROWN));
-			return 1;
-		}
-		
-	   }
-	}
-	
-	return 0;
-}
-
-void eGanon::draw(BITMAP *dest)
-{
-	switch(misc)
-	{
-	case 0:
-		if((clk&3)==3)
-			tile=(zc_oldrand()%5)*2+o_tile;
-			
-		if(db!=999)
-			break;
-			
-	case 2:
-		if(Stunclk<64 && (Stunclk&1) )
-	{
-		if 
-		(
-		( (editorflags & ENEMY_FLAG1) && current_item_power(itype_amulet) >= 2 && (editorflags & ENEMY_FLAG15) )
-		||
-		( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) && (editorflags & ENEMY_FLAG15) )
-		)
-		{
-			goto ganon_draw; //draw his weapons if we can see him
-		}
-			break;
-		}
-			
-	case -1:
-		tile=o_tile;
-		
-		//fall through
-	case 1:
-	case 3:
-	ganon_draw:
-		drawblock(dest,15);
-		break;
-		
-	case 4:
-		draw_guts(dest);
-		draw_flash(dest);
-		break;
-	}
-	
-	if ( editorflags & ENEMY_FLAG1 ) //visible to Amulet 2
-	{
-	if 
-	(
-		( (editorflags & ENEMY_FLAG1) && current_item_power(itype_amulet) >= 2 && (editorflags & ENEMY_FLAG15) )
-		||
-		( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) && (editorflags & ENEMY_FLAG15) )
-	)
-	{
-		draw_guts(dest); //makes his shots visible, but not him
-		draw_flash(dest);
-	}
-	}
-}
-
-void eGanon::draw_guts(BITMAP *dest)
-{
-	int32_t c = zc_min(clk>>3,8);
-	tile = clk<24 ? 74 : 75;
-	overtile16(dest,tile,x+8,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+8,y+16-c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+8+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+8+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+16-c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+16-c+playing_field_offset,9,0);
-}
-
-void eGanon::draw_flash(BITMAP *dest)
-{
-
-	int32_t c = clk-(clk>>2);
-	cs = (frame&3)+6;
-	overtile16(dest,194,x+8,y+8-clk+playing_field_offset,cs,0);
-	overtile16(dest,194,x+8,y+8+clk+playing_field_offset,cs,2);
-	overtile16(dest,195,x+8-clk,y+8+playing_field_offset,cs,0);
-	overtile16(dest,195,x+8+clk,y+8+playing_field_offset,cs,1);
-	overtile16(dest,196,x+8-c,y+8-c+playing_field_offset,cs,0);
-	overtile16(dest,196,x+8+c,y+8-c+playing_field_offset,cs,1);
-	overtile16(dest,196,x+8-c,y+8+c+playing_field_offset,cs,2);
-	overtile16(dest,196,x+8+c,y+8+c+playing_field_offset,cs,3);
-}
-*/
-
 eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	hxofs=hyofs=8;
@@ -13703,7 +13326,8 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	hzsz=16; //can't be jumped.
 	clk2=70;
 	misc=-1;
-	mainguy=(!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN));
+	mapscr* scr = get_scr(screen_spawned);
+	mainguy=(!getmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN));
 }
 
 bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to this version of GANON!! -Z
@@ -13751,6 +13375,8 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 					
 				if(tooclose(x,y,48))
 					x=208-x;
+
+				std::tie(x, y) = translate_screen_coordinates_to_world(screen_spawned, x, y);
 			}
 			
 			loadpalset(csBOSS,pSprite(d->bosspal));
@@ -13782,8 +13408,6 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 		//dustpile = (item *)items.spr(items.Count() - 1)->getUID();
 		dustpile = (item *)items.spr(items.Count() - 1);
 		dustpile->linked_parent = eeGANON; //was miscellaneous[31]
-			//setmapflag(); //Could be why the Triforce doesn't drop. Disabling this now. -Z ( 6th March, 2019 )
-		//items.add(new item(x+8,y+8,(zfix)0,iPile,ipDUMMY,0));
 		break;
 	}
 		
@@ -13808,8 +13432,6 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 					bigtriforce->linked_parent = eeGANON;
 				}
 			}
-			//setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-			//game->lvlitems[dlevel]|=liBOSS; // if we had more rule bits, we could mark him dead so that he does not respawn. -Z
 		}
 		
 		break;
@@ -13934,14 +13556,14 @@ void eGanon::draw_guts(BITMAP *dest)
 {
 	int32_t c = zc_min(clk>>3,8);
 	tile = clk<24 ? 74 : 75;
-	overtile16(dest,tile,x+8,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+8,y+16-c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+8+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+8+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+16-c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+16-c+playing_field_offset,9,0);
+	overtile16(dest,tile,x+8-viewport.x,y+c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+8-viewport.x,y+16-c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+c-viewport.x,y+8+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+16-c-viewport.x,y+8+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+c-viewport.x,y+c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+16-c-viewport.x,y+c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+c-viewport.x,y+16-c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+16-c-viewport.x,y+16-c+playing_field_offset-viewport.y,9,0);
 }
 
 void eGanon::draw_flash(BITMAP *dest)
@@ -13949,17 +13571,17 @@ void eGanon::draw_flash(BITMAP *dest)
 
 	int32_t c = clk-(clk>>2);
 	cs = (frame&3)+6;
-	overtile16(dest,194,x+8,y+8-clk+playing_field_offset,cs,0);
-	overtile16(dest,194,x+8,y+8+clk+playing_field_offset,cs,2);
-	overtile16(dest,195,x+8-clk,y+8+playing_field_offset,cs,0);
-	overtile16(dest,195,x+8+clk,y+8+playing_field_offset,cs,1);
-	overtile16(dest,196,x+8-c,y+8-c+playing_field_offset,cs,0);
-	overtile16(dest,196,x+8+c,y+8-c+playing_field_offset,cs,1);
-	overtile16(dest,196,x+8-c,y+8+c+playing_field_offset,cs,2);
-	overtile16(dest,196,x+8+c,y+8+c+playing_field_offset,cs,3);
+	overtile16(dest,194,x+8-viewport.x,y+8-clk+playing_field_offset-viewport.y,cs,0);
+	overtile16(dest,194,x+8-viewport.x,y+8+clk+playing_field_offset-viewport.y,cs,2);
+	overtile16(dest,195,x+8-clk-viewport.x,y+8+playing_field_offset-viewport.y,cs,0);
+	overtile16(dest,195,x+8+clk-viewport.x,y+8+playing_field_offset-viewport.y,cs,1);
+	overtile16(dest,196,x+8-c-viewport.x,y+8-c+playing_field_offset-viewport.y,cs,0);
+	overtile16(dest,196,x+8+c-viewport.x,y+8-c+playing_field_offset-viewport.y,cs,1);
+	overtile16(dest,196,x+8-c-viewport.x,y+8+c+playing_field_offset-viewport.y,cs,2);
+	overtile16(dest,196,x+8+c-viewport.x,y+8+c+playing_field_offset-viewport.y,cs,3);
 }
 
-void getBigTri(int32_t id2)
+void getBigTri(mapscr* scr, int32_t id2)
 {
 	/*
 	  *************************
@@ -13982,9 +13604,9 @@ void getBigTri(int32_t id2)
 		game->lvlitems[dlevel]|=liTRIFORCE;
 	}
 	
-	setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+	setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 	
-	draw_screen(tmpscr);
+	draw_screen();
 	
 	for(int32_t f=0; f<24*8 && !Quit; f++)
 	{
@@ -14011,7 +13633,7 @@ void getBigTri(int32_t id2)
 		
 		if((f&7)==4)
 		{
-			if(currscr<128) loadlvlpal(DMaps[currdmap].color);
+			if(cur_screen<128) loadlvlpal(DMaps[cur_dmap].color);
 			else loadlvlpal(0xB);
 		}
 		
@@ -14026,9 +13648,9 @@ void getBigTri(int32_t id2)
 	//play_DmapMusic();
 	playLevelMusic();
 	
-	if(itemsbuf[id2].flags & item_flag1 && currscr < 128)
+	if(itemsbuf[id2].flags & item_flag1 && cur_screen < 128)
 	{
-		Hero.dowarp(1,0); //side warp
+		Hero.dowarp(hero_scr, 1, 0); //side warp
 	}
 }
 
@@ -14037,8 +13659,7 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	if( !(editorflags & ENEMY_FLAG5) )
 	{
-		x=128;
-		y=48;
+		position_relative_to_screen(x, y, 128, 48);
 	}
 	//else { x = X; y = Y; }
 	dir=(zc_oldrand()&7)+8;
@@ -14069,7 +13690,7 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 bool eMoldorm::animate(int32_t index)
 {
 	if(switch_hooked) return enemy::animate(index);
-	int32_t max_y = isdungeon() ? 100 : 100+28; //warning: Ugly hack. -Z
+	int32_t max_y = isdungeon(screen_spawned) ? 100 : 100+28; //warning: Ugly hack. -Z
 	if ( y > (max_y) )
 	{
 		++stickclk; //Keep Moldorm from pacinn the bottom row or leaving the screen via the bottom edge. -Z 8th Sept, 2019
@@ -14092,7 +13713,7 @@ bool eMoldorm::animate(int32_t index)
 		if(--clk2 == 0)
 		{
 			if(flags&guy_never_return)
-				never_return(index);
+				never_return(screen_spawned, index);
 				
 			if(!dmisc2 || (editorflags & ENEMY_FLAG6))
 				leave_item();
@@ -14135,7 +13756,7 @@ bool eMoldorm::animate(int32_t index)
 			
 			segment->o_tile=tile; //I refuse to fuck with adding scripttile to segmented enemies. -Z
 		//Script your own blasted segmented bosses!! -Z
-			segment->parent_script_UID = this->script_UID;
+			segment->parent_uid = this->getUID();
 			if((i==index+segcnt)&&(i!=index+1))                   //tail
 			{
 				segment->dummy_int[1]=2;
@@ -14188,8 +13809,7 @@ esMoldorm::esMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	if( !(editorflags & ENEMY_FLAG5) )
 	{
-		x=128;
-		y=48;
+		position_relative_to_screen(x, y, 128, 48);
 	}
 	
 	yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
@@ -14330,8 +13950,7 @@ eLanmola::eLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id,C
 {
 	if( !(editorflags & ENEMY_FLAG5) )
 	{
-		x=64;
-		y=80;
+		position_relative_to_screen(x, y, 64, 80);
 	}
 	//else { x = X; y = Y; }
 	//byte legaldirs = 0;
@@ -14443,7 +14062,7 @@ bool eLanmola::animate(int32_t index)
 		}
 		
 		segment->o_tile=o_tile;
-		segment->parent_script_UID = this->script_UID;
+		segment->parent_uid = this->getUID();
 		if((i==index+segcnt)&&(i!=index+1))
 		{
 			segment->dummy_int[1]=1;                //tail
@@ -14478,7 +14097,7 @@ bool eLanmola::animate(int32_t index)
 		clk2=19;
 		x=guys.spr(index+1)->x;
 		y=guys.spr(index+1)->y;
-		setmapflag(mTMPNORET);
+		setmapflag(get_scr(screen_spawned), mTMPNORET);
 	}
 	
 	//this enemy is invincible.. BUT scripts don't know that, and can "kill" it by setting the hp negative.
@@ -14491,8 +14110,7 @@ esLanmola::esLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id
 {
 	if( !(editorflags & ENEMY_FLAG5) )
 	{
-		x=64;
-		y=80;
+		position_relative_to_screen(x, y, 64, 80);
 	}
 	int32_t incr = 16;
 	//Don't spawn in pits. 
@@ -14707,12 +14325,12 @@ bool eManhandla::animate(int32_t index)
 			if(!dmisc2)
 			{
 				cur_arm->o_tile=o_tile+40;
-				cur_arm->parent_script_UID = this->script_UID;
+				cur_arm->parent_uid = this->getUID();
 			}
 			else
 			{
 				cur_arm->o_tile=o_tile+160;
-				cur_arm->parent_script_UID = this->script_UID;
+				cur_arm->parent_uid = this->getUID();
 			}
 		}
 	}
@@ -15137,8 +14755,7 @@ eGleeok::eGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk) //ene
 {
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x = 120;
-		y = 48;
+		std::tie(x, y) = translate_screen_coordinates_to_world(screen_spawned, 120, 48);
 	}
 	else 
 	{ 
@@ -15228,7 +14845,7 @@ bool eGleeok::animate(int32_t index)
 	{
 		enemy *head = ((enemy*)guys.spr(index+i+1));
 		head->dummy_int[1]=necktile;
-		head->parent_script_UID = this->script_UID;
+		head->parent_uid = this->getUID();
 		
 		if(get_qr(qr_NEWENEMYTILES))
 		{
@@ -15300,7 +14917,7 @@ bool eGleeok::animate(int32_t index)
 		for(int32_t i=0; i<misc; i++)
 			((enemy*)guys.spr(index+i+1))->misc = -2;             // give the signal to disappear
 			
-		if(flags&guy_never_return) never_return(index);
+		if(flags&guy_never_return) never_return(screen_spawned, index);
 	}
 	
 	return enemy::animate(index);
@@ -15388,7 +15005,8 @@ void eGleeok::draw2(BITMAP *dest)
 	
 	if(hp > 0 && !dont_draw())
 	{
-		if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+		mapscr* scr = get_scr(screen_spawned);
+		if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 			sprite::drawcloaked(dest);
 		else
 			sprite::draw(dest);
@@ -15405,7 +15023,6 @@ esGleeok::esGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(
 	hp=1000;
 	step=1;
 	item_set=0;
-	//x=120; y=70;
 	x = xoffset+parent->x;
 	y = yoffset+parent->y;
 	hxofs=4;
@@ -15675,19 +15292,20 @@ void esGleeok::draw(BITMAP *dest)
 		{
 			for(int32_t i=1; i<dmisc5; i++)                              //draw the neck
 			{
+				mapscr* scr = get_scr(screen_spawned);
 				if(get_qr(qr_NEWENEMYTILES))
 				{
-					if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
-						overtilecloaked16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,0);
+					if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+						overtilecloaked16(dest,necktile+(i*dmisc7),nx[i]-4-viewport.x,ny[i]+playing_field_offset-viewport.y,0);
 					else
-						overtile16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,cs,0);
+						overtile16(dest,necktile+(i*dmisc7),nx[i]-4-viewport.x,ny[i]+playing_field_offset-viewport.y,cs,0);
 				}
 				else
 				{
-					if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
-						overtilecloaked16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,0);
+					if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+						overtilecloaked16(dest,necktile,nx[i]-4-viewport.x,ny[i]+playing_field_offset-viewport.y,0);
 					else
-						overtile16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,cs,0);
+						overtile16(dest,necktile,nx[i]-4-viewport.x,ny[i]+playing_field_offset-viewport.y,cs,0);
 				}
 			}
 		}
@@ -15702,14 +15320,6 @@ void esGleeok::draw(BITMAP *dest)
 			tile+=((clk&24)>>3);
 			break;
 		}
-		
-		/*
-			else
-			{
-			  tile=(clk&1)?147:148;
-			  break;
-			}
-		*/
 	}
 }
 
@@ -15884,13 +15494,13 @@ bool ePatra::animate(int32_t index)
 			{
 				((enemy*)guys.spr(i))->o_tile=d->e_tile+dmisc8;
 				enemy *s = ((enemy*)guys.spr(i));
-				s->parent_script_UID = this->script_UID;
+				s->parent_uid = this->getUID();
 			}
 			else
 			{
 				((enemy*)guys.spr(i))->o_tile=o_tile+1;
 				enemy *s = ((enemy*)guys.spr(i));
-				s->parent_script_UID = this->script_UID;
+				s->parent_uid = this->getUID();
 			}
 			
 			((enemy*)guys.spr(i))->cs=dmisc9;
@@ -17111,7 +16721,9 @@ void enemy_scored(int32_t index)
 
 void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy,mapscr* parentscr)
 {
-	guy *g = new guy((zfix)x,(zfix)(y+(isdungeon()?1:0)),id,get_qr(qr_NOGUYPOOF)?0:clk,mainguy);
+	guy *g = new guy((zfix)x,(zfix)y,id,get_qr(qr_NOGUYPOOF)?0:clk,mainguy);
+	if (isdungeon(g->screen_spawned))
+		g->y += 1;
 	if(parentscr && parentscr->guytile > -1 && !get_qr(qr_OLD_GUY_HANDLING))
 	{
 		g->o_tile = parentscr->guytile;
@@ -17138,6 +16750,12 @@ void adddummyitem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
 	item *i = new item((zfix)x,(zfix)y-(get_qr(qr_NOITEMOFFSET)),(zfix)0,id,pickup,0,true);
 	items.add(i);
+}
+
+void add_item_for_screen(int32_t screen, item* item)
+{
+	item->screen_spawned = screen;
+	items.add(item);
 }
 
 void kill_em_all()
@@ -17215,11 +16833,12 @@ int32_t GuyHit(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32
 	return hit ? index : -1;
 }
 
-bool hasMainGuy()
+bool hasMainGuy(int screen)
 {
 	for(int32_t i=0; i<guys.Count(); i++)
 	{
-		if(((enemy*)guys.spr(i))->mainguy)
+		enemy* e = (enemy*)guys.spr(i);
+		if (e->screen_spawned == screen && e->mainguy)
 		{
 			return true;
 		}
@@ -17339,17 +16958,17 @@ void killfairynew(item const &itemfairy)
 }
 
 //Should probably change this to return an 'enemy*', null on failure -Em
-int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk)
+int32_t addenemy(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk)
 {
-	return addenemy(x,y,0,id,clk);
+	return addenemy_z(screen,x,y,0,id,clk);
 }
 
-int32_t addchild(int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID)
+int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_uid)
 {
-	return addchild(x,y,0,id,clk, parent_scriptUID);
+	return addchild_z(screen,x,y,0,id,clk, parent_uid);
 }
 
-int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_scriptUID)
+int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_uid)
 {
 	if(id <= 0) return 0;
 	
@@ -17620,7 +17239,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	}
 	
 	((enemy*)e)->ceiling = (z && canfall(id));
-	((enemy*)e)->parent_script_UID = parent_scriptUID;
+	((enemy*)e)->parent_uid = parent_uid;
 			
 	
 	if(!guys.add(e))
@@ -17783,12 +17402,18 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		break;
 	}
 	}
-	
+
+	for (int i = 0; i < ret; i++)
+	{
+		enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
+		e->screen_spawned = screen;
+	}
+
 	return ret;
 }
 
 // Returns number of enemies/segments created
-int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
+int32_t addenemy_z(int32_t screen,int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 {
 	int32_t realid = id&0xFFF;
 	if( realid > MAXGUYS ) 
@@ -18047,7 +17672,6 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		{
 			e = new eTrigger((zfix)x,(zfix)y,id,clk);
 			break;
-			break;
 		}
 		[[fallthrough]];
 	default:
@@ -18239,6 +17863,12 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		
 		break;
 	}
+	}
+
+	for (int i = 0; i < ret; i++)
+	{
+		enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
+		e->screen_spawned = screen;
 	}
 	
 	return ret;
@@ -18433,65 +18063,54 @@ void addfires()
 {
 	if(!get_qr(qr_NOGUYFIRES))
 	{
+		auto [dx, dy] = translate_screen_coordinates_to_world(cur_screen);
 		int32_t bs = get_qr(qr_BSZELDA);
-		addguy(bs? 64: 72,64,gFIRE,-17,false,nullptr);
-		addguy(bs?176:168,64,gFIRE,-18,false,nullptr);
+		addguy(dx+(bs? 64: 72),dy+64,gFIRE,-17,false,nullptr);
+		addguy(dx+(bs?176:168),dy+64,gFIRE,-18,false,nullptr);
 	}
 }
 
-void loadguys()
+// This function runs one time for every screen on the first frame of a region being loaded.
+// It handles spawning screen guys (not the enemies), item, and room-specific sprites.
+static void loadguys(mapscr* scr)
 {
-	if(loaded_guys)
-		return;
-		
-	loaded_guys=true;
-	
+	int screen = scr->screen;
 	byte Guy=0;
 	// When in caves/item rooms, use mSPECIALITEM and ipONETIME2
 	// Else use mITEM and ipONETIME
-	int32_t mf = (currscr>=128) ? mSPECIALITEM : mITEM;
-	int32_t onetime = (currscr>=128) ? ipONETIME2 : ipONETIME;
-	
-	repaircharge=0;
-	adjustmagic=false;
-	learnslash=false;
-	
-	for(int32_t i=0; i<3; i++)
+	int32_t mf = (screen>=128) ? mSPECIALITEM : mITEM;
+	int32_t onetime = (screen>=128) ? ipONETIME2 : ipONETIME;
+
+	mapscr* guyscr = scr;
+	if(screen>=128 && DMaps[cur_dmap].flags&dmfGUYCAVES)
 	{
-		prices[i]=0;
-	}
-	
-	hasitem=0;
-	
-	mapscr* guyscr = tmpscr;
-	if(currscr>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
-	{
-		if(DMaps[currdmap].flags&dmfCAVES)
+		if(DMaps[cur_dmap].flags&dmfCAVES)
 		{
-			Guy=tmpscr[1].guy;
-			guyscr = tmpscr+1;
+			Guy=special_warp_return_scr->guy;
+			guyscr = special_warp_return_scr;
 		}
 	}
 	else
 	{
-		Guy=tmpscr->guy;
-		
-		if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
-			game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;          // mark as visited
+		Guy=scr->guy;
+		if (game->get_regionmapping() == REGION_MAPPING_FULL)
+			mark_visited(screen);
 	}
-	
+
+	auto [dx, dy] = translate_screen_coordinates_to_world(screen);
+
 	bool oldguy = get_qr(qr_OLD_GUY_HANDLING);
 	// The Guy appears if 'Hero is in cave' equals 'Guy is in cave'.
-	if(Guy && ((currscr>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
+	if(Guy && ((screen>=128) == !!(DMaps[cur_dmap].flags&dmfGUYCAVES)))
 	{
-		if(tmpscr->room==rZELDA)
+		if(scr->room==rZELDA)
 		{
-			addguy(120,72,Guy,-15,true,guyscr);
+			addguy(dx+120,dy+72,Guy,-15,true,guyscr);
 			guys.spr(0)->hxofs=1000;
-			addenemy(128,96,eFIRE,-15);
-			addenemy(112,96,eFIRE,-15);
-			addenemy(96,120,eFIRE,-15);
-			addenemy(144,120,eFIRE,-15);
+			addenemy(screen,dx+128,dy+96,eFIRE,-15);
+			addenemy(screen,dx+112,dy+96,eFIRE,-15);
+			addenemy(screen,dx+96,dy+120,eFIRE,-15);
+			addenemy(screen,dx+144,dy+120,eFIRE,-15);
 			return;
 		}
 		
@@ -18501,11 +18120,11 @@ void loadguys()
 		if(ffire)
 			addfires();
 			
-		if(currscr>=128)
-			if(getmapflag() && !(tmpscr->flags9&fBELOWRETURN))
+		if(screen>=128)
+			if(getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))
 				Guy=0;
 				
-		switch(tmpscr->room)
+		switch(scr->room)
 		{
 		case rSP_ITEM:
 		case rGRUMBLE:
@@ -18515,26 +18134,26 @@ void loadguys()
 		case rMUPGRADE:
 		case rLEARNSLASH:
 		case rTAKEONE:
-			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
+			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 			
 		case rREPAIR:
 			if (get_qr(qr_OLD_DOORREPAIR)) break;
-			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
+			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rRP_HC:
 			if (get_qr(qr_OLD_POTION_OR_HC)) break;
-			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
+			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rMONEY:
 			if (get_qr(qr_OLD_SECRETMONEY)) break;
-			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
+			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
@@ -18562,72 +18181,102 @@ void loadguys()
 			if(ffire)
 				blockpath=true;
 				
-			if(currscr<128)
+			if(screen<128)
 				sfx(WAV_SCALE);
 				
-			addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true,guyscr);
+			addguy(dx+120,dy+64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true, guyscr);
 			Hero.Freeze();
 		}
 	}
 	else if(oldguy ? Guy==gFAIRY : (Guy && (guyscr->roomflags&RFL_ALWAYS_GUY)))  // The only Guy that somewhat ignores the "Guys In Caves Only" DMap flag
 	{
 		sfx(WAV_SCALE);
-		addguy(120,62,Guy,-14,false,guyscr);
+		addguy(dx+120,dy+62,gFAIRY,-14,false,guyscr);
 	}
-	
-	loaditem();
-	
+
+	loaditem(scr, dx, dy);
+
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
 	// it doesn't appear in a Cave/Item Cellar, and the mSPECIALITEM screen state if it does.
-	if(tmpscr->room==r10RUPIES && !getmapflag(mf))
+	if (scr->room==r10RUPIES && !getmapflag(screen, mf))
 	{
-		//setmapflag();
 		for(int32_t i=0; i<10; i++)
-			additem(ten_rupies_x[i],ten_rupies_y[i],0,ipBIGRANGE+onetime,-14);
+			additem(dx+ten_rupies_x[i],dy+ten_rupies_y[i],0,ipBIGRANGE+onetime,-14);
 	}
 }
 
-void loaditem()
+void loadguys()
 {
+	if (loaded_guys)
+		return;
+		
+	loaded_guys = true;
+	repaircharge = 0;
+	adjustmagic = false;
+	learnslash = false;
+	for (int32_t i=0; i<3; i++)
+	{
+		prices[i] = 0;
+	}
+
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		get_screen_state(scr->screen).item_state = ScreenItemState::None;
+		loadguys(scr);
+	});
+}
+
+void loaditem(mapscr* scr, int offx, int offy)
+{
+	int screen = scr->screen;
 	byte Item = 0;
 	
-	if(currscr<128)
+	if(screen<128)
 	{
-		Item=tmpscr->item;
+		Item=scr->item;
 		
-		if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
+		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 		{
-			if(tmpscr->flags8&fSECRETITEM)
-				hasitem=8;
-			else if(tmpscr->flags&fITEM)
-				hasitem=1;
-			else if(tmpscr->enemyflags&efCARRYITEM)
-				hasitem=4; // Will be set to 2 by roaming_item
+			if(scr->flags8&fSECRETITEM)
+				screen_item_set_state(screen, ScreenItemState::WhenTriggerSecrets);
+			else if(scr->flags&fITEM)
+				screen_item_set_state(screen, ScreenItemState::WhenKillEnemies);
+			else if(scr->flags11&efCARRYITEM)
+				screen_item_set_state(screen, ScreenItemState::MustGiveToEnemy); // Will be set to CarriedByEnemy in roaming_item
 			else
-				items.add(new item((zfix)tmpscr->itemx,
-								   (tmpscr->flags7&fITEMFALLS && isSideViewGravity()) ? (zfix)-170 : (zfix)tmpscr->itemy+(get_qr(qr_NOITEMOFFSET)?0:1),
-								   (tmpscr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
+			{
+				int x = scr->itemx;
+				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
+					-170 :
+					scr->itemy+(get_qr(qr_NOITEMOFFSET)?0:1);
+				add_item_for_screen(screen, new item(offx + x, offy + y,
+								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
 								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
-										   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+										   (scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+			}
 		}
 	}
-	else if(!(DMaps[currdmap].flags&dmfCAVES))
+	else if(!(DMaps[cur_dmap].flags&dmfCAVES))
 	{
-		if((!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr[1].flags9&fBELOWRETURN)) && tmpscr[1].room==rSP_ITEM
-				&& (currscr==128 || !get_qr(qr_ITEMSINPASSAGEWAYS)))
+		if((!getmapflag(screen, (screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (special_warp_return_scr->flags9&fBELOWRETURN)) && special_warp_return_scr->room==rSP_ITEM
+				&& (screen==128 || !get_qr(qr_ITEMSINPASSAGEWAYS)))
 		{
-			Item=tmpscr[1].catchall;
+			Item = special_warp_return_scr->catchall;
 			
 			if(Item)
-				items.add(new item((zfix)tmpscr->itemx,
-								   (tmpscr->flags7&fITEMFALLS && isSideViewGravity()) ? (zfix)-170 : (zfix)tmpscr->itemy+(get_qr(qr_NOITEMOFFSET)?0:1),
-								   (tmpscr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
-								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+			{
+				int x = scr->itemx;
+				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
+					-170 :
+					scr->itemy+(get_qr(qr_NOITEMOFFSET)?0:1);
+				add_item_for_screen(screen, new item(offx + x, offy + y,
+								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
+								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+			}
 		}
 	}
 }
 
-void never_return(int32_t index)
+void never_return(int32_t screen, int32_t index)
 {
 	if(!get_qr(qr_KILLALL))
 		goto doit;
@@ -18639,7 +18288,7 @@ void never_return(int32_t index)
 		}
 		
 doit:
-	setmapflag(mNEVERRET);
+	setmapflag(get_scr(screen), mNEVERRET);
 dontdoit:
 	return;
 }
@@ -18667,13 +18316,13 @@ bool slowguy(int32_t id)
 	return false;
 }
 
-bool ok2add(int32_t id)
+static bool ok2add(mapscr* scr, int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS || id <= 0) 
 	{
 		return false;
 	}
-	if(getmapflag(mNEVERRET) && (guysbuf[id].flags & guy_never_return))
+	if(getmapflag(scr, mNEVERRET) && (guysbuf[id].flags & guy_never_return))
 		return false;
 		
 	switch(guysbuf[id].family)
@@ -18691,7 +18340,7 @@ bool ok2add(int32_t id)
 		{
 		case 1:
 			if(!get_qr(qr_NOTMPNORET))
-				return !getmapflag(mTMPNORET);
+				return !getmapflag(scr, mTMPNORET);
 				
 			return true;
 			
@@ -18711,24 +18360,24 @@ bool ok2add(int32_t id)
 	}
 	
 	if(!get_qr(qr_NOTMPNORET))
-		return !getmapflag(mTMPNORET);
+		return !getmapflag(scr, mTMPNORET);
 		
 	return true;
 }
 
-void activate_fireball_statue(int32_t pos)
+static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 {
-	if(!(tmpscr->enemyflags&efFIREBALLS) || statueID<0)
+	if (!(rpos_handle.scr->flags11&efFIREBALLS) || statueID<0)
 	{
 		return;
 	}
-	
+
+	int32_t ctype = rpos_handle.ctype();
+	if (ctype != cL_STATUE && ctype != cR_STATUE && ctype != cC_STATUE) return;
+
+	auto [x, y] = rpos_handle.xy();
+
 	int32_t cx=-1000, cy=-1000;
-	int32_t x = (pos&15)<<4;
-	int32_t y = pos&0xF0;
-	
-	int32_t ctype = combobuf[MAPCOMBO(x,y)].type;
-	
 	if(!isfixedtogrid(statueID))
 	{
 		if(ctype==cL_STATUE)
@@ -18766,140 +18415,138 @@ void activate_fireball_statue(int32_t pos)
 			}
 		}
 		
-		addenemy(cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
+		addenemy(rpos_handle.screen, cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
 	}
 }
 
-void activate_fireball_statues()
+static void activate_fireball_statues(mapscr* scr)
 {
-	if(!(tmpscr->enemyflags&efFIREBALLS))
+	if (!(scr->flags11&efFIREBALLS))
 	{
 		return;
 	}
-	
-	for(int32_t i=0; i<176; i++)
-	{
-		activate_fireball_statue(i);
-	}
+
+	for_every_rpos_in_screen_layer0(scr, [&](const rpos_handle_t& rpos_handle) {
+		activate_fireball_statue(rpos_handle);
+	});
 }
 
-void load_default_enemies()
+void load_default_enemies(mapscr* scr)
 {
+	int screen = scr->screen;
+	auto [dx, dy] = translate_screen_coordinates_to_world(screen);
+
 	wallm_load_clk=frame-80;
 	
-	if(tmpscr->enemyflags&efZORA)
+	if(scr->flags11&efZORA)
 	{
 		if(zoraID>=0)
-			addenemy(-16, -16, zoraID, 0);
+			addenemy(screen, dx - 16, dy - 16, zoraID, 0);
 	}
 	
-	if(tmpscr->enemyflags&efTRAP4)
+	if(scr->flags11&efTRAP4)
 	{
 		if(cornerTrapID>=0)
 		{
-			addenemy(32, 32, cornerTrapID, -14);
-			addenemy(208, 32, cornerTrapID, -14);
-			addenemy(32, 128, cornerTrapID, -14);
-			addenemy(208, 128, cornerTrapID, -14);
+			addenemy(screen, dx + 32, dy + 32, cornerTrapID, -14);
+			addenemy(screen, dx + 208, dy + 32, cornerTrapID, -14);
+			addenemy(screen, dx + 32, dy + 128, cornerTrapID, -14);
+			addenemy(screen, dx + 208, dy + 128, cornerTrapID, -14);
 		}
 	}
-	
-	for(int32_t y=0; y<176; y+=16)
-	{
-		for(int32_t x=0; x<256; x+=16)
+
+	for_every_rpos_in_screen_layer0(scr, [&](const rpos_handle_t& rpos_handle) {
+		int32_t ctype = rpos_handle.ctype();
+		int32_t cflag = rpos_handle.sflag();
+		int32_t cflag_i = rpos_handle.cflag();
+
+		if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag_i==mfTRAP_H)
 		{
-			int32_t ctype = combobuf[MAPCOMBO(x,y)].type;
-			int32_t cflag = MAPFLAG(x, y);
-			int32_t cflag_i = MAPCOMBOFLAG(x, y);
-			
-			if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag_i==mfTRAP_H)
+			auto [x, y] = rpos_handle.xy();
+			if(trapLOSHorizontalID>=0)
+				addenemy(screen, x, y, trapLOSHorizontalID, -14);
+		}
+		else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag_i==mfTRAP_V)
+		{
+			auto [x, y] = rpos_handle.xy();
+			if(trapLOSVerticalID>=0)
+				addenemy(screen, x, y, trapLOSVerticalID, -14);
+		}
+		else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag_i==mfTRAP_4)
+		{
+			auto [x, y] = rpos_handle.xy();
+			if(trapLOS4WayID>=0)
 			{
-				if(trapLOSHorizontalID>=0)
-					addenemy(x, y, trapLOSHorizontalID, -14);
-			}
-			else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag_i==mfTRAP_V)
-			{
-				if(trapLOSVerticalID>=0)
-					addenemy(x, y, trapLOSVerticalID, -14);
-			}
-			else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag_i==mfTRAP_4)
-			{
-				if(trapLOS4WayID>=0)
-				{
-					if(addenemy(x, y, trapLOS4WayID, -14))
-						guys.spr(guys.Count()-1)->dummy_int[1]=2;
-				}
-			}
-			
-			else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag_i==mfTRAP_LR)
-			{
-				if(trapConstantHorizontalID>=0)
-					addenemy(x, y, trapConstantHorizontalID, -14);
-			}
-			else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag_i==mfTRAP_UD)
-			{
-				if(trapConstantVerticalID>=0)
-					addenemy(x, y, trapConstantVerticalID, -14);
-			}
-			
-			if(ctype==cSPINTILE1)
-			{
-				// Awaken spinning tile
-				awaken_spinning_tile(tmpscr,COMBOPOS(x,y));
+				if(addenemy(screen, x, y, trapLOS4WayID, -14))
+					guys.spr(guys.Count()-1)->dummy_int[1]=2;
 			}
 		}
-	}
+		else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag_i==mfTRAP_LR)
+		{
+			auto [x, y] = rpos_handle.xy();
+			if(trapConstantHorizontalID>=0)
+				addenemy(screen, x, y, trapConstantHorizontalID, -14);
+		}
+		else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag_i==mfTRAP_UD)
+		{
+			auto [x, y] = rpos_handle.xy();
+			if(trapConstantVerticalID>=0)
+				addenemy(screen, x, y, trapConstantVerticalID, -14);
+		}
+		
+		if(ctype==cSPINTILE1)
+		{
+			awaken_spinning_tile(rpos_handle);
+		}
+	});
 	
-	if(tmpscr->enemyflags&efTRAP2)
+	if(scr->flags11&efTRAP2)
 	{
 		if(centerTrapID>=-1)
 		{
-			if(addenemy(64, 80, centerTrapID, -14))
+			if(addenemy(screen, 64, 80, centerTrapID, -14))
 				guys.spr(guys.Count()-1)->dummy_int[1]=1;
 			
-			if(addenemy(176, 80, centerTrapID, -14))
+			if(addenemy(screen, 176, 80, centerTrapID, -14))
 				guys.spr(guys.Count()-1)->dummy_int[1]=1;
 		}
 	}
 	
-	if(tmpscr->enemyflags&efROCKS)
+	if(scr->flags11&efROCKS)
 	{
 		if(rockID>=0)
 		{
-			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
-			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
-			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
+			addenemy(screen, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(screen, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(screen, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
 		}
 	}
-	
-	activate_fireball_statues();
 }
 
 #define SLOPE_STAGE_COMBOS 0
 #define SLOPE_STAGE_FFCS 1
 #define SLOPE_STAGE_COMBOS_BORDERING_SCREENS 2
 
-static int create_slope_id(int stage, int arg1, int arg2)
+static slope_id_t create_slope_id(int stage, int arg1, int arg2)
 {
 	if (stage == SLOPE_STAGE_COMBOS)
-		return (176*arg1)+arg2;
+		return (region_num_rpos*arg1)+arg2;
 	if (stage == SLOPE_STAGE_FFCS)
-		return (176*7)+arg1;
+		return (region_num_rpos*7)+arg1;
 	if (stage == SLOPE_STAGE_COMBOS_BORDERING_SCREENS)
-		return (176*7 + MAXFFCS)+arg1*7*(16 * 2 + 11 * 2) + arg2;
+		return (region_num_rpos*7 + MAX_FFCID+1)+arg1*7*(16 * 2 + 11 * 2) + arg2;
 	// TODO: what about FFCs from bordering screens?
 
 	assert(false);
 	return 0;
 }
 
-void update_slope_combopos(int32_t lyr, int32_t pos)
+void update_slope_combopos(const rpos_handle_t& rpos_handle)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
-	mapscr* s = FFCore.tempScreens[lyr];
-	newcombo const& cmb = combobuf[s->data[pos]];
+	mapscr* s = rpos_handle.scr;
+	auto& cmb = rpos_handle.combo();
 	
-	auto id = create_slope_id(SLOPE_STAGE_COMBOS, lyr, pos);
+	auto id = create_slope_id(SLOPE_STAGE_COMBOS, rpos_handle.layer, (int)rpos_handle.rpos);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
@@ -18907,7 +18554,8 @@ void update_slope_combopos(int32_t lyr, int32_t pos)
 	
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, &(s->data[pos]), nullptr, -1, COMBOX(pos), COMBOY(pos));
+		auto [x, y] = rpos_handle.xy();
+		slopes.try_emplace(id, &(s->data[rpos_handle.pos]), nullptr, -1, x, y);
 	}
 	else if(wasSlope && !isSlope)
 	{
@@ -18925,7 +18573,10 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 	
 	if(isSlope && !wasSlope)
 	{
-		static word TMP[5000];
+		static std::vector<word> TMP;
+		int num_border_combos = cur_region.screen_width*16 * 2 + cur_region.screen_height*11 * 2;
+		TMP.resize(num_border_combos * 7 * 4);
+
 		int tmp_index = id-create_slope_id(SLOPE_STAGE_COMBOS_BORDERING_SCREENS,0,0);
 		TMP[tmp_index] = cid;
 		slopes.try_emplace(id, &TMP[tmp_index], nullptr, -1, offx, offy);
@@ -18937,27 +18588,22 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 }
 
 // Load a single column or row from a nearby screen, and load its slopes.
-static void handle_slope_combopos_bordering_screen(int dir)
+static void handle_slope_combopos_bordering_screen(int initial_screen, int dir)
 {
-	int mi;
-	if (auto r = nextscr(dir, true))
-		mi = *r;
-	else
+	auto [map, screen] = nextscr2(cur_map, initial_screen, dir);
+	if (map == -1)
 		return;
-
-	int map = mi / MAPSCRSNORMAL;
-	int screen = mi % MAPSCRSNORMAL;
 
 	int offx = 0;
 	int offy = 0;
 	if (dir == up)
 		offy = -16;
 	else if (dir == down)
-		offy = 176;
+		offy = world_h;
 	else if (dir == left)
 		offx = -16;
 	else if (dir == right)
-		offx = 256;
+		offx = world_w;
 
 	for (int layer = 0; layer < 7; layer++)
 	{
@@ -18993,125 +18639,108 @@ static void handle_slope_combopos_bordering_screen(int dir)
 
 void update_slope_comboposes()
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		for(auto pos = 0; pos < 176; ++pos)
-			update_slope_combopos(lyr,pos);
-	}
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+		update_slope_combopos(rpos_handle);
+	});
 
 	if (Hero.sideview_mode())
 	{
-		for (int dir = up; dir <= right; dir++)
-			handle_slope_combopos_bordering_screen(dir);
+		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+			for (int dir = up; dir <= right; dir++)
+				handle_slope_combopos_bordering_screen(scr->screen, dir);
+		});
 	}
 
 	update_slopes();
 }
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
-// There's 2 routines because it's unclear if combobuf or tmpscr->data gets modified. -L
-void screen_combo_modify_preroutine(mapscr *s, int32_t pos)
+void screen_combo_modify_preroutine(const rpos_handle_t& rpos_handle)
 {
-	delete_fireball_shooter(s, pos);
+	delete_fireball_shooter(rpos_handle);
 }
 
 //Placeholder in case we need it.
-void screen_ffc_modify_preroutine(word index)
+void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle)
 {
 	return;
 }
 
 // Everything that must be done after we change a screen's combo to another combo. -L
-void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
+void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 {
-	s->valid |= mVALID;
-	activate_fireball_statue(pos);
-	
-	if(combobuf[s->data[pos]].type==cSPINTILE1)
+	rpos_handle.scr->valid |= mVALID;
+	activate_fireball_statue(rpos_handle);
+
+	if(rpos_handle.ctype()==cSPINTILE1)
 	{
-		// Awaken spinning tile
-		awaken_spinning_tile(s,pos);
+		awaken_spinning_tile(rpos_handle);
 	}
-	int32_t lyr = -1;
-	if(s == tmpscr) lyr = 0;
-	else for(size_t q = 0; q < 6; ++q)
-	{
-		if(s == tmpscr2+q)
-		{
-			lyr = q+1;
-			break;
-		}
-	}
-	if(lyr > -1)
-		update_slope_combopos(lyr,pos);
+
+	update_slope_combopos(rpos_handle);
 }
 
-void screen_ffc_modify_postroutine(word index)
+void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 {
-	ffcdata& ff = tmpscr->ffcs[index];
-	newcombo const& cmb = combobuf[ff.data];
+	ffcdata* ff = ffc_handle.ffc;
+	auto& cmb = ffc_handle.combo();
 	
-	auto id = create_slope_id(SLOPE_STAGE_FFCS, index, -1);
+	auto id = create_slope_id(SLOPE_STAGE_FFCS, ffc_handle.id, -1);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
-	bool isSlope = cmb.type == cSLOPE && !(ff.flags&ffc_changer);
+	bool isSlope = cmb.type == cSLOPE && !(ff->flags&ffc_changer);
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, nullptr, &ff, index);
+		slopes.try_emplace(id, nullptr, ff, ffc_handle.id);
 	}
 	else if(wasSlope && !isSlope)
 	{
 		slopes.erase(it);
 	}
 
-	tmpscr->ffcCountMarkDirty();
+	ffc_handle.scr->ffcCountMarkDirty();
 }
 
 void screen_combo_modify_pre(int32_t cid)
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* t = FFCore.tempScreens[lyr];
-		for(int32_t i = 0; i < 176; i++)
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+		if (rpos_handle.data() == cid)
 		{
-			if(t->data[i] == cid)
-			{
-				screen_combo_modify_preroutine(t,i);
-			}
+			screen_combo_modify_preroutine(rpos_handle);
 		}
-	}
+	});
 }
 void screen_combo_modify_post(int32_t cid)
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* t = FFCore.tempScreens[lyr];
-		for(int32_t i = 0; i < 176; i++)
+	combo_caches::refresh(cid);
+
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+		if (rpos_handle.data() == cid)
 		{
-			if(t->data[i] == cid)
-			{
-				screen_combo_modify_postroutine(t,i);
-			}
+			screen_combo_modify_postroutine(rpos_handle);
 		}
-	}
-	int c = tmpscr->numFFC();
-	for(word ind = 0; ind < c; ++ind)
-	{
-		if(tmpscr->ffcs[ind].data == cid)
-			screen_ffc_modify_postroutine(ind);
-	}
+	});
+
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+		if (ffc_handle.data() == cid)
+		{
+			screen_ffc_modify_postroutine(ffc_handle);
+		}
+	});
 }
 
-void awaken_spinning_tile(mapscr *s, int32_t pos)
+void awaken_spinning_tile(const rpos_handle_t& rpos_handle)
 {
-	addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,combobuf[s->data[pos]].o_tile+zc_max(1,combobuf[s->data[pos]].frames));
+	int cid = rpos_handle.data();
+	int cset = rpos_handle.cset();
+	auto [x, y] = rpos_handle.xy();
+	addenemy(rpos_handle.screen, x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
 }
-
 
 // It stands for next_side_pos
-void nsp(bool random)
 // moves sle_x and sle_y to the next position
+void nsp(bool random)
 {
 	if(random)
 	{
@@ -19159,21 +18788,24 @@ void nsp(bool random)
 	}
 }
 
-int32_t next_side_pos(bool random)
 // moves sle_x and sle_y to the next available position
 // returns the direction the enemy should face
+int32_t next_side_pos(int32_t screen, bool random)
 {
 	bool blocked;
 	int32_t c=0;
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 	
 	do
 	{
 		nsp(c>35 ? false : random);
-		blocked = _walkflag(sle_x,sle_y,2) || _walkflag(sle_x,sle_y+8,2) ||
-				  (combo_class_buf[COMBOTYPE(sle_x,sle_y)].block_enemies ||
-				   MAPFLAG(sle_x,sle_y) == mfNOENEMY || MAPCOMBOFLAG(sle_x,sle_y)==mfNOENEMY ||
-				   MAPFLAG(sle_x,sle_y) == mfNOGROUNDENEMY || MAPCOMBOFLAG(sle_x,sle_y)==mfNOGROUNDENEMY ||
-				   iswaterex(MAPCOMBO(sle_x,sle_y), currmap, currscr, -1, sle_x, sle_y, true));
+		int x = sle_x + offx;
+		int y = sle_y + offy;
+		blocked = _walkflag(x,y,2) || _walkflag(x,y+8,2) ||
+				  (combo_class_buf[COMBOTYPE(x,y)].block_enemies ||
+				   MAPFLAG(x,y) == mfNOENEMY || MAPCOMBOFLAG(x,y)==mfNOENEMY ||
+				   MAPFLAG(x,y) == mfNOGROUNDENEMY || MAPCOMBOFLAG(x,y)==mfNOGROUNDENEMY ||
+				   iswaterex_z3(MAPCOMBO(x,y), -1, x, y, true));
 				   
 		if(++c>50)
 			return -1;
@@ -19264,70 +18896,91 @@ bool can_side_load(int32_t id)
 	return true;
 }
 
-static bool script_sle = false;
-static int32_t sle_pattern = 0;
-void script_side_load_enemies()
+bool enemy_spawning_has_checked_been_here;
+static bool enemy_spawning_has_been_here;
+
+static bool check_if_recently_visited()
 {
-	if(script_sle || sle_clk) return;
+	if (enemy_spawning_has_checked_been_here)
+		return enemy_spawning_has_been_here;
+
+	int mi = mapind(cur_map, cur_screen);
+
+	enemy_spawning_has_been_here = false;
+	for (int i = 0; i < 6; i++)
+		if (visited[i] == mi)
+			enemy_spawning_has_been_here = true;
+
+	if (!enemy_spawning_has_been_here)
+	{
+		visited[vhead] = mi; //If not, it adds it to the array,
+		vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+	}
+
+	enemy_spawning_has_checked_been_here = true;
+	return enemy_spawning_has_been_here;
+}
+
+static std::array<bool, MAPSCRS> script_sle;
+
+static int32_t sle_pattern = 0;
+static void script_side_load_enemies(mapscr* scr)
+{
+	if (script_sle[scr->screen] || sle_clk) return;
+
 	sle_cnt = 0;
-	while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+	while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
 		++sle_cnt;
-	script_sle = true;
-	sle_pattern = tmpscr->pattern;
+	script_sle[scr->screen] = true;
+	sle_pattern = scr->pattern;
 	sle_clk = 0;
 }
 
-void side_load_enemies()
+static void side_load_enemies(mapscr* scr)
 {
-	if(!script_sle && sle_clk==0)
+	int screen = scr->screen;
+
+	if (sle_clk==0 && !script_sle[scr->screen])
 	{
-		sle_pattern = tmpscr->pattern;
+		sle_pattern = scr->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
-		int16_t s = (currmap<<7)+currscr;
-		bool beenhere=false;
+		
+		int mi = mapind(cur_map, screen);
 		bool reload=true;
 		bool unbeatablereload = true;
 		
-		load_default_enemies();
-		
-		for(int32_t i=0; i<6; i++)
-			if(visited[i]==s)
-				beenhere=true;
-				
-		if(!beenhere)
-		{
-			visited[vhead]=s;
-			vhead = (vhead+1)%6;
-		}
-		else if(game->guys[s]==0)
+		load_default_enemies(scr);
+
+		bool beenhere = check_if_recently_visited();
+		if (beenhere && game->guys[mi] == 0)
 		{
 			sle_cnt=0;
 			reload=false;
 		}
-		
+
 		if(reload)
 		{
-			sle_cnt = game->guys[s];
+			sle_cnt = game->guys[mi];
 			
 			if((get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)
 			|| sle_cnt==0)
 			{
-				while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+				while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
 					++sle_cnt;
 			}
 			if (!beenhere && get_qr(qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				for(int32_t i = 0; i<sle_cnt && tmpscr->enemy[i]>0; i++)
+				for(int32_t i = 0; i<sle_cnt && scr->enemy[i]>0; i++)
 				{
-					if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesnt_count)) 
+					if (!(guysbuf[scr->enemy[i]].flags & guy_doesnt_count)) 
 					{
 						unbeatablereload = false;
 					}
 				}
 				if (unbeatablereload)
 				{
-					while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+					while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
 					{
 						++sle_cnt;
 					}
@@ -19335,37 +18988,38 @@ void side_load_enemies()
 			}
 		}
 		
-		if((get_qr(qr_ALWAYSRET)) || (tmpscr->flags3&fENEMIESRETURN))
+		if((get_qr(qr_ALWAYSRET)) || (scr->flags3&fENEMIESRETURN))
 		{
 			sle_cnt = 0;
 			
-			while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+			while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
 				++sle_cnt;
 		}
 		
 		for(int32_t i=0; i<sle_cnt; i++)
 			++guycnt;
 		
-		game->guys[s] = guycnt;
+		game->guys[mi] = guycnt;
 	}
 	
 	if((++sle_clk+8)%24 == 0)
 	{
-		int32_t dir = next_side_pos(sle_pattern==pSIDESR);
+		int32_t dir = next_side_pos(screen, sle_pattern==pSIDESR);
+		auto [x, y] = translate_screen_coordinates_to_world(screen, sle_x, sle_y);
 		
-		if(dir==-1 || tooclose(sle_x,sle_y,32))
+		if(dir==-1 || tooclose(x,y,32))
 		{
 			return;
 		}
 		
 		int32_t enemy_slot=guys.Count();
 		
-		while(sle_cnt > 0 && !ok2add(tmpscr->enemy[sle_cnt-1]))
+		while(sle_cnt > 0 && !ok2add(scr, scr->enemy[sle_cnt-1]))
 			sle_cnt--;
 			
 		if(sle_cnt > 0)
 		{
-			if(addenemy(sle_x,sle_y,tmpscr->enemy[--sle_cnt],0))
+			if(addenemy(screen, x,y,scr->enemy[--sle_cnt],0))
 			{
 				if (((enemy*)guys.spr(enemy_slot))->family != eeTEK)
 				{
@@ -19385,23 +19039,25 @@ void side_load_enemies()
 	
 	if(sle_cnt<=0)
 	{
-		if(script_sle)
-			script_sle = false;
-		else loaded_enemies=true;
+		if (script_sle[screen])
+			script_sle[screen] = false;
+		else
+		{
+			get_screen_state(screen).loaded_enemies = true;
+		}
 		sle_clk = 0;
 	}
 }
 
-bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
+bool is_starting_pos(mapscr* scr, int32_t i, int32_t x, int32_t y, int32_t t)
 { 
-	
-	if(tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
+	if (!is_in_scrolling_region())
+	if(scr->enemy[i]<1||scr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	{
 		return false; //never 0, never OoB.
 	}
 	// No corner enemies
-	if((x==0 || x==240) && (y==0 || y==160))
-
+	if ((x==0 || x==world_w-16) && (y==0 || y==world_h-16))
 		return false;
 	
 	//Is a no spawn combo...
@@ -19409,23 +19065,27 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	// No enemies in dungeon walls
-	if(isdungeon() && (x<32 || x>=224 || y<32 || y>=144))
-		return false;
+	if (isdungeon(scr->screen))
+	{
+		auto [offx, offy] = translate_screen_coordinates_to_world(scr->screen);
+		if(isdungeon(scr->screen) && (x<32+offx || x>=224+offx || y<32+offy || y>=144+offy))
+			return false;
+	}
 		
-	// Too close
+	// Too close to hero
 	if(tooclose(x,y,40) && t<11)
 		return false;
 		
 	// Can't fly onto it?
-	if(isflier(tmpscr->enemy[i])&&
-			(flyerblocked(x+8,y+8,spw_floater,guysbuf[tmpscr->enemy[i]])||
+	if(isflier(scr->enemy[i])&&
+			(flyerblocked(x+8,y+8,spw_floater,guysbuf[scr->enemy[i]])||
 			 (_walkflag(x,y+8,2)&&!get_qr(qr_WALLFLIERS))))
 		return false;
 		
 	// Can't jump onto it?
 	if
 	(
-		guysbuf[tmpscr->enemy[i]].family==eeTEK 
+		guysbuf[scr->enemy[i]].family==eeTEK 
 		
 		&&
 		(
@@ -19441,9 +19101,9 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 	}
 		
 	// Other off-limit combos
-	if((!isflier(tmpscr->enemy[i])&& guysbuf[tmpscr->enemy[i]].family!=eeTEK &&
-			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[tmpscr->enemy[i]]))) &&
-			guysbuf[tmpscr->enemy[i]].family!=eeZORA)
+	if((!isflier(scr->enemy[i])&& guysbuf[scr->enemy[i]].family!=eeTEK &&
+			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[scr->enemy[i]]))) &&
+			guysbuf[scr->enemy[i]].family!=eeZORA)
 		return false;
 		
 	// Don't ever generate enemies on these combos!
@@ -19451,7 +19111,7 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	//BS Dodongos need at least 2 spaces.
-	if((guysbuf[tmpscr->enemy[i]].family==eeDONGO)&&(guysbuf[tmpscr->enemy[i]].attributes[9] ==1))
+	if ((guysbuf[scr->enemy[i]].family==eeDONGO)&&(guysbuf[scr->enemy[i]].attributes[9] == 1))
 	{
 		if(((x<16) ||_walkflag(x-16,y+8, 2))&&
 				((x>224)||_walkflag(x+16,y+8, 2))&&
@@ -19470,30 +19130,32 @@ bool is_ceiling_pattern(int32_t i)
 	return (i==pCEILING || i==pCEILINGR);
 }
 
-int32_t placeenemy(int32_t i)
+rpos_t placeenemy(mapscr* scr, int32_t i, int32_t offx, int32_t offy)
 {
-	std::map<int32_t, int32_t> freeposcache;
-	int32_t frees = 0;
+	std::vector<rpos_t> freeposcache;
 	
-	for(int32_t y=0; y<176; y+=16)
+	for(int32_t y=offy; y<offy+176; y+=16)
 	{
-		for(int32_t x=0; x<256; x+=16)
+		for(int32_t x=offx; x<offx+256; x+=16)
 		{
-			if(is_starting_pos(i,x,y,0))
+			if(is_starting_pos(scr,i,x,y,0))
 			{
-				freeposcache[frees++] = (y&0xF0)+(x>>4);
+				freeposcache.push_back(COMBOPOS_REGION(x, y));
 			}
 		}
 	}
-	
-	if(frees > 0)
-		return freeposcache[zc_oldrand()%frees];
-		
-	return -1;
+
+	if (!freeposcache.empty())
+		return freeposcache[zc_oldrand()%freeposcache.size()];
+
+	return rpos_t::None;
 }
 
-void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& guycnt, int& loadcnt)
+void spawnEnemy(mapscr* scr, int& pos, int& clk, int offx, int offy, int& fastguys, int& i, int& guycnt, int& loadcnt)
 {
+	int screen = scr->screen;
+	int x = 0;
+	int y = 0;
 	bool placed=false;
 	int32_t t=-1;
 	
@@ -19502,20 +19164,22 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 	{
 		for(int32_t sx=0; sx<256; sx+=16)
 		{
-			int32_t cflag = MAPFLAG(sx, sy);
-			int32_t cflag_i = MAPCOMBOFLAG(sx, sy);
+			x = offx + sx;
+			y = offy + sy;
+			int32_t cflag = MAPFLAG(x, y);
+			int32_t cflag_i = MAPCOMBOFLAG(x, y);
 			
 			if(((cflag==mfENEMYALL)||(cflag_i==mfENEMYALL)) && (!placed))
 			{
-				if(!ok2add(tmpscr->enemy[i]))
+				if(!ok2add(scr, scr->enemy[i]))
 				{
-					if (loadcnt < 10 && tmpscr->enemy[i] > 0 && tmpscr->enemy[i] < MAXGUYS) ++loadcnt;
+					if (loadcnt < 10 && scr->enemy[i] > 0 && scr->enemy[i] < MAXGUYS) ++loadcnt;
 				}
 				else
 				{
-					addenemy(sx,
-					 (is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : sy,
-					 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
+					addenemy_z(screen,x,
+					 (is_ceiling_pattern(scr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+					 (is_ceiling_pattern(scr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,scr->enemy[i],-15);
 					
 					++guycnt;
 						
@@ -19526,15 +19190,15 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 			
 			else if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
 			{
-				if(!ok2add(tmpscr->enemy[i]))
+				if(!ok2add(scr, scr->enemy[i]))
 				{
-					if (loadcnt < 10 && tmpscr->enemy[i] > 0 && tmpscr->enemy[i] < MAXGUYS) ++loadcnt;
+					if (loadcnt < 10 && scr->enemy[i] > 0 && scr->enemy[i] < MAXGUYS) ++loadcnt;
 				}
 				else
 				{
-					addenemy(sx,
-					 (is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : sy,
-					 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
+					addenemy_z(screen,x,
+					 (is_ceiling_pattern(scr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+					 (is_ceiling_pattern(scr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,scr->enemy[i],-15);
 					
 					++guycnt;
 						
@@ -19546,30 +19210,29 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 	}
 	
 	// Next: enemy pattern
-	if((tmpscr->pattern==pRANDOM || tmpscr->pattern==pCEILING) && !(isSideViewGravity()) && ((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS)))
+	if((scr->pattern==pRANDOM || scr->pattern==pCEILING) && !(isSideViewGravity()) && ((scr->enemy[i]>0&&scr->enemy[i]<MAXGUYS)))
 	{
 		do
 		{
 
 			// NES positions
 			pos%=9;
-			x=stx[loadside][pos];
-			y=sty[loadside][pos];
+			x=offx+stx[loadside][pos];
+			y=offy+sty[loadside][pos];
 			++pos;
 			++t;
 		}
-		while((t< 20) && !is_starting_pos(i,x,y,t));
+		while((t< 20) && !is_starting_pos(scr,i,x,y,t));
 	}
 	
 	if(t<0 || t >= 20) // above enemy pattern failed
 	{
 		// Final chance: find a random position anywhere onscreen
-		int32_t randpos = placeenemy(i);
+		rpos_t rand_rpos = placeenemy(scr, i, offx, offy);
 		
-		if(randpos>-1)
+		if (rand_rpos != rpos_t::None)
 		{
-			x=(randpos&15)<<4;
-			y= randpos&0xF0;
+			std::tie(x, y) = COMBOXY_REGION(rand_rpos);
 		}
 		else // All opportunities failed - abort
 		{
@@ -19581,32 +19244,32 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 		int32_t c=0;
 		c=clk;
 		
-		if(!slowguy(tmpscr->enemy[i]))
+		if(!slowguy(scr->enemy[i]))
 			++fastguys;
 		else if(fastguys>0)
 			c=-15*(i-fastguys+2);
 		else
 			c=-15*(i+1);
 			
-		if(BSZ&&((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+		if(BSZ&&((scr->enemy[i]>0&&scr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 		{
 			// Special case for blue leevers
-			if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].attributes[0]==1)
+			if(guysbuf[scr->enemy[i]].family==eeLEV && guysbuf[scr->enemy[i]].attributes[0] == 1)
 				c=-15*(i+1);
 			else
 				c=-15;
 		}
 		
-		if(!ok2add(tmpscr->enemy[i]))
+		if(!ok2add(scr, scr->enemy[i]))
 		{
-			if (loadcnt < 10 && tmpscr->enemy[i] > 0 && tmpscr->enemy[i] < MAXGUYS) ++loadcnt;
+			if (loadcnt < 10 && scr->enemy[i] > 0 && scr->enemy[i] < MAXGUYS) ++loadcnt;
 		}
 		else
 		{
-			if(((tmpscr->enemy[i]>0||tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+			if(((scr->enemy[i]>0||scr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 			{
-				addenemy(x,(is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
-				 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],c);
+				addenemy_z(screen,x,(is_ceiling_pattern(scr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+				 (is_ceiling_pattern(scr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,scr->enemy[i],c);
 				
 				++guycnt;
 			}
@@ -19625,55 +19288,90 @@ placed_enemy:
 	
 	if(placed)
 	{
-		if(i==0 && tmpscr->enemyflags&efLEADER)
+		if(i==0 && scr->flags11&efLEADER)
 		{
-			int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
-			
-			if(index!=-1)
+			enemy* e = find_guy_first_for_id(screen, scr->enemy[i], 0xFFF);
+			if (e)
 			{
 				//grab the first segment. Not accurate to how older versions did it, but the way they did it might be incompatible with enemy editor.
-				if ((((enemy*)guys.spr(index))->family == eeLANM) && !get_qr(qr_NO_LANMOLA_RINGLEADER)) index = guys.idNth(tmpscr->enemy[i], 2, 0xFFF); 
-				if(index!=-1)                                                                                                                                      
+				if ((e->family == eeLANM) && !get_qr(qr_NO_LANMOLA_RINGLEADER))
 				{
-					((enemy*)guys.spr(index))->leader = true;
+					e = find_guy_nth_for_id(screen, scr->enemy[i], 2, 0xFFF);
+				}
+				if (e)                                                                                                                                      
+				{
+					e->leader = true;
 				}
 			}
 		}
 		
-		if(!foundCarrier && hasitem&(4|2))
+		ScreenItemState item_state = get_screen_state(screen).item_state;
+		if (!foundCarrier && (item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy))
 		{
-			int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
-			
-			if(index!=-1 && (((enemy*)guys.spr(index))->flags&guy_doesnt_count)==0)
+			enemy* e = find_guy_first_for_id(screen, scr->enemy[i], 0xFFF);
+			if (e && (e->flags&guy_doesnt_count)==0)
 			{
-				((enemy*)guys.spr(index))->itemguy = true;
+				e->itemguy = true;
 				foundCarrier=true;
 			}
 		}
 	}
 }
 
-bool scriptloadenemies()
+// returns index of first sprite with matching id, -1 if none found
+enemy* find_guy_first_for_id(int screen, int id, int mask)
 {
-	loaded_enemies = true;
-	if(script_sle || sle_clk) return false;
-	if(tmpscr->pattern==pNOSPAWN) return false;
+	int count = guys.Count();
+    for (int32_t i=0; i<count; i++)
+    {
+		enemy* e = (enemy*)guys.spr(i);
+        if (e->screen_spawned == screen && (e->id&mask) == (id&mask))
+        {
+            return e;
+        }
+    }
+    
+    return nullptr;
+}
+
+enemy* find_guy_nth_for_id(int screen, int id, int n, int mask)
+{
+	int count = guys.Count();
+	for(int32_t i=0; i<count; i++)
+    {
+		enemy* e = (enemy*)guys.spr(i);
+        if (e->screen_spawned == screen && (e->id&mask) == (id&mask))
+        {
+			if (n > 1) --n;
+			else return e;
+        }
+    }
+    return nullptr;
+}
+
+bool scriptloadenemies(int screen)
+{
+	if (sle_clk || script_sle[screen]) return false;
+
+	mapscr* scr = get_scr(screen);
+	if(scr->pattern==pNOSPAWN) return false;
 	
-	if(tmpscr->pattern==pSIDES || tmpscr->pattern==pSIDESR)
+	if(scr->pattern==pSIDES || scr->pattern==pSIDESR)
 	{
-		script_side_load_enemies();
+		script_side_load_enemies(scr);
 		return true;
 	}
 	
+	auto [x, y] = translate_screen_coordinates_to_world(screen);
 	int32_t pos=zc_oldrand()%9;
-	int32_t clk=-15,x=0,y=0,fastguys=0;
+	int32_t clk=-15,fastguys=0;
 	int32_t i=0,guycnt=0;
 	int32_t loadcnt = 10;
-	
-	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
+
+	for(; i<loadcnt && scr->enemy[i]>0; i++)
 	{
 		int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
-		spawnEnemy(pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		spawnEnemy(scr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
 		if (guys.Count() > preguycount)
 		{
 			if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
@@ -19692,48 +19390,45 @@ bool scriptloadenemies()
 
 void loadenemies()
 {
-	if(script_sle || sle_clk)
-	{
-		side_load_enemies();
-		return;
-	}
-	if(tmpscr->pattern==pNOSPAWN) return;
-	if(loaded_enemies)
-		return;
-		
-	// check if it's the dungeon boss and it has been beaten before
-	if(tmpscr->enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
-	{
-		loaded_enemies = true;
-		return;
-	}
-	
-	if(tmpscr->pattern==pSIDES || tmpscr->pattern==pSIDESR)
-	{
-		side_load_enemies();
-		return;
-	}
-	
-	loaded_enemies=true;
-	
-	// do enemies that are always loaded
-	load_default_enemies();
-	
-	// dungeon basements
-	
-	static byte dngn_enemy_x[4] = {32,96,144,208};
-	
-	if(currscr>=128)
-	{
-		if(DMaps[currdmap].flags&dmfCAVES) return;
-		if ( DMaps[currdmap].flags&dmfNEWCELLARENEMIES )
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		int screen = scr->screen;
+		auto& state = get_screen_state(screen);
+		if (state.loaded_enemies)
+			return;
+
+		// dungeon basements
+		static byte dngn_enemy_x[4] = {32,96,144,208};
+		if (cur_screen>=128)
 		{
-			for(int32_t i=0; i<10; i++)
+			if(DMaps[cur_dmap].flags&dmfCAVES) return;
+			if ( DMaps[cur_dmap].flags&dmfNEWCELLARENEMIES )
 			{
-				if ( tmpscr->enemy[i] )
+				for(int32_t i=0; i<10; i++)
+				{
+					if ( scr->enemy[i] )
+					{
+						int32_t preguycount = guys.Count();
+						addenemy(screen,dngn_enemy_x[i],96,scr->enemy[i],-14-i);
+						if (guys.Count() > preguycount)
+						{
+							if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+							{
+								if (!FFCore.system_suspend[susptNPCSCRIPTS])
+								{
+									guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+									((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				for(int32_t i=0; i<4; i++)
 				{
 					int32_t preguycount = guys.Count();
-					addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i],-14-i);
+					addenemy(screen,dngn_enemy_x[i],96,scr->enemy[i]?scr->enemy[i]:(int32_t)eKEESE1,-14-i);
 					if (guys.Count() > preguycount)
 					{
 						if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
@@ -19747,107 +19442,103 @@ void loadenemies()
 					}
 				}
 			}
+
+			state.loaded_enemies = true;
+			return;
 		}
-		else
+
+		if (scr->pattern == pNOSPAWN)
+			return;
+
+		// TODO: configure when screen enemies spawn.
+		if (!viewport.intersects_with(region_scr_x*256, region_scr_y*176, 256, 176))
+			return;
+
+		if (scr->pattern==pSIDES || scr->pattern==pSIDESR)
 		{
-			for(int32_t i=0; i<4; i++)
+			side_load_enemies(scr);
+			return;
+		}
+
+		state.loaded_enemies = true;
+
+		// check if it's the dungeon boss and it has been beaten before
+		if (scr->flags11&efBOSS && game->lvlitems[dlevel]&liBOSS)
+			return;
+
+		int32_t loadcnt = 10;
+		int16_t mi = mapind(cur_map, screen);
+		bool beenhere = check_if_recently_visited();
+
+		//Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
+		bool reload = true;
+		if (beenhere && game->guys[mi] == 0) //Then, if you have been here, and the number of enemies left on the screen is 0,
+		{
+			loadcnt = 0; //It will tell it not to load any enemies,
+			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
+		}
+
+		bool unbeatablereload = true;
+		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
+		{
+			loadcnt = game->guys[mi]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
+			
+			if(loadcnt==0 || //Then, if the number of enemies is 0, that means you left 0 enemies alive on a screen but haven't been there in the past 6 screens.
+				(get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)) //Alternatively, if you have the quest rule enabled that always respawns all enemies after a period of time, and you haven't been here in 6 screens.
+					loadcnt = 10; //That means all enemies need to be respawned.
+			if (!beenhere && get_qr(qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				int32_t preguycount = guys.Count();
-				addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i]?tmpscr->enemy[i]:(int32_t)eKEESE1,-14-i);
-				if (guys.Count() > preguycount)
+				for(int32_t i = 0; i<loadcnt && scr->enemy[i]>0; i++)
 				{
-					if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+					if (!(guysbuf[scr->enemy[i]].flags & guy_doesnt_count)) 
 					{
-						if (!FFCore.system_suspend[susptNPCSCRIPTS])
-						{
-							guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
-							((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
-						}
+						unbeatablereload = false;
+					}
+				}
+				if (unbeatablereload)
+				{
+					loadcnt = 10;
+				}
+			}
+		}
+
+		if((get_qr(qr_ALWAYSRET)) || (scr->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
+			loadcnt = 10; //All enemies also need to be respawned.
+
+		// do enemies that are always loaded
+		load_default_enemies(scr);
+		activate_fireball_statues(scr);
+
+		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
+		int32_t clk=-15,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
+		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
+		for(; i<loadcnt && scr->enemy[i]>0; i++)
+		{
+			int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
+			spawnEnemy(scr, pos, clk, region_scr_x*256, region_scr_y*176, fastguys, i, guycnt, loadcnt);
+			if (guys.Count() > preguycount)
+			{
+				if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+				{
+					if (!FFCore.system_suspend[susptNPCSCRIPTS])
+					{
+						guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+						((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
 					}
 				}
 			}
-		}
-		return;
-	}
-	
-	// check if it's been long enough to reload all enemies
-	
-	int32_t loadcnt = 10;
-	int16_t s = (currmap<<7)+currscr;
-	bool beenhere = false;
-	bool reload = true;
-	bool unbeatablereload = true;
-	
-	for(int32_t i=0; i<6; i++)
-		if(visited[i]==s)
-			beenhere = true;
 			
-	if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
-	{
-		visited[vhead]=s; //If not, it adds it to the array,
-		vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
-	}
-	else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
-	{
-		loadcnt = 0; //It will tell it not to load any enemies,
-		reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
-	}
-	
-	if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
-	{
-		loadcnt = game->guys[s]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
-		
-		if(loadcnt==0 || //Then, if the number of enemies is 0, that means you left 0 enemies alive on a screen but haven't been there in the past 6 screens.
-			(get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)) //Alternatively, if you have the quest rule enabled that always respawns all enemies after a period of time, and you haven't been here in 6 screens.
-				loadcnt = 10; //That means all enemies need to be respawned.
-		if (!beenhere && get_qr(qr_UNBEATABLES_DONT_KEEP_DEAD))
-		{
-			for(int32_t i = 0; i<loadcnt && tmpscr->enemy[i]>0; i++)
-			{
-				if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesnt_count)) 
-				{
-					unbeatablereload = false;
-				}
-			}
-			if (unbeatablereload)
-			{
-				loadcnt = 10;
-			}
+			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
 		}
-	}
-	
-	if((get_qr(qr_ALWAYSRET)) || (tmpscr->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
-		loadcnt = 10; //All enemies also need to be respawned.
-		
-	int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
-	int32_t clk=-15,x=0,y=0,fastguys=0; //clk being negative means the enemy is in its spawn poof.
-	int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
-	
-	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
-	{
-		int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
-		spawnEnemy(pos, clk, x, y, fastguys, i, guycnt, loadcnt);
-		if (guys.Count() > preguycount)
-		{
-			if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
-			{
-				if (!FFCore.system_suspend[susptNPCSCRIPTS])
-				{
-					guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
-					((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
-				}
-			}
-		}
-		
-		--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
-	}
-	
-	game->guys[s] = guycnt;
-	//} //if(true)
+
+		game->guys[mi] = guycnt;
+	});
 }
+
 void moneysign()
 {
-	additem(48,108,iRupy,ipDUMMY);
+	auto [dx, dy] = translate_screen_coordinates_to_world(cur_screen);
+	additem(dx+48,dy+108,iRupy,ipDUMMY);
 	set_clip_state(pricesdisplaybuf, 0);
 	textout_ex(pricesdisplaybuf,get_zc_font(font_zfont),"X",64,112,CSET(0)+1,-1);
 }
@@ -19894,14 +19585,20 @@ void putprices(bool sign)
 void setupscreen()
 {
 	boughtsomething=false;
-	int32_t t=currscr<128?0:1;
-	word str=tmpscr[t].str;
+
+	// Either the origin screen, or if in a 0x80 room the screen player came from.
+	mapscr* base_scr = cur_screen >= 128 ? special_warp_return_scr : origin_scr;
+	mapscr* scr = origin_scr;
+
+	word str=base_scr->str;
+
+	auto [dx, dy] = translate_screen_coordinates_to_world(scr->screen);
 	
 	// Prices are already set to 0 in dowarp()
-	switch(tmpscr[t].room)
+	switch(base_scr->room)
 	{
 	case rSP_ITEM:                                          // special item
-		additem(120,89,tmpscr[t].catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+		additem(dx+120,dy+89,base_scr->catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 		break;
 		
 	case rINFO:                                             // pay for info
@@ -19914,7 +19611,7 @@ void setupscreen()
 		
 		for(int32_t i=0; i<3; i++)
 		{
-			if(QMisc.info[tmpscr[t].catchall].str[i])
+			if(QMisc.info[base_scr->catchall].str[i])
 			{
 				++count;
 			}
@@ -19938,7 +19635,7 @@ void setupscreen()
 			{
 				additem((i << step)+base, 89, iRupy, ipMONEY + ipDUMMY);
 				((item*)items.spr(items.Count()-1))->PriceIndex = i;
-				prices[i] = -(QMisc.info[tmpscr[t].catchall].price[i]);
+				prices[i] = -(QMisc.info[base_scr->catchall].price[i]);
 				if(prices[i]==0)
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
@@ -19954,7 +19651,7 @@ void setupscreen()
 						prices[i]=100000;
 				}
 				
-				if((QMisc.info[tmpscr[t].catchall].price[i])>1 && prices[i]>-1 && prices[i]!=100000)
+				if((QMisc.info[base_scr->catchall].price[i])>1 && prices[i]>-1 && prices[i]!=100000)
 					prices[i]=-1;
 			}
 		}
@@ -19963,25 +19660,25 @@ void setupscreen()
 	}
 	
 	case rMONEY:                                            // secret money
-		additem(120,89,iRupy,ipONETIME+ipDUMMY+ipMONEY);
+		additem(dx+120,dy+89,iRupy,ipONETIME+ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
 		break;
 		
 	case rGAMBLE:                                           // gambling
 		prices[0]=prices[1]=prices[2]=-10;
 		moneysign();
-		additem(88,89,iRupy,ipMONEY+ipDUMMY);
+		additem(dx+88,dy+89,iRupy,ipMONEY+ipDUMMY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
-		additem(120,89,iRupy,ipMONEY+ipDUMMY);
+		additem(dx+120,dy+89,iRupy,ipMONEY+ipDUMMY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 1;
-		additem(152,89,iRupy,ipMONEY+ipDUMMY);
+		additem(dx+152,dy+89,iRupy,ipMONEY+ipDUMMY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 2;
 		break;
 		
 	case rREPAIR:                                           // door repair
-		setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		//  }
-		repaircharge=tmpscr[t].catchall;
+		repaircharge=base_scr->catchall;
 		break;
 		
 	case rMUPGRADE:                                         // upgrade magic
@@ -19993,9 +19690,9 @@ void setupscreen()
 		break;
 		
 	case rRP_HC:                                            // heart container or red potion
-		additem(88,89,iRPotion,ipONETIME2+ipHOLDUP+ipFADE);
+		additem(dx+88,dy+89,iRPotion,ipONETIME2+ipHOLDUP+ipFADE);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
-		additem(152,89,iHeartC,ipONETIME2+ipHOLDUP+ipFADE);
+		additem(dx+152,dy+89,iHeartC,ipONETIME2+ipHOLDUP+ipFADE);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 1;
 		break;
 		
@@ -20014,13 +19711,13 @@ void setupscreen()
 		int32_t base  = 88;
 		int32_t step  = 5;
 		
-		if(tmpscr[t].room != rTAKEONE)
+		if(base_scr->room != rTAKEONE)
 			moneysign();
 			
 		//count and align the stuff
 		for(int32_t i=0; i<3; ++i)
 		{
-			if(QMisc.shop[tmpscr[t].catchall].hasitem[count] != 0)
+			if(QMisc.shop[base_scr->catchall].hasitem[count] != 0)
 			{
 				++count;
 			}
@@ -20042,12 +19739,12 @@ void setupscreen()
 		
 		for(int32_t i=0; i<count; i++)
 		{
-			additem((i<<step)+base, 89, QMisc.shop[tmpscr[t].catchall].item[i], ipHOLDUP+ipFADE+(tmpscr[t].room == rTAKEONE ? ipONETIME2 : ipCHECK));
+			additem(dx+(i<<step)+base, dy+89, QMisc.shop[base_scr->catchall].item[i], ipHOLDUP+ipFADE+(base_scr->room == rTAKEONE ? ipONETIME2 : ipCHECK));
 			((item*)items.spr(items.Count()-1))->PriceIndex = i;
 			
-			if(tmpscr[t].room != rTAKEONE)
+			if(base_scr->room != rTAKEONE)
 			{
-				prices[i] = QMisc.shop[tmpscr[t].catchall].price[i];
+				prices[i] = QMisc.shop[base_scr->catchall].price[i];
 				if(prices[i]==0)
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
@@ -20063,7 +19760,7 @@ void setupscreen()
 						prices[i]=100000;
 				}
 				
-				if((QMisc.shop[tmpscr[t].catchall].price[i])>1 && prices[i]<1)
+				if((QMisc.shop[base_scr->catchall].price[i])>1 && prices[i]<1)
 					prices[i]=1;
 			}
 		}
@@ -20077,7 +19774,7 @@ void setupscreen()
 		int32_t step  = 5;
 		
 		moneysign();
-		bottleshoptype const& bst = QMisc.bottle_shop_types[tmpscr[t].catchall];
+		bottleshoptype const& bst = QMisc.bottle_shop_types[base_scr->catchall];
 		//count and align the stuff
 		for(int32_t i=0; i<3; ++i)
 		{
@@ -20103,7 +19800,7 @@ void setupscreen()
 		
 		for(int32_t i=0; i<count; i++)
 		{
-			adddummyitem((i<<step)+base, 89, /*Use item 0 as a dummy...*/0, ipHOLDUP+ipFADE+ipCHECK);
+			adddummyitem(dx+(i<<step)+base, dy+89, /*Use item 0 as a dummy...*/0, ipHOLDUP+ipFADE+ipCHECK);
 			//{ Setup dummy item
 			item* curItem = ((item*)items.spr(items.Count()-1));
 			curItem->PriceIndex = i;
@@ -20154,31 +19851,31 @@ void setupscreen()
 	}
 	
 	case rBOMBS:                                            // more bombs
-		additem(120,89,iRupy,ipDUMMY+ipMONEY);
+		additem(dx+120,dy+89,iRupy,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
-		prices[0]=-tmpscr[t].catchall;
+		prices[0]=-base_scr->catchall;
 		break;
 		
 	case rARROWS:                                            // more arrows
-		additem(120,89,iRupy,ipDUMMY+ipMONEY);
+		additem(dx+120,dy+89,iRupy,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
-		prices[0]=-tmpscr[t].catchall;
+		prices[0]=-base_scr->catchall;
 		break;
 		
 	case rSWINDLE:                                          // leave heart container or money
-		additem(88,89,iHeartC,ipDUMMY+ipMONEY);
+		additem(dx+88,dy+89,iHeartC,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
 		prices[0]=-1;
-		additem(152,89,iRupy,ipDUMMY+ipMONEY);
+		additem(dx+152,dy+89,iRupy,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 1;
-		prices[1]=-tmpscr[t].catchall;
+		prices[1]=-base_scr->catchall;
 		break;
 		
 	}
 	
-	if(tmpscr[t].room == rBOMBS || tmpscr[t].room == rARROWS)
+	if(base_scr->room == rBOMBS || base_scr->room == rARROWS)
 	{
-		int32_t i = (tmpscr[t].room == rSWINDLE ? 1 : 0);
+		int32_t i = (base_scr->room == rSWINDLE ? 1 : 0);
 		int32_t itemid = current_item_id(itype_wealthmedal);
 		
 		if(itemid >= 0)
@@ -20189,7 +19886,7 @@ void setupscreen()
 				prices[i]+=itemsbuf[itemid].misc1;
 		}
 		
-		if(tmpscr[t].catchall>1 && prices[i]>-1)
+		if(base_scr->catchall>1 && prices[i]>-1)
 			prices[i]=-1;
 	}
 	
@@ -20197,33 +19894,12 @@ void setupscreen()
 	
 	if(str)
 	{
-		donewmsg(str);
+		donewmsg(base_scr, str);
 	}
 	else
 	{
 		Hero.unfreeze();
 	}
-}
-
-// Increments msgptr and returns the control code argument pointed at.
-word grab_next_argument()
-{
-	if(unsigned(msgptr+1)>=MsgStrings[msgstr].s.size()) return 0;
-	byte val=MsgStrings[msgstr].s[++msgptr]-1;
-	word ret=val;
-	
-	// If an argument is succeeded by 255, then it's a three-byte argument -
-	// between 254 and 65535 (or whatever the maximum actually is)
-	if((unsigned(msgptr+2)<MsgStrings[msgstr].s.size())
-		&& uint8_t(MsgStrings[msgstr].s[msgptr+1]) == 255)
-	{
-		val=MsgStrings[msgstr].s[msgptr+2];
-		word next=val;
-		ret += 254*next;
-		msgptr+=2;
-	}
-	
-	return ret;
 }
 
 enum
@@ -20261,7 +19937,6 @@ void clr_msg_data()
 	memset(msg_menu_data, 0, sizeof(msg_menu_data));
 }
 
-static bool doing_name_insert = false;
 static char namebuf[9] = {0};
 static char* nameptr = NULL;
 static int32_t ssc_tile_hei = -1, ssc_tile_hei_buf = -1;
@@ -20346,11 +20021,13 @@ bool bottom_margin_clip()
 }
 
 void update_msgstr();
-bool parsemsgcode()
+
+static bool parsemsgcode(const StringCommand& command)
 {
-	if(msgptr>=MsgStrings[msgstr].s.size()) return false;
-	byte c = byte(MsgStrings[msgstr].s[msgptr]-1);
-	switch(c)
+	auto& args = command.args;
+	int last_arg = 0;
+
+	switch (command.code)
 	{
 		case MSGC_NEWLINE:
 		{
@@ -20364,49 +20041,49 @@ bool parsemsgcode()
 		
 		case MSGC_COLOUR:
 		{
-			int32_t cset = (grab_next_argument());
-			msgcolour = CSET(cset)+(grab_next_argument());
+			int32_t cset = args[0];
+			msgcolour = CSET(cset)+(args[1]);
 			return true;
 		}
 		
 		case MSGC_SHDCOLOR:
 		{
-			int32_t cset = (grab_next_argument());
-			msg_shdcol = CSET(cset)+(grab_next_argument());
+			int32_t cset = args[0];
+			msg_shdcol = CSET(cset)+args[1];
 			return true;
 		}
 		case MSGC_SHDTYPE:
 		{
-			msg_shdtype = grab_next_argument();
+			msg_shdtype = args[0];
 			return true;
 		}
 		
 		case MSGC_SPEED:
 		{
-			msgspeed=grab_next_argument();
+			msgspeed=args[0];
 			return true;
 		}
 		
 		case MSGC_CTRUP:
 		{
-			int32_t a1 = grab_next_argument();
-			int32_t a2 = grab_next_argument();
+			int32_t a1 = args[0];
+			int32_t a2 = args[1];
 			game->change_counter(a2, a1);
 			return true;
 		}
 		
 		case MSGC_CTRDN:
 		{
-			int32_t a1 = grab_next_argument();
-			int32_t a2 = grab_next_argument();
+			int32_t a1 = args[0];
+			int32_t a2 = args[1];
 			game->change_counter(-a2, a1);
 			return true;
 		}
 		
 		case MSGC_CTRSET:
 		{
-			int32_t a1 = grab_next_argument();
-			int32_t a2 = grab_next_argument();
+			int32_t a1 = args[0];
+			int32_t a2 = args[1];
 			game->set_counter(vbound(a2, 0, game->get_maxcounter(a1)), a1);
 			return true;
 		}
@@ -20415,15 +20092,14 @@ bool parsemsgcode()
 		case MSGC_CTRDNPC:
 		case MSGC_CTRSETPC:
 		{
-			int32_t code = MsgStrings[msgstr].s[msgptr]-1;
-			int32_t counter = grab_next_argument();
-			int32_t amount = grab_next_argument();
+			int32_t counter = args[0];
+			int32_t amount = args[1];
 			amount = int32_t(vbound(amount*0.01, 0.0, 1.0)*game->get_maxcounter(counter));
 			
-			if(code==MSGC_CTRDNPC)
+			if(command.code==MSGC_CTRDNPC)
 				amount*=-1;
 				
-			if(code==MSGC_CTRSETPC)
+			if(command.code==MSGC_CTRSETPC)
 				game->set_counter(amount, counter);
 			else
 				game->change_counter(amount, counter);
@@ -20433,7 +20109,7 @@ bool parsemsgcode()
 		
 		case MSGC_GIVEITEM:
 		{
-			int32_t itemID = grab_next_argument();
+			int32_t itemID = args[0];
 			
 			getitem(itemID, true);
 			if ( !FFCore.doscript(ScriptType::Item, itemID) && (((unsigned)itemID) < 256) )
@@ -20447,12 +20123,12 @@ bool parsemsgcode()
 		
 		case MSGC_WARP:
 		{
-			int32_t dmap =  grab_next_argument();
-			int32_t scrn =  grab_next_argument();
-			int32_t dx =  grab_next_argument();
-			int32_t dy =  grab_next_argument();
-			int32_t wfx =  grab_next_argument();
-			int32_t sfx =  grab_next_argument();
+			int32_t dmap =  args[0];
+			int32_t scrn =  args[1];
+			int32_t dx =  args[2];
+			int32_t dy =  args[3];
+			int32_t wfx =  args[4];
+			int32_t sfx =  args[5];
 			if(dx >= MAX_SCC_ARG) dx = -1;
 			if(dy >= MAX_SCC_ARG) dy = -1;
 			FFCore.warp_player(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
@@ -20462,16 +20138,16 @@ bool parsemsgcode()
 		
 		case MSGC_SETSCREEND:
 		{
-			int32_t dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
-			int32_t screen =     grab_next_argument();
-			int32_t reg =     grab_next_argument();
-			int32_t val =     grab_next_argument();
+			int32_t dmap =     (args[0]<<7); //dmap and screen may be transposed here.
+			int32_t screen =     args[1];
+			int32_t reg =     args[2];
+			int32_t val =     args[3];
 			FFCore.set_screen_d(screen + dmap, reg, val);
 			return true;
 		}
 		case MSGC_TAKEITEM:
 		{
-			int32_t itemID = grab_next_argument();
+			int32_t itemID = args[0];
 			if ( FFCore.doscript(ScriptType::Item, itemID) )
 			{
 				FFCore.doscript(ScriptType::Item, itemID) = 4; //Val of 4 means 'clear stack and quit'
@@ -20499,13 +20175,13 @@ bool parsemsgcode()
 			
 		case MSGC_SFX:
 		{
-			sfx((int32_t)grab_next_argument(),128);
+			sfx(args[0],128);
 			return true;
 		}
 		
 		case MSGC_MIDI:
 		{
-			int32_t music = (int32_t)(grab_next_argument());
+			int32_t music = args[0];
 			
 			if(music==0)
 				music_stop();
@@ -20515,17 +20191,9 @@ bool parsemsgcode()
 			return true;
 		}
 		
-		case MSGC_NAME:
-		{
-			doing_name_insert = true;
-			sprintf(namebuf, "%s", game->get_name());
-			nameptr = namebuf;
-			return true;
-		}
-		
 		case MSGC_FONT:
 		{
-			int fontid = grab_next_argument();
+			int fontid = args[0];
 			int oh = text_height(msgfont);
 			msgfont = get_zc_font(fontid);
 			int nh = text_height(msgfont);
@@ -20536,23 +20204,23 @@ bool parsemsgcode()
 		}
 		case MSGC_RUN_FRZ_GENSCR:
 		{
-			word scr_id = grab_next_argument();
-			bool force_redraw = grab_next_argument()!=0;
+			word scr_id = args[0];
+			bool force_redraw = args[1]!=0;
 			if(force_redraw)
 			{
 				update_msgstr();
-				draw_screen(tmpscr);
+				draw_screen();
 			}
 			FFCore.runGenericFrozenEngine(scr_id);
 			return true;
 		}
 		case MSGC_DRAWTILE:
 		{
-			int32_t tl = grab_next_argument();
-			int32_t cs = grab_next_argument();
-			int32_t t_wid = grab_next_argument();
-			int32_t t_hei = grab_next_argument();
-			int32_t fl = grab_next_argument();
+			int32_t tl = args[0];
+			int32_t cs = args[1];
+			int32_t t_wid = args[2];
+			int32_t t_hei = args[3];
+			int32_t fl = args[4];
 			
 			if(cursor_x+MsgStrings[msgstr].hspace + t_wid > msg_w-msg_margins[right])
 			{
@@ -20572,26 +20240,28 @@ bool parsemsgcode()
 		
 		case MSGC_GOTOIFRAND:
 		{
-			int32_t odds = (int32_t)(grab_next_argument());
-			
+			int32_t odds = args[0];
+
+			last_arg = 1;
 			if(!odds || !(zc_oldrand()%odds))
 				goto switched;
-				
-			(void)grab_next_argument();
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFGLOBAL:
 		{
-			int32_t arg = (int32_t)grab_next_argument();
+			int32_t arg = args[0];
 			int32_t d = zc_min(7,arg);
 			int32_t s = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-			arg = (int32_t)grab_next_argument();
-			
+			arg = args[1];
+
 			if(game->screen_d[s][d] >= arg)
+			{
+				last_arg = 2;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
@@ -20602,88 +20272,97 @@ bool parsemsgcode()
 		
 		case MSGC_GOTOIFCREEND:
 		{
-			int32_t dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
-			int32_t screen =     grab_next_argument();
-			int32_t reg =     grab_next_argument();
-			int32_t val =     grab_next_argument();
-			//int32_t nxtstr = grab_next_argument();
+			int32_t dmap =     (args[0]<<7); //dmap and screen may be transposed here.
+			int32_t screen =     args[1];
+			int32_t reg =     args[2];
+			int32_t val =     args[3];
 			if ( FFCore.get_screen_d(screen + dmap, reg) >= val )
 			{
+				last_arg = 4;
 				goto switched;
 			}
-			(void)grab_next_argument();
 			return true;
 		}
 		
 		case MSGC_GOTOIF:
 		{
-			int32_t it = (int32_t)grab_next_argument();
+			int32_t it = args[0];
 			
 			if(unsigned(it)<MAXITEMS && game->item[it])
+			{
+				last_arg = 1;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFCTR:
 		{
-			if(game->get_counter(grab_next_argument())>=grab_next_argument())
+			if(game->get_counter(args[0]) >= args[1])
+			{
+				last_arg = 2;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFCTRPC:
 		{
-			int32_t counter = grab_next_argument();
-			int32_t amount = (int32_t)(((grab_next_argument())/100)*game->get_maxcounter(counter));
+			int32_t counter = args[0];
+			int32_t amount = (int32_t)((args[1]/100)*game->get_maxcounter(counter));
 			
 			if(game->get_counter(counter)>=amount)
+			{
+				last_arg = 2;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFTRICOUNT:
 		{
-			if(TriforceCount() >= (int32_t)(grab_next_argument()))
+			if(TriforceCount() >= args[0])
+			{
+				last_arg = 1;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_GOTOIFTRI:
 		{
-			int32_t lev = (int32_t)(grab_next_argument());
+			int32_t lev = args[0];
 			
 			if(lev<MAXLEVELS && game->lvlitems[lev]&liTRIFORCE)
+			{
+				last_arg = 1;
 				goto switched;
-				
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
 		case MSGC_SETUPMENU:
 		{
-			msg_menu_data[MNU_CURSOR_TILE] = grab_next_argument();
-			msg_menu_data[MNU_CURSOR_CSET] = grab_next_argument();
-			msg_menu_data[MNU_CURSOR_WID] = grab_next_argument();
-			msg_menu_data[MNU_CURSOR_HEI] = grab_next_argument();
-			msg_menu_data[MNU_CURSOR_FLIP] = grab_next_argument();
+			msg_menu_data[MNU_CURSOR_TILE] = args[0];
+			msg_menu_data[MNU_CURSOR_CSET] = args[1];
+			msg_menu_data[MNU_CURSOR_WID] = args[2];
+			msg_menu_data[MNU_CURSOR_HEI] = args[3];
+			msg_menu_data[MNU_CURSOR_FLIP] = args[4];
 			return true;
 		}
 		
 		case MSGC_MENUCHOICE:
 		{
-			int32_t pos = grab_next_argument();
-			int32_t upos = grab_next_argument();
-			int32_t dpos = grab_next_argument();
-			int32_t lpos = grab_next_argument();
-			int32_t rpos = grab_next_argument();
+			int32_t pos = args[0];
+			int32_t upos = args[1];
+			int32_t dpos = args[2];
+			int32_t lpos = args[3];
+			int32_t rpos = args[4];
 			if(cursor_x+MsgStrings[msgstr].hspace + msg_menu_data[MNU_CURSOR_WID] > msg_w-msg_margins[right])
 			{
 				ssc_tile_hei = ssc_tile_hei_buf;
@@ -20714,10 +20393,13 @@ bool parsemsgcode()
 		
 		case MSGC_GOTOMENUCHOICE:
 		{
-			int32_t choice = grab_next_argument();
+			int32_t choice = args[0];
 			if(msg_menu_data[MNU_CHOSEN] == choice)
+			{
+				last_arg = 1;
 				goto switched;
-			(void)grab_next_argument();
+			}
+
 			return true;
 		}
 		
@@ -20734,38 +20416,38 @@ bool parsemsgcode()
 		}
 		case MSGC_TRIGSECRETS:
 		{
-			bool perm = (bool)grab_next_argument();
-			hidden_entrance(0, true, false, -8);
+			bool perm = args[0];
+			trigger_secrets_for_screen(TriggerSource::SCC, msgscr, false);
 			if(perm)
-				setmapflag(mSECRET);
+				setmapflag(msgscr, mSECRET);
 			return true;
 		}
 		case MSGC_TRIG_CMB_COPYCAT:
 		{
-			int copy_id = (int)grab_next_argument();
+			int copy_id = args[0];
 			if(copy_id == byte(copy_id))
 				trig_copycat(copy_id);
 			return true;
 		}
 		case MSGC_SETSCREENSTATE:
 		{
-			int32_t flag = int32_t(grab_next_argument());
+			int32_t flag = args[0];
 			if(unsigned(flag)>=mMAXIND)
 			{
 				Z_error("SCC 133: Flag %d is invalid\n", flag);
 				return true;
 			}
-			bool state = bool(grab_next_argument());
+			bool state = args[1];
 			if(state)
-				setmapflag(1<<flag);
+				setmapflag(msgscr, 1<<flag);
 			else
-				unsetmapflag(1<<flag,true);
+				unsetmapflag(msgscr, 1<<flag, true);
 			return true;
 		}
 		case MSGC_SETSCREENSTATER:
 		{
-			int32_t map = (int32_t)grab_next_argument();
-			int32_t scrid = (int32_t)grab_next_argument();
+			int32_t map = args[0];
+			int32_t scrid = args[1];
 			if(map < 1 || map > map_count)
 			{
 				Z_error("SCC 134: Map %d is invalid\n", map);
@@ -20777,508 +20459,196 @@ bool parsemsgcode()
 				return true;
 			}
 			
-			int32_t flag = int32_t(grab_next_argument());
+			int32_t flag = args[2];
 			if(unsigned(flag)>=mMAXIND)
 			{
 				Z_error("SCC 134: Flag %d is invalid\n", flag);
 				return true;
 			}
-			bool state = bool(grab_next_argument());
+			bool state = args[3];
 			if(state)
-				setmapflag(mapind(map,scrid),1<<flag);
+				setmapflag_mi(msgscr, mapind(map,scrid),1<<flag);
 			else
-				unsetmapflag(mapind(map,scrid),1<<flag,true);
+				unsetmapflag_mi(msgscr, mapind(map,scrid),1<<flag,true);
 			return true;
 		}
 switched:
-		int32_t lev = (int32_t)(grab_next_argument());
+		int32_t lev = args[last_arg];
 		if(lev && get_qr(qr_SCC_GOTO_RESPECTS_CONTFLAG)
 			&& (MsgStrings[lev].stringflags & STRINGFLAG_CONT))
 		{
-			msgstr=lev;
-			msgpos=msgptr=0;
-			msgfont=setmsgfont();
+			setmsg(lev);
 		}
 		else
 		{
-			donewmsg(lev);
+			donewmsg(msgscr, lev);
 			ssc_tile_hei_buf = -1;
 		}
-		msgptr--; // To counteract it being incremented after this routine is called.
 		putprices(false);
 		return true;
 	}
-	
+
 	return false;
 }
 
-// Wraps the message string... probably.
-void wrapmsgstr(char *s3)
+static std::string parsemsgcode2(const StringCommand& command)
 {
-	int32_t j=0;
-	
-	if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
+	if (command.code == MSGC_NAME)
 	{
-		if(msgspace)
-		{
-			char c = MsgStrings[msgstr].s[msgptr];
-			if(c != ' ' && c >= 32 && c <= 126)
-			{
-				for(int32_t k=0; MsgStrings[msgstr].s[msgptr+k] && MsgStrings[msgstr].s[msgptr+k] != ' '; k++)
-				{
-					if(MsgStrings[msgstr].s[msgptr+k] >= 32 && MsgStrings[msgstr].s[msgptr+k] <= 126) s3[j++] = MsgStrings[msgstr].s[msgptr+k];
-				}
-				
-				s3[j] = 0;
-				msgspace = false;
-			}
-			else
-			{
-				s3[0] = c;
-				s3[1] = 0;
-			}
-		}
-		else
-		{
-			s3[0] = MsgStrings[msgstr].s[msgptr];
-			s3[1] = 0;
-			
-			if(s3[0] == ' ') msgspace=true;
-		}
+		return game->get_name();
 	}
 	else
 	{
-		s3[0] = MsgStrings[msgstr].s[msgptr];
-		s3[1] = 0;
+		parsemsgcode(command);
 	}
+
+	return "";
 }
 
-// Returns true if the pointer is at a string's
-// null terminator or a trailing space
-bool atend(char const* str)
+static bool putmsgchar(bool play_sfx)
 {
-	int32_t i=0;
-	
-	while(str[i]==' ')
-		i++;
-		
-	return str[i]=='\0';
+	DCHECK(msg_it->state == MsgStr::iterator::CHARACTER);
+	DCHECK(!msg_it->character.empty());
+
+	if (bottom_margin_clip())
+		return false;
+
+	// If the current word would overflow the margins, increment cursor to the next line.
+	const char* rem_word = msg_it->remaining_word();
+	int tlength = text_length(msgfont, rem_word) + ((int32_t)strlen(rem_word)*MsgStrings[msgstr].hspace);
+	if (cursor_x+tlength > (msg_w-msg_margins[right]) &&
+		((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)) ? true : strcmp(rem_word," ")!=0))
+	{
+		ssc_tile_hei = ssc_tile_hei_buf;
+		int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
+		ssc_tile_hei_buf = -1;
+		cursor_y += thei + MsgStrings[msgstr].vspace;
+		if (bottom_margin_clip()) return false;
+
+		cursor_x = msg_margins[left];
+	}
+
+	if (play_sfx)
+		sfx(MsgStrings[msgstr].sfx);
+
+	// Print the character (unless it's just a space).
+	if (msg_it->character != " ")
+		textout_styled_aligned_ex(msg_txt_bmp_buf, msgfont, msg_it->character.c_str(), cursor_x, cursor_y, msg_shdtype, sstaLEFT, msgcolour, msg_shdcol, -1);
+
+	// Move the cursor.
+	cursor_x += msgfont->vtable->text_length(msgfont, msg_it->character.c_str());
+	if (msg_it->character != " ")
+		cursor_x += MsgStrings[msgstr].hspace;
+
+	return true;
 }
 
-void putmsg()
+enum msg_tick_result {msg_tick_exit, msg_tick_break, msg_tick_continue};
+
+static void msg_tick_end(bool disappear = false);
+static msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 {
-	bool oldmargin = get_qr(qr_OLD_STRING_EDITOR_MARGINS)!=0;
-	if(!msgorig) msgorig=msgstr;
-	
-	if(wait_advance && linkedmsgclk < 1)
-		linkedmsgclk = 1;
-	if(linkedmsgclk>0)
+	if (msg_it->done())
+		return msg_tick_exit;
+
+	if (!do_run_menu)
 	{
-		if(linkedmsgclk==1)
+		while (msg_it->state == MsgStr::iterator::COMMAND && !do_run_menu)
 		{
-			if(do_end_str||cAbtn()||cBbtn())
+			bool one_frame_command_delay = !replay_version_check(41);
+			std::string text = parsemsgcode2(msg_it->command);
+			if (text.empty())
 			{
-				do_end_str = false;
-				linkedmsgclk = 0;
-				if(wait_advance)
-				{
-					wait_advance = false;
-				}
-				else
-				{
-					msgstr=MsgStrings[msgstr].nextstring;
-					ssc_tile_hei_buf = -1;
-					if(!msgstr && enqueued_str)
-					{
-						msgstr = enqueued_str;
-						enqueued_str = 0;
-					}
-					if(!msgstr)
-					{
-						msgfont=get_zc_font(font_zfont);
-						
-						if(tmpscr->room!=rGRUMBLE)
-							blockpath=false;
-							
-						dismissmsg();
-						goto disappear;
-					}
-					
-					donewmsg(msgstr);
-					putprices(false);
-				}
-			}
-		}
-		else
-		{
-			--linkedmsgclk;
-		}
-	}
-	if(wait_advance) return; //Waiting for buttonpress
-	
-	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip()))
-	{
-		if(!msgstr)
-			msgorig=0;
-			
-		msg_active = false;
-		return;
-	}
-	
-	msg_onscreen = true; // Now the message is onscreen (see donewmsg()).
-	
-	char s3[145];
-	int32_t tlength;
-	
-	// Bypass the string with the B button!
-	if(((cBbtn())&&(get_qr(qr_ALLOWMSGBYPASS))) || msgspeed==0)
-	{
-		//finish writing out the string
-		while(msgptr<MsgStrings[msgstr].s.size() && !atend(MsgStrings[msgstr].s.c_str()+msgptr))
-		{
-			if(msgspeed && !(cBbtn() && get_qr(qr_ALLOWMSGBYPASS)))
-				goto breakout; // break out if message speed was changed to non-zero
-			else if(!do_run_menu && !doing_name_insert && !parsemsgcode())
-			{
-				if(bottom_margin_clip())
-					break;
-					
-				wrapmsgstr(s3);
-				
-				if(MsgStrings[msgstr].s[msgptr]==' ')
-				{
-					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
-					
-					if(cursor_x+tlength > (msg_w-msg_margins[right])
-					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-							? true : strcmp(s3," ")!=0))
-					{
-						ssc_tile_hei = ssc_tile_hei_buf;
-						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-						ssc_tile_hei_buf = -1;
-						cursor_y += thei + MsgStrings[msgstr].vspace;
-						if(bottom_margin_clip()) break;
-						cursor_x=msg_margins[left];
-					}
-					
-					char buf[2] = {0};
-					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
-					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-					
-					cursor_x+=tlength;
-				}
-				else
-				{
-					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-					if(cursor_x+tlength > (msg_w-msg_margins[right])
-					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-							? true : strcmp(s3," ")!=0))
-					{
-						ssc_tile_hei = ssc_tile_hei_buf;
-						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-						ssc_tile_hei_buf = -1;
-						cursor_y += thei + MsgStrings[msgstr].vspace;
-						if(bottom_margin_clip()) break;
-						cursor_x=msg_margins[left];
-					}
-					
-					sfx(MsgStrings[msgstr].sfx);
-					
-					char buf[2] = {0};
-					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
-					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-					
-					cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
-					cursor_x += MsgStrings[msgstr].hspace;
-				}
-				
-				msgpos++;
-			}
-			if(do_run_menu)
-			{
-				if(runMenuCursor())
-				{
-					do_run_menu = false;
-				}
-				else break;
-			}
-			if(doing_name_insert)
-			{
-				if(*nameptr)
-				{
-					if(bottom_margin_clip())
-						break;
-					
-					char s3[9] = {0};
-					
-					if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
-					{
-						strcpy(s3, nameptr);
-					}
-					else
-					{
-						s3[0] = *nameptr;
-						s3[1] = 0;
-					}
-					
-					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-					
-					if(cursor_x+tlength > (msg_w-msg_margins[right])
-					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-							? true : strcmp(s3," ")!=0))
-					{
-						ssc_tile_hei = ssc_tile_hei_buf;
-						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-						ssc_tile_hei_buf = -1;
-						cursor_y += thei + MsgStrings[msgstr].vspace;
-						if(bottom_margin_clip()) break;
-						cursor_x=msg_margins[left];
-					}
-					
-					sfx(MsgStrings[msgstr].sfx);
-					
-					char buf[2] = {0};
-					sprintf(buf,"%c",*nameptr);
-					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-					
-					cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
-					cursor_x += MsgStrings[msgstr].hspace;
-					++nameptr;
-					continue; //don't advance the msgptr, as the next char in it was not processed!
-				}
-				else doing_name_insert = false;
-			}
-			++msgptr;
-			if(do_end_str)
-				goto strendcheck;
-			if(wait_advance)
-				return;
-			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
-			{
-				if(MsgStrings[msgstr].nextstring)
-				{
-					if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-					{
-						msgstr=MsgStrings[msgstr].nextstring;
-						msgpos=msgptr=0;
-						msgfont=setmsgfont();
-					}
-				}
-			}
-		}
-		
-		if (!do_run_menu)
-		{
-			msgclk = 72;
-			msgpos = 10000;
-		}
-	}
-	else
-	{
-breakout:
-		word tempspeed = msgspeed;
-		if (do_run_menu)
-			tempspeed = 0;
-		if(((msgclk++)%(tempspeed+1)<tempspeed)&&((!cAbtn())||(!get_qr(qr_ALLOWFASTMSG))))
-			return;
-	}
-	
-	// Start writing the string
-	if(msgptr == 0)
-	{
-		while(MsgStrings[msgstr].s[msgptr]==' ')
-		{
-			tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
-			
-			if(cursor_x+tlength > (msg_w-msg_margins[right])
-			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-					? 1 : strcmp(s3," ")!=0))
-			{
-				ssc_tile_hei = ssc_tile_hei_buf;
-				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-				ssc_tile_hei_buf = -1;
-				cursor_y += thei + MsgStrings[msgstr].vspace;
-				if(bottom_margin_clip()) break;
-				cursor_x=msg_margins[left];
-			}
-			
-			cursor_x+=tlength;
-			++msgptr;
-			++msgpos;
-			
-			// The "Continue From Previous" feature
-			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
-			{
-				if(MsgStrings[msgstr].nextstring)
-				{
-					if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-					{
-						msgstr=MsgStrings[msgstr].nextstring;
-						msgpos=msgptr=0;
-						msgfont=setmsgfont();
-					}
-				}
-			}
-		}
-	}
-	
-reparsesinglechar:
-	// Continue printing the string!
-	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && !bottom_margin_clip())
-	{
-		if(!do_run_menu && !doing_name_insert && !parsemsgcode())
-		{
-			wrapmsgstr(s3);
-			
-			tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-			
-			if(cursor_x+tlength > (msg_w-msg_margins[right])
-			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-					? true : strcmp(s3," ")!=0))
-			{
-				ssc_tile_hei = ssc_tile_hei_buf;
-				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-				ssc_tile_hei_buf = -1;
-				cursor_y += thei + MsgStrings[msgstr].vspace;
-				if(bottom_margin_clip()) goto strendcheck;
-				cursor_x=msg_margins[left];
-				//if(space) s3[0]=0;
-			}
-			
-			sfx(MsgStrings[msgstr].sfx);
-			
-			char buf[2] = {0};
-			sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
-			
-			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-			
-			cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
-			cursor_x += MsgStrings[msgstr].hspace;
-			msgpos++;
-		}
-		if(do_end_str)
-			goto strendcheck;
-		if(wait_advance)
-		{
-			++msgptr;
-			return;
-		}
-		else if(do_run_menu)
-		{
-			if(runMenuCursor())
-			{
-				do_run_menu = false;
-				++msgptr;
-				goto reparsesinglechar;
-			}
-		}
-		else if(doing_name_insert && *nameptr)
-		{
-			char s3[9] = {0};
-			
-			if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
-			{
-				strcpy(s3, nameptr);
+				msg_it->set_buffer("");
+				// Advance the iterator to run many commands in one frame.
+				if (!one_frame_command_delay)
+					msg_it->next();
 			}
 			else
 			{
-				s3[0] = *nameptr;
-				s3[1] = 0;
+				msg_it->set_buffer(text);
+				msg_it->next();
+				if (one_frame_command_delay)
+					msg_it->post_segment_delay = 1;
 			}
-			
-			tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-			
-			if(cursor_x+tlength > (msg_w-msg_margins[right])
-			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-					? true : strcmp(s3," ")!=0))
-			{
-				ssc_tile_hei = ssc_tile_hei_buf;
-				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-				ssc_tile_hei_buf = -1;
-				cursor_y += thei + MsgStrings[msgstr].vspace;
-				if(bottom_margin_clip()) goto strendcheck;
-				cursor_x=msg_margins[left];
-			}
-			
-			sfx(MsgStrings[msgstr].sfx);
-			
-			char buf[2] = {0};
-			sprintf(buf,"%c",*nameptr);
-			
-			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-			
-			cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
-			cursor_x += MsgStrings[msgstr].hspace;
-			++nameptr;
 		}
-		else
+
+		if (msg_it->state == MsgStr::iterator::CHARACTER)
 		{
-			doing_name_insert = false;
-			msgptr++;
-			
-			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
-			{
-				if(MsgStrings[msgstr].nextstring)
-				{
-					if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-					{
-						msgstr=MsgStrings[msgstr].nextstring;
-						msgpos=msgptr=0;
-						msgfont=setmsgfont();
-					}
-				}
-			}
-			
-			if(MsgStrings[msgstr].s.size() > unsigned(msgptr+1)
-				&& (MsgStrings[msgstr].s[msgptr]==' ')
-				&& (MsgStrings[msgstr].s[msgptr+1]==' '))
-			{
-				while(MsgStrings[msgstr].s[msgptr]==' ')
-				{
-					msgspace = true;
-					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
-					
-					if(cursor_x+tlength > (msg_w-msg_margins[right])
-					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-							? true : strcmp(s3," ")!=0))
-					{
-						ssc_tile_hei = ssc_tile_hei_buf;
-						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-						ssc_tile_hei_buf = -1;
-						cursor_y += thei + MsgStrings[msgstr].vspace;
-						if(bottom_margin_clip()) break;
-						cursor_x=msg_margins[left];
-					}
-					
-					cursor_x+=tlength;
-					++msgpos;
-					++msgptr;
-					
-					if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
-					{
-						if(MsgStrings[msgstr].nextstring)
-						{
-							if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-							{
-								msgstr=MsgStrings[msgstr].nextstring;
-								msgpos=msgptr=0;
-								msgfont=setmsgfont();
-							}
-						}
-					}
-				}
-			}
+			if (!putmsgchar(play_sfx)) return msg_tick_break;
 		}
 	}
-strendcheck:
+
+	bool wait_advance_check_early = !burst_mode;
+
+	if (wait_advance_check_early)
+	{
+		if (do_end_str)
+		{
+			msg_tick_end();
+			return msg_tick_exit;
+		}
+
+		if (wait_advance)
+		{
+			msg_it->next();
+			return msg_tick_exit;
+		}
+	}
+
+	if (do_run_menu)
+	{
+		if (runMenuCursor())
+		{
+			do_run_menu = false;
+			if (!burst_mode)
+			{
+				msg_it->next();
+				return msg_tick(play_sfx, burst_mode);
+			}
+		}
+		else return msg_tick_break;
+	}
+
+	msg_it->next();
+
+	if (!wait_advance_check_early)
+	{
+		if (do_end_str)
+		{
+			msg_tick_end();
+			return msg_tick_exit;
+		}
+
+		if (wait_advance)
+			return msg_tick_exit;
+	}
+
+	if (msg_it->done() && MsgStrings[msgstr].nextstring)
+	{
+		if (MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
+			setmsg(MsgStrings[msgstr].nextstring);
+	}
+
+	return msg_tick_continue;
+}
+
+static void msg_tick_end(bool disappear)
+{
+	if (disappear)
+		goto disappear;
+
 	// Done printing the string
-	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip() || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
+	if (do_end_str || !do_run_menu && (msg_it->done() || bottom_margin_clip()) && !linkedmsgclk)
 	{
 		if(!do_end_str)
-			while(parsemsgcode()); // Finish remaining control codes
+		{
+			while (msg_it->state == MsgStr::iterator::COMMAND)
+			{
+				parsemsgcode2(msg_it->command);
+				msg_it->next();
+			}
+		}
 			
 		// Go to next string, or make it disappear by going to string 0.
 		if(MsgStrings[msgstr].nextstring!=0 || get_qr(qr_MSGDISAPPEAR) || enqueued_str)
@@ -21297,7 +20667,7 @@ disappear:
 			
 			if(repaircharge)
 			{
-				game->change_drupy(-tmpscr[currscr<128?0:1].catchall);
+				game->change_drupy(-(cur_screen >= 128 ? special_warp_return_scr : msgscr)->catchall);
 				repaircharge = 0;
 			}
 			
@@ -21314,7 +20684,7 @@ disappear:
 				}
 				adjustmagic = false;
 				sfx(WAV_SCALE);
-				setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+				setmapflag(msgscr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 			}
 			
 			if(learnslash)
@@ -21322,10 +20692,162 @@ disappear:
 				game->set_canslash(1);
 				learnslash = false;
 				sfx(WAV_SCALE);
-				setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+				setmapflag(msgscr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 			}
 		}
 	}
+}
+
+static void msg_consume_spaces()
+{
+	while (msg_it->character == " ")
+	{
+		if (!putmsgchar(false)) break;
+
+		// Advance the iterator.
+		msg_it->next();
+
+		// The "Continue From Previous" feature
+		if (msg_it->state == MsgStr::iterator::DONE)
+		{
+			if(MsgStrings[msgstr].nextstring)
+			{
+				if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
+				{
+					setmsg(MsgStrings[msgstr].nextstring);
+				}
+			}
+		}
+	}
+}
+
+void putmsg()
+{
+	if(!msgorig) msgorig=msgstr;
+	
+	if(wait_advance && linkedmsgclk < 1)
+		linkedmsgclk = 1;
+	if(linkedmsgclk>0)
+	{
+		if(linkedmsgclk==1)
+		{
+			if(do_end_str||cAbtn()||cBbtn())
+			{
+				do_end_str = false;
+				linkedmsgclk = 0;
+				if(wait_advance)
+				{
+					wait_advance = false;
+				}
+				else
+				{
+					if (!msgscr) msgscr = hero_scr;
+					msgstr=MsgStrings[msgstr].nextstring;
+					ssc_tile_hei_buf = -1;
+					if(!msgstr && enqueued_str)
+					{
+						msgstr = enqueued_str;
+						enqueued_str = 0;
+					}
+					if(!msgstr)
+					{
+						msgfont=get_zc_font(font_zfont);
+						
+						if(msgscr->room!=rGRUMBLE)
+							blockpath=false;
+							
+						dismissmsg();
+						msg_tick_end(true);
+						return;
+					}
+					
+					donewmsg(msgscr, msgstr);
+					putprices(false);
+				}
+			}
+		}
+		else
+		{
+			--linkedmsgclk;
+		}
+	}
+	if(wait_advance) return; //Waiting for buttonpress
+	
+	if(!do_run_menu && (!msgstr || !msg_it || msg_it->done() || bottom_margin_clip()))
+	{
+		if(!msgstr)
+			msgorig=0;
+
+		msg_active = false;
+		msg_it.reset();
+		return;
+	}
+
+	if (!msg_it)
+		return;
+
+	msg_onscreen = true; // Now the message is onscreen (see donewmsg()).
+
+	if (msg_it->state == MsgStr::iterator::NOT_STARTED)
+	{
+		msg_it->next();
+		msg_consume_spaces();
+	}
+
+	// If the player is holding down the B button, or if msgspeed is 0, process as many characters
+	// as possible. This skips the character-by-character animation that usually renders a string
+	// slowly over many frames.
+	if ((cBbtn() && get_qr(qr_ALLOWMSGBYPASS)) || msgspeed == 0)
+	{
+		while (!msg_it->done())
+		{
+			if (msgspeed && !(cBbtn() && get_qr(qr_ALLOWMSGBYPASS)))
+				goto breakout; // break out if message speed was changed to non-zero
+
+			auto tick = msg_tick(msg_it->character != " ", true);
+			if (tick == msg_tick_break)
+				break;
+			if (tick == msg_tick_exit)
+				return;
+		}
+
+		if (!do_run_menu)
+		{
+			msgclk = 72;
+		}
+	}
+	else
+	{
+breakout:
+		word tempspeed = msgspeed;
+		if (do_run_menu)
+			tempspeed = 0;
+		if(((msgclk++)%(tempspeed+1)<tempspeed)&&((!cAbtn())||(!get_qr(qr_ALLOWFASTMSG))))
+			return;
+	}
+
+	// Process the next msg tick.
+	// This will either print a single character, or process a single string command (with one
+	// exception).
+	if (!msg_it->done() && !bottom_margin_clip())
+	{
+		// This may run an additional tick in the case of a string menu finishing: the first
+		// tick wraps up the menu, and then a second tick processes the next character or command.
+		auto tick = msg_tick(true, false);
+		if (tick == msg_tick_break)
+		{
+			msg_tick_end();
+			return;
+		}
+		if (tick == msg_tick_exit)
+			return;
+
+		// If the next two characters are spaces, consume all upcoming spaces now.
+		if (!msg_it->done() && msg_it->peek(0) == " " && msg_it->peek(1) == " ")
+			msg_consume_spaces();
+	}
+
+	msg_tick_end();
 }
 
 int32_t message_more_y()
@@ -21366,7 +20888,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					int indx = Lwpns.find(w);
 					if(indx > -1)
 						e->hitby[HIT_BY_LWEAPON] = indx+1;
-					e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
+					e->hitby[HIT_BY_LWEAPON_UID] = w->getUID();
 					e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
 					if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].family; 
 					else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
@@ -21463,7 +20985,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						{
 							if(!Hero.switchhookclk)
 							{
-								hooked_combopos = -1;
+								hooked_comborpos = rpos_t::None;
 								hooked_layerbits = 0;
 								switching_object = theItem;
 								theItem->switch_hooked = true;
@@ -21582,13 +21104,14 @@ void dragging_item()
 	}
 }
 
-int32_t more_carried_items()
+int32_t more_carried_items(int screen)
 {
 	int32_t hasmorecarries = 0;
 	
 	for(int32_t i=0; i<items.Count(); i++)
 	{
-		if(((item*)items.spr(i))->pickup & ipENEMY)
+		auto spr = (item*)items.spr(i);
+		if (spr->screen_spawned == screen && (spr->pickup & ipENEMY))
 		{
 			hasmorecarries++;
 		}
@@ -21597,60 +21120,61 @@ int32_t more_carried_items()
 	return hasmorecarries;
 }
 
-// messy code to do the enemy-carrying-the-item thing
-void roaming_item()
+static int count_guys_from_screen(int screen)
 {
-	if(!(hasitem&(4|2)) || !loaded_enemies)
+	int count = 0;
+	for (int i=0; i < guys.Count(); i++)
+	{
+		if (((enemy*)guys.spr(i))->screen_spawned == screen)
+			count += 1;
+	}
+	return count;
+}
+
+// messy code to do the enemy-carrying-the-item thing
+static void roaming_item(mapscr* scr)
+{
+	int screen = scr->screen;
+	auto& state = get_screen_state(screen);
+	if (!(state.item_state == ScreenItemState::CarriedByEnemy || state.item_state == ScreenItemState::MustGiveToEnemy) || !state.loaded_enemies)
 		return;
-	
+
 	// All enemies already dead upon entering a room?
-	if(guys.Count()==0)
+	if (count_guys_from_screen(screen) == 0)
 	{
 		return;
 	}
-	
-	// Lost track of the carrier?
-	if(guycarryingitem<0 || guycarryingitem>=guys.Count() ||
-	   !((enemy*)guys.spr(guycarryingitem))->itemguy)
+
+	int guycarryingitem = -1;
+	for(int32_t j=0; j<guys.Count(); j++)
 	{
-		guycarryingitem=-1;
-		for(int32_t j=0; j<guys.Count(); j++)
+		enemy* e = (enemy*)guys.spr(j);
+		if (e->screen_spawned == screen && e->itemguy)
 		{
-			if(((enemy*)guys.spr(j))->itemguy)
-			{
-				guycarryingitem=j;
-				break;
-			}
+			guycarryingitem=j;
+			break;
 		}
 	}
-	
-	if(hasitem&4)
+
+	if (state.item_state == ScreenItemState::MustGiveToEnemy)
 	{
-		guycarryingitem = -1;
-		
-		for(int32_t i=0; i<guys.Count(); i++)
-		{
-			if(((enemy*)guys.spr(i))->itemguy)
-			{
-				guycarryingitem = i;
-			}
-		}
-		
 		if(guycarryingitem == -1)                                      //This happens when "default enemies" such as
 		{
 			return;                                               //eSHOOTFBALL are alive but enemies from the list
 		}                                                       //are not. Defer to HeroClass::checkspecial().
-		
-		int32_t Item=tmpscr->item;
-		
-		hasitem &= ~4;
-		
-		if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
+
+		int32_t Item=scr->item;
+
+		state.item_state = ScreenItemState::None;
+
+		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 		{
-			additem(0,0,Item,ipENEMY+ipONETIME+ipBIGRANGE
-					+ (((tmpscr->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
+			auto [x, y] = translate_screen_coordinates_to_world(screen);
+			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE
+					+ (((scr->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
-			hasitem |= 2;
+			((item*)items.spr(items.Count() - 1))->screen_spawned = screen;
+			state.item_state = ScreenItemState::CarriedByEnemy;
 		}
 		else
 		{
@@ -21660,7 +21184,7 @@ void roaming_item()
 	
 	for(int32_t i=0; i<items.Count(); i++)
 	{
-		if(((item*)items.spr(i))->pickup&ipENEMY)
+		if(((item*)items.spr(i))->pickup&ipENEMY && ((item*)items.spr(i))->screen_spawned == screen)
 		{
 			if(get_qr(qr_HIDECARRIEDITEMS))
 			{
@@ -21701,6 +21225,13 @@ void roaming_item()
 			}
 		}
 	}
+}
+
+void roaming_item()
+{
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		roaming_item(scr);
+	});
 }
 
 bool enemy::IsBigAnim()

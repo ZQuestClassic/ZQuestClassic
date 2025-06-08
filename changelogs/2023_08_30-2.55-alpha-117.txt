@@ -372,7 +372,7 @@ Screen Script dialog now new GUI, respects script metadata
 New "Screen Data" dialog
 update dmap editor to new GUI
 Fix hardcoded icons, no longer using custom codepoint strings.
-Merge New Subscreens (#879)
+Merge New Subscreens
 remove build version
 remove old project name "AEternal"
 replace "string.h" with "cstring"

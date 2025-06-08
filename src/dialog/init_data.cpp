@@ -16,7 +16,6 @@ using std::vector;
 
 extern bool saved;
 extern itemdata *itemsbuf;
-extern zcmodule moduledata;
 extern char *item_string[];
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
@@ -59,9 +58,19 @@ void InitDataDialog::setOfs(size_t ofs)
 		l_comp[q]->setVisible(vis);
 		l_bkey[q]->setVisible(vis);
 		l_mcguff[q]->setVisible(vis);
+		l_bkill[q]->setVisible(vis);
+		l_custom1[q]->setVisible(vis);
+		l_custom2[q]->setVisible(vis);
+		l_custom3[q]->setVisible(vis);
 		l_keys[q]->setVisible(vis);
 	}
 }
+
+static const GUI::ListData list_region_mapping
+{
+	{ "Full", REGION_MAPPING_FULL },
+	{ "Physical", REGION_MAPPING_PHYSICAL },
+};
 
 //{ Macros
 #define SBOMB_RATIO (local_zinit.bomb_ratio > 0 ? (local_zinit.mcounter[crBOMBS] / local_zinit.bomb_ratio) : local_zinit.mcounter[crSBOMBS])
@@ -155,43 +164,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::VAL_FIELD_IMPL(T minval, T maxval, 
 		{
 			*member = val;
 		}
-	);
-}
-
-std::shared_ptr<GUI::Widget> InitDataDialog::LEVEL_FIELD(int ind)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-
-	return Row(
-		padding = 0_px,
-		l_lab[ind] = Label(text = std::to_string(ind), width = 3_em, textAlign = 2),
-		l_maps[ind] = Checkbox(checked = get_bit(local_zinit.map,ind+levelsOffset),
-			onToggleFunc = [&, ind](bool state)
-			{
-				set_bit(local_zinit.map, ind+levelsOffset, state);
-			}),
-		l_comp[ind] = Checkbox(checked = get_bit(local_zinit.compass,ind+levelsOffset),
-			onToggleFunc = [&, ind](bool state)
-			{
-				set_bit(local_zinit.compass, ind+levelsOffset, state);
-			}),
-		l_bkey[ind] = Checkbox(checked = get_bit(local_zinit.boss_key,ind+levelsOffset),
-			onToggleFunc = [&, ind](bool state)
-			{
-				set_bit(local_zinit.boss_key, ind+levelsOffset, state);
-			}),
-		l_mcguff[ind] = Checkbox(checked = get_bit(local_zinit.mcguffin,ind+levelsOffset),
-			onToggleFunc = [&, ind](bool state)
-			{
-				set_bit(local_zinit.mcguffin, ind+levelsOffset, state);
-			}),
-		l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
-			val = local_zinit.level_keys[ind+levelsOffset], high = 255,
-			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_zinit.level_keys[ind+levelsOffset] = val;
-			})
 	);
 }
 
@@ -457,6 +429,51 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	
 	std::shared_ptr<GUI::TabPanel> tabs;
 	
+	std::shared_ptr<GUI::Grid> litem_grid = Rows_Columns<10, 6>(spacing = isZC ? 1_px : DEFAULT_PADDING);
+	// fill the litems via loop
+	for(int ind = 0; ind < 10; ++ind)
+	{
+		if(ind % 5 == 0) // add header
+		{
+			litem_grid->add(_d);
+			litem_grid->add(Label(text = "M", padding = 0_px));
+			litem_grid->add(Label(text = "C", padding = 0_px));
+			litem_grid->add(Label(text = "B", padding = 0_px));
+			litem_grid->add(Label(text = "T", padding = 0_px));
+			litem_grid->add(Label(text = "D", padding = 0_px));
+			litem_grid->add(Label(text = "C1", padding = 0_px));
+			litem_grid->add(Label(text = "C2", padding = 0_px));
+			litem_grid->add(Label(text = "C3", padding = 0_px));
+			litem_grid->add(Label(text = "Key", padding = 0_px));
+		}
+		#define LEVEL_CBOX(arr, flag) \
+		arr[ind] = Checkbox(checked = local_zinit.litems[ind+levelsOffset]&flag, \
+			padding = 0_px, \
+			onToggleFunc = [&, ind](bool state) \
+			{ \
+				SETFLAG(local_zinit.litems[ind+levelsOffset], flag, state); \
+			})
+		litem_grid->add(l_lab[ind] = Label(text = std::to_string(ind),
+			textAlign = 2, hAlign = 1.0, minwidth = 2_em
+		));
+		litem_grid->add(LEVEL_CBOX(l_maps, liMAP));
+		litem_grid->add(LEVEL_CBOX(l_comp, liCOMPASS));
+		litem_grid->add(LEVEL_CBOX(l_bkey, liBOSSKEY));
+		litem_grid->add(LEVEL_CBOX(l_mcguff, liTRIFORCE));
+		litem_grid->add(LEVEL_CBOX(l_bkill, liBOSS));
+		litem_grid->add(LEVEL_CBOX(l_custom1, liCUSTOM01));
+		litem_grid->add(LEVEL_CBOX(l_custom2, liCUSTOM02));
+		litem_grid->add(LEVEL_CBOX(l_custom3, liCUSTOM03));
+		litem_grid->add(l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
+			val = local_zinit.level_keys[ind+levelsOffset], high = 255, padding = 0_px,
+			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_zinit.level_keys[ind+levelsOffset] = val;
+			}
+		));
+		#undef LEVEL_CBOX
+	}
+	
 	window = Window(
 		padding = 3_px,
 		title = "Init Data",
@@ -488,33 +505,14 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						BTN_10(80),
 						BTN_10(90)
 					),
-					Columns<6>(
-						Row(
-							DummyWidget(width = 3_em),
-							Label(text = "M", textAlign = 0, width = 14_px+12_px),
-							Label(text = "C", textAlign = 0, width = 14_px+12_px),
-							Label(text = "B", textAlign = 0, width = 14_px+12_px),
-							Label(text = "T", textAlign = 0, width = 14_px+12_px),
-							Label(text = "Key", textAlign = 1, width = 2.5_em)
-						),
-						LEVEL_FIELD(0),
-						LEVEL_FIELD(1),
-						LEVEL_FIELD(2),
-						LEVEL_FIELD(3),
-						LEVEL_FIELD(4),
-						Row(
-							DummyWidget(width = 3_em),
-							Label(text = "M", textAlign = 0, width = 14_px+12_px),
-							Label(text = "C", textAlign = 0, width = 14_px+12_px),
-							Label(text = "B", textAlign = 0, width = 14_px+12_px),
-							Label(text = "T", textAlign = 0, width = 14_px+12_px),
-							Label(text = "Key", textAlign = 1, width = 2.5_em)
-						),
-						LEVEL_FIELD(5),
-						LEVEL_FIELD(6),
-						LEVEL_FIELD(7),
-						LEVEL_FIELD(8),
-						LEVEL_FIELD(9)
+					Frame(title = "Level Items",
+						info = "M = Map"
+							"\nC = Compass"
+							"\nB = Boss Key"
+							"\nT = Dungeon Treasure (McGuffin)"
+							"\nD = Boss Defeated"
+							"\nC1, C2, C3 = Custom LItems",
+						litem_grid
 					)
 				)),
 				TabRef(name = "Vars", TabPanel(ptr = &vartab,
@@ -633,6 +631,23 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								VAL_FIELD(word,"Light Wave Size:",0,65535,light_wave_size,false), INFOBTN("The max size of the light radius 'waves'." + QRHINT({qr_NEW_DARKROOM}))
 							)
 						)
+					)),
+					TabRef(name = "Regions", Row(
+						Column(vAlign = 0.0,
+							Rows<3>(
+								Label(text = "Region Mapping:"),
+								DropDownList(data = list_region_mapping,
+									selectedValue = local_zinit.region_mapping,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_zinit.region_mapping = val;
+									}
+								),
+								INFOBTN("In what way screens should be marked as visited."
+									"\nFull: Every screen in a region is mapped upon entry"
+									"\nPhysical: Only screens the Hero steps into are mapped")
+							)
+						)
 					))
 				))
 			),
@@ -686,10 +701,14 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				if(q+levelsOffset > 511)
 					break;
 				l_lab[q]->setText(std::to_string(q+levelsOffset));
-				l_maps[q]->setChecked(get_bit(local_zinit.map,q+levelsOffset));
-				l_comp[q]->setChecked(get_bit(local_zinit.compass,q+levelsOffset));
-				l_bkey[q]->setChecked(get_bit(local_zinit.boss_key,q+levelsOffset));
-				l_mcguff[q]->setChecked(get_bit(local_zinit.boss_key,q+levelsOffset));
+				l_maps[q]->setChecked(local_zinit.litems[q+levelsOffset] & liMAP);
+				l_comp[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCOMPASS);
+				l_bkey[q]->setChecked(local_zinit.litems[q+levelsOffset] & liBOSSKEY);
+				l_mcguff[q]->setChecked(local_zinit.litems[q+levelsOffset] & liTRIFORCE);
+				l_bkill[q]->setChecked(local_zinit.litems[q+levelsOffset] & liBOSS);
+				l_custom1[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCUSTOM01);
+				l_custom2[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCUSTOM02);
+				l_custom3[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCUSTOM03);
 				l_keys[q]->setVal(local_zinit.level_keys[q+levelsOffset]);
 			}
 		}

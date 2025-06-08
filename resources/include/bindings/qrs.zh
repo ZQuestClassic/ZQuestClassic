@@ -396,6 +396,13 @@ enum QR
 	qr_BROKEN_LIGHTBEAM_HITBOX,	// Compatibility (>>>) Broken light beam hitbox
 	qr_BROKEN_SWORD_SPIN_TRIGGERS,	// Compatibility (>>>) Broken Sword Triggers (spin-related)
 
+	qr_SCRIPTS_6_BIT_COLOR = 60*8, // Scripts use 6-bit color (0-63) instead of 8-bit (0-255)
+	qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, // Fix Hero Position Exposed To Scripts When Scrolling
+	qr_HIDE_BOTTOM_8_PIXELS, // Hide Bottom 8 Pixels
+	qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN, // Broken Script Drawing Bitmap Draw Origin
+	qr_INVERTED_DARK_COMBO_TRIGGERS, // Inverted Dark Combo Triggers
+	qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET, // Scripts Screen->DrawLight Functions Have No Offset
+
 	qr_OLD_SCRIPT_VOLUME = 70 * 8,	// Compatibility (>>>) Old (Buggy) ZScript Volume Access
 	qr_OLD_DMAP_INTRO_STRINGS,	// Compatibility (>>>) Old DMap Titles and Intros
 	qr_SCRIPTDRAWSFROZENMSG,	// ZScript (>>>) Scripts Draw During Frozen Messages
@@ -421,11 +428,11 @@ enum QR
 	qr_TRACESCRIPTIDS,			// ZScript (>>>) Print Script Metadata on Traces
 	qr_FIXDRUNKINPUTS,			// ZScript (>>>) Writing to INPUT Overrides Drunk State
 	qr_32BIT_BINARY,			// Compilation (>>>) Binary Operations use true 32-bit Int
-	qr_ALWAYS_DEALLOCATE_ARRAYS,		// ZScript (>>>) Always Deallocate Arrays
+	qr_ALWAYS_DEALLOCATE_ARRAYS,		// @deprected Defunct.
 	qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,	// ZScript (>>>) Hero OnDeath script runs AFTER engine death animation
 	qr_DISALLOW_SETTING_RAFTING,		// ZScript (>>>) Don't Allow Setting Action to Rafting
 	qr_WEAPONS_EXTRA_FRAME,			// ZScript (>>>) Weapons Live One Extra Frame With WDS_DEAD
-	qr_250WRITEEDEFSCRIPT,			// ZScript (>>>) Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences
+	qr_250WRITEEDEFSCRIPT,			// ZScript (>>>) Writing `npc->Defense[NPCD_SCRIPT]` Sets All Script Defenses
 	qr_SETENEMYWEAPONSPRITESONWPNCHANGE,	// ZScript (>>>) Writing npc->Weapon Sets its Weapon Sprite
 	qr_BROKENCHARINTDRAWING,		// ZScript (>>>) Broken DrawInteger and DrawCharacter Scaling
 	qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,	// ZScript (>>>) npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*
@@ -446,7 +453,7 @@ enum QR
 	qr_OLD_PRINTF_ARGS,	// ZScript (>>>) Old printf() args
 	qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN,	// ZScript (>>>) Passive Subscreen Script runs during wipes/refills
 	qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,	// ZScript (>>>) Writing Screen->EntryX, EntryY Resets Spawn Points
-	qr_LOG_INVALID_UID_LOAD,	// ZScript (>>>) Log on Loading Invalid UID
+	qr_LOG_INVALID_UID_LOAD,	// @deprecated Does nothing now.
 	qr_COMBODATA_INITD_MULT_TENK,	// ZScript (>>>) Broken Combodata->InitD[]
 	qr_ZS_NO_NEG_ARRAY,	// ZScript (>>>) Disable accessing negative array indices
 	qr_PRINTF_NO_0FILL,	// ZScript (>>>) No prinft() 0-fill

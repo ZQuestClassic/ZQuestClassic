@@ -1,8 +1,8 @@
-#include "bindings/sprite.zh"
-
 typedef itemsprite item;
 
-// An active item on the screen. See [Screen->LoadItem] and [Screen->CreateItem].
+// An active item on the screen.
+//
+// See [Screen->LoadItem] and [Screen->CreateItem].
 //
 // @zasm_ref REFITEM
 // @extends sprite
@@ -10,25 +10,25 @@ class itemsprite {
 	// @delete
 	internal itemsprite();
 
+	// @value [enum ItemID]
+
+	// @zasm_var ITEMID
+	internal int ID;
+
+	// @value [enum ItemType]
+
+	// @zasm_var ITEMFAMILY
+	internal int Type;
+
+	// Exactly the same as [Type] - use that instead.
+	//
+	// @zasm_var ITEMFAMILY
+	internal int Family;
+
 	// Max number of itemsprites currently allowed.
 	//
 	// @zasm_var SPRITEMAXITEM
 	internal int Max;
-
-	// The item ID to give when the item is collected.
-	//
-	// @zasm_var ITEMID
-	internal int ID;
-
-	// The type [itemdata] of the item. Uses the `IC_` constants.
-	//
-	// @zasm_var ITEMFAMILY
-	internal int Type;
-
-	// The type [itemdata] of the item. Uses the `IC_` constants.
-	//
-	// @zasm_var ITEMFAMILY
-	internal int Family;
 
 	// The item's level
 	//
@@ -71,9 +71,10 @@ class itemsprite {
 	// @zasm_var ITEMFLASH
 	internal bool Flash;
 
-	// The item pickup flags, as a bitwise flagset. Use the `IP_` constants to
-	// access. Take care when using any `INTERNAL` flags.
+	// The item pickup bitflags.
 	//
+	// @value [enum ItemPickupBitflags]
+
 	// @zasm_var ITEMPICKUP
 	internal int Pickup;
 
@@ -104,9 +105,10 @@ class itemsprite {
 	// @zasm_var ITEMPSTRING
 	internal int PickupString;
 
-	// The flags associated with the pickup string, as bitwise flags. Use the
-	// `IPSTR_` constants to access this.
+	// The bitflags associated with the pickup string.
 	//
+	// @value [enum PickupStringBitflags]
+
 	// @zasm_var ITEMPSTRINGFLAGS
 	internal int PickupStringFlags;
 
@@ -127,15 +129,13 @@ class itemsprite {
 	// @zasm_var ITEMFORCEGRAB
 	internal bool ForceGrab;
 
-	// @deprecated
+	// @deprecated - This is now just the internal engine ID, which is the same as doing `<int>some_sprite`.
 	// @zasm_var ITEMSCRIPTUID
 	internal const int UID;
 
-	// A flagset that determines how internal engine sizing of items is applied.
+	// Bitflags that determines how internal engine sizing of items is applied.
 	//
-	// Values are ORd together, as follows:
-	//
-	// @deprecated
+	// @deprecated Never implemented.
 	// @zasm_var ITEMOVERRIDEFLAGS
 	internal int SizeFlags;
 

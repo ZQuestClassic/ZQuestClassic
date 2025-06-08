@@ -174,3 +174,9 @@ For example:
 	auto x = Fast | Big; // inferred type is SomeBitflags
 	if (<error>x & Enemy</error>) // Errors, scripter accidentally used the wrong enum.
 		// ...
+
+
+Some helper functions are available for working with bitflags:
+
+* :ref:`ReadBitflags<globals_fun_readbitflags>`
+* :ref:`AdjustBitflags<globals_fun_adjustbitflags>`

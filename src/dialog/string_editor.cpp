@@ -16,8 +16,7 @@ extern std::map<int32_t, int32_t> msglistcache;
 extern std::string helpstr;
 
 std::string run_scc_dlg(MsgStr const* ref);
-char* encode_msg_str(std::string const& message);
-std::string parse_msg_str(std::string const& s);
+std::string parse_to_legacy_msg_str_encoding(std::string const& s);
 void strip_trailing_spaces(char *str);
 void strip_trailing_spaces(std::string& str);
 int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
@@ -56,7 +55,7 @@ StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t a
 	{
 		if(templateID > 0 && templateID < msg_count)
 			tmpMsgStr.copyStyle(MsgStrings[templateID]);
-		tmpMsgStr.s = "";
+		tmpMsgStr.setFromLegacyEncoding("");
 	}
 }
 
@@ -127,7 +126,8 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 	using GUI::Props::indx;
 	sorted_fontdd = zc_get_config("zquest","stringed_sorted_font",1);
 	
-	char* start_text = encode_msg_str(tmpMsgStr.s);
+	std::string str = tmpMsgStr.serialize();
+	const char* start_text = str.c_str();
 	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &stred_tab_1,
 		TabRef(name = "String", Column(
 			str_field = TextField(fitParent = true,
@@ -139,7 +139,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					std::string foo;
 					foo.assign(v);
 					preview->setText(foo);
-					tmpMsgStr.s = parse_msg_str(foo);
+					tmpMsgStr.setFromLegacyEncoding(parse_to_legacy_msg_str_encoding(foo));
 				}
 			),
 			preview = MsgPreview(data = &tmpMsgStr, indx = strIndex, text = start_text),
@@ -180,7 +180,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 							outstr = fullstr.substr(0, pos) + scc + fullstr.substr(pos);
 						str_field->setText(outstr);
 						preview->setText(outstr);
-						tmpMsgStr.s = parse_msg_str(outstr);
+						tmpMsgStr.setFromLegacyEncoding(parse_to_legacy_msg_str_encoding(outstr));
 					}),
 				Button(text = "Copy Text",
 					forceFitH = true,
@@ -197,7 +197,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						{
 							str_field->setText(tmp);
 							preview->setText(tmp);
-							tmpMsgStr.s = parse_msg_str(tmp);
+							tmpMsgStr.setFromLegacyEncoding(parse_to_legacy_msg_str_encoding(tmp));
 						}
 						else InfoDialog("Error","No text found on clipboard").show();
 					})

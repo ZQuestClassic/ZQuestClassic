@@ -31,7 +31,7 @@ from pathlib import Path
 
 from common import ZCTestCase
 
-ZSCRIPT_DATABASE_COMMIT = '5e34762ec467a5a500a4dc2c6655af762e1aab7e'
+ZSCRIPT_DATABASE_COMMIT = '68f3d886d7fd929038deb729f38c440ed0250fc0'
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -97,12 +97,11 @@ def intuit_imports(database_dir: Path, script_path: Path):
     if re.search(r'CF_MATRIX', code, re.IGNORECASE):
         except_for = [
             '00397-matrix-password-puzzle',
-            '00414-password-lock-script-the-disconnected-matrix',
+            '00414-matrix-password-puzzle-up-and-down',
         ]
         if not any(e in script_path.as_posix() for e in except_for):
             imports.append(
-                database_dir
-                / '00414-password-lock-script-the-disconnected-matrix/matrix40.z'
+                database_dir / '00414-matrix-password-puzzle-up-and-down/matrix50.z'
             )
 
     if re.search(r'LinkMovement', code, re.IGNORECASE):

@@ -13,6 +13,8 @@
 import argparse
 import json
 import os
+import platform
+import subprocess
 import sys
 import unittest
 
@@ -40,9 +42,33 @@ class TestZScript(ZCTestCase):
     def setUp(self):
         self.maxDiff = None
 
+    def test_zscript_vscode_extension(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        exe_name = 'npm.cmd' if platform.system() == 'Windows' else 'npm'
+        subprocess.check_call(
+            [exe_name, 'install'],
+            cwd=root_dir / 'vscode-extension',
+        )
+        subprocess.check_call(
+            [exe_name, 'run', 'compile'],
+            cwd=root_dir / 'vscode-extension',
+        )
+        subprocess.check_call(
+            [exe_name, 'run', 'test'],
+            cwd=root_dir / 'vscode-extension',
+            env={
+                **os.environ,
+                'ZC_DISABLE_DEBUG': '1',
+                'BUILD_FOLDER': str(run_target.get_build_folder()),
+            },
+        )
+
     def compile_script(self, script_path):
         # Change include paths to use resources/ directly, instead of possibly-stale stuff inside a build folder.
         include_paths = [
+            str(test_scripts_dir),
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
             str(test_scripts_dir / 'playground'),
@@ -83,7 +109,7 @@ class TestZScript(ZCTestCase):
                     c += recursive_len(child['children'])
                 return c
 
-        data = parse_json(stdout)
+        data = parse_json(stdout, context=f'stderr:\n\n{stderr}')
         metadata = data.get('metadata')
         if metadata:
             if elide_metadata:
@@ -115,7 +141,7 @@ class TestZScript(ZCTestCase):
         script_paths = list(test_scripts_dir.rglob('*.zs'))
         script_paths += list((test_scripts_dir / 'newbie_boss').rglob('*.z'))
         for script_path in script_paths:
-            if script_path.name in ['auto.zs', 'playground.zs']:
+            if script_path.name in ['auto.zs', 'playground.zs', 'z3.zs']:
                 continue
 
             with self.subTest(msg=f'compile {script_path.name}'):

@@ -1,6 +1,6 @@
 ; comparisons across blocks, returning comparison result as bool
 ; Source: stellar_seas_randomizer.qst/zasm-item-2-TidalGauntlet.txt pc 3715
-Function #0
+Function #0 (run_none-0)
     0: COMPARER        D2               D3          [Block 0 -> 1, 2]
     1: SETTRUEI        D2
     2: COMPAREV        D2               0

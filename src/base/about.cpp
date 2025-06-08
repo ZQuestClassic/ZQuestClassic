@@ -1,6 +1,6 @@
 #include "base/about.h"
-#include "metadata/versionsig.h"
 
+// Ex: mac, linux, windows-x86, windows-x64
 char const* getReleasePlatform()
 {
 #ifdef RELEASE_PLATFORM

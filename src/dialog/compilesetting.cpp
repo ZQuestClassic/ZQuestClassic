@@ -21,14 +21,6 @@ static const GUI::ListData list_halt
 	{ "Do Not Halt", 1 }
 };
 
-static const GUI::ListData list_headguard
-{
-	{ "No Guard", 0 },
-	{ "Ignore", 1 },
-	{ "Error", 2 },
-	{ "Warn", 3 },
-};
-
 static const GUI::ListData list_off_warn_err
 {
 	{ "Nothing", 0 },
@@ -58,10 +50,9 @@ GUI::ListData compileSettingList
 void CompileSettingsDlg::load()
 {
 	dd_cfg[0] = zc_get_config("Compiler","NO_ERROR_HALT",0,App::zscript);
-	dd_cfg[1] = zc_get_config("Compiler","HEADER_GUARD",1,App::zscript);
-	dd_cfg[2] = zc_get_config("Compiler","WARN_DEPRECATED",0,App::zscript);
-	dd_cfg[3] = zc_get_config("Compiler","ON_MISSING_RETURN",2,App::zscript);
-	dd_cfg[4] = zc_get_config("Compiler","LEGACY_ARRAYS",3,App::zscript);
+	dd_cfg[1] = zc_get_config("Compiler","WARN_DEPRECATED",0,App::zscript);
+	dd_cfg[2] = zc_get_config("Compiler","ON_MISSING_RETURN",2,App::zscript);
+	dd_cfg[3] = zc_get_config("Compiler","LEGACY_ARRAYS",3,App::zscript);
 	old_timeout_secs = timeout_secs = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
 	memcpy(old_dd_cfg,dd_cfg,sizeof(dd_cfg));
 	
@@ -83,13 +74,11 @@ void CompileSettingsDlg::save()
 	if(dd_cfg[0] != old_dd_cfg[0])
 		zc_set_config("Compiler","NO_ERROR_HALT",dd_cfg[0],App::zscript);
 	if(dd_cfg[1] != old_dd_cfg[1])
-		zc_set_config("Compiler","HEADER_GUARD",dd_cfg[1],App::zscript);
+		zc_set_config("Compiler","WARN_DEPRECATED",dd_cfg[1],App::zscript);
 	if(dd_cfg[2] != old_dd_cfg[2])
-		zc_set_config("Compiler","WARN_DEPRECATED",dd_cfg[2],App::zscript);
+		zc_set_config("Compiler","ON_MISSING_RETURN",dd_cfg[2],App::zscript);
 	if(dd_cfg[3] != old_dd_cfg[3])
-		zc_set_config("Compiler","ON_MISSING_RETURN",dd_cfg[3],App::zscript);
-	if(dd_cfg[4] != old_dd_cfg[4])
-		zc_set_config("Compiler","LEGACY_ARRAYS",dd_cfg[4],App::zscript);
+		zc_set_config("Compiler","LEGACY_ARRAYS",dd_cfg[3],App::zscript);
 	if(timeout_secs != old_timeout_secs)
 		zc_set_config("Compiler","compiler_timeout",timeout_secs,App::zscript);
 	
@@ -142,29 +131,14 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 								dd_cfg[0] = val;
 							}
 						),
-						INFOBTN("Whether to halt on the first error, or continue to try to collect more error messages."),
 						//
-						Label(text = "Header Guard:", hAlign = 1.0),
-						DropDownList(data = list_headguard,
+						Label(text = "On Deprecated:", hAlign = 1.0),
+						DropDownList(data = list_off_warn_err,
 							fitParent = true,
 							selectedValue = dd_cfg[1],
 							onSelectFunc = [&](int32_t val)
 							{
 								dd_cfg[1] = val;
-							}
-						),
-						INFOBTN("How to behave when the same file is included multiple times.\n"
-							"Disable means it will just include multiple times, often causing duplication errors."
-							"Enable will ignore duplicates."
-							"Error/Warn will ignore duplicates, but throw an error/warning respectively."),
-						//
-						Label(text = "On Deprecated:", hAlign = 1.0),
-						DropDownList(data = list_off_warn_err,
-							fitParent = true,
-							selectedValue = dd_cfg[2],
-							onSelectFunc = [&](int32_t val)
-							{
-								dd_cfg[2] = val;
 							}
 						),
 						INFOBTN("How to behave when a deprecated function is used. These are 'old' functions that are"
@@ -176,10 +150,10 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 						Label(text = "On Missing Return:", hAlign = 1.0),
 						DropDownList(data = list_off_warn_err,
 							fitParent = true,
-							selectedValue = dd_cfg[3],
+							selectedValue = dd_cfg[2],
 							onSelectFunc = [&](int32_t val)
 							{
-								dd_cfg[3] = val;
+								dd_cfg[2] = val;
 							}
 						),
 						INFOBTN("How to behave when a function is missing a return statement. If a non-void function"
@@ -201,10 +175,10 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 						Label(text = "Legacy Arrays", hAlign = 1.0),
 						DropDownList(data = list_deprecated_features,
 							fitParent = true,
-							selectedValue = dd_cfg[4],
+							selectedValue = dd_cfg[3],
 							onSelectFunc = [&](int32_t val)
 							{
-								dd_cfg[4] = val;
+								dd_cfg[3] = val;
 							}
 						),
 						INFOBTN("Allows array variables to be declared and used without an explicit array type."

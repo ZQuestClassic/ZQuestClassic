@@ -61,7 +61,7 @@ from typing import List
 
 import cutie
 
-from common import get_recent_release_tag
+from common import get_recent_release_tag, get_release_platform
 from compare_replays import (
     collect_many_test_results_from_ci,
     collect_many_test_results_from_dir,
@@ -180,6 +180,10 @@ parser.add_argument(
     '--no_console', action='store_true', help='Prevent the debug console from opening'
 )
 parser.add_argument(
+    '--baseline_version',
+    help='The ZC version to use for generating the baseline for the compare report',
+)
+parser.add_argument(
     '--no_report_on_failure',
     action='store_true',
     help='Do not prompt to create compare report',
@@ -200,7 +204,9 @@ exclgroup.add_argument(
     help='Play back the replay, without updating or asserting.',
 )
 exclgroup.add_argument(
-    '--update', action='store_true', help='Update the replays, accepting any graphical changes (unless --frame is also set, see comment at top of run_replay_tests.py).'
+    '--update',
+    action='store_true',
+    help='Update the replays, accepting any graphical changes (unless --frame is also set, see comment at top of run_replay_tests.py).',
 )
 exclgroup.add_argument(
     '--assert',
@@ -225,6 +231,11 @@ parser.add_argument(
     nargs='*',
     help='If provided, will only run these replays rather than those in tests/replays',
 )
+parser.add_argument(
+    '--root_replays_folder',
+    type=dir_path,
+    help='Replays run names are made by taking the relative path to this folder. Only used if `replays` positional arg is used',
+)
 
 args = parser.parse_args()
 
@@ -234,7 +245,12 @@ if args.show:
 
 if args.replays:
     tests = [Path(x) for x in args.replays]
-    replays_dir = tests[0].parent
+    if args.root_replays_folder:
+        replays_dir = args.root_replays_folder
+    elif len(tests) > 1:
+        replays_dir = Path(os.path.commonpath(tests))
+    else:
+        replays_dir = tests[0].parent
 else:
     tests = list(replays_dir.rglob('*.zplay'))
 
@@ -266,6 +282,14 @@ def group_arg(raw_values: List[str], allow_concat=False):
             if '=' in raw_value:
                 for replay, value in [raw_value.split('=')]:
                     replay_full_path = replays_dir / replay
+
+                    # If absolute path can't be found, use a looser match of just the filename.
+                    if replay_full_path not in tests:
+                        for test in tests:
+                            if test.name == Path(replay).name:
+                                replay_full_path = test
+                                break
+
                     if replay_full_path not in tests:
                         raise Exception(f'unknown test {replay}')
                     if replay_full_path in arg_by_replay:
@@ -583,17 +607,21 @@ def prompt_to_create_compare_report():
     # print(selected_test_names)
 
     test_runs = []
+    selected_index = None
 
-    print('How should we get the baseline run?')
-    selected_index = cutie.select(
-        [
-            'Collect from disk',
-            'Run locally',
-            'Run new job in GitHub Actions (requires token)',
-            'Collect from finished job in GitHub Actions (requires token)',
-        ]
-    )
-    print()
+    if args.baseline_version:
+        selected_index = 1
+    else:
+        print('How should we get the baseline run?')
+        selected_index = cutie.select(
+            [
+                'Collect from disk',
+                'Run locally',
+                'Run new job in GitHub Actions (requires token)',
+                'Collect from finished job in GitHub Actions (requires token)',
+            ]
+        )
+        print()
 
     local_baseline_dir = root_dir / '.tmp/local-baseline'
 
@@ -609,49 +637,56 @@ def prompt_to_create_compare_report():
         print()
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
-        most_recent_nightly = get_recent_release_tag(
-            ['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*']
-        )
-        most_recent_stable = get_recent_release_tag(
-            [
-                '--match',
-                '*.*.*',
-                '--match',
-                '2.55-alpha-*',
-                '--exclude',
-                '*.*.*-nightly*',
-                '--exclude',
-                '*.*.*-prerelease*',
-            ]
-        )
-        print('Select a release build to use: ')
-        selected_index = cutie.select(
-            [
-                # TODO
-                # 'Most recent passing build from CI',
-                f'Most recent nightly ({most_recent_nightly})',
-                f'Most recent stable ({most_recent_stable})',
-            ]
-        )
-        print()
-
-        if selected_index == 0:
-            tag = most_recent_nightly
-        elif selected_index == 1:
-            tag = most_recent_stable
-
-        system = platform.system()
-        if system == 'Darwin':
-            channel = 'mac'
-        elif system == 'Windows':
-            channel = 'windows'
-        elif system == 'Linux':
-            channel = 'linux'
+        if args.baseline_version:
+            tag = args.baseline_version
+            print(f'using baseline version: {tag}\n')
         else:
-            raise Exception(f'unexpected system: {system}')
+            # Get latest tags.
+            subprocess.run(
+                ['git', 'fetch', 'upstream'],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
 
-        build_dir = archives.download(tag, channel)
-        if channel == 'mac':
+            most_recent_nightly = get_recent_release_tag(
+                ['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*']
+            )
+            try:
+                archives_255_output = subprocess.check_output(
+                    [
+                        'python',
+                        script_dir / '../scripts/archives.py',
+                        'list',
+                        '--channel',
+                        '2.55',
+                    ],
+                    encoding='utf-8',
+                ).strip()
+                most_recent_stable = archives_255_output.splitlines()[-1].split(' ')[1]
+            except e as Exception:
+                print('error finding latest stable version, using 2.55.9 instead')
+                print(e)
+                most_recent_stable = '2.55.9'
+
+            print('Select a release build to use: ')
+            selected_index = cutie.select(
+                [
+                    # TODO
+                    # 'Most recent passing build from CI',
+                    f'Most recent nightly ({most_recent_nightly})',
+                    f'Most recent stable ({most_recent_stable})',
+                ]
+            )
+            print()
+
+            if selected_index == 0:
+                tag = most_recent_nightly
+            elif selected_index == 1:
+                tag = most_recent_stable
+
+        release_platform = get_release_platform()
+        build_dir = archives.download(tag, release_platform)
+        if release_platform == 'mac':
             zc_app_path = next(build_dir.glob('*.app'))
             build_dir = zc_app_path / 'Contents/Resources'
 
@@ -665,6 +700,8 @@ def prompt_to_create_compare_report():
             str(build_dir),
             '--test_results_folder',
             str(local_baseline_dir),
+            '--root_replays_folder',
+            str(replays_dir),
             '--retries=2',
             *get_args_for_collect_baseline_from_test_results([test_results_path]),
         ]
@@ -696,6 +733,19 @@ def prompt_to_create_compare_report():
 
     create_compare_report(test_runs)
     start_webserver()
+
+
+def is_known_failure_test(run: RunResult):
+    if run.success:
+        return False
+
+    # Example:
+    # if run.name == 'triggers.zplay' and run.unexpected_gfx_segments == [[11154, 11217]]:
+    #     print('!!! filtering out known replay test failure !!!')
+    #     print('dithered lighting is off-by-some only during scrolling')
+    #     return True
+
+    return False
 
 
 if test_results_dir.exists() and next(
@@ -851,6 +901,9 @@ class ProgressDisplay:
 
 
 def should_consider_failure(run: RunResult):
+    if is_known_failure_test(run):
+        return False
+
     if not run.success:
         return True
 
@@ -943,7 +996,15 @@ for result in test_results.runs[-1]:
         print(f'failure: {result.name}')
 
         if result.exceptions:
-            print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
+            title = 'EXCEPTIONS'
+            length = len(title) * 2
+            print()
+            print('=' * length)
+            print(title.center(length, '='))
+            print('=' * length)
+            print()
+            for exception in result.exceptions:
+                print(exception)
 
         def print_nicely(title: str, path: Path):
             if not path.exists():
@@ -972,12 +1033,7 @@ if mode == 'assert':
         print('all replay tests passed')
     else:
         print(f'{len(failing_replays)} replay tests failed')
-        if (
-            not is_ci
-            and not args.no_report_on_failure
-            and sys.stdout.isatty()
-            and replays_dir == script_dir / 'replays'
-        ):
+        if not is_ci and not args.no_report_on_failure and sys.stdout.isatty():
             prompt_to_create_compare_report()
         exit(2)
 else:

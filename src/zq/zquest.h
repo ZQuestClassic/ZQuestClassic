@@ -148,12 +148,13 @@ extern PALETTE RAMpal;
 extern midi_info Midi_Info;
 extern bool zq_showpal;
 extern bool zoomed_minimap;
+extern int32_t scrolling_destdmap, cur_dmap;
 
 
 extern int32_t alignment_arrow_timer;
 extern int32_t  Flip,Combo,CSet;
 extern int32_t  Flags,Flag,menutype;
-extern int32_t MouseScroll, SavePaths, CycleOn, NoScreenPreview,WarnOnInitChanged,
+extern int32_t MouseScroll, SavePaths, CycleOn, NoScreenPreview,
 	DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags,DragCenterOfSquares;
 extern uint8_t InvalidBG;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
@@ -483,8 +484,6 @@ int32_t onImportEWPNScript();
 int32_t onImportGScript();
 int32_t onCompileScript();
 int32_t onSlotPreview();
-int32_t onSlotAssign();
-int32_t onImportZASM();
 
 
 typedef struct item_struct
@@ -557,11 +556,7 @@ void build_biw_list();
 const char *weaponlist(int32_t index, int32_t *list_size);
 const char *weaponlist_num(int32_t index, int32_t *list_size);
 
-//char *doors_string[8]={"wall","passage","locked","shutter","bombable","walk thru","1-way shutter","boss"};
-const char *doorslist(int32_t index, int32_t *list_size);
-void edit_door(int32_t side);
 int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
-const char *doorcombosetlist(int32_t index, int32_t *list_size);
 int32_t onDoors();
 int32_t onScrData();
 int32_t onScreenScript();
@@ -610,6 +605,7 @@ int32_t onToggleGrid(bool color);
 int32_t onToggleGrid();
 int32_t onToggleShowScripts();
 int32_t onToggleScreenGrid();
+int32_t onToggleRegionGrid();
 int32_t onToggleCurrentScreenOutline();
 int32_t onToggleShowSquares();
 int32_t onToggleShowFFCs();
@@ -654,8 +650,6 @@ int32_t onEditSFX(int32_t index);
 
 void fix_dcs(int32_t index, int32_t dir);
 void editdoorcomboset(int32_t index);
-
-const char *doorcombosetlist(int32_t index, int32_t *list_size);
 
 int32_t doorcombosetlist_del();
 int32_t copydcs();

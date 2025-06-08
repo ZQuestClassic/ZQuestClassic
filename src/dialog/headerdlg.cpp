@@ -13,7 +13,7 @@ void call_header_dlg()
 	sprintf(zver_str,"%d.%02X (Build %d)%s",header.zelda_version>>8,header.zelda_version&0xFF,header.build,alphastr);
 	std::string startvals[5] = { std::string(header.version), std::string(header.minver), std::string(header.title), std::string(header.author), std::to_string(header.quest_number) };
 	HeaderDialog(header.getVerStr(), startvals,
-		[](std::string_view vals[5])
+		[](std::string_view vals[4])
 		{
 			saved = false;
 
@@ -25,16 +25,13 @@ void call_header_dlg()
 			header.title[vals[2].size()] = 0;
 			vals[3].copy(header.author, 64);
 			header.author[vals[3].size()] = 0;
-			char tmp[8] = {0};
-			vals[4].copy(tmp, 7);
-			header.quest_number=atoi(tmp);
 		}).show();
 }
 
-HeaderDialog::HeaderDialog(std::string verstr, std::string initVals[5], std::function<void(std::string_view[5])> setVals):
+HeaderDialog::HeaderDialog(std::string verstr, std::string initVals[4], std::function<void(std::string_view[4])> setVals):
 	verstr(verstr), setVals(setVals)
 {
-	for (int32_t q = 0; q < 5; ++q)
+	for (int32_t q = 0; q < 4; ++q)
 		vals[q] = initVals[q];
 }
 
@@ -65,14 +62,9 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 								InfoDialog("Quest Version","The version number of your quest. This is stored in save files, and is used for comparing with 'Min. Ver'").show();
 							}),
 						//
-						Label(text = "Quest Num:", rightPadding = 0_px, hAlign = 1.0),
-						questNum = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, maxLength = 9, text = vals[4]),
-						Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?",
-							onPressFunc = []()
-							{
-								InfoDialog("Quest Progression Number","This value is used by module-based quests, such as '1st.qst'. Unless you know what you are doing, leave this at '0'!\n\n"
-									"This *should* be deprecated.").show();
-							}),
+						DummyWidget(),
+						DummyWidget(),
+						DummyWidget(),
 						//
 						Label(text = "Min. Ver:", rightPadding = 0_px, hAlign = 1.0),
 						minRev = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, maxLength = 16, text = vals[1]),
@@ -168,9 +160,9 @@ bool HeaderDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	}
 	case message::OK:
 		{
-			std::string_view newVals[5] = {
+			std::string_view newVals[4] = {
 				questRev->getText(), minRev->getText(), titlestr->getText(),
-				author->getText(), questNum->getText()
+				author->getText()
 			};
 			setVals(newVals);
 		}

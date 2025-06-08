@@ -291,12 +291,12 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 		
 		//The array iter declaration
 		ASTDataDecl* indxdecl = new ASTDataDecl(host.location);
-		indxdecl->identifier = new ASTString("__LOOP_ITER", host.location);
+		indxdecl->identifier = new ASTString("__LOOP_ITER", host.identifier->location);
 		indxdecl->baseType = new ASTDataType(DataType::FLOAT, host.location);
 		host.indxdecl = indxdecl;
 		//The array holder declaration
 		ASTDataDecl* arrdecl = new ASTDataDecl(host.location);
-		arrdecl->identifier = new ASTString("__LOOP_ARR", host.location);
+		arrdecl->identifier = new ASTString("__LOOP_ARR", host.identifier->location);
 		arrdecl->setInitializer(host.arrExpr.clone());
 		arrdecl->baseType = new ASTDataType(arrtype, host.location);
 		host.arrdecl = arrdecl;
@@ -981,11 +981,8 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	{
 		DataType const* getType = (*it)->getReadType(scope, this);
 		if(getType)
-			checkCast(*getType, *paramTypes[parcnt], &host);
+			checkCast(*getType, *paramTypes[parcnt], *it);
 		if(breakRecursion(host)) return;
-		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
-		assert(optVal);
-		host.optvals.push_back(*optVal);
 	}
 	if(breakRecursion(host)) return;
 
@@ -1146,8 +1143,7 @@ void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)
 
 void SemanticAnalyzer::caseImportDecl(ASTImportDecl& host, void*)
 {
-	//Check if the import is valid, or to be stopped by header guard. -V
-	if(getRoot(*scope)->checkImport(&host, *lookupOption(*scope, CompileOption::OPT_HEADER_GUARD) / 10000.0, this))
+	if (getRoot(*scope)->checkImport(&host, this))
 	{
 		RecursiveVisitor::caseImportDecl(host);
 	}
@@ -1764,6 +1760,30 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
 	if(host.binding->getFlag(FUNCFLAG_READ_ONLY))
 		handleError(CompileError::ReadOnly(&host, host.binding->getUnaliasedSignature().asString()));
+
+	if (!host.binding->node || host.binding->getFlag(FUNCFLAG_VARARGS))
+		return;
+
+	auto num_params = host.binding->paramTypes.size();
+	auto num_required_params = host.binding->paramTypes.size() - host.binding->numOptionalParams;
+	auto num_provided_params = host.parameters.size();
+	auto& optparams = host.binding->node->optparams;
+
+	for (int i = num_provided_params; i < num_params; i++)
+	{
+		auto* p = optparams[i - num_required_params];
+		DataType const* getType = p->getReadType(scope, this);
+		if(getType)
+			checkCast(*getType, *host.binding->paramTypes[i], &host);
+		if(breakRecursion(host)) return;
+
+		auto* new_node = p->clone();
+		if (auto p = dynamic_cast<ASTExprCall*>(new_node))
+			p->binding = nullptr;
+		host.parameters.push_back(new_node);
+		visit(new_node, param);
+		if(breakRecursion(host)) return;
+	}
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)

@@ -1,0 +1,827 @@
+stderr:
+
+Compiling 'viewport.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 21,
+    "symbols": 90,
+    "identifiers": 266,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+PUSHR REFDMAPDATA; void run() Body Start
+PUSHARGSV 0 0.0004
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE D2 0.0003
+LOAD D2 0.0003; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0
+STORE D2 0.0002
+WRITEPODSTRING D2 "[Test] Running %s\n"
+LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+LOAD D2 0.0003
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0.0002
+DEALLOCATEMEMR D3
+LOAD D2 0.0003; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() #421 Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 38 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; if() #421 Body Start
+STORE D2 0
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #421 Body End
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() #2 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 60 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
+GOTO 52; while() #2 End
+CALLFUNC 0.0686; UsrFunc[void End()] Call AND [Opt:NeverRet]
+LOAD D3 0.0003
+DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
+PUSHR REFLWPN; void run() Body Start
+PUSHARGSV 0 0.0004
+SETR D4 SP2
+LOAD D2 0.0004
+PUSHR D2
+POP D2
+SETR VIEWPORT_TARGET D2
+SETV D2 1
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP D2
+SETR DISABLEBUTTON D2
+SETV D2 1
+PUSHR D2
+SETV D2 1
+PUSHR D2
+POP D0
+POP D2
+SETR DISABLEBUTTON D2
+SETV D2 1
+PUSHR D2
+SETV D2 2
+PUSHR D2
+POP D0
+POP D2
+SETR DISABLEBUTTON D2
+SETV D2 1
+PUSHR D2
+SETV D2 3
+PUSHR D2
+POP D0
+POP D2
+SETR DISABLEBUTTON D2
+STOREV 0 0.0003
+STOREV 0 0.0002
+STOREV 0 0.0001
+LOAD D2 0.0004; while() #3 Test
+PUSHR D2
+POP REFLWPN
+SETR D2 LWPNDEAD
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 256 ==; Test 'while'
+LOAD D2 0.0002; if() #422 Test AND while() #3 Body Start
+MODV D2 60
+COMPAREV D2 0
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 117 ==; Test 'if'
+SETV D2 59; InlineFunc[void Audio::PlaySound(int)] Params AND if() #422 Body Start
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #422 Body End
+LOAD D2 0.0004; if() #97 Test
+PUSHR D2
+POP REFLWPN
+SETR D2 LWPNVX
+COMPAREV D2 0
+GOTOCMP 168 ==; Test 'if'
+SETV D2 0; if() #423 Test AND if() #97 Body Start
+PUSHR D2
+POP D0
+SETR D2 BUTTONINPUT
+COMPAREV D2 0
+GOTOCMP 145 ==; Test 'if'
+LOAD D2 0.0004; if() #423 Body Start
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+SUBV D2 1
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+LOAD D2 0.0003
+SUBV D2 1
+STORE D2 0.0003; if() #423 Body End
+SETV D2 1; if() #424 Test
+PUSHR D2
+POP D0
+SETR D2 BUTTONINPUT
+COMPAREV D2 0
+GOTOCMP 212 ==; Test 'if'
+LOAD D2 0.0004; if() #424 Body Start
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+ADDV D2 1
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+LOAD D2 0.0003
+ADDV D2 1
+STORE D2 0.0003; if() #424 Body End
+GOTO 212; if() #97 Body End
+SETV D2 2; if() #425 Test AND if() #97 Else Start
+PUSHR D2
+POP D0
+SETR D2 BUTTONINPUT
+COMPAREV D2 0
+GOTOCMP 190 ==; Test 'if'
+LOAD D2 0.0004; if() #425 Body Start
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_X
+SUBV D2 1
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+LOAD D2 0.0003
+ADDV D2 1
+STORE D2 0.0003; if() #425 Body End
+SETV D2 3; if() #426 Test
+PUSHR D2
+POP D0
+SETR D2 BUTTONINPUT
+COMPAREV D2 0
+GOTOCMP 212 ==; Test 'if'
+LOAD D2 0.0004; if() #426 Body Start
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_X
+ADDV D2 1
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+LOAD D2 0.0003
+SUBV D2 1
+STORE D2 0.0003; if() #426 Body End
+SETV D2 4; if() #97 Else End AND if() #427 Test
+PUSHR D2
+POP D0
+SETR D2 BUTTONINPUT
+COMPAREV D2 0
+GOTOCMP 221 ==; Test 'if'
+SETV D2 1; if() #427 Body Start
+STORE D2 0.0001
+GOTO 256; break 1; AND if() #427 Body End
+LOAD D2 0.0003
+PUSHR D2
+LOAD D2 0.0002; InlineFunc[int Cos(int)] Params Start
+PUSHR D2
+ADDV D2 1
+STORE D2 0.0002
+POP D2
+MULTV D2 15
+SETR D3 D2; InlineFunc[int Cos(int)] Params End
+COSR D2 D3; InlineFunc[int Cos(int)] Body
+MULTV D2 10
+SETV D2 10
+PUSHR D2
+LOAD D2 0.0002; InlineFunc[int Cos(int)] Params Start
+PUSHR D2
+ADDV D2 1
+STORE D2 0.0002
+POP D2
+MULTV D2 15
+SETR D3 D2; InlineFunc[int Cos(int)] Params End
+COSR D2 D3; InlineFunc[int Cos(int)] Body
+POP D3
+MULTR D2 D3
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_ROTATION D2
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
+GOTO 101; while() #3 End
+LOAD D2 0.0001; if() #428 Test
+COMPAREV D2 0
+GOTOCMP 318 ==; Test 'if'
+SETV D2 4; InlineFunc[lweapon screendata::CreateLWeapon(int)] Params AND if() #428 Body Start
+CREATELWEAPONR D2; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body Start
+SETR D2 REFLWPN; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body End
+STORE D2 0
+LOAD D2 0.0004
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_X
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_X D2
+LOAD D2 0.0004
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_Y D2
+SETV D2 3; InlineFunc[void Audio::PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
+SETV D2 1
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_DRAW_STYLE D2
+SETV D2 0
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFLWPN
+SETR LWPNVX D2
+SETV D2 0
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFLWPN
+SETR LWPNVY D2
+SETV D2 30; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body AND if() #428 Body End
+SETV D2 0
+PUSHR D2
+SETV D2 0
+PUSHR D2
+POP D0
+POP D2
+SETR DISABLEBUTTON D2
+SETV D2 0
+PUSHR D2
+SETV D2 1
+PUSHR D2
+POP D0
+POP D2
+SETR DISABLEBUTTON D2
+SETV D2 0
+PUSHR D2
+SETV D2 2
+PUSHR D2
+POP D0
+POP D2
+SETR DISABLEBUTTON D2
+SETV D2 0
+PUSHR D2
+SETV D2 3
+PUSHR D2
+POP D0
+POP D2
+SETR DISABLEBUTTON D2
+LOAD D2 0.0004; InlineFunc[void lweapon::Remove()] Params Start
+SETR REFLWPN D2; InlineFunc[void lweapon::Remove()] Params End
+LWPNDEL; InlineFunc[void lweapon::Remove()] Body
+POPARGS D5 0.0005
+QUIT; void run() Body End
+PUSHR REFGENERICDATA; void run() Body Start
+PUSHARGSV 0 0.0006
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0698; UsrFunc[void Init(int)] Call
+POP D4
+STOREV 0 0.0005
+SETV D2 5; InlineFunc[dmapdata Game::LoadDMapData(int)] Params
+LOADDMAPDATAR D2; InlineFunc[dmapdata Game::LoadDMapData(int)] Body Start
+SETR D2 REFDMAPDATA; InlineFunc[dmapdata Game::LoadDMapData(int)] Body End
+PUSHR D2
+POP REFDMAPDATA
+SETR D2 DMAPDATAMAP
+STORE D2 0.0004
+STOREV 0 0.0003; for() #154 setup
+LOAD D2 0.0003; for() #154 LoopTest
+COMPAREV D2 4
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 407 ==; for() #154 TestFail?
+STOREV 0 0.0002; for() #155 setup AND for() #154 Body Start
+LOAD D2 0.0002; for() #155 LoopTest
+COMPAREV D2 4
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 403 ==; for() #155 TestFail?
+LOAD D2 0.0004; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start AND for() #155 Body Start
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0003
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0002
+MULTV D2 16
+POP D3
+ADDR D2 D3
+SETR D1 D2; InlineFunc[mapdata Game::LoadMapData(int, int)] Params End
+POP D0; InlineFunc[mapdata Game::LoadMapData(int, int)] Body Start
+SETR D2 LOADMAPDATA; InlineFunc[mapdata Game::LoadMapData(int, int)] Body End
+STORE D2 0.0001
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[void fillScreen(mapdata)] Params Start
+PUSHR D2; UsrFunc[void fillScreen(mapdata)] Params End
+CALLFUNC 0.0625; UsrFunc[void fillScreen(mapdata)] Call
+POP D4; for() #155 Body End
+LOAD D2 0.0002; for() #155 LoopIncrement
+ADDV D2 1
+STORE D2 0.0002
+GOTO 373; for() #155 End
+LOAD D2 0.0003; for() #154 Body End AND for() #154 LoopIncrement
+ADDV D2 1
+STORE D2 0.0003
+GOTO 367; for() #154 End
+PUSHR D4
+LOAD D2 0.0005; UsrFunc[void loadRegion(int, int)] Params Start
+PUSHR D2
+PUSHV 4; UsrFunc[void loadRegion(int, int)] Params End
+CALLFUNC 0.0724; UsrFunc[void loadRegion(int, int)] Call
+POP D4
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
+SETV D2 18; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body
+SETV D2 0.0002
+PUSHR D2
+POP D2
+SETR VIEWPORT_MODE D2
+STOREV 20 0.0003
+STOREV 0 0.0002
+STOREV 5 0.0001
+STOREV 0 0; for() #156 setup
+LOAD D2 0; for() #156 LoopTest
+COMPAREV D2 180
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 505 ==; for() #156 TestFail?
+SETV D2 0.0001; for() #156 Body Start
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_X
+PUSHR D2
+SETR D2 VIEWPORT_WIDTH
+DIVV D2 2
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0003
+PUSHR D2
+LOAD D2 0.0002; InlineFunc[int Cos(int)] Params Start
+SETR D3 D2; InlineFunc[int Cos(int)] Params End
+COSR D2 D3; InlineFunc[int Cos(int)] Body
+POP D3
+MULTR D2 D3
+POP D3
+ADDR D2 D3
+PUSHR D2
+POP D2
+SETR VIEWPORT_X D2
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
+PUSHR D2
+SETR D2 VIEWPORT_HEIGHT
+DIVV D2 2
+POP D3
+SUBR D3 D2
+SETR D2 D3
+PUSHR D2
+LOAD D2 0.0003
+PUSHR D2
+LOAD D2 0.0002; InlineFunc[int Sin(int)] Params Start
+SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SINR D2 D3; InlineFunc[int Sin(int)] Body
+POP D3
+MULTR D2 D3
+POP D3
+ADDR D2 D3
+PUSHR D2
+POP D2
+SETR VIEWPORT_Y D2
+LOAD D2 0.0002
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+ADDR D2 D3
+STORE D2 0.0002
+LOAD D2 0.0002; if() #98 Test
+COMPAREV D2 -360
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 492 ==; Test 'if'
+LOAD D2 0.0002; if() #98 Body Start
+ADDV D2 360
+STORE D2 0.0002
+GOTO 500; if() #98 Body End
+LOAD D2 0.0002; if() #429 Test AND if() #98 Else Start
+COMPAREV D2 360
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 500 ==; Test 'if'
+LOAD D2 0.0002; if() #429 Body Start
+SUBV D2 360
+STORE D2 0.0002; if() #429 Body End
+WAITFRAME; if() #98 Else End AND InlineFunc[void Waitframe()] Body AND for() #156 Body End
+LOAD D2 0; for() #156 LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 426; for() #156 End
+SETV D2 0
+PUSHR D2
+POP D2
+SETR VIEWPORT_MODE D2
+SETV D2 1
+PUSHR D2
+SETV D2 15; InlineFunc[itemdata Game::LoadItemData(int)] Params
+LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
+SETR D2 REFITEMCLASS; InlineFunc[itemdata Game::LoadItemData(int)] Body End
+PUSHR D2
+POP REFITEMCLASS
+SETR D2 IDATAID
+PUSHR D2
+POP D0
+POP D2
+SETR LINKITEMD D2
+SETV D2 1
+PUSHR D2
+SETV D2 13; InlineFunc[itemdata Game::LoadItemData(int)] Params
+LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
+SETR D2 REFITEMCLASS; InlineFunc[itemdata Game::LoadItemData(int)] Body End
+PUSHR D2
+POP REFITEMCLASS
+SETR D2 IDATAID
+PUSHR D2
+POP D0
+POP D2
+SETR LINKITEMD D2
+SETV D2 10
+PUSHR D2
+SETV D2 3
+PUSHR D2
+POP D0
+POP D2
+SETR GAMECOUNTERD D2
+SETV D2 10
+PUSHR D2
+SETV D2 3
+PUSHR D2
+POP D0
+POP D2
+SETR GAMEMCOUNTERD D2
+ALLOCATEMEMV D2 14 0
+STORE D2 0
+WRITEPODSTRING D2 "seeking_arrow"
+LOAD D2 0; InlineFunc[int Game::GetLWeaponScript(char32[])] Params
+GETLWEAPONSCRIPT D2; InlineFunc[int Game::GetLWeaponScript(char32[])] Body
+LOAD D3 0
+DEALLOCATEMEMR D3
+PUSHR D2
+SETV D2 13; InlineFunc[itemdata Game::LoadItemData(int)] Params
+LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
+SETR D2 REFITEMCLASS; InlineFunc[itemdata Game::LoadItemData(int)] Body End
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFITEMCLASS
+SETR IDATAWEAPONSCRIPT D2
+SETV D2 30; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHR D4
+PUSHV 5; UsrFunc[void press(int)] Params
+CALLFUNC 0.0672; UsrFunc[void press(int)] Call
+POP D4
+SETV D2 30; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHR D4
+PUSHV 4; UsrFunc[void press(int)] Params
+CALLFUNC 0.0672; UsrFunc[void press(int)] Call
+POP D4
+SETV D2 60; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+SETV D2 3
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_DIR D2
+SETV D2 30; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHR D4
+PUSHV 5; UsrFunc[void press(int)] Params
+CALLFUNC 0.0672; UsrFunc[void press(int)] Call
+POP D4
+SETV D2 60; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHR D4
+PUSHV 4; UsrFunc[void press(int)] Params
+CALLFUNC 0.0672; UsrFunc[void press(int)] Call
+POP D4
+SETV D2 60; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+SETV D2 0
+PUSHR D2
+SETV D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFSPRITE
+SETR SPRITE_DIR D2
+SETV D2 30; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHR D4
+PUSHV 5; UsrFunc[void press(int)] Params
+CALLFUNC 0.0672; UsrFunc[void press(int)] Call
+POP D4
+SETV D2 30; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+PUSHR D4
+PUSHV 4; UsrFunc[void press(int)] Params
+CALLFUNC 0.0672; UsrFunc[void press(int)] Call
+POP D4
+SETV D2 60; InlineFunc[void Waitframes(int)] Params
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
+CALLFUNC 0.0686; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+PUSHARGSV 0 0.0002; Func[void fillScreen(mapdata)] Body Start
+SETR D4 SP2
+STOREV 0 0.0001; for() #112 setup
+LOAD D2 0.0001; for() #112 LoopTest
+COMPAREV D2 16
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 670 ==; for() #112 TestFail?
+STOREV 0 0; for() #113 setup AND for() #112 Body Start
+LOAD D2 0; for() #113 LoopTest
+COMPAREV D2 11
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 666 ==; for() #113 TestFail?
+LOAD D2 0.0001; for() #113 Body Start
+PUSHR D2
+LOAD D2 0
+POP D3
+ADDR D2 D3
+MODV D2 8
+ADDV D2 12
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+PUSHR D2
+PUSHR D3
+LOAD D2 0.0001
+PUSHR D2
+LOAD D2 0
+MULTV D2 16
+POP D3
+ADDR D2 D3
+PUSHR D2
+POP D0
+POP D2
+POP REFMAPDATA
+SETR MAPDATACOMBODD D2; for() #113 Body End
+LOAD D2 0; for() #113 LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 634; for() #113 End
+LOAD D2 0.0001; for() #112 Body End AND for() #112 LoopIncrement
+ADDV D2 1
+STORE D2 0.0001
+GOTO 628; for() #112 End
+POPARGS D5 0.0003
+RETURNFUNC; Func[void fillScreen(mapdata)] Body End
+SETR D4 SP2; Func[void press(int)] Body Start
+PUSHV 5; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start
+SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
+POP D2; InlineFunc[void WaitTo(ScriptTiming, bool)] Body Start
+WAITTO D2 D3; InlineFunc[void WaitTo(ScriptTiming, bool)] Body End
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+POP D0
+POP D2
+SETR BUTTONINPUT D2
+POP D5
+RETURNFUNC; Func[void press(int)] Body End
+PUSHV 0; Func[void End()] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 13 0
+STORE D2 0
+WRITEPODSTRING D2 "[Test] done\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+PUSHV 0; Func[void Init(int)] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 35 0
+STORE D2 0
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+LOAD D2 0.0001; if() #420 Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 722 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #420 Body Start
+LOAD D2 0.0001; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #420 Body End
+POPARGS D5 0.0002
+RETURNFUNC; Func[void Init(int)] Body End
+PUSHARGSV 0 0.0004; Func[void loadRegion(int, int)] Body Start
+SETR D4 SP2
+SETV D2 5; InlineFunc[dmapdata Game::LoadDMapData(int)] Params
+LOADDMAPDATAR D2; InlineFunc[dmapdata Game::LoadDMapData(int)] Body Start
+SETR D2 REFDMAPDATA; InlineFunc[dmapdata Game::LoadDMapData(int)] Body End
+PUSHR D2
+POP REFDMAPDATA
+SETR D2 DMAPDATAMAP
+STORE D2 0.0003
+STOREV 0 0.0002; for() #152 setup
+LOAD D2 0.0002; for() #152 LoopTest
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 793 ==; for() #152 TestFail?
+STOREV 0 0.0001; for() #153 setup AND for() #152 Body Start
+LOAD D2 0.0001; for() #153 LoopTest
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 789 ==; for() #153 TestFail?
+LOAD D2 0.0003; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start AND for() #153 Body Start
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+MULTV D2 16
+POP D3
+ADDR D2 D3
+SETR D1 D2; InlineFunc[mapdata Game::LoadMapData(int, int)] Params End
+POP D0; InlineFunc[mapdata Game::LoadMapData(int, int)] Body Start
+SETR D2 LOADMAPDATA; InlineFunc[mapdata Game::LoadMapData(int, int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFMAPDATA
+SETR MAPDATAVALID D2
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFMAPDATA
+SETR MAPDATAREGIONID D2; for() #153 Body End
+LOAD D2 0.0001; for() #153 LoopIncrement
+ADDV D2 1
+STORE D2 0.0001
+GOTO 743; for() #153 End
+LOAD D2 0.0002; for() #152 Body End AND for() #152 LoopIncrement
+ADDV D2 1
+STORE D2 0.0002
+GOTO 734; for() #152 End
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
+LOAD D2 0.0005; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body
+POPARGS D5 0.0006
+RETURNFUNC; Func[void loadRegion(int, int)] Body End

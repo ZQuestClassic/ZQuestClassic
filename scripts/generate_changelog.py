@@ -2,6 +2,7 @@ import argparse
 import os
 import re
 import subprocess
+import sys
 
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -10,6 +11,7 @@ from typing import Dict, List
 from git_hooks.common import valid_scopes, valid_types
 
 release_oneliners = {
+    '2.55.0': 'The one that is official.',
     '2.55-alpha-120': 'The one with crumbling floors, moving platforms, and ExDoors.',
     '2.55-alpha-119': 'The one with subscreen scripts and an autocombo drawing mode.',
     '2.55-alpha-118': 'The one with the bug fixes.',
@@ -40,6 +42,7 @@ parser.add_argument('--to', default='HEAD')
 parser.add_argument('--for-nightly', type=str2bool, default=False)
 parser.add_argument('--version')
 parser.add_argument('--generate-all', action='store_true')
+parser.add_argument('--generate-cherrypicks', action='store_true')
 
 args = parser.parse_args()
 
@@ -59,6 +62,9 @@ def parse_override_file(file: Path):
     current_squash_list = []
 
     for line in file.read_text().splitlines():
+        if line.startswith('# !'):
+            continue
+
         line = line.rstrip()
 
         if (
@@ -83,7 +89,7 @@ def parse_override_file(file: Path):
             type, hash, rest = [*parts, None]
 
         if len(hash) != 40:
-            raise Exception('expected full hashes')
+            raise Exception(f'expected full hashes. got: {hash}')
         if hash in overrides:
             raise Exception(f'hash already present: {hash}')
 
@@ -206,7 +212,7 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
     git commit messages, without inheriting random line breaks.
 
     Helps with generating pretty markdown on GitHub.
-    You should test change to this by previewing in a "releases" page markdown preview. Other
+    You should test changes to this by previewing in a "releases" page markdown preview. Other
     places on GitHub (like gists) render slightly differently!
     """
     lines = []
@@ -251,7 +257,12 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
             inside_code_block = True
             continue
 
-        if line.strip().startswith('-') or line.strip().startswith('*'):
+        line_stripped = line.strip()
+        if (
+            line_stripped.startswith('-')
+            or line_stripped.startswith('*')
+            or re.match(r'^\d+\.', line_stripped)
+        ):
             current_list_element += line + '\n'
             inside_list_element = True
             continue
@@ -341,6 +352,10 @@ def stringify_changelog(
             lines.append(f'{oneliner}\n')
         if is_release:
             lines.append(f'https://zquestclassic.com/releases/{to_sha}\n')
+            if to_sha == '2.55.0':
+                lines.append(
+                    'View a summary of what\'s new in 2.55: https://zquestclassic.com/docs/2.55/\n'
+                )
 
         for type, commits in commits_by_type.items():
             if type == 'CustomSection':
@@ -375,12 +390,14 @@ def stringify_changelog(
                         lines.append('    ' + squashed.subject)
             lines.append('')
 
+    if lines[-1] != '':
+        lines.append('')
     return '\n'.join(lines)
 
 
 def generate_changelog(from_sha: str, to_sha: str) -> str:
     commits_text = subprocess.check_output(
-        f'git log {from_sha}...{to_sha} --reverse --format="%h %H %s"',
+        f'git log {from_sha}..{to_sha} --reverse --format="%h %H %s"',
         shell=True,
         encoding='utf-8',
     ).strip()
@@ -391,12 +408,17 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         if hash in overrides and overrides[hash][0] == 'drop':
             continue
 
+        # Remove GitHub PR number. The commit URL will link to this anyway.
+        subject = re.sub(r' \(#\d+\)$', '', subject).strip()
+
         body = subprocess.check_output(
             f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8'
         ).strip()
         m = re.search(r'end changelog', body, re.IGNORECASE)
         if m:
             body = body[0 : m.start()].strip()
+        body = re.sub(r'^Co-authored-by: .+', '', body, flags=re.MULTILINE).strip()
+        body = re.sub(r'^\(cherry picked from commit .+\)$', '', body, flags=re.MULTILINE).strip()
         type, scope, oneline, drop = parse_scope_and_type(subject)
         if drop and should_drop_commits:
             continue
@@ -486,44 +508,192 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
     for key in to_remove:
         del commits_by_type[key]
 
-    return stringify_changelog(commits_by_type, args.format, to_sha)
+    changelog = stringify_changelog(commits_by_type, args.format, to_sha)
+    # 125k is the maximum length for the api call to update the body. Give a 2k buffer.
+    if len(changelog) > 123000:
+        print(
+            f'WARNING: changelog may be too big to publish to GitHub. Length: {len(changelog)}',
+            file=sys.stderr,
+        )
+    return changelog
 
 
 for path in (script_dir / 'changelog_overrides').rglob('*.md'):
+    if path.name == 'cherrypicks-3.0.md' and args.for_nightly:
+        continue
     if path.name != 'README.md':
         parse_override_file(path)
 
 if args.generate_all:
-    tags = (
+
+    def get_tags(branch, tag_filter):
+        return (
+            subprocess.check_output(
+                f'git tag --list --sort=committerdate --merged {branch} {tag_filter}',
+                shell=True,
+                encoding='utf-8',
+            )
+            .strip()
+            .splitlines()
+        )
+
+    def process_tag(tag: str, prev_tag: str):
+        print(f'{prev_tag} .. {tag}')
+        changelog = generate_changelog(prev_tag, tag)
+        date = subprocess.check_output(
+            f'git show --no-patch --format=%ci {tag}', shell=True, encoding='utf-8'
+        ).split(' ')[0]
+        date = date.replace('-', '_')
+        (root_dir / 'changelogs' / f'{date}-{tag}.txt').write_text(changelog)
+
+    def process_tags(tags: list[str]):
+        for i, tag in enumerate(tags):
+            if i == 0:
+                continue
+
+            if tag in [
+                '2.55-alpha-113',
+                '2.55-alpha-112',
+                '2.55-alpha-111',
+                '2.55-alpha-110',
+            ]:
+                continue
+
+            # This one was manually created.
+            if tag == '2.55-alpha-114':
+                continue
+
+            process_tag(tag, tags[i - 1])
+
+    tags_255 = get_tags('main', '"2.55-alpha-11?" "2.55-alpha-12?"') + get_tags(
+        'releases/2.55', '"2.55.*"'
+    )
+    process_tags(tags_255)
+
+    # Not needed yet.
+    # tags_3 = get_tags('main', '"3.*"')
+
+    exit(0)
+
+if args.generate_cherrypicks:
+    # Find all the commits in main that were cherry-picked to releases/2.55,
+    # and create an override file dropping each one. This override file is only used
+    # when generating the 3.0 changelog.
+    #
+    # There are a few different ways to find these commits, so the resulting override
+    # file will group by those methods.
+    #
+    # Go read https://stackoverflow.com/a/2937724/2788187.
+
+    def get_subject(sha):
+        _, subject = (
+            subprocess.check_output(
+                f'git log -1 --format="%H %s" {sha}',
+                shell=True,
+                encoding='utf-8',
+            )
+            .strip()
+            .split(' ', 1)
+        )
+        return subject
+
+    def get_commits(from_sha, to_sha):
+        lines = (
+            subprocess.check_output(
+                f'git log {from_sha}..{to_sha} --format="%H %s"',
+                shell=True,
+                encoding='utf-8',
+            )
+            .strip()
+            .splitlines()
+        )
+
+        commits = []
+        for line in lines:
+            sha, subject = line.split(' ', 1)
+            commits.append((sha, subject))
+
+        return commits
+
+    shas_seen = []
+
+    # cherry-pick'd with the -x option (cherry picked from commit ...)
+    output = (
         subprocess.check_output(
-            'git tag --list "2.55-alpha-11?" "2.55-alpha-12?" "3*"',
+            'git log main..releases/2.55 --grep "cherry picked from commit"',
+            shell=True,
+            encoding='utf-8',
+        )
+        .strip()
+    )
+    shas = re.findall(r'cherry picked from commit ([a-zA-Z0-9]+)', output)
+    commits_cherry_picked = []
+    for sha in shas:
+        shas_seen.append(sha)
+        commits_cherry_picked.append((sha, get_subject(sha)))
+
+    # Find all the commits that have the same content (no conflict).
+    lines = (
+        subprocess.check_output(
+            'git cherry releases/2.55 main',
             shell=True,
             encoding='utf-8',
         )
         .strip()
         .splitlines()
     )
-    for i, tag in enumerate(tags):
-        if tag in [
-            '2.55-alpha-113',
-            '2.55-alpha-112',
-            '2.55-alpha-111',
-            '2.55-alpha-110',
-        ]:
+
+    shas = []
+    for line in lines:
+        if line.startswith('-'):
+            sha = line[2:]
+            shas.append(sha)
+
+    commits_same_content = []
+    for sha in shas:
+        if sha in shas_seen:
             continue
-        # This one was manually created.
-        if tag == '2.55-alpha-114':
+
+        shas_seen.append(sha)
+        commits_same_content.append((sha, get_subject(sha)))
+
+    # Find commits with same subject line.
+    commits_3 = get_commits(
+        '2.55.0', 'main'
+    )  # TODO: eventually, change 'main' here to '3.0.0'
+    commits_255_subjects = [s[1] for s in get_commits('2.55.0', '2.55.8')]
+
+    commits_same_subject = []
+    for sha, subject in commits_3:
+        if sha in shas_seen:
             continue
 
-        changelog = generate_changelog(tags[i - 1], tag)
-        date = subprocess.check_output(
-            f'git show --no-patch --format=%ci {tag}', shell=True, encoding='utf-8'
-        ).split(' ')[0]
-        date = date.replace('-', '_')
+        if subject in commits_255_subjects:
+            commits_same_subject.append((sha, subject))
+            shas_seen.append(sha)
 
-        (root_dir / 'changelogs' / f'{date}-{tag}.txt').write_text(changelog)
+    lines = [
+        '# ! Generated by: python scripts/generate_changelog.py --generate-cherrypicks',
+        '# ! These are all the commits in the main branch that were cherry-picked to 2.55.x, and then a 2.55.x release was first to have them in an official release',
+        '',
+    ]
 
+    lines.append('# ! cherry-pick -x')
+    for sha, subject in commits_cherry_picked:
+        lines.append(f'drop {sha} {subject}')
+
+    lines.append('\n# ! same content')
+    for sha, subject in commits_same_content:
+        lines.append(f'drop {sha} {subject}')
+
+    lines.append('\n# ! same subject')
+    for sha, subject in commits_same_subject:
+        lines.append(f'drop {sha} {subject}')
+
+    text = '\n'.join(lines)
+    (script_dir / 'changelog_overrides/cherrypicks-3.0.md').write_text(text)
     exit(0)
+
 
 from_sha = getattr(args, 'from', None)
 if from_sha:

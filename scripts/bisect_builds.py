@@ -2,16 +2,16 @@
 #   python scripts/bisect_builds.py --good 2.55-alpha-108 --bad 2.55-alpha-109
 #   python scripts/bisect_builds.py --bad 2.55-alpha-108 --good 2.55-alpha-109
 #
-# You can automate running a command on each bisect script, like this:
-#   -c '%zq'
-#   -c '%zc -test "quests/Z1 Recreations/classic_1st.qst" 0 119'
+# You can automate running a command on each bisect script by giving the command after `--`, like this:
+#   python scripts/bisect_builds.py ... -- %zq
+#   python scripts/bisect_builds.py ... -- %zc -test "/absolute/path/to/quest.qst" 0 119
 #
 # Use the '--local_builds' flag to build additional commits locally. This will take much longer, so
 # run without first to get a more narrow range.
 
 import argparse
 import os
-import platform
+import sys
 
 from pathlib import Path
 from typing import List
@@ -26,6 +26,12 @@ parser = argparse.ArgumentParser(description='Runs a bisect using prebuilt relea
 parser.add_argument('--good')
 parser.add_argument('--bad')
 parser.add_argument(
+    '--validate_range',
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help='Before starting bisect, validate that the good/bad versions are accurate. Defaults to true.',
+)
+parser.add_argument(
     '--test_builds',
     action=argparse.BooleanOptionalAction,
     default=True,
@@ -37,26 +43,40 @@ parser.add_argument(
     default=False,
     help='Includes all commits and builds locally if prebuilt binaries are not present. Uses a temporary checkout at .tmp/local_build_working_dir',
 )
-parser.add_argument('--channel', default=common.get_channel())
+parser.add_argument('--platform', default=common.get_release_platform())
+parser.add_argument('--channel', default='main')
 parser.add_argument(
-    '-c',
-    '--command',
+    '--',
+    dest='command',
+    nargs='+',
     help='command to run on each step. \'%%zc\' is replaced with the path to the player, \'%%zq\' is the editor, and \'%%zl\' is the launcher',
 )
 parser.add_argument(
     '--check_return_code', action=argparse.BooleanOptionalAction, default=False
 )
 
-args = parser.parse_args()
+# Grab all the arguments after '--'.
+argv = sys.argv[1:]
+idx = argv.index('--') if '--' in argv else -1
+unparsed = argv[idx + 1 :] if idx >= 0 else None
+
+# Give argparse the rest.
+argv = argv[:idx] if idx >= 0 else argv
+args = parser.parse_args(argv)
+
+# Replace the contents of the dummy argument with the unparsed args.
+args.command = unparsed
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 archives_dir = root_dir / '.tmp/archives'
 memory = Memory(root_dir / '.tmp/bisect_builds', verbose=0)
 
-system = platform.system()
-channel = args.channel
-commit_counts = archives.get_commit_counts()
+if args.channel == 'main':
+    branch = 'main'
+elif args.channel == '2.55':
+    branch = 'releases/2.55'
+commit_counts = archives.get_commit_counts(branch)
 
 
 def AskIsGoodBuild():
@@ -65,6 +85,27 @@ def AskIsGoodBuild():
         response = input(prompt)
         if response in ('g', 'b', 'u', 'q'):
             return response
+
+
+def check_revision(revision: Revision):
+    print(f'checking {revision}')
+    binaries = revision.binaries(args.platform)
+
+    if not binaries:
+        answer = 'u'
+    elif args.command:
+        p = common.run_zc_command(binaries, args.command)
+        if args.check_return_code:
+            retcode = p.wait()
+            answer = 'g' if retcode == 0 else 'b'
+            print(f'code: {retcode}, answer: {answer}')
+        else:
+            answer = AskIsGoodBuild()
+            p.terminate()
+    else:
+        answer = AskIsGoodBuild()
+
+    return answer
 
 
 def run_bisect(revisions: List[Revision]):
@@ -86,6 +127,17 @@ def run_bisect(revisions: List[Revision]):
     skipped = []
     goods = [upper if good_rev > bad_rev else 0]
     bads = [upper if good_rev <= bad_rev else 0]
+
+    if args.validate_range:
+        print(f'Validating good revision: {revisions[good_rev].tag}')
+        answer = check_revision(revisions[good_rev])
+        if answer != 'g':
+            raise Exception(f'Expected good revision was not good. Got: {answer}')
+
+        print(f'Validating bad revision: {revisions[bad_rev].tag}')
+        answer = check_revision(revisions[bad_rev])
+        if answer != 'b':
+            raise Exception(f'Expected bad revision was not bad. Got: {answer}')
 
     while upper - lower > 1:
         if pivot in skipped:
@@ -132,25 +184,11 @@ def run_bisect(revisions: List[Revision]):
             f'changelog of current range: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}'
         )
 
-        print(f'checking {rev}')
-        binaries = rev.binaries(args.channel)
-
         down_pivot = int((pivot - lower) / 2) + lower
         up_pivot = int((upper - pivot) / 2) + pivot
 
-        if not binaries:
-            answer = 'u'
-        elif args.command:
-            p = common.run_zc_command(binaries, args.command)
-            if args.check_return_code:
-                retcode = p.wait()
-                answer = 'g' if retcode == 0 else 'b'
-                print(f'code: {retcode}, answer: {answer}')
-            else:
-                answer = AskIsGoodBuild()
-                p.terminate()
-        else:
-            answer = AskIsGoodBuild()
+        print(f'checking {rev}')
+        answer = check_revision(rev)
 
         if answer == 'q':
             raise SystemExit()
@@ -208,6 +246,7 @@ def run_bisect(revisions: List[Revision]):
 
 
 revisions = archives.get_revisions(
+    args.platform,
     args.channel,
     include_test_builds=args.test_builds,
     may_build_locally=args.local_builds,

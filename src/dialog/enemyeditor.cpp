@@ -13,7 +13,6 @@
 #include "defdata.h"
 
 extern bool saved;
-extern zcmodule moduledata;
 extern guydata* guysbuf;
 extern itemdata* itemsbuf;
 extern int32_t CSet;
@@ -1019,22 +1018,15 @@ inline bool EnemyEditorDialog::NoDefenses()
 	return local_guyref.family == eeROCK || local_guyref.family == eeTRAP || local_guyref.family == eeDONGO || local_guyref.family == eeGANON;
 }
 
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::DefenseField(auto* indexs, bool _dobutton)
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::DefenseField(const std::vector<int>& indices, bool _dobutton)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
 	std::shared_ptr<GUI::Grid> grid = Rows<3>();
-	for (int32_t q = 0; q < sizeof(indexs)+1; q++)
+	for (int32_t q = 0; q < indices.size(); q++)
 	{
-		int32_t index = indexs[q];
-		if (index == -1)
-		{
-			grid->add(_d);
-			grid->add(_d);
-			grid->add(_d);
-			return grid;
-		}
+		int32_t index = indices[q];
 		GUI::ListItem& li = list_defenses.accessItem(index);
 		ddl_defenses[index] = DropDownList(
 			disabled = NoDefenses(),
@@ -1483,10 +1475,10 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			))
 		))
 	);
-	int32_t defensearray1[10] = { edefBRANG,edefBOMB,edefSBOMB,edefARROW,edefFIRE,edefWAND,edefMAGIC,edefHOOKSHOT,edefHAMMER,edefSWORD };
-	int32_t defensearray2[10] = { edefBEAM,edefREFBEAM,edefREFMAGIC,edefREFBALL,edefREFROCK,edefSTOMP,edefBYRNA,edefWhistle,edefSwitchHook,-1};
-	int32_t defensearray3[10] = { edefTHROWN,edefREFARROW,edefREFFIRE,edefREFFIRE2,-1,-1,-1,-1,-1,-1 };
-	int32_t defensearray4[10] = { edefSCRIPT01, edefSCRIPT02, edefSCRIPT03, edefSCRIPT04, edefSCRIPT05, edefSCRIPT06, edefSCRIPT07, edefSCRIPT08, edefSCRIPT09, edefSCRIPT10 };
+	std::vector<int> defensearray1 = { edefBRANG,edefBOMB,edefSBOMB,edefARROW,edefFIRE,edefWAND,edefMAGIC,edefHOOKSHOT,edefHAMMER,edefSWORD };
+	std::vector<int> defensearray2 = { edefBEAM,edefREFBEAM,edefREFMAGIC,edefREFBALL,edefREFROCK,edefSTOMP,edefBYRNA,edefWhistle,edefSwitchHook};
+	std::vector<int> defensearray3 = { edefTHROWN,edefREFARROW,edefREFFIRE,edefREFFIRE2 };
+	std::vector<int> defensearray4 = { edefSCRIPT01, edefSCRIPT02, edefSCRIPT03, edefSCRIPT04, edefSCRIPT05, edefSCRIPT06, edefSCRIPT07, edefSCRIPT08, edefSCRIPT09, edefSCRIPT10 };
 	auto defenses_tab = TabPanel(
 		ptr = &guy_tabs[5],
 		TabRef(name = "Defenses", TabPanel(
@@ -1565,19 +1557,36 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					GuyFlag(guy_ignoretmpnr, "Ignores 'Temp No Return'")
 				)
 			)),
-			TabRef(name = "Movement", Column(
+			TabRef(name = "Movement", Row(
 				Frame(title = "Basic Movement", hAlign = 1.0, fitParent = true,
-					Column(hAlign = 1.0, fitParent = true,
+					Rows<2>(hAlign = 1.0, fitParent = true,
+						_d,
 						MoveFlag(move_obeys_grav, "Obeys Gravity"),
+						_d,
 						MoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
+						_d,
 						MoveFlag(move_can_pitwalk, "Can Walk Over Pitfalls"),
+						_d,
 						MoveFlag(move_can_waterdrown, "Can Drown In Liquid"),
+						_d,
 						MoveFlag(move_can_waterwalk, "Can Walk On Liquid"),
+						_d,
 						MoveFlag(move_new_movement, "Use 'Scripted Movement' for engine movement"),
-						MoveFlag(move_not_pushable, "Cannot be pushed by moving solid objects")
+						_d,
+						MoveFlag(move_not_pushable, "Cannot be pushed by moving solid objects"),
+						INFOBTN("The FakeJump value will not apply for this enemy"),
+						MoveFlag(move_no_fake_z, "No FakeZ"),
+						INFOBTN("The Jump value will not apply for this enemy"),
+						MoveFlag(move_no_real_z, "No Real Z"),
+						INFOBTN("The enemy will move using FakeJump instead of a normal Jump for any *engine* Z-axis movement."
+							" This means the enemy will not actually be in the Z-axis, even though it looks like it- allowing the enemy"
+							" to, for example, be hit by ground-based weapons even while 'in the air'"),
+						MoveFlag(move_use_fake_z, "Use FakeZ instead of Real Z")
 					)
 				),
 				Frame(title = "Scripted Movement", hAlign = 1.0, fitParent = true,
+					info = "These settings apply to scripted movement using 'MoveXY' or related functions,"
+						" and to engine movement if the \"Use 'Scripted Movement' for engine movement\" flag is active.",
 					Column(hAlign = 1.0, fitParent = true,
 						MoveFlag(move_only_waterwalk, "Can ONLY walk on Liquid"),
 						MoveFlag(move_only_shallow_waterwalk, "Can ONLY walk on Shallow Liquid"),

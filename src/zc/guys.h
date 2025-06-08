@@ -2,6 +2,8 @@
 #define GUYS_H_
 
 #include <list>
+#include <optional>
+#include "base/scc.h"
 #include "sprite.h"
 #include "zc/weapons.h"
 #include "base/zfix.h"
@@ -15,10 +17,10 @@ extern int32_t itemindex;
 extern int32_t wallm_load_clk;
 extern int32_t sle_x,sle_y,sle_cnt,sle_clk;
 extern int32_t vhead;
-extern int32_t guycarryingitem;
+extern bool enemy_spawning_has_checked_been_here;
 
-int32_t random_layer_enemy();
-int32_t count_layer_enemies();
+int32_t random_layer_enemy(int screen);
+int32_t count_layer_enemies(int screen);
 bool can_do_clock();
 int32_t hero_on_wall();
 bool tooclose(int32_t x,int32_t y,int32_t d);
@@ -28,15 +30,14 @@ int32_t weaponToDefence(int32_t wid);
 int32_t getWeaponID(weapon *w);
 
 // Start spinning tiles - called by load_default_enemies
-void awaken_spinning_tile(mapscr *s, int32_t pos);
+void awaken_spinning_tile(const rpos_handle_t& rpos_handle);
 
-// Used to remove/add fireball shooter enemies
 void update_slope_comboposes();
-void update_slope_combopos(int32_t lyr, int32_t pos);
-void screen_combo_modify_preroutine(mapscr *s, int32_t pos);
-void screen_ffc_modify_preroutine(word index);
-void screen_combo_modify_postroutine(mapscr *s, int32_t pos);
-void screen_ffc_modify_postroutine(word index);
+void update_slope_combopos(const rpos_handle_t& rpos_handle);
+void screen_combo_modify_preroutine(const rpos_handle_t& rpos_handle);
+void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle);
+void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle);
+void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle);
 void screen_combo_modify_pre(int32_t cid);
 void screen_combo_modify_post(int32_t cid);
 
@@ -68,7 +69,7 @@ public:
 	byte hitsfx,deadsfx;
 	bool submerged;
 	
-	word ffcactivated;
+	std::optional<ffc_handle_t> ffcactivated;
 
 	int32_t  clk2,sclk;
 	int32_t  starting_hp;
@@ -78,11 +79,7 @@ public:
 	int32_t hitby[NUM_HIT_TYPES_USED];
 	int16_t firesfx;
 	bool isCore;
-	int16_t parentCore; 
-	int32_t script_UID; 	//used to determine the UID of an enemy by the user (in scripts), plus
-			//in-engine assignment of children to a parent and
-			//for future use in npc scripts (as the ref for `this`)--the easy way to determine to
-			//what npc a script on the stack is bound.
+	int16_t parentCore;
 	
 	int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
 	int32_t SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
@@ -101,9 +98,8 @@ public:
 	word weaponscript;
 	int32_t weap_initiald[8];
 	byte stickclk;
-	int32_t parent_script_UID;
+	int32_t parent_uid;
    
-	int32_t dialogue_str; //WIll be set in spawn flags. 
 	int32_t editorflags; //Enemy editor flags 1 to 16
 	
 	bool immortal;
@@ -123,9 +119,6 @@ public:
 	byte burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
 	byte specialsfx; //weapon specialsfx.
-
-	int32_t getScriptUID();
-	void setScriptUID(int32_t new_id);
 	
 	zfix  getX();
 	zfix  getY();
@@ -284,8 +277,8 @@ protected:
 	// to allow for different sfx on defeating enemy
 	virtual void death_sfx();
 	virtual void move(zfix dx,zfix dy);
-	virtual void removearmos(int32_t ax,int32_t ay, word ffcactive = 0);
-	virtual void removearmosffc(int32_t pos);
+	virtual void removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcactive = std::nullopt);
+	virtual void removearmosffc(const ffc_handle_t& ffc_handle);
 	virtual void move(zfix s);
 	void leave_item();
 	
@@ -391,7 +384,7 @@ public:
 };
 
 void removearmos(int32_t ax,int32_t ay, word ffcactive = 0);
-void removearmosffc(int32_t pos);
+void removearmosffc(uint16_t ffc_id);
 
 class eGhini : public enemy
 {
@@ -679,7 +672,7 @@ public:
 	void draw_flash(BITMAP *dest);
 };
 
-void getBigTri(int32_t id2);
+void getBigTri(mapscr* scr, int32_t id2);
 
 // segment manager
 class eMoldorm : public enemy
@@ -851,6 +844,9 @@ void enemy_scored(int32_t index);
 void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy);
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup);
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk);
+void add_item_for_screen(int32_t screen, item* item);
+enemy* find_guy_first_for_id(int screen, int id, int mask);
+enemy* find_guy_nth_for_id(int screen, int id, int n, int mask);
 void kill_em_all();
 bool can_kill_em_all();
 // For Hero's hit detection. Don't count them if they are stunned or are guys.
@@ -858,7 +854,7 @@ int32_t GuyHit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_
 int32_t GuyHitFrom(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
 // For Hero's hit detection. Count them if they are dying.
 int32_t GuyHit(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
-bool hasMainGuy();
+bool hasMainGuy(int screen);
 void EatHero(int32_t index);
 void GrabHero(int32_t index);
 bool CarryHero();
@@ -869,31 +865,29 @@ void movefairynew2(zfix x,zfix y,item const &itemfairy);
 void killfairy(int32_t misc);
 int32_t getGuyIndex(const int32_t eid);
 void killfairynew(item const &itemfairy);
-int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk);
-int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk);
-int32_t addchild(int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID);
-int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_scriptUID);
+int32_t addenemy(int32_t screen,int32_t x,int32_t y,int32_t id,int32_t clk);
+int32_t addenemy_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk);
+int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_uid);
+int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_uid);
 bool isjumper(int32_t id);
 bool canfall(int32_t id);
 void addfires();
 void loadguys();
-void loaditem();
-void never_return(int32_t index);
+void loaditem(mapscr* scr, int offx, int offy);
+void never_return(int32_t screen, int32_t index);
 bool hasBoss();
 bool slowguy(int32_t id);
-bool ok2add(int32_t id);
-void load_default_enemies();
+void load_default_enemies(mapscr* scr);
 void nsp(bool random);
-int32_t next_side_pos(bool random);
+int32_t next_side_pos(int32_t screen, bool random);
 bool can_side_load(int32_t id);
-void side_load_enemies();
-bool scriptloadenemies();
+bool scriptloadenemies(int screen);
 void loadenemies();
 void moneysign();
 void putprices(bool sign);
 void setupscreen();
 FONT *setmsgfont();
-bool parsemsgcode();
+void setmsg(int str);
 void putmsg();
 int32_t message_more_y();
 
@@ -904,5 +898,5 @@ void check_collisions();
 void clear_script_one_frame_conditions();
 void dragging_item();
 void roaming_item();
-int32_t more_carried_items();
+int32_t more_carried_items(int screen);
 #endif

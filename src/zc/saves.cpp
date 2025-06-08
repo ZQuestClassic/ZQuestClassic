@@ -168,7 +168,6 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 	int32_t templong = 0;
 	int32_t section_id=0;
 	word section_version=0;
-	word section_cversion=0;
 	dword section_size = 0;
 	
 	//section id
@@ -183,7 +182,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		return 2;
 	}
 	
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 3;
 	}
@@ -1022,7 +1021,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			for(uint32_t objind = 0; objind < sz; ++objind)
 			{
 				saved_user_object s_ob{};
-				s_ob.obj.fake = true;
+
 				if(!p_igetl(&s_ob.obj.id,f))
 					return 84;
 				//user_object
@@ -1030,6 +1029,15 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				if(!p_getc(&tempbyte,f))
 					return 85;
 				bool reserved = tempbyte!=0;
+
+				if (section_version >= 43)
+				{
+					if(!p_getc(&tempbyte,f))
+						return 85;
+
+					obj.global = tempbyte!=0;
+				}
+
 				//Don't need to save owned_type,owned_i?
 				uint32_t datsz;
 				if(!p_igetl(&datsz,f))
@@ -1179,7 +1187,6 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 
 	int32_t section_id=ID_SAVEGAME;
 	int32_t section_version=V_SAVEGAME;
-	int32_t section_cversion=CV_SAVEGAME;
 	int32_t section_size=0;
 	game.normalize();
 	
@@ -1191,7 +1198,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_iputw(section_version,f))
 		return 2;
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 		return 3;
 	
 	//section size
@@ -1407,6 +1414,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		user_object const& obj = s_ob.obj;
 		// removed: obj.reserved
 		if(!p_putc(1,f))
+			return 85;
+		if(!p_putc(obj.global ? 1 : 0, f))
 			return 85;
 		//Don't need to save owned_type,owned_i?
 		uint32_t datsz = obj.data.size();

@@ -15,19 +15,21 @@ enum Direction
 	DIR_DOWNRIGHT         = 7
 };
 
+// Enemy spawning patterns.
+// Used with [Screen->Pattern] / [mapdata::Pattern]
 enum EnemyPattern
 {
-	PATTERN_STANDARD,
-	PATTERN_SIDES,
-	PATTERN_SIDES_RANDOM,
-	PATTERN_CEILING,
-	PATTERN_CEILING_RANDOM,
-	PATTERN_STANDARD_RANDOM,
-	PATTERN_NO_SPAWNING
+	PATTERN_STANDARD, // Enemies spawn randomly among several pre-determined positions around the room
+	PATTERN_SIDES, // Enemies spawn entering from the sides of the screen (evenly between each side)
+	PATTERN_SIDES_RANDOM, // As PATTERN_SIDES, but enemies spawn randomly instead of evenly between each side
+	PATTERN_CEILING, // As PATTERN_STANDARD, but the enemies fall from the ceiling when spawning
+	PATTERN_CEILING_RANDOM, // As PATTERN_CEILING, but spawns completely randomly around the room
+	PATTERN_STANDARD_RANDOM, // As PATTERN_STANDARD, but spawns completely randomly around the room
+	PATTERN_NO_SPAWNING // Enemies do not spawn (until the pattern is changed)
 };
 
 // Indices for generic counters.
-// Use with [itemdata::Counter], [Game->Counter], [Game->MCounter] and [Game->DCounter]
+// Used with [itemdata::Counter], [Game->Counter], [Game->MCounter] and [Game->DCounter].
 enum CounterIndex
 {
 	CR_NONE = -1,
@@ -95,7 +97,7 @@ enum SwitchEffect
 	SW_EFF_RISE
 };
 
-// Use with [Screen->SetSideWarp] and [Link->WarpEx]
+// Used with [Screen->SetSideWarp] and [Hero->WarpEx]
 enum WarpType
 {
 	WT_CAVE,
@@ -110,7 +112,7 @@ enum WarpType
 	WT_NOWARP
 };
 
-enum WeaponFlagIndex
+enum WeaponFlag
 {
 	WFLAG_PICKUP_ITEMS,
 	WFLAG_BREAKS_ON_LANDING,
@@ -389,3 +391,575 @@ enum WarpIndex
 // Opacity options. Use with drawing commands.
 const int OP_TRANS              = 64;
 const int OP_OPAQUE             = 128;
+
+// Used with [eweapon::UseSprite], [lweapon::UseSprite], and [portal::UseSprite].
+enum SpriteID
+{
+	SP_ARROW_ENEMY                 = 19,
+	SP_ARROW1                      = 10, // Wooden Arrow.
+	SP_ARROW2                      = 11, // Silver Arrow.
+	SP_ARROW3                      = 34, // Golden Arrow.
+	SP_BAIT                        = 14, // Enemy bait.
+	SP_BOMB_ENEMY                  = 76, // Bomb (Enemy, normal).
+	SP_SBOMB_ENEMY                 = 77, // Bomb (Enemy, Super).
+	SP_BOMB                        = 7,  // Normal Bomb.
+	SP_SBOMB                       = 8,  // Super Bomb.
+	SP_BRANG1                      = 4,  // Wooden Boomerang.
+	SP_BRANG2                      = 5,  // Magical Boomerang.
+	SP_BRANG3                      = 6,  // Fire Boomerang.
+	SP_CANEOFBYRNA                 = 69, // Cane of Byrna Object.
+	SP_BYRNABEAM                   = 87, // Cane of Byrna Orbiter.
+	SP_BYRNASLASH                  = 70, // Cane of Byrna Slashing Sprite.
+	SP_DINSFIRE_FALL               = 39, // Din's Fire (Falling).
+	SP_DINSFIRE_RISE               = 38, // Din's Fire (Rising).
+	SP_DINSFIRE_TRAIL_FALL         = 41, // Din's Fire (Trail, Falling).
+	SP_DINSFIRE_TRAIL_RISE         = 40, // Din's Fire (Trail, Rising).
+	SP_BOMB_ENEMY_EXPLOSION        = 78, // Normal Bomb Exploion (Enemy).
+	SP_SBOMB_ENEMY_EXPLOSION       = 79, // Super Bomb Explosion (Enemy).
+	SP_BOMB_EXPLOSION              = 9,  // Normal Bomb Explosion.
+	SP_SBOMB_EXPLOSION             = 75, // Super Bomb Explosion.
+	SP_FIRE_ENEMY                  = 35, // Fire (Enemy).
+	SP_FIRE2_ENEMY                 = 81, // Fire 2 (Enemy).
+	SP_FIRETRAIL2                  = 82, // Fire Trail 2 (Enemy). Unused.
+	SP_FIRETRAIL                   = 80, // Fire Trail (Enemy).
+	SP_FIREBALL                    = 17, // Fireball (Enemy).
+	SP_FLAME                       = 12, // Candle Fire.
+	SP_FIRE                        = 12, // Candle Fire.
+	SP_HAMMER                      = 25, // Hammer.
+	SP_HOOKSHOT1_CHAIN_H           = 27, // Hookshot (Short, Chain, Horizontal).
+	SP_HOOKSHOT1_CHAIN_V           = 42, // Hookshot (Short, Chain, Vertical).
+	SP_HOOKSHOT1_HANDLE            = 28, // Hookshot Handle (Short).
+	SP_HOOKSHOT1_HEAD              = 26, // Hookshot Head (Short).
+	SP_HOOKSHOT2_CHAIN_H           = 72, // Hookshot (Short, Chain, Horizontal).
+	SP_HOOKSHOT2_CHAIN_V           = 74, // Hookshot (Short, Chain, Vertical).
+	SP_HOOKSHOT2_HANDLE            = 73, // Hookshot Handle (Short).
+	SP_HOOKSHOT2_HEAD              = 71, // Hookshot Head (Short).
+	SP_ICE                         = 83, // Ice Magic (Enemy, Unused).
+	SP_MAGIC_ENEMY                 = 21, // Magic (Enemy).
+	SP_MAGIC_FIRE                  = 85, // Magic (Fire).
+	SP_MAGIC                       = 16, // Magic (Wand).
+	SP_MISC44                      = 44, // Misc 44, unused.
+	SP_MISC45                      = 45, // Misc 45, unused.
+	SP_MISC57                      = 57, // Misc 57, unused.
+	SP_MISC24                      = 24, // Misc 24, unused.
+	SP_MISC_ARROW2                 = 29, // Silver Arrow Sparkles.
+	SP_MISC_ARROW3                 = 30, // Golden Arrow Sparkles.
+	SP_MISC_BRANG2                 = 31, // Magic Boomerang Sparkles.
+	SP_MISC_BRANG3                 = 32, // Fire Boomerang Sparkles.
+	SP_MISC_BUSH                   = 52, // Bush Leaf Clippings.
+	SP_MISC_DEATH                  = 23, // Link Death Winkout.
+	SP_MISC_FLOWER                 = 53, // Flower Clippings.
+	SP_MISC_GRASS                  = 54, // Grass Clippings.
+	SP_MISC_HAMMER                 = 33, // Hammer Impact.
+	SP_MISC_HOVER                  = 84, // Hover Boots Glow.
+	SP_MISC_MAGICMETER             = 37, // Magic Meter.
+	SP_MISC_MORE                   = 43, // More Indicator.
+	SP_MISC_QHEART                 = 86, // Quarter Heart.
+	SP_MISC_RIPPLE                 = 56, // Ripples.
+	SP_MISC_SHADOW2                = 51, // Shadow (Large).
+	SP_MISC_SHADOW1                = 50, // Shadow (Small).
+	SP_SPAWN                       = 22, // Enemy Spawn Poof.
+	SP_MISC_SSVINE                 = 68, // Subscreen Vine.
+	SP_TALLGRASS                   = 55, // Tall Grass Movement.
+	SP_NAYRU_LEFT                  = 58, // Nayru's Love (Left).
+	SP_NAYRU_LEFT2                 = 59, // Nayru's Love (Left, Returning).
+	SP_NAYRU_RIGHT                 = 62, // Nayru's Love (Right).
+	SP_NAYRU_RIGHT2                = 63, // Nayru's Love (Right, Returning).
+	SP_NAYRU_BACK                  = 67, // Nayru's Love Shield (Back).
+	SP_NAYRU_FRONT                 = 66, // Nayru's Love Shield (Front).
+	SP_NAYRU_TRAIL_LEFT            = 60, // Nayru's Love Trail (Left).
+	SP_NAYRU_TRAIL_LEFT2           = 61, // Nayru's Love Trail (Left, Returning).
+	SP_NAYRU_TRAIL_RIGHT           = 64, // Nayru's Love Trail (Right).
+	SP_NAYRU_TRAIL_RIGHT2          = 65, // Nayru's Love Trail (Right, Returning).
+	SP_ROCK                        = 18, // Rock.
+	SP_SWORD_ENEMY                 = 20, // Enemy Sword Beam.
+	SP_SWORD1                      = 0,  // Wooden Sword.
+	SP_SLASH1                      = 46, // Wooden Sword Slash.
+	SP_SWORD2                      = 1,  // White Sword.
+	SP_SLASH2                      = 47, // White Sword Slash.
+	SP_SWORD3                      = 2,  // Magical Sword.
+	SP_SLASH3                      = 48, // Magical Sword Slash.
+	SP_SWORD4                      = 3,  // Master Sword.
+	SP_SLASH4                      = 49, // Master Sword Slash.
+	SP_WAND                        = 15, // Wand Object.
+	SP_WHIRL                       = 13, // Whiste Whirlwind.
+	SP_WIND                        = 36, // Wind Magic (Enemy).
+};
+
+// Font types. Used with [Screen->DrawCharacter], [Screen->DrawString], [bitmap::DrawString], etc.
+// Some of these fonts may not represent normal ascii characters, and all of these are
+// completely undocumented. Use at your own peril.
+enum FontType
+{
+	FONT_Z1                        = 0,
+	FONT_Z3                        = 1,
+	FONT_Z3SMALL                   = 2,
+	FONT_DEF                       = 3,
+	FONT_L                         = 4,
+	FONT_L2                        = 5,
+	FONT_P                         = 6,
+	FONT_MATRIX                    = 7,
+	FONT_ZTIME                     = 8,
+	FONT_S                         = 9,
+	FONT_S2                        = 10,
+	FONT_SP                        = 11,
+	FONT_SUBSCREEN1                = 12,
+	FONT_SUBSCREEN2                = 13,
+	FONT_SUBSCREEN3                = 14,
+	FONT_SUBSCREEN4                = 15,
+	FONT_GBLA                      = 16,
+	FONT_LA                        = 16,
+	FONT_GORON                     = 17,
+	FONT_ZORAN                     = 18,
+	FONT_HYLIAN1                   = 19,
+	FONT_HYLIAN2                   = 20,
+	FONT_HYLIAN3                   = 21,
+	FONT_HYLIAN4                   = 22,
+	FONT_GBORACLE                  = 23,
+	FONT_GBORACLEP                 = 24,
+	FONT_DSPHANTOM                 = 25,
+	FONT_DSPHANTOMP                = 26,
+	FONT_ATARI800                  = 27,
+	FONT_ACORN                     = 28,
+	FONT_ADOS                      = 29,
+	FONT_ALLEGRO                   = 30,
+	FONT_APPLE2                    = 31,
+	FONT_APPLE2_80COL              = 32,
+	FONT_APPLE2GS                  = 33,
+	FONT_AQUARIUS                  = 34,
+	FONT_ATARI400                  = 35,
+	FONT_C64                       = 36,
+	FONT_C64_HIRES                 = 37,
+	FONT_CGA                       = 38,
+	FONT_COCO                      = 39,  // Invrse chars for upper.
+	FONT_COCO2                     = 40,  // Upper and lower.
+	FONT_COUPE                     = 41,
+	FONT_CPC                       = 42,  // Amstrad.
+	FONT_FANTASY                   = 43,
+	FONT_FDS_KANA                  = 44,
+	FONT_FDSLIKE                   = 45,
+	FONT_FDS_ROMAN                 = 46,
+	FONT_FF                        = 47,  // Final Fantasy.
+	FONT_FUTHARK                   = 48,  // Runes.
+	FONT_GAIA                      = 49,
+	FONT_HIRA                      = 50,
+	FONT_JP                        = 51,
+	FONT_KONG                      = 52,
+	FONT_MANA                      = 53,
+	FONT_MARIOLAND                 = 54,
+	FONT_MOT                       = 55,  // Motorola.
+	FONT_MSX0                      = 56,  // MSX, Mode 0.
+	FONT_MSX1                      = 57,  // MSX, Mod 1.
+	FONT_PET                       = 58,
+	FONT_PSTART                    = 59,  // Nintendo-esque.
+	FONT_SATURN                    = 60,  // Mr. Saturn.
+	FONT_SCIFI                     = 61,
+	FONT_SHERWOOD                  = 62,
+	FONT_SINQL                     = 63,  // Sinclair QL.
+	FONT_SPECTRUM                  = 64,
+	FONT_SPECTRUM_LG               = 65,
+	FONT_TI99                      = 66,
+	FONT_TRS                       = 67,
+	FONT_Z2                        = 68,  // Zelda 2 plus custom lowercase.
+	FONT_ZX                        = 69,
+	FONT_LISA                      = 70,  // Lisa OS System Font.
+	FONT_NFONT                     = 71,
+	FONT_S3                        = 72,
+	FONT_CV3                       = 73,
+	FONT_CHRONO                    = 74,
+	FONT_NFONT2                    = 75,
+	FONT_BAK                       = 76,
+	FONT_GUNSTAR                   = 77,
+	FONT_SMW_CREDITS               = 78,
+	FONT_WL4                       = 79,
+	FONT_BSZ                       = 80,
+	FONT_BSZ_PROP                  = 81,
+	FONT_FF6                       = 82,
+	FONT_EVO_EDEN                  = 83,
+	FONT_SMT                       = 84,
+	FONT_ACTRAISER                 = 85,
+	FONT_BAK_RUNES                 = 86,
+	FONT_BAK_SMALL                 = 87,
+	FONT_DISORIENT                 = 88,
+	FONT_DOOM                      = 89,
+	FONT_DRACULA                   = 90,
+	FONT_EJIM                      = 91,
+	FONT_FALLOUT                   = 92,
+	FONT_GRADIUS                   = 93,
+	FONT_LAMU_MSX                  = 94,
+	FONT_MEGAMAN                   = 95,
+	FONT_WINGDINGS                 = 96,
+	FONT_PKMN2                     = 97,
+	FONT_SMRPG                     = 98,
+	FONT_UNDERTALE                 = 99,
+	FONT_SMW                       = 100,
+};
+
+// Text alignment. Used with [Screen->DrawString] and other functions.
+enum TextAlignment
+{
+	TF_NORMAL                      = 0, // Treats the left-most char as (x).
+	TF_CENTERED                    = 1, // Prints the string centered on (x).
+	TF_RIGHT                       = 2, // Treats the right-most char as (x).
+};
+
+// Combo flags. Used with [Screen->ComboF].
+enum ComboFlag
+{
+	CF_NONE                        = 0,
+	CF_PUSHUPDOWN                  = 1,
+	CF_PUSH4WAY                    = 2,
+	CF_WHISTLE                     = 3,
+	CF_CANDLE1                     = 4,
+	CF_ARROW                       = 5,
+	CF_BOMB                        = 6,
+	CF_FAIRY                       = 7,
+	CF_RAFT                        = 8,
+	CF_ARMOSSECRET                 = 9,
+	CF_ARMOSITEM                   = 10,
+	CF_SBOMB                       = 11,
+	CF_RAFTBRANCH                  = 12,
+	CF_DIVEITEM                    = 13,
+	CF_LENSMARKER                  = 14,
+	CF_ZELDA                       = 15,
+	CF_SECRETS01                   = 16,
+	CF_SECRETS02                   = 17,
+	CF_SECRETS03                   = 18,
+	CF_SECRETS04                   = 19,
+	CF_SECRETS05                   = 20,
+	CF_SECRETS06                   = 21,
+	CF_SECRETS07                   = 22,
+	CF_SECRETS08                   = 23,
+	CF_SECRETS09                   = 24,
+	CF_SECRETS10                   = 25,
+	CF_SECRETS11                   = 26,
+	CF_SECRETS12                   = 27,
+	CF_SECRETS13                   = 28,
+	CF_SECRETS14                   = 29,
+	CF_SECRETS15                   = 30,
+	CF_SECRETS16                   = 31,
+	CF_TRAPH                       = 32,
+	CF_TRAPV                       = 33,
+	CF_TRAP4WAY                    = 34,
+	CF_TRAPLR                      = 35,
+	CF_TRAPUD                      = 36,
+	CF_ENEMY0                      = 37,
+	CF_ENEMY1                      = 38,
+	CF_ENEMY2                      = 39,
+	CF_ENEMY3                      = 40,
+	CF_ENEMY4                      = 41,
+	CF_ENEMY5                      = 42,
+	CF_ENEMY6                      = 43,
+	CF_ENEMY7                      = 44,
+	CF_ENEMY8                      = 45,
+	CF_ENEMY9                      = 46,
+	CF_PUSHLR                      = 47,
+	CF_PUSHUP                      = 48,
+	CF_PUSHDOWN                    = 49,
+	CF_PUSHLEFT                    = 50,
+	CF_PUSHRIGHT                   = 51,
+	CF_PUSHUPDOWNNS                = 52,
+	CF_PUSHLEFTRIGHTNS             = 53,
+	CF_PUSH4WAYNS                  = 54,
+	CF_PUSHUPNS                    = 55,
+	CF_PUSHDOWNNS                  = 56,
+	CF_PUSHLEFTNS                  = 57,
+	CF_PUSHRIGHTNS                 = 58,
+	CF_PUSHUPDOWNINS               = 59,
+	CF_PUSHLEFTRIGHTINS            = 60,
+	CF_PUSH4WAYINS                 = 61,
+	CF_PUSHUPINS                   = 62,
+	CF_PUSHDOWNINS                 = 63,
+	CF_PUSHLEFTINS                 = 64,
+	CF_PUSHRIGHTINS                = 65,
+	CF_BLOCKTRIGGER                = 66,
+	CF_NOBLOCKS                    = 67,
+	CF_BRANG1                      = 68,
+	CF_BRANG2                      = 69,
+	CF_BRANG3                      = 70,
+	CF_ARROW2                      = 71,
+	CF_ARROW3                      = 72,
+	CF_CANDLE2                     = 73,
+	CF_WANDFIRE                    = 74,
+	CF_DINSFIRE                    = 75,
+	CF_WANDMAGIC                   = 76,
+	CF_REFMAGIC                    = 77,
+	CF_REFFIREBALL                 = 78,
+	CF_SWORD1                      = 79,
+	CF_SWORD2                      = 80,
+	CF_SWORD3                      = 81,
+	CF_SWORD4                      = 82,
+	CF_SWORD1BEAM                  = 83,
+	CF_SWORD2BEAM                  = 84,
+	CF_SWORD3BEAM                  = 85,
+	CF_SWORD4BEAM                  = 86,
+	CF_HOOKSHOT                    = 87,
+	CF_WAND                        = 88,
+	CF_HAMMER                      = 89,
+	CF_STRIKE                      = 90,
+	CF_BLOCKHOLE                   = 91,
+	CF_MAGICFAIRY                  = 92,
+	CF_ALLFAIRY                    = 93,
+	CF_SINGLE                      = 94,
+	CF_SINGLE16                    = 95,
+	CF_NOENEMY                     = 96,
+	CF_NOGROUNDENEMY               = 97,
+	CF_SCRIPT1                     = 98,
+	CF_SCRIPT2                     = 99,
+	CF_SCRIPT3                     = 100,
+	CF_SCRIPT4                     = 101,
+	CF_SCRIPT5                     = 102,
+	CF_RAFTBOUNCE                  = 103,
+	CF_PUSHED                      = 104,
+	CF_SCRIPT6                     = 105,
+	CF_SCRIPT7                     = 106,
+	CF_SCRIPT8                     = 107,
+	CF_SCRIPT9                     = 108,
+	CF_SCRIPT10                    = 109,
+	CF_SCRIPT11                    = 110,
+	CF_SCRIPT12                    = 111,
+	CF_SCRIPT13                    = 112,
+	CF_SCRIPT14                    = 113,
+	CF_SCRIPT15                    = 114,
+	CF_SCRIPT16                    = 115,
+	CF_SCRIPT17                    = 116,
+	CF_SCRIPT18                    = 117,
+	CF_SCRIPT19                    = 118,
+	CF_SCRIPT20                    = 119,
+	CF_SCRIPT_PIT                  = 120, // Pit or Hole (Scripted).
+	CF_SCRIPT_PIT_FALL             = 121, // Pit or Hole, Fall Down Floor (Scripted).
+	CF_SCRIPT_LAVA                 = 122, // Fire or Lava (Scripted).
+	CF_SCRIPT_ICE                  = 123, // Ice (Scripted).
+	CF_SCRIPT_ICE_DMG              = 124, // Ice, Damaging (Scripted).
+	CF_SCRIPT_DAMAGE_1             = 125, // Damage-1 (Scripted).
+	CF_SCRIPT_DAMAGE_2             = 126, // Damage-2 (Scripted).
+	CF_SCRIPT_DAMAGE_4             = 127, // Damage-4 (Scripted).
+	CF_SCRIPT_DAMAGE_8             = 128, // Damage-8 (Scripted).
+	CF_SCRIPT_DAMAGE_16            = 129, // Damage-16 (Scripted).
+	CF_SCRIPT_DAMAGE_32            = 130, // Damage-32 (Scripted).
+	CF_SCRIPT_FREEZE_SCREEN        = 131, // Freeze Screen (Unimplemented).
+	CF_SCRIPT_FREEZE_SCREEN_EXCEPT_FFCS = 132, // Freeze Screen, Except FFCs (Unimplemented).
+	CF_SCRIPT_FREEZE_FFCS_ONLY     = 133, // Freeze FFCs Only (Unimplemented).
+	CF_LW_SCRIPT1                  = 134, // Trigger LW_SCRIPT1 (Unimplemented).
+	CF_LW_SCRIPT2                  = 135, // Trigger LW_SCRIPT2 (Unimplemented).
+	CF_LW_SCRIPT3                  = 136, // Trigger LW_SCRIPT3 (Unimplemented).
+	CF_LW_SCRIPT4                  = 137, // Trigger LW_SCRIPT4 (Unimplemented).
+	CF_LW_SCRIPT5                  = 138, // Trigger LW_SCRIPT5 (Unimplemented).
+	CF_LW_SCRIPT6                  = 139, // Trigger LW_SCRIPT6 (Unimplemented).
+	CF_LW_SCRIPT7                  = 140, // Trigger LW_SCRIPT7 (Unimplemented).
+	CF_LW_SCRIPT8                  = 141, // Trigger LW_SCRIPT8 (Unimplemented).
+	CF_LW_SCRIPT9                  = 142, // Trigger LW_SCRIPT9 (Unimplemented).
+	CF_LW_SCRIPT10                 = 143, // Trigger LW_SCRIPT10 (Unimplemented).
+	CF_SCRIPT_DIG                  = 144, // Dig Spot (Scripted).
+	CF_SCRIPT_DIG_NEXT             = 145, // Dig Spot, Next (Scripted).
+	CF_SCRIPT_DIG_ITEM             = 146, // Dig Spot, Special Item (Scripted).
+	CF_SCRIPT_POT_SLASH            = 147, // Pot, Slashable (Scripted).
+	CF_SCRIPT_POT_LIFT             = 148, // Pot, Liftable (Scripted).
+	CF_SCRIPT_POT_SLASH_OR_LIFT    = 149, // Pot, Slash or Lift (Scripted).
+	CF_SCRIPT_LIFT_NORMAL          = 150, // Rock, Lift Normal (Scripted).
+	CF_SCRIPT_LIFT_HEAVY           = 151, // Rock, Lift Heavy (Scripted).
+	CF_SCRIPT_DROPSET_ITEM         = 152, // Dropset Item (Scripted).
+	CF_SCRIPT_SPECIAL_ITEM         = 153, // Special Item (Scripted).
+	CF_SCRIPT_DROP_KEY             = 154, // Drop Key (Scripted).
+	CF_SCRIPT_DROP_LKEY            = 155, // Drop level-Specific Key (Scripted).
+	CF_SCRIPT_DROP_COMPASS         = 156, // Drop Compass (Scripted).
+	CF_SCRIPT_DROP_MAP             = 157, // Drop Map (Scripted).
+	CF_SCRIPT_DROP_BOSS_KEY        = 158, // Drop Boss Key (Scripted).
+	CF_SCRIPT_SPAWN_NPC            = 159, // Spawn NPC (Scripted).
+	CF_SCRIPT_SWITCHHOOK           = 160, // SwitchHook Spot (Scripted).
+	CF_SCRIPT21                    = 120,
+	CF_SCRIPT22                    = 121,
+	CF_SCRIPT23                    = 122,
+	CF_SCRIPT24                    = 123,
+	CF_SCRIPT25                    = 124,
+	CF_SCRIPT26                    = 125,
+	CF_SCRIPT27                    = 126,
+	CF_SCRIPT28                    = 127,
+	CF_SCRIPT29                    = 128,
+	CF_SCRIPT30                    = 129,
+	CF_SCRIPT31                    = 130,
+	CF_SCRIPT32                    = 144,
+	CF_SCRIPT33                    = 145,
+	CF_SCRIPT34                    = 146,
+	CF_SCRIPT35                    = 147,
+	CF_SCRIPT36                    = 148,
+	CF_SCRIPT37                    = 149,
+	CF_SCRIPT38                    = 150,
+	CF_SCRIPT39                    = 151,
+	CF_SCRIPT40                    = 152,
+	CF_SCRIPT41                    = 153,
+	CF_SCRIPT42                    = 154,
+	CF_SCRIPT43                    = 155,
+	CF_SCRIPT44                    = 156,
+	CF_SCRIPT45                    = 157,
+	CF_SCRIPT46                    = 158,
+	CF_SCRIPT47                    = 159,
+	CF_SCRIPT48                    = 160,
+	CF_SIDEVIEW_LADDER             = 161, // Sideview Ladder.
+	CF_SIDEVIEW_PLATFORM           = 162, // Sideview Platform.
+	CF_NO_ENEMIES_SPAWN            = 163, // No Enemies Spawn.
+	CF_ALL_ENEMIES_SPAWN           = 164, // All Enemies Spawn.
+	CF_SECRETS_NEXT                = 165, // Secrets->Next.
+};
+
+// Used with the blit drawing functions.
+// Some modes cannot be combined. If a combination is not supported, an error
+// detailing this will be shown in allegro.log.
+@Bitflags("int")
+enum BlitModeBitflags
+{
+	BITDX_NORMAL                   = 0,
+	BITDX_TRANS                    = 1, // Translucent.
+	BITDX_PIVOT                    = 2, // THe sprite will rotate at a specific point, instead of its center.
+	BITDX_VFLIP                    = 4, // Vertical Flip.
+	BITDX_HFLIP                    = 8, // Horizontal Flip.
+};
+
+@Bitflags("int")
+enum UnblockableBitflags
+{
+	UNBLOCK_NONE                   = 0000b, // Not unblockable.
+	UNBLOCK_NORM                   = 0001b, // Bypasses normal 'block' defenses.
+	UNBLOCK_IGNR                   = 0010b, // Bypasses 'ignore' defenses.
+	UNBLOCK_SHLD                   = 0100b, // Bypasses enemy/hero 'shields'.
+	UNBLOCK_REFL                   = 1000b, // Bypasses hero 'reflect' on shields.
+	UNBLOCK_ALL                    = 1111b, // All bits set.
+};
+
+// Used with [Hero->HitBy] and [npc::HitBy].
+enum HitIndex
+{
+	HIT_BY_NPC                     = 0,  // [Hero] only.
+	HIT_BY_EWEAPON                 = 1,  // [Hero] only.
+	HIT_BY_LWEAPON                 = 2,
+	HIT_BY_FFC                     = 3,  // Unimplemented.
+	HIT_BY_NPC_UID                 = 4,  // [Hero] only. The scripting UID of the enemy, used with [Screen->LoadNPCByUID].
+	HIT_BY_EWEAPON_UID             = 5,  // [Hero] only. The scripting UID of the eweapon, used with [Screen->LoadEWeaponByUID].
+	HIT_BY_LWEAPON_UID             = 6,  // [Hero] only. The scripting UID of the leweapon, used with [Screen->LoadLWeaponByUID].
+	HIT_BY_FFC_UID                 = 7,  // Unimplemented.
+	HIT_BY_LWEAPON_PARENT_ID       = 8,  // The item id of the item that the weapon that hit came from. -1 if the lweapon is script created.
+	HIT_BY_LWEAPON_PARENT_FAMILY   = 9,  // The item class of the item that the weapon that hit came from (see [ItemType]). -1 if the lweapon is script created.
+	HIT_BY_NPC_TYPE                = 10, // [Hero] only. The enemy class of the enemy that hit the [Hero] (see [NPCType]).
+	HIT_BY_EWEAPON_TYPE            = 11, // [Hero] only. The ID of the weapon that hit (see [LWeaponType] and [EWeaponType]).
+	// The internal UID used by the engine for the thing.
+	HIT_BY_LWEAPON_TYPE            = 12,
+	// Can cast to an npc: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`.
+	HIT_BY_NPC_PTR                 = 13,
+	// Can cast to an eweapon: `eweapon wpn = <eweapon>(Hero->HitBy[HIT_BY_EWEAPON_PTR])`.
+	HIT_BY_EWEAPON_PTR             = 14,
+	// Can cast to an lweapon: `lweapon wpn = <lweapon>(Hero->HitBy[HIT_BY_LWEAPON_PTR])`.
+	HIT_BY_LWEAPON_PTR             = 15,
+	HIT_BY_NPC_ID                  = 16, // The ID of the enemy that did the hit.
+};
+
+@Bitflags("int")
+enum PickupStringBitflags
+{
+	IPSTR_ALWAYS                   = 0x01,
+	IPSTR_ONLYHELD                 = 0x02,
+};
+
+// Used with [combodata::LiftFlags].
+enum ComboLiftFlag
+{
+	LF_LIFTABLE,
+	LF_DROPSET,
+	LF_DROPONLIFT,
+	LF_SPECIALITEM,
+	LF_NOUCSET,
+	LF_NOWPNCMBCSET,
+	LF_BREAKONSOLID
+};
+
+// Used with [Hero->LiftFlags].
+enum LiftFlag
+{
+	LIFTFL_DISABLE_SHIELD, // Disable shield when lifting the same way it is when swinging a weapon.
+	// Disable all items unrelated to lifting.
+	// Items related to lifting, such as bombs with the liftable flag set or a Lift Glove, will
+	// throw the held item regardless.
+	LIFTFL_DISABLE_ITEMS,
+	LIFTFL_NO_SWIMMING,
+	LIFTFL_DROP_ON_HIT,
+	LIFTFL_MAX
+};
+
+// Used with [sprite::LightShape], torch combos/itemdata.
+enum LightShape
+{
+	LIGHT_CIRCLE,
+	LIGHT_CONE,
+	LIGHT_SQUARE
+};
+
+// Used with [lweapon::DeadState] and [eweapon::DeadState].
+enum WeaponDeadState {
+	WDS_NOHIT             = -10, // This value switches collision detection off. Deprecated by [lweapon::CollDetection].
+	WDS_ALIVE             = -1,  // Weapon is currently 'alive'.
+	WDS_DEAD              = 0,   // Use to dispose of most weapons.
+	WDS_BEAMSHARDS        = 23,  // Used with [LW_BEAM] to shatter it into shards.
+	WDS_ARROW             = 4,   // Used with [LW_ARROW] to make them 'wink out' using tile 54.
+	WDS_BOUNCE            = 1    // Used with [LW_BRANG] or [LW_HOOKSHOT] to make it 'bounce off' and begin returning to Link.
+};
+
+enum InteractButton
+{
+	INTBTN_A,
+	INTBTN_B,
+	INTBTN_L,
+	INTBTN_R,
+	INTBTN_EX1,
+	INTBTN_EX2,
+	INTBTN_EX3,
+	INTBTN_EX4,
+
+	INTBTN_X = INTBTN_EX1,
+	INTBTN_Y = INTBTN_EX2,
+};
+
+// Special hardcoded draw layers.
+// These may draw multiple times, or no times at all, during a frame.
+// Timing may vary from frame to frame, and based on QRs or other settings.
+enum SpecialDrawLayer
+{
+	SPLAYER_PLAYER_DRAW = -200000,  //The [Hero], when this occurs changes based on various conditions.
+	SPLAYER_EWEAP_BEHIND_DRAW, //Eweapons with 'Behind = true'
+	SPLAYER_EWEAP_FRONT_DRAW, //Eweapons with 'Behind = false'
+	SPLAYER_LWEAP_BEHIND_DRAW, //Lweapons with 'Behind = true'
+	SPLAYER_LWEAP_FRONT_DRAW, //Lweapons with 'Behind = false'
+	SPLAYER_LWEAP_ABOVE_DRAW, //Lweapons with (Z+FakeZ) > Init Data 'Jump Layer Height', IF the [Hero] is also above this height.
+	SPLAYER_CHAINLINK_DRAW, //Hookshot chain links. This may draw multiple times per frame.
+	SPLAYER_NPC_DRAW, //Enemies
+	SPLAYER_NPC_ABOVEPLAYER_DRAW, //Enemies 'grabbing' the [Hero], or with a higher Z than the [Hero]
+	SPLAYER_NPC_AIRBORNE_DRAW, //Flying enemies, or enemies in the Z axis (amount required QR dependant)
+	SPLAYER_ITEMSPRITE_DRAW, //Itemsprites
+	SPLAYER_FAIRYITEM_DRAW, //Moving fairies
+	SPLAYER_PUSHBLOCK, //Pushable Blocks
+	SPLAYER_MOVINGBLOCK, //Moving Pushable Blocks
+	SPLAYER_OVERHEAD_CMB, //Overhead combos
+	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
+	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
+	SPLAYER_DARKROOM_OVER, //Over dark room darkness
+	SPLAYER_FFC_DRAW, //Non-Overhead ffcs - Draws during a timing above layer 1 and 2
+	SPLAYER_LENS_UNDER_1, //Lens drawing secrets/revealing things
+	SPLAYER_LENS_UNDER_2, //Lens drawing secrets/revealing things
+	SPLAYER_LENS_OVER //Lens drawing blackness to cover most of the screen
+};
+
+// Used with [itemdata::SizeFlags], [itemdata::WeaponSizeFlags], [npcdata::SizeFlags].
+// These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors.
+@Bitflags("int")
+enum SizeOverrideBitflags
+{
+	SZFLAG_TILEWIDTH               = 0x0001,
+	SZFLAG_TILEHEIGHT              = 0x0002,
+	SZFLAG_HIT_WIDTH               = 0x0004,
+	SZFLAG_HIT_HEIGHT              = 0x0008,
+	SZFLAG_HIT_Z_HEIGHT            = 0x0010,
+	SZFLAG_HIT_X_OFFSET            = 0x0020,
+	SZFLAG_HIT_Y_OFFSET            = 0x0040,
+	SZFLAG_DRAW_X_OFFSET           = 0x0080,
+	SZFLAG_DRAW_Y_OFFSET           = 0x0100,
+	SZFLAG_DRAW_Z_OFFSET           = 0x0200, // Enemies only.
+	SZFLAG_ALL                     = 0x03FF,
+};

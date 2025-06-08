@@ -1687,7 +1687,7 @@ void itemLocationReport()
                 newnode->screen=s;
                 newnode->extra1=-1;
                 newnode->extra2=-1;
-                newnode->enemy=(ts->flags&fITEM ? -1 : (ts->enemyflags&efCARRYITEM) ? ts->enemy[0] : 0);
+                newnode->enemy=(ts->flags&fITEM ? -1 : (ts->flags11&efCARRYITEM) ? ts->enemy[0] : 0);
                 newnode->pal=ts->color;
                 newnode->next=NULL;
                 tempnode->next=newnode;
@@ -2432,24 +2432,24 @@ void ComboTypeLocationReport()
                 int32_t ffuses = 0;
                 bool undercombouses = false;
                 
-                for(int32_t c=0; c<337; ++c)
+                for(int32_t c=0; c<304; ++c)
                 {
                     // Checks both combos and secret combos.
                     if(c<176)
                     {
                         if(combobuf[ts->data[c]].type == Type) uses++;
                     }
-                    else if(c<304)
+                    else
                     {
                         if(combobuf[ts->secretcombo[c-176]].type == Type) secretuses++;
                     }
-                    else if(c<336)
-                    {
-                        if(combobuf[ts->ffcs[c-304].data].type == Type) ffuses++;
-                    }
-                    else if(combobuf[ts->undercombo].type == Type) undercombouses = true;
                 }
-                
+
+				for (auto& ffc : ts->ffcs)
+					if(combobuf[ffc.data].type == Type) ffuses++;
+
+				if(combobuf[ts->undercombo].type == Type) undercombouses = true;
+
                 if(uses > 0 || secretuses > 0 || ffuses > 0 || undercombouses)
                 {
                     tempnode=&(combotype_location_grid[Type]);

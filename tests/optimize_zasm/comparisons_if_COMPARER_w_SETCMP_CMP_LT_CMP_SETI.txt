@@ -1,5 +1,5 @@
 ; comparisons, if COMPARER w/ SETCMP CMP_LT | CMP_SETI
-Function #0
+Function #0 (run_none-0)
     0: COMPARER        D3               D2          [Block 0 -> 1, 2]
     1: SETCMP          D2               I<
     2: COMPAREV        D2               0

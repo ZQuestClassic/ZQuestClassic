@@ -301,7 +301,6 @@ def do_web_packaging():
             'base_config/zquest.cfg',
             'base_config/zscript.cfg',
             'Classic.nsf',
-            'modules/classic.zmod',
             'modules/classic/classic_fonts.dat',
             'modules/classic/default.qst',
             'modules/classic/title_gfx.dat',
@@ -382,26 +381,26 @@ def do_web_packaging():
         ]
     )
 
-    zscript_data_files = [
+    zscript_playground_data_files = [
         *glob(resources_dir, 'include/**/*'),
         *glob(resources_dir, 'headers/**/*'),
         *files(resources_dir, ['base_config/zscript.cfg']),
     ]
-    copy_files_to_package(zscript_data_files, packages_dir / 'web_zscript_data')
+    copy_files_to_package(zscript_playground_data_files, packages_dir / 'web_zscript_playground_data')
     subprocess.check_call(
         [
             'python',
             emcc_dir / 'tools/file_packager.py',
-            build_dir / 'zscript.data',
+            build_dir / 'zscript-playground.data',
             '--no-node',
             '--preload',
-            f'{packages_dir}/web_zscript_data@/',
+            f'{packages_dir}/web_zscript_playground_data@/',
             '--use-preload-cache',
-            f'--js-output={build_dir / "zscript.data.js"}',
+            f'--js-output={build_dir / "zscript-playground.data.js"}',
         ]
     )
-    text = (build_dir / 'zscript.data.js').read_text() + '\nexport default Module;'
-    (build_dir / 'zscript.data.js').write_text(text)
+    text = (build_dir / 'zscript-playground.data.js').read_text() + '\nexport default Module;'
+    (build_dir / 'zscript-playground.data.js').write_text(text)
 
 
 if 'TEST' in os.environ:

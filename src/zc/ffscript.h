@@ -1,6 +1,7 @@
 #ifndef FFSCRIPT_H_
 #define FFSCRIPT_H_
 
+#include "base/general.h"
 #include "base/mapscr.h"
 #include "base/zdefs.h"
 #include "base/initdata.h"
@@ -11,9 +12,22 @@
 #include <deque>
 #include <bitset>
 #include "zasm/defines.h"
+#include "zc/scripting/context_strings.h"
 #include "zc/zelda.h"
 #include "zc/replay.h"
 #include "zc/hero.h"
+
+extern std::string current_zasm_context;
+extern std::string current_zasm_extra_context;
+
+void scripting_log_error_with_context(std::string text);
+
+template <typename... Args>
+static void scripting_log_error_with_context(fmt::format_string<Args...> s, Args&&... args)
+{
+    std::string text = fmt::format(s, std::forward<Args>(args)...);
+	scripting_log_error_with_context(text);
+}
 
 #define ZS_BYTE 255
 #define ZS_CHAR 255
@@ -32,9 +46,7 @@
 #define ZSCRIPT_MAX_STRING_CHARS 214748
 
 #define MAX_ZQ_LAYER 6
-#define MAX_DRAW_LAYER 7
 #define MIN_ZQ_LAYER 0
-#define MIN_DRAW_LAYER 0
 #define MAX_FLAGS 512
 
 #define SRAM_VERSION 2
@@ -77,6 +89,8 @@ void doWarpEffect(int32_t warpEffect, bool out);
 #define svCOMBOS 	0x08
 #define svDMAPS 	0x10
 #define svMAPSCR 	0x20
+
+void apply_qr_rule(int qr_id);
 
 enum herospritetype
 {
@@ -175,12 +189,6 @@ enum{
 	scdrDRAW_DURING_WIPES, scdrLAST
 };
 
-//UID types for ->Script_UID
-enum
-{
-	UID_TYPE_NPC, UID_TYPE_WEAPON, UID_TYPE_ITEM, UID_TYPES
-};
-
 //Quest Version Information Categories
 //These reflect the version details from when the quest was last saved.
 enum 
@@ -200,72 +208,31 @@ enum
 	 qQuestVersion, qMinQuestVersion, qvLAST
 };
 
+// go see resources/include/bindings/game.zh for documentation on these things.
 enum //ScrollingData indexes
 {
-	SCROLLDATA_DIR, SCROLLDATA_NX, SCROLLDATA_NY, SCROLLDATA_OX, SCROLLDATA_OY, SZ_SCROLLDATA
-};
+	SCROLLDATA_DIR,
 
-///----------------------------------------------//
-//           New Mapscreen Flags Tools           //
-///----------------------------------------------//
+	SCROLLDATA_NX, SCROLLDATA_NY, SCROLLDATA_OX, SCROLLDATA_OY,
 
-enum mapflagtype
-{
-	// Room Types
-	MSF_INTERIOR, MSF_DUNGEON, MSF_SIDEVIEW,
-	
-	// View
-	MSF_INVISHERO, MSF_NOHEROMARKER, MSF_NOSUBSCREEN, MSF_NOOFFSET,
-	MSF_LAYER2BG, MSF_LAYER3BG, MSF_DARKROOM,
-	
-	// Secrets
-	MSF_BLOCKSHUT, MSF_TEMPSECRETS, MSF_TRIGPERM, MSF_ALLTRIGFLAGS,
-	
-	// Warp
-	MSF_AUTODIRECT, MSF_SENDSIRECT, MSF_MAZEPATHS, MSF_MAZEOVERRIDE,
-	MSF_SPRITECARRY, MSF_DIRECTTIMEDWARPS, MSF_SECRETSISABLETIMEWRP, MSF_RANDOMTIMEDWARP,
-	
-	// Item
-	MSF_HOLDUP, MSF_FALLS,
-	
-	// Combo
-	MSF_MIDAIR, MSF_CYCLEINIT, MSF_IGNOREBOOTS, MSF_TOGGLERINGS,
-	
-	// Save
-	MSF_SAVECONTHERE, MSF_SAVEONENTRY, MSF_CONTHERE, MSF_NOCONTINUEWARP,
-	
-	// FFC
-	MSF_WRAPFFC, MSF_NOCARRYOVERFFC, 
-	
-	// Whistle
-	MSF_STAIRS, MSF_PALCHANGE, MSF_DRYLAKE, 
-	
-	// Enemies
-	MSF_INVISIBLEENEMIES, MSF_TRAPS_IGNORE_SOLID, MSF_EMELIESALWAYSRETURN, MSF_ENEMIES_ITEM, MSF_ENEMEIS_SECRET,
-	MSF_ENEMIES_SECRET_PERM,  
-	
-		//->enemyflags
-		MSF_SPAWN_ZORA, MSF_SPAWN_CORNERTRAP, MSF_SPAWN_MIDDLETRAP, MSF_SPAWN_ROCK, MSF_SPAWN_SHOOTER,
-		MSF_RINGLEADER, MSF_ENEMYHASITEM, MSF_ENEMYISBOSS, 
-	
-	// Misc
-	MSF_ALLOW_LADDER, MSF_NO_DIVING, MSF_SFXONENTRY, MSF_LENSEFFECT,
-		 
-	//Custom / Script 
-	MSF_SCRIPT1,
-	MSF_CUSTOM1 = MSF_SCRIPT1,
-	MSF_SCRIPT2,
-	MSF_CUSTOM2 = MSF_SCRIPT2,
-	MSF_SCRIPT3,
-	MSF_CUSTOM3 = MSF_SCRIPT3,
-	MSF_SCRIPT4,
-	MSF_CUSTOM4 = MSF_SCRIPT4,
-	MSF_SCRIPT5,
-	MSF_CUSTOM5 = MSF_SCRIPT5,
-	
-	MSF_DUMMY_8, 
-	MSF_LAST
-	
+	SCROLLDATA_NRX, SCROLLDATA_NRY, SCROLLDATA_ORX, SCROLLDATA_ORY,
+
+	SCROLLDATA_NEW_REGION_DELTA_X, SCROLLDATA_NEW_REGION_DELTA_Y,
+
+	SCROLLDATA_NEW_SCREEN_X, SCROLLDATA_NEW_SCREEN_Y, SCROLLDATA_OLD_SCREEN_X, SCROLLDATA_OLD_SCREEN_Y,
+
+	SCROLLDATA_NEW_HERO_X, SCROLLDATA_NEW_HERO_Y, SCROLLDATA_OLD_HERO_X, SCROLLDATA_OLD_HERO_Y,
+
+	SCROLLDATA_NEW_REGION_SCREEN_WIDTH, SCROLLDATA_NEW_REGION_SCREEN_HEIGHT,
+	SCROLLDATA_OLD_REGION_SCREEN_WIDTH, SCROLLDATA_OLD_REGION_SCREEN_HEIGHT,
+
+	SCROLLDATA_NEW_VIEWPORT_WIDTH, SCROLLDATA_NEW_VIEWPORT_HEIGHT,
+	SCROLLDATA_OLD_VIEWPORT_WIDTH, SCROLLDATA_OLD_VIEWPORT_HEIGHT,
+
+	SCROLLDATA_NEW_VIEWPORT_X, SCROLLDATA_NEW_VIEWPORT_Y,
+	SCROLLDATA_OLD_VIEWPORT_X, SCROLLDATA_OLD_VIEWPORT_Y,
+
+	SZ_SCROLLDATA
 };
 
 //User-generated / Script-Generated bitmap object
@@ -536,10 +503,6 @@ struct user_paldata : public user_abstract_obj
 	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
 };
 
-//Module System.
-//Putting this here for now.
-#include "base/module.h"
-
 int32_t run_script_int(bool is_jitted);
 
 void clearConsole();
@@ -676,8 +639,7 @@ void shutdown();
 
 
 int32_t max_ff_rules;
-mapscr* tempScreens[7];
-mapscr* ScrollingScreens[7];
+std::vector<mapscr*> ScrollingScreensAll;
 int32_t ScrollingData[SZ_SCROLLDATA];
 std::vector<int32_t> eventData;
 
@@ -840,7 +802,7 @@ int32_t getQuestHeaderInfo(int32_t type)
 //{int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir}
 void queueWarp(int32_t wtype, int32_t tdm, int32_t tscr, int32_t wx, int32_t wy,
 	int32_t weff, int32_t wsfx, int32_t wflag, int32_t wdir);
-bool warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir);
+bool warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir);
 
 void user_files_init();
 void user_dirs_init();
@@ -932,6 +894,9 @@ void do_set_music_speed(const bool v);
 void do_get_music_length();
 void do_set_music_loop();
 
+bool doesResolveToScreenBitmap(int32_t bitmap_id);
+bool doesResolveToDeprecatedSystemBitmap(int32_t bitmap_id);
+
 BITMAP* GetScriptBitmap(int32_t id, bool skipError = false);
 
 int32_t highest_valid_user_bitmap();
@@ -949,7 +914,6 @@ byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game
 byte system_suspend[susptLAST];
 
 int32_t coreflags;
-int32_t script_UIDs[UID_TYPES];
 int32_t usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
 byte music_update_cond, music_update_flags;
 
@@ -995,10 +959,6 @@ void do_monochromatic(const bool v);
 void gfxmonohue();
 void Tint();
 void clearTint();
-//Advances the game frame without checking 'Quit' variable status.
-//Used for making scripts such as Hero's onWin and onDeath scripts
-//run for multiple frames.
-void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
 void initZScriptOnMapScript();
@@ -1017,14 +977,7 @@ bool& waitdraw(ScriptType type, int index = 0);
 
 //Combo Scripts
 void clear_combo_scripts();
-void clear_combo_script(int32_t lyr, int32_t pos);
-void ClearComboScripts();
-int32_t getComboDataLayer(int32_t c, ScriptType scripttype);
-int32_t getCombodataPos(int32_t c, ScriptType scripttype);
-int32_t getCombodataY(int32_t c, ScriptType scripttype);
-int32_t getCombodataX(int32_t c, ScriptType scripttype);
-
-int32_t GetScriptObjectUID(int32_t type);
+void clear_combo_script(const rpos_handle_t& rpos_handle);
 
 void SetFFEngineFlag(int32_t flag, bool v);
 void SetItemMessagePlayed(int32_t itm);
@@ -1049,59 +1002,10 @@ void do_loaditem_by_script_uid(const bool v);
 void do_loadlweapon_by_script_uid(const bool v);
 void do_loadeweapon_by_script_uid(const bool v);
 
-int32_t getEnemyByScriptUID(int32_t sUID);
-int32_t getLWeaponByScriptUID(int32_t sUID);
-int32_t getEWeaponByScriptUID(int32_t sUID);
-
 //Deletion functions
 void do_lweapon_delete();
 void do_eweapon_delete();
 
-
-	static INLINE int32_t ZSbound_byte(int32_t val)
-	{
-		return vbound(val,0,ZS_BYTE);
-	}
-	static INLINE int32_t ZSbound_char(int32_t val)
-	{
-		return vbound(val,0,ZS_CHAR);
-	}
-	static INLINE int32_t ZSbound_word(int32_t val)
-	{
-		return vbound(val,0,ZS_WORD);
-	}
-	static INLINE int32_t ZSbound_short(int32_t val)
-	{
-		return vbound(val,0,ZS_SHORT);
-	}
-	static INLINE int32_t ZSbound_long(int32_t val)
-	{
-		return vbound(val,0,ZS_LONG);
-	}
-	static INLINE int32_t ZSbound_fix(int32_t val)
-	{
-		return vbound(val,0,ZS_FIX);
-	}
-	
-static void set_screenwarpReturnY(mapscr *m, int32_t d, int32_t value);
-static void set_screenenemy(mapscr *m, int32_t index, int32_t value);
-static void set_screenlayeropacity(mapscr *m, int32_t d, int32_t value);
-static void set_screensecretcombo(mapscr *m, int32_t d, int32_t value);
-static void set_screensecretcset(mapscr *m, int32_t d, int32_t value);
-static void set_screensecretflag(mapscr *m, int32_t d, int32_t value);
-static void set_screenlayermap(mapscr *m, int32_t d, int32_t value);
-static void set_screenlayerscreen(mapscr *m, int32_t d, int32_t value);
-static void set_screenpath(mapscr *m, int32_t d, int32_t value);
-static void set_screenwarpReturnX(mapscr *m, int32_t d, int32_t value);
-static void set_screenGuy(mapscr *m, int32_t value);
-static void set_screenString(mapscr *m, int32_t value);
-static void set_screenRoomtype(mapscr *m, int32_t value);
-static void set_screenEntryX(mapscr *m, int32_t value);
-static void set_screenEntryY(mapscr *m, int32_t value);
-static void set_screenitem(mapscr *m, int32_t value);
-static void set_screenundercombo(mapscr *m, int32_t value);
-static void set_screenundercset(mapscr *m, int32_t value);
-static void set_screenatchall(mapscr *m, int32_t value);
 static void deallocateArray(const int32_t ptrval);
 static int32_t get_screen_d(int32_t index1, int32_t index2);
 static void set_screen_d(int32_t index1, int32_t index2, int32_t val);
@@ -1115,12 +1019,6 @@ static void do_closescreenshape();
 static void do_wavyin();
 static void do_wavyout();
 static void do_triggersecret(const bool v);
-static void do_changeffcscript(const bool v);
-
-static void setHeroDiagonal(bool v);
-static bool getHeroDiagonal();
-static bool getHeroBigHitbox();
-static void setHeroBigHitbox(bool v);
 
 
 
@@ -1427,7 +1325,6 @@ static void setHeroBigHitbox(bool v);
 	static void do_loadmapdata_scrollscr2(const bool v);
 	static int32_t loadMapData();
 	static void do_loadspritedata(const bool v);
-	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);
@@ -1480,7 +1377,7 @@ enum __Error
         _InvalidSpriteUID //bad npc, ffc, etc.
     };
     
-	static void deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways = true);
+	static void deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID);
 	static void deallocateAllScriptOwnedOfType(ScriptType scriptType);
 	static void deallocateAllScriptOwned();
 	static void deallocateAllScriptOwnedCont();
@@ -1507,6 +1404,10 @@ void clearScriptHelperData();
 
 int32_t get_screenflags(mapscr *m, int32_t flagset);
 int32_t get_screeneflags(mapscr *m, int32_t flagset);
+
+sprite* ResolveBaseSprite(int32_t uid);
+item* ResolveItemSprite(int32_t uid);
+enemy* ResolveNpc(int32_t uid);
 
 // Defines for script flags
 #define TRUEFLAG          0x0001
@@ -1540,8 +1441,9 @@ bool command_could_return_not_ok(int command);
 // command, given its register output is not needed.
 bool command_is_pure(int command);
 
-int32_t get_combopos_ref(int32_t pos, int32_t layer);
-int32_t combopos_ref_to_pos(int32_t combopos_ref);
+int32_t get_combopos_ref(const rpos_handle_t& rpos_handle);
+int32_t get_combopos_ref(rpos_t rpos, int32_t layer);
+rpos_t combopos_ref_to_rpos(int32_t combopos_ref);
 int32_t combopos_ref_to_layer(int32_t combopos_ref);
 
 bool is_valid_array(int32_t ptr);
@@ -1656,7 +1558,7 @@ public:
 	{
 		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
 		{
-			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+			scripting_log_error_with_context("Invalid index: {}, array size: {}", index, size);
 			return _OutOfBounds;
 		}
 		
@@ -1705,136 +1607,162 @@ class BC : public SH
 {
 public:
 
-	static INLINE int32_t checkMapID(const int32_t ID, const char * const str)
+	static INLINE int32_t checkMapID(const int32_t ID)
 	{
-		//return checkBounds(ID, 0, map_count-1, str);
-		if(ID < 0 || ID > map_count-1)
+		return checkBounds(ID, 0, map_count-1);
+	}
+	
+	static INLINE int32_t checkDMapID(const int32_t ID)
+	{
+		return checkBounds(ID, 0, MAXDMAPS-1);
+	}
+	
+	static INLINE int32_t checkComboPos(const int32_t pos)
+	{
+		return checkBoundsPos(pos, 0, 175);
+	}
+
+	static INLINE int32_t checkComboRpos(const rpos_t rpos)
+	{
+		return checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos);
+	}
+
+	static INLINE int32_t checkTile(const int32_t pos)
+	{
+		return checkBounds(pos, 0, NEWMAXTILES-1);
+	}
+	
+	static INLINE int32_t checkCombo(const int32_t pos)
+	{
+		return checkBounds(pos, 0, MAXCOMBOS-1);
+	}
+	
+	static INLINE int32_t checkMisc(const int32_t a)
+	{
+		return checkBounds(a, 0, 15);
+	}
+	
+	 static INLINE int32_t checkMisc32(const int32_t a)
+	{
+		return checkBounds(a, 0, 31);
+	}
+	
+	static INLINE int32_t checkMessage(const int32_t ID)
+	{
+		return checkBounds(ID, 0, msg_strings_size-1);
+	}
+	
+	static INLINE int32_t checkLayer(const int32_t layer)
+	{
+		return checkBounds(layer, 0, 6);
+	}
+	
+	static INLINE int32_t checkFFC(ffc_id_t id)
+	{
+		return checkBoundsOneIndexed(id, 0, MAX_FFCID);
+	}
+
+	static INLINE int32_t checkMapdataFFC(int index)
+	{
+		return checkBounds(index, 0, MAXFFCS-1);
+	}
+	
+	static INLINE int32_t checkGuyIndex(const int32_t index)
+	{
+		return checkBoundsOneIndexed(index, 0, guys.Count()-1);
+	}
+	
+	static INLINE int32_t checkItemIndex(const int32_t index)
+	{
+		return checkBoundsOneIndexed(index, 0, items.Count()-1);
+	}
+	
+	static INLINE int32_t checkEWeaponIndex(const int32_t index)
+	{
+		return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1);
+	}
+	
+	static INLINE int32_t checkLWeaponIndex(const int32_t index)
+	{
+		return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1);
+	}
+	
+	static INLINE int32_t checkGuyID(const int32_t ID)
+	{
+		//return checkBounds(ID, 0, MAXGUYS-1); //Can't create NPC ID 0
+		return checkBounds(ID, 1, MAXGUYS-1);
+	}
+	
+	static INLINE int32_t checkItemID(const int32_t ID)
+	{
+		return checkBounds(ID, 0, MAXITEMS-1);
+	}
+	
+	static INLINE int32_t checkWeaponID(const int32_t ID)
+	{
+		return checkBounds(ID, 0, MAXWPNS-1);
+	}
+	
+	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID)
+	{
+		return checkBounds(ID, 0, MAXWPNS-1);
+	}
+	
+	static INLINE int32_t checkSFXID(const int32_t ID)
+	{
+		return checkBounds(ID, 0, WAV_COUNT-1);
+	}
+	
+	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* term = "value")
+	{
+		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", ID+1, str);
+			scripting_log_error_with_context("Invalid {}: {} - must be >= {} and <= {}", term, n, boundlow, boundup);
 			return _OutOfBounds;
 		}
 		
 		return _NoError;
 	}
-	
-	static INLINE int32_t checkDMapID(const int32_t ID, const char * const str)
+
+	static INLINE int32_t checkIndex(const int32_t n, const int32_t boundlow, const int32_t boundup)
 	{
-		return checkBounds(ID, 0, MAXDMAPS-1, str);
+		return checkBounds(n, boundlow, boundup, "index");
 	}
-	
-	static INLINE int32_t checkComboPos(const int32_t pos, const char * const str)
+
+	// Typical array indexing: >= 0 and < len.
+	// TODO: use this in all index bound checks.
+	static INLINE int32_t checkIndex2(int32_t n, int32_t len)
 	{
-		return checkBoundsPos(pos, 0, 175, str);
-	}
-	
-	static INLINE int32_t checkTile(const int32_t pos, const char * const str)
-	{
-		return checkBounds(pos, 0, NEWMAXTILES-1, str);
-	}
-	
-	static INLINE int32_t checkCombo(const int32_t pos, const char * const str)
-	{
-		return checkBounds(pos, 0, MAXCOMBOS-1, str);
-	}
-	
-	static INLINE int32_t checkMisc(const int32_t a, const char * const str)
-	{
-		return checkBounds(a, 0, 15, str);
-	}
-	
-	 static INLINE int32_t checkMisc32(const int32_t a, const char * const str)
-	{
-		return checkBounds(a, 0, 31, str);
-	}
-	
-	static INLINE int32_t checkMessage(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, msg_strings_size-1, str);
-	}
-	
-	static INLINE int32_t checkLayer(const int32_t layer, const char * const str)
-	{
-		return checkBounds(layer, 0, 6, str);
-	}
-	
-	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
-	{
-		return checkBounds(ffc, 0, MAXFFCS-1, str);
-	}
-	
-	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
-	{
-		return checkBoundsOneIndexed(index, 0, guys.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkItemIndex(const int32_t index, const char * const str)
-	{
-		return checkBoundsOneIndexed(index, 0, items.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkEWeaponIndex(const int32_t index, const char * const str)
-	{
-		return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkLWeaponIndex(const int32_t index, const char * const str)
-	{
-		return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkGuyID(const int32_t ID, const char * const str)
-	{
-		//return checkBounds(ID, 0, MAXGUYS-1, str); //Can't create NPC ID 0
-		return checkBounds(ID, 1, MAXGUYS-1, str);
-	}
-	
-	static INLINE int32_t checkItemID(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, MAXITEMS-1, str);
-	}
-	
-	static INLINE int32_t checkWeaponID(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, MAXWPNS-1, str);
-	}
-	
-	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, MAXWPNS-1, str);
-	}
-	
-	static INLINE int32_t checkSFXID(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, WAV_COUNT-1, str);
-	}
-	
-	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
-	{
-		if(n < boundlow || n > boundup)
+		if(n < 0 || n >= len)
 		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n, funcvar);
+			scripting_log_error_with_context("Invalid index: {} - must be >= 0 and < {}", n, len);
 			return _OutOfBounds;
 		}
-		
+
 		return _NoError;
 	}
 	
-	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup)
+	{
+		return checkBounds(n, boundlow, boundup, "position");
+	}
+
+	static INLINE int32_t checkBoundsRpos(const rpos_t n, const rpos_t boundlow, const rpos_t boundup)
 	{
 		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
+			scripting_log_error_with_context("Invalid position: {} - must be >= {} and <= {}", (int)n, (int)boundlow, (int)boundup);
 			return _OutOfBounds;
 		}
         
 		return _NoError;
 	}
 	
-	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup)
 	{
 		if(n < boundlow || n > boundup)
 		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n+1, funcvar);
+			scripting_log_error_with_context("Invalid index: {} - must be >= {} and < {}", n + 1, boundlow + 1, boundup + 1);
 			return _OutOfBounds;
 		}
 		
@@ -1845,7 +1773,7 @@ public:
 	{
 		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
 		{
-			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+			scripting_log_error_with_context("Invalid index: {}, array size: {}", index, size);
 			return _OutOfBounds;
 		}
 		
@@ -1883,7 +1811,9 @@ extern int32_t flagval;
 void clear_ornextflag();
 void ornextflag(bool flag);
 
-int32_t get_mi(int32_t ref = MAPSCR_TEMP0);
-int32_t get_total_mi(int32_t ref = MAPSCR_TEMP0);
+int32_t get_mi();
+int32_t get_total_mi();
+
+bool pc_overflow(dword pc, bool print_err = true);
 
 #endif

@@ -1,22 +1,7 @@
 @Bitflags("int")
-enum AnimationBitflags
-{
-	AF_FRESH,
-	AF_CYCLE,
-	AF_CYCLENOCSET,
-	AF_TRANSPARENT,
-	AF_CYCLEUNDERCOMBO,
-};
-
-@Bitflags("int")
 enum OtherBitflags
 {
 	F_A, F_B
-};
-
-enum HitIndex
-{
-	HIT_BY_NPC_ID,
 };
 
 void test()

@@ -39,6 +39,9 @@ on:
         type: string
       from-ci-workflow:
         type: boolean
+    secrets:
+      GH_PAT_ZSCRIPT_DATABASE:
+        required: true
 
 env:
   PYTHONUNBUFFERED: '1'
@@ -80,10 +83,14 @@ jobs:
         with:
           python-version: '3.12.8'
           cache: pip
-      - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
-        run: pip install -r requirements.txt
-      - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo pip install -r requirements.txt
+      - run: pip install -r requirements.txt
+      - run: mkdir -p .tmp
+
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
+        name: Install Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
 
       - uses: actions/download-artifact@v4
         with:
@@ -121,10 +128,6 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libdumb1
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
-      - name: update_auto_script_tests.py
-        if: inputs.config != 'Coverage'
-        run: bash .github/workflows/run_python.sh tests/update_auto_script_tests.py
-
       # Note: Uses JIT by default, except for win32.
       - name: Run replay tests
         run: >
@@ -153,12 +156,33 @@ jobs:
           --no-jit
           --no-headless
 
+      - name: update_auto_script_tests.py
+        if: inputs.config != 'Coverage'
+        run: bash .github/workflows/run_python.sh tests/update_auto_script_tests.py
+
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Updater cache
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
+
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && !contains(inputs.runs-on, 'ubuntu') }}
+        name: Archives cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.tmp/archives
+          key: archives-cache-${{ inputs.runs-on }}-${{ runner.arch }}
+
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
+        name: Checkout zscript database
+        uses: actions/checkout@v4
+        with:
+          # Note: this token expires annually.
+          token: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
+          repository: ZQuestClassic/zscript-database
+          ref: 68f3d886d7fd929038deb729f38c440ed0250fc0
+          path: ${{ github.workspace }}/.tmp/zscript-database
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Run Python tests

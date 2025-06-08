@@ -85,15 +85,13 @@ bool PressLeftWin()  { return (Input->ModifierKeys&KB_LWIN_FLAG); }
 bool PressApple() { return (Input->ModifierKeys&KB_COMMAND_FLAG); }
 bool PressCommand()  { return (Input->ModifierKeys&KB_COMMAND_FLAG); }
 bool InAltSequence()  { return (Input->ModifierKeys&KB_INALTSEQ_FLAG); }
-bool AccentShift(int n)  { return (Input->ModifierKeys&(KB_INALTSEQ_FLAG+((n-1)*0x1000))); }
+bool AccentShift(int n)  { return (Input->ModifierKeys&(KB_INALTSEQ_FLAG + <KeyModifierBitflags>((n-1)*0x1000)  )); }
 bool PressAltGR() { return Input->Key[KEY_ALTGR]; }
 
 //Is this Linux only?
 bool PressLinuxMenu()  { return (Input->ModifierKeys&KB_MENU_FLAG); }
 
-//Note that these keys are used by the ZC Ui. You can read them this way, but you should not expect
-//a user to utilise them, for input, without some kind of interupt system.
-// Input->DisableKey[] can be used to disable F keys, aside from F7,F8,F9. -V
+// Input->DisableKey[] can be used to disable F keys, aside from F7,F8,F9.
 bool FKey(int f){ if ( f > 0 && f < 13 ) return Input->KeyPress[46+f]; else return false; }
 bool EscKey() { return Input->KeyPress[KEY_ESC]; } 
 
@@ -106,7 +104,6 @@ char32 KeyToChar(int key, bool shifted) { return KeyToChar(key,shifted,(Input->M
 
 char32 KeyToChar(int key, bool shifted, bool caps)
 {
-	//TraceS("KeyToChar bool shifted is: "); TraceB(shifted);
 	if ( shifted )
 	{
 		switch(key)
@@ -341,157 +338,4 @@ char32 KeyToChar(int key, bool shifted, bool caps)
 			}
 		}
 	}
-	
 }
-
-//Key Constants -- !DO NOT MODIFY
-
-const int KEY_A            = 1;
-const int KEY_B            = 2;
-const int KEY_C            = 3;
-const int KEY_D            = 4;
-const int KEY_E            = 5;
-const int KEY_F            = 6;
-const int KEY_G            = 7;
-const int KEY_H            = 8;
-const int KEY_I            = 9;
-const int KEY_J            = 10;
-const int KEY_K            = 11;
-const int KEY_L            = 12;
-const int KEY_M            = 13;
-const int KEY_N            = 14;
-const int KEY_O            = 15;
-const int KEY_P            = 16;
-const int KEY_Q            = 17;
-const int KEY_R            = 18;
-const int KEY_S            = 19;
-const int KEY_T            = 20;
-const int KEY_U            = 21;
-const int KEY_V            = 22;
-const int KEY_W            = 23;
-const int KEY_X            = 24;
-const int KEY_Y            = 25;
-const int KEY_Z            = 26;
-const int KEY_0            = 27;
-const int KEY_1            = 28;
-const int KEY_2            = 29;
-const int KEY_3            = 30;
-const int KEY_4            = 31;
-const int KEY_5            = 32;
-const int KEY_6            = 33;
-const int KEY_7            = 34;
-const int KEY_8            = 35;
-const int KEY_9            = 36;
-const int KEY_0_PAD        = 37;
-const int KEY_1_PAD        = 38;
-const int KEY_2_PAD        = 39;
-const int KEY_3_PAD        = 40;
-const int KEY_4_PAD        = 41;
-const int KEY_5_PAD        = 42;
-const int KEY_6_PAD        = 43;
-const int KEY_7_PAD        = 44;
-const int KEY_8_PAD        = 45;
-const int KEY_9_PAD        = 46;
-const int KEY_F1           = 47;
-const int KEY_F2           = 48;
-const int KEY_F3           = 49;
-const int KEY_F4           = 50;
-const int KEY_F5           = 51;
-const int KEY_F6           = 52;
-const int KEY_F7           = 53;
-const int KEY_F8           = 54;
-const int KEY_F9           = 55;
-const int KEY_F10          = 56;
-const int KEY_F11          = 57;
-const int KEY_F12          = 58;
-const int KEY_ESC          = 59;
-const int KEY_TILDE        = 60;
-const int KEY_MINUS        = 61;
-const int KEY_EQUALS       = 62;
-const int KEY_BACKSPACE    = 63;
-const int KEY_TAB          = 64;
-const int KEY_OPENBRACE    = 65;
-const int KEY_CLOSEBRACE   = 66;
-const int KEY_ENTER        = 67;
-const int KEY_COLON        = 68;
-const int KEY_QUOTE        = 69;
-const int KEY_BACKSLASH    = 70;
-const int KEY_BACKSLASH2   = 71;
-const int KEY_COMMA        = 72;
-const int KEY_STOP         = 73;
-const int KEY_SLASH        = 74;
-const int KEY_SPACE        = 75;
-const int KEY_INSERT       = 76;
-const int KEY_DEL          = 77;
-const int KEY_HOME         = 78;
-const int KEY_END          = 79;
-const int KEY_PGUP         = 80;
-const int KEY_PGDN         = 81;
-const int KEY_LEFT         = 82;
-const int KEY_RIGHT        = 83;
-const int KEY_UP           = 84;
-const int KEY_DOWN         = 85;
-const int KEY_SLASH_PAD    = 86;
-const int KEY_ASTERISK     = 87;
-const int KEY_MINUS_PAD    = 88;
-const int KEY_PLUS_PAD     = 89;
-const int KEY_DEL_PAD      = 90;
-const int KEY_ENTER_PAD    = 91;
-const int KEY_PRTSCR       = 92;
-const int KEY_PAUSE        = 93;
-const int KEY_ABNT_C1      = 94;
-const int KEY_YEN          = 95;
-const int KEY_KANA         = 96;
-const int KEY_CONVERT      = 97;
-const int KEY_NOCONVERT    = 98;
-const int KEY_AT           = 99;
-const int KEY_CIRCUMFLEX   = 100;
-const int KEY_COLON2       = 101;
-const int KEY_KANJI        = 102;
-const int KEY_EQUALS_PAD   = 103;  /* MacOS X */
-const int KEY_BACKQUOTE    = 104;  /* MacOS X */
-const int KEY_SEMICOLON    = 105;  /* MacOS X */
-const int KEY_COMMAND      = 106;  /* MacOS X */
-const int KEY_UNKNOWN1     = 107;
-const int KEY_UNKNOWN2     = 108;
-const int KEY_UNKNOWN3     = 109;
-const int KEY_UNKNOWN4     = 110;
-const int KEY_UNKNOWN5     = 111;
-const int KEY_UNKNOWN6     = 112;
-const int KEY_UNKNOWN7     = 113;
-const int KEY_UNKNOWN8     = 114;
-
-const int KEY_MODIFIERS    = 115;
-
-const int KEY_LSHIFT       = 115;
-const int KEY_RSHIFT       = 116;
-const int KEY_LCONTROL     = 117;
-const int KEY_RCONTROL     = 118;
-const int KEY_ALT          = 119;
-const int KEY_ALTGR        = 120;
-const int KEY_LWIN         = 121;
-const int KEY_RWIN         = 122;
-const int KEY_MENU         = 123;
-const int KEY_SCRLOCK      = 124;
-const int KEY_NUMLOCK      = 125;
-const int KEY_CAPSLOCK     = 126;
-
-const int KEY_MAX          = 127;
-
-//Key Modifier Constants -- DO NOT MODIFY!
-
-const int KB_SHIFT_FLAG 	= 0x0001;
-const int KB_CTRL_FLAG 		= 0x0002;
-const int KB_ALT_FLAG 		= 0x0004;
-const int KB_LWIN_FLAG 		= 0x0008;
-const int KB_RWIN_FLAG 		= 0x0010;
-const int KB_MENU_FLAG  	= 0x0020;
-const int KB_COMMAND_FLAG  	= 0x0040;
-const int KB_SCROLOCK_FLAG  	= 0x0100;
-const int KB_NUMLOCK_FLAG 	= 0x0200;
-const int KB_CAPSLOCK_FLAG 	= 0x0400;
-const int KB_INALTSEQ_FLAG 	= 0x0800;
-const int KB_ACCENT1_FLAG 	= 0x1000; 
-const int KB_ACCENT2_FLAG 	= 0x2000; 
-const int KB_ACCENT3_FLAG 	= 0x4000; 
-const int KB_ACCENT4_FLAG 	= 0x8000; 

@@ -1,6 +1,7 @@
 import difflib
 import json
 import os
+import platform
 import subprocess
 import sys
 import unittest
@@ -14,16 +15,29 @@ releases_dir = root_dir / '.tmp/releases'
 test_builds_dir = root_dir / '.tmp/test_builds'
 
 
+# TODO: this is a duplicated function
+def get_release_platform() -> ['mac', 'windows', 'linux']:
+    system = platform.system()
+    if system == 'Darwin':
+        return 'mac'
+    elif system == 'Windows':
+        return 'windows'
+    elif system == 'Linux':
+        return 'linux'
+    else:
+        raise Exception(f'unexpected system: {system}')
+
+
 def get_recent_release_tag(args: List[str]):
     command = f'git describe --tags --abbrev=0 ' + ' '.join(args)
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
 
 
-def parse_json(json_str: str):
+def parse_json(json_str: str, context: str):
     try:
         return json.loads(json_str)
     except Exception as e:
-        print(f'could not parse json:\n{json_str}', file=sys.stderr)
+        print(f'could not parse json:\n{json_str}\n\n{context}', file=sys.stderr)
         raise e
 
 

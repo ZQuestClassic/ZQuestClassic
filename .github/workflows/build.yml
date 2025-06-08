@@ -45,6 +45,9 @@ on:
       package-name:
         description: "The name of the package inside the uploaded artifact"
         value: ${{ jobs.build.outputs.package-name }}
+    secrets:
+      SENTRY_TOKEN:
+        required: false
 
 env:
   CCACHE_BASEDIR: ${{ github.workspace }}
@@ -59,6 +62,11 @@ jobs:
     outputs:
       package-name: ${{ steps.set-package-vars.outputs.package-name }}
     steps:
+      - name: Install cmake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.31.6'
+
       # Install dependencies.
       - if: ${{ contains(inputs.runs-on, 'mac') }}
         name: Build and install Bison
@@ -89,9 +97,9 @@ jobs:
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         name: Install Dependencies
-        uses: crazy-max/ghaction-chocolatey@0e015857dd851f84fcb7fb53380eb5c4c8202333
+        uses: crazy-max/ghaction-chocolatey@2ae99523e93879734d432250f87e2c45c379cd60
         with:
-          args: install .github/dependencies.config -y
+          args: install .github/dependencies.config -y --allow-downgrade
       - name: Install LLVM and Clang
         if: inputs.compiler == 'clang' && runner.os == 'Linux'
         uses: KyleMayes/install-llvm-action@v1
@@ -113,7 +121,7 @@ jobs:
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgGitCommitId: b322364f06308bdd24823f9d8f03fe0cc86fd46f
+          vcpkgGitCommitId: b02e341c927f16d991edbd915d8ea43eac52096c
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         run: vcpkg install libogg libvorbis curl dumb
 
@@ -134,16 +142,12 @@ jobs:
       - if: ${{ !inputs.cache }}
         run: echo "CCACHE_DISABLE=1" >> "$GITHUB_ENV"
 
-      - name: Build ZScript docs
-        if: inputs.official
-        run: python webdocs/docjson_main.py --in webdocs/zsdocs_main.json --out resources/docs/ZScript_Docs.html -c
-
       # Configure build.
       - if: inputs.compiler == 'gcc'
         run: |
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
-      - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }}
+      - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.release-version || '3.0.0' }}
       - name: Set release platform
         id: set-platform
         shell: python
@@ -242,6 +246,9 @@ jobs:
           tar czpvf build.tar.gz * --preserve-permissions
           mkdir ${{ inputs.config }}/packages
           mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
+
+      # Fail if any changes were written to any source files.
+      - run: git diff --cached --exit-code
 
       # Make build result available to other workflows.
       - uses: actions/upload-artifact@v4

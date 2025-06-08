@@ -93,6 +93,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->spriteflickerspeed = gdata->get_spriteflickerspeed();
 	zinit2->spriteflickercolor = gdata->get_spriteflickercolor();
 	zinit2->spriteflickertransp = gdata->get_spriteflickertransp();
+	zinit2->region_mapping = gdata->get_regionmapping();
 	
 	for(int32_t q = 0; q < MAX_COUNTERS; ++q)
 	{
@@ -101,12 +102,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	}
 	
 	for(int32_t i=0; i<MAXLEVELS; i++)
-	{
-		set_bit(zinit2->map, i, (gdata->lvlitems[i] & liMAP) ? 1 : 0);
-		set_bit(zinit2->compass, i, (gdata->lvlitems[i] & liCOMPASS) ? 1 : 0);
-		set_bit(zinit2->boss_key, i, (gdata->lvlitems[i] & liBOSSKEY) ? 1 : 0);
-		set_bit(zinit2->mcguffin, i, (gdata->lvlitems[i] & liTRIFORCE) ? 1 : 0);
-	}
+		zinit2->litems[i] = gdata->lvlitems[i];
 	zinit2->level_keys = gdata->lvlkeys;
 	
 	zinit2->magicdrainrate = vbound(gdata->get_magicdrainrate(), 0, 255);

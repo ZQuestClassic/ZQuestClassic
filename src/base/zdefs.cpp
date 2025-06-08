@@ -7,6 +7,8 @@
 #include "sound/zcmusic.h"
 #include <fmt/format.h>
 #include "base/qrs.h"
+#include "base/md5.h"
+#include <fstream>
 
 using std::string;
 using std::ostringstream;
@@ -598,14 +600,13 @@ string get_dbreport_string()
 	char buf[256];
 	
 	oss << "```\n"
-		<< ZQ_EDITOR_NAME
+		<< "ZQuest Classic Editor"
 		<< "\nVersion: " << getVersionString();
 		
 	sprintf(buf,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
 		(char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	
 	oss << "\n" << buf
-		<< "\nDev Signoff: " << DEV_SIGNOFF
 		<< "\nQR:" << get_qr_hexstr(quest_rules, true, false)
 		<< "\n```";
 	return oss.str();
@@ -723,13 +724,10 @@ string generate_zq_about()
 {
 	char buf1[256];
 	std::ostringstream oss;
-	sprintf(buf1,ZQ_EDITOR_NAME);
-	oss << buf1 << '\n';
+	oss << "ZQuest Classic Editor" << '\n';
 	sprintf(buf1,"Version: %s", getVersionString());
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-	oss << buf1 << '\n';
-	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 	oss << buf1 << '\n';
 	
 	return oss.str();
@@ -946,11 +944,66 @@ int32_t zquestheader::compareVer() const
 		return 1;
 	if(version_patch < version.patch)
 		return -1;
-	if(new_version_id_fourth > V_ZC_FOURTH)
+	if(new_version_id_fourth > 0)
 		return 1;
-	if(new_version_id_fourth < V_ZC_FOURTH)
+	if(new_version_id_fourth < 0)
 		return -1;
 	return 0;
+}
+
+// Returns -1 if zquestheader version is older than given version, 1 if newer, 0 if same.
+//
+// For example, to check if the currently loaded quest is older than 2.55.9:
+//
+//    if (QHeader.compareVer(2, 55, 9) < 0)
+//
+// or at least as new as 2.55.9:
+//
+//    if (QHeader.compareVer(2, 55, 9) >= 0)
+//
+int32_t zquestheader::compareVer(int major, int minor, int patch) const
+{
+	if(version_major > major)
+		return 1;
+	if(version_major < major)
+		return -1;
+	if(version_minor > minor)
+		return 1;
+	if(version_minor < minor)
+		return -1;
+	if(version_patch > patch)
+		return 1;
+	if(version_patch < patch)
+		return -1;
+	return 0;
+}
+
+std::string zquestheader::hash() const
+{
+	if (!_hash.empty())
+		return _hash;
+
+	cvs_MD5Context ctx;
+	cvs_MD5Init(&ctx);
+	size_t buffer_size = 1<<20; // 1 MB
+	char *buffer = new char[buffer_size];
+
+	std::ifstream fin(filename, std::ifstream::binary);
+	while (fin)
+	{
+		fin.read(buffer, buffer_size);
+		size_t count = fin.gcount();
+		if (!count)
+			break;
+		cvs_MD5Update(&ctx, (const uint8_t*)buffer, count);
+	}
+
+	uint8_t md5sum[16];
+	cvs_MD5Final(md5sum, &ctx);
+	_hash = util::make_hex_string(std::begin(md5sum), std::end(md5sum));
+	delete[] buffer;
+
+	return _hash;
 }
 
 //double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
@@ -1378,6 +1431,127 @@ DATAFILE* load_datafile_count(const char* path, size_t& sz)
 	return ret;
 }
 
+int combo_trigger_flag_to_secret_combo_index(int flag)
+{
+	int ft = -1;
+
+	switch(flag)
+	{
+	case mfANYFIRE:
+		ft=sBCANDLE;
+		break;
+		
+	case mfSTRONGFIRE:
+		ft=sRCANDLE;
+		break;
+		
+	case mfMAGICFIRE:
+		ft=sWANDFIRE;
+		break;
+		
+	case mfDIVINEFIRE:
+		ft=sDIVINEFIRE;
+		break;
+		
+	case mfARROW:
+		ft=sARROW;
+		break;
+		
+	case mfSARROW:
+		ft=sSARROW;
+		break;
+		
+	case mfGARROW:
+		ft=sGARROW;
+		break;
+		
+	case mfSBOMB:
+		ft=sSBOMB;
+		break;
+		
+	case mfBOMB:
+		ft=sBOMB;
+		break;
+		
+	case mfBRANG:
+		ft=sBRANG;
+		break;
+		
+	case mfMBRANG:
+		ft=sMBRANG;
+		break;
+		
+	case mfFBRANG:
+		ft=sFBRANG;
+		break;
+		
+	case mfWANDMAGIC:
+		ft=sWANDMAGIC;
+		break;
+		
+	case mfREFMAGIC:
+		ft=sREFMAGIC;
+		break;
+		
+	case mfREFFIREBALL:
+		ft=sREFFIREBALL;
+		break;
+		
+	case mfSWORD:
+		ft=sSWORD;
+		break;
+		
+	case mfWSWORD:
+		ft=sWSWORD;
+		break;
+		
+	case mfMSWORD:
+		ft=sMSWORD;
+		break;
+		
+	case mfXSWORD:
+		ft=sXSWORD;
+		break;
+		
+	case mfSWORDBEAM:
+		ft=sSWORDBEAM;
+		break;
+		
+	case mfWSWORDBEAM:
+		ft=sWSWORDBEAM;
+		break;
+		
+	case mfMSWORDBEAM:
+		ft=sMSWORDBEAM;
+		break;
+		
+	case mfXSWORDBEAM:
+		ft=sXSWORDBEAM;
+		break;
+		
+	case mfHOOKSHOT:
+		ft=sHOOKSHOT;
+		break;
+		
+	case mfWAND:
+		ft=sWAND;
+		break;
+		
+	case mfHAMMER:
+		ft=sHAMMER;
+		break;
+		
+	case mfSTRIKE:
+		ft=sSTRIKE;
+		break;
+	
+	case mfSECRETSNEXT:
+		ft=sSECNEXT;
+		break;
+	}
+
+	return ft;
+}
 
 bool runscript_do_earlyret(int runscript_val)
 {
@@ -1404,4 +1578,9 @@ const char* ScriptTypeToString(ScriptType type)
 		"generic", "generic (FRZ)", "subscreen (engine)"
 	};
 	return script_types[(int)type];
+}
+
+bool valid_str(char const* ptr, char cancel)
+{
+	return ptr && ptr[0] && ptr[0] != cancel;
 }

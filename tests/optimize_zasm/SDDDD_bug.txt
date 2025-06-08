@@ -1,6 +1,6 @@
 ; The compiler output for SDDDD used to be bugged, which means there can be functions that read D2
 ; without first setting it.
-Function #0
+Function #0 (run_none-0)
     0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
     1: CALLFUNC        21                           [Call Function #3]
     2: SETV            D2               1000

@@ -1,3 +1,5 @@
+#include "std.zh"
+
 //-------------------------------//
 // The Random Header - v. 3.0    //
 // 9th January, 2020 for 2.55    //
@@ -45,7 +47,7 @@ void forceWarp(int warpnum)
 			}
 		}
 	}
-	TraceS("No free ffcs exist to use for forceWarp()\n");
+	Trace("No free ffcs exist to use for forceWarp()");
 }
 
 // Sets then immediately initiates a side warp (0-3)
@@ -68,7 +70,7 @@ void scriptWarp(int dmap, int screen, int type, int warpnum)
 			}
 		}
 	}
-	TraceS("No free ffcs exist to use for scriptWarp()\n");
+	Trace("No free ffcs exist to use for scriptWarp()");
 }
 // This is an overload of the above that automatically chooses Sidewarp D.
 void scriptWarp(int dmap, int screen, int type)
@@ -542,7 +544,7 @@ bool canWalkEnemy(float x, float y, bool flying)
 	if(Screen->ComboF[comboNum] == CF_NOENEMY)
 		return false;
 		
-	if(x < 0 || y < 0 || x > 256 || y > 168)
+	if(x < 0 || y < 0 || x > Viewport->Width || y > Viewport->Height - (Game->FFRules[qr_HIDE_BOTTOM_8_PIXELS] ? 8 : 0))
 		return false;
 		
 	return ( (flying) ? true : canWalk(x, y) );
@@ -1153,21 +1155,7 @@ float angleDifferenceDegrees(float angle1, float angle2)
 // Function to tell if a location is inside the screen
 bool inScreen(int x, int y)
 {
-	if ( x >= 0 )
-	{
-		if ( x < 256 )
-		{
-			if ( y >= 0 )
-			{
-				if ( y < 168 )
-				{
-					return true;
-				}
-			}
-		}
-	}
-	return false;
-	//return (x >= 0 && x < 256 && y >= 0 && y < 168);
+	return (x >= 0 && x < Viewport->Width && y >= 0 && y < Viewport->Height - (Game->FFRules[qr_HIDE_BOTTOM_8_PIXELS] ? 8 : 0));
 }
 
 // This function draws a particular string with a border around it

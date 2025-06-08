@@ -118,13 +118,17 @@ class TestZEditor(unittest.TestCase):
             return
 
         test_cases = [
-            ('classic_1st.zplay', 'quests/Z1 Recreations/classic_1st.qst'),
-            # TODO: fails
-            # ('freedom_in_chains.zplay', 'freedom_in_chains.qst'),
-            ('ss_jenny.zplay', 'ss_jenny.qst'),
+            ('classic_1st.zplay', 'classic_1st.qst', []),
+            ('ss_jenny.zplay', 'ss_jenny.qst', []),
+            # Mostly works. See https://discord.com/channels/876899628556091432/1368485306394738718/1368803385289211976
+            (
+                'freedom_in_chains.zplay',
+                'freedom_in_chains.qst',
+                ['--replay', '--frame', '90000'],
+            ),
         ]
 
-        for zplay_path, qst_path in test_cases:
+        for zplay_path, qst_path, extra_args in test_cases:
             with self.subTest(msg=zplay_path):
                 load_qst_path = (
                     qst_path
@@ -154,7 +158,7 @@ class TestZEditor(unittest.TestCase):
                 replay_path.write_text(replay_content)
 
                 output_dir = tmp_dir / 'output' / replay_path.name
-                self.run_replay(output_dir, [replay_path])
+                self.run_replay(output_dir, [replay_path, *extra_args])
 
     def test_compile_and_quick_assign(self):
         if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':
@@ -171,6 +175,7 @@ class TestZEditor(unittest.TestCase):
             str(root_dir / 'tests/scripts/playground'),
             str(root_dir / 'tests/scripts/alucard/100_rooms_of_wisdom'),
             str(root_dir / 'tests/scripts/alucard/combo_rotator'),
+            str(root_dir / 'tests/scripts/freeform_shutters'),
             str(root_dir / 'tests/scripts/newbie_boss'),
             str(root_dir / 'tests/scripts/compat'),
         ]
@@ -182,6 +187,10 @@ class TestZEditor(unittest.TestCase):
             (
                 root_dir / 'tests/replays/playground/playground.qst',
                 list((root_dir / 'tests/replays/playground').glob('*.zplay')),
+            ),
+            (
+                root_dir / 'tests/replays/z3/z3.qst',
+                list((root_dir / 'tests/replays/z3').glob('*.zplay')),
             ),
         ]
         for replay_path in (root_dir / 'tests/replays/scripting').glob('*.zplay'):
@@ -204,7 +213,23 @@ class TestZEditor(unittest.TestCase):
 
                 tmp_qst_path = tmp_dir / qst_path.name
                 shutil.copy(qst_path, tmp_qst_path)
-                self.quick_assign(tmp_qst_path)
+
+                # Currently there is a flaky crash, seemingly only on ubuntu+clang.
+                #
+                #   Exception: got error running command: zeditor -headless -quick-assign .tmp/test_zeditor/newbie_boss.qst
+                #   do_compile_and_slots at compilezscript.cpp:440:1
+                #
+                # For now, repeat a few times (CI only).
+                attempts = 3 if 'CI' in os.environ else 1
+                for i in range(attempts):
+                    try:
+                        self.quick_assign(tmp_qst_path)
+                        break
+                    except Exception as e:
+                        if i == attempts - 1:
+                            raise e
+                        print(e)
+
                 successful_qsts.append(qst_path)
 
         all_replay_paths = []
@@ -234,14 +259,14 @@ class TestZEditor(unittest.TestCase):
         args = [
             '-headless',
             '-export-strings',
-            'quests/Z1 Recreations/classic_1st.qst',
+            root_dir / 'tests/replays/classic_1st.qst',
             tsv_path,
         ]
         run_target.check_run('zeditor', args)
         tsv = tsv_path.read_text().splitlines()
         self.assertEqual(
             tsv[2],
-            '  IT\'S DANGEROUS TO GO      ALONE! TAKE THIS.                           	0	0	0	0	0	24	32	192	24	18	1	0	0	0	8 8 0 8	0	0	0	0	1	1	0	0	6',
+            '  IT\'S DANGEROUS TO GO      ALONE! TAKE THIS.	0	0	0	0	0	24	32	192	24	18	1	0	0	0	8 8 0 8	0	0	0	0	1	1	0	0	6',
         )
         self.assertEqual(len(tsv), 37)
 
@@ -256,7 +281,7 @@ class TestZEditor(unittest.TestCase):
             'zeditor',
             [
                 '-package',
-                'quests/Z1 Recreations/classic_1st.qst',
+                root_dir / 'tests/replays/classic_1st.qst',
                 'package-test',
             ],
         )

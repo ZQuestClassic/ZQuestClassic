@@ -6,6 +6,7 @@
 
 #include "parser/AST.h"
 #include "parser/ASTVisitors.h"
+#include "parser/ByteCode.h"
 #include "parser/LibrarySymbols.h"
 #include "parser/Types.h"
 #include "parser/ZScript.h"
@@ -66,9 +67,24 @@ void RegistrationVisitor::caseDefault(AST& host, void* param)
 //Handle the root file specially!
 void RegistrationVisitor::caseRoot(ASTFile& host, void* param)
 {
+	// Visit every node until there nothing new is registered, or until we've tried for too long.
+	//
+	// Multiple passes are necessary to support recursive declarations like this:
+	//
+	//   const int A = B;
+	//   const int B = 5;
+	//   const int C = B;
+	//
+	// The first pass would error when visiting A, but in the next pass it would pass.
+	// RegistrationVisitor::visit handles checking if a node should be looked at again.
+	// Nodes that registered successfully call `doRegister()`.
+	//
+	// Errors that are potentially resolvable if a binding is defined later, will never error in this handler.
+	// Instead, SemanticAnalyser will raise an error.
 	int32_t recursionLimit = REGISTRATION_REC_LIMIT;
 	while(--recursionLimit)
 	{
+		// printf("GO!\n");
 		caseFile(host, param);
 		if(registered(host)) return;
 		if(!hasChanged) return; //Nothing new was registered on this pass. Only errors remain.
@@ -203,15 +219,156 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	script.setRun(possibleRuns[0]);
 }
 
+void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
+{
+	auto parsed_comment = var->getParsedComment();
+
+	int refvar = NUL;
+	UserClass* user_class = nullptr;
+	if (scope->isClass())
+	{
+		user_class = &scope->getClass()->user_class;
+		refvar = user_class->internalRefVar;
+	}
+
+	for (auto decl : var->getDeclarations())
+	{
+		if (parsed_comment.contains_tag("zasm_var") && parsed_comment.contains_tag("zasm_internal_array"))
+		{
+			handleError(CompileError::BadInternal(decl, "Only one of @zasm_var, @zasm_internal_array is allowed"));
+			continue;
+		}
+
+		// Internal variables in classes must have a zasm_var/zasm_internal_array. Currently, global internal variables
+		// may not have one, in which case it defaults to a constant zero.
+		if (user_class && !parsed_comment.contains_tag("zasm_var") && !parsed_comment.contains_tag("zasm_internal_array"))
+		{
+			handleError(CompileError::BadInternal(decl, "Expected one of @zasm_var, @zasm_internal_array"));
+			continue;
+		}
+
+		bool is_constant_zero = false;
+		int fn_value;
+		if (auto zasm_var = parsed_comment.get_tag("zasm_var"))
+		{
+			if (auto sv = get_script_variable(*zasm_var))
+			{
+				fn_value = *sv;
+			}
+			else
+			{
+				handleError(CompileError::BadInternal(decl, fmt::format("Invalid ZASM register: {}", *zasm_var)));
+				continue;
+			}
+		}
+		else if (auto zasm_internal_arr = parsed_comment.get_tag("zasm_internal_array"))
+		{
+			try {
+				fn_value = std::stoi(*zasm_internal_arr);
+			} catch (std::exception ex) {
+				handleError(CompileError::BadInternal(decl, fmt::format("Invalid internal array: {} (must be an integer)", *zasm_internal_arr)));
+				continue;
+			}
+
+			fn_value = (INTARR_OFFS + fn_value) * 10000;
+		}
+		else
+		{
+			is_constant_zero = true;
+			fn_value = 0;
+		}
+
+		auto& ty = decl->manager->type;
+		bool is_internal_arr = parsed_comment.contains_tag("zasm_internal_array");
+		bool is_arr = ty.isArray();
+		auto var_type = is_internal_arr ? &ty : ty.baseType(*scope, nullptr);
+		auto deprecated = parsed_comment.get_tag("deprecated");
+
+		// Add a getter.
+		{
+			std::vector<const DataType*> params;
+			if (user_class)
+				params.push_back(user_class->getType());
+			if (is_arr && !is_internal_arr)
+				params.push_back(&DataType::FLOAT);
+
+			Function* fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
+			if (deprecated)
+			{
+				fn->setFlag(FUNCFLAG_DEPRECATED);
+				fn->setInfo(*deprecated);
+			}
+			if (is_internal_arr)
+				fn->setFlag(FUNCFLAG_INTARRAY);
+
+			if (is_internal_arr || is_constant_zero)
+				getConstant(refvar, fn, fn_value);
+			else if (is_arr)
+				getIndexedVariable(refvar, fn, fn_value);
+			else
+				getVariable(refvar, fn, fn_value);
+		}
+
+		// Add deprecated getters.
+		if (auto deprecated_getter = parsed_comment.get_tag("deprecated_getter"))
+		{
+			if (is_arr || is_internal_arr)
+			{
+				handleError(CompileError::BadInternal(decl, "@deprecated_getter cannot be used on arrays"));
+				continue;
+			}
+
+			std::string getter_name = *deprecated_getter;
+			std::vector<const DataType*> params;
+			if (refvar != NUL)
+				params.push_back(user_class->getType());
+			Function* fn = scope->addFunction(var_type, getter_name, params, {}, FUNCFLAG_DEPRECATED|FUNCFLAG_INTERNAL);
+			fn->setExternalScope(scope->makeChild());
+			fn->data_decl_source_node = decl;
+			fn->setInfo(fmt::format("Use {} instead!", decl->getName()));
+
+			getVariable(refvar, fn, fn_value);
+		}
+
+		if (is_internal_arr || is_constant_zero)
+			continue;
+
+		// Add a setter.
+		{
+			std::vector<const DataType*> params;
+			if (user_class)
+				params.push_back(user_class->getType());
+			if (is_arr)
+				params.push_back(&DataType::FLOAT);
+			params.push_back(var_type);
+
+			Function* fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+			if (deprecated)
+			{
+				fn->setFlag(FUNCFLAG_DEPRECATED);
+				fn->setInfo(*deprecated);
+			}
+			if (var->readonly)
+				fn->setFlag(FUNCFLAG_READ_ONLY);
+
+			if (is_arr)
+				setIndexedVariable(refvar, fn, fn_value);
+			else if (params.size() > 1 && params[1] == &DataType::BOOL)
+				setBoolVariable(refvar, fn, fn_value);
+			else
+				setVariable(refvar, fn, fn_value);
+		}
+	}
+}
+
 void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 {
-	auto parsed_comment = host.getParsedDocComment();
+	auto parsed_comment = host.getParsedComment();
 	UserClass* parent_class = nullptr;
-	if (parsed_comment.contains("extends"))
+	if (auto parent_class_name = parsed_comment.get_tag("extends"))
 	{
-		std::string parent_class_name = parsed_comment["extends"];
 		ASTExprIdentifier ident{};
-		ident.components.push_back(parent_class_name);
+		ident.components.push_back(*parent_class_name);
 		if (auto type = lookupDataType(*scope, ident, nullptr))
 		{
 			if (auto custom_type = dynamic_cast<const DataTypeCustom*>(type); custom_type)
@@ -219,14 +376,32 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		}
 		else
 		{
-			handleError(CompileError::BadInternal(&host, fmt::format("Unknown class \"{}\" in @extends", parent_class_name)));
+			handleError(CompileError::BadInternal(&host, fmt::format("Unknown class \"{}\" in @extends", *parent_class_name)));
 		}
 	}
 
-	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, parent_class ? parent_class->getScope() : *scope, this));
-	// UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
-	if (parsed_comment.contains("zasm_ref"))
-		user_class.internalRefVar = parsed_comment["zasm_ref"];
+	if (!host.user_class)
+	{
+		host.user_class = program.addClass(host, parent_class ? parent_class->getScope() : *scope, this);
+		if (!host.user_class)
+		{
+			doRegister(host);
+			return;
+		}
+	}
+
+	UserClass& user_class = *host.user_class;
+
+	if (auto zasm_ref = parsed_comment.get_tag("zasm_ref"))
+	{
+		user_class.internalRefVarString = *zasm_ref;
+		user_class.internalRefVar = user_class.internalRefVarString.empty() ? NUL : StringToVar(user_class.internalRefVarString);
+	}
+	else
+	{
+		user_class.internalRefVar = NUL;
+	}
+
 	if (parent_class)
 		user_class.setParentClass(parent_class);
 	if (breakRecursion(host))
@@ -311,113 +486,13 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		return;
 	}
 
-	auto scope = &user_class.getScope();
-
-	// 5 is NUL
-	int refvar = user_class.internalRefVar.empty() ? 5 : StringToVar(user_class.internalRefVar);
+	ScopeReverter sr(&scope);
+	scope = &user_class.getScope();
 
 	for (auto var : host.variables)
 	{
-		if (!var->internal)
-			continue;
-
-		for (auto decl : var->getDeclarations())
-		{
-			auto parsed_comment = var->getParsedDocComment();
-
-			if (parsed_comment.contains("zasm_var") && parsed_comment.contains("zasm_internal_array"))
-			{
-				handleError(CompileError::BadInternal(decl, "Only one of @zasm_var or @zasm_internal_array is allowed"));
-				continue;
-			}
-
-			if (!parsed_comment.contains("zasm_var") && !parsed_comment.contains("zasm_internal_array"))
-			{
-				handleError(CompileError::BadInternal(decl, "Expected one of @zasm_var or @zasm_internal_array"));
-				continue;
-			}
-
-			int fn_value;
-			if (parsed_comment.contains("zasm_var"))
-			{
-				if (auto sv = get_script_variable(parsed_comment["zasm_var"]))
-				{
-					fn_value = *sv;
-				}
-				else
-				{
-					handleError(CompileError::BadInternal(decl, fmt::format("Invalid ZASM register: {}", parsed_comment["zasm_var"])));
-					continue;
-				}
-			}
-			else
-			{
-				try {
-					fn_value = std::stoi(parsed_comment["zasm_internal_array"]);
-				} catch (std::exception ex) {
-					handleError(CompileError::BadInternal(decl, fmt::format("Invalid internal array: {} (must be an integer)", parsed_comment["zasm_internal_array"])));
-					continue;
-				}
-
-				fn_value = (INTARR_OFFS + fn_value) * 10000;
-			}
-
-			auto& ty = decl->manager->type;
-			bool is_internal_arr = parsed_comment.contains("zasm_internal_array");
-			bool is_arr = ty.isArray();
-			auto var_type = is_internal_arr ? &ty : ty.baseType(*scope, nullptr);
-			bool deprecated = parsed_comment.contains("deprecated");
-
-			// Add a getter.
-			{
-				std::vector<const DataType*> params = {user_class.getType()};
-				if (is_arr && !is_internal_arr)
-					params.push_back(&DataType::FLOAT);
-
-				Function* fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
-				if (deprecated)
-				{
-					fn->setFlag(FUNCFLAG_DEPRECATED);
-					fn->setInfo(parsed_comment["deprecated"]);
-				}
-				if (is_internal_arr)
-					fn->setFlag(FUNCFLAG_INTARRAY);
-
-				if (is_internal_arr)
-					getConstant(refvar, fn, fn_value);
-				else if (is_arr)
-					getIndexedVariable(refvar, fn, fn_value);
-				else
-					getVariable(refvar, fn, fn_value);
-			}
-
-			if (is_internal_arr)
-				continue;
-
-			// Add a setter.
-			{
-				std::vector<const DataType*> params = {user_class.getType()};
-				if (is_arr)
-					params.push_back(&DataType::FLOAT);
-				params.push_back(var_type);
-
-				Function* fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
-				if (deprecated)
-				{
-					fn->setFlag(FUNCFLAG_DEPRECATED);
-					fn->setInfo(parsed_comment["deprecated"]);
-				}
-				if (var->readonly)
-					fn->setFlag(FUNCFLAG_READ_ONLY);
-
-				if (is_arr)
-					setIndexedVariable(refvar, fn, fn_value);
-				else if (params.size() > 1 && params[1] == &DataType::BOOL)
-					setBoolVariable(refvar, fn, fn_value);
-				else
-					setVariable(refvar, fn, fn_value);
-			}
-		}
+		if (var->internal)
+			initInternalVar(var);
 	}
 
 	for (auto fn_decl : host.functions)
@@ -426,7 +501,7 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 			continue;
 
 		scope->initFunctionBinding(fn_decl->func, this);
-		if (user_class.internalRefVar.empty())
+		if (user_class.internalRefVarString.empty())
 			fn_decl->func->setIntFlag(IFUNCFLAG_SKIPPOINTER);
 	}
 
@@ -455,13 +530,23 @@ void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 	Namespace& namesp = *namesp_;
 	if (breakRecursion(host)) return;
 
+	// Options are set on an anonymous child scope of the namespace,
+	// which is attached to any function made within this namespace.
+	// See lookupOption.
+	{
+		ScopeReverter sr(&scope);
+		lexical_options_scope = scope->makeChild();
+		scope = lexical_options_scope;
+
+		block_regvisit_vec(host.options, param);
+		if (breakRecursion(host, param)) return;
+	}
+
 	// Recurse on script elements with its scope.
 	{
 		ScopeReverter sr(&scope);
 		scope = &namesp.getScope();
 
-		block_regvisit_vec(host.options, param);
-		if (breakRecursion(host, param)) return;
 		block_regvisit_vec(host.dataTypes, param);
 		if (breakRecursion(host, param)) return;
 		block_regvisit_vec(host.scriptTypes, param);
@@ -485,12 +570,13 @@ void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 	{
 		doRegister(host);
 	}
+
+	lexical_options_scope = nullptr;
 }
 
 void RegistrationVisitor::caseImportDecl(ASTImportDecl& host, void* param)
 {
-	//Check if the import is valid, or to be stopped by header guard. -V
-	if(getRoot(*scope)->checkImport(&host, *lookupOption(*scope, CompileOption::OPT_HEADER_GUARD) / 10000.0, this))
+	if(getRoot(*scope)->checkImport(&host, this))
 	{
 		visit(host.getTree(), param);
 		if(registered(host.getTree())) doRegister(host);
@@ -508,7 +594,7 @@ void RegistrationVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* para
 	{
 		if(!host.preprocessed)
 		{
-			ScriptParser::preprocess_one(*host.import, ScriptParser::recursionLimit);
+			ScriptParser::legacy_preprocess_one(*host.import, ScriptParser::recursionLimit);
 			host.preprocessed = true;
 		}
 		visit(*host.import, param);
@@ -848,8 +934,10 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 
 			if (host.list->internal)
 			{
-				// Every variable in bindings files should be read-only, so this is fine.
-				Constant::create(*scope, host, *type, 0, this);
+				auto ivar = InternalVariable::create(*scope, host, *type, this);
+				initInternalVar(host.list);
+				ivar->readfn = scope->getLocalGetter(host.getName());
+				ivar->writefn = scope->getLocalSetter(host.getName());
 				return;
 			}
 
@@ -927,6 +1015,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		else host.parentScope = scope;
 		// Add an extra anonymous scope, used by templates
 		host.parentScope = scope = scope->makeChild();
+		scope->lexical_options_scope = lexical_options_scope;
 	}
 	Scope* extern_scope = scope;
 	Scope* func_lives_in = scope->getParent();
@@ -1028,18 +1117,9 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	for(auto it = host.optparams.begin(); it != host.optparams.end() && parcnt < paramTypes.size(); ++it, ++parcnt)
 	{
 		DataType const* getType = (*it)->getReadType(scope, this);
-		if(!getType) return;
-		checkCast(*getType, *paramTypes[parcnt], &host);
+		if(getType)
+			checkCast(*getType, *paramTypes[parcnt], *it);
 		if(breakRecursion(host)) return;
-		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
-		if (!optVal)
-		{
-			handleError(CompileError::Error(*it, fmt::format("Function '{}' has an optional parameter whose default value is not a constant expression", host.getName())));
-			doRegister(host);
-			return;
-		}
-
-		host.optvals.push_back(*optVal);
 	}
 	if(breakRecursion(host)) return;
 	
@@ -1443,9 +1523,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
 	if(host.binding->getFlag(FUNCFLAG_READ_ONLY))
 		handleError(CompileError::ReadOnly(&host, host.binding->getUnaliasedSignature().asString()));
-	
-	if(!host.binding->get_constexpr())
-		handleError(CompileError::GlobalVarFuncCall(&host));
+
 	doRegister(host);
 }
 

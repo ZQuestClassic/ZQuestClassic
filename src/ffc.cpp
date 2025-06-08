@@ -10,13 +10,13 @@
 extern sprite_list Lwpns;
 
 #ifdef IS_PLAYER
-#include "zc/combos.h"
 #include "zc/maps.h"
 #include "zc/hero.h"
+#include "zc/combos.h"
 #include "base/mapscr.h"
+#include "iter.h"
 
 extern int16_t lensclk;
-extern HeroClass Hero;
 #endif
 
 void ffcdata::clear()
@@ -31,11 +31,11 @@ void ffcdata::draw(BITMAP* dest)
 
 void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 {
-	if (!data) return;
 	if (flags&ffc_changer) return;
 	#ifdef IS_PLAYER
 	if ((flags&ffc_lensinvis) && lensclk) return; //If lens is active and ffc is invis to lens, don't draw
 	if ((flags&ffc_lensvis) && !lensclk) return; //If FFC does not require lens, or lens is active, draw
+	if(!(flags&ffc_overlay) != !overlay) return; //force cast both of these to boolean. They're both not, so same as if they weren't not.
 	
 	if (switch_hooked)
 	{
@@ -56,19 +56,21 @@ void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 	}
 	#endif
 	
-	if(!(flags&ffc_overlay) == !overlay) //force cast both of these to boolean. They're both not, so same as if they weren't not.
+#ifdef IS_PLAYER
+	int32_t tx = x + xofs - viewport.x;
+	int32_t ty = y + yofs - viewport.y;
+#else
+	int32_t tx = x + xofs;
+	int32_t ty = y + yofs;
+#endif
+
+	if(flags&ffc_trans)
 	{
-		int32_t tx = x + xofs;
-		int32_t ty = y + yofs;
-		
-		if(flags&ffc_trans)
-		{
-			overcomboblocktranslucent(dest, tx, ty, data, cset, txsz, tysz,128);
-		}
-		else
-		{
-			overcomboblock(dest, tx, ty, data, cset, txsz, tysz);
-		}
+		overcomboblocktranslucent(dest, tx, ty, data, cset, txsz, tysz,128);
+	}
+	else
+	{
+		overcomboblock(dest, tx, ty, data, cset, txsz, tysz);
 	}
 }
 
@@ -88,29 +90,26 @@ void ffcdata::updateSolid()
 void ffcdata::solid_update(bool push)
 {
 #ifdef IS_PLAYER
-	zfix dx = (x - old_x);
-	zfix dy = (y - old_y);
-	if((flags&ffc_platform) && Hero.on_ffc_platform(*this,true))
+	if (push) // if 'push' is false, do NOT move the Hero or anything else
 	{
-		if(push)
-			Hero.movexy(dx,dy,false,false,false);
-		else
+		zfix dx = (x - old_x);
+		zfix dy = (y - old_y);
+		if ((flags & ffc_platform) && Hero.on_ffc_platform(*this, true))
 		{
-			Hero.setXfix(Hero.getX()+dx);
-			Hero.setYfix(Hero.getY()+dy);
+			Hero.movexy(dx, dy, false, false, false);
 		}
-	}
-	else if(hooked && push)
-	{
-		if (Lwpns.idFirst(wHookshot) > -1)
+		else if (hooked)
 		{
-			if (dx) 
-				Hero.setXfix(Hero.getX() + dx);
-			if (dy)
-				Hero.setYfix(Hero.getY() + dy);
+			if (Lwpns.idFirst(wHookshot) > -1)
+			{
+				if (dx)
+					Hero.setXfix(Hero.getX() + dx);
+				if (dy)
+					Hero.setYfix(Hero.getY() + dy);
+			}
+			else
+				hooked = false;
 		}
-		else
-			hooked = false;
 	}
 #endif
 	solid_object::solid_update(push);
@@ -138,21 +137,19 @@ void ffcdata::doContactDamage(int32_t hdir)
 		int ffnum = -1;
 		if(loaded)
 		{
-			int c = tmpscr->numFFC();
-			for (word i = 0; i < c; i++)
+			auto ffc_handle = find_ffc([&](const ffc_handle_t& ffc_handle) {
+				return this == ffc_handle.ffc;
+			});
+			if (ffc_handle)
 			{
-				if (this == &tmpscr->ffcs[i])
-				{
-					ffnum = i;
-					break;
-				}
+				ffnum = ffc_handle->id;
 			}
 		}
 		if(ffnum > -1)
 		{
-			trigger_damage_combo(data, ZSD_FFC, ffnum, hdir, true);
+			trigger_damage_combo(get_scr(screen_spawned), data, ZSD_FFC, ffnum, hdir, true);
 		}
-		else trigger_damage_combo(data, ZSD_NONE, 0, hdir, true);
+		else trigger_damage_combo(get_scr(screen_spawned), data, ZSD_NONE, 0, hdir, true);
 	}
 #endif
 }

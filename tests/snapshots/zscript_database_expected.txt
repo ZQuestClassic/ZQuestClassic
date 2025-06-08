@@ -1,4 +1,4 @@
-650 / 794 (81%) passed
+625 / 769 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -59,7 +59,6 @@ Failures:
 	00235-stdweapons-zh/stdWeapons/subweapons3.z
 	00235-stdweapons-zh/stdWeapons/update.zh
 	00236-empty-bottles/script.zs
-	00238-splitting-and-tribbling-enemies/script.zs
 	00238-splitting-and-tribbling-enemies/splitter_0.9.0.z
 	00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z
 	00245-ffcscript-zh/ffcscript.zh
@@ -93,12 +92,11 @@ Failures:
 	00254-zelda-style-chest-minigame/ChestGame/FFC_ChestGame_v0.4.4.zs
 	00255-swindle-haggle/script.zs
 	00266-advanced-gameboy-style-shields/script.zs
-	00282-oracle-minecarts/script.zs
+	00282--old-oracle-minecarts/script.zs
 	00296-moosh-npc-dialogue-branch-add-on/DialogueBranch.zs
 	00310-newbie-item/script.zs
 	00313-la-hatrobe/Hatrobe.z
 	00330-dungeon-outside-inside/Dungeon Inside-Outside Script.z
-	00330-dungeon-outside-inside/script.zs
 	00332-lweapons-zh/lw_common.zs
 	00332-lweapons-zh/lw_deprecated.zs
 	00332-lweapons-zh/lw_global.zs
@@ -114,7 +112,6 @@ Failures:
 	00336-splitting-segmented-worm/SegmentWorm.zs
 	00337-emilymisc-zh/EmilyMisc.zh
 	00339-day-night-cycle-tint-zh/DayNight.zs
-	00352-betterconveyors/BetterConveyors.zs
 	00360-ffc-shop/FFCShop/2.53 Version/FFCShop.zs
 	00360-ffc-shop/FFCShop/2.55 Version/FFCShop.zs
 	00360-ffc-shop/FFCShop/2.55 Version/v1.03/FFCShop.zs
@@ -125,18 +122,18 @@ Failures:
 	00374-dodge-roll-action/script.zs
 	00381-better-ladder/script.zs
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_anim.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_jumping_fireball.z
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z
+	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/piranha.z
+	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/warppipe.z
 	00419-slab-connection-puzzle/script.zs
 	00431-no-cycle-spinning-tiles/script.zs
 	00457-magnets-and-iron-beams-puzzle/magnetswitch.z
 	00457-magnets-and-iron-beams-puzzle/script.zs
 	00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh
-	00499-npcanim-zh/NPCAnim.zh
 	00500--monarch-ascendant/MonarchAscendant.zs
 	00520-poker-monsters/NofaKind.z
-	00520-poker-monsters/script.zs
+	00523-geldarm-z-geldarm/z2geldarm.z
 	00532-status-effects/statusEffects.zs
 	00533-test-play-init-data-backups/script.zs
 	00536-poker-combos/pokercombos.z
@@ -145,6 +142,9 @@ Failures:
 	00571-gumzol/gumzol.z
 	00571-gumzol/script.zs
 	00580-mani-s-script-header/script.zs
+	00589-temporary-no-return-item-drops/TempNoReturnItem.zs
+	00601-chain-chomp/ChainChomp.zs
+	00602--oracle-minecarts/gbminecart255.zs
 
 === 00026-deku-leaf/script.zs
 Pass 1: Parsing
@@ -166,7 +166,6 @@ Compile finished with exit code '19' (compiled with errors)
 
 === 00044-animation-zh/script.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected LOOP, expecting EMPTYBRACKETS or IDENTIFIER [00044-animation-zh/script.zs Line 25 Column 62 'loop']
 script.zs Line 7 - Error P001: Included file '00044-animation-zh/script.zs' encountered an error.
 
@@ -310,38 +309,6 @@ script.zs Line 40 - Error S006: Duplicate script with name Slot_2 already exists
                     ^~~~~~
 
 
-script.zs Line 21 - Error S006: Duplicate script with name Slot_2 already exists.
-
-19    
-20    //If one of your dungeons uses 2 dmaps (for instance for a boss-battles), use this script:
-21    global script Slot_2{
-                    ^~~~~~
-
-
-script.zs Line 40 - Error S006: Duplicate script with name Slot_2 already exists.
-
-38    //If you have for instance 3 dungeons in your game, you have to copy and paste the bold-part of the script.
-39    //Then it looks like this:
-40    global script Slot_2{
-                    ^~~~~~
-
-
-script.zs Line 21 - Error S006: Duplicate script with name Slot_2 already exists.
-
-19    
-20    //If one of your dungeons uses 2 dmaps (for instance for a boss-battles), use this script:
-21    global script Slot_2{
-                    ^~~~~~
-
-
-script.zs Line 40 - Error S006: Duplicate script with name Slot_2 already exists.
-
-38    //If you have for instance 3 dungeons in your game, you have to copy and paste the bold-part of the script.
-39    //Then it looks like this:
-40    global script Slot_2{
-                    ^~~~~~
-
-
 Failure!
 Compile finished with exit code '6' (compiled with errors)
 
@@ -370,7 +337,6 @@ Compile finished with exit code '8' (compiled with errors)
 
 === 00096-shallow-water-splash-and-tall-grass-sfx/script.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected RPAREN [00096-shallow-water-splash-and-tall-grass-sfx/script.zs Line 16 Column 5 ')']
 script.zs Line 7 - Error P001: Included file '00096-shallow-water-splash-and-tall-grass-sfx/script.zs' encountered an error.
 
@@ -1075,30 +1041,6 @@ script.zs Line 751 - Error S004: Function debug was already declared with that t
             ^~~~~
 
 
-script.zs Line 379 - Error S004: Function move was already declared with that type signature.
-
-377        return true;
-378    }
-379    bool move ( item theItem, int dir, int dist, bool walkable, bool preventOffScreen )
-            ^~~~
-
-
-script.zs Line 73 - Error S006: Duplicate script with name ffcItem already exists.
-
-71    //D0-D6: Arguments for the FFC Script
-72    //D7: The script number to run
-73    item script ffcItem
-                  ^~~~~~~
-
-
-script.zs Line 73 - Error S006: Duplicate script with name ffcItem already exists.
-
-71    //D0-D6: Arguments for the FFC Script
-72    //D7: The script number to run
-73    item script ffcItem
-                  ^~~~~~~
-
-
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -1794,36 +1736,11 @@ stdExtra.zh Line 711 - Error S004: Function debug was already declared with that
             ^~~~~
 
 
-stdExtra.zh Line 351 - Error S004: Function move was already declared with that type signature.
-
-349        return true;
-350    }
-351    bool move ( item theItem, int dir, int dist, bool walkable, bool preventOffScreen )
-            ^~~~
-
-
-stdExtra.zh Line 76 - Error S006: Duplicate script with name ffcItem already exists.
-
-74    //D0-D6: Arguments for the FFC Script
-75    //D7: The script number to run
-76    item script ffcItem{
-                  ^~~~~~~
-
-
-stdExtra.zh Line 76 - Error S006: Duplicate script with name ffcItem already exists.
-
-74    //D0-D6: Arguments for the FFC Script
-75    //D7: The script number to run
-76    item script ffcItem{
-                  ^~~~~~~
-
-
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
 === 00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected REPEAT, expecting EMPTYBRACKETS or IDENTIFIER [00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z Line 100 Column 21 'repeat']
 AutoFire_v2.1.z Line 7 - Error P001: Included file '00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z' encountered an error.
 
@@ -1889,7 +1806,7 @@ MapGlobal.z Line 44 - Error T021: Function Map(int, int, int, int, bool, bool, b
       ^~~
 
 
-MapGlobal.z Line 52 - Error T021: Function DoorsList(int, int, int) has not been declared.
+MapGlobal.z Line 52 - Error T021: Function DoorsList(const int, const int, const int) has not been declared.
 
 50    {
 51        if(Screen->State[ST_VISITED]==false){ Screen->State[ST_VISITED]=true;  //Set visited state and door configuration on every screen entered
@@ -1926,7 +1843,6 @@ Compile finished with exit code '21' (compiled with errors)
 
 === 00170-the-river-of-destiny-custom-maps/MapImport.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 MapImport.z Line 7 - Error P083: Could not find included file 'MapHeader.zh'. Please check your include paths!
 
 5    
@@ -1948,7 +1864,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00175-scripted-traps/script.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 script.zs Line 332 - Error P083: Could not find included file 'ghost_zh/common.z'. Please check your include paths!
 
 330    
@@ -2956,30 +2871,6 @@ LinksAwakening_0.63_Dist.z Line 2278 - Error S004: Function debug was already de
              ^~~~~
 
 
-LinksAwakening_0.63_Dist.z Line 1932 - Error S004: Function move was already declared with that type signature.
-
-1930        return true;
-1931    }
-1932    bool move ( item theItem, int dir, int dist, bool walkable, bool preventOffScreen ){
-             ^~~~
-
-
-LinksAwakening_0.63_Dist.z Line 1719 - Error S006: Duplicate script with name ffcItem already exists.
-
-1717    //D0-D6: Arguments for the FFC Script
-1718    //D7: The script number to run
-1719    item script ffcItem{
-                    ^~~~~~~
-
-
-LinksAwakening_0.63_Dist.z Line 1719 - Error S006: Duplicate script with name ffcItem already exists.
-
-1717    //D0-D6: Arguments for the FFC Script
-1718    //D7: The script number to run
-1719    item script ffcItem{
-                    ^~~~~~~
-
-
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -3009,30 +2900,6 @@ ffcscript_LA.zh Line 15 - Error S008: There is already a variable with name FFCS
 14    const int FFCS_MIN_FFC = 1;
 15    const int FFCS_MAX_FFC = 32;
                 ^~~~~~~~~~~~
-
-
-ffcscript_LA.zh Line 65 - Error S004: Function FindFFCRunning was already declared with that type signature.
-
-63    }
-64    
-65    int FindFFCRunning(int scriptNum)
-          ^~~~~~~~~~~~~~
-
-
-ffcscript_LA.zh Line 84 - Error S004: Function FindNthFFCRunning was already declared with that type signature.
-
-82    }
-83    
-84    int FindNthFFCRunning(int scriptNum, int n)
-          ^~~~~~~~~~~~~~~~~
-
-
-ffcscript_LA.zh Line 107 - Error S004: Function CountFFCsRunning was already declared with that type signature.
-
-105    }
-106    
-107    int CountFFCsRunning(int scriptNum)
-           ^~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -3666,36 +3533,11 @@ stdExtra.zh Line 631 - Error S004: Function debug was already declared with that
             ^~~~~
 
 
-stdExtra.zh Line 285 - Error S004: Function move was already declared with that type signature.
-
-283        return true;
-284    }
-285    bool move ( item theItem, int dir, int dist, bool walkable, bool preventOffScreen ){
-            ^~~~
-
-
-stdExtra.zh Line 72 - Error S006: Duplicate script with name ffcItem already exists.
-
-70    //D0-D6: Arguments for the FFC Script
-71    //D7: The script number to run
-72    item script ffcItem{
-                  ^~~~~~~
-
-
-stdExtra.zh Line 72 - Error S006: Duplicate script with name ffcItem already exists.
-
-70    //D0-D6: Arguments for the FFC Script
-71    //D7: The script number to run
-72    item script ffcItem{
-                  ^~~~~~~
-
-
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
 === 00215-pot-script/script.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 script.zs Line 2 - Error P083: Could not find included file 'screen_change.zh'. Please check your include paths!
 
 1    import "std.zh"
@@ -3708,7 +3550,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh Line 162 Column 65 '{']
 HurtEffects.zh Line 8 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh' encountered an error.
 
@@ -3723,7 +3564,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh Line 129 Column 65 '{']
 HurtEffects_v1.1.zh Line 8 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh' encountered an error.
 
@@ -3738,7 +3578,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh Line 162 Column 65 '{']
 HurtEffects_v1.2.zh Line 8 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh' encountered an error.
 
@@ -3768,16 +3607,6 @@ Compile finished with exit code '4' (compiled with errors)
 
 === 00235-stdweapons-zh/stdWeapons.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
-syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
-stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
-
-84    import "stdWeapons/stdWeaponsParticles.zh"
-85    import "stdWeapons/stdWeaponsMelee.zh"
-86    import "stdWeapons/update.zh"
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3792,7 +3621,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/CustomEnemyDefenses.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3807,7 +3635,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/EnemyStatusEffects.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3822,7 +3649,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/deprecated.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3837,7 +3663,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/boomerang.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3852,7 +3677,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/bow_and_bomb_arrow.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3867,7 +3691,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/custom_wand.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3882,7 +3705,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/firerod.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3897,7 +3719,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/flamethrower.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3912,7 +3733,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/fullscreen.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3927,7 +3747,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/hammer.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3942,7 +3761,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/hookshot.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3957,7 +3775,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/ice_rod.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3972,7 +3789,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/orbiter_weapon.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -3987,7 +3803,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/portal_wand.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4002,7 +3817,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/sand_rod.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4017,7 +3831,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/subweapons3.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4032,7 +3845,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/example scripts/swordv3.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4047,7 +3859,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/launcher.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4062,7 +3873,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/stdWeaponsCombos.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4077,7 +3887,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/stdWeaponsCommon.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4092,7 +3901,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/stdWeaponsDestroy.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4107,7 +3915,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/stdWeaponsEnemies.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4122,7 +3929,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/stdWeaponsGlobal.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4137,7 +3943,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/stdWeaponsMelee.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4152,7 +3957,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/stdWeaponsMisc.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4167,7 +3971,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/stdWeaponsMovement.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4182,7 +3985,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/stdWeaponsParticles.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4197,7 +3999,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/subweapons.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4212,7 +4013,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/subweapons2.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4227,7 +4027,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/subweapons3.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4242,7 +4041,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00235-stdweapons-zh/stdWeapons/update.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -4278,222 +4076,6 @@ script.zs Line 33 - Error S008: There is already a variable with name IC_BOTTLE 
 
 Failure!
 Compile finished with exit code '8' (compiled with errors)
-
-=== 00238-splitting-and-tribbling-enemies/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-script.zs Line 458 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-456    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-457        
-458        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 459 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-457    
-458    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-459    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 611 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-609    for ( a[1] = 0; a[1] < SizeOfArray(list); a[1]+=3 ) {
-610        //Parse the list looking for base enemies.
-611        if ( n[0]->ID  == list[a[1]] ) {
-                             ^~~~~~~~~~
-
-
-script.zs Line 614 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-612    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-613        
-614        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 615 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-613    
-614    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-615    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 623 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-621        Remove(n[0]);
-622    
-623        for ( a[2] = 0; a[2] < list[a[0]+2]; a[2]++ ) {
-                                  ^~~~~~~~~~~~
-
-
-script.zs Line 625 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-623    for ( a[2] = 0; a[2] < list[a[0]+2]; a[2]++ ) {
-624        //Read how many enemies to make, and make one per iteration.
-625        n[1] = CreateNPCAt( list[a[0]+1], 
-                               ^~~~~~~~~~~~
-
-
-script.zs Line 510 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-508    if ( n[0]->Defense[ LWeaponToNPCD(l->ID) ] < 3 ) { 
-509        //Can be damaged by the weapon
-510        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 511 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-509    //Can be damaged by the weapon
-510    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-511    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 654 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-652    for ( a[1] = 0; a[1] < SizeOfArray(list); a[1]+=3 ) {
-653        //Parse the list looking for base enemies.
-654        if ( n[0]->ID  == list[a[1]] && ( !DYING_ENEMY_NO_SPLIT || ( DYING_ENEMY_NO_SPLIT && n[0]->HP > 0 ) ) ) {
-                             ^~~~~~~~~~
-
-
-script.zs Line 665 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-663    if ( n[0]->Defense[ LWeaponToNPCD(l->ID) ] < 3 ) { 
-664        //Can be damaged by the weapon
-665        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 666 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-664    //Can be damaged by the weapon
-665    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-666    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 675 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-673        //Remove(n[0]);
-674        
-675    for ( a[2] = 0; a[2] < list[a[0]+2]; a[2]++ ) {
-                              ^~~~~~~~~~~~
-
-
-script.zs Line 677 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-675    for ( a[2] = 0; a[2] < list[a[0]+2]; a[2]++ ) {
-676        //Read how many enemies to make, and make one per iterations
-677        n[1] = CreateNPCAt( list[a[0]+1], 
-                               ^~~~~~~~~~~~
-
-
-script.zs Line 396 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-394    if ( n[0]->ID  == list[a[1]] ) {
-395        if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-396            a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                      ^~~~
-
-
-script.zs Line 397 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-395    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-396        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-397        a[4] = n->Y;
-                  ^~~~
-
-
-script.zs Line 423 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-421    if ( n[0]->Misc[NPCM_TRIBBLEUP_TO] > 0 && n[0]->Misc[NPCM_TRIBBLE_TIMER] == 0 ) {
-422        //Cause it to tribble upward.
-423        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 424 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-422    //Cause it to tribble upward.
-423    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-424    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 552 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-550    for ( a[1] = 0; a[1] < SizeOfArray(list); a[1]+=4 ) {
-551        //Parse the list looking for base enemies.
-552        if ( n[0]->ID  == list[a[1]] ) {
-                             ^~~~~~~~~~
-
-
-script.zs Line 554 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-552    if ( n[0]->ID  == list[a[1]] ) {
-553        if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-554            a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                      ^~~~
-
-
-script.zs Line 555 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-553    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-554        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-555        a[4] = n->Y;
-                  ^~~~
-
-
-script.zs Line 564 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-562    
-563        //Read how many enemies to make, and make one per iteration.
-564        for ( a[5] = 0; a[5] < list[a[0]]+2; a[5]++ ) {
-                                  ^~~~~~~~~~
-
-
-script.zs Line 565 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-563    //Read how many enemies to make, and make one per iteration.
-564    for ( a[5] = 0; a[5] < list[a[0]]+2; a[5]++ ) {
-565        n[1] = CreateNPCAt( list[a[0]+1], 
-                               ^~~~~~~~~~~~
-
-
-script.zs Line 568 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-566        Clamp(a[3]+Rand( (waver * -1), waver), 0, MAX_SPAWN_NPX_X),
-567        Clamp(a[4]+Rand( (waver * -1), waver), 0, MAX_SPAWN_NPC_Y) ); //Reuse our pointer, instead of wasting one.
-568    n[1]->Misc[NPCM_TRIBBLEUP_TO] = list[a[0]+3]; //Store the ID of the enemy to trible it up to.
-                                       ^~~~~~~~~~~~
-
-
-script.zs Line 581 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-579    if ( n[0]->Misc[NPCM_TRIBBLEUP_TO] > 0 && n[0]->Misc[NPCM_TRIBBLE_TIMER] == 0 ) {
-580        //Cause it to tribble upward.
-581        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 582 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-580    //Cause it to tribble upward.
-581    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-582    a[4] = n->Y;
-              ^~~~
-
-
-Failure!
-Compile finished with exit code '27' (compiled with errors)
 
 === 00238-splitting-and-tribbling-enemies/splitter_0.9.0.z
 Pass 1: Parsing
@@ -4713,7 +4295,6 @@ Compile finished with exit code '27' (compiled with errors)
 
 === 00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z Line 88 Column 47 '{']
 splitter_v0.6.2.z Line 7 - Error P001: Included file '00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z' encountered an error.
 
@@ -4752,30 +4333,6 @@ ffcscript.zh Line 10 - Error S008: There is already a variable with name FFCS_MA
  9    const int FFCS_MIN_FFC = 1;
 10    const int FFCS_MAX_FFC = 32;
                 ^~~~~~~~~~~~
-
-
-ffcscript.zh Line 61 - Error S004: Function FindFFCRunning was already declared with that type signature.
-
-59    }
-60    
-61    int FindFFCRunning(int scriptNum)
-          ^~~~~~~~~~~~~~
-
-
-ffcscript.zh Line 80 - Error S004: Function FindNthFFCRunning was already declared with that type signature.
-
-78    }
-79    
-80    int FindNthFFCRunning(int scriptNum, int n)
-          ^~~~~~~~~~~~~~~~~
-
-
-ffcscript.zh Line 103 - Error S004: Function CountFFCsRunning was already declared with that type signature.
-
-101    }
-102    
-103    int CountFFCsRunning(int scriptNum)
-           ^~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -5817,14 +5374,6 @@ ghost2_common.zh Line 101 - Error S008: There is already a variable with name __
                  ^~~~~~~~~~~~~~
 
 
-ghost2_common.zh Line 104 - Error S004: Function __NormalizeDir was already declared with that type signature.
-
-102    
-103    // Get a normal direction (a DIR_ constant) from a number outside that range
-104    int __NormalizeDir(int dir)
-           ^~~~~~~~~~~~~~
-
-
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -6056,118 +5605,6 @@ ghost2_deprecated.zh Line 35 - Error S008: There is already a variable with name
                 ^~~~~~~~~~~~~~~~~~~~~~~~
 
 
-ghost2_deprecated.zh Line 37 - Error S004: Function Ghost_Init was already declared with that type signature.
-
-35    const int EWM_DRIFT_WAIT_RIGHTDOWN = 35;
-36    
-37    void Ghost_Init(ffc this, npc ghost, int flags)
-           ^~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 43 - Error S004: Function Ghost_InitCreate was already declared with that type signature.
-
-41    }
-42    
-43    npc Ghost_InitCreate(ffc this, int enemyID, int flags)
-          ^~~~~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 50 - Error S004: Function Ghost_InitWait was already declared with that type signature.
-
-48    }
-49    
-50    npc Ghost_InitWait(ffc this, int enemyIndex, bool useEnemyPos, int flags)
-          ^~~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 57 - Error S004: Function Ghost_InitWait2 was already declared with that type signature.
-
-55    }
-56    
-57    npc Ghost_InitWait2(ffc this, int enemyID, bool useEnemyPos, int flags)
-          ^~~~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 64 - Error S004: Function Ghost_InitSpawn was already declared with that type signature.
-
-62    }
-63    
-64    npc Ghost_InitSpawn(ffc this, int enemyID, int flags)
-          ^~~~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 71 - Error S004: Function Ghost_InitAutoGhost was already declared with that type signature.
-
-69    }
-70    
-71    npc Ghost_InitAutoGhost(ffc this, int enemyID, int flags)
-          ^~~~~~~~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 78 - Error S004: Function Ghost_SetFlags was already declared with that type signature.
-
-76    }
-77    
-78    void Ghost_SetFlags(int flags)
-           ^~~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 83 - Error S004: Function Ghost_WaitframeLight was already declared with that type signature.
-
-81    }
-82    
-83    void Ghost_WaitframeLight()
-           ^~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 142 - Error S004: Function Ghost_WaitframesLight was already declared with that type signature.
-
-140    
-141    
-142    void Ghost_WaitframesLight(int numFrames)
-            ^~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 149 - Error S004: Function StartClock was already declared with that type signature.
-
-147    
-148    
-149    void StartClock()
-            ^~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 155 - Error S004: Function UpdateClock was already declared with that type signature.
-
-153    
-154    
-155    void UpdateClock()
-            ^~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 161 - Error S004: Function Ghost_Explode was already declared with that type signature.
-
-159    
-160    
-161    void Ghost_Explode(ffc this, npc ghost)
-            ^~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 167 - Error S004: Function SetEWeaponMovement was already declared with that type signature.
-
-165    
-166    
-167    void SetEWeaponMovement(eweapon wpn, int type, int arg)
-            ^~~~~~~~~~~~~~~~~~
-
-
-ghost2_deprecated.zh Line 199 - Error S004: Function UpdateGhostZHData was already declared with that type signature.
-
-197    }
-198    
-199    void UpdateGhostZHData()
-            ^~~~~~~~~~~~~~~~~
-
-
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -6293,30 +5730,6 @@ ghost2_drawing.zh Line 25 - Error S008: There is already a variable with name __
 24    const int __GHDF_FLICKER = 010b;
 25    const int __GHDF_OVERLAY = 100b;
                 ^~~~~~~~~~~~~~
-
-
-ghost2_drawing.zh Line 28 - Error S004: Function __GetDrawingArray was already declared with that type signature.
-
-26    
-27    
-28    int __GetDrawingArray(npc ghost)
-          ^~~~~~~~~~~~~~~~~
-
-
-ghost2_drawing.zh Line 44 - Error S004: Function DrawGhostFFCs was already declared with that type signature.
-
-42    }
-43    
-44    void DrawGhostFFCs()
-           ^~~~~~~~~~~~~
-
-
-ghost2_drawing.zh Line 176 - Error S004: Function __Ghost_DrawShadow was already declared with that type signature.
-
-174    }
-175    
-176    void __Ghost_DrawShadow(npc ghost)
-            ^~~~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -6692,222 +6105,6 @@ ghost2_eweapon.zh Line 62 - Error S008: There is already a variable with name __
 61    const int __EWFI_DEATH_EFFECT_DONE = 10000000000b;
 62    const int __EWFI_INTERNAL          = 11110000000b;
                 ^~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 67 - Error S004: Function FireEWeapon was already declared with that type signature.
-
-65    
-66    // Fire an eweapon
-67    eweapon FireEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags)
-              ^~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 103 - Error S004: Function FireAimedEWeapon was already declared with that type signature.
-
-101    
-102    // Fire an eweapon aimed based on Link's position
-103    eweapon FireAimedEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags)
-               ^~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 110 - Error S004: Function FireNonAngularEWeapon was already declared with that type signature.
-
-108    
-109    // Fire a non-angular eweapon
-110    eweapon FireNonAngularEWeapon(int weaponID, int x, int y, int dir, int step, int damage, int sprite, int sound, int flags)
-               ^~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 147 - Error S004: Function FireBigEWeapon was already declared with that type signature.
-
-145    
-146    // Fire an eweapon larger than 1x1
-147    eweapon FireBigEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags, int width, int height)
-               ^~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 160 - Error S004: Function FireBigAimedEWeapon was already declared with that type signature.
-
-158    
-159    // Fire an eweapon larger than 1x1 aimed based on Link's position
-160    eweapon FireBigAimedEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags, int width, int height)
-               ^~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 173 - Error S004: Function FireBigNonAngularEWeapon was already declared with that type signature.
-
-171    
-172    // Fire a non-angular eweapon larger than 1x1
-173    eweapon FireBigNonAngularEWeapon(int weaponID, int x, int y, int dir, int step, int damage, int sprite, int sound, int flags, int width, int height)
-               ^~~~~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 185 - Error S004: Function CreateDummyEWeapon was already declared with that type signature.
-
-183    
-184    // Create a dummy eweapon to use as a prototype
-185    eweapon CreateDummyEWeapon(int weaponID, int step, int damage, int sprite, int sound, int flags)
-               ^~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 220 - Error S004: Function CreateBigDummyEWeapon was already declared with that type signature.
-
-218    
-219    // Create a dummy eweapon larger than 1x1
-220    eweapon CreateBigDummyEWeapon(int weaponID, int step, int damage, int sprite, int sound, int flags, int width, int height)
-               ^~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 233 - Error S004: Function SetEWeaponMovement was already declared with that type signature.
-
-231    
-232    // Set an eweapon's movement type
-233    void SetEWeaponMovement(eweapon wpn, int type, int arg, int arg2)
-            ^~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 281 - Error S004: Function __GetEWeaponThrowHeight was already declared with that type signature.
-
-279    // Returns the Z velocity at which a weapon should be thrown
-280    // to land at Link's position.
-281    float __GetEWeaponThrowHeight(eweapon wpn)
-             ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 319 - Error S004: Function SetEWeaponLifespan was already declared with that type signature.
-
-317    
-318    // Set an eweapon's lifespan
-319    void SetEWeaponLifespan(eweapon wpn, int type, int arg)
-            ^~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 328 - Error S004: Function SetEWeaponDeathEffect was already declared with that type signature.
-
-326    
-327    // Set an eweapon to use a standard death effect
-328    void SetEWeaponDeathEffect(eweapon wpn, int type, int arg)
-            ^~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 344 - Error S004: Function SetEWeaponDeathEffect was already declared with that type signature.
-
-342    
-343    // Set an eweapon to spawn more eweapons on death
-344    void SetEWeaponDeathEffect(eweapon wpn, eweapon prototype, int numShots, int spreadType, float angle)
-            ^~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 354 - Error S004: Function UpdateEWeapon was already declared with that type signature.
-
-352    
-353    // Update a weapon's movement, lifespan, and death effects
-354    void UpdateEWeapon(eweapon wpn)
-            ^~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 590 - Error S004: Function __UpdateEWeaponVisualFlags was already declared with that type signature.
-
-588    // Used when Link is holding up an item. UpdateEWeapon() doesn't run, but
-589    // the appearance-related flags still need handled.
-590    void __UpdateEWeaponVisualFlags(eweapon wpn)
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 666 - Error S004: Function SetEWeaponDir was already declared with that type signature.
-
-664    // Set the weapon's direction based on its angle;
-665    // Can also makes weapons unblockable
-666    void SetEWeaponDir(eweapon wpn)
-            ^~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 699 - Error S004: Function SetEWeaponRotation was already declared with that type signature.
-
-697    
-698    // Flip the weapon's sprite to match its direction
-699    void SetEWeaponRotation(eweapon wpn)
-            ^~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 732 - Error S004: Function SetEWeaponRotation was already declared with that type signature.
-
-730    
-731    // Flip the weapon's sprite to match the given direction
-732    void SetEWeaponRotation(eweapon wpn, int dir)
-            ^~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 747 - Error S004: Function KillEWeapon was already declared with that type signature.
-
-745    
-746    // Kill an eweapon, triggering any death effects
-747    void KillEWeapon(eweapon wpn)
-            ^~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 754 - Error S004: Function DrawEWeaponShadow was already declared with that type signature.
-
-752    
-753    // Draw a shadow under an eweapon
-754    void DrawEWeaponShadow(eweapon wpn)
-            ^~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 772 - Error S004: Function GetDefaultEWeaponSprite was already declared with that type signature.
-
-770    
-771    // Get the standard sprite for this weapon type
-772    int GetDefaultEWeaponSprite(int weaponID)
-           ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 834 - Error S004: Function GetDefaultEWeaponSound was already declared with that type signature.
-
-832    
-833    // Find the sound normally made by weapons of this type
-834    int GetDefaultEWeaponSound(int weaponID)
-           ^~~~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 851 - Error S004: Function GetAssociatedEWeapon was already declared with that type signature.
-
-849    // Use this in a script started on eweapon death to find the weapon
-850    // that created it
-851    eweapon GetAssociatedEWeapon(int weaponID)
-               ^~~~~~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 872 - Error S004: Function IsGhostZHEWeapon was already declared with that type signature.
-
-870    
-871    // Is this a ghost.zh-controlled weapon?
-872    bool IsGhostZHEWeapon(eweapon wpn)
-            ^~~~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 879 - Error S004: Function IsDummyEWeapon was already declared with that type signature.
-
-877    
-878    // Is this a dummy weapon?
-879    bool IsDummyEWeapon(eweapon wpn)
-            ^~~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 886 - Error S004: Function __CopyEWeapon was already declared with that type signature.
-
-884    
-885    // Make a copy of the given eweapon, which should be a dummy
-886    void __CopyEWeapon(eweapon prototype, int centerX, int centerY, float angle)
-            ^~~~~~~~~~~~~
-
-
-ghost2_eweapon.zh Line 940 - Error S004: Function __UnblockableDir was already declared with that type signature.
-
-938    
-939    // Get the unblockable version (8-15) of a direction
-940    int __UnblockableDir(int dir)
-           ^~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -7583,38 +6780,6 @@ ghost2_flags.zh Line 40 - Error S008: There is already a variable with name __GH
 39    const int __GHFI_HIT_LINK              = 100000b;
 40    const int __GH_UNSET_FLAGS             = 100000b; // AND to unset flags that last one frame
                 ^~~~~~~~~~~~~~~~
-
-
-ghost2_flags.zh Line 43 - Error S004: Function Ghost_SetFlag was already declared with that type signature.
-
-41    
-42    
-43    void Ghost_SetFlag(int flag)
-           ^~~~~~~~~~~~~
-
-
-ghost2_flags.zh Line 59 - Error S004: Function Ghost_UnsetFlag was already declared with that type signature.
-
-57    
-58    
-59    void Ghost_UnsetFlag(int flag)
-           ^~~~~~~~~~~~~~~
-
-
-ghost2_flags.zh Line 74 - Error S004: Function Ghost_FlagIsSet was already declared with that type signature.
-
-72    
-73    
-74    bool Ghost_FlagIsSet(int flag)
-           ^~~~~~~~~~~~~~~
-
-
-ghost2_flags.zh Line 89 - Error S004: Function Ghost_ClearFlags was already declared with that type signature.
-
-87    
-88    
-89    void Ghost_ClearFlags()
-           ^~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -8315,38 +7480,6 @@ ghost2_scripts.zh Line 28 - Error S006: Duplicate script with name GhostZHClockS
                   ^~~~~~~~~~~~~~~~~~
 
 
-ghost2_scripts.zh Line 5 - Error S006: Duplicate script with name GhostZHActiveScript already exists.
-
-3    
-4    
-5    global script GhostZHActiveScript
-                   ^~~~~~~~~~~~~~~~~~~
-
-
-ghost2_scripts.zh Line 28 - Error S006: Duplicate script with name GhostZHClockScript already exists.
-
-26    
-27    
-28    item script GhostZHClockScript
-                  ^~~~~~~~~~~~~~~~~~
-
-
-ghost2_scripts.zh Line 5 - Error S006: Duplicate script with name GhostZHActiveScript already exists.
-
-3    
-4    
-5    global script GhostZHActiveScript
-                   ^~~~~~~~~~~~~~~~~~~
-
-
-ghost2_scripts.zh Line 28 - Error S006: Duplicate script with name GhostZHClockScript already exists.
-
-26    
-27    
-28    item script GhostZHClockScript
-                  ^~~~~~~~~~~~~~~~~~
-
-
 Failure!
 Compile finished with exit code '6' (compiled with errors)
 
@@ -8354,38 +7487,6 @@ Compile finished with exit code '6' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
-ghost2_scripts.zs Line 5 - Error S006: Duplicate script with name GhostZHActiveScript already exists.
-
-3    
-4    
-5    global script GhostZHActiveScript
-                   ^~~~~~~~~~~~~~~~~~~
-
-
-ghost2_scripts.zs Line 22 - Error S006: Duplicate script with name GhostZHClockScript already exists.
-
-20    
-21    
-22    item script GhostZHClockScript
-                  ^~~~~~~~~~~~~~~~~~
-
-
-ghost2_scripts.zs Line 5 - Error S006: Duplicate script with name GhostZHActiveScript already exists.
-
-3    
-4    
-5    global script GhostZHActiveScript
-                   ^~~~~~~~~~~~~~~~~~~
-
-
-ghost2_scripts.zs Line 22 - Error S006: Duplicate script with name GhostZHClockScript already exists.
-
-20    
-21    
-22    item script GhostZHClockScript
-                  ^~~~~~~~~~~~~~~~~~
-
-
 ghost2_scripts.zs Line 5 - Error S006: Duplicate script with name GhostZHActiveScript already exists.
 
 3    
@@ -8622,7 +7723,6 @@ Compile finished with exit code '9' (compiled with errors)
 
 === 00255-swindle-haggle/script.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 The 'try' keyword is reserved and may not be used as an identifier.
 syntax error, unexpected end of file, expecting EMPTYBRACKETS or IDENTIFIER [00255-swindle-haggle/script.zs Line 66 Column 7 'try']
 script.zs Line 7 - Error P001: Included file '00255-swindle-haggle/script.zs' encountered an error.
@@ -8651,7 +7751,7 @@ script.zs Line 891 - Error S004: Function reverseDir was already declared with t
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
-=== 00282-oracle-minecarts/script.zs
+=== 00282--old-oracle-minecarts/script.zs
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
@@ -11522,40 +10622,8 @@ Dungeon Inside-Outside Script.z Line 36 - Error S006: Duplicate script with name
 Failure!
 Compile finished with exit code '6' (compiled with errors)
 
-=== 00330-dungeon-outside-inside/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-script.zs Line 33 - Error S006: Duplicate script with name DungeonOutside already exists.
-
-31    
-32    
-33    ffc script DungeonOutside{
-                 ^~~~~~~~~~~~~~
-
-
-script.zs Line 33 - Error S006: Duplicate script with name DungeonOutside already exists.
-
-31    
-32    
-33    ffc script DungeonOutside{
-                 ^~~~~~~~~~~~~~
-
-
-script.zs Line 33 - Error S006: Duplicate script with name DungeonOutside already exists.
-
-31    
-32    
-33    ffc script DungeonOutside{
-                 ^~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '6' (compiled with errors)
-
 === 00332-lweapons-zh/lw_common.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -11706,7 +10774,6 @@ Compile finished with exit code '9' (compiled with errors)
 
 === 00332-lweapons-zh/lw_hookshots.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -11721,7 +10788,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00332-lweapons-zh/lw_life.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -11745,7 +10811,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00332-lweapons-zh/lw_medallions.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -11840,7 +10905,6 @@ Compile finished with exit code '9' (compiled with errors)
 
 === 00332-lweapons-zh/lw_other.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -11855,7 +10919,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00332-lweapons-zh/lw_scripts.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -11870,7 +10933,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00332-lweapons-zh/lw_somaria.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -11885,7 +10947,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00332-lweapons-zh/lw_update.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -11900,7 +10961,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00332-lweapons-zh/lweapons.zh
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -12035,7 +11095,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00336-splitting-segmented-worm/SegmentWorm.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting COMMA or RPAREN [00336-splitting-segmented-worm/SegmentWorm.zs Line 47 Column 62 '{']
 SegmentWorm.zs Line 7 - Error P001: Included file '00336-splitting-segmented-worm/SegmentWorm.zs' encountered an error.
 
@@ -12053,69 +11112,6 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-EmilyMisc.zh Line 580 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
-
-578    bool CanScrollInDir(int dir) //start
-579    {
-580        if(Game->GetCurScreen() == 0x80) return dir == DIR_DOWN;
-              ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurScreen] instead!
-EmilyMisc.zh Line 585 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
-
-583    {
-584        case DIR_UP:
-585            return Game->GetCurScreen() > 0x0F;
-                      ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurScreen] instead!
-EmilyMisc.zh Line 587 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
-
-585        return Game->GetCurScreen() > 0x0F;
-586    case DIR_DOWN:
-587        return Game->GetCurScreen() < 0x70;
-                  ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurScreen] instead!
-EmilyMisc.zh Line 589 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
-
-587        return Game->GetCurScreen() < 0x70;
-588    case DIR_LEFT:
-589        return Game->GetCurScreen() % 0x10;
-                  ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurScreen] instead!
-EmilyMisc.zh Line 591 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
-
-589        return Game->GetCurScreen() % 0x10;
-590    case DIR_RIGHT:
-591        return (Game->GetCurScreen() % 0x10) != 0x0F;
-                   ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurScreen] instead!
-EmilyMisc.zh Line 393 - Warning S094: Function 'Game::GetCurMap()' is deprecated, and should not be used.
-
-391    mapdata CurMapdata() //start
-392    {
-393        return Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
-                                    ^~~~~~~~~~~~~~~
-
-
-INFO: Use [CurMap] instead!
-EmilyMisc.zh Line 393 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
-
-391    mapdata CurMapdata() //start
-392    {
-393        return Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
-                                                       ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurScreen] instead!
 EmilyMisc.zh Line 28 - Error T021: Function Debug->NULL() has not been declared.
 
 26    // Invalid script
@@ -12129,7 +11125,6 @@ Compile finished with exit code '21' (compiled with errors)
 
 === 00339-day-night-cycle-tint-zh/DayNight.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 DayNight.zs Line 9 - Error P083: Could not find included file 'Tint.zh'. Please check your include paths!
 
  7    #option SHORT_CIRCUIT on
@@ -12140,41 +11135,6 @@ DayNight.zs Line 9 - Error P083: Could not find included file 'Tint.zh'. Please 
 
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
-
-=== 00352-betterconveyors/BetterConveyors.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-BetterConveyors.zs Line 51 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
-
-49    if(enemy)
-50    {
-51        DEFINE NUMNPC = Screen->NumNPCs();
-                          ^~~~~~~~~~~~~~~
-
-
-INFO: Use [NumNPCs] instead!
-BetterConveyors.zs Line 94 - Warning S094: Function 'screendata::NumItems()' is deprecated, and should not be used.
-
-92    if(itm)
-93    {
-94        DEFINE NUMITEM = Screen->NumItems();
-                           ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [NumItems] instead!
-Pass 5: Checking code paths
-BetterConveyors.zs Line 140 - Error S102: Function '_CanWalk' is not void, and must return a value!
-
-138     * A version of CanWalk() that works with large enemies/items.
-139     */
-140    bool _CanWalk(int x, int y, int wid, int hei, int dir, int step) 
-            ^~~~~~~~
-
-
-Failure!
-Compile finished with exit code '102' (compiled with errors)
 
 === 00360-ffc-shop/FFCShop/2.53 Version/FFCShop.zs
 Pass 1: Parsing
@@ -12234,7 +11194,6 @@ Compile finished with exit code '9' (compiled with errors)
 
 === 00360-ffc-shop/FFCShop/2.55 Version/FFCShop.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 FFCShop.zs Line 9 - Error P083: Could not find included file 'TangoHandler.zh'. Please check your include paths!
 
  7    #option HEADER_GUARD on
@@ -12248,7 +11207,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00360-ffc-shop/FFCShop/2.55 Version/v1.03/FFCShop.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 FFCShop.zs Line 4 - Error P083: Could not find included file 'TangoHandler.zh'. Please check your include paths!
 
 2    #option HEADER_GUARD on
@@ -13055,15 +12013,6 @@ ThanosSnap.zs Line 114 - Error T017: Cannot cast from bool to void.
        ^~~~~~~~~~~
 
 
-ThanosSnap.zs Line 74 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
-
-72    {
-73        int num;
-74        for(int q = Screen->NumNPCs(); q > 0; --q)
-                      ^~~~~~~~~~~~~~~
-
-
-INFO: Use [NumNPCs] instead!
 ThanosSnap.zs Line 76 - Error T017: Cannot cast from void to untyped.
 
 74    for(int q = Screen->NumNPCs(); q > 0; --q)
@@ -13072,15 +12021,6 @@ ThanosSnap.zs Line 76 - Error T017: Cannot cast from void to untyped.
             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-ThanosSnap.zs Line 43 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
-
-41    while(num > 0)
-42    {
-43        for(int q = Screen->NumNPCs(); q > 0; --q) //start Snap enemies
-                      ^~~~~~~~~~~~~~~
-
-
-INFO: Use [NumNPCs] instead!
 ThanosSnap.zs Line 47 - Error T017: Cannot cast from void to untyped.
 
 45    if(num < 2) break;
@@ -13214,7 +12154,6 @@ Compile finished with exit code '21' (compiled with errors)
 
 === 00381-better-ladder/script.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 script.zs Line 6 - Error P083: Could not find included file 'headers/stdExtra.zh'. Please check your include paths!
 
 4    //#include "CustomFunctions.zs"// You probably won't need this.
@@ -13231,123 +12170,123 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-GSD_sideview_anim.z Line 67 - Error S009: Variable LinkX has not been declared.
+GSD_sideview_anim.z Line 66 - Error S009: Variable LinkX has not been declared.
 
-65    void CreateLinkWaterSplashAnim(){
-66        bool burn = false;
-67        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+64    void CreateLinkWaterSplashAnim(){
+65        bool burn = false;
+66        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
                                                   ^~~~~
 
 
-GSD_sideview_anim.z Line 68 - Error S009: Variable CF_LAVA has not been declared.
+GSD_sideview_anim.z Line 67 - Error S009: Variable CF_LAVA has not been declared.
 
-66    bool burn = false;
-67    lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
-68    if (AffectedByFlag(CF_LAVA)){
+65    bool burn = false;
+66    lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+67    if (AffectedByFlag(CF_LAVA)){
                          ^~~~~~~
+
+
+GSD_sideview_anim.z Line 82 - Error S009: Variable l has not been declared.
+
+80        l->UseSprite(SPR_SIDEVIEW_SPLASH);
+81    }
+82    if (burn)l->ASpeed*=2;
+               ^
 
 
 GSD_sideview_anim.z Line 83 - Error S009: Variable l has not been declared.
 
-81        l->UseSprite(SPR_SIDEVIEW_SPLASH);
-82    }
-83    if (burn)l->ASpeed*=2;
-               ^
-
-
-GSD_sideview_anim.z Line 84 - Error S009: Variable l has not been declared.
-
-82    }
-83    if (burn)l->ASpeed*=2;
-84    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
+81    }
+82    if (burn)l->ASpeed*=2;
+83    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
       ^
 
 
-GSD_sideview_anim.z Line 86 - Error S009: Variable l has not been declared.
+GSD_sideview_anim.z Line 85 - Error S009: Variable l has not been declared.
 
-84    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
-85    if (burn){
-86        l->DeadState*=2;
+83    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
+84    if (burn){
+85        l->DeadState*=2;
           ^
 
 
-GSD_sideview_anim.z Line 89 - Error S009: Variable LinkX has not been declared.
+GSD_sideview_anim.z Line 88 - Error S009: Variable LinkX has not been declared.
 
-87        return;
-88    }
-89    int cmb = ComboAt(LinkX+8, LinkY);
+86        return;
+87    }
+88    int cmb = ComboAt(LinkX+8, LinkY);
                         ^~~~~
+
+
+GSD_sideview_anim.z Line 89 - Error S009: Variable cmb has not been declared.
+
+87    }
+88    int cmb = ComboAt(LinkX+8, LinkY);
+89    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
+                         ^~~
 
 
 GSD_sideview_anim.z Line 90 - Error S009: Variable cmb has not been declared.
 
-88    }
-89    int cmb = ComboAt(LinkX+8, LinkY);
-90    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
-                         ^~~
+88    int cmb = ComboAt(LinkX+8, LinkY);
+89    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
+90    cmb = ComboAt(LinkX, LinkY+8);
+      ^~~
 
 
 GSD_sideview_anim.z Line 91 - Error S009: Variable cmb has not been declared.
 
-89    int cmb = ComboAt(LinkX+8, LinkY);
-90    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
-91    cmb = ComboAt(LinkX, LinkY+8);
-      ^~~
+89    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
+90    cmb = ComboAt(LinkX, LinkY+8);
+91    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
+                         ^~~
 
 
 GSD_sideview_anim.z Line 92 - Error S009: Variable cmb has not been declared.
 
-90    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
-91    cmb = ComboAt(LinkX, LinkY+8);
-92    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
-                         ^~~
+90    cmb = ComboAt(LinkX, LinkY+8);
+91    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
+92    cmb = ComboAt(LinkX+15, LinkY+8);
+      ^~~
 
 
 GSD_sideview_anim.z Line 93 - Error S009: Variable cmb has not been declared.
 
-91    cmb = ComboAt(LinkX, LinkY+8);
-92    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
-93    cmb = ComboAt(LinkX+15, LinkY+8);
-      ^~~
-
-
-GSD_sideview_anim.z Line 94 - Error S009: Variable cmb has not been declared.
-
-92    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
-93    cmb = ComboAt(LinkX+15, LinkY+8);
-94    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 7;
+91    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
+92    cmb = ComboAt(LinkX+15, LinkY+8);
+93    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 7;
                          ^~~
 
 
-GSD_sideview_anim.z Line 99 - Error S009: Variable LinkX has not been declared.
+GSD_sideview_anim.z Line 98 - Error S009: Variable LinkX has not been declared.
 
- 97    //Creates anumation of Link getting crushed.
- 98    void LinkCrushAnim(int dir){
- 99        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
-                                                   ^~~~~
+96    //Creates anumation of Link getting crushed.
+97    void LinkCrushAnim(int dir){
+98        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+                                                  ^~~~~
+
+
+GSD_sideview_anim.z Line 99 - Error S009: Variable l has not been declared.
+
+ 97    void LinkCrushAnim(int dir){
+ 98        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+ 99        l->UseSprite(SPR_LINKCRUSH);
+           ^
 
 
 GSD_sideview_anim.z Line 100 - Error S009: Variable l has not been declared.
 
- 98    void LinkCrushAnim(int dir){
- 99        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
-100        l->UseSprite(SPR_LINKCRUSH);
-           ^
-
-
-GSD_sideview_anim.z Line 101 - Error S009: Variable l has not been declared.
-
- 99    lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
-100    l->UseSprite(SPR_LINKCRUSH);
-101    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
+ 98    lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+ 99    l->UseSprite(SPR_LINKCRUSH);
+100    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
        ^
 
 
-GSD_sideview_anim.z Line 102 - Error S009: Variable EXTENDED_CRUSH_ANIM has not been declared.
+GSD_sideview_anim.z Line 101 - Error S009: Variable EXTENDED_CRUSH_ANIM has not been declared.
 
-100    l->UseSprite(SPR_LINKCRUSH);
-101    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
-102    if (EXTENDED_CRUSH_ANIM>0){
+ 99    l->UseSprite(SPR_LINKCRUSH);
+100    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
+101    if (EXTENDED_CRUSH_ANIM>0){
            ^~~~~~~~~~~~~~~~~~~
 
 
@@ -13359,40 +12298,24 @@ GSD_sideview_anim.z Line 3 - Error S009: Variable LinkMode has not been declared
               ^~~~~~~~
 
 
-GSD_sideview_anim.z Line 37 - Error S009: Variable LinkMode has not been declared.
+GSD_sideview_anim.z Line 36 - Error S009: Variable LinkMode has not been declared.
 
-35    }    
-36    else Link->DrawXOffset=0;
-37    if ((LinkMode == LINK_MODE_WATER)&&(SPR_AIRBUBBLE>0)){
+34    }    
+35    else Link->DrawXOffset=0;
+36    if ((LinkMode == LINK_MODE_WATER)&&(SPR_AIRBUBBLE>0)){
            ^~~~~~~~
 
 
-GSD_sideview_anim.z Line 56 - Error S009: Variable CT_SIDEVIEW_WATER has not been declared.
+GSD_sideview_anim.z Line 55 - Error S009: Variable CT_SIDEVIEW_WATER has not been declared.
 
-54    for (int y=0; y<2; y++){
-55        int cmb = ComboAt(collptsx[x], collptsy[y]);
-56        if (Screen->ComboT[cmb]!= CT_SIDEVIEW_WATER){
+53    for (int y=0; y<2; y++){
+54        int cmb = ComboAt(collptsx[x], collptsy[y]);
+55        if (Screen->ComboT[cmb]!= CT_SIDEVIEW_WATER){
                                     ^~~~~~~~~~~~~~~~~
 
 
 Failure!
 Compile finished with exit code '9' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-GSD_firebar.z Line 18 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-16    for (int i=0; i<numballs; i++){
-17        if (innerenemyID>0)ball[i] = Screen->CreateNPC(innerenemyID);
-18        if (ball[i]->Damage==0) ball->CollDetection=false;
-                                  ^~~~~~~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '27' (compiled with errors)
 
 === 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_jumping_fireball.z
 Pass 1: Parsing
@@ -13463,36 +12386,76 @@ mooshbumper.z Line 71 - Error S009: Variable LinkMode has not been declared.
               ^~~~~~~~
 
 
-mooshbumper.z Line 73 - Error S009: Variable HasJumped has not been declared.
-
-71    if (LinkMode==LINK_MODE_CUSTOM)LinkVy = LTTP_BUMPER_FORCE*Sin(BounceAngle);
-72    if (Link->InputEx1){
-73        HasJumped = true;
-          ^~~~~~~~~
-
-
 mooshbumper.z Line 74 - Error S009: Variable LinkVy has not been declared.
 
 72    if (Link->InputEx1){
-73        HasJumped = true;
+73        
 74        LinkVy -=1.5;
           ^~~~~~
 
 
-mooshbumper.z Line 86 - Error S009: Variable LinkY has not been declared.
+mooshbumper.z Line 76 - Error S009: Variable HasJumped has not been declared.
 
-84    for(int i=0; i<MAX_PUSH&&PushY>=1; i++){
-85        if(CanWalk(Link->X, Link->Y, DIR_DOWN, 1, false)){
-86            LinkY++;
+74        LinkVy -=1.5;
+75    }
+76    HasJumped = false;
+      ^~~~~~~~~
+
+
+mooshbumper.z Line 87 - Error S009: Variable LinkY has not been declared.
+
+85    for(int i=0; i<MAX_PUSH&&PushY>=1; i++){
+86        if(CanWalk(Link->X, Link->Y, DIR_DOWN, 1, false)){
+87            LinkY++;
               ^~~~~
 
 
-mooshbumper.z Line 87 - Error S009: Variable LinkMode has not been declared.
+mooshbumper.z Line 88 - Error S009: Variable LinkMode has not been declared.
 
-85    if(CanWalk(Link->X, Link->Y, DIR_DOWN, 1, false)){
-86        LinkY++;
-87        if (LinkMode==LINK_MODE_CUSTOM)LinkVy = LTTP_BUMPER_FORCE*Sin(BounceAngle);
+86    if(CanWalk(Link->X, Link->Y, DIR_DOWN, 1, false)){
+87        LinkY++;
+88        if (LinkMode==LINK_MODE_CUSTOM)LinkVy = LTTP_BUMPER_FORCE*Sin(BounceAngle);
               ^~~~~~~~
+
+
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/piranha.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+piranha.z Line 60 - Error S009: Variable LinkX has not been declared.
+
+58    if (haltcounter<=0){
+59        int prox = 0;
+60        if (dir < 2) prox = Abs (LinkX - Ghost_X);
+                                   ^~~~~
+
+
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/warppipe.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+warppipe.z Line 165 - Error S009: Variable LinkX has not been declared.
+
+163    int y1 = CenterY(f) - pipesens;
+164    int y2 = CenterY(f) + pipesens;
+165    return RectCollision (x1,y1,x2,y2, LinkX, LinkY, LinkX+15, LinkY+15);
+                                          ^~~~~
+
+
+warppipe.z Line 22 - Error S009: Variable LinkX has not been declared.
+
+20    }
+21    if (PipeCollision(this, 2)){
+22        if (!CanWalk(LinkX, LinkY, dir, 1, true)){
+                       ^~~~~
 
 
 Failure!
@@ -13516,7 +12479,6 @@ Compile finished with exit code '9' (compiled with errors)
 
 === 00431-no-cycle-spinning-tiles/script.zs
 Pass 1: Parsing
-Pass 2: Preprocessing
 syntax error, unexpected RBRACE, expecting SEMICOLON [00431-no-cycle-spinning-tiles/script.zs Line 231 Column 3 '}']
 script.zs Line 7 - Error P001: Included file '00431-no-cycle-spinning-tiles/script.zs' encountered an error.
 
@@ -13550,44 +12512,44 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-script.zs Line 224 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+script.zs Line 447 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
-222    int rcmb = Screen->ComboD[i];
-223    int rcset = Screen->ComboC[i];
-224    Screen->ComboD[i] = ucmb[arr];
-                           ^~~~~~~~~
-
-
-script.zs Line 225 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-223    int rcset = Screen->ComboC[i];
-224    Screen->ComboD[i] = ucmb[arr];
-225    Screen->ComboC[i] = ucset[arr];
-                           ^~~~~~~~~~
+445            int rcset = Screen->ComboC[i];
+446    
+447            Screen->ComboD[i] = ucmb[arr];
+                                   ^~~~~~~~~
 
 
-script.zs Line 226 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+script.zs Line 449 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
-224    Screen->ComboD[i] = ucmb[arr];
-225    Screen->ComboC[i] = ucset[arr];
-226    ucmb[arr] = rcmb;
-       ^~~~~~~~~
-
-
-script.zs Line 227 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-225    Screen->ComboC[i] = ucset[arr];
-226    ucmb[arr] = rcmb;
-227    ucset[arr]=rcset;
-       ^~~~~~~~~~
+447            Screen->ComboD[i] = ucmb[arr];
+448    
+449            Screen->ComboC[i] = ucset[arr];
+                                   ^~~~~~~~~~
 
 
-script.zs Line 461 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
+script.zs Line 451 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
-459    while(true){
-460        ffc n = Screen->LoadFFC(ffcid);
-461        if (SwitchState(n, this) && !MagnetActive()){
-               ^~~~~~~~~~~
+449            Screen->ComboC[i] = ucset[arr];
+450    
+451            ucmb[arr] = rcmb;
+               ^~~~~~~~~
+
+
+script.zs Line 453 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+451            ucmb[arr] = rcmb;
+452    
+453            ucset[arr]=rcset;
+               ^~~~~~~~~~
+
+
+script.zs Line 949 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
+
+947                ffc n = Screen->LoadFFC(ffcid);
+948    
+949                if (SwitchState(n, this) && !MagnetActive()){
+                       ^~~~~~~~~~~
 
 
 Failure!
@@ -13608,21 +12570,6 @@ tbt_mouse_global.zh Line 10 - Error S009: Variable MOUSE_LAYER has not been decl
 
 Failure!
 Compile finished with exit code '9' (compiled with errors)
-
-=== 00499-npcanim-zh/NPCAnim.zh
-Pass 1: Parsing
-Pass 2: Preprocessing
-syntax error, unexpected LOOP, expecting EMPTYBRACKETS or IDENTIFIER [00499-npcanim-zh/NPCAnim.zh Line 272 Column 14 'loop']
-NPCAnim.zh Line 8 - Error P001: Included file '00499-npcanim-zh/NPCAnim.zh' encountered an error.
-
-6    #include "std.zh"
-7    #include "ghost.zh"
-8    #include "00499-npcanim-zh/NPCAnim.zh"
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '-1' (compiled with warnings)
 
 === 00500--monarch-ascendant/MonarchAscendant.zs
 Pass 1: Parsing
@@ -14080,45 +13027,21 @@ NofaKind.z Line 160 - Error T021: Function GetBestSequence(int[]) has not been d
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
-=== 00520-poker-monsters/script.zs
+=== 00523-geldarm-z-geldarm/z2geldarm.z
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-script.zs Line 150 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+z2geldarm.z Line 58 - Error S009: Variable GELDARM_FLASH_CSET has not been declared.
 
-148    if (ready && !check){
-149        if (combination==0){
-150            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
-                     ^~~~~~~~~
-
-
-script.zs Line 153 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
-
-151    }
-152    if (combination==1){
-153        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
-                           ^~~~~~~~~~
-
-
-script.zs Line 157 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
-
-155    }
-156    if (combination==2){
-157        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
-                 ^~~~~~~~~~~~~~~~
-
-
-script.zs Line 160 - Error T021: Function GetBestSequence(int[]) has not been declared.
-
-158    }
-159    if (combination==3){
-160        if (ex) fit = GetBestSequence(poker)==miscval1;
-                         ^~~~~~~~~~~~~~~
+56    
+57    while(true){
+58        if (Z2GELDARM_FLASH_CSET>0 &&(flickercnt%4)>1)drawcset = GELDARM_FLASH_CSET;
+                                                                   ^~~~~~~~~~~~~~~~~~
 
 
 Failure!
-Compile finished with exit code '21' (compiled with errors)
+Compile finished with exit code '9' (compiled with errors)
 
 === 00532-status-effects/statusEffects.zs
 Pass 1: Parsing
@@ -14173,36 +13096,6 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-script.zs Line 516 - Warning S094: Function 'file::Free()' is deprecated, and should not be used.
-
-514    f->OpenMode(slotfilename, "rb+");
-515    f->ReadBytes(b);
-516    f->Free();
-       ^~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-script.zs Line 522 - Warning S094: Function 'file::Free()' is deprecated, and should not be used.
-
-520    f->OpenMode(slotfilename, "wb+");
-521    f->WriteBytes({0});
-522    f->Free();
-       ^~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-script.zs Line 535 - Warning S094: Function 'file::Free()' is deprecated, and should not be used.
-
-533    f->OpenMode(slotfilename, "wb+");
-534    f->WriteBytes(b);
-535    f->Free();
-       ^~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
 script.zs Line 543 - Warning S108: Arrays should be explicitly typed - change `TestPlayInitData` to `TestPlayInitData[]`
 
 541    for(int i=0; i<10; ++i)
@@ -14219,15 +13112,6 @@ script.zs Line 543 - Warning S108: Arrays should be explicitly typed - change `T
                                ^~~~~~~~
 
 
-script.zs Line 543 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
-
-541    for(int i=0; i<10; ++i)
-542    {
-543        if(slots[i]->Valid&&slots[i]->SavedDMap==Game->GetCurDMap())
-                                                    ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurDMap] instead!
 script.zs Line 402 - Error T021: Function TryFindDMapSlot(TestPlayInitData[], int) has not been declared.
 
 400        Quit();
@@ -14244,182 +13128,6 @@ script.zs Line 408 - Warning S108: Array mismatch for types int[][] and int[]
            ^~~~~
 
 
-script.zs Line 442 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-440    if(mode<0)
-441        mode = 2;
-442    Game->PlaySound(SFX_CURSOR);
-       ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 449 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-447    if(mode>2)
-448        mode = 0;
-449    Game->PlaySound(SFX_CURSOR);
-       ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 457 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-455    if(slot<0)
-456        slot = 9;
-457    Game->PlaySound(SFX_CURSOR);
-       ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 464 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-462    if(slot>9)
-463        slot = 0;
-464    Game->PlaySound(SFX_CURSOR);
-       ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 475 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-473    case MODE_SAVE:
-474    {
-475        Game->PlaySound(SFX_CURSOR);
-           ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 483 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-481    case MODE_LOAD:
-482    {
-483        Game->PlaySound(SFX_CURSOR);
-           ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 491 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-489    case MODE_ERASE:
-490    {
-491        Game->PlaySound(SFX_OUCH);
-           ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 499 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-497    if(Link->PressB)
-498    {
-499        Game->PlaySound(SFX_OUCH);
-           ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 303 - Warning S094: Function 'Game::GetDMapName(int, char32[])' is deprecated, and should not be used.
-
-301    // Draw the name of the current dmap
-302    int nameBuf[512];
-303    Game->GetDMapName(SavedDMap, nameBuf);
-       ^~~~~~~~~~~~~~~~~
-
-
-INFO: Use [dmapdata::GetName] instead!
-script.zs Line 313 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
-
-311    Screen->DrawString(6, x+4, y+4, FONT_Z3SMALL, C_TESTPLAY_WHITE, -1, TF_NORMAL, nameBuf2, OP_OPAQUE, SHD_OUTLINED8, C_TESTPLAY_BLACK);
-312    
-313    bitmap collection = Game->CreateBitmap(256, 176);
-                           ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new bitmap(width, height)` instead!
-script.zs Line 315 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
-
-313    bitmap collection = Game->CreateBitmap(256, 176);
-314    collection->Clear(0);
-315    bitmap collectionBG = Game->CreateBitmap(256, 176);
-                             ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new bitmap(width, height)` instead!
-script.zs Line 318 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
-
-316    
-317    // Draw the hearts
-318    bitmap heartIcn = Game->CreateBitmap(8, 8);
-                         ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new bitmap(width, height)` instead!
-script.zs Line 326 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
-
-324        heartIcn->Blit(0, collection, 0, 0, 8, 8, x+8*(i%8), y+16+8*Floor(i/8), 8, 8, 0, 0, 0, BITDX_NORMAL, 0, true);
-325    }
-326    heartIcn->Free();
-       ^~~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-script.zs Line 353 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
-
-351    // Draw the collection in front of it
-352    collection->Blit(6, RT_SCREEN, 0, 0, 256, 176, 0, 0, 256, 176, 0, 0, 0, BITDX_NORMAL, 0, true);
-353    collection->Free();
-       ^~~~~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-script.zs Line 354 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
-
-352    collection->Blit(6, RT_SCREEN, 0, 0, 256, 176, 0, 0, 256, 176, 0, 0, 0, BITDX_NORMAL, 0, true);
-353    collection->Free();
-354    collectionBG->Free();
-       ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-script.zs Line 77 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
-
-75    MagicDrainRate = Game->Generic[GEN_MAGICDRAINRATE];
-76    
-77    SavedDMap = Game->GetCurDMap();
-                  ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurDMap] instead!
-script.zs Line 78 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
-
-76    
-77    SavedDMap = Game->GetCurDMap();
-78    SavedScreen = Game->GetCurScreen();
-                    ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurScreen] instead!
-script.zs Line 198 - Warning S094: Function 'file::Free()' is deprecated, and should not be used.
-
-196        SavedScreen = ints[1];
-197    }
-198    f->Free();
-       ^~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-script.zs Line 280 - Warning S094: Function 'file::Free()' is deprecated, and should not be used.
-
-278        f->WriteInts(ints);
-279    }
-280    f->Free();
-       ^~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -14428,35 +13136,35 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-pokercombos.z Line 116 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+pokercombos.z Line 117 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
 
-114    if (ready){
-115        if (combination==0){
-116            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
+115    if (ready){
+116        if (combination==0){
+117            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
                      ^~~~~~~~~
 
 
-pokercombos.z Line 119 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
+pokercombos.z Line 120 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
 
-117    }
-118    if (combination==1){
-119        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
+118    }
+119    if (combination==1){
+120        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
                            ^~~~~~~~~~
 
 
-pokercombos.z Line 123 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
+pokercombos.z Line 124 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
 
-121    }
-122    if (combination==2){
-123        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
+122    }
+123    if (combination==2){
+124        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
                  ^~~~~~~~~~~~~~~~
 
 
-pokercombos.z Line 126 - Error T021: Function GetBestSequence(int[]) has not been declared.
+pokercombos.z Line 127 - Error T021: Function GetBestSequence(int[]) has not been declared.
 
-124    }
-125    if (combination==3){
-126        if (ex) fit = GetBestSequence(poker)==miscval1;
+125    }
+126    if (combination==3){
+127        if (ex) fit = GetBestSequence(poker)==miscval1;
                          ^~~~~~~~~~~~~~~
 
 
@@ -14468,35 +13176,35 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-script.zs Line 231 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+script.zs Line 233 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
 
-229                    if (combination==0){
-230    
-231                        fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
+231                    if (combination==0){
+232    
+233                        fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
                                  ^~~~~~~~~
 
 
-script.zs Line 237 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
+script.zs Line 239 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
 
-235                    if (combination==1){
-236    
-237                        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
+237                    if (combination==1){
+238    
+239                        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
                                            ^~~~~~~~~~
 
 
-script.zs Line 245 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
+script.zs Line 247 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
 
-243                    if (combination==2){
-244    
-245                        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
+245                    if (combination==2){
+246    
+247                        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
                                  ^~~~~~~~~~~~~~~~
 
 
-script.zs Line 251 - Error T021: Function GetBestSequence(int[]) has not been declared.
+script.zs Line 253 - Error T021: Function GetBestSequence(int[]) has not been declared.
 
-249                    if (combination==3){
-250    
-251                        if (ex) fit = GetBestSequence(poker)==miscval1;
+251                    if (combination==3){
+252    
+253                        if (ex) fit = GetBestSequence(poker)==miscval1;
                                          ^~~~~~~~~~~~~~~
 
 
@@ -14508,291 +13216,6 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-DayNightNew.zs Line 640 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
-
-638    {
-639        if(whichDMap<0)
-640            whichDMap = Game->GetCurDMap();
-                           ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurDMap] instead!
-DayNightNew.zs Line 664 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
-
-662    {
-663        if(whichDMap<0)
-664            whichDMap = Game->GetCurDMap();
-                           ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurDMap] instead!
-DayNightNew.zs Line 695 - Warning S094: Function 'screendata::GetSideWarpDMap(int)' is deprecated, and should not be used.
-
-693    if(tileOrSideWarp)
-694    {
-695        startingDMap = Screen->GetSideWarpDMap(warpID);
-                          ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [SideWarpDMap] instead!
-DayNightNew.zs Line 696 - Warning S094: Function 'screendata::GetSideWarpScreen(int)' is deprecated, and should not be used.
-
-694    {
-695        startingDMap = Screen->GetSideWarpDMap(warpID);
-696        startingScreen = Screen->GetSideWarpScreen(warpID);
-                            ^~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [SideWarpScreen] instead!
-DayNightNew.zs Line 700 - Warning S094: Function 'screendata::GetTileWarpDMap(int)' is deprecated, and should not be used.
-
-698    else
-699    {
-700        startingDMap = Screen->GetTileWarpDMap(warpID);
-                          ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [TileWarpDMap] instead!
-DayNightNew.zs Line 701 - Warning S094: Function 'screendata::GetTileWarpScreen(int)' is deprecated, and should not be used.
-
-699    {
-700        startingDMap = Screen->GetTileWarpDMap(warpID);
-701        startingScreen = Screen->GetTileWarpScreen(warpID);
-                            ^~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [TileWarpScreen] instead!
-DayNightNew.zs Line 738 - Warning S094: Function 'screendata::GetSideWarpType(int)' is deprecated, and should not be used.
-
-736    if(tileOrSideWarp)
-737    {
-738        Screen->SetSideWarp(warpID, newScreen, newDMap, Screen->GetSideWarpType(warpID));
-                                                           ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [SideWarpType] instead!
-DayNightNew.zs Line 742 - Warning S094: Function 'screendata::GetTileWarpType(int)' is deprecated, and should not be used.
-
-740    else
-741    {
-742        Screen->SetTileWarp(warpID, newScreen, newDMap, Screen->GetTileWarpType(warpID));
-                                                           ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [TileWarpType] instead!
-DayNightNew.zs Line 750 - Warning S094: Function 'screendata::GetSideWarpType(int)' is deprecated, and should not be used.
-
-748    if(tileOrSideWarp)
-749    {
-750        Screen->SetSideWarp(warpID, startingScreen, startingDMap, Screen->GetSideWarpType(warpID));
-                                                                     ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [SideWarpType] instead!
-DayNightNew.zs Line 754 - Warning S094: Function 'screendata::GetTileWarpType(int)' is deprecated, and should not be used.
-
-752    else
-753    {
-754        Screen->SetTileWarp(warpID, startingScreen, startingDMap, Screen->GetTileWarpType(warpID));
-                                                                     ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [TileWarpType] instead!
-DayNightNew.zs Line 830 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-828        Screen->State[ST_SECRET] = true;
-829    if(sfx>0)
-830        Game->PlaySound(sfx);
-           ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-DayNightNew.zs Line 476 - Warning S094: Function 'Graphics::CreatePalData()' is deprecated, and should not be used.
-
-474    void LerpPalette(int whichSlot, int startPal, int endPal, int percentage)
-475    {
-476        paldata pdStart = Graphics->CreatePalData();
-                             ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new paldata()` instead!
-DayNightNew.zs Line 477 - Warning S094: Function 'Graphics::CreatePalData()' is deprecated, and should not be used.
-
-475    {
-476        paldata pdStart = Graphics->CreatePalData();
-477        paldata pdEnd = Graphics->CreatePalData();
-                           ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new paldata()` instead!
-DayNightNew.zs Line 484 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
-
-482    pdStart->WriteLevelPalette(whichSlot);
-483    
-484    pdStart->Free();
-       ^~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-DayNightNew.zs Line 485 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
-
-483    
-484    pdStart->Free();
-485    pdEnd->Free();
-       ^~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-DayNightNew.zs Line 490 - Warning S094: Function 'Graphics::CreatePalData()' is deprecated, and should not be used.
-
-488    void LerpPaletteClr(int whichSlot, int basePal, rgb clrStart, rgb clrEnd, int percentageStart, int percentageEnd, int percentage)
-489    {
-490        paldata pdStart = Graphics->CreatePalData();
-                             ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new paldata()` instead!
-DayNightNew.zs Line 491 - Warning S094: Function 'Graphics::CreatePalData()' is deprecated, and should not be used.
-
-489    {
-490        paldata pdStart = Graphics->CreatePalData();
-491        paldata pdEnd = Graphics->CreatePalData();
-                           ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new paldata()` instead!
-DayNightNew.zs Line 492 - Warning S094: Function 'Graphics::CreatePalData(rgb)' is deprecated, and should not be used.
-
-490    paldata pdStart = Graphics->CreatePalData();
-491    paldata pdEnd = Graphics->CreatePalData();
-492    paldata pdClrStart = Graphics->CreatePalData(clrStart);
-                            ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new paldata(color)` instead!
-DayNightNew.zs Line 493 - Warning S094: Function 'Graphics::CreatePalData(rgb)' is deprecated, and should not be used.
-
-491    paldata pdEnd = Graphics->CreatePalData();
-492    paldata pdClrStart = Graphics->CreatePalData(clrStart);
-493    paldata pdClrEnd = Graphics->CreatePalData(clrEnd);
-                          ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new paldata(color)` instead!
-DayNightNew.zs Line 527 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
-
-525    pdStart->WriteLevelPalette(whichSlot);
-526    
-527    pdStart->Free();
-       ^~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-DayNightNew.zs Line 528 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
-
-526    
-527    pdStart->Free();
-528    pdEnd->Free();
-       ^~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-DayNightNew.zs Line 529 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
-
-527    pdStart->Free();
-528    pdEnd->Free();
-529    pdClrStart->Free();
-       ^~~~~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-DayNightNew.zs Line 530 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
-
-528    pdEnd->Free();
-529    pdClrStart->Free();
-530    pdClrEnd->Free();
-       ^~~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-DayNightNew.zs Line 170 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
-
-168    int tmpDMap;
-169    
-170    if(Game->DMapFlags[Game->GetCurDMap()]&DMF_TIME_CAN_ADVANCE)
-                          ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurDMap] instead!
-DayNightNew.zs Line 170 - Warning S094: Variable 'Game->DMapFlags' is deprecated, and should not be used.
-
-168    int tmpDMap;
-169    
-170    if(Game->DMapFlags[Game->GetCurDMap()]&DMF_TIME_CAN_ADVANCE)
-          ^~~~~~~~~~~~~~~
-
-
-INFO: Use [dmapdata::Flagset] instead!
-DayNightNew.zs Line 170 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
-
-168    int tmpDMap;
-169    
-170    if(Game->DMapFlags[Game->GetCurDMap()]&DMF_TIME_CAN_ADVANCE)
-                          ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurDMap] instead!
-DayNightNew.zs Line 211 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
-
-209    if(PalChangeCooldown<=0)
-210    {
-211        UpdateDMapPalette(Game->GetCurDMap(), PAL_TMPPALETTES);
-                             ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurDMap] instead!
-DayNightNew.zs Line 217 - Warning S094: Function 'screendata::GetSideWarpDMap(int)' is deprecated, and should not be used.
-
-215    for(i=0; i<4; ++i)
-216    {
-217        tmpDMap = Screen->GetSideWarpDMap(i);
-                     ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [SideWarpDMap] instead!
-DayNightNew.zs Line 218 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
-
-216    {
-217        tmpDMap = Screen->GetSideWarpDMap(i);
-218        if(tmpDMap!=Game->GetCurDMap())
-                       ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurDMap] instead!
-DayNightNew.zs Line 220 - Warning S094: Function 'screendata::GetTileWarpDMap(int)' is deprecated, and should not be used.
-
-218    if(tmpDMap!=Game->GetCurDMap())
-219        UpdateDMapPalette(tmpDMap, PAL_TMPPALETTES+5+i);
-220    tmpDMap = Screen->GetTileWarpDMap(i);
-                 ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [TileWarpDMap] instead!
-DayNightNew.zs Line 221 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
-
-219        UpdateDMapPalette(tmpDMap, PAL_TMPPALETTES+5+i);
-220    tmpDMap = Screen->GetTileWarpDMap(i);
-221    if(tmpDMap!=Game->GetCurDMap())
-                   ^~~~~~~~~~~~~~~~
-
-
-INFO: Use [CurDMap] instead!
 DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
 
 329    
@@ -14969,15 +13392,6 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-script.zs Line 48 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-46    if(PlayTheSFX){
-47        
-48        Game->PlaySound(23);
-          ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
 script.zs Line 312 - Error S009: Variable BLNK_SPRITE has not been declared.
 
 310    int Swordtile = Sword->Tile;
@@ -15018,69 +13432,353 @@ script.zs Line 73 - Error T021: Function CounterCost(int, int) has not been decl
               ^~~~~~~~~~~
 
 
-script.zs Line 77 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-75    Link->Action = LA_ATTACKING;
-76    
-77    Game->PlaySound(SFX);
-      ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 168 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-166    //If the special move have any requirements, this is where you put a check for that in order to play the charge complete SFX.
-167    if(ChargeUp == MW_SWORD_CHARGE){    
-168        Game->PlaySound(35);
-           ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 179 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-177    if(ChargeUp >= MW_SWORD_CHARGE){
-178        
-179        Game->PlaySound(SFX);
-           ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 438 - Warning S094: Function 'screendata::NumLWeapons()' is deprecated, and should not be used.
-
-436    
-437    //Check to see if self is hit
-438    for(int i = 1; i <= Screen->NumLWeapons(); i++){
-                           ^~~~~~~~~~~~~~~~~~~
-
-
-INFO: Use [NumLWeapons] instead!
-script.zs Line 464 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-462    Screen->TriggerSecrets();
-463    Screen->State[ST_SECRET] = true;
-464    Game->PlaySound(27);
-       ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 527 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-525    
-526        Waitframes(60);
-527        Game->PlaySound(SFX);
-           ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
-script.zs Line 746 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
-
-744    
-745    void SecretTrigger(int SFX){    // Triggers the screen secret when run.
-746        Game->PlaySound(SFX);
-           ^~~~~~~~~~~~~~~
-
-
-INFO: Use [Audio->PlaySound] instead!
 Failure!
 Compile finished with exit code '9' (compiled with errors)
+
+=== 00589-temporary-no-return-item-drops/TempNoReturnItem.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+TempNoReturnItem.zs Line 60 - Error T017: Cannot cast from int to const ItemPickupBitflags.
+
+58    itemsprite drop = CreateItemAt(ItemID, this->X, this->Y);
+59    drop->Misc[ITEMSPR_MISC_TEMPNORETURN_ID] = ReturnValue(this->Pos);
+60    drop->Pickup |= (Mode == 0 ? IP_TIMEOUT : (Mode == 1 ? IP_ALWAYSGRAB : 0));
+                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '17' (compiled with errors)
+
+=== 00601-chain-chomp/ChainChomp.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+ChainChomp.zs Line 6 - Error P073: 'using' found no matches for the namespace NPCAnim.
+
+4    @InitDHelp0("How many chain links the chomp has. This determines its leash distance.")
+5    npc script Chainchomp{
+6        using namespace NPCAnim;
+         ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+ChainChomp.zs Line 122 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+120    for(int i=0; i<frames; ++i)
+121    {
+122        int chainX = vars[0];
+                        ^~~~~~~
+
+
+ChainChomp.zs Line 123 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+121    {
+122        int chainX = vars[0];
+123        int chainY = vars[1];
+                        ^~~~~~~
+
+
+ChainChomp.zs Line 124 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+122    int chainX = vars[0];
+123    int chainY = vars[1];
+124    chainX[0] = this->X;
+       ^~~~~~~~~
+
+
+ChainChomp.zs Line 125 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+123    int chainY = vars[1];
+124    chainX[0] = this->X;
+125    chainY[0] = this->Y-this->Z;
+       ^~~~~~~~~
+
+
+ChainChomp.zs Line 127 - Error T021: Function Waitframe(npc) has not been declared.
+
+125    chainY[0] = this->Y-this->Z;
+126    UpdateChain(this, vars);
+127    Waitframe(this);
+       ^~~~~~~~~
+
+
+ChainChomp.zs Line 88 - Error T047: Type AnimHandler has not been declared.
+
+86    }
+87    void UpdateChain(npc this, int vars){
+88        AnimHandler aptr = GetAnimHandler(this);
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ChainChomp.zs Line 89 - Error S009: Variable aptr has not been declared.
+
+87    void UpdateChain(npc this, int vars){
+88        AnimHandler aptr = GetAnimHandler(this);
+89        int til = aptr->OriginalTile + 8;
+                    ^~~~
+
+
+ChainChomp.zs Line 92 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+90    
+91    int Combo = this->Attributes[10];
+92    int chainX = vars[0];
+                   ^~~~~~~
+
+
+ChainChomp.zs Line 93 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+91    int Combo = this->Attributes[10];
+92    int chainX = vars[0];
+93    int chainY = vars[1];
+                   ^~~~~~~
+
+
+ChainChomp.zs Line 94 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+92    int chainX = vars[0];
+93    int chainY = vars[1];
+94    int numLinks = vars[2];
+                     ^~~~~~~
+
+
+ChainChomp.zs Line 101 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+ 99    vX[i] = 0;
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                           ^~~~~~~~~
+
+
+ChainChomp.zs Line 101 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+ 99    vX[i] = 0;
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                      ^~~~~~~~~
+
+
+ChainChomp.zs Line 101 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+ 99    vX[i] = 0;
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                                 ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 101 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+ 99    vX[i] = 0;
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                                              ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                        ^~~~~~~~~
+
+
+ChainChomp.zs Line 102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                   ^~~~~~~~~
+
+
+ChainChomp.zs Line 102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                              ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                                           ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                           ^~~~~~~~~
+
+
+ChainChomp.zs Line 103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                      ^~~~~~~~~
+
+
+ChainChomp.zs Line 103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                                 ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                                              ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 104 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+104    float a2 = Angle(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                        ^~~~~~~~~
+
+
+ChainChomp.zs Line 104 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+104    float a2 = Angle(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                   ^~~~~~~~~
+
+
+ChainChomp.zs Line 104 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+104    float a2 = Angle(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                              ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 104 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+104    float a2 = Angle(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                                           ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 112 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+110    
+111    for(int i=1; i<numLinks; i++){
+112        chainX[i] += vX[i];
+           ^~~~~~~~~
+
+
+ChainChomp.zs Line 112 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+110    
+111    for(int i=1; i<numLinks; i++){
+112        chainX[i] += vX[i];
+           ^~~~~~~~~
+
+
+ChainChomp.zs Line 113 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+111    for(int i=1; i<numLinks; i++){
+112        chainX[i] += vX[i];
+113        chainY[i] += vY[i];
+           ^~~~~~~~~
+
+
+ChainChomp.zs Line 113 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+111    for(int i=1; i<numLinks; i++){
+112        chainX[i] += vX[i];
+113        chainY[i] += vY[i];
+           ^~~~~~~~~
+
+
+ChainChomp.zs Line 115 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+113    chainY[i] += vY[i];
+114    if(Link->HP>0)
+115        Screen->FastTile(SPLAYER_EWEAP_BEHIND_DRAW, chainX[i], chainY[i], til, this->CSet, OP_OPAQUE);
+                                                       ^~~~~~~~~
+
+
+ChainChomp.zs Line 115 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+113    chainY[i] += vY[i];
+114    if(Link->HP>0)
+115        Screen->FastTile(SPLAYER_EWEAP_BEHIND_DRAW, chainX[i], chainY[i], til, this->CSet, OP_OPAQUE);
+                                                                  ^~~~~~~~~
+
+
+ChainChomp.zs Line 115 - Error S009: Variable til has not been declared.
+
+113    chainY[i] += vY[i];
+114    if(Link->HP>0)
+115        Screen->FastTile(SPLAYER_EWEAP_BEHIND_DRAW, chainX[i], chainY[i], til, this->CSet, OP_OPAQUE);
+                                                                             ^~~
+
+
+ChainChomp.zs Line 14 - Error T021: Function Waitspawn(npc) has not been declared.
+
+12    int maxDist = (numLinks-1) * 8;
+13    
+14    Waitspawn(this);
+      ^~~~~~~~~
+
+
+ChainChomp.zs Line 16 - Error T047: Type AnimHandler has not been declared.
+
+14    Waitspawn(this);
+15    
+16    AnimHandler aptr = new AnimHandler(this);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ChainChomp.zs Line 17 - Error S009: Variable aptr has not been declared.
+
+15    
+16    AnimHandler aptr = new AnimHandler(this);
+17    aptr->AddAnim(0, 0, 1, 1, ADF_8WAY);
+      ^~~~
+
+
+ChainChomp.zs Line 28 - Warning S108: Array mismatch for types int[] and int
+
+26    }
+27    
+28    int vars[16] = {chainX, chainY, numLinks};
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ChainChomp.zs Line 28 - Warning S108: Array mismatch for types int[] and int
+
+26    }
+27    
+28    int vars[16] = {chainX, chainY, numLinks};
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '73' (compiled with errors)
+
+=== 00602--oracle-minecarts/gbminecart255.zs
+Pass 1: Parsing
+gbminecart255.zs Line 1 - Error P083: Could not find included file 'TempLinkState255.zh'. Please check your include paths!
+
+1    #include "TempLinkState255.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
 

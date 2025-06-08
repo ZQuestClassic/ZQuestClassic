@@ -137,12 +137,14 @@ namespace ZScript
 		std::vector<int32_t> continueRefCounts;
 		std::vector<int32_t> breaklabelids;
 		std::vector<int32_t> breakRefCounts;
+		std::vector<std::vector<Scope*>> breakScopes;
 		std::vector<uint> break_past_counts;
 		std::vector<uint> break_to_counts;
 		std::vector<uint> continue_past_counts;
 		std::vector<uint> continue_to_counts;
 		std::vector<uint> scope_allocations;
 		std::list<int32_t> arrayRefs;
+		std::vector<Scope*> cur_scopes;
 		// Stack of opcode targets. Only the latest is used.
 		std::vector<std::vector<std::shared_ptr<Opcode>>*> opcodeTargets;
 		
@@ -169,10 +171,11 @@ namespace ZScript
 					++continue_to_counts[q];
 			}
 		}
-		void push_break(int32_t id, int32_t count, uint scope_pops = 0)
+		void push_break(int32_t id, int32_t count, uint scope_pops, std::vector<Scope*> scopes)
 		{
 			++break_depth;
 			breaklabelids.push_back(id);
+			breakScopes.push_back(scopes);
 			breakRefCounts.push_back(count);
 			break_past_counts.push_back(0);
 			break_to_counts.push_back(0);
@@ -191,6 +194,7 @@ namespace ZScript
 			--break_depth;
 			breaklabelids.pop_back();
 			breakRefCounts.pop_back();
+			breakScopes.pop_back();
 			break_past_counts.pop_back();
 			break_to_counts.pop_back();
 			scope_allocations.pop_back();
@@ -237,6 +241,37 @@ namespace ZScript
 				ASTArrayLiteral& host, OpcodeContext& context);
 		// For when ASTArrayLiteral is not a declaration initializer.
 		void arrayLiteralFree(ASTArrayLiteral& host, OpcodeContext& context);
+
+		void mark_ref_remove_if_needed_for_block(ASTBlock* block)
+		{
+			auto scope = block->getScope();
+			for (auto&& datum : scope->getLocalData())
+			{
+				if (!datum->type.isObject())
+					continue;
+
+				auto pos = lookupStackPosition(*scope, *datum);
+				if (!pos)
+					continue;
+
+				addOpcode(new ORefRemove(new LiteralArgument(*pos)));
+			}
+		}
+
+		void mark_ref_remove_if_needed_for_scope(Scope* scope)
+		{
+			for (auto&& datum : scope->getLocalData())
+			{
+				if (!datum->type.isObject())
+					continue;
+
+				auto pos = lookupStackPosition(*scope, *datum);
+				if (!pos)
+					continue;
+
+				addOpcode(new ORefRemove(new LiteralArgument(*pos)));
+			}
+		}
 		
 		void parseExprs(ASTExpr* left, ASTExpr* right, void* param, bool orderMatters = false);
 		void compareExprs(ASTExpr* left, ASTExpr* right, void* param);
@@ -311,7 +346,7 @@ namespace ZScript
 		bool err = false;
 		void caseLabel(LabelArgument &host, void *param)
 		{
-			host.setLineNo(check(host.getID(), *(map<int32_t, int32_t> *)param, &err));
+			host.setLineNo(check(host.getID(), *(map<int32_t, int32_t> *)param));
 		}
 		static int check(int lbl, map<int32_t, int32_t> const& labels, bool* error = nullptr)
 		{
@@ -324,7 +359,7 @@ namespace ZScript
 					*error = true;
 				return 0;
 			}
-
+			
 			return it->second;
 		}
 	};
@@ -332,9 +367,9 @@ namespace ZScript
 	{
 		vector<int> labels;
 		int targ_label;
-	public:
-		MergeLabels(int targ_label, vector<int> labels)
+		MergeLabels(int targ_label, vector<int> const& labels)
 			: labels(labels),targ_label(targ_label) {}
+	public:
 		void caseLabel(LabelArgument &host, void *param)
 		{
 			for(int lbl : labels)
@@ -342,6 +377,21 @@ namespace ZScript
 				{
 					host.setID(targ_label);
 					return;
+				}
+		}
+		static void merge(int targ_label, vector<int> const& labels, vector<std::shared_ptr<Opcode>> const& vec, void* param, vector<int32_t*> const* lblvec)
+		{
+			MergeLabels ml(targ_label, labels);
+			ml.execute(vec, param);
+			if(lblvec)
+				for(int32_t* ptr : *lblvec)
+				{
+					for(int lbl : labels)
+						if(lbl == *ptr)
+						{
+							*ptr = targ_label;
+							break;
+						}
 				}
 		}
 	};

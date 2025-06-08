@@ -74,7 +74,7 @@ rewrite 7: 7 -> 2 commands
 11: NOP            
 12: NOP            
 13: NOP            
-Function #0
+Function #0 (run_none-0)
     0: COMPARER        D2               D3          [Block 0 -> 1, 3]
     1: GOTOCMP         15               !=
     2: NOP                                          [Block 1 -> 2, 3]

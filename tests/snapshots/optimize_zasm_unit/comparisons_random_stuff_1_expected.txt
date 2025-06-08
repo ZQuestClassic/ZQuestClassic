@@ -75,7 +75,7 @@ rewrite 5: 4 -> 2 commands
 rewrite 11: 2 -> 2 commands
 11: COMPAREV        D2               0      
 12: GOTOCMP         14               ==     
-Function #0
+Function #0 (run_none-0)
     0: COMPAREV        D2               0           [Block 0 -> 1, 7]
     1: GOTOCMP         16               ==
     2: LOAD            D2               2           [Block 1 -> 2, 3]

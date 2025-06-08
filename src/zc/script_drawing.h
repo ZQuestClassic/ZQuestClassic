@@ -1,6 +1,8 @@
 #ifndef ZC_SCRIPT_DRAWING_H_
 #define ZC_SCRIPT_DRAWING_H_
 
+#include "base/zdefs.h"
+#include <utility>
 #include <vector>
 #include <string>
 #include <set>
@@ -11,6 +13,9 @@
 #define DRAWCMD_MAX_ARG_COUNT  17
 #define DRAWCMD_BMP_TARGET     18
 #define DRAWCMD_CURRENT_TARGET 19
+
+// (bitmap_id, is_user_bitmap)
+std::pair<int, bool> resolveScriptingBitmapId(int scripting_bitmap_id);
 
 // For Quad and Triangle. *allegro Bug-Fix* -Gleeok
 class SmallBitmapTextureCache
@@ -274,6 +279,13 @@ public:
 protected:
     int32_t data[ SCRIPT_DRAWING_COMMAND_VARIABLES ];
     void* ptr; //will be changed later
+
+public:
+	DrawOrigin draw_origin;
+	int32_t draw_origin_target;
+
+	DrawOrigin secondary_draw_origin;
+	int32_t secondary_draw_origin_target;
 };
 
 

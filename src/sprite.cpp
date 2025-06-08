@@ -1,12 +1,11 @@
+#include "base/util.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "base/qrs.h"
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"
-#include "zc/maps.h"
-#include "zc/replay.h"
-#include "zc/guys.h"
+#include "zc/ffscript.h" // TODO: move me.
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include "base/misctypes.h"
@@ -17,17 +16,14 @@
 #include "zc/decorations.h"
 #include "items.h"
 #include "zc/render.h"
-extern HeroClass Hero;
-extern sprite_list decorations;
+#include "zc/maps.h"
+#include "zc/replay.h"
+#include "zc/guys.h"
 #endif
-extern particle_list particles;
 
-extern bool get_debug();
-extern bool halt;
-extern bool show_sprites;
-extern bool show_hitboxes;
-extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-#include "zc/ffscript.h"
+#ifdef IS_PLAYER
+#include "zq/zquest.h"
+#endif
 
 static std::map<int32_t, sprite*> all_sprites;
 byte sprite_flicker_color = 0;
@@ -50,6 +46,7 @@ fixed rad_to_fixed(T d)
 sprite::sprite(): solid_object()
 {
     uid = 0;
+	screen_spawned = -1;
 	isspawning = false;
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=fall=fakefall=fakez=0;
     slopeid = 0;
@@ -156,7 +153,7 @@ sprite::sprite(sprite const & other):
 	ignore_delete(other.ignore_delete)
 {
     uid = 0;
-	all_sprites[uid] = this;
+	screen_spawned = other.screen_spawned;
 	isspawning = other.isspawning;
     
     for(int32_t i=0; i<10; ++i)
@@ -185,7 +182,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	x = X;
 	y = Y;
     uid = 0;
-	all_sprites[uid] = this;
+	screen_spawned = get_screen_for_world_xy(x.getInt(), y.getInt());
     isspawning = false;
     slopeid = 0;
     onplatid = 0;
@@ -607,101 +604,24 @@ int32_t sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fa
 	return 0;
 }
 
-int32_t sprite::get_water()  //Returns combo ID of water that sprite WOULD fall into; no side-effects
-{
-	int32_t ispitul = iswaterexzq(MAPCOMBOzq(x,y), get_currmap(), get_currscr(), -1, x, y, false, false, true);
-	int32_t ispitbl = iswaterexzq(MAPCOMBOzq(x,y+15), get_currmap(), get_currscr(), -1, x, y+15, false, false, true);
-	int32_t ispitur = iswaterexzq(MAPCOMBOzq(x+15,y), get_currmap(), get_currscr(), -1, x+15, y, false, false, true);
-	int32_t ispitbr = iswaterexzq(MAPCOMBOzq(x+15,y+15), get_currmap(), get_currscr(), -1, x+15, y+15, false, false, true);
-	int32_t ispitul_50 = iswaterexzq(MAPCOMBOzq(x+8,y+8), get_currmap(), get_currscr(), -1, x+8, y+8, false, false, true);
-	int32_t ispitbl_50 = iswaterexzq(MAPCOMBOzq(x+8,y+7), get_currmap(), get_currscr(), -1, x+8, y+7, false, false, true);
-	int32_t ispitur_50 = iswaterexzq(MAPCOMBOzq(x+7,y+8), get_currmap(), get_currscr(), -1, x+7, y+8, false, false, true);
-	int32_t ispitbr_50 = iswaterexzq(MAPCOMBOzq(x+7,y+7), get_currmap(), get_currscr(), -1, x+7, y+7, false, false, true);
-	switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
-	{
-		case 4:
-		{
-			return ispitul_50 ? ispitul_50 : ispitul;
-		}
-		case 3:
-		{
-			if(ispitul && ispitur && ispitbl) //UL_3
-			{
-				return ispitul_50;
-			}
-			else if(ispitul && ispitur && ispitbr) //UR_3
-			{
-				return ispitur_50;
-			}
-			else if(ispitul && ispitbl && ispitbr) //BL_3
-			{
-				return ispitbl_50;
-			}
-			else if(ispitbl && ispitur && ispitbr) //BR_3
-			{
-				return ispitbr_50;
-			}
-			break;
-		}
-		case 2:
-		{
-			if(ispitul && ispitur) //Up
-			{
-				return ispitul_50 ? ispitul_50 : ispitur_50;
-			}
-			if(ispitbl && ispitbr) //Down
-			{
-				return ispitbl_50 ? ispitbl_50 : ispitbr_50;
-			}
-			if(ispitul && ispitbl) //Left
-			{
-				return ispitul_50 ? ispitul_50 : ispitbl_50;
-			}
-			if(ispitur && ispitbr) //Right
-			{
-				return ispitur_50 ? ispitur_50 : ispitbr_50;
-			}
-			break;
-		}
-		case 1:
-		{
-			if(ispitul) //UL_1
-			{
-				return ispitul_50;
-			}
-			if(ispitur) //UR_1
-			{
-				return ispitur_50;
-			}
-			if(ispitbl) //BL_1
-			{
-				return ispitbl_50;
-			}
-			if(ispitbr) //BR_1
-			{
-				return ispitbr_50;
-			}
-			break;
-		}
-	}
-	return 0;
-}
-
 int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not fallen.
 {
+#ifndef IS_PLAYER
+	return 0;
+#else
 	int32_t safe_cnt = 0;
 	bool has_fallen = false;
 	int32_t ispitul, ispitbl, ispitur, ispitbr, ispitul_50, ispitbl_50, ispitur_50, ispitbr_50;
 	while(++safe_cnt < 16) //Prevent softlocks
 	{
-		ispitul = iswaterexzq(MAPCOMBOzq(x,y), get_currmap(), get_currscr(), -1, x, y, false, false, true);
-		ispitbl = iswaterexzq(MAPCOMBOzq(x,y+15), get_currmap(), get_currscr(), -1, x, y+15, false, false, true);
-		ispitur = iswaterexzq(MAPCOMBOzq(x+15,y), get_currmap(), get_currscr(), -1, x+15, y, false, false, true);
-		ispitbr = iswaterexzq(MAPCOMBOzq(x+15,y+15), get_currmap(), get_currscr(), -1, x+15, y+15, false, false, true);
-		ispitul_50 = iswaterexzq(MAPCOMBOzq(x+8,y+8), get_currmap(), get_currscr(), -1, x+8, y+8, false, false, true);
-		ispitbl_50 = iswaterexzq(MAPCOMBOzq(x+8,y+7), get_currmap(), get_currscr(), -1, x+8, y+7, false, false, true);
-		ispitur_50 = iswaterexzq(MAPCOMBOzq(x+7,y+8), get_currmap(), get_currscr(), -1, x+7, y+8, false, false, true);
-		ispitbr_50 = iswaterexzq(MAPCOMBOzq(x+7,y+7), get_currmap(), get_currscr(), -1, x+7, y+7, false, false, true);
+		ispitul = iswaterexzq(MAPCOMBO(x,y), get_currmap(), get_currscr(), -1, x, y, false, false, true);
+		ispitbl = iswaterexzq(MAPCOMBO(x,y+15), get_currmap(), get_currscr(), -1, x, y+15, false, false, true);
+		ispitur = iswaterexzq(MAPCOMBO(x+15,y), get_currmap(), get_currscr(), -1, x+15, y, false, false, true);
+		ispitbr = iswaterexzq(MAPCOMBO(x+15,y+15), get_currmap(), get_currscr(), -1, x+15, y+15, false, false, true);
+		ispitul_50 = iswaterexzq(MAPCOMBO(x+8,y+8), get_currmap(), get_currscr(), -1, x+8, y+8, false, false, true);
+		ispitbl_50 = iswaterexzq(MAPCOMBO(x+8,y+7), get_currmap(), get_currscr(), -1, x+8, y+7, false, false, true);
+		ispitur_50 = iswaterexzq(MAPCOMBO(x+7,y+8), get_currmap(), get_currscr(), -1, x+7, y+8, false, false, true);
+		ispitbr_50 = iswaterexzq(MAPCOMBO(x+7,y+7), get_currmap(), get_currscr(), -1, x+7, y+7, false, false, true);
 		int32_t dir = -1;
 		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
 		{
@@ -861,6 +781,7 @@ int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not
 		fallclk = old_drown; //sanity check
 	}
 	return 0;
+#endif
 }
 
 bool sprite::hit()
@@ -1048,9 +969,21 @@ void sprite::draw(BITMAP* dest)
 		return; //don't run the rest, use the old code
 	}
 	int32_t sx = real_x(x+xofs);
-	int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+	// Pain. https://discord.com/channels/876899628556091432/1193381178716196864
+	// syz was simply inlined on the declaration of sy, but somehow MSVC RelWithDebInfo win32 breaks this so badly that
+	// the hero y position is always negative, making the hero invisible. The compiler doesn't do the bad thing when an
+	// intermediate variable is introduced.
+	int32_t syz = real_z(z+zofs);
+	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
-	
+
+#ifdef IS_PLAYER
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
+#endif
     
 	if(id<0)
 	{
@@ -1116,7 +1049,7 @@ void sprite::draw(BITMAP* dest)
 				blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
 
 				static BITMAP *temp2 = create_bitmap_ex(8, 32, 32);
-				static BITMAP* temp3 = create_bitmap_ex(8, 32, 32);
+				static BITMAP* temp3 = create_bitmap_ex(8, 48, 32);
 
 				clear_bitmap(temp3);
 				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
@@ -1130,7 +1063,7 @@ void sprite::draw(BITMAP* dest)
 				if (sprite_flicker_color)
 					SPRITE_MONOCOLOR(temp3);
 
-				masked_blit(temp3, temp, 0, 0, 0, 0, 32, 32);
+				masked_blit(temp3, temp, 0, 0, 0, 0, 48, 32);
 
 				if ( rotation )
 				{
@@ -1386,7 +1319,7 @@ void sprite::draw(BITMAP* dest)
 					}
 					else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 				}
-				if ( sprBMP ) destroy_bitmap(sprBMP);
+				destroy_bitmap(sprBMP);
 				break;
 			}
 			break; //Aye, we break switch(e) here.
@@ -1487,7 +1420,7 @@ void sprite::draw(BITMAP* dest)
 			w.draw(dest);
 		}
 	}
-    
+
 	if(show_hitboxes)
 		draw_hitbox();
 	
@@ -1502,20 +1435,23 @@ void sprite::draw_hitbox()
 	if(hide_hitbox) return;
 #ifdef IS_PLAYER
 	start_info_bmp();
-	al_draw_rectangle(x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hit_width,(y+playing_field_offset+hyofs+hit_height-(z+zofs)-fakez),hitboxColor(info_opacity),1);
+	int x0 = x + hxofs - viewport.x;
+	int y0 = y + playing_field_offset + hyofs - (z + zofs) - fakez - viewport.y;
+	al_draw_rectangle(x0, y0, x0 + hit_width, y0 + hit_height, hitboxColor(info_opacity), 1);
 	end_info_bmp();
 #endif
 }
 
 
 //Z1 bosses draw tiles from guys.cpp, direct to the 'dest'
+// ...but this also draws the hero if qr_OLDSPRITEDRAWS is enabled
 void sprite::drawzcboss(BITMAP* dest)
 {
 	if(!show_sprites)
 	{
 		return;
 	}
-    
+
 	int32_t sx = real_x(x+xofs);
 	// Pain. https://discord.com/channels/876899628556091432/1193381178716196864
 	// syz was simply inlined on the declaration of sy, but somehow MSVC RelWithDebInfo win32 breaks this so badly that
@@ -1524,7 +1460,15 @@ void sprite::drawzcboss(BITMAP* dest)
 	int32_t syz = real_z(z+zofs);
 	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
-    
+
+#ifdef IS_PLAYER
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
+#endif
+
 	if(id<0)
 		return;
         
@@ -1888,9 +1832,22 @@ void sprite::drawzcboss(BITMAP* dest)
 void sprite::draw8(BITMAP* dest)
 {
     int32_t sx = real_x(x+xofs);
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+	// Pain. https://discord.com/channels/876899628556091432/1193381178716196864
+	// syz was simply inlined on the declaration of sy, but somehow MSVC RelWithDebInfo win32 breaks this so badly that
+	// the hero y position is always negative, making the hero invisible. The compiler doesn't do the bad thing when an
+	// intermediate variable is introduced.
+	int32_t syz = real_z(z+zofs);
+	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
-    
+
+#ifdef IS_PLAYER
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
+#endif
+
     if(id<0)
         return;
         
@@ -1912,8 +1869,21 @@ void sprite::draw8(BITMAP* dest)
 void sprite::drawcloaked(BITMAP* dest)
 {
     int32_t sx = real_x(x+xofs);
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs);
-    sy -= fake_z(fakez);
+	// Pain. https://discord.com/channels/876899628556091432/1193381178716196864
+	// syz was simply inlined on the declaration of sy, but somehow MSVC RelWithDebInfo win32 breaks this so badly that
+	// the hero y position is always negative, making the hero invisible. The compiler doesn't do the bad thing when an
+	// intermediate variable is introduced.
+	int32_t syz = real_z(z+zofs);
+	int32_t sy = real_y(y+yofs) - syz;
+	sy -= fake_z(fakez);
+
+#ifdef IS_PLAYER
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
+#endif
     
     if(id<0)
         return;
@@ -1975,6 +1945,11 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 	
 	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8;
 	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16;
+#ifdef IS_PLAYER
+	sx -= viewport.x;
+	sy -= viewport.y;
+#endif
+
 	//int32_t sy1 = sx-56; //subscreen offset
 	//if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
 	//sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
@@ -2044,9 +2019,6 @@ bool sprite_list::swap(int32_t a,int32_t b)
     sprite *c = sprites[a];
     sprites[a] = sprites[b];
     sprites[b] = c;
-    containedUIDs[sprites[a]->getUID()] = a;
-    containedUIDs[sprites[b]->getUID()] = b;
-// checkConsistency();
     return true;
 }
 
@@ -2059,14 +2031,11 @@ bool sprite_list::add(sprite *s)
     }
     
     s->registerUID();
-    containedUIDs[s->getUID()] = count;
     sprites[count++]=s;
-    //checkConsistency();
     return true;
 }
 
 bool sprite_list::remove(sprite *s)
-// removes pointer from list but doesn't delete it
 {
 	if(s->ignore_delete) return false;
     if(s==lastSpriteRequested)
@@ -2074,12 +2043,7 @@ bool sprite_list::remove(sprite *s)
         lastUIDRequested=0;
         lastSpriteRequested=0;
     }
-    
-    map<int32_t, int32_t>::iterator it = containedUIDs.find(s->getUID());
-    
-    if(it != containedUIDs.end())
-        containedUIDs.erase(it);
-        
+   
     int32_t j=0;
     
     for(; j<count; j++)
@@ -2087,13 +2051,12 @@ bool sprite_list::remove(sprite *s)
             goto gotit;
             
     return false;
-    
+
 gotit:
 
     for(int32_t i=j; i<count-1; i++)
     {
         sprites[i]=sprites[i+1];
-        containedUIDs[sprites[i]->getUID()] = i;
     }
     
     --count;
@@ -2141,48 +2104,48 @@ int32_t sprite_list::getMisc(int32_t j)
     return sprites[j]->misc;
 }
 
-bool sprite_list::del(int32_t j, bool force, bool may_defer)
+bool sprite_list::del(int32_t index, bool force, bool may_defer)
 {
-	if(j<0||j>=count)
+	if(index<0||index>=count)
 		return false;
 	
-	if(!force && sprites[j]->ignore_delete) return false;
+	if(!force && sprites[index]->ignore_delete) return false;
 
 	// If this sprite is currently running its `animate` function, just mark it for deletion
 	// to avoid crashing. This allows the sprite to finish its logic even after being told to
 	// go away.
-	if(may_defer && active_iterator == j)
+	if(may_defer && active_iterator == index)
 	{
 		delete_active_iterator = true;
 		// Remove from list so fewer things interact with it.
 		// TODO: better to remove by index.
-		remove(sprites[j]);
+		remove(sprites[index]);
 		return false;
 	}
 	
-	map<int32_t, int32_t>::iterator it = containedUIDs.find(sprites[j]->getUID());
-	
-	if(it != containedUIDs.end())
-		containedUIDs.erase(it);
-	
-	if(sprites[j]==lastSpriteRequested)
+	if(sprites[index]==lastSpriteRequested)
 	{
 		lastUIDRequested=0;
 		lastSpriteRequested=0;
 	}
 	
-	delete sprites[j];
+	delete sprites[index];
 	
-	for(int32_t i=j; i<count-1; i++)
+	for(int32_t i=index; i<count-1; i++)
 	{
 		sprites[i]=sprites[i+1];
-		containedUIDs[sprites[i]->getUID()] = i;
 	}
 	
 	--count;
-	if(j<=active_iterator) --active_iterator;
-	//checkConsistency();
+	if(index<=active_iterator) --active_iterator;
 	return true;
+}
+
+bool sprite_list::del(sprite* spr, bool force, bool may_defer)
+{
+	int index = find(spr);
+	if (index == -1) return false;
+	return del(index, force, may_defer);
 }
 
 void sprite_list::draw(BITMAP* dest,bool lowfirst)
@@ -2199,6 +2162,25 @@ void sprite_list::draw(BITMAP* dest,bool lowfirst)
 		}
 }
 
+void sprite_list::draw_smooth_maze(BITMAP* dest)
+{
+#ifdef IS_PLAYER
+	int maze_screen = maze_state.scr->screen;
+	auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
+
+	for (int32_t i=0; i<count; i++)
+	{
+		if (sprites[i]->screen_spawned != maze_state.scr->screen)
+			set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+		else
+			clear_clip_rect(dest);
+		sprites[i]->draw(dest);
+	}
+
+	clear_clip_rect(dest);
+#endif
+}
+
 void sprite_list::drawshadow(BITMAP* dest,bool translucent, bool lowfirst)
 {
 	if(lowfirst)
@@ -2211,6 +2193,23 @@ void sprite_list::drawshadow(BITMAP* dest,bool translucent, bool lowfirst)
 		{
 			sprites[i]->drawshadow(dest,translucent);
 		}
+}
+
+void sprite_list::drawshadow_smooth_maze(BITMAP* dest, bool translucent)
+{
+#ifdef IS_PLAYER
+	int maze_screen = maze_state.scr->screen;
+	auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
+
+	for (int32_t i=0; i<count; i++)
+	{
+		if (sprites[i]->screen_spawned != maze_state.scr->screen)
+			set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+		sprites[i]->drawshadow(dest, translucent);
+	}
+
+	clear_clip_rect(dest);
+#endif
 }
 
 void sprite_list::draw2(BITMAP* dest,bool lowfirst)
@@ -2246,36 +2245,48 @@ extern char *guy_string[];
 void sprite_list::animate()
 {
 	active_iterator = 0;
-	
+
+#ifdef IS_PLAYER
+	viewport_t freeze_rect = viewport;
+	int tile_buffer = 3;
+	freeze_rect.w += 16 * tile_buffer * 2;
+	freeze_rect.h += 16 * tile_buffer * 2;
+	freeze_rect.x -= 16 * tile_buffer;
+	freeze_rect.y -= 16 * tile_buffer;
+#endif
+
 	while(active_iterator<count)
 	{
-		// TODO: add a higher debug mode for this. For now, just comment out as-needed for debugging.
-		// if (replay_is_active() && replay_is_debug() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
-		// {
-		// 	enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
-		// 	replay_step_comment(fmt::format("enemy {} id: {} x: {} y: {} clk: {} {} {}",
-		// 		guy_string[as_enemy->id&0xFFF], as_enemy->id, as_enemy->x.getInt(), as_enemy->y.getInt(),
-		// 		as_enemy->clk, as_enemy->clk2, as_enemy->clk3)
-		// 	);
-		// }
+		sprite* spr = sprites[active_iterator];
 
-		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
+		bool freeze_sprite = false;
+		if (spr->canfreeze)
 		{
-			setCurObject(sprites[active_iterator]);
+			freeze_sprite = freeze_guys;
+#ifdef IS_PLAYER
+			// TODO: maybe someday make this "freeze" rect size configurable:
+			//       `->ViewportFreezeBuffer` pixels (set to -1 to disable; enemies/eweapons default to 48px)
+			if (is_in_scrolling_region())
+				freeze_sprite |= !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16);
+#endif
+		}
+
+		if (!freeze_sprite)
+		{
+			setCurObject(spr);
 			auto tmp_iter = active_iterator;
-			sprite* cur_sprite = sprites[active_iterator];
-			if (cur_sprite->animate(active_iterator) || delete_active_iterator)
+			if (spr->animate(active_iterator) || delete_active_iterator)
 			{
 #ifdef IS_PLAYER
-				if (replay_is_active() && dynamic_cast<enemy*>(cur_sprite) != nullptr)
+				if (replay_is_active() && dynamic_cast<enemy*>(spr) != nullptr)
 				{
-					enemy* as_enemy = dynamic_cast<enemy*>(cur_sprite);
+					enemy* as_enemy = dynamic_cast<enemy*>(spr);
 					replay_step_comment(fmt::format("enemy died {}", guy_string[as_enemy->id&0xFFF]));
 				}
 #endif
 				if (delete_active_iterator)
 				{
-					delete cur_sprite;
+					delete spr;
 					delete_active_iterator = false;
 				}
 				else
@@ -2285,7 +2296,7 @@ void sprite_list::animate()
 			}
 			else if(tmp_iter == active_iterator)
 			{
-				sprites[active_iterator]->post_animate();
+				spr->post_animate();
 			}
 			setCurObject(NULL);
 		}
@@ -2307,13 +2318,18 @@ void sprite_list::run_script(int32_t mode)
 	
 	while(active_iterator<count)
 	{
-		sprite* cur_sprite = sprites[active_iterator];
-		if(!(freeze_guys && cur_sprite->canfreeze))
+		sprite* spr = sprites[active_iterator];
+
+		bool freeze_sprite = false;
+		if (spr->canfreeze)
+			freeze_sprite = freeze_guys;
+
+		if (!freeze_sprite)
 		{
-			cur_sprite->run_script(mode);
+			spr->run_script(mode);
 			if (delete_active_iterator)
 			{
-				delete cur_sprite;
+				delete spr;
 				delete_active_iterator = false;
 			}
 		}
@@ -2334,7 +2350,7 @@ void sprite_list::check_conveyor()
     }
 }
 
-int32_t sprite_list::Count()
+int32_t sprite_list::Count() const
 {
     return count;
 }
@@ -2371,13 +2387,13 @@ int32_t sprite_list::hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize)
 }
 
 // returns the number of sprites with matching id
-int32_t sprite_list::idCount(int32_t id, int32_t mask)
+int32_t sprite_list::idCount(int32_t id, int32_t mask, int32_t screen)
 {
     int32_t c=0;
     
     for(int32_t i=0; i<count; i++)
     {
-        if(((sprites[i]->id)&mask) == (id&mask))
+        if ((screen == -1 || sprites[i]->screen_spawned == screen) && ((sprites[i]->id)&mask) == (id&mask))
         {
             ++c;
         }
@@ -2445,7 +2461,13 @@ int32_t sprite_list::idLast(int32_t id, int32_t mask)
 // returns the number of sprites with matching id
 int32_t sprite_list::idCount(int32_t id)
 {
-    return idCount(id,0xFFFF);
+    return idCount(id,0xFFFF,-1);
+}
+
+// returns the number of sprites with matching id, for given screen
+int32_t sprite_list::idCount(int32_t id, int32_t screen)
+{
+    return idCount(id,0xFFFF,screen);
 }
 
 // returns index of first sprite with matching id, -1 if none found
@@ -2468,29 +2490,20 @@ int32_t sprite_list::idLast(int32_t id)
 
 sprite * sprite_list::getByUID(int32_t uid)
 {
-    if(uid==lastUIDRequested)
-        return lastSpriteRequested;
-    
-    map<int32_t, int32_t>::iterator it = containedUIDs.find(uid);
-    
-    if(it != containedUIDs.end())
-    {
-        // Only update cache if requested sprite was found
-        lastUIDRequested=uid;
-        lastSpriteRequested=spr(it->second);
-        return lastSpriteRequested;
-    }
-        
-    return NULL;
-}
+	if (uid==lastUIDRequested)
+		return lastSpriteRequested;
 
-void sprite_list::checkConsistency()
-{
-    assert((int32_t)containedUIDs.size() == count);
-    assert(lastUIDRequested==0 || containedUIDs.find(lastUIDRequested)!=containedUIDs.end());
-    
-    for(int32_t i=0; i<count; i++)
-        assert(sprites[i] == getByUID(sprites[i]->getUID()));
+	auto s = sprite::getByUID(uid);
+
+	if (s)
+	{
+		// Only update cache if requested sprite was found
+		lastUIDRequested=uid;
+		lastSpriteRequested=s;
+		return lastSpriteRequested;
+	}
+
+	return NULL;
 }
 
 void sprite_list::forEach(std::function<bool(sprite&)> proc)
@@ -2504,23 +2517,6 @@ void sprite_list::forEach(std::function<bool(sprite&)> proc)
 
 void sprite::explode(int32_t type)
 {
-	al_trace("Trying to explode enemy tile: %d\n",tile);
-	
-	/*
-	tiledata *temptilebuf = NULL;
-	memset(temptilebuf, 0, sizeof(temptilebuf));
-	static int32_t tempx, tempy;
-	static byte herotilebuf[256];
-	int32_t ltile=0;
-	int32_t lflip=0;
-	unpack_tile(temptilebuf, tile, flip, true);
-	//unpack_tile(temptilebuf, tile, flip, true);
-	//unpack_tile(temptilebuf, o_tile, 0, true);
-	memcpy(herotilebuf, temptilebuf, 256);
-	tempx=x;
-	tempy=y;
-	*/
-	
 	byte spritetilebuf[256];
 	int32_t ltile=0;
 	int32_t lflip=0;
@@ -2535,7 +2531,7 @@ void sprite::explode(int32_t type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(x+j, y-z-fakez+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
+                            particles.add(new pTwilight(x+j, y-z-fakez+i, 6, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
@@ -2545,7 +2541,7 @@ void sprite::explode(int32_t type)
                         
 			else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(x+j, y-z-fakez+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
+                            particles.add(new pTwilight(x+j, y-z-fakez+i, 6, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
@@ -2558,7 +2554,7 @@ void sprite::explode(int32_t type)
                         }
                         else //explode
                         {
-                            particles.add(new pDivineEscapeDust(x+j, y-z-fakez+i, 5, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(x+j, y-z-fakez+i, 6, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
@@ -2584,61 +2580,6 @@ void sprite::setCanFlicker(bool v)
 {
 	can_flicker = v;
 }
-
-
-/*
-void sprite::explode(int32_t type)
-{
-	static int32_t tempx, tempy;
-	static byte herotilebuf[256];
-	int32_t ltile=0;
-	int32_t lflip=0;
-	unpack_tile(newtilebuf, tile, flip, true);
-	memcpy(herotilebuf, unpackbuf, 256);
-	tempx=x;
-	tempy=y;
-	for(int32_t i=0; i<16; ++i)
-	{
-                for(int32_t j=0; j<16; ++j)
-                {
-                    if(herotilebuf[i*16+j])
-                    {
-                        if(type==0)  // Twilight
-                        {
-                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
-                            int32_t k=particles.Count()-1;
-                            particle *p = (particles.at(k));
-                            p->step=3;
-                        }
-                        else if(type ==1)  // Sands of Hours
-                        {
-                            particles.add(new pTwilight(x+j, y-z()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
-                            int32_t k=particles.Count()-1;
-                            particle *p = (particles.at(k));
-                            p->step=4;
-                            
-                            if(zc_oldrand()%10 < 2)
-                            {
-                                p->color=1;
-                                p->cset=0;
-                            }
-                        }
-                        else
-                        {
-                            particles.add(new pDivineEscapeDust(x+j, y-z+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
-                            
-                            int32_t k=particles.Count()-1;
-                            particle *p = (particles.at(k));
-                            p->angular=true;
-                            p->angle=zc_oldrand();
-                            p->step=(((double)j)/8);
-                            p->yofs=yofs;
-                        }
-                    }
-                }
-	}
-}
-*/
 
 //Moving Block 
 
@@ -2698,8 +2639,13 @@ void movingblock::draw(BITMAP *dest)
 	}
     else if(clk)
     {
-        //    sprite::draw(dest);
-        overcombo(dest,real_x(x+xofs),real_y(y+yofs),bcombo ,cs);
+		int32_t sx = real_x(x+xofs);
+		int32_t sy = real_x(y+yofs);
+#ifdef IS_PLAYER
+		sx -= viewport.x;
+		sy -= viewport.y;
+#endif
+        overcombo(dest, sx, sy, bcombo, cs);
     }
 }
 

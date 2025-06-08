@@ -5,83 +5,83 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-errors_enum_1.zs Line 33 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+errors_enum_1.zs Line 18 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
 
-31    f1 = ~f1|f1&AF_FRESH;
-32    // Error.
-33    f1 = HIT_BY_NPC_ID;
+16    f1 = ~f1|f1&AF_FRESH;
+17    // Error.
+18    f1 = HIT_BY_NPC_ID;
       ^~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 35 @ Columns 2-26 - Error T017: Cannot cast from int to AnimationBitflags.
+errors_enum_1.zs Line 20 @ Columns 2-26 - Error T017: Cannot cast from int to AnimationBitflags.
 
-33    f1 = HIT_BY_NPC_ID;
-34    // Error.
-35    f1 = AF_FRESH * AF_CYCLE;
+18    f1 = HIT_BY_NPC_ID;
+19    // Error.
+20    f1 = AF_FRESH * AF_CYCLE;
       ^~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 37 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+errors_enum_1.zs Line 22 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
 
-35    f1 = AF_FRESH * AF_CYCLE;
-36    // Error.
-37    f1 = AF_FRESH | HIT_BY_NPC_ID;
+20    f1 = AF_FRESH * AF_CYCLE;
+21    // Error.
+22    f1 = AF_FRESH | HIT_BY_NPC_ID;
            ^~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 39 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+errors_enum_1.zs Line 24 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
 
-37    f1 = AF_FRESH | HIT_BY_NPC_ID;
-38    // Error.
-39    f1 = AF_FRESH + HIT_BY_NPC_ID;
+22    f1 = AF_FRESH | HIT_BY_NPC_ID;
+23    // Error.
+24    f1 = AF_FRESH + HIT_BY_NPC_ID;
            ^~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 41 @ Columns 8-21 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+errors_enum_1.zs Line 26 @ Columns 8-21 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
 
-39    f1 = AF_FRESH + HIT_BY_NPC_ID;
-40    // Error.
-41    f1 += HIT_BY_NPC_ID;
+24    f1 = AF_FRESH + HIT_BY_NPC_ID;
+25    // Error.
+26    f1 += HIT_BY_NPC_ID;
             ^~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 46 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+errors_enum_1.zs Line 31 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
 
-44    f2 |= AF_FRESH;
-45    // Error.
-46    f2 = HIT_BY_NPC_ID;
+29    f2 |= AF_FRESH;
+30    // Error.
+31    f2 = HIT_BY_NPC_ID;
       ^~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 51 @ Columns 7-36 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
+errors_enum_1.zs Line 36 @ Columns 7-36 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
 
-49    f3 = AF_CYCLE | <AnimationBitflags>(1);
-50    // Error.
-51    f3 = AF_CYCLE | <OtherBitflags>(1);
+34    f3 = AF_CYCLE | <AnimationBitflags>(1);
+35    // Error.
+36    f3 = AF_CYCLE | <OtherBitflags>(1);
            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 53 @ Columns 7-42 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
+errors_enum_1.zs Line 38 @ Columns 7-42 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
 
-51    f3 = AF_CYCLE | <OtherBitflags>(1);
-52    // Error.
-53    f3 = AF_CYCLE | <const OtherBitflags>(1);
+36    f3 = AF_CYCLE | <OtherBitflags>(1);
+37    // Error.
+38    f3 = AF_CYCLE | <const OtherBitflags>(1);
            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 57 @ Columns 2-18 - Error T017: Cannot cast from bitmap to int.
+errors_enum_1.zs Line 42 @ Columns 2-18 - Error T017: Cannot cast from bitmap to int.
 
-55    auto x = HIT_BY_NPC_ID | HIT_BY_NPC_ID;
-56    // Error: Cannot cast from bitmap to int. Just showing that above resolved to int, not the enum.
-57    x = new bitmap();
+40    auto x = HIT_BY_NPC_ID | HIT_BY_NPC_ID;
+41    // Error: Cannot cast from bitmap to int. Just showing that above resolved to int, not the enum.
+42    x = new bitmap();
       ^~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 61 @ Columns 2-7 - Error T017: Cannot cast from bitmap to int.
+errors_enum_1.zs Line 46 @ Columns 2-7 - Error T017: Cannot cast from bitmap to int.
 
-59    bitmap b;
-60    // Error.
-61    b | b;
+44    bitmap b;
+45    // Error.
+46    b | b;
       ^~~~~
 
 
@@ -97,11 +97,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 32,
+          "line": 17,
           "character": 1
         },
         "end": {
-          "line": 32,
+          "line": 17,
           "character": 19
         }
       },
@@ -111,11 +111,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 34,
+          "line": 19,
           "character": 1
         },
         "end": {
-          "line": 34,
+          "line": 19,
           "character": 25
         }
       },
@@ -125,11 +125,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 36,
+          "line": 21,
           "character": 6
         },
         "end": {
-          "line": 36,
+          "line": 21,
           "character": 30
         }
       },
@@ -139,11 +139,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 38,
+          "line": 23,
           "character": 6
         },
         "end": {
-          "line": 38,
+          "line": 23,
           "character": 30
         }
       },
@@ -153,11 +153,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 40,
+          "line": 25,
           "character": 7
         },
         "end": {
-          "line": 40,
+          "line": 25,
           "character": 20
         }
       },
@@ -167,11 +167,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 45,
+          "line": 30,
           "character": 1
         },
         "end": {
-          "line": 45,
+          "line": 30,
           "character": 19
         }
       },
@@ -181,11 +181,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 50,
+          "line": 35,
           "character": 6
         },
         "end": {
-          "line": 50,
+          "line": 35,
           "character": 35
         }
       },
@@ -195,11 +195,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 52,
+          "line": 37,
           "character": 6
         },
         "end": {
-          "line": 52,
+          "line": 37,
           "character": 41
         }
       },
@@ -209,11 +209,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 56,
+          "line": 41,
           "character": 1
         },
         "end": {
-          "line": 56,
+          "line": 41,
           "character": 17
         }
       },
@@ -223,11 +223,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 60,
+          "line": 45,
           "character": 1
         },
         "end": {
-          "line": 60,
+          "line": 45,
           "character": 6
         }
       },
@@ -236,9 +236,9 @@ stdout:
     }
   ],
   "metadata": {
-    "currentFileSymbols": 17,
-    "symbols": 14,
-    "identifiers": 66,
+    "currentFileSymbols": 9,
+    "symbols": 15,
+    "identifiers": 72,
     "elided": true
   }
 }

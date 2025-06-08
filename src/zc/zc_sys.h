@@ -32,6 +32,8 @@ void draw_lens_over();
 void fix_menu();
 int32_t onFullscreenMenu();
 void f_Quit(int32_t type);
+void enqueue_qr_change(int qr, bool value);
+void process_enqueued_qr_changes();
 void advanceframe(bool allowwavy, bool sfxcleaup = true, bool allowF6Script = true);
 void updatescr(bool allowwavy);
 void syskeys();
@@ -69,7 +71,6 @@ bool zc_read_system_key(int32_t k);
 bool is_system_key(int32_t k);
 void update_system_keys();
 void update_keys();
-bool zc_disablekey(int32_t k, bool val);
 void eat_buttons();
 
 #define ZC_CONTROL_STATES 18
@@ -250,7 +251,8 @@ void stop_item_sfx(int32_t family);
 void kill_sfx();
 int32_t  pan(int32_t x);
 int32_t  onSetSnapshotFormat(SnapshotType format);
-void zc_putpixel(int32_t layer, int32_t x, int32_t y, int32_t cset, int32_t color, int32_t timer);
+int32_t onSetBottom8Pixels(int option);
+void updateShowBottomPixels();
 int32_t onKeyboardEntry();
 int32_t onLetterGridEntry();
 int32_t onExtLetterGridEntry();

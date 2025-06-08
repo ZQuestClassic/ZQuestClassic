@@ -11,7 +11,7 @@ src/zc/matrix.cpp
 src/pal.cpp
 src/tab_ctl.cpp
 src/zc/title.cpp
-src/zc/zc_custom.cpp
+src/hero_tiles.cpp
 
 src/zc_list_data.cpp
 

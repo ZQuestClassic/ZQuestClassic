@@ -31,10 +31,8 @@ private:
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> sBombMax;
 	std::shared_ptr<GUI::Label> l_lab[10];
-	std::shared_ptr<GUI::Checkbox> l_maps[10];
-	std::shared_ptr<GUI::Checkbox> l_comp[10];
-	std::shared_ptr<GUI::Checkbox> l_bkey[10];
-	std::shared_ptr<GUI::Checkbox> l_mcguff[10];
+	std::shared_ptr<GUI::Checkbox> l_comp[10], l_maps[10], l_bkey[10], l_mcguff[10],
+		l_bkill[10], l_custom1[10], l_custom2[10], l_custom3[10];
 	std::shared_ptr<GUI::TextField> l_keys[10];
 	std::shared_ptr<GUI::Switcher> icswitcher;
 	std::shared_ptr<GUI::Button> genscr_btn;
@@ -51,7 +49,6 @@ private:
 	template <typename T>
 	std::shared_ptr<GUI::Widget> VAL_FIELD_IMPL(T minval, T maxval, T* member, bool dis);
 	std::shared_ptr<GUI::Widget> COUNTER_FRAME(int ctr);
-	std::shared_ptr<GUI::Widget> LEVEL_FIELD(int ind);
 	std::shared_ptr<GUI::Widget> BTN_100(int val);
 	std::shared_ptr<GUI::Widget> BTN_10(int val);
 };

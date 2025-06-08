@@ -173,6 +173,8 @@ namespace ZScript
 		virtual bool remove(ZScript::Datum&) = 0;
 
 		void initFunctionBinding(Function* fn, CompileErrorHandler* handler);
+	
+	Scope* lexical_options_scope;
 
 	protected:
 		TypeStore& typeStore_;
@@ -414,7 +416,7 @@ namespace ZScript
 
 		virtual bool can_add(Datum&, CompileErrorHandler* errorHandler = nullptr);
 		virtual bool add(Datum&, CompileErrorHandler*);
-		void decr_stack_recursive(optional<int32_t> offset = nullopt);
+		void decr_stack_recursive(int32_t offset);
 		
 	private:
 		// Disabled since it's easy to call by accident instead of the Scope*
@@ -521,7 +523,7 @@ namespace ZScript
 		virtual void removeFunction(Function* func);
 		std::optional<Function*> getDescFuncBySig(FunctionSignature& sig);
 		
-		bool checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErrorHandler* errorHandler);
+		bool checkImport(ASTImportDecl* node, CompileErrorHandler* errorHandler);
 		bool isImported(std::string const& path);
 	private:
 		mutable std::optional<int32_t> stackSize_;
@@ -592,6 +594,7 @@ namespace ZScript
 		virtual bool isGlobal() const {return true;}
 		virtual bool isNamespace() const {return true;};
 		Namespace* namesp;
+		Scope* current_lexical_scope;
 	};
 
 	class InlineScope : public BasicScope

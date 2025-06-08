@@ -1,5 +1,5 @@
 ; comparisons across blocks, misc (1)
-Function #0
+Function #0 (run_none-0)
     0: COMPAREV        D2               0           [Block 0 -> 1, 2]
     1: GOTOTRUE        5
     2: SETR            D2               LINKZ       [Block 1 -> 2]

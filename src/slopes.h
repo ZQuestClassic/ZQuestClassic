@@ -1,6 +1,7 @@
 #ifndef SLOPES_H_
 #define SLOPES_H_
 
+#include "base/handles.h"
 #include "base/ints.h"
 #include "base/zc_alleg.h"
 #include "base/zfix.h"
@@ -11,7 +12,8 @@ class solid_object;
 struct newcombo;
 struct slope_object;
 
-extern std::map<int32_t, slope_object> slopes;
+typedef int32_t slope_id_t;
+extern std::map<slope_id_t, slope_object> slopes;
 void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col);
 void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col);
 
@@ -48,13 +50,13 @@ struct slope_object
 {
 	word const* cmbid;
 	zfix ox1,oy1,ox2,oy2;
-	int32_t ffc_id;
+	int ffc_id;
 	zfix xoffs,yoffs;
 	
 	slope_info get_info() const;
 	
 	void updateslope();
-	slope_object(word* cid = nullptr, ffcdata* ffc = nullptr, int32_t ffc_id = -1, int xoffs_ = 0, int yoffs_ = 0);
+	slope_object(word* cid = nullptr, ffcdata* ffc = nullptr, int ffc_id = -1, int xoffs_ = 0, int yoffs_ = 0);
 	slope_object(slope_object const& other) = delete;
 	slope_object& operator=(slope_object const& other) = delete;
 };

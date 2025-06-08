@@ -14,7 +14,6 @@
 #include "base/misctypes.h"
 
 extern bool saved;
-extern zcmodule moduledata;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
@@ -85,7 +84,8 @@ ComboWizardDialog::ComboWizardDialog(ComboEditorDialog& parent) : local_ref(pare
 	list_items(GUI::ZCListData::items(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_counters(GUI::ZCListData::counters(true,true)),
-	list_dirs(GUI::ZCListData::dirs(8,false))
+	list_dirs(GUI::ZCListData::dirs(8,false)),
+	list_torch_shapes(GUI::ZCListData::light_shapes())
 {
 	memset(rs_sz, 0, sizeof(rs_sz));
 }
@@ -108,13 +108,6 @@ static const GUI::ListData list_chest_content
 	{ "Screen->D[5]", -15 },
 	{ "Screen->D[6]", -16 },
 	{ "Screen->D[7]", -17 },
-};
-
-static const GUI::ListData list_torch_shapes
-{
-	{ "Circle", 0 },
-	{ "Cone", 1 },
-	{ "Square", 2 }
 };
 
 void ComboWizardDialog::setRadio(size_t rs, size_t ind)
@@ -556,7 +549,9 @@ void ComboWizardDialog::endUpdate()
 			SETFLAG(local_ref.usrflags,cflag2,dropty>0);
 			SETFLAG(local_ref.usrflags,cflag11,dropty==2);
 			
-			if(getRadio(2)==0)
+			size_t sfxty = getRadio(2);
+			SETFLAG(local_ref.usrflags,cflag3,sfxty==1);
+			if(sfxty==0)
 				local_ref.attribytes[2] = 0;
 			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
 			break;
@@ -581,7 +576,9 @@ void ComboWizardDialog::endUpdate()
 					break;
 			}
 			
-			if(getRadio(2)==0)
+			size_t sfxty = getRadio(2);
+			SETFLAG(local_ref.usrflags,cflag3,sfxty==1);
+			if(sfxty==0)
 				local_ref.attribytes[2] = 0;
 			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
 			break;
@@ -2264,10 +2261,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[0] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							low = 1, high = 214748, val = damage,
+							low = 1, high = 214748, val = damage / 10000,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								damage = val;
+								damage = val * 10000;
 							}),
 						INFOBTN("The damage of the spawned weapon.")
 					),

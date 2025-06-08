@@ -1,5 +1,6 @@
 #include "allegro5/allegro_native_dialog.h"
 #include "base/files.h"
+#include "base/util.h"
 #include "base/version.h"
 #include "base/zc_alleg.h"
 #include "launcher/launcher_dialog.h"
@@ -84,6 +85,12 @@ namespace GUI::Lists
 		{ "PNG", 3 },
 		{ "PCX", 4 },
 		{ "TGA", 5 }
+	};
+	static const ListData bottom8PixelsList
+	{
+		{ "Default (qst)", 0 },
+		{ "On", 1 },
+		{ "Off", 2 }
 	};
 	static const ListData bottom8_list
 	{
@@ -588,7 +595,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						DummyWidget(),
 						//
 						CONFIG_DROPDOWN_I("Quickload Slot:", App::zelda,"zeldadx","quickload_slot",0,quickSlotList,"Unless 'disabled', this save slot will be immediately loaded upon launching."),
-						CONFIG_TEXTFIELD_I("Fastforward FPS Cap:", App::zelda, "zeldadx", "maxfps", 300, 0, 10000, "The target fps when holding the 'unthrottle' button (or when Cap FPS is off). This allows fast forwarding or slow-mo while still keeping a consistent and playable speed. 0 means 'as fast as possible'.")
+						CONFIG_TEXTFIELD_I("Fastforward FPS Cap:", App::zelda, "zeldadx", "maxfps", 300, 0, 10000, "The target fps when holding the 'unthrottle' button (or when Cap FPS is off). This allows fast forwarding or slow-mo while still keeping a consistent and playable speed. 0 means 'as fast as possible'."),
+						CONFIG_DROPDOWN_I("Bottom 8 Pixels:", App::zelda,"zeldadx","bottom_8_px",0,bottom8PixelsList,"Whether to show the bottom 8 pixels of the game screen.\nDefault behavior is to defer to the rule set in the quest. If the quest was made in a version older than 2.55.9, the bottom 8 pixels are visible by default (unless the quest has potentially problematic script draws)")
 					)
 				)),
 				TabRef(name = "ZC Editor", Row(framed = true,
@@ -851,15 +859,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 		case message::SUPPORT:
 		{
-			std::string url = "https://zquestclassic.com/support-zc";
-#ifdef _WIN32
-			std::string cmd = "start " + url;
-			system(cmd.c_str());
-#elif defined(__APPLE__)
-			launch_process("open", {url});
-#else
-			launch_process("xdg-open", {url});
-#endif
+			util::open_web_link("https://zquestclassic.com/support-zc/");
 			break;
 		}
 		case message::ZU:

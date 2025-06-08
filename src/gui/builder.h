@@ -2,7 +2,6 @@
 #define ZC_GUI_BUILDER_HPP
 
 #include "gui/use_size.h"
-extern int32_t zq_screen_w, zq_screen_h;
 #include "gui/button.h"
 #include "gui/checkbox.h"
 #include "gui/checkbox_qr.h"
@@ -32,6 +31,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #ifdef IS_EDITOR
 #include "zq/gui/seltile_swatch.h"
 #include "zq/gui/selcombo_swatch.h"
+#include "zq/gui/selherotile_swatch.h"
 #include "zq/gui/tileanim_frame.h"
 #include "zq/gui/msgstr_preview.h"
 #include "zq/gui/palette_frame.h"
@@ -41,6 +41,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "zq/gui/misc_color_row.h"
 #include "zq/gui/dmap_minimap.h"
 #include "zq/gui/dmap_mapgrid.h"
+#include "zq/gui/regiongrid.h"
 #include "zq/gui/engraving.h"
 #endif
 
@@ -52,6 +53,8 @@ extern int32_t zq_screen_w, zq_screen_h;
 // These have to be included in order after the ones above.
 #include "gui/macros.h"
 #include "gui/props.h"
+
+extern int32_t zq_screen_w, zq_screen_h;
 
 /*
  * A brief explanation of how this works:
@@ -237,6 +240,11 @@ inline std::shared_ptr<CornerSwatch> makeCornerSwatch()
 	return std::make_shared<CornerSwatch>();
 }
 
+inline std::shared_ptr<SelHeroTileSwatch> makeSelHeroTileSwatch()
+{
+	return std::make_shared<SelHeroTileSwatch>();
+}
+
 inline std::shared_ptr<TileFrame> makeTileFrame()
 {
 	return std::make_shared<TileFrame>();
@@ -280,6 +288,11 @@ inline std::shared_ptr<DMapMapGrid> makeDMapMapGrid()
 inline std::shared_ptr<Engraving> makeEngraving()
 {
 	return std::make_shared<Engraving>();
+}
+
+inline std::shared_ptr<RegionGrid> makeRegionGrid()
+{
+	return std::make_shared<RegionGrid>();
 }
 #endif
 
@@ -562,6 +575,13 @@ ZCGUI_BUILDER_START(CornerSwatch)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(CornerSwatch, CornerSwatch, makeCornerSwatch)
 
+ZCGUI_BUILDER_START(SelHeroTileSwatch)
+	ZCGUI_ACCEPT_PROP(heroSprite, setHeroSprite, int32_t)
+	ZCGUI_ACCEPT_PROP(dir, setDir, int32_t)
+	ZCGUI_ACCEPT_PROP(frames, setFrames, int32_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(SelHeroTileSwatch, SelHeroTileSwatch, makeSelHeroTileSwatch)
+
 ZCGUI_BUILDER_START(TileFrame)
 	ZCGUI_ACCEPT_PROP(tile, setTile, int32_t)
 	ZCGUI_ACCEPT_PROP(cset, setCSet, int32_t)
@@ -630,6 +650,12 @@ ZCGUI_BUILDER_START(DMapMapGrid)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(byte*, byte, byte)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DMapMapGrid, DMapMapGrid, makeDMapMapGrid)
+
+ZCGUI_BUILDER_START(RegionGrid)
+	ZCGUI_ACCEPT_PROP(localRegionsData, setLocalRegionsData, regions_data*)
+	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void()>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(RegionGrid, RegionGrid, makeRegionGrid)
 
 ZCGUI_BUILDER_START(Engraving)
 	ZCGUI_ACCEPT_PROP(data, setSlot, int32_t)

@@ -1,5 +1,6 @@
 #include "screen_data.h"
 #include <gui/builder.h>
+#include "base/mapscr.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zq/zq_class.h"
@@ -276,10 +277,15 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							Label(text = "Warp", hAlign = 0.0, colSpan = 2),
 							SCR_CB(flags5,fDIRECTAWARP,1,"Auto-Warps are Direct","Auto typed warps on this screen will not alter the Hero's position."),
 							SCR_CB(flags5,fDIRECTSWARP,1,"Sensitive Warps are Direct","Sensitive typed warps on this screen will not alter the Hero's position."),
+							SCR_CB(flags3,fIWARP_SPRITE_CARRYOVER,1,"Sprites Carry Over In Warps","Sprite objects, such as enemies, items, and weapons, will follow through warps from this screen."),
+							SCR_CB(flags9,fDISABLE_MIRROR,1,"Disable Magic Mirror","Magic Mirror type items don't work on this screen.")
+						),
+						Rows<2>(hAlign = 0.0,
+							Label(text = "Maze", hAlign = 0.0, colSpan = 2),
 							SCR_CB(flags,fMAZE,1,"Use Maze Path","This screen will act as a mystical maze requiring a specific path to be followed to escape."),
 							SCR_CB(flags8,fMAZEvSIDEWARP,1,"Maze Overrides Side Warps","The Maze Path's mystical looping is prioritized over sidewarps if this is checked."),
-							SCR_CB(flags3,fIWARPFULLSCREEN,1,"Sprites Carry Over In Warps","Sprite objects, such as enemies, items, and weapons, will follow through warps from this screen."),
-							SCR_CB(flags9,fDISABLE_MIRROR,1,"Disable Magic Mirror","Magic Mirror type items don't work on this screen.")
+							SCR_CB(flags10,fMAZE_CAN_GET_LOST,1,"Can Get Lost In Maze","Going any direction other than the exit gets the hero \"lost\" - in this state, leaving in the direction of the exit does not leave the maze, but does get the hero \"unlost\" (so using the exit direction once more will actually leave the maze)."),
+							SCR_CB(flags10,fMAZE_LOOPY,1,"Loopy Maze","Instead of scrolling, taking any non-exit direction in a maze will move the player to the opposite side (without reloading the screen), with an optional wipe effect (see Maze Path dialog).\nIf the maze is within a scrolling region, this presents a neat illusion of an endless maze")
 						)
 					)
 				)),
@@ -302,7 +308,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 						Rows<2>(hAlign = 0.0,
 							Label(text = "FFC", hAlign = 0.0, colSpan = 2),
 							SCR_CB(flags6,fWRAPAROUNDFF,1,"FF Combos Wrap Around","If checked, FFCs will wrap around at 32 pixels off the edge of the screen."),
-							SCR_CB(flags5,fNOFFCARRYOVER,1,"No FFC Carryover","FFCs with the 'Carryover' flag set will not carry over from this screen.")
+							SCR_CB(flags5,fNOFFCARRYOVER,1,"No FFC Carryover","If set, no FFC will carryover (even w/ the FFC's 'carryover' flag set).")
 						)
 					),
 					Column(vAlign = 0.0,
@@ -342,14 +348,14 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 					Column(vAlign = 0.0,
 						Rows<2>(hAlign = 0.0,
 							Label(text = "Enemy Flags", hAlign = 0.0, colSpan = 2),
-							SCR_CB(enemyflags,efLEADER,1,"Ringleader","The first enemy listed in the screen's enemy list will be a 'Ringleader'. When this enemy dies, all other enemies will die."),
-							SCR_CB(enemyflags,efCARRYITEM,1,"Enemy Carries Item","The first enemy listed in the screen's enemy list will carry the screen's item."),
+							SCR_CB(flags11,efLEADER,1,"Ringleader","The first enemy listed in the screen's enemy list will be a 'Ringleader'. When this enemy dies, all other enemies will die."),
+							SCR_CB(flags11,efCARRYITEM,1,"Enemy Carries Item","The first enemy listed in the screen's enemy list will carry the screen's item."),
 							SCR_CB(flags3,fINVISROOM,1,"Invisible Enemies","The enemies in this room are invisible."),
-							SCR_CB(enemyflags,efBOSS,1,"Dungeon Boss","Defeating the enemies in this room counts as 'beating the dungeon boss'. If you have defeated the dungeon boss, these enemies will not respawn."),
+							SCR_CB(flags11,efBOSS,1,"Dungeon Boss","Defeating the enemies in this room counts as 'beating the dungeon boss'. If you have defeated the dungeon boss, these enemies will not respawn."),
 							SCR_CB(flags2,fFLOATTRAPS,1,"Traps Ignore Solidity","Traps on this screen will go through solid walls."),
 							SCR_CB(flags3,fENEMIESRETURN,1,"Enemies Always Return","The enemies on this screen always respawn."),
 							SCR_CB(flags,fITEM,1,"Enemies->Item","Killing all enemies spawns the screen item. (Note: This OVERRIDES 'Enemy Carries Item')"),
-							SCR_CB(flags2,fCLEARSECRET,1,"Enemies->Secret","Killing all enemies triggers screen secrets (temporarily)"),
+							SCR_CB(flags2,fCLEARSECRET,1,"Enemies->Secrets","Killing all enemies triggers screen secrets (temporarily)"),
 							SCR_CB(flags4,fENEMYSCRTPERM,1,". . . Permanent","The secrets triggered by 'Enemies->Secret' are permanent instead of temporary."),
 							SCR_CB(flags9,fENEMY_WAVES,1,"Chain 'Enemies->' Triggers","If a combo uses the triggers tab on the 'Enemies->' trigger event to spawn more enemies, other 'kill all enemies' effects will wait for the new enemies to die as well.")
 						)
@@ -357,11 +363,11 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 					Column(vAlign = 0.0,
 						Rows<2>(hAlign = 0.0,
 							Label(text = "Environmental Enemies", hAlign = 0.0, colSpan = 2),
-							SCR_CB(enemyflags,efZORA,1,"Fish",fmt::format("1x {}",ene_str[0])),
-							SCR_CB(enemyflags,efTRAP4,1,"Corner Traps",fmt::format("4x {} in corners",ene_str[1])),
-							SCR_CB(enemyflags,efTRAP2,1,"Middle Traps",fmt::format("2x {} in the middle",ene_str[2])),
-							SCR_CB(enemyflags,efROCKS,1,"Falling Rocks",fmt::format("3x {}",ene_str[3])),
-							SCR_CB(enemyflags,efFIREBALLS,1,"Shooting Statues",fmt::format("1x {} per Statue",ene_str[4]))
+							SCR_CB(flags11,efZORA,1,"Fish",fmt::format("1x {}",ene_str[0])),
+							SCR_CB(flags11,efTRAP4,1,"Corner Traps",fmt::format("4x {} in corners",ene_str[1])),
+							SCR_CB(flags11,efTRAP2,1,"Middle Traps",fmt::format("2x {} in the middle",ene_str[2])),
+							SCR_CB(flags11,efROCKS,1,"Falling Rocks",fmt::format("3x {}",ene_str[3])),
+							SCR_CB(flags11,efFIREBALLS,1,"Shooting Statues",fmt::format("1x {} per Statue",ene_str[4]))
 						)
 					)
 				)),
@@ -559,7 +565,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 						),
 						//
 						DummyWidget(),
-						SCR_CB(flags2,fSECRET,1,"Play Secret SFX on Entry","Play the 'Secret Sound' when entering the screen.")
+						SCR_CB(flags2,fSECRET_SFX,1,"Play Secret SFX on Entry","Play the 'Secret Sound' when entering the screen.")
 					),
 					Frame(title = "Lens Effect",
 						info = "The effect the lens on this screen's layers." + QRHINT({qr_OLD_LENS_LAYEREFFECT}),
@@ -574,6 +580,10 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 								}
 							),
 							Columns<3>(
+								DummyWidget(),
+								INFOBTN("If checked, the layer is revealed when the lens is active (thus, it is hidden by default)."),
+								INFOBTN("If checked, the layer is hidden when the lens is active."),
+								//
 								DummyWidget(),
 								Label(text = "Show:"),
 								Label(text = "Hide:"),
@@ -634,7 +644,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 								screen_misc_data.resize(val);
 								databtn->setDisabled(!val);
 							}),
-						INFOBTN("The starting size of the screen's 'Data' array."),
+						INFOBTN("The starting size of the screen's 'Screen->Data[]' array."),
 						//
 						databtn = Button(colSpan = 3, fitParent = true,
 							text = "Edit Starting Data",

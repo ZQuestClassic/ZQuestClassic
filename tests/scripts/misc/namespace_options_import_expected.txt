@@ -1,0 +1,69 @@
+stderr:
+
+Compiling 'namespace_options_import.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+namespace_options_import.zs Line 13 @ Columns 3-9 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+11    void fn4(int arr) {
+12        // Should warn.
+13        arr[0] = 0;
+          ^~~~~~
+
+
+Pass 5: Checking code paths
+namespace_options_import.zs Line 9 @ Columns 8-10 - Error S102: Function 'fn' is not void, and must return a value!
+
+ 7    
+ 8        // Should error.
+ 9        float fn(){}
+                ^~
+
+
+Failure!
+Compile finished with exit code '102' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 102,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 2
+        },
+        "end": {
+          "line": 12,
+          "character": 8
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 7
+        },
+        "end": {
+          "line": 8,
+          "character": 9
+        }
+      },
+      "severity": 1,
+      "message": "S102: Function 'fn' is not void, and must return a value!"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 3,
+    "symbols": 3,
+    "identifiers": 3,
+    "elided": true
+  }
+}

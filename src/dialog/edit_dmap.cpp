@@ -1,5 +1,6 @@
 #include "edit_dmap.h"
 #include <gui/builder.h>
+#include "base/process_management.h"
 #include "base/files.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
@@ -166,6 +167,7 @@ Checkbox(checked = local_dmap.sideview, \
 	{ \
 		local_dmap.sideview = state; \
 	})
+
 
 std::shared_ptr<GUI::Widget> EditDMapDialog::DMAP_AC_INITD(int index)
 {
@@ -839,7 +841,8 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								DMAP_CB(flags, dmfWAVY, 1, "Underwater Wave Effect", "Draws a wavy effect over the whole screen."),
 								DMAP_CB(flags, dmfMINIMAPCOLORFIX, 1, "Use Minimap Foreground Color 2", "If checked, the NES and Interior minimap squares will use 'Minimap Foreground 2' from misc colors."),
 								DMAP_CB(flags, dmfLAYER3BG, 1, "Layer 3 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 3 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off."),
-								DMAP_CB(flags, dmfLAYER2BG, 1, "Layer 2 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 2 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off.")
+								DMAP_CB(flags, dmfLAYER2BG, 1, "Layer 2 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 2 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off."),
+								DMAP_CB(flags, dmfEXTENDEDVIEWPORT, 1, "Extended Viewport", "If checked, the viewport extends into the part of the screen normally occupied by the passive subscreen. \nMake your passive subscreen background transparent when using this feature.")
 							)
 						)),
 						TabRef(name = "NES", Column(hAlign = 0.0, vAlign = 0.0,

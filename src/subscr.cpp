@@ -19,7 +19,6 @@ bool show_subscreen_items=true;
 bool show_subscreen_life=true;
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
-extern HeroClass   Hero;
 
 int get_sub_dmap();
 
@@ -2280,32 +2279,56 @@ void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t
 
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
 {
-    int32_t si=0;
-    
-    for(int32_t y2=0; y2<=7; ++y2)
-    {
-        byte dl = DMaps[get_sub_dmap()].grid[si];
-        
-        for(int32_t x2=0; x2<=7; ++x2)
-        {
-            if(c2==-1)
-            {
-                if(dl&0x80)
-                    rectfill(dest,(x2*8)+x,(y2*4)+y,(x2*8)+x+6,(y2*4)+y+2,c1);
-            }
-            else
-            {
-                rectfill(dest,(x2*8)+x,(y2*4)+y,(x2*8)+x+6,(y2*4)+y+2,c2);
-                
-                if(dl&0x80)
-                    rectfill(dest,(x2*8)+x+2,(y2*4)+y,(x2*8)+x+4,(y2*4)+y+2,c1);
-            }
-            
-            dl<<=1;
-        }
-        
-        ++si;
-    }
+	int32_t si=0;
+	auto const& thedmap = DMaps[get_sub_dmap()];
+	auto const& reg = Regions[thedmap.map];
+	
+	for(int32_t y2=0; y2<=7; ++y2)
+	{
+		byte dl = thedmap.grid[si];
+		
+		for(int32_t x2=0; x2<=7; ++x2)
+		{
+			int scrx = (x2 - thedmap.xoff);
+			int scrid = scrx + y2*0x10;
+			
+			int x_1 = x2*8, x_2 = x_1+6;
+			int y_1 = y2*4, y_2 = y_1 + 2;
+			if(scrx >= 0 && reg.get_region_id(scrid) != 0)
+			{
+				bool top = scrid >= 0x10 && reg.is_same_region(scrid, scrid-0x10);
+				bool bottom = scrid < 0x70 && reg.is_same_region(scrid, scrid+0x10);
+				bool left = (scrid & 0xF) && reg.is_same_region(scrid, scrid-1);
+				bool right = (scrid & 0xF) < 0xF && reg.is_same_region(scrid, scrid+1);
+				
+				if(top)
+					y_1 -= 2;
+				if(bottom)
+					y_2 += 2;
+				if(left)
+					x_1 -= 2;
+				if(right)
+					x_2 += 2;
+			}
+			
+			if(c2==-1)
+			{
+				if(dl&0x80)
+					rectfill(dest,x_1+x,y_1+y,x_2+x,y_2+y,c1);
+			}
+			else
+			{
+				rectfill(dest,x_1+x,y_1+y,x_2+x,y_2+y,c2);
+				
+				if(dl&0x80)
+					rectfill(dest,x_1+x+2,y_1+y,x_2+x-2,y_2+y,c1);
+			}
+			
+			dl<<=1;
+		}
+		
+		++si;
+	}
 }
 
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h)
@@ -3213,133 +3236,158 @@ void puttriforce(BITMAP *dest, int32_t x, int32_t y, int32_t tile, int32_t cset,
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
 void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bool showhero, int32_t roomcolor, int32_t herocolor, bool large)
 {
-	auto const& thedmap = DMaps[get_sub_dmap()];
-    int32_t si=0;
-    
-    int32_t maptile=has_item(itype_map, get_dlevel())?thedmap.largemap_2_tile:thedmap.largemap_1_tile;
-    int32_t mapcset=has_item(itype_map, get_dlevel())?thedmap.largemap_2_cset:thedmap.largemap_1_cset;
-    
-    if(showmap)
-    {
-        if(maptile)
-        {
-            draw_block(dest,x,y,maptile,mapcset,large?9:7,5);
-        }
-        else if(QMisc.colors.dungeon_map_tile||QMisc.colors.dungeon_map_tile)
-        {
-            for(int32_t y2=0; y2<5; y2++)
-            {
-                for(int32_t x2=0; x2<(large?8:6); x2++)
-                {
-                    overtile16(dest,(QMisc.colors.dungeon_map_tile!=0?QMisc.colors.dungeon_map_tile:QMisc.colors.dungeon_map_tile)+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),QMisc.colors.dungeon_map_cset,0);
-                    //++si;
-                }
-            }
-        }
-        else
-        {
-            BITMAP *bmp = create_bitmap_ex(8,8,8);
-            
-            if(!bmp)
-                return;
-                
-            clear_bitmap(bmp);
-            
-            for(int32_t x2=0; x2<8; x2++)
-            {
-                for(int32_t y2=8-fringe[x2]; y2<8; y2++)
-                {
-                    putpixel(bmp,x2,y2,QMisc.colors.bmap_bg);
-                }
-            }
-            
-            rectfill(dest,x,y,x+(large?127:95),y+79,QMisc.colors.bmap_bg);
-            
-            for(int32_t y2=0; y2<2; ++y2)
-            {
-                for(int32_t x2=0; x2<(large?16:12); ++x2)
-                {
-                    if((large?bmap_original[y2][x2]:bmap_bs[y2][x2]))
-                    {
-                        rectfill(dest,(x2<<3)+x,(y2*72)+y,(x2<<3)+x+7,(y2*72)+y+7,QMisc.colors.subscr_bg);
-                        
-                        switch((large?bmap_original[y2][x2]:bmap_bs[y2][x2]))
-                        {
-                        case 3:
-                            draw_sprite_v_flip(dest,bmp,(x2<<3)+x,(y2*72)+y);
-                            break;
-                            
-                        case 1:
-                        default:
-                            draw_sprite(dest,bmp,(x2<<3)+x,(y2*72)+y);
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            destroy_bitmap(bmp);
-        }
-    }
-    
-    if(showrooms)
-    {
-        if(roomcolor==-1)
-        {
-            roomcolor = QMisc.colors.bmap_fg;
-        }
-        
-        si=(get_sub_dmap() << 7);
-        
-        for(int32_t y2=y+8; y2<y+72; y2+=8)
-        {
-			while(((unsigned)((si&0xF)-thedmap.xoff))>7)
-				++si;
+	auto dmid = get_sub_dmap();
+	auto const& thedmap = DMaps[dmid];
+	
+	int32_t maptile=has_item(itype_map, get_dlevel())?thedmap.largemap_2_tile:thedmap.largemap_1_tile;
+	int32_t mapcset=has_item(itype_map, get_dlevel())?thedmap.largemap_2_cset:thedmap.largemap_1_cset;
+	
+	if(showmap)
+	{
+		if(maptile)
+		{
+			draw_block(dest,x,y,maptile,mapcset,large?9:7,5);
+		}
+		else if(QMisc.colors.dungeon_map_tile||QMisc.colors.dungeon_map_tile)
+		{
+			for(int32_t y2=0; y2<5; y2++)
+			{
+				for(int32_t x2=0; x2<(large?8:6); x2++)
+				{
+					overtile16(dest,(QMisc.colors.dungeon_map_tile!=0?QMisc.colors.dungeon_map_tile:QMisc.colors.dungeon_map_tile)+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),QMisc.colors.dungeon_map_cset,0);
+				}
+			}
+		}
+		else
+		{
+			BITMAP *bmp = create_bitmap_ex(8,8,8);
+			
+			if(!bmp)
+				return;
+				
+			clear_bitmap(bmp);
+			
+			for(int32_t x2=0; x2<8; x2++)
+			{
+				for(int32_t y2=8-fringe[x2]; y2<8; y2++)
+				{
+					putpixel(bmp,x2,y2,QMisc.colors.bmap_bg);
+				}
+			}
+			
+			rectfill(dest,x,y,x+(large?127:95),y+79,QMisc.colors.bmap_bg);
+			
+			for(int32_t y2=0; y2<2; ++y2)
+			{
+				for(int32_t x2=0; x2<(large?16:12); ++x2)
+				{
+					if((large?bmap_original[y2][x2]:bmap_bs[y2][x2]))
+					{
+						rectfill(dest,(x2<<3)+x,(y2*72)+y,(x2<<3)+x+7,(y2*72)+y+7,QMisc.colors.subscr_bg);
+						
+						switch((large?bmap_original[y2][x2]:bmap_bs[y2][x2]))
+						{
+						case 3:
+							draw_sprite_v_flip(dest,bmp,(x2<<3)+x,(y2*72)+y);
+							break;
+							
+						case 1:
+						default:
+							draw_sprite(dest,bmp,(x2<<3)+x,(y2*72)+y);
+							break;
+						}
+					}
+				}
+			}
+			
+			destroy_bitmap(bmp);
+		}
+	}
+	
+	if(showrooms)
+	{
+		if(roomcolor==-1)
+		{
+			roomcolor = QMisc.colors.bmap_fg;
+		}
+		
+		int mapid = thedmap.map;
+		auto const& reg = Regions[mapid];
+		int scrid = 0;
+		
+		for(int32_t y2=y+8; y2<y+72; y2+=8)
+		{
+			while(((unsigned)((scrid&0xF)-thedmap.xoff))>7)
+				++scrid;
 			int32_t xoffs = thedmap.xoff;
-            for(int32_t x2=x+(large?32:16)+(maptile?8:0); x2<x+(large?96:80)+(maptile?8:0); x2+=8)
-            {
+			for(int32_t x2=x+(large?32:16)+(maptile?8:0); x2<x+(large?96:80)+(maptile?8:0); x2+=8)
+			{
 				if(xoffs < 0)
 				{
 					x2 += (8*-xoffs);
 					xoffs = 0;
 				}
-                if(get_bmaps(si))
-                {
-                    rectfill(dest,x2+1,y2+1,x2+6,y2+6,roomcolor);
-                    
-                    if(get_bmaps(si)&1) hline(dest,x2+3,y2,  x2+4,roomcolor);  //top door
-                    
-                    if(get_bmaps(si)&2) hline(dest,x2+3,y2+7,x2+4,roomcolor);  //bottom door
-                    
-                    if(get_bmaps(si)&4) vline(dest,x2,  y2+3,y2+4,roomcolor);  //left door
-                    
-                    if(get_bmaps(si)&8) vline(dest,x2+7,y2+3,y2+4,roomcolor);  //right door
-                }
-                
-                ++si;
-            }
+				auto bm = get_bmaps((dmid << 7) | scrid);
+				if(bm)
+				{
+					rectfill(dest,x2+1,y2+1,x2+6,y2+6,roomcolor);
+					
+					bool top = scrid >= 0x10 && reg.is_same_region(scrid, scrid-0x10);
+					bool bottom = scrid < 0x70 && reg.is_same_region(scrid, scrid+0x10);
+					bool left = (scrid & 0xF) && reg.is_same_region(scrid, scrid-1);
+					bool right = (scrid & 0xF) < 0xF && reg.is_same_region(scrid, scrid+1);
+					
+					if(top) //top full line, including tl/tr corners
+						hline(dest, x2+(left?0:1), y2, x2+(right?7:6), roomcolor);
+					else if(bm&1) //top door
+						hline(dest, x2+3, y2, x2+4, roomcolor);
+					
+					if(bottom) // bottom full line, including bl/br corners
+						hline(dest, x2+(left?0:1), y2+7, x2+(right?7:6), roomcolor);
+					else if(bm&2) //bottom door
+						hline(dest, x2+3, y2+7, x2+4, roomcolor);
+					
+					if(left) // left full line
+						vline(dest, x2, y2+1, y2+6, roomcolor);
+					else if(bm&4) //left door
+						vline(dest, x2, y2+3, y2+4, roomcolor);
+					
+					if(right) // right full line
+						vline(dest, x2+7, y2+1, y2+6, roomcolor);
+					else if(bm&8) //right door
+						vline(dest, x2+7, y2+3, y2+4, roomcolor);
+				}
+				
+				++scrid;
+			}
 			if(thedmap.xoff < 0)
 			{
-				si -= thedmap.xoff;
+				scrid -= thedmap.xoff;
 			}
 		}
-    }
+	}
 
 #ifdef IS_PLAYER
 	if (get_currscr() == 0x81 && Hero.specialcave == PASSAGEWAY)
 		showhero = false;
 #endif
+	
+	if(showhero)
+	{
+		int screen = get_homescr();
+#ifdef IS_PLAYER
+		if (hero_screen < 0x80)
+			screen = hero_screen;
+#endif
 
-    if(showhero)
-    {
-        if(herocolor==-1)
-        {
-            herocolor=QMisc.colors.hero_dot;
-        }
-        
-        int32_t xoff = (((thedmap.type&dmfTYPE)==dmOVERW) ? 0 : thedmap.xoff);
-        putdot(dest,(((get_homescr()&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((get_homescr()&0xF0)>>1)+y+11,herocolor);
-    }
+		if(herocolor==-1)
+		{
+			herocolor=QMisc.colors.hero_dot;
+		}
+		
+		int32_t xoff = (((thedmap.type&dmfTYPE)==dmOVERW) ? 0 : thedmap.xoff);
+		putdot(dest,(((screen&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((screen&0xF0)>>1)+y+11,herocolor);
+	}
 }
 
 void update_subscreens(int32_t dmap)

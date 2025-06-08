@@ -54,7 +54,7 @@ static constexpr auto version = parseVersion();
 static_assert(version.major == 3, "version not set correctly");
 static_assert(version.minor != -1, "version not set correctly");
 static_assert(version.patch != -1, "version not set correctly");
-static_assert(sizeof(ZC_VERSION) < 40, "");
+static_assert(sizeof(ZC_VERSION) < 45, "");
 
 const char* getVersionString()
 {

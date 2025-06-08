@@ -14,25 +14,23 @@
 #include "ZScript.h"
 #include "zasm/table.h"
 #include "zasm/serialize.h"
-#include <sstream>
 
 using namespace ZScript;
 using namespace util;
 using std::set;
 using std::shared_ptr;
-using std::unique_ptr;
 
 ////////////////////////////////////////////////////////////////
 // Scope
 
 Scope::Scope(TypeStore& typeStore)
-	: typeStore_(typeStore), name_(std::nullopt)
+	: lexical_options_scope(nullptr), typeStore_(typeStore), name_(std::nullopt)
 {
 	id = ScopeID++;
 }
 
 Scope::Scope(TypeStore& typeStore, string const& name)
-	: typeStore_(typeStore), name_(name)
+	: lexical_options_scope(nullptr), typeStore_(typeStore), name_(name)
 {
 	id = ScopeID++;
 }
@@ -45,8 +43,8 @@ void Scope::invalidateStackSize()
 
 void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 {
-	auto parsed_comment = fn->getNode()->getParsedDocComment();
-	if (parsed_comment.contains("delete"))
+	auto parsed_comment = fn->getNode()->getParsedComment();
+	if (parsed_comment.contains_tag("delete"))
 	{
 		fn->setFlag(FUNCFLAG_NIL);
 		return;
@@ -55,61 +53,46 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	// All internal binding functions are inline.
 	fn->setFlag(FUNCFLAG_INLINE);
 
-	if (parsed_comment.contains("alias"))
+	for (auto alias : parsed_comment.get_multi_tag("alias"))
 	{
-		std::vector<std::string> aliases;
-		util::split(parsed_comment["alias"], aliases, '\n');
-		for (auto& alias : aliases)
-		{
-			auto alias_fn = new Function();
-			alias_fn->name = alias;
-			alias_fn->alias(fn);
-			addAlias(alias_fn, handler);
-		}
+		auto alias_fn = new Function();
+		alias_fn->name = alias;
+		alias_fn->alias(fn);
+		addAlias(alias_fn, handler);
 	}
 
-	if (parsed_comment.contains("deprecated_alias"))
+	for (auto alias : parsed_comment.get_multi_tag("deprecated_alias"))
 	{
-		std::vector<std::string> aliases;
-		util::split(parsed_comment["deprecated_alias"], aliases, '\n');
-		for (auto& alias : aliases)
-		{
-			auto alias_fn = new Function();
-			alias_fn->name = alias;
-			alias_fn->alias(fn);
-			alias_fn->setFlag(FUNCFLAG_DEPRECATED);
-			alias_fn->setInfo(fmt::format("Use {} instead", fn->name));
-			addAlias(alias_fn, handler);
-		}
+		auto alias_fn = new Function();
+		alias_fn->name = alias;
+		alias_fn->alias(fn);
+		alias_fn->setFlag(FUNCFLAG_DEPRECATED);
+		alias_fn->setInfo(fmt::format("Use {} instead", fn->name));
+		addAlias(alias_fn, handler);
 	}
 
-	if (parsed_comment.contains("exit"))
+	if (parsed_comment.contains_tag("exit"))
 		fn->setFlag(FUNCFLAG_EXITS|FUNCFLAG_NEVER_RETURN);
-	if (parsed_comment.contains("deprecated"))
+	if (auto depr_message = parsed_comment.get_tag("deprecated"))
 	{
 		fn->setFlag(FUNCFLAG_DEPRECATED);
-		fn->setInfo(parsed_comment["deprecated"]);
+		fn->setInfo(*depr_message);
 	}
-	if (parsed_comment.contains("reassign_ptr"))
+	if (parsed_comment.contains_tag("reassign_ptr"))
 		fn->setIntFlag(IFUNCFLAG_REASSIGNPTR);
 
-	if (parsed_comment.contains("vargs"))
+	if (auto vargs = parsed_comment.get_tag("vargs"))
 	{
-		fn->extra_vargs = std::stoi(parsed_comment["vargs"]);
+		fn->extra_vargs = std::stoi(*vargs);
 		fn->setFlag(FUNCFLAG_VARARGS);
 	}
 
-	auto it = parsed_comment.find("zasm");
 	std::vector<std::string> zasm_lines;
-	if (it != parsed_comment.cend())
-	{
-		const auto& zasm_str = it->second;
-		std::vector<std::string> zasm;
-		util::split(zasm_str, zasm_lines, '\n');
-	}
+	if (auto zasm = parsed_comment.get_tag("zasm"))
+		util::split(*zasm, zasm_lines, '\n');
 
 	int stack_change = fn->numParams();
-	if (fn->getClass() && !fn->getClass()->internalRefVar.empty() && !fn->getFlag(FUNCFLAG_CONSTRUCTOR) && !fn->getFlag(FUNCFLAG_DESTRUCTOR))
+	if (fn->getClass() && !fn->getClass()->internalRefVarString.empty() && !fn->getFlag(FUNCFLAG_CONSTRUCTOR) && !fn->getFlag(FUNCFLAG_DESTRUCTOR))
 		stack_change += 1;
 
 	std::vector<std::shared_ptr<Opcode>> code;
@@ -925,7 +908,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function->paramTypes.size() - (user_vargs ? 1 : 0);
-		auto minSize = maxSize - function->opt_vals.size();
+		auto minSize = maxSize - function->numOptionalParams;
 		// Match against parameter count, including optional params.
 		if (minSize > targetSize || (!vargs && maxSize < targetSize))
 		{
@@ -1085,15 +1068,33 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 std::optional<int32_t> ZScript::lookupOption(Scope const& scope, CompileOption option)
 {
 	if (!option.isValid()) return std::nullopt;
-	for (Scope const* current = &scope;
-	     current; current = current->getParent())
+	for (Scope const* current = &scope; current;)
 	{
 		CompileOptionSetting setting = current->getLocalOption(option);
-		if (setting == CompileOptionSetting::Inherit) continue;
+		if (setting == CompileOptionSetting::Inherit)
+		{
+			if (current->lexical_options_scope)
+			{
+				CompileOptionSetting ns_setting = current->getParent()->getLocalOption(option);
+				if (ns_setting == CompileOptionSetting::Default)
+					return *option.getDefault();
+				if (ns_setting != CompileOptionSetting::Inherit)
+					return ns_setting.getValue();
+
+				current = current->lexical_options_scope;
+				continue;
+			}
+
+			current = current->getParent();
+			continue;
+		}
+
 		if (setting == CompileOptionSetting::Default)
 			return *option.getDefault();
+
 		return *setting.getValue();
 	}
+
 	return *option.getDefault();
 }
 std::optional<int32_t> ZScript::lookupOption(Scope const* scope, CompileOption option)
@@ -1649,10 +1650,7 @@ Function* BasicScope::addFunction(
 	fun->setInternalScope(subscope->makeFunctionChild(*fun));
 	if(node)
 	{
-		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
-		{
-			fun->opt_vals.push_back(*it);
-		}
+		fun->numOptionalParams = node->optparams.size();
 	}
 	if (flags&FUNCFLAG_INTERNAL)
 		initFunctionBinding(fun, handler);
@@ -1748,27 +1746,28 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 
 	return true;
 }
-void BasicScope::decr_stack_recursive(optional<int32_t> offset)
+void BasicScope::decr_stack_recursive(int32_t offset)
 {
-	if(offset)
-	{
-		bool skip = true;
-		for(auto& offs : stackOffsets_)
-			if(offs.second >= *offset)
-			{
-				skip = false;
-				break;
-			}
-		if(skip)
-			return;
-	}
+	bool skip = true;
+	for(auto& offs : stackOffsets_)
+		if(offs.second > offset)
+		{
+			skip = false;
+			break;
+		}
+	if(skip)
+		return;
+
 	--stackDepth_;
 	for(auto& offs : stackOffsets_)
-		--offs.second;
+	{
+		if (offs.second > offset)
+			--offs.second;
+	}
 	for(auto child : getChildren())
 	{
 		BasicScope* scope = static_cast<BasicScope*>(child);
-		scope->decr_stack_recursive();
+		scope->decr_stack_recursive(offset);
 	}
 }
 bool BasicScope::remove(Datum& datum)
@@ -2208,38 +2207,19 @@ std::optional<Function*> RootScope::getDescFuncBySig(FunctionSignature& sig)
 	return find<Function*>(descFunctionsBySignature_, sig);
 }
 
-bool RootScope::checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErrorHandler* errorHandler)
+// Guard against duplicate imports.
+bool RootScope::checkImport(ASTImportDecl* node, CompileErrorHandler* errorHandler)
 {
 	if(node->wasChecked()) return true;
 	node->check();
-	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
 	string fname = node->getFilename();
 	//lowerstr(fname);
-	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(std::add_pointer<ASTImportDecl>::type()))
+	if (find<ASTImportDecl*>(importsByName_, fname).value_or(std::add_pointer<ASTImportDecl>::type()))
 	{
-		node->disable(); //Disable node.
-		switch(headerGuard)
-		{
-			case OPT_ERROR:
-			{
-				errorHandler->handleError(CompileError::HeaderGuardErr(node, node->getFilename()));
-				return false; //Error, halt.
-			}
-
-			case OPT_WARN:
-			{
-				errorHandler->handleError(CompileError::HeaderGuardWarn(node, node->getFilename(), "Skipping"));
-				return false; //Warn, and do not allow import
-			}
-
-			default: //OPT_ON, or any invalid value, if the user sets it as such.
-			{
-				return false; //No message, guard against the duplicate import.
-			}
-
-		}
+		node->disable();
+		return false;
 	}
-	//zconsole_db("Import '%s' checked and registered successfully", fname.c_str());
+
 	importsByName_[fname] = node;
 	return true; //Allow import
 }
@@ -2452,10 +2432,7 @@ Function* ClassScope::addFunction(
 	fun->setInternalScope(subscope->makeFunctionChild(*fun));
 	if(node)
 	{
-		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
-		{
-			fun->opt_vals.push_back(*it);
-		}
+		fun->numOptionalParams = node->optparams.size();
 	}
 	if (flags&FUNCFLAG_INTERNAL)
 	{
@@ -2503,7 +2480,7 @@ std::optional<int32_t> FunctionScope::getRootStackSize() const
 // NamespaceScope
 
 NamespaceScope::NamespaceScope(Scope* parent, FileScope* parentFile, Namespace* namesp)
-	: BasicScope(parent, parentFile, namesp->getName()), namesp(namesp)
+	: BasicScope(parent, parentFile, namesp->getName()), namesp(namesp), current_lexical_scope(nullptr)
 {}
 
 NamespaceScope::~NamespaceScope()

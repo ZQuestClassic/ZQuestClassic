@@ -10,7 +10,6 @@
 #include "base/autocombo.h"
 #include <fmt/format.h>
 
-extern zcmodule moduledata;
 extern char *weapon_string[];
 extern char *sfx_string[];
 extern char *item_string[];
@@ -43,6 +42,8 @@ const char *ssfont2_str[] =
 };
 const char *icounter_str2[-(sscMIN+1)]=
 {
+	"Button A [1]", "Button B [1]", "Button X [1]", "Button Y [1]",
+	"Button A [0]", "Button B [0]", "Button X [0]", "Button Y [0]",
     "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
     "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic",
 	"Max Life", "Max Magic"
@@ -775,6 +776,13 @@ GUI::ListData GUI::ZCListData::dirs(int count, bool none)
 		ls.add(dirstrs[q],q);
 	return ls;
 }
+GUI::ListData GUI::ZCListData::doorsets()
+{
+	GUI::ListData ls;
+	for (int q = 0; q < door_combo_set_count; q++)
+		ls.add(DoorComboSetNames[q].c_str(), q);
+	return ls;
+}
 //SCRIPTS
 static void load_scriptnames(std::set<std::string> &names, std::map<std::string, int32_t> &vals,
 	std::map<int32_t, script_slot_data> scrmap, int32_t count)
@@ -1256,11 +1264,24 @@ static const GUI::ListData subscrWidgets =
 	{ "Gauge Piece: Counter", widgMISCGAUGE, "Allows building highly customizable gauges"
 		" for any counter" },
 	{ "Button Counter", widgBTNCOUNTER, "Shows a counter used by a specified button as a cost" },
+	{ "Counter Percentage Bar", widgCOUNTERPERCBAR, "Shows a colored bar filled for a specified counter" },
 };
 
 GUI::ListData const& GUI::ZCListData::subscr_widgets()
 {
 	return subscrWidgets;
+}
+
+static const GUI::ListData list_light_shapes
+{
+	{ "Circle", 0 },
+	{ "Cone", 1 },
+	{ "Square", 2 }
+};
+
+GUI::ListData const& GUI::ZCListData::light_shapes()
+{
+	return list_light_shapes;
 }
 
 static const GUI::ListData dmap_types
@@ -1360,3 +1381,45 @@ GUI::ListData const& GUI::ZCListData::patterntypes()
 {
 	return pattern_types;
 };
+
+static const GUI::ListData hero_animations
+{
+	{ "Classic", 0},
+	{ "BS-Zelda", 1},
+	{ "Zelda 3", 2},
+	{ "Zelda 3 (Slow-Walk)", 3},
+};
+
+static const GUI::ListData swim_types
+{
+	{ "Slow", 50},
+	{ "Fast", 67},
+};
+
+GUI::ListData const& GUI::ZCListData::heroanimations()
+{
+	return hero_animations;
+}
+
+GUI::ListData const& GUI::ZCListData::swimtypes()
+{
+	return swim_types;
+}
+
+static const GUI::ListData door_types
+{
+	{ "(None)", dNONE},
+	{ "Wall", dWALL},
+	{ "Open", dOPEN},
+	{ "Locked", dLOCKED},
+	{ "Shutter", dSHUTTER},
+	{ "Bombable", dBOMB},
+	{ "Walk-through", dWALK},
+	{ "1-Way Shutter", d1WAYSHUTTER},
+	{ "Boss", dBOSS}
+};
+
+GUI::ListData const& GUI::ZCListData::doortypes()
+{
+	return door_types;
+}

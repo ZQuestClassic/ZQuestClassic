@@ -99,26 +99,20 @@ static json getCommentJson(const AST* node)
 	if (node->doc_comment.empty())
 		return nullptr;
 
-	auto parsed_comment = node->getParsedDocComment();
+	auto parsed_comment = node->getParsedComment();
 	json result = json::object();
 
-	result["tags"] = json::object();
-	util::trimstr(parsed_comment[""]);
-	for (auto [k, v] : parsed_comment)
+	result["tags"] = json::array();
+	for (auto [k, v] : parsed_comment.tags)
 	{
-		if (k == "")
-			continue;
-
-		if (v.empty())
-			result["tags"][k] = true;
-		else
-		{
-			linkifyString(v, node);
-			result["tags"][k] = v;
-		}
+		std::string str = v;
+		if (!str.empty())
+			linkifyString(str, node);
+		result["tags"].push_back(json::array({k, str}));
 	}
 
-	std::string comment = parsed_comment[""];
+	std::string comment = parsed_comment.description;
+	util::trimstr(comment);
 	linkifyString(comment, node);
 	result["text"] = comment;
 
@@ -211,6 +205,9 @@ void DocVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 	DataType const* baseType = host.baseType->resolve_ornull(*scope, this);
 	(*symbol)["type"] = baseType->isLong() ? "long" : "int";
 
+	if (auto prefix = host.getDocumentationPrefix(); prefix && !prefix->empty())
+		(*symbol)["prefix"] = *prefix;
+
 	auto prev_active = active;
 	active = &(*symbol)["children"];
 	for (auto* decl : host.getDeclarations())
@@ -240,10 +237,10 @@ void DocVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		};
 		(*symbol)["parameters"].push_back(std::move(j_param));
 	}
-	for (int i = 0; i < host.optvals.size(); i++)
+	for (int i = 0; i < host.optparams.size(); i++)
 	{
 		std::string snippet = getSourceCodeSnippet(host.optparams[i]->location);
-		(*symbol)["parameters"][host.parameters.size() - host.optvals.size() + i]["default"] = (*symbol)["value"] = snippet;
+		(*symbol)["parameters"][host.parameters.size() - host.optparams.size() + i]["default"] = (*symbol)["value"] = snippet;
 	}
 	if (host.getFlag(FUNCFLAG_VARARGS))
 		(*symbol)["varargs"] = host.func->extra_vargs;

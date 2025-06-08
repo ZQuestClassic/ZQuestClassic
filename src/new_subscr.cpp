@@ -16,6 +16,7 @@
 #include "sprite.h"
 #include <set>
 #include <fmt/format.h>
+#include "zc/maps.h"
 #include "zc/ffscript.h"
 #include "zc/zelda.h"
 #include "zc_list_data.h"
@@ -178,8 +179,64 @@ int old_ssc_to_new_ctr(int ssc)
 			return crNONE;
 	}
 }
+static int simplify_counter(int ctr)
+{
+	switch(ctr)
+	{
+		case sscBTNCTRA_0:
+		{
+			itemdata const& itm = itemsbuf[Awpn&0xFF];
+			if(!itm.cost_amount[0]) return crNONE;
+			return itm.cost_counter[0];
+		}
+		case sscBTNCTRA_1:
+		{
+			itemdata const& itm = itemsbuf[Awpn&0xFF];
+			if(!itm.cost_amount[1]) return crNONE;
+			return itm.cost_counter[1];
+		}
+		case sscBTNCTRB_0:
+		{
+			itemdata const& itm = itemsbuf[Bwpn&0xFF];
+			if(!itm.cost_amount[0]) return crNONE;
+			return itm.cost_counter[0];
+		}
+		case sscBTNCTRB_1:
+		{
+			itemdata const& itm = itemsbuf[Bwpn&0xFF];
+			if(!itm.cost_amount[1]) return crNONE;
+			return itm.cost_counter[1];
+		}
+		case sscBTNCTRX_0:
+		{
+			itemdata const& itm = itemsbuf[Xwpn&0xFF];
+			if(!itm.cost_amount[0]) return crNONE;
+			return itm.cost_counter[0];
+		}
+		case sscBTNCTRX_1:
+		{
+			itemdata const& itm = itemsbuf[Xwpn&0xFF];
+			if(!itm.cost_amount[1]) return crNONE;
+			return itm.cost_counter[1];
+		}
+		case sscBTNCTRY_0:
+		{
+			itemdata const& itm = itemsbuf[Ywpn&0xFF];
+			if(!itm.cost_amount[0]) return crNONE;
+			return itm.cost_counter[0];
+		}
+		case sscBTNCTRY_1:
+		{
+			itemdata const& itm = itemsbuf[Ywpn&0xFF];
+			if(!itm.cost_amount[1]) return crNONE;
+			return itm.cost_counter[1];
+		}
+	}
+	return ctr;
+}
 word get_ssc_ctrmax(int ctr)
 {
+	ctr = simplify_counter(ctr);
 	if(ctr == crNONE)
 		return 0;
 	if(zq_view_maxctr)
@@ -224,6 +281,7 @@ word get_ssc_ctrmax(int ctr)
 }
 word get_ssc_ctr(int ctr, bool* infptr = nullptr)
 {
+	ctr = simplify_counter(ctr);
 	if(ctr == crNONE)
 		return 0;
 	dword ret = 0;
@@ -532,7 +590,64 @@ int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 	switch(type)
 	{
 		case ssctSYSTEM:
-			ret=(color==-1)?color:vc(color);
+			if(color == -1)
+				ret = -1;
+			else if(get_qr(qr_BROKEN_SYSTEM_COLORS))
+				ret = vc(color);
+			else
+			{
+				switch(color)
+				{
+					case 0:
+						ret = makecol(0, 0, 0);
+						break;
+					case 1:
+						ret = makecol(0, 0, 170);
+						break;
+					case 2:
+						ret = makecol(0, 157, 0);
+						break;
+					case 3:
+						ret = makecol(0, 170, 170);
+						break;
+					case 4:
+						ret = makecol(178, 36, 36);
+						break;
+					case 5:
+						ret = makecol(170, 0, 170);
+						break;
+					case 6:
+						ret = makecol(165, 105, 8);
+						break;
+					case 7:
+						ret = makecol(170, 170, 170);
+						break;
+					case 8:
+						ret = makecol(85, 85, 85);
+						break;
+					case 9:
+						ret = makecol(85, 85, 255);
+						break;
+					case 10:
+						ret = makecol(85, 255, 85);
+						break;
+					case 11:
+						ret = makecol(85, 255, 255);
+						break;
+					case 12:
+						ret = makecol(255, 85, 85);
+						break;
+					case 13:
+						ret = makecol(255, 85, 255);
+						break;
+					case 14:
+						ret = makecol(255, 255, 85);
+						break;
+					case 15:
+						ret = makecol(255, 255, 255);
+						break;
+				}
+			}
 			break;
 			
 		case ssctMISC:
@@ -1102,6 +1217,8 @@ bool SubscrWidget::visible(byte pos, bool showtime) const
 	if(msg_onscreen && (posflags&sspNOMSGSTR))
 		return false;
 	#endif
+	if(!check_conditions())
+		return false;
 	return !pos || (posflags&pos);
 }
 SubscrWidget* SubscrWidget::clone() const
@@ -1115,6 +1232,14 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 	flags = src->flags;
 	genflags = src->genflags;
 	posflags = src->posflags;
+	req_owned_items = src->req_owned_items;
+	req_unowned_items = src->req_unowned_items;
+	req_counter = src->req_counter;
+	req_counter_val = src->req_counter_val;
+	req_counter_cond_type = src->req_counter_cond_type;
+	req_litems = src->req_litems;
+	req_litem_level = src->req_litem_level;
+	is_disabled = src->is_disabled;
 	if(all)
 	{
 		x = src->x;
@@ -1216,6 +1341,44 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 				return ret;
 		}
 	}
+	if(s_version >= 14)
+	{
+		word count;
+		byte iid;
+		if(!p_igetw(&count,f))
+			return qe_invalid;
+		req_owned_items.clear();
+		for(word q = 0; q < count; ++q)
+		{
+			if(!p_getc(&iid,f))
+				return qe_invalid;
+			req_owned_items.insert(iid);
+		}
+		if(!p_igetw(&count,f))
+			return qe_invalid;
+		req_unowned_items.clear();
+		for(word q = 0; q < count; ++q)
+		{
+			if(!p_getc(&iid,f))
+				return qe_invalid;
+			req_unowned_items.insert(iid);
+		}
+		if(!p_igetw(&req_counter,f))
+			return qe_invalid;
+		if(!p_igetw(&req_counter_val,f))
+			return qe_invalid;
+		if(!p_getc(&req_counter_cond_type,f))
+			return qe_invalid;
+		if(!p_getc(&req_litems,f))
+			return qe_invalid;
+		if(!p_igetw(&req_litem_level,f))
+			return qe_invalid;
+		byte tempb;
+		if(!p_getc(&tempb,f))
+			return qe_invalid;
+		is_disabled = tempb != 0;
+	}
+	
 	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 	{
 		generic_script = 0;
@@ -1288,6 +1451,28 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 				return ret;
 		}
 	}
+	if(!p_iputw(req_owned_items.size(),f))
+		new_return(1);
+	for(byte iid : req_owned_items)
+		if(!p_putc(iid,f))
+			new_return(1);
+	if(!p_iputw(req_unowned_items.size(),f))
+		new_return(1);
+	for(byte iid : req_unowned_items)
+		if(!p_putc(iid,f))
+			new_return(1);
+	if(!p_iputw(req_counter,f))
+		new_return(1);
+	if(!p_iputw(req_counter_val,f))
+		new_return(1);
+	if(!p_putc(req_counter_cond_type,f))
+		new_return(1);
+	if(!p_putc(req_litems,f))
+		new_return(1);
+	if(!p_iputw(req_litem_level,f))
+		new_return(1);
+	if(!p_putc(is_disabled?1:0,f))
+		new_return(1);
 	return 0;
 }
 void SubscrWidget::check_btns(byte btnflgs, ZCSubscreen& parent) const
@@ -1298,6 +1483,72 @@ void SubscrWidget::check_btns(byte btnflgs, ZCSubscreen& parent) const
 std::string SubscrWidget::getTypeName() const
 {
 	return GUI::ZCListData::subscr_widgets().findText(getType());
+}
+bool SubscrWidget::check_conditions() const
+{
+	// handle editor preview of conditions somehow?
+#ifdef IS_PLAYER
+	if(is_disabled) // script-disable condition
+		return false;
+	for(auto iid : req_owned_items)
+	{
+		if(!game->get_item(iid))
+			return false;
+	}
+	for(auto iid : req_unowned_items)
+	{
+		if(game->get_item(iid))
+			return false;
+	}
+	if(req_counter != crNONE && req_counter_cond_type != CONDTY_NONE)
+	{
+		zfix val = get_ssc_ctr(req_counter);
+		if(genflags&SUBSCRFLAG_REQ_COUNTER_PERC)
+			val = (val / get_ssc_ctrmax(req_counter)) * 100_zf;
+		else if(genflags&SUBSCRFLAG_REQ_COUNTER_MAX)
+			val = get_ssc_ctrmax(req_counter);
+		zfix targ_val = req_counter_val;
+		switch(req_counter_cond_type)
+		{
+			case CONDTY_EQ:
+				if(!(val == targ_val))
+					return false;
+				break;
+			case CONDTY_NEQ:
+				if(!(val != targ_val))
+					return false;
+				break;
+			case CONDTY_GREATER:
+				if(!(val > targ_val))
+					return false;
+				break;
+			case CONDTY_GREATEREQ:
+				if(!(val >= targ_val))
+					return false;
+				break;
+			case CONDTY_LESS:
+				if(!(val < targ_val))
+					return false;
+				break;
+			case CONDTY_LESSEQ:
+				if(!(val <= targ_val))
+					return false;
+				break;
+		}
+	}
+	if(req_litems)
+	{
+		auto target_lvl = req_litem_level < 0 ? get_dlevel() : req_litem_level;
+		if(!(target_lvl < 0 || target_lvl >= MAXLEVELS))
+		{
+			bool inverted = genflags&SUBSCRFLAG_REQ_INVERT_LITEM;
+			auto litems = game->lvlitems[target_lvl]&req_litems;
+			if(inverted ? litems != 0 : litems != req_litems)
+				return false;
+		}
+	}
+#endif
+	return true;
 }
 void SubscrWidget::replay_rand_compat(byte pos) const
 {
@@ -1928,7 +2179,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 					if(bow>-1)
 					{
 						if(replay_version_check(0,19))
-							putitem3(dest,x,y,bow,subscr_item_clk);
+							putitem3(dest,x+xofs,y+yofs,bow,subscr_item_clk);
 						if(!get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)
 							&& !checkmagiccost(btnitem_ids[btn]&0xFF))
 							dodraw = false;
@@ -2824,114 +3075,122 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 	auto const& thedmap = DMaps[get_sub_dmap()];
 	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(thedmap.map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
 	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(thedmap.flags&dmfNOCOMPASS);
-    zcolors const& c = QMisc.colors;
-    int32_t type = (thedmap.type&dmfTYPE);
-    
+	zcolors const& c = QMisc.colors;
+	int32_t type = (thedmap.type&dmfTYPE);
+	
 	auto tx = x+xofs, ty = y+yofs;
-    if(flags&SUBSCR_MMAP_SHOWMAP)
-    {
-        switch(type)
-        {
-        case dmOVERW:
-        case dmBSOVERW:
+	if(flags&SUBSCR_MMAP_SHOWMAP)
+	{
+		switch(type)
 		{
-            int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
-            int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
-            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-            if(maptile)
-            {
-                draw_block(dest,tx,ty,maptile,mapcset,5,3);
-            }
-            else if(c.overworld_map_tile || c.overworld_map_tile)
-            {
-                draw_block(dest,tx,ty,(c.overworld_map_tile!=0?c.overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
-            }
-            else
-            {
-                rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.overw_bg);
-            }
-            
-            if(!thedmap.minimap_1_tile && ((thedmap.type&dmfTYPE) == dmBSOVERW))
-            {
-                drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
-            }
-            
-            break;
-        }
-        case dmDNGN:
-        case dmCAVE:
+		case dmOVERW:
+		case dmBSOVERW:
 		{
-            int32_t maptile=has_item(itype_map, -1)?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
-            int32_t mapcset=has_item(itype_map, -1)?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
-            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-            if(maptile)
-            {
-                draw_block(dest,tx,ty,maptile,mapcset,5,3);
-            }
-            else if(c.dungeon_map_tile||c.dungeon_map_tile)
-            {
-                draw_block(dest,tx,ty,(c.dungeon_map_tile!=0?c.dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
-            }
-            else
-            {
-                rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.dngn_bg);
-            }
-            //Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
-            if(!thedmap.minimap_2_tile && has_item(itype_map, -1))
-            {
-                if((thedmap.flags&dmfMINIMAPCOLORFIX) != 0)
-                {
-                    drawgrid(dest,tx+8,ty+8,c.cave_fg,-1);
-                }
-                else
-                {
-                    drawgrid(dest,tx+8,ty+8,c.dngn_fg,-1);
-                }
-            }
-            
-            break;
+			int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
+			int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+			//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+			if(maptile)
+			{
+				draw_block(dest,tx,ty,maptile,mapcset,5,3);
+			}
+			else if(c.overworld_map_tile || c.overworld_map_tile)
+			{
+				draw_block(dest,tx,ty,(c.overworld_map_tile!=0?c.overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
+			}
+			else
+			{
+				rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.overw_bg);
+			}
+			
+			if(!thedmap.minimap_1_tile && ((thedmap.type&dmfTYPE) == dmBSOVERW))
+			{
+				drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
+			}
+			
+			break;
 		}
-        }
-    }
-    
-    if(showcmp)
-    {
-        if(type==dmDNGN || type==dmCAVE)
-        {
-            if(show_subscreen_dmap_dots&&has_item(itype_compass, -1))
-            {
-                int32_t c2 = c_cmp_off.get_color();
-                
-                if(!has_item(itype_triforcepiece, -1) && (frame&16))
-                    c2 = c_cmp_blink.get_color();
-                    
-                int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
-                int32_t cy = ((thedmap.compass&0xF0)>>2)+ty+8;
-                putdot(dest,cx,cy,c2);
-            }
-        }
-    }
+		case dmDNGN:
+		case dmCAVE:
+		{
+			int32_t maptile=has_item(itype_map, -1)?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
+			int32_t mapcset=has_item(itype_map, -1)?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+			//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+			if(maptile)
+			{
+				draw_block(dest,tx,ty,maptile,mapcset,5,3);
+			}
+			else if(c.dungeon_map_tile||c.dungeon_map_tile)
+			{
+				draw_block(dest,tx,ty,(c.dungeon_map_tile!=0?c.dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
+			}
+			else
+			{
+				rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.dngn_bg);
+			}
+			//Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
+			if(!thedmap.minimap_2_tile && has_item(itype_map, -1))
+			{
+				if((thedmap.flags&dmfMINIMAPCOLORFIX) != 0)
+				{
+					drawgrid(dest,tx+8,ty+8,c.cave_fg,-1);
+				}
+				else
+				{
+					drawgrid(dest,tx+8,ty+8,c.dngn_fg,-1);
+				}
+			}
+			
+			break;
+		}
+		}
+	}
+	
+	if(showcmp)
+	{
+		if(type==dmDNGN || type==dmCAVE)
+		{
+			if(show_subscreen_dmap_dots&&has_item(itype_compass, -1))
+			{
+				int32_t c2 = c_cmp_off.get_color();
+				
+				if(frame&16)
+				{
+					if((game->lvlitems[get_dlevel()] & compass_litems) != compass_litems) // if you don't have all of them, keep blinking
+						c2 = c_cmp_blink.get_color();
+				}
+					
+				int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
+				int32_t cy = ((thedmap.compass&0xF0)>>2)+ty+8;
+				putdot(dest,cx,cy,c2);
+			}
+		}
+	}
 
 #ifdef IS_PLAYER
-	extern HeroClass Hero;
 	if (get_currscr() == 0x81 && Hero.specialcave == PASSAGEWAY)
 		showplr = false;
 #endif
+	
+	if(showplr)
+	{
+		if(show_subscreen_dmap_dots && c_plr.get_color() != 255)
+		{
+			int screen = get_homescr();
+#ifdef IS_PLAYER
+			if (hero_screen < 0x80)
+				screen = hero_screen;
+#endif
 
-    if(showplr)
-    {
-        if(show_subscreen_dmap_dots && c_plr.get_color() != 255)
-        {
-            if(type==dmOVERW)
-            {
-                putdot(dest,((get_homescr()&15)<<2)+tx+9,((get_homescr()&0xF0)>>2)+ty+8,c_plr.get_color());
-            }
-            else if(type==dmBSOVERW || (type==dmDNGN || type==dmCAVE))
-            {
-                putdot(dest,(((get_homescr()&15)-thedmap.xoff)<<3)+tx+10,((get_homescr()&0xF0)>>2)+ty+8,c_plr.get_color());
-            }
-        }
-    }
+			if(type==dmOVERW)
+			{
+				putdot(dest,((screen&15)<<2)+tx+9,((screen&0xF0)>>2)+ty+8,c_plr.get_color());
+			}
+			else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && screen<128))
+			{
+				putdot(dest,(((screen&15)-thedmap.xoff)<<3)+tx+10,((screen&0xF0)>>2)+ty+8,c_plr.get_color());
+			}
+		}
+	}
 }
 SubscrWidget* SW_MMap::clone() const
 {
@@ -2944,6 +3203,7 @@ bool SW_MMap::copy_prop(SubscrWidget const* src, bool all)
 	SW_MMap const* other = dynamic_cast<SW_MMap const*>(src);
 	if(!SubscrWidget::copy_prop(other,all))
 		return false;
+	compass_litems = other->compass_litems;
 	c_plr = other->c_plr;
 	c_cmp_blink = other->c_cmp_blink;
 	c_cmp_off = other->c_cmp_off;
@@ -2953,6 +3213,11 @@ int32_t SW_MMap::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
+	if(s_version >= 13)
+	{
+		if(!p_getc(&compass_litems,f))
+			return qe_invalid;
+	}
 	if(auto ret = c_plr.read(f,s_version))
 		return ret;
 	if(auto ret = c_cmp_blink.read(f,s_version))
@@ -2965,6 +3230,8 @@ int32_t SW_MMap::write(PACKFILE *f) const
 {
 	if(auto ret = SubscrWidget::write(f))
 		return ret;
+	if(!p_putc(compass_litems,f))
+		new_return(1);
 	if(auto ret = c_plr.write(f))
 		return ret;
 	if(auto ret = c_cmp_blink.write(f))
@@ -3074,7 +3341,7 @@ word SW_Clear::getH() const
 			hei = 56;
 			break;
 		case sstOVERLAY:
-			hei = 224;
+			hei = 224 + (get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
 			break;
 	}
 	return hei;
@@ -4079,7 +4346,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		tempsel.x=0;
 		tempsel.y=0;
 		tempsel.draw(tmpbmp);
-		
+
 		int32_t tmpx = xofs+(big_sel?(j%2?8:-8):0);
 		int32_t tmpy = yofs+(big_sel?(j>1?8:-8):0);
 		masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
@@ -4937,6 +5204,93 @@ int32_t SW_SelectedText::write(PACKFILE *f) const
 	return 0;
 }
 
+byte SW_CounterPercentBar::getType() const
+{
+	return widgCOUNTERPERCBAR;
+}
+void SW_CounterPercentBar::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	auto c1 = c_fill.get_color();
+	auto c2 = c_bg.get_color();
+	if(!c1 && !c2) return;
+	
+	if(flags&SUBSCR_COUNTERPERCBAR_TRANSP)
+		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	
+	auto cur = get_ssc_ctr(counter);
+	auto max = get_ssc_ctrmax(counter);
+	zfix perc = max ? vbound((zfix(cur)/max), 1_zf, 0_zf) : 0_zf;
+	auto x2 = x+xofs, y2 = y+yofs;
+	bool vertical = (flags&SUBSCR_COUNTERPERCBAR_VERTICAL);
+	bool invert = bool(flags&SUBSCR_COUNTERPERCBAR_INVERT) != vertical; // vertical naturally inverts
+	if(invert)
+	{
+		perc = 1_zf - perc;
+		zc_swap(c1, c2);
+	}
+	if(flags&SUBSCR_COUNTERPERCBAR_VERTICAL)
+	{
+		word ys = word((perc * zfix(h)).getInt());
+		if(c1 > -1 && ys)
+			rectfill(dest, x2, y2, x2+w-1, y2+ys-1, c1);
+		if(c2 > -1)
+			rectfill(dest, x2, y2+ys, x2+w-1, y2+h-ys-1, c2);
+	}
+	else
+	{
+		word xs = word((perc * zfix(w)).getInt());
+		if(c1 > -1 && xs)
+			rectfill(dest, x2, y2, x2+xs-1, y2+h-1, c1);
+		if(c2 > -1)
+			rectfill(dest, x2+xs, y2, x2+w-xs-1, y2+h-1, c2);
+	}
+	
+	if(flags&SUBSCR_COUNTERPERCBAR_TRANSP)
+		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+}
+SubscrWidget* SW_CounterPercentBar::clone() const
+{
+	return new SW_CounterPercentBar(*this);
+}
+bool SW_CounterPercentBar::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_CounterPercentBar const* other = dynamic_cast<SW_CounterPercentBar const*>(src);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
+	
+	counter = other->counter;
+	c_fill = other->c_fill;
+	c_bg = other->c_bg;
+	return true;
+}
+int32_t SW_CounterPercentBar::read(PACKFILE *f, word s_version)
+{
+	if(auto ret = SubscrWidget::read(f,s_version))
+		return ret;
+	
+	if(!p_igetw(&counter, f))
+		return qe_invalid;
+	if(auto ret = c_fill.read(f,s_version))
+		return ret;
+	if(auto ret = c_bg.read(f,s_version))
+		return ret;
+	return 0;
+}
+int32_t SW_CounterPercentBar::write(PACKFILE *f) const
+{
+	if(auto ret = SubscrWidget::write(f))
+		return ret;
+	if(!p_iputw(counter, f))
+		new_return(1);
+	if(auto ret = c_fill.write(f))
+		return ret;
+	if(auto ret = c_bg.write(f))
+		return ret;
+	return 0;
+}
+
 
 SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 {
@@ -5115,6 +5469,9 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 		case widgSELECTEDTEXT:
 			widg = new SW_SelectedText();
 			break;
+		case widgCOUNTERPERCBAR:
+			widg = new SW_CounterPercentBar();
+			break;
 		case widgNULL:
 			if(!ALLOW_NULL_WIDGET) break;
 			widg = new SubscrWidget();
@@ -5203,7 +5560,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	
 	for(int32_t i=0; i < contents.size(); ++i)
 	{
-		if(contents[i]->genflags&SUBSCRFLAG_SELECTABLE)
+		if((contents[i]->genflags&SUBSCRFLAG_SELECTABLE) && contents[i]->check_conditions())
 		{
 			if(firstValidPos==-1 && contents[i]->pos>=0)
 				firstValidPos=i;
@@ -5270,7 +5627,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 		oldPositions.insert(curpos);
 		
 		//Valid stop point?
-		if((widg->genflags & SUBSCRFLAG_SELECTABLE) && (!item_only || widg->getItemVal() > -1))
+		if((widg->genflags & SUBSCRFLAG_SELECTABLE) && (!item_only || widg->getItemVal() > -1) && widg->check_conditions())
 		{
 			cursor_pos = curpos;
 			return;
@@ -5304,6 +5661,7 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 		if(startp != fp && startp != fp2 && startp != fp3)
 			if(SubscrWidget* widg = get_widg_pos(startp>>8,item_only))
 				if(widg->getType() == widgITEMSLOT
+					&& widg->check_conditions()
 					&& !(widg->flags&SUBSCR_CURITM_NONEQP)
 					&& (widg->genflags & SUBSCRFLAG_SELECTABLE)
 					&& (!item_only || widg->getItemVal() > -1))
@@ -5317,7 +5675,8 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 	
 	for(int32_t i=0; i < contents.size(); ++i)
 	{
-		if(contents[i]->getType()==widgITEMSLOT && (contents[i]->genflags&SUBSCRFLAG_SELECTABLE))
+		if(contents[i]->getType()==widgITEMSLOT && (contents[i]->genflags&SUBSCRFLAG_SELECTABLE)
+			&& contents[i]->check_conditions())
 		{
 			if(firstValidPos==-1 && contents[i]->pos>=0)
 				firstValidPos=i;
@@ -5397,6 +5756,7 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 		//Valid stop point?
 		if((!stay_on_page||(cp2&0xFF)==index)
 			&& (widg->genflags & SUBSCRFLAG_SELECTABLE)
+			&& widg->check_conditions()
 			&& cp2 != fp && cp2 != fp2 && cp2 != fp3
 			&& (!equip_only || widg->getType()!=widgITEMSLOT || !(widg->flags & SUBSCR_CURITM_NONEQP))
 			&& (!item_only || widg->getItemVal()>-1))

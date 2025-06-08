@@ -27,8 +27,11 @@
 #endif
 
 #include <cstdio>
+#include <stddef.h>
+#include <stdint.h>
 #include <math.h>
 #include <cstring>
+#include <memory>
 #include <set>
 #include <assert.h>
 #include <algorithm>
@@ -43,6 +46,7 @@
 #include "base/render.h"
 #include "fontsdat.h"
 #include "zconfig.h"
+#include "base/check.h"
 #include "flags.h"
 
 struct mapscr;
@@ -50,6 +54,9 @@ class solid_object;
 class ffcdata;
 struct cpos_info;
 
+enum class rpos_t : int32_t {
+	None = -1,
+};
 
 // These version fields are deprecated, and no longer update. Replaced by base/version.h
 #define ZELDA_VERSION       0x0255                         //version of the program
@@ -139,72 +146,33 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            16
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          50
+#define V_COMBOS          52
 #define V_CSETS            6 //palette data
-#define V_MAPS            30
-#define V_DMAPS           21
+#define V_MAPS            33
+#define V_DMAPS           22
 #define V_DOORS            1
-#define V_ITEMS           59
+#define V_ITEMS           60
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        40
+#define V_INITDATA        42
 #define V_GUYS            53
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        42
+#define V_SAVEGAME        43
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
-#define V_SUBSCREEN        12
+#define V_SUBSCREEN        14
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         26
+#define V_FFSCRIPT         27
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       73
+#define V_COMPATRULE       80
 #define V_ZINFO            4
 
 //= V_SHOPS is under V_MISC
-
-/*
-  * Compatible version number of the different section types
-  * Basically, the last version number that this section type
-  * is just an extension of (ie. new variables are stuck on the end)
-  * instead of a complete rewrite (or variables added to the middle).
-  * If this and the version number are the same, then this is
-  * a total reworking of the section and probably won't be able
-  * to be read by anything that was written for a previous version.
-  */
-#define CV_HEADER          3
-#define CV_RULES           1
-#define CV_STRINGS         2
-#define CV_MISC            7
-#define CV_TILES           1
-#define CV_COMBOS          1
-#define CV_CSETS           1
-#define CV_MAPS            9
-#define CV_DMAPS           1
-#define CV_DOORS           1
-#define CV_ITEMS          15
-#define CV_WEAPONS         1
-#define CV_COLORS          1
-#define CV_ICONS           1
-#define CV_GRAPHICSPACK    1
-#define CV_INITDATA       15
-#define CV_GUYS            4
-#define CV_MIDIS           3
-#define CV_CHEATS          1
-#define CV_SAVEGAME        5
-#define CV_COMBOALIASES    1
-#define CV_HEROSPRITES     1
-#define CV_SUBSCREEN       3
-#define CV_ITEMDROPSETS    1
-#define CV_FFSCRIPT        1
-#define CV_SFX             5
-#define CV_FAVORITES       1
-#define CV_ZINFO           0
-
 
 // Loose Object Version Metadata
 // If the version is 0, it is ther original.
@@ -223,7 +191,6 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ZITEM -1
 #define V_ZWPNSPR -1
 
-
 void zprint(const char * const format,...);
 void zprint2(const char * const format,...);
 
@@ -232,6 +199,7 @@ extern int32_t original_playing_field_offset;
 extern int32_t playing_field_offset;
 extern int32_t passive_subscreen_height;
 extern int32_t passive_subscreen_offset;
+extern bool show_bottom_8px;
 
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;
@@ -270,6 +238,9 @@ if(close_button_quit) \
 #define WRAP_CS2(cs,cs2) (get_qr(qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+14)%14))
 
 #define XOR(a,b) (!(a) != !(b))
+#define CLEAR_LOW_BITS(x, b) ((x) & ~((1<<(b)) - 1))
+#define TRUNCATE_TILE(x) CLEAR_LOW_BITS(x, 4)
+#define TRUNCATE_HALF_TILE(x) CLEAR_LOW_BITS(x, 3)
 
 // quest stuff
 #define ZQ_TILES        0
@@ -283,8 +254,10 @@ if(close_button_quit) \
 #define liCOMPASS       0x04
 #define liBOSS          0x08
 #define liBOSSKEY       0x10
+#define liCUSTOM01      0x20
+#define liCUSTOM02      0x40
+#define liCUSTOM03      0x80
 
-#define liALLUSED       0x1F
 #define liALL           0xFF
 
 // sprite drawing flag bits
@@ -313,12 +286,6 @@ enum { warpfxNONE, warpfxBLACKOUT, warpfxWIPE, warpfxSCROLL, warpfxZAP, warpfxZA
 	
 //wipe types - mosaic should be one of them. 
 enum { wipeNONE, wipeCOOL, wipeBLACK, wipeBSZELDA, wipeTRIANGLE, wipeCIRCLE, wipeALLSTARS, wipeLAST };
-
-enum
-{
-    wtCAVE, wtPASS, wtEXIT, wtSCROLL, wtIWARP, wtIWARPBLK, wtIWARPOPEN,
-    wtIWARPZAP, wtIWARPWAVE, wtNOWARP, wtWHISTLE, wtMAX
-};
 
 enum
 {
@@ -1385,6 +1352,41 @@ struct guydata
 #define LIFTFL_DROP_ON_HIT            0x00000008
 #define NUM_LIFTFL 4
 
+// Determines how to interpret coordinates given to `Screen->` draw functions.
+//
+// For discussion: https://discord.com/channels/876899628556091432/1120883971950125147/1319734005871939615
+enum class DrawOrigin
+{
+	// Equal to `Region`, unless in a scrolling region (or scrolling to/from one), in which
+	// case this is equal to `PlayingField`.
+	Default,
+	// The origin `(0, 0)` is the top-left pixel of the playing field (where screen combos are drawn).
+	// Normally, this is just below the passive subscreen. But in extended height mode,
+	// this is the top-left pixel of the screen and so is equivalent to `Screen`.
+	//
+	// Use this to draw overlay effects across the playing field.
+	PlayingField,
+	// The origin `(0, 0)` is the top-left pixel of the screen.
+	//
+	// Use this to draw overlay effects across the entire screen.
+	Screen,
+	// The origin `(0, 0)` is the top-left pixel of the current region. Use this to draw with a
+	// sprite's coordinates.
+	//
+	// When scrolling, this is treated as `RegionScrollingNew` for new screens and `RegionScrollingOld`
+	// for old screens.
+	Region,
+	// The origin `(0, 0)` is the top-left pixel of the new region being scrolled to.
+	RegionScrollingNew,
+	// The origin `(0, 0)` is the top-left pixel of the old region being scrolled away from.
+	RegionScrollingOld,
+	// The origin `(0, 0)` is the top-left pixel of the sprite `Screen->DrawOriginTarget`.
+	Sprite,
+
+	First = Default,
+	Last = Sprite,
+};
+
 class refInfo
 {
 public:
@@ -1393,13 +1395,15 @@ public:
 	
 	int32_t d[8]; //d registers
 	uint32_t sp; //stack pointer for current script
-	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
+	dword wait_index; // nth WaitX instruction (0 being script entry) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
 	
-	dword ffcref;
+	uint32_t ffcref;
 	int32_t idata;
 	dword itemref, guyref, lwpn, ewpn;
 	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapsref, zmsgref, shopsref, untypedref;
+	DrawOrigin screen_draw_origin;
+	int32_t screen_draw_origin_target;
 	int32_t mapsref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
@@ -1407,6 +1411,7 @@ public:
 	dword fileref, comboidref, directoryref, rngref, stackref, paldataref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
+	dword combotrigref;
 	int32_t portalref, saveportalref;
 	int32_t websocketref;
 	dword subdataref, subpageref, subwidgref;
@@ -1652,19 +1657,31 @@ struct ffscript
 	int32_t arg1, arg2, arg3;
 	std::vector<int32_t> *vecptr;
 	std::string *strptr;
-	ffscript()
+	ffscript() : vecptr(), strptr()
 	{
-		command = 0xFFFF;
-		arg1 = 0;
-		arg2 = 0;
-		arg3 = 0;
-		vecptr = nullptr;
-		strptr = nullptr;
+		clear();
 	}
-	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0, int32_t arg3 = 0): command(command), arg1(arg1), arg2(arg2), arg3(arg3)
+	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0, int32_t arg3 = 0)
+		: command(command), arg1(arg1), arg2(arg2), arg3(arg3),
+		vecptr(nullptr), strptr(nullptr)
+	{}
+	ffscript(ffscript const& other) : vecptr(), strptr()
 	{
-		vecptr = nullptr;
-		strptr = nullptr;
+		other.copy(*this);
+	}
+	ffscript(ffscript&& other) : vecptr(), strptr()
+	{
+		other.give(*this);
+	}
+	ffscript& operator=(ffscript const& other)
+	{
+		other.copy(*this);
+		return *this;
+	}
+	ffscript& operator=(ffscript&& other)
+	{
+		other.give(*this);
+		return *this;
 	}
 	~ffscript()
 	{
@@ -1679,6 +1696,7 @@ struct ffscript
 			strptr = nullptr;
 		}
 	}
+	
 	void give(ffscript& other)
 	{
 		other.command = command;
@@ -1708,7 +1726,7 @@ struct ffscript
 			strptr = nullptr;
 		}
 	}
-	void copy(ffscript& other)
+	void copy(ffscript& other) const
 	{
 		other.clear();
 		other.command = command;
@@ -1766,18 +1784,22 @@ struct script_id {
 };
 
 typedef uint16_t zasm_script_id;
+struct script_data;
 
+// In 3.0+ there is exactly one zasm script shared by all scripts.
+// Prior, each script has its own chunk of zasm.
 struct zasm_script
 {
 	zasm_script() = default;
-	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
-	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
+	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})), script_datas() {}
+	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})), script_datas() {}
 
 	zasm_script_id id;
 	bool optimized;
 	std::string name;
 	size_t size;
 	std::vector<ffscript> zasm;
+	std::vector<script_data*> script_datas;
 
 	// TODO: remove the necessity of this terminal command being here.
 	bool valid() const
@@ -1791,12 +1813,15 @@ struct script_data
 	// The zasm instructions used by this script.
 	// In quests before 3.0, each script had its own chunk of zasm.
 	// Since 3.0 all scripts share the same chunk.
-	// TODO: The previous comment is not true _yet_, but will be when the "mergeslots3" branch is merged.
 	std::shared_ptr<::zasm_script> zasm_script = nullptr;
 	zasm_meta meta;
 	script_id id;
+	// Start of script within `zasm_script`.
+	uint32_t pc;
+	// Exclusive.
+	uint32_t end_pc;
 
-	script_data(ScriptType type, int index) : id({type, index}) {}
+	script_data(ScriptType type, int index) : meta(), id({type, index}), pc(0), end_pc(0) {}
 
 	std::string name() const
 	{
@@ -1808,12 +1833,14 @@ struct script_data
 	
 	bool valid() const
 	{
-		return zasm_script && zasm_script->valid();
+		return end_pc && zasm_script && zasm_script->valid();
 	}
 	
 	void disable()
 	{
 		zasm_script = nullptr;
+		pc = 0;
+		end_pc = 0;
 	}
 };
 
@@ -1834,6 +1861,8 @@ enum
     sSWORD, sWSWORD, sMSWORD, sXSWORD, sSWORDBEAM, sWSWORDBEAM,
     sMSWORDBEAM, sXSWORDBEAM, sHOOKSHOT, sWAND, sHAMMER, sSTRIKE, sSECNEXT
 };
+
+int combo_trigger_flag_to_secret_combo_index(int flag);
 
 struct comboclass
 {
@@ -1922,9 +1951,10 @@ struct ZCHEATS
 
 struct zquestheader
 {
+	std::string filename;
     char  id_str[31];
     int16_t zelda_version; // Deprecated
-    char zelda_version_string[40];
+    char zelda_version_string[45];
     word  internal;
     byte  quest_number;
     byte  old_rules[2];
@@ -1989,6 +2019,7 @@ struct zquestheader
     //made in module_name
     
 	bool external_zinfo;
+	bool is_z3;
 	
 	
 	bool is_legacy() const;
@@ -2000,6 +2031,12 @@ struct zquestheader
 	char const* getVerCmpStr() const;
 	int32_t compareDate() const;
 	int32_t compareVer() const;
+	int32_t compareVer(int major, int minor, int patch) const;
+
+	std::string hash() const;
+
+private:
+	mutable std::string _hash;
 };
 
 #define MFORMAT_MIDI 0
@@ -2142,50 +2179,6 @@ enum
     idBP_MAGICPERCENT, idBP_MASTERPERCENT, idBP_MAX
 };
 
-///////////////
-/// MODULES ///
-///////////////
-
-// TODO: we would like to remove the module system / loading from datafiles eventually.
-
-enum { zelda_dat, fonts_dat, sfx_dat };
-
-enum {
-    sels_tile_frame, sels_tile_questicon_1A, sels_tile_questicon_1B, sels_tile_questicon_2A,
-    sels_tile_questicon_2B, sels_tile_questicon_3A, sels_tile_questicon_3B, sels_tile_questicon_4A, 
-    sels_tile_questicon_4B, sels_tile_questicon_5A, sels_tile_questicon_5B, sels_tile_questicon_6A, 
-    sels_tile_questicon_6B, sels_tile_questicon_7A, sels_tile_questicon_7B, sels_tile_questicon_8A, 
-    sels_tile_questicon_8B, sels_tile_questicon_9A, sels_tile_questicon_9B, sels_tile_questicon_10A, 
-    sels_tile_questicon_10B, 
-    //x positions
-    sels_tile_questicon_1A_X, sels_tile_questicon_1B_X, sels_tile_questicon_2A_X, sels_tile_questicon_2B_X,
-    sels_tile_questicon_3A_X, sels_tile_questicon_3B_X, sels_tile_questicon_4A_X, sels_tile_questicon_4B_X, 
-    sels_tile_questicon_5A_X, sels_tile_questicon_5B_X, sels_tile_questicon_6A_X, sels_tile_questicon_6B_X, 
-    sels_tile_questicon_7A_X, sels_tile_questicon_7B_X, sels_tile_questicon_8A_X, sels_tile_questicon_8B_X, 
-    sels_tile_questicon_9A_X, sels_tile_questicon_9B_X, sels_tile_questicon_10A_X, sels_tile_questicon_10B_X,
-	
-	
-    sels_cursor_tile, sels_heart_tile, sels_herotile, draw_hero_first,
-    sels_tile_LAST
-};
-
-enum {
-    sels_tile_frame_cset, sels_tile_questicon_1A_cset, sels_tile_questicon_1B_cset, sels_tile_questicon_2A_cset,
-    sels_tile_questicon_2B_cset, sels_tile_questicon_3A_cset, sels_tile_questicon_3B_cset, sels_tile_questicon_4A_cset, 
-    sels_tile_questicon_4B_cset, sels_tile_questicon_5A_cset, sels_tile_questicon_5B_cset, sels_tile_questicon_6A_cset, 
-    sels_tile_questicon_6B_cset, sels_tile_questicon_7A_cset, sels_tile_questicon_7B_cset, sels_tile_questicon_8A_cset, 
-    sels_tile_questicon_8B_cset, sels_tile_questicon_9A_cset, sels_tile_questicon_9B_cset, sels_tile_questicon_10A_cset, 
-    sels_tile_questicon_10B_cset, change_cset_on_quest_3, 
-	sels_cusror_cset, sels_heart_tilettile_cset, sels_hero_cset,
-	
-	sels_tile_cset_LAST
-	
-};
-
-#define titleScreen250 0
-#define titleScreen210 10
-#define titleScreenMAIN 20
-
 INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
@@ -2272,7 +2265,7 @@ enum //Special hardcoded draw layers
 	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
 	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
 	SPLAYER_DARKROOM_OVER, //Over dark room darkness
-	SPLAYER_FFC_DRAW, //Non-Overhead ffcs
+	SPLAYER_FFC_DRAW, //Non-Overhead ffcs // deprecated
 	SPLAYER_LENS_UNDER_1, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_UNDER_2, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_OVER, //Lens drawing blackness to cover most of the screen
@@ -2320,6 +2313,8 @@ std::string generate_zq_about();
 
 void enter_sys_pal();
 void exit_sys_pal();
+
+extern viewport_t viewport;
 
 enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 

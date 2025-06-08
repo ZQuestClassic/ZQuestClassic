@@ -71,7 +71,6 @@ struct user_object : public user_abstract_obj
 	scr_func_exec destruct;
 	zasm_script* script;
 	bool global;
-	bool fake;
 	
 	void prep(dword pc, ScriptType type, word script, int32_t i);
 	

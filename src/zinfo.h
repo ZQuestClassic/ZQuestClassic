@@ -56,49 +56,4 @@ extern zinfo ZI;
 int32_t writezinfo(PACKFILE *f, zinfo const& z);
 int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr);
 
-//old jank module shit
-struct zcmodule
-{
-	char module_name[2048]; //filepath for current zcmodule file
-	char quests[10][255]; //first five quests, filenames
-	char skipnames[10][255]; //name entry passwords
-	char datafiles[4][255]; //qst.dat, fonts.dat, sfx.dat, zelda.dat
-
-	byte old_quest_serial_flow; //Do we go from 3rd to 5th,
-	//and from 5th to 4th, or just 1->2->3->4->5
-	//If this is 0, we do quests in strict order.
-	//if it is 1, then we use the old hardcoded quest flow.
-	
-	byte max_quest_files;
-	word startingdmap[10];
-	word startingscreen[10];
-	int32_t title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
-	
-	char roomtype_names[rMAX][255];
-	
-	char base_NSF_file[1024];
-	char copyright_strings[3][2048];
-	int32_t copyright_string_vars[10*3]; //font, 104,136,13,-1
-	char animate_NES_title;
-	char delete_quest_data_on_wingame[20]; //Do we purge items, scripts, and other data when moving to the next quest?
-	
-	int32_t select_screen_tiles[sels_tile_LAST];
-	char select_screen_tile_csets[sels_tile_cset_LAST];
-	byte refresh_title_screen;
-	
-	char moduletitle[255];
-	byte modver_1, modver_2, modver_3, modver_4, modbuild, modbeta;
-	byte modmonth, modday, modhour, modminute;
-	word modyear;
-	char moduleauthor[255];
-	char moduleinfo0[255];
-	char moduleinfo1[255];
-	char moduleinfo2[255];
-	char moduleinfo3[255];
-	char moduleinfo4[255];
-	char moduletimezone[7]; //supports fiveb char abbreviations, and UTC+ or UTC- nn.
-	
-}; //zcmodule
-
 #endif
-

@@ -1,6 +1,6 @@
 ; Calling a function invalidates registers. If not invalidated, the simulator
 ; would assume D3 was 0 at line 12, and rewrite line 9 to incorrectly jump to 15.
-Function #0
+Function #0 (run_none-0)
     0: SETV            D3               0           [Block 0 -> 1, 2]
     1: PUSHR           D4
     2: SETV            D2               80000

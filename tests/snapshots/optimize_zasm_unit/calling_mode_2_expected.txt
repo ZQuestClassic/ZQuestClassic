@@ -1,4 +1,4 @@
-Function #0
+Function #0 (run_none-0)
     0: PUSHR           D4                           [Block 0 -> ]
     1: NOP
     2: CALLFUNC        9                            [Call Function #1]

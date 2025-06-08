@@ -6,7 +6,7 @@ rewrite 32: 3 -> 1 commands
 32: ABS             D2              
 33: NOP            
 34: NOP            
-Function #0
+Function #0 (run_none-0)
     0: SETR            D4               SP2         [Block 0 -> ]
     1: NOP
     2: NOP

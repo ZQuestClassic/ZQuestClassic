@@ -1,8 +1,55 @@
+// Sprite rendering extend modes. Used with [sprite::Extend].
+enum ExtendMode
+{
+	EXT_NONE                       = 0, // Not extended.
+	EXT_16X32                      = 1, // Sprite is extended as 16x32, or Link is extended in Sprites->Link to 16x32.
+	EXT_32X32                      = 2, // Sprite is extended as 32x32, or Link is extended in Sprites->Link to 32x32.
+	EXT_NORMAL                     = 3, // Extended.
+	EXT_EXTENDED                   = 3, // Extended.
+	EXT_NOSHADOW                   = 4, // Extended. NPC has no shadow.
+};
+
+enum MoveFlag
+{
+	MV_OBEYS_GRAVITY,
+	MV_CAN_PITFALL,
+	MV_CAN_PIT_WALK,
+	MV_CAN_WATERDROWN,
+	MV_CAN_WATER_WALK,
+	MV_ONLY_WATER_WALK,
+	MV_ONLY_SHALLOW_WATER_WALK,
+	MV_ONLY_PIT_WALK,
+	MV_NO_FAKE_Z,
+	MV_NO_REAL_Z,
+	// [npc] only.
+	MV_USE_FAKE_Z,
+	// [npc] only.
+	MV_IGNORE_SOLIDITY,
+	// [npc] only.
+	MV_IGNORE_BLOCKFLAGS,
+	// [npc] only.
+	MV_IGNORE_SCREENEDGE,
+	// [npc] only.
+	MV_USE_SCRIPTED_MOVEMENT_ENGINE,
+	// [npc] only.
+	MV_NOT_PUSHABLE_BY_SOLIDS
+};
+
 // Base class for (most) script-exposed engine sprites.
+//
+// @versionadded 3.0 In older versions, most of these are implemented as separate variables on many other classes
 // @zasm_ref REFSPRITE
 class sprite {
 	// @delete
 	internal sprite();
+
+	// The screen index this sprite was created on. Does not update as the sprite moves around a region.
+	//
+	// [Hero]: Actually does update as the player moves around. Equivalent to [Game->HeroScreen].
+	//
+	// @versionadded 3.0
+	// @zasm_var SPRITE_SPAWN_SCREEN
+	internal const int SpawnScreen;
 
 	// @zasm_var SPRITE_X
 	internal int X;
@@ -61,8 +108,8 @@ class sprite {
 	// The direction that the sprite is facing. Used by certain weapon types
 	// to determine movement, shield deflection and such.
 	//
-	// Valid values: [Direction] (`DIR_`).
-	//
+	// @value [enum Direction]
+
 	// @zasm_var SPRITE_DIR
 	internal int Dir;
 
@@ -132,10 +179,10 @@ class sprite {
 	// @zasm_var SPRITE_SCALE
 	internal int Scale;
 
-	// The drawing mode to use.
+	// The drawing style to use.
 	//
-	// Valid values: [DrawStyle] (`DS_`).
-	//
+	// @value [enum DrawStyle]
+
 	// @zasm_var SPRITE_DRAW_STYLE
 	internal int DrawStyle;
 
@@ -159,8 +206,7 @@ class sprite {
 
 	// How to flip (or rotate) the sprite.
 	//
-	// Valid values: [TransformationType] (`FLIP_` or `ROT_`).
-	//
+	// @value [TransformationType|TransformationType (FLIP_ or ROT_)]
 	// @zasm_var SPRITE_FLIP
 	internal int Flip;
 
@@ -232,8 +278,9 @@ class sprite {
 	// @zasm_var SPRITE_FALL_CMB
 	internal int FallCombo;
 
-	// The movement flags of the sprite. See [MoveFlag] (`MV_`) constants.
+	// The sprite's movement flags.
 	//
+	// @value [enum MoveFlag]
 	// @zasm_var SPRITE_MOVE_FLAGS
 	internal bool MoveFlags[];
 
@@ -242,8 +289,9 @@ class sprite {
 	// @zasm_var SPRITE_LIGHT_RADIUS
 	internal int LightRadius;
 
-	// The shape of light emitted by this sprite. Uses the `LIGHT_` constants.
+	// The shape of light emitted by this sprite.
 	//
+	// @value [enum LightShape]
 	// @zasm_var SPRITE_LIGHT_SHAPE
 	internal int LightShape;
 
@@ -256,6 +304,7 @@ class sprite {
 
 	// The [spritedata] ID to use for the sprite's shadow.
 	//
+	// @value [enum SpriteID]
 	// @zasm_var SPRITE_SHADOW_SPR
 	internal int ShadowSprite;
 

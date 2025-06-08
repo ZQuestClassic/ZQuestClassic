@@ -1,4 +1,47 @@
-#include "bindings/sprite.zh"
+// Player weapon types. Used with [Screen->CreateLWeapon].
+enum LWeaponType
+{
+	LW_SWORD                       = 1,  // This cannot be created.
+	LW_WAND                        = 12, // This cannot be created.
+	LW_CANDLE                      = 12, // This cannot be created.
+	LW_HAMMER                      = 19, // This cannot be created.
+	LW_HOOKSHOT                    = 20, // This cannot be created.
+	LW_CANEOFBYRNA                 = 27, // This cannot be created.
+	LW_BUGNET                      = 52, // This cannot be created.
+	LW_ARROW                       = 8,
+	LW_BEAM                        = 2,  // Sword beam.
+	LW_BRANG                       = 3,
+	LW_BOMB                        = 6,
+	LW_BOMBBLAST                   = 4,  // Bomb explosion.
+	LW_SBOMB                       = 7,
+	LW_SBOMBBLAST                  = 5,  // Super Bomb explosion.
+	LW_FIRE                        = 9,
+	LW_WHISTLE                     = 10, // Whistle music - kills Digdogger.
+	LW_BAIT                        = 11,
+	LW_MAGIC                       = 13, // Wand magic.
+	LW_WIND                        = 15, // Whistle whirlwind.
+	LW_REFMAGIC                    = 16, // Reflected wand magic.
+	LW_REFFIREBALL                 = 17, // Reflected fireball.
+	LW_REFROCK                     = 18, // Reflected rock.
+	LW_REFBEAM                     = 28, // Reflected sword beam.
+	LW_SPARKLE                     = 23,
+	LW_FIRESPARKLE                 = 24, // Damages enemies.
+	LW_SCRIPT1                     = 31, // Dummy weapon, for use with scripts.
+	LW_SCRIPT2                     = 32,
+	LW_SCRIPT3                     = 33,
+	LW_SCRIPT4                     = 34,
+	LW_SCRIPT5                     = 35,
+	LW_SCRIPT6                     = 36,
+	LW_SCRIPT7                     = 37,
+	LW_SCRIPT8                     = 38,
+	LW_SCRIPT9                     = 39,
+	LW_SCRIPT10                    = 40,
+	LW_ICE                         = 41, // Unimplemented.
+	LW_THROWN                      = 44,
+	LW_REFARROW                    = 53,
+	LW_REFFIRE                     = 54,
+	LW_REFFIRE2                    = 55,
+};
 
 // Weapons active on the screen from the hero. See [Screen->LoadLWeapon] and [Screen->CreateLWeapon].
 //
@@ -8,17 +51,17 @@ class lweapon {
 	// @delete
 	internal lweapon();
 
-	// The weapon type of the weapon. Some types have hardcoded behaviors.
-	//
-	// @zasm_var LWPNID
-	internal int ID;
-
-	// The weapon type of the weapon. Some types have hardcoded behaviors. Same as [ID].
+	// The weapon type. Some types have hardcoded behaviors.
 	//
 	// @zasm_var LWPNID
 	internal int Type;
 
-	// The weapon type of the weapon. Some types have hardcoded behaviors. Same as [ID].
+	// Exactly the same as [Type], use that instead.
+	//
+	// @zasm_var LWPNID
+	internal int ID;
+
+	// Exactly the same as [Type], use that instead.
 	//
 	// @zasm_var LWPNID
 	internal int Family;
@@ -86,8 +129,8 @@ class lweapon {
 	// @zasm_var LWPNFLASHCSET
 	internal int FlashCSet;
 
-	// The deadstate of the weapon, denoted by the [WeaponDeadState] (`WDS_`) constants.
-	//
+	// @value [enum WeaponDeadState]
+
 	// @zasm_var LWPNDEAD
 	internal int DeadState;
 
@@ -174,8 +217,10 @@ class lweapon {
 	// @zasm_var LWPNINITD
 	internal untyped InitD[];
 
-	// A bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.
+	// Unblockable bitflags.
 	//
+	// @value [enum UnblockableBitflags]
+
 	// @zasm_var LWPNUNBL
 	internal int Unblockable;
 
@@ -212,8 +257,7 @@ class lweapon {
 
 	// A set of weapon flags.
 	//
-	// Valid indices: [WeaponFlagIndex] (`WFLAG_`).
-	//
+	// @index [enum WeaponFlag]
 	// @zasm_var LWPNFLAGS
 	internal bool Flags[];
 
@@ -264,12 +308,11 @@ class lweapon {
 
 	// The burning light radii associated with sprites of the weapon.
 	//
-	// Valid indices: [WeaponSpriteIndex] (`WPN_SPRITE_`).
-	//
+	// @index [enum WeaponSpriteIndex]
 	// @zasm_var LWPNBURNLIGHTRADIUS
 	internal int BurnLightRadius[];
 
-	// @deprecated
+	// @deprecated - This is now just the internal engine ID, which is the same as doing `<int>some_sprite`.
 	// @zasm_var LWEAPONSCRIPTUID
 	internal const int UID;
 
@@ -299,14 +342,14 @@ class lweapon {
 	internal bool isValid();
 
 	// Loads the graphical information from the [spritedata] indicated by
-	// [spriteid].
+	// [sprite_id].
 	//
 	// @zasm
 	//   POP D2
 	//   POP D3
 	//   SETR REFLWPN D3
 	//   LWPNUSESPRITER D2
-	internal void UseSprite(int spriteid);
+	internal void UseSprite(int sprite_id);
 
 	// Creates an explosion particle effect in mode 0, 1, or 2 of the sprite.
 	//

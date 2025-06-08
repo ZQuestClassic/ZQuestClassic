@@ -1,0 +1,19 @@
+{
+	"quests/purezc/1": {
+		"id": "quests/purezc/1",
+		"type": "quests",
+		"name": "1st",
+		"defaultPath": "quests/purezc/1/r01/classic_1st.qst",
+		"releases": [
+			{
+				"name": "r01",
+				"resources": [
+					"classic_1st.qst"
+				],
+				"resourceHashes": [
+					"5833FF169985B186D58058417E918408"
+				]
+			}
+		]
+	}
+}

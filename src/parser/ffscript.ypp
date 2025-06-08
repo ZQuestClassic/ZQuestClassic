@@ -33,7 +33,7 @@ extern int32_t yylex(void);
 extern FILE *yyin, *yyout;
 extern ZScript::AST* first_identifier_for_line;
 extern void resetLexer();
-void yyerror(std::unique_ptr<ASTFile>& root, const char* s);
+void yyerror(std::shared_ptr<ASTFile>& root, const char* s);
 void yymsg(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
 void yywarn(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
 void yyerrmsg(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
@@ -161,7 +161,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 	namespace ZScript
 	{
 		class ASTFile;
-		std::unique_ptr<ZScript::ASTFile> parseFile(std::string const& filename);
+		std::shared_ptr<ZScript::ASTFile> parseFile(std::string const& filename);
 	};
 }
 
@@ -169,7 +169,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %expect 6
 %define parse.error verbose
 %start Init
-%parse-param {std::unique_ptr<ZScript::ASTFile>& root}
+%parse-param {std::shared_ptr<ZScript::ASTFile>& root}
 
 %define api.token.prefix {TOK_}
 
@@ -864,20 +864,20 @@ Function_Parameters_Element :
 	;
 
 Function_OptParams_List :
-	Function_Parameters_Element ASSIGN Expression_Constant COMMA Function_OptParams_List {
+	Function_Parameters_Element ASSIGN Expression COMMA Function_OptParams_List {
 			ASTFuncDecl* func = (ASTFuncDecl*)$5;
 			ASTDataDecl* param = (ASTDataDecl*)$1;
-			ASTExprConst* cval = (ASTExprConst*)$3;
+			ASTExpr* val = (ASTExpr*)$3;
 			push_front(func->parameters, param);
-			push_front(func->optparams, cval);
+			push_front(func->optparams, val);
 			func->location = @$;
 			$$ = func;}
-	| Function_Parameters_Element ASSIGN Expression_Constant {
+	| Function_Parameters_Element ASSIGN Expression {
 			ASTDataDecl* param = (ASTDataDecl*)$1;
-			ASTExprConst* cval = (ASTExprConst*)$3;
+			ASTExpr* val = (ASTExpr*)$3;
 			ASTFuncDecl* func = new ASTFuncDecl(@$);
 			push_front(func->parameters, param);
-			push_front(func->optparams, cval);
+			push_front(func->optparams, val);
 			$$ = func;}
 	;
 
@@ -1303,10 +1303,13 @@ Annotation_List :
 	Annotation_List COMMA Annotation {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		list->set.push_back((ASTAnnotation*)$3);
+		if (list->doc_comment.empty())
+			list->doc_comment = std::move(((ASTAnnotation*)$3)->doc_comment);
 		$$ = list;}
 	| Annotation {
 		ASTAnnotationList* list = new ASTAnnotationList(@$);
 		list->set.push_back((ASTAnnotation*)$1);
+		list->doc_comment = std::move(((ASTAnnotation*)$1)->doc_comment);
 		$$ = list;}
 	;
 
@@ -1315,32 +1318,38 @@ Annotation :
 		ASTString* key = (ASTString*)$2;
 		ASTString* val = (ASTString*)$4;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN NUMBER RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTFloat* val = (ASTFloat*)$4;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN LONGNUMBER RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTFloat* val = (ASTFloat*)$4;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN MINUS NUMBER RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTFloat* val = (ASTFloat*)$5;
 		val->negative = !val->negative;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN MINUS LONGNUMBER RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTFloat* val = (ASTFloat*)$5;
 		val->negative = !val->negative;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	| HANDLE IDENTIFIER LPAREN RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTAnnotation* a = new ASTAnnotation(key, @$);
+		a->doc_comment = std::move(key->doc_comment);
 		$$ = a;}
 	;
 
@@ -1815,6 +1824,7 @@ Annotated_Enum:
 		ASTDataEnum* en = dynamic_cast<ASTDataEnum*>($2);
 		ASTCustomDataTypeDef* tdef = dynamic_cast<ASTCustomDataTypeDef*>($2);
 		if(tdef) en = tdef->definition.get();
+		if(tdef) tdef->doc_comment = std::move(list->doc_comment);
 		handle_annotations(list, [&](AnnotData& data)
 		{
 			auto& key = data.key;
@@ -2509,16 +2519,16 @@ void yydb(string const& message, int32_t row, int32_t col, char const* txt)
 	zconsole_db(yyerrstr(message,row,col,txt).c_str());
 }
 
-void yyerror(std::unique_ptr<ASTFile>&, const char *s)
+void yyerror(std::shared_ptr<ASTFile>&, const char *s)
 {
 	yyerrmsg(s);
 }
 
 namespace ZScript
 {
-	std::unique_ptr<ASTFile> parseFile(std::string const& filename)
+	std::shared_ptr<ASTFile> parseFile(std::string const& filename)
 	{
-		std::unique_ptr<ASTFile> result;
+		std::shared_ptr<ASTFile> result;
 
 		// Reset lexer.
 		yyin = NULL;
@@ -2542,6 +2552,6 @@ namespace ZScript
 		fclose(yyout);
 		fclose(yyin);
 
-		return std::unique_ptr<ASTFile>(result.release());
+		return result;
 	}
 };

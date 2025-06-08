@@ -23,10 +23,6 @@
 #include "music_playback.h"
 #include "zscriptversion.h"
 
-extern ZModule zcm; //modules
-extern zcmodule moduledata;
-
-extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
 namespace
@@ -142,7 +138,7 @@ void putendmsg(const char *s,int32_t x,int32_t y,int32_t speed,void(proc)())
 
 void brick(int32_t x,int32_t y)
 {
-	blit(scrollbuf,scrollbuf,256,0,x,y,8,8);
+	blit(scrollbuf_old,scrollbuf_old,256,0,x,y,8,8);
 }
 
 void endingpal()
@@ -213,7 +209,7 @@ void ending()
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
-	draw_screen_clip_rect_y2=223;
+	draw_screen_clip_rect_y2=231;
 	
 	for(int32_t f=0; f<365; f++)
 	{
@@ -250,7 +246,7 @@ void ending()
 			draw_screen_clip_rect_x2-=8;
 		}
 		adv:
-		draw_screen(tmpscr);
+		draw_screen();
 		advanceframe(true,true,false);
 		
 		if(Quit) return;
@@ -258,7 +254,7 @@ void ending()
 	
 	clear_bitmap(msg_txt_display_buf);
 	clear_bitmap(msg_bg_display_buf);
-	draw_screen(tmpscr);
+	draw_screen();
 	advanceframe(true);
 	
 	const EndingTextLine* endText;
@@ -331,7 +327,7 @@ void ending()
 		
 		if(f==733)
 		{
-			blit(framebuf,scrollbuf,0,playing_field_offset!=0?168:0,0,0,256,passive_subscreen_height);
+			blit(framebuf,scrollbuf_old,0,playing_field_offset!=0?176:0,0,0,256,passive_subscreen_height);
 			
 			for(int32_t y=0; y<224; y++)
 			{
@@ -354,8 +350,8 @@ void ending()
 		
 		if(f==861)
 		{
-			blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?168:0,256,passive_subscreen_height);
-			try_zcmusic("zelda.nsf", qstpath, moduledata.ending_track, ZC_MIDI_ENDING, get_emusic_volume());
+			blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?176:0,256,passive_subscreen_height);
+			try_zcmusic("zelda.nsf", qstpath, 1, ZC_MIDI_ENDING, get_emusic_volume());
 			
 			for(int32_t y=0; y<224; y++)
 			{
@@ -415,11 +411,11 @@ void ending()
 		}
 	}
 	
-	clear_bitmap(scrollbuf);
-	blit(framebuf,scrollbuf,0,0,0,0,256,224);
+	clear_bitmap(scrollbuf_old);
+	blit(framebuf,scrollbuf_old,0,0,0,0,framebuf->w,framebuf->h);
 	endingpal();
 	// draw the brick
-	puttile16(scrollbuf,3,256,0,csBOSS,0);
+	puttile16(scrollbuf_old,3,256,0,csBOSS,0);
 	
 	if(game->get_quest()>1)
 	{
@@ -479,7 +475,7 @@ void ending()
 			{
 				if(y==credits[creditsLine].yPos)
 				{
-					textout_ex(scrollbuf,
+					textout_ex(scrollbuf_old,
 					           get_zc_font(font_zfont),
 					           credits[creditsLine].text,
 					           credits[creditsLine].xPos,
@@ -494,7 +490,7 @@ void ending()
 				if(endTextLine<numEndTextLines &&
 				   y==endText[endTextLine].yPos)
 				{
-					textout_ex(scrollbuf,
+					textout_ex(scrollbuf_old,
 					           get_zc_font(font_zfont),
 					           endText[endTextLine].text,
 					           endText[endTextLine].xPos,
@@ -504,12 +500,12 @@ void ending()
 					endTextLine++;
 				}
 				else if(y==deathsYPos)
-					textprintf_ex(scrollbuf, get_zc_font(font_zfont), 72, 224, red, 0,
+					textprintf_ex(scrollbuf_old, get_zc_font(font_zfont), 72, 224, red, 0,
 								  "%-8s -%3d", game->get_name(), game->get_deaths());
 				else if(y==timeYPos)
 				{
-					if(game->get_timevalid() && !game->did_cheat())
-						textout_centre_ex(scrollbuf, get_zc_font(font_zfont), time_str_med(game->get_time()), 128, 224, blue, 0);
+					if(game->get_timevalid())
+						textout_centre_ex(scrollbuf_old, get_zc_font(font_zfont), time_str_med(game->get_time()), 128, 224, blue, 0);
 				}
 			}
 		}
@@ -523,10 +519,10 @@ void ending()
 		
 		if(f&1)
 		{
-			blit(scrollbuf,scrollbuf,0,1,0,0,256,232);
+			blit(scrollbuf_old,scrollbuf_old,0,1,0,0,256,232);
 		}
 		
-		blit(scrollbuf,framebuf,0,0,0,0,256,224);
+		blit(scrollbuf_old,framebuf,0,0,0,0,framebuf->w,framebuf->h);
 		advanceframe(true);
 		
 		if(Quit)
@@ -565,22 +561,6 @@ void ending()
 	advanceframe(true);
 	
 	credits_skip:
-	
-	if(game->get_quest()>0 && game->get_quest()<=9)
-	{
-		inc_quest();
-		removeItemsOfFamily(game, itemsbuf, itype_ring);
-		int32_t maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
-		
-		if(maxring != -1)
-		{
-			getitem(maxring,true);
-		}
-		
-		ringcolor(false);
-	}
-	
-	
 	
 	zc_stop_midi();
 	if (get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -654,7 +634,7 @@ void ending_scripted()
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
-	draw_screen_clip_rect_y2=223;
+	draw_screen_clip_rect_y2=231;
    
 	for(int32_t f=0; f<77; f++)
 	{
@@ -665,7 +645,7 @@ void ending_scripted()
 			draw_screen_clip_rect_x2-=8;
 		}
         
-		draw_screen(tmpscr);
+		draw_screen();
 		advanceframe(true);
         
 		if(Quit) return;
@@ -673,17 +653,16 @@ void ending_scripted()
     
 	clear_bitmap(msg_txt_display_buf);
 	clear_bitmap(msg_bg_display_buf);
-	draw_screen(tmpscr);
+	draw_screen();
 	advanceframe(true);
     
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
     
-	clear_bitmap(scrollbuf);
-	blit(framebuf,scrollbuf,0,0,0,0,256,224);
+	clear_bitmap(scrollbuf_old);
+	blit(framebuf,scrollbuf_old,0,0,0,0,framebuf->w,framebuf->h);
 	endingpal();
     
-        inc_quest();
         removeItemsOfFamily(game, itemsbuf, itype_ring);
         int32_t maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
         
@@ -743,56 +722,4 @@ void ending_scripted()
 	game->set_hasplayed(false);
 	saves_write();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
-}
-
-void inc_quest()
-{
-	char name[9];
-	strcpy(name,game->get_name());
-	// Go to quest 3 if you got some heart containers,
-	// or quest 4 if you got them all.
-	int32_t quest = game->get_quest(); //Don't leave uninitialised. 
-	
-	int32_t deaths = game->get_deaths();
-	
-	if ( moduledata.old_quest_serial_flow || game->get_quest() >= 5 )
-	{
-		if(game->get_quest()==2 && game->get_maxlife()>=game->get_hp_per_heart()*16)
-			quest = zc_min(4,moduledata.max_quest_files);// 4;
-		else
-			quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);
-		
-		if(game->get_quest()==3 && game->get_maxlife()>=game->get_hp_per_heart()*16)
-			quest = zc_min(4,moduledata.max_quest_files);// 4;
-		
-		
-
-		// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
-		if(game->get_quest()==3 && deaths == 0)
-			quest = zc_min(5,moduledata.max_quest_files);// 4;
-		
-		// //I can't find a better solution. If we reach five with wacky progression, just move on. -Z
-		if(game->get_quest()==5 && deaths > 0)
-			quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);// 4;
-	}
-	else
-	{
-		quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);
-	}
-
-	game->Clear();
-	
-	game->set_name(name);
-	game->set_quest(quest);
-	game->header.qstpath.clear();
-	game->set_deaths(deaths);
-	game->set_maxlife(3*game->get_hp_per_heart());
-	game->set_life(3*game->get_hp_per_heart());
-	game->set_maxbombs(8);
-	game->set_hasplayed(false);
-	//now bound to modules
-	game->set_continue_dmap(moduledata.startingdmap[quest-1]);
-	game->set_continue_scrn(moduledata.startingscreen[quest-1]);
-	resetItems(game,&zinit,true);
-	load_quest(game);
 }

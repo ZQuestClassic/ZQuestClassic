@@ -47,6 +47,15 @@ The ZScript garbage collector has two ways for knowing when to delete objects:
    two objects holding a reference to each other, but otherwise no longer in use). The process
    of detecting unreachable objects is a "full garbage collection", and only runs occasionally.
 
+Variables only retain a reference to an object if typed as an object. For example, using
+`int` or `untyped` to store an object pointer won't count as a reference, so may result in
+premature deletion. If you must store objects like that for some reason, call |OwnObject|
+so its reference count is always greater than zero (as long as that script is alive), or
+globalize it via |GlobalObject|.
+
+.. caution::
+	Currently objects in a :ref:`stack<classes_stack>` do not count as a reference.
+
 Objects made global with |GlobalObject| are never deleted by the garbage collector.
 
 To tie an object to at least the lifetime of the currently running script, use |OwnObject|.
@@ -55,12 +64,6 @@ if there are no other references to the object it will be destroyed. Only one sc
 own a particular object - subsequent calls transfer which script holds the reference.
 You shouldn't need this functionality for most usages. One example of it being necessary
 is if the only place you store an object is an untyped variable, which does not hold a reference.
-
-Variables only retain a reference to an object if typed as an object. For example, using
-`int` or `untyped` to store an object pointer won't count as a reference, so may result in
-premature deletion. If you must store objects like that for some reason, call |OwnObject|
-so its reference count is always greater than zero (as long as that script is alive), or make
-it a global object. Currently objects in a :ref:`stack<classes_stack>` do not count as a reference.
 
 For simple objects with no cyclical references, they are destroyed just after their last
 reference is removed (as local variable going out of scope, or being overwritten, etc).
@@ -75,16 +78,19 @@ a full garbage collection run. When an object is found to be unreachable by
 any global or local variables, it will be deleted. This procedure is much more expensive
 than reference counting, so it doesn't run often, and when exactly it runs is subject to change.
 
-Script ownership can be revoked by calling |GlobalObject|. Global objects are never deleted
-by the garbage collector. You can delete a global object by making it no longer global (call
-|OwnObject| on it).
+Script ownership can be revoked by calling |GlobalObject|. You can delete a global object by
+making it no longer global (call |OwnObject| on it) - once all other references are unassigned,
+the garbage collector will eventually delete it.
 
 When a script terminates, objects it owns will lose a reference count, calling their
 destructors immediately if their reference count is now zero.
 
-When a quest exits, ALL non-global objects are deleted. If the quest is saved,
-however, objects made global with |GlobalObject| will be *saved to the save file*,
-and will still be valid on reloading the save. This includes all variables and arrays.
+On save, an object persists to the save file (including all its variables and arrays) if it has
+been globalized via |GlobalObject|, or if it is reachable from a global variable or array (note:
+untyped or int arrays do not count).
+
+.. versionchanged:: 3.0
+	Prior to this version, only globalized objects persist to the save file.
 
 .. caution::
 	You should not expect destructors to run at any specific time, or even at all. You should only
@@ -92,3 +98,8 @@ and will still be valid on reloading the save. This includes all variables and a
 	the garbage collector runs or an object destructor is called is an implementation detail that
 	may change. Do NOT implement critical game functionality in destructors - doing so will result
 	in unpredictable behavior, and may break your quest in future versions of ZC.
+
+Examples
+--------
+
+* To pass objects between scripts via `InitD` (or similar int/untyped variables), you must ensure something else retains the object else it may be destroyed before the target script can load it. `Read this discussion for more information <https://discord.com/channels/876899628556091432/1365314060543070329/1365502641236344923>`_.

@@ -1,11 +1,18 @@
 #include "std_zh/std_constants.zh"
 
-// Combo to be used for generic script vehicle FFCs. This should be
+// Combo to use for FFC scripts started by [RunFFCScript]. This should be
 // an invisible combo with no type or flag. It cannot be combo 0.
 const int FFCS_INVISIBLE_COMBO = 1;
 
+// @deprecated Use [MIN_FFC] instead!
+//
+// @zasm_var MAX_FFC_ID
 const int FFCS_MIN_FFC = 1;
-const int FFCS_MAX_FFC = 128;
+
+// @deprecated Use [MAX_FFC] instead!
+//
+// @zasm_var MAX_FFC_ID
+internal const int FFCS_MAX_FFC;
 
 int CheckFFCScript(char32[] scriptname)
 {

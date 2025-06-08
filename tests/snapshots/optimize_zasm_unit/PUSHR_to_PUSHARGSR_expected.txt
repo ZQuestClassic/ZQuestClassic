@@ -1,4 +1,4 @@
-Function #0
+Function #0 (run_none-0)
     0: TRACEV          1337                         [Block 0 -> ]
     1: PUSHR           D5
     2: PUSHARGSR       D2               2

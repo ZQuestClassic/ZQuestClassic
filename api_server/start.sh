@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR="$SCRIPT_DIR/.."
+
 set -e
 
 if [ ! -d ../venv ] ; then
@@ -31,13 +34,16 @@ else
 fi
 
 mkdir -p "$FLASK_DATA_DIR/replays"
-curl https://data.zquestclassic.com/manifest.json > "$FLASK_DATA_DIR/manifest.json"
 
 if [[ -z "${FLASK_PRODUCTION}" ]]; then
 	# Local dev.
+	mkdir -p "$ROOT_DIR/.tmp/database"
+	ln -sfh "$ROOT_DIR/.tmp/database" "$FLASK_DATA_DIR/database"
+
 	flask run -p 5000
 else
 	# Prod.
+	mkdir -p "$FLASK_DATA_DIR/database"
 
 	echo "syncing from s3://$FLASK_S3_BUCKET/ ..."
 	s3cmd sync --no-preserve --acl-public "s3://$FLASK_S3_BUCKET/" "$FLASK_DATA_DIR/replays/"

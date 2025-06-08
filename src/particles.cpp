@@ -175,7 +175,6 @@ bool particle_list::add(particle *p)
 	
 	containedUIDs[p->getUID()] = count;
 	particles[count++]=p;
-	//checkConsistency();
 	return true;
 }
 
@@ -210,7 +209,6 @@ gotit:
 	}
 	
 	--count;
-	//checkConsistency();
 	return true;
 }
 
@@ -260,7 +258,6 @@ bool particle_list::del(int32_t j)
 	
 	--count;
 	if(j<=active_iterator) --active_iterator;
-	//checkConsistency();
 	return true;
 }
 
@@ -329,3 +326,5 @@ particle * particle_list::getByUID(int32_t uid)
 		
 	return NULL;
 }
+
+particle_list particles;

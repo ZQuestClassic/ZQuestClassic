@@ -10,6 +10,7 @@
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/initdata.h"
+#include "zc/scripting/script_object.h"
 #include "zc/scripting/types/user_object.h"
 
 using namespace util;
@@ -42,13 +43,13 @@ void gamedata::save_user_objects()
 	user_objects.clear();
 
 #ifndef IS_EDITOR
+	auto reachable_ids = find_script_objects_reachable_from_global_roots();
 	for (auto obj : get_user_objects())
 	{
-		if (obj->isGlobal())
+		if (obj->isGlobal() || reachable_ids.contains(obj->id))
 		{
 			saved_user_object& save_obj = user_objects.emplace_back();
 			save_obj.obj = *obj;
-			save_obj.obj.fake = true;
 			save_obj.obj.ref_count = 0;
 			obj->save_arrays(save_obj.held_arrays);
 		}
@@ -68,7 +69,6 @@ void gamedata::load_user_objects()
 		assert(object->ref_count == 0);
 		object->ref_count = 1; // create_user_object added to autorelease pool.
 		object->type = script_object_type::object;
-		object->setGlobal(true);
 		object->load_arrays(obj.held_arrays);
 	}
 #endif
@@ -880,6 +880,15 @@ void gamedata::set_spriteflickertransp(byte val)
 	set_generic(val, genSPRITEFLICKERTRANSP);
 }
 
+byte gamedata::get_regionmapping()
+{
+	return get_generic(genREGIONMAPPING);
+}
+void gamedata::set_regionmapping(byte val)
+{
+	set_generic(val, genREGIONMAPPING);
+}
+
 void gamedata::set_item(int32_t id, bool value)
 {
     set_item_no_flush(id, value);
@@ -958,7 +967,7 @@ portal* loadportal(savedportal& p)
 {
 	portal* retp = nullptr;
 #ifndef IS_EDITOR
-	if(currdmap == p.srcdmap && currscr == p.srcscr)
+	if(cur_dmap == p.srcdmap && cur_screen == p.srcscr)
 	{
 		retp = new portal(p.destdmap, p.destscr+DMaps[p.destdmap].xoff,
 			p.warpfx, p.sfx, p.spr);
@@ -1040,5 +1049,5 @@ bool gamedata::should_show_time()
 	if (replay_is_active() && replay_is_debug() && replay_version_check(0, 33))
 		return false;
 
-	return get_timevalid() && !did_cheat() && get_qr(qr_TIME);
+	return get_timevalid() && get_qr(qr_TIME);
 }

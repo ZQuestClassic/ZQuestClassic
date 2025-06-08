@@ -59,49 +59,9 @@ AST::AST(LocationData const& location)
 	: location(location), errorDisabled(false), disabled_(false), isRegistered(false), isReachable(true)
 {}
 
-std::map<std::string, std::string> AST::getParsedDocComment() const
+ParsedComment AST::getParsedComment() const
 {
-	std::map<std::string, std::string> result;
-	if (doc_comment.empty())
-		return result;
-
-	std::string current_key;
-	std::vector<std::string> lines;
-	util::split(doc_comment, lines, '\n');
-	for (auto& line : lines)
-	{
-		util::trimstr(line);
-
-		if (line.starts_with("@"))
-		{
-			size_t index = line.find_first_of(' ');
-			if (index == -1)
-			{
-				current_key = line.substr(1);
-				line = "";
-			}
-			else
-			{
-				current_key = line.substr(1, index - 1);
-				line = line.substr(index + 1);
-				util::trimstr(line);
-			}
-		}
-
-		bool has_key = result.contains(current_key);
-		if (!current_key.empty() && line.empty() && has_key)
-			continue;
-
-		if (has_key)
-			result[current_key] += "\n" + line;
-		else
-			result[current_key] = line;
-	}
-
-	if (result.contains(""))
-		util::trimstr(result[""]);
-
-	return result;
+	return ParsedComment(doc_comment);
 }
 
 // ASTFile
@@ -1407,6 +1367,29 @@ std::string ASTDataEnum::getName() const {
 	return name;
 }
 
+// Derive the prefix for an enum based on the member names, for quick reference
+// in documentation contexts.
+std::optional<std::string> ASTDataEnum::getDocumentationPrefix() const
+{
+	if (declarations_.size() < 2)
+		return std::nullopt;
+
+	std::string first_name = declarations_[0]->getName();
+	std::string second_name = declarations_[1]->getName();
+	size_t underscore_index = first_name.find_first_of('_');
+	if (underscore_index == std::string::npos)
+		return std::nullopt;
+
+	std::string prefix = util::longest_common_prefix(first_name, second_name);
+	while (!prefix.empty() && prefix.back() != '_')
+		prefix.pop_back();
+
+	if (prefix.empty())
+		return std::nullopt;
+
+	return prefix;
+}
+
 void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseDataEnum(*this, param);
@@ -1871,7 +1854,7 @@ bool ASTExprIndex::isConstant() const
 DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	DataType const* type = array->getReadType(scope, errorHandler);
-	if (type && type->isArray() && !array->isTypeArrowNonUsrClass())
+	if (type && type->isArray())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
 		type = &atype->getElementType();
@@ -1882,7 +1865,7 @@ DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* err
 DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	DataType const* type = array->getWriteType(scope, errorHandler);
-	if (type && type->isArray() && !array->isTypeArrowNonUsrClass())
+	if (type && type->isArray())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
 		type = &atype->getElementType();

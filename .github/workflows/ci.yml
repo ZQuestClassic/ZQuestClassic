@@ -64,29 +64,36 @@ jobs:
       config: ${{ matrix.config }}
       extra-args: ${{ matrix.extra-args }} --prune_test_results
       from-ci-workflow: true
+    secrets:
+      GH_PAT_ZSCRIPT_DATABASE: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
 
   web:
     needs: warm-lfs-cache
     runs-on: ubuntu-22.04
 
     steps:
+      - name: Install cmake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.31.6'
+
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
         with:
           fetch-depth: 0
 
-      - uses: mymindstorm/setup-emsdk@v12
+      - uses: mymindstorm/setup-emsdk@v14
         with:
-          version: "3.1.64"
+          version: "4.0.8"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
 
-      - name: Install Node.js 18.x
+      - name: Install Node.js 20.x
         uses: actions/setup-node@v3
         with:
-          node-version: 18.x
+          node-version: 20.x
       # puppeteer caches Chrome in ~/.ccache/puppeteer, but only on npm install. Which means
       # restored caches from actions/setup-node will never install Chrome.
-      - run: npm rm puppeteer && npm add puppeteer@23.3.0
+      - run: npm rm puppeteer && npm add puppeteer@24.7.2
 
       - run: sudo apt-get update && sudo apt-get install ccache ninja-build libdumb1-dev flex bison
 

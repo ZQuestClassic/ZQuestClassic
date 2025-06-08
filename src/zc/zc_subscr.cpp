@@ -2,6 +2,9 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/util.h"
+#include "base/zdefs.h"
+#include "zc/maps.h"
 #include "zc/zelda.h"
 #include "subscr.h"
 #include "zc/zc_subscr.h"
@@ -14,7 +17,6 @@
 #include "base/misctypes.h"
 #include "zscriptversion.h"
 
-extern HeroClass Hero;
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemY;
@@ -22,29 +24,42 @@ extern int32_t directItemX;
 
 //DIALOG *sso_properties_dlg;
 
+int current_subscr_pos = sspUP;
+static bool opening_subscr_show_bottom_8px;
+
 void put_active_subscr(int32_t y, int32_t pos)
 {
+	// Active subscreens do not yet get to use those 8 extra pixels. Until then,
+	// draw 8 black pixels at the top (as the active subscreen will move an additional
+	// 8 pixels and so must obscure the playing field somehow).
+	if (opening_subscr_show_bottom_8px)
+	{
+		rectfill(framebuf, 0, y, framebuf->w, y+8-1, BLACK);
+		y += 8;
+	}
     show_custom_subscreen(framebuf, new_subscreen_active, 0, y, game->should_show_time(), pos);
 }
 
 void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 {
+	int distance = opening_subscr_show_bottom_8px ? 176 : 168;
 	if(get_qr(qr_OLD_SUBSCR))
 	{
-		put_passive_subscr(dest,x,y+168,showtime,pos);
+		put_passive_subscr(dest,x,y+distance,showtime,pos);
 		put_active_subscr(y,pos);
 	}
 	else
 	{
 		put_active_subscr(y,pos);
-		put_passive_subscr(dest,x,y+168,showtime,pos);
+		put_passive_subscr(dest,x,y+distance,showtime,pos);
 	}
 }
+
 void dosubscr()
 {
 	PALETTE temppal;
 	
-	if(tmpscr->flags3&fNOSUBSCR)
+	if (no_subscreen())
 		return;
 	
 	if(usebombpal)
@@ -74,8 +89,11 @@ void dosubscr()
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 
+	int h = is_extended_height_mode() ? 240 : 176;
+	BITMAP* subscr_scrolling_bitmap = create_bitmap(256, h);
+
 	// Copy the complete frame.
-	blit(framebuf,scrollbuf,0,playing_field_offset,0,0,256,176);
+	blit(framebuf,subscr_scrolling_bitmap,0,playing_field_offset,0,0,256,h);
 	
 	bool use_a = get_qr(qr_SELECTAWPN), use_x = get_qr(qr_SET_XBUTTON_ITEMS),
 		 use_y = get_qr(qr_SET_YBUTTON_ITEMS);
@@ -98,11 +116,17 @@ void dosubscr()
 			pg.cursor_pos = game->ywpn>>8;
 		else pg.cursor_pos = 0;
 	}
-	
+
+	opening_subscr_show_bottom_8px = show_bottom_8px;
+
+	int distance = opening_subscr_show_bottom_8px ? 176 : 168;
+	int offy = is_extended_height_mode() ? 0 : passive_subscreen_height;
+
 	FFCore.initZScriptSubscreenScript();
 	subscrpg_clear_animation();
 	subscreen_open = true;
-	for(int32_t y = -168; y <= 0; y += 3*Hero.subscr_speed)
+	current_subscr_pos = sspSCROLLING;
+	for(int32_t y = -distance; y <= 0; y += 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
 		{
@@ -120,22 +144,22 @@ void dosubscr()
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 		//fill in the screen with black to prevent the hall of mirrors effect
-		rectfill(framebuf, 0, 0, 255, 223, 0);
+		clear_to_color(framebuf, BLACK);
 
 		// With COOLSCROLL on, the subscreen crawls down over the playing field.
 		// Otherwise the playing field scrolls down past the bottom of the screen.
 		if(COOLSCROLL)
 		{
-			blit(scrollbuf,framebuf,0,0,0,passive_subscreen_height,256,176);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
 		}
 		else
 		{
-			blit(scrollbuf,framebuf,0,0,0,y+168+passive_subscreen_height,256,-y);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance+passive_subscreen_height,256,-y+(opening_subscr_show_bottom_8px?8:0));
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
 		if(replay_version_check(19))
-			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		
@@ -143,6 +167,7 @@ void dosubscr()
 			return;
 	}
 	active_sub_yoff = -playing_field_offset;
+	current_subscr_pos = sspDOWN;
 	bool done=false;
 
 	// Consume whatever input was registered during opening animation.
@@ -436,17 +461,17 @@ void dosubscr()
 			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
-		
-		rectfill(framebuf, 0, 0, 255, 223, 0);
-		
+
+		clear_to_color(framebuf, BLACK);
+
 		if(compat && COOLSCROLL) //copy the playing field back onto the screen
-			blit(scrollbuf,framebuf,0,0,0,passive_subscreen_height,256,176);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
 		//else nothing to do; the playing field has scrolled off the screen
 		
 		//draw the passive and active subscreen
 		draw_subscrs(framebuf,0,0,showtime,sspDOWN);
 		if(replay_version_check(19))
-			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		if (replay_version_check(11))
@@ -466,7 +491,8 @@ void dosubscr()
 	}
 	while(!done);
 	subscrpg_clear_animation();
-	for(int32_t y = 0; y >= -168; y -= 3*Hero.subscr_speed)
+	current_subscr_pos = sspSCROLLING;
+	for(int32_t y = 0; y >= -distance; y -= 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
 		{
@@ -484,20 +510,20 @@ void dosubscr()
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 		//fill in the screen with black to prevent the hall of mirrors effect
-		rectfill(framebuf, 0, 0, 255, 223, 0);
+		clear_to_color(framebuf, BLACK);
 		
 		if(COOLSCROLL)
 		{
-			blit(scrollbuf,framebuf,0,0,0,passive_subscreen_height,256,176);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
 		}
 		else
 		{
-			blit(scrollbuf,framebuf,0,0,0,y+168+passive_subscreen_height,256,-y);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+distance+passive_subscreen_height,256,-y+(opening_subscr_show_bottom_8px?8:0));
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
 		if(replay_version_check(19))
-			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		advanceframe(false);
 		
 		if(Quit)
@@ -505,6 +531,8 @@ void dosubscr()
 	}
 	active_sub_yoff = -224;
 	subscreen_open = false;
+	current_subscr_pos = sspUP;
+	updateShowBottomPixels(); // might have changed.
 	if(usebombpal)
 	{
 		memcpy(RAMpal, temppal, PAL_SIZE*sizeof(RGB));
@@ -529,7 +557,6 @@ void markBmap(int32_t dir, int32_t sc)
     int32_t di = (get_currdmap() << 7) + (sc & 0x7F); //+ ((sc&0xF)-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff));
     int32_t code = 0;
     
-    
     switch((DMaps[get_currdmap()].type&dmfTYPE))
     {
     case dmDNGN:
@@ -543,7 +570,7 @@ void markBmap(int32_t dir, int32_t sc)
 			for(int32_t i=3; i>=0; i--)
 			{
 				code <<= 1;
-				code += tmpscr->door[i]&1; //Mark directions only for sides that have the door state set
+				code += origin_scr->door[i]&1; //Mark directions only for sides that have the door state set
 			}
 			
 			// mark the map
@@ -566,10 +593,9 @@ void markBmap(int32_t dir, int32_t sc)
         break;
     }
 }
-
-void markBmap(int32_t dir)
+void markBmap()
 {
-    markBmap(dir, get_currscr());
+	markBmap(-1, hero_screen);
 }
 
 void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)
@@ -577,20 +603,38 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 	++subscr_item_clk;
 	animate_subscr_buttonitems();
 	BITMAP *subscr = create_sub_bitmap(dest,x,y,256,passive_subscreen_height);
-	
+
 	if(no_subscreen())
 	{
-		clear_to_color(subscr,0);
+		if (playing_field_offset)
+			rectfill(subscr, 0, 0, subscr->w, playing_field_offset, 0);
 		destroy_bitmap(subscr);
 		return;
 	}
-	
+
+	// Since regions were added, all passive subscreens get a black background underneath (unless
+	// using an extended height viewport). Previously, custom but blank subscreens could be used to
+	// allow scripts to draw to the entire screen (ex: yuurand), but post-z3 such use cases should
+	// enable the "no subscreen" screen flag.
+	if (QHeader.is_z3 && playing_field_offset)
+		rectfill(subscr, 0, 0, subscr->w, playing_field_offset - 1, 0);
+
+	int32_t prev_currscr;
+	if (currscr_for_passive_subscr != -1)
+	{
+		prev_currscr = cur_screen;
+		cur_screen = currscr_for_passive_subscr;
+	}
+
 	show_custom_subscreen(subscr, new_subscreen_passive, 0, 0, showtime, pos2);
 	destroy_bitmap(subscr);
 	if(new_subscreen_overlay)
 	{
-		subscr = create_sub_bitmap(dest,x,0,256,224);
+		subscr = create_sub_bitmap(dest,x,0,dest->w,dest->h);
 		show_custom_subscreen(subscr, new_subscreen_overlay, 0, 0, showtime, pos2);
 		destroy_bitmap(subscr);
 	}
+
+	if (currscr_for_passive_subscr != -1)
+		cur_screen = prev_currscr;
 }

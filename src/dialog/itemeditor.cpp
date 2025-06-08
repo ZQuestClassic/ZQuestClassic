@@ -14,7 +14,6 @@ extern zquestheader header;
 extern bool saved;
 extern char *item_string[];
 extern itemdata *itemsbuf;
-extern zcmodule moduledata;
 static bool _reset_default, _reload_editor;
 static itemdata static_ref;
 static std::string reset_name;
@@ -961,6 +960,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[0], "Can't catch fairies", "If checked, no longer catches fairies"
 				" it collides with");
 			_SET(flag[1], "Right-handed", "Swaps swing direction of the weapon");
+			_SET(actionsnd[0], "Swing Sound", "Sound played when swinging the net");
 			break;
 		}
 		case itype_mirror:
@@ -977,6 +977,13 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(wpn[0], "Portal Sprite", "Sprite of the Return Portal");
 			_SET(actionsnd[0], "Warp Sound", "Sound played for the warp to a new dmap");
 			_SET(actionsnd[1], "Continue Sound", "Sound played for a continue warp");
+			break;
+		}
+		case itype_lkey:
+		{
+			_SET(flag[0], "Specific Level", "If checked, grants a key for a specific level, instead of the 'current' level");
+			if(FLAG(1))
+				_SET(misc[0], "Key Level", "The level to grant a key for");
 			break;
 		}
 	}
@@ -1105,6 +1112,17 @@ l_flags[index] = Checkbox( \
 		SETFLAG(local_itemref.flags,bit,state); \
 	} \
 ) \
+
+#define LITEM_CHECK(txt, flag) \
+Checkbox( \
+	hAlign = 0.0, \
+	text = txt, \
+	checked = (local_itemref.pickup_litems & flag), \
+	onToggleFunc = [&](bool state) \
+	{ \
+		SETFLAG(local_itemref.pickup_litems,flag,state); \
+	} \
+)
 
 template <typename T>
 std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int index)
@@ -1532,9 +1550,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						)
 					)),
-					TabRef(name = "Pickup", Column(
-						Row(
-							Rows<4>(framed = true,
+					TabRef(name = "Pickup", Row(
+						Column(padding = 0_px,
+							Rows<4>(framed = true, fitParent = true,
 								//
 								Label(text = "Counter:", hAlign = 1.0),
 								DropDownList(
@@ -1545,7 +1563,16 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.count = val;
 									}
-								),_d,_d,
+								),
+								Checkbox(colSpan = 2,
+									hAlign = 0.0,
+									checked = (local_itemref.flags & item_combine),
+									text = "Upgrade When Collected Twice",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,item_combine,state);
+									}
+								),
 								//
 								Label(text = "Increase By:", hAlign = 1.0),
 								TextField(
@@ -1558,7 +1585,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
 									}
 								),
-								Checkbox(
+								Checkbox(colSpan = 2,
 									hAlign = 0.0,
 									checked = (local_itemref.amount & 0x8000),
 									text = "Gradual",
@@ -1566,7 +1593,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.amount,0x8000,state);
 									}
-								),_d,
+								),
 								//
 								Label(text = "Increase Max:", hAlign = 1.0),
 								TextField(
@@ -1598,7 +1625,16 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.playsound = val;
 									}
-								),_d,_d,
+								),
+								Checkbox(colSpan = 2,
+									hAlign = 0.0,
+									checked = (local_itemref.flags & item_keep_old),
+									text = "Keep Lower Level Items",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,item_keep_old,state);
+									}
+								),
 								//
 								Label(text = "Hearts Required:", hAlign = 1.0),
 								TextField(
@@ -1609,19 +1645,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.pickup_hearts = val;
 									}
-								),_d,_d
-							),
-							Column(framed = true, fitParent = true,
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.flags & item_keep_old),
-									text = "Keep Lower Level Items",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,item_keep_old,state);
-									}
 								),
-								Checkbox(
+								Checkbox(colSpan = 2,
 									hAlign = 0.0,
 									checked = (local_itemref.flags & item_gain_old),
 									text = "Gain All Lower Level Items",
@@ -1629,50 +1654,69 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.flags,item_gain_old,state);
 									}
+								)
+							),
+							Column(framed = true, fitParent = true,
+								Row(
+									Label(text = "String:"),
+									DropDownList(data = list_strings,
+										selectedValue = local_itemref.pstring,
+										fitParent = true,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_itemref.pstring = val;
+										}
+									)
 								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.flags & item_combine),
-									text = "Upgrade When Collected Twice",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,item_combine,state);
-									}
+								Row(
+									INFOBTN("The pickup string shows every time the item is collected, instead of just once."),
+									Checkbox(
+										hAlign = 0.0,
+										checked = (local_itemref.pickup_string_flags & itemdataPSTRING_ALWAYS),
+										text = "Always",
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_ALWAYS,state);
+										}
+									),
+									INFOBTN("The pickup string shows only if the item is held up, such as when received from a chest."),
+									Checkbox(
+										hAlign = 0.0,
+										checked = (local_itemref.pickup_string_flags & itemdataPSTRING_IP_HOLDUP),
+										text = "Only Held",
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_IP_HOLDUP,state);
+										}
+									)
 								)
 							)
 						),
-						Column(framed = true,
-							Row(
-								Label(text = "String:"),
-								DropDownList(data = list_strings,
-									selectedValue = local_itemref.pstring,
-									fitParent = true,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.pstring = val;
-									}
-								)
-							),
-							Rows<2>(
-								INFOBTN("The pickup string shows every time the item is collected, instead of just once."),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup_string_flags & itemdataPSTRING_ALWAYS),
-									text = "Always",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_ALWAYS,state);
-									}
-								),
-								INFOBTN("The pickup string shows only if the item is held up, such as when received from a chest."),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup_string_flags & itemdataPSTRING_IP_HOLDUP),
-									text = "Only Held",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_IP_HOLDUP,state);
-									}
+						Column(
+							Frame(title = "Gain Level Items",
+								Column(padding = 0_px,
+									Columns<4>(
+										LITEM_CHECK("McGuffin", liTRIFORCE),
+										LITEM_CHECK("Map", liMAP),
+										LITEM_CHECK("Compass", liCOMPASS),
+										LITEM_CHECK("Boss Killed", liBOSS),
+										LITEM_CHECK("Boss Key", liBOSSKEY),
+										LITEM_CHECK("Custom 01", liCUSTOM01),
+										LITEM_CHECK("Custom 02", liCUSTOM02),
+										LITEM_CHECK("Custom 03", liCUSTOM03)
+									),
+									Row(
+										Label(text = "For Level:"),
+										TextField(
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -1, high = MAXLEVELS, val = local_itemref.pickup_litem_level,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_itemref.pickup_litem_level = val;
+											}),
+										INFOBTN("The level that the Level Item will be granted for. If set to '-1', grants for the current level.")
+									)
 								)
 							)
 						)

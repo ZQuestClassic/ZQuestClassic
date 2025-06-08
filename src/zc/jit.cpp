@@ -179,7 +179,11 @@ static void create_compile_tasks(script_data *scripts[], size_t start, size_t ma
 		auto script = scripts[i];
 		if (script && script->valid() && !compiled_functions.contains(script->zasm_script->id))
 		{
-			pending_scripts.push_back(script->zasm_script.get());
+			if (std::find(pending_scripts.begin(), pending_scripts.end(), script->zasm_script.get()) == pending_scripts.end())
+			{
+				pending_scripts.push_back(script->zasm_script.get());
+				task_states[script->zasm_script->id] = TaskState::Pending;
+			}
 		}
 	}
 }
@@ -301,12 +305,12 @@ void jit_set_enabled(bool enabled)
 	is_enabled = enabled;
 }
 
-JittedScriptHandle *jit_create_script_handle(zasm_script *script, refInfo *ri)
+JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)
 {
 	if (!script)
 		return nullptr;
 
-	auto fn = compile_if_needed(script);
+	auto fn = compile_if_needed(script->zasm_script.get());
 	if (!fn)
 		return nullptr;
 

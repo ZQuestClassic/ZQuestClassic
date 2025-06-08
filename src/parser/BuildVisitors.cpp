@@ -5,8 +5,10 @@
 #include "CompileError.h"
 #include "Types.h"
 #include "ZScript.h"
+#include "parser/AST.h"
 #include "parser/ASTVisitors.h"
 #include "parser/ByteCode.h"
+#include "parser/Scope.h"
 #include "parser/parserDefs.h"
 
 using namespace ZScript;
@@ -107,9 +109,9 @@ do { \
 
 BuildOpcodes::BuildOpcodes(Program& program)
 	: RecursiveVisitor(program), returnlabelid(-1), returnRefCount(0), continuelabelids(), 
-	  continueRefCounts(), breaklabelids(), breakRefCounts(),
+	  continueRefCounts(), breaklabelids(), breakRefCounts(), breakScopes(),
 	  break_past_counts(), break_to_counts(), break_depth(0),
-	  continue_past_counts(), continue_to_counts(), continue_depth(0)
+	  continue_past_counts(), continue_to_counts(), continue_depth(0), cur_scopes()
 {
 	opcodeTargets.push_back(&result);
 }
@@ -336,15 +338,17 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	{
 		host.setScope(scope->makeChild());
 	}
-	
-	OpcodeContext *c = (OpcodeContext *)param;
 
 	int32_t startRefCount = arrayRefs.size();
 	ScopeReverter sr(&scope);
 	scope = host.getScope();
 
+	cur_scopes.push_back(scope);
+
 	for (auto it = host.statements.begin(); it != host.statements.end(); ++it)
 		literal_visit(*it, param);
+
+	cur_scopes.pop_back();
 
 	if (host.getScope() != scope)
 		throw compile_exception("host.getScope() != scope");
@@ -353,30 +357,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	while ((int32_t)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
 
-	vector<shared_ptr<Opcode>> ops_stack_refs;
-	for (auto&& datum : scope->getLocalData())
-	{
-		if (!datum->type.isObject())
-			continue;
-
-		auto position = lookupStackPosition(*scope, *datum);
-		assert(position);
-		if (!position)
-			return;
-
-		addOpcode2(ops_stack_refs, new ORefRemove(new LiteralArgument(*position)));
-	}
-
-	if (c->returns_object)
-		ops_stack_refs.insert(ops_stack_refs.begin(), std::make_shared<ORefAutorelease>(new VarArgument(EXP1)));
-
-	bool last_statement_is_return = !host.statements.empty() && dynamic_cast<ASTStmtReturn*>(host.statements.back()) != nullptr;
-	if (ops_stack_refs.empty())
-		;
-	else if (last_statement_is_return)
-		opcodeTargets.back()->insert(opcodeTargets.back()->end() - 1, ops_stack_refs.begin(), ops_stack_refs.end());
-	else
-		addOpcodes(ops_stack_refs);
+	mark_ref_remove_if_needed_for_block(&host);
 }
 
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
@@ -396,6 +377,8 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		ScopeReverter sr(&scope);
 		scope = host.getScope();
 		int32_t startRefCount = arrayRefs.size();
+
+		cur_scopes.push_back(scope);
 		
 		if(auto val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
 		{
@@ -411,6 +394,8 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 					arrayRefs.pop_back();
 				
 			} //Either true or false, it's constant, so no checks required.
+
+			cur_scopes.pop_back();
 			return;
 		}
 		
@@ -438,13 +423,16 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		targ_sz = commentTarget();
 		visit(host.thenStatement.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}({}) #{} Body",ifstr,declname,ifid));
+		mark_ref_remove_if_needed_for_scope(host.getScope());
 		//nop
 		addOpcode(new ONoOp(endif));
-		
+
 		deallocateRefsUntilCount(startRefCount);
 		
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
+
+		cur_scopes.pop_back();
 	}
 	else
 	{
@@ -509,6 +497,8 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		ScopeReverter sr(&scope);
 		scope = host.getScope();
 		int32_t startRefCount = arrayRefs.size();
+
+		cur_scopes.push_back(scope);
 		
 		if(auto val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
 		{
@@ -537,6 +527,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 				commentStartEnd(targ_sz, fmt::format("{}({}={}) #{} Else [Opt:AlwaysOff]",ifstr,declname,falsestr,ifid));
 			}
 			//Either way, ignore the rest and return.
+			cur_scopes.pop_back();
 			return;
 		}
 		
@@ -582,6 +573,8 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		commentStartEnd(targ_sz, fmt::format("{}({}) #{} Else",ifstr,declname,ifid));
 		
 		addOpcode(new ONoOp(endif));
+
+		cur_scopes.pop_back();
 	}
 	else
 	{
@@ -632,11 +625,31 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		addOpcode(new OGotoImmediate(new LabelArgument(endif)));
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Body",ifstr,ifid));
 		addOpcode(new ONoOp(elseif));
+
 		targ_sz = commentTarget();
 		visit(host.elseStatement.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",ifstr,ifid));
 		addOpcode(new ONoOp(endif));
 	}
+}
+
+template<typename T>
+static std::vector<Scope*> getBreakableScopesForStatement(T* node)
+{
+	if (auto block = dynamic_cast<ASTBlock*>(node->body.get()))
+		return {block->getScope()};
+
+	return {};
+}
+
+static std::vector<Scope*> getBreakableScopesForStatement(ASTStmtSwitch* node)
+{
+	std::vector<Scope*> blocks;
+
+	for (auto case_node : node->cases)
+		blocks.push_back(case_node->block.get()->getScope());
+
+	return blocks;
 }
 
 #define OPT_STR(v) (v?to_string(*v):"nullopt")
@@ -656,7 +669,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	auto default_label = end_label;
 	
 	// save and override break label.
-	push_break(end_label, arrayRefs.size());
+	push_break(end_label, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
 	
 	// Evaluate the key.
 	auto keyval = host.key->getCompileTimeValue(this, scope);
@@ -776,6 +789,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	
 	if(needsEndLabel)
 		addOpcode(new ONoOp(end_label));
+
 	// Restore break label.
 	pop_break();
 }
@@ -790,7 +804,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 	int32_t default_label = end_label;
 	
 	// save and override break label.
-	push_break(end_label, arrayRefs.size());
+	push_break(end_label, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
 	
 	// Evaluate the key.
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -882,6 +896,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 		host.setScope(scope->makeChild());
 	}
 	scope = host.getScope();
+	cur_scopes.push_back(scope);
 	auto targ_sz = commentTarget();
 	//run the precondition
 	int32_t setupRefCount = arrayRefs.size(); //Store ref count
@@ -904,6 +919,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 				visit(host.elseBlock.get(), param);
 				commentStartEnd(targ_sz, fmt::format("for() #{} Else [Opt:AlwaysFalse]",forid));
 			}
+			cur_scopes.pop_back();
 			return;
 		}
 	}
@@ -929,7 +945,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	//run the loop body
 	//save the old break and continue values
 
-	push_break(loopend, arrayRefs.size());
+	push_break(loopend, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
 	push_cont(loopincr, arrayRefs.size());
 	
 	targ_sz = commentTarget();
@@ -964,6 +980,8 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	
 	//nop
 	addOpcode(new ONoOp(loopend));
+
+	cur_scopes.pop_back();
 }
 
 void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
@@ -974,6 +992,7 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 		host.setScope(scope->makeChild());
 	}
 	scope = host.getScope();
+	cur_scopes.push_back(scope);
 	
 	uint forid = host.get_comment_id();
 	//Declare the local variable that will hold the array ptr
@@ -1019,7 +1038,7 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	addOpcode(new OStore(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
 	
 	//...and run the inside of the loop.
-	push_break(loopend, arrayRefs.size());
+	push_break(loopend, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
 	push_cont(loopstart, arrayRefs.size());
 	
 	targ_sz = commentTarget();
@@ -1033,6 +1052,8 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	if(host.ends_loop)
 		addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
 	commentBack(fmt::format("for(each) #{} End",forid));
+
+	cur_scopes.pop_back();
 	
 	scope = scope->getParent();
 	
@@ -1056,6 +1077,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	}
 	ScopeReverter sr(&scope);
 	scope = host.getScope();
+	cur_scopes.push_back(scope);
 	
 	uint loopid = host.get_comment_id();
 	//Declare the local variable that will hold the current loop value
@@ -1178,7 +1200,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	addOpcode(new ONoOp(loopstart));
 	
 	//run the inside of the loop.
-	push_break(loopend, arrayRefs.size(), mgr.count());
+	push_break(loopend, arrayRefs.size(), mgr.count(), getBreakableScopesForStatement(&host));
 	push_cont(loopcont, arrayRefs.size());
 	
 	targ_sz = commentTarget();
@@ -1363,6 +1385,8 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		else addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 		addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
 	}
+
+	cur_scopes.pop_back();
 	
 	scope = scope->getParent();
 	
@@ -1426,7 +1450,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		}
 	}
 	
-	push_break(endlabel, arrayRefs.size());
+	push_break(endlabel, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
 	push_cont(startlabel, arrayRefs.size());
 	
 	auto targ_sz = commentTarget();
@@ -1469,7 +1493,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	if(!deadloop)
 		addOpcode(new ONoOp(startlabel));
 	
-	push_break(endlabel, arrayRefs.size());
+	push_break(endlabel, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
 	push_cont(continuelabel, arrayRefs.size());
 	
 	auto targ_sz = commentTarget();
@@ -1528,6 +1552,24 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 
 void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 {
+	// For the scopes that won't end normally because this return is skipping over them,
+	// remove their object references.
+	assert(in_func);
+	assert(in_func->getInternalScope());
+
+	Scope* exiting_scope = in_func->getInternalScope();
+	if (exiting_scope)
+	{
+		for (auto it = cur_scopes.rbegin(); it != cur_scopes.rend(); it++)
+		{
+			auto scope = *it;
+			mark_ref_remove_if_needed_for_scope(scope);
+
+			if (scope == exiting_scope)
+				break;
+		}
+	}
+
 	deallocateRefsUntilCount(0);
 	if(uint pops = scope_pops_count())
 		pop_params(pops);
@@ -1542,6 +1584,29 @@ void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 	visit(host.value.get(), INITCTX);
 	INITC_INIT();
 	INITC_DEALLOC();
+
+	auto ret_type = host.value->getReadType(scope, this);
+	if (ret_type && ret_type->isObject())
+		addOpcode(new ORefAutorelease(new VarArgument(EXP1)));
+
+	// For the scopes that won't end normally because this return is skipping over them,
+	// remove their object references.
+	assert(in_func);
+	assert(in_func->getInternalScope());
+
+	Scope* exiting_scope = in_func->getInternalScope();
+	if (exiting_scope)
+	{
+		for (auto it = cur_scopes.rbegin(); it != cur_scopes.rend(); it++)
+		{
+			auto scope = *it;
+			mark_ref_remove_if_needed_for_scope(scope);
+
+			if (scope == exiting_scope)
+				break;
+		}
+	}
+
 	deallocateRefsUntilCount(0);
 	if(uint pops = scope_pops_count())
 		pop_params(pops);
@@ -1559,6 +1624,22 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 	}
 	int32_t refcount = breakRefCounts.at(breakRefCounts.size()-host.breakCount);
 	int32_t breaklabel = breaklabelids.at(breaklabelids.size()-host.breakCount);
+
+	// For the scopes that won't end normally because this break is skipping over them,
+	// remove their object references.
+	auto exiting_scopes = breakScopes.at(breakScopes.size()-host.breakCount);
+	if (!exiting_scopes.empty())
+	{
+		for (auto it = cur_scopes.rbegin(); it != cur_scopes.rend(); it++)
+		{
+			auto scope = *it;
+			mark_ref_remove_if_needed_for_scope(scope);
+
+			if (std::find(exiting_scopes.begin(), exiting_scopes.end(), scope) != exiting_scopes.end())
+				break;
+		}
+	}
+
 	deallocateRefsUntilCount(refcount);
 	if(uint pops = scope_pops_back(host.breakCount))
 		pop_params(pops);
@@ -1753,8 +1834,16 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 			return;
 		}
 	}
-	OpcodeContext* c = (OpcodeContext*)param;
-	
+
+	if (auto ivar = dynamic_cast<InternalVariable*>(host.binding))
+	{
+		assert(ivar->readfn);
+		std::vector<std::shared_ptr<Opcode>> const& funcCode = ivar->readfn->getCode();
+		for (auto it = funcCode.begin(); it != funcCode.end(); ++it)
+			addOpcode((*it)->makeClone(false));
+		return;
+	}
+
 	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
 	{
 		UserClass& user_class = *ucv->getClass();
@@ -1770,8 +1859,6 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 		host.markConstant();
 		return;
 	}
-
-	int32_t vid = host.binding->id;
 
 	if (auto globalId = host.binding->getGlobalId())
 	{
@@ -1917,6 +2004,8 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 	else addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(EXP1)));
 }
 
+// TODO: refactor/simplify this function - function calling should mostly share the same code no matter if for
+// a class, internal function, or free-function.
 void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
@@ -1945,7 +2034,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		commentStartEnd(targ_sz, fmt::format("Proto{} Visit Params",func_comment));
 		
 		//Set the return to the default value
-		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR) && parsing_user_class <= puc_vars)
+		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR))
 		{
 			ClassScope* cscope = func.getInternalScope()->getClass();
 			UserClass& user_class = cscope->user_class;
@@ -2011,13 +2100,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
-		
-		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
+
 		int v = num_used_params-num_actual_params;
-		
-		size_t vargcount = 0;
-		size_t used_opt_params = 0;
-		(v>0 ? vargcount : used_opt_params) = abs(v);
+
+		size_t vargcount = v;
 		//push the parameters, in forward order
 		size_t param_indx = 0;
 		for (; param_indx < host.parameters.size()-vargcount; ++param_indx)
@@ -2054,16 +2140,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					VISIT_USEVAL(arg, INITCTX);
 					push_param(true);
 				}
-			}
-		}
-		else if(used_opt_params)
-		{
-			auto opt_param_count = func.opt_vals.size();
-			auto skipped_optional_params = opt_param_count - used_opt_params;
-			//push any optional parameter values
-			for(auto q = skipped_optional_params; q < opt_param_count; ++q)
-			{
-				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 			}
 		}
 
@@ -2143,10 +2219,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
 		auto num_used_params = host.parameters.size();
 		auto num_actual_params = func.paramTypes.size() - (vargs ? 1 : 0);
-		size_t vargcount = 0;
-		size_t used_opt_params = 0;
 		int v = num_used_params-num_actual_params;
-		(v>0 ? vargcount : used_opt_params) = abs(v);
+		size_t vargcount = v > 0 ? v : 0;
 		size_t pushcount = 0;
 		if(vargs)
 		{
@@ -2200,8 +2274,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				VISIT_USEVAL(arg, INITCTX);
 				push_param();
 			}
+			pushcount++;
 		}
-		pushcount += (num_used_params-vargcount);
+
 		if(vargs)
 		{
 			if(auto offs = pushcount-1)
@@ -2210,18 +2285,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			commentBack("Peek the Vargs array pointer");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
-		else if(used_opt_params)
-		{
-			//push any optional parameter values
-			auto num_actual_params = func.paramTypes.size();
-			auto used_opt_params = num_actual_params - host.parameters.size();
-			auto opt_param_count = func.opt_vals.size();
-			auto skipped_optional_params = opt_param_count - used_opt_params;
-			for(auto q = skipped_optional_params; q < opt_param_count; ++q)
-			{
-				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
-			}
-		}
+
 		if (host.left->isTypeArrow())
 		{
 			//load the value of the left-hand of the arrow into EXP1
@@ -2280,7 +2344,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		int v = num_used_params-num_actual_params;
 		(v>0 ? vargcount : used_opt_params) = abs(v);
 		size_t pushcount = 0;
-		
+
 		if(user_vargs)
 		{
 			//push the vargs, in forward order
@@ -2300,7 +2364,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			commentBack("Allocate Vargs array");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			commentBack("Push the Vargs array pointer");
-			++pushcount;
+			pushcount++;
 		}
 		commentStartEnd(targ_sz, fmt::format("{}{} Vargs",comment_pref,func_comment));
 		//push the stack frame pointer
@@ -2310,23 +2374,13 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			++pushcount;
 		}
 		targ_sz = commentTarget();
-		// If the function is a pointer function (->func()) we need to push the
-		// left-hand-side.
-		if (host.left->isTypeArrow() && !(func.getIntFlag(IFUNCFLAG_SKIPPOINTER)))
-		{
-			//load the value of the left-hand of the arrow into EXP1
-			VISIT_USEVAL(static_cast<ASTExprArrow&>(*host.left).left.get(), INITCTX);
-			//push it onto the stack
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-			++pushcount;
-		}
 		
 		//push the parameters, in forward order
 		size_t param_indx = 0;
 		for (; param_indx < num_used_params-vargcount; ++param_indx)
 		{
 			auto& arg = host.parameters.at(param_indx);
-			bool unused = !func.isInternal() && !func.getFlag(FUNCFLAG_INTERNAL) && func.paramDatum[param_indx]->is_erased();
+			bool unused = !func.isInternal() && !func.getFlag(FUNCFLAG_INTERNAL) && func.paramDatum.size() > param_indx && func.paramDatum[param_indx]->is_erased();
 			//Compile-time constants can be optimized slightly...
 			if(auto val = arg->getCompileTimeValue(this, scope))
 			{
@@ -2342,8 +2396,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				VISIT_USEVAL(arg, INITCTX);
 				push_param();
 			}
+			pushcount++;
 		}
-		pushcount += (num_used_params-vargcount);
+
 		if(vargs && (vargcount || user_vargs))
 		{
 			if(user_vargs)
@@ -2371,16 +2426,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				}
 			}
 		}
-		else if(used_opt_params)
-		{
-			//push any optional parameter values
-			auto opt_param_count = func.opt_vals.size();
-			auto skipped_optional_params = opt_param_count - used_opt_params;
-			for(auto q = skipped_optional_params; q < opt_param_count; ++q)
-			{
-				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
-			}
-		}
+
 		commentStartEnd(targ_sz, fmt::format("{}{} Params",comment_pref,func_comment));
 		//goto
 		addOpcode(new OCallFunc(new LabelArgument(funclabel, true)));
@@ -4233,6 +4279,15 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	{
 		UserClass& user_class = *ucv->getClass();
 		addOpcode(new OWriteObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
+
+	if (auto ivar = dynamic_cast<InternalVariable*>(host.binding))
+	{
+		assert(ivar->writefn);
+		std::vector<std::shared_ptr<Opcode>> const& funcCode = ivar->writefn->getCode();
+		for (auto it = funcCode.begin(); it != funcCode.end(); ++it)
+			addOpcode((*it)->makeClone(false));
 		return;
 	}
 

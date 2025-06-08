@@ -1,10 +1,33 @@
+enum SubscreenItemButton
+{
+	ITMBTN_A,
+	ITMBTN_B,
+	ITMBTN_X,
+	ITMBTN_Y,
+	NUM_ITMBTN
+};
+
+enum ConditionType
+{
+	CONDTY_NONE,
+	CONDTY_EQ, // ==
+	CONDTY_NEQ, // !=
+	CONDTY_GREATER, // >
+	CONDTY_GREATEREQ, // >=
+	CONDTY_LESS, // <
+	CONDTY_LESSEQ, // <=
+	NUM_CONDTY
+};
+
 // @zasm_ref REFSUBSCREENWIDG
 class subscreenwidget {
 	// @delete
 	internal subscreenwidget();
 
-	// The widget's type, using [SubscreenWidgetType] (`SUBWIDG_`) constants.
+	// The widget's type.
 	//
+	// @value [enum SubscreenWidgetType]
+
 	// @zasm_var SUBWIDGTYPE
 	internal const int Type;
 
@@ -43,10 +66,9 @@ class subscreenwidget {
 
 	// The 4 directional positions for the selector.
 	//
-	// Use the 'DIR_' constants to index.
-	//
 	// Only used if the widget is selectable (see [GenFlags]).
 	//
+	// @index [enum Direction]
 	// @zasm_var SUBWIDGPOSES
 	internal int PosDirs[];
 
@@ -125,7 +147,8 @@ class subscreenwidget {
 
 	// The general flags for subscreen widgets.
 	// These are usually applicable regardless of widget type.
-	// Use the 'SUBW_GENFL_' constants to access.
+	//
+	// @index [enum SubscreenWidgetGenFlag]
 	//
 	// @zasm_var SUBWIDGGENFLAG
 	internal bool GenFlags[];
@@ -136,7 +159,66 @@ class subscreenwidget {
 	//
 	// @zasm_var SUBWIDGFLAG
 	internal bool Flags[];
-
+	
+	// Any items set true here must be owned for the widget to be active/visible.
+	//
+	// @index [enum ItemID]
+	//
+	// @zasm_var SUBWIDGREQOWNITEMS
+	internal bool RequiredOwnedItems[];
+	
+	// Any items set true here must NOT be owned for the widget to be active/visible.
+	//
+	// @index [enum ItemID]
+	//
+	// @zasm_var SUBWIDGREQUNOWNITEMS
+	internal bool RequiredUnownedItems[];
+	
+	// The counter this widget requires to be active/visible.
+	// Must relate to the [RequiredCounterValue] based on the [RequiredCounterCond].
+	// - If [CR_NONE], no requirement will be checked.
+	// - If [SUBW_GENFL_REQ_COUNTER_PERC] is set, then the percentage this counter is full will be compared
+	// - Otherwise, if [SUBW_GENFL_REQ_COUNTER_MAX] is set, then the max value of this counter will be compared
+	// - Otherwise, this counter's value will be compared
+	//
+	// @value [enum CounterIndex]
+	//
+	// @zasm_var SUBWIDGREQCOUNTER
+	internal int RequiredCounter;
+	
+	// The counter operation this widget requires to be active/visible.
+	// The [RequiredCounter] must relate to the [RequiredCounterValue] by this operation.
+	// If [CONDTY_NONE], no requirement will be checked.
+	//
+	// @value [enum ConditionType]
+	//
+	// @zasm_var SUBWIDGREQCOUNTERCOND
+	internal int RequiredCounterCond;
+	
+	// The counter value this widget requires to be active/visible.
+	// The [RequiredCounter] must relate to this value based on the [RequiredCounterCond].
+	//
+	// @zasm_var SUBWIDGREQCOUNTERVAL
+	internal int RequiredCounterValue;
+	
+	// The Level Items that are required to be owned (or unowned, if [SUBW_GENFL_REQ_INVERT_LITEM] is set)
+	//
+	// @value [enum LevelItemBitflags]
+	//
+	// @zasm_var SUBWIDGREQLITEMS
+	internal int RequiredLItems;
+	
+	// The Level that [RequiredLItems] are checked for. If set to '-1', uses the
+	// current level.
+	//
+	// @zasm_var SUBWIDGREQLITEMLEVEL
+	internal int RequiredLItemLevel;
+	
+	// If set to 'true', the widget will not be active/visible.
+	//
+	// @zasm_var SUBWIDGREQSCRIPTDISABLED
+	internal bool ScriptDisabled;
+	
 	// The X/Y/W/H offsets for the selector on this widget, if the selector is
 	// overridden (see [GenFlags]).
 	//
@@ -248,7 +330,7 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGPRESSINITD
 	internal untyped PressInitD[];
 
-	// Use the [InteractButton] (`INTBTN_`) constants to index this array.
+	// Use [InteractButton] to index this array.
 	//
 	// The 'true' buttons here, when pressed while this widget is selected, run
 	// the press script.
@@ -256,7 +338,7 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGBTNPRESS
 	internal bool BtnPressScript[];
 
-	// Use the [InteractButton] (`INTBTN_`) constants to index this array.
+	// Use [InteractButton] to index this array.
 	//
 	// The 'true' buttons here, when pressed while this widget is selected,
 	// change the current page based on [PageMode].
@@ -334,7 +416,7 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGTY_TILE
 	internal int Tile[];
 
-	// The widget's Font, use the 'FONT_' constants.
+	// The widget's font.
 	//
 	// - [SUBWIDG_TEXT]
 	// - [SUBWIDG_TEXTBOX]
@@ -345,10 +427,12 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	//
+	// @value [enum Font]
+
 	// @zasm_var SUBWIDGTY_FONT
 	internal int Font;
 
-	// The widget's Alignment, use the 'TF_' constants.
+	// The widget's text alignment.
 	//
 	// - [SUBWIDG_TEXT]
 	// - [SUBWIDG_TEXTBOX]
@@ -358,13 +442,13 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	//
+	// @value [enum TextAlignment]
+
 	// @zasm_var SUBWIDGTY_ALIGN
 	internal int Align;
 
 	// The widget's Shadow Type.
 	//
-	// Valid values: [ShadowType] (`SHD_`).
-	//
 	// - [SUBWIDG_TEXT]
 	// - [SUBWIDG_TEXTBOX]
 	// - [SUBWIDG_TIME]
@@ -374,6 +458,8 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	//
+	// @value [enum ShadowType]
+
 	// @zasm_var SUBWIDGTY_SHADOWTY
 	internal int ShadowType;
 
@@ -433,6 +519,7 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	// - [SUBWIDG_BGCOLOR]
+	// - [SUBWIDG_COUNTERPERCBAR]
 	//
 	// @zasm_var SUBWIDGTY_COLOR_BG
 	internal int ColorBG;
@@ -457,27 +544,26 @@ class subscreenwidget {
 	// The widget's color index used for fill
 	//
 	// - [SUBWIDG_RECT]
+	// - [SUBWIDG_COUNTERPERCBAR]
 	//
 	// @zasm_var SUBWIDGTY_COLOR_FILL
 	internal int ColorFill;
 
 	// The item button associated with the widget.
 	//
-	// Use the 'ITMBTN_' constants for this value.
-	//
 	// - [SUBWIDG_BTNITM]
 	// - [SUBWIDG_BTNCOUNTER]
 	//
+	// @value [enum SubscreenItemButton]
+
 	// @zasm_var SUBWIDGTY_BUTTON
 	internal int Button;
 
 	// The counter(s) associated with the widget.
 	//
-	// Use the 'CR_' constants for the values.
-	//
-	// - [SUBWIDG_COUNTER] - 3 values
-	// - [SUBWIDG_MISCGAUGE] - 1 values
-	//
+	// @length [SUBWIDG_COUNTER] - 3 values, [SUBWIDG_MISCGAUGE] - 1 value, [SUBWIDG_COUNTERPERCBAR] - 1 value
+	// @value [enum CounterIndex]
+
 	// @zasm_var SUBWIDGTY_COUNTERS
 	internal int Counter[];
 
@@ -554,12 +640,12 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGTY_COLOR_ROOM
 	internal int ColorRoom;
 
-	// The itemclass used by the widget (0 <= ItemClass < IC_MAXUSABLE)
+	// The itemclass used by the widget (0 <= ItemType < IC_MAXUSABLE)
 	//
 	// - [SUBWIDG_ITEMSLOT]
 	//
 	// @zasm_var SUBWIDGTY_ITEMCLASS
-	internal int ItemClass;
+	internal int ItemType;
 
 	// The item ID used by the widget (-1 <= ItemID < NUM_ITEMDATA)
 	//
@@ -751,6 +837,13 @@ class subscreenwidget {
 	//
 	// @zasm_var SUBWIDGTY_TABSIZE
 	internal int TabSize;
+	
+	// The level items that cause the compass marker to stop blinking
+	//
+	// - [SUBWIDG_MMAP]
+	//
+	// @zasm_var SUBWIDGTY_LITEMS
+	internal int LItems;
 
 	// Gets the selected text override for this widget.
 	//
@@ -819,4 +912,19 @@ class subscreenwidget {
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_TY_SETTEXT D2
 	internal void SetText(char32[] str);
+	
+	// Checks the requirements / conditions of this widget.
+	// See [RequiredOwnedItems], [RequiredUnownedItems], [RequiredCounter], [RequiredLItems], [ScriptDisabled]
+	//
+	// @zasm
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_CHECK_CONDITIONS D2
+	internal bool CheckConditions();
+	
+	// Checks that the widget is visible- meaning, it both passes [CheckConditions] and [VisibleFlags].
+	//
+	// @zasm
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_CHECK_VISIBLE D2
+	internal bool CheckVisible();
 }

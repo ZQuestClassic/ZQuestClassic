@@ -15,19 +15,22 @@ import {
 	DocumentSymbolParams,
 	DocumentSymbol,
 	MarkupKind,
-	DefinitionParams
+	DefinitionParams,
+	Position,
+	Location,
+	WorkspaceFolder,
 } from 'vscode-languageserver/node';
-import {URI} from 'vscode-uri';
+import { URI } from 'vscode-uri';
 import {
 	Range,
 	TextDocument
 } from 'vscode-languageserver-textdocument';
 import * as childProcess from 'child_process';
-import {promisify} from 'util';
+import { promisify } from 'util';
 import * as os from 'os';
 import * as fs from 'fs';
-import assert = require('assert');
 import path = require('path');
+import * as glob from 'glob';
 
 const execFile = promisify(childProcess.execFile);
 
@@ -38,11 +41,54 @@ const connection = createConnection(ProposedFeatures.all);
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
+interface SymbolPos {
+	line: number;
+	character: number;
+	length: number;
+}
+
+interface DocumentMetaData {
+	currentFileSymbols: DocumentSymbol[];
+	symbols: Record<number, { doc?: string, loc: { range: Range, uri: string } }>;
+	identifiers: Array<{
+		loc: SymbolPos,
+		symbol: number,
+	}>;
+}
+
+interface JobResult {
+	diagnostics: Diagnostic[];
+	metadata?: DocumentMetaData;
+}
+
+const docJobResults = new Map<string, JobResult>();
+
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
-connection.onInitialize((params: InitializeParams) => {
+let workspaceFolders: WorkspaceFolder[] | null | undefined;
+
+// TODO: not yet used.
+async function initWorkspace() {
+	docJobResults.clear();
+
+	const uris: URI[] = [];
+	for (const workspaceFolder of workspaceFolders || []) {
+		const uri = URI.parse(workspaceFolder.uri);
+		const files = glob.sync('**/*.{zs,zh,z}', { root: uri.fsPath });
+		for (const file of files) {
+			uris.push(URI.file(path.join(uri.fsPath, file)));
+		}
+	}
+
+
+	for (const uri of uris) {
+		// await processScript(uri.toString(), fs.readFileSync(uri.fsPath, 'utf8'));
+	}
+}
+
+connection.onInitialize(async (params: InitializeParams) => {
 	const capabilities = params.capabilities;
 
 	// Does the client support the `workspace/configuration` request?
@@ -71,6 +117,7 @@ connection.onInitialize((params: InitializeParams) => {
 			documentSymbolProvider: {
 				label: 'ZScript',
 			},
+			referencesProvider: true,
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -80,18 +127,24 @@ connection.onInitialize((params: InitializeParams) => {
 			}
 		};
 	}
+
+	workspaceFolders = params.workspaceFolders;
+
 	return result;
 });
 
-connection.onInitialized(() => {
+connection.onInitialized(async () => {
 	if (hasConfigurationCapability) {
 		// Register for all configuration changes.
 		connection.client.register(DidChangeConfigurationNotification.type, undefined);
 	}
 	if (hasWorkspaceFolderCapability) {
-		connection.workspace.onDidChangeWorkspaceFolders(_event => {
-			connection.console.log('Workspace folder change event received.');
-		});
+		// TODO: doesn't really work well yet.
+		// connection.workspace.onDidChangeWorkspaceFolders(async () => {
+		// 	await initWorkspace();
+		// });
+
+		// await initWorkspace();
 	}
 });
 
@@ -107,13 +160,16 @@ interface Settings {
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: Settings = { };
+const defaultSettings: Settings = {};
 let globalSettings: Settings = defaultSettings;
 
 // Cache the settings of all open documents
 const documentSettings: Map<string, Thenable<Settings>> = new Map();
 
-connection.onDidChangeConfiguration(change => {
+connection.onDidChangeConfiguration(async (change) => {
+	[...activeJobs.keys()].forEach(abandonJob);
+	docJobResults.clear();
+
 	if (hasConfigurationCapability) {
 		// Reset all cached document settings
 		documentSettings.clear();
@@ -124,49 +180,59 @@ connection.onDidChangeConfiguration(change => {
 	}
 
 	// Revalidate all open text documents
-	documents.all().forEach(processScript);
+	const jobs = documents.all().map(doc => createJob(doc));
+	await Promise.all(jobs.map(job => job.wait()));
 });
 
-function getDocumentSettings(resource: string): Thenable<Settings> {
+connection.onDidChangeWatchedFiles(e => {
+	// TODO: probably have to re-init?
+	e.changes;
+});
+
+function getDocumentSettings(uri: string): Thenable<Settings> {
 	if (!hasConfigurationCapability) {
 		return Promise.resolve(globalSettings);
 	}
-	let result = documentSettings.get(resource);
+	let result = documentSettings.get(uri);
 	if (!result) {
 		result = connection.workspace.getConfiguration({
-			scopeUri: resource,
+			scopeUri: uri,
 			section: 'zscript'
 		});
-		documentSettings.set(resource, result);
+		documentSettings.set(uri, result);
 	}
 	return result;
 }
 
-documents.onDidOpen(e => {
-	processScript(e.document);
-});
-
 // Only keep settings for open documents
 documents.onDidClose(e => {
 	documentSettings.delete(e.document.uri);
-	docMetadataMap.delete(e.document.uri);
+	docJobResults.delete(e.document.uri);
+	abandonJob(e.document);
 });
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent(change => {
-	processScript(change.document);
+// TODO: this fires (then closes instantly) when doing ctrl+hover on a symbol.
+//       Need to wait for next version of LSP server to fix: https://github.com/microsoft/vscode-languageserver-node/issues/848#issuecomment-2503444503
+documents.onDidChangeContent(e => {
+	docJobResults.delete(e.document.uri);
+
+	const job = activeJobs.get(e.document);
+	if (job) {
+		job.restart();
+	} else if (!pendingJobs.has(e.document)) {
+		createJob(e.document);
+	}
 });
 
 // TODO: this should not be necessary. Get path in better OS-agnostic way.
-function cleanupFile(fname: string)
-{
+function cleanupFile(fname: string) {
 	if (os.platform() !== 'win32')
 		return fname.trim();
 	return fname.replace(/\//g, '\\').trim();
 }
-function cleanupFile2(fname: string)
-{
+function cleanupFile2(fname: string) {
 	if (os.platform() !== 'win32')
 		return fname.trim();
 
@@ -177,21 +243,21 @@ function cleanupFile2(fname: string)
 	}
 	return fname.replace(/\//g, '\\').trim();
 }
-function fileMatches(f1:string, f2:string)
-{
+function fileMatches(f1: string, f2: string) {
 	return cleanupFile(f1) == cleanupFile(f2);
 }
 
-function parseOutput(settings: Settings, textDocument: TextDocument, stdout: string, stderr: string): {diagnostics: Diagnostic[], metadata?: DocumentMetaData} {
+function parseOutput(settings: Settings, stdout: string, stderr: string): JobResult {
 	if (stdout.startsWith('{')) {
 		if (settings.printCompilerOutput) {
 			console.log(stderr);
 		}
-		const result = JSON.parse(stdout) as {diagnostics: Diagnostic[], metadata?: DocumentMetaData};
+		const result = JSON.parse(stdout) as JobResult;
 		return result;
 	}
 
-	// For older releases, diagnostics and metadata must be parsed from stdout.
+	// For older releases, diagnostics and metadata must be manually parsed from stdout.
+	// JSON output was not added until 3.0.0-prerelease.61+2024-08-05.
 
 	const [compilerOutput, metadataStr] = stdout.split('=== METADATA', 2);
 	if (settings.printCompilerOutput) {
@@ -209,19 +275,16 @@ function parseOutput(settings: Settings, textDocument: TextDocument, stdout: str
 			if (m) {
 				fname = cleanupFile(m[2]);
 				message = m[1].trim();
-				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput))
-				{
+				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput)) {
 					lineNum = 0;
 					colNum = 0;
 					message = `Syntax error in temp file (check your ZScript Extension settings):\n${message}`;
 				}
-				else if (fileMatches(fname, tmpScript))
-				{
+				else if (fileMatches(fname, tmpScript)) {
 					lineNum = Number(m[3]) - 1;
-					colNum = Number(m[4]);
+					colNum = Number(m[4]) - 2;
 				}
-				else
-				{
+				else {
 					lineNum = 0;
 					colNum = 0;
 					message = `Syntax error in "${fname}":\n${message}`;
@@ -230,13 +293,11 @@ function parseOutput(settings: Settings, textDocument: TextDocument, stdout: str
 				message = line.split('syntax error, ', 2)[1].trim();
 			}
 
-			const start = textDocument.offsetAt({line: lineNum, character: 0});
-			const end = textDocument.offsetAt({line: lineNum, character: colNum});
 			const diagnostic: Diagnostic = {
 				severity: DiagnosticSeverity.Error,
 				range: {
-					start: textDocument.positionAt(start),
-					end: textDocument.positionAt(end),
+					start: { line: lineNum, character: colNum },
+					end: { line: lineNum, character: colNum + 1 },
 				},
 				message,
 				source: 'zscript',
@@ -262,14 +323,12 @@ function parseOutput(settings: Settings, textDocument: TextDocument, stdout: str
 					colEndNum = 0;
 					message = `${sev} in temp file (check your ZScript Extension settings):\n${message}`;
 				}
-				else if(fileMatches(fname, tmpScript))
-				{
+				else if (fileMatches(fname, tmpScript)) {
 					lineNum = Number(m[2]) - 1;
 					colStartNum = Number(m[3]) - 1;
 					colEndNum = Number(m[4]) - 1;
 				}
-				else
-				{
+				else {
 					lineNum = 0;
 					colStartNum = 0;
 					colEndNum = 0;
@@ -279,13 +338,11 @@ function parseOutput(settings: Settings, textDocument: TextDocument, stdout: str
 				message = line.trim();
 			}
 
-			const start = textDocument.offsetAt({ line: lineNum, character: colStartNum });
-			const end = textDocument.offsetAt({ line: lineNum, character: colEndNum });
 			const diagnostic: Diagnostic = {
-				severity: sev=='Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+				severity: sev == 'Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
 				range: {
-					start: textDocument.positionAt(start),
-					end: textDocument.positionAt(end),
+					start: { line: lineNum, character: colStartNum },
+					end: { line: lineNum, character: colEndNum },
 				},
 				message,
 				source: 'zscript',
@@ -301,21 +358,18 @@ function parseOutput(settings: Settings, textDocument: TextDocument, stdout: str
 			if (m) {
 				fname = cleanupFile(m[2]);
 				message = m[1].trim();
-				if(message.startsWith('ERROR:'))
+				if (message.startsWith('ERROR:'))
 					sev = 'Error';
-				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput))
-				{
+				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput)) {
 					lineNum = 0;
 					colNum = 0;
 					message = `${sev} in temp file (check your ZScript Extension settings):\n${message}`;
 				}
-				else if (fileMatches(fname, tmpScript))
-				{
+				else if (fileMatches(fname, tmpScript)) {
 					lineNum = Number(m[3]) - 1;
 					colNum = Number(m[4]);
 				}
-				else
-				{
+				else {
 					lineNum = 0;
 					colNum = 0;
 					message = `${sev} in "${fname}":\n${message}`;
@@ -324,13 +378,11 @@ function parseOutput(settings: Settings, textDocument: TextDocument, stdout: str
 				message = line.trim();
 			}
 
-			const start = textDocument.offsetAt({ line: lineNum, character: 0 });
-			const end = textDocument.offsetAt({ line: lineNum, character: colNum });
 			const diagnostic: Diagnostic = {
-				severity: sev=='Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+				severity: sev == 'Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
 				range: {
-					start: textDocument.positionAt(start),
-					end: textDocument.positionAt(end),
+					start: { line: lineNum, character: 0 },
+					end: { line: lineNum, character: colNum },
 				},
 				message,
 				source: 'zscript',
@@ -340,62 +392,94 @@ function parseOutput(settings: Settings, textDocument: TextDocument, stdout: str
 	}
 
 	let metadata;
-	try {
-		metadata = JSON.parse(metadataStr);
-	} catch (e: any) {
-		connection.console.error(e.toString());
+	if (metadataStr) {
+		try {
+			metadata = JSON.parse(metadataStr);
+		} catch (e: any) {
+			connection.console.error(e.toString());
+		}
 	}
 
-	return {diagnostics, metadata};
+	return { diagnostics, metadata };
 }
 
-interface SymbolPos {
-	line: number;
-	character: number;
-	length: number;
-}
+const pathInZCRepoCache = new Map<string, string | null>();
+function checkIfInZCRepo(file: string): string | null {
+	if (process.env.TEST_ZSCRIPT) return null;
 
-interface DocumentMetaData {
-	currentFileSymbols: DocumentSymbol[];
-	symbols: Record<number, {doc?: string, loc: {range: Range, uri: string}}>;
-	identifiers: Array<{
-		loc: SymbolPos,
-		symbol: number,
-	}>;
+	let result = pathInZCRepoCache.get(file);
+	if (result !== undefined) return result;
+
+	result = null;
+
+	const parts = file.split(path.sep);
+	for (let i = parts.length - 1; i >= 0; i--) {
+		const dir = parts.slice(0, i).join(path.sep);
+		try {
+			if (!fs.existsSync(`${dir}/.git`)) continue;
+		} catch {
+			break;
+		}
+
+		if (fs.existsSync(`${dir}/resources/include/std.zh`)) result = path.join(dir, 'resources');
+		break;
+	}
+
+	pathInZCRepoCache.set(file, result);
+	return result;
 }
-const docMetadataMap = new Map<string, DocumentMetaData>();
 
 const globalTmpDir = os.tmpdir();
 const tmpInput = cleanupFile(`${globalTmpDir}/tmp2.zs`);
 const tmpScript = cleanupFile(`${globalTmpDir}/tmp.zs`);
 
-async function processScript(textDocument: TextDocument): Promise<void> {
-	const settings = await getDocumentSettings(textDocument.uri);
-	const text = textDocument.getText();
-	let includeText = "#option NO_ERROR_HALT on\n#option HEADER_GUARD on\n";
+async function processScript(uri: string, content: string, signal: AbortSignal): Promise<JobResult | null> {
+	const settings = await getDocumentSettings(uri);
+	let includeText = "#option NO_ERROR_HALT on\n";
 
 	if (!settings.installationFolder) {
-		connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [{
-			severity: DiagnosticSeverity.Error,
-			range: {
-				start: textDocument.positionAt(0),
-				end: textDocument.positionAt(0),
-			},
-			message: 'Must set zscript.installationFolder setting',
-			source: 'extension'
-		}]});
-		return;
+		connection.sendDiagnostics({
+			uri, diagnostics: [{
+				severity: DiagnosticSeverity.Error,
+				range: {
+					start: { line: 0, character: 0 },
+					end: { line: 0, character: 0 },
+				},
+				message: 'Must set zscript.installationFolder setting',
+				source: 'zscript'
+			}]
+		});
+		return null;
 	}
 
-	if (settings.defaultIncludePaths)
-	{
+	let zscriptFolder = settings.installationFolder;
+	if (zscriptFolder.endsWith('.app')) {
+		zscriptFolder += '/Contents/Resources';
+	}
+
+	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
+	if (!fs.existsSync(`${zscriptFolder}/${exe}`)) {
+		connection.sendDiagnostics({
+			uri, diagnostics: [{
+				severity: DiagnosticSeverity.Error,
+				range: {
+					start: { line: 0, character: 0 },
+					end: { line: 0, character: 0 },
+				},
+				message: 'Did not find zscript compiler - check setting zscript.installationFolder',
+				source: 'zscript'
+			}]
+		});
+		return null;
+	}
+
+	if (settings.defaultIncludePaths) {
 		settings.defaultIncludePaths.forEach(str => {
 			includeText += `#includepath "${str}"\n`;
 		});
 	}
-	if (settings.defaultIncludeFiles)
-	{
-		settings.defaultIncludeFiles.forEach(str =>{
+	if (settings.defaultIncludeFiles) {
+		settings.defaultIncludeFiles.forEach(str => {
 			includeText += `#include "${str}"\n`;
 		});
 	}
@@ -405,18 +489,16 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	let stderr = '';
 	let success = false;
 	fs.writeFileSync(tmpInput, includeText);
-	fs.writeFileSync(tmpScript, text);
-	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
+	fs.writeFileSync(tmpScript, content);
 	if (settings.printCompilerOutput) {
 		console.log(`Attempting to compile buffer:\n-----\n${includeText}\n-----`);
 	}
 	try {
-		let originPath = URI.parse(textDocument.uri).fsPath;
-		if(originPath.match(/[a-z]:\\.*/))
-		{
+		let originPath = URI.parse(uri).fsPath;
+		if (originPath.match(/[a-z]:\\.*/)) {
 			const letter = originPath.at(0);
-			if(letter) //capitalize drive letters
-				originPath = letter.toUpperCase()+originPath.slice(1);
+			if (letter) //capitalize drive letters
+				originPath = letter.toUpperCase() + originPath.slice(1);
 		}
 		const args = [
 			'-unlinked',
@@ -430,28 +512,39 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 		];
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');
-		const cp = await execFile(exe, args, {
-			cwd: settings.installationFolder,
+		if (settings.printCompilerOutput) {
+			console.log([exe, ...args].join(' '));
+		}
+
+		// If in a checkout of the ZC repo, use the resources folder as cwd.
+		const cwd = checkIfInZCRepo(originPath) ?? zscriptFolder;
+
+		const cp = await execFile(`${zscriptFolder}/${exe}`, args, {
+			cwd,
 			maxBuffer: 20_000_000,
+			signal,
+			env: { ...process.env, ZC_DISABLE_OSX_CHDIR: '1' },
 		});
 		success = true;
 		stdout = cp.stdout;
 		stderr = cp.stderr;
 	} catch (e: any) {
-		console.error(e);
+		if (signal.aborted) {
+			return null;
+		}
 		if (e.code === undefined) throw e;
 		stdout = e.stdout || e.toString();
 	}
 
-	const {diagnostics, metadata} = parseOutput(settings, textDocument, stdout, stderr);
+	const { diagnostics, metadata } = parseOutput(settings, stdout, stderr);
 
 	// Fallback, incase compiling failed but we failed to parse out an error.
 	if (!success && diagnostics.length === 0) {
 		diagnostics.push({
 			severity: DiagnosticSeverity.Error,
 			range: {
-				start: textDocument.positionAt(0),
-				end: textDocument.positionAt(0),
+				start: { line: 0, character: 0 },
+				end: { line: 0, character: 0 },
 			},
 			message: [stdout, stderr].join('\n\n'),
 			source: 'zscript',
@@ -459,11 +552,116 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	}
 
 	// Send the computed diagnostics to VSCode.
-	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+	connection.sendDiagnostics({ uri: uri, diagnostics });
+	return { diagnostics, metadata };
+}
 
-	if (!metadata) return;
+type ProcessScriptJob = ReturnType<typeof createJob>;
 
-	docMetadataMap.set(textDocument.uri, metadata);
+const MAX_JOBS = 5;
+const activeJobs = new Map<TextDocument, ProcessScriptJob>();
+const pendingJobs = new Map<TextDocument, ProcessScriptJob>();
+
+function createJob(doc: TextDocument) {
+	let resolve: (result: JobResult | null) => void, reject: (reason: Error) => void;
+	const promise = new Promise<JobResult | null>((resolve_, reject_) => {
+		resolve = resolve_;
+		reject = reject_;
+	});
+
+	const controller = new AbortController();
+	let restarting = false;
+	let cancelled = false;
+	let result: JobResult | null = null;
+	const job = {
+		doc,
+		start() {
+			console.log(`start ${doc.uri}`);
+			processScript(doc.uri, doc.getText(), controller.signal)
+				.then(r => {
+					if (r) {
+						result = r;
+						docJobResults.set(doc.uri, result);
+					}
+				})
+				.finally(() => {
+					if (cancelled) {
+						return;
+					}
+
+					if (restarting) {
+						restarting = false;
+						job.start();
+						return;
+					}
+
+					console.log(`done ${doc.uri}`);
+					activeJobs.delete(doc);
+					startNextJobs();
+					resolve(result);
+				});
+		},
+		restart() {
+			console.log(`restart ${doc.uri}`);
+			restarting = true;
+			controller.abort();
+		},
+		cancel() {
+			console.log(`cancel ${doc.uri}`);
+			cancelled = true;
+			controller.abort();
+			activeJobs.delete(doc);
+			startNextJobs();
+			resolve(null);
+		},
+		wait() {
+			return promise;
+		},
+	};
+
+	if (activeJobs.size < MAX_JOBS) {
+		activeJobs.set(doc, job);
+		job.start();
+	} else {
+		console.log(`queued ${doc.uri}`);
+		pendingJobs.set(doc, job);
+	}
+
+	return job;
+}
+
+function abandonJob(doc: TextDocument) {
+	pendingJobs.delete(doc);
+
+	const job = activeJobs.get(doc);
+	if (job) {
+		activeJobs.delete(doc);
+		job.cancel();
+	}
+}
+
+function startNextJobs() {
+	while (activeJobs.size < MAX_JOBS && pendingJobs.size) {
+		const [nextJobDoc, nextJob] = [...pendingJobs.entries()][0];
+		pendingJobs.delete(nextJobDoc);
+		activeJobs.set(nextJobDoc, nextJob);
+		nextJob.start();
+	}
+}
+
+async function getOrWaitForScriptMetadata(doc: TextDocument): Promise<DocumentMetaData | null> {
+	let result = docJobResults.get(doc.uri) ?? null;
+	if (result) {
+		return result.metadata ?? null;
+	}
+
+	let job = activeJobs.get(doc) ?? pendingJobs.get(doc);
+	if (!job) {
+		job = createJob(doc);
+	}
+	result = await job.wait();
+
+	return result?.metadata ?? null;
 }
 
 connection.onDidChangeWatchedFiles(_change => {
@@ -508,49 +706,111 @@ connection.onCompletionResolve(
 	}
 );
 
-connection.onHover((item: HoverParams): Hover | null => {
-	const metadata = docMetadataMap.get(item.textDocument.uri);
+async function resolvePosition(doc: TextDocument, pos: Position) {
+	const result = docJobResults.get(doc.uri);
+	if (!result)
+		return null;
+
+	const { metadata } = result;
 	if (!metadata)
 		return null;
 
-	const pos = item.position;
 	const identifier = metadata.identifiers.find(ident =>
 		ident.loc.line == pos.line &&
 		pos.character >= ident.loc.character &&
 		pos.character < ident.loc.character + ident.loc.length);
-	if (!identifier)
+	if (!identifier) {
+		return null;
+	}
+
+	return { metadata, identifier };
+}
+
+connection.onDocumentSymbol(async (p: DocumentSymbolParams) => {
+	const doc = documents.get(p.textDocument.uri);
+	if (!doc)
 		return null;
 
+	const metadata = await getOrWaitForScriptMetadata(doc);
+	return metadata?.currentFileSymbols;
+});
+
+connection.onHover(async (p: HoverParams): Promise<Hover | null> => {
+	const doc = documents.get(p.textDocument.uri);
+	if (!doc)
+		return null;
+
+	const result = await resolvePosition(doc, p.position);
+	if (!result)
+		return null;
+
+	const { metadata, identifier } = result;
 	const value = metadata.symbols[identifier.symbol].doc;
 	if (!value)
 		return null;
 
 	return {
-		contents: {kind: MarkupKind.Markdown, value},
+		contents: { kind: MarkupKind.Markdown, value },
 	};
 });
 
-connection.onDocumentSymbol((p: DocumentSymbolParams) => {
-	return docMetadataMap.get(p.textDocument.uri)?.currentFileSymbols;
-});
-
-connection.onDefinition((p: DefinitionParams) => {
-	const metadata = docMetadataMap.get(p.textDocument.uri);
-	if (!metadata)
+connection.onDefinition(async (p: DefinitionParams) => {
+	const doc = documents.get(p.textDocument.uri);
+	if (!doc)
 		return null;
 
-	const pos = p.position;
-	const identifier = metadata.identifiers.find(ident =>
-		ident.loc.line == pos.line &&
-		pos.character >= ident.loc.character &&
-		pos.character < ident.loc.character + ident.loc.length);
-	if (!identifier)
+	const result = await resolvePosition(doc, p.position);
+	if (!result)
 		return null;
 
+	const { metadata, identifier } = result;
 	const symbol = metadata.symbols[identifier.symbol];
 	if (cleanupFile2(symbol.loc.uri) === tmpScript || symbol.loc.uri === 'file://' + tmpScript)
 		symbol.loc.uri = p.textDocument.uri;
 	return symbol.loc;
+});
+
+connection.onReferences(async (p) => {
+	const doc = documents.get(p.textDocument.uri);
+	if (!doc)
+		return null;
+
+	const result = await resolvePosition(doc, p.position);
+	if (!result)
+		return null;
+
+	const { identifier } = result;
+	const locations: Location[] = [];
+	for (const [uri, result] of docJobResults) {
+		const metadata = result.metadata;
+		if (!metadata) {
+			continue;
+		}
+
+		// TODO: currently, symbol ids are not the same across multiple compilations, so can
+		// only find references within the same document.
+		// Idea for how to fix:
+		//    1. Compile all scripts found in `initWorkspace` in one go
+		//    2. Will help to support relative imports
+		//    3. Will help for an error within an import to not end the compilation (for purposes of getting metadata)
+		if (uri !== p.textDocument.uri) {
+			continue;
+		}
+
+		locations.push(...metadata.identifiers
+			.filter(ident => ident.symbol === identifier.symbol)
+			.map(ident => {
+				return {
+					uri,
+					range: {
+						start: ident.loc,
+						end: { line: ident.loc.line, character: ident.loc.character + ident.loc.length },
+					},
+				};
+			}));
+	}
+
+	return locations;
 });
 
 // Make the text document manager listen on the connection

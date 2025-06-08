@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <stdio.h>
 
+#include "allegro/gui.h"
 #include "base/files.h"
 #include "base/misctypes.h"
 #include "base/qrs.h"
@@ -12,6 +13,7 @@
 #include "zq/zq_files.h"
 #include "base/zdefs.h"
 #include "dialog/alertfunc.h"
+#include "dialog/tilesetwizard.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
 #include "base/qst.h"
@@ -355,49 +357,8 @@ int32_t onNew()
 	if(checksave()==0)
 		return D_O_K;
 
-	std::string tileset_path;
-	while (tileset_path.empty())
-	{
-		int ret = -1;
-		if (is_headless()) ret = 0;
-		else
-		{
-			AlertFuncDialog("Choose a tileset",
-				"Cambria is a modern tileset with retro aesthetics.\n\nClassic is a minimalist tileset.",
-				""
-			).add_buttons(0,
-				{ "Cambria (recommended)", "Classic", "Choose from disk" },
-				ret
-			).show();
-		}
-		if (ret == -1)
-			return D_CLOSE;
-		if (ret == 0)
-			tileset_path = "tilesets/cambria.qst";
-		else if (ret == 1)
-			tileset_path = "modules/classic/default.qst";
-		else if (ret == 2)
-		{
-			if (get_qst_name("./tilesets") && fs::is_regular_file(temppath))
-				tileset_path = temppath;
-		}
-	}
-
-	NewQuestFile(tileset_path);
-	set_qr(qr_PARSER_SHORT_CIRCUIT, 1);
-	set_qr(qr_PARSER_TRUE_INT_SIZE, 1);
-	set_qr(qr_ANIMATECUSTOMWEAPONS, 0); //always OFF
-	alwaysOnRules();
-	if(RulesetDialog > 0)
-	{
-		PickRuleset();
-		PickRuleTemplate();
-	}
-	if(zc_get_config("zquest","auto_filenew_bugfixes",1))
-	{
-		applyRuleTemplate(ruletemplateFixCompat);
-	}
-	return D_O_K;
+	restore_mouse();
+	return call_tileset_wizard() ? D_O_K : D_CLOSE;
 }
 
 int32_t onSave()
@@ -628,18 +589,6 @@ int32_t onOpen()
 		return D_O_K;
 	
 	open_quest(temppath);
-	return D_O_K;
-}
-void call_tileset_wizard();
-int32_t onTileset()
-{
-	restore_mouse();
-	
-	if(checksave()==0)
-		return D_O_K;
-	
-	call_tileset_wizard();
-	
 	return D_O_K;
 }
 
@@ -1375,7 +1324,6 @@ int32_t onExport_ZGP()
 int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststart)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	int32_t doorscount = 0;
@@ -1399,7 +1347,7 @@ int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststa
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
@@ -1436,9 +1384,9 @@ int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststa
 		return 0;
 	}
 	
-	else if ( ( section_version > V_DOORS ) || ( section_version == V_DOORS && section_cversion > CV_DOORS ) )
+	else if ( ( section_version > V_DOORS ))
 	{
-		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d)\n", section_version);
 		return 0;
 		
 	}
@@ -1643,7 +1591,6 @@ int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststa
 int32_t writezdoorsets(PACKFILE *f, int32_t first = 0, int32_t count = door_combo_set_count)
 {
 	dword section_version=V_DOORS;
-	dword section_cversion=CV_DOORS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	int32_t doorscount = door_combo_set_count;
@@ -1662,7 +1609,7 @@ int32_t writezdoorsets(PACKFILE *f, int32_t first = 0, int32_t count = door_comb
 	{
 		return 0;
 	}
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		return 0;
 	}
@@ -1882,7 +1829,6 @@ int32_t writezdoorsets(PACKFILE *f, int32_t first = 0, int32_t count = door_comb
 int32_t writeonezdoorset(PACKFILE *f, int32_t index)
 {
 	dword section_version=V_DOORS;
-	dword section_cversion=CV_DOORS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
 	int32_t doorscount = door_combo_set_count;
@@ -1901,7 +1847,7 @@ int32_t writeonezdoorset(PACKFILE *f, int32_t index)
 	{
 		return 0;
 	}
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		return 0;
 	}
@@ -2106,7 +2052,6 @@ int32_t writeonezdoorset(PACKFILE *f, int32_t index)
 int32_t readonezdoorset(PACKFILE *f, int32_t index)
 {
 	dword section_version=0;
-	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	int32_t doorscount = 0;
@@ -2129,7 +2074,7 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index)
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f))
+	if(!read_deprecated_section_cversion(f))
 	{
 		return 0;
 	}
@@ -2153,9 +2098,9 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	else if ( ( section_version > V_DOORS ) || ( section_version == V_DOORS && section_cversion > CV_DOORS ) )
+	else if ( ( section_version > V_DOORS ))
 	{
-		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d) subversion (%d)\n", section_version, section_cversion);
+		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d)\n", section_version);
 		return 0;
 		
 	}

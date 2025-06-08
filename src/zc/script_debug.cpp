@@ -9,6 +9,7 @@
 #include "zasm/serialize.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <iomanip>
 #include <sstream>
 

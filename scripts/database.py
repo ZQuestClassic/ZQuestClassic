@@ -54,6 +54,7 @@ class Database:
     def __init__(self, path: Path = default_db_path):
         print(f'[database] init {path}')
         self.path = path
+        # No key needed for read operations.
         s3 = boto3.resource(
             's3',
             region_name='nyc3',
@@ -74,7 +75,11 @@ class Database:
         self._load_manifest()
 
     def _load_manifest(self):
-        self.data = json.loads(self.download('manifest.json').read_text())
+        if os.environ.get('ZC_DATABASE_SKIP_MANIFEST_UPDATE'):
+            manifest_path = self.path / 'manifest.json'
+        else:
+            manifest_path = self.download('manifest.json')
+        self.data = json.loads(manifest_path.read_text())
 
         self.quests = []
         for entry in self.data.values():
@@ -166,7 +171,7 @@ class Database:
     def download_release(self, release: Release):
         for resource in release.resources:
             # I'm pretty sure no quest needs these files to run.
-            # There are big/there's many of them, so skip if just needing
+            # They are big/there's many of them, so skip if just needing
             # to download a release for runtime execution.
             ext = resource.split('.')[-1]
             if ext in ['jpg', 'bmp', 'png', 'gif', 'zip']:
@@ -175,6 +180,11 @@ class Database:
                 continue
 
             key = f'{release.id}/{resource}'
+            self.download(key)
+
+        quest = next(q for q in self.quests if release in q.releases)
+        for music in quest.data['music']:
+            key = f'{quest.id}/music/{music}'
             self.download(key)
 
     def get_qst_keys_by_hash(self) -> dict[str, (str, Release)]:
@@ -189,6 +199,16 @@ class Database:
                         qst_key_by_hash[resource_hash] = (key, release)
 
         return qst_key_by_hash
+
+    # self.bucket is read-only, but this method can be used to get a writable bucket.
+    def get_writable_bucket(self):
+        boto3.setup_default_session(profile_name='zc-database-write')
+        s3 = boto3.resource(
+            's3',
+            region_name='nyc3',
+            endpoint_url='https://nyc3.digitaloceanspaces.com',
+        )
+        return s3.Bucket('zc-data')
 
 
 if __name__ == '__main__':

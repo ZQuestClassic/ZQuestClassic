@@ -355,12 +355,12 @@ void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::string text, i
 	al_restore_state(&oldstate);
 }
 
-void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlign align, int scale)
+void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlignment align, int scale)
 {
 	int resx = al_get_bitmap_width(bitmap);
 	int resy = al_get_bitmap_height(bitmap);
 	int font_height = al_get_font_line_height(font);
-	int text_y = align == TextAlign::bottom ?
+	int text_y = align == TextAlignment::bottom ?
 		resy - scale*font_height - 5 :
 		// Offset just a bit so it doesn't obscure the title bar.
 		resy*0.04;
@@ -370,7 +370,7 @@ void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<s
 			5 :
 			resx - al_get_text_width(font, line.c_str())*scale - 5;
 		render_text(bitmap, font, line.c_str(), x, text_y, scale, al_map_rgb_f(1, 1, 1), al_map_rgba_f(0, 0, 0, 0.6));
-		text_y += (scale*font_height + 3) * (align == TextAlign::bottom ? -1 : 1);
+		text_y += (scale*font_height + 3) * (align == TextAlignment::bottom ? -1 : 1);
 	}
 }
 
@@ -514,7 +514,7 @@ void render_tree_draw_debug(RenderTreeItem* rti)
 	render_tree_draw_item_debug(rti, 0, lines);
 	int font_scale = 4;
 	ALLEGRO_BITMAP* bitmap = al_get_backbuffer(all_get_display());
-	render_text_lines(bitmap, a5font, lines, TextJustify::left, TextAlign::top, font_scale);
+	render_text_lines(bitmap, a5font, lines, TextJustify::left, TextAlignment::top, font_scale);
 }
 
 static bool render_debug;

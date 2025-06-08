@@ -1,3 +1,8 @@
+// 176 per screen in the current region. Same as [Region->NumCombos].
+//
+// @zasm_var REGION_NUM_COMBOS
+internal const int NUM_COMBO_POS;
+
 enum WipeEffect
 {
 	WIPE_CIRCLE,
@@ -8,51 +13,480 @@ enum WipeEffect
 	WIPE_MAX
 };
 
-// Contains functions and variables related to the current map screen,
-// including functions for drawing and creating/loading objects belonging
-// to the screen.
+// Determines how to interpret coordinates given to [Screen] draw functions.
+enum DrawOrigin
+{
+	// Equal to [DRAW_ORIGIN_REGION], unless in a scrolling region (or scrolling to/from one), in which
+	// case this is equal to [DRAW_ORIGIN_PLAYING_FIELD].
+	DRAW_ORIGIN_DEFAULT = 0L,
+	// The origin `(0, 0)` is the top-left pixel of the playing field (where screen combos are drawn).
+	// Normally, this is just below the passive subscreen. But in extended height mode,
+	// this is the top-left pixel of the screen and so is equivalent to [DRAW_ORIGIN_SCREEN].
+	//
+	// Use this to draw overlay effects across the playing field.
+	DRAW_ORIGIN_PLAYING_FIELD = 1L,
+	// The origin `(0, 0)` is the top-left pixel of the screen.
+	// Use this to draw overlay effects across the entire screen.
+	DRAW_ORIGIN_SCREEN = 2L,
+	// The origin `(0, 0)` is the top-left pixel of the current region. Use this to draw with a
+	// sprite's coordinates.
+	//
+	// When scrolling, this is treated as [DRAW_ORIGIN_REGION_SCROLLING_NEW] for new screens and
+	// [DRAW_ORIGIN_REGION_SCROLLING_OLD] for old screens.
+	DRAW_ORIGIN_REGION = 3L,
+	// The origin `(0, 0)` is the top-left pixel of the new region being scrolled to.
+	//
+	// Equivalent to [DRAW_ORIGIN_REGION] when not scrolling.
+	DRAW_ORIGIN_REGION_SCROLLING_NEW = 4L,
+	// The origin `(0, 0)` is the top-left pixel of the old region being scrolled away from.
+	//
+	// Equivalent to [DRAW_ORIGIN_REGION] when not scrolling.
+	DRAW_ORIGIN_REGION_SCROLLING_OLD = 5L,
+	// The origin `(0, 0)` is the top-left pixel of the sprite [Screen->DrawOriginTarget].
+	//
+	// If the sprite no longer exists at time of drawing, then the draw command will be ignored.
+	//
+	// @versionadded 3.0
+	DRAW_ORIGIN_SPRITE = 6L,
+};
+
+// Polygon rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing functions. ie; Polygon, Quad, or Triangle
+// For more detail on these polygon rendering modes, see https://github.com/ZQuestClassic/ZQuestClassic/blob/main/third_party/allegro_legacy/docs/src/allegro._tx#L7808.
+enum PolygonRenderMode
+{
+	PT_FLAT                        = 0,  // Single color shading.
+	PT_FLATSHADED                  = 1,  // "" with flat shading (*3D only).
+	PT_COLSHADED                   = 2,  // "" with color shading (*3D only).
+	PT_TEXTURE                     = 3,  // Texture mapped polygon using 2d linear interpolation.
+	PT_PTEXTURE                    = 4,  // "".
+	PT_MASKTEXTURE                 = 5,  // Transparent texture mapped polygon using 2d linear interpolation.
+	PT_MASKPTEXTURE                = 6,  // "".
+	PT_LITTEXTURE                  = 7,  // "" with lighting (*3D only).
+	PT_LITPTEXTURE                 = 8,  // "" (*3D only).
+	PT_MASKLITTEXTURE              = 9,  // "" with transparency.
+	PT_MASKLITPTEXTURE             = 10, // "".
+	PT_TRANSTEXTURE                = 11, // Translucent texture mapped polygon using 2d linear interpolation.
+	PT_TRANSPTEXTURE               = 12, // "".
+	PT_MASKTRANSTEXTURE            = 13, // Translucent and transparent texture mapped polygon using 2d linear interpolation.
+	PT_MASKTRANSPTEXTURE           = 14, // "".
+};
+
+// Sprite lists. Used with [Screen->ClearSprites].
+enum SpriteList
+{
+	SL_GUYS                        = 0, // Enemies.
+	SL_ITEMS                       = 1, // Items.
+	SL_EWPNS                       = 2, // Enemy weapons.
+	SL_LWPNS                       = 3, // Link's weapons.
+	SL_DECORATIONS                 = 4, // Grass clippings, Hover boots glow, etc.
+	SL_PARTICLES                   = 5, // Farore's Wind particles.
+};
+
+// Screen flags, used with [Screen->Flag] and [mapdata::Flag].
+enum ScreenFlag
+{
+	// Room type
+	SFL_INTERIOR = 40, // aka 'Cave'.
+	SFL_DUNGEON = 41,
+	SFL_SIDEVIEW = 51,
+
+	// View
+	SFL_INVISIBLE_HERO = 19, // Hide Hero.
+	SFL_NO_HERO_MARKER = 52,
+	SFL_NO_SUBSCREEN = 20,
+	SFL_NO_SUBSCREEN_OFFSET = 22,
+	SFL_LAYER2BG = 49, // Layer 2 is background.
+	SFL_LAYER3BG = 48, // Layer 3 is background.
+	SFL_DARK_ROOM = 2,
+	SFL_DARK_DITHER = 67,
+	SFL_DARK_TRANS = 68,
+
+	// Secrets
+	SFL_SHUTTERS = 0, // Block->Shutters
+	SFL_TEMP_SECRETS = 36, // Secrets are temporary.
+	SFL_TRIGGERS_PERM = 42, // All Triggers->Perm Secret.
+	SFL_ALL_TRIGGER_FLAGS = 45, // All Triggers->16-31.
+	SFL_SECRET_SFX = 12, // Play Secret SFX on Entry.
+
+	// Warp
+	SFL_WARP_AUTO_DIRECT = 34, // Auto Warps are Direct.
+	SFL_WARP_SENSITIVE_DIRECT = 35, // Sensitive warps are Direct.
+	SFL_WARP_TIMED_DIRECT = 26, // Timed Warp is Direct.
+	SFL_WARP_UP = 8, // Side warp.
+	SFL_WARP_DOWN = 9, // Side warp.
+	SFL_WARP_LEFT = 10, // Side warp.
+	SFL_WARP_RIGHT = 11, // Side warp.
+	SFL_WARP_TIMED_RANDOM = 32,
+	SFL_WARP_SPRITE_CARRYOVER = 21,
+	SFL_WARP_MIRROR_DISABLE = 69,
+	SFL_WARP_TIMED_SECRETS_DISABLE = 27, // Secrets Disable Timed Warp.
+
+	// Maze
+	SFL_MAZE = 6, // Use maze path.
+	SFL_MAZE_OVERRIDES_SIDE_WARPS = 61,
+	SFL_MAZE_CAN_GET_LOST = 72,
+	SFL_MAZE_LOOPY = 73,
+
+	// Items
+	SFL_ITEM_HOLD_UP = 16, // Hold up item.
+	SFL_ITEM_FALLS = 50, // Falls from ceiling.
+	SFL_SECRETS_ITEM = 62, // Secrets reveal item.
+	SFL_ITEM_SECRETS = 63, // Item triggers secrets.
+	SFL_ITEM_SECRETS_PERM = 64, // Item triggers secrets, permanently.
+	SFL_ITEM_RETURNS = 65, // Regular item always returns.
+	SFL_SPECIAL_ITEM_RETURNS = 66, // Special item always returns.
+
+	// Combos
+	SFL_MIDAIR = 13, // Combos Affect Midair Hero.
+	SFL_CYCLE_INIT = 17, // Cycle combos on screen init.
+	SFL_IGNORE_BOOTS = 33, // Damage combos ignores boots.
+	SFL_TOGGLE_RINGS = 46, // Toggle 'Rings Affect Combos'.
+
+	// Save
+	SFL_SAVE_ON_ENTRY = 31, // Save game on entry.
+	SFL_CONTINUE_HERE = 43,
+	SFL_SAVE_CONTINUE_HERE = 30, // Save Point->Continue. When saving at a 'Save' combo on this screen, set this as the continue screen.
+	SFL_NO_CONTINUE_HERE = 44, // No continue Here after warp. 
+
+	// FFC
+	SFL_FFC_WRAP = 47, // FFCs wrap around screen.
+	SFL_FFC_NO_CARRYOVER = 39, // If set, no FFC will carryover (even w/ the FFC's "carryover" flag set).
+
+	// Whistle
+	SFL_WHISTLE = 4, // Whistle->Stairs.
+	SFL_WHISTLE_PALETTE = 54,
+	SFL_WHISTLE_DRY_LAKE = 55,
+
+	// Enemies
+	SFL_ENEMIES_INVISIBLE = 18, // Hide enemies.
+	SFL_ENEMIES_RETURN = 23, // Enemies always return.
+	SFL_ENEMIES_ITEM = 1, // Killing enemies spawns screen item.
+	SFL_ENEMIES_SECRETS = 15, // Enemies->Secrets.
+	SFL_ENEMIES_SECRETS_PERM = 28, // Enemies->Secrets (perm).
+	SFL_ENEMIES_CHAIN_TRIGGERS = 70, // Chain 'Enemies->' Triggers.
+	SFL_TRAPS_IGNORE_SOLID = 14, // Traps Ignore Solidity.
+	SFL_ENEMIES_LEADER = 85, // Ringleader. The first enemy listed in the screen's enemy list will be a 'Ringleader'. When this enemy dies, all other enemies will die.
+	SFL_ENEMIES_CARRY_ITEM = 86,
+	SFL_ENEMIES_BOSS = 87, // Dungeon boss.
+
+	// Enemies (spawn)
+	SFL_ENEMY_SPAWN_ZORA = 80, // Spawns a zora enemy on entry.
+	SFL_ENEMY_SPAWN_TRAP_CORNER = 81,
+	SFL_ENEMY_SPAWN_TRAP_MIDDLE = 82,
+	SFL_ENEMY_SPAWN_ROCKS = 83,
+	SFL_ENEMY_SPAWN_SHOOTER = 84,
+
+	// Misc
+	SFL_TOGGLE_LADDER = 5, // Toggle allow ladder.
+	SFL_TOGGLE_DIVING = 38, // Toggle allow diving.
+	SFL_SCRIPT_1 = 56,
+	SFL_SCRIPT_2 = 57,
+	SFL_SCRIPT_3 = 58,
+	SFL_SCRIPT_4 = 59,
+	SFL_SCRIPT_5 = 60,
+};
+
+// Screen Flag groups, used with [Screen->Flags].
+// See Screen Data dialog for what flags are contained in each group.
+// @deprecated
+enum ScreenFlagGroup
+{
+	SF_ROOMTYPE, // Corresponds to [ScreenFlagRoomType].
+	SF_VIEW, // Corresponds to [ScreenFlagView].
+	SF_SECRETS, // Corresponds to [ScreenFlagSecrets].
+	SF_WARP, // Corresponds to [ScreenFlagWarp].
+	SF_ITEMS, // Corresponds to [ScreenFlagItems].
+	SF_COMBOS, // Corresponds to [ScreenFlagCombos].
+	SF_SAVE, // Corresponds to [ScreenFlagSave].
+	SF_FFC, // Corresponds to [ScreenFlagFFC].
+	SF_WHISTLE, // Corresponds to [ScreenFlagWhistle].
+	SF_MISC, // Corresponds to [ScreenFlagMisc].
+	SF_LAST,
+};
+
+// @deprecated
+enum ScreenFlagRoomType
+{
+	SFR_INTERIOR,
+	SFR_DUNGEON,
+	SFR_SIDEVIEW,
+	
+	SFR_LAST
+};
+
+// @deprecated
+enum ScreenFlagView
+{
+	SFV_INVISLINK,
+	SFV_NOLINKMARKER,
+	SFV_NOSUBSCREEN,
+	SFV_NOOFFSET,  //'...but don't offset'
+	SFV_LAYER2BG,  //Layer 2 is Background
+	SFV_LAYER3BG,
+	SFV_DARKROOM, 
+	SFV_DARK_DITHER, 
+	SFV_DARK_TRANS, 
+	
+	SFV_LAST
+};
+
+// @deprecated
+enum ScreenFlagSecrets
+{
+	SFS_BLOCKSHUT, //Block->Shutters
+	SFS_TEMPSECRETS, //Secrets are temporary.
+	SFS_TRIGPERM,  //All Triggers->Perm Secret
+	SFS_ALLTRIGFLAGS,  //All triggers->16-31
+	
+	SFS_LAST
+};
+
+// @deprecated
+enum ScreenFlagWarp
+{
+	SFW_AUTODIRECT, //Auto Warps are Direct
+	SFW_SENDSIRECT, //Sensitive Warps are direct.
+	SFW_MAZEPATHS,  //Use maze Path
+	SFW_MAZEOVERRIDE,  //maze Overrides Sidewarps
+	SFW_SPRITECARRY, //Sprites carry over. 
+	SFW_DISABLE_MIRROR, //Disable Magic Mirror
+	SFW_MAZE_CAN_GET_LOST, //Maze Can Get Lost
+	SFW_MAZE_LOOPY, //Maze Loopy
+	
+	SFW_LAST
+};
+
+// @deprecated
+enum ScreenFlagItems
+{
+	SFI_HOLDUP, //Hold up item.
+	SFI_FALLS, //Falls from ceiling
+	SFI_SECRETSITEM,  //Secret reveals item
+	SFI_ITEMSECRET,  //Item triggers secrets
+	SFI_ITEMSECRETPERM, //Item triggering secrets is permanent
+	SFI_ITEMRETURNS, //Regular item always returns
+	SFI_SPECIALITEMRETURNS, //Special item always returns
+	
+	SFI_LAST
+};
+
+// @deprecated
+enum ScreenFlagCombos
+{
+	SFC_MIDAIR, //Combos affect midair Hero.
+	SFC_CYCLEINIT, //Cycle combos on screen init.
+	SFC_IGNOREBOOTS,  //Damage combos ignore boots. 
+	SFC_TOGGLERINGS,  //Toggle 'Rings Affect Combos'
+	
+	SFC_LAST
+};
+
+// @deprecated
+enum ScreenFlagSave
+{
+	SFSV_SAVECONTHERE, //Save Point->Continue here.
+	SFSV_SAVEONENTRY, //Save game on entry.
+	SFSV_CONTHERE,  //Continue here.
+	SFSV_NOCONTINUEWARP,  //No continue Here after warp. 
+	
+	SFSV_LAST
+};
+
+// @deprecated
+enum ScreenFlagFFC
+{
+	SFF_WRAP,   //Freeform Combos Wrap Around
+	SFF_NOCARRYOVER, //No FFC carry over. 
+	
+	SFF_LAST
+};
+
+// @deprecated
+enum ScreenFlagMisc
+{
+	SFM_ALLOW_LADDER,   //Toggle 'Allow Ladder'
+	SFM_NO_DIVING,      //Toggle 'No Diving' 
+	SFM_SCRIPT1,         //General use 1 (Scripts)
+	SFM_SCRIPT2,         //General use 2 (Scripts)
+	SFM_SCRIPT3,        //General use 3 (Scripts)
+	SFM_SCRIPT4,        //General use 4 (Scripts)
+	SFM_SCRIPT5,        //General use 5 (Scripts)
+
+	SFM_LAST
+};
+
+// @deprecated
+enum ScreenFlagWhistle
+{
+	SFWH_STAIRS = 0, //Whistle->Stairs
+	SFWH_PALCHANGE, //Whistle->Palette Change
+	SFWH_DRYLAKE,  //Whistle->Dry lake
+	
+	SFWH_LAST
+};
+
+// Screen enemy flag groups. Used with [Screen->EFlags].
+// @deprecated
+enum ScreenEnemyFlagGroup
+{
+	SEF_SPAWN                      = 0, // Corresponds to [ScreenEnemyFlagSpawn].
+	SEF_LIST1                      = 1, // Corresponds to [ScreenEnemyFlagList1].
+	SEF_LIST2                      = 2, // Corresponds to [ScreenEnemyFlagList2].
+};
+
+// See [ScreenEnemyFlagGroup].
+// @deprecated
+enum ScreenEnemyFlagSpawn
+{
+	SEFSP_ZORA,
+	SEFSP_CORNERTRAP,
+	SEFSP_MIDDLETRAP,
+	SEFSP_ROCK,
+	SEFSP_SHOOTER,
+	
+	SEFSP_LAST
+};
+
+// See [ScreenEnemyFlagGroup].
+// @deprecated
+enum ScreenEnemyFlagList1
+{
+	SEFL1_RINGLEADER,
+	SEFL1_CARRYITEM,
+	SEFL1_INVIS,
+	SEFL1_BOSS,
+	SEFL1_TRAPS_IGNORE_SOLID,
+	
+	SEFL1_LAST
+};
+
+// See [ScreenEnemyFlagGroup].
+// @deprecated
+enum ScreenEnemyFlagList2
+{
+	SEFL2_ALWAYSRET,
+	SEFL2_ENEMIES_ITEM,
+	SEFL2_ENEMEIS_SECRET,
+	SEFL2_ENEMIES_SECRET_PERM,
+	SEFL2_CHAIN_ENEMIES_TRIGGERS,
+	
+	SEFL2_LAST
+};
+
+// Render Targets. Used with Screen->"*RenderTarget" and Screen->"Bitmap" drawing functions.
+enum RenderTarget
+{
+	RT_CURRENT                     = -2, // Used with Blit(). mode7(), and RevBlit() for the current RT as dest.
+	RT_SCREEN                      = -1, // Draws to screen.
+	RT_BITMAP0                     = 0,  // Draws to off-screen bitmap 0.
+	RT_BITMAP1                     = 1,  // Draws to off-screen bitmap 1.
+	RT_BITMAP2                     = 2,  // Draws to off-screen bitmap 2.
+	RT_BITMAP3                     = 3,  // Draws to off-screen bitmap 3.
+	RT_BITMAP4                     = 4,  // Draws to off-screen bitmap 4.
+	RT_BITMAP5                     = 5,  // Draws to off-screen bitmap 5.
+	RT_BITMAP6                     = 6,  // Draws to off-screen bitmap 6.
+};
+
+// Contains functionality related to the currently loaded [mapdata] screen,
+// including functions for drawing and creating/loading objects belonging to the
+// screen.
+//
+// Many variables in `Screen` refer to a single [mapdata] screen (such as [Screen->UnderCombo]).
+// For a scrolling [Region] with multiple screens, which screen these variables refer to
+// depends on the context of the running script. See [Screen->Index] for more.
+//
+// The combo array variables (such as [Screen->ComboD]) may access any combo position
+// in the current region. Use [ComboAt] to translate `(x, y)` world coordinates to a
+// combo position. The size of these arrays is [NUM_COMBO_POS].
+//
+// For accessing specific screens, see [mapdata].
 //
 // Access with `Screen->`.
+//
+// @tutorial /tutorials/z3_user_guide
 class screendata {
 	// @delete
 	internal screendata();
+
+	// The index for the underlying screen. This determines which screen some variables refer to
+	// (such as [UnderCombo], [Valid], or [Guy], just to name a few).
+	//
+	// In a non-scrolling [Region], this is equal to [Game->CurScreen].
+	//
+	// In a scrolling [Region], the default is equal to [Game->CurScreen] (the top-left screen).
+	// However, many script types use a more relevant screen instead. For example:
+	//
+	// - screendata scripts use the screen they are assigned to
+	// - ffc, npc, eweapon, lweapon, itemsprite, combo - all use the screen they were spawned on ([sprite::SpawnScreen])
+	// - player - uses [Game->HeroScreen], which updates as the player moves around
+	//
+	// @versionadded 2.55.9 equivalent to [Game->CurScreen]
+	// @zasm_var SCREEN_INDEX
+	internal const int Index;
 
 	// A set of 8 misc values for each screen.
 	//
 	// @zasm_var SDD
 	internal untyped D[];
-
+	
+	// The [combodata] of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Read-only, modify by editing the [ComboD] ID.
+	//
+	// @zasm_var COMBODATAD
+	internal const combodata ComboData[];
+	
+	// The combo ID of each of the [NUM_COMBO_POS] combo positions on the screen.
+	//
 	// @zasm_var COMBODD
 	internal int ComboD[];
 
+	// The CSet of each of the [NUM_COMBO_POS] combo positions on the screen.
+	//
 	// @zasm_var COMBOCD
 	internal int ComboC[];
 
+	// The placed (map) flag of each of the [NUM_COMBO_POS] combo positions on the screen.
+	//
 	// @zasm_var COMBOFD
 	internal int ComboF[];
 
+	// The inherent flag of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Editing this modifies the actual [combodata] of the combo.
+	//
 	// @zasm_var COMBOID
 	internal int ComboI[];
 
-	// Valid values: [ComboType] (`CT_`).
+	// The combo type of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Editing this modifies the actual [combodata] of the combo.
 	//
+	// @value [enum ComboType]
+
 	// @zasm_var COMBOTD
 	internal int ComboT[];
+
+	// The solidity bitflags of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Editing this modifies the actual [combodata] of the combo.
+	//
+	// @value [enum ComboSolidityBitflags]
 
 	// @zasm_var COMBOSD
 	internal int ComboS[];
 
-	// The effect area bits of each of the 176 combos used on the screen.
+	// The effect area bitflags of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// Editing this modifies the actual [combodata] of the combo.
 	//
 	// @zasm_var COMBOED
 	internal int ComboE[];
 
+	// @index [enum DoorIndex]
+	// @value [enum DoorType]
+
 	// @zasm_var SCRDOORD
 	internal int Door[];
 
-	// The 32 screen states used by this screen. Use the [ScreenState] (`ST_`) constants to
-	// access.
+	// The 32 screen states used by this screen.
 	//
+	// @index [enum ScreenState]
 	// @zasm_var SCREENSTATED
 	internal bool State[];
 
@@ -61,7 +495,7 @@ class screendata {
 	// @zasm_var SCREENEXSTATED
 	internal bool ExState[];
 
-	// Whether or not the screen is 'lit'. Applies to Classic Darkrooms.
+	// Whether or not the current [Region] is 'lit'. Applies to Classic Darkrooms.
 	//
 	// @zasm_var LIT
 	internal bool Lit;
@@ -89,6 +523,8 @@ class screendata {
 	// bitmap drawing. 2.55's [bitmap] effectively obsolete the render target
 	// system, and should be used instead of this.
 	//
+	// @value [enum RenderTarget]
+
 	// @zasm_var GETRENDERTARGET
 	internal const int GetRenderTarget;
 
@@ -116,14 +552,40 @@ class screendata {
 	// @zasm_var EWPNCOUNT
 	internal const int NumEWeapons;
 
-	// @zasm_var SCREENFLAGSD
-	internal int Flags[];
-
-	// @zasm_var SCREENEFLAGSD
-	internal int EFlags[];
-
-	// The screen room type.
+	// The boolean flags for the screen.
 	//
+	// This only refers to the screen denoted by [Index].
+	//
+	// @index [enum ScreenFlag]
+	// @zasm_var SCREEN_FLAG
+	internal bool Flag[];
+
+	// Multiple bitflags, split into groups.
+	//
+	// This only refers to the screen denoted by [Index].
+	//
+	// @deprecated Use [var Flag] instead.
+	// @index [enum ScreenFlagGroup]
+	// @value Varies based on [ScreenFlagGroup]
+	// @zasm_var SCREENFLAGSD
+	internal const int Flags[];
+
+	// Multiple bitflags related to screen enemies, split into groups.
+	//
+	// This only refers to the screen denoted by [Index].
+	//
+	// @deprecated Use [var Flag] instead.
+	// @index [enum ScreenEnemyFlagGroup]
+	// @value Varies based on [ScreenEnemyFlagGroup]
+	// @zasm_var SCREENEFLAGSD
+	internal const int EFlags[];
+
+	// The special room type.
+	//
+	// This only refers to the screen denoted by [Index].
+	//
+	// @value [enum RoomType]
+
 	// @zasm_var ROOMTYPE
 	internal int RoomType;
 
@@ -183,9 +645,9 @@ class screendata {
 	// The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// Valid indices: [TileWarpIndex] (`TILEWARP_`).
-	// Valid values: [WarpType] (`WT_`).
-	//
+	// @index [enum TileWarpIndex]
+	// @value [enum WarpType]
+
 	// @zasm_var SCREENDATATILEWARPTYPE
 	internal int TileWarpType[];
 
@@ -252,17 +714,17 @@ class screendata {
 
 	// The enemy 'Spawn Pattern'.
 	//
-	// Valid values: [EnemyPattern] (`PATTERN_`).
-	//
+	// @value [enum EnemyPattern]
+
 	// @zasm_var SCREENDATAPATTERN
 	internal int Pattern;
 
 	// The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// Valid indices: [SideWarpIndex] (`SIDEWARP_`).
-	// Valid values: [WarpType] (`WT_`).
-	//
+	// @index [enum SideWarpIndex]
+	// @value [enum WarpType]
+
 	// @zasm_var SCREENDATASIDEWARPTYPE
 	internal int SideWarpType[];
 
@@ -297,7 +759,7 @@ class screendata {
 	// Returns [SIDEWARP_NONE] if there is no sidewarp in that direction.
 	//
 	// Valid indices: [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
-	// Valid values: [SideWarpIndex] (`SIDEWARP_`)
+	// Valid values: [SideWarpIndex]
 	//
 	// @zasm_var SCREENSIDEWARPID
 	internal int SideWarpID[];
@@ -332,17 +794,18 @@ class screendata {
 	// @zasm_var SCREENDATACSENSITIVE
 	internal int CSensitive;
 
-	// The No Reset Flagset. Values are ORd together as follows:
+	// Which parts of the screen state that won't reset on reentry.
 	//
-	// TODO: document values
-	//
+	// @value [enum NoResetBitflags]
+
 	// @zasm_var SCREENDATANORESET
 	internal int NoReset;
 
-	// The No Carry Over Flagset. Values are ORd together s follows:
+	// For screen state carryovers, which parts of the screen state that won't carry over to the
+	// target screen.
 	//
-	// TODO: document values
-	//
+	// @value [enum NoCarryBitflags]
+
 	// @zasm_var SCREENDATANOCARRY
 	internal int NoCarry;
 
@@ -352,6 +815,8 @@ class screendata {
 	// Index [0] does nothing, and trying to access it will report an error to
 	// the log.
 	//
+	// This only refers to the screen denoted by [Index].
+	//
 	// @zasm_var SCREENDATALAYERMAP
 	internal int LayerMap[];
 
@@ -360,6 +825,8 @@ class screendata {
 	//
 	// Index [0] does nothing, and trying to access it will report an error to
 	// the log.
+	//
+	// This only refers to the screen denoted by [Index].
 	//
 	// @zasm_var SCREENDATALAYERSCREEN
 	internal int LayerScreen[];
@@ -416,22 +883,21 @@ class screendata {
 
 	// The Combo IDs used by 'Secret Combos' on this screen.
 	//
-	// See `SECCMB_` in std_constants.zh for more information.
-	//
+	// @index [enum SecretComboIndex]
 	// @zasm_var SCREENDATASECRETCOMBO
 	internal int SecretCombo[];
 
 	// The CSets used by 'Secret Combos' on this screen.
 	//
-	// See `SECCMB_` in std_constants.zh for more information.
-	//
+	// @index [enum SecretComboIndex]
 	// @zasm_var SCREENDATASECRETCSET
 	internal int SecretCSet[];
 
 	// The Combo Flags used by 'Secret Combos' on this screen.
 	//
-	// See `SECCMB_` in std_constants.zh for more information.
-	//
+	// @index [enum SecretComboIndex]
+	// @value [enum ComboFlag]
+
 	// @zasm_var SCREENDATASECRETFLAG
 	internal int SecretFlags[];
 
@@ -471,8 +937,7 @@ class screendata {
 	// @zasm_var SCREENINITD
 	internal untyped InitD[];
 
-	// Returns true if secrets have been triggered on this screen (including
-	// temp).
+	// Returns true if secrets have been triggered on this screen (including temp).
 	//
 	// @zasm_var SCREENSECRETSTRIGGERED
 	internal const bool SecretsTriggered;
@@ -565,33 +1030,24 @@ class screendata {
 	// @zasm_var SCREENDATANEXTSCREEN
 	internal int CarryoverScreen;
 
-	// Stores the information on warp returns, butwise.
-	//
-	// Deprecated by [SideWarpReturnSquare[4]] and [TileWarpReturnSquare[4]].
-	//
-	// The bits are DDCCBBAADDCCBBAA, where the left section is sidewarp
-	// returns, and the right is tilewarp returns.
-	//
-	// @zasm_var SCREENDATAWARPRETURNC
-	internal int WarpReturnC;
-
 	// If not zero, then the item for this screen will be shown.
 	//
 	// When the [Hero] takes the item on a screen, this is set to 0.
 	//
-	// @deprecated Check '->Item > -1' instead!
+	// @deprecated Check `->Item > -1` instead!
 	// @zasm_var SCREENDATAHASITEM
 	internal int HasItem;
 
-	// @deprecated
+	// Each entry is a separate 8-bit flag.
+	//
+	// @deprecated Use [var Flag] instead.
+	// @length 10
 	// @zasm_var SCREENDATAFLAGS
 	internal int ScreenFlags[];
 
 	// A flagset for enemies on the screen (E.Flags).
 	//
-	// Valid values (ORd) together, are:
-	//
-	// @deprecated
+	// @deprecated Use [Flag] instead!
 	// @zasm_var SCREENDATAENEMYFLAGS
 	internal int EnemyFlags;
 
@@ -635,10 +1091,9 @@ class screendata {
 	//   SETR D2 REFITEM
 	internal itemsprite LoadItem(int n);
 
-	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
-	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
-	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	// Creates a new item sprite.
 	//
+	// @param [ItemID] id
 	// @zasm
 	//   POP D2
 	//   CREATEITEMR D2
@@ -682,22 +1137,50 @@ class screendata {
 	//   SETR D2 REFNPC
 	internal npc LoadNPC(int n);
 
-	// Creates a new sprite object, with the given ID. Use the NPC_ constants.
+	// Creates a new npc (enemy) sprite, with the given ID.
 	//
+	// @param [NPCID] id
 	// @zasm
 	//   POP D2
 	//   CREATENPCR D2
 	//   SETR D2 REFNPC
 	internal npc CreateNPC(int id);
 
-	// Kills all sprite objects of the specified type, using the `SL_`
-	// constants.
+	// Kills all sprite objects of the specified type.
 	//
+	// @param [SpriteList] spritelist
 	// @zasm
 	//   POP D2
 	//   CLEARSPRITESR D2
 	//   SETR D2 REFNPC
 	internal void ClearSprites(int spritelist);
+
+	// Determines how coordinates given to [Screen] drawing functions are interpreted.
+	//
+	// Each script has its own copy of this variable, meaning other scripts can't change
+	// a script's draw origin unexpectedly.
+	//
+	// A [bitmap] loaded via [Game->LoadBitmapID] and [RT_SCREEN] also use this draw origin,
+	// including when referencing [RT_SCREEN] in [bitmap::Blit], [bitmap::BlitTo] or
+	// [bitmap::DrawPlane].
+	//
+	// When using the deprecated [SetRenderTarget] w/ [RT_BITMAP0] (or the other internal
+	// bitmaps), this value is ignored.
+	//
+	// Defaults to [DRAW_ORIGIN_DEFAULT].
+	//
+	// @versionadded 2.55.9
+	// @zasm_var SCREEN_DRAW_ORIGIN
+	internal DrawOrigin DrawOrigin;
+
+	// When [Screen->DrawOrigin] is [DRAW_ORIGIN_SPRITE], this sprite is used as the origin
+	// for [Screen] drawing functions.
+	//
+	// Each script has its own copy of this variable.
+	//
+	// @versionadded 3.0
+	// @zasm_var SCREEN_DRAW_ORIGIN_TARGET
+	internal sprite DrawOriginTarget;
 
 	// @zasm
 	//   RECTR
@@ -896,7 +1379,7 @@ class screendata {
 
 	// As DrawString(), but includes a shadow on the text.
 	//
-	// Valid values for [shadow_type]: [ShadowType] (`SHD_`).
+	// Valid values for [shadow_type]: [ShadowType].
 	//
 	// @zasm
 	//   DRAWSTRINGR2
@@ -950,8 +1433,8 @@ class screendata {
 	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
-	// You may specify a colour to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that colour index of the main palette.
+	// You may specify a color to 'int lit' to use a lit mode. This tints the
+	// entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   TILEBLIT
@@ -979,8 +1462,8 @@ class screendata {
 	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
-	// You may specify a colour to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that colour index of the main palette.
+	// You may specify a color to 'int lit' to use a lit mode. This tints the
+	// entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   COMBOBLIT
@@ -995,6 +1478,7 @@ class screendata {
 	// bitmap drawing. 2.55's [bitmap] effectively obsolete the render target
 	// system, and should be used instead of this.
 	//
+	// @param [RenderTarget] rt
 	// @zasm
 	//   SETRENDERTARGET
 	//   POP D3
@@ -1018,9 +1502,9 @@ class screendata {
 	//   SETR D2 LWPNCOUNT
 	internal int NumLWeapons();
 
-	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
-	// screen.
+	// Returns a pointer to the nth [lweapon] on the screen.
 	//
+	// @param [int] n - Between 1 and [NumLWeapons] (inclusive).
 	// @zasm
 	//   POP D2
 	//   SUBV D2 1
@@ -1028,13 +1512,14 @@ class screendata {
 	//   SETR D2 REFLWPN
 	internal lweapon LoadLWeapon(int n);
 
-	// Creates a new lweapon object, with the given ID. Use the `LW_` constants.
+	// Creates a new lweapon sprite, with the given type.
 	//
+	// @param [LWeaponType] type
 	// @zasm
 	//   POP D2
 	//   CREATELWEAPONR D2
 	//   SETR D2 REFLWPN
-	internal lweapon CreateLWeapon(int id);
+	internal lweapon CreateLWeapon(int type);
 
 	// Returns the number of the given object type that are present on the
 	// current screen.
@@ -1044,9 +1529,9 @@ class screendata {
 	//   SETR D2 EWPNCOUNT
 	internal int NumEWeapons();
 
-	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
-	// screen.
+	// Returns a pointer to the nth [eweapon] on the screen.
 	//
+	// @param [int] n - Between 1 and [NumEWeapons] (inclusive).
 	// @zasm
 	//   POP D2
 	//   SUBV D2 1
@@ -1054,15 +1539,14 @@ class screendata {
 	//   SETR D2 REFEWPN
 	internal eweapon LoadEWeapon(int n);
 
-	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
-	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
-	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	// Creates a new eweapon sprite, with the given type.
 	//
+	// @param [EWeaponType] type
 	// @zasm
 	//   POP D2
 	//   CREATEEWEAPONR D2
 	//   SETR D2 REFEWPN
-	internal eweapon CreateEWeapon(int id);
+	internal eweapon CreateEWeapon(int type);
 
 	// @zasm
 	//   POP D1
@@ -1070,10 +1554,9 @@ class screendata {
 	//   ISSOLID D2
 	internal bool isSolid(int x, int y);
 
-	// As 'Screen->isSolid()', but instead of returning true if there is
-	// solidity on layers 0, 1, or 2,
-	//
-	// returns the solidity only for the specified layer.
+	// As [Screen->isSolid], but instead of returning true if there is
+	// solidity on layers 0, 1, or 2 - returns the solidity only for
+	// the specified layer.
 	//
 	// @zasm
 	//   POP D2
@@ -1138,7 +1621,7 @@ class screendata {
 
 	// Plays the warping screen 'wipe' effect.
 	//
-	// Valid values for [effect]: [WipeEffect] (`WIPE_`).
+	// Valid values for [effect]: [WipeEffect].
 	//
 	// @zasm
 	//   POP D2
@@ -1147,7 +1630,7 @@ class screendata {
 
 	// Plays the warping screen 'wipe' effect.
 	//
-	// Valid values for [effect]: [WipeEffect] (`WIPE_`).
+	// Valid values for [effect]: [WipeEffect].
 	//
 	// @zasm
 	//   POP D2
@@ -1184,20 +1667,21 @@ class screendata {
 	//   SETR D2 SCREENSECRETSTRIGGERED
 	internal bool SecretsTriggered();
 
-	// Immediately attempts to spawn the [Enemy], using the [Pattern].
+	// Immediately attempts to spawn all the screen enemies ([Enemy]), using the [Pattern].
 	//
 	// @zasm
 	//   SCREENDOSPAWN
 	internal bool SpawnScreenEnemies();
 
-	// Attempts to trigger the combo at 'layer,pos'. Returns true on success,
-	// false on failure.
+	// Attempts to trigger the combo at 'layer,pos', with it's trigger number 'trig_index'.
+	// Returns true on success, false on failure.
 	//
 	// @zasm
+	//   POP D1
 	//   POP D3
 	//   POP D2
-	//   SCRTRIGGERCOMBO D2 D3
-	internal bool TriggerCombo(int layer, int pos);
+	//   SCRTRIGGERCOMBO2 D2 D3 D1
+	internal bool TriggerCombo(int layer, int pos, int trig_index = 0);
 
 	// Returns the number of the given object type that are present on the
 	// current screen.
@@ -1207,17 +1691,15 @@ class screendata {
 	//   SETR D2 PORTALCOUNT
 	internal int NumPortals();
 
-	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
-	// screen.
+	// Returns a pointer to the nth [portal] on the screen.
 	//
+	// @param [int] n - Between 1 and [NumPortals] (inclusive).
 	// @zasm
 	//   POP D2
 	//   LOADPORTAL D2
 	internal portal LoadPortal(int n);
 
-	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
-	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
-	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	// Creates a new portal object.
 	//
 	// @zasm
 	//   CREATEPORTAL
@@ -1276,7 +1758,7 @@ class screendata {
 	//   POPARGS D5 0.0002
 	internal void SetExDoor(int dir, int index, bool state);
 
-	// Valid values for [type]: [WarpType] (`WT_`).
+	// Valid values for [type]: [WarpType].
 	//
 	// @zasm
 	//   SETSIDEWARP

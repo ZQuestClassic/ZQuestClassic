@@ -188,7 +188,10 @@ async function main() {
       }
     },
     preRun: [() => {
-      if (IS_CI) ENV.CI = '1';
+      if (IS_CI) {
+        ENV.CI = '1';
+        console.warn('CI mode enabled');
+      }
     }],
     locateFile: function (file, base) {
       return new URL(file, base || rootUrl).href;

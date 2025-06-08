@@ -317,7 +317,6 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			)
 		)
 	);
-	bool hasParams = is_msgc(curscc) && msg_code_operands(curscc) > 0;
 	cur_args = args[curscc];
 	switch(curscc)
 	{
@@ -613,10 +612,10 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					),
 					Row(padding = 0_px, hAlign = 1.0,
 						TXT("X:"),
-						NUM_FIELD(cur_args[2],0,240),
+						NUM_FIELD(cur_args[2],0,256*16-16),
 						INFOBTN("The exact X coordinate to warp to"),
 						TXT("Y:"),
-						NUM_FIELD(cur_args[3],0,160),
+						NUM_FIELD(cur_args[3],0,176*8-16),
 						INFOBTN("The exact Y coordinate to warp to")
 					),
 					Row(padding = 0_px, hAlign = 1.0,

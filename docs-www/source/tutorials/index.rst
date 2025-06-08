@@ -3,6 +3,14 @@ Tutorials
 
 More tutorials coming, soon\* :)
 
+General
+-------
+
+.. toctree::
+   :maxdepth: 1
+
+   /tutorials/z3_user_guide
+
 Editor
 ------
 
@@ -22,8 +30,9 @@ Editor
 ZScript
 -------
 
+Start learning ZScript :doc:`here </zscript/lang/introduction>`.
+
 .. toctree::
    :maxdepth: 1
 
-   Learn ZScript</zscript/lang/introduction>
    /tutorials/websockets

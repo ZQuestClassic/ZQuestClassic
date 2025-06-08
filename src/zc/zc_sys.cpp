@@ -2,13 +2,16 @@
 
 #include "allegro/gfx.h"
 #include "allegro/gui.h"
+#include "allegro/inline/draw.inl"
 #include "allegro5/joystick.h"
 #include "base/files.h"
 #include "base/render.h"
+#include "base/zdefs.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include <functional>
+#include <queue>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
@@ -51,7 +54,6 @@
 #include "zc/title.h"
 #include "particles.h"
 #include "sound/zcmusic.h"
-#include "zconsole.h"
 #include "zc/ffscript.h"
 #include "dialog/info.h"
 #include "dialog/alert.h"
@@ -63,8 +65,9 @@
 #include "zinfo.h"
 #include "base/misctypes.h"
 #include "music_playback.h"
-#include <base/new_menu.h>
-#include <base/files.h>
+#include "base/new_menu.h"
+#include "base/files.h"
+#include "iter.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -82,10 +85,7 @@ static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
 
-extern HeroClass Hero;
-extern zcmodule moduledata;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
-extern particle_list particles;
 extern int32_t loadlast;
 extern char *sfx_string[WAV_COUNT];
 byte use_dwm_flush;
@@ -93,7 +93,6 @@ byte use_save_indicator;
 int32_t paused_midi_pos = 0;
 byte midi_suspended = 0;
 byte zc_192b163_warp_compatibility;
-char modulepath[2048];
 bool epilepsyFlashReduction;
 signed char pause_in_background_menu_init = 0;
 byte pause_in_background = 0;
@@ -107,7 +106,6 @@ int32_t getnumber(const char *prompt,int32_t initialval);
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 
-static  const char *qst_module_name = "current_module";
 #ifdef ALLEGRO_LINUX
 static  const char *samplepath = "samplesoundset/patches.dat";
 #endif
@@ -369,7 +367,6 @@ static bool loaded_game_configs;
 void load_game_configs()
 {
 	loaded_game_configs = true;
-	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"modules/classic.zmod"));
 	joystick_index = zc_get_config(ctrl_sect,"joystick_index",0);
 	js_stick_1_x_stick = zc_get_config(ctrl_sect,"js_stick_1_x_stick",0);
 	js_stick_1_x_axis = zc_get_config(ctrl_sect,"js_stick_1_x_axis",0);
@@ -453,6 +450,7 @@ void load_game_configs()
 	Maxfps = zc_get_config(cfg_sect,"maxfps",0);
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
 	SnapshotFormat = zc_get_config(cfg_sect,"snapshot_format",3);
+	ShowBottomPixels = zc_get_config(cfg_sect,"bottom_8_px",0);
 	SnapshotScale = zc_get_config(cfg_sect,"snapshot_scale",2);
 	NameEntryMode = zc_get_config(cfg_sect,"name_entry_mode",0);
 #ifdef __EMSCRIPTEN__
@@ -594,8 +592,6 @@ void save_game_configs()
 	if (!loaded_game_configs) return;
 
 	packfile_password("");
-	
-	zc_set_config("ZCMODULE",qst_module_name,moduledata.module_name);
 	
 	if (all_get_display() && !all_get_fullscreen_flag()&& SaveWinPos)
 	{
@@ -870,7 +866,7 @@ qword trianglelines[16]=
 	0x00000000000000FDULL,
 };
 
-word screen_triangles[28][32];
+word screen_triangles[29][32];
 
 // the ULL suffixes are to prevent this warning:
 // warning: integer constant is too large for "int32_t" type
@@ -1527,6 +1523,7 @@ qword triangles[4][16][8]= //[direction][value][line]
 	}
 };
 
+static bool is_opening_screen;
 int32_t black_opening_count=0;
 int32_t black_opening_x,black_opening_y;
 int32_t black_opening_shape;
@@ -1569,10 +1566,12 @@ int32_t choose_opening_shape()
 
 void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 {
+	x -= viewport.x;
+	y -= viewport.y;
 	black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
 	
-	int32_t w=256, h=224;
-	int32_t blockrows=28, blockcolumns=32;
+	int32_t w=framebuf->w, h=framebuf->h;
+	int32_t blockrows=h/8, blockcolumns=32;
 	int32_t xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
 	
 	for(int32_t blockrow=0; blockrow<blockrows; ++blockrow)  //30
@@ -1585,7 +1584,7 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 	
 	black_opening_count = 66;
 	black_opening_x = x;
-	black_opening_y = y;
+    black_opening_y = y;
 	lensclk = 0;
 	//black_opening_shape=(black_opening_shape+1)%bosMAX;
 	
@@ -1600,8 +1599,7 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		FFCore.warpScriptCheck();
 		for(int32_t i=0; i<66; i++)
 		{
-			draw_screen(tmpscr);
-			//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
+			draw_screen();
 			advanceframe(true);
 			
 			if(Quit)
@@ -1609,15 +1607,17 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 				break;
 			}
 		}
-	}
+    }
 }
 
 void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 {
+	x -= viewport.x;
+	y -= viewport.y;
 	black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
 	
-	int32_t w=256, h=224;
-	int32_t blockrows=28, blockcolumns=32;
+	int32_t w=framebuf->w, h=framebuf->h;
+	int32_t blockrows=h/8, blockcolumns=32;
 	int32_t xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
 	
 	for(int32_t blockrow=0; blockrow<blockrows; ++blockrow)  //30
@@ -1630,7 +1630,7 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 	
 	black_opening_count = -66;
 	black_opening_x = x;
-	black_opening_y = y;
+    black_opening_y = y;
 	lensclk = 0;
 	if(black_opening_shape == bosFADEBLACK)
 	{
@@ -1642,8 +1642,7 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		FFCore.warpScriptCheck();
 		for(int32_t i=0; i<66; i++)
 		{
-			draw_screen(tmpscr);
-			//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
+			draw_screen();
 			advanceframe(true);
 			
 			if(Quit)
@@ -1657,7 +1656,7 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 {
 	clear_to_color(tmp_scr,BLACK);
-	int32_t w=256, h=224;
+	int32_t w=dest->w, h=dest->h;
 	
 	switch(black_opening_shape)
 	{
@@ -1694,7 +1693,7 @@ void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 	{
 		int32_t distance=zc_max(abs(w/2-x),abs(h/2-y))/8;
 		
-		for(int32_t blockrow=0; blockrow<28; ++blockrow)  //30
+		for(int32_t blockrow=0; blockrow<h/8; ++blockrow)  //30
 		{
 			for(int32_t linerow=0; linerow<8; ++linerow)
 			{
@@ -1706,10 +1705,6 @@ void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 								  [zc_min(zc_max((((31+distance)*(max_a-a)/max_a)+((screen_triangles[blockrow][blockcolumn]&0x0FFF)-0x0100)-(15+distance)),0),15)]
 								  [linerow];
 					++triangleline;
-					
-					if(linerow==0)
-					{
-					}
 				}
 			}
 		}
@@ -2361,6 +2356,7 @@ int32_t bunny_tile_mod()
 }
 
 // Hints are drawn on a separate layer to combo reveals.
+// TODO: move out of zc_sys.cpp, weird place for this code.
 void draw_lens_under(BITMAP *dest, bool layer)
 {
 	//Lens flag 1: Replacement for qr_LENSHINTS; if set, lens will show hints. Does nothing if flag 2 is set.
@@ -2389,11 +2385,12 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		}
 		
 		++strike_hint_timer;
-		
-		for(int32_t i=0; i<176; i++)
-		{
-			int32_t x = (i & 15) << 4;
-			int32_t y = (i & 0xF0) + playing_field_offset;
+
+		for_every_visible_rpos_layer0([&](const rpos_handle_t& rpos_handle) {
+			mapscr* scr = rpos_handle.scr;
+			auto [x, y] = rpos_handle.xy();
+			y += playing_field_offset;
+
 			int32_t tempitemx=-16, tempitemy=-16;
 			int32_t tempweaponx=-16, tempweapony=-16;
 			
@@ -2403,18 +2400,18 @@ void draw_lens_under(BITMAP *dest, bool layer)
 				
 				if(iter==0)
 				{
-					checkflag=combobuf[tmpscr->data[i]].flag;
+					checkflag = rpos_handle.cflag();
 				}
 				else
 				{
-					checkflag=tmpscr->sflag[i];
+					checkflag = rpos_handle.sflag();
 				}
 				
 				if(checkflag==mfSTRIKE)
 				{
 					if(!hints)
 					{
-						if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSTRIKE],tmpscr->secretcset[sSTRIKE]);
+						if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSTRIKE],scr->secretcset[sSTRIKE]);
 					}
 					else
 					{
@@ -2628,7 +2625,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						if(!hints && ((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&16))
 									  || ((get_debug() && zc_getkey(KEY_N)) && (frame&16))))
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->undercombo,tmpscr->undercset);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->undercombo,scr->undercset);
 						}
 						
 						if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
@@ -2636,7 +2633,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						{
 							if(hints)
 							{
-								switch(combobuf[tmpscr->data[i]].type)
+								switch (rpos_handle.ctype())
 								{
 								case cPUSH_HEAVY:
 								case cPUSH_HW:
@@ -2707,7 +2704,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfANYFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sBCANDLE],tmpscr->secretcset[sBCANDLE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sBCANDLE],scr->secretcset[sBCANDLE]);
 						}
 						else
 						{
@@ -2730,7 +2727,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSTRONGFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sRCANDLE],tmpscr->secretcset[sRCANDLE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sRCANDLE],scr->secretcset[sRCANDLE]);
 						}
 						else
 						{
@@ -2753,7 +2750,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMAGICFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWANDFIRE],tmpscr->secretcset[sWANDFIRE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWANDFIRE],scr->secretcset[sWANDFIRE]);
 						}
 						else
 						{
@@ -2784,7 +2781,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfDIVINEFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sDIVINEFIRE],tmpscr->secretcset[sDIVINEFIRE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sDIVINEFIRE],scr->secretcset[sDIVINEFIRE]);
 						}
 						else
 						{
@@ -2807,7 +2804,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfARROW:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sARROW],tmpscr->secretcset[sARROW]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sARROW],scr->secretcset[sARROW]);
 						}
 						else
 						{
@@ -2830,7 +2827,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSARROW:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSARROW],tmpscr->secretcset[sSARROW]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSARROW],scr->secretcset[sSARROW]);
 						}
 						else
 						{
@@ -2853,7 +2850,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfGARROW:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sGARROW],tmpscr->secretcset[sGARROW]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sGARROW],scr->secretcset[sGARROW]);
 						}
 						else
 						{
@@ -2876,7 +2873,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfBOMB:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sBOMB],tmpscr->secretcset[sBOMB]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sBOMB],scr->secretcset[sBOMB]);
 						}
 						else
 						{
@@ -2899,7 +2896,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSBOMB:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSBOMB],tmpscr->secretcset[sSBOMB]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSBOMB],scr->secretcset[sSBOMB]);
 						}
 						else
 						{
@@ -2922,14 +2919,16 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfARMOS_SECRET:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
-						}	
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
+								putcombo(dest,x,y,scr->secretcombo[sSTAIRS],scr->secretcset[sSTAIRS]);
+						}
 						break;
 						
 					case mfBRANG:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sBRANG],tmpscr->secretcset[sBRANG]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
+								putcombo(dest,x,y,scr->secretcombo[sBRANG],scr->secretcset[sBRANG]);
 						}
 						else
 						{
@@ -2952,7 +2951,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMBRANG:
 						if(!hints)
 				{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sMBRANG],tmpscr->secretcset[sMBRANG]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sMBRANG],scr->secretcset[sMBRANG]);
 						}
 						else
 						{
@@ -2975,7 +2974,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfFBRANG:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sFBRANG],tmpscr->secretcset[sFBRANG]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sFBRANG],scr->secretcset[sFBRANG]);
 						}
 						else
 						{
@@ -2998,7 +2997,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWANDMAGIC:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWANDMAGIC],tmpscr->secretcset[sWANDMAGIC]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWANDMAGIC],scr->secretcset[sWANDMAGIC]);
 						}
 						else
 						{
@@ -3035,7 +3034,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfREFMAGIC:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sREFMAGIC],tmpscr->secretcset[sREFMAGIC]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sREFMAGIC],scr->secretcset[sREFMAGIC]);
 						}
 						else
 						{
@@ -3085,7 +3084,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfREFFIREBALL:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sREFFIREBALL],tmpscr->secretcset[sREFFIREBALL]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sREFFIREBALL],scr->secretcset[sREFFIREBALL]);
 						}
 						else
 						{
@@ -3129,7 +3128,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSWORD:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSWORD],tmpscr->secretcset[sSWORD]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSWORD],scr->secretcset[sSWORD]);
 						}
 						else
 						{
@@ -3152,7 +3151,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWSWORD:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORD],tmpscr->secretcset[sWSWORD]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWSWORD],scr->secretcset[sWSWORD]);
 						}
 						else
 						{
@@ -3175,7 +3174,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMSWORD:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORD],tmpscr->secretcset[sMSWORD]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sMSWORD],scr->secretcset[sMSWORD]);
 						}
 						else
 						{
@@ -3198,7 +3197,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfXSWORD:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORD],tmpscr->secretcset[sXSWORD]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sXSWORD],scr->secretcset[sXSWORD]);
 						}
 						else
 						{
@@ -3221,7 +3220,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSWORDBEAM:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSWORDBEAM],tmpscr->secretcset[sSWORDBEAM]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSWORDBEAM],scr->secretcset[sSWORDBEAM]);
 						}
 						else
 						{
@@ -3244,7 +3243,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWSWORDBEAM:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORDBEAM],tmpscr->secretcset[sWSWORDBEAM]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWSWORDBEAM],scr->secretcset[sWSWORDBEAM]);
 						}
 						else
 						{
@@ -3267,7 +3266,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMSWORDBEAM:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORDBEAM],tmpscr->secretcset[sMSWORDBEAM]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sMSWORDBEAM],scr->secretcset[sMSWORDBEAM]);
 						}
 						else
 						{
@@ -3290,7 +3289,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfXSWORDBEAM:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORDBEAM],tmpscr->secretcset[sXSWORDBEAM]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sXSWORDBEAM],scr->secretcset[sXSWORDBEAM]);
 						}
 						else
 						{
@@ -3313,7 +3312,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfHOOKSHOT:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sHOOKSHOT],tmpscr->secretcset[sHOOKSHOT]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sHOOKSHOT],scr->secretcset[sHOOKSHOT]);
 						}
 						else
 						{
@@ -3336,7 +3335,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWAND:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWAND],tmpscr->secretcset[sWAND]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWAND],scr->secretcset[sWAND]);
 						}
 						else
 						{
@@ -3359,7 +3358,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfHAMMER:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sHAMMER],tmpscr->secretcset[sHAMMER]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sHAMMER],scr->secretcset[sHAMMER]);
 						}
 						else
 						{
@@ -3381,9 +3380,9 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 					case mfARMOS_ITEM:
 					case mfDIVE_ITEM:
-						if((!getmapflag() || (tmpscr->flags9&fBELOWRETURN)) && !(itemsbuf[Hero.getLastLensID()].flags & item_flag3))
+						if((!getmapflag(scr, mSPECIALITEM) || (scr->flags9&fBELOWRETURN)) && !(itemsbuf[Hero.getLastLensID()].flags & item_flag3))
 						{
-							putitem2(dest,x,y,tmpscr->catchall, lens_hint_item[tmpscr->catchall][0], lens_hint_item[tmpscr->catchall][1], 0);
+							putitem2(dest,x,y,scr->catchall, lens_hint_item[scr->catchall][0], lens_hint_item[scr->catchall][1], 0);
 						}
 						break;
 						
@@ -3405,13 +3404,13 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case 31:
 						if(!hints)
 							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
-								putcombo(dest,x,y,tmpscr->secretcombo[checkflag-16+4],tmpscr->secretcset[checkflag-16+4]);
+								putcombo(dest,x,y,scr->secretcombo[checkflag-16+4],scr->secretcset[checkflag-16+4]);
 									 
 						break;
 					case mfSECRETSNEXT:
 						if(!hints)
 							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
-								putcombo(dest,x,y,tmpscr->data[i]+1,tmpscr->cset[i]);
+								putcombo(dest,x,y,rpos_handle.data()+1,rpos_handle.cset());
 									 
 						break;
 					
@@ -3439,117 +3438,130 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						break;
 				}
 			}
-		}
-		
-		if(layer)
-		{
-			if(tmpscr->door[0]==dWALK)
-				rectfill(dest, 120, 16+playing_field_offset, 135, 31+playing_field_offset, WHITE);
-				
-			if(tmpscr->door[1]==dWALK)
-				rectfill(dest, 120, 144+playing_field_offset, 135, 159+playing_field_offset, WHITE);
-				
-			if(tmpscr->door[2]==dWALK)
-				rectfill(dest, 16, 80+playing_field_offset, 31, 95+playing_field_offset, WHITE);
-				
-			if(tmpscr->door[3]==dWALK)
-				rectfill(dest, 224, 80+playing_field_offset, 239, 95+playing_field_offset, WHITE);
-				
-			if(tmpscr->door[0]==dBOMB)
+		});
+
+		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+			auto [offx, offy] = translate_screen_coordinates_to_world(scr->screen);
+
+			offx -= viewport.x;
+			offy -= viewport.y;
+			offy += playing_field_offset;
+
+			if (layer)
 			{
-				showbombeddoor(dest, 0);
-			}
-			
-			if(tmpscr->door[1]==dBOMB)
-			{
-				showbombeddoor(dest, 1);
-			}
-			
-			if(tmpscr->door[2]==dBOMB)
-			{
-				showbombeddoor(dest, 2);
-			}
-			
-			if(tmpscr->door[3]==dBOMB)
-			{
-				showbombeddoor(dest, 3);
-			}
-		}
-		
-		if(tmpscr->stairx + tmpscr->stairy)
-		{
-			if(!hints)
-			{
-				if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
-					putcombo(dest,tmpscr->stairx,tmpscr->stairy+playing_field_offset,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
-			}
-			else
-			{
-				if(tmpscr->flags&fWHISTLE)
+				if (scr->door[0]==dWALK)
+					rectfill(dest, 120+offx, 16+offy, 135+offx, 31+offy, WHITE);
+					
+				if (scr->door[1]==dWALK)
+					rectfill(dest, 120+offx, 144+offy, 135+offx, 159+offy, WHITE);
+					
+				if (scr->door[2]==dWALK)
+					rectfill(dest, 16+offx, 80+offy, 31+offx, 95+offy, WHITE);
+					
+				if (scr->door[3]==dWALK)
+					rectfill(dest, 224+offx, 80+offy, 239+offx, 95+offy, WHITE);
+					
+				if (scr->door[0]==dBOMB)
 				{
-					tempitem=getItemID(itemsbuf,itype_whistle,1);
-					int32_t tempitemx=-16;
-					int32_t tempitemy=-16;
-					
-					if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
-							|| ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
-					{
-						tempitemx=tmpscr->stairx;
-						tempitemy=tmpscr->stairy+playing_field_offset;
-					}
-					
-					putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+					showbombeddoor(scr, dest, 0, offx, offy);
+				}
+				
+				if (scr->door[1]==dBOMB)
+				{
+					showbombeddoor(scr, dest, 1, offx, offy);
+				}
+				
+				if (scr->door[2]==dBOMB)
+				{
+					showbombeddoor(scr, dest, 2, offx, offy);
+				}
+				
+				if (scr->door[3]==dBOMB)
+				{
+					showbombeddoor(scr, dest, 3, offx, offy);
 				}
 			}
-		}
+
+			if (scr->stairx || scr->stairy)
+			{
+				if (!hints)
+				{
+					if (!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
+						putcombo(dest,scr->stairx+offx,scr->stairy+offy,scr->secretcombo[sSTAIRS],scr->secretcset[sSTAIRS]);
+				}
+				else
+				{
+					if(scr->flags&fWHISTLE)
+					{
+						tempitem=getItemID(itemsbuf,itype_whistle,1);
+						int32_t tempitemx=-16+offx;
+						int32_t tempitemy=-16+offy-playing_field_offset;
+						
+						if ((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
+								|| ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
+						{
+							tempitemx=scr->stairx+offx;
+							tempitemy=scr->stairy+offy;
+						}
+						
+						putitem2(dest, tempitemx, tempitemy, tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+					}
+				}
+			}
+		});
 	}
 }
 
-BITMAP *lens_scr_d; // The "d" is for "destructible"!
-
 void draw_lens_over()
 {
-	// Oh, what the heck.
-	static BITMAP *lens_scr = NULL;
+	int w = 288;
+	int h = 240;
+
+	static BITMAP *lens_scr = create_bitmap_ex(8,2*w,2*h);
 	static int32_t last_width = -1;
 	int32_t width = itemsbuf[current_item_id(itype_lens,true)].misc1;
 	
 	// Only redraw the circle if the size has changed
-	if(width != last_width)
+	if (width != last_width)
 	{
-		if(lens_scr == NULL)
-		{
-			lens_scr = create_bitmap_ex(8,2*288,2*(240-playing_field_offset));
-		}
-		
 		clear_to_color(lens_scr, BLACK);
-		circlefill(lens_scr, 288, 240-playing_field_offset, width, 0);
-		circle(lens_scr, 288, 240-playing_field_offset, width+2, 0);
-		circle(lens_scr, 288, 240-playing_field_offset, width+5, 0);
+		circlefill(lens_scr, w, h, width, 0);
+		circle(lens_scr, w, h, width+2, 0);
+		circle(lens_scr, w, h, width+5, 0);
 		last_width=width;
 	}
 	
-	masked_blit(lens_scr, framebuf, 288-(HeroX()+8), 240-playing_field_offset-(HeroY()+8), 0, playing_field_offset, 256, 168);
-	do_primitives(framebuf, SPLAYER_LENS_OVER, tmpscr, 0, playing_field_offset);
+	masked_blit(lens_scr, framebuf, w-(HeroX()+8)+viewport.x, h-(HeroY()+8)+viewport.y, 0, playing_field_offset, 256, viewport.h);
+	do_primitives(framebuf, SPLAYER_LENS_OVER);
 }
 
-//----------------------------------------------------------------
+static void update_bmp_size(BITMAP** bmp_ptr, int w, int h)
+{
+	BITMAP* bmp = *bmp_ptr;
+	if (bmp->w == w && bmp->h == h)
+		return;
+
+	int depth = bitmap_color_depth(bmp);
+	destroy_bitmap(bmp);
+	*bmp_ptr = create_bitmap_ex(depth, w, h);
+}
 
 void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 {
-	//recreating a big bitmap every frame is highly sluggish.
 	static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
+	update_bmp_size(&wavebuf, 288, 240 - original_playing_field_offset);
+
 	clear_to_color(wavebuf, BLACK);
-	blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
+	blit(source,wavebuf,0,original_playing_field_offset,16,0,256,framebuf->h-original_playing_field_offset);
 	
 	int32_t ofs;
 	amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
 	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
-	int32_t amp2=168;
+	int32_t amp2 = viewport.visible_height(show_bottom_8px);
 	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY_2)) amp2*=2;
 	int32_t i=frame%amp2;
 	
-	for(int32_t j=0; j<168; j++)
+	for(int32_t j=0; j<viewport.visible_height(show_bottom_8px); j++)
 	{
 		if(j&1 && interpol)
 		{
@@ -3592,18 +3604,18 @@ void draw_fuzzy(int32_t fuzz)
 		
 	firsty = 1;
 	
-	for(y=0; y<224;)
+	for(y=0; y<framebuf->h;)
 	{
-		start = &(scrollbuf->line[y][256]);
+		start = &(scrollbuf_old->line[y][256]);
 		
-		for(dy=0; dy<ystep && dy+y<224; dy++)
+		for(dy=0; dy<ystep && dy+y<framebuf->h; dy++)
 		{
 			si = start;
 			di = &(framebuf->line[y+dy][0]);
 			i = xstep;
 			firstx = 1;
 			
-			for(dx=0; dx<256; dx++)
+			for(dx=0; dx<framebuf->w; dx++)
 			{
 				*(di++) = *si;
 				
@@ -3635,9 +3647,11 @@ void draw_fuzzy(int32_t fuzz)
 
 void updatescr(bool allowwavy)
 {
-	static BITMAP *wavybuf = create_bitmap_ex(8,256,224);
-	static BITMAP *panorama = create_bitmap_ex(8,256,224);
-		
+	static BITMAP *wavybuf = create_bitmap_ex(8, framebuf->w, framebuf->h);
+	static BITMAP *panorama = create_bitmap_ex(8, framebuf->w, framebuf->h);
+	update_bmp_size(&wavybuf, framebuf->w, framebuf->h);
+	update_bmp_size(&panorama, framebuf->w, framebuf->h);
+
 	if(toogam)
 	{
 		textout_ex(framebuf,font,"no walls",8,216,1,-1);
@@ -3683,44 +3697,7 @@ void updatescr(bool allowwavy)
 		RAMpal[254] = _RGB(255,255,255);
 		hw_palette = &RAMpal;
 		update_hw_pal = true;
-
-		// Creating rgb_table and trans_table is pretty expensive, so try not to redo the same work
-		// within a short period of time by using a cache.
-		typedef std::array<uint32_t, PAL_SIZE> pal_table_cache_key;
-		struct pal_table_cache_entry {
-			RGB_MAP rgb_table;
-			COLOR_MAP trans_table;
-		};
-		static std::map<pal_table_cache_key, pal_table_cache_entry> pal_table_cache;
-
-		static constexpr int pal_table_cache_max_memory_mb = 10;
-		static constexpr int pal_table_cache_max_size = pal_table_cache_max_memory_mb / ((double)sizeof(pal_table_cache_entry) / 1024 / 1024);
-		if (pal_table_cache.size() > pal_table_cache_max_size)
-			pal_table_cache.clear();
-
-		pal_table_cache_key key;
-		for (int i = 0; i < PAL_SIZE; i++)
-			key[i] = RAMpal[i].r + (RAMpal[i].g << 8) + (RAMpal[i].b << 16);
-		auto cache_it = pal_table_cache.find(key);
-		if (cache_it == pal_table_cache.end())
-		{
-			create_rgb_table(&rgb_table, RAMpal, NULL);
-			create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-			pal_table_cache[key] = {rgb_table, trans_table};
-			trans_table2 = trans_table;
-		}
-		else
-		{
-			rgb_table = cache_it->second.rgb_table;
-			trans_table = cache_it->second.trans_table;
-			trans_table2 = cache_it->second.trans_table;
-		}
-		
-		for(int32_t q=0; q<PAL_SIZE; q++)
-		{
-			trans_table2.data[0][q] = q;
-			trans_table2.data[q][q] = q;
-		}
+		refresh_rgb_tables();
 	}
 	
 	bool clearwavy = (wavy <= 0);
@@ -3728,10 +3705,10 @@ void updatescr(bool allowwavy)
 	if(wavy <= 0)
 	{
 		// So far one thing can alter wavy apart from scripts: Wavy DMaps.
-		wavy = (DMaps[currdmap].flags&dmfWAVY ? 4 : 0);
+		wavy = (DMaps[cur_dmap].flags&dmfWAVY ? 4 : 0);
 	}
 	
-	blit(framebuf, wavybuf, 0, 0, 0, 0, 256, 224);
+	blit(framebuf, wavybuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	
 	if(wavy && Playing && allowwavy)
 	{
@@ -3746,29 +3723,28 @@ void updatescr(bool allowwavy)
 	if(Playing && !Paused)
 		++light_wave_clk;
 	
-	if(Playing && msgpos && !screenscrolling)
+	if(Playing && msg_active && !screenscrolling)
 	{
 		if(!(msg_bg_display_buf->clip))
-			blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
+			blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,176);
 		if(!(msg_portrait_display_buf->clip))
-			blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
+			blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,176);
 		if(!(msg_txt_display_buf->clip))
-			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
+			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,176);
 	}
 	
-	bool nosubscr = (tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET));
+	bool nosubscr = GameLoaded && no_subscreen() && !(hero_scr->flags3&fNOSUBSCROFFSET);
 	
 	if(nosubscr)
 	{
-		rectfill(panorama,0,0,255,passive_subscreen_height/2,0);
-		rectfill(panorama,0,168+passive_subscreen_height/2,255,168+passive_subscreen_height-1,0);
-		blit(wavybuf,panorama,0,playing_field_offset,0,passive_subscreen_height/2,256,224-passive_subscreen_height);
+		clear_to_color(panorama, 0);
+		blit(wavybuf,panorama,0,playing_field_offset,0,playing_field_offset/2,256,framebuf->h-playing_field_offset);
 	}
 	
 	//TODO: Optimize blit 'overcalls' -Gleeok
 	BITMAP *source = nosubscr ? panorama : wavybuf;
-	blit(source,framebuf,0,0,0,0,256,224);
-	
+	blit(source, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+
 	update_hw_screen();
 }
 
@@ -3806,11 +3782,11 @@ int32_t onNonGUISnapshot()
 	}
 	while(num<99999 && exists(buf));
 
-	if ((tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET)) && !(key[KEY_ALT]))
+	if (no_subscreen() && !(hero_scr->flags3&fNOSUBSCROFFSET) && !key[KEY_ALT])
 	{
-		BITMAP *b = create_bitmap_ex(8,256,168);
+		BITMAP *b = create_bitmap_ex(8, 256, viewport.visible_height(show_bottom_8px));
 		clear_to_color(b,0);
-		blit(framebuf,b,0,passive_subscreen_height/2,0,0,256,168);
+		blit(framebuf,b,0,playing_field_offset/2,0,0,b->w,b->h);
 		alleg4_save_bitmap(b, SnapshotScale, buf, realpal ? temppal : RAMpal);
 		destroy_bitmap(b);
 	}
@@ -3840,24 +3816,8 @@ int32_t onSaveMapPic()
 {
 	char buf[200];
 	int32_t num=0;
-	mapscr tmpscr_b[2];
-	mapscr tmpscr_c[6];
 	BITMAP* _screen_draw_buffer = NULL;
 	_screen_draw_buffer = create_bitmap_ex(8,256,176);
-	
-	for(int32_t i=0; i<6; ++i)
-	{
-		tmpscr_c[i] = tmpscr2[i];
-		tmpscr2[i].zero_memory();
-		
-		if(i>=2)
-		{
-			continue;
-		}
-		
-		tmpscr_b[i] = tmpscr[i];
-		tmpscr[i].zero_memory();
-	}
 	
 	do
 	{
@@ -3865,12 +3825,8 @@ int32_t onSaveMapPic()
 	}
 	while(num<99999 && exists(buf));
 	
-	BITMAP* mappic = NULL;
-	
-	
-	bool done=false, redraw=true;
-	
-	mappic = create_bitmap_ex(8,(256*16),(176*8));
+	BITMAP* mappic = create_bitmap_ex(8,(256*16),(176*8));
+	clear_to_color(mappic, BLACK);
 	
 	if(!mappic)
 	{
@@ -3881,6 +3837,10 @@ int32_t onSaveMapPic()
 	}
 
 	clear_to_color(_screen_draw_buffer, BLACK);
+
+	auto prev_viewport = viewport;
+	viewport.x = 0;
+	viewport.y = 0;
 	
 	// draw the map
 	
@@ -3891,60 +3851,81 @@ int32_t onSaveMapPic()
 			if (!displayOnMap(x, y))
 				continue;
 
-			int32_t s = (y<<4) + x;
-			loadscr2(1,s,-1);
-			if (!(tmpscr+1)->is_valid())
+			int screen = map_scr_xy_to_index(x, y);
+			auto scrs = loadscr2(screen);
+			mapscr* scr = &scrs[0];
+			if (!scr->is_valid())
 				continue;
 
-			if(XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, 0, playing_field_offset, 2);
+			screen_handles_t screen_handles;
+			for (int i = 0; i <= 6; i++)
+				screen_handles[i] = {scr, scrs[i].is_valid() ? &scrs[i] : nullptr, screen, i};
+
+			int xx = 0;
+			int yy = -playing_field_offset;
+
+			if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			{
+				do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, -2, screen_handles[0], xx, yy);
+			}
+
+			if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+			{
+				do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, -3, screen_handles[0], xx, yy);
+			}
+
+			if(lenscheck(scr,0))
+				putscr(scr, _screen_draw_buffer, 0, 0);
+			do_ffc_layer(_screen_draw_buffer, 0, screen_handles[0], xx, yy);
+			do_layer(_screen_draw_buffer, 0, screen_handles[1], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 1, screen_handles[0], xx, yy);
 			
-			if(XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, 0, playing_field_offset, 2);
+			if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			{
+				do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, 2, screen_handles[0], xx, yy);
+			}
 			
-			if(lenscheck(tmpscr+1,0)) putscr(_screen_draw_buffer,0,0,tmpscr+1);
-			do_layer(_screen_draw_buffer, 0, 1, tmpscr+1, 0, playing_field_offset, 2);
-			
-			if(!XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, 0, playing_field_offset, 2);
-			
-			putscrdoors(_screen_draw_buffer,0,0,tmpscr+1);
+			putscrdoors(scr, _screen_draw_buffer, xx, yy);
 			if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 			{
-				do_layer(_screen_draw_buffer, -2, 0, tmpscr+1, 0, playing_field_offset, 2);
+				do_layer(_screen_draw_buffer, -2, screen_handles[0], xx, yy);
 				if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
 				{
-					do_layer(_screen_draw_buffer, -2, 1, tmpscr+1, 0, playing_field_offset, 2);
-					do_layer(_screen_draw_buffer, -2, 2, tmpscr+1, 0, playing_field_offset, 2);
+					do_layer(_screen_draw_buffer, -2, screen_handles[1], xx, yy);
+					do_layer(_screen_draw_buffer, -2, screen_handles[2], xx, yy);
 				}
 			}
-			do_layer(_screen_draw_buffer, -3, 0, tmpscr+1, 0, playing_field_offset, 2); // Freeform combos!
 			
-			if(!XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, 0, playing_field_offset, 2);
+			if(!XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+			{
+				do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, 3, screen_handles[0], xx, yy);
+			}
 			
-			do_layer(_screen_draw_buffer, 0, 4, tmpscr+1, 0, playing_field_offset, 2);
-			do_layer(_screen_draw_buffer, -1, 0, tmpscr+1, 0, playing_field_offset, 2);
+			do_layer(_screen_draw_buffer, 0, screen_handles[4], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 4, screen_handles[0], xx, yy);
+			do_layer(_screen_draw_buffer, -1, screen_handles[0], xx, yy);
 			if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 			{
-				do_layer(_screen_draw_buffer, -1, 1, tmpscr+1, 0, playing_field_offset, 2);
-				do_layer(_screen_draw_buffer, -1, 2, tmpscr+1, 0, playing_field_offset, 2);
+				do_layer(_screen_draw_buffer, -1, screen_handles[1], xx, yy);
+				do_layer(_screen_draw_buffer, -1, screen_handles[2], xx, yy);
 			}
-			do_layer(_screen_draw_buffer, 0, 5, tmpscr+1, 0, playing_field_offset, 2);
-			do_layer(_screen_draw_buffer, 0, 6, tmpscr+1, 0, playing_field_offset, 2);
+			do_layer(_screen_draw_buffer, 0, screen_handles[5], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 5, screen_handles[0], xx, yy);
+			if(replay_version_check(40))
+				do_ffc_layer(_screen_draw_buffer, -1, screen_handles[0], xx, yy);
+			do_layer(_screen_draw_buffer, 0, screen_handles[6], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 6, screen_handles[0], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, 7, screen_handles[0], xx, yy);
 
 			blit(_screen_draw_buffer, mappic, 0, 0, x*256, y*176, 256, 176);
 		}
 	}
-	
-	for(int32_t i=0; i<6; ++i)
-	{
-		tmpscr2[i]=tmpscr_c[i];
-		
-		if(i>=2)
-		{
-			continue;
-		}
-		
-		tmpscr[i]=tmpscr_b[i];
-	}
-	
+
+	viewport = prev_viewport;
 	save_bitmap(buf,mappic,RAMpal);
 	destroy_bitmap(mappic);
 	destroy_bitmap(_screen_draw_buffer);
@@ -4081,37 +4062,37 @@ int32_t onSecretsCheatPerm()
 
 int32_t onShowLayer0()
 {
-	show_layer_0 = !show_layer_0;
+	show_layers[0] = !show_layers[0];
 	return D_O_K;
 }
 int32_t onShowLayer1()
 {
-	show_layer_1 = !show_layer_1;
+	show_layers[1] = !show_layers[1];
 	return D_O_K;
 }
 int32_t onShowLayer2()
 {
-	show_layer_2 = !show_layer_2;
+	show_layers[2] = !show_layers[2];
 	return D_O_K;
 }
 int32_t onShowLayer3()
 {
-	show_layer_3 = !show_layer_3;
+	show_layers[3] = !show_layers[3];
 	return D_O_K;
 }
 int32_t onShowLayer4()
 {
-	show_layer_4 = !show_layer_4;
+	show_layers[4] = !show_layers[4];
 	return D_O_K;
 }
 int32_t onShowLayer5()
 {
-	show_layer_5 = !show_layer_5;
+	show_layers[5] = !show_layers[5];
 	return D_O_K;
 }
 int32_t onShowLayer6()
 {
-	show_layer_6 = !show_layer_6;
+	show_layers[6] = !show_layers[6];
 	return D_O_K;
 }
 int32_t onShowLayerO()
@@ -4241,7 +4222,7 @@ void syskeys()
 	
 	if(zc_read_system_key(KEY_F8))   f_Quit(qEXIT);
 #endif
-	if(zc_read_system_key(KEY_F5)&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))	onSaveMapPic();
+	if(zc_read_system_key(KEY_F5)&&(Playing && cur_screen<128 && DMaps[cur_dmap].flags&dmfVIEWMAP))	onSaveMapPic();
 	
 	if (zc_read_system_key(KEY_F12))
 	{
@@ -4420,6 +4401,40 @@ bool CheatModifierKeys()
 //9000:00:00, the highest even-thousand hour fitting within 32b signed. This is 375 *DAYS*.
 #define MAXTIME	 1944000000
 
+// (qr, value)
+static std::queue<std::pair<int, bool>> change_qr_queue;
+
+void enqueue_qr_change(int qr, bool value)
+{
+	change_qr_queue.push({qr, value});
+}
+
+// During regular play, QR changes issued through `syskey` / `System` and enqueued
+// and soon executed here.
+// During playing back a replay file, the replay system adds to the same queue and
+// is executed here too.
+// This is currently only used to allow users to configure qr_HIDE_BOTTOM_8_PIXELS, but
+// could be later extended to all QRs (perhaps as a cheat).
+void process_enqueued_qr_changes()
+{
+	if (replay_is_replaying())
+		replay_do_qrs();
+
+	while (!change_qr_queue.empty())
+	{
+		auto [qr, value] = change_qr_queue.front();
+		change_qr_queue.pop();
+
+		// Don't modify `quest_rules`, as that is used to store the canonical QR value which can be reset to
+		// via system menus. Changing the unpacked array is enough to modify the engine's behavior.
+		_qrs_unpacked[qr] = value;
+		apply_qr_rule(qr);
+
+		if (replay_is_recording())
+			replay_step_qr(qr, value);
+	}
+}
+
 void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
 	if(zcmusic!=NULL)
@@ -4427,7 +4442,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		zcmusic_poll();
 	}
 	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
-	
+
 	updatescr(allowwavy);
 
 	Advance=false;
@@ -4483,7 +4498,9 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		if (replay_version_check(11) || replay_version_check(6, 8))
 			replay_peek_input();
 	}
-	
+
+	process_enqueued_qr_changes();
+
 	load_control_called_this_frame = false;
 	
 	poll_keyboard();
@@ -4506,7 +4523,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	// is called just above, and in the paused loop above, so the queue-and-defer-slightly
 	// approach here means it doesn't matter which call adds the cheat.
 	cheats_execute_queued();
-	
+
 	if (replay_is_replaying())
 		replay_peek_quit();
 	if (GameFlags & GAMEFLAG_TRYQUIT)
@@ -4566,8 +4583,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 
 void zapout()
 {
-	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
-	blit(framebuf,scrollbuf,0,0,256,0,256,224);
+	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
+	blit(framebuf,scrollbuf_old,0,0,256,0,256,framebuf->h);
 	
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 	script_drawing_commands.Clear();
@@ -4588,9 +4605,9 @@ void zapout()
 void zapin()
 {
 	FFCore.warpScriptCheck();
-	draw_screen(tmpscr);
-	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
-	blit(framebuf,scrollbuf,0,0,256,0,256,224);
+	draw_screen();
+	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
+	blit(framebuf,scrollbuf_old,0,0,256,0,256,framebuf->h);
 	
 	// zap out
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
@@ -4609,11 +4626,11 @@ void zapin()
 
 void wavyout(bool showhero)
 {
-	draw_screen(tmpscr, showhero);
+	draw_screen(showhero);
 	
-	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
+	BITMAP *wavebuf = create_bitmap_ex(8,288,framebuf->h);
 	clear_to_color(wavebuf,0);
-	blit(framebuf,wavebuf,0,0,16,0,256,224);
+	blit(framebuf,wavebuf,0,0,16,0,framebuf->w,framebuf->h);
 	
 	static PALETTE wavepal;
 	
@@ -4621,10 +4638,11 @@ void wavyout(bool showhero)
 	int32_t amplitude=8;
 	
 	int32_t wavelength=4;
+	int height = viewport.visible_height(show_bottom_8px);
 	double palpos=0, palstep=4, palstop=126;
-	
+
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
-	for(int32_t i=0; i<168; i+=wavelength)
+	for(int32_t i=0; i<height; i+=wavelength)
 	{
 		for(int32_t l=0; l<256; l++)
 		{
@@ -4646,7 +4664,7 @@ void wavyout(bool showhero)
 			update_hw_pal = true;
 		}
 		
-		for(int32_t j=0; j+playing_field_offset<224; j++)
+		for(int32_t j=0; j+playing_field_offset<framebuf->h; j++)
 		{
 			for(int32_t k=0; k<256; k++)
 			{
@@ -4654,7 +4672,7 @@ void wavyout(bool showhero)
 				
 				if((j<i)&&(j&1))
 				{
-					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/168.0))*amplitude);
+					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/height))*amplitude);
 				}
 				
 				framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
@@ -4675,11 +4693,11 @@ void wavyout(bool showhero)
 
 void wavyin()
 {
-	draw_screen(tmpscr);
+	draw_screen();
 	
-	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
+	BITMAP *wavebuf = create_bitmap_ex(8,288,framebuf->h);
 	clear_to_color(wavebuf,0);
-	blit(framebuf,wavebuf,0,0,16,0,256,224);
+	blit(framebuf,wavebuf,0,0,16,0,framebuf->w,framebuf->h);
 	
 	static PALETTE wavepal;
 
@@ -4687,10 +4705,11 @@ void wavyin()
 	int32_t ofs;
 	int32_t amplitude=8;
 	int32_t wavelength=4;
-	double palpos=168, palstep=4, palstop=126;
+	int height = viewport.visible_height(show_bottom_8px);
+	double palpos=height, palstep=4, palstop=126;
 	
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
-	for(int32_t i=0; i<168; i+=wavelength)
+	for(int32_t i=0; i<height; i+=wavelength)
 	{
 		for(int32_t l=0; l<256; l++)
 		{
@@ -4712,15 +4731,15 @@ void wavyin()
 			update_hw_pal = true;
 		}
 		
-		for(int32_t j=0; j+playing_field_offset<224; j++)
+		for(int32_t j=0; j+playing_field_offset<framebuf->h; j++)
 		{
 			for(int32_t k=0; k<256; k++)
 			{
 				ofs=0;
 				
-				if((j<(167-i))&&(j&1))
+				if((j<(height-1-i))&&(j&1))
 				{
-					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/168.0))*amplitude);
+					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/height))*amplitude);
 				}
 				
 				framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
@@ -4752,10 +4771,10 @@ void blackscr(int32_t fcnt,bool showsubscr)
 		
 		if(showsubscr)
 		{
-			put_passive_subscr(framebuf,0,passive_subscreen_offset,showtime,sspUP);
+			put_passive_subscr(framebuf,0,0,showtime,sspUP);
 			if(get_qr(qr_SCRIPTDRAWSINWARPS) || (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN)))
 			{
-				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+				do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 			}
 		}
 		
@@ -4770,6 +4789,8 @@ void blackscr(int32_t fcnt,bool showsubscr)
 
 void openscreen(int32_t shape)
 {
+	update_viewport();
+	is_opening_screen = true;
 	reset_pal_cycling();
 	black_opening_count=0;
 	
@@ -4791,13 +4812,13 @@ void openscreen(int32_t shape)
 	FFCore.warpScriptCheck();
 	for(int32_t i=0; i<80; i++)
 	{
-		draw_screen(tmpscr);
+		draw_screen();
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)
 		{
-			rectfill(framebuf,0,playing_field_offset,x,167+playing_field_offset,0);
-			rectfill(framebuf,256-x,playing_field_offset,255,167+playing_field_offset,0);
+			rectfill(framebuf,0,playing_field_offset,x,(viewport.h - 1)+playing_field_offset,0);
+			rectfill(framebuf,viewport.w-x,playing_field_offset,255,(viewport.h - 1)+playing_field_offset,0);
 		}
 		
 		advanceframe(true);
@@ -4817,6 +4838,7 @@ void openscreen(int32_t shape)
 
 void closescreen(int32_t shape)
 {
+	is_opening_screen = false;
 	reset_pal_cycling();
 	black_opening_count=0;
 	
@@ -4839,13 +4861,13 @@ void closescreen(int32_t shape)
 	FFCore.warpScriptCheck();
 	for(int32_t i=79; i>=0; --i)
 	{
-		draw_screen(tmpscr);
+		draw_screen();
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)
 		{
-			rectfill(framebuf,0,playing_field_offset,x,167+playing_field_offset,0);
-			rectfill(framebuf,256-x,playing_field_offset,255,167+playing_field_offset,0);
+			rectfill(framebuf,0,playing_field_offset,x,(viewport.h - 1)+playing_field_offset,0);
+			rectfill(framebuf,viewport.w-x,playing_field_offset,255,(viewport.h - 1)+playing_field_offset,0);
 		}
 		
 		advanceframe(true);
@@ -6319,13 +6341,11 @@ int32_t onAbout()
 {
 	char buf1[80]={0};
 	std::ostringstream oss;
-	sprintf(buf1,ZC_PLAYER_NAME);
+	sprintf(buf1,"ZQuest Classic Player");
 	oss << buf1 << '\n';
 	sprintf(buf1,"Version: %s", getVersionString());
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-	oss << buf1 << '\n';
-	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 	oss << buf1 << '\n';
 	
 	InfoDialog("About ZC", oss.str()).show();
@@ -7146,6 +7166,13 @@ static NewMenu snapshot_format_menu
 	{ "&TGA", std::bind(onSetSnapshotFormat, ssfmtTGA) },
 };
 
+static NewMenu bottom_8_pixels_menu
+{
+	{ "&Default (qst)", std::bind(onSetBottom8Pixels, 0) },
+	{ "&On", std::bind(onSetBottom8Pixels, 1) },
+	{ "&Off", std::bind(onSetBottom8Pixels, 2) },
+};  
+
 static NewMenu controls_menu
 {
 	{ "Key&board...", onKeyboard },
@@ -7186,6 +7213,7 @@ enum
 {
 	MENUID_OPTIONS_PAUSE_BG,
 	MENUID_OPTIONS_EPILEPSYPROT,
+	MENUID_OPTIONS_SHOWBOTTOMPIXELS,
 };
 static NewMenu options_menu
 {
@@ -7194,6 +7222,7 @@ static NewMenu options_menu
 	{ "&Window Settings", &window_menu },
 	{ "Epilepsy Flash Reduction", onEpilepsy, MENUID_OPTIONS_EPILEPSYPROT },
 	{ "Pause In Background", onPauseInBackground, MENUID_OPTIONS_PAUSE_BG },
+	{ "Show Bottom 8 Pixels", &bottom_8_pixels_menu, MENUID_OPTIONS_SHOWBOTTOMPIXELS },
 	{ "More Options", call_zc_options_dlg },
 };
 enum
@@ -7499,6 +7528,65 @@ int32_t onSetSnapshotFormat(SnapshotType format)
 	return D_O_K;
 }
 
+int32_t onSetBottom8Pixels(int option)
+{
+	ShowBottomPixels = option;
+	zc_set_config("zeldadx", "bottom_8_px", option);
+	bottom_8_pixels_menu.select_only_index(option);
+
+	int qr = qr_HIDE_BOTTOM_8_PIXELS;
+	bool value = false;
+	if (option == 0)
+		value = get_bit(quest_rules, qr) != 0; // This is the original value, as set in the qst file (or via scripting).
+	else if (option == 1)
+		value = false;
+	else if (option == 2)
+		value = true;
+	enqueue_qr_change(qr, value);
+
+	return D_O_K;
+}
+
+void updateShowBottomPixels()
+{
+	// It's too tricky the allow modifying the screen height between opening and closing the
+	// active subscreen.
+	if (subscreen_open)
+		return;
+
+	if (!GameLoaded)
+		show_bottom_8px = false;
+	else
+		show_bottom_8px = !get_qr(qr_HIDE_BOTTOM_8_PIXELS);
+
+	int target_bitmap_height = show_bottom_8px ? 232 : 224;
+	if (framebuf->h != target_bitmap_height)
+	{
+		BITMAP* new_framebuf = create_bitmap_ex(8, 256, target_bitmap_height);
+		clear_bitmap(new_framebuf);
+		blit(framebuf, new_framebuf, 0, 0, 0, 0, new_framebuf->w, new_framebuf->h);
+
+		destroy_bitmap(framebuf);
+		destroy_bitmap(script_menu_buf);
+		destroy_bitmap(f6_menu_buf);
+		destroy_bitmap(darkscr_bmp);
+		destroy_bitmap(darkscr_bmp_trans);
+
+		framebuf = new_framebuf;
+		script_menu_buf = create_bitmap_ex(8, 256, target_bitmap_height);
+		f6_menu_buf = create_bitmap_ex(8, 256, target_bitmap_height);
+		darkscr_bmp = create_bitmap_ex(8, 256, target_bitmap_height);
+		darkscr_bmp_trans = create_bitmap_ex(8, 256, target_bitmap_height);
+
+		rti_game.a4_bitmap = framebuf;
+		rti_game.set_size(framebuf->w, framebuf->h);
+		al_set_new_bitmap_flags(ALLEGRO_CONVERT_BITMAP);
+		al_destroy_bitmap(rti_game.bitmap);
+		rti_game.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
+		al_destroy_bitmap(rti_infolayer.bitmap);
+		rti_infolayer.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
+	}
+}
 
 void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int32_t from,int32_t to)
 {
@@ -7670,6 +7758,7 @@ void System()
 			
 			options_menu.select_uid(MENUID_OPTIONS_EPILEPSYPROT, epilepsyFlashReduction);
 			options_menu.select_uid(MENUID_OPTIONS_PAUSE_BG, pause_in_background);
+			options_menu.disable_uid(MENUID_OPTIONS_SHOWBOTTOMPIXELS, replay_is_replaying());
 			
 			name_entry_mode_menu.select_only_index(NameEntryMode);
 			
@@ -7688,13 +7777,13 @@ void System()
 			cheat_menu.select_uid(MENUID_CHEAT_IGNORESV, ignoreSideview);
 			cheat_menu.select_uid(MENUID_CHEAT_GOFAST, gofast);
 			
-			show_menu.select_uid(MENUID_SHOW_L0, show_layer_0);
-			show_menu.select_uid(MENUID_SHOW_L1, show_layer_1);
-			show_menu.select_uid(MENUID_SHOW_L2, show_layer_2);
-			show_menu.select_uid(MENUID_SHOW_L3, show_layer_3);
-			show_menu.select_uid(MENUID_SHOW_L4, show_layer_4);
-			show_menu.select_uid(MENUID_SHOW_L5, show_layer_5);
-			show_menu.select_uid(MENUID_SHOW_L6, show_layer_6);
+			show_menu.select_uid(MENUID_SHOW_L0, show_layers[0]);
+			show_menu.select_uid(MENUID_SHOW_L1, show_layers[1]);
+			show_menu.select_uid(MENUID_SHOW_L2, show_layers[2]);
+			show_menu.select_uid(MENUID_SHOW_L3, show_layers[3]);
+			show_menu.select_uid(MENUID_SHOW_L4, show_layers[4]);
+			show_menu.select_uid(MENUID_SHOW_L5, show_layers[5]);
+			show_menu.select_uid(MENUID_SHOW_L6, show_layers[6]);
 			show_menu.select_uid(MENUID_SHOW_OVER, show_layer_over);
 			show_menu.select_uid(MENUID_SHOW_PUSH, show_layer_push);
 			show_menu.select_uid(MENUID_SHOW_SPR, show_sprites);
@@ -7719,6 +7808,7 @@ void System()
 			replay_menu.select_uid(MENUID_REPLAY_SNAP_ALL, replay_is_snapshot_all_frames());
 			
 			snapshot_format_menu.select_only_index(SnapshotFormat);
+			bottom_8_pixels_menu.select_only_index(ShowBottomPixels);
 		}
 		
 		if(debug_enabled)
@@ -7965,20 +8055,20 @@ void play_DmapMusic()
 	if (zcmusic != NULL)
 		fadeoutframes = zcmusic->fadeoutframes;
 
-	if(DMaps[currdmap].tmusic[0]!=0)
+	if(DMaps[cur_dmap].tmusic[0]!=0)
 	{
 		if(zcmusic==NULL ||
-		   strcmp(zcmusic->filename,DMaps[currdmap].tmusic)!=0 ||
-		   (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[currdmap].tmusictrack))
+		   strcmp(zcmusic->filename,DMaps[cur_dmap].tmusic)!=0 ||
+		   (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[cur_dmap].tmusictrack))
 		{
-			if (DMaps[currdmap].tmusic_xfade_in > 0 || fadeoutframes > 0)
+			if (DMaps[cur_dmap].tmusic_xfade_in > 0 || fadeoutframes > 0)
 			{
-				if (play_enh_music_crossfade(DMaps[currdmap].tmusic, qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
+				if (play_enh_music_crossfade(DMaps[cur_dmap].tmusic, qstpath, DMaps[cur_dmap].tmusictrack, get_emusic_volume(), DMaps[cur_dmap].tmusic_xfade_in, fadeoutframes))
 				{
 					if (zcmusic != NULL)
 					{
-						zcmusic->fadeoutframes = DMaps[currdmap].tmusic_xfade_out;
-						zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+						zcmusic->fadeoutframes = DMaps[cur_dmap].tmusic_xfade_out;
+						zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
 					}
 				}
 			}
@@ -7992,20 +8082,20 @@ void play_DmapMusic()
 					zcmixer->newtrack = NULL;
 				}
 
-				zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath).first;
+				zcmusic = zcmusic_load_for_quest(DMaps[cur_dmap].tmusic, qstpath).first;
 				zcmixer->newtrack = zcmusic;
 
 				if (zcmusic != NULL)
 				{
 					zc_stop_midi();
-					strcpy(tfile, DMaps[currdmap].tmusic);
+					strcpy(tfile, DMaps[cur_dmap].tmusic);
 					zcmusic_play(zcmusic, emusic_volume);
 					int32_t temptracks = 0;
 					temptracks = zcmusic_get_tracks(zcmusic);
 					temptracks = (temptracks < 2) ? 1 : temptracks;
-					ttrack = vbound(DMaps[currdmap].tmusictrack, 0, temptracks - 1);
+					ttrack = vbound(DMaps[cur_dmap].tmusictrack, 0, temptracks - 1);
 					zcmusic_change_track(zcmusic, ttrack);
-					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
 				}
 				else
 				{
@@ -8017,9 +8107,9 @@ void play_DmapMusic()
 	}
 	else
 	{
-		if (DMaps[currdmap].midi == 0 && fadeoutframes > 0 && zcmusic != NULL && strcmp(zcmusic->filename, DMaps[currdmap].tmusic) != 0)
+		if (DMaps[cur_dmap].midi == 0 && fadeoutframes > 0 && zcmusic != NULL && strcmp(zcmusic->filename, DMaps[cur_dmap].tmusic) != 0)
 		{
-			play_enh_music_crossfade(NULL, qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes);
+			play_enh_music_crossfade(NULL, qstpath, DMaps[cur_dmap].tmusictrack, get_emusic_volume(), DMaps[cur_dmap].tmusic_xfade_in, fadeoutframes);
 		}
 		else
 		{
@@ -8029,7 +8119,7 @@ void play_DmapMusic()
 	
 	if(domidi)
 	{
-		int32_t m=DMaps[currdmap].midi;
+		int32_t m=DMaps[cur_dmap].midi;
 		
 		switch(m)
 		{
@@ -8059,8 +8149,8 @@ void playLevelMusic()
 	if (is_headless())
 		return;
 
-	int32_t m=tmpscr->screen_midi;
-	
+	int32_t m=hero_scr->screen_midi;
+
 	switch(m)
 	{
 	case -2:
@@ -8275,7 +8365,7 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t
 
 	if (restart && replay_is_debug())
 	{
-		// TODO: get rid of this bandaid next time replays are mass-updated.
+		// TODO(replays): get rid of this bandaid next time replays are mass-updated.
 		const char* sfx_name = sfx_string[index];
 		if (strcmp(sfx_name, "Hero is hit") == 0)
 			sfx_name = "Player is hit";
@@ -8393,21 +8483,31 @@ void kill_sfx()
 		}
 }
 
+// TODO: when far out of bounds, sounds should dampen. currently we only pan.
 int32_t pan(int32_t x)
 {
 	switch(pan_style)
 	{
+	// MONO
 	case 0:
 		return 128;
-		
+
+	// 1/2
 	case 1:
+		x -= viewport.x;
 		return vbound((x>>1)+68,0,255);
-		
+
+	// 3/4
 	case 2:
+		x -= viewport.x;
 		return vbound(((x*3)>>2)+36,0,255);
+
+	// FULL
+	case 3:
+	default:
+		x -= viewport.x;
+		return vbound(x,0,255);
 	}
-	
-	return vbound(x,0,255);
 }
 
 bool joybtn(int32_t b)
@@ -9252,23 +9352,3 @@ void update_keys()
 	}
 }
 
-bool zc_disablekey(int32_t k, bool val)
-{
-	switch(k)
-	{
-		case KEY_F7:
-		case KEY_F8:
-		case KEY_F9:
-			return false;
-			
-		default:
-			disabledKeys[k] = val;
-			return true;
-	}
-}
-
-void zc_putpixel(int32_t layer, int32_t x, int32_t y, int32_t cset, int32_t color, int32_t timer)
-{
-	timer=timer;
-	particles.add(new particle(zfix(x), zfix(y), layer, cset, color));
-}

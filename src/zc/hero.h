@@ -17,7 +17,7 @@
 #include "zc/weapons.h"
 //#include "save_gif.h"
 #include "sprite.h"
-#include "zc/zc_custom.h"
+#include "hero_tiles.h"
 #include "subscr.h"
 #include "base/zfix.h"
 #include <vector>
@@ -188,11 +188,11 @@ class HeroClass : public sprite
 public:
 	std::map<int16_t, int32_t> usecounts;
 	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg,inair;
+	rpos_t stepnext,    // location of step->next just triggered (don't repeatedly trigger it)
+	       stepsecret;  // location of step->secrets just triggered (don't repeatedly trigger it)
 	int32_t refilling,
 		ladderx,
 		laddery,
-		stepnext,  //location of step->next just triggered (don't recursively trigger it)
-		stepsecret,  //location of step->secrets just triggered (don't recursively trigger it)
 		warpx,warpy, //location of warp just arrived at (don't recursively enter it)
 		raftwarpx,raftwarpy, //location of dock just arrived at (don't recursively restart raft)
 		pushing,  //incremental time spent pushing.
@@ -218,7 +218,7 @@ public:
 		stepoutindex, // where to step out when in a passageway
 		stepoutwr, // which warp return to use for a passageway
 		stepoutdmap, // which dmap the passageway exits to
-		stepoutscr, // which screen the passageway exits to
+		stepoutscreen, // which screen the passageway exits to
 		slashxofs, slashyofs; // used by positionSword() and draw()
 	//spacing so no confusion between byte and int32_t
 	byte skipstep,lstep, 
@@ -373,9 +373,6 @@ public:
 	int32_t  nextflag(int32_t cx,int32_t cy,int32_t cdir, bool comboflag);
 	bool nextcombo_wf(int32_t d);
 	bool nextcombo_solid(int32_t d);
-	int32_t  lookahead(int32_t d);
-	int32_t  lookaheadflag(int32_t d);
-	bool  lookaheadraftflag(int32_t d);
 	
 	bool check_ewpn_collide(weapon* w);
 	bool try_lwpn_hit(weapon* w);
@@ -385,7 +382,8 @@ public:
 	void doHit(int32_t hitdir, int iframes = 48);
 	bool checkdamagecombos(int32_t dx, int32_t dy);
 	bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false, bool do_health_check = true);
-	
+	void do_scroll_direction(direction dir);
+	void maybe_begin_advanced_maze();
 	void checkscroll();
 	void checkspecial();
 	void checkspecial2(int32_t *ls);
@@ -397,6 +395,7 @@ public:
 	void checkswordtap();
 	void oldcheckchest(int32_t type);
 	void checkchest(int32_t type);
+	void checkgenpush(rpos_t rpos);
 	void checkgenpush();
 	void checksigns();
 	void checktouchblk();
@@ -423,14 +422,16 @@ public:
 	WalkflagInfo walkflag(int32_t wx,int32_t wy,int32_t cnt,byte d);
 	WalkflagInfo walkflagMBlock(int32_t wx,int32_t wy);
 	bool edge_of_dmap(int32_t side);
-	bool checkmaze(mapscr *scr, bool sound);
-	bool maze_enabled_sizewarp(int32_t scrolldir);
+	bool checkmaze(const mapscr *scr, bool sound);
+	bool checkmaze_ignore_exit(const mapscr *scr, bool sound);
+	bool maze_enabled_sizewarp(const mapscr *scr, int32_t scrolldir);
 	bool HasHeavyBoots();
 	int32_t get_scroll_step(int32_t scrolldir);
 	int32_t get_scroll_delay(int32_t scrolldir);
 	void run_scrolling_script_int(bool waitdraw);
+	void run_scrolling_script_old(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
 	void run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
-	void calc_darkroom_hero(int32_t x1 = 0, int32_t y1 = 0, int32_t x2 = 0, int32_t y2 = 0);
+	void calc_darkroom_hero(int32_t x1, int32_t y1);
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
 	int32_t defend(weapon *w);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
@@ -439,6 +440,7 @@ public:
 	void handle_portal_prox(portal* p);
 private:
 	void handleSpotlights();
+	void setpit();
 	void walkdown(bool opening);
 	void walkup(bool opening);
 	void walkdown2(bool opening);
@@ -447,7 +449,7 @@ private:
 	void stepout();
 	void masked_draw(BITMAP *dest);
 	void prompt_draw(BITMAP *dest);
-	void handle_triforce(int32_t id);
+	void handle_triforce(mapscr* scr, int32_t id);
 	void getTriforce(int32_t id);
 	int32_t weaponattackpower(int32_t itid = -1);
 	void positionNet(weapon* w,int32_t itemid);
@@ -494,7 +496,7 @@ public:
 	int32_t push_move(zfix dx, zfix dy);
 	virtual bool setSolid(bool set);
 	virtual void solid_push(solid_object* pusher);
-	bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0);
+	bool dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t warpsfx=0);
 	
 	void herostep();
 	void stepforward(int32_t steps, bool adjust);
@@ -598,7 +600,7 @@ public:
 	void setscriptnohit(bool);
 	bool getscriptnohit();
 	
-	void sethitHeroUID(int32_t type, int32_t screen_index);
+	void sethitHeroUID(int32_t type, int32_t screen);
 	void ClearhitHeroUIDs();
 	void set_defence(int32_t def, int32_t v);
 	int32_t get_defence(int32_t def);
@@ -678,9 +680,12 @@ void verifyBWpn();
 void verifyXWpn();
 void verifyYWpn();
 bool canget(int32_t id);
-void dospecialmoney(int32_t index);
+void dospecialmoney(mapscr* scr, int32_t index);
 void getitem(int32_t id, bool nosound=false, bool doRunPassive=false);
 void takeitem(int32_t id);
 void red_shift();
 void slide_in_color(int32_t color);
+
+extern HeroClass Hero;
+
 #endif

@@ -29,8 +29,8 @@
 #include "sprite.h"
 #include "items.h"
 #include "zc/zc_sys.h"
-#include "md5.h"
-#include "zc/zc_custom.h"
+#include "base/md5.h"
+#include "hero_tiles.h"
 #include "subscr.h"
 #include "zq/zq_strings.h"
 #include "zq/zq_subscr.h"
@@ -43,6 +43,7 @@
 #include "zinfo.h"
 #include "zq/render_minimap.h"
 #include "base/mapscr.h"
+#include "iter.h"
 #include <fmt/format.h>
 #include <filesystem>
 
@@ -54,16 +55,12 @@ namespace fs = std::filesystem;
 
 using namespace util;
 
-extern ZModule zcm;
-extern zcmodule moduledata;
 extern uint8_t ViewLayer3BG, ViewLayer2BG;
 extern int32_t LayerDitherBG, LayerDitherSz;
 extern bool NoHighlightLayer0;
 
 using std::string;
 using std::pair;
-#define EPSILON 0.01 // Define your own tolerance
-#define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 
 #define COLOR_SOLID  vc(4)
 #define COLOR_SLOPE  vc(13)
@@ -77,20 +74,6 @@ extern string zScript;
 
 zmap Map;
 int32_t prv_mode=0;
-int16_t ffposx[MAXFFCS];
-int16_t ffposy[MAXFFCS];
-int32_t ffprvx[MAXFFCS];
-int32_t ffprvy[MAXFFCS];
-void init_ffpos()
-{
-    for (word q = 0; q < MAXFFCS; ++q)
-    {
-        ffposx[q] = -1000;
-        ffposy[q] = -1000;
-        ffprvx[q] = -10000000;
-        ffprvy[q] = -10000000;
-    }
-}
 
 bool save_warn=true;
 
@@ -461,6 +444,7 @@ void zmap::setCursor(MapCursor new_cursor)
 	
 	reset_combo_animations2();
 	mmap_mark_dirty();
+	regions_mark_dirty();
 	refresh(rALL);
 }
 
@@ -557,9 +541,46 @@ int32_t  zmap::getCurrMap()
 {
     return cursor.map;
 }
+void zmap::regions_mark_dirty()
+{
+	regions_dirty = true;
+}
+void zmap::regions_refresh()
+{
+	if (!regions_dirty)
+		return;
+
+	regions_dirty = false;
+	region_descriptions.clear();
+
+	current_map_region_ids = Regions[cursor.map].get_all_region_ids();
+	if (!get_all_region_descriptions(region_descriptions, current_map_region_ids))
+		region_descriptions.clear();
+}
+const std::vector<region_description>& zmap::get_region_descriptions()
+{
+	regions_refresh();
+	return region_descriptions;
+}
+bool zmap::is_region(int screen)
+{
+	if (screen < 0 || screen >= 128)
+		return false;
+
+	regions_refresh();
+	return current_map_region_ids[screen];
+}
 bool zmap::isDark(int scr)
 {
     return (screens[scr].flags&fDARK)!=0;
+}
+bool zmap::isValid(int32_t scr)
+{
+    return (screens[scr].valid&mVALID)!=0;
+}
+bool zmap::isValid(int32_t map, int32_t scr)
+{
+    return (AbsoluteScr(map, scr)->valid&mVALID)!=0;
 }
 
 void zmap::setCurrMap(int32_t index)
@@ -582,6 +603,7 @@ void zmap::setCurrMap(int32_t index)
 	
 	reset_combo_animations2();
 	mmap_mark_dirty();
+	regions_mark_dirty();
 }
 
 int32_t  zmap::getCurrScr()
@@ -610,6 +632,7 @@ void zmap::setCurrScr(int32_t scr)
     reset_combo_animations2();
     setlayertarget();
     mmap_mark_dirty();
+	regions_mark_dirty();
 }
 
 int32_t zmap::getViewScr()
@@ -879,6 +902,7 @@ int32_t zmap::load(const char *path)
 	
 	setCurrScr(0);
 	mmap_mark_dirty();
+	regions_mark_dirty();
 	return 0;
 	
 file_error:
@@ -1526,22 +1550,8 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 	
 	putcombo(dest,x,y,cmbdat,cset);
 	
-	/* moved to put_walkflags
-	  for(int32_t i=0; i<4; i++) {
-	
-	  int32_t tx=((i&2)<<2)+x;
-	  int32_t ty=((i&1)<<3)+y;
-	  if((flags&cWALK) && (c.walk&(1<<i)))
-	  rectfill(dest,tx,ty,tx+7,ty+7,COLOR_SOLID);
-	  }
-	  */
-	
-	//  if((flags&cFLAGS)&&(cmbdat&0xF800))
 	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
 	{
-		//    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
-		//    text_mode(-1);
-		//    textprintf_ex(dest,get_zc_font(font_sfont),x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
 		if(sflag)
 		{
 			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
@@ -1782,7 +1792,7 @@ void zmap::over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t 
     }
 }
 
-bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
+bool zmap::misaligned(int32_t map, int32_t screen, int32_t i, int32_t dir)
 {
 	word cmbcheck1, cmbcheck2;
 	newcombo combocheck1, combocheck2;
@@ -1802,24 +1812,24 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				return false;
 			}
 			
-			if(scr<16)											//top row of screens
+			if(screen<16)											//top row of screens
 			{
 				return false;
 				
 			}
 			
 			//check main screen
-			cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
-			cmbcheck2 = vbound(AbsoluteScr(map, scr-16)->data[i+160], 0, MAXCOMBOS-1);
+			cmbcheck1 = vbound(AbsoluteScr(map, screen)->data[i], 0, MAXCOMBOS-1);
+			cmbcheck2 = vbound(AbsoluteScr(map, screen-16)->data[i+160], 0, MAXCOMBOS-1);
 			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
 			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			//check layer 1
-			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[0];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -1834,11 +1844,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr-16)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen-16)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr-16)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen-16)->layerscreen[0];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -1854,11 +1864,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			}
 			
 			//check layer 2
-			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[1];
 				
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
@@ -1874,11 +1884,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr-16)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen-16)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr-16)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen-16)->layerscreen[1];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -1907,24 +1917,24 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				return false;
 			}
 			
-			if(scr>111)										   //bottom row of screens
+			if(screen>111)										   //bottom row of screens
 			{
 				return false;
 			}
 			
 			//check main screen
-			cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
-			cmbcheck2 = vbound(AbsoluteScr(map, scr+16)->data[i-160], 0, MAXCOMBOS-1);
+			cmbcheck1 = vbound(AbsoluteScr(map, screen)->data[i], 0, MAXCOMBOS-1);
+			cmbcheck2 = vbound(AbsoluteScr(map, screen+16)->data[i-160], 0, MAXCOMBOS-1);
 			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
 			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			
 			//check layer 1
-			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[0];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -1939,11 +1949,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr+16)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen+16)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr+16)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen+16)->layerscreen[0];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -1959,11 +1969,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			}
 			
 			//check layer 2
-			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[1];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -1978,11 +1988,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr+16)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen+16)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr+16)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen+16)->layerscreen[1];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -2011,23 +2021,23 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				return false;
 			}
 			
-			if((scr&0xF)==0)									  //left column of screens
+			if((screen&0xF)==0)									  //left column of screens
 			{
 				return false;
 			}
 			
 			//check main screen
-			cmbcheck1 = AbsoluteScr(map, scr)->data[i];
-			cmbcheck2 = AbsoluteScr(map, scr-1)->data[i+15];
+			cmbcheck1 = AbsoluteScr(map, screen)->data[i];
+			cmbcheck2 = AbsoluteScr(map, screen-1)->data[i+15];
 			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
 			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			//check layer 1
-			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[0];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -2042,11 +2052,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr-1)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen-1)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr-1)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen-1)->layerscreen[0];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -2062,11 +2072,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			}
 			
 			//check layer 2
-			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[1];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -2081,11 +2091,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr-1)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen-1)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr-1)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen-1)->layerscreen[1];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -2114,23 +2124,23 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				return false;
 			}
 			
-			if((scr&0xF)==15)									 //right column of screens
+			if((screen&0xF)==15)									 //right column of screens
 			{
 				return false;
 			}
 			
 			//check main screen
-			cmbcheck1 = AbsoluteScr(map, scr)->data[i];
-			cmbcheck2 = AbsoluteScr(map, scr+1)->data[i-15];
+			cmbcheck1 = AbsoluteScr(map, screen)->data[i];
+			cmbcheck2 = AbsoluteScr(map, screen+1)->data[i-15];
 			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
 			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			//check layer 1
-			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[0];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -2145,11 +2155,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr+1)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen+1)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr+1)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen+1)->layerscreen[0];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -2165,11 +2175,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			}
 			
 			//check layer 2
-			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[1];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -2184,11 +2194,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr+1)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen+1)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr+1)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen+1)->layerscreen[1];
 				
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
@@ -2377,7 +2387,7 @@ int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 		
 	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
     
-	if(m->valid==0) return 0;
+	if (!m->is_valid()) return 0;
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
@@ -2385,7 +2395,7 @@ int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? m : &TheMaps[mapid]);
     
-	if(scr->valid==0) return 0;
+	if (!scr->is_valid()) return 0;
 		
 	return scr->data[pos];						// entire combo code
 }
@@ -2424,12 +2434,12 @@ int32_t zmap::MAPCOMBO2(int32_t lyr,int32_t x,int32_t y, int32_t map, int32_t sc
     else
         layer = AbsoluteScr(layermap,screen1->layerscreen[lyr]);
         
-    int32_t combo = COMBOPOS(x,y);
+    int32_t pos = COMBOPOS(x,y);
     
-    if(combo>175 || combo < 0)
+    if(pos>175 || pos < 0)
         return 0;
         
-    return layer->data[combo];
+    return layer->data[pos];
 }
 
 int32_t zmap::MAPCOMBO(int32_t x,int32_t y, int32_t map, int32_t scr) //map=-1,scr=-1
@@ -2475,7 +2485,7 @@ int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 		
 	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
     
-	if(m->valid==0) return 0;
+	if (!m->is_valid()) return 0;
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
@@ -2483,7 +2493,7 @@ int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? m : &TheMaps[mapid]);
     
-	if(scr->valid==0) return 0;
+	if (!scr->is_valid()) return 0;
 		
 	return scr->sflag[pos];						// entire combo code
 }
@@ -2670,7 +2680,7 @@ static mapscr* _zmap_get_lyr_checked(int lyr, mapscr* basescr)
 	}
 	return nullptr;
 }
-void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr,int32_t hl_layer)
+void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t screen,int32_t hl_layer)
 {
 	#define HL_LAYER(lyr) (!(NoHighlightLayer0 && hl_layer == 0) && hl_layer > -1 && hl_layer != lyr)
 	int32_t antiflags=(flags&~cFLAGS)&~cWALK;
@@ -2678,8 +2688,8 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	if(map<0)
 		map=cursor.map;
 		
-	if(scr<0)
-		scr=cursor.screen;
+	if(screen<0)
+		screen=cursor.screen;
 		
 	mapscr *basescr;
 	mapscr* layers[7] = {nullptr};
@@ -2691,7 +2701,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	}
 	else
 	{
-		basescr=AbsoluteScr(map,scr);
+		basescr=AbsoluteScr(map,screen);
 	}
 	layers[0] = _zmap_get_lyr_checked(0,basescr);
 	for(int lyr = 1; lyr < 7; ++lyr)
@@ -2713,7 +2723,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		
 		if(ShowMisalignments)
 		{
-			check_alignments(dest,x,y,scr);
+			check_alignments(dest,x,y,screen);
 		}
 		
 		return;
@@ -2799,14 +2809,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	switch(basescr->door[up])
 	{
 	case dBOMB:
-		over_door(dest,39,up,x,y,false, scr);
+		over_door(dest,39,up,x,y,false, screen);
 		[[fallthrough]];
 	case dOPEN:
 	case dLOCKED:
 	case d1WAYSHUTTER:
 	case dSHUTTER:
 	case dBOSS:
-		put_door(dest,7,up,doortype[up],x,y,false,scr);
+		put_door(dest,7,up,doortype[up],x,y,false,screen);
 		break;
 		
 	case dWALK:
@@ -2830,14 +2840,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	switch(basescr->door[down])
 	{
 	case dBOMB:
-		over_door(dest,135,down,x,y,false,scr);
+		over_door(dest,135,down,x,y,false,screen);
 		[[fallthrough]];
 	case dOPEN:
 	case dLOCKED:
 	case d1WAYSHUTTER:
 	case dSHUTTER:
 	case dBOSS:
-		put_door(dest,151,down,doortype[down],x,y,false,scr);
+		put_door(dest,151,down,doortype[down],x,y,false,screen);
 		break;
 		
 	case dWALK:
@@ -2860,14 +2870,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	switch(basescr->door[left])
 	{
 	case dBOMB:
-		over_door(dest,66,left,x,y,false,scr);
+		over_door(dest,66,left,x,y,false,screen);
 		[[fallthrough]];
 	case dOPEN:
 	case dLOCKED:
 	case d1WAYSHUTTER:
 	case dSHUTTER:
 	case dBOSS:
-		put_door(dest,64,left,doortype[left],x,y,false,scr);
+		put_door(dest,64,left,doortype[left],x,y,false,screen);
 		break;
 		
 	case dWALK:
@@ -2891,14 +2901,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	{
 	
 	case dBOMB:
-		over_door(dest,77,right,x,y,false,scr);
+		over_door(dest,77,right,x,y,false,screen);
 		[[fallthrough]];
 	case dOPEN:
 	case dLOCKED:
 	case d1WAYSHUTTER:
 	case dSHUTTER:
 	case dBOSS:
-		put_door(dest,78,right,doortype[right],x,y,false,scr);
+		put_door(dest,78,right,doortype[right],x,y,false,screen);
 		break;
 		
 	case dWALK:
@@ -3058,7 +3068,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	if(ShowMisalignments)
 	{
-		check_alignments(dest,x,y,scr);
+		check_alignments(dest,x,y,screen);
 	}
 }
 
@@ -4165,21 +4175,22 @@ void zmap::DoPutDoorCommand(int side, int door, bool force)
 	if(!already_list)
 		FinishListCommand();
 }
-void zmap::putdoor(int32_t scr,int32_t side,int32_t door)
+void zmap::putdoor(int32_t screen,int32_t side,int32_t door)
 {
-	if(screens[scr].door[side] == door)
+	if(screens[screen].door[side] == door)
 		return;
-	screens[scr].door[side] = door;
+
+	screens[screen].door[side] = door;
 	if(door != dNONE)
 	{
 		word data[176] = {0};
 		byte cset[176] = {0};
-		fetch_door(side, door, screens[scr].door_combo_set, data, cset);
+		fetch_door(side, door, screens[screen].door_combo_set, data, cset);
 		for(int q = 0; q < 176; ++q)
 			if(data[q])
 			{
-				screens[scr].data[q] = data[q];
-				screens[scr].cset[q] = cset[q];
+				screens[screen].data[q] = data[q];
+				screens[screen].cset[q] = cset[q];
 			}
 	}
 }
@@ -4250,6 +4261,7 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.eh = ffc.hit_height,
 		.flags = ffc.flags,
 		.initd = initd_arr,
+		.layer = ffc.layer
 	};
 }
 
@@ -4276,6 +4288,7 @@ void set_ffc_command::execute()
 	mapscr_ptr->ffTileWidth(i, data.tw);
 	mapscr_ptr->ffTileHeight(i, data.th);
 	std::copy(std::begin(data.initd), std::end(data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
+	mapscr_ptr->ffcs[i].layer = data.layer;
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
 }
@@ -4302,6 +4315,7 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffTileWidth(i, prev_data.tw);
 	mapscr_ptr->ffTileHeight(i, prev_data.th);
 	std::copy(std::begin(prev_data.initd), std::end(prev_data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
+	mapscr_ptr->ffcs[i].layer = prev_data.layer;
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
 }
@@ -4885,6 +4899,7 @@ void zmap::PasteScreenData(const mapscr& copymapscr, int screen)
         screens[screen].flags8 = copymapscr.flags8;
         screens[screen].flags9 = copymapscr.flags9;
         screens[screen].flags10 = copymapscr.flags10;
+        screens[screen].flags11 = copymapscr.flags11;
         screens[screen].item = copymapscr.item;
         screens[screen].hasitem = copymapscr.hasitem;
         screens[screen].itemx = copymapscr.itemx;
@@ -4899,7 +4914,6 @@ void zmap::PasteScreenData(const mapscr& copymapscr, int screen)
         screens[screen].path[3] = copymapscr.path[3];
         screens[screen].pattern = copymapscr.pattern;
         screens[screen].exitdir = copymapscr.exitdir;
-        screens[screen].enemyflags = copymapscr.enemyflags;
         screens[screen].screen_midi = copymapscr.screen_midi;
         screens[screen].stairx = copymapscr.stairx;
         screens[screen].stairy = copymapscr.stairy;
@@ -5297,10 +5311,10 @@ void zmap::update_freeform_combos()
                 {
                     if(prvscr.ffcs[j].flags&ffc_changer && prvscr.ffcs[j].data != 0)
                     {
-                        if((((prvscr.ffcs[j].x.getInt())!=ffposx[i])||((prvscr.ffcs[j].y.getInt())!=ffposy[i]))&&(prvscr.ffcs[i].link==0))
+                        if((((prvscr.ffcs[j].x.getInt())!=prvscr.ffcs[i].changer_x)||((prvscr.ffcs[j].y.getInt())!=prvscr.ffcs[i].changer_y))&&(prvscr.ffcs[i].link==0))
                         {
-                            if((isonline(prvscr.ffcs[i].x.getZLong(),prvscr.ffcs[i].y.getZLong(),ffprvx[i],ffprvy[i],prvscr.ffcs[j].x.getZLong(),prvscr.ffcs[j].y.getZLong())||
-                                    ((prvscr.ffcs[i].x.getZLong()==prvscr.ffcs[j].x.getZLong())&&(prvscr.ffcs[i].y.getZLong()==prvscr.ffcs[j].y.getZLong())))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
+                            if((isonline(prvscr.ffcs[i].x.getZLong(),prvscr.ffcs[i].y.getZLong(),prvscr.ffcs[i].prev_changer_x,prvscr.ffcs[i].prev_changer_y,prvscr.ffcs[j].x.getZLong(),prvscr.ffcs[j].y.getZLong())||
+                                    ((prvscr.ffcs[i].x.getZLong()==prvscr.ffcs[j].x.getZLong())&&(prvscr.ffcs[i].y.getZLong()==prvscr.ffcs[j].y.getZLong())))&&(prvscr.ffcs[i].prev_changer_x>-10000000&&prvscr.ffcs[i].prev_changer_y>-10000000))
                             {
                                 //prvscr.ffcs[i].data=prvscr.ffcs[j].data;
                                 //prvscr.ffcs[i].cset=prvscr.ffcs[j].cset;
@@ -5336,8 +5350,8 @@ void zmap::update_freeform_combos()
                                 else prvscr.ffcs[i].flags=prvscr.ffcs[j].flags;
                                 
                                 prvscr.ffcs[i].flags&=~ffc_changer;
-                                ffposx[i]=(prvscr.ffcs[j].x.getInt());
-                                ffposy[i]=(prvscr.ffcs[j].y.getInt());
+                                prvscr.ffcs[i].changer_x=(prvscr.ffcs[j].x.getInt());
+                                prvscr.ffcs[i].changer_y=(prvscr.ffcs[j].y.getInt());
                                 
                                 if(combobuf[prvscr.ffcs[j].data].flag>15 && combobuf[prvscr.ffcs[j].data].flag<32)
                                 {
@@ -5375,15 +5389,15 @@ void zmap::update_freeform_combos()
             {
                 if(prvscr.ffcs[i].link&&(prvscr.ffcs[i].link-1)!=i)
                 {
-                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].prev_changer_x = prvscr.ffcs[i].x.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
                     prvscr.ffcs[i].x+=prvscr.ffcs[prvscr.ffcs[i].link-1].vx;
                     prvscr.ffcs[i].y+=prvscr.ffcs[prvscr.ffcs[i].link-1].vy;
                 }
                 else
                 {
-                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].prev_changer_x = prvscr.ffcs[i].x.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
                     prvscr.ffcs[i].x+=prvscr.ffcs[i].vx;
                     prvscr.ffcs[i].y+=prvscr.ffcs[i].vy;
                     prvscr.ffcs[i].vx+=prvscr.ffcs[i].ax;
@@ -5412,7 +5426,7 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].x = (288+(prvscr.ffcs[i].x+32));
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
                 }
                 else
                 {
@@ -5426,7 +5440,7 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].y = 208+(prvscr.ffcs[i].y+32);
-                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
+                    prvscr.ffcs[i].prev_changer_x = prvscr.ffcs[i].x.getZLong();
                 }
                 else
                 {
@@ -5440,7 +5454,7 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].x = prvscr.ffcs[i].x-288-32;
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
                 }
                 else
                 {
@@ -5454,7 +5468,7 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].y = prvscr.ffcs[i].y-208-32;
-                    ffprvy[i] = prvscr.ffcs[i].x.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].x.getZLong();
                 }
                 else
                 {
@@ -5568,12 +5582,6 @@ void zmap::prv_dowarp(int32_t type, int32_t index)
     {
         prv_time=get_prvscr()->timedwarptics;
     }
-    
-    //also reset FFC information (so that changers will work correctly) -DD
-    memset(ffposx,0xFF,sizeof(int16_t)*32);
-    memset(ffposy,0xFF,sizeof(int16_t)*32);
-    memset(ffprvx,0xFF,sizeof(float)*32);
-    memset(ffprvy,0xFF,sizeof(float)*32);
 }
 
 void zmap::dowarp2(int32_t ring,int32_t index)
@@ -5888,8 +5896,7 @@ bool load_combo_alias(const char *path)
 bool load_zgp(const char *path)
 {
     dword section_id;
-    dword section_version;
-    dword section_cversion;
+    word section_version;
     PACKFILE *f=pack_fopen_password(path,F_READ,"");
     
     if(!f)
@@ -5913,7 +5920,7 @@ bool load_zgp(const char *path)
         return 2;
     }
     
-    if(!p_igetw(&section_cversion,f))
+    if(!read_deprecated_section_cversion(f))
     {
         return 3;
     }
@@ -6114,7 +6121,6 @@ bool save_zgp(const char *path)
         
     dword section_id=ID_GRAPHICSPACK;
     dword section_version=V_GRAPHICSPACK;
-    dword section_cversion=CV_GRAPHICSPACK;
     
     //section id
     if(!p_mputl(section_id,f))
@@ -6128,7 +6134,7 @@ bool save_zgp(const char *path)
         return 2;
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         return 3;
     }
@@ -6209,7 +6215,6 @@ bool save_subscreen(const char *path, ZCSubscreen const& savefrom)
         
     dword section_id=ID_SUBSCREEN;
     dword s_version=V_SUBSCREEN;
-    dword s_cversion=CV_SUBSCREEN;
     
     if(!p_mputl(section_id,f))
     {
@@ -6223,7 +6228,7 @@ bool save_subscreen(const char *path, ZCSubscreen const& savefrom)
         return false;
     }
     
-    if(!p_iputw(s_cversion,f))
+    if(!write_deprecated_section_cversion(s_version,f))
     {
         pack_fclose(f);
         return false;
@@ -6249,7 +6254,6 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
         
     dword section_id;
     dword s_version;
-    dword s_cversion;
     
     if(!p_mgetl(&section_id,f))
     {
@@ -6269,7 +6273,7 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
         return false;
     }
     
-    if(!p_igetw(&s_cversion,f))
+    if(!read_deprecated_section_cversion(f))
     {
         pack_fclose(f);
         return false;
@@ -6321,7 +6325,7 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
 bool setMapCount2(int32_t c)
 {
     int32_t oldmapcount=map_count;
-    int32_t currmap=Map.getCurrMap();
+    int32_t cur_map=Map.getCurrMap();
     
     bound(c,1,MAXMAPS);
     map_count=c;
@@ -6338,7 +6342,7 @@ bool setMapCount2(int32_t c)
         return false;
     }
     
-    bound(currmap,0,c-1);
+    bound(cur_map,0,c-1);
     if(map_count>oldmapcount)
     {
         for(int32_t mc=oldmapcount; mc<map_count; mc++)
@@ -6350,11 +6354,11 @@ bool setMapCount2(int32_t c)
                 Map.clearscr(ms);
             }
         }
-        Map.setCurrMap(currmap);
+        Map.setCurrMap(cur_map);
     }
     else
     {
-        Map.setCurrMap(currmap);
+        Map.setCurrMap(cur_map);
         if(!layers_valid(Map.CurrScr()))
             fix_layers(Map.CurrScr(), false);
             
@@ -6603,12 +6607,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 	char buf[2048];
 	byte skip_flags[4];
 
-	// For File>New, don't clear the maps because tilesets (like Cambria) have a more friendly
-	// starter experience that way.
 	dword tileset_flags = 0;
-	if (loading_file_new)
-		tileset_flags = TILESET_CLEARSCRIPTS | TILESET_CLEARHEADER;
-
 	for(int32_t i=0; i<4; ++i)
 	{
 		skip_flags[i]=0;
@@ -6696,7 +6695,6 @@ int32_t load_quest(const char *filename, bool show_progress)
 
 int32_t load_tileset(const char *filename, dword tsetflags)
 {
-	char buf[2048];
 	byte skip_flags[4];
 	
 	for(int32_t i=0; i<4; ++i)
@@ -6709,6 +6707,9 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 		init_quest(DEFAULT_TILESET);
 	else
 	{
+		if(tsetflags & TILESET_BUGFIX)
+			applyRuleTemplate(ruletemplateFixCompat);
+
 		int32_t accessret = quest_access(filename, &header);
 		
 		if(accessret != 1)
@@ -6747,8 +6748,6 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 			refresh(rALL);
 			refresh_pal();
 			set_rules(quest_rules);
-			if(!zc_get_config("zquest","auto_filenew_bugfixes",1))
-				popup_bugfix_dlg("dsa_compatrule");
 			
 			if(bmap != NULL)
 			{
@@ -6792,7 +6791,6 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
 {
     dword section_id=ID_HEADER;
     dword section_version=V_HEADER;
-    dword section_cversion=CV_HEADER;
     dword section_size=0;
     
     //file header string
@@ -6813,7 +6811,7 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(4);
     }
@@ -6955,13 +6953,10 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(33);
 		}
-		
-		
-		
-		char tempsig[256];
+
+		// This is no longer set to anything.
+		const char* tempsig[256];
 		memset(tempsig, 0, 256);
-		strcpy(tempsig, DEV_SIGNOFF);
-		
 		if(!pfwrite(&tempsig,256,f))
 		{
 			new_return(34);
@@ -6994,8 +6989,9 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
         {
             new_return(37);
         }
-		
-		if(!p_putc(V_ZC_COMPILERSIG,f))
+
+		// V_ZC_COMPILERSIG - a deprecated version field.
+		if(!p_putc(1,f))
 		{
 			new_return(38);
 		}
@@ -7059,11 +7055,10 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(43);
 		}
-		
+
+		// Modules were removed (replaced by zinfo).
 		char tempmodulename[1024];
 		memset(tempmodulename, 0, 1024);
-		strcpy(tempmodulename, moduledata.module_name);
-		
 		if(!pfwrite(&tempmodulename,1024,f))
         {
             new_return(44);
@@ -7133,7 +7128,6 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_RULES;
     dword section_version=V_RULES;
-    dword section_cversion=CV_RULES;
     dword section_size=0;
     
     //section id
@@ -7148,7 +7142,7 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -7200,7 +7194,6 @@ int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_DOORS;
     dword section_version=V_DOORS;
-    dword section_cversion=CV_DOORS;
     dword section_size=0;
     
     //section id
@@ -7215,7 +7208,7 @@ int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -7464,7 +7457,6 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
     word dmap_count=count_dmaps();
     dword section_id=ID_DMAPS;
     dword section_version=V_DMAPS;
-    dword section_cversion=CV_DMAPS;
     dword section_size=0;
     
     //section id
@@ -7479,7 +7471,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -7749,18 +7741,6 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 				new_return(46);
 			if (!p_iputl(DMaps[i].intro_string_id, f))
 				new_return(47);
-
-			// Reserved for z3.
-			for(int32_t j=0; j<8; j++)
-			{
-				for(int32_t k=0; k<8; k++)
-				{
-					if(!p_putc(0,f))
-					{
-						new_return(48);
-					}
-				}
-			}
 		}
         
         if(writecycle==0)
@@ -7786,7 +7766,6 @@ int32_t writemisccolors(PACKFILE *f, zquestheader *Header)
 	
 	dword section_id=ID_COLORS;
 	dword section_version=V_COLORS;
-	dword section_cversion=CV_COLORS;
 	dword section_size = 0;
 	
 	//section id
@@ -7802,7 +7781,7 @@ int32_t writemisccolors(PACKFILE *f, zquestheader *Header)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -7988,7 +7967,6 @@ int32_t writegameicons(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_ICONS;
     dword section_version=V_ICONS;
-    dword section_cversion=CV_ICONS;
     dword section_size = 0;
     
     //section id
@@ -8003,7 +7981,7 @@ int32_t writegameicons(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -8051,7 +8029,6 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 	
 	dword section_id=ID_MISC;
 	dword section_version=V_MISC;
-	dword section_cversion=CV_MISC;
 	word shops=count_shops(&QMisc);
 	word infos=count_infos(&QMisc);
 	word warprings=count_warprings(&QMisc);
@@ -8071,7 +8048,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -8303,7 +8280,6 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_ITEMS;
     dword section_version=V_ITEMS;
-    dword section_cversion=CV_ITEMS;
     //  dword section_size=0;
     dword section_size = 0;
     
@@ -8319,7 +8295,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -8803,6 +8779,10 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 				if(!p_putc(itemsbuf[i].light_rads[q], f))
 					new_return(94);
 			}
+			if(!p_putc(itemsbuf[i].pickup_litems, f))
+				new_return(95);
+			if(!p_iputw(itemsbuf[i].pickup_litem_level, f))
+				new_return(96);
         }
         
         if(writecycle==0)
@@ -8828,7 +8808,6 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_WEAPONS;
     dword section_version=V_WEAPONS;
-    dword section_cversion=CV_WEAPONS;
     dword section_size = 0;
     
     //section id
@@ -8843,7 +8822,7 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -8997,6 +8976,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	
 	if(screen.exitdir)
 		scr_has_flags |= SCRHAS_MAZE;
+	else if(screen.maze_transition_wipe)
+		scr_has_flags |= SCRHAS_MAZE;
 	else for(auto q = 0; q < 4; ++q)
 	{
 		if(screen.path[q])
@@ -9024,7 +9005,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		|| screen.flags5 || screen.flags6
 		|| screen.flags7 || screen.flags8
 		|| screen.flags9 || screen.flags10
-		|| screen.enemyflags)
+		|| screen.flags11)
 		scr_has_flags |= SCRHAS_FLAGS;
 	
 	if(screen.pattern)
@@ -9212,6 +9193,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		}
 		if(!p_putc(screen.exitdir,f))
 			return qe_invalid;
+		if(!p_putc(screen.maze_transition_wipe,f))
+			return qe_invalid;
 	}
 	if(scr_has_flags & SCRHAS_D_S_U)
 	{
@@ -9253,7 +9236,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			return qe_invalid;
 		if(!p_putc(screen.flags10,f))
 			return qe_invalid;
-		if(!p_putc(screen.enemyflags,f))
+		if(!p_putc(screen.flags11,f))
 			return qe_invalid;
 	}
 	if(scr_has_flags & SCRHAS_ENEMY)
@@ -9417,9 +9400,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 				return qe_invalid;
 		}
 
-		if(!p_putc(0,f))
-			return qe_invalid;
-		if(!p_putc(0,f))
+		if(!p_putc(tempffc.layer,f))
 			return qe_invalid;
 	}
 	
@@ -9433,7 +9414,6 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 {
 	dword section_id=ID_MAPS;
 	dword section_version=V_MAPS;
-	dword section_cversion=CV_MAPS;
 	dword section_size = 0;
 	
 	//section id
@@ -9448,7 +9428,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -9478,7 +9458,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 				if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
 					break;
 				mapscr& screen=TheMaps.at(i*MAPSCRS+j);
-				if(screen.valid & mVALID)
+				if (screen.is_valid())
 				{
 					valid = 1;
 					break;
@@ -9496,6 +9476,17 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 					size_t ind = i*6+q;
 					if(!p_iputw(map_autolayers[ind],f))
 						new_return(7);
+				}
+
+				for(int32_t j=0; j<8; j++)
+				{
+				    for(int32_t k=0; k<8; k++)
+				    {
+				        if(!p_putc(Regions[i].region_ids[j][k],f))
+				        {
+				            new_return(8);
+				        }
+				    }
 				}
 			}
 			
@@ -9519,6 +9510,100 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 	new_return(0);
 }
 
+int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigger const& tmp_trig)
+{
+	if(!p_putcstr(tmp_trig.label,f))
+		return 22;
+	for ( int32_t q = 0; q < 6; q++ )
+		if(!p_iputl(tmp_trig.triggerflags[q],f))
+			return 22;
+	if(!p_iputl(tmp_trig.triggerlevel,f))
+		return 23;
+	if(!p_putc(tmp_trig.triggerbtn,f))
+		return 34;
+	if(!p_putc(tmp_trig.triggeritem,f))
+		return 35;
+	if(!p_putc(tmp_trig.trigtimer,f))
+		return 36;
+	if(!p_putc(tmp_trig.trigsfx,f))
+		return 37;
+	if(!p_iputl(tmp_trig.trigchange,f))
+		return 38;
+	if(!p_iputw(tmp_trig.trigprox,f))
+		return 39;
+	if(!p_putc(tmp_trig.trigctr,f))
+		return 40;
+	if(!p_iputl(tmp_trig.trigctramnt,f))
+		return 41;
+	if(!p_putc(tmp_trig.triglbeam,f))
+		return 42;
+	if(!p_putc(tmp_trig.trigcschange,f))
+		return 43;
+	if(!p_iputw(tmp_trig.spawnitem,f))
+		return 44;
+	if(!p_iputw(tmp_trig.spawnenemy,f))
+		return 45;
+	if(!p_putc(tmp_trig.exstate,f))
+		return 46;
+	if(!p_iputl(tmp_trig.spawnip,f))
+		return 47;
+	if(!p_putc(tmp_trig.trigcopycat,f))
+		return 48;
+	if(!p_putc(tmp_trig.trigcooldown,f))
+		return 49;
+	if(!p_iputw(tmp_trig.prompt_cid,f))
+		return 50;
+	if(!p_putc(tmp_trig.prompt_cs,f))
+		return 51;
+	if(!p_iputw(tmp_trig.prompt_x,f))
+		return 52;
+	if(!p_iputw(tmp_trig.prompt_y,f))
+		return 53;
+	if(!p_putc(tmp_trig.trig_lstate,f))
+		return 69;
+	if(!p_putc(tmp_trig.trig_gstate,f))
+		return 70;
+	if(!p_iputl(tmp_trig.trig_statetime,f))
+		return 71;
+	if(!p_iputw(tmp_trig.trig_genscr,f))
+		return 72;
+	if(!p_putc(tmp_trig.trig_group,f))
+		return 76;
+	if(!p_iputw(tmp_trig.trig_group_val,f))
+		return 77;
+	if(!p_putc(tmp_trig.exdoor_dir,f))
+		return 89;
+	if(!p_putc(tmp_trig.exdoor_ind,f))
+		return 90;
+	if(!p_putc(tmp_trig.trig_levelitems,f))
+		return 91;
+	if(!p_iputw(tmp_trig.trigdmlevel,f))
+		return 92;
+	for(int q = 0; q < 3; ++q)
+		if(!p_iputw(tmp_trig.trigtint[q],f))
+			return 93;
+	if(!p_iputw(tmp_trig.triglvlpalette,f))
+		return 94;
+	if(!p_iputw(tmp_trig.trigbosspalette,f))
+		return 95;
+	if(!p_iputw(tmp_trig.trigquaketime,f))
+		return 96;
+	if(!p_iputw(tmp_trig.trigwavytime,f))
+		return 97;
+	if(!p_iputw(tmp_trig.trig_swjinxtime,f))
+		return 98;
+	if(!p_iputw(tmp_trig.trig_itmjinxtime,f))
+		return 99;
+	if(!p_iputw(tmp_trig.trig_stuntime,f))
+		return 100;
+	if(!p_iputw(tmp_trig.trig_bunnytime,f))
+		return 101;
+	if(!p_putc(tmp_trig.trig_pushtime,f))
+		return 102;
+	if (!p_iputw(tmp_trig.trig_shieldjinxtime, f))
+		return 103;
+	return 0;
+}
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb)
 {
 	//Check what needs writing
@@ -9532,34 +9617,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			break;
 		}
 	}
-	if (tmp_cmb.triggerflags[0] || tmp_cmb.triggerflags[1]
-		|| tmp_cmb.triggerflags[2] || tmp_cmb.triggerflags[3]
-		|| tmp_cmb.triggerflags[4] || tmp_cmb.triggerflags[5]
-		|| tmp_cmb.triggerlevel || tmp_cmb.trig_lstate
-		|| tmp_cmb.trig_gstate || tmp_cmb.trig_statetime
-		|| tmp_cmb.triggerbtn || tmp_cmb.triggeritem
-		|| tmp_cmb.trigtimer || tmp_cmb.trigsfx
-		|| tmp_cmb.trigchange || tmp_cmb.trigprox
-		|| tmp_cmb.trigctr || tmp_cmb.trigctramnt
-		|| tmp_cmb.triglbeam || tmp_cmb.trigcschange
-		|| tmp_cmb.spawnitem || tmp_cmb.spawnenemy
-		|| tmp_cmb.exstate > -1 || tmp_cmb.spawnip
-		|| tmp_cmb.exdoor_dir > -1
-		|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown
-		|| tmp_cmb.trig_genscr || tmp_cmb.trig_group
-		|| tmp_cmb.trig_group_val || tmp_cmb.trig_levelitems
-		|| tmp_cmb.trigdmlevel > -1
-		|| tmp_cmb.triglvlpalette > -1 || tmp_cmb.trigbosspalette > -1
-		|| tmp_cmb.trigquaketime > -1 || tmp_cmb.trigwavytime > -1
-		|| tmp_cmb.trig_swjinxtime > -2 || tmp_cmb.trig_itmjinxtime > -2
-		|| tmp_cmb.trig_stuntime > -2 || tmp_cmb.trig_bunnytime > -2
-		|| tmp_cmb.trig_pushtime != 8 || tmp_cmb.trig_shieldjinxtime > -2
-		|| tmp_cmb.prompt_cid || tmp_cmb.prompt_cs
-		|| tmp_cmb.prompt_x != 12 || tmp_cmb.prompt_y != -8)
+	if (!tmp_cmb.triggers.empty())
 		combo_has_flags |= CHAS_TRIG;
-	else for(int q = 0; q < 3; ++q)
-		if(tmp_cmb.trigtint[q])
-			combo_has_flags |= CHAS_TRIG;
 	if(tmp_cmb.usrflags || tmp_cmb.genflags)
 		combo_has_flags |= CHAS_FLAG;
 	if(tmp_cmb.frames || tmp_cmb.speed || tmp_cmb.nextcombo
@@ -9585,6 +9644,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
 		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
 		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16
+		|| tmp_cmb.liftlightrad || tmp_cmb.liftlightshape
 		|| tmp_cmb.lift_parent_item)
 		combo_has_flags |= CHAS_LIFT;
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
@@ -9674,94 +9734,16 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 	}
 	if(combo_has_flags&CHAS_TRIG)
 	{
-		for ( int32_t q = 0; q < 6; q++ ) 
-			if(!p_iputl(tmp_cmb.triggerflags[q],f))
-				return 22;
-		if(!p_iputl(tmp_cmb.triggerlevel,f))
-			return 23;
-		if(!p_putc(tmp_cmb.triggerbtn,f))
+		byte sz = zc_min(tmp_cmb.triggers.size(), 255);
+		if(!p_putc(sz,f))
 			return 34;
-		if(!p_putc(tmp_cmb.triggeritem,f))
+		for(byte q = 0; q < sz; ++q)
+		{
+			auto ret = writecombo_triggers_loop(f, section_version, tmp_cmb.triggers[q]);
+			if(ret) return ret;
+		}
+		if(!p_putc(tmp_cmb.only_gentrig,f))
 			return 35;
-		if(!p_putc(tmp_cmb.trigtimer,f))
-			return 36;
-		if(!p_putc(tmp_cmb.trigsfx,f))
-			return 37;
-		if(!p_iputl(tmp_cmb.trigchange,f))
-			return 38;
-		if(!p_iputw(tmp_cmb.trigprox,f))
-			return 39;
-		if(!p_putc(tmp_cmb.trigctr,f))
-			return 40;
-		if(!p_iputl(tmp_cmb.trigctramnt,f))
-			return 41;
-		if(!p_putc(tmp_cmb.triglbeam,f))
-			return 42;
-		if(!p_putc(tmp_cmb.trigcschange,f))
-			return 43;
-		if(!p_iputw(tmp_cmb.spawnitem,f))
-			return 44;
-		if(!p_iputw(tmp_cmb.spawnenemy,f))
-			return 45;
-		if(!p_putc(tmp_cmb.exstate,f))
-			return 46;
-		if(!p_iputl(tmp_cmb.spawnip,f))
-			return 47;
-		if(!p_putc(tmp_cmb.trigcopycat,f))
-			return 48;
-		if(!p_putc(tmp_cmb.trigcooldown,f))
-			return 49;
-		if(!p_iputw(tmp_cmb.prompt_cid,f))
-			return 50;
-		if(!p_putc(tmp_cmb.prompt_cs,f))
-			return 51;
-		if(!p_iputw(tmp_cmb.prompt_x,f))
-			return 52;
-		if(!p_iputw(tmp_cmb.prompt_y,f))
-			return 53;
-		if(!p_putc(tmp_cmb.trig_lstate,f))
-			return 69;
-		if(!p_putc(tmp_cmb.trig_gstate,f))
-			return 70;
-		if(!p_iputl(tmp_cmb.trig_statetime,f))
-			return 71;
-		if(!p_iputw(tmp_cmb.trig_genscr,f))
-			return 72;
-		if(!p_putc(tmp_cmb.trig_group,f))
-			return 76;
-		if(!p_iputw(tmp_cmb.trig_group_val,f))
-			return 77;
-		if(!p_putc(tmp_cmb.exdoor_dir,f))
-			return 89;
-		if(!p_putc(tmp_cmb.exdoor_ind,f))
-			return 90;
-		if(!p_putc(tmp_cmb.trig_levelitems,f))
-			return 91;
-		if(!p_iputw(tmp_cmb.trigdmlevel,f))
-			return 92;
-		for(int q = 0; q < 3; ++q)
-			if(!p_iputw(tmp_cmb.trigtint[q],f))
-				return 93;
-		if(!p_iputw(tmp_cmb.triglvlpalette,f))
-			return 94;
-		if(!p_iputw(tmp_cmb.trigbosspalette,f))
-			return 95;
-		if(!p_iputw(tmp_cmb.trigquaketime,f))
-			return 96;
-		if(!p_iputw(tmp_cmb.trigwavytime,f))
-			return 97;
-		if(!p_iputw(tmp_cmb.trig_swjinxtime,f))
-			return 98;
-		if(!p_iputw(tmp_cmb.trig_itmjinxtime,f))
-			return 99;
-		if(!p_iputw(tmp_cmb.trig_stuntime,f))
-			return 100;
-		if(!p_iputw(tmp_cmb.trig_bunnytime,f))
-			return 101;
-		if(!p_putc(tmp_cmb.trig_pushtime,f))
-			return 102;
-		if (!p_iputw(tmp_cmb.trig_shieldjinxtime, f))
-			return 103;
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{
@@ -9797,6 +9779,10 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 68;
 		if(!p_putc(tmp_cmb.lift_parent_item,f))
 			return 78;
+		if(!p_putc(tmp_cmb.liftlightrad,f))
+			return 96;
+		if(!p_putc(tmp_cmb.liftlightshape,f))
+			return 97;
 	}
 	if(combo_has_flags&CHAS_GENERAL)
 	{
@@ -9853,7 +9839,6 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
     word combos_used;
     dword section_id=ID_COMBOS;
     dword section_version=V_COMBOS;
-    dword section_cversion=CV_COMBOS;
     //  dword section_size=0;
     combos_used = count_combos()-start_combo;
     combos_used = zc_min(combos_used, max_combos);
@@ -9872,7 +9857,7 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -9929,7 +9914,6 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
     
     dword section_id=ID_COMBOALIASES;
     dword section_version=V_COMBOALIASES;
-    dword section_cversion=CV_COMBOALIASES;
     dword section_size=0;
     
     //section id
@@ -9944,7 +9928,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10139,7 +10123,6 @@ int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, w
     
     dword section_id=ID_CSETS;
     dword section_version=V_CSETS;
-    dword section_cversion=CV_CSETS;
     int32_t palcycles = count_palcycles(&QMisc);
 // int32_t palcyccount = count_palcycles(&QMisc);
     dword section_size = 0;
@@ -10157,7 +10140,7 @@ int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, w
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10243,7 +10226,6 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
     
     dword section_id=ID_STRINGS;
     dword section_version=V_STRINGS;
-    dword section_cversion=CV_STRINGS;
     dword section_size = 0;
     
     //section id
@@ -10258,7 +10240,7 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10483,10 +10465,9 @@ int32_t writestrings_text(PACKFILE *f)
             {
                 return qe_invalid;
             }
-            
-            encode_msg_str(str);
-            
-            if(!pfwrite(&msgbuf,(int32_t)strlen(msgbuf),f))
+
+			std::string text = MsgStrings[str].serialize();
+            if (!pfwrite(text.c_str(), text.size(), f))
             {
                 return qe_invalid;
             }
@@ -10500,12 +10481,8 @@ int32_t writestrings_tsv(PACKFILE *f)
 {
 	std::stringstream ss;
 
-	int32_t str;
 	std::vector<std::pair<std::string, std::function<std::string(const MsgStr&)>>> fields = {
-		{ "message", [&](auto& msg){
-			encode_msg_str(str);
-			return msgbuf;
-		}},
+		{ "message", [&](auto& msg){ return msg.serialize(); }},
 		{ "next", [](auto& msg){ return std::to_string(msg.nextstring); } },
 		{ "tile", [](auto& msg){ return std::to_string(msg.tile); } },
 		{ "cset", [](auto& msg){ return std::to_string(msg.cset); } },
@@ -10546,8 +10523,7 @@ int32_t writestrings_tsv(PACKFILE *f)
 
 	for(int32_t i=1; i<msg_count; i++)
 	{
-		str = i;
-		auto& msg = MsgStrings[str];
+		auto& msg = MsgStrings[i];
 		for (auto& [name, fn] : fields)
 		{
 			std::string text = fn(msg);
@@ -10568,12 +10544,12 @@ int32_t writestrings_tsv(PACKFILE *f)
     new_return(0);
 }
 
-std::string parse_msg_str(std::string const& s);
+std::string parse_to_legacy_msg_str_encoding(std::string const& s);
 
 void parse_strings_tsv(std::string tsv)
 {
 	std::map<std::string, std::function<void(MsgStr&, const std::string&)>> fields = {
-		{ "message", [](auto& msg, auto& text){ msg.s = parse_msg_str(text); } },
+		{ "message", [](auto& msg, auto& text){ msg.setFromLegacyEncoding(parse_to_legacy_msg_str_encoding(text)); } },
 		{ "next", [](auto& msg, auto& text){ msg.nextstring = std::stoi(text); } },
 		{ "tile", [](auto& msg, auto& text){ msg.tile = std::stoi(text); } },
 		{ "cset", [](auto& msg, auto& text){ msg.cset = std::stoi(text); } },
@@ -10679,7 +10655,6 @@ int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, in
     int32_t tiles_used;
     dword section_id=ID_TILES;
     dword section_version=V_TILES;
-    dword section_cversion=CV_TILES;
 	al_trace("Counting tiles used\n");
     tiles_used = count_tiles(newtilebuf)-start_tile;
     tiles_used = zc_min(tiles_used, max_tiles);
@@ -10699,7 +10674,7 @@ int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, in
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10802,7 +10777,6 @@ int32_t writemidis(PACKFILE *f)
 {
     dword section_id=ID_MIDIS;
     dword section_version=V_MIDIS;
-    dword section_cversion=CV_MIDIS;
     dword section_size = 0;
     
     //section id
@@ -10817,7 +10791,7 @@ int32_t writemidis(PACKFILE *f)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10909,7 +10883,6 @@ int32_t writecheats(PACKFILE *f, zquestheader *Header)
 {
     dword section_id=ID_CHEATS;
     dword section_version=V_CHEATS;
-    dword section_cversion=CV_CHEATS;
     dword section_size = 0;
     
     //section id
@@ -10924,7 +10897,7 @@ int32_t writecheats(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -10983,7 +10956,6 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 	
 	dword section_id=ID_GUYS;
 	dword section_version=V_GUYS;
-	dword section_cversion=CV_GUYS;
 	dword section_size=0;
 	
 	//section id
@@ -10998,7 +10970,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -11563,7 +11535,6 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_HEROSPRITES;
     dword section_version=V_HEROSPRITES;
-    dword section_cversion=CV_HEROSPRITES;
     dword section_size=0;
     
     //section id
@@ -11578,7 +11549,7 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -12124,7 +12095,7 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 		
         for (int32_t q = 0; q < wMax; q++) // Hero defense values
         {
-            if (!p_putc(hero_defence[q], f))
+            if (!p_putc(hero_defenses[q], f))
                 new_return(15);
         }
 		//}
@@ -12151,7 +12122,6 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 {
 	dword section_id=ID_SUBSCREEN;
 	dword section_version=V_SUBSCREEN;
-	dword section_cversion=CV_SUBSCREEN;
 	dword section_size=0;
 	
 	//section id
@@ -12166,7 +12136,7 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -12251,11 +12221,882 @@ extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 {
+	if (QMisc.zscript_last_compiled_version <= 26)
+		return writeffscript_old(f, Header);
+
     dword section_id       = ID_FFSCRIPT;
     dword section_version  = V_FFSCRIPT;
-    dword section_cversion = CV_FFSCRIPT;
     dword section_size     = 0;
 	dword zasmmeta_version = METADATA_V;
+    byte numscripts        = 0;
+    numscripts = numscripts; //to avoid unused variables warnings
+    
+    //section id
+    if(!p_mputl(section_id,f))
+    {
+        new_return(1);
+    }
+    
+    //section version info
+    if(!p_iputw(section_version,f))
+    {
+        new_return(2);
+    }
+    
+    if(!write_deprecated_section_cversion(section_version,f))
+    {
+        new_return(3);
+    }
+    
+    if(!p_iputw(zasmmeta_version,f))
+    {
+        new_return(4);
+    }
+    
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
+    {
+        fake_pack_writing=(writecycle==0);
+        
+        //section size
+        if(!p_iputl(section_size,f))
+        {
+            new_return(5);
+        }
+        
+        writesize=0;
+		
+		write_quest_zasm(f);
+        
+        for(int32_t i=0; i<NUMSCRIPTFFC; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, ffscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+        
+        for(int32_t i=0; i<NUMSCRIPTITEM; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, itemscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+        
+        for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, guyscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+        
+		script_data *fake = new script_data(ScriptType::None, 0);
+        for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, fake);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+		delete fake;
+        
+        for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, screenscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+        
+        for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, globalscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+		
+        for(int32_t i=0; i<NUMSCRIPTHERO; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, playerscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+		
+        for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, lwpnscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+		
+		for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, ewpnscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+        
+		for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, dmapscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+		
+		for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, itemspritescripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+		
+		for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, comboscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+		
+		if(!p_iputw(NUMSCRIPTSGENERIC,f))
+		{
+			new_return(2000);
+		}
+		for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, genericscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+		
+		if(!p_iputw(NUMSCRIPTSSUBSCREEN,f))
+		{
+			new_return(2001);
+		}
+		for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, subscreenscripts[i]);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+        
+        if(!p_iputl((int32_t)zScript.size(), f))
+        {
+            new_return(2001);
+        }
+        
+        if(!pfwrite((void *)zScript.c_str(), (int32_t)zScript.size(), f))
+        {
+            new_return(2002);
+        }
+        
+        word numffcbindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numffcbindings++;
+            }
+        }
+        
+        if(!p_iputw(numffcbindings, f))
+        {
+            new_return(2003);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2004);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2005);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2006);
+                }
+            }
+        }
+        
+        word numglobalbindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numglobalbindings++;
+            }
+        }
+        
+        if(!p_iputw(numglobalbindings, f))
+        {
+            new_return(2007);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2008);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2009);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2010);
+                }
+            }
+        }
+        
+        word numitembindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numitembindings++;
+            }
+        }
+        
+        if(!p_iputw(numitembindings, f))
+        {
+            new_return(2011);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2012);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2013);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2014);
+                }
+            }
+        }
+        
+        //new script types
+        //npc scripts
+        word numnpcbindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numnpcbindings++;
+            }
+        }
+        
+        if(!p_iputw(numnpcbindings, f))
+        {
+            new_return(2015);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2016);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2017);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2018);
+                }
+            }
+        }
+        
+        //lweapon
+	
+	word numlwpnbindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numlwpnbindings++;
+            }
+        }
+        
+        if(!p_iputw(numlwpnbindings, f))
+        {
+            new_return(2019);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2020);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2021);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2022);
+                }
+            }
+        }
+	
+	//////
+	
+	//eweapon
+	
+	
+        word numewpnbindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numewpnbindings++;
+            }
+        }
+        
+        if(!p_iputw(numewpnbindings, f))
+        {
+            new_return(2023);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2024);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2025);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2026);
+                }
+            }
+        }
+	
+	//player scripts
+	word numherobindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numherobindings++;
+            }
+        }
+        
+        if(!p_iputw(numherobindings, f))
+        {
+            new_return(2027);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2028);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2029);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2030);
+                }
+            }
+        }
+	
+	//dmap scripts
+	word numdmapbindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numdmapbindings++;
+            }
+        }
+        
+        if(!p_iputw(numdmapbindings, f))
+        {
+            new_return(2031);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2032);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2033);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2034);
+                }
+            }
+        }
+	
+	//screen scripts
+	word numscreenbindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numscreenbindings++;
+            }
+        }
+        
+        if(!p_iputw(numscreenbindings, f))
+        {
+            new_return(2035);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2036);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2037);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2038);
+                }
+            }
+        }
+        //item sprite scripts
+	word numitemspritebindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numitemspritebindings++;
+            }
+        }
+        
+        if(!p_iputw(numitemspritebindings, f))
+        {
+            new_return(2039);
+        }
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2040);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2041);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2042);
+                }
+            }
+        }
+		
+		//combo scripts
+		word numcombobindings=0;
+        
+        for(std::map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numcombobindings++;
+            }
+        }
+		if(!p_iputw(numcombobindings, f))
+        {
+            new_return(2043);
+        }
+		
+        for(std::map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2044);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2045);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2046);
+                }
+            }
+        }
+		//subscreen scripts
+		word numgenericbindings=0;
+        
+        for(auto it = genericmap.begin(); it != genericmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numgenericbindings++;
+            }
+        }
+		if(!p_iputw(numgenericbindings, f))
+        {
+            new_return(2043);
+        }
+		
+        for(auto it = genericmap.begin(); it != genericmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2044);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2045);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2046);
+                }
+            }
+        }
+        
+		//generic scripts
+		word numsubscreenbindings=0;
+        
+        for(auto it = subscreenmap.begin(); it != subscreenmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numsubscreenbindings++;
+            }
+        }
+		if(!p_iputw(numsubscreenbindings, f))
+        {
+            new_return(2047);
+        }
+		
+        for(auto it = subscreenmap.begin(); it != subscreenmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2048);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2049);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2050);
+                }
+            }
+        }
+        
+        if(writecycle==0)
+        {
+            section_size=writesize;
+        }
+    }
+    
+        
+    
+    if(writesize!=int32_t(section_size) && save_warn)
+    {
+        char ebuf[80];
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
+        jwin_alert("Error:  writeffscript()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+    }
+    
+    new_return(0);
+    //return 0;  //this is just here to stomp the compiler from whining.
+    //the irony is that it causes an "unreachable code" warning.
+}
+
+int32_t write_quest_zasm(PACKFILE *f)
+{
+	extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
+	auto& zasm = zasm_scripts[0]->zasm;
+    size_t num_commands = zasm.size();
+    
+    if(!p_iputl(num_commands,f))
+        new_return(1);
+	
+    for(int32_t j=0; j<num_commands; j++)
+    {
+        auto& zas = zasm[j];
+        
+        if(zas.command==0xFFFF)
+            continue;
+        else
+        {
+			if(!p_iputw(zas.command,f))
+				new_return(2);
+			
+            if(!p_iputl(zas.arg1,f))
+                new_return(3);
+            
+            if(!p_iputl(zas.arg2,f))
+                new_return(4);
+            
+            if(!p_iputl(zas.arg3,f))
+                new_return(5);
+			
+			uint32_t sz = 0;
+			if(zas.strptr)
+				sz = zas.strptr->size();
+			if(!p_iputl(sz,f))
+				new_return(6);
+			if(sz)
+			{
+				auto& str = *zas.strptr;
+				for(size_t q = 0; q < sz; ++q)
+				{
+					if(!p_putc(str[q],f))
+						new_return(7);
+				}
+			}
+			sz = 0;
+			if(zas.vecptr)
+				sz = zas.vecptr->size();
+			if(!p_iputl(sz,f))
+				new_return(8);
+			if(sz) //vector found
+			{
+				auto& vec = *zas.vecptr;
+				for(size_t q = 0; q < sz; ++q)
+				{
+					if(!p_iputl(vec[q],f))
+						new_return(9);
+				}
+			}
+        }
+    }
+	return 0;
+}
+
+int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data *script)
+{
+	if (!script->valid())
+	{
+		if (!p_putc(0, f))
+			new_return(-1);
+		return 0;
+	}
+
+	if (!p_putc(1, f))
+		new_return(-1);
+
+	zasm_meta const& tmeta = script->meta;
+	if(!p_iputw(tmeta.zasm_v,f))
+		new_return(1);
+	if(!p_iputw(tmeta.meta_v,f))
+		new_return(2);
+	if(!p_iputw(tmeta.ffscript_v,f))
+		new_return(3);
+	if(!p_putc((int)tmeta.script_type,f))
+		new_return(4);
+	
+	for(int32_t q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.run_idens[q],f))
+			new_return(5);
+	}
+	
+	for(int32_t q = 0; q < 8; ++q)
+		if(!p_putc(tmeta.run_types[q],f))
+			new_return(6);
+	
+	if(!p_putc(tmeta.flags,f))
+		new_return(7);
+	
+	if(!p_iputw(tmeta.compiler_v1,f))
+		new_return(8);
+	
+	if(!p_iputw(tmeta.compiler_v2,f))
+		new_return(9);
+	
+	if(!p_iputw(tmeta.compiler_v3,f))
+		new_return(10);
+	
+	if(!p_iputw(tmeta.compiler_v4,f))
+		new_return(11);
+	
+	if(!p_putcstr(tmeta.script_name,f))
+		new_return(12);
+	if(!p_putcstr(tmeta.author,f))
+		new_return(13);
+	for(auto q = 0; q < 10; ++q)
+	{
+		if(!p_putcstr(tmeta.attributes[q],f))
+			new_return(14);
+		if(!p_putwstr(tmeta.attributes_help[q],f))
+			new_return(15);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.attribytes[q],f))
+			new_return(16);
+		if(!p_putwstr(tmeta.attribytes_help[q],f))
+			new_return(17);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.attrishorts[q],f))
+			new_return(18);
+		if(!p_putwstr(tmeta.attrishorts_help[q],f))
+			new_return(19);
+	}
+	for(auto q = 0; q < 16; ++q)
+	{
+		if(!p_putcstr(tmeta.usrflags[q],f))
+			new_return(20);
+		if(!p_putwstr(tmeta.usrflags_help[q],f))
+			new_return(21);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.initd[q],f))
+			new_return(22);
+		if(!p_putwstr(tmeta.initd_help[q],f))
+			new_return(23);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putc(tmeta.initd_type[q],f))
+			new_return(24);
+	}
+
+	if(!p_iputl(script->pc, f))
+		new_return(25);
+
+	if(!p_iputl(script->end_pc, f))
+		new_return(26);
+
+    return 0;
+}
+
+
+int32_t writeffscript_old(PACKFILE *f, zquestheader *Header)
+{
+    dword section_id       = ID_FFSCRIPT;
+    dword section_version  = 26;
+    dword section_cversion = 1;
+    dword section_size     = 0;
+	dword zasmmeta_version = 5;
     byte numscripts        = 0;
     numscripts = numscripts; //to avoid unused variables warnings
     
@@ -12295,7 +13136,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTFFC; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, ffscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12306,7 +13147,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTITEM; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, itemscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12317,7 +13158,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, guyscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12329,7 +13170,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		script_data *fake = new script_data(ScriptType::None, 0);
         for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &fake);
+            int32_t ret = write_one_ffscript_old(f, Header, i, fake);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12341,7 +13182,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, screenscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12352,7 +13193,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, globalscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12363,7 +13204,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
         for(int32_t i=0; i<NUMSCRIPTHERO; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &playerscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, playerscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12374,7 +13215,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
         for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, lwpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12385,7 +13226,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, ewpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12396,7 +13237,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
         
 		for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, dmapscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12407,7 +13248,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, itemspritescripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12418,7 +13259,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, comboscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12433,7 +13274,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		}
 		for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &genericscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, genericscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12448,7 +13289,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		}
 		for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &subscreenscripts[i]);
+            int32_t ret = write_one_ffscript_old(f, Header, i, subscreenscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12966,13 +13807,13 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
     //the irony is that it causes an "unreachable code" warning.
 }
 
-int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_data **script)
+int32_t write_one_ffscript_old(PACKFILE *f, zquestheader *Header, int32_t i, script_data *script)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     i=i;
     
-    size_t num_commands = (*script)->zasm_script ? (*script)->zasm_script->size : 0;
+    size_t num_commands = script->zasm_script ? script->zasm_script->size : 0;
     
     if(!p_iputl(num_commands,f))
     {
@@ -12980,7 +13821,7 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
     }
 	
 	//Metadata
-	zasm_meta const& tmeta = (*script)->meta;
+	zasm_meta const& tmeta = script->meta;
 	if(!p_iputw(tmeta.zasm_v,f))
 	{
 		new_return(7);
@@ -13087,7 +13928,7 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 	
     for(int32_t j=0; j<num_commands; j++)
     {
-        auto& zas = (*script)->zasm_script->zasm[j];
+        auto& zas = script->zasm_script->zasm[j];
         if(!p_iputw(zas.command,f))
         {
             new_return(20);
@@ -13166,7 +14007,6 @@ int32_t writesfx(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_SFX;
     dword section_version=V_SFX;
-    dword section_cversion=CV_SFX;
     dword section_size=0;
     
     //section id
@@ -13181,7 +14021,7 @@ int32_t writesfx(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -13294,7 +14134,6 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 {
 	dword section_id=ID_INITDATA;
 	dword section_version=V_INITDATA;
-	dword section_cversion=CV_INITDATA;
 	dword section_size = 0;
 	
 	zinit.last_map=Map.getCurrMap();
@@ -13313,7 +14152,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -13333,16 +14172,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		for(int q = 0; q < MAXITEMS/8; ++q)
 			if(!p_putc(zinit.items[q], f))
 				new_return(5);
-		for(int q = 0; q < MAXLEVELS/8; ++q)
+		for(int q = 0; q < MAXLEVELS; ++q)
 		{
-			if(!p_putc(zinit.map[q], f))
+			if(!p_putc(zinit.litems[q], f))
 				new_return(6);
-			if(!p_putc(zinit.compass[q], f))
-				new_return(7);
-			if(!p_putc(zinit.boss_key[q], f))
-				new_return(8);
-			if(!p_putc(zinit.mcguffin[q], f))
-				new_return(9);
 		}
 		if(!p_putbvec(zinit.level_keys, f))
 			new_return(10);
@@ -13476,6 +14309,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(73);
 		if (!p_iputw(zinit.light_wave_size, f))
 			new_return(74);
+		if (!p_putc(zinit.region_mapping, f))
+			new_return(75);
 		
 		if(writecycle==0)
 		{
@@ -13500,7 +14335,6 @@ int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
     
     dword section_id=ID_ITEMDROPSETS;
     dword section_version=V_ITEMDROPSETS;
-    dword section_cversion=CV_ITEMDROPSETS;
     //  dword section_size=0;
     dword section_size = 0;
     word num_item_drop_sets=count_item_drop_sets();
@@ -13517,7 +14351,7 @@ int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
         new_return(2);
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!write_deprecated_section_cversion(section_version,f))
     {
         new_return(3);
     }
@@ -13584,7 +14418,6 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 {
 	dword section_id=ID_FAVORITES;
 	dword section_version=V_FAVORITES;
-	dword section_cversion=CV_FAVORITES;
 	dword section_size = 0;
 	
 	//section id
@@ -13599,7 +14432,7 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 		new_return(2);
 	}
 	
-	if(!p_iputw(section_cversion,f))
+	if(!write_deprecated_section_cversion(section_version,f))
 	{
 		new_return(3);
 	}
@@ -14139,8 +14972,6 @@ void zmap::prv_secrets(bool high16only)
     
     for(int32_t i=0; i<176; i++)
     {
-        bool putit;
-        
         if(!high16only)
         {
             for(int32_t j=-1; j<6; j++)
@@ -14149,8 +14980,6 @@ void zmap::prv_secrets(bool high16only)
                 
                 for(int32_t iter=0; iter<2; ++iter)
                 {
-                    putit=true;
-                    
                     if(!t[j].valid)
                         continue;
                         
@@ -14160,123 +14989,9 @@ void zmap::prv_secrets(bool high16only)
                     {
                         checkflag=t[j].sflag[i];
                     }
-                    
-                    switch(checkflag)
-                    {
-                    case mfANYFIRE:
-                        ft=sBCANDLE;
-                        break;
-                        
-                    case mfSTRONGFIRE:
-                        ft=sRCANDLE;
-                        break;
-                        
-                    case mfMAGICFIRE:
-                        ft=sWANDFIRE;
-                        break;
-                        
-                    case mfDIVINEFIRE:
-                        ft=sDIVINEFIRE;
-                        break;
-                        
-                    case mfARROW:
-                        ft=sARROW;
-                        break;
-                        
-                    case mfSARROW:
-                        ft=sSARROW;
-                        break;
-                        
-                    case mfGARROW:
-                        ft=sGARROW;
-                        break;
-                        
-                    case mfSBOMB:
-                        ft=sSBOMB;
-                        break;
-                        
-                    case mfBOMB:
-                        ft=sBOMB;
-                        break;
-                        
-                    case mfBRANG:
-                        ft=sBRANG;
-                        break;
-                        
-                    case mfMBRANG:
-                        ft=sMBRANG;
-                        break;
-                        
-                    case mfFBRANG:
-                        ft=sFBRANG;
-                        break;
-                        
-                    case mfWANDMAGIC:
-                        ft=sWANDMAGIC;
-                        break;
-                        
-                    case mfREFMAGIC:
-                        ft=sREFMAGIC;
-                        break;
-                        
-                    case mfREFFIREBALL:
-                        ft=sREFFIREBALL;
-                        break;
-                        
-                    case mfSWORD:
-                        ft=sSWORD;
-                        break;
-                        
-                    case mfWSWORD:
-                        ft=sWSWORD;
-                        break;
-                        
-                    case mfMSWORD:
-                        ft=sMSWORD;
-                        break;
-                        
-                    case mfXSWORD:
-                        ft=sXSWORD;
-                        break;
-                        
-                    case mfSWORDBEAM:
-                        ft=sSWORDBEAM;
-                        break;
-                        
-                    case mfWSWORDBEAM:
-                        ft=sWSWORDBEAM;
-                        break;
-                        
-                    case mfMSWORDBEAM:
-                        ft=sMSWORDBEAM;
-                        break;
-                        
-                    case mfXSWORDBEAM:
-                        ft=sXSWORDBEAM;
-                        break;
-                        
-                    case mfHOOKSHOT:
-                        ft=sHOOKSHOT;
-                        break;
-                        
-                    case mfWAND:
-                        ft=sWAND;
-                        break;
-                        
-                    case mfHAMMER:
-                        ft=sHAMMER;
-                        break;
-                        
-                    case mfSTRIKE:
-                        ft=sSTRIKE;
-                        break;
-                        
-                    default:
-                        putit = false;
-                        break;
-                    }
-                    
-                    if(putit)
+
+					ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+                    if (ft != -1)
                     {
                         if(j==-1)
                         {
@@ -14355,136 +15070,19 @@ void zmap::prv_secrets(bool high16only)
 	word num_ffcs = s->numFFC();
     for(word i=0; i<num_ffcs; ++i)
     {
-        bool putit;
-        
         if(!high16only)
         {
             for(int32_t iter=0; iter<1; ++iter)
             {
-                putit=true;
                 int32_t checkflag=combobuf[s->ffcs[i].data].flag;
                 
                 if(iter==1)
                 {
                     checkflag=s->sflag[i];
                 }
-                
-                switch(checkflag)
-                {
-                case mfANYFIRE:
-                    ft=sBCANDLE;
-                    break;
-                    
-                case mfSTRONGFIRE:
-                    ft=sRCANDLE;
-                    break;
-                    
-                case mfMAGICFIRE:
-                    ft=sWANDFIRE;
-                    break;
-                    
-                case mfDIVINEFIRE:
-                    ft=sDIVINEFIRE;
-                    break;
-                    
-                case mfARROW:
-                    ft=sARROW;
-                    break;
-                    
-                case mfSARROW:
-                    ft=sSARROW;
-                    break;
-                    
-                case mfGARROW:
-                    ft=sGARROW;
-                    break;
-                    
-                case mfSBOMB:
-                    ft=sSBOMB;
-                    break;
-                    
-                case mfBOMB:
-                    ft=sBOMB;
-                    break;
-                    
-                case mfBRANG:
-                    ft=sBRANG;
-                    break;
-                    
-                case mfMBRANG:
-                    ft=sMBRANG;
-                    break;
-                    
-                case mfFBRANG:
-                    ft=sFBRANG;
-                    break;
-                    
-                case mfWANDMAGIC:
-                    ft=sWANDMAGIC;
-                    break;
-                    
-                case mfREFMAGIC:
-                    ft=sREFMAGIC;
-                    break;
-                    
-                case mfREFFIREBALL:
-                    ft=sREFFIREBALL;
-                    break;
-                    
-                case mfSWORD:
-                    ft=sSWORD;
-                    break;
-                    
-                case mfWSWORD:
-                    ft=sWSWORD;
-                    break;
-                    
-                case mfMSWORD:
-                    ft=sMSWORD;
-                    break;
-                    
-                case mfXSWORD:
-                    ft=sXSWORD;
-                    break;
-                    
-                case mfSWORDBEAM:
-                    ft=sSWORDBEAM;
-                    break;
-                    
-                case mfWSWORDBEAM:
-                    ft=sWSWORDBEAM;
-                    break;
-                    
-                case mfMSWORDBEAM:
-                    ft=sMSWORDBEAM;
-                    break;
-                    
-                case mfXSWORDBEAM:
-                    ft=sXSWORDBEAM;
-                    break;
-                    
-                case mfHOOKSHOT:
-                    ft=sHOOKSHOT;
-                    break;
-                    
-                case mfWAND:
-                    ft=sWAND;
-                    break;
-                    
-                case mfHAMMER:
-                    ft=sHAMMER;
-                    break;
-                    
-                case mfSTRIKE:
-                    ft=sSTRIKE;
-                    break;
-                    
-                default:
-                    putit = false;
-                    break;
-                }
-                
-                if(putit)
+
+				ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+                if (ft != -1)
                 {
                     s->ffcs[i].data = s->secretcombo[ft];
                     s->ffcs[i].cset = s->secretcset[ft];

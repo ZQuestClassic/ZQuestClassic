@@ -1,3 +1,77 @@
+// System Real Time Clock (RTC) categories for [GetSystemTime].
+enum RealTimeClockCategory
+{
+	RTC_YEAR                       = 0,
+	RTC_MONTH                      = 1,
+	RTC_DAYOFMONTH                 = 2,
+	RTC_DAYOFWEEK                  = 3,
+	RTC_HOUR                       = 4,
+	RTC_MINUTE                     = 5,
+	RTC_SECOND                     = 6,
+	RTC_DAYOFYEAR                  = 7,
+	RTC_DAYLIGHTTIME               = 8,
+	RTC_LAST                       = 9,
+};
+
+// Bitflags for [SaveSRAM] and [LoadSRAM].
+@Bitflags("int")
+enum StoredMemoryBitflags
+{
+	SRAM_ALL                       = 0,
+	SRAM_NPCDATA                   = 0x01,
+	SRAM_ITEMDATA                  = 0x02,
+	SRAM_SPRITEDATA                = 0x04,
+	SRAM_COMBODATA                 = 0x08,
+	SRAM_DMAPDATA                  = 0x10,
+	SRAM_MAPDATA                   = 0x20,
+};
+
+// Used with [WaitEvent], [genericdata::EventListen].
+enum GenericScriptEvent
+{
+	GENSCR_EVENT_NIL = -1, //N/A (error value)
+	GENSCR_EVENT_INIT, //When loading in from a save/new quest.
+	GENSCR_EVENT_CONTINUE, //When F6->Continue
+	GENSCR_EVENT_FFC_PRELOAD, //When FFCs run 'on screen init'
+	GENSCR_EVENT_CHANGE_SCREEN, //When the screen changes
+	GENSCR_EVENT_CHANGE_DMAP, //When the dmap changes
+	GENSCR_EVENT_CHANGE_LEVEL, //When the level changes
+	GENSCR_EVENT_HERO_HIT_1, //Hero is hit, before ring applied. [Game->EventData] indexed via [EventDataIndex_HeroHit].
+	GENSCR_EVENT_HERO_HIT_2, //Hero is hit, after ring applied. [Game->EventData] indexed via [EventDataIndex_HeroHit].
+	GENSCR_EVENT_COLLECT_ITEM, //Item is collected. [Game->EventData] indexed via [EventDataIndex_CollectItem].
+	GENSCR_EVENT_ENEMY_DROP_ITEM_1, //Enemy drops item (before item created). [Game->EventData] indexed via [EventDataIndex_EnemyDropItem1].
+	GENSCR_EVENT_ENEMY_DROP_ITEM_2, //Enemy drops item (if & after item created). [Game->EventData] indexed via [EventDataIndex_EnemyDropItem2].
+	GENSCR_EVENT_ENEMY_DEATH, //Enemy dying. [Game->EventData] indexed via [EventDataIndex_EnemyDeath].
+	GENSCR_EVENT_ENEMY_HIT1, //Enemy hit, before defenses. [Game->EventData] indexed via [EventDataIndex_EnemyHit].
+	GENSCR_EVENT_ENEMY_HIT2, //Enemy hit, after defenses. [Game->EventData] indexed via [EventDataIndex_EnemyHit].
+	GENSCR_EVENT_POST_COLLECT_ITEM, //After item is collected (post hold if held).
+	GENSCR_EVENT_PLAYER_FALL, //Hero falls in a pitfall. [Game->EventData] indexed via [EventDataIndex_PlayerFallDrown].
+	GENSCR_EVENT_PLAYER_DROWN, //Hero drowns. [Game->EventData] indexed via [EventDataIndex_PlayerFallDrown].
+	GENSCR_NUMEVENT //N/A (max value)
+};
+
+enum ScriptTiming
+{
+	SCR_TIMING_INIT = -1,
+	SCR_TIMING_START_FRAME, SCR_TIMING_POST_COMBO_ANIM, SCR_TIMING_POST_POLL_INPUT,
+	SCR_TIMING_POST_FFCS, SCR_TIMING_POST_GLOBAL_ACTIVE,
+	SCR_TIMING_POST_PLAYER_ACTIVE, SCR_TIMING_POST_DMAPDATA_ACTIVE,
+	SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN, SCR_TIMING_POST_COMBOSCRIPT,
+	SCR_TIMING_POST_PUSHBLOCK,
+	SCR_TIMING_POST_ITEMSPRITE_SCRIPT, SCR_TIMING_POST_ITEMSPRITE_ANIMATE,
+	SCR_TIMING_POST_NPC_ANIMATE, SCR_TIMING_POST_EWPN_ANIMATE, SCR_TIMING_POST_EWPN_SCRIPT,
+	SCR_TIMING_POST_OLD_ITEMDATA_SCRIPT, SCR_TIMING_POST_PLAYER_ANIMATE,
+	SCR_TIMING_POST_NEW_ITEMDATA_SCRIPT, SCR_TIMING_POST_CASTING,
+	SCR_TIMING_POST_LWPN_ANIMATE,
+	SCR_TIMING_POST_DECOPARTICLE_ANIMATE, SCR_TIMING_POST_COLLISIONS_PALETTECYCLE,
+	SCR_TIMING_WAITDRAW, SCR_TIMING_POST_GLOBAL_WAITDRAW, SCR_TIMING_POST_PLAYER_WAITDRAW,
+	SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW, SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW,
+	SCR_TIMING_POST_SCREEN_WAITDRAW, SCR_TIMING_POST_FFC_WAITDRAW, SCR_TIMING_POST_COMBO_WAITDRAW,
+	SCR_TIMING_POST_ITEM_WAITDRAW, SCR_TIMING_POST_NPC_WAITDRAW, SCR_TIMING_POST_EWPN_WAITDRAW,
+	SCR_TIMING_POST_LWPN_WAITDRAW, SCR_TIMING_POST_ITEMSPRITE_WAITDRAW,
+	SCR_TIMING_PRE_DRAW, SCR_TIMING_POST_DRAW, SCR_TIMING_POST_STRINGS, SCR_TIMING_END_FRAME,
+	SCR_NUM_TIMINGS
+};
 
 const untyped NULL = 0;
 const untyped null = 0;
@@ -46,19 +120,19 @@ internal void Waitframes(int count);
 //   WAITDRAW
 internal void Waitdraw();
 
-// Can only be used in a passively-running {@link genericdata|Generic Script}.
+// Can only be used in a passively-running [genericdata|Generic Script].
 //
 // @zasm
 //   POP D3
 //   POP D2
 //   WAITTO D2 D3
-internal void WaitTo(int timing, bool at_least = false);
+internal void WaitTo(ScriptTiming timing, bool at_least = false);
 
-// Can only be used in a passively-running {@link genericdata|Generic Script}.
+// Can only be used in a passively-running [genericdata|Generic Script].
 //
 // @zasm
 //   WAITEVENT
-internal int WaitEvent();
+internal GenericScriptEvent WaitEvent();
 
 // Prints the passed value to the output console. Includes a newline character
 // after the value.
@@ -92,13 +166,27 @@ internal void Trace(long val);
 // nonzero, or "false" if the value is 0. Includes a newline character after the
 // value.
 //
+// @deprecated_alias TraceB
 // @zasm
 //   POP D2
 //   TRACE2R D2
-internal void TraceB(bool val);
+internal void Trace(bool val);
+
+// Prints the passed string to the output console. Includes a newline character
+// after the string.
+//
+// To print a string without an extra newline, use [TraceS].
+//
+// @zasm
+//   POP D2
+//   TRACE6 D2
+//   TRACE3
+internal void Trace(char32[] string);
 
 // Prints the passed string to the output console. Does not include a newline
 // character after the string.
+//
+// To print a string with an extra newline, use [Trace].
 //
 // @zasm
 //   POP D3
@@ -328,7 +416,7 @@ internal void OwnObject(untyped obj);
 
 // Takes an [#zslang_classes|Object] parameter. Globalizes the object, and
 // clears any script ownership over it. The object will be saved to the
-// save file, and cannot be deleted.
+// save file, and won't be deleted.
 // 
 // Objects that are stored in global variables (or other global objects)
 // are also considered to be global.
@@ -386,7 +474,7 @@ internal constexpr T RoundAway<T>(T n);
 // @zasm
 //   POP D2
 //   GETRTCTIMER D2
-internal int GetSystemTime(int index);
+internal int GetSystemTime(RealTimeClockCategory category);
 
 // Calculates the distance between two points, optionally using a scale divisor
 // to handle distances that would otherwise overflow.
@@ -678,7 +766,7 @@ internal constexpr int RadtoDeg(int radians);
 
 // Returns the [radians] value, wrapped between [-PI,PI)
 //
-// @alias WrapAngle
+// @deprecated_alias WrapAngle
 // @alias WrapRad
 // @zasm
 //   POP D2
@@ -703,8 +791,10 @@ internal constexpr int WrapDegrees(int degrees);
 //   POP D5
 internal void printf(char32[] format);
 
-// Acts exactly as output console, it is instead placed in the [dest] buffer. If
+// Acts exactly as [printf], but places the result in the [dest] buffer. If
 // the [dest] buffer is too small, it will be resized to fit the contents.
+//
+// Returns the number of characters used.
 //
 // @vargs 0
 // @zasm
@@ -712,17 +802,14 @@ internal void printf(char32[] format);
 //   POPARGS D5 0.0002
 internal int sprintf(char32[] dest, char32[] format);
 
-// Prints the specified format_string to the output console, using the given
-// args to fill in parts of the string that are specially marked. Does not
-// include a newline character after the string.
+// Same as [printf], but with the format parameters as an array.
 //
 // @zasm
 //   PRINTFA
 //   POPARGS D5 0.0002
 internal void printfa<T>(char32[] format, T[] args);
 
-// Acts exactly as output console, it is instead placed in the [dest] buffer. If
-// the [dest] buffer is too small, it will be resized to fit the contents.
+// Same as [sprintf], but with the format parameters as an array.
 //
 // @zasm
 //   SPRINTFA
@@ -824,7 +911,7 @@ internal void SRand(long seed);
 internal long SRand();
 
 // Returns the combo position (`pos`) for the given `(x, y)` coordinates
-// with the current [Region].
+// in the current [Region].
 //
 // Coordinates outside the bounds of the current [Region] are clamped.
 //
@@ -833,6 +920,20 @@ internal long SRand();
 //   POP D2
 //   COMBO_AT D2 D3
 internal int ComboAt(int x, int y);
+
+// Returns the combo position (`pos`) adjusted by the given `(x, y)` coordinates
+// in the current [Region].
+//
+// Example: `ComboAdjust(10, 16, 0)` gives the combo position one combo right of `10`.
+//
+// Coordinates outside the bounds of the current [Region] are clamped.
+//
+// @zasm
+//   POP D0
+//   POP D1
+//   POP D2
+//   COMBO_ADJUST D2 D1 D0
+internal int ComboAdjust(int pos, int x, int y);
 
 // Converts the type of any value to `untyped`, exactly like typecasting.
 //
@@ -848,65 +949,6 @@ internal int ComboAt(int x, int y);
 // @zasm
 //   POP D2
 internal constexpr untyped Untype(untyped value);
-
-// Clamps and returns [n] sized to an unsigned byte, with appropriate overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOBYTE D2
-internal int Byte(int n);
-
-// Clamps and returns [n] sized to an unsigned byte, with appropriate overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOBYTE D2
-internal int Int8(int n);
-
-// Clamps and returns [n] sized to a signed byte, with appropriate overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOSIGNEDBYTE D2
-internal int SignedByte(int n);
-
-// Clamps and returns [n] sized to an unsigned 16-bit integer, with appropriate
-// overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOWORD D2
-internal int Word(int n);
-
-// Clamps and returns [n] sized to an unsigned 16-bit integer, with appropriate
-// overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOWORD D2
-internal int Int16(int n);
-
-// Clamps and returns [n] sized to a signed 16-bit integer, with appropriate
-// overflow.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOSHORT D2
-internal int Short(int n);
-
-// Truncates n to an integer.
-//
-// @deprecated
-// @zasm
-//   POP D2
-//   TOINTEGER D2
-internal int Integer(int n);
 
 // @deprecated
 // @zasm
@@ -942,3 +984,27 @@ internal long RefCount(untyped object_ptr);
 // @zasm
 //   GC
 internal void GC();
+
+// Helper function for reading bitflags. For example:
+//
+// ```
+// bool v = ReadBitflags(cd->TrigSpawnItemPickup, IP_TRIGGERSECRETS);
+// ```
+bool ReadBitflags<T>(T bitflags, T flag)
+{
+	return bitflags & flag;
+}
+
+// Helper function for modifying bitflags. For example, the following updates
+// the [IP_TRIGGERSECRETS] flag to be true:
+//
+// ```
+// cd->TrigSpawnItemPickup = AdjustBitflags(cd->TrigSpawnItemPickup, IP_TRIGGERSECRETS, true);
+// ```
+T AdjustBitflags<T>(T bitflags, T flag, bool value)
+{
+	if (value)
+		return bitflags | flag;
+	else
+		return bitflags & ~flag;
+}

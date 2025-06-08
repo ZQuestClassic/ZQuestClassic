@@ -43,7 +43,7 @@ int[] __GetDrawingArray(npc ghost)
 
 void DrawGhostFFCs()
 {
-    if((Screen->EFlags[SEF_LIST1]&100b)!=0) // All Enemies Are Invisible
+    if (Screen->Flag[SFL_ENEMIES_INVISIBLE])
     {
         if(!__HaveAmulet())
             return;
@@ -61,7 +61,7 @@ void DrawGhostFFCs()
     
     if(__GH_USE_DRAWCOMBO!=0)
     {
-        if((Screen->Flags[SF_VIEW]&10000b)!=0) // Layer 2 is background
+        if (Screen->Flag[SFL_LAYER2BG])
             normalLayer=1;
         else
             normalLayer=2;

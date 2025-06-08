@@ -623,7 +623,7 @@ static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, b
 				// D5 is a special "null" register - it is never valid to read
 				// from it, so we are free to remove writes.
 				// ...except for the initial script call, which may have set initd[5].
-				if (!(prev_arg1 == arg1 || (ctx.fn.id != 0 && prev_arg1 == D(5))))
+				if (!(prev_arg1 == arg1 || (!ctx.fn.is_entry_function && prev_arg1 == D(5))))
 					break;
 
 				start--;
@@ -2251,23 +2251,44 @@ static void optimize_inline_functions(OptContext& ctx)
 		int stack_to_external_value[8];
 		for (int i = 0; i < 8; i++) stack_to_external_value[i] = -1;
 
+		int stack_to_external_value_reg_type[8];
+		for (int i = 0; i < 8; i++) stack_to_external_value_reg_type[i] = -1;
+
 		ASSERT(one_of(C(i - 1).command, PUSHR, PUSHV, PUSHARGSR, PUSHARGSV, NOP));
 		stack_to_external_value[0] = C(i - 1).arg1;
+		stack_to_external_value_reg_type[0] = one_of(C(i - 1).command, PUSHR, PUSHARGSR) ? 1 : 0;
 
 		std::vector<ffscript> inlined_zasm;
 		ffscript inline_instr = data.inline_instr;
-		for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg, int argn){
-			if (read || write)
+
+		if (inline_instr.command == LOAD)
+		{
+			ASSERT(stack_to_external_value[inline_instr.arg2] != -1);
+			if (stack_to_external_value_reg_type[inline_instr.arg2] == 0)
 			{
-				if (data.internal_reg_to_type[reg] == 0)
-					reg = stack_to_external_value[data.internal_reg_to_value[reg]];
-				else if (read)
-				{
-					inlined_zasm.emplace_back(SETR, reg, data.internal_reg_to_value[reg]);
-				}
+				inlined_zasm.emplace_back(SETV, inline_instr.arg1, stack_to_external_value[inline_instr.arg2]);
 			}
-		});
-		inlined_zasm.push_back(inline_instr);
+			else
+			{
+				if (stack_to_external_value[inline_instr.arg2] != inline_instr.arg1)
+					inlined_zasm.emplace_back(SETR, inline_instr.arg1, stack_to_external_value[inline_instr.arg2]);
+			}
+		}
+		else
+		{
+			for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg, int argn){
+				if (read || write)
+				{
+					if (data.internal_reg_to_type[reg] == 0)
+						reg = stack_to_external_value[data.internal_reg_to_value[reg]];
+					else if (read)
+					{
+						inlined_zasm.emplace_back(SETR, reg, data.internal_reg_to_value[reg]);
+					}
+				}
+			});
+			inlined_zasm.push_back(inline_instr);
+		}
 
 		pc_t store_stack_pc = store_stack_pcs.back();
 		bool must_keep_store_stack = false;
@@ -2554,6 +2575,7 @@ OptimizeResults zasm_optimize(zasm_script* script)
 	}
 
 	script->optimized = true;
+
 	return results;
 }
 
@@ -2683,6 +2705,9 @@ void zasm_optimize_run_for_file(std::string path)
 		zasm += lines[i] + "\n";
 
 	auto script = zasm_from_string(zasm);
+	// Configures the first function as the "entry".
+	script.script_datas.emplace_back(new script_data(ScriptType::None, 0));
+	script.script_datas.back()->pc = 0;
 
 	// Just in case there is a minor roundtrip difference, resave the input.
 	{

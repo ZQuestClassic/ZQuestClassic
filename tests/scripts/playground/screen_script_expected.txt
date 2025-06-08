@@ -18,14 +18,15 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 3,
-    "symbols": 19,
-    "identifiers": 44,
+    "symbols": 21,
+    "identifiers": 47,
     "elided": true
   }
 }
 
 zasm:
 
+QUIT; void run() Body
 PUSHR D0; void run(int, int) Params
 PUSHR D1
 PUSHARGSV 0 0.0002; void run(int, int) Body Start
@@ -50,7 +51,7 @@ SETR D3 D2; InlineFunc[int ComboAt(int, int)] Params End
 POP D2; InlineFunc[int ComboAt(int, int)] Body Start
 COMBO_AT D2 D3; InlineFunc[int ComboAt(int, int)] Body End
 STORE D2 0
-LOAD D2 0; if() #436 Test
+LOAD D2 0; if() #420 Test
 PUSHR D2
 POP D0
 SETR D2 COMBODD
@@ -60,8 +61,8 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 49 ==; Test 'if'
-LOAD D2 0; if() #436 Body Start
+GOTOCMP 50 ==; Test 'if'
+LOAD D2 0; if() #420 Body Start
 PUSHR D2
 POP D0
 SETR D2 COMBODD
@@ -73,7 +74,7 @@ POP D0
 POP D2
 SETR COMBODD D2
 LOAD D2 0.0002; InlineFunc[void Audio::PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #436 Body End
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #420 Body End
 PUSHV 6; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 SETV D2 0.0001
 PUSHR D2
@@ -129,7 +130,4 @@ PUSHV 128; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, in
 DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 10; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
-
-
-QUIT; void run() Body
+GOTO 11; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End

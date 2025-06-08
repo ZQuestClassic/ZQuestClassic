@@ -262,6 +262,8 @@ static GUI::ListData comboRulesList
 		" time, ALL blocks on triggers will click into place."},
 	{ "Blocks Drown In Liquid", qr_BLOCKS_DROWN,
 		"Pushable blocks can drown in liquid, similarly to the hero."},
+	{ "Pushblocks Fall In Sideview", qr_PUSHBLOCKS_FALL_IN_SIDEVIEW,
+		"Pushable blocks fall in sideview (after being pushed only)" },
 	{ "Burn Flags Are Triggered Instantly", qr_INSTABURNFLAGS, 
 		"Makes it so Fire weapons instantly trigger secrets upon touching"
 		" a burn spot. If this rule is disabled, fire weapons need to linger"
@@ -901,9 +903,7 @@ static GUI::ListData compatRulesList
 	{ "Fake-solid Pushblocks", qr_MOVINGBLOCK_FAKE_SOLID,
 		"If enabled, pushblocks will not use 'real' solidity." },
 	{ "Broken ->HitBY UIDs", qr_BROKENHITBY,
-		"If enabled, ->HitBy[HIT_BY_(thing)_UID] will use the real engine uid instead of the script uid,"
-		" and both Hero fire and bomb weapons won't work with HitBy if they hurt the Hero." 
-		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."},
+		"If enabled, both Hero fire and bomb weapons won't work with HitBy if they hurt the Hero."},
 	{ "Broken Moving && Air Bombs", qr_BROKEN_MOVING_BOMBS,
 		"If enabled, bombs exploding while moving will behave oddly and broken, and bomb explosions"
 		" will continue obeying gravity." },
@@ -971,7 +971,33 @@ static GUI::ListData compatRulesList
 		"If enabled, water will use the old hardcoded splash sound when landing in it. Otherwise, the landing sound set for each combo will be used instead." },
 	{ "'Burning' triggers don't count as 'weapon triggers'", qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS,
 		"If enabled, weapons triggering the 'Burning' trigger causes will not count as 'weapon triggers' for"
-		" purposes of other trigger flags such as 'Kill Triggering Weapon' and 'Weapon Separate Triggers'" }
+		" purposes of other trigger flags such as 'Kill Triggering Weapon' and 'Weapon Separate Triggers'" },
+	{ "Broken Hero Position Exposed To Scripts When Scrolling", qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION,
+		"If disabled, the hero position will be accurately updated and clamped to the visible viewport during"
+		" each frame of a scroll. Otherwise, it will be off by a few pixels, especially towards the end of a scroll."},
+	{ "Hide Bottom 8 Pixels", qr_HIDE_BOTTOM_8_PIXELS,
+		"If enabled, the bottom 8 pixels of the screen are never shown."
+		" Note that if disabled, active subscreens are still only 168 pixels tall, though overlay subscreens would be 230 instead of 224."},
+	{ "Broken Script Drawing Bitmap Draw Origin", qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN,
+		"If enabled, bitmap draw commands incorrectly use Screen->DrawOrigin, resulting in unexpected offsets for bitmap drawing."
+		" This only affects quests made in 2.55.9 or later."},
+	{ "Scripts Screen->DrawLight Functions Have No Offset", qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET,
+		"If enabled, the Screen->DrawLight functions never add the playing field offset, and the draw command is done instantly."
+		" When disabled, those functions respect Screen->DrawOrigin, and use the SPLAYER_DARKROOM_UNDER draw timing."},
+	{ "Inverted Dark Combo Triggers", qr_INVERTED_DARK_COMBO_TRIGGERS,
+		"If enabled, the combo trigger conditions for darkness / no darkness are inverted."},
+	{ "Broken Sideview Icy Floor", qr_BROKEN_ICY_FLOOR_SIDEVIEW,
+		"If enabled, 'Icy Floor' combos will use the same collision checks in sideview as overview."
+		" If disabled, icy floor takes effect underneath your feet (the combo you are *standing on*) instead." },
+	{ "Strings on Layer 6 Draw Above Layer 7", qr_LAYER6_STRINGS_OVER_SUBSCREEN,
+		"If enabled, message strings set to draw to layer '6' will actually draw over the subscreen and layer 7 script draws."
+		"\nIf disabled, these strings draw directly UNDER the subscreen instead."
+		"\nHas no effect at all if `Subscreen Appears Above Sprites` is unchecked." + QRHINT({qr_SUBSCREENOVERSPRITES})},
+	{ "Broken System Colors", qr_BROKEN_SYSTEM_COLORS,
+		"If enabled, subscreen editor 'system colors' will simply use cset 14's colors,"
+		" which will look different in the editor than the player, and is not consistent."
+		"\nIf disabled, these colors still may look different in the editor than the player-"
+		" but they will be the closest matching color in the player's palette to the color in the editor." },
 };
 
 static GUI::ListData enemiesRulesList
@@ -1651,7 +1677,6 @@ GUI::ListData instructionRulesList
 		"Instead of filling all extra arguments with '0',"
 		" just leave them unchanged." },
 	{ "Writing Screen->EntryX, EntryY Resets Spawn Points", qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS },
-	{ "Log on Loading Invalid UID", qr_LOG_INVALID_UID_LOAD },
 	{ "Broken Combodata->InitD[]", qr_COMBODATA_INITD_MULT_TENK },
 	{ "Script writes to Hero->Step don't carry over", qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER },
 	{ "Disable accessing negative array indexes", qr_ZS_NO_NEG_ARRAY, "If enabled,"
@@ -1661,6 +1686,7 @@ GUI::ListData instructionRulesList
 	{ "Game->Generic[GEN_CONTINUEHEARTS] is in 'Hearts'", qr_SCRIPT_CONTHP_IS_HEARTS,
 		"If checked, read/write to 'Game->Generic[GEN_CONTINUEHEARTS]' is in 'Hearts'. Otherwise,"
 		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)"}
+	
 };
 
 GUI::ListData objectRulesList
@@ -1683,9 +1709,11 @@ GUI::ListData drawingRulesList
 
 GUI::ListData bugfixRulesList
 {
-	{ "Fix Scripts Running During Scrolling", qr_FIXSCRIPTSDURINGSCROLLING },
+	{ "Fix Scripts Running During Scrolling", qr_FIXSCRIPTSDURINGSCROLLING,
+		"If disabled, the waiting phase of scrolling transitions (1-32 frames) will not"
+		" run all scripts, and will not clear draw commands during each frame of scrolling."
+		" It also will not run prewaitdraw scripts at the end of scrolling (for when dmap did not change)."},
 	{ "GetPixel returns color / 10000", qr_BROKEN_GETPIXEL_VALUE },
-	{ "Always Deallocate Arrays", qr_ALWAYS_DEALLOCATE_ARRAYS },
 	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS },
 	{ "Broken WarpEx Music", qr_OLD_BROKEN_WARPEX_MUSIC,
 		"If enabled, script WarpEx music will use the old behavior for the 'WARP_FLAG_PLAYMUSIC'."
@@ -1696,6 +1724,9 @@ GUI::ListData bugfixRulesList
 	{ "Old 'Hero->Warp' Return Square", qr_OLD_HERO_WARP_RETSQUARE,
 		"If checked, 'Hero->Warp()' uses the return square of the current screen's Sidewarp A."
 		" Otherwise, it uses return square A." },
+	{ "Game->Suspend[susptFFCSCRIPTS] suspends screen scripts", qr_ZS_OLD_SUSPEND_FFC,
+		"If checked, setting 'Game->Suspend[susptFFCSCRIPTS]' will suspend screen scripts."
+		"\nIf disabled only the ffcscripts will be suspended."}
 };
 
 extern GUI::ListData compileSettingList;

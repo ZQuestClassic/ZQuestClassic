@@ -1,188 +1,183 @@
-#include "bindings/sprite.zh"
-
-enum NpcType
+// Enemy IDs. Used with [Screen->CreateNPC].
+enum NPCID
 {
-	NPCT_GUY,
-	NPCT_WALK,
-
-	NPCT_TEKTITE = 3,
-	NPCT_LEEVER,
-	NPCT_PEAHAT,
-	NPCT_ZORA,
-	NPCT_ROCK,
-	NPCT_GHINI,
-	NPCT_ARMOS,
-	NPCT_KEESE,
-
-	NPCT_TRAP = 15,
-	NPCT_WALLMASTER = 16,
-
-	NPCT_WIZZROBE = 21,
-	NPCT_AQUAMENTUS,
-	NPCT_MOLDORM,
-	NPCT_DODONGO,
-	NPCT_MANHANDLA,
-	NPCT_GLEEOK,
-	NPCT_DIGDOGGER,
-	NPCT_GOHMA,
-	NPCT_LANMOLA,
-	NPCT_PATRA,
-	NPCT_GANON,
-	NPCT_PROJECTILE,
-
-	NPCT_SPINTILE = 37,
-	NPCT_NONE,
-	NPCT_FAIRY,
-	NPCT_OTHERFLOAT,
-	NPCT_OTHER,
-
-	NPCT_CUSTOM_01 = 43,
-	NPCT_SCRIPT_01 = 43,
-	NPCT_CUSTOM_02 = 44,
-	NPCT_SCRIPT_02 = 44,
-	NPCT_CUSTOM_03 = 45,
-	NPCT_SCRIPT_03 = 45,
-	NPCT_CUSTOM_04 = 46,
-	NPCT_SCRIPT_04 = 46,
-	NPCT_CUSTOM_05 = 47,
-	NPCT_SCRIPT_05 = 47,
-	NPCT_CUSTOM_06 = 48,
-	NPCT_SCRIPT_06 = 48,
-	NPCT_CUSTOM_07 = 49,
-	NPCT_SCRIPT_07 = 49,
-	NPCT_CUSTOM_08 = 50,
-	NPCT_SCRIPT_08 = 50,
-	NPCT_CUSTOM_09 = 51,
-	NPCT_SCRIPT_09 = 51,
-	NPCT_CUSTOM_10 = 52,
-	NPCT_SCRIPT_10 = 52,
-	NPCT_CUSTOM_11 = 53,
-	NPCT_SCRIPT_11 = 53,
-	NPCT_CUSTOM_12 = 54,
-	NPCT_SCRIPT_12 = 54,
-	NPCT_CUSTOM_13 = 55,
-	NPCT_SCRIPT_13 = 55,
-	NPCT_CUSTOM_14 = 56,
-	NPCT_SCRIPT_14 = 56,
-	NPCT_CUSTOM_15 = 57,
-	NPCT_SCRIPT_15 = 57,
-	NPCT_CUSTOM_16 = 58,
-	NPCT_SCRIPT_16 = 58,
-	NPCT_CUSTOM_17 = 59,
-	NPCT_SCRIPT_17 = 59,
-	NPCT_CUSTOM_18 = 60,
-	NPCT_SCRIPT_18 = 60,
-	NPCT_CUSTOM_19 = 61,
-	NPCT_SCRIPT_19 = 61,
-	NPCT_CUSTOM_20 = 62,
-	NPCT_SCRIPT_20 = 62,
-	NPCT_FRIENDLY_01 = 63,
-	NPCT_FRIENDLY_02 = 64,
-	NPCT_FRIENDLY_03 = 65,
-	NPCT_FRIENDLY_04 = 66,
-	NPCT_FRIENDLY_05 = 67,
-	NPCT_FRIENDLY_06 = 68,
-	NPCT_FRIENDLY_07 = 69,
-	NPCT_FRIENDLY_08 = 70,
-	NPCT_FRIENDLY_09 = 71,
-	NPCT_FRIENDLY_10 = 72
+	NPC_ABEI                       = 1,
+	NPC_AMA                        = 2,
+	NPC_MERCHANT                   = 3,
+	NPC_MOBLIN                     = 4,
+	NPC_FIRE                       = 5,
+	NPC_FAIRY                      = 6,
+	NPC_GORIYA                     = 7,
+	NPC_ZELDA                      = 8,
+	NPC_ABEI2                      = 9,
+	NPC_AQUAMENTUSL                = 93,
+	NPC_AQUAMENTUSR                = 58,
+	NPC_ARMOS                      = 37,
+	NPC_BAT                        = 106,
+	NPC_BOMBCHU                    = 160,
+	NPC_BOULDER                    = 135,
+	NPC_BUBBLEITEMP                = 118, // Permanently jinxes.
+	NPC_BUBBLEITEMR                = 119, // Restores item usage.
+	NPC_BUBBLEITEMT                = 117,
+	NPC_BUBBLESWORDP               = 81,  // Permanently jinxes.
+	NPC_BUBBLESWORDR               = 82,  // Restores sword usage.
+	NPC_BUBBLESWORDT               = 51,
+	NPC_CEILINGMASTER              = 101, // This enemy isn't implemented.
+	NPC_DARKNUT1                   = 49,
+	NPC_DARKNUT2                   = 50,
+	NPC_DARKNUT3                   = 92,  // Splits when killed.
+	NPC_DARKNUT4                   = 172, // This enemy isn't implemented.
+	NPC_DARKNUT5                   = 87,  // Sword beams.
+	NPC_DIGDOGGER1                 = 66,  // Splits into 1.
+	NPC_DIGDOGGER3                 = 67,  // Splits into 3.
+	NPC_DIGKID1                    = 68,  // Spawned by NPC_DIGDOGGER1.
+	NPC_DIGKID2                    = 69,  // Spawned by NPC_DIGDOGGER3.
+	NPC_DIGKID3                    = 70,  // Spawned by NPC_DIGDOGGER3.
+	NPC_DIGKID4                    = 71,  // Spawned by NPC_DIGDOGGER3.
+	NPC_DODONGO                    = 60,  // Uses one tile when walking vertically.
+	NPC_DODONGOBS                  = 114, // Uses two tiles when walking vertically.
+	NPC_DODONGOFIRE                = 115, // This enemy isn't implemented.
+	NPC_ENEMYFIRE                  = 85,  // The Fire enemy in Princess Zelda's screen.
+	NPC_FLOORMASTER                = 102, // This enemy isn't implemented.
+	NPC_GANON                      = 78,
+	NPC_GEL                        = 42,
+	NPC_GELFIRE                    = 161,
+	NPC_GELFIRETRIB                = 163,
+	NPC_GELTRIB                    = 88,
+	NPC_GHINI1                     = 35,
+	NPC_GHINI2                     = 36,
+	NPC_GHINIMGC                   = 173, // This enemy isn't implemented.
+	NPC_GIBDO                      = 54,
+	NPC_GLEEOK1                    = 62,
+	NPC_GLEEOK1FIRE                = 109,
+	NPC_GLEEOK2                    = 63,
+	NPC_GLEEOK2FIRE                = 110,
+	NPC_GLEEOK3                    = 64,
+	NPC_GLEEOK3FIRE                = 111,
+	NPC_GLEEOK4                    = 65,
+	NPC_GLEEOK4FIRE                = 112,
+	NPC_GOHMA1                     = 72,
+	NPC_GOHMA2                     = 73,
+	NPC_GOHMA3                     = 121,
+	NPC_GOHMAFIRE                  = 122,
+	NPC_GORIYA1                    = 45,
+	NPC_GORIYA2                    = 46,
+	NPC_GORIYA3                    = 136,
+	NPC_GRAPBUGHP                  = 174, // This enemy isn't implemented.
+	NPC_GRAPBUGMP                  = 175, // This enemy isn't implemented.
+	NPC_ITEMFAIRY                  = 84,
+	NPC_KEESE1                     = 38,
+	NPC_KEESE2                     = 39,
+	NPC_KEESE3                     = 40,
+	NPC_KEESETRIB                  = 90,
+	NPC_LANMOLA1                   = 74,
+	NPC_LANMOLA2                   = 75,
+	NPC_LEEVER1                    = 26,
+	NPC_LEEVER2                    = 27,
+	NPC_LEEVER3                    = 137,
+	NPC_LIKELIKE                   = 53,
+	NPC_LYNEL1                     = 30,
+	NPC_LYNEL2                     = 31,
+	NPC_LYNEL3                     = 168,
+	NPC_MANHANDLA                  = 61,
+	NPC_MANHANDLA2                 = 94,
+	NPC_MOBLIN1                    = 28,
+	NPC_MOBLIN2                    = 29,
+	NPC_MOLDORM                    = 59,
+	NPC_OCTOROCK1F                 = 22,
+	NPC_OCTOROCK1S                 = 20,
+	NPC_OCTOROCK2F                 = 23,
+	NPC_OCTOROCK2S                 = 21,
+	NPC_OCTOROCKBOMBF              = 141,
+	NPC_OCTOROCKBOMBS              = 140,
+	NPC_OCTOROCKFIREF              = 139,
+	NPC_OCTOROCKFIRES              = 138,
+	NPC_OCTOROCKMGC                = 86,
+	NPC_PATRA1                     = 76,
+	NPC_PATRA2                     = 104,
+	NPC_PATRA3                     = 105,
+	NPC_PATRABS                    = 103,
+	NPC_PATRAOVAL                  = 77,
+	NPC_PEAHAT                     = 32,
+	NPC_PEAHATFIRE                 = 169, // This enemy isn't implemented.
+	NPC_POLSVOICE                  = 55,
+	NPC_POLSVOICEBS                = 171, // This enemy isn't implemented.
+	NPC_POLSVOICEMGC               = 170,
+	NPC_ROCK                       = 34,
+	NPC_ROPE1                      = 44,
+	NPC_ROPE2                      = 80,
+	NPC_SHOOTFBALL                 = 83,
+	NPC_SHOOTFLAME                 = 158,
+	NPC_SHOOTFLAME2                = 159,
+	NPC_SHOOTMAGIC                 = 154,
+	NPC_SHOOTROCK                  = 155,
+	NPC_SHOOTSPEAR                 = 156,
+	NPC_SHOOTSWORD                 = 157,
+	NPC_SPINTILE                   = 166,
+	NPC_SPINTILERND                = 167, // Random spin tile.
+	NPC_STALFOS1                   = 41,
+	NPC_STALFOS2                   = 79,
+	NPC_STALFOS3                   = 120,
+	NPC_TEKTITE1                   = 24,
+	NPC_TEKTITE2                   = 25,
+	NPC_TEKTITE3                   = 165, // This enemy isn't implemented.
+	NPC_TRAP                       = 47,
+	NPC_TRAP8WAY                   = 142, // This enemy isn't implemented.
+	NPC_TRAPBACKSLASHC             = 146, // This enemy isn't implemented.
+	NPC_TRAPBACKSLASHLOS           = 147, // This enemy isn't implemented.
+	NPC_TRAPCCLOCKWISEC            = 150, // This enemy isn't implemented.
+	NPC_TRAPCCLOCKWISELOS          = 151, // This enemy isn't implemented.
+	NPC_TRAPCLOCKWISEC             = 148, // This enemy isn't implemented.
+	NPC_TRAPCLOCKWISELOS           = 149, // This enemy isn't implemented.
+	NPC_TRAPDIAG                   = 143, // This enemy isn't implemented.
+	NPC_TRAPHORIZC                 = 97,
+	NPC_TRAPHORIZLOS               = 95,
+	NPC_TRAPSLASHC                 = 144, // This enemy isn't implemented.
+	NPC_TRAPSLASHLOS               = 145,
+	NPC_TRAPVERTC                  = 98,
+	NPC_TRAPVERTLOS                = 96,
+	NPC_TRIGGER                    = 116,
+	NPC_VIRE                       = 52,
+	NPC_VIRETRIB                   = 91,
+	NPC_WALLMASTER                 = 48,
+	NPC_WIZZROBE1                  = 56,  // Teleports.
+	NPC_WIZZROBE2                  = 57,  // Phases through blocks.
+	NPC_WIZZROBEBAT                = 107,
+	NPC_WIZZROBEBAT2               = 108, // This enemy isn't implemented.
+	NPC_WIZZROBEFIRE               = 99,
+	NPC_WIZZROBEICE                = 153, // This enemy isn't implemented.
+	NPC_WIZZROBEMIRR               = 113,
+	NPC_WIZZROBESUMM               = 152,
+	NPC_WIZZROBEWIND               = 100,
+	NPC_ZOL                        = 43,
+	NPC_ZOLFIRE                    = 162,
+	NPC_ZOLFIRETRIB                = 164,
+	NPC_ZOLTRIB                    = 89,
+	NPC_ZORA                       = 33,
 };
 
-// Use as index for npc->Defense[].
-enum NpcDefenseIndex
+@Bitflags("int")
+enum NPCMiscBitflags
 {
-	NPCD_BRANG,
-	NPCD_BOMB,
-	NPCD_SBOMB,
-	NPCD_ARROW,
-	NPCD_FIRE,
-	NPCD_WAND,
-	NPCD_MAGIC,
-	NPCD_HOOKSHOT,
-	NPCD_HAMMER,
-	NPCD_SWORD,
-	NPCD_BEAM,
-	NPCD_REFBEAM,
-	NPCD_REFMAGIC,
-	NPCD_REFFIREBALL,
-	NPCD_REFROCK,
-	NPCD_STOMP,
-	NPCD_BYRNA,
-	NPCD_SCRIPT,
-
-	NPCD_SCRIPT1 = 20,
-	NPCD_SCRIPT2,
-	NPCD_SCRIPT3,
-	NPCD_SCRIPT4,
-	NPCD_SCRIPT5,
-	NPCD_SCRIPT6,
-	NPCD_SCRIPT7,
-	NPCD_SCRIPT8,
-	NPCD_SCRIPT9,
-	NPCD_SCRIPT10,
-
-	NPCD_WHISTLE = 35,
-	NPCD_SWITCHHOOK,
-	NPCD_THROWN,
-	NPCD_REFARROW,
-	NPCD_REFFIRE,
-	NPCD_REFFIRE2
-};
-
-// Use as value type for npc->Defense[].
-enum NpcDefenseType
-{
-	NPCDT_NONE,
-	NPCDT_HALFDAMAGE,
-	NPCDT_QUARTERDAMAGE,
-	NPCDT_STUN,
-	NPCDT_STUNORBLOCK,
-	NPCDT_STUNORIGNORE,
-	NPCDT_BLOCK1,
-	NPCDT_BLOCK2,
-	NPCDT_BLOCK4,
-	NPCDT_BLOCK6,
-	NPCDT_BLOCK8,
-	NPCDT_BLOCK,
-	NPCDT_IGNORE1,
-	NPCDT_IGNORE,
-	NPCDT_ONEHITKILL,
-	NPCDT_BLOCK10,
-	NPCDT_2XDAMAGE,
-	NPCDT_3XDAMAGE,
-	NPCDT_4XDAMAGE,
-	NPCDT_HEAL,
-	NPCDT_TRIGGERSECRETS,
-
-	NPCDT_SWITCH = 50
-};
-
-// Enemy projectile weapon selections. Use with npc->Weapon.
-// Note: Don't use these with Screen->CreateEWeapon! Use the `EW_` constants instead.
-// Use WeaponTypeToID to convert this enum to a `EW_` value.
-enum NpcWeapon {
-	WPN_NONE              = 0,
-	WPN_ENEMYFLAME        = 140,
-	WPN_ENEMYWIND         = 141,
-	WPN_ENEMYFIREBALL     = 129,
-	WPN_ENEMYARROW        = 130,
-	WPN_ENEMYBRANG        = 131,
-	WPN_ENEMYSWORD        = 132,
-	WPN_ENEMYROCK         = 133,
-	WPN_ENEMYMAGIC        = 134,
-	WPN_ENEMYBOMB         = 135,
-	WPN_ENEMYSBOMB        = 136,
-	WPN_ENEMYLITBOMB      = 137,
-	WPN_ENEMYLITSBOMB     = 138,
-	WPN_ENEMYFIRETRAIL    = 139,
-	WPN_ENEMYFLAME2       = 142,
-	WPN_ENEMYFLAME2TRAIL  = 143, // Not implemented
-	WPN_ENEMYICE          = 144, // Not implemented
-	WPN_ENEMYFIREBALL2    = 145  // A fireball that doesn't fly toward Link
+	NPCMF_0POWERWEAPS              = 0x0001, // Damaged by 0-Power Weapons.
+	NPCMF_ISINVISIBLE              = 0x0002, // Is Invisible.
+	NPCMF_NEVERRETURNS             = 0x0004, // Never Returns After Death.
+	NPCMF_NOT_BEATABLE             = 0x0008, // Doesn't Count as beatable Enemy.
+	NPCMF_SPAWNFLICKER             = 0x0010, // Unused.
+	NPCMF_ONLY_LENS                = 0x0020, // Only Seen By Lens of truth.
+	NPCMF_FLASHING                 = 0x0040, // Is Flashing.
+	NPCMF_FLICKERING               = 0x0080, // Is Flickering.
+	NPCMF_TRANSLUCENT              = 0x0100, // Is translucent.
+	NPCMF_SHIELDED_FRONT           = 0x0200, // Shielded on Front.
+	NPCMF_SHIELDED_LEFT            = 0x0400, // Shielded on Left.
+	NPCMF_SHIELDED_RIGHT           = 0x0800, // Shielded on Right.
+	NPCMF_SHIELDED_BACK            = 0x1000, // Shielded on Back.
+	NPCMF_HAMMERBREAKS             = 0x2000, // Hammer Can break Shield.
 };
 
 // Default item drop sets.
-enum ItemSet {
+enum ItemSet
+{
 	IS_NONE,
 	IS_DEFAULT,
 	IS_BOMBS,
@@ -218,42 +213,16 @@ enum BossPal
 	BPAL_FROZEN // Unused
 };
 
-enum NpcMoveFlagIndex
+// "special" walk flags.
+enum NPCWalkType
 {
-	NPCMV_OBEYS_GRAVITY,
-	NPCMV_CAN_PITFALL,
-	NPCMV_CAN_PIT_WALK,
-	NPCMV_CAN_WATERDROWN,
-	NPCMV_CAN_WATER_WALK,
-	NPCMV_ONLY_WATER_WALK,
-	NPCMV_ONLY_SHALLOW_WATER_WALK,
-	NPCMV_ONLY_PIT_WALK,
-	NPCMV_NO_FAKE_Z,
-	NPCMV_NO_REAL_Z,
-	NPCMV_USE_FAKE_Z,
-	NPCMV_IGNORE_SOLIDITY,
-	NPCMV_IGNORE_BLOCKFLAGS,
-	NPCMV_IGNORE_SCREENEDGE,
-	NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE,
-	NPCMV_NOT_PUSHABLE_BY_SOLIDS
+	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP, 
+	SPW_WATER, SPW_WIZZROBE, SPW_CLIPBOTTOMRIGHT
 };
 
-enum NpcShieldIndex
+enum NPCMoveStatus
 {
-	SHLD_FRONT,
-	SHLD_BACK,
-	SHLD_LEFT,
-	SHLD_RIGHT,
-	SHLD_CAN_BREAK
-};
-
-enum NpcFade
-{
-	NPCF_NONE,
-	NPCF_FLICKER,
-	NPCF_INVISIBLE,
-	NPCF_FLASH,
-	NPCF_POOF
+	NPCMS_PAUSED, NPCMS_SPEEDUP, NPCMS_NORMAL, NPCMS_SLOWDOWN
 };
 
 // @zasm_ref REFNPC
@@ -261,6 +230,25 @@ enum NpcFade
 class npc {
 	// @delete
 	internal npc();
+
+	// @value [enum NPCID]
+
+	// @zasm_var NPCID
+	internal const int ID;
+
+	// The type, or 'npc class' of the npc.
+	//
+	// @value [enum NPCType]
+
+	// @zasm_var NPCTYPE
+	internal int Type;
+
+	// Exactly the same as [Type], use that instead.
+	//
+	// @value [enum NPCType]
+
+	// @zasm_var NPCTYPE
+	internal int Family;
 
 	// The current frame of the npc's animation.
 	//
@@ -272,7 +260,7 @@ class npc {
 	// @zasm_var SPRITEMAXNPC
 	internal int Max;
 
-	// The timer used for enemy knockback.
+	// The timer used for npc knockback.
 	// The first byte is the clock.
 	// The second byte is the dir.
 	// Enemies that split do not slide.
@@ -282,8 +270,8 @@ class npc {
 
 	// The death effect for the npc.
 	//
-	// Valid values: [NpcFade] (`NPCF_`).
-	//
+	// @value [enum NPCFade]
+
 	// @zasm_var NPCFADING
 	internal int Fading;
 
@@ -306,8 +294,8 @@ class npc {
 
 	// The movement status of an npc, usually flying.
 	//
-	// See enum NPCMoveStatus in <std.zh>.
-	//
+	// @value [enum NPCMoveStatus]
+
 	// @zasm_var NPCMOVESTATUS
 	internal int MoveStatus;
 
@@ -322,25 +310,6 @@ class npc {
 	// @zasm_var NPCHP
 	internal int HP;
 
-	// The enemy ID of the enemy.
-	//
-	// @zasm_var NPCID
-	internal const int ID;
-
-	// The type, or 'enemy class' of the enemy.
-	//
-	// Valid values: [NpcType] (`NPCT_`).
-	//
-	// @zasm_var NPCTYPE
-	internal int Type;
-
-	// The type, or 'enemy class' of the enemy. Same as [Type].
-	//
-	// Valid values: [NpcType] (`NPCT_`).
-	//
-	// @zasm_var NPCTYPE
-	internal int Family;
-
 	// @zasm_var NPCDP
 	internal int Damage;
 
@@ -350,15 +319,17 @@ class npc {
 	// @zasm_var NPCOTILE
 	internal int OriginalTile;
 
-	// Valid values: [NpcWeapon] (`WPN_`).
+	// The weapon type used by the npc.
 	//
+	// @value [enum NPCWeapon]
+
 	// @zasm_var NPCWEAPON
 	internal int Weapon;
 
-	// The Dropset ID that this enemy will drop from when killed.
+	// The Dropset ID that this npc will drop from when killed.
 	//
-	// Valid values: [ItemSet] (`IS_`).
-	//
+	// @value [enum ItemSet]
+
 	// @zasm_var NPCITEMSET
 	internal int ItemSet;
 
@@ -369,10 +340,10 @@ class npc {
 	// @zasm_var NPCITEMSET
 	internal int Dropset;
 
-	// Valid values: [BossPal] (`BPAL_`).
-	//
+	// @value [enum BossPal]
+
 	// @zasm_var NPCBOSSPAL
-	internal BossPal BossPal;
+	internal int BossPal;
 
 	// @zasm_var NPCBGSFX
 	internal int SFX;
@@ -392,6 +363,8 @@ class npc {
 	// @zasm_var NPCDD
 	internal untyped Attributes[];
 
+	// @value [enum NPCMiscBitflags]
+
 	// @zasm_var NPCMFLAGS
 	internal int MiscFlags;
 
@@ -404,16 +377,16 @@ class npc {
 	internal int Stun;
 
 	// This returns true if the NPC is the core segment of a segmented engine
-	// enemy.
+	// npc.
 	//
 	// @zasm_var NPCISCORE
 	internal bool Core;
 
-	// Expanded to a size of 42 to cover new defense categories.
+	// The defense categories for the npc.
 	//
-	// Valid indices are [NpcDefenseIndex] (`NPCD_`).
-	// Valid values: [NpcDefenseType] (`NPCDT_`).
-	//
+	// @index [enum NPCDefenseIndex]
+	// @value [enum NPCDefenseType]
+
 	// @zasm_var NPCDEFENSED
 	internal int Defense[];
 
@@ -449,6 +422,7 @@ class npc {
 	// Some lweapons, notably some melee weapons such as swords (but not sword
 	// beams), and boomerangs are not yet implemented in this mechanic.
 	//
+	// @index [enum HitIndex]
 	// @zasm_var NPCHITBY
 	internal untyped HitBy[];
 
@@ -470,32 +444,31 @@ class npc {
 	// @zasm_var NPCSCRDEFENSED
 	internal int ScriptDefense[];
 
-	// Returns the number of remaining invincibility frames if the enemy is
+	// Returns the number of remaining invincibility frames if the npc is
 	// invincible, otherwise 0.
 	//
 	// @zasm_var NPCINVINC
 	internal int InvFrames;
 
-	// Returns if the enemy is invincible, because of ( superman variable ).
+	// Returns if the npc is invincible, because of ( superman variable ).
 	//
 	// @zasm_var NPCSUPERMAN
 	internal int Invincible;
 
-	// If true, the enemy is a Ringleader, and killing this npc will kill every
+	// If true, the npc is a Ringleader, and killing this npc will kill every
 	// npc in the room.
 	//
 	// @zasm_var NPCRINGLEAD
 	internal bool Ringleader;
 
-	// True if the enemy is carrying an item.
+	// True if the npc is carrying an item.
 	//
 	// @zasm_var NPCHASITEM
 	internal bool HasItem;
 
-	// Flags related to the enemy's shield.
+	// The shield status of the npc.
 	//
-	// Valid indices are [NpcShieldIndex] (`SHLD_`).
-	//
+	// @index [enum NPCShieldIndex]
 	// @zasm_var NPCSHIELD
 	internal bool Shield[];
 
@@ -518,7 +491,7 @@ class npc {
 	// @zasm_var NPCSCRIPT
 	internal int Script;
 
-	// If true, the enemy will not 'die' even if it has 0hp or is too far
+	// If true, the npc will not 'die' even if it has 0hp or is too far
 	// off-screen.
 	//
 	// [Remove] will still delete the npc.
@@ -537,21 +510,11 @@ class npc {
 	// @zasm_var NPCNOSCRIPTKB
 	internal bool NoScriptKnockback;
 
-	// The number of pixels engine knockback moves the enemy at a time.
+	// The number of pixels engine knockback moves the npc at a time.
 	// Default 4.
 	//
 	// @zasm_var NPCKNOCKBACKSPEED
 	internal int SlideSpeed;
-
-	// The radius of light this object emits in a dark room
-	//
-	// @zasm_var NPCGLOWRAD
-	internal int LightRadius;
-
-	// The shape of light this object emits in a dark room.
-	//
-	// @zasm_var NPCGLOWSHP
-	internal int LightShape;
 
 	// The spawn sprite used by the npc, 0-255
 	//
@@ -568,18 +531,18 @@ class npc {
 	// @zasm_var NPCCANFLICKER
 	internal bool InvFlicker;
 
-	// This sets what color the enemy is drawn when flickering.
+	// This sets what color the npc is drawn when flickering.
 	//
 	// @zasm_var NPCFLICKERCOLOR
 	internal int FlickerColor;
 
 	// This sets how many times the transparency effect is applied to the
-	// enemy's flicker effect.
+	// npc's flicker effect.
 	//
 	// @zasm_var NPCFLICKERTRANSP
 	internal int FlickerTransparencyPasses;
 
-	// This returns the enemy's current displayed cset when taking damage or
+	// This returns the npc's current displayed cset when taking damage or
 	// invincible. If not in one of these states, will return its normal cset.
 	//
 	// @zasm_var NPCFLASHINGCSET
@@ -594,7 +557,7 @@ class npc {
 	// @zasm_var NPCFROZENCSET
 	internal int FrozenCSet;
 
-	// @deprecated
+	// @deprecated - This is now just the internal engine ID, which is the same as doing `<int>some_sprite`.
 	// @zasm_var NPCSCRIPTUID
 	internal const int UID;
 
@@ -674,9 +637,9 @@ class npc {
 
 	// Run Engine knockback (Only does anything if a knockback is in-progress)
 	//
-	// This is automatically called for most engine enemy types
+	// This is automatically called for most engine npc types
 	//
-	// Calling this from enemy types such as 'Other' will allow them to recieve
+	// Calling this from npc types such as 'Other' will allow them to recieve
 	// knockback
 	//
 	// This is called as a part of scripted walking functions, such as
@@ -777,7 +740,7 @@ class npc {
 	//   NPCVARWALK8 D2
 	internal void VariableWalk8(int arr);
 
-	// Causes an enemy to walk, and occasionally halt.
+	// Causes an npc to walk, and occasionally halt.
 	//
 	// {int rate, int homing, int special, int hrate, int haltcnt}
 	//
@@ -798,7 +761,7 @@ class npc {
 	//   NPCHALTWALK8 D2
 	internal void HaltingWalk8(int arr);
 
-	// Causes an enemy to move, ignoring solidity on the screen.
+	// Causes an npc to move, ignoring solidity on the screen.
 	//
 	// @zasm
 	//   POP D2
@@ -806,7 +769,7 @@ class npc {
 	//   NPCFLOATWALK D2
 	internal void FloatingWalk(int arr);
 
-	// Fires the breath weapon set to the enemy.
+	// Fires the breath weapon set to the npc.
 	//
 	// @zasm
 	//   POP D2
@@ -845,9 +808,9 @@ class npc {
 	//   SETR D2 NPCCOLLISION
 	internal bool Collision(int obj_type, untyped obj_pointer);
 
-	// Checks if enemy is lined up with Link.
+	// Checks if npc is lined up with Link.
 	//
-	// If so, returns direction Link is at as compared to enemy.
+	// If so, returns direction Link is at as compared to npc.
 	//
 	// Returns -1 if not lined up. Range is inclusive.
 	//
@@ -858,7 +821,7 @@ class npc {
 	//   SETR D2 NPCLINEDUP
 	internal int LinedUp(int range, bool dir8 = false);
 
-	// Returns true if Link is within 'range' pixels of the enemy.
+	// Returns true if Link is within 'range' pixels of the npc.
 	//
 	// @zasm
 	//   POP D2
@@ -949,7 +912,7 @@ class npc {
 	//   SWITCHNPC D2
 	internal bool Switch(int effect);
 
-	// Returns true if the enemy is in a state in which it should not be allowed
+	// Returns true if the npc is in a state in which it should not be allowed
 	// to move (ex. spawning, dying, stunned, time frozen by clock)
 	//
 	// @zasm
@@ -957,7 +920,7 @@ class npc {
 	//   NPCMOVEPAUSED
 	internal bool MovePaused();
 
-	// Attempts to move the enemy by 'pxamnt' pixels in the 'dir' direction,
+	// Attempts to move the npc by 'pxamnt' pixels in the 'dir' direction,
 	// failing if it is blocked by something it cannot walk through.
 	//
 	// @zasm
@@ -968,7 +931,7 @@ class npc {
 	//   NPCMOVE
 	internal bool Move(int dir, int pxamnt, int special = 0);
 
-	// Attempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle,
+	// Attempts to move the npc by 'pxamnt' pixels in the 'degrees' angle,
 	// failing if it is blocked by something it cannot walk through.
 	//
 	// @zasm
@@ -979,7 +942,7 @@ class npc {
 	//   NPCMOVEANGLE
 	internal bool MoveAtAngle(int degrees, int pxamnt, int special = 0);
 
-	// Attempts to move the enemy by 'dx' in the x direction and 'dy' in the y
+	// Attempts to move the npc by 'dx' in the x direction and 'dy' in the y
 	// direction, failing if it is blocked by something it cannot walk through.
 	//
 	// @zasm
@@ -990,7 +953,7 @@ class npc {
 	//   NPCMOVEXY
 	internal bool MoveXY(int dx, int dy, int special = 0);
 
-	// Attempts to move the enemy by 'pxamnt' pixels in the 'dir' direction,
+	// Attempts to move the npc by 'pxamnt' pixels in the 'dir' direction,
 	// failing if it is blocked by something it cannot walk through.
 	//
 	// @zasm
@@ -1001,7 +964,7 @@ class npc {
 	//   NPCCANMOVEDIR
 	internal bool CanMove(int dir, int pxamnt, int special = 0);
 
-	// Attempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle,
+	// Attempts to move the npc by 'pxamnt' pixels in the 'degrees' angle,
 	// failing if it is blocked by something it cannot walk through.
 	//
 	// @zasm
@@ -1012,7 +975,7 @@ class npc {
 	//   NPCCANMOVEANGLE
 	internal bool CanMoveAtAngle(int degrees, int pxamnt, int special = 0);
 
-	// Attempts to move the enemy by 'dx' in the x direction and 'dy' in the y
+	// Attempts to move the npc by 'dx' in the x direction and 'dy' in the y
 	// direction, failing if it is blocked by something it cannot walk through.
 	//
 	// @zasm
@@ -1023,33 +986,28 @@ class npc {
 	//   NPCCANMOVEXY
 	internal bool CanMoveXY(int dx, int dy, int special = 0);
 
-	// Checks if the enemy could be arbitrarily placed (teleported) at 'nx,ny'.
+	// Checks if the npc could be arbitrarily placed (teleported) at 'nx,ny'.
 	//
 	// If 'nw' or 'nh' are > -1, they will be used as the width/height of the
-	// enemy for the check.
+	// npc for the check.
 	//
-	// Otherwise, the enemy's hitwidth/hitheight are used.
+	// Otherwise, the npc's hitwidth/hitheight are used.
 	//
 	// Some enemies treat pits/liquid as solid, EXCEPT if they are being knocked
 	// back.
 	//
 	// 'bool knockback' here affects this for the placement checks.
 	//
-	// Use the 'SPW_' constants to provide a special value;
+	// Returns true if the npc could be placed successfully, false otherwise.
 	//
-	// i.e. 'SPW_FLOATER' for flying enemies.
-	//
-	// Use 'SPW_NONE' if you don't know what to use.
-	//
-	// Returns true if the enemy could be placed successfully, false otherwise.
-	//
+	// @param [NPCWalkType] special - for example, [SPW_FLOATER] for flying enemies
 	// @zasm
 	//   NPCCANPLACE
 	//   POPARGS D5 0.0007
-	internal bool CanPlace(int nx, int ny, int special = 0,
+	internal bool CanPlace(int nx, int ny, int special = SPW_NONE,
 						   bool knockback = false, int nw = -1, int nh = -1);
 
-	// This returns true if the enemy is currently in a flicker frame (either
+	// This returns true if the npc is currently in a flicker frame (either
 	// invisible or color masked).
 	//
 	// @zasm

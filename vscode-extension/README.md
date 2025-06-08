@@ -36,12 +36,11 @@ int counter4;
 
 Comments are rendered as markdown.
 
-Comments may contain inline links to other symbols with the [`@link`](https://jsdoc.app/tags-inline-link) tag:
+Comments may contain inline links to other symbols with `[symbol]` or `[symbol|text]`:
 
 ```c++
-// Better than {@link counter2} ... {@link counter2|that counter is lame}
+// Better than [counter2] ... [counter2|that] counter is lame.
 int counter1;
-// You can also use a shorthand for links like this: [counter1]
 int counter2;
 ```
 
@@ -74,14 +73,22 @@ If you wish to further customize the code theme used (beyond what some theme you
 ## For developing
 
 ```sh
-# open this folder in terminal
+# open _this folder_ (not repo root) in vscode
+
 # install things
 npm install
-# open _this folder_ (not repo root) in vscode
+
+# in a separate terminal session, run the watch command
+npm run watch
+
 # in Run and Debug panel, run the client
 # This will open up a new vscode extension debug window, where the code in this
 # folder is used.
 # To re-update the extension, hit the "restart" thing in the first VS Code's debug pane
+
+# To run tests (be sure the watch process is running if making changes):
+npm run test
+# or (from the root folder): python tests/test_zscript.py -- -k extension
 ```
 
 Most of the interesting code is in `server.ts`. `syntaxes/` has grammar stuff.

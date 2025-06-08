@@ -1,3 +1,321 @@
+enum //Subscreen Types
+{
+	SSTYPE_ACTIVE,
+	SSTYPE_PASSIVE,
+	SSTYPE_OVERLAY,
+	SSTYPE_MAX
+};
+
+//Subscreen Flags
+enum
+{
+	SSFL_ACTIVE_NOPAGEWRAP,
+	SSFL_ACTIVE_OVERRIDE_SELECTOR,
+	SSFL_ACTIVE_MAX
+};
+enum
+{
+	SSFL_PASSIVE_MAX
+};
+enum
+{
+	SSFL_OVERLAY_MAX
+};
+
+enum //Transition Types
+{
+	TRANS_TY_INSTANT,
+	TRANS_TY_SLIDE,
+	TRANS_TY_PIXEL,
+	TRANS_TY_MAX
+};
+
+//Transition arguments
+enum
+{
+	TRANS_INSTANT_ARG_MAX
+};
+enum
+{
+	TRANS_SLIDE_ARG_DIR,
+	TRANS_SLIDE_ARG_SPEED,
+	TRANS_SLIDE_ARG_MAX
+};
+enum
+{
+	TRANS_PIXEL_ARG_INVERT,
+	TRANS_PIXEL_ARG_DURATION,
+	TRANS_PIXEL_ARG_XOFF,
+	TRANS_PIXEL_ARG_YOFF,
+	TRANS_PIXEL_ARG_MAX
+};
+
+enum TransitionFlag
+{
+	TRANSFLAG_NO_HIDE_SELECTOR,
+	TRANSFLAG_MAX
+};
+
+
+enum SubscreenWidgetType
+{
+	SUBWIDG_NULL, SUBWIDG_FRAME, SUBWIDG_TEXT, SUBWIDG_LINE, SUBWIDG_RECT,
+	SUBWIDG_TIME, SUBWIDG_MMETER, SUBWIDG_LMETER, SUBWIDG_BTNITM, SUBWIDG_COUNTER,
+	SUBWIDG_OLDCTR, SUBWIDG_MMAPTITLE, SUBWIDG_MMAP, SUBWIDG_LMAP, SUBWIDG_BGCOLOR,
+	SUBWIDG_ITEMSLOT, SUBWIDG_MCGUFF_FRAME, SUBWIDG_MCGUFF, SUBWIDG_TILEBLOCK, SUBWIDG_MINITILE,
+	SUBWIDG_SELECTOR, SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_TEXTBOX, SUBWIDG_SELECTEDTEXT,
+	SUBWIDG_MISCGAUGE, SUBWIDG_BTNCOUNTER, SUBWIDG_COUNTERPERCBAR,
+	SUBWIDG_MAX
+};
+
+enum //Visibility Flags
+{
+	SUBVISIB_CLOSED, //Visible while the active subscreen is closed
+	SUBVISIB_OPEN, //Visible while the active subscreen is open
+	SUBVISIB_SCROLLING, //Visible while the active subscreen is opening/closing
+	SUBVISIB_NO_MSGSTR, //Hide while a message string is displaying
+	SUBVISIB_MAX
+};
+
+enum SubscreenWidgetGenFlag
+{
+	SUBW_GENFL_SELECTABLE, // If the widget is "selectable" by the subscreen cursor
+	SUBW_GENFL_PGMODE_NOWRAP, // If going left from the leftmost page or right from the rightmost page should do nothing instead of wrapping, when changing pages
+	SUBW_GENFL_SELECTOR_OVERRIDE, // If this widget uses a customly overridden subscreen selector cursor graphic
+	SUBW_GENFL_REQ_COUNTER_MAX, // If the counter requirement should use the "max" of the counter, instead of it's plain value
+	SUBW_GENFL_REQ_COUNTER_PERC, // If the counter requirement should use the "percentage of max" of the counter, instead of it's plain value (overrides [SUBW_GENFL_REQ_COUNTER_MAX])
+	SUBW_GENFL_REQ_INVERT_LITEM, // If the LItem requirement should require *not having any of the LItems*, instead of having all of the LItems
+	SUBW_GENFL_MAX
+};
+
+enum SubscreenPageMode
+{
+	SUB_PGMODE_NONE, //no page change
+	SUB_PGMODE_NEXT, //next page
+	SUB_PGMODE_PREV, //previous page
+	SUB_PGMODE_TARG, //specified page
+	SUB_PGMODE_MAX
+};
+
+enum //Special Subscreen CSet Values
+{
+	SUB_CS_MCGUFF         = -1,
+	SUB_CS_MCGUFF_FRAME   = -2,
+	SUB_CS_OW_MAP         = -3,
+	SUB_CS_DUNG_MAP       = -4,
+	SUB_CS_BLUEFRAME      = -5,
+	SUB_CS_HCPIECES       = -6,
+	SUB_CS_SSVINE         = -7,
+	SUB_CS_MIN            = -8
+};
+enum //Special Subscreen Color Values
+{
+	SUB_COLOR_SYS_0       = -1,
+	SUB_COLOR_SYS_1       = -2,
+	SUB_COLOR_SYS_2       = -3,
+	SUB_COLOR_SYS_3       = -4,
+	SUB_COLOR_SYS_4       = -5,
+	SUB_COLOR_SYS_5       = -6,
+	SUB_COLOR_SYS_6       = -7,
+	SUB_COLOR_SYS_7       = -8,
+	SUB_COLOR_SYS_8       = -9,
+	SUB_COLOR_SYS_9       = -10,
+	SUB_COLOR_SYS_10      = -11,
+	SUB_COLOR_SYS_11      = -12,
+	SUB_COLOR_SYS_12      = -13,
+	SUB_COLOR_SYS_13      = -14,
+	SUB_COLOR_SYS_14      = -15,
+	SUB_COLOR_SYS_15      = -16,
+	SUB_COLOR_TEXT        = -17,
+	SUB_COLOR_CAPTION     = -18,
+	SUB_COLOR_OVERW_BG    = -19,
+	SUB_COLOR_DUNG_BG     = -20,
+	SUB_COLOR_DUNG_FG     = -21,
+	SUB_COLOR_CAVE_FG     = -22,
+	SUB_COLOR_BS_DARK     = -23,
+	SUB_COLOR_BS_GOAL     = -24,
+	SUB_COLOR_COMPASS_L   = -25,
+	SUB_COLOR_COMPASS_D   = -26,
+	SUB_COLOR_SUBSCR_BG   = -27,
+	SUB_COLOR_SUBSCR_SHD  = -28,
+	SUB_COLOR_MCGUFF_FRM  = -29,
+	SUB_COLOR_LMAP_BG     = -30,
+	SUB_COLOR_LMAP_FG     = -31,
+	SUB_COLOR_HERODOT     = -32,
+	SUB_COLOR_MSGTXT      = -33,
+	SUB_COLOR_TRANSPARENT = -34,
+	SUB_COLOR_MIN         = -35
+};
+enum //Special Subscreen Tile Values
+{
+	SUB_SPTILE_SSVINE     = -1,
+	SUB_SPTILE_MAGICMETER = -2,
+	SUB_SPTILE_MIN        = -3
+};
+
+enum // Flags for SUBWIDG_FRAME
+{
+	SUBW_FRAME_FLAG_TRANSP,
+	SUBW_FRAME_FLAG_OVERLAY,
+	SUBW_FRAME_NUMFLAGS
+};
+enum // Flags for SUBWIDG_TEXT
+{
+	SUBW_TEXT_NUMFLAGS
+};
+enum // Flags for SUBWIDG_LINE
+{
+	SUBW_LINE_FLAG_TRANSP,
+	SUBW_LINE_NUMFLAGS
+};
+enum // Flags for SUBWIDG_RECT
+{
+	SUBW_RECT_FLAG_TRANSP,
+	SUBW_RECT_FLAG_FILLED,
+	SUBW_RECT_NUMFLAGS
+};
+enum // Flags for SUBWIDG_TIME
+{
+	SUBW_TIME_FLAG_ALTSTR,
+	SUBW_TIME_NUMFLAGS
+};
+enum // Flags for SUBWIDG_MMETER
+{
+	SUBW_MMETER_NUMFLAGS
+};
+enum // Flags for SUBWIDG_LMETER
+{
+	SUBW_LMETER_FLAG_BOTTOM,
+	SUBW_LMETER_NUMFLAGS
+};
+enum // Flags for SUBWIDG_BTNITM
+{
+	SUBW_BTNITM_FLAG_TRANSP,
+	SUBW_BTNITM_NUMFLAGS
+};
+enum // Flags for SUBWIDG_COUNTER
+{
+	SUBW_COUNTER_FLAG_SHOW0,
+	SUBW_COUNTER_FLAG_ONLYSEL,
+	SUBW_COUNTER_NUMFLAGS
+};
+enum // Flags for SUBWIDG_OLDCTR
+{
+	SUBW_OLDCTR_FLAG_USEX,
+	SUBW_OLDCTR_NUMFLAGS
+};
+enum // Flags for SUBWIDG_MMAPTITLE
+{
+	SUBW_MMAPTITLE_FLAG_REQMAP,
+	SUBW_MMAPTITLE_FLAG_ONELINE,
+	SUBW_MMAPTITLE_NUMFLAGS
+};
+enum // Flags for [SUBWIDG_MMAP]
+{
+	SUBW_MMAP_FLAG_SHOWMAP, // If the map itself is drawn
+	SUBW_MMAP_FLAG_SHOWPLAYER, // If the player marker is drawn
+	SUBW_MMAP_FLAG_SHOWCOMPASS, // If the compass marker is drawn
+	SUBW_MMAP_NUMFLAGS
+};
+enum // Flags for SUBWIDG_LMAP
+{
+	SUBW_LMAP_FLAG_SHOWMAP,
+	SUBW_LMAP_FLAG_SHOWROOM,
+	SUBW_LMAP_FLAG_SHOWPLAYER,
+	SUBW_LMAP_FLAG_LARGE,
+	SUBW_LMAP_NUMFLAGS
+};
+enum // Flags for SUBWIDG_BGCOLOR
+{
+	SUBW_BGCOLOR_NUMFLAGS
+};
+enum // Flags for SUBWIDG_ITEMSLOT
+{
+	SUBW_ITEMSLOT_FLAG_INVIS,
+	SUBW_ITEMSLOT_FLAG_NON_EQUIPPABLE,
+	SUBW_ITEMSLOT_MOVE_IGNORE_SPEC_SELTEXT,
+	SUBW_ITEMSLOT_MOVE_IGNORE_SPEC_DISPLAY,
+	SUBW_ITEMSLOT_FLAG_NO_INTERACT_WO_ITEM,
+	SUBW_ITEMSLOT_FLAG_NO_INTERACT_WO_EQUIP,
+	SUBW_ITEMSLOT_FLAG_NO_UNEQUIP,
+	SUBW_ITEMSLOT_NUMFLAGS
+};
+enum // Flags for SUBWIDG_MCGUFF_FRAME
+{
+	SUBW_MCGUFF_FRAME_FLAG_SHOWFRAME,
+	SUBW_MCGUFF_FRAME_FLAG_SHOWPIECES,
+	SUBW_MCGUFF_FRAME_FLAG_LARGEPIECES,
+	SUBW_MCGUFF_FRAME_NUMFLAGS
+};
+enum // Flags for SUBWIDG_MCGUFF
+{
+	SUBW_MCGUFF_FLAG_OVERLAY,
+	SUBW_MCGUFF_FLAG_TRANSP,
+	SUBW_MCGUFF_NUMFLAGS
+};
+enum // Flags for SUBWIDG_TILEBLOCK
+{
+	SUBW_TILEBLOCK_FLAG_OVERLAY,
+	SUBW_TILEBLOCK_FLAG_TRANSP,
+	SUBW_TILEBLOCK_NUMFLAGS
+};
+enum // Flags for SUBWIDG_MINITILE
+{
+	SUBW_MINITILE_FLAG_OVERLAY,
+	SUBW_MINITILE_FLAG_TRANSP,
+	SUBW_MINITILE_NUMFLAGS
+};
+enum // Flags for SUBWIDG_SELECTOR
+{
+	SUBW_SELECTOR_FLAG_TRANSP,
+	SUBW_SELECTOR_FLAG_LARGE,
+	SUBW_SELECTOR_FLAG_USEB,
+	SUBW_SELECTOR_NUMFLAGS
+};
+enum // Flags for SUBWIDG_LGAUGE,SUBWIDG_MGAUGE,SUBWIDG_MISCGAUGE
+{
+	SUBW_GAUGE_FLAG_MOD1,
+	SUBW_GAUGE_FLAG_MOD2,
+	SUBW_GAUGE_FLAG_MOD3,
+	SUBW_GAUGE_FLAG_MOD4,
+	SUBW_GAUGE_FLAG_UNIQUE_LAST,
+	SUBW_GAUGE_FLAG_FULL_TILE,
+	SUBW_GAUGE_FLAG_ANIMATE_UNDER,
+	SUBW_GAUGE_FLAG_ANIMATE_OVER,
+	SUBW_GAUGE_FLAG_ANIMATE_PERCENT,
+	SUBW_GAUGE_FLAG_ANIMATE_SKIP_FIRST,
+	SUBW_GAUGE_FLAG_INFITEM_REQUIRE,
+	SUBW_GAUGE_FLAG_INFITEM_DISALLOW,
+	SUBW_GAUGE_FLAG_GRID_RTOL,
+	SUBW_GAUGE_FLAG_GRID_TTOPB,
+	SUBW_GAUGE_FLAG_GRID_COLUMN_FIRST,
+	SUBW_GAUGE_FLAG_GRID_SNAKE_PATTERN,
+	SUBW_GAUGE_NUMFLAGS
+};
+enum // Flags for SUBWIDG_TEXTBOX
+{
+	SUBW_TEXTBOX_FLAG_WORDWRAP,
+	SUBW_TEXTBOX_NUMFLAGS
+};
+enum // Flags for SUBWIDG_SELECTEDTEXT
+{
+	SUBW_SELECTEDTEXT_FLAG_WORDWRAP,
+	SUBW_SELECTEDTEXT_NUMFLAGS
+};
+enum // Flags for SUBWIDG_BTNCOUNTER
+{
+	SUBW_BTNCOUNTER_FLAG_SHOW0,
+	SUBW_BTNCOUNTER_FLAG_NOCOLLAPSE,
+	SUBW_BTNCOUNTER_NUMFLAGS
+};
+enum // Flags for SUBWIDG_COUNTERPERCBAR
+{
+	SUBW_COUNTERPERCBAR_TRANSP,
+	SUBW_COUNTERPERCBAR_VERTICAL,
+	SUBW_COUNTERPERCBAR_INVERT,
+	SUBW_COUNTERPERCBAR_NUMFLAGS
+};
+
 // @zasm_ref REFSUBSCREEN
 class subscreendata {
 	// @delete
@@ -45,14 +363,14 @@ class subscreendata {
 	// @zasm_var SUBDATAINITD
 	internal untyped InitD[];
 
-	// Use the `INTBTN_` constants to index this array.
+	// Use [InteractButton] to index this array.
 	//
 	// The 'true' buttons here, when pressed, change pages leftwards.
 	//
 	// @zasm_var SUBDATABTNLEFT
 	internal bool BtnPageLeft[];
 
-	// Use the `INTBTN_` constants to index this array.
+	// Use [InteractButton] to index this array.
 	//
 	// The 'true' buttons here, when pressed, change pages rightwards.
 	//
@@ -238,8 +556,7 @@ class subscreendata {
 
 	// The flags for the current transition.
 	//
-	// Use the `TRANSFLAG_` constants to access these.
-	//
+	// @index [enum TransitionFlag]
 	// @zasm_var SUBDATATRANSFLAGS
 	internal bool TransFlags[];
 

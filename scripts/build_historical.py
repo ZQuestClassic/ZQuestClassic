@@ -64,9 +64,11 @@ def try_run(args, **kwargs):
         raise Exception(ex)
 
 
-def get_most_recent_rev(revision: Revision, channel: str):
+def get_most_recent_rev(revision: Revision, release_platform: str):
     most_recent_rev = None
-    for rev in archives.get_revisions(channel, include_test_builds=True):
+    for rev in archives.get_revisions(
+        release_platform, 'main', include_test_builds=True
+    ):
         if rev.commit_count == -1:
             continue
         if rev.is_local_build:
@@ -78,7 +80,7 @@ def get_most_recent_rev(revision: Revision, channel: str):
     return most_recent_rev
 
 
-def build_locally(revision: Revision, channel: str):
+def build_locally(revision: Revision, release_platform: str):
     """
     Attempts to build any commit of the repo. Here be dragons.
 
@@ -138,7 +140,7 @@ def build_locally(revision: Revision, channel: str):
         'libs/win32' not in (local_build_working_dir / 'CMakeLists.txt').read_text()
     )
     if not supports_64bit:
-        if not channel == 'windows':
+        if not release_platform == 'windows':
             raise Exception('unsupported')
 
     how_to_package = None
@@ -179,30 +181,35 @@ def build_locally(revision: Revision, channel: str):
     build_folder = 'build'
 
     arch_args = []
-    if channel == 'windows' and not supports_64bit:
+    if release_platform == 'windows' and not supports_64bit:
         arch_args = ['-A', 'win32']
         build_folder += '_win32'
 
-    if revision.commit_count >= archives.get_release_commit_count(
-        '5432f8ca67bfe371ba7407838a73d455ea75131b'
-    ):
-        cmake_generator_args = ['-G', 'Visual Studio 17 2022']
-        build_folder += '_vs2022'
-    elif revision.commit_count >= archives.get_release_commit_count(
-        '7ab5d08254f22c3bc6d67ae3ccaafe1e664d59d4'
-    ):
-        cmake_generator_args = ['-G', 'Visual Studio 16 2019']
-        build_folder += '_vs2019'
+    if release_platform == 'windows':
+        if revision.commit_count >= archives.get_release_commit_count(
+            '5432f8ca67bfe371ba7407838a73d455ea75131b'
+        ):
+            cmake_generator_args = ['-G', 'Visual Studio 17 2022']
+            build_folder += '_vs2022'
+        elif revision.commit_count >= archives.get_release_commit_count(
+            '7ab5d08254f22c3bc6d67ae3ccaafe1e664d59d4'
+        ):
+            cmake_generator_args = ['-G', 'Visual Studio 16 2019']
+            build_folder += '_vs2019'
+        else:
+            cmake_generator_args = ['-G', 'Visual Studio 15 2017']
+            build_folder += '_vs2017'
     else:
-        cmake_generator_args = ['-G', 'Visual Studio 15 2017']
-        build_folder += '_vs2017'
+        cmake_generator_args = ['-G', 'Ninja Multi-Config']
 
-    cmake_help = subprocess.check_output('cmake --help', encoding='utf-8')
+    cmake_help = subprocess.check_output(['cmake', '--help'], encoding='utf-8')
     cmake_gen = cmake_generator_args[1]
     if cmake_gen not in cmake_help:
-        err = f'Cannot configure with {cmake_gen}, as it is missing. Install it from https://visualstudio.microsoft.com/vs/older-downloads/ . Be sure to select the "C++ Desktop" addon, otherwise you won\'t get MSVC'
-        if '2017' in cmake_gen:
-            err += '\nYou will also need to install the "C++ MFC" component, otherwise afxres.h will not be found'
+        err = f'Cannot configure with {cmake_gen}, as it is missing.'
+        if release_platform == 'windows':
+            err += ' Install it from https://visualstudio.microsoft.com/vs/older-downloads/ . Be sure to select the "C++ Desktop" addon, otherwise you won\'t get MSVC'
+            if '2017' in cmake_gen:
+                err += '\nYou will also need to install the "C++ MFC" component, otherwise afxres.h will not be found'
         print(err)
         raise Exception(err)
 
@@ -302,10 +309,10 @@ def build_locally(revision: Revision, channel: str):
             need = 'alleg42.dll'
             rm(package_dir / 'alleg44.dll')
         if not (package_dir / need).exists():
-            most_recent_rev = get_most_recent_rev(revision, channel)
+            most_recent_rev = get_most_recent_rev(revision, release_platform)
             if not most_recent_rev:
                 raise Exception('could not find recent build to steal files from')
-            rls_dir = archives.download(most_recent_rev, channel)
+            rls_dir = archives.download(most_recent_rev, release_platform)
             shutil.copyfile(rls_dir / need, package_dir / need)
 
         # Modules require tons of handholding to get right. Oh, and at some point the files needed to run the program were no longer
@@ -362,12 +369,12 @@ def build_locally(revision: Revision, channel: str):
                     needs_to_steal = True
 
                 if needs_to_steal:
-                    most_recent_rev = get_most_recent_rev(revision, channel)
+                    most_recent_rev = get_most_recent_rev(revision, release_platform)
                     if not most_recent_rev:
                         raise Exception(
                             'could not find recent build to steal files from'
                         )
-                    rls_dir = archives.download(most_recent_rev, channel)
+                    rls_dir = archives.download(most_recent_rev, release_platform)
                     shutil.copytree(
                         rls_dir / 'modules', package_dir / 'modules', dirs_exist_ok=True
                     )
@@ -412,9 +419,9 @@ def build_locally(revision: Revision, channel: str):
             not (package_dir / 'zelda.dat').exists()
             or not (package_dir / '1st.qst').exists()
         ):
-            most_recent_rev = get_most_recent_rev(revision, channel)
+            most_recent_rev = get_most_recent_rev(revision, release_platform)
             if most_recent_rev:
-                rls_dir = archives.download(most_recent_rev, channel)
+                rls_dir = archives.download(most_recent_rev, release_platform)
                 for path in (rls_dir / 'modules/classic').glob('*.*'):
                     shutil.copyfile(
                         path, package_dir / path.name.replace('classic_', '')
@@ -431,7 +438,7 @@ def build_locally(revision: Revision, channel: str):
     readme_txt = (
         'This build is meant for testing only. It is likely to be broken in some way.\n'
     )
-    if channel == 'windows':
+    if release_platform == 'windows':
         arch = 'x64' if supports_64bit else 'x86'
         readme_txt += f'windows-{arch}\n'
     (package_dir / 'README_test_build_only.txt').write_text(readme_txt)
@@ -446,7 +453,7 @@ def build_locally(revision: Revision, channel: str):
     if try_folder.exists():
         shutil.rmtree(try_folder)
     shutil.copytree(package_dir, try_folder)
-    binaries = archives.create_binary_paths(try_folder, channel)
+    binaries = archives.create_binary_paths(try_folder, release_platform)
     kill_console = lambda: subprocess.run(
         ['taskkill', '/F', '/IM', 'ZConsole.exe'],
         stdout=subprocess.DEVNULL,
@@ -460,8 +467,8 @@ def build_locally(revision: Revision, channel: str):
     return dest
 
 
-def backfill(channel: str):
-    if channel != 'windows':
+def backfill(release_platform: str):
+    if release_platform != 'windows':
         raise Exception('not supported')
 
     step = 20

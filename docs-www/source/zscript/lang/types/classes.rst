@@ -82,7 +82,9 @@ thus they 'keep each other alive' for the reference counting)
 
 .. tip::
 	|GlobalObject| marks an object as "global". Objects that
-	are "global" will be saved to the save file, and cannot be destroyed.
+	are "global" will be saved to the save file, and cannot be destroyed. Since 3.0, this
+	is not explictly needed, since all objects reachable from a global variable or array are
+	saved to the save file.
 
 	Calling |OwnObject| marks the object as no longer "global".
 

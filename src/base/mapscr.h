@@ -1,9 +1,17 @@
 #ifndef MAPSCR_H_
 #define MAPSCR_H_
 
-#include "base/zdefs.h"
 #include "ffc.h"
+#include <array>
 #include <vector>
+
+struct ffc_handle_t;
+
+enum
+{
+    wtCAVE, wtPASS, wtEXIT, wtSCROLL, wtIWARP, wtIWARPBLK, wtIWARPOPEN,
+    wtIWARPZAP, wtIWARPWAVE, wtNOWARP, wtWHISTLE, wtMAX
+};
 
 // door codes        meaning: type | shows on subscreen map
 //                       bit: 4321    0
@@ -29,6 +37,11 @@
 
 struct mapscr
 {
+	byte map;
+	// The screen index of the mapscr.
+	// If this mapscr is acting as a layer for an active screen, then this is the index of the base
+	// screen.
+	byte screen;
 	byte valid;
 	bool is_valid() const { return valid&mVALID; }
 
@@ -51,18 +64,18 @@ struct mapscr
 	byte itemx;
 	byte itemy;
 	word color;
-	byte enemyflags;
 	byte door[4] = {dNONE,dNONE,dNONE,dNONE}; //need to add a dmapscreendoor command.
 	word tilewarpdmap[4];
 	byte tilewarpscr[4];
 	byte exitdir;
 	word enemy[10]; //GetSetScreenEnemies()
-	byte pattern;
+	byte pattern; // Enemy loading pattern.
 	byte sidewarptype[4] = { wtSCROLL,wtSCROLL,wtSCROLL,wtSCROLL };
 	byte sidewarpoverlayflags;
 	byte warparrivalx;
 	byte warparrivaly;
 	byte path[4];
+	byte maze_transition_wipe;
 	byte sidewarpscr[4];
 	word sidewarpdmap[4];
 	byte sidewarpindex;
@@ -79,6 +92,8 @@ struct mapscr
 	byte flags8;
 	byte flags9;
 	byte flags10;
+	byte flags11; // Used to be `enemyflags`.
+	// The value of Damage Combo Sensitivity for the screen
 	byte csensitive = 1;
 	word noreset;
 	word nocarry;
@@ -111,9 +126,12 @@ struct mapscr
 	// 1) it has just been checked to be less than `numFFC()` or
 	// 2) `getFFC(ind)` or `ensureFFC(ind)` was just called
 	std::vector<ffcdata> ffcs;
+	void shinkToFitFFCs();
 	void resizeFFC(size_t size);
 	void ensureFFC(size_t ind);
 	ffcdata& getFFC(size_t ind);
+	// Returns a pointer only to break a cyclical include.
+	std::unique_ptr<ffc_handle_t> getFFCHandle(int index, int screen_index_offset);
 	word numFFC();
 	void ffcCountMarkDirty();
 	
@@ -162,14 +180,14 @@ private:
 #define fWHISTLE            0x10
 #define fLADDER             0x20
 #define fMAZE               0x40
-#define fSEA                0x80 // DEFUNCT
+#define fSEA_SFX            0x80 // DEFUNCT
 
 // flags2
-#define wfUP                0x01 // What's this?
-#define wfDOWN              0x02 // What's this?
-#define wfLEFT              0x04 // What's this?
-#define wfRIGHT             0x08 // What's this?
-#define fSECRET             0x10
+#define wfUP                0x01 // Side warp
+#define wfDOWN              0x02 // Side warp
+#define wfLEFT              0x04 // Side warp
+#define wfRIGHT             0x08 // Side warp
+#define fSECRET_SFX         0x10
 #define fAIRCOMBOS          0x20
 #define fFLOATTRAPS         0x40
 #define fCLEARSECRET        0x80
@@ -180,7 +198,7 @@ private:
 #define fINVISROOM          0x04
 #define fINVISHERO          0x08
 #define fNOSUBSCR           0x10
-#define fIWARPFULLSCREEN    0x20
+#define fIWARP_SPRITE_CARRYOVER    0x20
 #define fNOSUBSCROFFSET     0x40
 #define fENEMIESRETURN      0x80
 
@@ -238,17 +256,18 @@ private:
 //flags9
 #define fITEMSECRETPERM     0x01
 #define fITEMRETURN         0x02
-#define fBELOWRETURN        0x04
+#define fBELOWRETURN        0x04 // Special Item Always Returns
 #define fDARK_DITHER        0x08
 #define fDARK_TRANS         0x10
 #define fDISABLE_MIRROR     0x20
 #define fENEMY_WAVES        0x40
 
 //flags10 - ENTIRE FLAGS10 RESERVED FOR Z3 SCROLLING! Please don't use :)
-#define fZ3_SCROLLING_WHEN  0x01
+#define fMAZE_CAN_GET_LOST  0x01
+#define fMAZE_LOOPY         0x02
 // ----
 
-// enemy flags
+// flags11 aka enemy flags
 #define efZORA          1
 #define efTRAP4         2
 #define efTRAP2         4
@@ -280,7 +299,7 @@ private:
 #define mLOCKEDCHEST     0x0800 // if the locked chest on this screen has been opened
 
 #define mBOSSCHEST       0x1000 // if the boss chest on this screen has been opened
-#define mSECRET          0x2000 // only overworld and caves use this
+#define mSECRET          0x2000 // secrets on permanently. only overworld and caves use this
 #define mVISITED         0x4000 // only overworld uses this
 #define mLIGHTBEAM       0x8000 // light beam triggers completed
 
@@ -299,9 +318,53 @@ enum
 	rMAX
 };
 
+struct region_data
+{
+	int origin_screen;
+	int width;
+	int height;
+};
+
+typedef std::array<byte, MAPSCRSNORMAL> region_ids_t;
+
+// Region data for an entire map.
+struct regions_data
+{
+	// [8 rows][half byte for each screen in a row]
+	// Covers an entire map.
+	// Currently the only valid nibble values are 0-9.
+	// 0 indicates that screen is not a scrolling region.
+	// Positive values indicate a contiguous scrolling region.
+	// Currently, scrolling regions MUST be rectangles and have no holes.
+	// IDs can be repeated - they currently don't hold any special meaning.
+	byte region_ids[8][8];
+
+	byte get_region_id(int screen_x, int screen_y) const;
+	byte get_region_id(int screen) const;
+	void set_region_id(int screen, byte value);
+	bool is_same_region(int screen_1, int screen_2) const;
+	void for_each_screen(int screen, const std::function<void(int)>& fn) const;
+	region_ids_t get_all_region_ids() const;
+};
+
+void determine_region_size(const region_ids_t& region_ids, int input_screen, int& origin_scr_x, int& origin_scr_y, int& end_scr_x, int& end_scr_y);
+
+struct region_description {
+	int region_id;
+	int screen;
+	int w, h;
+};
+bool get_all_region_descriptions(std::vector<region_description>& result, const region_ids_t& region_ids);
+
+extern std::array<regions_data, MAXMAPS> Regions;
+// Every map screen (136 per map).
 extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern word map_count;
 
-#endif
+int map_screen_index(int map, int screen);
+int screen_index_direction(int screen, direction dir);
+const mapscr* get_canonical_scr(int map, int screen);
+int map_scr_xy_to_index(int x, int y);
 
+#endif

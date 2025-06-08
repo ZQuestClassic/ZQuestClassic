@@ -1,5 +1,6 @@
 // TODO: do not link allegro w/ zscript compiler.
 
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -367,7 +368,7 @@ int32_t main(int32_t argc, char **argv)
 		for(int q = index+1; q < argc; ++q)
 		{
 			if(argv[q][0] == '-') break;
-			force_ignores.push_back(std::filesystem::path(argv[q]).lexically_normal());
+			force_ignores.push_back((std::filesystem::current_path() / std::filesystem::path(argv[q])).lexically_normal());
 		}
 	}
 	
@@ -475,7 +476,7 @@ int32_t main(int32_t argc, char **argv)
 	bool parse_only = used_switch(argc, argv, "-parse-only") > 0;
 	if (parse_only)
 	{
-		unique_ptr<ZScript::ASTFile> root(ZScript::parseFile(script_path));
+		auto root(ZScript::parseFile(script_path));
 		if (zscript_error_out)
 			exit(1);
 		if (!root.get())
@@ -516,7 +517,7 @@ int32_t main(int32_t argc, char **argv)
 	{
 		if(!res)
 		{
-			write_compile_data(result->scriptTypes, result->theScripts);
+			write_compile_data(result->zasm, result->scriptTypes, result->theScripts);
 		}
 		int32_t errorcode = ZC_CONSOLE_TERM_CODE;
 		cph->write(&errorcode, sizeof(int32_t));
@@ -532,30 +533,20 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else zconsole_info("Compile finished with exit code '0' (success)");
 
-		if (result)
+		if (result && do_json_output)
 		{
-			if (do_json_output)
-			{
-				json data;
-				fill_result(data, res, result.get());
-				std::cout << data.dump(2);
-			}
-			else if (!result->metadata.empty())
-			{
-				// TODO: remove once extension uses `-json`.
-				printf("=== METADATA\n%s\n", result->metadata.dump(2).c_str());
-			}
+			json data;
+			fill_result(data, res, result.get());
+			std::cout << data.dump(2);
 		}
 	}
 	if(!zasm_out.empty() && result)
 	{
 		if(FILE* outfile = fopen(zasm_out.c_str(), zasm_out_append ? "a" : "w"))
 		{
-			for(auto& p : result->theScripts)
-			{
-				disassembled_script_data const& data = p.second;
-				data.write(outfile, false, true, zasm_commented);
-			}
+			string str;
+			write_script(result->zasm, str, zasm_commented, &result->theScripts);
+			fwrite(str.c_str(), sizeof(char), str.size(), outfile);
 			fclose(outfile);
 		}
 	}
@@ -567,12 +558,13 @@ END_OF_MAIN()
 
 extern "C" int compile_script(const char* script_path)
 {
+	bool has_qrs = false;
+	ZScript::ScriptParser::initialize(has_qrs);
 	updateIncludePaths();
+	ZScript::CompileOption::OPT_NO_ERROR_HALT.setDefault(ZScript::OPTION_ON);
+
 	bool metadata = true;
 	bool docs = false;
-	bool has_qrs = false;
-	ZScript::CompileOption::OPT_NO_ERROR_HALT.setDefault(ZScript::OPTION_ON);
-	ZScript::ScriptParser::initialize(has_qrs);
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata, docs));
 	int32_t code = (result && result->success ? 0 : (zscript_failcode ? zscript_failcode : -1));
 

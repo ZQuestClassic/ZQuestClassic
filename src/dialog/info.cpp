@@ -2,6 +2,7 @@
 #include <gui/builder.h>
 #include <utility>
 #include "base/qrs.h"
+#include <fmt/ranges.h>
 
 #ifdef IS_EDITOR
 #include "quest_rules.h"

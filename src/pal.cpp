@@ -12,8 +12,6 @@
 #include "subscr.h"
 #include "base/misctypes.h"
 
-extern HeroClass Hero;
-
 int32_t CSET_SIZE = 16;                                         // this is only changed to 4 in the NES title screen
 int32_t CSET_SHFT = 4;                                          // log2 of CSET_SIZE
 
@@ -21,6 +19,47 @@ bool stayLit = false;
 
 bool usingdrypal = false; //using dried up lake colors
 RGB olddrypal; //palette to restore when lake rehydrates
+
+void refresh_rgb_tables()
+{
+	// Creating rgb_table and trans_table is pretty expensive, so try not to redo the same work
+	// within a short period of time by using a cache.
+	typedef std::array<uint32_t, PAL_SIZE> pal_table_cache_key;
+	struct pal_table_cache_entry {
+		RGB_MAP rgb_table;
+		COLOR_MAP trans_table;
+	};
+	static std::map<pal_table_cache_key, pal_table_cache_entry> pal_table_cache;
+
+	static constexpr int pal_table_cache_max_memory_mb = 10;
+	static constexpr int pal_table_cache_max_size = pal_table_cache_max_memory_mb / ((double)sizeof(pal_table_cache_entry) / 1024 / 1024);
+	if (pal_table_cache.size() > pal_table_cache_max_size)
+		pal_table_cache.clear();
+
+	pal_table_cache_key key;
+	for (int i = 0; i < PAL_SIZE; i++)
+		key[i] = RAMpal[i].r + (RAMpal[i].g << 8) + (RAMpal[i].b << 16);
+	auto cache_it = pal_table_cache.find(key);
+	if (cache_it == pal_table_cache.end())
+	{
+		create_rgb_table(&rgb_table, RAMpal, NULL);
+		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+		pal_table_cache[key] = {rgb_table, trans_table};
+		trans_table2 = trans_table;
+	}
+	else
+	{
+		rgb_table = cache_it->second.rgb_table;
+		trans_table = cache_it->second.trans_table;
+		trans_table2 = cache_it->second.trans_table;
+	}
+
+	for (int i = 0; i < PAL_SIZE; i++)
+	{
+		trans_table2.data[0][i] = i;
+		trans_table2.data[i][i] = i;
+	}
+}
 
 void copy_pal(RGB *src,RGB *dest)
 {
@@ -109,17 +148,9 @@ void loadlvlpal(int32_t level)
 		RAMpal[CSET(6)+2] = NESpal(0x37);
 		tempgreypal[CSET(6)+2] = NESpal(0x37);
 	}
-		
-	create_rgb_table(&rgb_table, RAMpal, NULL);
-	create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-	memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-	
-	for(int32_t q=0; q<PAL_SIZE; q++)
-	{
-		trans_table2.data[0][q] = q;
-		trans_table2.data[q][q] = q;
-	}
-	
+
+	refresh_rgb_tables();
+
 	if(isUserTinted()){
 		restoreTint();
 	}
@@ -146,7 +177,7 @@ void loadpalset(int32_t cset, int32_t dataset, bool update_tint)
     
 	//If writing cset 6 or 14, record which sprite csets are being referenced
     if(cset==6){
-		if (!get_qr(qr_NOLEVEL3FIX) && DMaps[currdmap].color == 3) {
+		if (!get_qr(qr_NOLEVEL3FIX) && DMaps[cur_dmap].color == 3) {
 			RAMpal[CSET(6) + 2] = NESpal(0x37);
 		}
 		if (dataset >= poSPRITE255 && dataset < poSPRITE255 + pdSPRITE) 
@@ -218,8 +249,8 @@ void interpolatedfade()
 		if (!get_qr(qr_CSET5_LEVEL)) loadpalset(5,5);
 	}
 	
-	loadlvlpal(DMaps[currdmap].color);
-	byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poFADE1)*3;
+	loadlvlpal(DMaps[cur_dmap].color);
+	byte *si = colordata + CSET(DMaps[cur_dmap].color*pdLEVEL+poFADE1)*3;
 	
 	for(int32_t i=0; i<16; i++)
 	{
@@ -334,8 +365,7 @@ void fade(int32_t level,bool blackall,bool fromblack)
 		
 		if(!get_qr(qr_NOLEVEL3FIX) && level==3)
 			RAMpal[CSET(6)+2] = NESpal(0x37);
-			
-		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,false);
+
 		advanceframe(true);
 		
 		if(Quit)
@@ -377,11 +407,11 @@ void lighting(bool existslight, bool setnaturaldark, int32_t specialstate)
 	{
 		existslight=true;
 	}
-    bool newstate = !existslight && (setnaturaldark ? ((TheMaps[currmap*MAPSCRS+currscr].flags&fDARK) != 0) : naturaldark);
+    bool newstate = !existslight && (setnaturaldark ? ((get_canonical_scr(cur_map, cur_screen)->flags&fDARK) != 0) : naturaldark);
     if(get_qr(qr_NEW_DARKROOM)) newstate = false;
     if(darkroom != newstate)
     {
-		fade((Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color, false, darkroom);
+		fade((Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[cur_dmap].color, false, darkroom);
         darkroom = newstate;
     }
     
@@ -393,11 +423,11 @@ void lighting(bool existslight, bool setnaturaldark, int32_t specialstate)
 void lightingInstant()
 {
 	stayLit=false;
-	bool newstate = ((TheMaps[currmap*MAPSCRS+currscr].flags&fDARK) != 0);
+	bool newstate = (get_canonical_scr(cur_map, cur_screen)->flags&fDARK) != 0;
 	if(get_qr(qr_NEW_DARKROOM)) newstate = false;
 	if(darkroom != newstate)
 	{
-		int32_t level = (Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
+		int32_t level = (Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[cur_dmap].color;
 
 		if(darkroom) // Old room dark, new room lit
 		{
@@ -462,17 +492,9 @@ void lightingInstant()
 		
 		if(!get_qr(qr_NOLEVEL3FIX) && level==3)
 			RAMpal[CSET(6)+2] = NESpal(0x37);
-			
-		create_rgb_table(&rgb_table, RAMpal, NULL);
-		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-		memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-		
-		for(int32_t q=0; q<PAL_SIZE; q++)
-		{
-			trans_table2.data[0][q] = q;
-			trans_table2.data[q][q] = q;
-		}
-		
+
+		refresh_rgb_tables();
+
 		darkroom = newstate;
 	}
 	
@@ -481,26 +503,35 @@ void lightingInstant()
 bool get_lights()
 {
 	if(get_qr(qr_NEW_DARKROOM))
-		return !room_is_dark;
-	return !room_is_dark || stayLit;
+		return !region_is_lit;
+	return !region_is_lit || stayLit;
+}
+bool get_lights(mapscr* scr)
+{
+	bool dark = is_dark(scr);
+	if(get_qr(qr_NEW_DARKROOM))
+		return !dark;
+	return !dark || stayLit;
 }
 void set_lights(bool state, int32_t specialstate)
 {
-	room_is_dark = !state;
+	region_is_lit = !state;
 	if(!get_qr(qr_NEW_DARKROOM))
 	{
 		naturaldark = !state;
 		lighting(false, false);
 	}
+	is_any_room_dark = is_any_dark();
 }
 void toggle_lights(int32_t specialstate)
 {
-	room_is_dark = get_lights();
+	region_is_lit = get_lights();
 	if(!get_qr(qr_NEW_DARKROOM))
 	{
-		naturaldark = room_is_dark;
+		naturaldark = region_is_lit;
 		lighting(false, false);
 	}
+	is_any_room_dark = is_any_dark();
 }
 byte drycolors[11] = {0x12,0x11,0x22,0x21,0x31,0x32,0x33,0x35,0x34,0x36,0x37};
 
@@ -511,10 +542,10 @@ void dryuplake()
         
     if((++whistleclk)&7)
         return;
-        
+
     if(whistleclk<88)
     {
-        if(tmpscr->flags7 & fWHISTLEPAL)
+        if(hero_scr->flags7 & fWHISTLEPAL)
         {
             if(!usingdrypal)
             {
@@ -529,11 +560,11 @@ void dryuplake()
     }
     else
     {
-        if(tmpscr->flags & fWHISTLE)
+        if(hero_scr->flags & fWHISTLE)
         {
-            if(hiddenstair(0,true))
+            if(reveal_hidden_stairs(hero_scr, hero_screen, true))
             {
-                sfx(tmpscr->secretsfx);
+                sfx(hero_scr->secretsfx);
             }
         }
     }
@@ -596,7 +627,7 @@ void cycle_palette()
     if(!get_qr(qr_FADE) || darkroom)
         return;
         
-    int32_t level = (Hero.getSpecialCave()==0) ? DMaps[currdmap].color : (Hero.getSpecialCave()<GUYCAVE ? 11 : 10);
+    int32_t level = (Hero.getSpecialCave()==0) ? DMaps[cur_dmap].color : (Hero.getSpecialCave()<GUYCAVE ? 11 : 10);
     palcycle cycle_none[1][3];  //create a null palette cycle here. -Z
 	memset(cycle_none, 0, sizeof(cycle_none)); 
     for(int32_t i=0; i<3; i++)

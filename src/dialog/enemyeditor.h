@@ -14,6 +14,7 @@
 #include <functional>
 #include <string_view>
 #include <map>
+#include <vector>
 
 bool call_enemy_editor(int32_t index);
 
@@ -80,7 +81,7 @@ private:
 
 	bool NoDefenses();
 
-	std::shared_ptr<GUI::Widget> DefenseField(auto* indexs, bool _dobutton=false);
+	std::shared_ptr<GUI::Widget> DefenseField(const std::vector<int>& indices, bool _dobutton=false);
 
 	std::shared_ptr<GUI::Widget> SizeFlag(int32_t index);
 

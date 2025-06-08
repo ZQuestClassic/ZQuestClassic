@@ -1,4 +1,46 @@
-#include "bindings/sprite.zh"
+enum HeroAction
+{
+	LA_NONE,
+	LA_WALKING,
+	LA_ATTACKING,
+	LA_FROZEN,
+	LA_HOLD1LAND,         // One hand.
+	LA_HOLD2LAND,         // Both hands.
+	LA_RAFTING,
+	LA_GOTHURTLAND,
+	LA_INWIND,
+	LA_SCROLLING,
+	LA_WINNING,
+	LA_SWIMMING,
+	LA_HOPPING,           // Leaving water; read-only.
+	LA_GOTHURTWATER,
+	LA_HOLD1WATER,
+	LA_HOLD2WATER,
+	LA_CASTING,           // Casting a spell; read-only.
+	LA_CAVEWALKUP,
+	LA_CAVEWALKDOWN,
+	LA_DYING,
+	LA_DROWNING,
+	LA_CLIMBING_RES,      // unused, RESERVED
+	LA_CHARGING,          // Charging the sword.
+	LA_SPINNING,          // Spin attack.
+	LA_DIVING,
+	LA_STUNNED = 27,
+	LA_FALLING = 29,
+	LA_LAVADROWN,
+	LA_SIDESWIM,
+	LA_SIDESWIMHIT,
+	LA_SIDESWIMATTACKING,
+	LA_HOLD1SIDESWIM,
+	LA_HOLD2SIDESWIM,
+	LA_SIDESWIMCASTING,
+	LA_SIDESWIMFROZEN,
+	LA_SIDEDROWN,
+	LA_SIDESWIMSPINNING,
+	LA_SIDESWIMCHARGING,
+	LA_LIFTING,
+	LA_MAX
+};
 
 enum HeroSliding
 {
@@ -8,6 +50,70 @@ enum HeroSliding
 	// sliding in the air (momentum from ice)
 	SLD_AIR,
 	SLD_MAX
+};
+
+// Used with [Hero->SetItemSlot].
+enum ItemSlot
+{
+	ITM_SLOT_B,
+	ITM_SLOT_A,
+	ITM_SLOT_X,
+	ITM_SLOT_Y,
+};
+
+// Used with [Hero->SetItemSlot].
+@Bitflags("int")
+enum ItemRequireBitflags
+{
+	ITM_REQUIRE_NONE               = 0b00,
+	ITM_REQUIRE_INVENTORY          = 0b01,
+	ITM_REQUIRE_A_SLOT_RULE        = 0b10,
+};
+
+// Warp Effects for [Hero->WarpEx].
+enum WarpEffect
+{
+	WARPEFFECT_NONE                = 0,
+	WARPEFFECT_ZAP                 = 1,
+	WARPEFFECT_WAVE                = 2,
+	WARPEFFECT_INSTANT             = 3,
+	WARPEFFECT_OPENWIPE            = 4,
+};
+
+// Bitflags for [Hero->WarpEx].
+@Bitflags("int")
+enum WarpBitflags
+{
+	WARP_FLAG_SCRIPTDRAW           = 0x001,
+	WARP_FLAG_PLAYSOUNDS           = 0x002,
+	WARP_FLAG_FORCE_RESET_MUSIC    = 0x004,
+	WARP_FLAG_SETENTRANCESCREEN    = 0x008,
+	WARP_FLAG_SETENTRANCEDMAP      = 0x010,
+	WARP_FLAG_SETCONTINUESCREEN    = 0x020,
+	WARP_FLAG_SETCONTINUEDMAP      = 0x040,
+	WARP_FLAG_DONT_RESET_DM_SCRIPT = 0x080,
+	WARP_FLAG_DONT_CLEAR_SPRITES   = 0x100,
+	WARP_FLAG_FORCE_CONTINUE_MUSIC = 0x200,
+	WARP_FLAG_PLAYMUSIC            = WARP_FLAG_FORCE_RESET_MUSIC, // Old name for compat of old scripts.
+	WARP_FLAG_DONTCLEARSPRITES     = 0x100,                       // Manual Sprite Carryover.
+	WARP_FLAG_CLEARITEMS           = 0x200,
+	WARP_FLAG_CLEARGUYS            = 0x400,
+	WARP_FLAG_CLEARLWEAPONS        = 0x800,
+	WARP_FLAG_CLEAREWEAPONS        = 0x1000,
+	WARP_FLAG_CLEARHOOKSHOT        = 0x2000,
+	WARP_FLAG_CLEARDECORATIONS     = 0x4000,
+	WARP_FLAG_CLEARPARTICLES       = 0x8000,
+	WARP_FLAG_NOSTEPFORWARD        = 0x10000,                     // Prevent Stepping forward in dungeon screens (experimental).
+};
+
+// Mouse button bitflags, used with [Hero->InputMouseB].
+// @deprecated Use [MouseIndex] and [Input->Mouse] instead!
+@Bitflags("int")
+enum MouseButtonBitflags
+{
+	MB_LEFTCLICK                   = 0x1,
+	MB_RIGHTCLICK                  = 0x2,
+	MB_MIDDLECLICK                 = 0x4,
 };
 
 // Contains functions and variables related to the playable hero character.
@@ -39,6 +145,8 @@ class hero {
 
 	// @zasm_var LINKMAXMP
 	internal int MaxMP;
+
+	// @value [enum HeroAction]
 
 	// @zasm_var LINKACTION
 	internal int Action;
@@ -78,6 +186,9 @@ class hero {
 	//
 	// NOTE: This affects BOTH 4-way and 8-way movement, but ONLY if the quest
 	// rule `New Hero Movement` is enabled.
+	//
+	// NOTE: This has no effect on sideview swim speed. To adjust that, use
+	// [GEN_SIDESWIM_STEP_SIDE] via [Game->Generic].
 	//
 	// @zasm_var HEROSTEPRATE
 	internal int Step;
@@ -126,8 +237,9 @@ class hero {
 	// @zasm_var LINKDEFENCE
 	internal int Defense[];
 
-	// Stores the ID/UIDs of objects that hurt the Link this frame.
+	// Stores the ID/UIDs of objects that hurt the Hero this frame.
 	//
+	// @index [enum HitIndex]
 	// @zasm_var LINKHITBY
 	internal untyped HitBy[];
 
@@ -137,40 +249,40 @@ class hero {
 	// @zasm_var LINKLADDERY
 	internal const int LadderY;
 
-	// This returns how long Link will remain invincible, 0 if not invincible.
+	// This returns how long the Hero will remain invincible, 0 if not invincible.
 	// Can be set.
 	//
 	// @zasm_var LINKINVFRAME
 	internal int InvFrames;
 
-	// If set false, Link will neither flash, nor flicker when invincible.
+	// If set false, the Hero will neither flash, nor flicker when invincible.
 	//
 	// @zasm_var LINKCANFLICKER
 	internal bool InvFlicker;
 
-	// The sound that plays when Link is injured. By default this is `16`, but
+	// The sound that plays when the Hero is injured. By default this is `16`, but
 	// you may change it at any time.
 	//
 	// @zasm_var LINKHURTSFX
 	internal int HurtSound;
 
-	// Contains the item IDs of what is currently equiped to Link's B button.
+	// Contains the item IDs of what is currently equiped to the Hero's B button.
 	//
 	// @zasm_var LINKITEMB
 	internal int ItemB;
 
-	// Contains the item IDs of what is currently equiped to Link's A button.
+	// Contains the item IDs of what is currently equiped to the Hero's A button.
 	//
 	// @zasm_var LINKITEMA
 	internal int ItemA;
 
-	// Contains the item IDs of what is currently equiped to Link's X (Ex1)
+	// Contains the item IDs of what is currently equiped to the Hero's X (Ex1)
 	// button.
 	//
 	// @zasm_var LINKITEMX
 	internal int ItemX;
 
-	// Contains the item IDs of what is currently equiped to Link's Y (Ex2)
+	// Contains the item IDs of what is currently equiped to the Hero's Y (Ex2)
 	// button.
 	//
 	// @zasm_var LINKITEMY
@@ -187,9 +299,9 @@ class hero {
 	// @zasm_var LINKGRABBED
 	internal bool Grabbed;
 
-	// Returns the number of frames for which Link will; remain stunned.
+	// Returns the number of frames for which the Hero will; remain stunned.
 	//
-	// Writing to this causes Link to be stunned for 'n' frames.
+	// Writing to this causes the Hero to be stunned for 'n' frames.
 	//
 	// This decrements once per frame.
 	//
@@ -210,7 +322,7 @@ class hero {
 	// @zasm_var HEROBUNNY
 	internal int BunnyClk;
 
-	// Returns the number of frames that Link has been pushing against a solid
+	// Returns the number of frames that the Hero has been pushing against a solid
 	// object.
 	//
 	// @zasm_var LINKPUSH
@@ -407,11 +519,8 @@ class hero {
 	internal int HammerState;
 
 	// When the engine lifts an object, it will overwrite these flags.
-	// - [LIFTFL_DISABLE_SHIELD] - If true, the shield is disabled when lifting the same way it is when swinging a weapon.
-	// - [LIFTFL_DISABLE_ITEMS] - If true, the player can't use any items unrelated to lifting.
-	//   (Items related to lifting, such as bombs with the liftable flag set or a Lift Glove, will
-	//    throw the held item regardless)
 	//
+	// @index [enum LiftFlag]
 	// @zasm_var HEROLIFTFLAGS
 	internal bool LiftFlags[];
 
@@ -421,7 +530,7 @@ class hero {
 	// @zasm_var HEROSHIELDJINX
 	internal int ShieldJinx;
 
-	// This sets what color Link is drawn when flickering.
+	// This sets what color the Hero is drawn when flickering.
 	//
 	// If -1, will use the default from Init Data.
 	//
@@ -431,7 +540,7 @@ class hero {
 	// @zasm_var HEROFLICKERCOLOR
 	internal int FlickerColor;
 
-	// This sets how many times the transparency effect is applied to Link's
+	// This sets how many times the transparency effect is applied to the Hero's
 	// flicker effect.
 	//
 	// If -1, will use the default from Init Data. If 0, will use a solid color.
@@ -442,7 +551,7 @@ class hero {
 	// @zasm_var HEROFLICKERTRANSP
 	internal int FlickerTransparencyPasses;
 
-	// This returns Link's current displayed cset when taking damage or
+	// This returns the Hero's current displayed cset when taking damage or
 	// invincible. If not in one of these states, will return his normal cset.
 	//
 	// If called before [Waitdraw] / Hero update, results may be off by a
@@ -454,8 +563,8 @@ class hero {
 	// @zasm_var HEROFLASHINGCSET
 	internal const int FlashingCSet;
 
-	// Valid values: [HeroSliding] (`SLD_`).
-	//
+	// @value [enum HeroSliding]
+
 	// @zasm_var HEROSLIDING
 	internal const int Sliding;
 
@@ -517,146 +626,26 @@ class hero {
 	// @zasm_var HEROICEENTRYMAXFRAMES
 	internal int IceEntryMaxFrames;
 
-	// @zasm_var INPUTSTART
-	internal bool InputStart;
-
-	// @zasm_var INPUTMAP
-	internal bool InputMap;
-
-	// @zasm_var INPUTUP
-	internal bool InputUp;
-
-	// @zasm_var INPUTDOWN
-	internal bool InputDown;
-
-	// @zasm_var INPUTLEFT
-	internal bool InputLeft;
-
-	// @zasm_var INPUTRIGHT
-	internal bool InputRight;
-
-	// @zasm_var INPUTA
-	internal bool InputA;
-
-	// @zasm_var INPUTB
-	internal bool InputB;
-
-	// @zasm_var INPUTL
-	internal bool InputL;
-
-	// @zasm_var INPUTR
-	internal bool InputR;
-
-	// @zasm_var INPUTEX1
-	internal bool InputEx1;
-
-	// @zasm_var INPUTEX2
-	internal bool InputEx2;
-
-	// @zasm_var INPUTEX3
-	internal bool InputEx3;
-
-	// @zasm_var INPUTEX4
-	internal bool InputEx4;
-
-	// @zasm_var INPUTPRESSSTART
-	internal bool PressStart;
-
-	// @zasm_var INPUTPRESSUP
-	internal bool PressUp;
-
-	// @zasm_var INPUTPRESSDOWN
-	internal bool PressDown;
-
-	// @zasm_var INPUTPRESSLEFT
-	internal bool PressLeft;
-
-	// @zasm_var INPUTPRESSRIGHT
-	internal bool PressRight;
-
-	// @zasm_var INPUTPRESSA
-	internal bool PressA;
-
-	// @zasm_var INPUTPRESSB
-	internal bool PressB;
-
-	// @zasm_var INPUTPRESSL
-	internal bool PressL;
-
-	// @zasm_var INPUTPRESSR
-	internal bool PressR;
-
-	// @zasm_var INPUTPRESSEX1
-	internal bool PressEx1;
-
-	// @zasm_var INPUTPRESSEX2
-	internal bool PressEx2;
-
-	// @zasm_var INPUTPRESSEX3
-	internal bool PressEx3;
-
-	// @zasm_var INPUTPRESSEX4
-	internal bool PressEx4;
-
-	// @zasm_var INPUTMOUSEX
-	internal int InputMouseX;
-
-	// @zasm_var INPUTMOUSEY
-	internal int InputMouseY;
-
-	// @zasm_var INPUTMOUSEZ
-	internal int InputMouseZ;
-
-	// @zasm_var INPUTMOUSEB
-	internal int InputMouseB;
-
-	// @zasm_var INPUTAXISUP
-	internal bool InputAxisUp;
-
-	// @zasm_var INPUTAXISDOWN
-	internal bool InputAxisDown;
-
-	// @zasm_var INPUTAXISLEFT
-	internal bool InputAxisLeft;
-
-	// @zasm_var INPUTAXISRIGHT
-	internal bool InputAxisRight;
-
-	// @zasm_var PRESSAXISUP
-	internal bool PressAxisUp;
-
-	// @zasm_var PRESSAXISDOWN
-	internal bool PressAxisDown;
-
-	// @zasm_var PRESSAXISLEFT
-	internal bool PressAxisLeft;
-
-	// @zasm_var PRESSAXISRIGHT
-	internal bool PressAxisRight;
-
-	// @zasm_var INPUTPRESSMAP
-	internal bool PressMap;
-
 	// @zasm_var HEROTOTALDYOFFS
 	internal const int TotalDYOffset;
 
-	// Link->Equipment is now read-write, and needs testing.
+	// Hero->Equipment is now read-write, and needs testing.
 	//
 	// @zasm_var LINKEQUIP
 	internal int Equipment;
 
-	// Warps link to the given screen in the given DMap, just like if he'd
+	// Warps link to the given screen in the given dmap, just like if he'd
 	// triggered an 'Insta-Warp'-type warp.
 	//
-	// Uses warp return square A, unless compat rule `Old 'Hero->Warp' Return Square`
-	// is on, in which case it uses the warp return square of the
-	// current screen's Sidewarp A.
+	// Uses warp return square A of the screen the player is currently on,
+	// unless compat rule `Old 'Hero->Warp' Return Square` is on, in which case
+	// it uses the warp return square of the current screen's Sidewarp A.
 	//
 	// @zasm
 	//   POP D2
 	//   POP D3
 	//   WARPR D3 D2
-	internal void Warp(int DMap, int screen);
+	internal void Warp(int dmap, int screen);
 
 	// @zasm
 	//   POP D2
@@ -862,18 +851,16 @@ class hero {
 	//   SETR GAMESETB D3
 	internal void SetItemB(int item_id);
 
-	// This allows you to set Link's button items without binary operation with
-	// options for forcing them.
+	// Set the Hero's button items, with options for forcing them.
 	//
-	// Use the constants `ITM_REQUIRE_` and `ITM_SLOT_` from <std> when passing
-	// values into this function.
-	//
+	// @param [ItemSlot] slot
+	// @param [ItemRequireBitflags] force
 	// @zasm
 	//   POP D6
 	//   POP D1
 	//   POP D0
 	//   SETR SETITEMSLOT D6
-	internal void SetItemSlot(int itm_id, int button, int force);
+	internal void SetItemSlot(int itm_id, int slot, int force);
 
 	// @zasm
 	//   POP D1
@@ -886,6 +873,168 @@ class hero {
 	//   POP D0
 	//   SETR D2 LINKOFLIP
 	internal int GetOriginalFlip(int hero_sprite_id, int dir);
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTSTART
+	internal bool InputStart;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTMAP
+	internal bool InputMap;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTUP
+	internal bool InputUp;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTDOWN
+	internal bool InputDown;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTLEFT
+	internal bool InputLeft;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTRIGHT
+	internal bool InputRight;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTA
+	internal bool InputA;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTB
+	internal bool InputB;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTL
+	internal bool InputL;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTR
+	internal bool InputR;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTEX1
+	internal bool InputEx1;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTEX2
+	internal bool InputEx2;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTEX3
+	internal bool InputEx3;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTEX4
+	internal bool InputEx4;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTPRESSSTART
+	internal bool PressStart;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTPRESSUP
+	internal bool PressUp;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSDOWN
+	internal bool PressDown;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSLEFT
+	internal bool PressLeft;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSRIGHT
+	internal bool PressRight;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSA
+	internal bool PressA;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSB
+	internal bool PressB;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSL
+	internal bool PressL;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSR
+	internal bool PressR;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSEX1
+	internal bool PressEx1;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSEX2
+	internal bool PressEx2;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSEX3
+	internal bool PressEx3;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSEX4
+	internal bool PressEx4;
+
+	// @deprecated_future Use [Input->Mouse] instead!
+	// @zasm_var INPUTMOUSEX
+	internal int InputMouseX;
+
+	// @deprecated_future Use [Input->Mouse] instead!
+	// @zasm_var INPUTMOUSEY
+	internal int InputMouseY;
+
+	// @deprecated_future Use [Input->Mouse] instead!
+	// @zasm_var INPUTMOUSEZ
+	internal int InputMouseZ;
+
+	// @deprecated_future Use [Input->Mouse] instead!
+	// @value [enum MouseButtonBitflags]
+
+	// @zasm_var INPUTMOUSEB
+	internal int InputMouseB;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTAXISUP
+	internal bool InputAxisUp;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTAXISDOWN
+	internal bool InputAxisDown;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTAXISLEFT
+	internal bool InputAxisLeft;
+
+	// @deprecated_future Use [Input->Button] instead!
+	// @zasm_var INPUTAXISRIGHT
+	internal bool InputAxisRight;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var PRESSAXISUP
+	internal bool PressAxisUp;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var PRESSAXISDOWN
+	internal bool PressAxisDown;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var PRESSAXISLEFT
+	internal bool PressAxisLeft;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var PRESSAXISRIGHT
+	internal bool PressAxisRight;
+
+	// @deprecated_future Use [Input->Press] instead!
+	// @zasm_var INPUTPRESSMAP
+	internal bool PressMap;
 }
 
 // 1 is the sprite uid for Hero.

@@ -118,7 +118,7 @@ void Ghost_MoveXY(float xStep, float yStep, int imprecision)
     {
         // Use 8 directions if 8-way flag is set
         if(Ghost_FlagIsSet(GHF_8WAY))
-            Ghost_Dir=AngleDir8(WrapAngle(ArcTan(xStep, yStep))*57.2958);
+            Ghost_Dir=AngleDir8(WrapRadians(ArcTan(xStep, yStep))*57.2958);
         
         // Otherwise, 4 directions
         else
@@ -410,7 +410,7 @@ bool Ghost_CanMove(int dir, float step, int imprecision)
 
 bool Ghost_CanMovePixel(int x, int y, bool inAir)
 {
-    if(x<0 || x>255 || y<0 || y>175)
+    if(x<0 || x>=Region->Width || y<0 || y>=Region->Height)
         return Ghost_FlagIsSet(GHF_MOVE_OFFSCREEN);
     
     int combo=ComboAt(x, y);
@@ -893,7 +893,7 @@ void __Ghost_FixCoords()
         newX+=16;
     Ghost_X=newX;
     
-    if((Screen->Flags[SF_ROOMTYPE]&100b)!=0) // If sideview
+    if (Screen->Flag[SFL_SIDEVIEW])
     {
         float newY=(Ghost_Y&0xF8);
         if((Ghost_Y&4)!=0)
@@ -1169,7 +1169,7 @@ void __Ghost_NewDir8(int rate, int homing, int hunger)
 bool __FullTileWalkable(int x, int y)
 {
     // Offscreen?
-    if(x<0 || y<0 || x>=256 || y>=176)
+    if(x<0 || y<0 || x>=Region->Width || y>=Region->Height)
         return Ghost_FlagIsSet(GHF_MOVE_OFFSCREEN);
     
     // Get the exact coordinate of the top-left pixel
@@ -1207,7 +1207,7 @@ void Ghost_SetPosition(ffc this, npc ghost)
     }
 
     // Don't let the FFC go too far offscreen, or else it will disappear
-    this->X=Clamp(Ghost_X+ghost->DrawXOffset, -64, 256);
-    this->Y=Clamp(Ghost_Y-Ghost_Z+ghost->DrawYOffset-ghost->DrawZOffset, -64, 176);
+    this->X=Clamp(Ghost_X+ghost->DrawXOffset, -64, Region->Width);
+    this->Y=Clamp(Ghost_Y-Ghost_Z+ghost->DrawYOffset-ghost->DrawZOffset, -64, Region->Height);
 }
 
