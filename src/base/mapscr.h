@@ -144,12 +144,12 @@ struct mapscr
 	byte ffTileHeight(size_t ind) const;
 	void ffTileHeight(size_t ind, byte val);
 	
-	byte oceansfx;
-	byte bosssfx;
-	byte secretsfx = 27;
-	byte holdupsfx = 20;
+	int16_t oceansfx;
+	int16_t bosssfx;
+	int16_t secretsfx = 27;
+	int16_t holdupsfx = 20;
 
-	int16_t screen_midi = -1;
+	int32_t screen_midi = -1;
 	byte lens_layer;
 	byte lens_show, lens_hide;
 

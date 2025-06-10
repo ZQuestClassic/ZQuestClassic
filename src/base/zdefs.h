@@ -144,29 +144,29 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           9
 #define V_RULES           17
 #define V_STRINGS         10
-#define V_MISC            16
+#define V_MISC            17
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          52
+#define V_COMBOS          53
 #define V_CSETS            6 //palette data
-#define V_MAPS            33
-#define V_DMAPS           22
+#define V_MAPS            34
+#define V_DMAPS           23
 #define V_DOORS            1
-#define V_ITEMS           61
-#define V_WEAPONS          8
+#define V_ITEMS           62
+#define V_WEAPONS          9
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        42
-#define V_GUYS            53
-#define V_MIDIS            4
+#define V_INITDATA        43
+#define V_GUYS            54
+#define V_MIDIS            5
 #define V_CHEATS           1
 #define V_SAVEGAME        43
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        14
-#define V_ITEMDROPSETS     2
+#define V_ITEMDROPSETS     3 
 #define V_FFSCRIPT         27
-#define V_SFX              8
+#define V_SFX              9
 #define V_FAVORITES        4
 
 #define V_COMPATRULE       80
@@ -1284,7 +1284,7 @@ struct guydata
 	int32_t attributes[32]; //refactored this into an array, no more madness.
     int16_t  bgsfx, bosspal, extend;
     byte defense[edefLAST255];
-    byte  hitsfx, deadsfx;
+    int16_t  hitsfx, deadsfx;
     //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
     //Adding earlier will offset defdata arrays. -Z
     
@@ -1315,7 +1315,7 @@ struct guydata
     word weaponscript;
     int32_t weap_initiald[INITIAL_D];
     
-	byte spr_shadow, spr_death, spr_spawn;
+	int16_t spr_shadow, spr_death, spr_spawn;
 
 	// attack tab
 	byte wunblockable;
@@ -1323,9 +1323,9 @@ struct guydata
 	int32_t weapoverrideFLAGS;
 	int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs, weap_tilew, weap_tileh;
 	int32_t wstep;
-	byte burnsprs[WPNSPR_MAX];
+	int16_t burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
-	byte specialsfx;
+	int16_t specialsfx;
 
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02

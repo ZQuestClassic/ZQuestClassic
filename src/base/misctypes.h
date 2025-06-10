@@ -166,7 +166,7 @@ enum miscsprite
 	sprDROWN,
 	sprLAVADROWN,
 	sprSWITCHPOOF,
-	sprMAX = 256
+	sprMAX = 512
 };
 enum miscsfx
 {
@@ -183,7 +183,7 @@ enum miscsfx
 	sfxTAP,
 	sfxTAP_HOLLOW,
 	sfxHERO_LANDS,
-	sfxMAX = 256
+	sfxMAX = 512
 };
 
 struct miscQdata

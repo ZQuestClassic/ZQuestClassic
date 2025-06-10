@@ -4566,9 +4566,21 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.color = (word)tempbyte;
 		}
 		
-		if(!p_getc(&tempDMap.midi,f))
+		if(s_version >= 23)
 		{
-			return qe_invalid;
+			if (!p_igetw(&tempDMap.midi, f))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			byte tempbyte = 0;
+			if(!p_getc(&tempbyte, f))
+			{
+				return qe_invalid;
+			}
+			tempDMap.midi = tempbyte;
 		}
 		
 		if(!p_getc(&tempDMap.cont,f))
@@ -4785,14 +4797,27 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		
 		if(s_version>2)
 		{
-			byte di[32];
+			byte di[MAXITEMS/8];
 			
-			if(!pfread(&di, 32, f)) return qe_invalid;
-			
-			for(int32_t j=0; j<MAXITEMS; j++)
+			if (s_version >= 23)
 			{
-				if(di[j/8] & (1 << (j%8))) tempDMap.disableditems[j]=1;
-				else tempDMap.disableditems[j]=0;
+				if (!pfread(&di, MAXITEMS / 8, f)) return qe_invalid;
+
+				for (int32_t j = 0; j < MAXITEMS; j++)
+				{
+					if (di[j / 8] & (1 << (j % 8))) tempDMap.disableditems[j] = 1;
+					else tempDMap.disableditems[j] = 0;
+				}
+			}
+			else
+			{
+				if (!pfread(&di, 32, f)) return qe_invalid;
+
+				for (int32_t j = 0; j < 256; j++)
+				{
+					if (di[j / 8] & (1 << (j % 8))) tempDMap.disableditems[j] = 1;
+					else tempDMap.disableditems[j] = 0;
+				}
 			}
 		}
 		
@@ -6067,12 +6092,22 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	
 	FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
 	
-	if(s_version >= 12)
+	if(s_version >= 17)
+	{
+		int16_t spr;
+		for (int32_t q = 0; q < sprMAX; ++q)
+		{
+			if (!p_igetw(&spr, f))
+				return qe_invalid;
+			temp_misc.sprites[q] = spr;
+		}
+	}
+	else if(s_version >= 12)
 	{
 		byte spr;
-		for(int32_t q = 0; q < sprMAX; ++q)
+		for (int32_t q = 0; q < 256; ++q)
 		{
-			if(!p_getc(&spr,f))
+			if (!p_getc(&spr, f))
 				return qe_invalid;
 			temp_misc.sprites[q] = spr;
 		}
@@ -6130,12 +6165,22 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			temp_misc.bottle_shop_types[q].clear();
 	}
 	
-	if(s_version >= 14)
+	if (s_version >= 17)
+	{
+		int16_t msfx;
+		for (int32_t q = 0; q < sfxMAX; ++q)
+		{
+			if (!p_igetw(&msfx, f))
+				return qe_invalid;
+			temp_misc.miscsfx[q] = msfx;
+		}
+	}
+	else if(s_version >= 14)
 	{
 		byte msfx;
-		for(int32_t q = 0; q < sfxMAX; ++q)
+		for(int32_t q = 0; q < 256; ++q)
 		{
-			if(!p_getc(&msfx,f))
+			if (!p_getc(&msfx, f))
 				return qe_invalid;
 			temp_misc.miscsfx[q] = msfx;
 		}
@@ -6475,10 +6520,18 @@ int32_t readitems(PACKFILE *f, word version, word build)
                 return qe_invalid;
             }
             
-            if(!p_getc(&tempitem.playsound,f))
-            {
-                return qe_invalid;
-            }
+			if (s_version >= 62)
+			{
+				if (!p_igetw(&tempitem.playsound, f))
+					return qe_invalid;
+			}
+			else
+			{
+				byte tempbyte = 0;
+				if (!p_getc(&tempbyte, f))
+					return qe_invalid;
+				tempitem.playsound = tempbyte;
+			}
             
             for(int32_t j=0; j<8; j++)
             {
@@ -6501,58 +6554,116 @@ int32_t readitems(PACKFILE *f, word version, word build)
             {
                 if(s_version>5)
                 {
-                    if(!p_getc(&tempitem.wpn,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempitem.wpn2,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempitem.wpn3,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempitem.wpn4,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(s_version>=15)
-                    {
-                        if(!p_getc(&tempitem.wpn5,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn6,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn7,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn8,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn9,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn10,f))
-                        {
-                            return qe_invalid;
-                        }
-                    }
+					if (s_version >= 62)
+					{
+						if (!p_igetw(&tempitem.wpn, f))
+						{
+							return qe_invalid;
+						}
+						if (!p_igetw(&tempitem.wpn2, f))
+						{
+							return qe_invalid;
+						}
+						if (!p_igetw(&tempitem.wpn3, f))
+						{
+							return qe_invalid;
+						}
+						if (!p_igetw(&tempitem.wpn4, f))
+						{
+							return qe_invalid;
+						}
+						if (!p_igetw(&tempitem.wpn5, f))
+						{
+							return qe_invalid;
+						}
+						if (!p_igetw(&tempitem.wpn6, f))
+						{
+							return qe_invalid;
+						}
+						if (!p_igetw(&tempitem.wpn7, f))
+						{
+							return qe_invalid;
+						}
+						if (!p_igetw(&tempitem.wpn8, f))
+						{
+							return qe_invalid;
+						}
+						if (!p_igetw(&tempitem.wpn9, f))
+						{
+							return qe_invalid;
+						}
+						if (!p_igetw(&tempitem.wpn10, f))
+						{
+							return qe_invalid;
+						}
+					}
+					else
+
+					{
+						byte tempbyte = 0;
+						if (!p_getc(&tempbyte, f))
+						{
+							return qe_invalid;
+						}
+						tempitem.wpn = tempbyte;
+
+						if (!p_getc(&tempbyte, f))
+						{
+							return qe_invalid;
+						}
+						tempitem.wpn2 = tempbyte;
+
+						if (!p_getc(&tempbyte, f))
+						{
+							return qe_invalid;
+						}
+						tempitem.wpn3 = tempbyte;
+
+						if (!p_getc(&tempbyte, f))
+						{
+							return qe_invalid;
+						}
+						tempitem.wpn4 = tempbyte;
+
+						if (s_version >= 15)
+						{
+							if (!p_getc(&tempbyte, f))
+							{
+								return qe_invalid;
+							}
+							tempitem.wpn5 = tempbyte;
+
+							if (!p_getc(&tempbyte, f))
+							{
+								return qe_invalid;
+							}
+							tempitem.wpn6 = tempbyte;
+
+							if (!p_getc(&tempbyte, f))
+							{
+								return qe_invalid;
+							}
+							tempitem.wpn7 = tempbyte;
+
+							if (!p_getc(&tempbyte, f))
+							{
+								return qe_invalid;
+							}
+							tempitem.wpn8 = tempbyte;
+
+							if (!p_getc(&tempbyte, f))
+							{
+								return qe_invalid;
+							}
+							tempitem.wpn9 = tempbyte;
+
+							if (!p_getc(&tempbyte, f))
+							{
+								return qe_invalid;
+							}
+							tempitem.wpn10 = tempbyte;
+						}
+					}
                     
                     if(!p_getc(&tempitem.pickup_hearts,f))
                     {
@@ -6691,17 +6802,30 @@ int32_t readitems(PACKFILE *f, word version, word build)
                         }
                     }
                     
-                    if(!p_getc(&tempitem.usesound,f))
-                    {
-                        return qe_invalid;
-                    }
-					
-					if(s_version >= 49)
+					if (s_version >= 62)
 					{
-						if(!p_getc(&tempitem.usesound2,f))
-						{
+						if (!p_igetw(&tempitem.usesound, f))
 							return qe_invalid;
-						}
+					}
+					else
+					{
+						byte tempbyte = 0;
+						if (!p_getc(&tempbyte, f))
+							return qe_invalid;
+						tempitem.usesound = tempbyte;
+					}
+					
+					if (s_version >= 62)
+					{
+						if (!p_igetw(&tempitem.usesound2, f))
+							return qe_invalid;
+					}
+					else if (s_version >= 49)
+					{
+						byte tempbyte = 0;
+						if (!p_getc(&tempbyte, f))
+							return qe_invalid;
+						tempitem.usesound2 = tempbyte;
 					}
 					else tempitem.usesound2 = 0;
 					
@@ -6994,8 +7118,18 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			for(int q = 0; q < WPNSPR_MAX; ++q)
 			{
-				if(!p_getc(&tempitem.burnsprs[q],f))
-					return qe_invalid;
+				if(s_version >= 62)
+				{
+					if (!p_igetw(&tempitem.burnsprs[q], f))
+						return qe_invalid;
+				}
+				else
+				{
+					byte tempbyte;
+					if (!p_getc(&tempbyte, f))
+						return qe_invalid;
+					tempitem.burnsprs[q] = tempbyte;
+				}
 				if(s_version >= 59)
 					if(!p_getc(&tempitem.light_rads[q],f))
 						return qe_invalid;
@@ -7028,8 +7162,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
 
 	if (should_skip)
 		return 0;
-    
-    //////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////
     // Now do any updates because of new item additions
     // (These can't be done above because items_to_read
     // might be too low.)
@@ -13344,8 +13478,10 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 	
 	int32_t wavcount = WAV_COUNT;
 	
-	if(s_version < 6)
+	if (s_version<6)
 		wavcount = 128;
+	else if (s_version<9)
+		wavcount = 256;
 		
 	uint8_t tempflag[WAV_COUNT>>3];
 	
@@ -13551,7 +13687,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 
 void setupsfx()
 {
-    for(int32_t i=1; i<WAV_COUNT; i++)
+	for(int32_t i=1; i<WAV_COUNT; i++)
     {
         sprintf(sfx_string[i],"s%03d",i);
         
@@ -14175,20 +14311,31 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		
             }
 	    
-	    
-	    
-            
-            if(guyversion >= 18)
+			if (guyversion >= 54)
+			{
+				if (!p_igetw(&(tempguy.hitsfx), f))
+				{
+					return qe_invalid;
+				}
+				if (!p_igetw(&(tempguy.deadsfx), f))
+				{
+					return qe_invalid;
+				}
+			}
+            else if(guyversion >= 18)
             {
-                if(!p_getc(&(tempguy.hitsfx),f))
+				byte tempbyte;
+                if(!p_getc(&(tempbyte),f))
                 {
                     return qe_invalid;
                 }
+				tempguy.hitsfx = tempbyte;
                 
-                if(!p_getc(&(tempguy.deadsfx),f))
+                if(!p_getc(&(tempbyte),f))
                 {
                     return qe_invalid;
                 }
+				tempguy.deadsfx = tempbyte;
             }
             
             if(guyversion >= 22)
@@ -15085,17 +15232,39 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			}
 			if (guyversion > 44)
 			{
-				if(!p_getc(&(tempguy.spr_shadow),f))
+				if(guyversion >= 54)
 				{
-					return qe_invalid;
+					if (!p_igetw(&(tempguy.spr_shadow), f))
+					{
+						return qe_invalid;
+					}
+					if (!p_igetw(&(tempguy.spr_death), f))
+					{
+						return qe_invalid;
+					}
+					if (!p_igetw(&(tempguy.spr_spawn), f))
+					{
+						return qe_invalid;
+					}
 				}
-				if(!p_getc(&(tempguy.spr_death),f))
+				else
 				{
-					return qe_invalid;
-				}
-				if(!p_getc(&(tempguy.spr_spawn),f))
-				{
-					return qe_invalid;
+					byte tempbyte;
+					if (!p_getc(&(tempbyte), f))
+					{
+						return qe_invalid;
+					}
+					tempguy.spr_shadow = tempbyte;
+					if (!p_getc(&(tempbyte), f))
+					{
+						return qe_invalid;
+					}
+					tempguy.spr_death = tempbyte;
+					if (!p_getc(&(tempbyte), f))
+					{
+						return qe_invalid;
+					}
+					tempguy.spr_spawn = tempbyte;
 				}
 			}
 			else
@@ -15191,10 +15360,16 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			{
 				guy_update_weaponspecialsfx(tempguy);
 			}
-			else
+			else if(guyversion >= 54)
 			{
-				if (!p_getc(&(tempguy.specialsfx), f))
+				if (!p_igetw(&(tempguy.specialsfx), f))
 					return qe_invalid;
+			}
+			else {
+				byte tempbyte = 0;
+				if (!p_getc(&(tempbyte), f))
+					return qe_invalid;
+				tempguy.specialsfx = tempbyte;
 			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
@@ -16091,20 +16266,23 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->oceansfx),f))
+		if(!p_getc(&(tempbyte),f))
 		{
 			return qe_invalid;
 		}
+		temp_mapscr->oceansfx = tempbyte;
 		
-		if(!p_getc(&(temp_mapscr->bosssfx),f))
+		if (!p_getc(&(tempbyte), f))
 		{
 			return qe_invalid;
 		}
+		temp_mapscr->bosssfx = tempbyte;
 		
-		if(!p_getc(&(temp_mapscr->secretsfx),f))
+		if (!p_getc(&(tempbyte), f))
 		{
 			return qe_invalid;
 		}
+		temp_mapscr->bosssfx = tempbyte;
 	}
 	
 	if(version<15) // October 2007: another SFX
@@ -16113,10 +16291,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->holdupsfx),f))
+		if (!p_getc(&(tempbyte), f))
 		{
 			return qe_invalid;
 		}
+		temp_mapscr->holdupsfx = tempbyte;
 	}
 	
 	
@@ -16478,10 +16657,12 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(version>4)
 	{
-		if(!p_igetw(&(temp_mapscr->screen_midi),f))
+		int16_t tempword = 0;
+		if(!p_igetw(&(tempbyte),f))
 		{
 			return qe_invalid;
 		}
+		temp_mapscr->screen_midi = tempbyte;
 	}
 	else
 	{
@@ -17127,18 +17308,44 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->csensitive),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->oceansfx),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->bosssfx),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->secretsfx),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->holdupsfx),f))
-				return qe_invalid;
-			if(!p_igetw(&(temp_mapscr->timedwarptics),f))
-				return qe_invalid;
-			if(!p_igetw(&(temp_mapscr->screen_midi),f))
-				return qe_invalid;
+
+			if(version >= 44)
+			{
+				if (!p_igetw(&(temp_mapscr->oceansfx), f))
+					return qe_invalid;
+				if (!p_igetw(&(temp_mapscr->bosssfx), f))
+					return qe_invalid;
+				if (!p_igetw(&(temp_mapscr->secretsfx), f))
+					return qe_invalid;
+				if (!p_igetw(&(temp_mapscr->holdupsfx), f))
+					return qe_invalid;
+				if (!p_igetw(&(temp_mapscr->timedwarptics), f))
+					return qe_invalid;
+				if (!p_igetl(&(temp_mapscr->screen_midi), f))
+					return qe_invalid;
+			}
+			else
+			{
+				byte tempbyte = 0;
+				int16_t tempword = 0;
+				if (!p_getc(&(tempbyte), f))
+					return qe_invalid;
+				temp_mapscr->oceansfx = tempbyte;
+				if (!p_getc(&(tempbyte), f))
+					return qe_invalid;
+				temp_mapscr->bosssfx = tempbyte;
+				if (!p_getc(&(tempbyte), f))
+					return qe_invalid;
+				temp_mapscr->secretsfx = tempbyte;
+				if (!p_getc(&(tempbyte), f))
+					return qe_invalid;
+				temp_mapscr->holdupsfx = tempbyte;
+				if (!p_igetw(&(temp_mapscr->timedwarptics), f))
+					return qe_invalid;
+				if (!p_igetw(&(tempword), f))
+					return qe_invalid;
+				temp_mapscr->screen_midi = tempword;
+			}
 			if(!p_getc(&(temp_mapscr->lens_layer),f))
 				return qe_invalid;
 			if(version > 27)
@@ -17621,14 +17828,20 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 					return qe_invalid;
 			if(section_version >= 24)
 			{
-				if(!p_getc(&temp_trigger.triggeritem,f))
+				byte tempbyte = 0;
+				if(!p_getc(&tempbyte,f))
 					return qe_invalid;
+				temp_trigger.triggeritem = tempbyte;
 				if(!p_getc(&temp_trigger.trigtimer,f))
 					return qe_invalid;
 			}
-			if(section_version >= 25)
-				if(!p_getc(&temp_trigger.trigsfx,f))
+			if (section_version >= 25)
+			{
+				byte tempbyte = 0;
+				if (!p_getc(&tempbyte, f))
 					return qe_invalid;
+				temp_trigger.trigsfx = tempbyte;
+			}
 			if(section_version >= 27)
 				if(!p_igetl(&temp_trigger.trigchange,f))
 					return qe_invalid;
@@ -17969,14 +18182,32 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 			return qe_invalid;
 	if(!p_igetl(&temp_trigger.triggerlevel,f))
 		return qe_invalid;
-	if(!p_getc(&temp_trigger.triggerbtn,f))
+	if (!p_getc(&temp_trigger.triggerbtn, f))
 		return qe_invalid;
-	if(!p_getc(&temp_trigger.triggeritem,f))
-		return qe_invalid;
+	if (s_version >= 53)
+	{
+		if (!p_igetw(&temp_trigger.triggeritem, f))
+			return qe_invalid;
+	}
+	else {
+		byte tempbyte = 0;
+		if (!p_getc(&tempbyte, f))
+			return qe_invalid;
+		temp_trigger.triggeritem = tempbyte;
+	}
 	if(!p_getc(&temp_trigger.trigtimer,f))
 		return qe_invalid;
-	if(!p_getc(&temp_trigger.trigsfx,f))
-		return qe_invalid;
+	if (s_version >= 53)
+	{
+		if (!p_igetw(&temp_trigger.trigsfx, f))
+			return qe_invalid;
+	}
+	else {
+		byte tempbyte = 0;
+		if (!p_getc(&tempbyte, f))
+			return qe_invalid;
+		temp_trigger.trigsfx = tempbyte;
+	}
 	if(!p_igetl(&temp_trigger.trigchange,f))
 		return qe_invalid;
 	if(!p_igetw(&temp_trigger.trigprox,f))
@@ -19223,7 +19454,7 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
         }
         else
         {
-            tunes_to_read=MAXCUSTOMTUNES;
+            tunes_to_read=256;
         }
     }
     else
@@ -19254,7 +19485,7 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
             return qe_invalid;
         }
         
-        tunes_to_read=MAXCUSTOMTUNES;
+		tunes_to_read = (section_version >= 5 ) ? MAXCUSTOMTUNES : 256;
     }
     
     for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
@@ -20877,9 +21108,24 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	else
 	{
 		subscr_mode = ssdtMAX;
-		for(int q = 0; q < MAXITEMS/8; ++q)
-			if(!p_getc(&temp_zinit.items[q], f))
-				return qe_invalid;
+		if (s_version >= 43)
+		{
+			for (int q = 0; q < MAXITEMS / 8; ++q)
+			{
+				if (!p_getc(&temp_zinit.items[q], f))
+					return qe_invalid;
+			}
+		}
+		else
+		{
+			byte tempbyte = 0;
+			for (int q = 0; q < 32; ++q)
+			{
+				if (!p_getc(&tempbyte, f))
+					return qe_invalid;
+				temp_zinit.items[q] = tempbyte;
+			}
+		}
 		if(s_version >= 42)
 		{
 			for(int q = 0; q < MAXLEVELS; ++q)
@@ -21150,7 +21396,7 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version)
             return qe_invalid;
         }
 
-        if (item_drop_sets_to_read > MAXITEMDROPSETS)
+		if (item_drop_sets_to_read > ((s_version>=3)?MAXITEMDROPSETS:256))
         {
             return qe_invalid;
         }
@@ -21158,8 +21404,9 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version)
     else
     {
 		init_item_drop_sets();
-    }
-    
+    }    
+	
+
     if(s_version>=1)
     {
         for(int32_t i=0; i<item_drop_sets_to_read; i++)
