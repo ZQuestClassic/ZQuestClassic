@@ -8564,7 +8564,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			{
 				new_return(49);
 			}
-			if(!p_putc(itemsbuf[i].usedefence,f))
+			if(!p_putc(itemsbuf[i].usedefense,f))
 			{
 				new_return(50);
 			}
