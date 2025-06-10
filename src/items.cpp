@@ -167,7 +167,7 @@ bool item::animate(int32_t)
 	itemdata const* itm = &itemsbuf[id];
 	if(itm->family == itype_progressive_itm)
 	{
-		int32_t id2 = get_progressive_item(*itm);
+		int32_t id2 = get_progressive_item(id);
 		if(unsigned(id2) >= MAXITEMS)
 			id2 = -1;
 		if(id2 != linked_parent) //Update item
@@ -492,19 +492,104 @@ void item::load_gfx(itemdata const& itm)
 	else tile = o_tile;
 }
 
-int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
+struct prog_item_data
+{
+	std::set<int32_t>* visited;
+	int32_t last_id = -1;
+	int32_t ret_id = -1;
+	bool errored = false;
+	
+	prog_item_data(std::set<int32_t>& s) : visited(&s) {}
+	
+	prog_item_data make_child()
+	{
+		return prog_item_data(*visited);
+	}
+};
+
+static void _get_progressive_item(int32_t itmid, prog_item_data& data);
+//checks bundle items
+static void _check_itembundle_recursive(int32_t itmid, prog_item_data& data)
 {
 #ifdef IS_EDITOR
-	return -1;
+	return;
 #else
+	if(unsigned(itmid) >= MAXITEMS)
+	{
+		assert(false); // This should have been validated before the call
+		return;
+	}
+	if(data.visited->contains(itmid))
+	{
+		data.errored = true;
+		return;
+	}
+	itemdata const& itm = itemsbuf[itmid];
+	if(itm.family != itype_itmbundle)
+	{
+		assert(false);
+		return;
+	}
+	data.visited->insert(itmid);
 	int32_t arr[] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
 		itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
-	int32_t lastid = -1;
 	for(auto id : arr)
 	{
 		if(unsigned(id) >= MAXITEMS)
 			continue;
-		lastid = id;
+		itemdata const& targItem = itemsbuf[id];
+		if(targItem.family == itype_itmbundle)
+		{
+			prog_item_data subdata = data.make_child();
+			_check_itembundle_recursive(id, subdata);
+			
+			if(subdata.errored)
+			{
+				data.errored = true;
+				break;
+			}
+		}
+		else if (targItem.family == itype_progressive_itm)
+		{
+			prog_item_data subdata = data.make_child();
+			_get_progressive_item(id, subdata);
+			
+			if(subdata.errored)
+			{
+				data.errored = true;
+				break;
+			}
+		}
+	}
+	data.visited->erase(itmid);
+	return;
+#endif
+}
+//checks progressive items, including error-checking recursive bundles
+static void _get_progressive_item(int32_t itmid, prog_item_data& data)
+{
+#ifdef IS_EDITOR
+	return;
+#else
+	if(unsigned(itmid) >= MAXITEMS)
+	{
+		assert(false); // This should have been validated before the call
+		return;
+	}
+	if(data.visited->contains(itmid))
+	{
+		data.errored = true;
+		return;
+	}
+	data.visited->insert(itmid);
+	itemdata const& itm = itemsbuf[itmid];
+	int32_t arr[] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
+		itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
+	for(auto id : arr)
+	{
+		if(unsigned(id) >= MAXITEMS)
+			continue;
+		data.last_id = id;
 		
 		//Skip items that are owned as 'Equipment Item's
 		if(game->get_item(id))
@@ -523,12 +608,75 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 				if(game->get_maxcounter(hcitem.count) >= hcitem.max)
 					continue;
 		}
+		else if (targItem.family == itype_progressive_itm)
+		{
+			prog_item_data subdata = data.make_child();
+			_get_progressive_item(id, subdata);
+			
+			if(subdata.errored)
+			{
+				data.errored = true;
+				break;
+			}
+			
+			data.last_id = subdata.last_id;
+			if(subdata.ret_id > -1)
+			{
+				data.ret_id = subdata.ret_id;
+				break;
+			}
+			else continue;
+		}
+		else if (targItem.family == itype_itmbundle)
+		{
+			prog_item_data subdata = data.make_child();
+			_check_itembundle_recursive(id, subdata);
+			if(subdata.errored)
+			{
+				data.errored = true;
+				break;
+			}
+		}
 		
-		if(lastOwned) return lastid;
-		return id;
+		data.ret_id = id;
+		break;
 	}
-	return lastid;
+	data.visited->erase(itmid);
+	return;
 #endif
+}
+
+// Gets the target item of the specified progressive item, while also checking for safety from infinite loops
+int32_t get_progressive_item(int32_t itmid, bool lastOwned)
+{
+	if(unsigned(itmid) >= MAXITEMS)
+		return -1; // skip everything
+	std::set<int32_t> visited;
+	prog_item_data data(visited);
+	_get_progressive_item(itmid, data);
+	if(data.errored)
+	{
+		Z_error("Failed to parse progressive item '%d'; infinite loop!\n", itmid);
+		return -1;
+	}
+	if(lastOwned) return data.last_id;
+	return data.ret_id;
+}
+// Checks if the bundle is 'safe', i.e. has no infinite loops
+bool itembundle_safe(int32_t itmid, bool skipError)
+{
+	if(unsigned(itmid) >= MAXITEMS)
+		return false; // skip everything
+	std::set<int32_t> visited;
+	prog_item_data data(visited);
+	_check_itembundle_recursive(itmid, data);
+	if(data.errored)
+	{
+		if(!skipError)
+			Z_error("Failed to parse item bundle '%d'; infinite loop!\n", itmid);
+		return false;
+	}
+	return true;
 }
 
 void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash)

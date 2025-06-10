@@ -30931,6 +30931,8 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	{
 		case itype_itmbundle:
 		{
+			if(!itembundle_safe(id & 0xFF))
+				break;
 			int ids[10] = {idat.misc1, idat.misc2, idat.misc3, idat.misc4, idat.misc5,
 				idat.misc6, idat.misc7, idat.misc8, idat.misc9, idat.misc10};
 			bool pscript = (idat.flags & item_flag1);
@@ -30939,6 +30941,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 				if(unsigned(ids[q]) >= MAXITEMS) continue;
 				if(pscript)
 					collectitem_script(ids[q]);
+
 				getitem(ids[q], true, true);
 			}
 		}
@@ -30946,7 +30949,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		
 		case itype_progressive_itm:
 		{
-			int32_t newid = get_progressive_item(idat);
+			int32_t newid = get_progressive_item(id);
 			if(newid > -1)
 				getitem(newid, nosound, true);
 		}
@@ -31100,6 +31103,8 @@ void takeitem(int32_t id)
 			
 		case itype_itmbundle:
 		{
+			if(!itembundle_safe(id))
+				break;
 			int ids[10] = {idat.misc1, idat.misc2, idat.misc3, idat.misc4, idat.misc5,
 				idat.misc6, idat.misc7, idat.misc8, idat.misc9, idat.misc10};
 			for(auto q = 0; q < 10; ++q)
@@ -31112,7 +31117,7 @@ void takeitem(int32_t id)
 		
 		case itype_progressive_itm:
 		{
-			int32_t newid = get_progressive_item(idat, true);
+			int32_t newid = get_progressive_item(id, true);
 			if(newid > -1)
 				takeitem(newid);
 		}
@@ -31179,6 +31184,8 @@ void HeroClass::handle_triforce(mapscr* scr, int32_t id)
 	{
 		case itype_itmbundle:
 		{
+			if(!itembundle_safe(id, true)) // skip error because it will always have already printed earlier this frame in 'getitem'
+				break;
 			int ids[10] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
 				itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
 			for(auto q = 0; q < 10; ++q)
@@ -31252,7 +31259,7 @@ void HeroClass::checkitems(int32_t index)
 	
 	if(itemsbuf[id2].family == itype_progressive_itm)
 	{
-		int32_t newid = get_progressive_item(itemsbuf[id2]);
+		int32_t newid = get_progressive_item(id2);
 		if(newid > -1)
 		{
 			id2 = newid;

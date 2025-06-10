@@ -59,7 +59,8 @@ void item_fall(zfix& x, zfix& y, zfix& fall);
 int32_t item_pits(zfix& x, zfix& y, int32_t& fallclk);
 int32_t select_dropitem(int32_t item_set);
 int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y);
-int32_t get_progressive_item(itemdata const& itm, bool lastOwned = false);
+int32_t get_progressive_item(int32_t itmid, bool lastOwned = false);
+bool itembundle_safe(int32_t itmid, bool skipError = false);
 bool checkmagiccost(int32_t itemid, bool checkTime = false);
 void paymagiccost(int32_t itemid, bool ignoreTimer = false, bool onlyTimer = false);
 
