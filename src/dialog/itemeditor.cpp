@@ -850,6 +850,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[1] = "Slash Sprite:";
 			inf->wpn[2] = "Beam Sprite:";
 			inf->actionsnd[0] = "Slash/Stab Sound";
+			inf->actionsnd[1] = "Beam Sound";
 			break;
 		}
 		case itype_whimsicalring:

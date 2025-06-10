@@ -12066,7 +12066,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itm.fam_type,temppower,dir,itemid,getUID(),false,false,true));
-			sfx(WAV_BEAM,pan(wx));
+			sfx(itm.usesound2, pan(wx));
 		}
 		break;
 		
