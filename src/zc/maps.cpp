@@ -7151,7 +7151,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 					if(flags&(1<<trig.trig_lstate))
 					{
 						auto oldcombo = rpos_handle.data();
-						do_trigger_combo(rpos_handle, ctrigSWITCHSTATE);
+						do_trigger_combo(rpos_handle, idx, ctrigSWITCHSTATE);
 						if(rpos_handle.data() != oldcombo) break;
 					}
 			}
@@ -7281,7 +7281,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 					if(flags&(1<<trig.trig_lstate))
 					{
 						auto oldcombo = ffc_handle.data();
-						do_trigger_combo(ffc_handle, ctrigSWITCHSTATE);
+						do_trigger_combo(ffc_handle, idx, ctrigSWITCHSTATE);
 						if(ffc_handle.data() != oldcombo) break;
 					}
 			}
@@ -7332,7 +7332,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 						if ((trig.triggerflags[3] & combotriggerTRIGGLOBALSTATE) && states[trig.trig_gstate])
 						{
 							auto rpos_handle = get_rpos_handle_for_screen(screen, lyr, pos);
-							do_trigger_combo(rpos_handle, ctrigSWITCHSTATE);
+							do_trigger_combo(rpos_handle, idx, ctrigSWITCHSTATE);
 							if(rpos_handle.data() != cid) break;
 						}
 					}
@@ -7467,7 +7467,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 			{
 				auto& trig = cmb.triggers[idx];
 				if (states[trig.trig_gstate])
-					do_trigger_combo(ffc_handle, ctrigSWITCHSTATE);
+					do_trigger_combo(ffc_handle, idx, ctrigSWITCHSTATE);
 				if(ffc_handle.data() != cid) break;
 			}
 		}
