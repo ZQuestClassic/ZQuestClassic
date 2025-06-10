@@ -2155,7 +2155,7 @@ int32_t enemy::resolveEnemyDefence(weapon *w)
 	//, 
 	int32_t weapondef = 0;
 	int32_t wdeftype = getDefType(w);
-	int32_t usedef = w->usedefence;
+	int32_t usedef = w->usedefense;
 	
 	if ( usedef > 0 && (wdeftype < 0 || wdeftype >= edefLAST255 || defense[wdeftype] == 0)) 
 	{

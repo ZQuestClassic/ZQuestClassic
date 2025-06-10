@@ -87,8 +87,8 @@ public:
     //Weapon Editor -Z
     byte useweapon; //lweapon id type -Z
     byte useweapondummy; //weapon id type for things like bombs that pass it into a real weapon.
-    byte usedefence; //default defence type -Z
-    byte usedefencedummy; //defence type for things like bombs that pass it into a real weapon.
+    byte usedefense; //default defence type -Z
+    byte usedefensedummy; //defence type for things like bombs that pass it into a real weapon.
     word linked_parent;
     byte quantity_iterator;
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
