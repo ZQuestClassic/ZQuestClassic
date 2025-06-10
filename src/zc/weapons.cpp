@@ -1079,7 +1079,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
 			}
 			useweapon = itemsbuf[Parentitem].useweapon;
-			usedefence = itemsbuf[Parentitem].usedefence;
+			usedefence = itemsbuf[Parentitem].usedefense;
 		}
 		if (id == wLitBomb || id == wLitSBomb) 
 		{

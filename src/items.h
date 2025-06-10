@@ -196,16 +196,14 @@ struct itemdata
 	byte burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
     byte useweapon; //lweapon id type -Z
-    byte usedefence; //default defence type -Z
+    byte usedefense; //default defense type -Z
+    
+    //To implement next;
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
     int32_t weaprange; //default range -Z
     int32_t weapduration; //default duration, 0 = infinite. 
- 
-    
-    //To implement next;
     int32_t duplicates; //Number of duplicate weapons generated.
-    int32_t wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
-    
+    int32_t wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon,     
     int32_t weap_initiald[INITIAL_D];
     
     byte drawlayer;
@@ -239,6 +237,8 @@ struct itemdata
 	
 	byte pickup_litems;
 	int16_t pickup_litem_level = -1;
+
+    //Add any additional variables to clear pls. -Jambu
 	
 	std::string get_name(bool init = false, bool plain = false) const;
 	//helper functions because stupid shit
@@ -277,6 +277,13 @@ struct itemdata
 		return;
 	}
 	void advpaste(itemdata const& other, bitstring const& pasteflags);
+	void clear(int16_t id)
+	{
+		*this = {};
+
+        string cleared_name = fmt::format("zz{:03})", id);
+        strcpy(display_name, cleared_name.c_str());
+	}
 };
 
 //some methods for dealing with items

@@ -1902,10 +1902,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								DropDownList(
 									fitParent = true,
 									data = list_deftypes,
-									selectedValue = local_itemref.usedefence,
+									selectedValue = local_itemref.usedefense,
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.usedefence = val;
+										local_itemref.usedefense = val;
 									}
 								), _d, _d,
 								Label(hAlign = 1.0, text = "Movement Pattern:"),
