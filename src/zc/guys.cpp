@@ -1162,7 +1162,12 @@ bool enemy::animate(int32_t index)
 			Hero.setY(y);
 			Hero.fallCombo = fallCombo;
 			Hero.fallclk = fallclk;
-			hashero = false; //Let Hero go if falling
+			
+			if(hashero)
+			{
+				hashero = false; //Let Hero go if falling
+				Hero.setEaten(0);
+			}
 		}
 		if (!didScriptThisFrame)
 		{
@@ -1185,7 +1190,12 @@ bool enemy::animate(int32_t index)
 			Hero.setX(x);
 			Hero.setY(y);
 			Hero.drownclk = drownclk;
-			hashero = false; //Let Hero go if falling
+			
+			if(hashero)
+			{
+				hashero = false; //Let Hero go if falling
+				Hero.setEaten(0);
+			}
 		}
 		if (!didScriptThisFrame)
 		{
