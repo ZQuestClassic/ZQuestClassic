@@ -149,7 +149,7 @@ struct mapscr
 	int16_t secretsfx = 27;
 	int16_t holdupsfx = 20;
 
-	int32_t screen_midi = -1;
+	int16_t screen_midi = -1;
 	byte lens_layer;
 	byte lens_show, lens_hide;
 

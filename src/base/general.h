@@ -144,7 +144,7 @@ int wrap(int x,int low,int high);
 //The offset from dmap/mapscr-> midi/screen_midi to currmidi
 #define MIDIOFFSET_DMAP            (ZC_MIDI_COUNT-4)
 #define MIDIOFFSET_MAPSCR          (ZC_MIDI_COUNT-4)
-//The offset from currmidi to0 ZScript MIDI values
+//The offset from currmidi to ZScript MIDI values
 #define MIDIOFFSET_ZSCRIPT         (ZC_MIDI_COUNT-1)
 //Use together as `(MIDIOFFSET_DMAP-MIDIOFFSET_ZSCRIPT)` to go from `dmap` directly to `zscript`
 

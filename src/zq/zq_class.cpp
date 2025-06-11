@@ -7527,7 +7527,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 new_return(10);
             }
             
-            if(!p_iputl(DMaps[i].midi,f))
+            if(!p_iputw(DMaps[i].midi,f))
             {
                 new_return(11);
             }
@@ -9326,7 +9326,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			return qe_invalid;
 		if(!p_iputw(screen.timedwarptics,f))
 			return qe_invalid;
-		if(!p_iputl(screen.screen_midi,f))
+		if(!p_iputw(screen.screen_midi,f))
 			return qe_invalid;
 		if(!p_putc(screen.lens_layer,f))
 			return qe_invalid;
@@ -14170,7 +14170,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		writesize=0;
 		
 		for(int q = 0; q < MAXITEMS/8; ++q)
-			if(!p_iputw(zinit.items[q], f))
+			if(!p_putc(zinit.items[q], f))
 				new_return(5);
 		for(int q = 0; q < MAXLEVELS; ++q)
 		{
