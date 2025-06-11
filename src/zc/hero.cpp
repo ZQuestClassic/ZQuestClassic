@@ -29267,7 +29267,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	cur_map = destmap;
 
 	loadscr(destdmap, dest_screen, scrolldir, overlay);
-	mapscr* oldscr = special_warp_return_scr;
+	mapscr* oldscr = old_temporary_screens[scrolling_hero_screen * 7];
 	mapscr* newscr = get_scr(destmap, dest_screen);
 
 	// Start scrolling with the previous pfo, and adjust during scrolling if necessary.
