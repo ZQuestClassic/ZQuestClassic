@@ -83,6 +83,7 @@ jobs:
         with:
           include: 'resources/**/*'
           fetch-depth: 0
+          enableCrossOsArchive: true
 
       - uses: actions/setup-python@v5
         with:

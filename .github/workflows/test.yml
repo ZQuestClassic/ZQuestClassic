@@ -54,6 +54,8 @@ jobs:
     steps:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
+        with:
+          enableCrossOsArchive: true
 
   build:
     needs: warm-lfs-cache
@@ -79,6 +81,8 @@ jobs:
     steps:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
+        with:
+          enableCrossOsArchive: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.8'

@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
+        with:
+          enableCrossOsArchive: true
 
   test:
     needs: warm-lfs-cache
@@ -81,6 +83,7 @@ jobs:
         uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
         with:
           fetch-depth: 0
+          enableCrossOsArchive: true
 
       - uses: mymindstorm/setup-emsdk@v14
         with:

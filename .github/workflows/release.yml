@@ -115,6 +115,7 @@ jobs:
         with:
           include: 'resources/**/*'
           fetch-depth: 0
+          enableCrossOsArchive: true
 
       - uses: mymindstorm/setup-emsdk@v12
         with:
