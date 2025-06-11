@@ -8916,9 +8916,7 @@ eLeever::eLeever(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eLeever::isSubmerged() const
 {
-	Z_scripterrlog("misc is: %d\n", misc);
 	return misc <= 0;
-	
 }
 
 bool eLeever::animate(int32_t index)
