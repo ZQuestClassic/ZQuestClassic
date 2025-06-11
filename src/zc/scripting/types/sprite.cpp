@@ -7,15 +7,21 @@
 #include "zc/ffscript.h"
 #include "zc/guys.h"
 #include "hero_tiles.h"
+#include "zc/scripting/arrays.h"
 
 #include <cstdint>
 #include <optional>
 
 extern refInfo *ri;
 
-static bool is_player()
+static bool is_player(int ref)
 {
-	return ri->spriteref == 1;
+	return ref == 1;
+}
+
+static bool is_player(sprite* s)
+{
+	return s->uid == 1;
 }
 
 static bool is_enemy(sprite* s)
@@ -50,7 +56,7 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 	{
 		case SPRITE_SPAWN_SCREEN:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 				return cur_screen * 10000;
 
 			if (auto s = get_sprite(ri->spriteref))
@@ -126,7 +132,7 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		case SPRITE_SCRIPT_TILE:
 		{
 			// TODO: use sprite::scriptile
-			if (is_player())
+			if (is_player(ri->spriteref))
 				return script_hero_sprite * 10000;
 
 			if (auto s = get_sprite(ri->spriteref))
@@ -182,7 +188,7 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 			if (auto s = get_sprite(ri->spriteref))
 			{
 				int32_t ret = s->fall.getZLong() / -100;
-				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED) && !is_player()) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED) && !is_player(ri->spriteref)) ret = trunc(ret / 10000) * 10000;
 				return ret;
 			}
 			return 0;
@@ -192,7 +198,7 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 			if (auto s = get_sprite(ri->spriteref))
 			{
 				int32_t ret = s->fakefall.getZLong() / -100;
-				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED) && !is_player()) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED) && !is_player(ri->spriteref)) ret = trunc(ret / 10000) * 10000;
 				return ret;
 			}
 			return 0;
@@ -212,7 +218,7 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		case SPRITE_SCRIPT_FLIP:
 		{
 			// TODO: use sprite::scriptflip
-			if (is_player())
+			if (is_player(ri->spriteref))
 				return script_hero_flip * 10000;
 			if (auto s = get_sprite(ri->spriteref))
 				return s->scriptflip * 10000;
@@ -272,19 +278,6 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 				return s->fallCombo * 10000;
 			return 0;
 		}
-		case SPRITE_MOVE_FLAGS:
-		{
-			if (auto s = get_sprite(ri->spriteref))
-			{
-				int index = ri->d[rINDEX] / 10000;
-				int limit = is_enemy(s) ? 15 : 10;
-				if (BC::checkIndex(index, 0, limit) != SH::_NoError)
-					return 0;
-
-				return (s->moveflags & (1<<index)) ? 10000 : 0;
-			}
-			return 0;
-		}
 		case SPRITE_LIGHT_RADIUS:
 		{
 			if (auto s = get_sprite(ri->spriteref))
@@ -333,28 +326,6 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 				return s->shadowyofs * 10000;
 			return 0;
 		}
-		case SPRITE_MISCD:
-		{
-			// TODO: don't vbound for player. check bounds, like the others.
-			if (is_player())
-				return Hero.miscellaneous[vbound(ri->d[rINDEX]/10000,0,31)];
-
-			if (auto s = get_sprite(ri->spriteref))
-			{
-				int index = ri->d[rINDEX] / 10000;
-				if (dynamic_cast<ffcdata*>(s))
-				{
-					if (BC::checkMisc(index) != SH::_NoError)
-						return 0;
-				}
-				else if (BC::checkMisc32(index) != SH::_NoError)
-					break;
-
-				return s->miscellaneous[index];
-			}
-
-			return 0;
-		}
 	}
 
 	return std::nullopt;
@@ -366,7 +337,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 	{
 		case SPRITE_X:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				if (get_qr(qr_SPRITEXY_IS_FLOAT))
 					Hero.setXfix(zslongToFix(value));
@@ -385,7 +356,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_Y:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				if (get_qr(qr_SPRITEXY_IS_FLOAT))
 					Hero.setYfix(zslongToFix(value));
@@ -404,7 +375,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_Z:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				if (get_qr(qr_SPRITEXY_IS_FLOAT))
 					Hero.setZfix(zslongToFix(value));
@@ -425,7 +396,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_FAKE_Z:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				if (get_qr(qr_SPRITEXY_IS_FLOAT))
 					Hero.setFakeZfix(zslongToFix(value));
@@ -476,7 +447,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_DIR:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				//Hero->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
 				if (Hero.getAction() == attacking || Hero.getAction() == sideswimattacking) Hero.dir = value / 10000;
@@ -509,7 +480,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				break;
 
 			// TODO: use sprite::scriptile
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				script_hero_sprite = tile;
 				break;
@@ -596,7 +567,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_JUMP:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				Hero.setFall(-zslongToFix(value) * 100);
 				break;
@@ -619,7 +590,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_FAKE_JUMP:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				Hero.setFakeFall(zslongToFix(value) * -100);
 				break;
@@ -656,7 +627,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		{
 			// TODO: don't vbound, check bounds.
 			// TODO: use sprite::scriptflip
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				script_hero_flip = vbound(value / 10000, -1, 256);
 				break;
@@ -710,7 +681,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_FALL_CLK:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				int val = vbound(value / 10000, 0, PITFALL_FALL_FRAMES);
 				if (val)
@@ -742,20 +713,6 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				s->fallCombo = vbound(value / 10000, 0, MAXCOMBOS - 1);
 			break;
 		}
-		case SPRITE_MOVE_FLAGS:
-		{
-			if (auto s = get_sprite(ri->spriteref))
-			{
-				int index = ri->d[rINDEX] / 10000;
-				int limit = is_enemy(s) ? 15 : 10;
-				if (BC::checkIndex(index, 0, limit) != SH::_NoError)
-					break;
-
-				move_flags bit = (move_flags)(1<<index);
-				SETFLAG(s->moveflags, bit, value);
-			}
-			break;
-		}
 		case SPRITE_LIGHT_RADIUS:
 		{
 			if (auto s = get_sprite(ri->spriteref))
@@ -781,7 +738,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		}
 		case SPRITE_DROWN_CLK:
 		{
-			if (is_player())
+			if (is_player(ri->spriteref))
 			{
 				// TODO: this starts at 64, and we document the max as being 64, so... update to WATER_DROWN_FRAMES?
 				int val = vbound(value / 10000, 0, 70);
@@ -831,34 +788,51 @@ bool sprite_set_register(int32_t reg, int32_t value)
 				s->shadowyofs = value / 10000;
 			break;
 		}
-		case SPRITE_MISCD:
-		{
-			// TODO don't vbound for player. check bounds, like the others.
-			if (is_player())
-			{
-				Hero.miscellaneous[vbound(ri->d[rINDEX]/10000,0,31)] = value;
-				break;
-			}
-
-			if (auto s = get_sprite(ri->spriteref))
-			{
-				int index = ri->d[rINDEX] / 10000;
-				if (dynamic_cast<ffcdata*>(s))
-				{
-					// TODO: allow ffcs to use all 32
-					if (BC::checkMisc(index) != SH::_NoError)
-						break;
-				}
-				else if (BC::checkMisc32(index) != SH::_NoError)
-					break;
-
-				s->miscellaneous[index] = value;
-			}
-			break;
-		}
 
 		default: return false;
 	}
 
 	return true;
 }
+
+static ArrayRegistrar SPRITE_MISCD_registrar(SPRITE_MISCD, []{
+	static ScriptingArray_ObjectComputed<sprite, int32_t> impl(
+		[](auto sprite){ return dynamic_cast<ffcdata*>(sprite) ? 16 : 32; },
+		[](auto sprite, int index){
+			// TODO: don't vbound for player.
+			if (is_player(sprite))
+				return Hero.miscellaneous[vbound(index,0,31)];
+
+			return sprite->miscellaneous[index];
+		},
+		[](auto sprite, int index, int value){
+			// TODO don't vbound for player.
+			if (is_player(sprite))
+			{
+				Hero.miscellaneous[vbound(index,0,31)] = value;
+				return;
+			}
+
+			sprite->miscellaneous[index] = value;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar SPRITE_MOVE_FLAGS_registrar(SPRITE_MOVE_FLAGS, []{
+	static ScriptingArray_ObjectComputed<sprite, bool> impl(
+		[](auto sprite){ return is_enemy(sprite) ? 16 : 11; },
+		[](auto sprite, int index) -> bool {
+			return sprite->moveflags & (1<<index);
+		},
+		[](auto sprite, int index, bool value){
+			move_flags bit = (move_flags)(1<<index);
+			SETFLAG(sprite->moveflags, bit, value);
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());

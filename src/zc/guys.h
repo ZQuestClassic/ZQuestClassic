@@ -267,6 +267,10 @@ public:
 	bool IsBigAnim();
 	int32_t getFlashingCSet();
 	bool is_hitflickerframe(bool olddrawing);
+
+	int32_t get_dmisc(byte index);
+	void set_dmisc(byte index, int32_t value);
+
 	virtual int32_t run_script(int32_t mode);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	virtual optional<ScriptType> get_scrtype() const {return ScriptType::NPC;}

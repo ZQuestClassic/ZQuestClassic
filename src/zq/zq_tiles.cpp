@@ -6819,10 +6819,10 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 		for(int32_t u=0; u<MAXDMAPS; u++)
 		{
 			auto& dm = DMaps[u];
-			movelist->add_tile(&dm.minimap_1_tile, 5, 3, fmt::format("DMap {} - Minimap (Empty)", u));
-			movelist->add_tile(&dm.minimap_2_tile, 5, 3, fmt::format("DMap {} - Minimap (Filled)", u));
-			movelist->add_tile(&dm.largemap_1_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Empty)", u));
-			movelist->add_tile(&dm.largemap_2_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Filled)", u));
+			movelist->add_tile(&dm.minimap_tile[0], 5, 3, fmt::format("DMap {} - Minimap (Empty)", u));
+			movelist->add_tile(&dm.minimap_tile[1], 5, 3, fmt::format("DMap {} - Minimap (Filled)", u));
+			movelist->add_tile(&dm.largemap_tile[0], BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Empty)", u));
+			movelist->add_tile(&dm.largemap_tile[1], BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Filled)", u));
 		}
 		if(!every_proc && !movelist->check_prot())
 			return false;

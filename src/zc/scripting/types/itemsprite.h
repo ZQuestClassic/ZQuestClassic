@@ -1,5 +1,5 @@
-#ifndef ZC_SCRIPTING_ITEM_H_
-#define ZC_SCRIPTING_ITEM_H_
+#ifndef ZC_SCRIPTING_ITEMSPRITE_H_
+#define ZC_SCRIPTING_ITEMSPRITE_H_
 
 #include "base/ints.h"
 #include "zc/ffscript.h"
@@ -16,8 +16,8 @@ public:
 	static void clearTemp();
 };
 
-std::optional<int32_t> item_get_register(int32_t reg);
-bool item_set_register(int32_t reg, int32_t value);
-std::optional<int32_t> item_run_command(word command);
+std::optional<int32_t> itemsprite_get_register(int32_t reg);
+bool itemsprite_set_register(int32_t reg, int32_t value);
+std::optional<int32_t> itemsprite_run_command(word command);
 
 #endif

@@ -3086,8 +3086,8 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 		case dmOVERW:
 		case dmBSOVERW:
 		{
-			int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
-			int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+			int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_tile[1]:thedmap.minimap_tile[0];
+			int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_cset[1]:thedmap.minimap_cset[0];
 			//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
 			if(maptile)
 			{
@@ -3102,7 +3102,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 				rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.overw_bg);
 			}
 			
-			if(!thedmap.minimap_1_tile && ((thedmap.type&dmfTYPE) == dmBSOVERW))
+			if(!thedmap.minimap_tile[0] && ((thedmap.type&dmfTYPE) == dmBSOVERW))
 			{
 				drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
 			}
@@ -3112,8 +3112,8 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 		case dmDNGN:
 		case dmCAVE:
 		{
-			int32_t maptile=has_item(itype_map, -1)?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
-			int32_t mapcset=has_item(itype_map, -1)?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+			int32_t maptile=has_item(itype_map, -1)?thedmap.minimap_tile[1]:thedmap.minimap_tile[0];
+			int32_t mapcset=has_item(itype_map, -1)?thedmap.minimap_cset[1]:thedmap.minimap_cset[0];
 			//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
 			if(maptile)
 			{
@@ -3128,7 +3128,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 				rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.dngn_bg);
 			}
 			//Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
-			if(!thedmap.minimap_2_tile && has_item(itype_map, -1))
+			if(!thedmap.minimap_tile[1] && has_item(itype_map, -1))
 			{
 				if((thedmap.flags&dmfMINIMAPCOLORFIX) != 0)
 				{

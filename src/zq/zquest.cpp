@@ -13855,7 +13855,7 @@ void drawdmap(int32_t dmap)
     case dmCAVE:
         clear_bitmap(dmapbmp_small);
         
-        if(DMaps[dmap].minimap_2_tile)
+        if(DMaps[dmap].minimap_tile[1])
             ;
         // overworld_map_tile overrides the NES minimap. dungeon_map_tile does not.
         else for(int32_t y=1; y<33; y+=4)
@@ -13871,7 +13871,7 @@ void drawdmap(int32_t dmap)
     case dmOVERW:
         clear_bitmap(dmapbmp_small);
         
-        if(DMaps[dmap].minimap_2_tile)
+        if(DMaps[dmap].minimap_tile[1])
             ;
         else if(!mc.overworld_map_tile)
             for(int32_t y=1; y<33; y+=4)
@@ -13884,7 +13884,7 @@ void drawdmap(int32_t dmap)
     case dmBSOVERW:
         clear_bitmap(dmapbmp_small);
         
-        if(DMaps[dmap].minimap_2_tile)
+        if(DMaps[dmap].minimap_tile[1])
             ;
         else if(!mc.overworld_map_tile)
             for(int32_t y=1; y<33; y+=4)
@@ -13905,9 +13905,9 @@ void drawdmap_screen(int32_t x, int32_t y, int32_t w, int32_t h, int32_t dmap)
     
 //  rectfill(tempbmp,x,y,x+w-1,y+h-1,vc(0));
 
-    if(DMaps[dmap].minimap_2_tile)
+    if(DMaps[dmap].minimap_tile[1])
     {
-        draw_block(tempbmp,0,0,DMaps[dmap].minimap_2_tile,DMaps[dmap].minimap_2_cset,5,3);
+        draw_block(tempbmp,0,0,DMaps[dmap].minimap_tile[1],DMaps[dmap].minimap_cset[1],5,3);
     }
     else if(((DMaps[dmap].type&dmfTYPE)==dmDNGN || (DMaps[dmap].type&dmfTYPE)==dmCAVE) && mc.dungeon_map_tile)
     {
@@ -14173,42 +14173,42 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
                 new_return(19);
             }
             
-            if(!p_iputl(DMaps[i].minimap_1_tile,f))
+            if(!p_iputl(DMaps[i].minimap_tile[0],f))
             {
                 new_return(20);
             }
             
-            if(!p_putc(DMaps[i].minimap_1_cset,f))
+            if(!p_putc(DMaps[i].minimap_cset[0],f))
             {
                 new_return(21);
             }
             
-            if(!p_iputl(DMaps[i].minimap_2_tile,f))
+            if(!p_iputl(DMaps[i].minimap_tile[1],f))
             {
                 new_return(22);
             }
             
-            if(!p_putc(DMaps[i].minimap_2_cset,f))
+            if(!p_putc(DMaps[i].minimap_cset[1],f))
             {
                 new_return(23);
             }
             
-            if(!p_iputl(DMaps[i].largemap_1_tile,f))
+            if(!p_iputl(DMaps[i].largemap_tile[0],f))
             {
                 new_return(24);
             }
             
-            if(!p_putc(DMaps[i].largemap_1_cset,f))
+            if(!p_putc(DMaps[i].largemap_cset[0],f))
             {
                 new_return(25);
             }
             
-            if(!p_iputl(DMaps[i].largemap_2_tile,f))
+            if(!p_iputl(DMaps[i].largemap_tile[1],f))
             {
                 new_return(26);
             }
             
-            if(!p_putc(DMaps[i].largemap_2_cset,f))
+            if(!p_putc(DMaps[i].largemap_cset[1],f))
             {
                 new_return(27);
             }
@@ -14523,42 +14523,42 @@ int32_t readsomedmaps(PACKFILE *f)
 			return 0;
 		    }
 		    
-		    if(!p_igetl(&tempdmap.minimap_1_tile,f))
+		    if(!p_igetl(&tempdmap.minimap_tile[0],f))
 		    {
 			return 0;
 		    }
 		    
-		    if(!p_getc(&tempdmap.minimap_1_cset,f))
+		    if(!p_getc(&tempdmap.minimap_cset[0],f))
 		    {
 			return 0;
 		    }
 		    
-		    if(!p_igetl(&tempdmap.minimap_2_tile,f))
+		    if(!p_igetl(&tempdmap.minimap_tile[1],f))
 		    {
 			return 0;
 		    }
 		    
-		    if(!p_getc(&tempdmap.minimap_2_cset,f))
+		    if(!p_getc(&tempdmap.minimap_cset[1],f))
 		    {
 			return 0;
 		    }
 		    
-		    if(!p_igetl(&tempdmap.largemap_1_tile,f))
+		    if(!p_igetl(&tempdmap.largemap_tile[0],f))
 		    {
 			return 0;
 		    }
 		    
-		    if(!p_getc(&tempdmap.largemap_1_cset,f))
+		    if(!p_getc(&tempdmap.largemap_cset[0],f))
 		    {
 			return 0;
 		    }
 		    
-		    if(!p_igetl(&tempdmap.largemap_2_tile,f))
+		    if(!p_igetl(&tempdmap.largemap_tile[1],f))
 		    {
 			return 0;
 		    }
 		    
-		    if(!p_getc(&tempdmap.largemap_2_cset,f))
+		    if(!p_getc(&tempdmap.largemap_cset[1],f))
 		    {
 			return 0;
 		    }
@@ -14804,42 +14804,42 @@ int32_t writeonedmap(PACKFILE *f, int32_t i)
                 new_return(17);
             }
             
-            if(!p_iputl(DMaps[i].minimap_1_tile,f))
+            if(!p_iputl(DMaps[i].minimap_tile[0],f))
             {
                 new_return(18);
             }
             
-            if(!p_putc(DMaps[i].minimap_1_cset,f))
+            if(!p_putc(DMaps[i].minimap_cset[0],f))
             {
                 new_return(19);
             }
             
-            if(!p_iputl(DMaps[i].minimap_2_tile,f))
+            if(!p_iputl(DMaps[i].minimap_tile[1],f))
             {
                 new_return(20);
             }
             
-            if(!p_putc(DMaps[i].minimap_2_cset,f))
+            if(!p_putc(DMaps[i].minimap_cset[1],f))
             {
                 new_return(21);
             }
             
-            if(!p_iputl(DMaps[i].largemap_1_tile,f))
+            if(!p_iputl(DMaps[i].largemap_tile[0],f))
             {
                 new_return(22);
             }
             
-            if(!p_putc(DMaps[i].largemap_1_cset,f))
+            if(!p_putc(DMaps[i].largemap_cset[0],f))
             {
                 new_return(23);
             }
             
-            if(!p_iputl(DMaps[i].largemap_2_tile,f))
+            if(!p_iputl(DMaps[i].largemap_tile[1],f))
             {
                 new_return(24);
             }
             
-            if(!p_putc(DMaps[i].largemap_2_cset,f))
+            if(!p_putc(DMaps[i].largemap_cset[1],f))
             {
                 new_return(25);
             }
@@ -15149,42 +15149,42 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
                 return 0;
             }
             
-            if(!p_igetl(&tempdmap.minimap_1_tile,f))
+            if(!p_igetl(&tempdmap.minimap_tile[0],f))
             {
                 return 0;
             }
             
-            if(!p_getc(&tempdmap.minimap_1_cset,f))
+            if(!p_getc(&tempdmap.minimap_cset[0],f))
             {
                 return 0;
             }
             
-            if(!p_igetl(&tempdmap.minimap_2_tile,f))
+            if(!p_igetl(&tempdmap.minimap_tile[1],f))
             {
                 return 0;
             }
             
-            if(!p_getc(&tempdmap.minimap_2_cset,f))
+            if(!p_getc(&tempdmap.minimap_cset[1],f))
             {
                 return 0;
             }
             
-            if(!p_igetl(&tempdmap.largemap_1_tile,f))
+            if(!p_igetl(&tempdmap.largemap_tile[0],f))
             {
                 return 0;
             }
             
-            if(!p_getc(&tempdmap.largemap_1_cset,f))
+            if(!p_getc(&tempdmap.largemap_cset[0],f))
             {
                 return 0;
             }
             
-            if(!p_igetl(&tempdmap.largemap_2_tile,f))
+            if(!p_igetl(&tempdmap.largemap_tile[1],f))
             {
                 return 0;
             }
             
-            if(!p_getc(&tempdmap.largemap_2_cset,f))
+            if(!p_getc(&tempdmap.largemap_cset[1],f))
             {
                 return 0;
             }
@@ -26045,7 +26045,7 @@ void FFScript::init()
 	skip_ending_credits = 0;
 	music_update_cond = 0;
 	music_update_flags = 0;
-	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
+	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = false; }
 	
 	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	int32_t usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;

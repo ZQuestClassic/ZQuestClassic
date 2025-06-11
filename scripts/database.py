@@ -43,6 +43,10 @@ def _should_ignore_key(key: str) -> bool:
     if key.endswith('.qst.gz'):
         return True
 
+    # I think DigitalOcean s3 buckets create an object for folders made in the UI...
+    if key.endswith('/'):
+        return True
+
     return False
 
 

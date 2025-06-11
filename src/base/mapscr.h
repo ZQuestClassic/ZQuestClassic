@@ -169,6 +169,9 @@ private:
 	bool ffc_count_dirty = true;
 };
 
+// Only exists to support `resolveScriptingObject` in src/zc/scripting/arrays.h.
+struct screendata : mapscr {};
+
 #define RFL_ALWAYS_GUY 0x0001
 #define RFL_GUYFIRES   0x0002
 

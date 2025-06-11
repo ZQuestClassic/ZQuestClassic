@@ -472,25 +472,18 @@ static bool has_implemented_register_invalidations(int reg)
 		case REFBITMAP:
 		case REFBOTTLESHOP:
 		case REFBOTTLETYPE:
-		case REFCHEATS:
 		case REFDIRECTORY:
 		case REFDMAPDATA:
-		case REFDOORS:
 		case REFDROPS:
 		case REFEWPN:
 		case REFFILE:
-		case REFGAMEDATA:
 		case REFGENERICDATA:
 		case REFITEMCLASS:
 		case REFLWPN:
 		case REFMAPDATA:
 		case REFMSGDATA:
 		case REFNPCCLASS:
-		case REFPALCYCLE:
 		case REFPALDATA:
-		case REFPALETTE:
-		case REFPONDS:
-		case REFRGB:
 		case REFRNG:
 		case REFSCREENDATA:
 		case REFSHOPDATA:
@@ -499,10 +492,6 @@ static bool has_implemented_register_invalidations(int reg)
 		case REFSUBSCREEN:
 		case REFSUBSCREENPAGE:
 		case REFSUBSCREENWIDG:
-		case REFTUNES:
-		case REFUICOLOURS:
-		case REFUNTYPED:
-		case REFWARPRINGS:
 		case REFWEBSOCKET:
 			return false;
 	}

@@ -1,12 +1,15 @@
 #include "zc/scripting/types/npc.h"
 
+#include "base/check.h"
 #include "base/qrs.h"
 #include "base/zdefs.h"
 #include "zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/guys.h"
+#include "zc/scripting/arrays.h"
 
 #include <optional>
+#include <type_traits>
 
 extern refInfo *ri;
 extern int32_t sarg1;
@@ -1120,105 +1123,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 				ret = GuyH::getMFlags() * 10000;
 				
 			break;
-			
-		//Indexed (two checks)
-		case NPCDEFENSED:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) != SH::_NoError ||
-					BC::checkBounds(a, 0, (edefLAST255)) != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPC()->defense[a] * 10000;
-		}
-		break;
-		
-		case NPCHITBY:
-		{
-			int32_t indx = ri->d[rINDEX] / 10000;
 
-			if(GuyH::loadNPC(ri->guyref) != SH::_NoError )
-			{
-				ret = -10000; break;
-			}
-			else
-			{
-				switch(indx)
-				{
-					//screen indixes
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-					case 12:
-					case 16:
-					{
-						ret = GuyH::getNPC()->hitby[indx] * 10000; // * 10000; //do not multiply by 10000! UIDs are not *10000!
-						break;
-					}
-					//UIDs
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-					case 13:
-					case 14:
-					case 15:
-					{
-						ret = GuyH::getNPC()->hitby[indx]; // * 10000; //do not multiply by 10000! UIDs are not *10000!
-						break;
-					}
-					default: { Z_scripterrlog("Invalid index used for npc->HitBy[%d]. /n", indx); ret = -10000; break; }
-				}
-				break;
-			}
-		}
-		
-		//2.fuure compat.
-		
-		case NPCSCRDEFENSED:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) != SH::_NoError ||
-					BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX) != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPC()->defense[a+edefSCRIPT01] * 10000;
-		}
-		break;
-		
-		
-		case NPCMISCD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) != SH::_NoError ||
-					BC::checkMisc32(a) != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPC()->miscellaneous[a];
-		}
-		break;
-		case NPCINITD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) != SH::_NoError )
-				ret = -10000;
-			else
-			{
-				//enemy *e = (enemy*)guys.spr(ri->guyref);
-				ret = (int32_t)GuyH::getNPC()->initD[a];
-			}
-		}
-		break;
-		
 		case NPCSCRIPT:
 		{
 			if(GuyH::loadNPC(ri->guyref) != SH::_NoError )
@@ -1231,19 +1136,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		}
 		break;
 		
-		case NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) != SH::_NoError ||
-					BC::checkBounds(a, 0, ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ? 31 : 15 )) != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPCDMisc(a) * 10000;
-		}
-		break;
-		
-			case NPCINVINC:
+		case NPCINVINC:
 			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
@@ -1275,53 +1168,6 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 				
 			break;
 		
-		case NPCSHIELD:
-		{
-			int32_t indx = ri->d[rINDEX];
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
-			{
-				switch(indx)
-				{
-					case 0:
-					{
-						ret = ((GuyH::getNPC()->flags&guy_shield_front) ? 10000 : 0);
-						break;
-					}
-					case 1:
-					{
-						ret = ((GuyH::getNPC()->flags&guy_shield_left) ? 10000 : 0);
-						break;
-					}
-					case 2:
-					{
-						ret = ((GuyH::getNPC()->flags&guy_shield_right) ? 10000 : 0);
-						break;
-					}
-					case 3:
-					{
-						ret = ((GuyH::getNPC()->flags&guy_shield_back) ? 10000 : 0);
-						break;
-					}
-					case 4: //shield can be broken
-					{
-						ret = ((GuyH::getNPC()->flags&guy_bkshield) ? 10000 : 0);
-						break;
-					}
-					default:
-					{
-						Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
-						break;
-					}
-				}
-			}
-			else
-			{
-				ret = -10000;
-				break;
-			}
-		}
-		break;
-		
 		case NPCFROZENTILE:
 			GET_NPC_VAR_INT(frozentile); break;
 		
@@ -1332,57 +1178,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			GET_NPC_VAR_INT(frozenclock); break;
 		
 		
-		case NPCBEHAVIOUR: 
-		{
-			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) 
-			{
-				ret = -10000;
-				break;
-			}
-			
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,4);
-			switch(index)
-			{
-				case 0:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG1)?10000:0; break;
-				case 1:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG2)?10000:0; break;
-				case 2:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG3)?10000:0; break;
-				case 3:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG4)?10000:0; break;
-				case 4:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG5)?10000:0; break;
-				case 5:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG6)?10000:0; break;
-				case 6:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG7)?10000:0; break;
-				case 7:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG8)?10000:0; break;
-				case 8:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG9)?10000:0; break;
-				case 9:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG10)?10000:0; break;
-				case 10:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG11)?10000:0; break;
-				case 11:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG12)?10000:0; break;
-				case 12:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG13)?10000:0; break;
-				case 13:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG14)?10000:0; break;
-				case 14:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG15)?10000:0; break;
-				case 15:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG16)?10000:0; break;
-				
-				default: 
-					ret = 0; break;
-			}
-				
-			break;
-		}
-		
+
 		case NPCFALLCLK:
 			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
@@ -1430,23 +1226,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			}
 			break;
 		}
-		
-		case NPCMOVEFLAGS:
-		{
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
-			{
-				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkIndex(indx, 0, 15) != SH::_NoError)
-					ret = 0; //false
-				else
-				{
-					//All bits, in order, of a single byte; just use bitwise
-					ret = (GuyH::getNPC()->moveflags & (1<<indx)) ? 10000 : 0;
-				}
-			}
-			break;
-		}
-		
+
 		case NPCGLOWRAD:
 			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
@@ -1972,114 +1752,14 @@ bool npc_set_register(int32_t reg, int32_t value)
 			}
 		}
 		break;
-		
-		//Indexed
-		case NPCDEFENSED:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
-					BC::checkBounds(a, 0, (edefLAST255)) == SH::_NoError)
-			{
-				if ( ( get_qr(qr_250WRITEEDEFSCRIPT) ) && a == edefSCRIPT ) 
-				{
-					for ( int32_t sd = edefSCRIPT01; sd <= edefSCRIPT10; sd++ )
-					{
-						GuyH::getNPC()->defense[sd] = vbound((value / 10000),0,255);
-					}
-				}
-				//no else here, is intentional as a fallthrough. -Z
-				GuyH::getNPC()->defense[a] = vbound((value / 10000),0,255);
-			}
-		}
-		break;
-		
+
 		case NPCPARENTUID:
 			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
 				GuyH::getNPC()->setParent(sprite::getByUID(value));
 			}
 			break;
-		
-		case NPCHITBY:
-		{
-			int32_t indx = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
-			{
-				switch(indx)
-				{
-					//screen index objects
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-					case 12:
-					case 16:
-					{
-						GuyH::getNPC()->hitby[indx] = vbound((value / 10000),0,255); //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
-							break;
-					}
-					//UIDs
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-					case 13:
-					case 14:
-					case 15:
-					{
-						GuyH::getNPC()->hitby[indx] = value; //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
-							break;
-					}
-					default: al_trace("Invalid index used with npc->hitBy[%d]. /n", indx); break;
-				}
-			}
-			break;
-		}
-		
-		//2.future compat. -Z
-		
-		
-		case NPCSCRDEFENSED:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
-					BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX) == SH::_NoError)
-				GuyH::getNPC()->defense[a+edefSCRIPT01] = value / 10000;
-		}
-		break;
-		
-		case NPCMISCD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
-					BC::checkMisc32(a) == SH::_NoError)
-				GuyH::getNPC()->miscellaneous[a] = value;
-				
-		}
-		
-		break;
-		
-		case NPCINITD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
-			{
-				//enemy *e = (enemy*)guys.spr(ri->guyref);
-				//e->initD[a] = value; 
-				GuyH::getNPC()->initD[a] = value;
-			}
-		}
-		break;
-		
+
 		case NPCSCRIPT:
 		{
 			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
@@ -2095,54 +1775,6 @@ bool npc_set_register(int32_t reg, int32_t value)
 		}
 		break;
 
-		//npc->Attributes[] setter -Z
-		case NPCDD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError &&
-					BC::checkBounds(a, 0, 31) == SH::_NoError)
-		
-			switch(a)
-			{
-				case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
-				case 1: GuyH::getNPC()->dmisc2 = value / 10000; break;
-				case 2: GuyH::getNPC()->dmisc3 = value / 10000; break;
-				case 3: GuyH::getNPC()->dmisc4 = value / 10000; break;
-				case 4: GuyH::getNPC()->dmisc5 = value / 10000; break;
-				case 5: GuyH::getNPC()->dmisc6 = value / 10000; break;
-				case 6: GuyH::getNPC()->dmisc7 = value / 10000; break;
-				case 7: GuyH::getNPC()->dmisc8 = value / 10000; break;
-				case 8: GuyH::getNPC()->dmisc9 = value / 10000; break;
-				case 9: GuyH::getNPC()->dmisc10 = value / 10000; break;
-				case 10: GuyH::getNPC()->dmisc11 = value / 10000; break;
-				case 11: GuyH::getNPC()->dmisc12 = value / 10000; break;
-				case 12: GuyH::getNPC()->dmisc13 = value / 10000; break;
-				case 13: GuyH::getNPC()->dmisc14 = value / 10000; break;
-				case 14: GuyH::getNPC()->dmisc15 = value / 10000; break;
-				case 15: GuyH::getNPC()->dmisc16 = value / 10000; break;
-				case 16: GuyH::getNPC()->dmisc17 = value / 10000; break;
-				case 17: GuyH::getNPC()->dmisc18 = value / 10000; break;
-				case 18: GuyH::getNPC()->dmisc19 = value / 10000; break;
-				case 19: GuyH::getNPC()->dmisc20 = value / 10000; break;
-				case 20: GuyH::getNPC()->dmisc21 = value / 10000; break;
-				case 21: GuyH::getNPC()->dmisc22 = value / 10000; break;
-				case 22: GuyH::getNPC()->dmisc23 = value / 10000; break;
-				case 23: GuyH::getNPC()->dmisc24 = value / 10000; break;
-				case 24: GuyH::getNPC()->dmisc25 = value / 10000; break;
-				case 25: GuyH::getNPC()->dmisc26 = value / 10000; break;
-				case 26: GuyH::getNPC()->dmisc27 = value / 10000; break;
-				case 27: GuyH::getNPC()->dmisc28 = value / 10000; break;
-				case 28: GuyH::getNPC()->dmisc28 = value / 10000; break;
-				case 29: GuyH::getNPC()->dmisc30 = value / 10000; break;
-				case 30: GuyH::getNPC()->dmisc31 = value / 10000; break;
-				case 31: GuyH::getNPC()->dmisc32 = value / 10000; break;
-				default: break;
-			}
-			break;
-		}
-		
-			
 		case NPCINVINC:
 		{
 			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
@@ -2170,121 +1802,14 @@ bool npc_set_register(int32_t reg, int32_t value)
 				GuyH::getNPC()->leader = (value/10000)?1:0;
 		}
 		break;
-		
-		case NPCSHIELD:
-		{
-			int32_t indx = ri->d[rINDEX];
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
-			{
-				switch(indx)
-				{
-					case 0:
-					{
-						(value) ? (GuyH::getNPC()->flags |= guy_shield_front) : (GuyH::getNPC()->flags &= ~guy_shield_front);
-						break;
-					}
-					case 1:
-					{
-						(value) ? (GuyH::getNPC()->flags |= guy_shield_left) : (GuyH::getNPC()->flags &= ~guy_shield_left);
-						break;
-					}
-					case 2:
-					{
-						(value) ? (GuyH::getNPC()->flags |= guy_shield_right) : (GuyH::getNPC()->flags &= ~guy_shield_right);
-						break;
-					}
-					case 3:
-					{
-						(value) ? (GuyH::getNPC()->flags |= guy_shield_back) : (GuyH::getNPC()->flags &= ~guy_shield_back);
-						break;
-					}
-					case 4: //shield can be broken
-					{
-						(value) ? (GuyH::getNPC()->flags |= guy_bkshield) : (GuyH::getNPC()->flags &= ~guy_bkshield);
-						break;
-					}
-					default:
-					{
-						Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
-						break;
-					}
-				}
-			}
-		}
-		break;
-		
+
 		case NPCFROZENTILE:
 			SET_NPC_VAR_INT(frozentile); break;
 		case NPCFROZENCSET:
 			SET_NPC_VAR_INT(frozencset); break;
 		case NPCFROZEN:
 			SET_NPC_VAR_INT(frozenclock); break;
-		
-		case NPCBEHAVIOUR: 
-		{
-			if(GuyH::loadNPC(ri->guyref) != SH::_NoError) 
-			{
-				break;
-			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,4);
-			switch(index)
-			{
-				case 0:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG1 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG1;
-					break;
-				case 1:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG2 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG2;
-					break;
-				case 2:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG3 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG3;
-					break;
-				case 3:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG4 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG4; 
-					break;
-				case 4:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG5 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG5;
-					break;
-				case 5:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG6 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG6; 
-					break;
-				case 6:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG7 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG7;
-					break;
-				case 7:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG8 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG8;
-					break;
-				case 8:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG9 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG9;
-					break;		    
-				case 9:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG10 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG10;
-					break;
-				case 10:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG11 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG11; 
-					break;
-				case 11:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG12 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG12;
-					break;
-				case 12:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG13 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG13;
-					break;
-				case 13:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG14 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG14;
-					break;
-				case 14:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG15 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG15; 
-					break;
-				case 15:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG16 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG16; 
-					break;
-				
-				
-				default: 
-					break;
-			}
-				
-			break;
-		}
+
 		case NPCFALLCLK:
 			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
@@ -2337,24 +1862,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 				}
 			}
 			break;
-		case NPCMOVEFLAGS:
-		{
-			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
-			{
-				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkIndex(indx, 0, 15) == SH::_NoError)
-				{
-					//All bits, in order, of a single byte; just use bitwise
-					move_flags bit = (move_flags)(1<<indx);
-					if(value)
-						GuyH::getNPC()->moveflags |= bit;
-					else
-						GuyH::getNPC()->moveflags &= ~bit;
-				}
-			}
-			break;
-		}
-		
+
 		case NPCGLOWRAD:
 			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
@@ -2657,3 +2165,172 @@ std::optional<int32_t> npc_run_command(word command)
 
 	return RUNSCRIPT_OK;
 }
+
+// NPC arrays.
+
+static ArrayRegistrar NPCINITD_registrar(NPCINITD, []{
+	static ScriptingArray_ObjectMemberCArray<enemy, &enemy::initD> impl;
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar NPCMISCD_registrar(NPCMISCD, []{
+	static ScriptingArray_ObjectMemberCArray<enemy, &enemy::miscellaneous> impl;
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar NPCDD_registrar(NPCDD, []{
+	static ScriptingArray_ObjectComputed<enemy, int32_t> impl(
+		[](enemy* enemy){ return FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ? 32 : 16; },
+		[](enemy* enemy, int index){ return enemy->get_dmisc(index); },
+		[](enemy* enemy, int index, int value){ enemy->set_dmisc(index, value); }
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar NPCSCRDEFENSED_registrar(NPCSCRDEFENSED, []{
+	static ScriptingArray_ObjectComputed<enemy, byte> impl(
+		[](enemy* enemy){ return edefSCRIPTDEFS_MAX + 1; },
+		[](enemy* enemy, int index){ return enemy->defense[index + edefSCRIPT01]; },
+		[](enemy* enemy, int index, byte value){ enemy->defense[index + edefSCRIPT01] = value; }
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar NPCDEFENSED_registrar(NPCDEFENSED, []{
+	static ScriptingArray_ObjectMemberCArray<enemy, &enemy::defense> impl;
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::vboundByte);
+	impl.setSideEffect([](enemy* enemy, int index, int value){
+		if (!get_qr(qr_250WRITEEDEFSCRIPT)) return;
+		if (index != edefSCRIPT) return;
+
+		for (int sd = edefSCRIPT01; sd <= edefSCRIPT10; sd++)
+			enemy->defense[sd] = value;
+	});
+	return &impl;
+}());
+
+static ArrayRegistrar NPCHITBY_registrar(NPCHITBY, []{
+	static ScriptingArray_ObjectComputed<enemy, int32_t> impl(
+		[](enemy* enemy){ return NUM_HIT_TYPES_USED; },
+		[](enemy* enemy, int index){
+			switch (index)
+			{
+				//screen indixes
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+				case 12:
+				case 16:
+					return enemy->hitby[index] * 10000; // * 10000; //do not multiply by 10000! UIDs are not *10000!
+
+				//UIDs
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 13:
+				case 14:
+				case 15:
+					return enemy->hitby[index]; // * 10000; //do not multiply by 10000! UIDs are not *10000!
+
+				default: NOTREACHED();
+			}
+		},
+		[](enemy* enemy, int index, int value){
+			switch (index)
+			{
+				//screen index objects
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+				case 12:
+				case 16:
+				{
+					enemy->hitby[index] = vbound((value / 10000),0,255); //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
+					break;
+				}
+
+				//UIDs
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 13:
+				case 14:
+				case 15:
+				{
+					enemy->hitby[index] = value; //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
+					break;
+				}
+			}
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar NPCMOVEFLAGS_registrar(NPCMOVEFLAGS, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<enemy, &enemy::moveflags, 16> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar NPCBEHAVIOUR_registrar(NPCBEHAVIOUR, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<enemy, &enemy::editorflags, 16> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar NPCSHIELD_registrar(NPCSHIELD, []{
+	static ScriptingArray_ObjectComputed<enemy, bool> impl(
+		[](enemy* enemy){ return 5; },
+		[](enemy* enemy, int index) -> bool {
+			switch (index)
+			{
+				case 0: return enemy->flags&guy_shield_front;
+				case 1: return enemy->flags&guy_shield_left;
+				case 2: return enemy->flags&guy_shield_right;
+				case 3: return enemy->flags&guy_shield_back;
+				case 4: return enemy->flags&guy_bkshield;
+				default: NOTREACHED();
+			}
+		},
+		[](enemy* enemy, int index, bool value){
+			switch (index)
+			{
+				case 0: SETFLAG(enemy->flags, guy_shield_front, value); break;
+				case 1: SETFLAG(enemy->flags, guy_shield_left, value); break;
+				case 2: SETFLAG(enemy->flags, guy_shield_right, value); break;
+				case 3: SETFLAG(enemy->flags, guy_shield_back, value); break;
+				case 4: SETFLAG(enemy->flags, guy_bkshield, value); break;
+				default: NOTREACHED();
+			}
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());

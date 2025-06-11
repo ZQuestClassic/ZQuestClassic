@@ -4231,10 +4231,10 @@ int32_t count_dmaps()
                 (DMaps[i].intro[0]!=0)||(DMaps[i].tmusic[0]!=0))
             found=true;
             
-        if((DMaps[i].minimap_1_tile!=0)||(DMaps[i].minimap_2_tile!=0)||
-                (DMaps[i].largemap_1_tile!=0)||(DMaps[i].largemap_2_tile!=0)||
-                (DMaps[i].minimap_1_cset!=0)||(DMaps[i].minimap_2_cset!=0)||
-                (DMaps[i].largemap_1_cset!=0)||(DMaps[i].largemap_2_cset!=0))
+        if((DMaps[i].minimap_tile[0]!=0)||(DMaps[i].minimap_tile[1]!=0)||
+                (DMaps[i].largemap_tile[0]!=0)||(DMaps[i].largemap_tile[1]!=0)||
+                (DMaps[i].minimap_cset[0]!=0)||(DMaps[i].minimap_cset[1]!=0)||
+                (DMaps[i].largemap_cset[0]!=0)||(DMaps[i].largemap_cset[1]!=0))
             found=true;
             
         if(!found)
@@ -4611,20 +4611,20 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			}
 			if ( s_version >= 11 )
 			{
-				if(!p_igetl(&tempDMap.minimap_1_tile,f))
+				if(!p_igetl(&tempDMap.minimap_tile[0],f))
 				{
 					return qe_invalid;
 				}
 			}
 			else
 			{
-				if(!p_igetw(&tempDMap.minimap_1_tile,f))
+				if(!p_igetw(&tempDMap.minimap_tile[0],f))
 				{
 					return qe_invalid;
 				}
 			}
 			
-			if(!p_getc(&tempDMap.minimap_1_cset,f))
+			if(!p_getc(&tempDMap.minimap_cset[0],f))
 			{
 				return qe_invalid;
 			}
@@ -4639,19 +4639,19 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			
 			if ( s_version >= 11 )
 			{
-				if(!p_igetl(&tempDMap.minimap_2_tile,f))
+				if(!p_igetl(&tempDMap.minimap_tile[1],f))
 				{
 					return qe_invalid;
 				}
 			}
 			else
 			{
-				if(!p_igetw(&tempDMap.minimap_2_tile,f))
+				if(!p_igetw(&tempDMap.minimap_tile[1],f))
 				{
 					return qe_invalid;
 				}
 			}
-			if(!p_getc(&tempDMap.minimap_2_cset,f))
+			if(!p_getc(&tempDMap.minimap_cset[1],f))
 			{
 				return qe_invalid;
 			}
@@ -4666,20 +4666,20 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			
 			if ( s_version >= 11 )
 			{
-				if(!p_igetl(&tempDMap.largemap_1_tile,f))
+				if(!p_igetl(&tempDMap.largemap_tile[0],f))
 				{
 					return qe_invalid;
 				}
 			}
 			else
 			{
-				if(!p_igetw(&tempDMap.largemap_1_tile,f))
+				if(!p_igetw(&tempDMap.largemap_tile[0],f))
 				{
 					return qe_invalid;
 				}
 			}
 			
-			if(!p_getc(&tempDMap.largemap_1_cset,f))
+			if(!p_getc(&tempDMap.largemap_cset[0],f))
 			{
 				return qe_invalid;
 			}
@@ -4695,19 +4695,19 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			
 			if ( s_version >= 11 )
 			{
-				if(!p_igetl(&tempDMap.largemap_2_tile,f))
+				if(!p_igetl(&tempDMap.largemap_tile[1],f))
 				{
 					return qe_invalid;
 				}
 			}
 			else
 			{
-				if(!p_igetw(&tempDMap.largemap_2_tile,f))
+				if(!p_igetw(&tempDMap.largemap_tile[1],f))
 				{
 					return qe_invalid;
 				}
 			}
-			if(!p_getc(&tempDMap.largemap_2_cset,f))
+			if(!p_getc(&tempDMap.largemap_cset[1],f))
 			{
 				return qe_invalid;
 			}

@@ -2926,7 +2926,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					Z_scripterrlog("Replacing a gleeok.\n");
 					enemy *tempenemy = (enemy *) guys.getByUID(parentCore);
 					hp = -999;
-					tempenemy->hp = -999; 
+					if (tempenemy) tempenemy->hp = -999; 
 					break;
 					
 				}
@@ -21361,3 +21361,83 @@ const char *old_guy_string[OLDMAXGUYS] =
 	// 175
 	"Grappler Bug (HP) ", "Grappler Bug (MP) "
 };
+
+int32_t enemy::get_dmisc(byte index)
+{
+	switch (index)
+	{
+		case 0: return dmisc1;
+		case 1: return dmisc2;
+		case 2: return dmisc3;
+		case 3: return dmisc4;
+		case 4: return dmisc5;
+		case 5: return dmisc6;
+		case 6: return dmisc7;
+		case 7: return dmisc8;
+		case 8: return dmisc9;
+		case 9: return dmisc10;
+		case 10: return dmisc11;
+		case 11: return dmisc12;
+		case 12: return dmisc13;
+		case 13: return dmisc14;
+		case 14: return dmisc15;
+		case 15: return dmisc16;
+		case 16: return dmisc17;
+		case 17: return dmisc18;
+		case 18: return dmisc19;
+		case 19: return dmisc20;
+		case 20: return dmisc21;
+		case 21: return dmisc22;
+		case 22: return dmisc23;
+		case 23: return dmisc24;
+		case 24: return dmisc25;
+		case 25: return dmisc26;
+		case 26: return dmisc27;
+		case 27: return dmisc28;
+		case 28: return dmisc29;
+		case 29: return dmisc30;
+		case 30: return dmisc31;
+		case 31: return dmisc32;
+	}
+	
+	return 0;
+}
+
+void enemy::set_dmisc(byte index, int32_t value)
+{
+	switch (index)
+	{
+		case 0: dmisc1 = value; break;
+		case 1: dmisc2 = value; break;
+		case 2: dmisc3 = value; break;
+		case 3: dmisc4 = value; break;
+		case 4: dmisc5 = value; break;
+		case 5: dmisc6 = value; break;
+		case 6: dmisc7 = value; break;
+		case 7: dmisc8 = value; break;
+		case 8: dmisc9 = value; break;
+		case 9: dmisc10 = value; break;
+		case 10: dmisc11 = value; break;
+		case 11: dmisc12 = value; break;
+		case 12: dmisc13 = value; break;
+		case 13: dmisc14 = value; break;
+		case 14: dmisc15 = value; break;
+		case 15: dmisc16 = value; break;
+		case 16: dmisc17 = value; break;
+		case 17: dmisc18 = value; break;
+		case 18: dmisc19 = value; break;
+		case 19: dmisc20 = value; break;
+		case 20: dmisc21 = value; break;
+		case 21: dmisc22 = value; break;
+		case 22: dmisc23 = value; break;
+		case 23: dmisc24 = value; break;
+		case 24: dmisc25 = value; break;
+		case 25: dmisc26 = value; break;
+		case 26: dmisc27 = value; break;
+		case 27: dmisc28 = value; break;
+		case 28: dmisc28 = value; break;
+		case 29: dmisc30 = value; break;
+		case 30: dmisc31 = value; break;
+		case 31: dmisc32 = value; break;
+	}
+}

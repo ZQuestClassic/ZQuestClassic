@@ -3,8 +3,8 @@ enum MessageFlag
 {
 	MSGFLAG_WRAP,         // If the text wraps around the bounding box
 	MSGFLAG_CONT,         // If the message is the continuation of a previous one
-	MSGFLAG_CENTER,       // Reserved
-	MSGFLAG_RIGHT,        // Reserved
+	MSGFLAG_CENTER,       // @deprecated Not implemented.
+	MSGFLAG_RIGHT,        // @deprecated Not implemented.
 	MSGFLAG_FULLTILE,     // If the background tile should be treated as the UL of a tile block,
 	                      // instead of the UL of a 2x2 adjustable frame
 	MSGFLAG_TRANS_BG,     // If the background should be translucent

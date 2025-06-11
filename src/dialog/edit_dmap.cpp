@@ -766,27 +766,27 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							Columns<3>(
 								Label(text = "Minimap"),
 								SelTileSwatch(
-									tile = local_dmap.minimap_1_tile,
-									cset = local_dmap.minimap_1_cset,
+									tile = local_dmap.minimap_tile[0],
+									cset = local_dmap.minimap_cset[0],
 									tilewid = 5, tilehei = 3,
 									showvals = false,
 									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
 									{
-										local_dmap.minimap_1_tile = t;
-										cset = local_dmap.minimap_1_cset = c;
+										local_dmap.minimap_tile[0] = t;
+										cset = local_dmap.minimap_cset[0] = c;
 									}),
 								DummyWidget(),
 									Label(text = "Large"),
 									SelTileSwatch(
 										rowSpan = 2,
-									tile = local_dmap.largemap_1_tile,
-									cset = local_dmap.largemap_1_cset,
+									tile = local_dmap.largemap_tile[0],
+									cset = local_dmap.largemap_cset[0],
 									tilewid = 9, tilehei = 5,
 									showvals = false,
 									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
 									{
-										local_dmap.largemap_1_tile = t;
-										local_dmap.largemap_1_cset = c;
+										local_dmap.largemap_tile[0] = t;
+										local_dmap.largemap_cset[0] = c;
 									})
 							)
 						),
@@ -794,27 +794,27 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							Columns<3>(
 								Label(text = "Minimap"),
 								SelTileSwatch(
-									tile = local_dmap.minimap_2_tile,
-									cset = local_dmap.minimap_2_cset,
+									tile = local_dmap.minimap_tile[1],
+									cset = local_dmap.minimap_cset[1],
 									tilewid = 5, tilehei = 3,
 									showvals = false,
 									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
 									{
-										local_dmap.minimap_2_tile = t;
-										local_dmap.minimap_2_cset = c;
+										local_dmap.minimap_tile[1] = t;
+										local_dmap.minimap_cset[1] = c;
 									}),
 								Label(text = "Setting this tile disables\nthe classic NES minimap.", vAlign = 0.0),
 								Label(text = "Large"),
 								SelTileSwatch(
 									rowSpan = 2,
-									tile = local_dmap.largemap_2_tile,
-									cset = local_dmap.largemap_2_cset,
+									tile = local_dmap.largemap_tile[1],
+									cset = local_dmap.largemap_cset[1],
 									tilewid = 9, tilehei = 5,
 									showvals = false,
 									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
 									{
-										local_dmap.largemap_2_tile = t;
-										local_dmap.largemap_2_cset = c;
+										local_dmap.largemap_tile[1] = t;
+										local_dmap.largemap_cset[1] = c;
 									})
 							)
 						)

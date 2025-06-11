@@ -19,14 +19,12 @@ struct dmap
 	char name[22];
 	std::string title;
 	char intro[74];
-	int32_t minimap_1_tile;                                      //before getting map
-	byte minimap_1_cset;                                      //cset for minimap 1
-	int32_t minimap_2_tile;                                      //after getting map
-	byte minimap_2_cset;                                      //cset for minimap 2
-	int32_t largemap_1_tile;                                     //large map
-	byte largemap_1_cset;                                     //cset for large
-	int32_t largemap_2_tile;                                     //large map
-	byte largemap_2_cset;                                     //cset for large
+	// 0: before getting map
+	// 1: after getting map
+	int32_t minimap_tile[2];
+	int32_t largemap_tile[2];
+	byte minimap_cset[2];
+	byte largemap_cset[2];
 	char tmusic[57];
 	byte tmusictrack;
 	byte active_subscreen;

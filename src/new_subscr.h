@@ -399,6 +399,9 @@ public:
 	byte numFlags();
 };
 
+// Only exists to support `resolveScriptingObject` in src/zc/scripting/arrays.h.
+struct SubscrWidgetActive : SubscrWidget {};
+
 #define SUBSCR_2X2FR_TRANSP           SUBSCRFLAG_SPEC_01
 #define SUBSCR_2X2FR_OVERLAY          SUBSCRFLAG_SPEC_02
 #define SUBSCR_NUMFLAG_2X2FR          2
@@ -1178,5 +1181,9 @@ struct ZCSubscreen
 private:
 	bool wrap_pg(int& pg, bool nowrap);
 };
+
+// Only exists to support `resolveScriptingObject` in src/zc/scripting/arrays.h.
+struct ZCSubscreenActive : ZCSubscreen{};
+
 #endif
 

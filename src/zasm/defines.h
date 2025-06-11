@@ -1508,11 +1508,11 @@ enum ASM_DEFINE
 #define REFFFC               0x0890
 #define REFLWPN              0x0891
 #define REFNPC               0x0892
-#define REFLWPNCLASS         0x0893
+#define DELETED_REFLWPNCLASS         0x0893
 #define REFNPCCLASS          0x0894
 #define REFSUBSCREEN         0x0895
 #define REFEWPN              0x0896
-#define REFEWPNCLASS         0x0897
+#define DELETED_REFEWPNCLASS         0x0897
 
 #define EWPNX                0x0898
 #define EWPNY                0x0899
@@ -1734,19 +1734,19 @@ enum ASM_DEFINE
 #define REFDMAPDATA 0x10BF
 #define REFSHOPDATA 0x10C0
 #define REFMSGDATA 0x10C1
-#define REFUNTYPED 0x10C2
+#define REFUNTYPED_UNUSED 0x10C2 // never used
 
 #define REFDROPS 0x10C3
-#define REFPONDS 0x10C4
-#define REFWARPRINGS 0x10C5
-#define REFDOORS 0x10C6
-#define REFUICOLOURS 0x10C7
-#define REFRGB 0x10C8
-#define REFPALETTE 0x10C9
-#define REFTUNES 0x10CA
-#define REFPALCYCLE 0x10CB
-#define REFGAMEDATA 0x10CC
-#define REFCHEATS 0x10CD
+#define DELETED_REFPONDS 0x10C4
+#define DELETED_REFWARPRINGS 0x10C5
+#define DELETED_REFDOORS 0x10C6
+#define DELETED_REFUICOLOURS 0x10C7
+#define DELETED_REFRGB 0x10C8
+#define DELETED_REFPALETTE 0x10C9
+#define DELETED_REFTUNES 0x10CA
+#define DELETED_REFPALCYCLE 0x10CB
+#define DELETED_REFGAMEDATA 0x10CC
+#define DELETED_REFCHEATS 0x10CD
 //These somehow magically all fit into the space that I reserved over a year ago! -Z
 
 //Itemdata Flags

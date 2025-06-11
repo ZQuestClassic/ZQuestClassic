@@ -1401,14 +1401,12 @@ public:
 	uint32_t ffcref;
 	int32_t idata;
 	dword itemref, guyref, lwpn, ewpn;
-	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapsref, zmsgref, shopsref, untypedref;
+	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapsref, zmsgref, shopsref;
 	DrawOrigin screen_draw_origin;
 	int32_t screen_draw_origin_target;
 	int32_t mapsref;
-	//to implement
-	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
-	dword gamedataref, cheatsref; 
-	dword fileref, comboidref, directoryref, rngref, stackref, paldataref;
+	dword dropsetref;
+	dword fileref, directoryref, rngref, stackref, paldataref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
 	dword combotrigref;

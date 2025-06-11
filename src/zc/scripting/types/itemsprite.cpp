@@ -6,7 +6,8 @@
 #include "zc/guys.h"
 #include "zc/hero.h"
 #include "zc/rendertarget.h"
-#include "zc/scripting/types/item.h"
+#include "zc/scripting/types/itemsprite.h"
+#include "zc/scripting/arrays.h"
 #include "zc/zelda.h"
 
 #include <optional>
@@ -16,27 +17,6 @@ extern refInfo *ri;
 namespace {
 
 static item *tempitem = NULL;
-
-item *checkItem(int32_t iid)
-{
-	item *s = (item *)items.getByUID(iid);
-	
-	if(s == NULL)
-	{
-		Z_eventlog("Script attempted to reference a nonexistent item!\n");
-		Z_eventlog("You were trying to reference an item with UID = %ld; Items on screen are UIDs ", iid);
-		
-		for(int32_t i=0; i<items.Count(); i++)
-		{
-			Z_eventlog("%ld ", items.spr(i)->getUID());
-		}
-		
-		Z_eventlog("\n");
-		return NULL;
-	}
-	
-	return s;
-}
 
 bool do_itemsprite_delete()
 {
@@ -95,7 +75,7 @@ void ItemH::clearTemp()
 	tempitem = NULL;
 }
 
-std::optional<int32_t> item_get_register(int32_t reg)
+std::optional<int32_t> itemsprite_get_register(int32_t reg)
 {
 	int32_t ret = 0;
 
@@ -169,15 +149,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 				ret=((int32_t)s->script)*10000;
 			}
 			break;
-		
-		case ITEMSPRITEINITD:
-			if (auto s = checkItem(ri->itemref))
-			{
-				int32_t a = vbound(ri->d[rINDEX]/10000,0,7);
-				ret=((int32_t)s->initD[a]);
-			}
-			break;
-		
+
 		case ITEMFAMILY:
 			if (auto s = checkItem(ri->itemref))
 			{
@@ -481,16 +453,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 				ret=s->pickup*10000;
 			}
 			break;
-			
-			
-		case ITEMMISCD:
-			if (auto s = checkItem(ri->itemref))
-			{
-				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
-				ret=(s->miscellaneous[a]);
-			}
-			break;
-		
+
 		case ITEMFALLCLK:
 			if (auto s = checkItem(ri->itemref))
 			{
@@ -530,24 +493,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 					ret=((int32_t)s->fakez)*10000;
 			}
 			break;
-			
-		
-		case ITEMMOVEFLAGS:
-		{
-			if (auto s = checkItem(ri->itemref))
-			{
-				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkIndex(indx, 0, 10) != SH::_NoError)
-					ret = 0; //false
-				else
-				{
-					//All bits, in order, of a single byte; just use bitwise
-					ret = (s->moveflags & (1<<indx)) ? 10000 : 0;
-				}
-			}
-			break;
-		}
-		
+
 		case ITEMGLOWRAD:
 			if (auto s = checkItem(ri->itemref))
 			{
@@ -621,7 +567,7 @@ std::optional<int32_t> item_get_register(int32_t reg)
 	return ret;
 }
 
-bool item_set_register(int32_t reg, int32_t value)
+bool itemsprite_set_register(int32_t reg, int32_t value)
 {
 	switch (reg)
 	{
@@ -730,15 +676,6 @@ bool item_set_register(int32_t reg, int32_t value)
 			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->drawstyle)=value/10000;
-			}
-			
-			break;
-			
-		 case ITEMSPRITEINITD:
-			if (auto s = checkItem(ri->itemref))
-			{
-				int32_t a = vbound(ri->d[rINDEX]/10000,0,7);
-				(((item *)s)->initD[a])=value;
 			}
 			
 			break;
@@ -1102,15 +1039,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			}
 			
 			break;
-			
-		case ITEMMISCD:
-			if (auto s = checkItem(ri->itemref))
-			{
-				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
-				(s->miscellaneous[a])=value;
-			}
-			
-			break;
+
 		case ITEMFALLCLK:
 			if (auto s = checkItem(ri->itemref))
 			{
@@ -1157,24 +1086,6 @@ bool item_set_register(int32_t reg, int32_t value)
 			}
 			
 			break;
-		
-		case ITEMMOVEFLAGS:
-		{
-			if (auto s = checkItem(ri->itemref))
-			{
-				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkIndex(indx, 0, 10) == SH::_NoError)
-				{
-					//All bits, in order, of a single byte; just use bitwise
-					move_flags bit = (move_flags)(1<<indx);
-					if(value)
-						s->moveflags |= bit;
-					else
-						s->moveflags &= ~bit;
-				}
-			}
-			break;
-		}
 		
 		case ITEMGLOWRAD:
 			if (auto s = checkItem(ri->itemref))
@@ -1243,7 +1154,7 @@ bool item_set_register(int32_t reg, int32_t value)
 	return true;
 }
 
-std::optional<int32_t> item_run_command(word command)
+std::optional<int32_t> itemsprite_run_command(word command)
 {
 	extern int32_t sarg1;
 	extern int32_t sarg2;
@@ -1274,3 +1185,24 @@ std::optional<int32_t> item_run_command(word command)
 
 	return RUNSCRIPT_OK;
 }
+
+static ArrayRegistrar ITEMMISCD_registrar(ITEMMISCD, []{
+	static ScriptingArray_ObjectMemberCArray<item, &item::miscellaneous> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar ITEMMOVEFLAGS_registrar(ITEMMOVEFLAGS, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<item, &item::moveflags, 11> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar ITEMSPRITEINITD_registrar(ITEMSPRITEINITD, []{
+	static ScriptingArray_ObjectMemberCArray<item, &item::initD> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	return &impl;
+}());

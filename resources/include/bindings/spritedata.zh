@@ -49,8 +49,7 @@ class spritedata {
 	// @zasm_var SPRITEDATATYPE
 	internal int Type;
 
-	// @value [enum SpriteDataFlag]
-
+	// @index [enum SpriteDataFlag]
 	// @zasm_var SPRITEDATAFLAGS
 	internal bool Flags[];
 

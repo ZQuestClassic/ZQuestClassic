@@ -241,7 +241,7 @@ class hero {
 	//
 	// @index [enum HitIndex]
 	// @zasm_var LINKHITBY
-	internal untyped HitBy[];
+	internal const untyped HitBy[];
 
 	// @zasm_var LINKLADDERX
 	internal const int LadderX;

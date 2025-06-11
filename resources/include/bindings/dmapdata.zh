@@ -160,12 +160,14 @@ class dmapdata {
 	// The tile used for the engine subscreen Small Map. The [0] index tile is
 	// used without the dungeon map, and the [1] index with the dungeon map.
 	//
+	// @length 2
 	// @zasm_var DMAPDATAMINIMAPTILE
 	internal int MiniMapTile[];
 
 	// The csets used for the engine subscreen Small Map, to go along with the
 	// MiniMapTile[].
 	//
+	// @length 2
 	// @zasm_var DMAPDATAMINIMAPCSET
 	internal int MiniMapCSet[];
 
@@ -177,12 +179,14 @@ class dmapdata {
 	// The tile used for the engine subscreen Large Map. The [0] index tile is
 	// used without the dungeon map, and the [1] index with the dungeon map.
 	//
+	// @length 2
 	// @zasm_var DMAPDATALARGEMAPTILE
 	internal int MapTile[];
 
 	// The csets used for the engine subscreen Large Map, to go along with the
 	// MapTile[].
 	//
+	// @length 2
 	// @zasm_var DMAPDATALARGEMAPCSET
 	internal int MapCSet[];
 

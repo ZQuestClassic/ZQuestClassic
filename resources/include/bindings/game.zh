@@ -749,11 +749,11 @@ class Game {
 
 	// @deprecated Use [dmapdata::Offset] instead!
 	// @zasm_var DMAPOFFSET
-	internal int DMapOffset[];
+	internal const int DMapOffset[];
 
 	// @deprecated Use [dmapdata::Map] instead!
 	// @zasm_var DMAPMAP
-	internal int DMapMap[];
+	internal const int DMapMap[];
 
 	// @zasm_var SETGAMEOVERELEMENT
 	internal int GameOverScreen[];

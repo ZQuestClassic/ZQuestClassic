@@ -1,8 +1,10 @@
 #ifndef FFSCRIPT_H_
 #define FFSCRIPT_H_
 
+#include "base/dmap.h"
 #include "base/general.h"
 #include "base/mapscr.h"
+#include "base/misctypes.h"
 #include "base/zdefs.h"
 #include "base/initdata.h"
 #include "parser/parserDefs.h"
@@ -628,6 +630,78 @@ void load_genscript(const gamedata& gd);
 void load_genscript(const zinitdata& gd);
 void save_genscript(gamedata& gd);
 
+enum class mapdata_type
+{
+	None,
+	CanonicalScreen,
+	TemporaryCurrentScreen,
+	TemporaryCurrentRegion,
+	TemporaryScrollingScreen,
+	TemporaryScrollingRegion,
+};
+
+struct mapdata {
+	mapdata_type type;
+	mapscr* scr;
+	int screen;
+	int layer;
+
+	bool temporary() const
+	{
+		return type != mapdata_type::None && type != mapdata_type::CanonicalScreen;
+	}
+
+	bool canonical() const
+	{
+		return type == mapdata_type::CanonicalScreen;
+	}
+
+	bool current() const
+	{
+		return type == mapdata_type::TemporaryCurrentRegion || type == mapdata_type::TemporaryCurrentScreen;
+	}
+
+	bool scrolling() const
+	{
+		return type == mapdata_type::TemporaryScrollingRegion || type == mapdata_type::TemporaryScrollingScreen;
+	}
+
+	int max_pos();
+	rpos_handle_t resolve_pos(int pos);
+	ffc_handle_t resolve_ffc_handle(int index);
+	ffcdata* resolve_ffc(int index);
+};
+
+newcombo* checkCombo(int32_t ref, bool skipError = false);
+newcombo* checkComboFromTriggerRef(dword ref);
+dmap* checkDmap(int32_t ref);
+ffcdata* checkFFC(int32_t ref);
+enemy* checkNPC(int32_t ref);
+guydata* checkNPCData(int32_t ref);
+item* checkItem(int32_t ref);
+itemdata* checkItemData(int32_t ref);
+mapdata* checkMapData(int32_t ref);
+mapscr* checkMapDataScr(int32_t ref);
+screendata* checkScreen(int32_t ref);
+user_paldata* checkPalData(int32_t ref, bool skipError = false);
+weapon* checkWpn(int32_t uid);
+weapon* checkLWpn(int32_t uid);
+weapon* checkEWpn(int32_t uid);
+bottletype* checkBottleData(int32_t ref, bool skipError = false);
+bottleshoptype *checkBottleShopData(int32_t ref, bool skipError = false);
+item_drop_object *checkDropSetData(int32_t ref);
+wpndata *checkSpriteData(int32_t ref);
+MsgStr *checkMessageData(int32_t ref);
+user_genscript *checkGenericScr(int32_t ref);
+SubscrWidget *checkSubWidg(int32_t ref, int req_widg_ty = -1, int req_sub_ty = -1);
+ZCSubscreen *checkSubData(int32_t ref, int req_ty = -1);
+SubscrPage *checkSubPage(int32_t ref, int req_ty = -1);
+combo_trigger* checkComboTrigger(dword ref);
+combo_trigger* get_first_combo_trigger();
+
+std::tuple<byte,int8_t,byte,word> from_subref(dword ref);
+dword get_subref(int sub, byte ty, byte pg = 0, word ind = 0);
+
 class FFScript
 {
 	
@@ -866,8 +940,8 @@ void do_paldata_getcolor();
 void do_paldata_setcolor();
 void do_paldata_clearcolor();
 void do_paldata_clearcset();
-int32_t do_paldata_getrgb(int32_t v);
-void do_paldata_setrgb(int32_t v, int32_t val);
+int32_t do_paldata_getrgb(user_paldata* pd, int32_t index, int32_t c);
+void do_paldata_setrgb(user_paldata* pd, int32_t index, int32_t val, int32_t c);
 void do_paldata_mix();
 void do_paldata_mixcset();
 void do_paldata_copy();
@@ -911,7 +985,7 @@ void do_warp_ex(const bool v);
 int32_t quest_format[versiontypesLAST];
 byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Hero's Win script. -Z
 
-byte system_suspend[susptLAST];
+bool system_suspend[susptLAST];
 
 int32_t coreflags;
 int32_t usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
@@ -1402,6 +1476,7 @@ void clearScriptHelperData();
 
 int32_t get_screenflags(mapscr *m, int32_t flagset);
 int32_t get_screeneflags(mapscr *m, int32_t flagset);
+int32_t get_ref_map_index(int32_t ref);
 
 sprite* ResolveBaseSprite(int32_t uid);
 item* ResolveItemSprite(int32_t uid);
@@ -1802,6 +1877,8 @@ struct ScriptEngineData {
 extern std::map<std::pair<ScriptType, int>, ScriptEngineData> scriptEngineDatas;
 
 void on_reassign_script_engine_data(ScriptType type, int index);
+ScriptEngineData& get_ffc_script_engine_data(int index);
+ScriptEngineData& get_item_script_engine_data(int index);
 
 extern FFScript FFCore;
 extern byte flagpos;
@@ -1811,6 +1888,7 @@ void ornextflag(bool flag);
 
 int32_t get_mi();
 int32_t get_total_mi();
+int get_mouse_state(int index);
 
 bool pc_overflow(dword pc, bool print_err = true);
 

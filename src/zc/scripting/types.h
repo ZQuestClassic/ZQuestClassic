@@ -4,7 +4,7 @@
 #include "base/compiler.h"
 #include "base/ints.h"
 #include "zc/scripting/types/game.h"
-#include "zc/scripting/types/item.h"
+#include "zc/scripting/types/itemsprite.h"
 #include "zc/scripting/types/npc.h"
 #include "zc/scripting/types/sprite.h"
 #include "zc/scripting/types/user_object.h"
@@ -16,7 +16,7 @@ ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_get_register(int32_t reg
 {
 	if (auto r = sprite_get_register(reg))
 		return *r;
-	if (auto r = item_get_register(reg))
+	if (auto r = itemsprite_get_register(reg))
 		return *r;
 	if (auto r = game_get_register(reg))
 		return *r;
@@ -32,7 +32,7 @@ ZC_FORCE_INLINE bool scripting_engine_set_register(int32_t reg, int32_t value)
 {
 	if (sprite_set_register(reg, value))
 		return true;
-	if (item_set_register(reg, value))
+	if (itemsprite_set_register(reg, value))
 		return true;
 	if (game_set_register(reg, value))
 		return true;
@@ -46,7 +46,7 @@ ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_run_command(word command
 {
 	if (auto r = user_object_run_command(command))
 		return *r;
-	if (auto r = item_run_command(command))
+	if (auto r = itemsprite_run_command(command))
 		return *r;
 	if (auto r = game_run_command(command))
 		return *r;

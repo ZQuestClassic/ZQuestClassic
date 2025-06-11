@@ -155,3 +155,4 @@ docs-www/source/_static/highlight-11.11.1.min.js
 *.tsbuildinfo
 resources/out.zasm
 resources/includepaths.txt
+.aider*

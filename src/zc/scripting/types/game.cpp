@@ -1,4 +1,5 @@
 #include "base/dmap.h"
+#include "base/general.h"
 #include "base/handles.h"
 #include "base/mapscr.h"
 #include "base/misctypes.h"
@@ -12,6 +13,7 @@
 #include "zc/guys.h"
 #include "zc/hero.h"
 #include "zc/maps.h"
+#include "zc/scripting/arrays.h"
 #include "zc/zelda.h"
 
 #include <optional>
@@ -197,17 +199,17 @@ static int HandleGameScreenGetter(std::function<int(mapscr*, int)> cb, const cha
 
 	if (pos < 0 || pos >= 176) 
 	{
-		Z_scripterrlog("Invalid combo position (%d) passed to %s", pos, context);
+		Z_scripterrlog("Invalid combo position (%d) passed to %s\n", pos, context);
 		return -10000;
 	}
 	else if (screen >= MAPSCRS)
 	{
-		Z_scripterrlog("Invalid Screen (%d) passed to %s", screen, context);
+		Z_scripterrlog("Invalid Screen (%d) passed to %s\n", screen, context);
 		return -10000;
 	}
 	else if (map >= map_count) 
 	{
-		Z_scripterrlog("Invalid Map (%d) passed to %s", map, context);
+		Z_scripterrlog("Invalid Map (%d) passed to %s\n", map, context);
 		return -10000;
 	}
 	else if (map < 0) return 0; // No layer present. [2025 note: weird...]
@@ -341,13 +343,6 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		case GAMESTANDALONE:
 			ret=standalone_mode?10000:0;
 			break;
-			
-		case GAMEGUYCOUNT:
-		{
-			int mi = mapind(cur_map, ri->d[rINDEX]/10000);
-			ret=game->guys[mi]*10000;
-		}
-		break;
 		
 		case GAMECONTSCR:
 			ret=game->get_continue_scrn()*10000;
@@ -364,214 +359,13 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		case GAMEENTRDMAP:
 			ret=lastentrance_dmap*10000;
 			break;
-			
-		case GAMECOUNTERD:
-			ret=game->get_counter((ri->d[rINDEX])/10000)*10000;
-			break;
-			
-		case GAMEMCOUNTERD:
-			ret=game->get_maxcounter((ri->d[rINDEX])/10000)*10000;
-			break;
-			
-		case GAMEDCOUNTERD:
-			ret=game->get_dcounter((ri->d[rINDEX])/10000)*10000;
-			break;
-			
-		case GAMEGENERICD:
-		{
-			auto indx = ri->d[rINDEX] / 10000;
-			switch(indx)
-			{
-				case genCONTHP:
-				{
-					if(!get_qr(qr_SCRIPT_CONTHP_IS_HEARTS) || game->get_cont_percent())
-						ret = game->get_generic(indx)*10000;
-					else
-						ret = (game->get_generic(indx)/game->get_hp_per_heart())*10000;
-					break;
-				}
-				default:
-					ret = game->get_generic(indx)*10000;
-					break;
-			}
-			break;
-		}
 		
-		case GAMEMISC:
-		{
-			int32_t indx = ri->d[rINDEX]/10000;
-			if ( indx < 0 || indx > 31 )
-			{
-				ret = -10000;
-				scripting_log_error_with_context("Invalid index: {}", indx);
-			}
-			else
-			{
-				ret = QMisc.questmisc[indx]*((get_qr(qr_OLDQUESTMISC)) ? 10000 : 1);
-			}
-			break;
-		}
-			
-		case GAMEITEMSD:
-			ret=(game->item[(ri->d[rINDEX])/10000] ? 10000 : 0);
-			break;
-		case DISABLEDITEM:
-			ret = (game->items_off[(ri->d[rINDEX])/10000] ? 10000 : 0);
-			break;
-		case GAMESUSPEND:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( (unsigned) inx > (susptLAST-1) )
-			{
-				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n");
-				break;
-			}
-			ret = (( FFCore.system_suspend[inx] ) ? 10000 : 0);
-			break;
-		}
-		case GAMELITEMSD:
-		{
-			size_t index = ri->d[rINDEX] / 10000;
-			if (index >= game->lvlitems.size())
-			{
-				ret = 0;
-				Z_scripterrlog("Invalid array index [%d] passed to Game->LItems[]\n", index);
-				break;
-			}
-			ret=game->lvlitems[index]*10000;
-			break;
-		}
-		case GAMELSWITCH:
-		{
-			int32_t ind = (ri->d[rINDEX])/10000;
-			if(unsigned(ind) >= MAXLEVELS)
-				ret = 0;
-			else ret=game->lvlswitches[ind];
-			break;
-		}
-		case GAMEGSWITCH:
-		{
-			int32_t ind = (ri->d[rINDEX])/10000;
-			if(unsigned(ind) >= NUM_GSWITCHES)
-				ret = 0;
-			else ret=game->gswitch_timers[ind]*10000;
-			break;
-		}
-		case GAMEBOTTLEST:
-			ret=game->get_bottle_slot((ri->d[rINDEX])/10000)*10000;
-			break;
-			
-		case GAMELKEYSD:
-			ret=game->lvlkeys[(ri->d[rINDEX])/10000]*10000;
-			break;
-		
-		case GAMEMISCSPR:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > sprMAX )
-			{
-				scripting_log_error_with_context("Invalid index: {}", inx);
-				ret = -10000;
-			}
-			else
-			{
-				ret = QMisc.sprites[inx] * 10000;
-			}
-			break;
-		}
-		case GAMEMISCSFX:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > sfxMAX )
-			{
-				scripting_log_error_with_context("Invalid index: {}", inx);
-				ret = -10000;
-			}
-			else
-			{
-				ret = QMisc.miscsfx[inx] * 10000;
-			}
-			break;
-		}
-		case GAMEOVERRIDEITEMS:
-		{
-			int32_t ind = (ri->d[rINDEX])/10000;
-			if(unsigned(ind) >= itype_max)
-			{
-				scripting_log_error_with_context("Invalid index: {}", ind);
-				ret = -20000;
-			}
-			else ret = game->OverrideItems[ind] * 10000;
-			break;
-		}
-		case GAMEEVENTDATA:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			ret = 0;
-			if ( ((unsigned)inx) < FFCore.eventData.size() )
-			{
-				ret = FFCore.eventData[inx];
-			}
-			break;
-		}
 		case GAMEMOUSECURSOR:
 		{
 			ret = game_mouse_index*10000;
 			break;
 		}
-		case GAMETRIGGROUPS:
-		{
-			int32_t ind = (ri->d[rINDEX])/10000;
-			if(unsigned(ind)>255)
-				scripting_log_error_with_context("Invalid index: {}", ind);
-			ret = cpos_trig_group_count(ind)*10000;
-			break;
-		}
-		
-		case GAMEGRAVITY:
-		{
-			int32_t indx = ri->d[rINDEX]/10000;
-			if ( ((unsigned)indx) > 3 )
-			//if(indx < 0 || indx > 2)
-			{
-				ret = -10000;
-				scripting_log_error_with_context("Invalid index: {}", indx);
-			}
-			else
-			{
-				switch(indx)
-				{
-					case 0: //Gravity Strength
-						ret = zinit.gravity;
-						break;
-					case 1: //Terminal Velocity
-						ret = zinit.terminalv * 100;
-						break;
-					case 2: //Sprite Layer Threshold
-						ret = zinit.jump_hero_layer_threshold * 10000;
-						break;
-					case 3: //Air Drag
-						ret = zinit.air_drag.getZLong();
-						break;
-				}
-			}
-			break;
-		}
-		
-		case GAMESCROLLING:
-		{
-			int32_t indx = ri->d[rINDEX]/10000;
-			if ( ((unsigned)indx) >= SZ_SCROLLDATA )
-			{
-				scripting_log_error_with_context("Invalid index: {}", indx);
-			}
-			else
-			{
-				ret = FFCore.ScrollingData[indx] * 10000L;
-			}
-			break;
-		}
-			
+
 		case CURMAP:
 			ret=(1+cur_map)*10000;
 			break;
@@ -658,76 +452,18 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		}
 		break;
 
-		#define GET_DMAP_VAR(member) \
-		{ \
-			int32_t ID = ri->d[rINDEX] / 10000; \
-			if(BC::checkDMapID(ID) != SH::_NoError) \
-				ret = -10000; \
-			else \
-				ret = DMaps[ID].member * 10000; \
-		}
-
-		case DMAPFLAGSD:
-			GET_DMAP_VAR(flags)    break;
-			
-		case DMAPLEVELD:
-			GET_DMAP_VAR(level)    break;
-			
-		case DMAPCOMPASSD:
-			GET_DMAP_VAR(compass)  break;
-			
-		case DMAPCONTINUED:
-			GET_DMAP_VAR(cont) break;
-		
-		case DMAPLEVELPAL:
-			GET_DMAP_VAR(color)    break; 
-			
-		case DMAPOFFSET:
-			GET_DMAP_VAR(xoff)   break;
-			
-		case DMAPMAP:
+		case SCREENSTATEDD:
 		{
-			int32_t ID = ri->d[rINDEX] / 10000;
+			// Gah! >:(  Screen state is stored in game->maps, which uses 128 screens per map,
+			// but the compiler multiplies the map number by 136, so it has to be corrected here.
+			// Yeah, the compiler could be fixed, but that wouldn't cover existing quests...
+			int32_t mi = ri->d[rINDEX] / 10000;
+			mi -= 8*((ri->d[rINDEX] / 10000) / MAPSCRS);
 			
-			if(BC::checkDMapID(ID) != SH::_NoError)
-				ret = -10000;
+			if(BC::checkMapID(mi>>7) == SH::_NoError)
+				ret=(game->maps[mi] >> (ri->d[rINDEX2] / 10000) & 1) ? 10000 : 0;
 			else
-				ret = (DMaps[ID].map+1) * 10000;
-				
-			break;
-		}
-		
-		case DMAPMIDID:
-		{
-			int32_t ID = ri->d[rINDEX] / 10000;
-			
-			if(BC::checkDMapID(ID) == SH::_NoError)
-			{
-				// Based on play_DmapMusic
-				switch(DMaps[ID].midi)
-				{
-				case 2:
-					ret = -60000;
-					break; // Dungeon
-					
-				case 3:
-					ret = -30000;
-					break; // Level 9
-					
-				case 1:
-					ret = -20000;
-					break; // Overworld
-					
-				case 0:
-					ret = 0;
-					break; // None
-					
-				default:
-					ret = (DMaps[ID].midi - 3) * 10000;
-				}
-			}
-			else
-				ret = -10000; // Which is valid, but whatever.
+				ret=0;
 				
 			break;
 		}
@@ -786,15 +522,6 @@ bool game_set_register(int32_t reg, int32_t value)
 			set_qr(qr_NOCONTINUE,((value/10000)?1:0));
 			break;
 		
-		
-			
-		case GAMEGUYCOUNT:
-		{
-			int mi = mapind(cur_map, ri->d[rINDEX]/10000);
-			game->guys[mi]=value/10000;
-		}
-		break;
-		
 		case GAMECONTSCR:
 			game->set_continue_scrn(value/10000);
 			break;
@@ -810,152 +537,7 @@ bool game_set_register(int32_t reg, int32_t value)
 		case GAMEENTRDMAP:
 			lastentrance_dmap=value/10000;
 			break;
-			
-		case GAMECOUNTERD:
-			game->set_counter(value/10000, (ri->d[rINDEX])/10000);
-			break;
-			
-		case GAMEMCOUNTERD:
-			game->set_maxcounter(value/10000, (ri->d[rINDEX])/10000);
-			break;
-			
-		case GAMEDCOUNTERD:
-			game->set_dcounter(value/10000, (ri->d[rINDEX])/10000);
-			break;
-			
-		case GAMEGENERICD:
-		{
-			auto indx = ri->d[rINDEX] / 10000;
-			auto val = value/10000;
-			switch(indx)
-			{
-				case genCONTHP:
-				{
-					if(!get_qr(qr_SCRIPT_CONTHP_IS_HEARTS) || game->get_cont_percent())
-						game->set_generic(val, indx);
-					else
-						game->set_generic(val*game->get_hp_per_heart(), indx);
-					break;
-				}
-				default:
-					game->set_generic(val, indx);
-					break;
-			}
-			break;
-		}
-		case GAMEMISC:
-		{
-			int32_t indx = ri->d[rINDEX]/10000;
-			if ( indx < 0 || indx > 31 )
-			{
-				scripting_log_error_with_context("Invalid index: {}", indx);
-			}
-			else 
-			{
-				QMisc.questmisc[indx] = (value/((get_qr(qr_OLDQUESTMISC)) ? 10000 : 1));
-			}
-			break;
-		}
-		case GAMEITEMSD:
-			game->set_item((ri->d[rINDEX])/10000,(value!=0));
-			break;
 		
-		case DISABLEDITEM:
-		{
-			int id = (ri->d[rINDEX])/10000;
-			if(unsigned(id) >= MAXITEMS)
-				break;
-			game->items_off[id]=value/10000;
-			removeFromItemCache(itemsbuf[id].family);
-			break;
-		}
-		
-		case GAMESUSPEND:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( (unsigned) inx > (susptLAST-1) )
-			{
-				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n");
-				break;
-			}
-			FFCore.system_suspend[inx]= ( (value) ? 1 : 0 );
-			break;
-		}
-			
-		case GAMELITEMSD:
-		{
-			int32_t ind = (ri->d[rINDEX])/10000;
-			if(unsigned(ind) < MAXLEVELS)
-				game->lvlitems[ind]=value/10000;
-			break;
-		}
-		case GAMELSWITCH:
-		{
-			int32_t ind = (ri->d[rINDEX])/10000;
-			if(unsigned(ind) < MAXLEVELS)
-				game->lvlswitches[ind]=value;
-			break;
-		}
-		case GAMEGSWITCH:
-		{
-			int32_t ind = (ri->d[rINDEX])/10000;
-			if(unsigned(ind) < NUM_GSWITCHES)
-				game->gswitch_timers[ind]=value/10000;
-			break;
-		}
-		case GAMEBOTTLEST:
-			game->set_bottle_slot((ri->d[rINDEX])/10000,value/10000);
-			break;
-		
-		case GAMEMISCSPR:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > sprMAX )
-			{
-				scripting_log_error_with_context("Invalid index: {}", inx);
-			}
-			else
-			{
-				QMisc.sprites[inx] = vbound(value/10000, 0, 255);
-			}
-			break;
-		}
-		case GAMEMISCSFX:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > sfxMAX )
-			{
-				scripting_log_error_with_context("Invalid index: {}", inx);
-			}
-			else
-			{
-				QMisc.miscsfx[inx] = vbound(value/10000, 0, 255);
-			}
-			break;
-		}
-		case GAMEOVERRIDEITEMS:
-		{
-			int32_t ind = (ri->d[rINDEX])/10000;
-			if(unsigned(ind) >= itype_max)
-			{
-				scripting_log_error_with_context("Invalid index: {}", ind);
-			}
-			else
-			{
-				auto val = value/10000;
-				game->OverrideItems[ind] = (val < -1 || val >= MAXITEMS) ? -2 : val;
-			}
-			break;
-		}
-		case GAMEEVENTDATA:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) < FFCore.eventData.size() )
-			{
-				FFCore.eventData[inx] = value;
-			}
-			break;
-		}
 		case GAMEMOUSECURSOR:
 		{
 			int v = value/10000;
@@ -963,40 +545,6 @@ bool game_set_register(int32_t reg, int32_t value)
 				break;
 			game_mouse_index = v;
 			game_mouse();
-			break;
-		}
-		case GAMETRIGGROUPS:
-			break; //read-only
-		
-		case GAMELKEYSD:
-			game->lvlkeys[(ri->d[rINDEX])/10000]=value/10000;
-			break;
-			
-		case GAMEGRAVITY:
-		{
-			int32_t indx = ri->d[rINDEX]/10000;
-			if(indx < 0 || indx > 3)
-			{
-				scripting_log_error_with_context("Invalid index: {}", indx);
-			}
-			else
-			{
-				switch(indx)
-				{
-					case 0: //Gravity Strength
-						zinit.gravity = value;
-						break;
-					case 1: //Terminal Velocity
-						zinit.terminalv = value / 100;
-						break;
-					case 2: //Sprite Layer Threshold
-						zinit.jump_hero_layer_threshold = value / 10000;
-						break;
-					case 3: //Air Drag
-						zinit.air_drag = zslongToFix(value);
-						break;
-				}
-			}
 			break;
 		}
 
@@ -1145,75 +693,6 @@ bool game_set_register(int32_t reg, int32_t value)
 		}
 		break;
 
-		#define SET_DMAP_VAR(member) \
-		{ \
-			int32_t ID = ri->d[rINDEX] / 10000; \
-			if(BC::checkDMapID(ID) == SH::_NoError) \
-				DMaps[ID].member = value / 10000; \
-		}
-
-		case DMAPFLAGSD:
-			SET_DMAP_VAR(flags) break;
-			
-		case DMAPLEVELD:
-			SET_DMAP_VAR(level) break;
-			
-		case DMAPCOMPASSD:
-			SET_DMAP_VAR(compass) break;
-			
-		case DMAPCONTINUED:
-			SET_DMAP_VAR(cont) break;
-			
-		case DMAPLEVELPAL:
-		{
-			int32_t ID = ri->d[rINDEX] / 10000; 
-			int32_t pal = value/10000;
-			pal = vbound(pal, 0, 0x1FF);
-				
-			if(BC::checkDMapID(ID) == SH::_NoError) 
-				DMaps[ID].color = pal;
-
-			if(ID == cur_dmap)
-			{
-				loadlvlpal(DMaps[ID].color);
-				currcset = DMaps[ID].color;
-			}
-			break;
-		}
-		
-		case DMAPMIDID:
-		{
-			int32_t ID = ri->d[rINDEX] / 10000;
-			
-			if(BC::checkDMapID(ID) == SH::_NoError)
-			{
-				// Based on play_DmapMusic
-				switch(value / 10000)
-				{
-				case -6:
-					DMaps[ID].midi = 2;
-					break; // Dungeon
-					
-				case -3:
-					DMaps[ID].midi = 3;
-					break; // Level 9
-					
-				case -2:
-					DMaps[ID].midi = 1;
-					break; // Overworld
-					
-				case 0:
-					DMaps[ID].midi = 0;
-					break; // None
-					
-				default:
-					DMaps[ID].midi = value / 10000 + 3;
-				}
-			}
-			
-			break;
-		}
-
 		case SCREENSTATEDD:
 		{
 			int32_t mi = ri->d[rINDEX]/10000;
@@ -1336,3 +815,487 @@ std::optional<int32_t> game_run_command(word command)
 
 	return RUNSCRIPT_OK;
 }
+
+// Game arrays.
+
+static ArrayRegistrar GAMEBOTTLEST_registrar(GAMEBOTTLEST, []{
+	static ScriptingArray_ObjectMemberCArray<gamedata, &gamedata::bottleSlots> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMECOUNTERD_registrar(GAMECOUNTERD, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return MAX_COUNTERS; },
+		[](int, int index) -> int {
+			return game->get_counter(index);
+		},
+		[](int, int index, int value) {
+			game->set_counter(value, index);
+			return true;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEDCOUNTERD_registrar(GAMEDCOUNTERD, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return MAX_COUNTERS; },
+		[](int, int index) -> int {
+			return game->get_dcounter(index);
+		},
+		[](int, int index, int value) {
+			game->set_dcounter(value, index);
+			return true;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEEVENTDATA_registrar(GAMEEVENTDATA, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return FFCore.eventData.size(); },
+		[](int, int index) -> int {
+			return FFCore.eventData[index];
+		},
+		[](int, int index, int value) {
+			FFCore.eventData[index] = value;
+			return true;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEGENERICD_registrar(GAMEGENERICD, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return genMAX; },
+		[](int ref, int index) {
+			switch (index)
+			{
+				case genCONTHP:
+				{
+					if(!get_qr(qr_SCRIPT_CONTHP_IS_HEARTS) || game->get_cont_percent())
+						return game->get_generic(index);
+					else
+						return (game->get_generic(index)/game->get_hp_per_heart());
+				}
+				default:
+					return game->get_generic(index);
+			}
+		},
+		[](int ref, int index, int value) {
+			switch (index)
+			{
+				case genCONTHP:
+				{
+					if (!get_qr(qr_SCRIPT_CONTHP_IS_HEARTS) || game->get_cont_percent())
+						game->set_generic(value, index);
+					else
+						game->set_generic(value*game->get_hp_per_heart(), index);
+					break;
+				}
+				default:
+					game->set_generic(value, index);
+					break;
+			}
+
+			return true;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEGSWITCH_registrar(GAMEGSWITCH, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return NUM_GSWITCHES; },
+		[](int, int index) -> int {
+			return game->gswitch_timers[index];
+		},
+		[](int, int index, int value) {
+			game->gswitch_timers[index] = value;
+			return true;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEGUYCOUNT_registrar(GAMEGUYCOUNT, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return MAPSCRSNORMAL; },
+		[](int ref, int index) -> int { // index is screen number for current map
+			int mi = mapind(cur_map, index);
+			return game->guys[mi];
+		},
+		[](int ref, int index, int value) {
+			int mi = mapind(cur_map, index);
+			game->guys[mi] = value;
+			return true;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMELITEMSD_registrar(GAMELITEMSD, []{
+	static ScriptingArray_ObjectMemberContainer<gamedata, &gamedata::lvlitems> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMELKEYSD_registrar(GAMELKEYSD, []{
+	static ScriptingArray_ObjectMemberContainer<gamedata, &gamedata::lvlkeys> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMELSWITCH_registrar(GAMELSWITCH, []{
+	static ScriptingArray_ObjectMemberContainer<gamedata, &gamedata::lvlswitches> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEOVERRIDEITEMS_registrar(GAMEOVERRIDEITEMS, []{
+	static ScriptingArray_ObjectMemberContainer<gamedata, &gamedata::OverrideItems> impl;
+	impl.setDefaultValue(-20000);
+	impl.setMul10000(true);
+	impl.setValueTransform([](int value){ return value < -1 || value >= MAXITEMS ? -2 : value; });
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEMCOUNTERD_registrar(GAMEMCOUNTERD, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return MAX_COUNTERS; },
+		[](int ref, int index) -> int {
+			return game->get_maxcounter(index);
+		},
+		[](int ref, int index, int value) {
+			game->set_maxcounter(value, index);
+			return true;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEMISCSFX_registrar(GAMEMISCSFX, []{
+	static ScriptingArray_GlobalCArray impl(QMisc.miscsfx, comptime_array_size(QMisc.miscsfx));
+	impl.setDefaultValue(-10000);
+	impl.setValueTransform(transforms::vboundByte);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEMISCSPR_registrar(GAMEMISCSPR, []{
+	static ScriptingArray_GlobalCArray impl(QMisc.sprites, comptime_array_size(QMisc.sprites));
+	impl.setDefaultValue(-10000);
+	impl.setValueTransform(transforms::vboundByte);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMESCROLLING_registrar(GAMESCROLLING, []{
+	static ScriptingArray_GlobalCArray impl(FFCore.ScrollingData, comptime_array_size(FFCore.ScrollingData));
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	impl.readOnly();
+	return &impl;
+}());
+
+static ArrayRegistrar GAMESUSPEND_registrar(GAMESUSPEND, []{
+	static ScriptingArray_GlobalCArray impl(FFCore.system_suspend, comptime_array_size(FFCore.system_suspend));
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMETRIGGROUPS_registrar(GAMETRIGGROUPS, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return 256; },
+		[](int, int index) {
+			return cpos_trig_group_count(index);
+		},
+		[](int, int index, int value) { return false; }
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	impl.readOnly();
+	return &impl;
+}());
+
+static ArrayRegistrar DMAPMAP_registrar(DMAPMAP, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return MAXDMAPS; },
+		[](int, int index) -> int {
+			return DMaps[index].map + 1;
+		},
+		[](int, int index, int value){
+			return false;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	impl.readOnly();
+	return &impl;
+}());
+
+static ArrayRegistrar DMAPOFFSET_registrar(DMAPOFFSET, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return MAXDMAPS; },
+		[](int, int index) -> int {
+			return DMaps[index].xoff;
+		},
+		[](int, int index, int value){
+			return false;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	impl.readOnly();
+	return &impl;
+}());
+
+static ArrayRegistrar DMAPFLAGSD_registrar(DMAPFLAGSD, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return MAXDMAPS; },
+		[](int, int index) -> int {
+			return DMaps[index].flags;
+		},
+		[](int, int index, int value){
+			DMaps[index].flags = value;
+			return true;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar DMAPLEVELD_registrar(DMAPLEVELD, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return MAXDMAPS; },
+		[](int, int index) -> int {
+			return DMaps[index].level;
+		},
+		[](int, int index, int value){
+			DMaps[index].level = value;
+			return true;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar DMAPCOMPASSD_registrar(DMAPCOMPASSD, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return MAXDMAPS; },
+		[](int, int index) -> int {
+			return DMaps[index].compass;
+		},
+		[](int, int index, int value){
+			DMaps[index].compass = value;
+			return true;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar DMAPCONTINUED_registrar(DMAPCONTINUED, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return MAXDMAPS; },
+		[](int, int index) -> int {
+			return DMaps[index].cont;
+		},
+		[](int, int index, int value){
+			DMaps[index].cont = value;
+			return true;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar DMAPLEVELPAL_registrar(DMAPLEVELPAL, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return MAXDMAPS; },
+		[](int, int index) -> int {
+			return DMaps[index].color;
+		},
+		[](int, int index, int value){
+			DMaps[index].color = value;
+			if (index == cur_dmap)
+			{
+				loadlvlpal(value);
+				currcset = value;
+			}
+			return true;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	impl.setValueTransform(transforms::vbound<0, 0x1FF>);
+	return &impl;
+}());
+
+static ArrayRegistrar DISABLEDITEM_registrar(DISABLEDITEM, []{
+	static ScriptingArray_GlobalComputed<bool> impl(
+		[](int){ return MAXITEMS; },
+		[](int, int index) -> bool {
+			return game->items_off[index];
+		},
+		[](int, int index, bool value){
+			game->items_off[index] = value;
+			removeFromItemCache(itemsbuf[index].family);
+			return true;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar DMAPMIDID_registrar(DMAPMIDID, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return MAXDMAPS; },
+		[](int, int index) -> int {
+			// Based on play_DmapMusic
+			switch (DMaps[index].midi)
+			{
+				case 2: return -6; // Dungeon
+				case 3: return -3; // Level 9
+				case 1: return -2; // Overworld
+				case 0: return 0; // None
+				default: return DMaps[index].midi - 3;
+			}
+		},
+		[](int, int index, int value){
+			switch (DMaps[index].midi)
+			{
+				case -6: DMaps[index].midi = 2; // Dungeon
+				case -3: DMaps[index].midi = 3; // Level 9
+				case -2: DMaps[index].midi = 1; // Overworld
+				case 0: DMaps[index].midi = 0; // None
+				default: DMaps[index].midi = value + 3;
+			}
+			return true;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar SETGAMEOVERELEMENT_registrar(SETGAMEOVERELEMENT, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return SAVESC_LAST; },
+		[](int, int index) -> int {
+			scripting_log_error_with_context("This array is write-only");
+			return 0;
+		},
+		[](int, int index, int value){
+			SetSaveScreenSetting(index, value);
+			return true;
+		}
+	);
+	impl.setMul10000(true);
+	impl.boundIndex();
+	return &impl;
+}());
+
+static ArrayRegistrar SETGAMEOVERSTRING_registrar(SETGAMEOVERSTRING, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return SAVESC_LAST; },
+		[](int, int index) -> int {
+			scripting_log_error_with_context("This array is write-only");
+			return 0;
+		},
+		[](int, int index, int value){
+			string filename_str;
+			ArrayH::getString(value, filename_str, 73);
+			ChangeSubscreenText(index, filename_str.c_str());
+			return true;
+		}
+	);
+	impl.setMul10000(true);
+	impl.boundIndex();
+	return &impl;
+}());
+
+static ArrayRegistrar FFRULE_registrar(FFRULE, []{
+	static ScriptingArray_GlobalComputed<bool> impl(
+		[](int) { return qr_MAX; },
+		[](int, int index) {
+			return get_qr(index);
+		},
+		[](int, int index, bool value) {
+			set_qr(index, value);
+			apply_qr_rule(index);
+			return true;
+		}
+	);
+	impl.setMul10000(true);
+	impl.boundIndex();
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEGRAVITY_registrar(GAMEGRAVITY, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return 4; },
+		[](int, int index) {
+			switch (index)
+			{
+				case 0: //Gravity Strength
+					return zinit.gravity;
+				case 1: //Terminal Velocity
+					return zinit.terminalv * 100;
+				case 2: //Sprite Layer Threshold
+					return zinit.jump_hero_layer_threshold * 10000;
+				case 3: //Air Drag
+					return zinit.air_drag.getZLong();
+				default: NOTREACHED();
+			}
+		},
+		[](int, int index, int value) {
+			switch (index)
+			{
+				case 0: //Gravity Strength
+					zinit.gravity = value;
+					break;
+				case 1: //Terminal Velocity
+					zinit.terminalv = value / 100;
+					break;
+				case 2: //Sprite Layer Threshold
+					zinit.jump_hero_layer_threshold = value / 10000;
+					break;
+				case 3: //Air Drag
+					zinit.air_drag = zslongToFix(value);
+					break;
+				default: NOTREACHED();
+			}
+
+			return true;
+		}
+	);
+	impl.setDefaultValue(-10000);
+	impl.setMul10000(false);
+	return &impl;
+}());

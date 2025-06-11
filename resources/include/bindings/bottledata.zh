@@ -15,17 +15,23 @@ class bottledata {
 
 	// The refill counters of this bottle type.
 	//
+	// @length 3
+	// @index [enum CounterIndex]
 	// @zasm_var BOTTLECOUNTER
 	internal int Counter[];
 
 	// The amount to refill each counter (0-65535)
 	//
+	// @length 3
+	// @index [enum CounterIndex]
 	// @zasm_var BOTTLEAMOUNT
 	internal int Amount[];
 
 	// Whether the given counter refill is a percentage of max, instead of a
 	// direct value.
 	//
+	// @length 3
+	// @index [enum CounterIndex]
 	// @zasm_var BOTTLEPERCENT
 	internal bool IsPercent[];
 

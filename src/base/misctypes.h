@@ -35,6 +35,9 @@ struct DoorComboSet
 	byte expansion[30];
 };
 
+#define NUMSHOPS 256
+#define NUMINFOSHOPS 511
+
 struct shoptype
 {
 	char name[33];

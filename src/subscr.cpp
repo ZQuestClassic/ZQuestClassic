@@ -3239,8 +3239,8 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
 	auto dmid = get_sub_dmap();
 	auto const& thedmap = DMaps[dmid];
 	
-	int32_t maptile=has_item(itype_map, get_dlevel())?thedmap.largemap_2_tile:thedmap.largemap_1_tile;
-	int32_t mapcset=has_item(itype_map, get_dlevel())?thedmap.largemap_2_cset:thedmap.largemap_1_cset;
+	int32_t maptile=has_item(itype_map, get_dlevel())?thedmap.largemap_tile[1]:thedmap.largemap_tile[0];
+	int32_t mapcset=has_item(itype_map, get_dlevel())?thedmap.largemap_cset[1]:thedmap.largemap_cset[0];
 	
 	if(showmap)
 	{
