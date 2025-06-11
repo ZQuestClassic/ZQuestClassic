@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches-ignore:
-      - 'compare-baseline-*'
+    branches:
+      - main
+      - releases/2.55
   pull_request:
+  workflow_dispatch:
 
 env:
   PYTHONUNBUFFERED: '1'
