@@ -15352,8 +15352,19 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				{
 					if (!p_igetw(&(tempguy.burnsprs[q]), f))
 						return qe_invalid;
-					if (!p_igetw(&(tempguy.light_rads[q]), f))
-						return qe_invalid;
+
+					if (guyversion >= 54)
+					{
+						if (!p_getc(&(tempguy.light_rads[q]), f))
+							return qe_invalid;
+					}
+					else 
+					{
+						int16_t tempradius = 0;
+						if (!p_igetw(&(tempradius), f))
+							return qe_invalid;
+						tempguy.light_rads[q] = byte(tempradius);
+					}
 				}
 			}
 			if (guyversion < 53)
@@ -17309,7 +17320,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			if(!p_getc(&(temp_mapscr->csensitive),f))
 				return qe_invalid;
 
-			if(version >= 44)
+			if(version >= 34)
 			{
 				if (!p_igetw(&(temp_mapscr->oceansfx), f))
 					return qe_invalid;
@@ -17318,10 +17329,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				if (!p_igetw(&(temp_mapscr->secretsfx), f))
 					return qe_invalid;
 				if (!p_igetw(&(temp_mapscr->holdupsfx), f))
-					return qe_invalid;
-				if (!p_igetw(&(temp_mapscr->timedwarptics), f))
-					return qe_invalid;
-				if (!p_igetl(&(temp_mapscr->screen_midi), f))
 					return qe_invalid;
 			}
 			else
@@ -17340,12 +17347,11 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				if (!p_getc(&(tempbyte), f))
 					return qe_invalid;
 				temp_mapscr->holdupsfx = tempbyte;
-				if (!p_igetw(&(temp_mapscr->timedwarptics), f))
-					return qe_invalid;
-				if (!p_igetw(&(tempword), f))
-					return qe_invalid;
-				temp_mapscr->screen_midi = tempword;
 			}
+			if (!p_igetw(&(temp_mapscr->timedwarptics), f))
+				return qe_invalid;
+			if (!p_igetw(&(temp_mapscr->screen_midi), f))
+				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->lens_layer),f))
 				return qe_invalid;
 			if(version > 27)
