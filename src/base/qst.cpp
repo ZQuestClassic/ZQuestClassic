@@ -9534,6 +9534,10 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					break;
 			}
 		}
+		if (s_version < 62)
+		{
+			if (i >= 256) reset_itemname(i);
+		}
 
 		
 		if(tempitem.fam_type==0)  // Always do this
@@ -9751,6 +9755,11 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
         
 		if (!should_skip)
 			memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
+
+		if (s_version <= 9)
+		{
+			if (i >= 256) reset_weaponname(i);
+		}
 	}
 
 	if (should_skip)
@@ -9788,7 +9797,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 		wpnsbuf[wLSHANDLE] = wpnsbuf[wHSHANDLE];
 		wpnsbuf[wLSCHAIN_V] = wpnsbuf[wHSCHAIN_V];
 	}
-    
+	    
     return 0;
 }
 

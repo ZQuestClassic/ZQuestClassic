@@ -130,7 +130,7 @@ int wrap(int x,int low,int high);
 
 #define COMBOS_PER_ROW             20
 
-#define WAV_COUNT                  256
+#define WAV_COUNT                  512
 
 #define MAXFFCS                    128
 #define MAX_FFCID                  (region_scr_count * MAXFFCS - 1)
