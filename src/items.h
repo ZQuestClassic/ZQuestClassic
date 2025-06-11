@@ -277,13 +277,6 @@ struct itemdata
 		return;
 	}
 	void advpaste(itemdata const& other, bitstring const& pasteflags);
-	void clear(int16_t id)
-	{
-		*this = {};
-
-        string cleared_name = fmt::format("zz{:03})", id);
-        strcpy(display_name, cleared_name.c_str());
-	}
 };
 
 //some methods for dealing with items
