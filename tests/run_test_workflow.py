@@ -180,7 +180,7 @@ def get_args_for_collect_baseline_from_test_results(
                 continue
 
             if run.failing_frame == None:
-                print(f'{path}: no failing_frame for {run.name}, skipping')
+                print(f'{path}: no failing_frame for {run.name}, skipping (it probably crashed)')
                 continue
 
             name_to_path[run.name] = run.path
@@ -201,7 +201,7 @@ def get_args_for_collect_baseline_from_test_results(
     last_args = []
     for replay_name, failing_segments in failing_segments_by_replay.items():
         replay_path = Path(name_to_path[replay_name])
-        if replay_path.is_relative_to(script_dir / 'replays'):
+        if (script_dir / 'replays' / replay_name).exists():
             args.append(f'--filter={replay_name}')
         else:
             last_args.append(name_to_path[replay_name])
