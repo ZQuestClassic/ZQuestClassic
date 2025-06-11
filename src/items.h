@@ -237,8 +237,6 @@ struct itemdata
 	
 	byte pickup_litems;
 	int16_t pickup_litem_level = -1;
-
-    //Add any additional variables to clear pls. -Jambu
 	
 	std::string get_name(bool init = false, bool plain = false) const;
 	//helper functions because stupid shit
