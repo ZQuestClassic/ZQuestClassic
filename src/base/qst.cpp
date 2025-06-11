@@ -7163,7 +7163,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 	if (should_skip)
 		return 0;
 
-	//////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////
     // Now do any updates because of new item additions
     // (These can't be done above because items_to_read
     // might be too low.)
