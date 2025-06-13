@@ -33,6 +33,7 @@ src/zq/gui/regiongrid.cpp
 src/zq/gui/edit_autocombo.cpp
 src/zq/gui/engraving.cpp
 src/zq/gui/selherotile_swatch.cpp
+src/zq/gui/dmap_frame.cpp
 src/gui/qrpanel.cpp
 
 src/zc_list_data.cpp
@@ -102,6 +103,7 @@ src/dialog/midieditor.cpp
 src/dialog/mapstyles.cpp
 src/dialog/heroeditor.cpp
 src/dialog/door_sel.cpp
+src/dialog/warpring_editor.cpp
 
 ## End of ZQuest GUI module
 )

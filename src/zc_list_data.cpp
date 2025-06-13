@@ -1423,3 +1423,34 @@ GUI::ListData const& GUI::ZCListData::doortypes()
 {
 	return door_types;
 }
+
+static const GUI::ListData warpreturn_types
+{
+	{ "A", 0},
+	{ "B", 1},
+	{ "C", 2},
+	{ "D", 3}
+};
+
+GUI::ListData const& GUI::ZCListData::warpreturns()
+{
+	return warpreturn_types;
+}
+
+static const GUI::ListData level_items
+{
+	{"McGuffin", 0},
+	{"Map", 1},
+	{"Compass", 2},
+	{"Boss Killed", 3},
+	{"Boss Key", 4},
+	{"Custom 01", 5},
+	{"Custom 02", 6},
+	{"Custom 03", 7}
+};
+
+GUI::ListData const& GUI::ZCListData::levelitems()
+{
+	return level_items;
+}
+

@@ -122,9 +122,12 @@ struct infotype
 
 struct warpring
 {
-	word dmap[9];
-	byte scr[9];
+	word dmap[256];
+	byte scr[256];
 	byte size;
+	byte warpreturn[256];
+	word level[256];
+	byte litem[256];
 };
 
 struct zcolors
