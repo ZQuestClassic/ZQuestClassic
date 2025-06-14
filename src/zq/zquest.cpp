@@ -68,6 +68,7 @@
 #include "dialog/headerdlg.h"
 #include "dialog/ffc_editor.h"
 #include "dialog/screen_data.h"
+#include "dialog/dmap_lister.h"
 #include "dialog/edit_dmap.h"
 #include "dialog/compilezscript.h"
 #include "dialog/screen_enemies.h"
@@ -15393,57 +15394,7 @@ void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
 
 int32_t onDmaps()
 {
-    int32_t ret;
-    char buf[40];
-    dmapcopied = 0;
-    dmap_list_size=MAXDMAPS;
-    number_list_zero=true;
-    selectdmap_dlg[0].dp2=get_zc_font(font_lfont);
-    selectdmap_dlg[2].dp3 = (void *)&dmap_rclick_func;
-    selectdmap_dlg[2].flags|=(D_USER<<1);
-    
-    large_dialog(selectdmap_dlg);
-    
-    
-    
-    ret=do_zqdialog(selectdmap_dlg,2);
-    dmap* pSelectedDmap = 0;
-    
-    
-    
-    while(ret!=4&&ret!=0)
-    {
-        int32_t d=selectdmap_dlg[2].d1;
-        
-        if(ret==6) //copy
-		{
-			pSelectedDmap = &DMaps[d];
-		}
-		else if(ret==7 && pSelectedDmap != 0 ) //paste
-		{
-			if( pSelectedDmap != &DMaps[d] )
-			{
-				DMaps[d] = *pSelectedDmap;
-				saved=false;
-			}
-		}
-        else if(ret==5)
-        {
-            sprintf(buf,"Delete DMap %d?",d);
-            
-            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
-            {
-                reset_dmap(d);
-                saved=false;
-            }
-        }
-        else
-        {
-			call_editdmap_dialog(d);
-        }
-        
-        ret=do_zqdialog(selectdmap_dlg,2);
-    }
+	call_dmaplisterdialog();
     
     return D_O_K;
 }
