@@ -102,7 +102,6 @@ src/dialog/midieditor.cpp
 src/dialog/mapstyles.cpp
 src/dialog/heroeditor.cpp
 src/dialog/door_sel.cpp
-src/dialog/dmap_lister.cpp
 
 ## End of ZQuest GUI module
 )
