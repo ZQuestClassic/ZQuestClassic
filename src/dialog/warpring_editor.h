@@ -43,16 +43,13 @@ private:
 	byte ring=0;
 	byte index=0;
 
-	GUI::ListData list_dmaps, list_warps, list_litems;
+	GUI::ListData list_dmaps;
 
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::DropDownList> w_dmaplist;
 	std::shared_ptr<GUI::TextField> w_screen;
 	std::shared_ptr<GUI::DMapMapGrid> w_dmapgrid;
 	std::shared_ptr<GUI::DMapFrame> w_dmapframe;
-	std::shared_ptr<GUI::DropDownList> w_return;
-	std::shared_ptr<GUI::TextField> w_level;
-	std::shared_ptr<GUI::DropDownList> w_litem;
 
 	friend void call_warpring_editor(int32_t ring, byte index);
 };
@@ -78,10 +75,9 @@ private:
 	std::shared_ptr<GUI::List> w_warplist;
 	std::shared_ptr<GUI::TextField> w_size;
 	std::shared_ptr<GUI::DMapFrame> w_dmapframe;
-	std::shared_ptr<GUI::Label> l_map, l_screen, l_warpreturn, l_level, l_litem;
+	std::shared_ptr<GUI::Label> l_map, l_screen;
 
-	GUI::ListData lister, list_warps, list_litems;
-	int selected_val, start_val;
+	GUI::ListData lister;
 
 	friend void call_warpring_warpselector(int32_t ring);
 };
@@ -105,7 +101,6 @@ private:
 	std::shared_ptr<GUI::List> w_ringlist;
 
 	GUI::ListData lister;
-	int selected_val, start_val;
 
 	friend void call_warpring_ringselector();
 };
