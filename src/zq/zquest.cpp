@@ -68,7 +68,6 @@
 #include "dialog/headerdlg.h"
 #include "dialog/ffc_editor.h"
 #include "dialog/screen_data.h"
-#include "dialog/dmap_lister.h"
 #include "dialog/edit_dmap.h"
 #include "dialog/compilezscript.h"
 #include "dialog/screen_enemies.h"
@@ -14050,20 +14049,6 @@ int32_t selectdmapxy[6] = {44,92,128,100,128,110};
 
 static ListData dmap_list(dmaplist, &font);
 
-static DIALOG selectdmap_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,   72-44,   56-30,   176+88+1,  120+74+1,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select DMap", NULL, NULL },
-    { d_timer_proc,        0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { d_dmaplist_proc,    46,   50,   64+72+88+1,   60+24+1+2,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &dmap_list, NULL, selectdmapxy },
-    { jwin_button_proc,   90,   152+44,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,  170,  152+44,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { d_keyboard_proc,     0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_DEL, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,     0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_C, (void*)close_dlg, NULL, NULL },
-    { d_keyboard_proc,     0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_V, (void*)close_dlg, NULL, NULL },
-    { NULL,                0,    0,    0,    0,    0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 static dmap copiedDMap;
 static byte dmapcopied = 0;
 
@@ -15344,58 +15329,9 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 	return 1;
 }
 
-void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
-{
-    if(((unsigned)index)>MAXDMAPS)
-        return;
-    
-	NewMenu rcmenu {
-		{ "&Copy", [&]()
-			{
-				copiedDMap = DMaps[index];
-				dmapcopied = 1;
-			} },
-		{ "Paste", "&v", [&]()
-			{
-				DMaps[index] = copiedDMap;
-				selectdmap_dlg[2].flags |= D_DIRTY;
-				saved = false;
-			}, 0, !dmapcopied },
-		{ "&Save", [&]()
-			{
-				if(!prompt_for_new_file_compat("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
-					return;
-				PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-				if(!f) return;
-				writesomedmaps(f,index, index, MAXDMAPS);
-				pack_fclose(f);
-			} },
-		{ "&Load", [&]()
-			{
-				if(!prompt_for_existing_file_compat("Load DMAP(.zdmap)", "zdmap", NULL,datapath,false))
-					return;
-				PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-				if(!f) return;
-				
-				if (!readonedmap(f,index))
-				{
-					al_trace("Could not read from .zdmap packfile %s\n", temppath);
-					jwin_alert("ZDMAP File: Error","Could not load the specified DMap.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-				}
-				
-				pack_fclose(f);
-				selectdmap_dlg[2].flags |= D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
-				saved = false;
-			} },
-	};
-	rcmenu.pop(x, y);
-}
-
-
 int32_t onDmaps()
 {
-	call_dmaplisterdialog();
-    
+	DMapListerDialog(0, true).show();
     return D_O_K;
 }
 
@@ -25296,7 +25232,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(path_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
-    jwin_center_dialog(selectdmap_dlg);
     jwin_center_dialog(selectmusic_dlg);
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);

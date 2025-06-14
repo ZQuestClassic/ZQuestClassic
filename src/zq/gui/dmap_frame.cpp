@@ -8,7 +8,6 @@
 int dmap_frame_proc(int32_t msg, DIALOG* d, int32_t c)
 {
 	using GUI::DMapFrame;
-	assert(d->d1);
 	if (msg == MSG_DRAW)
 	{
 		int32_t dmap = d->d1;
