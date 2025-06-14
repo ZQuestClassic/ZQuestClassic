@@ -196,16 +196,14 @@ struct itemdata
 	byte burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
     byte useweapon; //lweapon id type -Z
-    byte usedefence; //default defence type -Z
+    byte usedefense; //default defense type -Z
+    
+    //To implement next;
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
     int32_t weaprange; //default range -Z
     int32_t weapduration; //default duration, 0 = infinite. 
- 
-    
-    //To implement next;
     int32_t duplicates; //Number of duplicate weapons generated.
-    int32_t wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
-    
+    int32_t wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon,     
     int32_t weap_initiald[INITIAL_D];
     
     byte drawlayer;
