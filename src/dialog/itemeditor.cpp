@@ -1217,6 +1217,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					Label(text = "Name:", hAlign = 1.0),
 					TextField(
 						fitParent = true,
+						maxwidth = 400_px,
 						maxLength = 63,
 						text = itemname,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
@@ -1242,6 +1243,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					Label(text = "Display Name:", hAlign = 1.0),
 					TextField(
 						fitParent = true,
+						maxwidth = 400_px,
 						maxLength = 255,
 						text = local_itemref.display_name,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
@@ -1263,6 +1265,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					Label(text = "Type:", hAlign = 1.0),
 					DropDownList(data = list_items,
 						fitParent = true, padding = 0_px,
+						maxwidth = 400_px,
 						selectedValue = local_itemref.family,
 						onSelectionChanged = message::ITEMCLASS
 					),
