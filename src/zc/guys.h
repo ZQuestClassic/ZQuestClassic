@@ -66,7 +66,7 @@ public:
 	int32_t dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15;
 	int16_t bgsfx, bosspal;
 	byte defense[edefLAST255];
-	byte hitsfx,deadsfx;
+	int16_t hitsfx,deadsfx;
 	bool submerged;
 	
 	std::optional<ffc_handle_t> ffcactivated;
@@ -116,9 +116,9 @@ public:
 	int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs, weap_tilew, weap_tileh;
 	zfix wstep;
 	bool aim_hero;
-	byte burnsprs[WPNSPR_MAX];
+	int16_t burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
-	byte specialsfx; //weapon specialsfx.
+	int16_t specialsfx; //weapon specialsfx.
 	
 	zfix  getX();
 	zfix  getY();

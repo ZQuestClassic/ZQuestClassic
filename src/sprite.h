@@ -118,7 +118,7 @@ public:
 	bool can_flicker;
 	bool hide_hitbox;
 	
-	byte spr_shadow, spr_death, spr_spawn;
+    int16_t spr_shadow, spr_death, spr_spawn;
 	int16_t spr_death_anim_clk, spr_spawn_anim_clk;
 	byte spr_death_anim_frm, spr_spawn_anim_frm;
 	

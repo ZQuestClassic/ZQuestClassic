@@ -166,20 +166,20 @@ struct itemdata
     word amount;
     int16_t setmax;
     word max;
-    byte playsound = WAV_SCALE;
+	int16_t playsound = WAV_SCALE;
     word collect_script;
 //  byte exp[10];                                             // not used
     int32_t initiald[INITIAL_D];
-    byte wpn;
-    byte wpn2;
-    byte wpn3;
-    byte wpn4;
-    byte wpn5;
-    byte wpn6;
-    byte wpn7;
-    byte wpn8;
-    byte wpn9;
-    byte wpn10;
+    int16_t wpn;
+	int16_t wpn2;
+	int16_t wpn3;
+	int16_t wpn4;
+	int16_t wpn5;
+	int16_t wpn6;
+	int16_t wpn7;
+	int16_t wpn8;
+	int16_t wpn9;
+	int16_t wpn10;
     byte pickup_hearts;
     int32_t misc1;
     int32_t misc2;
@@ -192,8 +192,8 @@ struct itemdata
     int32_t misc9;
     int32_t misc10;
 	int16_t cost_amount[2]; // Magic usage!
-    byte usesound, usesound2;
-	byte burnsprs[WPNSPR_MAX];
+	int16_t usesound, usesound2;
+	int16_t burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
