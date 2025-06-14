@@ -205,7 +205,7 @@ bool Warpring_WarpSelector_Dialog::handleMessage(const GUI::DialogMessage<messag
 	{
 	case message::CHANGEWARP:
 		index = w_warplist->getSelectedIndex();
-		if (index < 0 || index >= QMisc.warp[ring].size)
+		if (index >= QMisc.warp[ring].size)
 			index = 0;
 		w_warplist->setSelectedIndex(index);
 		w_dmapframe->setDMap(QMisc.warp[ring].dmap[index]);
