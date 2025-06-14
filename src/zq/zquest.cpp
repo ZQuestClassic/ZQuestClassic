@@ -15331,7 +15331,7 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 
 int32_t onDmaps()
 {
-	DMapListerDialog(0, true).show();
+	DMapListerDialog(0).show();
     return D_O_K;
 }
 
