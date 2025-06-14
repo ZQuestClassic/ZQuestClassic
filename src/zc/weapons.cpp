@@ -146,8 +146,8 @@ static bool MatchComboTrigger(weapon *w, combo_trigger const& trig)
 
 int FindComboTriggerMatch(weapon *w, int combo_id, int start_idx)
 {
-	if(screenIsScrolling()) return false;
-	if(w->no_triggers()) return false;
+	if(screenIsScrolling()) return -1;
+	if(w->no_triggers()) return -1;
 	newcombo const& cmb = combobuf[combo_id];
 	for(size_t idx = start_idx; idx < cmb.triggers.size(); ++idx)
 	{
