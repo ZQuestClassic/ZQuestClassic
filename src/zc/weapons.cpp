@@ -762,7 +762,7 @@ weapon::weapon(weapon const & other):
 	
     //Weapon Editor -Z
     useweapon(other.useweapon),		//byte		The weapon editor weapon type.
-    usedefence(other.usedefence),	//byte		The defence type to evaluate in do_enemy_hit()
+    usedefense(other.usedefense),	//byte		The defence type to evaluate in do_enemy_hit()
     weaprange(other.weaprange),		//int32_t		The range or distance of the weapon before removing it. 
     weapduration(other.weapduration),	//int32_t		The number of frames that must elapse before removing it
    	//word		The weapon action script. 
@@ -1047,7 +1047,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	autorotate = false;
 	do_animation = true;
 	ref_o_tile = 0;
-	useweapon = usedefence = useweapondummy = usedefencedummy = 0;
+	useweapon = usedefense = useweapondummy = usedefensedummy = 0;
 	weaprange = weapduration = 0;
 	script_wrote_otile = 0;
 	linked_parent = Linked_Parent;
@@ -1079,14 +1079,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
 			}
 			useweapon = itemsbuf[Parentitem].useweapon;
-			usedefence = itemsbuf[Parentitem].usedefence;
+			usedefense = itemsbuf[Parentitem].usedefense;
 		}
 		if (id == wLitBomb || id == wLitSBomb) 
 		{
 			useweapondummy = useweapon;
 			useweapon = 0;
-			usedefencedummy = usedefence;
-			usedefence = 0;
+			usedefensedummy = usedefense;
+			usedefense = 0;
 		}
 		quantity_iterator = type; //wCByrna uses this for positioning.
 		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) )
@@ -3535,7 +3535,7 @@ void weapon::limited_animate()
 					hxofs=hyofs=-8;
 					hit_width=hit_height=32;
 				}
-				usedefence = usedefencedummy;
+				usedefense = usedefensedummy;
 				useweapon = useweapondummy;
 				hzsz=16;
 				step = 0;
@@ -8117,7 +8117,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     height=1;
     hzsz=1;
 	hyofs = -32768;
-    useweapon = usedefence = 0;
+    useweapon = usedefense = 0;
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
     isLWeapon = 0;

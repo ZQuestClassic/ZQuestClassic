@@ -3928,7 +3928,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].usedefence)*10000;
+			ret=(itemsbuf[ri->idata].usedefense)*10000;
 			break;
 		case IDATAWRANGE:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -5250,7 +5250,7 @@ int32_t get_register(int32_t arg)
 		
 		case LWPNUSEDEFENCE:
 			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->usedefence)*10000;
+				ret=(((weapon*)(s))->usedefense)*10000;
 				
 			break;
 		
@@ -15392,7 +15392,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].usedefence)=vbound(value/10000, 0, 255);
+			(itemsbuf[ri->idata].usedefense)=vbound(value/10000, 0, 255);
 			break;
 		case IDATAWRANGE:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -16686,7 +16686,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case LWPNUSEDEFENCE:
 			if(0!=(s=checkLWpn(ri->lwpn)))
-			(((weapon*)(s))->usedefence)=vbound(value/10000,0,255);
+			(((weapon*)(s))->usedefense)=vbound(value/10000,0,255);
 				
 			break;
 		
@@ -42123,7 +42123,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",49);
 			}
-		if(!p_putc(itemsbuf[i].usedefence,f))
+		if(!p_putc(itemsbuf[i].usedefense,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",50);
 			}
@@ -42538,7 +42538,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",49);
 			}
-		if(!p_getc(&itemsbuf[i].usedefence,f))
+		if(!p_getc(&itemsbuf[i].usedefense,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",50);
 			}

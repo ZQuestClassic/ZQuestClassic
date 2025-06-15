@@ -685,7 +685,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			{
 			return 0;
 			}
-			if(!p_getc(&tempitem.usedefence,f))
+			if(!p_getc(&tempitem.usedefense,f))
 			{
 			return 0;
 			}
@@ -1171,7 +1171,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 			{
 				new_return(49);
 			}
-		if(!p_putc(itemsbuf[i].usedefence,f))
+		if(!p_putc(itemsbuf[i].usedefense,f))
 			{
 				new_return(50);
 			}

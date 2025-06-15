@@ -6720,7 +6720,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				{
 					return qe_invalid;
 				}
-				if(!p_getc(&tempitem.usedefence,f))
+				if(!p_getc(&tempitem.usedefense,f))
 				{
 					return qe_invalid;
 				}

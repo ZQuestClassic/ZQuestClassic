@@ -1175,7 +1175,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 	if(pasteflags.get(ITM_ADVP_WEAPONDATA))
 	{
 		useweapon = other.useweapon;
-		usedefence = other.usedefence;
+		usedefense = other.usedefense;
 		weaprange = other.weaprange;
 		weapduration = other.weapduration;
 		for(int q = 0; q < ITEM_MOVEMENT_PATTERNS; ++q)
