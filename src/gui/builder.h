@@ -41,6 +41,7 @@
 #include "zq/gui/misc_color_row.h"
 #include "zq/gui/dmap_minimap.h"
 #include "zq/gui/dmap_mapgrid.h"
+#include "zq/gui/dmap_frame.h"
 #include "zq/gui/regiongrid.h"
 #include "zq/gui/engraving.h"
 #endif
@@ -283,6 +284,11 @@ inline std::shared_ptr<DMapMinimap> makeDMapMinimap()
 inline std::shared_ptr<DMapMapGrid> makeDMapMapGrid()
 {
 	return std::make_shared<DMapMapGrid>();
+}
+
+inline std::shared_ptr<DMapFrame> makeDMapFrame()
+{
+	return std::make_shared<DMapFrame>();
 }
 
 inline std::shared_ptr<Engraving> makeEngraving()
@@ -650,6 +656,11 @@ ZCGUI_BUILDER_START(DMapMapGrid)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(byte*, byte, byte)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DMapMapGrid, DMapMapGrid, makeDMapMapGrid)
+
+ZCGUI_BUILDER_START(DMapFrame)
+	ZCGUI_ACCEPT_PROP(Dmap, setDMap, int32_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(DMapFrame, DMapFrame, makeDMapFrame)
 
 ZCGUI_BUILDER_START(RegionGrid)
 	ZCGUI_ACCEPT_PROP(localRegionsData, setLocalRegionsData, regions_data*)

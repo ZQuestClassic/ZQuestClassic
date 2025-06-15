@@ -7,6 +7,7 @@
 #include "enemyeditor.h"
 #include "midieditor.h"
 #include "sfxdata.h"
+#include "edit_dmap.h"
 #include "info.h"
 #include "zc_list_data.h"
 #include "zq/zquest.h"
@@ -83,6 +84,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 				widgList = List(data = lister, isABC = true,
 					selectedValue = selected_val,
 					rowSpan = 2, fitParent = true,
+					focused = true,
 					onSelectFunc = [&](int32_t val)
 					{
 						if(selected_val == val)
@@ -108,21 +110,18 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	
 	//Generate the btnrow
 	{
-		bool okfocused = !editable;
 		if(!editable || selecting)
 			btnrow->add(Button(
 				text = "OK",
 				topPadding = 0.5_em,
 				minwidth = 90_px,
-				onClick = message::OK,
-				focused = okfocused));
+				onClick = message::OK));
 		if(editable)
 			btnrow->add(Button(
 				text = "Edit",
 				topPadding = 0.5_em,
 				minwidth = 90_px,
-				onClick = message::EDIT,
-				focused = true));
+				onClick = message::EDIT));
 		btnrow->add(Button(
 			text = selecting?"Cancel":"Done",
 			topPadding = 0.5_em,
@@ -130,9 +129,15 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 			onClick = message::EXIT));
 	}
 		
-	if(use_preview)
+	if (use_preview)
 	{
 		g->add(widgPrev = TileFrame(visible = false));
+		g->add(widgInfo = Label(text = "", fitParent = true));
+	}
+	else if(use_mappreview)
+	{
+		_d,
+		g->add(mapPrev = DMapFrame(visible = false));
 		g->add(widgInfo = Label(text = "", fitParent = true));
 	}
 	else
@@ -829,4 +834,51 @@ void SFXListerDialog::postinit()
 void SFXListerDialog::edit()
 {
 	call_sfxdata_dialog(selected_val);
+}
+
+DMapListerDialog::DMapListerDialog(int index, bool selecting) :
+	BasicListerDialog("Select DMap", "dmap", index, selecting)
+	{
+		use_preview = false;
+		use_mappreview = true; //ugly hack but it works.
+		alphabetized = get_config("alphabetized", true); //doesnt work???
+}
+
+void DMapListerDialog::preinit()
+{
+	lister = GUI::ZCListData::dmaps(true);
+	if (selected_val < 0)
+		selected_val = lister.getValue(0);
+	selected_val = vbound(selected_val, 0, MAXDMAPS - 1);
+}
+void DMapListerDialog::postinit()
+{
+	window->setHelp(get_info(selecting, true));
+}
+static int16_t copied_dmap_id = -1;
+void DMapListerDialog::update()
+{
+	widgInfo->setText(fmt::format("\nMap: {}\nLevel: {}\n\nCopied: {}",
+		DMaps[selected_val].map, DMaps[selected_val].level, copied_dmap_id));
+	mapPrev->setDMap(selected_val);
+	mapPrev->setVisible(true);
+}
+void DMapListerDialog::edit()
+{
+	call_editdmap_dialog(selected_val);
+}
+void DMapListerDialog::copy()
+{
+	copied_dmap_id = selected_val;
+	update();
+}
+bool DMapListerDialog::paste()
+{
+	if (copied_dmap_id < 0 || selected_val < 0)
+		return false;
+	if (copied_dmap_id == selected_val)
+		return false;
+	DMaps[selected_val] = DMaps[copied_dmap_id];
+	saved = false;
+	return true;
 }
