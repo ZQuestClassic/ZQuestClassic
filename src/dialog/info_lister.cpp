@@ -880,7 +880,7 @@ bool DMapListerDialog::paste()
 		return false;
 	if (copied_dmap_id == selected_val)
 		return false;
-	DMaps[copied_dmap_id] = DMaps[selected_val];
+	DMaps[selected_val] = DMaps[copied_dmap_id];
 	saved = false;
 	return true;
 }
