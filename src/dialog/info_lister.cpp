@@ -84,6 +84,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 				widgList = List(data = lister, isABC = true,
 					selectedValue = selected_val,
 					rowSpan = 2, fitParent = true,
+					focused = true,
 					onSelectFunc = [&](int32_t val)
 					{
 						if(selected_val == val)
@@ -109,21 +110,18 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	
 	//Generate the btnrow
 	{
-		bool okfocused = !editable;
 		if(!editable || selecting)
 			btnrow->add(Button(
 				text = "OK",
 				topPadding = 0.5_em,
 				minwidth = 90_px,
-				onClick = message::OK,
-				focused = okfocused));
+				onClick = message::OK));
 		if(editable)
 			btnrow->add(Button(
 				text = "Edit",
 				topPadding = 0.5_em,
 				minwidth = 90_px,
-				onClick = message::EDIT,
-				focused = true));
+				onClick = message::EDIT));
 		btnrow->add(Button(
 			text = selecting?"Cancel":"Done",
 			topPadding = 0.5_em,
