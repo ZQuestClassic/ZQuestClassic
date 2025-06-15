@@ -6,6 +6,7 @@
 #include <gui/list.h>
 #include <gui/window.h>
 #include <zq/gui/tileanim_frame.h>
+#include <zq/gui/dmap_frame.h>
 #include <initializer_list>
 #include <string>
 #include <set>
@@ -56,13 +57,14 @@ protected:
 	GUI::ListData lister;
 	int selected_val, start_val;
 	size_t frozen_inds;
-	bool selecting, use_preview, editable, alphabetized;
+	bool selecting, use_preview, editable, alphabetized, use_mappreview;
 	
 	std::string cfg_key;
 	
 	std::shared_ptr<GUI::List> widgList;
 	std::shared_ptr<GUI::Label> widgInfo;
 	std::shared_ptr<GUI::TileFrame> widgPrev;
+	std::shared_ptr<GUI::DMapFrame> mapPrev;
 	std::shared_ptr<GUI::Window> window;
 };
 
@@ -150,5 +152,19 @@ protected:
 	void postinit() override;
 	void update() override;
 	void edit() override;
+};
+
+class DMapListerDialog : public BasicListerDialog
+{
+public:
+	DMapListerDialog(int index = -1, bool selecting = false);
+
+protected:
+	void preinit() override;
+	void postinit() override;
+	void update() override;
+	void edit() override;
+	void copy() override;
+	bool paste() override;
 };
 #endif

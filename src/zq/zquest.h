@@ -638,6 +638,7 @@ void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t fg,int32_t b
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t w, int32_t h, int32_t tw, int32_t th, int32_t *grid,int32_t fg,int32_t bg,int32_t div);
 void drawgrid_s(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t fg,int32_t bg,int32_t div);
 void drawdmap(int32_t dmap);
+void drawdmap_screen(int32_t x, int32_t y, int32_t w, int32_t h, int32_t dmap);
 int32_t d_dmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
 void drawxmap(ALLEGRO_BITMAP* dest, int32_t map, int32_t xoff, bool large, int dx, int dy);

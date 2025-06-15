@@ -422,9 +422,9 @@ GUI::ListData GUI::ZCListData::dmaps(bool numbered)
 	
 	for(int32_t q = 0; q < MAXDMAPS; ++q)
 	{
-		char const* dm_str = DMaps[q].name;
+		std::string dm_str = strlen(DMaps[q].name)!=0 ? DMaps[q].name : fmt::format("zz{:03}", q);
 		if(numbered)
-			ls.add(fmt::format("{:3}-{}",q,dm_str), q);
+			ls.add(fmt::format("{} ({:03})", dm_str, q),q);
 		else ls.add(dm_str, q);
 	}
 	
