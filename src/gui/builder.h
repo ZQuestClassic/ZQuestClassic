@@ -44,6 +44,7 @@
 #include "zq/gui/dmap_frame.h"
 #include "zq/gui/regiongrid.h"
 #include "zq/gui/engraving.h"
+#include "zq/gui/warpdestscrsel.h"
 #endif
 
 #include <initializer_list>
@@ -299,6 +300,10 @@ inline std::shared_ptr<Engraving> makeEngraving()
 inline std::shared_ptr<RegionGrid> makeRegionGrid()
 {
 	return std::make_shared<RegionGrid>();
+}
+inline std::shared_ptr<WarpDestScrSel> makeWarpDestScrSel()
+{
+	return std::make_shared<WarpDestScrSel>();
 }
 #endif
 
@@ -672,6 +677,12 @@ ZCGUI_BUILDER_START(Engraving)
 	ZCGUI_ACCEPT_PROP(data, setSlot, int32_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Engraving, Engraving, makeEngraving)
+
+ZCGUI_BUILDER_START(WarpDestScrSel)
+	ZCGUI_ACCEPT_PROP(Dmap, setDMap, int32_t)
+	ZCGUI_ACCEPT_PROP(scr, setScreen, int32_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(WarpDestScrSel, WarpDestScrSel, makeWarpDestScrSel)
 
 #endif
 

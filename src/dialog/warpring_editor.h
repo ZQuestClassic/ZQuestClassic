@@ -10,7 +10,7 @@
 #include <gui/list.h>
 #include <gui/list_data.h>
 #include <gui/drop_down_list.h>
-#include <zq/gui/dmap_mapgrid.h>
+#include <zq/gui/warpdestscrsel.h>
 #include <zq/gui/dmap_frame.h>
 #include <zq/gui/tileanim_frame.h>
 #include <functional>
@@ -48,7 +48,7 @@ private:
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::DropDownList> w_dmaplist;
 	std::shared_ptr<GUI::TextField> w_screen;
-	std::shared_ptr<GUI::DMapMapGrid> w_dmapgrid;
+	std::shared_ptr<GUI::WarpDestScrSel> w_dmapgrid;
 	std::shared_ptr<GUI::DMapFrame> w_dmapframe;
 
 	friend void call_warpring_editor(int32_t ring, byte index);

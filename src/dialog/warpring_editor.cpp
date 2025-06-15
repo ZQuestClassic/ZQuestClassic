@@ -20,6 +20,8 @@ void call_warpring_editor(int32_t ring, byte index)
 {
 	Warpring_Editor_Dialog(ring, index).show();
 }
+
+//TODO MAKE THESE INFOLISTERS JAMBU!!!
 void call_warpring_warpselector(int32_t ring)
 {
 	Warpring_WarpSelector_Dialog(ring).show();
@@ -42,7 +44,7 @@ std::shared_ptr<GUI::Widget> Warpring_Editor_Dialog::view()
 	using namespace GUI::Props;
 
 	byte scrPointer = QMisc.warp[ring].scr[index];
-	w_dmapframe = DMapFrame(Dmap = QMisc.warp[ring].dmap[index], rowSpan=4);
+	w_dmapframe = DMapFrame(Dmap = QMisc.warp[ring].dmap[index]);
 
 	window = Window(
 		title = fmt::format("Editing Ring {} Warp {}", ring, index),
@@ -57,10 +59,9 @@ std::shared_ptr<GUI::Widget> Warpring_Editor_Dialog::view()
 					w_dmapframe->setDMap(val);
 				}
 			),
-			Columns<4>(
+			Row(
 				Label(text = fmt::format("Screen {0:x}", QMisc.warp[ring].scr[index])),
 				w_screen = TextField(
-
 					val = scrPointer,
 					low = 0, high = 0x87,
 					type = GUI::TextField::type::INT_HEX,
@@ -69,7 +70,7 @@ std::shared_ptr<GUI::Widget> Warpring_Editor_Dialog::view()
 						val = newval;
 					}
 				),
-				//MISSING GRID
+				w_dmapgrid = WarpDestScrSel(Dmap = QMisc.warp[ring].dmap[index], scr = scrPointer),
 				w_dmapframe
 			),
 			Row(
@@ -201,7 +202,6 @@ std::shared_ptr<GUI::Widget> Warpring_RingSelector_Dialog::view()
 		title = "Select a Ring",
 		onClose = message::CANCEL,
 		Column(
-			Label(text = "Select a ring"),
 			w_ringlist = List(
 				data = lister,
 				selectedIndex = 0,

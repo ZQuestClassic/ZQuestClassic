@@ -27,4 +27,3 @@ namespace GUI
 }
 
 #endif
-#pragma once
