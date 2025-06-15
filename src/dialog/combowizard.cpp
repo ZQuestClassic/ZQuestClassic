@@ -2899,8 +2899,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET1
 						),
 						ddls[2] = DropDownList(data = list_dropsets,
-							fitParent = true, selectedValue = radmode==1 ? dropitem : 0,
-							disabled = radmode != 1,
+							fitParent = true, selectedValue = radmode2==1 ? dropitem : 0,
+							disabled = radmode2 != 1,
 							onSelectFunc = [&](int32_t val)
 							{
 								dropitem = val;
@@ -2915,8 +2915,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET1
 						),
 						ddls[3] = DropDownList(data = list_items,
-							fitParent = true, selectedValue = radmode==2 ? dropitem : 0,
-							disabled = radmode != 2,
+							fitParent = true, selectedValue = radmode2==2 ? dropitem : 0,
+							disabled = radmode2 != 2,
 							onSelectFunc = [&](int32_t val)
 							{
 								dropitem = val;
