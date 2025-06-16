@@ -6229,7 +6229,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			comboprev_buf2[0] = 0;
 			if(draw_mode == dm_cpool)
 			{
-				sprintf(comboprev_buf,"Pool: %d",combo_pool_pos);
+				sprintf(comboprev_buf,"Pool: %d\nCSet: %d",combo_pool_pos,CSet);
 				int x = combo_preview_text1.x+(combo_preview_text1.w*combo_preview_text1.xscale);
 				textbox_out(menu1,txfont,x,combo_preview_text1.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],comboprev_buf,2,&combo_preview_text1);
 			}
