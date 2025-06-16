@@ -1685,15 +1685,16 @@ static mapscr* ResolveMapdata(int32_t mapref)
 static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos)
 {
 	auto result = decode_mapdata_ref(mapref);
-	if (!result.scr)
+
+	if (!screenscrolling && result.scrolling())
 	{
-		scripting_log_error_with_context("mapdata id is invalid: {}", mapref);
+		scripting_log_error_with_context("mapdata id is invalid: {} - screen is not scrolling right now", mapref);
 		return rpos_handle_t{};
 	}
 
-	if (result.scrolling())
+	if (!result.scr)
 	{
-		scripting_log_error_with_context("mapdata id is invalid: {} - screen is not scrolling right now", mapref);
+		scripting_log_error_with_context("mapdata id is invalid: {}", mapref);
 		return rpos_handle_t{};
 	}
 
@@ -1708,7 +1709,7 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos)
 	}
 
 	// mapdata loaded via `Game->LoadScrollingScreen(layer)` have access to the entire scrolling region.
-	if (result.type == mapdata_type::TemporaryScrollingScreen)
+	if (result.type == mapdata_type::TemporaryScrollingRegion)
 	{
 		rpos_t rpos = (rpos_t)pos;
 		rpos_t max = (rpos_t)(scrolling_region.screen_count * 176 - 1);
