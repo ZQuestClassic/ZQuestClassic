@@ -859,7 +859,7 @@ static int16_t copied_dmap_id = -1;
 void DMapListerDialog::update()
 {
 	widgInfo->setText(fmt::format("\nMap: {}\nLevel: {}\n\nCopied: {}",
-		DMaps[selected_val].map, DMaps[selected_val].level, copied_dmap_id));
+		DMaps[selected_val].map + 1, DMaps[selected_val].level, copied_dmap_id));
 	mapPrev->setDMap(selected_val);
 	mapPrev->setVisible(true);
 }
