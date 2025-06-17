@@ -150,7 +150,11 @@ value_and_warnings<ParsedMsgStr> parse_legacy_msg_str(const std::string& str)
 		prev = cur;
 	}
 
-	if (prev != last)
+	// prev can be larger than last here, since the calculation for last unfortunately may also
+	// include space (ascii 32) characters being used as the last arg of the last command.
+	// An example of that is message 48 of The Slipstream:
+	// .tmp/replay_uploads/50C00A5197148F3D1587A16509DCC89F/50C00A5197148F3D1587A16509DCC89F.qst
+	if (prev < last)
 	{
 		parsed_msg_str.literals.emplace_back(str.begin() + prev, str.begin() + last);
 		parsed_msg_str.segment_types.push_back(0);
