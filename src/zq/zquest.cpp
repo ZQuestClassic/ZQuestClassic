@@ -26352,6 +26352,7 @@ bool replay_is_active() {return false;}
 bool replay_is_replaying() {return false;}
 bool replay_version_check(int min, int max) {return false;}
 bool replay_is_debug() {return false;}
+std::string replay_get_meta_str(std::string key){return "";}
 int32_t item::run_script(int32_t mode){return 0;};
 ffcdata* slopes_getFFC(int id)
 {

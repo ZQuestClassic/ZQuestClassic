@@ -21561,6 +21561,10 @@ static bool compat_qr_hide_bottom_pixels(const zquestheader& header)
 	if (header.compareVer(2, 55, 9) >= 0)
 		return false; // defer to whatever was set
 
+	// Replays created in 2.55 for quests prior to 2.55.9 should continue hiding the bottom pixels.
+	if (replay_is_replaying() && replay_get_meta_str("zc_version_created").starts_with("2.55"))
+		return true;
+
 	// Only a couple quests take any time (~7ms) on my intel mac to check all the ZASM... cache those.
 	std::string title = header.title;
 	if (title == "Stellar Seas")
