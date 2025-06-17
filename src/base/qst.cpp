@@ -1486,56 +1486,6 @@ void reset_tunes(zctune *tune)
     }
 }
 
-
-/*void reset_midi(zcmidi_ *m)
-{
-  m->title[0]=0;
-  m->loop=1;
-  m->volume=144;
-  m->start=0;
-  m->loop_start=-1;
-  m->loop_end=-1;
-  if(m->midi)
-  {
-    destroy_midi(m->midi);
-  }
-  m->midi=NULL;
-}
-
-
-void reset_midis(zcmidi_ *m)
-{
-  for(int32_t i=0; i<MAXCUSTOMMIDIS; i++)
-  {
-      reset_midi(m+i);
-  }
-}
-*/
-
-void reset_scr(int32_t scr)
-{
-    /*
-      byte *di=((byte*)TheMaps)+(scr*sizeof(mapscr));
-      for(unsigned i=0; i<sizeof(mapscr); i++)
-      *(di++) = 0;
-      TheMaps[scr].valid=mVERSION;
-      */
-    
-    TheMaps[scr].zero_memory();
-    //byte *di=((byte*)TheMaps)+(scr*sizeof(mapscr));
-    
-    for(int32_t i=0; i<6; i++)
-    {
-        //these will be uncommented later
-        //TheMaps[scr].layerxsize[i]=16;
-        //TheMaps[scr].layerysize[i]=11;
-        TheMaps[scr].layeropacity[i]=255;
-    }
-    
-    TheMaps[scr].valid=mVERSION;
-    
-}
-
 int32_t doortranslations_u[9][4]=
 {
     {37,38,53,54},
