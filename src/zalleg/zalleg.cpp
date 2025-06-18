@@ -22,6 +22,11 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 {
 	common_main_setup(id, argc, argv);
 
+	zapp_set_crash_cb([](){
+		if (all_get_display())
+			al_save_bitmap(".sentry_native/screenshot.png", al_get_backbuffer(all_get_display()));
+	});
+
 	register_trace_handler(zc_trace_handler);
 	al_register_trace_handler([](const char* str){zc_trace_handler(str);});
 	all_disable_threaded_display();

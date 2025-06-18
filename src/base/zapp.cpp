@@ -21,6 +21,19 @@ void sentry_atexit()
 {
     sentry_close();
 }
+
+static std::function<void()> crash_cb;
+
+static sentry_value_t on_crash_callback(const sentry_ucontext_t *uctx, sentry_value_t event, void *closure)
+{
+	(void)uctx;
+	(void)closure;
+
+	if (crash_cb)
+		crash_cb();
+
+	return event;
+}
 #endif
 
 namespace fs = std::filesystem;
@@ -35,6 +48,13 @@ bool is_in_osx_application_bundle()
     return std::filesystem::current_path().string().find(".app/") != std::string::npos;
 #else
     return false;
+#endif
+}
+
+void zapp_set_crash_cb(std::function<void()> cb)
+{
+#ifdef HAS_SENTRY
+	crash_cb = cb;
 #endif
 }
 
@@ -63,9 +83,20 @@ void common_main_setup(App id, int argc_, char **argv_)
 	}
 
 #ifdef HAS_SENTRY
+	// Clean up the last crash screenshot.
+	const char* crash_screenshot_path = ".sentry_native/screenshot.png";
+	{
+		std::error_code ec;
+		if (fs::exists(crash_screenshot_path, ec))
+			fs::remove(crash_screenshot_path, ec);
+	}
+
     sentry_options_t *options = sentry_options_new();
     sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
+    sentry_options_set_database_path(options, ".sentry_native");
     sentry_options_set_release(options, fmt::format("zelda-classic@{}", getVersionString()).c_str());
+    sentry_options_add_attachment(options, crash_screenshot_path);
+    sentry_options_set_on_crash(options, on_crash_callback, NULL);
 	// Only track sessions for the main apps.
 	if (id != App::zelda && id != App::zquest)
 		sentry_options_set_auto_session_tracking(options, 0);
@@ -123,8 +154,6 @@ void common_main_setup(App id, int argc_, char **argv_)
 	auto update_active_files = fs::path(".updater-active-files");
 	std::error_code ec;
 	fs::remove_all(update_active_files, ec);
-	if (fs::exists("zquest.exe"))
-		fs::remove("zquest.exe", ec);
 }
 
 std::optional<bool> get_flag_bool(const char* name)
