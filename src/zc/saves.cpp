@@ -2128,7 +2128,7 @@ static void unload_all_but(int index)
 
 expected<bool, std::string> saves_select(save_t* save)
 {
-	assert(save);
+	CHECK(save);
 
 	std::string err;
 	if (!ensure_loaded(save, err))
@@ -2238,7 +2238,7 @@ expected<save_t*, std::string> saves_get_slot(int32_t index, bool full_data)
 
 bool saves_delete(int32_t index, std::string& err)
 {
-	assert(index >= 0 && index < saves.size());
+	CHECK(index >= 0 && index < saves.size());
 	auto& save = saves[index];
 
 	if (!move_to_folder(save.path, get_deleted_folder_path(), err))
@@ -2403,8 +2403,8 @@ save_t* saves_create_test_slot(gamedata* game, fs::path path)
 
 static bool initialize_new_save(save_t* save, std::string& err)
 {
-	assert(save);
-	assert(!save->header->has_played);
+	CHECK(save);
+	CHECK(!save->header->has_played);
 
 	if (!ensure_loaded(save, err))
 		return false;
