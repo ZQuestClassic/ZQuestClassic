@@ -86,6 +86,11 @@ int32_t main(int32_t argc, char* argv[])
 {
 	common_main_setup(App::launcher, argc, argv);
 
+	zapp_set_crash_cb([](){
+		if (all_get_display())
+				al_save_bitmap(".sentry_native/screenshot.png", al_get_backbuffer(all_get_display()));
+	});
+
 	if (used_switch(argc, argv, "-update"))
 	{
 		std::string output;
