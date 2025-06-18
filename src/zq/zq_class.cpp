@@ -522,18 +522,18 @@ mapscr* zmap::AbsoluteScrMakeValid(int32_t map, int32_t screen)
 }
 void zmap::set_prvscr(int32_t map, int32_t scr)
 {
-	prvscr=TheMaps[(map*MAPSCRS)+scr];
-	
+	prvscr = *get_canonical_scr(map, scr);
+
 	for(int32_t i=0; i<6; i++)
 	{
 		if(prvscr.layermap[i]>0)
 		{
-			prvlayers[i]=TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]];
+			prvlayers[i] = *get_canonical_scr(prvscr.layermap[i] - 1, prvscr.layerscreen[i]);
 		}
 		else
 			prvlayers[i].valid = 0;
 	}
-	
+
 	prv_map=map;
 	prv_scr=scr;
 }
@@ -2709,12 +2709,6 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		layers[lyr] = prv_mode ? ((&prvlayers[lyr-1])->valid ? &prvlayers[lyr - 1] : nullptr)
 			: _zmap_get_lyr_checked(lyr,basescr);
 	}
-	
-	int32_t layermap, layerscreen;
-	if(CurrentLayer < 1)
-		layermap = -1;
-	else
-		layermap=basescr->layermap[CurrentLayer-1]-1;
 	
 	if(!(basescr->valid&mVALID))
 	{

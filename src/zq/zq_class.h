@@ -455,6 +455,18 @@ public:
     {
         return prv_time;
     }
+	void end_prv()
+	{
+		extern int32_t prv_mode;
+		prv_mode = 0;
+
+		prv_cmbcycle = 0;
+		prv_advance = 0;
+		prv_freeze = 0;
+		prv_time = 0;
+		prv_map = 0;
+		prv_scr = 0;
+	}
     int32_t getLayerTargetMap();
     int32_t getLayerTargetScr();
     int32_t getLayerTargetMultiple();

@@ -25488,11 +25488,8 @@ finished:
 	reset_combo_animations2();
 	MouseSprite::set(ZQM_NORMAL);
 	prv_mode=0;
-	Map.set_prvcmb(0);
-	Map.set_prvadvance(0);
-	Map.set_prvfreeze(0);
-	Map.set_prvtime(0);
 	prv_warp=0;
+	Map.end_prv();
 	loadlvlpal(Map.getcolor());
 	rebuild_trans_table();
 	refresh(rMAP+rMENU);
