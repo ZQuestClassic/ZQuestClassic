@@ -4221,6 +4221,10 @@ int main(int argc, char **argv)
 	}
 
 	common_main_setup(App::zelda, argc, argv);
+	zapp_set_crash_cb([](){
+		if (all_get_display())
+				al_save_bitmap(".sentry_native/screenshot.png", al_get_backbuffer(all_get_display()));
+	});
 	set_should_zprint_cb([]() {
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
