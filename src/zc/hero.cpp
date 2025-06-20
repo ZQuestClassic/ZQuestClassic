@@ -4542,22 +4542,6 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 
 void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 {
-	/*
-	int32_t par_item = w->parentitem;
-	al_trace("check_slash_block(weapon *w): par_item is: %d\n", par_item);
-	int32_t usewpn = -1;
-	if ( par_item > -1 )
-	{
-		usewpn = itemsbuf[par_item].useweapon;
-	}
-	else if ( par_item == -1 && w->ScriptGenerated ) 
-	{
-		usewpn = w->useweapon;
-	}
-	al_trace("check_slash_block(weapon *w): usewpn is: %d\n", usewpn);
-	*/
-    
-	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, world_w-1);
     by=vbound(by, 0, world_h-1);
@@ -4591,7 +4575,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
 		dontignoreffc = 1;
 	    }*/
-	if(w->useweapon != wSword && !dontignore) return;
+	if(w->useweapon != wSword) return;
 
     auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
     int32_t i = rpos_handle.pos;
@@ -4603,7 +4587,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
     if(get_bit(w->wscreengrid, i) != 0)
     {
-        ignorescreen = true; dontignore = 0;
+        ignorescreen = true;
     }
     
     auto current_ffc_handle = getFFCAt(fx,fy);
@@ -4638,7 +4622,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 		}
 		else skipsecrets = 1; 
     }
-    if((!skipsecrets || !get_qr(qr_BUGGY_BUGGY_SLASH_TRIGGERS)) && (!ignorescreen || dontignore))
+    if((!skipsecrets || !get_qr(qr_BUGGY_BUGGY_SLASH_TRIGGERS)) && !ignorescreen)
     {
         if((flag >= 16)&&(flag <= 31)&&!skipsecrets)
         { 
@@ -4700,7 +4684,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             //pausenow=true;
         }
     }
-    else if(skipsecrets && (!ignorescreen || dontignore))
+    else if(skipsecrets && !ignorescreen)
     {
 	    if(isCuttableNextType(type))
 		{
@@ -4736,7 +4720,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         }
     }
     
-    if(!ignorescreen || dontignore)
+    if(!ignorescreen)
     {
         if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid,i,1);
         
