@@ -25108,7 +25108,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "GenFlags[]", (ri->combosref * 10000));
 			}
-			else if (((unsigned)indx) > 0)
+			else if (((unsigned)indx) > 1)
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "GenFlags[]", indx);
 			}
