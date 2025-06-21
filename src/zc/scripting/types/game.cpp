@@ -424,6 +424,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			if ( (unsigned) inx > (susptLAST-1) )
 			{
 				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n");
+				break;
 			}
 			ret = (( FFCore.system_suspend[inx] ) ? 10000 : 0);
 			break;
