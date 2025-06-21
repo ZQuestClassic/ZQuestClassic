@@ -445,7 +445,6 @@ static constexpr script_command command_list[]=
 	{ "GCDANIMFLAGS", GCDANIMFLAGS, 2, { REG_W, REG_R }, 0, 0 },
 	//combodata two input, one return
 	{ "GCDBLOCKWEAPON", GCDBLOCKWEAPON, 1, { REG_W }, 0, 0 },
-	{ "GCDEXPANSION", GCDEXPANSION, 1, { REG_W }, 0, 0 },
 	{ "GCDSTRIKEWEAPONS", GCDSTRIKEWEAPONS, 1, { REG_W }, 0, 0 },
 	//combodata two input, one return
 	{ "SCDBLOCKENEM", SCDBLOCKENEM, 2, { REG_RW, REG_R }, 0, 0 },
@@ -1739,7 +1738,6 @@ static constexpr script_variable variable_list[]=
 	
 	{"SCDBLOCKWEAPON", SCDBLOCKWEAPON, 0},
 	{"SCDSTRIKEWEAPONS", SCDSTRIKEWEAPONS, 0},
-	{"SCDEXPANSION", SCDEXPANSION, 0},
 	{"SETGAMEOVERELEMENT", SETGAMEOVERELEMENT, 0},
 	{"SETGAMEOVERSTRING", SETGAMEOVERSTRING, 0},
 	{"MOUSEARR", MOUSEARR, 0},
@@ -2094,7 +2092,6 @@ static constexpr script_variable variable_list[]=
 	{"COMBODNEXTTIMER", COMBODNEXTTIMER, 0},
 	{"COMBODAKIMANIMY", COMBODAKIMANIMY, 0},
 	{"COMBODANIMFLAGS", COMBODANIMFLAGS, 0},
-	{"COMBODEXPANSION", COMBODEXPANSION, 0},
 	{"COMBODATTRIBUTES", COMBODATTRIBUTES, 0},
 	{"COMBODATTRIBYTES", COMBODATTRIBYTES, 0},
 	{"COMBODUSRFLAGS", COMBODUSRFLAGS, 0},
@@ -3294,7 +3291,6 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case COMBODD:
 		case COMBODATAD:
 		case MAPDATACOMBODATAD:
-		case COMBODEXPANSION:
 		case COMBODGENFLAGARR:
 		case COMBODSTRIKEWEAPONS:
 		case COMBODTRIGGERBUTTON:
@@ -3716,7 +3712,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODDIVEITEM:
 		case COMBODDOCK:
 		case COMBODEFFECT:
-		case COMBODEXPANSION:
 		case COMBODFAIRY:
 		case COMBODFFATTRCHANGE:
 		case COMBODFLAG:

@@ -1209,7 +1209,6 @@ static void do_triggersecret(const bool v);
 
 	//two inputs, one return
 	static void getComboData_block_weapon();
-	static void getComboData_expansion();
 	static void getComboData_strike_weapons();
 
 	//two inputs, no return
@@ -1293,7 +1292,6 @@ static void do_triggersecret(const bool v);
 
 	//three inputs, no return
 	static void setComboData_block_weapon(int32_t v);
-	static void setComboData_expansion(int32_t v);
 	static void setComboData_strike_weapons(int32_t v);
 	
 	//SpriteData

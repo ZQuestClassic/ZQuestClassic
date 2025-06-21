@@ -324,11 +324,6 @@ class combodata {
 	// @zasm_var COMBODUSRFLAGS
 	internal int UserFlags;
 
-	// Reserved for future use by the Combo Editor.
-	//
-	// @zasm_var COMBODEXPANSION
-	internal int Expansion[];
-
 	// @zasm_var COMBODNEXTTIMER
 	internal int NextTimer;
 

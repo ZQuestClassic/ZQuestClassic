@@ -7614,9 +7614,6 @@ int AnimFlags;
  *  AF_CYCLENOCSET Cycle ignores CSet
  *  AF_TRANSPARENT Toggle Transparent
  * Use bitwise operators with these constants to read/set these flags.
-
-int Expansion[6];
- * Reserved for future use by the Combo Editor.
 	
 int Attributes[4];
  * Corresponds to Attributes[0] through Attributes[3] on the 'Attributes'

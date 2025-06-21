@@ -42,8 +42,6 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(nexttimer) return false;
 	if(skipanimy) return false;
 	if(animflags) return false;
-	for(auto q = 0; q < 6; ++q)
-		if(expansion[q]) return false;
 	for(auto q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 		if(attributes[q]) return false;
 	if(usrflags) return false;

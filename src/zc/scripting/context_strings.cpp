@@ -387,7 +387,6 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case COMBODCSET: return "combodata::CSet2";
 		case COMBODCSET2FLAGS: return "combodata::CSet2Flags";
 		case COMBODEFFECT: return "combodata::Effect";
-		case COMBODEXPANSION: return "combodata::Expansion[]";
 		case COMBODFLAG: return "combodata::Flag";
 		case COMBODUSRFLAGARR: return "combodata::Flags[]";
 		case COMBODFLIP: return "combodata::Flip";
