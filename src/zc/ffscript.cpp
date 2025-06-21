@@ -9412,9 +9412,10 @@ int32_t get_register(int32_t arg)
 			}
 			else if(auto* trig = get_first_combo_trigger())
 			{
-				ret = trig->triggerflags[indx] * 10000;
+				ret = trig->triggerflags[indx];
 				if(indx == 0)
 					SETFLAG(ret, combotriggerONLYGENTRIG, combobuf[ri->combosref].only_gentrig);
+				ret *= 10000;
 			}
 			break;
 		}
