@@ -848,10 +848,6 @@ class mapdata {
 	internal int EntryY;
 
 	// @deprecated
-	// @zasm_var MAPDATANUMFF
-	internal const bool NumFFCs[];
-
-	// @deprecated
 	// @zasm_var MAPDATALENSLAYER
 	internal int LensLayer;
 

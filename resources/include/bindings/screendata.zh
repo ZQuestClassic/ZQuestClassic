@@ -1057,10 +1057,6 @@ class screendata {
 	// @zasm_var SCREENDATASIDEWARPINDEX
 	internal int SideWarpIndex;
 
-	// @deprecated
-	// @zasm_var SCREENDATANUMFF
-	internal bool NumFFCs[];
-
 	// @deprecated Use [Hero->RespawnX] instead!
 	// @zasm_var SCREENDATAENTRYX
 	internal int EntryX;
