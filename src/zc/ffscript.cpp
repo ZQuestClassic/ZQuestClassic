@@ -20665,7 +20665,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
-			else if (((unsigned)indx) > 0)
+			else if (((unsigned)indx) > 1)
 			{
 				scripting_log_error_with_context("Invalid Array Index: {}", indx);
 			}
