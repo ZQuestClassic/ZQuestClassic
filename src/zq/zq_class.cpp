@@ -2680,6 +2680,30 @@ static mapscr* _zmap_get_lyr_checked(int lyr, mapscr* basescr)
 	}
 	return nullptr;
 }
+static void _zmap_draw_ffc_layer(BITMAP* dest,int32_t x,int32_t y,int32_t flags,mapscr* basescr, int32_t layer)
+{
+	int num_ffcs = basescr->numFFC();
+	for(int32_t i=num_ffcs-1; i>=0; i--)
+	{
+		auto const& ff = basescr->ffcs[i];
+		if(ff.data)
+		{
+			if(!(ff.flags&ffc_changer))
+			{
+				int32_t tx=(ff.x.getInt())+x;
+				int32_t ty=(ff.y.getInt())+y;
+				
+				if((ff.flags&ffc_overlay) ? layer == -1 : layer == ff.layer)
+				{
+					if(ff.flags&ffc_trans)
+						overcomboblocktranslucent(dest,tx,ty,ff.data, ff.cset, ff.txsz, ff.tysz,128);
+					else
+						overcomboblock(dest, tx, ty, ff.data, ff.cset, ff.txsz, ff.tysz);
+				}
+			}
+		}
+	}
+}
 void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t screen,int32_t hl_layer)
 {
 	#define HL_LAYER(lyr) (!(NoHighlightLayer0 && hl_layer == 0) && hl_layer > -1 && hl_layer != lyr)
@@ -2733,43 +2757,21 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	if(XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
 		_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, false, HL_LAYER(2));
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -2);
 	
 	if(XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG))
 		_zmap_drawlayer(dest, x, y, layers[3], antiflags, basescr->layeropacity[3-1]!=255, XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG), HL_LAYER(3));
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -3);
 	
 	_zmap_drawlayer(dest, x, y, layers[0], antiflags, false, (XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG)||XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG)), HL_LAYER(0), true);
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 0);
 	
 	_zmap_drawlayer(dest, x, y, layers[1], antiflags, basescr->layeropacity[1-1]!=255, true, HL_LAYER(1));
-	
-	int num_ffcs = basescr->numFFC();
-	for(int32_t i=num_ffcs-1; i>=0; i--)
-	{
-		if(basescr->ffcs[i].data)
-		{
-			if(!(basescr->ffcs[i].flags&ffc_changer))
-			{
-				if(!(basescr->ffcs[i].flags&ffc_overlay))
-				{
-					int32_t tx=(basescr->ffcs[i].x.getInt())+x;
-					int32_t ty=(basescr->ffcs[i].y.getInt())+y;
-					
-					if(basescr->ffcs[i].flags&ffc_trans)
-					{
-						overcomboblocktranslucent(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset,basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
-						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
-					}
-					else
-					{
-						overcomboblock(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
-						//overtile16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip);
-					}
-				}
-			}
-		}
-	}
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 1);
 	
 	if(!XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
 		_zmap_drawlayer(dest, x, y, layers[2], antiflags, basescr->layeropacity[2-1]!=255, true, HL_LAYER(2));
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 2);
 	
 	int32_t doortype[4];
 	
@@ -2929,7 +2931,10 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	if(!XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG))
 		_zmap_drawlayer(dest, x, y, layers[3], antiflags, basescr->layeropacity[3-1]!=255, true, HL_LAYER(3));
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 3);
+	
 	_zmap_drawlayer(dest, x, y, layers[4], antiflags, basescr->layeropacity[4-1]!=255, true, HL_LAYER(4));
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 4);
 	
 	_zmap_drawlayer_ohead(dest, x, y, layers[0], antiflags, false, HL_LAYER(0));
 	
@@ -2939,36 +2944,16 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		_zmap_drawlayer_ohead(dest, x, y, layers[2], antiflags, basescr->layeropacity[2-1]!=255, HL_LAYER(2));
 	}
 	_zmap_drawlayer(dest, x, y, layers[5], antiflags, basescr->layeropacity[5-1]!=255, true, HL_LAYER(5));
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 5);
 	
-	for(int32_t i=num_ffcs-1; i>=0; i--)
-	{
-		if(basescr->ffcs[i].data)
-		{
-			if(!(basescr->ffcs[i].flags&ffc_changer))
-			{
-				int32_t tx=(basescr->ffcs[i].x.getInt())+x;
-				int32_t ty=(basescr->ffcs[i].y.getInt())+y;
-				
-				if(basescr->ffcs[i].flags&ffc_overlay)
-				{
-					if(basescr->ffcs[i].flags&ffc_trans)
-					{
-						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
-						overcomboblocktranslucent(dest,tx,ty,basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
-					}
-					else
-					{
-						//overtile16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip);
-						overcomboblock(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
-					}
-				}
-			}
-		}
-	}
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -1);
 	
 	_zmap_drawlayer(dest, x, y, layers[6], antiflags, basescr->layeropacity[6-1]!=255, true, HL_LAYER(6));
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 6);
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 7);
 	
-	for(int32_t i=num_ffcs-1; i>=0; i--)
+	int num_ffcs = basescr->numFFC();
+	for(int32_t i=num_ffcs-1; i>=0; i--) // changer ffcs
 		if(basescr->ffcs[i].data)
 			if(basescr->ffcs[i].flags&ffc_changer)
 				putpixel(dest,(basescr->ffcs[i].x.getInt())+x,(basescr->ffcs[i].y.getInt())+y,vc(zc_oldrand()%16));
