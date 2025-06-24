@@ -426,8 +426,8 @@ int get_screen_for_world_xy(int x, int y)
 	if (!is_in_scrolling_region())
 		return cur_screen;
 
-	int dx = vbound(x, 0, world_w - 1) / 256;
-	int dy = vbound(y, 0, world_h - 1) / 176;
+	int dx = std::clamp(x, 0, world_w - 1) / 256;
+	int dy = std::clamp(y, 0, world_h - 1) / 176;
 	int origin_screen_x = cur_screen % 16;
 	int origin_screen_y = cur_screen / 16;
 	int scr_x = origin_screen_x + dx;
@@ -455,8 +455,13 @@ rpos_handle_t get_rpos_handle(rpos_t rpos, int layer)
 	return {scr, screen, layer, rpos, RPOS_TO_POS(rpos)};
 }
 
+// x, y are world coordinates (aka, in relation to origin screen at the top-left).
+// Coordinates are clamped to the world bounds.
 rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
 {
+	x = std::clamp(x, 0, world_w - 1);
+    y = std::clamp(y, 0, world_h - 1);
+
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_in_scrolling_region())
 	{
@@ -488,9 +493,14 @@ void change_rpos_handle_layer(rpos_handle_t& rpos_handle, int layer)
 	rpos_handle.scr = get_scr_layer(rpos_handle.screen, layer);
 }
 
+// x, y are world coordinates (aka, in relation to origin screen at the top-left).
+// Coordinates are clamped to the world bounds.
 combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
+
+	x = std::clamp(x, 0, world_w - 1);
+    y = std::clamp(y, 0, world_h - 1);
 
 	auto maybe_ffc_handle = getFFCAt(x, y);
 	if (maybe_ffc_handle)
