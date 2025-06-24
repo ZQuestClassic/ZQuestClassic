@@ -974,6 +974,8 @@ static GUI::ListData compatRulesList
 		"If enabled, message strings set to draw to layer '6' will actually draw over the subscreen and layer 7 script draws."
 		"\nIf disabled, these strings draw directly UNDER the subscreen instead."
 		"\nHas no effect at all if `Subscreen Appears Above Sprites` is unchecked." + QRHINT({qr_SUBSCREENOVERSPRITES})},
+	{ "Rope enemies speed is not configurable", qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE,
+		"If disabled, when misc attribute 10 is positive for rope enemies it will be used to configure the charging speed." },
 };
 
 static GUI::ListData enemiesRulesList
