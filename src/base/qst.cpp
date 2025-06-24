@@ -3458,6 +3458,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (compatrule_version < 80)
 		set_qr(qr_ZS_OLD_SUSPEND_FFC, 1);
 
+	if (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 6) < 0)
+		set_qr(qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE, 1);
+
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);

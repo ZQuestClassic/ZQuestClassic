@@ -998,6 +998,8 @@ static GUI::ListData compatRulesList
 		" which will look different in the editor than the player, and is not consistent."
 		"\nIf disabled, these colors still may look different in the editor than the player-"
 		" but they will be the closest matching color in the player's palette to the color in the editor." },
+	{ "Rope enemies speed is not configurable", qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE,
+		"If disabled, when misc attribute 10 is positive for rope enemies it will be used to configure the charging speed." },
 };
 
 static GUI::ListData enemiesRulesList
