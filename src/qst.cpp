@@ -3447,6 +3447,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	// to the 2.55 branch. We can't bump the compatrule version anymore, so instead
 	// we check the header version.
 
+	// Older than 2.55.6?
+	if (tempheader.compareVer(2, 55, 6) < 0 && strcmp(tempheader.author, "zcdev") != 0)
+		set_qr(qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE, 1);
+
 	// Older than 2.55.9?
 	if (tempheader.compareVer(2, 55, 9) < 0 && strcmp(tempheader.author, "zcdev") != 0)
 	{

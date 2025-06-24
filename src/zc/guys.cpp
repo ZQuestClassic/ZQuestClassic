@@ -11706,7 +11706,7 @@ void eStalfos::charge_attack()
 			{
 				dir=ldir;
 				dashing=true;
-				if(dmisc10<=0 || replay_version_check(0,33))
+				if (dmisc10<=0 || replay_version_check(0,33) || get_qr(qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE))
 					step=zslongToFix(dstep*100)+1;
 				else
 					step=zslongToFix(dmisc10*100);
