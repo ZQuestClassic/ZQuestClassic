@@ -73,3 +73,4 @@ reword c4a6d8b720e294688fa688828f276e2caf5c1584 refactor(zq): clean up `Quest->A
 reword 35c95f6cc8bdaf374cfef3bf06a4370e573a9cae refactor(zq)!: update door selector to zcgui
 
 drop 14267e6b6fd29a990b66438ed35ccb9e79d9ce74 feat: subscreen minimap compass can point to boss instead of McGuffin
+drop 9a75c5452b9837bf6ac84a0441728e9e513ff422 build: upgrade sentry to 0.9.0

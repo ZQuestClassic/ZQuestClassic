@@ -1097,7 +1097,7 @@ foreach(target IN LISTS zc_targets)
 endforeach()
 
 if(WANT_SENTRY)
-	set(SENTRY_VERSION 0.9.0)
+	set(SENTRY_VERSION 0.6.6)
 	set(SENTRY_BACKEND crashpad)
 	set(SENTRY_BUILD_SHARED_LIBS OFF)
 	FetchContent_Declare(sentry
