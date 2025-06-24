@@ -11939,6 +11939,8 @@ extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 static std::vector<const script_data*> read_scripts;
 
+static script_data fake_script_data(ScriptType::None, 0);
+
 int32_t readffscript(PACKFILE *f, zquestheader *Header)
 {
 	int32_t dummy;
@@ -12033,17 +12035,15 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 		}
 		
-		script_data *fake = new script_data(ScriptType::None, 0);
 		for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, fake, zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, &fake_script_data, zmeta_version);
 			
 			if (ret)
 			{
 				return qe_invalid;
 			}
 		}
-		delete fake;
 	
 		for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
 		{
@@ -12939,6 +12939,9 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	if(!p_igetl(&script->end_pc, f))
 		return qe_invalid;
 
+	if (script == &fake_script_data)
+		return 0;
+
 	assert(zasm_scripts.size() == 1);
 	auto& zs = zasm_scripts[0];
 	script->zasm_script = zs;
@@ -13206,6 +13209,9 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 			}
 		}
 	}
+	
+	if (script == &fake_script_data)
+		return 0;
 
 	// If the first command is unknown, invalidate the whole thing.
 	// Saw this for https://www.purezc.net/index.php?page=quests&id=411 hero script 0
