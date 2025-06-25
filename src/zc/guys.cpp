@@ -16242,7 +16242,9 @@ bool ePatra::animate(int32_t index)
 	{
 		for(int32_t i=index+1; i<index+flycnt+flycnt2+1; i++)
 		{
-			((enemy*)guys.spr(i))->hp = -1000;
+			auto segment = dynamic_cast<esPatra*>(guys.spr(i));
+			if (segment && segment->parent && segment->parent->getUID() == getUID())
+				segment->hp = -1000;
 		}
 		
 		return Dead(index);
