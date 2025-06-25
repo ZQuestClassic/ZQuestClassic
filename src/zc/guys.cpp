@@ -15417,7 +15417,9 @@ bool ePatra::animate(int32_t index)
 	{
 		for(int32_t i=index+1; i<index+flycnt+flycnt2+1; i++)
 		{
-			((enemy*)guys.spr(i))->hp = -1000;
+			auto segment = (enemy*)guys.spr(i);
+			if (segment && segment->parent_uid == uid)
+				segment->hp = -1000;
 		}
 		
 		return Dead(index);
@@ -16243,6 +16245,7 @@ esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,
 	deadsfx = WAV_EDEAD;
 	hitsfx = WAV_EHIT;
 	isCore = false;
+	parent_uid = parent->getUID();
 }
 
 bool esPatra::animate(int32_t index)
@@ -16636,6 +16639,7 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enem
 	hitsfx = WAV_EHIT;
 	flags &= ~guy_never_return;
 	isCore = false;
+	parent_uid = parent->getUID();
 }
 
 bool esPatraBS::animate(int32_t index)
