@@ -29,5 +29,29 @@ generic script bitmap_load_rt_screen
 			b1->Blit(6, b2, 0, 0, 16, 16, Hero->X, Hero->Y-16, 16, 16, 0, 0, 0, BITDX_NORMAL, 0, true);
 			Waitframe();
 		}
+
+		// Clear the screen bitmap - brownout for 60 frames.
+		i = 0;
+		while (i++ < 60)
+		{
+			b2->ClearToColor(1, 5); // brown
+			Waitframe();
+		}
+
+		// Blit from the screen bitmap to a user bitmap, then back to the screen.
+		i = 0;
+		while (i++ < 60)
+		{
+			int lyr = 1;
+			b2->ClearToColor(lyr, 5); // brown
+			// Blit the top-left on the screen to the 16x16 user bitmap.
+			b2->Blit(lyr, b1, 0, 0, 16, 16, 0, 0, 16, 16, 0, 0, 0, BITDX_NORMAL, 0, true);
+			// b1 is brown now
+			b2->ClearToColor(lyr, 1); // white
+			// draw b1 to the top-left.
+			b1->Blit(lyr, b2, 0, 0, 16, 16, 0, 0, 16, 16, 0, 0, 0, BITDX_NORMAL, 0, true);
+			// result: white screen, but top-left is brown.
+			Waitframe();
+		}
 	}
 }

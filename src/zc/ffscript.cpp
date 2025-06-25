@@ -26414,7 +26414,7 @@ void FFScript::do_graphics_getpixel()
 	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0) || (get_qr(qr_BITMAPOFFSETFIX)!=0) );
 	int32_t ref = (ri->d[rEXP1]);
 	
-	BITMAP *bitty = FFCore.GetScriptBitmap(ref);
+	BITMAP *bitty = FFCore.GetScriptBitmap(ref, screen);
 	int32_t xpos  = ri->d[rINDEX2] / 10000;
 	
 	if(!brokenOffset && (ref-10) == -1 )
@@ -36591,11 +36591,13 @@ bool FFScript::doesResolveToDeprecatedSystemBitmap(int32_t bitmap_id)
 	return false;
 }
 
-BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
+BITMAP* FFScript::GetScriptBitmap(int32_t id, BITMAP* screen_bmp, bool skipError)
 {
 	switch (id - 10)
 	{
 		case rtSCREEN:
+			return screen_bmp;
+
 		case rtBMP0:
 		case rtBMP1:
 		case rtBMP2:
@@ -36604,7 +36606,7 @@ BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
 		case rtBMP5:
 		case rtBMP6: //old system bitmaps (render targets)
 		{
-			return zscriptDrawingRenderTarget->GetBitmapPtr(id);
+			return zscriptDrawingRenderTarget->GetBitmapPtr(id - 10);
 		}
 	}
 
@@ -36783,7 +36785,7 @@ int32_t FFScript::do_getpixel()
 	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0)
 		|| (get_qr(qr_BITMAPOFFSETFIX)!=0) );
 	
-	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref);
+	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref, screen);
 	if(!bitty)
 	{
 		bitty = scrollbuf;
@@ -36815,8 +36817,8 @@ void FFScript::do_bmpcollision()
 	int32_t y = SH::read_stack(ri->sp + 2) / 10000;
 	int32_t checkCol = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t maskCol = SH::read_stack(ri->sp + 0) / 10000;
-	BITMAP *checkbit = FFCore.GetScriptBitmap(bmpref, true);
-	BITMAP *maskbit = FFCore.GetScriptBitmap(maskbmpref, true);
+	BITMAP *checkbit = FFCore.GetScriptBitmap(bmpref, screen, true);
+	BITMAP *maskbit = FFCore.GetScriptBitmap(maskbmpref, screen, true);
 	if(!(checkbit && maskbit))
 	{
 		set_register(sarg1, -10000);
