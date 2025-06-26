@@ -423,7 +423,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	hitsfx=d->hitsfx;
 	deadsfx=d->deadsfx;
 	bosspal=d->bosspal;
-	parent_uid = 0;
 	
 	frozentile = d->frozentile;
 	
@@ -1984,7 +1983,7 @@ void enemy::FireWeapon()
 			
 			for(int32_t i=0; i<bats; i++)
 			{
-				if(addchild(screen_spawned,x,y,dmisc3,-10, this->getUID()))
+				if(addchild(screen_spawned,x,y,dmisc3,-10, this))
 				{
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 				}
@@ -2023,7 +2022,7 @@ void enemy::FireWeapon()
 					
 					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Hero.getX())>=32)||(abs(y2-Hero.getY())>=32)))
 					{
-						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->getUID()))
+						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
@@ -12071,7 +12070,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			for(int32_t i=0; i<bats; i++)
 			{
 				// Summon bats (or anything)
-				if(addchild(screen_spawned, x,y,dmisc3,-10, this->getUID()))
+				if(addchild(screen_spawned, x,y,dmisc3,-10, this))
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			}
 			sfx(firesfx, pan(int32_t(x)));
@@ -12104,7 +12103,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 					
 					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Hero.getX())>=32 || abs(y2-Hero.getY())>=32))
 					{
-						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->getUID()))
+						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
@@ -13764,7 +13763,7 @@ bool eMoldorm::animate(int32_t index)
 			
 			segment->o_tile=tile; //I refuse to fuck with adding scripttile to segmented enemies. -Z
 		//Script your own blasted segmented bosses!! -Z
-			segment->parent_uid = this->getUID();
+			segment->setParent(this);
 			if((i==index+segcnt)&&(i!=index+1))                   //tail
 			{
 				segment->dummy_int[1]=2;
@@ -14070,7 +14069,7 @@ bool eLanmola::animate(int32_t index)
 		}
 		
 		segment->o_tile=o_tile;
-		segment->parent_uid = this->getUID();
+		segment->setParent(this);
 		if((i==index+segcnt)&&(i!=index+1))
 		{
 			segment->dummy_int[1]=1;                //tail
@@ -14333,12 +14332,12 @@ bool eManhandla::animate(int32_t index)
 			if(!dmisc2)
 			{
 				cur_arm->o_tile=o_tile+40;
-				cur_arm->parent_uid = this->getUID();
+				cur_arm->setParent(this);
 			}
 			else
 			{
 				cur_arm->o_tile=o_tile+160;
-				cur_arm->parent_uid = this->getUID();
+				cur_arm->setParent(this);
 			}
 		}
 	}
@@ -14853,7 +14852,7 @@ bool eGleeok::animate(int32_t index)
 	{
 		enemy *head = ((enemy*)guys.spr(index+i+1));
 		head->dummy_int[1]=necktile;
-		head->parent_uid = this->getUID();
+		head->setParent(this);
 		
 		if(get_qr(qr_NEWENEMYTILES))
 		{
@@ -15021,8 +15020,9 @@ void eGleeok::draw2(BITMAP *dest)
 	}
 }
 
-esGleeok::esGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,Y,Id,Clk), parent(prnt)
+esGleeok::esGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,Y,Id,Clk)
 {
+	setParent(prnt);
 	xoffset=0;
 	yoffset=(zfix)((dmisc5*4+2));
 //  dummy_bool[0]=false;
@@ -15418,7 +15418,7 @@ bool ePatra::animate(int32_t index)
 		for(int32_t i=index+1; i<index+flycnt+flycnt2+1; i++)
 		{
 			auto segment = (enemy*)guys.spr(i);
-			if (segment && segment->parent_uid == uid)
+			if (segment && segment->parent == this)
 				segment->hp = -1000;
 		}
 		
@@ -15504,13 +15504,13 @@ bool ePatra::animate(int32_t index)
 			{
 				((enemy*)guys.spr(i))->o_tile=d->e_tile+dmisc8;
 				enemy *s = ((enemy*)guys.spr(i));
-				s->parent_uid = this->getUID();
+				s->setParent(this);
 			}
 			else
 			{
 				((enemy*)guys.spr(i))->o_tile=o_tile+1;
 				enemy *s = ((enemy*)guys.spr(i));
-				s->parent_uid = this->getUID();
+				s->setParent(this);
 			}
 			
 			((enemy*)guys.spr(i))->cs=dmisc9;
@@ -16195,9 +16195,10 @@ void ePatra::init_size_flags() {
 
 }
 
-esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,Y,Id,Clk), parent(prnt)
+esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,Y,Id,Clk)
 {
 	//cs=8;
+	setParent(prnt);
 	item_set=0;
 	misc=clk;
 	clk4 = 0;
@@ -16245,7 +16246,6 @@ esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,
 	deadsfx = WAV_EDEAD;
 	hitsfx = WAV_EHIT;
 	isCore = false;
-	parent_uid = parent->getUID();
 }
 
 bool esPatra::animate(int32_t index)
@@ -16603,9 +16603,10 @@ void ePatraBS::init_size_flags()
 	if ((SIZEflags & OVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
 }
 
-esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,Y,Id,Clk), parent(prnt)
+esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,Y,Id,Clk)
 {
 	//cs=csBOSS;
+	setParent(prnt);
 	item_set=0;
 	misc=clk;
 	clk = -((misc*21)>>1)-1;
@@ -16639,7 +16640,6 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enem
 	hitsfx = WAV_EHIT;
 	flags &= ~guy_never_return;
 	isCore = false;
-	parent_uid = parent->getUID();
 }
 
 bool esPatraBS::animate(int32_t index)
@@ -16975,18 +16975,17 @@ int32_t addenemy(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk)
 	return addenemy_z(screen,x,y,0,id,clk);
 }
 
-int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_uid)
+int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, sprite* parent)
 {
-	return addchild_z(screen,x,y,0,id,clk, parent_uid);
+	return addchild_z(screen,x,y,0,id,clk, parent);
 }
 
-int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_uid)
+int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, sprite* parent)
 {
 	if(id <= 0) return 0;
 	
 	int32_t ret = 0;
 	sprite *e=NULL;
-	al_trace("Adding child\n");
 	
 	switch(guysbuf[id&0xFFF].family)
 	{
@@ -17251,8 +17250,7 @@ int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int3
 	}
 	
 	((enemy*)e)->ceiling = (z && canfall(id));
-	((enemy*)e)->parent_uid = parent_uid;
-			
+	e->setParent(parent);
 	
 	if(!guys.add(e))
 	{

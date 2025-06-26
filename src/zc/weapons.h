@@ -107,7 +107,6 @@ public:
      int32_t wpn_misc_d[FFSCRIPT_MISC];
     //! End weapon editor. -Z
     
-    int32_t parent_uid;
     bool isHeroWeapon();
     bool isHeroMelee();
     //2.6 ZScript -Z

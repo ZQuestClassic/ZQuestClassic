@@ -1109,7 +1109,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((GuyH::getNPC()->parent_uid)); //literal, not *10000
+				ret = GuyH::getNPC()->parent ? GuyH::getNPC()->parent->getUID() : 0; //literal, not *10000
 				
 			break;
 
@@ -1997,7 +1997,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		case NPCPARENTUID:
 			if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
 			{
-				GuyH::getNPC()->parent_uid = value; //literal, not *10000
+				GuyH::getNPC()->setParent(sprite::getByUID(value));
 			}
 			break;
 		

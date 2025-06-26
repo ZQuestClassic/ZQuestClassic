@@ -46,8 +46,19 @@ public:
     }
 	void registerUID();
 	void reassignUid(int32_t new_uid);
-    
-   
+
+	sprite* parent;
+	std::vector<sprite*> children;
+	bool isolated_freeze_viewport = false;
+	void setParent(sprite* s)
+	{
+		if (parent)
+			util::remove_if_exists(parent->children, this);
+		parent = s;
+		if (parent)
+			parent->children.push_back(this);
+	}
+
     uint8_t screen_spawned;
     zfix z,fall,fakefall,fakez;
     int32_t tile,shadowtile,cs,flip,c_clk,clk,misc;

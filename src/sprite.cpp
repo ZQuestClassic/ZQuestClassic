@@ -46,6 +46,7 @@ fixed rad_to_fixed(T d)
 sprite::sprite(): solid_object()
 {
     uid = 0;
+	parent = nullptr;
 	screen_spawned = -1;
 	isspawning = false;
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=fall=fakefall=fakez=0;
@@ -153,6 +154,8 @@ sprite::sprite(sprite const & other):
 	ignore_delete(other.ignore_delete)
 {
     uid = 0;
+	parent = nullptr;
+	setParent(other.parent);
 	screen_spawned = other.screen_spawned;
 	isspawning = other.isspawning;
     
@@ -179,6 +182,7 @@ sprite::sprite(sprite const & other):
 sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t Yofs):
     tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
 {
+	parent = nullptr;
 	x = X;
 	y = Y;
     uid = 0;
@@ -262,6 +266,10 @@ sprite::~sprite()
 
 	#ifdef IS_PLAYER
 	all_sprites.erase(uid);
+	if (parent)
+		util::remove_if_exists(parent->children, this);
+	for (auto child : children)
+		child->parent = nullptr;
 	if(auto scrty = get_scrtype())
 	{
 		FFCore.clear_script_engine_data(*scrty, getUID());
@@ -2242,6 +2250,50 @@ void sprite_list::drawcloaked2(BITMAP* dest,bool lowfirst)
 
 extern char *guy_string[];
 
+static bool is_sprite_in_view(const viewport_t& freeze_rect, sprite* spr)
+{
+	if (freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16))
+		return true;
+
+	if (spr->isolated_freeze_viewport)
+		return false;
+
+	// A sprite should be considered in view if their parent is (or if any siblings are - AKA other
+	// children of the parent).
+	// This prevents odd stuff like Moldorms getting stretched out as they move along the viewport
+	// border.
+	// Note: children/parents are not checked recursively. I don't think any engine enemy are that
+	// nested, but technically it's possible with scripting.
+	if (spr->parent)
+	{
+		auto parent = spr->parent;
+		if (freeze_rect.intersects_with(parent->x.getInt(), parent->y.getInt(), parent->txsz*16, parent->tysz*16))
+			return true;
+
+		// Check siblings.
+		for (auto child : parent->children)
+		{
+			if (child->isolated_freeze_viewport)
+				continue;
+
+			if (child != spr && freeze_rect.intersects_with(child->x.getInt(), child->y.getInt(), child->txsz*16, child->tysz*16))
+				return true;
+		}
+	}
+
+	// Check children.
+	for (auto child : spr->children)
+	{
+		if (child->isolated_freeze_viewport)
+			continue;
+
+		if (freeze_rect.intersects_with(child->x.getInt(), child->y.getInt(), child->txsz*16, child->tysz*16))
+			return true;
+	}
+
+	return false;
+}
+
 void sprite_list::animate()
 {
 	active_iterator = 0;
@@ -2267,7 +2319,7 @@ void sprite_list::animate()
 			// TODO: maybe someday make this "freeze" rect size configurable:
 			//       `->ViewportFreezeBuffer` pixels (set to -1 to disable; enemies/eweapons default to 48px)
 			if (is_in_scrolling_region())
-				freeze_sprite |= !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16);
+				freeze_sprite |= !is_sprite_in_view(freeze_rect, spr);
 #endif
 		}
 

@@ -781,7 +781,6 @@ weapon::weapon(weapon const & other):
     isLWeapon(other.isLWeapon),
 	linkedItem(other.linkedItem),
 	//weaponscript(other.weaponscript),
-	parent_uid(other.parent_uid), //Theoretical: Should the parent remain the same, or change to the weapon that spawned the copy?
 	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
 	weapon_dying_frame(other.weapon_dying_frame),
 	weap_timeout(other.weap_timeout),
@@ -1028,6 +1027,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	screen_spawned=get_screen_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
 	type=Type;
+	isolated_freeze_viewport = true;
 	power=pow;
 	parentitem=Parentitem;
 	parentid=prntid;
@@ -1054,7 +1054,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	quantity_iterator = 0;
 	weapon_dying_frame = false;
 	weap_timeout = 0;
-	parent_uid = 0;
 	unblockable = 0;
 	misc_wflags = WFLAG_NONE;
 	last_burnstate = 0;
@@ -1101,7 +1100,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	{
 		enemy *s = (enemy *)guys.getByUID(prntid);
 		weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
-		parent_uid = s->getUID();
+		setParent(s);
 		for ( int32_t q = 0; q < 8; q++ )
 		{
 			weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];

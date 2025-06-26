@@ -5898,7 +5898,7 @@ int32_t get_register(int32_t arg)
 		
 		case EWPNPARENTUID:
 			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->parent_uid);
+				ret = s->parent ? s->parent->getUID() : 0;
 				
 			break;
 		
@@ -17312,7 +17312,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case EWPNPARENTUID:
 			if(0!=(s=checkEWpn(ri->ewpn)))
-			(((weapon*)(s))->parent_uid) = value; //literal, not *10000
+				s->setParent(sprite::getByUID(value));
 			break;
 		
 		case EWPNPARENT:
