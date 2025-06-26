@@ -1858,7 +1858,8 @@ int32_t init_game()
 		if (new_init)
 		{
 			zinit = *new_init;
-			resetItems(game, new_init, false);
+			if (firstplay)
+				resetItems(game, new_init, false);
 			ringcolor(false);
 			delete new_init;
 		}
