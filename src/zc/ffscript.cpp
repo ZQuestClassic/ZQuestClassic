@@ -2898,21 +2898,9 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
-		//Debug->Null()
-		case DONULL: 
-			ret = 0;
-			break;
 		case DEBUGTESTING:
 			ret = use_testingst_start ? 10000 : 0;
 			break;
-		
-		//debug ri->d[]
-		case DEBUGD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			ret = ri->d[a] * 10000;
-			break;
-		}
 		
 		///----------------------------------------------------------------------------------------------------//
 		//FFC Variables
@@ -6100,10 +6088,6 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		
-		case GAMEPLAYFIELDOFS:
-			ret = playing_field_offset*10000;
-			break;
-		
 		case GETPIXEL:
 			ret=FFCore.do_getpixel();
 			break;
@@ -7203,120 +7187,9 @@ int32_t get_register(int32_t arg)
 				ri->lwpn = 0;
 			}
 			
-			/* Z_scripterrlog("CreateLWeaponDx ri->d[rINDEX] is (%i), trying to use for '%s'\n", ID, "ID");
-			Z_scripterrlog("CreateLWeaponDx ri->d[rINDEX2] is (%i), trying to use for '%s'\n", itemid, "itemid");
-			Z_scripterrlog("CreateLWeaponDx ri->lwpn is (%i), trying to use for '%s'\n", ri->lwpn, "ri->lwpn"); */
-			
 			ret = ri->lwpn; 
 		}
 		break;
-		
-		/*
-		//Screen->CollisionDx(int32_t enemy_index, int32_t lweapon_type, int32_t power, int32_t x, int32_t y, int32_t weapon_dir, int32_t parent_item);
-		//Handles collision between an npc at screen index 'enemy_index', and an arbitrary lweapon that may or may not exist.
-		//Does damage, and returns true a value collision is valid. Returns a different value otherwise. 
-		
-		// take damage or ignore it
-		// -1: damage (if any) dealt
-		// 1: blocked
-		// 0: weapon passes through unhindered
-		// 2: heal enemy? -ZoriaRPG
-		
-		//THis function should automatically check for shields blocking the weapon, and calculate enemy defences.
-		//In theory, scritped swords, and other melee weapons could use this, as coudl any weapon, and it may simplify
-		//collision routines. 
-		case COLLISIONDX:
-		{
-			//Z_message("Trying to get Hero->SetExtend().\n");
-			int32_t index = (ri->d[rINDEX] / 10000);
-			int32_t lweapon_type = (ri->d[rINDEX2] / 10000);
-			int32_t power = (ri->d[rEXP1]/10000);
-			
-			int32_t wpnx = ri->4[3]/10000, wpny = ri->d[rSFRAME]/10000;
-			int32_t dir = ri->d[rNUL]/10000;
-			int32_t parentitem = (ri->d[rSFTEMP]/10000);
-			lweapon_type = vbound(lweapon_type,0,40); //Are we at 40, or higher now>
-			parentitem = vbound(itemid,0,255);
-			
-			//Log the stack events:
-			Z_scripterrlog("CollisionDx ri->d[rINDEX] is (%i), trying to use for '%s'\n", index, "index");
-			Z_scripterrlog("CollisionDx ri->d[rINDEX2] is (%i), trying to use for '%s'\n", lweapon_type, "lweapon_type");
-			Z_scripterrlog("CollisionDx ri->d[rEXP1] is (%i), trying to use for '%s'\n", power, "power");
-			Z_scripterrlog("CollisionDx ri->d[rEXP2] is (%i), trying to use for '%s'\n", wpnx, "wpnx");
-			Z_scripterrlog("CollisionDx ri->d[rSFRAME] is (%i), trying to use for '%s'\n", wpny, "wpny");
-			Z_scripterrlog("CollisionDx ri->d[rNUL] is (%i), trying to use for '%s'\n", dir, "dir");
-			Z_scripterrlog("CollisionDx ri->d[rINDEX] is (%i), trying to use for '%s'\n", parentitem, "parentitem");
-			
-			weapon *w = new weapon((zfix)wpnx,(zfix)wpny,(zfix)0,lweapon_type,0,power,dir,parentitem,-1,false);
-			int32_t retval = ((enemy*)guys.spr(index))->takehit(w); 
-				//TakeHit, as I recall, applies damage and returns the hit status. Gold.
-			delete w;
-			ret = retval;
-		}
-		break;
-		
-		*/
-		case DEBUGREFFFC:
-		{
-			int32_t r = -1;
-			if ( ri->ffcref ) r = ri->ffcref;
-				ret = r * 10000;
-			break;
-		}
-			
-		case DEBUGREFITEM:
-		{
-			int32_t r = -1;
-			if ( ri->itemref ) r = ri->itemref;
-				ret = r * 10000;
-			break;
-		}
-			
-		case DEBUGREFITEMDATA:
-		{
-			int32_t r = -1;
-			if ( ri->idata ) r = ri->idata;
-				ret = r * 10000;
-			break;
-		}
-			
-		case DEBUGREFLWEAPON:
-		{
-			int32_t r = -1;
-			if ( ri->lwpn ) r = ri->lwpn;
-				ret = r * 10000;
-			break;
-		}
-			
-		case DEBUGREFEWEAPON:
-		{
-			int32_t r = -1;
-			if ( ri->ewpn ) r = ri->ewpn;
-				ret = r * 10000;
-			break;
-		}
-			
-		case DEBUGREFNPC:
-		{
-			int32_t r = -1;
-			if ( ri->guyref ) r = ri->guyref;
-				ret = r * 10000;
-			break;
-		}    
-			
-		case DEBUGSP:
-		{
-			ret = SH::read_stack(ri->sp) * 10000;
-			break;
-		}   
-		case DEBUGGDR:
-		{
-			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
-			int32_t r = -1;
-			if ( game->global_d[a] ) r = game->global_d[a];
-				ret = r * 10000;
-			break;
-		}
 		
 		///----------------------------------------------------------------------------------------------------//
 		//New Datatype Variables
@@ -13884,14 +13757,6 @@ void set_register(int32_t arg, int32_t value)
 	// Do not ever use `return` in these cases!
 	switch(arg)
 	{
-		//debug ri->d[]
-		case DEBUGD:
-		{
-			int32_t a = vbound((ri->d[rINDEX] / 10000), 0, 255);
-			ri->d[a] = value/10000;
-			break;
-		}    
-		
 	///----------------------------------------------------------------------------------------------------//
 	//FFC Variables
 		case DATA:
@@ -18515,42 +18380,6 @@ void set_register(int32_t arg, int32_t value)
 
 			break;
 		}
-
-		case DEBUGGDR:
-		{
-			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
-			game->global_d[a] = value / 10000;;
-			break;
-		}
-		
-		case DEBUGSP:
-			SH::write_stack(ri->sp,vbound((value / 10000),0,MAX_SCRIPT_REGISTERS-1));
-			break;
-			
-		case DEBUGREFFFC:
-			ri->ffcref = vbound((value / 10000),1,MAXFFCS-1);
-			break;
-			
-		case DEBUGREFITEM:
-			ri->itemref = vbound((value / 10000),0,255);
-			break;
-			
-		case DEBUGREFITEMDATA:
-			ri->idata = vbound((value / 10000),0,255);
-			break;
-			
-		case DEBUGREFLWEAPON:
-			ri->lwpn = vbound((value / 10000),0,255);
-			break;
-			
-		case DEBUGREFEWEAPON:
-			ri->ewpn = vbound((value / 10000),0,255);
-			break;
-			
-		case DEBUGREFNPC:
-			ri->guyref = vbound((value / 10000),0,255);
-			break;
-			
 		
 		//Game Over Screen
 		case SETGAMEOVERELEMENT:
@@ -32777,14 +32606,6 @@ int32_t run_script_int(bool is_jitted)
 			case ADJUSTSFXVOLUMEV: FFCore.do_adjustsfxvolume(true); break;	
 			case ADJUSTVOLUMER: FFCore.do_adjustvolume(false); break;
 			case ADJUSTVOLUMEV: FFCore.do_adjustvolume(true); break;
-				
-			case TRIGGERSECRETR:
-				FFScript::do_triggersecret(false);
-				break;
-				
-			case TRIGGERSECRETV:
-				FFScript::do_triggersecret(true);
-				break;
 				
 			case PLAYMIDIR:
 				do_midi(false);

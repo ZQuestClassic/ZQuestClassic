@@ -13,19 +13,6 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case MUSICUPDATEFLAGS: return "Audio->MusicRefreshFlags[]";
 		case AUDIOPAN: return "Audio->PanStyle";
 		case AUDIOVOLUME: return "Audio->Volume[]";
-		case DEBUGD: return "Debug->D[]";
-		case DEBUGGDR: return "Debug->GDR[]";
-		case DONULL: return "Debug->NULL";
-		case PC: return "Debug->PC";
-		case GAMEPLAYFIELDOFS: return "Debug->PlayfieldOffset";
-		case DEBUGREFEWEAPON: return "Debug->RefEWeapon";
-		case DEBUGREFFFC: return "Debug->RefFFC";
-		case DEBUGREFITEM: return "Debug->RefItem";
-		case DEBUGREFITEMDATA: return "Debug->RefItemdata";
-		case DEBUGREFLWEAPON: return "Debug->RefLWeapon";
-		case DEBUGREFNPC: return "Debug->RefNPC";
-		case SP: return "Debug->SP";
-		case DEBUGTESTING: return "Debug->Testing";
 		case GAMEASUBOPEN: return "Game->ActiveSubscreenOpen";
 		case GAMEASUBYOFF: return "Game->ActiveSubscreenY";
 		case ALLOCATEBITMAPR: return "Game->AllocateBitmap()";
@@ -103,6 +90,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case GAMESTANDALONE: return "Game->Standalone";
 		case ACTIVESSSPEED: return "Game->SubscreenSpeed";
 		case GAMESUSPEND: return "Game->Suspend[]";
+		case DEBUGTESTING: return "Game->Testing";
 		case GAMETIME: return "Game->Time";
 		case GAMETIMEVALID: return "Game->TimeValid";
 		case GAMETRIGGROUPS: return "Game->TrigGroups[]";
@@ -1492,8 +1480,6 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case COMBO_AT: return "ComboAt()";
 		case COPYTILERR: return "CopyTile()";
 		case COSR: return "Cos()";
-		case BREAKPOINT: return "Debug->Breakpoint()";
-		case TRIGGERSECRETR: return "Debug->TriggerSecret()";
 		case DEGTORAD: return "DegtoRad()";
 		case DESTROYARRAYR: return "DestroyArray()";
 		case FACTORIAL: return "Factorial()";

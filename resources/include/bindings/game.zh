@@ -487,6 +487,11 @@ class Game {
 	// @zasm_var GAMESTANDALONE
 	internal bool Standalone;
 
+	// True if running in test mode ('Quest->Test' from the editor).
+	//
+	// @zasm_var DEBUGTESTING
+	internal const bool Testing;
+
 	// The last entrance point the [Hero] used, and will be reset to by some
 	// mechanics.
 	//

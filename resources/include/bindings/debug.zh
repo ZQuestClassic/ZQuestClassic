@@ -1,79 +1,18 @@
 // Contains various debug-only functionality.
 //
 // Access with `Debug->`.
+//
+// @deprecated
 class Debug {
 	// @delete
 	internal Debug();
 
-	// @zasm_var DEBUGREFFFC
-	internal int RefFFC;
-
-	// @zasm_var DEBUGREFITEM
-	internal int RefItem;
-
-	// @zasm_var DEBUGREFITEMDATA
-	internal int RefItemdata;
-
-	// @zasm_var DEBUGREFNPC
-	internal int RefNPC;
-
-	// @zasm_var DEBUGREFLWEAPON
-	internal int RefLWeapon;
-
-	// @zasm_var DEBUGREFEWEAPON
-	internal int RefEWeapon;
-
-	// @zasm_var SP
-	internal int SP;
-
-	// @zasm_var PC
-	internal int PC;
-
-	// @zasm_var DEBUGGDR
-	internal int GDR[];
-
-	// @zasm_var GAMEPLAYFIELDOFS
-	internal const int PlayfieldOffset;
-
-	// This is the value of the ri->d[] registers.
-	//
-	// These vary depending on the function, or the instruction.
-	//
-	// For variable access, SETTER: ri->d[0] is the value being passed to the
-	// variable.
-	//
-	// For variable access, GETTER: ri->d[0] *MIGHT BE* the value read from ther
-	// variable. (Need to verify.)
-	//
-	// For array access, SETTER: ri->d[0] is the array index, and ri->d[1] is
-	// the value.
-	//
-	// For array access, GETTER: ri->d[0] is the array index. Not sure on the
-	// RVal at this time.
-	//
-	// @zasm_var DEBUGD
-	internal int D[];
-
-	// @zasm_var DONULL
-	internal const untyped NULL;
-
 	// Returns true if this instance of ZC was launched from the 'Quest->Test'
 	// option in ZQ.
 	//
+	// @deprecated Use [Game->Testing] instead.
 	// @zasm_var DEBUGTESTING
 	internal const bool Testing;
-
-	// @zasm
-	//   POP D2
-	//   TRIGGERSECRETR D2
-	internal void TriggerSecret(int secret_flag);
-
-	// @deprecated ZASM debugger no longer exists.
-	//
-	// @zasm
-	//   POP D3
-	//   BREAKPOINT D3
-	internal void Breakpoint(char32[] string = NULL);
 }
 
 internal const Debug Debug;
