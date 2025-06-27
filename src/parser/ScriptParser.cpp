@@ -1533,8 +1533,11 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code)
 				if(lbl > -1) //redirect labels that jump to GOTOs
 				{
 					auto targ_lbl = static_cast<LabelArgument*>(op->getArgument())->getID();
-					MergeLabels::merge(targ_lbl, {lbl}, code, nullptr, &runlbl_ptrs);
-					op->setLabel(-1);
+					if(targ_lbl != lbl)
+					{
+						MergeLabels::merge(targ_lbl, {lbl}, code, nullptr, &runlbl_ptrs);
+						op->setLabel(-1);
+					}
 				}
 				++it;
 				continue;
