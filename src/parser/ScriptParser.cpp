@@ -1,4 +1,5 @@
 #include "parser/AST.h"
+#include "parser/Compiler.h"
 #include "parser/DocVisitor.h"
 #include "parser/MetadataVisitor.h"
 #include "parser/owning_vector.h"
@@ -24,6 +25,7 @@
 #include "ZScript.h"
 #include <fmt/format.h>
 #include <tuple>
+#include <type_traits>
 
 #ifdef HAS_SENTRY
 #define SENTRY_BUILD_STATIC 1
@@ -1156,6 +1158,55 @@ void ScriptAssembler::optimize_function(Function* fn)
 	fn->giveCode(code);
 }
 
+template <typename T>
+static int trash_op(T* op, vector<int32_t*>& runlbl_ptrs, vector<shared_ptr<Opcode>>& code, vector<shared_ptr<Opcode>>::iterator& it, std::function<bool(T*)> condfunc)
+{
+	if(condfunc && !condfunc(op))
+	{
+		++it;
+		return 0;
+	}
+
+	auto lbl = op->getLabel();
+	string comment = op->getComment();
+
+	auto it2 = it;
+	++it2;
+	Opcode* nextcode = it2 == code.end() ? nullptr : it2->get();
+	if(nextcode)
+		nextcode->mergeComment(comment, true);
+	if(lbl == -1) /*no label, just trash it*/
+	{
+		it = code.erase(it);
+		return 0;
+	}
+
+	if(!nextcode)
+	{
+		if constexpr (!std::is_same_v<ONoOp, T>)
+		{
+			ONoOp* nop = new ONoOp(lbl);
+			nop->setComment(comment);
+			it = code.erase(it);
+			it = code.insert(it,std::shared_ptr<Opcode>(nop));
+		}
+		return 1; /*can't merge with something that doesn't exist*/
+	}
+
+	auto lbl2 = nextcode->getLabel();
+	if(lbl2 == -1) /*next code has no label, pass the label*/
+	{
+		nextcode->setLabel(lbl);
+		it = code.erase(it);
+		return 0;
+	}
+
+	/*Else merge the two labels!*/
+	it = code.erase(it);
+	MergeLabels::merge(lbl2, {lbl}, code, nullptr, &runlbl_ptrs);
+	return 0;
+}
+
 void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code)
 {
 	// Run automatic optimizations
@@ -1171,44 +1222,14 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code)
 				++it; \
 			}
 			
-			#define TRASH_OP(ty, is_nop, condfunc) \
-			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			#define TRASH_OP(ty, condfunc) \
+			if (auto op = dynamic_cast<ty*>(ocode)) \
 			{ \
-				std::function<bool()> proc = condfunc; \
-				if(proc && !proc()) {++it; continue;} \
-				auto it2 = it; \
-				++it2; \
-				Opcode* nextcode = it2 == code.end() ? nullptr : it2->get(); \
-				if(nextcode) \
-					nextcode->mergeComment(comment, true); \
-				if(lbl == -1) /*no label, just trash it*/ \
-				{ \
-					it = code.erase(it); \
+				if (auto r = trash_op<ty>(op, runlbl_ptrs, code, it, condfunc); r == 0) \
 					continue; \
-				} \
-				if(!nextcode) \
-				{ \
-					if(!is_nop) \
-					{ \
-						ONoOp* nop = new ONoOp(lbl); \
-						nop->setComment(comment); \
-						it = code.erase(it); \
-						it = code.insert(it,std::shared_ptr<Opcode>(nop)); \
-					} \
-					break; /*can't merge with something that doesn't exist*/ \
-				} \
-				auto lbl2 = nextcode->getLabel(); \
-				if(lbl2 == -1) /*next code has no label, pass the label*/ \
-				{ \
-					nextcode->setLabel(lbl); \
-					it = code.erase(it); \
-					continue; \
-				} \
-				/*Else merge the two labels!*/ \
-				it = code.erase(it); \
-				MergeLabels::merge(lbl2, {lbl}, code, nullptr, &runlbl_ptrs); \
-				continue; \
+				else if (r == 1) break; \
 			}
+
 			#define MERGE_CONSEC_1(ty) \
 			if(ty* op = dynamic_cast<ty*>(ocode)) \
 			{ \
@@ -1374,7 +1395,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code)
 			
 		} //macros
 		START_OPT_PASS() //Trim NoOps
-			TRASH_OP(ONoOp, true, nullptr)
+			TRASH_OP(ONoOp, nullptr)
 		END_OPT_PASS()
 		START_OPT_PASS()
 			// Change [PEEKAT reg,0] to [PEEK reg]
@@ -1453,7 +1474,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code)
 			MERGE_CONSEC_REPCOUNT(OPushVargR,OPushVargsR)
 			MERGE_CONSEC_REPCOUNT(OPushVargV,OPushVargsV)
 			// goto if never, can be trashed
-			TRASH_OP(OGotoCompare, false, [&]()
+			TRASH_OP(OGotoCompare, [&](OGotoCompare* op)
 				{
 					auto cmp = op->getSecondArgument()->value;
 					return !(cmp&CMP_FLAGS);
