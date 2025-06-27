@@ -530,7 +530,7 @@ internal long LongDistance(long x1, long y1, long x2, long y2, long scale);
 //   STRINGCOMPARE D2
 internal int strcmp(char32[] str1, char32[] str2);
 
-// Compares the contents of the two strings.
+// Compares the contents of the two strings, up to a length limit.
 //
 // @zasm
 //   POP D1
@@ -539,7 +539,7 @@ internal int strcmp(char32[] str1, char32[] str2);
 //   STRINGNCOMPARE D2
 internal int strncmp(char32[] str1, char32[] str2, int num_chars);
 
-// Compares the contents of the two strings.
+// Compares the contents of the two strings, case-insensitively.
 //
 // @zasm
 //   POP D1
@@ -547,7 +547,7 @@ internal int strncmp(char32[] str1, char32[] str2, int num_chars);
 //   STRINGICOMPARE D2
 internal int stricmp(char32[] str1, char32[] str2);
 
-// Compares the contents of the two strings.
+// Compares the contents of the two strings, up to a length limit, case-insensitively.
 //
 // @zasm
 //   POP D1
@@ -596,6 +596,8 @@ internal int strlen(char32[] str);
 //   ATOI D2 D3
 internal int atoi(char32[] str);
 
+// Converts a string containing a number to its numeric value, as a 'long' value.
+//
 // @zasm
 //   POP D3
 //   ATOL D2 D3
@@ -696,9 +698,7 @@ internal int strchr(char32[] str, char32 c);
 internal int strcspn(char32[] str, char32[] chars);
 
 // Returns the number of characters in a string before a character not contained
-// in
-//
-// 'string_keys' is found
+// in 'string_keys' is found
 //
 // @zasm
 //   POP D1
@@ -891,6 +891,9 @@ internal T ArrayPopFront<T>(T[] arr);
 //   POPARGS D5 0.0002
 internal T ArrayPopAt<T>(T[] arr, int index);
 
+// Generates a random number from 0 to max, exclusive of max. (`0 <= Rand(x) < x`)
+// For more diverse random number generation options, see [randgen].
+//
 // @zasm
 //   POP D3
 //   RNDR D2 D3
