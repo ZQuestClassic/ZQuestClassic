@@ -1695,20 +1695,21 @@ void ScriptAssembler::finalize_labels()
 	// Now fill in those labels
 	SetLabels setlabel;
 	setlabel.execute(rval, &linenos);
-	if (setlabel.err)
-		assemble_err = true;
 	
 	// ...and for tracking the run functions
 	for(auto& pair : runlabels)
 	{
 		auto& pcs = pair.second;
-		pcs.first = SetLabels::check(pcs.first, linenos);
+		pcs.first = SetLabels::check(pcs.first, linenos, &setlabel.err);
 		if(pcs.first)
 			--pcs.first; //stupid 1-indexing...
-		pcs.second = SetLabels::check(pcs.second, linenos);
+		pcs.second = SetLabels::check(pcs.second, linenos, &setlabel.err);
 		if(pcs.second)
 			--pcs.second; //stupid 1-indexing...
 	}
+
+	if (setlabel.err)
+		assemble_err = true;
 }
 
 std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts, Scope* scope)

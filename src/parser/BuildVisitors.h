@@ -346,7 +346,7 @@ namespace ZScript
 		bool err = false;
 		void caseLabel(LabelArgument &host, void *param)
 		{
-			host.setLineNo(check(host.getID(), *(map<int32_t, int32_t> *)param));
+			host.setLineNo(check(host.getID(), *(map<int32_t, int32_t> *)param, &err));
 		}
 		static int check(int lbl, map<int32_t, int32_t> const& labels, bool* error = nullptr)
 		{
