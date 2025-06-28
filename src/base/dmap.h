@@ -12,7 +12,7 @@ struct dmap
 	char xoff;
 	byte compass;
 	word color;
-	byte midi;
+	int16_t midi;
 	byte cont;
 	byte type;
 	byte grid[8];

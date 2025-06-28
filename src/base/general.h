@@ -130,7 +130,7 @@ int wrap(int x,int low,int high);
 
 #define COMBOS_PER_ROW             20
 
-#define WAV_COUNT                  256
+#define WAV_COUNT                  512
 
 #define MAXFFCS                    128
 #define MAX_FFCID                  (region_scr_count * MAXFFCS - 1)
@@ -148,7 +148,7 @@ int wrap(int x,int low,int high);
 #define MIDIOFFSET_ZSCRIPT         (ZC_MIDI_COUNT-1)
 //Use together as `(MIDIOFFSET_DMAP-MIDIOFFSET_ZSCRIPT)` to go from `dmap` directly to `zscript`
 
-
+//This is Enhanced Music?
 #define MAXMUSIC                   256 // uses bit string for music flags, so 32 bytes
 #define MUSICFLAGS_SIZE            (MAXMUSIC>>3)
 
@@ -169,11 +169,11 @@ int wrap(int x,int low,int high);
 #define MAXLEVELS                  512 //this should be the same number (was 32)
 #define OLDMAXLEVELS               256
 #define OLDMAXDMAPS                256
-#define MAXITEMS                   256
-#define MAXWPNS                    256
+#define MAXITEMS                   512
+#define MAXWPNS                    512
 #define OLDBETAMAXGUYS             256 //max 2.5 guys through beta 20
 #define MAXGUYS                    512
-#define MAXITEMDROPSETS            256
+#define MAXITEMDROPSETS            512
 #define COMBOS_PER_PAGE            256
 #define COMBO_PAGES                255
 #define MAXCOMBOS                  (COMBO_PAGES*COMBOS_PER_PAGE)
