@@ -3204,7 +3204,7 @@ template <typename T, size_t N>
 static int read_array(const T(&arr)[N], int index, const char* context)
 {
 	if (BC::checkBounds(index, 0, N - 1, context) != SH::_NoError)
-		return -1;
+		return 0;
 
 	return arr[index];
 }
