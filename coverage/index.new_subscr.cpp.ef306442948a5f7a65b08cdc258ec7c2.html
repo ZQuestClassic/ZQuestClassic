@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-06-28 08:50:40</td>
+      <td>2025-06-30 08:47:23</td>
     </tr>
   </table>
 </div>
@@ -338,7 +338,7 @@
     <tr><td><a href="#l3994">SW_TileBlock::copy_prop(SubscrWidget const*, bool) (line 3994)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l3985">SW_TileBlock::draw(BITMAP*, int, int, SubscrPage&amp;) const (line 3985)</a></td><td>called 43198337 times, returned 43198337 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l3977">SW_TileBlock::getH() const (line 3977)</a></td><td>called 52 times, returned 52 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l3981">SW_TileBlock::getType() const (line 3981)</a></td><td>called 700454 times, returned 700454 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l3981">SW_TileBlock::getType() const (line 3981)</a></td><td>called 700556 times, returned 700556 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l3973">SW_TileBlock::getW() const (line 3973)</a></td><td>called 52 times, returned 52 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l3961">SW_TileBlock::load_old(subscreen_object const&amp;) (line 3961)</a></td><td>called 2119 times, returned 2119 times</td><td>92.0%</td></tr>
     <tr><td><a href="#l4006">SW_TileBlock::read(PACKFILE*, unsigned short) (line 4006)</a></td><td>called 976 times, returned 976 times</td><td>60.0%</td></tr>
@@ -388,7 +388,7 @@
     <tr><td><a href="#l882">SubscrMTInfo::tile() const (line 882)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l922">SubscrMTInfo::write(PACKFILE*) const (line 922)</a></td><td>called 4240 times, returned 4240 times</td><td>60.0%</td></tr>
     <tr><td><a href="#l5908">SubscrPage::SubscrPage(SubscrPage const&amp;) (line 5908)</a></td><td>called 2712 times, returned 2712 times</td><td>50.0%</td></tr>
-    <tr><td><a href="#l5967">SubscrPage::at(unsigned long) (line 5967)</a></td><td>called 282200 times, returned 282200 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l5967">SubscrPage::at(unsigned long) (line 5967)</a></td><td>called 334633 times, returned 334633 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l5865">SubscrPage::clear() (line 5865)</a></td><td>called 9403 times, returned 9403 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l5842">SubscrPage::delete_widg(unsigned short) (line 5842)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l5872">SubscrPage::draw(BITMAP*, int, int, unsigned char, bool) (line 5872)</a></td><td>called 17760316 times, returned 17760316 times</td><td>100.0%</td></tr>
@@ -411,7 +411,7 @@
     <tr><td><a href="#l5954">SubscrPage::push_back(SubscrWidget*) (line 5954)</a></td><td>called 292268 times, returned 292268 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l5912">SubscrPage::read(PACKFILE*, unsigned short) (line 5912)</a></td><td>called 1171 times, returned 1171 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l5946">SubscrPage::setParent(ZCSubscreen const*) (line 5946)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l5959">SubscrPage::size() const (line 5959)</a></td><td>called 285680 times, returned 285680 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l5959">SubscrPage::size() const (line 5959)</a></td><td>called 338113 times, returned 338113 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l5881">SubscrPage::swap(SubscrPage&amp;) (line 5881)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l5857">SubscrPage::swap_widg(unsigned short, unsigned short) (line 5857)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l5823">SubscrPage::widget_index(SubscrWidget*) const (line 5823)</a></td><td>called 14870 times, returned 14870 times</td><td>87.0%</td></tr>
@@ -25599,7 +25599,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">4573890</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">maptile</span><span class="o">=</span><span class="p">(</span><span class="o">!</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_BROKEN_OVERWORLD_MINIMAP</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">))</span><span class="o">?</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_2_tile</span><span class="o">:</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_1_tile</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">maptile</span><span class="o">=</span><span class="p">(</span><span class="o">!</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_BROKEN_OVERWORLD_MINIMAP</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">))</span><span class="o">?</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_tile</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_tile</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3090" href="#l3090">3090</a></td>
@@ -25615,7 +25615,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">4573890</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">mapcset</span><span class="o">=</span><span class="p">(</span><span class="o">!</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_BROKEN_OVERWORLD_MINIMAP</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">))</span><span class="o">?</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_2_cset</span><span class="o">:</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_1_cset</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">mapcset</span><span class="o">=</span><span class="p">(</span><span class="o">!</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_BROKEN_OVERWORLD_MINIMAP</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">))</span><span class="o">?</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_cset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_cset</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3091" href="#l3091">3091</a></td>
@@ -25752,7 +25752,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">4573890</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_1_tile</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">((</span><span class="n">thedmap</span><span class="p">.</span><span class="n">type</span><span class="o">&amp;</span><span class="n">dmfTYPE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">dmBSOVERW</span><span class="p">))</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_tile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">((</span><span class="n">thedmap</span><span class="p">.</span><span class="n">type</span><span class="o">&amp;</span><span class="n">dmfTYPE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">dmBSOVERW</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3106" href="#l3106">3106</a></td>
@@ -25829,7 +25829,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9705497</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">maptile</span><span class="o">=</span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="o">?</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_2_tile</span><span class="o">:</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_1_tile</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">maptile</span><span class="o">=</span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="o">?</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_tile</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_tile</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3116" href="#l3116">3116</a></td>
@@ -25843,7 +25843,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9705497</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">mapcset</span><span class="o">=</span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="o">?</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_2_cset</span><span class="o">:</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_1_cset</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">mapcset</span><span class="o">=</span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="o">?</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_cset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">:</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_cset</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3117" href="#l3117">3117</a></td>
@@ -25980,7 +25980,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9705497</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_2_tile</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">))</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">thedmap</span><span class="p">.</span><span class="n">minimap_tile</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">has_item</span><span class="p">(</span><span class="n">itype_map</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3132" href="#l3132">3132</a></td>
@@ -33073,7 +33073,7 @@
       <td class="lineno"><a id="l3981" href="#l3981">3981</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">700454</td>
+      <td class="linecount coveredLine">700556</td>
       <td class="src coveredLine"><span class="n">byte</span><span class="w"> </span><span class="n">SW_TileBlock</span><span class="o">::</span><span class="n">getType</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -33087,7 +33087,7 @@
       <td class="lineno"><a id="l3983" href="#l3983">3983</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">700454</td>
+      <td class="linecount coveredLine">700556</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">widgTILEBLOCK</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -49661,7 +49661,7 @@
       <td class="lineno"><a id="l5959" href="#l5959">5959</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">285680</td>
+      <td class="linecount coveredLine">338113</td>
       <td class="src coveredLine"><span class="kt">size_t</span><span class="w"> </span><span class="n">SubscrPage</span><span class="o">::</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -49675,7 +49675,7 @@
       <td class="lineno"><a id="l5961" href="#l5961">5961</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">285680</td>
+      <td class="linecount coveredLine">338113</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">contents</span><span class="p">.</span><span class="n">size</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -49717,7 +49717,7 @@
       <td class="lineno"><a id="l5967" href="#l5967">5967</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">282200</td>
+      <td class="linecount coveredLine">334633</td>
       <td class="src coveredLine"><span class="n">SubscrWidget</span><span class="o">*</span><span class="w"> </span><span class="n">SubscrPage</span><span class="o">::</span><span class="n">at</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">ind</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -49731,7 +49731,7 @@
       <td class="lineno"><a id="l5969" href="#l5969">5969</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">282200</td>
+      <td class="linecount coveredLine">334633</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">contents</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">ind</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
