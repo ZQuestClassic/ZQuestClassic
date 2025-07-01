@@ -47,6 +47,20 @@ static ArrayRegistrar NPCDATABEHAVIOUR_registrar(NPCDATABEHAVIOUR, []{
 	return &impl;
 }());
 
+static ArrayRegistrar NPCDATAMOVEFLAGS_registrar(NPCDATAMOVEFLAGS, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<guydata, &guydata::moveflags, 16> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar NPCDATAWMOVEFLAGS_registrar(NPCDATAWMOVEFLAGS, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<guydata, &guydata::wmoveflags, 11> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
 static ArrayRegistrar NPCDATASHIELD_registrar(NPCDATASHIELD, []{
 	static ScriptingArray_ObjectComputed<guydata, bool> impl(
 		[](guydata* guy){ return 5; },

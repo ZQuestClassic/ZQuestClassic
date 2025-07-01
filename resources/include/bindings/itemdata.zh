@@ -911,6 +911,19 @@ class itemdata {
 	//
 	// @zasm_var IDATAMISCD
 	internal untyped WeaponMisc[];
+	
+	// The [itemsprite]'s default movement flags.
+	//
+	// @value [enum MoveFlag]
+	// @zasm_var IDATAMOVEFLAGS
+	internal bool MoveFlags[];
+	
+	// The fired [lweapon]'s default movement flags.
+	// Does not apply to some weapon types (ex. Sword, Hammer, Wand)
+	//
+	// @value [enum MoveFlag]
+	// @zasm_var IDATAWMOVEFLAGS
+	internal bool WeaponMoveFlags[];
 
 	// Fills the buffer with the item's Name.
 	//

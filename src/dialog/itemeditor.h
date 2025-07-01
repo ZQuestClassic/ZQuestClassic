@@ -110,6 +110,8 @@ private:
 	std::shared_ptr<GUI::Widget> FLAG_CHECK(int index, item_flags bit);
 	template <typename T>
 	std::shared_ptr<GUI::Widget> SPRITE_DROP_IMPL(T* mem, int index);
+	std::shared_ptr<GUI::Widget> WeaponMoveFlag(move_flags index, string const& str);
+	std::shared_ptr<GUI::Widget> MoveFlag(move_flags index, string const& str);
 	friend void call_item_editor(int32_t index);
 	friend class ItemWizardDialog;
 };

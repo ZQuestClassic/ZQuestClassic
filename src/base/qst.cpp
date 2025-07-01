@@ -6962,6 +6962,32 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			if(!p_igetw(&tempitem.pickup_litem_level,f))
 				return qe_invalid;
 		}
+		
+		if ( s_version >= 62 )
+		{
+			if (!p_igetl(&tempitem.moveflags, f))
+				return qe_invalid;
+			if (!p_igetl(&tempitem.wmoveflags, f))
+				return qe_invalid;
+		}
+		else
+		{
+			tempitem.moveflags = (move_obeys_grav | move_can_pitfall);
+			switch(tempitem.family)
+			{
+				case itype_bomb:
+				case itype_sbomb:
+				case itype_bait:
+				case itype_liftglove:
+				case itype_candle:
+				case itype_book:
+					tempitem.wmoveflags = (move_obeys_grav | move_can_pitfall);
+					break;
+				default:
+					tempitem.wmoveflags = move_none;
+					break;
+			}
+		}
         
 		if (!should_skip)
 		{

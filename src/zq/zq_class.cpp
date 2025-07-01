@@ -8762,6 +8762,10 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 				new_return(95);
 			if(!p_iputw(itemsbuf[i].pickup_litem_level, f))
 				new_return(96);
+			if (!p_iputl(itemsbuf[i].moveflags, f))
+				new_return(97);
+			if (!p_iputl(itemsbuf[i].wmoveflags, f))
+				new_return(98);
         }
         
         if(writecycle==0)

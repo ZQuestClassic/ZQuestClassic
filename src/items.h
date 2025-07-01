@@ -238,6 +238,9 @@ struct itemdata
 	byte pickup_litems;
 	int16_t pickup_litem_level = -1;
 	
+	move_flags moveflags = (move_obeys_grav | move_can_pitfall);
+	move_flags wmoveflags = move_none;
+	
 	std::string get_name(bool init = false, bool plain = false) const;
 	//helper functions because stupid shit
 	int32_t misc(size_t ind) const
