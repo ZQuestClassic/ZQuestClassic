@@ -1176,6 +1176,18 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wThrown:
 			moveflags |= move_obeys_grav | move_can_pitfall;
 	}
+	if(parentitem >= 0)
+	{
+		switch(id)
+		{
+			case wSword: case wHammer: case wBugNet: case wWand: case wBomb: case wSBomb: case wWhistle:
+			case wCatching: case wHookshot: case wHSHandle: case wHSChain: case wSSparkle: case wFSparkle:
+			case wSmack: case wPhantom: case wStomp:
+				break; // melee or special cases, leave flags as they are
+			default:
+				moveflags = parent.wmoveflags;
+		}
+	}
 	
 	switch(id) //flags
 	{

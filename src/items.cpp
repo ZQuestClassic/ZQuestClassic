@@ -329,7 +329,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	pstring = itm.pstring;
 	pickup_string_flags = itm.pickup_string_flags;
 	linked_parent = family == itype_progressive_itm ? -1 : 0;
-	moveflags = move_obeys_grav | move_can_pitfall;
+	moveflags = itm.moveflags;
 	for ( int32_t q = 0; q < 8; q++ ) initD[q] = itm.initiald[q];
 	
 	//if ( itm.overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itm.pickup;

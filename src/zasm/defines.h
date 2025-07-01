@@ -3222,8 +3222,12 @@ enum ASM_DEFINE
 #define COMBODNUMTRIGGERS    0x162E
 #define REFCOMBOTRIGGER      0x162F
 #define COMBODONLYGEN        0x1630
+#define NPCDATAMOVEFLAGS     0x1631
+#define NPCDATAWMOVEFLAGS    0x1632
+#define IDATAMOVEFLAGS       0x1633
+#define IDATAWMOVEFLAGS      0x1634
 
-#define NUMVARIABLES            0x1631
+#define NUMVARIABLES         0x1635
 
 //} End variables
 

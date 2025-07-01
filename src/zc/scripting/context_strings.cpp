@@ -655,6 +655,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case IDATASETMAX: return "itemdata::MaxIncrement";
 		case IDATAMINHEARTS: return "itemdata::MinHearts";
 		case IDATAMISC: return "itemdata::MiscFlags";
+		case IDATAMOVEFLAGS: return "itemdata::MoveFlags[]";
 		case IDATAPSCRIPT: return "itemdata::PScript";
 		case IDATAPSTRING: return "itemdata::PString";
 		case IDATAPICKUP: return "itemdata::Pickup";
@@ -692,6 +693,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case IDATAWEAPHZSZ: return "itemdata::WeaponHitZHeight";
 		case IDATAWPNINITD: return "itemdata::WeaponInitD[]";
 		case IDATAMISCD: return "itemdata::WeaponMisc[]";
+		case IDATAWMOVEFLAGS: return "itemdata::WeaponMoveFlags[]";
 		case IDATAWEAPONSCRIPT: return "itemdata::WeaponScript";
 		case IDATAOVERRIDEFLWEAP: return "itemdata::WeaponSizeFlags";
 		case IDATATILEHWEAP: return "itemdata::WeaponTileHeight";
@@ -980,6 +982,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case NPCDATAHOMING: return "npcdata::Homing";
 		case NPCDATAHUNGER: return "npcdata::Hunger";
 		case NPCDATAINITD: return "npcdata::InitD[]";
+		case NPCDATAMOVEFLAGS: return "npcdata::MoveFlags[]";
 		case NPCDATARANDOM: return "npcdata::Random";
 		case NPCDATASHEIGHT: return "npcdata::SHeight";
 		case NPCDATASTILE: return "npcdata::STile";
@@ -998,6 +1001,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case NPCDATAWEAPON: return "npcdata::Weapon";
 		case NPCDATAWEAPONDAMAGE: return "npcdata::WeaponDamage";
 		case NPCDATAWEAPONINITD: return "npcdata::WeaponInitD[]";
+		case NPCDATAWMOVEFLAGS: return "npcdata::WeaponMoveFlags[]";
 		case NPCDATAFIRESFX: return "npcdata::WeaponSFX";
 		case NPCDATAWEAPONSCRIPT: return "npcdata::WeaponScript";
 		case NPCDATAWPNSPRITE: return "npcdata::WeaponSprite";

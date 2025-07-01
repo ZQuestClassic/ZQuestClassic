@@ -2959,6 +2959,10 @@ static constexpr script_variable variable_list[]=
 	{ "COMBODNUMTRIGGERS", COMBODNUMTRIGGERS, 0 },
 	{ "REFCOMBOTRIGGER", REFCOMBOTRIGGER, 0 },
 	{ "COMBODONLYGEN", COMBODONLYGEN, 0 },
+	{ "NPCDATAMOVEFLAGS", NPCDATAMOVEFLAGS, 0 },
+	{ "NPCDATAWMOVEFLAGS", NPCDATAWMOVEFLAGS, 0 },
+	{ "IDATAMOVEFLAGS", IDATAMOVEFLAGS, 0 },
+	{ "IDATAWMOVEFLAGS", IDATAWMOVEFLAGS, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -3351,6 +3355,8 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case IDATASPRITE:
 		case IDATAUSEMVT:
 		case IDATAWPNINITD:
+		case IDATAMOVEFLAGS:
+		case IDATAWMOVEFLAGS:
 		case IS8BITTILE:
 		case ISBLANKTILE:
 		case ITEMMISCD:
@@ -3708,6 +3714,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case IDATAMISCD:
 		case IDATASPRITE:
 		case IDATAWPNINITD:
+		case IDATAMOVEFLAGS:
+		case IDATAWMOVEFLAGS:
 			return REFITEMCLASS;
 		
 		case SPRITEDATAFLAGS:

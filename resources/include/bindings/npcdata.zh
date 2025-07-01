@@ -522,6 +522,18 @@ class npcdata {
 	//
 	// @zasm_var NPCDDEATHSPR
 	internal int DeathSprite;
+	
+	// The [npc]'s default movement flags.
+	//
+	// @value [enum MoveFlag]
+	// @zasm_var NPCDATAMOVEFLAGS
+	internal bool MoveFlags[];
+	
+	// The fired [eweapon]'s default movement flags.
+	//
+	// @value [enum MoveFlag]
+	// @zasm_var NPCDATAWMOVEFLAGS
+	internal bool WeaponMoveFlags[];
 
 	// Puts the text of the npc name into string 'ptr'.
 	//

@@ -1199,6 +1199,38 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::WP_INITD(int index)
 	);
 }
 
+std::shared_ptr<GUI::Widget> ItemEditorDialog::MoveFlag(move_flags index, string const& str)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Checkbox(
+		text = str,
+		checked = local_itemref.moveflags & index,
+		fitParent = true,
+		onToggleFunc = [&, index](bool state)
+		{
+			SETFLAG(local_itemref.moveflags, index, state);
+		}
+	);
+}
+
+std::shared_ptr<GUI::Widget> ItemEditorDialog::WeaponMoveFlag(move_flags index, string const& str)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Checkbox(
+		text = str,
+		checked = local_itemref.wmoveflags & index,
+		fitParent = true,
+		onToggleFunc = [&, index](bool state)
+		{
+			SETFLAG(local_itemref.wmoveflags, index, state);
+		}
+	);
+}
+
 int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 {
 	if(local_itemref.family != itype_bottle)
@@ -1511,9 +1543,34 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						),
 						Column(
-							Rows<3>(framed = true, frameText = "SFX",
-								padding = DEFAULT_PADDING*2,
-								margins = DEFAULT_PADDING,
+							Rows<3>(
+								Label(textAlign = 2, width = ACTION_LAB_WID, text = "Weapon Type:"),
+								INFOBTN("If set, the weapon will behave in some ways as the selected type (ex."
+									" the weapon will count as this type for Combo Triggers, enemy defenses, etc)"),
+								DropDownList(
+									fitParent = true,
+									data = list_weaptype,
+									selectedValue = local_itemref.useweapon,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.useweapon = val;
+									}
+								),
+								Label(textAlign = 2, width = ACTION_LAB_WID, text = "Default Defense:"),
+								INFOBTN("When hitting an enemy, if the enemy has a '(None)' defense to this weapon,"
+									" the Default Defense will be used instead."),
+								DropDownList(
+									fitParent = true,
+									data = list_deftypes,
+									selectedValue = local_itemref.usedefense,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.usedefense = val;
+									}
+								),
+								//
+								Label(text = "SFX", colSpan = 3),
+								//
 								l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
 								ib_sfx[0] = Button(forceFitH = true, text = "?",
 									disabled = true,
@@ -1887,121 +1944,23 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						)
 					)),
-					TabRef(name = "Weapon Data", Row(
-						Row(
-							vAlign = 0.0,
-							Rows<4>(
-								Label(hAlign = 1.0, text = "Weapon Type:"),
-								DropDownList(
-									fitParent = true,
-									data = list_weaptype,
-									selectedValue = local_itemref.useweapon,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.useweapon = val;
-									}
-								), _d, _d,
-								Label(hAlign = 1.0, text = "Default Defense:"),
-								DropDownList(
-									fitParent = true,
-									data = list_deftypes,
-									selectedValue = local_itemref.usedefense,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.usedefense = val;
-									}
-								), _d, _d,
-								Label(hAlign = 1.0, text = "Movement Pattern:"),
-								DropDownList(
-									disabled = DISABLE_WEAP_DATA,
-									fitParent = true,
-									data = WeapMoveTypeList,
-									selectedValue = local_itemref.weap_pattern[0],
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.weap_pattern[0] = val;
-									}
-								), _d, _d,
-								Label(hAlign = 1.0, text = "Movement Arg 1:"),
-								TextField(disabled = DISABLE_WEAP_DATA,
-									val = local_itemref.weap_pattern[1],
-									type = GUI::TextField::type::INT_DECIMAL,
-									hAlign = 0.0, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_pattern[1] = val;
-									}
-								),
-								Label(hAlign = 1.0, text = "Weapon Range:"),
-								TextField(disabled = DISABLE_WEAP_DATA,
-									val = local_itemref.weaprange,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weaprange = val;
-									}
-								),
-								Label(hAlign = 1.0, text = "Movement Arg 2:"),
-								TextField(disabled = DISABLE_WEAP_DATA,
-									val = local_itemref.weap_pattern[2],
-									type = GUI::TextField::type::INT_DECIMAL,
-									hAlign = 0.0, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_pattern[2] = val;
-									}
-								),
-								Label(hAlign = 1.0, text = "Weapon Duration:"),
-								TextField(disabled = DISABLE_WEAP_DATA,
-									val = local_itemref.weapduration,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weapduration = val;
-									}
-								),
-								Label(hAlign = 1.0, text = "Movement Arg 3:"),
-								TextField(disabled = DISABLE_WEAP_DATA,
-									val = local_itemref.weap_pattern[3],
-									type = GUI::TextField::type::INT_DECIMAL,
-									hAlign = 0.0, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_pattern[3] = val;
-									}
-								),
-								Label(hAlign = 1.0, text = "Other 1:"),
-								TextField(disabled = DISABLE_WEAP_DATA,
-									val = local_itemref.weap_pattern[5],
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_pattern[5] = val;
-									}
-								),
-								Label(hAlign = 1.0, text = "Movement Arg 4:"),
-								TextField(disabled = DISABLE_WEAP_DATA,
-									val = local_itemref.weap_pattern[4],
-									type = GUI::TextField::type::INT_DECIMAL,
-									hAlign = 0.0, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_pattern[4] = val;
-									}
-								),
-								Label(hAlign = 1.0, text = "Other 2:"),
-								TextField(disabled = DISABLE_WEAP_DATA,
-									val = local_itemref.weap_pattern[6],
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_pattern[6] = val;
-									}
-								)
+					TabRef(name = "MoveFlags", Row(
+						Frame(title = "Item", hAlign = 1.0, fitParent = true,
+							info = "Movement Flags that apply to the Item itself on the ground",
+							Column(hAlign = 1.0, fitParent = true,
+								MoveFlag(move_obeys_grav, "Obeys Gravity"),
+								MoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
+								MoveFlag(move_can_waterdrown, "Can Drown In Liquid")
+							)
+						),
+						Frame(title = "Weapon", hAlign = 1.0, fitParent = true,
+							info = "Movement Flags that apply to the weapon(s) created by this item."
+								" Some weapon types (ex. Sword, Wand, Hammer) will ignore this setting."
+								" (note- Sword Beams / Magic are still affected.)",
+							Column(hAlign = 1.0, fitParent = true,
+								WeaponMoveFlag(move_obeys_grav, "Obeys Gravity"),
+								WeaponMoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
+								WeaponMoveFlag(move_can_waterdrown, "Can Drown In Liquid")
 							)
 						)
 					))

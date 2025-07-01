@@ -17,6 +17,20 @@ static ArrayRegistrar IDATAMISCD_registrar(IDATAMISCD, []{
 	return &impl;
 }());
 
+static ArrayRegistrar IDATAMOVEFLAGS_registrar(IDATAMOVEFLAGS, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<itemdata, &itemdata::moveflags, 11> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar IDATAWMOVEFLAGS_registrar(IDATAWMOVEFLAGS, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<itemdata, &itemdata::wmoveflags, 11> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
 static ArrayRegistrar IDATAWPNINITD_registrar(IDATAWPNINITD, []{
 	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::weap_initiald> impl;
 	impl.setDefaultValue(-10000);
