@@ -119,6 +119,7 @@ public:
     byte ScriptGenerated; //Used to permit creating HeroClass weapons, or other weapon types that the engine does not control.
     byte isLWeapon;
 	bool weapon_dying_frame; //a last_hurrah for weapons -Em
+	bool weapon_start_frame = true; //a ... first hurrah. Used for running scripts earlier on the first frame.
 	bool rundeath; //run death effects
 	int weap_timeout;
     byte specialinfo;
