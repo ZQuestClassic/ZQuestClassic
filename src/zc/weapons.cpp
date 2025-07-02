@@ -3665,6 +3665,13 @@ void weapon::limited_animate()
 }
 bool weapon::animate(int32_t index)
 {
+	if(weapon_start_frame)
+	{
+		if(get_qr(qr_WEAPONS_EXTRA_SPAWN_FRAME))
+			if(runscript_do_earlyret(run_script(MODE_NORMAL)))
+				return 0;
+		weapon_start_frame = false;
+	}
 	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
 	if(switch_hooked)
 	{
@@ -3684,7 +3691,7 @@ bool weapon::animate(int32_t index)
 		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		if(!--fallclk)
 		{
-			if(!weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_FRAME))
+			if(!weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_DEATH_FRAME))
 			{
 				if(id==wSword || id==wBrang)
 				{
@@ -3722,7 +3729,7 @@ bool weapon::animate(int32_t index)
 		//!TODO: Drown SFX
 		if(!--drownclk)
 		{
-			if(!weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_FRAME))
+			if(!weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_DEATH_FRAME))
 			{
 				if(id==wSword || id==wBrang)
 				{
@@ -6620,7 +6627,7 @@ bool weapon::animate(int32_t index)
 				if(dead>0)
 					--dead;
 				
-				if(dead == 0 && !weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_FRAME))
+				if(dead == 0 && !weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_DEATH_FRAME))
 				{
 					weapon_dying_frame = true;
 					return false;
@@ -6928,7 +6935,7 @@ bool weapon::animate(int32_t index)
 	}
 	
 	bool ret = dead==0;
-	if(ret && !weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_FRAME))
+	if(ret && !weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_DEATH_FRAME))
 	{
 		if(id!=wSword)
 		{
