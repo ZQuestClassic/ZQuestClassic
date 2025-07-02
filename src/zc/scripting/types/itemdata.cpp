@@ -20,14 +20,14 @@ static ArrayRegistrar IDATAMISCD_registrar(IDATAMISCD, []{
 static ArrayRegistrar IDATAMOVEFLAGS_registrar(IDATAMOVEFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<itemdata, &itemdata::moveflags, 11> impl;
 	impl.setDefaultValue(0);
-	impl.setMul10000(false);
+	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar IDATAWMOVEFLAGS_registrar(IDATAWMOVEFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<itemdata, &itemdata::wmoveflags, 11> impl;
 	impl.setDefaultValue(0);
-	impl.setMul10000(false);
+	impl.setMul10000(true);
 	return &impl;
 }());
 

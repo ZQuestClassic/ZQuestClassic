@@ -1196,7 +1196,7 @@ static ArrayRegistrar ITEMMISCD_registrar(ITEMMISCD, []{
 static ArrayRegistrar ITEMMOVEFLAGS_registrar(ITEMMOVEFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<item, &item::moveflags, 11> impl;
 	impl.setDefaultValue(0);
-	impl.setMul10000(false);
+	impl.setMul10000(true);
 	return &impl;
 }());
 
