@@ -528,10 +528,12 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgMMAP:
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
-				col_grid = Column(
+				col_grid = Columns<3>(
 					MISC_COLOR_SEL_EX(w->c_plr, "Hero Color", 1, info = "The color of the 'you are here' position"),
 					MISC_COLOR_SEL_EX(w->c_cmp_blink, "Compass Blink Color", 2, info = "The color the compass marker blinks to, when active"),
-					MISC_COLOR_SEL_EX(w->c_cmp_off, "Compass Const Color", 3, info = "The color the compass marker stays when inactive, and blinks from while active"));
+					MISC_COLOR_SEL_EX(w->c_cmp_off, "Compass Const Color", 3, info = "The color the compass marker stays when inactive, and blinks from while active"),
+					MISC_COLOR_SEL_EX(w->c_room_vis, "Visited Room Color", 4, info = "The color that is drawn within the minimap for rooms that are visited")
+				);
 				break;
 			}
 			case widgMMAPTITLE:
@@ -1253,7 +1255,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						INFOBTN("Show the hero's current position on the map."),
 						CBOX(w->flags, SUBSCR_MMAP_SHOWCMP, "Show Compass", 1),
 						INFOBTN("Show the compass marker, which points to the player's destination. Will blink between two colors until"
-							" all of the specified level items are collected.")
+							" all of the specified level items are collected."),
+						CBOX(w->flags, SUBSCR_MMAP_VISITED_REQ_MAP, "Visited Rooms Require Map", 1),
+						INFOBTN("If enabled, visited rooms will not be drawn unless you possess the map.")
 					),
 					Frame(title = "Compass Blink Stops",
 						info = "The compass marker will stop blinking when all of these are collected for the current level",

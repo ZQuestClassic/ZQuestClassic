@@ -10,7 +10,7 @@ namespace GUI
 {
 static bool isCSet(int32_t val)
 {
-	return val <= 11;
+	return val <= 13;
 }
 static const ListData colTyList
 {

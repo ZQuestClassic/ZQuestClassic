@@ -15,7 +15,7 @@ extern bool show_subscreen_life;
 
 void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg);
 void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t flip,bool overlay,bool trans);
-void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2);
+void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t bg_color, int32_t vis_color);
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
 void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t tile,bool bs_style);
 void magicmeter(BITMAP *dest,int32_t x,int32_t y);

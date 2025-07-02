@@ -215,6 +215,7 @@ enum // Flags for [SUBWIDG_MMAP]
 	SUBW_MMAP_FLAG_SHOWMAP, // If the map itself is drawn
 	SUBW_MMAP_FLAG_SHOWPLAYER, // If the player marker is drawn
 	SUBW_MMAP_FLAG_SHOWCOMPASS, // If the compass marker is drawn
+	SUBW_MMAP_VISITED_REQ_MAP, // If visited rooms are only drawn once map is obtained
 	SUBW_MMAP_NUMFLAGS
 };
 enum // Flags for SUBWIDG_LMAP

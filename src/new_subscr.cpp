@@ -3217,79 +3217,77 @@ byte SW_MMap::getType() const
 
 void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	auto const& thedmap = DMaps[get_sub_dmap()];
+	auto dmid = get_sub_dmap();
+	auto const& thedmap = DMaps[dmid];
 	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(thedmap.map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
 	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(thedmap.flags&dmfNOCOMPASS);
+	int vis_color = ((flags&SUBSCR_MMAP_VISITED_REQ_MAP) && !has_item(itype_map, -1)) ? -1 : c_room_vis.get_color();
 	zcolors const& c = QMisc.colors;
 	int32_t type = (thedmap.type&dmfTYPE);
-	
+
 	auto tx = x+xofs, ty = y+yofs;
-	if(flags&SUBSCR_MMAP_SHOWMAP)
+	if (flags & SUBSCR_MMAP_SHOWMAP)
 	{
-		switch(type)
+		bool has_map = has_item(itype_map, -1);
+
+		switch (type)
 		{
-		case dmOVERW:
-		case dmBSOVERW:
-		{
-			int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_tile[1]:thedmap.minimap_tile[0];
-			int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_cset[1]:thedmap.minimap_cset[0];
-			//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-			if(maptile)
+			case dmOVERW:
+			case dmBSOVERW:
 			{
-				draw_block(dest,tx,ty,maptile,mapcset,5,3);
-			}
-			else if(c.overworld_map_tile || c.overworld_map_tile)
-			{
-				draw_block(dest,tx,ty,(c.overworld_map_tile!=0?c.overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
-			}
-			else
-			{
-				rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.overw_bg);
-			}
-			
-			if(!thedmap.minimap_tile[0] && ((thedmap.type&dmfTYPE) == dmBSOVERW))
-			{
-				drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
-			}
-			
-			break;
-		}
-		case dmDNGN:
-		case dmCAVE:
-		{
-			int32_t maptile=has_item(itype_map, -1)?thedmap.minimap_tile[1]:thedmap.minimap_tile[0];
-			int32_t mapcset=has_item(itype_map, -1)?thedmap.minimap_cset[1]:thedmap.minimap_cset[0];
-			//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-			if(maptile)
-			{
-				draw_block(dest,tx,ty,maptile,mapcset,5,3);
-			}
-			else if(c.dungeon_map_tile||c.dungeon_map_tile)
-			{
-				draw_block(dest,tx,ty,(c.dungeon_map_tile!=0?c.dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
-			}
-			else
-			{
-				rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.dngn_bg);
-			}
-			//Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
-			if(!thedmap.minimap_tile[1] && has_item(itype_map, -1))
-			{
-				if((thedmap.flags&dmfMINIMAPCOLORFIX) != 0)
+				int32_t maptile = (!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_map) ? thedmap.minimap_tile[1] : thedmap.minimap_tile[0];
+				int32_t mapcset = (!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_map) ? thedmap.minimap_cset[1] : thedmap.minimap_cset[0];
+				//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+				if (maptile)
 				{
-					drawgrid(dest,tx+8,ty+8,c.cave_fg,-1);
+					draw_block(dest, tx, ty, maptile, mapcset, 5, 3);
+				}
+				else if (c.overworld_map_tile || c.overworld_map_tile)
+				{
+					draw_block(dest, tx, ty, (c.overworld_map_tile != 0 ? c.overworld_map_tile : c.overworld_map_tile), c.overworld_map_cset, 5, 3);
 				}
 				else
 				{
-					drawgrid(dest,tx+8,ty+8,c.dngn_fg,-1);
+					rectfill(dest, tx + 8, ty + 8, tx + 71, ty + 39, c.overw_bg);
 				}
+
+				if (!thedmap.minimap_tile[0] && ((thedmap.type & dmfTYPE) == dmBSOVERW))
+				{
+					drawgrid(dest, tx + 8, ty + 8, c.bs_goal, c.bs_dk, vis_color);
+				}
+
+				break;
 			}
-			
-			break;
-		}
+			case dmDNGN:
+			case dmCAVE:
+			{
+				int32_t maptile = has_map ? thedmap.minimap_tile[1] : thedmap.minimap_tile[0];
+				int32_t mapcset = has_map ? thedmap.minimap_cset[1] : thedmap.minimap_cset[0];
+				//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+				if (maptile)
+				{
+					draw_block(dest, tx, ty, maptile, mapcset, 5, 3);
+				}
+				else if (c.dungeon_map_tile || c.dungeon_map_tile)
+				{
+					draw_block(dest, tx, ty, (c.dungeon_map_tile != 0 ? c.dungeon_map_tile : c.dungeon_map_tile), c.dungeon_map_cset, 5, 3);
+				}
+				else
+				{
+					rectfill(dest, tx + 8, ty + 8, tx + 71, ty + 39, c.dngn_bg);
+				}
+				//Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
+				if (!thedmap.minimap_tile[has_map ? 1 : 0])
+				{
+					auto unvis_color = has_map ? ((thedmap.flags & dmfMINIMAPCOLORFIX) ? c.cave_fg : c.dngn_fg) : -1;
+					drawgrid(dest, tx + 8, ty + 8, unvis_color, -1, vis_color);
+				}
+
+				break;
+			}
 		}
 	}
-	
+
 	if(showcmp)
 	{
 		if(type==dmDNGN || type==dmCAVE)
@@ -3297,13 +3295,13 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			if(show_subscreen_dmap_dots&&has_item(itype_compass, -1))
 			{
 				int32_t c2 = c_cmp_off.get_color();
-				
+
 				if(frame&16)
 				{
 					if((game->lvlitems[get_dlevel()] & compass_litems) != compass_litems) // if you don't have all of them, keep blinking
 						c2 = c_cmp_blink.get_color();
 				}
-					
+
 				int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
 				int32_t cy = ((thedmap.compass&0xF0)>>2)+ty+8;
 				putdot(dest,cx,cy,c2);
@@ -3352,6 +3350,7 @@ bool SW_MMap::copy_prop(SubscrWidget const* src, bool all)
 	c_plr = other->c_plr;
 	c_cmp_blink = other->c_cmp_blink;
 	c_cmp_off = other->c_cmp_off;
+	c_room_vis = other->c_room_vis;
 	return true;
 }
 int32_t SW_MMap::read(PACKFILE *f, word s_version)
@@ -3369,6 +3368,11 @@ int32_t SW_MMap::read(PACKFILE *f, word s_version)
 		return ret;
 	if(auto ret = c_cmp_off.read(f,s_version))
 		return ret;
+	if (s_version >= 15)
+	{
+		if(auto ret = c_room_vis.read(f,s_version))
+			return ret;
+	}
 	return 0;
 }
 int32_t SW_MMap::write(PACKFILE *f) const
@@ -3382,6 +3386,8 @@ int32_t SW_MMap::write(PACKFILE *f) const
 	if(auto ret = c_cmp_blink.write(f))
 		return ret;
 	if(auto ret = c_cmp_off.write(f))
+		return ret;
+	if(auto ret = c_room_vis.write(f))
 		return ret;
 	return 0;
 }

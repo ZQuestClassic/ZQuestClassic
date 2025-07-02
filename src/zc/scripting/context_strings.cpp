@@ -1197,6 +1197,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SUBWIDGTY_COLOR_ROOM: return "subscreenwidget::ColorRoom";
 		case SUBWIDGTY_COLOR_SHD: return "subscreenwidget::ColorShadow";
 		case SUBWIDGTY_COLOR_TXT: return "subscreenwidget::ColorText";
+		case SUBWIDGTY_COLOR_VISITED: return "subscreenwidget::ColorVisited";
 		case SUBWIDGTY_CONTAINER: return "subscreenwidget::Container";
 		case SUBWIDGTY_CORNER: return "subscreenwidget::Corner[]";
 		case SUBWIDGTY_COSTIND: return "subscreenwidget::CostIndex";

@@ -3285,7 +3285,9 @@ enum ASM_DEFINE
 #define HEROITEMCOOLDOWN     0x1664
 #define SUBWIDGTY_TOTAL      0x1665
 
-#define NUMVARIABLES         0x1666
+#define SUBWIDGTY_COLOR_VISITED    0x1666
+
+#define NUMVARIABLES         0x1667
 
 //} End variables
 
