@@ -987,24 +987,31 @@ void Z_eventlog(const char *format,...)
 
 void Z_scripterrlog(const char * const format,...)
 {
-    if(get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0)
-    {
-        FFCore.TraceScriptIDs(true);
-		
-        char buf[2048];
-        
-        va_list ap;
-        va_start(ap, format);
-        vsnprintf(buf, 2048, format, ap);
-        va_end(ap);
-        al_trace("%s",buf);
-        
-		if ( console_enabled ) 
-		{
-			zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
-		}
-    }
+	bool do_user_visible_log = get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0; // TODO: consider removing this, always logging.
+	bool do_replay_log = replay_is_recording() && replay_get_meta_bool("script_trace");
+	if (!do_replay_log && !do_user_visible_log)
+		return;
+
+	if (do_user_visible_log)
+		FFCore.TraceScriptIDs(true);
+
+	char buf[2048];
+
+	va_list ap;
+	va_start(ap, format);
+	vsnprintf(buf, 2048, format, ap);
+	va_end(ap);
+
+	if (do_user_visible_log)
+		al_trace("%s",buf);
+	if (do_replay_log)
+		replay_step_comment(fmt::format("error: {}", buf));
+
+	if ( console_enabled && do_user_visible_log ) 
+	{
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+	}
 }
 
 // TODO: remove if Z_scripterrlog ever is changed to ignore qr_SCRIPTERRLOG, at least for allegro.log.
@@ -1022,6 +1029,8 @@ void Z_scripterrlog_force_trace(const char * const format,...)
 		vsnprintf(buf, 2048, format, ap);
 		va_end(ap);
 		al_trace("%s",buf);
+		if (replay_is_recording() && replay_get_meta_bool("script_trace"))
+			replay_step_comment(fmt::format("error: {}", buf));
 		
 		if ( console_enabled ) 
 		{
@@ -1036,6 +1045,8 @@ void Z_scripterrlog_force_trace(const char * const format,...)
 		vsnprintf(buf, 2048, format, ap);
 		va_end(ap);
 		al_trace("%s",buf);
+		if (replay_is_recording() && replay_get_meta_bool("script_trace"))
+			replay_step_comment(fmt::format("error: {}", buf));
 	}
 }
 

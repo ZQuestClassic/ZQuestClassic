@@ -595,6 +595,16 @@ static void error(ScriptDebugHandle* debug_handle, const zasm_script* script, st
 	}
 }
 
+static void log_error_div_0()
+{
+	scripting_log_error_with_context("Attempted to divide by zero!");
+}
+
+static void log_error_mod_0()
+{
+	scripting_log_error_with_context("Attempted to modulo by zero!");
+}
+
 // Useful if crashing at runtime to find the last command that ran.
 // #define JIT_DEBUG_CRASH
 #ifdef JIT_DEBUG_CRASH
@@ -1353,6 +1363,8 @@ JittedFunction jit_compile_script(zasm_script* script)
 				x86::Gp val = cc.newInt32();
 				zero(cc, val);
 				set_z_register(state, cc, vStackIndex, arg1, val);
+				InvokeNode *invokeNode;
+				cc.invoke(&invokeNode, log_error_div_0, FuncSignatureT<void>(state.calling_convention));
 				continue;
 			}
 
@@ -1383,15 +1395,19 @@ JittedFunction jit_compile_script(zasm_script* script)
 			x86::Gp dividend = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Gp divisor = get_z_register(state, cc, vStackIndex, arg2);
 
+			Label do_modulo = cc.newLabel();
 			Label do_set_register = cc.newLabel();
 
 			x86::Gp rem = cc.newInt32();
 			zero(cc, rem);
 
-			// Prevent division by zero. Result will be zero.
 			cc.test(divisor, divisor);
-			cc.jz(do_set_register);
+			cc.jnz(do_modulo);
+			InvokeNode *invokeNode;
+			cc.invoke(&invokeNode, log_error_mod_0, FuncSignatureT<void>(state.calling_convention));
+			cc.jmp(do_set_register);
 
+			cc.bind(do_modulo);
 			cc.cdq(rem, dividend);
 			cc.idiv(rem, dividend, divisor);
 
@@ -1465,11 +1481,10 @@ JittedFunction jit_compile_script(zasm_script* script)
 			Label do_division = cc.newLabel();
 			Label do_set_register = cc.newLabel();
 
-			// If zero, result is (sign(dividend) * MAX_SIGNED_32)
-			// TODO how expensive is this check? Maybe we can add a new QR that makes div-by-zero an error
-			// and omit these safeguards.
 			cc.test(divisor, divisor);
 			cc.jnz(do_division);
+			InvokeNode *invokeNode;
+			cc.invoke(&invokeNode, log_error_div_0, FuncSignatureT<void>(state.calling_convention));
 			x86::Gp sign = cc.newInt64();
 			cc.mov(sign, dividend);
 			cc.sar(sign, 63);

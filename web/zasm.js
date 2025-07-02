@@ -12,6 +12,7 @@ const emFunctions = {
   getRegister: null,
   setRegister: null,
   runtimeDebug: null,
+  logError: null,
 };
 
 let nextHandleId = 1;
@@ -60,6 +61,7 @@ export async function compileScriptWasmModule(name, ptr, size) {
     emFunctions.getRegister = Module.cwrap('em_get_register', 'int', ['int']);
     emFunctions.setRegister = Module.cwrap('em_set_register', 'void', ['int', 'int']);
     emFunctions.runtimeDebug = Module.cwrap('em_runtime_script_debug', 'void', ['int', 'int']);
+    emFunctions.logError = Module.cwrap('em_log_error', 'void', ['int']);
   }
 
   console.log(`compiling ${name}, ${size} len`);
@@ -78,6 +80,7 @@ export async function compileScriptWasmModule(name, ptr, size) {
         get_register: emFunctions.getRegister,
         set_register: emFunctions.setRegister,
         runtime_debug: emFunctions.runtimeDebug,
+        log_error: emFunctions.logError,
       },
     });
 

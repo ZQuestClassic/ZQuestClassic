@@ -18166,7 +18166,7 @@ void do_div(bool v, const bool inv = false)
 	
 	if(temp == 0)
 	{
-		scripting_log_error_with_context("Script attempted to divide {} by zero!", temp2);
+		scripting_log_error_with_context("Attempted to divide by zero!");
 		set_register(destreg, int32_t(sign(temp2) * MAX_SIGNED_32));
 	}
 	else
@@ -18185,7 +18185,7 @@ void do_mod(bool v, const bool inv = false)
 	
 	if(temp == 0)
 	{
-		scripting_log_error_with_context("Script attempted to modulo {} by zero!", temp2);
+		scripting_log_error_with_context("Attempted to modulo by zero!");
 		temp = 1;
 	}
 	

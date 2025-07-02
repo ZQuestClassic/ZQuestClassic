@@ -65,6 +65,7 @@ struct CompilationState
 	uint8_t f_idx_get_register;
 	uint8_t f_idx_set_register;
 	uint8_t f_idx_runtime_debug;
+	uint8_t f_idx_log_error;
 
 	uint8_t l_idx_ri;
 	uint8_t l_idx_global_d;
@@ -1065,6 +1066,8 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						wasm.emitI64Wrap();
 
 						wasm.emitElse();
+						wasm.emitI32Const(0);
+						wasm.emitCall(state.f_idx_log_error);
 						wasm.emitI32Const(MAX_SIGNED_32);
 						wasm.emitEnd();
 					});
@@ -1089,6 +1092,8 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					set_z_register(state, arg1, [&](){
 						if (arg2 == 0)
 						{
+							wasm.emitI32Const(0);
+							wasm.emitCall(state.f_idx_log_error);
 							wasm.emitI32Const(MAX_SIGNED_32);
 							return;
 						}
@@ -1155,6 +1160,8 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						wasm.emitI32RemS();
 
 						wasm.emitElse();
+						wasm.emitI32Const(1);
+						wasm.emitCall(state.f_idx_log_error);
 						wasm.emitI32Const(0);
 						wasm.emitEnd();
 					});
@@ -1165,6 +1172,8 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					set_z_register(state, arg1, [&](){
 						if (arg2 == 0)
 						{
+							wasm.emitI32Const(1);
+							wasm.emitCall(state.f_idx_log_error);
 							wasm.emitI32Const(0);
 							return;
 						}
@@ -1291,6 +1300,7 @@ JittedFunction jit_compile_script(zasm_script* script)
 	state.f_idx_get_register = comp.builder.importFunction("get_register", 1, 1);
 	state.f_idx_set_register = comp.builder.importFunction("set_register", 2, 0);
 	state.f_idx_runtime_debug = comp.builder.importFunction("runtime_debug", 2, 0);
+	state.f_idx_log_error = comp.builder.importFunction("log_error", 1, 0);
 
 	// params
 	state.l_idx_ri = 0;
@@ -1567,4 +1577,13 @@ extern "C" void em_runtime_script_debug(int pc, int sp)
 	if (runtime_script_debug_handle)
 		runtime_script_debug_handle->pre_command();
 }
+
+extern "C" void em_log_error(int code)
+{
+	if (code == 0)
+		scripting_log_error_with_context("Attempted to divide by zero!");
+	if (code == 1)
+		scripting_log_error_with_context("Attempted to modulo by zero!");
+}
+
 #endif

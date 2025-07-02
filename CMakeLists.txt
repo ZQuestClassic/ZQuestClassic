@@ -1048,7 +1048,7 @@ endif()
 #############################################################
 
 if (EMSCRIPTEN)
-	target_link_options(zplayer PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_em_do_commands,_em_get_register,_em_set_register,_em_runtime_script_debug -s EXPORTED_RUNTIME_METHODS=cwrap,wasmMemory,HEAPU8,HEAP32")
+	target_link_options(zplayer PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_em_do_commands,_em_get_register,_em_set_register,_em_runtime_script_debug,_em_log_error -s EXPORTED_RUNTIME_METHODS=cwrap,wasmMemory,HEAPU8,HEAP32")
 	target_link_options(zeditor PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
 	target_link_options(zscript PRIVATE "SHELL:-no-pthread -s EXPORTED_FUNCTIONS=_main,_compile_script -s EXPORTED_RUNTIME_METHODS=cwrap,FS,PROXYFS")
 	set_target_properties(zscript PROPERTIES SUFFIX ".mjs")
