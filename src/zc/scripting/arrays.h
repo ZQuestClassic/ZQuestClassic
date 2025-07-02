@@ -47,7 +47,10 @@ namespace transforms
 	static std::optional<int> validate(int value)
 	{
 		if (value < min_inclusive || value >= max_exclusive)
+		{
+			scripting_log_error_with_context("Attempted to set invalid value for array: {} - must be >= {} and < {}", value, min_inclusive, max_exclusive);
 			return std::nullopt;
+		}
 
 		return value;
 	}
@@ -56,7 +59,10 @@ namespace transforms
 	static std::optional<int> validate(int value)
 	{
 		if (value < 0 || value >= max_exclusive)
+		{
+			scripting_log_error_with_context("Attempted to set invalid value for array: {} - must be >= {} and < {}", value, 0, max_exclusive);
 			return std::nullopt;
+		}
 
 		return value;
 	}
