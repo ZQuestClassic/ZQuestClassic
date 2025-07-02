@@ -9867,6 +9867,23 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
+		case SUBWIDGTY_COLOR_VISITED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->c_room_vis.get_int_color();
+						break;
+					default:
+						bad_subwidg_type(false, ty);
+						break;
+				}
+			}
+			break;
+		}
 		case SUBWIDGTY_ITEMCLASS:
 		{
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
@@ -17121,6 +17138,24 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgLMAP:
 						((SW_LMap*)widg)->c_room.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type(false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_VISITED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+			{
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						((SW_MMap*)widg)->c_room_vis.set_int_color(val);
 						break;
 					default:
 						bad_subwidg_type(false, ty);

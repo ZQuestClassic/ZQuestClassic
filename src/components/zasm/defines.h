@@ -3362,6 +3362,7 @@ enum ASM_DEFINE
 #define ENGINE_MUSIC_ACTIVE            0x16A3
 #define CMBTRIG_PLAY_MUSIC             0x16A4
 #define CMBTRIG_MUSIC_REFRESH          0x16A5
+#define SUBWIDGTY_COLOR_VISITED        0x16A6
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7
