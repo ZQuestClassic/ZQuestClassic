@@ -7585,6 +7585,7 @@ void updateShowBottomPixels()
 		rti_game.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
 		al_destroy_bitmap(rti_infolayer.bitmap);
 		rti_infolayer.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
+		rti_infolayer.set_size(framebuf->w, framebuf->h);
 	}
 }
 
