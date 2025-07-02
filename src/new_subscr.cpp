@@ -248,7 +248,7 @@ word get_ssc_ctrmax(int ctr)
 			if(!get_qr(qr_TRUEARROWS))
 				ctr = crMONEY;
 			break;
-		
+
 		case sscMAXHP:
 		{
 			ret = game->get_maxlife();
@@ -268,11 +268,11 @@ word get_ssc_ctrmax(int ctr)
 			if(ctr == sscGENKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
 					|| ctr == sscGENKEYMAGIC || ctr == sscANYKEYMAGIC)
 				ret = game->get_maxcounter(crKEYS);
-				
+
 			if(ctr == sscLEVKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
 					|| ctr == sscLEVKEYMAGIC || ctr == sscANYKEYMAGIC)
 				ret = 65535;
-				
+
 			break;
 	}
 	if(ctr > -1)
@@ -313,7 +313,7 @@ word get_ssc_ctr(int ctr, bool* infptr = nullptr)
 				ctr = crMONEY;
 			}
 			break;
-		
+
 		case sscMAXHP:
 		{
 			ret = game->get_maxlife();
@@ -344,11 +344,11 @@ word get_ssc_ctr(int ctr, bool* infptr = nullptr)
 			if(ctr == sscGENKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
 					|| ctr == sscGENKEYMAGIC || ctr == sscANYKEYMAGIC)
 				ret += game->get_keys();
-				
+
 			if(ctr == sscLEVKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
 					|| ctr == sscLEVKEYMAGIC || ctr == sscANYKEYMAGIC)
 				ret += game->get_lkeys();
-				
+
 			break;
 	}
 	if(infptr)
@@ -586,7 +586,7 @@ int32_t SubscrColorInfo::get_color() const
 int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 {
 	int32_t ret;
-	
+
 	switch(type)
 	{
 		case ssctSYSTEM:
@@ -649,85 +649,85 @@ int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 				}
 			}
 			break;
-			
+
 		case ssctMISC:
 			switch(color)
 			{
 				case ssctTEXT:
 					ret=QMisc.colors.text;
 					break;
-					
+
 				case ssctCAPTION:
 					ret=QMisc.colors.caption;
 					break;
-					
+
 				case ssctOVERWBG:
 					ret=QMisc.colors.overw_bg;
 					break;
-					
+
 				case ssctDNGNBG:
 					ret=QMisc.colors.dngn_bg;
 					break;
-					
+
 				case ssctDNGNFG:
 					ret=QMisc.colors.dngn_fg;
 					break;
-					
+
 				case ssctCAVEFG:
 					ret=QMisc.colors.cave_fg;
 					break;
-					
+
 				case ssctBSDK:
 					ret=QMisc.colors.bs_dk;
 					break;
-					
+
 				case ssctBSGOAL:
 					ret=QMisc.colors.bs_goal;
 					break;
-					
+
 				case ssctCOMPASSLT:
 					ret=QMisc.colors.compass_lt;
 					break;
-					
+
 				case ssctCOMPASSDK:
 					ret=QMisc.colors.compass_dk;
 					break;
-					
+
 				case ssctSUBSCRBG:
 					ret=QMisc.colors.subscr_bg;
 					break;
-					
+
 				case ssctSUBSCRSHADOW:
 					ret=QMisc.colors.subscr_shadow;
 					break;
-					
+
 				case ssctTRIFRAMECOLOR:
 					ret=QMisc.colors.triframe_color;
 					break;
-					
+
 				case ssctBMAPBG:
 					ret=QMisc.colors.bmap_bg;
 					break;
-					
+
 				case ssctBMAPFG:
 					ret=QMisc.colors.bmap_fg;
 					break;
-					
+
 				case ssctHERODOT:
 					ret=QMisc.colors.hero_dot;
 					break;
-					
+
 				default:
 					ret=(zc_oldrand()*1000)%256;
 					break;
 			}
-			
+
 			break;
-			
+
 		default:
 			ret=(type<<4)+color;
 	}
-	
+
 	return ret;
 }
 int32_t SubscrColorInfo::get_int_color() const
@@ -776,7 +776,7 @@ int32_t SubscrColorInfo::get_cset() const
 int32_t SubscrColorInfo::get_cset(byte type, int16_t color)
 {
 	int32_t ret=type;
-	
+
 	switch(type)
 	{
 		case ssctMISC:
@@ -785,38 +785,38 @@ int32_t SubscrColorInfo::get_cset(byte type, int16_t color)
 				case sscsTRIFORCECSET:
 					ret=QMisc.colors.triforce_cset;
 					break;
-					
+
 				case sscsTRIFRAMECSET:
 					ret=QMisc.colors.triframe_cset;
 					break;
-					
+
 				case sscsOVERWORLDMAPCSET:
 					ret=QMisc.colors.overworld_map_cset;
 					break;
-					
+
 				case sscsDUNGEONMAPCSET:
 					ret=QMisc.colors.dungeon_map_cset;
 					break;
-					
+
 				case sscsBLUEFRAMECSET:
 					ret=QMisc.colors.blueframe_cset;
 					break;
-					
+
 				case sscsHCPIECESCSET:
 					ret=QMisc.colors.HCpieces_cset;
 					break;
-					
+
 				case sscsSSVINECSET:
 					ret=wpnsbuf[iwSubscreenVine].csets&15;
 					break;
-					
+
 				default:
 					ret=(zc_oldrand()*1000)%256;
 					break;
 			}
 			break;
 	}
-	
+
 	return ret;
 }
 int32_t SubscrColorInfo::get_int_cset() const
@@ -1209,7 +1209,7 @@ int32_t SubscrWidget::getDisplayItem() const
 }
 void SubscrWidget::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	
+
 }
 bool SubscrWidget::visible(byte pos, bool showtime) const
 {
@@ -1378,7 +1378,7 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 			return qe_invalid;
 		is_disabled = tempb != 0;
 	}
-	
+
 	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 	{
 		generic_script = 0;
@@ -1768,9 +1768,9 @@ void SW_Line::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 {
 	if(flags&SUBSCR_LINE_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-	
+
 	line(dest, x+xofs, y+yofs, x+xofs+w-1, y+yofs+h-1, c_line.get_color());
-	
+
 	if(flags&SUBSCR_LINE_TRANSP)
 		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -1828,13 +1828,13 @@ void SW_Rect::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 {
 	if(flags&SUBSCR_RECT_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-	
+
 	auto x2 = x+xofs, y2 = y+yofs;
 	if(flags&SUBSCR_RECT_FILLED)
 		rectfill(dest, x2, y2, x2+w-1, y2+h-1, c_fill.get_color());
-	
+
 	rect(dest, x2, y2, x2+w-1, y2+h-1, c_outline.get_color());
-	
+
 	if(flags&SUBSCR_RECT_TRANSP)
 		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -2154,14 +2154,14 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 	if(!show_subscreen_items) return;
 	if(flags&SUBSCR_BTNITM_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-	
+
 	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
 #ifdef IS_PLAYER
 	if(replay_version_check(19))
 		verifyBothWeapons();
 #endif
 	int ids[] = {Awpn,Bwpn,Xwpn,Ywpn};
-	
+
 	if(replay_version_check(19) && btnitem_ids[btn] != ids[btn])
 	{
 		btnitem_ids[btn] = ids[btn];
@@ -2190,7 +2190,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		if(dodraw)
 			putitem3(dest,x+xofs,y+yofs,btnitem_ids[btn]&0xFF,btnitem_clks[btn]);
 	}
-	
+
 	if(flags&SUBSCR_BTNITM_TRANSP)
 		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -2295,21 +2295,21 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 	FONT* tempfont = get_zc_font(fontid);
 	auto b = zq_ignore_item_ownership;
 	zq_ignore_item_ownership = false;
-	
+
 	{
 		int32_t value=0;
 		bool infinite = false, draw = true;
-		
+
 		if(zq_view_allinf && (can_inf(ctrs[0],infitm)||can_inf(ctrs[1])||can_inf(ctrs[2])))
 			infinite = true;
 		else if(game != NULL && infitm > -1 && game->get_item(infitm) && !item_disabled(infitm))
 			infinite = true;
-		
+
 		char valstring[80];
 		char formatstring[80];
 		sprintf(valstring,"01234567890123456789");
 		sprintf(formatstring, "%%0%dd", mindigits);
-		
+
 		if(flags&SUBSCR_COUNTER_ONLYSEL)
 		{
 			draw = false;
@@ -2325,14 +2325,14 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 				}
 			}
 		}
-		
+
 		if(draw)
 		{
 			int maxty = 1;
 			if (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 33 )
 					|| ( FFCore.getQuestHeaderInfo(vZelda) > 0x250  ) )
 				maxty = 3;
-			
+
 			bool is_full = true;
 			for(int q = 0; q < maxty; ++q)
 			{
@@ -2353,16 +2353,16 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 				if(!is_full_ssc_ctr(ctrs[q]))
 					is_full = false;
 			}
-			
+
 			if(zq_view_noinf)
 				infinite = false;
-			
+
 			if(!(flags&SUBSCR_COUNTER_SHOW0)&&!value&&!infinite)
 			{
 				zq_ignore_item_ownership = b;
 				return;
 			}
-			
+
 			if(infinite)
 				sprintf(valstring, "%c", infchar);
 			else
@@ -2382,11 +2382,11 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 				col_shadow = c_shadow2.get_color();
 				col_bg = c_bg2.get_color();
 			}
-			
+
 			textout_styled_aligned_ex(dest, tempfont, valstring, x+xofs, y+yofs, shadtype, align, col_text, col_shadow, col_bg);
 		}
 	}
-	
+
 	zq_ignore_item_ownership = b;
 }
 SubscrWidget* SW_Counter::clone() const
@@ -2674,35 +2674,35 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		else return;
 	}
 	else return;
-	
+
 	FONT* tempfont = get_zc_font(fontid);
 	auto b = zq_ignore_item_ownership;
 	zq_ignore_item_ownership = false;
-	
+
 	{
 		int32_t value=0;
 		bool infinite = false;
-		
+
 		if(zq_view_allinf && (can_inf(counter)))
 			infinite = true;
-		
+
 		char valstring[80];
 		char formatstring[80];
 		sprintf(valstring,"01234567890123456789");
 		sprintf(formatstring, "%%0%dd", mindigits);
-		
+
 		add_ssc_ctr(counter,infinite,value);
 		bool is_full = is_full_ssc_ctr(counter);
-		
+
 		if(zq_view_noinf)
 			infinite = false;
-		
+
 		if(!(flags&SUBSCR_BTNCOUNTER_SHOW0)&&!value&&!infinite)
 		{
 			zq_ignore_item_ownership = b;
 			return;
 		}
-		
+
 		if(infinite)
 			sprintf(valstring, "%c", infchar);
 		else
@@ -2722,10 +2722,10 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 			col_shadow = c_shadow2.get_color();
 			col_bg = c_bg2.get_color();
 		}
-		
+
 		textout_styled_aligned_ex(dest, tempfont, valstring, x+xofs, y+yofs, shadtype, align, col_text, col_shadow, col_bg);
 	}
-	
+
 	zq_ignore_item_ownership = b;
 }
 SubscrWidget* SW_BtnCounter::clone() const
@@ -3072,12 +3072,15 @@ byte SW_MMap::getType() const
 
 void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	auto const& thedmap = DMaps[get_sub_dmap()];
+	auto dmid = get_sub_dmap();
+	auto const& thedmap = DMaps[dmid];
 	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(thedmap.map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
 	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(thedmap.flags&dmfNOCOMPASS);
+	bool showVisRooms = (!(flags&SUBSCR_MMAP_VISITED_REQ_MAP) || has_item(itype_map, -1)) && c_room_vis.get_color() > -1;
+	bool showUnvisRooms = (!(flags&SUBSCR_MMAP_UNVISITED_REQ_MAP) || has_item(itype_map, -1)) && c_room_unvis.get_color() > -1;
 	zcolors const& c = QMisc.colors;
 	int32_t type = (thedmap.type&dmfTYPE);
-	
+
 	auto tx = x+xofs, ty = y+yofs;
 	if(flags&SUBSCR_MMAP_SHOWMAP)
 	{
@@ -3101,12 +3104,12 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			{
 				rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.overw_bg);
 			}
-			
+
 			if(!thedmap.minimap_tile[0] && ((thedmap.type&dmfTYPE) == dmBSOVERW))
 			{
 				drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
 			}
-			
+
 			break;
 		}
 		case dmDNGN:
@@ -3139,12 +3142,50 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 					drawgrid(dest,tx+8,ty+8,c.dngn_fg,-1);
 				}
 			}
-			
+
 			break;
 		}
 		}
 	}
-	
+
+	if ((showVisRooms || showUnvisRooms) && type != dmOVERW) //broken for overworlds
+	{
+		auto si = 0;
+
+		for (int y2 = 0; y2 <= 7; ++y2)
+		{
+			byte dl = thedmap.grid[si];
+
+			for (int x2 = 0; x2 <= 7; ++x2)
+			{
+				if (!(dl & 0x80))
+				{
+					dl <<= 1;
+					continue;
+				}
+
+				dl <<= 1;
+
+				int scrx = x2 - thedmap.xoff;
+				int screen = scrx + y2 * 0x10;
+
+				auto visited = get_bmaps((dmid << 7) | screen);
+
+				if (!(visited ? showVisRooms : showUnvisRooms))
+					continue;
+
+				auto color = (visited ? c_room_vis : c_room_unvis).get_color();
+
+				auto rx = ((screen & 0xF) << 3) + tx + 10;
+				auto ry = ((screen & 0x10) >> 2) + ty + 8;
+
+				rectfill(dest, rx - 2, ry, rx + 4, ry + 2, color);
+			}
+
+			++si;
+		}
+	}
+
 	if(showcmp)
 	{
 		if(type==dmDNGN || type==dmCAVE)
@@ -3152,13 +3193,13 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			if(show_subscreen_dmap_dots&&has_item(itype_compass, -1))
 			{
 				int32_t c2 = c_cmp_off.get_color();
-				
+
 				if(frame&16)
 				{
 					if((game->lvlitems[get_dlevel()] & compass_litems) != compass_litems) // if you don't have all of them, keep blinking
 						c2 = c_cmp_blink.get_color();
 				}
-					
+
 				int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
 				int32_t cy = ((thedmap.compass&0xF0)>>2)+ty+8;
 				putdot(dest,cx,cy,c2);
@@ -3170,7 +3211,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 	if (get_currscr() == 0x81 && Hero.specialcave == PASSAGEWAY)
 		showplr = false;
 #endif
-	
+
 	if(showplr)
 	{
 		if(show_subscreen_dmap_dots && c_plr.get_color() != 255)
@@ -3207,6 +3248,8 @@ bool SW_MMap::copy_prop(SubscrWidget const* src, bool all)
 	c_plr = other->c_plr;
 	c_cmp_blink = other->c_cmp_blink;
 	c_cmp_off = other->c_cmp_off;
+	c_room_vis = other->c_room_vis;
+	c_room_unvis = other->c_room_unvis;
 	return true;
 }
 int32_t SW_MMap::read(PACKFILE *f, word s_version)
@@ -3224,6 +3267,13 @@ int32_t SW_MMap::read(PACKFILE *f, word s_version)
 		return ret;
 	if(auto ret = c_cmp_off.read(f,s_version))
 		return ret;
+	if (s_version >= 15)
+	{
+		if(auto ret = c_room_vis.read(f,s_version))
+			return ret;
+		if(auto ret = c_room_unvis.read(f,s_version))
+			return ret;
+	}
 	return 0;
 }
 int32_t SW_MMap::write(PACKFILE *f) const
@@ -3237,6 +3287,10 @@ int32_t SW_MMap::write(PACKFILE *f) const
 	if(auto ret = c_cmp_blink.write(f))
 		return ret;
 	if(auto ret = c_cmp_off.write(f))
+		return ret;
+	if(auto ret = c_room_vis.write(f))
+		return ret;
+	if(auto ret = c_room_unvis.write(f))
 		return ret;
 	return 0;
 }
@@ -3588,7 +3642,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 				if(check_sbomb(iid))
 					select=true;
 				break;
-			
+
 			//Super Special Cases for display
 			case itype_map:
 				if(nosp) break;
@@ -3608,7 +3662,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 				select = true;
 				break;
 		}
-		
+
 		if (select && !item_disabled(iid) && game->get_item(iid))
 		{
 			auto ret = iid;
@@ -3654,7 +3708,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 			if(QMisc.colors.HCpieces_tile)
 				return iHCPiece;
 			break;
-		
+
 		default:
 			family = iclass;
 			break;
@@ -4220,7 +4274,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		if(!widg)
 			return;
 	}
-	
+
 	bool big_sel=flags&SUBSCR_SELECTOR_LARGE;
 	int selector_type = (flags&SUBSCR_SELECTOR_USEB) ? 1 : 0;
 	item tempsel(0,0,0,(flags&SUBSCR_SELECTOR_USEB)?iSelectB:iSelectA,0,0,true);
@@ -4298,10 +4352,10 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		tempsel.tysz = ((sh%16)?1:0)+(sh/16);
 	}
 	else new_animate = false;
-	
+
 	dummyitem_animate(&tempsel,subscr_item_clk);
 	if(!tempsel.tile) return;
-	
+
 	if(!new_animate)
 	{
 		if(oldsel)
@@ -4350,7 +4404,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		int32_t tmpx = xofs+(big_sel?(j%2?8:-8):0);
 		int32_t tmpy = yofs+(big_sel?(j>1?8:-8):0);
 		masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
-		
+
 		if(!big_sel)
 			break;
 		tempsel.tile+=zc_max(itemsbuf[tempsel.id].frames,1);
@@ -4413,7 +4467,7 @@ void SW_GaugePiece::draw_piece(BITMAP* dest, int dx, int dy, int container, int 
 		ctr_per_cont = get_per_container();
 	int containers=ctr_max/ctr_per_cont;
 	int fr = frames ? frames : 1;
-	
+
 	int ind = 3;
 	if(container<containers)
 		ind = 0;
@@ -4422,14 +4476,14 @@ void SW_GaugePiece::draw_piece(BITMAP* dest, int dx, int dy, int container, int 
 	else if(container==containers+1)
 		ind = 2;
 	//else if (container>containers+1)
-	
+
 	int mtile = mts[ind].getTileCrn();
 	int cset = mts[ind].cset;
 	bool mod_value = (flags&(SUBSCR_GAUGE_MOD1<<ind));
 	int tile = mtile>>2;
-	
+
 	bool fulltile = (flags&SUBSCR_GAUGE_FULLTILE);
-	
+
 	int ctr_ofs = 0;
 	if(mod_value) //Change the tile based on ctr
 	{
@@ -4443,7 +4497,7 @@ void SW_GaugePiece::draw_piece(BITMAP* dest, int dx, int dy, int container, int 
 				ctr_ofs=0;
 			else
 				ctr_ofs=((ctr_cur-((container-1)*ctr_per_cont))%ctr_per_cont);
-			
+
 			ctr_ofs /= (unit_per_frame+1);
 			if(full)
 			{
@@ -4465,9 +4519,9 @@ void SW_GaugePiece::draw_piece(BITMAP* dest, int dx, int dy, int container, int 
 				++ctr_ofs;
 		}
 	}
-	
+
 	int offs = (ctr_ofs*fr)+anim_offs;
-	
+
 	if(fulltile)
 		overtile16(dest,tile+offs,dx,dy,cset,0);
 	else overtile8(dest,mtile+offs,dx,dy,cset,0);
@@ -4476,14 +4530,14 @@ void SW_GaugePiece::draw(BITMAP* dest, int xofs, int yofs, SubscrPage& page) con
 {
 	auto b = zq_ignore_item_ownership;
 	zq_ignore_item_ownership = false;
-	
+
 	bool inf = infinite();
 	if(flags & (inf ? SUBSCR_GAUGE_INFITM_BAN : SUBSCR_GAUGE_INFITM_REQ))
 	{
 		zq_ignore_item_ownership = b;
 		return;
 	}
-	
+
 	int anim_offs = 0;
 	bool animate = true;
 	auto ctr = get_ctr();
@@ -4517,7 +4571,7 @@ void SW_GaugePiece::draw(BITMAP* dest, int xofs, int yofs, SubscrPage& page) con
 		}
 		if(skipanim) ++anim_offs;
 	}
-	
+
 	if(!gauge_hei && !gauge_wid) //1x1
 	{
 		draw_piece(dest, x+xofs, y+yofs, container, anim_offs);
@@ -4798,7 +4852,7 @@ void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPag
 	{
 		zc_oldrand();zc_oldrand();zc_oldrand();
 	}
-	
+
 	SW_GaugePiece::draw(dest, xofs, yofs, page);
 }
 SubscrWidget* SW_LifeGaugePiece::clone() const
@@ -4876,12 +4930,12 @@ void SW_MagicGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPa
 {
 	if(showdrain > -1 && showdrain != game->get_magicdrainrate())
 		return;
-	
+
 	if(replay_version_check(0,19))
 	{
 		zc_oldrand();zc_oldrand();zc_oldrand();
 	}
-	
+
 	SW_GaugePiece::draw(dest, xofs, yofs, page);
 }
 SubscrWidget* SW_MagicGaugePiece::clone() const
@@ -5118,12 +5172,12 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 			bool bowarrow = itemid&0xF000;
 			if(bowarrow)
 				itemid&=~0xF000;
-			
+
 			#if IS_PLAYER
 			if(replay_version_check(0,19) && !game->get_item(itemid))
 				return;
 			#endif
-			
+
 			itemdata const& itm = itemsbuf[itemid];
 			str = itm.get_name(false,itm.family==itype_arrow && !bowarrow);
 			if(widg->getType() == widgITEMSLOT && (widg->flags&SUBSCR_CURITM_IGNR_SP_SELTEXT))
@@ -5213,10 +5267,10 @@ void SW_CounterPercentBar::draw(BITMAP* dest, int32_t xofs, int32_t yofs, Subscr
 	auto c1 = c_fill.get_color();
 	auto c2 = c_bg.get_color();
 	if(!c1 && !c2) return;
-	
+
 	if(flags&SUBSCR_COUNTERPERCBAR_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-	
+
 	auto cur = get_ssc_ctr(counter);
 	auto max = get_ssc_ctrmax(counter);
 	zfix perc = max ? vbound((zfix(cur)/max), 1_zf, 0_zf) : 0_zf;
@@ -5244,7 +5298,7 @@ void SW_CounterPercentBar::draw(BITMAP* dest, int32_t xofs, int32_t yofs, Subscr
 		if(c2 > -1)
 			rectfill(dest, x2+xs, y2, x2+w-xs-1, y2+h-1, c2);
 	}
-	
+
 	if(flags&SUBSCR_COUNTERPERCBAR_TRANSP)
 		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -5259,7 +5313,7 @@ bool SW_CounterPercentBar::copy_prop(SubscrWidget const* src, bool all)
 	SW_CounterPercentBar const* other = dynamic_cast<SW_CounterPercentBar const*>(src);
 	if(!SubscrWidget::copy_prop(other,all))
 		return false;
-	
+
 	counter = other->counter;
 	c_fill = other->c_fill;
 	c_bg = other->c_bg;
@@ -5269,7 +5323,7 @@ int32_t SW_CounterPercentBar::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	
+
 	if(!p_igetw(&counter, f))
 		return qe_invalid;
 	if(auto ret = c_fill.read(f,s_version))
@@ -5548,41 +5602,41 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	// verify startpos
 	if(cursor_pos == 0xFF)
 		cursor_pos = 0;
-	
+
 	item_only = item_only || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
-	
+
 	if(dir==SEL_VERIFY_RIGHT || dir==SEL_VERIFY_LEFT)
 		return;
-	
+
 	int32_t p=-1;
 	int32_t curpos = cursor_pos;
 	int32_t firstValidPos=-1;
-	
+
 	for(int32_t i=0; i < contents.size(); ++i)
 	{
 		if((contents[i]->genflags&SUBSCRFLAG_SELECTABLE) && contents[i]->check_conditions())
 		{
 			if(firstValidPos==-1 && contents[i]->pos>=0)
 				firstValidPos=i;
-			
+
 			if(contents[i]->pos==curpos)
 				p=i;
 			if(p>-1 && firstValidPos>-1)
 				break;
 		}
 	}
-	
+
 	if(p == -1)
 	{
 		if(firstValidPos>=0)
 			cursor_pos = contents[firstValidPos]->pos;
 		return;
 	}
-	
+
 	//remember we've been here
 	std::set<int32_t> oldPositions;
 	oldPositions.insert(curpos);
-	
+
 	//1. Perform any shifts required by the above
 	//2. If that's not possible, go to position 1 and reset the b weapon.
 	//2a.  -if we arrive at a position we've already visited, give up and stay there
@@ -5598,34 +5652,34 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 			case SEL_VERIFY_LEFT:
 				curpos = widg->pos_left;
 				break;
-				
+
 			case SEL_RIGHT:
 			case SEL_VERIFY_RIGHT:
 				curpos = widg->pos_right;
 				break;
-				
+
 			case SEL_DOWN:
 				curpos = widg->pos_down;
 				break;
-				
+
 			case SEL_UP:
 				curpos = widg->pos_up;
 				break;
 		}
-		
+
 		//find our new position
 		widg = get_widg_pos(curpos,item_only);
-		
+
 		if(!widg)
 			return;
-		
+
 		//if we've already been here, give up
 		if(oldPositions.find(curpos) != oldPositions.end())
 			return;
-		
+
 		//else, remember we've been here
 		oldPositions.insert(curpos);
-		
+
 		//Valid stop point?
 		if((widg->genflags & SUBSCRFLAG_SELECTABLE) && (!item_only || widg->getItemVal() > -1) && widg->check_conditions())
 		{
@@ -5648,10 +5702,10 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 	else if(startp == fp || startp == fp2 || startp == fp3)
 		failpos = 0xFF;
 	else failpos = startp;
-	
+
 	item_only = item_only || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
 	bool verify = dir==SEL_VERIFY_RIGHT || dir==SEL_VERIFY_LEFT;
-	
+
 	if(verify)
 	{
 		equip_only = true;
@@ -5667,12 +5721,12 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 					&& (!item_only || widg->getItemVal() > -1))
 					return startp; //Valid selectable slot
 	}
-	
+
 	int32_t p=-1;
 	byte curpos = startp>>8;
 	word cp2 = (curpos<<8)|index; //curpos is the index for this page, cp2 includes the page index
 	int32_t firstValidPos=-1, firstValidEquipPos=-1;
-	
+
 	for(int32_t i=0; i < contents.size(); ++i)
 	{
 		if(contents[i]->getType()==widgITEMSLOT && (contents[i]->genflags&SUBSCRFLAG_SELECTABLE)
@@ -5683,14 +5737,14 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 			if(firstValidEquipPos==-1 && contents[i]->pos>=0)
 				if(!equip_only || !(contents[i]->flags&SUBSCR_CURITM_NONEQP))
 					firstValidEquipPos=i;
-			
+
 			if(contents[i]->pos==curpos)
 				p=i;
 			if(p>-1 && firstValidPos>-1 && firstValidEquipPos>-1)
 				break;
 		}
 	}
-	
+
 	if(p == -1)
 	{
 		//can't find the current position
@@ -5703,11 +5757,11 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 		//FAILURE
 		else return failpos;
 	}
-	
+
 	//remember we've been here
 	std::set<int32_t> oldPositions;
 	oldPositions.insert(cp2);
-	
+
 	//1. Perform any shifts required by the above
 	//2. If that's not possible, go to position 1 and reset the b weapon.
 	//2a.  -if we arrive at a position we've already visited, give up and stay there
@@ -5725,16 +5779,16 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 			case SEL_VERIFY_LEFT:
 				curpos = widg->pos_left;
 				break;
-				
+
 			case SEL_RIGHT:
 			case SEL_VERIFY_RIGHT:
 				curpos = widg->pos_right;
 				break;
-				
+
 			case SEL_DOWN:
 				curpos = widg->pos_down;
 				break;
-				
+
 			case SEL_UP:
 				curpos = widg->pos_up;
 				break;
@@ -5742,17 +5796,17 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 		cp2 = (curpos<<8)|pg->index;
 		//find our new position
 		widg = pg->get_widg_pos(curpos,false);
-		
+
 		if(!widg)
 			return failpos;
-		
+
 		//if we've already been here, give up
 		if(oldPositions.find(cp2) != oldPositions.end())
 			return failpos;
-		
+
 		//else, remember we've been here
 		oldPositions.insert(cp2);
-		
+
 		//Valid stop point?
 		if((!stay_on_page||(cp2&0xFF)==index)
 			&& (widg->genflags & SUBSCRFLAG_SELECTABLE)
@@ -5836,7 +5890,7 @@ SubscrWidget* SubscrPage::get_widget(int indx)
 {
 	if(unsigned(indx) >= contents.size())
 		return nullptr;
-	
+
 	return contents[indx];
 }
 void SubscrPage::delete_widg(word ind)
@@ -5936,7 +5990,7 @@ int32_t SubscrPage::write(PACKFILE *f) const
 	for(word q = 0; q < sz; ++q)
 		if(auto ret = contents[q]->write(f))
 			return ret;
-	
+
 	return 0;
 }
 word SubscrPage::getIndex() const
@@ -6011,7 +6065,7 @@ int32_t ZCSubscreen::get_item_pos(word pgpos)
 void ZCSubscreen::delete_page(byte id)
 {
 	if(id >= pages.size()) return;
-	
+
 	if(pages.size()==1)
 	{
 		pages[0].clear();
@@ -6108,7 +6162,7 @@ void ZCSubscreen::copy_settings(const ZCSubscreen& src, bool all)
 void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
 {
 	if(pages.empty()) return;
-	
+
 	if(sub_type == sstACTIVE && subscr_pg_animating && subscr_anim == this)
 	{
 		if(subscr_pg_to >= pages.size())
@@ -6137,7 +6191,7 @@ void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool 
 		}
 		subscrpg_clear_animation();
 	}
-	
+
 	size_t page = curpage >= pages.size() ? 0 : curpage;
 	pages[page].draw(dest,xofs,yofs,pos,showtime);
 }
@@ -6281,7 +6335,7 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 	for(byte q = 0; q < pagecnt; ++q)
 		if(auto ret = pages[q].write(f))
 			return ret;
-	
+
 	return 0;
 }
 

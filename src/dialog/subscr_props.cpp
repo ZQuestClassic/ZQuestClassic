@@ -295,7 +295,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	using namespace GUI::Props;
 	std::string titlebuf = fmt::format("{} Properties (Object #{})",
 		local_subref->getTypeName(), index);
-	
+
 	std::shared_ptr<GUI::Grid> loc_grid;
 	//Generate 'location' grid
 	{
@@ -423,9 +423,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		{
 			g1->add(DummyWidget());
 		}
-		
+
 	}
-	
+
 	std::shared_ptr<GUI::Grid> col_grid;
 	//Generate 'color' grid
 	{
@@ -514,10 +514,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgMMAP:
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
-				col_grid = Column(
+				col_grid = Columns<3>(
 					MISC_COLOR_SEL_EX(w->c_plr, "Hero Color", 1, info = "The color of the 'you are here' position"),
 					MISC_COLOR_SEL_EX(w->c_cmp_blink, "Compass Blink Color", 2, info = "The color the compass marker blinks to, when active"),
-					MISC_COLOR_SEL_EX(w->c_cmp_off, "Compass Const Color", 3, info = "The color the compass marker stays when inactive, and blinks from while active"));
+					MISC_COLOR_SEL_EX(w->c_cmp_off, "Compass Const Color", 3, info = "The color the compass marker stays when inactive, and blinks from while active"),
+					MISC_COLOR_SEL_EX(w->c_room_vis, "Visited Room Color", 4, info = "The color that is drawn within the minimap for rooms that are visited"),
+					MISC_COLOR_SEL_EX(w->c_room_unvis, "Non-Visited Room Color", 5, info = "The color that is drawn within the minimap for rooms that are not yet visited")
+				);
 				break;
 			}
 			case widgMMAPTITLE:
@@ -602,7 +605,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 		}
 	}
-	
+
 	std::shared_ptr<GUI::Grid> attrib_grid;
 	TabBuilder extra_grids;
 	enum { mtNONE, mtFORCE_TAB, mtLOCTOP };
@@ -1118,7 +1121,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						break;
 					}
 				}
-				
+
 				break;
 			}
 			case widgLMETER:
@@ -1239,7 +1242,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								w->crn = crn;
 								return;
 							}
-							
+
 							if(w->cs.type != ssctMISC)
 							{
 								w->cs.type = c;
@@ -1534,13 +1537,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					CBOX(w->flags, SUBSCR_COUNTERPERCBAR_INVERT, "Invert", 2),
 					INFOBTN("If checked, the bar fill direction is reversed (top-to-bottom or right-to-left)")
 				);
-				
+
 				break;
 			}
 			default: attrib_grid = Column(Label(text = "ERROR")); break;
 		}
 	}
-	
+
 	std::shared_ptr<GUI::Grid> g = Rows<2>(padding = 0_px);
 	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &sprop_tabs[local_subref->getType()],
 			TabRef(name = "Basic", g)
@@ -1954,7 +1957,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	window = Window(
 		title = titlebuf,
 		onClose = message::CANCEL,
-		hPadding = 0_px, 
+		hPadding = 0_px,
 		Column(
 			tpan,
 			Row(
@@ -1995,12 +1998,12 @@ void SubscrPropDialog::updateSelectable()
 	selgs[3]->setDisabled(selovdis);
 	seltfs[0]->setDisabled(pgdis || local_subref->pg_mode != PGGOTO_TRG);
 	selbtns[0]->setDisabled(pgdis);
-	
-	
+
+
 	if(local_subref->generic_script)
 		local_gen_meta = genericscripts[local_subref->generic_script]->meta;
 	else local_gen_meta.zero();
-	
+
 	for(int q = 0; q < 8; ++q)
 	{
 		std::string lbl = local_gen_meta.initd[q];
@@ -2046,7 +2049,7 @@ void SubscrPropDialog::updateConditions()
 	{
 		list_reqitems.add(GUI::ListItem(list_items_no_none.accessItem(iid)));
 	}
-	
+
 	list_reqnotitems.clear();
 	if(req_not_item_empty)
 		list_reqnotitems.add("---", -1);
@@ -2054,25 +2057,25 @@ void SubscrPropDialog::updateConditions()
 	{
 		list_reqnotitems.add(GUI::ListItem(list_items_no_none.accessItem(iid)));
 	}
-	
+
 	if(req_item_list)
 	{
 		req_item_list->setListData(list_reqitems);
-		
+
 		if(req_item_empty)
 			req_item_list->setSelectedValue(-1);
 		else req_item_list->setSelectedValue(cond_item_sels[CI_REQ]);
-		
+
 		cond_item_sels[CI_REQ] = req_item_list->getSelectedValue();
 	}
 	if(req_not_item_list)
 	{
 		req_not_item_list->setListData(list_reqnotitems);
-		
+
 		if(req_not_item_empty)
 			req_not_item_list->setSelectedValue(-1);
 		else req_not_item_list->setSelectedValue(cond_item_sels[CI_REQ_NOT]);
-		
+
 		cond_item_sels[CI_REQ_NOT] = req_not_item_list->getSelectedValue();
 	}
 	pendDraw();
@@ -2129,7 +2132,7 @@ void SubscrPropDialog::refr_info()
 			cbs[3]->setDisabled(acond);
 			break;
 		}
-	}	
+	}
 }
 bool SubscrPropDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {

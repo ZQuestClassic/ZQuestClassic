@@ -163,7 +163,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SAVEGAME        43
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
-#define V_SUBSCREEN        14
+#define V_SUBSCREEN        15
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         27
 #define V_SFX              8
@@ -279,12 +279,12 @@ if(close_button_quit) \
 #define ipSECRETS       4096                                // Trigger Secrets when picked up
 #define ipCANGRAB       8192                                // Always grabbable to hookshot/arrows/brang
 
-//We have definitions for this below, but this is for scripted stuff in 2,54. 
-enum { warpfxNONE, warpfxBLACKOUT, warpfxWIPE, warpfxSCROLL, warpfxZAP, warpfxZAPIN, warpfxZAPOUT, warpfxWAVY, 
-	warpfxWAVYIN, warpfxWAVYOUT, warpfxWAVYNOHERO, warpfxWAVYINNOHERO, warpfxWAVYOUTNOHERO, 
+//We have definitions for this below, but this is for scripted stuff in 2,54.
+enum { warpfxNONE, warpfxBLACKOUT, warpfxWIPE, warpfxSCROLL, warpfxZAP, warpfxZAPIN, warpfxZAPOUT, warpfxWAVY,
+	warpfxWAVYIN, warpfxWAVYOUT, warpfxWAVYNOHERO, warpfxWAVYINNOHERO, warpfxWAVYOUTNOHERO,
 		warpfxLAST};
-	
-//wipe types - mosaic should be one of them. 
+
+//wipe types - mosaic should be one of them.
 enum { wipeNONE, wipeCOOL, wipeBLACK, wipeBSZELDA, wipeTRIANGLE, wipeCIRCLE, wipeALLSTARS, wipeLAST };
 
 enum
@@ -302,152 +302,152 @@ enum
 enum
 {	//These are the COMBO flags. -Z
 	//0
-	mfNONE, 	mfPUSHUD, 	mfPUSH4, 	mfWHISTLE, 	mfANYFIRE, 
+	mfNONE, 	mfPUSHUD, 	mfPUSH4, 	mfWHISTLE, 	mfANYFIRE,
 	//5
-	mfARROW, 	mfBOMB, 	mfFAIRY, 	mfRAFT, 	mfARMOS_SECRET, 
+	mfARROW, 	mfBOMB, 	mfFAIRY, 	mfRAFT, 	mfARMOS_SECRET,
 	//10
-	mfARMOS_ITEM, 	mfSBOMB, 	mfRAFT_BRANCH, 	mfDIVE_ITEM,	mfLENSMARKER, 
+	mfARMOS_ITEM, 	mfSBOMB, 	mfRAFT_BRANCH, 	mfDIVE_ITEM,	mfLENSMARKER,
 	//15
-	mfZELDA,	mfSECRETS01, 	mfSECRETS02, 	mfSECRETS03, 	mfSECRETS04,       
+	mfZELDA,	mfSECRETS01, 	mfSECRETS02, 	mfSECRETS03, 	mfSECRETS04,
 	//20
-	mfSECRETS05, 	mfSECRETS06, 	mfSECRETS07, 	mfSECRETS08,	mfSECRETS09, 
+	mfSECRETS05, 	mfSECRETS06, 	mfSECRETS07, 	mfSECRETS08,	mfSECRETS09,
 	//25
-	mfSECRETS10, 	mfSECRETS11, 	mfSECRETS12,	mfSECRETS13, 	mfSECRETS14, 
+	mfSECRETS10, 	mfSECRETS11, 	mfSECRETS12,	mfSECRETS13, 	mfSECRETS14,
 	//30
-	mfSECRETS15, 	mfSECRETS16,	mfTRAP_H, 	mfTRAP_V, 	mfTRAP_4, 
+	mfSECRETS15, 	mfSECRETS16,	mfTRAP_H, 	mfTRAP_V, 	mfTRAP_4,
 	//35
-	mfTRAP_LR, 	mfTRAP_UD,	mfENEMY0, 	mfENEMY1, 	mfENEMY2, 
+	mfTRAP_LR, 	mfTRAP_UD,	mfENEMY0, 	mfENEMY1, 	mfENEMY2,
 	//40
-	mfENEMY3, 	mfENEMY4,	mfENEMY5, 	mfENEMY6, 	mfENEMY7, 
+	mfENEMY3, 	mfENEMY4,	mfENEMY5, 	mfENEMY6, 	mfENEMY7,
 	//45
-	mfENEMY8, 	mfENEMY9,	mfPUSHLR, 	mfPUSHU, 	mfPUSHD, 
+	mfENEMY8, 	mfENEMY9,	mfPUSHLR, 	mfPUSHU, 	mfPUSHD,
 	//50
-	mfPUSHL, 	mfPUSHR,	mfPUSHUDNS, 	mfPUSHLRNS, 	mfPUSH4NS, 
+	mfPUSHL, 	mfPUSHR,	mfPUSHUDNS, 	mfPUSHLRNS, 	mfPUSH4NS,
 	//55
 	mfPUSHUNS,	mfPUSHDNS, 	mfPUSHLNS, 	mfPUSHRNS, 	mfPUSHUDINS,
 	//60
-	mfPUSHLRINS, 	mfPUSH4INS, 	mfPUSHUINS,	mfPUSHDINS, 	mfPUSHLINS, 
+	mfPUSHLRINS, 	mfPUSH4INS, 	mfPUSHUINS,	mfPUSHDINS, 	mfPUSHLINS,
 	//65
 	mfPUSHRINS,	mfBLOCKTRIGGER,	mfNOBLOCKS, 	mfBRANG, 	mfMBRANG,
 	//70
-	mfFBRANG, 	mfSARROW, 	mfGARROW, 	mfSTRONGFIRE, 	mfMAGICFIRE, 
+	mfFBRANG, 	mfSARROW, 	mfGARROW, 	mfSTRONGFIRE, 	mfMAGICFIRE,
 	//75
-	mfDIVINEFIRE,	mfWANDMAGIC, 	mfREFMAGIC, 	mfREFFIREBALL, 	mfSWORD, 
+	mfDIVINEFIRE,	mfWANDMAGIC, 	mfREFMAGIC, 	mfREFFIREBALL, 	mfSWORD,
 	//80
-	mfWSWORD,	mfMSWORD, 	mfXSWORD, 	mfSWORDBEAM, 	mfWSWORDBEAM, 
+	mfWSWORD,	mfMSWORD, 	mfXSWORD, 	mfSWORDBEAM, 	mfWSWORDBEAM,
 	//85
-	mfMSWORDBEAM,	mfXSWORDBEAM, 	mfHOOKSHOT, 	mfWAND, 	mfHAMMER, 
+	mfMSWORDBEAM,	mfXSWORDBEAM, 	mfHOOKSHOT, 	mfWAND, 	mfHAMMER,
 	//90
-	mfSTRIKE, 	mfBLOCKHOLE,	mfMAGICFAIRY, 	mfALLFAIRY, 	mfSINGLE, 
+	mfSTRIKE, 	mfBLOCKHOLE,	mfMAGICFAIRY, 	mfALLFAIRY, 	mfSINGLE,
 	//95
-	mfSINGLE16,	mfNOENEMY, 	mfNOGROUNDENEMY, mfSCRIPT1, 	mfSCRIPT2, 
+	mfSINGLE16,	mfNOENEMY, 	mfNOGROUNDENEMY, mfSCRIPT1, 	mfSCRIPT2,
 	//100
 	mfSCRIPT3, 	mfSCRIPT4, 	mfSCRIPT5,	mfRAFT_BOUNCE, 	mfPUSHED,
 	//105
-	mfSCRIPT6, 	mfSCRIPT7, 	mfSCRIPT8, 	mfSCRIPT9, 	mfSCRIPT10, 
+	mfSCRIPT6, 	mfSCRIPT7, 	mfSCRIPT8, 	mfSCRIPT9, 	mfSCRIPT10,
 	//110
 	mfSCRIPT11, 	mfSCRIPT12, 	mfSCRIPT13, 	mfSCRIPT14, 	mfSCRIPT15,
 	//115
 	mfSCRIPT16, 	mfSCRIPT17, 	mfSCRIPT18, 	mfSCRIPT19, 	mfSCRIPT20,
 	//120
-	mfPITHOLE, 	mfPITFALLFLOOR,	mfLAVA, 	mfICE, 		mfICEDAMAGE, 
+	mfPITHOLE, 	mfPITFALLFLOOR,	mfLAVA, 	mfICE, 		mfICEDAMAGE,
 	//125
-	mfDAMAGE1, 	mfDAMAGE2, 	mfDAMAGE4, 	mfDAMAGE8, 	mfDAMAGE16, 
+	mfDAMAGE1, 	mfDAMAGE2, 	mfDAMAGE4, 	mfDAMAGE8, 	mfDAMAGE16,
 	//130
-	mfDAMAGE32,	mfFREEZEALL, 	mfFREZEALLANSFFCS, mfFREEZEFFCSOLY, mfSCRITPTW1TRIG, 
+	mfDAMAGE32,	mfFREEZEALL, 	mfFREZEALLANSFFCS, mfFREEZEFFCSOLY, mfSCRITPTW1TRIG,
 	//135
-	mfSCRITPTW2TRIG, mfSCRITPTW3TRIG, mfSCRITPTW4TRIG, mfSCRITPTW5TRIG, mfSCRITPTW6TRIG, 
+	mfSCRITPTW2TRIG, mfSCRITPTW3TRIG, mfSCRITPTW4TRIG, mfSCRITPTW5TRIG, mfSCRITPTW6TRIG,
 	//140
-	mfSCRITPTW7TRIG, mfSCRITPTW8TRIG, mfSCRITPTW9TRIG, mfSCRITPTW10TRIG, mfTROWEL, 
+	mfSCRITPTW7TRIG, mfSCRITPTW8TRIG, mfSCRITPTW9TRIG, mfSCRITPTW10TRIG, mfTROWEL,
 	//145
-	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mfLIFTPOT,	mfLIFTORSLASH, 
+	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mfLIFTPOT,	mfLIFTORSLASH,
 	//150
-	mfLIFTROCK, 	mfLIFTROCKHEAVY, mfDROPITEM, 	mfSPECIALITEM, 	mfDROPKEY, 
+	mfLIFTROCK, 	mfLIFTROCKHEAVY, mfDROPITEM, 	mfSPECIALITEM, 	mfDROPKEY,
 	//155
-	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mfDROPBOSSKEY, mfSPAWNNPC, 
+	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mfDROPBOSSKEY, mfSPAWNNPC,
 	//160
 	mfSWITCHHOOK, 	mfSIDEVIEWLADDER, mfSIDEVIEWPLATFORM, mfNOENEMYSPAWN, mfENEMYALL,
 	//165
 	mfSECRETSNEXT, mfNOMIRROR, mfUNSAFEGROUND, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
-    mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187, 
+    mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187,
     mf188, mf189, mf190, mf191, mf192, mf193, mf194, mf195, mf196, mf197, mf198, mf199, mf200,
     mf201, mf202, mf203, mf204, mf205, mf206, mf207, mf208, mf209, mf210, mf211, mf212, mf213,
-    mf214, mf215, mf216, mf217, mf218, mf219, mf220, mf221, mf222, mf223, mf224, mf225, mf226, 
+    mf214, mf215, mf216, mf217, mf218, mf219, mf220, mf221, mf222, mf223, mf224, mf225, mf226,
     mf227, mf228, mf229, mf230, mf231, mf232, mf233, mf234, mf235, mf236, mf237, mf238, mf239,
-    mf240, mf241, mf242, mf243, mf244, mf245, mf246, mf247, mf248, mf249, mf250, mf251, mf252, mf253, mf254, 
+    mf240, mf241, mf242, mf243, mf244, mf245, mf246, mf247, mf248, mf249, mf250, mf251, mf252, mf253, mf254,
     mfEXTENDED, mfMAX //256 for array sizing
-    
+
     //mfSLASHPOTSPECIALITEM, //stack flags to make a drop or special item
-     //mfLIFTPOTSPECIAL, 
+     //mfLIFTPOTSPECIAL,
 };
 
 // combo types
 //combo name strings come from defdata
 enum
 {
-    cNONE, cSTAIR, cCAVE, cWATER, cARMOS, 
+    cNONE, cSTAIR, cCAVE, cWATER, cARMOS,
 	//5
-	cGRAVE, cDOCK, cUNDEF, cPUSH_WAIT, cPUSH_HEAVY, 
+	cGRAVE, cDOCK, cUNDEF, cPUSH_WAIT, cPUSH_HEAVY,
 	//10
-	cPUSH_HW, cL_STATUE, cR_STATUE, cWALKSLOW, cCVUP, 
+	cPUSH_HW, cL_STATUE, cR_STATUE, cWALKSLOW, cCVUP,
 	//15
 	cCVDOWN, cCVLEFT, cCVRIGHT, cSWIMWARP, cDIVEWARP,
 	//20
-	cLADDERHOOKSHOT, cTRIGNOFLAG, cTRIGFLAG, cZELDA, cSLASH, 
+	cLADDERHOOKSHOT, cTRIGNOFLAG, cTRIGFLAG, cZELDA, cSLASH,
 	//25
-	cSLASHITEM, cPUSH_HEAVY2, cPUSH_HW2, cPOUND, cHSGRAB, 
+	cSLASHITEM, cPUSH_HEAVY2, cPUSH_HW2, cPOUND, cHSGRAB,
 	//30
-	cHSBRIDGE, cDAMAGE1, cDAMAGE2, cDAMAGE3, cDAMAGE4, 
+	cHSBRIDGE, cDAMAGE1, cDAMAGE2, cDAMAGE3, cDAMAGE4,
 	//35
-	cC_STATUE, cTRAP_H, cTRAP_V, cTRAP_4, cTRAP_LR, 
+	cC_STATUE, cTRAP_H, cTRAP_V, cTRAP_4, cTRAP_LR,
 	//40
-	cTRAP_UD, cPIT, cHOOKSHOTONLY, cOVERHEAD, cNOFLYZONE, 
+	cTRAP_UD, cPIT, cHOOKSHOTONLY, cOVERHEAD, cNOFLYZONE,
 	//45
 	cMIRROR, cMIRRORSLASH, cMIRRORBACKSLASH, cMAGICPRISM, cMAGICPRISM4,
 	//50
-	cMAGICSPONGE, cCAVE2, cEYEBALL_A, cEYEBALL_B, cNOJUMPZONE, 
+	cMAGICSPONGE, cCAVE2, cEYEBALL_A, cEYEBALL_B, cNOJUMPZONE,
 	//55
-	cBUSH, cFLOWERS, cTALLGRASS, cSHALLOWWATER, cLOCKBLOCK, 
+	cBUSH, cFLOWERS, cTALLGRASS, cSHALLOWWATER, cLOCKBLOCK,
 	//60
 	cLOCKBLOCK2, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2, cLADDERONLY, cBSGRAVE,
 	//65
-	cCHEST, cCHEST2, cLOCKEDCHEST, cLOCKEDCHEST2, cBOSSCHEST, 
+	cCHEST, cCHEST2, cLOCKEDCHEST, cLOCKEDCHEST2, cBOSSCHEST,
 	//70
-	cBOSSCHEST2, cRESET, cSAVE, cSAVE2, /*cVERTICAL,*/ cCAVEB, 
+	cBOSSCHEST2, cRESET, cSAVE, cSAVE2, /*cVERTICAL,*/ cCAVEB,
 	//75
-	cCAVEC, cCAVED, cSTAIRB, cSTAIRC, cSTAIRD, 
+	cCAVEC, cCAVED, cSTAIRB, cSTAIRC, cSTAIRD,
 	//80
-	cPITB, cPITC, cPITD, cCAVE2B, cCAVE2C, 
+	cPITB, cPITC, cPITD, cCAVE2B, cCAVE2C,
 	//85
-	cCAVE2D, cSWIMWARPB, cSWIMWARPC, cSWIMWARPD, cDIVEWARPB, 
+	cCAVE2D, cSWIMWARPB, cSWIMWARPC, cSWIMWARPD, cDIVEWARPB,
 	//90
-	cDIVEWARPC, cDIVEWARPD, cSTAIRR, cPITR, cAWARPA, 
+	cDIVEWARPC, cDIVEWARPD, cSTAIRR, cPITR, cAWARPA,
 	//95
-	cAWARPB, cAWARPC, cAWARPD, cAWARPR, cSWARPA, 
+	cAWARPB, cAWARPC, cAWARPD, cAWARPR, cSWARPA,
 	//100
-	cSWARPB, cSWARPC, cSWARPD, cSWARPR, cSTRIGNOFLAG, 
+	cSWARPB, cSWARPC, cSWARPD, cSWARPR, cSTRIGNOFLAG,
 	//105
-	cSTRIGFLAG, cSTEP, cSTEPSAME, cSTEPALL, cSTEPCOPY, 
+	cSTRIGFLAG, cSTEP, cSTEPSAME, cSTEPALL, cSTEPCOPY,
 	//110
-	cNOENEMY, cBLOCKARROW1, cBLOCKARROW2, cBLOCKARROW3, cBLOCKBRANG1, 
+	cNOENEMY, cBLOCKARROW1, cBLOCKARROW2, cBLOCKARROW3, cBLOCKBRANG1,
 	//115
-	cBLOCKBRANG2, cBLOCKBRANG3, cBLOCKSBEAM, cBLOCKALL, cBLOCKFIREBALL, 
+	cBLOCKBRANG2, cBLOCKBRANG3, cBLOCKSBEAM, cBLOCKALL, cBLOCKFIREBALL,
 	//120
-	cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE/**DEPRECATED**/, cSPINTILE1, 
+	cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE/**DEPRECATED**/, cSPINTILE1,
 	//125
-	cSPINTILE2, cSCREENFREEZE, cSCREENFREEZEFF, cNOGROUNDENEMY, cSLASHNEXT, 
+	cSPINTILE2, cSCREENFREEZE, cSCREENFREEZEFF, cNOGROUNDENEMY, cSLASHNEXT,
 	//130
-	cSLASHNEXTITEM, cBUSHNEXT, cSLASHTOUCHY, cSLASHITEMTOUCHY, cBUSHTOUCHY, 
+	cSLASHNEXTITEM, cBUSHNEXT, cSLASHTOUCHY, cSLASHITEMTOUCHY, cBUSHTOUCHY,
 	//135
-	cFLOWERSTOUCHY, cTALLGRASSTOUCHY, cSLASHNEXTTOUCHY, cSLASHNEXTITEMTOUCHY, cBUSHNEXTTOUCHY, 
+	cFLOWERSTOUCHY, cTALLGRASSTOUCHY, cSLASHNEXTTOUCHY, cSLASHNEXTITEMTOUCHY, cBUSHNEXTTOUCHY,
 	//140
-	cEYEBALL_4, cTALLGRASSNEXT, cSCRIPT1, cSCRIPT2, cSCRIPT3, 
+	cEYEBALL_4, cTALLGRASSNEXT, cSCRIPT1, cSCRIPT2, cSCRIPT3,
 	//145
-	cSCRIPT4, cSCRIPT5, cSCRIPT6, cSCRIPT7, cSCRIPT8, 
+	cSCRIPT4, cSCRIPT5, cSCRIPT6, cSCRIPT7, cSCRIPT8,
 	//150
-	cSCRIPT9, cSCRIPT10, cSCRIPT11, cSCRIPT12, cSCRIPT13, 
+	cSCRIPT9, cSCRIPT10, cSCRIPT11, cSCRIPT12, cSCRIPT13,
 	//155
-	cSCRIPT14, cSCRIPT15, cSCRIPT16, cSCRIPT17, cSCRIPT18, 
+	cSCRIPT14, cSCRIPT15, cSCRIPT16, cSCRIPT17, cSCRIPT18,
 	//160
 	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL, cSTEPSFX,
 	//165
@@ -459,63 +459,63 @@ enum
 	//180
 	cICY, cMIRRORNEW, cCRUMBLE,
     cMAX,
-	// ! potential new stuff that I might decide it is worth adding. 
-    //Five additional user script types, 
-    
+	// ! potential new stuff that I might decide it is worth adding.
+    //Five additional user script types,
+
     //165
     cDIG, cDIGNEXT, cDIGITEM, //Dig a hole, dig a hole.
-    
+
       /* pot, or rock:
-		lift and slash combos need a 'break' sprite set in the combo editor. 
+		lift and slash combos need a 'break' sprite set in the combo editor.
 		The lifted object also needs a 'damage enemies' value, so that when thrown
 		it makes an lweapon. The leweapon type, and damage should be inputs
-		in the combo editor. -1 to damage means enemies ignore it. 
+		in the combo editor. -1 to damage means enemies ignore it.
 		-1 to weapon means that itdoesn't generate a weapon.
-	
-		The default type should be LW_POT, which we need to add, or LW_ROCK. 
-		We should add both of these. 
-		
+
+		The default type should be LW_POT, which we need to add, or LW_ROCK.
+		We should add both of these.
+
 		These should also include a break sound, a throw sound, and possibly other
-		attributes such as throw distance. Sideview behaviour must be very carefully 
+		attributes such as throw distance. Sideview behaviour must be very carefully
 		defined. -Z
-		
+
 	*/
     //168
     //normal (use undercombo), lift and generate drop item, lift and generate special item (screen item)
-    cLIFT, cLIFTITEM, cLIFTSPECITER, 
+    cLIFT, cLIFTITEM, cLIFTSPECITER,
     //171
     //lift and show next combo, same plus item drop, same with room item
     cLIFTNEXT, cLIFTNEXTITEM, cLIFTNEXTSPECITEM,
     //174
     //lift or slash (do not change combo; use undercombo), ...and make drop item, ...and make room item
-    cLIFTSLASH, cLIFTSLAHITEM, cLIFTSLASHSPECITEM, 
+    cLIFTSLASH, cLIFTSLAHITEM, cLIFTSLASHSPECITEM,
     //177
     //lift or shash, then change the combo at its position to the 'next combo', ...
 	//...and make drop, ...and make screen room item
-    cLIFTSLASHNEXT, cLIFTSLASHNEXTITEM, cLIFTSLASHNEXTSPECITEM, 
+    cLIFTSLASHNEXT, cLIFTSLASHNEXTITEM, cLIFTSLASHNEXTSPECITEM,
     //180
 
-    cBREAKAWAYFLOOR, //as combo cycling to pit, but it makes a sound? Might be useful? 
+    cBREAKAWAYFLOOR, //as combo cycling to pit, but it makes a sound? Might be useful?
     //181
     cFREEZEFFCONLY, //freezes only scripts
     //182
     // cSYS183, cSYS184, cSYS185, cSYS186, cSYS187, cSYS188, cSYS189, cSYS190,
-    // cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200, 
+    // cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200,
     // cSYS201, cSYS202, cSYS203, cSYS204, cSYS205, cSYS206, cSYS207, cSYS208, cSYS209, cSYS210,
     // cSYS211, cSYS212, cSYS213, cSYS214, cSYS215, cSYS216, cSYS217, cSYS218, cSYS219, cSYS220,
-    // cSYS221, cSYS222, cSYS223, cSYS224, cSYS225, cSYS226, cSYS227, cSYS228, cSYS229, cSYS230, 
-    // cSYS231, cSYS232, cSYS233, cSYS234, cSYS235, cSYS236, cSYS237, cSYS238, cSYS239, cSYS240, 
+    // cSYS221, cSYS222, cSYS223, cSYS224, cSYS225, cSYS226, cSYS227, cSYS228, cSYS229, cSYS230,
+    // cSYS231, cSYS232, cSYS233, cSYS234, cSYS235, cSYS236, cSYS237, cSYS238, cSYS239, cSYS240,
     // cSYS241, cSYS242, cSYS243, cSYS244, cSYS245, cSYS246, cSYS247, cSYS248, cSYS249, cSYS250,
     // cSYS251, cSYS252, cSYS253, cSYS254,
     //Should be 255
     cEXPANDED=255, //Set to this, and then select an expansion[0] type for the 'oombo editor'.
-    
+
     //2.54, these would need filepack changes. Needs V_COMBOS.
-    cMAX250 //Old max, to make filepack handling easier. 
-    
-    //These need to be in a new, index of expansion[]. 
-    //Let's use expansion[0] for now. 
-    
+    cMAX250 //Old max, to make filepack handling easier.
+
+    //These need to be in a new, index of expansion[].
+    //Let's use expansion[0] for now.
+
     //cMAX
 };
 
@@ -524,9 +524,9 @@ enum
 
 //Combo editor and additional system combos for combo type 'expanded'.
 
-//We could also change .type from a byte to a word, and typecast (byte)combo.type for old quests. 
-//That would make 2.50 exporting harder, though. 
-enum 
+//We could also change .type from a byte to a word, and typecast (byte)combo.type for old quests.
+//That would make 2.50 exporting harder, though.
+enum
 {
 	cUSER000, cUSER001, cUSER002, cUSER003, cUSER004, cUSER005, cUSER006, cUSER007, cUSER008, cUSER009,
     cUSER010, cUSER011, cUSER012, cUSER013, cUSER014, cUSER015, cUSER016, cUSER017, cUSER018, cUSER019,
@@ -541,7 +541,7 @@ enum
     cUSER100, cUSER101, cUSER102, cUSER103, cUSER104, cUSER105, cUSER106, cUSER107, cUSER108, cUSER109,
     cUSER110, cUSER111, cUSER112, cUSER113, cUSER114, cUSER115, cUSER116, cUSER117, cUSER118, cUSER119,
     cUSER120, cUSER121, cUSER122, cUSER123, cUSER124, cUSER125, cUSER126, cUSER127,
-    
+
     cSYSTEM000, cSYSTEM001, cSYSTEM002, cSYSTEM003, cSYSTEM004, cSYSTEM005, cSYSTEM006, cSYSTEM007, cSYSTEM008, cSYSTEM009,
     cSYSTEM010, cSYSTEM011, cSYSTEM012, cSYSTEM013, cSYSTEM014, cSYSTEM015, cSYSTEM016, cSYSTEM017, cSYSTEM018, cSYSTEM019,
     cSYSTEM020, cSYSTEM021, cSYSTEM022, cSYSTEM023, cSYSTEM024, cSYSTEM025, cSYSTEM026, cSYSTEM027, cSYSTEM028, cSYSTEM029,
@@ -555,7 +555,7 @@ enum
     cSYSTEM100, cSYSTEM101, cSYSTEM102, cSYSTEM103, cSYSTEM104, cSYSTEM105, cSYSTEM106, cSYSTEM107, cSYSTEM108, cSYSTEM109,
     cSYSTEM110, cSYSTEM111, cSYSTEM112, cSYSTEM113, cSYSTEM114, cSYSTEM115, cSYSTEM116, cSYSTEM117, cSYSTEM118, cSYSTEM119,
     cSYSTEM120, cSYSTEM121, cSYSTEM122, cSYSTEM123, cSYSTEM124, cSYSTEM125, cSYSTEM126, cSYSTEM127,
-    cEXPANDED_MAX	
+    cEXPANDED_MAX
 };
 
 #define lensflagSHOWHINTS = 0x0010;
@@ -565,12 +565,12 @@ enum
 #define lensflagSHOWINVISENEMIES = 0x1000;
 
 
-enum 
+enum
 {
-	USR_MIDI_DEATH, USR_MIDI_GAMEOVER, USR_MIDI_OVERWORLD, USR_MIDI_DUNGEON, USR_MIDI_LEVELNINE, USR_MIDI_MAX 
-	
+	USR_MIDI_DEATH, USR_MIDI_GAMEOVER, USR_MIDI_OVERWORLD, USR_MIDI_DUNGEON, USR_MIDI_LEVELNINE, USR_MIDI_MAX
+
 }; //Obviously, the overworld, dungeon and L9 midis don;t need to be here, but we can define some user space for o
-//	otherwise hardcoded sounds, and use these instead of hardcoded SFX if they are set somehow. 
+//	otherwise hardcoded sounds, and use these instead of hardcoded SFX if they are set somehow.
 
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
@@ -676,7 +676,7 @@ enum
 // 80
     ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, iwHover,
     wFIREMAGIC, iwQuarterHearts, wCBYRNAORB, //iwSideLadder, iwSideRaft,
-    
+
     wLast, wSCRIPT, wMAX=256
 };
 
@@ -787,7 +787,7 @@ enum defWpnSprite
 	wsUnused24,
 	wsHammer,
 	wsHookshotHead,
-	wsHookshotChainH, 
+	wsHookshotChainH,
 	wsHookshotHandle,
 	wsFireSparkle, //silver sparkle
 	wsSilverSparkle = 29, //silver sparkle
@@ -924,7 +924,7 @@ enum
     //170
     eMPOLSV, eWPOLSV, eDKNUT4, eFGHINI, eMGHINI,
     eGRAPBUGHP, eGRAPBUGMP, e177,
-    
+
     eMAXGUYS = MAXGUYS
 };
 
@@ -965,7 +965,7 @@ enum
     a4FRM4DIRF, a4FRM4DIR, a4FRM8DIRF, aARMOS4, a4FRMPOS4DIR,
     a4FRMPOS8DIR, aUNUSED3, a4FRM8DIRB, aNEWTEK, a3FRM4DIR,
     a2FRM4DIR, aNEWLEV, a2FRM4EYE, aNEWWIZZ, aNEWDONGO,
-    aDONGOBS, a4FRMPOS8DIRF, a4FRMPOS4DIRF, a4FRMNODIR, aGANON, a2FRMB, 
+    aDONGOBS, a4FRMPOS8DIRF, a4FRMPOS4DIRF, a4FRMNODIR, aGANON, a2FRMB,
     a4FRM8EYEB, a4FRM4EYEB, a4FRM8DIRFB, a4FRM4DIRB, a4FRM4DIRFB, aMAX
 };
 // deprecated styles
@@ -1017,8 +1017,8 @@ enum {  e9tMOLDORM=1, e9tVLANMOLA, e9tVMOLDORM, e9tZ3MOLDORM, //restricted to wa
 */
 
           //Preparation for new defences. -Z
-     
-     
+
+
 enum
 {
 	edefBRANG, edefBOMB, edefSBOMB, edefARROW, edefFIRE, //04
@@ -1039,9 +1039,9 @@ enum
     // Reserved for future use.
 	 //edefSCRIPT used to be unused edefSPIN
 
-}; 
+};
 
-#define edefLAST 19 
+#define edefLAST 19
 #define edefSCRIPTDEFS_MAX 9 //for 2.future compatibility
 
 //Old 2.future compat rubbish for quest loading. -Z
@@ -1051,9 +1051,9 @@ enum
 	scriptDEF8, scriptDEF9, scriptDEF10, scriptDEFLAST
 };
 
-//2.50.x last defense, used for filepack loading. 
+//2.50.x last defense, used for filepack loading.
 
-// New defence outcomes. 
+// New defence outcomes.
 enum
 {
     edNORMAL, // : IMPLEMENTED : Take damage (or stun)
@@ -1082,18 +1082,18 @@ enum
 	edMSG_LINE, //An entry for the hiriz line in THE zq PULLDOWN
 	edLEVELDAMAGE, //Damage * item level
 	edLEVELREDUCTION, //Damage / item level
-	
+
 	edSPLIT, //: IMPLEMENTED : causes the enemy to split if it has a split attribute
 	edREPLACE, //replaced by next in list?
-	edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by 
+	edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by
 	edLEVELCHINK3, //If item level is < 3: the item that generates it (itemdata::level stored to
 	edLEVELCHINK4, //If item level is < 4: weapon::level, or something similar; then a check to
-	edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection. 
+	edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection.
 	edSHOCK, //buzz blob
 	edEXPLODESMALL, //: IMPLEMENTED : ew bombblast
 	edEXPLODELARGE, //: IMPLEMENTED : super bomb blast
 	edSTONE, //deadrock
-	
+
 	edBREAKSHIELD, //break the enemy shield
 	edRESTORESHIELD, //if the enemy had a shield, reset it
 	edSPECIALDROP, //but where to define it?
@@ -1101,17 +1101,17 @@ enum
 	edREDUCECOUNTER, //same problem
 	edEXPLODEHARMLESS, //: IMPLEMENTED : boss death explosion; needs different sprites?
 	edKILLNOSPLIT, //If sufficient damage to kill it, a splitting enemy just dies.
-	edTRIBBLE, //Tribbles on hit. 
+	edTRIBBLE, //Tribbles on hit.
 	edFIREBALL, //Makes a 1x1 fireball; Z3 Gibdo
-	edFIREBALLLARGE, //Makes a 3x3  Z3 Gibdo for large npcs. 
-	edSUMMON, //: IMPLEMENTED : Summons a number of enemies as defined by the summon properties of the npc. 
+	edFIREBALLLARGE, //Makes a 3x3  Z3 Gibdo for large npcs.
+	edSUMMON, //: IMPLEMENTED : Summons a number of enemies as defined by the summon properties of the npc.
 	//edSAVE, edRETRY, edCRASHZC // Sanity Check Required. -Z
-	edWINGAME, //Wand of Gamelon. 
+	edWINGAME, //Wand of Gamelon.
 	edJUMP, //Z3 stalfos
 	edEATHERO, //-G //Is this practical? We need specisal npc mvoement for it. -Z
 	edSHOWMESSAGE, //Shows a ZString when hit. e.g., Z3 Ganon
 	edSWITCH, //Switch places with the Hero, as a switchhook does
-	
+
     edLAST
 };
 #define edX edIGNORE // Shorthand
@@ -1135,24 +1135,24 @@ struct size_and_pos
 	int w = -1, h = -1;
 	int xscale = 1, yscale = 1;
 	int fw = -1, fh = -1;
-	
+
 	int data[8] = {0};
-	
+
 	//Get virtual values
 	int tw() const;
 	int th() const;
 	int cx() const;
 	int cy() const;
-	
+
 	void clear(); //Clear to default vals
-	
+
 	bool rect(int mx, int my) const; //Check rect collision
 	int rectind(int mx, int my) const; //Check scaled collision
-	
+
 	//Set coord values
 	void set(int nx, int ny, int nw, int nh);
 	void set(int nx, int ny, int nw, int nh, int xs, int ys);
-	
+
 	size_and_pos const& subsquare(int ind) const;
 	size_and_pos const& subsquare(int col, int row) const;
 	size_and_pos const& rel_subsquare(int x, int y, int ind) const;
@@ -1170,8 +1170,8 @@ struct tiledata
 
 //Weapon clocks
 enum
-{ 
-	wpnclkFRAMECOUNT, wpnclkMAGICUSAGE = 9 
+{
+	wpnclkFRAMECOUNT, wpnclkMAGICUSAGE = 9
 };
 
 //Weapon Types
@@ -1197,9 +1197,9 @@ enum
 	weapdefHOOKSHOT, weapdef21, weapdef22, weapdefSPARKLE, weapdef24,
 	weapdef25, weapdefBYRNA, weapdefREFBEAM, weapdef28, weapdef29,
 	weapdefSCRIPT1, weapdefSCRIPT2, weapdefSCRIPT3, weapdefSCRIPT4, weapdefSCRIPT5,
-	weapdefSCRIPT6, weapdefSCRIPT7, weapdefSCRIPT8, weapdefSCRIPT9, weapdefSCRIPT10 
+	weapdefSCRIPT6, weapdefSCRIPT7, weapdefSCRIPT8, weapdefSCRIPT9, weapdefSCRIPT10
 };
-	
+
 #define ITEM_MOVEMENT_PATTERNS 10
 //Move pattern array indices
 enum{
@@ -1209,7 +1209,7 @@ enum{
 //Movement patterns
 enum
 {
-	wmovepatternNONE, wmovepatternLINE, wmovepatternSINE, wmovepatternCOSINE, wmovepatternCIRCLE, wmovepatternARC, wmovepatternPATTERN_A, 
+	wmovepatternNONE, wmovepatternLINE, wmovepatternSINE, wmovepatternCOSINE, wmovepatternCIRCLE, wmovepatternARC, wmovepatternPATTERN_A,
 	wmovepatternPATTERN_B, wmovepatternPATTERN_C, wmovepatternPATTERN_D, wmovepatternPATTERN_E, wmovepatternPATTERN_F
 };
 
@@ -1222,7 +1222,7 @@ struct wpndata
 	byte speed;                                               // animation speed
 	byte type;                                                // used by certain weapons
 	word script;
-	
+
 	byte flip() const
 	{
 		return (misc >> 2) & 0b11;
@@ -1273,48 +1273,48 @@ struct guydata
     int32_t  e_tile;
     byte  e_width;
     byte  e_height;
-    
+
     int16_t hp;
-    
+
     int16_t  family, cset, anim, e_anim, frate, e_frate;
     int16_t  dp, wdp, weapon;
-    
+
     int16_t  rate, hrate, step, homing, grumble, item_set;
-    
+
 	int32_t attributes[32]; //refactored this into an array, no more madness.
     int16_t  bgsfx, bosspal, extend;
     byte defense[edefLAST255];
     byte  hitsfx, deadsfx;
     //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
     //Adding earlier will offset defdata arrays. -Z
-    
+
     //2.6 enemy editor tile and hit sizes. -Z
     int32_t xofs,yofs,zofs;
     // no hzofs - it's always equal to zofs.
     int32_t hxofs,hyofs,hxsz,hysz,hzsz;
     int32_t txsz,tysz;
-    byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
+    byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support.
     int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
-    int32_t SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
+    int32_t SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults.
     int32_t frozentile, frozencset, frozenclock;
     int16_t frozenmisc[10];
     //v 34
     int16_t firesfx; //weapon fire (attack) sound
-    int32_t movement[32]; //Reserved for npc movement types and args. 
+    int32_t movement[32]; //Reserved for npc movement types and args.
     int32_t new_weapon[32]; //Reserved for weapon patterns and args.
     int32_t initD[8];
-    
-    word script; //For future npc action scripts. 
+
+    word script; //For future npc action scripts.
     //int16_t parentCore; //Probably not needed here. -Z
     int32_t editorflags;
 	move_flags moveflags;
-    
+
     char initD_label[8][65];
     char weapon_initD_label[8][65];
-    
+
     word weaponscript;
     int32_t weap_initiald[INITIAL_D];
-    
+
 	byte spr_shadow, spr_death, spr_spawn;
 
 	// attack tab
@@ -1343,7 +1343,7 @@ struct guydata
 #define ENEMY_FLAG14     0x2000
 #define ENEMY_FLAG15     0x4000
 #define ENEMY_FLAG16     0x8000
-    
+
 };
 
 #define LIFTFL_DIS_SHIELD             0x00000001
@@ -1392,12 +1392,12 @@ class refInfo
 public:
 	//word script; //script number
 	dword pc; //current command offset
-	
+
 	int32_t d[8]; //d registers
 	uint32_t sp; //stack pointer for current script
 	dword wait_index; // nth WaitX instruction (0 being script entry) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
-	
+
 	uint32_t ffcref;
 	int32_t idata;
 	dword itemref, guyref, lwpn, ewpn;
@@ -1413,15 +1413,15 @@ public:
 	int32_t portalref, saveportalref;
 	int32_t websocketref;
 	dword subdataref, subpageref, subwidgref;
-	
+
 	int32_t switchkey; //used for switch statements
 	dword thiskey, thiskey2; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
-	
+
 	int32_t cmp_op1, cmp_op2; //cached compare operands
 	optional<int32_t> cmp_strcache;
 	std::set<uint32_t> stack_pos_is_object;
-	
+
 	void Clear()
 	{
 		*this = refInfo();
@@ -1482,7 +1482,7 @@ struct zasm_meta
 	std::string initd[8];
 	std::string initd_help[8];
 	int8_t initd_type[8];
-	
+
 	void setFlag(byte flag)
 	{
 		switch(flag)
@@ -1553,7 +1553,7 @@ struct zasm_meta
 	}
 	~zasm_meta()
 	{
-		
+
 	}
 	zasm_meta& operator=(zasm_meta const& other)
 	{
@@ -1641,7 +1641,7 @@ struct zasm_meta
 	{
 		return !(*this == other);
 	}
-	
+
 	bool parse_meta(const char *buffer);
 	std::string get_meta() const;
 };
@@ -1694,7 +1694,7 @@ struct ffscript
 			strptr = nullptr;
 		}
 	}
-	
+
 	void give(ffscript& other)
 	{
 		other.command = command;
@@ -1744,7 +1744,7 @@ struct ffscript
 				other.strptr->push_back(c);
 		}
 	}
-	
+
 	bool operator==(ffscript const& other) const
 	{
 		//Compare primitive members
@@ -1828,12 +1828,12 @@ struct script_data
 		else
 			return fmt::format("{}-{}-{}", ScriptTypeToString(id.type), id.index, meta.script_name);
 	}
-	
+
 	bool valid() const
 	{
 		return end_pc && zasm_script && zasm_script->valid();
 	}
-	
+
 	void disable()
 	{
 		zasm_script = nullptr;
@@ -2015,11 +2015,11 @@ struct zquestheader
     char build_timestamp[256];
     char build_timezone[6];
     //made in module_name
-    
+
 	bool external_zinfo;
 	bool is_z3;
-	
-	
+
+
 	bool is_legacy() const;
 	int8_t getAlphaState() const;
 	char const* getAlphaStr(bool ignoreNightly = false) const;
@@ -2058,13 +2058,13 @@ struct zctune
         data = NULL;
         reset();
     }
-    
+
     zctune(char _title[36], int32_t _start, int32_t _loop_start, int32_t _loop_end, int16_t _loop,int16_t _volume)
         : data(nullptr), start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), flags(0)
     {
         strncpy(title, _title, 36);
     }
-    
+
     void clear()
     {
         memset(title,0,36);
@@ -2072,7 +2072,7 @@ struct zctune
         loop = volume = flags = 0;
         data = NULL;
     }
-    
+
     void copyfrom(zctune z)
     {
         start = z.start;
@@ -2085,7 +2085,7 @@ struct zctune
         data = z.data;
 		z.data = nullptr;
     }
-    
+
     void reset()
     {
         title[0]=0;
@@ -2100,7 +2100,7 @@ struct zctune
     }
 };
 
-#define itype_max_zc250 255 //Last in the 2.50.x lists. 
+#define itype_max_zc250 255 //Last in the 2.50.x lists.
 
 enum {i_sword=1, i_wsword, i_msword, i_xsword, imax_sword};
 enum {i_wbrang=1, i_mbrang, i_fbrang, imax_brang};
