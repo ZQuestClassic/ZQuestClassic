@@ -535,6 +535,8 @@ qr_BROKEN_LIGHTBEAM_HITBOX,	/*<<	Compatibility (>>>) Broken light beam hitbox */
 qr_BROKEN_SWORD_SPIN_TRIGGERS,	/*<<	Compatibility (>>>) Broken Sword Triggers (spin-related) */
 
 qr_BROKEN_ICY_FLOOR_SIDEVIEW = 449,
+qr_BROKEN_SYSTEM_COLORS____________NOT_IN_255,
+qr_WEAPONS_EXTRA_SPAWN_FRAME,
 
 qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION = 60*8 + 1, // Fix Hero Position Exposed To Scripts When Scrolling
 qr_HIDE_BOTTOM_8_PIXELS = 60*8 + 2, // Hide Bottom 8 Pixels
