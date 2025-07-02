@@ -19706,7 +19706,7 @@ void FFScript::do_create_rgb()
 	int max_value = scripting_max_color_val;
 	if (unsigned(r) > max_value || unsigned(g) > max_value || unsigned(b) > max_value)
 	{
-		scripting_log_error_with_context("R/G/B values should range from 0-{}", max_value);
+		scripting_log_error_with_context("R/G/B values should range from 0-{}, got: {} {} {}", max_value, r, g, b);
 	}
 
 	r = vbound(r, 0, max_value);
@@ -23975,7 +23975,6 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	curScriptNum=script;
 	curScriptIndex=i;
 	current_zasm_register=0;
-	current_zasm_command=(ASM_DEFINE)0; // this is actually SETV, but we never will print that as a context string, so it's fine.
 	//numInstructions=0; //DON'T CLEAR THIS OR IT CAN HARDLOCK! -Em
 
 	if (!(type >= ScriptType::First && type <= ScriptType::Last))
@@ -24127,6 +24126,8 @@ int32_t run_script_int(bool is_jitted)
 	ScriptType type = curScriptType;
 	word script = curScriptNum;
 	int32_t i = curScriptIndex;
+
+	current_zasm_command=(ASM_DEFINE)0; // this is actually SETV, but we never will print that as a context string, so it's fine.
 
 	int commands_run = 0;
 	int jit_waiting_nop = false;

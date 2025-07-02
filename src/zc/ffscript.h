@@ -1833,9 +1833,15 @@ public:
 	
 	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup)
 	{
+		if (boundup < 0)
+		{
+			scripting_log_error_with_context("Invalid index: {} (empty)", n + 1);
+			return _OutOfBounds;
+		}
+
 		if(n < boundlow || n > boundup)
 		{
-			scripting_log_error_with_context("Invalid index: {} - must be >= {} and < {}", n + 1, boundlow + 1, boundup + 1);
+			scripting_log_error_with_context("Invalid index: {} - must be >= {} and <= {}", n + 1, boundlow + 1, boundup + 1);
 			return _OutOfBounds;
 		}
 		

@@ -373,19 +373,16 @@ class itemdata {
 	internal itemdata();
 
 	// @value [enum ItemID]
-
 	// @zasm_var IDATAID
 	internal const int ID;
 
 	// @value [enum ItemType]
-
 	// @zasm_var IDATAFAMILY
 	internal int Type;
 
 	// Exactly the same as [Type] - use that instead.
 	//
 	// @value [enum ItemType]
-
 	// @zasm_var IDATAFAMILY
 	internal int Family;
 
@@ -418,7 +415,6 @@ class itemdata {
 	// The counter to increase when this item is picked up.
 	//
 	// @value [enum CounterIndex]
-
 	// @zasm_var IDATACOUNTER
 	internal int Counter;
 

@@ -593,7 +593,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 {
 	int32_t yg = (special==spw_floater)?8:0;
 	int32_t nb = get_qr(qr_NOBORDER) ? 16 : 0;
-	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
+
 	if(input_x == -1000)
 		input_x = dx;
 	if(input_y == -1000)
@@ -1574,7 +1574,6 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 			break;
 		}
 	}
-	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
 	
 	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
@@ -4722,7 +4721,7 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 			dy = dy1-s;
 			special = (special==spw_clipbottomright)?spw_none:special;
 			tries = usewid/(offgrid ? 8 : 16);
-			//Z_eventlog("Trying move UP, dy=%d,usewid=%d,usehei=%d\n",int32_t(dy),usewid,usehei);
+
 			for ( ; tries > 0; --tries )
 			{
 				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs, kb) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy, special,kb);
@@ -4744,7 +4743,6 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 				
 			dy = dy2+s;
 			tries = usewid/(offgrid ? 8 : 16);
-			//Z_eventlog("Trying move DOWN, dy=%d,usewid=%d,usehei=%d\n",int32_t(dy),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
 				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs, kb) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+zc_max(usehei-16,0), special,kb);
@@ -4765,7 +4763,6 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 			sv = ((isSideViewGravity())?7:0);
 			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
 			tries = usehei/(offgrid ? 8 : 16);
-			//Z_eventlog("Trying move LEFT, dx=%d,usewid=%d,usehei=%d\n",int32_t(dx),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
 				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y, kb) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+try_y, special,kb);
@@ -4785,7 +4782,6 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 			dx = dx2+s;
 			sv = ((isSideViewGravity())?7:0);
 			tries = usehei/(offgrid ? 8 : 16);
-			//Z_eventlog("Trying move RIGHT, dx=%d,usewid=%d,usehei=%d\n",int32_t(dx),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
 				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y, kb) && !flyerblocked(x+usexoffs+dx+zc_max(usewid-16,0),y+8+useyoffs+try_y, special,kb);
@@ -4991,7 +4987,7 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 			db=99;
 			return true;
 	}
-	//Z_eventlog("\n");
+
 	return ok;
 }
 
