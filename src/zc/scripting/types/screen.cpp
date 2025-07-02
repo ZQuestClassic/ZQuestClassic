@@ -633,7 +633,10 @@ static ArrayRegistrar SDD_registrar(SDD, []{
 	static ScriptingArray_GlobalComputed<int> impl(
 		[](int){
 			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-			return game->screen_d[di].size();
+			if (di < 0 || di >= game->screen_d.size())
+				return 0;
+
+			return 8;
 		},
 		[](int, int index){
 			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
