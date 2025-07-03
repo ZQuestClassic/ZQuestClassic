@@ -426,6 +426,18 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									}
 								),
 							IBTN("Combo to display when within range to press the triggering button."),
+							Label(text = "Fail Prompt:"),
+							SelComboSwatch(
+									showvals = true,
+									combo = local_ref.fail_prompt_cid,
+									cset = local_ref.fail_prompt_cs,
+									onSelectFunc = [&](int32_t cmb, int32_t c)
+									{
+										local_ref.fail_prompt_cid = cmb;
+										local_ref.fail_prompt_cs = c;
+									}
+								),
+							IBTN("Combo to display when within range to press the triggering button, but the combo trigger's conditions fail"),
 							Label(text = "Prompt Xoffset:"),
 							TextField(
 								fitParent = true,
@@ -638,7 +650,26 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								{
 									local_ref.trig_genscr = val;
 								}),
-							IBTN_T("Run Frozen Generic Script", "The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)")
+							IBTN_T("Run Frozen Generic Script", "The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)"),
+							//
+							Label(text = "Trigger String:", hAlign = 1.0),
+							DropDownList(data = parent.list_strings,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_ref.trig_msgstr/10000,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_ref.trig_msgstr = val*10000;
+								}),
+							IBTN_T("Trigger String", "The string to play when triggered. Negative values are special, reading the string number from somewhere else."),
+							Label(text = "Fail String:", hAlign = 1.0),
+							DropDownList(data = parent.list_strings,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_ref.fail_msgstr/10000,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_ref.fail_msgstr = val*10000;
+								}),
+							IBTN_T("Fail Trigger String", "The string to play when triggered, but the combo trigger's conditions fail. Negative values are special, reading the string number from somewhere else.")
 						),
 						Frame(title = "Status Effects",
 							Rows<3>(padding = 0_px,

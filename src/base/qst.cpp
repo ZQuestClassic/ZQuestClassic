@@ -18104,6 +18104,19 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 			return qe_invalid;
 		if(!p_getbitstr(&temp_trigger.unreq_global_state, f))
 			return qe_invalid;
+		if(!p_igetw(&temp_trigger.fail_prompt_cid,f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.fail_prompt_cs,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_trigger.trig_msgstr, f))
+			return qe_invalid;
+		if(!p_igetl(&temp_trigger.fail_msgstr, f))
+			return qe_invalid;
+	}
+	else
+	{
+		temp_trigger.fail_prompt_cid = temp_trigger.prompt_cid;
+		temp_trigger.fail_prompt_cs = temp_trigger.prompt_cs;
 	}
 	return 0;
 }

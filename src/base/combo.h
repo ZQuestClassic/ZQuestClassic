@@ -103,10 +103,11 @@ struct combo_trigger
 	int16_t trigquaketime = -1, trigwavytime = -1;
 	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_shieldjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
 	byte trig_pushtime = 8;
-	word prompt_cid;
-	byte prompt_cs;
+	word prompt_cid, fail_prompt_cid;
+	byte prompt_cs, fail_prompt_cs;
 	int16_t prompt_x = 12;
 	int16_t prompt_y = -8;
+	int32_t trig_msgstr, fail_msgstr;
 	
 	bool is_blank() const;
 	void clear();

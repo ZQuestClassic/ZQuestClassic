@@ -921,6 +921,11 @@ bool play_combo_string(int str)
 	return play_combo_string(str, cur_screen);
 }
 
+void trigger_string(combo_trigger const& trig, bool success)
+{
+	play_combo_string((success ? trig.trig_msgstr : trig.fail_msgstr)/10000L, cur_screen);
+}
+
 void trigger_sign(newcombo const& cmb, int screen)
 {
 	play_combo_string(cmb.attributes[0]/10000L, screen);
@@ -2609,7 +2614,7 @@ static bool check_dark_trigger_conditional(bool is_active_screen, mapscr* scr, b
 	return expect_lit == lit;
 }
 
-static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, int32_t cx, int32_t cy, bool& hasitem)
+static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, int32_t cx, int32_t cy, bool& hasitem, bool side_effects = true)
 {
 	bool is_active_screen = is_in_current_region(scr);
 
@@ -2671,7 +2676,7 @@ static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, 
 	{
 		bool inf_ctr = false;
 		word ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
-		if(is_active_screen && (trig.triggerflags[1] & combotriggerCTRNONLYTRIG) && (trig.triggerflags[1] & combotriggerCOUNTEREAT))
+		if(side_effects && is_active_screen && (trig.triggerflags[1] & combotriggerCTRNONLYTRIG) && (trig.triggerflags[1] & combotriggerCOUNTEREAT))
 		{
 			if(ctrval >= ctrcost && !inf_ctr)
 				modify_ssc_ctr(trig.trigctr, -ctrcost);
@@ -2936,7 +2941,10 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 		return true;
 
 	if(!handle_trigger_conditionals(base_scr, trig, cx, cy, hasitem))
+	{
+		trigger_string(trig, false);
 		return false;
+	}
 	
 	if (w)
 	{
@@ -3101,8 +3109,12 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	if(w)
 		do_weapon_fx(w,trig);
 	
-	if (is_active_screen && dorun && trig.trig_genscr)
-		FFCore.runGenericFrozenEngine(trig.trig_genscr);
+	if (is_active_screen && dorun)
+	{
+		if(trig.trig_genscr)
+			FFCore.runGenericFrozenEngine(trig.trig_genscr);
+		trigger_string(trig, true);
+	}
 	return true;
 }
 
@@ -3158,7 +3170,10 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 		return true;
 
 	if(!handle_trigger_conditionals(ffc_handle.scr, trig, cx, cy, hasitem))
+	{
+		trigger_string(trig, false);
 		return false;
+	}
 	
 	if(w)
 	{
@@ -3325,11 +3340,39 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	if(w)
 		do_weapon_fx(w,trig);
 	
-	if (is_active_screen && dorun && trig.trig_genscr)
-		FFCore.runGenericFrozenEngine(trig.trig_genscr);
+	if (is_active_screen && dorun)
+	{
+		if(trig.trig_genscr)
+			FFCore.runGenericFrozenEngine(trig.trig_genscr);
+		trigger_string(trig, true);
+	}
 	return true;
 }
 
+bool check_trig_conditions(const rpos_handle_t& rpos_handle, size_t idx)
+{
+	auto& cmb = rpos_handle.combo();
+	if(cmb.triggers.size() <= idx) return false;
+	
+	auto& trig = cmb.triggers[idx];
+	auto [cx, cy] = rpos_handle.xy();
+	mapscr* base_scr = rpos_handle.base_scr();
+	bool hasitem = false;
+	
+	return handle_trigger_conditionals(base_scr, trig, cx, cy, hasitem, false);
+}
+bool check_trig_conditions(const ffc_handle_t& ffc_handle, size_t idx)
+{
+	auto& cmb = ffc_handle.combo();
+	if(cmb.triggers.size() <= idx) return false;
+	
+	auto& trig = cmb.triggers[idx];
+	auto [cx, cy] = ffc_handle.xy();
+	mapscr* base_scr = ffc_handle.scr;
+	bool hasitem = false;
+	
+	return handle_trigger_conditionals(base_scr, trig, cx, cy, hasitem, false);
+}
 
 bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 {

@@ -9593,6 +9593,14 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 106;
 	if(!p_putbitstr(tmp_trig.unreq_global_state, f))
 		return 107;
+	if(!p_iputw(tmp_trig.fail_prompt_cid, f))
+		return 108;
+	if(!p_putc(tmp_trig.fail_prompt_cs, f))
+		return 109;
+	if(!p_iputl(tmp_trig.trig_msgstr, f))
+		return 110;
+	if(!p_iputl(tmp_trig.fail_msgstr, f))
+		return 111;
 	return 0;
 }
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb)

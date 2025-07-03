@@ -3143,7 +3143,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					if(unsigned(itm.value) >= MAXITEMS) return false;
 					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
 				});
-			lists[2] = GUI::ZCListData::strings(true);
 			windowRow->add(Column(
 				Row(
 					ddls[0] = DropDownList(data = lists[0],
@@ -3501,7 +3500,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						),
 						Row(
 							Label(text = "Locked String:", hAlign = 1.0),
-							ddls[1] = DropDownList(data = lists[2],
+							ddls[1] = DropDownList(data = parent.list_strings,
 								fitParent = true, selectedValue = messagestr/10000,
 								onSelectFunc = [&](int32_t val)
 								{
@@ -3591,7 +3590,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					if(unsigned(itm.value) >= MAXITEMS) return false;
 					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
 				});
-			lists[2] = GUI::ZCListData::strings(true);
 			windowRow->add(Column(
 				Row(
 					ddls[0] = DropDownList(data = lists[0],
@@ -3972,7 +3970,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						),
 						Row(
 							Label(text = "Locked String:", hAlign = 1.0),
-							ddls[1] = DropDownList(data = lists[2],
+							ddls[1] = DropDownList(data = parent.list_strings,
 								fitParent = true, selectedValue = messagestr/10000,
 								onSelectFunc = [&](int32_t val)
 								{
@@ -4010,12 +4008,11 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				def_prompt_yoff = prompt_yoff;
 			}
 			
-			lists[0] = GUI::ZCListData::strings(true);
 			windowRow->add(
 				tpan[0] = TabPanel(
 					TabRef(name = "String", Rows<3>(
 						Label(text = "String:", hAlign = 1.0),
-						ddls[1] = DropDownList(data = lists[0],
+						ddls[1] = DropDownList(data = parent.list_strings,
 							fitParent = true, selectedValue = messagestr/10000,
 							onSelectFunc = [&](int32_t val)
 							{
