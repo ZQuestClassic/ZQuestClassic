@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-06-30 08:47:23</td>
+      <td>2025-07-03 05:36:05</td>
     </tr>
   </table>
 </div>
@@ -76,11 +76,11 @@
     <tr><td><a href="#l124">POS_TO_RPOS(int, int) (line 124)</a></td><td>called 5625211661 times, returned 5625211661 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l116">POS_TO_RPOS(int, int, int) (line 116)</a></td><td>called 5660559782 times, returned 5660559782 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l111">RPOS_TO_POS(rpos_t) (line 111)</a></td><td>called 818964227 times, returned 818964227 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l97">get_region_relative_dx(int) (line 97)</a></td><td>called 7457805938 times, returned 7457805938 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l93">get_region_relative_dx(int, int) (line 93)</a></td><td>called 7457945632 times, returned 7457945632 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l105">get_region_relative_dy(int) (line 105)</a></td><td>called 7457805940 times, returned 7457805940 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l101">get_region_relative_dy(int, int) (line 101)</a></td><td>called 7457945634 times, returned 7457945634 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l88">is_in_world_bounds(int, int) (line 88)</a></td><td>called 11502468570 times, returned 11502468570 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l97">get_region_relative_dx(int) (line 97)</a></td><td>called 7456998954 times, returned 7456998954 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l93">get_region_relative_dx(int, int) (line 93)</a></td><td>called 7457138648 times, returned 7457138648 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l105">get_region_relative_dy(int) (line 105)</a></td><td>called 7456998956 times, returned 7456998956 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l101">get_region_relative_dy(int, int) (line 101)</a></td><td>called 7457138650 times, returned 7457138650 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l88">is_in_world_bounds(int, int) (line 88)</a></td><td>called 11499242438 times, returned 11499242438 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l83">is_valid_rpos(rpos_t) (line 83)</a></td><td>called 5404 times, returned 5404 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l153">maze_state_t::maze_state_t() (line 153)</a></td><td>called 404 times, returned 404 times</td><td>100.0%</td></tr>
   </table>
@@ -717,7 +717,7 @@
       <td class="lineno"><a id="l88" href="#l88">88</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11502468570</td>
+      <td class="linecount coveredLine">11499242438</td>
       <td class="src coveredLine"><span class="n">ZC_FORCE_INLINE</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_in_world_bounds</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -733,16 +733,16 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">6/6</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 11499805535 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 11496579403 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 2663035 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 11486004346 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 13801189 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 11482793750 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 13785653 times.</div>
           <div class="takenBranch">&check; Branch 4 taken 23876404 times.</div>
-          <div class="takenBranch">&check; Branch 5 taken 11462127942 times.</div>
+          <div class="takenBranch">&check; Branch 5 taken 11458917346 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">11502468570</td>
+      <td class="linecount coveredLine">11499242438</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">world_w</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">world_h</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -763,7 +763,7 @@
       <td class="lineno"><a id="l93" href="#l93">93</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">7457945632</td>
+      <td class="linecount coveredLine">7457138648</td>
       <td class="src coveredLine"><span class="n">ZC_FORCE_INLINE</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">get_region_relative_dx</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">origin_screen</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -777,7 +777,7 @@
       <td class="lineno"><a id="l95" href="#l95">95</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">7457945632</td>
+      <td class="linecount coveredLine">7457138648</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">screen</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">origin_screen</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -791,7 +791,7 @@
       <td class="lineno"><a id="l97" href="#l97">97</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">7457805938</td>
+      <td class="linecount coveredLine">7456998954</td>
       <td class="src coveredLine"><span class="n">ZC_FORCE_INLINE</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">get_region_relative_dx</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -805,7 +805,7 @@
       <td class="lineno"><a id="l99" href="#l99">99</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">7457805938</td>
+      <td class="linecount coveredLine">7456998954</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">get_region_relative_dx</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="n">cur_screen</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -819,7 +819,7 @@
       <td class="lineno"><a id="l101" href="#l101">101</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">7457945634</td>
+      <td class="linecount coveredLine">7457138650</td>
       <td class="src coveredLine"><span class="n">ZC_FORCE_INLINE</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">get_region_relative_dy</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">origin_screen</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -833,7 +833,7 @@
       <td class="lineno"><a id="l103" href="#l103">103</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">7457945634</td>
+      <td class="linecount coveredLine">7457138650</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">screen</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">origin_screen</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -847,7 +847,7 @@
       <td class="lineno"><a id="l105" href="#l105">105</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">7457805940</td>
+      <td class="linecount coveredLine">7456998956</td>
       <td class="src coveredLine"><span class="n">ZC_FORCE_INLINE</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">get_region_relative_dy</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -861,7 +861,7 @@
       <td class="lineno"><a id="l107" href="#l107">107</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">7457805940</td>
+      <td class="linecount coveredLine">7456998956</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">get_region_relative_dy</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="n">cur_screen</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
