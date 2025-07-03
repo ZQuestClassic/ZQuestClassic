@@ -75,7 +75,7 @@ struct combo_trigger
 	int32_t triggerlevel;
 	byte triggerbtn;
 	byte triggeritem;
-	byte trigtimer;
+	word trigtimer;
 	byte trigsfx;
 	int32_t trigchange;
 	word trigprox;

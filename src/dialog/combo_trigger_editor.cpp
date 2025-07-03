@@ -483,7 +483,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								fitParent = true,
 								vPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_ref.trigtimer,
+								low = 0, high = 65535, val = local_ref.trigtimer,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_ref.trigtimer = val;

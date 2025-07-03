@@ -12681,6 +12681,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t zversion,
 	dword section_version, int32_t index, int32_t count)
 {
+	byte tempbyte;
 	newcombo temp_combo;
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
@@ -12808,10 +12809,9 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 					{
 						return 0;
 					}
-					if(!p_getc(&temp_trigger.trigtimer,f))
-					{
+					if(!p_getc(&tempbyte, f))
 						return 0;
-					}
+					temp_trigger.trigtimer = tempbyte;
 				}
 				if(section_version >= 25)
 				{

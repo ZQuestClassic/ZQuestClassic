@@ -14668,7 +14668,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				screen_combo_modify_pre(ri->combosref);
 				if(auto* trig = get_first_combo_trigger())
-					trig->trigtimer = vbound(value/10000,0,255);
+					trig->trigtimer = vbound(value/10000,0,65535);
 				screen_combo_modify_post(ri->combosref);
 			}
 			break;
@@ -15311,7 +15311,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 			{
-				trig->trigtimer = vbound(value/10000, 0, 255);
+				trig->trigtimer = vbound(value/10000, 0, 65535);
 			}
 			break;
 		}
