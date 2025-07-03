@@ -8215,6 +8215,48 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGGERPROMPTCID:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->prompt_cid * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERPROMPTCS:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->prompt_cs * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERFAILPROMPTCID:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->fail_prompt_cid * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERFAILPROMPTCS:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->fail_prompt_cs * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERPROMPTX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->prompt_x * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERPROMPTY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->prompt_y * 10000;
+			else ret = -10000;
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		//npcdata nd-> variables
 			
@@ -15602,6 +15644,42 @@ void set_register(int32_t arg, int32_t value)
 			{
 				trig->trig_pushtime = vbound(value/10000, 0, 255);
 			}
+			break;
+		}
+		case CMBTRIGGERPROMPTCID:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->prompt_cid = vbound(value/10000, 0, MAXCOMBOS-1);
+			break;
+		}
+		case CMBTRIGGERPROMPTCS:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->prompt_cs = (value/10000)&15;
+			break;
+		}
+		case CMBTRIGGERFAILPROMPTCID:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->fail_prompt_cid = vbound(value/10000, 0, MAXCOMBOS-1);
+			break;
+		}
+		case CMBTRIGGERFAILPROMPTCS:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->fail_prompt_cs = (value/10000)&15;
+			break;
+		}
+		case CMBTRIGGERPROMPTX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->prompt_x = vbound(value/10000, -32768, 32767);
+			break;
+		}
+		case CMBTRIGGERPROMPTY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->prompt_y = vbound(value/10000, -32768, 32767);
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//

@@ -474,6 +474,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGEXDOORDIR: return "combotrigger::ExDoorDir";
 		case CMBTRIGEXDOORIND: return "combotrigger::ExDoorIndex";
 		case CMBTRIGEXSTATE: return "combotrigger::ExState";
+		case CMBTRIGGERFAILPROMPTCS: return "combotrigger::FailPromptCSet";
+		case CMBTRIGGERFAILPROMPTCID: return "combotrigger::FailPromptCombo";
 		case CMBTRIGFLAGS: return "combotrigger::Flags[]";
 		case CMBTRIGGTIMER: return "combotrigger::GStateTimer";
 		case CMBTRIGGENSCRIPT: return "combotrigger::GenScript";
@@ -483,9 +485,14 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGLSTATE: return "combotrigger::LevelState";
 		case CMBTRIGLIGHTBEAM: return "combotrigger::LightBeam";
 		case CMBTRIGLVLPAL: return "combotrigger::LvlPal";
+		case CMBTRIGGERPROMPTCS: return "combotrigger::PromptCSet";
+		case CMBTRIGGERPROMPTCID: return "combotrigger::PromptCombo";
+		case CMBTRIGGERPROMPTX: return "combotrigger::PromptX";
+		case CMBTRIGGERPROMPTY: return "combotrigger::PromptY";
 		case CMBTRIGPROX: return "combotrigger::Proximity";
 		case CMBTRIGPUSHTIME: return "combotrigger::PushTime";
 		case CMBTRIGQUAKETIME: return "combotrigger::QuakeTimer";
+		case CMBTRIGREQGLOBALSTATE: return "combotrigger::ReqGlobalState[]";
 		case CMBTRIGREQITEM: return "combotrigger::ReqItem";
 		case CMBTRIGREQLVLSTATE: return "combotrigger::ReqLevelState[]";
 		case CMBTRIGSFX: return "combotrigger::SFX";
@@ -501,6 +508,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGTINTR: return "combotrigger::TintR";
 		case CMBTRIGGROUP: return "combotrigger::TrigGroup";
 		case CMBTRIGGROUPVAL: return "combotrigger::TrigGroupVal";
+		case CMBTRIGUNREQGLOBALSTATE: return "combotrigger::UnreqGlobalState[]";
 		case CMBTRIGUNREQLVLSTATE: return "combotrigger::UnreqLevelState[]";
 		case CMBTRIGWAVYTIME: return "combotrigger::WavyTimer";
 		case CMBTRIGWPNLEVEL: return "combotrigger::WeaponLevel";

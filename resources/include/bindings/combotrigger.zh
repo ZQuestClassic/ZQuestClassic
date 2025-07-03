@@ -351,13 +351,13 @@ class combotrigger {
 	// Which of the 256 global states are required to be ON for this trigger to activate
 	//
 	// @length 256
-	// @zasm_var CMBTRIGREQLVLSTATE
+	// @zasm_var CMBTRIGREQGLOBALSTATE
 	internal bool ReqGlobalState[];
 	
 	// Which of the 256 global states are required to be OFF for this trigger to activate
 	//
 	// @length 256
-	// @zasm_var CMBTRIGUNREQLVLSTATE
+	// @zasm_var CMBTRIGUNREQGLOBALSTATE
 	internal bool UnreqGlobalState[];
 
 	// When triggered, the palette is tinted on the red channel by this amount. -255 to 255.
@@ -436,6 +436,37 @@ class combotrigger {
 	//
 	// @zasm_var CMBTRIGPUSHTIME
 	internal int PushTime;
+	
+	// The combo ID to be displayed when in range to trigger a [Button].
+	//
+	// @zasm_var CMBTRIGGERPROMPTCID
+	internal int PromptCombo;
+	
+	// The CSet for the [PromptCombo].
+	//
+	// @zasm_var CMBTRIGGERPROMPTCS
+	internal int PromptCSet;
+	
+	// The combo ID to be displayed when in range to trigger a [Button],
+	//  but the trigger conditions fail.
+	//
+	// @zasm_var CMBTRIGGERFAILPROMPTCID
+	internal int FailPromptCombo;
+	
+	// The CSet for the [FailPromptCombo].
+	//
+	// @zasm_var CMBTRIGGERFAILPROMPTCS
+	internal int FailPromptCSet;
+	
+	// The X position for the [PromptCombo]/[FailPromptCombo].
+	//
+	// @zasm_var CMBTRIGGERPROMPTX
+	internal int PromptX;
+	
+	// The Y position for the [PromptCombo]/[FailPromptCombo].
+	//
+	// @zasm_var CMBTRIGGERPROMPTY
+	internal int PromptY;
 
 	// Gets the label for this trigger.
 	//
