@@ -293,8 +293,8 @@ bool getxdoor(int32_t screen, uint dir, uint ind);
 
 void set_doorstate_mi(uint mi,uint dir);
 void set_doorstate(uint screen, uint dir);
-void set_xdoorstate_mi(uint mi,uint dir, uint ind);
-void set_xdoorstate(int32_t screen,uint dir, uint ind);
+void set_xdoorstate_mi(uint mi,uint dir, uint ind, bool state = true);
+void set_xdoorstate(int32_t screen,uint dir, uint ind, bool state = true);
 
 int32_t WARPCODE(int32_t dmap,int32_t screen,int32_t dw);
 void update_combo_cycling();

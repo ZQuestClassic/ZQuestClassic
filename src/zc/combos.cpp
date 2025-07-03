@@ -2426,6 +2426,8 @@ bool force_ex_trigger(const rpos_handle_t& rpos_handle, size_t idx, char xstate)
 	auto& cmb = rpos_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
+	if(trig.triggerflags[4] & combotriggerUNSETEXSTATE)
+		return false;
 	if(trig.exstate > -1 && (xstate < 0 || xstate == trig.exstate))
 	{
 		if(xstate >= 0 || getxmapflag(rpos_handle.screen, 1<<trig.exstate))
@@ -2442,6 +2444,8 @@ bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx, char xstat
 	auto& cmb = ffc_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
+	if(trig.triggerflags[4] & combotriggerUNSETEXSTATE)
+		return false;
 	if(trig.exstate > -1 && (xstate < 0 || xstate == trig.exstate))
 	{
 		if(xstate >= 0 || getxmapflag(ffc_handle.screen, 1<<trig.exstate))
@@ -2492,6 +2496,8 @@ bool force_ex_door_trigger(const rpos_handle_t& rpos_handle, size_t idx, int dir
 	auto& cmb = rpos_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
+	if(trig.triggerflags[4] & combotriggerUNSETEXDOOR)
+		return false;
 	if(trig.exdoor_dir > -1 && (dir < 0 || (dir == trig.exdoor_dir && ind == trig.exdoor_ind)))
 	{
 		if(dir >= 0 || getxdoor(rpos_handle.screen, trig.exdoor_dir, trig.exdoor_ind))
@@ -2509,6 +2515,8 @@ bool force_ex_door_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx, int d
 	auto& cmb = ffc_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
+	if(trig.triggerflags[4] & combotriggerUNSETEXDOOR)
+		return false;
 	if(trig.exdoor_dir > -1 && (dir < 0 || (dir == trig.exdoor_dir && ind == trig.exdoor_ind)))
 	{
 		if(dir >= 0 || getxdoor(ffc_handle.screen, trig.exdoor_dir, trig.exdoor_ind))
@@ -2867,14 +2875,14 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 			Hero.setBunnyClock(trig.trig_bunnytime);
 	}
 	
-	if(trig.exstate > -1 && trigexstate)
-	{
+	if(trig.exstate > -1 && (trig.triggerflags[4] & combotriggerUNSETEXSTATE))
+		unsetxmapflag(screen, 1<<trig.exstate);
+	else if(trig.exstate > -1 && trigexstate)
 		setxmapflag(screen, 1<<trig.exstate);
-	}
-	if(trig.exdoor_dir > -1)
-	{
+	if(trig.exdoor_dir > -1 && (trig.triggerflags[4] & combotriggerUNSETEXDOOR))
+		set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind, false);
+	else if(trig.exdoor_dir > -1)
 		set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind);
-	}
 }
 
 // Triggers a combo at a given position.
@@ -2907,7 +2915,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& ex_trig = cmb.triggers[idx];
-		if(ex_trig.exstate > -1)
+		if(ex_trig.exstate > -1 && (ex_trig.triggerflags[4] & combotriggerUNSETEXSTATE))
 		{
 			if (force_ex_trigger(rpos_handle, idx))
 			{
@@ -2915,7 +2923,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 				if(rpos_handle.data() != cid) break;
 			}
 		}
-		if(ex_trig.exdoor_dir > -1)
+		if(ex_trig.exdoor_dir > -1 && (ex_trig.triggerflags[4] & combotriggerUNSETEXDOOR))
 		{
 			if(force_ex_door_trigger(rpos_handle, idx))
 			{
@@ -3129,7 +3137,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& ex_trig = cmb.triggers[idx];
-		if(ex_trig.exstate > -1)
+		if(ex_trig.exstate > -1 && (ex_trig.triggerflags[4] & combotriggerUNSETEXSTATE))
 		{
 			if(force_ex_trigger_ffc(ffc_handle, idx))
 			{
@@ -3137,7 +3145,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 				if(ffc_handle.data() != cid) break;
 			}
 		}
-		if(ex_trig.exdoor_dir > -1)
+		if(ex_trig.exdoor_dir > -1 && (ex_trig.triggerflags[4] & combotriggerUNSETEXDOOR))
 		{
 			if(force_ex_door_trigger_ffc(ffc_handle, idx))
 			{

@@ -1692,19 +1692,19 @@ void set_doorstate(uint screen, uint dir)
 	set_doorstate_mi(mi, dir);
 }
 
-void set_xdoorstate_mi(uint mi, uint dir, uint ind)
+void set_xdoorstate_mi(uint mi, uint dir, uint ind, bool state)
 {
 	if(mi >= game->xdoors.size() || dir >= 4 || ind >= 8)
 		return;
-	setxdoor_mi(mi, dir, ind, true);
+	setxdoor_mi(mi, dir, ind, state);
 	if(auto di = nextscr_mi(mi, dir))
-		setxdoor_mi(*di, oppositeDir[dir], ind);
+		setxdoor_mi(*di, oppositeDir[dir], ind, state);
 }
 
-void set_xdoorstate(int32_t screen,uint dir, uint ind)
+void set_xdoorstate(int32_t screen,uint dir, uint ind, bool state)
 {
 	int mi = mapind(cur_map, screen);
-	set_xdoorstate_mi(mi, dir, ind);
+	set_xdoorstate_mi(mi, dir, ind, state);
 }
 
 int32_t WARPCODE(int32_t dmap,int32_t screen,int32_t dw)

@@ -319,8 +319,8 @@ struct newcombo
 
 //triggerflags[4]
 #define combotriggerSCREENLOAD         0x00000001
-// #define combotrigger                    0x00000002
-// #define combotrigger                    0x00000004
+#define combotriggerUNSETEXSTATE       0x00000002
+#define combotriggerUNSETEXDOOR        0x00000004
 // #define combotrigger                    0x00000008
 //triggerflags[5]
 // #define combotrigger                    0x00000001
