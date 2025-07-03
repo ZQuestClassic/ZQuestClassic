@@ -7,6 +7,7 @@
 #include "base/qrs.h"
 #include "base/packfile.h"
 #include "base/gui.h"
+#include "zc_list_data.h"
 #include "qst.h"
 #include "zc/zc_custom.h"
 #include "zq/zq_custom.h"
@@ -2009,60 +2010,18 @@ const char *itemsetlist(int32_t index, int32_t *list_size)
 list_data_struct biew[MAXWPNS];
 int32_t biew_cnt=-1;
 
-char temp_custom_ew_strings[10][40];
-
-static int32_t enemy_weapon_types[]=
-{
-	128, ewFireball,ewArrow,ewBrang,ewSword,
-	ewRock,ewMagic,ewBomb,ewSBomb,
-	//137
-	ewLitBomb,ewLitSBomb,ewFireTrail,ewFlame,
-	ewWind,ewFlame2,ewFlame2Trail,
-	//145
-	ewIce,ewFireball2
-	
-};
-
-static int32_t enemy_script_weapon_types[]=
-{
-	wScript1, wScript2, wScript3, wScript4,
-	//35
-	wScript5, wScript6, wScript7, wScript8,
-	//39
-	wScript9, wScript10
-	
-};
-
 void build_biew_list()
 {
-	biew_cnt=0;
+	static GUI::ListData types;
+	types = GUI::ZCListData::eweaptypes();
 
-	memset(temp_custom_ew_strings, 0, sizeof(temp_custom_ew_strings));
-	
-	for(int32_t i=0; i<wMax-wEnemyWeapons; i++)
+	biew_cnt = 0;
+	for(int32_t i=0; i<types.size(); i++)
 	{
-		//if(eweapon_string[i][0]!='-')
-		if(moduledata.enemy_weapon_names[i][0]!='-')
-		{
-			//biew[biew_cnt].s = (char *)eweapon_string[i];
-			biew[biew_cnt].s = (char *)moduledata.enemy_weapon_names[i];
-			biew[biew_cnt].i = enemy_weapon_types[i];
-			++biew_cnt;
-		}
+		biew[i].s = (char*)types.getText(i).c_str();
+		biew[i].i = types.getValue(i);
+		++biew_cnt;
 	}
-	for(int32_t i = 0; i < 10; i++)
-	{
-		biew[biew_cnt].s = (char *)moduledata.enemy_scriptweaponweapon_names[i];
-	biew[biew_cnt].i = enemy_script_weapon_types[i];
-	++biew_cnt;
-	}
-	al_trace("biew_cnt is: %d\n", biew_cnt);
-	for ( int32_t i = 0; i < biew_cnt; i++ )
-	{
-	al_trace("biew[%d] id is (%d) and string is (%s)\n", i, biew[i].i, biew[i].s);
-		
-	}
-	
 }
 
 const char *eweaponlist(int32_t index, int32_t *list_size)
@@ -4685,6 +4644,8 @@ void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
 
 void edit_enemydata(int32_t index)
 {
+	biew_cnt = -1;
+
 	//guysbuf[index].script = 1;
 	char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
 		 frt[8], efr[8], bsp[8];

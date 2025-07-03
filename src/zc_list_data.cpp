@@ -494,25 +494,68 @@ GUI::ListData GUI::ZCListData::bottletype()
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::lweaptypes()
+GUI::ListData GUI::ZCListData::lweaptypes(bool numbered)
 {
-	std::map<std::string, int32_t> vals;
-	
-	std::string none(moduledata.player_weapon_names[0]);
-	if(skipchar(moduledata.player_weapon_names[0][0]))
-		none = "(None)";
-	
 	GUI::ListData ls;
-	ls.add(none, 0);
-	for(int32_t i=1; i<41; ++i)
+	ls.add("(None)", 0);
+	for (int32_t q = 1; q < lwMax; ++q)
 	{
-		if(skipchar(moduledata.player_weapon_names[i][0]))
-			continue;
-		
-		std::string sname(moduledata.player_weapon_names[i]);
-		ls.add(sname, i);
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
 	}
-	
+	for (int32_t q = wIce; q < wEnemyWeapons; ++q)
+	{
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
+	}
+	ls.alphabetize();
+	//should these always be at the end?
+	for (int32_t q = wScript1; q < wScript1+10; ++q)
+	{
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
+	}
+
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::eweaptypes(bool numbered)
+{
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	for (int32_t q = wEnemyWeapons+1; q < wMax; ++q)
+	{
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
+	}
+	ls.alphabetize();
+	//should these always be at the end?
+	for (int32_t q = wScript1; q < wScript1 + 10; ++q)
+	{
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
+	}
+
 	return ls;
 }
 
