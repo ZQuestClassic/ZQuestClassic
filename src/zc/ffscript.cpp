@@ -6363,7 +6363,7 @@ int32_t get_register(const int32_t arg)
 				break;
 			}
 			
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,4);
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index)
 			{
 				case 0:
@@ -6399,8 +6399,10 @@ int32_t get_register(const int32_t arg)
 				case 15:
 					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG16)?10000:0; break;
 				
-				default: 
-					ret = 0; break;
+				default:
+					Z_scripterrlog("Invalid index used in to npc->Behaviour[]: %d\n", index);
+					ret = 0;
+					break;
 			}
 				
 			break;
@@ -12847,7 +12849,8 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,4);
+
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index)
 			{
 				case 0:
@@ -12884,8 +12887,10 @@ int32_t get_register(const int32_t arg)
 					ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG16)?10000:0; break;
 				
 				
-				default: 
-					ret = 0; break;
+				default:
+					Z_scripterrlog("Invalid index used in to npcdata->BFlags[]: %d\n", index);
+					ret = 0;
+					break;
 			}
 				
 			break;
@@ -20817,7 +20822,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,4);
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index)
 			{
 				case 0:
@@ -20870,7 +20875,8 @@ void set_register(int32_t arg, int32_t value)
 					break;
 				
 				
-				default: 
+				default:
+					Z_scripterrlog("Invalid index used in to npc->Behaviour[]: %d\n", index);
 					break;
 			}
 				
@@ -25803,7 +25809,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			
 			
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,4);
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index){
 				case 0:
 				(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG1 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG1;
@@ -25855,7 +25861,8 @@ void set_register(int32_t arg, int32_t value)
 				break;
 				
 				
-				default: 
+				default:
+					Z_scripterrlog("Invalid index used in to npcdata->BFlags[]: %d\n", index);
 					break;
 			}
 				
