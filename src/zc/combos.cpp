@@ -2646,6 +2646,17 @@ static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, 
 		if(trig.triggerflags[3] & combotriggerLITEM_REVCOND)
 			if((trig.trig_levelitems & game->lvlitems[dmap_level]) == trig.trig_levelitems)
 				return false;
+		if((trig.req_level_state & game->lvlswitches[dmap_level]) != trig.req_level_state)
+			return false; // missing at least 1 required state
+		if(trig.unreq_level_state & game->lvlswitches[dmap_level])
+			return false; // has at least 1 un-required state
+		for(int q = 0; q < 256; ++q)
+		{
+			if(trig.req_global_state.get(q) && !game->gswitch_timers[q])
+				return false;
+			if(trig.unreq_global_state.get(q) && game->gswitch_timers[q])
+				return false;
+		}
 	}
 	
 	auto ctrcost = get_cmb_trigctrcost(trig);

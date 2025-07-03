@@ -487,6 +487,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGPUSHTIME: return "combotrigger::PushTime";
 		case CMBTRIGQUAKETIME: return "combotrigger::QuakeTimer";
 		case CMBTRIGREQITEM: return "combotrigger::ReqItem";
+		case CMBTRIGREQLVLSTATE: return "combotrigger::ReqLevelState[]";
 		case CMBTRIGSFX: return "combotrigger::SFX";
 		case CMBTRIGSHIELDJINX: return "combotrigger::ShieldJinx";
 		case CMBTRIGSPAWNENEMY: return "combotrigger::SpawnEnemy";
@@ -500,6 +501,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGTINTR: return "combotrigger::TintR";
 		case CMBTRIGGROUP: return "combotrigger::TrigGroup";
 		case CMBTRIGGROUPVAL: return "combotrigger::TrigGroupVal";
+		case CMBTRIGUNREQLVLSTATE: return "combotrigger::UnreqLevelState[]";
 		case CMBTRIGWAVYTIME: return "combotrigger::WavyTimer";
 		case CMBTRIGWPNLEVEL: return "combotrigger::WeaponLevel";
 		case DIRECTORYSIZE: return "directory::Size";

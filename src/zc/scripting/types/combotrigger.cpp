@@ -9,6 +9,34 @@ static ArrayRegistrar CMBTRIGBUTTON_registrar(CMBTRIGBUTTON, []{
 	return &impl;
 }());
 
+static ArrayRegistrar CMBTRIGREQLVLSTATE_registrar(CMBTRIGREQLVLSTATE, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<combo_trigger, &combo_trigger::req_level_state, 32> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar CMBTRIGUNREQLVLSTATE_registrar(CMBTRIGUNREQLVLSTATE, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<combo_trigger, &combo_trigger::unreq_level_state, 32> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar CMBTRIGREQGLOBALSTATE_registrar(CMBTRIGREQGLOBALSTATE, []{
+	static ScriptingArray_ObjectMemberBitstring<combo_trigger, &combo_trigger::req_global_state, 256> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar CMBTRIGUNREQGLOBALSTATE_registrar(CMBTRIGUNREQGLOBALSTATE, []{
+	static ScriptingArray_ObjectMemberBitstring<combo_trigger, &combo_trigger::unreq_global_state, 256> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar CMBTRIGFLAGS_registrar(CMBTRIGFLAGS, []{
 	static ScriptingArray_GlobalComputed<bool> impl(
 		[](int ref) -> int {

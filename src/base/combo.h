@@ -95,6 +95,8 @@ struct combo_trigger
 	byte trig_group;
 	word trig_group_val;
 	byte trig_levelitems;
+	dword req_level_state, unreq_level_state;
+	bitstring req_global_state, unreq_global_state;
 	int16_t trigdmlevel = -1;
 	int16_t trigtint[3]; //r,g,b range [-255,255]
 	int16_t triglvlpalette = -1, trigbosspalette = -1;

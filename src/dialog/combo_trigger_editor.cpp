@@ -792,78 +792,10 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									IBTN("'Req Item:' will be taken when triggering")
 								)
 							)
-						),
-						Frame(title = "Level Flags", vAlign = 0.0,
-							Column(padding = 0_px,
-								Rows<4>(
-									Label(text = "Req Flags:", fitParent = true),
-									req_litems_field = TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = local_ref.trig_levelitems,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_ref.trig_levelitems = val;
-										}),
-									Button(
-										width = 1.5_em, padding = 0_px, forceFitH = true,
-										text = "P", hAlign = 1.0, onPressFunc = [&]()
-										{
-											int32_t flags = local_ref.trig_levelitems;
-											static const vector<CheckListInfo> litem_names =
-											{
-												{ "McGuffin", "The Hero has the McGuffin for the 'Trig DMap Level'" },
-												{ "Map", "The Hero has the Map for the 'Trig DMap Level'" },
-												{ "Compass", "The Hero has the Compass for the 'Trig DMap Level'" },
-												{ "Boss Killed", "The Hero has cleared the 'Dungeon Boss' room for the 'Trig DMap Level'" },
-												{ "Boss Key", "The Hero has the Boss Key for the 'Trig DMap Level'" },
-												{ "Custom 1", "The Hero has the Custom 1 state for the 'Trig DMap Level'" },
-												{ "Custom 2", "The Hero has the Custom 2 state for the 'Trig DMap Level'" },
-												{ "Custom 3", "The Hero has the Custom 3 state for the 'Trig DMap Level'" },
-											};
-											if(!call_checklist_dialog("Select 'Req Flags'",litem_names,flags))
-												return;
-											local_ref.trig_levelitems = flags;
-											req_litems_field->setVal(local_ref.trig_levelitems);
-										}
-									),
-									IBTN("See 'Require All', 'Require Not All', '->Set', and '->Unset' below."
-										"\nUse the 'P' button to pick the flags for this value."),
-									//
-									Label(text = "Trig DMap Level", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = -1, high = MAXLEVELS, val = local_ref.trigdmlevel,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_ref.trigdmlevel = val;
-										}),
-									DummyWidget(),
-									IBTN("The dmap level referenced by 'Req Flags'."
-										" If '-1', uses the current dmap's level.")
-								),
-								Rows_Columns<2,2>(
-									IBTN("The level flags set for 'Req Flags:' must ALL be on for this to trigger."
-										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-									TRIGFLAG(121,"Require All"),
-									IBTN("The level flags set for 'Req Flags:' must NOT ALL (some is ok) be on for this to trigger."
-										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-									TRIGFLAG(122,"Require Not All"),
-									IBTN("The level flags set for 'Req Flags:' will be enabled when this trigger triggers."
-										" If '->Unset' is also checked, the flags will be toggled instead."),
-									TRIGFLAG(123,"->Set"),
-									IBTN("The level flags set for 'Req Flags:' will be disabled when this trigger triggers."
-										" If '->Set' is also checked, the flags will be toggled instead."),
-									TRIGFLAG(124,"->Unset")
-								)
-							)
 						)
 					)
 				)),
-				TabRef(name = "States/Spawning", Rows<3>(
+				TabRef(name = "States/Spawning", Row(
 					Rows<4>(framed = true, fitParent = true,
 						Label(text = "Spawn Item:", fitParent = true),
 						TextField(
@@ -1069,30 +1001,133 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						DummyWidget(),
 						IBTN("Which door index of the specified direction to use. (See ? for 'ExDoor Dir' for more info)")
 					),
-					Rows<4>(framed = true, fitParent = true,
-						IBTN("'Spawn Item' will be linked to the room's Special Item state"),
-						TRIGFLAG(83, "Spawns Special Item",3),
-						IBTN("The item spawned by the combo will automatically be collected by the Hero."),
-						TRIGFLAG(86, "Spawned Item auto-collects",3),
-						IBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
-						TRIGFLAG(84, "Trigger ExState after item pickup",3),
-						IBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
-						TRIGFLAG(85, "Trigger ExState after enemy kill",3),
-						IBTN("This combo is triggered when the level-based switch state specified as 'LevelState' is toggled."),
-						TRIGFLAG(96, "LevelState->"),
-						IBTN("When triggered, toggles the level-based switch state specified as 'LevelState'."),
-						TRIGFLAG(97, "->LevelState"),
-						IBTN("This combo is triggered when the globalswitch state specified as 'GlobalState' is toggled."),
-						TRIGFLAG(98, "GlobalState->"),
-						IBTN("When triggered, toggles the global switch state specified as 'GlobalState'."
-							"\nIf 'GlobalState Timer' is >0, resets the timer of the state to the specified value instead of toggling it."),
-						TRIGFLAG(99, "->GlobalState"),
-						IBTN("This combo contributes to its Trigger Group."),
-						TRIGFLAG(109, "Contributes To TrigGroup",3),
-						IBTN("When the number of combos that contribute to this trigger's Trigger Group is LESS than the Trigger Group Val, trigger this trigger."),
-						TRIGFLAG(110, "TrigGroup Less->"),
-						IBTN("When the number of combos that contribute to this trigger's Trigger Group is GREATER than the Trigger Group Val, trigger this trigger."),
-						TRIGFLAG(111, "TrigGroup Greater->")
+					Column(vAlign = 0.0, padding = 0_px,
+						Rows<4>(framed = true, fitParent = true,
+							IBTN("'Spawn Item' will be linked to the room's Special Item state"),
+							TRIGFLAG(83, "Spawns Special Item",3),
+							IBTN("The item spawned by the combo will automatically be collected by the Hero."),
+							TRIGFLAG(86, "Spawned Item auto-collects",3),
+							IBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
+							TRIGFLAG(84, "Trigger ExState after item pickup",3),
+							IBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
+							TRIGFLAG(85, "Trigger ExState after enemy kill",3),
+							IBTN("This combo is triggered when the level-based switch state specified as 'LevelState' is toggled."),
+							TRIGFLAG(96, "LevelState->"),
+							IBTN("When triggered, toggles the level-based switch state specified as 'LevelState'."),
+							TRIGFLAG(97, "->LevelState"),
+							IBTN("This combo is triggered when the globalswitch state specified as 'GlobalState' is toggled."),
+							TRIGFLAG(98, "GlobalState->"),
+							IBTN("When triggered, toggles the global switch state specified as 'GlobalState'."
+								"\nIf 'GlobalState Timer' is >0, resets the timer of the state to the specified value instead of toggling it."),
+							TRIGFLAG(99, "->GlobalState"),
+							IBTN("This combo contributes to its Trigger Group."),
+							TRIGFLAG(109, "Contributes To TrigGroup",3),
+							IBTN("When the number of combos that contribute to this trigger's Trigger Group is LESS than the Trigger Group Val, trigger this trigger."),
+							TRIGFLAG(110, "TrigGroup Less->"),
+							IBTN("When the number of combos that contribute to this trigger's Trigger Group is GREATER than the Trigger Group Val, trigger this trigger."),
+							TRIGFLAG(111, "TrigGroup Greater->")
+						),
+						Frame(title = "GlobalState Conditions",
+							Rows<3>(
+								Label(text = "Req States:", fitParent = true),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.req_global_state;
+										static const vector<CheckListInfo> gstates =
+										{
+											{ "0" }, { "1" }, { "2" }, { "3" }, { "4" }, { "5" }, { "6" }, { "7" },
+											{ "8" }, { "9" }, { "10" }, { "11" }, { "12" }, { "13" }, { "14" }, { "15" },
+											{ "16" }, { "17" }, { "18" }, { "19" }, { "20" }, { "21" }, { "22" }, { "23" },
+											{ "24" }, { "25" }, { "26" }, { "27" }, { "28" }, { "29" }, { "30" }, { "31" },
+											{ "32" }, { "33" }, { "34" }, { "35" }, { "36" }, { "37" }, { "38" }, { "39" },
+											{ "40" }, { "41" }, { "42" }, { "43" }, { "44" }, { "45" }, { "46" }, { "47" },
+											{ "48" }, { "49" }, { "50" }, { "51" }, { "52" }, { "53" }, { "54" }, { "55" },
+											{ "56" }, { "57" }, { "58" }, { "59" }, { "60" }, { "61" }, { "62" }, { "63" },
+											{ "64" }, { "65" }, { "66" }, { "67" }, { "68" }, { "69" }, { "70" }, { "71" },
+											{ "72" }, { "73" }, { "74" }, { "75" }, { "76" }, { "77" }, { "78" }, { "79" },
+											{ "80" }, { "81" }, { "82" }, { "83" }, { "84" }, { "85" }, { "86" }, { "87" },
+											{ "88" }, { "89" }, { "90" }, { "91" }, { "92" }, { "93" }, { "94" }, { "95" },
+											{ "96" }, { "97" }, { "98" }, { "99" }, { "100" }, { "101" }, { "102" }, { "103" },
+											{ "104" }, { "105" }, { "106" }, { "107" }, { "108" }, { "109" }, { "110" }, { "111" },
+											{ "112" }, { "113" }, { "114" }, { "115" }, { "116" }, { "117" }, { "118" }, { "119" },
+											{ "120" }, { "121" }, { "122" }, { "123" }, { "124" }, { "125" }, { "126" }, { "127" },
+											{ "128" }, { "129" }, { "130" }, { "131" }, { "132" }, { "133" }, { "134" }, { "135" },
+											{ "136" }, { "137" }, { "138" }, { "139" }, { "140" }, { "141" }, { "142" }, { "143" },
+											{ "144" }, { "145" }, { "146" }, { "147" }, { "148" }, { "149" }, { "150" }, { "151" },
+											{ "152" }, { "153" }, { "154" }, { "155" }, { "156" }, { "157" }, { "158" }, { "159" },
+											{ "160" }, { "161" }, { "162" }, { "163" }, { "164" }, { "165" }, { "166" }, { "167" },
+											{ "168" }, { "169" }, { "170" }, { "171" }, { "172" }, { "173" }, { "174" }, { "175" },
+											{ "176" }, { "177" }, { "178" }, { "179" }, { "180" }, { "181" }, { "182" }, { "183" },
+											{ "184" }, { "185" }, { "186" }, { "187" }, { "188" }, { "189" }, { "190" }, { "191" },
+											{ "192" }, { "193" }, { "194" }, { "195" }, { "196" }, { "197" }, { "198" }, { "199" },
+											{ "200" }, { "201" }, { "202" }, { "203" }, { "204" }, { "205" }, { "206" }, { "207" },
+											{ "208" }, { "209" }, { "210" }, { "211" }, { "212" }, { "213" }, { "214" }, { "215" },
+											{ "216" }, { "217" }, { "218" }, { "219" }, { "220" }, { "221" }, { "222" }, { "223" },
+											{ "224" }, { "225" }, { "226" }, { "227" }, { "228" }, { "229" }, { "230" }, { "231" },
+											{ "232" }, { "233" }, { "234" }, { "235" }, { "236" }, { "237" }, { "238" }, { "239" },
+											{ "240" }, { "241" }, { "242" }, { "243" }, { "244" }, { "245" }, { "246" }, { "247" },
+											{ "248" }, { "249" }, { "250" }, { "251" }, { "252" }, { "253" }, { "254" }, { "255" }
+										};
+										if(!call_checklist_dialog("Select 'Req States'",gstates,flags,16))
+											return;
+										local_ref.req_global_state = flags;
+									}
+								),
+								IBTN("These GlobalStates must be set for this trigger to activate."
+									"\nUse the 'P' button to pick the flags for this value."),
+								//
+								Label(text = "Unreq States:", fitParent = true),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.unreq_global_state;
+										static const vector<CheckListInfo> gstates =
+										{
+											{ "0" }, { "1" }, { "2" }, { "3" }, { "4" }, { "5" }, { "6" }, { "7" },
+											{ "8" }, { "9" }, { "10" }, { "11" }, { "12" }, { "13" }, { "14" }, { "15" },
+											{ "16" }, { "17" }, { "18" }, { "19" }, { "20" }, { "21" }, { "22" }, { "23" },
+											{ "24" }, { "25" }, { "26" }, { "27" }, { "28" }, { "29" }, { "30" }, { "31" },
+											{ "32" }, { "33" }, { "34" }, { "35" }, { "36" }, { "37" }, { "38" }, { "39" },
+											{ "40" }, { "41" }, { "42" }, { "43" }, { "44" }, { "45" }, { "46" }, { "47" },
+											{ "48" }, { "49" }, { "50" }, { "51" }, { "52" }, { "53" }, { "54" }, { "55" },
+											{ "56" }, { "57" }, { "58" }, { "59" }, { "60" }, { "61" }, { "62" }, { "63" },
+											{ "64" }, { "65" }, { "66" }, { "67" }, { "68" }, { "69" }, { "70" }, { "71" },
+											{ "72" }, { "73" }, { "74" }, { "75" }, { "76" }, { "77" }, { "78" }, { "79" },
+											{ "80" }, { "81" }, { "82" }, { "83" }, { "84" }, { "85" }, { "86" }, { "87" },
+											{ "88" }, { "89" }, { "90" }, { "91" }, { "92" }, { "93" }, { "94" }, { "95" },
+											{ "96" }, { "97" }, { "98" }, { "99" }, { "100" }, { "101" }, { "102" }, { "103" },
+											{ "104" }, { "105" }, { "106" }, { "107" }, { "108" }, { "109" }, { "110" }, { "111" },
+											{ "112" }, { "113" }, { "114" }, { "115" }, { "116" }, { "117" }, { "118" }, { "119" },
+											{ "120" }, { "121" }, { "122" }, { "123" }, { "124" }, { "125" }, { "126" }, { "127" },
+											{ "128" }, { "129" }, { "130" }, { "131" }, { "132" }, { "133" }, { "134" }, { "135" },
+											{ "136" }, { "137" }, { "138" }, { "139" }, { "140" }, { "141" }, { "142" }, { "143" },
+											{ "144" }, { "145" }, { "146" }, { "147" }, { "148" }, { "149" }, { "150" }, { "151" },
+											{ "152" }, { "153" }, { "154" }, { "155" }, { "156" }, { "157" }, { "158" }, { "159" },
+											{ "160" }, { "161" }, { "162" }, { "163" }, { "164" }, { "165" }, { "166" }, { "167" },
+											{ "168" }, { "169" }, { "170" }, { "171" }, { "172" }, { "173" }, { "174" }, { "175" },
+											{ "176" }, { "177" }, { "178" }, { "179" }, { "180" }, { "181" }, { "182" }, { "183" },
+											{ "184" }, { "185" }, { "186" }, { "187" }, { "188" }, { "189" }, { "190" }, { "191" },
+											{ "192" }, { "193" }, { "194" }, { "195" }, { "196" }, { "197" }, { "198" }, { "199" },
+											{ "200" }, { "201" }, { "202" }, { "203" }, { "204" }, { "205" }, { "206" }, { "207" },
+											{ "208" }, { "209" }, { "210" }, { "211" }, { "212" }, { "213" }, { "214" }, { "215" },
+											{ "216" }, { "217" }, { "218" }, { "219" }, { "220" }, { "221" }, { "222" }, { "223" },
+											{ "224" }, { "225" }, { "226" }, { "227" }, { "228" }, { "229" }, { "230" }, { "231" },
+											{ "232" }, { "233" }, { "234" }, { "235" }, { "236" }, { "237" }, { "238" }, { "239" },
+											{ "240" }, { "241" }, { "242" }, { "243" }, { "244" }, { "245" }, { "246" }, { "247" },
+											{ "248" }, { "249" }, { "250" }, { "251" }, { "252" }, { "253" }, { "254" }, { "255" }
+										};
+										if(!call_checklist_dialog("Select 'Unreq States'",gstates,flags,16))
+											return;
+										local_ref.unreq_global_state = flags;
+									}
+								),
+								IBTN("These GlobalStates must NOT be set for this trigger to activate."
+									"\nUse the 'P' button to pick the flags for this value.")
+							)
+						)
 					)
 				)),
 				TabRef(name = "Graphics", Rows<2>(
@@ -1190,6 +1225,121 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						IBTN("Sets the wavy timer to the specified duration."
 							" '-1' for 'none'.")
 					))
+				)),
+				TabRef(name = "Level Based", Column(
+					Frame(title = "Level Flags", vAlign = 0.0,
+						Column(padding = 0_px,
+							Rows<4>(
+								Label(text = "Req Flags:", fitParent = true),
+								req_litems_field = TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_ref.trig_levelitems,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.trig_levelitems = val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										int32_t flags = local_ref.trig_levelitems;
+										static const vector<CheckListInfo> litem_names =
+										{
+											{ "McGuffin", "The Hero has the McGuffin for the 'Trig DMap Level'" },
+											{ "Map", "The Hero has the Map for the 'Trig DMap Level'" },
+											{ "Compass", "The Hero has the Compass for the 'Trig DMap Level'" },
+											{ "Boss Killed", "The Hero has cleared the 'Dungeon Boss' room for the 'Trig DMap Level'" },
+											{ "Boss Key", "The Hero has the Boss Key for the 'Trig DMap Level'" },
+											{ "Custom 1", "The Hero has the Custom 1 state for the 'Trig DMap Level'" },
+											{ "Custom 2", "The Hero has the Custom 2 state for the 'Trig DMap Level'" },
+											{ "Custom 3", "The Hero has the Custom 3 state for the 'Trig DMap Level'" },
+										};
+										if(!call_checklist_dialog("Select 'Req Flags'",litem_names,flags))
+											return;
+										local_ref.trig_levelitems = flags;
+										req_litems_field->setVal(local_ref.trig_levelitems);
+									}
+								),
+								IBTN("See 'Require All', 'Require Not All', '->Set', and '->Unset' below."
+									"\nUse the 'P' button to pick the flags for this value."),
+								//
+								Label(text = "Trig DMap Level", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -1, high = MAXLEVELS, val = local_ref.trigdmlevel,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.trigdmlevel = val;
+									}),
+								DummyWidget(),
+								IBTN("The dmap level referenced by 'Req Flags'."
+									" If '-1', uses the current dmap's level.")
+							),
+							Rows_Columns<2,2>(
+								IBTN("The level flags set for 'Req Flags:' must ALL be on for this to trigger."
+									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+								TRIGFLAG(121,"Require All"),
+								IBTN("The level flags set for 'Req Flags:' must NOT ALL (some is ok) be on for this to trigger."
+									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+								TRIGFLAG(122,"Require Not All"),
+								IBTN("The level flags set for 'Req Flags:' will be enabled when this trigger triggers."
+									" If '->Unset' is also checked, the flags will be toggled instead."),
+								TRIGFLAG(123,"->Set"),
+								IBTN("The level flags set for 'Req Flags:' will be disabled when this trigger triggers."
+									" If '->Set' is also checked, the flags will be toggled instead."),
+								TRIGFLAG(124,"->Unset")
+							)
+						)
+					),
+					Frame(title = "LevelState Conditions",
+						Rows<3>(
+							Label(text = "Req States:", fitParent = true),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "P", hAlign = 1.0, onPressFunc = [&]()
+								{
+									dword flags = local_ref.req_level_state;
+									static const vector<CheckListInfo> lstates =
+									{
+										{ "0" }, { "1" }, { "2" }, { "3" }, { "4" }, { "5" }, { "6" }, { "7" },
+										{ "8" }, { "9" }, { "10" }, { "11" }, { "12" }, { "13" }, { "14" }, { "15" },
+										{ "16" }, { "17" }, { "18" }, { "19" }, { "20" }, { "21" }, { "22" }, { "23" },
+										{ "24" }, { "25" }, { "26" }, { "27" }, { "28" }, { "29" }, { "30" }, { "31" }
+									};
+									if(!call_checklist_dialog("Select 'Req States'",lstates,flags,8))
+										return;
+									local_ref.req_level_state = flags;
+								}
+							),
+							IBTN("These LevelStates must be set for this trigger to activate."
+								"\nUse the 'P' button to pick the flags for this value."),
+							//
+							Label(text = "Unreq States:", fitParent = true),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "P", hAlign = 1.0, onPressFunc = [&]()
+								{
+									dword flags = local_ref.unreq_level_state;
+									static const vector<CheckListInfo> lstates =
+									{
+										{ "0" }, { "1" }, { "2" }, { "3" }, { "4" }, { "5" }, { "6" }, { "7" },
+										{ "8" }, { "9" }, { "10" }, { "11" }, { "12" }, { "13" }, { "14" }, { "15" },
+										{ "16" }, { "17" }, { "18" }, { "19" }, { "20" }, { "21" }, { "22" }, { "23" },
+										{ "24" }, { "25" }, { "26" }, { "27" }, { "28" }, { "29" }, { "30" }, { "31" }
+									};
+									if(!call_checklist_dialog("Select 'Unreq States'",lstates,flags,8))
+										return;
+									local_ref.unreq_level_state = flags;
+								}
+							),
+							IBTN("These LevelStates must NOT be set for this trigger to activate."
+								"\nUse the 'P' button to pick the flags for this value.")
+						)
+					)
 				))
 			),
 			Row(
