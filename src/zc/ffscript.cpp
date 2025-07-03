@@ -38923,7 +38923,7 @@ j_command:
 				{
 					if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Explode()") == SH::_NoError)
 					{
-						Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn))->explode(mode);
+						Ewpns.spr(EwpnH::getEWeaponIndex(ri->ewpn))->explode(mode);
 					}
 				}
 				break;
