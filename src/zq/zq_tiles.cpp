@@ -12861,10 +12861,9 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 					{
 						return qe_invalid;
 					}
-					if(!p_getc(&temp_trigger.trigctr,f))
-					{
+					if(!p_getc(&tempbyte,f))
 						return qe_invalid;
-					}
+					temp_trigger.trigctr = tempbyte;
 					if(!p_igetl(&temp_trigger.trigctramnt,f))
 					{
 						return qe_invalid;

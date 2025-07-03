@@ -9514,7 +9514,7 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 38;
 	if(!p_iputw(tmp_trig.trigprox,f))
 		return 39;
-	if(!p_putc(tmp_trig.trigctr,f))
+	if(!p_iputw(tmp_trig.trigctr,f))
 		return 40;
 	if(!p_iputl(tmp_trig.trigctramnt,f))
 		return 41;

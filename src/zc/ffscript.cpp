@@ -14720,7 +14720,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if(auto* trig = get_first_combo_trigger())
-				trig->trigctr = vbound(value/10000, 0, MAX_COUNTERS-1);
+				trig->trigctr = vbound(value/10000, sscMIN, MAX_COUNTERS-1);
 			break;
 		}
 		case COMBODTRIGGERCTRAMNT:
@@ -15359,7 +15359,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 			{
-				trig->trigctr = vbound(value/10000, 0, MAX_COUNTERS-1);
+				trig->trigctr = vbound(value/10000, sscMIN, MAX_COUNTERS-1);
 			}
 			break;
 		}

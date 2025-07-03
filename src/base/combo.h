@@ -79,7 +79,7 @@ struct combo_trigger
 	byte trigsfx;
 	int32_t trigchange;
 	word trigprox;
-	byte trigctr;
+	int16_t trigctr;
 	int32_t trigctramnt;
 	byte triglbeam;
 	int8_t trigcschange;

@@ -23,6 +23,10 @@ extern bool subscr_itemless, subscr_pg_animating;
 void subscrpg_clear_animation();
 bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& parent);
 
+word get_ssc_ctrmax(int ctr);
+word get_ssc_ctr(int ctr, bool* infptr = nullptr);
+void modify_ssc_ctr(int ctr, int amnt);
+
 enum
 {
 	CONDTY_NONE,

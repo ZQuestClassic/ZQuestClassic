@@ -2659,23 +2659,25 @@ static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, 
 		}
 	}
 	
-	auto ctrcost = get_cmb_trigctrcost(trig);
-	if(is_active_screen && (trig.triggerflags[1] & combotriggerCTRNONLYTRIG) && (trig.triggerflags[1] & combotriggerCOUNTEREAT))
+	if(auto ctrcost = get_cmb_trigctrcost(trig))
 	{
-		if(game->get_counter(trig.trigctr) >= ctrcost)
+		bool inf_ctr = false;
+		word ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
+		if(is_active_screen && (trig.triggerflags[1] & combotriggerCTRNONLYTRIG) && (trig.triggerflags[1] & combotriggerCOUNTEREAT))
 		{
-			game->change_counter(-ctrcost, trig.trigctr);
+			if(ctrval >= ctrcost && !inf_ctr)
+				modify_ssc_ctr(trig.trigctr, -ctrcost);
 		}
-	}
-	if(trig.triggerflags[1] & combotriggerCOUNTERGE)
-	{
-		if(game->get_counter(trig.trigctr) < ctrcost)
-			return false;
-	}
-	if(trig.triggerflags[1] & combotriggerCOUNTERLT)
-	{
-		if(game->get_counter(trig.trigctr) >= ctrcost)
-			return false;
+		if(trig.triggerflags[1] & combotriggerCOUNTERGE)
+		{
+			if(ctrval < ctrcost && !inf_ctr)
+				return false;
+		}
+		if(trig.triggerflags[1] & combotriggerCOUNTERLT)
+		{
+			if(ctrval >= ctrcost || inf_ctr)
+				return false;
+		}
 	}
 	return true;
 }
@@ -2757,10 +2759,12 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 	}
 	if(!(trig.triggerflags[1] & combotriggerCTRNONLYTRIG) && (trig.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
-		auto ctrcost = get_cmb_trigctrcost(trig);
-		if(game->get_counter(trig.trigctr) >= ctrcost)
+		if(auto ctrcost = get_cmb_trigctrcost(trig))
 		{
-			game->change_counter(-ctrcost, trig.trigctr);
+			bool inf_ctr = false;
+			word ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
+			if(ctrval >= ctrcost && !inf_ctr)
+				modify_ssc_ctr(trig.trigctr, -ctrcost);
 		}
 	}
 	bool trigexstate = true;

@@ -730,7 +730,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						Row(padding = 0_px,
 							Rows<3>(
 								Label(text = "Counter:", fitParent = true),
-								DropDownList(data = parent.list_counters_nn,
+								DropDownList(data = parent.list_ss_counters_nn,
 									fitParent = true,
 									selectedValue = local_ref.trigctr,
 									onSelectFunc = [&](int32_t val)
@@ -1227,6 +1227,20 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 					))
 				)),
 				TabRef(name = "Level Based", Column(
+					Rows<3>(
+						Label(text = "Trig DMap Level", fitParent = true),
+						TextField(
+							fitParent = true,
+							vPadding = 0_px,
+							type = GUI::TextField::type::INT_DECIMAL,
+							low = -1, high = MAXLEVELS, val = local_ref.trigdmlevel,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_ref.trigdmlevel = val;
+							}),
+						IBTN("The dmap level referenced by things on this tab."
+							" If '-1', uses the current dmap's level.")
+					),
 					Frame(title = "Level Flags", vAlign = 0.0,
 						Column(padding = 0_px,
 							Rows<4>(
@@ -1263,21 +1277,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									}
 								),
 								IBTN("See 'Require All', 'Require Not All', '->Set', and '->Unset' below."
-									"\nUse the 'P' button to pick the flags for this value."),
-								//
-								Label(text = "Trig DMap Level", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -1, high = MAXLEVELS, val = local_ref.trigdmlevel,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.trigdmlevel = val;
-									}),
-								DummyWidget(),
-								IBTN("The dmap level referenced by 'Req Flags'."
-									" If '-1', uses the current dmap's level.")
+									"\nUse the 'P' button to pick the flags for this value.")
 							),
 							Rows_Columns<2,2>(
 								IBTN("The level flags set for 'Req Flags:' must ALL be on for this to trigger."
@@ -1315,7 +1315,8 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									local_ref.req_level_state = flags;
 								}
 							),
-							IBTN("These LevelStates must be set for this trigger to activate."
+							IBTN("These LevelStates must be set (on the specified"
+								" Trig DMap Level) for this trigger to activate."
 								"\nUse the 'P' button to pick the flags for this value."),
 							//
 							Label(text = "Unreq States:", fitParent = true),
@@ -1336,7 +1337,8 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									local_ref.unreq_level_state = flags;
 								}
 							),
-							IBTN("These LevelStates must NOT be set for this trigger to activate."
+							IBTN("These LevelStates must NOT be set (on the specified"
+								" Trig DMap Level) for this trigger to activate."
 								"\nUse the 'P' button to pick the flags for this value.")
 						)
 					)

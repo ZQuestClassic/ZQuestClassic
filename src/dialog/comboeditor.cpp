@@ -85,7 +85,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_combscript(GUI::ZCListData::combodata_script()),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_genscr(GUI::ZCListData::generic_script()),
-	list_counters_nn(GUI::ZCListData::counters(true, true)),
+	list_ss_counters_nn(GUI::ZCListData::ss_counters(true, true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
 	list_weaptype(GUI::ZCListData::weaptypes(true)),
