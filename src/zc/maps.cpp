@@ -6094,10 +6094,10 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	hero_screen = screen;
 
 	cpos_clear_all();
-	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
-	FFCore.clear_combo_scripts();
 	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Screen);
 	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Combo);
+	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
+	FFCore.clear_combo_scripts();
 
 	if (is_in_scrolling_region())
 	{
