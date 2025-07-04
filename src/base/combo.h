@@ -108,6 +108,7 @@ struct combo_trigger
 	int16_t prompt_x = 12;
 	int16_t prompt_y = -8;
 	int32_t trig_msgstr, fail_msgstr;
+	zfix player_bounce, req_player_z;
 	
 	bool is_blank() const;
 	void clear();
@@ -322,7 +323,8 @@ struct newcombo
 #define combotriggerSCREENLOAD         0x00000001
 #define combotriggerUNSETEXSTATE       0x00000002
 #define combotriggerUNSETEXDOOR        0x00000004
-// #define combotrigger                    0x00000008
+#define combotriggerPLAYER_STANDING    0x00000008
+#define combotriggerINVERT_PLAYER_Z    0x00000010
 //triggerflags[5]
 // #define combotrigger                    0x00000001
 // #define combotrigger                    0x00000002

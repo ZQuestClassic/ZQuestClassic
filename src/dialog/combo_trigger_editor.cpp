@@ -165,6 +165,7 @@ static bool has_trigger_effect(combo_trigger const& trig)
 	if(trig.trig_shieldjinxtime != -2) return true;
 	if(trig.trig_stuntime != -2) return true;
 	if(trig.trig_bunnytime != -2) return true;
+	if(trig.player_bounce) return true;
 	return false;
 }
 
@@ -181,6 +182,12 @@ void ComboTriggerDialog::updateWarnings()
 		if(!has_weapon_cause(local_ref))
 			warnings.emplace_back("Trigger has weapon-specific 'Effect'(s), but no weapon-based causes!");
 	}
+	if((local_ref.triggerflags[4] & combotriggerUNSETEXSTATE) && local_ref.exstate < 0)
+		warnings.emplace_back("Can't unset ExState -1!");
+	if((local_ref.triggerflags[4] & combotriggerUNSETEXDOOR) && local_ref.exdoor_dir < 0)
+		warnings.emplace_back("Can't unset ExDoor '(None)' dir!");
+	
+	
 	
 	warnbtn->setDisabled(warnings.empty());
 }
@@ -462,21 +469,6 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							IBTN("Y Offset of the prompt combo from the Hero.")
 						),
 						Rows<3>(framed = true, vAlign = 1.0,
-							Label(text = "Proximity:", fitParent = true),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 5000, val = local_ref.trigprox,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.trigprox = (word)val;
-								}),
-							IBTN_T("Proximity Requirement","If the value is >0, the combo "
-								" will only trigger if the Hero is within that number of pixels of the combo."
-								"\nIf 'Invert Proximity Req' is checked, the Hero must be FARTHER than that distance instead."
-								"\n\nThis is a 'Condition'. It won't trigger the combo on"
-								" its own, but it must apply for other triggers to work."),
 							Label(text = "LightBeam:", fitParent = true),
 							TextField(
 								fitParent = true,
@@ -502,18 +494,6 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								}),
 							IBTN_T("Timed Trigger", "If the value is >0, the combo will"
 								" trigger itself every 'n' frames."),
-							Label(text = "Cooldown:", fitParent = true),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_ref.trigcooldown,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.trigcooldown = val;
-								}),
-							IBTN_T("Trigger Cooldown", "If the value is >0, the combo will"
-								" be unable to be triggered for 'n' frames after being triggered."),
 							Label(text = "Push Time:", fitParent = true),
 							TextField(
 								fitParent = true,
@@ -528,7 +508,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						)
 					),
 					Row(padding = 0_px,
-						Rows_Columns<4,6>(framed = true, vAlign = 0.0,
+						Rows_Columns<4,5>(framed = true, vAlign = 0.0,
 							IBTN("Triggers when stepped on"),
 							TRIGFLAG(25,"Step->"),
 							IBTN("Triggers when stepped on by even a pixel"),
@@ -556,23 +536,14 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							IBTN("Triggers when the Hero dives on this combo (more sensitive hitbox)"),
 							TRIGFLAG(114, "Dive-> (Sensitive)"),
 							//
-							IBTN("Can only trigger if the room is darkened."
-								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-							TRIGFLAG(119, "Req. Darkness"),
-							IBTN("Can only trigger if the room is NOT darkened."
-								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-							TRIGFLAG(120, "Req. No Darkness"),
-							//
-							IBTN("'Proximity:' requires the Hero to be far away, instead of close"),
-							TRIGFLAG(19,"Invert Proximity Req"),
-							IBTN("Triggers every frame automatically"),
-							TRIGFLAG(47,"Always Triggered"),
 							IBTN("Triggers when screen/region loads, after levelstates and exstates are applied"),
 							TRIGFLAG(128,"Triggers when screen loads"),
-							IBTN("Triggers when room shutters would open"),
-							TRIGFLAG(27,"Shutter->"),
+							IBTN("Triggers every frame automatically"),
+							TRIGFLAG(47,"Always Triggered"),
 							IBTN("Triggers when all enemies are defeated"),
 							TRIGFLAG(87, "Enemies->"),
+							IBTN("Triggers when room shutters would open"),
+							TRIGFLAG(27,"Shutter->"),
 							IBTN("Triggers when screen secrets trigger"),
 							TRIGFLAG(88, "Secrets->")
 						)
@@ -628,7 +599,20 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								}),
 							IBTN_T("CSet Change","If the value is not 0, the cset will"
 								" change by that much when triggered."
-								"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.")
+								"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'."),
+							Label(text = "Player Bounce:", fitParent = true),
+							TextField(
+								fitParent = true, vPadding = 0_px,
+								maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+								places = 4,
+								val = local_ref.player_bounce.getZLong(),
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.player_bounce = zslongToFix(val);
+								}),
+							IBTN_T("Player Bounce","If the value is not 0, the player will"
+								" 'Jump' with that force. Negative values make the player 'fall'.")
+							
 						),
 						Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, vAlign = 0.0,
 							hAlign = 1.0,
@@ -756,6 +740,63 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						)
 					)
 				),
+				TabRef(name = "Conditions", Frame(
+					info = "These are 'Conditions'. They won't trigger the combo on their own, but they must apply for other triggers to work.",
+					Row(
+						Rows<3>(
+							Label(text = "Proximity:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 5000, val = local_ref.trigprox,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.trigprox = (word)val;
+								}),
+							IBTN_T("Proximity Requirement","If the value is >0, the combo "
+								" will only trigger if the Hero is within that number of pixels of the combo."
+								"\nIf 'Invert Proximity Req' is checked, the Hero must be FARTHER than that distance instead."),
+							Label(text = "Player Z:", fitParent = true),
+							TextField(
+								fitParent = true, vPadding = 0_px,
+								maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+								places = 4,
+								val = local_ref.req_player_z.getZLong(),
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.req_player_z = zslongToFix(val);
+								}),
+							IBTN_T("Player Z Requirement","The combo "
+								" will only trigger if the Hero's Z value is >= this value."
+								"\nIf 'Invert Player Z Req' is checked, the Hero must be < this Z value instead."),
+							Label(text = "Cooldown:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_ref.trigcooldown,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.trigcooldown = val;
+								}),
+							IBTN_T("Trigger Cooldown", "If the value is >0, the combo will"
+								" be unable to be triggered for 'n' frames after being triggered.")
+						),
+						Rows<2>(
+							IBTN("'Proximity:' requires the Hero to be far away, instead of close"),
+							TRIGFLAG(19,"Invert Proximity Req"),
+							IBTN("Can only trigger if the room is darkened."),
+							TRIGFLAG(119, "Req. Darkness"),
+							IBTN("Can only trigger if the room is NOT darkened."),
+							TRIGFLAG(120, "Req. No Darkness"),
+							IBTN("Can only trigger if the player is standing on the ground. Handles 'standing' in sideview as well."),
+							TRIGFLAG(131, "Req. Player Standing"),
+							IBTN("'Player Z:' requires that the Hero be < the specified Z, instead of >=."),
+							TRIGFLAG(132, "Invert Player Z Req")
+						)
+					)
+				)),
 				TabRef(name = "Counters/Items", Column(
 					Frame(title = "Counters",
 						Row(padding = 0_px,
@@ -1063,6 +1104,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							TRIGFLAG(111, "TrigGroup Greater->")
 						),
 						Frame(title = "GlobalState Conditions",
+							info = "These are 'Conditions'. They won't trigger the combo on their own, but they must apply for other triggers to work.",
 							Rows<3>(
 								Label(text = "Req States:", fitParent = true),
 								Button(
@@ -1331,6 +1373,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						)
 					),
 					Frame(title = "LevelState Conditions",
+						info = "These are 'Conditions'. They won't trigger the combo on their own, but they must apply for other triggers to work.",
 						Rows<3>(
 							Label(text = "Req States:", fitParent = true),
 							Button(

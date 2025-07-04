@@ -18112,6 +18112,10 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 			return qe_invalid;
 		if(!p_igetl(&temp_trigger.fail_msgstr, f))
 			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.player_bounce, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.req_player_z, f))
+			return qe_invalid;
 	}
 	else
 	{

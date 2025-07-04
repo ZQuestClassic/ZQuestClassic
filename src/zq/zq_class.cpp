@@ -9601,6 +9601,10 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 110;
 	if(!p_iputl(tmp_trig.fail_msgstr, f))
 		return 111;
+	if(!p_iputzf(tmp_trig.player_bounce, f))
+		return 112;
+	if(!p_iputzf(tmp_trig.req_player_z, f))
+		return 113;
 	return 0;
 }
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb)

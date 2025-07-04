@@ -8257,6 +8257,34 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGGERTRIGSTR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->trig_msgstr * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERFAILSTR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->fail_msgstr * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERPLAYERBOUNCE:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->player_bounce;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERZ:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->req_player_z;
+			else ret = -10000;
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		//npcdata nd-> variables
 			
@@ -15680,6 +15708,30 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 				trig->prompt_y = vbound(value/10000, -32768, 32767);
+			break;
+		}
+		case CMBTRIGGERTRIGSTR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->trig_msgstr = vbound(value/10000, 0, msg_count-1);
+			break;
+		}
+		case CMBTRIGGERFAILSTR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->fail_msgstr = vbound(value/10000, 0, msg_count-1);
+			break;
+		}
+		case CMBTRIGGERPLAYERBOUNCE:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->player_bounce = value;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERZ:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->req_player_z = value;
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//

@@ -2642,7 +2642,20 @@ static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, 
 				return false;
 		}
 	}
-
+	
+	if(trig.triggerflags[4] & combotriggerINVERT_PLAYER_Z)
+	{
+		if(Hero.z >= trig.req_player_z)
+			return false;
+	}
+	else
+	{
+		if(Hero.z < trig.req_player_z)
+			return false;
+	}
+	if(trig.triggerflags[4] & combotriggerPLAYER_STANDING)
+		if(!Hero.isStanding(true))
+			return false;
 	if((trig.triggerflags[3] & combotriggerCOND_DARK))
 		if(!check_dark_trigger_conditional(is_active_screen, scr, false))
 			return false;
@@ -3098,6 +3111,9 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 
 				if (trig.trigcooldown)
 					timer.trig_data[idx].cooldown = trig.trigcooldown;
+				
+				if (trig.player_bounce)
+					Hero.setFall(trig.player_bounce*-100);
 			}
 		}
 		if (w && used_bit)
@@ -3109,7 +3125,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	if(w)
 		do_weapon_fx(w,trig);
 	
-	if (is_active_screen && dorun)
+	if (is_active_screen && dorun && !check_bit)
 	{
 		if(trig.trig_genscr)
 			FFCore.runGenericFrozenEngine(trig.trig_genscr);
@@ -3329,6 +3345,9 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 
 				if (trig.trigcooldown)
 					timer.trig_data[idx].cooldown = trig.trigcooldown;
+				
+				if (trig.player_bounce)
+					Hero.setFall(trig.player_bounce*-100);
 			}
 		}
 		if (w && used_bit)
@@ -3340,7 +3359,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	if(w)
 		do_weapon_fx(w,trig);
 	
-	if (is_active_screen && dorun)
+	if (is_active_screen && dorun && !check_bit)
 	{
 		if(trig.trig_genscr)
 			FFCore.runGenericFrozenEngine(trig.trig_genscr);

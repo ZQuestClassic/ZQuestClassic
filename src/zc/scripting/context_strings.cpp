@@ -476,6 +476,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGEXSTATE: return "combotrigger::ExState";
 		case CMBTRIGGERFAILPROMPTCS: return "combotrigger::FailPromptCSet";
 		case CMBTRIGGERFAILPROMPTCID: return "combotrigger::FailPromptCombo";
+		case CMBTRIGGERFAILSTR: return "combotrigger::FailString";
 		case CMBTRIGFLAGS: return "combotrigger::Flags[]";
 		case CMBTRIGGTIMER: return "combotrigger::GStateTimer";
 		case CMBTRIGGENSCRIPT: return "combotrigger::GenScript";
@@ -485,6 +486,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGLSTATE: return "combotrigger::LevelState";
 		case CMBTRIGLIGHTBEAM: return "combotrigger::LightBeam";
 		case CMBTRIGLVLPAL: return "combotrigger::LvlPal";
+		case CMBTRIGGERPLAYERBOUNCE: return "combotrigger::PlayerBounce";
 		case CMBTRIGGERPROMPTCS: return "combotrigger::PromptCSet";
 		case CMBTRIGGERPROMPTCID: return "combotrigger::PromptCombo";
 		case CMBTRIGGERPROMPTX: return "combotrigger::PromptX";
@@ -495,6 +497,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGREQGLOBALSTATE: return "combotrigger::ReqGlobalState[]";
 		case CMBTRIGREQITEM: return "combotrigger::ReqItem";
 		case CMBTRIGREQLVLSTATE: return "combotrigger::ReqLevelState[]";
+		case CMBTRIGGERREQPLAYERZ: return "combotrigger::ReqPlayerZ";
 		case CMBTRIGSFX: return "combotrigger::SFX";
 		case CMBTRIGSHIELDJINX: return "combotrigger::ShieldJinx";
 		case CMBTRIGSPAWNENEMY: return "combotrigger::SpawnEnemy";
@@ -508,6 +511,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGTINTR: return "combotrigger::TintR";
 		case CMBTRIGGROUP: return "combotrigger::TrigGroup";
 		case CMBTRIGGROUPVAL: return "combotrigger::TrigGroupVal";
+		case CMBTRIGGERTRIGSTR: return "combotrigger::TriggerString";
 		case CMBTRIGUNREQGLOBALSTATE: return "combotrigger::UnreqGlobalState[]";
 		case CMBTRIGUNREQLVLSTATE: return "combotrigger::UnreqLevelState[]";
 		case CMBTRIGWAVYTIME: return "combotrigger::WavyTimer";

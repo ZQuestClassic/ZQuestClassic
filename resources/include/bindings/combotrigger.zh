@@ -134,6 +134,10 @@ enum ComboTriggerFlag
 	TRIGFLAG_ONLY_GROUNDED_WEAPONS, //Weapons->Other->'Only Grounded Weapons' - weapons with Z > 0 won't trigger the combo
 	TRIGFLAG_COUNTER_WEALTH_MEDAL, //Counter/Items->'Apply Discount' - Wealth Medal items discount the counter cost
 	TRIGFLAG_SCREEN_LOAD, // Triggers when screen/region loads, after levelstates and exstates are applied
+	TRIGFLAG_UNSET_EXSTATE, // Unsets the [combotrigger->ExState|ExState] when triggered.
+	TRIGFLAG_UNSET_EXDOOR, // Unsets the [combotrigger->ExDoorDir|ExDoorDir] when triggered.
+	TRIGFLAG_REQ_HERO_STANDING, // Can only trigger if the [hero|Hero] is standing on ground. (Counts standing in sideview as well)
+	TRIGFLAG_INVERT_HERO_Z, // Inverts the condition of [combotrigger->ReqPlayerZ|ReqPlayerZ]
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
 };
@@ -467,6 +471,28 @@ class combotrigger {
 	//
 	// @zasm_var CMBTRIGGERPROMPTY
 	internal int PromptY;
+	
+	// The message string to play when the combo is triggered.
+	//
+	// @zasm_var CMBTRIGGERTRIGSTR
+	internal int TriggerString;
+	
+	// The message string to play when the combo is triggered, but the trigger conditions fail.
+	//
+	// @zasm_var CMBTRIGGERFAILSTR
+	internal int FailString;
+	
+	// The [hero->Jump|Hero->Jump] value is set to this value (if non-zero) when triggered.
+	//
+	// @zasm_var CMBTRIGGERPLAYERBOUNCE
+	internal int HeroBounce;
+	
+	// Requires that the hero's Z value is >= this value to trigger.
+	//
+	// If [ComboTriggerFlag->TRIGFLAG_INVERT_HERO_Z|TRIGFLAG_INVERT_HERO_Z] is set, requires that the hero's Z value is < this instead.
+	//
+	// @zasm_var CMBTRIGGERREQPLAYERZ
+	internal int ReqHeroZ;
 
 	// Gets the label for this trigger.
 	//
