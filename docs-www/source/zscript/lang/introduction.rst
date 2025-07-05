@@ -17,7 +17,7 @@ Let's use this example script:
 	{
 		void run()
 		{
-			printf("It's dangerous to go alone! Take this.\n");
+			Trace("It's dangerous to go alone! Take this.");
 		}
 	}
 
