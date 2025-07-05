@@ -225,7 +225,7 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 			continue; // link to external docs, not a symbol
 
 		bool try_functions = symbol_hint == CommentSymbolSymbolHint::None || symbol_hint == CommentSymbolSymbolHint::Function;
-		bool try_variables = (symbol_hint == CommentSymbolSymbolHint::None || symbol_hint == CommentSymbolSymbolHint::Variable) && check_params;
+		bool try_variables = symbol_hint == CommentSymbolSymbolHint::None || symbol_hint == CommentSymbolSymbolHint::Variable;
 		bool try_enums = symbol_hint == CommentSymbolSymbolHint::None || symbol_hint == CommentSymbolSymbolHint::Enum;
 
 		bool had_link_text = !link_text.empty();
