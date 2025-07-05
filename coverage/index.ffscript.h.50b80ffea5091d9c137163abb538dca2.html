@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-07-03 05:36:05</td>
+      <td>2025-07-05 10:49:05</td>
     </tr>
   </table>
 </div>
@@ -47,9 +47,9 @@
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>70</td>
+      <td>71</td>
       <td>112</td>
-      <td class="coverage-low">62.5%</td>
+      <td class="coverage-low">63.4%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
@@ -166,7 +166,7 @@
     <tr><td><a href="#l28">void scripting_log_error_with_context&lt;char const (&amp;) [8], int&amp;&gt;(fmt::v11::fstring&lt;char const (&amp;) [8], int&amp;&gt;::t, char const (&amp;) [8], int&amp;) (line 28)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l28">void scripting_log_error_with_context&lt;char const (&amp;) [9], int&amp;&gt;(fmt::v11::fstring&lt;char const (&amp;) [9], int&amp;&gt;::t, char const (&amp;) [9], int&amp;) (line 28)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l28">void scripting_log_error_with_context&lt;char const*&amp;, int const&amp;, int const&amp;, int const&amp;&gt;(fmt::v11::fstring&lt;char const*&amp;, int const&amp;, int const&amp;, int const&amp;&gt;::t, char const*&amp;, int const&amp;, int const&amp;, int const&amp;) (line 28)</a></td><td>called 12 times, returned 12 times</td><td>42.0%</td></tr>
-    <tr><td><a href="#l28">void scripting_log_error_with_context&lt;char const*&amp;, unsigned int&amp;&gt;(fmt::v11::fstring&lt;char const*&amp;, unsigned int&amp;&gt;::t, char const*&amp;, unsigned int&amp;) (line 28)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l28">void scripting_log_error_with_context&lt;char const*&amp;, unsigned int&amp;&gt;(fmt::v11::fstring&lt;char const*&amp;, unsigned int&amp;&gt;::t, char const*&amp;, unsigned int&amp;) (line 28)</a></td><td>called 6 times, returned 6 times</td><td>42.0%</td></tr>
     <tr><td><a href="#l28">void scripting_log_error_with_context&lt;char const*, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt;(fmt::v11::fstring&lt;char const*, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt;::t, char const*&amp;&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;) (line 28)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l28">void scripting_log_error_with_context&lt;int const&amp;, unsigned int const&amp;&gt;(fmt::v11::fstring&lt;int const&amp;, unsigned int const&amp;&gt;::t, int const&amp;, unsigned int const&amp;) (line 28)</a></td><td>called 640784 times, returned 640784 times</td><td>42.0%</td></tr>
     <tr><td><a href="#l28">void scripting_log_error_with_context&lt;int const&amp;&gt;(fmt::v11::fstring&lt;int const&amp;&gt;::t, int const&amp;) (line 28)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -392,7 +392,7 @@
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1247446</td>
+      <td class="linecount coveredLine">1247452</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">scripting_log_error_with_context</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format_string</span><span class="o">&lt;</span><span class="n">Args</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -406,7 +406,7 @@
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1247446</td>
+      <td class="linecount coveredLine">1247452</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...);</span></td>
     </tr>
     <tr class="source-line">
@@ -415,10 +415,10 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">14/92</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 190739 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 190745 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 190739 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 190745 times.</div>
           <div class="takenBranch">&check; Branch 4 taken 31038 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 6 not taken.</div>
@@ -510,14 +510,14 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1247446</td>
+      <td class="linecount partialCoveredLine">1247452</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">scripting_log_error_with_context</span><span class="p">(</span><span class="n">text</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1247446</td>
+      <td class="linecount coveredLine">1247452</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
