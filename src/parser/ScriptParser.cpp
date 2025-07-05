@@ -745,6 +745,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			}
 			else
 			{
+				addOpcode2(funccode, new ONoOp(bo.getReturnLabelID()));
+
 				// Release references from parameters that are objects.
 				for (auto&& datum : function.getInternalScope()->getLocalData())
 				{
@@ -759,13 +761,9 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				}
 
 				// Pop off everything
-				Opcode* next;
-				if(stackSize)
-					next = new OPopArgsRegister(new VarArgument(NUL),
-						new LiteralArgument(stackSize));
-				else next = new ONoOp();
-				next->setLabel(bo.getReturnLabelID());
-				addOpcode2(funccode, next);
+
+				if (stackSize)
+					addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL), new LiteralArgument(stackSize)));
 				
 				if (puc == puc_construct) //return val
 				{
