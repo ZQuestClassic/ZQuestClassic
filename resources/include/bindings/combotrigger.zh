@@ -224,14 +224,14 @@ class combotrigger {
 	//
 	// With [TRIGFLAG_COUNTER_GE], cancels the trigger if the counter is < the [CounterAmount].
 	// With [TRIGFLAG_COUNTER_LT], cancels the trigger if the counter is >= the [CounterAmount].
-	// With [TRIGFLAG_COUNTER_EAT], consumes the [CounterAmount] from the counter when triggered.
+	// With [TRIGFLAG_COUNTER_EAT], consumes the [CounterAmount] from the counter when triggered.
 	// ...and with [TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT], the consumed amount consumes even if the combo
 	// fails to trigger (ex. via failing a conditional)
 	//
 	// @zasm_var CMBTRIGCTR
 	internal int Counter;
 	
-	// The counter amount used by this trigger. See [Counter].
+	// The counter amount used by this trigger. See [Counter].
 	// @zasm_var CMBTRIGCTRAMNT
 	internal int CounterAmount;
 
