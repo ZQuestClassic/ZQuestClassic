@@ -260,7 +260,8 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 		}
 		else
 		{
-			ident = parseExprIdentifier(symbol_name);
+			if (ident.components.empty())
+				ident = parseExprIdentifier(symbol_name);
 		}
 
 		if (try_variables)
@@ -339,15 +340,17 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 		// Resolve variable fields, like [Game->Counter]
 		if (!symbol_node && ident.components.size()	== 2 && ident.delimiters[0] == "->" && (try_variables || try_functions))
 		{
+			auto datum_ident = ident;
+			datum_ident.delimiters.pop_back();
+			datum_ident.components.pop_back();
+
 			std::string prop = ident.components[1];
-			ident.delimiters.pop_back();
-			ident.components.pop_back();
-			if (auto datum = lookupDatum(*scope, ident, nullptr))
+			if (auto datum = lookupDatum(*scope, datum_ident, nullptr))
 			{
-				ident.components[0] = prop;
+				datum_ident.components[0] = prop;
 				if (try_variables)
 				{
-					if (auto field = lookupClassVars(datum->type.getUsrClass()->getScope(), ident, nullptr))
+					if (auto field = lookupClassVars(datum->type.getUsrClass()->getScope(), datum_ident, nullptr))
 					{
 						symbol_node = field->getNode();
 						is_array = field->type.isArray();
@@ -356,7 +359,7 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 
 				if (!symbol_node && try_functions)
 				{
-					auto fns = lookupClassFuncs(*datum->type.getUsrClass(), ident.components[0], {}, &datum->type.getUsrClass()->getScope(), true);
+					auto fns = lookupClassFuncs(*datum->type.getUsrClass(), prop, {}, &datum->type.getUsrClass()->getScope(), true);
 					if (!fns.empty())
 					{
 						symbol_node = fns[0]->getNode();
