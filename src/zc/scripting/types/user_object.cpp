@@ -102,7 +102,7 @@ static void do_readclass()
 	dword id = get_register(sarg1);
 	ri->d[rEXP1] = 0;
 	int32_t ind = sarg2;
-	if (auto obj = user_objects.check(id, true))
+	if (auto obj = user_objects.check(id))
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
@@ -119,7 +119,7 @@ static void do_writeclass()
 {
 	dword id = get_register(sarg1);
 	int32_t ind = sarg2;
-	if (auto obj = user_objects.check(id, true))
+	if (auto obj = user_objects.check(id))
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
@@ -185,7 +185,7 @@ std::optional<int32_t> user_object_run_command(word command)
 		}
 		case ZCLASS_OWN:
 		{
-			if (auto obj = user_objects.check(get_register(sarg1), true))
+			if (auto obj = user_objects.check(get_register(sarg1)))
 			{
 				obj->setGlobal(false);
 				own_script_object(obj, type, i);
@@ -201,7 +201,7 @@ std::optional<int32_t> user_object_run_command(word command)
 		}
 		case ZCLASS_GLOBALIZE:
 		{
-			if (auto obj = user_objects.check(get_register(sarg1), true))
+			if (auto obj = user_objects.check(get_register(sarg1)))
 			{
 				obj->setGlobal(true);
 				own_script_object(obj, ScriptType::None, 0);
