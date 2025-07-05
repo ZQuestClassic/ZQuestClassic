@@ -74,6 +74,7 @@
 #include "dialog/enemypattern.h"
 #include "dialog/sfxdata.h"
 #include "dialog/mapstyles.h"
+#include "dialog/warpring_editor.h"
 #include "dialog/externs.h"
 
 #include "base/gui.h"
@@ -15759,24 +15760,6 @@ static DIALOG sidewarp_dlg[] =
 	{ NULL,                      0,      0,      0,      0,    0,                      0,                       0, 0,          0,             0,  NULL, NULL, NULL }
 };
 
-int32_t warpringxy[6] = {170,38,170,18,170,27};
-static DIALOG warpring_warp_dlg[] =
-{
-	/* (dialog proc)           (x)     (y)      (w)     (h)      (fg)                  (bg)                 (key)  (flags)     (d1) (d2)   (dp) */
-	{ jwin_win_proc,             0,      0,    302,    145,    vc(14),                 vc(1),                   0, D_EXIT,     0,      0,  NULL, NULL, NULL },
-	{ jwin_rtext_proc,          57,     25,     40,      8,    vc(14),                 vc(1),                   0, 0,          0,      0, (void *) "DMap:", NULL, NULL },
-	{ jwin_rtext_proc,          57,     46,     64,      8,    vc(14),                 vc(1),                   0, 0,          0,      0, (void *) "Screen: 0x", NULL, NULL },
-	{ d_dropdmaplist_proc,      59,     19,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0, 0,          0,      0, (void *) &dmap_list, NULL, warpringxy },
-	{ jwin_hexedit_proc,        59,     39,     24,     16,    vc(12),                 vc(1),                   0, 0,          2,      0,  NULL, NULL, NULL },
-	// 5
-	{ jwin_button_proc,         61,    115,     41,     21,    vc(14),                 vc(1),                 'k', D_EXIT,     0,      0, (void *) "O&K", NULL, NULL },
-	{ jwin_button_proc,        121,    115,     41,     21,    vc(14),                 vc(1),                 'g', D_EXIT,     0,      0, (void *) "&Go", NULL, NULL },
-	{ jwin_button_proc,        181,    115,     61,     21,    vc(14),                 vc(1),                  27, D_EXIT,     0,      0, (void *) "Cancel", NULL, NULL },
-	{ d_warpdestscrsel_proc,    90,     39,   8*16,    8*9,    0,                      0,                       0, 0,          0,      0,  NULL, NULL, NULL },
-	
-	{ NULL,                      0,      0,      0,      0,    0,                      0,                       0, 0,          0,      0,  NULL, NULL, NULL }
-};
-
 // Side warp flag procedure
 int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t)
 {
@@ -16997,47 +16980,6 @@ int32_t onItemDropSets()
 
 int32_t curr_ring = 0;
 
-void EditWarpRingScr(int32_t ring,int32_t index)
-{
-	char caption[40],buf[10];
-	restore_mouse();
-	
-	sprintf(caption,"Ring %d  Warp %d",ring,index+1);
-	warpring_warp_dlg[0].dp = (void *)caption;
-	warpring_warp_dlg[0].dp2=get_zc_font(font_lfont);
-	
-	sprintf(buf,"%02X",QMisc.warp[ring].scr[index]);
-	warpring_warp_dlg[3].d1 = QMisc.warp[ring].dmap[index];
-	warpring_warp_dlg[4].dp = buf;
-	warpring_warp_dlg[8].dp = buf;
-	warpring_warp_dlg[8].dp3 = &warpring_warp_dlg[3].d1;
-	
-	vector<DIALOG*> dlgs;
-	dlgs.push_back(&warpring_warp_dlg[3]);
-	dlgs.push_back(&warpring_warp_dlg[4]);
-	warpring_warp_dlg[8].dp2 = &dlgs;
-	
-	dmap_list_size=MAXDMAPS;
-	dmap_list_zero=true;
-	
-	large_dialog(warpring_warp_dlg);
-	
-	int32_t ret=do_zqdialog(warpring_warp_dlg,-1);
-	
-	if(ret==5 || ret==6)
-	{
-		saved=false;
-		QMisc.warp[ring].dmap[index] = warpring_warp_dlg[3].d1;
-		QMisc.warp[ring].scr[index] = zc_xtoi(buf);
-	}
-	
-	if(ret==6)
-	{
-		Map.dowarp2(ring,index);
-		refresh(rALL);
-	}
-}
-
 int32_t d_warplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     if(msg==MSG_DRAW)
@@ -17153,37 +17095,9 @@ int32_t select_warp()
     return warpring_dlg[4].d1;
 }
 
-void EditWarpRing(int32_t ring)
-{
-    char buf[40];
-    sprintf(buf,"Ring %d Warps",ring);
-    warpring_dlg[0].dp = buf;
-    warpring_dlg[0].dp2 = get_zc_font(font_lfont);
-    curr_ring = ring;
-    
-    int32_t index = select_warp();
-    
-    while(index!=-1)
-    {
-        EditWarpRingScr(ring,index);
-        index = select_warp();
-    }
-}
-
 int32_t onWarpRings()
 {
-    number_list_size = 9;
-    number_list_zero = true;
-    
-    int32_t index = select_data("Warp Rings",0,numberlist,"Edit","Done",get_zc_font(font_lfont));
-    
-    while(index!=-1)
-    {
-        EditWarpRing(index);
-        number_list_size = 9;
-        number_list_zero = true;
-        index = select_data("Warp Rings",index,numberlist,"Edit","Done",get_zc_font(font_lfont));
-    }
+	call_warpring_ringselector();
     
     return D_O_K;
 }
