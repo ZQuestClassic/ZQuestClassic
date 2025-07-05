@@ -33,7 +33,7 @@ enum ComboTriggerFlag
 	// Don't allow the combo to trigger via it's normal trigger methods (ex: bush via slashing)
 	// Changing this for any trigger changes it for the whole combo
 	//
-	// @deprecated Use [combodata->OnlyGenTriggers] instead!
+	// @deprecated Use [combodata::OnlyGenTriggers] instead!
 	TRIGFLAG_ONLY_GENTRIG,
 	TRIGFLAG_KILL_WEAPON, //Weapons->Effects->'Kill Triggering Weapon' - If triggered by a weapon, kill the weapon.
 	TRIGFLAG_EW_FIREBALL, //Weapons->EWeapons->Fireball - Triggered by Fireball EWeapons
@@ -62,7 +62,7 @@ enum ComboTriggerFlag
 	TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT, //Counters/Items->Consume w/o trig - Consume the specified amount from the counter even if the combo failed to trigger.
 	TRIGFLAG_LIGHTON, //Other->'Light On->' - Triggered by a lightbeam.
 	TRIGFLAG_LIGHTOFF, //Other->'Light Off->' - Triggered by lack of a lightbeam.
-	TRIGFLAG_PUSH, //Other->'Push->' - Triggered when the [hero|Hero] pushes into the combo.
+	TRIGFLAG_PUSH, //Other->'Push->' - Triggered when the [Hero] pushes into the combo.
 	TRIGFLAG_LENS_ON, //Other->'Lens On->' - Triggered when the lens is revealing.
 	TRIGFLAG_LENS_OFF, //Other->'Lens Off->' - Triggered when the lens is not revealing.
 	TRIGFLAG_EW_ARROW, //Weapons->EWeapons->Arrow - Triggered by Arrow EWeapons
@@ -118,8 +118,8 @@ enum ComboTriggerFlag
 	TRIGFLAG_TGROUP_LESS, //States/Spawning->'TrigGroup Less->' - When the number of combos that contribute to this combo's Trigger Group is LESS than the Trigger Group Val, trigger this combo.
 	TRIGFLAG_TGROUP_GREATER, //States/Spawning->'TrigGroup Greater->' - When the number of combos that contribute to this combo's Trigger Group is GREATER than the Trigger Group Val, trigger this combo.
 	TRIGFLAG_TRIG_PUSHED, //Other->'Pushed->' - Triggers when this combo, as a pushblock, settles into a new positon.
-	TRIGFLAG_TRIG_DIVE, //Other->'Dive->' - Triggers when the [hero|Hero] dives on this combo.
-	TRIGFLAG_TRIG_DIVE_SENS, //Other->'Dive-> (Sensitive)' - Triggers when the [hero|Hero] dives on this combo. More sensitive hitbox than [ComboTriggerFlag->TRIGFLAG_TRIG_DIVE|TRIGFLAG_TRIG_DIVE]
+	TRIGFLAG_TRIG_DIVE, //Other->'Dive->' - Triggers when the [Hero] dives on this combo.
+	TRIGFLAG_TRIG_DIVE_SENS, //Other->'Dive-> (Sensitive)' - Triggers when the [Hero] dives on this combo. More sensitive hitbox than [TRIGFLAG_TRIG_DIVE]
 	TRIGFLAG_REFARROW, //Weapons->LWeapons->Refl. Arrow - Triggered by Reflected Arrow LWeapons
 	TRIGFLAG_REFFIRE, //Weapons->LWeapons->Refl. Fire - Triggered by Reflected Fire LWeapons
 	TRIGFLAG_REFFIRE2, //Weapons->LWeapons->Refl. Fire 2 - Triggered by Reflected Fire 2 LWeapons
@@ -128,17 +128,17 @@ enum ComboTriggerFlag
 	TRIGFLAG_REQ_NO_DARKNESS, //Other->Req. Darkness - Can only trigger if the screen is lit (not a dark room)
 	TRIGFLAG_LITEM_REQUIRE, //Counters/Items->Require All - Require all the specified LItems to trigger the combo
 	TRIGFLAG_LITEM_INV_REQUIRE, //Counters/Items->Require Not All - Require not all (some is ok) of the specified LItems to trigger the combo
-	TRIGFLAG_LITEM_SET, //Counters/Items->'->Set' - Grants the specified LItems. If [ComboTriggerFlag->TRIGFLAG_LITEM_UNSET|TRIGFLAG_LITEM_UNSET] is also on, toggles them instead.
-	TRIGFLAG_LITEM_UNSET, //Counters/Items->'->Unset' - Removes the specified LItems. If [ComboTriggerFlag->TRIGFLAG_LITEM_SET|TRIGFLAG_LITEM_SET] is also on, toggles them instead.
+	TRIGFLAG_LITEM_SET, //Counters/Items->'->Set' - Grants the specified LItems. If [TRIGFLAG_LITEM_UNSET] is also on, toggles them instead.
+	TRIGFLAG_LITEM_UNSET, //Counters/Items->'->Unset' - Removes the specified LItems. If [TRIGFLAG_LITEM_SET] is also on, toggles them instead.
 	TRIGFLAG_TINT_CLEAR, //Graphics->'->Clear Tint' - Clears the palette tint.
 	TRIGFLAG_ONLY_GROUNDED_WEAPONS, //Weapons->Other->'Only Grounded Weapons' - weapons with Z > 0 won't trigger the combo
 	TRIGFLAG_COUNTER_WEALTH_MEDAL, //Counter/Items->'Apply Discount' - Wealth Medal items discount the counter cost
 	TRIGFLAG_SCREEN_LOAD, // Triggers when screen/region loads, after levelstates and exstates are applied
-	TRIGFLAG_UNSET_EXSTATE, // Unsets the [combotrigger->ExState|ExState] when triggered.
-	TRIGFLAG_UNSET_EXDOOR, // Unsets the [combotrigger->ExDoorDir|ExDoorDir] when triggered.
-	TRIGFLAG_REQ_HERO_STANDING, // Can only trigger if the [hero|Hero] is standing on ground. (Counts standing in sideview as well)
-	TRIGFLAG_REQ_HERO_NOT_STANDING, // Can only trigger if the [hero|Hero] is NOT standing on ground. (Counts standing in sideview as well)
-	TRIGFLAG_INVERT_HERO_Z, // Inverts the condition of [combotrigger->ReqPlayerZ|ReqPlayerZ]
+	TRIGFLAG_UNSET_EXSTATE, // Unsets the [ExState] when triggered.
+	TRIGFLAG_UNSET_EXDOOR, // Unsets the [ExDoorDir] when triggered.
+	TRIGFLAG_REQ_HERO_STANDING, // Can only trigger if the [Hero] is standing on ground. (Counts standing in sideview as well)
+	TRIGFLAG_REQ_HERO_NOT_STANDING, // Can only trigger if the [Hero] is NOT standing on ground. (Counts standing in sideview as well)
+	TRIGFLAG_INVERT_HERO_Z, // Inverts the condition of [ReqPlayerZ]
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
 };
@@ -161,16 +161,16 @@ class combotrigger {
 	// @zasm_var CMBTRIGBUTTON
 	internal bool Button[];
 	
-	// Used as a minimum (or maximum, if [ComboTriggerFlag->TRIGFLAG_INVERT_MIN_MAX|TRIGFLAG_INVERT_MIN_MAX] is set) level
+	// Used as a minimum (or maximum, if [TRIGFLAG_INVERT_MIN_MAX] is set) level
 	// for any weapon-based triggers.
 	//
 	// @zasm_var CMBTRIGWPNLEVEL
 	internal int WeaponLevel;
 	
 	// If set to non-0, represents an item that must be owned (or must NOT
-	//   be owned, if [ComboTriggerFlag->TRIGFLAG_INVERT_ITEMREQ|TRIGFLAG_INVERT_ITEMREQ] is set).
+	//   be owned, if [TRIGFLAG_INVERT_ITEMREQ] is set).
 	//
-	// If [ComboTriggerFlag->TRIGFLAG_CONSUME_ITEMREQ|TRIGFLAG_CONSUME_ITEMREQ] is set, triggering the combo will consume this item,
+	// If [TRIGFLAG_CONSUME_ITEMREQ] is set, triggering the combo will consume this item,
 	// removing it from the player's inventory.
 	// 
 	// @zasm_var CMBTRIGREQITEM
@@ -202,7 +202,7 @@ class combotrigger {
 	// The player proximity requirement. If >0, when the combo is triggered,
 	// the trigger will be canceled if the player is not within this distance in pixels.
 	//
-	// If [ComboTriggerFlag->TRIGFLAG_INVERT_PROXIMITY|TRIGFLAG_INVERT_PROXIMITY] is set, the trigger will instead be canceled if the player IS
+	// If [TRIGFLAG_INVERT_PROXIMITY] is set, the trigger will instead be canceled if the player IS
 	// within this distance in pixels.
 	//
 	// @zasm_var CMBTRIGPROX
@@ -213,8 +213,8 @@ class combotrigger {
 	// 0 means any beams, 1-32 mean only matching beams.
 	//
 	// Related:
-	// - [ComboTriggerFlag->TRIGFLAG_LIGHTON|TRIGFLAG_LIGHTON] (trigger when hit by matching light)
-	// - [ComboTriggerFlag->TRIGFLAG_LIGHTOFF|TRIGFLAG_LIGHTOFF] (trigger when NOT hit by matching
+	// - [TRIGFLAG_LIGHTON] (trigger when hit by matching light)
+	// - [TRIGFLAG_LIGHTOFF] (trigger when NOT hit by matching
 	// light)
 	//
 	// @zasm_var CMBTRIGLIGHTBEAM
@@ -222,16 +222,16 @@ class combotrigger {
 	
 	// The counter used by this trigger.
 	//
-	// With [ComboTriggerFlag->TRIGFLAG_COUNTER_GE|TRIGFLAG_COUNTER_GE], cancels the trigger if the counter is < the [combotrigger->CounterAmount|CounterAmount].
-	// With [ComboTriggerFlag->TRIGFLAG_COUNTER_LT|TRIGFLAG_COUNTER_LT], cancels the trigger if the counter is >= the [combotrigger->CounterAmount|CounterAmount].
-	// With [ComboTriggerFlag->TRIGFLAG_COUNTER_EAT|TRIGFLAG_COUNTER_EAT], consumes the [combotrigger->CounterAmount|CounterAmount] from the counter when triggered.
-	// ...and with [ComboTriggerFlag->TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT|TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT], the consumed amount consumes even if the combo
+	// With [TRIGFLAG_COUNTER_GE], cancels the trigger if the counter is < the [CounterAmount].
+	// With [TRIGFLAG_COUNTER_LT], cancels the trigger if the counter is >= the [CounterAmount].
+	// With [TRIGFLAG_COUNTER_EAT], consumes the [CounterAmount] from the counter when triggered.
+	// ...and with [TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT], the consumed amount consumes even if the combo
 	// fails to trigger (ex. via failing a conditional)
 	//
 	// @zasm_var CMBTRIGCTR
 	internal int Counter;
 	
-	// The counter amount used by this trigger. See [combotrigger->Counter|Counter].
+	// The counter amount used by this trigger. See [Counter].
 	// @zasm_var CMBTRIGCTRAMNT
 	internal int CounterAmount;
 
@@ -265,7 +265,7 @@ class combotrigger {
 	// @zasm_var CMBTRIGEXDOORDIR
 	internal int ExDoorDir;
 
-	// If [combotrigger->TrigExDoorDir|TrigExDoorDir] is > -1, the index of that direction of ExDoor that
+	// If [TrigExDoorDir] is > -1, the index of that direction of ExDoor that
 	// the combo is linked to.
 	//
 	// @zasm_var CMBTRIGEXDOORIND
@@ -281,23 +281,23 @@ class combotrigger {
 	// @zasm_var CMBTRIGSPAWNITEM
 	internal int SpawnItem;
 
-	// The LevelState used for the [ComboTriggerFlag->TRIGFLAG_TRIGLEVELSTATE|TRIGFLAG_TRIGLEVELSTATE] and
-	// [ComboTriggerFlag->TRIGFLAG_LEVELSTATE|TRIGFLAG_LEVELSTATE]
+	// The LevelState used for the [TRIGFLAG_TRIGLEVELSTATE] and
+	// [TRIGFLAG_LEVELSTATE]
 	//
 	// flags. 0-31, inclusive.
 	//
 	// @zasm_var CMBTRIGLSTATE
 	internal int LevelState;
 
-	// The GlobalState used for the [ComboTriggerFlag->TRIGFLAG_TRIGGLOBALSTATE|TRIGFLAG_TRIGGLOBALSTATE] and
-	// [ComboTriggerFlag->TRIGFLAG_GLOBALSTATE|TRIGFLAG_GLOBALSTATE]
+	// The GlobalState used for the [TRIGFLAG_TRIGGLOBALSTATE] and
+	// [TRIGFLAG_GLOBALSTATE]
 	//
 	// flags. 0-255, inclusive.
 	//
 	// @zasm_var CMBTRIGGSTATE
 	internal int GlobalState;
 
-	// If `> 0`,  the global trigger caused by [ComboTriggerFlag->TRIGFLAG_GLOBALSTATE|TRIGFLAG_GLOBALSTATE] will set
+	// If `> 0`,  the global trigger caused by [TRIGFLAG_GLOBALSTATE] will set
 	// to the 'on' state with this value as a timer in frames.
 	//
 	// If this value is 0, it instead toggles the state as normal.
@@ -310,16 +310,16 @@ class combotrigger {
 	// @zasm_var CMBTRIGGENSCRIPT
 	internal int GenScript;
 
-	// The Trigger Group used for the [ComboTriggerFlag->TRIGFLAG_TGROUP_CONTRIB|TRIGFLAG_TGROUP_CONTRIB],
-	// `TRIGFLAG_TGROUP_LESS`, and [ComboTriggerFlag->TRIGFLAG_TGROUP_GREATER|TRIGFLAG_TGROUP_GREATER] flags.
+	// The Trigger Group used for the [TRIGFLAG_TGROUP_CONTRIB],
+	// `TRIGFLAG_TGROUP_LESS`, and [TRIGFLAG_TGROUP_GREATER] flags.
 	//
 	// 0-255, inclusive.
 	//
 	// @zasm_var CMBTRIGGROUP
 	internal int TrigGroup;
 
-	// The value used for the [ComboTriggerFlag->TRIGFLAG_TGROUP_LESS|TRIGFLAG_TGROUP_LESS] and
-	// [ComboTriggerFlag->TRIGFLAG_TGROUP_GREATER|TRIGFLAG_TGROUP_GREATER] flags.
+	// The value used for the [TRIGFLAG_TGROUP_LESS] and
+	// [TRIGFLAG_TGROUP_GREATER] flags.
 	//
 	// 0-65535, inclusive.
 	//
@@ -327,10 +327,10 @@ class combotrigger {
 	internal int TrigGroupVal;
 
 	// 'LI_' flags used by the
-	// [ComboTriggerFlag->TRIGFLAG_LITEM_REQUIRE|TRIGFLAG_LITEM_REQUIRE],
-	// [ComboTriggerFlag->TRIGFLAG_LITEM_INV_REQUIRE|TRIGFLAG_LITEM_INV_REQUIRE],
-	// [ComboTriggerFlag->TRIGFLAG_LITEM_SET|TRIGFLAG_LITEM_SET],
-	// [ComboTriggerFlag->TRIGFLAG_LITEM_UNSET|TRIGFLAG_LITEM_UNSET]
+	// [TRIGFLAG_LITEM_REQUIRE],
+	// [TRIGFLAG_LITEM_INV_REQUIRE],
+	// [TRIGFLAG_LITEM_SET],
+	// [TRIGFLAG_LITEM_UNSET]
 	// flags.
 	//
 	// @zasm_var CMBTRIGLITEMS
@@ -344,13 +344,13 @@ class combotrigger {
 	// @zasm_var CMBTRIGDMAPLVL
 	internal int DMapLvl;
 	
-	// Which of the 32 level states for the [combotrigger->DMapLvl|DMapLvl] are required to be ON for this trigger to activate
+	// Which of the 32 level states for the [DMapLvl] are required to be ON for this trigger to activate
 	//
 	// @length 32
 	// @zasm_var CMBTRIGREQLVLSTATE
 	internal bool ReqLevelState[];
 	
-	// Which of the 32 level states for the [combotrigger->DMapLvl|DMapLvl] are required to be OFF for this trigger to activate
+	// Which of the 32 level states for the [DMapLvl] are required to be OFF for this trigger to activate
 	//
 	// @length 32
 	// @zasm_var CMBTRIGUNREQLVLSTATE
@@ -409,31 +409,31 @@ class combotrigger {
 	// @zasm_var CMBTRIGWAVYTIME
 	internal int WavyTimer;
 
-	// The duration to Sword Jinx the [hero|Hero] for. -2 for none, -1 for 'until
+	// The duration to Sword Jinx the [Hero] for. -2 for none, -1 for 'until
 	// cured', 0 to cure.
 	//
 	// @zasm_var CMBTRIGSWORDJINX
 	internal int SwordJinx;
 
-	// The duration to Item Jinx the [hero|Hero] for. -2 for none, -1 for 'until
+	// The duration to Item Jinx the [Hero] for. -2 for none, -1 for 'until
 	// cured', 0 to cure.
 	//
 	// @zasm_var CMBTRIGITEMJINX
 	internal int ItemJinx;
 
-	// The duration to Shield Jinx the [hero|Hero] for. -2 for none, -1 for 'until
+	// The duration to Shield Jinx the [Hero] for. -2 for none, -1 for 'until
 	// cured', 0 to cure.
 	//
 	// @zasm_var CMBTRIGSHIELDJINX
 	internal int ShieldJinx;
 
-	// The duration to Stun the [hero|Hero] for. -2 for none, -1 for 'until cured', 0
+	// The duration to Stun the [Hero] for. -2 for none, -1 for 'until cured', 0
 	// to cure.
 	//
 	// @zasm_var CMBTRIGSTUN
 	internal int Stun;
 
-	// The duration to Bunny the [hero|Hero] for. -2 for none, -1 for 'until cured',
+	// The duration to Bunny the [Hero] for. -2 for none, -1 for 'until cured',
 	// 0 to cure.
 	//
 	// @zasm_var CMBTRIGBUNNY
@@ -445,12 +445,12 @@ class combotrigger {
 	// @zasm_var CMBTRIGPUSHTIME
 	internal int PushTime;
 	
-	// The combo ID to be displayed when in range to trigger a [combotrigger->Button|Button].
+	// The combo ID to be displayed when in range to trigger a [Button].
 	//
 	// @zasm_var CMBTRIGGERPROMPTCID
 	internal int PromptCombo;
 	
-	// The CSet for the [combotrigger->PromptCombo|PromptCombo].
+	// The CSet for the [PromptCombo].
 	//
 	// @zasm_var CMBTRIGGERPROMPTCS
 	internal int PromptCSet;
@@ -461,17 +461,17 @@ class combotrigger {
 	// @zasm_var CMBTRIGGERFAILPROMPTCID
 	internal int FailPromptCombo;
 	
-	// The CSet for the [combotrigger->FailPromptCombo|FailPromptCombo].
+	// The CSet for the [FailPromptCombo].
 	//
 	// @zasm_var CMBTRIGGERFAILPROMPTCS
 	internal int FailPromptCSet;
 	
-	// The X position for the [combotrigger->PromptCombo|PromptCombo]/[combotrigger->FailPromptCombo|FailPromptCombo].
+	// The X position for the [PromptCombo]/[FailPromptCombo].
 	//
 	// @zasm_var CMBTRIGGERPROMPTX
 	internal int PromptX;
 	
-	// The Y position for the [combotrigger->PromptCombo|PromptCombo]/[combotrigger->FailPromptCombo|FailPromptCombo].
+	// The Y position for the [PromptCombo]/[FailPromptCombo].
 	//
 	// @zasm_var CMBTRIGGERPROMPTY
 	internal int PromptY;
@@ -486,14 +486,14 @@ class combotrigger {
 	// @zasm_var CMBTRIGGERFAILSTR
 	internal int FailString;
 	
-	// The [hero->Jump|Hero->Jump] value is set to this value (if non-zero) when triggered.
+	// The [Hero->Jump] value is set to this value (if non-zero) when triggered.
 	//
 	// @zasm_var CMBTRIGGERPLAYERBOUNCE
 	internal int HeroBounce;
 	
-	// Requires that the hero's Z value is >= this value to trigger.
+	// Requires that the [Hero]'s Z value is >= this value to trigger.
 	//
-	// If [ComboTriggerFlag->TRIGFLAG_INVERT_HERO_Z|TRIGFLAG_INVERT_HERO_Z] is set, requires that the hero's Z value is < this instead.
+	// If [TRIGFLAG_INVERT_HERO_Z] is set, requires that the [Hero]'s Z value is < this instead.
 	//
 	// @zasm_var CMBTRIGGERREQPLAYERZ
 	internal int ReqHeroZ;
