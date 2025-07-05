@@ -481,12 +481,12 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGGTIMER: return "combotrigger::GStateTimer";
 		case CMBTRIGGENSCRIPT: return "combotrigger::GenScript";
 		case CMBTRIGGSTATE: return "combotrigger::GlobalState";
+		case CMBTRIGGERPLAYERBOUNCE: return "combotrigger::HeroBounce";
 		case CMBTRIGITEMJINX: return "combotrigger::ItemJinx";
 		case CMBTRIGLITEMS: return "combotrigger::LItems";
 		case CMBTRIGLSTATE: return "combotrigger::LevelState";
 		case CMBTRIGLIGHTBEAM: return "combotrigger::LightBeam";
 		case CMBTRIGLVLPAL: return "combotrigger::LvlPal";
-		case CMBTRIGGERPLAYERBOUNCE: return "combotrigger::PlayerBounce";
 		case CMBTRIGGERPROMPTCS: return "combotrigger::PromptCSet";
 		case CMBTRIGGERPROMPTCID: return "combotrigger::PromptCombo";
 		case CMBTRIGGERPROMPTX: return "combotrigger::PromptX";
@@ -495,9 +495,9 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGPUSHTIME: return "combotrigger::PushTime";
 		case CMBTRIGQUAKETIME: return "combotrigger::QuakeTimer";
 		case CMBTRIGREQGLOBALSTATE: return "combotrigger::ReqGlobalState[]";
+		case CMBTRIGGERREQPLAYERZ: return "combotrigger::ReqHeroZ";
 		case CMBTRIGREQITEM: return "combotrigger::ReqItem";
 		case CMBTRIGREQLVLSTATE: return "combotrigger::ReqLevelState[]";
-		case CMBTRIGGERREQPLAYERZ: return "combotrigger::ReqPlayerZ";
 		case CMBTRIGSFX: return "combotrigger::SFX";
 		case CMBTRIGSHIELDJINX: return "combotrigger::ShieldJinx";
 		case CMBTRIGSPAWNENEMY: return "combotrigger::SpawnEnemy";

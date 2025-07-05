@@ -46,7 +46,7 @@ private:
 	GUI::ListData lists[10];
 	
 	GUI::ListData list_lwscript, list_ewscript, list_sprites,
-		list_dropsets, list_items, list_sfx, list_counters,
+		list_dropsets, list_sfx, list_counters,
 		list_dirs, list_torch_shapes;
 	
 	void setRadio(size_t rs, size_t ind);

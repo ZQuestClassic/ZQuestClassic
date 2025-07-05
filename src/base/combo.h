@@ -324,7 +324,8 @@ struct newcombo
 #define combotriggerUNSETEXSTATE       0x00000002
 #define combotriggerUNSETEXDOOR        0x00000004
 #define combotriggerPLAYER_STANDING    0x00000008
-#define combotriggerINVERT_PLAYER_Z    0x00000010
+#define combotriggerPLAYER_NOTSTANDING 0x00000010
+#define combotriggerINVERT_PLAYER_Z    0x00000020
 //triggerflags[5]
 // #define combotrigger                    0x00000001
 // #define combotrigger                    0x00000002

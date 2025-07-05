@@ -133,6 +133,8 @@ static bool has_trigger_cause(combo_trigger const& trig)
 		combotriggerPUSHEDTRIG|combotriggerDIVETRIG|combotriggerDIVESENSTRIG|combotriggerLWREFARROW|combotriggerLWREFFIRE|
 		combotriggerLWREFFIRE2)) return true;
 	if(trig.triggerflags[4] & (combotriggerSCREENLOAD)) return true;
+	if(trig.exstate != -1 && !(trig.triggerflags[4] & combotriggerUNSETEXSTATE)) return true;
+	if(trig.exdoor_dir != -1 && !(trig.triggerflags[4] & combotriggerUNSETEXDOOR)) return true;
 	return false;
 }
 static bool has_trigger_effect(combo_trigger const& trig)
@@ -792,8 +794,10 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							TRIGFLAG(120, "Req. No Darkness"),
 							IBTN("Can only trigger if the player is standing on the ground. Handles 'standing' in sideview as well."),
 							TRIGFLAG(131, "Req. Player Standing"),
+							IBTN("Can only trigger if the player is NOT standing on the ground. Handles 'standing' in sideview as well."),
+							TRIGFLAG(132, "Req. Player Not Standing"),
 							IBTN("'Player Z:' requires that the Hero be < the specified Z, instead of >=."),
-							TRIGFLAG(132, "Invert Player Z Req")
+							TRIGFLAG(133, "Invert Player Z Req")
 						)
 					)
 				)),
@@ -845,11 +849,10 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							Column(padding = 0_px,
 								Rows<3>(
 									Label(text = "Req Item:", fitParent = true),
-									TextField(
-										fitParent = true,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = local_ref.triggeritem,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									DropDownList(data = parent.list_items_0none,
+										vPadding = 0_px,
+										fitParent = true, selectedValue = local_ref.triggeritem,
+										onSelectFunc = [&](int32_t val)
 										{
 											local_ref.triggeritem = val;
 										}),
@@ -857,10 +860,12 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										" id set here must be owned to trigger the combo."
 										"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
 										"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering."
-										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-									TRIGFLAG(49,"Invert Item Req",2,true),
+										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work.")
+								),
+								Row(
+									TRIGFLAG(49,"Invert Item Req"),
 									IBTN("'Req Item:' must NOT be owned to trigger"),
-									TRIGFLAG(50,"Consume Item Req",2,true),
+									TRIGFLAG(50,"Consume Item Req"),
 									IBTN("'Req Item:' will be taken when triggering")
 								)
 							)

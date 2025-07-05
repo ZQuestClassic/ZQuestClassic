@@ -2656,6 +2656,9 @@ static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, 
 	if(trig.triggerflags[4] & combotriggerPLAYER_STANDING)
 		if(!Hero.isStanding(true))
 			return false;
+	if(trig.triggerflags[4] & combotriggerPLAYER_NOTSTANDING)
+		if(Hero.isStanding(true))
+			return false;
 	if((trig.triggerflags[3] & combotriggerCOND_DARK))
 		if(!check_dark_trigger_conditional(is_active_screen, scr, false))
 			return false;
