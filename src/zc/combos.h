@@ -72,6 +72,8 @@ bool force_ex_door_trigger_any(const rpos_handle_t& rpos_handle, int dir = -1, u
 bool force_ex_door_trigger_ffc_any(const ffc_handle_t& ffc_handle, int dir = -1, uint ind = 0);
 bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t special = 0, weapon* w = NULL);
 bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t special = 0, weapon* w = NULL);
+bool check_trig_conditions(const rpos_handle_t& rpos_handle, size_t idx);
+bool check_trig_conditions(const ffc_handle_t& ffc_handle, size_t idx);
 
 bool do_lift_combo(const rpos_handle_t&, int32_t gloveid);
 

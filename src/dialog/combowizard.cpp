@@ -81,7 +81,6 @@ ComboWizardDialog::ComboWizardDialog(ComboEditorDialog& parent) : local_ref(pare
 	list_ewscript(GUI::ZCListData::eweapon_script()),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_dropsets(GUI::ZCListData::dropsets(true)),
-	list_items(GUI::ZCListData::items(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_counters(GUI::ZCListData::counters(true,true)),
 	list_dirs(GUI::ZCListData::dirs(8,false)),
@@ -2741,7 +2740,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							set = 1, indx = 2,
 							onToggle = message::RSET1
 						),
-						ddls[3] = DropDownList(data = list_items,
+						ddls[3] = DropDownList(data = parent.list_items,
 							fitParent = true, selectedValue = radmode==2 ? dropitem : 0,
 							disabled = radmode != 2,
 							onSelectFunc = [&](int32_t val)
@@ -2914,7 +2913,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							set = 1, indx = 2,
 							onToggle = message::RSET1
 						),
-						ddls[3] = DropDownList(data = list_items,
+						ddls[3] = DropDownList(data = parent.list_items,
 							fitParent = true, selectedValue = radmode2==2 ? dropitem : 0,
 							disabled = radmode2 != 2,
 							onSelectFunc = [&](int32_t val)
@@ -3137,13 +3136,12 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					}
 					return false;
 				}).tagsort();
-			lists[1] = list_items.copy().filter(
+			lists[1] = parent.list_items.copy().filter(
 				[](GUI::ListItem& itm)
 				{
 					if(unsigned(itm.value) >= MAXITEMS) return false;
 					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
 				});
-			lists[2] = GUI::ZCListData::strings(true);
 			windowRow->add(Column(
 				Row(
 					ddls[0] = DropDownList(data = lists[0],
@@ -3283,7 +3281,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET1,
 							set = 1
 						),
-						ddls[3] = DropDownList(data = list_items,
+						ddls[3] = DropDownList(data = parent.list_items,
 							fitParent = true, selectedValue = normitem_def,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -3501,7 +3499,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						),
 						Row(
 							Label(text = "Locked String:", hAlign = 1.0),
-							ddls[1] = DropDownList(data = lists[2],
+							ddls[1] = DropDownList(data = parent.list_strings,
 								fitParent = true, selectedValue = messagestr/10000,
 								onSelectFunc = [&](int32_t val)
 								{
@@ -3585,13 +3583,12 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					}
 					return false;
 				}).tagsort();
-			lists[1] = list_items.copy().filter(
+			lists[1] = parent.list_items.copy().filter(
 				[](GUI::ListItem& itm)
 				{
 					if(unsigned(itm.value) >= MAXITEMS) return false;
 					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
 				});
-			lists[2] = GUI::ZCListData::strings(true);
 			windowRow->add(Column(
 				Row(
 					ddls[0] = DropDownList(data = lists[0],
@@ -3972,7 +3969,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						),
 						Row(
 							Label(text = "Locked String:", hAlign = 1.0),
-							ddls[1] = DropDownList(data = lists[2],
+							ddls[1] = DropDownList(data = parent.list_strings,
 								fitParent = true, selectedValue = messagestr/10000,
 								onSelectFunc = [&](int32_t val)
 								{
@@ -4010,12 +4007,11 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				def_prompt_yoff = prompt_yoff;
 			}
 			
-			lists[0] = GUI::ZCListData::strings(true);
 			windowRow->add(
 				tpan[0] = TabPanel(
 					TabRef(name = "String", Rows<3>(
 						Label(text = "String:", hAlign = 1.0),
-						ddls[1] = DropDownList(data = lists[0],
+						ddls[1] = DropDownList(data = parent.list_strings,
 							fitParent = true, selectedValue = messagestr/10000,
 							onSelectFunc = [&](int32_t val)
 							{

@@ -22433,10 +22433,13 @@ endsigns:
 		auto& trig_data = cpos.trig_data[idx];
 		if(fx != -1 && fy != -1 && trig_data.cooldown) continue;
 		auto& trig = cmb.triggers[idx];
-		if(trig.prompt_cid)
+		bool cond = (foundffc ? check_trig_conditions(foundffc.value(), idx) : check_trig_conditions(rpos_handle, idx));
+		auto pcid = cond ? trig.prompt_cid : trig.fail_prompt_cid;
+		auto pcs = cond ? trig.prompt_cs : trig.fail_prompt_cs;
+		if(pcid)
 		{
-			prompt_combo = trig.prompt_cid;
-			prompt_cset = trig.prompt_cs;
+			prompt_combo = pcid;
+			prompt_cset = pcs;
 			prompt_x = trig.prompt_x;
 			prompt_y = trig.prompt_y;
 			break;

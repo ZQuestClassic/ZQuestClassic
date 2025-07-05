@@ -17440,7 +17440,7 @@ void update_combo(newcombo& cmb, word section_version)
 int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_combos);
-
+	byte tempbyte;
 	if (!should_skip)
 	{
 		reset_all_combo_animations();
@@ -17608,8 +17608,9 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			{
 				if(!p_getc(&temp_trigger.triggeritem,f))
 					return qe_invalid;
-				if(!p_getc(&temp_trigger.trigtimer,f))
+				if(!p_getc(&tempbyte, f))
 					return qe_invalid;
+				temp_trigger.trigtimer = tempbyte;
 			}
 			if(section_version >= 25)
 				if(!p_getc(&temp_trigger.trigsfx,f))
@@ -17622,8 +17623,9 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			{
 				if(!p_igetw(&temp_trigger.trigprox,f))
 					return qe_invalid;
-				if(!p_getc(&temp_trigger.trigctr,f))
+				if(!p_getc(&tempbyte,f))
 					return qe_invalid;
+				temp_trigger.trigctr = tempbyte;
 				if(!p_igetl(&temp_trigger.trigctramnt,f))
 					return qe_invalid;
 			}
@@ -17944,6 +17946,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 
 int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp_trigger)
 {
+	byte tempbyte;
 	if(s_version >= 52)
 		if(!p_getcstr(&temp_trigger.label,f))
 			return qe_invalid;
@@ -17958,16 +17961,34 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		return qe_invalid;
 	if(!p_getc(&temp_trigger.triggeritem,f))
 		return qe_invalid;
-	if(!p_getc(&temp_trigger.trigtimer,f))
-		return qe_invalid;
+	if(s_version >= 53)
+	{
+		if(!p_igetw(&temp_trigger.trigtimer,f))
+			return qe_invalid;
+	}
+	else
+	{
+		if(!p_getc(&tempbyte, f))
+			return qe_invalid;
+		temp_trigger.trigtimer = tempbyte;
+	}
 	if(!p_getc(&temp_trigger.trigsfx,f))
 		return qe_invalid;
 	if(!p_igetl(&temp_trigger.trigchange,f))
 		return qe_invalid;
 	if(!p_igetw(&temp_trigger.trigprox,f))
 		return qe_invalid;
-	if(!p_getc(&temp_trigger.trigctr,f))
-		return qe_invalid;
+	if(s_version >= 53)
+	{
+		if(!p_igetw(&temp_trigger.trigctr,f))
+			return qe_invalid;
+	}
+	else
+	{
+		if(!p_getc(&tempbyte,f))
+			return qe_invalid;
+		temp_trigger.trigctr = tempbyte;
+	}
 	if(!p_igetl(&temp_trigger.trigctramnt,f))
 		return qe_invalid;
 	if(!p_getc(&temp_trigger.triglbeam,f))
@@ -18072,6 +18093,34 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 	{
 		if (!p_igetw(&temp_trigger.trig_shieldjinxtime, f))
 			return qe_invalid;
+	}
+	if(s_version >= 53)
+	{
+		if(!p_igetl(&temp_trigger.req_level_state, f))
+			return qe_invalid;
+		if(!p_igetl(&temp_trigger.unreq_level_state, f))
+			return qe_invalid;
+		if(!p_getbitstr(&temp_trigger.req_global_state, f))
+			return qe_invalid;
+		if(!p_getbitstr(&temp_trigger.unreq_global_state, f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.fail_prompt_cid,f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.fail_prompt_cs,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_trigger.trig_msgstr, f))
+			return qe_invalid;
+		if(!p_igetl(&temp_trigger.fail_msgstr, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.player_bounce, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.req_player_z, f))
+			return qe_invalid;
+	}
+	else
+	{
+		temp_trigger.fail_prompt_cid = temp_trigger.prompt_cid;
+		temp_trigger.fail_prompt_cs = temp_trigger.prompt_cs;
 	}
 	return 0;
 }

@@ -20,7 +20,7 @@ public:
 	enum class message { REFR_INFO, OK, CANCEL };
 
 	ChecklistDialog(string const& title, vector<CheckListInfo> const& flagnames,
-		bitstring& flags, bool& confirm);
+		bitstring& flags, bool& confirm, std::optional<size_t> per_col);
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -29,6 +29,7 @@ protected:
 	vector<CheckListInfo> const& flagnames;
 	bitstring& flags;
 	bool& confirm;
+	std::optional<size_t> per_col;
 	std::shared_ptr<GUI::Window> window;
 };
 

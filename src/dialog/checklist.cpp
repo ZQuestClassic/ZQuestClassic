@@ -4,21 +4,23 @@
 #include <utility>
 
 bool call_checklist_dialog(string const& title,
-	vector<CheckListInfo> const& flagnames, bitstring& flags)
+	vector<CheckListInfo> const& flagnames,
+	bitstring& flags, std::optional<size_t> per_col)
 {
 	bool ret = false;
-	ChecklistDialog(title, flagnames, flags, ret).show();
+	ChecklistDialog(title, flagnames, flags, ret, per_col).show();
 	return ret;
 }
 bool call_checklist_dialog(string const& title,
-	vector<CheckListInfo> const& flagnames, int32_t& flags)
+	vector<CheckListInfo> const& flagnames,
+	int32_t& flags, std::optional<size_t> per_col)
 {
 	bitstring bitstr;
 	for(int q = 0; q < 32; ++q)
 		if(flags & (1<<q))
 			bitstr.set(q, true);
 	bool ret = false;
-	ChecklistDialog(title, flagnames, bitstr, ret).show();
+	ChecklistDialog(title, flagnames, bitstr, ret, per_col).show();
 	flags = 0;
 	for(int q = 0; q < 32; ++q)
 		if(bitstr.get(q))
@@ -26,18 +28,27 @@ bool call_checklist_dialog(string const& title,
 	return ret;
 }
 
+bool call_checklist_dialog(string const& title,
+	vector<CheckListInfo> const& flagnames,
+	dword& flags, std::optional<size_t> per_col)
+{
+	return call_checklist_dialog(title, flagnames, (int32_t&)flags, per_col);
+}
+
 ChecklistDialog::ChecklistDialog(string const& title,
-	vector<CheckListInfo> const& flagnames, bitstring& flags, bool& confirm):
-	d_title(title), flagnames(flagnames), flags(flags), confirm(confirm)
+	vector<CheckListInfo> const& flagnames, bitstring& flags,
+	bool& confirm, std::optional<size_t> per_col):
+	d_title(title), flagnames(flagnames), flags(flags),
+	confirm(confirm), per_col(per_col)
 {}
 
 std::shared_ptr<GUI::Widget> ChecklistDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	auto grid = (flagnames.size() > 5 && flagnames.size() < 20)
-		? GUI::Grid::columns((flagnames.size()+1)/2)
-		: Columns<10>();
+	size_t num_per_col = per_col ? *per_col
+		: size_t((flagnames.size() > 5 && flagnames.size() < 20) ? ((flagnames.size()+1)/2) : 10);
+	auto grid = GUI::Grid::columns(num_per_col);
 	bool use_info = false;
 	for(uint q = 0; q < flagnames.size(); ++q)
 		if(!flagnames[q].info.empty())

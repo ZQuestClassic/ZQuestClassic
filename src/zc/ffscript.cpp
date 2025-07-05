@@ -8215,6 +8215,76 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGGERPROMPTCID:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->prompt_cid * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERPROMPTCS:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->prompt_cs * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERFAILPROMPTCID:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->fail_prompt_cid * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERFAILPROMPTCS:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->fail_prompt_cs * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERPROMPTX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->prompt_x * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERPROMPTY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->prompt_y * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERTRIGSTR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->trig_msgstr * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERFAILSTR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->fail_msgstr * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERPLAYERBOUNCE:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->player_bounce;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERZ:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->req_player_z;
+			else ret = -10000;
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		//npcdata nd-> variables
 			
@@ -14668,7 +14738,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				screen_combo_modify_pre(ri->combosref);
 				if(auto* trig = get_first_combo_trigger())
-					trig->trigtimer = vbound(value/10000,0,255);
+					trig->trigtimer = vbound(value/10000,0,65535);
 				screen_combo_modify_post(ri->combosref);
 			}
 			break;
@@ -14720,7 +14790,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if(auto* trig = get_first_combo_trigger())
-				trig->trigctr = vbound(value/10000, 0, MAX_COUNTERS-1);
+				trig->trigctr = vbound(value/10000, sscMIN, MAX_COUNTERS-1);
 			break;
 		}
 		case COMBODTRIGGERCTRAMNT:
@@ -15311,7 +15381,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 			{
-				trig->trigtimer = vbound(value/10000, 0, 255);
+				trig->trigtimer = vbound(value/10000, 0, 65535);
 			}
 			break;
 		}
@@ -15359,7 +15429,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 			{
-				trig->trigctr = vbound(value/10000, 0, MAX_COUNTERS-1);
+				trig->trigctr = vbound(value/10000, sscMIN, MAX_COUNTERS-1);
 			}
 			break;
 		}
@@ -15602,6 +15672,66 @@ void set_register(int32_t arg, int32_t value)
 			{
 				trig->trig_pushtime = vbound(value/10000, 0, 255);
 			}
+			break;
+		}
+		case CMBTRIGGERPROMPTCID:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->prompt_cid = vbound(value/10000, 0, MAXCOMBOS-1);
+			break;
+		}
+		case CMBTRIGGERPROMPTCS:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->prompt_cs = (value/10000)&15;
+			break;
+		}
+		case CMBTRIGGERFAILPROMPTCID:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->fail_prompt_cid = vbound(value/10000, 0, MAXCOMBOS-1);
+			break;
+		}
+		case CMBTRIGGERFAILPROMPTCS:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->fail_prompt_cs = (value/10000)&15;
+			break;
+		}
+		case CMBTRIGGERPROMPTX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->prompt_x = vbound(value/10000, -32768, 32767);
+			break;
+		}
+		case CMBTRIGGERPROMPTY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->prompt_y = vbound(value/10000, -32768, 32767);
+			break;
+		}
+		case CMBTRIGGERTRIGSTR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->trig_msgstr = vbound(value/10000, 0, msg_count-1);
+			break;
+		}
+		case CMBTRIGGERFAILSTR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->fail_msgstr = vbound(value/10000, 0, msg_count-1);
+			break;
+		}
+		case CMBTRIGGERPLAYERBOUNCE:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->player_bounce = value;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERZ:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->req_player_z = value;
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//

@@ -87,9 +87,9 @@ private:
 	newcombo local_comboref;
 	
 	GUI::ListData list_ctype, list_flag, list_combscript, list_sfx, list_genscr,
-		list_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes,
+		list_ss_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes,
 		list_lift_parent_items, list_sprites_0none, list_dirs4n, list_0_7,
-		list_light_shapes, list_triggers;
+		list_light_shapes, list_triggers, list_strings, list_items, list_items_0none;
 	
 	
 	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL(byte* data, byte min, byte max);

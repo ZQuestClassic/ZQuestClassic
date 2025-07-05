@@ -75,11 +75,11 @@ struct combo_trigger
 	int32_t triggerlevel;
 	byte triggerbtn;
 	byte triggeritem;
-	byte trigtimer;
+	word trigtimer;
 	byte trigsfx;
 	int32_t trigchange;
 	word trigprox;
-	byte trigctr;
+	int16_t trigctr;
 	int32_t trigctramnt;
 	byte triglbeam;
 	int8_t trigcschange;
@@ -95,16 +95,20 @@ struct combo_trigger
 	byte trig_group;
 	word trig_group_val;
 	byte trig_levelitems;
+	dword req_level_state, unreq_level_state;
+	bitstring req_global_state, unreq_global_state;
 	int16_t trigdmlevel = -1;
 	int16_t trigtint[3]; //r,g,b range [-255,255]
 	int16_t triglvlpalette = -1, trigbosspalette = -1;
 	int16_t trigquaketime = -1, trigwavytime = -1;
 	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_shieldjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
 	byte trig_pushtime = 8;
-	word prompt_cid;
-	byte prompt_cs;
+	word prompt_cid, fail_prompt_cid;
+	byte prompt_cs, fail_prompt_cs;
 	int16_t prompt_x = 12;
 	int16_t prompt_y = -8;
+	int32_t trig_msgstr, fail_msgstr;
+	zfix player_bounce, req_player_z;
 	
 	bool is_blank() const;
 	void clear();
@@ -317,9 +321,11 @@ struct newcombo
 
 //triggerflags[4]
 #define combotriggerSCREENLOAD         0x00000001
-// #define combotrigger                    0x00000002
-// #define combotrigger                    0x00000004
-// #define combotrigger                    0x00000008
+#define combotriggerUNSETEXSTATE       0x00000002
+#define combotriggerUNSETEXDOOR        0x00000004
+#define combotriggerPLAYER_STANDING    0x00000008
+#define combotriggerPLAYER_NOTSTANDING 0x00000010
+#define combotriggerINVERT_PLAYER_Z    0x00000020
 //triggerflags[5]
 // #define combotrigger                    0x00000001
 // #define combotrigger                    0x00000002

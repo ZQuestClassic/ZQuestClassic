@@ -9506,7 +9506,7 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 34;
 	if(!p_putc(tmp_trig.triggeritem,f))
 		return 35;
-	if(!p_putc(tmp_trig.trigtimer,f))
+	if(!p_iputw(tmp_trig.trigtimer,f))
 		return 36;
 	if(!p_putc(tmp_trig.trigsfx,f))
 		return 37;
@@ -9514,7 +9514,7 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 38;
 	if(!p_iputw(tmp_trig.trigprox,f))
 		return 39;
-	if(!p_putc(tmp_trig.trigctr,f))
+	if(!p_iputw(tmp_trig.trigctr,f))
 		return 40;
 	if(!p_iputl(tmp_trig.trigctramnt,f))
 		return 41;
@@ -9585,6 +9585,26 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 102;
 	if (!p_iputw(tmp_trig.trig_shieldjinxtime, f))
 		return 103;
+	if(!p_iputl(tmp_trig.req_level_state, f))
+		return 104;
+	if(!p_iputl(tmp_trig.unreq_level_state, f))
+		return 105;
+	if(!p_putbitstr(tmp_trig.req_global_state, f))
+		return 106;
+	if(!p_putbitstr(tmp_trig.unreq_global_state, f))
+		return 107;
+	if(!p_iputw(tmp_trig.fail_prompt_cid, f))
+		return 108;
+	if(!p_putc(tmp_trig.fail_prompt_cs, f))
+		return 109;
+	if(!p_iputl(tmp_trig.trig_msgstr, f))
+		return 110;
+	if(!p_iputl(tmp_trig.fail_msgstr, f))
+		return 111;
+	if(!p_iputzf(tmp_trig.player_bounce, f))
+		return 112;
+	if(!p_iputzf(tmp_trig.req_player_z, f))
+		return 113;
 	return 0;
 }
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb)

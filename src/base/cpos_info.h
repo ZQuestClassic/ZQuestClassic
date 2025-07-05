@@ -6,7 +6,7 @@
 
 struct cpos_trig_info
 {
-	byte clk;
+	word clk;
 	byte cooldown;
 	bool operator==(cpos_trig_info const& other) const = default;
 };
