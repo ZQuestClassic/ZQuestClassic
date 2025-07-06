@@ -452,7 +452,6 @@ class CLI:
             default=True,
             help='Includes pre-built builds not associated with official releases',
         )
-        list_cmd.add_argument('command_args', nargs=argparse.REMAINDER)
 
         download_cmd = subparsers.add_parser(
             'download',
@@ -467,7 +466,7 @@ class CLI:
             help='Runs a command for the given version (can be release tag or commit sha), downloading or building as necessary',
         )
         run_cmd.add_argument('tag_or_sha')
-        run_cmd.add_argument('command_args', nargs=argparse.REMAINDER)
+        run_cmd.add_argument('command_args', nargs=argparse.REMAINDER, default='%zl')
 
         backfill_cmd = subparsers.add_parser('backfill_local_builds')
 
@@ -493,7 +492,8 @@ class CLI:
     def run(self, args):
         binary_dir = download(args.tag_or_sha, args.platform)
         binaries = create_binary_paths(binary_dir, args.platform)
-        p = common.run_zc_command(binaries, args.command_args)
+        command_args = args.command_args or ['%zl']
+        p = common.run_zc_command(binaries, command_args)
         exit(p.wait())
 
     def backfill_local_builds(self, args):
