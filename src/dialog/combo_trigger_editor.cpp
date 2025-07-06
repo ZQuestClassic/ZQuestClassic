@@ -620,7 +620,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							hAlign = 1.0,
 							Label(text = "SFX:", hAlign = 1.0),
 							DropDownList(data = parent.list_sfx,
-								vPadding = 0_px,
+								vPadding = 0_px, maxwidth = 350_px,
 								fitParent = true, selectedValue = local_ref.trigsfx,
 								onSelectFunc = [&](int32_t val)
 								{
@@ -630,7 +630,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								" play the specified SFX when triggered."),
 							Label(text = "RunFrozen:", hAlign = 1.0),
 							DropDownList(data = parent.list_genscr,
-								vPadding = 0_px,
+								vPadding = 0_px, maxwidth = 350_px,
 								fitParent = true, selectedValue = local_ref.trig_genscr,
 								onSelectFunc = [&](int32_t val)
 								{
@@ -640,7 +640,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							//
 							Label(text = "Trigger String:", hAlign = 1.0),
 							DropDownList(data = parent.list_strings,
-								vPadding = 0_px,
+								vPadding = 0_px, forceFitW = true,
 								fitParent = true, selectedValue = local_ref.trig_msgstr/10000,
 								onSelectFunc = [&](int32_t val)
 								{
@@ -649,7 +649,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							IBTN_T("Trigger String", "The string to play when triggered. Negative values are special, reading the string number from somewhere else."),
 							Label(text = "Fail String:", hAlign = 1.0),
 							DropDownList(data = parent.list_strings,
-								vPadding = 0_px,
+								vPadding = 0_px, forceFitW = true,
 								fitParent = true, selectedValue = local_ref.fail_msgstr/10000,
 								onSelectFunc = [&](int32_t val)
 								{
@@ -807,7 +807,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							Rows<3>(
 								Label(text = "Counter:", fitParent = true),
 								DropDownList(data = parent.list_ss_counters_nn,
-									fitParent = true,
+									fitParent = true, maxwidth = 350_px,
 									selectedValue = local_ref.trigctr,
 									onSelectFunc = [&](int32_t val)
 									{
@@ -850,7 +850,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								Rows<3>(
 									Label(text = "Req Item:", fitParent = true),
 									DropDownList(data = parent.list_items_0none,
-										vPadding = 0_px,
+										vPadding = 0_px, maxwidth = 350_px,
 										fitParent = true, selectedValue = local_ref.triggeritem,
 										onSelectFunc = [&](int32_t val)
 										{
