@@ -967,7 +967,7 @@ void HeroClass::setX(int32_t new_x)
     
     // A kludge
     if(!diagonalMovement && dir<=down)
-        is_on_conveyor=true;
+        is_on_conveyor = -1;
 }
 
 void HeroClass::setY(int32_t new_y)
@@ -997,7 +997,7 @@ void HeroClass::setY(int32_t new_y)
     
     // A kludge
     if(!diagonalMovement && dir>=left)
-        is_on_conveyor=true;
+        is_on_conveyor = -1;
 }
 
 void HeroClass::setZ(int32_t new_z)
@@ -1112,7 +1112,7 @@ void HeroClass::setXfix(zfix new_x)
     
     // A kludge
     if(!diagonalMovement && dir<=down)
-        is_on_conveyor=true;
+        is_on_conveyor = -1;
 }
 
 void HeroClass::setYfix(zfix new_y)
@@ -1142,7 +1142,7 @@ void HeroClass::setYfix(zfix new_y)
     
     // A kludge
     if(!diagonalMovement && dir>=left)
-        is_on_conveyor=true;
+        is_on_conveyor = -1;
 }
 
 void HeroClass::setZfix(zfix new_z)
@@ -32723,8 +32723,13 @@ void HeroClass::check_conveyor()
 {
 	++newconveyorclk;
 
-	if (is_conveyor_stunned)
+	if (is_conveyor_stunned > 0)
 		--is_conveyor_stunned;
+	if (is_on_conveyor > 0)
+	{
+		if(!--is_on_conveyor)
+			conv_forcedir = -1;
+	}
 	
 	if((!get_qr(qr_BROKEN_CONVEYORS) && action==rafting) || action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||((z>0||fakez>0) && !(hero_scr->flags2&fAIRCOMBOS)))
 	{
@@ -32740,8 +32745,12 @@ void HeroClass::check_conveyor()
 	{
 		if (conveyclk <= 0)
 		{
-			is_on_conveyor = false;
-			conv_forcedir = -1;
+			if(is_on_conveyor < 0)
+			{
+				is_on_conveyor = 0;
+				conv_forcedir = -1;
+				is_conveyor_stunned = 0;
+			}
 		}
 		return;
 	}
@@ -32755,9 +32764,9 @@ void HeroClass::check_conveyor()
 		if(custom_spd && (newconveyorclk % rate)) return;
 		if((cmb->usrflags&cflag5) && HasHeavyBoots())
 			return;
-		is_on_conveyor=false;
-		conv_forcedir=-1;
-		is_conveyor_stunned=0;
+		is_on_conveyor = 0;
+		conv_forcedir = -1;
+		is_conveyor_stunned = 0;
 		
 		deltax=combo_class_buf[ctype].conveyor_x_speed;
 		deltay=combo_class_buf[ctype].conveyor_y_speed;
@@ -32786,7 +32795,7 @@ void HeroClass::check_conveyor()
 		
 		if(deltax!=0||deltay!=0)
 		{
-			is_on_conveyor=true;
+			is_on_conveyor = custom_spd ? rate : -1;
 		}
 		else return;
 		
