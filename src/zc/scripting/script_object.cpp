@@ -22,6 +22,11 @@ static bool is_reserved_object_id(uint32_t id)
 	if (id >= 9 && id <= 16)
 		return true;
 
+	// These are often used to indicate "no value" (such as accessing an invalid array or out of
+	// bounds).
+	if (id == -10000 || id == -1)
+		return true;
+
 	return false;
 }
 
@@ -35,7 +40,7 @@ static uint32_t get_next_script_object_id()
 		uint32_t id = 1000;
 		while (next_script_object_id_freelist.size() < ID_FREELIST_FILL_AMOUNT)
 		{
-			if (!script_objects.contains(id))
+			if (!script_objects.contains(id) && !is_reserved_object_id(id))
 				next_script_object_id_freelist.push_back(id);
 			id++;
 		}
