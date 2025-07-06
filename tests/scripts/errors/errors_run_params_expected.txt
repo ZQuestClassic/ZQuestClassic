@@ -1,0 +1,8 @@
+Compiling 'errors_run_params.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+ZQ_BUFFER Line 3 @ Columns 10-84 - Error S110: The `run` function cannot have more than 8 parameters
+Failure!
+Compile finished with exit code '110' (compiled with errors)
