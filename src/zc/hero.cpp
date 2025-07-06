@@ -32744,7 +32744,7 @@ void HeroClass::check_conveyor()
 			conv_forcedir = -1;
 	}
 	
-	if((!get_qr(qr_BROKEN_CONVEYORS) && action==rafting) || action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||((z>0||fakez>0) && !(hero_scr->flags2&fAIRCOMBOS)))
+	if((!get_qr(qr_BROKEN_CONVEYORS) && action==rafting) || action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero)
 	{
 		is_conveyor_stunned = 0;
 		return;
@@ -32770,6 +32770,13 @@ void HeroClass::check_conveyor()
 	newcombo const* cmb = &combobuf[cmbid];
 	rpos_t rpos = COMBOPOS_REGION(x+7,y+(bigHitbox?8:12));
 	bool custom_spd = (cmb->usrflags&cflag2);
+	if((z>0||fakez>0) && !((hero_scr->flags2&fAIRCOMBOS)||(cmb->usrflags&cflag7)))
+	{
+		is_on_conveyor = 0;
+		conv_forcedir = -1;
+		is_conveyor_stunned = 0;
+		return;
+	}
 	if(custom_spd || conveyclk<=0) //!DIMITODO: let player be on multiple conveyors at once
 	{
 		int32_t ctype=cmb->type;

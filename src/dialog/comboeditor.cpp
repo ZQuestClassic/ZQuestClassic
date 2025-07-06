@@ -991,6 +991,8 @@ void ComboEditorDialog::loadComboType()
 			h_flag[4] = "If the Hero has boots with the 'heavy' flag, the conveyor will not push them.";
 			l_flag[5] = "Force Walk";
 			h_flag[5] = "The Hero will walk the speed/dir of the conveyor, unable to walk against it. Requires Newer Hero Movement." + QRHINT({qr_NEW_HERO_MOVEMENT2});
+			l_flag[6] = "Affects in air";
+			h_flag[6] = "Moves sprites that are in the z-axis";
 			if(FL(cflag2)) //Custom speed
 			{
 				l_attribute[0] = "X Speed:";
