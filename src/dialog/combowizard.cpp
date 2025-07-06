@@ -2585,7 +2585,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							"\nIf set to 0, acts as if set to 1.")
 						//
 					),
-					Rows<2>(
+					Rows_Columns<2, 3>(
 						INFOBTN("While the conveyor is moving the Hero, they are 'stunned'."),
 						cboxes[0] = Checkbox(
 							text = "Stunned while moving",
@@ -2634,6 +2634,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggleFunc = [&](bool state)
 							{
 								SETFLAG(local_ref.usrflags,cflag6,state);
+							}
+						),
+						INFOBTN("Moves sprites that are in the z-axis."),
+						cboxes[5] = Checkbox(
+							text = "Affects sprites in the air",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag7, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag7,state);
 							}
 						)
 					)
