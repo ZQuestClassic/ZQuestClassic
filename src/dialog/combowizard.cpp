@@ -2625,6 +2625,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								SETFLAG(local_ref.usrflags,cflag5,state);
 							}
+						),
+						INFOBTN("The Hero will walk the speed/dir of the conveyor, unable to walk against it. Requires Newer Hero Movement." + QRHINT({qr_NEW_HERO_MOVEMENT2})),
+						cboxes[4] = Checkbox(
+							text = "Force Walk",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag6, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag6,state);
+							}
 						)
 					)
 				)
