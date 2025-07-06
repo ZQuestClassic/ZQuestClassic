@@ -1,0 +1,46 @@
+stderr:
+
+Compiling 'errors_run_params.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+errors_run_params.zs Line 3 @ Columns 10-13 - Error S109: The `run` function cannot have more than 8 parameters
+
+1    ffc script TooManyParams
+2    {
+3        void run(int a, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
+              ^~~
+
+
+Failure!
+Compile finished with exit code '109' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 109,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 9
+        },
+        "end": {
+          "line": 2,
+          "character": 12
+        }
+      },
+      "severity": 1,
+      "message": "S109: The `run` function cannot have more than 8 parameters"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 4,
+    "symbols": 3,
+    "identifiers": 4,
+    "elided": true
+  }
+}

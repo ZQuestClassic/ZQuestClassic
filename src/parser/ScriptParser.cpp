@@ -1022,10 +1022,8 @@ void ScriptAssembler::assemble_script(Script* scr,
 	// Push on the params to the run.
 	auto script_start_indx = rval.size();
 	int i = 0;
-	for (; i < numparams && i < 9; ++i)
-		addOpcode2(rval, new OPushRegister(new VarArgument(i)));
 	for (; i < numparams; ++i)
-		addOpcode2(rval, new OPushRegister(new VarArgument(EXP1)));
+		addOpcode2(rval, new OPushRegister(new VarArgument(i)));
 	if(rval.size() > script_start_indx)
 		rval[script_start_indx]->setComment(fmt::format("{} Params",runsig));
 
