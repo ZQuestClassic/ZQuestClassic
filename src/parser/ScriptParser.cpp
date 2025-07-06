@@ -804,10 +804,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 
 	// Push on the params to the run.
 	int32_t i;
-	for (i = 0; i < numparams && i < 9; ++i)
+	for (i = 0; i < numparams; ++i)
 		addOpcode2(rval, new OPushRegister(new VarArgument(i)));
-	for (; i < numparams; ++i)
-		addOpcode2(rval, new OPushRegister(new VarArgument(EXP1)));
 
 	// Generate a map of labels to functions.
 	vector<Function*> allFunctions = getFunctions(program);

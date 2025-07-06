@@ -156,6 +156,9 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 				function.thisVar =
 					BuiltinVariable::create(functionScope, constType != NULL ? *constType : *thisType, "this", this);
 		}
+
+		if (parameters.size() > 8)
+			handleError(CompileError::Error(functionDecl, "The `run` function cannot have more than 8 parameters"));
 	}
 
 	// Evaluate the function block under its scope and return type.
