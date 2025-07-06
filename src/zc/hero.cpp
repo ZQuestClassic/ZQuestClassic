@@ -18902,7 +18902,7 @@ bool HeroClass::premove()
 	
 	int32_t wx=x;
 	int32_t wy=y;
-	if(conv_forcedir > -1) dir = conv_forcedir;
+	if(conv_forcedir > -1 && !spins) dir = conv_forcedir;
 	else if((action==none || action==walking) && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 	{
 		if((xoff==0)||diagonalMovement)
@@ -19111,7 +19111,7 @@ bool HeroClass::premove()
 	
 	if(attackclk || action==attacking || action==sideswimattacking)
 	{
-		if(conv_forcedir > -1) dir = conv_forcedir;
+		if(conv_forcedir > -1 && !spins) dir = conv_forcedir;
 		else if((attackclk==0) && action!=sideswimattacking && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 		{
 			if((xoff==0)||diagonalMovement)
@@ -19130,7 +19130,7 @@ bool HeroClass::premove()
 		bool attacked = doattack();
 		
 		// This section below interferes with script-setting Hero->Dir, so it comes after doattack
-		if(conv_forcedir > -1) dir = conv_forcedir;
+		if(conv_forcedir > -1 && !spins) dir = conv_forcedir;
 		else if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0 && action!=sideswimattacking)
 		{
 			if((xoff==0)||diagonalMovement)
@@ -19428,7 +19428,7 @@ void HeroClass::movehero()
 	}
 	
 newmove_slide:
-	if(conv_forcedir > -1)
+	if(conv_forcedir > -1 && !spins)
 		dir = conv_forcedir;
 	if(!is_conveyor_stunned)
 	{
@@ -32816,7 +32816,7 @@ void HeroClass::check_conveyor()
 		if(forcewalk)
 		{
 			is_conveyor_stunned = rate;
-			if((cmb->usrflags&cflag3) && !spins)
+			if(cmb->usrflags&cflag3)
 			{
 				if(abs(deltax) > abs(deltay))
 					conv_forcedir = dir = (deltax > 0) ? right : left;
@@ -33260,7 +33260,7 @@ void HeroClass::check_conveyor()
 			{
 				if(cmb->usrflags&cflag1)
 					is_conveyor_stunned = rate;
-				if((cmb->usrflags&cflag3) && !spins)
+				if(cmb->usrflags&cflag3)
 				{
 					if(abs(deltax) > abs(deltay))
 						conv_forcedir = dir = (deltax > 0) ? right : left;
