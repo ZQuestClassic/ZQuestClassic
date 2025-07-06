@@ -1441,6 +1441,14 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			{
 				got_initialized = true;
 				data.initialized = 1;
+
+				// If this compat QR is on, scripts can run before ~Init and set global variables.
+				// Before overwriting them with 0, get rid of object references held by global variables.
+				if (get_qr(qr_OLD_INIT_SCRIPT_TIMING) && ZScriptVersion::gc() && script == GLOBAL_SCRIPT_INIT)
+				{
+					for (int i = 0; i < MAX_SCRIPT_REGISTERS; i++)
+						script_object_ref_dec(game->global_d[i]);
+				}
 			}
 		}
 		break;
@@ -23959,6 +23967,40 @@ static bool check_cmp(uint cmp)
 	}
 }
 
+static void markRegisterType(int reg, int type)
+{
+	// Currently only marking globals as objects is supported.
+	if (!(reg >= GD(0) && reg <= GD(MAX_SCRIPT_REGISTERS)))
+	{
+		assert(false);
+	}
+	if (!(type >= 0 && type <= (int)script_object_type::last))
+	{
+		assert(false);
+	}
+
+	int index = reg - GD(0);
+	game->global_d_types[index] = (script_object_type)type;
+}
+
+static void markGlobalRegisters()
+{
+	word scommand;
+	auto& init_script = *globalscripts[GLOBAL_SCRIPT_INIT];
+	if (!init_script.valid())
+		return;
+
+	auto& zasm = init_script.zasm_script->zasm;
+	uint32_t start_pc = init_script.pc, end_pc = init_script.end_pc;
+
+	for (auto pc = start_pc; pc < end_pc; pc++)
+	{
+		scommand = zasm[pc].command;
+		if(scommand == MARK_TYPE_REG)
+			markRegisterType(zasm[pc].arg1, zasm[pc].arg2);
+	}
+}
+
 void goto_err(char const* opname)
 {
 	auto i = curScriptIndex;
@@ -28331,20 +28373,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case MARK_TYPE_REG:
 			{
-				// Currently only marking globals as objects is supported.
-				if (!(sarg1 >= GD(0) && sarg1 <= GD(MAX_SCRIPT_REGISTERS)))
-				{
-					assert(false);
-					break;
-				}
-				if (!(sarg2 >= 0 && sarg2 <= (int)script_object_type::last))
-				{
-					assert(false);
-					break;
-				}
-
-				int index = sarg1 - GD(0);
-				game->global_d_types[index] = (script_object_type)sarg2;
+				markRegisterType(sarg1, sarg2);
 				break;
 			}
 			case REF_REMOVE:
@@ -30493,6 +30522,9 @@ void FFScript::init()
 	apply_qr_rules();
 	eventData.clear();
 	countGenScripts();
+	// Some scripts can run even before ~Init (but only if qr_OLD_INIT_SCRIPT_TIMING is on), so figure out
+	// the global register types ahead of time.
+	markGlobalRegisters();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	temp_no_stepforward = 0;
 	nostepforward = 0;

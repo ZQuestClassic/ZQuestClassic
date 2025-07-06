@@ -1,5 +1,6 @@
 #include "zc/scripting/script_object.h"
 
+#include "zc/ffscript.h"
 #include "zc/scripting/types/user_object.h"
 #include "zscriptversion.h"
 
