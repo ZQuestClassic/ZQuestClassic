@@ -371,10 +371,10 @@ bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
      pull_hero=false, hs_fix=false, hs_switcher=false,
      cheat_superman=false, gofast=false, checkhero=true, didpit=false, heart_beep=true,
      pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
-     is_on_conveyor= false, activated_timed_warp=false;
+     activated_timed_warp=false;
 rpos_t hooked_comborpos = rpos_t::None;
 int32_t switchhook_cost_item = -1;
-int32_t is_conveyor_stunned = 0;
+int32_t is_conveyor_stunned = 0, is_on_conveyor = 0;
 uint16_t hooked_layerbits = 0;
 int32_t hooked_undercombos[14] = {0};
 solid_object* switching_object = NULL;
