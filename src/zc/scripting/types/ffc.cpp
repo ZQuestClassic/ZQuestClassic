@@ -6,7 +6,8 @@ static ArrayRegistrar FFFLAGSD_registrar(FFFLAGSD, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<ffcdata, &ffcdata::flags, 32> impl;
 	impl.setDefaultValue(0);
 	impl.setSideEffect([](auto ffc, int index, int value){
-		if (index == ffc_solid || index == ffc_changer)
+		auto flag = F(index);
+		if (flag == ffc_solid || flag == ffc_changer)
 			ffc->updateSolid();
 	});
 	return &impl;
