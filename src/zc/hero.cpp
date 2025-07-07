@@ -2681,7 +2681,7 @@ void HeroClass::draw(BITMAP* dest)
 			
 			int32_t jumping2 = int32_t(jumping*((zinit.gravity / 100)/16.0));
 			bool noliftspr = get_qr(qr_NO_LIFT_SPRITE);
-			//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
+
 			switch(zinit.heroAnimationStyle)
 			{
 			case las_original:                                               //normal
@@ -4519,22 +4519,6 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 
 void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 {
-	/*
-	int32_t par_item = w->parentitem;
-	al_trace("check_slash_block(weapon *w): par_item is: %d\n", par_item);
-	int32_t usewpn = -1;
-	if ( par_item > -1 )
-	{
-		usewpn = itemsbuf[par_item].useweapon;
-	}
-	else if ( par_item == -1 && w->ScriptGenerated ) 
-	{
-		usewpn = w->useweapon;
-	}
-	al_trace("check_slash_block(weapon *w): usewpn is: %d\n", usewpn);
-	*/
-    
-	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
@@ -4558,16 +4542,9 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
 	    if (isCuttableType(type) && MatchComboTrigger(w, cid))
 	    {
-		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
 		dontignore = 1;
 	    }
-    
-	    /*to-do, ffcs
-	    if (isCuttableType(type2) && MatchComboTrigger(w, cid))
-	    {
-		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
-		dontignoreffc = 1;
-	    }*/
+
 	if(w->useweapon != wSword && !dontignore) return;
 
     
@@ -4953,7 +4930,6 @@ void HeroClass::check_slash_block(weapon *w)
 	//first things 
 	
 	int32_t par_item = w->parentitem;
-	al_trace("check_slash_block(weapon *w): par_item is: %d\n", par_item);
 	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
@@ -4963,15 +4939,12 @@ void HeroClass::check_slash_block(weapon *w)
 	{
 		usewpn = w->useweapon;
 	}
-	al_trace("check_slash_block(weapon *w): usewpn is: %d\n", usewpn);
     if(usewpn != wSword) return;
 	
 	
     int32_t bx = 0, by = 0;
 	bx = ((int32_t)w->x) + (((int32_t)w->hit_width)/2);
 	by = ((int32_t)w->y) + (((int32_t)w->hit_height)/2);
-	al_trace("check_slash_block(weapon *w): bx is: %d\n", bx);
-	al_trace("check_slash_block(weapon *w): by is: %d\n", by);
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
@@ -5553,7 +5526,6 @@ void HeroClass::check_wand_block(weapon *w)
 {
 	
     int32_t par_item = w->parentitem;
-	al_trace("check_wand_block(weapon *w): par_item is: %d\n", par_item);
 	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
@@ -5563,7 +5535,6 @@ void HeroClass::check_wand_block(weapon *w)
 	{
 		usewpn = w->useweapon;
 	}
-	al_trace("check_wand_block(weapon *w): usewpn is: %d\n", usewpn);
     if(usewpn != wWand) return;
 	
 	
