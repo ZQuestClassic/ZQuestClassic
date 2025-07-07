@@ -2530,17 +2530,16 @@ bool remove_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, uint d
 
 void clear_xdoors(const screen_handles_t& screen_handles, bool triggers)
 {
-	mapscr* scr = screen_handles[0].scr;
-	int mi = mapind(cur_map, scr->screen >= 0x80 ? home_screen : scr->screen);
-	clear_xdoors_mi(screen_handles, mi, triggers);
+	int screen = screen_handles[0].screen;
+	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
+	return clear_xdoors_mi(screen_handles, mi, triggers);
 }
 
 void clear_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, bool triggers)
 {
-	for (int q = 0; q < 32; ++q)
-	{
-		remove_xdoors(screen_handles, mi, q, triggers);
-	}
+	for (int dir = 0; dir < 4; ++dir)
+		for (int q = 0; q < 8; ++q)
+			remove_xdoors_mi(screen_handles, mi, dir, q, triggers);
 }
 
 bool remove_lockblocks(const screen_handles_t& screen_handles)
