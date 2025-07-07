@@ -267,8 +267,8 @@ void TextField::setVal(int32_t val)
 		{
 			int32_t scale = int32_t(pow(10, fixedPlaces));
 			char templ[32] = {0};
-			sprintf(templ, "%%d.%%0%dd", fixedPlaces);
-			sprintf(buf, templ, val/scale, val%scale);
+			sprintf(templ, "%%s%%d.%%0%dd", fixedPlaces);
+			sprintf(buf, templ, val < 0 ? "-" : "", abs(val)/scale, abs(val)%scale);
 			for(size_t q = strlen(buf)-1; q > 0; --q)
 			{
 				if(buf[q] == '0')
@@ -394,8 +394,11 @@ int32_t TextField::getVal()
 		{
 			int32_t scale = int32_t(pow(10, fixedPlaces));
 			char buf[32] = {0};
+			char* intptr = buf;
 			char* decptr = NULL;
 			strcpy(buf, buffer.get());
+			bool negative = buf[0] == '-';
+			if(negative) ++intptr;
 			buf[31] = 0;
 			for(size_t q = 0;q<31;++q)
 			{
@@ -412,8 +415,10 @@ int32_t TextField::getVal()
 				if(buf[q] == 0)
 					break;
 			}
-			value = atoi(buf) * scale;
+			value = atoi(intptr) * scale;
 			if(decptr) value += atoi(decptr);
+			if(negative)
+				value = -value;
 			break;
 		}
 	}
