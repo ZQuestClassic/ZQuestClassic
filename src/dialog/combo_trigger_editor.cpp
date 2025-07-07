@@ -135,6 +135,7 @@ static bool has_trigger_cause(combo_trigger const& trig)
 	if(trig.triggerflags[4] & (combotriggerSCREENLOAD)) return true;
 	if(trig.exstate != -1 && !(trig.triggerflags[4] & combotriggerUNSETEXSTATE)) return true;
 	if(trig.exdoor_dir != -1 && !(trig.triggerflags[4] & combotriggerUNSETEXDOOR)) return true;
+	if(trig.trigcopycat) return true;
 	return false;
 }
 static bool has_trigger_effect(combo_trigger const& trig)
@@ -167,6 +168,7 @@ static bool has_trigger_effect(combo_trigger const& trig)
 	if(trig.trig_shieldjinxtime != -2) return true;
 	if(trig.trig_stuntime != -2) return true;
 	if(trig.trig_bunnytime != -2) return true;
+	if(trig.trig_msgstr || trig.fail_msgstr) return true;
 	if(trig.player_bounce) return true;
 	return false;
 }
