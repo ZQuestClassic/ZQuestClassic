@@ -2936,7 +2936,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& ex_trig = cmb.triggers[idx];
-		if(ex_trig.exstate > -1 && (ex_trig.triggerflags[4] & combotriggerUNSETEXSTATE))
+		if(ex_trig.exstate > -1 && !(ex_trig.triggerflags[4] & combotriggerUNSETEXSTATE))
 		{
 			if (force_ex_trigger(rpos_handle, idx))
 			{
@@ -2944,7 +2944,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 				if(rpos_handle.data() != cid) break;
 			}
 		}
-		if(ex_trig.exdoor_dir > -1 && (ex_trig.triggerflags[4] & combotriggerUNSETEXDOOR))
+		if(ex_trig.exdoor_dir > -1 && !(ex_trig.triggerflags[4] & combotriggerUNSETEXDOOR))
 		{
 			if(force_ex_door_trigger(rpos_handle, idx))
 			{
