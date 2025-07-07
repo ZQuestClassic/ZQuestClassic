@@ -238,7 +238,7 @@ void scc_insert(char* buf, size_t& msgptr,byte cc,size_t limit = -1)
 
 char *MsgString(int32_t index, bool show_number, bool pad_number)
 {
-	static char u[80];
+	static char u[100];
 	bound(index,0,msg_strings_size-1);
 	memset(u, 0, sizeof(u));
 	if(index == 0)
