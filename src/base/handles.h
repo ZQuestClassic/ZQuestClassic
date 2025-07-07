@@ -45,6 +45,7 @@ struct rpos_handle_t
 	newcombo& combo() const;
 	cpos_info& info() const;
 	std::pair<int32_t, int32_t> xy() const;
+	std::pair<int32_t, int32_t> center_xy() const;
 
 	ZC_FORCE_INLINE int32_t data() const
 	{
@@ -83,6 +84,7 @@ struct ffc_handle_t
 	const newcombo& combo() const;
 	cpos_info& info() const;
 	std::pair<int32_t, int32_t> xy() const;
+	std::pair<int32_t, int32_t> center_xy() const;
 
 	int32_t data() const;
 	void set_data(int32_t value) const;
@@ -105,10 +107,15 @@ struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
 
 	bool is_rpos() const;
 	bool is_ffc() const;
+	rpos_handle_t const& get_rpos() const;
+	ffc_handle_t const& get_ffc() const;
+	
 	mapscr* base_scr() const;
 	const newcombo& combo() const;
 	int data() const;
 	int id() const;
+	std::pair<int32_t, int32_t> xy() const;
+	std::pair<int32_t, int32_t> center_xy() const;
 };
 
 #endif

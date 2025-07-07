@@ -3186,12 +3186,11 @@ int32_t get_register(int32_t arg)
 			break;
 		} 
 		case LINKJUMP:
-			// -fall/100*10000, but doing it that way screwed up the result
-			ret = Hero.getFall().getZLong() / -100;
+			ret = Hero.getJump().getZLong();
 			break;
 			
 		case HEROFAKEJUMP:
-			ret = Hero.getFakeFall().getZLong() / -100;
+			ret = Hero.getFakeJump().getZLong() / -100;
 			break;
 			
 		case LINKDIR:
@@ -8293,6 +8292,48 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGGERDESTHEROX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->dest_player_x;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERDESTHEROY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->dest_player_y;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERDESTHEROZ:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->dest_player_z;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERJUMP:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->req_player_jump;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->req_player_x;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->req_player_y;
+			else ret = -10000;
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		//npcdata nd-> variables
 			
@@ -10550,7 +10591,7 @@ void set_register(int32_t arg, int32_t value)
 		break;
 			
 		case LINKJUMP:
-			Hero.setFall(zslongToFix(value) * -100);
+			Hero.setJump(zslongToFix(value));
 			break;
 		
 		case HEROFAKEJUMP:
@@ -15740,6 +15781,42 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 				trig->req_player_z = value;
+			break;
+		}
+		case CMBTRIGGERDESTHEROX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->dest_player_x = value;
+			break;
+		}
+		case CMBTRIGGERDESTHEROY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->dest_player_y = value;
+			break;
+		}
+		case CMBTRIGGERDESTHEROZ:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->dest_player_z = value;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERJUMP:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->req_player_jump = value;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->req_player_x = value;
+			break;
+		}
+		case CMBTRIGGERREQPLAYERY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->req_player_y = value;
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//

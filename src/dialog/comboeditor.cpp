@@ -58,6 +58,15 @@ bool hasCTypeEffects(int32_t type)
 	}
 	return false;
 }
+bool hasCTypeCauses(int32_t type)
+{
+	switch(type)
+	{
+		case cPITFALL: case cWATER:
+			return true;
+	}
+	return false;
+}
 
 static bool edited = false;
 #if DEVLEVEL > 0
@@ -3501,6 +3510,11 @@ void ComboEditorDialog::apply_combo()
 	{
 		for(combo_trigger& trig : local_comboref.triggers)
 			trig.triggerflags[0] &= ~combotriggerCMBTYPEFX;
+	}
+	if(!hasCTypeCauses(local_comboref.type))
+	{
+		for(combo_trigger& trig : local_comboref.triggers)
+			trig.triggerflags[4] &= ~combotriggerCMBTYPECAUSES;
 	}
 	combobuf[index] = local_comboref;
 	saved = false;

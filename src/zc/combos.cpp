@@ -2289,7 +2289,7 @@ static bool do_copycat_trigger(const rpos_handle_t& rpos_handle)
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
-		if(trig.trigcopycat == copycat_id)
+		if(trig.trigcopycat == copycat_id && !(trig.triggerflags[4] & combotriggerNO_COPYCAT_CAUSE))
 		{
 			do_trigger_combo(rpos_handle, idx);
 			ret = true;
@@ -2309,7 +2309,7 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
-		if(trig.trigcopycat == copycat_id)
+		if(trig.trigcopycat == copycat_id && !(trig.triggerflags[4] & combotriggerNO_COPYCAT_CAUSE))
 		{
 			do_trigger_combo(ffc_handle, idx);
 			ret = true;
@@ -2589,6 +2589,7 @@ void do_weapon_fx(weapon* w, combo_trigger const& trig)
 int32_t get_cmb_trigctrcost(combo_trigger const& trig)
 {
 	int32_t ctrcost = trig.trigctramnt;
+	if(!ctrcost) return ctrcost;
 	if(trig.triggerflags[3] & combotriggerCOUNTERDISCOUNT)
 	{
 		auto wmedal_id = current_item_id(itype_wealthmedal);
@@ -2614,8 +2615,16 @@ static bool check_dark_trigger_conditional(bool is_active_screen, mapscr* scr, b
 	return expect_lit == lit;
 }
 
-static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, int32_t cx, int32_t cy, bool& hasitem, bool side_effects = true)
+static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, size_t idx, bool& hasitem, bool side_effects = true)
 {
+	auto& cmb = comb_handle.combo();
+	if(cmb.triggers.size() <= idx) return false;
+	
+	auto& trig = cmb.triggers[idx];
+	auto [cx, cy] = comb_handle.xy();
+	auto [center_x, center_y] = comb_handle.center_xy();
+	mapscr* scr = comb_handle.base_scr();
+	
 	bool is_active_screen = is_in_current_region(scr);
 
 	if(trig.triggeritem) //Item requirement
@@ -2643,6 +2652,52 @@ static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, 
 		}
 	}
 	
+	if(trig.triggerflags[4] & (combotriggerREQ_X_LE|combotriggerREQ_X_GE|
+		combotriggerREQ_Y_LE|combotriggerREQ_Y_GE|
+		combotriggerREQ_JUMP_LE|combotriggerREQ_JUMP_GE))
+	{
+		auto targ_x = trig.req_player_x;
+		auto targ_y = trig.req_player_y;
+		
+		if(trig.triggerflags[4] & combotriggerREQ_X_REL)
+			targ_x += center_x - 8;
+		if(trig.triggerflags[4] & combotriggerREQ_Y_REL)
+			targ_y += center_y - 8;
+		
+		if(trig.triggerflags[4] & combotriggerREQ_X_LE)
+		{
+			if(Hero.getX() > targ_x)
+				return false;
+		}
+		if(trig.triggerflags[4] & combotriggerREQ_X_GE)
+		{
+			if(Hero.getX() < targ_x)
+				return false;
+		}
+		
+		if(trig.triggerflags[4] & combotriggerREQ_Y_LE)
+		{
+			if(Hero.getY() > targ_y)
+				return false;
+		}
+		if(trig.triggerflags[4] & combotriggerREQ_Y_GE)
+		{
+			if(Hero.getY() < targ_y)
+				return false;
+		}
+		
+		if(trig.triggerflags[4] & combotriggerREQ_JUMP_LE)
+		{
+			if(Hero.getJump() > trig.req_player_jump)
+				return false;
+		}
+		if(trig.triggerflags[4] & combotriggerREQ_JUMP_GE)
+		{
+			if(Hero.getJump() < trig.req_player_jump)
+				return false;
+		}
+	}
+	
 	if(trig.triggerflags[4] & combotriggerINVERT_PLAYER_Z)
 	{
 		if(Hero.z >= trig.req_player_z)
@@ -2653,6 +2708,21 @@ static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, 
 		if(Hero.z < trig.req_player_z)
 			return false;
 	}
+	
+	if(trig.triggerflags[4] & combotriggerREQ_JUMP_LE)
+	{
+		if(Hero.getJump() > trig.req_player_jump)
+			return false;
+	}
+	if(trig.triggerflags[4] & combotriggerREQ_JUMP_GE)
+	{
+		if(Hero.getJump() < trig.req_player_jump)
+			return false;
+	}
+	
+	if(trig.req_player_dir && !(trig.req_player_dir & (1 << Hero.dir)))
+		return false;
+	
 	if(trig.triggerflags[4] & combotriggerPLAYER_STANDING)
 		if(!Hero.isStanding(true))
 			return false;
@@ -2688,14 +2758,19 @@ static bool handle_trigger_conditionals(mapscr* scr, combo_trigger const& trig, 
 		}
 	}
 	
-	if(auto ctrcost = get_cmb_trigctrcost(trig))
+	if(zfix ctrcost = get_cmb_trigctrcost(trig))
 	{
 		bool inf_ctr = false;
-		word ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
+		bool perc_ctr = (trig.triggerflags[4] & combotriggerCOUNTER_PERCENT);
+		zfix ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
+		zfix ctrmax = get_ssc_ctrmax(trig.trigctr);
+		if(perc_ctr)
+			ctrcost = (ctrcost / 100) * ctrmax;
+		
 		if(side_effects && is_active_screen && (trig.triggerflags[1] & combotriggerCTRNONLYTRIG) && (trig.triggerflags[1] & combotriggerCOUNTEREAT))
 		{
 			if(ctrval >= ctrcost && !inf_ctr)
-				modify_ssc_ctr(trig.trigctr, -ctrcost);
+				modify_ssc_ctr(trig.trigctr, -ctrcost, trig.triggerflags[4] & combotriggerCOUNTER_GRADUAL);
 		}
 		if(trig.triggerflags[1] & combotriggerCOUNTERGE)
 		{
@@ -2788,12 +2863,16 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 	}
 	if(!(trig.triggerflags[1] & combotriggerCTRNONLYTRIG) && (trig.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
-		if(auto ctrcost = get_cmb_trigctrcost(trig))
+		if(zfix ctrcost = get_cmb_trigctrcost(trig))
 		{
 			bool inf_ctr = false;
-			word ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
+			bool perc_ctr = (trig.triggerflags[4] & combotriggerCOUNTER_PERCENT);
+			zfix ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
+			zfix ctrmax = get_ssc_ctrmax(trig.trigctr);
+			if(perc_ctr)
+				ctrcost = (ctrcost / 100) * ctrmax;
 			if(ctrval >= ctrcost && !inf_ctr)
-				modify_ssc_ctr(trig.trigctr, -ctrcost);
+				modify_ssc_ctr(trig.trigctr, -ctrcost, trig.triggerflags[4] & combotriggerCOUNTER_GRADUAL);
 		}
 	}
 	bool trigexstate = true;
@@ -2874,6 +2953,8 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 			doTint(trig.trigtint[0], trig.trigtint[1], trig.trigtint[2]);
 		if(trig.triglvlpalette > -1)
 			loadlvlpal(trig.triglvlpalette);
+		else if(trig.triglvlpalette == -2)
+			loadlvlpal(scr->color);
 		if(trig.trigbosspalette > -1)
 			loadpalset(csBOSS,pSprite(trig.trigbosspalette));
 		if(trig.trigquaketime > -1)
@@ -2916,6 +2997,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	
 	int32_t cid = rpos_handle.data();
 	auto [cx, cy] = rpos_handle.xy();
+	auto [center_x, center_y] = rpos_handle.center_xy();
 
 	int32_t ocs = rpos_handle.cset();
 	mapscr* base_scr = rpos_handle.base_scr();
@@ -2956,7 +3038,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	if(force_ex_ret)
 		return true;
 
-	if(!handle_trigger_conditionals(base_scr, trig, cx, cy, hasitem))
+	if(!handle_trigger_conditionals(rpos_handle, idx, hasitem))
 	{
 		trigger_string(trig, false);
 		return false;
@@ -3116,7 +3198,26 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 					timer.trig_data[idx].cooldown = trig.trigcooldown;
 				
 				if (trig.player_bounce)
-					Hero.setFall(trig.player_bounce*-100);
+					Hero.setJump(trig.player_bounce);
+				
+				if (trig.triggerflags[4] & combotriggerSETPLAYER_X_ABS)
+					Hero.setXfix(trig.dest_player_x);
+				else if (trig.triggerflags[4] & combotriggerSETPLAYER_X_REL_CMB)
+					Hero.setXfix(trig.dest_player_x + center_x - 8);
+				else if(trig.dest_player_x)
+					Hero.setXfix(Hero.getX() + trig.dest_player_x);
+				
+				if (trig.triggerflags[4] & combotriggerSETPLAYER_Y_ABS)
+					Hero.setYfix(trig.dest_player_y);
+				else if (trig.triggerflags[4] & combotriggerSETPLAYER_Y_REL_CMB)
+					Hero.setYfix(trig.dest_player_y + center_y - 8);
+				else if(trig.dest_player_y)
+					Hero.setYfix(Hero.getY() + trig.dest_player_y);
+				
+				if (trig.triggerflags[4] & combotriggerSETPLAYER_Z_ABS)
+					Hero.setZfix(trig.dest_player_z);
+				else if(trig.dest_player_z)
+					Hero.setZfix(Hero.getZ() + trig.dest_player_z);
 			}
 		}
 		if (w && used_bit)
@@ -3151,6 +3252,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	int32_t cid = ffc_handle.data();
 	int32_t ocs = ffc->cset;
 	auto [cx, cy] = ffc_handle.xy();
+	auto [center_x, center_y] = ffc_handle.center_xy();
 	mapscr* base_scr = ffc_handle.scr;
 	bool hasitem = false;
 	if(w && (trig.triggerflags[3] & combotriggerSEPARATEWEAPON))
@@ -3188,7 +3290,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	if(force_ex_ret)
 		return true;
 
-	if(!handle_trigger_conditionals(ffc_handle.scr, trig, cx, cy, hasitem))
+	if(!handle_trigger_conditionals(ffc_handle, idx, hasitem))
 	{
 		trigger_string(trig, false);
 		return false;
@@ -3350,7 +3452,26 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 					timer.trig_data[idx].cooldown = trig.trigcooldown;
 				
 				if (trig.player_bounce)
-					Hero.setFall(trig.player_bounce*-100);
+					Hero.setJump(trig.player_bounce);
+				
+				if (trig.triggerflags[4] & combotriggerSETPLAYER_X_ABS)
+					Hero.setXfix(trig.dest_player_x);
+				else if (trig.triggerflags[4] & combotriggerSETPLAYER_X_REL_CMB)
+					Hero.setXfix(trig.dest_player_x + center_x - 8);
+				else if(trig.dest_player_x)
+					Hero.setXfix(Hero.getX() + trig.dest_player_x);
+				
+				if (trig.triggerflags[4] & combotriggerSETPLAYER_Y_ABS)
+					Hero.setYfix(trig.dest_player_y);
+				else if (trig.triggerflags[4] & combotriggerSETPLAYER_Y_REL_CMB)
+					Hero.setYfix(trig.dest_player_y + center_y - 8);
+				else if(trig.dest_player_y)
+					Hero.setYfix(Hero.getY() + trig.dest_player_y);
+				
+				if (trig.triggerflags[4] & combotriggerSETPLAYER_Z_ABS)
+					Hero.setZfix(trig.dest_player_z);
+				else if(trig.dest_player_z)
+					Hero.setZfix(Hero.getZ() + trig.dest_player_z);
 			}
 		}
 		if (w && used_bit)
@@ -3371,29 +3492,36 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	return true;
 }
 
-bool check_trig_conditions(const rpos_handle_t& rpos_handle, size_t idx)
+bool do_trigger_combo(const combined_handle_t& comb_handle, size_t idx, int32_t special, weapon* w)
 {
-	auto& cmb = rpos_handle.combo();
-	if(cmb.triggers.size() <= idx) return false;
-	
-	auto& trig = cmb.triggers[idx];
-	auto [cx, cy] = rpos_handle.xy();
-	mapscr* base_scr = rpos_handle.base_scr();
-	bool hasitem = false;
-	
-	return handle_trigger_conditionals(base_scr, trig, cx, cy, hasitem, false);
+	if(comb_handle.is_rpos())
+		return do_trigger_combo(comb_handle.get_rpos(), idx, special, w);
+	else if(comb_handle.is_ffc())
+		return do_trigger_combo(comb_handle.get_ffc(), idx, special, w);
+	assert(false);
+	return false;
 }
-bool check_trig_conditions(const ffc_handle_t& ffc_handle, size_t idx)
+
+bool do_trigger_ctype_causes(const combined_handle_t& comb_handle)
 {
-	auto& cmb = ffc_handle.combo();
-	if(cmb.triggers.size() <= idx) return false;
-	
-	auto& trig = cmb.triggers[idx];
-	auto [cx, cy] = ffc_handle.xy();
-	mapscr* base_scr = ffc_handle.scr;
+	auto cid = comb_handle.data();
+	auto& cmb = comb_handle.combo();
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+	{
+		auto& trig = cmb.triggers[idx];
+		if (trig.triggerflags[4]&combotriggerCMBTYPECAUSES)
+		{
+			do_trigger_combo(comb_handle, idx);
+			if(comb_handle.data() != cid) return true;
+		}
+	}
+	return false;
+}
+
+bool check_trig_conditions(const combined_handle_t& comb_handle, size_t idx)
+{
 	bool hasitem = false;
-	
-	return handle_trigger_conditionals(base_scr, trig, cx, cy, hasitem, false);
+	return handle_trigger_conditionals(comb_handle, idx, hasitem, false);
 }
 
 bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)

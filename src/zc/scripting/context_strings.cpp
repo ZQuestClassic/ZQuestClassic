@@ -471,6 +471,9 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGCTR: return "combotrigger::Counter";
 		case CMBTRIGCTRAMNT: return "combotrigger::CounterAmount";
 		case CMBTRIGDMAPLVL: return "combotrigger::DMapLvl";
+		case CMBTRIGGERDESTHEROX: return "combotrigger::DestHeroX";
+		case CMBTRIGGERDESTHEROY: return "combotrigger::DestHeroY";
+		case CMBTRIGGERDESTHEROZ: return "combotrigger::DestHeroZ";
 		case CMBTRIGEXDOORDIR: return "combotrigger::ExDoorDir";
 		case CMBTRIGEXDOORIND: return "combotrigger::ExDoorIndex";
 		case CMBTRIGEXSTATE: return "combotrigger::ExState";
@@ -495,6 +498,10 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGPUSHTIME: return "combotrigger::PushTime";
 		case CMBTRIGQUAKETIME: return "combotrigger::QuakeTimer";
 		case CMBTRIGREQGLOBALSTATE: return "combotrigger::ReqGlobalState[]";
+		case CMBTRIGGERREQPLAYERDIR: return "combotrigger::ReqHeroDir[]";
+		case CMBTRIGGERREQPLAYERJUMP: return "combotrigger::ReqHeroJump";
+		case CMBTRIGGERREQPLAYERX: return "combotrigger::ReqHeroX";
+		case CMBTRIGGERREQPLAYERY: return "combotrigger::ReqHeroY";
 		case CMBTRIGGERREQPLAYERZ: return "combotrigger::ReqHeroZ";
 		case CMBTRIGREQITEM: return "combotrigger::ReqItem";
 		case CMBTRIGREQLVLSTATE: return "combotrigger::ReqLevelState[]";

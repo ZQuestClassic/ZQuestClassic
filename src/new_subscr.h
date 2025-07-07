@@ -25,7 +25,7 @@ bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZC
 
 word get_ssc_ctrmax(int ctr);
 word get_ssc_ctr(int ctr, bool* infptr = nullptr);
-void modify_ssc_ctr(int ctr, int amnt);
+void modify_ssc_ctr(int ctr, int amnt, bool gradual = false);
 
 enum
 {

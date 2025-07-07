@@ -887,9 +887,17 @@ zfix  HeroClass::getFall()
 {
     return fall;
 }
+zfix  HeroClass::getJump()
+{
+    return fall / -100;
+}
 zfix  HeroClass::getFakeFall()
 {
     return fakefall;
+}
+zfix  HeroClass::getFakeJump()
+{
+    return fakefall / -100;
 }
 zfix  HeroClass::getXOfs()
 {
@@ -1239,6 +1247,14 @@ void HeroClass::setFakeFall(zfix new_fall)
 {
     fakefall=new_fall;
     jumping=-1;
+}
+void HeroClass::setJump(zfix new_jump)
+{
+	setFall(new_jump*-100);
+}
+void HeroClass::setFakeJump(zfix new_jump)
+{
+	setFakeFall(new_jump*-100);
 }
 void HeroClass::setClimbCoverX(int32_t new_x)
 {
@@ -8295,23 +8311,24 @@ heroanimate_skip_liftwpn:;
 		if((on_sideview_solid_oldpos(this) || getOnSideviewLadder())  && !(pull_hero && dir==down) && action!=rafting && !platformfell2)
 		{
 			stop_item_sfx(itype_hoverboots);
+			auto oldfall = fall;
+			fall = hoverclk = jumping = 0;
 			if(get_qr(qr_OLD_SIDEVIEW_LANDING_CODE))
 			{
-				if(!getOnSideviewLadder() && (fall > 0 || get_qr(qr_OLD_SIDEVIEW_CEILING_COLLISON)))
+				if(!getOnSideviewLadder() && (oldfall > 0 || get_qr(qr_OLD_SIDEVIEW_CEILING_COLLISON)))
 				{
 					y.doFloor();
 					y-=(int32_t)y%8; //fix position
 				}
-				if(fall > 0)
+				if(oldfall > 0)
 					land_on_ground();
 			}
 			else
 			{
 				snap_platform();
-				if(fall > 0)
+				if(oldfall > 0)
 					land_on_ground();
 			}
-			fall = hoverclk = jumping = 0;
 			inair = false;
 			hoverflags = 0;
 			
@@ -8523,16 +8540,17 @@ heroanimate_skip_liftwpn:;
 		
 		if(z<=0&&!(moveflags & move_no_real_z))
 		{
+			auto oldfall = fall;
+			z = fall = 0;
 			if (fakez <= 0 || (moveflags & move_no_fake_z)) 
 			{
-				if(fall > 0)
+				if(oldfall > 0)
 				{
 					land_on_ground();
 					
 					stomping = true;
 				}
 			}
-			z = fall = 0;
 			if (fakez <= 0 || (moveflags & move_no_fake_z)) 
 			{
 				jumping = 0;
@@ -8552,16 +8570,17 @@ heroanimate_skip_liftwpn:;
 		}
 		else if(fakez<=0&&!(moveflags & move_no_fake_z))
 		{
+			auto oldfakefall = fakefall;
+			fakez = fakefall = 0;
 			if (z <= 0 || (moveflags & move_no_real_z))
 			{
-				if(fakefall > 0)
+				if(oldfakefall > 0)
 				{
 					land_on_ground();
 						
 					stomping = true;
 				}
 			}
-			fakez = fakefall = 0;
 			if (z <= 0 || (moveflags & move_no_real_z)) 
 			{
 				jumping = 0;
@@ -9608,7 +9627,13 @@ heroanimate_skip_liftwpn:;
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setHeroAction(none);
-			int32_t water = drownCombo ? drownCombo : iswaterex_z3(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), cur_map, cur_screen, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			optional<combined_handle_t> comb_handle;
+			int32_t water = iswaterex_z3(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), -1, x.getInt()+7.5,y.getInt()+12, true, false, true, false, true, &comb_handle);
+			if(drownCombo && water != drownCombo)
+			{
+				comb_handle = nullopt;
+				water = drownCombo;
+			}
 			
 			std::vector<int32_t> &ev = FFCore.eventData;
 			ev.clear();
@@ -9628,6 +9653,8 @@ heroanimate_skip_liftwpn:;
 			if(damage)
 				game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
 			drownCombo = 0;
+			if(comb_handle)
+				do_trigger_ctype_causes(*comb_handle);
 			go_respawn_point();
 			hclk=48;
 			check_on_hit();
@@ -10731,30 +10758,76 @@ void HeroClass::handle_passive_buttons()
 
 void HeroClass::land_on_ground()
 {
+	if (fakez<0) fakez = 0;
+	if (z<0) z = 0;
+	
+	bool played_land_sfx = false;
 	if(get_qr(qr_OLD_LANDING_SFX))
 	{
 		if(!sideview_mode() && ((iswaterex_z3(MAPCOMBO(x,y+8), -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER))
 			sfx(WAV_ZN1SPLASH,x.getInt());
-		return;
+		played_land_sfx = true;
 	}
 
 	auto rpos = COMBOPOS_REGION_B(x+8, y+(sideview_mode()?16:12));
-	bool played_land_sfx = false;
 	for (int q = 0; q < 7; ++q)
 	{
 		if (rpos == rpos_t::None) break;
 
 		auto rpos_handle = get_rpos_handle(rpos, q);
-		byte csfx = rpos_handle.combo().sfx_landing;
-		if (csfx)
+		auto& cmb = rpos_handle.combo();
+		auto cid = rpos_handle.data();
+		byte csfx = cmb.sfx_landing;
+		if (csfx && !get_qr(qr_OLD_LANDING_SFX))
 		{
 			sfx(csfx, x.getInt());
 			played_land_sfx = true;
+		}
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+		{
+			auto& trig = cmb.triggers[idx];
+			if (trig.triggerflags[4]&combotriggerPLAYERLANDHERE)
+			{
+				do_trigger_combo(rpos_handle, idx);
+				if(rpos_handle.data() != cid) break;
+			}
 		}
 	}
 
 	if(!played_land_sfx && QMisc.miscsfx[sfxHERO_LANDS])
 		sfx(QMisc.miscsfx[sfxHERO_LANDS], x.getInt());
+	
+	
+	for_some_rpos([&](const rpos_handle_t& rpos_handle) {
+		auto cid = rpos_handle.data();
+		newcombo const& cmb = rpos_handle.combo();
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+		{
+			auto& trig = cmb.triggers[idx];
+			if (trig.triggerflags[4]&combotriggerPLAYERLANDANYWHERE)
+			{
+				do_trigger_combo(rpos_handle, idx);
+				if(rpos_handle.data() != cid) break;
+			}
+		}
+		
+		return true;
+	});
+	for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
+		auto cid = ffc_handle.data();
+		auto& cmb = ffc_handle.combo();
+		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+		{
+			auto& trig = cmb.triggers[idx];
+			if (trig.triggerflags[4]&combotriggerPLAYERLANDANYWHERE)
+			{
+				do_trigger_combo(ffc_handle, idx);
+				if(ffc_handle.data() != cid) break;
+			}
+		}
+		
+		return true;
+	});
 }
 
 static bool did_passive_jump = false;
@@ -14013,6 +14086,14 @@ void HeroClass::pitfall()
 		//Handle falling
 		if(!--fallclk)
 		{
+			optional<combined_handle_t> comb_handle;
+			if((comb_handle = get_pitfall_handle(x+8, y+(bigHitbox?8:12))) && comb_handle->data() == fallCombo) /*nil*/;
+			else if((comb_handle = get_pitfall_handle(x+8, y+(bigHitbox?0:8))) && comb_handle->data() == fallCombo) /*nil*/;
+			else if((comb_handle = get_pitfall_handle(x+15, y+(bigHitbox?0:8))) && comb_handle->data() == fallCombo) /*nil*/;
+			else if((comb_handle = get_pitfall_handle(x, y+15)) && comb_handle->data() == fallCombo) /*nil*/;
+			else if((comb_handle = get_pitfall_handle(x+15, y+15)) && comb_handle->data() == fallCombo) /*nil*/;
+			else comb_handle = nullopt; // nothing found, no `CType Causes->`
+			
 			std::vector<int32_t> &ev = FFCore.eventData;
 			ev.clear();
 			ev.push_back(fallCombo*10000);
@@ -14046,6 +14127,10 @@ void HeroClass::pitfall()
 				}
 				game->set_life(vbound(int32_t(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-int64_t(dmg))),0,game->get_maxlife()));
 			}
+			
+			if(comb_handle)
+				do_trigger_ctype_causes(*comb_handle);
+			
 			if(warp) //Warp
 			{
 				sdir = dir;

@@ -37,6 +37,13 @@ static ArrayRegistrar CMBTRIGUNREQGLOBALSTATE_registrar(CMBTRIGUNREQGLOBALSTATE,
 	return &impl;
 }());
 
+static ArrayRegistrar CMBTRIGGERREQPLAYERDIR_registrar(CMBTRIGGERREQPLAYERDIR, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<combo_trigger, &combo_trigger::req_player_dir, 4> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar CMBTRIGFLAGS_registrar(CMBTRIGFLAGS, []{
 	static ScriptingArray_GlobalComputed<bool> impl(
 		[](int ref) -> int {
