@@ -5211,7 +5211,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			}
 			else
 			{
-				FFCore.deallocateAllScriptOwned(ScriptType::FFC, i, false);
+				FFCore.deallocateAllScriptOwned(ScriptType::FFC, i);
 				memset(ffmisc[i], 0, 16 * sizeof(int32_t));
 				FFCore.reset_script_engine_data(ScriptType::FFC, i);
 			}
