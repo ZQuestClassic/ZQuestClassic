@@ -18124,6 +18124,23 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		temp_trigger.fail_prompt_cid = temp_trigger.prompt_cid;
 		temp_trigger.fail_prompt_cs = temp_trigger.prompt_cs;
 	}
+	if(s_version >= 54)
+	{
+		if(!p_getc(&temp_trigger.req_player_dir,f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.dest_player_x, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.dest_player_y, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.dest_player_z, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.req_player_jump, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.req_player_x, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.req_player_y, f))
+			return qe_invalid;
+	}
 	return 0;
 }
 

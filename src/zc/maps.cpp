@@ -1905,15 +1905,15 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 }
 
 // (x, y) are world coordinates
-int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
+int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero, optional<combined_handle_t>* out_handle)
 {
 	if (x<0 || x>=world_w || y<0 || y>=world_h)
 		return false;
 
-	return iswaterex(combo, cur_map, cur_screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
+	return iswaterex(combo, cur_map, cur_screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero, out_handle);
 }
 
-int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
+int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero, optional<combined_handle_t>* out_handle)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	//Honestly, fullcheck is kinda useless... I made this function back when I thought it was checking the entire combo and not just a glorified x/y value.
@@ -1933,6 +1933,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					int32_t checkwater = iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false, ShallowCheck);
 					if (checkwater > 0) 
 					{
+						if(out_handle) *out_handle = get_rpos_handle_for_world_xy(x, y, m+1);
 						return checkwater;
 					}
 				}
@@ -2010,14 +2011,22 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 
 						return false;
 					});
-					if (found_ffc_water) return found_ffc_water->data();
+					if (found_ffc_water)
+					{
+						if(out_handle) *out_handle = *found_ffc_water;
+						return found_ffc_water->data();
+					}
 				}
 
 				int32_t checkcombo = MAPCOMBO3(map, screen, layer, tx2, ty2, secrets);
 				if (!(combobuf[checkcombo].walk&(1<<(b+4)))) return 0;
 				if (iswater_type(combobuf[checkcombo].type)||(ShallowCheck && (combobuf[checkcombo].type == cSHALLOWWATER || (iswater_type(combobuf[checkcombo].type) && (combobuf[checkcombo].walk&(1<<b)) && (combobuf[checkcombo].usrflags&cflag4))))) 
 				{
-					if (i == 0) return checkcombo;
+					if (i == 0)
+					{
+						if(out_handle) *out_handle = get_rpos_handle_for_world_xy(tx2, ty2, layer+1);
+						return checkcombo;
+					}
 				}
 			}
 			return 0;
@@ -2036,7 +2045,12 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 			}						
 		}
 		if (!(combobuf[combo].walk&(1<<(b+4)))) return 0;
-		return (((iswater_type(combobuf[combo].type) || (ShallowCheck && combobuf[combo].type == cSHALLOWWATER)) && !DRIEDLAKE)?combo:0);//These used to return booleans; returning the combo id of the water combo it caught is essential for Emily's proposed water changes.
+		if((iswater_type(combobuf[combo].type) || (ShallowCheck && combobuf[combo].type == cSHALLOWWATER)) && !DRIEDLAKE)
+		{
+			if(out_handle) *out_handle = get_rpos_handle_for_world_xy(x, y, 0); //NOTE: This is only correct assuming 'combo' is 'MAPCOMBO(x,y)'
+			return combo;
+		}
+		return 0;
 	}
 }
 
@@ -2124,6 +2138,42 @@ int32_t getpitfall(int32_t x, int32_t y) //Return the highest-layer active pit c
 	c = MAPCOMBO(x,y);
 	if(ispitfall(c)) return c;
 	return 0;
+}
+optional<combined_handle_t> get_pitfall_handle(int32_t x, int32_t y) //Return the highest-layer active pit combo handle at the given position
+{
+	if(int32_t c = MAPFFCOMBO(x,y))
+	{
+		return ispitfall(c) ? getFFCAt(x,y) : nullopt;
+	}
+	int32_t c = MAPCOMBOL(2,x,y);
+	if(ispitfall(c)) return get_rpos_handle_for_world_xy(x, y, 2);
+
+	if (get_qr(qr_OLD_BRIDGE_COMBOS))
+	{
+		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1))
+			return nullopt;
+	}
+	else
+	{
+		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1))
+			return nullopt;
+	}
+	c = MAPCOMBOL(1,x,y);
+	if(ispitfall(c)) return get_rpos_handle_for_world_xy(x, y, 1);
+
+	if (get_qr(qr_OLD_BRIDGE_COMBOS))
+	{
+		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,0))
+			return nullopt;
+	}
+	else
+	{
+		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,0))
+			return nullopt;
+	}
+	c = MAPCOMBO(x,y);
+	if(ispitfall(c)) return get_rpos_handle_for_world_xy(x, y, 0);
+	return nullopt;
 }
 bool check_icy(newcombo const& cmb, int type)
 {

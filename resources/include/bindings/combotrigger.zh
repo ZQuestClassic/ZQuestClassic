@@ -20,7 +20,7 @@ enum ComboTriggerFlag
 	TRIGFLAG_REFROCK, //Weapons->LWeapons->Refl. Rock - Triggered by Reflected Rock LWeapons
 	TRIGFLAG_HAMMER, //Weapons->LWeapons->Hammer - Triggered by Hammer LWeapon
 	TRIGFLAG_RESET_ANIM, //Effects->Reset Anim - On trigger, reset the animation of the combo.
-	TRIGFLAG_INVERT_PROXIMITY, //Other->Invert Proximity Req. - Proximity requirement is reversed
+	TRIGFLAG_INVERT_PROXIMITY, //Conditions->Invert Proximity Req. - Proximity requirement is reversed
 	TRIGFLAG_BTN_TOP, //Other->Btn: Top - Triggered by button press from above
 	TRIGFLAG_BTN_BOTTOM, //Other->Btn: Bottom - Trigger by button press from below
 	TRIGFLAG_BTN_LEFT, //Other->Btn: Left - Trigger by button press from left
@@ -124,8 +124,8 @@ enum ComboTriggerFlag
 	TRIGFLAG_REFFIRE, //Weapons->LWeapons->Refl. Fire - Triggered by Reflected Fire LWeapons
 	TRIGFLAG_REFFIRE2, //Weapons->LWeapons->Refl. Fire 2 - Triggered by Reflected Fire 2 LWeapons
 	TRIGFLAG_TOGGLE_DARKNESS, //Effects->Toggle Darkness - Toggle the screen being a dark room
-	TRIGFLAG_REQ_DARKNESS, //Other->Req. Darkness - Can only trigger if the screen is a dark room
-	TRIGFLAG_REQ_NO_DARKNESS, //Other->Req. Darkness - Can only trigger if the screen is lit (not a dark room)
+	TRIGFLAG_REQ_DARKNESS, //Conditions->Req. Darkness - Can only trigger if the screen is a dark room
+	TRIGFLAG_REQ_NO_DARKNESS, //Conditions->Req. Darkness - Can only trigger if the screen is lit (not a dark room)
 	TRIGFLAG_LITEM_REQUIRE, //Counters/Items->Require All - Require all the specified LItems to trigger the combo
 	TRIGFLAG_LITEM_INV_REQUIRE, //Counters/Items->Require Not All - Require not all (some is ok) of the specified LItems to trigger the combo
 	TRIGFLAG_LITEM_SET, //Counters/Items->'->Set' - Grants the specified LItems. If [TRIGFLAG_LITEM_UNSET] is also on, toggles them instead.
@@ -139,6 +139,25 @@ enum ComboTriggerFlag
 	TRIGFLAG_REQ_HERO_STANDING, // Can only trigger if the [Hero] is standing on ground. (Counts standing in sideview as well)
 	TRIGFLAG_REQ_HERO_NOT_STANDING, // Can only trigger if the [Hero] is NOT standing on ground. (Counts standing in sideview as well)
 	TRIGFLAG_INVERT_HERO_Z, // Inverts the condition of [ReqPlayerZ]
+	TRIGFLAG_COUNTER_GRADUAL, // Makes [TRIGFLAG_COUNTER_EAT] drain/fill gradually instead of all at once.
+	TRIGFLAG_COUNTER_PERCENT, // Makes [combotrigger->CounterAmount] a percentage instead of an amount.
+	TRIGFLAG_NO_COPYCAT_CAUSE, // Makes [combotrigger->Copycat] not trigger this combo; it will only be used as an effect when another cause triggers this combo.
+	TRIGFLAG_HERO_LAND_HERE, // Triggers when the [Hero] lands on this combo (after the combo's 'Landing' SFX plays)
+	TRIGFLAG_HERO_LAND_ANYWHERE, // Triggers when the [Hero] lands on the ground from the air, anywhere on the screen.
+	TRIGFLAG_SET_HERO_X_ABSOLUTE, // When triggered, sets [Hero->X] to [combotrigger->DestHeroX].
+	TRIGFLAG_SET_HERO_X_RELATIVE_CMB, // When triggered, sets [Hero->X] to [combotrigger->DestHeroX] plus this combo's X position.
+	TRIGFLAG_SET_HERO_Y_ABSOLUTE, // When triggered, sets [Hero->X] to [combotrigger->DestHeroY].
+	TRIGFLAG_SET_HERO_Y_RELATIVE_CMB, // When triggered, sets [Hero->X] to [combotrigger->DestHeroY] plus this combo's Y position.
+	TRIGFLAG_SET_HERO_Z_ABSOLUTE, // When triggered, sets [Hero->X] to [combotrigger->DestHeroZ].
+	TRIGFLAG_CTYPE_CAUSES, // Triggers based on combotype-specific causes (ex. player falls down a pit / drowns)
+	TRIGFLAG_HERO_JUMP_GE, // Requires that [Hero->Jump] is >= [combotrigger->ReqHeroJump] to trigger.
+	TRIGFLAG_HERO_JUMP_LE, // Requires that [Hero->Jump] is <= [combotrigger->ReqHeroJump] to trigger.
+	TRIGFLAG_HERO_X_GE, // Requires that [Hero->X] is >= [combotrigger->ReqHeroX] to trigger.
+	TRIGFLAG_HERO_X_LE, // Requires that [Hero->X] is <= [combotrigger->ReqHeroX] to trigger.
+	TRIGFLAG_HERO_X_RELATIVE, // [TRIGFLAG_HERO_X_GE] / [TRIGFLAG_HERO_X_LE] use '[combotrigger->ReqHeroX]' relative to the combo's position. For FFCs, uses a position based on the center of the hitbox.
+	TRIGFLAG_HERO_Y_GE, // Requires that [Hero->Y] is >= [combotrigger->ReqHeroY] to trigger.
+	TRIGFLAG_HERO_Y_LE, // Requires that [Hero->Y] is <= [combotrigger->ReqHeroY] to trigger.
+	TRIGFLAG_HERO_Y_RELATIVE, // [TRIGFLAG_HERO_Y_GE] / [TRIGFLAG_HERO_Y_LE] use '[combotrigger->ReqHeroY]' relative to the combo's position. For FFCs, uses a position based on the center of the hitbox.
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
 };
@@ -225,6 +244,7 @@ class combotrigger {
 	// With [TRIGFLAG_COUNTER_GE], cancels the trigger if the counter is < the [CounterAmount].
 	// With [TRIGFLAG_COUNTER_LT], cancels the trigger if the counter is >= the [CounterAmount].
 	// With [TRIGFLAG_COUNTER_EAT], consumes the [CounterAmount] from the counter when triggered.
+	// With [TRIGFLAG_COUNTER_PERCENT], the [CounterAmount] is treated as a percentage of the max of this counter.
 	// ...and with [TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT], the consumed amount consumes even if the combo
 	// fails to trigger (ex. via failing a conditional)
 	//
@@ -240,8 +260,9 @@ class combotrigger {
 	// @zasm_var CMBTRIGCOOLDOWN
 	internal int Cooldown;
 
-	// If > 0, triggering this combo triggers all other triggers with matching
-	// Copycat.
+	// If > 0, triggering this combo triggers all other triggers with matching Copycat.
+	// If [TRIGFLAG_NO_COPYCAT_CAUSE] is set, this combo will not be triggered
+	// by other combos in this manner; but will still trigger other combos.
 	//
 	// @zasm_var CMBTRIGCOPYCAT
 	internal int Copycat;
@@ -389,7 +410,7 @@ class combotrigger {
 	// @zasm_var CMBTRIGTINTB
 	internal int TintB;
 
-	// The level palette to change to when triggered. -1 for none.
+	// The level palette to change to when triggered. -1 for none, -2 for "editor palette of current screen"
 	//
 	// @zasm_var CMBTRIGLVLPAL
 	internal int LvlPal;
@@ -491,12 +512,53 @@ class combotrigger {
 	// @zasm_var CMBTRIGGERPLAYERBOUNCE
 	internal int HeroBounce;
 	
-	// Requires that the [Hero]'s Z value is >= this value to trigger.
+	// Add this value to [Hero->X].
+	// Also used with [TRIGFLAG_SET_HERO_X_ABSOLUTE] and [TRIGFLAG_SET_HERO_X_RELATIVE_CMB].
 	//
-	// If [TRIGFLAG_INVERT_HERO_Z] is set, requires that the [Hero]'s Z value is < this instead.
+	// @zasm_var CMBTRIGGERDESTHEROX
+	internal int DestHeroX;
+	
+	// Add this value to [Hero->Y].
+	// Also used with [TRIGFLAG_SET_HERO_Y_ABSOLUTE] and [TRIGFLAG_SET_HERO_Y_RELATIVE_CMB].
+	//
+	// @zasm_var CMBTRIGGERDESTHEROY
+	internal int DestHeroY;
+	
+	// Add this value to [Hero->Z].
+	// Also used with [TRIGFLAG_SET_HERO_Z_ABSOLUTE].
+	//
+	// @zasm_var CMBTRIGGERDESTHEROZ
+	internal int DestHeroZ;
+	
+	// Only used by [TRIGFLAG_HERO_X_GE] / [TRIGFLAG_HERO_X_LE].
+	// Related: [TRIGFLAG_HERO_X_RELATIVE]
+	//
+	// @zasm_var CMBTRIGGERREQPLAYERX
+	internal int ReqHeroX;
+	
+	// Only used by [TRIGFLAG_HERO_Y_GE] / [TRIGFLAG_HERO_Y_LE].
+	// Related: [TRIGFLAG_HERO_Y_RELATIVE]
+	//
+	// @zasm_var CMBTRIGGERREQPLAYERY
+	internal int ReqHeroY;
+	
+	// Requires that [Hero->Z] is >= this value to trigger.
+	//
+	// If [TRIGFLAG_INVERT_HERO_Z] is set, requires that [Hero->Z] is < this instead.
 	//
 	// @zasm_var CMBTRIGGERREQPLAYERZ
 	internal int ReqHeroZ;
+	
+	// Only used by [TRIGFLAG_HERO_JUMP_GE] / [TRIGFLAG_HERO_JUMP_LE].
+	//
+	// @zasm_var CMBTRIGGERREQPLAYERJUMP
+	internal int ReqHeroJump;
+	
+	// If any index is true, the [Hero->Dir] must match a true index for the combo to trigger.
+	//
+	// @index [enum Direction]
+	// @zasm_var CMBTRIGGERREQPLAYERDIR
+	internal bool ReqHeroDir[];
 
 	// Gets the label for this trigger.
 	//

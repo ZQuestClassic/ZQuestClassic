@@ -358,7 +358,7 @@ word get_ssc_ctr(int ctr, bool* infptr)
 		return inf ? game->get_maxcounter(ctr) : game->get_counter(ctr);
 	return inf ? 65535 : zc_min(65535,ret);
 }
-void modify_ssc_ctr(int ctr, int amnt)
+void modify_ssc_ctr(int ctr, int amnt, bool gradual)
 {
 	ctr = simplify_counter(ctr);
 	if(ctr == crNONE)
@@ -442,23 +442,18 @@ void modify_ssc_ctr(int ctr, int amnt)
 			if(ctr == sscGENKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
 				|| ctr == sscGENKEYMAGIC || ctr == sscANYKEYMAGIC)
 			{
-				if(amnt > 0 || -amnt < game->get_keys())
-				{
-					game->change_keys(amnt);
-					amnt = 0;
-				}
-				else
-				{
-					amnt += game->get_keys();
-					game->set_keys(0);
-				}
+				ctr = crKEYS;
 			}
 				
 			break;
 	}
 	if(inf && amnt < 0) return;
 	if(ctr > -1)
-		game->change_counter(amnt, ctr);
+	{
+		if(gradual)
+			game->change_dcounter(amnt, ctr);
+		else game->change_counter(amnt, ctr);
+	}
 }
 void add_ssc_ctr(int ctr, bool& infinite, int32_t& value)
 {

@@ -108,7 +108,9 @@ struct combo_trigger
 	int16_t prompt_x = 12;
 	int16_t prompt_y = -8;
 	int32_t trig_msgstr, fail_msgstr;
-	zfix player_bounce, req_player_z;
+	zfix req_player_x, req_player_y, req_player_z, req_player_jump;
+	zfix dest_player_x, dest_player_y, dest_player_z, player_bounce;
+	byte req_player_dir;
 	
 	bool is_blank() const;
 	void clear();
@@ -321,12 +323,31 @@ struct newcombo
 #define combotriggerCOUNTERDISCOUNT     0x80000000
 
 //triggerflags[4]
-#define combotriggerSCREENLOAD         0x00000001
-#define combotriggerUNSETEXSTATE       0x00000002
-#define combotriggerUNSETEXDOOR        0x00000004
-#define combotriggerPLAYER_STANDING    0x00000008
-#define combotriggerPLAYER_NOTSTANDING 0x00000010
-#define combotriggerINVERT_PLAYER_Z    0x00000020
+#define combotriggerSCREENLOAD               0x00000001
+#define combotriggerUNSETEXSTATE             0x00000002
+#define combotriggerUNSETEXDOOR              0x00000004
+#define combotriggerPLAYER_STANDING          0x00000008
+#define combotriggerPLAYER_NOTSTANDING       0x00000010
+#define combotriggerINVERT_PLAYER_Z          0x00000020
+#define combotriggerCOUNTER_GRADUAL          0x00000040
+#define combotriggerCOUNTER_PERCENT          0x00000080
+#define combotriggerNO_COPYCAT_CAUSE         0x00000100
+#define combotriggerPLAYERLANDHERE           0x00000200
+#define combotriggerPLAYERLANDANYWHERE       0x00000400
+#define combotriggerSETPLAYER_X_ABS          0x00000800
+#define combotriggerSETPLAYER_X_REL_CMB      0x00001000
+#define combotriggerSETPLAYER_Y_ABS          0x00002000
+#define combotriggerSETPLAYER_Y_REL_CMB      0x00004000
+#define combotriggerSETPLAYER_Z_ABS          0x00008000
+#define combotriggerCMBTYPECAUSES            0x00010000
+#define combotriggerREQ_JUMP_GE              0x00020000
+#define combotriggerREQ_JUMP_LE              0x00040000
+#define combotriggerREQ_X_GE                 0x00080000
+#define combotriggerREQ_X_LE                 0x00100000
+#define combotriggerREQ_X_REL                0x00200000
+#define combotriggerREQ_Y_GE                 0x00400000
+#define combotriggerREQ_Y_LE                 0x00800000
+#define combotriggerREQ_Y_REL                0x01000000
 //triggerflags[5]
 // #define combotrigger                    0x00000001
 // #define combotrigger                    0x00000002

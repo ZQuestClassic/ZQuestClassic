@@ -17,6 +17,7 @@ using std::string;
 using std::to_string;
 
 bool hasCTypeEffects(int32_t type);
+bool hasCTypeCauses(int32_t type);
 
 static bool edited = false;
 
@@ -132,7 +133,8 @@ static bool has_trigger_cause(combo_trigger const& trig)
 		combotriggerTRIGLEVELSTATE|combotriggerTRIGGLOBALSTATE|combotriggerTGROUP_LESS|combotriggerTGROUP_GREATER|
 		combotriggerPUSHEDTRIG|combotriggerDIVETRIG|combotriggerDIVESENSTRIG|combotriggerLWREFARROW|combotriggerLWREFFIRE|
 		combotriggerLWREFFIRE2)) return true;
-	if(trig.triggerflags[4] & (combotriggerSCREENLOAD)) return true;
+	if(trig.triggerflags[4] & (combotriggerSCREENLOAD|combotriggerPLAYERLANDHERE|
+		combotriggerPLAYERLANDANYWHERE|combotriggerCMBTYPECAUSES)) return true;
 	if(trig.exstate != -1 && !(trig.triggerflags[4] & combotriggerUNSETEXSTATE)) return true;
 	if(trig.exdoor_dir != -1 && !(trig.triggerflags[4] & combotriggerUNSETEXDOOR)) return true;
 	if(trig.trigcopycat) return true;
@@ -146,6 +148,9 @@ static bool has_trigger_effect(combo_trigger const& trig)
 		combotriggerCLEARLWEAPONS|combotriggerCLEAREWEAPONS|combotriggerIGNITE_ANYFIRE|combotriggerIGNITE_STRONGFIRE|
 		combotriggerIGNITE_MAGICFIRE|combotriggerIGNITE_DIVINEFIRE|combotriggerTOGGLEDARK|combotriggerLITEM_SET|
 		combotriggerLITEM_UNSET|combotriggerTINT_CLEAR)) return true;
+	if(trig.triggerflags[4] & (combotriggerSETPLAYER_X_ABS|combotriggerSETPLAYER_X_REL_CMB|combotriggerSETPLAYER_Y_ABS|
+		combotriggerSETPLAYER_Y_REL_CMB|combotriggerSETPLAYER_Z_ABS)) return true;
+	if(trig.dest_player_x || trig.dest_player_y || trig.dest_player_z) return true;
 	if(trig.trigsfx) return true;
 	if(trig.trigchange) return true;
 	if(trig.trigcschange) return true;
@@ -205,7 +210,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 	
-	std::shared_ptr<GUI::Checkbox> cteff_tflag;
+	std::shared_ptr<GUI::Checkbox> cteff_tflag, ctcause_tflag;
 	
 	window = Window(
 		use_vsync = true,
@@ -548,264 +553,416 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							TRIGFLAG(87, "Enemies->"),
 							IBTN("Triggers when room shutters would open"),
 							TRIGFLAG(27,"Shutter->"),
+							IBTN("Triggered when the player lands on this combo (after the general tab 'Landing' SFX plays)"),
+							TRIGFLAG(137, "Land Here->"),
+							IBTN("Triggered when the player lands from the air (anywhere on the screen)"),
+							TRIGFLAG(138, "Land Anywhere->"),
 							IBTN("Triggers when screen secrets trigger"),
-							TRIGFLAG(88, "Secrets->")
+							TRIGFLAG(88, "Secrets->"),
+							IBTN("Triggers when the combo's inherent type-based *cause* occurs"
+								" (Ex. the Player falling down a Pitfall or drowning in Liquid)."
+								" Not available for all combo types; will be greyed out when unavailable."),
+							ctcause_tflag = TRIGFLAG(144, "ComboType Causes->")
 						)
 					)
 				)),
-				TabRef(name = "Effects", Rows<2>(
-						Rows_Columns<2,4>(framed = true, vAlign = 1.0, hAlign = 1.0,
-							IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
-								" unless 'Temporary Secrets' screen data flag is checked."),
-							TRIGFLAG(48,"Triggers Secrets"),
-							IBTN("Triggering the combo toggles the screen's \"darkness\". This resets upon leaving the screen."),
-							TRIGFLAG(118,"Toggle Darkness"),
-							IBTN("After triggering, the combo animation is reset. If the combo has changed"
-								" (by any trigger effect), the new combo is the one that resets."),
-							TRIGFLAG(18,"Reset Anim"),
-							IBTN("Triggering the combo will cause its inherent type-based effects to occur."
-								" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
-								" Not available for all combo types; will be greyed out when unavailable."),
-							cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
-							//
-							IBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
-							TRIGFLAG(100, "Kill Enemies"),
-							IBTN("Delete all enemies on screen."),
-							TRIGFLAG(101, "Clear Enemies"),
-							IBTN("Delete all LWeapons on screen."),
-							TRIGFLAG(102, "Clear LWeapons"),
-							IBTN("Delete all EWeapons on screen."),
-							TRIGFLAG(103, "Clear EWeapons")
-						),
-						Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, vAlign = 1.0,
-							Label(text = "Combo Change:", fitParent = true),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = -65535, high = 65535, val = local_ref.trigchange,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.trigchange = val;
-								}),
-							IBTN_T("Combo Change","If the value is not 0, the combo will"
-								" change by that much when triggered."
-								"\nEx. '1' causes '->Next', '-1' causes '->Prev'."),
-							Label(text = "CSet Change:", fitParent = true),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = -15, high = 15, val = local_ref.trigcschange,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.trigcschange = val;
-								}),
-							IBTN_T("CSet Change","If the value is not 0, the cset will"
-								" change by that much when triggered."
-								"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'."),
-							Label(text = "Player Bounce:", fitParent = true),
-							TextField(
-								fitParent = true, vPadding = 0_px,
-								maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-								places = 4,
-								val = local_ref.player_bounce.getZLong(),
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.player_bounce = zslongToFix(val);
-								}),
-							IBTN_T("Player Bounce","If the value is not 0, the player will"
-								" 'Jump' with that force. Negative values make the player 'fall'.")
-							
-						),
-						Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, vAlign = 0.0,
-							hAlign = 1.0,
-							Label(text = "SFX:", hAlign = 1.0),
-							DropDownList(data = parent.list_sfx,
-								vPadding = 0_px, maxwidth = 350_px,
-								fitParent = true, selectedValue = local_ref.trigsfx,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_ref.trigsfx = val;
-								}),
-							IBTN_T("Trigger SFX", "If the value is >0, the combo will"
-								" play the specified SFX when triggered."),
-							Label(text = "RunFrozen:", hAlign = 1.0),
-							DropDownList(data = parent.list_genscr,
-								vPadding = 0_px, maxwidth = 350_px,
-								fitParent = true, selectedValue = local_ref.trig_genscr,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_ref.trig_genscr = val;
-								}),
-							IBTN_T("Run Frozen Generic Script", "The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)"),
-							//
-							Label(text = "Trigger String:", hAlign = 1.0),
-							DropDownList(data = parent.list_strings,
-								vPadding = 0_px, forceFitW = true,
-								fitParent = true, selectedValue = local_ref.trig_msgstr/10000,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_ref.trig_msgstr = val*10000;
-								}),
-							IBTN_T("Trigger String", "The string to play when triggered. Negative values are special, reading the string number from somewhere else."),
-							Label(text = "Fail String:", hAlign = 1.0),
-							DropDownList(data = parent.list_strings,
-								vPadding = 0_px, forceFitW = true,
-								fitParent = true, selectedValue = local_ref.fail_msgstr/10000,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_ref.fail_msgstr = val*10000;
-								}),
-							IBTN_T("Fail Trigger String", "The string to play when triggered, but the combo trigger's conditions fail. Negative values are special, reading the string number from somewhere else.")
-						),
-						Frame(title = "Status Effects",
+				TabRef(name = "Effects", Column(padding = 0_px,
+					Frame(title = "Move Player",
+						Row(
 							Rows<3>(padding = 0_px,
-								Label(text = "Sword Jinx:", fitParent = true),
+								Label(text = "Dest X:", fitParent = true),
 								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_swjinxtime,
+									fitParent = true, vPadding = 0_px,
+									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+									places = 4,
+									val = local_ref.dest_player_x.getZLong(),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										local_ref.trig_swjinxtime = val;
+										local_ref.dest_player_x = zslongToFix(val);
 									}),
-								IBTN("Sets the duration of the 'Sword Jinx' status effect."
-									"\n'-2' indicates not to do anything."
-									"\n'-1' inflicts the status indefinitely, until cured."
-									"\n'0' cures the status."
-									"\nAny value above 0 inflicts the status for that many frames."),
-								//
-								Label(text = "Item Jinx:", fitParent = true),
+								IBTN("Move the Player's X by this much"),
+								Label(text = "Dest Y:", fitParent = true),
 								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_itmjinxtime,
+									fitParent = true, vPadding = 0_px,
+									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+									places = 4,
+									val = local_ref.dest_player_y.getZLong(),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										local_ref.trig_itmjinxtime = val;
+										local_ref.dest_player_y = zslongToFix(val);
 									}),
-								IBTN("Sets the duration of the 'Item Jinx' status effect."
-									"\n'-2' indicates not to do anything."
-									"\n'-1' inflicts the status indefinitely, until cured."
-									"\n'0' cures the status."
-									"\nAny value above 0 inflicts the status for that many frames."),
-								//
-								Label(text = "Shield Jinx:", fitParent = true),
+								IBTN("Move the Player's Y by this much"),
+								Label(text = "Dest Z:", fitParent = true),
 								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_shieldjinxtime,
-									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-									{
-										local_ref.trig_shieldjinxtime = val;
-									}),
-								IBTN("Sets the duration of the 'Shield Jinx' status effect."
-									"\n'-2' indicates not to do anything."
-									"\n'-1' inflicts the status indefinitely, until cured."
-									"\n'0' cures the status."
-									"\nAny value above 0 inflicts the status for that many frames."),
-								//
-								Label(text = "Stun:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_stuntime,
+									fitParent = true, vPadding = 0_px,
+									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+									places = 4,
+									val = local_ref.dest_player_z.getZLong(),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										local_ref.trig_stuntime = val;
+										local_ref.dest_player_z = zslongToFix(val);
 									}),
-								IBTN("Sets the duration of the 'Stun' status effect."
-									"\n'-2' indicates not to do anything."
-									"\n'-1' inflicts the status indefinitely, until cured."
-									"\n'0' cures the status."
-									"\nAny value above 0 inflicts the status for that many frames."),
-								//
-								Label(text = "Bunny:", fitParent = true),
+								IBTN("Move the Player's Z by this much")
+							),
+							Rows<4>(padding = 0_px,
+								IBTN("Set the Player's 'X' to the 'Dest X' value exactly."
+									" No collision checks are performed; the player simply teleports."),
+								TRIGFLAG(139, "Set X (Abs)"),
+								IBTN("Set the Player's 'X' to the 'Dest X' value relative to this combo."
+									" For FFCs, relative to the center of the hitbox."
+									" No collision checks are performed; the player simply teleports."),
+								TRIGFLAG(140, "Set X (Rel)"),
+								IBTN("Set the Player's 'Y' to the 'Dest Y' value exactly."),
+								TRIGFLAG(141, "Set Y (Abs)"),
+								IBTN("Set the Player's 'Y' to the 'Dest Y' value relative to this combo."
+									" For FFCs, relative to the center of the hitbox."
+									" No collision checks are performed; the player simply teleports."),
+								TRIGFLAG(142, "Set Y (Rel)"),
+								IBTN("Set the Player's 'Z' to the 'Dest Z' value exactly."),
+								TRIGFLAG(143, "Set Z (Abs)")
+							)
+						)
+					),
+					Row(padding = 0_px,
+						Column(vAlign = 0.0,
+							Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, hAlign = 1.0,
+								Label(text = "Combo Change:", fitParent = true),
 								TextField(
 									fitParent = true,
 									vPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_bunnytime,
+									low = -65535, high = 65535, val = local_ref.trigchange,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										local_ref.trig_bunnytime = val;
+										local_ref.trigchange = val;
 									}),
-								IBTN("Sets the duration of the 'Bunny' status effect."
-									"\n'-2' indicates not to do anything."
-									"\n'-1' inflicts the status indefinitely, until cured."
-									"\n'0' cures the status."
-									"\nAny value above 0 inflicts the status for that many frames.")
+								IBTN_T("Combo Change","If the value is not 0, the combo will"
+									" change by that much when triggered."
+									"\nEx. '1' causes '->Next', '-1' causes '->Prev'."),
+								Label(text = "CSet Change:", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -15, high = 15, val = local_ref.trigcschange,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.trigcschange = val;
+									}),
+								IBTN_T("CSet Change","If the value is not 0, the cset will"
+									" change by that much when triggered."
+									"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'."),
+								Label(text = "Player Bounce:", fitParent = true),
+								TextField(
+									fitParent = true, vPadding = 0_px,
+									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+									places = 4,
+									val = local_ref.player_bounce.getZLong(),
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.player_bounce = zslongToFix(val);
+									}),
+								IBTN_T("Player Bounce","If the value is not 0, the player will"
+									" 'Jump' with that force. Negative values make the player 'fall'.")
+								
+							),
+							Rows_Columns<2,4>(framed = true, hAlign = 1.0,
+								IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
+									" unless 'Temporary Secrets' screen data flag is checked."),
+								TRIGFLAG(48,"Triggers Secrets"),
+								IBTN("Triggering the combo toggles the screen's \"darkness\". This resets upon leaving the screen."),
+								TRIGFLAG(118,"Toggle Darkness"),
+								IBTN("After triggering, the combo animation is reset. If the combo has changed"
+									" (by any trigger effect), the new combo is the one that resets."),
+								TRIGFLAG(18,"Reset Anim"),
+								IBTN("Triggering the combo will cause its inherent type-based effects to occur."
+									" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
+									" Not available for all combo types; will be greyed out when unavailable."),
+								cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
+								//
+								IBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
+								TRIGFLAG(100, "Kill Enemies"),
+								IBTN("Delete all enemies on screen."),
+								TRIGFLAG(101, "Clear Enemies"),
+								IBTN("Delete all LWeapons on screen."),
+								TRIGFLAG(102, "Clear LWeapons"),
+								IBTN("Delete all EWeapons on screen."),
+								TRIGFLAG(103, "Clear EWeapons")
+							)
+						),
+						Column(vAlign = 0.0,
+							Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5,
+								hAlign = 0.0,
+								Label(text = "SFX:", hAlign = 1.0),
+								DropDownList(data = parent.list_sfx,
+									vPadding = 0_px, maxwidth = 250_px,
+									fitParent = true, selectedValue = local_ref.trigsfx,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_ref.trigsfx = val;
+									}),
+								IBTN_T("Trigger SFX", "If the value is >0, the combo will"
+									" play the specified SFX when triggered."),
+								Label(text = "RunFrozen:", hAlign = 1.0),
+								DropDownList(data = parent.list_genscr,
+									vPadding = 0_px, maxwidth = 250_px,
+									fitParent = true, selectedValue = local_ref.trig_genscr,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_ref.trig_genscr = val;
+									}),
+								IBTN_T("Run Frozen Generic Script", "The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)"),
+								//
+								Label(text = "Trigger String:", hAlign = 1.0),
+								DropDownList(data = parent.list_strings,
+									vPadding = 0_px, forceFitW = true,
+									fitParent = true, selectedValue = local_ref.trig_msgstr/10000,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_ref.trig_msgstr = val*10000;
+									}),
+								IBTN_T("Trigger String", "The string to play when triggered. Negative values are special, reading the string number from somewhere else."),
+								Label(text = "Fail String:", hAlign = 1.0),
+								DropDownList(data = parent.list_strings,
+									vPadding = 0_px, forceFitW = true,
+									fitParent = true, selectedValue = local_ref.fail_msgstr/10000,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_ref.fail_msgstr = val*10000;
+									}),
+								IBTN_T("Fail Trigger String", "The string to play when triggered, but the combo trigger's conditions fail. Negative values are special, reading the string number from somewhere else.")
+							),
+							Frame(title = "Status Effects", hAlign = 0.0,
+								Rows_Columns<3, 3>(padding = 0_px,
+									Label(text = "Sword Jinx:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_swjinxtime,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.trig_swjinxtime = val;
+										}),
+									IBTN("Sets the duration of the 'Sword Jinx' status effect."
+										"\n'-2' indicates not to do anything."
+										"\n'-1' inflicts the status indefinitely, until cured."
+										"\n'0' cures the status."
+										"\nAny value above 0 inflicts the status for that many frames."),
+									//
+									Label(text = "Item Jinx:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_itmjinxtime,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.trig_itmjinxtime = val;
+										}),
+									IBTN("Sets the duration of the 'Item Jinx' status effect."
+										"\n'-2' indicates not to do anything."
+										"\n'-1' inflicts the status indefinitely, until cured."
+										"\n'0' cures the status."
+										"\nAny value above 0 inflicts the status for that many frames."),
+									//
+									Label(text = "Shield Jinx:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_shieldjinxtime,
+										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+										{
+											local_ref.trig_shieldjinxtime = val;
+										}),
+									IBTN("Sets the duration of the 'Shield Jinx' status effect."
+										"\n'-2' indicates not to do anything."
+										"\n'-1' inflicts the status indefinitely, until cured."
+										"\n'0' cures the status."
+										"\nAny value above 0 inflicts the status for that many frames."),
+									//
+									Label(text = "Stun:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_stuntime,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.trig_stuntime = val;
+										}),
+									IBTN("Sets the duration of the 'Stun' status effect."
+										"\n'-2' indicates not to do anything."
+										"\n'-1' inflicts the status indefinitely, until cured."
+										"\n'0' cures the status."
+										"\nAny value above 0 inflicts the status for that many frames."),
+									//
+									Label(text = "Bunny:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_bunnytime,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.trig_bunnytime = val;
+										}),
+									IBTN("Sets the duration of the 'Bunny' status effect."
+										"\n'-2' indicates not to do anything."
+										"\n'-1' inflicts the status indefinitely, until cured."
+										"\n'0' cures the status."
+										"\nAny value above 0 inflicts the status for that many frames.")
+								)
 							)
 						)
 					)
-				),
+				)),
 				TabRef(name = "Conditions", Frame(
 					info = "These are 'Conditions'. They won't trigger the combo on their own, but they must apply for other triggers to work.",
-					Row(
-						Rows<3>(
-							Label(text = "Proximity:", fitParent = true),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 5000, val = local_ref.trigprox,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.trigprox = (word)val;
-								}),
-							IBTN_T("Proximity Requirement","If the value is >0, the combo "
-								" will only trigger if the Hero is within that number of pixels of the combo."
-								"\nIf 'Invert Proximity Req' is checked, the Hero must be FARTHER than that distance instead."),
-							Label(text = "Player Z:", fitParent = true),
-							TextField(
-								fitParent = true, vPadding = 0_px,
-								maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-								places = 4,
-								val = local_ref.req_player_z.getZLong(),
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.req_player_z = zslongToFix(val);
-								}),
-							IBTN_T("Player Z Requirement","The combo "
-								" will only trigger if the Hero's Z value is >= this value."
-								"\nIf 'Invert Player Z Req' is checked, the Hero must be < this Z value instead."),
-							Label(text = "Cooldown:", fitParent = true),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_ref.trigcooldown,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.trigcooldown = val;
-								}),
-							IBTN_T("Trigger Cooldown", "If the value is >0, the combo will"
-								" be unable to be triggered for 'n' frames after being triggered.")
+					Column(
+						Frame(title = "Player Position", topPadding = DEFAULT_PADDING*2.5,
+							Rows<9>(
+								Label(text = "Player X:", fitParent = true),
+								TextField(
+									fitParent = true, vPadding = 0_px,
+									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+									places = 4,
+									val = local_ref.req_player_x.getZLong(),
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.req_player_x = zslongToFix(val);
+									}),
+								IBTN("Does nothing on it's own, see flags to the right"),
+								TRIGFLAG(147, "Req X >=", 1, true),
+								IBTN("The combo will only trigger if the Hero's X value is >= 'Player X'."),
+								TRIGFLAG(148, "Req X <=", 1, true),
+								IBTN("The combo will only trigger if the Hero's X value is <= 'Player X'."),
+								TRIGFLAG(149, "...Relative", 1, true),
+								IBTN("'Player X' is treated as relative to where the player's X would be if"
+									" the player were standing centered on the combo."),
+								//
+								Label(text = "Player Y:", fitParent = true),
+								TextField(
+									fitParent = true, vPadding = 0_px,
+									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+									places = 4,
+									val = local_ref.req_player_y.getZLong(),
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.req_player_y = zslongToFix(val);
+									}),
+								IBTN("Does nothing on it's own, see flags to the right"),
+								TRIGFLAG(150, "Req Y >=", 1, true),
+								IBTN("The combo will only trigger if the Hero's Y value is >= 'Player Y'."),
+								TRIGFLAG(151, "Req Y <=", 1, true),
+								IBTN("The combo will only trigger if the Hero's Y value is <= 'Player Y'."),
+								TRIGFLAG(152, "...Relative", 1, true),
+								IBTN("'Player Y' is treated as relative to where the player's Y would be if"
+									" the player were standing centered on the combo."),
+								Label(text = "Player Z:", fitParent = true),
+								TextField(
+									fitParent = true, vPadding = 0_px,
+									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+									places = 4,
+									val = local_ref.req_player_z.getZLong(),
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.req_player_z = zslongToFix(val);
+									}),
+								IBTN_T("Player Z Requirement","The combo"
+									" will only trigger if the Hero's Z value is >= this value."),
+								TRIGFLAG(133, "Invert Player Z Req", 1, true),
+								IBTN("'Player Z:' requires that the Hero be < the specified Z, instead of >=."),
+								_d, _d, _d, _d,
+								//
+								Label(text = "Player Jump:", fitParent = true),
+								TextField(
+									fitParent = true, vPadding = 0_px,
+									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+									places = 4,
+									val = local_ref.req_player_jump.getZLong(),
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.req_player_jump = zslongToFix(val);
+									}),
+								IBTN("Does nothing on it's own, see flags to the right"),
+								TRIGFLAG(145, "Req Jump >=", 1, true),
+								IBTN("The combo will only trigger if the Hero's Jump value is >= 'Player Jump'."),
+								TRIGFLAG(146, "Req Jump <=", 1, true),
+								IBTN("The combo will only trigger if the Hero's Jump value is <= 'Player Jump'.")
+							)
 						),
-						Rows<2>(
-							IBTN("'Proximity:' requires the Hero to be far away, instead of close"),
-							TRIGFLAG(19,"Invert Proximity Req"),
-							IBTN("Can only trigger if the room is darkened."),
-							TRIGFLAG(119, "Req. Darkness"),
-							IBTN("Can only trigger if the room is NOT darkened."),
-							TRIGFLAG(120, "Req. No Darkness"),
-							IBTN("Can only trigger if the player is standing on the ground. Handles 'standing' in sideview as well."),
-							TRIGFLAG(131, "Req. Player Standing"),
-							IBTN("Can only trigger if the player is NOT standing on the ground. Handles 'standing' in sideview as well."),
-							TRIGFLAG(132, "Req. Player Not Standing"),
-							IBTN("'Player Z:' requires that the Hero be < the specified Z, instead of >=."),
-							TRIGFLAG(133, "Invert Player Z Req")
+						Row(
+							Column(
+								Rows<3>(
+									Label(text = "Proximity:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 5000, val = local_ref.trigprox,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.trigprox = (word)val;
+										}),
+									IBTN_T("Proximity Requirement","If the value is >0, the combo "
+										" will only trigger if the Hero is within that number of pixels of the combo."
+										"\nIf 'Invert Proximity Req' is checked, the Hero must be FARTHER than that distance instead."),
+									Label(text = "Cooldown:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_ref.trigcooldown,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.trigcooldown = val;
+										}),
+									IBTN_T("Trigger Cooldown", "If the value is >0, the combo will"
+										" be unable to be triggered for 'n' frames after being triggered.")
+								),
+								Rows<3>(
+									Label(text = "Player Facing:", fitParent = true),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											int32_t flags = local_ref.req_player_dir;
+											static const vector<CheckListInfo> dir_names =
+											{
+												{ "Up" },
+												{ "Down" },
+												{ "Left" },
+												{ "Right" },
+											};
+											if(!call_checklist_dialog("Select 'Player Facing'",dir_names,flags))
+												return;
+											local_ref.req_player_dir = byte(flags);
+										}
+									),
+									IBTN_T("Player Facing","Player must be facing one of these directions"
+										" for the combo to trigger (if any are checked).")
+								)
+							),
+							Rows_Columns<2, 3>(
+								IBTN("Can only trigger if the room is darkened."),
+								TRIGFLAG(119, "Req. Darkness"),
+								IBTN("Can only trigger if the room is NOT darkened."),
+								TRIGFLAG(120, "Req. No Darkness"),
+								IBTN("'Proximity:' requires the Hero to be far away, instead of close"),
+								TRIGFLAG(19,"Invert Proximity Req"),
+								IBTN("Can only trigger if the player is standing on the ground. Handles 'standing' in sideview as well."),
+								TRIGFLAG(131, "Req. Player Standing"),
+								IBTN("Can only trigger if the player is NOT standing on the ground. Handles 'standing' in sideview as well."),
+								TRIGFLAG(132, "Req. Player Not Standing")
+							)
 						)
 					)
 				)),
 				TabRef(name = "Counters/Items", Column(
 					Frame(title = "Counters",
-						Row(padding = 0_px,
+						Column(padding = 0_px,
 							Rows<3>(
 								Label(text = "Counter:", fitParent = true),
 								DropDownList(data = parent.list_ss_counters_nn,
@@ -829,20 +986,24 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									}),
 								IBTN_T("Counter Amount", "The amount of the counter to use for the various counter effects")
 							),
-							Rows<2>(
+							Rows_Columns<2,4>(
 								IBTN("Only trigger if the specified counter has at least the specified amount."
 									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
 								TRIGFLAG(51,"Require >="),
 								IBTN("Only trigger if the specified counter has less than the specified amount."
 									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
 								TRIGFLAG(52,"Require <"),
+								IBTN("The Counter Amount is a percentage of the max."),
+								TRIGFLAG(135,"...Is Percent"),
+								IBTN(fmt::format("The Counter Amount will be discounted based on the Hero's current '{}' item.", ZI.getItemClassName(itype_wealthmedal))),
+								TRIGFLAG(127,"Apply Discount"),
 								IBTN("If the counter has the specified amount, consume it."
 									" Negative amount will add to the counter."),
-								TRIGFLAG(53,"Consume amount"),
+								TRIGFLAG(53,"Consume Amount"),
+								IBTN("The 'Consume Amount' will be drained/granted gradually, instead of at once."),
+								TRIGFLAG(134,"...Gradual"),
 								IBTN("The 'Consume Amount' will occur even if the combo does not meet its' *counter based* trigger conditions."),
-								TRIGFLAG(54,"Consume w/o trig"),
-								IBTN(fmt::format("The Consume Amount will be discounted based on the Hero's current '{}' item.", ZI.getItemClassName(itype_wealthmedal))),
-								TRIGFLAG(127,"Apply Discount")
+								TRIGFLAG(54,"Consume w/o trig")
 							)
 						)
 					),
@@ -875,7 +1036,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 					)
 				)),
 				TabRef(name = "States/Spawning", Row(
-					Rows<4>(framed = true, fitParent = true,
+					Rows<4>(framed = true, vAlign = 0.0,
 						Label(text = "Spawn Item:", fitParent = true),
 						TextField(
 							fitParent = true,
@@ -1090,9 +1251,11 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							TRIGFLAG(84, "Trigger ExState after item pickup",3),
 							IBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
 							TRIGFLAG(85, "Trigger ExState after enemy kill",3),
-							IBTN("The combo's 'ExState' will be unset instead of set when triggered."),
+							IBTN("The combo's 'ExState' will be unset instead of set when triggered."
+								" (Does not necessarily revert combos that were changed by the ExState on it's own)"),
 							TRIGFLAG(129, "Clear ExState on trigger",3),
-							IBTN("The combo's 'ExDoor' will be unset instead of set when triggered."),
+							IBTN("The combo's 'ExDoor' will be unset instead of set when triggered."
+								" (Does not necessarily revert combos that were changed by the ExDoor on it's own)"),
 							TRIGFLAG(130, "Clear ExDoor on trigger",3),
 							IBTN("This combo is triggered when the level-based switch state specified as 'LevelState' is toggled."),
 							TRIGFLAG(96, "LevelState->"),
@@ -1108,7 +1271,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							IBTN("When the number of combos that contribute to this trigger's Trigger Group is LESS than the Trigger Group Val, trigger this trigger."),
 							TRIGFLAG(110, "TrigGroup Less->"),
 							IBTN("When the number of combos that contribute to this trigger's Trigger Group is GREATER than the Trigger Group Val, trigger this trigger."),
-							TRIGFLAG(111, "TrigGroup Greater->")
+							TRIGFLAG(111, "TrigGroup Greater->"),
+							IBTN("The 'Copycat' will not cause this combo to trigger; it will only be used to trigger other combos when this combo triggers."),
+							TRIGFLAG(136, "Copycat doesn't trigger this")
 						),
 						Frame(title = "GlobalState Conditions",
 							info = "These are 'Conditions'. They won't trigger the combo on their own, but they must apply for other triggers to work.",
@@ -1261,13 +1426,13 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							fitParent = true, padding = 0_px,
 							type = GUI::TextField::type::SWAP_SSHORT,
 							swap_type = nswapHEX,
-							low = -1, high = 512, val = local_ref.triglvlpalette,
+							low = -2, high = 512, val = local_ref.triglvlpalette,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.triglvlpalette = val;
 							}),
 						IBTN("Loads the specified level palette over the current level palette."
-							" '-1' for 'none'."),
+							" '-1' for 'none', '-2' for 'current screen editor palette'."),
 						//
 						Label(text = "Load Boss Palette", fitParent = true),
 						TextField(
@@ -1454,6 +1619,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 	);
 	
 	cteff_tflag->setDisabled(!hasCTypeEffects(parent_comboref.type));
+	ctcause_tflag->setDisabled(!hasCTypeCauses(parent_comboref.type));
 	updateWarnings();
 	
 	l_minmax_trig->setText((local_ref.triggerflags[0] & (combotriggerINVERTMINMAX))

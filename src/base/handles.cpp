@@ -28,6 +28,12 @@ std::pair<int32_t, int32_t> rpos_handle_t::xy() const
 	return COMBOXY_REGION(rpos);
 }
 
+std::pair<int32_t, int32_t> rpos_handle_t::center_xy() const
+{
+	auto [cx, cy] = xy();
+	return {cx + 8, cy + 8};
+}
+
 void rpos_handle_t::set_data(int32_t value) const
 {
 	scr->data[pos] = value;
@@ -95,6 +101,11 @@ std::pair<int32_t, int32_t> ffc_handle_t::xy() const
 	return {ffc->x, ffc->y};
 }
 
+std::pair<int32_t, int32_t> ffc_handle_t::center_xy() const
+{
+	return {ffc->x + ffc->hit_width / 2, ffc->y + ffc->hit_height / 2};
+}
+
 int32_t ffc_handle_t::data() const
 {
 	return ffc->data;
@@ -151,6 +162,14 @@ bool combined_handle_t::is_ffc() const
 {
 	return !std::holds_alternative<rpos_handle_t>(*this);
 }
+rpos_handle_t const& combined_handle_t::get_rpos() const
+{
+	return std::get<rpos_handle_t>(*this);
+}
+ffc_handle_t const& combined_handle_t::get_ffc() const
+{
+	return std::get<ffc_handle_t>(*this);
+}
 
 mapscr* combined_handle_t::base_scr() const
 {
@@ -190,4 +209,18 @@ int32_t combined_handle_t::id() const
 	}
 
 	return std::get<ffc_handle_t>(*this).id;
+}
+
+std::pair<int32_t, int32_t> combined_handle_t::xy() const
+{
+	if (std::holds_alternative<rpos_handle_t>(*this))
+		return std::get<rpos_handle_t>(*this).xy();
+	return std::get<ffc_handle_t>(*this).xy();
+}
+
+std::pair<int32_t, int32_t> combined_handle_t::center_xy() const
+{
+	if (std::holds_alternative<rpos_handle_t>(*this))
+		return std::get<rpos_handle_t>(*this).center_xy();
+	return std::get<ffc_handle_t>(*this).center_xy();
 }
