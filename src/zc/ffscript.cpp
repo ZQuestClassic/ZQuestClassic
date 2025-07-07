@@ -5415,7 +5415,7 @@ int32_t get_register(int32_t arg)
 				
 			break;
 		case EWPNTOTALDYOFFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret = ((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0) * 10000);
