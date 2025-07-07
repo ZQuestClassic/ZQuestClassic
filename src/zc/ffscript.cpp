@@ -2599,7 +2599,7 @@ void deallocateArray(const int32_t ptrval)
 	}
 }
 
-void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways)
+void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID)
 {
 	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
 	{
@@ -2628,17 +2628,6 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
 		script_objects[q].own_clear(scriptType, UID);
-	}
-	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
-	{
-		//Keep 2.50.2 behavior if QR unchecked.
-		switch(scriptType)
-		{
-			case ScriptType::FFC:
-			case ScriptType::Item:
-			case ScriptType::Global:
-				return;
-		}
 	}
 
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -2684,17 +2673,6 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 	{
 		if (script_objects[q].owned_type == scriptType)
 			script_objects[q].own_clear_any();
-	}
-	if (!get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
-	{
-		//Keep 2.50.2 behavior if QR unchecked.
-		switch(scriptType)
-		{
-			case ScriptType::FFC:
-			case ScriptType::Item:
-			case ScriptType::Global:
-				return;
-		}
 	}
 
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -29057,7 +29035,7 @@ void do_own_array(int arrindx, ScriptType scriptType, const int32_t UID)
 	
 	if(am.internal())
 	{
-		Z_scripterrlog("Cannot 'OwnArray()' an internal array '%d'\n", arrindx);
+		Z_scripterrlog_force_trace("Cannot 'OwnArray()' an internal array '%d'\n", arrindx);
 		return;
 	}
 	if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
@@ -29071,9 +29049,9 @@ void do_own_array(int arrindx, ScriptType scriptType, const int32_t UID)
 			arrayOwner[arrindx].reown(scriptType, UID);
 		}
 		else if(arrindx < 0) //object array
-			Z_scripterrlog("Cannot 'OwnArray()' an object-based array '%d'\n", arrindx);
+			Z_scripterrlog_force_trace("Cannot 'OwnArray()' an object-based array '%d'\n", arrindx);
 	}
-	else Z_scripterrlog("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
+	else Z_scripterrlog_force_trace("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
 }
 void do_destroy_array()
 {
@@ -29083,7 +29061,7 @@ void do_destroy_array()
 	
 	if(am.internal())
 	{
-		Z_scripterrlog("Cannot 'DestroyArray()' an internal array '%d'\n", arrindx);
+		Z_scripterrlog_force_trace("Cannot 'DestroyArray()' an internal array '%d'\n", arrindx);
 		return;
 	}
 	
@@ -29103,9 +29081,9 @@ void do_destroy_array()
 			arrayOwner[arrindx].specCleared = true;
 		}
 		else if(arrindx < 0) //object array
-			Z_scripterrlog("Cannot 'DestroyArray()' an object-based array '%d'\n", arrindx);
+			Z_scripterrlog_force_trace("Cannot 'DestroyArray()' an object-based array '%d'\n", arrindx);
 	}
-	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
+	else Z_scripterrlog_force_trace("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 void do_allocatemem(const bool v, const bool local, ScriptType type, const uint32_t UID)
 {
@@ -29114,7 +29092,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 	
 	if(size < 0)
 	{
-		Z_scripterrlog("Array initialized to invalid size of %d\n", size);
+		Z_scripterrlog_force_trace("Array initialized to invalid size of %d\n", size);
 		set_register(sarg1, 0); //Pass back NULL
 		return;
 	}
@@ -29126,7 +29104,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 		
 		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
-			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
+			Z_scripterrlog_force_trace("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
 			ptrval = 0;
 		}
 		else
@@ -29150,7 +29128,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 		
 		if(ptrval >= game->globalRAM.size())
 		{
-			al_trace("Invalid pointer value of %u passed to global allocate\n", ptrval);
+			Z_scripterrlog_force_trace("Invalid pointer value of %u passed to global allocate\n", ptrval);
 			//this shouldn't happen, unless people are putting ALLOCATEGMEM in their ZASM scripts where they shouldn't be
 		}
 		
