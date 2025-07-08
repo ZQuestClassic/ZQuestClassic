@@ -214,8 +214,6 @@ static AccessorTable CombosTable[] =
 	{ "setSkipAnim",                0,          ZTID_VOID,   COMBODSKIPANIM,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getUserFlags",               0,         ZTID_FLOAT,   COMBODUSRFLAGS,            0,  { ZTID_COMBOS },{} },
 	{ "setUserFlags",               0,          ZTID_VOID,   COMBODUSRFLAGS,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
-	{ "getExpansion[]",             0,         ZTID_FLOAT,   COMBODEXPANSION,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
-	{ "setExpansion[]",             0,          ZTID_VOID,   COMBODEXPANSION,           0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "getNextTimer",               0,         ZTID_FLOAT,   COMBODNEXTTIMER,           0,  { ZTID_COMBOS },{} },
 	{ "setNextTimer",               0,          ZTID_VOID,   COMBODNEXTTIMER,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getTriggerFlags[]",          0,         ZTID_FLOAT,   COMBODTRIGGERFLAGS,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
