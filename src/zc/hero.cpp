@@ -3282,6 +3282,7 @@ void HeroClass::prompt_draw(BITMAP* dest)
 	int32_t sx = real_x(x+xofs+prompt_x);
 	int32_t sy = real_y(y + yofs + prompt_y) - real_z(z + zofs);
 	sy -= fake_z(fakez);
+	if(combobuf[prompt_combo].animflags & AF_EDITOR_ONLY) return;
 	overcombo(dest, sx - viewport.x, sy - viewport.y, prompt_combo, prompt_cset);
 	return;
 }

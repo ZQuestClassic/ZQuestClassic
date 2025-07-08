@@ -258,6 +258,7 @@ namespace combo_caches
 		byte type;
 		byte frames;
 		byte skipanimy;
+		byte animflags;
 
 		minicombo_drawing() = default;
 		minicombo_drawing(const newcombo& combo)
@@ -268,6 +269,7 @@ namespace combo_caches
 			type = combo.type;
 			frames = combo.frames;
 			skipanimy = combo.skipanimy;
+			animflags = combo.animflags;
 		}
 	};
 	extern combo_cache<minicombo_drawing> drawing;

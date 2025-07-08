@@ -3533,9 +3533,12 @@ void bombdoor(int32_t x,int32_t y)
 void draw_cmb(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset,
 	bool over, bool transp)
 {
+	auto& cmb = combobuf[cid];
+	if(cmb.animflags & AF_EDITOR_ONLY)
+		return;
 	if(over)
 	{
-		if(combobuf[cid].animflags & AF_TRANSPARENT)
+		if(cmb.animflags & AF_TRANSPARENT)
 			transp = !transp;
 		if(transp)
 			overcombotranslucent(dest, x, y, cid, cset, 128);

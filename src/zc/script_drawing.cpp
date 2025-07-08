@@ -1361,6 +1361,7 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     int32_t y1=sdci[3]/10000;
     
     auto& c = GET_DRAWING_COMBO(cmb);
+	if(c.animflags & AF_EDITOR_ONLY) return;
     int32_t tiletodraw = combo_tile(c, x1, y1);
     int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
     int32_t skiprows=c.skipanimy;
@@ -1517,6 +1518,7 @@ void do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	
 	auto& c = GET_DRAWING_COMBO(cmb);
 	int32_t tiletodraw = combo_tile(c, x1, y1);
+	if(c.animflags & AF_EDITOR_ONLY) return;
 	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
 	int32_t skiprows=c.skipanimy;
 	
@@ -1587,6 +1589,7 @@ void do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		Z_scripterrlog("FastCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
+	if(combobuf[cmb].animflags & AF_EDITOR_ONLY) return;
 
 	int x = xoffset+x1;
 	int y = yoffset+y1;
@@ -1622,11 +1625,13 @@ void do_fastcombosr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
 	
 	for ( int32_t q = 0; q < sz; q+=5 )
 	{
-		if((unsigned)(v.at(q+2)) >= MAXCOMBOS)
+		auto cid = v.at(q+2);
+		if((unsigned)(cid) >= MAXCOMBOS)
 		{
 			Z_scripterrlog("FastCombos() cannot draw combo '%d', as it is out of bounds.\n", v.at(q+2));
 			continue;
 		}
+		if(combobuf[cid].animflags & AF_EDITOR_ONLY) continue;
 		if(v.at(q+4) < 128)
 		{
 			overcomboblocktranslucent(bmp, xoffset+v.at(q), yoffset+v.at(q+1), v.at(q+2), v.at(q+3), 1, 1, 128);
@@ -2273,7 +2278,8 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
-        TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
+		if(!(c.animflags & AF_EDITOR_ONLY))
+			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
     
     V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
@@ -2362,7 +2368,8 @@ void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
-        TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
+        if(!(c.animflags & AF_EDITOR_ONLY))
+			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
     
     V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
@@ -3824,7 +3831,8 @@ void do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
-        TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
+        if(!(c.animflags & AF_EDITOR_ONLY))
+			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
     }
     
     V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
@@ -3907,7 +3915,8 @@ void do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
-        TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
+        if(!(c.animflags & AF_EDITOR_ONLY))
+			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
     }
     
     V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
@@ -4813,6 +4822,7 @@ void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
     int32_t y1=sdci[3]/10000;
     
     auto& c = GET_DRAWING_COMBO(cmb);
+	if(c.animflags & AF_EDITOR_ONLY) return;
     int32_t tiletodraw = combo_tile(c, x1, y1);
     int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
     int32_t skiprows=c.skipanimy;
@@ -4983,6 +4993,7 @@ void bmp_do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	int32_t y1=sdci[3]/10000;
 	
 	auto& c = GET_DRAWING_COMBO(cmb);
+	if(c.animflags & AF_EDITOR_ONLY) return;
 	int32_t tiletodraw = combo_tile(c, x1, y1);
 	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
 	int32_t skiprows=c.skipanimy;
@@ -5182,6 +5193,7 @@ void bmp_do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
 		Z_scripterrlog("FastCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
+	if(combobuf[cmb].animflags & AF_EDITOR_ONLY) return;
     
     if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 
@@ -6062,7 +6074,8 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			const int32_t tiletodraw = combo_tile(c, x1, y1);
 			flip = flip ^ c.flip;
 		
-			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
+			if(!(c.animflags & AF_EDITOR_ONLY))
+				TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
 		}
 		if(((w-1) & w) != 0 || ((h-1) & h) != 0)
 		{
@@ -6233,7 +6246,8 @@ void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
-        TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
+        if(!(c.animflags & AF_EDITOR_ONLY))
+			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
     if ( !tex_is_bitmap )
     {
@@ -10526,7 +10540,8 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
-		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
+		if(!(c.animflags & AF_EDITOR_ONLY))
+			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
 		}
 		
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
@@ -10660,7 +10675,8 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffs
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
-		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
+		if(!(c.animflags & AF_EDITOR_ONLY))
+			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
 		}
 		
 		V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
@@ -10734,6 +10750,7 @@ void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transpar
 	{
 		const int32_t x2 = ((i&15)<<4) + x;
 		const int32_t y2 = (i&0xF0) + y;
+		if(combobuf[m.data[i]].animflags & AF_EDITOR_ONLY) continue;
 		
 		if(transparent != transparent_combo(m.data[i]))
 		{
@@ -11230,6 +11247,7 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
 		{
 			const int32_t x2 = ((i&15)<<4) + x1;
 			const int32_t y2 = (i&0xF0) + y1;
+			if(combobuf[l.data[i]].animflags & AF_EDITOR_ONLY) continue;
 			
 			if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
 			{
@@ -11376,6 +11394,7 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
             //if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
                 auto& c = GET_DRAWING_COMBO(l.data[i]);
+				if(c.animflags & AF_EDITOR_ONLY) continue;
                 const int32_t tile = combo_tile(c, x2, y2);
 
                 if(opacity < 128 != transparent_combo(l.data[i]))
