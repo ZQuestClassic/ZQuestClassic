@@ -19811,6 +19811,10 @@ void setupscreen()
 			item* curItem = ((item*)items.spr(items.Count()-1));
 			curItem->PriceIndex = i;
 			newcombo const& cmb = combobuf[bst.comb[i]];
+			if(cmb.animflags & AF_EDITOR_ONLY)
+			{
+				curItem->yofs = -32768;
+			}
 			curItem->o_tile = cmb.o_tile;
 			curItem->o_cset = bst.cset[i];
 			curItem->cs = curItem->o_cset;

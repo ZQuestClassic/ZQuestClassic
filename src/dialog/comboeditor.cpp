@@ -2643,6 +2643,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							{
 								SETFLAG(local_comboref.animflags,AF_TRANSPARENT,state);
 							}
+						),
+						Checkbox(
+							text = "Only Visible In Editor", hAlign = 0.0,
+							checked = local_comboref.animflags & AF_EDITOR_ONLY,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_comboref.animflags,AF_EDITOR_ONLY,state);
+							}
 						)
 					)
 				)),

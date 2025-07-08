@@ -182,6 +182,7 @@ struct newcombo
 #define AF_CYCLENOCSET                  0x04
 #define AF_TRANSPARENT                  0x08
 #define AF_CYCLEUNDERCOMBO              0x10
+#define AF_EDITOR_ONLY                  0x20
 
 //triggerflags[0]
 #define combotriggerSWORD               0x00000001
