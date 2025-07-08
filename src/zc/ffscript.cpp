@@ -28665,6 +28665,7 @@ int32_t ffscript_engine(const bool preload)
 	if(preload)
 	{
 		throwGenScriptEvent(GENSCR_EVENT_FFC_PRELOAD);
+		handle_region_load_trigger();
 	}
 
 	if (!FFCore.system_suspend[susptSCREENSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !get_qr(qr_ZS_OLD_SUSPEND_FFC))

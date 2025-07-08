@@ -2639,7 +2639,9 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	}
 	if(trig.trigprox) //Proximity requirement
 	{
-		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
+		zfix cx2 = cx + FFCore.ScrollingData[SCROLLDATA_NX];
+		zfix cy2 = cy + FFCore.ScrollingData[SCROLLDATA_NY];
+		word d = word(dist(Hero.getX(), Hero.getY(), cx2, cy2).getInt());
 		if(trig.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
 		{
 			if(d < trig.trigprox || !is_active_screen) //inside, cancel
