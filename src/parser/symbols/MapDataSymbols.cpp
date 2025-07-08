@@ -310,9 +310,6 @@ static AccessorTable MapDataTable[] =
 	{ "setEntryX",                  0,          ZTID_VOID,   MAPDATAENTRYX,              FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "getEntryY",                  0,         ZTID_FLOAT,   MAPDATAENTRYY,              FL_DEPR,  { ZTID_MAPDATA },{} },
 	{ "setEntryY",                  0,          ZTID_VOID,   MAPDATAENTRYY,              FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
-	{ "getNumFFCs[]",               0,          ZTID_BOOL,   MAPDATANUMFF,               FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
-	//read-only, for now?
-	{ "setNumFFCs[]",               0,          ZTID_VOID,   MAPDATANUMFF,     FL_DEPR|FL_RDONLY,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getLensLayer",               0,         ZTID_FLOAT,   MAPDATALENSLAYER,           FL_DEPR,  { ZTID_MAPDATA },{} },
 	{ "setLensLayer",               0,          ZTID_VOID,   MAPDATALENSLAYER,           FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	

@@ -376,8 +376,6 @@ static AccessorTable ScreenTable[] =
 	{ "setEnemyFlags",              0,          ZTID_VOID,   SCREENDATAENEMYFLAGS,        FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "getSideWarpIndex",           0,         ZTID_FLOAT,   SCREENDATASIDEWARPINDEX,     FL_DEPR,  { ZTID_SCREEN },{} },
 	{ "setSideWarpIndex",           0,          ZTID_VOID,   SCREENDATASIDEWARPINDEX,     FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	{ "getNumFFCs[]",               0,          ZTID_BOOL,   SCREENDATANUMFF,             FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	{ "setNumFFCs[]",               0,          ZTID_VOID,   SCREENDATANUMFF,             FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getEntryX",                  0,         ZTID_FLOAT,   SCREENDATAENTRYX,            FL_DEPR,  { ZTID_SCREEN },{},0,"Use 'Hero->RespawnX' instead!" },
 	{ "setEntryX",                  0,          ZTID_VOID,   SCREENDATAENTRYX,            FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{},0,"Use 'Hero->RespawnX' instead!" },
 	{ "getEntryY",                  0,         ZTID_FLOAT,   SCREENDATAENTRYY,            FL_DEPR,  { ZTID_SCREEN },{},0,"Use 'Hero->RespawnY' instead!" },
