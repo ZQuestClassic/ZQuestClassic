@@ -68,6 +68,8 @@ drop 41139dde14d5cfa964c555695f478feb320c9dd0 fix: use correct app id in zalleg_
 drop 35505498d5a8e2c2668eb7a1d21715ed9af3900a fix(zq): add missing sideview ladder flags to top row of item cellar and passageway
 drop 7f249ee2ec123fefdbc69b968d8f99fe71bf5c82 fix(zscript): fix broken array literals when declared as array pointers
 drop 8a3f7b5de7d814cdd8598fb3d8a9e72682f5e153 fix(zscript): internal label error in some cases
+drop dc424156c65998ec48c39d83768815c01d90331e docs(zscript): clean up docs for some global functions
+drop fafa5cba970453584766fcf419ef03fdf7e87cd0 fix: prevent rare crash related to loading fake weapon script
 
 reword 383b5d34a6d33963e0a0caef3f6ff2c1c49d920b refactor(zq): upgrade sprite data list dialog
 reword c4a6d8b720e294688fa688828f276e2caf5c1584 refactor(zq): clean up `Quest->Audio->MIDIs` lister
