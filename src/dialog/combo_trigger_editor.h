@@ -23,15 +23,14 @@ bool call_trigger_editor(ComboEditorDialog& dlg, size_t index);
 class ComboTriggerDialog: public GUI::Dialog<ComboTriggerDialog>
 {
 public:
-	enum class message { REFR_INFO, OK, CANCEL, CLEAR, WARNINGS };
+	enum class message { REFR_INFO, OK, CANCEL, CLEAR, WARNINGS, PLUSTRIGGER, MINUSTRIGGER };
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	combo_trigger local_ref;
-	combo_trigger& dest_ref;
-	newcombo const& parent_comboref;
+	newcombo& parent_comboref;
 	size_t index;
 	ComboEditorDialog const& parent;
 	vector<string> warnings;
@@ -44,6 +43,7 @@ private:
 	ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigger& trigger, size_t index);
 	
 	void updateWarnings();
+	bool apply_trigger();
 	
 	std::shared_ptr<GUI::Checkbox> TRIGFLAG(int index, const char* str, int cspan = 1, bool right = false);
 	friend bool call_trigger_editor(ComboEditorDialog& dlg, size_t index);

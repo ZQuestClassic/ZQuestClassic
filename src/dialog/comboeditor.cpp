@@ -3580,9 +3580,6 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::PLUSCOMBO:
 		{
-			// We could remove this check, but user would not really know what combo they were editing any more.
-			// If we showed the current tile in the corner somewhere, we could remove this.
-			//if(cmb_tabs[0]) break; //I think it's fine, honestly? Combo number is in the title bar. -Em
 			if(index == combobuf.size() - 1) break;
 
 			apply_combo();
@@ -3593,9 +3590,6 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::MINUSCOMBO:
 		{
-			// We could remove this check, but user would not really know what combo they were editing any more.
-			// If we showed the current tile in the corner somewhere, we could remove this.
-			//if(cmb_tabs[0]) break; //I think it's fine, honestly? Combo number is in the title bar. -Em
 			if(index==0) break;
 
 			apply_combo();
