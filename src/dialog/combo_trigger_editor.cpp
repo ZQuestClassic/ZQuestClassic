@@ -30,7 +30,7 @@ bool call_trigger_editor(ComboEditorDialog& parentdlg, size_t index)
 }
 
 ComboTriggerDialog::ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigger& trigger, size_t index):
-	local_ref(trigger), dest_ref(trigger), parent(parentdlg),
+	local_ref(parentdlg.local_comboref.triggers[index]), parent(parentdlg),
 	parent_comboref(parentdlg.local_comboref), index(index)
 {}
 
@@ -181,10 +181,16 @@ static bool has_trigger_effect(combo_trigger const& trig)
 void ComboTriggerDialog::updateWarnings()
 {
 	warnings.clear();
-	if(!has_trigger_cause(local_ref))
-		warnings.emplace_back("Trigger has no 'Cause', and will never be triggered!");
-	if(!has_trigger_effect(local_ref))
-		warnings.emplace_back("Trigger has no 'Effect', and will do nothing!");
+	bool cause = has_trigger_cause(local_ref);
+	bool effect = has_trigger_effect(local_ref);
+	bool tgroup = local_ref.triggerflags[3] & combotriggerTGROUP_CONTRIB;
+	if(!tgroup || (cause != effect))
+	{
+		if(!cause)
+			warnings.emplace_back("Trigger has no 'Cause', and will never be triggered!");
+		if(!effect)
+			warnings.emplace_back("Trigger has no 'Effect', and will do nothing!");
+	}
 	if((local_ref.triggerflags[0] & (combotriggerKILLWPN)) || (local_ref.triggerflags[3] & (combotriggerIGNITE_ANYFIRE|
 		combotriggerIGNITE_STRONGFIRE|combotriggerIGNITE_MAGICFIRE|combotriggerIGNITE_DIVINEFIRE|combotriggerSEPARATEWEAPON)))
 	{
@@ -215,8 +221,16 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 	window = Window(
 		use_vsync = true,
 		title = fmt::format("Combo Trigger Editor ({}: {})", index, local_ref.label),
-		info = "Edit combo triggers, setting up their causes, conditions, and effects.",
+		info = "Edit combo triggers, setting up their causes, conditions, and effects."
+			"Hotkeys:\n"
+			"Shift -/+: Change Trigger\n",
 		onClose = message::CANCEL,
+		shortcuts={
+			Shift+Minus=message::MINUSTRIGGER,
+			Shift+MinusPad=message::MINUSTRIGGER,
+			Shift+Equals=message::PLUSTRIGGER,
+			Shift+PlusPad=message::PLUSTRIGGER,
+		},
 		Column(
 			Row(
 				Label(text = "Label:"),
@@ -1627,6 +1641,29 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 	return window;
 }
 
+bool ComboTriggerDialog::apply_trigger()
+{
+	updateWarnings();
+	if(warnings.size())
+	{
+		bool cancel = false;
+		AlertDialog alert("Warnings",warnings,[&](bool ret,bool)
+			{
+				if(!ret) cancel = true;
+			});
+		alert.setSubtext("The following issues were found with this trigger:");
+		alert.show();
+		if(cancel)
+			return false;
+	}
+	
+	if(!hasCTypeEffects(parent_comboref.type))
+		local_ref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
+	edited = true;
+	parent_comboref.triggers[index] = local_ref;
+	return true;
+}
+
 bool ComboTriggerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
@@ -1657,29 +1694,31 @@ bool ComboTriggerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		}
 		case message::OK:
-		{
-			updateWarnings();
-			if(warnings.size())
-			{
-				bool cancel = false;
-				AlertDialog alert("Warnings",warnings,[&](bool ret,bool)
-					{
-						if(!ret) cancel = true;
-					});
-				alert.setSubtext("The following issues were found with this trigger:");
-				alert.show();
-				if(cancel)
-					return false;
-			}
-			
-			if(!hasCTypeEffects(parent_comboref.type))
-				local_ref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
-			edited = true;
-			dest_ref = local_ref;
-			return true;
-		}
+			return apply_trigger();
 		case message::CANCEL:
 			return true;
+		case message::PLUSTRIGGER:
+		{
+			if(index == parent_comboref.triggers.size() - 1)
+				return false;
+
+			apply_trigger();
+			index += 1;
+			local_ref = parent_comboref.triggers[index];
+			rerun_dlg = true;
+			return true;
+		}
+		case message::MINUSTRIGGER:
+		{
+			if(index==0)
+				return false;
+
+			apply_trigger();
+			index -= 1;
+			local_ref = parent_comboref.triggers[index];
+			rerun_dlg = true;
+			return true;
+		}
 	}
 	return false;
 }
