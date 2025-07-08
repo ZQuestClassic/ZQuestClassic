@@ -21599,10 +21599,16 @@ static bool compat_qr_hide_bottom_pixels(const zquestheader& header)
 	if (replay_is_replaying() && replay_get_meta_str("zc_version_created").starts_with("2.55"))
 		return true;
 
+	// Quests prior to 2.55.9 with a scripted subscreen?
+	for (int i = 0; i < MAXDMAPS; i++)
+	{
+		int script = DMaps[i].active_sub_script;
+		if (script && dmapscripts[script] && dmapscripts[script]->valid())
+			return true;
+	}
+
 	// Only a couple quests take any time (~7ms) on my intel mac to check all the ZASM... cache those.
 	std::string title = header.title;
-	if (title == "Stellar Seas")
-		return false;
 	if (title == "Yuurand: Tales of the Labyrinth")
 		return true;
 
