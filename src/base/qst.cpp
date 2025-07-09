@@ -3460,7 +3460,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (compatrule_version < 81 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
 		set_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL, 1);
 
-	if (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 6) < 0)
+	if (compatrule_version < 81 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 6) < 0))
 		set_qr(qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
