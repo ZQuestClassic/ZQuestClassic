@@ -39,7 +39,7 @@ private:
 	std::map<int32_t,int32_t> switchids;
 	zinitdata local_zinit;
 	size_t levelsOffset;
-	GUI::ListData list_dmaps, list_items, list_genscr;
+	GUI::ListData list_dmaps, list_items, list_genscr, list_bottle_content;
 	bool isZC;
 	
 	std::function<void(zinitdata const&)> setVals;

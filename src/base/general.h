@@ -204,6 +204,7 @@ int wrap(int x,int low,int high);
 #define NUM_WARP_RINGS             9
 #define NUM_BOTTLE_TYPES           64
 #define NUM_BOTTLE_SHOPS           256
+#define NUM_BOTTLE_SLOTS           256
 
 #define QSTPWD_LEN                 256
 

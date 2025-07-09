@@ -82,6 +82,8 @@ struct zinitdata
 	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
 	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0}};
 	
+	byte bottle_slot[NUM_BOTTLE_SLOTS];
+	
 	bool get_item(size_t ind) const {return get_bit(items,ind);}
 	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
 	
