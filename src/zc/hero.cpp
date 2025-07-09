@@ -14573,7 +14573,7 @@ void HeroClass::moveheroOld()
 	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
 	if(liftonly)
 	{
-		if(replay_version_check(38))
+		if(replay_version_check(38) && btnwpn > -1)
 		{
 			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 			no_jinx = checkitem_jinx(itmid);
@@ -18978,7 +18978,7 @@ bool HeroClass::premove()
 	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
 	if(liftonly)
 	{
-		if(replay_version_check(38))
+		if(replay_version_check(38) && btnwpn > -1)
 		{
 			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 			no_jinx = checkitem_jinx(itmid);
