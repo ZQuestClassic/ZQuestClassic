@@ -3457,6 +3457,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_SYSTEM_COLORS, 1);
 	if (compatrule_version < 80)
 		set_qr(qr_ZS_OLD_SUSPEND_FFC, 1);
+	if (compatrule_version < 81 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
+		set_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL, 1);
 
 	if (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 6) < 0)
 		set_qr(qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE, 1);
