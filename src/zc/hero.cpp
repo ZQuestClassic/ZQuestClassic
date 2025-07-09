@@ -10137,6 +10137,7 @@ heroanimate_skip_liftwpn:;
 			
 			if (dx || dy) 
 			{
+				reset_hookshot();
 				int32_t pushret = push_move(dx,dy);
 				onplatform = (on_sideview_solid_oldpos(this, false, 1) && !Up());
 				if (s.slope() != slopeid && slopeid) staircheck = true;
