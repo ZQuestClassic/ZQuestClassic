@@ -33,9 +33,14 @@ namespace util
 	}
 
 	template <typename T>
-	void remove_if_exists(std::vector<T>& vec, const T& item)
+	bool remove_if_exists(std::vector<T>& vec, const T& item)
 	{
-		vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
+		auto it = std::remove(vec.begin(), vec.end(), item);
+		if (it == vec.end())
+			return false;
+
+		vec.erase(it, vec.end());
+		return true;
 	}
 
 	template<typename TInputIter>

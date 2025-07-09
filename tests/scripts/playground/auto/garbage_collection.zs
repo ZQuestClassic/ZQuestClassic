@@ -59,6 +59,18 @@ class Empty
 {
 }
 
+class SelfRetainingRng
+{
+	SelfRetainingRng self;
+	randgen rng;
+
+	SelfRetainingRng(randgen rng)
+	{
+		this->self = self;
+		this->rng = rng;
+	}
+}
+
 generic script garbage_collection
 {
 	Person people[10];
@@ -101,15 +113,24 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			Person a = new Person();
-			// Variables count as a reference, but all new objects are added to an
-			// "autorelease" pool that retains an implicit reference until the pool is drained.
-			check("(1) RefCount(a)", RefCount(a), 2L);
+
+			// Variables retain objects.
+			check("(1) RefCount(a)", RefCount(a), 1L);
+			check("count", count, 1);
+			a = NULL;
+			check("count", count, 0);
+
+			// All new objects are added to an "autorelease" pool that retains an implicit reference
+			// until the pool is drained, or until it is retained in some other way (such as assigning
+			// to a variable).
+			check("RefCount(new Person())", RefCount(new Person()), 1L);
+			check("count", count, 1); // It still exists.
 			// The autorelease pool is drained when the script yields.
 			yield();
-			// The autorelease pool was drained.
-			check("(2) RefCount(a)", RefCount(a), 1L);
-			// Variables hold an object reference until the end of their scope, so the Person
-			// has not been deleted yet.
+			check("count", count, 0);
+
+			// Variables retain objects until the end of their scope.
+			a = new Person();
 			checkCountWithGC(1);
 		}
 		// Now it's been deleted.
@@ -117,9 +138,16 @@ generic script garbage_collection
 
 		printf("=== Test %d === \n", ++tests);
 		{
-			Person a = new Person();
-			// Get `a` down to one reference.
+			new Person();
+			// This Person was not stored in a variable, so it is deleted the
+			// next time the autorelease pool is drained.
 			yield();
+			check("count", count, 0);
+		}
+
+		printf("=== Test %d === \n", ++tests);
+		{
+			Person a = new Person();
 			check("RefCount(a)", RefCount(a), 1L);
 			a = a;
 			check("RefCount(a)", RefCount(a), 1L);
@@ -129,19 +157,9 @@ generic script garbage_collection
 
 		printf("=== Test %d === \n", ++tests);
 		{
-			const Person a = new Person();
-			// Get `a` down to one reference.
-			yield();
-			check("RefCount(a)", RefCount(a), 1L);
-			checkCountWithGC(1);
-		}
-		checkCountWithGC(0);
-
-		printf("=== Test %d === \n", ++tests);
-		{
 			Person a = new Person();
 			a->hat = new Hat();
-			check("RefCount(a->hat)", RefCount(a->hat), 2L);
+			check("RefCount(a->hat)", RefCount(a->hat), 1L);
 			checkCountWithGC(2);
 		}
 		yield();
@@ -151,7 +169,6 @@ generic script garbage_collection
 		{
 			Person a = new Person();
 			Person b = new Person();
-			yield();
 
 			a->shakeHands(b);
 			check("RefCount(a)", RefCount(a), 1L);
@@ -167,7 +184,6 @@ generic script garbage_collection
 		// {
 		// 	Person a = new Person();
 		// 	Person b = new Person();
-		// 	yield();
 		//
 		// 	new Person()->waitThenShakeHands(b);
 		// 	check("RefCount(b)", RefCount(b), 1L);
@@ -190,8 +206,7 @@ generic script garbage_collection
 			{
 				randgen rng = Game->LoadRNG();
 				scratch = <untyped>rng;
-				check("RefCount(rng)", RefCount(rng), 2L);
-				yield();
+				check("RefCount(rng)", RefCount(rng), 1L);
 			}
 			// Now it's been deleted.
 			check("RefCount(scratch)", RefCount(scratch), -1L);
@@ -203,27 +218,17 @@ generic script garbage_collection
 			{
 				const randgen rng = Game->LoadRNG();
 				scratch = <untyped>rng;
-				check("RefCount(rng)", RefCount(rng), 2L);
-				yield();
+				check("RefCount(rng)", RefCount(rng), 1L);
 			}
 			// Now it's been deleted.
 			check("RefCount(scratch)", RefCount(scratch), -1L);
 		}
 
-		printf("=== Test %d === \n", ++tests);
-		{
-			new Person();
-			// This Person was not stored in a variable, so it is deleted the
-			// next time the autorelease pool is drained.
-			yield();
-			check("count", count, 0);
-		}
-
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - GC keeps objects in autorelease pool === \n", ++tests);
 		{
 			new Person();
 			GC();
-			check("count", count, 0);
+			check("count", count, 1);
 		}
 
 		printf("=== Test %d === \n", ++tests);
@@ -253,22 +258,14 @@ generic script garbage_collection
 			// Cheeky little test. `count` should be evaluated as 0, then 1, then 2.
 			int c = count + (new Person())->age + count + (new Person())->age + count;
 			check("c", c, 3);
-			GC();
+			yield();
 			// Now `count` is back to 0.
 			checkCountWithGC(0);
 		}
 
 		printf("=== Test %d === \n", ++tests);
 		{
-			check("RefCount(new Person())", RefCount(new Person()), 1L);
-			yield();
-			checkCountWithGC(0);
-		}
-
-		printf("=== Test %d === \n", ++tests);
-		{
 			auto a = new Person();
-			yield();
 			globalPerson = a;
 			check("RefCount(a)", RefCount(a), 2L);
 			checkCountWithGC(1);
@@ -280,38 +277,23 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 			usePerson1(a);
 			check("RefCount(a)", RefCount(a), 1L);
 			checkCountWithGC(1);
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - pass free object as parameter === \n", ++tests);
 		{
 			usePerson2(new Person());
-			yield();
 			checkCountWithGC(0);
 		}
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - functions add returned objects to autorelease pool === \n", ++tests);
 		{
+			// Functions add their return value to the autorelease pool so that they can't possibly
+			// hit 0 when returning.
 			Person a = usePerson3(new Person());
-			// `usePerson3` calls Waitframe, so the extra reference here
-			// is not from the initial creation being added to the autorelease pool.
-			// Instead, functions add their return value to the autorelease pool
-			// so that they can't possible hit 0 when returning.
-			check("RefCount(a)", RefCount(a), 2L);
-			yield();
-			check("RefCount(a)", RefCount(a), 1L);
-			checkCountWithGC(1);
-		}
-		checkCountWithGC(0);
-
-		printf("=== Test %d === \n", ++tests);
-		{
-			Person a = usePerson4(new Person());
-			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 			checkCountWithGC(1);
 		}
@@ -320,7 +302,6 @@ generic script garbage_collection
 		printf("=== Test %d - simple block === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 
 			{
 				auto b = a;
@@ -332,7 +313,6 @@ generic script garbage_collection
 		printf("=== Test %d - if === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 
 			if (a)
 			{
@@ -345,7 +325,6 @@ generic script garbage_collection
 		printf("=== Test %d - if w/ declaration === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 
 			if (auto b = a)
 				check("RefCount(b)", RefCount(b), 2L);
@@ -355,7 +334,6 @@ generic script garbage_collection
 		printf("=== Test %d - while === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 
 			int i = 0;
 			while (i < 3)
@@ -407,7 +385,6 @@ generic script garbage_collection
 		printf("=== Test %d - if w/ declaration inside while === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 
 			while (a)
 			{
@@ -430,7 +407,7 @@ generic script garbage_collection
 
 		// The next two tests excercise breaking from inner scopes when outer scopes still retain an
 		// object.
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - usePerson5 === \n", ++tests);
 		{
 			Person a = usePerson5(new Person(), false);
 			yield();
@@ -439,7 +416,7 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - usePerson5 === \n", ++tests);
 		{
 			Person a = usePerson5(new Person(), true);
 			yield();
@@ -448,25 +425,23 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - createPerson1 === \n", ++tests);
 		{
 			Person a = createPerson1();
-			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 			checkCountWithGC(1);
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - createPerson2 === \n", ++tests);
 		{
 			Person a = createPerson2();
-			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 			checkCountWithGC(1);
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - createPerson2 === \n", ++tests);
 		{
 			Person a = usePerson3(createPerson2());
 			yield();
@@ -478,7 +453,6 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			Person a = createPerson3();
-			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 			checkCountWithGC(1);
 		}
@@ -487,16 +461,6 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			auto a = new Person();
-			check("RefCount(a)", RefCount(a), 2L);
-			checkCountWithGC(1);
-			yield();
-		}
-		checkCountWithGC(0);
-
-		printf("=== Test %d === \n", ++tests);
-		{
-			auto a = new Person();
-			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 			auto b = a;
 			check("RefCount(a)", RefCount(a), 2L);
@@ -512,7 +476,6 @@ generic script garbage_collection
 			check("(1) count", count, 1);
 			Person b = new Person();
 			check("(2) count", count, 2);
-			yield();
 
 			check("(3) RefCount(a)", RefCount(a), 1L);
 			check("(4) RefCount(b)", RefCount(b), 1L);
@@ -526,7 +489,6 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 			people[0] = a;
 			people[5] = people[0];
 			check("RefCount(a)", RefCount(a), 3L);
@@ -545,7 +507,6 @@ generic script garbage_collection
 				Person b = new Person();
 				checkCountWithGC(2);
 			}
-			yield();
 			checkCountWithGC(1);
 		}
 		checkCountWithGC(0);
@@ -553,7 +514,6 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			auto a = new Person();
-			yield();
 			ArrayPushBack(people, a);
 			check("RefCount(a)", RefCount(a), 2L);
 			Person b = a;
@@ -595,7 +555,6 @@ generic script garbage_collection
 			Person a = new Person();
 			Person b = new Person();
 			a->children[0] = b;
-			yield();
 			check("RefCount(b)", RefCount(b), 2L);
 		}
 		checkCountWithGC(0);
@@ -603,7 +562,6 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 			a->children[0] = a;
 			check("RefCount(b)", RefCount(a), 2L);
 		}
@@ -616,7 +574,6 @@ generic script garbage_collection
 		{
 			Person a = new Person();
 			Person b = new Person();
-			yield();
 			a->children[0] = b;
 			b->children[0] = a;
 			check("RefCount(a)", RefCount(a), 2L);
@@ -635,7 +592,6 @@ generic script garbage_collection
 			Person a;
 			check("RefCount(a)", RefCount(a), -1L);
 			a = new Person();
-			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 			delete a;
 			check("RefCount(a)", RefCount(a), 1L);
@@ -644,12 +600,12 @@ generic script garbage_collection
 		checkCountWithGC(0);
 
 		// untyped does not increase reference count.
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - untyped === \n", ++tests);
 		{
 			untyped a = new Person();
 			check("RefCount(a)", RefCount(a), 1L);
 			check("(1) count", count, 1);
-			yield();
+			yield(); // Release the single reference, which is from the autorelease pool.
 			check("(2) count", count, 0);
 		}
 
@@ -657,6 +613,7 @@ generic script garbage_collection
 		{
 			untyped a = new Person();
 			Person b = a;
+			check("RefCount(a)", RefCount(a), 1L);
 			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 		}
@@ -666,7 +623,6 @@ generic script garbage_collection
 		{
 			untyped a = new Person();
 			Person b = a;
-			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 			b = NULL;
 			checkCountWithGC(0);
@@ -676,7 +632,6 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 			untyped arr[3] = {a, a, a};
 			check("RefCount(a)", RefCount(a), 1L);
 			a = NULL;
@@ -700,7 +655,6 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			Person a = new Person();
-			yield();
 			check("RefCount(a)", RefCount(a), 1L);
 			for (int i = 0; i < 10; i++)
 			{
@@ -722,8 +676,11 @@ generic script garbage_collection
 			for (int i = 0; i < 300; i++)
 			{
 				randgen rng = Game->LoadRNG();
-				if (<untyped>rng == 0)
-					printf("failed to allocate randgen\n");
+				if (rng == NULL)
+					Test::Fail("failed to allocate randgen");
+
+				auto retainer = new SelfRetainingRng(rng); // Only gets deleted after a full GC.
+				check("RefCount(rng)", RefCount(rng), 2L);
 			}
 			GC();
 		}
@@ -745,22 +702,18 @@ generic script garbage_collection
 		// }
 		// checkCountWithGC(0);
 
-		// Internal bitmaps aren't real script objects.
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - internal bitmaps === \n", ++tests);
 		{
+			// Internal bitmaps aren't real script objects.
 			bitmap internal_bmp_1 = Game->LoadBitmapID(RT_SCREEN);
 			bitmap internal_bmp_2 = Game->LoadBitmapID(RT_BITMAP0);
 			check("RefCount(internal_bmp_1)", RefCount(internal_bmp_1), -1L);
 			check("RefCount(internal_bmp_2)", RefCount(internal_bmp_2), -1L);
-
-			yield();
-			checkCountWithGC(0);
 			internal_bmp_2 = NULL;
-			checkCountWithGC(0);
 
+			// User bitmaps are.
 			internal_bmp_1 = new bitmap();
-			check("RefCount(internal_bmp_1)", RefCount(internal_bmp_1), 2L);
-			yield();
+			check("RefCount(internal_bmp_1)", RefCount(internal_bmp_1), 1L);
 		}
 		checkCountWithGC(0);
 
@@ -768,10 +721,9 @@ generic script garbage_collection
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is
 		// a memory leak.
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - GlobalObject === \n", ++tests);
 		{
 			auto a = new Person();
-			yield();
 			checkCountWithGC(1);
 			GlobalObject(a);
 		}
@@ -790,8 +742,7 @@ generic script garbage_collection
 
 	void usePerson2(Person person)
 	{
-		new Person();
-		check("RefCount(person)", RefCount(person), 2L);
+		check("RefCount(person)", RefCount(person), 1L);
 	}
 
 	Person usePerson3(Person person)

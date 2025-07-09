@@ -157,6 +157,10 @@ void register_script_object(user_abstract_obj* object, script_object_type type, 
 static void script_object_ref_inc(user_abstract_obj* object)
 {
 	object->ref_count++;
+
+	// Remove the autorelease pool when an object gets its first explicit retaining reference.
+	if (object->ref_count == 2 && util::remove_if_exists(script_object_autorelease_pool, object->id))
+		script_object_ref_dec(object->id);
 }
 
 void script_object_ref_inc(uint32_t id)
@@ -325,6 +329,8 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 			for (int i : data.ref.stack_pos_is_object)
 				live_object_ids.insert(data.stack[i]);
 		}
+		for (auto id : script_object_autorelease_pool)
+			live_object_ids.insert(id);
 	}
 
 	// Insert all root objects into worklist.
@@ -447,7 +453,6 @@ void run_gc()
 			usr_object->data.clear();
 		}
 
-		util::remove_if_exists(script_object_autorelease_pool, object->id);
 		delete_script_object(object->id);
 	}
 
