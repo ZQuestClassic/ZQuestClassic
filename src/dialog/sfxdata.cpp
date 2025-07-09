@@ -181,6 +181,8 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				change_sfx(&templist[index], temp_sample);
 				destroy_sample(temp_sample);
 				customsfx = 1;
+				rerun_dlg = true;
+				return true;
 			}
 		}
 		break;
@@ -197,6 +199,8 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				sfxname = old_sfx_string[index - 1];
 			}
 			else sfxname = name;
+			rerun_dlg = true;
+			return true;
 		}
 		break;
 	case message::PLAY:
