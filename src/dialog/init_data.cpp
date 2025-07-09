@@ -39,8 +39,11 @@ void call_init_dlg(zinitdata& sourcezinit, bool zc)
 }
 
 InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals):
-	local_zinit(start), levelsOffset(0), list_dmaps(GUI::ZCListData::dmaps(true)), list_items(GUI::ZCListData::itemclass(false)),
+	local_zinit(start), levelsOffset(0),
+	list_dmaps(GUI::ZCListData::dmaps(true)),
+	list_items(GUI::ZCListData::itemclass(false)),
 	list_genscr(GUI::ZCListData::generic_script()),
+	list_bottle_content(GUI::ZCListData::bottletype(true)),
 	isZC(zc), setVals(setVals)
 {}
 
@@ -300,6 +303,20 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	std::shared_ptr<GUI::Grid> scr_ctr_grid = Rows<3>();
 	for(int q = crCUSTOM1; q <= crCUSTOM100; ++q)
 		scr_ctr_grid->add(COUNTER_FRAME(q));
+	std::shared_ptr<GUI::Grid> bottle_content_grid = Rows<2>();
+	for(int q = 0; q < NUM_BOTTLE_SLOTS; ++q)
+	{
+		bottle_content_grid->add(Label(text = fmt::format("Bottle {}:",q), hAlign = 1.0));
+		bottle_content_grid->add(DropDownList(
+			data = list_bottle_content,
+			vPadding = 0_px, minwidth = 200_px,
+			selectedValue = local_zinit.bottle_slot[q],
+			onSelectFunc = [&, q](int32_t val)
+			{
+				local_zinit.bottle_slot[q] = val;
+			}
+		));
+	}
 	std::shared_ptr<GUI::Widget> counter_panel = TabPanel(
 			TabRef(name = "Engine", Column(
 				Checkbox(hAlign = 0.0,
@@ -422,8 +439,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					COUNTER_FRAME(crKEYS)
 				)
 			)),
-			TabRef(name = "Custom", Columns<5>(margins = 1_px,
+			TabRef(name = "Custom", Column(margins = 1_px,
 				ScrollingPane(fitParent = true, targHeight = 300_px, scr_ctr_grid)
+			)),
+			TabRef(name = "Bottles", Column(margins = 1_px,
+				ScrollingPane(fitParent = true, targHeight = 300_px, bottle_content_grid)
 			))
 		);
 	

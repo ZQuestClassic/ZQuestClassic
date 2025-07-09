@@ -1038,6 +1038,8 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	for(int32_t i=0; i<MAXLEVELS; i++)
 		game2->lvlitems[i] = zinit2->litems[i];
 	game2->lvlkeys = zinit2->level_keys;
+	for(uint q = 0; q < NUM_BOTTLE_SLOTS; ++q)
+		game2->bottleSlots[q] = zinit2->bottle_slot[q];
 	
 	game2->set_magic(zc_min(zinit2->counter[crMAGIC],zinit2->mcounter[crMAGIC]));
 	game2->set_magicdrainrate(zinit2->magicdrainrate);
@@ -1129,6 +1131,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(transdark_percent)
 
 #define LIST_ARRAY_PROPS \
+	ARRAY_PROP(bottle_slot) \
 	ARRAY_PROP(counter) \
 	BITSTR_PROP(gen_doscript) \
 	VEC_PROP(gen_eventstate) \

@@ -96,7 +96,7 @@ struct gamedata
 	int16_t abtn_itm = -1, bbtn_itm = -1, xbtn_itm = -1, ybtn_itm = -1;
 	int16_t forced_awpn = -1, forced_bwpn = -1, forced_xwpn = -1, forced_ywpn = -1;
 	
-	byte bottleSlots[256];
+	byte bottleSlots[NUM_BOTTLE_SLOTS];
 	
 	savedportal saved_mirror_portal;
 	
@@ -353,13 +353,13 @@ struct gamedata
 	
 	byte get_bottle_slot(dword slot)
 	{
-		if(slot > 255) return 0;
+		if(slot >= NUM_BOTTLE_SLOTS) return 0;
 		return bottleSlots[slot];
 	}
 	void set_bottle_slot(dword slot, byte val)
 	{
-		if(slot > 255) return;
-		if(val > 64) val = 0;
+		if(slot >= NUM_BOTTLE_SLOTS) return;
+		if(val > NUM_BOTTLE_TYPES) val = 0;
 		bottleSlots[slot] = val;
 	}
 	

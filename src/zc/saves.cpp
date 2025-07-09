@@ -866,7 +866,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		}
 		if(section_version >= 22)
 		{
-			for(int32_t j=0; j<256; ++j)
+			for(int32_t j=0; j<NUM_BOTTLE_SLOTS; ++j)
 			{
 				if(!p_getc(&(game.bottleSlots[j]),f))
 				{
@@ -1362,7 +1362,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 60;
 	if(!pfwrite(game.item_messages_played,MAXITEMS*sizeof(bool),f))
 		return 61;
-	if(!pfwrite(game.bottleSlots,256*sizeof(byte),f))
+	if(!pfwrite(game.bottleSlots,NUM_BOTTLE_SLOTS*sizeof(byte),f))
 		return 62;
 	if(!p_iputw(game.saved_mirror_portal.destdmap, f))
 		return 63;

@@ -14314,6 +14314,9 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(74);
 		if (!p_putc(zinit.region_mapping, f))
 			new_return(75);
+		for(uint q = 0; q < NUM_BOTTLE_SLOTS; ++q)
+			if (!p_putc(zinit.bottle_slot[q], f))
+				new_return(76);
 		
 		if(writecycle==0)
 		{

@@ -916,7 +916,7 @@ int32_t gamedata::fillBottle(byte val)
 			}
 		}
 	}
-	for(size_t q = 0; q < 256; ++q)
+	for(size_t q = 0; q < NUM_BOTTLE_SLOTS; ++q)
 	{
 		if(!temp[q]) continue; //don't own bottle
 		if(bottleSlots[q] == 0)
@@ -941,7 +941,7 @@ bool gamedata::canFillBottle()
 			}
 		}
 	}
-	for(size_t q = 0; q < 256; ++q)
+	for(size_t q = 0; q < NUM_BOTTLE_SLOTS; ++q)
 	{
 		if(!temp[q]) continue; //don't own bottle
 		if(bottleSlots[q] == 0)

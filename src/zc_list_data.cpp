@@ -502,14 +502,18 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::bottletype()
+GUI::ListData GUI::ZCListData::bottletype(bool numbered)
 {
 	GUI::ListData ls;
 	
-	ls.add("(None)", 0);
+	if(numbered)
+		ls.add("(None) (000)", 0);
+	else ls.add("(None)", 0);
 	for(int32_t q = 0; q < 64; ++q)
 	{
-		if(QMisc.bottle_types[q].name[0])
+		if(numbered)
+			ls.add(fmt::format("{} ({:03})",QMisc.bottle_types[q].name,q+1),q+1);
+		else if(QMisc.bottle_types[q].name[0])
 			ls.add(QMisc.bottle_types[q].name,q+1);
 		else
 			ls.add(fmt::format("{:2}", q+1), q+1);
