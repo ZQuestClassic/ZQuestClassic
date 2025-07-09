@@ -766,8 +766,15 @@ MidiListerDialog::MidiListerDialog(int index, bool selecting) :
 void MidiListerDialog::preinit()
 {
 	lister = GUI::ZCListData::midinames(true, false);
-	lister.removeInd(0); // remove '(None)'
-	selected_val = lister.getValue(0);
+	if(selecting)
+		frozen_inds = 1; // lock '(None)'
+	else
+	{
+		lister.removeInd(0); // remove '(None)'
+		resort();
+		if(selected_val < 0)
+			selected_val = lister.getValue(0);
+	}
 	selected_val = vbound(selected_val, (selecting ? -1 : 0), MAXCUSTOMMIDIS - 1);
 }
 
@@ -814,8 +821,15 @@ SFXListerDialog::SFXListerDialog(int index, bool selecting) :
 void SFXListerDialog::preinit()
 {
 	lister = GUI::ZCListData::sfxnames(true);
-	lister.removeInd(0); // remove '(None)'
-	selected_val = lister.getValue(0);
+	if(selecting)
+		frozen_inds = 1; // lock '(None)'
+	else
+	{
+		lister.removeInd(0); // remove '(None)'
+		resort();
+		if(selected_val <= 0)
+			selected_val = lister.getValue(0);
+	}
 	selected_val = vbound(selected_val, 1, sfxMAX - 1);
 }
 
