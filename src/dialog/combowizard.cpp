@@ -12,6 +12,7 @@
 #include "zinfo.h"
 #include "base/combo.h"
 #include "base/misctypes.h"
+#include "weap_data_editor.h"
 
 extern bool saved;
 extern comboclass *combo_class_buf;
@@ -23,6 +24,8 @@ extern itemdata *itemsbuf;
 char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
+
+bool is_misc_lweapon(newcombo const& cmb);
 
 bool hasComboWizard(int32_t type)
 {
@@ -226,6 +229,12 @@ void ComboWizardDialog::update(bool first)
 			size_t adir = getRadio(0);
 			ddls[5]->setDisabled(adir!=0);
 			tfs[2]->setDisabled(adir!=1);
+			bool misc_w_data = (local_ref.usrflags & cflag10) != 0;
+			ddls[3]->setDisabled(misc_w_data);
+			ddls[4]->setDisabled(misc_w_data);
+			lbls[0]->setDisabled(misc_w_data);
+			btns[0]->setDisabled(misc_w_data);
+			grids[0]->setDisabled(misc_w_data);
 			break;
 		}
 		case cSTEPSFX:
@@ -503,6 +512,12 @@ void ComboWizardDialog::endUpdate()
 					a3 = src_ref.attributes[3];
 					b3 = src_ref.attribytes[3];
 				}
+			}
+			// misc weap data
+			if(local_ref.usrflags & cflag10)
+			{
+				local_ref.attribytes[4] = 0;
+				local_ref.attribytes[5] = 0;
 			}
 			break;
 		}
@@ -1879,7 +1894,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						INFOBTN("The item ID to use as the 'parent item' of the weapon. Only used for LWeapons."
 							"\nThis affects various attributes of certain lweapons, such as a bomb's fuse."),
 						//
-						Label(text = "Script:", hAlign = 1.0),
+						lbls[0] = Label(text = "Script:", hAlign = 1.0),
 						switcher[0] = Switcher(
 							ddls[3] = DropDownList(data = list_lwscript,
 								fitParent = true, selectedValue = script,
@@ -1894,10 +1909,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									script = val;
 								})
 						),
-						INFOBTN("LWeapon or EWeapon script ID to attach to the fired weapons."
+						btns[0] = INFOBTN("LWeapon or EWeapon script ID to attach to the fired weapons."
 								"\nNote that there is no way to supply InitD to such scripts.")
 					),
-					Rows<2>(
+					grids[0] = Rows<2>(
 						Label(text = "Unblockable"),
 						INFOBTN_EX("The following checkboxes can make the weapon bypass"
 							" types of blocking.", hAlign = 0.0, forceFitH = true),
@@ -2111,72 +2126,94 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							)
 						)
 					),
-					Frame(padding = 0_px,
-						Rows<3>(
-							rset[0][0] = Radio(
-								hAlign = 0.0,
-								checked = seladir==0,
-								text = "Direction",
-								indx = 0,
-								onToggle = message::RSET0
-							),
-							IH_BTN(DDH,"The direction to shoot in"),
-							ddls[5] = DropDownList(data = list_dirs,
-								fitParent = true, selectedValue = dir,
-								disabled = seladir != 0,
-								onSelectFunc = [&](int32_t val)
-								{
-									angle_dir = val*10000;
-								}),
-							//
-							rset[0][1] = Radio(
-								hAlign = 0.0,
-								checked = seladir==1,
-								text = "Angle",
-								indx = 1,
-								onToggle = message::RSET0
-							),
-							IH_BTN(DDH,"The angle to shoot in"),
-							tfs[2] = TextField(
-								forceFitH = true, minwidth = 8_em,
-								type = GUI::TextField::type::SWAP_ZSINT,
-								disabled = seladir != 1,
-								val = angle,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									angle_dir = val;
-								}),
-							//
-							rset[0][2] = Radio(
-								hAlign = 0.0,
-								checked = seladir==2,
-								text = "Aimed 4-Dir",
-								indx = 2,
-								onToggle = message::RSET0
-							),
-							IH_BTN(DDH,"Aim 4-directionally at the Hero"),
-							DummyWidget(),
-							//
-							rset[0][3] = Radio(
-								hAlign = 0.0,
-								checked = seladir==3,
-								text = "Aimed 8-Dir",
-								indx = 3,
-								onToggle = message::RSET0
-							),
-							IH_BTN(DDH,"Aim 8-directionally at the Hero"),
-							DummyWidget(),
-							//
-							rset[0][4] = Radio(
-								hAlign = 0.0,
-								checked = seladir==4,
-								text = "Aimed 360",
-								indx = 4,
-								onToggle = message::RSET0
-							),
-							IH_BTN(DDH,"Aim angularly at the Hero"),
-							DummyWidget()
-							//
+					Column(padding = 0_px,
+						Frame(padding = 0_px,
+							Rows<3>(
+								rset[0][0] = Radio(
+									hAlign = 0.0,
+									checked = seladir==0,
+									text = "Direction",
+									indx = 0,
+									onToggle = message::RSET0
+								),
+								IH_BTN(DDH,"The direction to shoot in"),
+								ddls[5] = DropDownList(data = list_dirs,
+									fitParent = true, selectedValue = dir,
+									disabled = seladir != 0,
+									onSelectFunc = [&](int32_t val)
+									{
+										angle_dir = val*10000;
+									}),
+								//
+								rset[0][1] = Radio(
+									hAlign = 0.0,
+									checked = seladir==1,
+									text = "Angle",
+									indx = 1,
+									onToggle = message::RSET0
+								),
+								IH_BTN(DDH,"The angle to shoot in"),
+								tfs[2] = TextField(
+									forceFitH = true, minwidth = 8_em,
+									type = GUI::TextField::type::SWAP_ZSINT,
+									disabled = seladir != 1,
+									val = angle,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										angle_dir = val;
+									}),
+								//
+								rset[0][2] = Radio(
+									hAlign = 0.0,
+									checked = seladir==2,
+									text = "Aimed 4-Dir",
+									indx = 2,
+									onToggle = message::RSET0
+								),
+								IH_BTN(DDH,"Aim 4-directionally at the Hero"),
+								DummyWidget(),
+								//
+								rset[0][3] = Radio(
+									hAlign = 0.0,
+									checked = seladir==3,
+									text = "Aimed 8-Dir",
+									indx = 3,
+									onToggle = message::RSET0
+								),
+								IH_BTN(DDH,"Aim 8-directionally at the Hero"),
+								DummyWidget(),
+								//
+								rset[0][4] = Radio(
+									hAlign = 0.0,
+									checked = seladir==4,
+									text = "Aimed 360",
+									indx = 4,
+									onToggle = message::RSET0
+								),
+								IH_BTN(DDH,"Aim angularly at the Hero"),
+								DummyWidget()
+								//
+							)
+						),
+						Frame(padding = 0_px,
+							Rows<2>(
+								INFOBTN("The 'Misc Weapon Data' will be applied to the weapon(s) after they are shot."),
+								Checkbox(
+									text = "Apply Misc Weapon Data",
+									checked = local_ref.usrflags&cflag10,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag10,state);
+										update();
+									}
+								),
+								Button(text = "Misc Weapon Data",
+									colSpan = 2,
+									onPressFunc = [&]()
+									{
+										call_weap_data_editor(local_ref.misc_weap_data, is_misc_lweapon(local_ref), true);
+									})
+							)
 						)
 					)
 				))
@@ -2315,7 +2352,24 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								SETFLAG(local_ref.usrflags,cflag4,state);
 								update();
 							}
-						)
+						),
+						//
+						INFOBTN("The 'Misc Weapon Data' will be applied to the weapon after it spawns."),
+						Checkbox(
+							text = "Apply Misc Weapon Data",
+							checked = local_ref.usrflags&cflag10,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag10,state);
+								update();
+							}
+						),
+						Button(text = "Misc Weapon Data",
+							colSpan = 2,
+							onPressFunc = [&]()
+							{
+								call_weap_data_editor(local_ref.misc_weap_data, is_misc_lweapon(local_ref), true);
+							})
 					)
 				)
 			);

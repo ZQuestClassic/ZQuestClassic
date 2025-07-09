@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 #include "zinfo.h"
 #include "base/combo.h"
+#include "weap_data_editor.h"
 
 extern bool saved;
 extern comboclass *combo_class_buf;
@@ -66,6 +67,34 @@ bool hasCTypeCauses(int32_t type)
 			return true;
 	}
 	return false;
+}
+
+bool is_misc_lweapon(newcombo const& cmb)
+{
+	switch(cmb.type)
+	{
+		case cSTEPSFX:
+		{
+			if(!(cmb.usrflags & cflag1))
+				break; // no weapon
+			auto id = cmb.attribytes[1];
+			if(id >= wEnemyWeapons)
+				return false;
+			if(id >= wScript1 && id <= wScript10)
+				return cmb.usrflags & cflag2;
+			return true;
+		}
+		case cSHOOTER:
+		{
+			auto id = cmb.attribytes[1];
+			if(id >= wEnemyWeapons)
+				return false;
+			if(id >= wScript1 && id <= wScript10)
+				return cmb.usrflags & cflag4;
+			return true;
+		}
+	}
+	return false; //default to eweapons
 }
 
 static bool edited = false;
@@ -1423,15 +1452,8 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[2] = "Sprite:";
 			h_attribyte[2] = "The sprite of the spawned weapon";
 			//byte[3] : multishot shot count
-			l_attribyte[4] = "Unblockable:";
-			h_attribyte[4] = "Sum the following values to create a flagset:"
-				"\n1: Bypass 'Block' defense"
-				"\n2: Bypass 'Ignore' defense"
-				"\n4: Bypass enemy/Hero shield blocking"
-				"\n8: Bypass Hero shield reflecting";
-			l_attribyte[5] = "Script:";
-			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons."
-				"\nNote that there is no way to supply InitD to such scripts.";
+			//byte[4] : unblockable
+			//byte[5] : script
 			l_attribyte[6] = "Parent Item:";
 			h_attribyte[6] = "The item ID to use as the 'parent item' of the weapon. Only used for LWeapons. 0 = no parent."
 				"\nThis affects various attributes of certain lweapons, such as a bomb's fuse.";
@@ -1461,6 +1483,8 @@ void ComboEditorDialog::loadComboType()
 			h_flag[6] = "Shoot multiple weapons at once";
 			l_flag[7] = "Boss Fireball";
 			h_flag[7] = "If a fireball weapon type is used, it will be considered a 'boss' fireball.";
+			l_flag[9] = "Apply Misc Weapon Data";
+			h_flag[9] = "The combo's 'Misc Weapon Data' will be applied to the weapon(s) after they are shot.";
 			if(FL(cflag1)) //Angular
 			{
 				l_attribute[0] = "Angle (Degrees)";
@@ -1501,6 +1525,21 @@ void ComboEditorDialog::loadComboType()
 				h_attribyte[3] = "How many shots (min 1) to fire";
 				l_attribute[3] = "Shot Spread";
 				h_attribute[3] = "Angle (in degrees) between each weapon (0 to 360)";
+			}
+			if(FL(cflag10)) // misc weapon data
+				;
+			else
+			{
+				// Misc Weapon Data overwrites whatever would be set here
+				l_attribyte[4] = "Unblockable:";
+				h_attribyte[4] = "Sum the following values to create a flagset:"
+					"\n1: Bypass 'Block' defense"
+					"\n2: Bypass 'Ignore' defense"
+					"\n4: Bypass enemy/Hero shield blocking"
+					"\n8: Bypass Hero shield reflecting";
+				l_attribyte[5] = "Script:";
+				h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons."
+					"\nNote that there is no way to supply InitD to such scripts.";
 			}
 			break;
 		}
@@ -1698,6 +1737,8 @@ void ComboEditorDialog::loadComboType()
 				l_flag[3] = "Direct Damage Script LW / Sparkles";
 				h_flag[3] = "If the weapon type is a Script weapon and 'Script Weapon IDs spawn LWeapons' is checked, or the weapon type is"
 					" a sparkle type, it will immediately damage the Hero (knocking them back none).";
+				l_flag[9] = "Apply Misc Weapon Data";
+				h_flag[9] = "The combo's 'Misc Weapon Data' will be applied to the weapon after it spawns.";
 				l_attribute[0] = "Damage:";
 				h_attribute[0] = "The damage value for the spawned weapon. If this is < 1, it will default to 4 damage.";
 				l_attribyte[1] = "Weapon Type:";
@@ -2720,12 +2761,20 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						CMB_ATTRISHORT(7)
 					)
 				)),
-				TabRef(name = "Attribs 2", Row(
+				TabRef(name = "Attribs 2", Column(
 					Rows<3>(framed = true, frameText = "Attributes",
 						CMB_ATTRIBUTE(0),
 						CMB_ATTRIBUTE(1),
 						CMB_ATTRIBUTE(2),
 						CMB_ATTRIBUTE(3)
+					),
+					Row(
+						Button(text = "Misc Weapon Data",
+							onPressFunc = [&]()
+							{
+								call_weap_data_editor(local_comboref.misc_weap_data, is_misc_lweapon(local_comboref), true);
+							}),
+						IBTN("Usable by some combo types for weapon-related effects.")
 					)
 				)),
 				TabRef(name = "Triggers", Column(
@@ -2916,16 +2965,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.lift_parent_item = val;
 									}),
-								IBTN("What item to use to create the lift weapon. If '(None)', a basic 'Thrown' weapon will be created from the lift glove item."),
-								Label(text = "Glow Shape:"),
-								DropDownList(data = list_light_shapes,
-									fitParent = true, selectedValue = local_comboref.liftlightshape,
-									width = 300_px,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.liftlightshape = val;
-									}),
-								IBTN("The shape of light the lifted weapon emits, if emitting light.")
+								IBTN("What item to use to create the lift weapon. If '(None)', a basic 'Thrown' weapon will be created from the lift glove item.")
 							)
 						)
 					),
@@ -2976,16 +3016,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								onToggleFunc = [&](bool state)
 								{
 									SETFLAG(local_comboref.liftflags,LF_NOWPNCMBCSET,state);
-								}
-							),
-							//
-							IBTN("The thrown object will break when hitting a solid combo"),
-							Checkbox(colSpan = 2,
-								text = "Weapon breaks on solids", hAlign = 0.0,
-								checked = local_comboref.liftflags & LF_BREAKONSOLID,
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_comboref.liftflags,LF_BREAKONSOLID,state);
 								}
 							),
 							//
@@ -3075,19 +3105,16 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								{
 									local_comboref.lifttime = val;
 								}),
-							IBTN("The time, in frames, it takes to lift the combo")
-							,
+							IBTN("The time, in frames, it takes to lift the combo"),
 							//
-							Label(text = "Glow Radius"),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.liftlightrad,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_comboref.liftlightrad = val;
-								}),
-							IBTN("The light radius, in pixels, of the lifted weapon")
-							
+							Row(padding = 0_px, colSpan = 3,
+								Button(text = "Lift Weapon Data",
+									onPressFunc = [&]()
+									{
+										call_weap_data_editor(local_comboref.lift_weap_data, true);
+									}),
+								IBTN("Attributes applied to the lifted weapon.")
+							)
 						)
 					)
 				)),

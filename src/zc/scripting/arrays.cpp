@@ -9,6 +9,16 @@
 //
 // The above configures the GAMEBOTTLEST variable to map to the bottleSlots field of gamedata.
 //
+// static ArrayRegistrar IDATAWPNINITD_registrar(IDATAWPNINITD, []{
+//     static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::initd> impl;
+//     impl.setDefaultValue(-10000);
+//     impl.setMul10000(false);
+//     impl.boundIndex();
+//     return &impl;
+// }());
+//
+// The above configures the IDATAWPNINITD variable to map to the initd field of weapon_data, inside the weap_data member of itemdata.
+//
 // Steps for defining new scripting arrays:
 //
 // 1. Locate the scripting/types files that corresponds to the bindings .zh file for the ZASM variable.
@@ -21,7 +31,10 @@
 //	    ScriptingArray_GlobalCArray
 //	    ScriptingArray_GlobalComputed
 //	    ScriptingArray_ObjectMemberCArray
+//	    ScriptingArray_ObjectSubMemberCArray
 //	    ScriptingArray_ObjectMemberBitwiseFlags
+//	    ScriptingArray_ObjectSubMemberBitwiseFlags
+//	    ScriptingArray_ObjectMemberBitstring
 //	    ScriptingArray_ObjectMemberContainer
 //	    ScriptingArray_ObjectComputed
 //
@@ -32,8 +45,12 @@
 //   handles getting the object and checking for its existence.
 //
 //   Some interfaces are very simple to use, such as: GlobalCArray, ObjectMemberCArray,
-//   ObjectMemberBitwiseFlags, ObjectMemberContainer. All of these simply require a pointer to the struct
-//   field as a type parameter (see `&gamedata::bottleSlots` in the above example).
+//   ObjectMemberBitwiseFlags, ObjectMemberBitstring, ObjectMemberContainer. All of these simply require a pointer to the struct
+//   field as a type parameter (see `&gamedata::bottleSlots` in the first above example).
+//
+//   Some are similarly easy to use, such as: ObjectSubMemberCArray, ObjectSubMemberBitwiseFlags.
+//   These require a pointer to the struct field, and a pointer to a field on THAT struct as well.
+//   (see `&itemdata::weap_data` and `&weapon_data::initd` in the second above example)
 //
 //   The GlobalComputed and ObjectComputed interfaces are more involved. They take 3 lambdas each: one for
 //   calculating the size, one for the getter, and one for the setter. For getters and setters, the index is

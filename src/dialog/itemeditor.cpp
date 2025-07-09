@@ -7,6 +7,7 @@
 #include "zc_list_data.h"
 #include "zinfo.h"
 #include <fmt/format.h>
+#include "weap_data_editor.h"
 
 void reset_itembuf(itemdata *item, int32_t id);
 char *ordinal(int32_t num);
@@ -418,9 +419,6 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
 			inf->misc[1] = "Max. On Screen:";
 			inf->misc[2] = "Damage to Hero:";
-			_SET(misc[3], "Lift Level", "If 0, the weapon is not liftable. Otherwise, liftable using Lift Gloves of at least this level.");
-			_SET(misc[4], "Lift Time", "The time, in frames, to lift the weapon above the Hero's head.");
-			_SET(misc[5], "Lift Height", "The Z height above the Hero's head to lift the weapon.");
 			_SET(misc[6], "Boom Radius", "If 0, uses a classic boxy hitbox- otherwise uses a circular radius of this many pixels." + QRHINT({qr_OLD_BOMB_HITBOXES}));
 			inf->flag[1] = "Explosion Hurts Hero";
 			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, its step will be set to 0.");
@@ -436,15 +434,10 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
 			inf->misc[1] = "Max. On Screen:";
 			inf->misc[2] = "Damage to Hero:";
-			_SET(misc[3], "Lift Level", "If 0, the weapon is not liftable. Otherwise, liftable using Lift Gloves of at least this level.");
-			_SET(misc[4], "Lift Time", "The time, in frames, to lift the weapon above the Hero's head.");
-			_SET(misc[5], "Lift Height", "The Z height above the Hero's head to lift the weapon.");
 			_SET(misc[6], "Boom Radius", "If 0, uses a classic boxy hitbox- otherwise uses a circular radius of this many pixels." + QRHINT({qr_OLD_BOMB_HITBOXES}));
 			inf->flag[0] = "Use 1.92 Timing";
 			inf->flag[1] = "Explosion Hurts Hero";
-			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, its step will be set to 0.");
 			_SET(flag[3], "Auto-Lift", "If the Hero owns a Lift Glove, place the bomb directly in the Hero's hands.");
-			_SET(flag[4], "Stops Movement on Solid", "If the weapon collides with a solid while moving, its step will be set to 0.");
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
 			inf->actionsnd[0] = "Explosion Sound:";
@@ -1018,8 +1011,6 @@ ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t
 	list_itemdatscript(GUI::ZCListData::itemdata_script()),
 	list_itemsprscript(GUI::ZCListData::itemsprite_script()),
 	list_weaponscript(GUI::ZCListData::lweapon_script()),
-	list_weaptype(GUI::ZCListData::lweaptypes()),
-	list_deftypes(GUI::ZCListData::deftypes()),
 	list_bottletypes(GUI::ZCListData::bottletype()),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_strings(GUI::ZCListData::strings())
@@ -1178,29 +1169,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::IT_INITD(int index)
 			})
 	);
 }
-std::shared_ptr<GUI::Widget> ItemEditorDialog::WP_INITD(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	return Row(padding = 0_px,
-		l_wp_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
-		ib_wp_initds[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("InitD Info",h_wp_initds[index]).show();
-			}),
-		tf_wp_initd[index] = TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_itemref.weap_initiald[index],
-			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_itemref.weap_initiald[index] = val;
-			})
-	);
-}
 
 std::shared_ptr<GUI::Widget> ItemEditorDialog::MoveFlag(move_flags index, string const& str)
 {
@@ -1214,22 +1182,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::MoveFlag(move_flags index, string
 		onToggleFunc = [&, index](bool state)
 		{
 			SETFLAG(local_itemref.moveflags, index, state);
-		}
-	);
-}
-
-std::shared_ptr<GUI::Widget> ItemEditorDialog::WeaponMoveFlag(move_flags index, string const& str)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-
-	return Checkbox(
-		text = str,
-		checked = local_itemref.wmoveflags & index,
-		fitParent = true,
-		onToggleFunc = [&, index](bool state)
-		{
-			SETFLAG(local_itemref.wmoveflags, index, state);
 		}
 	);
 }
@@ -1547,30 +1499,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						),
 						Column(
 							Rows<3>(
-								Label(textAlign = 2, width = ACTION_LAB_WID, text = "Weapon Type:"),
-								INFOBTN("If set, the weapon will behave in some ways as the selected type (ex."
-									" the weapon will count as this type for Combo Triggers, enemy defenses, etc)"),
-								DropDownList(
-									fitParent = true,
-									data = list_weaptype,
-									selectedValue = local_itemref.useweapon,
-									onSelectFunc = [&](int32_t val)
+								Button(text = "Weapon Data",
+									colSpan = 3,
+									onPressFunc = [&]()
 									{
-										local_itemref.useweapon = val;
-									}
-								),
-								Label(textAlign = 2, width = ACTION_LAB_WID, text = "Default Defense:"),
-								INFOBTN("When hitting an enemy, if the enemy has a '(None)' defense to this weapon,"
-									" the Default Defense will be used instead."),
-								DropDownList(
-									fitParent = true,
-									data = list_deftypes,
-									selectedValue = local_itemref.usedefense,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.usedefense = val;
-									}
-								),
+										call_weap_data_editor(local_itemref.weap_data, true);
+									}),
 								//
 								Label(text = "SFX", colSpan = 3),
 								//
@@ -1955,16 +1889,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								MoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
 								MoveFlag(move_can_waterdrown, "Can Drown In Liquid")
 							)
-						),
-						Frame(title = "Weapon", hAlign = 1.0, fitParent = true,
-							info = "Movement Flags that apply to the weapon(s) created by this item."
-								" Some weapon types (ex. Sword, Wand, Hammer) will ignore this setting."
-								" (note- Sword Beams / Magic are still affected.)",
-							Column(hAlign = 1.0, fitParent = true,
-								WeaponMoveFlag(move_obeys_grav, "Obeys Gravity"),
-								WeaponMoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
-								WeaponMoveFlag(move_can_waterdrown, "Can Drown In Liquid")
-							)
 						)
 					))
 				)),
@@ -2126,80 +2050,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							SPRITE_DROP(7,wpn8),
 							SPRITE_DROP(8,wpn9),
 							SPRITE_DROP(9,wpn10)
-						)),
-						TabRef(name = "Burning", Column(
-							Row(
-								INFOBTN("With this checked, the created weapon will use the appropriate"
-									" burning sprite INSTEAD of its' normal sprite."
-									"\nAdditionally, the weapon will use the specified light radius."),
-								Checkbox(
-									width = FLAGS_WID,
-									checked = (local_itemref.flags & item_burning_sprites),
-									text = "Use Burning Sprites",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,item_burning_sprites,state);
-									}
-								)
-							),
-							Rows<4>(
-								_d, Label(text = "Sprite"), Label(text = "Light Radius"), _d,
-								//
-								Label(text = "No Fire:", hAlign = 1.0),
-								DropDownList(
-									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[WPNSPR_BASE],
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.burnsprs[WPNSPR_BASE] = val;
-									}),
-								NUM_FIELD(light_rads[WPNSPR_BASE], 0, 255),
-								INFOBTN("Settings used for the weapon when not on fire"),
-								//
-								Label(text = "Normal Fire:", hAlign = 1.0),
-								DropDownList(
-									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_ANY],
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.burnsprs[WPNSPR_IGNITE_ANY] = val;
-									}),
-								NUM_FIELD(light_rads[WPNSPR_IGNITE_ANY], 0, 255),
-								INFOBTN("Settings used for the weapon when on 'Normal' fire"),
-								//
-								Label(text = "Strong Fire:", hAlign = 1.0),
-								DropDownList(
-									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_STRONG],
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.burnsprs[WPNSPR_IGNITE_STRONG] = val;
-									}),
-								NUM_FIELD(light_rads[WPNSPR_IGNITE_STRONG], 0, 255),
-								INFOBTN("Settings used for the weapon when on 'Strong' fire"),
-								//
-								Label(text = "Magic Fire:", hAlign = 1.0),
-								DropDownList(
-									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_MAGIC],
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.burnsprs[WPNSPR_IGNITE_MAGIC] = val;
-									}),
-								NUM_FIELD(light_rads[WPNSPR_IGNITE_MAGIC], 0, 255),
-								INFOBTN("Settings used for the weapon when on 'Magic' fire"),
-								//
-								Label(text = "Divine Fire:", hAlign = 1.0),
-								DropDownList(
-									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_DIVINE],
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.burnsprs[WPNSPR_IGNITE_DIVINE] = val;
-									}),
-								NUM_FIELD(light_rads[WPNSPR_IGNITE_DIVINE], 0, 255),
-								INFOBTN("Settings used for the weapon when on 'Divine' fire")
-							)
 						))
 					)),
 					TabRef(name = "Size", Row(
@@ -2400,205 +2250,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								)
 							)
 						)
-					)),
-					TabRef(name = "Weapon Size", Row(
-						Columns<5>(
-							vAlign = 0.0,
-							Row(
-								Label(textAlign = 2, width = 6_em, text = "TileWidth:"),
-								TextField(
-									val = local_itemref.weap_tilew,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 32,
-									onValueChanged = message::GFXSIZE,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_tilew = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_TILE_WIDTH),
-									text = "Enabled",
-									onToggle = message::GFXSIZE,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_TILE_WIDTH,state);
-									}
-								)
-							),
-							Row(
-								Label(textAlign = 2, width = 6_em, text = "TileHeight:"),
-								TextField(
-									val = local_itemref.weap_tileh,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 32,
-									onValueChanged = message::GFXSIZE,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_tileh = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_TILE_HEIGHT),
-									text = "Enabled",
-									onToggle = message::GFXSIZE,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_TILE_HEIGHT,state);
-									}
-								)
-							),
-							Row(
-								Label(textAlign = 2, width = 6_em, text = "HitXOffset:"),
-								TextField(
-									val = local_itemref.weap_hxofs,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_hxofs = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_X_OFFSET),
-									text = "Enabled",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_X_OFFSET,state);
-									}
-								)
-							),
-							Row(
-								Label(textAlign = 2, width = 6_em, text = "HitYOffset:"),
-								TextField(
-									val = local_itemref.weap_hyofs,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_hyofs = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_Y_OFFSET),
-									text = "Enabled",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_Y_OFFSET,state);
-									}
-								)
-							),
-							_d,
-							Row(
-								Label(textAlign = 2, width = 6_em, text = "HitWidth:"),
-								TextField(
-									val = local_itemref.weap_hxsz,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_hxsz = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_WIDTH),
-									text = "Enabled",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_WIDTH,state);
-									}
-								)
-							),
-							Row(
-								Label(textAlign = 2, width = 6_em, text = "HitHeight:"),
-								TextField(
-									val = local_itemref.weap_hysz,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_hysz = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT),
-									text = "Enabled",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_HEIGHT,state);
-									}
-								)
-							),
-							Row(
-								Label(textAlign = 2, width = 6_em, text = "HitZHeight:"),
-								TextField(
-									val = local_itemref.weap_hzsz,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_hzsz = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_Z_HEIGHT),
-									text = "Enabled",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_Z_HEIGHT,state);
-									}
-								)
-							),
-							Row(
-								Label(textAlign = 2, width = 6_em, text = "DrawXOffset:"),
-								TextField(
-									val = local_itemref.weap_xofs,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_xofs = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_DRAW_X_OFFSET),
-									text = "Enabled",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_DRAW_X_OFFSET,state);
-									}
-								)
-							),
-							Row(
-								Label(textAlign = 2, width = 6_em, text = "DrawYOffset:"),
-								TextField(
-									val = local_itemref.weap_yofs,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.weap_yofs = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_DRAW_Y_OFFSET),
-									text = "Enabled",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_DRAW_Y_OFFSET,state);
-									}
-								)
-							)
-						)
 					))
 				)),
 				TabRef(name = "Scripts", TabPanel(
@@ -2635,21 +2286,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								)
 							)
-						)
-					)),
-					TabRef(name = "Weapon", Row(
-						Column(
-							WP_INITD(0),
-							WP_INITD(1),
-							WP_INITD(2),
-							WP_INITD(3),
-							WP_INITD(4),
-							WP_INITD(5),
-							WP_INITD(6),
-							WP_INITD(7)
-						),
-						Rows<2>(vAlign = 0.0,
-							SCRIPT_LIST_PROC("Weapon Script:", list_weaponscript, local_itemref.weaponscript, refreshScripts)
 						)
 					))
 				))
@@ -2697,17 +2333,12 @@ void ItemEditorDialog::refreshScripts()
 {
 	loadItemClass();
 	std::string it_initd[8];
-	std::string wp_initd[8];
 	int32_t ty_it_initd[8];
-	int32_t ty_wp_initd[8];
 	for(auto q = 0; q < 8; ++q)
 	{
 		it_initd[q] = "InitD[" + std::to_string(q) + "]";
 		h_it_initds[q].clear();
 		ty_it_initd[q] = -1;
-		wp_initd[q] = "InitD[" + std::to_string(q) + "]";
-		h_wp_initds[q].clear();
-		ty_wp_initd[q] = -1;
 	}
 	bool did_item_scr = false;
 	auto iscd = item_use_script_data;
@@ -2759,34 +2390,12 @@ void ItemEditorDialog::refreshScripts()
 		for(auto q = 0; q < 8; ++q)
 			ty_it_initd[q] = nswapDEC;
 	}
-	if(local_itemref.weaponscript)
-	{
-		zasm_meta const& meta = lwpnscripts[local_itemref.weaponscript]->meta;
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(meta.initd[q].size())
-				wp_initd[q] = meta.initd[q];
-			if(meta.initd_help[q].size())
-				h_wp_initds[q] = meta.initd_help[q];
-			if(meta.initd_type[q] > -1)
-				ty_wp_initd[q] = meta.initd_type[q];
-		}
-	}
-	else
-	{
-		for(auto q = 0; q < 8; ++q)
-			ty_wp_initd[q] = nswapDEC;
-	}
 	for(auto q = 0; q < 8; ++q)
 	{
 		if(ty_it_initd[q] > -1)
 			tf_it_initd[q]->setSwapType(ty_it_initd[q]);
-		if(ty_wp_initd[q] > -1)
-			tf_wp_initd[q]->setSwapType(ty_wp_initd[q]);
 		l_it_initds[q]->setText(it_initd[q]);
-		l_wp_initds[q]->setText(wp_initd[q]);
 		ib_it_initds[q]->setDisabled(h_it_initds[q].empty());
-		ib_wp_initds[q]->setDisabled(h_wp_initds[q].empty());
 	}
 }
 

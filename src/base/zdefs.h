@@ -48,6 +48,7 @@
 #include "zconfig.h"
 #include "base/check.h"
 #include "flags.h"
+#include "base/weapon_data.h"
 
 struct mapscr;
 class solid_object;
@@ -146,18 +147,18 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            16
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          54
+#define V_COMBOS          55
 #define V_CSETS            6 //palette data
 #define V_MAPS            33
 #define V_DMAPS           22
 #define V_DOORS            1
-#define V_ITEMS           62
+#define V_ITEMS           63
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        43
-#define V_GUYS            53
+#define V_GUYS            54
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        44
@@ -168,9 +169,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FFSCRIPT         28
 #define V_SFX              8
 #define V_FAVORITES        4
-
-#define V_COMPATRULE       81
 #define V_ZINFO            4
+
+// not 'real' sections, just separate version numbers
+#define V_COMPATRULE       81
+#define V_WEAP_DATA        0
 
 //= V_SHOPS is under V_MISC
 
@@ -1310,22 +1313,11 @@ struct guydata
 	move_flags moveflags;
     
     char initD_label[8][65];
-    char weapon_initD_label[8][65];
-    
-    word weaponscript;
-    int32_t weap_initiald[INITIAL_D];
     
 	byte spr_shadow, spr_death, spr_spawn;
-
-	// attack tab
-	byte wunblockable;
-	move_flags wmoveflags;
-	int32_t weapoverrideFLAGS;
-	int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs, weap_tilew, weap_tileh;
-	int32_t wstep;
-	byte burnsprs[WPNSPR_MAX];
-	byte light_rads[WPNSPR_MAX];
 	byte specialsfx;
+	
+	weapon_data weap_data;
 
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02

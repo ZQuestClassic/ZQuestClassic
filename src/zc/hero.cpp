@@ -4960,7 +4960,7 @@ void HeroClass::check_slash_block(weapon *w)
 	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
-		usewpn = itemsbuf[par_item].useweapon;
+		usewpn = itemsbuf[par_item].weap_data.imitate_weapon;
 	}
 	else if ( par_item == -1 && w->ScriptGenerated ) 
 	{
@@ -5538,7 +5538,7 @@ void HeroClass::check_wand_block(weapon *w)
 	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
-		usewpn = itemsbuf[par_item].useweapon;
+		usewpn = itemsbuf[par_item].weap_data.imitate_weapon;
 	}
 	else if ( par_item == -1 && w->ScriptGenerated ) 
 	{
@@ -11882,28 +11882,31 @@ bool HeroClass::startwpn(int32_t itemid)
 		}
 		break;
 		
-		case itype_bomb:
+		case itype_bomb: case itype_sbomb:
 		{
+			bool sbomb = (itm.family == itype_sbomb);
+			auto lit_ty = sbomb ? wLitSBomb : wLitBomb;
+			auto boom_ty = sbomb ? wSBomb : wBomb;
 			//Remote detonation
-			if(Lwpns.idCount(wLitBomb) >= zc_max(itm.misc2,1))
+			if(Lwpns.idCount(lit_ty) >= zc_max(itm.misc2,1))
 			{
-				weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
+				weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(lit_ty)));
 				
-				 while(Lwpns.idCount(wLitBomb) && ew->misc == 0)
+				while(Lwpns.idCount(lit_ty) && ew->misc == 0)
 				{
 					//If this ever needs a version check, in the future. -z
-					if ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31 ) )
+					if (boom_ty == wBomb && (FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31)))
 					{
 						if ( ew->power > 1 ) //Don't reduce 1 to 0. -Z
 							ew->power *= 0.5; //Remote bombs were dealing double damage. -Z
 					}
 					ew->misc=50;
 					ew->clk=ew->misc-3;
-					ew->id=wBomb;
-					ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
+					ew->id=boom_ty;
+					ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(lit_ty)));
 				}
 				
-				deselectbombs(false);
+				deselectbombs(sbomb);
 				return false;
 			}
 			
@@ -11920,78 +11923,22 @@ bool HeroClass::startwpn(int32_t itemid)
 			paymagiccost(itemid);
 				
 			if(itm.misc1>0) // If not remote bombs
-				deselectbombs(false);
+				deselectbombs(sbomb);
 				
 			if(isdungeon())
 			{
 				wy=zc_max(wy,16);
 			}
 			
-			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itm.fam_type,
+			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,lit_ty,itm.fam_type,
 				itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true);
 			bool lifted = false;
 			if(itm.flags & item_flag4)
 			{
 				auto liftid = current_item_id(itype_liftglove);
-				itemdata const& glove = itemsbuf[liftid];
-				if(liftid > -1 && (!itm.misc4 || itm.misc4 <= glove.fam_type))
+				if(liftid > -1 && (itm.weap_data.lift_level <= itemsbuf[liftid].fam_type))
 				{
-					lift(wpn,itm.misc5,itm.misc6);
-					set_liftflags(liftid);
-					lifted = true;
-				}
-			}
-			if(!lifted)
-			{
-				Lwpns.add(wpn);
-				sfx(WAV_PLACE,pan(wx));
-			}
-		}
-		break;
-		
-		case itype_sbomb:
-		{
-			//Remote detonation
-			if(Lwpns.idCount(wLitSBomb) >= zc_max(itm.misc2,1))
-			{
-				weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitSBomb)));
-				
-				while(Lwpns.idCount(wLitSBomb) && ew->misc == 0)
-				{
-					ew->misc=50;
-					ew->clk=ew->misc-3;
-					ew->id=wSBomb;
-					ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitSBomb)));
-				}
-				
-				deselectbombs(true);
-				return false;
-			}
-			
-			if((itm.flags & item_flag4) && lift_wpn)
-			{
-				do_liftglove(-1,false); //Throw the already-held weapon
-				return false;
-			}
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				return item_error();
-			}
-				
-			paymagiccost(itemid);
-				
-			if(itm.misc1>0) // If not remote bombs
-				deselectbombs(true);
-			
-			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itm.fam_type,itm.power*game->get_hero_dmgmult(),dir, itemid,getUID(),false,false,true);
-			bool lifted = false;
-			if(itm.flags & item_flag4)
-			{
-				auto liftid = current_item_id(itype_liftglove);
-				itemdata const& glove = itemsbuf[liftid];
-				if(liftid > -1 && (!itm.misc4 || itm.misc4 <= glove.fam_type))
-				{
-					lift(wpn,itm.misc5,itm.misc6);
+					lift(wpn, itm.weap_data.lift_time, itm.weap_data.lift_height);
 					set_liftflags(liftid);
 					lifted = true;
 				}

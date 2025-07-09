@@ -413,5 +413,9 @@ std::pair<size_t,size_t> Grid::get_counts() const
 	}
 	return std::make_pair(numRows, numCols);
 }
+std::map<size_t, std::shared_ptr<Widget>> Grid::get_children()
+{
+	return children;
+}
 
 }

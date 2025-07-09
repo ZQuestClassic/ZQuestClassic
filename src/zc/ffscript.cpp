@@ -1455,7 +1455,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, spr->weap_initd, 8 * sizeof(int32_t));
+				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
 				data.initialized = 1;
 			}
 			
@@ -1472,7 +1472,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, spr->weap_initd, 8 * sizeof(int32_t));
+				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
 				data.initialized = 1;
 			}
 			
@@ -3982,7 +3982,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].useweapon)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.imitate_weapon)*10000;
 			break;
 		case IDATAUSEDEF:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -3991,7 +3991,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].usedefense)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.default_defense)*10000;
 			break;
 		case IDATAWRANGE:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4078,7 +4078,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weaponscript)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.script)*10000;
 			break;
 		case IDATAWEAPHXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4087,7 +4087,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weap_hxofs)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.hxofs)*10000;
 			break;
 		case IDATAWEAPHYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4096,7 +4096,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weap_hyofs)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.hyofs)*10000;
 			break;
 		case IDATAWEAPHXSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4105,7 +4105,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weap_hxsz)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.hxsz)*10000;
 			break;
 		case IDATAWEAPHYSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4114,7 +4114,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weap_hysz)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.hysz)*10000;
 			break;
 		case IDATAWEAPHZSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4123,7 +4123,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weap_hzsz)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.hzsz)*10000;
 			break;
 		case IDATAWEAPXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4132,7 +4132,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weap_xofs)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.xofs)*10000;
 			break;
 		case IDATAWEAPYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4141,7 +4141,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weap_yofs)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.yofs)*10000;
 			break;
 		case IDATAHXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4250,7 +4250,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weap_tilew)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.tilew)*10000;
 			break;
 		case IDATATILEHWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4259,7 +4259,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weap_tileh)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.tileh)*10000;
 			break;
 		case IDATAOVERRIDEFLWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -4268,7 +4268,7 @@ int32_t get_register(int32_t arg)
 				ret = 0;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].weapoverrideFLAGS)*10000;
+			ret=(itemsbuf[ri->idata].weap_data.override_flags)*10000;
 			break;
 		
 		case IDATAFAMILY:
@@ -4334,7 +4334,12 @@ int32_t get_register(int32_t arg)
 			ret = item_flag(item_flip_jinx);
 			break;
 		case IDATAUSEBURNSPR:
-			ret = item_flag(item_burning_sprites);
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
+				ret = 0;
+			}
+			else ret = (itemsbuf[ri->idata].weap_data.wflags & WFLAG_UPDATE_IGNITE_SPRITE) ? 10000 : 0;
 			break;
 			
 		case IDATASETMAX:
@@ -5083,7 +5088,7 @@ int32_t get_register(int32_t arg)
 		
 		case LWPNSCRIPT:
 			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->weaponscript)*10000;
+				ret=(((weapon*)(s))->script)*10000;
 				
 			break;
 		
@@ -5674,7 +5679,7 @@ int32_t get_register(int32_t arg)
 		
 		case EWPNSCRIPT:
 			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->weaponscript)*10000;
+				ret=(((weapon*)(s))->script)*10000;
 				
 			break;
 		
@@ -7861,7 +7866,7 @@ int32_t get_register(int32_t arg)
 			{
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
-			else ret = (combobuf[ri->combosref].liftlightrad) * 10000;
+			else ret = (combobuf[ri->combosref].lift_weap_data.light_rads[WPNSPR_BASE]) * 10000;
 			break;
 		}
 		case COMBODLIFTLIGHTSHAPE:
@@ -7871,7 +7876,7 @@ int32_t get_register(int32_t arg)
 			{
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
-			else ret = (combobuf[ri->combosref].liftlightshape) * 10000;
+			else ret = (combobuf[ri->combosref].lift_weap_data.glow_shape) * 10000;
 			break;
 		}
 		case COMBODLIFTWEAPONITEM:
@@ -8640,7 +8645,16 @@ int32_t get_register(int32_t arg)
 		case NPCDATATILEWIDTH: GET_NPCDATA_VAR_INT32(txsz, "TileWidth"); break;
 		case NPCDATATILEHEIGHT: GET_NPCDATA_VAR_INT32(tysz, "TileHeight"); break;
 		case NPCDATAWPNSPRITE: GET_NPCDATA_VAR_INT32(wpnsprite, "WeaponSprite"); break;
-		case NPCDATAWEAPONSCRIPT: GET_NPCDATA_VAR_INT32(weaponscript, "WeaponScript"); break;
+		case NPCDATAWEAPONSCRIPT: 
+		{
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->WeaponScript: %d\n", (ri->npcdataref*10000));
+				ret = -10000;
+			}
+			else ret = (guysbuf[ri->npcdataref].weap_data.script *10000);
+			break;
+		}
 		case NPCDATASIZEFLAG: GET_NPCDATA_VAR_INT32(SIZEflags, "SizeFlags"); break;
 
 		case NPCDATAFROZENTILE: GET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
@@ -11779,7 +11793,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].useweapon)=vbound(value/10000, 0, 255);
+			(itemsbuf[ri->idata].weap_data.imitate_weapon)=vbound(value/10000, 0, 255);
 			break;
 		case IDATAUSEDEF:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -11787,7 +11801,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].usedefense)=vbound(value/10000, 0, 255);
+			(itemsbuf[ri->idata].weap_data.default_defense)=vbound(value/10000, 0, 255);
 			break;
 		case IDATAWRANGE:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -11853,7 +11867,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weaponscript)=vbound(value/10000, 0, 255);
+			(itemsbuf[ri->idata].weap_data.script)=vbound(value/10000, 0, 255);
 			break;
 		case IDATAWEAPHXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -11861,7 +11875,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weap_hxofs)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.hxofs)=(value/10000);
 			break;
 		case IDATAWEAPHYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -11869,7 +11883,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weap_hyofs)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.hyofs)=(value/10000);
 			break;
 		case IDATAWEAPHXSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -11877,7 +11891,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weap_hxsz)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.hxsz)=(value/10000);
 			break;
 		case IDATAWEAPHYSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -11885,7 +11899,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weap_hysz)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.hysz)=(value/10000);
 			break;
 		case IDATAWEAPHZSZ:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -11893,7 +11907,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weap_hzsz)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.hzsz)=(value/10000);
 			break;
 		case IDATAWEAPXOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -11901,7 +11915,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weap_xofs)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.xofs)=(value/10000);
 			break;
 		case IDATAWEAPYOFS:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -11909,7 +11923,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weap_yofs)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.yofs)=(value/10000);
 			break;
 
 		
@@ -12008,7 +12022,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weap_tilew)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.tilew)=(value/10000);
 			break;
 		case IDATATILEHWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -12016,7 +12030,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weap_tileh)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.tileh)=(value/10000);
 			break;
 		case IDATAOVERRIDEFLWEAP:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -12024,7 +12038,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].weapoverrideFLAGS)=(value/10000);
+			(itemsbuf[ri->idata].weap_data.override_flags)=(value/10000);
 			break;
 		
 		case IDATAUSEMVT:
@@ -12089,7 +12103,11 @@ void set_register(int32_t arg, int32_t value)
 			item_flag(item_flip_jinx, value);
 			break;
 		case IDATAUSEBURNSPR:
-			item_flag(item_burning_sprites, value);
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
+			}
+			else SETFLAG(itemsbuf[ri->idata].weap_data.wflags, WFLAG_UPDATE_IGNITE_SPRITE, value);
 			break;
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -12842,11 +12860,11 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNSCRIPT:
 			if(0!=(s=checkLWpn(ri->lwpn)))
 			{
-				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+				(((weapon*)(s))->script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
-						(((weapon*)(s))->weap_initd[q]) = 0;
+						(((weapon*)(s))->initD[q]) = 0;
 				}
 				on_reassign_script_engine_data(ScriptType::Lwpn, ri->lwpn);
 			}  
@@ -13424,11 +13442,11 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNSCRIPT:
 			if(0!=(s=checkEWpn(ri->ewpn)))
 			{
-				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+				(((weapon*)(s))->script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
-						(((weapon*)(s))->weap_initd[q]) = 0;
+						(((weapon*)(s))->initD[q]) = 0;
 				}
 				on_reassign_script_engine_data(ScriptType::Ewpn, ri->ewpn);
 			}
@@ -15405,7 +15423,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
-			else combobuf[ri->combosref].liftlightrad = vbound(value/10000, 0, 255);
+			else combobuf[ri->combosref].lift_weap_data.light_rads[WPNSPR_BASE] = vbound(value/10000, 0, 255);
 			break;
 		}
 		case COMBODLIFTLIGHTSHAPE:
@@ -15414,7 +15432,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
-			else combobuf[ri->combosref].liftlightshape = vbound(value/10000, 0, 2);
+			else combobuf[ri->combosref].lift_weap_data.glow_shape = vbound(value/10000, 0, 2);
 			break;
 		}
 		case COMBODLIFTWEAPONITEM:
@@ -16080,7 +16098,14 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATATILEWIDTH: SET_NPCDATA_VAR_INT(txsz, "TileWidth"); break;
 		case NPCDATATILEHEIGHT: SET_NPCDATA_VAR_INT(tysz, "TileHeight"); break;
 		case NPCDATAWPNSPRITE: SET_NPCDATA_VAR_INT(wpnsprite, "WeaponSprite"); break;
-		case NPCDATAWEAPONSCRIPT: SET_NPCDATA_VAR_INT(weaponscript, "WeaponScript"); break;
+		case NPCDATAWEAPONSCRIPT: 
+		{
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->WeaponScript: %d\n", (ri->npcdataref*10000));
+			else
+				guysbuf[ri->npcdataref].weap_data.script = vbound((value / 10000),0,214747);
+			break;
+		}
 		case NPCDATASIZEFLAG: SET_NPCDATA_VAR_INT(SIZEflags, "SizeFlags"); break;
 
 		case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT(frozentile, "FrozenTile"); break;
@@ -24333,7 +24358,7 @@ static void script_exit_cleanup(bool no_dealloc)
 			data.doscript = false;
 			data.initialized = false;
 			if (auto spr = sprite::getByUID(i))
-				spr->weaponscript = 0;
+				spr->script = 0;
 		}
 		break;
 		case ScriptType::ItemSprite:
@@ -28825,9 +28850,9 @@ script_data* load_scrdata(ScriptType type, word script, int32_t i)
 		case ScriptType::NPC:
 			return guyscripts[guys.getByUID(i)->script];
 		case ScriptType::Lwpn:
-			return lwpnscripts[Lwpns.getByUID(i)->weaponscript];
+			return lwpnscripts[Lwpns.getByUID(i)->script];
 		case ScriptType::Ewpn:
-			return ewpnscripts[Ewpns.getByUID(i)->weaponscript];
+			return ewpnscripts[Ewpns.getByUID(i)->script];
 		case ScriptType::ItemSprite:
 			return itemspritescripts[items.getByUID(i)->script];
 		case ScriptType::Item:
@@ -34560,22 +34585,23 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 						Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",95);
 					} 
 				}
+				byte dummy;
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&guysbuf[i].weapon_initD_label[q][w],f))
+					if(!p_getc(&dummy,f))
 					{
 						Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",96);
 					} 
 				}
 			}
-			if(!p_igetw(&guysbuf[i].weaponscript,f))
+			if(!p_igetw(&guysbuf[i].weap_data.script,f))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",97);
 			}
 			//eweapon initD
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-			if(!p_igetl(&guysbuf[i].weap_initiald[q],f))
+			if(!p_igetl(&guysbuf[i].weap_data.initd[q],f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",98);
 			}
@@ -34919,20 +34945,20 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 			}
 			for ( int32_t w = 0; w < 65; w++ )
 			{
-				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
+				if(!p_putc(0,f))
 				{
 					Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",96);
 				} 
 			}
 		}
-		if(!p_iputw(guysbuf[i].weaponscript,f))
+		if(!p_iputw(guysbuf[i].weap_data.script,f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",97);
 		}
 		//eweapon initD
 		for ( int32_t q = 0; q < 8; q++ )
 		{
-		if(!p_iputl(guysbuf[i].weap_initiald[q],f))
+		if(!p_iputl(guysbuf[i].weap_data.initd[q],f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",98);
 		}
@@ -35167,11 +35193,11 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 		//New itemdata vars -Z
 		//! version 27
 		
-		if(!p_putc(itemsbuf[i].useweapon,f))
+		if(!p_putc(itemsbuf[i].weap_data.imitate_weapon,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",49);
 			}
-		if(!p_putc(itemsbuf[i].usedefense,f))
+		if(!p_putc(itemsbuf[i].weap_data.default_defense,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",50);
 			}
@@ -35196,7 +35222,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 		}
 		for ( int32_t q = 0; q < INITIAL_D; q++ )
 		{
-			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
+			if(!p_iputl(itemsbuf[i].weap_data.initd[q],f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",55);
 			}
@@ -35236,35 +35262,35 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",64);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hxofs,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hxofs,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",65);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hyofs,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hyofs,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",66);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hxsz,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hxsz,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",67);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hysz,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hysz,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",68);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hzsz,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hzsz,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",69);
 		}
-		if(!p_iputl(itemsbuf[i].weap_xofs,f))
+		if(!p_iputl(itemsbuf[i].weap_data.xofs,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",70);
 		}
-		if(!p_iputl(itemsbuf[i].weap_yofs,f))
+		if(!p_iputl(itemsbuf[i].weap_data.yofs,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",71);
 		}
-		if(!p_iputw(itemsbuf[i].weaponscript,f))
+		if(!p_iputw(itemsbuf[i].weap_data.script,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",72);
 		}
@@ -35288,15 +35314,15 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",77);
 		}
-		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+		if(!p_iputl(itemsbuf[i].weap_data.override_flags,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",78);
 		}
-		if(!p_iputl(itemsbuf[i].weap_tilew,f))
+		if(!p_iputl(itemsbuf[i].weap_data.tilew,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",79);
 		}
-		if(!p_iputl(itemsbuf[i].weap_tileh,f))
+		if(!p_iputl(itemsbuf[i].weap_data.tileh,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",80);
 		}
@@ -35330,7 +35356,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 			}
 			for ( int32_t w = 0; w < 65; w++ )
 			{
-				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+				if(!p_putc(0,f))
 				{
 					Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",86);
 				} 
@@ -35582,11 +35608,11 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 		//New itemdata vars -Z
 		//! version 27
 		
-		if(!p_getc(&itemsbuf[i].useweapon,f))
+		if(!p_getc(&itemsbuf[i].weap_data.imitate_weapon,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",49);
 			}
-		if(!p_getc(&itemsbuf[i].usedefense,f))
+		if(!p_getc(&itemsbuf[i].weap_data.default_defense,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",50);
 			}
@@ -35611,7 +35637,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 		}
 		for ( int32_t q = 0; q < INITIAL_D; q++ )
 		{
-			if(!p_igetl(&itemsbuf[i].weap_initiald[q],f))
+			if(!p_igetl(&itemsbuf[i].weap_data.initd[q],f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",55);
 			}
@@ -35651,35 +35677,35 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",64);
 		}
-		if(!p_igetl(&itemsbuf[i].weap_hxofs,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.hxofs,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",65);
 		}
-		if(!p_igetl(&itemsbuf[i].weap_hyofs,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.hyofs,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",66);
 		}
-		if(!p_igetl(&itemsbuf[i].weap_hxsz,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.hxsz,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",67);
 		}
-		if(!p_igetl(&itemsbuf[i].weap_hysz,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.hysz,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",68);
 		}
-		if(!p_igetl(&itemsbuf[i].weap_hzsz,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.hzsz,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",69);
 		}
-		if(!p_igetl(&itemsbuf[i].weap_xofs,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.xofs,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",70);
 		}
-		if(!p_igetl(&itemsbuf[i].weap_yofs,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.yofs,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",71);
 		}
-		if(!p_igetw(&itemsbuf[i].weaponscript,f))
+		if(!p_igetw(&itemsbuf[i].weap_data.script,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",72);
 		}
@@ -35703,15 +35729,15 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",77);
 		}
-		if(!p_igetl(&itemsbuf[i].weapoverrideFLAGS,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.override_flags,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",78);
 		}
-		if(!p_igetl(&itemsbuf[i].weap_tilew,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.tilew,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",79);
 		}
-		if(!p_igetl(&itemsbuf[i].weap_tileh,f))
+		if(!p_igetl(&itemsbuf[i].weap_data.tileh,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",80);
 		}
@@ -35743,9 +35769,10 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",85);
 				} 
 			}
+			byte dummy;
 			for ( int32_t w = 0; w < 65; w++ )
 			{
-				if(!p_getc(&itemsbuf[i].weapon_initD_label[q][w],f))
+				if(!p_getc(&dummy,f))
 				{
 					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",86);
 				} 

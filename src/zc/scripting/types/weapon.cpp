@@ -34,7 +34,7 @@ static WeaponArrayRegistrar WPNBURNLIGHTRADIUS_registrar(LWPNBURNLIGHTRADIUS, EW
 }());
 
 static WeaponArrayRegistrar WPNINITD_registrar(LWPNINITD, EWPNINITD, []{
-	static ScriptingArray_ObjectMemberCArray<weapon, &weapon::weap_initd> impl;
+	static ScriptingArray_ObjectMemberCArray<weapon, &weapon::initD> impl;
 	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.boundIndex();

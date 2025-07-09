@@ -6746,6 +6746,80 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 	return ret;
 }
 
+int32_t write_weap_data(weapon_data const& data, PACKFILE* f)
+{
+	if(!p_iputw(V_WEAP_DATA,f))
+		new_return(1);
+	
+	if (!p_iputw(data.flags, f))
+		new_return(2);
+	
+	if (!p_iputl(data.moveflags, f))
+		new_return(3);
+	
+	if (!p_iputw(data.wflags, f))
+		new_return(4);
+	
+	for (int32_t q = 0; q < WPNSPR_MAX; ++q)
+	{
+		if (!p_putc(data.burnsprs[q], f))
+			new_return(5);
+		if (!p_putc(data.light_rads[q], f))
+			new_return(6);
+	}
+	if (!p_putc(data.glow_shape, f))
+		new_return(7);
+	
+	if (!p_iputl(data.override_flags, f))
+		new_return(8);
+	if (!p_iputl(data.tilew, f))
+		new_return(9);
+	if (!p_iputl(data.tileh, f))
+		new_return(10);
+	if (!p_iputl(data.hxsz, f))
+		new_return(11);
+	if (!p_iputl(data.hysz, f))
+		new_return(12);
+	if (!p_iputl(data.hzsz, f))
+		new_return(13);
+	if (!p_iputl(data.hxofs, f))
+		new_return(14);
+	if (!p_iputl(data.hyofs, f))
+		new_return(15);
+	if (!p_iputl(data.xofs, f))
+		new_return(16);
+	if (!p_iputl(data.yofs, f))
+		new_return(17);
+	
+	if (!p_iputzf(data.step, f))
+		new_return(18);
+	
+	if (!p_putc(data.unblockable, f))
+		new_return(19);
+	
+	if (!p_iputl(data.timeout, f))
+		new_return(20);
+	
+	if (!p_putc(data.imitate_weapon, f))
+		new_return(21);
+	if (!p_putc(data.default_defense, f))
+		new_return(22);
+	
+	if (!p_putc(data.lift_level, f))
+		new_return(23);
+	if (!p_putc(data.lift_time, f))
+		new_return(24);
+	if (!p_iputzf(data.lift_height, f))
+		new_return(25);
+	
+	if (!p_iputw(data.script, f))
+		new_return(26);
+	for(uint q = 0; q < 8; ++q)
+		if(!p_iputl(data.initd[q], f))
+			new_return(27);
+	return 0;
+}
+
 bool write_midi(MIDI *m,PACKFILE *f)
 {
     int32_t c;
@@ -8539,14 +8613,6 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			//New itemdata vars -Z
 			//! version 27
 			
-			if(!p_putc(itemsbuf[i].useweapon,f))
-			{
-				new_return(49);
-			}
-			if(!p_putc(itemsbuf[i].usedefense,f))
-			{
-				new_return(50);
-			}
 			if(!p_iputl(itemsbuf[i].weaprange,f))
 			{
 				new_return(51);
@@ -8565,13 +8631,6 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			if(!p_iputl(itemsbuf[i].duplicates,f))
 			{
 				new_return(54);
-			}
-			for ( int32_t q = 0; q < INITIAL_D; q++ )
-			{
-				if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
-				{
-					new_return(55);
-				}
 			}
 			for ( int32_t q = 0; q < 2; q++ )
 			{
@@ -8615,38 +8674,6 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			{
 				new_return(64);
 			}
-			if(!p_iputl(itemsbuf[i].weap_hxofs,f))
-			{
-				new_return(65);
-			}
-			if(!p_iputl(itemsbuf[i].weap_hyofs,f))
-			{
-				new_return(66);
-			}
-			if(!p_iputl(itemsbuf[i].weap_hxsz,f))
-			{
-				new_return(67);
-			}
-			if(!p_iputl(itemsbuf[i].weap_hysz,f))
-			{
-				new_return(68);
-			}
-			if(!p_iputl(itemsbuf[i].weap_hzsz,f))
-			{
-				new_return(69);
-			}
-			if(!p_iputl(itemsbuf[i].weap_xofs,f))
-			{
-				new_return(70);
-			}
-			if(!p_iputl(itemsbuf[i].weap_yofs,f))
-			{
-				new_return(71);
-			}
-			if(!p_iputw(itemsbuf[i].weaponscript,f))
-			{
-				new_return(72);
-			}
 			if(!p_iputl(itemsbuf[i].wpnsprite,f))
 			{
 				new_return(73);
@@ -8669,18 +8696,6 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			if(!p_iputl(itemsbuf[i].tileh,f))
 			{
 				new_return(77);
-			}
-			if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
-			{
-				new_return(78);
-			}
-			if(!p_iputl(itemsbuf[i].weap_tilew,f))
-			{
-				new_return(79);
-			}
-			if(!p_iputl(itemsbuf[i].weap_tileh,f))
-			{
-				new_return(80);
 			}
 			if(!p_iputl(itemsbuf[i].pickup,f))
 			{
@@ -8715,13 +8730,6 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 				}
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
-					{
-						new_return(86);
-					} 
-				}
-				for ( int32_t w = 0; w < 65; w++ )
-				{
 					if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
 					{
 						new_return(87);
@@ -8751,21 +8759,14 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			std::string dispname(itemsbuf[i].display_name);
 			if(!p_putcstr(dispname,f))
 				new_return(92);
-			for(int q = 0; q < WPNSPR_MAX; ++q)
-			{
-				if(!p_putc(itemsbuf[i].burnsprs[q], f))
-					new_return(93);
-				if(!p_putc(itemsbuf[i].light_rads[q], f))
-					new_return(94);
-			}
 			if(!p_putc(itemsbuf[i].pickup_litems, f))
 				new_return(95);
 			if(!p_iputw(itemsbuf[i].pickup_litem_level, f))
 				new_return(96);
 			if (!p_iputl(itemsbuf[i].moveflags, f))
 				new_return(97);
-			if (!p_iputl(itemsbuf[i].wmoveflags, f))
-				new_return(98);
+			if(auto ret = write_weap_data(itemsbuf[i].weap_data, f))
+				return ret;
         }
         
         if(writecycle==0)
@@ -9624,7 +9625,7 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb)
 {
 	//Check what needs writing
-	byte combo_has_flags = 0;
+	word combo_has_flags = 0;
 	for(auto q = 0; q < 8; ++q)
 	{
 		if(tmp_cmb.attribytes[q] || tmp_cmb.attrishorts[q]
@@ -9661,8 +9662,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
 		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
 		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16
-		|| tmp_cmb.liftlightrad || tmp_cmb.liftlightshape
-		|| tmp_cmb.lift_parent_item)
+		|| tmp_cmb.lift_parent_item || !tmp_cmb.lift_weap_data.is_blank())
 		combo_has_flags |= CHAS_LIFT;
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
 		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
@@ -9670,12 +9670,14 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.sfx_landing || tmp_cmb.spr_falling || tmp_cmb.spr_drowning || tmp_cmb.spr_lava_drowning || tmp_cmb.sfx_falling
 		|| tmp_cmb.sfx_drowning || tmp_cmb.sfx_lava_drowning)
 		combo_has_flags |= CHAS_GENERAL;
+	if(!tmp_cmb.misc_weap_data.is_blank())
+		combo_has_flags |= CHAS_MISC_WEAP_DATA;
 	
-	if(!p_putc(combo_has_flags,f))
+	if(!p_iputw(combo_has_flags,f))
 	{
 		return 50;
 	}
-	if(!combo_has_flags) return 0; //Valid, done reading
+	if(!combo_has_flags) return 0; //Valid, done writing
 	//Write the combo
 	if(combo_has_flags&CHAS_BASIC)
 	{
@@ -9796,10 +9798,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 68;
 		if(!p_putc(tmp_cmb.lift_parent_item,f))
 			return 78;
-		if(!p_putc(tmp_cmb.liftlightrad,f))
-			return 96;
-		if(!p_putc(tmp_cmb.liftlightshape,f))
-			return 97;
+		if(auto ret = write_weap_data(tmp_cmb.lift_weap_data, f))
+			return ret;
 	}
 	if(combo_has_flags&CHAS_GENERAL)
 	{
@@ -9843,6 +9843,11 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 94;
 		if(!p_putc(tmp_cmb.sfx_lava_drowning,f))
 			return 95;
+	}
+	if(combo_has_flags&CHAS_MISC_WEAP_DATA)
+	{
+		if(auto ret = write_weap_data(tmp_cmb.misc_weap_data, f))
+			return ret;
 	}
 	return 0;
 }
@@ -11464,25 +11469,6 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 						new_return(95);
 					} 
 				}
-				for ( int32_t w = 0; w < 65; w++ )
-				{
-					if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
-					{
-						new_return(96);
-					} 
-				}
-			}
-			if(!p_iputw(guysbuf[i].weaponscript,f))
-			{
-				new_return(97);
-			}
-			//eweapon initD
-			for ( int32_t q = 0; q < 8; q++ )
-			{
-				if(!p_iputl(guysbuf[i].weap_initiald[q],f))
-				{
-					new_return(98);
-				}
 			}
 			if(!p_iputl(guysbuf[i].moveflags,f))
 				new_return(99);
@@ -11492,41 +11478,10 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(101);
 			if(!p_putc(guysbuf[i].spr_spawn,f))
 				new_return(102);
-			if (!p_putc(guysbuf[i].wunblockable, f))
-				new_return(103);
-			if (!p_iputl(guysbuf[i].wmoveflags, f))
-				new_return(104);
-			if (!p_iputl(guysbuf[i].weapoverrideFLAGS, f))
-				new_return(105);
-			if (!p_iputl(guysbuf[i].weap_tilew, f))
-				new_return(106);
-			if (!p_iputl(guysbuf[i].weap_tileh, f))
-				new_return(107);
-			if (!p_iputl(guysbuf[i].weap_hxsz, f))
-				new_return(108);
-			if (!p_iputl(guysbuf[i].weap_hysz, f))
-				new_return(109);
-			if (!p_iputl(guysbuf[i].weap_hzsz, f))
-				new_return(110);
-			if (!p_iputl(guysbuf[i].weap_hxofs, f))
-				new_return(111);
-			if (!p_iputl(guysbuf[i].weap_hyofs, f))
-				new_return(112);
-			if (!p_iputl(guysbuf[i].weap_xofs, f))
-				new_return(113);
-			if (!p_iputl(guysbuf[i].weap_yofs, f))
-				new_return(114);
-			if (!p_iputl(guysbuf[i].wstep, f))
-				new_return(115);
-			for(int32_t q = 0; q < WPNSPR_MAX; ++q)
-			{
-				if (!p_iputw(guysbuf[i].burnsprs[q], f))
-					new_return(116);
-				if (!p_iputw(guysbuf[i].light_rads[q], f))
-					new_return(117);
-			}
 			if (!p_putc(guysbuf[i].specialsfx, f))
-				new_return(118);
+				new_return(103);
+			if(auto ret = write_weap_data(guysbuf[i].weap_data, f))
+				return ret;
 		}
 		
 		if(writecycle==0)

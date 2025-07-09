@@ -33,6 +33,7 @@ private:
 	optional<byte> _handle_loadsprite(optional<byte> spr, bool isDummy = false, bool force = false);
 	optional<byte> _ewpn_sprite(int parentid) const;
 public:
+	void load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr = nullptr);
     void setAngle(double angletoset);
     void doAutoRotate(bool dodir = false, bool doboth = false);
     int32_t power,type,dead,clk2,misc2;
