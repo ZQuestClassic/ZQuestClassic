@@ -179,6 +179,9 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				_SET(flag[5], "Inactive Back", "Protects the back when button is NOT held");
 				_SET(flag[6], "Inactive Left", "Protects the left when button is NOT held");
 				_SET(flag[7], "Inactive Right", "Protects the right when button is NOT held");
+				_SET(misc[4], "Button", "If 0, the item must be equipped to a button to use it.\n"
+					"Otherwise, any of the specified buttons will activate the glove, even when not equipped to a button.\n"
+					"Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)");
 				_SET(misc[5], "Inactive PTM", "Hero Tile Modifier to use while shield is inactive");
 				_SET(flag[9], "Change Speed", "Change the Hero's walking speed while the shield is active");
 				_SET(flag[10], "Lock Direction", "When the shield is activated, lock the Hero's direction until"

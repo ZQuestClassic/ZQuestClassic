@@ -323,6 +323,12 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 											CBOX("Right", flags, item_flag8)
 										)
 									)
+								)),
+								push_widg(0,Column(
+									Frame(title = "Buttons:",
+										info = "If checked, these buttons will activate the shield, even if it isn't assigned to a button.",
+										_INTBTN_PANEL_HELPER(local_ref.misc5)
+									)
 								))
 							),
 							Rows<3>(
