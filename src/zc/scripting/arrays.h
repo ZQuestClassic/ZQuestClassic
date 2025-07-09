@@ -424,6 +424,61 @@ private:
 	std::function<void(T_Object*, int, ElementType)> m_writeSideEffect;
 };
 
+template<typename T_Object, auto T_MemberPtr, auto T_SubMemberPtr>
+class ScriptingArray_ObjectSubMemberCArray : public IScriptingArray
+{
+public:
+	using MemberType = field_type<T_SubMemberPtr>::type;
+	using ElementType = std::remove_extent<MemberType>::type;
+	using N = std::extent<MemberType>;
+
+	static_assert(std::is_array<MemberType>(), "Can only use ScriptingArray_ObjectSubMemberCArray for array types");
+
+	size_t getSize(int) const override { return N::value; }
+
+	int getElement(int ref, int index) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj)
+			return 0;
+
+		if (m_boundGetterIndex)
+			index = bound_index(index, 0, N::value - 1);
+		else if (BC::checkIndex2(index, N::value) != SH::_NoError)
+			return m_defaultValue;
+
+		return (obj->*T_MemberPtr.*T_SubMemberPtr)[index] * (m_mul10000 ? 10000 : 1);
+	}
+
+	bool setElement(int ref, int index, int value) override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj)
+			return false;
+
+		if (m_boundSetterIndex)
+			index = bound_index(index, 0, N::value - 1);
+		else if (BC::checkIndex2(index, N::value) != SH::_NoError)
+			return false;
+
+		if (auto val = transformValue<ElementType>(value))
+		{
+			(obj->*T_MemberPtr.*T_SubMemberPtr)[index] = val.value();
+
+			if (m_writeSideEffect)
+				m_writeSideEffect(obj, index, val.value());
+			return true;
+		}
+
+		return false;
+	}
+
+	void setSideEffect(std::function<void(T_Object*, int, ElementType)> writeSideEffect) { m_writeSideEffect = std::move(writeSideEffect); }
+
+private:
+	std::function<void(T_Object*, int, ElementType)> m_writeSideEffect;
+};
+
 template<typename T_Object, typename T_Element>
 class ScriptingArray_ObjectComputed : public IScriptingArray
 {
@@ -556,6 +611,58 @@ public:
 		{
 			auto flag = (MemberType)(1<<index);
 			SETFLAG(obj->*T_MemberPtr, flag, val.value());
+
+			if (m_writeSideEffect)
+				m_writeSideEffect(obj, index, val.value());
+			return true;
+		}
+
+		return false;
+	}
+
+	void setSideEffect(std::function<void(T_Object*, int, int)> writeSideEffect) { m_writeSideEffect = std::move(writeSideEffect); }
+
+private:
+	std::function<void(T_Object*, int, int)> m_writeSideEffect;
+};
+
+template<typename T_Object, auto T_MemberPtr, auto T_SubMemberPtr, size_t N>
+class ScriptingArray_ObjectSubMemberBitwiseFlags : public IScriptingArray
+{
+public:
+	using MemberType = field_type<T_SubMemberPtr>::type;
+
+	size_t getSize(int) const override { return N; }
+
+	int getElement(int ref, int index) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj)
+			return 0;
+
+		if (m_boundGetterIndex)
+			index = bound_index(index, 0, N - 1);
+		else if (BC::checkIndex2(index, N) != SH::_NoError)
+			return m_defaultValue;
+
+		return ((obj->*T_MemberPtr.*T_SubMemberPtr >> index) & 1 ? 1 : 0) * (m_mul10000 ? 10000 : 1);
+	}
+
+	bool setElement(int ref, int index, int value) override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj)
+			return false;
+
+		if (m_boundSetterIndex)
+			index = bound_index(index, 0, N - 1);
+		else if (BC::checkIndex2(index, N) != SH::_NoError)
+			return false;
+
+		if (auto val = transformValue<bool>(value))
+		{
+			auto flag = (MemberType)(1<<index);
+			SETFLAG(obj->*T_MemberPtr.*T_SubMemberPtr, flag, val.value());
 
 			if (m_writeSideEffect)
 				m_writeSideEffect(obj, index, val.value());

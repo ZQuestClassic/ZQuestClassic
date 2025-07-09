@@ -26,7 +26,7 @@ static ArrayRegistrar NPCDATAINITD_registrar(NPCDATAINITD, []{
 }());
 
 static ArrayRegistrar NPCDATAWEAPONINITD_registrar(NPCDATAWEAPONINITD, []{
-	static ScriptingArray_ObjectMemberCArray<guydata, &guydata::weap_initiald> impl;
+	static ScriptingArray_ObjectSubMemberCArray<guydata, &guydata::weap_data, &weapon_data::initd> impl;
 	impl.setDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 214747>);
@@ -55,7 +55,7 @@ static ArrayRegistrar NPCDATAMOVEFLAGS_registrar(NPCDATAMOVEFLAGS, []{
 }());
 
 static ArrayRegistrar NPCDATAWMOVEFLAGS_registrar(NPCDATAWMOVEFLAGS, []{
-	static ScriptingArray_ObjectMemberBitwiseFlags<guydata, &guydata::wmoveflags, 11> impl;
+	static ScriptingArray_ObjectSubMemberBitwiseFlags<guydata, &guydata::weap_data, &weapon_data::moveflags, 11> impl;
 	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;

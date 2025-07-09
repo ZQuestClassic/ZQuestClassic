@@ -69,6 +69,7 @@ public:
 	void calculateSize() override;
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
+	std::map<size_t, std::shared_ptr<Widget>> get_children();
 private:
 	//std::vector<std::shared_ptr<Widget>> children;
 	std::vector<int32_t> rowWidths, colWidths, rowHeights, colHeights;

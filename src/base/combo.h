@@ -6,6 +6,7 @@
 #include "base/headers.h"
 #include "base/containers.h"
 #include "base/flags.h"
+#include "base/weapon_data.h"
 #include <functional>
 
 namespace flags {
@@ -52,8 +53,6 @@ enum
 	CMB_ADVP_ANIM,
 	CMB_ADVP_TYPE,
 	CMB_ADVP_INHFLAG,
-	CMB_ADVP_ATTRIBYTE,
-	CMB_ADVP_ATTRISHORT,
 	CMB_ADVP_ATTRIBUTE,
 	CMB_ADVP_FLAGS,
 	CMB_ADVP_GENFLAGS,
@@ -65,6 +64,7 @@ enum
 	CMB_ADVP_GEN_MOVESPEED,
 	CMB_ADVP_GEN_SFX,
 	CMB_ADVP_GEN_SPRITES,
+	CMB_ADVP_MISC_WEAP_DATA,
 	CMB_ADVP_SZ
 };
 
@@ -150,8 +150,9 @@ struct newcombo
 	byte lifthei = 8;
 	byte lifttime = 16;
 	byte lift_parent_item;
-	byte liftlightrad;
-	byte liftlightshape;
+	// TODO: reduce size.
+	weapon_data lift_weap_data {weapon_data::def_lifting_data};
+	weapon_data misc_weap_data {weapon_data::def_data};
 	std::string label;
 	byte attribytes[NUM_COMBO_ATTRIBYTES];
 	int16_t attrishorts[NUM_COMBO_ATTRISHORTS];

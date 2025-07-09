@@ -235,14 +235,15 @@ void init_guys(int32_t guyversion);
 void init_item_drop_sets();
 void init_favorites();
 
-#define CHAS_ATTRIB   0x01
-#define CHAS_FLAG     0x02
-#define CHAS_TRIG     0x04
-#define CHAS_ANIM     0x08
-#define CHAS_SCRIPT   0x10
-#define CHAS_BASIC    0x20
-#define CHAS_LIFT     0x40
-#define CHAS_GENERAL  0x80
+#define CHAS_ATTRIB            0x0001
+#define CHAS_FLAG              0x0002
+#define CHAS_TRIG              0x0004
+#define CHAS_ANIM              0x0008
+#define CHAS_SCRIPT            0x0010
+#define CHAS_BASIC             0x0020
+#define CHAS_LIFT              0x0040
+#define CHAS_GENERAL           0x0080
+#define CHAS_MISC_WEAP_DATA    0x0100
 
 #define SCRHAS_ROOMDATA  0x00000001
 #define SCRHAS_ITEM      0x00000002

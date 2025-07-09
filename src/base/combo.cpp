@@ -74,8 +74,6 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(lifthei != 8) return false;
 	if(lifttime != 16) return false;
 	if(lift_parent_item) return false;
-	if(liftlightrad) return false;
-	if(liftlightshape) return false;
 	
 	if(speed_mult != 1) return false;
 	if(speed_div != 1) return false;
@@ -101,6 +99,8 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(sfx_lava_drowning) return false;
 	
 	if(!triggers.empty()) return false;
+	if(!misc_weap_data.is_blank()) return false;
+	if(!lift_weap_data.is_blank()) return false;
 	return true;
 }
 
@@ -158,15 +158,15 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		type = other.type;
 	if(flags.get(CMB_ADVP_INHFLAG))
 		flag = other.flag;
-	if(flags.get(CMB_ADVP_ATTRIBYTE))
+	if(flags.get(CMB_ADVP_ATTRIBUTE))
+	{
 		for(int32_t q = 0; q < NUM_COMBO_ATTRIBYTES; ++q)
 			attribytes[q] = other.attribytes[q];
-	if(flags.get(CMB_ADVP_ATTRISHORT))
 		for(int32_t q = 0; q < NUM_COMBO_ATTRISHORTS; ++q)
 			attrishorts[q] = other.attrishorts[q];
-	if(flags.get(CMB_ADVP_ATTRIBUTE))
 		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 			attributes[q] = other.attributes[q];
+	}
 	if(flags.get(CMB_ADVP_FLAGS))
 		usrflags = other.usrflags;
 	if(flags.get(CMB_ADVP_GENFLAGS))
@@ -201,8 +201,7 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		lifthei = other.lifthei;
 		lifttime = other.lifttime;
 		lift_parent_item = other.lift_parent_item;
-		liftlightrad = other.liftlightrad;
-		liftlightshape = other.liftlightshape;
+		lift_weap_data = other.lift_weap_data;
 	}
 	if(flags.get(CMB_ADVP_GEN_MOVESPEED))
 	{
@@ -233,6 +232,8 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		sfx_drowning = other.sfx_drowning;
 		sfx_lava_drowning = other.sfx_lava_drowning;
 	}
+	if(flags.get(CMB_ADVP_MISC_WEAP_DATA))
+		misc_weap_data = other.misc_weap_data;
 }
 
 bool is_push_flag(int flag, optional<int> dir)

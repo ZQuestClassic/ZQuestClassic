@@ -95,8 +95,6 @@ public:
 	int32_t new_weapon[32]; //Reserved for weapon patterns and args.
 	word npcscript; 
 	int32_t initD[8];
-	word weaponscript;
-	int32_t weap_initiald[8];
 	byte stickclk;
    
 	int32_t editorflags; //Enemy editor flags 1 to 16
@@ -109,14 +107,8 @@ public:
 	
 	bool didScriptThisFrame; //Hack for enemies which are spawned by shit like scripted load enemies so they don't run their script a second time in a frame.
 	
-	byte wunblockable;
-	move_flags wmoveflags;
-	int32_t weapoverrideFLAGS;
-	int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs, weap_tilew, weap_tileh;
-	zfix wstep;
+	weapon_data weap_data;
 	bool aim_hero;
-	byte burnsprs[WPNSPR_MAX];
-	byte light_rads[WPNSPR_MAX];
 	byte specialsfx; //weapon specialsfx.
 	
 	zfix  getX();

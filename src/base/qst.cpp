@@ -1195,6 +1195,81 @@ bool reset_mapstyles(bool validate, miscQdata *Misc)
     return true;
 }
 
+int32_t read_weap_data(weapon_data& data, PACKFILE* f)
+{
+	word v_weapon_data;
+	if(!p_igetw(&v_weapon_data,f))
+		return qe_invalid;
+	
+	if (!p_igetw(&(data.flags), f))
+		return qe_invalid;
+	
+	if (!p_igetl(&(data.moveflags), f))
+		return qe_invalid;
+	
+	if (!p_igetw(&(data.wflags), f))
+		return qe_invalid;
+	
+	for (int32_t q = 0; q < WPNSPR_MAX; ++q)
+	{
+		if (!p_getc(&(data.burnsprs[q]), f))
+			return qe_invalid;
+		if (!p_getc(&(data.light_rads[q]), f))
+			return qe_invalid;
+	}
+	if (!p_getc(&(data.glow_shape), f))
+		return qe_invalid;
+	
+	if (!p_igetl(&(data.override_flags), f))
+		return qe_invalid;
+	if (!p_igetl(&(data.tilew), f))
+		return qe_invalid;
+	if (!p_igetl(&(data.tileh), f))
+		return qe_invalid;
+	if (!p_igetl(&(data.hxsz), f))
+		return qe_invalid;
+	if (!p_igetl(&(data.hysz), f))
+		return qe_invalid;
+	if (!p_igetl(&(data.hzsz), f))
+		return qe_invalid;
+	if (!p_igetl(&(data.hxofs), f))
+		return qe_invalid;
+	if (!p_igetl(&(data.hyofs), f))
+		return qe_invalid;
+	if (!p_igetl(&(data.xofs), f))
+		return qe_invalid;
+	if (!p_igetl(&(data.yofs), f))
+		return qe_invalid;
+	
+	if (!p_igetzf(&(data.step), f))
+		return qe_invalid;
+	
+	if (!p_getc(&(data.unblockable), f))
+		return qe_invalid;
+	
+	if (!p_igetl(&(data.timeout), f))
+		return qe_invalid;
+	
+	if (!p_getc(&(data.imitate_weapon), f))
+		return qe_invalid;
+	if (!p_getc(&(data.default_defense), f))
+		return qe_invalid;
+	
+	if (!p_getc(&(data.lift_level), f))
+		return qe_invalid;
+	if (!p_getc(&(data.lift_time), f))
+		return qe_invalid;
+	if (!p_igetzf(&(data.lift_height), f))
+		return qe_invalid;
+	
+	if(!p_igetw(&(data.script), f))
+		return qe_invalid;
+	for(uint q = 0; q < 8; ++q)
+		if(!p_igetl(&(data.initd[q]), f))
+			return qe_invalid;
+	return 0;
+}
+
 int32_t get_qst_buffers()
 {
     TheMaps.resize(MAPSCRS);
@@ -6671,13 +6746,16 @@ int32_t readitems(PACKFILE *f, word version, word build)
 	    
 			if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
 			{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-				if(!p_getc(&tempitem.useweapon,f))
+				if(s_version < 63)
 				{
-					return qe_invalid;
-				}
-				if(!p_getc(&tempitem.usedefense,f))
-				{
-					return qe_invalid;
+					if(!p_getc(&tempitem.weap_data.imitate_weapon,f))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&tempitem.weap_data.default_defense,f))
+					{
+						return qe_invalid;
+					}
 				}
 				if(!p_igetl(&tempitem.weaprange,f))
 				{
@@ -6702,13 +6780,10 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				{
 					return qe_invalid;
 				}
-				for ( int32_t q = 0; q < INITIAL_D; q++ )
-				{
-					if(!p_igetl(&tempitem.weap_initiald[q],f))
-					{
-						return qe_invalid;
-					}
-				}
+				if(s_version < 63)
+					for ( int32_t q = 0; q < INITIAL_D; q++ )
+						if(!p_igetl(&tempitem.weap_data.initd[q],f))
+							return qe_invalid;
 				for ( int32_t q = 0; q < 2; q++ )
 				{
 					byte temp;
@@ -6752,38 +6827,26 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_hxofs,f))
+				if(s_version < 63)
 				{
-					return qe_invalid;
+					if(!p_igetl(&tempitem.weap_data.hxofs,f))
+						return qe_invalid;
+					if(!p_igetl(&tempitem.weap_data.hyofs,f))
+						return qe_invalid;
+					if(!p_igetl(&tempitem.weap_data.hxsz,f))
+						return qe_invalid;
+					if(!p_igetl(&tempitem.weap_data.hysz,f))
+						return qe_invalid;
+					if(!p_igetl(&tempitem.weap_data.hzsz,f))
+						return qe_invalid;
+					if(!p_igetl(&tempitem.weap_data.xofs,f))
+						return qe_invalid;
+					if(!p_igetl(&tempitem.weap_data.yofs,f))
+						return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_hyofs,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.weap_hxsz,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.weap_hysz,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.weap_hzsz,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.weap_xofs,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.weap_yofs,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetw(&tempitem.weaponscript,f))
-				{
-					return qe_invalid;
-				}
+				if(s_version < 63)
+					if(!p_igetw(&tempitem.weap_data.script,f))
+						return qe_invalid;
 				if(!p_igetl(&tempitem.wpnsprite,f))
 				{
 					return qe_invalid;
@@ -6815,21 +6878,14 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					return qe_invalid;
 				}
 			}
-			if ( s_version >= 29 )  //! More new vars. 
+			if ( s_version >= 29 && s_version < 63)  //! More new vars. 
 			{
-				//Item Size FLags, TileWidth, TileHeight
-				if(!p_igetl(&tempitem.weapoverrideFLAGS,f))
-				{
+				if(!p_igetl(&tempitem.weap_data.override_flags,f))
 					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.weap_tilew,f))
-				{
+				if(!p_igetl(&tempitem.weap_data.tilew,f))
 					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.weap_tileh,f))
-				{
+				if(!p_igetl(&tempitem.weap_data.tileh,f))
 					return qe_invalid;
-				}
 			}
 			if ( s_version >= 30 )  //! More new vars. 
 			{
@@ -6886,13 +6942,10 @@ int32_t readitems(PACKFILE *f, word version, word build)
 							return qe_invalid;
 						} 
 					}
-					for ( int32_t w = 0; w < 65; w++ )
-					{
-						if(!p_getc(&(tempitem.weapon_initD_label[q][w]),f))
-						{
-							return qe_invalid;
-						} 
-					}
+					if(s_version < 63)
+						for ( int32_t w = 0; w < 65; w++ )
+							if(!p_getc(&padding,f))
+								return qe_invalid;
 					for ( int32_t w = 0; w < 65; w++ )
 					{
 						if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f))
@@ -6945,14 +6998,14 @@ int32_t readitems(PACKFILE *f, word version, word build)
             reset_itembuf(&tempitem,i);
         }
 		
-		if(s_version >= 58)
+		if(s_version >= 58 && s_version < 63)
 		{
 			for(int q = 0; q < WPNSPR_MAX; ++q)
 			{
-				if(!p_getc(&tempitem.burnsprs[q],f))
+				if(!p_getc(&tempitem.weap_data.burnsprs[q],f))
 					return qe_invalid;
 				if(s_version >= 59)
-					if(!p_getc(&tempitem.light_rads[q],f))
+					if(!p_getc(&tempitem.weap_data.light_rads[q],f))
 						return qe_invalid;
 			}
 		}
@@ -6969,24 +7022,59 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if (!p_igetl(&tempitem.moveflags, f))
 				return qe_invalid;
-			if (!p_igetl(&tempitem.wmoveflags, f))
-				return qe_invalid;
+			if(s_version < 63)
+				if (!p_igetl(&tempitem.weap_data.moveflags, f))
+					return qe_invalid;
 		}
 		else
 		{
 			tempitem.moveflags = (move_obeys_grav | move_can_pitfall);
 			switch(tempitem.family)
 			{
-				case itype_bomb:
-				case itype_sbomb:
-				case itype_bait:
-				case itype_liftglove:
-				case itype_candle:
-				case itype_book:
-					tempitem.wmoveflags = (move_obeys_grav | move_can_pitfall);
+				case itype_divinefire:
+					if(!(tempitem.flags & item_flag3))
+						break;
+				[[fallthrough]];
+				case itype_bomb: case itype_sbomb:
+				case itype_bait: case itype_liftglove:
+				case itype_candle: case itype_book:
+					tempitem.weap_data.moveflags = (move_obeys_grav | move_can_pitfall);
 					break;
 				default:
-					tempitem.wmoveflags = move_none;
+					tempitem.weap_data.moveflags = move_none;
+					break;
+			}
+		}
+		
+		if(s_version >= 63)
+		{
+			if(auto ret = read_weap_data(tempitem.weap_data, f))
+				return ret;
+		}
+		else
+		{
+			SETFLAG(tempitem.weap_data.wflags, WFLAG_UPDATE_IGNITE_SPRITE, tempitem.flags & item_burning_sprites);
+			switch(tempitem.family)
+			{
+				case itype_liftglove:
+					tempitem.weap_data.wflags = WFLAG_BREAK_WHEN_LANDING;
+					break;
+				case itype_bomb: case itype_sbomb:
+					// Moving these over and removing them from itemdata
+					if(tempitem.flags & item_flag3)
+						tempitem.weap_data.wflags |= WFLAG_STOP_WHEN_LANDING;
+					if(tempitem.flags & item_flag5)
+						tempitem.weap_data.wflags |= WFLAG_STOP_WHEN_HIT_SOLID;
+					tempitem.flags &= ~(item_flag3|item_flag5);
+					if(tempitem.misc4)
+					{
+						tempitem.weap_data.lift_level = tempitem.misc4;
+						tempitem.weap_data.lift_time = tempitem.misc5;
+						tempitem.weap_data.lift_height = tempitem.misc6;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+					}
 					break;
 			}
 		}
@@ -6996,11 +7084,11 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 			{
 				tempitem.script = 0;
-				tempitem.weaponscript = 0;
+				tempitem.weap_data.script = 0;
 				for(int q = 0; q < 8; ++q)
 				{
 					tempitem.initiald[q] = 0;
-					tempitem.weap_initiald[q] = 0;
+					tempitem.weap_data.initd[q] = 0;
 				}
 			}
 			memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
@@ -9286,7 +9374,6 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			for ( int32_t q = 0; q < 8; q++ )
 			{
 				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
-				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
 				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
 				tempitem.sprite_initiald[q] = 0;
 			}
@@ -9741,43 +9828,43 @@ static void guy_update_firesfx(guydata& tempguy)
 
 static void guy_update_weaponflags(guydata& tempguy)
 {
-	tempguy.wunblockable = 0;
-	tempguy.wmoveflags = move_none;
+	tempguy.weap_data.unblockable = 0;
+	tempguy.weap_data.moveflags = move_none;
 	if (tempguy.weapon == ewFlame || tempguy.weapon == ewFireTrail)
-		tempguy.wmoveflags |= (move_obeys_grav | move_can_pitfall);
-	tempguy.weapoverrideFLAGS = 0;
-	tempguy.weap_hxofs = 0;
-	tempguy.weap_hyofs = 0;
-	tempguy.weap_hxsz = 0;
-	tempguy.weap_hysz = 0;
-	tempguy.weap_hzsz = 0;
-	tempguy.weap_xofs = 0;
-	tempguy.weap_yofs = 0;
-	tempguy.weap_tilew = 0;
-	tempguy.weap_tileh = 0;
+		tempguy.weap_data.moveflags |= (move_obeys_grav | move_can_pitfall);
+	tempguy.weap_data.override_flags = 0;
+	tempguy.weap_data.hxofs = 0;
+	tempguy.weap_data.hyofs = 0;
+	tempguy.weap_data.hxsz = 0;
+	tempguy.weap_data.hysz = 0;
+	tempguy.weap_data.hzsz = 0;
+	tempguy.weap_data.xofs = 0;
+	tempguy.weap_data.yofs = 0;
+	tempguy.weap_data.tilew = 0;
+	tempguy.weap_data.tileh = 0;
 	switch (tempguy.weapon)
 	{
 	case ewFireball: case ewFireball2:
-		tempguy.wstep = 175;
+		tempguy.weap_data.step = 1.75_zf;
 		break;
 	case ewSword: case ewLitBomb: case ewLitSBomb:
 	case ewRock:  case ewMagic: case ewWind:
-		tempguy.wstep = 300;
+		tempguy.weap_data.step = 3_zf;
 		break;
 	case ewArrow:
-		tempguy.wstep = 200;
+		tempguy.weap_data.step = 2_zf;
 		break;
 	case ewFlame: case ewFlame2:
-		tempguy.wstep = 100;
+		tempguy.weap_data.step = 1_zf;
 		break;
 	default:
-		tempguy.wstep = 0;
+		tempguy.weap_data.step = 0_zf;
 		break;
 	}
 	for (int q = 0; q < WPNSPR_MAX; ++q)
 	{
-		tempguy.burnsprs[q] = 0;
-		tempguy.light_rads[q] = 0;
+		tempguy.weap_data.burnsprs[q] = 0;
+		tempguy.weap_data.light_rads[q] = 0;
 	}
 }
 
@@ -14425,12 +14512,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 				} 
 			}
-			for ( int32_t w = 0; w < 65; w++ )
+			if(guyversion < 54)
 			{
-				if(!p_getc(&(tempguy.weapon_initD_label[q][w]),f))
-				{
-					return qe_invalid;
-				} 
+				byte dummybyte;
+				for ( int32_t w = 0; w < 65; w++ )
+					if(!p_getc(&dummybyte,f))
+						return qe_invalid;
 			}
 		}
 		    
@@ -14441,30 +14528,20 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		for ( int32_t q = 0; q < 8; q++ )
 		{
 			sprintf(tempguy.initD_label[q],"InitD[%d]",q);
-			sprintf(tempguy.weapon_initD_label[q],"InitD[%d]",q);
 		}
 	    }
-	    if ( guyversion >= 40 )
-	    {
-		    if(!p_igetw(&(tempguy.weaponscript),f))
-		    {
+	    if ( guyversion >= 40 && guyversion < 54)
+		    if(!p_igetw(&(tempguy.weap_data.script),f))
 				return qe_invalid;
-		    } 
-	    }
 	    if ( guyversion < 40 ) 
-	    {
-		    tempguy.weaponscript = 0;
-	    }
+		    tempguy.weap_data.script = 0;
 	    //eweapon script InitD
 	    if ( guyversion >= 41 )
 	    {
-		    for ( int32_t q = 0; q < 8; q++ )
-		    {
-			    if(!p_igetl(&(tempguy.weap_initiald[q]),f))
-			    {
-					return qe_invalid;
-			    } 
-		    }
+			if(guyversion < 54)
+				for ( int32_t q = 0; q < 8; q++ )
+					if(!p_igetl(&(tempguy.weap_data.initd[q]),f))
+						return qe_invalid;
 		    if ( guy_cversion < 4 )
 		    {
 			if ( tempguy.family == eeKEESE )
@@ -15138,39 +15215,41 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			{
 				guy_update_weaponflags(tempguy);
 			}
-			else
+			else if(guyversion < 54)
 			{
-				if (!p_getc(&(tempguy.wunblockable), f))
+				if (!p_getc(&(tempguy.weap_data.unblockable), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.wmoveflags), f))
+				if (!p_igetl(&(tempguy.weap_data.moveflags), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weapoverrideFLAGS), f))
+				if (!p_igetl(&(tempguy.weap_data.override_flags), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weap_tilew), f))
+				if (!p_igetl(&(tempguy.weap_data.tilew), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weap_tileh), f))
+				if (!p_igetl(&(tempguy.weap_data.tileh), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weap_hxsz), f))
+				if (!p_igetl(&(tempguy.weap_data.hxsz), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weap_hysz), f))
+				if (!p_igetl(&(tempguy.weap_data.hysz), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weap_hzsz), f))
+				if (!p_igetl(&(tempguy.weap_data.hzsz), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weap_hxofs), f))
+				if (!p_igetl(&(tempguy.weap_data.hxofs), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weap_hyofs), f))
+				if (!p_igetl(&(tempguy.weap_data.hyofs), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weap_xofs), f))
+				if (!p_igetl(&(tempguy.weap_data.xofs), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.weap_yofs), f))
+				if (!p_igetl(&(tempguy.weap_data.yofs), f))
 					return qe_invalid;
-				if (!p_igetl(&(tempguy.wstep), f))
+				int32_t temp_step;
+				if (!p_igetl(&temp_step, f))
 					return qe_invalid;
+				tempguy.weap_data.step = zslongToFix(temp_step*100);
 				for (int32_t q = 0; q < WPNSPR_MAX; ++q)
 				{
-					if (!p_igetw(&(tempguy.burnsprs[q]), f))
+					if (!p_igetw(&(tempguy.weap_data.burnsprs[q]), f))
 						return qe_invalid;
-					if (!p_igetw(&(tempguy.light_rads[q]), f))
+					if (!p_igetw(&(tempguy.weap_data.light_rads[q]), f))
 						return qe_invalid;
 				}
 			}
@@ -15182,6 +15261,17 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			{
 				if (!p_getc(&(tempguy.specialsfx), f))
 					return qe_invalid;
+			}
+			
+			if(guyversion >= 54)
+			{
+				if(auto ret = read_weap_data(tempguy.weap_data, f))
+					return ret;
+			}
+			else
+			{
+				SETFLAG(tempguy.weap_data.wflags, WFLAG_UPDATE_IGNITE_SPRITE, tempguy.flags & guy_burning_sprites);
+				tempguy.weap_data.flags |= wdata_set_step;
 			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
@@ -18146,9 +18236,19 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 
 int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 {
-	byte combo_has_flags;
-	if(!p_getc(&combo_has_flags,f))
-		return qe_invalid;
+	byte tempbyte;
+	word combo_has_flags;
+	if(s_version < 55)
+	{
+		if(!p_getc(&tempbyte,f))
+			return qe_invalid;
+		combo_has_flags = tempbyte;
+	}
+	else
+	{
+		if(!p_igetw(&combo_has_flags,f))
+			return qe_invalid;
+	}
 	
 	temp_combo.clear();
 	if(combo_has_flags)
@@ -18301,14 +18401,45 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.lift_parent_item,f))
 					return qe_invalid;
 			}
-			if(s_version >= 51)
+			auto& weap_data = temp_combo.lift_weap_data;
+			if(s_version >= 51 && s_version < 55)
 			{
-				if(!p_getc(&temp_combo.liftlightrad,f))
+				if(!p_getc(&weap_data.light_rads[WPNSPR_BASE],f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.liftlightshape,f))
+				if(!p_getc(&weap_data.glow_shape,f))
 					return qe_invalid;
 			}
+			
+			if(s_version >= 55)
+			{
+				if(auto ret = read_weap_data(weap_data, f))
+					return ret;
+			}
+			else
+			{
+				auto const& pitm = itemsbuf[temp_combo.lift_parent_item];
+				auto weap_glow = weap_data.light_rads[WPNSPR_BASE];
+				switch(pitm.family)
+				{
+					case itype_bomb:
+					case itype_sbomb:
+						weap_data = pitm.weap_data;
+						if(!(weap_data.wflags & WFLAG_UPDATE_IGNITE_SPRITE))
+						{
+							weap_data.flags |= wdata_glow_rad;
+							weap_data.light_rads[WPNSPR_BASE] = weap_glow;
+						}
+						break;
+					default:
+						weap_data.wflags |= WFLAG_BREAK_WHEN_LANDING;
+						weap_data.flags |= wdata_glow_rad;
+				}
+				weap_data.moveflags |= move_obeys_grav|move_can_pitfall;
+				if(temp_combo.liftflags & LF_BREAKONSOLID)
+					weap_data.wflags |= WFLAG_BREAK_ON_SOLID;
+			}
 		}
+		
 		if(combo_has_flags&CHAS_GENERAL)
 		{
 			if(!p_getc(&temp_combo.speed_mult,f))
@@ -18363,6 +18494,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.sfx_lava_drowning,f))
 					return qe_invalid;
 			}
+		}
+		if(combo_has_flags&CHAS_MISC_WEAP_DATA)
+		{
+			if(auto ret = read_weap_data(temp_combo.misc_weap_data, f))
+				return ret;
 		}
 	}
 	update_combo(temp_combo, s_version);

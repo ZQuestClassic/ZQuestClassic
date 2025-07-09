@@ -36,7 +36,24 @@ static ArrayRegistrar COMBODGENFLAGARR_registrar(COMBODGENFLAGARR, []{
 }());
 
 static ArrayRegistrar COMBODLIFTFLAGS_registrar(COMBODLIFTFLAGS, []{
-	static ScriptingArray_ObjectMemberBitwiseFlags<newcombo, &newcombo::liftflags, 8> impl;
+	static ScriptingArray_ObjectComputed<newcombo, int> impl(
+		[](newcombo* cmb){
+			return 8;
+		},
+		[](newcombo* cmb, int index) -> int {
+			auto bit = 1 << index;
+			if(bit == LF_BREAKONSOLID)
+				return cmb->lift_weap_data.wflags & WFLAG_BREAK_ON_SOLID;
+			return cmb->liftflags & (1 << index);
+		},
+		[](newcombo* cmb, int index, int value){
+			auto bit = lift_flags(1 << index);
+			if(bit == LF_BREAKONSOLID)
+				SETFLAG(cmb->lift_weap_data.wflags, WFLAG_BREAK_ON_SOLID, value);
+			else
+				SETFLAG(cmb->liftflags, bit, value);
+		}
+	);
 	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;

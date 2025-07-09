@@ -25,14 +25,14 @@ static ArrayRegistrar IDATAMOVEFLAGS_registrar(IDATAMOVEFLAGS, []{
 }());
 
 static ArrayRegistrar IDATAWMOVEFLAGS_registrar(IDATAWMOVEFLAGS, []{
-	static ScriptingArray_ObjectMemberBitwiseFlags<itemdata, &itemdata::wmoveflags, 11> impl;
+	static ScriptingArray_ObjectSubMemberBitwiseFlags<itemdata, &itemdata::weap_data, &weapon_data::moveflags, 11> impl;
 	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar IDATAWPNINITD_registrar(IDATAWPNINITD, []{
-	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::weap_initiald> impl;
+	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::initd> impl;
 	impl.setDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.boundIndex();
@@ -40,7 +40,7 @@ static ArrayRegistrar IDATAWPNINITD_registrar(IDATAWPNINITD, []{
 }());
 
 static ArrayRegistrar IDATABURNINGSPR_registrar(IDATABURNINGSPR, []{
-	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::burnsprs> impl;
+	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::burnsprs> impl;
 	impl.setDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
@@ -48,7 +48,7 @@ static ArrayRegistrar IDATABURNINGSPR_registrar(IDATABURNINGSPR, []{
 }());
 
 static ArrayRegistrar IDATABURNINGLIGHTRAD_registrar(IDATABURNINGLIGHTRAD, []{
-	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::light_rads> impl;
+	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::light_rads> impl;
 	impl.setDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);

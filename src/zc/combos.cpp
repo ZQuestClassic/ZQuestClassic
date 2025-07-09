@@ -1762,6 +1762,9 @@ static void trigger_stepfx_add_weapon_and_load_gfx(sprite_list& list, const newc
 
 	if (cmb.attribytes[3] > 0)
 		wpn->LOADGFX(cmb.attribytes[3]);
+	
+	if(cmb.usrflags & cflag10)
+		wpn->load_weap_data(cmb.misc_weap_data);
 }
 
 bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
@@ -2146,20 +2149,12 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	}
 	wpn->unblockable = cmb.attribytes[4] & WPNUNB_ALL;
 	
-	auto scrid = cmb.attribytes[5];
-	bool valid_script = false;
-	if(scrid > 0)
-	{
-		if(lw)
-		{
-			if(lwpnmap[scrid-1].hasScriptData()) valid_script = true;
-		}
-		else if(ewpnmap[scrid-1].hasScriptData()) valid_script = true;
-	}
-	if(valid_script)
-	{
-		wpn->weaponscript = scrid;
-	}
+	wpn->script = cmb.attribytes[5];
+	if(cmb.usrflags & cflag10)
+		wpn->load_weap_data(cmb.misc_weap_data);
+	
+	if(!((lw ? lwpnmap : ewpnmap)[wpn->script-1].hasScriptData())) // validate script
+		wpn->script = 0;
 	return wpn;
 }
 
@@ -3624,14 +3619,10 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 		}
 	}
 	
-	w->moveflags |= move_obeys_grav;
-	if(cmb.liftflags & LF_BREAKONSOLID)
-		w->misc_wflags |= WFLAG_BREAK_ON_SOLID;
-	
 	w->death_sprite = cmb.liftbreaksprite;
 	w->death_sfx = cmb.liftbreaksfx;
-	w->glowRad = cmb.liftlightrad;
-	w->glowShape = cmb.liftlightshape;
+	
+	w->load_weap_data(cmb.lift_weap_data);
 	
 	Hero.lift(w, cmb.lifttime, cmb.lifthei);
 	
