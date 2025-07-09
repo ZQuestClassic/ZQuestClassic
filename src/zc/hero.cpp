@@ -27765,6 +27765,9 @@ void HeroClass::checkscroll()
 	//DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
 	if(action == casting||action==sideswimcasting)
 		return;
+	
+	if(!check_prescroll()) // prevent scrolling when you should drown/fall/etc before the screen edge
+		return;
 
 	if (action == inwind && whirlwind == 0)
 	{
@@ -27950,6 +27953,23 @@ void HeroClass::checkscroll()
 		y = 0;
 		do_scroll_direction(up);
 	}
+}
+
+bool HeroClass::check_prescroll()
+{
+	if(get_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL))
+		return true; // skip checks
+	if (x <= world_w-16 && x >= 0 && y <= world_h-16 && y >= 0)
+		return true; // in bounds, no need for checks
+	zfix tx = x, ty = y, tz = z;
+	x = vbound(x, 0, world_w-16);
+	y = vbound(y, 0, world_h-16);
+	if(onWater(true) || drownclk)
+		return false; // would drown before scrolling
+	if(pitslide() || fallclk)
+		return false; // would fall before scrolling
+	x = tx; y = ty; z = tz;
+	return true;
 }
 
 // assumes current direction is in lastdir[3]

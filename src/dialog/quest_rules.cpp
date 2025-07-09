@@ -1729,7 +1729,10 @@ GUI::ListData bugfixRulesList
 		" Otherwise, it uses return square A." },
 	{ "Game->Suspend[susptFFCSCRIPTS] suspends screen scripts", qr_ZS_OLD_SUSPEND_FFC,
 		"If checked, setting 'Game->Suspend[susptFFCSCRIPTS]' will suspend screen scripts."
-		"\nIf disabled only the ffcscripts will be suspended."}
+		"\nIf disabled only the ffcscripts will be suspended."},
+	{ "Sometimes scroll over pits/water", qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL,
+		"If checked, the player may be able to scroll over thin patches of liquid/pitfall combos"
+		" that are close to the screen edge." }
 };
 
 extern GUI::ListData compileSettingList;

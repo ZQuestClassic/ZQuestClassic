@@ -385,6 +385,7 @@ public:
 	void do_scroll_direction(direction dir);
 	void maybe_begin_advanced_maze();
 	void checkscroll();
+	bool check_prescroll();
 	void checkspecial();
 	void checkspecial2(int32_t *ls);
 	void checkspecial3();
