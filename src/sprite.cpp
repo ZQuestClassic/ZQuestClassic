@@ -89,7 +89,6 @@ sprite::sprite(): solid_object()
     
     scriptcoldet = true;
     script = 0;
-    weaponscript = 0;
     scripttile = -1;
     scriptflip = -1;
     do_animation = true;
@@ -106,7 +105,6 @@ sprite::sprite(): solid_object()
     for ( int32_t q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
-	    weap_initd[q] = 0;
     }
 	glowRad = 0;
 	glowShape = 0;
@@ -133,7 +131,7 @@ sprite::sprite(sprite const & other):
     onplatid(other.onplatid), angular(other.angular), canfreeze(other.canfreeze),
     angle(other.angle), lasthit(other.lasthit), lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle), extend(other.extend), wpnsprite(other.wpnsprite),
-	scriptflag(other.scriptflag), script(other.script), weaponscript(other.weaponscript),
+	scriptflag(other.scriptflag), script(other.script),
 	scripttile(other.scripttile), scriptflip(other.scriptflip),
 	do_animation(other.do_animation), rotation(other.rotation),
 	scale(other.scale), moveflags(other.moveflags), drawflags(other.drawflags),
@@ -175,7 +173,6 @@ sprite::sprite(sprite const & other):
 	for (int32_t i=0; i<8; ++i)
 	{
 		initD[i]=other.initD[i];
-		weap_initd[i]=other.weap_initd[i];
 	}
 }
 
@@ -204,7 +201,6 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     
     scriptcoldet = true;
     script = 0;
-    weaponscript = 0;
     scripttile = -1;
     scriptflip = -1;
     rotation = 0;
@@ -238,7 +234,6 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     for ( int32_t q = 0; q < 8; q++ ) 
     {
         initD[q] = 0;
-        weap_initd[q] = 0;
     }
 	glowRad = 0;
 	glowShape = 0;

@@ -868,7 +868,7 @@ enum ComboLiftFlag
 	LF_SPECIALITEM,
 	LF_NOUCSET,
 	LF_NOWPNCMBCSET,
-	LF_BREAKONSOLID
+	LF_BREAKONSOLID, // TODO: Deprecate this with new weapon_data access
 };
 
 // Used with [Hero->LiftFlags].

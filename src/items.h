@@ -193,10 +193,6 @@ struct itemdata
     int32_t misc10;
 	int16_t cost_amount[2]; // Magic usage!
     byte usesound, usesound2;
-	byte burnsprs[WPNSPR_MAX];
-	byte light_rads[WPNSPR_MAX];
-    byte useweapon; //lweapon id type -Z
-    byte usedefense; //default defense type -Z
     
     //To implement next;
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
@@ -204,13 +200,11 @@ struct itemdata
     int32_t weapduration; //default duration, 0 = infinite. 
     int32_t duplicates; //Number of duplicate weapons generated.
     int32_t wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon,     
-    int32_t weap_initiald[INITIAL_D];
     
     byte drawlayer;
     int32_t collectflags;
-    int32_t hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
-    int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
-    int32_t tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
+    int32_t hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs;
+    int32_t tilew, tileh;
     int32_t pickup; byte pickupflag;
     
 #define itemdataPSTRING_ALWAYS		0x00000001
@@ -219,15 +213,12 @@ struct itemdata
     word pstring;
     word pickup_string_flags;
     int32_t overrideFLAGS; //Override flags.
-    int32_t weapoverrideFLAGS; 
     
-    word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     int32_t wpnsprite; //enemy weapon sprite. 
     int32_t magiccosttimer[2]; 
     char cost_counter[2];
     
     char initD_label[8][65];
-    char weapon_initD_label[8][65];
     char sprite_initD_label[8][65];
     
     int32_t sprite_initiald[INITIAL_D];
@@ -239,7 +230,7 @@ struct itemdata
 	int16_t pickup_litem_level = -1;
 	
 	move_flags moveflags = (move_obeys_grav | move_can_pitfall);
-	move_flags wmoveflags = move_none;
+	weapon_data weap_data;
 	
 	std::string get_name(bool init = false, bool plain = false) const;
 	//helper functions because stupid shit

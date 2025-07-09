@@ -681,11 +681,11 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			//New itemdata vars -Z
 			//! version 27
 			
-		if(!p_getc(&tempitem.useweapon,f))
+		if(!p_getc(&tempitem.weap_data.imitate_weapon,f))
 			{
 			return 0;
 			}
-			if(!p_getc(&tempitem.usedefense,f))
+			if(!p_getc(&tempitem.weap_data.default_defense,f))
 			{
 			return 0;
 			}
@@ -710,7 +710,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			}
 			for ( int32_t q = 0; q < INITIAL_D; q++ )
 			{
-				if(!p_igetl(&tempitem.weap_initiald[q],f))
+				if(!p_igetl(&tempitem.weap_data.initd[q],f))
 				{
 					return 0;
 				}
@@ -750,35 +750,35 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hxofs,f))
+			if(!p_igetl(&tempitem.weap_data.hxofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hyofs,f))
+			if(!p_igetl(&tempitem.weap_data.hyofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hxsz,f))
+			if(!p_igetl(&tempitem.weap_data.hxsz,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hysz,f))
+			if(!p_igetl(&tempitem.weap_data.hysz,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hzsz,f))
+			if(!p_igetl(&tempitem.weap_data.hzsz,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_xofs,f))
+			if(!p_igetl(&tempitem.weap_data.xofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_yofs,f))
+			if(!p_igetl(&tempitem.weap_data.yofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetw(&tempitem.weaponscript,f))
+			if(!p_igetw(&tempitem.weap_data.script,f))
 			{
 				return 0;
 			}
@@ -806,15 +806,15 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weapoverrideFLAGS,f))
+			if(!p_igetl(&tempitem.weap_data.override_flags,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_tilew,f))
+			if(!p_igetl(&tempitem.weap_data.tilew,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_tileh,f))
+			if(!p_igetl(&tempitem.weap_data.tileh,f))
 			{
 				return 0;
 			}
@@ -850,9 +850,10 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 						return 0;
 					} 
 				}
+				byte dummy;
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&tempitem.weapon_initD_label[q][w],f))
+					if(!p_getc(&dummy,f))
 					{
 						return 0;
 					} 
@@ -1167,11 +1168,11 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		//New itemdata vars -Z
 		//! version 27
 		
-		if(!p_putc(itemsbuf[i].useweapon,f))
+		if(!p_putc(itemsbuf[i].weap_data.imitate_weapon,f))
 			{
 				new_return(49);
 			}
-		if(!p_putc(itemsbuf[i].usedefense,f))
+		if(!p_putc(itemsbuf[i].weap_data.default_defense,f))
 			{
 				new_return(50);
 			}
@@ -1196,7 +1197,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		}
 		for ( int32_t q = 0; q < INITIAL_D; q++ )
 		{
-			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
+			if(!p_iputl(itemsbuf[i].weap_data.initd[q],f))
 			{
 				new_return(55);
 			}
@@ -1236,35 +1237,35 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		{
 			new_return(64);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hxofs,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hxofs,f))
 		{
 			new_return(65);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hyofs,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hyofs,f))
 		{
 			new_return(66);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hxsz,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hxsz,f))
 		{
 			new_return(67);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hysz,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hysz,f))
 		{
 			new_return(68);
 		}
-		if(!p_iputl(itemsbuf[i].weap_hzsz,f))
+		if(!p_iputl(itemsbuf[i].weap_data.hzsz,f))
 		{
 			new_return(69);
 		}
-		if(!p_iputl(itemsbuf[i].weap_xofs,f))
+		if(!p_iputl(itemsbuf[i].weap_data.xofs,f))
 		{
 			new_return(70);
 		}
-		if(!p_iputl(itemsbuf[i].weap_yofs,f))
+		if(!p_iputl(itemsbuf[i].weap_data.yofs,f))
 		{
 			new_return(71);
 		}
-		if(!p_iputw(itemsbuf[i].weaponscript,f))
+		if(!p_iputw(itemsbuf[i].weap_data.script,f))
 		{
 			new_return(72);
 		}
@@ -1292,15 +1293,15 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		{
 			new_return(77);
 		}
-		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+		if(!p_iputl(itemsbuf[i].weap_data.override_flags,f))
 		{
 			new_return(78);
 		}
-		if(!p_iputl(itemsbuf[i].weap_tilew,f))
+		if(!p_iputl(itemsbuf[i].weap_data.tilew,f))
 		{
 			new_return(79);
 		}
-		if(!p_iputl(itemsbuf[i].weap_tileh,f))
+		if(!p_iputl(itemsbuf[i].weap_data.tileh,f))
 		{
 			new_return(80);
 		}
@@ -1337,7 +1338,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 			}
 			for ( int32_t w = 0; w < 65; w++ )
 			{
-				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+				if(!p_putc(0,f))
 				{
 					new_return(86);
 				} 
@@ -1458,9 +1459,9 @@ void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
 	else
 	{
 		i -= 8;
-		if (test.weaponscript)
+		if (test.weap_data.script)
 		{
-			zasm_meta const& meta = ewpnscripts[test.weaponscript]->meta;
+			zasm_meta const& meta = ewpnscripts[test.weap_data.script]->meta;
 			if (!meta.initd_help[i].empty())
 				InfoDialog("Info", meta.initd_help[i].c_str()).show();
 		}
@@ -1841,22 +1842,23 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 						return 0;
 					}
 				}
+				byte dummy;
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&tempguy.weapon_initD_label[q][w],f))
+					if(!p_getc(&dummy,f))
 					{
 						return 0;
 					}
 				}
 			}
-			if(!p_igetw(&tempguy.weaponscript,f))
+			if(!p_igetw(&tempguy.weap_data.script,f))
 			{
 			return 0;
 			}
 			//eweapon initD
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-			if(!p_igetl(&tempguy.weap_initiald[q],f))
+			if(!p_igetl(&tempguy.weap_data.initd[q],f))
 			{
 				return 0;
 			}
@@ -1878,37 +1880,39 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 				return 0;
 			
 			//enemy editor attacktab
-			if (!p_igetl(&tempguy.wmoveflags, f))
+			if (!p_igetl(&tempguy.weap_data.moveflags, f))
 				return 0;
-			if (!p_getc(&tempguy.wunblockable, f))
+			if (!p_getc(&tempguy.weap_data.unblockable, f))
 				return 0;
-			if (!p_igetl(&tempguy.weapoverrideFLAGS, f))
+			if (!p_igetl(&tempguy.weap_data.override_flags, f))
 				return 0;
-			if (!p_igetl(&tempguy.weap_hxofs, f))
+			if (!p_igetl(&tempguy.weap_data.hxofs, f))
 				return 0;
-			if (!p_igetl(&tempguy.weap_hyofs, f))
+			if (!p_igetl(&tempguy.weap_data.hyofs, f))
 				return 0;
-			if (!p_igetl(&tempguy.weap_hxsz, f))
+			if (!p_igetl(&tempguy.weap_data.hxsz, f))
 				return 0;
-			if (!p_igetl(&tempguy.weap_hysz, f))
+			if (!p_igetl(&tempguy.weap_data.hysz, f))
 				return 0;
-			if (!p_igetl(&tempguy.weap_hzsz, f))
+			if (!p_igetl(&tempguy.weap_data.hzsz, f))
 				return 0;
-			if (!p_igetl(&tempguy.weap_xofs, f))
+			if (!p_igetl(&tempguy.weap_data.xofs, f))
 				return 0;
-			if (!p_igetl(&tempguy.weap_yofs, f))
+			if (!p_igetl(&tempguy.weap_data.yofs, f))
 				return 0;
-			if (!p_igetl(&tempguy.weap_tilew, f))
+			if (!p_igetl(&tempguy.weap_data.tilew, f))
 				return 0;
-			if (!p_igetl(&tempguy.weap_tileh, f))
+			if (!p_igetl(&tempguy.weap_data.tileh, f))
 				return 0;
-			if (!p_igetl(&tempguy.wstep, f))
+			int32_t temp_step;
+			if (!p_igetl(&temp_step, f))
 				return 0;
+			tempguy.weap_data.step = zslongToFix(temp_step*100);
 			for (int q=0; q < WPNSPR_MAX; ++q)
 			{
-				if (!p_getc(&tempguy.burnsprs[q], f))
+				if (!p_getc(&tempguy.weap_data.burnsprs[q], f))
 					return 0;
-				if (!p_getc(&tempguy.light_rads[q], f))
+				if (!p_getc(&tempguy.weap_data.light_rads[q], f))
 					return 0;
 			}
 			if (!p_getc(&tempguy.specialsfx, f))
@@ -2257,20 +2261,20 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 			}
 			for ( int32_t w = 0; w < 65; w++ )
 			{
-				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
+				if(!p_putc(0,f))
 				{
 					return 0;
 				}
 			}
 		}
-		if(!p_iputw(guysbuf[i].weaponscript,f))
+		if(!p_iputw(guysbuf[i].weap_data.script,f))
 		{
 		return 0;
 		}
 		//eweapon initD
 		for ( int32_t q = 0; q < 8; q++ )
 		{
-		if(!p_iputl(guysbuf[i].weap_initiald[q],f))
+		if(!p_iputl(guysbuf[i].weap_data.initd[q],f))
 		{
 			return 0;
 		}
@@ -2291,37 +2295,38 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 			return 0;
 		if (!p_iputl(guysbuf[i].moveflags, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].wmoveflags, f))
+		if (!p_iputl(guysbuf[i].weap_data.moveflags, f))
 			return 0;
-		if (!p_putc(guysbuf[i].wunblockable, f))
+		if (!p_putc(guysbuf[i].weap_data.unblockable, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weapoverrideFLAGS, f))
+		if (!p_iputl(guysbuf[i].weap_data.override_flags, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weap_hxofs, f))
+		if (!p_iputl(guysbuf[i].weap_data.hxofs, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weap_hyofs, f))
+		if (!p_iputl(guysbuf[i].weap_data.hyofs, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weap_hxsz, f))
+		if (!p_iputl(guysbuf[i].weap_data.hxsz, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weap_hysz, f))
+		if (!p_iputl(guysbuf[i].weap_data.hysz, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weap_hzsz, f))
+		if (!p_iputl(guysbuf[i].weap_data.hzsz, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weap_xofs, f))
+		if (!p_iputl(guysbuf[i].weap_data.xofs, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weap_yofs, f))
+		if (!p_iputl(guysbuf[i].weap_data.yofs, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weap_tilew, f))
+		if (!p_iputl(guysbuf[i].weap_data.tilew, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].weap_tileh, f))
+		if (!p_iputl(guysbuf[i].weap_data.tileh, f))
 			return 0;
-		if (!p_iputl(guysbuf[i].wstep, f))
+		int32_t temp_step = guysbuf[i].weap_data.step.getZLong() / 100;
+		if (!p_iputl(temp_step, f))
 			return 0;
 		for (int q=0; q < WPNSPR_MAX; ++q)
 		{
-			if (!p_putc(guysbuf[i].burnsprs[q], f))
+			if (!p_putc(guysbuf[i].weap_data.burnsprs[q], f))
 				return 0;
-			if (!p_putc(guysbuf[i].light_rads[q], f))
+			if (!p_putc(guysbuf[i].weap_data.light_rads[q], f))
 				return 0;
 		}
 		if (!p_putc(guysbuf[i].specialsfx, f))

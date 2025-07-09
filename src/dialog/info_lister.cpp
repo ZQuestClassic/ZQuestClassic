@@ -297,7 +297,7 @@ void ItemListerDialog::update()
 			"\nType: {}\nCSet: {}\nScripts:\nAction: {}\nPickup: {}\nSprite: {}\nWeapon: {}"
 			"\n\nCopied:\n{}",
 			item_string[selected_val], display_name, selected_val, itm.power, itm.fam_type,
-			itm.family, itm.csets&0xF, itm.script, itm.collect_script, itm.sprite_script, itm.weaponscript,
+			itm.family, itm.csets&0xF, itm.script, itm.collect_script, itm.sprite_script, itm.weap_data.script,
 			copied_name));
 		widgPrev->setDisabled(false);
 		widgPrev->setTile(itm.tile);
@@ -648,7 +648,7 @@ void EnemyListerDialog::update()
 			"\neTile: {}\nHP: {}\nDamage: {}\nW. Damage: {}\nFamily: {}\nDrop: {}\nScript: {}\nW Script: {}"
 			"\n\nCopied:\n{}",
 			selected_val, enemy.tile, enemy.s_tile,
-			enemy.e_tile, enemy.hp, enemy.dp, enemy.wdp, enemy.family, enemy.item_set, enemy.script, enemy.weaponscript,
+			enemy.e_tile, enemy.hp, enemy.dp, enemy.wdp, enemy.family, enemy.item_set, enemy.script, enemy.weap_data.script,
 			copied_name));
 		if(unsigned(selected_val) > 0)
 		{
