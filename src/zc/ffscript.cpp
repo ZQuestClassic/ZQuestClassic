@@ -28410,15 +28410,19 @@ int32_t run_script_int(bool is_jitted)
 			case REF_AUTORELEASE:
 			{
 				uint32_t id = get_register(sarg1);
-				script_object_autorelease_pool.push_back(id);
-				script_object_ref_inc(id);
+				if (!util::contains(script_object_autorelease_pool, id))
+				{
+					script_object_autorelease_pool.push_back(id);
+					if (auto object = get_script_object_checked(id))
+						object->ref_count++;
+				}
 				break;
 			}
 			case REF_COUNT:
 			{
 				if (!use_testingst_start)
 				{
-					Z_scripterrlog("RefCount can only be used in test mode\n");
+					scripting_log_error_with_context("This function can only be used in test mode");
 					break;
 				}
 
