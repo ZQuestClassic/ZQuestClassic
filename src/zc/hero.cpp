@@ -254,10 +254,16 @@ bool usingActiveShield(int32_t itmid)
 		itmid = (Hero.active_shield_id < 0
 			? current_item_id(itype_shield,true,true) : Hero.active_shield_id);
 	if(itmid < 0) return false;
+	auto const& itm = itemsbuf[itmid];
 	if(item_disabled(itmid)) return false;
 	if(!checkitem_jinx(itmid)) return false;
-	if(!(itemsbuf[itmid].flags & item_flag9)) return false;
-	if(!isItmPressed(itmid)) return false;
+	if(!(itm.flags & item_flag9)) return false;
+	if(!isItmPressed(itmid))
+	{
+		byte intbtn = byte(itm.misc5&0xFF);
+		if(!itm.misc5 || !getIntBtnInput(intbtn, false, true, false, false, true))
+			return false;
+	}
 	return (checkbunny(itmid) && checkmagiccost(itmid));
 }
 int32_t getCurrentShield(bool requireActive)
@@ -308,6 +314,17 @@ int32_t refreshActiveShield()
 		if(dat.family == itype_shield && (dat.flags & item_flag9))
 		{
 			id = NEG_OR_MASK(Ywpn,0xFFF);
+		}
+	}
+	if(id < 0)
+	{
+		auto shield_id = current_item_id(itype_shield,false,true);
+		itemdata const& dat = itemsbuf[shield_id];
+		if(dat.family == itype_shield && (dat.flags & item_flag9))
+		{
+			byte intbtn = byte(dat.misc5&0xFF);
+			if(getIntBtnInput(intbtn, false, true, false, false, true))
+				id = shield_id;
 		}
 	}
 	if(!usingActiveShield(id))
