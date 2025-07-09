@@ -1696,6 +1696,9 @@ GUI::ListData bugfixRulesList
 		" will not work properly, and instead a mixture of the two settings will occur (Always resetting if it's off,"
 		" and always continuing if it's on)."
 		"\nIf disabled, the reset and continue flags will work separately, not using the old behavior." },
+	{ "Sometimes scroll over pits/water", qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL,
+		"If checked, the player may be able to scroll over thin patches of liquid/pitfall combos"
+		" that are close to the screen edge." }
 };
 
 extern GUI::ListData compileSettingList;

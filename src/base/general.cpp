@@ -59,6 +59,27 @@ zfix vbound(zfix val, zfix low, zfix high)
 	if(val > high) return high;
 	return val;
 }
+zfix vbound(zfix val, int low, zfix high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
+zfix vbound(zfix val, zfix low, int high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
+zfix vbound(zfix val, int low, int high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
 
 int wrap(int x,int low,int high)
 {

@@ -3465,8 +3465,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		set_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN, 1);
 		set_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN, 1);
+		set_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL, 1);
 	}
-	
+
 	memcpy(Header, &tempheader, sizeof(tempheader));
 	
 	return 0;

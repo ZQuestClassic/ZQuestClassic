@@ -22,9 +22,19 @@ static constexpr inline void zc_swap(T &a,T &b)
     a = b;
     b = c;
 }
+template <class T1, class T2>
+static constexpr inline void zc_swap(T1 &a,T2 &b)
+{
+    T2 c = a;
+    a = b;
+    b = c;
+}
 int vbound(int val, int low, int high);
 double vbound(double val, double low, double high);
 zfix vbound(zfix val, zfix low, zfix high);
+zfix vbound(zfix val, int low, zfix high);
+zfix vbound(zfix val, zfix low, int high);
+zfix vbound(zfix val, int low, int high);
 
 #define zc_max(a,b) (((a) < (b)) ? (b) : (a))
 #define zc_min(a,b) (((a) < (b)) ? (a) : (b))

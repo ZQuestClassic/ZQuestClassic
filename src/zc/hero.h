@@ -381,6 +381,7 @@ public:
 	bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false, bool do_health_check = true);
 	
 	void checkscroll();
+	bool check_prescroll();
 	void checkspecial();
 	void checkspecial2(int32_t *ls);
 	void checkspecial3();
