@@ -11089,6 +11089,8 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			{
 				if(!w->hit(hx,hy,0,hw,hh,1))
 					continue;
+				if(replay_version_check(42) && glove.usesound)
+					sfx(glove.usesound,pan(x));
 				lift(w, w->lift_time, w->lift_height);
 				Lwpns.remove(w);
 				lifted = true;
