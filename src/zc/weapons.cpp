@@ -3194,6 +3194,7 @@ void weapon::limited_animate()
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb);
 				hxofs=2000;
 				step = 0;
+				lift_level = 0;
 				rundeath = true;
 				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
@@ -3216,6 +3217,7 @@ void weapon::limited_animate()
 				useweapon = useweapondummy;
 				hzsz=16;
 				step = 0;
+				lift_level = 0;
 				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
 			
@@ -3225,6 +3227,7 @@ void weapon::limited_animate()
 			{
 				hxofs=2000;
 				step = 0;
+				lift_level = 0;
 				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
 			
