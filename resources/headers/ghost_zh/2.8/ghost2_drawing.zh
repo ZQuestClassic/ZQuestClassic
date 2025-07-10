@@ -27,18 +27,12 @@ const int __GHDF_OVERLAY = 100b;
 
 int[] __GetDrawingArray(npc ghost)
 {
-    if((ghost->Misc[__GHI_NPC_DATA]&0x10000)==0)
+    auto data = getGhostData(ghost);
+    if (!data)
         // Not a ghost.zh enemy
         return NULL;
-    
-    // Get the temp data aptr
-    int[] aptr=<int[]>(ghost->Misc[__GHI_NPC_DATA]&0x0FFFF);
-    unless(aptr)
-        return NULL;
-    
-    // And, from that, get the drawing data aptr
-    aptr=<int[]>(aptr[23]);
-    return aptr;
+
+    return data->drawing;
 }
 
 void DrawGhostFFCs()

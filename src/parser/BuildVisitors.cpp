@@ -9,6 +9,7 @@
 #include "parser/ASTVisitors.h"
 #include "parser/ByteCode.h"
 #include "parser/Scope.h"
+#include "parser/Opcode.h"
 #include "parser/parserDefs.h"
 
 using namespace ZScript;
@@ -31,11 +32,6 @@ OpcodeContext initContext(((OpcodeContext*)param)->typeStore)
 #define INITC_INIT() \
 do \
 	result.insert(result.begin() + initIndex, initContext.initCode.begin(), initContext.initCode.end()); \
-while(false)
-
-#define INITC_DEALLOC() \
-do \
-	result.insert(result.end(), initContext.deallocCode.begin(), initContext.deallocCode.end()); \
 while(false)
 
 #define INITC_CTXT ((void*)&initContext)
@@ -108,10 +104,9 @@ do { \
 // BuildOpcodes
 
 BuildOpcodes::BuildOpcodes(Program& program)
-	: RecursiveVisitor(program), returnlabelid(-1), returnRefCount(0), continuelabelids(), 
-	  continueRefCounts(), breaklabelids(), breakRefCounts(), breakScopes(),
-	  break_past_counts(), break_to_counts(), break_depth(0),
-	  continue_past_counts(), continue_to_counts(), continue_depth(0), cur_scopes()
+	: RecursiveVisitor(program), returnlabelid(-1), continuelabelids(),
+	  breaklabelids(), breakScopes(), break_to_counts(),
+	  cur_scopes(), break_depth(0), continue_depth(0)
 {
 	opcodeTargets.push_back(&result);
 }
@@ -161,7 +156,6 @@ void BuildOpcodes::literal_visit(AST& node, void* param)
 	visit(node, (void*)c);
 	//Handle literals
 	result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
-	result.insert(result.end(), c->deallocCode.begin(), c->deallocCode.end());
 }
 
 void BuildOpcodes::literal_visit(AST* node, void* param)
@@ -285,41 +279,6 @@ void BuildOpcodes::addOpcodes(Container const& container)
 		addOpcode(ptr);
 }
 
-// Register local arrays for cleanup (but just array declarations that create literals, not "pointers").
-// This should go away when arrays are managed by GC.
-void BuildOpcodes::registerLocalArrayDealloc(int stackoffset)
-{
-	arrayRefs.push_back(stackoffset);
-}
-
-void BuildOpcodes::deallocateArrayRef(int32_t arrayRef)
-{
-	addOpcode(new OLoad(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
-	addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
-}
-void BuildOpcodes::deallocateArrayRef(int32_t arrayRef, std::vector<std::shared_ptr<Opcode>>& code)
-{
-	addOpcode2(code, new OLoad(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
-	addOpcode2(code, new ODeallocateMemRegister(new VarArgument(EXP2)));
-}
-
-void BuildOpcodes::deallocateRefsUntilCount(int32_t count)
-{
-	count = arrayRefs.size() - count;
-	for (auto it = arrayRefs.rbegin(); it != arrayRefs.rend() && count > 0; ++it, --count)
-	{
-		deallocateArrayRef(*it);
-	}
-}
-void BuildOpcodes::deallocateRefsUntilCount(int32_t count, std::vector<std::shared_ptr<Opcode>>& code)
-{
-	count = arrayRefs.size() - count;
-	for (auto it = arrayRefs.rbegin(); it != arrayRefs.rend() && count > 0; ++it, --count)
-	{
-		deallocateArrayRef(*it, code);
-	}
-}
-
 void BuildOpcodes::caseSetOption(ASTSetOption&, void*)
 {
 	// Do nothing, not even recurse.
@@ -339,7 +298,6 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 		host.setScope(scope->makeChild());
 	}
 
-	int32_t startRefCount = arrayRefs.size();
 	ScopeReverter sr(&scope);
 	scope = host.getScope();
 
@@ -352,10 +310,6 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 
 	if (host.getScope() != scope)
 		throw compile_exception("host.getScope() != scope");
-
-	deallocateRefsUntilCount(startRefCount);
-	while ((int32_t)arrayRefs.size() > startRefCount)
-		arrayRefs.pop_back();
 
 	mark_ref_remove_if_needed_for_block(&host);
 }
@@ -376,7 +330,6 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		}
 		ScopeReverter sr(&scope);
 		scope = host.getScope();
-		int32_t startRefCount = arrayRefs.size();
 
 		cur_scopes.push_back(scope);
 		
@@ -388,11 +341,6 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 				literal_visit(host.declaration.get(), param);
 				commentAt(targ_sz, fmt::format("{}({}={}) #{} [Opt:AlwaysOn]",ifstr,declname,truestr,ifid));
 				visit(host.thenStatement.get(), param);
-				deallocateRefsUntilCount(startRefCount);
-				
-				while ((int32_t)arrayRefs.size() > startRefCount)
-					arrayRefs.pop_back();
-				
 			} //Either true or false, it's constant, so no checks required.
 
 			cur_scopes.pop_back();
@@ -427,11 +375,6 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		//nop
 		addOpcode(new ONoOp(endif));
 
-		deallocateRefsUntilCount(startRefCount);
-		
-		while ((int32_t)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
-
 		cur_scopes.pop_back();
 	}
 	else
@@ -450,14 +393,9 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		}
 
 		//run the test
-		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		auto targ_sz = commentTarget();
 		literal_visit(host.condition.get(), param);
 		commentAt(targ_sz, fmt::format("{}() #{} Test",ifstr,ifid));
-		//Deallocate string/array literals from within the condition
-		deallocateRefsUntilCount(startRefCount);
-		while ((int32_t)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
 		//Continue
 		int32_t endif = ScriptParser::getUniqueLabelID();
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
@@ -496,7 +434,6 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		}
 		ScopeReverter sr(&scope);
 		scope = host.getScope();
-		int32_t startRefCount = arrayRefs.size();
 
 		cur_scopes.push_back(scope);
 		
@@ -508,20 +445,9 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 				literal_visit(host.declaration.get(), param);
 				commentAt(targ_sz, fmt::format("{}({}={}) #{} [Opt:AlwaysOn]",ifstr,declname,truestr,ifid));
 				visit(host.thenStatement.get(), param);
-				//Deallocate after then block
-				deallocateRefsUntilCount(startRefCount);
-				
-				while ((int32_t)arrayRefs.size() > startRefCount)
-					arrayRefs.pop_back();
 			}
 			else //False, so go straight to the 'else'
 			{
-				//Deallocate before else block
-				deallocateRefsUntilCount(startRefCount);
-				
-				while ((int32_t)arrayRefs.size() > startRefCount)
-					arrayRefs.pop_back();
-
 				auto targ_sz = commentTarget();
 				visit(host.elseStatement.get(), param);
 				commentStartEnd(targ_sz, fmt::format("{}({}={}) #{} Else [Opt:AlwaysOff]",ifstr,declname,falsestr,ifid));
@@ -560,11 +486,6 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		//nop
 		addOpcode(new ONoOp(elseif));
 		
-		deallocateRefsUntilCount(startRefCount);
-		
-		while ((int32_t)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
-		
 		scope = scope->getParent();
 		
 		commentStartEnd(targ_sz, fmt::format("{}({}) #{} Body",ifstr,declname,ifid));
@@ -597,14 +518,9 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 			return;
 		}
 		//run the test
-		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		auto targ_sz = commentTarget();
 		literal_visit(host.condition.get(), param);
 		commentAt(targ_sz, fmt::format("{}() #{} Test",ifstr,ifid));
-		//Deallocate string/array literals from within the condition
-		deallocateRefsUntilCount(startRefCount);
-		while ((int32_t)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
 		//Continue
 		int32_t elseif = ScriptParser::getUniqueLabelID();
 		int32_t endif = ScriptParser::getUniqueLabelID();
@@ -669,20 +585,15 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	auto default_label = end_label;
 	
 	// save and override break label.
-	push_break(end_label, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
+	push_break(end_label, 0, getBreakableScopesForStatement(&host));
 	
 	// Evaluate the key.
 	auto keyval = host.key->getCompileTimeValue(this, scope);
 	if(!keyval)
 	{
-		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		auto targ_sz = commentTarget();
 		literal_visit(host.key.get(), param);
 		commentAt(targ_sz, fmt::format("switch() #{} Key", switchid));
-		//Deallocate string/array literals from within the key
-		deallocateRefsUntilCount(startRefCount);
-		while ((int32_t)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
 	}
 	
 	if(cases.size() == 1 && cases.back()->isDefault) //Only default case
@@ -804,17 +715,12 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 	int32_t default_label = end_label;
 	
 	// save and override break label.
-	push_break(end_label, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
+	push_break(end_label, 0, getBreakableScopesForStatement(&host));
 	
 	// Evaluate the key.
-	int32_t startRefCount = arrayRefs.size(); //Store ref count
 	auto targ_sz = commentTarget();
 	literal_visit(host.key.get(), param);
 	commentAt(targ_sz, fmt::format("switch(\"\") #{} Key", switchid));
-	//Deallocate string/array literals from within the key
-	deallocateRefsUntilCount(startRefCount);
-	while ((int32_t)arrayRefs.size() > startRefCount)
-		arrayRefs.pop_back();
 	
 	if(cases.size() == 1 && cases.back()->isDefault) //Only default case
 	{
@@ -844,7 +750,6 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 		{
 			// Test this individual case.
 			//Allocate the string literal
-			int32_t litRefCount = arrayRefs.size(); //Store ref count
 			INITC_STORE(); //store init-related values
 			visit(*it, INITCTX); //visit with the initc params
 			INITC_INIT(); //initialize the literal
@@ -856,7 +761,6 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 				addOpcode(new OInternalStringCompare(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
 			commentBack(fmt::format("case \"{}\"", (*it)->value));
 			
-			INITC_DEALLOC(); //deallocate the literal
 			//
 			addOpcode(new OGotoTrueImmediate(new LabelArgument(label)));
 		}
@@ -899,14 +803,10 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	cur_scopes.push_back(scope);
 	auto targ_sz = commentTarget();
 	//run the precondition
-	int32_t setupRefCount = arrayRefs.size(); //Store ref count
 	literal_visit(host.setup.get(), param);
-	//Deallocate string/array literals from within the setup
-	deallocateRefsUntilCount(setupRefCount);
+
 	uint forid = host.get_comment_id();
 	commentAt(targ_sz, fmt::format("for() #{} setup",forid));
-	while ((int32_t)arrayRefs.size() > setupRefCount)
-		arrayRefs.pop_back();
 	//Check for a constant FALSE condition
 	if(auto val = host.test->getCompileTimeValue(this, scope))
 	{
@@ -932,12 +832,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	addOpcode(new ONoOp(loopstart));
 	commentBack(fmt::format("for() #{} LoopTest",forid));
 	//test the termination condition
-	int32_t testRefCount = arrayRefs.size(); //Store ref count
 	literal_visit(host.test.get(), param);
-	//Deallocate string/array literals from within the test
-	deallocateRefsUntilCount(testRefCount);
-	while ((int32_t)arrayRefs.size() > testRefCount)
-		arrayRefs.pop_back();
 	//Continue
 	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 	addOpcode(new OGotoTrueImmediate(new LabelArgument(elselabel)));
@@ -945,8 +840,8 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	//run the loop body
 	//save the old break and continue values
 
-	push_break(loopend, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
-	push_cont(loopincr, arrayRefs.size());
+	push_break(loopend, 0, getBreakableScopesForStatement(&host));
+	push_cont(loopincr);
 	
 	targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -958,12 +853,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	//run the increment
 	addOpcode(new ONoOp(loopincr));
 	commentBack(fmt::format("for() #{} LoopIncrement",forid));
-	int32_t incRefCount = arrayRefs.size(); //Store ref count
 	literal_visit_vec(host.increments, param);
-	//Deallocate string/array literals from within the increment
-	deallocateRefsUntilCount(incRefCount);
-	while ((int32_t)arrayRefs.size() > incRefCount)
-		arrayRefs.pop_back();
 	//Continue
 	addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
 	commentBack(fmt::format("for() #{} End",forid));
@@ -1038,8 +928,8 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	addOpcode(new OStore(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
 	
 	//...and run the inside of the loop.
-	push_break(loopend, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
-	push_cont(loopstart, arrayRefs.size());
+	push_break(loopend, 0, getBreakableScopesForStatement(&host));
+	push_cont(loopstart);
 	
 	targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -1200,8 +1090,8 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	addOpcode(new ONoOp(loopstart));
 	
 	//run the inside of the loop.
-	push_break(loopend, arrayRefs.size(), mgr.count(), getBreakableScopesForStatement(&host));
-	push_cont(loopcont, arrayRefs.size());
+	push_break(loopend, mgr.count(), getBreakableScopesForStatement(&host));
+	push_cont(loopcont);
 	
 	targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -1430,12 +1320,8 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 	if(!val)
 	{
 		commentBack(fmt::format("{}() #{} Test",whilestr,whileid));
-		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		literal_visit(host.test.get(), param);
-		//Deallocate string/array literals from within the test
-		deallocateRefsUntilCount(startRefCount);
-		while ((int32_t)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
+
 		//Continue
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(host.isInverted()) //Is this `until` or `while`?
@@ -1450,8 +1336,8 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		}
 	}
 	
-	push_break(endlabel, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
-	push_cont(startlabel, arrayRefs.size());
+	push_break(endlabel, 0, getBreakableScopesForStatement(&host));
+	push_cont(startlabel);
 	
 	auto targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -1493,8 +1379,8 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	if(!deadloop)
 		addOpcode(new ONoOp(startlabel));
 	
-	push_break(endlabel, arrayRefs.size(), 0, getBreakableScopesForStatement(&host));
-	push_cont(continuelabel, arrayRefs.size());
+	push_break(endlabel, 0, getBreakableScopesForStatement(&host));
+	push_cont(continuelabel);
 	
 	auto targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -1521,12 +1407,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	else
 	{
 		commentBack(fmt::format("{}() #{} Test",whilestr,whileid));
-		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		literal_visit(host.test.get(), param);
-		//Deallocate string/array literals from within the test
-		deallocateRefsUntilCount(startRefCount);
-		while ((int32_t)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
 		//Continue
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(host.isInverted()) //Is this `until` or `while`?
@@ -1570,7 +1451,6 @@ void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 		}
 	}
 
-	deallocateRefsUntilCount(0);
 	if(uint pops = scope_pops_count())
 		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
@@ -1583,7 +1463,6 @@ void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 	INITC_STORE();
 	visit(host.value.get(), INITCTX);
 	INITC_INIT();
-	INITC_DEALLOC();
 
 	auto ret_type = host.value->getReadType(scope, this);
 	if (ret_type && ret_type->isObject())
@@ -1607,7 +1486,6 @@ void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 		}
 	}
 
-	deallocateRefsUntilCount(0);
 	if(uint pops = scope_pops_count())
 		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
@@ -1622,7 +1500,6 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 		handleError(CompileError::BreakBad(&host,host.breakCount));
 		return;
 	}
-	int32_t refcount = breakRefCounts.at(breakRefCounts.size()-host.breakCount);
 	int32_t breaklabel = breaklabelids.at(breaklabelids.size()-host.breakCount);
 
 	// For the scopes that won't end normally because this break is skipping over them,
@@ -1640,7 +1517,6 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 		}
 	}
 
-	deallocateRefsUntilCount(refcount);
 	if(uint pops = scope_pops_back(host.breakCount))
 		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(breaklabel)));
@@ -1657,14 +1533,11 @@ void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 		return;
 	}
 
-	int32_t refcount = continueRefCounts.at(continueRefCounts.size()-host.contCount);
 	int32_t contlabel = continuelabelids.at(continuelabelids.size()-host.contCount);
-	deallocateRefsUntilCount(refcount);
 	if(uint pops = scope_pops_back(host.contCount-1))
 		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(contlabel)));
 	commentBack(fmt::format("continue {};",host.contCount));
-	inc_cont(host.contCount);
 }
 
 void BuildOpcodes::caseStmtEmpty(ASTStmtEmpty &, void *)
@@ -1679,7 +1552,6 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 	if(host.getFlag(FUNCFLAG_INLINE)) return; //Skip inline func decls, they are handled at call location -V
 	if(host.prototype) return; //Same for prototypes
 	returnlabelid = ScriptParser::getUniqueLabelID();
-	returnRefCount = arrayRefs.size();
 	
 	in_func = host.func;
 	visit(host.block.get(), param);
@@ -1730,18 +1602,16 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 
 	auto writeType = &host.resolveType(scope, this);
 	bool is_object = writeType && writeType->isObject();
-	bool is_array = writeType && writeType->isArray();
-	bool holds_object = writeType && writeType->canHoldObject();
 
 	// Set variable to EXP1 or comptime_val, depending on the initializer.
 	if (auto globalId = manager.getGlobalId())
 	{
-		if (holds_object && !is_array)
+		if (is_object)
 			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
 
 		if (comptime_val)
 			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*comptime_val)));
-		else if (is_object && !is_array)
+		else if (is_object)
 			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		else
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
@@ -1754,7 +1624,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 			// I tried to optimize this away in some circumstances, it lead to only problems -Em
 			addOpcode(new OStoreV(new LiteralArgument(*comptime_val), new LiteralArgument(offset)));
 		}
-		else if (is_object && !is_array)
+		else if (is_object)
 		{
 			// This command decrements the reference of the object currently stored at the position before
 			// setting the new object and incrementing its reference. Since we set the initial value for
@@ -1788,7 +1658,14 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 	}
 
 	auto& type = host.resolveType(scope, this);
-	int script_object_type_id = (int)type.getScriptObjectTypeId();
+	if (!dynamic_cast<const DataTypeArray*>(&type))
+	{
+		handleError(CompileError::Error(&host, fmt::format("Expected an array type")));
+		return;
+	}
+
+	auto array_type = dynamic_cast<const DataTypeArray*>(&type);
+	int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
 
 	// Allocate the array.
 	if (auto globalId = manager.getGlobalId())
@@ -1796,12 +1673,11 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(totalSize),
-						  new LiteralArgument(script_object_type_id)));
+						  new LiteralArgument(element_script_object_type_id)));
 	}
 	else
 	{
-		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize), new LiteralArgument(script_object_type_id)));
-		registerLocalArrayDealloc(manager.getStackOffset(false));
+		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize), new LiteralArgument(element_script_object_type_id)));
 	}
 }
 
@@ -1883,10 +1759,8 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		return;
 	}
 
-	OpcodeContext *c = (OpcodeContext *)param;
-	bool isarray = host.arrayFunction;
-	bool isIndexed = isarray ? false : host.index;
-	Function* readfunc = isarray ? host.arrayFunction : host.readFunction;
+	bool isIndexed = host.index;
+	Function* readfunc = host.readFunction;
 	
 	if(readfunc->isNil())
 	{
@@ -1961,7 +1835,7 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 	if (host.array->isTypeArrow())
 	{
 		ASTExprArrow* arrow = static_cast<ASTExprArrow*>(host.array.get());
-		if(!arrow->arrayFunction && !arrow->isTypeArrowUsrClass())
+		if(!arrow->isTypeArrowUsrClass())
 		{
 			caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 			return;
@@ -2019,7 +1893,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
 
 	auto* optarg = opcodeTargets.back();
-	int32_t startRefCount = arrayRefs.size(); //Store ref count
 	const string func_comment = fmt::format("Func[{}]",func.getUnaliasedSignature(true).asString());
 	auto targ_sz = commentTarget();
 	bool never_ret = func.getFlag(FUNCFLAG_NEVER_RETURN);
@@ -2055,10 +1928,16 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			for (auto&& member : user_class.getScope().getClassData())
 			{
 				auto& type = member.second->getNode()->resolveType(scope, nullptr);
-				if (type.canHoldObject())
+				if (type.isObject())
 				{
 					object_indices.push_back(member.second->getIndex());
-					object_indices.push_back((int)type.getScriptObjectTypeId());
+
+					script_object_type object_type;
+					if (type.isArray())
+						object_type = static_cast<const DataTypeArray*>(&type)->getElementType().getScriptObjectTypeId();
+					else
+						object_type = type.getScriptObjectTypeId();
+					object_indices.push_back((int)object_type);
 				}
 			}
 			if (!object_indices.empty())
@@ -2221,35 +2100,13 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		auto num_actual_params = func.paramTypes.size() - (vargs ? 1 : 0);
 		int v = num_used_params-num_actual_params;
 		size_t vargcount = v > 0 ? v : 0;
-		size_t pushcount = 0;
-		if(vargs)
-		{
-			//push the vargs, in forward order
-			for (size_t param_indx = num_used_params-vargcount; param_indx < num_used_params; ++param_indx)
-			{
-				auto& arg = host.parameters.at(param_indx);
-				//Compile-time constants can be optimized slightly...
-				if(auto val = arg->getCompileTimeValue(this, scope))
-					addOpcode(new OPushVargV(new LiteralArgument(*val)));
-				else
-				{
-					VISIT_USEVAL(arg, INITCTX);
-					push_param(true);
-				}
-			}
-			addOpcode(new OMakeVargArray());
-			commentBack("Allocate Vargs array");
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-			commentBack("Push the Vargs array pointer");
-			++pushcount;
-		}
+		
 		commentStartEnd(targ_sz, fmt::format("Class{} Vargs",func_comment));
 		//push the this key/stack frame pointer
 		if(!never_ret)
 		{
 			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
 			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-			pushcount += 2;
 		}
 		
 		targ_sz = commentTarget();
@@ -2274,16 +2131,30 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				VISIT_USEVAL(arg, INITCTX);
 				push_param();
 			}
-			pushcount++;
 		}
 
 		if(vargs)
 		{
-			if(auto offs = pushcount-1)
-				addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(offs)));
-			else addOpcode(new OPeek(new VarArgument(EXP1)));
-			commentBack("Peek the Vargs array pointer");
+			auto array_type = dynamic_cast<const DataTypeArray*>(func.paramTypes.back());
+			int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
+
+			//push the vargs, in forward order
+			for (size_t param_indx = num_used_params-vargcount; param_indx < num_used_params; ++param_indx)
+			{
+				auto& arg = host.parameters.at(param_indx);
+				//Compile-time constants can be optimized slightly...
+				if(auto val = arg->getCompileTimeValue(this, scope))
+					addOpcode(new OPushVargV(new LiteralArgument(*val)));
+				else
+				{
+					VISIT_USEVAL(arg, INITCTX);
+					push_param(true);
+				}
+			}
+			addOpcode(new OMakeVargArray(new LiteralArgument(element_script_object_type_id)));
+			commentBack("Allocate Vargs array");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			commentBack("Push the Vargs array pointer");
 		}
 
 		if (host.left->isTypeArrow())
@@ -2320,12 +2191,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			//pop the stack frame pointer
 			addOpcode(new OPopRegister(new VarArgument(SFRAME)));
 			addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
-			if(vargs)
-			{
-				addOpcode(new OPopRegister(new VarArgument(EXP2)));
-				addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
-				commentBack("Deallocate Vargs array");
-			}
 		}
 	}
 	else
@@ -2343,35 +2208,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		size_t used_opt_params = 0;
 		int v = num_used_params-num_actual_params;
 		(v>0 ? vargcount : used_opt_params) = abs(v);
-		size_t pushcount = 0;
 
-		if(user_vargs)
-		{
-			//push the vargs, in forward order
-			for (size_t param_indx = num_used_params-vargcount; param_indx < num_used_params; ++param_indx)
-			{
-				auto& arg = host.parameters.at(param_indx);
-				//Compile-time constants can be optimized slightly...
-				if(auto val = arg->getCompileTimeValue(this, scope))
-					addOpcode(new OPushVargV(new LiteralArgument(*val)));
-				else
-				{
-					VISIT_USEVAL(arg, INITCTX);
-					push_param(true);
-				}
-			}
-			addOpcode(new OMakeVargArray());
-			commentBack("Allocate Vargs array");
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-			commentBack("Push the Vargs array pointer");
-			pushcount++;
-		}
-		commentStartEnd(targ_sz, fmt::format("{}{} Vargs",comment_pref,func_comment));
 		//push the stack frame pointer
 		if(!never_ret)
 		{
 			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-			++pushcount;
 		}
 		targ_sz = commentTarget();
 		
@@ -2396,33 +2237,45 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				VISIT_USEVAL(arg, INITCTX);
 				push_param();
 			}
-			pushcount++;
 		}
 
-		if(vargs && (vargcount || user_vargs))
+		if(user_vargs)
 		{
-			if(user_vargs)
+			auto array_type = dynamic_cast<const DataTypeArray*>(func.paramTypes.back());
+			int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
+
+			//push the vargs, in forward order
+			for (size_t param_indx = num_used_params-vargcount; param_indx < num_used_params; ++param_indx)
 			{
-				if(auto offs = pushcount-1)
-					addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(offs)));
-				else addOpcode(new OPeek(new VarArgument(EXP1)));
-				commentBack("Peek the Vargs array pointer");
-				addOpcode(new OPushRegister(new VarArgument(EXP1)));
-			}
-			else
-			{
-				//push the vargs, in forward order
-				for (; param_indx < host.parameters.size(); ++param_indx)
+				auto& arg = host.parameters.at(param_indx);
+				//Compile-time constants can be optimized slightly...
+				if(auto val = arg->getCompileTimeValue(this, scope))
+					addOpcode(new OPushVargV(new LiteralArgument(*val)));
+				else
 				{
-					auto& arg = host.parameters.at(param_indx);
-					//Compile-time constants can be optimized slightly...
-					if(auto val = arg->getCompileTimeValue(this, scope))
-						addOpcode(new OPushVargV(new LiteralArgument(*val)));
-					else
-					{
-						VISIT_USEVAL(arg, INITCTX);
-						push_param(true);
-					}
+					VISIT_USEVAL(arg, INITCTX);
+					push_param(true);
+				}
+			}
+			addOpcode(new OMakeVargArray(new LiteralArgument(element_script_object_type_id)));
+			commentBack("Allocate Vargs array");
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			commentBack("Push the Vargs array pointer");
+		}
+
+		if(vargs && vargcount && !user_vargs)
+		{
+			//push the vargs, in forward order
+			for (; param_indx < host.parameters.size(); ++param_indx)
+			{
+				auto& arg = host.parameters.at(param_indx);
+				//Compile-time constants can be optimized slightly...
+				if(auto val = arg->getCompileTimeValue(this, scope))
+					addOpcode(new OPushVargV(new LiteralArgument(*val)));
+				else
+				{
+					VISIT_USEVAL(arg, INITCTX);
+					push_param(true);
 				}
 			}
 		}
@@ -2437,12 +2290,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			//pop the stack frame pointer
 			addOpcode(new OPopRegister(new VarArgument(SFRAME)));
-			if(user_vargs)
-			{
-				addOpcode(new OPopRegister(new VarArgument(EXP2)));
-				addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
-				commentBack("Deallocate Vargs array");
-			}
 			
 			if(host.left->isTypeArrow())
 			{
@@ -2471,12 +2318,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	
 	//Allocate string/array literals retroactively
 	INITC_INIT();
-	INITC_DEALLOC();
-	
-	//Deallocate string/array literals from within the parameters
-	deallocateRefsUntilCount(startRefCount);
-	while ((int32_t)arrayRefs.size() > startRefCount)
-		arrayRefs.pop_back();
 }
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
@@ -3759,7 +3600,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 	}
 
 	// Create the array and store its id.
-	if (auto globalId = manager.getGlobalId())
+	if (manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
@@ -3771,75 +3612,20 @@ void BuildOpcodes::stringLiteralDeclaration(
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L),
 											new LiteralArgument(0)));
-		registerLocalArrayDealloc(manager.getStackOffset(false));
 	}
 
 	addOpcode(new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
-	// // Initialize array.
-	// addOpcode(new OSetRegister(new VarArgument(INDEX),
-							   // new VarArgument(EXP1)));
-	// for (size_t i = 0; i < data.size(); ++i)
-	// {
-		// addOpcode(new OWritePODArrayII(
-						  // new LiteralArgument(i * 10000L),
-						  // new LiteralArgument(data[i] * 10000L)));
-	// }
-	// //Add nullchar
-	// addOpcode(new OWritePODArrayII(
-					  // new LiteralArgument(data.size() * 10000L),
-					  // new LiteralArgument(0)));
 }
 
 // "free" means it is not attached to a variable declaration (so it's either a param value, or used in an assignment)
 void BuildOpcodes::stringLiteralFree(
 		ASTStringLiteral& host, OpcodeContext& context)
 {
-	Literal& manager = *host.manager;
 	string data = host.value;
 	int32_t size = data.size() + 1;
-	int32_t offset = manager.getStackOffset(false);
-	vector<shared_ptr<Opcode>>& init = context.initCode;
-	vector<shared_ptr<Opcode>>& dealloc = context.deallocCode;
 
-	////////////////////////////////////////////////////////////////
-	// Initialization Code.
-
-	// Allocate.
-	addOpcode2(init, new OAllocateMemImmediate(
-						   new VarArgument(EXP1),
-						   new LiteralArgument(size * 10000L),
-						   new LiteralArgument(0)));
-	// Gets deallocated at end of this usage, see bottom of this method.
-	addOpcode2(init, new OStore(new VarArgument(EXP1),
-									  new LiteralArgument(offset)));
-
-	// Initialize.
-	addOpcode2(init, new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
-	// addOpcode2(init, new OSetRegister(new VarArgument(INDEX),
-									// new VarArgument(EXP1)));
-	// for (int32_t i = 0; i < (int32_t)data.size(); ++i)
-	// {
-		// addOpcode2(init, new OWritePODArrayII(
-							   // new LiteralArgument(i * 10000L),
-							   // new LiteralArgument(data[i] * 10000L)));
-	// }
-	// //Add nullchar
-	// addOpcode2(init, new OWritePODArrayII(
-						   // new LiteralArgument(data.size() * 10000L),
-						   // new LiteralArgument(0)));
-
-	////////////////////////////////////////////////////////////////
-	// Actual Code.
-
-	// Local variable, get its value from the stack.
-	addOpcode(new OLoad(new VarArgument(EXP1),
-								new LiteralArgument(offset)));
-
-	////////////////////////////////////////////////////////////////
-	// Register for cleanup.
-	
-	// Store the dealloc code here.
-	deallocateArrayRef(offset, dealloc);
+	addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size * 10000L), new LiteralArgument(0)));
+	addOpcode(new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
 }
 
 void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
@@ -3899,22 +3685,29 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	// SemanticAnalyzer::caseArrayLiteral - see "// Otherwise, default to Untyped -Em"
 	// For now just grab it here.
 	auto& type = host.declaration->resolveType(scope, this);
-	int script_object_type_id = (int)type.getScriptObjectTypeId();
+
+	if (!dynamic_cast<const DataTypeArray*>(&type))
+	{
+		handleError(CompileError::Error(&host, fmt::format("Expected an array type")));
+		return;
+	}
+
+	auto array_type = dynamic_cast<const DataTypeArray*>(&type);
+	int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
 
 	// Create the array and store its id.
-	if (auto globalId = manager.getGlobalId())
+	if (manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(size * 10000L),
-						  new LiteralArgument(script_object_type_id)));
+						  new LiteralArgument(element_script_object_type_id)));
 	}
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L),
-											new LiteralArgument(script_object_type_id)));
-		registerLocalArrayDealloc(manager.getStackOffset(false));
+											new LiteralArgument(element_script_object_type_id)));
 	}
 
 	addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -3962,8 +3755,6 @@ void BuildOpcodes::arrayLiteralDeclaration(
 void BuildOpcodes::arrayLiteralFree(
 		ASTArrayLiteral& host, OpcodeContext& context)
 {
-	Literal& manager = *host.manager;
-
 	int32_t size = -1;
 
 	// If there's an explicit size, grab it.
@@ -3988,21 +3779,22 @@ void BuildOpcodes::arrayLiteralFree(
 		return;
 	}
 
-	int32_t offset = manager.getStackOffset(false);
-	
-	////////////////////////////////////////////////////////////////
-	// Initialization Code.
+	auto type = host.getReadType(scope, this);
 
-	// Allocate.
+	if (!dynamic_cast<const DataTypeArray*>(type))
+	{
+		handleError(CompileError::Error(&host, fmt::format("Expected an array type")));
+		return;
+	}
 
-	addOpcode2(context.initCode,
+	auto array_type = dynamic_cast<const DataTypeArray*>(type);
+	int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
+
+	addOpcode(
 			new OAllocateMemImmediate(new VarArgument(EXP1),
 									  new LiteralArgument(size * 10000L),
-									  new LiteralArgument(0)));
-	// Gets deallocated at end of this usage, see bottom of this method.
-	addOpcode2(context.initCode,
-			new OStore(new VarArgument(EXP1),
-							   new LiteralArgument(offset)));
+									  new LiteralArgument(element_script_object_type_id)));
+	addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Initialize.
 	std::vector<int32_t> constelements;
@@ -4023,38 +3815,27 @@ void BuildOpcodes::arrayLiteralFree(
 	}
 	if(constelem)
 	{
-		addOpcode2(context.initCode, new OWritePODArray(new VarArgument(EXP1), new VectorArgument(constelements)));
+		addOpcode(new OWritePODArray(new VarArgument(EXP1), new VectorArgument(constelements)));
 	}
 	if(varelem)
 	{
-		addOpcode2(context.initCode, new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+		addOpcode(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
 		int32_t i = 0;
 		for (auto it = host.elements.begin(); it != host.elements.end(); ++it, i += 10000L)
 		{
 			if (!(*it)->getCompileTimeValue(this, scope))
 			{
-				addOpcode2(context.initCode, new OPushRegister(new VarArgument(INDEX)));
-				opcodeTargets.push_back(&context.initCode);
+				addOpcode(new OPushRegister(new VarArgument(INDEX)));
+				// opcodeTargets.push_back(&context.initCode);
 				visit(*it, &context);
-				opcodeTargets.pop_back();
-				addOpcode2(context.initCode, new OPopRegister(new VarArgument(INDEX)));
-				addOpcode2(context.initCode, new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1)));
+				// opcodeTargets.pop_back();
+				addOpcode(new OPopRegister(new VarArgument(INDEX)));
+				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1)));
 			}
 		}
 	}
 
-	////////////////////////////////////////////////////////////////
-	// Actual Code.
-
-	// Local variable, get its value from the stack.
-	addOpcode(new OLoad(new VarArgument(EXP1),
-								new LiteralArgument(offset)));
-
-	////////////////////////////////////////////////////////////////
-	// Register for cleanup.
-
-	// Store the dealloc code here.
-	deallocateArrayRef(offset, context.deallocCode);
+	addOpcode(new OPopRegister(new VarArgument(EXP1)));
 }
 
 void BuildOpcodes::caseOptionValue(ASTOptionValue& host, void*)
@@ -4320,12 +4101,6 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 	{
 		BuildOpcodes oc(program, this);
 		oc.parsing_user_class = parsing_user_class;
-		if(ucv->is_arr)
-		{
-			oc.visit(host.left.get(), param); //incase side effects
-			addOpcodes(oc.getResult());
-			return; //No overwriting object arrays!
-		}
 		addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		oc.visit(host.left.get(), param);
 		addOpcodes(oc.getResult());
@@ -4334,7 +4109,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		addOpcode(new OWriteObject(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
-	OpcodeContext *c = (OpcodeContext *)param;
+
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());
 	
@@ -4459,7 +4234,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	if (host.array->isTypeArrow())
 	{
 		ASTExprArrow* arrow = static_cast<ASTExprArrow*>(host.array.get());
-		if(!arrow->arrayFunction && !arrow->isTypeArrowUsrClass())
+		if(!arrow->isTypeArrowUsrClass())
 		{
 			caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 			return;

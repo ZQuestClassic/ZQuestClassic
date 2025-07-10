@@ -106,8 +106,6 @@ namespace ZScript
 
 		std::vector<std::shared_ptr<Opcode>> const& getResult() const {return result;}
 		int32_t getReturnLabelID() const {return returnlabelid;}
-		std::list<int32_t> *getArrayRefs() {return &arrayRefs;}
-		std::list<int32_t> const *getArrayRefs() const {return &arrayRefs;}
 
 	private:
 		BuildOpcodes(Program& program);
@@ -123,27 +121,15 @@ namespace ZScript
 
 		template <class Container>
 		void addOpcodes(Container const& container);
-	
-		void registerLocalArrayDealloc(int stackoffset);
-		void deallocateArrayRef(int32_t arrayRef);
-		void deallocateArrayRef(int32_t arrayRef, std::vector<std::shared_ptr<Opcode>>& code);
-		void deallocateRefsUntilCount(int32_t count);
-		void deallocateRefsUntilCount(int32_t count, std::vector<std::shared_ptr<Opcode>>& code);
 		
 		std::vector<std::shared_ptr<Opcode>> result;
 		int32_t returnlabelid;
-		int32_t returnRefCount;
 		std::vector<int32_t> continuelabelids;
-		std::vector<int32_t> continueRefCounts;
 		std::vector<int32_t> breaklabelids;
-		std::vector<int32_t> breakRefCounts;
 		std::vector<std::vector<Scope*>> breakScopes;
-		std::vector<uint> break_past_counts;
+		// TODO: Not really used, refactor its one usage and delete.
 		std::vector<uint> break_to_counts;
-		std::vector<uint> continue_past_counts;
-		std::vector<uint> continue_to_counts;
 		std::vector<uint> scope_allocations;
-		std::list<int32_t> arrayRefs;
 		std::vector<Scope*> cur_scopes;
 		// Stack of opcode targets. Only the latest is used.
 		std::vector<std::vector<std::shared_ptr<Opcode>>*> opcodeTargets;
@@ -155,47 +141,28 @@ namespace ZScript
 				return;
 			for(int q = break_depth-1; count && q >= 0; --q, --count)
 			{
-				++break_past_counts[q];
 				if(count == 1)
 					++break_to_counts[q];
 			}
 		}
-		void inc_cont(uint count = 1)
-		{
-			if(!continue_depth || !count)
-				return;
-			for(int q = continue_depth-1; count && q >= 0; --q, --count)
-			{
-				++continue_past_counts[q];
-				if(count == 1)
-					++continue_to_counts[q];
-			}
-		}
-		void push_break(int32_t id, int32_t count, uint scope_pops, std::vector<Scope*> scopes)
+		void push_break(int32_t id, uint scope_pops, std::vector<Scope*> scopes)
 		{
 			++break_depth;
 			breaklabelids.push_back(id);
 			breakScopes.push_back(scopes);
-			breakRefCounts.push_back(count);
-			break_past_counts.push_back(0);
 			break_to_counts.push_back(0);
 			scope_allocations.emplace_back(scope_pops);
 		}
-		void push_cont(int32_t id, int32_t count)
+		void push_cont(int32_t id)
 		{
 			++continue_depth;
 			continuelabelids.push_back(id);
-			continueRefCounts.push_back(count);
-			continue_past_counts.push_back(0);
-			continue_to_counts.push_back(0);
 		}
 		void pop_break()
 		{
 			--break_depth;
 			breaklabelids.pop_back();
-			breakRefCounts.pop_back();
 			breakScopes.pop_back();
-			break_past_counts.pop_back();
 			break_to_counts.pop_back();
 			scope_allocations.pop_back();
 		}
@@ -203,9 +170,6 @@ namespace ZScript
 		{
 			--continue_depth;
 			continuelabelids.pop_back();
-			continueRefCounts.pop_back();
-			continue_past_counts.pop_back();
-			continue_to_counts.pop_back();
 		}
 		uint scope_pops_back(uint break_count)
 		{

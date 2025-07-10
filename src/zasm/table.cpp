@@ -5,6 +5,7 @@
 #include <utility>
 
 #define NUM      ARGTY::LITERAL
+#define NUM_REG  ARGTY::LITERAL_REG
 #define CMP      ARGTY::COMPARE_OP
 #define REG      ARGTY::UNUSED_REG
 #define REG_R    ARGTY::READ_REG
@@ -1074,7 +1075,7 @@ static constexpr script_command command_list[]=
 	{ "DRAWLIGHT_CONE", DRAWLIGHT_CONE, 0, {}, 0, 0 },
 	{ "PEEK", PEEK, 1, { REG_W }, 0, 0 },
 	{ "PEEKATV", PEEKATV, 2, { REG_W, NUM }, 0, 0 },
-	{ "MAKEVARGARRAY", MAKEVARGARRAY, 0, {}, 0, 0 },
+	{ "MAKEVARGARRAY", MAKEVARGARRAY, 1, {NUM}, 0, 0 },
 	{ "PRINTFA", PRINTFA, 0, {}, 0, 0 },
 	{ "SPRINTFA", SPRINTFA, 0, {}, 0, 0 },
 	{ "CURRENTITEMID", CURRENTITEMID, 0, {}, 0, 0 },
@@ -1169,6 +1170,8 @@ static constexpr script_command command_list[]=
 	{ "CMBTRIG_GET_LABEL", CMBTRIG_GET_LABEL, 1, { REG_R }, 0, 0 },
 	{ "CMBTRIG_SET_LABEL", CMBTRIG_SET_LABEL, 1, { REG_R }, 0, 0 },
 	{ "COMBOD_GET_TRIGGER", COMBOD_GET_TRIGGER, 1, { REG_R }, 0, 0 },
+	{ "LOAD_INTERNAL_ARRAY", LOAD_INTERNAL_ARRAY, 2, { REG_W, NUM_REG }, 0, 0 },
+	{ "LOAD_INTERNAL_ARRAY_REF", LOAD_INTERNAL_ARRAY_REF, 3, { REG_W, NUM_REG, REG_R }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=
@@ -2984,6 +2987,13 @@ static constexpr script_variable variable_list[]=
 	{ "CMBTRIGGERREQPLAYERJUMP", CMBTRIGGERREQPLAYERJUMP, 0 },
 	{ "CMBTRIGGERREQPLAYERX", CMBTRIGGERREQPLAYERX, 0 },
 	{ "CMBTRIGGERREQPLAYERY", CMBTRIGGERREQPLAYERY, 0 },
+	{ "SCREEN_NPCS", SCREEN_NPCS, 0 },
+	{ "SCREEN_ITEMS", SCREEN_ITEMS, 0 },
+	{ "SCREEN_LWEAPONS", SCREEN_LWEAPONS, 0 },
+	{ "SCREEN_EWEAPONS", SCREEN_EWEAPONS, 0 },
+	{ "SCREEN_FFCS", SCREEN_FFCS, 0 },
+	{ "SCREEN_PORTALS", SCREEN_PORTALS, 0 },
+	{ "GAME_SAVED_PORTALS", GAME_SAVED_PORTALS, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.

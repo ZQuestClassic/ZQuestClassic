@@ -1,5 +1,6 @@
 #include "gamedata.h"
 #include <stdio.h>
+#include "base/general.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "items.h"
@@ -38,17 +39,31 @@ void gamedata::Copy(const gamedata& g)
 	*this = g;
 }
 
+void gamedata::save_objects(bool gc_array)
+{
+	compat_saved_user_objects.clear();
+	script_objects.clear();
+	script_arrays.clear();
+
+	if (gc_array) save_script_objects();
+	else save_user_objects();
+}
+
+void gamedata::load_objects(bool gc_array)
+{
+	if (gc_array) load_script_objects();
+	else load_user_objects();
+}
+
 void gamedata::save_user_objects()
 {
-	user_objects.clear();
-
 #ifndef IS_EDITOR
 	auto reachable_ids = find_script_objects_reachable_from_global_roots();
 	for (auto obj : get_user_objects())
 	{
-		if (obj->isGlobal() || reachable_ids.contains(obj->id))
+		if (obj->global || reachable_ids.contains(obj->id))
 		{
-			saved_user_object& save_obj = user_objects.emplace_back();
+			saved_user_object& save_obj = compat_saved_user_objects.emplace_back();
 			save_obj.obj = *obj;
 			save_obj.obj.ref_count = 0;
 			obj->save_arrays(save_obj.held_arrays);
@@ -61,15 +76,61 @@ void gamedata::load_user_objects()
 {
 #ifndef IS_EDITOR
 	FFCore.user_objects_init();
-	for(saved_user_object& obj : user_objects)
+	for (const saved_user_object& obj : compat_saved_user_objects)
 	{
-		auto id = obj.obj.id;
-		auto object = create_user_object(id);
-		*object = obj.obj;
-		assert(object->ref_count == 0);
-		object->ref_count = 1; // create_user_object added to autorelease pool.
-		object->type = script_object_type::object;
+		auto object = new user_object{obj.obj};
+		register_existing_user_object(object);
 		object->load_arrays(obj.held_arrays);
+	}
+#endif
+}
+
+void gamedata::save_script_objects()
+{
+#ifndef IS_EDITOR
+	auto reachable_ids = find_script_objects_reachable_from_global_roots();
+
+	for (auto obj : get_user_objects())
+	{
+		if (obj->global || reachable_ids.contains(obj->id))
+		{
+			user_object saved_obj = *obj;
+			saved_obj.ref_count = 0;
+			script_objects.push_back(std::move(saved_obj));
+		}
+	}
+
+	for (auto& obj : get_script_arrays())
+	{
+		if (obj->internal_id.has_value())
+			continue;
+
+		if (obj->global || reachable_ids.contains(obj->id))
+		{
+			script_array saved_obj = *obj;
+			saved_obj.ref_count = 0;
+			script_arrays.push_back(std::move(saved_obj));
+		}
+	}
+#endif
+}
+
+void gamedata::load_script_objects()
+{
+#ifndef IS_EDITOR
+	FFCore.user_objects_init();
+	FFCore.script_arrays_init();
+
+	for (const auto& obj : script_objects)
+	{
+		auto object = new user_object{obj};
+		register_existing_user_object(object);
+	}
+	
+	for (const auto& obj : script_arrays)
+	{
+		auto array = new script_array{obj};
+		register_existing_script_array(array);
 	}
 #endif
 }

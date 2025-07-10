@@ -93,14 +93,6 @@ errors_7.zs Line 34 @ Columns 2-25 - Error T017: Cannot cast from npc to int.
       ^~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_7.zs Line 43 @ Columns 12-19 - Error T100: Temporary literals cannot be stored!
-
-41    
-42        //!TODO
-43        arr2[1] = {2,3,4}; //!TODO should be valid, if arrays become gc-managed
-                    ^~~~~~~
-
-
 Failure!
 Compile finished with exit code '109' (compiled with errors)
 
@@ -263,20 +255,6 @@ stdout:
       },
       "severity": 1,
       "message": "T017: Cannot cast from npc to int."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 42,
-          "character": 11
-        },
-        "end": {
-          "line": 42,
-          "character": 18
-        }
-      },
-      "severity": 1,
-      "message": "T100: Temporary literals cannot be stored!"
     }
   ],
   "metadata": {

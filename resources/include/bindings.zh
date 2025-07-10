@@ -23,10 +23,6 @@
 //
 //   The ZASM variable to access for variables. Works for arrays too.
 //
-// @zasm_internal_array <number>
-//
-//    The ID for an internally-backed array. See `get_int_arr` in ffscript.cpp.
-//
 // @zasm_ref <VAR>
 //
 //   The ZASM variable to use as the `this` value for a class' internal functions. Omit to

@@ -1,5 +1,6 @@
 #include "zc/guys.h"
 #include "zc/scripting/arrays.h"
+#include "zscriptversion.h"
 
 // Screen arrays.
 
@@ -650,5 +651,121 @@ static ArrayRegistrar SDD_registrar(SDD, []{
 	);
 	impl.setDefaultValue(0);
 	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar SCREEN_NPCS_registrar(SCREEN_NPCS, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){
+			return guys.Count();
+		},
+		[](int, int index){
+			return guys.spr(index)->getUID();
+		},
+		[](int, int index, int value){
+			return false;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	impl.setReadOnly();
+	return &impl;
+}());
+
+static ArrayRegistrar SCREEN_ITEMS_registrar(SCREEN_ITEMS, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){
+			return items.Count();
+		},
+		[](int, int index){
+			return items.spr(index)->getUID();
+		},
+		[](int, int index, int value){
+			return false;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	impl.setReadOnly();
+	return &impl;
+}());
+
+static ArrayRegistrar SCREEN_LWEAPONS_registrar(SCREEN_LWEAPONS, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){
+			return Lwpns.Count();
+		},
+		[](int, int index){
+			return Lwpns.spr(index)->getUID();
+		},
+		[](int, int index, int value){
+			return false;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	impl.setReadOnly();
+	return &impl;
+}());
+
+static ArrayRegistrar SCREEN_EWEAPONS_registrar(SCREEN_EWEAPONS, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){
+			return Ewpns.Count();
+		},
+		[](int, int index){
+			return Ewpns.spr(index)->getUID();
+		},
+		[](int, int index, int value){
+			return false;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	impl.setReadOnly();
+	return &impl;
+}());
+
+static ArrayRegistrar SCREEN_PORTALS_registrar(SCREEN_PORTALS, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){
+			return portals.Count();
+		},
+		[](int, int index){
+			return portals.spr(index)->getUID();
+		},
+		[](int, int index, int value){
+			return false;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	impl.setReadOnly();
+	return &impl;
+}());
+
+static ArrayRegistrar SCREEN_FFCS_registrar(SCREEN_FFCS, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){
+			return MAX_FFCID + 1;
+		},
+		[](int, int index){
+			if (auto ffc = checkFFC(index))
+			{
+				if (ZScriptVersion::ffcRefIsSpriteId())
+					return ffc->getUID();
+
+				return index * 10000;
+			}
+
+			return 0;
+		},
+		[](int, int index, int value){
+			return false;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	impl.setReadOnly();
 	return &impl;
 }());

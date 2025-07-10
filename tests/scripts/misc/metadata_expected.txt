@@ -1492,11 +1492,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 791,
+              "line": 792,
               "character": 14
             },
             "end": {
-              "line": 791,
+              "line": 792,
               "character": 20
             }
           },
@@ -1631,17 +1631,17 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 781,
+              "line": 782,
               "character": 23
             },
             "end": {
-              "line": 781,
+              "line": 782,
               "character": 34
             }
           },
           "uri": "URI"
         },
-        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A781%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A781%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
+        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A782%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A782%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
       },
       "arr": {
         "loc": {
@@ -2555,12 +2555,10 @@ PUSHR D2
 PUSHR D3
 PUSHR D4
 PUSHR REFFFC; void run(int, int, int, int, int) Body Start
-PUSHARGSV 0 0.0011
+PUSHARGSV 0 0.0008
 SETR D4 SP2
-ALLOCATEMEMV D2 7 0
-STORE D2 0.0010
+ALLOCATEMEMV D2 7 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "%d %d\n"
-LOAD D2 0.0010; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD1
 PUSHR D2
@@ -2574,28 +2572,24 @@ ADDV D2 2
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0010
-DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params
-CALLFUNC 0.0121; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call
+CALLFUNC 0.0112; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0127; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0118; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2 0.0009
-ALLOCATEMEMV D2 10 0
-STORE D2 0.0008
+STORE_OBJECT D2 0.0007
+ALLOCATEMEMV D2 10 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "%d %d %d\n"
-LOAD D2 0.0008; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0009
+LOAD D2 0.0007
 ZCLASS_READ D2 0
 PUSHVARGR D2
-LOAD D2 0.0016
+LOAD D2 0.0013
 PUSHVARGR D2
 SETR D2 GD6
 PUSHR D2
@@ -2611,56 +2605,53 @@ ADDV D2 2
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0008
-DEALLOCATEMEMR D3
 SETV D2 0; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Set Destructor
 ZCLASS_CONSTRUCT D2 {0}; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Default Construct
-STORE_OBJECT D2 0.0007
+STORE_OBJECT D2 0.0006
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0127; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0118; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2 0.0006
-LOAD D2 0.0009
+STORE_OBJECT D2 0.0005
+LOAD D2 0.0007
 ZCLASS_READ D2 0
-STORE D2 0.0005
-LOAD D2 0.0005; InlineFunc[int WrapDeg(int)] Params
+STORE D2 0.0004
+LOAD D2 0.0004; InlineFunc[int WrapDeg(int)] Params
 WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body
 ALLOCATEMEMV D2 3 0
 PUSHR D2
 WRITEPODARRAY D2 {1,2,3}
 POP D2
-STORE D2 0.0003
+STORE_OBJECT D2 0.0003
 LOAD D2 0.0003; for(each) #1 ArrDecl
-STORE D2 0.0001
+STORE_OBJECT D2 0.0001
 STOREV 0 0.0002; for(each) #1 IndxDecl
 STOREV 0 0; for(each) #1 ValDecl
 LOAD D0 0.0001; for(each) #1 EndArrayCheck
 ARRAYSIZE D0
 LOAD D3 0.0002
 COMPARER D3 D2
-GOTOCMP 108 >=; for(each) #1 to Else
+GOTOCMP 100 >=; for(each) #1 to Else
 READPODARRAYR D2 D3; for(each) #1 Next Index
 STORE D2 0
 ADDV D3 1
 STORE D3 0.0002
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start
 TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End
-GOTO 96; for(each) #1 End
+GOTO 88; for(each) #1 End
 STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
 STOREV 0 0.0002
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
-LOAD D3 0.0003
-DEALLOCATEMEMR D3
-REF_REMOVE 0.0009
-REF_REMOVE 0.0006
+REF_REMOVE 0.0003
 REF_REMOVE 0.0007
-POPARGS D5 0.0017
+REF_REMOVE 0.0005
+REF_REMOVE 0.0006
+POPARGS D5 0.0014
 QUIT; void run(int, int, int, int, int) Body End
 SETR D4 SP2; Func[FilterBitflags do_filter(FilterBitflags)] Body Start
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params

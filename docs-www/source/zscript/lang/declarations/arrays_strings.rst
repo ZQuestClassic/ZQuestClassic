@@ -1,3 +1,5 @@
+.. _arrays:
+
 Arrays / Strings
 ================
 
@@ -80,9 +82,9 @@ be used as the initializer of an array, storing it for longer-term use.
 		
 		.. style:: zs_caption
 
-		While '2D' arrays can be declared by type, you cannot put an array
-		initializer inside an array initializer to initialize multiple levels
-		of array.
+		Prior to 3.0, you cannot put an array initializer inside an array initializer to initialize multiple levels of array.
+
+		Since 3.0 this has been allowed.
 
 		.. zscript::
 			:style: body
@@ -104,7 +106,7 @@ an array using a :ref:`for-each<stmt_for_each>` loop.
 
 Additionally, you may access an array using *negative* indexes. These
 will access the array *backwards*, ex. `arr[-1]` will access the
-*last* element in the array `arr`.
+*last* element in the array `arr`. This currently does not work for internal arrays (such as :ref:`Screen->D[]<globals_screen_var_d>`).
 
 .. tab-set::
 
@@ -167,7 +169,14 @@ Also, adjacent strings are automatically merged by the compiler. Ex:
 		" split across multiple lines!\n");
 	// prints 'This is a string split across multiple lines!'
 
-A string literal creates what is known as a ``temporary value``, which cannot be
+Temporary array values
+----------------------
+
+.. versionchanged:: 3.0
+	Since 3.0, arrays are managed by :ref:`the garbage collector<gc>`, and so do
+	not have these restrictions for array literals.
+
+Prior to 3.0, array/string literals create what is known as a ``temporary value``, which cannot be
 stored in a variable- its primary purpose is to pass directly into functions.
 However, a string literal can also be used as the initializer for a `char32` array,
 which does store it for longer-term use.

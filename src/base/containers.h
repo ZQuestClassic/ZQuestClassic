@@ -150,17 +150,17 @@ class bounded_container
 {
 public:
 	typedef Sz size_type;
-	typedef T obj_type;
+	typedef T value_type;
 	
 	bounded_container() : true_sz(0), default_val() {}
 	bounded_container(size_type const& sz) : true_sz(sz), default_val() {}
-	bounded_container(size_type const& sz, obj_type const& dv) : true_sz(sz), default_val(dv) {}
+	bounded_container(size_type const& sz, value_type const& dv) : true_sz(sz), default_val(dv) {}
 	virtual ~bounded_container() = default;
 	
-	virtual obj_type& at(size_type ind) = 0;
-	virtual obj_type const& at(size_type ind) const = 0;
-	virtual obj_type& operator[](size_type ind) = 0;
-	virtual obj_type const& operator[](size_type ind) const = 0;
+	virtual value_type& at(size_type ind) = 0;
+	virtual value_type const& at(size_type ind) const = 0;
+	virtual value_type& operator[](size_type ind) = 0;
+	virtual value_type const& operator[](size_type ind) const = 0;
 	virtual void clear() = 0;
 	virtual void normalize() = 0;
 	
@@ -168,9 +168,9 @@ public:
 	size_type size() const {return true_sz;}
 	void resize(size_type sz) {true_sz = sz;}
 	
-	obj_type const& defval() const {return default_val;}
+	value_type const& defval() const {return default_val;}
 	
-	void copy_to(obj_type* arr, size_type sz)
+	void copy_to(value_type* arr, size_type sz)
 	{
 		for(size_type q = 0; q < sz; ++q)
 		{
@@ -181,7 +181,7 @@ public:
 	}
 protected:
 	size_type true_sz;
-	obj_type default_val;
+	value_type default_val;
 };
 
 template<typename Sz,typename T>
@@ -189,16 +189,16 @@ class bounded_map : public bounded_container<Sz,T>
 {
 public:
 	typedef Sz size_type;
-	typedef T obj_type;
-	typedef map<size_type,obj_type> cont_t;
-	typedef bounded_map<size_type,obj_type> bound_t;
+	typedef T value_type;
+	typedef map<size_type,value_type> cont_t;
+	typedef bounded_map<size_type,value_type> bound_t;
 	
 	bounded_map() : bounded_container<Sz,T>(0) {}
 	bounded_map(size_type tsz) : bounded_container<Sz,T>(tsz) {}
-	bounded_map(size_type tsz, obj_type dv) : bounded_container<Sz,T>(tsz,dv) {}
+	bounded_map(size_type tsz, value_type dv) : bounded_container<Sz,T>(tsz,dv) {}
 	virtual ~bounded_map() = default;
 	
-	obj_type& at(size_type ind)
+	value_type& at(size_type ind)
 	{
 		if(ind < this->true_sz)
 		{
@@ -209,7 +209,7 @@ public:
 		throw std::out_of_range("Bad bounded_map access");
 	}
 
-	obj_type const& at(size_type ind) const
+	value_type const& at(size_type ind) const
 	{
 		if(ind < this->true_sz)
 		{
@@ -220,12 +220,12 @@ public:
 		throw std::out_of_range("Bad bounded_map access");
 	}
 
-	obj_type& operator[](size_type ind)
+	value_type& operator[](size_type ind)
 	{
 		return at(ind);
 	}
 
-	obj_type const& operator[](size_type ind) const
+	value_type const& operator[](size_type ind) const
 	{
 		return at(ind);
 	}
@@ -242,13 +242,13 @@ public:
 		normalize();
 		return *this;
 	}
-	bound_t& operator=(map<size_type,obj_type> const& other)
+	bound_t& operator=(map<size_type,value_type> const& other)
 	{
 		cont = other;
 		normalize();
 		return *this;
 	}
-	bound_t& operator=(vector<obj_type> const& other)
+	bound_t& operator=(vector<value_type> const& other)
 	{
 		cont.clear();
 		for(size_t q = 0; q < other.size(); ++q)
@@ -322,16 +322,16 @@ class bounded_vec : public bounded_container<Sz,T>
 {
 public:
 	typedef Sz size_type;
-	typedef T obj_type;
-	typedef vector<obj_type> cont_t;
-	typedef bounded_vec<size_type,obj_type> bound_t;
+	typedef T value_type;
+	typedef vector<value_type> cont_t;
+	typedef bounded_vec<size_type,value_type> bound_t;
 	
 	bounded_vec() : bounded_container<Sz,T>(0) {}
 	bounded_vec(size_type tsz) : bounded_container<Sz,T>(tsz) {}
-	bounded_vec(size_type tsz, obj_type dv) : bounded_container<Sz,T>(tsz,dv) {}
+	bounded_vec(size_type tsz, value_type dv) : bounded_container<Sz,T>(tsz,dv) {}
 	virtual ~bounded_vec() = default;
 	
-	obj_type& at(size_type ind)
+	value_type& at(size_type ind)
 	{
 		if(ind < this->true_sz)
 		{
@@ -343,7 +343,7 @@ public:
 		throw std::out_of_range("Bad bounded_vec access");
 	}
 
-	obj_type const& at(size_type ind) const
+	value_type const& at(size_type ind) const
 	{
 		if(ind < this->true_sz)
 		{
@@ -354,12 +354,12 @@ public:
 		throw std::out_of_range("Bad bounded_vec access");
 	}
 
-	obj_type& operator[](size_type ind)
+	value_type& operator[](size_type ind)
 	{
 		return at(ind);
 	}
 
-	obj_type const& operator[](size_type ind) const
+	value_type const& operator[](size_type ind) const
 	{
 		return at(ind);
 	}
@@ -376,7 +376,7 @@ public:
 		normalize();
 		return *this;
 	}
-	bound_t& operator=(vector<obj_type> const& other)
+	bound_t& operator=(vector<value_type> const& other)
 	{
 		cont = other;
 		normalize();
@@ -384,15 +384,15 @@ public:
 	}
 	
 	cont_t const& inner() const {return cont;}
-	obj_type& front() {return cont.front();}
-	obj_type const& front() const {return cont.front();}
-	obj_type& back() {return cont.at(this->true_sz-1);}
-	obj_type const& back() const {return cont.at(this->true_sz-1);}
-	obj_type const* data() const {return cont.data();}
+	value_type& front() {return cont.front();}
+	value_type const& front() const {return cont.front();}
+	value_type& back() {return cont.at(this->true_sz-1);}
+	value_type const& back() const {return cont.at(this->true_sz-1);}
+	value_type const* data() const {return cont.data();}
 	size_type capacity() const {return cont.size();}
 	void reserve(size_type newcap) {cont.reserve(newcap);}
 	virtual void clear() {cont.clear();}
-	void swap(bounded_vec<size_type,obj_type>& other)
+	void swap(bounded_vec<size_type,value_type>& other)
 	{
 		normalize();
 		cont.swap(other.cont);
@@ -417,9 +417,9 @@ public:
 		return true;
 	}
 	
-	bounded_map<size_type,obj_type> as_bmap() const
+	bounded_map<size_type,value_type> as_bmap() const
 	{
-		bounded_map<size_type,obj_type> ret(this->true_sz, this->default_val);
+		bounded_map<size_type,value_type> ret(this->true_sz, this->default_val);
 		ret = cont; //overloaded for std::vector
 		return ret;
 	}

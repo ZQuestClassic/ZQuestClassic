@@ -20,7 +20,7 @@ using namespace util;
 #define FUNCFLAG_VARARGS            0x00000040 //Uses variadic arguments
 #define FUNCFLAG_DEPRECATED         0x00000080 //Gives a deprecated warning/error on use
 #define FUNCFLAG_NOCAST             0x00000100 //Affects function's overloading
-#define FUNCFLAG_INTARRAY           0x00000200 //Function represents a special internal array
+#define FUNCFLAG_UNUSED             0x00000200 //
 #define FUNCFLAG_NIL                0x00000400 //Function does 'nothing' (optimizable)
 #define FUNCFLAG_EXITS              0x00000800 //Function exits the current script (or game)
 #define FUNCFLAG_NEVER_RETURN       0x00001000 //Function never returns

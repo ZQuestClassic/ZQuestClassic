@@ -1,8 +1,10 @@
+#include "base/zc_array.h"
 #include "base/zdefs.h"
 #include "zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/script_object.h"
 #include "zc/websocket_pool.h"
+#include "zscriptversion.h"
 #include <optional>
 
 extern refInfo *ri;
@@ -15,8 +17,19 @@ struct user_websocket : public user_abstract_obj
 	{
 		if (connection_id != -1)
 			websocket_pool_close(connection_id);
-		if (message_arrayptr)
-			FFScript::deallocateArray(message_arrayptr);
+		if (message_array_id)
+		{
+			if (ZScriptVersion::gc_arrays())
+				script_object_ref_dec(message_array_id);
+			else
+				FFScript::deallocateArray(message_array_id);
+		}
+	}
+
+	void get_retained_ids(std::vector<uint32_t>& ids)
+	{
+		if (ZScriptVersion::gc_arrays())
+			ids.push_back(message_array_id);
 	}
 
 	bool connect(std::string url)
@@ -61,7 +74,7 @@ struct user_websocket : public user_abstract_obj
 	int connection_id = -1;
 	std::string url;
 	std::string err;
-	int message_arrayptr;
+	uint32_t message_array_id;
 	WebSocketMessageType last_message_type;
 };
 
@@ -136,7 +149,7 @@ std::optional<int32_t> websocket_run_command(word command)
 		}
 		case WEBSOCKET_LOAD:
 		{
-			int arrayptr = SH::get_arg(sarg1, false) / 10000;
+			int arrayptr = SH::get_arg(sarg1, false);
 			std::string url;
 			ArrayH::getString(arrayptr, url, 512);
 
@@ -170,7 +183,7 @@ std::optional<int32_t> websocket_run_command(word command)
 		}
 		case WEBSOCKET_ERROR:
 		{
-			int32_t arrayptr = get_register(sarg1) / 10000;
+			int32_t arrayptr = get_register(sarg1);
 			if (auto ws = user_websockets.check(ri->websocketref))
 			{
 				ArrayH::setArray(arrayptr, ws->get_error(), true);
@@ -184,7 +197,7 @@ std::optional<int32_t> websocket_run_command(word command)
 		case WEBSOCKET_SEND:
 		{
 			int32_t type = get_register(sarg1);
-			int32_t arrayptr = get_register(sarg2) / 10000;
+			int32_t arrayptr = get_register(sarg2);
 
 			current_zasm_extra_context = "WebsocketType";
 			if (BC::checkBounds(type, 1, 2) != SH::_NoError)
@@ -211,15 +224,19 @@ std::optional<int32_t> websocket_run_command(word command)
 				std::string message = ws->receive_message();
 				auto message_type = ws->last_message_type;
 
-				if(!(ws->message_arrayptr && is_valid_array(ws->message_arrayptr)))
-					ws->message_arrayptr = allocatemem(message.size() + 1, true, ScriptType::None, -1);
+				if(!(ws->message_array_id && is_valid_array(ws->message_array_id)))
+				{
+					ws->message_array_id = allocatemem(message.size() + 1, true, ScriptType::None, -1);
+					if (ZScriptVersion::gc_arrays())
+						script_object_ref_inc(ws->message_array_id);
+				}
 
 				if (message_type == WebSocketMessageType::Text)
-					ArrayH::setArray(ws->message_arrayptr, message, true);
+					ArrayH::setArray(ws->message_array_id, message, true);
 				else
-					ArrayH::setArray(ws->message_arrayptr, message.size(), message.data(), false, true);
+					ArrayH::setArray(ws->message_array_id, message.size(), message.data(), false, true);
 
-				set_register(sarg1, ws->message_arrayptr * 10000);
+				set_register(sarg1, ws->message_array_id * 10000);
 			}
 			break;
 		}

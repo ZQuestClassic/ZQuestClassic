@@ -4343,19 +4343,51 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+ghost2_global.zh Line 189 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
 
-263    f->Script = scriptNum;
-264    f->InitD[0] = enemy->ID;
-265    if (__GH_ETHEREAL )
+187    }
+188    // No combo or script set?
+189    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 193 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+191        continue;
+192    }
+193    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 214 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
+
+212    else
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 215 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+215        scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 263 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+261    f->Script = scriptNum;
+262    f->InitD[0] = enemy->ID;
+263    if (__GH_ETHEREAL )
            ^~~~~~~~~~~~~
 
 
-ghost2_init.zh Line 218 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
+ghost2_init.zh Line 216 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
 
-216            ghost->Extend=4; // Disables built-in shadows
-217        ghost->OriginalTile=GH_BLANK_TILE;
-218    if ( __GH_FIX_255_ANONE )
+214            ghost->Extend=4; // Disables built-in shadows
+215        ghost->OriginalTile=GH_BLANK_TILE;
+216    if ( __GH_FIX_255_ANONE )
             ^~~~~~~~~~~~~~~~~~
 
 
@@ -4399,19 +4431,51 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+ghost2_global.zh Line 189 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
 
-263    f->Script = scriptNum;
-264    f->InitD[0] = enemy->ID;
-265    if (__GH_ETHEREAL )
+187    }
+188    // No combo or script set?
+189    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 193 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+191        continue;
+192    }
+193    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 214 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
+
+212    else
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 215 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+215        scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 263 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+261    f->Script = scriptNum;
+262    f->InitD[0] = enemy->ID;
+263    if (__GH_ETHEREAL )
            ^~~~~~~~~~~~~
 
 
-ghost2_init.zh Line 218 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
+ghost2_init.zh Line 216 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
 
-216            ghost->Extend=4; // Disables built-in shadows
-217        ghost->OriginalTile=GH_BLANK_TILE;
-218    if ( __GH_FIX_255_ANONE )
+214            ghost->Extend=4; // Disables built-in shadows
+215        ghost->OriginalTile=GH_BLANK_TILE;
+216    if ( __GH_FIX_255_ANONE )
             ^~~~~~~~~~~~~~~~~~
 
 
@@ -4455,19 +4519,51 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+ghost2_global.zh Line 189 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
 
-263    f->Script = scriptNum;
-264    f->InitD[0] = enemy->ID;
-265    if (__GH_ETHEREAL )
+187    }
+188    // No combo or script set?
+189    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 193 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+191        continue;
+192    }
+193    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 214 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
+
+212    else
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 215 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+215        scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 263 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+261    f->Script = scriptNum;
+262    f->InitD[0] = enemy->ID;
+263    if (__GH_ETHEREAL )
            ^~~~~~~~~~~~~
 
 
-ghost2_init.zh Line 218 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
+ghost2_init.zh Line 216 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
 
-216            ghost->Extend=4; // Disables built-in shadows
-217        ghost->OriginalTile=GH_BLANK_TILE;
-218    if ( __GH_FIX_255_ANONE )
+214            ghost->Extend=4; // Disables built-in shadows
+215        ghost->OriginalTile=GH_BLANK_TILE;
+216    if ( __GH_FIX_255_ANONE )
             ^~~~~~~~~~~~~~~~~~
 
 
@@ -4511,19 +4607,51 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+ghost2_global.zh Line 189 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
 
-263    f->Script = scriptNum;
-264    f->InitD[0] = enemy->ID;
-265    if (__GH_ETHEREAL )
+187    }
+188    // No combo or script set?
+189    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 193 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+191        continue;
+192    }
+193    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 214 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
+
+212    else
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 215 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+215        scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 263 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+261    f->Script = scriptNum;
+262    f->InitD[0] = enemy->ID;
+263    if (__GH_ETHEREAL )
            ^~~~~~~~~~~~~
 
 
-ghost2_init.zh Line 218 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
+ghost2_init.zh Line 216 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
 
-216            ghost->Extend=4; // Disables built-in shadows
-217        ghost->OriginalTile=GH_BLANK_TILE;
-218    if ( __GH_FIX_255_ANONE )
+214            ghost->Extend=4; // Disables built-in shadows
+215        ghost->OriginalTile=GH_BLANK_TILE;
+216    if ( __GH_FIX_255_ANONE )
             ^~~~~~~~~~~~~~~~~~
 
 
@@ -4567,19 +4695,51 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+ghost2_global.zh Line 189 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
 
-263    f->Script = scriptNum;
-264    f->InitD[0] = enemy->ID;
-265    if (__GH_ETHEREAL )
+187    }
+188    // No combo or script set?
+189    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 193 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+191        continue;
+192    }
+193    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 214 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
+
+212    else
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 215 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+215        scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 263 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+261    f->Script = scriptNum;
+262    f->InitD[0] = enemy->ID;
+263    if (__GH_ETHEREAL )
            ^~~~~~~~~~~~~
 
 
-ghost2_init.zh Line 218 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
+ghost2_init.zh Line 216 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
 
-216            ghost->Extend=4; // Disables built-in shadows
-217        ghost->OriginalTile=GH_BLANK_TILE;
-218    if ( __GH_FIX_255_ANONE )
+214            ghost->Extend=4; // Disables built-in shadows
+215        ghost->OriginalTile=GH_BLANK_TILE;
+216    if ( __GH_FIX_255_ANONE )
             ^~~~~~~~~~~~~~~~~~
 
 
@@ -4623,19 +4783,51 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+ghost2_global.zh Line 189 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
 
-263    f->Script = scriptNum;
-264    f->InitD[0] = enemy->ID;
-265    if (__GH_ETHEREAL )
+187    }
+188    // No combo or script set?
+189    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 193 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+191        continue;
+192    }
+193    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 214 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
+
+212    else
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 215 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+215        scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 263 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+261    f->Script = scriptNum;
+262    f->InitD[0] = enemy->ID;
+263    if (__GH_ETHEREAL )
            ^~~~~~~~~~~~~
 
 
-ghost2_init.zh Line 218 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
+ghost2_init.zh Line 216 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
 
-216            ghost->Extend=4; // Disables built-in shadows
-217        ghost->OriginalTile=GH_BLANK_TILE;
-218    if ( __GH_FIX_255_ANONE )
+214            ghost->Extend=4; // Disables built-in shadows
+215        ghost->OriginalTile=GH_BLANK_TILE;
+216    if ( __GH_FIX_255_ANONE )
             ^~~~~~~~~~~~~~~~~~
 
 
@@ -4679,19 +4871,51 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+ghost2_global.zh Line 189 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
 
-263    f->Script = scriptNum;
-264    f->InitD[0] = enemy->ID;
-265    if (__GH_ETHEREAL )
+187    }
+188    // No combo or script set?
+189    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 193 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+191        continue;
+192    }
+193    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 214 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
+
+212    else
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 215 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+215        scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 263 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+261    f->Script = scriptNum;
+262    f->InitD[0] = enemy->ID;
+263    if (__GH_ETHEREAL )
            ^~~~~~~~~~~~~
 
 
-ghost2_init.zh Line 218 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
+ghost2_init.zh Line 216 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
 
-216            ghost->Extend=4; // Disables built-in shadows
-217        ghost->OriginalTile=GH_BLANK_TILE;
-218    if ( __GH_FIX_255_ANONE )
+214            ghost->Extend=4; // Disables built-in shadows
+215        ghost->OriginalTile=GH_BLANK_TILE;
+216    if ( __GH_FIX_255_ANONE )
             ^~~~~~~~~~~~~~~~~~
 
 
@@ -4735,19 +4959,51 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+ghost2_global.zh Line 189 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
 
-263    f->Script = scriptNum;
-264    f->InitD[0] = enemy->ID;
-265    if (__GH_ETHEREAL )
+187    }
+188    // No combo or script set?
+189    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 193 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+191        continue;
+192    }
+193    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 214 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
+
+212    else
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 215 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+215        scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 263 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+261    f->Script = scriptNum;
+262    f->InitD[0] = enemy->ID;
+263    if (__GH_ETHEREAL )
            ^~~~~~~~~~~~~
 
 
-ghost2_init.zh Line 218 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
+ghost2_init.zh Line 216 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
 
-216            ghost->Extend=4; // Disables built-in shadows
-217        ghost->OriginalTile=GH_BLANK_TILE;
-218    if ( __GH_FIX_255_ANONE )
+214            ghost->Extend=4; // Disables built-in shadows
+215        ghost->OriginalTile=GH_BLANK_TILE;
+216    if ( __GH_FIX_255_ANONE )
             ^~~~~~~~~~~~~~~~~~
 
 
@@ -4791,19 +5047,51 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+ghost2_global.zh Line 189 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
 
-263    f->Script = scriptNum;
-264    f->InitD[0] = enemy->ID;
-265    if (__GH_ETHEREAL )
+187    }
+188    // No combo or script set?
+189    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 193 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+191        continue;
+192    }
+193    if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 214 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_COMBO has not been declared.
+
+212    else
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 215 - Error S009: Variable __GH_AUTOGHOST_ATTRIBUTE_SCRIPT has not been declared.
+
+213    {
+214        combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+215        scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ghost2_global.zh Line 263 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+261    f->Script = scriptNum;
+262    f->InitD[0] = enemy->ID;
+263    if (__GH_ETHEREAL )
            ^~~~~~~~~~~~~
 
 
-ghost2_init.zh Line 218 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
+ghost2_init.zh Line 216 - Error S009: Variable __GH_FIX_255_ANONE has not been declared.
 
-216            ghost->Extend=4; // Disables built-in shadows
-217        ghost->OriginalTile=GH_BLANK_TILE;
-218    if ( __GH_FIX_255_ANONE )
+214            ghost->Extend=4; // Disables built-in shadows
+215        ghost->OriginalTile=GH_BLANK_TILE;
+216    if ( __GH_FIX_255_ANONE )
             ^~~~~~~~~~~~~~~~~~
 
 
@@ -10420,110 +10708,6 @@ script.zs Line 960 - Warning S108: Arrays should be explicitly typed - change `i
           ^~~~~~~~
 
 
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-script.zs Line 231 - Warning S108: Array mismatch for types int[] and int
-
-229    int lLastX[256];
-230    int lLastY[256];
-231    int vars[17] = {0, lTimer, lTile, lAng, lType, lMisc1, lMisc2, lDecay, lFlags, lACounter, lNumFrames, lASpeed, 0, lLastX, lLastY, itemdat->Power*2, 0};
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 script.zs Line 392 - Error T021: Function DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int) has not been declared.
 
 390    }
@@ -13750,22 +13934,6 @@ ChainChomp.zs Line 17 - Error S009: Variable aptr has not been declared.
 16    AnimHandler aptr = new AnimHandler(this);
 17    aptr->AddAnim(0, 0, 1, 1, ADF_8WAY);
       ^~~~
-
-
-ChainChomp.zs Line 28 - Warning S108: Array mismatch for types int[] and int
-
-26    }
-27    
-28    int vars[16] = {chainX, chainY, numLinks};
-                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-ChainChomp.zs Line 28 - Warning S108: Array mismatch for types int[] and int
-
-26    }
-27    
-28    int vars[16] = {chainX, chainY, numLinks};
-                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Failure!

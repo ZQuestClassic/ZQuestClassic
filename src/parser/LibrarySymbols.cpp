@@ -65,6 +65,33 @@ void getIndexedVariable(int32_t refVar, Function* function, int32_t var)
 	function->giveCode(code);
 }
 
+void getInternalArray(int32_t refVar, Function* function, int32_t zasm_var)
+{
+	function->setFlag(FUNCFLAG_INLINE);
+	int32_t label = function->getLabel();
+	vector<shared_ptr<Opcode>> code;
+
+	if (refVar == NUL)
+	{
+		function->setIntFlag(IFUNCFLAG_SKIPPOINTER);
+		addOpcode2 (code, new OLoadInternalArray(new VarArgument(EXP1), new LiteralVarArgument(zasm_var)));
+		LABELBACK(label);
+	}
+	else
+	{
+		addOpcode2 (code, new OLoadInternalArrayRef(new VarArgument(EXP1), new LiteralVarArgument(zasm_var), new VarArgument(refVar)));
+		LABELBACK(label);
+		//pop object pointer
+		if (refVar == REFSCREENDATA)
+			function->setIntFlag(IFUNCFLAG_SKIPPOINTER);
+		else
+			POPREF();
+	}
+
+	RETURN();
+	function->giveCode(code);
+}
+
 void setVariable(int32_t refVar, Function* function, int32_t var)
 {
 	function->setFlag(FUNCFLAG_INLINE);

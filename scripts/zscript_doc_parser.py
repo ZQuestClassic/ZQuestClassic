@@ -269,7 +269,6 @@ def parse_doc_comment(x) -> Optional[Comment]:
             'reassign_ptr',
             'value',
             'vargs',
-            'zasm_internal_array',
             'zasm_ref',
             'zasm_var',
         ]

@@ -30,58 +30,38 @@ QUIT; void run() Body
 PUSHR D0; void run(int, int) Params
 PUSHR D1
 PUSHR REFFFC; void run(int, int) Body Start
-PUSHARGSV 0 0.0007
+PUSHARGSV 0 0.0002
 SETR D4 SP2
-ALLOCATEMEMV D2 19 0
-STORE D2 0.0006
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "Region->Width: %d\n"
-LOAD D2 0.0006; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGR REGION_WIDTH; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0006
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 20 0
-STORE D2 0.0005
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "Region->Height: %d\n"
-LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGR REGION_HEIGHT; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0005
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 25 0
-STORE D2 0.0004
+ALLOCATEMEMV D2 25 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "Region->ScreenWidth: %d\n"
-LOAD D2 0.0004; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGR REGION_SCREEN_WIDTH; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0004
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 26 0
-STORE D2 0.0003
+ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "Region->ScreenHeight: %d\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGR REGION_SCREEN_HEIGHT; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0003
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 23 0
-STORE D2 0.0002
+ALLOCATEMEMV D2 23 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "Region->NumCombos: %d\n"
-LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGR REGION_NUM_COMBOS; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0002
-DEALLOCATEMEMR D3
 SETV D2 0; while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP D0
@@ -101,7 +81,7 @@ LOAD D2 0.0001
 PUSHR D2
 LOAD D2 0
 PUSHR D2
-LOAD D2 0.0009
+LOAD D2 0.0004
 PUSHR D2
 PUSHARGSV 1 0.0002
 PUSHV 3
@@ -123,7 +103,7 @@ SETR D2 VIEWPORT_Y
 POP D3
 ADDR D2 D3
 STORE D2 0
-LOAD D2 0.0007; if() #420 Test
+LOAD D2 0.0002; if() #420 Test
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -131,8 +111,8 @@ PUSHR D2
 LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
-GOTOCMP 138 >=
-LOAD D2 0.0007
+GOTOCMP 118 >=
+LOAD D2 0.0002
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
@@ -140,8 +120,8 @@ PUSHR D2
 LOAD D2 0
 POP D3
 COMPARER D3 D2
-GOTOCMP 138 >=
-LOAD D2 0.0007
+GOTOCMP 118 >=
+LOAD D2 0.0002
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -150,8 +130,8 @@ PUSHR D2
 LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
-GOTOCMP 138 <
-LOAD D2 0.0007
+GOTOCMP 118 <
+LOAD D2 0.0002
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
@@ -160,13 +140,13 @@ PUSHR D2
 LOAD D2 0
 POP D3
 COMPARER D3 D2
-GOTOCMP 138 <
+GOTOCMP 118 <
 SETV D2 1
-GOTO 139
+GOTO 119
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 143 ==; Test 'if'
-LOAD D2 0.0008; InlineFunc[void screendata::TriggerSecrets(int)] Params AND if() #420 Body Start
+GOTOCMP 123 ==; Test 'if'
+LOAD D2 0.0003; InlineFunc[void screendata::TriggerSecrets(int)] Params AND if() #420 Body Start
 REGION_TRIGGER_SECRETS D2; InlineFunc[void screendata::TriggerSecrets(int)] Body AND if() #420 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 57; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
+GOTO 37; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End

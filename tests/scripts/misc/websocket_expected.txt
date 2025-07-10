@@ -28,229 +28,184 @@ zasm:
 
 QUIT; void run() Body
 PUSHR REFGENERICDATA; void run() Body Start
-PUSHARGSV 0 0.0010
+PUSHARGSV 0 0.0006
 SETR D4 SP2
-ALLOCATEMEMV D2 26 0
-STORE D2 0.0009
+ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "Connecting to websocket.\n"
-LOAD D2 0.0009; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0009
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 18 0
-STORE D2 0.0008
-WRITEPODSTRING D2 "ws://ws.ifelse.io"
-LOAD D2 0.0008; InlineFunc[websocket Game::LoadWebSocket(char32[])] Params
+ALLOCATEMEMV D2 18 0; InlineFunc[websocket Game::LoadWebSocket(char32[])] Params Start
+WRITEPODSTRING D2 "ws://ws.ifelse.io"; InlineFunc[websocket Game::LoadWebSocket(char32[])] Params End
 WEBSOCKET_LOAD D2; InlineFunc[websocket Game::LoadWebSocket(char32[])] Body
-LOAD D3 0.0008
-DEALLOCATEMEMR D3
-STORE_OBJECT D2 0.0007
-LOAD D2 0.0007; InlineFunc[void websocket::Own()] Params Start
+STORE_OBJECT D2 0.0005
+LOAD D2 0.0005; InlineFunc[void websocket::Own()] Params Start
 SETR REFWEBSOCKET D2; InlineFunc[void websocket::Own()] Params End
 WEBSOCKET_OWN; InlineFunc[void websocket::Own()] Body
-STOREV 0 0.0006
-LOAD D2 0.0007; if() #96 Test AND while(true) #2 Body [Opt:AlwaysOn] Start
+STOREV 0 0.0004
+LOAD D2 0.0005; if() #96 Test AND while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 37 ==; Test 'if'
+GOTOCMP 29 ==; Test 'if'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #96 Body Start
-GOTO 26; continue 1;
-GOTO 68; if() #96 Body End
-LOAD D2 0.0007; if() #420 Test AND if() #96 Else Start
+GOTO 18; continue 1;
+GOTO 54; if() #96 Body End
+LOAD D2 0.0005; if() #420 Test AND if() #96 Else Start
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
 COMPAREV D2 0.0003
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 68 ==; Test 'if'
+GOTOCMP 54 ==; Test 'if'
 ALLOCATEMEMV D2 0 0; if() #420 Body Start
-STORE D2 0.0005
-LOAD D2 0.0007; InlineFunc[void websocket::GetError(char32[])] Params Start
+STORE_OBJECT D2 0.0003
+LOAD D2 0.0005; InlineFunc[void websocket::GetError(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0005; InlineFunc[void websocket::GetError(char32[])] Params End
+LOAD D2 0.0003; InlineFunc[void websocket::GetError(char32[])] Params End
 POP REFWEBSOCKET; InlineFunc[void websocket::GetError(char32[])] Body Start
 WEBSOCKET_ERROR D2; InlineFunc[void websocket::GetError(char32[])] Body End
-ALLOCATEMEMV D2 23 0
-STORE D2 0.0004
+ALLOCATEMEMV D2 23 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "Failed to connect: %s\n"
-LOAD D2 0.0004; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0005
+LOAD D2 0.0003
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0004
-DEALLOCATEMEMR D3
-LOAD D3 0.0005
-DEALLOCATEMEMR D3
-GOTO 226; break 1;
-LOAD D3 0.0005
-DEALLOCATEMEMR D3; if() #420 Body End
-LOAD D2 0.0007; if() #96 Else End AND if() #421 Test
+REF_REMOVE 0.0003
+GOTO 181; break 1;
+REF_REMOVE 0.0003; if() #420 Body End
+LOAD D2 0.0005; if() #96 Else End AND if() #421 Test
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
 COMPAREV D2 0.0001
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 90 ==; Test 'if'
-ALLOCATEMEMV D2 23 0; if() #421 Body Start
-STORE D2 0.0005
+GOTOCMP 72 ==; Test 'if'
+ALLOCATEMEMV D2 23 0; InlineFunc[void printf(char32[])] Params Start AND if() #421 Body Start
 WRITEPODSTRING D2 "Failed to connect: %l\n"
-LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0007
+LOAD D2 0.0005
 PUSHR D2
 POP REFWEBSOCKET
 PUSHVARGR WEBSOCKET_STATE; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0005
-DEALLOCATEMEMR D3
-GOTO 226; break 1; AND if() #421 Body End
-LOAD D2 0.0006; unless() #422 Test
+GOTO 181; break 1; AND if() #421 Body End
+LOAD D2 0.0004; unless() #422 Test
 COMPAREV D2 0
-GOTOCMP 130 !=; Test 'unless'
-ALLOCATEMEMV D2 12 0; unless() #422 Body Start
-STORE D2 0.0005
+GOTOCMP 100 !=; Test 'unless'
+ALLOCATEMEMV D2 12 0; InlineFunc[void printf(char32[])] Params Start AND unless() #422 Body Start
 WRITEPODSTRING D2 "Connected!\n"
-LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0005
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 13 0
-STORE D2 0.0004
-WRITEPODSTRING D2 "hello world!"
-LOAD D2 0.0007; InlineFunc[void websocket::Send(char32[], WebsocketType)] Params Start
+LOAD D2 0.0005; InlineFunc[void websocket::Send(char32[], WebsocketType)] Params Start
 PUSHR D2
-LOAD D2 0.0004
+ALLOCATEMEMV D2 13 0
+WRITEPODSTRING D2 "hello world!"
 PUSHR D2
 SETV D2 0.0001; InlineFunc[void websocket::Send(char32[], WebsocketType)] Params End
 POP D3; InlineFunc[void websocket::Send(char32[], WebsocketType)] Body Start
 POP REFWEBSOCKET
 WEBSOCKET_SEND D2 D3; InlineFunc[void websocket::Send(char32[], WebsocketType)] Body End
-LOAD D3 0.0004
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 14 0
-STORE D2 0.0003
-WRITEPODSTRING D2 "domo arigato!"
-LOAD D2 0.0007; InlineFunc[void websocket::Send(char32[], WebsocketType)] Params Start
+LOAD D2 0.0005; InlineFunc[void websocket::Send(char32[], WebsocketType)] Params Start
 PUSHR D2
-LOAD D2 0.0003
+ALLOCATEMEMV D2 14 0
+WRITEPODSTRING D2 "domo arigato!"
 PUSHR D2
 SETV D2 0.0002; InlineFunc[void websocket::Send(char32[], WebsocketType)] Params End
 POP D3; InlineFunc[void websocket::Send(char32[], WebsocketType)] Body Start
 POP REFWEBSOCKET
 WEBSOCKET_SEND D2 D3; InlineFunc[void websocket::Send(char32[], WebsocketType)] Body End
-LOAD D3 0.0003
-DEALLOCATEMEMR D3
 SETV D2 1
-STORE D2 0.0006; unless() #422 Body End
-LOAD D2 0.0007; while() #3 Test
+STORE D2 0.0004; unless() #422 Body End
+LOAD D2 0.0005; while() #3 Test
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_HAS_MESSAGE
 COMPAREV D2 0
-GOTOCMP 224 ==; Test 'while'
-LOAD D2 0.0007; InlineFunc[untyped[] websocket::Receive()] Params Start AND while() #3 Body Start
+GOTOCMP 179 ==; Test 'while'
+LOAD D2 0.0005; InlineFunc[untyped[] websocket::Receive()] Params Start AND while() #3 Body Start
 SETR REFWEBSOCKET D2; InlineFunc[untyped[] websocket::Receive()] Params End
 WEBSOCKET_RECEIVE D2; InlineFunc[untyped[] websocket::Receive()] Body
-STORE D2 0.0005
-LOAD D2 0.0007
+STORE_OBJECT D2 0.0003
+LOAD D2 0.0005
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_MESSAGE_TYPE
-STORE D2 0.0004
-LOAD D2 0.0004; if() #97 Test
+STORE D2 0.0002
+LOAD D2 0.0002; if() #97 Test
 COMPAREV D2 0.0001
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 162 ==; Test 'if'
-ALLOCATEMEMV D2 22 0; if() #97 Body Start
-STORE D2 0.0003
+GOTOCMP 128 ==; Test 'if'
+ALLOCATEMEMV D2 22 0; InlineFunc[void printf(char32[])] Params Start AND if() #97 Body Start
 WRITEPODSTRING D2 "got text message: %s\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0005
+LOAD D2 0.0003
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0003
-DEALLOCATEMEMR D3
-GOTO 130; if() #97 Body End
-LOAD D2 0.0004; if() #98 Test AND if() #97 Else Start
+GOTO 177; if() #97 Body End
+LOAD D2 0.0002; if() #98 Test AND if() #97 Else Start
 COMPAREV D2 0.0002
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 212 ==; Test 'if'
-LOAD D2 0.0005; InlineFunc[int SizeOfArray(untyped[])] Params AND if() #98 Body Start
+GOTOCMP 170 ==; Test 'if'
+LOAD D2 0.0003; InlineFunc[int SizeOfArray(untyped[])] Params AND if() #98 Body Start
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
-STORE D2 0.0003
-ALLOCATEMEMV D2 34 0
-STORE D2 0.0002
+STORE D2 0.0001
+ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "got binary message of length: %d\n"
-LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0001
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0002
-DEALLOCATEMEMR D3
-STOREV 0 0.0001; for() #150 setup
-LOAD D2 0.0001; for() #150 LoopTest
+STOREV 0 0; for() #150 setup
+LOAD D2 0; for() #150 LoopTest
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 130 ==; for() #150 TestFail?
-ALLOCATEMEMV D2 8 0; for() #150 Body Start
-STORE D2 0
+GOTOCMP 177 ==; for() #150 TestFail?
+ALLOCATEMEMV D2 8 0; InlineFunc[void printf(char32[])] Params Start AND for() #150 Body Start
 WRITEPODSTRING D2 "%d: %l\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 PUSHVARGR D2
-LOAD D2 0.0005
+LOAD D2 0.0003
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 POP D0
 READPODARRAYR D2 D2
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3; for() #150 Body End
-LOAD D2 0.0001; for() #150 LoopIncrement
+POP D5; InlineFunc[void printf(char32[])] Body End AND for() #150 Body End
+LOAD D2 0; for() #150 LoopIncrement
 ADDV D2 1
-STORE D2 0.0001
-GOTO 182; for() #150 End
-GOTO 130; if() #98 Body End
-ALLOCATEMEMV D2 40 0; if() #98 Else Start
-STORE D2 0.0003
+STORE D2 0
+GOTO 144; for() #150 End
+GOTO 177; if() #98 Body End
+ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[])] Params Start AND if() #98 Else Start
 WRITEPODSTRING D2 "got message, but with unknown type: %l\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0004
+LOAD D2 0.0002
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0003
-DEALLOCATEMEMR D3; if() #98 Else End
-GOTO 130; if() #97 Else End AND while() #3 Body End AND while() #3 End
+POP D5; InlineFunc[void printf(char32[])] Body End AND if() #98 Else End
+REF_REMOVE 0.0003; if() #97 Else End AND while() #3 Body End
+GOTO 100; while() #3 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 26; while() #2 End
-REF_REMOVE 0.0007
-POPARGS D5 0.0011
+GOTO 18; while() #2 End
+REF_REMOVE 0.0005
+POPARGS D5 0.0007
 QUIT; void run() Body End

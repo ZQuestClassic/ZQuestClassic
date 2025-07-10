@@ -3302,7 +3302,7 @@ ffc script EZBoss{
 		n->CollDetection = false;
 		
 		//Flag the enemy as already used by ghost.zh so it doesn't run a script
-		n->Misc[__GHI_NPC_DATA] = 0x10000;
+		Ghost_MarkAsInUse(n);
 	}
 	void EZB_Barriershift_Load(npc ghost, int vars, bool onlyDefenses, bool includeHP){
 		int i;

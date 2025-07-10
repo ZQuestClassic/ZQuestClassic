@@ -44,6 +44,11 @@ string VarArgument::toString() const
 	return zasm_var_to_string(ID);
 }
 
+string LiteralVarArgument::toString() const
+{
+	return "@" + zasm_var_to_string(ID);
+}
+
 string GlobalArgument::toString() const
 {
     char temp[40];

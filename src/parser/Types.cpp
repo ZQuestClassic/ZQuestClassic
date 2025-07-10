@@ -275,7 +275,7 @@ bool DataTypeSimple::canCastTo(DataType const& target, bool allowDeprecatedArray
 		// Allows simple types to cast to an array.
 		// Types that retain object references are not allowed to be cast like this, as that would break reference counting.
 		// This should avoid breaking the vast majority of legacy arrays (which was mostly int).
-		if (!canHoldObject() && allowDeprecatedArrayCast)
+		if (!isObject() && allowDeprecatedArrayCast)
 			return canCastTo(static_cast<DataTypeArray const*>(&target)->getBaseType(), allowDeprecatedArrayCast);
 		return false;
 	}
@@ -305,13 +305,7 @@ DataType const& DataTypeSimple::getShared(DataType const& target, Scope const* s
 	if(isVoid() || target.isVoid()) return ZVOID;
 	if(isUntyped()) return target;
 	if(target.isUntyped()) return *this;
-	if(target.isArray())
-	{
-		int opt = *lookupOption(scope, CompileOption::OPT_LEGACY_ARRAYS);
-		if (!canHoldObject() && (opt == OPTION_ON || opt == OPTION_WARN))
-			return getShared(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
-		return UNTYPED;
-	}
+	if(target.isArray()) return UNTYPED;
 	
 	if (DataTypeSimple const* t =
 			dynamic_cast<DataTypeSimple const*>(&target))
@@ -338,11 +332,6 @@ DataType const& DataTypeSimple::getShared(DataType const& target, Scope const* s
 	return UNTYPED;
 }
 
-bool DataTypeSimple::canBeGlobal() const
-{
-	return true; //All types can be global, now. 
-	//return simpleId == ZTID_FLOAT || simpleId == ZTID_BOOL;
-}
 DataType const* DataTypeSimple::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
 	return DataType::get(simpleId);
@@ -385,13 +374,8 @@ DataType const& DataTypeArray::getShared(DataType const& target, Scope const* sc
 {
 	if(target.isVoid()) return target;
 	if(target.isUntyped()) return *this;
-	if(!target.isArray())
-	{
-		int opt = *lookupOption(scope, CompileOption::OPT_LEGACY_ARRAYS);
-		if (!canHoldObject() && (opt == OPTION_ON || opt == OPTION_WARN))
-			return getBaseType().getShared(target, scope);
-		return UNTYPED;
-	}
+	if(!target.isArray()) return UNTYPED;
+
 	DataTypeArray const* targ_arr = static_cast<DataTypeArray const*>(&target);
 	return *DataTypeArray::create(getElementType().getShared(targ_arr->getElementType(), scope));
 }
@@ -546,13 +530,7 @@ DataType const& DataTypeCustom::getShared(DataType const& target, Scope const* s
 {
 	if(target.isVoid()) return target;
 	if(target.isUntyped()) return *this;
-	if(target.isArray())
-	{
-		int opt = *lookupOption(scope, CompileOption::OPT_LEGACY_ARRAYS);
-		if (!canHoldObject() && (opt == OPTION_ON || opt == OPTION_WARN))
-			return getShared(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
-		return UNTYPED;
-	}
+	if(target.isArray()) return UNTYPED;
 	
 	if(!isClass() && !isUsrClass())
 	{

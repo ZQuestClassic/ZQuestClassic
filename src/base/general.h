@@ -241,7 +241,8 @@ enum class script_object_type
 	stack,
 	websocket,
 	object,
-	last = object,
+	array,
+	last = array,
 };
 
 enum // used for gamedata ITEMS

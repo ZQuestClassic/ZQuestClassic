@@ -603,7 +603,7 @@ void ending()
 	//  setPackfilePassword(datapwd);
 	load_quest(game);
 	//  setPackfilePassword(NULL);
-	game->save_user_objects();
+	game->save_objects(ZScriptVersion::gc_arrays());
 	game->set_continue_dmap(zinit.start_dmap);
 	game->set_continue_scrn(0xFF);
 	game->set_cont_hearts(zinit.cont_heart);
@@ -714,7 +714,7 @@ void ending_scripted()
 	load_quest(game);
 	game->header.title = QHeader.title;
 	//  setPackfilePassword(NULL);
-	game->save_user_objects();
+	game->save_objects(ZScriptVersion::gc_arrays());
     
 	game->set_continue_dmap(zinit.start_dmap);
 	game->set_continue_scrn(0xFF);

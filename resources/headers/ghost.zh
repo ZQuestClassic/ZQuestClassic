@@ -122,6 +122,9 @@ const int __GH_FIX_EWM_THROW = 1;
 // Set this so it doesn't conflict with other scripts. Legal values are 0-15.
 const int __GHI_NPC_DATA = 15;
 
+const int __GH_AUTOGHOST_ATTRIBUTE_COMBO = 10;
+const int __GH_AUTOGHOST_ATTRIBUTE_SCRIPT = 11;
+
 // eweapon->Misc[] indices
 // These must be unique numbers between 0 and 15.
 const int __EWI_FLAGS          = 15; // Every index but this one can be used by non-ghost.zh EWeapons

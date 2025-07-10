@@ -131,7 +131,7 @@ void do_npcattack()
 }
 void do_npc_newdir()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -155,7 +155,7 @@ void do_npc_newdir()
 
 void do_npc_constwalk()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -178,7 +178,7 @@ void do_npc_constwalk()
 
 void do_npc_varwalk()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -197,7 +197,7 @@ void do_npc_varwalk()
 
 void do_npc_varwalk8()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -223,7 +223,7 @@ void do_npc_varwalk8()
 
 void do_npc_constwalk8()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -243,7 +243,7 @@ void do_npc_constwalk8()
 
 void do_npc_haltwalk()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -262,7 +262,7 @@ void do_npc_haltwalk()
 
 void do_npc_haltwalk8()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -283,7 +283,7 @@ void do_npc_haltwalk8()
 
 void do_npc_floatwalk()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -321,7 +321,7 @@ void do_npc_breathefire()
 
 void do_npc_newdir8()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -432,7 +432,7 @@ void do_npc_hero_in_range(const bool v)
 
 void do_npc_simulate_hit(const bool v)
 {
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int32_t arrayptr = SH::get_arg(sarg1, v);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -477,7 +477,7 @@ void do_npc_knockback(const bool v)
 void do_npc_add(const bool v)
 {
 	
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int32_t arrayptr = SH::get_arg(sarg1, v);
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();
@@ -528,7 +528,7 @@ void do_npc_add(const bool v)
 
 void do_getnpcname()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	
 	if(GuyH::loadNPC(ri->guyref) != SH::_NoError)
 		return;
@@ -541,7 +541,7 @@ void do_getnpcname()
 
 void do_getnpcdata_getname()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	int32_t npc_id = ri->npcdataref;
 	if((unsigned)npc_id > 511)
 	{
@@ -603,7 +603,7 @@ void do_npc_delete()
 
 void do_npc_canmove(const bool v)
 {
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int32_t arrayptr = SH::get_arg(sarg1, v);
 	int32_t sz = ArrayH::getSize(arrayptr);
 
 	if(GuyH::loadNPC(ri->guyref) == SH::_NoError)
@@ -639,7 +639,7 @@ void do_npc_canmove(const bool v)
 void get_npcdata_initd_label(const bool v)
 {
 	int32_t init_d_index = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	
 	if((unsigned)init_d_index > 7)
 	{
@@ -2133,7 +2133,6 @@ std::optional<int32_t> npc_run_command(word command)
 		
 		case NPCKICKBUCKET:
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::NPC, ri->guyref);
 			if (type == ScriptType::NPC && ri->guyref == i)
 			{
 				do_npc_delete();

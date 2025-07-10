@@ -24,13 +24,13 @@ generic script optional_params
 		return a;
 	}
 
-	void fn6(char32[] a = "default") {
-		TraceS(a);
+	void fn6(char32[] a = "fn6 default") {
+		Trace(a);
 	}
 
-	// char32[] fn7(char32[] a = "default") {
-	// 	return a;
-	// }
+	char32[] fn7(char32[] a = "fn7 default") {
+		return a;
+	}
 
 	int fn8(int a = fn2()) {
 		return a;
@@ -61,11 +61,15 @@ generic script optional_params
 
 		// TODO: for some reason this prints an empty string on windows 32bit.
 		// fn6();
-		fn6("not default");
+		fn6("fn6 not default");
 
-		// TODO: support returning strings. They need to be GC-managed.
-		// TraceS(fn7());
-		// TraceS(fn7("not default"));
+		Trace(fn7());
+		Trace(fn7("fn7 not default"));
+
+		// Different objects.
+		auto def1 = fn7();
+		auto def2 = fn7();
+		Test::Assert(def1 != def2);
 
 		Test::AssertEqual(fn8(), A + 100);
 		Test::AssertEqual(fn8(123), 123);

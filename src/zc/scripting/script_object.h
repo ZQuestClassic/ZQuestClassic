@@ -22,9 +22,10 @@ void script_object_ref_inc(uint32_t id);
 void script_object_ref_dec(uint32_t id);
 user_abstract_obj* get_script_object(uint32_t id);
 user_abstract_obj* get_script_object_checked(uint32_t id);
+const std::map<uint32_t, std::unique_ptr<user_abstract_obj>>& get_script_objects();
 void own_script_object(user_abstract_obj* object, ScriptType type, int i);
 void free_script_object(uint32_t id);
-void delete_script_object(uint32_t id);
+void delete_script_object(uint32_t id, bool remove_refs = true);
 std::set<uint32_t> find_script_objects_reachable_from_global_roots();
 void run_gc();
 void maybe_run_gc();
@@ -57,13 +58,20 @@ struct UserDataContainer
 
 		if (script_object_ids_by_type[type].size() >= Max)
 		{
-			if (!skipError) Z_scripterrlog("could not find a valid free %s pointer!\n", name);
+			if (!skipError) scripting_log_error_with_context("Failed to create {}: {} arrays already in use, no more can be allocated", name, Max);
 			return nullptr;
 		}
 
 		auto object = new T{};
 		register_script_object(object, type);
 		return object;
+	}
+
+	void register_existing(T* object)
+	{
+		auto& vec = next_script_object_id_freelist;
+		vec.erase(std::remove(vec.begin(), vec.end(), object->id), vec.end());
+		register_script_object(object, type, object->id);
 	}
 
 	uint32_t get_free(bool skipError = false)

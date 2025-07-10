@@ -252,7 +252,6 @@ class mapdata {
 	// The special room type.
 	//
 	// @value [enum RoomType]
-
 	// @zasm_var MAPDATAROOM
 	internal int RoomType;
 
@@ -265,7 +264,6 @@ class mapdata {
 	// respectively.
 	//
 	// @value [enum WarpType]
-
 	// @zasm_var MAPDATATILEWARPTYPE
 	internal int TileWarpType[];
 
@@ -330,7 +328,6 @@ class mapdata {
 	//
 	// @index [enum DoorIndex]
 	// @value [enum DoorType]
-
 	// @zasm_var MAPDATADOOR
 	internal int Door[];
 
@@ -357,7 +354,6 @@ class mapdata {
 	// The spawn pattern for the screen enemies.
 	//
 	// @value [enum EnemyPattern]
-
 	// @zasm_var MAPDATAPATTERN
 	internal int Pattern;
 
@@ -365,7 +361,6 @@ class mapdata {
 	// respectively.
 	//
 	// @value [enum WarpType]
-
 	// @zasm_var MAPDATASIDEWARPTYPE
 	internal int SideWarpType[];
 
@@ -403,7 +398,6 @@ class mapdata {
 	//
 	// @index [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
 	// @value [enum SideWarpIndex]
-
 	// @zasm_var MAPDATASIDEWARPID
 	internal int SideWarpID[];
 
@@ -447,14 +441,12 @@ class mapdata {
 	// The `No Reset` carryover flags.
 	//
 	// @value [enum NoResetBitflags]
-
 	// @zasm_var MAPDATANORESET
 	internal int NoReset;
 
 	// The `No Carry Over` carryover flags.
 	//
 	// @value [enum NoCarryBitflags]
-
 	// @zasm_var MAPDATANOCARRY
 	internal int NoCarry;
 
@@ -802,10 +794,8 @@ class mapdata {
 	//
 	// @zasm_var MAPDATACOLOUR
 	internal int CSet;
-
 	// @zasm_var MAPDATANEXTMAP
 	internal int CarryoverMap;
-
 	// @zasm_var MAPDATANEXTSCREEN
 	internal const int CarryoverScreen;
 

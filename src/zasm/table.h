@@ -15,6 +15,7 @@ enum class ARGTY : byte
     WRITE_REG,
     READWRITE_REG,
     LITERAL,
+    LITERAL_REG,
     COMPARE_OP,
 };
 

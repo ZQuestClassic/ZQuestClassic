@@ -163,12 +163,102 @@ FFScript FFCore;
 
 static expected<std::string, std::string> parse_user_path(const std::string& user_path, bool is_file);
 
+static UserDataContainer<script_array, 1000000> script_arrays = {script_object_type::array, "array"};
 static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {script_object_type::dir, "directory"};
 static UserDataContainer<user_file, MAX_USER_FILES> user_files = {script_object_type::file, "file"};
 static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {script_object_type::paldata, "paldata"};
 static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {script_object_type::rng, "rng"};
 static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {script_object_type::stack, "stack"};
 static UserDataContainer<user_bitmap, MAX_USER_BITMAPS> user_bitmaps = {script_object_type::bitmap, "bitmap"};
+
+script_array* create_script_array()
+{
+	return script_arrays.create();
+}
+
+void register_existing_script_array(script_array* array)
+{
+	script_arrays.register_existing(array);
+}
+
+std::vector<script_array*> get_script_arrays()
+{
+	std::vector<script_array*> result;
+	for (auto id : script_object_ids_by_type[script_arrays.type])
+	{
+		result.push_back(&script_arrays[id]);
+	}
+	return result;
+}
+
+static script_array* find_or_create_internal_script_array(script_array::internal_array_id internal_id)
+{
+	if (!zasm_array_supports(internal_id.zasm_var))
+	{
+		scripting_log_error_with_context("Invalid internal array id: {}", internal_id.zasm_var);
+		return nullptr;
+	}
+
+	for (auto id : script_object_ids_by_type[script_arrays.type])
+	{
+		auto object = static_cast<script_array*>(get_script_object_checked(id));
+		if (!object->internal_expired && object->internal_id.has_value() && object->internal_id.value() == internal_id)
+			return object;
+	}
+
+	auto array = script_arrays.create();
+	if (array)
+	{
+		array->arr.setValid(true);
+		array->internal_id = internal_id;
+	}
+	return array;
+}
+
+static void expire_internal_script_arrays(ScriptType scriptType, int ref)
+{
+	if (!ZScriptVersion::gc_arrays())
+		return;
+
+	// Expire internal arrays referring to this script object.
+	for (auto& script_object : script_objects | std::views::values)
+	{
+		if (script_object->type != script_object_type::array)
+			continue;
+
+		auto array = static_cast<script_array*>(script_object.get());
+		if (!array->internal_id.has_value())
+			continue;
+
+		if (array->internal_id->matches(scriptType, ref))
+			array->internal_expired = true;
+	}
+}
+
+static void expire_internal_script_arrays(ScriptType scriptType)
+{
+	if (!ZScriptVersion::gc_arrays())
+		return;
+
+	// Expire internal arrays referring to this script object.
+	for (auto& script_object : script_objects | std::views::values)
+	{
+		if (script_object->type != script_object_type::array)
+			continue;
+
+		auto array = static_cast<script_array*>(script_object.get());
+		if (!array->internal_id.has_value())
+			continue;
+
+		if (array->internal_id->matches(scriptType))
+			array->internal_expired = true;
+	}
+}
+
+script_array* checkArray(uint32_t id, bool skipError)
+{
+	return script_arrays.check(id, skipError);
+}
 
 void script_bitmaps::update()
 {
@@ -594,9 +684,9 @@ int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Heroaction, anims, a
 byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
 
-int32_t get_int_arr(const int32_t ptr, int32_t indx);
-void set_int_arr(const int32_t ptr, int32_t indx, int32_t val);
-int32_t sz_int_arr(const int32_t ptr);
+int32_t legacy_get_int_arr(const int32_t ptr, int32_t indx);
+void legacy_set_int_arr(const int32_t ptr, int32_t indx, int32_t val);
+int32_t legacy_sz_int_arr(const int32_t ptr);
 
 //We gain some speed by not passing as arguments
 int32_t sarg1 = 0;
@@ -663,13 +753,6 @@ void pop_ri()
 ///-------------------------------------//
 //           Helper Functions           //
 ///-------------------------------------//
-	
-//only if the player is messing with their pointers...
-ZScriptArray& SH::InvalidError(const int32_t ptr)
-{
-	Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
-	return INVALIDARRAY;
-}
 
 void SH::write_stack(const uint32_t stackoffset, const int32_t value)
 {
@@ -1802,8 +1885,7 @@ void user_genscript::quit()
 {
 	if(indx > -1)
 	{
-		FFCore.clear_script_engine_data(ScriptType::Generic, indx);
-		FFCore.deallocateAllScriptOwned(ScriptType::Generic, indx);
+		FFCore.destroyScriptableObject(ScriptType::Generic, indx);
 	}
 	_doscript = false;
 }
@@ -2149,13 +2231,58 @@ int32_t ArrayH::setArray(const int32_t ptr, string const& s2, bool resize)
 	return _NoError;
 }
 
-ArrayManager::ArrayManager(int32_t ptr, bool neg) : negAccess(neg), ptr(ptr)
+ArrayManager::ArrayManager(int32_t ptr, bool neg) : negAccess(neg)
 {
 	_invalid = false;
+	internal_array_id = {};
+	legacy_internal_id = 0;
+
+	if (ZScriptVersion::gc_arrays())
+	{
+		if (auto* array = checkArray(ptr))
+		{
+			if (array->internal_id.has_value())
+			{
+				if (array->internal_expired)
+				{
+					current_zasm_extra_context = scripting_get_zasm_register_context_string(array->internal_id->zasm_var);
+					scripting_log_error_with_context("Invalid internal array: the object this array refers to has expired");
+					_invalid = true;
+					return;
+				}
+
+				aptr = nullptr;
+				internal_array_id = array->internal_id.value();
+				if (!zasm_array_supports(internal_array_id.zasm_var))
+				{
+					scripting_log_error_with_context("Invalid internal array id: {}", internal_array_id.zasm_var);
+					_invalid = true;
+					return;
+				}
+			}
+			else
+			{
+				aptr = &array->arr;
+			}
+		}
+		else
+		{
+			aptr = &INVALIDARRAY;
+			_invalid = true;
+		}
+
+		if (_invalid)
+			scripting_log_error_with_context("Invalid pointer used as array: {}", ptr);
+		return;
+	}
+
+	ptr /= 10000;
+
 	if(ptr >= INTARR_OFFS)
 	{
 		aptr = nullptr;
-		if(sz_int_arr(ptr) < 0)
+		legacy_internal_id = ptr;
+		if(legacy_sz_int_arr(ptr) < 0)
 			_invalid = true;
 	}
 	else if(ptr == 0)
@@ -2194,10 +2321,9 @@ ArrayManager::ArrayManager(int32_t ptr, bool neg) : negAccess(neg), ptr(ptr)
 		}
 		else aptr = &(localRAM[ptr]);
 	}
-	if(_invalid)
+	if (_invalid)
 	{
-		Z_scripterrlog("Invalid pointer (%i) passed to array "
-			"(don't change the values of your array pointers)\n", ptr);
+		scripting_log_error_with_context("Invalid pointer used as array: {}", ptr);
 	}
 }
 ArrayManager::ArrayManager(int32_t ptr) : ArrayManager(ptr,can_neg_array){}
@@ -2205,9 +2331,9 @@ ArrayManager::ArrayManager(int32_t ptr) : ArrayManager(ptr,can_neg_array){}
 int32_t ArrayManager::get(int32_t indx) const
 {
 	if(_invalid) return -10000;
-	int32_t sz = size();
 	if(aptr)
 	{
+		int32_t sz = size();
 		if(BC::checkUserArrayIndex(indx, sz, negAccess) == SH::_NoError)
 		{
 			if(indx < 0)
@@ -2217,21 +2343,27 @@ int32_t ArrayManager::get(int32_t indx) const
 	}
 	else //internal special array
 	{
+		if (ZScriptVersion::gc_arrays())
+			return zasm_array_get(internal_array_id.zasm_var, internal_array_id.ref, indx);
+
+		int32_t sz = size();
 		if(sz >= 0 && BC::checkUserArrayIndex(indx, sz, negAccess) == SH::_NoError)
 		{
 			if(indx < 0)
 				indx += sz; //[-1] becomes [size-1] -Em
-			return get_int_arr(ptr, indx);
+			return legacy_get_int_arr(legacy_internal_id, indx);
 		}
 	}
 	return -10000;
 }
+
 void ArrayManager::set(int32_t indx, int32_t val)
 {
 	if(_invalid) return;
-	int32_t sz = size();
+
 	if(aptr)
 	{
+		int32_t sz = size();
 		if(BC::checkUserArrayIndex(indx, sz, negAccess) == SH::_NoError)
 		{
 			if(indx < 0)
@@ -2248,14 +2380,22 @@ void ArrayManager::set(int32_t indx, int32_t val)
 	}
 	else //internal special array
 	{
+		if (ZScriptVersion::gc_arrays())
+		{
+			zasm_array_set(internal_array_id.zasm_var, internal_array_id.ref, indx, val);
+			return;
+		}
+
+		int32_t sz = size();
 		if(sz >= 0 && BC::checkUserArrayIndex(indx, sz, negAccess) == SH::_NoError)
 		{
 			if(indx < 0)
 				indx += sz; //[-1] becomes [size-1] -Em
-			set_int_arr(ptr, indx, val);
+			legacy_set_int_arr(legacy_internal_id, indx, val);
 		}
 	}
 }
+
 int32_t ArrayManager::size() const
 {
 	if(_invalid) return -1;
@@ -2263,7 +2403,10 @@ int32_t ArrayManager::size() const
 		return aptr->Size();
 	else // Internal special
 	{
-		int32_t sz = sz_int_arr(ptr);
+		if (ZScriptVersion::gc_arrays())
+			return zasm_array_size(internal_array_id.zasm_var, internal_array_id.ref);
+
+		int32_t sz = legacy_sz_int_arr(legacy_internal_id);
 		if(sz < 0)
 			return -1;
 		return sz;
@@ -2275,7 +2418,7 @@ bool ArrayManager::resize(size_t newsize)
 	if(_invalid) return false;
 	if(!aptr)
 	{
-		Z_scripterrlog("Special internal array '%d' not valid for operation 'Resize'\n", ptr);
+		log_invalid_operation();
 		return false;
 	}
 	if (aptr->HoldsObjects())
@@ -2289,12 +2432,14 @@ bool ArrayManager::resize(size_t newsize)
 	aptr->Resize(newsize);
 	return true;
 }
+
 bool ArrayManager::resize_min(size_t newsize)
 {
 	if(size() >= newsize)
 		return true;
 	return resize(newsize);
 }
+
 bool ArrayManager::can_resize()
 {
 	if(_invalid || !aptr)
@@ -2307,7 +2452,7 @@ bool ArrayManager::push(int32_t val, int indx)
 	if(_invalid) return false;
 	if(!aptr)
 	{
-		scripting_log_error_with_context("Special internal array '{}' not valid for operation 'Push'", ptr);
+		log_invalid_operation();
 		return false;
 	}
 	if(aptr->Size() == ZCARRAY_MAX_SIZE)
@@ -2317,19 +2462,22 @@ bool ArrayManager::push(int32_t val, int indx)
 		script_object_ref_inc(val);
 	return true;
 }
+
 int32_t ArrayManager::pop(int indx)
 {
 	if(_invalid) return -10000;
 	if(!aptr)
 	{
-		Z_scripterrlog("Special internal array '%d' not valid for operation 'Push'\n", ptr);
+		log_invalid_operation();
 		return -10000;
 	}
-	if(aptr->Empty())
+
+	if (aptr->Empty())
 	{
-		Z_scripterrlog("Array %d had nothing to Pop!\n",ptr);
+		scripting_log_error_with_context("Array had nothing to Pop!");
 		return -10000;
 	}
+
 	int32_t val = aptr->Pop(indx);
 	if (aptr->HoldsObjects())
 		script_object_ref_dec(val);
@@ -2356,6 +2504,37 @@ std::string ArrayManager::asString(std::function<char const*(int32_t)> formatter
 		oss << ", ...";
 	oss << " }";
 	return oss.str();
+}
+
+void ArrayManager::log_invalid_operation() const
+{
+	if (internal_array_id.zasm_var)
+	{
+		current_zasm_extra_context = scripting_get_zasm_register_context_string(internal_array_id.zasm_var);
+		scripting_log_error_with_context("Internal array not valid for this operation");
+	}
+	else
+	{
+		scripting_log_error_with_context("Internal array '{}' not valid for this operation", legacy_internal_id);
+	}
+}
+
+// Call only when the underlying engine object is being deleted. This deallocs script data, and
+// invalidates any internal array references that may remain.
+// Any script type given to this function must also be handled in
+// script_array::internal_array_id::matches.
+void FFScript::destroyScriptableObject(ScriptType scriptType, const int32_t UID)
+{
+	FFCore.deallocateAllScriptOwned(scriptType, UID);
+	FFCore.reset_script_engine_data(scriptType, UID);
+	expire_internal_script_arrays(scriptType, UID);
+}
+
+void FFScript::destroyScriptableObjectsOfType(ScriptType scriptType)
+{
+	FFCore.deallocateAllScriptOwnedOfType(scriptType);
+	FFCore.clear_script_engine_data_of_type(scriptType);
+	expire_internal_script_arrays(scriptType);
 }
 
 void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID)
@@ -2393,10 +2572,13 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 			delete_script_object(id);
 	}
 
-	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+	if (!ZScriptVersion::gc_arrays())
 	{
-		if(arrayOwner[i].own_clear(scriptType,UID))
-			deallocateArray(i);
+		for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+		{
+			if(arrayOwner[i].own_clear(scriptType,UID))
+				deallocateArray(i);
+		}
 	}
 }
 
@@ -2427,10 +2609,7 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 			}
 			data.ref.stack_pos_is_object.clear();
 		}
-	}
 
-	if (ZScriptVersion::gc())
-	{
 		for (auto id : ids_to_clear)
 			script_object_ref_dec(id);
 	}
@@ -2440,10 +2619,13 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 			delete_script_object(id);
 	}
 
-	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+	if (!ZScriptVersion::gc_arrays())
 	{
-		if(arrayOwner[i].owned_type == scriptType)
-			deallocateArray(i);
+		for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+		{
+			if(arrayOwner[i].owned_type == scriptType)
+				deallocateArray(i);
+		}
 	}
 }
 
@@ -2454,13 +2636,16 @@ void FFScript::deallocateAllScriptOwned()
 	script_objects.clear();
 	next_script_object_id_freelist.clear();
 
-	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+	if (!ZScriptVersion::gc_arrays())
 	{
-		if(localRAM[i].Valid())
+		for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 		{
-			// Unowned arrays are ALSO deallocated!
-			arrayOwner[i].clear();
-			localRAM[i].Clear();
+			if(localRAM[i].Valid())
+			{
+				// Unowned arrays are ALSO deallocated!
+				arrayOwner[i].clear();
+				localRAM[i].Clear();
+			}
 		}
 	}
 }
@@ -2489,10 +2674,7 @@ void FFScript::deallocateAllScriptOwnedCont()
 			}
 			data.ref.stack_pos_is_object.clear();
 		}
-	}
 
-	if (ZScriptVersion::gc())
-	{
 		for (auto id : ids_to_clear)
 			script_object_ref_dec(id);
 	}
@@ -2502,13 +2684,16 @@ void FFScript::deallocateAllScriptOwnedCont()
 			delete_script_object(id);
 	}
 
-	//No QR check here- always deallocate on quest exit.
-	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+	if (!ZScriptVersion::gc_arrays())
 	{
-		if(localRAM[i].Valid())
+		//No QR check here- always deallocate on quest exit.
+		for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 		{
-			if(arrayOwner[i].own_clear_cont())
-				deallocateArray(i);
+			if(localRAM[i].Valid())
+			{
+				if(arrayOwner[i].own_clear_cont())
+					deallocateArray(i);
+			}
 		}
 	}
 }
@@ -2595,21 +2780,21 @@ int32_t getPortalFromSaved(savedportal* p)
 	return prtl ? prtl->getUID() : 0;
 }
 
-user_dir *checkDir(int32_t ref,  bool skipError = false)
+static user_dir *checkDir(uint32_t id,  bool skipError = false)
 {
-	return user_dirs.check(ref, skipError);
+	return user_dirs.check(id, skipError);
 }
 
-user_stack *checkStack(int32_t ref, bool skipError = false)
+static user_stack *checkStack(uint32_t id, bool skipError = false)
 {
-	return user_stacks.check(ref, skipError);
+	return user_stacks.check(id, skipError);
 }
 
-user_rng *checkRNG(int32_t ref, bool skipError = false)
+static user_rng *checkRNG(uint32_t id, bool skipError = false)
 {
 	// A null RNG pointer is special-case, access engine rng.
-	if (ref == 0) return &nulrng;
-	return user_rngs.check(ref, skipError);
+	if (id == 0) return &nulrng;
+	return user_rngs.check(id, skipError);
 }
 
 user_paldata* checkPalData(int32_t ref, bool skipError)
@@ -2829,6 +3014,7 @@ SubscrPage *checkSubPage(int32_t ref, int req_ty)
 	scripting_log_error_with_context("You were trying to reference an invalid SubscreenPage with UID = {}", ref);
 	return NULL;
 }
+
 SubscrWidget *checkSubWidg(int32_t ref, int req_widg_ty, int req_sub_ty)
 {
 	auto [ptr,ty] = load_subwidg(ref);
@@ -8518,7 +8704,7 @@ int32_t get_register(int32_t arg)
 				break;
 			} 
 			
-			int32_t arrayptr = get_register(sarg1) / 10000;
+			int32_t arrayptr = get_register(sarg1);
 			int32_t init_d_index = get_register(sarg2) / 10000;
 			
 			string name;
@@ -8742,12 +8928,12 @@ int32_t get_register(int32_t arg)
 			
 		case SCRIPTRAM:
 		case GLOBALRAM:
-			ret = ArrayH::getElement(ri->d[rINDEX] / 10000, ri->d[rINDEX2] / 10000);
+			ret = ArrayH::getElement(ri->d[rINDEX], ri->d[rINDEX2] / 10000);
 			break;
 			
 		case SCRIPTRAMD:
 		case GLOBALRAMD:
-			ret = ArrayH::getElement(ri->d[rINDEX] / 10000, 0);
+			ret = ArrayH::getElement(ri->d[rINDEX], 0);
 			break;
 			
 		case GDD: // Unused, remove?
@@ -10365,7 +10551,6 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
-		///----------------------------------------------------------------------------------------------------//
 
 		default:
 		{
@@ -16032,12 +16217,12 @@ void set_register(int32_t arg, int32_t value)
 			
 		case SCRIPTRAM:
 		case GLOBALRAM:
-			ArrayH::setElement(ri->d[rINDEX] / 10000, ri->d[rINDEX2] / 10000, value);
+			ArrayH::setElement(ri->d[rINDEX], ri->d[rINDEX2] / 10000, value);
 			break;
 			
 		case SCRIPTRAMD:
 		case GLOBALRAMD:
-			ArrayH::setElement(ri->d[rINDEX] / 10000, 0, value);
+			ArrayH::setElement(ri->d[rINDEX], 0, value);
 			break;
 			
 		case REFFFC:
@@ -17671,7 +17856,6 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
-		///----------------------------------------------------------------------------------------------------//
 		
 		default:
 		{
@@ -17737,7 +17921,7 @@ void script_init_name_to_slot_index_maps()
 
 static void do_get_script_index_by_name(const std::map<std::string, int>& name_to_slot_index)
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string name;
 	int32_t num=-1;
 	ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
@@ -17749,7 +17933,7 @@ static void do_get_script_index_by_name(const std::map<std::string, int>& name_t
 	set_register(sarg1, num * 10000);
 }
 
-int32_t get_int_arr(const int32_t ptr, int32_t indx)
+int32_t legacy_get_int_arr(const int32_t ptr, int32_t indx)
 {
 	switch(ptr)
 	{
@@ -17829,7 +18013,7 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 		}
 	}
 }
-void set_int_arr(const int32_t ptr, int32_t indx, int32_t val)
+void legacy_set_int_arr(const int32_t ptr, int32_t indx, int32_t val)
 {
 	switch(ptr)
 	{
@@ -17862,7 +18046,7 @@ void set_int_arr(const int32_t ptr, int32_t indx, int32_t val)
 		}
 	}
 }
-int32_t sz_int_arr(const int32_t ptr)
+int32_t legacy_sz_int_arr(const int32_t ptr)
 {
 	switch(ptr)
 	{
@@ -18106,6 +18290,23 @@ void do_load()
 	set_register(sarg1, value);
 }
 
+static void do_load_internal_array()
+{
+	CHECK(ZScriptVersion::gc_arrays());
+
+	auto array = find_or_create_internal_script_array({sarg2, 0});
+	set_register(sarg1, array ? array->id : 0);
+}
+
+static void do_load_internal_array_ref()
+{
+	CHECK(ZScriptVersion::gc_arrays());
+
+	int ref = get_register(sarg3);
+	auto array = find_or_create_internal_script_array({sarg2, ref});
+	set_register(sarg1, array ? array->id : 0);
+}
+
 void do_stored(const bool v)
 {
 	const int32_t stackoffset = (sarg2+ri->d[rSFRAME]) / 10000;
@@ -18122,6 +18323,8 @@ void do_store(const bool v)
 
 void script_store_object(uint32_t offset, uint32_t new_id)
 {
+	DCHECK(offset < MAX_SCRIPT_REGISTERS);
+
 	// Increase, then decrease, to handle the case where a variable (holding the only reference to an object) is assigned to itself.
 	// This is unlikely so lets not bother with a conditional that skips both ref modifications when the ids are equal.
 	uint32_t id = SH::read_stack(offset);
@@ -18132,6 +18335,9 @@ void script_store_object(uint32_t offset, uint32_t new_id)
 		ri->stack_pos_is_object.insert(offset);
 
 	SH::write_stack(offset, new_id);
+
+	if (util::remove_if_exists(script_object_autorelease_pool, new_id))
+		script_object_ref_dec(new_id);
 }
 
 void do_store_object(const bool v)
@@ -18175,8 +18381,8 @@ void do_comp(bool v, const bool inv = false)
 
 void do_internal_strcmp()
 {
-	int32_t arrayptr_a = get_register(sarg1)/10000;
-	int32_t arrayptr_b = get_register(sarg2)/10000;
+	int32_t arrayptr_a = get_register(sarg1);
+	int32_t arrayptr_b = get_register(sarg2);
 	string strA;
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
@@ -18186,8 +18392,8 @@ void do_internal_strcmp()
 
 void do_internal_stricmp()
 {
-	int32_t arrayptr_a = get_register(sarg1)/10000;
-	int32_t arrayptr_b = get_register(sarg2)/10000;
+	int32_t arrayptr_a = get_register(sarg1);
+	int32_t arrayptr_b = get_register(sarg2);
 	string strA;
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
@@ -18198,7 +18404,7 @@ void do_internal_stricmp()
 void do_resize_array()
 {
 	int32_t size = vbound(get_register(sarg2) / 10000, 0, 214748);
-	dword ptrval = get_register(sarg1) / 10000;
+	dword ptrval = get_register(sarg1);
 	ArrayManager am(ptrval);
 	am.resize(size);
 }
@@ -18228,9 +18434,16 @@ void do_own_array(int arrindx, ScriptType scriptType, const int32_t UID)
 	}
 	else Z_scripterrlog_force_trace("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
 }
+
 void do_destroy_array()
 {
-	int arrindx = get_register(sarg1) / 10000;
+	if (ZScriptVersion::gc_arrays())
+	{
+		scripting_log_error_with_context("Cannot force destroy arrays in 3.0+");
+		return;
+	}
+
+	int arrindx = get_register(sarg1);
 	
 	ArrayManager am(arrindx);
 	
@@ -18261,7 +18474,7 @@ void do_destroy_array()
 	else Z_scripterrlog_force_trace("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 
-dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type)
+static dword allocatemem_old(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type)
 {
 	dword ptrval;
 	
@@ -18284,7 +18497,7 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 		}
 		else
 		{
-			ZScriptArray &a = localRAM[ptrval]; //marginally faster for large arrays if we use a reference
+			ZScriptArray &a = localRAM[ptrval];
 			
 			a.Resize(size);
 			a.setValid(true);
@@ -18309,7 +18522,7 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 			ptrval = 0;
 			//this shouldn't happen, unless people are putting ALLOCATEGMEM in their ZASM scripts where they shouldn't be
 			DCHECK(false);
-			return ptrval;
+			return ptrval * 10000;
 		}
 
 		ZScriptArray &a = game->globalRAM[ptrval];
@@ -18324,15 +18537,41 @@ dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID,
 		ptrval += NUM_ZSCRIPT_ARRAYS; //so each pointer has a unique value
 	}
 
-	return ptrval;
+	return ptrval * 10000;
+}
+
+uint32_t allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type)
+{
+	if (!ZScriptVersion::gc_arrays())
+		return allocatemem_old(size, local, type, UID, object_type);
+
+	if(size < 0)
+	{
+		Z_scripterrlog_force_trace("Array initialized to invalid size of %d\n", size);
+		return 0;
+	}
+
+	auto* array = script_arrays.create();
+	if (!array)
+		return 0;
+
+	ZScriptArray &a = array->arr;
+	a.Resize(size);
+	a.setValid(true);
+	a.setObjectType(object_type);
+
+	for(dword j = 0; j < (dword)size; j++)
+		a[j] = 0; //initialize array
+
+	return array->id;
 }
 
 void do_allocatemem(bool v, const bool local, ScriptType type, const uint32_t UID)
 {
 	int32_t size = SH::get_arg(sarg2, v) / 10000;
 	assert(sarg3 >= 0 && sarg3 <= (int)script_object_type::last);
-	dword ptrval = allocatemem(size, local, type, UID, (script_object_type)sarg3);
-	set_register(sarg1, ptrval * 10000);
+	uint32_t id = allocatemem(size, local, type, UID, (script_object_type)sarg3);
+	set_register(sarg1, id);
 }
 
 void do_deallocatemem()
@@ -18563,7 +18802,6 @@ void FFScript::getRTC(const bool v)
 {
 	//int32_t type = get_register(sarg1) / 10000;
 	//int32_t time = getTime(type);
-	//set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)) * 10000);
 	set_register(sarg1, getTime((get_register(sarg1) / 10000)) * 10000);
 }
 
@@ -18580,7 +18818,7 @@ void do_factorial(const bool v)
 		
 		if(temp < 2)
 		{
-			set_register(sarg1, temp >= 0 ? 10000 : 00000);
+			set_register(sarg1, temp >= 0 ? 10000 : 0);
 			return;
 		}
 	}
@@ -18793,7 +19031,7 @@ void do_fontheight()
 
 void do_strwidth()
 {
-	int32_t strptr = get_register(sarg1)/10000;
+	int32_t strptr = get_register(sarg1);
 	int32_t font = get_register(sarg2)/10000;
 	string the_string;
 	ArrayH::getString(strptr, the_string, 512);
@@ -19304,7 +19542,17 @@ void FFScript::do_graphics_getpixel()
 bool is_valid_array(int32_t ptr)
 {
 	if(!ptr) return false;
-	
+
+	if (ZScriptVersion::gc_arrays())
+	{
+		if (auto array = checkArray(ptr, true))
+			return !array->internal_expired;
+
+		return false;
+	}
+
+	ptr /= 10000;
+
 	if(ptr < 0) //An object array?
 	{
 		int32_t objptr = -ptr;
@@ -19329,7 +19577,7 @@ bool is_valid_array(int32_t ptr)
 
 void do_isvalidarray()
 {
-	int32_t ptr = get_register(sarg1)/10000;
+	int32_t ptr = get_register(sarg1);
 	
 	set_register(sarg1,is_valid_array(ptr) ? 10000 : 0);
 }
@@ -19764,7 +20012,7 @@ void FFScript::do_loadrng()
 
 void FFScript::do_loaddirectory()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string user_path;
 	ArrayH::getString(arrayptr, user_path, 2048);
 
@@ -20076,7 +20324,7 @@ void FFScript::do_paldata_load_bitmap()
 {
 	if (user_paldata* pd = checkPalData(ri->paldataref))
 	{
-		int32_t pathptr = get_register(sarg1) / 10000;
+		int32_t pathptr = get_register(sarg1);
 		string user_path, str;
 		ArrayH::getString(pathptr, user_path, 256);
 
@@ -21341,7 +21589,7 @@ void item_display_name(const bool setter)
 	int32_t ID = ri->idata;
 	if(unsigned(ID) >= MAXITEMS)
 		return;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	if(setter)
 	{
 		std::string str;
@@ -21359,7 +21607,7 @@ void item_shown_name()
 	int32_t ID = ri->idata;
 	if(unsigned(ID) >= MAXITEMS)
 		return;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	if(ArrayH::setArray(arrayptr, itemsbuf[ID].get_name()) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'itemdata->GetShownName()' not large enough\n");
 }
@@ -21367,7 +21615,7 @@ void item_shown_name()
 void FFScript::do_getDMapData_dmapname(const bool v)
 {
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
@@ -21379,7 +21627,7 @@ void FFScript::do_getDMapData_dmapname(const bool v)
 void FFScript::do_setDMapData_dmapname(const bool v)
 {
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 
 	string filename_str;
 	
@@ -21395,7 +21643,7 @@ void FFScript::do_setDMapData_dmapname(const bool v)
 void FFScript::do_getDMapData_dmaptitle(const bool v)
 {
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
@@ -21412,7 +21660,7 @@ void FFScript::do_getDMapData_dmaptitle(const bool v)
 void FFScript::do_setDMapData_dmaptitle(const bool v)
 {
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string filename_str;
 
 	if(BC::checkDMapID(ID) != SH::_NoError)
@@ -21436,7 +21684,7 @@ void FFScript::do_setDMapData_dmaptitle(const bool v)
 void FFScript::do_getDMapData_dmapintro(const bool v)
 {
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
@@ -21448,7 +21696,7 @@ void FFScript::do_getDMapData_dmapintro(const bool v)
 void FFScript::do_setDMapData_dmapintro(const bool v)
 {
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string filename_str;
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
@@ -21463,7 +21711,7 @@ void FFScript::do_setDMapData_dmapintro(const bool v)
 void FFScript::do_getDMapData_music(const bool v)
 {
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
@@ -21475,7 +21723,7 @@ void FFScript::do_getDMapData_music(const bool v)
 void FFScript::do_setDMapData_music(const bool v)
 {
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string filename_str;
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
@@ -21515,7 +21763,7 @@ void FFScript::do_loadmessagedata(const bool v)
 //the input is an array
 void FFScript::do_messagedata_setstring(const bool v)
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	int32_t ID = ri->zmsgref;
 	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
@@ -21527,7 +21775,7 @@ void FFScript::do_messagedata_setstring(const bool v)
 void FFScript::do_messagedata_getstring(const bool v)
 {
 	int32_t ID = ri->zmsgref;
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	
 	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
@@ -21971,7 +22219,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			set_drawing_command_args(j, 5);
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			
-			int32_t arrayptr = script_drawing_commands[j][2]/10000;
+			int32_t arrayptr = script_drawing_commands[j][2];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
 				Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.", arrayptr);
@@ -21986,7 +22234,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			v->resize(sz, 0);
 			int32_t* pos = &v->at(0);
 			
-			ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+			ArrayH::getValues(script_drawing_commands[j][2], pos, sz);
 			script_drawing_commands[j].SetVector(v);
 			break;
 		}
@@ -21996,7 +22244,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			set_drawing_command_args(j, 2);
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			
-			int32_t arrayptr = script_drawing_commands[j][2]/10000;
+			int32_t arrayptr = script_drawing_commands[j][2];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
 				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.", arrayptr);
@@ -22011,7 +22259,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			v->resize(sz, 0);
 			int32_t* pos = &v->at(0);
 			
-			ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+			ArrayH::getValues(script_drawing_commands[j][2], pos, sz);
 			script_drawing_commands[j].SetVector(v);
 			break;
 			}
@@ -22021,7 +22269,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			set_drawing_command_args(j, 2);
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			
-			int32_t arrayptr = script_drawing_commands[j][2]/10000;
+			int32_t arrayptr = script_drawing_commands[j][2];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
 				Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.", arrayptr);
@@ -22036,7 +22284,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			v->resize(sz, 0);
 			int32_t* pos = &v->at(0);
 			
-			ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+			ArrayH::getValues(script_drawing_commands[j][2], pos, sz);
 			script_drawing_commands[j].SetVector(v);
 			break;
 			}
@@ -22045,7 +22293,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		{
 			set_drawing_command_args(j, 2);
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
-			int32_t arrayptr = script_drawing_commands[j][2]/10000;
+			int32_t arrayptr = script_drawing_commands[j][2];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
 				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.", arrayptr);
@@ -22060,7 +22308,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			v->resize(sz, 0);
 			int32_t* pos = &v->at(0);
 			
-			ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+			ArrayH::getValues(script_drawing_commands[j][2], pos, sz);
 			script_drawing_commands[j].SetVector(v);
 			break;
 		}
@@ -22068,7 +22316,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		{
 			set_drawing_command_args(j, 5);
 				
-			int32_t arrayptr = script_drawing_commands[j][3]/10000;
+			int32_t arrayptr = script_drawing_commands[j][3];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
 				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
@@ -22087,7 +22335,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t* pos = &v->at(0);
 			
 			
-			ArrayH::getValues(script_drawing_commands[j][3] / 10000, pos, sz);
+			ArrayH::getValues(script_drawing_commands[j][3], pos, sz);
 			script_drawing_commands[j].SetVector(v);
 		}
 		break;
@@ -22155,13 +22403,13 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		case QUAD3DR:
 		{
 			set_drawing_command_args(j, 8);
-			int32_t arrayptr = script_drawing_commands[j][2]/10000;
+			int32_t arrayptr = script_drawing_commands[j][2];
 			int32_t sz = ArrayH::getSize(arrayptr);
-			arrayptr = script_drawing_commands[j][3]/10000;
+			arrayptr = script_drawing_commands[j][3];
 			sz += ArrayH::getSize(arrayptr);
-			arrayptr = script_drawing_commands[j][4]/10000;
+			arrayptr = script_drawing_commands[j][4];
 			sz += ArrayH::getSize(arrayptr);
-			arrayptr = script_drawing_commands[j][5]/10000;
+			arrayptr = script_drawing_commands[j][5];
 			sz += ArrayH::getSize(arrayptr);
 			if(sz < 25)
 			{
@@ -22176,11 +22424,11 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t* col = &v->at(20);
 			int32_t* size = &v->at(24);
 			
-			ArrayH::getValues((script_drawing_commands[j][2] / 10000), pos, 12);
-			ArrayH::getValues((script_drawing_commands[j][3] / 10000), uv, 8);
-			ArrayH::getValues((script_drawing_commands[j][4] / 10000), col, 4);
-			//FFCore.getValues2(script_drawing_commands[j][5] / 10000, size, 2);
-			ArrayH::getValues((script_drawing_commands[j][5] / 10000), size, 2);
+			ArrayH::getValues((script_drawing_commands[j][2]), pos, 12);
+			ArrayH::getValues((script_drawing_commands[j][3]), uv, 8);
+			ArrayH::getValues((script_drawing_commands[j][4]), col, 4);
+			//FFCore.getValues2(script_drawing_commands[j][5], size, 2);
+			ArrayH::getValues((script_drawing_commands[j][5]), size, 2);
 			
 			script_drawing_commands[j].SetVector(v);
 		}
@@ -22190,13 +22438,13 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		{
 			set_drawing_command_args(j, 8);
 				
-			int32_t arrayptr = script_drawing_commands[j][2]/10000;
+			int32_t arrayptr = script_drawing_commands[j][2];
 			int32_t sz = ArrayH::getSize(arrayptr);
-			arrayptr = script_drawing_commands[j][3]/10000;
+			arrayptr = script_drawing_commands[j][3];
 			sz += ArrayH::getSize(arrayptr);
-			arrayptr = script_drawing_commands[j][4]/10000;
+			arrayptr = script_drawing_commands[j][4];
 			sz += ArrayH::getSize(arrayptr);
-			arrayptr = script_drawing_commands[j][5]/10000;
+			arrayptr = script_drawing_commands[j][5];
 			sz += ArrayH::getSize(arrayptr);
 			if(sz < 19)
 			{
@@ -22212,10 +22460,10 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t* col = &v->at(15);
 			int32_t* size = &v->at(18);
 			
-			ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
-			ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 6);
-			ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
-			ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+			ArrayH::getValues(script_drawing_commands[j][2], pos, 8);
+			ArrayH::getValues(script_drawing_commands[j][3], uv, 6);
+			ArrayH::getValues(script_drawing_commands[j][4], col, 3);
+			ArrayH::getValues(script_drawing_commands[j][5], size, 2);
 			
 			script_drawing_commands[j].SetVector(v);
 		}
@@ -22228,7 +22476,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			//const int32_t index = script_drawing_commands[j][19] = j;
 			
 			string *str = script_drawing_commands.GetString();
-			ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
+			ArrayH::getString(script_drawing_commands[j][8], *str, 256);
 			script_drawing_commands[j].SetString(str);
 		}
 		break;
@@ -22240,7 +22488,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			//const int32_t index = script_drawing_commands[j][19] = j;
 			
 			string *str = script_drawing_commands.GetString();
-			ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
+			ArrayH::getString(script_drawing_commands[j][8], *str, 256);
 			script_drawing_commands[j].SetString(str);
 		}
 		break;
@@ -22278,7 +22526,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		{
 			set_user_bitmap_command_args(j, 5);
 			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+5); 
-			int32_t arrayptr = script_drawing_commands[j][3]/10000;
+			int32_t arrayptr = script_drawing_commands[j][3];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
 				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
@@ -22296,7 +22544,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t* pos = &v->at(0);
 			
 			
-			ArrayH::getValues(script_drawing_commands[j][3] / 10000, pos, sz);
+			ArrayH::getValues(script_drawing_commands[j][3], pos, sz);
 			script_drawing_commands[j].SetVector(v);
 		}
 		break;
@@ -22305,7 +22553,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			set_user_bitmap_command_args(j, 2);
 			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+2);
 			string& user_path = *script_drawing_commands.GetString();
-			ArrayH::getString(script_drawing_commands[j][2] / 10000, user_path, 256);
+			ArrayH::getString(script_drawing_commands[j][2], user_path, 256);
 
 			if (get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 			{
@@ -22328,7 +22576,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			set_user_bitmap_command_args(j, 3);
 			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+3); 
 			std::string& user_path = *script_drawing_commands.GetString();
-			ArrayH::getString(script_drawing_commands[j][2] / 10000, user_path, 256);
+			ArrayH::getString(script_drawing_commands[j][2], user_path, 256);
 
 			if (get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 			{
@@ -22369,7 +22617,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			//const int32_t index = script_drawing_commands[j][19] = j;
 			
 			string *str = script_drawing_commands.GetString();
-			ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
+			ArrayH::getString(script_drawing_commands[j][8], *str, 256);
 			script_drawing_commands[j].SetString(str);
 			
 		}
@@ -22382,7 +22630,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			//const int32_t index = script_drawing_commands[j][19] = j;
 			
 			string *str = script_drawing_commands.GetString();
-			ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
+			ArrayH::getString(script_drawing_commands[j][8], *str, 256);
 			script_drawing_commands[j].SetString(str);
 			
 		}
@@ -22400,10 +22648,10 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t* size = &v->at(24);
 			
 			
-			ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
-			ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 8);
-			ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
-			ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+			ArrayH::getValues(script_drawing_commands[j][2], pos, 12);
+			ArrayH::getValues(script_drawing_commands[j][3], uv, 8);
+			ArrayH::getValues(script_drawing_commands[j][4], col, 4);
+			ArrayH::getValues(script_drawing_commands[j][5], size, 2);
 			
 			script_drawing_commands[j].SetVector(v);
 			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+9);
@@ -22424,10 +22672,10 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t* size = &v->at(18);
 			
 			
-			ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
-			ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 6);
-			ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
-			ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+			ArrayH::getValues(script_drawing_commands[j][2], pos, 8);
+			ArrayH::getValues(script_drawing_commands[j][3], uv, 6);
+			ArrayH::getValues(script_drawing_commands[j][4], col, 3);
+			ArrayH::getValues(script_drawing_commands[j][5], size, 2);
 			
 			script_drawing_commands[j].SetVector(v);
 			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+9);
@@ -22670,23 +22918,6 @@ void do_get_sfx_completion()
 		replay_step_comment(fmt::format("ID {}", ID));
 	int32_t value = replay_get_state(ReplayStateType::SfxPosition, get_sfx_completion);
 	set_register(sarg1, value);
-}
-
-int32_t FFScript::do_get_internal_uid_npc(int32_t index)
-{
-	return ((int32_t)guys.spr(index)->getUID());
-}
-int32_t FFScript::do_get_internal_uid_item(int32_t index)
-{
-	return ((int32_t)items.spr(index)->getUID());
-}
-int32_t FFScript::do_get_internal_uid_lweapon(int32_t index)
-{
-	return ((int32_t)Lwpns.spr(index)->getUID());
-}
-int32_t FFScript::do_get_internal_uid_eweapon(int32_t index)
-{
-	return ((int32_t)Ewpns.spr(index)->getUID());
 }
 
 void FFScript::AlloffLimited(int32_t flagset)
@@ -23537,7 +23768,7 @@ void resume_sfx(const bool v)
 
 void do_enh_music(bool v)
 {
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int32_t arrayptr = SH::get_arg(sarg1, v);
 	int32_t track = (SH::get_arg(sarg2, v) / 10000)-1;
 	
 	if(arrayptr == 0)
@@ -23557,7 +23788,7 @@ void do_enh_music(bool v)
 
 void do_enh_music_crossfade()
 {
-	int32_t arrayptr = SH::read_stack(ri->sp + 5) / 10000;
+	int32_t arrayptr = SH::read_stack(ri->sp + 5);
 	int32_t track = SH::read_stack(ri->sp + 4) / 10000;
 	int32_t fadeoutframes = zc_max(SH::read_stack(ri->sp + 3) / 10000, 0);
 	int32_t fadeinframes = zc_max(SH::read_stack(ri->sp + 2) / 10000, 0);
@@ -23659,7 +23890,7 @@ void FFScript::do_set_music_loop()
 void do_get_enh_music_filename(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
@@ -23681,7 +23912,7 @@ void do_get_enh_music_track(const bool v)
 void do_set_dmap_enh_music(const bool v)
 {
 	int32_t ID   = SH::read_stack(ri->sp + 2) / 10000;
-	int32_t arrayptr = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t arrayptr = SH::read_stack(ri->sp + 1);
 	int32_t track = (SH::read_stack(ri->sp + 0) / 10000)-1;
 	string filename_str;
 	
@@ -23704,7 +23935,7 @@ void do_set_dmap_enh_music(const bool v)
 
 void do_arraysize()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	ri->d[rEXP1] = ArrayH::getSize(arrayptr) * 10000;
 }
 
@@ -23771,7 +24002,7 @@ void do_toshort()
 
 void do_getitemname()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	if(unsigned(ri->idata) >= MAXITEMS)
 	{
 		scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
@@ -23941,45 +24172,27 @@ void do_combotile(const bool v)
 void do_readpod(const bool v)
 {
 	int32_t indx = SH::get_arg(sarg2, v) / 10000;
-	int32_t val = ArrayH::getElement(ri->d[rINDEX] / 10000, indx, can_neg_array);
+	int32_t val = ArrayH::getElement(ri->d[rINDEX], indx, can_neg_array);
 	set_register(sarg1, val);
 }
 void do_writepod(const bool v1, const bool v2)
 {
 	int32_t indx = SH::get_arg(sarg1, v1) / 10000;
 	int32_t val = SH::get_arg(sarg2, v2);
-	ArrayH::setElement(ri->d[rINDEX] / 10000, indx, val, can_neg_array);
+	ArrayH::setElement(ri->d[rINDEX], indx, val, can_neg_array);
 }
 void do_writepodstr()
 {
 	if(!sargstr) return;
-	auto ptr = get_register(sarg1) / 10000;
-	ArrayH::setArray(ptr, *sargstr);
+	uint32_t id = get_register(sarg1);
+	ArrayH::setArray(id, *sargstr);
 }
 void do_writepodarr()
 {
 	if(!sargvec) return;
-	auto ptr = get_register(sarg1) / 10000;
-	ArrayH::setArray(ptr, sargvec->size(), sargvec->data(), false);
-}
 
-// TODO: move somewhere else.
-void destroy_object_arr(int32_t ptr, bool dec_refs)
-{
-	if(ptr < 0)
-	{
-		auto it = objectRAM.find(-ptr);
-		if(it != objectRAM.end())
-		{
-			auto& aptr = it->second;
-			if (dec_refs && aptr.HoldsObjects())
-			{
-				for (int i = 0; i < aptr.Size(); i++)
-					script_object_ref_dec(aptr[i]);
-			}
-			objectRAM.erase(it);
-		}
-	}
+	uint32_t id = get_register(sarg1);
+	ArrayH::setArray(id, sargvec->size(), sargvec->data(), false);
 }
 
 int32_t get_own_i(ScriptType type)
@@ -24978,6 +25191,7 @@ int32_t run_script_int(bool is_jitted)
 				do_store_object(false);
 				break;
 				
+			// Note: this was never used.
 			case ALLOCATEGMEMR:
 				if(type == ScriptType::Global) do_allocatemem(false, false, type, i);
 				
@@ -25000,16 +25214,17 @@ int32_t run_script_int(bool is_jitted)
 				do_resize_array();
 				break;
 			case OWNARRAYR:
-				do_own_array(get_register(sarg1)/10000, type, i);
+				do_own_array(get_register(sarg1), type, i);
 				break;
 			case DESTROYARRAYR:
 				do_destroy_array();
 				break;
-				
+
+			// Pre-3.0, the compiler inserted this command for every local array at the end of it scope.
 			case DEALLOCATEMEMR:
 				do_deallocatemem();
 				break;
-				
+
 			case SAVEGAMESTRUCTS:
 				using_SRAM = 1;
 				FFCore.do_savegamestructs(false,false);
@@ -25310,7 +25525,8 @@ int32_t run_script_int(bool is_jitted)
 				FFCore.do_varg_choose();
 				break;
 			case MAKEVARGARRAY:
-				FFCore.do_varg_makearray(type,i);
+				assert(sarg1 >= 0 && sarg1 <= (int)script_object_type::last);
+				FFCore.do_varg_makearray(type, i, (script_object_type)sarg1);
 				break;
 			
 			case PUSHVARGV:
@@ -25597,7 +25813,7 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			case ARRAYPUSH:
 			{
-				auto ptr = SH::read_stack(ri->sp + 2) / 10000;
+				auto ptr = SH::read_stack(ri->sp + 2);
 				auto val = SH::read_stack(ri->sp + 1);
 				auto indx = SH::read_stack(ri->sp + 0) / 10000;
 				ArrayManager am(ptr);
@@ -25606,7 +25822,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case ARRAYPOP:
 			{
-				auto ptr = SH::read_stack(ri->sp + 1) / 10000;
+				auto ptr = SH::read_stack(ri->sp + 1);
 				auto indx = SH::read_stack(ri->sp + 0) / 10000;
 				ArrayManager am(ptr);
 				ri->d[rEXP1] = am.pop(indx);
@@ -26533,7 +26749,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case OBJ_OWN_ARRAY:
 			{
-				int arrid = get_register(sarg1)/10000;
+				int arrid = get_register(sarg1);
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				do_own_array(arrid, own_type, own_i);
@@ -27228,7 +27444,7 @@ int32_t run_script_int(bool is_jitted)
 				
 			case BOTTLENAMEGET:
 			{
-				int32_t arrayptr = get_register(sarg1) / 10000;
+				int32_t arrayptr = get_register(sarg1);
 				int32_t id = ri->bottletyperef-1;
 				if(unsigned(id) > 63)
 				{
@@ -27242,7 +27458,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case BOTTLENAMESET:
 			{
-				int32_t arrayptr = get_register(sarg1) / 10000;
+				int32_t arrayptr = get_register(sarg1);
 				int32_t id = ri->bottletyperef-1;
 				if(unsigned(id) > 63)
 				{
@@ -27256,7 +27472,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case BSHOPNAMEGET:
 			{
-				int32_t arrayptr = get_register(sarg1) / 10000;
+				int32_t arrayptr = get_register(sarg1);
 				int32_t id = ri->bottleshopref-1;
 				if(unsigned(id) > 255)
 				{
@@ -27270,7 +27486,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case BSHOPNAMESET:
 			{
-				int32_t arrayptr = get_register(sarg1) / 10000;
+				int32_t arrayptr = get_register(sarg1);
 				int32_t id = ri->bottleshopref;
 				if(unsigned(id) > 255)
 				{
@@ -27627,23 +27843,23 @@ int32_t run_script_int(bool is_jitted)
 			
 			case LWPNDEL:
 			{
-				FFScript::deallocateAllScriptOwned(ScriptType::Lwpn, ri->lwpn);
 				if(type == ScriptType::Lwpn && ri->lwpn == i)
 				{
 					FFCore.do_lweapon_delete();
 					return RUNSCRIPT_SELFDELETE;
 				}
+
 				FFCore.do_lweapon_delete();
 				break;
 			}
 			case EWPNDEL:
 			{
-				FFScript::deallocateAllScriptOwned(ScriptType::Ewpn, ri->ewpn);
 				if(type == ScriptType::Ewpn && ri->ewpn == i)
 				{
 					FFCore.do_eweapon_delete();
 					return RUNSCRIPT_SELFDELETE;
 				}
+
 				FFCore.do_eweapon_delete();
 				break;
 			}
@@ -27773,7 +27989,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case FILEOPENMODE:
 			{
-				int32_t arrayptr = get_register(sarg2) / 10000;
+				int32_t arrayptr = get_register(sarg2);
 				string mode;
 				ArrayH::getString(arrayptr, mode, 16);
 				FFCore.do_fopen(false, mode.c_str());
@@ -28073,7 +28289,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 				{
-					auto aptr = get_register(sarg1) / 10000;
+					auto aptr = get_register(sarg1);
 					if(ArrayH::setArray(aptr, sub->name, true) == SH::_Overflow)
 						Z_scripterrlog("Array supplied to 'subscreendata->GetName()' not large enough,"
 							" and couldn't be resized!\n");
@@ -28084,7 +28300,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(ZCSubscreen* sub = checkSubData(ri->subdataref))
 				{
-					auto aptr = get_register(sarg1) / 10000;
+					auto aptr = get_register(sarg1);
 					ArrayH::getString(aptr, sub->name);
 				}
 				break;
@@ -28144,7 +28360,7 @@ int32_t run_script_int(bool is_jitted)
 				ri->subpageref = SH::read_stack(ri->sp+1);
 				if(SubscrPage* pg = checkSubPage(ri->subpageref))
 				{
-					int aptr = SH::read_stack(ri->sp+0) / 10000;
+					int aptr = SH::read_stack(ri->sp+0);
 					std::string lbl;
 					ArrayH::getString(aptr, lbl);
 					if(lbl.size())
@@ -28226,7 +28442,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
-					auto aptr = get_register(sarg1) / 10000;
+					auto aptr = get_register(sarg1);
 					if(ArrayH::setArray(aptr, widg->override_text, true) == SH::_Overflow)
 						Z_scripterrlog("Array supplied to 'subscreenwidget->GetSelTextOverride()' not large enough,"
 							" and couldn't be resized!\n");
@@ -28237,7 +28453,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
-					auto aptr = get_register(sarg1) / 10000;
+					auto aptr = get_register(sarg1);
 					ArrayH::getString(aptr, widg->override_text);
 				}
 				break;
@@ -28246,7 +28462,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
-					auto aptr = get_register(sarg1) / 10000;
+					auto aptr = get_register(sarg1);
 					if(ArrayH::setArray(aptr, widg->label, true) == SH::_Overflow)
 						Z_scripterrlog("Array supplied to 'subscreenwidget->GetLabel()' not large enough,"
 							" and couldn't be resized!\n");
@@ -28257,7 +28473,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
-					auto aptr = get_register(sarg1) / 10000;
+					auto aptr = get_register(sarg1);
 					ArrayH::getString(aptr, widg->label);
 				}
 				break;
@@ -28299,7 +28515,7 @@ int32_t run_script_int(bool is_jitted)
 					}
 					if(str)
 					{
-						auto aptr = get_register(sarg1) / 10000;
+						auto aptr = get_register(sarg1);
 						if(ArrayH::setArray(aptr, *str, true) == SH::_Overflow)
 							Z_scripterrlog("Array supplied to 'subscreenwidget->GetText()' not large enough,"
 								" and couldn't be resized!\n");
@@ -28327,7 +28543,7 @@ int32_t run_script_int(bool is_jitted)
 					}
 					if(str)
 					{
-						auto aptr = get_register(sarg1) / 10000;
+						auto aptr = get_register(sarg1);
 						ArrayH::getString(aptr, *str);
 					}
 				}
@@ -28488,6 +28704,16 @@ int32_t run_script_int(bool is_jitted)
 				script_object_ref_inc(value);
 				script_object_ref_dec(game->global_d[index]);
 				game->global_d[index] = value;
+				break;
+			}
+			case LOAD_INTERNAL_ARRAY:
+			{
+				do_load_internal_array();
+				break;
+			}
+			case LOAD_INTERNAL_ARRAY_REF:
+			{
+				do_load_internal_array_ref();
 				break;
 			}
 
@@ -28765,6 +28991,11 @@ void FFScript::user_websockets_init()
 	websocket_init();
 }
 
+void FFScript::script_arrays_init()
+{
+	script_arrays.clear();
+}
+
 // Gotten from 'https://fileinfo.com/filetypes/executable'
 static std::set<std::string> banned_extensions = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk"};
 
@@ -28868,7 +29099,7 @@ void check_file_error(int32_t ref)
 
 void FFScript::do_fopen(const bool v, const char* f_mode)
 {
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int32_t arrayptr = SH::get_arg(sarg1, v);
 	string user_path;
 	ArrayH::getString(arrayptr, user_path, 512);
 
@@ -28987,7 +29218,7 @@ void FFScript::do_file_readchars()
 		uint32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t count = get_register(sarg2) / 10000;
 		if(count == 0) return;
-		int32_t arrayptr = get_register(sarg1) / 10000;
+		int32_t arrayptr = get_register(sarg1);
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
 		if(sz <= 0)
@@ -29032,7 +29263,7 @@ void FFScript::do_file_readbytes()
 		uint32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t count = get_register(sarg2) / 10000;
 		if(count == 0) return;
-		int32_t arrayptr = get_register(sarg1) / 10000;
+		int32_t arrayptr = get_register(sarg1);
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
 		if(sz <= 0)
@@ -29058,7 +29289,7 @@ void FFScript::do_file_readstring()
 {
 	if(user_file* f = checkFile(ri->fileref, true))
 	{
-		int32_t arrayptr = get_register(sarg1) / 10000;
+		int32_t arrayptr = get_register(sarg1);
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
 		if(sz <= 0)
@@ -29102,7 +29333,7 @@ void FFScript::do_file_readints()
 		uint32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t count = get_register(sarg2) / 10000;
 		if(count == 0) return;
-		int32_t arrayptr = get_register(sarg1) / 10000;
+		int32_t arrayptr = get_register(sarg1);
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
 		if(sz <= 0)
@@ -29133,7 +29364,7 @@ void FFScript::do_file_writechars()
 		int32_t count = get_register(sarg2) / 10000;
 		if(count == 0) return;
 		if(count == -1 || count > (MAX_ZC_ARRAY_SIZE-pos)) count = MAX_ZC_ARRAY_SIZE-pos;
-		int32_t arrayptr = get_register(sarg1) / 10000;
+		int32_t arrayptr = get_register(sarg1);
 		string output;
 		ArrayH::getString(arrayptr, output, count, pos);
 		uint32_t q = 0;
@@ -29157,7 +29388,7 @@ void FFScript::do_file_writebytes()
 		int32_t arg = get_register(sarg2) / 10000;
 		if(arg == 0) return;
 		uint32_t count = ((arg<0 || unsigned(arg) >(MAX_ZC_ARRAY_SIZE - pos)) ? MAX_ZC_ARRAY_SIZE - pos : unsigned(arg));
-		int32_t arrayptr = get_register(sarg1) / 10000;
+		int32_t arrayptr = get_register(sarg1);
 		string output;
 		ArrayManager am(arrayptr);
 		if(am.invalid()) return;
@@ -29185,7 +29416,7 @@ void FFScript::do_file_writestring()
 {
 	if(user_file* f = checkFile(ri->fileref, true))
 	{
-		int32_t arrayptr = get_register(sarg1) / 10000;
+		int32_t arrayptr = get_register(sarg1);
 		string output;
 		ArrayH::getString(arrayptr, output, ZSCRIPT_MAX_STRING_CHARS);
 		uint32_t q = 0;
@@ -29207,7 +29438,7 @@ void FFScript::do_file_writeints()
 		uint32_t pos = zc_max(ri->d[rINDEX] / 10000,0);
 		int32_t count = get_register(sarg2) / 10000;
 		if(count == 0) return;
-		int32_t arrayptr = get_register(sarg1) / 10000;
+		int32_t arrayptr = get_register(sarg1);
 		ArrayManager am(arrayptr);
 		if(am.invalid()) return;
 		int32_t sz = am.size();
@@ -29309,7 +29540,7 @@ void FFScript::do_file_geterr()
 	if(user_file* f = checkFile(ri->fileref, true))
 	{
 		int32_t err = ferror(f->file);
-		int32_t arrayptr = get_register(sarg1) / 10000;
+		int32_t arrayptr = get_register(sarg1);
 		if(err)
 		{
 			string error = strerror(err);
@@ -29329,7 +29560,7 @@ void FFScript::do_directory_get()
 	if(user_dir* dr = checkDir(ri->directoryref, true))
 	{
 		int32_t indx = get_register(sarg1) / 10000L;
-		int32_t arrayptr = get_register(sarg2) / 10000L;
+		int32_t arrayptr = get_register(sarg2);
 		char buf[2048] = {0};
 		set_register(sarg1, dr->get(indx, buf) ? 10000L : 0L);
 		if(ArrayH::setArray(arrayptr, string(buf)) == SH::_Overflow)
@@ -29731,15 +29962,17 @@ int32_t FFScript::loadMapData()
 	return ri->mapsref;
 }
 
-
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
-void FFScript::deallocateArray(const int32_t ptrval)
+void FFScript::deallocateArray(int32_t ptrval)
 {
-	if(ptrval == 0) return;
+	CHECK(!ZScriptVersion::gc_arrays());
+
+	if(ptrval == 0)
+		return;
 	if(ptrval==0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
-		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
+		scripting_log_error_with_context("Script tried to deallocate memory at invalid address {}", ptrval);
 	else if(ptrval<0)
-		Z_scripterrlog("Script tried to deallocate memory at object-based address %ld\n", ptrval);
+		scripting_log_error_with_context("Script tried to deallocate memory at object-based address {}", ptrval);
 	else
 	{
 		if(arrayOwner[ptrval].specOwned) return; //ignore this deallocation
@@ -29747,7 +29980,7 @@ void FFScript::deallocateArray(const int32_t ptrval)
 		arrayOwner[ptrval].clear();
 		
 		if(!localRAM[ptrval].Valid())
-			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
+			scripting_log_error_with_context("Script tried to deallocate memory that was not allocated at address {}", ptrval);
 		else
 		{
 			if (localRAM[ptrval].HoldsObjects())
@@ -29994,22 +30227,6 @@ void FFScript::getNPCData_misc()
 
 //NPCData Setters, two inputs, no return; similar to void GetDMapIntro(int32_t DMap, int32_t buffer[]);
 
-/*
-
-void do_getdmapintro(const bool v)
-{
-	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
-	
-	if(BC::checkDMapID(ID, "Game->GetDMapIntro") != SH::_NoError)
-		return;
-		
-	if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'Game->GetDMapIntro' not large enough\n");
-}
-
-*/
-
 //NPCData Setter Macros
 
 //Variables for spritedata sp->member
@@ -30210,13 +30427,6 @@ void FFScript::setNPCData_misc(int32_t val)
 	set_register(sarg1, combobuf[ID].member * 10000); \
 }
 
-#define GET_COMBODATA_VAR_INDEX(member, bound) \
-{ \
-	int32_t ID = int32_t( vbound( (ri->d[rINDEX] / 10000),0,MAXCOMBOS) );\
-	int32_t indx = int32_t ( vbound( (ri->d[rINDEX2] / 10000),0,bound) );\
-	set_register(sarg1, combobuf[ID].member[indx] * 10000); \
-}
-
 #define GET_COMBODATA_VAR_FLAG(member) \
 { \
 	int32_t ID = int32_t( vbound( ( ri->d[rINDEX] / 10000),0,MAXCOMBOS) );\
@@ -30262,25 +30472,6 @@ void FFScript::setNPCData_misc(int32_t val)
 	screen_combo_modify_pre(ID); \
 	combobuf[ID].member = val; \
 	screen_combo_modify_post(ID); \
-}
-
-//SET_NPC_VAR_INDEX(member,value)
-#define SET_COMBODATA_VAR_INDEX(member, val, bound, indexbound) \
-{ \
-	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS);  \
-	int32_t indx =  vbound((ri->d[rINDEX2]/10000),0,indexbound);  \
-	combobuf[ID].member[indx] = vbound(val,0,bound); \
-}
-
-//Special case for flags, three inputs one return
-#define SET_COMBODATA_VAR_FLAG(member, val, bound) \
-{ \
-	int32_t ID = vbound((ri->d[rINDEX]/10000),0,MAXCOMBOS);  \
-	int32_t flag =  (ri->d[rINDEX2]/10000);  \
-	else \
-	{ \
-		combobuf[ID].member&flag = ((bvound(val,0,bound))!=0); \
-	}\
 }
 
 //Getters
@@ -30560,7 +30751,7 @@ void FFScript::FFChangeSubscreenText()
 { 
 	
 	int32_t index = get_register(sarg1) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	
 	if ( index < 0 || index > 3 ) 
 	{
@@ -30778,7 +30969,7 @@ int32_t FFScript::getQuestHeaderInfo(int32_t type)
 
 string get_filestr(const bool relative, bool is_file) //Used for 'FileSystem' functions.
 {
-	int32_t strptr = get_register(sarg1)/10000;
+	int32_t strptr = get_register(sarg1);
 	string user_path;
 	ArrayH::getString(strptr, user_path, 512);
 
@@ -30846,7 +31037,7 @@ void FFScript::Play_Level_Music()
 
 void FFScript::do_warp_ex(bool v)
 {
-	int32_t zscript_array_ptr = SH::get_arg(sarg1, v) / 10000;
+	int32_t zscript_array_ptr = SH::get_arg(sarg1, v);
 	ArrayManager am(zscript_array_ptr);
 	if(am.invalid()) return;
 	int32_t zscript_array_size = am.size();
@@ -31690,7 +31881,7 @@ bool FFScript::checkExtension(std::string &filename, const std::string &extensio
 
 void FFScript::do_loadgamestructs(const bool v, const bool v2)
 {
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int32_t arrayptr = SH::get_arg(sarg1, v);
 	int32_t section_id = SH::get_arg(sarg2, v2) / 10000;
 	//Bitwise OR sections together
 	string strA;
@@ -31744,7 +31935,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 
 void FFScript::do_savegamestructs(const bool v, const bool v2)
 {
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int32_t arrayptr = SH::get_arg(sarg1, v);
 	int32_t section_id = SH::get_arg(sarg2, v2) / 10000;
 	//Bitwise OR sections together
 	string strA;
@@ -31787,8 +31978,8 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 
 void FFScript::do_strcmp()
 {
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000 ?
-	int32_t arrayptr_b = ri->d[rINDEX2]/10000; //get_register(sarg2) / 10000?
+	int32_t arrayptr_a = ri->d[rINDEX];
+	int32_t arrayptr_b = ri->d[rINDEX2];
 	string strA;
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
@@ -31798,8 +31989,8 @@ void FFScript::do_strcmp()
 
 void FFScript::do_stricmp()
 {
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
-	int32_t arrayptr_b = ri->d[rINDEX2]/10000; //get_register(sarg2) / 10000?
+	int32_t arrayptr_a = ri->d[rINDEX];
+	int32_t arrayptr_b = ri->d[rINDEX2];
 	string strA;
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
@@ -31809,7 +32000,7 @@ void FFScript::do_stricmp()
 
 void FFScript::do_LowerToUpper(const bool v)
 {
-	int32_t arrayptr_a = get_register(sarg1) / 10000;
+	int32_t arrayptr_a = get_register(sarg1);
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
 	for (char& c : strA)
@@ -31820,7 +32011,7 @@ void FFScript::do_LowerToUpper(const bool v)
 
 void FFScript::do_UpperToLower(const bool v)
 {
-	int32_t arrayptr_a = get_register(sarg1) / 10000;
+	int32_t arrayptr_a = get_register(sarg1);
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
 	for (char& c : strA)
@@ -31883,7 +32074,7 @@ void FFScript::do_getsubscreenscript()
 }
 void FFScript::do_getnpcbyname()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string the_string;
 	int32_t num = -1;
 	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -31900,7 +32091,7 @@ void FFScript::do_getnpcbyname()
 }	
 void FFScript::do_getitembyname()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string the_string;
 	int32_t num = -1;
 	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -31917,7 +32108,7 @@ void FFScript::do_getitembyname()
 }	
 void FFScript::do_getcombobyname()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string the_string;
 	int32_t num = -1;
 	ArrayH::getString(arrayptr, the_string, 256);
@@ -31937,7 +32128,7 @@ void FFScript::do_getcombobyname()
 }
 void FFScript::do_getdmapbyname()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string the_string;
 	int32_t num = -1;
 	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -31958,7 +32149,7 @@ void FFScript::do_getdmapbyname()
 ////////////////////////
 void FFScript::do_ConvertCase(const bool v)
 {
-	int32_t arrayptr_a = get_register(sarg1) / 10000;
+	int32_t arrayptr_a = get_register(sarg1);
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
 	for (char& c : strA)
@@ -31975,15 +32166,14 @@ void FFScript::do_ConvertCase(const bool v)
 void FFScript::do_xlen(const bool v)
 {
 	//not implemented, xlen not found
-	int32_t arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	int32_t arrayptr = (SH::get_arg(sarg2, v));
 	string str;
 	ArrayH::getString(arrayptr, str);
-	//set_register(sarg1, (xlen(str.c_str()) * 10000));
 }
 
 void FFScript::do_xtoi(const bool v)
 {
-	int32_t arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	int32_t arrayptr = (SH::get_arg(sarg2, v));
 	string str;
 	ArrayH::getString(arrayptr, str);
 	double val = zc_xtoi(const_cast<char*>(str.c_str()));
@@ -31991,7 +32181,7 @@ void FFScript::do_xtoi(const bool v)
 }
 void FFScript::do_xtoi2() 
 {
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	int32_t arrayptr_a = ri->d[rINDEX];
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
 	set_register(sarg1, (zc_xtoi(strA.c_str()) * 10000));
@@ -32008,7 +32198,7 @@ double FFScript::Log2( double n )
 void FFScript::do_xtoa()
 {
 	
-	int32_t arrayptr_a = get_register(sarg1) / 10000;
+	int32_t arrayptr_a = get_register(sarg1);
 	int32_t number = get_register(sarg2) / 10000;//ri->d[rEXP2]/10000; //why are you not in sarg2?!!
 	
 	
@@ -32065,13 +32255,12 @@ void FFScript::do_xtoa()
 		Z_scripterrlog("Dest string supplied to 'xtoa()' not large enough\n");
 		set_register(sarg1, 0);
 	}
-	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
 	else set_register(sarg1, (ret + digits -(isneg?1:0))*10000); //don't count the - sign as a digit
 }
 
 void FFScript::do_ilen(const bool v)
 {
-	int32_t arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	int32_t arrayptr = (SH::get_arg(sarg2, v));
 	string str;
 	ArrayH::getString(arrayptr, str);
 	set_register(sarg1, (FFCore.ilen((char*)str.c_str()) * 10000));
@@ -32080,14 +32269,14 @@ void FFScript::do_ilen(const bool v)
 //! Note atoi2 (atoi(str, len) can be accompished with str.resize after getString.
 void FFScript::do_atoi(const bool v)
 {
-	int32_t arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	int32_t arrayptr = (SH::get_arg(sarg2, v));
 	string str;
 	ArrayH::getString(arrayptr, str);
 	set_register(sarg1, (atoi(str.c_str()) * 10000));
 }
 void FFScript::do_atol(const bool v)
 {
-	int32_t arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	int32_t arrayptr = (SH::get_arg(sarg2, v));
 	string str;
 	ArrayH::getString(arrayptr, str);
 	set_register(sarg1, (atoi(str.c_str())));
@@ -32096,8 +32285,8 @@ void FFScript::do_atol(const bool v)
 void FFScript::do_strstr()
 {
 	
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
-	int32_t arrayptr_b = ri->d[rINDEX2]/10000; //get_register(sarg2) / 10000?
+	int32_t arrayptr_a = ri->d[rINDEX];
+	int32_t arrayptr_b = ri->d[rINDEX2];
 	string strA;
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
@@ -32114,8 +32303,8 @@ void FFScript::do_strstr()
 void FFScript::do_strcat()
 {
 	
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
-	int32_t arrayptr_b = ri->d[rINDEX2]/10000; //get_register(sarg2) / 10000?
+	int32_t arrayptr_a = ri->d[rINDEX];
+	int32_t arrayptr_b = ri->d[rINDEX2];
 	string strA;
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
@@ -32128,14 +32317,13 @@ void FFScript::do_strcat()
 		Z_scripterrlog("Dest string supplied to 'strcat()' not large enough\n");
 		set_register(sarg1, 0);
 	}
-	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
 void FFScript::do_strspn()
 {
 	
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
-	int32_t arrayptr_b = ri->d[rINDEX2]/10000; //get_register(sarg2) / 10000?
+	int32_t arrayptr_a = ri->d[rINDEX];
+	int32_t arrayptr_b = ri->d[rINDEX2];
 	string strA;
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
@@ -32146,8 +32334,8 @@ void FFScript::do_strspn()
 void FFScript::do_strcspn()
 {
 	
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
-	int32_t arrayptr_b = ri->d[rINDEX2]/10000;
+	int32_t arrayptr_a = ri->d[rINDEX];
+	int32_t arrayptr_b = ri->d[rINDEX2];
 	string strA;
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
@@ -32158,7 +32346,7 @@ void FFScript::do_strcspn()
 void FFScript::do_strchr()
 {
 	
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	int32_t arrayptr_a = ri->d[rINDEX];
 	char chr_to_find = (ri->d[rINDEX2]/10000);
 	string strA; 
 	ArrayH::getString(arrayptr_a, strA);
@@ -32173,7 +32361,7 @@ void FFScript::do_strchr()
 }
 void FFScript::do_strrchr()
 {
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	int32_t arrayptr_a = ri->d[rINDEX];
 	char chr_to_find = (ri->d[rINDEX2]/10000);
 	string strA; 
 	ArrayH::getString(arrayptr_a, strA);
@@ -32190,40 +32378,36 @@ void FFScript::do_remchr2()
 {
 	//Not implemented, remchr not found
 	//not part of any standard library
-	int32_t arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	int32_t arrayptr_a = ri->d[rINDEX];
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
-	//set_register(sarg1, (remchr(strA.c_str(), (ri->d[rINDEX2]/10000)) * 10000));
 }
 //Bookmark
 void FFScript::do_atoi2()
 {
 	//not implemented; atoi does not take 2 params
-	int32_t arrayptr_a = ri->d[rINDEX]/10000;
+	int32_t arrayptr_a = ri->d[rINDEX];
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
-	//set_register(sarg1, (atoi(strA.c_str(), (ri->d[rINDEX2]/10000)) * 10000));
 }
 void FFScript::do_ilen2()
 {
 	//not implemented, ilen not found
-	int32_t arrayptr_a = ri->d[rINDEX]/10000;
+	int32_t arrayptr_a = ri->d[rINDEX];
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
-	//set_register(sarg1, (ilen(strA.c_str(), (ri->d[rINDEX2]/10000)) * 10000));
 }
 void FFScript::do_xlen2()
 {
 	//not implemented, xlen not found
-	int32_t arrayptr_a = ri->d[rINDEX]/10000;
+	int32_t arrayptr_a = ri->d[rINDEX];
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
-	//set_register(sarg1, (xlen(strA.c_str(), (ri->d[rINDEX2]/10000)) * 10000));
 }
 
 void FFScript::do_itoa()
 {
-	int32_t arrayptr_a = get_register(sarg1) / 10000;
+	int32_t arrayptr_a = get_register(sarg1);
 	int32_t number = get_register(sarg2) / 10000;
 	
 	char buf[16];
@@ -32241,7 +32425,7 @@ void FFScript::do_itoa()
 
 void FFScript::do_itoacat()
 {
-	int32_t arrayptr_a = get_register(sarg1) / 10000;
+	int32_t arrayptr_a = get_register(sarg1);
 	int32_t number = get_register(sarg2) / 10000;
 	
 	double num = number;
@@ -32282,14 +32466,13 @@ void FFScript::do_itoacat()
 		Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
 		set_register(sarg1, 0);
 	}
-	//set_register(sarg1, (strcat((char)strB.c_str(), strB.c_str()) * 10000));
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
 
 void FFScript::do_strcpy(const bool a, const bool b)
 {
-	int32_t arrayptr_b = SH::get_arg(sarg1, a) / 10000;
-	int32_t arrayptr_a = SH::get_arg(sarg2, b) / 10000;
+	int32_t arrayptr_b = SH::get_arg(sarg1, a);
+	int32_t arrayptr_a = SH::get_arg(sarg2, b);
 	
 	string strA;
 
@@ -32300,13 +32483,13 @@ void FFScript::do_strcpy(const bool a, const bool b)
 }
 void FFScript::do_arraycpy(const bool a, const bool b)
 {
-	int32_t arrayptr_dest = SH::get_arg(sarg1, a) / 10000;
-	int32_t arrayptr_src = SH::get_arg(sarg2, b) / 10000;
+	int32_t arrayptr_dest = SH::get_arg(sarg1, a);
+	int32_t arrayptr_src = SH::get_arg(sarg2, b);
 	ArrayH::copyValues(arrayptr_dest, arrayptr_src);
 }
 void FFScript::do_strlen(const bool v)
 {
-	int32_t arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	int32_t arrayptr = (SH::get_arg(sarg2, v));
 	string str;
 	ArrayH::getString(arrayptr, str);
 	set_register(sarg1, (str.length() * 10000));
@@ -32314,8 +32497,8 @@ void FFScript::do_strlen(const bool v)
 
 void FFScript::do_strncmp()
 {
-	int32_t arrayptr_a = ri->d[rINDEX]/10000;
-	int32_t arrayptr_b = ri->d[rEXP2]/10000;
+	int32_t arrayptr_a = ri->d[rINDEX];
+	int32_t arrayptr_b = ri->d[rEXP2];
 	int32_t len = ri->d[rEXP1]/10000;
 	string strA;
 	string strB;
@@ -32326,8 +32509,8 @@ void FFScript::do_strncmp()
 
 void FFScript::do_strnicmp()
 {
-	int32_t arrayptr_a = ri->d[rINDEX]/10000;
-	int32_t arrayptr_b = ri->d[rEXP2]/10000;
+	int32_t arrayptr_a = ri->d[rINDEX];
+	int32_t arrayptr_b = ri->d[rEXP2];
 	int32_t len = ri->d[rEXP1]/10000;
 	string strA;
 	string strB;
@@ -32552,7 +32735,7 @@ void traceStr(string const& str)
 
 void FFScript::do_tracestring()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	string str;
 	ArrayH::getString(arrayptr, str, 512);
 	str += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
@@ -32636,7 +32819,7 @@ char const* zs_formatter(char const* format, int32_t arg, int32_t mindig, dword 
 					Z_scripterrlog("Cannot use minimum digits flag for '%%s'\n");
 				if(arg)
 				{
-					int32_t strptr = (arg / 10000);
+					int32_t strptr = arg;
 					ArrayManager am(strptr);
 					if(am.invalid())
 						ret = "<INVALID STRING>";
@@ -32705,7 +32888,7 @@ char const* zs_formatter(char const* format, int32_t arg, int32_t mindig, dword 
 						Z_scripterrlog("Format '%%a%c' is invalid!\n",format[1]);
 						break;
 					}
-					ArrayManager am(arg/10000);
+					ArrayManager am(arg);
 					ret = am.asString([&](int32_t val)
 						{
 							return zs_formatter(format+1, val, mindig, flags);
@@ -32884,12 +33067,12 @@ void FFScript::do_printf(const bool v, const bool varg)
 	if(varg)
 	{
 		num_args = zs_vargs.size();
-		format_arrayptr = SH::read_stack(ri->sp) / 10000;
+		format_arrayptr = SH::read_stack(ri->sp);
 	}
 	else
 	{
 		num_args = SH::get_arg(sarg1, v) / 10000;
-		format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
+		format_arrayptr = SH::read_stack(ri->sp + num_args);
 	}
 	ArrayManager fmt_am(format_arrayptr);
 	if(!fmt_am.invalid())
@@ -32908,14 +33091,14 @@ void FFScript::do_sprintf(const bool v, const bool varg)
 	if(varg)
 	{
 		num_args = zs_vargs.size();
-		dest_arrayptr = SH::read_stack(ri->sp + 1) / 10000;
-		format_arrayptr = SH::read_stack(ri->sp) / 10000;
+		dest_arrayptr = SH::read_stack(ri->sp + 1);
+		format_arrayptr = SH::read_stack(ri->sp);
 	}
 	else
 	{
 		num_args = SH::get_arg(sarg1, v) / 10000;
-		dest_arrayptr = SH::read_stack(ri->sp + num_args + 1) / 10000;
-		format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
+		dest_arrayptr = SH::read_stack(ri->sp + num_args + 1);
+		format_arrayptr = SH::read_stack(ri->sp + num_args);
 	}
 	ArrayManager fmt_am(format_arrayptr);
 	ArrayManager dst_am(dest_arrayptr);
@@ -32939,8 +33122,8 @@ void FFScript::do_sprintf(const bool v, const bool varg)
 }
 void FFScript::do_printfarr()
 {
-	int32_t format_arrayptr = SH::read_stack(ri->sp + 1) / 10000,
-		args_arrayptr = SH::read_stack(ri->sp + 0) / 10000;
+	int32_t format_arrayptr = SH::read_stack(ri->sp + 1),
+		args_arrayptr = SH::read_stack(ri->sp + 0);
 	ArrayManager fmt_am(format_arrayptr);
 	ArrayManager arg_am(args_arrayptr);
 	if(!(fmt_am.invalid() || arg_am.invalid()))
@@ -32958,9 +33141,9 @@ void FFScript::do_printfarr()
 }
 void FFScript::do_sprintfarr()
 {
-	int32_t dest_arrayptr = SH::read_stack(ri->sp + 2) / 10000,
-		format_arrayptr = SH::read_stack(ri->sp + 1) / 10000,
-		args_arrayptr = SH::read_stack(ri->sp + 0) / 10000;
+	int32_t dest_arrayptr = SH::read_stack(ri->sp + 2),
+		format_arrayptr = SH::read_stack(ri->sp + 1),
+		args_arrayptr = SH::read_stack(ri->sp + 0);
 	ArrayManager fmt_am(format_arrayptr);
 	ArrayManager arg_am(args_arrayptr);
 	ArrayManager dst_am(dest_arrayptr);
@@ -33026,10 +33209,33 @@ void FFScript::do_varg_choose()
 	zs_vargs.clear();
 	ri->d[rEXP1] = val;
 }
-void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
+void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID, script_object_type object_type)
 {
-	size_t num_args = zs_vargs.size();
-	//
+	auto vargs = zs_vargs;
+	zs_vargs.clear();
+
+	size_t size = vargs.size();
+	ri->d[rEXP1] = 0;
+
+	if (ZScriptVersion::gc_arrays())
+	{
+		auto* array = script_arrays.create();
+		if (!array)
+			return;
+
+		ZScriptArray &a = array->arr;
+		a.Resize(size);
+		a.setValid(true);
+		a.setObjectType(object_type);
+
+		for(size_t j = 0; j < size; ++j)
+			a[j] = vargs[j]; //initialize array
+
+		ri->d[rEXP1] = array->id;
+
+		return;
+	}
+
 	dword ptrval;
 	for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
 	
@@ -33040,19 +33246,18 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
 	}
 	else
 	{
-		ZScriptArray &a = localRAM[ptrval]; //marginally faster for large arrays if we use a reference
+		ZScriptArray &a = localRAM[ptrval];
 		
-		a.Resize(num_args);
+		a.Resize(size);
 		a.setValid(true);
 		
-		for(size_t j = 0; j < num_args; ++j)
-			a[j] = zs_vargs[j]; //initialize array
+		for(size_t j = 0; j < size; ++j)
+			a[j] = vargs[j]; //initialize array
 		
 		arrayOwner[ptrval].clear();
 		arrayOwner[ptrval].reown(type, UID);
 	}
-	//
-	zs_vargs.clear();
+
 	ri->d[rEXP1] = ptrval*10000;
 }
 
@@ -36961,7 +37166,8 @@ void FFScript::clear_combo_scripts()
 	combo_id_cache.clear();
 	combo_id_cache.resize(region_num_rpos * 7);
 	std::fill(combo_id_cache.begin(), combo_id_cache.end(), -1);
-	clear_script_engine_data_of_type(ScriptType::Combo);
+	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Combo);
+	FFCore.clear_script_engine_data_of_type(ScriptType::Combo);
 }
 
 void FFScript::clear_combo_script(const rpos_handle_t& rpos_handle)

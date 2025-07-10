@@ -95,7 +95,7 @@ npc Ghost_InitWait2(ffc this, int enemyID, bool useEnemyPos)
             // Wrong ID or already in use
             if(ghost->ID!=enemyID)
                 continue;
-            if((ghost->Misc[__GHI_NPC_DATA]&0x10000)!=0)
+            if(Ghost_IsInUse(ghost))
                 continue;
 
             __Ghost_InitInternal(this, ghost, useEnemyPos, combo, this->CSet);
@@ -133,15 +133,16 @@ npc Ghost_InitAutoGhost(ffc this, int enemyID)
 			continue;
 		}
 		else found = true;
-		if((ghost->Misc[__GHI_NPC_DATA]&0x10000)!=0)
+
+		if(Ghost_IsInUse(ghost))
 		{
 			found = false; 
 			continue;
 		}
+
 		if(found)
 		{
-			__Ghost_InitInternal(this, ghost, true,
-			  ghost->Misc[__GHI_NPC_DATA]&0xFFFF, ghost->CSet);
+			__Ghost_InitInternal(this, ghost, true, Ghost_GetCombo(ghost), ghost->CSet);
 			
 			if((ghost->MiscFlags&100000000b)!=0) // That's "Is Transparent"
 				this->Flags[FFCF_TRANS]=true;
@@ -150,12 +151,9 @@ npc Ghost_InitAutoGhost(ffc this, int enemyID)
 		else break;
 	}
 	// No enemy found, so quit. This shouldn't ever happen, so log it.
-	int error1[]="ghost.zh: AutoGhost initialization failed - enemy missing.\n";
-	int error2[30]="  DMap %d, screen %X\n";
-	int error3[30]="  Script %d, enemy ID %d\n";
-	printf(error1);
-	printf(error2, Game->CurDMap, Game->CurDMapScreen);
-	printf(error3, this->Script, enemyID);
+	printf("ghost.zh: AutoGhost initialization failed - enemy missing.\n");
+	printf("  DMap %d, screen %X\n", Game->CurDMap, Game->CurDMapScreen);
+	printf("  Script %d, enemy ID %d\n", this->Script, enemyID);
 	
 	this->Data=0;
 	Quit();
@@ -241,7 +239,7 @@ void __Ghost_InitInternal(ffc this, npc ghost, bool useEnemyPos, int combo, int 
     __Ghost_InternalFlags=0;
     
     __Ghost_AdditionalCombos[0]=0;
-    ghost->Misc[__GHI_NPC_DATA]=0x10000;
+    resetGhostData(ghost);
     
     if(__GH_USE_DRAWCOMBO==0)
         // Remember that this is a ghost script so it can be cleared

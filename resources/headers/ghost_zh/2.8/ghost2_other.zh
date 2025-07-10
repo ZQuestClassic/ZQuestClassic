@@ -420,14 +420,69 @@ void Ghost_DeathAnimation(ffc this, npc ghost, int type)
     }
 }
 
+class GhostData
+{
+    npc ghost;
+    bool in_use;
+    int combo;
+    int data[24];
+    // For either drawingData or tempGhostAdditionalCombos. See DrawGhostFFCs.
+    int[] drawing;
+}
+
+// Creates object for ghost data. Lifetime is the ghost npc.
+GhostData createOrGetGhostData(npc ghost)
+{
+    if (ghost->Misc[__GHI_NPC_DATA])
+        return <GhostData>(ghost->Misc[__GHI_NPC_DATA]);
+
+    auto data = new GhostData();
+    data->ghost = ghost;
+    data->drawing = NULL;
+
+    ghost->Misc[__GHI_NPC_DATA] = data;
+    ghost->OwnObject(data);
+
+    return data;
+}
+
+GhostData resetGhostData(npc ghost)
+{
+    auto data = createOrGetGhostData(ghost);
+    data->drawing = NULL;
+    data->combo = 0;
+    data->in_use = true;
+    return data;
+}
+
+GhostData getGhostData(npc ghost)
+{
+    int ptr = ghost->Misc[__GHI_NPC_DATA];
+    return <GhostData>ptr;
+}
+
+void Ghost_SetCombo(npc ghost, int combo)
+{
+    auto data = createOrGetGhostData(ghost);
+    data->combo = combo;
+}
+
+int Ghost_GetCombo(npc ghost)
+{
+    auto data = createOrGetGhostData(ghost);
+    return data->combo;
+}
+
 void Ghost_MarkAsInUse(npc ghost)
 {
-    ghost->Misc[__GHI_NPC_DATA]|=0x10000;
+    auto data = createOrGetGhostData(ghost);
+    data->in_use = true;
 }
 
 bool Ghost_IsInUse(npc ghost)
 {
-    return (ghost->Misc[__GHI_NPC_DATA]&0x10000)!=0;
+    auto data = createOrGetGhostData(ghost);
+    return data->in_use;
 }
 
 float Ghost_GetAttribute(npc ghost, int index, float defaultVal, float min, float max)
@@ -633,7 +688,7 @@ void __DeathAnimSFX(int id, int x)
     deathSFXNPC->Y=Region->Height;
     deathSFXNPC->ItemSet=IS_NONE;
     deathSFXNPC->HP=0;
-    deathSFXNPC->Misc[__GHI_NPC_DATA]=0x10000;
+    resetGhostData(deathSFXNPC);
 }
 
 // Used in Ghost_WaitframeLight() to determine whether the enemy needs drawn
@@ -675,9 +730,10 @@ void __GhCleanUp(ffc this)
 
 void SetEnemyProperty(npc enemy, int property, float newValue)
 {
-    if((enemy->Misc[__GHI_NPC_DATA]&0x10000)!=0)
+    auto data = getGhostData(enemy);
+    if (data && data->in_use)
     {
-        float[] aptr=<float[]>(enemy->Misc[__GHI_NPC_DATA]&0xFFFF);
+        float[] aptr=<float[]>(data->data);
         if(aptr)
             aptr[property]=newValue;
     }
@@ -700,10 +756,13 @@ void SetEnemyProperty(npc enemy, int property, float newValue)
 
 float GetEnemyProperty(npc enemy, int property)
 {
-    float[] aptr=<float[]>(enemy->Misc[__GHI_NPC_DATA]&0xFFFF);
-    
-    if((enemy->Misc[__GHI_NPC_DATA]&0x10000)!=0 && aptr)
+    auto data = getGhostData(enemy);
+
+    if(data && data->in_use && data->data)
+    {
+        float[] aptr=<float[]>(data->data);
         return aptr[property];
+    }
     else
     {
         if(property==ENPROP_X)

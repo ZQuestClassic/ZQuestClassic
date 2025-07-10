@@ -1170,7 +1170,6 @@ std::optional<int32_t> itemsprite_run_command(word command)
 	{
 		case ITEMDEL:
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::ItemSprite, ri->itemref);
 			if(type == ScriptType::ItemSprite && ri->itemref == i)
 			{
 				if(do_itemsprite_delete())

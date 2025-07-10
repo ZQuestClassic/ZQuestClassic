@@ -423,6 +423,7 @@ extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int32_t sfxdat;
 
+// Only used for quests prior to arrays being script objects - ZScriptVersion::gc_arrays()
 #define NUM_ZSCRIPT_ARRAYS	4096
 extern ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
 extern std::map<int32_t,ZScriptArray> objectRAM;

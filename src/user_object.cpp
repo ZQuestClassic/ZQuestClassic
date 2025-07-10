@@ -1,6 +1,9 @@
 #include "base/zdefs.h"
 #include "user_object.h"
+#include "zasm/table.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/script_object.h"
+#include "zscriptversion.h"
 
 void push_ri();
 void pop_ri();
@@ -14,9 +17,12 @@ extern int32_t curScriptIndex;
 extern bool script_funcrun;
 extern std::string* destructstr;
 
-void destroy_object_arr(int32_t ptr, bool dec_refs);
 script_data* load_scrdata(ScriptType type, word script, int32_t i);
 
+bool can_restore_object_type(script_object_type type)
+{
+	return type == script_object_type::object || type == script_object_type::array;
+}
 
 void user_abstract_obj::own(ScriptType type, int32_t i)
 {
@@ -74,6 +80,59 @@ void ArrayOwner::reown(ScriptType ty, int32_t i)
 {
 	reset();
 	own(ty,i);
+}
+
+bool script_array::internal_array_id::matches(ScriptType script_type, int32_t uid) const
+{
+	return ref == uid && matches(script_type);
+}
+
+bool script_array::internal_array_id::matches(ScriptType script_type) const
+{
+	int zasm_var_ref = get_register_ref_dependency(zasm_var).value_or(0);
+	switch (script_type)
+	{
+		case ScriptType::Ewpn: return zasm_var_ref == REFEWPN;
+		case ScriptType::FFC: return zasm_var_ref == REFFFC;
+		case ScriptType::Generic: return zasm_var_ref == REFGENERICDATA;
+		case ScriptType::GenericFrozen: return zasm_var_ref == REFGENERICDATA;
+		case ScriptType::ItemSprite: return zasm_var_ref == REFITEM;
+		case ScriptType::Lwpn: return zasm_var_ref == REFLWPN;
+		case ScriptType::NPC: return zasm_var_ref == REFNPC;
+		case ScriptType::Screen: return zasm_var_ref == REFSCREENDATA;
+	}
+
+	return false;
+}
+
+void script_array::get_retained_ids(std::vector<uint32_t>& ids)
+{
+	if (arr.HoldsObjects())
+	{
+		for (int i = 0; i < arr.Size(); i++)
+			ids.push_back(arr[i]);
+	}
+}
+
+void script_array::restore_references()
+{
+	if (!arr.HoldsObjects())
+		return;
+
+	if (!can_restore_object_type(arr.ObjectType()))
+	{
+		for (int i = 0; i < arr.Size(); i++)
+			arr[i] = 0;
+		return;
+	}
+
+	for (int i = 0; i < arr.Size(); i++)
+	{
+		if (script_objects.contains(arr[i]))
+			script_object_ref_inc(arr[i]);
+		else
+			arr[i] = 0;
+	}
 }
 
 void scr_func_exec::clear()
@@ -151,6 +210,60 @@ bool scr_func_exec::validate(const zasm_script* zasm_script)
 	}
 }
 
+void user_object::get_retained_ids(std::vector<uint32_t>& ids)
+{
+	for (int i = 0; i < owned_vars; i++)
+	{
+		if (isMemberObjectType(i))
+			ids.push_back(data[i]);
+	}
+
+	if (ZScriptVersion::gc_arrays())
+	{
+		for (int i = owned_vars; i < data.size(); i++)
+			ids.push_back(data[i]);
+	}
+	else
+	{
+		for (int i = owned_vars; i < data.size(); i++)
+		{
+			auto ptr = data[i]/10000;
+			if (ptr == 0)
+				continue;
+
+			auto& aptr = objectRAM.at(-ptr);
+			if (!aptr.HoldsObjects())
+				continue;
+
+			for (int i = 0; i < aptr.Size(); i++)
+				ids.push_back(aptr[i]);
+		}
+	}
+}
+
+void user_object::restore_references()
+{
+	for (int i = 0; i < owned_vars; i++)
+	{
+		if (!isMemberObjectType(i))
+			continue;
+
+		if (can_restore_object_type(var_types[i]) && script_objects.contains(data[i]))
+			script_object_ref_inc(data[i]);
+		else
+			data[i] = 0;
+	}
+
+	if (ZScriptVersion::gc_arrays())
+	{
+		for (int i = owned_vars; i < data.size(); i++)
+		{
+			if (script_objects.contains(data[i]))
+				script_object_ref_inc(data[i]);
+		}
+	}
+}
+
 //Prepare the object's destructor
 void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 {
@@ -168,7 +281,7 @@ void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 	else zprint2("Destructor for object not found?\n"); //Should never occur
 }
 //Load object arrays (from save file)
-void user_object::load_arrays(std::map<int32_t,ZScriptArray>& arrs)
+void user_object::load_arrays(const std::map<int32_t,ZScriptArray>& arrs)
 {
 	for(auto it = arrs.begin(); it != arrs.end(); ++it)
 	{
@@ -190,20 +303,4 @@ void user_object::save_arrays(std::map<int32_t,ZScriptArray>& arrs)
 			}
 		}
 	}
-}
-
-void user_object::clear_nodestruct()
-{
-	disown();
-	if(data.size() > owned_vars) //owns arrays!
-	{
-		for(auto ind = owned_vars; ind < data.size(); ++ind)
-		{
-			auto arrptr = data.at(ind)/10000;
-			destroy_object_arr(arrptr, true);
-		}
-	}
-	data.clear();
-	owned_vars = 0;
-	destruct.clear();
 }

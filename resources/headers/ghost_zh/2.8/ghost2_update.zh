@@ -114,37 +114,6 @@ bool Ghost_Waitframe2(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath)
 
 void Ghost_WaitframeLight(ffc this, npc ghost)
 {
-    // Remember all the global variables
-    
-    // Initializing the array is faster than setting it up afterward...
-    // but the difference is probably negligible, realistically
-    untyped tempGhostData[24] = {
-        Ghost_X, // 0
-        Ghost_Y, // 1
-        Ghost_Z, // 2
-        Ghost_Jump, // 3
-        Ghost_Vx, // 4
-        Ghost_Vy, // 5
-        Ghost_Ax, // 6
-        Ghost_Ay, // 7
-        __Ghost_PrevX, // 8
-        __Ghost_PrevY, // 9
-        Ghost_CSet, // 10
-        Ghost_Dir, // 11
-        Ghost_Data, // 12
-        Ghost_TileWidth, // 13
-        Ghost_TileHeight, // 14
-        __Ghost_Flags, // 15
-        __Ghost_Flags2, // 16
-        __Ghost_InternalFlags, // 17
-        __Ghost_FlashCounter, // 18
-        __Ghost_KnockbackCounter, // 19
-        Ghost_HP, // 20
-        __Ghost_XOffsets, // 21
-        __Ghost_YOffsets // 22
-        // 23 is for either drawingData or tempGhostAdditionalCombos;
-        // update DrawGhostFFCs if that changes
-    };
     int tempGhostAdditionalCombos[21]; // Same size as __Ghost_AdditionalCombos
                                        // Change it in the loop below, too
     if(__Ghost_AdditionalCombos[0]>0)
@@ -154,8 +123,36 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
     }
     
     // Give ghost an array pointer so its data can be found by other scripts
+    GhostData ghostData;
     if(ghost->isValid())
-        ghost->Misc[__GHI_NPC_DATA]=0x10000|<int>tempGhostData;
+    {
+        ghostData = createOrGetGhostData(ghost);
+
+        // Remember all the global variables
+        ghostData->data[0] = Ghost_X;
+        ghostData->data[1] = Ghost_Y;
+        ghostData->data[2] = Ghost_Z;
+        ghostData->data[3] = Ghost_Jump;
+        ghostData->data[4] = Ghost_Vx;
+        ghostData->data[5] = Ghost_Vy;
+        ghostData->data[6] = Ghost_Ax;
+        ghostData->data[7] = Ghost_Ay;
+        ghostData->data[8] = __Ghost_PrevX;
+        ghostData->data[9] = __Ghost_PrevY;
+        ghostData->data[10] = Ghost_CSet;
+        ghostData->data[11] = Ghost_Dir;
+        ghostData->data[12] = Ghost_Data;
+        ghostData->data[13] = Ghost_TileWidth;
+        ghostData->data[14] = Ghost_TileHeight;
+        ghostData->data[15] = __Ghost_Flags;
+        ghostData->data[16] = __Ghost_Flags2;
+        ghostData->data[17] = __Ghost_InternalFlags;
+        ghostData->data[18] = __Ghost_FlashCounter;
+        ghostData->data[19] = __Ghost_KnockbackCounter;
+        ghostData->data[20] = Ghost_HP;
+        ghostData->data[21] = __Ghost_XOffsets;
+        ghostData->data[22] = __Ghost_YOffsets;
+    }
     
     // Position additional FFCs, set draw data, make FFCs invisible if flickering.
     do
@@ -172,7 +169,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
                     // Array size is 4 + (__GH_AC_MAX_ADDITIONAL_COMBOS + 1) * __GHCD_DATA_SIZE
                     int drawData[34];
                     __SetUpDrawingArray(this, ghost, drawData);
-                    tempGhostData[23]=drawData;
+                    ghostData->drawing = drawData;
                     __HideFFCAndWait(this);
                 }
                 
@@ -182,7 +179,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
                     // 4 + __GHCD_DATA_SIZE
                     int drawData[10];
                     __SetUpDrawingArray(this, ghost, drawData);
-                    tempGhostData[23]=drawData;
+                    ghostData->drawing = drawData;
                     __HideFFCAndWait(this);
                 }
             }
@@ -194,7 +191,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
                     // 4 + __GH_AC_MAX_ADDITIONAL_COMBOS * __GHCD_DATA_SIZE
                     int drawData[28];
                     __SetUpDrawingArray(this, ghost, drawData);
-                    tempGhostData[23]=drawData;
+                    ghostData->drawing = drawData;
                     
                     // Hide the FFC if the enemy is flickering.
                     if(__Ghost_IsFlickering(ghost) &&
@@ -225,29 +222,32 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
             __HideFFCAndWait(this);
         
         // Restore the global variables
-        Ghost_X=tempGhostData[0];
-        Ghost_Y=tempGhostData[1];
-        Ghost_Z=tempGhostData[2];
-        Ghost_Jump=tempGhostData[3];
-        Ghost_Vx=tempGhostData[4];
-        Ghost_Vy=tempGhostData[5];
-        Ghost_Ax=tempGhostData[6];
-        Ghost_Ay=tempGhostData[7];
-        __Ghost_PrevX=tempGhostData[8];
-        __Ghost_PrevY=tempGhostData[9];
-        Ghost_CSet=tempGhostData[10];
-        Ghost_Dir=tempGhostData[11];
-        Ghost_Data=tempGhostData[12];
-        Ghost_TileWidth=tempGhostData[13];
-        Ghost_TileHeight=tempGhostData[14];
-        __Ghost_Flags=tempGhostData[15];
-        __Ghost_Flags2=tempGhostData[16];
-        __Ghost_InternalFlags=tempGhostData[17];
-        __Ghost_FlashCounter=tempGhostData[18];
-        __Ghost_KnockbackCounter=tempGhostData[19];
-        Ghost_HP=tempGhostData[20];
-        __Ghost_XOffsets=tempGhostData[21];
-        __Ghost_YOffsets=tempGhostData[22];
+        if (ghostData)
+        {
+            Ghost_X = ghostData->data[0];
+            Ghost_Y = ghostData->data[1];
+            Ghost_Z = ghostData->data[2];
+            Ghost_Jump = ghostData->data[3];
+            Ghost_Vx = ghostData->data[4];
+            Ghost_Vy = ghostData->data[5];
+            Ghost_Ax = ghostData->data[6];
+            Ghost_Ay = ghostData->data[7];
+            __Ghost_PrevX = ghostData->data[8];
+            __Ghost_PrevY = ghostData->data[9];
+            Ghost_CSet = ghostData->data[10];
+            Ghost_Dir = ghostData->data[11];
+            Ghost_Data = ghostData->data[12];
+            Ghost_TileWidth = ghostData->data[13];
+            Ghost_TileHeight = ghostData->data[14];
+            __Ghost_Flags = ghostData->data[15];
+            __Ghost_Flags2 = ghostData->data[16];
+            __Ghost_InternalFlags = ghostData->data[17];
+            __Ghost_FlashCounter = ghostData->data[18];
+            __Ghost_KnockbackCounter = ghostData->data[19];
+            Ghost_HP = ghostData->data[20];
+            __Ghost_XOffsets = ghostData->data[21];
+            __Ghost_YOffsets = ghostData->data[22];
+        }
         
         if(tempGhostAdditionalCombos[0]>0)
         {
@@ -260,7 +260,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
     } while((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_SUSPEND)!=0);
     
     if(ghost->isValid())
-        ghost->Misc[__GHI_NPC_DATA]=0x10000;
+        resetGhostData(ghost);
 }
 
 // Hides the FFC and waits a frame.

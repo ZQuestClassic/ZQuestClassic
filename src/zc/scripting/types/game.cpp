@@ -39,7 +39,7 @@ int whichlayer(int map, int screen)
 
 void do_getsavename()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	
 	if(ArrayH::setArray(arrayptr, string(game->get_name())) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'Game->GetSaveName' not large enough\n");
@@ -47,7 +47,7 @@ void do_getsavename()
 
 void do_setsavename()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
+	int32_t arrayptr = get_register(sarg1);
 	
 	string str;
 	ArrayH::getString(arrayptr, str);
@@ -68,7 +68,7 @@ void do_setsavename()
 void do_getmessage(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	
 	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
@@ -80,7 +80,7 @@ void do_getmessage(const bool v)
 void do_setmessage(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	
 	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
@@ -93,7 +93,7 @@ void do_setmessage(const bool v)
 void do_getdmapname(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
@@ -105,7 +105,7 @@ void do_getdmapname(const bool v)
 void do_setdmapname(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 
 	string filename_str;
 	
@@ -120,7 +120,7 @@ void do_setdmapname(const bool v)
 void do_getdmaptitle(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
@@ -138,7 +138,7 @@ void do_getdmaptitle(const bool v)
 void do_setdmaptitle(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	string filename_str;
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
@@ -162,7 +162,7 @@ void do_setdmaptitle(const bool v)
 void do_getdmapintro(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
@@ -175,7 +175,7 @@ void do_getdmapintro(const bool v)
 void do_setdmapintro(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg2);
 	string filename_str;
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
@@ -1297,5 +1297,21 @@ static ArrayRegistrar GAMEGRAVITY_registrar(GAMEGRAVITY, []{
 	);
 	impl.setDefaultValue(-10000);
 	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar GAME_SAVED_PORTALS_registrar(GAME_SAVED_PORTALS, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return game->user_portals.size(); },
+		[](int, int index) -> int {
+			return game->user_portals[index].getUID();
+		},
+		[](int, int index, int value){
+			return false;
+		}
+	);
+	impl.setDefaultValue(0);
+	impl.setMul10000(false);
+	impl.setReadOnly();
 	return &impl;
 }());

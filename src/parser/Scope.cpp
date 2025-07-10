@@ -1772,7 +1772,7 @@ void BasicScope::decr_stack_recursive(int32_t offset)
 }
 bool BasicScope::remove(Datum& datum)
 {
-	if (datum.type.canHoldObject())
+	if (datum.type.isObject())
 		return false;
 
 	if (!ZScript::isGlobal(datum))

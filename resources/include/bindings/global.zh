@@ -401,6 +401,7 @@ internal void OwnArray<T>(T[] arr);
 
 // If [arr] is a local array, destroys it immediately. Otherwise does nothing.
 //
+// @deprecated Since 3.0, no longer does anything since all arrays are managed by the garbage collector.
 // @zasm
 //   POP D2
 //   DESTROYARRAYR D2
