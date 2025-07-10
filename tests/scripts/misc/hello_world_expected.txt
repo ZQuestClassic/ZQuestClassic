@@ -27,19 +27,15 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHARGSV 0 0.0003; void run() Body Start
+PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
-STOREV 123 0.0001
-ALLOCATEMEMV D2 17 0
-STORE D2 0
+STOREV 123 0
+ALLOCATEMEMV D2 17 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "hello world: %d\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
-POPARGS D5 0.0003
+POPARGS D5 0.0002
 QUIT; void run() Body End

@@ -181,17 +181,16 @@ void AutoGhost()
 		}
 		else
 		{
-			// Already in use?
-			if ( (enemy->Misc[__GHI_NPC_DATA]&0x10000) )
+			if ( Ghost_IsInUse(enemy) )
 			{
 				continue;
 			}
 			// No combo or script set?
-			if ( !enemy->Attributes[10] )
+			if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO] )
 			{
 				continue;
 			}
-			if ( !enemy->Attributes[11] )
+			if ( !enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT] )
 			{
 				continue;
 			}
@@ -207,14 +206,13 @@ void AutoGhost()
 			__AutoGhostParseName(enemy, data);
 			scriptNum = data[0];
 			combo = data[1];
-			enemy->Misc[__GHI_NPC_DATA] = 1; // Just to make sure it's nonzero
 			//if(scriptNum<=0)
 			//  continue;
 		}
 		else
 		{
-			combo = enemy->Attributes[10];
-			scriptNum = enemy->Attributes[11];
+			combo = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_COMBO];
+			scriptNum = enemy->Attributes[__GH_AUTOGHOST_ATTRIBUTE_SCRIPT];
 			if ( scriptNum == AUTOGHOST_READ_NAME )
 			{
 				int data[2];
@@ -282,11 +280,11 @@ void AutoGhost()
         
 		if ( combo <= 0 )
 		{
-			enemy->Misc[__GHI_NPC_DATA] = GH_INVISIBLE_COMBO;
+			Ghost_SetCombo(enemy, GH_INVISIBLE_COMBO);
 		}
 		else
 		{
-			enemy->Misc[__GHI_NPC_DATA] = combo;
+			Ghost_SetCombo(enemy, combo);
 		}
 	}
 }
@@ -374,7 +372,8 @@ int __AutoGhostParseName(npc enemy, int[] output)
 // Used to silently kill an enemy when it couldn't be set up.
 void __AutoGhostKill(npc enemy)
 {
-    enemy->Misc[__GHI_NPC_DATA]=0x10000;
+	resetGhostData(enemy);
+
     enemy->X=1024;
     enemy->Y=1024;
     enemy->HP=HP_SILENT;

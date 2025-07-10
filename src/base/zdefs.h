@@ -160,12 +160,12 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            53
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        43
+#define V_SAVEGAME        44
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        14
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         27
+#define V_FFSCRIPT         28
 #define V_SFX              8
 #define V_FAVORITES        4
 

@@ -412,7 +412,6 @@ script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
-//ZScript array storage
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
 std::map<int32_t,ZScriptArray> objectRAM;
@@ -438,9 +437,12 @@ void initZScriptArrayRAM(bool firstplay)
 	if (!firstplay)
 		return;
 
-	//leave to global script ~Init to allocate global memory first time round
-	game->globalRAM.clear();
-	game->globalRAM.resize(getNumGlobalArrays());
+	if (!ZScriptVersion::gc_arrays())
+	{
+		//leave to global script ~Init to allocate global memory first time round
+		game->globalRAM.clear();
+		game->globalRAM.resize(getNumGlobalArrays());
+	}
 }
 
 void initZScriptGlobalRAM()
@@ -1860,6 +1862,7 @@ int32_t init_game()
 	FFCore.user_stacks_init();
 	FFCore.user_paldata_init();
 	FFCore.user_websockets_init();
+	FFCore.script_arrays_init();
 	script_init_name_to_slot_index_maps();
 
 	if (testingqst_init_data.size())
@@ -4989,12 +4992,6 @@ reload_for_replay_file:
 		{
 			memset(disabledKeys, 0, sizeof(disabledKeys));
 			memset(disable_control, 0, sizeof(disable_control));
-			FFCore.user_files_init();
-			FFCore.user_dirs_init();
-			FFCore.user_bitmaps_init();
-			FFCore.user_paldata_init();
-			FFCore.user_stacks_init();
-			FFCore.user_objects_init();
 			objectRAM.clear();
 			FFCore.deallocateAllScriptOwned();
 		}

@@ -576,7 +576,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 
 enemy::~enemy()
 {
-	FFCore.deallocateAllScriptOwned(ScriptType::NPC, getUID());
+	FFCore.destroyScriptableObject(ScriptType::NPC, getUID());
 	if(hashero)
 	{
 		Hero.setEaten(0);

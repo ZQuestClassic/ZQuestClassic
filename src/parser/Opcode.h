@@ -16,6 +16,7 @@ namespace ZScript
 	class LiteralArgument;
 	class CompareArgument;
 	class VarArgument;
+	class LiteralVarArgument;
 	class LabelArgument;
 	class GlobalArgument;
 	class StringArgument;
@@ -29,6 +30,7 @@ namespace ZScript
 		virtual void caseString(StringArgument&, void *){}
 		virtual void caseVector(VectorArgument&, void *){}
 		virtual void caseVar(VarArgument&, void *){}
+		virtual void caseLiteralVar(LiteralVarArgument&, void *){}
 		virtual void caseLabel(LabelArgument&, void *){}
 		virtual void caseGlobal(GlobalArgument&, void *){}
 		void execute(std::vector<std::shared_ptr<Opcode>>& vec, void* param)
@@ -174,6 +176,22 @@ namespace ZScript
 		VarArgument* clone() const
 		{
 			return new VarArgument(ID);
+		}
+		int32_t ID;
+	};
+
+	class LiteralVarArgument : public Argument
+	{
+	public:
+		LiteralVarArgument(int32_t id) : ID(id) {}
+		std::string toString() const;
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseLiteralVar(*this,param);
+		}
+		LiteralVarArgument* clone() const
+		{
+			return new LiteralVarArgument(ID);
 		}
 		int32_t ID;
 	};

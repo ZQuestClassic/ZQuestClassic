@@ -233,17 +233,10 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 
 	for (auto decl : var->getDeclarations())
 	{
-		if (parsed_comment.contains_tag("zasm_var") && parsed_comment.contains_tag("zasm_internal_array"))
+		// Internal variables in classes must have a zasm_var.
+		if (user_class && !parsed_comment.contains_tag("zasm_var"))
 		{
-			handleError(CompileError::BadInternal(decl, "Only one of @zasm_var, @zasm_internal_array is allowed"));
-			continue;
-		}
-
-		// Internal variables in classes must have a zasm_var/zasm_internal_array. Currently, global internal variables
-		// may not have one, in which case it defaults to a constant zero.
-		if (user_class && !parsed_comment.contains_tag("zasm_var") && !parsed_comment.contains_tag("zasm_internal_array"))
-		{
-			handleError(CompileError::BadInternal(decl, "Expected one of @zasm_var, @zasm_internal_array"));
+			handleError(CompileError::BadInternal(decl, "Expected @zasm_var"));
 			continue;
 		}
 
@@ -261,17 +254,6 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 				continue;
 			}
 		}
-		else if (auto zasm_internal_arr = parsed_comment.get_tag("zasm_internal_array"))
-		{
-			try {
-				fn_value = std::stoi(*zasm_internal_arr);
-			} catch (std::exception ex) {
-				handleError(CompileError::BadInternal(decl, fmt::format("Invalid internal array: {} (must be an integer)", *zasm_internal_arr)));
-				continue;
-			}
-
-			fn_value = (INTARR_OFFS + fn_value) * 10000;
-		}
 		else
 		{
 			is_constant_zero = true;
@@ -279,40 +261,58 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 		}
 
 		auto& ty = decl->manager->type;
-		bool is_internal_arr = parsed_comment.contains_tag("zasm_internal_array");
 		bool is_arr = ty.isArray();
-		auto var_type = is_internal_arr ? &ty : ty.baseType(*scope, nullptr);
+		auto var_type = ty.baseType(*scope, nullptr);
 		auto deprecated = parsed_comment.get_tag("deprecated");
 
 		// Add a getter.
 		{
+			Function* fn;
+
 			std::vector<const DataType*> params;
 			if (user_class)
 				params.push_back(user_class->getType());
-			if (is_arr && !is_internal_arr)
-				params.push_back(&DataType::FLOAT);
 
-			Function* fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
+			if (is_constant_zero)
+			{
+				fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
+				getConstant(refvar, fn, fn_value);
+			}
+			else if (is_arr)
+			{
+				fn = scope->addGetter(&ty, decl->getName(), params, {}, 0);
+				// `Screen` is special: normal usage doesn't use a ref variable explicity in the generated ZASM,
+				// but when getting a reference to an array must save the current value of REFSCREENDATA. The
+				// alternative is to use `@zasm_ref` on screendata but that's wasteful.
+				getInternalArray(user_class->getName() == "screendata" ? REFSCREENDATA : refvar, fn, fn_value);
+
+				auto params2 = params;
+				params2.push_back(&DataType::FLOAT);
+				Function* fn2 = scope->addFunction(var_type, decl->getName(), params2, {});
+				getIndexedVariable(refvar, fn2, fn_value);
+				if (deprecated)
+				{
+					fn2->setFlag(FUNCFLAG_DEPRECATED);
+					fn2->setInfo(*deprecated);
+				}
+			}
+			else
+			{
+				fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
+				getVariable(refvar, fn, fn_value);
+			}
+
 			if (deprecated)
 			{
 				fn->setFlag(FUNCFLAG_DEPRECATED);
 				fn->setInfo(*deprecated);
 			}
-			if (is_internal_arr)
-				fn->setFlag(FUNCFLAG_INTARRAY);
-
-			if (is_internal_arr || is_constant_zero)
-				getConstant(refvar, fn, fn_value);
-			else if (is_arr)
-				getIndexedVariable(refvar, fn, fn_value);
-			else
-				getVariable(refvar, fn, fn_value);
 		}
 
 		// Add deprecated getters.
 		if (auto deprecated_getter = parsed_comment.get_tag("deprecated_getter"))
 		{
-			if (is_arr || is_internal_arr)
+			if (is_arr)
 			{
 				handleError(CompileError::BadInternal(decl, "@deprecated_getter cannot be used on arrays"));
 				continue;
@@ -330,33 +330,55 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 			getVariable(refvar, fn, fn_value);
 		}
 
-		if (is_internal_arr || is_constant_zero)
+		if (is_constant_zero)
 			continue;
 
 		// Add a setter.
 		{
+			Function* fn;
+
 			std::vector<const DataType*> params;
 			if (user_class)
 				params.push_back(user_class->getType());
-			if (is_arr)
-				params.push_back(&DataType::FLOAT);
 			params.push_back(var_type);
 
-			Function* fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+			if (is_arr)
+			{
+				fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+				fn->setFlag(FUNCFLAG_READ_ONLY);
+
+				std::vector<const DataType*> params2;
+				if (user_class)
+					params2.push_back(user_class->getType());
+				params2.push_back(&DataType::FLOAT);
+				params2.push_back(var_type);
+				Function* fn2 = scope->addFunction(&DataType::ZVOID, decl->getName(), params2, {});
+				setIndexedVariable(refvar, fn2, fn_value);
+				if (deprecated)
+				{
+					fn2->setFlag(FUNCFLAG_DEPRECATED);
+					fn2->setInfo(*deprecated);
+				}
+			}
+			else if (var_type == &DataType::BOOL)
+			{
+				fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+				setBoolVariable(refvar, fn, fn_value);
+			}
+			else
+			{
+				fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+				setVariable(refvar, fn, fn_value);
+			}
+
 			if (deprecated)
 			{
 				fn->setFlag(FUNCFLAG_DEPRECATED);
 				fn->setInfo(*deprecated);
 			}
+
 			if (var->readonly)
 				fn->setFlag(FUNCFLAG_READ_ONLY);
-
-			if (is_arr)
-				setIndexedVariable(refvar, fn, fn_value);
-			else if (params.size() > 1 && params[1] == &DataType::BOOL)
-				setBoolVariable(refvar, fn, fn_value);
-			else
-				setVariable(refvar, fn, fn_value);
 		}
 	}
 }
@@ -716,14 +738,6 @@ void RegistrationVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)
 		handleError(CompileError::GroupAuto(&host));
 		return;
 	}
-	
-	// Check for disallowed global types.
-	if (scope->isGlobal() && !baseType->canBeGlobal())
-	{
-		handleError(CompileError::RefVar(&host, baseType->getName()));
-		doRegister(host);
-		return;
-	}
 
 	// Recurse on list contents.
 	visit_vec(host.getDeclarations());
@@ -742,14 +756,6 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 	if (baseType->isVoid() || baseType->isAuto())
 	{
 		handleError(CompileError::BadVarType(&host, host.asString(), baseType->getName()));
-		doRegister(host);
-		return;
-	}
-
-	// Check for disallowed global types.
-	if (scope->isGlobal() && !baseType->canBeGlobal())
-	{
-		handleError(CompileError::RefVar(&host, baseType->getName()));
 		doRegister(host);
 		return;
 	}
@@ -868,14 +874,6 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 			handleError(CompileError::BadAutoType(&host, type->getName(), "must have an initializer with valid type to mimic."));
 			return;
 		}
-	}
-
-	// Check for disallowed global types.
-	if (scope->isGlobal() && !type->canBeGlobal())
-	{
-		handleError(CompileError::RefVar(
-				            &host, type->getName() + " " + host.getName()));
-		return;
 	}
 
 	// Is it a constant?
@@ -1706,8 +1704,6 @@ void RegistrationVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 
 void RegistrationVisitor::caseStringLiteral(ASTStringLiteral& host, void* param)
 {
-	// Add to scope as a managed literal.
-	Literal::create(*scope, host, *host.getReadType(scope, this), this);
 	doRegister(host);
 }
 

@@ -10,7 +10,6 @@ using std::shared_ptr;
 #define MAXDMAPS         512
 #define MAXLEVELS        512
 
-#define FL_ARR     FUNCFLAG_INTARRAY
 #define FL_INL     FUNCFLAG_INLINE
 #define FL_VARG    FUNCFLAG_VARARGS
 #define FL_DEPR    FUNCFLAG_DEPRECATED

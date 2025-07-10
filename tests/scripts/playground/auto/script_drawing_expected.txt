@@ -28,40 +28,32 @@ zasm:
 
 QUIT; void run() Body
 PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0004
+PUSHARGSV 0 0.0003
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
-STORE D2 0.0003
-LOAD D2 0.0003; InlineFunc[void Game::GetSaveName(char32[])] Params
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
 GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
-ALLOCATEMEMV D2 19 0
-STORE D2 0.0002
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "[Test] Running %s\n"
-LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0002
-DEALLOCATEMEMR D3
-LOAD D2 0.0003; InlineFunc[int Game::GetGenericScript(char32[])] Params
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
 LOAD D2 0.0001; if() #364 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 38 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; if() #364 Body Start
-STORE D2 0
+GOTOCMP 30 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #364 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #364 Body End
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
@@ -82,22 +74,21 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 60 ==; Test 'while'
+GOTOCMP 52 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
-GOTO 52; while() #2 End
-CALLFUNC 0.0237; UsrFunc[void End()] Call AND [Opt:NeverRet]
-LOAD D3 0.0003
-DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
+GOTO 44; while() #2 End
+CALLFUNC 0.0228; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHARGSV 0 0.0003
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0249; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0235; UsrFunc[void Init(int)] Call
 PEEK D4
 PUSHV 0; UsrFunc[void loadRegion(int, int)] Params Start
 PUSHV 4; UsrFunc[void loadRegion(int, int)] Params End
-CALLFUNC 0.0275; UsrFunc[void loadRegion(int, int)] Call
+CALLFUNC 0.0256; UsrFunc[void loadRegion(int, int)] Call
 POP D4
 STOREV 0 0.0002
 STOREV 180 0.0001
@@ -111,7 +102,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 179 ==; Test 'while'
+GOTOCMP 170 ==; Test 'while'
 SETV D2 0.0001; while() #3 Body Start
 PUSHR D2
 POP REFSPRITE
@@ -158,7 +149,7 @@ PUSHV 4
 PUSHV 1
 PUSHV 128
 PUSHARGSV 0 0.0002; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Params End
-CALLFUNC 0.0351; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Call
+CALLFUNC 0.0332; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Params Start
 PUSHR D2
@@ -177,7 +168,7 @@ PUSHV 4
 PUSHV 1
 PUSHV 128
 PUSHARGSV 0 0.0002; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Params End
-CALLFUNC 0.0351; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Call
+CALLFUNC 0.0332; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Params Start
 PUSHR D2
@@ -196,14 +187,14 @@ PUSHV 4
 PUSHV 1
 PUSHV 128
 PUSHARGSV 0 0.0002; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Params End
-CALLFUNC 0.0351; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Call
+CALLFUNC 0.0332; UsrFunc[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void setLayerBlock(int)] Params Start
 PUSHR D2; UsrFunc[void setLayerBlock(int)] Params End
-CALLFUNC 0.0698; UsrFunc[void setLayerBlock(int)] Call
+CALLFUNC 0.0678; UsrFunc[void setLayerBlock(int)] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
-GOTO 76; while() #3 End
+GOTO 67; while() #3 End
 POPARGS D5 0.0004
 QUIT; void run() Body End
 SETR D4 SP2; Func[int Angle(int, int, int, int)] Body Start
@@ -262,43 +253,33 @@ POP D3
 MULTR D2 D3
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[int VectorY(int, int)] Body End
-PUSHV 0; Func[void End()] Body Start
-SETR D4 SP2
-ALLOCATEMEMV D2 13 0
-STORE D2 0
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "[Test] done\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
-PUSHV 0; Func[void Init(int)] Body Start
-SETR D4 SP2
-ALLOCATEMEMV D2 35 0
-STORE D2 0
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGV 5
-LOAD D2 0.0001
+LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
-LOAD D2 0.0001; if() #363 Test
+LOAD D2 0; if() #363 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 273 ==; Test 'if'
+GOTOCMP 254 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #363 Body Start
-LOAD D2 0.0001; InlineFunc[void hero::Warp(int, int)] Params End
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #363 Body End
-POPARGS D5 0.0002
+POP D5
 RETURNFUNC; Func[void Init(int)] Body End
 PUSHARGSV 0 0.0004; Func[void loadRegion(int, int)] Body Start
 SETR D4 SP2
@@ -317,7 +298,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 344 ==; for() #143 TestFail?
+GOTOCMP 325 ==; for() #143 TestFail?
 STOREV 0 0.0001; for() #144 setup AND for() #143 Body Start
 LOAD D2 0.0001; for() #144 LoopTest
 PUSHR D2
@@ -326,7 +307,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 340 ==; for() #144 TestFail?
+GOTOCMP 321 ==; for() #144 TestFail?
 LOAD D2 0.0003; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start AND for() #144 Body Start
 PUSHR D2
 LOAD D2 0.0005
@@ -364,11 +345,11 @@ SETR MAPDATAREGIONID D2; for() #144 Body End
 LOAD D2 0.0001; for() #144 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 294; for() #144 End
+GOTO 275; for() #144 End
 LOAD D2 0.0002; for() #143 Body End AND for() #143 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 285; for() #143 End
+GOTO 266; for() #143 End
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 LOAD D2 0.0005; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -376,60 +357,47 @@ WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body
 POPARGS D5 0.0006
 RETURNFUNC; Func[void loadRegion(int, int)] Body End
-PUSHARGSV 0 0.0004; Func[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Body Start
+PUSHARGSV 0 0.0003; Func[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0004
-REF_INC 0.0004
-LOAD D2 0.0013; InlineFunc[int Distance(int, int, int, int)] Params Start
-PUSHR D2
-LOAD D2 0.0012
+MARK_TYPE_STACK 0.0001 0.0003
+REF_INC 0.0003
+LOAD D2 0.0012; InlineFunc[int Distance(int, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0011
 PUSHR D2
-LOAD D2 0.0010; InlineFunc[int Distance(int, int, int, int)] Params End
+LOAD D2 0.0010
+PUSHR D2
+LOAD D2 0.0009; InlineFunc[int Distance(int, int, int, int)] Params End
 POP D1; InlineFunc[int Distance(int, int, int, int)] Body Start
 POP D0
 POP D6
 SETR D2 DISTANCE; InlineFunc[int Distance(int, int, int, int)] Body End
 PUSHR D4
-LOAD D2 0.0013; UsrFunc[int Angle(int, int, int, int)] Params Start
-PUSHR D2
-LOAD D2 0.0012
+LOAD D2 0.0012; UsrFunc[int Angle(int, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0011
 PUSHR D2
 LOAD D2 0.0010
+PUSHR D2
+LOAD D2 0.0009
 PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
-CALLFUNC 0.0181; UsrFunc[int Angle(int, int, int, int)] Call
+CALLFUNC 0.0172; UsrFunc[int Angle(int, int, int, int)] Call
 POP D4
-STORE D2 0.0003
-LOAD D2 0.0005; if() #422 Test
+STORE D2 0.0002
+LOAD D2 0.0004; if() #422 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 435 ==; Test 'if'
-LOAD D2 0.0013; if() #422 Body Start
+GOTOCMP 416 ==; Test 'if'
+LOAD D2 0.0012; if() #422 Body Start
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0005; UsrFunc[int VectorX(int, int)] Params Start
+LOAD D2 0.0004; UsrFunc[int VectorX(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
-CALLFUNC 0.0217; UsrFunc[int VectorX(int, int)] Call
-POP D4
-POP D3
-ADDR D2 D3
-STORE D2 0.0013
-LOAD D2 0.0012
-PUSHR D2
-PUSHR D4
-LOAD D2 0.0005; UsrFunc[int VectorY(int, int)] Params Start
-PUSHR D2
-LOAD D2 0.0003
-SUBV D2 90
-PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
-CALLFUNC 0.0227; UsrFunc[int VectorY(int, int)] Call
+CALLFUNC 0.0208; UsrFunc[int VectorX(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -437,12 +405,12 @@ STORE D2 0.0012
 LOAD D2 0.0011
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0005; UsrFunc[int VectorX(int, int)] Params Start
+LOAD D2 0.0004; UsrFunc[int VectorY(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
-PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
-CALLFUNC 0.0217; UsrFunc[int VectorX(int, int)] Call
+PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
+CALLFUNC 0.0218; UsrFunc[int VectorY(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -450,55 +418,68 @@ STORE D2 0.0011
 LOAD D2 0.0010
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0005; UsrFunc[int VectorY(int, int)] Params Start
+LOAD D2 0.0004; UsrFunc[int VectorX(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
-PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
-CALLFUNC 0.0227; UsrFunc[int VectorY(int, int)] Call
+PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
+CALLFUNC 0.0208; UsrFunc[int VectorX(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
-STORE D2 0.0010; if() #422 Body End
+STORE D2 0.0010
+LOAD D2 0.0009
+PUSHR D2
+PUSHR D4
+LOAD D2 0.0004; UsrFunc[int VectorY(int, int)] Params Start
+PUSHR D2
+LOAD D2 0.0002
+SUBV D2 90
+PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
+CALLFUNC 0.0218; UsrFunc[int VectorY(int, int)] Call
+POP D4
+POP D3
+ADDR D2 D3
+STORE D2 0.0009; if() #422 Body End
 ALLOCATEMEMV D2 12 0
 PUSHR D2
 WRITEPODARRAY D2 {0,0,0,0,0,0,0,0,0,0,0,0}
 SETR D0 D2
 PUSHR D0
-LOAD D2 0.0013
+LOAD D2 0.0012
 POP D0
 WRITEPODARRAYVR 0 D2
 PUSHR D0
-LOAD D2 0.0012
+LOAD D2 0.0011
 POP D0
 WRITEPODARRAYVR 1 D2
 PUSHR D0
-LOAD D2 0.0011
+LOAD D2 0.0010
 POP D0
 WRITEPODARRAYVR 6 D2
 PUSHR D0
-LOAD D2 0.0010
+LOAD D2 0.0009
 POP D0
 WRITEPODARRAYVR 7 D2
 POP D2
-STORE D2 0.0001
+STORE_OBJECT D2 0.0001
 PUSHR D4
-LOAD D2 0.0013; UsrFunc[int Lerp(int, int, int)] Params Start
+LOAD D2 0.0012; UsrFunc[int Lerp(int, int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0011
+LOAD D2 0.0010
 PUSHR D2
-LOAD D2 0.0009
+LOAD D2 0.0008
 PUSHR D2; UsrFunc[int Lerp(int, int, int)] Params End
-CALLFUNC 0.0200; UsrFunc[int Lerp(int, int, int)] Call
+CALLFUNC 0.0191; UsrFunc[int Lerp(int, int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0008; UsrFunc[int VectorX(int, int)] Params Start
+LOAD D2 0.0007; UsrFunc[int VectorX(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
-CALLFUNC 0.0217; UsrFunc[int VectorX(int, int)] Call
+CALLFUNC 0.0208; UsrFunc[int VectorX(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -508,22 +489,22 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 2 D2
 PUSHR D4
-LOAD D2 0.0012; UsrFunc[int Lerp(int, int, int)] Params Start
-PUSHR D2
-LOAD D2 0.0010
+LOAD D2 0.0011; UsrFunc[int Lerp(int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0009
+PUSHR D2
+LOAD D2 0.0008
 PUSHR D2; UsrFunc[int Lerp(int, int, int)] Params End
-CALLFUNC 0.0200; UsrFunc[int Lerp(int, int, int)] Call
+CALLFUNC 0.0191; UsrFunc[int Lerp(int, int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0008; UsrFunc[int VectorY(int, int)] Params Start
+LOAD D2 0.0007; UsrFunc[int VectorY(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
-CALLFUNC 0.0227; UsrFunc[int VectorY(int, int)] Call
+CALLFUNC 0.0218; UsrFunc[int VectorY(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -533,23 +514,23 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 3 D2
 PUSHR D4
-LOAD D2 0.0013; UsrFunc[int Lerp(int, int, int)] Params Start
+LOAD D2 0.0012; UsrFunc[int Lerp(int, int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0011
+LOAD D2 0.0010
 PUSHR D2
-LOAD D2 0.0009
+LOAD D2 0.0008
 SUBV2 1 D2
 PUSHR D2; UsrFunc[int Lerp(int, int, int)] Params End
-CALLFUNC 0.0200; UsrFunc[int Lerp(int, int, int)] Call
+CALLFUNC 0.0191; UsrFunc[int Lerp(int, int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0008; UsrFunc[int VectorX(int, int)] Params Start
+LOAD D2 0.0007; UsrFunc[int VectorX(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
-CALLFUNC 0.0217; UsrFunc[int VectorX(int, int)] Call
+CALLFUNC 0.0208; UsrFunc[int VectorX(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -559,23 +540,23 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 4 D2
 PUSHR D4
-LOAD D2 0.0012; UsrFunc[int Lerp(int, int, int)] Params Start
-PUSHR D2
-LOAD D2 0.0010
+LOAD D2 0.0011; UsrFunc[int Lerp(int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0009
+PUSHR D2
+LOAD D2 0.0008
 SUBV2 1 D2
 PUSHR D2; UsrFunc[int Lerp(int, int, int)] Params End
-CALLFUNC 0.0200; UsrFunc[int Lerp(int, int, int)] Call
+CALLFUNC 0.0191; UsrFunc[int Lerp(int, int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0008; UsrFunc[int VectorY(int, int)] Params Start
+LOAD D2 0.0007; UsrFunc[int VectorY(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
-CALLFUNC 0.0227; UsrFunc[int VectorY(int, int)] Call
+CALLFUNC 0.0218; UsrFunc[int VectorY(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -585,24 +566,24 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 5 D2
 PUSHR D4
-LOAD D2 0.0013; UsrFunc[int Lerp(int, int, int)] Params Start
+LOAD D2 0.0012; UsrFunc[int Lerp(int, int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0011
+LOAD D2 0.0010
 PUSHR D2
-LOAD D2 0.0009
+LOAD D2 0.0008
 SUBV2 1 D2
 PUSHR D2; UsrFunc[int Lerp(int, int, int)] Params End
-CALLFUNC 0.0200; UsrFunc[int Lerp(int, int, int)] Call
+CALLFUNC 0.0191; UsrFunc[int Lerp(int, int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0008; UsrFunc[int VectorX(int, int)] Params Start
+LOAD D2 0.0007; UsrFunc[int VectorX(int, int)] Params Start
 SUBV2 0 D2
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
-CALLFUNC 0.0217; UsrFunc[int VectorX(int, int)] Call
+CALLFUNC 0.0208; UsrFunc[int VectorX(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -612,24 +593,24 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 8 D2
 PUSHR D4
-LOAD D2 0.0012; UsrFunc[int Lerp(int, int, int)] Params Start
-PUSHR D2
-LOAD D2 0.0010
+LOAD D2 0.0011; UsrFunc[int Lerp(int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0009
+PUSHR D2
+LOAD D2 0.0008
 SUBV2 1 D2
 PUSHR D2; UsrFunc[int Lerp(int, int, int)] Params End
-CALLFUNC 0.0200; UsrFunc[int Lerp(int, int, int)] Call
+CALLFUNC 0.0191; UsrFunc[int Lerp(int, int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0008; UsrFunc[int VectorY(int, int)] Params Start
+LOAD D2 0.0007; UsrFunc[int VectorY(int, int)] Params Start
 SUBV2 0 D2
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
-CALLFUNC 0.0227; UsrFunc[int VectorY(int, int)] Call
+CALLFUNC 0.0218; UsrFunc[int VectorY(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -639,23 +620,23 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 9 D2
 PUSHR D4
-LOAD D2 0.0013; UsrFunc[int Lerp(int, int, int)] Params Start
+LOAD D2 0.0012; UsrFunc[int Lerp(int, int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0011
+LOAD D2 0.0010
 PUSHR D2
-LOAD D2 0.0009
+LOAD D2 0.0008
 PUSHR D2; UsrFunc[int Lerp(int, int, int)] Params End
-CALLFUNC 0.0200; UsrFunc[int Lerp(int, int, int)] Call
+CALLFUNC 0.0191; UsrFunc[int Lerp(int, int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0008; UsrFunc[int VectorX(int, int)] Params Start
+LOAD D2 0.0007; UsrFunc[int VectorX(int, int)] Params Start
 SUBV2 0 D2
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
-CALLFUNC 0.0217; UsrFunc[int VectorX(int, int)] Call
+CALLFUNC 0.0208; UsrFunc[int VectorX(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -665,23 +646,23 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 10 D2
 PUSHR D4
-LOAD D2 0.0012; UsrFunc[int Lerp(int, int, int)] Params Start
-PUSHR D2
-LOAD D2 0.0010
+LOAD D2 0.0011; UsrFunc[int Lerp(int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0009
+PUSHR D2
+LOAD D2 0.0008
 PUSHR D2; UsrFunc[int Lerp(int, int, int)] Params End
-CALLFUNC 0.0200; UsrFunc[int Lerp(int, int, int)] Call
+CALLFUNC 0.0191; UsrFunc[int Lerp(int, int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0008; UsrFunc[int VectorY(int, int)] Params Start
+LOAD D2 0.0007; UsrFunc[int VectorY(int, int)] Params Start
 SUBV2 0 D2
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
-CALLFUNC 0.0227; UsrFunc[int VectorY(int, int)] Call
+CALLFUNC 0.0218; UsrFunc[int VectorY(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -690,38 +671,37 @@ LOAD D2 0.0001
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 11 D2
-LOAD D2 0.0004; if() #97 Test
+LOAD D2 0.0003; if() #97 Test
 COMPAREV D2 0
-GOTOCMP 682 ==; Test 'if'
-LOAD D2 0.0004; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Params Start AND if() #97 Body Start
+GOTOCMP 663 ==; Test 'if'
+LOAD D2 0.0003; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Params Start AND if() #97 Body Start
 PUSHR D2
-LOAD D2 0.0014
+LOAD D2 0.0013
 PUSHR D2
 PUSHV 6
 LOAD D2 0.0001
 PUSHR D2
-LOAD D2 0.0007
-PUSHR D2
 LOAD D2 0.0006
+PUSHR D2
+LOAD D2 0.0005
 PUSHR D2; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Params End
 BMPPOLYGONR; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Body End
-GOTO 693; if() #97 Body End
-LOAD D2 0.0014; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params Start AND if() #97 Else Start
+GOTO 674; if() #97 Body End
+LOAD D2 0.0013; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params Start AND if() #97 Else Start
 PUSHR D2
 PUSHV 6
 LOAD D2 0.0001
 PUSHR D2
-LOAD D2 0.0007
-PUSHR D2
 LOAD D2 0.0006
+PUSHR D2
+LOAD D2 0.0005
 PUSHR D2; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params End
 POLYGONR; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body Start
 POPARGS D5 0.0005; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body End AND if() #97 Else End
-LOAD D3 0.0001
-DEALLOCATEMEMR D3
-REF_REMOVE 0.0004
-POPARGS D5 0.0015
+REF_REMOVE 0.0001
+REF_REMOVE 0.0003
+POPARGS D5 0.0014
 RETURNFUNC; Func[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Body End
 PUSHARGSV 0 0.0004; Func[void setLayerBlock(int)] Body Start
 SETR D4 SP2
@@ -730,7 +710,7 @@ LOAD D2 0.0003; for() #152 LoopTest
 COMPAREV D2 6
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 841 ==; for() #152 TestFail?
+GOTOCMP 821 ==; for() #152 TestFail?
 LOAD D2 0.0003; InlineFunc[mapdata Game::LoadTempScreen(int)] Params AND for() #152 Body Start
 LOADTMPSCR D2; InlineFunc[mapdata Game::LoadTempScreen(int)] Body
 STORE D2 0.0002
@@ -741,9 +721,9 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 719 ==
+GOTOCMP 699 ==
 SETV D2 100
-GOTO 720
+GOTO 700
 SETV D2 0
 STORE D2 0.0001
 STOREV 0 0; for() #153 setup
@@ -751,7 +731,7 @@ LOAD D2 0; for() #153 LoopTest
 COMPAREV D2 20
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 837 ==; for() #153 TestFail?
+GOTOCMP 817 ==; for() #153 TestFail?
 LOAD D2 0.0001; for() #153 Body Start
 PUSHR D2
 LOAD D2 0.0002
@@ -861,10 +841,10 @@ SETR MAPDATACOMBOCD D2; for() #153 Body End
 LOAD D2 0; for() #153 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 722; for() #153 End
+GOTO 702; for() #153 End
 LOAD D2 0.0003; for() #152 Body End AND for() #152 LoopIncrement
 ADDV D2 1
 STORE D2 0.0003
-GOTO 701; for() #152 End
+GOTO 681; for() #152 End
 POPARGS D5 0.0005
 RETURNFUNC; Func[void setLayerBlock(int)] Body End

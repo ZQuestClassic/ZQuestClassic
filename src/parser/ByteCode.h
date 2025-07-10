@@ -23,19 +23,6 @@
 #define SFTEMP                  rSFTEMP
 #define WHAT_NO_7               rWHAT_NO_7
 
-//{ INTERNAL ARRAYS
-
-#define INTARR_OFFS 65536
-#define INTARR_SCREEN_NPC       (65536+0)
-#define INTARR_SCREEN_ITEMSPR   (65536+1)
-#define INTARR_SCREEN_LWPN      (65536+2)
-#define INTARR_SCREEN_EWPN      (65536+3)
-#define INTARR_SCREEN_FFC       (65536+4)
-#define INTARR_SCREEN_PORTALS   (65536+5)
-#define INTARR_SAVPRTL          (65536+6)
-
-//} END INTERNAL ARRAYS
-
 namespace ZScript {
 	class ONoOp : public Opcode
 	{
@@ -54,10 +41,9 @@ namespace ZScript {
 
 	// Please keep grouped by number of arguments, and sorted.
 
-	typedef Opcode0<MAKEVARGARRAY> OMakeVargArray;
 	typedef Opcode0<QUIT> OQuit;
 	typedef Opcode0<RETURNFUNC> OReturnFunc;
-
+	
 	typedef Opcode1<ABS, VarArgument> OAbsRegister;
 	typedef Opcode1<ARRAYSIZE, VarArgument> OArraySize;
 	typedef Opcode1<BITNOT, VarArgument> ONot;
@@ -65,13 +51,13 @@ namespace ZScript {
 	typedef Opcode1<CALLFUNC, LabelArgument> OCallFunc;
 	typedef Opcode1<CASTBOOLF, VarArgument> OCastBoolF;
 	typedef Opcode1<CASTBOOLI, VarArgument> OCastBoolI;
-	typedef Opcode1<DEALLOCATEMEMR, VarArgument> ODeallocateMemRegister;
 	typedef Opcode1<GOTO, LabelArgument> OGotoImmediate;
 	typedef Opcode1<GOTOFALSE, LabelArgument> OGotoFalseImmediate;
 	typedef Opcode1<GOTOLESS, LabelArgument> OGotoLessImmediate;
 	typedef Opcode1<GOTOMORE, LabelArgument> OGotoMoreImmediate;
 	typedef Opcode1<GOTOR, LabelArgument> OGotoRegister;
 	typedef Opcode1<GOTOTRUE, LabelArgument> OGotoTrueImmediate;
+	typedef Opcode1<MAKEVARGARRAY, LiteralArgument> OMakeVargArray;
 	typedef Opcode1<PEEK, VarArgument> OPeek;
 	typedef Opcode1<POP, VarArgument> OPopRegister;
 	typedef Opcode1<PUSHR, VarArgument> OPushRegister;
@@ -101,6 +87,7 @@ namespace ZScript {
 	typedef Opcode2<DIVV, VarArgument, LiteralArgument> ODivImmediate;
 	typedef Opcode2<DIVV2, LiteralArgument, VarArgument> ODivImmediate2;
 	typedef Opcode2<GOTOCMP, LabelArgument, CompareArgument> OGotoCompare;
+	typedef Opcode2<LOAD_INTERNAL_ARRAY, VarArgument, LiteralVarArgument> OLoadInternalArray;
 	typedef Opcode2<LOAD, VarArgument, LiteralArgument> OLoad;
 	typedef Opcode2<LPOWERR, VarArgument, VarArgument> OLPowRegister;
 	typedef Opcode2<LPOWERV, VarArgument, LiteralArgument> OLPowImmediate;
@@ -165,6 +152,7 @@ namespace ZScript {
 
 	typedef Opcode3<ALLOCATEGMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateGlobalMemImmediate;
 	typedef Opcode3<ALLOCATEMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateMemImmediate;
+	typedef Opcode3<LOAD_INTERNAL_ARRAY_REF, VarArgument, LiteralVarArgument, VarArgument> OLoadInternalArrayRef;
 	typedef Opcode3<STACKWRITEATVV_IF, LiteralArgument, LiteralArgument, CompareArgument> OStackWriteAtVV_If;
 }
 

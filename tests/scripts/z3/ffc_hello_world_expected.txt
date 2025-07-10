@@ -31,50 +31,38 @@ SETV GD2 116
 QUIT; void run() Body End
 PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
-PUSHARGSV 0 0.0008
+PUSHARGSV 0 0.0005
 SETR D4 SP2
-ALLOCATEMEMV D2 40 0
-STORE D2 0.0007
+ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "FFC script started, ID: %d x: %d y: %d\n"
-LOAD D2 0.0007; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0008
+LOAD D2 0.0005
 PUSHR D2
 POP REFFFC
 PUSHVARGR FFCID
-LOAD D2 0.0008
+LOAD D2 0.0005
 PUSHR D2
 POP REFSPRITE
 PUSHVARGR SPRITE_X
-LOAD D2 0.0008
+LOAD D2 0.0005
 PUSHR D2
 POP REFSPRITE
 PUSHVARGR SPRITE_Y; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0007
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 9 0
-STORE D2 0.0006
+ALLOCATEMEMV D2 9 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "num: %d\n"
-LOAD D2 0.0006; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0009
+LOAD D2 0.0006
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0006
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 19 0
-STORE D2 0.0005
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "Screen->Index: %d\n"
-LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGR SCREEN_INDEX; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0005
-DEALLOCATEMEMR D3
 STOREV 0 0.0004
 WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #4 Body [Opt:AlwaysOn] Start
 LOAD D2 0.0004; if() #422 Test
@@ -85,35 +73,31 @@ POP D2
 COMPAREV D2 30
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 82 ==; Test 'if'
-ALLOCATEMEMV D2 43 0; if() #422 Body Start
-STORE D2 0.0003
+GOTOCMP 66 ==; Test 'if'
+ALLOCATEMEMV D2 43 0; InlineFunc[void printf(char32[])] Params Start AND if() #422 Body Start
 WRITEPODSTRING D2 "FFC script is running, ID: %d x: %d y: %d\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0008
+LOAD D2 0.0005
 PUSHR D2
 POP REFFFC
 PUSHVARGR FFCID
-LOAD D2 0.0008
+LOAD D2 0.0005
 PUSHR D2
 POP REFSPRITE
 PUSHVARGR SPRITE_X
-LOAD D2 0.0008
+LOAD D2 0.0005
 PUSHR D2
 POP REFSPRITE
 PUSHVARGR SPRITE_Y; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0003
-DEALLOCATEMEMR D3; if() #422 Body End
-LOAD D2 0.0008
+POP D5; InlineFunc[void printf(char32[])] Body End AND if() #422 Body End
+LOAD D2 0.0005
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
 SUBV D2 1
 STORE D2 0.0003
-LOAD D2 0.0008
+LOAD D2 0.0005
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
@@ -126,9 +110,9 @@ ANDV32 D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 104 ==
+GOTOCMP 88 ==
 SETV D2 0.0003
-GOTO 105
+GOTO 89
 SETV D2 0
 PUSHR D2
 POP D2
@@ -157,7 +141,7 @@ PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, i
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #4 Body [Opt:AlwaysOn] End
-GOTO 51; while() #4 End AND [Opt:NeverRet] AND void run(int) Body End
+GOTO 39; while() #4 End AND [Opt:NeverRet] AND void run(int) Body End
 PUSHARGSV 0 0.0006; void run() Body Start
 SETR D4 SP2
 SETV D2 0.0003
@@ -173,7 +157,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 193 ==; for() #150 TestFail?
+GOTOCMP 177 ==; for() #150 TestFail?
 LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #150 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0.0003
@@ -182,7 +166,7 @@ PUSHR D2
 POP REFFFC
 SETR D2 DATA
 COMPAREV D2 0
-GOTOCMP 189 ==; Test 'unless' AND continue 1; AND unless() #420 Body
+GOTOCMP 173 ==; Test 'unless' AND continue 1; AND unless() #420 Body
 STOREV 5 0.0002
 LOAD D2 0.0003
 PUSHR D2
@@ -217,9 +201,9 @@ POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, i
 LOAD D2 0.0004; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 141; for() #150 End
+GOTO 125; for() #150 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 139; while() #2 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 123; while() #2 End AND [Opt:NeverRet] AND void run() Body End
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0 0.0005
 SETR D4 SP2
@@ -236,7 +220,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 252 ==; for() #151 TestFail?
+GOTOCMP 236 ==; for() #151 TestFail?
 LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #151 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0.0003
@@ -245,7 +229,7 @@ PUSHR D2
 POP REFFFC
 SETR D2 DATA
 COMPAREV D2 0
-GOTOCMP 248 ==; Test 'unless' AND continue 1; AND unless() #421 Body
+GOTOCMP 232 ==; Test 'unless' AND continue 1; AND unless() #421 Body
 STOREV 3 0.0002
 LOAD D2 0.0003
 PUSHR D2
@@ -276,6 +260,6 @@ POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, i
 LOAD D2 0.0004; for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 204; for() #151 End
+GOTO 188; for() #151 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3 Body [Opt:AlwaysOn] End
-GOTO 202; while() #3 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 186; while() #3 End AND [Opt:NeverRet] AND void run() Body End

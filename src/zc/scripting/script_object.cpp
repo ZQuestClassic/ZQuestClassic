@@ -1,5 +1,6 @@
 #include "zc/scripting/script_object.h"
 
+#include "base/zc_array.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/types/user_object.h"
 #include "zscriptversion.h"
@@ -69,72 +70,67 @@ void init_script_objects()
 	allocations_since_last_gc = 0;
 	deallocations_since_last_gc = 0;
 
-	// Load globals and set their reference counts.
-	// Only custom user objects can be restored right now, so
-	// any other object type will be set to NULL.
-	game->load_user_objects();
+	game->load_objects(ZScriptVersion::gc_arrays());
+
 	if (!ZScriptVersion::gc())
 		return;
+
+	// Set reference counts.
+
 	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
 	{
 		auto type = game->global_d_types[i];
-		if (type == script_object_type::object && script_objects.contains(game->global_d[i]))
+		if (can_restore_object_type(type) && script_objects.contains(game->global_d[i]))
 			script_object_ref_inc(game->global_d[i]);
 		else if (type != script_object_type::none)
 			game->global_d[i] = 0;
 	}
-	for (auto& aptr : game->globalRAM)
+
+	for (auto& [id, object] : script_objects)
+		object->restore_references();
+
+	if (!ZScriptVersion::gc_arrays())
 	{
-		if (!aptr.HoldsObjects())
-			continue;
-
-		if (aptr.ObjectType() != script_object_type::object)
+		for (auto& aptr : game->globalRAM)
 		{
-			for (int i = 0; i < aptr.Size(); i++)
-				aptr[i] = 0;
-			continue;
-		}
-
-		for (int i = 0; i < aptr.Size(); i++)
-		{
-			if (script_objects.contains(aptr[i]))
-				script_object_ref_inc(aptr[i]);
-			else
-				aptr[i] = 0;
-		}
-	}
-	// This covers any arrays held by saved objects.
-	for (auto& aptr : objectRAM | std::views::values)
-	{
-		if (!aptr.HoldsObjects())
-			continue;
-
-		if (aptr.ObjectType() != script_object_type::object)
-		{
-			for (int i = 0; i < aptr.Size(); i++)
-				aptr[i] = 0;
-			continue;
-		}
-
-		for (int i = 0; i < aptr.Size(); i++)
-		{
-			if (script_objects.contains(aptr[i]))
-				script_object_ref_inc(aptr[i]);
-			else
-				aptr[i] = 0;
-		}
-	}
-	for (auto object : get_user_objects())
-	{
-		for (int i = 0; i < object->owned_vars; i++)
-		{
-			if (!object->isMemberObjectType(i))
+			if (!aptr.HoldsObjects())
 				continue;
-
-			if (object->var_types[i] == script_object_type::object && script_objects.contains(object->data[i]))
-				script_object_ref_inc(object->data[i]);
-			else
-				object->data[i] = 0;
+	
+			if (!can_restore_object_type(aptr.ObjectType()))
+			{
+				for (int i = 0; i < aptr.Size(); i++)
+					aptr[i] = 0;
+				continue;
+			}
+	
+			for (int i = 0; i < aptr.Size(); i++)
+			{
+				if (script_objects.contains(aptr[i]))
+					script_object_ref_inc(aptr[i]);
+				else
+					aptr[i] = 0;
+			}
+		}
+		// This covers any arrays held by saved objects.
+		for (auto& aptr : objectRAM | std::views::values)
+		{
+			if (!aptr.HoldsObjects())
+				continue;
+	
+			if (!can_restore_object_type(aptr.ObjectType()))
+			{
+				for (int i = 0; i < aptr.Size(); i++)
+					aptr[i] = 0;
+				continue;
+			}
+	
+			for (int i = 0; i < aptr.Size(); i++)
+			{
+				if (script_objects.contains(aptr[i]))
+					script_object_ref_inc(aptr[i]);
+				else
+					aptr[i] = 0;
+			}
 		}
 	}
 }
@@ -176,11 +172,11 @@ void script_object_ref_inc(uint32_t id)
 static void script_object_ref_dec(user_abstract_obj* object)
 {
 	assert(object->ref_count > 0);
+	if (object->ref_count == 0) return;
 	object->ref_count--;
 
-	if (auto usr_object = dynamic_cast<user_object*>(object))
-		if (usr_object->isGlobal())
-			return;
+	if (object->global)
+		return;
 
 	if (ZScriptVersion::gc() && object->ref_count == 0)
 		delete_script_object(object->id);
@@ -211,11 +207,16 @@ user_abstract_obj* get_script_object_checked(uint32_t id)
 
 	auto object = get_script_object(id);
 	if (!object)
-		Z_error_fatal("Invalid object pointer used in get_script_object_checked\n");
+		scripting_log_error_with_context("Invalid object pointer used in get_script_object_checked: {}", id);
 	return object;
 }
 
-void delete_script_object(uint32_t id)
+const std::map<uint32_t, std::unique_ptr<user_abstract_obj>>& get_script_objects()
+{
+	return script_objects;
+}
+
+void delete_script_object(uint32_t id, bool remove_refs)
 {
 	auto it = script_objects.find(id);
 	if (it == script_objects.end())
@@ -235,17 +236,29 @@ void delete_script_object(uint32_t id)
 		}
 	}
 
-	if (object->type == script_object_type::object)
-	{
-		auto usr_object = static_cast<user_object*>(object.get());
-		for (int i = 0; i < usr_object->owned_vars; i++)
-		{
-			if (usr_object->isMemberObjectType(i))
-				script_object_ref_dec(usr_object->data[i]);
-		}
-
+	if (auto usr_object = dynamic_cast<user_object*>(object.get()))
 		usr_object->destruct.execute();
-		usr_object->clear_nodestruct();
+
+	if (remove_refs)
+	{
+		std::vector<uint32_t> retained_ids;
+		object->get_retained_ids(retained_ids);
+		for (auto id : retained_ids)
+			script_object_ref_dec(id);
+	}
+
+	if (!ZScriptVersion::gc_arrays())
+	{
+		if (auto usr_object = dynamic_cast<user_object*>(object.get()))
+		{
+			for (int ind = usr_object->owned_vars; ind < usr_object->data.size(); ++ind)
+			{
+				auto arrptr = usr_object->data.at(ind)/10000;
+				auto it = objectRAM.find(-arrptr);
+				if (it != objectRAM.end())
+					objectRAM.erase(it);
+			}
+		}
 	}
 
 	util::remove_if_exists(script_object_ids_by_type[object->type], id);
@@ -290,11 +303,7 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 
 	for (auto& object : all_objects)
 	{
-		if (object->type != script_object_type::object)
-			continue;
-
-		auto usr_object = static_cast<user_object*>(object);
-		if (usr_object->isGlobal())
+		if (object->global)
 			live_object_ids.insert(object->id);
 	}
 	for (auto& aptr : game->globalRAM)
@@ -345,25 +354,10 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		if (!object)
 			continue;
 
-		bool can_hold_objects = false;
-		switch (object->type)
-		{
-			case script_object_type::object:
-			// TODO: handle stacks?
-			// case script_object_type::stack:
-				can_hold_objects = true;
-				break;
-		}
-		if (!can_hold_objects)
-			continue;
-
-		auto usr_object = dynamic_cast<user_object*>(object);
-		assert(usr_object);
-		if (!usr_object)
-			continue;
-
-		worklist.insert(usr_object);
+		worklist.insert(object);
 	}
+
+	std::vector<uint32_t> retained_ids;
 
 	// Find all the reachable objects.
 	while (worklist.size())
@@ -371,42 +365,14 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		auto base_object = *worklist.begin();
 		worklist.erase(worklist.begin());
 
-		// Currently only user objects retain references.
-		if (base_object->type != script_object_type::object)
-			continue;
-
-		auto object = static_cast<user_object*>(base_object);
-		for (int i = 0; i < object->owned_vars; i++)
+		retained_ids.clear();
+		base_object->get_retained_ids(retained_ids);
+		for (auto id : retained_ids)
 		{
-			if (!object->isMemberObjectType(i))
-				continue;
-
-			auto id = object->data[i];
 			if (id && !live_object_ids.contains(id))
 			{
 				live_object_ids.insert(id);
 				worklist.insert(get_script_object(id));
-			}
-		}
-
-		for (int i = object->owned_vars; i < object->data.size(); i++)
-		{
-			auto ptr = object->data[i]/10000;
-			if (ptr == 0)
-				continue;
-
-			auto& aptr = objectRAM.at(-ptr);
-			if (!aptr.HoldsObjects())
-				continue;
-
-			for (int i = 0; i < aptr.Size(); i++)
-			{
-				auto id = aptr[i];
-				if (id && !live_object_ids.contains(id))
-				{
-					live_object_ids.insert(id);
-					worklist.insert(get_script_object(id));
-				}
 			}
 		}
 	}
@@ -435,25 +401,8 @@ void run_gc()
 		if (live_object_ids.contains(object->id))
 			continue;
 
-		// This object is not reachable.
-
-		if (auto usr_object = dynamic_cast<user_object*>(object))
-		{
-			// To avoid problems when `delete_script_object` deletes the object, clear the
-			// members here.
-			// Any references held in members are also not reachable, so this is fine to do
-			// because they will also be deleted by this gc call.
-			for (int i = usr_object->owned_vars; i < usr_object->data.size(); i++)
-			{
-				auto ptr = usr_object->data[i]/10000;
-				void destroy_object_arr(int32_t ptr, bool dec_refs);
-				destroy_object_arr(ptr, false);
-			}
-			usr_object->owned_vars = 0;
-			usr_object->data.clear();
-		}
-
-		delete_script_object(object->id);
+		bool remove_refs = false;
+		delete_script_object(object->id, remove_refs);
 	}
 
 	allocations_since_last_gc = 0;

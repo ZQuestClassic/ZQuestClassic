@@ -592,7 +592,6 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		if (bo.hasError()) failure = true;
 		appendElements(rval->globalsInit, oc.initCode);
 		appendElements(rval->globalsInit, bo.getResult());
-		appendElements(rval->globalsInit, oc.deallocCode);
 	}
 
 	// Pop off everything.
@@ -675,10 +674,16 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				for (auto&& member : user_class.getScope().getClassData())
 				{
 					auto& type = member.second->getNode()->resolveType(scope, nullptr);
-					if (type.canHoldObject())
+					if (type.isObject())
 					{
 						object_indices.push_back(member.second->getIndex());
-						object_indices.push_back((int)type.getScriptObjectTypeId());
+
+						script_object_type object_type;
+						if (type.isArray())
+							object_type = static_cast<const DataTypeArray*>(&type)->getElementType().getScriptObjectTypeId();
+						else
+							object_type = type.getScriptObjectTypeId();
+						object_indices.push_back((int)object_type);
 					}
 				}
 				if (!object_indices.empty())

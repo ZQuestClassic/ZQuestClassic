@@ -29,12 +29,15 @@ zasm:
 MARK_TYPE_REG GD1 0.0001; void run() Body Start
 SETV GD1 0
 ALLOCATEGMEMV D2 6 0
-SETR GD2 D2
+MARK_TYPE_REG GD2 0.0009
+SET_OBJECT GD2 D2
 QUIT; void run() Body End
 PUSHR REFFFC; void run() Body Start
 SETR D4 SP2
-CALLFUNC 0.0513; UsrFunc[void runTestCredits()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0526; UsrFunc[void runTestCredits()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void addHeader(char32[])] Body Start
+MARK_TYPE_STACK 0.0001 0
+REF_INC 0
 PUSHR D4
 LOAD D2 0; UsrFunc[void addLine(char32[], int, int, int, int)] Params Start
 PUSHR D2
@@ -54,35 +57,38 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 2
 PUSHR D2; UsrFunc[void addLine(char32[], int, int, int, int)] Params End
-CALLFUNC 0.0033; UsrFunc[void addLine(char32[], int, int, int, int)] Call
+CALLFUNC 0.0037; UsrFunc[void addLine(char32[], int, int, int, int)] Call
 POP D4
+REF_REMOVE 0
 POP D5
 RETURNFUNC; Func[void addHeader(char32[])] Body End
 PUSHARGSV 0 0.0003; Func[void addLine(char32[], int, int, int, int)] Body Start
 SETR D4 SP2
+MARK_TYPE_STACK 0.0001 0.0007
+REF_INC 0.0007
 STOREV 0 0.0002
 LOAD D2 0.0005; switch() #51 Key
 SETR SWITCHKEY D2; Store key
 COMPAREV SWITCHKEY 0
-GOTOCMP 45 ==; case '0'
+GOTOCMP 51 ==; case '0'
 COMPAREV SWITCHKEY 2
-GOTOCMP 51 ==; case '20000'
+GOTOCMP 57 ==; case '20000'
 COMPAREV SWITCHKEY 1
-GOTOCMP 58 ==; case '10000'
-GOTO 58; switch() #51 NoMatch
+GOTOCMP 64 ==; case '10000'
+GOTO 64; switch() #51 NoMatch
 SETR D2 GD2; Case block
 PUSHR D2
 POP D0
 READPODARRAYV D2 3
 STORE D2 0.0002
-GOTO 60; break 1;
+GOTO 66; break 1;
 SETR D2 GD2; Case block
 PUSHR D2
 POP D0
 READPODARRAYV D2 3
 SUBV2 256 D2
 STORE D2 0.0002
-GOTO 60; break 1;
+GOTO 66; break 1;
 SETV D2 128; Case block
 STORE D2 0.0002
 LOAD D2 0.0006; InlineFunc[int Text::FontHeight(int)] Params
@@ -111,7 +117,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 98 ==; Test 'if'
+GOTOCMP 104 ==; Test 'if'
 PUSHR D4; if() #420 Body Start
 LOAD D2 0; UsrFunc[void resize(int)] Params Start
 PUSHR D2
@@ -119,7 +125,7 @@ POP REFBITMAP
 SETR D2 BITMAPHEIGHT
 ADDV D2 256
 PUSHR D2; UsrFunc[void resize(int)] Params End
-CALLFUNC 0.0165; UsrFunc[void resize(int)] Call
+CALLFUNC 0.0175; UsrFunc[void resize(int)] Call
 POP D4
 SETR D2 GD1
 STORE_OBJECT D2 0; if() #420 Body End
@@ -167,9 +173,12 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2
 REF_REMOVE 0
+REF_REMOVE 0.0007
 POPARGS D5 0.0008
 RETURNFUNC; Func[void addLine(char32[], int, int, int, int)] Body End
 SETR D4 SP2; Func[void addLine(char32[], int)] Body Start
+MARK_TYPE_STACK 0.0001 0.0001
+REF_INC 0.0001
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void addLine(char32[], int, int, int, int)] Params Start
 PUSHR D2
@@ -186,8 +195,9 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 1
 PUSHR D2; UsrFunc[void addLine(char32[], int, int, int, int)] Params End
-CALLFUNC 0.0033; UsrFunc[void addLine(char32[], int, int, int, int)] Call
+CALLFUNC 0.0037; UsrFunc[void addLine(char32[], int, int, int, int)] Call
 POP D4
+REF_REMOVE 0.0001
 POPARGS D5 0.0002
 RETURNFUNC; Func[void addLine(char32[], int)] Body End
 PUSHARGSV 0 0.0002; Func[void resize(int)] Body Start
@@ -202,14 +212,14 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 180 ==; Test 'if'
+GOTOCMP 190 ==; Test 'if'
 REF_REMOVE 0.0001; if() #424 Body Start
-GOTO 219; return (Void) AND if() #424 Body End
+GOTO 229; return (Void) AND if() #424 Body End
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[bitmap create(int, int)] Params End
-CALLFUNC 0.0247; UsrFunc[bitmap create(int, int)] Call
+CALLFUNC 0.0257; UsrFunc[bitmap create(int, int)] Call
 POP D4
 STORE_OBJECT D2 0.0001
 LOAD D2 0.0001; InlineFunc[void bitmap::Clear(int)] Params Start
@@ -255,7 +265,7 @@ POP D2
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 245 ==; Test 'while'
+GOTOCMP 255 ==; Test 'while'
 PUSHV 7; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND while() #2 Body Start
 PUSHV 0
 PUSHV -56
@@ -269,7 +279,7 @@ PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, i
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body End
-GOTO 222; while() #2 End
+GOTO 232; while() #2 End
 POP D5
 RETURNFUNC; Func[void blackDelay(int)] Body End
 SETR D4 SP2; Func[bitmap create(int, int)] Body Start
@@ -340,9 +350,9 @@ LOAD D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 318 ==
+GOTOCMP 328 ==
 LOAD D2 0.0002
-GOTO 319
+GOTO 329
 SETV D2 0
 ADDV D2 224
 STORE D2 0.0001
@@ -350,15 +360,15 @@ LOAD D2 0.0001; if() #422 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 364 !=; Test 'if' AND return (Void) AND if() #422 Body
+GOTOCMP 374 !=; Test 'if' AND return (Void) AND if() #422 Body
 LOAD D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 334 ==
+GOTOCMP 344 ==
 LOAD D2 0.0002
 SUBV2 0 D2
-GOTO 335
+GOTO 345
 SETV D2 0
 SUBV D2 56
 STORE D2 0
@@ -366,7 +376,7 @@ LOAD D2 0.0002; if() #423 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 344 ==; Test 'if'
+GOTOCMP 354 ==; Test 'if'
 SETV D2 0; if() #423 Body Start
 STORE D2 0.0002; if() #423 Body End
 SETR D2 GD1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
@@ -395,7 +405,7 @@ SETR D4 SP2; Func[void init()] Body Start
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 PUSHV 1024; UsrFunc[bitmap create(int, int)] Params End
-CALLFUNC 0.0247; UsrFunc[bitmap create(int, int)] Call
+CALLFUNC 0.0257; UsrFunc[bitmap create(int, int)] Call
 POP D4
 SET_OBJECT GD1 D2
 SETR D2 GD1; InlineFunc[void bitmap::Clear(int)] Params Start
@@ -442,6 +452,8 @@ WRITEPODARRAYVR 5 D2
 RETURNFUNC; Func[void init()] Body End
 PUSHV 0; Func[void output(char32[])] Body Start
 SETR D4 SP2
+MARK_TYPE_STACK 0.0001 0.0001
+REF_INC 0.0001
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 SETR D2 GD2
@@ -449,7 +461,7 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 0
 PUSHR D2; UsrFunc[bitmap create(int, int)] Params End
-CALLFUNC 0.0247; UsrFunc[bitmap create(int, int)] Call
+CALLFUNC 0.0257; UsrFunc[bitmap create(int, int)] Call
 POP D4
 STORE_OBJECT D2 0
 SETR D2 GD1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
@@ -483,6 +495,7 @@ PUSHV 1; InlineFunc[void bitmap::Write(int, char32[], bool)] Params End
 WRITEBITMAP; InlineFunc[void bitmap::Write(int, char32[], bool)] Body Start
 POPARGS D5 0.0004; InlineFunc[void bitmap::Write(int, char32[], bool)] Body End
 REF_REMOVE 0
+REF_REMOVE 0.0001
 POPARGS D5 0.0002
 RETURNFUNC; Func[void output(char32[])] Body End
 PUSHARGSV 0 0.0002; Func[void rollCredits(int)] Body Start
@@ -498,18 +511,18 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 511 ==; for() #150 TestFail?
+GOTOCMP 524 ==; for() #150 TestFail?
 PUSHR D4; for() #150 Body Start
 LOAD D2 0.0001; UsrFunc[void drawCredits(int)] Params Start
 PUSHR D2; UsrFunc[void drawCredits(int)] Params End
-CALLFUNC 0.0297; UsrFunc[void drawCredits(int)] Call
+CALLFUNC 0.0307; UsrFunc[void drawCredits(int)] Call
 POP D4
 STOREV 0 0; for() #151 setup
 LOAD D2 0; for() #151 LoopTest
 COMPAREV D2 18
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 503 ==; for() #151 TestFail?
+GOTOCMP 516 ==; for() #151 TestFail?
 SETV D2 0; for() #151 Body Start
 PUSHR D2
 LOAD D2 0
@@ -527,7 +540,7 @@ SETR BUTTONPRESS D2; for() #151 Body End
 LOAD D2 0; for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 480; for() #151 End
+GOTO 493; for() #151 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #150 Body End
 LOAD D2 0.0001; for() #150 LoopIncrement
 PUSHR D2
@@ -535,108 +548,72 @@ LOAD D2 0.0002
 POP D3
 ADDR D2 D3
 STORE D2 0.0001
-GOTO 463; for() #150 End
+GOTO 476; for() #150 End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void rollCredits(int)] Body End
-PUSHARGSV 0 0.0008; Func[void runTestCredits()] Body Start
+PUSHV 0; Func[void runTestCredits()] Body Start
 SETR D4 SP2
 PUSHR D4
-CALLFUNC 0.0366; UsrFunc[void init()] Call
-POP D4
-ALLOCATEMEMV D2 7 0
-STORE D2 0.0007
+CALLFUNC 0.0376; UsrFunc[void init()] Call
+PEEK D4
+ALLOCATEMEMV D2 7 0; UsrFunc[void addHeader(char32[])] Params Start
 WRITEPODSTRING D2 "Author"
-PUSHR D4
-LOAD D2 0.0007; UsrFunc[void addHeader(char32[])] Params Start
 PUSHR D2; UsrFunc[void addHeader(char32[])] Params End
-CALLFUNC 0.0009; UsrFunc[void addHeader(char32[])] Call
-POP D4
-LOAD D3 0.0007
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 6 0
-STORE D2 0.0006
+CALLFUNC 0.0010; UsrFunc[void addHeader(char32[])] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void addLine(char32[], int)] Params Start
 WRITEPODSTRING D2 "Emily"
-PUSHR D4
-LOAD D2 0.0006; UsrFunc[void addLine(char32[], int)] Params Start
 PUSHR D2
 PUSHV 2; UsrFunc[void addLine(char32[], int)] Params End
-CALLFUNC 0.0144; UsrFunc[void addLine(char32[], int)] Call
-POP D4
-LOAD D3 0.0006
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 9 0
-STORE D2 0.0005
+CALLFUNC 0.0151; UsrFunc[void addLine(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 9 0; UsrFunc[void addHeader(char32[])] Params Start
 WRITEPODSTRING D2 "Graphics"
-PUSHR D4
-LOAD D2 0.0005; UsrFunc[void addHeader(char32[])] Params Start
 PUSHR D2; UsrFunc[void addHeader(char32[])] Params End
-CALLFUNC 0.0009; UsrFunc[void addHeader(char32[])] Call
-POP D4
-LOAD D3 0.0005
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 6 0
-STORE D2 0.0004
+CALLFUNC 0.0010; UsrFunc[void addHeader(char32[])] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void addLine(char32[], int)] Params Start
 WRITEPODSTRING D2 "Emily"
-PUSHR D4
-LOAD D2 0.0004; UsrFunc[void addLine(char32[], int)] Params Start
 PUSHR D2
 PUSHV 2; UsrFunc[void addLine(char32[], int)] Params End
-CALLFUNC 0.0144; UsrFunc[void addLine(char32[], int)] Call
-POP D4
-LOAD D3 0.0004
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 8 0
-STORE D2 0.0003
+CALLFUNC 0.0151; UsrFunc[void addLine(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 8 0; UsrFunc[void addHeader(char32[])] Params Start
 WRITEPODSTRING D2 "Scripts"
-PUSHR D4
-LOAD D2 0.0003; UsrFunc[void addHeader(char32[])] Params Start
 PUSHR D2; UsrFunc[void addHeader(char32[])] Params End
-CALLFUNC 0.0009; UsrFunc[void addHeader(char32[])] Call
-POP D4
-LOAD D3 0.0003
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 6 0
-STORE D2 0.0002
+CALLFUNC 0.0010; UsrFunc[void addHeader(char32[])] Call
+PEEK D4
+ALLOCATEMEMV D2 6 0; UsrFunc[void addLine(char32[], int)] Params Start
 WRITEPODSTRING D2 "Emily"
-PUSHR D4
-LOAD D2 0.0002; UsrFunc[void addLine(char32[], int)] Params Start
 PUSHR D2
 PUSHV 2; UsrFunc[void addLine(char32[], int)] Params End
-CALLFUNC 0.0144; UsrFunc[void addLine(char32[], int)] Call
-POP D4
-LOAD D3 0.0002
-DEALLOCATEMEMR D3
-ALLOCATEMEMV D2 15 0
-STORE D2 0.0001
+CALLFUNC 0.0151; UsrFunc[void addLine(char32[], int)] Call
+PEEK D4
+ALLOCATEMEMV D2 15 0; UsrFunc[void output(char32[])] Params Start
 WRITEPODSTRING D2 "CreditsBMP.png"
-PUSHR D4
-LOAD D2 0.0001; UsrFunc[void output(char32[])] Params Start
 PUSHR D2; UsrFunc[void output(char32[])] Params End
-CALLFUNC 0.0415; UsrFunc[void output(char32[])] Call
-POP D4
-LOAD D3 0.0001
-DEALLOCATEMEMR D3
-PUSHR D4
+CALLFUNC 0.0425; UsrFunc[void output(char32[])] Call
+PEEK D4
 PUSHV 30; UsrFunc[void blackDelay(int)] Params
-CALLFUNC 0.0221; UsrFunc[void blackDelay(int)] Call
+CALLFUNC 0.0231; UsrFunc[void blackDelay(int)] Call
 PEEK D4
 PUSHV 0.5000; UsrFunc[void rollCredits(int)] Params
-CALLFUNC 0.0460; UsrFunc[void rollCredits(int)] Call
+CALLFUNC 0.0473; UsrFunc[void rollCredits(int)] Call
 PEEK D4
 PUSHV 30; UsrFunc[void blackDelay(int)] Params
-CALLFUNC 0.0221; UsrFunc[void blackDelay(int)] Call
+CALLFUNC 0.0231; UsrFunc[void blackDelay(int)] Call
 PEEK D4
-CALLFUNC 0.0257; UsrFunc[void destroy()] Call
+CALLFUNC 0.0267; UsrFunc[void destroy()] Call
 POP D4
 STOREV 0 0; for() #152 setup
 LOAD D2 0; for() #152 LoopTest
 COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 614 ==; for() #152 TestFail?
+GOTOCMP 591 ==; for() #152 TestFail?
 WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #152 Body
 LOAD D2 0; for() #152 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 604; for() #152 End
+GOTO 581; for() #152 End
 QUIT; InlineFunc[void Quit()] Body AND [Opt:NeverRet] AND Func[void runTestCredits()] Body End

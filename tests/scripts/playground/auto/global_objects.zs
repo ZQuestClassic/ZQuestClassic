@@ -17,6 +17,7 @@ Thing globalThing;
 Thing[] globalThings = {NULL};
 Thing thingNotGlobalized;
 Thing[] thingsNotGlobalized = {NULL};
+int[] internalArray;
 
 int untypedThingGlobalized;
 int untypedThingNotGlobalized;
@@ -93,6 +94,15 @@ generic script global_objects
 		Test::Assert(globalThings[0], "globalThings[0]");
 		Test::Assert(thingNotGlobalized, "thingNotGlobalized");
 		Test::Assert(thingsNotGlobalized[0], "thingsNotGlobalized[0]");
+
+		// Internal arrays do not persist to save file.
+		if (firstTime)
+		{
+			internalArray = Screen->D;
+			GlobalObject(internalArray); // shouldn't do anything.
+		}
+		else
+			Test::Assert(!IsValidArray(internalArray));
 
 		if (numTimesLoaded <= 3)
 		{

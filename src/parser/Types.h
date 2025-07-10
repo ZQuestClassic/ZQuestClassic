@@ -225,9 +225,8 @@ namespace ZScript
 			return canCastTo(target, legacy_arrays_opt);
 		};
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const = 0;
-		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return getScriptObjectTypeId() != script_object_type::none;}
-		virtual bool isObject() const {return getScriptObjectTypeId() != script_object_type::none;}
+		bool isObject() const {return getScriptObjectTypeId() != script_object_type::none;}
 		virtual script_object_type getScriptObjectTypeId() const {return script_object_type::none;}
 		virtual DataType const* getConstType() const {return constType;}
 		virtual DataType const* getMutType() const {return this;}
@@ -337,7 +336,6 @@ namespace ZScript
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target, bool allowDeprecatedArrayCast = true) const;
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
-		virtual bool canBeGlobal() const;
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return simpleId == ZTID_UNTYPED;}
 		virtual bool isVoid() const {return simpleId == ZTID_VOID;}
@@ -384,10 +382,8 @@ namespace ZScript
 			return elementType.getName() + "[]";}
 		virtual bool canCastTo(DataType const& target, bool allowDeprecatedArrayCast = true) const;
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
-		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return elementType.canHoldObject();}
-		virtual bool isObject() const {return false;} //arrays themselves are not objects
-		virtual script_object_type getScriptObjectTypeId() const {return elementType.getScriptObjectTypeId();}
+		virtual script_object_type getScriptObjectTypeId() const {return script_object_type::array;}
 		
 		virtual bool isArray() const {return true;}
 		virtual bool isTemplate() const {return elementType.isTemplate();}
@@ -427,7 +423,6 @@ namespace ZScript
 		virtual bool isBitflagsEnum() const;
 		virtual bool isLong() const;
 		virtual bool isUsrClass() const {return user_class != nullptr;}
-		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const;
 		virtual script_object_type getScriptObjectTypeId() const {
 			std::string name = getName();

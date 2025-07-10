@@ -90,7 +90,6 @@ struct gamedata
 	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables
 	int32_t global_d[MAX_SCRIPT_REGISTERS]; // script-controlled global variables
 	script_object_type global_d_types[MAX_SCRIPT_REGISTERS];
-	std::vector<ZScriptArray> globalRAM;
 	
 	word awpn = 255, bwpn = 255, xwpn = 255, ywpn = 255;
 	int16_t abtn_itm = -1, bbtn_itm = -1, xbtn_itm = -1, ybtn_itm = -1;
@@ -115,9 +114,15 @@ struct gamedata
 	bounded_map<word,int32_t> gswitch_timers {NUM_GSWITCHES, 0};
 	bounded_map<word,int16_t> OverrideItems {itype_max, -2};
 
-	std::vector<saved_user_object> user_objects;
+	std::vector<user_object> script_objects;
+	std::vector<script_array> script_arrays;
 	std::vector<savedportal> user_portals;
-	
+
+	// Replaced by script_arrays for newer saves.
+	std::vector<ZScriptArray> globalRAM;
+	// Replaced by script_objects for newer saves.
+	std::vector<saved_user_object> compat_saved_user_objects;
+
 	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0, 0}};
 	
 	size_t scriptDataSize(int32_t indx) const
@@ -137,9 +142,17 @@ struct gamedata
 	void Clear();
 	void Copy(const gamedata& g);
 	void clear_genscript();
-	
+
+	void save_objects(bool gc_array);
+	void load_objects(bool gc_array);
+
+private:
 	void save_user_objects();
+	void save_script_objects();
 	void load_user_objects();
+	void load_script_objects();
+
+public:
 
 	const char *get_qstpath() const;
 	void set_qstpath(std::string qstpath);

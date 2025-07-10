@@ -56,8 +56,6 @@ class websocket {
 	//
 	// Calling this function again will overwrite the contents of this array.
 	//
-	// The array is destroyed automatically when the websocket is freed.
-	//
 	// @zasm
 	//   POP REFWEBSOCKET
 	//   WEBSOCKET_RECEIVE D2

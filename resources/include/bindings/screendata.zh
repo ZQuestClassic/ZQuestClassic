@@ -460,7 +460,6 @@ class screendata {
 	// Editing this modifies the actual [combodata] of the combo.
 	//
 	// @value [enum ComboType]
-
 	// @zasm_var COMBOTD
 	internal int ComboT[];
 
@@ -468,7 +467,6 @@ class screendata {
 	// Editing this modifies the actual [combodata] of the combo.
 	//
 	// @value [enum ComboSolidityBitflags]
-
 	// @zasm_var COMBOSD
 	internal int ComboS[];
 
@@ -480,7 +478,6 @@ class screendata {
 
 	// @index [enum DoorIndex]
 	// @value [enum DoorType]
-
 	// @zasm_var SCRDOORD
 	internal int Door[];
 
@@ -585,7 +582,6 @@ class screendata {
 	// This only refers to the screen denoted by [Index].
 	//
 	// @value [enum RoomType]
-
 	// @zasm_var ROOMTYPE
 	internal int RoomType;
 
@@ -647,7 +643,6 @@ class screendata {
 	//
 	// @index [enum TileWarpIndex]
 	// @value [enum WarpType]
-
 	// @zasm_var SCREENDATATILEWARPTYPE
 	internal int TileWarpType[];
 
@@ -715,7 +710,6 @@ class screendata {
 	// The enemy 'Spawn Pattern'.
 	//
 	// @value [enum EnemyPattern]
-
 	// @zasm_var SCREENDATAPATTERN
 	internal int Pattern;
 
@@ -724,7 +718,6 @@ class screendata {
 	//
 	// @index [enum SideWarpIndex]
 	// @value [enum WarpType]
-
 	// @zasm_var SCREENDATASIDEWARPTYPE
 	internal int SideWarpType[];
 
@@ -797,7 +790,6 @@ class screendata {
 	// Which parts of the screen state that won't reset on reentry.
 	//
 	// @value [enum NoResetBitflags]
-
 	// @zasm_var SCREENDATANORESET
 	internal int NoReset;
 
@@ -805,7 +797,6 @@ class screendata {
 	// target screen.
 	//
 	// @value [enum NoCarryBitflags]
-
 	// @zasm_var SCREENDATANOCARRY
 	internal int NoCarry;
 
@@ -948,40 +939,34 @@ class screendata {
 	// @zasm_var PORTALCOUNT
 	internal const int NumPortals;
 
-	// Internal Array pointers to arrays containing all of each respective type
-	// of object on the screen. These arrays are 0-indexed.
+	// All currently loaded npcs.
 	//
-	// @zasm_internal_array 0
+	// @zasm_var SCREEN_NPCS
 	internal const npc NPCs[];
 
-	// Internal Array pointers to arrays containing all of each respective type
-	// of object on the screen. These arrays are 0-indexed.
+	// All currently loaded items.
 	//
-	// @zasm_internal_array 1
+	// @zasm_var SCREEN_ITEMS
 	internal const itemsprite Items[];
 
-	// Internal Array pointers to arrays containing all of each respective type
-	// of object on the screen. These arrays are 0-indexed.
+	// All currently loaded lweapons.
 	//
-	// @zasm_internal_array 2
+	// @zasm_var SCREEN_LWEAPONS
 	internal const lweapon LWeapons[];
 
-	// Internal Array pointers to arrays containing all of each respective type
-	// of object on the screen. These arrays are 0-indexed.
+	// All currently loaded eweapons.
 	//
-	// @zasm_internal_array 3
+	// @zasm_var SCREEN_EWEAPONS
 	internal const eweapon EWeapons[];
 
-	// Internal Array pointers to arrays containing all of each respective type
-	// of object on the screen. These arrays are 0-indexed.
+	// All currently loaded ffcs.
 	//
-	// @zasm_internal_array 4
+	// @zasm_var SCREEN_FFCS
 	internal const ffc FFCs[];
 
-	// Internal Array pointers to arrays containing all of each respective type
-	// of object on the screen. These arrays are 0-indexed.
+	// All currently loaded portals.
 	//
-	// @zasm_internal_array 5
+	// @zasm_var SCREEN_PORTALS
 	internal const portal Portals[];
 
 	// Arrays of the layers which the lens shows.

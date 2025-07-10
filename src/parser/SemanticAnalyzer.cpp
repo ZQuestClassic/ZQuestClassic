@@ -401,12 +401,6 @@ void SemanticAnalyzer::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
 {
     RecursiveVisitor::caseStmtReturnVal(host);
     if (breakRecursion(host)) return;
-	
-	if(host.value->isTempVal())
-	{
-		handleError(CompileError::BadTempVal(host.value.get()));
-		if (breakRecursion(host)) return;
-	}
 
 	checkCast(*host.value->getReadType(scope, this), *returnType, &host);
 }
@@ -566,13 +560,6 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 			handleError(CompileError::GroupAuto(&host));
 			return;
 		}
-		
-		// Check for disallowed global types.
-		if (scope->isGlobal() && !baseType->canBeGlobal())
-		{
-			handleError(CompileError::RefVar(&host, baseType->getName()));
-			return;
-		}
 	}
 	// Recurse on list contents.
 	visit_vec(host.getDeclarations());
@@ -598,13 +585,6 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 	if (baseType->isVoid() || baseType->isAuto())
 	{
 		handleError(CompileError::BadVarType(&host, host.asString(), baseType->getName()));
-		return;
-	}
-
-	// Check for disallowed global types.
-	if (scope->isGlobal() && !baseType->canBeGlobal())
-	{
-		handleError(CompileError::RefVar(&host, baseType->getName()));
 		return;
 	}
 
@@ -716,14 +696,6 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 				handleError(CompileError::BadAutoType(&host, type->getName(), "must have an initializer with valid type to mimic."));
 				return;
 			}
-		}
-
-		// Check for disallowed global types.
-		if (scope->isGlobal() && !type->canBeGlobal())
-		{
-			handleError(CompileError::RefVar(
-								&host, type->getName() + " " + host.getName()));
-			return;
 		}
 		
 		// Is it a constant?
@@ -1230,12 +1202,6 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 		return;
 	}
 	
-	if(host.right->isTempVal())
-	{
-		handleError(CompileError::BadTempVal(host.right.get()));
-		if (breakRecursion(host)) return;
-	}
-	
 	checkCast(*rtype, *ltype, &host);
 	if (breakRecursion(host)) return;	
 
@@ -1328,13 +1294,21 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
         return;
 	}
 	host.leftClass = leftType->getUsrClass();
-	Function* reader = lookupGetter(host.leftClass->getScope(), host.right->getValue());
-	if(reader && reader->getFlag(FUNCFLAG_INTARRAY))
-		host.arrayFunction = reader;
 	
 	// Find read function.
 	if (!param || param == paramRead || param == paramReadWrite)
 	{
+		Function* reader;
+		if (host.index)
+		{
+			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {leftType, &DataType::FLOAT}, true, true);
+			reader = fns.size() ? fns[0] : nullptr;
+		}
+		else
+		{
+			reader = lookupGetter(host.leftClass->getScope(), host.right->getValue());
+		}
+
 		host.readFunction = reader;
 		if (!host.readFunction)
 		{
@@ -1347,7 +1321,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		}
 		
 		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
-		if (paramTypes.size() != ((host.index && !host.arrayFunction) ? 2 : 1) || !leftType->canCastTo(*paramTypes[0]))
+		if (paramTypes.size() != (host.index ? 2 : 1) || !leftType->canCastTo(*paramTypes[0]))
 		{
 			handleError(
 					CompileError::ArrowNoVar(
@@ -1357,57 +1331,50 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			return;
 		}
 		
-		if(host.arrayFunction)
-			deprecWarn(host.arrayFunction, &host, "IntArray", leftType->getName() + "->" + host.right->getValue());
-		else deprecWarn(host.readFunction, &host, "Variable", leftType->getName() + "->" + host.right->getValue());
+		deprecWarn(host.readFunction, &host, "Variable", leftType->getName() + "->" + host.right->getValue());
 	}
 
 	// Find write function.
 	if (param == paramWrite || param == paramReadWrite)
 	{
-		if(host.arrayFunction)
+		Function* writer;
+		if (host.index)
 		{
-			vector<DataType const*>& paramTypes = host.arrayFunction->paramTypes;
-			if (paramTypes.size() != 1 || !leftType->canCastTo(*paramTypes[0]))
-			{
-				handleError(
-						CompileError::ArrowNoVar(
-								&host,
-								host.right->getValue() + (host.index ? "[]" : ""),
-								leftType->getName().c_str()));
-				return;
-			}
+			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {leftType, &DataType::FLOAT, &DataType::UNTYPED}, true, true);
+			writer = fns.size() ? fns[0] : nullptr;
 		}
 		else
 		{
-			host.writeFunction = lookupSetter(host.leftClass->getScope(), host.right->getValue());
-			if (!host.writeFunction)
-			{
-				handleError(
-						CompileError::ArrowNoVar(
-								&host,
-								host.right->getValue() + (host.index ? "[]" : ""),
-								leftType->getName().c_str()));
-				return;
-			}
-			vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
-			if (paramTypes.size() != (host.index ? 3 : 2) || !leftType->canCastTo(*paramTypes[0]))
-			{
-				handleError(
-						CompileError::ArrowNoVar(
-								&host,
-								host.right->getValue() + (host.index ? "[]" : ""),
-								leftType->getName().c_str()));
-				return;
-			}
-			if(host.writeFunction->getFlag(FUNCFLAG_READ_ONLY))
-				handleError(CompileError::ReadOnly(&host, fmt::format("{}->{}{}",
-					leftType->getName().c_str(), host.right->getValue(), (host.index ? "[]" : ""))));
+			writer = lookupSetter(host.leftClass->getScope(), host.right->getValue());
 		}
-		
-		if(host.arrayFunction)
-			deprecWarn(host.arrayFunction, &host, "Constant", leftType->getName() + "->" + host.right->getValue());
-		else deprecWarn(host.writeFunction, &host, "Variable", leftType->getName() + "->" + host.right->getValue());
+
+		host.writeFunction = writer;
+		if (!host.writeFunction)
+		{
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right->getValue() + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
+			return;
+		}
+
+		vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
+		if (paramTypes.size() != (host.index ? 3 : 2) || !leftType->canCastTo(*paramTypes[0]))
+		{
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right->getValue() + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
+			return;
+		}
+
+		if(host.writeFunction->getFlag(FUNCFLAG_READ_ONLY))
+			handleError(CompileError::ReadOnly(&host, fmt::format("{}->{}{}",
+				leftType->getName().c_str(), host.right->getValue(), (host.index ? "[]" : ""))));
+	
+		deprecWarn(host.writeFunction, &host, "Variable", leftType->getName() + "->" + host.right->getValue());
 	}
 }
 
@@ -1418,13 +1385,11 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	if (host.array->isTypeArrow())
 	{
 		ASTExprArrow* arrow = static_cast<ASTExprArrow*>(host.array.get());
-		if (!arrow->arrayFunction && !arrow->isTypeArrowUsrClass())
+		if (!arrow->isTypeArrowUsrClass())
 		{
 			arrow->index = host.index;
 			visit(host.array.get(), param);
 			did_array = true;
-			if(arrow->arrayFunction)
-				arrow->index = nullptr;
 		}
 	}
 	if(!did_array)
@@ -1990,9 +1955,6 @@ void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
 
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 {
-	if(host.registered()) return; //Skip if already handled
-	// Add to scope as a managed literal.
-	Literal::create(*scope, host, *host.getReadType(scope, this), this);
 }
 
 void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
@@ -2080,18 +2042,10 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		 it != host.elements.end(); ++it)
 	{
 		ASTExpr& element = **it;
-		if(host.declaration && element.isTempVal())
-		{
-			handleError(CompileError::BadTempVal(&element));
-			if (breakRecursion(host)) return;
-		}
 		checkCast(*element.getReadType(scope, this),
 				  host.getReadType(scope, this)->getElementType(), &host);
 		if (breakRecursion(host)) return;
 	}
-	
-	// Add to scope as a managed literal.
-	Literal::create(*scope, host, *host.getReadType(scope, this), this);
 }
 
 void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)

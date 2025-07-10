@@ -1,8 +1,9 @@
 #ifndef ZC_ARRAY_H_
 #define ZC_ARRAY_H_
 
-#include "base/zdefs.h"
 #include "base/general.h"
+#include <cstdint>
+#include <vector>
 
 class ZScriptArray
 {

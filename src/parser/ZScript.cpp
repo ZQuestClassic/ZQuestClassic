@@ -334,24 +334,6 @@ int32_t Datum::getStackOffset(bool i10k) const
 	return (i10k ? 10000 : 1) * *ZScript::getStackOffset(*this);
 }
 
-// ZScript::Literal
-
-Literal* Literal::create(
-		Scope& scope, ASTLiteral& node, DataType const& type,
-		CompileErrorHandler* errorHandler)
-{
-	Literal* literal = new Literal(scope, node, type);
-	if (literal->tryAddToScope(errorHandler)) return literal;
-	delete literal;
-	return NULL;
-}
-
-Literal::Literal(Scope& scope, ASTLiteral& node, DataType const& type)
-	: Datum(scope, type), node(node)
-{
-	node.manager = this;
-}
-
 // ZScript::Variable
 
 Variable* Variable::create(
@@ -415,7 +397,7 @@ UserClassVar* UserClassVar::create(
 	if (ucv->tryAddToScope(errorHandler))
 	{
 		ucv->is_readonly = node.list->readonly;
-		ucv->is_arr = !node.extraArrays.empty();
+		ucv->is_arr = node.resolvedType->isArray();
 
 		if (node.list->internal)
 		{
@@ -428,7 +410,9 @@ UserClassVar* UserClassVar::create(
 		if(ucv->is_arr)
 		{
 			int32_t totalSize = -1;
-			if (std::optional<int32_t> size = node.extraArrays[0]->getCompileTimeSize(errorHandler, &scope))
+			if (node.extraArrays.empty())
+				totalSize = 0;
+			else if (auto size = node.extraArrays[0]->getCompileTimeSize(errorHandler, &scope))
 				totalSize = *size;
 			user_class.members.push_back(totalSize);
 		}

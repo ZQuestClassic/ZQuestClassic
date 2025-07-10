@@ -644,10 +644,11 @@ class Game {
 	// @zasm_var SAVEDPORTALCOUNT
 	internal const int NumSavedPortals;
 
-	// A 0-indexed Internal Array pointer referencing the saved portal objects.
+	// All the saved portal objects.
+	//
 	// Cannot access the Magic Mirror's portal.
 	//
-	// @zasm_internal_array 6
+	// @zasm_var GAME_SAVED_PORTALS
 	internal const savedportal SavedPortals[];
 
 	// The 256 'Trigger Group' values for the current screen.

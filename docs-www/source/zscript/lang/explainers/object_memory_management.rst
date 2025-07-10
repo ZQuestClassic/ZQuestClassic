@@ -1,10 +1,10 @@
+.. _gc:
+
 Object Memory Management
 ========================
 
 .. |GlobalObject| replace:: :ref:`GlobalObject<globals_fun_globalobject>`
 .. |OwnObject| replace:: :ref:`OwnObject<globals_fun_ownobject>`
-
-.. _gc:
 
 .. versionadded:: 3.0
 	\ 
@@ -23,6 +23,7 @@ The following types are objects that are tracked by the garbage collector:
 .. hlist::
 	:columns: 4
 
+	- :ref:`arrays / strings<arrays>`
 	- :ref:`any custom user class<classes>`
 	- :ref:`bitmap<classes_bitmap>`
 	- :ref:`directory<classes_directory>`
@@ -93,6 +94,10 @@ untyped or int arrays do not count).
 
 .. versionchanged:: 3.0
 	Prior to this version, only globalized objects persist to the save file.
+
+.. caution::
+	References to internal arrays (such as :ref:`Screen->D[]<globals_screen_var_d>`) never persist to save files. They will
+	be replaced with null.
 
 .. caution::
 	You should not expect destructors to run at any specific time, or even at all. You should only

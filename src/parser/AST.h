@@ -1268,7 +1268,6 @@ namespace ZScript
 
 		virtual bool isConstant() const = 0;
 		virtual bool isLiteral() const = 0;
-		virtual bool isTempVal() const = 0;
 
 		// Return this expression's value if it has already been resolved at
 		// compile time.
@@ -1302,7 +1301,6 @@ namespace ZScript
 
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
 
 		virtual optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
@@ -1336,7 +1334,6 @@ namespace ZScript
 
 		bool isConstant() const {return root.isConstant();};
 		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
 
 		virtual optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
@@ -1374,7 +1371,6 @@ namespace ZScript
 
 		bool isConstant() const {return right && right->isConstant();}
 		bool isLiteral() const {return right && right->isLiteral();}
-		virtual bool isTempVal() const {return false;}
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
@@ -1403,7 +1399,6 @@ namespace ZScript
 		bool isConstant() const {return constant_;}
 		void markConstant() {constant_ = true;}
 		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
@@ -1442,7 +1437,6 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 		bool isUsrClass() const {return u_datum;}
-		virtual bool isTempVal() const {return false;}
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
@@ -1452,7 +1446,6 @@ namespace ZScript
 		owning_ptr<ASTExpr> index;
 
 		UserClass* leftClass;
-		Function* arrayFunction;
 		Function* readFunction;
 		Function* writeFunction;
 		DataType const* rtype;
@@ -1476,7 +1469,6 @@ namespace ZScript
     
 		bool isConstant() const /*override*/;
 		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
@@ -1495,7 +1487,6 @@ namespace ZScript
 
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
 
 		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
@@ -1520,7 +1511,6 @@ namespace ZScript
 
 		virtual bool isConstant() const {return operand->isConstant();}
 		virtual bool isLiteral() const {return operand->isLiteral();}
-		virtual bool isTempVal() const {return (operand && operand->isTempVal());}
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
@@ -1618,7 +1608,6 @@ namespace ZScript
 
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
@@ -1641,7 +1630,6 @@ namespace ZScript
 
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
@@ -1682,7 +1670,6 @@ namespace ZScript
 
 		bool isConstant() const;
 		bool isLiteral() const {return left && left->isLiteral() && right && right->isLiteral();}
-		virtual bool isTempVal() const {return (left && left->isTempVal()) || (right && right->isTempVal());}
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
@@ -2114,7 +2101,6 @@ namespace ZScript
 
 		bool isConstant() const;
 		bool isLiteral() const {return middle && middle->isLiteral() && right && right->isLiteral();}
-		virtual bool isTempVal() const {return (middle && middle->isTempVal()) || (right && right->isTempVal());}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
@@ -2156,7 +2142,6 @@ namespace ZScript
 
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
-		virtual bool isTempVal() const {return false;}
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
@@ -2191,7 +2176,6 @@ namespace ZScript
 		
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
-		virtual bool isTempVal() const {return false;}
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
@@ -2213,7 +2197,6 @@ namespace ZScript
 		
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
-		virtual bool isTempVal() const {return false;}
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope)
@@ -2245,7 +2228,6 @@ namespace ZScript
 
 		bool isConstant() const /*override*/ {return true;}
 		bool isLiteral() const {return true;}
-		virtual bool isTempVal() const {return !declaration;}
 
 		DataTypeArray const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
 		
@@ -2272,7 +2254,6 @@ namespace ZScript
 
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
-		virtual bool isTempVal() const {return !declaration;}
 
 		DataTypeArray const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return readType_;}
 		void setReadType(DataTypeArray const* type) {readType_ = type;}
@@ -2305,7 +2286,6 @@ namespace ZScript
 		virtual std::string asString() const;
 
 		virtual bool isConstant() const {return true;}
-		virtual bool isTempVal() const {return false;}
 		bool isLiteral() const {return false;} //Not actually a literal, despite being under 'ASTLiteral'
 
 		
@@ -2329,7 +2309,6 @@ namespace ZScript
 		virtual void execute(ASTVisitor& visitor, void* param = NULL);
 		
 		virtual bool isConstant() const {return true;}
-		virtual bool isTempVal() const {return false;}
 		bool isLiteral() const {return false;} //Not actually a literal, despite being under 'ASTLiteral'
 		
 		optional<int32_t> getCompileTimeValue(

@@ -12,7 +12,7 @@
 #include <type_traits>
 #include <utility>
 
-int zasm_array_size(int zasm_var);
+int zasm_array_size(int zasm_var, int ref);
 int zasm_array_get(int zasm_var, int ref, int index);
 bool zasm_array_set(int zasm_var, int ref, int index, int value);
 bool zasm_array_supports(int zasm_var);
@@ -627,7 +627,7 @@ class ScriptingArray_ObjectMemberContainer : public IScriptingArray
 {
 public:
 	using MemberType = field_type<T_MemberPtr>::type;
-	using ElementType = MemberType::obj_type;
+	using ElementType = MemberType::value_type;
 
 	size_t getSize(int ref) const override
 	{

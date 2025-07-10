@@ -290,22 +290,6 @@ namespace ZScript
 	// Return the stack offset of the value.
 	std::optional<int32_t> getStackOffset(Datum const&);
 
-	// A literal value that requires memory management.
-	class Literal : public Datum
-	{
-	public:
-		static Literal* create(
-				Scope&, ASTLiteral&, DataType const&,
-				CompileErrorHandler* = NULL);
-		
-		ASTLiteral* getNode() const {return &node;}
-
-	private:
-		Literal(Scope& scope, ASTLiteral& node, DataType const& type);
-
-		ASTLiteral& node;
-	};
-
 	// A variable.
 	class Variable : public Datum
 	{

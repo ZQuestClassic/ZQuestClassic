@@ -8,7 +8,7 @@
 
 struct user_object;
 
-user_object* create_user_object(uint32_t id);
+void register_existing_user_object(user_object* object);
 std::vector<user_object*> get_user_objects();
 
 void user_object_init();

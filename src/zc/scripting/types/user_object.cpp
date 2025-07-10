@@ -17,13 +17,9 @@ extern string *sargstr;
 
 static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {script_object_type::object, "object"};
 
-user_object* create_user_object(uint32_t id)
+void register_existing_user_object(user_object* object)
 {
-	auto& vec = next_script_object_id_freelist;
-	vec.erase(std::remove(vec.begin(), vec.end(), id), vec.end());
-	auto object = new user_object{};
-	register_script_object(object, script_object_type::object, id);
-	return object;
+	user_objects.register_existing(object);
 }
 
 std::vector<user_object*> get_user_objects()
@@ -36,9 +32,21 @@ std::vector<user_object*> get_user_objects()
 	return result;
 }
 
-static int32_t get_object_arr(size_t sz)
+static uint32_t get_object_arr(size_t sz)
 {
 	if(sz > 214748) return 0;
+
+	if (ZScriptVersion::gc_arrays())
+	{
+		auto array = create_script_array();
+		if (!array)
+			return 0;
+
+		array->arr.Resize(sz);
+		script_object_ref_inc(array->id);
+		return array->id;
+	}
+
 	int32_t free_ptr = 1;
 	auto it = objectRAM.begin();
 	if(it != objectRAM.end())
@@ -57,7 +65,7 @@ static int32_t get_object_arr(size_t sz)
 	arr.setValid(true);
 	objectRAM[free_ptr] = arr;
 	
-	return -free_ptr;
+	return -free_ptr * 10000;
 }
 
 static void do_constructclass(ScriptType type, word script, int32_t i)
@@ -75,6 +83,7 @@ static void do_constructclass(ScriptType type, word script, int32_t i)
 		// doing for compat.
 		if (!ZScriptVersion::gc())
 			own_script_object(obj, type, i);
+
 		obj->owned_vars = num_vars;
 		for(size_t q = 0; q < total_vars; ++q)
 		{
@@ -85,9 +94,7 @@ static void do_constructclass(ScriptType type, word script, int32_t i)
 			else
 			{
 				size_t sz = sargvec->at(q-num_vars+1);
-				if(auto id = get_object_arr(sz))
-					obj->data.push_back(10000*id);
-				else obj->data.push_back(0); //nullptr
+				obj->data.push_back(get_object_arr(sz));
 			}
 		}
 		set_register(sarg1, obj->id);
@@ -187,7 +194,7 @@ std::optional<int32_t> user_object_run_command(word command)
 		{
 			if (auto obj = user_objects.check(get_register(sarg1)))
 			{
-				obj->setGlobal(false);
+				obj->global = false;
 				own_script_object(obj, type, i);
 			}
 			break;
@@ -203,7 +210,7 @@ std::optional<int32_t> user_object_run_command(word command)
 		{
 			if (auto obj = user_objects.check(get_register(sarg1)))
 			{
-				obj->setGlobal(true);
+				obj->global = true;
 				own_script_object(obj, ScriptType::None, 0);
 			}
 			break;
@@ -224,11 +231,22 @@ std::optional<int32_t> user_object_run_command(word command)
 					auto type = (script_object_type)vec[i + 1];
 					if (index >= obj->owned_vars)
 					{
-						int ptr = -obj->data[index] / 10000;
-						if (ptr)
+						if (ZScriptVersion::gc_arrays())
 						{
-							ZScriptArray& a = objectRAM.at(ptr);
-							a.setObjectType(type);
+							int ptr = obj->data[index];
+							if (auto script = checkArray(ptr))
+							{
+								script->arr.setObjectType(type);
+							}
+						}
+						else
+						{
+							int ptr = -obj->data[index] / 10000;
+							if (ptr)
+							{
+								ZScriptArray& a = objectRAM.at(ptr);
+								a.setObjectType(type);
+							}
 						}
 					}
 					else

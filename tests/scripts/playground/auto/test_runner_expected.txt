@@ -28,40 +28,32 @@ zasm:
 
 QUIT; void run() Body
 PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0004
+PUSHARGSV 0 0.0003
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
-STORE D2 0.0003
-LOAD D2 0.0003; InlineFunc[void Game::GetSaveName(char32[])] Params
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
 GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
-ALLOCATEMEMV D2 19 0
-STORE D2 0.0002
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "[Test] Running %s\n"
-LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0003
+LOAD D2 0.0002
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0002
-DEALLOCATEMEMR D3
-LOAD D2 0.0003; InlineFunc[int Game::GetGenericScript(char32[])] Params
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
 LOAD D2 0.0001; if() #9 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 38 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; if() #9 Body Start
-STORE D2 0
+GOTOCMP 30 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #9 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #9 Body End
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
@@ -82,21 +74,15 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 60 ==; Test 'while'
+GOTOCMP 52 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 52; while() #1 End
-CALLFUNC 0.0063; UsrFunc[void End()] Call AND [Opt:NeverRet]
-LOAD D3 0.0003
-DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
-PUSHV 0; Func[void End()] Body Start
-SETR D4 SP2
-ALLOCATEMEMV D2 13 0
-STORE D2 0
+GOTO 44; while() #1 End
+CALLFUNC 0.0054; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "[Test] done\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End

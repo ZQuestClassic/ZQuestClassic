@@ -28,6 +28,13 @@ public:
     {
         return CurrentVersion >= 26;
     }
+
+    // 1. User arrays are managed by the garbage collector (see script_arrays).
+    // 2. Internal arrays can be passed around by reference, and support SizeOfArray, foreach.
+    static inline bool gc_arrays()
+    {
+        return CurrentVersion >= 28;
+    }
     
     static inline int32_t RunScript(ScriptType type, const word script, const int32_t i = 0)
     {

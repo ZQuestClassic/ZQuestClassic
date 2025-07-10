@@ -34,6 +34,8 @@ std::string zasm_arg_to_string(int32_t arg, ARGTY arg_ty)
 		case ARGTY::WRITE_REG:
 		case ARGTY::READWRITE_REG:
 			return zasm_var_to_string(arg);
+		case ARGTY::LITERAL_REG:
+			return "@" + zasm_var_to_string(arg);
 		case ARGTY::LITERAL:
 			return std::to_string(arg);
 		case ARGTY::COMPARE_OP:
@@ -150,12 +152,21 @@ static std::optional<int> parse_zasm_arg(const std::string& text, ARGTY type)
 		case ARGTY::READWRITE_REG:
 		case ARGTY::UNUSED_REG:
 		{
-			int arg = 0;
 			if (auto var = get_script_variable(text))
 				return *var;
 			return std::nullopt;
 		}
 		break;
+
+		case ARGTY::LITERAL_REG:
+		{
+			if (text[0] != '@')
+				return std::nullopt;
+
+			if (auto var = get_script_variable(text.substr(1)))
+				return *var;
+			return std::nullopt;
+		}
 
 		case ARGTY::LITERAL:
 		{

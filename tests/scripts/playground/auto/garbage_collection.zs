@@ -59,6 +59,8 @@ class Empty
 {
 }
 
+int count_self_retaining_rng;
+
 class SelfRetainingRng
 {
 	SelfRetainingRng self;
@@ -66,9 +68,21 @@ class SelfRetainingRng
 
 	SelfRetainingRng(randgen rng)
 	{
-		this->self = self;
+		this->self = this;
 		this->rng = rng;
+		count_self_retaining_rng++;
 	}
+
+	~SelfRetainingRng()
+	{
+		count_self_retaining_rng--;
+	}
+}
+
+class List
+{
+	int items[0];
+	Person owner;
 }
 
 generic script garbage_collection
@@ -87,7 +101,7 @@ generic script garbage_collection
 	void checkCountWithGC(int expected)
 	{
 		if (count != expected)
-			check("count", count, expected);
+			check("count (pre GC)", count, expected);
 		GC();
 		if (count != expected)
 			check("count (post GC)", count, expected);
@@ -192,7 +206,7 @@ generic script garbage_collection
 		// }
 		// checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - randgen === \n", ++tests);
 		{
 			randgen rng = new randgen();
 			yield();
@@ -200,19 +214,21 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - int does not retain randgen === \n", ++tests);
 		{
 			int scratch;
 			{
 				randgen rng = Game->LoadRNG();
-				scratch = <untyped>rng;
 				check("RefCount(rng)", RefCount(rng), 1L);
+				scratch = <untyped>rng;
+				check("RefCount(rng)", RefCount(rng), 1L); // scratch does not retain a reference.
 			}
 			// Now it's been deleted.
-			check("RefCount(scratch)", RefCount(scratch), -1L);
+			int ref = RefCount(scratch);
+			check("RefCount(scratch)", ref, -1L);
 		}
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - int does not retain const randgen === \n", ++tests);
 		{
 			int scratch;
 			{
@@ -221,7 +237,8 @@ generic script garbage_collection
 				check("RefCount(rng)", RefCount(rng), 1L);
 			}
 			// Now it's been deleted.
-			check("RefCount(scratch)", RefCount(scratch), -1L);
+			int ref = RefCount(scratch);
+			check("RefCount(scratch)", ref, -1L);
 		}
 
 		printf("=== Test %d - GC keeps objects in autorelease pool === \n", ++tests);
@@ -229,7 +246,9 @@ generic script garbage_collection
 			new Person();
 			GC();
 			check("count", count, 1);
+			yield();
 		}
+		checkCountWithGC(0);
 
 		printf("=== Test %d === \n", ++tests);
 		{
@@ -486,7 +505,7 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - arrays 1 === \n", ++tests);
 		{
 			Person a = new Person();
 			people[0] = a;
@@ -496,8 +515,10 @@ generic script garbage_collection
 			check("RefCount(a)", RefCount(a), 2L);
 			checkCountWithGC(1);
 		}
+		Trace("(a)");
 		checkCountWithGC(1);
 		people[5] = NULL;
+		Trace("(b)");
 		checkCountWithGC(0);
 
 		printf("=== Test %d === \n", ++tests);
@@ -511,7 +532,7 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - arrays 2 === \n", ++tests);
 		{
 			auto a = new Person();
 			ArrayPushBack(people, a);
@@ -524,27 +545,30 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - arrays 3 === \n", ++tests);
 		{
 			Person b = new Person();
-			yield();
+
 			Person c[] = {b};
-			check("RefCount(b)", RefCount(c[0]), 2L);
+			check("RefCount(c)", RefCount(c), 1L);
+
+			check("RefCount(b)", RefCount(b), 2L);
+			c = NULL;
+			check("RefCount(b)", RefCount(b), 1L);
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - arrays 4 === \n", ++tests);
 		{
 			Person c[] = {new Person()};
-			yield();
-			check("RefCount(b)", RefCount(c[0]), 1L);
+			check("RefCount(c)", RefCount(c), 1L);
+			check("RefCount(c[0])", RefCount(c[0]), 1L);
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - arrays 5 === \n", ++tests);
 		{
 			Person c[] = {new Person()};
-			yield();
 			checkCountWithGC(1);
 			ResizeArray(c, 0);
 			checkCountWithGC(0);
@@ -555,9 +579,13 @@ generic script garbage_collection
 			Person a = new Person();
 			Person b = new Person();
 			a->children[0] = b;
+			b->children[0] = a;
 			check("RefCount(b)", RefCount(b), 2L);
 		}
-		checkCountWithGC(0);
+		// a and b create a cyclical reference that is only broken after a full GC.
+		check("count (pre GC)", count, 2);
+		GC();
+		check("count (post GC)", count, 0);
 
 		printf("=== Test %d === \n", ++tests);
 		{
@@ -669,7 +697,7 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - randgen (many) === \n", ++tests);
 		{
 			// Only 255 randgens are allowed currently. Check that the
 			// GC runs when needed to make room.
@@ -681,28 +709,42 @@ generic script garbage_collection
 
 				auto retainer = new SelfRetainingRng(rng); // Only gets deleted after a full GC.
 				check("RefCount(rng)", RefCount(rng), 2L);
+				// Make sure the retainers are actually alive.
+				// Stop checking b/c eventually they get cleared by the GC.
+				if (i < 100)
+					Test::AssertEqual(count_self_retaining_rng, i + 1);
 			}
 			GC();
+			Test::AssertEqual(count_self_retaining_rng, 0);
 		}
 
-		// TODO: currently arrays aren't ref counted, and array literals are always deleted after their
-		// scope ends.
-		// printf("=== Test %d === \n", ++tests);
-		// {
-		// 	int b[2];
-		// 	{
-		// 		int a[] = {1, 2};
-		// 		b = a;
-		// 		Trace(b[0]);
-		// 		Trace(b[1]);
-		// 		check("RefCount(a)", RefCount(a), 2L); // -1 ...
-		// 	}
-		// 	Trace(b[0]); // -1 ...
-		// 	Trace(b[1]); // -1 ...
-		// }
-		// checkCountWithGC(0);
+		printf("=== Test %d - Arrays and array literals === \n", ++tests);
+		{
+			int b[2];
+			check("RefCount(b)", RefCount(b), 1L);
+			{
+				int a[] = {1, 2};
+				check("RefCount(a)", RefCount(a), 1L);
+				b = a;
+				check("RefCount(a)", RefCount(a), 2L);
+			}
+			Test::AssertEqual(b[0], 1);
+			check("RefCount(b)", RefCount(b), 1L);
+		}
 
-		printf("=== Test %d - internal bitmaps === \n", ++tests);
+		printf("=== Test %d === \n", ++tests);
+		{
+			int[][] b = {{1}, {2}};
+			check("(a) RefCount(b)", RefCount(b), 1L);
+			check("RefCount(b[0])", RefCount(b[0]), 1L);
+			check("(a) RefCount(b[1])", RefCount(b[1]), 1L);
+			int[] c = b[1];
+			check("(b) RefCount(b[1])", RefCount(b[1]), 2L);
+			b[1] = NULL;
+			check("(b) RefCount(b)", RefCount(b), 1L);
+		}
+
+		printf("=== Test %d - bitmaps === \n", ++tests);
 		{
 			// Internal bitmaps aren't real script objects.
 			bitmap internal_bmp_1 = Game->LoadBitmapID(RT_SCREEN);
@@ -716,6 +758,103 @@ generic script garbage_collection
 			check("RefCount(internal_bmp_1)", RefCount(internal_bmp_1), 1L);
 		}
 		checkCountWithGC(0);
+
+		printf("=== Test %d - class member arrays === \n", ++tests);
+		{
+			List list = new List();
+			ArrayPushBack(list->items, 1337);
+			list->owner = new Person();
+
+			check("RefCount(list->items)", RefCount(list->items), 1L);
+
+			auto items = list->items;
+			check("RefCount(items)", RefCount(items), 2L);
+			check("items[0]", items[0], 1337);
+
+			list->items = NULL;
+			check("RefCount(items)", RefCount(items), 1L);
+
+			checkCountWithGC(1);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - return local string === \n", ++tests);
+		{
+			auto s = makeString(5);
+			check("RefCount(s)", RefCount(s), 1L);
+			Test::AssertEqual(strlen(s), 5);
+		}
+
+		printf("=== Test %d - return local array === \n", ++tests);
+		{
+			auto arr = makeArray();
+			check("RefCount(arr)", RefCount(arr), 1L);
+			Test::AssertEqual(SizeOfArray(arr), 3);
+		}
+
+		printf("=== Test %d - string literal === \n", ++tests);
+		{
+			char32[] str = "hi there\n";
+			check("RefCount(str)", RefCount(str), 1L);
+			Trace(str);
+
+			check("RefCount(\"literal\")", RefCount("literal"), 1L);
+		}
+
+		printf("=== Test %d - array literal === \n", ++tests);
+		{
+			Person[] arr = {new Person(), new Person(), new Person()};
+			check("RefCount(arr)", RefCount(arr), 1L);
+			check("RefCount(arr[0])", RefCount(arr[0]), 1L);
+			Test::AssertEqual(SizeOfArray(arr), 3);
+
+			check("RefCount({0, 1, 2})", RefCount({0, 1, 2}), 1L);
+			check("RefCount({NULL})", RefCount({NULL}), 1L);
+			check("RefCount({new Person()})", RefCount({new Person()}), 1L);
+			check("RefCount({new Person()}[0])", RefCount({new Person()}[0]), 1L);
+			checkCountWithGC(5);
+			yield();
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - array of strings === \n", ++tests);
+		{
+			char32[][] arr = {"hi", "there"};
+			check("RefCount(arr)", RefCount(arr), 1L);
+			check("RefCount(arr[0])", RefCount(arr[0]), 1L);
+			Test::AssertEqual(SizeOfArray(arr), 2);
+
+			check("RefCount({0, 1, 2})", RefCount({0, 1, 2}), 1L);
+			check("RefCount({\"hi\", \"there\"})", RefCount({"hi", "there"}), 1L);
+			check("RefCount({\"hi\", \"there\"}[0])", RefCount({"hi", "there"}[0]), 1L);
+			Test::AssertEqual(SizeOfArray({"hi", "there"}[1]), 6);
+		}
+
+		printf("=== Test %d - 2d array of strings === \n", ++tests);
+		{
+			char32[][][] arr = {{"hi", "there"}, {""}};
+			check("RefCount(arr)", RefCount(arr), 1L);
+			check("RefCount(arr[0])", RefCount(arr[0]), 1L);
+			check("RefCount(arr[0][0])", RefCount(arr[0][0]), 1L);
+			Test::AssertEqual(SizeOfArray(arr), 2);
+		}
+
+		// Internal arrays are wrapped in a script array, which is ref-counted.
+		printf("=== Test %d === \n", ++tests);
+		{
+			npc[] b = Screen->NPCs;
+			check("RefCount(b)", RefCount(b), 1L);
+			npc[] c = b;
+			check("RefCount(b)", RefCount(b), 2L);
+			// Same as above.
+			check("RefCount(Screen->NPCs)", RefCount(Screen->NPCs), 2L);
+		}
+
+		printf("=== Test %d - varargs === \n", ++tests);
+		{
+			storeVarargs(1, 2, 3);
+			check("RefCount(storedVarargs)", RefCount(storedVarargs), 1L);
+		}
 
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
@@ -875,4 +1014,24 @@ generic script garbage_collection
 		if (person) return person;
 		else return NULL;
 	}
+
+	void storeVarargs(...int[] varargs)
+	{
+		check("RefCount(varargs)", RefCount(varargs), 1L);
+		storedVarargs = varargs;
+	}
+
+	char32[] makeString(int len)
+	{
+		char32[] s = "";
+		for (int i = 0; i < len; i++) ArrayPushFront(s, '.');
+		return s;
+	}
+
+	int[] makeArray()
+	{
+		return {1, 2, 3};
+	}
 }
+
+int[] storedVarargs = NULL;

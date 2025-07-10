@@ -512,6 +512,14 @@ bool handle_arg(ARGTY ty, char const* buf, int& arg)
 				return false;
 			return true;
 		}
+		case ARGTY::LITERAL_REG:
+		{
+			if (*buf != '@')
+				return false;
+			if(!set_argument(++buf, arg))
+				return false;
+			return true;
+		}
 		case ARGTY::LITERAL:
 		{
 			if(!ffcheck(buf))

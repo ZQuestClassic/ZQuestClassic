@@ -5,8 +5,11 @@ ffc script TestArrays
 		int v1[] = {1,2,3};
 		int v2[] = {4,5,6};
 		int v3[] = {7,8,9};
-		int[] vs[] = {v1,v2,v3}; //!TODO This should be able to take literals, if arrays become gc-managed
+		int[] vs[] = {v1,v2,v3};
 		print(vs);
+
+		int[] vs2[] = {{1,2,3},{4,5,6},{7,8,9}};
+		print(vs2);
 
 		int buf[0];
 		for(arr : vs)
@@ -17,7 +20,7 @@ ffc script TestArrays
 			append(buf,q);
 		print(buf);
 
-		int[] v4 = {10,11,12}; //!TODO This should be able to take literals, if arrays become gc-managed
+		int[] v4 = {10,11,12};
 		append(vs,v4);
 		print(vs);
 

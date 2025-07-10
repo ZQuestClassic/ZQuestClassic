@@ -1013,6 +1013,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		{
 			game.header.replay_file = "";
 		}
+
 		if(section_version >= 30)
 		{
 			uint32_t sz;
@@ -1108,7 +1109,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				}
 
 				if (reserved)
-					game.user_objects.emplace_back(s_ob);
+					game.compat_saved_user_objects.emplace_back(s_ob);
 			}
 		}
 		if(section_version >= 32)
@@ -1175,6 +1176,97 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				return 117;
 			if(!p_getc(&game.swim_div,f))
 				return 118;
+		}
+		if(section_version > 43)
+		{
+			if(!p_igetl(&tempdword, f))
+				return 119;
+
+			game.script_arrays.resize(tempdword);
+
+			for(dword j = 0; j < game.script_arrays.size(); j++)
+			{
+				auto& array = game.script_arrays[j];
+				auto& a = array.arr;
+
+				if(!p_igetl(&array.id, f))
+					return 54;
+
+				if(!p_getc(&tempbyte,f))
+					return 85;
+
+				array.global = tempbyte!=0;
+
+				//We get the size of each container
+				if(!p_igetl(&tempdword, f))
+					return 54;
+
+				word type;
+				if(!p_igetw(&type, f))
+					return 119;
+				a.setObjectType((script_object_type)type);
+
+				//We allocate the container
+				a.Resize(tempdword);
+				a.setValid(true); //should always be valid
+
+				//And then fill in the contents
+				for(dword k = 0; k < a.Size(); k++)
+					if(!p_igetl(&(a[k]), f))
+						return 55;
+			}
+
+			if(!p_igetl(&tempdword, f))
+				return 120;
+
+			game.script_objects.resize(tempdword);
+
+			for(dword j = 0; j < game.script_objects.size(); j++)
+			{
+				auto& obj = game.script_objects[j];
+				if(!p_igetl(&obj.id,f))
+					return 84;
+
+				if(!p_getc(&tempbyte,f))
+					return 85;
+
+				obj.global = tempbyte!=0;
+
+				uint32_t datsz;
+				if(!p_igetl(&datsz,f))
+					return 86;
+
+				for(uint32_t q = 0; q < datsz; ++q)
+				{
+					if(!p_igetl(&templong,f))
+						return 87;
+					obj.data.push_back(templong);
+				}
+				if(!p_igetl(&obj.owned_vars,f))
+					return 88;
+				if (section_version >= 41)
+				{
+					std::vector<word> types;
+					if (!p_getwvec(&types, f))
+						return 119;
+					for (auto type : types)
+						obj.var_types.push_back((script_object_type)type);
+				}
+				//scr_func_exec
+				scr_func_exec& exec = obj.destruct;
+				if(!p_igetl(&exec.pc,f))
+					return 89;
+				if(!p_igetl(&exec.thiskey,f))
+					return 90;
+				if(!p_igetl(&exec.type,f))
+					return 91;
+				if(!p_igetl(&exec.i,f))
+					return 92;
+				if(!p_igetw(&exec.script,f))
+					return 93;
+				if(!p_getwstr(&exec.name,f))
+					return 94;
+			}
 		}
 	}
 	
@@ -1323,6 +1415,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_iputw(game.bwpn, f))
 		return 50;
 	
+	// For quests compiled with GC arrays (3.0+), this will be 0.
 	//First we put the size of the vector
 	if(!p_iputl(game.globalRAM.size(), f))
 		return 51;
@@ -1403,10 +1496,13 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 79;
 	if (!p_putwstr(game.header.replay_file, f))
 		return 81;
-	uint32_t sz = game.user_objects.size();
+
+	// For quests compiled with GC arrays (3.0+), this will be 0.
+	uint32_t sz = game.compat_saved_user_objects.size();
 	if(!p_iputl(sz,f))
 		return 83;
-	for(saved_user_object const& s_ob : game.user_objects)
+
+	for(saved_user_object const& s_ob : game.compat_saved_user_objects)
 	{
 		if(!p_iputl(s_ob.obj.id,f))
 			return 84;
@@ -1502,6 +1598,78 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 112;
 	if(!p_putc(game.swim_div,f))
 		return 113;
+
+	if(!p_iputl(game.script_arrays.size(), f))
+		return 114;
+
+	for(dword j = 0; j < game.script_arrays.size(); j++)
+	{
+		auto& array = game.script_arrays[j];
+		auto& a = array.arr;
+
+		if(!p_iputl(array.id, f))
+			return 115;
+		if(!p_putc(array.global ? 1 : 0, f))
+			return 85;
+
+		if(!p_putc(array.internal_id.has_value() ? 1 : 0, f))
+			return 85;
+
+		//Then we put the size of each container
+		if(!p_iputl(a.Size(), f))
+			return 116;
+
+		if(!p_iputw((word)a.ObjectType(), f))
+			return 117;
+			
+		//Followed by its contents
+		for(dword k = 0; k < a.Size(); k++)
+			if(!p_iputl(a[k], f))
+				return 118;
+	}
+
+	if(!p_iputl(game.script_objects.size(), f))
+		return 114;
+
+	for (auto const& obj : game.script_objects)
+	{
+		if(!p_iputl(obj.id,f))
+			return 84;
+		if(!p_putc(obj.global ? 1 : 0, f))
+			return 85;
+
+		uint32_t datsz = obj.data.size();
+		if(!p_iputl(datsz,f))
+			return 86;
+		for(uint32_t q = 0; q < datsz; ++q)
+			if(!p_iputl(obj.data.at(q),f))
+				return 87;
+
+		if(!p_iputl(obj.owned_vars,f))
+			return 88;
+
+		std::vector<word> types;
+		for (auto type : obj.var_types)
+			types.push_back((word)type);
+		if (!p_putwvec(types, f))
+			return 87;
+
+		//scr_func_exec
+		scr_func_exec const& exec = obj.destruct;
+		if(!p_iputl(exec.pc,f))
+			return 89;
+		if(!p_iputl(exec.thiskey,f))
+			return 90;
+		if(!p_iputl((int)exec.type,f))
+			return 91;
+		if(!p_iputl(exec.i,f))
+			return 92;
+		if(!p_iputw(exec.script,f))
+			return 93;
+		if(!p_putwstr(exec.name,f))
+			return 94;
+	}
+
 	return 0;
 }
 
@@ -1612,7 +1780,7 @@ static bool load_from_save_file(ReadMode read_mode, fs::path filename, std::vect
 		ret = read_saves(read_mode, pf, out_saves, &count);
 		if (ret)
 		{
-			error = "failed reading";
+			error = fmt::format("failed reading (code {})", ret);
 			goto cantopen;
 		}
 
@@ -2671,7 +2839,7 @@ bool saves_test()
 	SAVE_TEST_VECTOR_2D(xdoors);
 	SAVE_TEST_VECTOR(gen_eventstate);
 	SAVE_TEST_VECTOR(gswitch_timers);
-	SAVE_TEST_VECTOR_NOFMT(user_objects);
+	SAVE_TEST_VECTOR_NOFMT(compat_saved_user_objects);
 	SAVE_TEST_VECTOR_NOFMT(user_portals);
 	SAVE_TEST_VECTOR(OverrideItems);
 

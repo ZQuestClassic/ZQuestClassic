@@ -67,5 +67,7 @@ generic script varargs
 		Test::AssertEqual(Max(1, 2, 3), 3);
 		Test::AssertEqual(Max(5, 1, 2, 3), 5);
 		Test::AssertEqual(Max(5, 1, Min(100, 99), 3), 99);
+
+		Test::End();
 	}
 }

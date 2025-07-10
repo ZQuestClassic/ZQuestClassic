@@ -38,9 +38,7 @@ void test()
 	untyped foo = arr;
 	foo = arr2;
 	foo = enemies;
-
-	//!TODO
-	arr2[1] = {2,3,4}; //!TODO should be valid, if arrays become gc-managed
+	arr2[1] = {2,3,4};
 }
 
 void arraycat<T>(T[] dest, T[] vals)

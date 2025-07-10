@@ -33,6 +33,7 @@
 #include "zc/render.h"
 #include "dialog/info.h"
 #include "zinfo.h"
+#include "zscriptversion.h"
 #include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
@@ -1663,7 +1664,7 @@ void game_over(int32_t type)
 			// reset palette before drawing the file select.
 			doClearTint();
 			
-			game->save_user_objects();
+			game->save_objects(ZScriptVersion::gc_arrays());
 			saves_write();
 			replay_step_comment("save game");
 		}
@@ -1688,7 +1689,7 @@ void save_game(bool savepoint)
 		lastentrance = game->get_continue_scrn();
 	}
 	
-	game->save_user_objects();
+	game->save_objects(ZScriptVersion::gc_arrays());
 	
 	flushItemCache();
 	
@@ -1815,7 +1816,7 @@ bool save_game(bool savepoint, int32_t type)
 					lastentrance = game->get_continue_scrn();
 				}
 				
-				game->save_user_objects();
+				game->save_objects(ZScriptVersion::gc_arrays());
 				saves_write();
 				if (replay_get_mode() == ReplayMode::Record) replay_save();
 				didsaved=true;

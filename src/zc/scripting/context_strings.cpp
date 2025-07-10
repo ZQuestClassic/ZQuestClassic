@@ -84,6 +84,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case GAMENUMPSUB: return "Game->NumPassiveSubscreens";
 		case SAVEDPORTALCOUNT: return "Game->NumSavedPortals";
 		case GAMEOVERRIDEITEMS: return "Game->OverrideItems[]";
+		case GAME_SAVED_PORTALS: return "Game->SavedPortals[]";
 		case GAMESCROLLING: return "Game->Scrolling[]";
 		case SKIPCREDITS: return "Game->SkipCredits";
 		case SKIPF6: return "Game->SkipF6";
@@ -265,12 +266,14 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SCREEN_DRAW_ORIGIN: return "Screen->DrawOrigin";
 		case SCREEN_DRAW_ORIGIN_TARGET: return "Screen->DrawOriginTarget";
 		case SCREENEFLAGSD: return "Screen->EFlags[]";
+		case SCREEN_EWEAPONS: return "Screen->EWeapons[]";
 		case SCREENDATAENEMYFLAGS: return "Screen->EnemyFlags";
 		case SCREENDATAENEMY: return "Screen->Enemy[]";
 		case SCREENDATAENTRYX: return "Screen->EntryX";
 		case SCREENDATAENTRYY: return "Screen->EntryY";
 		case SCREENEXSTATED: return "Screen->ExState[]";
 		case SCREENDATAEXITDIR: return "Screen->ExitDir";
+		case SCREEN_FFCS: return "Screen->FFCs[]";
 		case SCREEN_FLAG: return "Screen->Flag[]";
 		case SCREENFLAGSD: return "Screen->Flags[]";
 		case SCREENDATAEXDOOR: return "Screen->GetExDoor()";
@@ -284,6 +287,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SCREENDATAHOLDUPSFX: return "Screen->ItemSFX";
 		case SCREENDATAITEMX: return "Screen->ItemX";
 		case SCREENDATAITEMY: return "Screen->ItemY";
+		case SCREEN_ITEMS: return "Screen->Items[]";
+		case SCREEN_LWEAPONS: return "Screen->LWeapons[]";
 		case SCREENDATALAYERINVIS: return "Screen->LayerInvisible[]";
 		case SCREENDATALAYERMAP: return "Screen->LayerMap[]";
 		case SCREENDATALAYEROPACITY: return "Screen->LayerOpacity[]";
@@ -299,6 +304,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case PUSHBLOCKLAYER: return "Screen->MovingBlockLayer";
 		case PUSHBLOCKX: return "Screen->MovingBlockX";
 		case PUSHBLOCKY: return "Screen->MovingBlockY";
+		case SCREEN_NPCS: return "Screen->NPCs[]";
 		case SCREENDATANEXTMAP: return "Screen->NextMap";
 		case SCREENDATANEXTSCREEN: return "Screen->NextScreen";
 		case SCREENDATANOCARRY: return "Screen->NoCarry";
@@ -310,6 +316,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case PORTALCOUNT: return "Screen->NumPortals";
 		case SCREENDATACOLOUR: return "Screen->Palette";
 		case SCREENDATAPATTERN: return "Screen->Pattern";
+		case SCREEN_PORTALS: return "Screen->Portals[]";
 		case QUAKE: return "Screen->Quake";
 		case ROOMDATA: return "Screen->RoomData";
 		case ROOMTYPE: return "Screen->RoomType";

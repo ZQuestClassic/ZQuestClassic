@@ -86,6 +86,10 @@ See :ref:`string literals<string_literals>`, :ref:`array literals<array_literals
 Difference between String/Array 'Literals' and 'Initializers'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. versionchanged:: 3.0
+	Since 3.0, arrays/strings are managed by :ref:`the garbage collector<gc>`, and so do
+	not have these restrictions for array literals - if an array literal is stored somewhere, it won't be deleted.
+
 There is a distinction between an array with an *initializer* (which looks and acts effectively
 identical to a string literal), and a loose string/array literal that is not an initializer.
 Notably, a loose literal creates a **temporary** array, which will stop existing almost

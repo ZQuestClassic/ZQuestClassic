@@ -6171,9 +6171,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	hero_screen = screen;
 
 	cpos_clear_all();
-	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Screen);
-	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Combo);
-	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
+	FFCore.destroyScriptableObjectsOfType(ScriptType::Screen);
 	FFCore.clear_combo_scripts();
 
 	if (is_in_scrolling_region())
@@ -6220,8 +6218,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 
 	for (int index : loadscr_ffc_script_ids_to_remove)
 	{
-		FFCore.deallocateAllScriptOwned(ScriptType::FFC, index);
-		FFCore.reset_script_engine_data(ScriptType::FFC, index);
+		FFCore.destroyScriptableObject(ScriptType::FFC, index);
 	}
 
 	// "extended height mode" includes the top 56 pixels as part of the visible mapscr viewport,

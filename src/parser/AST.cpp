@@ -1789,7 +1789,7 @@ DataType const* ASTExprIdentifier::getWriteType(Scope* scope, CompileErrorHandle
 ASTExprArrow::ASTExprArrow(ASTExpr* left, ASTString* right,
 						   LocationData const& location)
 	: ASTExpr(location), left(left), right(right), index(NULL),
-	  leftClass(NULL), arrayFunction(NULL), readFunction(NULL), writeFunction(NULL),
+	  leftClass(NULL), readFunction(NULL), writeFunction(NULL),
 	  rtype(NULL), wtype(NULL), u_datum(NULL), iscall(false)
 {}
 
@@ -1817,14 +1817,12 @@ bool ASTExprArrow::isTypeArrowNonUsrClass() const
 DataType const* ASTExprArrow::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	if(rtype) return rtype;
-	if(arrayFunction) return arrayFunction->returnType;
 	return readFunction ? readFunction->returnType : NULL;
 }
 
 DataType const* ASTExprArrow::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	if(wtype) return wtype;
-	if(arrayFunction) return arrayFunction->returnType;
 	return writeFunction ? writeFunction->paramTypes.back() : NULL;
 }
 
