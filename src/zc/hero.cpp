@@ -11821,7 +11821,6 @@ bool HeroClass::startwpn(int32_t itemid)
 				else
 				{
 					SAMPLE* sample = sfx_get_sample(itm.usesound);
-					ASSERT(sample);
 					if (sample && sample->freq)
 						frames_to_wait = 60 * sample->len / sample->freq;
 				}
