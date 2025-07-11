@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-07-07 03:59:51</td>
+      <td>2025-07-11 05:52:07</td>
     </tr>
   </table>
 </div>
@@ -73,10 +73,10 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l78">ffc_handle_t::operator bool() const (line 78)</a></td><td>called 2253 times, returned 2253 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l49">rpos_handle_t::data() const (line 49)</a></td><td>called 30460343296 times, returned 30460343296 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l79">ffc_handle_t::operator bool() const (line 79)</a></td><td>called 2253 times, returned 2253 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l50">rpos_handle_t::data() const (line 50)</a></td><td>called 30127494510 times, returned 30127494510 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l38">rpos_handle_t::operator bool() const (line 38)</a></td><td>called 119063744 times, returned 119063744 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l28">rpos_handle_t::rpos_handle_t() (line 28)</a></td><td>called 27950497 times, returned 27950497 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l28">rpos_handle_t::rpos_handle_t() (line 28)</a></td><td>called 27667071 times, returned 27667071 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -284,7 +284,7 @@
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">27950497</td>
+      <td class="linecount coveredLine">27667071</td>
       <td class="src coveredLine"><span class="k">struct</span><span class="w"> </span><span class="nc">rpos_handle_t</span></td>
     </tr>
     <tr class="source-line">
@@ -326,7 +326,7 @@
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">27950497</td>
+      <td class="linecount coveredLine">27667071</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">rpos_t</span><span class="w"> </span><span class="n">rpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rpos_t</span><span class="o">::</span><span class="n">None</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -425,472 +425,521 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">center_xy</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">30460343296</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ZC_FORCE_INLINE</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">30127494510</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ZC_FORCE_INLINE</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l51" href="#l51">51</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l51" href="#l51">51</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">30460343296</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">[</span><span class="n">pos</span><span class="p">];</span></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+      <td class="linecount coveredLine">30127494510</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">[</span><span class="n">pos</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">set_data</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">modify_data</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">delta</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">set_data</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">increment_data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">modify_data</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">delta</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">decrement_data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">increment_data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l58" href="#l58">58</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">decrement_data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l59" href="#l59">59</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cset</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l60" href="#l60">60</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_cset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cset</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_cset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l62" href="#l62">62</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">sflag</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l63" href="#l63">63</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_sflag</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">sflag</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l64" href="#l64">64</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_sflag</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l65" href="#l65">65</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">cflag</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l66" href="#l66">66</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">ctype</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">cflag</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l67" href="#l67">67</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">ctype</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l68" href="#l68">68</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l69" href="#l69">69</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">ffc_handle_t</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l70" href="#l70">70</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">ffc_handle_t</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l71" href="#l71">71</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">;</span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l72" href="#l72">72</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">screen</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l73" href="#l73">73</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ffc_id_t</span><span class="w"> </span><span class="n">id</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">screen</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l74" href="#l74">74</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// The index into mapscr.ffcs</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ffc_id_t</span><span class="w"> </span><span class="n">id</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l75" href="#l75">75</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">i</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// The index into mapscr.ffcs</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l76" href="#l76">76</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ffcdata</span><span class="o">*</span><span class="w"> </span><span class="n">ffc</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">i</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l77" href="#l77">77</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">ffcdata</span><span class="o">*</span><span class="w"> </span><span class="n">ffc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l78" href="#l78">78</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l79" href="#l79">79</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2253</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">operator</span><span class="w"> </span><span class="nf">bool</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l79" href="#l79">79</a></td>
+      <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l80" href="#l80">80</a></td>
+      <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2253</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">scr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l81" href="#l81">81</a></td>
+      <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l82" href="#l82">82</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l83" href="#l83">83</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">newcombo</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">combo</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l84" href="#l84">84</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">cpos_info</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">info</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">newcombo</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">combo</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l85" href="#l85">85</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">xy</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">cpos_info</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">info</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l86" href="#l86">86</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">xy</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l87" href="#l87">87</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">center_xy</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l88" href="#l88">88</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_data</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l89" href="#l89">89</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">modify_data</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">delta</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">increment_data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_data</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">decrement_data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">modify_data</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">delta</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l92" href="#l92">92</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">increment_data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l93" href="#l93">93</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cset</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">decrement_data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l94" href="#l94">94</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_cset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cset</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l95" href="#l95">95</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cset</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l96" href="#l96">96</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">cflag</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_cset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cset</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l97" href="#l97">97</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">ctype</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l98" href="#l98">98</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">cflag</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l99" href="#l99">99</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">ctype</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l100" href="#l100">100</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// TODO: this may be a tad overengineered for its current usecases. Consider replacing</span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l101" href="#l101">101</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// with something simpler if later no use cases really take advantage of it.</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l102" href="#l102">102</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">combined_handle_t</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">rpos_handle_t</span><span class="p">,</span><span class="w"> </span><span class="n">ffc_handle_t</span><span class="o">&gt;</span></td>
+      <td class="src "><span class="c1">// TODO: this may be a tad overengineered for its current usecases. Consider replacing</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l103" href="#l103">103</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "><span class="c1">// with something simpler if later no use cases really take advantage of it.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l104" href="#l104">104</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">rpos_handle_t</span><span class="p">,</span><span class="w"> </span><span class="n">ffc_handle_t</span><span class="o">&gt;::</span><span class="n">variant</span><span class="p">;</span></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">combined_handle_t</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">rpos_handle_t</span><span class="p">,</span><span class="w"> </span><span class="n">ffc_handle_t</span><span class="o">&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l105" href="#l105">105</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l106" href="#l106">106</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_rpos</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">using</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">rpos_handle_t</span><span class="p">,</span><span class="w"> </span><span class="n">ffc_handle_t</span><span class="o">&gt;::</span><span class="n">variant</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l107" href="#l107">107</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_ffc</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l108" href="#l108">108</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="nf">base_scr</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_rpos</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l109" href="#l109">109</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">newcombo</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">combo</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_ffc</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l110" href="#l110">110</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="nf">data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">rpos_handle_t</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">get_rpos</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l111" href="#l111">111</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="nf">id</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ffc_handle_t</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">get_ffc</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l112" href="#l112">112</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l113" href="#l113">113</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="nf">base_scr</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l114" href="#l114">114</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">	</span><span class="k">const</span><span class="w"> </span><span class="n">newcombo</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">combo</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l115" href="#l115">115</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="nf">data</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l116" href="#l116">116</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="nf">id</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l117" href="#l117">117</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">xy</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l118" href="#l118">118</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">center_xy</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l119" href="#l119">119</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l120" href="#l120">120</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l121" href="#l121">121</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l122" href="#l122">122</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

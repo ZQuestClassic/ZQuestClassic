@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-07-07 03:59:51</td>
+      <td>2025-07-11 05:52:07</td>
     </tr>
   </table>
 </div>
@@ -257,7 +257,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">enum</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">REFR_INFO</span><span class="p">,</span><span class="w"> </span><span class="n">OK</span><span class="p">,</span><span class="w"> </span><span class="n">CANCEL</span><span class="p">,</span><span class="w"> </span><span class="n">CLEAR</span><span class="p">,</span><span class="w"> </span><span class="n">WARNINGS</span><span class="w"> </span><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="k">enum</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">REFR_INFO</span><span class="p">,</span><span class="w"> </span><span class="n">OK</span><span class="p">,</span><span class="w"> </span><span class="n">CANCEL</span><span class="p">,</span><span class="w"> </span><span class="n">CLEAR</span><span class="p">,</span><span class="w"> </span><span class="n">WARNINGS</span><span class="p">,</span><span class="w"> </span><span class="n">PLUSTRIGGER</span><span class="p">,</span><span class="w"> </span><span class="n">MINUSTRIGGER</span><span class="w"> </span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
@@ -306,98 +306,98 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">combo_trigger</span><span class="o">&amp;</span><span class="w"> </span><span class="n">dest_ref</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">newcombo</span><span class="o">&amp;</span><span class="w"> </span><span class="n">parent_comboref</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">newcombo</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">parent_comboref</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l35" href="#l35">35</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ComboEditorDialog</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">parent</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ComboEditorDialog</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">parent</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">warnings</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">warnings</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l38" href="#l38">38</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Window</span><span class="o">&gt;</span><span class="w"> </span><span class="n">window</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Window</span><span class="o">&gt;</span><span class="w"> </span><span class="n">window</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Label</span><span class="o">&gt;</span><span class="w"> </span><span class="n">l_minmax_trig</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Label</span><span class="o">&gt;</span><span class="w"> </span><span class="n">l_minmax_trig</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">TextField</span><span class="o">&gt;</span><span class="w"> </span><span class="n">req_litems_field</span><span class="p">,</span><span class="w"> </span><span class="n">trig_buttons_field</span><span class="p">,</span><span class="w"> </span><span class="n">spawned_ip_field</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l41" href="#l41">41</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">TextField</span><span class="o">&gt;</span><span class="w"> </span><span class="n">req_litems_field</span><span class="p">,</span><span class="w"> </span><span class="n">trig_buttons_field</span><span class="p">,</span><span class="w"> </span><span class="n">spawned_ip_field</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Button</span><span class="o">&gt;</span><span class="w"> </span><span class="n">warnbtn</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Button</span><span class="o">&gt;</span><span class="w"> </span><span class="n">warnbtn</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ComboTriggerDialog</span><span class="p">(</span><span class="n">ComboEditorDialog</span><span class="o">&amp;</span><span class="w"> </span><span class="n">parentdlg</span><span class="p">,</span><span class="w"> </span><span class="n">combo_trigger</span><span class="o">&amp;</span><span class="w"> </span><span class="n">trigger</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l44" href="#l44">44</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ComboTriggerDialog</span><span class="p">(</span><span class="n">ComboEditorDialog</span><span class="o">&amp;</span><span class="w"> </span><span class="n">parentdlg</span><span class="p">,</span><span class="w"> </span><span class="n">combo_trigger</span><span class="o">&amp;</span><span class="w"> </span><span class="n">trigger</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l45" href="#l45">45</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">updateWarnings</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">updateWarnings</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">apply_trigger</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
