@@ -440,13 +440,10 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	for ( int32_t q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
 	
 	script = d->script;
-	weaponscript = d->weaponscript;
 	
 	for ( int32_t q = 0; q < 8; q++ ) 
 	{
 		initD[q] = d->initD[q];
-		//Z_scripterrlog("(enemy::enemy(zfix)): Loading weapon InitD[%d] to an enemy with a value of (%d)\n",q,d->weap_initiald[q]);
-		weap_initiald[q] = d->weap_initiald[q];
 	}
 	
 	stickclk = 0;
@@ -551,27 +548,9 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	}
 
 	shieldCanBlock = get_qr(qr_GOHMA_UNDAMAGED_BUG)?true:false;
-
-	if (((d->weapoverrideFLAGS & OVERRIDE_TILE_WIDTH) != 0) && d->weap_tilew > 0) { weap_tilew = d->weap_tilew; if (weap_tilew > 1) extend = 3; }
-	if (((d->weapoverrideFLAGS & OVERRIDE_TILE_HEIGHT) != 0) && d->weap_tileh > 0) { weap_tileh = d->weap_tileh; if (weap_tileh > 1) extend = 3; }
-	if (((d->weapoverrideFLAGS & OVERRIDE_HIT_WIDTH) != 0) && d->weap_hxsz >= 0) weap_hxsz = d->weap_hxsz;
-	if (((d->weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT) != 0) && d->weap_hysz >= 0) weap_hysz = d->weap_hysz;
-	if (((d->weapoverrideFLAGS & OVERRIDE_HIT_Z_HEIGHT) != 0) && d->weap_hzsz >= 0) weap_hzsz = d->weap_hzsz;
-	if ((d->weapoverrideFLAGS & OVERRIDE_HIT_X_OFFSET) != 0) weap_hxofs = d->weap_hxofs;
-	if ((d->weapoverrideFLAGS & OVERRIDE_HIT_Y_OFFSET) != 0) weap_hyofs = d->weap_hyofs;
-	if ((d->weapoverrideFLAGS & OVERRIDE_DRAW_X_OFFSET) != 0) weap_xofs = (int32_t)d->weap_xofs;
-	if ((d->weapoverrideFLAGS & OVERRIDE_DRAW_Y_OFFSET) != 0)
-	{
-		weap_yofs = (int32_t)d->weap_yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		weap_yofs += (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset); //this offset fixes yofs not plaing properly. -Z
-	}
-	weapoverrideFLAGS = d->weapoverrideFLAGS;
-	wunblockable = d->wunblockable;
-	wmoveflags = d->wmoveflags;
-	wstep = zslongToFix(d->wstep*100);
-	memcpy(burnsprs, d->burnsprs, sizeof(d->burnsprs));
-	memcpy(light_rads, d->light_rads, sizeof(d->light_rads));
+	
 	specialsfx = d->specialsfx;
+	weap_data = d->weap_data;
 }
 
 enemy::~enemy()
@@ -1767,16 +1746,16 @@ void enemy::FireBreath(bool seekhero)
 	if (SIZEflags & OVERRIDE_HIT_WIDTH)
 	{
 		xoff += hxofs;
-		if (weapoverrideFLAGS & OVERRIDE_HIT_WIDTH)
-			xoff += (hit_width / 2) - (weap_tilew * 8);
+		if (weap_data.override_flags & OVERRIDE_HIT_WIDTH)
+			xoff += (hit_width / 2) - (weap_data.tilew * 8);
 		else
 			xoff += (hit_width / 2) - 8;
 	}
 	if (SIZEflags & OVERRIDE_HIT_HEIGHT)
 	{
 		yoff += hyofs;
-		if (weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT)
-			yoff += (hit_height / 2) - (weap_tileh * 8);
+		if (weap_data.override_flags & OVERRIDE_HIT_HEIGHT)
+			yoff += (hit_height / 2) - (weap_data.tileh * 8);
 		else
 			yoff += (hit_height / 2) - 8;
 	}
@@ -1876,16 +1855,16 @@ void enemy::FireWeapon()
 	if (SIZEflags & OVERRIDE_HIT_WIDTH)
 	{
 		xoff += hxofs;
-		if (weapoverrideFLAGS & OVERRIDE_HIT_WIDTH)
-			xoff += (hit_width / 2) - (weap_tilew * 8);
+		if (weap_data.override_flags & OVERRIDE_HIT_WIDTH)
+			xoff += (hit_width / 2) - (weap_data.tilew * 8);
 		else
 			xoff += (hit_width / 2) - 8;
 	}
 	if (SIZEflags & OVERRIDE_HIT_HEIGHT)
 	{
 		yoff += hyofs;
-		if (weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT)
-			yoff += (hit_height / 2) - (weap_tileh * 8);
+		if (weap_data.override_flags & OVERRIDE_HIT_HEIGHT)
+			yoff += (hit_height / 2) - (weap_data.tileh * 8);
 		else
 			yoff += (hit_height / 2) - 8;
 	}
@@ -16012,16 +15991,16 @@ void ePatra::FirePatraWeapon()
 	if (SIZEflags & OVERRIDE_HIT_WIDTH)
 	{
 		xoff += hxofs;
-		if (weapoverrideFLAGS & OVERRIDE_HIT_WIDTH)
-			xoff += (hit_width / 2) - (weap_tilew * 8);
+		if (weap_data.override_flags & OVERRIDE_HIT_WIDTH)
+			xoff += (hit_width / 2) - (weap_data.tilew * 8);
 		else
 			xoff += (hit_width / 2) - 8;
 	}
 	if (SIZEflags & OVERRIDE_HIT_HEIGHT)
 	{
 		yoff += hyofs;
-		if (weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT)
-			yoff += (hit_height / 2) - (weap_tileh * 8);
+		if (weap_data.override_flags & OVERRIDE_HIT_HEIGHT)
+			yoff += (hit_height / 2) - (weap_data.tileh * 8);
 		else
 			yoff += (hit_height / 2) - 8;
 	}

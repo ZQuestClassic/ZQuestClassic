@@ -145,6 +145,53 @@ private:
 	}
 };
 
+template<typename T>
+class default_optional
+{
+public:
+	typedef T value_type;
+	typedef default_optional<value_type> bound_t;
+	
+	default_optional(value_type const& dv) : default_val(&dv) {}
+	~default_optional() = default;
+	
+	value_type& get() {return val ? *val : *(val = *default_val);}
+	value_type const& get() const {return val ? *val : *default_val;}
+	value_type& operator*() {return get();}
+	value_type const& operator*() const {return get();}
+	value_type* operator->() {return &get();}
+	value_type const* operator->() const {return &get();}
+	void reset() {val.reset();}
+	void normalize();
+	
+	bool empty() const {return !val;}
+	bool blank() const {return empty() || (*val == *default_val);}
+	
+	default_optional(bound_t const& other)
+	{
+		*this = other;
+	}
+	bound_t& operator=(bound_t const& other)
+	{
+		val = other.val;
+		this->default_val = other.default_val;
+		normalize();
+		return *this;
+	}
+	template<typename V> // could be value_type, nullopt_t
+	bound_t& operator=(V const& v)
+	{
+		val = v;
+		normalize();
+		return *this;
+	}
+	
+	value_type const& defval() const {return *default_val;}
+protected:
+	value_type const* default_val;
+	std::optional<value_type> val;
+};
+
 template<typename Sz,typename T>
 class bounded_container
 {
@@ -527,6 +574,11 @@ void _do_normalize(bounded_vec<Sz,T>& v)
 {
 	v.normalize();
 }
+template<typename T>
+void _do_normalize(default_optional<T>& v)
+{
+	v.normalize();
+}
 template<typename Sz,typename T>
 void _do_normalize(bounded_map<Sz,T>& v)
 {
@@ -534,29 +586,39 @@ void _do_normalize(bounded_map<Sz,T>& v)
 }
 
 
+template<typename T>
+void default_optional<T>::normalize()
+{
+	if(val)
+	{
+		_do_normalize(*val);
+		if(*val == *default_val)
+			val = nullopt;
+	}
+}
 template<typename Sz,typename T>
 void bounded_vec<Sz,T>::normalize()
 {
 	if(cont.size() > this->true_sz)
 		cont.resize(this->true_sz);
-	while(cont.size() && cont.back() == this->default_val)
-		cont.pop_back();
 	
 	for(auto& v : cont)
 		_do_normalize(v);
+	while(cont.size() && cont.back() == this->default_val)
+		cont.pop_back();
 }
 template<typename Sz,typename T>
 void bounded_map<Sz,T>::normalize()
 {
+	for(auto& [k,v] : cont)
+		_do_normalize(v);
+	
 	for(auto it = cont.begin(); it != cont.end();)
 	{
 		if(it->second == this->default_val || unsigned(it->first) >= this->true_sz)
 			it = cont.erase(it);
 		else ++it;
 	}
-	
-	for(auto& [k,v] : cont)
-		_do_normalize(v);
 }
 #endif
 

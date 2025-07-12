@@ -99,9 +99,7 @@ public:
     int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
     dword scriptflag;
     word script;
-    word weaponscript;
     int32_t initD[8];
-    int32_t weap_initd[8];
     int32_t scripttile;
     signed char scriptflip;
     bool do_animation;

@@ -1174,8 +1174,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 	}
 	if(pasteflags.get(ITM_ADVP_WEAPONDATA))
 	{
-		useweapon = other.useweapon;
-		usedefense = other.usedefense;
+		weap_data = other.weap_data;
 		weaprange = other.weaprange;
 		weapduration = other.weapduration;
 		for(int q = 0; q < ITEM_MOVEMENT_PATTERNS; ++q)
@@ -1204,11 +1203,12 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		wpn8 = other.wpn8;
 		wpn9 = other.wpn9;
 		wpn10 = other.wpn10;
-		CPYFLAG(flags, item_burning_sprites, other.flags);
+		CPYFLAG(weap_data.wflags, WFLAG_UPDATE_IGNITE_SPRITE, other.weap_data.wflags);
+		CPYFLAG(weap_data.flags, wdata_glow_rad, other.weap_data.flags);
 		for(int q = 0; q < WPNSPR_MAX; ++q)
 		{
-			burnsprs[q] = other.burnsprs[q];
-			light_rads[q] = other.light_rads[q];
+			weap_data.burnsprs[q] = other.weap_data.burnsprs[q];
+			weap_data.light_rads[q] = other.weap_data.light_rads[q];
 		}
 	}
 	if(pasteflags.get(ITM_ADVP_ITEMSIZE))
@@ -1226,16 +1226,16 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 	}
 	if(pasteflags.get(ITM_ADVP_WEAPONSIZE))
 	{
-		weapoverrideFLAGS = other.weapoverrideFLAGS;
-		weap_hxofs = other.weap_hxofs;
-		weap_hyofs = other.weap_hyofs;
-		weap_hxsz = other.weap_hxsz;
-		weap_hysz = other.weap_hysz;
-		weap_hzsz = other.weap_hzsz;
-		weap_xofs = other.weap_xofs;
-		weap_yofs = other.weap_yofs;
-		weap_tilew = other.weap_tilew;
-		weap_tileh = other.weap_tileh;
+		weap_data.override_flags = other.weap_data.override_flags;
+		weap_data.hxofs = other.weap_data.hxofs;
+		weap_data.hyofs = other.weap_data.hyofs;
+		weap_data.hxsz = other.weap_data.hxsz;
+		weap_data.hysz = other.weap_data.hysz;
+		weap_data.hzsz = other.weap_data.hzsz;
+		weap_data.xofs = other.weap_data.xofs;
+		weap_data.yofs = other.weap_data.yofs;
+		weap_data.tilew = other.weap_data.tilew;
+		weap_data.tileh = other.weap_data.tileh;
 	}
 	if(pasteflags.get(ITM_ADVP_ITEMSCRIPTS))
 	{
@@ -1252,12 +1252,9 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 	}
 	if(pasteflags.get(ITM_ADVP_WEAPONSCRIPT))
 	{
-		weaponscript = other.weaponscript;
+		weap_data.script = other.weap_data.script;
 		for(int q = 0; q < 8; ++q)
-		{
-			strcpy(weapon_initD_label[q], other.weapon_initD_label[q]);
-			weap_initiald[q] = other.weap_initiald[q];
-		}
+			weap_data.initd[q] = other.weap_data.initd[q];
 	}
 }
 

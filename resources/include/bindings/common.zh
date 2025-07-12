@@ -124,6 +124,7 @@ enum WeaponFlag
 	WFLAG_STOP_ON_LANDING,
 	WFLAG_STOP_ON_SOLID,
 	WFLAG_UPDATE_BURNSPR,
+	WFLAG_NO_COLL_WHEN_STILL,
 	WFLAG_MAX
 };
 
@@ -868,7 +869,7 @@ enum ComboLiftFlag
 	LF_SPECIALITEM,
 	LF_NOUCSET,
 	LF_NOWPNCMBCSET,
-	LF_BREAKONSOLID
+	LF_BREAKONSOLID, // TODO: Deprecate this with new weapon_data access
 };
 
 // Used with [Hero->LiftFlags].

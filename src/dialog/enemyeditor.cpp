@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 #include "zinfo.h"
 #include "defdata.h"
+#include "weap_data_editor.h"
 
 extern bool saved;
 extern guydata* guysbuf;
@@ -338,45 +339,13 @@ void EnemyEditorDialog::refreshScript()
 		for (auto q = 0; q < 8; ++q)
 			sw_initd[q] = nswapDEC;
 	}
-	//weapon
-	int32_t sw_wpninitd[8];
+	
 	for (auto q = 0; q < 8; ++q)
 	{
-		l_wpninitd[q] = "InitD[" + to_string(q) + "]:";
-		h_wpninitd[q].clear();
-		sw_wpninitd[q] = -1;
-	}
-	if (local_guyref.script)
-	{
-		zasm_meta const& meta = ewpnscripts[local_guyref.weaponscript]->meta;
-		for (auto q = 0; q < 8; ++q)
-		{
-			if (unsigned(meta.initd_type[q]) < nswapMAX)
-				sw_wpninitd[q] = meta.initd_type[q];
-			if (meta.initd[q].size())
-				l_wpninitd[q] = meta.initd[q];
-			if (meta.initd_help[q].size())
-				h_wpninitd[q] = meta.initd_help[q];
-		}
-	}
-	else
-	{
-		for (auto q = 0; q < 8; ++q)
-			sw_wpninitd[q] = nswapDEC;
-	}
-
-	for (auto q = 0; q < 8; ++q)
-	{
-		//active
 		ib_initds[q]->setDisabled(h_initd[q].empty());
 		l_initds[q]->setText(l_initd[q]);
 		if (sw_initd[q] > -1)
 			tf_initd[q]->setSwapType(sw_initd[q]);
-		//weapon
-		ib_wpninitds[q]->setDisabled(h_wpninitd[q].empty());
-		l_wpninitds[q]->setText(l_wpninitd[q]);
-		if (sw_wpninitd[q] > -1)
-			tf_wpninitd[q]->setSwapType(sw_wpninitd[q]);
 	}
 }
 
@@ -1122,57 +1091,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::MoveFlag(move_flags index, strin
 	);
 }
 
-//Attack Tab
-
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::WeaponSizeFlag(int32_t index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-
-	return Checkbox(
-		text = "Enabled",
-		checked = local_guyref.weapoverrideFLAGS & index,
-		onToggleFunc = [&, index](bool state)
-		{
-			SETFLAG(local_guyref.weapoverrideFLAGS, index, state);
-		}
-	);
-}
-
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::WeaponBlockFlag(byte index, string const& str)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-
-	return Checkbox(
-		text = str,
-		checked = local_guyref.wunblockable & index,
-		fitParent = true,
-		onToggleFunc = [&, index](bool state)
-		{
-			SETFLAG(local_guyref.wunblockable, index, state);
-		}
-	);
-}
-
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::WeaponMoveFlag(move_flags index, string const& str)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-
-	return Checkbox(
-		text = str,
-		checked = local_guyref.wmoveflags & index,
-		fitParent = true,
-		onToggleFunc = [&, index](bool state)
-		{
-			SETFLAG(local_guyref.wmoveflags, index, state);
-		}
-	);
-}
-
-//Effects Tab
-
 //Script Tab
 
 std::shared_ptr<GUI::Widget> EnemyEditorDialog::ScriptField(int index)
@@ -1181,7 +1099,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::ScriptField(int index)
 	using namespace GUI::Props;
 
 	return Row(padding = 0_px,
-		l_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0),
+		l_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
 		ib_initds[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
 			onPressFunc = [&, index]()
@@ -1195,30 +1113,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::ScriptField(int index)
 			onValChangedFunc = [&, index](GUI::TextField::type, std::string_view, int32_t val)
 			{
 				local_guyref.initD[index] = val;
-			})
-	);
-}
-
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::WeaponScriptField(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-
-	return Row(padding = 0_px,
-		l_wpninitds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0),
-		ib_wpninitds[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("InitD Info", h_wpninitd[index]).show();
-			}),
-		tf_wpninitd[index] = TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_guyref.weap_initiald[index],
-			onValChangedFunc = [&, index](GUI::TextField::type, std::string_view, int32_t val)
-			{
-				local_guyref.weap_initiald[index] = val;
 			})
 	);
 }
@@ -1253,7 +1147,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	{
 		auto& tab = q < 12 ? attributes1_tab : q < 22 ? attributes2_tab : attributes3_tab;
 
-		tab->add(l_attributes[q] = Label(minwidth = ATTR_LAB_WID, textAlign = 2));
+		tab->add(l_attributes[q] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2));
 		tab->add(sw_attributes[q] = Switcher(
 			tf_attributes[q] = TextField(
 				width = 300_px,
@@ -1388,9 +1282,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								Label(text = "Damage:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("How much HP the Hero loses if this enemy touches him."),
 								NumberField(&local_guyref.dp, 0, 32767, 5),
-								Label(text = "W. Damage:", hAlign = 1.0, rightPadding = 0_px),
-								INFOBTN("How much HP the Hero loses if this enemy's weapon hits him"),
-								NumberField(&local_guyref.wdp, 0, 32767, 5),
 								Label(text = "Hunger:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("Determines how attracted this enemy is to the Bait weapon."
 									"\nThe range of values is 0 (no response) to 4 (extremely attracted)."),
@@ -1400,6 +1291,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
 									checked = local_guyref.cset == 14,
 									colSpan = 3,
+									rowSpan = 2,
 									onToggleFunc = [&](bool state)
 									{
 										local_guyref.cset = state ? 14 : 8;
@@ -1635,169 +1527,42 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	);
 	auto attack_tab = TabPanel(
 		ptr = &guy_tabs[9],
-		TabRef(name = "Attack", TabPanel(
-			ptr = &guy_tabs[10],
-			TabRef(name = "Weapon", Column(
-				Row(
-					Frame(title = "Projectile", hAlign = 1.0, fitParent = true,
-						Rows<3>(hAlign = 1.0, rowSpacing = 0.5_em,
-							//
-							Label(text = "Type:", hAlign = 1.0, rightPadding = 0_px),
-							DropDownField(&local_guyref.weapon, list_eweaptype),
-							INFOBTN("The weapon type that is fired."),
-							//
-							Label(text = "Sprite:", hAlign = 1.0, rightPadding = 0_px),
-							DropDownField(&local_guyref.wpnsprite, list_sprites),
-							INFOBTN("Sprite used for this weapon."),
-							//
-							Label(text = "Fire Sound:", hAlign = 1.0, rightPadding = 0_px),
-							DropDownField(&local_guyref.firesfx, list_sfx),
-							INFOBTN("Plays when this weapon is fired."
-							"\nNote: that explosions and boomerangs use the SpecialSFX"),
-							//
-							Label(text = "Special Sound:", hAlign = 1.0, rightPadding = 0_px),
-							DropDownField(&local_guyref.specialsfx, list_sfx),
-							INFOBTN("Special Sound used for only specific weapons.")
-						)
-					),
-					Frame(title = "Stats", hAlign = 1.0, fitParent = true,
-						Rows<3>(hAlign = 1.0, fitParent = true,
-							//
-							Label(text = "W. Damage:", hAlign = 1.0, rightPadding = 0_px),
-							INFOBTN("How much HP the Hero loses if this enemy's weapon hits him"),
-							NumberField(&local_guyref.wdp, 0, 32767, 5),
-							//
-							Label(text = "W. Step Speed:", hAlign = 1.0, rightPadding = 0_px),
-							INFOBTN("Movement speed. 100 step speed is 1 pixel per frame."
-								"\nNote that bomb blast and firetrails don't use this."),
-							NumberField(&local_guyref.wstep, 0, 1000, 5)
-							//
-						)
-					)
-				),
-				Row(
-					Frame(title = "Ignore Flags", hAlign = 1.0, fitParent = true, 
-						Column(hAlign = 1.0, fitParent = true,
-							WeaponBlockFlag(WPNUNB_BLOCK,"Block Defense Types"),
-							WeaponBlockFlag(WPNUNB_IGNR, "Ignore Defense Types"),
-							WeaponBlockFlag(WPNUNB_SHLD, "Shield Block flags"),
-							WeaponBlockFlag(WPNUNB_REFL, "Shield Reflect flags")
-						)
-					),
-					Frame(title = "Movement Flags", hAlign = 1.0, fitParent = true,
-						Column(hAlign = 1.0, fitParent = true,
-							WeaponMoveFlag(move_obeys_grav, "Obeys Gravity"),
-							WeaponMoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
-							WeaponMoveFlag(move_can_waterdrown, "Can Drown In Liquid")
-						)
-					)
+		TabRef(name = "Attack", Column(
+			Frame(title = "Projectile", hAlign = 1.0, fitParent = true,
+				Rows<3>(hAlign = 1.0, rowSpacing = 0.5_em,
+					//
+					Label(text = "Type:", hAlign = 1.0, rightPadding = 0_px),
+					DropDownField(&local_guyref.weapon, list_eweaptype),
+					INFOBTN("The weapon type that is fired."),
+					//
+					Label(text = "Sprite:", hAlign = 1.0, rightPadding = 0_px),
+					DropDownField(&local_guyref.wpnsprite, list_sprites),
+					INFOBTN("Sprite used for this weapon."),
+					//
+					Label(text = "Fire Sound:", hAlign = 1.0, rightPadding = 0_px),
+					DropDownField(&local_guyref.firesfx, list_sfx),
+					INFOBTN("Plays when this weapon is fired."
+						"\nNote: that explosions and boomerangs use the Special SFX"),
+					//
+					Label(text = "Special Sound:", hAlign = 1.0, rightPadding = 0_px),
+					DropDownField(&local_guyref.specialsfx, list_sfx),
+					INFOBTN("Special Sound used for only specific weapons.")
 				)
-			)),
-			TabRef(name = "Weapon Size", Row(
-				Columns_Rows<9, 3>(hAlign = 1.0, vAlign = 1.0,
-					Label(text = "TileWidth:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "TileHeight:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitWidth:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitHeight:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitZHeight:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitXOffset:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitYOffset:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "DrawXOffset:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "DrawYOffset:", hAlign = 1.0, rightPadding = 0_px),
-					NumberField(&local_guyref.weap_tilew, 0, 4, 1),
-					NumberField(&local_guyref.weap_tileh, 0, 4, 1),
-					NumberField(&local_guyref.weap_hxsz, 0, 64, 3),
-					NumberField(&local_guyref.weap_hysz, 0, 64, 3),
-					NumberField(&local_guyref.weap_hzsz, 0, 64, 3),
-					NumberField(&local_guyref.weap_hxofs, -64, 64, 3),
-					NumberField(&local_guyref.weap_hyofs, -64, 64, 3),
-					NumberField(&local_guyref.weap_xofs, -1000, 1000, 5),
-					NumberField(&local_guyref.weap_yofs, -1000, 1000, 5),
-					WeaponSizeFlag(OVERRIDE_TILE_WIDTH),
-					WeaponSizeFlag(OVERRIDE_TILE_HEIGHT),
-					WeaponSizeFlag(OVERRIDE_HIT_WIDTH),
-					WeaponSizeFlag(OVERRIDE_HIT_HEIGHT),
-					WeaponSizeFlag(OVERRIDE_HIT_Z_HEIGHT),
-					WeaponSizeFlag(OVERRIDE_HIT_X_OFFSET),
-					WeaponSizeFlag(OVERRIDE_HIT_Y_OFFSET),
-					WeaponSizeFlag(OVERRIDE_DRAW_X_OFFSET),
-					WeaponSizeFlag(OVERRIDE_DRAW_Y_OFFSET)
+			),
+			Frame(title = "Stats",
+				Rows<3>(hAlign = 1.0, fitParent = true,
+					//
+					Label(text = "W. Damage:", hAlign = 1.0, rightPadding = 0_px),
+					INFOBTN("How much HP the Hero loses if this enemy's weapon hits him"),
+					NumberField(&local_guyref.wdp, 0, 32767, 5),
+					Button(text = "Weapon Data",
+						colSpan = 3,
+						onPressFunc = [&]()
+						{
+							call_weap_data_editor(local_guyref.weap_data, false);
+						})
 				)
-			)),
-			TabRef(name = "Burning", Column(
-				Row(
-					INFOBTN("With this checked, the created weapon will use the appropriate"
-						" burning sprite INSTEAD of its' normal sprite."
-						"\nAdditionally, the weapon will use the specified light radius."),
-					Checkbox(
-						width = FLAGS_WID,
-						checked = (local_guyref.flags & guy_burning_sprites),
-						text = "Use Burning Sprites",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_guyref.flags, guy_burning_sprites, state);
-						}
-					)
-				),
-				Rows<4>(
-					_d, Label(text = "Sprite"), Label(text = "Light Radius"), _d,
-					//
-					Label(text = "No Fire:", hAlign = 1.0),
-					DropDownList(
-						data = list_sprites,
-						selectedValue = local_guyref.burnsprs[WPNSPR_BASE],
-						onSelectFunc = [&](int32_t val)
-						{
-							local_guyref.burnsprs[WPNSPR_BASE] = val;
-						}),
-					NumberField(&local_guyref.light_rads[WPNSPR_BASE], 0, 255, 3),
-					INFOBTN("Settings used for the weapon when not on fire"),
-					//
-					Label(text = "Normal Fire:", hAlign = 1.0),
-					DropDownList(
-						data = list_sprites,
-						selectedValue = local_guyref.burnsprs[WPNSPR_IGNITE_ANY],
-						onSelectFunc = [&](int32_t val)
-						{
-							local_guyref.burnsprs[WPNSPR_IGNITE_ANY] = val;
-						}),
-					NumberField(&local_guyref.light_rads[WPNSPR_IGNITE_ANY], 0, 255, 3),
-					INFOBTN("Settings used for the weapon when on 'Normal' fire"),
-					//
-					Label(text = "Strong Fire:", hAlign = 1.0),
-					DropDownList(
-						data = list_sprites,
-						selectedValue = local_guyref.burnsprs[WPNSPR_IGNITE_STRONG],
-						onSelectFunc = [&](int32_t val)
-						{
-							local_guyref.burnsprs[WPNSPR_IGNITE_STRONG] = val;
-						}),
-					NumberField(&local_guyref.light_rads[WPNSPR_IGNITE_STRONG], 0, 255, 3),
-					INFOBTN("Settings used for the weapon when on 'Strong' fire"),
-					//
-					Label(text = "Magic Fire:", hAlign = 1.0),
-					DropDownList(
-						data = list_sprites,
-						selectedValue = local_guyref.burnsprs[WPNSPR_IGNITE_MAGIC],
-						onSelectFunc = [&](int32_t val)
-						{
-							local_guyref.burnsprs[WPNSPR_IGNITE_MAGIC] = val;
-						}),
-					NumberField(&local_guyref.light_rads[WPNSPR_IGNITE_MAGIC], 0, 255, 3),
-					INFOBTN("Settings used for the weapon when on 'Magic' fire"),
-					//
-					Label(text = "Divine Fire:", hAlign = 1.0),
-					DropDownList(
-						data = list_sprites,
-						selectedValue = local_guyref.burnsprs[WPNSPR_IGNITE_DIVINE],
-						onSelectFunc = [&](int32_t val)
-						{
-							local_guyref.burnsprs[WPNSPR_IGNITE_DIVINE] = val;
-						}),
-					NumberField(&local_guyref.light_rads[WPNSPR_IGNITE_DIVINE], 0, 255, 3),
-					INFOBTN("Settings used for the weapon when on 'Divine' fire")
-				)
-			))
+			)
 		))
 	);
 	auto effects_tab = TabPanel(
@@ -1857,24 +1622,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					Row(
 						padding = 0_px,
 						SCRIPT_LIST_PROC("NPC Action Script:", list_guyscripts, local_guyref.script, refreshScript)
-					)
-				)
-			)),
-			TabRef(name = "Weapon Script", Row(
-				Column(
-					WeaponScriptField(0),
-					WeaponScriptField(1),
-					WeaponScriptField(2),
-					WeaponScriptField(3),
-					WeaponScriptField(4),
-					WeaponScriptField(5),
-					WeaponScriptField(6),
-					WeaponScriptField(7)
-				),
-				Column(vAlign = 0.0,
-					Row(
-						padding = 0_px,
-						SCRIPT_LIST_PROC("Weapon Script:", list_ewpnscripts, local_guyref.weaponscript, refreshScript)
 					)
 				)
 			))
