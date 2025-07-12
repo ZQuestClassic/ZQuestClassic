@@ -1000,6 +1000,16 @@ static GUI::ListData compatRulesList
 		" but they will be the closest matching color in the player's palette to the color in the editor." },
 	{ "Rope enemies speed is not configurable", qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE,
 		"If disabled, when misc attribute 10 is positive for rope enemies it will be used to configure the charging speed." },
+	{ "Sometimes scroll over pits/water", qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL,
+		"If checked, the player may be able to scroll over thin patches of liquid/pitfall combos"
+		" that are close to the screen edge." },
+	{ "EWeapon Rocks hard-codedly break on solids", qr_EW_ROCKS_HARDCODED_BREAK_ON_SOLID,
+		"If checked, EWeapon Rocks will always break when they hit a solid."
+		" Otherwise, they only break if they have the weapon flag for breaking when they"
+		" hit a solid checked." },
+	{ "Weapons that break on solids use imprecise hitbox", qr_IMPRECISE_WEAPON_SOLIDITY_CHECKS,
+		"If checked, weapons use a hardcoded hitbox for weapon collisions, instead of their"
+		" actual set hitbox." },
 };
 
 static GUI::ListData enemiesRulesList
@@ -1737,9 +1747,6 @@ GUI::ListData bugfixRulesList
 	{ "Game->Suspend[susptFFCSCRIPTS] suspends screen scripts", qr_ZS_OLD_SUSPEND_FFC,
 		"If checked, setting 'Game->Suspend[susptFFCSCRIPTS]' will suspend screen scripts."
 		"\nIf disabled only the ffcscripts will be suspended."},
-	{ "Sometimes scroll over pits/water", qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL,
-		"If checked, the player may be able to scroll over thin patches of liquid/pitfall combos"
-		" that are close to the screen edge." }
 };
 
 extern GUI::ListData compileSettingList;
