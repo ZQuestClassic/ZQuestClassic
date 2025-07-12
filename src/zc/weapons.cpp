@@ -987,7 +987,7 @@ weapon::~weapon()
 	cleanup_sfx();
 }
 
-weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent, int32_t use_sprite) : sprite(), parentid(prntid)
+weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent, int32_t use_sprite, bool autoRotate) : sprite(), parentid(prntid)
 {
 	x=X;
 	y=Y;
@@ -1012,7 +1012,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	hit_width=15;
 	hit_height=15;
 	hzsz=8;
-	autorotate = false;
+	autorotate = autoRotate;
 	do_animation = true;
 	ref_o_tile = 0;
 	useweapon = usedefense = useweapondummy = usedefensedummy = 0;
@@ -1833,6 +1833,9 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 	optional<byte> ret;
 	if(force) ret = 0;
 	itemdata const& parent = itemsbuf[unsigned(parentitem) < MAXITEMS ? parentitem : -1];
+	auto tmp_dir = dir;
+	if(autorotate && get_qr(qr_BETTER_ENGINE_AUTOROTATE))
+		tmp_dir = right;
 	switch(id)
 	{
 		case wBugNet:
@@ -1858,7 +1861,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				{
 					if(!(parent.flags & item_flag1))
 					{
-						switch(dir)
+						switch(tmp_dir)
 						{
 							case up:
 							{
@@ -1992,7 +1995,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			LOADGFX(*ret);
 			flash = 1;
 			cs = 6;
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 					flip=get_qr(qr_SWORDWANDFLIPFIX)?3:2;
@@ -2025,7 +2028,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				else ret = wARROW;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 					flip=2;
@@ -2171,7 +2174,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = wMAGIC;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 					flip=2;
@@ -2224,7 +2227,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = wHSHEAD;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 					flip=2;
@@ -2286,7 +2289,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = wHSHANDLE;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 					flip=2;
@@ -2351,7 +2354,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = dir < left ? wHSCHAIN_V : wHSCHAIN_H;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 				case up:
@@ -2394,7 +2397,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = *val;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 				case l_down:
@@ -2427,7 +2430,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = *val;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 				case l_down:
@@ -2500,7 +2503,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = *val;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 				case l_down:
@@ -2533,7 +2536,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = *val;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 				case l_down:
@@ -2566,7 +2569,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = *val;
 			}
 			LOADGFX(*ret);
-			switch(dir)
+			switch(tmp_dir)
 			{
 				case down:
 				case l_down:
