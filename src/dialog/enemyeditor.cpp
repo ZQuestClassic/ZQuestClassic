@@ -1099,7 +1099,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::ScriptField(int index)
 	using namespace GUI::Props;
 
 	return Row(padding = 0_px,
-		l_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0),
+		l_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
 		ib_initds[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
 			onPressFunc = [&, index]()
@@ -1147,7 +1147,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	{
 		auto& tab = q < 12 ? attributes1_tab : q < 22 ? attributes2_tab : attributes3_tab;
 
-		tab->add(l_attributes[q] = Label(minwidth = ATTR_LAB_WID, textAlign = 2));
+		tab->add(l_attributes[q] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2));
 		tab->add(sw_attributes[q] = Switcher(
 			tf_attributes[q] = TextField(
 				width = 300_px,
