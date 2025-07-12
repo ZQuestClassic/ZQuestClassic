@@ -2159,6 +2159,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	}
 	return wpn;
 }
+
 bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 {
 	if(cmb.type != cSHOOTER) return false;
@@ -2168,10 +2169,11 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 	bool proxstop = cmb.usrflags&cflag4;
 	bool invprox = cmb.usrflags&cflag9;
 	zfix proxlim = zslongToFix(cmb.attributes[1]);
+
 	auto dst = dist(wx,wy,Hero.getX(),Hero.getY());
 	if(proxstop && (invprox ? (dst > proxlim) : (dst <= proxlim)))
 		return false;
-	
+
 	bool angular = cmb.usrflags&cflag1;
 	double radians = 0;
 	int32_t dir = -1;
@@ -2542,7 +2544,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	}
 	if(cmb.trigprox) //Proximity requirement
 	{
-		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
+		word d = dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt();
 		if(cmb.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
 		{
 			if(d < cmb.trigprox) //inside, cancel
@@ -2948,7 +2950,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	}
 	if(cmb.trigprox) //Proximity requirement
 	{
-		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
+		word d = dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt();
 		if(cmb.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
 		{
 			if(d < cmb.trigprox) //inside, cancel
