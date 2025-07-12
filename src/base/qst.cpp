@@ -3534,9 +3534,13 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_ZS_OLD_SUSPEND_FFC, 1);
 	if (compatrule_version < 81 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
 		set_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL, 1);
-
 	if (compatrule_version < 81 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 6) < 0))
 		set_qr(qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE, 1);
+	if (compatrule_version < 82)
+	{
+		set_qr(qr_EW_ROCKS_HARDCODED_BREAK_ON_SOLID, 1);
+		set_qr(qr_IMPRECISE_WEAPON_SOLIDITY_CHECKS, 1);
+	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -15272,6 +15276,8 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			{
 				SETFLAG(tempguy.weap_data.wflags, WFLAG_UPDATE_IGNITE_SPRITE, tempguy.flags & guy_burning_sprites);
 				tempguy.weap_data.flags |= wdata_set_step;
+				if(tempguy.weapon == ewRock)
+					tempguy.weap_data.wflags |= WFLAG_BREAK_ON_SOLID;
 			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)

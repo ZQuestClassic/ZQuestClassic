@@ -6570,28 +6570,18 @@ bool weapon::animate(int32_t index)
 		move(step);
 		
 		if(clip())
-		{
 			onhit(true);
-		}
-		else if(id==ewRock)
-		{
-			if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
-			{
+		else if(id==ewRock && get_qr(qr_EW_ROCKS_HARDCODED_BREAK_ON_SOLID))
+			if(collide_solid())
 				onhit(true);
-			}
-		}
 	}
 	else if(dead==-10) // Scripting hack thing related to weapon->DeadState
-	{
 		if(clip())
-		{
 			onhit(true);
-		}
-	}
 	
 	if(misc_wflags & (WFLAG_BREAK_ON_SOLID|WFLAG_STOP_WHEN_HIT_SOLID))
 	{
-		if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
+		if(collide_solid())
 		{
 			findcombotriggers(); //Hit solid triggers
 			if(misc_wflags & WFLAG_BREAK_ON_SOLID)
@@ -6691,6 +6681,33 @@ void weapon::do_death_fx()
 	rundeath = false;
 }
 
+bool weapon::collide_solid() const
+{
+	if(get_qr(qr_IMPRECISE_WEAPON_SOLIDITY_CHECKS))
+		return _walkflag(x,y,2) || _walkflag(x,y+8,2);
+	//zfix instead of int still; combo triggers use int, zfix here causes some oddities
+	//ex. a weapon colliding with a solid (killing it), but it not triggering that same solid,
+	// only when the speed isn't integer-precise.
+	int x1 = x+hxofs, x2 = x1+hit_width;
+	int y1 = y+hyofs, y2 = y1+hit_height;
+	if(collide_object(x1, y1, hit_width, hit_height)) return true;
+	const int incr = 8;
+	for(int tx = x1; tx < x2;)
+	{
+		for(int ty = y1; ty < y2;)
+		{
+			if(_walkflag(tx,ty,1)) return true;
+			
+			if(ty%incr) ty += incr - (ty%incr); // round to next half-grid
+			else if(ty < y2-1 && ty+incr >= y2) ty = y2-1; // don't miss the far-bottom
+			else ty += incr;
+		}
+		if(tx%incr) tx += incr - (tx%incr); // round to next half-grid
+		else if(tx < x2-1 && tx+incr >= x2) tx = x2-1; // don't miss the far-right
+		else tx += incr;
+	}
+	return false;
+}
 void weapon::collision_check()
 {
 	if(no_collision()) return;
