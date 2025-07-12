@@ -1586,6 +1586,9 @@ static GUI::ListData weaponsRulesList
 		"If enabled, weapons in the player's hands run their weapon script." },
 	{ "Bomb Booms Clear Script", qr_BOMB_BOOMS_CLEAR_SCRIPTS,
 		"If enabled, when a bomb explodes, it will stop it's script." },
+	{ "Improved Autorotate", qr_BETTER_ENGINE_AUTOROTATE,
+		"If enabled, weapons set to 'auto-rotate' will apply the right-dir sprite when using UseSprite,"
+		" burn sprites, etc." },
 	
 	//should maybe keep these last
 	{ "Scripted and Enemy Boomerangs Have Corrected, Non-Hardcoded Animation", qr_CORRECTED_EW_BRANG_ANIM,

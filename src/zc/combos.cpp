@@ -2119,12 +2119,12 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 		int pitem = cmb.attribytes[6]>0 ? cmb.attribytes[6] : -1;
 		int plvl = pitem > -1 ? itemsbuf[pitem].fam_type : 0;
 		
-		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,plvl,damage,wdir,pitem, Hero.getUID(),false,0,1,0,0,weapspr);
+		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,plvl,damage,wdir,pitem, Hero.getUID(),false,0,1,0,0,weapspr,autorot);
 		if (!Lwpns.add(wpn)) return nullptr;
 	}
 	else
 	{
-		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir, -1,-1,false,0,0,0,0,weapspr);
+		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir, -1,-1,false,0,0,0,0,weapspr,autorot);
 		if (!Ewpns.add(wpn)) return nullptr;
 	}
 
