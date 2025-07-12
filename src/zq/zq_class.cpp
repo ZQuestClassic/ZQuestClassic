@@ -10658,7 +10658,7 @@ void parse_strings_tsv(std::string tsv)
 	init_msgstrings(0, msgs.size());
 	for (int i = 0; i < msgs.size(); i++)
 		MsgStrings[i + 1] = msgs[i];
-	msg_count = msgs.size();
+	msg_count = msgs.size() + 1;
 	msglistcache.clear();
 }
 
