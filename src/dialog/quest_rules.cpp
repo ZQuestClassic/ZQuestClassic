@@ -1582,6 +1582,10 @@ static GUI::ListData weaponsRulesList
 		" will still tick down their fuse and explode." },
 	{ "Enemy Fire Lights New Dark Rooms", qr_EW_FIRE_EMITS_LIGHT,
 		"If enabled, enemy fire weapons will emit light by default, as Hero fire does." },
+	{ "Lifted Weapons Run Scripts", qr_LIFTED_WEAPONS_RUN_SCRIPTS,
+		"If enabled, weapons in the player's hands run their weapon script." },
+	{ "Bomb Booms Clear Script", qr_BOMB_BOOMS_CLEAR_SCRIPTS,
+		"If enabled, when a bomb explodes, it will stop it's script." },
 	
 	//should maybe keep these last
 	{ "Scripted and Enemy Boomerangs Have Corrected, Non-Hardcoded Animation", qr_CORRECTED_EW_BRANG_ANIM,

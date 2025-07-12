@@ -3187,6 +3187,7 @@ void weapon::limited_animate()
 				break;
 			
 			bool fixboom = !get_qr(qr_BROKEN_MOVING_BOMBS);
+			bool clear_boom_script = get_qr(qr_BOMB_BOOMS_CLEAR_SCRIPTS);
 			bool canboom = (fixboom || step==0);
 			if(clk==(misc-2) && canboom)
 			{
@@ -3195,6 +3196,11 @@ void weapon::limited_animate()
 				hxofs=2000;
 				step = 0;
 				lift_level = 0;
+				if(script && clear_boom_script)
+				{
+					script = 0;
+					FFCore.destroyScriptableObject(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+				}
 				rundeath = true;
 				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
@@ -3218,6 +3224,11 @@ void weapon::limited_animate()
 				hzsz=16;
 				step = 0;
 				lift_level = 0;
+				if(script && clear_boom_script)
+				{
+					script = 0;
+					FFCore.destroyScriptableObject(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+				}
 				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
 			
@@ -3228,6 +3239,11 @@ void weapon::limited_animate()
 				hxofs=2000;
 				step = 0;
 				lift_level = 0;
+				if(script && clear_boom_script)
+				{
+					script = 0;
+					FFCore.destroyScriptableObject(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+				}
 				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
 			
@@ -3316,17 +3332,10 @@ void weapon::limited_animate()
 			}
 			
 			if(clk==misc+30)
-			{
 				bombdoor(x,y);
-			}
 			
-			if(clk==misc+34)
-			{
-				if(canboom)
-				{
-					dead=1;
-				}
-			}
+			if(clk==misc+34 && canboom)
+				dead=1;
 			break;
 		}
 	}
