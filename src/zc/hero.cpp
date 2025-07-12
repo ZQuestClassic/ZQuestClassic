@@ -10999,6 +10999,10 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			handle_lift(false); //sets position properly, accounting for large weapons
 			
 			lift_wpn->dir = dir;
+			if(lift_wpn->angular)
+				lift_wpn->angle = WrapAngle(DirToRadians(dir));
+			
+			lift_wpn->doAutoRotate(false, true);
 			//Configured throw speed in both axes
 			auto basestep = glove.misc2;
 			lift_wpn->step = zfix(basestep)/100;
