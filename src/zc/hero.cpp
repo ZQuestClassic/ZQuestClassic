@@ -7831,6 +7831,9 @@ bool HeroClass::animate(int32_t)
 		if(lift_wpn->dead>0)
 			--lift_wpn->dead;
 		
+		if(get_qr(qr_LIFTED_WEAPONS_RUN_SCRIPTS))
+			lift_wpn->run_script(MODE_NORMAL);
+		
 		if(lift_wpn->dead==0)
 		{
 			if(lift_wpn->death_spawnitem > -1)
