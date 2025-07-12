@@ -11077,11 +11077,11 @@ bool eStalfos::animate(int32_t index)
 			
 			if(x<32) x=32;
 			
-			if(x>208) x=208;
+			if(x>world_w-48) x=world_w-48;
 			
 			if(y<32) y=32;
 			
-			if(y>128) y=128;
+			if(y>world_h-48) y=world_h-48;
 			
 			misc=3;
 		}
@@ -11398,21 +11398,11 @@ void eStalfos::charge_attack()
 
 void eStalfos::vire_hop()
 {
-	//if ( sclk > 0 ) return; //Don't hop during knockback.
-  
-//    if(dmisc9!=e9tPOLSVOICE)
-//    {
-//        //if( slide() /*sclk!=0*/ && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
-//        if( sclk!=0 && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
-//            return; //the enemy should split if it is sliding!
-//        //else sclk=0; //might need this here, too. -Z
-//    }
 	if(dmisc9!=e9tPOLSVOICE)
 	{
 		if(sclk!=0)
 		{
 			if (dmisc2==e2tSPLITHIT) return;
-			//return;
 		}
 	}
 	else sclk=0;
@@ -11446,21 +11436,6 @@ void eStalfos::vire_hop()
 			{
                 
 				clk2=(wpn==ewBrang ? 1 : int32_t((16.0*jump_width)/step.getFloat()));
-				/*if (dmisc9==e9tPOLSVOICE )
-				{	
-					zprint2("polsvoice jump_width is: %d\n", jump_width);
-					zprint2("polsvoice raw step is: %d\n", step);
-					zprint2("polsvoice step.getInt() is: %d\n", step.getInt());
-					zprint2("setting clk2 on polsvoice to: %d\n", clk2);
-				}
-				else 
-				{
-					zprint2("vire jump_width is: %d\n", jump_width);
-					zprint2("vire raw step is: %d\n", step);
-					zprint2("vire step.getInt() is: %d\n", step.getInt());
-					zprint2("setting clk2 on vire to: %d\n", clk2);
-				}
-				*/
 			}
 		}
 		
@@ -11492,8 +11467,6 @@ void eStalfos::vire_hop()
 		}
 		else
 		{
-			//y+=fixtoi(fixsin(itofix((clk2+1)*128*step/(16*jump_width)))*jump_height);
-			//y-=h;
 			y=floor_y-h;
 			shadowdistance=h;
 		}
