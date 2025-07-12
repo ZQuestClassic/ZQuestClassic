@@ -2293,7 +2293,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBYTE(int index)
 	using namespace GUI::Props;
 	
 	return Row(padding = 0_px, colSpan = 3,
-		l_attribytes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		l_attribytes[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
 		ib_attribytes[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
 			onPressFunc = [&, index]()
@@ -2317,7 +2317,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRISHORT(int index)
 	using namespace GUI::Props;
 	
 	return Row(padding = 0_px, colSpan = 3,
-		l_attrishorts[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		l_attrishorts[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
 		ib_attrishorts[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
 			onPressFunc = [&, index]()
@@ -2341,7 +2341,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
 	using namespace GUI::Props;
 	
 	return Row(padding = 0_px, colSpan = 3,
-		l_attributes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		l_attributes[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
 		ib_attributes[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
 			onPressFunc = [&, index]()
@@ -2365,7 +2365,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
 	using namespace GUI::Props;
 	
 	return Row(padding = 0_px,
-		l_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		l_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
 		ib_initds[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
 			onPressFunc = [&, index]()
