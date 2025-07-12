@@ -11090,7 +11090,11 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			weapon* w = (weapon*)Lwpns.spr(q);
 			if((w->lift_level && w->lift_level <= glove.fam_type))
 			{
-				if(!w->hit(hx,hy,0,hw,hh,1))
+				auto tmpflags = w->misc_wflags;
+				w->misc_wflags &= ~WFLAG_NO_COLL_WHEN_STILL;
+				bool hit = w->hit(hx,hy,0,hw,hh,1);
+				w->misc_wflags = tmpflags;
+				if(!hit)
 					continue;
 				if(glove.usesound)
 					sfx(glove.usesound,pan(x));

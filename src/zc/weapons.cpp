@@ -54,6 +54,7 @@ static bool CanComboTrigger(weapon *w)
 
 bool weapon::no_triggers() const
 {
+	if(no_collision()) return true;
 	switch(id)
 	{
 		case wHammer: //Hammers don't trigger anything while in the air if item_flag1 is set!
@@ -65,6 +66,12 @@ bool weapon::no_triggers() const
 			break;
 		}
 	}
+	return false;
+}
+
+bool weapon::no_collision() const
+{
+	if(!step && (misc_wflags & WFLAG_NO_COLL_WHEN_STILL)) return true;
 	return false;
 }
 
@@ -426,6 +433,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
 {
 	if (screenIsScrolling()) return;
+	if (w->no_triggers()) return;
 	if(w->weapon_dying_frame) return;
 	if(unsigned(bx) > world_w-1 || unsigned(by) > world_h-1) return;
 	if (!layer)
@@ -3066,10 +3074,10 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
     int32_t wy = y+yOffset;
     
     if(id == wPhantom || id == wHSHandle || id == wHSChain)  // Sanity check
-    {
         return false;
-    }
-    
+    if(no_collision())
+		return false;
+	
     if(get_bit(combo_class_buf[COMBOTYPE(wx,wy)].block_weapon,id)
             || get_bit(combo_class_buf[FFCOMBOTYPE(wx,wy)].block_weapon, id))
     {
@@ -3707,7 +3715,11 @@ bool weapon::animate(int32_t index)
 					dead = 0;
 				}
 				if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+				{
+					if(replay_version_check(42))
+						collision_check();
 					step = 0;
+				}
 			}
 			
 			if (y > world_h + 16) dead=0;  // Out of bounds
@@ -3730,7 +3742,11 @@ bool weapon::animate(int32_t index)
 							dead = 0;
 						}
 						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+						{
+							if(replay_version_check(42))
+								collision_check();
 							step = 0;
+						}
 					}
 				}
 				else if(fakefall <= (int32_t)zinit.terminalv)
@@ -3754,7 +3770,11 @@ bool weapon::animate(int32_t index)
 							dead = 0;
 						}
 						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+						{
+							if(replay_version_check(42))
+								collision_check();
 							step = 0;
+						}
 					}
 				}
 				else if(fall <= (int32_t)zinit.terminalv)
@@ -6570,11 +6590,11 @@ bool weapon::animate(int32_t index)
 	{
 		if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
 		{
+			findcombotriggers(); //Hit solid triggers
 			if(misc_wflags & WFLAG_BREAK_ON_SOLID)
 				dead = 0;
 			if(misc_wflags & WFLAG_STOP_WHEN_HIT_SOLID)
 				step = 0;
-			findcombotriggers(); //Hit solid triggers
 		}
 	}
 	
@@ -6670,6 +6690,7 @@ void weapon::do_death_fx()
 
 void weapon::collision_check()
 {
+	if(no_collision()) return;
 	findcombotriggers();
 	if(isLWeapon)
 	{
@@ -7107,6 +7128,7 @@ offscreenCheck:
 bool weapon::hit()
 {
     if(!scriptcoldet || fallclk || drownclk) return false;
+	if(no_collision()) return false;
     
 	if(id==wBugNet) return false;
     if(id==ewBrang && misc)
