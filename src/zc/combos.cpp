@@ -2162,6 +2162,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	}
 	return wpn;
 }
+
 bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 {
 	if(cmb.type != cSHOOTER) return false;
@@ -2171,10 +2172,11 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 	bool proxstop = cmb.usrflags&cflag4;
 	bool invprox = cmb.usrflags&cflag9;
 	zfix proxlim = zslongToFix(cmb.attributes[1]);
+
 	auto dst = dist(wx,wy,Hero.getX(),Hero.getY());
 	if(proxstop && (invprox ? (dst > proxlim) : (dst <= proxlim)))
 		return false;
-	
+
 	bool angular = cmb.usrflags&cflag1;
 	double radians = 0;
 	int32_t dir = -1;
@@ -2641,7 +2643,8 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	{
 		zfix cx2 = cx + FFCore.ScrollingData[SCROLLDATA_NX];
 		zfix cy2 = cy + FFCore.ScrollingData[SCROLLDATA_NY];
-		word d = word(dist(Hero.getX(), Hero.getY(), cx2, cy2).getInt());
+
+		word d = dist(Hero.getX(), Hero.getY(), cx2, cy2).getInt();
 		if(trig.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
 		{
 			if(d < trig.trigprox || !is_active_screen) //inside, cancel

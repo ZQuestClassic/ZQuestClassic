@@ -45,7 +45,6 @@ inline ZLong toZLong(int32_t val);
 inline ZLong toZLong(int32_t val);
 inline zfix floor(zfix const& fx);
 inline zfix abs(zfix const& fx);
-inline zfix pow(zfix const& fx, int exp);
 inline zfix dist(zfix const& x1, zfix const& y1, zfix const& x2, zfix const& y2);
 
 int vbound(int x,int low,int high);
@@ -504,25 +503,16 @@ inline zfix abs(zfix const& fx)
 	t.doAbs();
 	return t;
 }
-inline zfix pow(zfix const& fx, int exp)
-{
-	if(!exp) return 1_zf;
-	zfix t(fx);
-	for(auto q = 1; q < exp; ++q)
-	{
-		t *= fx;
-	}
-	return t;
-}
 inline zfix sqrt(zfix const& fx) //rounding error... unavoidable?
 {
 	return zfix(sqrt(fx.getFloat()));
 }
+
 inline zfix dist(zfix const& x1, zfix const& y1, zfix const& x2, zfix const& y2)
 {
-	zfix xd = x2-x1;
-	zfix yd = y2-y1;
-	zfix d = pow(xd,2) + pow(yd, 2);
+	double xd = x2-x1;
+	double yd = y2-y1;
+	double d = xd*xd + yd*yd;
 	return sqrt(d);
 }
 
