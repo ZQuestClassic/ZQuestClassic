@@ -147,6 +147,7 @@ public:
     bool clip();
     bool blocked();
 	bool no_triggers() const;
+	bool no_collision() const;
     virtual bool blocked(int32_t xOffset, int32_t yOffset);
     void limited_animate();
     virtual bool animate(int32_t index);

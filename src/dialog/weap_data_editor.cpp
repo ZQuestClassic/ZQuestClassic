@@ -248,9 +248,19 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_BURN_DIVINEFIRE, state);
 									}
 								),
-								INFOBTN("The weapon is ignited aflame with 'Divine' fire.")
-								
+								INFOBTN("The weapon is ignited aflame with 'Divine' fire."),
+								//
 								//WFLAG_UPDATE_IGNITE_SPRITE is in the Burn/Glow tab
+								//
+								Checkbox(text = "No Collision When Still",
+									checked = local_ref.wflags & WFLAG_NO_COLL_WHEN_STILL,
+									fitParent = true,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.wflags, WFLAG_NO_COLL_WHEN_STILL, state);
+									}
+								),
+								INFOBTN("The weapon will not hit any entities while it's step is 0.")
 							)
 						)
 					)

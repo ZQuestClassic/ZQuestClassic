@@ -141,6 +141,7 @@ enum weapon_flags : uint16_t
 	WFLAG_STOP_WHEN_LANDING    = F(7),
 	WFLAG_STOP_WHEN_HIT_SOLID  = F(8),
 	WFLAG_UPDATE_IGNITE_SPRITE = F(9),
+	WFLAG_NO_COLL_WHEN_STILL   = F(10),
 };
 
 enum
