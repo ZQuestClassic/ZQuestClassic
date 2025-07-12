@@ -1136,7 +1136,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::IT_INITD(int index)
 	using namespace GUI::Props;
 	
 	return Row(padding = 0_px,
-		l_it_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		l_it_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
 		ib_it_initds[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
 			onPressFunc = [&, index]()
