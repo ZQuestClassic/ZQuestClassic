@@ -11360,7 +11360,7 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 
 	if(index >= TheMaps.size())
 	{
-		Z_scripterrlog("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		Z_scripterrlog("DrawLayer: invalid map index \"%i\". Map count is %zu.\n", index, TheMaps.size());
 		return;
 	}
     

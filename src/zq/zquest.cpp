@@ -4990,6 +4990,8 @@ char *ticksstr(int32_t tics)
     
     return _ticksstr;
 }
+
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_disabled(BITMAP *bmp, AL_CONST FONT *f, int32_t x, int32_t y, int32_t color_hl, int32_t color_sh, AL_CONST char *format, ...)
 {
     char buf[512];
@@ -5008,6 +5010,7 @@ void textprintf_disabled(BITMAP *bmp, AL_CONST FONT *f, int32_t x, int32_t y, in
     textout_ex(bmp, f, buf, x, y, color_sh, -1);
 }
 
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_centre_disabled(BITMAP *bmp, AL_CONST FONT *f, int32_t x, int32_t y, int32_t color_hl, int32_t color_sh, AL_CONST char *format, ...)
 {
     char buf[512];

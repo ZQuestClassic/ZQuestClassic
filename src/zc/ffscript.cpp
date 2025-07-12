@@ -758,7 +758,7 @@ void SH::write_stack(const uint32_t stackoffset, const int32_t value)
 {
 	if(stackoffset >= MAX_SCRIPT_REGISTERS)
 	{
-		Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
+		Z_scripterrlog("Stack over or underflow, stack pointer = %u\n", stackoffset);
 		return;
 	}
 	
@@ -769,7 +769,7 @@ int32_t SH::read_stack(const uint32_t stackoffset)
 {
 	if(stackoffset >= MAX_SCRIPT_REGISTERS)
 	{
-		Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
+		Z_scripterrlog("Stack over or underflow, stack pointer = %u\n", stackoffset);
 		return -10000;
 	}
 	
@@ -2721,7 +2721,7 @@ user_file *checkFile(int32_t ref, bool req_file = false, bool skipError = false)
 		if (skipError) return NULL;
 
 		scripting_log_error_with_context("Script attempted to reference an invalid file!");
-		Z_scripterrlog("File with UID = %ld does not have an open file connection!\n", ref);
+		Z_scripterrlog("File with UID = %d does not have an open file connection!\n", ref);
 		Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
 		return NULL;
 	}
@@ -6374,24 +6374,18 @@ int32_t get_register(int32_t arg)
 		case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc) break;
 		case SPRITEDATACSETS:
 		{
-			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
-			{
+			if (auto sd = checkSpriteData(ri->spritedataref); !sd)
 				ret = -10000;
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", (ri->spritedataref*10000));
-			}
 			else
-				ret = ((wpnsbuf[ri->spritedataref].csets & 0xF) * 10000);
+				ret = ((sd->csets & 0xF) * 10000);
 			break;
 		}
 		case SPRITEDATAFLCSET:
 		{
-			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
-			{
+			if (auto sd = checkSpriteData(ri->spritedataref); !sd)
 				ret = -10000;
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritedataref*10000), "FlashCSet");
-				break;
-			}
-			ret = (((wpnsbuf[ri->spritedataref].csets & 0xF0)>>4) * 10000);
+			else
+				ret = (((sd->csets & 0xF0)>>4) * 10000);
 			break;
 		}
 		case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames) break;
@@ -8699,7 +8693,7 @@ int32_t get_register(int32_t arg)
 			
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ 
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), "MatchInitDLabel()"); 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "MatchInitDLabel()", (ri->npcdataref*10000));
 				ret = 0; 
 				break;
 			} 
@@ -13794,7 +13788,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (indx < 0 || indx > MAX_FFCID)
 			{
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), "FFCRunning");
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", "FFCRunning", (indx));
 				break;
 			}
 			get_script_engine_data(ScriptType::FFC, indx).initialized = (value/10000) ? true : false;
@@ -16009,66 +16003,38 @@ void set_register(int32_t arg, int32_t value)
 		
 		#define	SET_NPCDATA_VAR_INT(member, str) \
 		{ \
-			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
-			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
-			} \
-			else \
-			{ \
-				guysbuf[ri->npcdataref].member = vbound((value / 10000),0,214747); \
-			} \
+			if( auto nd = checkNPCData(ri->npcdataref) ) \
+				nd->member = vbound((value / 10000),0,214747); \
 		} \
 		
 		#define	SET_NPCDATA_VAR_DWORD(member, str) \
 		{ \
-			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
-			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
-			} \
-			else \
-			{ \
-				guysbuf[ri->npcdataref].member = vbound((value / 10000),0,32767); \
-			} \
+			if( auto nd = checkNPCData(ri->npcdataref) ) \
+				nd->member = vbound((value / 10000),0,32767); \
 		} \
 
 		#define	SET_NPCDATA_VAR_ENUM(member, str) \
 		{ \
-			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
-			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
-			} \
-			else \
-			{ \
-				guysbuf[ri->npcdataref].member = (decltype(guysbuf[ri->npcdataref].member))vbound((value / 10000),0,32767); \
-			} \
+			if( auto nd = checkNPCData(ri->npcdataref) ) \
+				nd->member = (decltype(guysbuf[ri->npcdataref].member))vbound((value / 10000),0,32767); \
 		} \
 
 		#define	SET_NPCDATA_VAR_BYTE(member, str) \
 		{ \
-			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
-			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
-			} \
-			else \
-			{ \
-				guysbuf[ri->npcdataref].member = vbound((value / 10000),0,255); \
-			} \
+			if( auto nd = checkNPCData(ri->npcdataref) ) \
+				nd->member = vbound((value / 10000),0,255); \
 		} \
 		
 		#define SET_NPCDATA_FLAG(member, str) \
 		{ \
 			int32_t flag =  (value/10000);  \
-			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
-			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
-			} \
-			else \
+			if( auto nd = checkNPCData(ri->npcdataref) ) \
 			{ \
 				if ( flag ) \
 				{ \
-					guysbuf[ri->npcdataref].member|=flag; \
+					nd->member|=flag; \
 				} \
-				else guysbuf[ri->npcdataref].member|= ~flag; \
+				else nd->member|= ~flag; \
 			} \
 		} \
 		
@@ -18689,7 +18655,7 @@ void do_asin(const bool v)
 		set_register(sarg1, int32_t(asin(temp) * 10000.0));
 	else
 	{
-		Z_scripterrlog("Script attempted to pass %ld into ArcSin!\n",temp);
+		Z_scripterrlog("Script attempted to pass %f into ArcSin!\n",temp);
 		set_register(sarg1, -10000);
 	}
 }
@@ -18702,7 +18668,7 @@ void do_acos(const bool v)
 		set_register(sarg1, int32_t(acos(temp) * 10000.0));
 	else
 	{
-		Z_scripterrlog("Script attempted to pass %ld into ArcCos!\n",temp);
+		Z_scripterrlog("Script attempted to pass %f into ArcCos!\n",temp);
 		set_register(sarg1, -10000);
 	}
 }
@@ -18893,7 +18859,7 @@ void do_sqroot(const bool v)
 	
 	if(temp < 0)
 	{
-		Z_scripterrlog("Script attempted to calculate square root of %ld!\n", temp);
+		Z_scripterrlog("Script attempted to calculate square root of %f!\n", temp);
 		set_register(sarg1, -10000);
 		return;
 	}
@@ -20513,7 +20479,7 @@ void FFScript::do_paldata_write_levelcset()
 			}
 			break;
 		default:
-			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteLevelCSet()'. Level palettes can use CSets 1, 2, 3, 4, 5, 7, 8, 9.\n");
+			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteLevelCSet()'. Level palettes can use CSets 1, 2, 3, 4, 5, 7, 8, 9.\n", cs);
 			return;
 		}
 	
@@ -20685,7 +20651,7 @@ void FFScript::do_paldata_write_maincset()
 		}
 		else
 		{
-			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteMainCSet()'. Valid csets are 0-15. Aborting.\n");
+			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteMainCSet()'. Valid csets are 0-15. Aborting.\n", cs);
 			return;
 		}
 
@@ -20739,7 +20705,7 @@ void FFScript::do_paldata_write_cyclecset()
 			}
 			break;
 		default:
-			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteCycleCSet()'. Cycle palettes use CSets 4-12.\n");
+			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteCycleCSet()'. Cycle palettes use CSets 4-12.\n", cs);
 			return;
 		}
 
@@ -21990,12 +21956,12 @@ void do_createlweapon(const bool v)
 		w->ScriptGenerated = 1;
 		w->isLWeapon = 1;
 		if(ID == wWind) w->specialinfo = 1;
-		Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
+		Z_eventlog("Script created lweapon %d with UID = %u\n", ID, ri->lwpn);
 	}
 	else
 	{
 		ri->lwpn = 0; // Now NULL
-		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
+		Z_scripterrlog("Couldn't create lweapon %d, screen lweapon limit reached\n", ID);
 	}
 }
 
@@ -22016,18 +21982,18 @@ void do_createeweapon(const bool v)
 			w->ScriptGenerated = 1;
 			w->isLWeapon = 0;
 			ri->ewpn = Ewpns.spr(Ewpns.Count() - 1)->getUID();
-			Z_eventlog("Script created eweapon %ld with UID = %ld\n", ID, ri->ewpn);
+			Z_eventlog("Script created eweapon %d with UID = %u\n", ID, ri->ewpn);
 		}
 		else
 		{
-			Z_scripterrlog("Couldn't create eweapon %ld: Invalid ID/Type (%d) specified.\n", ID);
+			Z_scripterrlog("Couldn't create eweapon: Invalid ID/Type (%d) specified.\n", ID);
 			return;
 		}
 	}
 	else
 	{
 		ri->ewpn = 0;
-		Z_scripterrlog("Couldn't create eweapon %ld, screen eweapon limit reached\n", ID);
+		Z_scripterrlog("Couldn't create eweapon %d, screen eweapon limit reached\n", ID);
 	}
 }
 
@@ -22044,7 +22010,7 @@ void do_createitem(const bool v)
 		sprite* item = items.spr(items.Count() - 1);
 		item->screen_spawned = ri->screenref;
 		ri->itemref = item->getUID();
-		Z_eventlog("Script created item \"%s\" with UID = %ld\n", item_string[ID], ri->itemref);
+		Z_eventlog("Script created item \"%s\" with UID = %u\n", item_string[ID], ri->itemref);
 	}
 	else
 	{
@@ -22077,7 +22043,7 @@ void do_createnpc(const bool v)
 		for(; index<guys.Count(); index++)
 			((enemy*)guys.spr(index))->script_spawned=true;
 			
-		Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[ID], ri->guyref);
+		Z_eventlog("Script created NPC \"%s\" with UID = %u\n", guy_string[ID], ri->guyref);
 	}
 }
 
@@ -24038,7 +24004,7 @@ int32_t FFScript::IsBlankTile(int32_t i)
 {
 	if( ((unsigned)i) > NEWMAXTILES )
 	{
-		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->IsBlankTile[]\n");
+		scripting_log_error_with_context("Invalid tile ID {}", i);
 		return -1;
 	}
 	    
@@ -24061,7 +24027,7 @@ int32_t FFScript::Is8BitTile(int32_t i)
 {
 	if (((unsigned)i) > NEWMAXTILES)
 	{
-		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->Is8BitTile[]\n");
+		scripting_log_error_with_context("Invalid tile ID {}", i);
 		return -1;
 	}
 
@@ -28726,7 +28692,7 @@ int32_t run_script_int(bool is_jitted)
 					break;
 				}
 
-				Z_scripterrlog("Invalid ZASM command %lu reached; terminating\n", scommand);
+				scripting_log_error_with_context("Invalid ZASM command {} reached; terminating", scommand);
 				hit_invalid_zasm = true;
 				scommand = 0xFFFF;
 				break;
@@ -29091,7 +29057,7 @@ void check_file_error(int32_t ref)
 		int32_t err = ferror(f->file);
 		if(err != 0)
 		{
-			Z_scripterrlog("File with UID '%ld' encountered an error.\n", ref);
+			Z_scripterrlog("File with UID '%d' encountered an error.\n", ref);
 			Z_scripterrlog("File error: %s\n", strerror(err));
 		}
 	}
@@ -30001,12 +29967,12 @@ int32_t FFScript::get_screen_d(int32_t index1, int32_t index2)
 {
 	if(index2 < 0 || index2 > 7)
 	{
-		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+		scripting_log_error_with_context("You were trying to reference an out-of-bounds array index for a screen's D[] array ({}); valid indices are from 0 to 7.", index1);
 		return 0;
 	}
 	if (index1 < 0 || index1 >= game->screen_d.size())
 	{
-		Z_scripterrlog("You were trying to reference an out-of-bounds screen for a D[] array (%ld); valid indices are from 0 to %ld.\n", index1, game->screen_d.size() - 1);
+		scripting_log_error_with_context("You were trying to reference an out-of-bounds screen for a D[] array ({}); valid indices are from 0 to %u.", index1, game->screen_d.size() - 1);
 		return 0;
 	}
 	
@@ -30017,12 +29983,12 @@ void FFScript::set_screen_d(int32_t index1, int32_t index2, int32_t val)
 {
 	if(index2 < 0 || index2 > 7)
 	{
-		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+		scripting_log_error_with_context("You were trying to reference an out-of-bounds array index for a screen's D[] array ({}); valid indices are from 0 to 7.", index1);
 		return;
 	}
 	if (index1 < 0 || index1 >= game->screen_d.size())
 	{
-		Z_scripterrlog("You were trying to reference an out-of-bounds screen for a D[] array (%ld); valid indices are from 0 to %ld.\n", index1, game->screen_d.size() - 1);
+		scripting_log_error_with_context("You were trying to reference an out-of-bounds screen for a D[] array ({}); valid indices are from 0 to %u.", index1, game->screen_d.size() - 1);
 		return;
 	}
 	
@@ -31084,7 +31050,7 @@ void FFScript::do_warp_ex(bool v)
 	
 		default: 
 		{
-			Z_scripterrlog("Array supplied to Hero->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
+			scripting_log_error_with_context("Array supplied is the wrong size! The array size was: %d, and valid sizes are 8 and 9.", zscript_array_size);
 			break;
 		}
 	}
@@ -31335,7 +31301,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	
 	if(gen_frozen_index >= 400) // Experimentally tested to crash (stack overflow) at 500 for me -Em
 	{
-		Z_scripterrlog("Failed to run frozen generic script; too many (%d) frozen scripts running already! Possible infinite recursion?\n", gen_frozen_index);
+		Z_scripterrlog("Failed to run frozen generic script; too many (%zu) frozen scripts running already! Possible infinite recursion?\n", gen_frozen_index);
 		return false;
 	}
 	//Store script refinfo
@@ -32252,7 +32218,7 @@ void FFScript::do_xtoa()
 	}
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
 	{
-		Z_scripterrlog("Dest string supplied to 'xtoa()' not large enough\n");
+		scripting_log_error_with_context("Dest string parameter not large enough");
 		set_register(sarg1, 0);
 	}
 	else set_register(sarg1, (ret + digits -(isneg?1:0))*10000); //don't count the - sign as a digit
@@ -32293,7 +32259,7 @@ void FFScript::do_strstr()
 	ArrayH::getString(arrayptr_b, strB);
 	if ( strA.size() < 1 ) 
 	{
-		Z_scripterrlog("String passed to strstr() is too small. Size is: %d \n", strA.size());
+		scripting_log_error_with_context("String parameter is too small. Size is: {}", strA.size());
 		set_register(sarg1,-10000);
 		return;
 	}
@@ -32314,7 +32280,7 @@ void FFScript::do_strcat()
 	string strC = strA + strB;
 	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
 	{
-		Z_scripterrlog("Dest string supplied to 'strcat()' not large enough\n");
+		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
 		set_register(sarg1, 0);
 	}
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
@@ -32352,7 +32318,7 @@ void FFScript::do_strchr()
 	ArrayH::getString(arrayptr_a, strA);
 	if ( strA.size() < 1 ) 
 	{
-		Z_scripterrlog("String passed to strchr() is too small. Size is: %d \n", strA.size());
+		scripting_log_error_with_context("String parameter is too small. Size is: {}", strA.size());
 		set_register(sarg1,-10000);
 		return;
 	}
@@ -32367,7 +32333,7 @@ void FFScript::do_strrchr()
 	ArrayH::getString(arrayptr_a, strA);
 	if ( strA.size() < 1 ) 
 	{
-		Z_scripterrlog("String passed to strrchr() is too small. Size is: %d \n", strA.size());
+		scripting_log_error_with_context("String parameter is too small. Size is: {}", strA.size());
 		set_register(sarg1,-10000);
 		return;
 	}
@@ -32417,7 +32383,7 @@ void FFScript::do_itoa()
 	
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
 	{
-		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
+		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
 		set_register(sarg1, -1);
 	}
 	else set_register(sarg1, ret); //returns the number of digits used
@@ -32449,7 +32415,7 @@ void FFScript::do_itoacat()
 		string strC = strA + strB;
 		if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
 		{
-			Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
+			scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
 			set_register(sarg1, 0);
 		}
 		else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
@@ -32463,7 +32429,7 @@ void FFScript::do_itoacat()
 	string strC = strA + strB;
 	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
 	{
-		Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
+		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
 		set_register(sarg1, 0);
 	}
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
@@ -32479,7 +32445,7 @@ void FFScript::do_strcpy(const bool a, const bool b)
 	ArrayH::getString(arrayptr_a, strA);
 
 	if(ArrayH::setArray(arrayptr_b, strA) == SH::_Overflow)
-		Z_scripterrlog("Dest string supplied to 'strcpy()' not large enough\n");
+		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
 }
 void FFScript::do_arraycpy(const bool a, const bool b)
 {

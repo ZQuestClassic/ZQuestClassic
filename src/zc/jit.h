@@ -1,3 +1,4 @@
+#include "base/compiler.h"
 #include "base/zdefs.h"
 
 #ifndef ZC_JIT_H_
@@ -6,6 +7,7 @@
 struct JittedScriptHandle;
 typedef void* JittedFunction;
 
+ZC_FORMAT_PRINTF(1, 2)
 void jit_printf(const char *format, ...);
 bool jit_is_enabled();
 void jit_set_enabled(bool enabled);

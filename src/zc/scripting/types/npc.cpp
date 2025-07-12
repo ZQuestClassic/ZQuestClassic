@@ -522,7 +522,7 @@ void do_npc_add(const bool v)
 		
 		ri->d[rEXP1] = ri->guyref;
 		ri->d[rEXP2] = ri->guyref;
-		Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[id], ri->guyref);
+		Z_eventlog("Script created NPC \"%s\" with UID = %u\n", guy_string[id], ri->guyref);
 	}
 }
 

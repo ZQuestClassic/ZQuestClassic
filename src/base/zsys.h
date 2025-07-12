@@ -1,3 +1,4 @@
+#include "base/compiler.h"
 #if defined(ALLEGRO_WINDOWS)
 #include <conio.h>
 #endif
@@ -123,46 +124,72 @@ void textout_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, const char *s, int3
 
 
 
-
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_center_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_right_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_center_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_right_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_center_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_right_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
 
 
 
 
-
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_center_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_right_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_center_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(7, 8)
 void textprintf_shadow_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...);
 
 
-
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_center_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_right_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_center_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_right_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_center_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_right_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 
-
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_center_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_right_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_center_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+ZC_FORMAT_PRINTF(8, 9)
 void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 
 void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);

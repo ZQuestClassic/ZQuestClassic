@@ -1645,7 +1645,7 @@ JittedFunction jit_compile_script(zasm_script* script)
 	{
 		debug_handle->printf("time to preprocess: %d ms\n", preprocess_ms);
 		debug_handle->printf("time to compile:    %d ms\n", compile_ms);
-		debug_handle->printf("Code size:          %d kb\n", code.codeSize() / 1024);
+		debug_handle->printf("Code size:          %zu kb\n", code.codeSize() / 1024);
 		// Exclude NOPs from size count.
 		int size_no_nops = 0;
 		for (int i = 0; i < size; i++)
@@ -1653,7 +1653,7 @@ JittedFunction jit_compile_script(zasm_script* script)
 			if (script->zasm[i].command != NOP)
 				size_no_nops += 1;
 		}
-		debug_handle->printf("ZASM instructions:  %zu\n", size_no_nops);
+		debug_handle->printf("ZASM instructions:  %d\n", size_no_nops);
 		debug_handle->print("\n");
 
 		if (!uncompiled_command_counts.empty())

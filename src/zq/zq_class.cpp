@@ -14796,7 +14796,7 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 	{
 		char const* kfname = filename;
 		char keyfilename[2048]={0};
-		zprint2("Writing key files for '%s'\n", kfname, ".zpwd", ".zcheat");
+		zprint2("Writing key files for '%s'\n", kfname);
 		
 		char temp_pw[QSTPWD_LEN] = {0};
 		uint ind = 0;

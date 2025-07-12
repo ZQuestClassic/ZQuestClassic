@@ -4,6 +4,7 @@
 #include <optional>
 #include <vector>
 #include <map>
+#include "base/compiler.h"
 #include "base/msgstr.h"
 #include "base/zdefs.h"
 #include "base/initdata.h"
@@ -72,10 +73,15 @@ void port250QuestRules();
 bool get_debug();
 void set_debug(bool d);
 
+ZC_FORMAT_PRINTF(1, 2)
 void Z_eventlog(const char *format, ...);
+ZC_FORMAT_PRINTF(1, 2)
 void Z_scripterrlog(const char * const format, ...);
+ZC_FORMAT_PRINTF(1, 2)
 void Z_scripterrlog_force_trace(const char * const format, ...);
+ZC_FORMAT_PRINTF(1, 2)
 void zprint(const char * const format, ...);
+ZC_FORMAT_PRINTF(1, 2)
 void zprint2(const char * const format, ...);
 
 // zelda.cc

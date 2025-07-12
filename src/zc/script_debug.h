@@ -1,3 +1,4 @@
+#include "base/compiler.h"
 #include "base/zdefs.h"
 #include <string>
 
@@ -22,7 +23,9 @@ public:
 	~ScriptDebugHandle();
 	
 	void update_file();
+	ZC_FORMAT_PRINTF(3, 4)
 	void printf(int32_t attributes, const char *format, ...);
+	ZC_FORMAT_PRINTF(2, 3)
 	void printf(const char *format, ...);
 	void print(const char *str);
 	void print(int32_t attributes, const char *str);

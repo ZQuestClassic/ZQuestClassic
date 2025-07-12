@@ -113,7 +113,7 @@ static void do_readclass()
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
-			Z_scripterrlog("Script tried to read position '%d' out of bounds on a '%d' size object (%d).", ind, obj->data.size(), id);
+			scripting_log_error_with_context("Script tried to read position '{}' out of bounds on a '{}' size object ({}).", ind, obj->data.size(), id);
 		}
 		else
 		{
@@ -130,7 +130,7 @@ static void do_writeclass()
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
-			Z_scripterrlog("Script tried to write position '%d' out of bounds on a '%d' size object (%d).", ind, obj->data.size(), id);
+			scripting_log_error_with_context("Script tried to write position '{}' out of bounds on a '{}' size object ({}).", ind, obj->data.size(), id);
 		}
 		else
 		{

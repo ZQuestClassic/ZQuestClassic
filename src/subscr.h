@@ -1,6 +1,7 @@
 #ifndef SUBSCR_H_
 #define SUBSCR_H_
 
+#include "base/compiler.h"
 #include "new_subscr.h"
 #include "base/zc_alleg.h"
 
@@ -136,6 +137,7 @@ void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32
 void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t flip,bool overlay,bool trans);
 void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bool showhero, int32_t roomcolor, int32_t herocolor, bool large);
 void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg);
+ZC_FORMAT_PRINTF(10, 11)
 void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 void update_subscreens(int32_t dmap=-1);
 void show_custom_subscreen(BITMAP *dest, ZCSubscreen *subscr, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2);
