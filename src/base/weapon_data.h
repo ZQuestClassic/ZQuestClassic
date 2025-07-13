@@ -47,6 +47,8 @@ struct weapon_data
 	word script;
 	int32_t initd[INITIAL_D];
 	
+	int16_t pierce_count = -1;
+	
 	void clear();
 	bool is_blank() const;
 	void clear_lifting();

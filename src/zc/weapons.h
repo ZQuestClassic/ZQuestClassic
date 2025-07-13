@@ -124,6 +124,7 @@ public:
 	bool rundeath; //run death effects
 	int weap_timeout;
     byte specialinfo;
+	int16_t pierce_count = -1;
 	
 	int shd_aclk, shd_aframe;
     byte specialsfx;
@@ -154,8 +155,9 @@ public:
 	std::set<rpos_t> getBombPositions();
 	bool collide_solid() const;
 	void collision_check();
+	void hit_pierce(enemy* e = NULL, int32_t ehitType = -1, bool old_hit = true);
     virtual void onhit(bool clipped, enemy* e = NULL, int32_t ehitType = -1);
-    virtual void onhit(bool clipped, int32_t special, int32_t herodir, enemy* e = NULL, int32_t ehitType = -1);
+    virtual void onhit(bool clipped, int32_t special, int32_t herodir, enemy* e = NULL, int32_t ehitType = -1, bool was_pierced = false);
     // override hit detection to check for invicibility, etc
     virtual bool hit();
     virtual bool hit(sprite *s);
