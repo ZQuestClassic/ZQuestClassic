@@ -3560,7 +3560,7 @@ bool HeroClass::checkstab()
 			
 			int32_t h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn,w);
 			enemy *e = (enemy*)guys.spr(i);
-			if (h == -1) 
+			if (h < 0)
 			{ 
 				e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; 
 				e->hitby[HIT_BY_LWEAPON_UID] = w->getUID();
@@ -3591,7 +3591,7 @@ bool HeroClass::checkstab()
 				}
 			}
 			
-			if(h==2)
+			if(abs(h)==2)
 				break;
 		}
 	}
@@ -6526,7 +6526,7 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 	}
 	
 	if(w)
-		w->onhit(false);
+		w->hit_pierce();
 	
 	doHit(hdir, iframes);
 	return true;
@@ -6923,7 +6923,7 @@ void HeroClass::checkhit()
 		}
 		
 		if(lwpnspr)
-			lwpnspr->onhit(false);
+			lwpnspr->hit_pierce();
 		
 		doHit(hdir, iframes);
 		return;
@@ -6985,7 +6985,7 @@ void HeroClass::checkhit()
 		}
 		
 		if(ewpnspr)
-			ewpnspr->onhit(false);
+			ewpnspr->hit_pierce();
 		
 		doHit(hdir, iframes);
 		return;

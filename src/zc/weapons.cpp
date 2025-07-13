@@ -2891,6 +2891,8 @@ void weapon::load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr)
 		if(!((isLWeapon ? lwpnmap : ewpnmap)[script-1].hasScriptData())) // validate script
 			script = 0;
 	}
+	
+	pierce_count = data.pierce_count;
 }
 
 bool weapon::isHeroWeapon()
@@ -6723,12 +6725,35 @@ void weapon::collision_check()
 	}
 }
 
+void weapon::hit_pierce(enemy* e, int32_t ehitType, bool old_hit)
+{
+	if(pierce_count < 0) // don't use new pierce system
+	{
+		if(old_hit)
+			onhit(false, 0, -1, e, ehitType, false);
+		return;
+	}
+	if(!scriptcoldet || fallclk || drownclk)
+		return; // not hit
+	switch(id)
+	{
+		case ewLitBomb: case ewLitSBomb:
+		case wLitBomb: case wLitSBomb:
+			// the bomb doesn't use pierce, and shouldn't decrement it as the
+			// bomb explosion will use it.
+			onhit(false, 0, -1, e, ehitType, true);
+			return;
+	}
+	if(pierce_count > 0) // 0 == infinite pierce
+		if(!--pierce_count) // subtract a pierce; if out, die
+			onhit(false, 0, -1, e, ehitType, true);
+}
 void weapon::onhit(bool clipped, enemy* e, int32_t ehitType)
 {
     onhit(clipped, 0, -1, e, ehitType);
 }
 
-void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int32_t ehitType)
+void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int32_t ehitType, bool was_pierced)
 {
 	if(!scriptcoldet || fallclk || drownclk)
 	{
@@ -6736,7 +6761,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 		// Unless the compatibility rule is set.
 		if(get_qr(qr_OFFSCREENWEAPONS) || !clipped)
 			return;
-		goto offscreenCheck;
+		special = 0;
 	}
 	
 	if(special==2)                                            // hit Hero's mirror shield
@@ -6886,64 +6911,65 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 		}
 	}
     
-offscreenCheck:
-    
-    if ( get_qr(qr_WEAPONSMOVEOFFSCREEN) || (screenedge&SPRITE_MOVESOFFSCREEN) ) goto skip_offscreenCheck;
+	// what about this is anything to do with "offscreen"? No 'clipped' check... This seems fishy... -Em
+    if ( get_qr(qr_WEAPONSMOVEOFFSCREEN) || (screenedge&SPRITE_MOVESOFFSCREEN) ) return;
     switch(id)
     {
-    case wSword:
-    case wWand:
-    case wHammer:
-    case wBugNet:
-        break;
+    case wSword: case wWand: case wHammer: case wBugNet:
+    case wHSHandle: case wPhantom:
+        break; // don't worry about clipping or hits with these
         
-    case ewBomb:
+    case ewBomb: case ewSBomb:
         step=0;
+		if(was_pierced)
+			scriptcoldet = false; // stay alive but not hitting anything
         break;
         
-    case ewLitBomb:
-        step=0;
-        misc=50;
-        clk=misc-3;
-        hxofs=hyofs=-7;
-        hit_width=hit_height=30;
-        break;
-        
-    case ewSBomb:
-        step=0;
-        break;
-        
-    case ewLitSBomb:
+    case ewLitBomb: case ewLitSBomb:
+		if(pierce_count > 0 && was_pierced)
+		{
+			// bombs don't use pierce, their explosions do
+			// the collision that booms should count against the pierce
+			--pierce_count;
+		}
         step=0;
         misc=50;
         clk=misc-3;
-        hxofs=hyofs=-16;
-        hit_width=hit_height=48;
+		if(id == ewLitBomb)
+		{
+			hxofs=hyofs=-7;
+			hit_width=hit_height=30;
+		}
+		else
+		{
+			hxofs=hyofs=-16;
+			hit_width=hit_height=48;
+		}
         break;
         
-    case wLitBomb:
-        if(!clipped) dead=1;
+    case wLitBomb: case wLitSBomb:
+        if(!clipped)
+			dead=1;
+		break;
         
-    case wLitSBomb:
-        if(!clipped) dead=1;
-        
-    case wWhistle:
-    case wBomb:
-    case wSBomb:
-    case wBait:
-    case wFire:
-    case wHSHandle:
-    case wPhantom:
-        break;                                   // don't worry about clipping or hits with these
+	case wBomb: case wSBomb:
+		if(was_pierced)
+			scriptcoldet = false; // stay alive but not hitting anything
+		break;
+    case wWhistle: case wBait: case wFire:
+		if(was_pierced)
+			dead = 0;
+		break;
         
     case ewFireTrail:
-        if(!clipped) dead=1;
-        
+        if(!clipped)
+			dead=1;
         break;
     
     case ewFlame:
     case wRefFire:
-        if(!clipped) dead=1;
+        if(!clipped)
+			dead=1;
         break;
     case ewFlame2:
     case wRefFire2:
@@ -6957,15 +6983,13 @@ offscreenCheck:
         
     case wArrow:
         dead=4;
-        break;                           //trigger_secrets_if_flag(x,y,mfARROW,true); break;
+        break;
         
-    case ewArrow:
-    case wRefArrow:
+    case ewArrow: case wRefArrow:
         dead=clipped?4:1;
         break;
         
     case wCByrna:
-    
         // byrna keeps going
         if(parentitem<0 || !(itemsbuf[parentitem].flags&item_flag1))
             dead=0;
@@ -6973,14 +6997,13 @@ offscreenCheck:
         break;
         
     case wWind:
-        if(x>=240)
-            dead=2;
-            
+		if(x>=240)
+			dead=2;
         break;
         
 	case wBrang:
 	{
-		if(e && e->switch_hooked && ehitType == 1)
+		if(e && e->switch_hooked && ehitType > 0)
 		{
 			dead = 0;
 			break;
@@ -6990,25 +7013,13 @@ offscreenCheck:
 			int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & item_flag3)?-2:4;
 			clk2=256;
 			if(clipped)
-			{
 				dead=deadval;
-			}
 			else
 			{
 				if(deadval==-2)
-				{
 					dead=deadval;
-				}
 				
 				misc=1;
-				/*
-				  if (current_item(itype_brang)>1) {
-				  if (dummy_bool[0]) {
-				  add_grenade(x,y,z,current_item(itype_brang)>2);
-				  dummy_bool[0]=false;
-				  }
-				  }
-				  */
 			}
 		}
 	}
@@ -7019,7 +7030,7 @@ offscreenCheck:
         {
 			if(family_class==itype_switchhook)
 			{
-				if(e && !switching_object && ehitType == -1)
+				if(e && !switching_object && (ehitType < 0 || e->switch_hooked))
 				{
 					switch(e->family)
 					{
@@ -7136,11 +7147,6 @@ offscreenCheck:
 	}
     default:
         dead=1;
-    }
-    skip_offscreenCheck:
-    
-    {
-	//do not remove these braces!
     }
 }
 

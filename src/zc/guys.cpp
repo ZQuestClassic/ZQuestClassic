@@ -3057,7 +3057,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			
 		case ed1HKO:
 			*power = hp;
-			return -2;
+			return -3;
 			
 		case ed2x:
 		{
@@ -3179,7 +3179,7 @@ int32_t enemy::defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte un
 	if(!nullify)
 	{
 		ret = defendNew(wpnId, power, edef, unblockable);
-		if(ret == -1)
+		if(ret < 0)
 		{
 			ev.push_back(*power*10000);
 			ev.push_back(edef*10000);
@@ -3342,7 +3342,7 @@ int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
 		
 	case ed1HKO:
 		*power = hp;
-		return -2;
+		return -3;
 	
 	case ed2x:
 	 {
@@ -3567,8 +3567,9 @@ int32_t enemy::defenditemclass(int32_t wpnId, int32_t *power)
 }
 
 // take damage or ignore it
-// -1: damage (if any) dealt
-// 1: blocked
+// 2 or -2: force wait a frame
+// < 0: damage (if any) dealt
+// > 0: blocked
 // 0: weapon passes through unhindered
 int32_t enemy::takehit(weapon *w, weapon* realweap)
 {
@@ -3744,8 +3745,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 			
 			if(def <= 0) 
 			{
-				if ( def == -2 ) hp -= hp;
-				else hp -= power;
+				hp -= power;
 				return def;
 			}
 			break;
@@ -3805,6 +3805,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		//preventing stunlock might be best, here. -Z
 		if(def >= 0) return def;
+		ret = def;
 		
 		// Not hurt by 0-damage weapons
 		if(!(flags & guy_bhit))
@@ -3834,6 +3835,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		
 		if(def >= 0) return def;
+		ret = def;
 		
 		bool swgrab = switch_hooked || w->family_class == itype_switchhook;
 		if(swgrab || !(flags & guy_bhit))
@@ -3884,10 +3886,8 @@ fsparkle:
 		
 		if(def >= 0)
 			return def;
-		else if(def == -2)
-		{
+		else if(def == -3) // OHKO... doesn't 'hit' the weapon?
 			ret = 0;
-		}
 	}
 	
 	if(!power)
@@ -13234,8 +13234,11 @@ int32_t eBigDig::takehit(weapon *w, weapon* realweap)
 	int32_t wpnId = w->id;
 	
 	if(wpnId==wWhistle && misc==0)
-		misc=1;
-		
+	{
+		misc = 1;
+		w->hit_pierce(this, 0, false);
+	}
+	
 	return 0;
 }
 
@@ -15231,7 +15234,7 @@ int32_t esGleeok::takehit(weapon *w, weapon* realweap)
 		int32_t ret = enemy::takehit(w,realweap);
 		
 		if(ret==-1)
-			return 2; // force it to wait a frame before checking sword attacks again
+			return -2; // force it to wait a frame before checking sword attacks again
 			
 		return ret;
 	}
@@ -20840,12 +20843,13 @@ void check_enemy_lweapon_collision(weapon *w)
 			enemy *e = (enemy*)guys.spr(j);
 			
 			bool didhit = e->hit(w);
-			if(didhit) //boomerangs and such that last for more than a frame can write hitby[] for more than one frame, 
+			//boomerangs and such that last for more than a frame can write hitby[] for more than one frame,
 			//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
+			if(didhit)
 			{
 				// !(e->stunclk)
 				int32_t h = e->takehit(w);
-				if (h == -1) 
+				if (h < 0) // hitby code
 				{
 					int indx = Lwpns.find(w);
 					if(indx > -1)
@@ -20856,58 +20860,16 @@ void check_enemy_lweapon_collision(weapon *w)
 					else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
 					e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
 					e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
-					
-				}
-				//we may need to handle this in special cases. -Z
-			   
-				//if h == stun or ignore
-				
-				//if e->stun > DEFAULT_STUN -1 || !e->stun 
-				//if the enemy wasn't stunned this round -- what a bitch, as the stun value is set before we check this
-				///! how about: if w->dead != bounce !
-				
-				// NOT FOR PUBLIC RELEASE
-				/*if(h==3) //Mirror shield
-				{
-				if (w->id==ewFireball || w->id==wRefFireball)
-				{
-				  w->id=wRefFireball;
-				  switch(e->dir)
-				  {
-					case up:    e->angle += (PI - e->angle) * 2.0;      break;
-					case down:  e->angle = -e->angle;                   break;
-					case left:  e->angle += ((-PI/2) - e->angle) * 2.0; break;
-					case right: e->angle += (( PI/2) - e->angle) * 2.0; break;
-					// TODO: the following. -L.
-					case l_up:  break;
-					case r_up:  break;
-					case l_down: break;
-					case r_down: break;
-				  }
-				}
-				else
-				{
-				  w->id = ((w->id==ewMagic || w->id==wRefMagic || w->id==wMagic) ? wRefMagic : wRefBeam);
-				  w->dir ^= 1;
-				  if(w->dir&2)
-					w->flip ^= 1;
-				  else
-					w->flip ^= 2;
-				}
-				w->ignoreHero=false;
-				}
-				else*/
-				if(h)
-				{
-					if(e->switch_hooked && w->family_class == itype_switchhook)
-						w->onhit(false, e, -1);
-					else w->onhit(false, e, h);
+					//we may need to handle this in special cases. -Z
+					// arrow item pierce flag, for example -Em
 				}
 				
-				if(h==2)
-				{
-					break;
-				}
+				if(h < 0) // hit, check if weapon is "out of pierces"
+					w->hit_pierce(e, h);
+				else if(h > 0) // blocked
+					w->onhit(false, e, h);
+				if(abs(h) == 2)
+					break; // some enemy classes force a weapon hitting them to "wait a frame"
 			}
 			
 			if(w->Dead())

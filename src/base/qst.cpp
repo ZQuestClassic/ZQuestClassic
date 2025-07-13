@@ -1267,6 +1267,8 @@ int32_t read_weap_data(weapon_data& data, PACKFILE* f)
 	for(uint q = 0; q < 8; ++q)
 		if(!p_igetl(&(data.initd[q]), f))
 			return qe_invalid;
+	if(!p_igetw(&(data.pierce_count), f))
+		return qe_invalid;
 	return 0;
 }
 

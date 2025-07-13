@@ -6817,6 +6817,8 @@ int32_t write_weap_data(weapon_data const& data, PACKFILE* f)
 	for(uint q = 0; q < 8; ++q)
 		if(!p_iputl(data.initd[q], f))
 			new_return(27);
+	if (!p_iputw(data.pierce_count, f))
+		new_return(28);
 	return 0;
 }
 

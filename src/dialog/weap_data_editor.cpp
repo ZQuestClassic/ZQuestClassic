@@ -581,7 +581,14 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								"\nNot all weapon types will obey this."),
 							Label(text = "Timeout:", hAlign = 1.0),
 							NUM_FIELD(timeout, 0, 214748),
-							INFOBTN("If >0, the weapon dies automatically after this many frames.")
+							INFOBTN("If >0, the weapon dies automatically after this many frames."),
+							Label(text = "Pierce Count:", hAlign = 1.0),
+							NUM_FIELD(pierce_count, -1, 32767),
+							INFOBTN("The weapon can hit this many entities (enemies+player) before"
+								" dying. If 0, the weapon pierces infinitely. If -1, uses the weapon"
+								" type's default piercing behaviors."
+								"\nNote: Some weapon types may ignore this (ex. melee weapons)."
+								" Bomb type weapons don't use this, but their blast will.")
 						)
 					),
 					Rows<3>(
