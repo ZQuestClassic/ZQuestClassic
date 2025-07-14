@@ -268,6 +268,8 @@ struct itemdata
 		}
 		return;
 	}
+	//
+	void clear();
 	void advpaste(itemdata const& other, bitstring const& pasteflags);
 };
 

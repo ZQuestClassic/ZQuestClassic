@@ -1338,9 +1338,10 @@ int32_t get_qst_buffers()
     
     if((itemsbuf=(itemdata*)malloc(sizeof(itemdata)*(MAXITEMS+1)))==NULL)
         return 0;
-        
-    memset(itemsbuf,0,sizeof(itemdata)*(MAXITEMS+1));
-    itemsbuf++;
+	
+	for(size_t q = 0; q < MAXITEMS+1; ++q)
+		itemsbuf[q].clear();
+	itemsbuf++;
     
     if((wpnsbuf=(wpndata*)malloc(sizeof(wpndata)*MAXWPNS))==NULL)
         return 0;
@@ -1350,7 +1351,8 @@ int32_t get_qst_buffers()
     if((guysbuf=(guydata*)malloc(sizeof(guydata)*MAXGUYS))==NULL)
         return 0;
         
-    memset(guysbuf,0,sizeof(guydata)*MAXGUYS);
+	for(size_t q = 0; q < MAXGUYS; ++q)
+		guysbuf[q].clear();
     
     if((combo_class_buf=(comboclass*)malloc(sizeof(comboclass)*cMAX))==NULL)
         return 0;
@@ -6372,7 +6374,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
                 tempitem.playsound=WAV_SCALE;
                 reset_itembuf(&tempitem,i);
                 
-				memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
+				itemsbuf[i] = tempitem;
                 
                 continue;
             }
@@ -7097,7 +7099,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					tempitem.weap_data.initd[q] = 0;
 				}
 			}
-			memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
+			itemsbuf[i] = tempitem;
 		}
     }
 
@@ -7111,7 +7113,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
     //////////////////////////////////////////////////////
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
-		memcpy(&tempitem, &itemsbuf[i], sizeof(itemdata));
+		tempitem = itemsbuf[i];
 		
 		//Account for older quests that didn't have an actual item for the used letter
 		if(s_version < 2 && i==iLetterUsed)
@@ -9711,8 +9713,8 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 	{
 		wpnsbuf[iwSpawn] = *((wpndata*)(itemsbuf + iMisc1));
 		wpnsbuf[iwDeath] = *((wpndata*)(itemsbuf + iMisc2));
-		memset(&itemsbuf[iMisc1],0,sizeof(itemdata));
-		memset(&itemsbuf[iMisc2],0,sizeof(itemdata));
+		itemsbuf[iMisc1].clear();
+		itemsbuf[iMisc2].clear();
 	}
 	
 	if((Header->zelda_version < 0x192)||
@@ -13933,12 +13935,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             {
                 if(i >= OLDBETAMAXGUYS)
                 {
-                    memset(&guysbuf[i], 0, sizeof(guydata));
+					guysbuf[i].clear();
                     continue;
                 }
             }
             
-            memset(&tempguy, 0, sizeof(guydata));
+			tempguy.clear();
             
 			uint32_t flags1;
 			uint32_t flags2;
