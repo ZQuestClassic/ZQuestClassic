@@ -916,7 +916,7 @@ bool movingblock::animate(int32_t)
 						if (no_trig_replace)
 							for (auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								mapscr* lyr2_scr = get_scr_for_rpos_layer(rpos_handle.rpos, lyr2 - 1);
+								mapscr* lyr2_scr = get_scr_for_rpos_layer(rpos_handle.rpos, lyr2);
 								if (is_push(lyr2_scr, rpos_handle.pos))
 								{
 									found = true;
