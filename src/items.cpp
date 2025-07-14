@@ -1101,6 +1101,10 @@ std::string itemdata::get_name(bool init, bool plain) const
 	return name;
 }
 
+void itemdata::clear()
+{
+	*this = itemdata();
+}
 void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 {
 	if(pasteflags.get(ITM_ADVP_NAME))

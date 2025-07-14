@@ -1318,7 +1318,8 @@ struct guydata
 	byte specialsfx;
 	
 	weapon_data weap_data;
-
+	
+	void clear();
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
 #define ENEMY_FLAG3     0x04

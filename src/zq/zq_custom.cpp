@@ -375,9 +375,6 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	itemdata tempitem;
-	memset(&tempitem, 0, sizeof(itemdata));
-		//reset_itembuf(&tempitem,i);
-	
    
 	char istring[64]={0};
 	//section version info
@@ -1476,9 +1473,6 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	guydata tempguy;
-	memset(&tempguy, 0, sizeof(guydata));
-		//reset_itembuf(&tempitem,i);
-	
    
 	char npcstring[64]={0}; //guy_string[]
 	//section version info
@@ -1920,7 +1914,7 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 
 		}
 	}
-	memcpy(&guysbuf[index], &tempguy, sizeof(guydata));
+	guysbuf[index] = tempguy;
 	//strcpy(item_string[index], istring);
 	guysbuf[bie[index].i] = tempguy;
 	strcpy(guy_string[bie[index].i], npcstring);

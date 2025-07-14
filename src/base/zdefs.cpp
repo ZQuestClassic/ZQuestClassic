@@ -1584,3 +1584,9 @@ bool valid_str(char const* ptr, char cancel)
 {
 	return ptr && ptr[0] && ptr[0] != cancel;
 }
+
+void guydata::clear()
+{
+	*this = guydata();
+}
+
