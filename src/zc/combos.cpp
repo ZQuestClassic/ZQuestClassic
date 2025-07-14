@@ -3962,11 +3962,11 @@ void cpos_update() //updates with side-effects
 			sfx_no_repeat(mini_cmb.sfx_loop);
 		
 		bool do_trigger_timer = mini_cmb.trigtimer;
-		newcombo const* cmb;
+		newcombo const* cmb = nullptr;
 		if(do_trigger_timer)
 			cmb = &combobuf[cid];
-		
-		for(size_t idx = 0; idx < MAX_COMBO_TRIGGERS; ++idx)
+		size_t max_trig = zc_max(cmb ? cmb->triggers.size() : 0, timer.trig_data.capacity());
+		for(size_t idx = 0; idx < max_trig; ++idx)
 		{
 			if(do_trigger_timer && idx < cmb->triggers.size())
 			{
