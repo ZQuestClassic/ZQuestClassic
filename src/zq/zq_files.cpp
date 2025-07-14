@@ -1,6 +1,7 @@
 #include <cstring>
 #include <filesystem>
 #include <stdio.h>
+#include <system_error>
 
 #include "allegro/gui.h"
 #include "base/files.h"
@@ -501,7 +502,8 @@ int32_t onSaveAs()
 
 int32_t open_quest(char const* path)
 {
-	if (fs::equivalent("./tilesets", fs::path(path).parent_path()))
+	std::error_code ec;
+	if (fs::equivalent("./tilesets", fs::path(path).parent_path(), ec))
 	{
 		jwin_alert("Warning",
 			"You've opened a qst in the tilesets folder - instead, you should probably use File>New so that a new file is made.",
