@@ -7018,7 +7018,7 @@ bool weapon::animate(int32_t index)
 		}
 	}
 	
-	if(misc_wflags & (WFLAG_BREAK_ON_SOLID|WFLAG_STOP_WHEN_HIT_SOLID))
+	if(dead == -1 && (misc_wflags & (WFLAG_BREAK_ON_SOLID|WFLAG_STOP_WHEN_HIT_SOLID)))
 	{
 		if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
 		{
