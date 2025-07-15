@@ -1186,6 +1186,10 @@ weapon::~weapon()
 
 weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent, int32_t use_sprite) : sprite(), parentid(prntid)
 {
+	// TODO: remove isLW from parameter list.
+	if (prntid == Hero.getUID())
+		isLW = true;
+
 	x=X;
 	y=Y;
 	z=Z;

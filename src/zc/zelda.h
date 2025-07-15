@@ -87,9 +87,6 @@ void Z_scripterrlog_force_trace(const char * const format, ...);
 void zprint(const char * const format, ...);
 void zprint2(const char * const format, ...);
 
-// zelda.cc
-void addLwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid);
-void addLwpnEx(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentitem, int32_t parentid, byte script_gen);
 bool is_hitflickerframe_hero();
 bool is_hitflickerframe();
 void ALLOFF(bool messagesToo = true, bool decorationsToo = true, bool force = false);

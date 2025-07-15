@@ -1066,20 +1066,6 @@ HeroClass   Hero;
 
 #include "zc/zc_sys.h"
 
-// Wait... this is only used by ffscript.cpp!?
-void addLwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid)
-{
-    Lwpns.add(new weapon((zfix)x,(zfix)y,(zfix)z,id,type,power,dir,-1,parentid));
-}
-
-
-void addLwpnEx(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentitem, int32_t parentid, byte script_gen)
-{
-	//weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, byte script_gen, bool isDummy)
-    Lwpns.add(new weapon((zfix)x,(zfix)y,(zfix)z,id,type,power,dir,parentitem,parentid,false,1));
-	
-}
-
 void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
 {
     if(messagesToo)
