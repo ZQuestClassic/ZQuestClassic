@@ -6579,7 +6579,7 @@ bool weapon::animate(int32_t index)
 		if(clip())
 			onhit(true);
 	
-	if(misc_wflags & (WFLAG_BREAK_ON_SOLID|WFLAG_STOP_WHEN_HIT_SOLID))
+	if(dead == -1 && (misc_wflags & (WFLAG_BREAK_ON_SOLID|WFLAG_STOP_WHEN_HIT_SOLID)))
 	{
 		if(collide_solid())
 		{
