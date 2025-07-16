@@ -6618,7 +6618,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
 			Map.setCurrScr(zinit.last_screen);
 
-			std::string qst_cfg_header = qst_cfg_header_from_path(filepath);
+			std::string qst_cfg_header = qst_cfg_header_from_path(filename);
 			Map.setViewSize(zc_get_config(qst_cfg_header.c_str(), "zoom_num_screens", 1));
 
 			extern int32_t current_mappage;
