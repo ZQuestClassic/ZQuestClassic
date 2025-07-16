@@ -15545,6 +15545,8 @@ darknuts:
 
 int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_maps);
+
 	byte tempbyte, padding;
 	int32_t extras, secretcombos;
 	if(!p_getc(&(temp_mapscr->valid),f))
@@ -16028,11 +16030,17 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		return qe_invalid;
 	}
 	
+	byte old_combo_page = 0;
 	if(Header->zelda_version < 0x193)
 	{
-		if (!p_getc(&old_combo_pages[scrind], f))
+		if (!p_getc(&old_combo_page, f))
 		{
 			return qe_invalid;
+		}
+
+		if (!should_skip)
+		{
+			old_combo_pages[scrind] = old_combo_page;
 		}
 	}
 	
@@ -16512,7 +16520,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
 	{
 		temp_mapscr->undercset=(temp_mapscr->undercombo>>8)&7;
-		temp_mapscr->undercombo=(temp_mapscr->undercombo&0xFF)+(old_combo_pages[scrind]<<8);
+		temp_mapscr->undercombo=(temp_mapscr->undercombo&0xFF)+(old_combo_page<<8);
 	}
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
@@ -16547,7 +16555,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				temp_mapscr->cset[k]=((temp_mapscr->data[k]>>8)&7);
 			}
 			
-			temp_mapscr->data[k]=(temp_mapscr->data[k]&0xFF)+(old_combo_pages[scrind]<<8);
+			temp_mapscr->data[k]=(temp_mapscr->data[k]&0xFF)+(old_combo_page<<8);
 		}
 	}
 	
@@ -21805,14 +21813,51 @@ static bool compat_qr_hide_bottom_pixels(const zquestheader& header)
 	return found;
 }
 
+static int32_t prev_quest_format[versiontypesLAST];
+static byte prev_quest_rules[QUESTRULES_NEW_SIZE];
+static byte prev_extra_rules[EXTRARULES_SIZE];
+static byte prev_midi_flags[MIDIFLAGS_SIZE];
+static word prev_map_count;
+
+// When skipping any section, we are loading a qst file just to poke at a couple things.
+// We should not mutate important globals in that case.
+// We should also restore these globals when loading a qst fails.
+// Globals that are read by usecases of `skip_flags` will have to be restored manually by the caller
+// (see load_imagebuf).
+static void store_prev_qstload_global_state()
+{
+	memcpy(prev_quest_rules, quest_rules, QUESTRULES_NEW_SIZE);
+	memcpy(prev_extra_rules, extra_rules, EXTRARULES_SIZE);
+	memcpy(prev_midi_flags, midi_flags, MIDIFLAGS_SIZE);
+	memcpy(prev_quest_format, FFCore.quest_format, versiontypesLAST);
+	prev_map_count = map_count;
+}
+
+static void restore_prev_qstload_global_state()
+{
+	memcpy(quest_rules, prev_quest_rules, QUESTRULES_NEW_SIZE);
+	memcpy(extra_rules, prev_extra_rules, EXTRARULES_SIZE);
+	unpack_qrs();
+	memcpy(midi_flags, prev_midi_flags, MIDIFLAGS_SIZE);
+	memcpy(FFCore.quest_format, prev_quest_format, versiontypesLAST);
+	map_count = prev_map_count;
+}
+
 //Internal function for loadquest wrapper
+// TODO: refactor to never mutate global state, to make loading partial qst files easier and less error prone. huge project.
 static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata)
 {
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
     mapsread=false;
     fixffcs=false;
-	
+
+	store_prev_qstload_global_state();
+
+	bool skipping_any = false;
+	for (int i = 0; i < 4; i++)
+		skipping_any |= skip_flags[i] ? true : false;
+
 	bool do_clear_scripts = !get_bit(skip_flags,skip_ffscript);
 	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 	{
@@ -21826,33 +21871,26 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 	{
 		set_bit(skip_flags, skip_maps, 1);
 	}
-    
-    //  show_progress=true;
+
     char tmpfilename[L_tmpnam];
     temp_name(tmpfilename);
-//  char percent_done[30];
     bool catchup=false;
     byte tempbyte;
-    word old_map_count=map_count;
+
+    // oldquest flag is set when an unencrypted qst file is suspected.
+    bool oldquest = false;
+    int32_t open_error=0;
+    PACKFILE *f=open_quest_file(&open_error, filename, show_progress);
     
-    byte old_quest_rules[QUESTRULES_NEW_SIZE] = {0};
-    byte old_extra_rules[EXTRARULES_SIZE] = {0};
-    byte old_midi_flags[MIDIFLAGS_SIZE] = {0};
-    
-    if(get_bit(skip_flags, skip_rules))
+    if (!f)
     {
-        memcpy(old_quest_rules, quest_rules, QUESTRULES_NEW_SIZE);
-        memcpy(old_extra_rules, extra_rules, EXTRARULES_SIZE);
+        ASSERT(open_error != 0);
+        return open_error;
     }
     
-    memset(quest_rules, 0, QUESTRULES_NEW_SIZE); //clear here to prevent any kind of carryover -Z
+    memset(quest_rules, 0, QUESTRULES_NEW_SIZE);
+	memset(extra_rules, 0, EXTRARULES_SIZE);
 	unpack_qrs();
-   // memset(extra_rules, 0, EXTRARULES_SIZE); //clear here to prevent any kind of carryover -Z
-   
-    if(get_bit(skip_flags, skip_midis))
-    {
-        memcpy(old_midi_flags, midi_flags, MIDIFLAGS_SIZE);
-    }
 
 	if (!get_bit(skip_flags, skip_maps))
 		Regions = {};
@@ -21944,17 +21982,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 	zinfo tempzi;
 	tempzi.clear();
 	load_tmp_zi = &tempzi;
-    
-    // oldquest flag is set when an unencrypted qst file is suspected.
-    bool oldquest = false;
-    int32_t open_error=0;
-    PACKFILE *f=open_quest_file(&open_error, filename, show_progress);
-    
-    if (!f)
-    {
-        ASSERT(open_error != 0);
-        return open_error;
-    }
+
 	char zinfofilename[2048];
 	replace_extension(zinfofilename, filename, "zinfo", 2047);
     int32_t ret=0;
@@ -22649,23 +22677,6 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		ZI.copyFrom(tempzi);
     }
     
-    if(get_bit(skip_flags, skip_maps))
-    {
-        map_count=old_map_count;
-    }
-    
-    if(get_bit(skip_flags, skip_rules))
-    {
-        memcpy(quest_rules, old_quest_rules, QUESTRULES_NEW_SIZE);
-        memcpy(extra_rules, old_extra_rules, EXTRARULES_SIZE);
-		unpack_qrs();
-    }
-    
-    if(get_bit(skip_flags, skip_midis))
-    {
-        memcpy(midi_flags, old_midi_flags, MIDIFLAGS_SIZE);
-    }
-    
 	if(loading_tileset_flags & TILESET_CLEARMAPS)
 	{
 		TheMaps.clear();
@@ -22696,6 +22707,9 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		old_combo_pages = {};
 	}
 
+	if (skipping_any)
+		restore_prev_qstload_global_state();
+
     return qe_OK;
     
 invalid:
@@ -22714,7 +22728,9 @@ invalid:
             delete_file(tmpfilename);
         }
     }
-    
+
+	restore_prev_qstload_global_state();
+
     return qe_invalid;
     
 }
