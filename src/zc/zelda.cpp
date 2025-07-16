@@ -1862,6 +1862,9 @@ int32_t init_game()
 				resetItems(game, new_init, false);
 			ringcolor(false);
 			delete new_init;
+
+			if (replay_is_recording())
+				replay_set_meta("init_data", testingqst_init_data);
 		}
 		else
 		{
@@ -3903,7 +3906,7 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 		testingqst_dmap = replay_get_meta_int("starting_dmap");
 		testingqst_screen = replay_get_meta_int("starting_scr");
 		testingqst_retsqr = replay_get_meta_int("starting_retsqr");
-		testingqst_init_data = "";
+		testingqst_init_data = replay_get_meta_str("init_data");
 		use_testingst_start = true;
 	}
 	else
@@ -4523,6 +4526,8 @@ int main(int argc, char **argv)
 	}
 #endif
 
+reload_for_replay_file:
+
 	int32_t test_init_data_arg = used_switch(argc,argv,"-test-init-data");
 	if (test_init_data_arg > 0)
 		testingqst_init_data = argv[test_init_data_arg + 1];
@@ -4577,8 +4582,6 @@ int main(int argc, char **argv)
 
 	if (used_switch(argc, argv, "-replay-save-games") > 0)
 		saves_enable_save_current_replay();
-
-reload_for_replay_file:
 
 	int replay_arg = used_switch(argc, argv, "-replay");
 	int snapshot_arg = used_switch(argc, argv, "-snapshot");
