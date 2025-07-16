@@ -17837,7 +17837,7 @@ int32_t addenemy_z(int32_t screen,int32_t x,int32_t y,int32_t z,int32_t id,int32
 
 bool isjumper(int32_t id)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{
 		return false;
 	}
@@ -17857,7 +17857,7 @@ bool isjumper(int32_t id)
 
 bool isfixedtogrid(int32_t id)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{
 		return false;
 	}
@@ -17881,7 +17881,7 @@ bool isfixedtogrid(int32_t id)
 // Can't fall, can have Z value.
 bool isflier(int32_t id)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{
 		return false;
 	}
@@ -17905,7 +17905,7 @@ bool isflier(int32_t id)
 // Can't have Z position
 bool never_in_air(int32_t id)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{
 		return false;
 	}
@@ -17931,7 +17931,7 @@ bool never_in_air(int32_t id)
 
 bool canfall(int32_t id)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{
 		return false;
 	}
@@ -17966,7 +17966,7 @@ bool canfall(int32_t id)
 
 bool enemy::enemycanfall(int32_t id, bool checkgrav)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{
 		return false;
 	}
@@ -18256,11 +18256,13 @@ dontdoit:
 
 bool slowguy(int32_t id)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{
 		return false;
 	}
-//return (guysbuf[id].step<100);
+
+	id = id&0xFFF;
+
 	switch(id)
 	{
 	case eOCTO1S:
@@ -18279,10 +18281,13 @@ bool slowguy(int32_t id)
 
 static bool ok2add(mapscr* scr, int32_t id)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS || id <= 0) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{
 		return false;
 	}
+
+	id = id&0xFFF;
+
 	if(getmapflag(scr, mNEVERRET) && (guysbuf[id].flags & guy_never_return))
 		return false;
 		
@@ -18788,56 +18793,15 @@ int32_t next_side_pos(int32_t screen, bool random)
 
 bool can_side_load(int32_t id)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{
 		return false;
 	}
-	switch(guysbuf[id].family) //id&0x0FFF)
+
+	id = id&0xFFF;
+
+	switch(guysbuf[id].family)
 	{
-		//case eTEK1:
-		//case eTEK2:
-		//case eTEK3:
-		//case eLEV1:
-		//case eLEV2:
-		//case eLEV3:
-		//case eRAQUAM:
-		//case eLAQUAM:
-		//case eDODONGO:
-		//case eMANHAN:
-		//case eGLEEOK1:
-		//case eGLEEOK2:
-		//case eGLEEOK3:
-		//case eGLEEOK4:
-		//case eDIG1:
-		//case eDIG3:
-		//case eGOHMA1:
-		//case eGOHMA2:
-		//case eCENT1:
-		//case eCENT2:
-		//case ePATRA1:
-		//case ePATRA2:
-		//case eGANON:
-		//case eMANHAN2:
-		//case eCEILINGM: later
-		//case eFLOORM: later
-		//case ePATRABS:
-		//case ePATRAL2:
-		//case ePATRAL3:
-		//case eGLEEOK1F:
-		//case eGLEEOK2F:
-		//case eGLEEOK3F:
-		//case eGLEEOK4F:
-		//case eDODONGOBS:
-		//case eDODONGOF:
-		//case eGOHMA3:
-		//case eGOHMA4:
-		//case eSHOOTMAGIC:
-		//case eSHOOTROCK:
-		//case eSHOOTSPEAR:
-		//case eSHOOTSWORD:
-		//case eSHOOTFLAME:
-		//case eSHOOTFLAME2:
-		//case eSHOOTFBALL:
 	case eeTEK:
 	case eeLEV:
 	case eeAQUA:
