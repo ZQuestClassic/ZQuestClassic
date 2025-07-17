@@ -2985,26 +2985,36 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		}
 		
 		case edSTUNORCHINK:
-			if (stunclk && get_qr(qr_NO_STUNLOCK))
+			if(*power <= 0)
 			{
 				sfx(WAV_CHINK,pan(int32_t(x)));
 				return 1;
 			}
-			else if(*power <= 0)
+			if (stunclk)
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
-				return 1;
+				if(get_qr(qr_NO_STUNLOCK_IGNORE))
+					return 0;
+				if(get_qr(qr_NO_STUNLOCK_BLOCK))
+				{
+					sfx(WAV_CHINK,pan(int32_t(x)));
+					return 1;
+				}
 			}
 			[[fallthrough]];
 			
 		case edSTUNORIGNORE:
-			if (stunclk && get_qr(qr_NO_STUNLOCK))
-			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
-				return 1;
-			}
-			else if(*power <= 0)
+			if(*power <= 0)
 				return 0;
+			if (stunclk)
+			{
+				if(get_qr(qr_NO_STUNLOCK_IGNORE))
+					return 0;
+				if(get_qr(qr_NO_STUNLOCK_BLOCK))
+				{
+					sfx(WAV_CHINK,pan(int32_t(x)));
+					return 1;
+				}
+			}
 			[[fallthrough]];
 				
 		case edSTUNONLY:
@@ -3013,18 +3023,19 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			   // Z_message("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
 					return 1;
 			}
-			if (stunclk && get_qr(qr_NO_STUNLOCK))
+			if (stunclk)
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
-				return 1;
+				if(get_qr(qr_NO_STUNLOCK_IGNORE))
+					return 0;
+				if(get_qr(qr_NO_STUNLOCK_BLOCK))
+				{
+					sfx(WAV_CHINK,pan(int32_t(x)));
+					return 1;
+				}
 			}
-			else
-			{
-				stunclk=160;
-				sfx(WAV_EHIT,pan(int32_t(x)));
-				
-				return 1;
-			}
+			stunclk=160;
+			sfx(WAV_EHIT,pan(int32_t(x)));
+			return 1;
 			
 		case edCHINKL1:
 			if(*power >= 1*game->get_hero_dmgmult()) break;
@@ -3139,12 +3150,17 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		{
 			if(edef == edefSwitchHook)
 				return -1;
-			if (stunclk && get_qr(qr_NO_STUNLOCK) && *power == 0)
+			if (stunclk && *power == 0)
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
-				return 1;
+				if(get_qr(qr_NO_STUNLOCK_IGNORE))
+					return 0;
+				if(get_qr(qr_NO_STUNLOCK_BLOCK))
+				{
+					sfx(WAV_CHINK,pan(int32_t(x)));
+					return 1;
+				}
 			}
-			
+			break;
 		}
 	}
 	

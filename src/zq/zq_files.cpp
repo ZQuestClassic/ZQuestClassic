@@ -255,6 +255,7 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		qr_FAIRYDIR, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
 		qr_CONVEYORS_L1_L2, qr_CONVEYORS_ALL_LAYERS,
 		qr_EW_FIRE_EMITS_LIGHT, qr_BLOCKS_DROWN,
+		qr_NO_STUNLOCK_IGNORE,
 	};
 	static const int rMODERN_O[] = {
 		qr_OLDSPRITEDRAWS
