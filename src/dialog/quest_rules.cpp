@@ -1555,8 +1555,11 @@ static GUI::ListData weaponsRulesList
 	{ "Mirrors Use Weapon Center for Collision", qr_MIRRORS_USE_WEAPON_CENTER,
 		"If enabled, mirror/prism combos activate when the center of a weapon hits them,"
 		" instead of when the edge hits them." },
-	{ "Weapons Cannot Stunlock Enemies", qr_NO_STUNLOCK,
+	{ "Weapons Cannot Stunlock Enemies (block)", qr_NO_STUNLOCK_BLOCK,
 		"If enabled, enemies that are already stunned block any further stunning attacks."
+		" This prevents re-stunning them to keep them stunlocked." },
+	{ "Weapons Cannot Stunlock Enemies (ignore)", qr_NO_STUNLOCK_IGNORE,
+		"If enabled, enemies that are already stunned ignore any further stunning attacks."
 		" This prevents re-stunning them to keep them stunlocked." },
 	{ "Arrows Always Penetrate", qr_ARROWS_ALWAYS_PENETRATE,
 		"If enabled, arrows will always penetrate enemies, regardless of if they belong to"
