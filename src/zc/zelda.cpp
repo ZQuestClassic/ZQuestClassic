@@ -4023,7 +4023,7 @@ static void allocate_crap()
 	}
 }
 
-void do_load_and_quit_command(const char* quest_path)
+void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 {
 	// We need to init some stuff before loading a quest file will work.
 	int fake_errno = 0;
@@ -4033,7 +4033,14 @@ void do_load_and_quit_command(const char* quest_path)
 
 	byte skip_flags[] = {0, 0, 0, 0};
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,true,false,0xFF);
+	strcpy(qstpath, quest_path);
 	printf("Hash: %s\n", QHeader.hash().c_str());
+	if (jit_precompile)
+	{
+		printf("compiling scripts ...\n");
+		jit_set_enabled(true);
+		jit_startup();
+	}
 	exit(ret);
 }
 
@@ -4152,7 +4159,8 @@ int main(int argc, char **argv)
 	int load_and_quit_arg = used_switch(argc, argv, "-load-and-quit");
 	if (load_and_quit_arg > 0)
 	{
-		do_load_and_quit_command(argv[load_and_quit_arg+1]);
+		bool jit_precompile = used_switch(argc, argv, "-jit-precompile") > 0;
+		do_load_and_quit_command(argv[load_and_quit_arg+1], jit_precompile);
 	}
 
 	int extract_zasm_arg = used_switch(argc, argv, "-extract-zasm");
