@@ -3519,7 +3519,8 @@ void draw_lens_over()
 
 	static BITMAP *lens_scr = create_bitmap_ex(8,2*w,2*h);
 	static int32_t last_width = -1;
-	int32_t width = itemsbuf[current_item_id(itype_lens,true)].misc1;
+	auto id = Hero.getLastLensID();
+	int32_t width = itemsbuf[id].misc1;
 	
 	// Only redraw the circle if the size has changed
 	if (width != last_width)
