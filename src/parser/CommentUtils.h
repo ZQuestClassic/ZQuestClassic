@@ -1,6 +1,7 @@
 #ifndef COMMENT_UTILS_H_
 #define COMMENT_UTILS_H_
 
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <utility>
