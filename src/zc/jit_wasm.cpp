@@ -1565,7 +1565,8 @@ extern "C" int em_get_register(int r)
 
 extern "C" void em_set_register(int r, int value)
 {
-	set_register(r, value);
+	// TODO: should select the correct command at compile time, like jix_x64 does. Just being lazy.
+	do_set(r, value);
 }
 
 extern "C" void em_runtime_script_debug(int pc, int sp)

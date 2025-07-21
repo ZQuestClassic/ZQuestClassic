@@ -28,7 +28,7 @@ Using `asmjit`, each ZASM instruction in a script is translated to an assembly r
 
 Only a fraction of the ZASM command types are compiled into more efficient machine code. The rest call out to the normal interpreter loop to execute. This is both because there are far too many command types, and that for many of them the overhead of the interpreter is a fraction of the time spent processing the command. Examples of commands that benefit greatly from being optimized are ones that just do math operations, set some z-register, or modifies the stack.
 
-Of the commands that _are_ optimized, if it involves reading / writing to a z-register it again will simply call out to the normal `get_register` / `set_register` functions. The big exception here is that the general-purpose z-registers (`D` and `G`) will simply address the memory directly. An example:
+Of the commands that _are_ compiled, if it involves reading / writing to a z-register it again will simply call out to the normal `get_register` / `set_register` functions. The big exception here is that the general-purpose z-registers (`D` and `G`) will simply address the memory directly. An example:
 
 `ADDR D2 D3` - Set `D2` to `D2 + D3`.
 
@@ -112,6 +112,7 @@ See https://gist.github.com/connorjclark/874f1034809ce475a8e3ea7e09a8cc40 for so
 - https://www.cs.uaf.edu/2017/fall/cs301/lecture/09_11_registers.html
 - https://learn.microsoft.com/en-us/cpp/build/x64-calling-convention
 - https://www.cavestory.org/guides/csasm/guide/redefine_imul_idiv.html
+- https://github.com/FFmpeg/asm-lessons/blob/main/lesson_01/index.md
 
 ### asmjit
 

@@ -1,8 +1,8 @@
-#include "base/compiler.h"
-#include "base/zdefs.h"
-
 #ifndef ZC_JIT_H_
 #define ZC_JIT_H_
+
+#include "base/compiler.h"
+#include "base/zdefs.h"
 
 struct JittedScriptHandle;
 typedef void* JittedFunction;

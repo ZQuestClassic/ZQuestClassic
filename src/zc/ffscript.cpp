@@ -689,22 +689,22 @@ void legacy_set_int_arr(const int32_t ptr, int32_t indx, int32_t val);
 int32_t legacy_sz_int_arr(const int32_t ptr);
 
 //We gain some speed by not passing as arguments
-int32_t sarg1 = 0;
-int32_t sarg2 = 0;
-int32_t sarg3 = 0;
+int32_t sarg1;
+int32_t sarg2;
+int32_t sarg3;
 vector<int32_t> *sargvec;
 string *sargstr;
-refInfo *ri = NULL;
-script_data *curscript = NULL;
-int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
+refInfo *ri;
+script_data *curscript;
+int32_t(*stack)[MAX_SCRIPT_REGISTERS];
 bounded_vec<word, int32_t>* ret_stack;
 vector<int32_t> zs_vargs;
 ScriptType curScriptType;
 word curScriptNum;
 int32_t curScriptIndex;
-bool script_funcrun = false;
-string* destructstr = nullptr;
-size_t gen_frozen_index = 0;
+bool script_funcrun;
+string* destructstr;
+size_t gen_frozen_index;
 
 static vector<ScriptType> curScriptType_cache;
 static vector<int32_t> curScriptNum_cache;
@@ -18131,15 +18131,44 @@ int32_t stack_pop(size_t count)
 ///----------------------------------------------------------------------------------------------------//
 //Internal (to ZScript)
 
-void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
+// Changing the script of the currently executing scriptable object is not supported.
+bool is_guarded_script_register(int reg)
 {
+	switch (reg)
+	{
+		case DMAPSCRIPT:
+		case EWPNSCRIPT:
+		case FFSCRIPT:
+		case IDATAPSCRIPT:
+		case IDATASCRIPT:
+		case ITEMSPRITESCRIPT:
+		case LWPNSCRIPT:
+		case NPCSCRIPT:
+		case SCREENSCRIPT:
+			return true;
+	}
+
+	return false;
+}
+
+void do_set(int reg, int value)
+{
+	if (!is_guarded_script_register(reg))
+	{
+		set_register(reg, value);
+		return;
+	}
+
+	ScriptType whichType = curScriptType;
+	int32_t whichUID = curScriptIndex;
+
 	bool allowed = true;
 	switch(whichType) //Check for objects attempting to change own script
 	{
 		//case ScriptType::Global:
 		
 		case ScriptType::FFC:
-			if (sarg1 == FFSCRIPT)
+			if (reg == FFSCRIPT)
 			{
 				if (auto ffc = ResolveFFC(ri->ffcref); ffc && ffc->index == whichUID)
 					allowed = false;
@@ -18147,7 +18176,7 @@ void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
 			break;
 		
 		case ScriptType::Screen:
-			if(sarg1==SCREENSCRIPT) //Only 1 screen script running at a time, no UID check needed
+			if(reg==SCREENSCRIPT) //Only 1 screen script running at a time, no UID check needed
 				allowed = false;
 			break;
 		
@@ -18158,46 +18187,53 @@ void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
 			
 			if(collect)
 			{
-				if(sarg1==IDATAPSCRIPT && ri->idata==new_UID)
+				if(reg==IDATAPSCRIPT && ri->idata==new_UID)
 					allowed = false;
 			}
-			else if(sarg1==IDATASCRIPT && ri->idata==new_UID)
+			else if(reg==IDATASCRIPT && ri->idata==new_UID)
 				allowed = false;
 			break;
 		}
 		
 		case ScriptType::Lwpn:
-			if(sarg1==LWPNSCRIPT && ri->lwpn==whichUID)
+			if(reg==LWPNSCRIPT && ri->lwpn==whichUID)
 				allowed = false;
 			break;
 			
 		case ScriptType::NPC:
-			if(sarg1==NPCSCRIPT && ri->guyref==whichUID)
+			if(reg==NPCSCRIPT && ri->guyref==whichUID)
 				allowed = false;
 			break;
 		
 		case ScriptType::Ewpn:
-			if(sarg1==EWPNSCRIPT && ri->ewpn==whichUID)
+			if(reg==EWPNSCRIPT && ri->ewpn==whichUID)
 				allowed = false;
 			break;
 		
 		case ScriptType::DMap:
-			if(sarg1==DMAPSCRIPT && ri->dmapsref==whichUID)
+			if(reg==DMAPSCRIPT && ri->dmapsref==whichUID)
 				allowed = false;
 			break;
 		
 		case ScriptType::ItemSprite:
-			if(sarg1==ITEMSPRITESCRIPT && ri->itemref==whichUID)
+			if(reg==ITEMSPRITESCRIPT && ri->itemref==whichUID)
 				allowed = false;
 			break;
-	}   
-	if(!allowed)
+	}
+
+	if (!allowed)
 	{
 		Z_scripterrlog("Script attempted to change own object's script! This has been ignored.\n");
 		return;
 	}
+
+	set_register(reg, value);
+}
+
+void do_set_command(const bool v)
+{
 	int32_t temp = SH::get_arg(sarg2, v);
-	set_register(sarg1, temp);
+	do_set(sarg1, temp);
 }
 
 void do_push(const bool v)
@@ -25103,11 +25139,11 @@ int32_t run_script_int(bool is_jitted)
 				break;
 				
 			case SETV:
-				do_set(true, type, i);
+				do_set_command(true);
 				break;
 				
 			case SETR:
-				do_set(false, type, i);
+				do_set_command(false);
 				break;
 				
 			case PUSHR:

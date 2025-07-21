@@ -169,9 +169,14 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 	}
 	else
 	{
+		// Only some registers have an extra check when writing to them.
+		auto set_fn = set_register;
+		if (is_guarded_script_register(r))
+			set_fn = do_set;
+
 		// Call external set_register.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, set_register, FuncSignatureT<void, int32_t, int32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, set_fn, FuncSignatureT<void, int32_t, int32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, val);
 	}
