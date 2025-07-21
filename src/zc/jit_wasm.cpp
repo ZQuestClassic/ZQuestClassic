@@ -21,6 +21,8 @@
 	wasm2wat build/Debug/wasm/playground.qst/ffc-5-Maths.wasm --enable-threads --generate-names
 */
 
+#include "zc/jit_wasm.h"
+
 #include "allegro/debug.h"
 #include "allegro/file.h"
 #include "base/general.h"
@@ -43,16 +45,6 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
-
-struct JittedScriptHandle
-{
-	JittedFunction fn;
-	script_data *script;
-	refInfo *ri;
-	uint32_t handle_id;
-	pc_t call_stack_rets[100];
-	pc_t call_stack_ret_index;
-};
 
 struct CompilationState
 {
@@ -114,7 +106,7 @@ static int em_poll_wasm_handle(int id, uintptr_t ptr)
 EM_ASYNC_JS(bool, em_destroy_wasm_handle_, (int id), {
 	return ZC.destroyScriptWasmHandle(id);
 });
-static bool em_destroy_wasm_handle(int id)
+bool em_destroy_wasm_handle(int id)
 {
 	return em_destroy_wasm_handle_(id);
 }
@@ -1262,7 +1254,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	return wasm;
 }
 
-JittedFunction jit_compile_script(zasm_script* script)
+JittedFunctionHandle* jit_compile_script(zasm_script* script)
 {
 	if (script->size <= 1)
 		return nullptr;
@@ -1484,10 +1476,10 @@ JittedFunction jit_compile_script(zasm_script* script)
 		jit_printf("success\n");
 	}
 
-	return new int(module_id);
+	return new JittedFunctionHandle(module_id);
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunction fn)
+JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunctionHandle* fn)
 {
 	int module_id = *((int*)fn);
 	int handle_id = em_create_wasm_handle(module_id);
@@ -1497,7 +1489,7 @@ JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* 
 		return nullptr;
 	}
 
-	JittedScriptHandle *jitted_script = new JittedScriptHandle;
+	JittedScriptHandle* jitted_script = new JittedScriptHandle;
 	jitted_script->handle_id = handle_id;
 	jitted_script->script = script;
 	jitted_script->ri = ri;
@@ -1506,13 +1498,7 @@ JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* 
 	return jitted_script;
 }
 
-void jit_reinit(JittedScriptHandle* jitted_script)
-{
-	jitted_script->call_stack_ret_index = 0;
-}
-
-static JittedScriptHandle *current_jitted_script;
-int jit_run_script(JittedScriptHandle *jitted_script)
+int jit_run_script(JittedScriptHandle* jitted_script)
 {
 	extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
 
@@ -1524,26 +1510,19 @@ int jit_run_script(JittedScriptHandle *jitted_script)
 	ptr[4] = (uintptr_t)&jitted_script->call_stack_ret_index;
 	ptr[5] = jitted_script->script->pc;
 
-	current_jitted_script = jitted_script;
 	int return_code = em_poll_wasm_handle(jitted_script->handle_id, (uintptr_t)ptr);
 	free(ptr);
 
 	return return_code;
 }
 
-void jit_delete_script_handle(JittedScriptHandle *jitted_script)
+void jit_release(JittedFunctionHandle* fn)
 {
-	bool success = em_destroy_wasm_handle(jitted_script->handle_id);
-	ASSERT(success);
-	delete jitted_script;
-}
+	if (!fn) return;
 
-void jit_release(JittedFunction fn)
-{
-	int module_id = *((int*)fn);
-	bool success = em_destroy_wasm_module(module_id);
+	bool success = em_destroy_wasm_module(fn->module_id);
 	ASSERT(success);
-	delete (int*)fn;
+	delete fn;
 }
 
 #ifdef __EMSCRIPTEN__
@@ -1588,3 +1567,8 @@ extern "C" void em_log_error(int code)
 }
 
 #endif
+
+JittedScriptHandle::~JittedScriptHandle()
+{
+	ASSERT(em_destroy_wasm_handle(handle_id));
+}

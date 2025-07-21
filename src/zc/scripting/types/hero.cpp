@@ -62,7 +62,7 @@ static ArrayRegistrar LINKITEMD_registrar(LINKITEMD, []{
 			else if ( value && !data.doscript )
 			{
 				//Clear the item refInfo and stack for use.
-				data.ref.Clear();
+				data.clear_ref();
 				if ( (itemsbuf[itemID].flags&item_passive_script) ) data.doscript = 1;
 			}
 			else if ( value && data.doscript == 4 ) 

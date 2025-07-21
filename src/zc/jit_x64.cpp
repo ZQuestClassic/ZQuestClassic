@@ -1,4 +1,6 @@
+#include "zc/jit_x64.h"
 #include "asmjit/core/func.h"
+#include "base/general.h"
 #include "base/qrs.h"
 #include "base/zdefs.h"
 #include "zc/jit.h"
@@ -6,7 +8,6 @@
 #include "zc/script_debug.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
-#include "zc/zelda.h"
 #include "zasm/serialize.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
@@ -16,20 +17,6 @@
 #include <asmjit/asmjit.h>
 
 using namespace asmjit;
-
-struct JittedScriptHandle
-{
-	JittedFunction fn;
-	script_data *script;
-	refInfo *ri;
-	intptr_t call_stack_rets[100];
-	uint32_t call_stack_ret_index;
-};
-
-typedef int32_t (*JittedFunctionImpl)(int32_t *registers, int32_t *global_registers,
-								  int32_t *stack, uint32_t *stack_index, uint32_t *pc,
-								  intptr_t *call_stack_rets, uint32_t *call_stack_ret_index,
-								  uint32_t *wait_index, uint32_t start_pc);
 
 static JitRuntime rt;
 
@@ -617,7 +604,7 @@ static size_t debug_last_pc;
 #endif
 
 // Compile the entire ZASM script at once, into a single function.
-JittedFunction jit_compile_script(zasm_script* script)
+JittedFunctionHandle* jit_compile_script(zasm_script* script)
 {
 	if (script->size <= 1)
 		return nullptr;
@@ -677,7 +664,6 @@ JittedFunction jit_compile_script(zasm_script* script)
 	}
 
 	CodeHolder code;
-	JittedFunctionImpl fn;
 
 	static bool jit_env_test = get_flag_bool("-jit-env-test").value_or(false);
 	state.calling_convention = CallConvId::kHost;
@@ -1641,7 +1627,9 @@ JittedFunction jit_compile_script(zasm_script* script)
 	start_time = end_time;
 
 	cc.finalize();
-	rt.add(&fn, &code);
+
+	CompiledFunction compiled_fn;
+	rt.add(&compiled_fn, &code);
 
 	end_time = std::chrono::steady_clock::now();
 	int32_t compile_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
@@ -1683,7 +1671,7 @@ JittedFunction jit_compile_script(zasm_script* script)
 
 	al_trace("[jit] finished script: %s id: %d. time: %d ms\n", script->name.c_str(), script->id, preprocess_ms + compile_ms);
 
-	if (fn)
+	if (compiled_fn)
 	{
 		jit_printf("success\n");
 		if (jit_env_test)
@@ -1698,10 +1686,12 @@ JittedFunction jit_compile_script(zasm_script* script)
 		jit_printf("failure\n");
 	}
 
-	return (JittedFunction)fn;
+	auto fn = new JittedFunctionHandle();
+	fn->compiled_fn = compiled_fn;
+	return fn;
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunction fn)
+JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunctionHandle* fn)
 {
 	JittedScriptHandle *jitted_script = new JittedScriptHandle;
 	jitted_script->call_stack_ret_index = 0;
@@ -1711,17 +1701,11 @@ JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* 
 	return jitted_script;
 }
 
-void jit_reinit(JittedScriptHandle *jitted_script)
-{
-	jitted_script->call_stack_ret_index = 0;
-}
-
 int jit_run_script(JittedScriptHandle *jitted_script)
 {
 	extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
 
-	auto fn = (JittedFunctionImpl)jitted_script->fn;
-	return fn(
+	return jitted_script->fn->compiled_fn(
 		jitted_script->ri->d, game->global_d,
 		*stack, &jitted_script->ri->sp,
 		&jitted_script->ri->pc,
@@ -1729,12 +1713,10 @@ int jit_run_script(JittedScriptHandle *jitted_script)
 		&jitted_script->ri->wait_index, jitted_script->script->pc);
 }
 
-void jit_delete_script_handle(JittedScriptHandle *jitted_script)
+void jit_release(JittedFunctionHandle* fn)
 {
-	delete jitted_script;
-}
+	if (!fn) return;
 
-void jit_release(JittedFunction fn)
-{
-	rt.release(fn);
+	rt.release(fn->compiled_fn);
+	delete fn;
 }

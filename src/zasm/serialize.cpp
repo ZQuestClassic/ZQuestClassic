@@ -1,6 +1,6 @@
 #include "base/ints.h"
+#include "parser/parserDefs.h"
 #include "zasm/table.h"
-#include "zc/ffscript.h"
 #include <optional>
 #include <sstream>
 #include <vector>

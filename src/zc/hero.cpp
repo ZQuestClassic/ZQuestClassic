@@ -3308,7 +3308,7 @@ void collectitem_script(int32_t id)
 	if(itemsbuf[id].collect_script)
 	{
 		//clear item script stack. 
-		FFCore.ref(ScriptType::Item, -id).Clear();
+		FFCore.clear_ref(ScriptType::Item, -id);
 
 		if ( id > 0 && !(FFCore.doscript(ScriptType::Item, -id) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) //No collect script on item 0. 
 		{

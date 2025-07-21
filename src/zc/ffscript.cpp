@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <deque>
+#include <memory>
 #include <string>
 #include <sstream>
 #include <math.h>
@@ -154,8 +155,6 @@ extern byte monochrome_console;
 
 static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
-// Values may be null.
-static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
 int32_t jitted_uncompiled_command_count;
 
 CScriptDrawingCommands scriptdraws;
@@ -1349,8 +1348,7 @@ void FFScript::reset_script_engine_data(ScriptType type, int index)
 void on_reassign_script_engine_data(ScriptType type, int index)
 {
 	auto& data = get_script_engine_data(type, index);
-	data.ref.Clear();
-	data.initialized = false;
+	data.clear_ref();
 	FFScript::deallocateAllScriptOwned(type, index);
 }
 
@@ -1384,6 +1382,11 @@ refInfo& FFScript::ref(ScriptType type, int index)
 	return get_script_engine_data(type, index).ref;
 }
 
+void FFScript::clear_ref(ScriptType type, int index)
+{
+	get_script_engine_data(type, index).clear_ref();
+}
+
 byte& FFScript::doscript(ScriptType type, int index)
 {
 	if (type == ScriptType::Generic && unsigned(index) < NUMSCRIPTSGENERIC)
@@ -1396,8 +1399,7 @@ bool& FFScript::waitdraw(ScriptType type, int index)
 	return get_script_engine_data(type, index).waitdraw;
 }
 
-// Returns true if registers had to be initialized.
-static bool set_current_script_engine_data(ScriptType type, int script, int index)
+static void set_current_script_engine_data(ScriptType type, int script, int index)
 {
 	bool got_initialized = false;
 
@@ -1704,8 +1706,6 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 	
 	if (got_initialized)
 		ri->pc = curscript->pc;
-	
-	return got_initialized;
 }
 
 static ffcdata *ResolveFFCWithID(ffc_id_t id)
@@ -24389,14 +24389,6 @@ static void script_exit_cleanup(bool no_dealloc)
 		case ScriptType::Ewpn:
 		case ScriptType::Lwpn:
 		case ScriptType::NPC:
-		{
-			auto& data = get_script_engine_data(type, i);
-			data.doscript = false;
-			data.initialized = false;
-			if (auto spr = sprite::getByUID(i))
-				spr->script = 0;
-		}
-		break;
 		case ScriptType::ItemSprite:
 		{
 			auto& data = get_script_engine_data(type, i);
@@ -24412,24 +24404,27 @@ static void script_exit_cleanup(bool no_dealloc)
 			break;
 		
 		case ScriptType::GenericFrozen:
-			FFCore.doscript(ScriptType::GenericFrozen, gen_frozen_index-1) = false;
+		{
+			// TODO use `i`?
+			auto& data = get_script_engine_data(type, gen_frozen_index-1);
+			data.doscript = false;
 			break;
+		}
 
 		case ScriptType::Item:
 		{
 			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-			int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-			auto& data = get_script_engine_data(ScriptType::Item, i);
+			auto& data = get_script_engine_data(type, i);
 			if ( !collect )
 			{
 				if ( (itemsbuf[i].flags&item_passive_script) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
 				data.doscript = 0;
-				data.ref.Clear();
+				data.clear_ref();
 			}
 			else
 			{
 				data.doscript = 0;
-				data.ref.Clear();
+				data.clear_ref();
 			}
 			data.initialized = false;
 			break;
@@ -24442,7 +24437,7 @@ static void script_exit_cleanup(bool no_dealloc)
 			{
 				bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
 				int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-				FFScript::deallocateAllScriptOwned(ScriptType::Item, new_i);
+				FFScript::deallocateAllScriptOwned(type, new_i);
 				break;
 			}
 			
@@ -24472,7 +24467,6 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		return RUNSCRIPT_ERROR;
 	}
 
-	bool got_initialized = false;
 	switch(type)
 	{
 		case ScriptType::FFC:
@@ -24493,7 +24487,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		case ScriptType::Generic:
 		case ScriptType::GenericFrozen:
 		{
-			got_initialized = set_current_script_engine_data(type, script, i);
+			set_current_script_engine_data(type, script, i);
 		}
 		break;
 
@@ -24519,16 +24513,10 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	JittedScriptHandle* jitted_script = nullptr;
 	if (jit_is_enabled())
 	{
-		auto key = std::make_pair(curscript, ri);
-		auto it = jitted_scripts.find(key);
-		if (it == jitted_scripts.end())
-		{
-			jitted_scripts[key] = jitted_script = jit_create_script_handle(curscript, ri);
-		}
-		else
-		{
-			jitted_script = it->second;
-		}
+		auto& data = get_script_engine_data(type, i);
+		if (!data.jitted_script)
+			data.jitted_script = std::unique_ptr<JittedScriptHandle>(jit_create_script_handle(curscript, ri));
+		jitted_script = data.jitted_script.get();
 	}
 	else if (zasm_optimize_enabled() && curscript->valid() && !curscript->zasm_script->optimized)
 	{
@@ -24565,8 +24553,6 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	int32_t result;
 	if (jitted_script)
 	{
-		if (got_initialized)
-			jit_reinit(jitted_script);
 		if (ri->waitframes)
 		{
 			--ri->waitframes;
@@ -27545,7 +27531,7 @@ int32_t run_script_int(bool is_jitted)
 						{
 							if ( !data.doscript ) 
 							{
-								data.ref.Clear();
+								data.clear_ref();
 								data.doscript = 1;
 								//ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[itemid].script, itemid);
 							}
@@ -30881,26 +30867,16 @@ void FFScript::init()
 	ScrollingData[SCROLLDATA_DIR] = -1;
 	user_rng_init();
 	clear_script_engine_data();
-	for (auto &it : jitted_scripts)
-	{
-		if (it.second) jit_delete_script_handle(it.second);
-	}
-	jitted_scripts.clear();
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
 }
 
 void FFScript::shutdown()
 {
-	for (auto &it : jitted_scripts)
-	{
-		if (it.second) jit_delete_script_handle(it.second);
-	}
-	jitted_scripts.clear();
+	scriptEngineDatas.clear();
 	objectRAM.clear();
 	script_objects.clear();
 }
-
 
 void FFScript::SetFFEngineFlag(int32_t flag, bool state)
 {
@@ -31576,8 +31552,7 @@ bool FFScript::itemScriptEngine()
 				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
-					data.ref.Clear();
-					data.initialized = false;
+					data.clear_ref();
 					data.waitdraw = false;
 					FFScript::deallocateAllScriptOwned(ScriptType::Item, q);
 				}
@@ -31628,8 +31603,7 @@ bool FFScript::itemScriptEngine()
 			}
 			if(data.doscript==0)  //Item script ended. Clear the data, if any remains.
 			{
-				data.ref.Clear();
-				data.initialized = false;
+				data.clear_ref();
 				data.waitdraw = false;
 				FFScript::deallocateAllScriptOwned(ScriptType::Item, q);
 			}
@@ -31671,8 +31645,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
-					data.ref.Clear();
-					data.initialized = false;
+					data.clear_ref();
 					data.waitdraw = false;
 					FFScript::deallocateAllScriptOwned(ScriptType::Item, q);
 				}
@@ -31711,8 +31684,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			}
 			if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 			{
-				data.ref.Clear();
-				data.initialized = false;
+				data.clear_ref();
 				data.waitdraw = false;
 				FFScript::deallocateAllScriptOwned(ScriptType::Item, q);
 			}

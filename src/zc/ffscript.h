@@ -9,6 +9,7 @@
 #include "base/zdefs.h"
 #include "base/initdata.h"
 #include "parser/parserDefs.h"
+#include <memory>
 #include <utility>
 #include <string>
 #include <list>
@@ -16,6 +17,7 @@
 #include <bitset>
 #include "zasm/defines.h"
 #include "zc/scripting/context_strings.h"
+#include "zc/jit.h"
 #include "zc/zelda.h"
 #include "zc/replay.h"
 #include "zc/hero.h"
@@ -1058,6 +1060,7 @@ void reset_script_engine_data(ScriptType type, int index = 0);
 void clear_script_engine_data(ScriptType type, int index = 0);
 void clear_script_engine_data_of_type(ScriptType type);
 refInfo& ref(ScriptType type, int index);
+void clear_ref(ScriptType type, int index);
 byte& doscript(ScriptType type, int index = 0);
 bool& waitdraw(ScriptType type, int index = 0);
 
@@ -1879,15 +1882,24 @@ struct ScriptEngineData {
 	refInfo ref;
 	int32_t stack[MAX_SCRIPT_REGISTERS];
 	bounded_vec<word, int32_t> ret_stack {65535};
+	std::unique_ptr<JittedScriptHandle> jitted_script;
 	// This is used as a boolean for all but ScriptType::Item.
 	byte doscript = true;
 	bool waitdraw;
 	bool initialized;
 
+	void clear_ref()
+	{
+		ref.Clear();
+		jitted_script = {};
+		initialized = false;
+	}
+
 	void reset()
 	{
 		// No need to zero the stack.
 		ref = refInfo();
+		jitted_script = {};
 		doscript = true;
 		waitdraw = false;
 		initialized = false;

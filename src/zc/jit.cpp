@@ -24,7 +24,7 @@ static bool is_enabled;
 static bool jit_log_enabled;
 
 // Values may be null.
-static std::map<zasm_script_id, JittedFunction> compiled_functions;
+static std::map<zasm_script_id, JittedFunctionHandle*> compiled_functions;
 
 void jit_printf(const char *format, ...)
 {
@@ -74,9 +74,9 @@ static ALLEGRO_COND* task_finish_cond;
 // If a thread is currently compiling this script, waits for that thread to finish.
 // Otherwise compile the script on this thread.
 // If null is returned, the script failed to compile.
-static JittedFunction compile_if_needed(zasm_script *script)
+static JittedFunctionHandle* compile_if_needed(zasm_script *script)
 {
-	JittedFunction fn;
+	JittedFunctionHandle* fn;
 
 	// First check if script is already compiled.
 	al_lock_mutex(tasks_mutex);
