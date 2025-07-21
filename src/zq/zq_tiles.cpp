@@ -11151,9 +11151,7 @@ bool advpaste(int32_t tile, int32_t tile2, int32_t copy)
 		{ "Animation" },
 		{ "Type" },
 		{ "Inherent Flag" },
-		{ "Attribytes" },
-		{ "Attrishorts" },
-		{ "Attributes" },
+		{ "Attributes", "Including Attribytes and Attrishorts" },
 		{ "Flags", "The 16 Flags on the 'Flags' tab" },
 		{ "Gen. Flags", "The 2 'General Flags' on the 'Flags' tab" },
 		{ "Label" },
@@ -11164,15 +11162,15 @@ bool advpaste(int32_t tile, int32_t tile2, int32_t copy)
 		{ "Gen: Movespeed", "The Movespeed related values from the 'General' tab" },
 		{ "Gen: SFX", "The SFX related values from the 'General' tab" },
 		{ "Gen: Sprites", "The Sprites related values from the 'General' tab" },
+		{ "Misc Weapon Data", "The combo's 'Misc Weapon Data' settings" },
 	};
+	
 	if(!call_checklist_dialog("Advanced Paste",advp_names,pasteflags))
 		return false;
 	
 	//Paste to each combo in the range
 	for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
-	{
 		combobuf[i].advpaste(combobuf[copy], pasteflags);
-	}
 	
 	if(pasteflags.get(CMB_ADVP_TILE)) //reset animations if needed
 	{
