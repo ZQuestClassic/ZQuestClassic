@@ -24368,6 +24368,7 @@ static void script_exit_cleanup(bool no_dealloc)
 				ffc->script = 0;
 			auto& data = get_script_engine_data(type, i);
 			data.doscript = false;
+			data.clear_ref();
 		}
 		break;
 
@@ -24384,6 +24385,7 @@ static void script_exit_cleanup(bool no_dealloc)
 		{
 			auto& data = get_script_engine_data(type, i);
 			data.doscript = false;
+			data.clear_ref();
 		}
 		break;
 		case ScriptType::Ewpn:
@@ -24393,7 +24395,7 @@ static void script_exit_cleanup(bool no_dealloc)
 		{
 			auto& data = get_script_engine_data(type, i);
 			data.doscript = false;
-			data.initialized = false;
+			data.clear_ref();
 			if (auto spr = sprite::getByUID(i))
 				spr->script = 0;
 		}
@@ -24408,6 +24410,7 @@ static void script_exit_cleanup(bool no_dealloc)
 			// TODO use `i`?
 			auto& data = get_script_engine_data(type, gen_frozen_index-1);
 			data.doscript = false;
+			data.clear_ref();
 			break;
 		}
 
@@ -24418,15 +24421,9 @@ static void script_exit_cleanup(bool no_dealloc)
 			if ( !collect )
 			{
 				if ( (itemsbuf[i].flags&item_passive_script) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
-				data.doscript = 0;
-				data.clear_ref();
 			}
-			else
-			{
-				data.doscript = 0;
-				data.clear_ref();
-			}
-			data.initialized = false;
+			data.doscript = 0;
+			data.clear_ref();
 			break;
 		}
 	}
