@@ -1,0 +1,217 @@
+https://zquestclassic.com/releases/2.55.10
+
+# Features
+
+zq: CSet now listed in combo pool placement mode
+zscript: add `ReadBitflags` and `AdjustBitflags` helper functions
+
+zscript: add `Flag[]` to `Screen` and `mapdata`
+  The new `Flag[]` variable is a boolean array of all the flags associated
+  with a screen. This replaces `Flags[]` and `EFlags[]`, which are more
+  complicated since they grouped bitflags by category and required bitwise
+  operations to access individual flags.
+  
+  ```
+  // Old
+  bool v = Screen->Flags[SF_ROOMTYPE] & (1 << SFR_SIDEVIEW);
+  // New
+  bool v = Screen->Flag[SFL_SIDEVIEW];
+  ```
+  
+  Because of their complexity, `Flags[]` and `EFlags[]` never supported
+  writing to it. `Flag[]` makes that possible now.
+  
+  Also removes `GetMapscreenFlag` and similar helper functions, as usage
+  was low/non-existent and `Flag` totally replaces it.
+
+zscript: option to run weapon scripts an extra time during spawn
+  This is an optionally enabled scripting QR. It may fix some timing
+  issues, such as a script wanting to make the weapon immune to pits being
+  too late if the weapon spawned ON a pit.
+
+
+# Bug Fixes
+
+dialog lists scrolling wrongly in some cases
+support test init data in replays
+
+zc: bottom 8 pixels not showing in some cases
+  For the F6/Active Subscreen/Map/Death script engines, the bottom pixels
+  were being cut off even when showing the bottom 8 pixels is enabled.
+  Some scrolling/end game effects were also impacted.
+
+zc: qr for strings on layer 6 timing fix
+zc: use proper start screen after reset for test mode + recording a replay
+zc: prevent crash on `Game->Reload()` on instant reload
+  Regressed in 2.55.7
+
+zc: hover boots duration being halved over pits
+zc: don't skip saving game in test mode
+  Methods of saving the game other than directly via them menu (such as
+  autosave on screen entry, or via scripting) were not saving any data
+  when in test mode. Now, continuing or otherwise reloading the current
+  test mode session will persist those saves.
+
+zc: don't stop recording in test mode on quit
+  Only the "Continue" option correctly continued recording when ending the
+  game in test mode, while the other options would end the recording and
+  start a new one. Now, it continues as one recording.
+  
+  "Game > Reset" still restarts the recording in test mode.
+
+zc: lifted weapon not disappearing on death
+zc: subscreen items no longer hidden after collecting triforce
+  If the "No Cutscene" flag is checked for the triforce item, collecting
+  the triforce was incorrectly hiding subscreen items indefinitely.
+
+zc: some drawing commands ignore the `Toggle Transparency` combo animation flag
+zc: lifted combos follow hero dir properly
+zc: QR "Bottles can't be used with any maxed counter" being backwards
+zc: progressive item / item bundle related crashes
+zc: prevent softlock when enemy falls into pit after eating hero
+zc: add compat QR for rope enemy speed
+  2.55.6 added the ability to configure rope enemy speed using misc
+  attribute 10. However, this broke some earlier quests, so now there is
+  a compat rule to suppress this new configurable behavior.
+
+zc: prevent crash when using Kill All cheat on Patra
+zc: bottom 8 pixels not rendering cheat-layers (ex.solidity)
+zc: remove some noisy traces in hero logic
+zc: use black for drawing empty space in active subscreen
+  This is related to the bottom 8 pixels feature.
+
+zc: bombs that are auto-lifted being immediately thrown
+  This regressed in 2.55.8.
+
+zc: stop softlocking when using hookshot into slope
+zc: conveyors not properly forcing direction between movements
+zc: conveyor force dir / spin issue
+zc: prevent crash when using whistle item with no sound
+zc: prevent scrolling over liquid/pits that should drown/fall you
+zc: lift sound not played when re-lifting weapons
+zc: prevent rare crash related to creating hero weapons
+zc: liftable bomb's explosions no longer liftable
+zc: thrown weapons not properly rotating
+zc: weapons no longer "die/stop on solids" when already dead
+zc: prevent crash when accessing invalid enemy data
+zq: prevent crash when generic script data length is 1
+zq: Clicking snapshot option in menu capturing the menu itself
+zq: Update cambria tileset
+  - Fix falling / drowning animation for enemies
+  - Bomb flower combos interact w/ weapon triggers
+  - Add shatter animations for pots when slashed
+  - Fix solidity for combos 3916 and 3917
+  - Make fairies catchable with the Bug Net
+  - Gave the Bug Net and use sound
+  - Fix CSet errors in Door Combo Sets
+  - Fix accidentally uncombo'd tiles
+  - Fix locked door combos using the lock block combo type, which can
+    conflict with engine locked doors
+
+zq: `Step->Effects` combo wizard 'Damage' off by *10000
+zq: View Map cutting off screens in fullscreen mode
+zq: changing resolution in View Map via space bar
+  Changing resolution via Space resulted in a bug where the viewer would
+  incorrectly use the wrong limit for the panning.
+
+zq: item editor crash on long item name/display name
+zq: include licenses in package export
+zq: add '?' buttons for 'Show/Hide' lens layer, to clarify possibly misleading labels
+zq: slash combo wizard not setting sfx properly
+zq: Item wizard for various slash->item types not opening with proper values
+zq: preserve items on save when using test init data
+zq: prevent crash when formatting some message strings
+  The code that generates the shortened text for each message string for
+  the string editor selector used too small a buffer. Strings that were
+  linked and had an id >= 1000 could potentially crash or corrupt the
+  editor.
+
+zq: negative values starting with `0.` not working in some textfields
+zq: 'Force Walk' flag missing from conveyor combo wizard
+zq: .tsv strings import no longer drops last string
+zq: prevent rare crash when opening quest
+zq: prevent data loss when grabbing tiles from quest
+zq: update Cambria tileset
+  - Fix the item bundles unintentionally giving you rupees on pickup
+  - Fix Stone of Agony having no effect
+  - Fix Combo 3638 not being a torch combo
+  - Fix the Spooky House palette having palette cycling
+  - Fix various example screens using the wrong trees
+  - Fix auto combo #50 not working properly
+  - Add dense forest autocombos
+  - Change Cave (Walk Down) combos to Stair combos. Making the Cave
+    (Walk Down) combo animation work properly would require making the
+    transparency color black, which we don't feel is ideal for this
+    tileset
+
+std_zh: `AdjacentCombo` now returns -1 for invalid combo position
+zscript: use correct DrawOrigin for bitmap draw functions, RT_SCREEN
+zscript: `lweapon->isValid()` now accurate for lifted weapons
+zscript: `eweapon::Explode` works now
+  This was incorrectly using the reference for lweapon, and likely
+  could result in crashing.
+
+zscript: correct index for `npcdata::BFlags[]`, `npc::Behavior[]`
+  These arrays were incorrectly bounding the given index between 0 and 4,
+  but these arrays have 16 values. That bounding is removed, and now an
+  error is logged if accessing an out-of-bounds index.
+
+zscript: always deallocate local arrays when script ends
+  When the bugfix QR `Always Deallocate Array` is off, local arrays are
+  sometimes not deallocated when FFC/item/global scripts end. This can
+  quickly hit the limit for the number of arrays allowed, and results in
+  bad things.
+  
+  If a local array pointer is passed to another script without changing
+  ownership, this QR being off prevents it from being deleted. Otherwise,
+  as long as the calling script stays alive that array remains valid.
+  
+  There is no known quest that relies on this behavior - so this QR now
+  has no impact and local arrays owned by a script are always deallocated
+  when it ends.
+  
+  Currently, the appropriate way to keep a local array alive beyond the
+  life of the script that created it is to call `OwnArray` in some other
+  script.
+  
+  https://discord.com/channels/876899628556091432/1373883674361335829
+
+zscript: scripted enemy spawns broken for scripted enemies
+  `Screen->SpawnScreenEnemies()` would break the script engine if it
+  spawns an enemy that has a script - it caused the calling script to
+  forever call `Screen->SpawnScreenEnemies()` once a frame. Although
+  spawning dozens of enemies a second is very funny, this has been fixed.
+
+zscript: potential crash when accessing `Game->Suspend[]` out-of-bounds
+zscript: `combodata::GenFlags[]` setter no longer broken
+zscript: emit compile error if run function uses >8 parameters
+  Scripts can only be configured with up to 8 values for parameters, but
+  the run function allowed any number of parameters to be defined. This
+  could result in subtly broken scripts.
+  
+  Declaring more than 8 parameters for a run function is now an error.
+
+
+# Build
+
+update libpng to 1.6.47, zlib to 1.3.1
+
+# Refactors
+
+read weapon names from zinfo, not the deprecated module system
+zscript: remove `Integer`, `Short`, `Byte`, etc. functions
+zscript: add bounds check for `Screen->SideWarpID`, `mapdata::SideWarpID`
+zscript: remove `Screen->NumFFCs[]` and `mapdata::NumFFCs[]`
+zscript: remove `combodata::Expansion`
+
+# Tests
+
+add pkmn.zplay for advanced SCC usage
+
+# CI
+
+[win] update vcpkg to 2025.03.19
+
+# Misc.
+
+attach screenshot to crash reports
