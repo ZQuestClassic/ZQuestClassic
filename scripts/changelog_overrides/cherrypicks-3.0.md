@@ -2,6 +2,106 @@
 # ! These are all the commits in the main branch that were cherry-picked to 2.55.x, and then a 2.55.x release was first to have them in an official release
 
 # ! cherry-pick -x
+drop 36be1aaaf7e069334846b29c98405f0e9a3a6536 misc!: remove Co-authored-by lines from changelog
+drop d82e3b0dc1ae080a5e085e5896366365eb8ea119 fix(zc): prevent crash when accessing invalid enemy data
+drop 86c79154df37ce80c82dd2941e8bdb9ba30749ae fix(zq): update Cambria tileset
+drop a6a671cdf22edf0523072276a102537ddb18f827 fix: support test init data in replays
+drop f2fe5846eb63227be56a70ec5c6973535f6cfe19 fix(zq): prevent data loss when grabbing tiles from quest
+drop 4bdcf9f1f210dd7271390aac868ce6f473e8d0b4 fix(zc): weapons no longer "die/stop on solids" when already dead
+drop 3fea7a20edda2ee812beeb76f4a47d0404b520ff fix(zc): thrown weapons not properly rotating
+drop 332fff941a409370ceedd314c34c0a0fee017706 fix(zq)!: some editors having misaligned labels
+drop 22a840f5be92e264943c9b97d85ef7f097f2d128 fix(zc): liftable bomb's explosions no longer liftable
+drop 2a96e86bffcebba81f9133ebfb30f18eeb2bdb8f fix(zc): prevent rare crash related to creating hero weapons
+drop b1d11a15860586dc8d3af2362930a9269a8c0ec4 refactor!: move example quests to `quests/examples` folder
+drop 7abe6d21ac890deaf63bd4e4711b3c4974c84a4a fix(zq): prevent rare crash when opening quest
+drop 3be4a4a2d12719b352b8c056a7bb1434fce7dfd3 fix(zc)!: prevent overflow when checking distance for triggers
+drop f4a5408c324357b846db976aef269d6d6d696172 fix(zc): lift sound not played when re-lifting weapons
+drop a4e7b48b8896391c5ced088d29f50744e2447e8a fix(zq): .tsv strings import no longer drops last string
+drop 7f5820d5916bcfb725d3c90e8995ea7c56f9062b fix(zc)!: prevent scrolling over liquid/pits that should drown/fall you
+drop faafe4478b1ee18b647ecdae2c31ca4898e5ac8b fix(zq)!: 'Force Walk' flag missing from conveyor combo wizard
+drop 1e35f89a4f94ba76a20286d9ff0d1feca46a35bb fix(zc)!: conveyor force dir / spin issue
+drop c60b293c61e9b545449c7f79f55a4eca7d5fb38f fix(zc)!: conveyors not properly forcing direction between movements
+drop 4482a64bc7af30d11d85a12fd4dfeeba0bba56ad fix(zc): stop softlocking when using hookshot into slope (#1115)
+drop 72dd9c64772b3fe0eb1c864aab948b92cf782bcc fix(zc): bombs that are auto-lifted being immediately thrown (#1114)
+drop 253ec85eb0309d4d93531eacafb39a2e133391c4 fix(zq)!: negative values starting with `0.` not working in some textfields
+drop 529035f094818673bf5eddbceb1ff65e8878f9ff fix(zc)!: use black for drawing empty space in active subscreen
+drop 896d2b46d93119f8450ceebfb55b81e420044bf2 fix(zc): remove some noisy traces in hero logic
+drop ec760e091a3b1a02fd19e39d62e0599152c3d324 fix(zq): prevent crash when formatting some message strings
+drop ee33a81b90dbf65f0b8d934c4ef047211dc47662 feat: qr allows weapon scripts to run an extra time at the start of their spawn frame
+drop e303f9eaefa47e4f515999acb9771d2236b3b342 fix(zscript): emit compile error if run function uses >8 parameters
+drop 12cf583c5d29e0f3f99c93e378eb65b28628f25b fix(zc)!: bottom 8 pixels not rendering cheat-layers (ex.solidity)
+drop f67e729b096136269c09001a95baaab5eada53e8 refactor(zscript)!: change read_array default to 0
+drop c9020d168d6692c28dc043ae24aeed3296df8728 fix(zq): preserve items on save when using test init data
+drop 9155f2e4d1a1c1f3f63695792941f828868c783a fix(zc): prevent crash when using Kill All cheat on Patra
+drop b6cff703a24b0bb92a90ca881f1f3aa1d9507dc8 fix(zc): add compat QR for rope enemy speed
+drop be584a6e1081af3b83e844ebf619d92df76eef48 fix(zscript): `combodata::GenFlags[]` setter no longer broken
+drop 29aeada32d2405786f72644fb1c62fddbbd19dd9 fix(zscript): potential crash when accessing `Game->Suspend[]` out-of-bounds
+drop 43ac024d55475f5717b8cc29454c4703a6d3f881 refactor(zscript): remove `combodata::Expansion`
+drop 330f822898818eb81e4c92c1b86bd93db911bba2 refactor(zscript): remove `Screen->NumFFCs[]` and `mapdata::NumFFCs[]`
+drop b288d84af1267729d4a39dc7c0f5005b86b3bddb misc: attach screenshot to crash reports
+drop 3b1d624667be0e0019b726809298bd9d51525062 fix(zq)!: CSet now listed in combo pool placement mode
+drop 0ca4a95fe1b60d97b3d947888c7406d7a39ec0aa fix(zq): Item wizard for various slash->item types not opening with proper values
+drop 08d25c1de47e02ed3851076544ea0f738581221a fix(zc): prevent softlock when enemy falls into pit after eating hero (#1105)
+drop 84e4821e3786ca3abc993314c9e70f842fb5b9a7 fix(zc)!: remove extraneous error log
+drop a46983c4eedaa3204f0004af00a7bf8d8313a9d6 fix(zc): progressive item / item bundle related crashes (#1070)
+drop ab9ba8b5bdd75f94cb164910c091fa55862658a1 misc!: strip GitHub PR number from changelog
+drop 43e3b2c71c294f288dc9bd26c45bb0a06bef7f01 fix(zscript)!: use correct id for `eweapon::TotalDYOffset`
+drop ac69c0cda322528c37027201cede2865f03284c1 fix(zscript): scripted enemy spawns broken for scripted enemies
+drop e7bab777054f4e5cc89ced293416f921e4daa492 fix!: dialog lists scrolling wrongly in some cases
+drop 06734f6a701085b84ef38b3435fc2398d0830669 fix(zc): QR "Bottles can't be used with any maxed counter" being backwards
+drop 72ca90b5b417c7420c1897ce6546dbffdb65150f docs!: clarify 'Screen->Data[]' ? button
+drop b6be7f0a35b25a8aae4005d12cf42253fdccc67a fix(zc)!: lifted combos follow hero dir properly
+drop 5b795ffb32b67c396ebff18b6636ef81f2272af4 fix(zq)!: slash combo wizard not setting sfx properly
+drop 0e5e749d17fd1f462e5337381523ca7f199e23ab fix(zq)!: add '?' buttons for 'Show/Hide' lens layer, to clarify possibly misleading labels
+drop 985d3d73037c42f750919d73aa19654f5aaa7244 build!: move fmt to third_party
+drop e49dd5f657f52ce57143b7df1da1773d60528408 fix(zscript): always deallocate local arrays when script ends
+drop c359902dc9de356dc8a6472b06671f88fd1874c4 fix(zq): include licenses in package export
+drop 16b54f0148c6b14e8c505c0d661ce95226cfacfc refactor(zscript): add bounds check for `Screen->SideWarpID`, `mapdata::SideWarpID`
+drop 5ecc544b7897fc5b93bd67b08215393f87c10390 fix(zscript): remove `Integer`, `Short`, `Byte`, etc. functions
+drop ba5a5045c193ed85af44cd58f9c064e0e637fd63 refactor: read weapon names from zinfo, not the deprecated module system (#1022)
+drop 39d0d9e40d313ac80bcc55ee91fc0f3b5dd00954 fix(zq)!: item editor crash on long item name/display name
+drop b64679f4fcd6a225c7c603a3bcb893ec13c8d07b fix(zc): some drawing commands ignore the `Toggle Transparency` combo animation flag
+drop b9e612da15fdce40864740610f1565c85e7e35ee fix(zq): changing resolution in View Map via space bar
+drop 122f3fca464e6d4e36b48b14fcd208da1a9f0fc8 fix(zq): View Map cutting off screens in fullscreen mode
+drop e4fd4d6a474a5fb3f56c0eadb9c18fc43e66782a fix(zc): subscreen items no longer hidden after collecting triforce
+drop d7869fc0452d70aff8c797ae96bad62bccb31d92 fix(zc): Lifted weapon not disappearing when you die while holding it
+drop 62a494305b682a58c83104b47145245698f56d6f fix(zc): lweapon->isValid() now accurate for lifted weapons
+drop c7f19b2dc0d34b6c53a455c21ef8a74a8e6aead1 fix(zscript)!: implement setter for `mapdata::Flag`
+drop 74e5a2e9ca8ba83860f0d15278eb278c2cf17261 feat(zscript): add `Flag[]` to `Screen` and `mapdata`
+drop 4201573d4f2fa2e4c0ef9e65e7d8f9bdcb228c6f refactor!: replace mapscr `enemyflags` with `flags11`
+drop e13e29f8eb28e6a62581136eb48368765f26e107 fix(zc): don't stop recording in test mode on quit
+drop f54e8a9bd0385f7f4d722052318921a6072c3da4 fix(zc): don't skip saving game in test mode
+drop 908e9c6e0d39ce1060f7eece0963496db64c1200 feat(zscript): add `ReadBitflags` and `AdjustBitflags` helper functions
+drop 0b051c760f29a0502fd3edb38c81430bfca73fa1 fix(zq): `Step->Effects` combo wizard 'Damage' off by *10000
+drop a5a2181ace4854196e6a34b3fbb3866f82468e6d fix(zq)!: [mac] prevent menu showing in ZQ snapshot
+drop de96f03feaf96a4cbe1409d740db31ac0e7ebec3 fix(zq): Clicking snapshot option in menu capturing the menu itself
+drop f01832a9864affbb2ffaab6e3c251ff2c2c178b9 docs!: indicate that the Bug Net does use it's UseSound as a 'Swing Sound'
+drop 93e24694ace8bc530fb6abd18001fa83e14f7c8d test: add pkmn.zplay for advanced SCC usage
+drop 08475809a2c084bb27e11c7ad6267bd5e8ded696 fix(zc)!: use qst filename for replay file prefix if title is empty
+drop 87eef046f1297b69464b34afeb996977e9fffde0 fix(zq): prevent crash when generic script data length is 1
+drop 58790db8a68a30475c8718e37e353fdf25614fdf fix(zc): hover boots duration being halved over pits
+drop 4272d5d1f804f0c85a98501754c58e581ea2e046 fix(zc): prevent crash on `Game->Reload()` or instant reload
+drop 3456dbdecf27df143e62f65186fedc3373019a0a fix(zc): use proper start screen after reset for test mode + recording a replay
+drop 10f7e39e9ecbb5cdefe1c51d25c17504694ae58d fix(zc)!: qr for strings on layer 6 timing fix
+drop 9c6cf984a5162af5e57991a89bd6e5988c186341 fix(zscript)!: use correct DrawOrigin for bitmap draw functions, RT_SCREEN
+drop 1a3d5f44f2657bcd35612fd213d0195371c2f2d1 ci: [win] update vcpkg to 2025.03.19
+drop 0aa8e097dabdb38e7c13fedb3f2a51e251d493a8 ci!: pin cmake to 3.31.6
+drop 370c11fd1321aca2a6ab4b709679380b5b19b3b5 build!: [mac] retry create-dmg a few times in packaging script
+drop 766e23bf7a8c3168021ed17b5c0567fc59aef29c fix(zc)!: bottom 8 pixels not showing in some cases
+drop cfb5fe6f2337afca1f5cfbec48285af1598474f4 ci!: [win] add --allow-downgrade to choco deps install
+drop f1dd1b50c0ea3e3f837e1dbe048cdfba40dd5f77 build: update libpng to 1.6.47, zlib to 1.3.1
+drop c6173806fb830551c45e44989c7c1c59c9bf9687 fix(std_zh): `AdjacentCombo` now returns -1 for invalid combo position
+drop 39b64e053404cf383e4417ba560fab7d2143d7db feat(zscript): add `ComboAdjust` for getting combo position offset by some pixels
+drop 898d60ceb795cba2cd5a2a6126059fa7116ff84f fix(zc)!: set correct value for default bottom 8 pixels on first load
+drop fa74b0adc22f6176f2306688b3db4e3c42b589a4 fix(launcher)!: use correct config key for Show Bottom 8px
+drop 15210289ff3976f536df670786631afd465e4f1a fix!: make overlay subscreens 8 pixels taller when bottom 8 pixels are enabled
+drop 56d4dbe9c6d2e8d5f7cb8e71fffb40e9697dadac fix(zc)!: show bottom pixels default option now works during quest init
+drop 869aa9a525482b2c92b179a9540a35709f25d5d9 fix(zc)!: prevent crash by disallowing bottom 8px change during active subscreen
+drop cd5be2cd3ec8e34260a245604718c8ef16d1ac68 fix(zc)!: correct some issues with previous commit re bottom 8 pixels
+drop 3bec0750efe2b17f3a3f7a4182a8a47a73ca2035 feat: show bottom 8 pixels
+drop 7e68b50894d38dc944ab4bd4627d028ecb8576a6 fix(zq)!: typo in File>New dialog for "Cambria"
+drop 1e329b4b585ba0416f04e4dd3d6ead5b7a152b5f refactor(zq): drop "Load Tileset" and consolidate loading tilesets via File>New
+drop 1e5be558ac1d419f3ecd86901cc71e35500198df feat(zscript): more value range types (.., =.., ..=, =..=)
 drop 7bbff37f7c6fe5916ae4cd904b5bfac083b0629a misc!: strip "cherry picked from" from commit body (git cherry-pick -x)
 drop f2211a3ac7effc3254f0318a0fd60c9f02a78148 feat(zscript): add `Screen->DrawOrigin`
 drop bc51c3a4b789567d974dc51e6058008773c3d0a9 feat(zscript): add `Viewport`
@@ -437,6 +537,8 @@ drop 60d0a61021f853b9e7f400a99c2b33bc5ba09f6e feat(zscript): Allow '_' to be use
 drop 25027ba9988f1fe0c7c9d44f2da50b940b8b4c60 fix: System menu mouse responsiveness
 drop 5b2e5ccb2ee020ed0a72a0cce69e3b3ed81811eb fix(zq): lockblock/chest combo wizard bad field for counter amount
 drop c47b6f2dbbb4e7a510c7cf1fc7f4fc3d16e44da3 feat: include The Deep quest in release package
+drop 9dfd04a559b316734ef871c88e18739d9a2b2b88 misc!: add 2.55.9 changelog
+drop af1586ae0987360a7cffe8897c47c8c6425411ae fix(zc)!: remove incorrect ASSERT for whistle item with no sound
 
 # ! same subject
 drop 58abb5008f1c0c3c7b7177818e9967afbd84ba99 fix(zscript): properly allocate file list to prevent `FileSystem->LoadDirectory()` crash
