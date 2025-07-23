@@ -131,6 +131,7 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 								dd_cfg[0] = val;
 							}
 						),
+						_d,
 						//
 						Label(text = "On Deprecated:", hAlign = 1.0),
 						DropDownList(data = list_off_warn_err,
