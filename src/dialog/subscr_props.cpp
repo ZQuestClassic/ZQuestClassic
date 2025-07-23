@@ -734,7 +734,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						_d,
 						Label(text = "Cost:", hAlign = 1.0),
 						DDL(w->costind, list_costinds),
-						INFOBTN("Which cost to use from the button item")
+						INFOBTN("Which cost to use from the button item."
+							"\nIf 'No Collapse' is checked, '0' will indicate the item's 'Use Cost', while '1'"
+							" indicates the item's 'Use Cost 2'."
+							"\nOtherwise, '0' indicates the first Use Cost on the item that is not blank, and '1'"
+							" indicates the second Use Cost that is not blank.")
 					),
 					Column(
 						Rows<2>(
@@ -759,7 +763,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							CBOX(w->flags,SUBSCR_BTNCOUNTER_SHOW0,"Show Zero",1),
 							INFOBTN("If checked, 'Cost: 0' will always check the item's 'Use Cost', and 'Cost: 1' to 'Use Cost 2'.\n"
 								"If unchecked, 'Cost: 0' checks the first cost that is not None on an item, whichever that is,"
-								" and 'Cost: 2' the second."),
+								" and 'Cost: 1' the second."),
 							CBOX(w->flags,SUBSCR_BTNCOUNTER_NOCOLLAPSE,"No Collapse",1)
 						)
 					)
