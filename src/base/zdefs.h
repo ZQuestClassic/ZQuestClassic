@@ -2296,8 +2296,8 @@ std::string get_qr_hexstr(byte* qrs = NULL, bool hash = false, bool disctags = t
 bool clipboard_has_text();
 bool get_al_clipboard(std::string& clipboard);
 void set_al_clipboard(std::string const& clipboard);
-bool load_qr_hexstr(std::string hexstr);
-bool load_qr_hexstr_clipboard();
+bool load_qr_hexstr(std::string hexstr, byte* dest_ptr = nullptr);
+bool load_qr_hexstr_clipboard(byte* dest_ptr = nullptr);
 bool load_dev_info(std::string const& devstr);
 bool load_dev_info_clipboard();
 std::string generate_zq_about();

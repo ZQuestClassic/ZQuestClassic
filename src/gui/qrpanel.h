@@ -18,7 +18,8 @@ class QRPanel: public TabPanel
 public:
 	QRPanel();
 	
-	void loadQRs(byte const* qrs);
+	void loadQRs(byte* qrs);
+	void setDestQRs(byte* qrs);
 	void setCount(size_t count);
 	void setShowTags(bool v);
 	void setIndexed(bool v);
@@ -45,7 +46,7 @@ private:
 	Size scrollWidth, scrollHeight;
 	
 	int32_t message, info_message;
-	byte const* init_qrs;
+	byte* local_qrs;
 	size_t qrCount;
 };
 

@@ -5,9 +5,12 @@
 #include "zq/zq_files.h"
 #include "info.h"
 
-void call_ruleset_dlg()
+static bool modified;
+bool call_ruleset_dlg(byte* dest_qrs)
 {
-	PickRulesetDialog(applyRuleset).show();
+	modified = false;
+	PickRulesetDialog(applyRuleset, dest_qrs).show();
+	return modified;
 }
 
 static const GUI::ListData rulesetsList
@@ -39,8 +42,8 @@ static const GUI::ListData rulesetsList
 		"All but a few rules are off.\n" }
 };
 
-PickRulesetDialog::PickRulesetDialog(std::function<void(int32_t,byte*)> setRuleset):
-	setRuleset(setRuleset)
+PickRulesetDialog::PickRulesetDialog(std::function<void(int32_t,byte*)> setRuleset, byte* dest_qrs):
+	setRuleset(setRuleset), dest_qrs(dest_qrs)
 {}
 
 std::shared_ptr<GUI::Widget> PickRulesetDialog::view()
@@ -114,7 +117,8 @@ bool PickRulesetDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}	
 		//Exiting messages
 		case message::OK:
-			setRuleset(rulesetChoice->getChecked(),nullptr);
+			setRuleset(rulesetChoice->getChecked(),dest_qrs);
+			modified = true;
 			return true;
 		case message::CANCEL:
 			return true;

@@ -652,8 +652,9 @@ void set_al_clipboard(std::string const& clipboard)
 	al_set_clipboard_text(all_get_display(), clipboard.c_str());
 }
 
-bool load_qr_hexstr(string hexstr)
+bool load_qr_hexstr(string hexstr, byte* dest_ptr)
 {
+	if(!dest_ptr) dest_ptr = quest_rules;
 	//Strings with '##' delimiting start/end of substring are valid
 	size_t startpos = hexstr.find("##");
 	if(startpos != string::npos)
@@ -678,19 +679,20 @@ bool load_qr_hexstr(string hexstr)
 	{
 		char hex_buf[3];
 		sprintf(hex_buf, "%s", hexstr.substr(i*2,2).c_str());
-		quest_rules[i] = (byte)zc_xtoi(hex_buf);
+		dest_ptr[i] = (byte)zc_xtoi(hex_buf);
 	}
-	unpack_qrs();
+	if(dest_ptr == quest_rules)
+		unpack_qrs();
 	InfoDialog("QRs Loaded", "Quest Rules have been loaded from the clipboard").show();
 	return true;
 }
-bool load_qr_hexstr_clipboard()
+bool load_qr_hexstr_clipboard(byte* dest_ptr)
 {
 	if(!clipboard_has_text()) return false;
 	char* clipboardstr = al_get_clipboard_text(all_get_display());
 	if(!clipboardstr) return false;
 	string str(clipboardstr);
-	bool ret = load_qr_hexstr(str);
+	bool ret = load_qr_hexstr(str, dest_ptr);
 	al_free(clipboardstr);
 	return ret;
 }

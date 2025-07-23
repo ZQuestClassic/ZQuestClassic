@@ -1778,7 +1778,7 @@ GUI::ListData const& combinedZSRList()
 
 //}
 int32_t onStrFix(); //zquest.cpp
-void popup_bugfix_dlg(const char* cfg); //zq_class.cpp
+void popup_bugfix_dlg(const char* cfg, byte* dest_qrs); //zq_class.cpp
 bool hasCompatRulesEnabled()
 {
 	for(size_t q = 0; q < compatRulesList.size(); ++q)
@@ -1869,7 +1869,6 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 void QRDialog::reloadQRs()
 {
 	memcpy(local_qrs, realqrs, QR_SZ);
-	unpack_qrs();
 }
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
 	searchmode(false), setQRs(setQRs), realqrs(qrs), qrs_per_tab(qrs_per_tab)
@@ -1902,7 +1901,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					ptr = &scroll_pos1,
 					padding = 3_px,
 					onToggle = message::TOGGLE_QR,
-					initializer = local_qrs,
+					onCloseInfo = message::REFR_INFO,
+					qr_ptr = local_qrs,
 					count = 0, //scrollpane
 					showtags = true,
 					scrollWidth = 675_px,
@@ -2055,7 +2055,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = animRulesList
 						)
@@ -2065,7 +2066,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = comboRulesList
 						)
@@ -2075,7 +2077,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = compatRulesList
 						)
@@ -2085,7 +2088,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = enemiesRulesList
 						)
@@ -2095,7 +2099,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = itemRulesList
 						)
@@ -2105,7 +2110,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = miscRulesList
 						)
@@ -2115,7 +2121,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = nesfixesRulesList
 						)
@@ -2125,7 +2132,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = playerRulesList
 						)
@@ -2135,7 +2143,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = subscrRulesList
 						)
@@ -2145,7 +2154,8 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
-							initializer = local_qrs,
+							onCloseInfo = message::REFR_INFO,
+							qr_ptr = local_qrs,
 							count = qrs_per_tab,
 							data = weaponsRulesList
 						)
@@ -2174,6 +2184,9 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
+		case message::REFR_INFO:
+			rerun_dlg = true;
+			return true;
 		case message::TOGGLE_QR:
 			toggle_bit(local_qrs, msg.argument);
 			return false;
@@ -2181,13 +2194,13 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			call_header_dlg();
 			return false;
 		case message::RULESET:
-			call_ruleset_dlg();
-			reloadQRs();
+			if(!call_ruleset_dlg(local_qrs))
+				return false;
 			rerun_dlg = true;
 			return true;
 		case message::RULETMP:
-			call_ruletemplate_dlg();
-			reloadQRs();
+			if(!call_ruletemplate_dlg(local_qrs))
+				return false;
 			rerun_dlg = true;
 			return true;
 		case message::CHEATS:
@@ -2198,10 +2211,9 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			InfoDialog("Copied", "QR String copied to clipboard!").show();
 			return false;
 		case message::QRSTR_LOAD:
-			if(load_qr_hexstr_clipboard())
+			if(load_qr_hexstr_clipboard(local_qrs))
 			{
-				popup_bugfix_dlg("dsa_compatrule2");
-				reloadQRs();
+				popup_bugfix_dlg("dsa_compatrule2", local_qrs);
 				rerun_dlg = true;
 				return true;
 			}

@@ -19,8 +19,8 @@ class InfoDialog: public GUI::Dialog<InfoDialog>
 public:
 	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR, BTN };
 
-	InfoDialog(string const& title, string const& text, optional<string> subtext = nullopt);
-	InfoDialog(string const& title, vector<string> const& lines, optional<string> subtext = nullopt);
+	InfoDialog(string const& title, string const& text, optional<string> subtext = nullopt, byte* dest_qrs = nullptr);
+	InfoDialog(string const& title, vector<string> const& lines, optional<string> subtext = nullopt, byte* dest_qrs = nullptr);
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);

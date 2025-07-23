@@ -6550,7 +6550,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
 }
 
 void set_rules(byte* newrules);
-void popup_bugfix_dlg(const char* cfg)
+void popup_bugfix_dlg(const char* cfg, byte* dest_qrs)
 {
 	bool dont_show_again = zc_get_config("zquest",cfg,0);
 	if(!dont_show_again && hasCompatRulesEnabled())
@@ -6563,7 +6563,7 @@ void popup_bugfix_dlg(const char* cfg)
 			{
 				if(ret)
 				{
-					applyRuleTemplate(ruletemplateFixCompat);
+					applyRuleTemplate(ruletemplateFixCompat,dest_qrs);
 				}
 				if(dsa)
 				{
@@ -6645,7 +6645,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 			set_rules(quest_rules);
 			saved = true;
 			if(!(loading_file_new && zc_get_config("zquest","auto_filenew_bugfixes",1)))
-				popup_bugfix_dlg("dsa_compatrule");
+				popup_bugfix_dlg("dsa_compatrule",nullptr);
 			
 			if(bmap != NULL)
 			{

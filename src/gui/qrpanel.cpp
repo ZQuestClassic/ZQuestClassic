@@ -18,12 +18,12 @@ namespace GUI
 
 QRPanel::QRPanel(): TabPanel(), scrolling(false), showTags(false),
 	indexed(false), scrollWidth(0_px), scrollHeight(0_px), message(-1),
-	info_message(-1), init_qrs(NULL), qrCount(16)
+	info_message(-1), local_qrs(NULL), qrCount(16)
 {}
 
-void QRPanel::loadQRs(byte const* qrs)
+void QRPanel::loadQRs(byte* qrs)
 {
-	init_qrs = qrs;
+	local_qrs = qrs;
 }
 
 void QRPanel::setCount(size_t count)
@@ -50,7 +50,7 @@ void QRPanel::setScrollHeight(Size sz)
 
 void QRPanel::loadList(GUI::ListData qrlist)
 {
-	assert(init_qrs);
+	assert(local_qrs);
 	size_t q = 0;
 	int32_t tabnum = 1;
 	scrolling = qrCount == 0;
@@ -104,11 +104,11 @@ void QRPanel::loadList(GUI::ListData qrlist)
 				std::string const& infotext = li->info;
 				cbox->setText(name);
 				if(infotext.size())
-					ibtn->setOnPress([infotext](){InfoDialog("QR Info",infotext).show();});
+					ibtn->setOnPress([infotext,this](){InfoDialog("QR Info",infotext,nullopt,local_qrs).show();});
 				else ibtn->setDisabled(true);
 				cbox->onToggle(message);
 				cbox->setQR(qr);
-				if(get_bit(init_qrs, qr))
+				if(get_bit(local_qrs, qr))
 					cbox->setChecked(true);
 				++q;
 			}

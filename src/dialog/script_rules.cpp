@@ -33,7 +33,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 						margins = 0_px,
 						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
+						qr_ptr = local_qrs,
 						count = qrs_per_tab,
 						data = scriptRulesList
 					)
@@ -44,7 +44,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 						margins = 0_px,
 						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
+						qr_ptr = local_qrs,
 						count = qrs_per_tab,
 						data = instructionRulesList
 					)
@@ -55,7 +55,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 						margins = 0_px,
 						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
+						qr_ptr = local_qrs,
 						count = qrs_per_tab,
 						data = objectRulesList
 					)
@@ -66,7 +66,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 						margins = 0_px,
 						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
+						qr_ptr = local_qrs,
 						count = qrs_per_tab,
 						data = drawingRulesList
 					)
@@ -77,7 +77,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 						margins = 0_px,
 						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
+						qr_ptr = local_qrs,
 						count = qrs_per_tab,
 						data = bugfixRulesList
 					)

@@ -15,6 +15,8 @@
 #include "base/zdefs.h"
 #include "dialog/alertfunc.h"
 #include "dialog/tilesetwizard.h"
+#include "dialog/pickruleset.h"
+#include "dialog/pickruletemplate.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
 #include "base/qst.h"
@@ -316,8 +318,6 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 	}
 }
 
-void call_ruleset_dlg();
-void call_ruletemplate_dlg();
 int32_t PickRuleset()
 {
 	call_ruleset_dlg(); return D_O_K;

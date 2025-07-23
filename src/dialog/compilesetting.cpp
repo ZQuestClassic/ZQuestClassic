@@ -219,8 +219,9 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 					QRPanel(
 						padding = 3_px,
 						onToggle = message::TOGGLE_QUEST_CFG,
+						onCloseInfo = message::REFR_INFO,
 						indexed = true,
-						initializer = qst_cfg,
+						qr_ptr = qst_cfg,
 						count = 14,
 						data = compileSettingList
 					)
@@ -249,6 +250,9 @@ bool CompileSettingsDlg::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
+		case message::REFR_INFO:
+			rerun_dlg = true;
+			return true;
 		case message::TOGGLE_QUEST_CFG:
 			toggle_bit(qst_cfg,msg.argument);
 			break;

@@ -33,18 +33,20 @@ void displayinfo(string const& title, vector<string> const& lines, optional<stri
 	InfoDialog(title,lines,subtext).show();
 }
 
-InfoDialog::InfoDialog(string const& title, string const& text, optional<string> subtext):
+InfoDialog::InfoDialog(string const& title, string const& text,
+	optional<string> subtext, byte* dest_qrs):
 	d_title(title),
 	d_text(text), d_subtext(subtext),
-	dest_qrs(nullptr)
+	dest_qrs(dest_qrs)
 {
 	postinit();
 }
 
-InfoDialog::InfoDialog(string const& title, vector<string> const& lines, optional<string> subtext):
+InfoDialog::InfoDialog(string const& title, vector<string> const& lines,
+	optional<string> subtext, byte* dest_qrs):
 	d_title(title),
 	d_text(), d_subtext(subtext),
-	dest_qrs(nullptr)
+	dest_qrs(dest_qrs)
 {
 	size_t size = 0;
 
@@ -67,8 +69,7 @@ InfoDialog::InfoDialog(string const& title, vector<string> const& lines, optiona
 static byte* next_dest_qr = nullptr;
 void InfoDialog::postinit()
 {
-	if(!next_dest_qr)
-		next_dest_qr = quest_rules;
+	old_dest_qrs = next_dest_qr;
 	while(true)
 	{
 		size_t pos = d_text.find_first_of("$");
@@ -125,10 +126,10 @@ void InfoDialog::postinit()
 	
 	if(qrs.size() || ruleTemplates.size())
 	{
-		dest_qrs = next_dest_qr;
+		if(!dest_qrs)
+			dest_qrs = next_dest_qr ? next_dest_qr : quest_rules;
 		next_dest_qr = local_qrs;
 		memcpy(local_qrs, dest_qrs, sizeof(local_qrs));
-		unpack_qrs();
 	}
 }
 
@@ -159,7 +160,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 					padding = 3_px,
 					onToggle = message::TOGGLE_QR,
 					onCloseInfo = message::REFR_INFO,
-					initializer = local_qrs,
+					qr_ptr = local_qrs,
 					count = 0,
 					data = tosearch
 				)
@@ -284,10 +285,7 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			#endif
 		[[fallthrough]];
 		case message::CANCEL:
-			if(dest_qrs)
-			{
-				next_dest_qr = dest_qrs;
-			}
+			next_dest_qr = old_dest_qrs;
 			return true;
 		case message::REFR_INFO:
 			rerun_dlg = true;
