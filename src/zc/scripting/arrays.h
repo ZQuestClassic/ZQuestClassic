@@ -342,8 +342,8 @@ public:
 	{
 		size_t sz = getSize(ref);
 		if (m_boundGetterIndex)
-			index = bound_index(index, 1, sz - 1);
-		else if (BC::checkIndex2(index, sz) != SH::_NoError)
+			index = bound_index(index, 1, sz);
+		else if (BC::checkIndex2OneIndex(index, sz) != SH::_NoError)
 			return m_defaultValue;
 
 		return m_getFunc(ref, index) * (m_mul10000 ? 10000 : 1);
@@ -353,8 +353,8 @@ public:
 	{
 		size_t sz = getSize(ref);
 		if (m_boundSetterIndex)
-			index = bound_index(index, 1, sz - 1);
-		else if (BC::checkIndex2(index, sz) != SH::_NoError)
+			index = bound_index(index, 1, sz);
+		else if (BC::checkIndex2OneIndex(index, sz) != SH::_NoError)
 			return false;
 
 		if (auto val = transformValue<int>(value))
