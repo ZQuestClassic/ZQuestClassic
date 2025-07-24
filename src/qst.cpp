@@ -3468,6 +3468,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL, 1);
 	}
 
+	// Older than 2.55.11?
+	if (tempheader.compareVer(2, 55, 11) < 0 && strcmp(tempheader.author, "zcdev") != 0)
+	{
+		set_qr(qr_BROKEN_BLOCKHOLE_PITFALLS, 1);
+	}
+
 	memcpy(Header, &tempheader, sizeof(tempheader));
 	
 	return 0;

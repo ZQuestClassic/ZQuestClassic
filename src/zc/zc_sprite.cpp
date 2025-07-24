@@ -792,15 +792,15 @@ bool movingblock::animate(int32_t)
 		}
 		else
 		{
-			trigger = false; bhole = false;
-			
 			int32_t f1 = m->sflag[combopos];
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
+			trigger = false; bhole = (f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE;
+			
 			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 			bool no_trig_replace = get_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
 			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
 			bool trig_is_layer = false;
-			if(!fallclk && !drownclk)
+			if(!fallclk && !drownclk || (bhole && !get_qr(qr_BROKEN_BLOCKHOLE_PITFALLS)))
 			{
 				m->data[combopos]=bcombo;
 				m->cset[combopos]=oldcset;
@@ -839,10 +839,9 @@ bool movingblock::animate(int32_t)
 				}
 			}
 			
-			if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
+			if(bhole)
 			{
 				m->data[combopos]+=1;
-				bhole=true;
 			}
 			else if(!trig_hole_same_only)
 			{
