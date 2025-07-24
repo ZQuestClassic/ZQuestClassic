@@ -976,6 +976,10 @@ static GUI::ListData compatRulesList
 		"\nHas no effect at all if `Subscreen Appears Above Sprites` is unchecked." + QRHINT({qr_SUBSCREENOVERSPRITES})},
 	{ "Rope enemies speed is not configurable", qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE,
 		"If disabled, when misc attribute 10 is positive for rope enemies it will be used to configure the charging speed." },
+	{ "Pitfall BlockHoles use wrong Next combo", qr_BROKEN_BLOCKHOLE_PITFALLS,
+		"If checked, Block Hole flags placed on Pitfalls will use the next combo of"
+		" the pitfall (if the pitfall and block are on the same layer)."
+		" If unchecked, it will use the next combo of the block as usual." },
 };
 
 static GUI::ListData enemiesRulesList
