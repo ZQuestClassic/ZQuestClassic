@@ -1010,6 +1010,10 @@ static GUI::ListData compatRulesList
 	{ "Weapons that break on solids use imprecise hitbox", qr_IMPRECISE_WEAPON_SOLIDITY_CHECKS,
 		"If checked, weapons use a hardcoded hitbox for weapon collisions, instead of their"
 		" actual set hitbox." },
+	{ "Pitfall BlockHoles use wrong Next combo", qr_BROKEN_BLOCKHOLE_PITFALLS,
+		"If checked, Block Hole flags placed on Pitfalls will use the next combo of"
+		" the pitfall (if the pitfall and block are on the same layer)."
+		" If unchecked, it will use the next combo of the block as usual." },
 };
 
 static GUI::ListData enemiesRulesList
