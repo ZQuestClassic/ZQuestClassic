@@ -799,15 +799,16 @@ bool movingblock::animate(int32_t)
 				x = endx;
 				y = endy;
 			}
-			trigger = false; bhole = false;
 			
 			int32_t f1 = end_rpos_handle.sflag();
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
+			trigger = false; bhole = (f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE;
+			
 			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 			bool no_trig_replace = get_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
 			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
 			bool trig_is_layer = false;
-			if(!fallclk && !drownclk)
+			if(!fallclk && !drownclk || (bhole && !get_qr(qr_BROKEN_BLOCKHOLE_PITFALLS)))
 			{
 				end_rpos_handle.set_data(bcombo);
 				end_rpos_handle.set_cset(oldcset);
@@ -847,10 +848,9 @@ bool movingblock::animate(int32_t)
 				}
 			}
 			
-			if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
+			if(bhole)
 			{
 				end_rpos_handle.increment_data();
-				bhole=true;
 			}
 			else if(!trig_hole_same_only)
 			{

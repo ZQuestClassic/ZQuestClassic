@@ -3545,6 +3545,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_EW_ROCKS_HARDCODED_BREAK_ON_SOLID, 1);
 		set_qr(qr_IMPRECISE_WEAPON_SOLIDITY_CHECKS, 1);
 	}
+	if (compatrule_version < 83 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 11) < 0))
+		set_qr(qr_BROKEN_BLOCKHOLE_PITFALLS, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
