@@ -1399,11 +1399,10 @@ bool& FFScript::waitdraw(ScriptType type, int index)
 	return get_script_engine_data(type, index).waitdraw;
 }
 
-static void set_current_script_engine_data(ScriptType type, int script, int index)
+static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, int index)
 {
 	bool got_initialized = false;
 
-	auto& data = get_script_engine_data(type, index);
 	ri = &data.ref;
 	stack = &data.stack;
 	ret_stack = &data.ret_stack;
@@ -24464,36 +24463,8 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		return RUNSCRIPT_ERROR;
 	}
 
-	switch(type)
-	{
-		case ScriptType::FFC:
-		case ScriptType::Global:
-		case ScriptType::Hero:
-		case ScriptType::DMap:
-		case ScriptType::OnMap:
-		case ScriptType::ScriptedActiveSubscreen:
-		case ScriptType::ScriptedPassiveSubscreen:
-		case ScriptType::EngineSubscreen:
-		case ScriptType::Screen:
-		case ScriptType::Combo:
-		case ScriptType::Item:
-		case ScriptType::NPC:
-		case ScriptType::Lwpn:
-		case ScriptType::Ewpn:
-		case ScriptType::ItemSprite:
-		case ScriptType::Generic:
-		case ScriptType::GenericFrozen:
-		{
-			set_current_script_engine_data(type, script, i);
-		}
-		break;
-
-		default:
-		{
-			al_trace("No other scripts are currently supported\n");
-			return RUNSCRIPT_ERROR;
-		}
-	}
+	auto& data = get_script_engine_data(type, i);
+	set_current_script_engine_data(data, type, script, i);
 
 	// Because qst.cpp likes to write script_data without setting this.
 	curscript->meta.script_type = type;
@@ -24557,6 +24528,11 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		}
 		else
 		{
+			// Retain the script handler because if deleted while running, terrible things can happen (crash),
+			// as the jit runtimes often write to it. Typically a script won't delete its own script handle,
+			// but scripts can run nested, so lets capture a temporary retaining reference as part of the
+			// call stack.
+			auto retainer = data.jitted_script;
 			result = jit_run_script(jitted_script);
 		}
 	}

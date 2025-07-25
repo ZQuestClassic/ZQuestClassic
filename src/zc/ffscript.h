@@ -1893,7 +1893,7 @@ struct ScriptEngineData {
 	refInfo ref;
 	int32_t stack[MAX_SCRIPT_REGISTERS];
 	bounded_vec<word, int32_t> ret_stack {65535};
-	std::unique_ptr<JittedScriptHandle> jitted_script;
+	std::shared_ptr<JittedScriptHandle> jitted_script;
 	// This is used as a boolean for all but ScriptType::Item.
 	byte doscript = true;
 	bool waitdraw;
