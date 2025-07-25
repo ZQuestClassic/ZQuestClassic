@@ -88,7 +88,7 @@ void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 			if(other.flags&ffc_swapprev)
 				k=j>0?j-1:(MAXFFCS-1);
 
-			ffcdata& ffck = get_scr(other.screen_spawned)->ffcs[k];
+			ffcdata& ffck = get_scr(other.screen_spawned)->getFFC(k);
 			auto w = ffck.data;
 			zc_ffc_set(ffck, other.data);
 			zc_ffc_set(other, w);
