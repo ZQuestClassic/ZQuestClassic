@@ -1,4 +1,4 @@
-625 / 769 (81%) passed
+638 / 784 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -145,6 +145,8 @@ Failures:
 	00589-temporary-no-return-item-drops/TempNoReturnItem.zs
 	00601-chain-chomp/ChainChomp.zs
 	00602--oracle-minecarts/gbminecart255.zs
+	00605-ff-z-styled-line-of-sight-and-constant-traps/Circulum_trap.z
+	00605-ff-z-styled-line-of-sight-and-constant-traps/script.zs
 
 === 00026-deku-leaf/script.zs
 Pass 1: Parsing
@@ -13949,4 +13951,52 @@ gbminecart255.zs Line 1 - Error P083: Could not find included file 'TempLinkStat
 
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00605-ff-z-styled-line-of-sight-and-constant-traps/Circulum_trap.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Circulum_trap.z Line 52 - Error S009: Variable rightangle has not been declared.
+
+50    int CollY = 0;
+51    int leftangle = angle;
+52    int rightangle = rightangle;
+                       ^~~~~~~~~~
+
+
+Circulum_trap.z Line 54 - Error S009: Variable rightangle has not been declared.
+
+52    int rightangle = rightangle;
+53    if (CCW==0||CCW==2)leftangle=angle-anglerange;
+54    if (CCW==1||CCW==2)rightangle=angle-anglerange;
+                         ^~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00605-ff-z-styled-line-of-sight-and-constant-traps/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+script.zs Line 283 - Error S009: Variable rightangle has not been declared.
+
+281    int CollY = 0;
+282    int leftangle = angle;
+283    int rightangle = rightangle;
+                        ^~~~~~~~~~
+
+
+script.zs Line 285 - Error S009: Variable rightangle has not been declared.
+
+283    int rightangle = rightangle;
+284    if (CCW==0||CCW==2)leftangle=angle-anglerange;
+285    if (CCW==1||CCW==2)rightangle=angle-anglerange;
+                          ^~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '9' (compiled with errors)
 
