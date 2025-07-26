@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-07-22 03:07:44</td>
+      <td>2025-07-26 06:02:11</td>
     </tr>
   </table>
 </div>
@@ -42,8 +42,8 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>866</td>
-      <td>1250</td>
-      <td class="coverage-low">69.3%</td>
+      <td>1261</td>
+      <td class="coverage-low">68.7%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -54,8 +54,8 @@
     <tr>
       <th scope="row">Branches:</th>
       <td>859</td>
-      <td>2361</td>
-      <td class="coverage-low">36.4%</td>
+      <td>2386</td>
+      <td class="coverage-low">36.0%</td>
     </tr>
   </table>
 </div>
@@ -73,13 +73,13 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l1874">QRDialog::QRDialog(unsigned char const*, unsigned long, std::function&lt;void (unsigned char*)&gt;) (line 1874)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l2173">QRDialog::handleMessage(GUI::DialogMessage&lt;QRDialog::message&gt; const&amp;) (line 2173)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l2217">QRDialog::handleMessage(GUI::DialogMessage&lt;QRDialog::message&gt; const&amp;)::$_0::operator()(unsigned char*) const (line 2217)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l2241">QRDialog::handleMessage(GUI::DialogMessage&lt;QRDialog::message&gt; const&amp;)::$_1::operator()(bool, bool) const (line 2241)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l2251">QRDialog::handleMessage(GUI::DialogMessage&lt;QRDialog::message&gt; const&amp;)::$_1::operator()(bool, bool) const::&#39;lambda&#39;(bool, bool)::operator()(bool, bool) const (line 2251)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1873">QRDialog::QRDialog(unsigned char const*, unsigned long, std::function&lt;void (unsigned char*)&gt;) (line 1873)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l2183">QRDialog::handleMessage(GUI::DialogMessage&lt;QRDialog::message&gt; const&amp;) (line 2183)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l2229">QRDialog::handleMessage(GUI::DialogMessage&lt;QRDialog::message&gt; const&amp;)::$_0::operator()(unsigned char*) const (line 2229)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l2253">QRDialog::handleMessage(GUI::DialogMessage&lt;QRDialog::message&gt; const&amp;)::$_1::operator()(bool, bool) const (line 2253)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l2263">QRDialog::handleMessage(GUI::DialogMessage&lt;QRDialog::message&gt; const&amp;)::$_1::operator()(bool, bool) const::&#39;lambda&#39;(bool, bool)::operator()(bool, bool) const (line 2263)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1869">QRDialog::reloadQRs() (line 1869)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1883">QRDialog::view() (line 1883)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1882">QRDialog::view() (line 1882)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1911">QRDialog::view()::$_0::operator()(GUI::ListItem&amp;) const (line 1911)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1932">QRDialog::view()::$_1::operator()() const (line 1932)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1941">QRDialog::view()::$_2::operator()(GUI::TextField::type, std::basic_string_view&lt;char, std::char_traits&lt;char&gt; &gt;, int) const (line 1941)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -18527,7 +18527,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">popup_bugfix_dlg</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">cfg</span><span class="p">);</span><span class="w"> </span><span class="c1">//zq_class.cpp</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">popup_bugfix_dlg</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="o">*</span><span class="w"> </span><span class="n">dest_qrs</span><span class="p">);</span><span class="w"> </span><span class="c1">//zq_class.cpp</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1782" href="#l1782">1782</a></td>
@@ -19178,238 +19178,238 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">unpack_qrs</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1873" href="#l1873">1873</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="n">QRDialog</span><span class="o">::</span><span class="n">QRDialog</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">qrs</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">byte</span><span class="o">*</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">setQRs</span><span class="p">)</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1874" href="#l1874">1874</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="n">QRDialog</span><span class="o">::</span><span class="n">QRDialog</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">qrs</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">byte</span><span class="o">*</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">setQRs</span><span class="p">)</span><span class="o">:</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">searchmode</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span><span class="w"> </span><span class="n">setQRs</span><span class="p">(</span><span class="n">setQRs</span><span class="p">),</span><span class="w"> </span><span class="n">realqrs</span><span class="p">(</span><span class="n">qrs</span><span class="p">),</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">(</span><span class="n">qrs_per_tab</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1875" href="#l1875">1875</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">searchmode</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span><span class="w"> </span><span class="n">setQRs</span><span class="p">(</span><span class="n">setQRs</span><span class="p">),</span><span class="w"> </span><span class="n">realqrs</span><span class="p">(</span><span class="n">qrs</span><span class="p">),</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">(</span><span class="n">qrs_per_tab</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1876" href="#l1876">1876</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">{</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">reloadQRs</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1877" href="#l1877">1877</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">reloadQRs</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1878" href="#l1878">1878</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1879" href="#l1879">1879</a></td>
+      <td class="lineno"><a id="l1878" href="#l1878">1878</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1880" href="#l1880">1880</a></td>
+      <td class="lineno"><a id="l1879" href="#l1879">1879</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="k">static</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">searchstring</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1881" href="#l1881">1881</a></td>
+      <td class="lineno"><a id="l1880" href="#l1880">1880</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">scroll_pos1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1882" href="#l1882">1882</a></td>
+      <td class="lineno"><a id="l1881" href="#l1881">1881</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">info_search</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">zs_search</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1883" href="#l1883">1883</a></td>
+      <td class="lineno"><a id="l1882" href="#l1882">1882</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">GUI</span><span class="o">::</span><span class="n">Widget</span><span class="o">&gt;</span><span class="w"> </span><span class="n">QRDialog</span><span class="o">::</span><span class="n">view</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1884" href="#l1884">1884</a></td>
+      <td class="lineno"><a id="l1883" href="#l1883">1883</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1885" href="#l1885">1885</a></td>
+      <td class="lineno"><a id="l1884" href="#l1884">1884</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">GUI</span><span class="o">::</span><span class="nn">Builder</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1886" href="#l1886">1886</a></td>
+      <td class="lineno"><a id="l1885" href="#l1885">1885</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">GUI</span><span class="o">::</span><span class="nn">Props</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1887" href="#l1887">1887</a></td>
+      <td class="lineno"><a id="l1886" href="#l1886">1886</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1888" href="#l1888">1888</a></td>
+      <td class="lineno"><a id="l1887" href="#l1887">1887</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">searchmode</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1889" href="#l1889">1889</a></td>
+      <td class="lineno"><a id="l1888" href="#l1888">1888</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1890" href="#l1890">1890</a></td>
+      <td class="lineno"><a id="l1889" href="#l1889">1889</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">string</span><span class="w"> </span><span class="n">lower_search</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">searchstring</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1891" href="#l1891">1891</a></td>
+      <td class="lineno"><a id="l1890" href="#l1890">1890</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">lowerstr</span><span class="p">(</span><span class="n">lower_search</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1892" href="#l1892">1892</a></td>
+      <td class="lineno"><a id="l1891" href="#l1891">1891</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1893" href="#l1893">1893</a></td>
+      <td class="lineno"><a id="l1892" href="#l1892">1892</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">GUI</span><span class="o">::</span><span class="n">ListData</span><span class="w"> </span><span class="n">tosearch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">combinedQRList</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1894" href="#l1894">1894</a></td>
+      <td class="lineno"><a id="l1893" href="#l1893">1893</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">zs_search</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1895" href="#l1895">1895</a></td>
+      <td class="lineno"><a id="l1894" href="#l1894">1894</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="n">tosearch</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">combinedZSRList</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1896" href="#l1896">1896</a></td>
+      <td class="lineno"><a id="l1895" href="#l1895">1895</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1897" href="#l1897">1897</a></td>
+      <td class="lineno"><a id="l1896" href="#l1896">1896</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">window</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Window</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1898" href="#l1898">1898</a></td>
+      <td class="lineno"><a id="l1897" href="#l1897">1897</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Search Quest Rules&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1899" href="#l1899">1899</a></td>
+      <td class="lineno"><a id="l1898" href="#l1898">1898</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="n">onClose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">CANCEL</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1900" href="#l1900">1900</a></td>
+      <td class="lineno"><a id="l1899" href="#l1899">1899</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="n">Column</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1901" href="#l1901">1901</a></td>
+      <td class="lineno"><a id="l1900" href="#l1900">1900</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1902" href="#l1902">1902</a></td>
+      <td class="lineno"><a id="l1901" href="#l1901">1901</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">					</span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">scroll_pos1</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1903" href="#l1903">1903</a></td>
+      <td class="lineno"><a id="l1902" href="#l1902">1902</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">					</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1904" href="#l1904">1904</a></td>
+      <td class="lineno"><a id="l1903" href="#l1903">1903</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">					</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l1904" href="#l1904">1904</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l1905" href="#l1905">1905</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1906" href="#l1906">1906</a></td>
@@ -20480,959 +20480,959 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2059" href="#l2059">2059</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2060" href="#l2060">2060</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">animRulesList</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2061" href="#l2061">2061</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">						</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">animRulesList</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2062" href="#l2062">2062</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">),</span></td>
+      <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2063" href="#l2063">2063</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2064" href="#l2064">2064</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Combo&quot;</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2065" href="#l2065">2065</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Combo&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2066" href="#l2066">2066</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2067" href="#l2067">2067</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2068" href="#l2068">2068</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2069" href="#l2069">2069</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2070" href="#l2070">2070</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comboRulesList</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2071" href="#l2071">2071</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2072" href="#l2072">2072</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comboRulesList</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2073" href="#l2073">2073</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2072" href="#l2072">2072</a></td>
+      <td class="lineno"><a id="l2074" href="#l2074">2074</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">					</span><span class="p">),</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2073" href="#l2073">2073</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2074" href="#l2074">2074</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Compat&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2075" href="#l2075">2075</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2076" href="#l2076">2076</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Compat&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2077" href="#l2077">2077</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2078" href="#l2078">2078</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2079" href="#l2079">2079</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2080" href="#l2080">2080</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compatRulesList</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2081" href="#l2081">2081</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">						</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2082" href="#l2082">2082</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">),</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2083" href="#l2083">2083</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compatRulesList</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2084" href="#l2084">2084</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Enemy&quot;</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2085" href="#l2085">2085</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2086" href="#l2086">2086</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2087" href="#l2087">2087</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Enemy&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2088" href="#l2088">2088</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2089" href="#l2089">2089</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2090" href="#l2090">2090</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">enemiesRulesList</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2091" href="#l2091">2091</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">						</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2092" href="#l2092">2092</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">),</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2093" href="#l2093">2093</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2094" href="#l2094">2094</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Item&quot;</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">enemiesRulesList</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2095" href="#l2095">2095</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2096" href="#l2096">2096</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2097" href="#l2097">2097</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2098" href="#l2098">2098</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Item&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2099" href="#l2099">2099</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2100" href="#l2100">2100</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemRulesList</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2101" href="#l2101">2101</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">						</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2102" href="#l2102">2102</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">),</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2103" href="#l2103">2103</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2104" href="#l2104">2104</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Misc&quot;</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2105" href="#l2105">2105</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemRulesList</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2106" href="#l2106">2106</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2107" href="#l2107">2107</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2108" href="#l2108">2108</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2109" href="#l2109">2109</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Misc&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2110" href="#l2110">2110</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">miscRulesList</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2111" href="#l2111">2111</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">						</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2112" href="#l2112">2112</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">),</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2113" href="#l2113">2113</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2114" href="#l2114">2114</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;NESFix&quot;</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2115" href="#l2115">2115</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2116" href="#l2116">2116</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">miscRulesList</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2117" href="#l2117">2117</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2118" href="#l2118">2118</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2119" href="#l2119">2119</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2120" href="#l2120">2120</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nesfixesRulesList</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;NESFix&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2121" href="#l2121">2121</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">						</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2122" href="#l2122">2122</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">),</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2123" href="#l2123">2123</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2124" href="#l2124">2124</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hero&quot;</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2125" href="#l2125">2125</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2126" href="#l2126">2126</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2127" href="#l2127">2127</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nesfixesRulesList</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2128" href="#l2128">2128</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2129" href="#l2129">2129</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2130" href="#l2130">2130</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playerRulesList</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2131" href="#l2131">2131</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">						</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hero&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2132" href="#l2132">2132</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">),</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2133" href="#l2133">2133</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2134" href="#l2134">2134</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Subscreen&quot;</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2135" href="#l2135">2135</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2136" href="#l2136">2136</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2137" href="#l2137">2137</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2138" href="#l2138">2138</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playerRulesList</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2139" href="#l2139">2139</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2140" href="#l2140">2140</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">subscrRulesList</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2141" href="#l2141">2141</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2142" href="#l2142">2142</a></td>
+      <td class="lineno"><a id="l2140" href="#l2140">2140</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">					</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2143" href="#l2143">2143</a></td>
+      <td class="lineno"><a id="l2141" href="#l2141">2141</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2144" href="#l2144">2144</a></td>
+      <td class="lineno"><a id="l2142" href="#l2142">2142</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Weapon&quot;</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Subscreen&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2145" href="#l2145">2145</a></td>
+      <td class="lineno"><a id="l2143" href="#l2143">2143</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2146" href="#l2146">2146</a></td>
+      <td class="lineno"><a id="l2144" href="#l2144">2144</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2147" href="#l2147">2147</a></td>
+      <td class="lineno"><a id="l2145" href="#l2145">2145</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2148" href="#l2148">2148</a></td>
+      <td class="lineno"><a id="l2146" href="#l2146">2146</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">initializer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2149" href="#l2149">2149</a></td>
+      <td class="lineno"><a id="l2147" href="#l2147">2147</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2148" href="#l2148">2148</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2150" href="#l2150">2150</a></td>
+      <td class="lineno"><a id="l2149" href="#l2149">2149</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">weaponsRulesList</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">subscrRulesList</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2151" href="#l2151">2151</a></td>
+      <td class="lineno"><a id="l2150" href="#l2150">2150</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2152" href="#l2152">2152</a></td>
+      <td class="lineno"><a id="l2151" href="#l2151">2151</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">)</span></td>
+      <td class="src "><span class="w">					</span><span class="p">),</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2152" href="#l2152">2152</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">TabRef</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2153" href="#l2153">2153</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="p">),</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Weapon&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2154" href="#l2154">2154</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">Row</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">QRPanel</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2155" href="#l2155">2155</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">topPadding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span><span class="n">_em</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2156" href="#l2156">2156</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">vAlign</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">TOGGLE_QR</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2157" href="#l2157">2157</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">spacing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="n">_em</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">onCloseInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">REFR_INFO</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2158" href="#l2158">2158</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">Button</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">qr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2159" href="#l2159">2159</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;OK&quot;</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2160" href="#l2160">2160</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">minwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">weaponsRulesList</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2161" href="#l2161">2161</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">onClick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">OK</span><span class="p">),</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">						</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2162" href="#l2162">2162</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">Button</span><span class="p">(</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2163" href="#l2163">2163</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Cancel&quot;</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">				</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2164" href="#l2164">2164</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">minwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span><span class="n">_px</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">Row</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2165" href="#l2165">2165</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">onClick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">CANCEL</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">topPadding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span><span class="n">_em</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2166" href="#l2166">2166</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">vAlign</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2167" href="#l2167">2167</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">)</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">spacing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="n">_em</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2168" href="#l2168">2168</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">Button</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2169" href="#l2169">2169</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;OK&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2170" href="#l2170">2170</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">window</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">minwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2171" href="#l2171">2171</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">onClick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">OK</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2172" href="#l2172">2172</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">Button</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2173" href="#l2173">2173</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">QRDialog</span><span class="o">::</span><span class="n">handleMessage</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">DialogMessage</span><span class="o">&lt;</span><span class="n">message</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Cancel&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2174" href="#l2174">2174</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">minwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span><span class="n">_px</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2175" href="#l2175">2175</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">switch</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">message</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">onClick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="o">::</span><span class="n">CANCEL</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2176" href="#l2176">2176</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+      <td class="src "><span class="w">				</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2177" href="#l2177">2177</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">TOGGLE_QR</span><span class="p">:</span></td>
+      <td class="src "><span class="w">			</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2178" href="#l2178">2178</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">toggle_bit</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">.</span><span class="n">argument</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2179" href="#l2179">2179</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2180" href="#l2180">2180</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">HEADER</span><span class="p">:</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">window</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2181" href="#l2181">2181</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">call_header_dlg</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2182" href="#l2182">2182</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2183" href="#l2183">2183</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">RULESET</span><span class="p">:</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">QRDialog</span><span class="o">::</span><span class="n">handleMessage</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">DialogMessage</span><span class="o">&lt;</span><span class="n">message</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2184" href="#l2184">2184</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">call_ruleset_dlg</span><span class="p">();</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2185" href="#l2185">2185</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">reloadQRs</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">switch</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">message</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2186" href="#l2186">2186</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2187" href="#l2187">2187</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">REFR_INFO</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2188" href="#l2188">2188</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">RULETMP</span><span class="p">:</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2189" href="#l2189">2189</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">call_ruletemplate_dlg</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2190" href="#l2190">2190</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">reloadQRs</span><span class="p">();</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">TOGGLE_QR</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2191" href="#l2191">2191</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">toggle_bit</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">.</span><span class="n">argument</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2192" href="#l2192">2192</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2193" href="#l2193">2193</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">CHEATS</span><span class="p">:</span></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">HEADER</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2194" href="#l2194">2194</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">call_cheats_dlg</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">call_header_dlg</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2195" href="#l2195">2195</a></td>
@@ -21446,521 +21446,605 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">QRSTR_CPY</span><span class="p">:</span></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">RULESET</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2197" href="#l2197">2197</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">al_set_clipboard_text</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">(),</span><span class="w"> </span><span class="n">get_qr_hexstr</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">).</span><span class="n">c_str</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">call_ruleset_dlg</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2198" href="#l2198">2198</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">InfoDialog</span><span class="p">(</span><span class="s">&quot;Copied&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;QR String copied to clipboard!&quot;</span><span class="p">).</span><span class="n">show</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2199" href="#l2199">2199</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2200" href="#l2200">2200</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">QRSTR_LOAD</span><span class="p">:</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2201" href="#l2201">2201</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">load_qr_hexstr_clipboard</span><span class="p">())</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">RULETMP</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2202" href="#l2202">2202</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">call_ruletemplate_dlg</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2203" href="#l2203">2203</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">popup_bugfix_dlg</span><span class="p">(</span><span class="s">&quot;dsa_compatrule2&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2204" href="#l2204">2204</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">reloadQRs</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2205" href="#l2205">2205</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2206" href="#l2206">2206</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">CHEATS</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2207" href="#l2207">2207</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">}</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">call_cheats_dlg</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2208" href="#l2208">2208</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">InfoDialog</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No QR String could be loaded from the clipboard&quot;</span><span class="p">).</span><span class="n">show</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2209" href="#l2209">2209</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">QRSTR_CPY</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2210" href="#l2210">2210</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">RERUN</span><span class="p">:</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">al_set_clipboard_text</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">(),</span><span class="w"> </span><span class="n">get_qr_hexstr</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">).</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2211" href="#l2211">2211</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">while</span><span class="p">(</span><span class="n">gui_mouse_b</span><span class="p">())</span><span class="w"> </span><span class="n">rest</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">//wait for mouseup</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">InfoDialog</span><span class="p">(</span><span class="s">&quot;Copied&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;QR String copied to clipboard!&quot;</span><span class="p">).</span><span class="n">show</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2212" href="#l2212">2212</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2213" href="#l2213">2213</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">QRSTR_LOAD</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2214" href="#l2214">2214</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">SEARCH</span><span class="p">:</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">load_qr_hexstr_clipboard</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2215" href="#l2215">2215</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span></td>
+      <td class="src "><span class="w">			</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2216" href="#l2216">2216</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="kt">bool</span><span class="w"> </span><span class="n">do_rerun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">popup_bugfix_dlg</span><span class="p">(</span><span class="s">&quot;dsa_compatrule2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">local_qrs</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2217" href="#l2217">2217</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QRDialog</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">,</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="n">byte</span><span class="o">*</span><span class="w"> </span><span class="n">qrs</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2218" href="#l2218">2218</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2219" href="#l2219">2219</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">memcpy</span><span class="p">(</span><span class="n">quest_rules</span><span class="p">,</span><span class="w"> </span><span class="n">qrs</span><span class="p">,</span><span class="w"> </span><span class="n">QR_SZ</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2220" href="#l2220">2220</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">reloadQRs</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">InfoDialog</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No QR String could be loaded from the clipboard&quot;</span><span class="p">).</span><span class="n">show</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2221" href="#l2221">2221</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">do_rerun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2222" href="#l2222">2222</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="p">});</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">RERUN</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2223" href="#l2223">2223</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">dlg</span><span class="p">.</span><span class="n">searchmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">while</span><span class="p">(</span><span class="n">gui_mouse_b</span><span class="p">())</span><span class="w"> </span><span class="n">rest</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">//wait for mouseup</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2224" href="#l2224">2224</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">dlg</span><span class="p">.</span><span class="n">show</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2225" href="#l2225">2225</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">do_rerun</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2226" href="#l2226">2226</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">do_rerun</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">SEARCH</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2227" href="#l2227">2227</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2228" href="#l2228">2228</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">//Closing buttons</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2229" href="#l2229">2229</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">OK</span><span class="p">:</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2230" href="#l2230">2230</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2231" href="#l2231">2231</a></td>
+      <td class="lineno"><a id="l2228" href="#l2228">2228</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">setQRs</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="kt">bool</span><span class="w"> </span><span class="n">do_rerun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2232" href="#l2232">2232</a></td>
+      <td class="lineno"><a id="l2229" href="#l2229">2229</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">searchmode</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QRDialog</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">,</span><span class="w"> </span><span class="n">qrs_per_tab</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="n">byte</span><span class="o">*</span><span class="w"> </span><span class="n">qrs</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2233" href="#l2233">2233</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">{</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2234" href="#l2234">2234</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">word</span><span class="w"> </span><span class="n">new_map_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapCountTF</span><span class="o">-&gt;</span><span class="n">getVal</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2235" href="#l2235">2235</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">if</span><span class="p">(</span><span class="n">new_map_count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">map_count</span><span class="p">)</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2236" href="#l2236">2236</a></td>
+      <td class="lineno"><a id="l2230" href="#l2230">2230</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">				</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l2231" href="#l2231">2231</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">memcpy</span><span class="p">(</span><span class="n">quest_rules</span><span class="p">,</span><span class="w"> </span><span class="n">qrs</span><span class="p">,</span><span class="w"> </span><span class="n">QR_SZ</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2232" href="#l2232">2232</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">reloadQRs</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2233" href="#l2233">2233</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">do_rerun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2234" href="#l2234">2234</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="p">});</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2235" href="#l2235">2235</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">dlg</span><span class="p">.</span><span class="n">searchmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2236" href="#l2236">2236</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">dlg</span><span class="p">.</span><span class="n">show</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l2237" href="#l2237">2237</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">AlertDialog</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">rerun_dlg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">do_rerun</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2238" href="#l2238">2238</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="s">&quot;WARNING! Map Deletion&quot;</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">do_rerun</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2239" href="#l2239">2239</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="s">&quot;This action will delete &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">map_count</span><span class="o">-</span><span class="n">new_map_count</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2240" href="#l2240">2240</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="o">+</span><span class="w"> </span><span class="s">&quot; maps from the end of your map list!&quot;</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="c1">//Closing buttons</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2241" href="#l2241">2241</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="p">[</span><span class="o">&amp;</span><span class="n">new_map_count</span><span class="p">](</span><span class="kt">bool</span><span class="w"> </span><span class="n">ret</span><span class="p">,</span><span class="kt">bool</span><span class="p">)</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">OK</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2242" href="#l2242">2242</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">						</span><span class="p">{</span></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2243" href="#l2243">2243</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="k">if</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">setQRs</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2244" href="#l2244">2244</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">							</span><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">searchmode</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2245" href="#l2245">2245</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">								</span><span class="k">if</span><span class="p">(</span><span class="n">mapcount_will_affect_layers</span><span class="p">(</span><span class="n">new_map_count</span><span class="p">))</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2246" href="#l2246">2246</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">								</span><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">word</span><span class="w"> </span><span class="n">new_map_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapCountTF</span><span class="o">-&gt;</span><span class="n">getVal</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2247" href="#l2247">2247</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">									</span><span class="n">AlertDialog</span><span class="p">(</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">if</span><span class="p">(</span><span class="n">new_map_count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">map_count</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2248" href="#l2248">2248</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="s">&quot;WARNING! Layer Deletion!&quot;</span><span class="p">,</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">				</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2249" href="#l2249">2249</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="s">&quot;Some of the maps being deleted are used as layermaps for screens that will remain!&quot;</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">AlertDialog</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2250" href="#l2250">2250</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">										</span><span class="s">&quot; If you continue, these screens will have their layermap set to 0!&quot;</span><span class="p">,</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="s">&quot;WARNING! Map Deletion&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2251" href="#l2251">2251</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="p">[</span><span class="o">&amp;</span><span class="n">new_map_count</span><span class="p">](</span><span class="kt">bool</span><span class="w"> </span><span class="n">ret</span><span class="p">,</span><span class="kt">bool</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="s">&quot;This action will delete &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">map_count</span><span class="o">-</span><span class="n">new_map_count</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2252" href="#l2252">2252</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">										</span><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="o">+</span><span class="w"> </span><span class="s">&quot; maps from the end of your map list!&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2253" href="#l2253">2253</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">											</span><span class="k">if</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span><span class="w"> </span><span class="n">update_map_count</span><span class="p">(</span><span class="n">new_map_count</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="p">[</span><span class="o">&amp;</span><span class="n">new_map_count</span><span class="p">](</span><span class="kt">bool</span><span class="w"> </span><span class="n">ret</span><span class="p">,</span><span class="kt">bool</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2254" href="#l2254">2254</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="p">}).</span><span class="n">show</span><span class="p">();</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">						</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2255" href="#l2255">2255</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">								</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="k">if</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2256" href="#l2256">2256</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">								</span><span class="k">else</span><span class="w"> </span><span class="n">update_map_count</span><span class="p">(</span><span class="n">new_map_count</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">							</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2257" href="#l2257">2257</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">								</span><span class="k">if</span><span class="p">(</span><span class="n">mapcount_will_affect_layers</span><span class="p">(</span><span class="n">new_map_count</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2258" href="#l2258">2258</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="p">}).</span><span class="n">show</span><span class="p">();</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">								</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2259" href="#l2259">2259</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">									</span><span class="n">AlertDialog</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2260" href="#l2260">2260</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="n">update_map_count</span><span class="p">(</span><span class="n">new_map_count</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="s">&quot;WARNING! Layer Deletion!&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2261" href="#l2261">2261</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="s">&quot;Some of the maps being deleted are used as layermaps for screens that will remain!&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2262" href="#l2262">2262</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">										</span><span class="s">&quot; If you continue, these screens will have their layermap set to 0!&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2263" href="#l2263">2263</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">[[</span><span class="n">fallthrough</span><span class="p">]];</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="p">[</span><span class="o">&amp;</span><span class="n">new_map_count</span><span class="p">](</span><span class="kt">bool</span><span class="w"> </span><span class="n">ret</span><span class="p">,</span><span class="kt">bool</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2264" href="#l2264">2264</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">CANCEL</span><span class="p">:</span></td>
+      <td class="src "><span class="w">										</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2265" href="#l2265">2265</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">											</span><span class="k">if</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span><span class="w"> </span><span class="n">update_map_count</span><span class="p">(</span><span class="n">new_map_count</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2266" href="#l2266">2266</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="p">}).</span><span class="n">show</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2267" href="#l2267">2267</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">								</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2268" href="#l2268">2268</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">								</span><span class="k">else</span><span class="w"> </span><span class="n">update_map_count</span><span class="p">(</span><span class="n">new_map_count</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2269" href="#l2269">2269</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2270" href="#l2270">2270</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="p">}).</span><span class="n">show</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2271" href="#l2271">2271</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2272" href="#l2272">2272</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="n">update_map_count</span><span class="p">(</span><span class="n">new_map_count</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2273" href="#l2273">2273</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2274" href="#l2274">2274</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2275" href="#l2275">2275</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="p">[[</span><span class="n">fallthrough</span><span class="p">]];</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2276" href="#l2276">2276</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">CANCEL</span><span class="p">:</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2277" href="#l2277">2277</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2278" href="#l2278">2278</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2279" href="#l2279">2279</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2280" href="#l2280">2280</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2281" href="#l2281">2281</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2270" href="#l2270">2270</a></td>
+      <td class="lineno"><a id="l2282" href="#l2282">2282</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

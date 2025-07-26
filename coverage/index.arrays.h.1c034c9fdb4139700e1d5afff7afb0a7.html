@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-07-22 03:07:44</td>
+      <td>2025-07-26 06:02:11</td>
     </tr>
   </table>
 </div>
@@ -41,9 +41,9 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>197</td>
+      <td>196</td>
       <td>342</td>
-      <td class="coverage-low">57.6%</td>
+      <td class="coverage-low">57.3%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>202</td>
+      <td>201</td>
       <td>752</td>
-      <td class="coverage-low">26.9%</td>
+      <td class="coverage-low">26.7%</td>
     </tr>
   </table>
 </div>
@@ -153,7 +153,7 @@
     <tr><td><a href="#l302">ScriptingArray_GlobalComputed&lt;int&gt;::setElement(int, int, int) (line 302)</a></td><td>called 4190683 times, returned 4190683 times</td><td>81.0%</td></tr>
     <tr><td><a href="#l257">ScriptingArray_GlobalComputed&lt;int&gt;::~ScriptingArray_GlobalComputed() (line 257)</a></td><td>called 21012 times, returned 21012 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l336">ScriptingArray_GlobalComputedOneIndexed::ScriptingArray_GlobalComputedOneIndexed(std::function&lt;unsigned long (int)&gt;, std::function&lt;int (int, int)&gt;, std::function&lt;bool (int, int, int)&gt;) (line 336)</a></td><td>called 2472 times, returned 2472 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l341">ScriptingArray_GlobalComputedOneIndexed::getElement(int, int) const (line 341)</a></td><td>called 68 times, returned 68 times</td><td>85.0%</td></tr>
+    <tr><td><a href="#l341">ScriptingArray_GlobalComputedOneIndexed::getElement(int, int) const (line 341)</a></td><td>called 68 times, returned 68 times</td><td>71.0%</td></tr>
     <tr><td><a href="#l339">ScriptingArray_GlobalComputedOneIndexed::getSize(int) const (line 339)</a></td><td>called 68 times, returned 68 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l352">ScriptingArray_GlobalComputedOneIndexed::setElement(int, int, int) (line 352)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l329">ScriptingArray_GlobalComputedOneIndexed::~ScriptingArray_GlobalComputedOneIndexed() (line 329)</a></td><td>called 2472 times, returned 2472 times</td><td>100.0%</td></tr>
@@ -3729,28 +3729,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bound_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">sz</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bound_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">sz</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l346" href="#l346">346</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/2</summary>
+        <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 66 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 68 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">68</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">BC</span><span class="o">::</span><span class="n">checkIndex2</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">sz</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">SH</span><span class="o">::</span><span class="n">_NoError</span><span class="p">)</span></td>
+      <td class="linecount partialCoveredLine">68</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">BC</span><span class="o">::</span><span class="n">checkIndex2OneIndex</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">sz</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">SH</span><span class="o">::</span><span class="n">_NoError</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l347" href="#l347">347</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">m_defaultValue</span><span class="p">;</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">m_defaultValue</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l348" href="#l348">348</a></td>
@@ -3763,7 +3763,7 @@
       <td class="lineno"><a id="l349" href="#l349">349</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">66</td>
+      <td class="linecount coveredLine">68</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">m_getFunc</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">m_mul10000</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">10000</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -3813,14 +3813,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bound_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">sz</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bound_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">sz</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l357" href="#l357">357</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">BC</span><span class="o">::</span><span class="n">checkIndex2</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">sz</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">SH</span><span class="o">::</span><span class="n">_NoError</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">BC</span><span class="o">::</span><span class="n">checkIndex2OneIndex</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">sz</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">SH</span><span class="o">::</span><span class="n">_NoError</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l358" href="#l358">358</a></td>
