@@ -145,6 +145,7 @@ float dirToRad(int dir){
 		return PI;
 	if ( dir == DIR_RIGHT )
 		return 0;
+	return 0;
 }
 
 int dirToDeg(int dir){
@@ -156,6 +157,7 @@ int dirToDeg(int dir){
 		return 180;
 	if ( dir == DIR_RIGHT )
 		return 0;
+	return 0;
 }
 
 // Returns value from 0 to 360 rather than -180 to 180
@@ -246,6 +248,7 @@ int rotateDir(int dir, bool ccw, bool eightway)
 	else if(dir==5) return DIR_LEFTDOWN;
 	else if(dir==6) return DIR_LEFT;
 	else if(dir==7) return DIR_LEFTUP;
+	return 0;
 }
 
 //Move the specified object a set distance in a set direction

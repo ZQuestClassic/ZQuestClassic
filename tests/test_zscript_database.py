@@ -31,7 +31,7 @@ from pathlib import Path
 
 from common import ZCTestCase
 
-ZSCRIPT_DATABASE_COMMIT = '505916bb09e98ed0cac5813ca8e852242f31ae64'
+ZSCRIPT_DATABASE_COMMIT = '8b448930ffa8665816114ad88bb61b38bdcfc4e5'
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -130,7 +130,7 @@ def intuit_imports(database_dir: Path, script_path: Path):
         include_paths.append(database_dir / '00284-linkmovement-zh')
 
     if re.search(
-        r'GetCurrentItem|freezeScreen|debugValue|moveLink', code, re.IGNORECASE
+        r'GetCurrentItem|freezeScreen|debugValue|moveLink', code
     ):
         imports.append(test_scripts_dir / 'compat/stdExtra.zh')
         include_paths.append(test_scripts_dir / 'compat')

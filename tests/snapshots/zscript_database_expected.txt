@@ -1,4 +1,4 @@
-638 / 784 (81%) passed
+639 / 785 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -4055,8 +4055,8 @@ stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapon
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 update.zh Line 14 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
-12    #include "00235-stdweapons-zh/stdWeapons.zh"
-13    #include "00415-grayswandir-sideview-engine/GSD_sideview/GSD_sideview.z"
+12    #include "00415-grayswandir-sideview-engine/GSD_sideview/GSD_sideview.z"
+13    #include "tests/scripts/compat/stdExtra.zh"
 14    #include "00235-stdweapons-zh/stdWeapons/update.zh"
       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
