@@ -4035,6 +4035,8 @@ void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,true,false,0xFF);
 	strcpy(qstpath, quest_path);
 	printf("Hash: %s\n", QHeader.hash().c_str());
+	if (zasm_optimize_enabled())
+		zasm_optimize();
 	if (jit_precompile)
 	{
 		printf("compiling scripts ...\n");

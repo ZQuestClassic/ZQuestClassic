@@ -12,6 +12,7 @@ struct OptimizationPass
 	uint32_t instructions_saved;
 	// microseconds
 	uint32_t elapsed;
+	bool skipped;
 };
 
 struct OptimizeResults

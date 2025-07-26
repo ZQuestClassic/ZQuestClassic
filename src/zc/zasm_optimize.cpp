@@ -568,7 +568,7 @@ static void optimize_by_block(OptContext& ctx, T cb)
 	}
 }
 
-static void optimize_goto_next_instruction(OptContext& ctx)
+static bool optimize_goto_next_instruction(OptContext& ctx)
 {
 	for (pc_t i = 0; i < ctx.script->size; i++)
 	{
@@ -584,6 +584,8 @@ static void optimize_goto_next_instruction(OptContext& ctx)
 			remove(ctx, i);
 		}
 	}
+
+	return true;
 }
 
 static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, bool write_at_end = false)
@@ -641,7 +643,7 @@ static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, b
 	});
 }
 
-static void optimize_conseq_additive(OptContext& ctx)
+static bool optimize_conseq_additive(OptContext& ctx)
 {
 	add_context_cfg(ctx);
 	optimize_conseq_additive_impl(ctx, PUSHR, PUSHARGSR);
@@ -649,6 +651,7 @@ static void optimize_conseq_additive(OptContext& ctx)
 	optimize_conseq_additive_impl(ctx, PUSHVARGR, PUSHVARGSR);
 	optimize_conseq_additive_impl(ctx, PUSHVARGV, PUSHVARGSV);
 	optimize_conseq_additive_impl(ctx, POP, POPARGS, true);
+	return true;
 }
 
 // SETR, ADDV, LOADI -> LOAD
@@ -659,10 +662,10 @@ static void optimize_conseq_additive(OptContext& ctx)
 //   LOADI           D2              D6
 // ->
 //   LOAD            D2              4
-static void optimize_load_store(OptContext& ctx)
+static bool optimize_load_store(OptContext& ctx)
 {
 	if (bisect_tool_should_skip())
-		return;
+		return false;
 
 	for (pc_t i = ctx.fn.start_pc + 2; i < ctx.fn.final_pc; i++)
 	{
@@ -719,6 +722,8 @@ static void optimize_load_store(OptContext& ctx)
 		ASSERT(arg2 % 10000 == 0);
 		C(i) = {new_command, arg1, arg2 / 10000};
 	}
+
+	return true;
 }
 
 // SETV, PUSHR -> PUSHV
@@ -727,7 +732,7 @@ static void optimize_load_store(OptContext& ctx)
 //   PUSHR           D2
 // ->
 //   PUSHV           D2              5420000
-static void optimize_setv_pushr(OptContext& ctx)
+static bool optimize_setv_pushr(OptContext& ctx)
 {
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
@@ -745,6 +750,8 @@ static void optimize_setv_pushr(OptContext& ctx)
 			remove(ctx, j);
 		}
 	});
+
+	return true;
 }
 
 // SETR, PUSHR -> PUSHV
@@ -753,7 +760,7 @@ static void optimize_setv_pushr(OptContext& ctx)
 //   PUSHR           D2
 // ->
 //   PUSHR           GD0
-static void optimize_setr_pushr(OptContext& ctx)
+static bool optimize_setr_pushr(OptContext& ctx)
 {
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
@@ -781,9 +788,11 @@ static void optimize_setr_pushr(OptContext& ctx)
 			remove(ctx, j);
 		}
 	});
+
+	return true;
 }
 
-static void optimize_stack(OptContext& ctx)
+static bool optimize_stack(OptContext& ctx)
 {
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
@@ -842,6 +851,8 @@ static void optimize_stack(OptContext& ctx)
 			}
 		}
 	});
+
+	return true;
 }
 
 static pc_t get_block_final(const OptContext& ctx, int block)
@@ -1567,10 +1578,10 @@ static std::vector<ffscript> compile_conditional(const ffscript& instr, const Si
 //
 // Also do not propagate the value if there is some write on the target register (ex: LINKX)
 // between setting to a D-register and using it.
-static void optimize_propagate_values(OptContext& ctx)
+static bool optimize_propagate_values(OptContext& ctx)
 {
 	if (!should_run_experimental_passes())
-		return;
+		return false;
 
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
@@ -1722,14 +1733,21 @@ static void optimize_propagate_values(OptContext& ctx)
 		if (!state.bail)
 			flush(-1);
 	});
+
+	return true;
 }
 
 // 1. If following a branch is guaranteed to jump to some other block given the initial
 //    branch condition, rewrite the branch to jump directly to that end block. This can
 //    only be done when there are no side effects. This removes all spurious branches.
 // 2. Convert GOTOX to GOTOCMP
-static void optimize_spurious_branches(OptContext& ctx)
+static bool optimize_spurious_branches(OptContext& ctx)
 {
+	// I think this works well, but it's takes longer than the other passes and has less impact, so
+	// disable for now.
+	if (!should_run_experimental_passes())
+		return false;
+
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
 		// Only consider blocks with a conditional branch.
@@ -1820,9 +1838,11 @@ static void optimize_spurious_branches(OptContext& ctx)
 		if (ctx.debug)
 			fmt::println("rewrite {}: {}", final_pc, zasm_op_to_string(C(final_pc)));
 	});
+
+	return true;
 }
 
-static void optimize_reduce_comparisons(OptContext& ctx)
+static bool optimize_reduce_comparisons(OptContext& ctx)
 {
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
@@ -1983,10 +2003,17 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 			break;
 		}
 	});
+
+	return true;
 }
 
-static void optimize_unreachable_blocks(OptContext& ctx)
+static bool optimize_unreachable_blocks(OptContext& ctx)
 {
+	// I think this works well, but it's takes longer than the other passes and has less impact, so
+	// disable for now.
+	if (!should_run_experimental_passes())
+		return false;
+
 	add_context_cfg(ctx);
 
 	std::set<pc_t> seen_ids = ctx.block_unreachable;
@@ -2032,12 +2059,14 @@ static void optimize_unreachable_blocks(OptContext& ctx)
 			ctx.block_unreachable.insert(i);
 		}
 	}
+
+	return true;
 }
 
-static void optimize_calling_mode(OptContext& ctx)
+static bool optimize_calling_mode(OptContext& ctx)
 {
 	if (ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_CALLFUNC_RETURNFUNC)
-		return;
+		return false;
 
 	int return_command =
 		ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR ? GOTOR : RETURN;
@@ -2100,9 +2129,11 @@ static void optimize_calling_mode(OptContext& ctx)
 		if (set_ret_addr != -1)
 			remove(ctx, set_ret_addr);
 	}
+
+	return true;
 }
 
-static void optimize_inline_functions(OptContext& ctx)
+static bool optimize_inline_functions(OptContext& ctx)
 {
 	struct InlineFunctionData
 	{
@@ -2334,15 +2365,17 @@ static void optimize_inline_functions(OptContext& ctx)
 		if (data.all_uses_inlined)
 			remove(ctx, data.fn.start_pc, data.fn.final_pc);
 	}
+
+	return true;
 }
 
 // https://en.wikipedia.org/wiki/Data-flow_analysis
 // https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
-static void optimize_dead_code(OptContext& ctx)
+static bool optimize_dead_code(OptContext& ctx)
 {
 	if (!should_run_experimental_passes())
-		return;
+		return false;
 
 	add_context_cfg(ctx);
 
@@ -2454,9 +2487,11 @@ static void optimize_dead_code(OptContext& ctx)
 			i--;
 		}
 	});
+
+	return true;
 }
 
-static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> script_passes = {
+static std::vector<std::pair<std::string, std::function<bool(OptContext&)>>> script_passes = {
 	// Convert to modern function calls before anything else, so all
 	// passes may assume that.
 	{"calling_mode", optimize_calling_mode},
@@ -2464,7 +2499,7 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> scr
 	{"inline_functions", optimize_inline_functions},
 };
 
-static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> function_passes = {
+static std::vector<std::pair<std::string, std::function<bool(OptContext&)>>> function_passes = {
 	{"unreachable_blocks", optimize_unreachable_blocks},
 	{"conseq_additive", optimize_conseq_additive},
 	{"load_store", optimize_load_store},
@@ -2478,13 +2513,13 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> fun
 	{"dead_code", optimize_dead_code},
 };
 
-static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair<std::string, std::function<void(OptContext&)>> pass)
+static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair<std::string, std::function<bool(OptContext&)>> pass)
 {
 	auto start_time = std::chrono::steady_clock::now();
 
 	auto [name, fn] = pass;
 	ctx.saved = 0;
-	fn(ctx);
+	results.passes[i].skipped = !fn(ctx);
 
 	auto end_time = std::chrono::steady_clock::now();
 	results.passes[i].instructions_saved += ctx.saved;
@@ -2505,11 +2540,11 @@ static OptimizeResults create_opt_results()
 	OptimizeResults results{};
 	for (auto [pass_name, _] : script_passes)
 	{
-		results.passes.push_back({pass_name, 0, 0});
+		results.passes.push_back({pass_name, 0, 0, true});
 	}
 	for (auto [pass_name, _] : function_passes)
 	{
-		results.passes.push_back({pass_name, 0, 0});
+		results.passes.push_back({pass_name, 0, 0, true});
 	}
 	return results;
 }
@@ -2605,8 +2640,12 @@ OptimizeResults zasm_optimize()
 
 			for (int i = 0; i < results.passes.size(); i++)
 			{
+				if (r.passes[i].skipped)
+					continue;
+
 				results.passes[i].instructions_saved += r.passes[i].instructions_saved;
 				results.passes[i].elapsed += r.passes[i].elapsed;
+				results.passes[i].skipped = false;
 			}
 			results.instructions_saved += r.instructions_saved;
 		}
@@ -2628,6 +2667,9 @@ OptimizeResults zasm_optimize()
 
 		for (const auto& pass : results.passes)
 		{
+			if (pass.skipped)
+				continue;
+
 			double pct = 100.0 * pass.instructions_saved / size;
 			fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms", pass.name, pass.instructions_saved, pct, pass.elapsed / 1000);
 		}
