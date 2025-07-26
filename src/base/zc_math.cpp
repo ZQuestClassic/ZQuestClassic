@@ -28,6 +28,14 @@ uint32_t NextPowerOfTwo(uint32_t x)
     return y;
 }
 
+int32_t SafeMod(int32_t x, int32_t y)
+{
+	if (y == 0)
+		return 0;
+
+	return x % y;
+}
+
 float ToDegrees(float radians)
 {
     return (radians * 57.29578f);

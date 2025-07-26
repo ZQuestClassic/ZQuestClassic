@@ -11,6 +11,7 @@ namespace math
 
 bool IsPowerOfTwo(uint32_t x);
 uint32_t NextPowerOfTwo(uint32_t x);
+int32_t SafeMod(int32_t x, int32_t y);
 float ToDegrees(float radians);
 float ToRadians(float degrees);
 float Round(float x);

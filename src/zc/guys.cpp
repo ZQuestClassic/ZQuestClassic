@@ -2977,11 +2977,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		}
 		case edSUMMON: 
 		{
-			
-			
-			//al_trace("edSplit dmisc3: %d\n", dmisc3);
-			//al_trace("edSplit dmisc4: %d\n", dmisc4);
-			int32_t summon_count = (zc_oldrand()%dmisc4)+1;
+			int32_t summon_count = zc::math::SafeMod(zc_oldrand(), dmisc4) + 1;
 			for ( int32_t q = 0; q < summon_count; q++ )
 			{
 				int32_t x2=16*((zc_oldrand()%12)+2);
@@ -8570,7 +8566,7 @@ bool eTektite::animate(int32_t index)
 		switch(misc)
 		{
 		case 0:                                               // normal
-			if(!(zc_oldrand()%dmisc1))
+			if (!zc::math::SafeMod(zc_oldrand(), dmisc1))
 			{
 				misc=1;
 				clk2=32;
@@ -8715,7 +8711,7 @@ bool eTektite::animate(int32_t index)
 					step=0-step;
 					y--;
 				}
-				else if(zc_oldrand()%dmisc2)                                 //land and wait
+				else if (zc::math::SafeMod(zc_oldrand(), dmisc2))                                 //land and wait
 				{
 					clk=misc=0;
 				}                                                   //land and jump again
@@ -15695,7 +15691,7 @@ bool eGleeok::animate(int32_t index)
 	{
 		if(++clk2>72 && !(zc_oldrand()&3))
 		{
-			int32_t i=zc_oldrand()%misc;
+			int32_t i = zc::math::SafeMod(zc_oldrand(), misc);
 			enemy *head = ((enemy*)guys.spr(index+i+1));
 			addEwpn(head->x,head->y,head->z,wpn,3,wdp,dir,getUID(), 0, head->fakez);
 			sfx(wpnsfx(wpn),pan(int32_t(x)));
@@ -15706,7 +15702,7 @@ bool eGleeok::animate(int32_t index)
 	{
 		if(++clk2>100 && !(zc_oldrand()&3))
 		{
-			enemy *head = ((enemy*)guys.spr(zc_oldrand()%misc+index+1));
+			enemy *head = ((enemy*)guys.spr(zc::math::SafeMod(zc_oldrand(), misc) + index + 1));
 			head->timer=zc_oldrand()%50+50;
 			clk2=0;
 		}
@@ -16276,7 +16272,7 @@ bool ePatra::animate(int32_t index)
 					--loopcnt;
 				else if (loopcnt == 0)
 				{
-					if((misc%dmisc6)==0)
+					if (zc::math::SafeMod(misc, dmisc6) == 0)
 					{
 						if (dmisc21 > 0) loopcnt=-dmisc21;
 						else loopcnt=dmisc7;
@@ -16453,7 +16449,7 @@ bool ePatra::animate(int32_t index)
 		|| (clk4 == 10 && (editorflags & ENEMY_FLAG3) && get_qr(qr_NEWENEMYTILES)))))
 		&& (clk6 >= 0) //if not in the middle of firing...
 		&& clk6 >= dmisc19) //if over the set cooldown between shots...
-		&& ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > timeneeded)) || dmisc18 == -1)) //And lastly, if not in danger of starting a loop during the attack.
+		&& ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > timeneeded)) || dmisc18 == -1)) //And lastly, if not in danger of starting a loop during the attack.
 		{
 			switch(dmisc28)
 			{
@@ -16535,16 +16531,16 @@ bool ePatra::animate(int32_t index)
 		(dmisc18 == 0 && !(zc_oldrand()&127)) || 
 		(dmisc18 == -1 && (loopcnt > 0 || dmisc20 == 4) && ((clk2 == round(halfsize) && (!(editorflags & ENEMY_FLAG3) || !get_qr(qr_NEWENEMYTILES)) && dmisc20 != 2 && dmisc20 != 4)
 		|| (clk2 == 10 && dmisc20 != 4 && ((editorflags & ENEMY_FLAG3) && get_qr(qr_NEWENEMYTILES) || dmisc20 == 2))
-		|| ((((((misc%dmisc6) == 0 && (loopcnt == 0 && !dmisc21)) || loopcnt > 1 || loopcnt == -1) && clk2 <= 53 && clk2 >= 51 && (editorflags & ENEMY_FLAG3)) || (!(editorflags & ENEMY_FLAG3) && loopcnt > 0 && clk2 == 1)) && dmisc20 == 4))))
+		|| (((((zc::math::SafeMod(misc, dmisc6) == 0 && (loopcnt == 0 && !dmisc21)) || loopcnt > 1 || loopcnt == -1) && clk2 <= 53 && clk2 >= 51 && (editorflags & ENEMY_FLAG3)) || (!(editorflags & ENEMY_FLAG3) && loopcnt > 0 && clk2 == 1)) && dmisc20 == 4))))
 		{
 			if (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_qr(qr_NEWENEMYTILES)) 
 			{
 				if (clk5 >= dmisc19)
 				{
 					if ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
-					(dmisc20 == 2 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > ((int64_t)48 + (int64_t(12)*flycnt2))) ||
-					(dmisc20 == 4 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > ((int64_t)48 + 96)) ||
-					(dmisc20 != 2 && dmisc20 != 4 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > 48)))
+					(dmisc20 == 2 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > ((int64_t)48 + (int64_t(12)*flycnt2))) ||
+					(dmisc20 == 4 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > ((int64_t)48 + 96)) ||
+					(dmisc20 != 2 && dmisc20 != 4 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > 48)))
 					|| dmisc18 == -1)  
 						dofire = true;
 				}
@@ -16827,7 +16823,7 @@ bool ePatra::animate(int32_t index)
 								if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
 								(!dmisc18 && !(zc_oldrand()&127))) && (((esPatra*)guys.spr(i))->clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_qr(qr_NEWENEMYTILES))
 								&& ((esPatra*)guys.spr(i))->clk5 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
-								(dmisc20 != 2 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > 48))))
+								(dmisc20 != 2 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > 48))))
 								{
 									if ((editorflags & ENEMY_FLAG3) && get_qr(qr_NEWENEMYTILES)) 
 									{
@@ -17165,7 +17161,7 @@ bool ePatraBS::animate(int32_t index)
 			--loopcnt;
 		else
 		{
-			if((misc%dmisc6)==0)
+			if(zc::math::SafeMod(misc, dmisc6)==0)
 				loopcnt=dmisc7;
 		}
 		
