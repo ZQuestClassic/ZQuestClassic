@@ -15432,6 +15432,17 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			}
 			
 			temp_mapscr->enemy[k]=tempbyte;
+
+			// 76 is the highest enemy id possible to set in 1.90. Anything higher must have come
+			// from corrupting when 1.90 saved the quest.
+			// https://discord.com/channels/876899628556091432/1287580827164737658
+			if (Header->zelda_version <= 0x190)
+			{
+				if (temp_mapscr->enemy[k] > 76)
+				{
+					temp_mapscr->enemy[k] = 0;
+				}
+			}
 		}
 		else
 		{
@@ -15454,7 +15465,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				temp_mapscr->enemy[k]+=1;
 			}
 		}
-		
+
 		if(version < 9)
 		{
 			if(temp_mapscr->enemy[k]>0)
