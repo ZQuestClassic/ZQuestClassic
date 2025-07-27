@@ -29,6 +29,11 @@ public:
         return CurrentVersion >= 26;
     }
 
+    static inline bool singleZasmChunk()
+    {
+        return CurrentVersion >= 27;
+    }
+
     // 1. User arrays are managed by the garbage collector (see script_arrays).
     // 2. Internal arrays can be passed around by reference, and support SizeOfArray, foreach.
     static inline bool gc_arrays()

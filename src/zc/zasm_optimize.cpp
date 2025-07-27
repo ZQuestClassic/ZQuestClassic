@@ -27,10 +27,12 @@
 #include "base/zdefs.h"
 #include "parser/parserDefs.h"
 #include "zc/ffscript.h"
+#include "zc/parallel.h"
 #include "zc/script_debug.h"
 #include "zc/zasm_utils.h"
 #include "zasm/table.h"
 #include "zasm/serialize.h"
+#include "zscriptversion.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -39,7 +41,7 @@
 #include <optional>
 #include <stdbool.h>
 #include <string>
-#include <type_traits>
+#include <ranges>
 #include <utility>
 #include <algorithm>
 #include <mutex>
@@ -65,6 +67,12 @@ static bool should_run_experimental_passes()
 {
 	static bool enabled = get_flag_bool("-optimize-zasm-experimental").has_value();
 	return enabled;
+}
+
+static bool should_run_optimizer_in_parallel()
+{
+	static bool parallel = !is_web() && !get_flag_bool("-optimize-zasm-no-parallel").has_value();
+	return parallel && ZScriptVersion::singleZasmChunk();
 }
 
 // Very useful tool for identifying a single bad optimization.
@@ -2584,9 +2592,45 @@ static OptimizeResults zasm_optimize(zasm_script* script)
 		script->zasm[pop_pc] = {POP, D(2)};
 	}
 
-	for (const auto& fn : structured_zasm.functions)
+	if (should_run_optimizer_in_parallel())
 	{
-		optimize_function(results, structured_zasm, script, fn);
+		std::vector<OptimizeResults> function_results;
+		function_results.reserve(structured_zasm.functions.size());
+		for (const auto& _ : structured_zasm.functions)
+		{
+			function_results.push_back(create_opt_results());
+		}
+
+		// TODO: could use views::enumerate after upgrading to C++23
+		// https://stackoverflow.com/a/71891519/2788187
+		auto fn_iters = std::views::iota(structured_zasm.functions.begin(), structured_zasm.functions.end());
+		std::for_each(std::execution::par_unseq, fn_iters.begin(), fn_iters.end(), [&](auto it){
+			int i = it - structured_zasm.functions.begin();
+			auto& fn = *it;
+			optimize_function(function_results[i], structured_zasm, script, fn);
+		});
+
+		for (const auto& function_result : function_results)
+		{
+			results.elapsed += function_result.elapsed;
+			results.instructions_saved += function_result.instructions_saved;
+			for (int i = 0; i < results.passes.size(); i++)
+			{
+				if (function_result.passes[i].skipped)
+					continue;
+
+				results.passes[i].elapsed += function_result.passes[i].elapsed;
+				results.passes[i].instructions_saved += function_result.passes[i].instructions_saved;
+				results.passes[i].skipped = false;
+			}
+		}
+	}
+	else
+	{
+		for (const auto& fn : structured_zasm.functions)
+		{
+			optimize_function(results, structured_zasm, script, fn);
+		}
 	}
 
 	// TODO: remove NOPs and update GOTOs.
