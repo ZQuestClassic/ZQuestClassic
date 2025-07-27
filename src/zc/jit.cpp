@@ -362,15 +362,6 @@ void jit_startup()
 		compiled_functions.clear();
 		al_unlock_mutex(tasks_mutex);
 	}
-	else if (zasm_optimize_enabled())
-	{
-		// The scripts were reloaded by load_quest in init_game, so must
-		// re-optimize them.
-		zasm_for_every_script(true, [&](auto script){
-			if (!script->optimized && compiled_functions.contains(script->id))
-				zasm_optimize(script);
-		});
-	}
 
 	create_compile_tasks();
 

@@ -80,6 +80,8 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 
 std::string zasm_to_string(const zasm_script* script, bool top_functions = false, bool generate_yielder = false);
 
+// For older quests, this runs over multiple threads if `parallel` is true.
+// Work is never parallelized for newer quests (3.0+) since they have just a single zasm_script.
 void zasm_for_every_script(bool parallel, std::function<void(zasm_script*)> zasm_script);
 
 std::pair<bool, bool> get_command_rw(int command, int arg);

@@ -13,7 +13,7 @@
 //
 // 3. zplayer -test-zc will run a few unit tests, located in this file.
 //
-// 4. python scripts/run_for_every_qst.py --starting_index 235 ./build/Debug/zplayer -extract-zasm %s -optimize-zasm 2>&1 | code -
+// 4. python scripts/run_for_every_qst.py --starting_index 235 ./build/Debug/zplayer -extract-zasm %s -optimize-zasm -optimize-zasm-experimental 2>&1 | code -
 //
 //    Run in debug mode (for asserts) on every quest in the database.
 //
@@ -63,7 +63,7 @@ bool zasm_optimize_enabled()
 // Need to verify nothing was missed.
 static bool should_run_experimental_passes()
 {
-	static bool enabled = get_flag_bool("-optimize-zasm-experimental").has_value() || get_flag_bool("-test-optimize-zasm").has_value() || get_flag_bool("-extract-zasm").has_value() || get_flag_bool("-replay-exit-when-done").has_value() || is_ci();
+	static bool enabled = get_flag_bool("-optimize-zasm-experimental").has_value();
 	return enabled;
 }
 
@@ -2549,7 +2549,7 @@ static OptimizeResults create_opt_results()
 	return results;
 }
 
-OptimizeResults zasm_optimize(zasm_script* script)
+static OptimizeResults zasm_optimize(zasm_script* script)
 {
 	OptimizeResults results = create_opt_results();
 
@@ -2603,14 +2603,6 @@ OptimizeResults zasm_optimize(zasm_script* script)
 	return results;
 }
 
-void zasm_optimize_and_log(zasm_script* script)
-{
-	auto r = zasm_optimize(script);
-	double pct = 100.0 * r.instructions_saved / script->size;
-	std::string str = fmt::format("[{}] optimized script. saved {} instr ({:.1f}%), took {} ms", script->name, r.instructions_saved, pct, r.elapsed / 1000);
-	al_trace("%s\n", str.c_str());
-}
-
 OptimizeResults zasm_optimize()
 {
 	int log_level = get_flag_int("-zasm-optimize-log").value_or(1);
@@ -2654,7 +2646,7 @@ OptimizeResults zasm_optimize()
 	if (size == 0)
 	{
 		if (log_level >= 1)
-			fmt::println("\nNo scripts found.");
+			fmt::println("No scripts found.");
 		return results;
 	}
 
@@ -2663,7 +2655,7 @@ OptimizeResults zasm_optimize()
 
 	if (log_level >= 1)
 	{
-		fmt::println("\nFinished optimizing scripts:");
+		fmt::println("Finished optimizing scripts:");
 
 		for (const auto& pass : results.passes)
 		{

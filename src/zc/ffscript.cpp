@@ -24486,10 +24486,6 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 			data.jitted_script = std::unique_ptr<JittedScriptHandle>(jit_create_script_handle(curscript, ri));
 		jitted_script = data.jitted_script.get();
 	}
-	else if (zasm_optimize_enabled() && curscript->valid() && !curscript->zasm_script->optimized)
-	{
-		zasm_optimize_and_log(curscript->zasm_script.get());
-	}
 
 	runtime_script_debug_handle = nullptr;
 	if (script_debug_is_runtime_debugging())

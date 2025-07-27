@@ -1792,6 +1792,8 @@ int32_t init_game()
 		return 1;
 	}
 
+	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
+
 	if (replay_is_active())
 	{
 		if (!game->header.title.empty())
@@ -1817,7 +1819,7 @@ int32_t init_game()
 			replay_set_meta_bool("qst_modified", true);
 	}
 
-	if (zasm_optimize_enabled() && (get_flag_bool("-test-bisect").has_value() || is_ci()))
+	if (zasm_optimize_enabled())
 		zasm_optimize();
 
 	if (replay_version_check(0, 39))
@@ -2002,9 +2004,6 @@ int32_t init_game()
 		FFCore.usr_sfx_volume = 10000 * 100;
 		FFCore.usr_music_volume = 10000 * 100;
 	}
-	
-	//show quest metadata when loading it
-	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
 	
 	//FFCore.init(); ///Initialise new ffscript engine core. 
 	if(!firstplay && !get_qr(qr_OLD_INIT_SCRIPT_TIMING))

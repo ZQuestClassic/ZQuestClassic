@@ -60,6 +60,7 @@ class TestJIT(ZCTestCase):
             '0',
             '-replay-exit-when-done',
             '-optimize-zasm',
+            '-optimize-zasm-experimental',
             '-jit',
             '-jit-log',
             # TODO: why do threads make output files sometimes be empty?

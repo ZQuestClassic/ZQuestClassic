@@ -615,9 +615,6 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		return nullptr;
 	}
 
-	if (zasm_optimize_enabled() && !script->optimized)
-		zasm_optimize_and_log(script);
-
 	CompilationState state;
 	state.size = script->size;
 	size_t size = state.size;

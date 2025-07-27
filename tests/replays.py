@@ -372,6 +372,7 @@ class CLIPlayerInterface:
             '-script-runtime-debug-folder',
             str(output_dir / 'zscript-debug'),
             '-optimize-zasm',
+            '-optimize-zasm-experimental',
         ]
 
         if extra_args:
@@ -465,6 +466,7 @@ class WebPlayerInterface:
             '-replay-exit-when-done',
             '-show-fps',
             '-optimize-zasm',
+            '-optimize-zasm-experimental',
         ]
         if ctx.extra_args:
             extra_args.extend(ctx.extra_args)

@@ -1259,9 +1259,6 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 	if (script->size <= 1)
 		return nullptr;
 
-	if (zasm_optimize_enabled() && !script->optimized)
-		zasm_optimize_and_log(script);
-
 	// TODO: support RUNGENFRZSCR by using do_commands_async, which returns a promise. Need a way to defer execution until promise resolves...
 	// https://emscripten.org/docs/porting/asyncify.html
 	// Might need to use atomics. First pass for WASM compiler used that, for reference: https://github.com/connorjclark/ZeldaClassic/commit/eb5fd2c7d83ce084569fe3e73be1a69383416f58

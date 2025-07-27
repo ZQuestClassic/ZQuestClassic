@@ -43,6 +43,7 @@ class TestOptimizeZasm(ZCTestCase):
             '-extract-zasm',
             qst_path,
             '-optimize-zasm',
+            '-optimize-zasm-experimental',
             '-no_console',
         ]
         p = run_target.run('zplayer', run_args)
