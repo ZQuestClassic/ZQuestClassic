@@ -1728,16 +1728,6 @@ public:
 		return checkBounds(pos, 0, MAXCOMBOS-1);
 	}
 	
-	static INLINE int32_t checkMisc(const int32_t a)
-	{
-		return checkBounds(a, 0, 15);
-	}
-	
-	 static INLINE int32_t checkMisc32(const int32_t a)
-	{
-		return checkBounds(a, 0, 31);
-	}
-	
 	static INLINE int32_t checkMessage(const int32_t ID)
 	{
 		return checkBounds(ID, 0, msg_strings_size-1);
