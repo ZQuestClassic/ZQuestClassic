@@ -3472,6 +3472,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (tempheader.compareVer(2, 55, 11) < 0 && strcmp(tempheader.author, "zcdev") != 0)
 	{
 		set_qr(qr_BROKEN_BLOCKHOLE_PITFALLS, 1);
+		set_qr(qr_CUSTOM_WEAPON_BROKEN_SIZE, 1);
 	}
 
 	memcpy(Header, &tempheader, sizeof(tempheader));

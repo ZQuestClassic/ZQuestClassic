@@ -980,6 +980,9 @@ static GUI::ListData compatRulesList
 		"If checked, Block Hole flags placed on Pitfalls will use the next combo of"
 		" the pitfall (if the pitfall and block are on the same layer)."
 		" If unchecked, it will use the next combo of the block as usual." },
+	{ "'Custom Weapon's ignore size flags", qr_CUSTOM_WEAPON_BROKEN_SIZE,
+		"If checked, Custom Weapons will not properly set their Extend value, causing changes"
+		" to tile width/height to not visually appear." },
 };
 
 static GUI::ListData enemiesRulesList

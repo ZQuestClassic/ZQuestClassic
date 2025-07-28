@@ -1384,6 +1384,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				if(parentitem >-1)
 				{
+					if ( parent.weapoverrideFLAGS > 0 ) { extend = 3;}
 					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
 					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
 					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
