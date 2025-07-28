@@ -2771,6 +2771,8 @@ void weapon::load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr)
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		case wIce:
+			if(!get_qr(qr_CUSTOM_WEAPON_BROKEN_SIZE))
+				do_extend = do_size;
 			break;
 		default:
 			if(isLWeapon)
