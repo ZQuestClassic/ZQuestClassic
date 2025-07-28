@@ -12143,7 +12143,8 @@ bool HeroClass::startwpn(int32_t itemid)
 				wpnstep = itm.misc1/100;
 			
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wtype,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
+			if(!(itm.weap_data.flags & wdata_set_step))
+				((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
 			sfx(itm.usesound,pan(wx));
 		}
 		break;
@@ -12166,7 +12167,8 @@ bool HeroClass::startwpn(int32_t itemid)
 				wpnstep = itm.misc1/100;
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
+			if(!(itm.weap_data.flags & wdata_set_step))
+				((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
 			sfx(itm.usesound,pan(wx));
 		}
 		break;
