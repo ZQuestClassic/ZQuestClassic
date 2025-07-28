@@ -3380,11 +3380,14 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 					case mfARMOS_ITEM:
 					case mfDIVE_ITEM:
-						if((!getmapflag(scr, mSPECIALITEM) || (scr->flags9&fBELOWRETURN)) && !(itemsbuf[Hero.getLastLensID()].flags & item_flag3))
+					{
+						int flag = (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM;
+						if((!getmapflag(scr, flag) || (scr->flags9&fBELOWRETURN)) && !(itemsbuf[Hero.getLastLensID()].flags & item_flag3))
 						{
 							putitem2(dest,x,y,scr->catchall, lens_hint_item[scr->catchall][0], lens_hint_item[scr->catchall][1], 0);
 						}
 						break;
+					}
 						
 					case 16:
 					case 17:
