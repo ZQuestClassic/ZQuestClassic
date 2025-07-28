@@ -51,12 +51,9 @@ static bool verbose = false;
 
 bool zasm_optimize_enabled()
 {
-	static int compat_enabled = zc_get_config("zeldadx", "optimize_zasm", -100);
 	static bool enabled = get_flag_bool("-optimize-zasm").value_or(false) ?
 		true :
-		compat_enabled != -100 ?
-			compat_enabled :
-			zc_get_config("ZSCRIPT", "optimize_zasm", true);
+		zc_get_config("ZSCRIPT", "optimize_zasm", true);
 	return enabled;
 }
 
