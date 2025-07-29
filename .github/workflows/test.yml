@@ -229,5 +229,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: contains(inputs.extra-args, '--update')
         with:
-          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }-${{ inputs.compiler }}}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
+          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results/**/updated
