@@ -2362,6 +2362,26 @@ int32_t saves_current_selection()
 	return currgame;
 }
 
+std::string saves_current_path()
+{
+	if (currgame == -1)
+		return "";
+
+	return saves[currgame].path.string();
+}
+
+int saves_find_index(std::string path)
+{
+	for (int i = 0; i < saves.size(); i++)
+	{
+		auto& save = saves[i];
+		if (save.path == path)
+			return i;
+	}
+
+	return -1;
+}
+
 bool saves_is_slot_loaded(int32_t index, bool full_data)
 {
 	if (saves.size() <= index)

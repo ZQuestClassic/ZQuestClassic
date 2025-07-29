@@ -52,6 +52,8 @@ void saves_unselect();
 void saves_unload(int32_t index);
 int32_t saves_count();
 int32_t saves_current_selection();
+std::string saves_current_path();
+int saves_find_index(std::string path);
 expected<save_t*, std::string> saves_create_slot(gamedata* game, fs::path path = "", bool write_to_disk = true);
 expected<save_t*, std::string> saves_create_slot(fs::path path, bool write_to_disk = true);
 expected<bool, std::string> saves_update_slot(save_t* save, std::string qstpath);

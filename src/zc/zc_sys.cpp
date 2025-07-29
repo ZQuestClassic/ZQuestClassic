@@ -86,7 +86,7 @@ static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
 extern byte monochrome_console;
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
-extern int32_t loadlast;
+extern std::string loadlast;
 extern char *sfx_string[WAV_COUNT];
 byte use_dwm_flush;
 byte use_save_indicator;
@@ -471,7 +471,7 @@ void load_game_configs()
 	scaleForceInteger = zc_get_config("zeldadx","scaling_force_integer",1)!=0;
 	stretchGame = zc_get_config("zeldadx","stretch_game_area",0)!=0;
 	
-	loadlast = zc_get_config(cfg_sect,"load_last",0);
+	loadlast = zc_get_config(cfg_sect,"load_last_path","");
 	
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	
@@ -609,7 +609,7 @@ void save_game_configs()
 		zc_set_config(cfg_sect,"window_height",window_height);
 	}
 	
-	zc_set_config(cfg_sect,"load_last",loadlast);
+	zc_set_config(cfg_sect,"load_last_path",loadlast.c_str());
 	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
 	
 	flush_config_file();

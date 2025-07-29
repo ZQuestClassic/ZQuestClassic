@@ -45,7 +45,7 @@
 #define stricmp _stricmp
 #endif
 
-extern int32_t loadlast;
+extern std::string loadlast;
 extern int32_t skipcont;
 
 static void select_mode()
@@ -1148,7 +1148,7 @@ static void select_game(bool skip = false)
 				}
 				else
 				{
-					loadlast = saves_current_selection() + 1;
+					loadlast = saves_current_path();
 				}
 
 				break;
@@ -1213,7 +1213,7 @@ static void select_game(bool skip = false)
 					}
 					else
 					{
-						loadlast = saves_current_selection() + 1;
+						loadlast = saves_current_path();
 						if (r.value()->header->quest)
 							done=true;
 					}
@@ -1298,7 +1298,7 @@ static void select_game(bool skip = false)
 				save_t* save = r.value();
 				if (game_details(save) && saves_select(save))
 				{
-					loadlast = saves_current_selection() + 1;
+					loadlast = saves_current_path();
 					if (save->header->quest)
 						done=true;
 				}

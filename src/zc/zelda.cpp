@@ -336,7 +336,7 @@ int32_t magicdrainclk=0, conveyclk=3;
 byte newconveyorclk = 0;
 bool cheats_execute_goto=false, cheats_execute_light=false;
 int32_t checkx = 0, checky = 0;
-int32_t loadlast=0;
+std::string loadlast;
 int32_t skipcont=0;
 
 bool palette_user_tinted = false;
@@ -4341,11 +4341,6 @@ int main(int argc, char **argv)
 	{
 		load_save = zc_get_config("zeldadx","quickload_slot",0);
 	}
-	if(!load_save)
-	{
-		if(used_switch(argc,argv,"-loadlast") || zc_get_config("zeldadx","quickload_last",0))
-			load_save = loadlast;
-	}
 			
 	slot_arg = used_switch(argc,argv,"-slot");
 	
@@ -4746,6 +4741,12 @@ reload_for_replay_file:
 		if (!saves_load(err)) 
 			Z_error_fatal("Failed to load saves: %s\n", err.c_str());
 		zprint2("Finished Loading Saved Games\n");
+
+		if(!load_save)
+		{
+			if(used_switch(argc,argv,"-loadlast") || zc_get_config("zeldadx","quickload_last",0))
+				load_save = saves_find_index(loadlast) + 1;
+		}
 	}
 
 	if (zqtesting_mode || replay_is_active())
