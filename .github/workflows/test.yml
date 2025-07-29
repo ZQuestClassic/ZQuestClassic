@@ -202,7 +202,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: inputs.config == 'Coverage'
         with:
-          name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
+          name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/tests/.coverage/coverage.json
       - uses: actions/upload-artifact@v4
         if: inputs.config == 'Coverage' && matrix.shard_index == 1
@@ -223,11 +223,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         with:
-          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
+          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results.tar
 
       - uses: actions/upload-artifact@v4
         if: contains(inputs.extra-args, '--update')
         with:
-          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
+          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }-${{ inputs.compiler }}}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results/**/updated
