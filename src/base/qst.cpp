@@ -18527,6 +18527,13 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.sfx_lava_drowning,f))
 					return qe_invalid;
 			}
+			if(s_version >= 56)
+			{
+				if(!p_igetzf(&temp_combo.z_height,f))
+					return qe_invalid;
+				if(!p_igetzf(&temp_combo.z_step_height,f))
+					return qe_invalid;
+			}
 		}
 		if(combo_has_flags&CHAS_MISC_WEAP_DATA)
 		{

@@ -3260,7 +3260,10 @@ enum ASM_DEFINE
 #define SCREEN_PORTALS       0x164F
 #define GAME_SAVED_PORTALS   0x1650
 
-#define NUMVARIABLES         0x1651
+#define COMBOD_Z_HEIGHT      0x1651
+#define COMBOD_Z_STEP_HEIGHT 0x1652
+
+#define NUMVARIABLES         0x1653
 
 //} End variables
 

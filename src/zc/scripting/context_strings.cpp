@@ -468,6 +468,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case COMBODWALK: return "combodata::Walk";
 		case COMBOXR: return "combodata::X";
 		case COMBOYR: return "combodata::Y";
+		case COMBOD_Z_HEIGHT: return "combodata::ZHeight";
+		case COMBOD_Z_STEP_HEIGHT: return "combodata::ZStepHeight";
 		case CMBTRIGBOSSPAL: return "combotrigger::BossPal";
 		case CMBTRIGBUNNY: return "combotrigger::Bunny";
 		case CMBTRIGBUTTON: return "combotrigger::Button[]";

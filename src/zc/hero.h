@@ -311,8 +311,8 @@ public:
 	int32_t misc_internal_hero_flags;// Flags to hold data temporarily for misc handling
 	int32_t last_cane_of_byrna_item_id;
 	bool on_sideview_ladder;
-	zfix switchblock_z;
-	bool switchblock_offset;
+	zfix standing_on_z;
+	bool standing_z_offset;
 	byte hoverflags;
 	int32_t extra_jump_count;
 	

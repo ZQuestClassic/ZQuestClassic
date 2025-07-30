@@ -6774,16 +6774,29 @@ void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y)
 		over_door(scr,dest,77,right,x,y);
 	}
 }
-static inline bool onSwitch(newcombo const& cmb, zfix const& switchblockstate)
+static inline bool standing_on_z(newcombo const& cmb, zfix const& standing_z_state)
 {
-	return (switchblockstate < 0 || (cmb.attributes[2]>0 && (zslongToFix(cmb.attributes[2]) - zslongToFix(zc_max(cmb.attributes[3], 0))) <=switchblockstate));
+	zfix cmb_z, cmb_z_step;
+	if(cmb.type == cCSWITCHBLOCK && (cmb.usrflags & cflag9))
+	{
+		cmb_z = zslongToFix(cmb.attributes[2]);
+		cmb_z_step = zslongToFix(zc_max(0,cmb.attributes[3]));
+	}
+	else if(cmb.genflags & cflag3)
+	{
+		cmb_z = cmb.z_height;
+		cmb_z_step = zc_max(0_zf,cmb.z_step_height);
+	}
+	else return false;
+	
+	return (standing_z_state < 0 || (cmb_z>0 && (cmb_z - cmb_z_step) <= standing_z_state));
 }
 bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt)
 {
 	return _walkflag(zx,zy,cnt,0_zf);
 }
 
-bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens)
+bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& standing_z_state, bool is_temp_screens)
 {
 	int x = zx.getRound(), y = zy.getRound();
 	int pos = COMBOPOS(x % 256, y % 176);
@@ -6797,11 +6810,11 @@ bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_ro
 	if(y&8) b<<=1;
 	
 	int32_t cwalkflag = c.walk;
-	if(is_temp_screens && onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
+	if(is_temp_screens && standing_on_z(c,standing_z_state)) cwalkflag &= (c.walk>>4)^0xF;
 	else if ((c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (s1 != s0)
 	{
-		if(is_temp_screens && onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
+		if(is_temp_screens && standing_on_z(c1,standing_z_state)) cwalkflag &= (c1.walk>>4)^0xF;
 		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
 		else if (c1.type == cBRIDGE)
 		{
@@ -6818,7 +6831,7 @@ bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_ro
 	}
 	if (s2 != s0)
 	{
-		if(is_temp_screens && onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
+		if(is_temp_screens && standing_on_z(c2,standing_z_state)) cwalkflag &= (c2.walk>>4)^0xF;
 		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
 		else if (c2.type == cBRIDGE)
 		{
@@ -6843,7 +6856,7 @@ bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_ro
 }
 
 // Returns true if the combo at viewport position x,y is solid. Looks at a combo's quadrant walkablity flags.
-static bool _walkflag_new(zfix_round zx, zfix_round zy, zfix const& switchblockstate)
+static bool _walkflag_new(zfix_round zx, zfix_round zy, zfix const& standing_z_state)
 {
 	int x = zx.getRound(), y = zy.getRound();
 	mapscr* s0 = get_scr_for_world_xy_layer(x, y, 0);
@@ -6851,10 +6864,10 @@ static bool _walkflag_new(zfix_round zx, zfix_round zy, zfix const& switchblocks
 	mapscr* s2 = get_scr_for_world_xy_layer(x, y, 2);
 	if (!s1->valid) s1 = s0;
 	if (!s2->valid) s2 = s0;
-	return _walkflag_new(s0, s1, s2, zx, zy, switchblockstate, true);
+	return _walkflag_new(s0, s1, s2, zx, zy, standing_z_state, true);
 }
 
-bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstate)
+bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& standing_z_state)
 {
 	int max_x = world_w;
 	int max_y = world_h;
@@ -6868,7 +6881,7 @@ bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstat
 	if (x >= max_x - 8 && cnt == 2) return false;
 	if (y >= max_y) return false;
 	
-	return _walkflag_new(x, y, switchblockstate) || (cnt != 1 && _walkflag_new(x + 8, y, switchblockstate));
+	return _walkflag_new(x, y, standing_z_state) || (cnt != 1 && _walkflag_new(x + 8, y, standing_z_state));
 }
 
 static bool effectflag(int32_t x, int32_t y, int32_t layer)
