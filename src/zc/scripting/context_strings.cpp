@@ -490,6 +490,10 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGGERFAILPROMPTCID: return "combotrigger::FailPromptCombo";
 		case CMBTRIGGERFAILSTR: return "combotrigger::FailString";
 		case CMBTRIGFLAGS: return "combotrigger::Flags[]";
+		case CMBTRIGGERFORCEPLAYERDIR: return "combotrigger::ForceHeroDir";
+		case CMBTRIGGERICECOMBO: return "combotrigger::ForceIceCombo";
+		case CMBTRIGGERICEVX: return "combotrigger::ForceIceVx";
+		case CMBTRIGGERICEVY: return "combotrigger::ForceIceVy";
 		case CMBTRIGGTIMER: return "combotrigger::GStateTimer";
 		case CMBTRIGGENSCRIPT: return "combotrigger::GenScript";
 		case CMBTRIGGSTATE: return "combotrigger::GlobalState";

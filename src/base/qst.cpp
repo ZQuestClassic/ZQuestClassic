@@ -18264,6 +18264,17 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		if(!p_igetzf(&temp_trigger.req_player_y, f))
 			return qe_invalid;
 	}
+	if(s_version >= 56)
+	{
+		if(!p_getc(&temp_trigger.dest_player_dir, f))
+			return qe_invalid;
+		if(!p_igetl(&temp_trigger.force_ice_combo, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.force_ice_vx, f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_trigger.force_ice_vy, f))
+			return qe_invalid;
+	}
 	return 0;
 }
 

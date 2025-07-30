@@ -9622,6 +9622,14 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 119;
 	if(!p_iputzf(tmp_trig.req_player_y, f))
 		return 120;
+	if(!p_putc(tmp_trig.dest_player_dir, f))
+		return 121;
+	if(!p_iputl(tmp_trig.force_ice_combo, f))
+		return 122;
+	if(!p_iputzf(tmp_trig.force_ice_vx, f))
+		return 123;
+	if(!p_iputzf(tmp_trig.force_ice_vy, f))
+		return 124;
 	return 0;
 }
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb)

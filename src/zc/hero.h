@@ -336,6 +336,7 @@ public:
 	
 	// Methods below here.
 	void clear_ice();
+	void force_ice_velocity(optional<zfix> vx, optional<zfix> vy);
 	bool isLifting();
 	void set_liftflags(int liftid);
 	void doSwitchHook(byte style);

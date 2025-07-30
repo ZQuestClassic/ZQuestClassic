@@ -526,7 +526,29 @@ void HeroClass::clear_ice()
 	ice_combo = 0;
 	sliding = 0;
 }
-
+void HeroClass::force_ice_velocity(optional<zfix> vx, optional<zfix> vy)
+{
+	auto ic = ice_combo;
+	if(script_ice_combo)
+	{
+		if((unsigned(script_ice_combo) < MAXCOMBOS) && check_icy(combobuf[script_ice_combo], ICY_PLAYER))
+			ic = script_ice_combo;
+		else ic = 0;
+	}
+	if(!ic) return;
+	
+	auto const& icecmb = combobuf[ic];
+	if(script_ice_combo && ic && !sliding)
+	{
+		//Special case to prevent the forced vx/vy from being overwritten
+		sliding = 1;
+		ice_vx = ice_vy = 0;
+		ice_entry_count = ice_entry_mcount = icecmb.attribytes[1];
+	}
+	zfix cap = zslongToFix(zc_max(1,abs(icecmb.attributes[2])));
+	if(vx) ice_vx = vbound(*vx, -cap, cap);
+	if(vy) ice_vy = vbound(*vy, -cap, cap);
+}
 void HeroClass::go_respawn_point()
 {
 	x = respawn_x;

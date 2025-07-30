@@ -35,6 +35,10 @@ private:
 	ComboEditorDialog const& parent;
 	vector<string> warnings;
 	
+	bool force_ice_combo;
+	int32_t ice_combo;
+	int32_t _ice_cs; // for editor only, not saved
+	
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Label> l_minmax_trig;
 	std::shared_ptr<GUI::TextField> req_litems_field, trig_buttons_field, spawned_ip_field;
@@ -42,6 +46,7 @@ private:
 	
 	ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigger& trigger, size_t index);
 	
+	void load_trigger();
 	void updateWarnings();
 	bool apply_trigger();
 	
