@@ -2500,7 +2500,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								SETFLAG(local_ref.usrflags,cflag1,state);
 							}),
-						INFOBTN("The Hero will slip and slide on the ice."),
+						INFOBTN("The Hero will slip and slide on the ice. Requires Newer Hero Movement." + QRHINT({qr_NEW_HERO_MOVEMENT2})),
 						Checkbox(
 							text = "Slides Hero",
 							hAlign = 0.0,

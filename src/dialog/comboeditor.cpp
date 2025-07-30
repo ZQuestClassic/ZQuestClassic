@@ -2019,7 +2019,7 @@ void ComboEditorDialog::loadComboType()
 			h_flag[0] = "Pushable blocks pushed onto this combo will"
 				" slide past it, if nothing blocks their way.";
 			l_flag[1] = "Slides Hero";
-			h_flag[1] = "The Hero will slip and slide on the ice.";
+			h_flag[1] = "The Hero will slip and slide on the ice. Requires Newer Hero Movement." + QRHINT({qr_NEW_HERO_MOVEMENT2});
 			if(FL(cflag2))
 			{
 				l_attribyte[0] = "Start Speed Percentage";
@@ -3114,8 +3114,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				TabRef(name = "General", TabPanel(
 					ptr = &cmb_tabs[1],
 					TabRef(name = "Misc",
-						Row(
+						Rows<2>(
 							Frame(title = "General Flags",
+								rowSpan = 2,
 								Rows<2>(
 									CMB_GEN_FLAG(0,"Hook-Grabbable","Solid parts of this combo can be grabbed by the Hookshot"),
 									CMB_GEN_FLAG(1,"Switch-Hookable","Solid parts of this combo can be grabbed by the SwitchHook"),
@@ -3123,35 +3124,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										" if they are on it, or above the combo's 'Z Height'."),
 									CMB_GEN_FLAG(3,"Walk-on-top -8px DrawYOffset","While the Player is walking on top of this combo,"
 										" they will be visually offset up by 8 pixels.")
-								)
-							),
-							Frame(
-								Rows<3>(
-									Label(text = "Z Height"),
-									TextField(
-										fitParent = true, maxLength = 11,
-										type = GUI::TextField::type::FIXED_DECIMAL, places = 4,
-										val = local_comboref.z_height.getZLong(),
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_comboref.z_height = zslongToFix(val);
-										}),
-									IBTN("A Z-height for the block, allowing you to jump atop it, and from block to block."
-										" If set to 0, acts as infinitely tall."
-										" Has no effect if 'Allow walk-on-top' is not checked."),
-									Label(text = "Z Step"),
-									TextField(
-										fitParent = true, maxLength = 11,
-										type = GUI::TextField::type::FIXED_DECIMAL, places = 4,
-										val = local_comboref.z_step_height.getZLong(),
-										low = 0, high = MAX_SIGNED_32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_comboref.z_step_height = zslongToFix(val);
-										}),
-									IBTN("The Z amount below the block's Z-height that you can jump atop it from. This allows"
-										" for 'walking up stairs' type effects."
-										" Has no effect if 'Allow walk-on-top' is not checked.")
 								)
 							),
 							Frame(title = "Hero Speed Mod",
@@ -3188,6 +3160,35 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 											local_comboref.speed_add = zslongToFix(val);
 										}),
 									IBTN("Adds this value, in px/frame, to the Hero's speed walking over this combo. Applies after mult and div. Can be negative.")
+								)
+							),
+							Frame(
+								Rows<3>(
+									Label(text = "Z Height"),
+									TextField(
+										fitParent = true, maxLength = 11,
+										type = GUI::TextField::type::FIXED_DECIMAL, places = 4,
+										val = local_comboref.z_height.getZLong(),
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.z_height = zslongToFix(val);
+										}),
+									IBTN("A Z-height for the block, allowing you to jump atop it, and from block to block."
+										" If set to 0, acts as infinitely tall."
+										" Has no effect if 'Allow walk-on-top' is not checked."),
+									Label(text = "Z Step"),
+									TextField(
+										fitParent = true, maxLength = 11,
+										type = GUI::TextField::type::FIXED_DECIMAL, places = 4,
+										val = local_comboref.z_step_height.getZLong(),
+										low = 0, high = MAX_SIGNED_32,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.z_step_height = zslongToFix(val);
+										}),
+									IBTN("The Z amount below the block's Z-height that you can jump atop it from. This allows"
+										" for 'walking up stairs' type effects."
+										" Has no effect if 'Allow walk-on-top' is not checked.")
 								)
 							)
 						)
