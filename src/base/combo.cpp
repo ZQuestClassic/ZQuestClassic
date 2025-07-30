@@ -98,6 +98,9 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(sfx_drowning) return false;
 	if(sfx_lava_drowning) return false;
 	
+	if(z_height) return false;
+	if(z_step_height) return false;
+	
 	if(!triggers.empty()) return false;
 	if(!misc_weap_data.is_blank()) return false;
 	if(!lift_weap_data.is_blank()) return false;
@@ -231,6 +234,12 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		sfx_falling = other.sfx_falling;
 		sfx_drowning = other.sfx_drowning;
 		sfx_lava_drowning = other.sfx_lava_drowning;
+	}
+	if(flags.get(CMB_ADVP_GEN_ZHEIGHT))
+	{
+		z_height = other.z_height;
+		z_step_height = other.z_step_height;
+		CPYFLAG(genflags, cflag3|cflag4, other.genflags); // z-height related flags
 	}
 	if(flags.get(CMB_ADVP_MISC_WEAP_DATA))
 		misc_weap_data = other.misc_weap_data;

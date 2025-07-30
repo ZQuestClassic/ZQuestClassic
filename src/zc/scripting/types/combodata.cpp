@@ -29,7 +29,7 @@ static ArrayRegistrar COMBODATTRIBYTES_registrar(COMBODATTRIBYTES, []{
 }());
 
 static ArrayRegistrar COMBODGENFLAGARR_registrar(COMBODGENFLAGARR, []{
-	static ScriptingArray_ObjectMemberBitwiseFlags<newcombo, &newcombo::genflags, 2> impl;
+	static ScriptingArray_ObjectMemberBitwiseFlags<newcombo, &newcombo::genflags, 4> impl;
 	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;

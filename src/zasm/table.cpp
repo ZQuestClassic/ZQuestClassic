@@ -2994,6 +2994,8 @@ static constexpr script_variable variable_list[]=
 	{ "SCREEN_FFCS", SCREEN_FFCS, 0 },
 	{ "SCREEN_PORTALS", SCREEN_PORTALS, 0 },
 	{ "GAME_SAVED_PORTALS", GAME_SAVED_PORTALS, 0 },
+	{ "COMBOD_Z_HEIGHT", COMBOD_Z_HEIGHT, 0 },
+	{ "COMBOD_Z_STEP_HEIGHT", COMBOD_Z_STEP_HEIGHT, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.

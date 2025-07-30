@@ -64,6 +64,7 @@ enum
 	CMB_ADVP_GEN_MOVESPEED,
 	CMB_ADVP_GEN_SFX,
 	CMB_ADVP_GEN_SPRITES,
+	CMB_ADVP_GEN_ZHEIGHT,
 	CMB_ADVP_MISC_WEAP_DATA,
 	CMB_ADVP_SZ
 };
@@ -169,6 +170,8 @@ struct newcombo
 	
 	vector<combo_trigger> triggers;
 	byte only_gentrig;
+	
+	zfix z_height, z_step_height;
 	
 	void set_tile(int32_t newtile);
 	void clear();

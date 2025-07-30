@@ -9670,7 +9670,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
 		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing || tmp_cmb.sfx_tap
 		|| tmp_cmb.sfx_landing || tmp_cmb.spr_falling || tmp_cmb.spr_drowning || tmp_cmb.spr_lava_drowning || tmp_cmb.sfx_falling
-		|| tmp_cmb.sfx_drowning || tmp_cmb.sfx_lava_drowning)
+		|| tmp_cmb.sfx_drowning || tmp_cmb.sfx_lava_drowning || tmp_cmb.z_height || tmp_cmb.z_step_height)
 		combo_has_flags |= CHAS_GENERAL;
 	if(!tmp_cmb.misc_weap_data.is_blank())
 		combo_has_flags |= CHAS_MISC_WEAP_DATA;
@@ -9845,6 +9845,10 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 94;
 		if(!p_putc(tmp_cmb.sfx_lava_drowning,f))
 			return 95;
+		if(!p_iputzf(tmp_cmb.z_height,f))
+			return 96;
+		if(!p_iputzf(tmp_cmb.z_step_height,f))
+			return 97;
 	}
 	if(combo_has_flags&CHAS_MISC_WEAP_DATA)
 	{
