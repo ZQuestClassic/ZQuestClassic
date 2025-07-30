@@ -9,7 +9,7 @@ void push_ri();
 void pop_ri();
 extern refInfo* ri;
 extern script_data* curscript;
-extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
+extern int32_t(*stack)[MAX_STACK_SIZE];
 extern bounded_vec<word, int32_t>* ret_stack;
 extern ScriptType curScriptType;
 extern word curScriptNum;

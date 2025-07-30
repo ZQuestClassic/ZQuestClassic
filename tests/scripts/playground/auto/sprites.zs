@@ -169,6 +169,8 @@ generic script sprites
 			s->TileWidth = 1;
 			s->TileHeight = 1;
 		}
+
+		Test::End();
 	}
 
 	void print_it(itemsprite i)

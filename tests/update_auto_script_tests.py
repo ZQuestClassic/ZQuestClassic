@@ -141,6 +141,7 @@ def run_replays(tests: List[Test], update=False):
         output_dir,
         '--retries',
         '2',
+        '--no-jit',
     ]
     if update:
         args.append('--update')

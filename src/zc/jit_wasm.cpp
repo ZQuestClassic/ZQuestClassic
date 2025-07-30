@@ -166,8 +166,6 @@ static void add_sp(WasmAssembler& wasm, int idx, int delta)
 	wasm.emitGlobalGet(idx);
 	wasm.emitI32Const(delta);
 	wasm.emitI32Add();
-	wasm.emitI32Const(MASK_SP);
-	wasm.emitI32And();
 }
 
 static void modify_global_idx(WasmAssembler& wasm, int idx, int delta)
@@ -1024,12 +1022,10 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					wasm.emitGlobalSet(g_idx_sp);
 
 					set_z_register(state, arg1, [&](){
-						// (ri->sp-1) & MASK_SP
+						// ri->sp - 1
 						wasm.emitGlobalGet(g_idx_sp);
 						wasm.emitI32Const(1);
 						wasm.emitI32Sub();
-						wasm.emitI32Const(MASK_SP);
-						wasm.emitI32And();
 
 						wasm.emitI32Const(4);
 						wasm.emitI32Mul();
@@ -1497,7 +1493,7 @@ JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* 
 
 int jit_run_script(JittedScriptHandle* jitted_script)
 {
-	extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
+	extern int32_t(*stack)[MAX_STACK_SIZE];
 
 	uintptr_t* ptr = (uintptr_t*)malloc(sizeof(uintptr_t) * 6);
 	ptr[0] = (uintptr_t)&*jitted_script->ri;

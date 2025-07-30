@@ -45,7 +45,7 @@ extern refInfo playerScriptData;
 #include <array>
 
 extern refInfo *ri; //= NULL;
-extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
+extern int32_t(*stack)[MAX_STACK_SIZE];
 extern portal mirror_portal;
 using std::set;
 

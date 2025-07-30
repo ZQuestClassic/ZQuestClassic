@@ -1,6 +1,7 @@
 #ifndef ZDEFS_H_
 #define ZDEFS_H_
 
+#include "base/general.h"
 #define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
 
@@ -1387,7 +1388,7 @@ public:
 	dword pc; //current command offset
 	
 	int32_t d[8]; //d registers
-	uint32_t sp; //stack pointer for current script
+	uint32_t sp = MAX_STACK_SIZE; //stack pointer for current script
 	dword wait_index; // nth WaitX instruction (0 being script entry) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
 	
@@ -1414,6 +1415,7 @@ public:
 	int32_t cmp_op1, cmp_op2; //cached compare operands
 	optional<int32_t> cmp_strcache;
 	std::set<uint32_t> stack_pos_is_object;
+	bool stack_overflow;
 	
 	void Clear()
 	{

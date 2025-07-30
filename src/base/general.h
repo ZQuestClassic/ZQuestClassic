@@ -92,7 +92,7 @@ int wrap(int x,int low,int high);
 #define INITIAL_D                  8
 #define FFSCRIPT_MISC              32
 #define BITS_SP                    10
-#define MASK_SP                    ((1<<BITS_SP)-1)
+#define MAX_STACK_SIZE             1024
 #define MAX_SCRIPT_REGISTERS       (1<<BITS_SP)
 #define MAX_SCRIPT_REGISTERS_250   256
 #define MAX_PC                     dword(-1)

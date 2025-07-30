@@ -475,6 +475,8 @@ skip_tests = [
     'nargads_trail_crystal_crusades_19_of_24.zplay',
     'nargads_trail_crystal_crusades_20_of_24.zplay',
 ]
+if args.jit:
+    skip_tests.append('auto_stack_limit.zplay')
 tests = [t for t in tests if t.name not in skip_tests]
 
 if args.shard:

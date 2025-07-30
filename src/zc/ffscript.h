@@ -1881,7 +1881,7 @@ public:
 
 struct ScriptEngineData {
 	refInfo ref;
-	int32_t stack[MAX_SCRIPT_REGISTERS];
+	int32_t stack[MAX_STACK_SIZE];
 	bounded_vec<word, int32_t> ret_stack {65535};
 	std::shared_ptr<JittedScriptHandle> jitted_script;
 	// This is used as a boolean for all but ScriptType::Item.
@@ -1925,5 +1925,6 @@ int32_t get_total_mi();
 int get_mouse_state(int index);
 
 bool pc_overflow(dword pc, bool print_err = true);
+bool check_stack(uint32_t sp);
 
 #endif

@@ -695,7 +695,7 @@ vector<int32_t> *sargvec;
 string *sargstr;
 refInfo *ri;
 script_data *curscript;
-int32_t(*stack)[MAX_SCRIPT_REGISTERS];
+int32_t(*stack)[MAX_STACK_SIZE];
 bounded_vec<word, int32_t>* ret_stack;
 vector<int32_t> zs_vargs;
 ScriptType curScriptType;
@@ -715,7 +715,7 @@ static vector<vector<int32_t>*> sargvec_cache;
 static vector<string*> sargstr_cache;
 static vector<refInfo*> ricache;
 static vector<script_data*> sdcache;
-static vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> stackcache;
+static vector<int32_t(*)[MAX_STACK_SIZE]> stackcache;
 static vector<bounded_vec<word, int32_t>*> ret_stack_cache;
 void push_ri()
 {
@@ -753,26 +753,28 @@ void pop_ri()
 //           Helper Functions           //
 ///-------------------------------------//
 
-void SH::write_stack(const uint32_t stackoffset, const int32_t value)
+void SH::write_stack(const uint32_t sp, const int32_t value)
 {
-	if(stackoffset >= MAX_SCRIPT_REGISTERS)
+	if (sp >= MAX_STACK_SIZE)
 	{
-		Z_scripterrlog("Stack over or underflow, stack pointer = %u\n", stackoffset);
+		scripting_log_error_with_context("Stack overflow!");
+		ri->stack_overflow = true;
 		return;
 	}
 	
-	(*stack)[stackoffset] = value;
+	(*stack)[sp] = value;
 }
 
-int32_t SH::read_stack(const uint32_t stackoffset)
+int32_t SH::read_stack(const uint32_t sp)
 {
-	if(stackoffset >= MAX_SCRIPT_REGISTERS)
+	if (sp >= MAX_STACK_SIZE)
 	{
-		Z_scripterrlog("Stack over or underflow, stack pointer = %u\n", stackoffset);
+		scripting_log_error_with_context("Stack overflow!");
+		ri->stack_overflow = true;
 		return -10000;
 	}
 	
-	return (*stack)[stackoffset];
+	return (*stack)[sp];
 }
 
 ///----------------------------//
@@ -16189,12 +16191,12 @@ void set_register(int32_t arg, int32_t value)
 	//Misc./Internal
 		case SP:
 			ri->sp = value / 10000;
-			ri->sp &= MASK_SP;
+			check_stack(ri->sp);
 			break;
 		
 		case SP2:
 			ri->sp = value;
-			ri->sp &= MASK_SP;
+			check_stack(ri->sp);
 			break;
 			
 		case PC:
@@ -18080,6 +18082,18 @@ int32_t legacy_sz_int_arr(const int32_t ptr)
 //                                       ASM Functions                                                 //
 ///----------------------------------------------------------------------------------------------------//
 
+bool check_stack(uint32_t sp)
+{
+	if (sp >= MAX_STACK_SIZE)
+	{
+		scripting_log_error_with_context("Stack overflow!");
+		ri->stack_overflow = true;
+		return false;
+	}
+
+	return true;
+}
+
 void retstack_push(int32_t val)
 {
 	if(ri->retsp >= ret_stack->size())
@@ -18098,17 +18112,17 @@ optional<int32_t> retstack_pop()
 
 void stack_push(int32_t val)
 {
-	--ri->sp;
-	ri->sp &= MASK_SP;
-	SH::write_stack(ri->sp, val);
+	SH::write_stack(--ri->sp, val);
 }
 void stack_push(int32_t val, size_t count)
 {
+	if (!check_stack(ri->sp - count))
+		return;
+
 	for(int q = 0; q < count; ++q)
 	{
 		--ri->sp;
-		ri->sp &= MASK_SP;
-		SH::write_stack(ri->sp, val);
+		(*stack)[ri->sp] = val;
 	}
 }
 
@@ -18116,14 +18130,12 @@ int32_t stack_pop()
 {
 	const int32_t val = SH::read_stack(ri->sp);
 	++ri->sp;
-	ri->sp &= MASK_SP;
 	return val;
 }
 int32_t stack_pop(size_t count)
 {
 	ri->sp += count;
-	ri->sp &= MASK_SP;
-	const int32_t val = SH::read_stack((ri->sp-1) & MASK_SP);
+	const int32_t val = SH::read_stack(ri->sp-1);
 	return val;
 }
 
@@ -24992,7 +25004,6 @@ int32_t run_script_int(bool is_jitted)
 					break; //handled below, poorly. 'RETURNFUNC' does this better now.
 				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
-				ri->sp &= MASK_SP;
 				increment = false;
 				break;
 			}
@@ -28719,11 +28730,11 @@ int32_t run_script_int(bool is_jitted)
 			earlyretval = -1;
 			return RUNSCRIPT_SELFDELETE;
 		}
-		if (ri->sp >= MAX_SCRIPT_REGISTERS)
+		if (ri->stack_overflow)
 		{
 			if (old_script_funcrun)
 				return RUNSCRIPT_OK;
-			Z_scripterrlog("Stack over/underflow caused by command %d!\n", scommand);
+			scommand = 0xFFFF;
 		}
 		if(hit_invalid_zasm) break;
 		if(old_script_funcrun && (ri->pc == MAX_PC || scommand == RETURN))

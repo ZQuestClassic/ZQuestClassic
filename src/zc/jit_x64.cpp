@@ -179,7 +179,6 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 static void modify_sp(x86::Compiler &cc, x86::Gp vStackIndex, int delta)
 {
 	cc.add(vStackIndex, delta);
-	cc.and_(vStackIndex, MASK_SP);
 }
 
 static void div_10000(x86::Compiler &cc, x86::Gp dividend)
@@ -1226,11 +1225,10 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 			// ri->sp += num;
 			modify_sp(cc, vStackIndex, arg2);
 
-			// word read = (ri->sp-1) & MASK_SP;
+			// word read = ri->sp - 1;
 			x86::Gp read = cc.newInt32();
 			cc.mov(read, vStackIndex);
 			cc.sub(read, 1);
-			cc.and_(read, MASK_SP);
 
 			// int32_t value = SH::read_stack(read);
 			// set_register(sarg1, value);
@@ -1700,7 +1698,7 @@ JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* 
 
 int jit_run_script(JittedScriptHandle *jitted_script)
 {
-	extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
+	extern int32_t(*stack)[MAX_STACK_SIZE];
 
 	return jitted_script->fn->compiled_fn(
 		jitted_script->ri->d, game->global_d,
