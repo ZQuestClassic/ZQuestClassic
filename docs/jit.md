@@ -14,7 +14,7 @@ First, details on how ZASM is normally interpreted:
 
 A "z-register" (in the code, `ffscript.cpp` calls them registers, but the AST parser code calls them Vars) is set/read via `set_register`/`get_register`. A handful of general purposes z-registers exist called `D` and `G` (global). All other z-registers connect some state of the game engine to ZASM - for example, `Link->X = 123` would become the ZASM instruction `SETV LINKX 123`, so `set_register` would get called to set the player's position to the given value.
 
-Function calls are implemented with `PUSHR/PUSHV <thispc>; GOTO <destpc>` (pushing current pc onto stack and go to destination function). If there are parameters, they get pushed too. There's additional details for the `SP` z-register that I'm brushing over. When the function wants to return, a `RETURN` statement will pop pc to jump to from the stack.
+Function calls are implemented with `PUSHR/PUSHV <thispc>; GOTO <destpc>` (pushing current pc onto stack and go to destination function). If there are parameters, they get pushed too. There's additional details for the `SP` z-register that I'm brushing over. When the function wants to return, a `RETURNFUNC` statement will pop pc to jump to from the stack.
 
 The ZASM bytecode interpreter will execute instructions until it encounters either 1) some `WaitX` command or 2) a `QUIT` command. If it somehow gets past the end of the instructions, that is treated as a `QUIT` (although, I think this should never happen). Some examples of `WaitX` are: `WaitFrame` (yield and resume on the next frame) and `WaitEvent` (wait for some game event to occur before continuing). In any case, whenever a script resumes it picks up from that last `WaitX` call with all its state and registers intact. The `refInfo` and `stack` will continue to exist for this script instance (until cleared, like for FFCs when leaving the screen).
 
@@ -71,9 +71,11 @@ This can result in ~20x better performance for scripts that are just pure math. 
 
 `GOTO` commands will emit a `jmp` to a label that is placed at the correct place in the generated assembly.
 
-Function calls are tricky. They work by pushing the current pc onto the stack, and recalling that pc on `RETURN`. The JIT compilation turns the function call into a `jmp`, and stores on a stack a _function call return address_ (defined by generating a label just after the function call). On `RETURN` code is emitted to pop from this stack and `jmp` to the location. Given these are arbitary jumps and not `call` ops, the assembler is also told where a `RETURN` `jmp` can possibly return to, which helps asmjit with register allocation. In the future, these may be compiled into actual function calls on-demand.
+Function calls are tricky. They work by pushing the current pc onto the stack, and recalling that pc on `RETURNFUNC`. The JIT compilation turns the function call into a `jmp`, and stores on a stack a _function call return address_ (defined by generating a label just after the function call). On `RETURNFUNC` code is emitted to pop from this stack and `jmp` to the location. Given these are arbitary jumps and not `call` ops, the assembler is also told where a `RETURNFUNC` `jmp` can possibly return to, which helps asmjit with register allocation. In the future, these may be compiled into actual function calls on-demand.
 
-When a `WaitX` command is hit, the compiled function will save the location of that command and return. The next time it is called, it will jump straight to the next instruction after that `WaitX` command. This is tracked via `ri->wait_index`.
+When a `WaitX` command is hit, the compiled function will save the location of that command and return. The next time it is called, it will jump straight to the next instruction after that `WaitX` command. This is tracked via `jitted_script->wait_index`.
+
+A script may not have been compiled before the engine needs to run an instance of it. In that case, the engine will use the ZASM interpreter to start. When the script is done being compiled, the engine will upgrade that instance of the script to use the compiled version. This is handled in `jit_create_script_handle_impl`. Just a few bits of state have to be translated - namely the pc the script ended on last, and the function call stack.
 
 ## Debugging
 

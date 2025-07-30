@@ -35,6 +35,8 @@ struct StructuredZasm
 		CALLING_MODE_GOTO_RETURN,
 		CALLING_MODE_CALLFUNC_RETURNFUNC,
 	} calling_mode;
+
+	bool is_modern_function_calling();
 };
 
 struct ZasmCFG

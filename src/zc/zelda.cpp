@@ -1819,8 +1819,7 @@ int32_t init_game()
 			replay_set_meta_bool("qst_modified", true);
 	}
 
-	if (zasm_optimize_enabled())
-		zasm_optimize();
+	zasm_optimize();
 
 	if (replay_version_check(0, 39))
 		set_qr(qr_HIDE_BOTTOM_8_PIXELS, 1);
@@ -4034,8 +4033,7 @@ void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,true,false,0xFF);
 	strcpy(qstpath, quest_path);
 	printf("Hash: %s\n", QHeader.hash().c_str());
-	if (zasm_optimize_enabled())
-		zasm_optimize();
+	zasm_optimize();
 	if (jit_precompile)
 	{
 		printf("compiling scripts ...\n");
@@ -4062,8 +4060,7 @@ void do_extract_zasm_command(const char* quest_path)
 	strcpy(qstpath, quest_path);
 	bool top_functions = true;
 	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
-	if (zasm_optimize_enabled())
-		zasm_optimize();
+	zasm_optimize();
 	zasm_for_every_script(true, [&](zasm_script* script){
 		ScriptDebugHandle h(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);
 		h.print(zasm_to_string(script, top_functions, generate_yielder).c_str());

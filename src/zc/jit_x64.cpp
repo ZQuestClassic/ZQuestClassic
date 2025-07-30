@@ -509,9 +509,7 @@ static bool command_is_compiled(int command)
 	case COMPAREV:
 	case COMPAREV2:
 	case GOTO:
-	case GOTOR:
 	case QUIT:
-	case RETURN:
 	case CALLFUNC:
 	case RETURNFUNC:
 
@@ -693,7 +691,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 	// cc.addDiagnosticOptions(DiagnosticOptions::kRAAnnotate | DiagnosticOptions::kRADebugAll);
 
 	// Setup parameters.
-	cc.addFunc(FuncSignatureT<int32_t, int32_t *, int32_t *, int32_t *, uint16_t *, uint32_t *, intptr_t *, uint32_t *, uint32_t *, uint32_t>(state.calling_convention));
+	cc.addFunc(FuncSignatureT<int32_t, int32_t *, int32_t *, int32_t *, uint16_t *, uint32_t *, uintptr_t *, uint32_t *, uint32_t *, uint32_t>(state.calling_convention));
 	state.ptrRegisters = cc.newIntPtr("registers_ptr");
 	state.ptrGlobalRegisters = cc.newIntPtr("global_registers_ptr");
 	state.ptrStack = cc.newIntPtr("stack_ptr");
@@ -731,6 +729,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		cc.setInlineComment("re-entry jump table");
 
 	std::vector<Label> wait_frame_labels;
+	std::map<pc_t, uint32_t> wait_frame_pc_to_index;
 	Label L_Table = cc.newLabel();
 	Label L_Start = cc.newLabel();
 	state.L_End = cc.newLabel();
@@ -744,6 +743,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 
 		Label label = cc.newLabel();
 		wait_frame_labels.push_back(label);
+		wait_frame_pc_to_index[i] = wait_frame_pc_to_index.size() + 1;
 		annotation->addLabel(label);
 	}
 
@@ -782,6 +782,12 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 	}
 
 	auto structured_zasm = zasm_construct_structured(script);
+	if (!structured_zasm.is_modern_function_calling())
+	{
+		al_trace("[jit] NOT compiling zasm chunk (unexpected function call mode): %s id: %d size: %zu\n", script->name.c_str(), script->id, script->size);
+		DCHECK(false);
+		return nullptr;
+	}
 
 	// Create a return label for every function call.
 	std::map<int, Label> call_pc_to_return_label;
@@ -807,7 +813,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 				cur_function_id += 1;
 
 			int command = script->zasm[i].command;
-			if (command == RETURNFUNC || command == RETURN || command == GOTOR)
+			if (command == RETURNFUNC || command == RETURN)
 			{
 				return_to_function_id[i] = cur_function_id;
 			}
@@ -969,54 +975,29 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 			cc.jmp(state.L_End);
 		}
 		break;
+
 		case CALLFUNC:
+		{
 			//Normally pushes a return address to the 'ret_stack'
 			//...but we can ignore that when jitted
-		[[fallthrough]];
+
+			// https://github.com/asmjit/asmjit/issues/286
+			x86::Gp address = cc.newIntPtr();
+			cc.lea(address, x86::qword_ptr(call_pc_to_return_label.at(i)));
+			// TODO: check call stack size MAX_CALL_FRAMES
+			cc.mov(x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3), address);
+			cc.add(vCallStackRetIndex, 1);
+			cc.jmp(goto_labels.at(arg1));
+			cc.bind(call_pc_to_return_label.at(i));
+		}
+		break;
+
 		case GOTO:
 		{
-			if (structured_zasm.function_calls.contains(i))
-			{
-				// https://github.com/asmjit/asmjit/issues/286
-				x86::Gp address = cc.newIntPtr();
-				cc.lea(address, x86::qword_ptr(call_pc_to_return_label.at(i)));
-				cc.mov(x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3), address);
-				cc.add(vCallStackRetIndex, 1);
-				cc.jmp(goto_labels.at(arg1));
-				cc.bind(call_pc_to_return_label.at(i));
-			}
-			else
-			{
-				cc.jmp(goto_labels.at(arg1));
-			}
+			cc.jmp(goto_labels.at(arg1));
 		}
 		break;
 
-		// GOTOR is pretty much RETURN - was only used to return to the call location in scripts
-		// compiled before RETURN existed.
-		// Note: for GOTOR the return pc is in a register, but we just ignore it and instead use
-		// the function call return label.
-		case GOTOR:
-		case RETURN:
-		{
-			// Note: for RETURN the return pc is on the stack, but we just ignore it and instead use
-			// the function call return label.
-			if (command == RETURN)
-				modify_sp(cc, vStackIndex, 1);
-
-			cc.sub(vCallStackRetIndex, 1);
-			x86::Gp address = cc.newIntPtr();
-			cc.mov(address, x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3));
-
-			int function_index = return_to_function_id.at(i);
-			if (function_jump_annotations.size() <= function_index)
-			{
-				error(debug_handle, script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
-				return nullptr;
-			}
-			cc.jmp(address, function_jump_annotations[function_index]);
-		}
-		break;
 		case RETURNFUNC:
 		{
 			//Normally the return address is on the 'ret_stack'
@@ -1626,6 +1607,13 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 	CompiledFunction compiled_fn;
 	rt.add(&compiled_fn, &code);
 
+	uintptr_t base = code.baseAddress();
+	std::map<pc_t, uintptr_t> call_pc_to_return_address;
+	for (const auto& it : call_pc_to_return_label)
+	{
+		call_pc_to_return_address[it.first] = base + code.labelOffsetFromBase(it.second);
+	}
+
 	end_time = std::chrono::steady_clock::now();
 	int32_t compile_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
@@ -1683,16 +1671,57 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 
 	auto fn = new JittedFunctionHandle();
 	fn->compiled_fn = compiled_fn;
+	fn->call_pc_to_return_address = std::move(call_pc_to_return_address);
+	fn->wait_frame_pc_to_index = std::move(wait_frame_pc_to_index);
 	return fn;
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunctionHandle* fn)
+JittedScriptHandle* jit_create_script_handle_impl(script_data* script, refInfo* ri, JittedFunctionHandle* fn, bool just_initialized)
 {
-	JittedScriptHandle *jitted_script = new JittedScriptHandle;
-	jitted_script->call_stack_ret_index = 0;
+	JittedScriptHandle* jitted_script = new JittedScriptHandle{};
 	jitted_script->script = script;
 	jitted_script->ri = ri;
 	jitted_script->fn = fn;
+
+	if (!just_initialized)
+	{
+		if (auto r = util::find(fn->wait_frame_pc_to_index, ri->pc - 1))
+		{
+			jitted_script->wait_index = *r;
+		}
+		else
+		{
+			al_trace("[jit] bail on upgrade, ri->pc = %d\n", ri->pc);
+			delete jitted_script;
+			if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL) abort();
+			DCHECK(false);
+			return nullptr;
+		}
+
+		extern bounded_vec<word, int32_t>* ret_stack;
+		jitted_script->call_stack_ret_index = ri->retsp;
+		for (int i = 0; i < ri->retsp; i++)
+		{
+			pc_t pc = (*ret_stack)[i];
+			if (auto r = util::find(fn->call_pc_to_return_address, pc - 1))
+			{
+				jitted_script->call_stack_rets[i] = *r;
+			}
+			else
+			{
+				al_trace("[jit] bail on upgrade, bad call stack return pc = %d\n", pc);
+				delete jitted_script;
+				if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL) abort();
+				DCHECK(false);
+				return nullptr;
+			}
+		}
+
+		jit_printf("[jit] running script upgraded to jit (%s)\n", script->name().c_str());
+		(*ret_stack).clear();
+		ri->retsp = 0;
+	}
+
 	return jitted_script;
 }
 
@@ -1705,7 +1734,7 @@ int jit_run_script(JittedScriptHandle *jitted_script)
 		*stack, &jitted_script->ri->sp,
 		&jitted_script->ri->pc,
 		jitted_script->call_stack_rets, &jitted_script->call_stack_ret_index,
-		&jitted_script->ri->wait_index, jitted_script->script->pc);
+		&jitted_script->wait_index, jitted_script->script->pc);
 }
 
 void jit_release(JittedFunctionHandle* fn)

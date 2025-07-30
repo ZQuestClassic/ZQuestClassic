@@ -1389,7 +1389,6 @@ public:
 	
 	int32_t d[8]; //d registers
 	uint32_t sp = MAX_STACK_SIZE; //stack pointer for current script
-	dword wait_index; // nth WaitX instruction (0 being script entry) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
 	
 	uint32_t ffcref;

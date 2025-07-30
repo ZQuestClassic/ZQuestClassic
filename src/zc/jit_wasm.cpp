@@ -64,6 +64,7 @@ struct CompilationState
 	uint8_t l_idx_stack;
 	uint8_t l_idx_ret_stack;
 	uint8_t l_idx_ret_stack_index;
+	uint8_t l_idx_wait_index;
 	uint32_t l_idx_start_pc;
 
 	uint8_t g_idx_ri;
@@ -71,9 +72,12 @@ struct CompilationState
 	uint8_t g_idx_stack;
 	uint8_t g_idx_ret_stack;
 	uint8_t g_idx_ret_stack_index;
+	uint8_t g_idx_wait_index;
 	uint8_t g_idx_sp;
 	uint8_t g_idx_target_block_id;
 	uint32_t g_idx_start_pc;
+
+	std::map<pc_t, uint32_t> wait_frame_pc_to_block_id;
 };
 
 #ifdef __EMSCRIPTEN__
@@ -310,9 +314,7 @@ static bool command_is_compiled(int command)
 	case COMPAREV:
 	case COMPAREV2:
 	case GOTO:
-	case GOTOR:
 	case QUIT:
-	case RETURN:
 	case CALLFUNC:
 	case RETURNFUNC:
 
@@ -370,10 +372,10 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	WasmAssembler wasm;
 	state.wasm = &wasm;
 
-	uint8_t g_idx_ri = state.g_idx_ri;
 	uint8_t g_idx_stack = state.g_idx_stack;
 	uint8_t g_idx_ret_stack = state.g_idx_ret_stack;
 	uint8_t g_idx_ret_stack_index = state.g_idx_ret_stack_index;
+	uint8_t g_idx_wait_index = state.g_idx_wait_index;
 	uint8_t g_idx_sp = state.g_idx_sp;
 	uint8_t g_idx_target_block_id = state.g_idx_target_block_id;
 
@@ -684,11 +686,13 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 			{
 				ASSERT(may_yield);
 
-				// ri->wait_index = current_block_index + 1
+				state.wait_frame_pc_to_block_id[i] = current_block_index + 1;
+
+				// jitted_script->wait_index = current_block_index + 1
 				{
-					wasm.emitGlobalGet(g_idx_ri);
+					wasm.emitGlobalGet(g_idx_wait_index);
 					wasm.emitI32Const(current_block_index + 1);
-					wasm.emitI32Store(40);
+					wasm.emitI32Store();
 				}
 
 				// Wait commands normally yield back to the engine, however there are some
@@ -726,8 +730,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				case CALLFUNC:
 				case GOTO:
 				{
-					// A GOTO is either a function call or a branch within a function.
-					if (structured_zasm.function_calls.contains(i) || command == CALLFUNC)
+					if (command == CALLFUNC)
 					{
 						pc_t fn_id = structured_zasm.start_pc_to_function.at(arg1);
 						if (!may_yield || !structured_zasm.functions[fn_id].may_yield)
@@ -743,9 +746,11 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 							continue;
 						}
 
+						state.wait_frame_pc_to_block_id[i] = current_block_index + 1;
+
 						// The function call is to some other may-yield function which is inlined in the yielder function.
 						// Before we "call" it, we need to remember where to return to. To do that, we push the index of the
-						// subsequent block to a return call stack. GOTOR/RETURN will later pop that block index.
+						// subsequent block to a return call stack. RETURNFUNC will later pop that block index.
 
 						// g_idx_ret_stack[g_idx_ret_stack_index] = return_block
 						{
@@ -775,8 +780,6 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				break;
 
 				case RETURNFUNC:
-				case GOTOR:
-				case RETURN:
 				{
 					if (may_yield)
 					{
@@ -1274,6 +1277,12 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 	}
 
 	auto structured_zasm = zasm_construct_structured(script);
+	if (!structured_zasm.is_modern_function_calling())
+	{
+		al_trace("[jit] NOT compiling zasm chunk (unexpected function call mode): %s id: %d size: %zu\n", script->name.c_str(), script->id, script->size);
+		return nullptr;
+	}
+
 	WasmCompiler comp;
 	CompilationState state = {};
 
@@ -1293,7 +1302,8 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 	state.l_idx_stack = 2;
 	state.l_idx_ret_stack = 3;
 	state.l_idx_ret_stack_index = 4;
-	state.l_idx_start_pc = 5;
+	state.l_idx_wait_index = 5;
+	state.l_idx_start_pc = 6;
 	// params ended
 
 	state.g_idx_ri = comp.builder.addGlobal("ri");
@@ -1301,11 +1311,12 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 	state.g_idx_stack = comp.builder.addGlobal("stack");
 	state.g_idx_ret_stack = comp.builder.addGlobal("ret_stack");
 	state.g_idx_ret_stack_index = comp.builder.addGlobal("ret_stack_index");
+	state.g_idx_wait_index = comp.builder.addGlobal("wait_index");
 	state.g_idx_sp = comp.builder.addGlobal("sp");
 	state.g_idx_target_block_id = comp.builder.addGlobal("target_block_id");
 	state.g_idx_start_pc = comp.builder.addGlobal("start_pc");
 
-	pc_t fn_run_idx = comp.builder.declareFunction({WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, {});
+	pc_t fn_run_idx = comp.builder.declareFunction({WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, {});
 	comp.builder.exportFunction(fn_run_idx, "run");
 
 	auto yielding_fns = zasm_find_yielding_functions(script, structured_zasm);
@@ -1356,6 +1367,8 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		wasm.emitGlobalSet(state.g_idx_stack);
 		wasm.emitLocalGet(state.l_idx_ret_stack);
 		wasm.emitGlobalSet(state.g_idx_ret_stack);
+		wasm.emitLocalGet(state.l_idx_wait_index);
+		wasm.emitGlobalSet(state.g_idx_wait_index);
 		wasm.emitLocalGet(state.l_idx_start_pc);
 		wasm.emitGlobalSet(state.g_idx_start_pc);
 
@@ -1366,10 +1379,10 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 			wasm.emitGlobalSet(state.g_idx_sp);
 		}
 
-		// g_idx_target_block_id = ri->wait_index
+		// g_idx_target_block_id = jitted_script->wait_index
 		{
-			wasm.emitLocalGet(state.l_idx_ri);
-			wasm.emitI32Load(40);
+			wasm.emitLocalGet(state.l_idx_wait_index);
+			wasm.emitI32Load(0);
 			wasm.emitGlobalSet(state.g_idx_target_block_id);
 		}
 
@@ -1383,7 +1396,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		// Dispatch to the correct starting function.
 		if (script->name == "@single")
 		{
-			// Handle calling the entry function on the first call (when ri->wait_index is 0).
+			// Handle calling the entry function on the first call (when jitted_script->wait_index is 0).
 			wasm.emitGlobalGet(state.g_idx_target_block_id);
 			wasm.emitI32Eqz();
 			wasm.emitIf();
@@ -1428,6 +1441,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 			wasm.emitI32Store(4*9); // ri->sp
 		}
 
+		// jitted_script->call_stack_ret_index = g_idx_ret_stack_index
 		{
 			wasm.emitLocalGet(state.l_idx_ret_stack_index);
 			wasm.emitGlobalGet(state.g_idx_ret_stack_index);
@@ -1469,25 +1483,79 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		jit_printf("success\n");
 	}
 
-	return new JittedFunctionHandle(module_id);
+	auto fn = new JittedFunctionHandle(module_id);
+	fn->wait_frame_pc_to_block_id = std::move(state.wait_frame_pc_to_block_id);
+
+	return fn;
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunctionHandle* fn)
+JittedScriptHandle* jit_create_script_handle_impl(script_data* script, refInfo* ri, JittedFunctionHandle* fn, bool just_initialized)
 {
-	int module_id = *((int*)fn);
-	int handle_id = em_create_wasm_handle(module_id);
-	if (!handle_id)
+	// Since we currently can't compile WASM scripts on background threads, there's never a need to
+	// upgrade an existing script. Instead, when jit is enabled on the web, we precompile all
+	// scripts when the quest first loads.
+	if (!just_initialized)
 	{
-		jit_printf("jit: Error creating wasm handle. script: %s id: %d\n", script->zasm_script->name.c_str(), script->id);
+		// Should never actually happen.
+		CHECK(false);
 		return nullptr;
 	}
 
-	JittedScriptHandle* jitted_script = new JittedScriptHandle;
-	jitted_script->handle_id = handle_id;
+	JittedScriptHandle* jitted_script = new JittedScriptHandle{};
+
 	jitted_script->script = script;
 	jitted_script->ri = ri;
 	jitted_script->fn = fn;
-	jitted_script->call_stack_ret_index = 0;
+
+	// TODO: this probably works, but not tested (see above).
+	if (!just_initialized)
+	{
+		if (auto r = util::find(fn->wait_frame_pc_to_block_id, ri->pc - 1))
+		{
+			jitted_script->wait_index = *r;
+		}
+		else
+		{
+			al_trace("[jit] bail on upgrade, ri->pc = %d\n", ri->pc);
+			delete jitted_script;
+			if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL) abort();
+			DCHECK(false);
+			return nullptr;
+		}
+
+		extern bounded_vec<word, int32_t>* ret_stack;
+		jitted_script->call_stack_ret_index = ri->retsp;
+		for (int i = 0; i < ri->retsp; i++)
+		{
+			pc_t pc = (*ret_stack)[i];
+			if (auto r = util::find(fn->wait_frame_pc_to_block_id, pc - 1))
+			{
+				jitted_script->call_stack_rets[i] = *r;
+			}
+			else
+			{
+				al_trace("[jit] bail on upgrade, bad call stack return pc = %d\n", pc);
+				delete jitted_script;
+				if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL) abort();
+				DCHECK(false);
+				return nullptr;
+			}
+		}
+
+		jit_printf("[jit] running script upgraded to jit (%s)\n", script->name().c_str());
+		(*ret_stack).clear();
+		ri->retsp = 0;
+	}
+
+	int handle_id = em_create_wasm_handle(fn->module_id);
+	if (!handle_id)
+	{
+		al_trace("[jit] Error creating wasm handle. script: %s id: %d\n", script->zasm_script->name.c_str(), script->id);
+		return nullptr;
+	}
+
+	jitted_script->handle_id = handle_id;
+
 	return jitted_script;
 }
 
@@ -1495,16 +1563,16 @@ int jit_run_script(JittedScriptHandle* jitted_script)
 {
 	extern int32_t(*stack)[MAX_STACK_SIZE];
 
-	uintptr_t* ptr = (uintptr_t*)malloc(sizeof(uintptr_t) * 6);
+	uintptr_t ptr[7];
 	ptr[0] = (uintptr_t)&*jitted_script->ri;
 	ptr[1] = (uintptr_t)&game->global_d;
 	ptr[2] = (uintptr_t)&*stack;
 	ptr[3] = (uintptr_t)&jitted_script->call_stack_rets;
 	ptr[4] = (uintptr_t)&jitted_script->call_stack_ret_index;
-	ptr[5] = jitted_script->script->pc;
+	ptr[5] = (uintptr_t)&jitted_script->wait_index;
+	ptr[6] = jitted_script->script->pc;
 
-	int return_code = em_poll_wasm_handle(jitted_script->handle_id, (uintptr_t)ptr);
-	free(ptr);
+	int return_code = em_poll_wasm_handle(jitted_script->handle_id, (uintptr_t)&ptr);
 
 	return return_code;
 }

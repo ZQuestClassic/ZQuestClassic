@@ -27,6 +27,7 @@
 #include "base/zdefs.h"
 #include "parser/parserDefs.h"
 #include "zc/ffscript.h"
+#include "zc/jit.h"
 #include "zc/parallel.h"
 #include "zc/script_debug.h"
 #include "zc/zasm_utils.h"
@@ -47,9 +48,10 @@
 #include <mutex>
 #include <sstream>
 
-static bool verbose = false;
+static bool verbose;
+static bool minimal_mode;
 
-bool zasm_optimize_enabled()
+static bool zasm_optimize_enabled()
 {
 	static bool enabled = get_flag_bool("-optimize-zasm").value_or(false) ?
 		true :
@@ -2523,6 +2525,12 @@ static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair
 	auto start_time = std::chrono::steady_clock::now();
 
 	auto [name, fn] = pass;
+	if (minimal_mode && name != "calling_mode")
+	{
+		results.passes[i].skipped = true;
+		return;
+	}
+
 	ctx.saved = 0;
 	results.passes[i].skipped = !fn(ctx);
 
@@ -2644,16 +2652,36 @@ static OptimizeResults zasm_optimize(zasm_script* script)
 	return results;
 }
 
-OptimizeResults zasm_optimize()
+void zasm_optimize()
 {
+	minimal_mode = false;
+	if (!zasm_optimize_enabled())
+	{
+		if (!jit_is_enabled())
+			return;
+
+		// Old-style function calling (what optimize_calling_mode fixes) does not work well with
+		// jit-compiled scripts. The reason is that when a script is compiled while already running,
+		// in order to "upgrade" the script data from the interpreter to the compiled script, we
+		// need full knowledge of the function calling stack. Old scripts stored the return pc on
+		// the stack, and used GOTOR to return, while new scripts use the return call stack.
+		// Initializing the compiled script's context requires the return call stack, so we must at
+		// least run that optimization pass.
+		minimal_mode = true;
+	}
+
 	int log_level = get_flag_int("-zasm-optimize-log").value_or(1);
 
 	int size = 0;
 	auto start_time = std::chrono::steady_clock::now();
 	OptimizeResults results = create_opt_results();
-	
+
 	if (log_level >= 1)
+	{
 		fmt::println("Optimizing scripts...");
+		if (minimal_mode)
+			fmt::println("note: zasm optimizer disabled by user, but must run in minimal mode to support jit");
+	}
 
 	bool parallel = !get_flag_bool("-test-bisect").has_value();
 	zasm_for_every_script(parallel, [&](auto script){
@@ -2688,7 +2716,7 @@ OptimizeResults zasm_optimize()
 	{
 		if (log_level >= 1)
 			fmt::println("No scripts found.");
-		return results;
+		return;
 	}
 
 	auto end_time = std::chrono::steady_clock::now();
@@ -2710,8 +2738,6 @@ OptimizeResults zasm_optimize()
 		double pct = 100.0 * results.instructions_saved / size;
 		fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms\n", "total", results.instructions_saved, pct, results.elapsed / 1000);
 	}
-
-	return results;
 }
 
 static bool _TEST(std::string& name_var, std::string name)

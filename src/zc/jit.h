@@ -20,7 +20,7 @@ ZC_FORMAT_PRINTF(1, 2)
 void jit_printf(const char *format, ...);
 bool jit_is_enabled();
 void jit_set_enabled(bool enabled);
-JittedScriptHandle* jit_create_script_handle(script_data *script, refInfo* ri);
+JittedScriptHandle* jit_create_script_handle(script_data* script, refInfo* ri, bool just_initialized);
 void jit_startup();
 void jit_poll();
 void jit_shutdown();
@@ -29,7 +29,7 @@ void jit_shutdown();
 
 // Compile the entire ZASM script at once.
 JittedFunctionHandle* jit_compile_script(zasm_script* script);
-JittedScriptHandle* jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunctionHandle* fn);
+JittedScriptHandle* jit_create_script_handle_impl(script_data* script, refInfo* ri, JittedFunctionHandle* fn, bool just_initialized);
 int jit_run_script(JittedScriptHandle* jitted_script);
 void jit_release(JittedFunctionHandle* fn);
 

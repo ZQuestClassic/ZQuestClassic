@@ -70,11 +70,29 @@ static ALLEGRO_MUTEX* tasks_mutex;
 static ALLEGRO_COND* tasks_cond;
 static ALLEGRO_COND* task_finish_cond;
 
+static JittedFunctionHandle* find_function_handle(zasm_script *script)
+{
+	JittedFunctionHandle* fn;
+
+	// First check if script is already compiled.
+	al_lock_mutex(tasks_mutex);
+	auto it = compiled_functions.find(script->id);
+	if (it != compiled_functions.end())
+	{
+		fn = it->second;
+		al_unlock_mutex(tasks_mutex);
+		return fn;
+	}
+
+	al_unlock_mutex(tasks_mutex);
+	return nullptr;
+}
+
 // Returns a JittedFunction. If already compiled, returns the cached reference.
 // If a thread is currently compiling this script, waits for that thread to finish.
 // Otherwise compile the script on this thread.
 // If null is returned, the script failed to compile.
-static JittedFunctionHandle* compile_if_needed(zasm_script *script)
+static JittedFunctionHandle* compile_if_needed(zasm_script* script)
 {
 	JittedFunctionHandle* fn;
 
@@ -305,18 +323,21 @@ void jit_set_enabled(bool enabled)
 	is_enabled = enabled;
 }
 
-JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)
+JittedScriptHandle* jit_create_script_handle(script_data* script, refInfo* ri, bool just_initialized)
 {
-	if (!script)
-		return nullptr;
+	auto fn = find_function_handle(script->zasm_script.get());
+	if (fn)
+		return jit_create_script_handle_impl(script, ri, fn, just_initialized);
 
-	auto fn = compile_if_needed(script->zasm_script.get());
-	if (!fn)
-		return nullptr;
-
-	return jit_create_script_handle_impl(script, ri, fn);
+	// Not ready yet (or the script could not be compiled).
+	return nullptr;
 }
 
+// If precompile mode is on, when this function returns all scripts will have been compiled.
+// Otherwise, scripts will be compiled on background threads.
+// If the script engines starts a script before compilation is done, it will use the ZASM
+// interpreter (run_script_int) at first. When compilation finishes, the script data is upgraded to
+// use the jitted function.
 void jit_startup()
 {
 	if (!is_enabled)
@@ -329,9 +350,13 @@ void jit_startup()
 	auto processor_count = std::thread::hardware_concurrency();
 	if (num_threads < 0)
 		num_threads = std::max(1, (int)processor_count / -num_threads);
-	// Currently can only compile WASM on main browser thread.
-	if (is_web())
+
+	// Currently can only compile WASM on main browser thread, so always precompile scripts.
+	if (is_web() || num_threads == 0)
+	{
 		num_threads = 0;
+		precompile = true;
+	}
 
 	for (int i = 0; i < thread_infos.size(); i++)
 	{

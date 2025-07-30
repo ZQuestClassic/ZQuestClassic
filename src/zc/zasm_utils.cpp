@@ -12,6 +12,13 @@
 #include <vector>
 #include <sstream>
 
+bool StructuredZasm::is_modern_function_calling()
+{
+	// UNKNOWN is included b/c scripts like "global init" don't have any function calls, so might as
+	// well consider it "modern".
+	return calling_mode == CALLING_MODE_CALLFUNC_RETURNFUNC || calling_mode == CALLING_MODE_UNKNOWN;
+}
+
 StructuredZasm zasm_construct_structured(const zasm_script* script)
 {
 	// Find all function calls.

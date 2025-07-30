@@ -5,15 +5,16 @@
 #define UTIL_H_
 
 #include "base/zdefs.h"
+#include <algorithm>
 #include <cstdint>
+#include <filesystem>
+#include <functional>
+#include <optional>
 #include <sstream>
 #include <string>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <filesystem>
+#include <sys/types.h>
 #include <vector>
-#include <functional>
-#include <algorithm>
 
 #ifndef _WIN32
 #include <stdlib.h>
@@ -41,6 +42,16 @@ namespace util
 
 		vec.erase(it, vec.end());
 		return true;
+	}
+
+	template<class K, class V>
+	std::optional<V> find(const std::map<K, V>& map, const K& key)
+	{
+		auto it = map.find(key);
+		if (it != map.end())
+			return it->second;
+		else
+			return std::nullopt;
 	}
 
 	template<typename TInputIter>

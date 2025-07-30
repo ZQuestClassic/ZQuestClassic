@@ -3,7 +3,6 @@
 
 #include "base/zdefs.h"
 
-#include <map>
 #include <string>
 
 struct OptimizationPass
@@ -23,8 +22,7 @@ struct OptimizeResults
 	std::vector<OptimizationPass> passes;
 };
 
-bool zasm_optimize_enabled();
-OptimizeResults zasm_optimize();
+void zasm_optimize();
 bool zasm_optimize_test();
 void zasm_optimize_run_for_file(std::string path);
 
