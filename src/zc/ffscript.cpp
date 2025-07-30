@@ -1532,7 +1532,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				// Before overwriting them with 0, get rid of object references held by global variables.
 				if (get_qr(qr_OLD_INIT_SCRIPT_TIMING) && ZScriptVersion::gc() && script == GLOBAL_SCRIPT_INIT)
 				{
-					for (int i = 0; i < MAX_SCRIPT_REGISTERS; i++)
+					for (int i = 0; i < MAX_STACK_SIZE; i++)
 						script_object_ref_dec(game->global_d[i]);
 				}
 			}
@@ -18361,7 +18361,7 @@ void do_store(const bool v)
 
 void script_store_object(uint32_t offset, uint32_t new_id)
 {
-	DCHECK(offset < MAX_SCRIPT_REGISTERS);
+	DCHECK(offset < MAX_STACK_SIZE);
 
 	// Increase, then decrease, to handle the case where a variable (holding the only reference to an object) is assigned to itself.
 	// This is unlikely so lets not bother with a conditional that skips both ref modifications when the ids are equal.
@@ -18387,7 +18387,7 @@ void do_store_object(const bool v)
 
 void script_remove_object_ref(int32_t offset)
 {
-	if (offset < 0 || offset >= MAX_SCRIPT_REGISTERS)
+	if (offset < 0 || offset >= MAX_STACK_SIZE)
 	{
 		assert(false);
 		return;
@@ -28644,7 +28644,7 @@ int32_t run_script_int(bool is_jitted)
 			case MARK_TYPE_STACK:
 			{
 				int offset = ri->d[rSFRAME] + sarg2;
-				if (offset < 0 || offset >= MAX_SCRIPT_REGISTERS)
+				if (offset < 0 || offset >= MAX_STACK_SIZE)
 				{
 					assert(false);
 					break;

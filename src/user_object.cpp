@@ -145,7 +145,7 @@ void scr_func_exec::clear()
 
 void scr_func_exec::execute()
 {
-	static int32_t static_stack[MAX_SCRIPT_REGISTERS];
+	static int32_t static_stack[MAX_STACK_SIZE];
 	static bounded_vec<word, int32_t> static_ret_stack;
 	script_data* sc_data = load_scrdata(type,script,i);
 	if(!pc || !sc_data || !sc_data->valid())
@@ -168,7 +168,7 @@ void scr_func_exec::execute()
 		curScriptType = type;
 		curScriptNum = script;
 		curScriptIndex = i;
-		memset(static_stack, 0, sizeof(int32_t)*MAX_SCRIPT_REGISTERS);
+		memset(static_stack, 0, sizeof(int32_t)*MAX_STACK_SIZE);
 		static_ret_stack.clear();
 		// Run  the destructor script
 		std::string* oldstr = destructstr;

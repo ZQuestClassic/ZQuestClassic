@@ -255,7 +255,7 @@ int script_debug_is_runtime_debugging()
 
 std::string script_debug_registers_and_stack_to_string()
 {
-	extern int32_t (*stack)[MAX_SCRIPT_REGISTERS];
+	extern int32_t (*stack)[MAX_STACK_SIZE];
 
 	std::stringstream ss;
 
@@ -269,7 +269,7 @@ std::string script_debug_registers_and_stack_to_string()
 	ss << "stack:\t";
 	if (ri->sp > 0)
 	{
-		for (int i = 1023; i >= ri->sp; i--)
+		for (int i = MAX_STACK_SIZE-1; i >= ri->sp; i--)
 		{
 			ss << (*stack)[i] << " ";
 		}

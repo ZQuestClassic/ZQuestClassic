@@ -91,9 +91,8 @@ int wrap(int x,int low,int high);
 //Script-related
 #define INITIAL_D                  8
 #define FFSCRIPT_MISC              32
-#define BITS_SP                    10
-#define MAX_STACK_SIZE             1024
-#define MAX_SCRIPT_REGISTERS       (1<<BITS_SP)
+#define MAX_STACK_SIZE             5120
+#define MAX_SCRIPT_REGISTERS       1024
 #define MAX_SCRIPT_REGISTERS_250   256
 #define MAX_PC                     dword(-1)
 
