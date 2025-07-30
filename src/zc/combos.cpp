@@ -3218,6 +3218,21 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 					Hero.setZfix(trig.dest_player_z);
 				else if(trig.dest_player_z)
 					Hero.setZfix(Hero.getZ() + trig.dest_player_z);
+				
+				if (trig.dest_player_dir > -1)
+					Hero.setDir(trig.dest_player_dir);
+				
+				if (trig.force_ice_combo > -1)
+					Hero.script_ice_combo = trig.force_ice_combo;
+				if (trig.triggerflags[4] & (combotriggerFORCE_ICE_VX|combotriggerFORCE_ICE_VY))
+				{
+					optional<zfix> vx, vy;
+					if (trig.triggerflags[4] & combotriggerFORCE_ICE_VX)
+						vx = trig.force_ice_vx;
+					if (trig.triggerflags[4] & combotriggerFORCE_ICE_VY)
+						vy = trig.force_ice_vy;
+					Hero.force_ice_velocity(vx, vy);
+				}
 			}
 		}
 		if (w && used_bit)
@@ -3472,6 +3487,21 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 					Hero.setZfix(trig.dest_player_z);
 				else if(trig.dest_player_z)
 					Hero.setZfix(Hero.getZ() + trig.dest_player_z);
+				
+				if (trig.dest_player_dir > -1)
+					Hero.setDir(trig.dest_player_dir);
+				
+				if (trig.force_ice_combo > -1)
+					Hero.script_ice_combo = trig.force_ice_combo;
+				if (trig.triggerflags[4] & (combotriggerFORCE_ICE_VX|combotriggerFORCE_ICE_VY))
+				{
+					optional<zfix> vx, vy;
+					if (trig.triggerflags[4] & combotriggerFORCE_ICE_VX)
+						vx = trig.force_ice_vx;
+					if (trig.triggerflags[4] & combotriggerFORCE_ICE_VY)
+						vy = trig.force_ice_vy;
+					Hero.force_ice_velocity(vx, vy);
+				}
 			}
 		}
 		if (w && used_bit)

@@ -112,6 +112,10 @@ struct combo_trigger
 	zfix req_player_x, req_player_y, req_player_z, req_player_jump;
 	zfix dest_player_x, dest_player_y, dest_player_z, player_bounce;
 	byte req_player_dir;
+	int8_t dest_player_dir = -1;
+	
+	int32_t force_ice_combo = -1;
+	zfix force_ice_vx, force_ice_vy;
 	
 	bool is_blank() const;
 	void clear();
@@ -352,6 +356,8 @@ struct newcombo
 #define combotriggerREQ_Y_GE                 0x00400000
 #define combotriggerREQ_Y_LE                 0x00800000
 #define combotriggerREQ_Y_REL                0x01000000
+#define combotriggerFORCE_ICE_VX             0x02000000
+#define combotriggerFORCE_ICE_VY             0x04000000
 //triggerflags[5]
 // #define combotrigger                    0x00000001
 // #define combotrigger                    0x00000002

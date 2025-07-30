@@ -8540,6 +8540,34 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGGERFORCEPLAYERDIR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->dest_player_dir * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERICECOMBO:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->force_ice_combo * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERICEVX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->force_ice_vx;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGERICEVY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->force_ice_vy;
+			else ret = -10000;
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		//npcdata nd-> variables
 			
@@ -16012,49 +16040,73 @@ void set_register(int32_t arg, int32_t value)
 		case CMBTRIGGERPLAYERBOUNCE:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
-				trig->player_bounce = value;
+				trig->player_bounce = zslongToFix(value);
 			break;
 		}
 		case CMBTRIGGERREQPLAYERZ:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
-				trig->req_player_z = value;
+				trig->req_player_z = zslongToFix(value);
 			break;
 		}
 		case CMBTRIGGERDESTHEROX:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
-				trig->dest_player_x = value;
+				trig->dest_player_x = zslongToFix(value);
 			break;
 		}
 		case CMBTRIGGERDESTHEROY:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
-				trig->dest_player_y = value;
+				trig->dest_player_y = zslongToFix(value);
 			break;
 		}
 		case CMBTRIGGERDESTHEROZ:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
-				trig->dest_player_z = value;
+				trig->dest_player_z = zslongToFix(value);
 			break;
 		}
 		case CMBTRIGGERREQPLAYERJUMP:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
-				trig->req_player_jump = value;
+				trig->req_player_jump = zslongToFix(value);
 			break;
 		}
 		case CMBTRIGGERREQPLAYERX:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
-				trig->req_player_x = value;
+				trig->req_player_x = zslongToFix(value);
 			break;
 		}
 		case CMBTRIGGERREQPLAYERY:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
-				trig->req_player_y = value;
+				trig->req_player_y = zslongToFix(value);
+			break;
+		}
+		case CMBTRIGGERFORCEPLAYERDIR:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->dest_player_dir = vbound(value/10000, 3, -1);
+			break;
+		}
+		case CMBTRIGGERICECOMBO:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->force_ice_combo = vbound(value/10000, MAXCOMBOS-1, -1);
+			break;
+		}
+		case CMBTRIGGERICEVX:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->force_ice_vx = zslongToFix(value);
+			break;
+		}
+		case CMBTRIGGERICEVY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->force_ice_vy = zslongToFix(value);
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//

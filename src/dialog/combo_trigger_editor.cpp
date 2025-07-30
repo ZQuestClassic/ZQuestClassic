@@ -31,8 +31,16 @@ bool call_trigger_editor(ComboEditorDialog& parentdlg, size_t index)
 
 ComboTriggerDialog::ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigger& trigger, size_t index):
 	local_ref(parentdlg.local_comboref.triggers[index]), parent(parentdlg),
-	parent_comboref(parentdlg.local_comboref), index(index)
-{}
+	parent_comboref(parentdlg.local_comboref), index(index), _ice_cs(0)
+{
+	load_trigger();
+}
+
+void ComboTriggerDialog::load_trigger()
+{
+	force_ice_combo = local_ref.force_ice_combo > -1;
+	ice_combo = force_ice_combo ? local_ref.force_ice_combo : 0;
+}
 
 //{ Macros
 
@@ -149,8 +157,11 @@ static bool has_trigger_effect(combo_trigger const& trig)
 		combotriggerIGNITE_MAGICFIRE|combotriggerIGNITE_DIVINEFIRE|combotriggerTOGGLEDARK|combotriggerLITEM_SET|
 		combotriggerLITEM_UNSET|combotriggerTINT_CLEAR)) return true;
 	if(trig.triggerflags[4] & (combotriggerSETPLAYER_X_ABS|combotriggerSETPLAYER_X_REL_CMB|combotriggerSETPLAYER_Y_ABS|
-		combotriggerSETPLAYER_Y_REL_CMB|combotriggerSETPLAYER_Z_ABS)) return true;
+		combotriggerSETPLAYER_Y_REL_CMB|combotriggerSETPLAYER_Z_ABS|
+		combotriggerFORCE_ICE_VX|combotriggerFORCE_ICE_VY)) return true;
 	if(trig.dest_player_x || trig.dest_player_y || trig.dest_player_z) return true;
+	if(trig.force_ice_combo > -1) return true;
+	if(trig.dest_player_dir > -1) return true;
 	if(trig.trigsfx) return true;
 	if(trig.trigchange) return true;
 	if(trig.trigcschange) return true;
@@ -580,253 +591,321 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "Effects", Column(padding = 0_px,
-					Frame(title = "Move Player",
-						Row(
-							Rows<3>(padding = 0_px,
-								Label(text = "Dest X:", fitParent = true),
-								TextField(
-									fitParent = true, vPadding = 0_px,
-									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-									places = 4,
-									val = local_ref.dest_player_x.getZLong(),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.dest_player_x = zslongToFix(val);
-									}),
-								IBTN("Move the Player's X by this much"),
-								Label(text = "Dest Y:", fitParent = true),
-								TextField(
-									fitParent = true, vPadding = 0_px,
-									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-									places = 4,
-									val = local_ref.dest_player_y.getZLong(),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.dest_player_y = zslongToFix(val);
-									}),
-								IBTN("Move the Player's Y by this much"),
-								Label(text = "Dest Z:", fitParent = true),
-								TextField(
-									fitParent = true, vPadding = 0_px,
-									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-									places = 4,
-									val = local_ref.dest_player_z.getZLong(),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.dest_player_z = zslongToFix(val);
-									}),
-								IBTN("Move the Player's Z by this much")
+				TabRef(name = "Effects", TabPanel(
+					ptr = &trig_tabs[2],
+					TabRef(name = "Misc",
+						Row(padding = 0_px,
+							Column(vAlign = 0.0,
+								Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, hAlign = 1.0,
+									Label(text = "Combo Change:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -65535, high = 65535, val = local_ref.trigchange,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.trigchange = val;
+										}),
+									IBTN_T("Combo Change","If the value is not 0, the combo will"
+										" change by that much when triggered."
+										"\nEx. '1' causes '->Next', '-1' causes '->Prev'."),
+									Label(text = "CSet Change:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -15, high = 15, val = local_ref.trigcschange,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.trigcschange = val;
+										}),
+									IBTN_T("CSet Change","If the value is not 0, the cset will"
+										" change by that much when triggered."
+										"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.")
+								),
+								Rows_Columns<2,4>(framed = true, hAlign = 1.0,
+									IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
+										" unless 'Temporary Secrets' screen data flag is checked."),
+									TRIGFLAG(48,"Triggers Secrets"),
+									IBTN("Triggering the combo toggles the screen's \"darkness\". This resets upon leaving the screen."),
+									TRIGFLAG(118,"Toggle Darkness"),
+									IBTN("After triggering, the combo animation is reset. If the combo has changed"
+										" (by any trigger effect), the new combo is the one that resets."),
+									TRIGFLAG(18,"Reset Anim"),
+									IBTN("Triggering the combo will cause its inherent type-based effects to occur."
+										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
+										" Not available for all combo types; will be greyed out when unavailable."),
+									cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
+									//
+									IBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
+									TRIGFLAG(100, "Kill Enemies"),
+									IBTN("Delete all enemies on screen."),
+									TRIGFLAG(101, "Clear Enemies"),
+									IBTN("Delete all LWeapons on screen."),
+									TRIGFLAG(102, "Clear LWeapons"),
+									IBTN("Delete all EWeapons on screen."),
+									TRIGFLAG(103, "Clear EWeapons")
+								)
 							),
-							Rows<4>(padding = 0_px,
-								IBTN("Set the Player's 'X' to the 'Dest X' value exactly."
-									" No collision checks are performed; the player simply teleports."),
-								TRIGFLAG(139, "Set X (Abs)"),
-								IBTN("Set the Player's 'X' to the 'Dest X' value relative to this combo."
-									" For FFCs, relative to the center of the hitbox."
-									" No collision checks are performed; the player simply teleports."),
-								TRIGFLAG(140, "Set X (Rel)"),
-								IBTN("Set the Player's 'Y' to the 'Dest Y' value exactly."),
-								TRIGFLAG(141, "Set Y (Abs)"),
-								IBTN("Set the Player's 'Y' to the 'Dest Y' value relative to this combo."
-									" For FFCs, relative to the center of the hitbox."
-									" No collision checks are performed; the player simply teleports."),
-								TRIGFLAG(142, "Set Y (Rel)"),
-								IBTN("Set the Player's 'Z' to the 'Dest Z' value exactly."),
-								TRIGFLAG(143, "Set Z (Abs)")
+							Column(vAlign = 0.0,
+								Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5,
+									hAlign = 0.0,
+									Label(text = "SFX:", hAlign = 1.0),
+									DropDownList(data = parent.list_sfx,
+										vPadding = 0_px, maxwidth = 250_px,
+										fitParent = true, selectedValue = local_ref.trigsfx,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.trigsfx = val;
+										}),
+									IBTN_T("Trigger SFX", "If the value is >0, the combo will"
+										" play the specified SFX when triggered."),
+									Label(text = "RunFrozen:", hAlign = 1.0),
+									DropDownList(data = parent.list_genscr,
+										vPadding = 0_px, maxwidth = 250_px,
+										fitParent = true, selectedValue = local_ref.trig_genscr,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.trig_genscr = val;
+										}),
+									IBTN_T("Run Frozen Generic Script", "The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)"),
+									//
+									Label(text = "Trigger String:", hAlign = 1.0),
+									DropDownList(data = parent.list_strings,
+										vPadding = 0_px, forceFitW = true,
+										fitParent = true, selectedValue = local_ref.trig_msgstr/10000,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.trig_msgstr = val*10000;
+										}),
+									IBTN_T("Trigger String", "The string to play when triggered. Negative values are special, reading the string number from somewhere else."),
+									Label(text = "Fail String:", hAlign = 1.0),
+									DropDownList(data = parent.list_strings,
+										vPadding = 0_px, forceFitW = true,
+										fitParent = true, selectedValue = local_ref.fail_msgstr/10000,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.fail_msgstr = val*10000;
+										}),
+									IBTN_T("Fail Trigger String", "The string to play when triggered, but the combo trigger's conditions fail. Negative values are special, reading the string number from somewhere else.")
+								)
 							)
 						)
 					),
-					Row(padding = 0_px,
-						Column(vAlign = 0.0,
-							Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, hAlign = 1.0,
-								Label(text = "Combo Change:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -65535, high = 65535, val = local_ref.trigchange,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.trigchange = val;
-									}),
-								IBTN_T("Combo Change","If the value is not 0, the combo will"
-									" change by that much when triggered."
-									"\nEx. '1' causes '->Next', '-1' causes '->Prev'."),
-								Label(text = "CSet Change:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -15, high = 15, val = local_ref.trigcschange,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.trigcschange = val;
-									}),
-								IBTN_T("CSet Change","If the value is not 0, the cset will"
-									" change by that much when triggered."
-									"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'."),
-								Label(text = "Player Bounce:", fitParent = true),
-								TextField(
-									fitParent = true, vPadding = 0_px,
-									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-									places = 4,
-									val = local_ref.player_bounce.getZLong(),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.player_bounce = zslongToFix(val);
-									}),
-								IBTN_T("Player Bounce","If the value is not 0, the player will"
-									" 'Jump' with that force. Negative values make the player 'fall'.")
-								
+					TabRef(name = "Player",
+						Column(padding = 0_px,
+							Frame(title = "Move Player",
+								Column(
+									Row(
+										Rows<3>(padding = 0_px, vAlign = 0.0,	
+											Label(text = "Dest X:", fitParent = true),
+											TextField(
+												fitParent = true, vPadding = 0_px,
+												maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+												places = 4,
+												val = local_ref.dest_player_x.getZLong(),
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.dest_player_x = zslongToFix(val);
+												}),
+											IBTN("Move the Player's X by this much"),
+											Label(text = "Dest Y:", fitParent = true),
+											TextField(
+												fitParent = true, vPadding = 0_px,
+												maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+												places = 4,
+												val = local_ref.dest_player_y.getZLong(),
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.dest_player_y = zslongToFix(val);
+												}),
+											IBTN("Move the Player's Y by this much"),
+											Label(text = "Dest Z:", fitParent = true),
+											TextField(
+												fitParent = true, vPadding = 0_px,
+												maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+												places = 4,
+												val = local_ref.dest_player_z.getZLong(),
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.dest_player_z = zslongToFix(val);
+												}),
+											IBTN("Move the Player's Z by this much"),
+											Label(text = "Player Bounce:", fitParent = true),
+											TextField(
+												fitParent = true, vPadding = 0_px,
+												maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+												places = 4,
+												val = local_ref.player_bounce.getZLong(),
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.player_bounce = zslongToFix(val);
+												}),
+											IBTN_T("Player Bounce","If the value is not 0, the player will"
+												" 'Jump' with that force. Negative values make the player 'fall'.")
+										),
+										Rows<4>(padding = 0_px, vAlign = 0.0,
+											IBTN("Set the Player's 'X' to the 'Dest X' value exactly."
+												" No collision checks are performed; the player simply teleports."),
+											TRIGFLAG(139, "Set X (Abs)"),
+											IBTN("Set the Player's 'X' to the 'Dest X' value relative to this combo."
+												" For FFCs, relative to the center of the hitbox."
+												" No collision checks are performed; the player simply teleports."),
+											TRIGFLAG(140, "Set X (Rel)"),
+											IBTN("Set the Player's 'Y' to the 'Dest Y' value exactly."),
+											TRIGFLAG(141, "Set Y (Abs)"),
+											IBTN("Set the Player's 'Y' to the 'Dest Y' value relative to this combo."
+												" For FFCs, relative to the center of the hitbox."
+												" No collision checks are performed; the player simply teleports."),
+											TRIGFLAG(142, "Set Y (Rel)"),
+											IBTN("Set the Player's 'Z' to the 'Dest Z' value exactly."),
+											TRIGFLAG(143, "Set Z (Abs)")
+										)
+									),
+									Rows<3>(hAlign = 0.0,
+										Label(text = "Player Dir:", fitParent = true),
+										DropDownList(data = parent.list_dirs4n, fitParent = true,
+											selectedValue = local_ref.dest_player_dir,
+											onSelectFunc = [&](int32_t val)
+											{
+												local_ref.dest_player_dir = val;
+											}),
+										IBTN("Forcibly turn the player this direction.")
+									)
+								)
 							),
-							Rows_Columns<2,4>(framed = true, hAlign = 1.0,
-								IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
-									" unless 'Temporary Secrets' screen data flag is checked."),
-								TRIGFLAG(48,"Triggers Secrets"),
-								IBTN("Triggering the combo toggles the screen's \"darkness\". This resets upon leaving the screen."),
-								TRIGFLAG(118,"Toggle Darkness"),
-								IBTN("After triggering, the combo animation is reset. If the combo has changed"
-									" (by any trigger effect), the new combo is the one that resets."),
-								TRIGFLAG(18,"Reset Anim"),
-								IBTN("Triggering the combo will cause its inherent type-based effects to occur."
-									" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
-									" Not available for all combo types; will be greyed out when unavailable."),
-								cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
-								//
-								IBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
-								TRIGFLAG(100, "Kill Enemies"),
-								IBTN("Delete all enemies on screen."),
-								TRIGFLAG(101, "Clear Enemies"),
-								IBTN("Delete all LWeapons on screen."),
-								TRIGFLAG(102, "Clear LWeapons"),
-								IBTN("Delete all EWeapons on screen."),
-								TRIGFLAG(103, "Clear EWeapons")
-							)
-						),
-						Column(vAlign = 0.0,
-							Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5,
-								hAlign = 0.0,
-								Label(text = "SFX:", hAlign = 1.0),
-								DropDownList(data = parent.list_sfx,
-									vPadding = 0_px, maxwidth = 250_px,
-									fitParent = true, selectedValue = local_ref.trigsfx,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.trigsfx = val;
-									}),
-								IBTN_T("Trigger SFX", "If the value is >0, the combo will"
-									" play the specified SFX when triggered."),
-								Label(text = "RunFrozen:", hAlign = 1.0),
-								DropDownList(data = parent.list_genscr,
-									vPadding = 0_px, maxwidth = 250_px,
-									fitParent = true, selectedValue = local_ref.trig_genscr,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.trig_genscr = val;
-									}),
-								IBTN_T("Run Frozen Generic Script", "The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)"),
-								//
-								Label(text = "Trigger String:", hAlign = 1.0),
-								DropDownList(data = parent.list_strings,
-									vPadding = 0_px, forceFitW = true,
-									fitParent = true, selectedValue = local_ref.trig_msgstr/10000,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.trig_msgstr = val*10000;
-									}),
-								IBTN_T("Trigger String", "The string to play when triggered. Negative values are special, reading the string number from somewhere else."),
-								Label(text = "Fail String:", hAlign = 1.0),
-								DropDownList(data = parent.list_strings,
-									vPadding = 0_px, forceFitW = true,
-									fitParent = true, selectedValue = local_ref.fail_msgstr/10000,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.fail_msgstr = val*10000;
-									}),
-								IBTN_T("Fail Trigger String", "The string to play when triggered, but the combo trigger's conditions fail. Negative values are special, reading the string number from somewhere else.")
-							),
-							Frame(title = "Status Effects", hAlign = 0.0,
-								Rows_Columns<3, 3>(padding = 0_px,
-									Label(text = "Sword Jinx:", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_swjinxtime,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_ref.trig_swjinxtime = val;
-										}),
-									IBTN("Sets the duration of the 'Sword Jinx' status effect."
-										"\n'-2' indicates not to do anything."
-										"\n'-1' inflicts the status indefinitely, until cured."
-										"\n'0' cures the status."
-										"\nAny value above 0 inflicts the status for that many frames."),
-									//
-									Label(text = "Item Jinx:", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_itmjinxtime,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_ref.trig_itmjinxtime = val;
-										}),
-									IBTN("Sets the duration of the 'Item Jinx' status effect."
-										"\n'-2' indicates not to do anything."
-										"\n'-1' inflicts the status indefinitely, until cured."
-										"\n'0' cures the status."
-										"\nAny value above 0 inflicts the status for that many frames."),
-									//
-									Label(text = "Shield Jinx:", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_shieldjinxtime,
-										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-										{
-											local_ref.trig_shieldjinxtime = val;
-										}),
-									IBTN("Sets the duration of the 'Shield Jinx' status effect."
-										"\n'-2' indicates not to do anything."
-										"\n'-1' inflicts the status indefinitely, until cured."
-										"\n'0' cures the status."
-										"\nAny value above 0 inflicts the status for that many frames."),
-									//
-									Label(text = "Stun:", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_stuntime,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_ref.trig_stuntime = val;
-										}),
-									IBTN("Sets the duration of the 'Stun' status effect."
-										"\n'-2' indicates not to do anything."
-										"\n'-1' inflicts the status indefinitely, until cured."
-										"\n'0' cures the status."
-										"\nAny value above 0 inflicts the status for that many frames."),
-									//
-									Label(text = "Bunny:", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_bunnytime,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_ref.trig_bunnytime = val;
-										}),
-									IBTN("Sets the duration of the 'Bunny' status effect."
-										"\n'-2' indicates not to do anything."
-										"\n'-1' inflicts the status indefinitely, until cured."
-										"\n'0' cures the status."
-										"\nAny value above 0 inflicts the status for that many frames.")
+							Row(
+								Frame(title = "Status Effects", vAlign = 0.0,
+									Rows<3>(padding = 0_px,
+										Label(text = "Sword Jinx:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_swjinxtime,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.trig_swjinxtime = val;
+											}),
+										IBTN("Sets the duration of the 'Sword Jinx' status effect."
+											"\n'-2' indicates not to do anything."
+											"\n'-1' inflicts the status indefinitely, until cured."
+											"\n'0' cures the status."
+											"\nAny value above 0 inflicts the status for that many frames."),
+										//
+										Label(text = "Item Jinx:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_itmjinxtime,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.trig_itmjinxtime = val;
+											}),
+										IBTN("Sets the duration of the 'Item Jinx' status effect."
+											"\n'-2' indicates not to do anything."
+											"\n'-1' inflicts the status indefinitely, until cured."
+											"\n'0' cures the status."
+											"\nAny value above 0 inflicts the status for that many frames."),
+										//
+										Label(text = "Shield Jinx:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_shieldjinxtime,
+											onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+											{
+												local_ref.trig_shieldjinxtime = val;
+											}),
+										IBTN("Sets the duration of the 'Shield Jinx' status effect."
+											"\n'-2' indicates not to do anything."
+											"\n'-1' inflicts the status indefinitely, until cured."
+											"\n'0' cures the status."
+											"\nAny value above 0 inflicts the status for that many frames."),
+										//
+										Label(text = "Stun:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_stuntime,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.trig_stuntime = val;
+											}),
+										IBTN("Sets the duration of the 'Stun' status effect."
+											"\n'-2' indicates not to do anything."
+											"\n'-1' inflicts the status indefinitely, until cured."
+											"\n'0' cures the status."
+											"\nAny value above 0 inflicts the status for that many frames."),
+										//
+										Label(text = "Bunny:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_bunnytime,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.trig_bunnytime = val;
+											}),
+										IBTN("Sets the duration of the 'Bunny' status effect."
+											"\n'-2' indicates not to do anything."
+											"\n'-1' inflicts the status indefinitely, until cured."
+											"\n'0' cures the status."
+											"\nAny value above 0 inflicts the status for that many frames.")
+									)
+								),
+								Frame(title = "Ice Physics",
+									Column(
+										Row(
+											IBTN("Changes which 'Icy Floor' combo has it's physics being forcibly applied to the player."
+												" Combo 0 indicates \"don't force any ice physics\"."),
+											Checkbox(
+												text = "Force Ice Physics",
+												checked = force_ice_combo,
+												onToggleFunc = [&](bool state)
+												{
+													force_ice_combo = state;
+												})
+										),
+										SelComboSwatch(
+											showvals = true,
+											combo = ice_combo, cset = _ice_cs,
+											onSelectFunc = [&](int32_t cmb, int32_t c)
+											{
+												ice_combo = cmb;
+												_ice_cs = c;
+											}
+										),
+										Rows<3>(
+											TRIGFLAG(153, "Force Vx:"),
+											TextField(
+												fitParent = true, vPadding = 0_px,
+												maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+												places = 4,
+												val = local_ref.force_ice_vx.getZLong(),
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.force_ice_vx = zslongToFix(val);
+												}),
+											IBTN("Set the player's Ice Physics X velocity to this value"),
+											TRIGFLAG(154, "Force Vy:"),
+											TextField(
+												fitParent = true, vPadding = 0_px,
+												maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+												places = 4,
+												val = local_ref.force_ice_vy.getZLong(),
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.force_ice_vy = zslongToFix(val);
+												}),
+											IBTN("Set the player's Ice Physics Y velocity to this value")
+										)
+									)
 								)
 							)
 						)
@@ -1657,6 +1736,7 @@ bool ComboTriggerDialog::apply_trigger()
 			return false;
 	}
 	
+	local_ref.force_ice_combo = force_ice_combo ? ice_combo : -1;
 	if(!hasCTypeEffects(parent_comboref.type))
 		local_ref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
 	edited = true;
@@ -1681,6 +1761,7 @@ bool ComboTriggerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				local_ref.clear();
 				rerun_dlg = true;
+				load_trigger();
 				return true;
 			}
 			return false;
@@ -1706,6 +1787,7 @@ bool ComboTriggerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			index += 1;
 			local_ref = parent_comboref.triggers[index];
 			rerun_dlg = true;
+			load_trigger();
 			return true;
 		}
 		case message::MINUSTRIGGER:
@@ -1717,6 +1799,7 @@ bool ComboTriggerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			index -= 1;
 			local_ref = parent_comboref.triggers[index];
 			rerun_dlg = true;
+			load_trigger();
 			return true;
 		}
 	}

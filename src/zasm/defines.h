@@ -3263,7 +3263,12 @@ enum ASM_DEFINE
 #define COMBOD_Z_HEIGHT      0x1651
 #define COMBOD_Z_STEP_HEIGHT 0x1652
 
-#define NUMVARIABLES         0x1653
+#define CMBTRIGGERFORCEPLAYERDIR   0x1653
+#define CMBTRIGGERICECOMBO         0x1654
+#define CMBTRIGGERICEVX            0x1655
+#define CMBTRIGGERICEVY            0x1656
+
+#define NUMVARIABLES         0x1657
 
 //} End variables
 

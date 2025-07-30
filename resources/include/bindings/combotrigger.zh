@@ -158,6 +158,8 @@ enum ComboTriggerFlag
 	TRIGFLAG_HERO_Y_GE, // Requires that [Hero->Y] is >= [combotrigger->ReqHeroY] to trigger.
 	TRIGFLAG_HERO_Y_LE, // Requires that [Hero->Y] is <= [combotrigger->ReqHeroY] to trigger.
 	TRIGFLAG_HERO_Y_RELATIVE, // [TRIGFLAG_HERO_Y_GE] / [TRIGFLAG_HERO_Y_LE] use '[combotrigger->ReqHeroY]' relative to the combo's position. For FFCs, uses a position based on the center of the hitbox.
+	TRIGFLAG_HERO_FORCE_VX, // When triggered, sets [Hero->IceVx] to [combotrigger->ForceIceVx].
+	TRIGFLAG_HERO_FORCE_VY, // When triggered, sets [Hero->IceVy] to [combotrigger->ForceIceVy].
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
 };
@@ -530,6 +532,11 @@ class combotrigger {
 	// @zasm_var CMBTRIGGERDESTHEROZ
 	internal int DestHeroZ;
 	
+	// If > -1, set [Hero->Dir] to this value.
+	//
+	// @zasm_var CMBTRIGGERFORCEPLAYERDIR
+	internal int ForceHeroDir;
+	
 	// Only used by [TRIGFLAG_HERO_X_GE] / [TRIGFLAG_HERO_X_LE].
 	// Related: [TRIGFLAG_HERO_X_RELATIVE]
 	//
@@ -559,7 +566,22 @@ class combotrigger {
 	// @index [enum Direction]
 	// @zasm_var CMBTRIGGERREQPLAYERDIR
 	internal bool ReqHeroDir[];
-
+	
+	// If >-1, sets [Hero->ScriptIceCombo] to this value.
+	//
+	// @zasm_var CMBTRIGGERICECOMBO
+	internal int ForceIceCombo;
+	
+	// Sets [Hero->IceVx] to this value if [TRIGFLAG_HERO_FORCE_VX] is set;
+	//
+	// @zasm_var CMBTRIGGERICEVX
+	internal int ForceIceVx;
+	
+	// Sets [Hero->IceVy] to this value if [TRIGFLAG_HERO_FORCE_VY] is set;
+	//
+	// @zasm_var CMBTRIGGERICEVY
+	internal int ForceIceVy;
+	
 	// Gets the label for this trigger.
 	//
 	// If the buffer provided is too small, it will *automatically be resized to
