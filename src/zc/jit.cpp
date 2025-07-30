@@ -323,7 +323,7 @@ void jit_startup()
 		return;
 
 	jit_log_enabled = get_flag_bool("-jit-log").value_or(zc_get_config("ZSCRIPT", "jit_log", false) || is_ci());
-	bool precompile = get_flag_bool("-jit-precompile").value_or(zc_get_config("ZSCRIPT", "jit_precompile", false));
+	bool precompile = get_flag_bool("-jit-precompile").value_or(false);
 	int num_threads = get_flag_int("-jit-threads").value_or(zc_get_config("ZSCRIPT", "jit_threads", -2));
 
 	auto processor_count = std::thread::hardware_concurrency();

@@ -4,8 +4,6 @@
 
 JIT compilation is off by default. It can be enabled by setting the `[ZSCRIPT] jit = 1` config option, found in the launcher. There is also the `-jit` command line switch, or `--(no-)jit` for `run_replay_tests.py`.
 
-`[ZSCRIPT] jit_precompile = 1` can be set to compile all scripts on quest load, instead of as they are encountered.
-
 `[ZSCRIPT] jit_threads = -2` controls how many threads to use for compilation. See the note in `base_config/zc.cfg` for more.
 
 ## How it works

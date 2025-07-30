@@ -556,8 +556,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Linear Scaling",App::zelda,"zeldadx","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling. If on, things will look a little blurry at most resolutions"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zelda,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Optimize ZASM",App::zelda,"ZSCRIPT","optimize_zasm",1,"Optimize ZASM (zscript bytecode). Script heavy quests are known to run 2x more efficiently with this enabled."),
-						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT script compilation",App::zelda,"ZSCRIPT","jit",0,"Compile scripts to machine code. Depending on the script, can be up to 10x faster. 64-bit only"),
-						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT precompile",App::zelda,"ZSCRIPT","jit_precompile",0,"Do all JIT compilation upfront on quest load. Can take a couple minutes, but will avoid random pauses during play.")
+						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT script compilation",App::zelda,"ZSCRIPT","jit",0,"Compile scripts to machine code. Depending on the script, can be up to 10x faster. 64-bit only")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
