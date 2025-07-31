@@ -1532,7 +1532,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				// Before overwriting them with 0, get rid of object references held by global variables.
 				if (get_qr(qr_OLD_INIT_SCRIPT_TIMING) && ZScriptVersion::gc() && script == GLOBAL_SCRIPT_INIT)
 				{
-					for (int i = 0; i < MAX_STACK_SIZE; i++)
+					for (int i = 0; i < MAX_SCRIPT_REGISTERS; i++)
 						script_object_ref_dec(game->global_d[i]);
 				}
 			}
