@@ -965,7 +965,7 @@ static ArrayRegistrar GAMELKEYSD_registrar(GAMELKEYSD, []{
 static ArrayRegistrar GAMELSWITCH_registrar(GAMELSWITCH, []{
 	static ScriptingArray_ObjectMemberContainer<gamedata, &gamedata::lvlswitches> impl;
 	impl.setDefaultValue(0);
-	impl.setMul10000(true);
+	impl.setMul10000(false);
 	return &impl;
 }());
 
