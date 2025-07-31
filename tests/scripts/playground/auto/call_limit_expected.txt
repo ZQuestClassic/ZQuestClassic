@@ -1,6 +1,6 @@
 stderr:
 
-Compiling 'stack_limit.zs'
+Compiling 'call_limit.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
@@ -17,16 +17,17 @@ stdout:
   "success": true,
   "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 8,
-    "symbols": 14,
-    "identifiers": 31,
+    "currentFileSymbols": 4,
+    "symbols": 9,
+    "identifiers": 12,
     "elided": true
   }
 }
 
 zasm:
 
-QUIT; void run() Body
+SETV GD1 0; void run() Body Start
+QUIT; void run() Body End
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0 0.0003
 SETR D4 SP2
@@ -44,17 +45,17 @@ POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
-LOAD D2 0.0001; if() #10 Test
+LOAD D2 0.0001; if() #9 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 30 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #10 Body Start
+GOTOCMP 31 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #9 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #10 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #9 Body End
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
 SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
@@ -74,87 +75,36 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 52 ==; Test 'while'
+GOTOCMP 53 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 44; while() #1 End
-CALLFUNC 0.0130; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 45; while() #1 End
+CALLFUNC 0.0080; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHR REFGENERICDATA; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0161; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0111; UsrFunc[void Init(int)] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body
-ALLOCATEMEMV D2 20 0; InlineFunc[void Trace(char32[])] Params Start
-WRITEPODSTRING D2 "call_recursive: 100"; InlineFunc[void Trace(char32[])] Params End
-TRACE6 D2; InlineFunc[void Trace(char32[])] Body Start
-TRACE3; InlineFunc[void Trace(char32[])] Body End
 PUSHR D4
-PUSHV 100; UsrFunc[void call_recursive(int)] Params
-CALLFUNC 0.0081; UsrFunc[void call_recursive(int)] Call
+CALLFUNC 0.0069; UsrFunc[void call_recursive_forever()] Call
 POP D4
-ALLOCATEMEMV D2 22 0; InlineFunc[void Trace(char32[])] Params Start
-WRITEPODSTRING D2 "call_recursive: 10000"; InlineFunc[void Trace(char32[])] Params End
-TRACE6 D2; InlineFunc[void Trace(char32[])] Body Start
-TRACE3; InlineFunc[void Trace(char32[])] Body End
-PUSHR D4
-PUSHV 10000; UsrFunc[void call_recursive(int)] Params
-CALLFUNC 0.0081; UsrFunc[void call_recursive(int)] Call
-POP D4
-ALLOCATEMEMV D2 18 0; UsrFunc[void Fail(char32[])] Params Start
-WRITEPODSTRING D2 "expected overflow"
+ALLOCATEMEMV D2 25 0; UsrFunc[void Fail(char32[])] Params Start
+WRITEPODSTRING D2 "expected recursion error"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0137; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
-PUSHARGSV 0 0.0005; Func[void call_recursive(int)] Body Start
-SETR D4 SP2
-LOAD D2 0.0005
-STORE D2 0.0004
-LOAD D2 0.0005
-STORE D2 0.0003
-LOAD D2 0.0005
-STORE D2 0.0002
-LOAD D2 0.0005
-STORE D2 0.0001
-LOAD D2 0.0005
-STORE D2 0
-LOAD D2 0.0005; if() #1 Test
-COMPAREV D2 0
-SETCMP D2 I>
-COMPAREV D2 0
-GOTOCMP 104 ==; Test 'if'
-PUSHR D4; if() #1 Body Start
-LOAD D2 0.0005; UsrFunc[void call_recursive(int)] Params Start
-SUBV D2 1
-PUSHR D2; UsrFunc[void call_recursive(int)] Params End
-CALLFUNC 0.0081; UsrFunc[void call_recursive(int)] Call
-POP D4; if() #1 Body End
-LOAD D2 0.0004; InlineFunc[void Trace(untyped)] Params Start
+CALLFUNC 0.0087; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; Func[void call_recursive_forever()] Body Start
+SETR D2 GD1; InlineFunc[void Trace(untyped)] Params Start
 PUSHR D2
-LOAD D2 0.0003
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0.0002
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0
-POP D3
-ADDR D2 D3
-PUSHR D2
-LOAD D2 0.0005
-MULTV D2 4
-POP D3
-SUBR D3 D2
-SETR D2 D3; InlineFunc[void Trace(untyped)] Params End
-TRACER D2; InlineFunc[void Trace(untyped)] Body
-POPARGS D5 0.0006
-RETURNFUNC; Func[void call_recursive(int)] Body End
+ADDV D2 1
+SETR GD1 D2; InlineFunc[void Trace(untyped)] Params End
+POP D2; InlineFunc[void Trace(untyped)] Body Start
+TRACER D2; InlineFunc[void Trace(untyped)] Body End
+PUSHR D4
+CALLFUNC 0.0069; UsrFunc[void call_recursive_forever()] Call
+POP D4
+RETURNFUNC; Func[void call_recursive_forever()] Body End
 SETR D4 SP2; Func[void End()] Body Start
 ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "[Test] done\n"
@@ -171,7 +121,7 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 155 ==; Test 'if'
+GOTOCMP 105 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[])] Params Start AND if() #1 Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
@@ -179,7 +129,7 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-GOTO 160; if() #1 Body End
+GOTO 110; if() #1 Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[])] Params Start AND if() #1 Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
@@ -195,15 +145,15 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D2 0; if() #9 Test
+LOAD D2 0; if() #8 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 180 ==; Test 'if'
-PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #9 Body Start
+GOTOCMP 130 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #9 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End

@@ -758,7 +758,7 @@ void SH::write_stack(const uint32_t sp, const int32_t value)
 	if (sp >= MAX_STACK_SIZE)
 	{
 		scripting_log_error_with_context("Stack overflow!");
-		ri->stack_overflow = true;
+		ri->overflow = true;
 		return;
 	}
 	
@@ -770,7 +770,7 @@ int32_t SH::read_stack(const uint32_t sp)
 	if (sp >= MAX_STACK_SIZE)
 	{
 		scripting_log_error_with_context("Stack overflow!");
-		ri->stack_overflow = true;
+		ri->overflow = true;
 		return -10000;
 	}
 	
@@ -18179,7 +18179,7 @@ bool check_stack(uint32_t sp)
 	if (sp >= MAX_STACK_SIZE)
 	{
 		scripting_log_error_with_context("Stack overflow!");
-		ri->stack_overflow = true;
+		ri->overflow = true;
 		return false;
 	}
 
@@ -18190,7 +18190,8 @@ void retstack_push(int32_t val)
 {
 	if(ri->retsp >= ret_stack->size())
 	{
-		scripting_log_error_with_context("RetStack over or underflow, retstack pointer = {}", ri->retsp);
+		scripting_log_error_with_context("Function call limit reached! Too much recursion. Max nested function calls is {}", ret_stack->size());
+		ri->overflow = true;
 		return;
 	}
 	ret_stack->at(ri->retsp++) = val;
@@ -28822,7 +28823,7 @@ int32_t run_script_int(bool is_jitted)
 			earlyretval = -1;
 			return RUNSCRIPT_SELFDELETE;
 		}
-		if (ri->stack_overflow)
+		if (ri->overflow)
 		{
 			if (old_script_funcrun)
 				return RUNSCRIPT_OK;

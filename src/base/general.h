@@ -92,6 +92,7 @@ int wrap(int x,int low,int high);
 #define INITIAL_D                  8
 #define FFSCRIPT_MISC              32
 #define MAX_STACK_SIZE             5120
+#define MAX_CALL_FRAMES            1024
 #define MAX_SCRIPT_REGISTERS       1024
 #define MAX_SCRIPT_REGISTERS_250   256
 #define MAX_PC                     dword(-1)

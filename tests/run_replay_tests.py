@@ -477,6 +477,7 @@ skip_tests = [
 ]
 if args.jit:
     skip_tests.append('auto_stack_limit.zplay')
+    skip_tests.append('auto_call_limit.zplay')
 tests = [t for t in tests if t.name not in skip_tests]
 
 if args.shard:

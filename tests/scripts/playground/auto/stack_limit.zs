@@ -2,9 +2,18 @@
 
 void call_recursive(int i)
 {
+	// Just increase the stack size a bit.
+	int var1 = i;
+	int var2 = i;
+	int var3 = i;
+	int var4 = i;
+	int var5 = i;
+
 	if (i > 0)
 		call_recursive(i - 1);
-	Trace(i);
+
+	// Same as tracing "i". Just trying to avoid all the local variables being optimized out.
+	Trace(var1 + var2 + var3 + var4 + var5 - i * 4);
 }
 
 generic script stack_limit

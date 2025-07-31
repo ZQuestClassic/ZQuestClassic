@@ -1415,7 +1415,7 @@ public:
 	int32_t cmp_op1, cmp_op2; //cached compare operands
 	optional<int32_t> cmp_strcache;
 	std::set<uint32_t> stack_pos_is_object;
-	bool stack_overflow;
+	bool overflow;
 	
 	void Clear()
 	{
