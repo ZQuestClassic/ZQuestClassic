@@ -396,6 +396,10 @@ class CLIPlayerInterface:
             exe_args.append('-jit-log')
             exe_args.append('-jit-fatal-compile-errors')
 
+            # These are so short, should precompile otherwise no jit will be used.
+            if replay.name.startswith('playground'):
+                exe_args.append('-jit-precompile')
+
         if ctx.headless:
             exe_args.append('-headless')
 
@@ -484,6 +488,10 @@ class WebPlayerInterface:
             extra_args.append('-jit')
             extra_args.append('-jit-log')
             extra_args.append('-jit-fatal-compile-errors')
+
+            # These are so short, should precompile otherwise no jit will be used.
+            if replay.name.startswith('playground'):
+                extra_args.append('-jit-precompile')
 
         exe_args = [
             'node',

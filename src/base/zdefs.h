@@ -2208,6 +2208,8 @@ extern void removeFromItemCache(int32_t itemclass);
 #define RUNSCRIPT_SELFDELETE	2
 #define RUNSCRIPT_STOPPED		3
 #define RUNSCRIPT_SELFREMOVE	4
+#define RUNSCRIPT_JIT_STACK_OVERFLOW 5
+#define RUNSCRIPT_JIT_CALL_LIMIT 6
 
 bool runscript_do_earlyret(int runscript_val);
 

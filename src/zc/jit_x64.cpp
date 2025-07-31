@@ -6,7 +6,6 @@
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
-#include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zasm/serialize.h"
 #include "zconsole/ConsoleLogger.h"
@@ -28,6 +27,7 @@ struct CompilationState
 	x86::Gp vRetVal;
 	x86::Gp vSwitchKey;
 	Label L_End;
+	Label L_CallLimit;
 	// Registers for the compiled function parameters.
 	x86::Gp ptrRegisters;
 	x86::Gp ptrGlobalRegisters;
@@ -38,6 +38,8 @@ struct CompilationState
 	x86::Gp ptrCallStackRetIndex;
 	x86::Gp ptrWaitIndex;
 	x86::Gp startPc;
+	// When to end the "lookahead" for stack pointer bounds checking (and start checking again).
+	pc_t num_push_commands_in_row_end_pc;
 };
 
 extern ScriptDebugHandle* runtime_script_debug_handle;
@@ -176,9 +178,36 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 	set_z_register(state, cc, vStackIndex, r, val);
 }
 
-static void modify_sp(x86::Compiler &cc, x86::Gp vStackIndex, int delta)
+static void modify_sp(x86::Compiler& cc, x86::Gp vStackIndex, int delta)
 {
 	cc.add(vStackIndex, delta);
+}
+
+static void check_sp(CompilationState& state, x86::Compiler& cc, x86::Gp vStackIndex, int offset = 0)
+{
+	if (offset == 0)
+	{
+		cc.cmp(vStackIndex, MAX_STACK_SIZE);
+	}
+	else
+	{
+		x86::Gp val = cc.newUInt32();
+		cc.mov(val, vStackIndex);
+		// Prefer inc/dec for smaller code size.
+		if (offset == 1)
+			cc.inc(val);
+		else if (offset == -1)
+			cc.dec(val);
+		else
+			cc.add(val, offset);
+		cc.cmp(val, MAX_STACK_SIZE);
+	}
+
+	Label label = cc.newLabel();
+	cc.jb(label);
+	cc.mov(state.vRetVal, RUNSCRIPT_JIT_STACK_OVERFLOW);
+	cc.ret(state.vRetVal);
+	cc.bind(label);
 }
 
 static void div_10000(x86::Compiler &cc, x86::Gp dividend)
@@ -569,6 +598,51 @@ static bool command_is_compiled(int command)
 	return false;
 }
 
+// Check for stack overflows, but only once per contiguous series of PUSH (or POP) commands.
+static void handle_check_sp_push(CompilationState& state, x86::Compiler& cc, const zasm_script* script, pc_t cur, x86::Gp vStackIndex)
+{
+	if (cur >= state.num_push_commands_in_row_end_pc)
+	{
+		int stack_delta = 1;
+		int max_stack_delta = 1;
+
+		int j = cur + 1;
+		for (; j < script->size; j++)
+		{
+			const auto& op = script->zasm[j];
+			if (op.command == PUSHV || op.command == PUSHR)
+			{
+				stack_delta++;
+				max_stack_delta = std::max(max_stack_delta, stack_delta);
+			}
+			else if (op.command == PUSHARGSV || op.command == PUSHARGSR)
+			{
+				stack_delta += op.arg2;
+				max_stack_delta = std::max(max_stack_delta, stack_delta);
+			}
+			else if (op.command == POP)
+			{
+				stack_delta -= 1;
+			}
+			else if (op.command == POPARGS)
+			{
+				stack_delta -= op.arg2;
+			}
+			else if (op.command == NOP)
+			{
+				continue;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		check_sp(state, cc, vStackIndex, -max_stack_delta);
+		state.num_push_commands_in_row_end_pc = j;
+	}
+}
+
 static void error(ScriptDebugHandle* debug_handle, const zasm_script* script, std::string str)
 {
 	str = fmt::format("failed to compile zasm chunk: {} id: {}\nerror: {}\n",
@@ -612,7 +686,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		return nullptr;
 	}
 
-	CompilationState state;
+	CompilationState state{};
 	state.size = script->size;
 	size_t size = state.size;
 
@@ -733,6 +807,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 	Label L_Table = cc.newLabel();
 	Label L_Start = cc.newLabel();
 	state.L_End = cc.newLabel();
+	state.L_CallLimit = cc.newLabel();
 	JumpAnnotation *annotation = cc.newJumpAnnotation();
 	annotation->addLabel(L_Start);
 	for (size_t i = 0; i < size; i++)
@@ -981,12 +1056,15 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 			//Normally pushes a return address to the 'ret_stack'
 			//...but we can ignore that when jitted
 
+			cc.cmp(vCallStackRetIndex, MAX_CALL_FRAMES);
+			cc.jae(state.L_CallLimit);
+
 			// https://github.com/asmjit/asmjit/issues/286
 			x86::Gp address = cc.newIntPtr();
 			cc.lea(address, x86::qword_ptr(call_pc_to_return_label.at(i)));
 			// TODO: check call stack size MAX_CALL_FRAMES
 			cc.mov(x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3), address);
-			cc.add(vCallStackRetIndex, 1);
+			cc.inc(vCallStackRetIndex);
 			cc.jmp(goto_labels.at(arg1));
 			cc.bind(call_pc_to_return_label.at(i));
 		}
@@ -1003,7 +1081,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 			//Normally the return address is on the 'ret_stack'
 			//...but we can ignore that when jitted
 
-			cc.sub(vCallStackRetIndex, 1);
+			cc.dec(vCallStackRetIndex);
 			x86::Gp address = cc.newIntPtr();
 			cc.mov(address, x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3));
 
@@ -1028,12 +1106,16 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		break;
 		case PUSHV:
 		{
+			handle_check_sp_push(state, cc, script, i, vStackIndex);
+
 			modify_sp(cc, vStackIndex, -1);
 			cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), arg1);
 		}
 		break;
 		case PUSHR:
 		{
+			handle_check_sp_push(state, cc, script, i, vStackIndex);
+
 			// Grab value from register and push onto stack.
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			modify_sp(cc, vStackIndex, -1);
@@ -1042,24 +1124,32 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		break;
 		case PUSHARGSR:
 		{
+			handle_check_sp_push(state, cc, script, i, vStackIndex);
+
 			if(arg2 < 1) break; //do nothing
+
+			modify_sp(cc, vStackIndex, -arg2);
+
 			// Grab value from register and push onto stack, repeatedly
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			for(int q = 0; q < arg2; ++q)
 			{
-				modify_sp(cc, vStackIndex, -1);
-				cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), val);
+				cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2, (-q - 1 + arg2) * 4), val);
 			}
 		}
 		break;
 		case PUSHARGSV:
 		{
+			handle_check_sp_push(state, cc, script, i, vStackIndex);
+
 			if(arg2 < 1) break; //do nothing
+
+			modify_sp(cc, vStackIndex, -arg2);
+
 			// Push value onto stack, repeatedly
 			for(int q = 0; q < arg2; ++q)
 			{
-				modify_sp(cc, vStackIndex, -1);
-				cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), arg1);
+				cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2, (-q - 1 + arg2) * 4), arg1);
 			}
 		}
 		break;
@@ -1207,9 +1297,11 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 			modify_sp(cc, vStackIndex, arg2);
 
 			// word read = ri->sp - 1;
-			x86::Gp read = cc.newInt32();
+			x86::Gp read = cc.newUInt32();
 			cc.mov(read, vStackIndex);
 			cc.sub(read, 1);
+
+			check_sp(state, cc, read);
 
 			// int32_t value = SH::read_stack(read);
 			// set_register(sarg1, value);
@@ -1249,7 +1341,12 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		case ADDV:
 		{
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
-			cc.add(val, arg2);
+			if (arg2 == 1)
+				cc.inc(val);
+			else if (arg2 == -1)
+				cc.dec(val);
+			else
+				cc.add(val, arg2);
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
@@ -1385,7 +1482,12 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		case SUBV:
 		{
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
-			cc.sub(val, arg2);
+			if (arg2 == -1)
+				cc.inc(val);
+			else if (arg2 == 1)
+				cc.dec(val);
+			else
+				cc.sub(val, arg2);
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
@@ -1570,6 +1672,9 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		cc.setInlineComment("end commands");
 		cc.nop();
 	}
+
+	cc.bind(state.L_CallLimit);
+	cc.mov(state.vRetVal, RUNSCRIPT_JIT_CALL_LIMIT);
 
 	cc.bind(state.L_End);
 

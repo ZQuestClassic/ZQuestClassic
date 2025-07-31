@@ -8,8 +8,7 @@
 struct JittedFunctionHandle
 {
 	int module_id;
-	std::map<pc_t, uint32_t> call_pc_to_return_block_id;
-	std::map<pc_t, uint32_t> wait_frame_pc_to_block_id;
+	std::map<pc_t, uint32_t> pc_to_block_id;
 };
 
 struct JittedScriptHandle

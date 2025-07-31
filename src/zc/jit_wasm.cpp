@@ -77,7 +77,7 @@ struct CompilationState
 	uint8_t g_idx_target_block_id;
 	uint32_t g_idx_start_pc;
 
-	std::map<pc_t, uint32_t> wait_frame_pc_to_block_id;
+	std::map<pc_t, uint32_t> pc_to_block_id;
 };
 
 #ifdef __EMSCRIPTEN__
@@ -165,19 +165,47 @@ static void error(const zasm_script* script, std::string str, bool expected = fa
 	}
 }
 
-static void add_sp(WasmAssembler& wasm, int idx, int delta)
-{
-	wasm.emitGlobalGet(idx);
-	wasm.emitI32Const(delta);
-	wasm.emitI32Add();
-}
-
 static void modify_global_idx(WasmAssembler& wasm, int idx, int delta)
 {
 	wasm.emitGlobalGet(idx);
 	wasm.emitI32Const(delta);
 	wasm.emitI32Add();
 	wasm.emitGlobalSet(idx);
+}
+
+static void add_sp(CompilationState& state, int delta)
+{
+	modify_global_idx(*state.wasm, state.g_idx_sp, delta);
+}
+
+static void check_sp(CompilationState& state)
+{
+	auto& wasm = *state.wasm;
+
+	wasm.emitGlobalGet(state.g_idx_sp);
+	wasm.emitI32Const(MAX_STACK_SIZE);
+	wasm.emitI32GeU();
+
+	wasm.emitIf();
+	wasm.emitI32Const(RUNSCRIPT_JIT_STACK_OVERFLOW);
+	wasm.emitCall(state.f_idx_set_return_value);
+	wasm.emitUnreachable(); // Bail.
+	wasm.emitEnd();
+}
+
+static void check_call_limit(CompilationState& state)
+{
+	auto& wasm = *state.wasm;
+
+	wasm.emitGlobalGet(state.g_idx_ret_stack_index);
+	wasm.emitI32Const(MAX_CALL_FRAMES);
+	wasm.emitI32GeU();
+
+	wasm.emitIf();
+	wasm.emitI32Const(RUNSCRIPT_JIT_CALL_LIMIT);
+	wasm.emitCall(state.f_idx_set_return_value);
+	wasm.emitUnreachable(); // Bail.
+	wasm.emitEnd();
 }
 
 static void get_z_register(CompilationState& state, int r)
@@ -686,7 +714,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 			{
 				ASSERT(may_yield);
 
-				state.wait_frame_pc_to_block_id[i] = current_block_index + 1;
+				state.pc_to_block_id[i] = current_block_index + 1;
 
 				// jitted_script->wait_index = current_block_index + 1
 				{
@@ -732,9 +760,18 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				{
 					if (command == CALLFUNC)
 					{
+						// When calling functions that do not yield, we can use wasm.emitCall to use
+						// a native function call. This does not require g_idx_ret_stack_index.
+						// However, we still increment g_idx_ret_stack_index so we can check for the
+						// call limit.
+						check_call_limit(state);
+
 						pc_t fn_id = structured_zasm.start_pc_to_function.at(arg1);
 						if (!may_yield || !structured_zasm.functions[fn_id].may_yield)
 						{
+							// g_idx_ret_stack_index += 1
+							modify_global_idx(wasm, g_idx_ret_stack_index, 1);
+
 							// This is a function call, the function is compiled as a separate WASM function, so we can simply
 							// call it and be done with this instruction. Set the initial block id to 0 so the function starts
 							// at its beginning.
@@ -743,10 +780,13 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 							pc_t fn_idx = function_id_to_idx.at(fn_id);
 							wasm.emitCall(fn_idx);
+
+							// g_idx_ret_stack_index -= 1
+							modify_global_idx(wasm, g_idx_ret_stack_index, -1);
 							continue;
 						}
 
-						state.wait_frame_pc_to_block_id[i] = current_block_index + 1;
+						state.pc_to_block_id[i] = current_block_index + 1;
 
 						// The function call is to some other may-yield function which is inlined in the yielder function.
 						// Before we "call" it, we need to remember where to return to. To do that, we push the index of the
@@ -787,8 +827,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						// g_idx_ret_stack.
 						if (command == RETURN)
 						{
-							add_sp(wasm, g_idx_sp, 1);
-							wasm.emitGlobalSet(g_idx_sp);
+							add_sp(state, 1);
 						}
 
 						// g_idx_ret_stack_index -= 1
@@ -813,8 +852,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						// Totally ignore the return pc on the stack.
 						if (command == RETURN)
 						{
-							add_sp(wasm, g_idx_sp, 1);
-							wasm.emitGlobalSet(g_idx_sp);
+							add_sp(state, 1);
 						}
 
 						// Call stack is implicitly handled by WASM.
@@ -838,10 +876,15 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					if (command == PUSHR && (arg1 == SP || arg1 == SP2))
 					{
 						wasm.emitGlobalGet(g_idx_sp);
+						if (arg1 == SP)
+						{
+							wasm.emitI32Const(10000);
+							wasm.emitI32Mul();
+						}
 						wasm.emitLocalSet(l_idx_scratch);
 
-						add_sp(wasm, g_idx_sp, -1);
-						wasm.emitGlobalSet(g_idx_sp);
+						add_sp(state, -1);
+						check_sp(state);
 
 						wasm.emitGlobalGet(g_idx_sp);
 						wasm.emitI32Const(4);
@@ -853,8 +896,8 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						break;
 					}
 
-					add_sp(wasm, g_idx_sp, -1);
-					wasm.emitGlobalSet(g_idx_sp);
+					add_sp(state, -1);
+					check_sp(state);
 
 					wasm.emitGlobalGet(g_idx_sp);
 					wasm.emitI32Const(4);
@@ -881,8 +924,8 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					// TODO: there's certainly a better way to do this.
 					for (int i = 0; i < arg2; i++)
 					{
-						add_sp(wasm, g_idx_sp, -1);
-						wasm.emitGlobalSet(g_idx_sp);
+						add_sp(state, -1);
+						check_sp(state);
 
 						wasm.emitGlobalGet(g_idx_sp);
 						wasm.emitI32Const(4);
@@ -1013,16 +1056,14 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						wasm.emitI32Add(); // Add stack base offset.
 						wasm.emitI32Load();
 
-						add_sp(wasm, g_idx_sp, 1);
-						wasm.emitGlobalSet(g_idx_sp);
+						add_sp(state, 1);
 					});
 				}
 				break;
 
 				case POPARGS:
 				{
-					add_sp(wasm, g_idx_sp, arg2);
-					wasm.emitGlobalSet(g_idx_sp);
+					add_sp(state, arg2);
 
 					set_z_register(state, arg1, [&](){
 						// ri->sp - 1
@@ -1266,7 +1307,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		int command = script->zasm[i].command;
 		if (command == RUNGENFRZSCR)
 		{
-			error(script, "RUNGENFRZSCR unsupported", true);
+			// error(script, "RUNGENFRZSCR unsupported", true);
 			return nullptr;
 		}
 		else if (command == STACKWRITEATVV_IF)
@@ -1484,7 +1525,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 	}
 
 	auto fn = new JittedFunctionHandle(module_id);
-	fn->wait_frame_pc_to_block_id = std::move(state.wait_frame_pc_to_block_id);
+	fn->pc_to_block_id = std::move(state.pc_to_block_id);
 
 	return fn;
 }
@@ -1510,7 +1551,7 @@ JittedScriptHandle* jit_create_script_handle_impl(script_data* script, refInfo* 
 	// TODO: this probably works, but not tested (see above).
 	if (!just_initialized)
 	{
-		if (auto r = util::find(fn->wait_frame_pc_to_block_id, ri->pc - 1))
+		if (auto r = util::find(fn->pc_to_block_id, ri->pc - 1))
 		{
 			jitted_script->wait_index = *r;
 		}
@@ -1528,7 +1569,7 @@ JittedScriptHandle* jit_create_script_handle_impl(script_data* script, refInfo* 
 		for (int i = 0; i < ri->retsp; i++)
 		{
 			pc_t pc = (*ret_stack)[i];
-			if (auto r = util::find(fn->wait_frame_pc_to_block_id, pc - 1))
+			if (auto r = util::find(fn->pc_to_block_id, pc - 1))
 			{
 				jitted_script->call_stack_rets[i] = *r;
 			}

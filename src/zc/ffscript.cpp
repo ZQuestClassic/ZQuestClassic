@@ -753,11 +753,21 @@ void pop_ri()
 //           Helper Functions           //
 ///-------------------------------------//
 
+static void log_stack_overflow_error()
+{
+	scripting_log_error_with_context("Stack overflow!");
+}
+
+static void log_call_overflow_error()
+{
+	scripting_log_error_with_context("Function call limit reached! Too much recursion. Max nested function calls is {}", MAX_CALL_FRAMES);
+}
+
 void SH::write_stack(const uint32_t sp, const int32_t value)
 {
 	if (sp >= MAX_STACK_SIZE)
 	{
-		scripting_log_error_with_context("Stack overflow!");
+		log_stack_overflow_error();
 		ri->overflow = true;
 		return;
 	}
@@ -769,7 +779,7 @@ int32_t SH::read_stack(const uint32_t sp)
 {
 	if (sp >= MAX_STACK_SIZE)
 	{
-		scripting_log_error_with_context("Stack overflow!");
+		log_stack_overflow_error();
 		ri->overflow = true;
 		return -10000;
 	}
@@ -16285,12 +16295,10 @@ void set_register(int32_t arg, int32_t value)
 	//Misc./Internal
 		case SP:
 			ri->sp = value / 10000;
-			check_stack(ri->sp);
 			break;
 		
 		case SP2:
 			ri->sp = value;
-			check_stack(ri->sp);
 			break;
 			
 		case PC:
@@ -18180,7 +18188,7 @@ bool check_stack(uint32_t sp)
 {
 	if (sp >= MAX_STACK_SIZE)
 	{
-		scripting_log_error_with_context("Stack overflow!");
+		log_stack_overflow_error();
 		ri->overflow = true;
 		return false;
 	}
@@ -18192,7 +18200,7 @@ void retstack_push(int32_t val)
 {
 	if(ri->retsp >= ret_stack->size())
 	{
-		scripting_log_error_with_context("Function call limit reached! Too much recursion. Max nested function calls is {}", ret_stack->size());
+		log_call_overflow_error();
 		ri->overflow = true;
 		return;
 	}
@@ -24637,6 +24645,25 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 			// call stack.
 			auto retainer = data.jitted_script;
 			result = jit_run_script(jitted_script);
+
+			if (result == RUNSCRIPT_JIT_STACK_OVERFLOW || result == RUNSCRIPT_JIT_CALL_LIMIT)
+			{
+				ri->overflow = true;
+				if (result == RUNSCRIPT_JIT_STACK_OVERFLOW)
+					log_stack_overflow_error();
+				else
+					log_call_overflow_error();
+
+				if (!(script_funcrun && curscript->meta.ffscript_v < 23))
+				{
+					script_exit_cleanup(false);
+					result = RUNSCRIPT_STOPPED;
+				}
+				else
+				{
+					result = RUNSCRIPT_OK;
+				}
+			}
 		}
 	}
 	else
@@ -28864,7 +28891,11 @@ int32_t run_script_int(bool is_jitted)
 		
 		// If running a JIT compiled script, we're only here to do a few commands.
 		commands_run += 1;
-		if (is_jitted && commands_run == jitted_uncompiled_command_count) break;
+		if (is_jitted && commands_run == jitted_uncompiled_command_count)
+		{
+			current_zasm_command=(ASM_DEFINE)0;
+			break;
+		}
 	}
 	if(script_funcrun) return RUNSCRIPT_OK;
 	
