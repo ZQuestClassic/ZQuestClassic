@@ -13,6 +13,7 @@
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
+#include "zconfig.h"
 #include <fmt/format.h>
 #include <algorithm>
 #include <array>
@@ -343,7 +344,7 @@ void jit_startup()
 	if (!is_enabled)
 		return;
 
-	jit_log_enabled = get_flag_bool("-jit-log").value_or(zc_get_config("ZSCRIPT", "jit_log", false) || is_ci());
+	jit_log_enabled = is_feature_enabled("-jit-log", "ZSCRIPT", "jit_log", false) || is_ci();
 	bool precompile = get_flag_bool("-jit-precompile").value_or(false);
 	int num_threads = get_flag_int("-jit-threads").value_or(zc_get_config("ZSCRIPT", "jit_threads", -2));
 

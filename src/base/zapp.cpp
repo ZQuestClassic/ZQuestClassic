@@ -2,6 +2,7 @@
 #include "base/version.h"
 #include "base/zsys.h"
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <fmt/format.h>
 
@@ -159,8 +160,13 @@ void common_main_setup(App id, int argc_, char **argv_)
 std::optional<bool> get_flag_bool(const char* name)
 {
 	int arg = used_switch(argc, argv, name);
-	if (arg == 0) return std::nullopt;
-	return true;
+	if (arg) return true;
+
+	std::string no_name = fmt::format("-no{}", name);
+	arg = used_switch(argc, argv, no_name.c_str());
+	if (arg) return false;
+
+	return std::nullopt;
 }
 
 std::optional<int> get_flag_int(const char* name)

@@ -33,6 +33,7 @@
 #include "zc/zasm_utils.h"
 #include "zasm/table.h"
 #include "zasm/serialize.h"
+#include "zconfig.h"
 #include "zscriptversion.h"
 #include <algorithm>
 #include <chrono>
@@ -53,9 +54,7 @@ static bool minimal_mode;
 
 static bool zasm_optimize_enabled()
 {
-	static bool enabled = get_flag_bool("-optimize-zasm").value_or(false) ?
-		true :
-		zc_get_config("ZSCRIPT", "optimize_zasm", true);
+	static bool enabled = is_feature_enabled("-optimize-zasm", "ZSCRIPT", "optimize_zasm", true);
 	return enabled;
 }
 
@@ -64,13 +63,13 @@ static bool zasm_optimize_enabled()
 // Need to verify nothing was missed.
 static bool should_run_experimental_passes()
 {
-	static bool enabled = get_flag_bool("-optimize-zasm-experimental").has_value();
+	static bool enabled = get_flag_bool("-optimize-zasm-experimental").value_or(false);
 	return enabled;
 }
 
 static bool should_run_optimizer_in_parallel()
 {
-	static bool parallel = !is_web() && !get_flag_bool("-optimize-zasm-no-parallel").has_value();
+	static bool parallel = !is_web() && !get_flag_bool("-optimize-zasm-no-parallel").value_or(false);
 	return parallel && ZScriptVersion::singleZasmChunk();
 }
 
@@ -2683,7 +2682,7 @@ void zasm_optimize()
 			fmt::println("note: zasm optimizer disabled by user, but must run in minimal mode to support jit");
 	}
 
-	bool parallel = !get_flag_bool("-test-bisect").has_value();
+	bool parallel = !get_flag_bool("-test-bisect").value_or(false);
 	zasm_for_every_script(parallel, [&](auto script){
 		if (script->optimized)
 			return;

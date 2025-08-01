@@ -186,3 +186,9 @@ void zc_set_config_basic(char const* header, char const* name, char const* val)
 	set_config_string(header,name,val);
 }
 
+bool is_feature_enabled(const char* flag_switch, const char* config_header, const char* config_name, bool def)
+{
+	auto flag = get_flag_bool(flag_switch);
+	bool enabled = flag.value_or(zc_get_config(config_header, config_name, def));
+	return enabled;
+}

@@ -16,6 +16,9 @@ enum App {
 };
 
 void common_main_setup(App id, int argc, char **argv);
+// If `-name` flag is set, returns true
+// If `-no-name` flag is set, returns false
+// Otherwise returns std::nullopt
 std::optional<bool> get_flag_bool(const char* name);
 std::optional<int> get_flag_int(const char* name);
 std::optional<std::string> get_flag_string(const char* name);

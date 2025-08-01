@@ -30,4 +30,10 @@ void zc_set_config_basic_hex(char const* header, char const* name, int32_t val);
 void zc_set_config_basic(char const* header, char const* name, double default_val);
 void zc_set_config_basic(char const* header, char const* name, char const* val);
 
+// Checks in a feature is enabled in this order:
+// 1. "-flag" or "-no-flag"
+// 2. config value
+// 3. default
+bool is_feature_enabled(const char* flag_switch, const char* config_header, const char* config_name, bool def);
+
 #endif
