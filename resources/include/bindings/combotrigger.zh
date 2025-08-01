@@ -160,8 +160,8 @@ enum ComboTriggerFlag
 	TRIGFLAG_HERO_Y_RELATIVE, // [TRIGFLAG_HERO_Y_GE] / [TRIGFLAG_HERO_Y_LE] use '[combotrigger->ReqHeroY]' relative to the combo's position. For FFCs, uses a position based on the center of the hitbox.
 	TRIGFLAG_HERO_FORCE_VX, // When triggered, sets [Hero->IceVx] to [combotrigger->ForceIceVx].
 	TRIGFLAG_HERO_FORCE_VY, // When triggered, sets [Hero->IceVy] to [combotrigger->ForceIceVy].
-	TRIGFLAG_MAX_IN_USE,
-	TRIGFLAG_MAX = 32*6
+	TRIGFLAG_UNIGNITE_WEAPONS, // Changes [TRIGFLAG_IGNITE_WEAPONS_ANY],[TRIGFLAG_IGNITE_WEAPONS_STRONG],[TRIGFLAG_IGNITE_WEAPONS_MAGIC],[TRIGFLAG_IGNITE_WEAPONS_DIVINE] to 'Unignite' the weapon instead
+	TRIGFLAG_MAX
 };
 
 // @zasm_ref REFCOMBOTRIGGER
