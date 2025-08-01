@@ -44,6 +44,42 @@ void CutsceneState::error()
 CutsceneState active_cutscene;
 
 // TRIGGERS STUFF
+bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function<bool(combo_trigger const&)> trig_cond,
+	int32_t special, weapon* w)
+{
+	auto cid = comb_handle.data();
+	auto& cmb = comb_handle.combo();
+	bool ret = false;
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+	{
+		auto& trig = cmb.triggers[idx];
+		if(trig_cond(trig))
+		{
+			ret = true;
+			do_trigger_combo(comb_handle, idx, special, w);
+			if(comb_handle.data() != cid) break;
+		}
+	}
+	return ret;
+}
+bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function<bool(combo_trigger const&, size_t)> trig_cond,
+	int32_t special, weapon* w)
+{
+	auto cid = comb_handle.data();
+	auto& cmb = comb_handle.combo();
+	bool ret = false;
+	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+	{
+		auto& trig = cmb.triggers[idx];
+		if(trig_cond(trig, idx))
+		{
+			ret = true;
+			do_trigger_combo(comb_handle, idx, special, w);
+			if(comb_handle.data() != cid) break;
+		}
+	}
+	return ret;
+}
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -2276,44 +2312,15 @@ void trigger_save(newcombo const& cmb, mapscr* scr)
 }
 
 static byte copycat_id = 0;
-static bool do_copycat_trigger(const rpos_handle_t& rpos_handle)
+static bool _copycat_trig_cond(combo_trigger const& trig)
 {
-	if(!copycat_id) return false;
-
-	auto cid = rpos_handle.data();
-	auto& cmb = rpos_handle.combo();
-	bool ret = false;
-	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
-	{
-		auto& trig = cmb.triggers[idx];
-		if(trig.trigcopycat == copycat_id && !trig.trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE))
-		{
-			do_trigger_combo(rpos_handle, idx);
-			ret = true;
-			if(rpos_handle.data() != cid) break;
-		}
-	}
-	return ret;
+	return trig.trigcopycat == copycat_id && !trig.trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE);
 }
-
-static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
+static bool do_copycat_trigger(const combined_handle_t& comb_handle)
 {
 	if(!copycat_id) return false;
-
-	auto cid = ffc_handle.data();
-	auto& cmb = ffc_handle.combo();
-	bool ret = false;
-	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
-	{
-		auto& trig = cmb.triggers[idx];
-		if(trig.trigcopycat == copycat_id && !trig.trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE))
-		{
-			do_trigger_combo(ffc_handle, idx);
-			ret = true;
-			if(ffc_handle.data() != cid) break;
-		}
-	}
-	return ret;
+	
+	return trig_each_combo_trigger(comb_handle, _copycat_trig_cond);
 }
 
 static int copycat_skip_lyr = -1, copycat_skip_ffc = -1;
@@ -2335,7 +2342,7 @@ void trig_copycat(byte copyid)
 	{
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (ffc_handle.i != copycat_skip_ffc)
-				do_copycat_trigger_ffc(ffc_handle);
+				do_copycat_trigger(ffc_handle);
 		});
 	}
 	copycat_id = 0;
@@ -3535,20 +3542,13 @@ bool do_trigger_combo(const combined_handle_t& comb_handle, size_t idx, int32_t 
 	return false;
 }
 
+static bool _ctype_causes_trig_cond(combo_trigger const& trig)
+{
+	return trig.trigger_flags.get(TRIGFLAG_CMBTYPECAUSES);
+}
 bool do_trigger_ctype_causes(const combined_handle_t& comb_handle)
 {
-	auto cid = comb_handle.data();
-	auto& cmb = comb_handle.combo();
-	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
-	{
-		auto& trig = cmb.triggers[idx];
-		if (trig.trigger_flags.get(TRIGFLAG_CMBTYPECAUSES))
-		{
-			do_trigger_combo(comb_handle, idx);
-			if(comb_handle.data() != cid) return true;
-		}
-	}
-	return false;
+	return trig_each_combo_trigger(comb_handle, _ctype_causes_trig_cond);
 }
 
 bool check_trig_conditions(const combined_handle_t& comb_handle, size_t idx)

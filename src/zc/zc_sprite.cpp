@@ -1022,14 +1022,9 @@ bool movingblock::animate(int32_t)
 				}
 			}
 		}
-		newcombo const& blockcmb = combobuf[bcombo];
-		for(size_t idx = 0; idx < blockcmb.triggers.size(); ++idx)
-		{
-			auto& trig = blockcmb.triggers[idx];
-			if(trig.trigger_flags.get(TRIGFLAG_PUSHEDTRIG))
-				do_trigger_combo(end_rpos_handle, idx);
-			if(end_rpos_handle.data() != bcombo) break;
-		}
+		trig_each_combo_trigger(end_rpos_handle, [](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_PUSHEDTRIG);
+		});
 		clear();
 	}
 	return false;
