@@ -73,6 +73,13 @@ static bool should_run_optimizer_in_parallel()
 	return parallel && ZScriptVersion::singleZasmChunk();
 }
 
+template <typename... Args>
+static void zasm_optimize_trace(fmt::format_string<Args...> s, Args&&... args)
+{
+    std::string text = fmt::format(s, std::forward<Args>(args)...);
+	al_trace("%s\n", text.c_str());
+}
+
 // Very useful tool for identifying a single bad optimization.
 // Use with a tool like `find-first-fail`: https://gitlab.com/ole.tange/tangetools/-/blob/master/find-first-fail/find-first-fail
 // 1. Enable ENABLE_BISECT_TOOL below.
@@ -2677,9 +2684,9 @@ void zasm_optimize()
 
 	if (log_level >= 1)
 	{
-		fmt::println("Optimizing scripts...");
+		zasm_optimize_trace("Optimizing scripts...");
 		if (minimal_mode)
-			fmt::println("note: zasm optimizer disabled by user, but must run in minimal mode to support jit");
+			zasm_optimize_trace("note: zasm optimizer disabled by user, but must run in minimal mode to support jit");
 	}
 
 	bool parallel = !get_flag_bool("-test-bisect").value_or(false);
@@ -2696,7 +2703,7 @@ void zasm_optimize()
 			size += script->size;
 			double pct = 100.0 * r.instructions_saved / script->size;
 			if (log_level >= 2)
-				fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms", script->name, r.instructions_saved, pct, r.elapsed / 1000);
+				zasm_optimize_trace("\t[{}] saved {} instr ({:.1f}%), took {} ms", script->name, r.instructions_saved, pct, r.elapsed / 1000);
 
 			for (int i = 0; i < results.passes.size(); i++)
 			{
@@ -2714,7 +2721,7 @@ void zasm_optimize()
 	if (size == 0)
 	{
 		if (log_level >= 1)
-			fmt::println("No scripts found.");
+			zasm_optimize_trace("No scripts found.");
 		return;
 	}
 
@@ -2723,7 +2730,7 @@ void zasm_optimize()
 
 	if (log_level >= 1)
 	{
-		fmt::println("Finished optimizing scripts:");
+		zasm_optimize_trace("Finished optimizing scripts:");
 
 		for (const auto& pass : results.passes)
 		{
@@ -2731,11 +2738,11 @@ void zasm_optimize()
 				continue;
 
 			double pct = 100.0 * pass.instructions_saved / size;
-			fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms", pass.name, pass.instructions_saved, pct, pass.elapsed / 1000);
+			zasm_optimize_trace("\t[{}] saved {} instr ({:.1f}%), took {} ms", pass.name, pass.instructions_saved, pct, pass.elapsed / 1000);
 		}
 
 		double pct = 100.0 * results.instructions_saved / size;
-		fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms\n", "total", results.instructions_saved, pct, results.elapsed / 1000);
+		zasm_optimize_trace("\t[{}] saved {} instr ({:.1f}%), took {} ms\n", "total", results.instructions_saved, pct, results.elapsed / 1000);
 	}
 }
 
