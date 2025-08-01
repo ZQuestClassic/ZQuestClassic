@@ -452,7 +452,9 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 					{
 						trig_idx = FindComboTriggerMatch(w, cid, trig_idx + 1);
 						if(trig_idx >= 0)
-							do_trigger_combo(ffc_handle, trig_idx, 0, w);
+							if(do_trigger_combo(ffc_handle, trig_idx, 0, w))
+								if(combobuf[cid].triggers[trig_idx].trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+									break;
 					} while(ffc_handle.data() == cid && trig_idx >= 0);
 				}
 			});
@@ -471,7 +473,11 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 	{
 		trig_idx = FindComboTriggerMatch(w, cid, trig_idx + 1);
 		if(trig_idx >= 0)
-			do_trigger_combo(rpos_handle, trig_idx, 0, w);
+		{
+			if(do_trigger_combo(rpos_handle, trig_idx, 0, w))
+				if(combobuf[cid].triggers[trig_idx].trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+					break;
+		}
 	} while(rpos_handle.data() == cid && trig_idx >= 0);
 }
 

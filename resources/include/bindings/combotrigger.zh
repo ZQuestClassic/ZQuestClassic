@@ -161,6 +161,7 @@ enum ComboTriggerFlag
 	TRIGFLAG_HERO_FORCE_VX, // When triggered, sets [Hero->IceVx] to [combotrigger->ForceIceVx].
 	TRIGFLAG_HERO_FORCE_VY, // When triggered, sets [Hero->IceVy] to [combotrigger->ForceIceVy].
 	TRIGFLAG_UNIGNITE_WEAPONS, // Changes [TRIGFLAG_IGNITE_WEAPONS_ANY],[TRIGFLAG_IGNITE_WEAPONS_STRONG],[TRIGFLAG_IGNITE_WEAPONS_MAGIC],[TRIGFLAG_IGNITE_WEAPONS_DIVINE] to 'Unignite' the weapon instead
+	TRIGFLAG_CANCEL_TRIGGER, // Makes triggers below this trigger on the same combo with the same cause NOT be triggered by this cause
 	TRIGFLAG_MAX
 };
 

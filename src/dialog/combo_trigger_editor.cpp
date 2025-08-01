@@ -150,7 +150,7 @@ static bool has_trigger_effect(combo_trigger const& trig)
 		TRIGFLAG_LITEM_SET,TRIGFLAG_LITEM_UNSET,TRIGFLAG_TINT_CLEAR,TRIGFLAG_SETPLAYER_X_ABS,
 		TRIGFLAG_SETPLAYER_X_REL_CMB,TRIGFLAG_SETPLAYER_Y_ABS,
 		TRIGFLAG_SETPLAYER_Y_REL_CMB,TRIGFLAG_SETPLAYER_Z_ABS,
-		TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY })) return true;
+		TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY,TRIGFLAG_CANCEL_TRIGGER })) return true;
 	if(trig.dest_player_x || trig.dest_player_y || trig.dest_player_z) return true;
 	if(trig.force_ice_combo > -1) return true;
 	if(trig.dest_player_dir > -1) return true;
@@ -623,7 +623,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										" change by that much when triggered."
 										"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.")
 								),
-								Rows_Columns<2,4>(framed = true, hAlign = 1.0,
+								Rows_Columns<2,5>(framed = true, hAlign = 1.0,
 									IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
 										" unless 'Temporary Secrets' screen data flag is checked."),
 									TRIGFLAG(TRIGFLAG_SECRETS,"Triggers Secrets"),
@@ -632,6 +632,8 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									IBTN("After triggering, the combo animation is reset. If the combo has changed"
 										" (by any trigger effect), the new combo is the one that resets."),
 									TRIGFLAG(TRIGFLAG_RESETANIM,"Reset Anim"),
+									IBTN("Triggers on this combo listed below this trigger will not trigger from this cause."),
+									TRIGFLAG(TRIGFLAG_CANCEL_TRIGGER,"Cancel Further Triggers"),
 									IBTN("Triggering the combo will cause its inherent type-based effects to occur."
 										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
 										" Not available for all combo types; will be greyed out when unavailable."),
