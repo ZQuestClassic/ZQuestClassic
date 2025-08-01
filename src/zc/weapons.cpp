@@ -496,6 +496,14 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 		ret = ret||trigger_secrets_if_flag(x,y,mfDIVINEFIRE,setflag);
 
 	std::set<rpos_t> rposes({COMBOPOS_REGION_B(x,y),COMBOPOS_REGION_B(x,y+15),COMBOPOS_REGION_B(x+15,y),COMBOPOS_REGION_B(x+15,y+15)});
+	auto _burn_cond_proc = [&](combo_trigger const& trig){
+		if (w->z > 0 && trig.trigger_flags.get(TRIGFLAG_ONLY_GROUND_WPN))
+			return false; // Air based weapon shouldn't trigger ground-only combo
+		for(auto flag : trigflags)
+			if(trig.trigger_flags.get(flag))
+				return true;
+		return false;
+	};
 	for(int q = 0; q < 7; ++q)
 	{
 		for (rpos_t rpos : rposes)
@@ -504,59 +512,14 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 				continue;
 
 			auto rpos_handle = get_rpos_handle(rpos, q);
-			auto& cmb = rpos_handle.combo();
-
-			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
-			{
-				auto& trig = cmb.triggers[idx];
-				if (w->z > 0 && trig.trigger_flags.get(TRIGFLAG_ONLY_GROUND_WPN))
-					continue; // Air based weapon shouldn't trigger ground-only combo
-				bool burned = false;
-				for(auto flag : trigflags)
-				{
-					if(trig.trigger_flags.get(flag))
-					{
-						burned = true;
-						break;
-					}
-				}
-				if (burned)
-				{
-					auto oldcombo = rpos_handle.data();
-					do_trigger_combo(rpos_handle, idx, 0, wptr);
-					ret = true;
-					if(rpos_handle.data() != oldcombo) break;
-				}
-			}
+			trig_each_combo_trigger(rpos_handle, _burn_cond_proc, 0, wptr);
 		}
 	}
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		ffcdata& ffc = *ffc_handle.ffc;
-		auto& cmb = ffc_handle.combo();
-		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
-		{
-			auto& trig = cmb.triggers[idx];
-			if (w->z > 0 && trig.trigger_flags.get(TRIGFLAG_ONLY_GROUND_WPN))
-				return; // Air based weapon shouldn't trigger ground-only combo
-			bool burned = false;
-			for(auto flag : trigflags)
-			{
-				if(trig.trigger_flags.get(flag))
-				{
-					burned = true;
-					break;
-				}
-			}
-			
-			if(burned && ffc.collide(x,y,16,16))
-			{
-				auto oldcombo = ffc_handle.data();
-				do_trigger_combo(ffc_handle, idx, 0, wptr);
-				ret = true;
-				if(ffc_handle.data() != oldcombo) break;
-			}
-		}
+		if(!ffc.collide(x,y,16,16)) return;
+		trig_each_combo_trigger(ffc_handle, _burn_cond_proc, 0, wptr);
 	});
 
 	return ret;
