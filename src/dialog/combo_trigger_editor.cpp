@@ -61,11 +61,11 @@ std::shared_ptr<GUI::Checkbox> ComboTriggerDialog::TRIGFLAG(int index, const cha
 	return Checkbox(
 		text = str, hAlign = right ? 1.0 : 0.0,
 		boxPlacement = right ? GUI::Checkbox::boxPlacement::RIGHT : GUI::Checkbox::boxPlacement::LEFT,
-		checked = (local_ref.triggerflags[index/32] & (1<<(index%32))),
+		checked = local_ref.trigger_flags.get(index),
 		fitParent = true, colSpan = cspan,
 		onToggleFunc = [&, index](bool state)
 		{
-			SETFLAG(local_ref.triggerflags[index/32],(1<<(index%32)),state);
+			local_ref.trigger_flags.set(index, state);
 		}
 	);
 }
@@ -91,74 +91,66 @@ Button( \
 
 static bool has_weapon_cause(combo_trigger const& trig)
 {
-	if(trig.triggerflags[0] & (
-		combotriggerSWORD|combotriggerSWORDBEAM|combotriggerBRANG|combotriggerBOMB|combotriggerSBOMB|
-		combotriggerLITBOMB|combotriggerLITSBOMB|combotriggerARROW|combotriggerFIRE|combotriggerWHISTLE|
-		combotriggerBAIT|combotriggerWAND|combotriggerMAGIC|combotriggerWIND|combotriggerREFMAGIC|
-		combotriggerREFFIREBALL|combotriggerREFROCK|combotriggerHAMMER|combotriggerEWFIREBALL)) return true;
-	if(trig.triggerflags[1] & (
-		combotriggerHOOKSHOT|combotriggerSPARKLE|combotriggerBYRNA|combotriggerREFBEAM|combotriggerSTOMP|
-		combotriggerSCRIPT01|combotriggerSCRIPT02|combotriggerSCRIPT03|combotriggerSCRIPT04|combotriggerSCRIPT05|
-		combotriggerSCRIPT06|combotriggerSCRIPT07|combotriggerSCRIPT08|combotriggerSCRIPT09|combotriggerSCRIPT10|
-		combotriggerEWARROW|combotriggerEWBRANG|combotriggerEWSWORD|combotriggerEWROCK))
-		return true;
-	if(trig.triggerflags[2] & (
-		combotriggerEWSCRIPT01|combotriggerEWSCRIPT02|combotriggerEWSCRIPT03|combotriggerEWSCRIPT04|combotriggerEWSCRIPT05|
-		combotriggerEWSCRIPT06|combotriggerEWSCRIPT07|combotriggerEWSCRIPT08|combotriggerEWSCRIPT09|combotriggerEWSCRIPT10|
-		combotriggerEWMAGIC|combotriggerEWBBLAST|combotriggerEWSBBLAST|combotriggerEWLITBOMB|combotriggerEWLITSBOMB|
-		combotriggerEWFIRETRAIL|combotriggerEWFLAME|combotriggerEWWIND|combotriggerEWFLAME2|
-		combotriggerTHROWN|combotriggerQUAKESTUN|combotriggerSQUAKESTUN|combotriggerANYFIRE|
-		combotriggerSTRONGFIRE|combotriggerMAGICFIRE|combotriggerDIVINEFIRE)) return true;
-	if(trig.triggerflags[3] & (combotriggerLWREFARROW|combotriggerLWREFFIRE|combotriggerLWREFFIRE2)) return true;
+	if (trig.trigger_flags.any({
+		TRIGFLAG_SWORD,TRIGFLAG_SWORDBEAM,TRIGFLAG_BRANG,TRIGFLAG_BOMB,TRIGFLAG_SBOMB,
+		TRIGFLAG_LITBOMB,TRIGFLAG_LITSBOMB,TRIGFLAG_ARROW,TRIGFLAG_FIRE,TRIGFLAG_WHISTLE,
+		TRIGFLAG_BAIT,TRIGFLAG_WAND,TRIGFLAG_MAGIC,TRIGFLAG_WIND,TRIGFLAG_REFMAGIC,
+		TRIGFLAG_REFFIREBALL,TRIGFLAG_REFROCK,TRIGFLAG_HAMMER,TRIGFLAG_EWFIREBALL,
+		TRIGFLAG_HOOKSHOT,TRIGFLAG_SPARKLE,TRIGFLAG_BYRNA,TRIGFLAG_REFBEAM,TRIGFLAG_STOMP,
+		TRIGFLAG_SCRIPT01,TRIGFLAG_SCRIPT02,TRIGFLAG_SCRIPT03,TRIGFLAG_SCRIPT04,TRIGFLAG_SCRIPT05,
+		TRIGFLAG_SCRIPT06,TRIGFLAG_SCRIPT07,TRIGFLAG_SCRIPT08,TRIGFLAG_SCRIPT09,TRIGFLAG_SCRIPT10,
+		TRIGFLAG_EWARROW,TRIGFLAG_EWBRANG,TRIGFLAG_EWSWORD,TRIGFLAG_EWROCK,
+		TRIGFLAG_EWSCRIPT01,TRIGFLAG_EWSCRIPT02,TRIGFLAG_EWSCRIPT03,TRIGFLAG_EWSCRIPT04,TRIGFLAG_EWSCRIPT05,
+		TRIGFLAG_EWSCRIPT06,TRIGFLAG_EWSCRIPT07,TRIGFLAG_EWSCRIPT08,TRIGFLAG_EWSCRIPT09,TRIGFLAG_EWSCRIPT10,
+		TRIGFLAG_EWMAGIC,TRIGFLAG_EWBBLAST,TRIGFLAG_EWSBBLAST,TRIGFLAG_EWLITBOMB,TRIGFLAG_EWLITSBOMB,
+		TRIGFLAG_EWFIRETRAIL,TRIGFLAG_EWFLAME,TRIGFLAG_EWWIND,TRIGFLAG_EWFLAME2,
+		TRIGFLAG_THROWN,TRIGFLAG_QUAKESTUN,TRIGFLAG_SQUAKESTUN,TRIGFLAG_ANYFIRE,
+		TRIGFLAG_STRONGFIRE,TRIGFLAG_MAGICFIRE,TRIGFLAG_DIVINEFIRE,
+		TRIGFLAG_LWREFARROW,TRIGFLAG_LWREFFIRE,TRIGFLAG_LWREFFIRE2})) return true;
 	return false;
 }
 static bool has_trigger_cause(combo_trigger const& trig)
 {
-	if(trig.triggerbtn && (trig.triggerflags[0] & (combotriggerBTN_TOP|combotriggerBTN_BOTTOM|
-		combotriggerBTN_LEFT|combotriggerBTN_RIGHT))) return true;
+	if(trig.triggerbtn && (trig.trigger_flags.any({TRIGFLAG_BTN_TOP,TRIGFLAG_BTN_BOTTOM,
+		TRIGFLAG_BTN_LEFT,TRIGFLAG_BTN_RIGHT}))) return true;
 	if(trig.trigtimer) return true;
-	if(trig.triggerflags[0] & (
-		combotriggerSWORD|combotriggerSWORDBEAM|combotriggerBRANG|combotriggerBOMB|combotriggerSBOMB|
-		combotriggerLITBOMB|combotriggerLITSBOMB|combotriggerARROW|combotriggerFIRE|combotriggerWHISTLE|
-		combotriggerBAIT|combotriggerWAND|combotriggerMAGIC|combotriggerWIND|combotriggerREFMAGIC|
-		combotriggerREFFIREBALL|combotriggerREFROCK|combotriggerHAMMER|combotriggerSTEP|combotriggerSTEPSENS|
-		combotriggerSHUTTER|combotriggerEWFIREBALL)) return true;
-	if(trig.triggerflags[1] & (
-		combotriggerHOOKSHOT|combotriggerSPARKLE|combotriggerBYRNA|combotriggerREFBEAM|combotriggerSTOMP|
-		combotriggerSCRIPT01|combotriggerSCRIPT02|combotriggerSCRIPT03|combotriggerSCRIPT04|combotriggerSCRIPT05|
-		combotriggerSCRIPT06|combotriggerSCRIPT07|combotriggerSCRIPT08|combotriggerSCRIPT09|combotriggerSCRIPT10|
-		combotriggerAUTOMATIC|combotriggerLIGHTON|combotriggerLIGHTOFF|combotriggerPUSH|combotriggerLENSON|
-		combotriggerLENSOFF|combotriggerEWARROW|combotriggerEWBRANG|combotriggerEWSWORD|combotriggerEWROCK))
-		return true;
-	if(trig.triggerflags[2] & (
-		combotriggerEWSCRIPT01|combotriggerEWSCRIPT02|combotriggerEWSCRIPT03|combotriggerEWSCRIPT04|combotriggerEWSCRIPT05|
-		combotriggerEWSCRIPT06|combotriggerEWSCRIPT07|combotriggerEWSCRIPT08|combotriggerEWSCRIPT09|combotriggerEWSCRIPT10|
-		combotriggerEWMAGIC|combotriggerEWBBLAST|combotriggerEWSBBLAST|combotriggerEWLITBOMB|combotriggerEWLITSBOMB|
-		combotriggerEWFIRETRAIL|combotriggerEWFLAME|combotriggerEWWIND|combotriggerEWFLAME2|combotriggerENEMIESKILLED|
-		combotriggerSECRETSTR|combotriggerTHROWN|combotriggerQUAKESTUN|combotriggerSQUAKESTUN|combotriggerANYFIRE|
-		combotriggerSTRONGFIRE|combotriggerMAGICFIRE|combotriggerDIVINEFIRE)) return true;
-	if(trig.triggerflags[3] & (
-		combotriggerTRIGLEVELSTATE|combotriggerTRIGGLOBALSTATE|combotriggerTGROUP_LESS|combotriggerTGROUP_GREATER|
-		combotriggerPUSHEDTRIG|combotriggerDIVETRIG|combotriggerDIVESENSTRIG|combotriggerLWREFARROW|combotriggerLWREFFIRE|
-		combotriggerLWREFFIRE2)) return true;
-	if(trig.triggerflags[4] & (combotriggerSCREENLOAD|combotriggerPLAYERLANDHERE|
-		combotriggerPLAYERLANDANYWHERE|combotriggerCMBTYPECAUSES)) return true;
-	if(trig.exstate != -1 && !(trig.triggerflags[4] & combotriggerUNSETEXSTATE)) return true;
-	if(trig.exdoor_dir != -1 && !(trig.triggerflags[4] & combotriggerUNSETEXDOOR)) return true;
+	if(trig.trigger_flags.any({
+		TRIGFLAG_SWORD,TRIGFLAG_SWORDBEAM,TRIGFLAG_BRANG,TRIGFLAG_BOMB,TRIGFLAG_SBOMB,
+		TRIGFLAG_LITBOMB,TRIGFLAG_LITSBOMB,TRIGFLAG_ARROW,TRIGFLAG_FIRE,TRIGFLAG_WHISTLE,
+		TRIGFLAG_BAIT,TRIGFLAG_WAND,TRIGFLAG_MAGIC,TRIGFLAG_WIND,TRIGFLAG_REFMAGIC,
+		TRIGFLAG_REFFIREBALL,TRIGFLAG_REFROCK,TRIGFLAG_HAMMER,TRIGFLAG_STEP,TRIGFLAG_STEPSENS,
+		TRIGFLAG_SHUTTER,TRIGFLAG_EWFIREBALL,
+		TRIGFLAG_HOOKSHOT,TRIGFLAG_SPARKLE,TRIGFLAG_BYRNA,TRIGFLAG_REFBEAM,TRIGFLAG_STOMP,
+		TRIGFLAG_SCRIPT01,TRIGFLAG_SCRIPT02,TRIGFLAG_SCRIPT03,TRIGFLAG_SCRIPT04,TRIGFLAG_SCRIPT05,
+		TRIGFLAG_SCRIPT06,TRIGFLAG_SCRIPT07,TRIGFLAG_SCRIPT08,TRIGFLAG_SCRIPT09,TRIGFLAG_SCRIPT10,
+		TRIGFLAG_AUTOMATIC,TRIGFLAG_LIGHTON,TRIGFLAG_LIGHTOFF,TRIGFLAG_PUSH,TRIGFLAG_LENSON,
+		TRIGFLAG_LENSOFF,TRIGFLAG_EWARROW,TRIGFLAG_EWBRANG,TRIGFLAG_EWSWORD,TRIGFLAG_EWROCK,
+		TRIGFLAG_EWSCRIPT01,TRIGFLAG_EWSCRIPT02,TRIGFLAG_EWSCRIPT03,TRIGFLAG_EWSCRIPT04,TRIGFLAG_EWSCRIPT05,
+		TRIGFLAG_EWSCRIPT06,TRIGFLAG_EWSCRIPT07,TRIGFLAG_EWSCRIPT08,TRIGFLAG_EWSCRIPT09,TRIGFLAG_EWSCRIPT10,
+		TRIGFLAG_EWMAGIC,TRIGFLAG_EWBBLAST,TRIGFLAG_EWSBBLAST,TRIGFLAG_EWLITBOMB,TRIGFLAG_EWLITSBOMB,
+		TRIGFLAG_EWFIRETRAIL,TRIGFLAG_EWFLAME,TRIGFLAG_EWWIND,TRIGFLAG_EWFLAME2,TRIGFLAG_ENEMIESKILLED,
+		TRIGFLAG_SECRETSTR,TRIGFLAG_THROWN,TRIGFLAG_QUAKESTUN,TRIGFLAG_SQUAKESTUN,TRIGFLAG_ANYFIRE,
+		TRIGFLAG_STRONGFIRE,TRIGFLAG_MAGICFIRE,TRIGFLAG_DIVINEFIRE,
+		TRIGFLAG_TRIGLEVELSTATE,TRIGFLAG_TRIGGLOBALSTATE,TRIGFLAG_TGROUP_LESS,TRIGFLAG_TGROUP_GREATER,
+		TRIGFLAG_PUSHEDTRIG,TRIGFLAG_DIVETRIG,TRIGFLAG_DIVESENSTRIG,TRIGFLAG_LWREFARROW,TRIGFLAG_LWREFFIRE,
+		TRIGFLAG_LWREFFIRE2,TRIGFLAG_SCREENLOAD,TRIGFLAG_PLAYERLANDHERE,
+		TRIGFLAG_PLAYERLANDANYWHERE,TRIGFLAG_CMBTYPECAUSES})) return true;
+	if(trig.exstate != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))) return true;
+	if(trig.exdoor_dir != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))) return true;
 	if(trig.trigcopycat) return true;
 	return false;
 }
 static bool has_trigger_effect(combo_trigger const& trig)
 {
-	if(trig.triggerflags[0] & (combotriggerRESETANIM|combotriggerCMBTYPEFX|combotriggerKILLWPN)) return true;
-	if(trig.triggerflags[1] & (combotriggerCONSUMEITEM|combotriggerCOUNTEREAT|combotriggerSECRETS)) return true;
-	if(trig.triggerflags[3] & (combotriggerLEVELSTATE|combotriggerGLOBALSTATE|combotriggerKILLENEMIES|combotriggerCLEARENEMIES|
-		combotriggerCLEARLWEAPONS|combotriggerCLEAREWEAPONS|combotriggerIGNITE_ANYFIRE|combotriggerIGNITE_STRONGFIRE|
-		combotriggerIGNITE_MAGICFIRE|combotriggerIGNITE_DIVINEFIRE|combotriggerTOGGLEDARK|combotriggerLITEM_SET|
-		combotriggerLITEM_UNSET|combotriggerTINT_CLEAR)) return true;
-	if(trig.triggerflags[4] & (combotriggerSETPLAYER_X_ABS|combotriggerSETPLAYER_X_REL_CMB|combotriggerSETPLAYER_Y_ABS|
-		combotriggerSETPLAYER_Y_REL_CMB|combotriggerSETPLAYER_Z_ABS|
-		combotriggerFORCE_ICE_VX|combotriggerFORCE_ICE_VY)) return true;
+	if (trig.trigger_flags.any({ TRIGFLAG_RESETANIM,TRIGFLAG_CMBTYPEFX,TRIGFLAG_KILLWPN,
+		TRIGFLAG_CONSUMEITEM,TRIGFLAG_COUNTEREAT,TRIGFLAG_SECRETS,TRIGFLAG_LEVELSTATE,
+		TRIGFLAG_GLOBALSTATE,TRIGFLAG_KILLENEMIES,TRIGFLAG_CLEARENEMIES,TRIGFLAG_CLEARLWEAPONS,
+		TRIGFLAG_CLEAREWEAPONS,TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,
+		TRIGFLAG_IGNITE_MAGICFIRE,TRIGFLAG_IGNITE_DIVINEFIRE,TRIGFLAG_TOGGLEDARK,
+		TRIGFLAG_LITEM_SET,TRIGFLAG_LITEM_UNSET,TRIGFLAG_TINT_CLEAR,TRIGFLAG_SETPLAYER_X_ABS,
+		TRIGFLAG_SETPLAYER_X_REL_CMB,TRIGFLAG_SETPLAYER_Y_ABS,
+		TRIGFLAG_SETPLAYER_Y_REL_CMB,TRIGFLAG_SETPLAYER_Z_ABS,
+		TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY })) return true;
 	if(trig.dest_player_x || trig.dest_player_y || trig.dest_player_z) return true;
 	if(trig.force_ice_combo > -1) return true;
 	if(trig.dest_player_dir > -1) return true;
@@ -194,7 +186,7 @@ void ComboTriggerDialog::updateWarnings()
 	warnings.clear();
 	bool cause = has_trigger_cause(local_ref);
 	bool effect = has_trigger_effect(local_ref);
-	bool tgroup = local_ref.triggerflags[3] & combotriggerTGROUP_CONTRIB;
+	bool tgroup = local_ref.trigger_flags.get(TRIGFLAG_TGROUP_CONTRIB);
 	if(!tgroup || (cause != effect))
 	{
 		if(!cause)
@@ -202,15 +194,15 @@ void ComboTriggerDialog::updateWarnings()
 		if(!effect)
 			warnings.emplace_back("Trigger has no 'Effect', and will do nothing!");
 	}
-	if((local_ref.triggerflags[0] & (combotriggerKILLWPN)) || (local_ref.triggerflags[3] & (combotriggerIGNITE_ANYFIRE|
-		combotriggerIGNITE_STRONGFIRE|combotriggerIGNITE_MAGICFIRE|combotriggerIGNITE_DIVINEFIRE|combotriggerSEPARATEWEAPON)))
+	if(local_ref.trigger_flags.any({TRIGFLAG_KILLWPN,TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,
+		TRIGFLAG_IGNITE_MAGICFIRE,TRIGFLAG_IGNITE_DIVINEFIRE,TRIGFLAG_SEPARATEWEAPON}))
 	{
 		if(!has_weapon_cause(local_ref))
 			warnings.emplace_back("Trigger has weapon-specific 'Effect'(s), but no weapon-based causes!");
 	}
-	if((local_ref.triggerflags[4] & combotriggerUNSETEXSTATE) && local_ref.exstate < 0)
+	if(local_ref.trigger_flags.get(TRIGFLAG_UNSETEXSTATE) && local_ref.exstate < 0)
 		warnings.emplace_back("Can't unset ExState -1!");
-	if((local_ref.triggerflags[4] & combotriggerUNSETEXDOOR) && local_ref.exdoor_dir < 0)
+	if(local_ref.trigger_flags.get(TRIGFLAG_UNSETEXDOOR) && local_ref.exdoor_dir < 0)
 		warnings.emplace_back("Can't unset ExDoor '(None)' dir!");
 	
 	
@@ -276,53 +268,53 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										}),
 									Checkbox(
 										text = "Max level instead", hAlign = 0.0,
-										checked = (local_ref.triggerflags[0] & (combotriggerINVERTMINMAX)),
+										checked = local_ref.trigger_flags.get(TRIGFLAG_INVERTMINMAX),
 										onToggleFunc = [&](bool state)
 										{
-											SETFLAG(local_ref.triggerflags[0],(combotriggerINVERTMINMAX),state);
+											local_ref.trigger_flags.set(TRIGFLAG_INVERTMINMAX,state);
 											l_minmax_trig->setText(state ? maxstr : minstr);
 										})
 								),
 								Rows<4>(
-									TRIGFLAG(0,"Sword"),
-									TRIGFLAG(1,"Sword Beam"),
-									TRIGFLAG(2,"Boomerang"),
-									TRIGFLAG(3,"Bomb Boom"),
-									TRIGFLAG(4,"Super Bomb Boom"),
-									TRIGFLAG(5,"Placed Bomb"),
-									TRIGFLAG(6,"Placed Super Bomb"),
-									TRIGFLAG(7,"Arrow"),
-									TRIGFLAG(8,"Fire"),
-									TRIGFLAG(9,"Whistle"),
-									TRIGFLAG(10,"Bait"),
-									TRIGFLAG(11,"Wand"),
-									TRIGFLAG(12,"Magic"),
-									TRIGFLAG(13,"Wind"),
-									TRIGFLAG(14,"Refl. Magic"),
-									TRIGFLAG(15,"Refl. Fireball"),
-									TRIGFLAG(16,"Refl. Rock"),
-									TRIGFLAG(115,"Refl. Arrow"),
-									TRIGFLAG(116,"Refl. Fire"),
-									TRIGFLAG(117,"Refl. Fire 2"),
-									TRIGFLAG(17,"Hammer"),
-									TRIGFLAG(32,"Hookshot"),
-									TRIGFLAG(33,"Sparkle"),
-									TRIGFLAG(34,"Byrna"),
-									TRIGFLAG(35,"Refl. Beam"),
-									TRIGFLAG(36,"Stomp"),
-									TRIGFLAG(89, "Thrown"),
-									TRIGFLAG(90, "Quake Hammer"),
-									TRIGFLAG(91, "S. Quake Hammer"),
-									TRIGFLAG(37,"Custom Weapon 1"),
-									TRIGFLAG(38,"Custom Weapon 2"),
-									TRIGFLAG(39,"Custom Weapon 3"),
-									TRIGFLAG(40,"Custom Weapon 4"),
-									TRIGFLAG(41,"Custom Weapon 5"),
-									TRIGFLAG(42,"Custom Weapon 6"),
-									TRIGFLAG(43,"Custom Weapon 7"),
-									TRIGFLAG(44,"Custom Weapon 8"),
-									TRIGFLAG(45,"Custom Weapon 9"),
-									TRIGFLAG(46,"Custom Weapon 10")
+									TRIGFLAG(TRIGFLAG_SWORD,"Sword"),
+									TRIGFLAG(TRIGFLAG_SWORDBEAM,"Sword Beam"),
+									TRIGFLAG(TRIGFLAG_BRANG,"Boomerang"),
+									TRIGFLAG(TRIGFLAG_BOMB,"Bomb Boom"),
+									TRIGFLAG(TRIGFLAG_SBOMB,"Super Bomb Boom"),
+									TRIGFLAG(TRIGFLAG_LITBOMB,"Placed Bomb"),
+									TRIGFLAG(TRIGFLAG_LITSBOMB,"Placed Super Bomb"),
+									TRIGFLAG(TRIGFLAG_ARROW,"Arrow"),
+									TRIGFLAG(TRIGFLAG_FIRE,"Fire"),
+									TRIGFLAG(TRIGFLAG_WHISTLE,"Whistle"),
+									TRIGFLAG(TRIGFLAG_BAIT,"Bait"),
+									TRIGFLAG(TRIGFLAG_WAND,"Wand"),
+									TRIGFLAG(TRIGFLAG_MAGIC,"Magic"),
+									TRIGFLAG(TRIGFLAG_WIND,"Wind"),
+									TRIGFLAG(TRIGFLAG_REFMAGIC,"Refl. Magic"),
+									TRIGFLAG(TRIGFLAG_REFFIREBALL,"Refl. Fireball"),
+									TRIGFLAG(TRIGFLAG_REFROCK,"Refl. Rock"),
+									TRIGFLAG(TRIGFLAG_LWREFARROW,"Refl. Arrow"),
+									TRIGFLAG(TRIGFLAG_LWREFFIRE,"Refl. Fire"),
+									TRIGFLAG(TRIGFLAG_LWREFFIRE2,"Refl. Fire 2"),
+									TRIGFLAG(TRIGFLAG_HAMMER,"Hammer"),
+									TRIGFLAG(TRIGFLAG_HOOKSHOT,"Hookshot"),
+									TRIGFLAG(TRIGFLAG_SPARKLE,"Sparkle"),
+									TRIGFLAG(TRIGFLAG_BYRNA,"Byrna"),
+									TRIGFLAG(TRIGFLAG_REFBEAM,"Refl. Beam"),
+									TRIGFLAG(TRIGFLAG_STOMP,"Stomp"),
+									TRIGFLAG(TRIGFLAG_THROWN, "Thrown"),
+									TRIGFLAG(TRIGFLAG_QUAKESTUN, "Quake Hammer"),
+									TRIGFLAG(TRIGFLAG_SQUAKESTUN, "S. Quake Hammer"),
+									TRIGFLAG(TRIGFLAG_SCRIPT01,"Custom Weapon 1"),
+									TRIGFLAG(TRIGFLAG_SCRIPT02,"Custom Weapon 2"),
+									TRIGFLAG(TRIGFLAG_SCRIPT03,"Custom Weapon 3"),
+									TRIGFLAG(TRIGFLAG_SCRIPT04,"Custom Weapon 4"),
+									TRIGFLAG(TRIGFLAG_SCRIPT05,"Custom Weapon 5"),
+									TRIGFLAG(TRIGFLAG_SCRIPT06,"Custom Weapon 6"),
+									TRIGFLAG(TRIGFLAG_SCRIPT07,"Custom Weapon 7"),
+									TRIGFLAG(TRIGFLAG_SCRIPT08,"Custom Weapon 8"),
+									TRIGFLAG(TRIGFLAG_SCRIPT09,"Custom Weapon 9"),
+									TRIGFLAG(TRIGFLAG_SCRIPT10,"Custom Weapon 10")
 								)
 							)
 						)
@@ -331,30 +323,30 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						Frame(title = "EW Types", info = "Triggered by any eweapon matching these types",
 							Column(
 								Rows<4>(
-									TRIGFLAG(31,"Fireball"),
-									TRIGFLAG(60,"Arrow"),
-									TRIGFLAG(61,"Boomerang"),
-									TRIGFLAG(62,"Sword"),
-									TRIGFLAG(63,"Rock"),
-									TRIGFLAG(74,"Magic"),
-									TRIGFLAG(75,"Bomb Blast"),
-									TRIGFLAG(76,"SBomb Blast"),
-									TRIGFLAG(77,"Lit Bomb"),
-									TRIGFLAG(78,"Lit SBomb"),
-									TRIGFLAG(79,"Fire Trail"),
-									TRIGFLAG(80,"Flame"),
-									TRIGFLAG(81,"Wind"),
-									TRIGFLAG(82,"Flame 2"),
-									TRIGFLAG(64,"Custom Weapon 1"),
-									TRIGFLAG(65,"Custom Weapon 2"),
-									TRIGFLAG(66,"Custom Weapon 3"),
-									TRIGFLAG(67,"Custom Weapon 4"),
-									TRIGFLAG(68,"Custom Weapon 5"),
-									TRIGFLAG(69,"Custom Weapon 6"),
-									TRIGFLAG(70,"Custom Weapon 7"),
-									TRIGFLAG(71,"Custom Weapon 8"),
-									TRIGFLAG(72,"Custom Weapon 9"),
-									TRIGFLAG(73,"Custom Weapon 10")
+									TRIGFLAG(TRIGFLAG_EWFIREBALL,"Fireball"),
+									TRIGFLAG(TRIGFLAG_EWARROW,"Arrow"),
+									TRIGFLAG(TRIGFLAG_EWBRANG,"Boomerang"),
+									TRIGFLAG(TRIGFLAG_EWSWORD,"Sword"),
+									TRIGFLAG(TRIGFLAG_EWROCK,"Rock"),
+									TRIGFLAG(TRIGFLAG_EWMAGIC,"Magic"),
+									TRIGFLAG(TRIGFLAG_EWBBLAST,"Bomb Blast"),
+									TRIGFLAG(TRIGFLAG_EWSBBLAST,"SBomb Blast"),
+									TRIGFLAG(TRIGFLAG_EWLITBOMB,"Lit Bomb"),
+									TRIGFLAG(TRIGFLAG_EWLITSBOMB,"Lit SBomb"),
+									TRIGFLAG(TRIGFLAG_EWFIRETRAIL,"Fire Trail"),
+									TRIGFLAG(TRIGFLAG_EWFLAME,"Flame"),
+									TRIGFLAG(TRIGFLAG_EWWIND,"Wind"),
+									TRIGFLAG(TRIGFLAG_EWFLAME2,"Flame 2"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT01,"Custom Weapon 1"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT02,"Custom Weapon 2"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT03,"Custom Weapon 3"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT04,"Custom Weapon 4"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT05,"Custom Weapon 5"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT06,"Custom Weapon 6"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT07,"Custom Weapon 7"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT08,"Custom Weapon 8"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT09,"Custom Weapon 9"),
+									TRIGFLAG(TRIGFLAG_EWSCRIPT10,"Custom Weapon 10")
 								)
 							)
 						)
@@ -364,19 +356,19 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							+ QRHINT({qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS}),
 							Rows<2>(
 								IBTN("Triggered by weapons burning with 'Normal' type fire.\nNote: Many engine fire sources will *always* count as 'Normal Fire', regardless of other settings."),
-								TRIGFLAG(92, "Normal Fire"),
+								TRIGFLAG(TRIGFLAG_ANYFIRE, "Normal Fire"),
 								IBTN("Triggered by weapons burning with 'Strong' type fire"),
-								TRIGFLAG(93, "Strong Fire"),
+								TRIGFLAG(TRIGFLAG_STRONGFIRE, "Strong Fire"),
 								IBTN("Triggered by weapons burning with 'Magic' type fire"),
-								TRIGFLAG(94, "Magic Fire"),
+								TRIGFLAG(TRIGFLAG_MAGICFIRE, "Magic Fire"),
 								IBTN("Triggered by weapons burning with 'Divine' type fire"),
-								TRIGFLAG(95, "Divine Fire")
+								TRIGFLAG(TRIGFLAG_DIVINEFIRE, "Divine Fire")
 							)
 						),
 						Frame(
 							Rows<2>(
 								IBTN("Only weapons with Z=0 will count for this trigger. (No effect in sideview)"),
-								TRIGFLAG(126,"Only Grounded Weapons")
+								TRIGFLAG(TRIGFLAG_ONLY_GROUND_WPN,"Only Grounded Weapons")
 							)
 						)
 					)),
@@ -386,22 +378,22 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								" effects will not occur if the combo is triggered by a non-weapon trigger.",
 							Rows<2>(hAlign = 0.0,
 								IBTN("Destroy the triggering weapon"),
-								TRIGFLAG(30, "Kill Triggering Weapon"),
+								TRIGFLAG(TRIGFLAG_KILLWPN, "Kill Triggering Weapon"),
 								IBTN("Light the triggering weapon on fire, making it trigger 'Normal Fire' triggers."),
-								TRIGFLAG(104, "Ignite Weapon (Normal)"),
+								TRIGFLAG(TRIGFLAG_IGNITE_ANYFIRE, "Ignite Weapon (Normal)"),
 								IBTN("Light the triggering weapon on fire, making it trigger 'Strong Fire' triggers."),
-								TRIGFLAG(105, "Ignite Weapon (Strong)"),
+								TRIGFLAG(TRIGFLAG_IGNITE_STRONGFIRE, "Ignite Weapon (Strong)"),
 								IBTN("Light the triggering weapon on fire, making it trigger 'Magic Fire' triggers."),
-								TRIGFLAG(106, "Ignite Weapon (Magic)"),
+								TRIGFLAG(TRIGFLAG_IGNITE_MAGICFIRE, "Ignite Weapon (Magic)"),
 								IBTN("Light the triggering weapon on fire, making it trigger 'Divine Fire' triggers."),
-								TRIGFLAG(107, "Ignite Weapon (Divine)")
+								TRIGFLAG(TRIGFLAG_IGNITE_DIVINEFIRE, "Ignite Weapon (Divine)")
 							)
 						),
 						Frame(vPadding = 0_px, fitParent = true,
 							Rows<2>(hAlign = 0.0,
 								IBTN("If triggered by a weapon, only the effects from the 'Weapon Effects'"
 									" section will occur- all other flags will only apply to non-weapon triggers."),
-								TRIGFLAG(108,"Weapon Separate Triggers")
+								TRIGFLAG(TRIGFLAG_SEPARATEWEAPON,"Weapon Separate Triggers")
 							)
 						)
 					))
@@ -448,10 +440,10 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									"\nUse the 'P' button to pick the flags for this value.")
 							),
 							Column(
-								TRIGFLAG(20,"Btn: Top"),
-								TRIGFLAG(21,"Btn: Bottom"),
-								TRIGFLAG(22,"Btn: Left"),
-								TRIGFLAG(23,"Btn: Right")
+								TRIGFLAG(TRIGFLAG_BTN_TOP,"Btn: Top"),
+								TRIGFLAG(TRIGFLAG_BTN_BOTTOM,"Btn: Bottom"),
+								TRIGFLAG(TRIGFLAG_BTN_LEFT,"Btn: Left"),
+								TRIGFLAG(TRIGFLAG_BTN_RIGHT,"Btn: Right")
 							)
 						),
 						Rows<3>(framed = true, vAlign = 1.0,
@@ -544,50 +536,50 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 					Row(padding = 0_px,
 						Rows_Columns<4,5>(framed = true, vAlign = 0.0,
 							IBTN("Triggers when stepped on"),
-							TRIGFLAG(25,"Step->"),
+							TRIGFLAG(TRIGFLAG_STEP,"Step->"),
 							IBTN("Triggers when stepped on by even a pixel"),
-							TRIGFLAG(26,"Step-> (Sensitive)"),
+							TRIGFLAG(TRIGFLAG_STEPSENS,"Step-> (Sensitive)"),
 							//
 							IBTN("Triggered when hit by a Light Beam matching the 'LightBeam' value"),
-							TRIGFLAG(55,"Light On->"),
+							TRIGFLAG(TRIGFLAG_LIGHTON,"Light On->"),
 							IBTN("Triggered when NOT hit by a Light Beam matching the 'LightBeam' value"),
-							TRIGFLAG(56,"Light Off->"),
+							TRIGFLAG(TRIGFLAG_LIGHTOFF,"Light Off->"),
 							//
 							IBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
 								+ " with 'Triggers Lens Trigflag' checked is activated."),
-							TRIGFLAG(58,"Lens On->"),
+							TRIGFLAG(TRIGFLAG_LENSON,"Lens On->"),
 							IBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
 								+ " with 'Triggers Lens Trigflag' checked is NOT activated."),
-							TRIGFLAG(59,"Lens Off->"),
+							TRIGFLAG(TRIGFLAG_LENSOFF,"Lens Off->"),
 							//
 							IBTN("Triggered when the Hero pushes against the combo"),
-							TRIGFLAG(57,"Push->"),
+							TRIGFLAG(TRIGFLAG_PUSH,"Push->"),
 							IBTN("Triggered when the combo is pushed as a pushblock (after it settles into the new position)."),
-							TRIGFLAG(112,"Pushed->"),
+							TRIGFLAG(TRIGFLAG_PUSHEDTRIG,"Pushed->"),
 							//
 							IBTN("Triggers when the Hero dives on this combo"),
-							TRIGFLAG(113, "Dive->"),
+							TRIGFLAG(TRIGFLAG_DIVETRIG, "Dive->"),
 							IBTN("Triggers when the Hero dives on this combo (more sensitive hitbox)"),
-							TRIGFLAG(114, "Dive-> (Sensitive)"),
+							TRIGFLAG(TRIGFLAG_DIVESENSTRIG, "Dive-> (Sensitive)"),
 							//
 							IBTN("Triggers when screen/region loads, after levelstates and exstates are applied"),
-							TRIGFLAG(128,"Triggers when screen loads"),
+							TRIGFLAG(TRIGFLAG_SCREENLOAD,"Triggers when screen loads"),
 							IBTN("Triggers every frame automatically"),
-							TRIGFLAG(47,"Always Triggered"),
+							TRIGFLAG(TRIGFLAG_AUTOMATIC,"Always Triggered"),
 							IBTN("Triggers when all enemies are defeated"),
-							TRIGFLAG(87, "Enemies->"),
+							TRIGFLAG(TRIGFLAG_ENEMIESKILLED, "Enemies->"),
 							IBTN("Triggers when room shutters would open"),
-							TRIGFLAG(27,"Shutter->"),
+							TRIGFLAG(TRIGFLAG_SHUTTER,"Shutter->"),
 							IBTN("Triggered when the player lands on this combo (after the general tab 'Landing' SFX plays)"),
-							TRIGFLAG(137, "Land Here->"),
+							TRIGFLAG(TRIGFLAG_PLAYERLANDHERE, "Land Here->"),
 							IBTN("Triggered when the player lands from the air (anywhere on the screen)"),
-							TRIGFLAG(138, "Land Anywhere->"),
+							TRIGFLAG(TRIGFLAG_PLAYERLANDANYWHERE, "Land Anywhere->"),
 							IBTN("Triggers when screen secrets trigger"),
-							TRIGFLAG(88, "Secrets->"),
+							TRIGFLAG(TRIGFLAG_SECRETSTR, "Secrets->"),
 							IBTN("Triggers when the combo's inherent type-based *cause* occurs"
 								" (Ex. the Player falling down a Pitfall or drowning in Liquid)."
 								" Not available for all combo types; will be greyed out when unavailable."),
-							ctcause_tflag = TRIGFLAG(144, "ComboType Causes->")
+							ctcause_tflag = TRIGFLAG(TRIGFLAG_CMBTYPECAUSES, "ComboType Causes->")
 						)
 					)
 				)),
@@ -627,25 +619,25 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								Rows_Columns<2,4>(framed = true, hAlign = 1.0,
 									IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
 										" unless 'Temporary Secrets' screen data flag is checked."),
-									TRIGFLAG(48,"Triggers Secrets"),
+									TRIGFLAG(TRIGFLAG_SECRETS,"Triggers Secrets"),
 									IBTN("Triggering the combo toggles the screen's \"darkness\". This resets upon leaving the screen."),
-									TRIGFLAG(118,"Toggle Darkness"),
+									TRIGFLAG(TRIGFLAG_TOGGLEDARK,"Toggle Darkness"),
 									IBTN("After triggering, the combo animation is reset. If the combo has changed"
 										" (by any trigger effect), the new combo is the one that resets."),
-									TRIGFLAG(18,"Reset Anim"),
+									TRIGFLAG(TRIGFLAG_RESETANIM,"Reset Anim"),
 									IBTN("Triggering the combo will cause its inherent type-based effects to occur."
 										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
 										" Not available for all combo types; will be greyed out when unavailable."),
-									cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
+									cteff_tflag = TRIGFLAG(TRIGFLAG_CMBTYPEFX,"->ComboType Effects"),
 									//
 									IBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
-									TRIGFLAG(100, "Kill Enemies"),
+									TRIGFLAG(TRIGFLAG_KILLENEMIES, "Kill Enemies"),
 									IBTN("Delete all enemies on screen."),
-									TRIGFLAG(101, "Clear Enemies"),
+									TRIGFLAG(TRIGFLAG_CLEARENEMIES, "Clear Enemies"),
 									IBTN("Delete all LWeapons on screen."),
-									TRIGFLAG(102, "Clear LWeapons"),
+									TRIGFLAG(TRIGFLAG_CLEARLWEAPONS, "Clear LWeapons"),
 									IBTN("Delete all EWeapons on screen."),
-									TRIGFLAG(103, "Clear EWeapons")
+									TRIGFLAG(TRIGFLAG_CLEAREWEAPONS, "Clear EWeapons")
 								)
 							),
 							Column(vAlign = 0.0,
@@ -748,19 +740,19 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										Rows<4>(padding = 0_px, vAlign = 0.0,
 											IBTN("Set the Player's 'X' to the 'Dest X' value exactly."
 												" No collision checks are performed; the player simply teleports."),
-											TRIGFLAG(139, "Set X (Abs)"),
+											TRIGFLAG(TRIGFLAG_SETPLAYER_X_ABS, "Set X (Abs)"),
 											IBTN("Set the Player's 'X' to the 'Dest X' value relative to this combo."
 												" For FFCs, relative to the center of the hitbox."
 												" No collision checks are performed; the player simply teleports."),
-											TRIGFLAG(140, "Set X (Rel)"),
+											TRIGFLAG(TRIGFLAG_SETPLAYER_X_REL_CMB, "Set X (Rel)"),
 											IBTN("Set the Player's 'Y' to the 'Dest Y' value exactly."),
-											TRIGFLAG(141, "Set Y (Abs)"),
+											TRIGFLAG(TRIGFLAG_SETPLAYER_Y_ABS, "Set Y (Abs)"),
 											IBTN("Set the Player's 'Y' to the 'Dest Y' value relative to this combo."
 												" For FFCs, relative to the center of the hitbox."
 												" No collision checks are performed; the player simply teleports."),
-											TRIGFLAG(142, "Set Y (Rel)"),
+											TRIGFLAG(TRIGFLAG_SETPLAYER_Y_REL_CMB, "Set Y (Rel)"),
 											IBTN("Set the Player's 'Z' to the 'Dest Z' value exactly."),
-											TRIGFLAG(143, "Set Z (Abs)")
+											TRIGFLAG(TRIGFLAG_SETPLAYER_Z_ABS, "Set Z (Abs)")
 										)
 									),
 									Rows<3>(hAlign = 0.0,
@@ -882,7 +874,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											}
 										),
 										Rows<3>(
-											TRIGFLAG(153, "Force Vx:"),
+											TRIGFLAG(TRIGFLAG_FORCE_ICE_VX, "Force Vx:"),
 											TextField(
 												fitParent = true, vPadding = 0_px,
 												maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
@@ -893,7 +885,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 													local_ref.force_ice_vx = zslongToFix(val);
 												}),
 											IBTN("Set the player's Ice Physics X velocity to this value"),
-											TRIGFLAG(154, "Force Vy:"),
+											TRIGFLAG(TRIGFLAG_FORCE_ICE_VY, "Force Vy:"),
 											TextField(
 												fitParent = true, vPadding = 0_px,
 												maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
@@ -927,11 +919,11 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										local_ref.req_player_x = zslongToFix(val);
 									}),
 								IBTN("Does nothing on it's own, see flags to the right"),
-								TRIGFLAG(147, "Req X >=", 1, true),
+								TRIGFLAG(TRIGFLAG_REQ_X_GE, "Req X >=", 1, true),
 								IBTN("The combo will only trigger if the Hero's X value is >= 'Player X'."),
-								TRIGFLAG(148, "Req X <=", 1, true),
+								TRIGFLAG(TRIGFLAG_REQ_X_LE, "Req X <=", 1, true),
 								IBTN("The combo will only trigger if the Hero's X value is <= 'Player X'."),
-								TRIGFLAG(149, "...Relative", 1, true),
+								TRIGFLAG(TRIGFLAG_REQ_X_REL, "...Relative", 1, true),
 								IBTN("'Player X' is treated as relative to where the player's X would be if"
 									" the player were standing centered on the combo."),
 								//
@@ -946,11 +938,11 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										local_ref.req_player_y = zslongToFix(val);
 									}),
 								IBTN("Does nothing on it's own, see flags to the right"),
-								TRIGFLAG(150, "Req Y >=", 1, true),
+								TRIGFLAG(TRIGFLAG_REQ_Y_GE, "Req Y >=", 1, true),
 								IBTN("The combo will only trigger if the Hero's Y value is >= 'Player Y'."),
-								TRIGFLAG(151, "Req Y <=", 1, true),
+								TRIGFLAG(TRIGFLAG_REQ_Y_LE, "Req Y <=", 1, true),
 								IBTN("The combo will only trigger if the Hero's Y value is <= 'Player Y'."),
-								TRIGFLAG(152, "...Relative", 1, true),
+								TRIGFLAG(TRIGFLAG_REQ_Y_REL, "...Relative", 1, true),
 								IBTN("'Player Y' is treated as relative to where the player's Y would be if"
 									" the player were standing centered on the combo."),
 								Label(text = "Player Z:", fitParent = true),
@@ -965,7 +957,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									}),
 								IBTN_T("Player Z Requirement","The combo"
 									" will only trigger if the Hero's Z value is >= this value."),
-								TRIGFLAG(133, "Invert Player Z Req", 1, true),
+								TRIGFLAG(TRIGFLAG_INVERT_PLAYER_Z, "Invert Player Z Req", 1, true),
 								IBTN("'Player Z:' requires that the Hero be < the specified Z, instead of >=."),
 								_d, _d, _d, _d,
 								//
@@ -980,9 +972,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										local_ref.req_player_jump = zslongToFix(val);
 									}),
 								IBTN("Does nothing on it's own, see flags to the right"),
-								TRIGFLAG(145, "Req Jump >=", 1, true),
+								TRIGFLAG(TRIGFLAG_REQ_JUMP_GE, "Req Jump >=", 1, true),
 								IBTN("The combo will only trigger if the Hero's Jump value is >= 'Player Jump'."),
-								TRIGFLAG(146, "Req Jump <=", 1, true),
+								TRIGFLAG(TRIGFLAG_REQ_JUMP_LE, "Req Jump <=", 1, true),
 								IBTN("The combo will only trigger if the Hero's Jump value is <= 'Player Jump'.")
 							)
 						),
@@ -1040,15 +1032,15 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							),
 							Rows_Columns<2, 3>(
 								IBTN("Can only trigger if the room is darkened."),
-								TRIGFLAG(119, "Req. Darkness"),
+								TRIGFLAG(TRIGFLAG_COND_DARK, "Req. Darkness"),
 								IBTN("Can only trigger if the room is NOT darkened."),
-								TRIGFLAG(120, "Req. No Darkness"),
+								TRIGFLAG(TRIGFLAG_COND_NODARK, "Req. No Darkness"),
 								IBTN("'Proximity:' requires the Hero to be far away, instead of close"),
-								TRIGFLAG(19,"Invert Proximity Req"),
+								TRIGFLAG(TRIGFLAG_INVERTPROX,"Invert Proximity Req"),
 								IBTN("Can only trigger if the player is standing on the ground. Handles 'standing' in sideview as well."),
-								TRIGFLAG(131, "Req. Player Standing"),
+								TRIGFLAG(TRIGFLAG_PLAYER_STANDING, "Req. Player Standing"),
 								IBTN("Can only trigger if the player is NOT standing on the ground. Handles 'standing' in sideview as well."),
-								TRIGFLAG(132, "Req. Player Not Standing")
+								TRIGFLAG(TRIGFLAG_PLAYER_NOTSTANDING, "Req. Player Not Standing")
 							)
 						)
 					)
@@ -1082,21 +1074,21 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							Rows_Columns<2,4>(
 								IBTN("Only trigger if the specified counter has at least the specified amount."
 									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-								TRIGFLAG(51,"Require >="),
+								TRIGFLAG(TRIGFLAG_COUNTERGE,"Require >="),
 								IBTN("Only trigger if the specified counter has less than the specified amount."
 									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-								TRIGFLAG(52,"Require <"),
+								TRIGFLAG(TRIGFLAG_COUNTERLT,"Require <"),
 								IBTN("The Counter Amount is a percentage of the max."),
-								TRIGFLAG(135,"...Is Percent"),
+								TRIGFLAG(TRIGFLAG_COUNTER_PERCENT,"...Is Percent"),
 								IBTN(fmt::format("The Counter Amount will be discounted based on the Hero's current '{}' item.", ZI.getItemClassName(itype_wealthmedal))),
-								TRIGFLAG(127,"Apply Discount"),
+								TRIGFLAG(TRIGFLAG_COUNTERDISCOUNT,"Apply Discount"),
 								IBTN("If the counter has the specified amount, consume it."
 									" Negative amount will add to the counter."),
-								TRIGFLAG(53,"Consume Amount"),
+								TRIGFLAG(TRIGFLAG_COUNTEREAT,"Consume Amount"),
 								IBTN("The 'Consume Amount' will be drained/granted gradually, instead of at once."),
-								TRIGFLAG(134,"...Gradual"),
+								TRIGFLAG(TRIGFLAG_COUNTER_GRADUAL,"...Gradual"),
 								IBTN("The 'Consume Amount' will occur even if the combo does not meet its' *counter based* trigger conditions."),
-								TRIGFLAG(54,"Consume w/o trig")
+								TRIGFLAG(TRIGFLAG_CTRNONLYTRIG,"Consume w/o trig")
 							)
 						)
 					),
@@ -1119,9 +1111,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work.")
 								),
 								Row(
-									TRIGFLAG(49,"Invert Item Req"),
+									TRIGFLAG(TRIGFLAG_INVERTITEM,"Invert Item Req"),
 									IBTN("'Req Item:' must NOT be owned to trigger"),
-									TRIGFLAG(50,"Consume Item Req"),
+									TRIGFLAG(TRIGFLAG_CONSUMEITEM,"Consume Item Req"),
 									IBTN("'Req Item:' will be taken when triggering")
 								)
 							)
@@ -1337,36 +1329,36 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 					Column(vAlign = 0.0, padding = 0_px,
 						Rows<4>(framed = true, fitParent = true,
 							IBTN("'Spawn Item' will be linked to the room's Special Item state"),
-							TRIGFLAG(83, "Spawns Special Item",3),
+							TRIGFLAG(TRIGFLAG_SPCITEM, "Spawns Special Item",3),
 							IBTN("The item spawned by the combo will automatically be collected by the Hero."),
-							TRIGFLAG(86, "Spawned Item auto-collects",3),
+							TRIGFLAG(TRIGFLAG_AUTOGRABITEM, "Spawned Item auto-collects",3),
 							IBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
-							TRIGFLAG(84, "Trigger ExState after item pickup",3),
+							TRIGFLAG(TRIGFLAG_EXSTITEM, "Trigger ExState after item pickup",3),
 							IBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
-							TRIGFLAG(85, "Trigger ExState after enemy kill",3),
+							TRIGFLAG(TRIGFLAG_EXSTENEMY, "Trigger ExState after enemy kill",3),
 							IBTN("The combo's 'ExState' will be unset instead of set when triggered."
 								" (Does not necessarily revert combos that were changed by the ExState on it's own)"),
-							TRIGFLAG(129, "Clear ExState on trigger",3),
+							TRIGFLAG(TRIGFLAG_UNSETEXSTATE, "Clear ExState on trigger",3),
 							IBTN("The combo's 'ExDoor' will be unset instead of set when triggered."
 								" (Does not necessarily revert combos that were changed by the ExDoor on it's own)"),
-							TRIGFLAG(130, "Clear ExDoor on trigger",3),
+							TRIGFLAG(TRIGFLAG_UNSETEXDOOR, "Clear ExDoor on trigger",3),
 							IBTN("This combo is triggered when the level-based switch state specified as 'LevelState' is toggled."),
-							TRIGFLAG(96, "LevelState->"),
+							TRIGFLAG(TRIGFLAG_TRIGLEVELSTATE, "LevelState->"),
 							IBTN("When triggered, toggles the level-based switch state specified as 'LevelState'."),
-							TRIGFLAG(97, "->LevelState"),
+							TRIGFLAG(TRIGFLAG_LEVELSTATE, "->LevelState"),
 							IBTN("This combo is triggered when the globalswitch state specified as 'GlobalState' is toggled."),
-							TRIGFLAG(98, "GlobalState->"),
+							TRIGFLAG(TRIGFLAG_TRIGGLOBALSTATE, "GlobalState->"),
 							IBTN("When triggered, toggles the global switch state specified as 'GlobalState'."
 								"\nIf 'GlobalState Timer' is >0, resets the timer of the state to the specified value instead of toggling it."),
-							TRIGFLAG(99, "->GlobalState"),
+							TRIGFLAG(TRIGFLAG_GLOBALSTATE, "->GlobalState"),
 							IBTN("This combo contributes to its Trigger Group."),
-							TRIGFLAG(109, "Contributes To TrigGroup",3),
+							TRIGFLAG(TRIGFLAG_TGROUP_CONTRIB, "Contributes To TrigGroup",3),
 							IBTN("When the number of combos that contribute to this trigger's Trigger Group is LESS than the Trigger Group Val, trigger this trigger."),
-							TRIGFLAG(110, "TrigGroup Less->"),
+							TRIGFLAG(TRIGFLAG_TGROUP_LESS, "TrigGroup Less->"),
 							IBTN("When the number of combos that contribute to this trigger's Trigger Group is GREATER than the Trigger Group Val, trigger this trigger."),
-							TRIGFLAG(111, "TrigGroup Greater->"),
+							TRIGFLAG(TRIGFLAG_TGROUP_GREATER, "TrigGroup Greater->"),
 							IBTN("The 'Copycat' will not cause this combo to trigger; it will only be used to trigger other combos when this combo triggers."),
-							TRIGFLAG(136, "Copycat doesn't trigger this")
+							TRIGFLAG(TRIGFLAG_NO_COPYCAT_CAUSE, "Copycat doesn't trigger this")
 						),
 						Frame(title = "GlobalState Conditions",
 							info = "These are 'Conditions'. They won't trigger the combo on their own, but they must apply for other triggers to work.",
@@ -1508,7 +1500,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							),
 							IBTN("Applies a tint to the palette, same as the script 'Graphics->Tint()'."
 								"Can be cleared using the '->ClearTint' flag."),
-							TRIGFLAG(125,"->ClearTint",1,true),
+							TRIGFLAG(TRIGFLAG_TINT_CLEAR,"->ClearTint",1,true),
 							IBTN("Clears all 'tint' from the palette, same as the script 'Graphics->ClearTint()'."
 								" Runs before the above 'Tint Palette' effect, if both are set.")
 						)
@@ -1624,16 +1616,16 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							Rows_Columns<2,2>(
 								IBTN("The level flags set for 'Req Flags:' must ALL be on for this to trigger."
 									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-								TRIGFLAG(121,"Require All"),
+								TRIGFLAG(TRIGFLAG_LITEM_COND,"Require All"),
 								IBTN("The level flags set for 'Req Flags:' must NOT ALL (some is ok) be on for this to trigger."
 									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-								TRIGFLAG(122,"Require Not All"),
+								TRIGFLAG(TRIGFLAG_LITEM_REVCOND,"Require Not All"),
 								IBTN("The level flags set for 'Req Flags:' will be enabled when this trigger triggers."
 									" If '->Unset' is also checked, the flags will be toggled instead."),
-								TRIGFLAG(123,"->Set"),
+								TRIGFLAG(TRIGFLAG_LITEM_SET,"->Set"),
 								IBTN("The level flags set for 'Req Flags:' will be disabled when this trigger triggers."
 									" If '->Set' is also checked, the flags will be toggled instead."),
-								TRIGFLAG(124,"->Unset")
+								TRIGFLAG(TRIGFLAG_LITEM_UNSET,"->Unset")
 							)
 						)
 					),
@@ -1715,7 +1707,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 	ctcause_tflag->setDisabled(!hasCTypeCauses(parent_comboref.type));
 	updateWarnings();
 	
-	l_minmax_trig->setText((local_ref.triggerflags[0] & (combotriggerINVERTMINMAX))
+	l_minmax_trig->setText(local_ref.trigger_flags.get(TRIGFLAG_INVERTMINMAX)
 		? maxstr : minstr);
 	return window;
 }
@@ -1738,7 +1730,7 @@ bool ComboTriggerDialog::apply_trigger()
 	
 	local_ref.force_ice_combo = force_ice_combo ? ice_combo : -1;
 	if(!hasCTypeEffects(parent_comboref.type))
-		local_ref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
+		local_ref.trigger_flags.set(TRIGFLAG_CMBTYPEFX, false);
 	edited = true;
 	parent_comboref.triggers[index] = local_ref;
 	return true;

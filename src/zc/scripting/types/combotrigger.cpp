@@ -48,20 +48,20 @@ static ArrayRegistrar CMBTRIGFLAGS_registrar(CMBTRIGFLAGS, []{
 	static ScriptingArray_GlobalComputed<bool> impl(
 		[](int ref) -> int {
 			if (checkComboTrigger(ref))
-				return 32*6;
+				return TRIGFLAG_MAX;
 
 			return 0;
 		},
 		[](int ref, int index) -> bool {
 			if (auto* trig = checkComboTrigger(ref))
 			{
-				if (index/32 == 0 && (1<<index%32) == combotriggerONLYGENTRIG)
+				if (index == TRIGFLAG_ONLYGENTRIG)
 				{
 					auto cmb = checkComboFromTriggerRef(ref);
 					return cmb ? cmb->only_gentrig : 0;
 				}
 				else
-					return (trig->triggerflags[index/32] & (1<<index%32));
+					return (trig->trigger_flags.get(index));
 			}
 
 			return -1;
@@ -69,8 +69,8 @@ static ArrayRegistrar CMBTRIGFLAGS_registrar(CMBTRIGFLAGS, []{
 		[](int ref, int index, bool value){
 			if (auto* trig = checkComboTrigger(ref))
 			{
-				SETFLAG(trig->triggerflags[index/32],1<<(index%32),value);
-				if (index/32 == 0 && (1<<index%32) == combotriggerONLYGENTRIG)
+				trig->trigger_flags.set(index, value);
+				if (index == TRIGFLAG_ONLYGENTRIG)
 				{
 					if (auto cmb = checkComboFromTriggerRef(ref))
 						cmb->only_gentrig = value;

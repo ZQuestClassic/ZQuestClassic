@@ -81,7 +81,7 @@ static bool MatchComboTrigger(weapon *w, combo_trigger const& trig)
 	if(w->no_triggers()) return false;
 	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	
-	if(w->z > 0 && (trig.triggerflags[3] & combotriggerONLY_GROUND_WPN))
+	if(w->z > 0 && trig.trigger_flags.get(TRIGFLAG_ONLY_GROUND_WPN))
 		return false; // Air based weapon shouldn't trigger ground-only combo
 	if(w->isLWeapon) //min/max level check
 	{
@@ -89,66 +89,69 @@ static bool MatchComboTrigger(weapon *w, combo_trigger const& trig)
 		int lv = w->type, tlv = trig.triggerlevel;
 		if(lv<1) lv=1;
 		if(tlv<1) tlv=1;
-		if(!((trig.triggerflags[0]&combotriggerINVERTMINMAX) ? lv <= tlv : lv >= tlv))
+		if(!(trig.trigger_flags.get(TRIGFLAG_INVERTMINMAX) ? lv <= tlv : lv >= tlv))
 			return false;
 	}
-	bool ret = false;
+	int trigflag = -1;
 	switch(wid)
 	{
-		case wSword: ret = (trig.triggerflags[0]&combotriggerSWORD); break;
-		case wBeam: ret = (trig.triggerflags[0]&combotriggerSWORDBEAM); break;
-		case wBrang: ret = (trig.triggerflags[0]&combotriggerBRANG); break;
-		case wBomb: ret = (trig.triggerflags[0]&combotriggerBOMB); break;
-		case wSBomb: ret = (trig.triggerflags[0]&combotriggerSBOMB); break;
-		case wLitBomb: ret = (trig.triggerflags[0]&combotriggerLITBOMB); break;
-		case wLitSBomb: ret = (trig.triggerflags[0]&combotriggerLITSBOMB); break;
-		case wArrow: ret = (trig.triggerflags[0]&combotriggerARROW); break;
-		case wFire: ret = (trig.triggerflags[0]&combotriggerFIRE); break;
-		case wWhistle: ret = (trig.triggerflags[0]&combotriggerWHISTLE); break;
-		case wBait: ret = (trig.triggerflags[0]&combotriggerBAIT); break;
-		case wWand: ret = (trig.triggerflags[0]&combotriggerWAND); break;
-		case wMagic: ret = (trig.triggerflags[0]&combotriggerMAGIC); break;
-		case wWind: ret = (trig.triggerflags[0]&combotriggerWIND); break;
-		case wRefMagic: ret = (trig.triggerflags[0]&combotriggerREFMAGIC); break;
-		case wRefFireball: ret = (trig.triggerflags[0]&combotriggerREFFIREBALL); break;
-		case wRefRock: ret = (trig.triggerflags[0]&combotriggerREFROCK); break;
-		case wHammer: ret = (trig.triggerflags[0]&combotriggerHAMMER); break;
-		case wHookshot: ret = (trig.triggerflags[1]&combotriggerHOOKSHOT); break;
-		case wFSparkle: ret = (trig.triggerflags[1]&combotriggerSPARKLE); break;
-		case wSSparkle: ret = (trig.triggerflags[1]&combotriggerSPARKLE); break;
-		case wCByrna: ret = (trig.triggerflags[1]&combotriggerBYRNA); break;
-		case wRefBeam: ret = (trig.triggerflags[1]&combotriggerREFBEAM); break;
-		case wStomp: ret = (trig.triggerflags[1]&combotriggerSTOMP); break;
-		case wThrown: ret = (trig.triggerflags[2]&combotriggerTHROWN); break;
-		case wScript1: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT01) : (trig.triggerflags[2]&combotriggerEWSCRIPT01); break;
-		case wScript2: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT02) : (trig.triggerflags[2]&combotriggerEWSCRIPT02); break;
-		case wScript3: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT03) : (trig.triggerflags[2]&combotriggerEWSCRIPT03); break;
-		case wScript4: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT04) : (trig.triggerflags[2]&combotriggerEWSCRIPT04); break;
-		case wScript5: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT05) : (trig.triggerflags[2]&combotriggerEWSCRIPT05); break;
-		case wScript6: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT06) : (trig.triggerflags[2]&combotriggerEWSCRIPT06); break;
-		case wScript7: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT07) : (trig.triggerflags[2]&combotriggerEWSCRIPT07); break;
-		case wScript8: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT08) : (trig.triggerflags[2]&combotriggerEWSCRIPT08); break;
-		case wScript9: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT09) : (trig.triggerflags[2]&combotriggerEWSCRIPT09); break;
-		case wScript10: ret = w->isLWeapon ? (trig.triggerflags[1]&combotriggerSCRIPT10) : (trig.triggerflags[2]&combotriggerEWSCRIPT10); break;
-		case ewFireball: case ewFireball2: ret = (trig.triggerflags[0]&combotriggerEWFIREBALL); break;
-		case ewArrow: ret = (trig.triggerflags[1]&combotriggerEWARROW); break;
-		case ewBrang: ret = (trig.triggerflags[1]&combotriggerEWBRANG); break;
-		case ewSword: ret = (trig.triggerflags[1]&combotriggerEWSWORD); break;
-		case ewRock: ret = (trig.triggerflags[1]&combotriggerEWROCK); break;
-		case ewMagic: ret = (trig.triggerflags[2]&combotriggerEWMAGIC); break;
-		case ewBomb: ret = (trig.triggerflags[2]&combotriggerEWBBLAST); break;
-		case ewSBomb: ret = (trig.triggerflags[2]&combotriggerEWSBBLAST); break;
-		case ewLitBomb: ret = (trig.triggerflags[2]&combotriggerEWLITBOMB); break;
-		case ewLitSBomb: ret = (trig.triggerflags[2]&combotriggerEWLITSBOMB); break;
-		case ewFireTrail: ret = (trig.triggerflags[2]&combotriggerEWFIRETRAIL); break;
-		case ewFlame: ret = (trig.triggerflags[2]&combotriggerEWFLAME); break;
-		case ewWind: ret = (trig.triggerflags[2]&combotriggerEWWIND); break;
-		case ewFlame2: ret = (trig.triggerflags[2]&combotriggerEWFLAME2); break;
-		case wRefArrow: ret = (trig.triggerflags[3]&combotriggerLWREFARROW); break;
-		case wRefFire: ret = (trig.triggerflags[3]&combotriggerLWREFFIRE); break;
-		case wRefFire2: ret = (trig.triggerflags[3]&combotriggerLWREFFIRE2); break;
+		case wSword: trigflag = TRIGFLAG_SWORD; break;
+		case wBeam: trigflag = TRIGFLAG_SWORDBEAM; break;
+		case wBrang: trigflag = TRIGFLAG_BRANG; break;
+		case wBomb: trigflag = TRIGFLAG_BOMB; break;
+		case wSBomb: trigflag = TRIGFLAG_SBOMB; break;
+		case wLitBomb: trigflag = TRIGFLAG_LITBOMB; break;
+		case wLitSBomb: trigflag = TRIGFLAG_LITSBOMB; break;
+		case wArrow: trigflag = TRIGFLAG_ARROW; break;
+		case wFire: trigflag = TRIGFLAG_FIRE; break;
+		case wWhistle: trigflag = TRIGFLAG_WHISTLE; break;
+		case wBait: trigflag = TRIGFLAG_BAIT; break;
+		case wWand: trigflag = TRIGFLAG_WAND; break;
+		case wMagic: trigflag = TRIGFLAG_MAGIC; break;
+		case wWind: trigflag = TRIGFLAG_WIND; break;
+		case wRefMagic: trigflag = TRIGFLAG_REFMAGIC; break;
+		case wRefFireball: trigflag = TRIGFLAG_REFFIREBALL; break;
+		case wRefRock: trigflag = TRIGFLAG_REFROCK; break;
+		case wHammer: trigflag = TRIGFLAG_HAMMER; break;
+		case wHookshot: trigflag = TRIGFLAG_HOOKSHOT; break;
+		case wFSparkle: trigflag = TRIGFLAG_SPARKLE; break;
+		case wSSparkle: trigflag = TRIGFLAG_SPARKLE; break;
+		case wCByrna: trigflag = TRIGFLAG_BYRNA; break;
+		case wRefBeam: trigflag = TRIGFLAG_REFBEAM; break;
+		case wStomp: trigflag = TRIGFLAG_STOMP; break;
+		case wThrown: trigflag = TRIGFLAG_THROWN; break;
+		case wScript1: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT01 : TRIGFLAG_EWSCRIPT01; break;
+		case wScript2: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT02 : TRIGFLAG_EWSCRIPT02; break;
+		case wScript3: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT03 : TRIGFLAG_EWSCRIPT03; break;
+		case wScript4: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT04 : TRIGFLAG_EWSCRIPT04; break;
+		case wScript5: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT05 : TRIGFLAG_EWSCRIPT05; break;
+		case wScript6: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT06 : TRIGFLAG_EWSCRIPT06; break;
+		case wScript7: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT07 : TRIGFLAG_EWSCRIPT07; break;
+		case wScript8: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT08 : TRIGFLAG_EWSCRIPT08; break;
+		case wScript9: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT09 : TRIGFLAG_EWSCRIPT09; break;
+		case wScript10: trigflag = w->isLWeapon ? TRIGFLAG_SCRIPT10 : TRIGFLAG_EWSCRIPT10; break;
+		case ewFireball: case ewFireball2: trigflag = TRIGFLAG_EWFIREBALL; break;
+		case ewArrow: trigflag = TRIGFLAG_EWARROW; break;
+		case ewBrang: trigflag = TRIGFLAG_EWBRANG; break;
+		case ewSword: trigflag = TRIGFLAG_EWSWORD; break;
+		case ewRock: trigflag = TRIGFLAG_EWROCK; break;
+		case ewMagic: trigflag = TRIGFLAG_EWMAGIC; break;
+		case ewBomb: trigflag = TRIGFLAG_EWBBLAST; break;
+		case ewSBomb: trigflag = TRIGFLAG_EWSBBLAST; break;
+		case ewLitBomb: trigflag = TRIGFLAG_EWLITBOMB; break;
+		case ewLitSBomb: trigflag = TRIGFLAG_EWLITSBOMB; break;
+		case ewFireTrail: trigflag = TRIGFLAG_EWFIRETRAIL; break;
+		case ewFlame: trigflag = TRIGFLAG_EWFLAME; break;
+		case ewWind: trigflag = TRIGFLAG_EWWIND; break;
+		case ewFlame2: trigflag = TRIGFLAG_EWFLAME2; break;
+		case wRefArrow: trigflag = TRIGFLAG_LWREFARROW; break;
+		case wRefFire: trigflag = TRIGFLAG_LWREFFIRE; break;
+		case wRefFire2: trigflag = TRIGFLAG_LWREFFIRE2; break;
+		default: return false;
 	}
-	return ret;
+	if(trigflag > -1)
+		return trig.trigger_flags.get(trigflag);
+	return false;
 }
 
 int FindComboTriggerMatch(weapon *w, int combo_id, int start_idx)
@@ -475,11 +478,12 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool strong, bool magic, bool divine)
 {
 	if(w->no_triggers()) return false;
-	int trigflags = (any?combotriggerANYFIRE:0)
-		| (strong?combotriggerSTRONGFIRE:0)
-		| (magic?combotriggerMAGICFIRE:0)
-		| (divine?combotriggerDIVINEFIRE:0);
-	if(!trigflags) return false;
+	vector<int> trigflags;
+	if(any) trigflags.push_back(TRIGFLAG_ANYFIRE);
+	if(strong) trigflags.push_back(TRIGFLAG_STRONGFIRE);
+	if(magic) trigflags.push_back(TRIGFLAG_MAGICFIRE);
+	if(divine) trigflags.push_back(TRIGFLAG_DIVINEFIRE);
+	if(trigflags.empty()) return false;
 	weapon* wptr = get_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS) ? nullptr : w;
 	bool ret = false;
 	if(any)
@@ -505,10 +509,18 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
-				if (w->z > 0 && (trig.triggerflags[3] & combotriggerONLY_GROUND_WPN))
+				if (w->z > 0 && trig.trigger_flags.get(TRIGFLAG_ONLY_GROUND_WPN))
 					continue; // Air based weapon shouldn't trigger ground-only combo
-
-				if (trig.triggerflags[2] & trigflags)
+				bool burned = false;
+				for(auto flag : trigflags)
+				{
+					if(trig.trigger_flags.get(flag))
+					{
+						burned = true;
+						break;
+					}
+				}
+				if (burned)
 				{
 					auto oldcombo = rpos_handle.data();
 					do_trigger_combo(rpos_handle, idx, 0, wptr);
@@ -525,10 +537,19 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
-			if (w->z > 0 && (trig.triggerflags[3] & combotriggerONLY_GROUND_WPN))
+			if (w->z > 0 && trig.trigger_flags.get(TRIGFLAG_ONLY_GROUND_WPN))
 				return; // Air based weapon shouldn't trigger ground-only combo
-
-			if((trig.triggerflags[2] & trigflags) && ffc.collide(x,y,16,16))
+			bool burned = false;
+			for(auto flag : trigflags)
+			{
+				if(trig.trigger_flags.get(flag))
+				{
+					burned = true;
+					break;
+				}
+			}
+			
+			if(burned && ffc.collide(x,y,16,16))
 			{
 				auto oldcombo = ffc_handle.data();
 				do_trigger_combo(ffc_handle, idx, 0, wptr);

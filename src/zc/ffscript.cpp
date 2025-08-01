@@ -34079,13 +34079,8 @@ void FFScript::read_combos(PACKFILE *f, int32_t version_id)
 		}	 
 		if(combobuf[i].triggers.empty())
 			combobuf[i].triggers.emplace_back();
-		for ( int32_t q = 0; q < 6; q++ ) 
-		{
-			if(!p_igetl(&combobuf[i].triggers[0].triggerflags[q],f))
-			{
+		if(!p_getbitstr(&combobuf[i].triggers[0].trigger_flags,f))
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",22);
-			}
-		}
 		
 		if(!p_igetl(&combobuf[i].triggers[0].triggerlevel,f))
 		{
@@ -34224,13 +34219,8 @@ void FFScript::write_combos(PACKFILE *f, int32_t version_id)
 		}	 
 		if(combobuf[i].triggers.empty())
 			combobuf[i].triggers.emplace_back();
-		for ( int32_t q = 0; q < 6; q++ ) 
-		{
-			if(!p_iputl(combobuf[i].triggers[0].triggerflags[q],f))
-			{
+		if(!p_putbitstr(combobuf[i].triggers[0].trigger_flags,f));
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",22);
-			}
-		}
 		
 		if(!p_iputl(combobuf[i].triggers[0].triggerlevel,f))
 		{

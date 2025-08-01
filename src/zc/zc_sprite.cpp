@@ -1026,7 +1026,7 @@ bool movingblock::animate(int32_t)
 		for(size_t idx = 0; idx < blockcmb.triggers.size(); ++idx)
 		{
 			auto& trig = blockcmb.triggers[idx];
-			if(trig.triggerflags[3] & combotriggerPUSHEDTRIG)
+			if(trig.trigger_flags.get(TRIGFLAG_PUSHEDTRIG))
 				do_trigger_combo(end_rpos_handle, idx);
 			if(end_rpos_handle.data() != bcombo) break;
 		}

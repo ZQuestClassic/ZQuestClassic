@@ -2286,7 +2286,7 @@ static bool do_copycat_trigger(const rpos_handle_t& rpos_handle)
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
-		if(trig.trigcopycat == copycat_id && !(trig.triggerflags[4] & combotriggerNO_COPYCAT_CAUSE))
+		if(trig.trigcopycat == copycat_id && !trig.trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE))
 		{
 			do_trigger_combo(rpos_handle, idx);
 			ret = true;
@@ -2306,7 +2306,7 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
-		if(trig.trigcopycat == copycat_id && !(trig.triggerflags[4] & combotriggerNO_COPYCAT_CAUSE))
+		if(trig.trigcopycat == copycat_id && !trig.trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE))
 		{
 			do_trigger_combo(ffc_handle, idx);
 			ret = true;
@@ -2381,7 +2381,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle, size_t idx)
 	{
 		rpos_handle.set_cset((ocs+trig.trigcschange) & 0xF);
 	}
-	if(trig.triggerflags[0] & combotriggerRESETANIM)
+	if(trig.trigger_flags.get(TRIGFLAG_RESETANIM))
 	{
 		auto& rcmb = rpos_handle.combo();
 		rcmb.tile = rcmb.o_tile;
@@ -2410,7 +2410,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx)
 	{
 		ffc->cset = (ocs+trig.trigcschange) & 0xF;
 	}
-	if(trig.triggerflags[0] & combotriggerRESETANIM)
+	if(trig.trigger_flags.get(TRIGFLAG_RESETANIM))
 	{
 		newcombo& rcmb = combobuf[ffc_handle.data()];
 		rcmb.tile = rcmb.o_tile;
@@ -2428,7 +2428,7 @@ bool force_ex_trigger(const rpos_handle_t& rpos_handle, size_t idx, char xstate)
 	auto& cmb = rpos_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
-	if(trig.triggerflags[4] & combotriggerUNSETEXSTATE)
+	if(trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
 		return false;
 	if(trig.exstate > -1 && (xstate < 0 || xstate == trig.exstate))
 	{
@@ -2446,7 +2446,7 @@ bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx, char xstat
 	auto& cmb = ffc_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
-	if(trig.triggerflags[4] & combotriggerUNSETEXSTATE)
+	if(trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
 		return false;
 	if(trig.exstate > -1 && (xstate < 0 || xstate == trig.exstate))
 	{
@@ -2498,7 +2498,7 @@ bool force_ex_door_trigger(const rpos_handle_t& rpos_handle, size_t idx, int dir
 	auto& cmb = rpos_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
-	if(trig.triggerflags[4] & combotriggerUNSETEXDOOR)
+	if(trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
 		return false;
 	if(trig.exdoor_dir > -1 && (dir < 0 || (dir == trig.exdoor_dir && ind == trig.exdoor_ind)))
 	{
@@ -2517,7 +2517,7 @@ bool force_ex_door_trigger_ffc(const ffc_handle_t& ffc_handle, size_t idx, int d
 	auto& cmb = ffc_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
 	auto& trig = cmb.triggers[idx];
-	if(trig.triggerflags[4] & combotriggerUNSETEXDOOR)
+	if(trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
 		return false;
 	if(trig.exdoor_dir > -1 && (dir < 0 || (dir == trig.exdoor_dir && ind == trig.exdoor_ind)))
 	{
@@ -2571,15 +2571,15 @@ static bool triggering_generic_switchstate = false;
 void do_weapon_fx(weapon* w, combo_trigger const& trig)
 {
 	if(!w) return;
-	if(trig.triggerflags[0] & combotriggerKILLWPN)
+	if(trig.trigger_flags.get(TRIGFLAG_KILLWPN))
 		killgenwpn(w);
-	if(trig.triggerflags[3] & combotriggerIGNITE_ANYFIRE)
+	if(trig.trigger_flags.get(TRIGFLAG_IGNITE_ANYFIRE))
 		w->misc_wflags |= WFLAG_BURN_ANYFIRE;
-	if(trig.triggerflags[3] & combotriggerIGNITE_STRONGFIRE)
+	if(trig.trigger_flags.get(TRIGFLAG_IGNITE_STRONGFIRE))
 		w->misc_wflags |= WFLAG_BURN_STRONGFIRE;
-	if(trig.triggerflags[3] & combotriggerIGNITE_MAGICFIRE)
+	if(trig.trigger_flags.get(TRIGFLAG_IGNITE_MAGICFIRE))
 		w->misc_wflags |= WFLAG_BURN_MAGICFIRE;
-	if(trig.triggerflags[3] & combotriggerIGNITE_DIVINEFIRE)
+	if(trig.trigger_flags.get(TRIGFLAG_IGNITE_DIVINEFIRE))
 		w->misc_wflags |= WFLAG_BURN_DIVINEFIRE;
 }
 
@@ -2587,7 +2587,7 @@ int32_t get_cmb_trigctrcost(combo_trigger const& trig)
 {
 	int32_t ctrcost = trig.trigctramnt;
 	if(!ctrcost) return ctrcost;
-	if(trig.triggerflags[3] & combotriggerCOUNTERDISCOUNT)
+	if(trig.trigger_flags.get(TRIGFLAG_COUNTERDISCOUNT))
 	{
 		auto wmedal_id = current_item_id(itype_wealthmedal);
 		if(wmedal_id > -1)
@@ -2628,7 +2628,7 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	{
 		hasitem = game->get_item(trig.triggeritem) && !item_disabled(trig.triggeritem)
 			&& checkbunny(trig.triggeritem);
-		if(trig.triggerflags[1] & combotriggerINVERTITEM)
+		if(trig.trigger_flags.get(TRIGFLAG_INVERTITEM))
 		{
 			if(hasitem) return false;
 		}
@@ -2640,7 +2640,7 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		zfix cy2 = cy + FFCore.ScrollingData[SCROLLDATA_NY];
 
 		word d = dist(Hero.getX(), Hero.getY(), cx2, cy2).getInt();
-		if(trig.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
+		if(trig.trigger_flags.get(TRIGFLAG_INVERTPROX)) //trigger outside the radius
 		{
 			if(d < trig.trigprox || !is_active_screen) //inside, cancel
 				return false;
@@ -2652,53 +2652,53 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		}
 	}
 	
-	if(trig.triggerflags[4] & (combotriggerREQ_X_LE|combotriggerREQ_X_GE|
-		combotriggerREQ_Y_LE|combotriggerREQ_Y_GE|
-		combotriggerREQ_JUMP_LE|combotriggerREQ_JUMP_GE))
+	if(trig.trigger_flags.any({TRIGFLAG_REQ_X_LE,TRIGFLAG_REQ_X_GE,
+		TRIGFLAG_REQ_Y_LE,TRIGFLAG_REQ_Y_GE,
+		TRIGFLAG_REQ_JUMP_LE,TRIGFLAG_REQ_JUMP_GE}))
 	{
 		auto targ_x = trig.req_player_x;
 		auto targ_y = trig.req_player_y;
 		
-		if(trig.triggerflags[4] & combotriggerREQ_X_REL)
+		if(trig.trigger_flags.get(TRIGFLAG_REQ_X_REL))
 			targ_x += center_x - 8;
-		if(trig.triggerflags[4] & combotriggerREQ_Y_REL)
+		if(trig.trigger_flags.get(TRIGFLAG_REQ_Y_REL))
 			targ_y += center_y - 8;
 		
-		if(trig.triggerflags[4] & combotriggerREQ_X_LE)
+		if(trig.trigger_flags.get(TRIGFLAG_REQ_X_LE))
 		{
 			if(Hero.getX() > targ_x)
 				return false;
 		}
-		if(trig.triggerflags[4] & combotriggerREQ_X_GE)
+		if(trig.trigger_flags.get(TRIGFLAG_REQ_X_GE))
 		{
 			if(Hero.getX() < targ_x)
 				return false;
 		}
 		
-		if(trig.triggerflags[4] & combotriggerREQ_Y_LE)
+		if(trig.trigger_flags.get(TRIGFLAG_REQ_Y_LE))
 		{
 			if(Hero.getY() > targ_y)
 				return false;
 		}
-		if(trig.triggerflags[4] & combotriggerREQ_Y_GE)
+		if(trig.trigger_flags.get(TRIGFLAG_REQ_Y_GE))
 		{
 			if(Hero.getY() < targ_y)
 				return false;
 		}
 		
-		if(trig.triggerflags[4] & combotriggerREQ_JUMP_LE)
+		if(trig.trigger_flags.get(TRIGFLAG_REQ_JUMP_LE))
 		{
 			if(Hero.getJump() > trig.req_player_jump)
 				return false;
 		}
-		if(trig.triggerflags[4] & combotriggerREQ_JUMP_GE)
+		if(trig.trigger_flags.get(TRIGFLAG_REQ_JUMP_GE))
 		{
 			if(Hero.getJump() < trig.req_player_jump)
 				return false;
 		}
 	}
 	
-	if(trig.triggerflags[4] & combotriggerINVERT_PLAYER_Z)
+	if(trig.trigger_flags.get(TRIGFLAG_INVERT_PLAYER_Z))
 	{
 		if(Hero.z >= trig.req_player_z)
 			return false;
@@ -2709,12 +2709,12 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 			return false;
 	}
 	
-	if(trig.triggerflags[4] & combotriggerREQ_JUMP_LE)
+	if(trig.trigger_flags.get(TRIGFLAG_REQ_JUMP_LE))
 	{
 		if(Hero.getJump() > trig.req_player_jump)
 			return false;
 	}
-	if(trig.triggerflags[4] & combotriggerREQ_JUMP_GE)
+	if(trig.trigger_flags.get(TRIGFLAG_REQ_JUMP_GE))
 	{
 		if(Hero.getJump() < trig.req_player_jump)
 			return false;
@@ -2723,26 +2723,26 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	if(trig.req_player_dir && !(trig.req_player_dir & (1 << Hero.dir)))
 		return false;
 	
-	if(trig.triggerflags[4] & combotriggerPLAYER_STANDING)
+	if(trig.trigger_flags.get(TRIGFLAG_PLAYER_STANDING))
 		if(!Hero.isStanding(true))
 			return false;
-	if(trig.triggerflags[4] & combotriggerPLAYER_NOTSTANDING)
+	if(trig.trigger_flags.get(TRIGFLAG_PLAYER_NOTSTANDING))
 		if(Hero.isStanding(true))
 			return false;
-	if((trig.triggerflags[3] & combotriggerCOND_DARK))
+	if(trig.trigger_flags.get(TRIGFLAG_COND_DARK))
 		if(!check_dark_trigger_conditional(is_active_screen, scr, false))
 			return false;
-	if((trig.triggerflags[3] & combotriggerCOND_NODARK))
+	if(trig.trigger_flags.get(TRIGFLAG_COND_NODARK))
 		if(!check_dark_trigger_conditional(is_active_screen, scr, true))
 			return false;
 
 	if (is_active_screen || trig.trigdmlevel > -1)
 	{
 		auto dmap_level = trig.trigdmlevel > -1 ? trig.trigdmlevel : dlevel;
-		if(trig.triggerflags[3] & combotriggerLITEM_COND)
+		if(trig.trigger_flags.get(TRIGFLAG_LITEM_COND))
 			if((trig.trig_levelitems & game->lvlitems[dmap_level]) != trig.trig_levelitems)
 				return false;
-		if(trig.triggerflags[3] & combotriggerLITEM_REVCOND)
+		if(trig.trigger_flags.get(TRIGFLAG_LITEM_REVCOND))
 			if((trig.trig_levelitems & game->lvlitems[dmap_level]) == trig.trig_levelitems)
 				return false;
 		if((trig.req_level_state & game->lvlswitches[dmap_level]) != trig.req_level_state)
@@ -2761,23 +2761,23 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	if(zfix ctrcost = get_cmb_trigctrcost(trig))
 	{
 		bool inf_ctr = false;
-		bool perc_ctr = (trig.triggerflags[4] & combotriggerCOUNTER_PERCENT);
+		bool perc_ctr = trig.trigger_flags.get(TRIGFLAG_COUNTER_PERCENT);
 		zfix ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
 		zfix ctrmax = get_ssc_ctrmax(trig.trigctr);
 		if(perc_ctr)
 			ctrcost = (ctrcost / 100) * ctrmax;
 		
-		if(side_effects && is_active_screen && (trig.triggerflags[1] & combotriggerCTRNONLYTRIG) && (trig.triggerflags[1] & combotriggerCOUNTEREAT))
+		if(side_effects && is_active_screen && trig.trigger_flags.get(TRIGFLAG_CTRNONLYTRIG) && trig.trigger_flags.get(TRIGFLAG_COUNTEREAT))
 		{
 			if(ctrval >= ctrcost && !inf_ctr)
-				modify_ssc_ctr(trig.trigctr, -ctrcost, trig.triggerflags[4] & combotriggerCOUNTER_GRADUAL);
+				modify_ssc_ctr(trig.trigctr, -ctrcost, trig.trigger_flags.get(TRIGFLAG_COUNTER_GRADUAL));
 		}
-		if(trig.triggerflags[1] & combotriggerCOUNTERGE)
+		if(trig.trigger_flags.get(TRIGFLAG_COUNTERGE))
 		{
 			if(ctrval < ctrcost && !inf_ctr)
 				return false;
 		}
-		if(trig.triggerflags[1] & combotriggerCOUNTERLT)
+		if(trig.trigger_flags.get(TRIGFLAG_COUNTERLT))
 		{
 			if(ctrval >= ctrcost || inf_ctr)
 				return false;
@@ -2789,11 +2789,11 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 	int32_t special)
 {
 	int screen = scr->screen;
-	if(trig.triggerflags[3]&combotriggerTOGGLEDARK)
+	if(trig.trigger_flags.get(TRIGFLAG_TOGGLEDARK))
 	{
 		toggle_lights(pal_litOVERRIDE);
 	}
-	if (trig.triggerflags[1]&combotriggerSECRETS)
+	if (trig.trigger_flags.get(TRIGFLAG_SECRETS))
 	{
 		used_bit = true;
 		if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
@@ -2808,7 +2808,7 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 			setmapflag(scr, mSECRET);
 	}
 	
-	if (trig.triggerflags[3] & combotriggerLEVELSTATE)
+	if (trig.trigger_flags.get(TRIGFLAG_LEVELSTATE))
 	{
 		used_bit = true;
 		if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
@@ -2819,7 +2819,7 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 			triggering_generic_switchstate = false;
 		}
 	}
-	if (trig.triggerflags[3] & combotriggerGLOBALSTATE)
+	if (trig.trigger_flags.get(TRIGFLAG_GLOBALSTATE))
 	{
 		used_bit = true;
 		if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
@@ -2848,38 +2848,38 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 	if(trig.trigsfx)
 		sfx(trig.trigsfx, pan(cx));
 	
-	if(trig.triggerflags[3] & combotriggerKILLENEMIES)
+	if(trig.trigger_flags.get(TRIGFLAG_KILLENEMIES))
 		kill_em_all();
-	if(trig.triggerflags[3] & combotriggerCLEARENEMIES)
+	if(trig.trigger_flags.get(TRIGFLAG_CLEARENEMIES))
 		guys.clear(true);
-	if(trig.triggerflags[3] & combotriggerCLEARLWEAPONS)
+	if(trig.trigger_flags.get(TRIGFLAG_CLEARLWEAPONS))
 		Lwpns.clear(true);
-	if(trig.triggerflags[3] & combotriggerCLEAREWEAPONS)
+	if(trig.trigger_flags.get(TRIGFLAG_CLEAREWEAPONS))
 		Ewpns.clear(true);
 	
-	if(trig.triggeritem && hasitem && (trig.triggerflags[1] & combotriggerCONSUMEITEM))
+	if(trig.triggeritem && hasitem && trig.trigger_flags.get(TRIGFLAG_CONSUMEITEM))
 	{
 		takeitem(trig.triggeritem);
 	}
-	if(!(trig.triggerflags[1] & combotriggerCTRNONLYTRIG) && (trig.triggerflags[1] & combotriggerCOUNTEREAT))
+	if(!trig.trigger_flags.get(TRIGFLAG_CTRNONLYTRIG) && trig.trigger_flags.get(TRIGFLAG_COUNTEREAT))
 	{
 		if(zfix ctrcost = get_cmb_trigctrcost(trig))
 		{
 			bool inf_ctr = false;
-			bool perc_ctr = (trig.triggerflags[4] & combotriggerCOUNTER_PERCENT);
+			bool perc_ctr = trig.trigger_flags.get(TRIGFLAG_COUNTER_PERCENT);
 			zfix ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
 			zfix ctrmax = get_ssc_ctrmax(trig.trigctr);
 			if(perc_ctr)
 				ctrcost = (ctrcost / 100) * ctrmax;
 			if(ctrval >= ctrcost && !inf_ctr)
-				modify_ssc_ctr(trig.trigctr, -ctrcost, trig.triggerflags[4] & combotriggerCOUNTER_GRADUAL);
+				modify_ssc_ctr(trig.trigctr, -ctrcost, trig.trigger_flags.get(TRIGFLAG_COUNTER_GRADUAL));
 		}
 	}
 	bool trigexstate = true;
 	if(trig.spawnenemy)
 	{
 		enemy* enm = nullptr;
-		bool enm_ex = (trig.triggerflags[2] & combotriggerEXSTENEMY);
+		bool enm_ex = trig.trigger_flags.get(TRIGFLAG_EXSTENEMY);
 		word numcreated = addenemy(screen, cx, cy, trig.spawnenemy, -10);
 		if(numcreated)
 		{
@@ -2897,8 +2897,8 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 	}
 	if(trig.spawnitem)
 	{
-		bool itm_ex = (trig.triggerflags[2] & combotriggerEXSTITEM);
-		bool specitem = (trig.triggerflags[2] & combotriggerSPCITEM);
+		bool itm_ex = trig.trigger_flags.get(TRIGFLAG_EXSTITEM);
+		bool specitem = trig.trigger_flags.get(TRIGFLAG_SPCITEM);
 		if(specitem && getmapflag(screen, mSPECIALITEM))
 		{
 			//already collected
@@ -2925,7 +2925,7 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 				trigexstate = false;
 				if(itm) itm->pickupexstate = trig.exstate;
 			}
-			if(trig.triggerflags[2] & combotriggerAUTOGRABITEM)
+			if(trig.trigger_flags.get(TRIGFLAG_AUTOGRABITEM))
 			{
 				if(itm) itm->set_forcegrab(true);
 			}
@@ -2935,8 +2935,8 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 	//Level Item stuff
 	{
 		auto dmap_level = trig.trigdmlevel > -1 ? trig.trigdmlevel : dlevel;
-		bool _set = trig.triggerflags[3] & combotriggerLITEM_SET,
-			_unset = trig.triggerflags[3] & combotriggerLITEM_UNSET;
+		bool _set = trig.trigger_flags.get(TRIGFLAG_LITEM_SET),
+			_unset = trig.trigger_flags.get(TRIGFLAG_LITEM_UNSET);
 		if(_set && _unset) //toggle
 			game->lvlitems[dmap_level] ^= trig.trig_levelitems;
 		else if(_set)
@@ -2947,7 +2947,7 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 	
 	//Graphical stuff
 	{
-		if(trig.triggerflags[3] & combotriggerTINT_CLEAR)
+		if(trig.trigger_flags.get(TRIGFLAG_TINT_CLEAR))
 			doClearTint();
 		if(trig.trigtint[0] || trig.trigtint[1] || trig.trigtint[2])
 			doTint(trig.trigtint[0], trig.trigtint[1], trig.trigtint[2]);
@@ -2977,11 +2977,11 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 			Hero.setBunnyClock(trig.trig_bunnytime);
 	}
 	
-	if(trig.exstate > -1 && (trig.triggerflags[4] & combotriggerUNSETEXSTATE))
+	if(trig.exstate > -1 && trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
 		unsetxmapflag(screen, 1<<trig.exstate);
 	else if(trig.exstate > -1 && trigexstate)
 		setxmapflag(screen, 1<<trig.exstate);
-	if(trig.exdoor_dir > -1 && (trig.triggerflags[4] & combotriggerUNSETEXDOOR))
+	if(trig.exdoor_dir > -1 && trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
 		set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind, false);
 	else if(trig.exdoor_dir > -1)
 		set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind);
@@ -3002,7 +3002,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	int32_t ocs = rpos_handle.cset();
 	mapscr* base_scr = rpos_handle.base_scr();
 	bool hasitem = false;
-	if(w && (trig.triggerflags[3] & combotriggerSEPARATEWEAPON))
+	if(w && trig.trigger_flags.get(TRIGFLAG_SEPARATEWEAPON))
 	{
 		do_weapon_fx(w,trig);
 		return true;
@@ -3018,7 +3018,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& ex_trig = cmb.triggers[idx];
-		if(ex_trig.exstate > -1 && !(ex_trig.triggerflags[4] & combotriggerUNSETEXSTATE))
+		if(ex_trig.exstate > -1 && !ex_trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
 		{
 			if (force_ex_trigger(rpos_handle, idx))
 			{
@@ -3026,7 +3026,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 				if(rpos_handle.data() != cid) break;
 			}
 		}
-		if(ex_trig.exdoor_dir > -1 && !(ex_trig.triggerflags[4] & combotriggerUNSETEXDOOR))
+		if(ex_trig.exdoor_dir > -1 && !ex_trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
 		{
 			if(force_ex_door_trigger(rpos_handle, idx))
 			{
@@ -3056,7 +3056,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 	bool dorun = !timer.trig_data[idx].cooldown;
 	if(dorun)
 	{
-		if (is_active_screen && ((trig.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
+		if (is_active_screen && (trig.trigger_flags.get(TRIGFLAG_CMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
 		{
 			switch(cmb.type)
 			{
@@ -3180,7 +3180,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 			
 			if (is_active_screen)
 			{
-				if(trig.triggerflags[0] & combotriggerRESETANIM)
+				if(trig.trigger_flags.get(TRIGFLAG_RESETANIM))
 				{
 					newcombo& rcmb = rpos_handle.combo();
 					rcmb.tile = rcmb.o_tile;
@@ -3200,21 +3200,21 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 				if (trig.player_bounce)
 					Hero.setJump(trig.player_bounce);
 				
-				if (trig.triggerflags[4] & combotriggerSETPLAYER_X_ABS)
+				if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_X_ABS))
 					Hero.setXfix(trig.dest_player_x);
-				else if (trig.triggerflags[4] & combotriggerSETPLAYER_X_REL_CMB)
+				else if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_X_REL_CMB))
 					Hero.setXfix(trig.dest_player_x + center_x - 8);
 				else if(trig.dest_player_x)
 					Hero.setXfix(Hero.getX() + trig.dest_player_x);
 				
-				if (trig.triggerflags[4] & combotriggerSETPLAYER_Y_ABS)
+				if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_Y_ABS))
 					Hero.setYfix(trig.dest_player_y);
-				else if (trig.triggerflags[4] & combotriggerSETPLAYER_Y_REL_CMB)
+				else if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_Y_REL_CMB))
 					Hero.setYfix(trig.dest_player_y + center_y - 8);
 				else if(trig.dest_player_y)
 					Hero.setYfix(Hero.getY() + trig.dest_player_y);
 				
-				if (trig.triggerflags[4] & combotriggerSETPLAYER_Z_ABS)
+				if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_Z_ABS))
 					Hero.setZfix(trig.dest_player_z);
 				else if(trig.dest_player_z)
 					Hero.setZfix(Hero.getZ() + trig.dest_player_z);
@@ -3224,12 +3224,12 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 				
 				if (trig.force_ice_combo > -1)
 					Hero.script_ice_combo = trig.force_ice_combo;
-				if (trig.triggerflags[4] & (combotriggerFORCE_ICE_VX|combotriggerFORCE_ICE_VY))
+				if (trig.trigger_flags.any({TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY}))
 				{
 					optional<zfix> vx, vy;
-					if (trig.triggerflags[4] & combotriggerFORCE_ICE_VX)
+					if (trig.trigger_flags.get(TRIGFLAG_FORCE_ICE_VX))
 						vx = trig.force_ice_vx;
-					if (trig.triggerflags[4] & combotriggerFORCE_ICE_VY)
+					if (trig.trigger_flags.get(TRIGFLAG_FORCE_ICE_VY))
 						vy = trig.force_ice_vy;
 					Hero.force_ice_velocity(vx, vy);
 				}
@@ -3270,7 +3270,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	auto [center_x, center_y] = ffc_handle.center_xy();
 	mapscr* base_scr = ffc_handle.scr;
 	bool hasitem = false;
-	if(w && (trig.triggerflags[3] & combotriggerSEPARATEWEAPON))
+	if(w && trig.trigger_flags.get(TRIGFLAG_SEPARATEWEAPON))
 	{
 		do_weapon_fx(w,trig);
 		return true;
@@ -3285,7 +3285,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& ex_trig = cmb.triggers[idx];
-		if(ex_trig.exstate > -1 && (ex_trig.triggerflags[4] & combotriggerUNSETEXSTATE))
+		if(ex_trig.exstate > -1 && ex_trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
 		{
 			if(force_ex_trigger_ffc(ffc_handle, idx))
 			{
@@ -3293,7 +3293,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 				if(ffc_handle.data() != cid) break;
 			}
 		}
-		if(ex_trig.exdoor_dir > -1 && (ex_trig.triggerflags[4] & combotriggerUNSETEXDOOR))
+		if(ex_trig.exdoor_dir > -1 && ex_trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
 		{
 			if(force_ex_door_trigger_ffc(ffc_handle, idx))
 			{
@@ -3323,7 +3323,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 	bool dorun = !timer.trig_data[idx].cooldown;
 	if(dorun)
 	{
-		if (is_active_screen && ((trig.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
+		if (is_active_screen && (trig.trigger_flags.get(TRIGFLAG_CMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
 		{
 			switch(cmb.type)
 			{
@@ -3447,7 +3447,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 
 			if (is_active_screen)
 			{
-				if(trig.triggerflags[0] & combotriggerRESETANIM)
+				if(trig.trigger_flags.get(TRIGFLAG_RESETANIM))
 				{
 					newcombo& rcmb = combobuf[ffc_handle.data()];
 					rcmb.tile = rcmb.o_tile;
@@ -3469,21 +3469,21 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 				if (trig.player_bounce)
 					Hero.setJump(trig.player_bounce);
 				
-				if (trig.triggerflags[4] & combotriggerSETPLAYER_X_ABS)
+				if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_X_ABS))
 					Hero.setXfix(trig.dest_player_x);
-				else if (trig.triggerflags[4] & combotriggerSETPLAYER_X_REL_CMB)
+				else if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_X_REL_CMB))
 					Hero.setXfix(trig.dest_player_x + center_x - 8);
 				else if(trig.dest_player_x)
 					Hero.setXfix(Hero.getX() + trig.dest_player_x);
 				
-				if (trig.triggerflags[4] & combotriggerSETPLAYER_Y_ABS)
+				if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_Y_ABS))
 					Hero.setYfix(trig.dest_player_y);
-				else if (trig.triggerflags[4] & combotriggerSETPLAYER_Y_REL_CMB)
+				else if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_Y_REL_CMB))
 					Hero.setYfix(trig.dest_player_y + center_y - 8);
 				else if(trig.dest_player_y)
 					Hero.setYfix(Hero.getY() + trig.dest_player_y);
 				
-				if (trig.triggerflags[4] & combotriggerSETPLAYER_Z_ABS)
+				if (trig.trigger_flags.get(TRIGFLAG_SETPLAYER_Z_ABS))
 					Hero.setZfix(trig.dest_player_z);
 				else if(trig.dest_player_z)
 					Hero.setZfix(Hero.getZ() + trig.dest_player_z);
@@ -3493,12 +3493,12 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 				
 				if (trig.force_ice_combo > -1)
 					Hero.script_ice_combo = trig.force_ice_combo;
-				if (trig.triggerflags[4] & (combotriggerFORCE_ICE_VX|combotriggerFORCE_ICE_VY))
+				if (trig.trigger_flags.any({TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY}))
 				{
 					optional<zfix> vx, vy;
-					if (trig.triggerflags[4] & combotriggerFORCE_ICE_VX)
+					if (trig.trigger_flags.get(TRIGFLAG_FORCE_ICE_VX))
 						vx = trig.force_ice_vx;
-					if (trig.triggerflags[4] & combotriggerFORCE_ICE_VY)
+					if (trig.trigger_flags.get(TRIGFLAG_FORCE_ICE_VY))
 						vy = trig.force_ice_vy;
 					Hero.force_ice_velocity(vx, vy);
 				}
@@ -3539,7 +3539,7 @@ bool do_trigger_ctype_causes(const combined_handle_t& comb_handle)
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
-		if (trig.triggerflags[4]&combotriggerCMBTYPECAUSES)
+		if (trig.trigger_flags.get(TRIGFLAG_CMBTYPECAUSES))
 		{
 			do_trigger_combo(comb_handle, idx);
 			if(comb_handle.data() != cid) return true;
@@ -3803,9 +3803,9 @@ void trig_trigger_groups()
 			{
 				auto& trig = cmb.triggers[idx];
 				bool ok = false;
-				if(trig.triggerflags[3] & combotriggerTGROUP_LESS)
+				if(trig.trigger_flags.get(TRIGFLAG_TGROUP_LESS))
 					ok = cpos_trig_group_count(trig.trig_group) < trig.trig_group_val;
-				if(!ok && (trig.triggerflags[3] & combotriggerTGROUP_GREATER))
+				if(!ok && trig.trigger_flags.get(TRIGFLAG_TGROUP_GREATER))
 					ok = cpos_trig_group_count(trig.trig_group) > trig.trig_group_val;
 				if(!ok) continue;
 				
@@ -3907,7 +3907,7 @@ static void cpos_update_cache(newcombo const& cmb, int add)
 	for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
 		auto& trig = cmb.triggers[idx];
-		if(trig.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+		if(trig.trigger_flags.get(TRIGFLAG_TGROUP_CONTRIB))
 			trig_groups[trig.trig_group] += add;
 	}
 }

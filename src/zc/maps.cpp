@@ -1143,7 +1143,7 @@ static void _handle_screen_load_trigger(const combined_handle_t& handle)
 		for(size_t idx = 0; idx < cmb->triggers.size(); ++idx)
 		{
 			auto& trig = cmb->triggers[idx];
-			if (trig.triggerflags[4] & combotriggerSCREENLOAD)
+			if (trig.trigger_flags.get(TRIGFLAG_SCREENLOAD))
 				do_trigger_combo(handle, idx);
 			else continue; // can skip checking handle.data()
 			
@@ -2832,7 +2832,7 @@ void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles,
 			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
-				if (trig.triggerflags[2] & combotriggerSECRETSTR)
+				if (trig.trigger_flags.get(TRIGFLAG_SECRETSTR))
 				{
 					do_trigger_combo(handle, idx, ctrigSECRETS);
 					if(handle.data() != cid) break;
@@ -5739,7 +5739,7 @@ void openshutters(mapscr* scr)
 		for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 		{
 			auto& trig = cmb.triggers[idx];
-			if(trig.triggerflags[0] & combotriggerSHUTTER)
+			if(trig.trigger_flags.get(TRIGFLAG_SHUTTER))
 			{
 				do_trigger_combo(handle, idx);
 				if(handle.data() != cid) break;
@@ -7230,7 +7230,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
-				if((trig.triggerflags[3] & combotriggerTRIGLEVELSTATE) && trig.trig_lstate < 32)
+				if(trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32)
 					if(flags&(1<<trig.trig_lstate))
 					{
 						auto oldcombo = rpos_handle.data();
@@ -7360,7 +7360,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
-				if((trig.triggerflags[3] & combotriggerTRIGLEVELSTATE) && trig.trig_lstate < 32)
+				if(trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32)
 					if(flags&(1<<trig.trig_lstate))
 					{
 						auto oldcombo = ffc_handle.data();
@@ -7412,7 +7412,7 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 					for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 					{
 						auto& trig = cmb.triggers[idx];
-						if ((trig.triggerflags[3] & combotriggerTRIGGLOBALSTATE) && states[trig.trig_gstate])
+						if (trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate])
 						{
 							auto rpos_handle = get_rpos_handle_for_screen(screen, lyr, pos);
 							do_trigger_combo(rpos_handle, idx, ctrigSWITCHSTATE);

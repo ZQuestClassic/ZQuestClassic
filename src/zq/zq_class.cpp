@@ -9500,9 +9500,8 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 {
 	if(!p_putcstr(tmp_trig.label,f))
 		return 22;
-	for ( int32_t q = 0; q < 6; q++ )
-		if(!p_iputl(tmp_trig.triggerflags[q],f))
-			return 22;
+	if(!p_putbitstr(tmp_trig.trigger_flags,f))
+		return 22;
 	if(!p_iputl(tmp_trig.triggerlevel,f))
 		return 23;
 	if(!p_putc(tmp_trig.triggerbtn,f))

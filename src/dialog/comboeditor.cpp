@@ -444,10 +444,10 @@ std::string getComboTypeHelpText(int32_t id)
 			typehelp = "When hit with a switch-hook, swaps position with the Hero (staying on the same layer).";
 			break;
 		case cBUTTONPROMPT:
-			typehelp = "Displays a button prompt based on the 'Btn:' triggerflags";
+			typehelp = "Displays a button prompt based on the 'Btn:' trigger flags";
 			break;
 		case cCUSTOMBLOCK:
-			typehelp = "Blocks weapons denoted by the weapon triggerflags.";
+			typehelp = "Blocks weapons denoted by the weapon trigger flags.";
 			break;
 		case cSHOOTER:
 			typehelp = "Shoots, as a turret. Triggering with 'ComboType Effects' causes it to instantly shoot.";
@@ -3569,12 +3569,12 @@ void ComboEditorDialog::apply_combo()
 	if(!hasCTypeEffects(local_comboref.type))
 	{
 		for(combo_trigger& trig : local_comboref.triggers)
-			trig.triggerflags[0] &= ~combotriggerCMBTYPEFX;
+			trig.trigger_flags.set(TRIGFLAG_CMBTYPEFX, false);
 	}
 	if(!hasCTypeCauses(local_comboref.type))
 	{
 		for(combo_trigger& trig : local_comboref.triggers)
-			trig.triggerflags[4] &= ~combotriggerCMBTYPECAUSES;
+			trig.trigger_flags.set(TRIGFLAG_CMBTYPECAUSES, false);
 	}
 	combobuf[index] = local_comboref;
 	saved = false;

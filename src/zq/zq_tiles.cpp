@@ -12685,6 +12685,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 	newcombo temp_combo;
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
+		int32_t temp_trigflags[3] = {0};
 		temp_combo.clear();
 		combo_trigger& temp_trigger = temp_combo.triggers.emplace_back();
 		if(!p_igetw(&temp_combo.tile,f))
@@ -12776,10 +12777,8 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}	 
 				for ( int32_t q = 0; q < 3; q++ ) 
 				{
-					if(!p_igetl(&temp_trigger.triggerflags[q],f))
-					{
+					if(!p_igetl(&temp_trigflags[q],f))
 						return 0;
-					}
 				}
 				   
 				if(!p_igetl(&temp_trigger.triggerlevel,f))
@@ -12795,12 +12794,12 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				if(section_version < 23)
 				{
-					switch(temp_combo.type) //combotriggerCMBTYPEFX now required for combotype-specific effects
+					switch(temp_combo.type) // TRIGFLAG_CMBTYPEFX now required for combotype-specific effects
 					{
 						case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
 						case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 						case cTRIGGERGENERIC: case cCSWITCH:
-							temp_trigger.triggerflags[0] |= combotriggerCMBTYPEFX;
+							temp_trigflags[TRIGFLAG_CMBTYPEFX/32] |= 1 << (TRIGFLAG_CMBTYPEFX%32);
 					}
 				}
 				if(section_version >= 24)
@@ -12848,12 +12847,12 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				else
 				{
-					if(temp_trigger.triggerflags[0] & 0x00040000) //'next'
+					if(temp_trigflags[0] & 0x00040000) //'next'
 						temp_trigger.trigchange = 1;
-					else if(temp_trigger.triggerflags[0] & 0x00080000) //'prev'
+					else if(temp_trigflags[0] & 0x00080000) //'prev'
 						temp_trigger.trigchange = -1;
 					else temp_trigger.trigchange = 0;
-					temp_trigger.triggerflags[0] &= ~(0x00040000|0x00080000);
+					temp_trigflags[0] &= ~(0x00040000|0x00080000);
 				}
 				if(section_version >= 29)
 				{
@@ -12960,6 +12959,15 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 			{
 				combobuf[index+(tilect)] = temp_combo;
 			}
+		}
+		
+		temp_trigger.trigger_flags.clear();
+		for(size_t q = 0; q < 32*3; ++q)
+		{
+			auto ind = q/32;
+			auto bit = 1<<(q%32);
+			if(temp_trigflags[ind] & bit)
+				temp_trigger.trigger_flags.set(q, true);
 		}
 	}
 	
