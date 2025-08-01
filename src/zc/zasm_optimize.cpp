@@ -2148,6 +2148,10 @@ static bool optimize_calling_mode(OptContext& ctx)
 
 static bool optimize_inline_functions(OptContext& ctx)
 {
+	// TODO: investigate crash https://zeldaclassic.sentry.io/share/issue/183b71c8a8404aa588125763804aac5c/
+	if (!should_run_experimental_passes())
+		return false;
+
 	struct InlineFunctionData
 	{
 		const ZasmFunction& fn;
