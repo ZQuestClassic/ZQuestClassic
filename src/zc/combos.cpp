@@ -56,7 +56,9 @@ bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function
 		if(trig_cond(trig))
 		{
 			ret = true;
-			do_trigger_combo(comb_handle, idx, special, w);
+			if(do_trigger_combo(comb_handle, idx, special, w))
+				if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+					break;
 			if(comb_handle.data() != cid) break;
 		}
 	}
@@ -74,7 +76,9 @@ bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function
 		if(trig_cond(trig, idx))
 		{
 			ret = true;
-			do_trigger_combo(comb_handle, idx, special, w);
+			if(do_trigger_combo(comb_handle, idx, special, w))
+				if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+					break;
 			if(comb_handle.data() != cid) break;
 		}
 	}
@@ -3812,7 +3816,10 @@ void trig_trigger_groups()
 					ok = cpos_trig_group_count(trig.trig_group) > trig.trig_group_val;
 				if(!ok) continue;
 				
-				do_trigger_combo(handle, idx);
+				bool earlyret = false;
+				if(do_trigger_combo(handle, idx))
+					if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+						earlyret = true;
 				int cid2 = handle.data();
 				cpos_info& timer = handle.info();
 
@@ -3823,7 +3830,8 @@ void trig_trigger_groups()
 					else timer.updateData(cid2);
 				}
 				else timer.updateData(cid2);
-
+				
+				if(earlyret) break;
 				if (cid != cid2)
 				{
 					cid = cid2;
@@ -4001,7 +4009,9 @@ void cpos_update() //updates with side-effects
 					if(++trig_info.clk >= trig.trigtimer)
 					{
 						trig_info.clk = 0;
-						do_trigger_combo(rpos_handle, idx);
+						if(do_trigger_combo(rpos_handle, idx))
+							if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+								break;
 						timer.updateData(rpos_handle.data());
 						if(rpos_handle.data() != cid)
 							do_trigger_timer = false; // 'break', but only out of the trigtimer part of the loop
@@ -4074,7 +4084,9 @@ void cpos_update() //updates with side-effects
 					if (++trig_info.clk >= trig.trigtimer)
 					{
 						trig_info.clk = 0;
-						do_trigger_combo(ffc_handle, idx);
+						if(do_trigger_combo(ffc_handle, idx))
+							if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+								break;
 						timer.updateData(f.data);
 						if (f.data != cid)
 							do_trigger_timer = false; // 'break', but only out of the trigtimer part of the loop
