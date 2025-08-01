@@ -357,6 +357,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							SCR_CB(flags,fITEM,1,"Enemies->Item","Killing all enemies spawns the screen item. (Note: This OVERRIDES 'Enemy Carries Item')"),
 							SCR_CB(flags2,fCLEARSECRET,1,"Enemies->Secrets","Killing all enemies triggers screen secrets (temporarily)"),
 							SCR_CB(flags4,fENEMYSCRTPERM,1,". . . Permanent","The secrets triggered by 'Enemies->Secret' are permanent instead of temporary."),
+							SCR_CB(flags9,fENEMIES_STAY_DEAD,1,"Enemies->Stay Dead","Killing all enemies causes enemies to never respawn."),
 							SCR_CB(flags9,fENEMY_WAVES,1,"Chain 'Enemies->' Triggers","If a combo uses the triggers tab on the 'Enemies->' trigger event to spawn more enemies, other 'kill all enemies' effects will wait for the new enemies to die as well.")
 						)
 					),

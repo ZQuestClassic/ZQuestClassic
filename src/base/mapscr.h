@@ -264,6 +264,7 @@ struct screendata : mapscr {};
 #define fDARK_TRANS         0x10
 #define fDISABLE_MIRROR     0x20
 #define fENEMY_WAVES        0x40
+#define fENEMIES_STAY_DEAD  0x80
 
 //flags10 - ENTIRE FLAGS10 RESERVED FOR Z3 SCROLLING! Please don't use :)
 #define fMAZE_CAN_GET_LOST  0x01
@@ -286,30 +287,32 @@ struct screendata : mapscr {};
 #define llLENSSHOWS     16
 
 //States
-#define mDOOR_UP         0x0001 // only dungeons use this
-#define mDOOR_DOWN       0x0002 //^
-#define mDOOR_LEFT       0x0004 //^
-#define mDOOR_RIGHT      0x0008 //^
+#define mDOOR_UP                  0x00000001 // only dungeons use this
+#define mDOOR_DOWN                0x00000002 //^
+#define mDOOR_LEFT                0x00000004 //^
+#define mDOOR_RIGHT               0x00000008 //^
 
-#define mITEM            0x0010 // item (main screen)
-#define mSPECIALITEM     0x0020 // special item (underground)
-#define mNEVERRET        0x0040 // enemy never returns
-#define mTMPNORET        0x0080 // enemies don't return until you leave the dungeon
+#define mITEM                     0x00000010 // item (main screen)
+#define mSPECIALITEM              0x00000020 // special item (underground)
+#define mNEVERRET                 0x00000040 // enemy never returns
+#define mTMPNORET                 0x00000080 // enemies don't return until you leave the dungeon
 
-#define mLOCKBLOCK       0x0100 // if the lockblock on the screen has been triggered
-#define mBOSSLOCKBLOCK   0x0200 // if the bosslockblock on the screen has been triggered
-#define mCHEST           0x0400 // if the unlocked check on this screen has been opened
-#define mLOCKEDCHEST     0x0800 // if the locked chest on this screen has been opened
+#define mLOCKBLOCK                0x00000100 // if the lockblock on the screen has been triggered
+#define mBOSSLOCKBLOCK            0x00000200 // if the bosslockblock on the screen has been triggered
+#define mCHEST                    0x00000400 // if the unlocked check on this screen has been opened
+#define mLOCKEDCHEST              0x00000800 // if the locked chest on this screen has been opened
 
-#define mBOSSCHEST       0x1000 // if the boss chest on this screen has been opened
-#define mSECRET          0x2000 // secrets on permanently. only overworld and caves use this
-#define mVISITED         0x4000 // only overworld uses this
-#define mLIGHTBEAM       0x8000 // light beam triggers completed
+#define mBOSSCHEST                0x00001000 // if the boss chest on this screen has been opened
+#define mSECRET                   0x00002000 // secrets on permanently. only overworld and caves use this
+#define mVISITED                  0x00004000 // only overworld uses this
+#define mLIGHTBEAM                0x00008000 // light beam triggers completed
 
-#define mNORESET         0x3F3F // all 'no reset' flags set
-#define mNOCARRYOVER     0x3F30 // all 'no carryover' flags set
+#define mNO_ENEMIES_RETURN        0x00010000 // No enemies ever spawn again
 
-#define mMAXIND          16
+#define mNORESET                  0x00003F3F // all 'no reset' flags set
+#define mNOCARRYOVER              0x00003F30 // all 'no carryover' flags set
+
+#define mMAXIND          17
 
 // room types
 enum

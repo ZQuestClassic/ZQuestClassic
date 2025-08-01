@@ -23826,12 +23826,18 @@ void HeroClass::checkspecial()
 
 					state.item_state = ScreenItemState::None;
 				}
-				// if room has traps, guys don't come back
-				for (int32_t i=0; i<eMAXGUYS; i++)
+				if(!getmapflag(scr, mTMPNORET))
 				{
-					if (guysbuf[i].family==eeTRAP&&guysbuf[i].attributes[1])
-						if (guys.idCount(i, screen) && !getmapflag(screen, mTMPNORET))
+					// if room has traps, guys don't come back
+					for (int32_t i=0; i<eMAXGUYS; i++)
+					{
+						if (guysbuf[i].family==eeTRAP && guysbuf[i].attributes[1]
+							&& guys.idCount(i, screen))
+						{
 							setmapflag(scr, mTMPNORET);
+							break;
+						}
+					}
 				}
 				// clear enemies and open secret
 				if (!state.did_enemy_secret && (scr->flags2&fCLEARSECRET))
@@ -23846,6 +23852,11 @@ void HeroClass::checkspecial()
 					
 					sfx(scr->secretsfx);
 					state.did_enemy_secret = true;
+				}
+				if(scr->flags9 & fENEMIES_STAY_DEAD)
+				{
+					if(!getmapflag(scr, mNO_ENEMIES_RETURN))
+						setmapflag(scr, mNO_ENEMIES_RETURN);
 				}
 			}
 		}
@@ -25336,33 +25347,20 @@ RaftingStuff:
 			advanceframe(true);
 		}
 		
-		if(!(scr->noreset&mSECRET)) unsetmapflag(scr, mSECRET);
-		
-		if(!(scr->noreset&mITEM)) unsetmapflag(scr, mITEM);
-		
-		if(!(scr->noreset&mSPECIALITEM)) unsetmapflag(scr, mSPECIALITEM);
-		
-		if(!(scr->noreset&mNEVERRET)) unsetmapflag(scr, mNEVERRET);
-		
-		if(!(scr->noreset&mCHEST)) unsetmapflag(scr, mCHEST);
-		
-		if(!(scr->noreset&mLOCKEDCHEST)) unsetmapflag(scr, mLOCKEDCHEST);
-		
-		if(!(scr->noreset&mBOSSCHEST)) unsetmapflag(scr, mBOSSCHEST);
-		
-		if(!(scr->noreset&mLOCKBLOCK)) unsetmapflag(scr, mLOCKBLOCK);
-		
-		if(!(scr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(scr, mBOSSLOCKBLOCK);
+		for(auto flag : {mSECRET,mITEM,mSPECIALITEM,mNEVERRET,mCHEST,mLOCKEDCHEST,mBOSSCHEST,
+			mLOCKBLOCK,mBOSSLOCKBLOCK,mTMPNORET,mVISITED,mLIGHTBEAM,mNO_ENEMIES_RETURN})
+		{
+			if(!(scr->noreset&flag))
+				unsetmapflag(scr, flag);
+		}
 		
 		if(isdungeon())
 		{
-			if(!(scr->noreset&mDOOR_LEFT)) unsetmapflag(scr, mDOOR_LEFT);
-			
-			if(!(scr->noreset&mDOOR_RIGHT)) unsetmapflag(scr, mDOOR_RIGHT);
-			
-			if(!(scr->noreset&mDOOR_DOWN)) unsetmapflag(scr, mDOOR_DOWN);
-			
-			if(!(scr->noreset&mDOOR_UP)) unsetmapflag(scr, mDOOR_UP);
+			for(auto flag : {mDOOR_LEFT,mDOOR_RIGHT,mDOOR_DOWN,mDOOR_UP})
+			{
+				if(!(scr->noreset&flag))
+					unsetmapflag(scr, flag);
+			}
 		}
 		
 		setpit();

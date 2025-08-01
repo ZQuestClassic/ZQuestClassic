@@ -163,6 +163,7 @@ enum ScreenFlag
 	SFL_ENEMIES_ITEM = 1, // Killing enemies spawns screen item.
 	SFL_ENEMIES_SECRETS = 15, // Enemies->Secrets.
 	SFL_ENEMIES_SECRETS_PERM = 28, // Enemies->Secrets (perm).
+	SFL_ENEMIES_STAY_DEAD = 71, // Enemies->Stay Dead - once all enemies are killed they will not respawn again
 	SFL_ENEMIES_CHAIN_TRIGGERS = 70, // Chain 'Enemies->' Triggers.
 	SFL_TRAPS_IGNORE_SOLID = 14, // Traps Ignore Solidity.
 	SFL_ENEMIES_LEADER = 85, // Ringleader. The first enemy listed in the screen's enemy list will be a 'Ringleader'. When this enemy dies, all other enemies will die.
