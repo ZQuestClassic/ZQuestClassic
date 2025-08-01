@@ -17603,6 +17603,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	{
 		temp_combo.clear();
 		combo_trigger& temp_trigger = temp_combo.triggers.emplace_back();
+		int32_t temp_trigflags[6] = {0};
 		
 		if ( section_version >= 11 )
 		{
@@ -17714,13 +17715,13 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			if(section_version>=10) //combo trigger flags
 			{
 				for ( int32_t q = 0; q < 3; q++ )
-					if(!p_igetl(&temp_trigger.triggerflags[q],f))
+					if(!p_igetl(&temp_trigflags[q],f))
 						return qe_invalid;
 			}
-			else if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
+			else if(section_version==9) //combo trigger flags, V9 only had two indices
 			{
 				for ( int32_t q = 0; q < 2; q++ )
-					if(!p_igetl(&temp_trigger.triggerflags[q],f))
+					if(!p_igetl(&temp_trigflags[q],f))
 						return qe_invalid;
 			}
 			if(section_version >= 9)
@@ -17868,12 +17869,12 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		
 		if(section_version < 23)
 		{
-			switch(temp_combo.type) //combotriggerCMBTYPEFX now required for combotype-specific effects
+			switch(temp_combo.type) //TRIGFLAG_CMBTYPEFX now required for combotype-specific effects
 			{
 				case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
 				case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 				case cTRIGGERGENERIC: case cCSWITCH:
-					temp_trigger.triggerflags[0] |= combotriggerCMBTYPEFX;
+					temp_trigflags[TRIGFLAG_CMBTYPEFX/32] |= 1<<(TRIGFLAG_CMBTYPEFX%32);
 			}
 		}
 		if(section_version < 25)
@@ -17895,12 +17896,12 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		
 		if(section_version < 27)
 		{
-			if(temp_trigger.triggerflags[0] & 0x00040000) //'next'
+			if(temp_trigflags[0] & 0x00040000) //'next'
 				temp_trigger.trigchange = 1;
-			else if(temp_trigger.triggerflags[0] & 0x00080000) //'prev'
+			else if(temp_trigflags[0] & 0x00080000) //'prev'
 				temp_trigger.trigchange = -1;
 			else temp_trigger.trigchange = 0;
-			temp_trigger.triggerflags[0] &= ~(0x00040000|0x00080000);
+			temp_trigflags[0] &= ~(0x00040000|0x00080000);
 		}
 		if(section_version < 28)
 		{
@@ -17952,6 +17953,15 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 					}
 					break;
 			}
+		}
+		
+		temp_trigger.trigger_flags.clear();
+		for(size_t q = 0; q < 32*6; ++q)
+		{
+			auto ind = q/32;
+			auto bit = 1<<(q%32);
+			if(temp_trigflags[ind] & bit)
+				temp_trigger.trigger_flags.set(q, true);
 		}
 		
 		if(temp_trigger.is_blank())
@@ -18076,10 +18086,24 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		if(!p_getcstr(&temp_trigger.label,f))
 			return qe_invalid;
 	
-	int numtrigs = s_version < 36 ? 3 : 6;
-	for ( int32_t q = 0; q < numtrigs; q++ )
-		if(!p_igetl(&temp_trigger.triggerflags[q],f))
-			return qe_invalid;
+	if(s_version < 57)
+	{
+		int32_t temp_trigflags[6] = {0};
+		int numtrigs = s_version < 36 ? 3 : 6;
+		for ( int32_t q = 0; q < numtrigs; q++ )
+			if(!p_igetl(&temp_trigflags[q],f))
+				return qe_invalid;
+		temp_trigger.trigger_flags.clear();
+		for(size_t q = 0; q < 32*numtrigs; ++q)
+		{
+			auto ind = q/32;
+			auto bit = 1<<(q%32);
+			if(temp_trigflags[ind] & bit)
+				temp_trigger.trigger_flags.set(q, true);
+		}
+	}
+	else if(!p_getbitstr(&temp_trigger.trigger_flags,f))
+		return qe_invalid;
 	if(!p_igetl(&temp_trigger.triggerlevel,f))
 		return qe_invalid;
 	if(!p_getc(&temp_trigger.triggerbtn,f))
@@ -18400,7 +18424,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 			if(s_version < 52)
 			{
 				if(!temp_combo.triggers.empty())
-					temp_combo.only_gentrig = (temp_combo.triggers[0].triggerflags[0] & combotriggerONLYGENTRIG) ? 1 : 0;
+					temp_combo.only_gentrig = (temp_combo.triggers[0].trigger_flags.get(TRIGFLAG_ONLYGENTRIG)) ? 1 : 0;
 			}
 			else if(!p_getc(&temp_combo.only_gentrig,f))
 				return qe_invalid;

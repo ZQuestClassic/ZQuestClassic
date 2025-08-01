@@ -175,7 +175,7 @@ namespace combo_caches
 			tgroup = false;
 			for(auto& trig : combo.triggers)
 			{
-				if(trig.triggerflags[3] & (combotriggerTGROUP_LESS|combotriggerTGROUP_GREATER))
+				if(trig.trigger_flags.any({TRIGFLAG_TGROUP_LESS,TRIGFLAG_TGROUP_GREATER}))
 				{
 					tgroup = true;
 					break;
@@ -207,7 +207,7 @@ namespace combo_caches
 			shutter = false;
 			for(auto& trig : combo.triggers)
 			{
-				if(trig.triggerflags[0] & combotriggerSHUTTER)
+				if(trig.trigger_flags.get(TRIGFLAG_SHUTTER))
 				{
 					shutter = true;
 					break;
@@ -229,7 +229,7 @@ namespace combo_caches
 			trigger_global_state = false;
 			for(auto& trig : combo.triggers)
 			{
-				if(trig.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
+				if(trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE))
 				{
 					trigger_global_state = true;
 					break;
@@ -287,12 +287,12 @@ namespace combo_caches
 			off = false;
 			for(auto& trig : combo.triggers)
 			{
-				if(trig.triggerflags[1] & combotriggerLENSON)
+				if(trig.trigger_flags.get(TRIGFLAG_LENSON))
 				{
 					on = true;
 					if(off) break;
 				}
-				if(trig.triggerflags[1] & combotriggerLENSOFF)
+				if(trig.trigger_flags.get(TRIGFLAG_LENSOFF))
 				{
 					off = true;
 					if(on) break;
@@ -314,7 +314,7 @@ namespace combo_caches
 			trigger = false;
 			for(auto& trig : combo.triggers)
 			{
-				if(trig.triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
+				if(trig.trigger_flags.any({TRIGFLAG_LIGHTON,TRIGFLAG_LIGHTOFF}))
 				{
 					trigger = true;
 					break;

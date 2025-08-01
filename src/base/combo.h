@@ -72,7 +72,7 @@ enum
 struct combo_trigger
 {
 	string label;
-	int32_t triggerflags[6];
+	bitstring trigger_flags;
 	int32_t triggerlevel;
 	byte triggerbtn;
 	byte triggeritem;
@@ -194,175 +194,166 @@ struct newcombo
 #define AF_CYCLEUNDERCOMBO              0x10
 #define AF_EDITOR_ONLY                  0x20
 
-//triggerflags[0]
-#define combotriggerSWORD               0x00000001
-#define combotriggerSWORDBEAM           0x00000002
-#define combotriggerBRANG               0x00000004
-#define combotriggerBOMB                0x00000008
-#define combotriggerSBOMB               0x00000010
-#define combotriggerLITBOMB             0x00000020
-#define combotriggerLITSBOMB            0x00000040
-#define combotriggerARROW               0x00000080
-#define combotriggerFIRE                0x00000100
-#define combotriggerWHISTLE             0x00000200
-#define combotriggerBAIT                0x00000400
-#define combotriggerWAND                0x00000800
-#define combotriggerMAGIC               0x00001000
-#define combotriggerWIND                0x00002000
-#define combotriggerREFMAGIC            0x00004000
-#define combotriggerREFFIREBALL         0x00008000
-#define combotriggerREFROCK             0x00010000
-#define combotriggerHAMMER              0x00020000
-#define combotriggerRESETANIM           0x00040000
-#define combotriggerINVERTPROX          0x00080000
-#define combotriggerBTN_TOP             0x00100000
-#define combotriggerBTN_BOTTOM          0x00200000
-#define combotriggerBTN_LEFT            0x00400000
-#define combotriggerBTN_RIGHT           0x00800000
-#define combotriggerINVERTMINMAX        0x01000000
-#define combotriggerSTEP                0x02000000
-#define combotriggerSTEPSENS            0x04000000
-#define combotriggerSHUTTER             0x08000000
-#define combotriggerCMBTYPEFX           0x10000000
-#define combotriggerONLYGENTRIG         0x20000000
-#define combotriggerKILLWPN             0x40000000
-#define combotriggerEWFIREBALL          0x80000000
-
-//triggerflags[1]
-#define combotriggerHOOKSHOT            0x00000001
-#define combotriggerSPARKLE             0x00000002
-#define combotriggerBYRNA               0x00000004
-#define combotriggerREFBEAM             0x00000008
-#define combotriggerSTOMP               0x00000010
-#define combotriggerSCRIPT01            0x00000020
-#define combotriggerSCRIPT02            0x00000040
-#define combotriggerSCRIPT03            0x00000080
-#define combotriggerSCRIPT04            0x00000100
-#define combotriggerSCRIPT05            0x00000200
-#define combotriggerSCRIPT06            0x00000400
-#define combotriggerSCRIPT07            0x00000800
-#define combotriggerSCRIPT08            0x00001000
-#define combotriggerSCRIPT09            0x00002000
-#define combotriggerSCRIPT10            0x00004000
-#define combotriggerAUTOMATIC           0x00008000
-#define combotriggerSECRETS             0x00010000
-#define combotriggerINVERTITEM          0x00020000
-#define combotriggerCONSUMEITEM         0x00040000
-#define combotriggerCOUNTERGE           0x00080000
-#define combotriggerCOUNTERLT           0x00100000
-#define combotriggerCOUNTEREAT          0x00200000
-#define combotriggerCTRNONLYTRIG        0x00400000
-#define combotriggerLIGHTON             0x00800000
-#define combotriggerLIGHTOFF            0x01000000
-#define combotriggerPUSH                0x02000000
-#define combotriggerLENSON              0x04000000
-#define combotriggerLENSOFF             0x08000000
-#define combotriggerEWARROW             0x10000000
-#define combotriggerEWBRANG             0x20000000
-#define combotriggerEWSWORD             0x40000000
-#define combotriggerEWROCK              0x80000000
-
-//triggerflags[2]
-#define combotriggerEWSCRIPT01          0x00000001
-#define combotriggerEWSCRIPT02          0x00000002
-#define combotriggerEWSCRIPT03          0x00000004
-#define combotriggerEWSCRIPT04          0x00000008
-#define combotriggerEWSCRIPT05          0x00000010
-#define combotriggerEWSCRIPT06          0x00000020
-#define combotriggerEWSCRIPT07          0x00000040
-#define combotriggerEWSCRIPT08          0x00000080
-#define combotriggerEWSCRIPT09          0x00000100
-#define combotriggerEWSCRIPT10          0x00000200
-#define combotriggerEWMAGIC             0x00000400
-#define combotriggerEWBBLAST            0x00000800
-#define combotriggerEWSBBLAST           0x00001000
-#define combotriggerEWLITBOMB           0x00002000
-#define combotriggerEWLITSBOMB          0x00004000
-#define combotriggerEWFIRETRAIL         0x00008000
-#define combotriggerEWFLAME             0x00010000
-#define combotriggerEWWIND              0x00020000
-#define combotriggerEWFLAME2            0x00040000
-#define combotriggerSPCITEM             0x00080000
-#define combotriggerEXSTITEM            0x00100000
-#define combotriggerEXSTENEMY           0x00200000
-#define combotriggerAUTOGRABITEM        0x00400000
-#define combotriggerENEMIESKILLED       0x00800000
-#define combotriggerSECRETSTR           0x01000000
-#define combotriggerTHROWN              0x02000000
-#define combotriggerQUAKESTUN           0x04000000
-#define combotriggerSQUAKESTUN          0x08000000
-#define combotriggerANYFIRE             0x10000000
-#define combotriggerSTRONGFIRE          0x20000000
-#define combotriggerMAGICFIRE           0x40000000
-#define combotriggerDIVINEFIRE          0x80000000
-
-//triggerflags[3]
-#define combotriggerTRIGLEVELSTATE      0x00000001
-#define combotriggerLEVELSTATE          0x00000002
-#define combotriggerTRIGGLOBALSTATE     0x00000004
-#define combotriggerGLOBALSTATE         0x00000008
-#define combotriggerKILLENEMIES         0x00000010
-#define combotriggerCLEARENEMIES        0x00000020
-#define combotriggerCLEARLWEAPONS       0x00000040
-#define combotriggerCLEAREWEAPONS       0x00000080
-#define combotriggerIGNITE_ANYFIRE      0x00000100
-#define combotriggerIGNITE_STRONGFIRE   0x00000200
-#define combotriggerIGNITE_MAGICFIRE    0x00000400
-#define combotriggerIGNITE_DIVINEFIRE   0x00000800
-#define combotriggerSEPARATEWEAPON      0x00001000
-#define combotriggerTGROUP_CONTRIB      0x00002000
-#define combotriggerTGROUP_LESS         0x00004000
-#define combotriggerTGROUP_GREATER      0x00008000
-#define combotriggerPUSHEDTRIG          0x00010000
-#define combotriggerDIVETRIG            0x00020000
-#define combotriggerDIVESENSTRIG        0x00040000
-#define combotriggerLWREFARROW          0x00080000
-#define combotriggerLWREFFIRE           0x00100000
-#define combotriggerLWREFFIRE2          0x00200000
-#define combotriggerTOGGLEDARK          0x00400000
-#define combotriggerCOND_DARK           0x00800000
-#define combotriggerCOND_NODARK         0x01000000
-#define combotriggerLITEM_COND          0x02000000
-#define combotriggerLITEM_REVCOND       0x04000000
-#define combotriggerLITEM_SET           0x08000000
-#define combotriggerLITEM_UNSET         0x10000000
-#define combotriggerTINT_CLEAR          0x20000000
-#define combotriggerONLY_GROUND_WPN     0x40000000
-#define combotriggerCOUNTERDISCOUNT     0x80000000
-
-//triggerflags[4]
-#define combotriggerSCREENLOAD               0x00000001
-#define combotriggerUNSETEXSTATE             0x00000002
-#define combotriggerUNSETEXDOOR              0x00000004
-#define combotriggerPLAYER_STANDING          0x00000008
-#define combotriggerPLAYER_NOTSTANDING       0x00000010
-#define combotriggerINVERT_PLAYER_Z          0x00000020
-#define combotriggerCOUNTER_GRADUAL          0x00000040
-#define combotriggerCOUNTER_PERCENT          0x00000080
-#define combotriggerNO_COPYCAT_CAUSE         0x00000100
-#define combotriggerPLAYERLANDHERE           0x00000200
-#define combotriggerPLAYERLANDANYWHERE       0x00000400
-#define combotriggerSETPLAYER_X_ABS          0x00000800
-#define combotriggerSETPLAYER_X_REL_CMB      0x00001000
-#define combotriggerSETPLAYER_Y_ABS          0x00002000
-#define combotriggerSETPLAYER_Y_REL_CMB      0x00004000
-#define combotriggerSETPLAYER_Z_ABS          0x00008000
-#define combotriggerCMBTYPECAUSES            0x00010000
-#define combotriggerREQ_JUMP_GE              0x00020000
-#define combotriggerREQ_JUMP_LE              0x00040000
-#define combotriggerREQ_X_GE                 0x00080000
-#define combotriggerREQ_X_LE                 0x00100000
-#define combotriggerREQ_X_REL                0x00200000
-#define combotriggerREQ_Y_GE                 0x00400000
-#define combotriggerREQ_Y_LE                 0x00800000
-#define combotriggerREQ_Y_REL                0x01000000
-#define combotriggerFORCE_ICE_VX             0x02000000
-#define combotriggerFORCE_ICE_VY             0x04000000
-//triggerflags[5]
-// #define combotrigger                    0x00000001
-// #define combotrigger                    0x00000002
-// #define combotrigger                    0x00000004
-// #define combotrigger                    0x00000008
+enum ComboTriggerFlag
+{
+	TRIGFLAG_SWORD,
+	TRIGFLAG_SWORDBEAM,
+	TRIGFLAG_BRANG,
+	TRIGFLAG_BOMB,
+	TRIGFLAG_SBOMB,
+	TRIGFLAG_LITBOMB,
+	TRIGFLAG_LITSBOMB,
+	TRIGFLAG_ARROW,
+	TRIGFLAG_FIRE,
+	TRIGFLAG_WHISTLE,
+	TRIGFLAG_BAIT,
+	TRIGFLAG_WAND,
+	TRIGFLAG_MAGIC,
+	TRIGFLAG_WIND,
+	TRIGFLAG_REFMAGIC,
+	TRIGFLAG_REFFIREBALL,
+	TRIGFLAG_REFROCK,
+	TRIGFLAG_HAMMER,
+	TRIGFLAG_RESETANIM,
+	TRIGFLAG_INVERTPROX,
+	TRIGFLAG_BTN_TOP,
+	TRIGFLAG_BTN_BOTTOM,
+	TRIGFLAG_BTN_LEFT,
+	TRIGFLAG_BTN_RIGHT,
+	TRIGFLAG_INVERTMINMAX,
+	TRIGFLAG_STEP,
+	TRIGFLAG_STEPSENS,
+	TRIGFLAG_SHUTTER,
+	TRIGFLAG_CMBTYPEFX,
+	TRIGFLAG_ONLYGENTRIG,
+	TRIGFLAG_KILLWPN,
+	TRIGFLAG_EWFIREBALL,
+	TRIGFLAG_HOOKSHOT,
+	TRIGFLAG_SPARKLE,
+	TRIGFLAG_BYRNA,
+	TRIGFLAG_REFBEAM,
+	TRIGFLAG_STOMP,
+	TRIGFLAG_SCRIPT01,
+	TRIGFLAG_SCRIPT02,
+	TRIGFLAG_SCRIPT03,
+	TRIGFLAG_SCRIPT04,
+	TRIGFLAG_SCRIPT05,
+	TRIGFLAG_SCRIPT06,
+	TRIGFLAG_SCRIPT07,
+	TRIGFLAG_SCRIPT08,
+	TRIGFLAG_SCRIPT09,
+	TRIGFLAG_SCRIPT10,
+	TRIGFLAG_AUTOMATIC,
+	TRIGFLAG_SECRETS,
+	TRIGFLAG_INVERTITEM,
+	TRIGFLAG_CONSUMEITEM,
+	TRIGFLAG_COUNTERGE,
+	TRIGFLAG_COUNTERLT,
+	TRIGFLAG_COUNTEREAT,
+	TRIGFLAG_CTRNONLYTRIG,
+	TRIGFLAG_LIGHTON,
+	TRIGFLAG_LIGHTOFF,
+	TRIGFLAG_PUSH,
+	TRIGFLAG_LENSON,
+	TRIGFLAG_LENSOFF,
+	TRIGFLAG_EWARROW,
+	TRIGFLAG_EWBRANG,
+	TRIGFLAG_EWSWORD,
+	TRIGFLAG_EWROCK,
+	TRIGFLAG_EWSCRIPT01,
+	TRIGFLAG_EWSCRIPT02,
+	TRIGFLAG_EWSCRIPT03,
+	TRIGFLAG_EWSCRIPT04,
+	TRIGFLAG_EWSCRIPT05,
+	TRIGFLAG_EWSCRIPT06,
+	TRIGFLAG_EWSCRIPT07,
+	TRIGFLAG_EWSCRIPT08,
+	TRIGFLAG_EWSCRIPT09,
+	TRIGFLAG_EWSCRIPT10,
+	TRIGFLAG_EWMAGIC,
+	TRIGFLAG_EWBBLAST,
+	TRIGFLAG_EWSBBLAST,
+	TRIGFLAG_EWLITBOMB,
+	TRIGFLAG_EWLITSBOMB,
+	TRIGFLAG_EWFIRETRAIL,
+	TRIGFLAG_EWFLAME,
+	TRIGFLAG_EWWIND,
+	TRIGFLAG_EWFLAME2,
+	TRIGFLAG_SPCITEM,
+	TRIGFLAG_EXSTITEM,
+	TRIGFLAG_EXSTENEMY,
+	TRIGFLAG_AUTOGRABITEM,
+	TRIGFLAG_ENEMIESKILLED,
+	TRIGFLAG_SECRETSTR,
+	TRIGFLAG_THROWN,
+	TRIGFLAG_QUAKESTUN,
+	TRIGFLAG_SQUAKESTUN,
+	TRIGFLAG_ANYFIRE,
+	TRIGFLAG_STRONGFIRE,
+	TRIGFLAG_MAGICFIRE,
+	TRIGFLAG_DIVINEFIRE,
+	TRIGFLAG_TRIGLEVELSTATE,
+	TRIGFLAG_LEVELSTATE,
+	TRIGFLAG_TRIGGLOBALSTATE,
+	TRIGFLAG_GLOBALSTATE,
+	TRIGFLAG_KILLENEMIES,
+	TRIGFLAG_CLEARENEMIES,
+	TRIGFLAG_CLEARLWEAPONS,
+	TRIGFLAG_CLEAREWEAPONS,
+	TRIGFLAG_IGNITE_ANYFIRE,
+	TRIGFLAG_IGNITE_STRONGFIRE,
+	TRIGFLAG_IGNITE_MAGICFIRE,
+	TRIGFLAG_IGNITE_DIVINEFIRE,
+	TRIGFLAG_SEPARATEWEAPON,
+	TRIGFLAG_TGROUP_CONTRIB,
+	TRIGFLAG_TGROUP_LESS,
+	TRIGFLAG_TGROUP_GREATER,
+	TRIGFLAG_PUSHEDTRIG,
+	TRIGFLAG_DIVETRIG,
+	TRIGFLAG_DIVESENSTRIG,
+	TRIGFLAG_LWREFARROW,
+	TRIGFLAG_LWREFFIRE,
+	TRIGFLAG_LWREFFIRE2,
+	TRIGFLAG_TOGGLEDARK,
+	TRIGFLAG_COND_DARK,
+	TRIGFLAG_COND_NODARK,
+	TRIGFLAG_LITEM_COND,
+	TRIGFLAG_LITEM_REVCOND,
+	TRIGFLAG_LITEM_SET,
+	TRIGFLAG_LITEM_UNSET,
+	TRIGFLAG_TINT_CLEAR,
+	TRIGFLAG_ONLY_GROUND_WPN,
+	TRIGFLAG_COUNTERDISCOUNT,
+	TRIGFLAG_SCREENLOAD,
+	TRIGFLAG_UNSETEXSTATE,
+	TRIGFLAG_UNSETEXDOOR,
+	TRIGFLAG_PLAYER_STANDING,
+	TRIGFLAG_PLAYER_NOTSTANDING,
+	TRIGFLAG_INVERT_PLAYER_Z,
+	TRIGFLAG_COUNTER_GRADUAL,
+	TRIGFLAG_COUNTER_PERCENT,
+	TRIGFLAG_NO_COPYCAT_CAUSE,
+	TRIGFLAG_PLAYERLANDHERE,
+	TRIGFLAG_PLAYERLANDANYWHERE,
+	TRIGFLAG_SETPLAYER_X_ABS,
+	TRIGFLAG_SETPLAYER_X_REL_CMB,
+	TRIGFLAG_SETPLAYER_Y_ABS,
+	TRIGFLAG_SETPLAYER_Y_REL_CMB,
+	TRIGFLAG_SETPLAYER_Z_ABS,
+	TRIGFLAG_CMBTYPECAUSES,
+	TRIGFLAG_REQ_JUMP_GE,
+	TRIGFLAG_REQ_JUMP_LE,
+	TRIGFLAG_REQ_X_GE,
+	TRIGFLAG_REQ_X_LE,
+	TRIGFLAG_REQ_X_REL,
+	TRIGFLAG_REQ_Y_GE,
+	TRIGFLAG_REQ_Y_LE,
+	TRIGFLAG_REQ_Y_REL,
+	TRIGFLAG_FORCE_ICE_VX,
+	TRIGFLAG_FORCE_ICE_VY,
+	
+	TRIGFLAG_MAX
+};
 
 #define ctrigNONE                       0x00
 #define ctrigIGNORE_SIGN                0x01

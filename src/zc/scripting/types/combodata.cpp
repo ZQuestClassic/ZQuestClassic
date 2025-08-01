@@ -112,10 +112,10 @@ static ArrayRegistrar COMBODTRIGGERFLAGS2_registrar(COMBODTRIGGERFLAGS2, []{
 		[](newcombo* cmb, int index) -> bool {
 			if (auto* trig = get_first_combo_trigger())
 			{
-				if (index/32 == 0 && (1<<index%32) == combotriggerONLYGENTRIG)
+				if (index == TRIGFLAG_ONLYGENTRIG)
 					return cmb->only_gentrig;
 				else
-					return (trig->triggerflags[index/32] & (1<<index%32));
+					return (trig->trigger_flags.get(index));
 			}
 
 			return 0;
@@ -123,8 +123,8 @@ static ArrayRegistrar COMBODTRIGGERFLAGS2_registrar(COMBODTRIGGERFLAGS2, []{
 		[](newcombo* cmb, int index, bool value){
 			if (auto* trig = get_first_combo_trigger())
 			{
-				SETFLAG(trig->triggerflags[index/32],1<<(index%32),value);
-				if (index/32 == 0 && (1<<index%32) == combotriggerONLYGENTRIG)
+				trig->trigger_flags.set(index, value);
+				if (index == TRIGFLAG_ONLYGENTRIG)
 					cmb->only_gentrig = value;
 			}
 		}
@@ -162,7 +162,7 @@ static ArrayRegistrar COMBODTRIGGERFLAGS_registrar(COMBODTRIGGERFLAGS, []{
 			{
 				if (cmb->triggers.empty())
 					cmb->triggers.emplace_back();
-				return comptime_array_size(cmb->triggers[0].triggerflags);
+				return 6; // deprecated accessor
 			}
 
 			return 0;
@@ -171,9 +171,12 @@ static ArrayRegistrar COMBODTRIGGERFLAGS_registrar(COMBODTRIGGERFLAGS, []{
 			if (auto cmb = checkCombo(ref))
 			{
 				auto& trig = cmb->triggers[0];
-				int ret = trig.triggerflags[index];
+				int32_t ret = 0;
+				for(size_t q = 0; q < 32; ++q)
+					if(trig.trigger_flags.get(index*32 + q))
+						ret |= 1<<q;
 				if (index == 0)
-					SETFLAG(ret, combotriggerONLYGENTRIG, cmb->only_gentrig);
+					SETFLAG(ret, 1 << (TRIGFLAG_ONLYGENTRIG%32), cmb->only_gentrig);
 				return ret;
 			}
 
@@ -184,9 +187,10 @@ static ArrayRegistrar COMBODTRIGGERFLAGS_registrar(COMBODTRIGGERFLAGS, []{
 			{
 				auto& trig = cmb->triggers[0];
 				screen_combo_modify_pre(ref);
-				trig.triggerflags[index] = value;
+				for(size_t q = 0; q < 32; ++q)
+					trig.trigger_flags.set(index*32 + q, value & (1<<q));
 				if (index == 0)
-					cmb->only_gentrig = trig.triggerflags[0] & combotriggerONLYGENTRIG;
+					cmb->only_gentrig = trig.trigger_flags.get(TRIGFLAG_ONLYGENTRIG);
 				screen_combo_modify_post(ref);
 				return true;
 			}
