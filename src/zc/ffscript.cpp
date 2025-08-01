@@ -28741,7 +28741,7 @@ int32_t run_script_int(bool is_jitted)
 			case REF_AUTORELEASE:
 			{
 				uint32_t id = get_register(sarg1);
-				if (!util::contains(script_object_autorelease_pool, id))
+				if (id && !util::contains(script_object_autorelease_pool, id))
 				{
 					script_object_autorelease_pool.push_back(id);
 					if (auto object = get_script_object_checked(id))
