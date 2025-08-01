@@ -758,7 +758,7 @@ static void log_stack_overflow_error()
 	scripting_log_error_with_context("Stack overflow!");
 }
 
-static void log_call_overflow_error()
+static void log_call_limit_error()
 {
 	scripting_log_error_with_context("Function call limit reached! Too much recursion. Max nested function calls is {}", MAX_CALL_FRAMES);
 }
@@ -18200,7 +18200,7 @@ void retstack_push(int32_t val)
 {
 	if(ri->retsp >= ret_stack->size())
 	{
-		log_call_overflow_error();
+		log_call_limit_error();
 		ri->overflow = true;
 		return;
 	}
@@ -24652,7 +24652,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 				if (result == RUNSCRIPT_JIT_STACK_OVERFLOW)
 					log_stack_overflow_error();
 				else
-					log_call_overflow_error();
+					log_call_limit_error();
 
 				if (!(script_funcrun && curscript->meta.ffscript_v < 23))
 				{
