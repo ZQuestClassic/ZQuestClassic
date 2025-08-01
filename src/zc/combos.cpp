@@ -2573,14 +2573,17 @@ void do_weapon_fx(weapon* w, combo_trigger const& trig)
 	if(!w) return;
 	if(trig.trigger_flags.get(TRIGFLAG_KILLWPN))
 		killgenwpn(w);
+	weapon_flags wflags = WFLAG_NONE;
 	if(trig.trigger_flags.get(TRIGFLAG_IGNITE_ANYFIRE))
-		w->misc_wflags |= WFLAG_BURN_ANYFIRE;
+		wflags |= WFLAG_BURN_ANYFIRE;
 	if(trig.trigger_flags.get(TRIGFLAG_IGNITE_STRONGFIRE))
-		w->misc_wflags |= WFLAG_BURN_STRONGFIRE;
+		wflags |= WFLAG_BURN_STRONGFIRE;
 	if(trig.trigger_flags.get(TRIGFLAG_IGNITE_MAGICFIRE))
-		w->misc_wflags |= WFLAG_BURN_MAGICFIRE;
+		wflags |= WFLAG_BURN_MAGICFIRE;
 	if(trig.trigger_flags.get(TRIGFLAG_IGNITE_DIVINEFIRE))
-		w->misc_wflags |= WFLAG_BURN_DIVINEFIRE;
+		wflags |= WFLAG_BURN_DIVINEFIRE;
+	bool ignite_state = !trig.trigger_flags.get(TRIGFLAG_UNIGNITE_WEAPONS);
+	SETFLAG(w->misc_wflags, wflags, ignite_state);
 }
 
 int32_t get_cmb_trigctrcost(combo_trigger const& trig)

@@ -194,12 +194,17 @@ void ComboTriggerDialog::updateWarnings()
 		if(!effect)
 			warnings.emplace_back("Trigger has no 'Effect', and will do nothing!");
 	}
-	if(local_ref.trigger_flags.any({TRIGFLAG_KILLWPN,TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,
-		TRIGFLAG_IGNITE_MAGICFIRE,TRIGFLAG_IGNITE_DIVINEFIRE,TRIGFLAG_SEPARATEWEAPON}))
+	bool has_ignite = local_ref.trigger_flags.any({
+		TRIGFLAG_IGNITE_ANYFIRE,TRIGFLAG_IGNITE_STRONGFIRE,
+		TRIGFLAG_IGNITE_MAGICFIRE,TRIGFLAG_IGNITE_DIVINEFIRE
+	});
+	if(has_ignite || local_ref.trigger_flags.any({TRIGFLAG_KILLWPN,TRIGFLAG_SEPARATEWEAPON}))
 	{
 		if(!has_weapon_cause(local_ref))
 			warnings.emplace_back("Trigger has weapon-specific 'Effect'(s), but no weapon-based causes!");
 	}
+	if(!has_ignite && local_ref.trigger_flags.get(TRIGFLAG_UNIGNITE_WEAPONS))
+		warnings.emplace_back("Trigger has '...Unignite' flag, but no 'Ignite' flags are used!");
 	if(local_ref.trigger_flags.get(TRIGFLAG_UNSETEXSTATE) && local_ref.exstate < 0)
 		warnings.emplace_back("Can't unset ExState -1!");
 	if(local_ref.trigger_flags.get(TRIGFLAG_UNSETEXDOOR) && local_ref.exdoor_dir < 0)
@@ -386,7 +391,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								IBTN("Light the triggering weapon on fire, making it trigger 'Magic Fire' triggers."),
 								TRIGFLAG(TRIGFLAG_IGNITE_MAGICFIRE, "Ignite Weapon (Magic)"),
 								IBTN("Light the triggering weapon on fire, making it trigger 'Divine Fire' triggers."),
-								TRIGFLAG(TRIGFLAG_IGNITE_DIVINEFIRE, "Ignite Weapon (Divine)")
+								TRIGFLAG(TRIGFLAG_IGNITE_DIVINEFIRE, "Ignite Weapon (Divine)"),
+								IBTN("Changes the 'Ignite' triggers above to 'Unignite' weapons instead."),
+								TRIGFLAG(TRIGFLAG_UNIGNITE_WEAPONS, "...Unignite Instead")
 							)
 						),
 						Frame(vPadding = 0_px, fitParent = true,
