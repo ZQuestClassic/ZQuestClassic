@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-08-01 07:57:21</td>
+      <td>2025-08-01 10:38:16</td>
     </tr>
   </table>
 </div>
@@ -74,11 +74,11 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l30">bool util::contains&lt;unsigned int&gt;(std::vector&lt;unsigned int, std::allocator&lt;unsigned int&gt; &gt; const&amp;, unsigned int const&amp;) (line 30)</a></td><td>called 120124022 times, returned 120124022 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l37">bool util::remove_if_exists&lt;sprite*&gt;(std::vector&lt;sprite*, std::allocator&lt;sprite*&gt; &gt;&amp;, sprite* const&amp;) (line 37)</a></td><td>called 2587846 times, returned 2587846 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l37">bool util::remove_if_exists&lt;sprite*&gt;(std::vector&lt;sprite*, std::allocator&lt;sprite*&gt; &gt;&amp;, sprite* const&amp;) (line 37)</a></td><td>called 2587849 times, returned 2587849 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l37">bool util::remove_if_exists&lt;unsigned int&gt;(std::vector&lt;unsigned int, std::allocator&lt;unsigned int&gt; &gt;&amp;, unsigned int const&amp;) (line 37)</a></td><td>called 256316 times, returned 256316 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l58">std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; util::make_hex_string&lt;unsigned char*&gt;(unsigned char*, unsigned char*) (line 58)</a></td><td>called 428 times, returned 428 times</td><td>85.0%</td></tr>
-    <tr><td><a href="#l48">std::optional&lt;unsigned int&gt; util::find&lt;unsigned int, unsigned int&gt;(std::map&lt;unsigned int, unsigned int, std::less&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;unsigned int const, unsigned int&gt; &gt; &gt; const&amp;, unsigned int const&amp;) (line 48)</a></td><td>called 171 times, returned 171 times</td><td>75.0%</td></tr>
-    <tr><td><a href="#l48">std::optional&lt;unsigned long&gt; util::find&lt;unsigned int, unsigned long&gt;(std::map&lt;unsigned int, unsigned long, std::less&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;unsigned int const, unsigned long&gt; &gt; &gt; const&amp;, unsigned int const&amp;) (line 48)</a></td><td>called 84 times, returned 84 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l48">std::optional&lt;unsigned int&gt; util::find&lt;unsigned int, unsigned int&gt;(std::map&lt;unsigned int, unsigned int, std::less&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;unsigned int const, unsigned int&gt; &gt; &gt; const&amp;, unsigned int const&amp;) (line 48)</a></td><td>called 173 times, returned 173 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l48">std::optional&lt;unsigned long&gt; util::find&lt;unsigned int, unsigned long&gt;(std::map&lt;unsigned int, unsigned long, std::less&lt;unsigned int&gt;, std::allocator&lt;std::pair&lt;unsigned int const, unsigned long&gt; &gt; &gt; const&amp;, unsigned int const&amp;) (line 48)</a></td><td>called 70 times, returned 70 times</td><td>75.0%</td></tr>
   </table>
 </details>
 
@@ -349,7 +349,7 @@
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2844162</td>
+      <td class="linecount coveredLine">2844165</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">remove_if_exists</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">vec</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">item</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -363,7 +363,7 @@
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2844162</td>
+      <td class="linecount coveredLine">2844165</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">remove</span><span class="p">(</span><span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">vec</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">item</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -373,13 +373,13 @@
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 69355 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2774807 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 2774810 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">2844162</td>
+      <td class="linecount partialCoveredLine">2844165</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">vec</span><span class="p">.</span><span class="n">end</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -400,21 +400,21 @@
       <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2774807</td>
+      <td class="linecount coveredLine">2774810</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">vec</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">it</span><span class="p">,</span><span class="w"> </span><span class="n">vec</span><span class="p">.</span><span class="n">end</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l44" href="#l44">44</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2774807</td>
+      <td class="linecount coveredLine">2774810</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l45" href="#l45">45</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2844162</td>
+      <td class="linecount coveredLine">2844165</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -435,7 +435,7 @@
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">255</td>
+      <td class="linecount coveredLine">243</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">V</span><span class="o">&gt;</span><span class="w"> </span><span class="n">find</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">K</span><span class="p">,</span><span class="w"> </span><span class="n">V</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">K</span><span class="o">&amp;</span><span class="w"> </span><span class="n">key</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -449,7 +449,7 @@
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">255</td>
+      <td class="linecount coveredLine">243</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -458,21 +458,21 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 171 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 173 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 84 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 70 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">255</td>
+      <td class="linecount partialCoveredLine">243</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">map</span><span class="p">.</span><span class="n">end</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">255</td>
+      <td class="linecount coveredLine">243</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -493,7 +493,7 @@
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">255</td>
+      <td class="linecount coveredLine">243</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
