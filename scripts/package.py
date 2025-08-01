@@ -124,6 +124,10 @@ def preprocess_base_config(config_text: str, cfg_os: str):
             if condition_text[0] == '!':
                 condition_text = condition_text[1:]
                 should_negate = True
+
+            if condition_text not in ['web', 'windows', 'mac', 'linux']:
+                raise Exception(f'unexpected condition: {condition_text}')
+
             is_match = condition_text == cfg_os
 
             if should_negate:

@@ -555,8 +555,10 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Force Integer Values for Scale",App::zelda,"zeldadx","scaling_force_integer",1,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
 						CONFIG_CHECKBOX_I("Linear Scaling",App::zelda,"zeldadx","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling. If on, things will look a little blurry at most resolutions"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zelda,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
-						CONFIG_CHECKBOX_I("Optimize ZASM",App::zelda,"ZSCRIPT","optimize_zasm",1,"Optimize ZASM (zscript bytecode). Script heavy quests are known to run 2x more efficiently with this enabled."),
-						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT script compilation",App::zelda,"ZSCRIPT","jit",0,"Compile scripts to machine code. Depending on the script, can be up to 10x faster. 64-bit only")
+#ifndef ZC_WIN_32
+						CONFIG_CHECKBOX_I("JIT script compilation",App::zelda,"ZSCRIPT","jit",1,"Compile scripts to machine code. Depending on the script, can be up to 10x more efficient. 64-bit only"),
+#endif
+						CONFIG_CHECKBOX_I("Optimize ZASM",App::zelda,"ZSCRIPT","optimize_zasm",1,"Optimize ZASM (zscript bytecode). Script heavy quests are known to run 2x more efficiently with this enabled.")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
@@ -568,7 +570,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zelda,"zeldadx","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zelda,"zeldadx","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zelda, "graphics", "driver", 0, gfxDriverList),
-						CONFIG_DROPDOWN_I("(EXPERIMENTAL) JIT threads:",App::zelda,"ZSCRIPT","jit_threads",-2,jitThreadsList,"Use background threads to speed up JIT compilation. If disabled, all scripts are compiled when a quest first loads."),
+#ifndef ZC_WIN_32
+						CONFIG_DROPDOWN_I("JIT threads:",App::zelda,"ZSCRIPT","jit_threads",-2,jitThreadsList,"Use background threads to speed up JIT compilation. If disabled, all scripts are compiled when a quest first loads."),
+#endif
 						//
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Select Save Folder", onPressFunc = [&]()
