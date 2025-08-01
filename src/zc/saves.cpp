@@ -534,9 +534,13 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		
 		if(section_version < 37)
 		{
+			word tmpw;
 			for(int32_t j=0; j<MAXSCRSNORMAL; j++)
-				if(!p_igetw(&game.maps[j],f))
+			{
+				if(!p_igetw(&tmpw,f))
 					return 36;
+				game.maps[j] = tmpw;
+			}
 			for(int32_t j=0; j<MAXSCRSNORMAL; ++j)
 				if(!p_getc(&(game.guys[j]),f))
 					return 37;
@@ -545,8 +549,20 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		{
 			if(!p_getbvec(&game.bmaps, f))
 				return 35;
-			if(!p_getbvec(&game.maps, f))
-				return 36;
+			if(section_version < 45)
+			{
+				bounded_vec<dword,word> tmpbvec;
+				if(!p_getbvec(&tmpbvec, f))
+					return 36;
+				game.maps.clear();
+				for(dword q = 0; q < tmpbvec.capacity(); ++q)
+					game.maps[q] = tmpbvec[q];
+			}
+			else
+			{
+				if(!p_getbvec(&game.maps, f))
+					return 36;
+			}
 			if(!p_getbvec(&game.guys, f))
 				return 37;
 		}

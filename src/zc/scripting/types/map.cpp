@@ -328,7 +328,7 @@ static ArrayRegistrar MAPDATAINITDARRAY_registrar(MAPDATAINITDARRAY, []{
 
 static ArrayRegistrar MAPDATASCREENSTATED_registrar(MAPDATASCREENSTATED, []{
 	static ScriptingArray_ObjectComputed<mapscr, bool> impl(
-		[](mapscr* scr){ return 16; },
+		[](mapscr* scr){ return mMAXIND; },
 		[](mapscr* scr, int index) -> bool {
 			int mi = mapind(cur_map, scr->screen);
 			if (mi < 0)

@@ -84,7 +84,7 @@ struct gamedata
 	bounded_vec<word,int32_t> _generic {genMAX, 0}; // Generic gamedata. See enum above this struct for indexes.
 	byte visited[MAXDMAPS];
 	bounded_vec<dword,byte> bmaps {MAX_MI, 0}; // the dungeon progress maps
-	bounded_vec<dword,word> maps {MAXSCRSNORMAL, 0}; // info on map changes, items taken, etc.
+	bounded_vec<dword,uint32_t> maps {MAXSCRSNORMAL, 0}; // info on map changes, items taken, etc.
 	bounded_vec<dword,byte> guys {MAXSCRSNORMAL, 0}; // guy counts (enemy kill progress)
 	bool item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables

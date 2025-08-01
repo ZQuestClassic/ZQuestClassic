@@ -530,7 +530,7 @@ static ArrayRegistrar SCREENINITD_registrar(SCREENINITD, []{
 
 static ArrayRegistrar SCREENSTATED_registrar(SCREENSTATED, []{
 	static ScriptingArray_ObjectComputed<screendata, bool> impl(
-		[](screendata* scr){ return 16; },
+		[](screendata* scr){ return mMAXIND; },
 		[](screendata* scr, int index) -> bool {
 			int mi = mapind(cur_map, scr->screen);
 			if (mi < 0)

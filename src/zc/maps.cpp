@@ -1382,11 +1382,13 @@ bool HASFLAG_ANY(int32_t flag, rpos_t rpos)
 	return false;
 }
 
-const char *screenstate_string[16] =
+const char *screenstate_string[32] =
 {
-    "Door Up", "Door Down", "Door Left", "Door Right", "Item", "Special Item", "No Return",
-    "Temporary No Return", "Lock Blocks", "Boss Lock Blocks", "Chests", "Locked Chests",
-    "Boss Locked Chests", "Secrets", "Visited", "Light Beams"
+	"Door Up", "Door Down", "Door Left", "Door Right", "Item", "Special Item", "No Return",
+	"Temporary No Return", "Lock Blocks", "Boss Lock Blocks", "Chests", "Locked Chests",
+	"Boss Locked Chests", "Secrets", "Visited", "Light Beams",
+	"Enemies Never Return", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>",
+	"<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>",
 };
 
 void eventlog_mapflags()
@@ -1394,7 +1396,7 @@ void eventlog_mapflags()
 	std::ostringstream oss;
 	
 	int mi = mapind(cur_map, home_screen);
-    word g = game->maps[mi] &0x3FFF;
+	dword g = game->maps[mi];
     
 	oss << fmt::format("Screen ({}, {:02X})", cur_map+1, home_screen);
 	if(g) // Main States
@@ -1404,7 +1406,7 @@ void eventlog_mapflags()
 			mSECRET, mITEM, mSPECIALITEM, mLOCKBLOCK, mBOSSLOCKBLOCK,
 			mCHEST, mLOCKEDCHEST, mBOSSCHEST,
 			mDOOR_UP, mDOOR_DOWN, mDOOR_LEFT, mDOOR_RIGHT,
-			mNEVERRET, mTMPNORET
+			mNEVERRET, mTMPNORET, mLIGHTBEAM, mNO_ENEMIES_RETURN
 		};
 		
 		oss << " [";
@@ -1459,18 +1461,18 @@ void eventlog_mapflags()
 }
 
 // set specific flag
-void setmapflag(mapscr* scr, int32_t flag)
+void setmapflag(mapscr* scr, uint32_t flag)
 {
 	if (scr->screen >= 0x80) scr = special_warp_return_scr;
 	int mi = mapind(cur_map, scr->screen);
 	setmapflag_mi(scr, mi, flag);
 }
-void setmapflag_homescr(int32_t flag)
+void setmapflag_homescr(uint32_t flag)
 {
 	int mi = mapind(cur_map, home_screen);
     setmapflag_mi(origin_scr, mi, flag);
 }
-void setmapflag_mi(int32_t mi, int32_t flag)
+void setmapflag_mi(int32_t mi, uint32_t flag)
 {
 	byte cscr = mi&((1<<7)-1);
 	byte cmap = (mi>>7);
@@ -1489,12 +1491,12 @@ static void log_state_change(int map, int screen, std::string action)
 		Z_eventlog("[Map %d, Screen %02X] %s\n", map + 1, screen, action.c_str());
 }
 
-void setmapflag_mi(mapscr* scr, int32_t mi, int32_t flag)
+void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag)
 {
     byte cscr = mi&((1<<7)-1);
     byte cmap = (mi>>7);
 
-    float temp=log2((float)flag);
+    double temp=log2((double)flag);
     const char* state_string = flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>";
 
     if (replay_is_active() && !(game->maps[mi] & flag))
@@ -1537,20 +1539,20 @@ void setmapflag_mi(mapscr* scr, int32_t mi, int32_t flag)
     }
 }
 
-void unsetmapflag_home(int32_t flag, bool anyflag)
+void unsetmapflag_home(uint32_t flag, bool anyflag)
 {
 	int mi = mapind(cur_map, home_screen);
     unsetmapflag_mi(origin_scr, mi, flag, anyflag);
 }
 
-void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
+void unsetmapflag(mapscr* scr, uint32_t flag, bool anyflag)
 {
 	if (scr->screen >= 0x80) scr = special_warp_return_scr;
 	int mi = mapind(cur_map, scr->screen);
 	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
 
-void unsetmapflag_mi(int32_t mi, int32_t flag, bool anyflag)
+void unsetmapflag_mi(int32_t mi, uint32_t flag, bool anyflag)
 {
 	byte cscr = mi&((1<<7)-1);
 	byte cmap = (mi>>7);
@@ -1561,7 +1563,7 @@ void unsetmapflag_mi(int32_t mi, int32_t flag, bool anyflag)
 	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
 
-void unsetmapflag_mi(mapscr* scr, int32_t mi, int32_t flag, bool anyflag)
+void unsetmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag, bool anyflag)
 {
     byte cscr = mi&((1<<7)-1);
     byte cmap = (mi>>7);
@@ -1575,7 +1577,7 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, int32_t flag, bool anyflag)
     }
     else game->maps[mi] &= ~flag;
     
-    float temp=log2((float)flag);
+    double temp=log2((double)flag);
     const char* state_string = flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>";
     log_state_change(cmap, cscr, fmt::format("State unset: {}", state_string));
                
@@ -1612,12 +1614,12 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, int32_t flag, bool anyflag)
     }
 }
 
-bool getmapflag(int32_t screen, int32_t flag)
+bool getmapflag(int32_t screen, uint32_t flag)
 {
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
     return (game->maps[mi] & flag) != 0;
 }
-bool getmapflag(mapscr* scr, int32_t flag)
+bool getmapflag(mapscr* scr, uint32_t flag)
 {
 	return getmapflag(scr->screen, flag);
 }
@@ -5969,7 +5971,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 				break;
 				
 			case dLOCKED:
-				if(should_check_for_state_things && game->maps[mi]&(1<<i))
+				if(should_check_for_state_things && game->maps[mi]&(mDOOR_UP<<i))
 				{
 					base_scr->door[i]=dUNLOCKED;
 				}
@@ -5977,7 +5979,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 				break;
 				
 			case dBOSS:
-				if(should_check_for_state_things && game->maps[mi]&(1<<i))
+				if(should_check_for_state_things && game->maps[mi]&(mDOOR_UP<<i))
 				{
 					base_scr->door[i]=dOPENBOSS;
 				}
@@ -5985,7 +5987,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 				break;
 				
 			case dBOMB:
-				if(should_check_for_state_things && game->maps[mi]&(1<<i))
+				if(should_check_for_state_things && game->maps[mi]&(mDOOR_UP<<i))
 				{
 					base_scr->door[i]=dBOMBED;
 				}
@@ -6409,7 +6411,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 				break;
 				
 			case dLOCKED:
-				if(game->maps[mi]&(1<<i))
+				if(game->maps[mi]&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dUNLOCKED;
 				}
@@ -6417,7 +6419,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 				break;
 				
 			case dBOSS:
-				if(game->maps[mi]&(1<<i))
+				if(game->maps[mi]&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dOPENBOSS;
 				}
@@ -6425,7 +6427,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 				break;
 				
 			case dBOMB:
-				if(game->maps[mi]&(1<<i))
+				if(game->maps[mi]&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dBOMBED;
 				}
@@ -6584,7 +6586,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 				break;
 				
 			case dLOCKED:
-				if(game->maps[mi]&(1<<i))
+				if(game->maps[mi]&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dUNLOCKED;
 				}
@@ -6592,7 +6594,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 				break;
 				
 			case dBOSS:
-				if(game->maps[mi]&(1<<i))
+				if(game->maps[mi]&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dOPENBOSS;
 				}
@@ -6600,7 +6602,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 				break;
 				
 			case dBOMB:
-				if(game->maps[mi]&(1<<i))
+				if(game->maps[mi]&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dBOMBED;
 				}

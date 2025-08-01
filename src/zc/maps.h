@@ -270,16 +270,16 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y);
 std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y);
 void eventlog_mapflags();
 
-void setmapflag(mapscr* scr, int32_t flag);
-void setmapflag_homescr(int32_t flag);
-void setmapflag_mi(int32_t mi, int32_t flag);
-void setmapflag_mi(mapscr* scr, int32_t mi, int32_t flag);
-void unsetmapflag_mi(mapscr* scr, int32_t mi, int32_t flag, bool anyflag=false);
-void unsetmapflag_mi(int32_t mi, int32_t flag, bool anyflag=false);
-void unsetmapflag_home(int32_t flag = 32,bool anyflag = false);
-void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag = false);
-bool getmapflag(int32_t screen, int32_t flag);
-bool getmapflag(mapscr* scr, int32_t flag);
+void setmapflag(mapscr* scr, uint32_t flag);
+void setmapflag_homescr(uint32_t flag);
+void setmapflag_mi(int32_t mi, uint32_t flag);
+void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag);
+void unsetmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag, bool anyflag=false);
+void unsetmapflag_mi(int32_t mi, uint32_t flag, bool anyflag=false);
+void unsetmapflag_home(uint32_t flag = 32,bool anyflag = false);
+void unsetmapflag(mapscr* scr, uint32_t flag, bool anyflag = false);
+bool getmapflag(int32_t screen, uint32_t flag);
+bool getmapflag(mapscr* scr, uint32_t flag);
 
 void setxmapflag(int32_t screen, uint32_t flag);
 void setxmapflag_mi(int32_t mi, uint32_t flag);

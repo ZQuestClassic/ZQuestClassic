@@ -18936,6 +18936,8 @@ static void side_load_enemies(mapscr* scr)
 			while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
 				++sle_cnt;
 		}
+		if(getmapflag(scr, mNO_ENEMIES_RETURN))
+			sle_cnt = 0;
 		
 		for(int32_t i=0; i<sle_cnt; i++)
 			++guycnt;
@@ -19335,6 +19337,9 @@ void loadenemies()
 		int screen = scr->screen;
 		auto& state = get_screen_state(screen);
 		if (state.loaded_enemies)
+			return;
+		
+		if(getmapflag(scr, mNO_ENEMIES_RETURN))
 			return;
 
 		// dungeon basements

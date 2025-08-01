@@ -164,7 +164,7 @@ enum ScreenState
 	ST_DOORRIGHT          = 3, // The locked/bomb door has been permanently unlocked/bombed
 	ST_ITEM               = 4, // If set, the item is gone
 	ST_SPECIALITEM        = 5, // If set, the Cave/Item Cellar/Dive For Item/Armos item is gone
-	ST_ENEMYNORETURN      = 6, // If set, enemies won't return
+	ST_ENEMYNORETURN      = 6, // If set, enemies with [NPCMF_NEVERRETURNS] set won't return
 	ST_TEMPNORETURN       = 7, // If set, enemies won't return. This is automatically unset when you leave the DMap
 	ST_LOCKBLOCK          = 8, // The lock block on the screen has been triggered
 	ST_BOSSLOCKBLOCK      = 9, // The boss lock block on the screen has been triggered
@@ -173,7 +173,8 @@ enum ScreenState
 	ST_BOSSCHEST          = 12, // The boss chest on this screen has been opened
 	ST_SECRET             = 13, // Screen Secrets have been made permanent
 	ST_VISITED            = 14, // If set, this screen will appear on the Overworld Map
-	ST_LIGHTBEAM          = 15  // If set, the light triggers on the screen have been triggered
+	ST_LIGHTBEAM          = 15, // If set, the light triggers on the screen have been triggered
+	ST_NO_ENEMIES_RETURN  = 16, // If set, enemies on this screen will not spawn.
 };
 
 // Represents map screen(s).
