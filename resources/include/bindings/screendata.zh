@@ -787,16 +787,31 @@ class screendata {
 	//
 	// @zasm_var SCREENDATACSENSITIVE
 	internal int CSensitive;
-
-	// Which parts of the screen state that won't reset on reentry.
+	
+	// Which parts of the screen state that won't reset via 'Reset Room' combos.
 	//
+	// @index [enum ScreenState]
+	// @zasm_var SCREENDATANORESETARR
+	internal bool NoResetState[];
+	
+	// Which parts of the screen state that won't reset via 'Reset Room' combos.
+	//
+	// @deprecated Use [NoResetState] instead!
 	// @value [enum NoResetBitflags]
 	// @zasm_var SCREENDATANORESET
 	internal int NoReset;
+	
+	// For screen state carryovers, which parts of the screen state that won't carry over to the
+	// target screen.
+	//
+	// @index [enum ScreenState]
+	// @zasm_var SCREENDATANOCARRYARR
+	internal bool NoCarryState[];
 
 	// For screen state carryovers, which parts of the screen state that won't carry over to the
 	// target screen.
 	//
+	// @deprecated Use [NoCarryState] instead!
 	// @value [enum NoCarryBitflags]
 	// @zasm_var SCREENDATANOCARRY
 	internal int NoCarry;

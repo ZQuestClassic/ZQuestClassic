@@ -372,12 +372,76 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "States", Row(
-					Rows<3>(
-						INFOBTN("If set to 0, no carryover occurs. Otherwise, when a screen state"
-							" is set for this screen, it will also be set for the 'Carryover Screen',"
-							" on the 'Carryover Map'."),
-						Label(text = "Carryover Map"),
+				TabRef(name = "States", Column(
+					Rows<3>(hAlign = 1.0,
+						Label(text = "Don't Carryover:", hAlign = 1.0),
+						Button(
+							width = 1.5_em, padding = 0_px, forceFitH = true,
+							text = "P", hAlign = 1.0, onPressFunc = [&]()
+							{
+								auto flags = local_scr.nocarry;
+								static const vector<CheckListInfo> scrstates =
+								{
+									{ "Door Up" },
+									{ "Door Down" },
+									{ "Door Left" },
+									{ "Door Right" },
+									{ "Screen Item" },
+									{ "Special Item" },
+									{ "Some Enemies Never Return" },
+									{ "Enemies Temp No Return" },
+									{ "Lockblock" },
+									{ "Boss Lockblock" },
+									{ "Chest" },
+									{ "Locked Chest" },
+									{ "Boss Chest" },
+									{ "Secrets" },
+									{ "Visited" },
+									{ "Light Triggers" },
+									{ "All Enemies Don't Return" },
+								};
+								if(!call_checklist_dialog("Select states to NOT carry over",scrstates,flags,8))
+									return;
+								local_scr.nocarry = flags;
+							}
+						),
+						INFOBTN_EX("These states will not be carried over to the 'Carryover Screen'.", forceFitH = true, padding = 0_px),
+						//
+						Label(text = "Don't Reset:", hAlign = 1.0),
+						Button(
+							width = 1.5_em, padding = 0_px, forceFitH = true,
+							text = "P", hAlign = 1.0, onPressFunc = [&]()
+							{
+								auto flags = local_scr.noreset;
+								static const vector<CheckListInfo> scrstates =
+								{
+									{ "Door Up" },
+									{ "Door Down" },
+									{ "Door Left" },
+									{ "Door Right" },
+									{ "Screen Item" },
+									{ "Special Item" },
+									{ "Some Enemies Never Return" },
+									{ "Enemies Temp No Return" },
+									{ "Lockblock" },
+									{ "Boss Lockblock" },
+									{ "Chest" },
+									{ "Locked Chest" },
+									{ "Boss Chest" },
+									{ "Secrets" },
+									{ "Visited" },
+									{ "Light Triggers" },
+									{ "All Enemies Don't Return" },
+								};
+								if(!call_checklist_dialog("Select states to NOT reset",scrstates,flags,8))
+									return;
+								local_scr.noreset = flags;
+							}
+						),
+						INFOBTN_EX("These states will not be cleared by 'Reset Room' combos.", forceFitH = true, padding = 0_px)
+					),
+					Rows<3>(hAlign = 1.0,
+						Label(text = "Carryover Map:", hAlign = 1.0),
 						DropDownList(data = list_maps,
 							fitParent = true,
 							selectedValue = local_scr.nextmap,
@@ -386,8 +450,10 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 								local_scr.nextmap = val;
 							}
 						),
-						INFOBTN("The screen on the 'Carryover Map' to use for state carryover."),
-						Label(text = "Carryover Screen"),
+						INFOBTN("If set to 0, no carryover occurs. Otherwise, when a screen state"
+							" is set for this screen, it will also be set for the 'Carryover Screen',"
+							" on the 'Carryover Map'."),
+						Label(text = "Carryover Screen:", hAlign = 1.0),
 						DropDownList(data = list_screens,
 							fitParent = true,
 							selectedValue = local_scr.nextscr,
@@ -395,105 +461,8 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							{
 								local_scr.nextscr = val;
 							}
-						)
-					),
-					Column(
-						Row(
-							Label(text = "Don't Carryover", textAlign = 2, hAlign = 1.0, minwidth = 128_px),
-							//No Carryover
-							INFOBTN_EX("These states will not be carried over to the 'Carryover Screen'.", height = 1.2_em),
-							//buffer space
-							DummyWidget(width = 40_px),
-							//No Reset
-							INFOBTN_EX("These states will not be cleared by 'Reset Room' combos.", height = 1.2_em),
-							Label(text = "Don't Reset", textAlign = 0, hAlign = 0.0, minwidth = 128_px)
 						),
-						Columns<13>(
-							Rows<2>(
-								Button(
-									text = "On",
-									maxwidth = 32_px,
-									maxheight = 24_px,
-									hPadding = 0_px,
-									onPressFunc = [&]()
-									{
-										for (int q = 0; q < 8; ++q)
-											carryover_cb[0][q]->setChecked(true);
-										local_scr.nocarry = mNOCARRYOVER;
-									}),
-								Button(
-									text = "Off",
-									maxwidth = 32_px,
-									maxheight = 24_px,
-									hPadding = 0_px,
-									onPressFunc = [&]()
-									{
-										for (int q = 0; q < 8; ++q)
-											carryover_cb[0][q]->setChecked(false);
-										local_scr.nocarry = 0x0;
-									})
-							),
-							carryover_cb[0][0] = PLAIN_CB(nocarry, mSECRET, hAlign = 0.5),
-							carryover_cb[0][1] = PLAIN_CB(nocarry, mITEM, hAlign = 0.5),
-							carryover_cb[0][2] = PLAIN_CB(nocarry, mSPECIALITEM, hAlign = 0.5),
-							carryover_cb[0][3] = PLAIN_CB(nocarry, mLOCKBLOCK, hAlign = 0.5),
-							carryover_cb[0][4] = PLAIN_CB(nocarry, mBOSSLOCKBLOCK, hAlign = 0.5),
-							carryover_cb[0][5] = PLAIN_CB(nocarry, mCHEST, hAlign = 0.5),
-							carryover_cb[0][6] = PLAIN_CB(nocarry, mLOCKEDCHEST, hAlign = 0.5),
-							carryover_cb[0][7] = PLAIN_CB(nocarry, mBOSSCHEST, hAlign = 0.5),
-							DummyWidget(rowSpan=4),
-							//
-							Label(text = "Set All"),
-							Label(text = "Secrets"),
-							Label(text = "Item"),
-							Label(text = "Special Item"),
-							Label(text = "Lockblock"),
-							Label(text = "Boss Lockblock"),
-							Label(text = "Chest"),
-							Label(text = "Locked Chest"),
-							Label(text = "Boss Chest"),
-							Label(text = "Door (Up)"),
-							Label(text = "Door (Down)"),
-							Label(text = "Door (Left)"),
-							Label(text = "Door (Right)"),
-							//
-							Rows<2>(
-								Button(
-									text = "On",
-									maxwidth = 32_px,
-									maxheight = 24_px,
-									hPadding = 0_px,
-									onPressFunc = [&]()
-									{
-										for (int q = 0; q < 12; ++q)
-											carryover_cb[1][q]->setChecked(true);
-										local_scr.noreset = mNORESET;
-									}),
-								Button(
-									text = "Off",
-									maxwidth = 32_px,
-									maxheight = 24_px,
-									hPadding = 0_px,
-									onPressFunc = [&]()
-									{
-										for (int q = 0; q < 12; ++q)
-											carryover_cb[1][q]->setChecked(false);
-										local_scr.noreset = 0x0;
-									})
-							),
-							carryover_cb[1][0] = PLAIN_CB(noreset, mSECRET),
-							carryover_cb[1][1] = PLAIN_CB(noreset, mITEM),
-							carryover_cb[1][2] = PLAIN_CB(noreset, mSPECIALITEM),
-							carryover_cb[1][3] = PLAIN_CB(noreset, mLOCKBLOCK),
-							carryover_cb[1][4] = PLAIN_CB(noreset, mBOSSLOCKBLOCK),
-							carryover_cb[1][5] = PLAIN_CB(noreset, mCHEST),
-							carryover_cb[1][6] = PLAIN_CB(noreset, mLOCKEDCHEST),
-							carryover_cb[1][7] = PLAIN_CB(noreset, mBOSSCHEST),
-							carryover_cb[1][8] = PLAIN_CB(noreset, mDOOR_UP),
-							carryover_cb[1][9] = PLAIN_CB(noreset, mDOOR_DOWN),
-							carryover_cb[1][10] = PLAIN_CB(noreset, mDOOR_LEFT),
-							carryover_cb[1][11] = PLAIN_CB(noreset, mDOOR_RIGHT)
-						)
+						INFOBTN("The screen on the 'Carryover Map' to use for state carryover.")
 					)
 				)),
 				TabRef(name = "Data", Column(

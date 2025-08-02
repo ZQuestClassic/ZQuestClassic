@@ -35,6 +35,35 @@ enum
 #define mVALID          0x01
 #define mVERSION        0x80
 
+//States
+#define mDOOR_UP                  0x00000001 // only dungeons use this
+#define mDOOR_DOWN                0x00000002 //^
+#define mDOOR_LEFT                0x00000004 //^
+#define mDOOR_RIGHT               0x00000008 //^
+
+#define mITEM                     0x00000010 // item (main screen)
+#define mSPECIALITEM              0x00000020 // special item (underground)
+#define mNEVERRET                 0x00000040 // enemy never returns
+#define mTMPNORET                 0x00000080 // enemies don't return until you leave the dungeon
+
+#define mLOCKBLOCK                0x00000100 // if the lockblock on the screen has been triggered
+#define mBOSSLOCKBLOCK            0x00000200 // if the bosslockblock on the screen has been triggered
+#define mCHEST                    0x00000400 // if the unlocked check on this screen has been opened
+#define mLOCKEDCHEST              0x00000800 // if the locked chest on this screen has been opened
+
+#define mBOSSCHEST                0x00001000 // if the boss chest on this screen has been opened
+#define mSECRET                   0x00002000 // secrets on permanently. only overworld and caves use this
+#define mVISITED                  0x00004000 // only overworld uses this
+#define mLIGHTBEAM                0x00008000 // light beam triggers completed
+
+#define mNO_ENEMIES_RETURN        0x00010000 // No enemies ever spawn again
+
+#define mALL                      0x0001FFFF
+#define mDEF_NORESET              (mTMPNORET|mVISITED)
+#define mDEF_NOCARRYOVER          (mTMPNORET|mVISITED|mDOOR_UP|mDOOR_DOWN|mDOOR_LEFT|mDOOR_RIGHT|mNEVERRET|mNO_ENEMIES_RETURN)
+
+#define mMAXIND          17
+
 struct mapscr
 {
 	byte map;
@@ -95,8 +124,8 @@ struct mapscr
 	byte flags11; // Used to be `enemyflags`.
 	// The value of Damage Combo Sensitivity for the screen
 	byte csensitive = 1;
-	word noreset;
-	word nocarry;
+	dword noreset = mDEF_NORESET;
+	dword nocarry = mDEF_NOCARRYOVER;
 	byte layermap[6];
 	byte layerscreen[6];
 	//  byte layerxsize[6];
@@ -285,34 +314,6 @@ struct screendata : mapscr {};
 #define llNORMAL        0
 #define llLENSHIDES     8
 #define llLENSSHOWS     16
-
-//States
-#define mDOOR_UP                  0x00000001 // only dungeons use this
-#define mDOOR_DOWN                0x00000002 //^
-#define mDOOR_LEFT                0x00000004 //^
-#define mDOOR_RIGHT               0x00000008 //^
-
-#define mITEM                     0x00000010 // item (main screen)
-#define mSPECIALITEM              0x00000020 // special item (underground)
-#define mNEVERRET                 0x00000040 // enemy never returns
-#define mTMPNORET                 0x00000080 // enemies don't return until you leave the dungeon
-
-#define mLOCKBLOCK                0x00000100 // if the lockblock on the screen has been triggered
-#define mBOSSLOCKBLOCK            0x00000200 // if the bosslockblock on the screen has been triggered
-#define mCHEST                    0x00000400 // if the unlocked check on this screen has been opened
-#define mLOCKEDCHEST              0x00000800 // if the locked chest on this screen has been opened
-
-#define mBOSSCHEST                0x00001000 // if the boss chest on this screen has been opened
-#define mSECRET                   0x00002000 // secrets on permanently. only overworld and caves use this
-#define mVISITED                  0x00004000 // only overworld uses this
-#define mLIGHTBEAM                0x00008000 // light beam triggers completed
-
-#define mNO_ENEMIES_RETURN        0x00010000 // No enemies ever spawn again
-
-#define mNORESET                  0x00003F3F // all 'no reset' flags set
-#define mNOCARRYOVER              0x00003F30 // all 'no carryover' flags set
-
-#define mMAXIND          17
 
 // room types
 enum

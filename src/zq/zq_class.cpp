@@ -9005,7 +9005,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		}
 	}
 	
-	if(screen.noreset || screen.nocarry
+	if(screen.noreset != mDEF_NORESET || screen.nocarry != mDEF_NOCARRYOVER
 		|| screen.nextmap || screen.nextscr)
 		scr_has_flags |= SCRHAS_CARRY;
 	
@@ -9237,9 +9237,9 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	}
 	if(scr_has_flags & SCRHAS_CARRY)
 	{
-		if(!p_iputw(screen.noreset,f))
+		if(!p_iputl(screen.noreset,f))
 			return qe_invalid;
-		if(!p_iputw(screen.nocarry,f))
+		if(!p_iputl(screen.nocarry,f))
 			return qe_invalid;
 		if(!p_putc(screen.nextmap,f))
 			return qe_invalid;

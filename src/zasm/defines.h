@@ -3267,8 +3267,12 @@ enum ASM_DEFINE
 #define CMBTRIGGERICECOMBO         0x1654
 #define CMBTRIGGERICEVX            0x1655
 #define CMBTRIGGERICEVY            0x1656
+#define SCREENDATANOCARRYARR       0x1657
+#define SCREENDATANORESETARR       0x1658
+#define MAPDATANOCARRYARR          0x1659
+#define MAPDATANORESETARR          0x165A
 
-#define NUMVARIABLES         0x1657
+#define NUMVARIABLES         0x165B
 
 //} End variables
 

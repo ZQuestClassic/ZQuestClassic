@@ -15552,6 +15552,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_maps);
 
 	byte tempbyte, padding;
+	word wpadding;
 	int32_t extras, secretcombos;
 	if(!p_getc(&(temp_mapscr->valid),f))
 	{
@@ -16100,15 +16101,13 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&(temp_mapscr->noreset),f))
-		{
+		if(!p_igetw(&wpadding,f))
 			return qe_invalid;
-		}
-		
-		if(!p_igetw(&(temp_mapscr->nocarry),f))
-		{
+		temp_mapscr->noreset = wpadding | mLIGHTBEAM | mTMPNORET | mVISITED;
+		if(!p_igetw(&wpadding,f))
 			return qe_invalid;
-		}
+		temp_mapscr->nocarry = wpadding | mLIGHTBEAM | mTMPNORET | mVISITED |
+			mDOOR_UP | mDOOR_DOWN | mDOOR_LEFT | mDOOR_RIGHT | mNEVERRET | mNO_ENEMIES_RETURN;
 		
 		if(temp_mapscr->flags5&32)
 		{
@@ -16133,8 +16132,9 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	else
 	{
 		temp_mapscr->flags5 = 0;
-		temp_mapscr->noreset = 0;
-		temp_mapscr->nocarry = 0;
+		temp_mapscr->noreset = mLIGHTBEAM | mTMPNORET | mVISITED;
+		temp_mapscr->nocarry = mLIGHTBEAM | mTMPNORET | mVISITED |
+			mDOOR_UP | mDOOR_DOWN | mDOOR_LEFT | mDOOR_RIGHT | mNEVERRET | mNO_ENEMIES_RETURN;
 	}
 	
 	if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>9)))
@@ -17174,14 +17174,37 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		}
 		if(scr_has_flags & SCRHAS_CARRY)
 		{
-			if(!p_igetw(&(temp_mapscr->noreset),f))
-				return qe_invalid;
-			if(!p_igetw(&(temp_mapscr->nocarry),f))
-				return qe_invalid;
+			if(version < 34)
+			{
+				word tmpw;
+				if(!p_igetw(&tmpw,f))
+					return qe_invalid;
+				temp_mapscr->noreset = tmpw | mLIGHTBEAM | mTMPNORET | mVISITED;
+				if(!p_igetw(&tmpw,f))
+					return qe_invalid;
+				temp_mapscr->nocarry = tmpw | mLIGHTBEAM | mTMPNORET | mVISITED |
+					mDOOR_UP | mDOOR_DOWN | mDOOR_LEFT | mDOOR_RIGHT | mNEVERRET | mNO_ENEMIES_RETURN;
+			}
+			else
+			{
+				if(!p_igetl(&(temp_mapscr->noreset),f))
+					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->nocarry),f))
+					return qe_invalid;
+			}
 			if(!p_getc(&(temp_mapscr->nextmap),f))
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->nextscr),f))
 				return qe_invalid;
+		}
+		else
+		{
+			if(version < 34)
+			{
+				temp_mapscr->noreset = mLIGHTBEAM | mTMPNORET | mVISITED;
+				temp_mapscr->nocarry = mLIGHTBEAM | mTMPNORET | mVISITED |
+					mDOOR_UP | mDOOR_DOWN | mDOOR_LEFT | mDOOR_RIGHT | mNEVERRET | mNO_ENEMIES_RETURN;
+			}
 		}
 		if(scr_has_flags & SCRHAS_SCRIPT)
 		{
