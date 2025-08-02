@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-08-01 10:38:16</td>
+      <td>2025-08-02 03:59:21</td>
     </tr>
   </table>
 </div>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>2897</td>
+      <td>2898</td>
       <td>4958</td>
-      <td class="coverage-low">58.4%</td>
+      <td class="coverage-low">58.5%</td>
     </tr>
   </table>
 </div>
@@ -104,7 +104,7 @@
     <tr><td><a href="#l6705">weapon::collision_check() (line 6705)</a></td><td>called 35 times, returned 35 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l701">weapon::convertType(bool) (line 701)</a></td><td>called 899 times, returned 899 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l7253">weapon::doAutoRotate(bool, bool) (line 7253)</a></td><td>called 2042975 times, returned 2042975 times</td><td>18.0%</td></tr>
-    <tr><td><a href="#l6639">weapon::do_death_fx() (line 6639)</a></td><td>called 519072 times, returned 519072 times</td><td>52.0%</td></tr>
+    <tr><td><a href="#l6639">weapon::do_death_fx() (line 6639)</a></td><td>called 519073 times, returned 519073 times</td><td>52.0%</td></tr>
     <tr><td><a href="#l7268">weapon::draw(BITMAP*) (line 7268)</a></td><td>called 23476483 times, returned 14677485 times</td><td>78.0%</td></tr>
     <tr><td><a href="#l7793">weapon::draw_hitbox() (line 7793)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l7714">weapon::findcombotriggers() (line 7714)</a></td><td>called 15278825 times, returned 15278825 times</td><td>86.0%</td></tr>
@@ -54826,17 +54826,17 @@
       <td class="lineno"><a id="l6635" href="#l6635">6635</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">3/4</summary>
+        <summary class="linebranchSummary">4/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 14039633 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 517675 times.</div>
-          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 14039633 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 14039632 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">14557308</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">rundeath</span><span class="p">)</span><span class="w"> </span><span class="n">do_death_fx</span><span class="p">();</span></td>
+      <td class="linecount coveredLine">14557308</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">rundeath</span><span class="p">)</span><span class="w"> </span><span class="n">do_death_fx</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6636" href="#l6636">6636</a></td>
@@ -54863,7 +54863,7 @@
       <td class="lineno"><a id="l6639" href="#l6639">6639</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">weapon</span><span class="o">::</span><span class="n">do_death_fx</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -54879,12 +54879,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 519072 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 519073 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">519072</td>
+      <td class="linecount partialCoveredLine">519073</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">death_spawnitem</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -54928,12 +54928,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 519056 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 519057 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 16 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">death_spawndropset</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -55032,14 +55032,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 519052 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 519053 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 20 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">519072</td>
+      <td class="linecount partialCoveredLine">519073</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">switch</span><span class="p">(</span><span class="n">death_sprite</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -55103,11 +55103,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 9 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 519043 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 519044 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">519052</td>
+      <td class="linecount coveredLine">519053</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">death_sprite</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -55149,12 +55149,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 519035 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 519036 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 37 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">death_sfx</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -55175,49 +55175,49 @@
       <td class="lineno"><a id="l6670" href="#l6670">6670</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_spawnitem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6671" href="#l6671">6671</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_item_pflags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6672" href="#l6672">6672</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_spawndropset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6673" href="#l6673">6673</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_sprite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6674" href="#l6674">6674</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_sfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6675" href="#l6675">6675</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">rundeath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6676" href="#l6676">6676</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519072</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
