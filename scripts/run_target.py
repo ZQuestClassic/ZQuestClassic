@@ -1,10 +1,10 @@
 import os
-import subprocess
-from typing import List, Optional
-from pathlib import Path
-import sys
 import platform
 import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import List, Optional
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -40,7 +40,7 @@ def _get_debug_method():
             subprocess.check_call(lldb_wrapper_args)
         except Exception as e:
             print(e, file=sys.stderr)
-            print('WARNING: lldb is installed, but could not import the Python extension', file=sys.stderr)
+            print('WARNING: lldb is installed, but could not import the Python extension. falling back to reading core file', file=sys.stderr)
             return False
 
         return True
@@ -64,7 +64,11 @@ def _get_debug_method():
         debugger_tool = 'gdb'
 
     if debugger_tool:
-        return {'method': DEBUG_METHOD_CORE, 'debugger': debugger_tool}
+        is_sudo = os.geteuid() == 0
+        if is_sudo:
+            return {'method': DEBUG_METHOD_CORE, 'debugger': debugger_tool}
+        else:
+            print_run_target('WARNING: must be in sudo mode to print core dump on crash')
 
     return {'method': DEBUG_METHOD_NONE}
 

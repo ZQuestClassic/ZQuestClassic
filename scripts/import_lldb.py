@@ -59,9 +59,9 @@ def import_lldb():
         try:
             import lldb
             return True
-        except ImportError:
+        except ImportError as e:
             # Unable to import lldb module from default Xcode python path
-            pass
+            print(e, file=sys.stderr)
 
     return False
 
