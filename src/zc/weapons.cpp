@@ -4038,7 +4038,12 @@ bool weapon::animate(int32_t index)
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
 		}
-		
+		case ewWind:
+		{
+			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
+				do_mirror();
+			break;
+		}
 		case wFire: case wRefFire: case wRefFire2:
 		{
 			if(blocked())
@@ -5588,6 +5593,7 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 	{
 		case wBeam: case wRefBeam: case ewSword:
 		case wMagic: case wRefMagic: case ewMagic:
+		case ewWind:
 		{
 			w = new weapon(*this);
 			if (!Lwpns.add(w))
@@ -5650,6 +5656,20 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 			}
 			break;
 		}
+		case wWind: case ewWind:
+		{
+			w->o_tile = w->tile = ref_o_tile;
+			if ( do_animation )
+			{
+				if(w->dir&2)
+				{
+					if(w->frames>1)
+						w->tile += w->frames;
+					else ++w->tile;
+				}
+			}
+			break;
+		}
 	}
 	return true;
 }
@@ -5687,7 +5707,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 	{
 		case wBeam: case wRefBeam: case ewSword:
 		case wMagic: case wRefMagic:
-		case wWind:
+		case wWind: case ewWind:
 			w = this;
 			break;
 		case ewMagic:
@@ -5722,6 +5742,8 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 						w->flip ^= 2;
 					break;
 				}
+				case wWind: case ewWind:
+					break;
 			}
 			break;
 		}
@@ -5749,10 +5771,9 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					}
 					break;
 				}
-				case wWind:
+				case wWind: case ewWind:
 				{
-					w->o_tile = ref_o_tile;
-					w->tile = ref_o_tile;
+					w->o_tile = w->tile = ref_o_tile;
 					if ( do_animation )
 					{
 						if(w->dir&2)
@@ -5814,10 +5835,9 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					}
 					break;
 				}
-				case wWind:
+				case wWind: case ewWind:
 				{
-					w->o_tile = ref_o_tile;
-					w->tile = ref_o_tile;
+					w->o_tile = w->tile = ref_o_tile;
 					if ( do_animation )
 					{
 						if(w->dir&2)
@@ -5925,6 +5945,20 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					}
 					break;
 				}
+				case wWind: case ewWind:
+				{
+					w->o_tile = w->tile = ref_o_tile;
+					if ( do_animation )
+					{
+						if(w->dir&2)
+						{
+							if(w->frames>1)
+								w->tile += w->frames;
+							else ++w->tile;
+						}
+					}
+					break;
+				}
 			}
 			break;
 		}
@@ -5937,21 +5971,27 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 	dword refl_flag = 0;
 	bool can_duplicate = true;
 	bool block_check = false;
-	bool ret_ignorecombo = false;
+	bool ret_ignorecombo = false, ret_fail = false;
 	switch(id)
 	{
 		case wMagic: case wRefMagic: case ewMagic:
 			refl_flag = sh_magic;
 			block_check = true;
+			ret_fail = true;
 			break;
 		case wWind:
 			can_duplicate = false;
 			block_check = true;
-			refl_flag = sh_wind;
+			refl_flag = sh_lw_wind;
+			ret_fail = true;
+			break;
+		case ewWind:
+			refl_flag = sh_ew_wind;
 			break;
 		case wBeam: case wRefBeam: case ewSword:
 			refl_flag = sh_sword;
 			ret_ignorecombo = true;
+			ret_fail = true;
 			break;
 			/* TODO
 			sh_rock
@@ -6044,7 +6084,7 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 			if(!cmb.attributes[0] || (cmb.attributes[0] & refl_flag))
 			{
 				if(!_mirror_refl(newx, newy, cpos, cmb))
-					return true;
+					return ret_fail;
 				break;
 			}
 		}
@@ -6223,6 +6263,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 			case wRefFire:
 			case wRefFire2:
 			case wWind:
+			case ewWind:
 				reflect = true;
 				break;
 				

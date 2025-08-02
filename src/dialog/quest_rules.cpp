@@ -1017,6 +1017,9 @@ static GUI::ListData compatRulesList
 	{ "'Custom Weapon's ignore size flags", qr_CUSTOM_WEAPON_BROKEN_SIZE,
 		"If checked, Custom Weapons will not properly set their Extend value, causing changes"
 		" to tile width/height to not visually appear." },
+	{ "Old Weapon Reflection", qr_OLD_WEAPON_REFLECTION,
+		"If checked, some weapon types will not be reflected by mirror/prism combos, regardless of"
+		" the 'Reflect Flags' of the combos." },
 };
 
 static GUI::ListData enemiesRulesList

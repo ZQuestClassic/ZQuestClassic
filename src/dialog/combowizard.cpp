@@ -2524,7 +2524,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								{ "Script 9" },
 								{ "Script 10" },
 								{ "Flame 2" },
-								{ "Wind" },
+								{ "LW Wind" },
+								{ "EW Wind" },
 							};
 							if(!call_checklist_dialog("Select weapon types to reflect",refltypes,flags,8))
 								return;

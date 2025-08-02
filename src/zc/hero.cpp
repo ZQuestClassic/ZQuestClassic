@@ -6044,9 +6044,14 @@ static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool bo
 		#undef SCRIPT_SHBLOCK
 		
 		case wWind:
-			if(!(fl_block & sh_wind)) break;
+			if(!(fl_block & sh_lw_wind)) break;
 			
-			reflect = ((fl_ref & sh_wind) != 0);
+			reflect = ((fl_ref & sh_lw_wind) != 0);
+			return true;
+		case ewWind:
+			if(!(fl_block & sh_ew_wind)) break;
+			
+			reflect = ((fl_ref & sh_ew_wind) != 0);
 			return true;
 		
 		case ewLitBomb:
