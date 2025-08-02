@@ -3985,295 +3985,14 @@ bool weapon::animate(int32_t index)
 				dead = 0;
 			}
 
-			if (id == ewSword && get_qr(qr_SWORDMIRROR) || id != ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & item_flag9 : get_qr(qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
-			{
-				zfix checkx = 0, checky = 0;
-				int32_t check_x_ofs = 0, check_y_ofs = 0;
-
-				if (get_qr(qr_MIRRORS_USE_WEAPON_CENTER))
-				{
-					checkx = (x + hxofs + (hit_width * 0.5));
-					checky = (y + hyofs + (hit_height * 0.5) - fakez);
-					check_x_ofs = x - (checkx - 8);
-					check_y_ofs = y - (checky - 8);
-				}
-				else
-				{
-					switch (dir)
-					{
-					case up:
-						checkx = x + 7;
-						checky = y + 8;
-						break;
-
-					case down:
-						checkx = x + 7;
-						checky = y;
-						break;
-
-					case left:
-						checkx = x + 8;
-						checky = y + 7;
-						break;
-
-					case right:
-						checkx = x;
-						checky = y + 7;
-						break;
-					}
-					checky -= fakez;
-				}
-
-				if (ignorecombo != rpos_t::None && ignorecombo == COMBOPOS_REGION_B(checkx, checky))
+			if (id == ewSword && get_qr(qr_SWORDMIRROR) || id != ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & item_flag9 : get_qr(qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -Em
+				if(do_mirror())
 					break;
-
-				int32_t posx, posy;
-				if (get_qr(qr_OLDMIRRORCOMBOS))//Replace this conditional with an ER; true if the ER is checked. This will use the old (glitchy) behavior for sword beams.
-				{
-					posx = x;
-					posy = y;
-				}
-				else
-				{
-					posx = checkx;
-					posy = checky;
-				}
-				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
-				bool fix_mirror_anim = false;
-				if (hitcombo(checkx, checky, cMIRROR, layers))
-				{
-					id = wRefBeam;
-					dir ^= 1;
-					if (dir & 2)
-						flip ^= 1;
-					else
-						flip ^= 2;
-						
-					ignoreHero = false;
-					ignorecombo = COMBOPOS_REGION_B(checkx, checky);
-					x = (int32_t)TRUNCATE_TILE(posx) + check_x_ofs;
-					y = (int32_t)TRUNCATE_TILE(posy) + check_y_ofs;
-				}
-
-				if (hitcombo(checkx, checky, cMIRRORSLASH, layers))
-				{
-					id = wRefBeam;
-					doAutoRotate(true);
-					dir = 3 - dir;
-					fix_mirror_anim = true;
-					ignoreHero = false;
-					ignorecombo = COMBOPOS_REGION_B(checkx, checky);
-					x = (int32_t)TRUNCATE_TILE(posx) + check_x_ofs;
-					y = (int32_t)TRUNCATE_TILE(posy) + check_y_ofs;
-				}
-
-				if (hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
-				{
-					id = wRefBeam;
-					dir ^= 2;
-					fix_mirror_anim = true;
-					ignoreHero = false;
-					ignorecombo = COMBOPOS_REGION_B(checkx, checky);
-					x = (int32_t)TRUNCATE_TILE(posx) + check_x_ofs;
-					y = (int32_t)TRUNCATE_TILE(posy) + check_y_ofs;
-				}
-
-				if (hitcombo(checkx, checky, cMAGICPRISM, layers))
-				{
-					int32_t newx, newy;
-					newx = (int32_t)TRUNCATE_TILE(posx) + check_x_ofs;
-					newy = (int32_t)TRUNCATE_TILE(posy) + check_y_ofs;
-					
-					for (int32_t tdir = 0; tdir < 4; tdir++)
-					{
-						//AngleToDir(double ddir)
-						//This didn't check for these before with the angle reflect rule... -Deedee
-						if ((dir != (tdir ^ 1) && !AngleReflect) || (tdir != 2 && AngleReflect))
-						{
-							weapon* w = new weapon(*this);
-							w->dir = tdir;
-							w->doAutoRotate(true);
-							//jesus fuck Zoria, this is blatantly wrong...
-							//In your next job, don't code while drunk you dumbass. -Deedee
-							if (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS))
-							{
-								double newangle = this->angle + DegreesToRadians(90 * tdir);
-								w->angle = WrapAngle(newangle);
-								if (AngleReflect)
-								{
-									//Zoria, you need to turn on angular.
-									w->angular = true;
-									//Zoria, you need to set the dir... *sigh*
-									w->dir = AngleToDir(WrapAngle(newangle));
-									w->doAutoRotate();
-									//That's not to mention that the scope above checked for direction... on an angular weapon. Come on, that'll result in buggy behavior.
-									//Did you even fucking test this?
-									//No, of course you didn't. -Deedee
-								}
-							}
-							w->o_tile = ref_o_tile;
-							w->tile = ref_o_tile;
-							w->x = newx;
-							w->y = newy;
-							w->fakez = fakez;
-							w->z = z;
-							w->id = wRefBeam;
-							w->parentid = parentid;
-							w->parentitem = parentitem;
-							w->ignorecombo = COMBOPOS_REGION_B(checkx, checky);
-							w->hyofs = w->hxofs = 0;
-							//also set up the magic's correct animation -DD
-							w->flip = 0;
-							if (do_animation)
-							{
-								switch (w->dir)
-								{
-								case down:
-									w->flip = 2;
-
-								case up:
-									w->tile = w->o_tile;
-									w->hyofs = 2;
-									w->hit_height = 12;
-									break;
-
-								case left:
-									w->flip = 1;
-
-								case right:
-									w->tile = w->o_tile + ((w->frames > 1) ? w->frames : 1);
-									w->hxofs = 2;
-									w->hit_width = 12;
-									break;
-
-								default: break;
-								}
-							}
-							Lwpns.add(w);
-						}
-					}
-
-					dead = 0;
-				}
-
-				if (hitcombo(checkx, checky, cMAGICPRISM4, layers))
-				{
-					int32_t newx, newy;
-					newx = (int32_t)TRUNCATE_TILE(posx) + check_x_ofs;
-					newy = (int32_t)TRUNCATE_TILE(posy) + check_y_ofs;
-					
-					for (int32_t tdir = 0; tdir < 4; tdir++)
-					{
-						weapon* w = new weapon(*this);
-						w->dir = tdir;
-						w->doAutoRotate(true);
-						if (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS))
-						{
-							double newangle = this->angle + DegreesToRadians(90 * tdir);
-							w->angle = WrapAngle(newangle);
-							if (AngleReflect)
-							{
-								w->angular = true;
-								w->doAutoRotate();
-								w->dir = AngleToDir(WrapAngle(newangle));
-							}
-						}
-						w->o_tile = ref_o_tile;
-						w->tile = ref_o_tile;
-						w->x = newx;
-						w->y = newy;
-						w->z = z;
-						w->fakez = fakez;
-						w->id = wRefBeam;
-						w->parentid = parentid;
-						w->parentitem = parentitem;
-						w->hyofs = w->hxofs = 0;
-						w->ignorecombo = COMBOPOS_REGION_B(checkx, checky);
-						//also set up the magic's correct animation -DD
-						w->flip = 0;
-						if (do_animation)
-						{
-							switch (w->dir)
-							{
-							case down:
-								w->flip = 2;
-
-							case up:
-								w->tile = w->o_tile;
-								w->hyofs = 2;
-								w->hit_height = 12;
-								break;
-
-							case left:
-								w->flip = 1;
-
-							case right:
-								w->tile = w->o_tile + ((w->frames > 1) ? w->frames : 1);
-								w->hxofs = 2;
-								w->hit_width = 12;
-								break;
-
-							default: break;
-							}
-						}
-						Lwpns.add(w);
-					}
-
-					dead = 0;
-				}
-
-				auto newmirror = gethitcombo(checkx, checky, cMIRRORNEW, layers);
-				if (newmirror > -1)
-				{
-					newcombo const& cmb = combobuf[newmirror];
-					id = wRefBeam;
-					byte newdir = cmb.attribytes[NORMAL_DIR(dir)];
-					if (newdir > 7)
-					{
-						dead = 0;
-						break;
-					}
-					dir = newdir;
-					fix_mirror_anim = true;
-					ignoreHero = false;
-					ignorecombo = COMBOPOS_REGION_B(checkx, checky);
-					
-					x = TRUNCATE_TILE(posx) + check_x_ofs;
-					y = TRUNCATE_TILE(posy) + check_y_ofs;
-				}
-
-				if (fix_mirror_anim)
-				{
-					if (dir == right)
-						flip &= ~1; // not horiz
-					else if (dir == left)
-						flip |= 1;  // horiz
-					else if (dir == up)
-						flip &= ~2; // not vert
-					else if (dir == down)
-						flip |= 2;  // vert
-					tile = ref_o_tile;
-
-					if (dir & 2)
-					{
-						if (frames > 1)
-							tile += frames;
-						else ++tile;
-					}
-				}
-			}
-
-
+			
 			if ((id == wRefBeam && ScriptGenerated) || id == wBeam)
 			{
 				if (runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
-			if (id == ewSword)
-			{
-				//eweqapon script here, later
-
-			}
-
 			break;
 		}
 		
@@ -4322,7 +4041,10 @@ bool weapon::animate(int32_t index)
 				sfx(WAV_ZN1WHIRLWIND,pan(int32_t(x)),true,false);
 				
 			if((parentitem==-1 && get_qr(qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & item_flag3))
-				goto mirrors;
+			{
+				do_mirror();
+				break;
+			}
 				
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
@@ -5468,800 +5190,14 @@ bool weapon::animate(int32_t index)
 					book.flags & item_flag10,book.flags & item_flag11);
 			}
 			
-			
-			//mirrors: //the latter instance should suffice
-			zfix checkx=0, checky=0;
-			int32_t check_x_ofs=0, check_y_ofs=0;
-			if (get_qr(qr_MIRRORS_USE_WEAPON_CENTER))
-			{
-				checkx = (x+hxofs+(hit_width*0.5));
-				checky = (y+hyofs+(hit_height*0.5)-fakez);
-				check_x_ofs = x - (checkx-8);
-				check_y_ofs = y - (checky-8);
-			}
-			else
-			{
-				switch(dir)
-				{
-					case up:
-						checkx=x+7;
-						checky=y+8;
-						break;
-						
-					case down:
-						checkx=x+7;
-						checky=y;
-						break;
-						
-					case left:
-						checkx=x+8;
-						checky=y+7;
-						break;
-						
-					case right:
-						checkx=x;
-						checky=y+7;
-						break;
-				}
-				checky-=fakez;
-			}
-			
-			if (ignorecombo == rpos_t::None || ignorecombo != COMBOPOS_REGION_B(checkx, checky))
-			{
-				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
-				if(hitcombo(checkx, checky, cMIRROR, layers))
-				{
-					weapon *w=NULL;
-					
-					if(id==ewMagic)
-					{
-						w=new weapon(*this);
-						dead=0;
-						if (!Lwpns.add(w)) break;
-					}
-					else
-					{
-						w=this;
-					}
-					
-					w->dir ^= 1;
-					
-					if(w->id != wWind)
-					{
-						w->id = wRefMagic; w->convertType(true);
-						
-						if(w->dir&2)
-							w->flip ^= 1;
-						else
-							w->flip ^= 2;
-					}
-					
-					w->ignoreHero=false;
-					w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
-					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-				}
-				
-				if(hitcombo(checkx, checky, cMIRRORSLASH, layers))
-				{
-					weapon *w=NULL;
-					
-					if(id==ewMagic)
-					{
-						w=new weapon(*this);
-						dead=0;
-						if (!Lwpns.add(w)) break;
-					}
-					else
-					{
-						w=this; //Oh, look, a memory leak. The new instruction is making something on the heap, but this circumvents removing it. 
-					}
-					
-					w->o_tile = ref_o_tile;
-					w->tile = ref_o_tile;
-					w->dir = 3-w->dir;
-					w->doAutoRotate(true);
-					
-					if(w->id != wWind)
-					{
-						w->id = wRefMagic; w->convertType(true);
-						if ( do_animation ) 
-						{
-							if((w->dir==1)||(w->dir==2))
-							w->flip ^= 3;
-						}
-					}
-					if ( do_animation ) 
-					{
-						w->tile=w->o_tile;
-						
-						if(w->dir&2)
-						{
-							if(w->frames>1)
-							{
-							w->tile+=w->frames;
-							}
-							else
-							{
-							++w->tile;
-							}
-						}
-					}
-					w->ignoreHero=false;
-					w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
-					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-				}
-				
-				if(hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
-				{
-					weapon *w = NULL;
-					
-					if(id==ewMagic)
-					{
-						w=new weapon(*this);
-						dead=0;
-						if (!Lwpns.add(w)) break;
-					}
-					else
-					{
-						w=this;
-					}
-					
-					w->o_tile = ref_o_tile;
-					w->tile = ref_o_tile;
-					w->dir ^= 2;
-					w->doAutoRotate(true);
-					
-					if(w->id != wWind)
-					{
-						w->id = wRefMagic; w->convertType(true);
-						if ( do_animation ) 
-						{
-							if(w->dir&1)
-								w->flip ^= 2;
-							else
-								w->flip ^= 1;
-						}
-					}
-					if ( do_animation ) 
-					{
-						w->tile=w->o_tile;
-						
-						if(w->dir&2)
-						{
-							if(w->frames>1)
-							{
-							w->tile+=w->frames;
-							}
-							else
-							{
-							++w->tile;
-							}
-						}
-					}
-					
-					w->ignoreHero=false;
-					w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
-					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-				}
-				
-				if(hitcombo(checkx, checky, cMAGICPRISM, layers) && (id != wWind))
-				{
-					int32_t newx, newy;
-					newy=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
-					
-					for(int32_t tdir=0; tdir<4; tdir++)
-					{
-						if((dir!=(tdir^1) && !AngleReflect) || (tdir != 2 && AngleReflect))
-						{
-							weapon *w=new weapon(*this);
-							w->dir=tdir;
-							w->doAutoRotate(true);
-							if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
-							{
-								double newangle = this->angle + DegreesToRadians(90*tdir);
-								w->angle = WrapAngle(newangle);
-								if (AngleReflect)
-								{
-									w->angular = true;
-									w->doAutoRotate();
-									w->dir = AngleToDir(WrapAngle(newangle));
-								}
-							}
-							w->o_tile = ref_o_tile;
-							w->tile = ref_o_tile;
-							w->x=newx;
-							w->y=newy;
-							w->fakez=fakez;
-							w->z=z;
-							w->id=wRefMagic; w->convertType(true);
-							w->parentid=parentid;
-							w->parentitem=parentitem;
-							w->flip = 0;
-							w->ignoreHero = false;
-							w->hyofs = w->hxofs = 0;
-							w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-							if ( do_animation ) 
-							{
-								//also set up the magic's correct animation -DD
-								switch(w->dir)
-								{
-									case down:
-										w->flip=2;
-										
-									case up:
-										w->tile = w->o_tile;
-										w->hyofs=2;
-										w->hit_height=12;
-										break;
-										
-									case left:
-										w->flip=1;
-										
-									case right:
-										w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-										w->hxofs=2;
-										w->hit_width=12;
-										break;
-									
-									default: break;
-								}
-							}
-							Lwpns.add(w);
-						}
-					}
-					
-					dead=0;
-				}
-				
-				if(hitcombo(checkx, checky, cMAGICPRISM4, layers) && (id != wWind))
-				{
-					int32_t newx, newy;
-					newy=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
-					
-					for(int32_t tdir=0; tdir<4; tdir++)
-					{
-						weapon *w=new weapon(*this);
-						w->dir=tdir;
-						w->doAutoRotate(true);
-						if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
-						{
-							double newangle = this->angle + DegreesToRadians(90*tdir);
-							w->angle = WrapAngle(newangle);
-							if (AngleReflect)
-							{
-								w->angular = true;
-								w->doAutoRotate();
-								w->dir = AngleToDir(WrapAngle(newangle));
-							}
-						}
-						w->o_tile = ref_o_tile;
-						w->tile = ref_o_tile;
-						w->x=newx;
-						w->y=newy;
-						w->fakez=fakez;
-						w->z=z;
-						w->id=wRefMagic; w->convertType(true);
-						w->parentid=parentid;
-						w->parentitem=parentitem;
-						w->flip = 0;
-						w->ignoreHero = false;
-						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-						
-						if ( do_animation ) 
-						{
-							//also set up the magic's correct animation -DD
-							switch(w->dir)
-							{
-								case down:
-									w->flip=2;
-								
-								case up:
-									w->tile = w->o_tile;
-									w->hyofs=2;
-									w->hit_height=12;
-									break;
-								
-								case left:
-									w->flip=1;
-								
-								case right:
-									w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-									w->hxofs=2;
-									w->hit_width=12;
-									break;
-								
-								default: break;
-							}
-						}
-						Lwpns.add(w);
-					}
-					
-					dead=0;
-				}
-				
-				auto newmirror = gethitcombo(checkx, checky, cMIRRORNEW, layers);
-				if(newmirror > -1)
-				{
-					newcombo const& cmb = combobuf[newmirror];
-					weapon *w=NULL;
-					
-					if(id==ewMagic)
-					{
-						w=new weapon(*this);
-						dead=0;
-						if (!Lwpns.add(w)) break;
-					}
-					else
-					{
-						w=this;
-					}
-					
-					byte newdir = cmb.attribytes[NORMAL_DIR(w->dir)];
-					if(newdir > 7)
-					{
-						dead = 0;
-						break;
-					}
-					w->dir = newdir;
-					
-					if(w->id != wWind)
-					{
-						w->id = wRefMagic; w->convertType(true);
-						
-						tile = ref_o_tile;
-						int tile_inc = zc_max(frames,1);
-						switch(dir)
-						{
-							case up:
-								flip = 0;
-								break;
-							case right:
-								flip = 0;
-								tile += tile_inc;
-								break;
-							case left:
-								flip = 1; //horz
-								tile += tile_inc;
-								break;
-							case down:
-								flip = 2; //vert
-								break;
-							case l_up:
-								flip = 0;
-								tile += tile_inc*2;
-								break;
-							case l_down:
-								flip = 2; //vert
-								tile += tile_inc*2;
-								break;
-							case r_up:
-								flip = 1; //horz
-								tile += tile_inc*2;
-								break;
-							case r_down:
-								flip = 3; //horz+vert
-								tile += tile_inc*2;
-								break;
-						}
-						o_tile = tile;
-					}
-					
-					w->ignoreHero=false;
-					w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
-					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-				}
-				
-				if(blocked(0, 0))
-				{
-					dead=0;
-				}
-			}
+			if(do_mirror()) break;
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 		}
 		break;
 		
 		case ewMagic:
 		{
-		mirrors: //jumped to by wWind
-			zfix checkx=0, checky=0;
-			int32_t check_x_ofs=0, check_y_ofs=0;
-			
-			if (get_qr(qr_MIRRORS_USE_WEAPON_CENTER))
-			{
-				checkx = (x+hxofs+(hit_width*0.5));
-				checky = (y+hyofs+(hit_height*0.5)-fakez);
-				check_x_ofs = x - (checkx-8);
-				check_y_ofs = y - (checky-8);
-			}
-			else
-			{
-				switch(dir)
-				{
-					case up:
-						checkx=x+7;
-						checky=y+8;
-						break;
-						
-					case down:
-						checkx=x+7;
-						checky=y;
-						break;
-						
-					case left:
-						checkx=x+8;
-						checky=y+7;
-						break;
-						
-					case right:
-						checkx=x;
-						checky=y+7;
-						break;
-				}
-				checky-=fakez;
-			}
-			
-			if (ignorecombo == rpos_t::None || ignorecombo != COMBOPOS_REGION_B(checkx, checky))
-			{
-				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
-				if(hitcombo(checkx, checky, cMIRROR, layers))
-				{
-					weapon *w=NULL;
-					
-					if(id==ewMagic)
-					{
-						w=new weapon(*this);
-						dead=0;
-						if (!Lwpns.add(w)) break;
-					}
-					else
-					{
-						w=this;
-					}
-					
-					
-					w->dir ^= 1;
-					
-					if(w->id != wWind)
-					{
-						w->id = wRefMagic; w->convertType(true);
-						
-						if(w->dir&2)
-							w->flip ^= 1;
-						else
-							w->flip ^= 2;
-					}
-					
-					w->ignoreHero=false;
-					w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
-					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-				}
-				
-				if(hitcombo(checkx, checky, cMIRRORSLASH, layers))
-				{
-					weapon *w=NULL;
-					
-					if(id==ewMagic)
-					{
-						w=new weapon(*this);
-						dead=0;
-						if (!Lwpns.add(w)) break;
-					}
-					else
-					{
-						w=this;
-					}
-					
-					w->o_tile = ref_o_tile;
-					w->tile = ref_o_tile;
-					w->dir = 3-w->dir;
-					w->doAutoRotate(true);
-					
-					if(w->id != wWind)
-					{
-						w->id = wRefMagic; w->convertType(true);
-						if ( do_animation ) 
-						{
-							if((w->dir==1)||(w->dir==2))
-							w->flip ^= 3;
-						}
-					}
-					if ( do_animation ) 
-					{
-						w->tile=w->o_tile;
-						
-						if(w->dir&2)
-						{
-							if(w->frames>1)
-							{
-								w->tile+=w->frames;
-							}
-							else
-							{
-								++w->tile;
-							}
-						}
-					}
-					w->ignoreHero=false;
-					w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
-					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-				}
-				
-				if(hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
-				{
-					weapon *w=NULL;
-					
-					if(id==ewMagic)
-					{
-						w=new weapon(*this);
-						dead=0;
-						if (!Lwpns.add(w)) break;
-					}
-					else
-					{
-						w=this;
-					}
-					
-					w->o_tile = ref_o_tile;
-					w->tile = ref_o_tile;
-					w->dir ^= 2;
-					w->doAutoRotate(true);
-					
-					if(w->id != wWind)
-					{
-						w->id = wRefMagic; w->convertType(true);
-						if ( do_animation ) 
-						{
-							if(w->dir&1)
-								w->flip ^= 2;
-							else
-								w->flip ^= 1;
-						}
-					}
-					if ( do_animation ) 
-					{
-						w->tile=w->o_tile;
-						
-						if(w->dir&2)
-						{
-							if(w->frames>1)
-							{
-								w->tile+=w->frames;
-							}
-							else
-							{
-								++w->tile;
-							}
-						}
-					}
-					
-					w->ignoreHero=false;
-					w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
-					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-				}
-				
-				if(hitcombo(checkx, checky, cMAGICPRISM, layers) && (id != wWind))
-				{
-					int32_t newx, newy;
-					newy=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
-					
-					for(int32_t tdir=0; tdir<4; tdir++)
-					{
-						if((dir!=(tdir^1) && !AngleReflect) || (tdir != 2 && AngleReflect))
-						{
-							weapon *w=new weapon(*this);
-							w->dir=tdir;
-							w->doAutoRotate(true);
-							if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
-							{
-								double newangle = this->angle + DegreesToRadians(90*tdir);
-								w->angle = WrapAngle(newangle);
-								if (AngleReflect)
-								{
-									w->angular = true;
-									w->doAutoRotate();
-									w->dir = AngleToDir(WrapAngle(newangle));
-								}
-							}
-							w->o_tile = ref_o_tile;
-							w->tile = ref_o_tile;
-							w->x=newx;
-							w->y=newy;
-							w->fakez=fakez;
-							w->z=z;
-							w->id=wRefMagic; w->convertType(true);
-							w->parentid=parentid;
-							w->parentitem=parentitem;
-							w->flip = 0;
-							w->ignoreHero = false;
-							w->hyofs = w->hxofs = 0;
-							w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-							if ( do_animation ) 
-							{
-								//also set up the magic's correct animation -DD
-								switch(w->dir)
-								{
-									case down:
-										w->flip=2;
-										
-									case up:
-										w->tile = w->o_tile;
-										w->hyofs=2;
-										w->hit_height=12;
-										break;
-										
-									case left:
-										w->flip=1;
-										
-									case right:
-										w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-										w->hxofs=2;
-										w->hit_width=12;
-										break;
-									
-									default: break;
-								}
-							}
-							Lwpns.add(w);
-						}
-					}
-					
-					dead=0;
-				}
-				
-				if(hitcombo(checkx, checky, cMAGICPRISM4, layers) && (id != wWind))
-				{
-					int32_t newx, newy;
-					newy=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
-					
-					for(int32_t tdir=0; tdir<4; tdir++)
-					{
-						weapon *w=new weapon(*this);
-						w->dir=tdir;
-						w->doAutoRotate(true);
-						if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
-						{
-							double newangle = this->angle + DegreesToRadians(90*tdir);
-							w->angle = WrapAngle(newangle);
-							if (AngleReflect)
-							{
-								w->angular = true;
-								w->doAutoRotate();
-								w->dir = AngleToDir(WrapAngle(newangle));
-							}
-						}
-						w->o_tile = ref_o_tile;
-						w->tile = ref_o_tile;
-						w->x=newx;
-						w->y=newy;
-						w->fakez=fakez;
-						w->z=z;
-						w->id=wRefMagic; w->convertType(true);
-						w->parentid=parentid;
-						w->parentitem=parentitem;
-						w->flip = 0;
-						w->ignoreHero = false;
-						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-						
-						if ( do_animation ) 
-						{
-							//also set up the magic's correct animation -DD
-							switch(w->dir)
-							{
-								case down:
-									w->flip=2;
-								
-								case up:
-									w->tile = w->o_tile;
-									w->hyofs=2;
-									w->hit_height=12;
-									break;
-								
-								case left:
-									w->flip=1;
-								
-								case right:
-									w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-									w->hxofs=2;
-									w->hit_width=12;
-									break;
-								
-								default: break;
-							}
-						}
-						Lwpns.add(w);
-					}
-					
-					dead=0;
-				}
-				
-				auto newmirror = gethitcombo(checkx, checky, cMIRRORNEW, layers);
-				if(newmirror > -1)
-				{
-					newcombo const& cmb = combobuf[newmirror];
-					weapon *w = this;
-					
-					byte newdir = cmb.attribytes[NORMAL_DIR(w->dir)];
-					if(newdir > 7)
-					{
-						dead = 0;
-						break;
-					}
-
-					if (id == ewMagic)
-					{
-						w = new weapon(*this);
-						dead = 0;
-						if (!Lwpns.add(w)) break;
-					}
-
-					w->dir = newdir;
-					
-					if(w->id != wWind)
-					{
-						w->id = wRefMagic; w->convertType(true);
-						
-						tile = ref_o_tile;
-						int tile_inc = zc_max(frames,1);
-						switch(dir)
-						{
-							case up:
-								flip = 0;
-								break;
-							case right:
-								flip = 0;
-								tile += tile_inc;
-								break;
-							case left:
-								flip = 1; //horz
-								tile += tile_inc;
-								break;
-							case down:
-								flip = 2; //vert
-								break;
-							case l_up:
-								flip = 0;
-								tile += tile_inc*2;
-								break;
-							case l_down:
-								flip = 2; //vert
-								tile += tile_inc*2;
-								break;
-							case r_up:
-								flip = 1; //horz
-								tile += tile_inc*2;
-								break;
-							case r_down:
-								flip = 3; //horz+vert
-								tile += tile_inc*2;
-								break;
-						}
-						o_tile = tile;
-					}
-					
-					w->ignoreHero=false;
-					w->ignorecombo=COMBOPOS_REGION_B(checkx, checky);
-					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
-					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
-				}
-				
-				if(blocked(0, 0))
-				{
-					dead=0;
-				}
-			}
+			do_mirror();
 		}
 		break;
 		
@@ -6636,6 +5572,502 @@ bool weapon::animate(int32_t index)
 	return ret;
 }
 
+static void _reflect_helper(weapon* w, zfix newx, zfix newy, rpos_t cpos)
+{
+	switch(w->id)
+	{
+		case ewMagic: case wMagic: case wRefMagic:
+		{
+			w->id = wRefMagic; w->convertType(true);
+			break;
+		}
+		case wBeam: case wRefBeam: case ewSword:
+		{
+			w->id = wRefBeam; w->convertType(true);
+			break;
+		}
+	}
+	
+	w->ignoreHero = false;
+	w->ignorecombo = cpos;
+	w->x = newx;
+	w->y = newy;
+}
+bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
+{
+	bool AngleReflect = (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) && !get_qr(qr_ANGULAR_REFLECT_BROKEN));
+	weapon *w = nullptr;
+	switch(id)
+	{
+		case wBeam: case wRefBeam: case ewSword:
+		case wMagic: case wRefMagic: case ewMagic:
+		{
+			w = new weapon(*this);
+			if (!Lwpns.add(w))
+				return false;
+			break;
+		}
+	}
+	DCHECK(w);
+	
+	_reflect_helper(w, newx, newy, cpos);
+	w->dir = tdir;
+	w->doAutoRotate(true);
+	
+	if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
+	{
+		double newangle = this->angle + DegreesToRadians(90*tdir);
+		w->angle = WrapAngle(newangle);
+		if (AngleReflect)
+		{
+			w->angular = true;
+			w->dir = AngleToDir(WrapAngle(newangle));
+			w->doAutoRotate();
+		}
+	}
+	w->o_tile = w->tile = ref_o_tile;
+	w->fakez = this->fakez; w->z = this->z;
+	w->parentid = this->parentid;
+	w->parentitem = this->parentitem;
+	w->hyofs = w->hxofs = 0;
+	w->flip = 0;
+	switch(id)
+	{
+		case wBeam: case wRefBeam: case ewSword:
+		case ewMagic: case wMagic: case wRefMagic:
+		{
+			if ( do_animation )
+			{
+				switch(w->dir)
+				{
+					case down:
+						w->flip = 2;
+						
+					case up:
+						w->tile = w->o_tile;
+						w->hyofs = 2;
+						w->hit_height = 12;
+						break;
+						
+					case left:
+						w->flip = 1;
+						
+					case right:
+						w->tile = w->o_tile + ((w->frames > 1) ? w->frames : 1);
+						w->hxofs = 2;
+						w->hit_width = 12;
+						break;
+					
+					default: break;
+				}
+			}
+			break;
+		}
+	}
+	return true;
+}
+bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mirror_cmb)
+{
+	bool AngleReflect = (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) && !get_qr(qr_ANGULAR_REFLECT_BROKEN));
+	switch(mirror_cmb.type) // handle prisms
+	{
+		case cMAGICPRISM:
+		{
+			for(int tdir = 0; tdir < 4; ++tdir)
+			{
+				if(AngleReflect ? (tdir == 2) : (dir == (tdir^1)))
+					continue; // 3-way skips one direction
+				if(!_prism_dupe(newx, newy, cpos, tdir))
+					break;
+			}
+			dead = 0;
+			return false;
+		}
+		case cMAGICPRISM4:
+		{
+			for(int tdir = 0; tdir < 4; ++tdir)
+			{
+				if(!_prism_dupe(newx, newy, cpos, tdir))
+					break;
+			}
+			dead = 0;
+			return false;
+		}
+	}
+	
+	weapon *w = nullptr;
+	switch(id)
+	{
+		case wBeam: case wRefBeam: case ewSword:
+		case wMagic: case wRefMagic:
+		case wWind:
+			w = this;
+			break;
+		case ewMagic:
+		{
+			w = new weapon(*this);
+			dead=0;
+			if (!Lwpns.add(w))
+				return false;
+			break;
+		}
+	}
+	DCHECK(w);
+	
+	_reflect_helper(w, newx, newy, cpos);
+	
+	switch(mirror_cmb.type)
+	{
+		case cMIRROR:
+		{
+			w->dir ^= 1;
+			
+			//! TODO Check that angular reflections work on these combos -Em
+			
+			switch(w->id)
+			{
+				case ewMagic: case wMagic: case wRefMagic:
+				case wBeam: case wRefBeam: case ewSword:
+				{
+					if(w->dir&2)
+						w->flip ^= 1;
+					else
+						w->flip ^= 2;
+					break;
+				}
+			}
+			break;
+		}
+		case cMIRRORSLASH:
+		{
+			w->dir = 3 - w->dir;
+			w->doAutoRotate(true);
+			
+			switch(id)
+			{
+				case ewMagic: case wMagic: case wRefMagic:
+				{
+					w->o_tile = ref_o_tile;
+					w->tile = ref_o_tile;
+					if ( do_animation )
+					{
+						if((w->dir==1)||(w->dir==2))
+							w->flip ^= 3;
+						if(w->dir&2)
+						{
+							if(w->frames>1)
+								w->tile += w->frames;
+							else ++w->tile;
+						}
+					}
+					break;
+				}
+				case wWind:
+				{
+					w->o_tile = ref_o_tile;
+					w->tile = ref_o_tile;
+					if ( do_animation )
+					{
+						if(w->dir&2)
+						{
+							if(w->frames>1)
+								w->tile += w->frames;
+							else ++w->tile;
+						}
+					}
+				}
+				
+				case wBeam: case wRefBeam: case ewSword:
+				{
+					if (w->dir == right)
+						w->flip &= ~1; // not horiz
+					else if (w->dir == left)
+						w->flip |= 1;  // horiz
+					else if (w->dir == up)
+						w->flip &= ~2; // not vert
+					else if (w->dir == down)
+						w->flip |= 2;  // vert
+					w->tile = w->ref_o_tile;
+
+					if (w->dir & 2)
+					{
+						if (w->frames > 1)
+							w->tile += w->frames;
+						else ++w->tile;
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case cMIRRORBACKSLASH:
+		{
+			w->dir ^= 2;
+			w->doAutoRotate(true);
+			
+			switch(id)
+			{
+				case ewMagic: case wMagic: case wRefMagic:
+				{
+					w->o_tile = ref_o_tile;
+					w->tile = ref_o_tile;
+					if ( do_animation )
+					{
+						if(w->dir&1)
+							w->flip ^= 2;
+						else
+							w->flip ^= 1;
+						
+						if(w->dir&2)
+						{
+							if(w->frames>1)
+								w->tile += w->frames;
+							else ++w->tile;
+						}
+					}
+					break;
+				}
+				case wWind:
+				{
+					w->o_tile = ref_o_tile;
+					w->tile = ref_o_tile;
+					if ( do_animation )
+					{
+						if(w->dir&2)
+						{
+							if(w->frames>1)
+								w->tile += w->frames;
+							else ++w->tile;
+						}
+					}
+					break;
+				}
+				case wBeam: case wRefBeam: case ewSword:
+				{
+					if (w->dir == right)
+						w->flip &= ~1; // not horiz
+					else if (w->dir == left)
+						w->flip |= 1;  // horiz
+					else if (w->dir == up)
+						w->flip &= ~2; // not vert
+					else if (w->dir == down)
+						w->flip |= 2;  // vert
+					w->tile = w->ref_o_tile;
+
+					if (w->dir & 2)
+					{
+						if (w->frames > 1)
+							w->tile += w->frames;
+						else ++w->tile;
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case cMIRRORNEW:
+		{
+			byte newdir = mirror_cmb.attribytes[NORMAL_DIR(w->dir)];
+			if(newdir > 7)
+			{
+				dead = 0;
+				return true;
+			}
+
+			w->dir = newdir;
+			
+			switch(id)
+			{
+				case ewMagic: case wMagic: case wRefMagic:
+				{
+					w->tile = w->ref_o_tile;
+					int tile_inc = zc_max(w->frames,1);
+					switch(dir)
+					{
+						case up:
+							w->flip = 0;
+							break;
+						case right:
+							w->flip = 0;
+							w->tile += tile_inc;
+							break;
+						case left:
+							w->flip = 1; //horz
+							w->tile += tile_inc;
+							break;
+						case down:
+							w->flip = 2; //vert
+							break;
+						case l_up:
+							w->flip = 0;
+							w->tile += tile_inc*2;
+							break;
+						case l_down:
+							w->flip = 2; //vert
+							w->tile += tile_inc*2;
+							break;
+						case r_up:
+							w->flip = 1; //horz
+							w->tile += tile_inc*2;
+							break;
+						case r_down:
+							w->flip = 3; //horz+vert
+							w->tile += tile_inc*2;
+							break;
+					}
+					w->o_tile = w->tile;
+					break;
+				}
+				case wBeam: case wRefBeam: case ewSword:
+				{
+					if (w->dir == right)
+						w->flip &= ~1; // not horiz
+					else if (w->dir == left)
+						w->flip |= 1;  // horiz
+					else if (w->dir == up)
+						w->flip &= ~2; // not vert
+					else if (w->dir == down)
+						w->flip |= 2;  // vert
+					w->tile = w->ref_o_tile;
+
+					if (w->dir & 2)
+					{
+						if (w->frames > 1)
+							w->tile += w->frames;
+						else ++w->tile;
+					}
+					break;
+				}
+			}
+			break;
+		}
+	}
+	
+	return true;
+}
+bool weapon::do_mirror() // returns true if animate needs to early-break
+{
+	dword refl_flag = 0;
+	bool can_duplicate = true;
+	bool block_check = false;
+	bool ret_ignorecombo = false;
+	switch(id)
+	{
+		case wMagic: case wRefMagic: case ewMagic:
+			refl_flag = sh_magic;
+			block_check = true;
+			break;
+		case wWind:
+			can_duplicate = false;
+			block_check = true;
+			refl_flag = sh_wind;
+			break;
+		case wBeam: case wRefBeam: case ewSword:
+			refl_flag = sh_sword;
+			ret_ignorecombo = true;
+			break;
+			/* TODO
+			sh_rock
+			sh_arrow
+			sh_fireball
+			sh_flame
+			sh_fireball2
+			sh_script1
+			sh_script2
+			sh_script3
+			sh_script4
+			sh_script5
+			sh_script6
+			sh_script7
+			sh_script8
+			sh_script9
+			sh_script10
+			sh_flame2
+			*/
+	}
+	
+	zfix checkx=0, checky=0;
+	int32_t check_x_ofs=0, check_y_ofs=0;
+	
+	if (get_qr(qr_MIRRORS_USE_WEAPON_CENTER))
+	{
+		checkx = (x+hxofs+(hit_width*0.5));
+		checky = (y+hyofs+(hit_height*0.5)-fakez);
+		check_x_ofs = x - (checkx-8);
+		check_y_ofs = y - (checky-8);
+	}
+	else
+	{
+		switch(dir)
+		{
+			case up:
+				checkx=x+7;
+				checky=y+8;
+				break;
+				
+			case down:
+				checkx=x+7;
+				checky=y;
+				break;
+				
+			case left:
+				checkx=x+8;
+				checky=y+7;
+				break;
+				
+			case right:
+				checkx=x;
+				checky=y+7;
+				break;
+		}
+		checky-=fakez;
+	}
+	
+	int posx = checkx.getInt(), posy = checky.getInt();
+	switch(id)
+	{
+		case wBeam: case wRefBeam: case ewSword:
+			if(get_qr(qr_OLDMIRRORCOMBOS))
+			{
+				posx = x;
+				posy = y;
+			}
+			break;
+	}
+	
+	if (ignorecombo != rpos_t::None && ignorecombo == COMBOPOS_REGION_B(checkx, checky))
+		return ret_ignorecombo;
+	
+	int32_t newx = TRUNCATE_TILE(posx) + check_x_ofs;
+	int32_t newy = TRUNCATE_TILE(posy) + check_y_ofs;
+	rpos_t cpos = COMBOPOS_REGION_B(checkx, checky);
+	
+	static const int refl_list[] = {cMIRROR, cMIRRORSLASH, cMIRRORBACKSLASH, cMAGICPRISM, cMAGICPRISM4, cMIRRORNEW};
+	
+	for(auto ctype : refl_list)
+	{
+		if(!can_duplicate && (ctype == cMAGICPRISM || ctype == cMAGICPRISM4))
+			continue;
+		auto layer_count = get_qr(qr_MIRROR_PRISM_LAYERS) ? 7 : 1;
+		for(int q = 0; q < layer_count; ++q)
+		{
+			int cid = MAPCOMBO2(q-1,checkx,checky);
+			auto const& cmb = combobuf[cid];
+			if(cmb.type != ctype) continue;
+			if(!cmb.attributes[0] || (cmb.attributes[0] & refl_flag))
+			{
+				if(!_mirror_refl(newx, newy, cpos, cmb))
+					return true;
+				break;
+			}
+		}
+	}
+
+	if(block_check && blocked(0, 0))
+		dead=0;
+	return false;
+}
+
 void weapon::do_death_fx()
 {
 	if(death_spawnitem > -1)
@@ -6803,6 +6235,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 			case wRefArrow:
 			case wRefFire:
 			case wRefFire2:
+			case wWind:
 				reflect = true;
 				break;
 				

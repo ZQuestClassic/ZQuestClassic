@@ -32,6 +32,9 @@ private:
     
 	optional<byte> _handle_loadsprite(optional<byte> spr, bool isDummy = false, bool force = false);
 	optional<byte> _ewpn_sprite(int parentid) const;
+	
+	bool _prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir);
+	bool _mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mirror_cmb);
 public:
 	void load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr = nullptr);
     void setAngle(double angletoset);
@@ -137,6 +140,7 @@ public:
     weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentid, int32_t prntid, bool isDummy=false, byte script_gen=0, byte isLW=0, byte special = 0, int32_t Linked_Parent = 0, int32_t use_sprite = -1, bool autoRotate = false);
     weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, int32_t step, int32_t prntid, int32_t height, int32_t width, int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, int32_t f, int32_t g);
     virtual ~weapon();
+	bool do_mirror(); // returns true if animate needs to early-break
     void eweapon_overrides();
     void cleanup_sfx();
 	void reset_wgrids();
