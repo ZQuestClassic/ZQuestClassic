@@ -270,7 +270,8 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 								CBOX_DI("Custom W. 8", misc1, sh_script8),
 								CBOX_DI("Custom W. 9", misc1, sh_script9),
 								CBOX_DI("Custom W. 10", misc1, sh_script10),
-								CBOX_DI("Light Beams", misc1, sh_lightbeam)
+								CBOX_DI("Light Beams", misc1, sh_lightbeam),
+								CBOX_DI("Wind", misc1, sh_wind)
 							)
 						),
 						TabRef(name = "Reflect",
@@ -295,7 +296,8 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 								CBOX_DI("Custom W. 8", misc2, sh_script8),
 								CBOX_DI("Custom W. 9", misc2, sh_script9),
 								CBOX_DI("Custom W. 10", misc2, sh_script10),
-								CBOX_DI("Light Beams", misc2, sh_lightbeam)
+								CBOX_DI("Light Beams", misc2, sh_lightbeam),
+								CBOX_DI("Wind", misc2, sh_wind)
 							)
 						)
 					)
