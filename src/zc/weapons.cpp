@@ -3874,16 +3874,8 @@ bool weapon::animate(int32_t index)
 	
 	switch(id)
 	{
-		case wScript1:
-		case wScript2:
-		case wScript3:
-		case wScript4:
-		case wScript5:
-		case wScript6:
-		case wScript7:
-		case wScript8:
-		case wScript9:
-		case wScript10:
+		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		{
 			if ( ScriptGenerated && !isLWeapon ) break; //Return early for eweapons. We handle those elsewhere. 
 			if ( parentitem > -1 || (isLWeapon && ScriptGenerated) )
@@ -3904,9 +3896,7 @@ bool weapon::animate(int32_t index)
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 		[[fallthrough]];
-		case wWand:
-		case wHammer:
-		case wBugNet:
+		case wWand: case wHammer: case wBugNet:
 		{
 			if (HeroAction() != attacking && HeroAction() != sideswimattacking && HeroAction() != ischarging && !HeroCharged())
 			{
@@ -3963,8 +3953,7 @@ bool weapon::animate(int32_t index)
 			break;
 		}
 		
-		case wBeam:
-		case wRefBeam:
+		case wBeam: case wRefBeam:
 		{
 			for(int32_t i2=0; i2<=zc_min(type-1,3) && dead!=23; i2++)
 			{
@@ -4050,9 +4039,7 @@ bool weapon::animate(int32_t index)
 			break;
 		}
 		
-		case wFire:
-		case wRefFire:
-		case wRefFire2:
+		case wFire: case wRefFire: case wRefFire2:
 		{
 			if(blocked())
 			{
@@ -5724,7 +5711,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 			
 			//! TODO Check that angular reflections work on these combos -Em
 			
-			switch(w->id)
+			switch(id)
 			{
 				case ewMagic: case wMagic: case wRefMagic:
 				case wBeam: case wRefBeam: case ewSword:
