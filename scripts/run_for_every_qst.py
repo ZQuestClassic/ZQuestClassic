@@ -5,6 +5,11 @@
 #   python scripts/run_for_every_qst.py ./build/Release/zplayer -extract-zasm %s
 #   python scripts/run_for_every_qst.py ./build/Release/zplayer -load-and-quit %s
 #   python scripts/run_for_every_qst.py echo %s
+#
+# Advanced example: compile scripts with jit w/o threads and grep allegro.log to
+# see how long compiling each script takes.
+#
+#   python scripts/run_for_every_qst.py bash -c 'rm -f ./build/Release/allegro.log && ./build/Release/zplayer -load-and-quit "%s" -jit-precompile -jit-threads 0 -jit-log && (grep "finished script" ./build/Release/allegro.log || true)'
 
 import argparse
 import os

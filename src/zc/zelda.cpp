@@ -4032,6 +4032,9 @@ void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 
 	byte skip_flags[] = {0, 0, 0, 0};
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,true,false,0xFF);
+	if (ret)
+		exit(ret);
+
 	strcpy(qstpath, quest_path);
 	printf("Hash: %s\n", QHeader.hash().c_str());
 	zasm_optimize();
@@ -4041,7 +4044,7 @@ void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 		jit_set_enabled(true);
 		jit_startup();
 	}
-	exit(ret);
+	exit(0);
 }
 
 void do_extract_zasm_command(const char* quest_path)

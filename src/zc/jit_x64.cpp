@@ -1757,7 +1757,7 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 			logger.data());
 	}
 
-	al_trace("[jit] finished script: %s id: %d. time: %d ms\n", script->name.c_str(), script->id, preprocess_ms + compile_ms);
+	al_trace("[jit] finished script: %s id: %d. size: %zu. time: %d ms\n", script->name.c_str(), script->id, size, preprocess_ms + compile_ms);
 
 	if (compiled_fn)
 	{
