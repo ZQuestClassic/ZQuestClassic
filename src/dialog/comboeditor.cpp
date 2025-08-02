@@ -2073,6 +2073,12 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[r_down] = "Weapons facing down-right (coming from up-left) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+		}
+		[[fallthrough]];
+		case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH: case cMAGICPRISM: case cMAGICPRISM4:
+		{
+			l_attribute[0] = "Reflect Flags";
+			h_attribute[0] = "Sum of values for each type of weapon that should be reflected. If '0', reflects everything.";
 			break;
 		}
 		case cCRUMBLE:
