@@ -63,7 +63,7 @@ def _get_debug_method():
         except Exception as e:
             print_run_target(str(e))
             print_run_target(
-                'WARNING: lldb is installed, but could not import the Python extension'
+                'WARNING: lldb is installed, but could not import the Python extension. falling back to reading core file'
             )
             return False
 
@@ -88,7 +88,11 @@ def _get_debug_method():
         debugger_tool = 'gdb'
 
     if debugger_tool:
-        return {'method': DEBUG_METHOD_CORE, 'debugger': debugger_tool}
+        is_sudo = os.geteuid() == 0
+        if is_sudo:
+            return {'method': DEBUG_METHOD_CORE, 'debugger': debugger_tool}
+        else:
+            print_run_target('WARNING: must be in sudo mode to print core dump on crash')
 
     return {'method': DEBUG_METHOD_NONE}
 
