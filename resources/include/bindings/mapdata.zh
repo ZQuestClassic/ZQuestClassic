@@ -439,11 +439,24 @@ class mapdata {
 	// @zasm_var MAPDATACSENSITIVE
 	internal int CSensitive;
 
+	// Which parts of the screen state that won't reset via 'Reset Room' combos.
+	//
+	// @index [enum ScreenState]
+	// @zasm_var MAPDATANORESETARR
+	internal bool NoResetState[];
+	
 	// The `No Reset` carryover flags.
 	//
 	// @value [enum NoResetBitflags]
 	// @zasm_var MAPDATANORESET
 	internal int NoReset;
+	
+	// For screen state carryovers, which parts of the screen state that won't carry over to the
+	// target screen.
+	//
+	// @index [enum ScreenState]
+	// @zasm_var MAPDATANOCARRYARR
+	internal bool NoCarryState[];
 
 	// The `No Carry Over` carryover flags.
 	//

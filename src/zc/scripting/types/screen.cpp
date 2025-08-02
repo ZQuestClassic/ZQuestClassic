@@ -279,6 +279,20 @@ static ArrayRegistrar SCREENDATAENEMY_registrar(SCREENDATAENEMY, []{
 	return &impl;
 }());
 
+static ArrayRegistrar SCREENDATANORESETARR_registrar(SCREENDATANORESETARR, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::noreset, mMAXIND> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar SCREENDATANOCARRYARR_registrar(SCREENDATANOCARRYARR, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::nocarry, mMAXIND> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar SCREENDATALAYERINVIS_registrar(SCREENDATALAYERINVIS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::hidelayers, 7> impl;
 	impl.setDefaultValue(0);

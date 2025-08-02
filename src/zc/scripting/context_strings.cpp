@@ -308,7 +308,9 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SCREENDATANEXTMAP: return "Screen->NextMap";
 		case SCREENDATANEXTSCREEN: return "Screen->NextScreen";
 		case SCREENDATANOCARRY: return "Screen->NoCarry";
+		case SCREENDATANOCARRYARR: return "Screen->NoCarryState[]";
 		case SCREENDATANORESET: return "Screen->NoReset";
+		case SCREENDATANORESETARR: return "Screen->NoResetState[]";
 		case EWPNCOUNT: return "Screen->NumEWeapons";
 		case ITEMCOUNT: return "Screen->NumItems";
 		case LWPNCOUNT: return "Screen->NumLWeapons";
@@ -861,7 +863,9 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case MAPDATANEXTMAP: return "mapdata::NextMap";
 		case MAPDATANEXTSCREEN: return "mapdata::NextScreen";
 		case MAPDATANOCARRY: return "mapdata::NoCarry";
+		case MAPDATANOCARRYARR: return "mapdata::NoCarryState[]";
 		case MAPDATANORESET: return "mapdata::NoReset";
+		case MAPDATANORESETARR: return "mapdata::NoResetState[]";
 		case MAPDATACOLOUR: return "mapdata::Palette";
 		case MAPDATAPATTERN: return "mapdata::Pattern";
 		case MAPDATAREGIONID: return "mapdata::RegionID";

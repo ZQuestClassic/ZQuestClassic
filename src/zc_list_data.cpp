@@ -1220,7 +1220,7 @@ static const GUI::ListData screen_state
 	{ "Door Right", 3 },
 	{ "Screen Item", 4 },
 	{ "Special Item", 5 },
-	{ "Enemies Never Return", 6 },
+	{ "Some Enemies Never Return", 6 },
 	{ "Enemies Temp No Return", 7 },
 	{ "Lockblock", 8 },
 	{ "Boss Lockblock", 9 },
@@ -1229,7 +1229,8 @@ static const GUI::ListData screen_state
 	{ "Boss Chest", 12 },
 	{ "Secrets", 13 },
 	{ "Visited", 14 },
-	{ "Light Triggers", 15 }
+	{ "Light Triggers", 15 },
+	{ "All Enemies Don't Return", 16 },
 };
 
 GUI::ListData const& GUI::ZCListData::screenstate()

@@ -3000,6 +3000,10 @@ static constexpr script_variable variable_list[]=
 	{ "CMBTRIGGERICECOMBO", CMBTRIGGERICECOMBO, 0 },
 	{ "CMBTRIGGERICEVX", CMBTRIGGERICEVX, 0 },
 	{ "CMBTRIGGERICEVY", CMBTRIGGERICEVY, 0 },
+	{ "SCREENDATANORESETARR", SCREENDATANORESETARR, 0 },
+	{ "SCREENDATANOCARRYARR", SCREENDATANOCARRYARR, 0 },
+	{ "MAPDATANOCARRYARR", MAPDATANOCARRYARR, 0 },
+	{ "MAPDATANORESETARR", MAPDATANORESETARR, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -3472,6 +3476,8 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case MAPDATATWARPRETSQR:
 		case MAPDATAWARPRETX:
 		case MAPDATAWARPRETY:
+		case MAPDATANOCARRYARR:
+		case MAPDATANORESETARR:
 		case MESSAGEDATAFLAGSARR:
 		case MESSAGEDATAMARGINS:
 		case MOUSEARR:
@@ -3503,6 +3509,8 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case SCREENDATAENEMY:
 		case SCREENDATAFFINITIALISED:
 		case SCREENDATAFLAGS:
+		case SCREENDATANOCARRYARR:
+		case SCREENDATANORESETARR:
 		case SCREENDATALAYERINVIS:
 		case SCREENDATALAYERMAP:
 		case SCREENDATALAYEROPACITY:
@@ -3819,6 +3827,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case MAPDATATWARPRETSQR:
 		case MAPDATAWARPRETX:
 		case MAPDATAWARPRETY:
+		case MAPDATANOCARRYARR:
+		case MAPDATANORESETARR:
 			return REFMAPDATA;
 		
 		case PALDATAB:
@@ -3831,6 +3841,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SCREEN_FLAG:
 		case SCREENDATAENEMY:
 		case SCREENDATAFLAGS:
+		case SCREENDATANOCARRYARR:
+		case SCREENDATANORESETARR:
 		case SCREENDATALAYERINVIS:
 		case SCREENDATALAYERMAP:
 		case SCREENDATALAYEROPACITY:

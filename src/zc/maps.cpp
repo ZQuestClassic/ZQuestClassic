@@ -1384,10 +1384,10 @@ bool HASFLAG_ANY(int32_t flag, rpos_t rpos)
 
 const char *screenstate_string[32] =
 {
-	"Door Up", "Door Down", "Door Left", "Door Right", "Item", "Special Item", "No Return",
+	"Door Up", "Door Down", "Door Left", "Door Right", "Item", "Special Item", "Some Enemies Never Return",
 	"Temporary No Return", "Lock Blocks", "Boss Lock Blocks", "Chests", "Locked Chests",
 	"Boss Locked Chests", "Secrets", "Visited", "Light Beams",
-	"Enemies Never Return", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>",
+	"All Enemies Don't Return", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>",
 	"<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>", "<Unused>",
 };
 
@@ -1498,14 +1498,15 @@ void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag)
 
     double temp=log2((double)flag);
     const char* state_string = flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>";
+	const char* replay_state_string = state_string;
+	if(temp == 6) replay_state_string = "No Return";
 
     if (replay_is_active() && !(game->maps[mi] & flag))
-        replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, state_string));
+        replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, replay_state_string));
     game->maps[mi] |= flag;
     log_state_change(cmap, cscr, fmt::format("State set: {}", state_string));
                
-    if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
-            flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
+    if((scr->nocarry&flag)!=flag)
     {
         byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
         byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
@@ -1515,11 +1516,11 @@ void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
-            if((scr->nocarry&flag)!=flag && !(game->maps[((nmap-1)<<7)+nscr] & flag))
+            if(!(game->maps[((nmap-1)<<7)+nscr] & flag))
             {
                 log_state_change(nmap, nscr, "State change carried over");
                 if (replay_is_active())
-                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, state_string));
+                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, replay_state_string));
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
             }
             
@@ -1581,8 +1582,7 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag, bool anyflag)
     const char* state_string = flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>";
     log_state_change(cmap, cscr, fmt::format("State unset: {}", state_string));
                
-    if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
-            flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
+    if((scr->nocarry&flag)!=flag)
     {
         byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
         byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
@@ -1592,7 +1592,7 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag, bool anyflag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
-            if((scr->nocarry&flag)!=flag && (game->maps[((nmap-1)<<7)+nscr] & flag))
+            if(game->maps[((nmap-1)<<7)+nscr] & flag)
             {
                 log_state_change(nmap, nscr, "State change carried over");
                 game->maps[((nmap-1)<<7)+nscr] &= ~flag;
@@ -2771,7 +2771,7 @@ void trigger_secrets_for_screen(TriggerSource source, mapscr* scr, bool high16on
 
 	// Respect secret state carryovers for active screens.
 	if (single >= 0) return;
-	int flag = mSECRET;
+	if(scr->nocarry&mSECRET) return;
 	int cmap = scr->map;
 	int cscr = scr->screen;
 	int nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
@@ -2782,7 +2782,7 @@ void trigger_secrets_for_screen(TriggerSource source, mapscr* scr, bool high16on
 
 	while((nmap!=0) && !looped && !(nscr>=128))
 	{
-		if (nmap - 1 == cur_map && is_in_current_region(nscr) && (scr->nocarry&flag)!=flag && !get_screen_state(nscr).triggered_secrets)
+		if (nmap - 1 == cur_map && is_in_current_region(nscr) && !get_screen_state(nscr).triggered_secrets)
 		{
 			log_trigger_secret_reason(TriggerSource::SecretsScreenState);
 			trigger_secrets_for_screen_internal(create_screen_handles(get_scr(nscr)), from_active_screen, high16only, single, do_replay_comment);
