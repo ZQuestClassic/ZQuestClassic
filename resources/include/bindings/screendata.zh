@@ -815,6 +815,16 @@ class screendata {
 	// @value [enum NoCarryBitflags]
 	// @zasm_var SCREENDATANOCARRY
 	internal int NoCarry;
+	
+	// Which of the 32 ExStates should be carried over to the target screen
+	//
+	// @zasm_var SCREENDATAEXCARRY
+	internal bool ExStateCarry[];
+	
+	// Which of the 32 ExStates should be reset by 'Reset Room' combos
+	//
+	// @zasm_var SCREENDATAEXRESET
+	internal bool ExStateReset[];
 
 	// The Map IDs used by screen layers 1 through 6, represented as [1] through
 	// [6].

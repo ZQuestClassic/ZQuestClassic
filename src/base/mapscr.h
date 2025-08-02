@@ -126,6 +126,7 @@ struct mapscr
 	byte csensitive = 1;
 	dword noreset = mDEF_NORESET;
 	dword nocarry = mDEF_NOCARRYOVER;
+	dword exstate_reset, exstate_carry;
 	byte layermap[6];
 	byte layerscreen[6];
 	//  byte layerxsize[6];

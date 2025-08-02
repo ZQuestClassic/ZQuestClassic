@@ -3271,8 +3271,12 @@ enum ASM_DEFINE
 #define SCREENDATANORESETARR       0x1658
 #define MAPDATANOCARRYARR          0x1659
 #define MAPDATANORESETARR          0x165A
+#define SCREENDATAEXCARRY          0x165B
+#define SCREENDATAEXRESET          0x165C
+#define MAPDATAEXCARRY             0x165D
+#define MAPDATAEXRESET             0x165E
 
-#define NUMVARIABLES         0x165B
+#define NUMVARIABLES         0x165F
 
 //} End variables
 

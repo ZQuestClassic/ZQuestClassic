@@ -25363,6 +25363,13 @@ RaftingStuff:
 			}
 		}
 		
+		if(scr->exstate_reset)
+		{
+			for(uint q = 0; q < 32; ++q)
+				if(scr->exstate_reset&(1<<q))
+					unsetxmapflag(scr->screen, (1<<q));
+		}
+		
 		setpit();
 		sdir=dir;
 		dowarp(scr, 4, 0, warpsfx2);

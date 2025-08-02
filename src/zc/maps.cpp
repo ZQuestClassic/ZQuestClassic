@@ -1639,6 +1639,43 @@ void setxmapflag_mi(int32_t mi, uint32_t flag)
 	log_state_change(cmap, cscr, fmt::format("ExtraState set: {}", temp));
 
 	game->xstates[mi] |= flag;
+	
+	mapscr* scr = origin_scr;
+	if (is_in_current_region(cmap, cscr))
+		scr = get_scr(cmap, cscr);
+	
+	if((scr->exstate_carry&flag)==flag)
+	{
+		byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
+		byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
+		
+		std::vector<int32_t> done;
+		bool looped = (nmap==cmap+1 && nscr==cscr);
+		
+		while((nmap!=0) && !looped && !(nscr>=128))
+		{
+			if(!(game->maps[((nmap-1)<<7)+nscr] & flag))
+			{
+				log_state_change(nmap, nscr, "ExState change carried over");
+				if (replay_is_active())
+					replay_step_comment(fmt::format("map {} scr {} exstate {} carry", nmap, nscr, temp));
+				game->xstates[((nmap-1)<<7)+nscr] |= flag;
+			}
+			
+			cmap=nmap;
+			cscr=nscr;
+			nmap=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextmap;
+			nscr=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextscr;
+			
+			for(auto it = done.begin(); it != done.end(); it++)
+			{
+				if(*it == ((nmap-1)<<7)+nscr)
+					looped = true;
+			}
+			
+			done.push_back(((nmap-1)<<7)+nscr);
+		}
+	}
 }
 void unsetxmapflag(int32_t screen, uint32_t flag)
 {
@@ -1653,6 +1690,41 @@ void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 	byte temp=(byte)log2((double)flag);
 	log_state_change(cmap, cscr, fmt::format("ExtraState unset: {}", temp));
 	game->xstates[mi] &= ~flag;
+	
+	mapscr* scr = origin_scr;
+	if (is_in_current_region(cmap, cscr))
+		scr = get_scr(cmap, cscr);
+	
+	if((scr->exstate_carry&flag)==flag)
+	{
+		byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
+		byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
+		
+		std::vector<int32_t> done;
+		bool looped = (nmap==cmap+1 && nscr==cscr);
+		
+		while((nmap!=0) && !looped && !(nscr>=128))
+		{
+			if(game->maps[((nmap-1)<<7)+nscr] & flag)
+			{
+				log_state_change(nmap, nscr, "ExState change carried over");
+				game->xstates[((nmap-1)<<7)+nscr] &= ~flag;
+			}
+			
+			cmap=nmap;
+			cscr=nscr;
+			nmap=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextmap;
+			nscr=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextscr;
+			
+			for(std::vector<int32_t>::iterator it = done.begin(); it != done.end(); it++)
+			{
+				if(*it == ((nmap-1)<<7)+nscr)
+					looped = true;
+			}
+			
+			done.push_back(((nmap-1)<<7)+nscr);
+		}
+	}
 }
 bool getxmapflag(int32_t screen, uint32_t flag)
 {

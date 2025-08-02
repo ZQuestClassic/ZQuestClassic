@@ -17191,6 +17191,10 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 					return qe_invalid;
 				if(!p_igetl(&(temp_mapscr->nocarry),f))
 					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->exstate_reset),f))
+					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->exstate_carry),f))
+					return qe_invalid;
 			}
 			if(!p_getc(&(temp_mapscr->nextmap),f))
 				return qe_invalid;

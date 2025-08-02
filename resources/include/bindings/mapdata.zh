@@ -463,6 +463,16 @@ class mapdata {
 	// @value [enum NoCarryBitflags]
 	// @zasm_var MAPDATANOCARRY
 	internal int NoCarry;
+	
+	// Which of the 32 ExStates should be carried over to the target screen
+	//
+	// @zasm_var MAPDATAEXCARRY
+	internal bool ExStateCarry[];
+	
+	// Which of the 32 ExStates should be reset by 'Reset Room' combos
+	//
+	// @zasm_var MAPDATAEXRESET
+	internal bool ExStateReset[];
 
 	// The map and screen for each layer. Index [0] of these arrays does
 	// nothing, and is invalid to access.

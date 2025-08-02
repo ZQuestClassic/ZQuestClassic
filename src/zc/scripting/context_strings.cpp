@@ -271,6 +271,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SCREENDATAENEMY: return "Screen->Enemy[]";
 		case SCREENDATAENTRYX: return "Screen->EntryX";
 		case SCREENDATAENTRYY: return "Screen->EntryY";
+		case SCREENDATAEXCARRY: return "Screen->ExStateCarry[]";
+		case SCREENDATAEXRESET: return "Screen->ExStateReset[]";
 		case SCREENEXSTATED: return "Screen->ExState[]";
 		case SCREENDATAEXITDIR: return "Screen->ExitDir";
 		case SCREEN_FFCS: return "Screen->FFCs[]";
@@ -819,6 +821,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case MAPDATAENEMY: return "mapdata::Enemy[]";
 		case MAPDATAENTRYX: return "mapdata::EntryX";
 		case MAPDATAENTRYY: return "mapdata::EntryY";
+		case MAPDATAEXCARRY: return "mapdata::ExStateCarry[]";
+		case MAPDATAEXRESET: return "mapdata::ExStateReset[]";
 		case MAPDATAEXSTATED: return "mapdata::ExState[]";
 		case MAPDATAEXITDIR: return "mapdata::ExitDir";
 		case MAPDATAFFXDELTA2: return "mapdata::FFCAx[]";
