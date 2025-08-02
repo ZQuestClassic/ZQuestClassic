@@ -293,6 +293,20 @@ static ArrayRegistrar SCREENDATANOCARRYARR_registrar(SCREENDATANOCARRYARR, []{
 	return &impl;
 }());
 
+static ArrayRegistrar MAPDATAEXRESET_registrar(MAPDATAEXRESET, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::exstate_reset, 32> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar SCREENDATAEXCARRY_registrar(SCREENDATAEXCARRY, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::exstate_carry, 32> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar SCREENDATALAYERINVIS_registrar(SCREENDATALAYERINVIS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::hidelayers, 7> impl;
 	impl.setDefaultValue(0);

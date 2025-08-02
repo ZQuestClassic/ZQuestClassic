@@ -478,6 +478,20 @@ static ArrayRegistrar MAPDATANOCARRYARR_registrar(MAPDATANOCARRYARR, []{
 	return &impl;
 }());
 
+static ArrayRegistrar MAPDATAEXRESET_registrar(MAPDATAEXRESET, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::exstate_reset, 32> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar MAPDATAEXCARRY_registrar(MAPDATAEXCARRY, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::exstate_carry, 32> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar MAPDATALAYERINVIS_registrar(MAPDATALAYERINVIS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::hidelayers, 7> impl;
 	impl.setDefaultValue(0);

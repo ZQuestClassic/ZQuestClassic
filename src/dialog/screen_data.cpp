@@ -400,12 +400,12 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 									{ "Light Triggers" },
 									{ "All Enemies Don't Return" },
 								};
-								if(!call_checklist_dialog("Select states to NOT carry over",scrstates,flags,8))
+								if(!call_checklist_dialog("Select states to NOT CARRY OVER",scrstates,flags,8))
 									return;
 								local_scr.nocarry = flags;
 							}
 						),
-						INFOBTN_EX("These states will not be carried over to the 'Carryover Screen'.", forceFitH = true, padding = 0_px),
+						INFOBTN_EX("These states WILL NOT be carried over to the 'Carryover Screen'.", forceFitH = true, padding = 0_px),
 						//
 						Label(text = "Don't Reset:", hAlign = 1.0),
 						Button(
@@ -433,12 +433,52 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 									{ "Light Triggers" },
 									{ "All Enemies Don't Return" },
 								};
-								if(!call_checklist_dialog("Select states to NOT reset",scrstates,flags,8))
+								if(!call_checklist_dialog("Select states to NOT RESET",scrstates,flags,8))
 									return;
 								local_scr.noreset = flags;
 							}
 						),
-						INFOBTN_EX("These states will not be cleared by 'Reset Room' combos.", forceFitH = true, padding = 0_px)
+						INFOBTN_EX("These states WILL NOT be cleared by 'Reset Room' combos.", forceFitH = true, padding = 0_px),
+						//
+						Label(text = "Carryover ExStates:", hAlign = 1.0),
+						Button(
+							width = 1.5_em, padding = 0_px, forceFitH = true,
+							text = "P", hAlign = 1.0, onPressFunc = [&]()
+							{
+								auto flags = local_scr.exstate_carry;
+								static const vector<CheckListInfo> exstates =
+								{
+									{ "0" }, { "1" }, { "2" }, { "3" }, { "4" }, { "5" }, { "6" }, { "7" },
+									{ "8" }, { "9" }, { "10" }, { "11" }, { "12" }, { "13" }, { "14" }, { "15" },
+									{ "16" }, { "17" }, { "18" }, { "19" }, { "20" }, { "21" }, { "22" }, { "23" },
+									{ "24" }, { "25" }, { "26" }, { "27" }, { "28" }, { "29" }, { "30" }, { "31" },
+								};
+								if(!call_checklist_dialog("Select ExStates to CARRY OVER",exstates,flags,8))
+									return;
+								local_scr.exstate_carry = flags;
+							}
+						),
+						INFOBTN_EX("These ExStates WILL be carried over to the 'Carryover Screen'.", forceFitH = true, padding = 0_px),
+						//
+						Label(text = "Reset ExStates:", hAlign = 1.0),
+						Button(
+							width = 1.5_em, padding = 0_px, forceFitH = true,
+							text = "P", hAlign = 1.0, onPressFunc = [&]()
+							{
+								auto flags = local_scr.exstate_reset;
+								static const vector<CheckListInfo> exstates =
+								{
+									{ "0" }, { "1" }, { "2" }, { "3" }, { "4" }, { "5" }, { "6" }, { "7" },
+									{ "8" }, { "9" }, { "10" }, { "11" }, { "12" }, { "13" }, { "14" }, { "15" },
+									{ "16" }, { "17" }, { "18" }, { "19" }, { "20" }, { "21" }, { "22" }, { "23" },
+									{ "24" }, { "25" }, { "26" }, { "27" }, { "28" }, { "29" }, { "30" }, { "31" },
+								};
+								if(!call_checklist_dialog("Select ExStates to RESET",exstates,flags,8))
+									return;
+								local_scr.exstate_reset = flags;
+							}
+						),
+						INFOBTN_EX("These ExStates WILL be cleared by 'Reset Room' combos.", forceFitH = true, padding = 0_px)
 					),
 					Rows<3>(hAlign = 1.0,
 						Label(text = "Carryover Map:", hAlign = 1.0),

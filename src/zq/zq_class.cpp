@@ -4887,6 +4887,8 @@ void zmap::PasteScreenData(const mapscr& copymapscr, int screen)
         screens[screen].nextscr = copymapscr.nextscr;
         screens[screen].nocarry = copymapscr.nocarry;
         screens[screen].noreset = copymapscr.noreset;
+        screens[screen].exstate_reset = copymapscr.exstate_reset;
+        screens[screen].exstate_carry = copymapscr.exstate_carry;
         screens[screen].path[0] = copymapscr.path[0];
         screens[screen].path[1] = copymapscr.path[1];
         screens[screen].path[2] = copymapscr.path[2];
@@ -9006,7 +9008,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	}
 	
 	if(screen.noreset != mDEF_NORESET || screen.nocarry != mDEF_NOCARRYOVER
-		|| screen.nextmap || screen.nextscr)
+		|| screen.nextmap || screen.nextscr || screen.exstate_reset || screen.exstate_carry)
 		scr_has_flags |= SCRHAS_CARRY;
 	
 	if(screen.script || screen.preloadscript)
@@ -9240,6 +9242,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		if(!p_iputl(screen.noreset,f))
 			return qe_invalid;
 		if(!p_iputl(screen.nocarry,f))
+			return qe_invalid;
+		if(!p_iputl(screen.exstate_reset,f))
+			return qe_invalid;
+		if(!p_iputl(screen.exstate_carry,f))
 			return qe_invalid;
 		if(!p_putc(screen.nextmap,f))
 			return qe_invalid;
