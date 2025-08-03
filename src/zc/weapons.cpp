@@ -1000,7 +1000,18 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	step=0;
 	dead=-1;
 	specialinfo = special;
-	bounce=ignoreHero=false;
+	switch(id)
+	{
+		case wRefFireball: case wRefMagic: case wRefBeam:
+		case wRefRock: case wRefArrow: case wRefFire:
+		case wRefFire2:
+			ignoreHero = false;
+			break;
+		default:
+			ignoreHero = isLW;
+			break;
+	}
+	bounce=false;
 	yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
 	dragging=-1;
 	hit_width=15;
@@ -3877,6 +3888,8 @@ bool weapon::animate(int32_t index)
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		{
+			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
+				do_mirror();
 			if ( ScriptGenerated && !isLWeapon ) break; //Return early for eweapons. We handle those elsewhere. 
 			if ( parentitem > -1 || (isLWeapon && ScriptGenerated) )
 			{
@@ -5593,7 +5606,8 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 	{
 		case wBeam: case wRefBeam: case ewSword:
 		case wMagic: case wRefMagic: case ewMagic:
-		case ewWind:
+		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		{
 			w = new weapon(*this);
 			if (!Lwpns.add(w))
@@ -5670,6 +5684,37 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 			}
 			break;
 		}
+		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+		{
+			if(parentitem > -1)
+			{
+				if(!(itemsbuf[parentitem].flags & item_flag1))
+				{
+					switch(w->dir)
+					{
+						case up:
+						{
+							flip = 0; break;
+						}
+						case down:
+						{
+							flip = 2; break;
+						}
+						case left:
+						{
+							flip = 7; break;
+						}
+						case right:
+						{
+							flip = 4; break;
+						}
+						default: flip = 0; break;
+					}
+				}
+			}
+			break;
+		}
 	}
 	return true;
 }
@@ -5707,7 +5752,9 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 	{
 		case wBeam: case wRefBeam: case ewSword:
 		case wMagic: case wRefMagic:
-		case wWind: case ewWind:
+		case wWind:
+		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 			w = this;
 			break;
 		case ewMagic:
@@ -5744,6 +5791,37 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 				}
 				case wWind: case ewWind:
 					break;
+				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+				{
+					if(parentitem > -1)
+					{
+						if(!(itemsbuf[parentitem].flags & item_flag1))
+						{
+							switch(w->dir)
+							{
+								case up:
+								{
+									flip = 0; break;
+								}
+								case down:
+								{
+									flip = 2; break;
+								}
+								case left:
+								{
+									flip = 7; break;
+								}
+								case right:
+								{
+									flip = 4; break;
+								}
+								default: flip = 0; break;
+							}
+						}
+					}
+					break;
+				}
 			}
 			break;
 		}
@@ -5802,6 +5880,37 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 						if (w->frames > 1)
 							w->tile += w->frames;
 						else ++w->tile;
+					}
+					break;
+				}
+				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+				{
+					if(parentitem > -1)
+					{
+						if(!(itemsbuf[parentitem].flags & item_flag1))
+						{
+							switch(w->dir)
+							{
+								case up:
+								{
+									flip = 0; break;
+								}
+								case down:
+								{
+									flip = 2; break;
+								}
+								case left:
+								{
+									flip = 7; break;
+								}
+								case right:
+								{
+									flip = 4; break;
+								}
+								default: flip = 0; break;
+							}
+						}
 					}
 					break;
 				}
@@ -5866,6 +5975,37 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 						if (w->frames > 1)
 							w->tile += w->frames;
 						else ++w->tile;
+					}
+					break;
+				}
+				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+				{
+					if(parentitem > -1)
+					{
+						if(!(itemsbuf[parentitem].flags & item_flag1))
+						{
+							switch(w->dir)
+							{
+								case up:
+								{
+									flip = 0; break;
+								}
+								case down:
+								{
+									flip = 2; break;
+								}
+								case left:
+								{
+									flip = 7; break;
+								}
+								case right:
+								{
+									flip = 4; break;
+								}
+								default: flip = 0; break;
+							}
+						}
 					}
 					break;
 				}
@@ -5959,6 +6099,37 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					}
 					break;
 				}
+				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+				{
+					if(parentitem > -1)
+					{
+						if(!(itemsbuf[parentitem].flags & item_flag1))
+						{
+							switch(w->dir)
+							{
+								case up:
+								{
+									flip = 0; break;
+								}
+								case down:
+								{
+									flip = 2; break;
+								}
+								case left:
+								{
+									flip = 7; break;
+								}
+								case right:
+								{
+									flip = 4; break;
+								}
+								default: flip = 0; break;
+							}
+						}
+					}
+					break;
+				}
 			}
 			break;
 		}
@@ -5993,22 +6164,16 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 			ret_ignorecombo = true;
 			ret_fail = true;
 			break;
+		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+			refl_flag = sh_script | (sh_script1 << (id-wScript1));
+			break;
 			/* TODO
 			sh_rock
 			sh_arrow
 			sh_fireball
 			sh_flame
 			sh_fireball2
-			sh_script1
-			sh_script2
-			sh_script3
-			sh_script4
-			sh_script5
-			sh_script6
-			sh_script7
-			sh_script8
-			sh_script9
-			sh_script10
 			sh_flame2
 			*/
 	}

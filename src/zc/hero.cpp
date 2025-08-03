@@ -6237,13 +6237,11 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 			
 			switch(lw->id)
 			{
-				case wRefFireball:
-				case wRefMagic:
-				case wRefBeam:
-				case wRefRock:
-				case wRefArrow:
-				case wRefFire:
+				case wRefFireball: case wRefMagic: case wRefBeam:
+				case wRefRock: case wRefArrow: case wRefFire:
 				case wRefFire2:
+				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 					break;
 				default:
 					return -1;
