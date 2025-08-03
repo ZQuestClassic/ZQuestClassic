@@ -701,6 +701,7 @@ int32_t weapon::seekEnemy2(int32_t j)
 void weapon::convertType(bool toLW)
 {
 	if(XOR(isLWeapon, toLW)) return; //Already the right type
+	isLWeapon = toLW;
 	script = 0;
 	for(int32_t q = 0; q < 8; ++q)
 		initD[q] = 0;
@@ -4051,12 +4052,10 @@ bool weapon::animate(int32_t index)
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
 		}
-		case ewWind:
-		{
+		case ewWind: case ewRock: case wRefRock:
 			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
 				do_mirror();
 			break;
-		}
 		case wFire: case wRefFire: case wRefFire2:
 		{
 			if(blocked())
@@ -5201,9 +5200,7 @@ bool weapon::animate(int32_t index)
 		break;
 		
 		case ewMagic:
-		{
 			do_mirror();
-		}
 		break;
 		
 		//  enemy weapons
@@ -5591,6 +5588,11 @@ static void _reflect_helper(weapon* w, zfix newx, zfix newy, rpos_t cpos)
 			w->id = wRefBeam; w->convertType(true);
 			break;
 		}
+		case wRefRock: case ewRock:
+		{
+			w->id = wRefRock; w->convertType(true);
+			break;
+		}
 	}
 	
 	w->ignoreHero = false;
@@ -5608,6 +5610,7 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 		case wMagic: case wRefMagic: case ewMagic:
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+		case ewRock: case wRefRock:
 		{
 			w = new weapon(*this);
 			if (!Lwpns.add(w))
@@ -5715,6 +5718,8 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 			}
 			break;
 		}
+		case ewRock: case wRefRock:
+			break;
 	}
 	return true;
 }
@@ -5755,11 +5760,13 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 		case wWind:
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+		case ewRock: case wRefRock:
 			w = this;
 			break;
 		case ewMagic:
 		{
 			w = new weapon(*this);
+			w->convertType(true);
 			dead=0;
 			if (!Lwpns.add(w))
 				return false;
@@ -5768,7 +5775,14 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 	}
 	DCHECK(w);
 	
+	bool was_lw = w->isLWeapon;
 	_reflect_helper(w, newx, newy, cpos);
+	if(!was_lw && w->isLWeapon)
+	{
+		Ewpns.remove(w);
+		if(!Lwpns.add(w))
+			return false;
+	}
 	
 	switch(mirror_cmb.type)
 	{
@@ -5822,6 +5836,8 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					}
 					break;
 				}
+				case ewRock: case wRefRock:
+					break;
 			}
 			break;
 		}
@@ -5914,6 +5930,8 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					}
 					break;
 				}
+				case ewRock: case wRefRock:
+					break;
 			}
 			break;
 		}
@@ -6009,6 +6027,8 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					}
 					break;
 				}
+				case ewRock: case wRefRock:
+					break;
 			}
 			break;
 		}
@@ -6130,6 +6150,8 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					}
 					break;
 				}
+				case ewRock: case wRefRock:
+					break;
 			}
 			break;
 		}
@@ -6168,8 +6190,10 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 			refl_flag = sh_script | (sh_script1 << (id-wScript1));
 			break;
+		case ewRock: case wRefRock:
+			refl_flag = sh_rock;
+			break;
 			/* TODO
-			sh_rock
 			sh_arrow
 			sh_fireball
 			sh_flame
@@ -6410,7 +6434,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 				reflect = true;
 				break;
 				
-			case ewRock:
+			case ewRock: case wRefRock:
 				id = wRefRock;
 				reflect = true;
 				break;
