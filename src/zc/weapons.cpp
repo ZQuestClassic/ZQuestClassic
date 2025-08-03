@@ -4052,12 +4052,14 @@ bool weapon::animate(int32_t index)
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
 		}
-		case ewWind: case ewRock: case wRefRock: case ewArrow:
+		case ewWind: case ewRock: case wRefRock: case ewArrow: case ewFlame2:
 			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
 				do_mirror();
 			break;
 		case wFire: case wRefFire: case wRefFire2:
 		{
+			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
+				do_mirror();
 			if(blocked())
 			{
 				dead=1;
@@ -5250,6 +5252,8 @@ bool weapon::animate(int32_t index)
 		case wRefFireball:
 		case ewFireball:
 		{
+			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
+				do_mirror();
 			if((id==wRefFireball)&&(trigger_secrets_if_flag(x,y,mfREFFIREBALL,true))) dead=0;
 			
 			if((id==wRefFireball)&&(trigger_secrets_if_flag(x,y,mfSTRIKE,true))) dead=0;
@@ -5283,6 +5287,8 @@ bool weapon::animate(int32_t index)
 		
 		case ewFlame:
 		{
+			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
+				do_mirror();
 			if(clk==32)
 			{
 				step=0;
@@ -5600,6 +5606,21 @@ static void _reflect_helper(weapon* w, zfix newx, zfix newy, rpos_t cpos)
 			w->id = wRefArrow;
 			break;
 		}
+		case ewFireball: case ewFireball2: case wRefFireball:
+		{
+			w->id = wRefFireball;
+			break;
+		}
+		case wFire: case ewFlame: case wRefFire:
+		{
+			w->id = wRefFire;
+			break;
+		}
+		case ewFlame2: case wRefFire2:
+		{
+			w->id = wRefFire2;
+			break;
+		}
 	}
 	
 	w->convertType(true);
@@ -5620,6 +5641,9 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		case ewRock: case wRefRock:
 		case wArrow: case ewArrow: case wRefArrow:
+		case ewFireball: case ewFireball2: case wRefFireball:
+		case wFire: case ewFlame: case wRefFire:
+		case ewFlame2: case wRefFire2:
 		{
 			w = new weapon(*this);
 			if (!Lwpns.add(w))
@@ -5751,6 +5775,9 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 			break;
 		}
 		case ewRock: case wRefRock:
+		case ewFireball: case ewFireball2: case wRefFireball:
+		case wFire: case ewFlame: case wRefFire:
+		case ewFlame2: case wRefFire2:
 			break;
 	}
 	return true;
@@ -5794,10 +5821,18 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		case ewRock: case wRefRock:
 		case wArrow: case ewArrow: case wRefArrow:
+		case ewFireball: case ewFireball2: case wRefFireball:
+		case wFire: case ewFlame: case wRefFire:
+		case ewFlame2: case wRefFire2:
 			w = this;
 			break;
 		case ewMagic:
 		{
+			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
+			{
+				w = this;
+				break;
+			}
 			w = new weapon(*this);
 			w->convertType(true);
 			dead=0;
@@ -5871,6 +5906,9 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					break;
 				}
 				case ewRock: case wRefRock:
+				case ewFireball: case ewFireball2: case wRefFireball:
+				case wFire: case ewFlame: case wRefFire:
+				case ewFlame2: case wRefFire2:
 					break;
 			}
 			break;
@@ -5965,6 +6003,9 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					break;
 				}
 				case ewRock: case wRefRock:
+				case ewFireball: case ewFireball2: case wRefFireball:
+				case wFire: case ewFlame: case wRefFire:
+				case ewFlame2: case wRefFire2:
 					break;
 			}
 			break;
@@ -6062,6 +6103,9 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					break;
 				}
 				case ewRock: case wRefRock:
+				case ewFireball: case ewFireball2: case wRefFireball:
+				case wFire: case ewFlame: case wRefFire:
+				case ewFlame2: case wRefFire2:
 					break;
 			}
 			break;
@@ -6186,6 +6230,9 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 					break;
 				}
 				case ewRock: case wRefRock:
+				case ewFireball: case ewFireball2: case wRefFireball:
+				case wFire: case ewFlame: case wRefFire:
+				case ewFlame2: case wRefFire2:
 					break;
 			}
 			break;
@@ -6231,12 +6278,15 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 		case wArrow: case ewArrow: case wRefArrow:
 			refl_flag = sh_arrow;
 			break;
-			/* TODO
-			sh_fireball
-			sh_flame
-			sh_fireball2
-			sh_flame2
-			*/
+		case ewFireball: case ewFireball2: case wRefFireball:
+			refl_flag = (type&1) ? sh_fireball2 : sh_fireball;
+			break;
+		case wFire: case ewFlame: case wRefFire:
+			refl_flag = sh_flame;
+			break;
+		case ewFlame2: case wRefFire2:
+			refl_flag = sh_flame2;
+			break;
 	}
 	
 	zfix checkx=0, checky=0;
