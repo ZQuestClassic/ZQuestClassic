@@ -66,6 +66,7 @@ bool hasComboWizard(int32_t type)
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		case cSLOPE: case cSHOOTER: case cWATER: case cSHALLOWWATER:
 		case cSTEPSFX: case cTORCH: case cMIRRORNEW: case cCRUMBLE:
+		case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH: case cMAGICPRISM: case cMAGICPRISM4:
 		case cICY:
 			return true;
 	}
@@ -893,6 +894,9 @@ void combo_default(newcombo& ref, bool typeonly)
 		case cMIRRORNEW:
 			for(byte q = 0; q < 8; ++q)
 				ref.attribytes[q] = q;
+		[[fallthrough]];
+		case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH: case cMAGICPRISM: case cMAGICPRISM4:
+			ref.attributes[0] = 0;
 			break;
 		case cCRUMBLE:
 			ref.attrishorts[0] = 45;
@@ -2482,6 +2486,53 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							local_ref.attribytes[r_down] = val;
 						}),
 					INFOBTN("Weapons facing down-right (coming from up-left) will move in this direction.")
+				)
+			);
+		}
+		[[fallthrough]];
+		case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH: case cMAGICPRISM: case cMAGICPRISM4:
+		{
+			auto& refl_flags = local_ref.attributes[0];
+			windowRow->add(
+				Row(
+					Label(text = "Reflect Flags:", hAlign = 1.0),
+					Button(
+						width = 1.5_em, padding = 0_px, forceFitH = true,
+						text = "P", hAlign = 1.0, onPressFunc = [&]()
+						{
+							auto flags = refl_flags;
+							static const vector<CheckListInfo> refltypes =
+							{
+								{ "Rock" },
+								{ "Arrow" },
+								{ CheckListInfo::DISABLED, "Boomerang" },
+								{ "Fireball" },
+								{ "Sword / Beam" },
+								{ "Magic" },
+								{ "Flame" },
+								{ "Script (all)" },
+								{ "Fireball 2" },
+								{ "Light Beam" },
+								{ "Script 1" },
+								{ "Script 2" },
+								{ "Script 3" },
+								{ "Script 4" },
+								{ "Script 5" },
+								{ "Script 6" },
+								{ "Script 7" },
+								{ "Script 8" },
+								{ "Script 9" },
+								{ "Script 10" },
+								{ "Flame 2" },
+								{ "LW Wind" },
+								{ "EW Wind" },
+							};
+							if(!call_checklist_dialog("Select weapon types to reflect",refltypes,flags,8))
+								return;
+							refl_flags = flags;
+						}
+					),
+					INFOBTN_EX("These weapons will be reflected. If none are checked, all weapons will be reflected.", forceFitH = true, padding = 0_px)
 				)
 			);
 			break;

@@ -3549,6 +3549,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_BLOCKHOLE_PITFALLS, 1);
 	if (compatrule_version < 84 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 11) < 0))
 		set_qr(qr_CUSTOM_WEAPON_BROKEN_SIZE, 1);
+	if (compatrule_version < 85)
+		set_qr(qr_OLD_WEAPON_REFLECTION, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

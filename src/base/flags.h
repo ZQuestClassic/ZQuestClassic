@@ -116,6 +116,8 @@ enum shield_flags : uint32_t
 	sh_script9              = F(18),
 	sh_script10             = F(19),
 	sh_flame2               = F(20),
+	sh_lw_wind              = F(21),
+	sh_ew_wind              = F(21),
 
 	sh_ALL_SCR              = 0x000FFC00,
 };

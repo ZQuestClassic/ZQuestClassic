@@ -6042,7 +6042,18 @@ static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool bo
 		case wScript9: SCRIPT_SHBLOCK(sh_script9);
 		case wScript10: SCRIPT_SHBLOCK(sh_script10);
 		#undef SCRIPT_SHBLOCK
+		
+		case wWind:
+			if(!(fl_block & sh_lw_wind)) break;
 			
+			reflect = ((fl_ref & sh_lw_wind) != 0);
+			return true;
+		case ewWind:
+			if(!(fl_block & sh_ew_wind)) break;
+			
+			reflect = ((fl_ref & sh_ew_wind) != 0);
+			return true;
+		
 		case ewLitBomb:
 		case ewLitSBomb:
 			return true;
@@ -6226,13 +6237,11 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 			
 			switch(lw->id)
 			{
-				case wRefFireball:
-				case wRefMagic:
-				case wRefBeam:
-				case wRefRock:
-				case wRefArrow:
-				case wRefFire:
+				case wRefFireball: case wRefMagic: case wRefBeam:
+				case wRefRock: case wRefArrow: case wRefFire:
 				case wRefFire2:
+				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 					break;
 				default:
 					return -1;
@@ -23337,7 +23346,7 @@ void HeroClass::handleSpotlights()
 
 		clear_bitmap(lightbeam_bmp);
 
-		bool foundany = false;
+		bool found_any_light = false;
 
 		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 			bool pos_has_seen_cmb[176] = {0};
@@ -23352,34 +23361,41 @@ void HeroClass::handleSpotlights()
 
 					rpos_t rpos = POS_TO_RPOS(pos, region_scr_x, region_scr_y);
 					auto& cmb = combobuf[layer_scr->data[pos]];
+					bool found_combo = false;
 					switch(cmb.type)
 					{
 						case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
 						case cMAGICPRISM: case cMAGICPRISM4:
+							if(!cmb.attributes[0] || (cmb.attributes[0] & sh_lightbeam))
+							{
+								typeMap[(int)rpos] = cmb.type;
+								found_combo = true;
+							}
+							break;
 						case cBLOCKALL: case cLIGHTTARGET:
 							typeMap[(int)rpos] = cmb.type;
+							found_combo = true;
 							break;
 						case cMIRRORNEW:
-							typeMap[(int)rpos] = cMIRRORNEW;
-							customTypeMap[(int)rpos] = layer_scr->data[pos];
+							if(!cmb.attributes[0] || (cmb.attributes[0] & sh_lightbeam))
+							{
+								typeMap[(int)rpos] = cMIRRORNEW;
+								customTypeMap[(int)rpos] = layer_scr->data[pos];
+								found_combo = true;
+							}
 							break;
 						case cGLASS:
+							found_combo = true;
 							// Already been initialized to zero.
 							break;
 						case cSPOTLIGHT:
-							foundany = true;
-							[[fallthrough]];
-						default:
-						{
-							if(lyr < 3 && (cmb.walk & 0xF))
-							{
-								typeMap[(int)rpos] = SPTYPE_SOLID;
-							}
-							continue; // may update on the next layer
-						}
+							found_any_light = true;
+							break;
 					}
-
-					pos_has_seen_cmb[pos] = true;
+					if(found_combo)
+						pos_has_seen_cmb[pos] = true;
+					else if(lyr < 3 && (cmb.walk & 0xF))
+						typeMap[(int)rpos] = SPTYPE_SOLID;
 				}
 			}
 
@@ -23396,7 +23412,7 @@ void HeroClass::handleSpotlights()
 		});
 
 		// The world is dark and full of terrors.
-		if (!foundany) return;
+		if (!found_any_light) return;
 		
 		switch (typeMap[(int)beam_hero_rpos])
 		{
