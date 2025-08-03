@@ -4052,7 +4052,7 @@ bool weapon::animate(int32_t index)
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
 		}
-		case ewWind: case ewRock: case wRefRock:
+		case ewWind: case ewRock: case wRefRock: case ewArrow:
 			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
 				do_mirror();
 			break;
@@ -4245,6 +4245,8 @@ bool weapon::animate(int32_t index)
 		case wArrow:
 		case wRefArrow:
 		{
+			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
+				do_mirror();
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			if(weapon_dying_frame)
 			{
@@ -5580,21 +5582,27 @@ static void _reflect_helper(weapon* w, zfix newx, zfix newy, rpos_t cpos)
 	{
 		case ewMagic: case wMagic: case wRefMagic:
 		{
-			w->id = wRefMagic; w->convertType(true);
+			w->id = wRefMagic;
 			break;
 		}
 		case wBeam: case wRefBeam: case ewSword:
 		{
-			w->id = wRefBeam; w->convertType(true);
+			w->id = wRefBeam;
 			break;
 		}
 		case wRefRock: case ewRock:
 		{
-			w->id = wRefRock; w->convertType(true);
+			w->id = wRefRock;
+			break;
+		}
+		case wArrow: case ewArrow: case wRefArrow:
+		{
+			w->id = wRefArrow;
 			break;
 		}
 	}
 	
+	w->convertType(true);
 	w->ignoreHero = false;
 	w->ignorecombo = cpos;
 	w->x = newx;
@@ -5611,6 +5619,7 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		case ewRock: case wRefRock:
+		case wArrow: case ewArrow: case wRefArrow:
 		{
 			w = new weapon(*this);
 			if (!Lwpns.add(w))
@@ -5668,6 +5677,29 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 						w->hit_width = 12;
 						break;
 					
+					default: break;
+				}
+			}
+			break;
+		}
+		case wArrow: case ewArrow: case wRefArrow:
+		{
+			if ( do_animation )
+			{
+				switch(w->dir)
+				{
+					case down:
+						w->flip = 2;
+					[[fallthrough]];
+					case up:
+						w->tile = w->o_tile;
+						break;
+					case left:
+						w->flip = 1;
+					[[fallthrough]];
+					case right:
+						w->tile = w->o_tile + ((w->frames > 1) ? w->frames : 1);
+						break;
 					default: break;
 				}
 			}
@@ -5761,6 +5793,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		case ewRock: case wRefRock:
+		case wArrow: case ewArrow: case wRefArrow:
 			w = this;
 			break;
 		case ewMagic:
@@ -5796,6 +5829,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 			{
 				case ewMagic: case wMagic: case wRefMagic:
 				case wBeam: case wRefBeam: case ewSword:
+				case wArrow: case ewArrow: case wRefArrow:
 				{
 					if(w->dir&2)
 						w->flip ^= 1;
@@ -5849,9 +5883,9 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 			switch(id)
 			{
 				case ewMagic: case wMagic: case wRefMagic:
+				case wArrow: case ewArrow: case wRefArrow:
 				{
-					w->o_tile = ref_o_tile;
-					w->tile = ref_o_tile;
+					w->o_tile = w->tile = ref_o_tile;
 					if ( do_animation )
 					{
 						if((w->dir==1)||(w->dir==2))
@@ -5943,9 +5977,9 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 			switch(id)
 			{
 				case ewMagic: case wMagic: case wRefMagic:
+				case wArrow: case ewArrow: case wRefArrow:
 				{
-					w->o_tile = ref_o_tile;
-					w->tile = ref_o_tile;
+					w->o_tile = w->tile = ref_o_tile;
 					if ( do_animation )
 					{
 						if(w->dir&1)
@@ -6046,6 +6080,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 			switch(id)
 			{
 				case ewMagic: case wMagic: case wRefMagic:
+				case wArrow: case ewArrow: case wRefArrow:
 				{
 					w->tile = w->ref_o_tile;
 					int tile_inc = zc_max(w->frames,1);
@@ -6193,8 +6228,10 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 		case ewRock: case wRefRock:
 			refl_flag = sh_rock;
 			break;
+		case wArrow: case ewArrow: case wRefArrow:
+			refl_flag = sh_arrow;
+			break;
 			/* TODO
-			sh_arrow
 			sh_fireball
 			sh_flame
 			sh_fireball2
