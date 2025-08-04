@@ -5445,6 +5445,22 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	//finally...  section data
 	readsize=0;
 	
+	if(s_version < 17)
+	{
+		temp_misc.status_names[STATUS_JINX_MELEE] = "Melee Jinx";
+		temp_misc.status_effects[STATUS_JINX_MELEE].jinx_melee = true;
+		temp_misc.status_names[STATUS_JINX_ITEM] = "Item Jinx";
+		temp_misc.status_effects[STATUS_JINX_ITEM].jinx_item = true;
+		temp_misc.status_names[STATUS_JINX_SHIELD] = "Shield Jinx";
+		temp_misc.status_effects[STATUS_JINX_SHIELD].jinx_shield = true;
+		temp_misc.status_names[STATUS_STUN] = "Stun";
+		temp_misc.status_effects[STATUS_STUN].stun = true;
+		temp_misc.status_names[STATUS_BUNNY] = "Bunny";
+		temp_misc.status_effects[STATUS_BUNNY].bunny = true;
+		for(int q = NUM_ENGINE_STATUSES; q < NUM_STATUSES; ++q)
+			temp_misc.status_names[q] = fmt::format("zz{:03}", q);
+	}
+	
 	//shops
 	if(Header->zelda_version > 0x192)
 	{
@@ -6205,22 +6221,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		temp_misc.miscsfx[sfxTAP_HOLLOW] = WAV_ZN1TAP2;
 	}
 	
-	if(s_version < 17)
-	{
-		temp_misc.status_names[STATUS_JINX_MELEE] = "Melee Jinx";
-		temp_misc.status_effects[STATUS_JINX_MELEE].jinx_melee = true;
-		temp_misc.status_names[STATUS_JINX_ITEM] = "Item Jinx";
-		temp_misc.status_effects[STATUS_JINX_ITEM].jinx_item = true;
-		temp_misc.status_names[STATUS_JINX_SHIELD] = "Shield Jinx";
-		temp_misc.status_effects[STATUS_JINX_SHIELD].jinx_shield = true;
-		temp_misc.status_names[STATUS_STUN] = "Stun";
-		temp_misc.status_effects[STATUS_STUN].stun = true;
-		temp_misc.status_names[STATUS_BUNNY] = "Bunny";
-		temp_misc.status_effects[STATUS_BUNNY].bunny = true;
-		for(int q = NUM_ENGINE_STATUSES; q < NUM_STATUSES; ++q)
-			temp_misc.status_names[q] = fmt::format("zz{:03}", q);
-	}
-	else
+	if(s_version >= 17)
 	{
 		for(int q = 0; q < NUM_STATUSES; ++q)
 		{
