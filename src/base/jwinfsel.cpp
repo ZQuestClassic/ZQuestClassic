@@ -953,7 +953,7 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
     file_selector[FS_EXPLORER].dp = (void*)EXPLORER_LABEL;
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
     file_selector[FS_EXPLORER].flags |= D_HIDDEN;
 #endif
     
@@ -1156,7 +1156,7 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
     file_selector[FS_EXPLORER].dp = (void*)EXPLORER_LABEL;
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
     file_selector[FS_EXPLORER].flags |= D_HIDDEN;
 #endif
     
@@ -1326,7 +1326,7 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
     file_selector[FS_EXPLORER].dp = (void*)EXPLORER_LABEL;
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
     file_selector[FS_EXPLORER].flags |= D_HIDDEN;
 #endif
 

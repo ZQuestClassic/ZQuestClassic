@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <fmt/format.h>
 
-#ifndef __EMSCRIPTEN__
+#ifdef HAS_NFD
 #include "nfd.h"
 #endif
 
@@ -27,7 +27,7 @@ void set_always_use_native_file_dialog(bool active)
 	use_native_file_dialog = active;
 }
 
-#ifndef __EMSCRIPTEN__
+#ifdef HAS_NFD
 static bool init_dialog()
 {
 	static bool initialized, tried;
@@ -204,7 +204,7 @@ std::optional<std::string> prompt_for_existing_file(std::string prompt, std::str
 		}
 	}
 
-#ifndef __EMSCRIPTEN__
+#ifdef HAS_NFD
 	auto filters = create_filter_list(ext, list);
 	return open_native_dialog(FileMode::Open, initial_path, filters);
 #else
@@ -235,7 +235,7 @@ std::optional<std::string> prompt_for_existing_folder(std::string prompt, std::s
 		}
 	}
 
-#ifndef __EMSCRIPTEN__
+#ifdef HAS_NFD
 	std::vector<filteritem_t> filters;
 	return open_native_dialog(FileMode::Folder, initial_path, filters);
 #else
@@ -259,7 +259,7 @@ std::optional<std::string> prompt_for_new_file(std::string prompt, std::string e
 		}
 	}
 
-#ifndef __EMSCRIPTEN__
+#ifdef HAS_NFD
 	auto filters = create_filter_list(ext, list);
 	return open_native_dialog(FileMode::Save, initial_path, filters);
 #else

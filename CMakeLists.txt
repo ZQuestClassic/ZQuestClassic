@@ -19,6 +19,7 @@ option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
+set(WANT_NFD TRUE CACHE BOOL "Include nativefiledialog")
 set(WANT_DEBUG_FILES FALSE CACHE BOOL "Generate separate debug files - .dSYM on Mac, .debug on Linux")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
@@ -252,17 +253,23 @@ if (NOT EMSCRIPTEN)
 	FetchContent_MakeAvailable(stduuid)
 endif()
 
-if (NOT EMSCRIPTEN)
-	FetchContent_Declare(
-		nativefiledialog
-		GIT_REPOSITORY
-			https://github.com/btzy/nativefiledialog-extended
-		GIT_TAG
-			17b6e8ce219c0677f94b63636abb9296b28841ca
-		EXCLUDE_FROM_ALL
-	)
-	FetchContent_MakeAvailable(nativefiledialog) # exposed as nfd
-	zc_install_targets(nfd)
+set(USE_NFD OFF)
+if (WANT_NFD)
+	if (EMSCRIPTEN)
+		message(WARNING "WANT_NFD is set, but can't support web, so ignoring")
+	else()
+		FetchContent_Declare(
+			nativefiledialog
+			GIT_REPOSITORY
+				https://github.com/btzy/nativefiledialog-extended
+			GIT_TAG
+				17b6e8ce219c0677f94b63636abb9296b28841ca
+			EXCLUDE_FROM_ALL
+		)
+		FetchContent_MakeAvailable(nativefiledialog) # exposed as nfd
+		zc_install_targets(nfd)
+		set(USE_NFD ON)
+	endif()
 endif()
 
 find_package(CURL)
@@ -633,8 +640,9 @@ endif()
 if(NOT WIN32)
 	target_include_directories(zcbase PUBLIC include/pstream)
 endif()
-if (NOT EMSCRIPTEN)
+if (USE_NFD)
 	target_link_libraries(zcbase PUBLIC nfd)
+	target_compile_definitions(zcbase PUBLIC HAS_NFD)
 endif()
 
 # std::execution supplementation.
