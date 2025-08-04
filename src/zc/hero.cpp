@@ -606,20 +606,24 @@ void HeroClass::setDrunkClock(int32_t newdrunkclk)
 
 int32_t HeroClass::getStunClock()
 {
-    return status.status_timers[STATUS_STUN];
+	return status.status_timers[STATUS_STUN];
 }
 void HeroClass::setStunClock(int32_t v)
 {
-    status.status_timers[STATUS_STUN] = v;
+	status.status_timers[STATUS_STUN] = v;
+	if(replay_version_check(0,43))
+		status.stun = v != 0;
 }
 
 int32_t HeroClass::getBunnyClock()
 {
-    return status.status_timers[STATUS_BUNNY];
+	return status.status_timers[STATUS_BUNNY];
 }
 void HeroClass::setBunnyClock(int32_t v)
 {
-    status.status_timers[STATUS_BUNNY] = v;
+	status.status_timers[STATUS_BUNNY] = v;
+	if(replay_version_check(0,43))
+		status.bunny = v != 0;
 }
 
 HeroClass::HeroClass() : sprite()
@@ -770,10 +774,10 @@ void HeroClass::resetflags(bool all)
     
 	if(getSwordClk()>0 || all)
 		setSwordClk(0);
-    if(getItemClk()>0 || all)
-        setItemClk(0);
-    if(getShieldClk()>0 || all)
-        setShieldClk(0);
+	if(getItemClk()>0 || all)
+		setItemClk(0);
+	if(getShieldClk()>0 || all)
+		setShieldClk(0);
         
     if(all)
     {
@@ -1309,11 +1313,11 @@ void HeroClass::setCharging(int32_t new_charging)
 }
 int32_t  HeroClass::getSwordClk()
 {
-    return status.status_timers[STATUS_JINX_MELEE];
+	return status.status_timers[STATUS_JINX_MELEE];
 }
 int32_t  HeroClass::getItemClk()
 {
-    return status.status_timers[STATUS_JINX_ITEM];
+	return status.status_timers[STATUS_JINX_ITEM];
 }
 int32_t  HeroClass::getShieldClk()
 {
@@ -1321,16 +1325,24 @@ int32_t  HeroClass::getShieldClk()
 }
 void HeroClass::setSwordClk(int32_t newclk)
 {
-    status.status_timers[STATUS_JINX_MELEE] = newclk;
-	verifyAWpn();
+	status.status_timers[STATUS_JINX_MELEE] = newclk;
+	if(replay_version_check(0,43))
+	{
+		status.jinx_melee = newclk != 0;
+		verifyAWpn();
+	}
 }
 void HeroClass::setItemClk(int32_t newclk)
 {
-    status.status_timers[STATUS_JINX_ITEM] = newclk;
+	status.status_timers[STATUS_JINX_ITEM] = newclk;
+	if(replay_version_check(0,43))
+		status.jinx_item = newclk != 0;
 }
 void HeroClass::setShieldClk(int32_t newclk)
 {
 	status.status_timers[STATUS_JINX_SHIELD] = newclk;
+	if(replay_version_check(0,43))
+		status.jinx_shield = newclk != 0;
 }
 // TODO remove, no longer needed.
 zfix  HeroClass::getModifiedX()
@@ -7922,11 +7934,6 @@ bool HeroClass::animate(int32_t)
 		}
 heroanimate_skip_liftwpn:;
 	}
-	
-	{ //handle statuses
-		using namespace std::placeholders;
-		status.run_frame(std::bind(&HeroClass::update_status, this, _1, _2, _3, _4), this);
-	}
 
 	if(cheats_execute_goto)
 	{
@@ -8709,8 +8716,14 @@ heroanimate_skip_liftwpn:;
 	}
 	
 	if(drunkclk)
-	{
 		--drunkclk;
+	
+	if(replay_version_check(0,34) && status.stun)
+		attackclk = 0;
+	
+	{ //handle statuses
+		using namespace std::placeholders;
+		status.run_frame(std::bind(&HeroClass::update_status, this, _1, _2, _3, _4), this);
 	}
 	
 	if(status.stun)
@@ -8720,17 +8733,15 @@ heroanimate_skip_liftwpn:;
 		
 		if( FFCore.getHeroAction() != stunned )
 		{
-			tempaction=action; //update so future checks won't do this
-			//action=freeze; //setting this makes the player invincible while stunned -V
+			tempaction = action; // store the pre-stun action
 			FFCore.setHeroAction(stunned);
 		}
 	}
-	
-	//if the stun action is still set in FFCore, but he isn't stunned, then the timer reached 0
-	//, so we unfreeze him here, and return him to the action that he had when he was stunned. 
 	if ( FFCore.getHeroAction() == stunned && !status.stun )
 	{
-		action=tempaction; FFCore.setHeroAction(tempaction);
+		// restore the pre-stun action after stun ends
+		action = tempaction;
+		FFCore.setHeroAction(tempaction);
 	}
 	
 	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
@@ -9570,7 +9581,18 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	else last_hurrah=false;
-		
+	
+	
+	if(replay_version_check(0,43))
+	{
+		if(getSwordClk() > 0)
+			setSwordClk(getSwordClk()-1);
+		if(getItemClk() > 0)
+			setItemClk(getItemClk()-1);
+		if(getShieldClk() > 0)
+			setShieldClk(getShieldClk()-1);
+	}
+	
 	if(inwallm)
 	{
 		attackclk=0;

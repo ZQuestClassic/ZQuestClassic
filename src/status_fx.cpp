@@ -1,6 +1,7 @@
 #include "status_fx.h"
 #include "base/misctypes.h"
 #include "zc/decorations.h" // why is decorations.h in "/zc"?
+#include "zc/replay.h"
 #include <set>
 
 using std::set;
@@ -97,11 +98,13 @@ void StatusData::tick_timers(std::function<void(EntityStatus const&, word, int32
 	
 	for(word q = 0; q < NUM_STATUSES; ++q)
 	{
+		if(q <= STATUS_JINX_SHIELD && replay_version_check(0,43))
+			; // don't decrement the jinxes here for old quests
+		else if(status_timers[q] > 0)
+			--status_timers[q];
 		if(status_timers[q])
 		{
 			auto stat = get_status(q);
-			if(status_timers[q] > 0)
-				--status_timers[q];
 			
 			if(stat.sprite_hide)
 				main_spr_hidden = true;
@@ -125,7 +128,7 @@ void StatusData::tick_timers(std::function<void(EntityStatus const&, word, int32
 			if(stat.bunny)
 				bunny = true;
 			
-			if(status_timers[q] && (stat.visual_sprite || stat.visual_tile))
+			if(stat.visual_sprite || stat.visual_tile)
 			{
 				auto& cur_spr_map = stat.visual_under ? underlay : overlay;
 				auto& other_spr_map = stat.visual_under ? overlay : underlay;
