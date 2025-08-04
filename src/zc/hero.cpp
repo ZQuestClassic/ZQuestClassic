@@ -1329,7 +1329,7 @@ void HeroClass::setSwordClk(int32_t newclk)
 	if(replay_version_check(0,43))
 	{
 		status.jinx_melee = newclk != 0;
-		verifyAWpn();
+		if(!status.jinx_melee) verifyAWpn();
 	}
 }
 void HeroClass::setItemClk(int32_t newclk)
@@ -1704,7 +1704,7 @@ void HeroClass::init()
 		delete lift_wpn;
 		lift_wpn = nullptr;
 	}
-	status.reset();
+	status.reset(true);
 	clear_platform_ffc();
 	liftclk = 0;
 	tliftclk = 0;
