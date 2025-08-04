@@ -11688,7 +11688,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						run = true;
 					else if((bt->flags & BTFLAG_CUREITJINX) && getItemClk())
 						run = true;
-					else if((bt->flags & BTFLAG_CURESHJINX) && shieldjinxclk)
+					else if((bt->flags & BTFLAG_CURESHJINX) && getShieldClk())
 						run = true;
 				}
 				if(run || (bt->flags&BTFLAG_ALLOWIFFULL))
