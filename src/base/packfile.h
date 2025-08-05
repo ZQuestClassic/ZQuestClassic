@@ -406,13 +406,27 @@ inline bool p_getstr(char *str, size_t sz, PACKFILE *f)
 		readsize += read;
 	return success;
 }
+
+static std::optional<std::unique_ptr<char[]>> allocate_string_buffer(size_t sz)
+{
+	// A 100+ MB string is far beyond a reasonable size. File must be corrupt.
+	if (sz >= 1e+8)
+		return std::nullopt;
+
+	auto buf2 = std::make_unique<char[]>(sz + 1);
+	buf2[sz] = '\0';
+	return buf2;
+}
+
 inline bool p_getstr(string *str, size_t sz, PACKFILE *f)
 {
-	auto buf = std::make_unique<char[]>(sz + 1);
-	buf[sz] = '\0';
-	if (!pfread(buf.get(), sz, f))
+	auto buf = allocate_string_buffer(sz);
+	if (!buf.has_value())
 		return false;
-	*str = buf.get();
+
+	if (!pfread(buf->get(), sz, f))
+		return false;
+	*str = buf->get();
 	return true;
 }
 inline bool p_putstr(char const* str, size_t sz, PACKFILE *f)
@@ -873,11 +887,12 @@ inline bool p_getwstr(string *str, PACKFILE *f)
 	if(sz)
 	{
 		str->reserve(sz);
-		auto buf = std::make_unique<char[]>(sz + 1);
-		buf[sz] = '\0';
-		if (!pfread(buf.get(), sz, f))
+		auto buf = allocate_string_buffer(sz);
+		if (!buf.has_value())
 			return false;
-		*str = buf.get();
+		if (!pfread(buf->get(), sz, f))
+			return false;
+		*str = buf->get();
 	}
 	return true;
 }
@@ -905,11 +920,12 @@ inline bool p_getlstr(string *str, PACKFILE *f)
 	if(sz)
 	{
 		str->reserve(sz);
-		auto buf = std::make_unique<char[]>(sz + 1);
-		buf[sz] = '\0';
-		if (!pfread(buf.get(), sz, f))
+		auto buf = allocate_string_buffer(sz);
+		if (!buf.has_value())
 			return false;
-		*str = buf.get();
+		if (!pfread(buf->get(), sz, f))
+			return false;
+		*str = buf->get();
 	}
 	return true;
 }
