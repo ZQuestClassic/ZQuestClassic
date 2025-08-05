@@ -372,9 +372,9 @@ public:
 	bool nextcombo_wf(int32_t d);
 	bool nextcombo_solid(int32_t d);
 	
-	bool check_ewpn_collide(weapon* w);
+	int ewpn_collide_defend(weapon* w, int32_t& power, int32_t& hdir);
 	bool try_lwpn_hit(weapon* w);
-	bool try_ewpn_hit(weapon* w, bool force = false);
+	int try_ewpn_hit(weapon* w);
 	void checkhit();
 	
 	void doHit(int32_t hitdir, int iframes = 48);
@@ -432,7 +432,9 @@ public:
 	void run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
 	void calc_darkroom_hero(int32_t x1, int32_t y1);
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
-	int32_t defend(weapon *w);
+	bool shield_block_ew(weapon* w);
+	int32_t old_defend(weapon *w);
+	int32_t defend(weapon *w, int32_t& power, int32_t& hdir);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	int getHammerState() const;
 	bool handle_portal_collide(portal* p);
@@ -464,7 +466,7 @@ private:
 #define CMPDIR_RIGHT 0x8
 	int32_t compareDir(int32_t other);
 	
-	int32_t  EwpnHit();
+	bool EwpnHit();
 	int32_t  LwpnHit();
 	void heroDeathAnimation();
 	void win_game();
@@ -607,8 +609,6 @@ public:
 	
 	void sethitHeroUID(int32_t type, int32_t screen);
 	void ClearhitHeroUIDs();
-	void set_defence(int32_t def, int32_t v);
-	int32_t get_defence(int32_t def);
 	int32_t gethitHeroUID(int32_t type);
 	
 	void setHurtSFX(int32_t sfx); //Set Hero;s hurt sfx
@@ -667,6 +667,7 @@ bool usekey(int32_t num);
 int32_t enemy_dp(int32_t index);
 int32_t ewpn_dp(int32_t index);
 int32_t lwpn_dp(int32_t index);
+int32_t wpn_dp(weapon* w);
 bool checkbunny(int32_t itemid);
 bool usesSwordJinx(int32_t itemid);
 bool checkitem_jinx(int32_t itemid);

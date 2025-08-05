@@ -1020,6 +1020,10 @@ static GUI::ListData compatRulesList
 	{ "Old Weapon Reflection", qr_OLD_WEAPON_REFLECTION,
 		"If checked, some weapon types will not be reflected by mirror/prism combos, regardless of"
 		" the 'Reflect Flags' of the combos." },
+	{ "Old Broken Hero Defenses", qr_OLD_BROKEN_HERO_DEFENSES,
+		"If checked, Hero defenses will work how they did in 2.55. Many of them were not implemented"
+		" correctly (ex. Stun did Stun+Damage), and the defense effect would apply even if the weapon"
+		" was blocked/reflected with a shield." },
 };
 
 static GUI::ListData enemiesRulesList

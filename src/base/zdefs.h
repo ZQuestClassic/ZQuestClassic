@@ -173,7 +173,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ZINFO            4
 
 // not 'real' sections, just separate version numbers
-#define V_COMPATRULE       85
+#define V_COMPATRULE       86
 #define V_WEAP_DATA        0
 
 //= V_SHOPS is under V_MISC

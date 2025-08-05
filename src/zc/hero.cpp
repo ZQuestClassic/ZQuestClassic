@@ -691,17 +691,6 @@ int32_t HeroClass::gethitHeroUID(int32_t type)
 	return lastHitBy[type][0];
 }
 
-void HeroClass::set_defence(int32_t type, int32_t v)
-{
-	defence[type] = v;
-}
-
-int32_t HeroClass::get_defence(int32_t type)
-{
-	return defence[type];
-}
-
-
 //Set Hero;s hurt sfx
 void HeroClass::setHurtSFX(int32_t sfx)
 {
@@ -5658,12 +5647,165 @@ void HeroClass::check_wand_block(weapon *w)
     }
 }
 
-//defend results should match defence types. 
-//RETURN VALUES: 
-// -1 iGNORE WEAPON
+// Do we do damage?
+// < 0: damage (if any) dealt
+// > 0: blocked
+// 0: weapon passes through unhindered
+int32_t HeroClass::defend(weapon* w, int32_t& power, int32_t& hdir)
+{
+	int32_t def = conv_edef_unblockable(status.get_defense(w->id, defence[w->id]), w->unblockable);
+	switch(def)
+	{
+		case edNORMAL:
+			return -1;
+		case edHALFDAMAGE:
+			power /= 2;
+			return -1;
+		case edQUARTDAMAGE:
+			power /= 4;
+			return -1;
+		case edSTUNONLY:
+			setStunClock(120);
+			power = 0;
+			hdir = -1;
+			return -1;
+		case edSTUNORCHINK:
+			if(power > 0)
+			{
+				setStunClock(120);
+				power = 0;
+				hdir = -1;
+				return -1;
+			}
+			sfx(WAV_CHINK,pan(int32_t(x)));
+			w->dead = 0;
+			return 1;
+		case edSTUNORIGNORE:
+			if(power > 0)
+			{
+				setStunClock(120);
+				power = 0;
+				hdir = -1;
+				return -1;
+			}
+			return 0;
+		case edCHINKL1:
+			if(power < 1)
+			{
+				sfx(WAV_CHINK,pan(int32_t(x)));
+				w->dead = 0;
+				return 1;
+			}
+			return -1;
+		case edCHINKL2:
+			if(power < 2)
+			{
+				sfx(WAV_CHINK,pan(int32_t(x)));
+				w->dead = 0;
+				return 1;
+			}
+			return -1;
+		case edCHINKL4:
+			if(power < 4)
+			{
+				sfx(WAV_CHINK,pan(int32_t(x)));
+				w->dead = 0;
+				return 1;
+			}
+			return -1;
+		case edCHINKL6:
+			if(power < 6)
+			{
+				sfx(WAV_CHINK,pan(int32_t(x)));
+				w->dead = 0;
+				return 1;
+			}
+			return -1;
+		case edCHINKL8:
+			if(power < 8)
+			{
+				sfx(WAV_CHINK,pan(int32_t(x)));
+				w->dead = 0;
+				return 1;
+			}
+			return -1;
+		case edCHINKL10:
+			if(power < 10)
+			{
+				sfx(WAV_CHINK,pan(int32_t(x)));
+				w->dead = 0;
+				return 1;
+			}
+			return -1;
+		case edCHINK:
+			sfx(WAV_CHINK,pan(int32_t(x)));
+			w->dead = 0;
+			return 1;
+		case edIGNOREL1:
+			if(power < 1)
+				return 0;
+			return -1;
+		case edIGNORE:
+			return 0;
+		case ed1HKO:
+			power = MAX_ZSCRIPT_INT;
+			return -1;
+		case ed2x:
+			power *= 2;
+			return -1;
+		case ed3x:
+			power *= 3;
+			return -1;
+		case ed4x:
+			power *= 4;
+			return -1;
+		case edHEAL:
+			power *= -1;
+			return -1;
+		case edTRIGGERSECRETS:
+			trigger_secrets_for_screen(TriggerSource::Unspecified, hero_screen, false);
+			return -1;
+		case edBREAKSHIELD:
+		{
+			power = 0;
+			w->dead = 0;
+			auto itemid = getCurrentShield();
+			if(itemsbuf[itemid].flags&item_edible) // break current shield if marked as removable
+				game->set_item(itemid, false);
+			return 1;
+		}
+		
+		case edSWITCH: // switch with the parent enemy of the weapon, if such exists. Else, ignore.
+		{
+			if(Hero.switchhookclk) return 0; //Already switching!
+			if(w->parentid < 0) return 0; // no eligible switch
+			enemy* e = (enemy*)guys.getByUID(w->parentid);
+			if(!e) return 0; // sanity check
+			switch(e->family) // invalid enemy families
+			{
+				case eeAQUA: case eeMOLD: case eeDONGO: case eeMANHAN: case eeGLEEOK:
+				case eeDIG: case eeGHOMA: case eeLANM: case eePATRA: case eeGANON:
+					return 0;
+			}
+			hooked_comborpos = rpos_t::None;
+			hooked_layerbits = 0;
+			switching_object = e;
+			switch_hooked = true;
+			doSwitchHook(game->get_switchhookstyle());
+			if(QMisc.miscsfx[sfxSWITCHED])
+				sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+			return 1;
+		}
+	}
+	return -1;
+}
+
+
+//Jank return values:
+// -1 Ignore weapon
 // 0 No effects
 // 1 Effects, weapon is not ignored or removed
-int32_t HeroClass::defend(weapon *w)
+int32_t HeroClass::old_defend(weapon *w)
 {
 	int32_t def = conv_edef_unblockable(status.get_defense(w->id, defence[w->id]), w->unblockable);
 	switch(def)
@@ -6109,12 +6251,57 @@ static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool bo
 	return false;
 }
 
-bool HeroClass::check_ewpn_collide(weapon* w)
+bool HeroClass::shield_block_ew(weapon* w)
 {
-	if(w->ignoreHero || w->fallclk|| w->drownclk)
+	switch(w->id)
+	{
+		case ewLitBomb:
+		case ewBomb:
+		case ewLitSBomb:
+		case ewSBomb:
+			return false;
+	}
+	int32_t itemid = getCurrentShield(false);
+	if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
 		return false;
+	itemdata const& shield = itemsbuf[itemid];
+	bool allow_inactive = (shield.flags & item_flag9);
+	auto cmpdir = compareDir(w->dir);
+	bool hitshield = compareShield(cmpdir, shield);
+	
+	if(!allow_inactive && ((lift_wpn && (liftflags & LIFTFL_DIS_SHIELD)) || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF))
+		return false;
+	
+	if(!hitshield)
+		return false;
+	
+	paymagiccost(itemid);
+	
+	bool reflect = false;
+	
+	if(!sh_check(shield.misc1, shield.misc2, w->id, reflect, w->type&1, true))
+		return false;
+	
+	if(reflect && (w->unblockable&WPNUNB_REFL))
+		reflect = false;
+	if(!reflect && (w->unblockable&WPNUNB_SHLD))
+		return false;
+	
+	int32_t oldid = w->id;
+	w->onhit(false, reflect ? 2 : 1, dir);
+	
+	sfx(shield.usesound,pan(x.getInt()));
+	return true;
+}
+// -1 = no collide, quit looping
+// 0 = no collide, keep looping
+// 1 = collide
+int HeroClass::ewpn_collide_defend(weapon* w, int32_t& power, int32_t& hdir)
+{
 	if(!w->hit(x+7,y+7-fakez,z,2,2,1))
-		return false;
+		return 0;
+	if(w->ignoreHero || w->fallclk|| w->drownclk)
+		return -1;
 	
 	int32_t stompid = current_item_id(itype_stompboots);
 	
@@ -6128,146 +6315,48 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 		{
 			w->onhit(false);
 			sfx(WAV_CHINK,pan(x.getInt()));
-			return false;
+			return 0;
 		}
 	}
-
-	int32_t defresult = defend(w);
-	if ( defresult == -1 ) return false; //The weapon did something special, but it is otherwise ignored, possibly killed by defend(). 
-		
-	if(w->id==ewWind)
+	
+	if(get_qr(qr_OLD_BROKEN_HERO_DEFENSES))
 	{
-		xofs=1000;
-		action=freeze; FFCore.setHeroAction(freeze);
-		w->misc=999;                                         // in enemy wind
-		attackclk=0;
-		return false;
+		int32_t defresult = old_defend(w);
+		if ( defresult == -1 )
+			return -1; //The weapon did something special, but it is otherwise ignored, possibly killed.
 	}
 	
-	switch(w->id)
+	if(shield_block_ew(w)) return 0;
+	
+	if(!get_qr(qr_OLD_BROKEN_HERO_DEFENSES))
 	{
-		case ewLitBomb:
-		case ewBomb:
-		case ewLitSBomb:
-		case ewSBomb:
-			return true;
+		auto res = defend(w, power, hdir);
+		if(res > 0) return -1; // blocked
+		if(res == 0) return 0; // ignored
+		// fallthrough for hit
 	}
 	
-	int32_t itemid = getCurrentShield(false);
-	if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
-		return true;
-	itemdata const& shield = itemsbuf[itemid];
-	bool allow_inactive = (shield.flags & item_flag9);
-	auto cmpdir = compareDir(w->dir);
-	bool hitshield = compareShield(cmpdir, shield);
-	
-	if(!allow_inactive && ((lift_wpn && (liftflags & LIFTFL_DIS_SHIELD)) || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF))
-		return true;
-	
-	if(!hitshield)
-		return true;
-	
-	paymagiccost(itemid);
-	
-	bool reflect = false;
-	
-	if(!sh_check(shield.misc1, shield.misc2, w->id, reflect, w->type&1, true))
-		return true;
-	
-	if(reflect && (w->unblockable&WPNUNB_REFL))
-		reflect = false;
-	if(!reflect && (w->unblockable&WPNUNB_SHLD))
-		return true;
-	
-	int32_t oldid = w->id;
-	w->onhit(false, reflect ? 2 : 1, dir);
-	
-	sfx(shield.usesound,pan(x.getInt()));
-	return true;
+	if(w->id == ewWind) // special ewWind handling if not blocked/ignored
+	{
+		xofs = 1000;
+		action = freeze;
+		FFCore.setHeroAction(freeze);
+		w->misc = 999; // in enemy wind
+		attackclk = 0;
+		return -1;
+	}
+	return 1;
 }
 
-int32_t HeroClass::EwpnHit()
+bool HeroClass::EwpnHit()
 {
-	for(int32_t i=0; i<Ewpns.Count(); i++)
+	for(size_t q = 0; q < Ewpns.Count(); ++q)
 	{
-		if(Ewpns.spr(i)->hit(x+7,y+7-fakez,z,2,2,1))
-		{
-			weapon *ew = (weapon*)(Ewpns.spr(i));
-			
-			if((ew->ignoreHero)==true || ew->fallclk|| ew->drownclk)
-				break;
-			
-			int32_t stompid = current_item_id(itype_stompboots);
-			
-			if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
-			((z+fakez) > (ew->z+(ew->fakez))) ||
-			((isSideViewHero() && (y+16)-(ew->y)<=14) && falling_oldy<y)))
-			{
-				itemdata const& stomp = itemsbuf[stompid];
-				bool reflect = false; //unused, always false
-				if(!sh_check(stomp.misc2, 0, ew->id, reflect, ew->type&1, true))
-				{
-					ew->onhit(false);
-					sfx(WAV_CHINK,pan(x.getInt()));
-					continue;
-				}
-			}
-		
-			int32_t defresult = defend(ew);
-			if ( defresult == -1 ) return -1; //The weapon did something special, but it is otherwise ignored, possibly killed by defend(). 
-				
-			if(ew->id==ewWind)
-			{
-				xofs=1000;
-				action=freeze; FFCore.setHeroAction(freeze);
-				ew->misc=999;                                         // in enemy wind
-				attackclk=0;
-				return -1;
-			}
-			
-			switch(ew->id)
-			{
-				case ewLitBomb:
-				case ewBomb:
-				case ewLitSBomb:
-				case ewSBomb:
-					return i;
-			}
-			
-			int32_t itemid = getCurrentShield(false);
-			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
-				return i;
-			itemdata const& shield = itemsbuf[itemid];
-			bool allow_inactive = (shield.flags & item_flag9);
-			auto cmpdir = compareDir(ew->dir);
-			bool hitshield = compareShield(cmpdir, shield);
-			
-			if(!allow_inactive && ((lift_wpn && (liftflags & LIFTFL_DIS_SHIELD)) || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF))
-				return i;
-			
-			if(!hitshield)
-				return i;
-			
-			paymagiccost(itemid);
-			
-			bool reflect = false;
-			
-			if(!sh_check(shield.misc1, shield.misc2, ew->id, reflect, ew->type&1, true))
-				return i;
-			
-			if(reflect && (ew->unblockable&WPNUNB_REFL))
-				reflect = false;
-			if(!reflect && (ew->unblockable&WPNUNB_SHLD))
-				return i;
-			
-			int32_t oldid = ew->id;
-			ew->onhit(false, reflect ? 2 : 1, dir);
-			
-			sfx(shield.usesound,pan(x.getInt()));
-		}
+		auto v = try_ewpn_hit((weapon*)Ewpns.spr(q));
+		if(v) return v > 0;
 	}
 	
-	return -1;
+	return false;
 }
 
 int32_t HeroClass::LwpnHit()                                    //only here to check magic hits
@@ -6371,7 +6460,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 			}
 			if(!divineprot)
 			{
-				game->set_life(zc_max(game->get_life()-dmg,0));
+				game->set_life(vbound(game->get_life()-dmg,game->get_maxlife(), 0));
 				if (!get_qr(qr_BROKENHITBY) && w)
 				{
 					sethitHeroUID(HIT_BY_LWEAPON,(indx+1));
@@ -6543,20 +6632,20 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 	return false;
 }
 
-bool HeroClass::try_ewpn_hit(weapon* w, bool force)
+int HeroClass::try_ewpn_hit(weapon* w)
 {
-	if(!force)
-	{
-		if(!check_ewpn_collide(w))
-			return false;
-		if(w->ignoreHero || w->fallclk|| w->drownclk)
-			return false;
-	}
+	int32_t dmg = wpn_dp(w);
+	int32_t hdir = w->hitdir(x,y,16,16,dir);
+	
+	auto res = ewpn_collide_defend(w, dmg, hdir);
+	if(res <= 0)
+		return res;
+	
 	auto indx = Ewpns.find(w);
 	std::vector<int32_t> &ev = FFCore.eventData;
 	ev.clear();
-	ev.push_back((ewpn_dp(indx)*10000));
-	ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
+	ev.push_back(dmg*10000);
+	ev.push_back(hdir*10000);
 	ev.push_back(0);
 	ev.push_back(DivineProtectionShieldClk>0?10000:0);
 	ev.push_back(48*10000);
@@ -6566,22 +6655,22 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 	ev.push_back(0);
 	
 	throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
-	int32_t dmg = ev[0]/10000;
+	dmg = ev[0]/10000;
 	bool nullhit = ev[2] != 0;
 	
-	if(nullhit) {ev.clear(); return false;}
+	if(nullhit) {ev.clear(); return 1;}
 	
 	//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
 	ev[0] = ringpower(dmg)*10000;
 	
 	throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
 	dmg = ev[0]/10000;
-	int32_t hdir = ev[1]/10000;
+	hdir = ev[1]/10000;
 	nullhit = ev[2] != 0;
 	bool divineprot = ev[3] != 0;
 	int32_t iframes = ev[4] / 10000;
 	ev.clear();
-	if (nullhit) return false;
+	if (nullhit) return 1;
 	if (Ewpns.spr(indx) != w)
 	{
 		indx = Ewpns.find(w);
@@ -6591,7 +6680,7 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 	}
 	if (!divineprot)
 	{
-		game->set_life(zc_max(game->get_life() - dmg, 0));
+		game->set_life(vbound(game->get_life() - dmg, game->get_maxlife(), 0));
 		if (w)
 		{
 			sethitHeroUID(HIT_BY_EWEAPON, (indx + 1));
@@ -6605,7 +6694,7 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 		w->hit_pierce();
 	
 	doHit(hdir, iframes);
-	return true;
+	return 1;
 }
 
 void HeroClass::checkhit()
@@ -7007,65 +7096,8 @@ void HeroClass::checkhit()
 	
 	//else  { sethitHeroUID(HIT_BY_LWEAPON,(0));  //fails to clear
 	
-	hit2 = EwpnHit();
-	
-	if(hit2!=-1)
-	{
-		weapon* ewpnspr = (weapon*)Ewpns.spr(hit2);
-		std::vector<int32_t> &ev = FFCore.eventData;
-		ev.clear();
-		ev.push_back((ewpn_dp(hit2)*10000));
-		ev.push_back(ewpnspr->hitdir(x,y,16,16,dir)*10000);
-		ev.push_back(0);
-		ev.push_back(DivineProtectionShieldClk>0?10000:0);
-		ev.push_back(48*10000);
-		ev.push_back(ZSD_EWPN*10000);
-		ev.push_back(ewpnspr->getUID());
-		ev.push_back(ZSD_NONE*10000);
-		ev.push_back(0);
-		
-		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
-		int32_t dmg = ev[0]/10000;
-		bool nullhit = ev[2] != 0;
-		
-		if(nullhit) {ev.clear(); return;}
-		
-		//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
-		ev[0] = ringpower(dmg)*10000;
-		
-		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
-		dmg = ev[0]/10000;
-		int32_t hdir = ev[1]/10000;
-		nullhit = ev[2] != 0;
-		bool divineprot = ev[3] != 0;
-		int32_t iframes = ev[4] / 10000;
-		ev.clear();
-		if (nullhit) return;
-		if (Ewpns.spr(hit2) != ewpnspr)
-		{
-			hit2 = Ewpns.find(ewpnspr);
-			if (hit2 < 0)
-				ewpnspr = nullptr;
-			else ewpnspr = (weapon*)Ewpns.spr(hit2);
-		}
-		if (!divineprot)
-		{
-			game->set_life(zc_max(game->get_life() - dmg, 0));
-			if (ewpnspr)
-			{
-				sethitHeroUID(HIT_BY_EWEAPON, (hit2 + 1));
-				sethitHeroUID(HIT_BY_EWEAPON_UID, ewpnspr->getUID());
-				sethitHeroUID(HIT_BY_EWEAPON_ENGINE_UID, ewpnspr->getUID());
-				sethitHeroUID(HIT_BY_EWEAPON_TYPE, ewpnspr->id);
-			}
-		}
-		
-		if(ewpnspr)
-			ewpnspr->hit_pierce();
-		
-		doHit(hdir, iframes);
+	if(EwpnHit())
 		return;
-	}
 	
 	// The rest of this method deals with damage combos, which can be jumped over.
 	if((z>0 || fakez>0) && !(hero_scr->flags2&fAIRCOMBOS)) return;
@@ -30288,6 +30320,11 @@ int32_t ewpn_dp(int32_t index)
 int32_t lwpn_dp(int32_t index)
 {
     return (((weapon*)Lwpns.spr(index))->power)*(game->get_ene_dmgmult());
+}
+
+int32_t wpn_dp(weapon* w)
+{
+	return w->power * game->get_ene_dmgmult();
 }
 
 bool checkbunny(int32_t itemid)

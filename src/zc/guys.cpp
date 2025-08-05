@@ -2207,9 +2207,10 @@ int32_t conv_edef_unblockable(int32_t edef, byte unblockable)
 }
 
 // Do we do damage?
-// 0: takehit returns 0
-// 1: takehit returns 1
-// -1: do damage
+// 2 or -2: force wait a frame
+// < 0: damage (if any) dealt
+// > 0: blocked
+// 0: weapon passes through unhindered
 //The input from resolveEnemyDefence() for the param 'edef' is negative if a specific defence RESULT is being used.
 int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable) //May need *wpn to set return on brangs and hookshots
 {
@@ -3276,9 +3277,10 @@ bool enemy::candamage(int32_t power, int32_t edef, byte unblockable)
 }
 
 // Do we do damage?
-// 0: takehit returns 0
-// 1: takehit returns 1
-// -1: do damage
+// 2 or -2: force wait a frame
+// < 0: damage (if any) dealt
+// > 0: blocked
+// 0: weapon passes through unhindered
 int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
 {
 	if(shieldCanBlock)
