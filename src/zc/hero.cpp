@@ -626,6 +626,17 @@ void HeroClass::setBunnyClock(int32_t v)
 		status.bunny = v != 0;
 }
 
+int32_t HeroClass::getStatusClock(word status_id)
+{
+	if(status_id >= NUM_STATUSES) return 0;
+	return status.status_timers[status_id];
+}
+void HeroClass::setStatusClock(word status_id, int32_t v)
+{
+	if(status_id >= NUM_STATUSES) return;
+	status.status_timers[status_id] = v;
+}
+
 HeroClass::HeroClass() : sprite()
 {
 	lift_wpn = nullptr;

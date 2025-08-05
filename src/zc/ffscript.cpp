@@ -8431,6 +8431,24 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGSTATUSTYPE:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_statustype * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGSTATUSTIME:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_statustime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
 		case CMBTRIGPUSHTIME:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
@@ -15990,6 +16008,22 @@ void set_register(int32_t arg, int32_t value)
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 			{
 				trig->trig_bunnytime = zc_max(value/10000, -2);
+			}
+			break;
+		}
+		case CMBTRIGSTATUSTYPE:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_statustype = vbound(value/10000, NUM_STATUSES, 0);
+			}
+			break;
+		}
+		case CMBTRIGSTATUSTIME:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_statustime = zc_max(value/10000, -2);
 			}
 			break;
 		}

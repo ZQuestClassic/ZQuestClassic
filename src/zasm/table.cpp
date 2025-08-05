@@ -3008,6 +3008,8 @@ static constexpr script_variable variable_list[]=
 	{ "SCREENDATAEXRESET", MAPDATANORESETARR, 0 },
 	{ "MAPDATAEXCARRY", MAPDATANORESETARR, 0 },
 	{ "MAPDATAEXRESET", MAPDATANORESETARR, 0 },
+	{ "CMBTRIGSTATUSTYPE", CMBTRIGSTATUSTYPE, 0 },
+	{ "CMBTRIGSTATUSTIME", CMBTRIGSTATUSTIME, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.

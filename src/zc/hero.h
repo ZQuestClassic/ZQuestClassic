@@ -486,6 +486,8 @@ public:
 	void setStunClock(int32_t v);
 	int32_t getBunnyClock();
 	void setBunnyClock(int32_t v);
+	int32_t getStatusClock(word status_id);
+	void setStatusClock(word status_id, int32_t v);
 	HeroClass();
 	void init();
 	virtual void drawshadow(BITMAP* dest, bool translucent);

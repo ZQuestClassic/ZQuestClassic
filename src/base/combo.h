@@ -102,7 +102,9 @@ struct combo_trigger
 	int16_t trigtint[3]; //r,g,b range [-255,255]
 	int16_t triglvlpalette = -1, trigbosspalette = -1;
 	int16_t trigquaketime = -1, trigwavytime = -1;
-	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_shieldjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
+	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_shieldjinxtime = -2,
+		trig_stuntime = -2, trig_bunnytime = -2, trig_statustime = -2;
+	word trig_statustype = 5;
 	byte trig_pushtime = 8;
 	word prompt_cid, fail_prompt_cid;
 	byte prompt_cs, fail_prompt_cs;

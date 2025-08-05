@@ -2989,6 +2989,8 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 			Hero.setStunClock(trig.trig_stuntime);
 		if(trig.trig_bunnytime > -2)
 			Hero.setBunnyClock(trig.trig_bunnytime);
+		if(trig.trig_statustime > -2)
+			Hero.setStatusClock(trig.trig_statustype, trig.trig_statustime);
 	}
 	
 	if(trig.exstate > -1 && trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
