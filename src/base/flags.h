@@ -95,6 +95,7 @@ enum move_flags : uint32_t
 // TODO: create a separate enum for lweapons
 enum shield_flags : uint32_t
 {
+	sh_none                 = 0,
 	sh_rock                 = F(0),
 	sh_arrow                = F(1),
 	sh_brang                = F(2),

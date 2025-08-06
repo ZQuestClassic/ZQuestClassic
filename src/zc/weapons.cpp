@@ -6241,51 +6241,71 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 	
 	return true;
 }
+shield_flags weapon::get_refl_flag() const
+{
+	switch(id)
+	{
+		case wMagic: case wRefMagic: case ewMagic:
+			return sh_magic;
+		case wWind:
+			return sh_lw_wind;
+		case ewWind:
+			return sh_ew_wind;
+		case wBeam: case wRefBeam: case ewSword:
+			return sh_sword;
+		case wScript1:
+			return sh_script | sh_script1;
+		case wScript2:
+			return sh_script | sh_script2;
+		case wScript3:
+			return sh_script | sh_script3;
+		case wScript4:
+			return sh_script | sh_script4;
+		case wScript5:
+			return sh_script | sh_script5;
+		case wScript6:
+			return sh_script | sh_script6;
+		case wScript7:
+			return sh_script | sh_script7;
+		case wScript8:
+			return sh_script | sh_script8;
+		case wScript9:
+			return sh_script | sh_script9;
+		case wScript10:
+			return sh_script | sh_script10;
+		case ewRock: case wRefRock:
+			return sh_rock;
+		case wArrow: case ewArrow: case wRefArrow:
+			return sh_arrow;
+		case ewFireball: case ewFireball2: case wRefFireball:
+			return (type&1) ? sh_fireball2 : sh_fireball;
+		case wFire: case ewFlame: case wRefFire:
+			return sh_flame;
+		case ewFlame2: case wRefFire2:
+			return sh_flame2;
+	}
+	return sh_none;
+}
 bool weapon::do_mirror() // returns true if animate needs to early-break
 {
-	dword refl_flag = 0;
+	dword refl_flag = get_refl_flag();
 	bool can_duplicate = true;
 	bool block_check = false;
 	bool ret_ignorecombo = false, ret_fail = false;
 	switch(id)
 	{
 		case wMagic: case wRefMagic: case ewMagic:
-			refl_flag = sh_magic;
 			block_check = true;
 			ret_fail = true;
 			break;
 		case wWind:
 			can_duplicate = false;
 			block_check = true;
-			refl_flag = sh_lw_wind;
 			ret_fail = true;
-			break;
-		case ewWind:
-			refl_flag = sh_ew_wind;
 			break;
 		case wBeam: case wRefBeam: case ewSword:
-			refl_flag = sh_sword;
 			ret_ignorecombo = true;
 			ret_fail = true;
-			break;
-		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
-		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
-			refl_flag = sh_script | (sh_script1 << (id-wScript1));
-			break;
-		case ewRock: case wRefRock:
-			refl_flag = sh_rock;
-			break;
-		case wArrow: case ewArrow: case wRefArrow:
-			refl_flag = sh_arrow;
-			break;
-		case ewFireball: case ewFireball2: case wRefFireball:
-			refl_flag = (type&1) ? sh_fireball2 : sh_fireball;
-			break;
-		case wFire: case ewFlame: case wRefFire:
-			refl_flag = sh_flame;
-			break;
-		case ewFlame2: case wRefFire2:
-			refl_flag = sh_flame2;
 			break;
 	}
 	

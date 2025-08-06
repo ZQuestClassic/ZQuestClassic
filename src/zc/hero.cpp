@@ -6151,103 +6151,20 @@ bool compareShield(int32_t cmpdir, itemdata const& shield)
 	return false;
 }
 
-static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool boss, bool defret)
+static bool sh_check(uint fl_block, uint fl_ref, weapon* w, bool& reflect, bool defret)
 {
+	bool boss = w->type & 1;
 	reflect = false;
-	switch(wty)
+	
+	auto refl_flag = w->get_refl_flag();
+	if(!refl_flag)
+		return defret;
+	if((w->id == ewFlame2 || w->id == wRefFire2) && get_qr(qr_BROKEN_FLAME_ARROW_REFLECTING))
+		return true;
+	if(fl_block & refl_flag)
 	{
-		case ewBrang:
-			if(!(fl_block & sh_brang)) break;
-			
-			reflect = ((fl_ref & sh_brang) != 0);
-			return true;
-		case ewArrow:
-		case wRefArrow:
-			if(!(fl_block & sh_arrow)) break;
-			
-			reflect = ((fl_ref & sh_arrow) != 0);
-			return true;
-			
-		case ewRock:
-		case wRefRock:
-			if(!(fl_block & sh_rock)) break;
-			
-			reflect = ((fl_ref & sh_rock) != 0);
-			return true;
-		case ewFlame:
-		case wRefFire:
-			if(!(fl_block & sh_flame)) break;
-				
-			reflect = ((fl_ref & sh_flame) != 0);
-			return true;
-		case ewFlame2:
-		case wRefFire2:
-			if(get_qr(qr_BROKEN_FLAME_ARROW_REFLECTING))
-				return true;
-			if(!(fl_block & sh_flame2)) break;
-				
-			reflect = ((fl_ref & sh_flame2) != 0);
-			return true;
-			
-		case ewFireball2:
-		case ewFireball:
-		case wRefFireball:
-		{
-			int32_t mask = (boss ? sh_fireball2 : sh_fireball);
-			
-			if(!(fl_block & mask)) break;
-			
-			reflect = ((fl_ref & mask) != 0);
-			return true;
-		}
-		
-		case ewSword:
-		case wRefBeam:
-			if(!(fl_block & sh_sword)) break;
-			
-			reflect = ((fl_ref & sh_sword) != 0);
-			return true;
-			
-		case wRefMagic:
-		case ewMagic:
-			if(!(fl_block & sh_magic)) break;
-			
-			reflect = ((fl_ref & sh_magic) != 0);
-			return true;
-			
-		#define SCRIPT_SHBLOCK(scrfl) \
-			if(!(fl_block & (sh_script|scrfl))) break; \
-			reflect = ((fl_ref & (sh_script|scrfl)) != 0); \
-			return true
-		case wScript1: SCRIPT_SHBLOCK(sh_script1);
-		case wScript2: SCRIPT_SHBLOCK(sh_script2);
-		case wScript3: SCRIPT_SHBLOCK(sh_script3);
-		case wScript4: SCRIPT_SHBLOCK(sh_script4);
-		case wScript5: SCRIPT_SHBLOCK(sh_script5);
-		case wScript6: SCRIPT_SHBLOCK(sh_script6);
-		case wScript7: SCRIPT_SHBLOCK(sh_script7);
-		case wScript8: SCRIPT_SHBLOCK(sh_script8);
-		case wScript9: SCRIPT_SHBLOCK(sh_script9);
-		case wScript10: SCRIPT_SHBLOCK(sh_script10);
-		#undef SCRIPT_SHBLOCK
-		
-		case wWind:
-			if(!(fl_block & sh_lw_wind)) break;
-			
-			reflect = ((fl_ref & sh_lw_wind) != 0);
-			return true;
-		case ewWind:
-			if(!(fl_block & sh_ew_wind)) break;
-			
-			reflect = ((fl_ref & sh_ew_wind) != 0);
-			return true;
-		
-		case ewLitBomb:
-		case ewLitSBomb:
-			return true;
-		
-		default:
-			return defret;
+		reflect = ((fl_ref & refl_flag) != 0);
+		return true;
 	}
 	return false;
 }
@@ -6276,7 +6193,7 @@ bool HeroClass::shield_block_w(weapon* w)
 
 	bool reflect = false;
 
-	if (!sh_check(shield.misc1, shield.misc2, w->id, reflect, w->type & 1, true))
+	if (!sh_check(shield.misc1, shield.misc2, w, reflect, true))
 		return false;
 
 	if (reflect && (w->unblockable & WPNUNB_REFL))
@@ -6311,7 +6228,7 @@ int HeroClass::ewpn_collide_defend(weapon* w, int32_t& power, int32_t& hdir)
 	{
 		itemdata const& stomp = itemsbuf[stompid];
 		bool reflect = false; //unused, always false
-		if (!sh_check(stomp.misc2, 0, w->id, reflect, w->type & 1, true))
+		if (!sh_check(stomp.misc2, 0, w, reflect, true))
 		{
 			w->onhit(false);
 			sfx(WAV_CHINK, pan(x.getInt()));
@@ -6555,13 +6472,13 @@ bool HeroClass::try_lwpn_special_hit(weapon* w)
 
 			for (int32_t j = 0; j < Ewpns.Count(); j++)
 			{
-				sprite* t = Ewpns.spr(j);
+				weapon* t = (weapon*)Ewpns.spr(j);
 
 				if (w->hit(t->x + 7, t->y + 7 - t->fakez, t->z, 2, 2, 1))
 				{
 					bool reflect = false;
 					// sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
-					if (sh_check(itemsbuf[itemid].misc3, itemsbuf[itemid].misc4, t->id, reflect, ((weapon*)t)->type & 1, false))
+					if (sh_check(itemsbuf[itemid].misc3, itemsbuf[itemid].misc4, t, reflect, false))
 					{
 						w->dead = 1;
 						weapon* ew = ((weapon*)t);
