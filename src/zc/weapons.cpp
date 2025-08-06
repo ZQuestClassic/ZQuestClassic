@@ -6444,7 +6444,8 @@ void weapon::collision_check()
 	if(isLWeapon)
 	{
 		check_enemy_lweapon_collision(this);
-		(void)Hero.try_lwpn_hit(this);
+		if(!Hero.try_lwpn_special_hit(this))
+			(void)Hero.try_lwpn_hit(this);
 	}
 	else
 	{
