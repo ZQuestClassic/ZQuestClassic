@@ -27,8 +27,7 @@ HeroEditorDialog::HeroEditorDialog():
 	list_animations(GUI::ZCListData::heroanimations()),
 	list_swimtypes(GUI::ZCListData::swimtypes())
 {
-	memcpy(local_defenses, hero_defenses, sizeof(hero_defenses));
-	
+	local_defenses = hero_defenses;
 }
 
 std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
@@ -971,32 +970,9 @@ bool HeroEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		saved = false;
 		set_qr(qr_LTTPCOLLISION, local_biglink ? 1 : 0);
 		set_qr(qr_LTTPWALK, local_lttpwalk ? 1 : 0);
-
-		//Save Hero defenses
-		for (int32_t i = 0; i < wMax - wEnemyWeapons - 1; i++)
-		{
-			hero_defenses[wEnemyWeapons + i] = local_defenses[wEnemyWeapons + i];
-		}
-		hero_defenses[wFire] = local_defenses[wFire];
-		hero_defenses[wBomb] = local_defenses[wBomb];
-		hero_defenses[wRefMagic] = local_defenses[wRefMagic];
-		hero_defenses[wRefFireball] = local_defenses[wRefFireball];
-		hero_defenses[wRefRock] = local_defenses[wRefRock];
-		hero_defenses[wRefBeam] = local_defenses[wRefBeam];
-
-		hero_defenses[wScript1] = local_defenses[wScript1];
-		hero_defenses[wScript2] = local_defenses[wScript2];
-		hero_defenses[wScript3] = local_defenses[wScript3];
-		hero_defenses[wScript4] = local_defenses[wScript4];
-		hero_defenses[wScript5] = local_defenses[wScript5];
-		hero_defenses[wScript6] = local_defenses[wScript6];
-		hero_defenses[wScript7] = local_defenses[wScript7];
-		hero_defenses[wScript8] = local_defenses[wScript8];
-		hero_defenses[wScript9] = local_defenses[wScript9];
-		hero_defenses[wScript10] = local_defenses[wScript10];
-
+		
+		hero_defenses = local_defenses;
 		return true;
-		break;
 	}
 	case message::CANCEL:
 	{
@@ -1028,7 +1004,6 @@ bool HeroEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		memcpy(liftingspr, oldLiftingSpr, 4 * 4 * sizeof(int32_t));
 		memcpy(liftingwalkspr, oldLiftingWalkSpr, 4 * 3 * sizeof(int32_t));
 		return true;
-		break;
 	}
 	}
 	return false;

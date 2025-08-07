@@ -416,8 +416,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	spr_death=d->spr_death;
 	spr_spawn=d->spr_spawn;
 	
-	for(int32_t i=0; i<edefLAST255; i++)
-		defense[i]=d->defense[i];
+	defense = d->defense;
 		
 	bgsfx=d->bgsfx;
 	hitsfx=d->hitsfx;
@@ -2047,112 +2046,23 @@ bool enemy::hitshield(int32_t wpnx, int32_t wpny, int32_t xdir)
 	return ret;
 }
 
-
-//! Weapon Editor for 2.6
-//To hell with this. I'm writing new functions to resolve weapon type and defence. -Z
-
-
-//converts a wqeapon ID to its defence index. 
-int32_t weaponToDefence(int32_t wid)
-{
-	switch(wid)
-	{
-		case wNone: return -1;
-		case wSword: return edefSWORD;
-		case wBeam: return edefBEAM;
-		case wBrang: return edefBRANG;
-		case wBomb: return edefBOMB;
-		case wSBomb: return edefSBOMB;
-		case wLitBomb: return edefBOMB;
-		case wLitSBomb: return edefSBOMB;
-		case wArrow: return edefARROW;
-		case wFire: return edefFIRE;
-		case wWhistle:
-		{
-			return edefWhistle;
-		}
-		case wBait: return edefBAIT;
-		case wWand: return edefWAND;
-		case wMagic: return edefMAGIC;
-		case wCatching: return -1;
-		case wWind: return edefWIND;
-		case wRefMagic: return edefREFMAGIC;
-		case wRefFireball: return edefREFBALL;
-		case wRefRock: return edefREFROCK;
-		case wHammer: return edefHAMMER;
-		case wHookshot: return edefHOOKSHOT;
-		case wHSHandle: return edefHOOKSHOT;
-		case wHSChain: return edefHOOKSHOT;
-		case wSSparkle: return edefSPARKLE;
-		case wFSparkle:  return edefSPARKLE;
-		case wSmack: return -1; // is this the candle object?
-		case wPhantom:  return -1; //engine created visual effects. 
-		case wCByrna: return edefBYRNA;
-		case wRefBeam:  return edefREFBEAM;
-		case wStomp: return edefSTOMP;
-		case wScript1:  return edefSCRIPT01;
-		case wScript2:  return edefSCRIPT02;
-		case wScript3:  return edefSCRIPT03;
-		case wScript4: return edefSCRIPT04;
-		case wScript5:  return edefSCRIPT05;
-		case wScript6:  return edefSCRIPT06;
-		case wScript7:  return edefSCRIPT07;
-		case wScript8: return edefSCRIPT08;
-		case wScript9:  return edefSCRIPT09;
-		case wScript10:  return edefSCRIPT10;
-		case wIce:  return edefICE;
-		case wSound: return edefSONIC;
-		case wThrown: return edefTHROWN;
-		case wRefArrow: return edefREFARROW;
-		case wRefFire: return edefREFFIRE;
-		case wRefFire2: return edefREFFIRE2;
-		//case wPot: return edefPOT;
-//		case wLitZap: return edefELECTRIC;
-//		case wZ3Sword: return edefZ3SWORD;
-//		case wLASWord: return edefLASWORD;
-//		case wSpinAttk: return edefSPINATTK;
-//		case wShield: return edefSHIELD;
-//		case wTrowel: return edefTROWEL;
-		
-		default: return -1;
-	}
-}
-
-int32_t getDefType(weapon *w)
-{
-	int32_t id = getWeaponID(w);
-	int32_t edef = weaponToDefence(id);
-	if(edef == edefHOOKSHOT)
-	{
-		if(w->family_class == itype_switchhook)
-			return edefSwitchHook;
-	}
-	return edef;
-}
-
 int32_t getWeaponID(weapon *w)
 {
 	int32_t usewpn = w->useweapon;
 	return (usewpn > 0) ? usewpn : w->id;
 }
 
+int32_t enemy::resolveEnemyDefence(int wtype, int usedef)
+{
+	if ( usedef > 0 && (unsigned(wtype) >= wMax || defense[wtype] == edNORMAL)) 
+		return usedef*-1;
+	else if(unsigned(wtype) < wMax)
+		return wtype;
+	return edNORMAL;
+}
 int32_t enemy::resolveEnemyDefence(weapon *w)
 {
-	//sword edef is 9, but we're reading it at 0
-	//, 
-	int32_t weapondef = 0;
-	int32_t wdeftype = getDefType(w);
-	int32_t usedef = w->usedefense;
-	
-	if ( usedef > 0 && (wdeftype < 0 || wdeftype >= edefLAST255 || defense[wdeftype] == 0)) 
-	{
-		weapondef = usedef*-1;
-	}
-	else if(unsigned(wdeftype) < edefLAST255)
-	{
-		weapondef = wdeftype;
-	}
-	return weapondef;
+	return resolveEnemyDefence(getWeaponID(w), w->usedefense);
 }
 
 byte get_def_ignrflag(int32_t edef)
@@ -2212,18 +2122,13 @@ int32_t conv_edef_unblockable(int32_t edef, byte unblockable)
 // > 0: blocked
 // 0: weapon passes through unhindered
 //The input from resolveEnemyDefence() for the param 'edef' is negative if a specific defence RESULT is being used.
-int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable) //May need *wpn to set return on brangs and hookshots
+int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable) //May need *wpn to set return on brangs and hookshots
 {
 	if(switch_hooked) return 0;
 	int32_t tempx = x;
 	int32_t tempy = y;
-	int32_t the_defence = 0;
-	if ( edef < 0 ) //we are using a specific base default defence for a weapon
-	{
-		the_defence = edef*-1; //A specific defence type. 
-	}
-	else the_defence = defense[edef];
-	
+	int32_t the_defence = edef < 0 ? (edef*-1) : defense[edef]; // either a specific resolution, or an index
+	//!TODO_STATUS enemy status defense overrides
 	the_defence = conv_edef_unblockable(the_defence, unblockable);
 	
 	if(shieldCanBlock && !(unblockable&WPNUNB_SHLD))
@@ -3019,10 +2924,9 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			[[fallthrough]];
 				
 		case edSTUNONLY:
-			if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSword) && stunclk>=159)
+			if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSwitchHook || wpnId==wSword) && stunclk>=159)
 			{
-			   // Z_message("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
-					return 1;
+				return 1;
 			}
 			if (stunclk)
 			{
@@ -3168,13 +3072,16 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 	return -1;
 }
 
-int32_t enemy::defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable, weapon* w)
+int32_t enemy::resolve_hit(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable, weapon* w)
 {
 	int wuid = w?w->getUID():0;
 	bool fakeweap = (w && !Lwpns.getByUID(wuid));
 	
 	if(fakeweap)
 		Lwpns.add(w);
+	bool old_edef = get_qr(qr_OLD_ENEMY_DEFENSE_SCRIPT_ACCESS) && edef >= 0;
+	if(old_edef) // swap to the old indexing
+		edef = wtype_to_edef(edef);
 	std::vector<int32_t> &ev = FFCore.eventData;
 	ev.clear();
 	ev.push_back(*power*10000);
@@ -3195,11 +3102,12 @@ int32_t enemy::defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte un
 	int ret = 0;
 	if(!nullify)
 	{
-		ret = defendNew(wpnId, power, edef, unblockable);
+		auto defty = old_edef ? edef_to_wtype(edef) : edef; // swap back if was using old edef
+		ret = defend(wpnId, power, defty, unblockable);
 		if(ret < 0)
 		{
 			ev.push_back(*power*10000);
-			ev.push_back(edef*10000);
+			ev.push_back(edef*10000); // still the old edef if it was previously
 			ev.push_back(unblockable*10000);
 			ev.push_back(wpnId*10000);
 			ev.push_back(0);
@@ -3218,33 +3126,10 @@ int32_t enemy::defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte un
 	return nullify ? 0 : ret;
 }
 
-int32_t enemy::defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w, weapon* realweap)
-{
-	if(!realweap) realweap = w;
-	int32_t wid = getWeaponID(w);
-
-	int32_t edef = resolveEnemyDefence(w);
-	if(QHeader.zelda_version > 0x250)
-		return defendNewInt(wid, power,  edef, w->unblockable, realweap);
-	switch(wid)
-	{
-		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
-		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
-			return defend(wpnId, power,  edefSCRIPT);
-
-		case wWhistle:
-			return -1;
-
-		default:
-			return defendNewInt(wid, power,  edef, w->unblockable, realweap);
-	}
-}
-
-
 // Check defenses without actually acting on them.
 bool enemy::candamage(int32_t power, int32_t edef, byte unblockable)
 {
-	switch(defense[edef])
+	switch(edef])
 	{
 	case edSTUNONLY:
 		return false;
@@ -3274,314 +3159,6 @@ bool enemy::candamage(int32_t power, int32_t edef, byte unblockable)
 	}
 	
 	return true;
-}
-
-// Do we do damage?
-// 2 or -2: force wait a frame
-// < 0: damage (if any) dealt
-// > 0: blocked
-// 0: weapon passes through unhindered
-int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
-{
-	if(shieldCanBlock)
-	{
-		switch(defense[edef])
-		{
-		case edIGNORE:
-			return 0;
-		case edIGNOREL1:
-		case edSTUNORIGNORE:
-			if(*power <= 0)
-				return 0;
-		}
-		
-		sfx(WAV_CHINK,pan(int32_t(x)));
-		return 1;
-	}
-	
-	switch(defense[edef])
-	{
-	case edSTUNORCHINK:
-		if(*power <= 0)
-		{
-			sfx(WAV_CHINK,pan(int32_t(x)));
-			return 1;
-		}
-
-		[[fallthrough]];
-	case edSTUNORIGNORE:
-		if(*power <= 0)
-			return 0;
-
-		[[fallthrough]];
-	case edSTUNONLY:
-		if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSword) && stunclk>=159)
-			return 1;
-			
-		stunclk=160;
-		sfx(WAV_EHIT,pan(int32_t(x)));
-		return 1;
-	
-	case edFREEZE:
-		frozenclock=-1;
-		//sfx(WAV_FREEZE,pan(int32_t(x)));
-		return 1;
-		
-	case edCHINKL1:
-		if(*power >= 1*game->get_hero_dmgmult()) break;
-		[[fallthrough]];
-	case edCHINKL2:
-		if(*power >= 2*game->get_hero_dmgmult()) break;
-		[[fallthrough]];
-	case edCHINKL4:
-		if(*power >= 4*game->get_hero_dmgmult()) break;
-		[[fallthrough]];
-	case edCHINKL6:
-		if(*power >= 6*game->get_hero_dmgmult()) break;
-		[[fallthrough]];
-	case edCHINKL8:
-		if(*power >= 8*game->get_hero_dmgmult()) break;
-		[[fallthrough]];
-	case edCHINKL10:
-		if(*power >= 10*game->get_hero_dmgmult()) break;
-		[[fallthrough]];
-	case edCHINK:
-		sfx(WAV_CHINK,pan(int32_t(x)));
-		return 1;
-	case edTRIGGERSECRETS:
-		trigger_secrets_for_screen(TriggerSource::Unspecified, screen_spawned, false);
-		break;
-		
-	case edIGNOREL1:
-		if(*power > 0)  break;
-		[[fallthrough]];
-	case edIGNORE:
-		return 0;
-		
-	case ed1HKO:
-		*power = hp;
-		return -3;
-	
-	case ed2x:
-	 {
- 	    *power = zc_max(1,*power*2);
- 	//int32_t pow = *power;
-		 //*power = vbound((pow*2),0,214747);
- 	return -1; 
-	 }
-	 case ed3x:
-	 {
- 	    *power = zc_max(1,*power*3);
- 	//int32_t pow = *power;
-		 //*power = vbound((pow*3),0,214747);
- 	return -1;
-	 }
-	 
-	 case ed4x:
-	 {
- 	    *power = zc_max(1,*power*4);
- 	//int32_t pow = *power;
-		 //*power = vbound((pow*4),0,214747);
- 	return -1;
-	 }
-	 
-	 
-	 case edHEAL:
-	 { //Probably needs its own function, or  routine in the damage functuon to heal if power is negative. 
- 	//int32_t pow = *power;
-		 //*power = vbound((pow*-1),0,214747);
- 	//break;
- 	    *power = zc_min(0,*power*-1);
- 	    return -1;
-	 }
-	 /*
-	 case edLEVELDAMAGE: 
-	 {
- 	int32_t pow = *power;
- 	int32_t lvl  = *level;
-		 *power = vbound((pow*lvl),0,214747);
- 	break;
-	 }
-	 case edLEVELREDUCTION:
-	 {
- 	int32_t pow = *power;
- 	int32_t lvl  = *level;
-		 *power = vbound((pow/lvl),0,214747);
- 	break;
-	 }
-	 */
-	 
-		
-	case edQUARTDAMAGE:
-		*power = zc_max(1,*power/2);
-
-		[[fallthrough]];
-	case edHALFDAMAGE:
-		*power = zc_max(1,*power/2);
-		break;
-	}
-	
-	return -1;
-}
-
-// Defend against a particular item class.
-int32_t enemy::defenditemclass(int32_t wpnId, int32_t *power)
-{
-	int32_t def=-1;
-	
-	switch(wpnId)
-	{
-		// These first 2 are only used by Gohma... enemy::takehit() has complicated stun-calculation code for these.
-	case wBrang:
-		def = defend(wpnId, power, edefBRANG);
-		break;
-		
-	case wHookshot:
-		def = defend(wpnId, power, edefHOOKSHOT);
-		break;
-		
-		// Anyway...
-	case wBomb:
-		def = defend(wpnId, power, edefBOMB);
-		break;
-		
-	case wSBomb:
-		def = defend(wpnId, power, edefSBOMB);
-		break;
-		
-	case wArrow:
-		def = defend(wpnId, power, edefARROW);
-		break;
-		
-	case wFire:
-		def = defend(wpnId, power, edefFIRE);
-		break;
-		
-	case wWand:
-		def = defend(wpnId, power, edefWAND);
-		break;
-		
-	case wMagic:
-		def = defend(wpnId, power, edefMAGIC);
-		break;
-		
-	case wHammer:
-		def = defend(wpnId, power, edefHAMMER);
-		break;
-		
-	case wSword:
-		def = defend(wpnId, power, edefSWORD);
-		break;
-		
-	case wBeam:
-		def = defend(wpnId, power, edefBEAM);
-		break;
-		
-	case wRefBeam:
-		def = defend(wpnId, power, edefREFBEAM);
-		break;
-		
-	case wRefMagic:
-		def = defend(wpnId, power, edefREFMAGIC);
-		break;
-		
-	case wRefFireball:
-		def = defend(wpnId, power, edefREFBALL);
-		break;
-		
-	case wRefRock:
-		def = defend(wpnId, power, edefREFROCK);
-		break;
-		
-	case wStomp:
-		def = defend(wpnId, power, edefSTOMP);
-		break;
-		
-	case wCByrna:
-		def = defend(wpnId, power, edefBYRNA);
-		break;
-		
-	case wScript1:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT01);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript2:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT02);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript3:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT03);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript4:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT04);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript5:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT05);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript6:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT06);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript7:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT07);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript8:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT08);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript9:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT09);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript10:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT10);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wWhistle:
-		if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefWhistle);
-		else break;
-		break;
-	
-	case wRefArrow:
-		def = defend(wpnId, power, edefREFARROW);
-		break;
-	case wRefFire:
-		def = defend(wpnId, power, edefREFFIRE);
-		break;
-	case wRefFire2:
-		def = defend(wpnId, power, edefREFFIRE2);
-		break;
-	
-	//!ZoriaRPG : We need some special cases here, to ensure that old script defs don;t break. 
-	//Probably best to do this from the qest file, loading the values of Script(generic) into each
-	//of the ten if the quest version is lower than N. 
-	//Either that, or we need a boolean flag to set int32_t he enemy editor, or by ZScript that changes this behaviour. 
-	//such as bool UseSeparatedScriptDefences. hah.
-	default:
-		//if(wpnId>=wScript1 && wpnId<=wScript10)
-		// {
-		 //   def = defend(wpnId, power, edefSCRIPT);
-		// }
-		// }
-		
-		break;
-	}
-	
-	return def;
 }
 
 // take damage or ignore it
@@ -3655,7 +3232,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	int32_t xdir = dir;
 	shieldCanBlock=false;
 	
-	if(!(w->unblockable&WPNUNB_BLOCK)&&((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
+	if(!(w->unblockable&WPNUNB_BLOCK)&&(((wpnId==wHookshot || wpnId==wSwitchHook) && hitshield(wpnx, wpny, xdir))
 			|| ((flags&guy_shield_front && wpnDir==(xdir^down)) || (flags&guy_shield_back && wpnDir==(xdir^up)) || 
 				(flags&guy_shield_left && wpnDir==(xdir^(xdir&2?right:left))) || (flags&guy_shield_right && wpnDir==(xdir^(dir&2?left:right)))))
 	  )
@@ -3671,6 +3248,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 
 			[[fallthrough]];
 		case wHookshot:
+		case wSwitchHook:
 		case wHSHandle:
 		case wBrang:
 			shieldCanBlock=true;
@@ -3759,7 +3337,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		{
 			w->power = power = itemsbuf[parent_item].misc5;
 				
-			int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
+			int32_t def = resolve_hit(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 			
 			if(def <= 0) 
 			{
@@ -3788,22 +3366,22 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		if(enemyHitWeapon > -1)
 		{
 			int32_t p = 0;
-			int32_t f = itemsbuf[enemyHitWeapon].family;
+			auto& idat = itemsbuf[enemyHitWeapon];
 			
-			switch(f)
+			switch(idat.family)
 			{
 			case itype_arrow:
-				if(!candamage(p, edefARROW, w->unblockable)) return 0;
+				if(!candamage(p, resolveEnemyDefence(wArrow, idat.weap_data.default_defense), w->unblockable)) return 0;
 				
 				break;
 				
 			case itype_cbyrna:
-				if(!candamage(p, edefBYRNA, w->unblockable)) return 0;
+				if(!candamage(p, resolveEnemyDefence(wCByrna, idat.weap_data.default_defense), w->unblockable)) return 0;
 				
 				break;
 				
 			case itype_brang:
-				if(!candamage(p, edefBRANG, w->unblockable)) return 0;
+				if(!candamage(p, resolveEnemyDefence(wBrang, idat.weap_data.default_defense), w->unblockable)) return 0;
 				
 				break;
 				
@@ -3819,8 +3397,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		
 	case wBrang:
 	{
-		//int32_t def = defendNew(wpnId, &power, edefBRANG, w);
-		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
+		int32_t def = resolve_hit(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		//preventing stunlock might be best, here. -Z
 		if(def >= 0) return def;
 		ret = def;
@@ -3847,15 +3424,14 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		goto hitclock;
 	}
 	
-	case wHookshot:
+	case wHookshot: case wSwitchHook:
 	{
-		//int32_t def = defendNew(wpnId, &power, edefHOOKSHOT,w);
-		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
+		int32_t def = resolve_hit(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		
 		if(def >= 0) return def;
 		ret = def;
 		
-		bool swgrab = switch_hooked || w->family_class == itype_switchhook;
+		bool swgrab = switch_hooked || w->family_class == itype_switchhook || wpnId == wSwitchHook;
 		if(swgrab || !(flags & guy_bhit))
 		{
 			if(!swgrab)
@@ -3900,7 +3476,7 @@ fsparkle:
 	default:
 		// Work out the defenses!
 	{
-		int32_t def = defenditemclassNew(wpnId, &power, w, realweap); 
+		int32_t def = resolve_hit(getWeaponID(w), &power, resolveEnemyDefence(w), w->unblockable, realweap);
 		
 		if(def >= 0)
 			return def;
@@ -12992,8 +12568,11 @@ int32_t eGohma::takehit(weapon *w, weapon* realweap)
 	int32_t power = w->power;
 	int32_t wpnx = w->x;
 	int32_t wpnDir = w->dir;
-	int32_t def = defenditemclassNew(wpnId, &power, w, realweap);
-	
+	int32_t def;
+	if(QHeader.zelda_version <= 0x250 && wid == wWhistle)
+		def = -1;
+	else
+		def = resolve_hit(getWeaponID(w), &power, resolveEnemyDefence(w), w->unblockable, realweap ? realweap : w);
 	if(def < 0)
 	{
 		if(!((wpnDir==up || wpnDir==l_up || wpnDir==r_up) && abs(int32_t(x)-wpnx)<=8 && clk3>=16 && clk3<116))
@@ -14484,6 +14063,7 @@ int32_t eManhandla::takehit(weapon *w, weapon* realweap)
 		return 0;
 		
 	case wHookshot:
+	case wSwitchHook:
 	case wBrang:
 		sfx(WAV_CHINK,pan(int32_t(x)));
 		break;
@@ -15233,6 +14813,7 @@ int32_t esGleeok::takehit(weapon *w, weapon* realweap)
 				return 0;
 				
 			case wHookshot:
+			case wSwitchHook:
 			case wBrang:
 			case wBeam:
 			case wArrow:
@@ -16115,19 +15696,9 @@ void ePatra::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-int32_t ePatra::defend(int32_t wpnId, int32_t *power, int32_t edef)
+int32_t ePatra::defend(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable)
 {
-	int32_t ret = enemy::defend(wpnId, power, edef);
-	
-	if(ret < 0 && (flycnt||flycnt2))
-		return 0;
-		
-	return ret;
-}
-
-int32_t ePatra::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable)
-{
-	int32_t ret = enemy::defendNew(wpnId, power, edef, unblockable);
+	int32_t ret = enemy::defend(wpnId, power, edef, unblockable);
 	
 	if(ret < 0 && (flycnt||flycnt2))
 		return 0;
@@ -16528,19 +16099,9 @@ void ePatraBS::draw(BITMAP *dest)
 	}
 }
 
-int32_t ePatraBS::defend(int32_t wpnId, int32_t *power, int32_t edef)
+int32_t ePatraBS::defend(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable)
 {
-	int32_t ret = enemy::defend(wpnId, power, edef);
-	
-	if(ret < 0 && (flycnt||flycnt2))
-		return 0;
-		
-	return ret;
-}
-
-int32_t ePatraBS::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable)
-{
-	int32_t ret = enemy::defendNew(wpnId, power, edef, unblockable);
+	int32_t ret = enemy::defend(wpnId, power, edef, unblockable);
 	
 	if(ret < 0 && (flycnt||flycnt2))
 		return 0;
@@ -20870,19 +20431,22 @@ void check_enemy_lweapon_collision(weapon *w)
 		// BRang/HShot item_flag5 is "Drags Items" (port of qr_Z3BRANG_HSHOT)
 		// Arrows item_flag2 is "Picks up items" (inverse port of qr_Z3BRANG_HSHOT)
 		// -Em
-		if(w->id == wBrang || w->id == wHookshot || w->id == wArrow)
+		if(w->id == wBrang || w->id == wHookshot || w->id == wArrow || w->id == wSwitchHook)
 		{
 			int32_t itype, pitem = w->parentitem;
 			switch(w->id)
 			{
 				case wBrang: itype = itype_brang; break;
 				case wArrow: itype = itype_arrow; break;
+				case wSwitchHook:
+					itype = itype_switchhook;
+					break;
 				case wHookshot:
 					itype = (w->family_class == itype_switchhook ? itype_switchhook :itype_hookshot);
 					break;
 			}
 			if(pitem < 0) pitem = current_item_id(itype);
-			if(w->id == wHookshot && w->family_class == itype_switchhook && (itemsbuf[pitem].flags & item_flag9))
+			if(itype == itype_switchhook && (itemsbuf[pitem].flags & item_flag9))
 			{ //Swap with item
 				for(int32_t j=0; j<items.Count(); j++)
 				{
@@ -20995,7 +20559,7 @@ void dragging_item()
 	{
 		weapon *w = (weapon*)Lwpns.spr(i);
 		
-		if((w->id == wBrang || w->id==wHookshot)&&itemsbuf[w->parentitem].flags & item_flag5)//item_flag5 is a port for qr_Z3BRANG_HSHOT
+		if((w->id == wBrang || w->id==wHookshot || w->id == wSwitchHook)&&itemsbuf[w->parentitem].flags & item_flag5)//item_flag5 is a port for qr_Z3BRANG_HSHOT
 		{
 			if(w->dragging>=0 && w->dragging<items.Count())
 			{

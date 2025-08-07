@@ -975,10 +975,12 @@ void HeroClass::setX(int32_t new_x)
 {
     zfix dx=new_x-x;
     justmoved = 2;
-    if(Lwpns.idFirst(wHookshot)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
-	hs_startx+=(int32_t)dx;
+    auto hsid = Lwpns.idFirst(wHookshot);
+	if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+	if(hsid > -1)
+	{
+		Lwpns.spr(hsid)->x += dx;
+		hs_startx += (int32_t)dx;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -1005,10 +1007,12 @@ void HeroClass::setY(int32_t new_y)
 {
     zfix dy=new_y-y;
     justmoved = 2;
-    if(Lwpns.idFirst(wHookshot)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
-	hs_starty+=(int32_t)dy;
+    auto hsid = Lwpns.idFirst(wHookshot);
+	if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+	if(hsid > -1)
+	{
+		Lwpns.spr(hsid)->y += dy;
+		hs_starty += (int32_t)dy;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -1120,10 +1124,12 @@ void HeroClass::setXfix(zfix new_x)
 	//Z_scripterrlog("setxdbl: %f\n",new_x);
     zfix dx=new_x-x;
     justmoved = 2;
-    if(Lwpns.idFirst(wHookshot)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
-	hs_startx+=(int32_t)dx;
+    auto hsid = Lwpns.idFirst(wHookshot);
+	if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+	if(hsid > -1)
+	{
+		Lwpns.spr(hsid)->x += dx;
+		hs_startx += (int32_t)dx;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -1150,10 +1156,12 @@ void HeroClass::setYfix(zfix new_y)
 {
     zfix dy=new_y-y;
     justmoved = 2;
-    if(Lwpns.idFirst(wHookshot)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
-	hs_starty+=(int32_t)dy;
+	auto hsid = Lwpns.idFirst(wHookshot);
+	if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+	if(hsid > -1)
+	{
+		Lwpns.spr(hsid)->y += dy;
+		hs_starty += (int32_t)dy;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -1527,7 +1535,7 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 	{
 		attackclk=0;
 		
-		if(attack==wHookshot)
+		if(attack==wHookshot || attack == wSwitchHook)
 			reset_hookshot();
 	}
 	if(new_action != isspinning && new_action != sideswimisspinning)
@@ -1839,10 +1847,7 @@ void HeroClass::init()
 	walkspeed = 0; //not used, yet. -Z
 	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
 	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
-	for ( int32_t q = 0; q < wMax; q++ ) 
-	{
-		defence[q] = hero_defenses[q]; //we will need to have a Hero section in the quest load/save code! -Z Added 3/26/21 - Jman
-	}
+	defence = hero_defenses;
 	
 	clear_ice();
 	script_ice_combo = 0;
@@ -4415,7 +4420,7 @@ void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 		case wBeam:
 			for(int32_t i = 0; i <4; i++) trigger_secrets_if_flag(bx,by,mfSWORDBEAM+i,true);
 			break;
-		case wHookshot:
+		case wHookshot: case wSwitchHook:
 			trigger_secrets_if_flag(bx,by,mfHOOKSHOT,true);
 			break;
 		case wBrang:
@@ -6464,10 +6469,12 @@ bool HeroClass::try_lwpn_special_hit(weapon* w)
 
 	if ((itemsbuf[itemid].flags & item_flag6)) // lweapons block/reflect eweapons they hit
 	{
-		if (w->id == wBrang || (w->id == wHookshot && !pull_hero))
+		if (w->id == wBrang || ((w->id == wHookshot || w->id == wSwitchHook) && !pull_hero))
 		{
+			auto sw = w->id == wSwitchHook || (w->id == wHookshot && w->family_class == itype_switchhook);
+			auto iclass = w->id == wBrang ? itype_brang : (sw ? itype_switchhook : itype_hookshot);
 			int32_t itemid = w->parentitem > -1 ? w->parentitem :
-				directWpn > -1 ? directWpn : current_item_id(w->id == wHookshot ? (w->family_class == itype_switchhook ? itype_switchhook : itype_hookshot) : itype_brang);
+				directWpn > -1 ? directWpn : current_item_id(iclass);
 			itemid = vbound(itemid, 0, MAXITEMS - 1);
 
 			for (int32_t j = 0; j < Ewpns.Count(); j++)
@@ -7968,9 +7975,11 @@ heroanimate_skip_liftwpn:;
 				chainlinks.spr(j)->y+=ydiff;
 			}
 			
-			if(Lwpns.idFirst(wHookshot)>-1)
+			auto hsid = Lwpns.idFirst(wHookshot);
+			if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+			if(hsid > -1)
 			{
-				Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=ydiff;
+				Lwpns.spr(hsid)->y+=ydiff;
 			}
 			
 			if(Lwpns.idFirst(wHSHandle)>-1)
@@ -8223,9 +8232,11 @@ heroanimate_skip_liftwpn:;
 			chainlinks.spr(j)->fakez=fakez;
 		}
 		
-		if(Lwpns.idFirst(wHookshot)>-1)
+		auto hsid = Lwpns.idFirst(wHookshot);
+		if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+		if(hsid > -1)
 		{
-			Lwpns.spr(Lwpns.idFirst(wHookshot))->z=z;
+			Lwpns.spr(hsid)->z=z;
 			Lwpns.spr(Lwpns.idFirst(wHookshot))->fakez=fakez;
 		}
 		
@@ -8456,7 +8467,9 @@ heroanimate_skip_liftwpn:;
 								reset_hookshot();
 							else
 							{
-								weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
+								auto hsid = Lwpns.idFirst(wHookshot);
+								if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+								weapon *w = (weapon*)Lwpns.spr(hsid),
 									*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
 								
 								if(hooked_comborpos != rpos_t::None) //Switching combos
@@ -8833,7 +8846,7 @@ heroanimate_skip_liftwpn:;
 					{
 						sprite *s = Lwpns.spr(i);
 						
-						if(s->id==wHookshot)
+						if(s->id==wHookshot||s->id==wSwitchHook)
 						{
 							if (abs((s->y) - y) >= 1)
 							{
@@ -10996,7 +11009,9 @@ void HeroClass::doSwitchHook(byte style)
 	hs_switcher = true;
 	pull_hero = true;
 	//{ Load hook weapons, set them to obey special drawing
-	weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
+	auto hsid = Lwpns.idFirst(wHookshot);
+	if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+	weapon *w = (weapon*)Lwpns.spr(hsid),
 		*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
 		
 	if(w)
@@ -11910,7 +11925,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		case itype_hookshot:
 		case itype_switchhook:
 		{
-			if(inlikelike || Lwpns.idCount(wHookshot))
+			if(inlikelike || Lwpns.idCount(wHookshot) || Lwpns.idCount(wSwitchHook))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -11998,6 +12013,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					Lwpns.del(0);
 				}
 				
+				auto wty = (sw && !get_qr(qr_SWITCHHOOK_USES_HOOKSHOT_WEAPON)) ? wSwitchHook : wHookshot;
 				switch(dir)
 				{
 					case up:
@@ -12007,7 +12023,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
-						Lwpns.add(new weapon((zfix)wx,(zfix)wy-4,(zfix)wz,wHookshot,hookitem,
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy-4,(zfix)wz,wty,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
 						hs_startx=wx;
@@ -12023,7 +12039,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
-						Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wty,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
 						hs_startx=wx;
@@ -12038,7 +12054,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
-						Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+						Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wty,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
 						hs_startx=wx-4;
@@ -12054,7 +12070,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
-						Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+						Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wty,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
 						hs_startx=wx+4;
@@ -12070,7 +12086,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
-						Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+						Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy+offset,(zfix)wz,wty,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
 						hs_startx=wx+4;
@@ -12085,7 +12101,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
-						Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+						Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wty,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
 						hs_startx=wx+4;
@@ -12101,7 +12117,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
-						Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+						Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy+offset,(zfix)wz,wty,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
 						hs_startx=wx+4;
@@ -12116,7 +12132,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
-						Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+						Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wty,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
 						hs_startx=wx+4;
@@ -12128,7 +12144,9 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			if(insta_switch)
 			{
-				weapon* w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
+				auto hsid = Lwpns.idFirst(wSwitchHook);
+				if(hsid < 0) hsid = Lwpns.idFirst(wHookshot);
+				weapon* w = (weapon*)Lwpns.spr(hsid);
 				if (rpos != rpos_t::None) hooked_comborpos = rpos;
 				if (ffc)
 				{
@@ -32295,6 +32313,7 @@ void HeroClass::reset_hookshot()
 		hooked_undercombos[q] = -1;
 	Lwpns.del(Lwpns.idFirst(wHSHandle));
 	Lwpns.del(Lwpns.idFirst(wHookshot));
+	Lwpns.del(Lwpns.idFirst(wSwitchHook));
 	chainlinks.clear();
 	int32_t index=directWpn>-1 ? directWpn : current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
 	hs_switcher = false;
@@ -32464,9 +32483,11 @@ void HeroClass::check_conveyor()
 							chainlinks.spr(j)->y-=step;
 						}
 						
-						if(Lwpns.idFirst(wHookshot)>-1)
+						auto hsid = Lwpns.idFirst(wHookshot);
+						if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+						if(hsid > -1)
 						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
+							Lwpns.spr(hsid)->y-=step;
 						}
 						
 						if(Lwpns.idFirst(wHSHandle)>-1)
@@ -32509,9 +32530,11 @@ void HeroClass::check_conveyor()
 							chainlinks.spr(j)->y+=step;
 						}
 						
-						if(Lwpns.idFirst(wHookshot)>-1)
+						auto hsid = Lwpns.idFirst(wHookshot);
+						if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+						if(hsid > -1)
 						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
+							Lwpns.spr(hsid)->y+=step;
 						}
 						
 						if(Lwpns.idFirst(wHSHandle)>-1)
@@ -32555,9 +32578,11 @@ void HeroClass::check_conveyor()
 							chainlinks.spr(j)->x-=step;
 						}
 						
-						if(Lwpns.idFirst(wHookshot)>-1)
+						auto hsid = Lwpns.idFirst(wHookshot);
+						if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+						if(hsid > -1)
 						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
+							Lwpns.spr(hsid))->x-=step;
 						}
 						
 						if(Lwpns.idFirst(wHSHandle)>-1)
@@ -32600,9 +32625,11 @@ void HeroClass::check_conveyor()
 							chainlinks.spr(j)->x+=step;
 						}
 						
-						if(Lwpns.idFirst(wHookshot)>-1)
+						auto hsid = Lwpns.idFirst(wHookshot);
+						if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+						if(hsid > -1)
 						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
+							Lwpns.spr(hsid)->x+=step;
 						}
 						
 						if(Lwpns.idFirst(wHSHandle)>-1)
@@ -32702,9 +32729,11 @@ void HeroClass::check_conveyor()
 							chainlinks.spr(j)->y-=step;
 						}
 						
-						if(Lwpns.idFirst(wHookshot)>-1)
+						auto hsid = Lwpns.idFirst(wHookshot);
+						if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+						if(hsid > -1)
 						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
+							Lwpns.spr(hsid)->y-=step;
 						}
 						
 						if(Lwpns.idFirst(wHSHandle)>-1)
@@ -32748,9 +32777,11 @@ void HeroClass::check_conveyor()
 							chainlinks.spr(j)->y+=step;
 						}
 						
-						if(Lwpns.idFirst(wHookshot)>-1)
+						auto hsid = Lwpns.idFirst(wHookshot);
+						if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+						if(hsid > -1)
 						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
+							Lwpns.spr(hsid)->y+=step;
 						}
 						
 						if(Lwpns.idFirst(wHSHandle)>-1)
@@ -32797,9 +32828,11 @@ void HeroClass::check_conveyor()
 							chainlinks.spr(j)->x-=step;
 						}
 						
-						if(Lwpns.idFirst(wHookshot)>-1)
+						auto hsid = Lwpns.idFirst(wHookshot);
+						if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+						if(hsid > -1)
 						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
+							Lwpns.spr(hsid)->x-=step;
 						}
 						
 						if(Lwpns.idFirst(wHSHandle)>-1)
@@ -32843,9 +32876,11 @@ void HeroClass::check_conveyor()
 							chainlinks.spr(j)->x+=step;
 						}
 						
-						if(Lwpns.idFirst(wHookshot)>-1)
+						auto hsid = Lwpns.idFirst(wHookshot);
+						if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+						if(hsid > -1)
 						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
+							Lwpns.spr(hsid)->x+=step;
 						}
 						
 						if(Lwpns.idFirst(wHSHandle)>-1)

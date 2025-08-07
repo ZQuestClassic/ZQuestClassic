@@ -373,33 +373,23 @@ enum class ScriptType {
 	Last = EngineSubscreen,
 };
 
+int edef_to_wtype(int edef, bool fuzzy = false); // convert old defense index to new weapon type. Fuzzy matches edefSCRIPT -> wScript1.
+int wtype_to_edef(int edef);
+bool unimpl_edef(int edef); // check if the old edef was never implemented, and thus can be skipped.
 enum
 {
 	edefBRANG, edefBOMB, edefSBOMB, edefARROW, edefFIRE, //04
 	edefWAND, edefMAGIC, edefHOOKSHOT, edefHAMMER, edefSWORD, //09
 	edefBEAM, edefREFBEAM, edefREFMAGIC, edefREFBALL, edefREFROCK, //14
-	edefSTOMP, edefBYRNA, edefSCRIPT, edefLAST250, edefQUAKE, //19
+	edefSTOMP, edefBYRNA, edefSCRIPT, edef_UNIMPL, edefQUAKE, //19
 	edefSCRIPT01, edefSCRIPT02, edefSCRIPT03, edefSCRIPT04, edefSCRIPT05, //24
 	edefSCRIPT06, edefSCRIPT07, edefSCRIPT08, edefSCRIPT09, edefSCRIPT10, //29
 	edefICE, edefBAIT, edefWIND, edefSPARKLE, edefSONIC, //34
 	edefWhistle, edefSwitchHook, edefTHROWN, edefREFARROW, edefREFFIRE, //39
-	edefREFFIRE2, //x40
+	edefREFFIRE2, //40
 	edefLAST255 //41
-	/*
-	edef42,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
-	edefELECTRIC,	edefSHIELD,	edefTROWEL,	edefSPINATTK,	edefZ3SWORD,	//51
-	edefLASWORD,	//x52
-	edefLASTEND  //53*/
-    // Reserved for future use.
-	 //edefSCRIPT used to be unused edefSPIN
 };
-#define edefLAST 19 //2.50.x last defense, used for filepack loading.
-#define edefSCRIPTDEFS_MAX 9 //for 2.future compatibility
-enum //Old 2.future compat rubbish for quest loading. -Z
-{
-	scriptDEF1, scriptDEF2, scriptDEF3, scriptDEF4, scriptDEF5, scriptDEF6, scriptDEF7,
-	scriptDEF8, scriptDEF9, scriptDEF10, scriptDEFLAST
-};
+#define edefLAST250 19 //2.50.x last defense, used for filepack loading.
 
 enum
 {
@@ -407,7 +397,6 @@ enum
     qe_missing, qe_internal, qe_pwd, qe_match, qe_minver,
     qe_nomem, qe_debug, qe_cancel, qe_silenterr, qe_no_qst
 };
-
 
 // weapon types in game engine
 enum
@@ -440,7 +429,7 @@ enum
 	wBombos, wEther, wQuake,// -Z
 	wSword180, wSwordLA,
 	//52
-	wBugNet, wRefArrow, wRefFire, wRefFire2,
+	wBugNet, wRefArrow, wRefFire, wRefFire2, wSwitchHook,
     // Enemy weapons
     wEnemyWeapons=128,
     //129

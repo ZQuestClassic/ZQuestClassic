@@ -1024,6 +1024,9 @@ static GUI::ListData compatRulesList
 		"If checked, Hero defenses will work how they did in 2.55. Many of them were not implemented"
 		" correctly (ex. Stun did Stun+Damage), and the defense effect would apply even if the weapon"
 		" was blocked/reflected with a shield." },
+	{ "SwitchHook uses Hookshot weapon type", qr_SWITCHHOOK_USES_HOOKSHOT_WEAPON,
+		"If checked, the SwitchHook will use the 'Hookshot' type weapon, instead of the 'SwitchHook' type weapon."
+		" This should only cause behavior changes for scripts." },
 };
 
 static GUI::ListData enemiesRulesList

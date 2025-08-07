@@ -2021,7 +2021,7 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 			case wRefBeam:
 			case wIce:
 			case wFlame: 
-			case wSound: // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+			case wSound:
 			//case wThrown: 
 			//case wPot: //Thrown pot or rock -Z
 			//case wLit: //Lightning or Electric -Z

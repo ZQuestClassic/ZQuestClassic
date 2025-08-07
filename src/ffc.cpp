@@ -101,7 +101,9 @@ void ffcdata::solid_update(bool push)
 		}
 		else if (hooked)
 		{
-			if (Lwpns.idFirst(wHookshot) > -1)
+			auto hsid = Lwpns.idFirst(wHookshot);
+			if(hsid < 0) hsid = Lwpns.idFirst(wSwitchHook);
+			if (hsid > -1)
 			{
 				if (dx)
 					Hero.setXfix(Hero.getX() + dx);

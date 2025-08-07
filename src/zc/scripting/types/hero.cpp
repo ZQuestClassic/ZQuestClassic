@@ -11,7 +11,7 @@ static ArrayRegistrar LINKMISCD_registrar(LINKMISCD, []{
 }());
 
 static ArrayRegistrar LINKDEFENCE_registrar(LINKDEFENCE, []{
-	static ScriptingArray_ObjectMemberCArray<HeroClass, &HeroClass::defence> impl;
+	static ScriptingArray_ObjectMemberContainer<HeroClass, &HeroClass::defence> impl;
 	impl.setMul10000(true);
 	impl.boundIndex();
 	return &impl;

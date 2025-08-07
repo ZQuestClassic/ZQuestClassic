@@ -1153,7 +1153,6 @@ static void do_triggersecret(const bool v);
 
 
 
-	//static void getNPCData_scriptdefence();
 	static void getNPCData_misc();//switch-case
 	static void getNPCData_defense(); //extra arg
 	static void getNPCData_SIZEflags();
@@ -1202,7 +1201,6 @@ static void do_triggersecret(const bool v);
 	static void setNPCData_wpnsprite();
 	static void setNPCData_firesfx();
 	//NPCData Setters, three inputs, no return.
-	//static void setNPCData_scriptdefence();
 	static void setNPCData_defense(int32_t v); //extra arg
 	static void setNPCData_SIZEflags(int32_t v);
 	static void setNPCData_misc(int32_t val);

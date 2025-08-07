@@ -694,7 +694,7 @@ GUI::ListData GUI::ZCListData::defenses()
 		switch(q)
 		{
 			case edefSCRIPT:
-			case edefLAST250:
+			case edef_UNIMPL:
 			case edefQUAKE:
 			case edefICE:
 			case edefBAIT:

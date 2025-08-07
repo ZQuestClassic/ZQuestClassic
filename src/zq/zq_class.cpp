@@ -11255,14 +11255,6 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(45);
 			}
 			
-			for(int32_t j=0; j < edefLAST; j++)
-			{
-				if(!p_putc(guysbuf[i].defense[j],f))
-				{
-					new_return(46);
-				}
-			}
-			
 			if ( FFCore.getQuestHeaderInfo(vZelda) < 0x250 || (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 ) && FFCore.getQuestHeaderInfo(vBuild) < 32 ) )
 			{
 				//If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
@@ -11289,15 +11281,6 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 			if(!p_iputl(guysbuf[i].attributes[11],f))
 			{
 				new_return(50);
-			}
-			
-			//New 2.6 defences
-			for(int32_t j=edefLAST; j < edefLAST255; j++)
-			{
-				if(!p_putc(guysbuf[i].defense[j],f))
-				{
-					new_return(51);
-				}
 			}
 			
 			//tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
@@ -11516,6 +11499,8 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(103);
 			if(auto ret = write_weap_data(guysbuf[i].weap_data, f))
 				return ret;
+			if(!p_putbmap(guysbuf[i].defense,f))
+				new_return(104);
 		}
 		
 		if(writecycle==0)
@@ -12098,13 +12083,8 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 			}
 		}
         
-		
-        for (int32_t q = 0; q < wMax; q++) // Hero defense values
-        {
-            if (!p_putc(hero_defenses[q], f))
-                new_return(15);
-        }
-		//}
+		if (!p_putbmap(hero_defenses, f))
+			new_return(15);
 		
         if(writecycle==0)
         {

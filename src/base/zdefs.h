@@ -159,12 +159,12 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        43
-#define V_GUYS            54
+#define V_GUYS            55
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        45
 #define V_COMBOALIASES     5
-#define V_HEROSPRITES      16
+#define V_HEROSPRITES      17
 #define V_SUBSCREEN        14
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         28
@@ -1205,7 +1205,7 @@ struct guydata
     
 	int32_t attributes[32]; //refactored this into an array, no more madness.
     int16_t  bgsfx, bosspal, extend;
-    byte defense[edefLAST255];
+    bounded_map<byte,byte> defense {wMax, 0};
     byte  hitsfx, deadsfx;
     //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
     //Adding earlier will offset defdata arrays. -Z
@@ -1215,7 +1215,6 @@ struct guydata
     // no hzofs - it's always equal to zofs.
     int32_t hxofs,hyofs,hxsz,hysz,hzsz;
     int32_t txsz,tysz;
-    byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
     int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
     int32_t SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
     int32_t frozentile, frozencset, frozenclock;

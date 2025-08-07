@@ -271,7 +271,7 @@ public:
 	int32_t swimsiderate;
 	int32_t swimdownrate;
 	zfix shove_offset;
-	byte defence[wMax];
+	bounded_map<byte,byte> defence {wMax, 0};
 	int32_t subscr_speed;
 	bool is_warping;
 	byte dying_flags;

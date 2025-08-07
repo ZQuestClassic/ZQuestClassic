@@ -1670,7 +1670,7 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	return 0;
 	}
 
-	for(int32_t j=0; j < edefLAST; j++)
+	for(int32_t j=0; j < edefLAST250; j++)
 	{
 	if(!p_getc(&tempguy.defense[j],f))
 	{
@@ -1706,7 +1706,7 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			//! version 27
 			
 			//2.55 starts here
-			for(int32_t j=edefLAST; j < edefLAST255; j++)
+			for(int32_t j=edefLAST250; j < edefLAST255; j++)
 			{
 			if(!p_getc(&tempguy.defense[j],f))
 			{
@@ -2105,7 +2105,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		return 0;
 		}
 		
-		for(int32_t j=0; j < edefLAST; j++)
+		for(int32_t j=0; j < edefLAST250; j++)
 		{
 		if(!p_putc(guysbuf[i].defense[j],f))
 		{
@@ -2124,7 +2124,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		}
 		
 		//2.55 starts here
-		for(int32_t j=edefLAST; j < edefLAST255; j++)
+		for(int32_t j=edefLAST250; j < edefLAST255; j++)
 		{
 		if(!p_putc(guysbuf[i].defense[j],f))
 		{
