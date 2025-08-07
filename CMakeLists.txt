@@ -317,6 +317,11 @@ if(NOT allegro5_POPULATED)
 	# We don't support FLAC.
 	option(WANT_FLAC "" OFF)
 	option(WANT_VIDEO "" OFF)
+
+	if(NOT USE_NFD)
+	  set(WANT_NATIVE_DIALOG OFF CACHE BOOL "" FORCE)
+	  set(ALLEGRO_SDL ON CACHE BOOL "" FORCE)
+	endif()
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
@@ -365,7 +370,7 @@ target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/allegro_legacy/include ${CMAKE_CURRENT_BINARY_DIR}/third_party/allegro_legacy/include)
 target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_audio allegro_acodec allegro_main)
 
-if (NOT EMSCRIPTEN)
+if (USE_NFD AND NOT EMSCRIPTEN)
 	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
 endif()
 
@@ -643,6 +648,9 @@ endif()
 if (USE_NFD)
 	target_link_libraries(zcbase PUBLIC nfd)
 	target_compile_definitions(zcbase PUBLIC HAS_NFD)
+else()
+	find_package(SDL2 REQUIRED)
+	target_link_libraries(zcbase PUBLIC SDL2::SDL2)
 endif()
 
 # std::execution supplementation.
