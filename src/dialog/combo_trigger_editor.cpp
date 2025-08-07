@@ -176,6 +176,7 @@ static bool has_trigger_effect(combo_trigger const& trig)
 	if(trig.trig_shieldjinxtime != -2) return true;
 	if(trig.trig_stuntime != -2) return true;
 	if(trig.trig_bunnytime != -2) return true;
+	if(trig.trig_statustime != -2) return true;
 	if(trig.trig_msgstr || trig.fail_msgstr) return true;
 	if(trig.player_bounce) return true;
 	return false;
@@ -779,7 +780,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							Row(
 								Frame(title = "Status Effects", vAlign = 0.0,
 									Rows<3>(padding = 0_px,
-										Label(text = "Sword Jinx:", fitParent = true),
+										Label(text = "Sword Jinx:", hAlign = 1.0),
 										TextField(
 											fitParent = true,
 											vPadding = 0_px,
@@ -795,7 +796,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											"\n'0' cures the status."
 											"\nAny value above 0 inflicts the status for that many frames."),
 										//
-										Label(text = "Item Jinx:", fitParent = true),
+										Label(text = "Item Jinx:", hAlign = 1.0),
 										TextField(
 											fitParent = true,
 											vPadding = 0_px,
@@ -811,7 +812,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											"\n'0' cures the status."
 											"\nAny value above 0 inflicts the status for that many frames."),
 										//
-										Label(text = "Shield Jinx:", fitParent = true),
+										Label(text = "Shield Jinx:", hAlign = 1.0),
 										TextField(
 											fitParent = true,
 											vPadding = 0_px,
@@ -827,7 +828,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											"\n'0' cures the status."
 											"\nAny value above 0 inflicts the status for that many frames."),
 										//
-										Label(text = "Stun:", fitParent = true),
+										Label(text = "Stun:", hAlign = 1.0),
 										TextField(
 											fitParent = true,
 											vPadding = 0_px,
@@ -843,7 +844,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											"\n'0' cures the status."
 											"\nAny value above 0 inflicts the status for that many frames."),
 										//
-										Label(text = "Bunny:", fitParent = true),
+										Label(text = "Bunny:", hAlign = 1.0),
 										TextField(
 											fitParent = true,
 											vPadding = 0_px,
@@ -854,6 +855,28 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 												local_ref.trig_bunnytime = val;
 											}),
 										IBTN("Sets the duration of the 'Bunny' status effect."
+											"\n'-2' indicates not to do anything."
+											"\n'-1' inflicts the status indefinitely, until cured."
+											"\n'0' cures the status."
+											"\nAny value above 0 inflicts the status for that many frames."),
+										//
+										DropDownList(data = parent.list_statuses,
+											fitParent = true, selectedValue = local_ref.trig_statustype,
+											maxwidth = 200_px,
+											onSelectFunc = [&](int32_t val)
+											{
+												local_ref.trig_statustype = val;
+											}),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -2, high = MAX_ZSCRIPT_INT, val = local_ref.trig_statustime,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.trig_statustime = val;
+											}),
+										IBTN("Sets the duration of the specified status effect."
 											"\n'-2' indicates not to do anything."
 											"\n'-1' inflicts the status indefinitely, until cured."
 											"\n'0' cures the status."

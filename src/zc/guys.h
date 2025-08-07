@@ -26,7 +26,6 @@ int32_t hero_on_wall();
 bool tooclose(int32_t x,int32_t y,int32_t d);
 bool isflier(int32_t id);
 bool never_in_air(int32_t id);
-int32_t weaponToDefence(int32_t wid);
 int32_t getWeaponID(weapon *w);
 
 // Start spinning tiles - called by load_default_enemies
@@ -65,7 +64,7 @@ public:
 	zfix dstep;
 	int32_t dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15;
 	int16_t bgsfx, bosspal;
-	byte defense[edefLAST255];
+	bounded_map<byte,byte> defense { wMax, 0 };
 	byte hitsfx,deadsfx;
 	bool submerged;
 	
@@ -279,15 +278,13 @@ protected:
 	
 	// take damage or ignore it
 	virtual bool hitshield(int32_t wpnx, int32_t wpny, int32_t xdir);
-	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
+	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
 //New 2.55 Weapon System
 	int32_t resolveEnemyDefence(weapon *w);
-	int32_t defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable, weapon* w=nullptr);
-	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
+	int32_t resolveEnemyDefence(int wtype, int usedef);
+	int32_t resolve_hit(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable, weapon* w=nullptr);
 	//virtual int32_t defend_wdmg(int32_t wpnId, int32_t dmg, int32_t edef);
 	bool candamage(int32_t power, int32_t edef, byte unblockable);
-	int32_t defenditemclass(int32_t wpnId, int32_t *power);
-	int32_t defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w, weapon* realweap = nullptr);
 	
 	bool dont_draw();
 	// base drawing function to be used by all derived classes instead of
@@ -786,8 +783,7 @@ public:
 	virtual bool animate(int32_t index);
 	virtual void FirePatraWeapon();
 	virtual void draw(BITMAP *dest);
-	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
-	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
+	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
 	virtual void init_size_flags();
 };
 
@@ -813,8 +809,7 @@ public:
 	ePatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk);                   // : enemy((zfix)128,(zfix)48,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
-	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
+	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
 	virtual void init_size_flags();
 };
 

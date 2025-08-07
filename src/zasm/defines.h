@@ -3275,8 +3275,10 @@ enum ASM_DEFINE
 #define SCREENDATAEXRESET          0x165C
 #define MAPDATAEXCARRY             0x165D
 #define MAPDATAEXRESET             0x165E
+#define CMBTRIGSTATUSTYPE          0x165F
+#define CMBTRIGSTATUSTIME          0x1660
 
-#define NUMVARIABLES         0x165F
+#define NUMVARIABLES         0x1661
 
 //} End variables
 

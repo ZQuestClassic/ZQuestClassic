@@ -2194,7 +2194,7 @@ static ArrayRegistrar NPCDD_registrar(NPCDD, []{
 
 static ArrayRegistrar NPCSCRDEFENSED_registrar(NPCSCRDEFENSED, []{
 	static ScriptingArray_ObjectComputed<enemy, byte> impl(
-		[](enemy* enemy){ return edefSCRIPTDEFS_MAX + 1; },
+		[](enemy* enemy){ return 10; },
 		[](enemy* enemy, int index){ return enemy->defense[index + edefSCRIPT01]; },
 		[](enemy* enemy, int index, byte value){ enemy->defense[index + edefSCRIPT01] = value; }
 	);

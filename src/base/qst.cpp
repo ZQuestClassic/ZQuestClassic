@@ -3551,6 +3551,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_CUSTOM_WEAPON_BROKEN_SIZE, 1);
 	if (compatrule_version < 85)
 		set_qr(qr_OLD_WEAPON_REFLECTION, 1);
+	if (compatrule_version < 86)
+	{
+		set_qr(qr_OLD_BROKEN_HERO_DEFENSES, 1);
+		set_qr(qr_SWITCHHOOK_USES_HOOKSHOT_WEAPON, q);
+	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -5113,12 +5118,10 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	//these are here to bypass compiler warnings about unused arguments
 	Header=Header;
 	
-	miscQdata temp_misc;
+	miscQdata temp_misc = *Misc;
 	word s_version=0;
 	int32_t tempsize=0;
 	word dummyw;
-	
-	memcpy(&temp_misc,Misc,sizeof(temp_misc));
 	
 	//section version info
 	if(!p_igetw(&s_version,f))
@@ -5326,19 +5329,17 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		}
 	}
 	
-	memcpy(Misc, &temp_misc, sizeof(temp_misc));
+	*Misc = temp_misc;
 	
 	return 0;
 }
 
 int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
 {
-    miscQdata temp_misc;
+    miscQdata temp_misc = *Misc;
     word s_version=0;
     byte icons;
     int32_t tempsize=0;
-    
-    memcpy(&temp_misc,Misc,sizeof(temp_misc));
     
     //section version info
     if(!p_igetw(&s_version,f))
@@ -5386,7 +5387,7 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
 	    }
     }
 
-	memcpy(Misc, &temp_misc, sizeof(temp_misc));
+	*Misc = temp_misc;
     
     return 0;
 }
@@ -5400,12 +5401,10 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	word shops=16, infos=16, warprings=8, palcycles=256, windwarps=9, triforces=8, icons=4;
 	word ponds=16, pondsize=72, expansionsize=98*2;
 	byte tempbyte, padding;
-	miscQdata temp_misc;
+	miscQdata temp_misc = *Misc;
 	word s_version=0;
 	word swaptmp;
 	int32_t tempsize=0;
-	
-	memcpy(&temp_misc,Misc,sizeof(temp_misc));
 	
 	for(int32_t i=0; i<maxshops; ++i)
 	{
@@ -5418,6 +5417,12 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	}
 
 	memset(&temp_misc.warp, 0, sizeof(temp_misc.warp));
+	
+	for(int q = 0; q < NUM_STATUSES; ++q)
+	{
+		temp_misc.status_names[q].clear();
+		temp_misc.status_effects[q].clear();
+	}
 	
 	if(Header->zelda_version > 0x192)
 	{
@@ -5444,6 +5449,22 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	
 	//finally...  section data
 	readsize=0;
+	
+	if(s_version < 17)
+	{
+		temp_misc.status_names[STATUS_JINX_MELEE] = "Melee Jinx";
+		temp_misc.status_effects[STATUS_JINX_MELEE].jinx_melee = true;
+		temp_misc.status_names[STATUS_JINX_ITEM] = "Item Jinx";
+		temp_misc.status_effects[STATUS_JINX_ITEM].jinx_item = true;
+		temp_misc.status_names[STATUS_JINX_SHIELD] = "Shield Jinx";
+		temp_misc.status_effects[STATUS_JINX_SHIELD].jinx_shield = true;
+		temp_misc.status_names[STATUS_STUN] = "Stun";
+		temp_misc.status_effects[STATUS_STUN].stun = true;
+		temp_misc.status_names[STATUS_BUNNY] = "Bunny";
+		temp_misc.status_effects[STATUS_BUNNY].bunny = true;
+		for(int q = NUM_ENGINE_STATUSES; q < NUM_STATUSES; ++q)
+			temp_misc.status_names[q] = fmt::format("zz{:03}", q);
+	}
 	
 	//shops
 	if(Header->zelda_version > 0x192)
@@ -6001,7 +6022,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	if((Header->zelda_version < 0x192)||
 			((Header->zelda_version == 0x192)&&(Header->build<30)))
 	{
-		memcpy(Misc, &temp_misc, sizeof(temp_misc));
+		*Misc = temp_misc;
 		
 		return 0;
 	}
@@ -6205,8 +6226,19 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		temp_misc.miscsfx[sfxTAP_HOLLOW] = WAV_ZN1TAP2;
 	}
 	
+	if(s_version >= 17)
+	{
+		for(int q = 0; q < NUM_STATUSES; ++q)
+		{
+			if(!p_getcstr(&temp_misc.status_names[q], f))
+				return qe_invalid;
+			if(auto ret = temp_misc.status_effects[q].read(f,s_version))
+				return ret;
+		}
+	}
+	
 	if (!should_skip)
-		memcpy(Misc, &temp_misc, sizeof(temp_misc));
+		*Misc = temp_misc;
 	
 	return 0;
 }
@@ -11301,33 +11333,20 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites)
 		{
 			memset(revslashspr, 0, sizeof(revslashspr));
 		}
-		if (v_herosprites > 7)
+		if (v_herosprites > 15)
 		{
-			int32_t num_defense = wMax;
-			byte def = 0;
-
-			//Set num_defense accordingly if changes to enum require version upgrade - Jman
-			/*if(v_herosprites > [x])
-			* {
-			*	 num_defense = 146 //value of wMax on version 8
-			* }
-			*/
-
-			for (int32_t q = 0; q < num_defense; q++)
-			{
-				if (!p_getc(&def, f))
+			if(!p_getbmap(&hero_defenses, f))
+				return qe_invalid;
+		}
+		else if (v_herosprites > 7)
+		{
+			for (int32_t q = 0; q < 147; q++)
+				if (!p_getc(&hero_defenses[q], f))
 					return qe_invalid;
-
-				hero_defenses[q] = def;
-			}
 		}
 		else
 		{
-			int32_t num_defense = wMax;
-			for (int32_t q = 0; q < num_defense; q++)
-			{
-				hero_defenses[q] = 0;
-			}
+			hero_defenses.clear();
 		}
 	}
 	
@@ -13814,7 +13833,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
     }
     if((Header->zelda_version <= 0x255) || (Header->zelda_version == 0x255 && Header->build < 47) )
     {
-	guysbuf[eWPOLSV].defense[edefWhistle] = ed1HKO;
+	guysbuf[eWPOLSV].defense[wWhistle] = ed1HKO;
     }
     if(Header->zelda_version <= 0x210)
     {
@@ -13937,6 +13956,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<MAXGUYS; i++)
         {
+			byte old_defense[edefLAST255] = {0};
             if(guyversion < 23)   // May 2012 : 512 max enemies
             {
                 if(i >= OLDBETAMAXGUYS)
@@ -14250,11 +14270,11 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 	    //! Enemy Defences
 	    
 	    //If a 2.50 quest, use only the 2.5 defences. 
-            if(guyversion >= 16 )  // November 2009 - Super Enemy Editor
+            if(guyversion >= 16 && guyversion < 55)  // November 2009 - Super Enemy Editor
             {
-                for(int32_t j=0; j<edefLAST; j++)
+                for(int32_t j=0; j<edefLAST250; j++)
                 {
-                    if(!p_getc(&(tempguy.defense[j]),f))
+                    if(!p_getc(&(old_defense[j]),f))
                     {
                         return qe_invalid;
                     }
@@ -14311,11 +14331,11 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             }
 	    
 	    //If a 2.54 or later quest, use all of the defences. 
-	    if(guyversion > 24) // Add new guyversion conditional statement 
+	    if(guyversion > 24 && guyversion < 55) // Add new guyversion conditional statement 
             {
-		for(int32_t j=edefLAST; j<edefLAST255; j++)
+		for(int32_t j=edefLAST250; j<edefLAST255; j++)
                 {
-                    if(!p_getc(&(tempguy.defense[j]),f))
+                    if(!p_getc(&(old_defense[j]),f))
                     {
                         return qe_invalid;
                     }
@@ -14326,7 +14346,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             {
 		for(int32_t j=edefSCRIPT01; j<=edefSCRIPT10; j++)
                 {
-                    tempguy.defense[j] = tempguy.defense[edefSCRIPT] ;
+                    old_defense[j] = old_defense[edefSCRIPT] ;
                 }
             }
 	    
@@ -14894,13 +14914,13 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             {
                 if(i==0) Z_message("Updating guys to version 16...\n");
                 
-                update_guy_1(&tempguy);
+                update_guy_1(&tempguy, old_defense);
                 
                 if(i==eMPOLSV)
                 {
-                    tempguy.defense[edefARROW] = edCHINK;
-                    tempguy.defense[edefMAGIC] = ed1HKO;
-                    tempguy.defense[edefREFMAGIC] = ed1HKO;
+                    old_defense[edefARROW] = edCHINK;
+                    old_defense[edefMAGIC] = ed1HKO;
+                    old_defense[edefREFMAGIC] = ed1HKO;
                 }
             }
             
@@ -14920,30 +14940,48 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 tempguy.hitsfx = (boss && tempguy.family != eeMOLD && tempguy.family != eeDONGO && tempguy.family != eeDIG) ? WAV_GASP : 0;
                 tempguy.deadsfx = (boss && (tempguy.family != eeDIG || tempguy.attributes[9] == 0)) ? WAV_GASP : WAV_EDEAD;
                 
-                if(tempguy.family == eeAQUA)
-                    for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eRAQUAM].defense[j];
-                else if(tempguy.family == eeMANHAN)
-                    for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eMANHAN].defense[j];
-                else if(tempguy.family==eePATRA)
-                    for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
-                else if(tempguy.family==eeGHOMA)
-                {
-                    for(int32_t j=0; j<edefLAST; j++)
-                        tempguy.defense[j] = default_guys[eGOHMA1].defense[j];
-                        
-                    tempguy.defense[edefARROW] = ((tempguy.attributes[0]==3) ? edCHINKL8 : (tempguy.attributes[0]==2) ? edCHINKL4 : 0);
-                    
-                    if(tempguy.attributes[0]==3 && !tempguy.weapon) tempguy.weapon = ewFlame;
-                    
-                    tempguy.attributes[0]--;
-                }
-                else if(tempguy.family == eeGLEEOK)
-                {
-                    for(int32_t j=0; j<edefLAST; j++)
-                        tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
-                        
-                    if(tempguy.attributes[2]==1 && !tempguy.weapon) tempguy.weapon = ewFlame;
-                }
+				if(tempguy.family == eeAQUA)
+					for(int32_t j=0; j<edefLAST250; j++)
+					{
+						if(unimpl_edef(j)) continue;
+						old_defense[j] = default_guys[eRAQUAM].defense[edef_to_wtype(j, true)];
+					}
+				else if(tempguy.family == eeMANHAN)
+					for(int32_t j=0; j<edefLAST250; j++)
+					{
+						if(unimpl_edef(j)) continue;
+						old_defense[j] = default_guys[eMANHAN].defense[edef_to_wtype(j, true)];
+					}
+				else if(tempguy.family==eePATRA)
+					for(int32_t j=0; j<edefLAST250; j++)
+					{
+						if(unimpl_edef(j)) continue;
+						old_defense[j] = default_guys[eGLEEOK1].defense[edef_to_wtype(j, true)];
+					}
+				else if(tempguy.family==eeGHOMA)
+				{
+					for(int32_t j=0; j<edefLAST250; j++)
+					{
+						if(unimpl_edef(j)) continue;
+						old_defense[j] = default_guys[eGOHMA1].defense[edef_to_wtype(j, true)];
+					}
+						
+					old_defense[edefARROW] = ((tempguy.attributes[0]==3) ? edCHINKL8 : (tempguy.attributes[0]==2) ? edCHINKL4 : 0);
+					
+					if(tempguy.attributes[0]==3 && !tempguy.weapon) tempguy.weapon = ewFlame;
+					
+					tempguy.attributes[0]--;
+				}
+				else if(tempguy.family == eeGLEEOK)
+				{
+					for(int32_t j=0; j<edefLAST250; j++)
+					{
+						if(unimpl_edef(j)) continue;
+						old_defense[j] = default_guys[eGLEEOK1].defense[edef_to_wtype(j, true)];
+					}
+						
+					if(tempguy.attributes[2]==1 && !tempguy.weapon) tempguy.weapon = ewFlame;
+				}
                 else if(tempguy.family == eeARMOS)
                 {
                     tempguy.family=eeWALK;
@@ -15060,7 +15098,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 	    {
 		if(tempguy.family!=eeDIG)
 		{
-			tempguy.defense[edefWhistle] = edIGNORE; //Might need to be ignore, universally. 
+			old_defense[edefWhistle] = edIGNORE; //Might need to be ignore, universally. 
 		}
 			
 	    }
@@ -15289,6 +15327,21 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				if(tempguy.weapon == ewRock)
 					tempguy.weap_data.wflags |= WFLAG_BREAK_ON_SOLID;
 			}
+			
+			if(guyversion >= 55)
+			{
+				if(!p_getbmap(&tempguy.defense, f))
+					return qe_invalid;
+			}
+			else
+			{
+				for(int q = 0; q < edefLAST255; ++q)
+				{
+					if(unimpl_edef(j)) continue;
+					tempguy.defense[edef_to_wtype(q)] = old_defense[q];
+				}
+				tempguy.defense[wFSparkle] = old_defense[edefSPARKLE]; // edefSPARKLE goes to 2 types
+			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 			{
@@ -15303,7 +15356,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
     return 0;
 }
 
-void update_guy_1(guydata *tempguy) // November 2009
+void update_guy_1(guydata *tempguy, byte* old_defense) // November 2009
 {
     bool doesntcount = false;
     tempguy->flags &= ~guy_weak_arrow; // Formerly 'weak to arrow' which wasn't implemented
@@ -15363,11 +15416,11 @@ void update_guy_1(guydata *tempguy) // November 2009
             
         case 4: //Darknut 5
 darknuts:
-            tempguy->defense[edefFIRE] = edIGNORE;
-            tempguy->defense[edefBRANG] = edSTUNORCHINK;
-            tempguy->defense[edefHOOKSHOT] = 0;
-            tempguy->defense[edefARROW] = tempguy->defense[edefBYRNA] = tempguy->defense[edefREFROCK] =
-                                              tempguy->defense[edefMAGIC] = tempguy->defense[edefSTOMP] = edCHINK;
+            old_defense[edefFIRE] = edIGNORE;
+            old_defense[edefBRANG] = edSTUNORCHINK;
+            old_defense[edefHOOKSHOT] = 0;
+            old_defense[edefARROW] = old_defense[edefBYRNA] = old_defense[edefREFROCK] =
+                                              old_defense[edefMAGIC] = old_defense[edefSTOMP] = edCHINK;
                                               
             if(tempguy->attributes[0]==1)
                 tempguy->attributes[0]=2;
@@ -15490,11 +15543,11 @@ darknuts:
         break;
         
     case 20: //eePOLSV
-        tempguy->defense[edefBRANG] = edSTUNORCHINK;
-        tempguy->defense[edefBOMB] = tempguy->defense[edefSBOMB] = tempguy->defense[edefFIRE] = edIGNORE;
-        tempguy->defense[edefMAGIC] = tempguy->defense[edefBYRNA] = edCHINK;
-        tempguy->defense[edefARROW] = ed1HKO;
-        tempguy->defense[edefHOOKSHOT] = edSTUNONLY;
+        old_defense[edefBRANG] = edSTUNORCHINK;
+        old_defense[edefBOMB] = old_defense[edefSBOMB] = old_defense[edefFIRE] = edIGNORE;
+        old_defense[edefMAGIC] = old_defense[edefBYRNA] = edCHINK;
+        old_defense[edefARROW] = ed1HKO;
+        old_defense[edefHOOKSHOT] = edSTUNONLY;
         tempguy->family = eeWALK;
         tempguy->attributes[8] = e9tPOLSVOICE;
         tempguy->rate = 4;
@@ -15506,16 +15559,16 @@ darknuts:
     case eeWIZZ:
         if(tempguy->attributes[3])
         {
-            for(int32_t i=0; i < edefLAST; i++)
-                tempguy->defense[i] = (i != edefREFBEAM && i != edefREFMAGIC && i != edefQUAKE) ? edIGNORE : 0;
+            for(int32_t i=0; i < edefLAST250; i++)
+                old_defense[i] = (i != edefREFBEAM && i != edefREFMAGIC && i != edefQUAKE) ? edIGNORE : 0;
         }
         else
         {
-            tempguy->defense[edefBRANG] = edSTUNORCHINK;
-            tempguy->defense[edefMAGIC] = edCHINK;
-            tempguy->defense[edefHOOKSHOT] = edSTUNONLY;
-            tempguy->defense[edefARROW] = tempguy->defense[edefFIRE] =
-                                              tempguy->defense[edefWAND] = tempguy->defense[edefBYRNA] = edIGNORE;
+            old_defense[edefBRANG] = edSTUNORCHINK;
+            old_defense[edefMAGIC] = edCHINK;
+            old_defense[edefHOOKSHOT] = edSTUNONLY;
+            old_defense[edefARROW] = old_defense[edefFIRE] =
+                                              old_defense[edefWAND] = old_defense[edefBYRNA] = edIGNORE;
         }
         
         break;
@@ -15524,21 +15577,21 @@ darknuts:
         tempguy->flags &= ~(guy_superman|guy_sbombonly);
         
         if(!(tempguy->flags & guy_bhit))
-            tempguy->defense[edefBRANG] = edSTUNONLY;
+            old_defense[edefBRANG] = edSTUNONLY;
             
         break;
         
     case eeLEV:
-        tempguy->defense[edefSTOMP] = edCHINK;
+        old_defense[edefSTOMP] = edCHINK;
         break;
     }
     
     // Old flags
     if(tempguy->flags & guy_superman)
     {
-        for(int32_t i = 0; i < edefLAST; i++)
+        for(int32_t i = 0; i < edefLAST250; i++)
             if(!(i==edefSBOMB && (tempguy->flags & guy_sbombonly)))
-                tempguy->defense[i] = (i==edefBRANG && tempguy->defense[i] != edIGNORE
+                old_defense[i] = (i==edefBRANG && old_defense[i] != edIGNORE
                                        && tempguy->family != eeROCK && tempguy->family != eeTRAP
                                        && tempguy->family != eePROJECTILE) ? edSTUNORIGNORE : edIGNORE;
     }
@@ -18328,6 +18381,13 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		if(!p_igetzf(&temp_trigger.force_ice_vy, f))
 			return qe_invalid;
 	}
+	if(s_version >= 58)
+	{
+		if(!p_igetw(&temp_trigger.trig_statustype,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_trigger.trig_statustime,f))
+			return qe_invalid;
+	}
 	return 0;
 }
 
@@ -18930,8 +18990,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 	max_csets=max_csets;
 	word s_version=0;
 	
-	miscQdata temp_misc;
-	memcpy(&temp_misc, Misc, sizeof(temp_misc));
+	miscQdata temp_misc = *Misc;
 	
 	byte temp_colordata[48];
 	char temp_palname[PALNAMESIZE+1];
@@ -19224,7 +19283,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			}
 		}
 		
-		memcpy(Misc, &temp_misc, sizeof(temp_misc));
+		*Misc = temp_misc;
 	}
 	
 	return 0;

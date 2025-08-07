@@ -41,6 +41,7 @@ enum LWeaponType
 	LW_REFARROW                    = 53,
 	LW_REFFIRE                     = 54,
 	LW_REFFIRE2                    = 55,
+	LW_SWITCHHOOK                  = 56, // @versionadded 3.0 In 2.55, the Switch Hook used [LW_HOOKSHOT]
 };
 
 // Weapons active on the screen from the hero. See [Screen->LoadLWeapon] and [Screen->CreateLWeapon].

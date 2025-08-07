@@ -1104,6 +1104,7 @@ public:
 			case wRefRock: return wsRock;
 			case wHammer: return wsHammer;
 			case wHookshot: return wsHookshotHead;
+			case wSwitchHook: return wsHookshotHead;
 			case wHSHandle: return wsHookshotHandle;
 			case wHSChain: return wsHookshotChainH;
 			case wSSparkle: return wsSilverSparkle;
@@ -1218,6 +1219,7 @@ public:
 			case wRefRock: return wsRock;
 			case wHammer: return wsHammer;
 			case wHookshot: return wsHookshotHead;
+			case wSwitchHook: return wsHookshotHead;
 			case wHSHandle: return wsHookshotHandle;
 			case wHSChain: return wsHookshotChainH;
 			case wSSparkle: return wsSilverSparkle;
@@ -3598,13 +3600,13 @@ int32_t get_register(int32_t arg)
 			ret = Hero.inwallm ? 10000 : 0;
 			break;
 		case HEROBUNNY:
-			ret = Hero.BunnyClock()*10000;
+			ret = Hero.getBunnyClock()*10000;
 			break;
 		case LINKPUSH:
 			ret=(int32_t)Hero.getPushing()*10000;
 			break;
 		case LINKSTUN:
-			ret=(int32_t)Hero.StunClock()*10000;
+			ret=(int32_t)Hero.getStunClock()*10000;
 			break;
 		case LINKSCRIPTTILE:
 			ret=script_hero_sprite*10000;
@@ -3694,7 +3696,7 @@ int32_t get_register(int32_t arg)
 		} 
 		
 		case HEROSHIELDJINX:
-			ret = Hero.shieldjinxclk * 10000;
+			ret = Hero.getShieldClk() * 10000;
 			break;
 		
 		case HEROISWARPING:
@@ -8431,6 +8433,24 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGSTATUSTYPE:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_statustype * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGSTATUSTIME:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				ret = trig->trig_statustime * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
 		case CMBTRIGPUSHTIME:
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
@@ -11496,7 +11516,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case HEROSHIELDJINX:
 		{
-			Hero.shieldjinxclk = value / 10000;
+			Hero.setShieldClk(value / 10000);
 			break;
 		}
 		
@@ -15990,6 +16010,22 @@ void set_register(int32_t arg, int32_t value)
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 			{
 				trig->trig_bunnytime = zc_max(value/10000, -2);
+			}
+			break;
+		}
+		case CMBTRIGSTATUSTYPE:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_statustype = vbound(value/10000, NUM_STATUSES, 0);
+			}
+			break;
+		}
+		case CMBTRIGSTATUSTIME:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+			{
+				trig->trig_statustime = zc_max(value/10000, -2);
 			}
 			break;
 		}
@@ -27718,7 +27754,6 @@ int32_t run_script_int(bool is_jitted)
 			case GETNPCDATATILEWIDTH: FFScript::getNPCData_txsz(); break;
 			case GETNPCDATATILEHEIGHT: FFScript::getNPCData_tysz(); break;
 			case GETNPCDATAWPNSPRITE: FFScript::getNPCData_wpnsprite(); break;
-			//case GETNPCDATASCRIPTDEF: FFScript::getNPCData_scriptdefence(); break; //2.future cross-compat. 
 			case GETNPCDATADEFENSE: FFScript::getNPCData_defense(); break; 
 			case GETNPCDATASIZEFLAG: FFScript::getNPCData_SIZEflags(); break;
 			case GETNPCDATAATTRIBUTE: FFScript::getNPCData_misc(); break;
@@ -27770,8 +27805,7 @@ int32_t run_script_int(bool is_jitted)
 			
 			
 
-				
-			//case SETNPCDATASCRIPTDEF  : FFScript::setNPCData_scriptdefence(); break;
+			
 			case SETNPCDATADEFENSE : FFScript::setNPCData_defense(ri->d[rEXP1]); break;
 			case SETNPCDATASIZEFLAG : FFScript::setNPCData_SIZEflags(ri->d[rEXP1]); break;
 			case SETNPCDATAATTRIBUTE : FFScript::setNPCData_misc(ri->d[rEXP1]); break;
@@ -29927,6 +29961,7 @@ int32_t FFScript::GetDefaultWeaponSprite(int32_t wpn_id)
 		case wRefRock: return 18;
 		case wHammer: return 25;
 		case wHookshot: return 26;
+		case wSwitchHook: return 26;
 		case wHSHandle: return 28;
 		case wHSChain: return 27;
 		case wSSparkle: return 29;
@@ -34524,7 +34559,7 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",45);
 			}
 			
-			for(int32_t j=0; j < edefLAST; j++)
+			for(int32_t j=0; j < edefLAST250; j++)
 			{
 			if(!p_getc(&guysbuf[i].defense[j],f))
 			{
@@ -34550,8 +34585,8 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 				}
 			}
 			
-			//New 2.6 defences
-			for(int32_t j=edefLAST; j < edefLAST255; j++)
+			//New 2.55 defences
+			for(int32_t j=edefLAST250; j < edefLAST255; j++)
 			{
 			if(!p_getc(&guysbuf[i].defense[j],f))
 			{
@@ -34880,7 +34915,7 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",45);
 		}
 		
-		for(int32_t j=0; j < edefLAST; j++)
+		for(int32_t j=0; j < edefLAST250; j++)
 		{
 		if(!p_putc(guysbuf[i].defense[j],f))
 		{
@@ -34907,8 +34942,8 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 			}
 		}
 		
-		//New 2.6 defences
-		for(int32_t j=edefLAST; j < edefLAST255; j++)
+		//New 2.55 defences
+		for(int32_t j=edefLAST250; j < edefLAST255; j++)
 		{
 		if(!p_putc(guysbuf[i].defense[j],f))
 		{
@@ -37168,6 +37203,7 @@ defWpnSprite FFScript::getDefWeaponSprite(int32_t wpnid)
 		case wRefRock: return wsRock;
 		case wHammer: return wsHammer;
 		case wHookshot: return wsHookshotHead;
+		case wSwitchHook: return wsHookshotHead;
 		case wHSHandle: return wsHookshotHandle;
 		case wHSChain: return wsHookshotChainH;
 		case wSSparkle: return wsSilverSparkle;

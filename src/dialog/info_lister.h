@@ -5,6 +5,7 @@
 #include <gui/label.h>
 #include <gui/list.h>
 #include <gui/window.h>
+#include <gui/grid.h>
 #include <zq/gui/tileanim_frame.h>
 #include <zq/gui/dmap_frame.h>
 #include <initializer_list>
@@ -43,6 +44,8 @@ protected:
 	virtual void save(){};
 	virtual bool load(){return false;};
 	
+	virtual void add_buttons(std::shared_ptr<GUI::Grid>& cont);
+	
 	void resort();
 	bool get_config(std::string const& name, bool default_val);
 	int32_t get_config(std::string const& name, int32_t default_val);
@@ -62,7 +65,7 @@ protected:
 	std::string cfg_key;
 	
 	std::shared_ptr<GUI::List> widgList;
-	std::shared_ptr<GUI::Label> widgInfo;
+	std::shared_ptr<GUI::Label> widgInfo, copyInfo;
 	std::shared_ptr<GUI::TileFrame> widgPrev;
 	std::shared_ptr<GUI::DMapFrame> mapPrev;
 	std::shared_ptr<GUI::Window> window;
@@ -167,4 +170,44 @@ protected:
 	void copy() override;
 	bool paste() override;
 };
+
+class StatusListerDialog : public BasicListerDialog
+{
+public:
+	StatusListerDialog(int stat_id = -1, bool selecting = false);
+	StatusListerDialog& filtered(std::function<bool(GUI::ListItem&)>&& filter)
+	{
+		list_filter = filter; return *this;
+	}
+protected:
+	std::function<bool(GUI::ListItem&)> list_filter;
+	
+	void preinit() override;
+	void postinit() override;
+	void update() override;
+	void edit() override;
+	void editHero();
+	void rclick(int x, int y) override;
+	void copy() override;
+	bool paste() override;
+	bool pasteHero();
+	bool pasteName();
+	void save() override;
+	bool load() override;
+	void add_buttons(std::shared_ptr<GUI::Grid>& cont) override;
+};
+
+class DropDownListerDialog : public BasicListerDialog
+{
+public:
+	DropDownListerDialog(GUI::ListData const& lister,
+		std::string title, int sel = -1);
+	
+protected:
+	void preinit() override;
+	void postinit() override;
+	void update() override;
+};
+
 #endif
+
