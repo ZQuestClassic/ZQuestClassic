@@ -1922,6 +1922,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else addOpcode(new OSetImmediate(new VarArgument(EXP1),
 				new LiteralArgument(0)));
 			commentBack(fmt::format("Proto{} Set Destructor",func_comment));
+			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
 			addOpcode(new OConstructClass(new VarArgument(EXP1),
 				new VectorArgument(user_class.members)));
 			std::vector<int> object_indices;
@@ -1942,6 +1943,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 			if (!object_indices.empty())
 				addOpcode(new OMarkTypeClass(new VectorArgument(object_indices)));
+			addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
 			commentBack(fmt::format("Proto{} Default Construct",func_comment));
 		}
 		else
@@ -4058,7 +4060,6 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	
 	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
 	{
-		UserClass& user_class = *ucv->getClass();
 		addOpcode(new OWriteObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
