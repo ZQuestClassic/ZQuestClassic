@@ -2687,6 +2687,8 @@ byte SW_MMapTitle::get_strs(char* line1, char* line2) const
 
 void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
+	if((flags&SUBSCR_MMAPTIT_REQMAP) && !has_item(itype_map, -1))
+		return;
 	if (get_qr(qr_OLD_DMAP_INTRO_STRINGS))
 		draw_old(dest, xofs, yofs, page);
 	else
@@ -2702,28 +2704,25 @@ void SW_MMapTitle::draw_new(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage
 void SW_MMapTitle::draw_old(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	if(!(flags&SUBSCR_MMAPTIT_REQMAP) || has_item(itype_map, -1))
+	auto y1 = y+yofs, y2 = y1+8;
+	if(flags&SUBSCR_MMAPTIT_ONELINE)
+		y2 = y1;
+	char bufs[2][21] = {0};
+	auto linecnt = get_strs(bufs[0],bufs[1]);
+	if(linecnt == 1)
 	{
-		auto y1 = y+yofs, y2 = y1+8;
-		if(flags&SUBSCR_MMAPTIT_ONELINE)
-			y2 = y1;
-		char bufs[2][21] = {0};
-		auto linecnt = get_strs(bufs[0],bufs[1]);
-		if(linecnt == 1)
-		{
-			textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y2,shadtype,
-				align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
-				"%s",bufs[0]);
-		}
-		else if(linecnt == 2)
-		{
-			textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y2,shadtype,
-				align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
-				"%s",bufs[1]);
-			textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y1,shadtype,
-				align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
-				"%s",bufs[0]);
-		}
+		textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y2,shadtype,
+			align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
+			"%s",bufs[0]);
+	}
+	else if(linecnt == 2)
+	{
+		textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y2,shadtype,
+			align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
+			"%s",bufs[1]);
+		textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y1,shadtype,
+			align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
+			"%s",bufs[0]);
 	}
 }
 SubscrWidget* SW_MMapTitle::clone() const
