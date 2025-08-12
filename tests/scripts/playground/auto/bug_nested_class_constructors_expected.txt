@@ -1,0 +1,223 @@
+stderr:
+
+Compiling 'bug_nested_class_constructors.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 19,
+    "symbols": 29,
+    "identifiers": 56,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+PUSHR REFDMAPDATA; void run() Body Start
+PUSHARGSV 0 0.0003
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() #9 Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 30 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #9 Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #9 Body End
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() #1 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 52 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
+GOTO 44; while() #1 End
+CALLFUNC 0.0092; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+PUSHR REFGENERICDATA; void run() Body Start
+PUSHARGSV 0 0.0002
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0099; UsrFunc[void Init(int)] Call
+POP D4
+PUSHR CLASS_THISKEY
+PUSHR D4
+CALLFUNC 0.0120; ClassFunc[Outer1 Outer1::Outer1()] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0.0001
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[void AssertEqual(int, int)] Params Start
+ZCLASS_READ D2 0
+ZCLASS_READ D2 0
+PUSHR D2
+PUSHV 123; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0142; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+PUSHR CLASS_THISKEY
+PUSHR D4
+CALLFUNC 0.0163; ClassFunc[Outer2 Outer2::Outer2()] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0
+PUSHR D4
+LOAD D2 0; UsrFunc[void AssertEqual(int, int)] Params Start
+ZCLASS_READ D2 0
+ZCLASS_READ D2 0
+PUSHR D2
+PUSHV 124; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0142; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+CALLFUNC 0.0092; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0001
+REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D2 0; if() #8 Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 118 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETV D2 0; Func[Outer1 Outer1::Outer1()] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+ZCLASS_MARK_TYPE {0,0.0008}
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+SETV D2 0; ProtoFunc[InnerDefaultCtor InnerDefaultCtor::InnerDefaultCtor()] Set Destructor
+PUSHR CLASS_THISKEY
+ZCLASS_CONSTRUCT D2 {0.0001}
+POP CLASS_THISKEY; ProtoFunc[InnerDefaultCtor InnerDefaultCtor::InnerDefaultCtor()] Default Construct
+ZCLASS_WRITE CLASS_THISKEY 0
+ZCLASS_READ CLASS_THISKEY 0
+ZCLASS_READ D2 0
+ADDV D2 123
+PUSHR D2
+ZCLASS_READ CLASS_THISKEY 0
+SETR D3 D2
+POP D2
+ZCLASS_WRITE D3 0
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[Outer1 Outer1::Outer1()] Body End
+SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
+LOAD D2 0; if() #10 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 161 ==; Test 'if'
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[])] Params Start AND if() #10 Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #10 Body End
+POPARGS D5 0.0002
+RETURNFUNC; Func[void AssertEqual(int, int)] Body End
+SETV D2 0; Func[Outer2 Outer2::Outer2()] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+ZCLASS_MARK_TYPE {0,0.0008}
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+PUSHR CLASS_THISKEY
+PUSHR D4
+CALLFUNC 0.0186; ClassFunc[InnerUserCtor InnerUserCtor::InnerUserCtor()] Constructor Call
+POP D4
+POP CLASS_THISKEY
+ZCLASS_WRITE CLASS_THISKEY 0
+ZCLASS_READ CLASS_THISKEY 0
+ZCLASS_READ D2 0
+ADDV D2 123
+PUSHR D2
+ZCLASS_READ CLASS_THISKEY 0
+SETR D3 D2
+POP D2
+ZCLASS_WRITE D3 0
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[Outer2 Outer2::Outer2()] Body End
+SETV D2 0; Func[InnerUserCtor InnerUserCtor::InnerUserCtor()] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+SETV D2 1
+ZCLASS_WRITE CLASS_THISKEY 0
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[InnerUserCtor InnerUserCtor::InnerUserCtor()] Body End
