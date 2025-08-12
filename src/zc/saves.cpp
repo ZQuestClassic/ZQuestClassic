@@ -1213,6 +1213,14 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 
 				array.global = tempbyte!=0;
 
+				// internal_id
+				// This was actually a mistake. I didn't meant to write this field. But I added a
+				// read here because I accidentally shipped a prerelease that wrote this field, so
+				// this will unbreak those saves.
+				// game_data::save_script_objects never saves these arrays, so this will always be 0.
+				if(!p_getc(&tempbyte,f))
+					return 85;
+
 				//We get the size of each container
 				if(!p_igetl(&tempdword, f))
 					return 54;
