@@ -35,6 +35,8 @@ private:
 	byte local_qrs[QR_SZ];
 	byte const* realqrs;
 	size_t qrs_per_tab;
+	size_t cur_tab;
+	size_t qr_subtabs[10];
 	
 	friend void call_qrsearch_dialog(std::function<void(byte*)> setQRs);
 };
