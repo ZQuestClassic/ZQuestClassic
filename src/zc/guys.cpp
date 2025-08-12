@@ -20507,6 +20507,9 @@ static msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 		{
 			bool one_frame_command_delay = !replay_version_check(41);
 			std::string text = parsemsgcode2(msg_it->command);
+			if (wait_advance)
+				break;
+
 			if (text.empty())
 			{
 				msg_it->set_buffer("");
