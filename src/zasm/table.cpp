@@ -3133,10 +3133,15 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 			return r;
 		}
 
-		case ZCLASS_CONSTRUCT:
 		case ZCLASS_WRITE:
 		{
 			static T r = {{rEXP1, REG_R}};
+			return r;
+		}
+
+		case ZCLASS_CONSTRUCT:
+		{
+			static T r = {{rEXP1, REG_R}, {CLASS_THISKEY, REG_W}};
 			return r;
 		}
 		
@@ -3646,6 +3651,12 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case LONGDISTANCESCALE:
 		{
 			static auto r = {rINDEX, rINDEX2, rEXP1, rSFTEMP, rWHAT_NO_7};
+			return r;
+		}
+
+		case ZCLASS_MARK_TYPE:
+		{
+			static auto r = {CLASS_THISKEY};
 			return r;
 		}
 	}

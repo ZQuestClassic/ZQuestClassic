@@ -807,6 +807,45 @@ static bool optimize_setr_pushr(OptContext& ctx)
 
 static bool optimize_stack(OptContext& ctx)
 {
+	// TODO: investigate why this is breaking codegen for write
+	//
+	// no optimizer:
+	//
+	// Function #204
+	// 	27842: SETV            D2               0           [Block 0 -> ]
+	// 	27843: SETR            CLASS_THISKEY2   CLASS_THISKEY
+	// 	27844: ZCLASS_CONSTRUCT CLASS_THISKEY    { 1 }      
+	// 	27845: ZCLASS_MARK_TYPE { 0, 8 }                    
+	// 	27846: SETR            D4               SP2         
+	// 	27847: PUSHR           CLASS_THISKEY2               
+	// 	27848: SETV            D2               0           
+	// 	27849: PUSHR           CLASS_THISKEY                
+	// 	27850: ZCLASS_CONSTRUCT D2               { 0 }      
+	// 	27851: POP             CLASS_THISKEY                
+	// 	27852: ZCLASS_WRITE    CLASS_THISKEY    0           
+	// 	27853: SETR            D2               CLASS_THISKEY
+	// 	27854: POP             CLASS_THISKEY                
+	// 	27855: RETURNFUNC               
+	//
+	// optimized:
+	// 	Function #204
+	// 	27842: SETV            D2               0           [Block 0 -> ]
+	// 	27843: SETR            CLASS_THISKEY2   CLASS_THISKEY
+	// 	27844: ZCLASS_CONSTRUCT CLASS_THISKEY    { 1 }      
+	// 	27845: ZCLASS_MARK_TYPE { 0, 8 }                    
+	// 	27846: SETR            D4               SP2         
+	// 	27847: PUSHR           CLASS_THISKEY2               
+	// 	27848: SETV            D2               0           
+	// 	27849: NOP                                             ------ where did push/pop go? ZCLASS_CONSTRUCT is marked as writing to CLASS_THISKEY...
+	// 	27850: ZCLASS_CONSTRUCT D2               { 0 }      
+	// 	27851: NOP                                          
+	// 	27852: ZCLASS_WRITE    CLASS_THISKEY    0           
+	// 	27853: SETR            D2               CLASS_THISKEY
+	// 	27854: POP             CLASS_THISKEY                
+	// 	27855: RETURNFUNC                  
+	if (!should_run_experimental_passes())
+		return false;                 
+
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
 		for (int j = start_pc; j < final_pc; j++)

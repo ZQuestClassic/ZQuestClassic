@@ -2574,12 +2574,12 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 PUSHR D4
 PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params
-CALLFUNC 0.0112; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call
+CALLFUNC 0.0114; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0118; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0120; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0007
@@ -2606,12 +2606,14 @@ PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 SETV D2 0; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Set Destructor
-ZCLASS_CONSTRUCT D2 {0}; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Default Construct
+PUSHR CLASS_THISKEY
+ZCLASS_CONSTRUCT D2 {0}
+POP CLASS_THISKEY; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Default Construct
 STORE_OBJECT D2 0.0006
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0118; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0120; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0005
@@ -2633,14 +2635,14 @@ LOAD D0 0.0001; for(each) #1 EndArrayCheck
 ARRAYSIZE D0
 LOAD D3 0.0002
 COMPARER D3 D2
-GOTOCMP 100 >=; for(each) #1 to Else
+GOTOCMP 102 >=; for(each) #1 to Else
 READPODARRAYR D2 D3; for(each) #1 Next Index
 STORE D2 0
 ADDV D3 1
 STORE D3 0.0002
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start
 TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End
-GOTO 88; for(each) #1 End
+GOTO 90; for(each) #1 End
 STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
