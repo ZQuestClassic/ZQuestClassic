@@ -1,0 +1,51 @@
+[spurious_branches] Block #0
+
+0: SETR            D2               SPRITE_TILE
+1: COMPAREV        D2               0      
+2: SETCMP          D2               I==    
+	D2 = !IBool(SPRITE_TILE)
+3: COMPAREV        D2               1823720000
+	D2 = !IBool(SPRITE_TILE)
+4: SETCMP          D2               BI==   
+	D2 = 0
+5: COMPAREV        D2               0      
+	D2 = 0
+6: GOTOCMP         9                ==     
+	D2 = 0
+inferred D2: 0
+9: TRACEV          2               
+	D2 = 0
+	side_effects
+rewrite 6: GOTOCMP         9                ==     
+
+[reduce_comparisons] Block #0
+
+1: COMPAREV        D2               0      
+2: SETCMP          D2               I==    
+	D2 = !IBool(D2)
+3: COMPAREV        D2               1823720000
+	D2 = !IBool(D2)
+4: SETCMP          D2               BI==   
+	D2 = 0
+5: COMPAREV        D2               0      
+	D2 = 0
+6: GOTOCMP         9                ==     
+	D2 = 0
+rewrite 1: 6 -> 1 commands
+1: GOTO            9               
+2: NOP            
+3: NOP            
+4: NOP            
+5: NOP            
+6: NOP            
+Function #0 (run_none-0)
+    0: NOP                                          [Block 0 -> 2]
+    1: GOTO            9
+    2: NOP                                          [Block 1 -> 2]
+    3: NOP
+    4: NOP
+    5: NOP
+    6: NOP
+    7: NOP
+    8: NOP
+    9: TRACEV          2                            [Block 2 -> ]

@@ -1,0 +1,12 @@
+; Reduce a complex comparison that always evaluate to true.
+Function #0 (run_none-0)
+    0: SETR            D2               SPRITE_TILE [Block 0 -> 1, 2]
+    1: COMPAREV        D2               0
+    2: SETCMP          D2               I==
+    3: COMPAREV        D2               1823720000
+    4: SETCMP          D2               BI==
+    5: COMPAREV        D2               1
+    6: GOTOCMP         9                ==
+    7: TRACEV          1                            [Block 1 -> ]
+    8: QUIT
+    9: TRACEV          2                            [Block 2 -> ]

@@ -1530,13 +1530,13 @@ static bool simulate_block_advance(OptContext& ctx, SimulationState& state)
 	ASSERT(command_is_goto(command));
 	int arg2 = C(state.pc).arg2;
 	int cmp = command_to_cmp(command, arg2);
-	auto e = evaluate_binary_op(cmp, state.operand_1, state.operand_2);
+	auto val = evaluate_binary_op(cmp, state.operand_1, state.operand_2);
 
 	// Can we determine which branch to take? If so, continue.
-	if (!e.is_number())
+	if (!val.is_number())
 		return false;
 
-	if (e.data)
+	if (val.data)
 		state.pc = C(state.pc).arg1;
 	else
 		state.pc += 1;
@@ -1594,21 +1594,37 @@ static bool compile_conditional(SimulationValue& expression, std::vector<ffscrip
 	return true;
 }
 
-static std::vector<ffscript> compile_conditional(const ffscript& instr, const SimulationValue& op1, const SimulationValue& op2)
+static bool compile_conditional(std::vector<ffscript>& result, const ffscript& instr, const SimulationValue& op1, const SimulationValue& op2)
 {
 	int cmp = command_to_cmp(instr.command, instr.arg2);
-	auto expression = evaluate_binary_op(cmp, op1, op2);
+	auto val = evaluate_binary_op(cmp, op1, op2);
 
-	std::vector<ffscript> result;
-	if (!compile_conditional(expression, result))
-		return result;
+	if (val.is_number())
+	{
+		if (command_is_goto(instr.command))
+		{
+			if (val.data)
+				result.emplace_back(GOTO, instr.arg1);
+		}
+		else
+		{
+			result.emplace_back(SETV, instr.arg1, val.data ? ((instr.arg2 & CMP_SETI) ? 10000 : 1) : 0);
+		}
+		return true;
+	}
+
+	if (!val.is_expression())
+		return false;
+
+	if (!compile_conditional(val, result))
+		return false;
 
 	if (command_is_goto(instr.command))
-		result.emplace_back(GOTOCMP, instr.arg1, expression.data);
+		result.emplace_back(GOTOCMP, instr.arg1, val.data);
 	else
-		result.emplace_back(SETCMP, instr.arg1, expression.data);
+		result.emplace_back(SETCMP, instr.arg1, val.data);
 
-	return result;
+	return true;
 }
 
 // Assigns a register to its final value directly, without intermediate assignments
@@ -1952,8 +1968,7 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 				if (state.bail || state.side_effects)
 					break;
 
-				expression_zasm = compile_conditional(C(state.pc), state.operand_1, state.operand_2);
-				if (expression_zasm.empty())
+				if (!compile_conditional(expression_zasm, C(state.pc), state.operand_1, state.operand_2))
 					break;
 
 				// If not enough room to replace instructions in this block, bail.
@@ -3099,8 +3114,8 @@ bool zasm_optimize_test()
 	TEST("compile_conditional")
 	{
 		{
-			auto r = compile_conditional({GOTOCMP, 0, CMP_EQ},
-				reg(2), num_one);
+			std::vector<ffscript> r;
+			compile_conditional(r, {GOTOCMP, 0, CMP_EQ}, reg(2), num_one);
 			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
 				{COMPAREV, D(2), 1},
@@ -3109,8 +3124,9 @@ bool zasm_optimize_test()
 		}
 
 		{
+			std::vector<ffscript> r;
 			auto e = expr(reg(2), CMP_NE, num(0));
-			auto r = compile_conditional({GOTOCMP, 0, CMP_EQ},
+			compile_conditional(r, {GOTOCMP, 0, CMP_EQ},
 				e, num(1));
 			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
@@ -3120,8 +3136,9 @@ bool zasm_optimize_test()
 		}
 
 		{
+			std::vector<ffscript> r;
 			auto e = expr(reg(2), CMP_GT, num(10));
-			auto r = compile_conditional({GOTOCMP, 0, CMP_NE},
+			compile_conditional(r, {GOTOCMP, 0, CMP_NE},
 				e, num(0));
 			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
@@ -3131,8 +3148,9 @@ bool zasm_optimize_test()
 		}
 
 		{
+			std::vector<ffscript> r;
 			auto e = expr(reg(2), CMP_NE, num(0));
-			auto r = compile_conditional({GOTOCMP, 0, CMP_NE},
+			compile_conditional(r, {GOTOCMP, 0, CMP_NE},
 				e, num(0));
 			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
@@ -3142,7 +3160,8 @@ bool zasm_optimize_test()
 		}
 
 		{
-			auto r = compile_conditional({GOTOCMP, 0, CMP_NE},
+			std::vector<ffscript> r;
+			compile_conditional(r, {GOTOCMP, 0, CMP_NE},
 				boolean_cast(reg(2)), boolean_cast(reg(3)));
 			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
