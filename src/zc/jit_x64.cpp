@@ -1605,7 +1605,11 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 				}
 			}
 
-			cc.cmp(val2, val);
+			// This is a little silly. Could instead do `cc.cmp(val2, val)`, but would have to teach
+			// compile_compare to invert the conditional instruction it emits.
+			x86::Gp val1 = cc.newInt32();
+			cc.mov(val1, val);
+			cc.cmp(val1, val2);
 		}
 		break;
 		case COMPARER:
