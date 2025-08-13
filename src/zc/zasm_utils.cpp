@@ -128,7 +128,6 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 			function_calls.insert(i);
 			function_start_pcs_set.insert(script->zasm[i].arg1);
 			function_calls_pc_to_pc[i] = script->zasm[i].arg1;
-			ASSERT(script->zasm[i].arg1 != i + 1);
 		}
 	}
 

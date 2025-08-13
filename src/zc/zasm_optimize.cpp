@@ -69,7 +69,7 @@ static bool should_run_experimental_passes()
 
 static bool should_run_optimizer_in_parallel()
 {
-	static bool parallel = !is_web() && !get_flag_bool("-optimize-zasm-no-parallel").value_or(false);
+	static bool parallel = !is_web() && !get_flag_bool("-optimize-zasm-no-parallel").value_or(false) && !get_flag_int("-test-bisect").has_value();
 	return parallel && ZScriptVersion::singleZasmChunk();
 }
 
@@ -86,7 +86,7 @@ static void zasm_optimize_trace(fmt::format_string<Args...> s, Args&&... args)
 // 2. Make a new script `tmp.sh` calling a failing replay:
 //        python tests/run_replay_tests.py --filter stellar --frame 40000 --extra_args="-replay-fail-assert-instant -test-bisect $1"
 // 3. Run the bisect script (may need to increase the end range up to 100000 or more):
-//        bash ~/tools/find-first-fail.sh -s 0 -e 1000 -v -q bash tmp.sh
+//        bash ~/tools/find-first-fail.sh -s 0 -e 10000 -v -q bash tmp.sh
 // 4. For the number given, set `-test-bisect` to that, and set a breakpoint
 //    where specified in bisect_tool_should_skip. Whatever block being processed is the one to focus on.
 // #define ENABLE_BISECT_TOOL
@@ -1283,10 +1283,10 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				state.bail = true;
 				return;
 			}
-			state.operand_1 = state.d[arg2];
-			state.operand_2 = num(arg1);
-			state.operand_1_backing_reg = arg2;
-			state.operand_2_backing_reg = -1;
+			state.operand_1 = num(arg1);
+			state.operand_2 = state.d[arg2];
+			state.operand_1_backing_reg = -1;
+			state.operand_2_backing_reg = arg2;
 			return;
 	}
 
@@ -1955,6 +1955,9 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 			if (bail_comp_reduction)
 				break;
 
+			if (bisect_tool_should_skip())
+				return;
+
 			if (ctx.debug)
 				fmt::println("\n[reduce_comparisons] Block #{}\n", block_index);
 
@@ -2043,9 +2046,6 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 						break;
 				}
 			}
-
-			if (bisect_tool_should_skip())
-				return;
 
 			if (target_block_uses_d2 && state.d[2].is_expression())
 			{
