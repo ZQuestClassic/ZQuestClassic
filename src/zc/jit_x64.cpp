@@ -1169,7 +1169,12 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			int val = arg1;
 			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg2);
-			cc.cmp(val2, val);
+
+			// This is a little silly. Could instead do `cc.cmp(val2, val)`, but would have to teach
+			// compile_compare to invert the conditional instruction it emits.
+			x86::Gp val1 = cc.newInt32();
+			cc.mov(val1, val);
+			cc.cmp(val1, val2);
 		}
 		break;
 		case COMPARER:
