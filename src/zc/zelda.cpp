@@ -2473,6 +2473,7 @@ int32_t cont_game()
 
 void restart_level()
 {
+	Hero.finish_auto_walk();
 	blackscr(16,true);
 	map_bkgsfx(false);
 	

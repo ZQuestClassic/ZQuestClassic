@@ -328,7 +328,10 @@ public:
 	int32_t script_ice_combo;
 	int sliding;
 	byte ice_entry_count, ice_entry_mcount;
-
+	
+	zfix autowalk_dest_x, autowalk_dest_y;
+	int32_t autowalk_combo_id = -1;
+	combined_handle_t autowalk_handle;
 private:
 	ffcdata const* platform_ffc;
 	bool lamp_paid;
@@ -346,6 +349,7 @@ public:
 	void setTileModifier(int32_t ntemod);
 	void setImmortal(int32_t nimmortal);
 	void kill(bool bypassFairy);
+	bool tick_hover();
 	bool try_hover();
 	int32_t check_pitslide(bool ignore_hover = false);
 	bool pitslide();
@@ -648,7 +652,15 @@ public:
 	bool on_ffc_platform();
 	void check_platform_ffc();
 	void clear_platform_ffc();
+	
+	void start_auto_walk(const combined_handle_t& target);
+	void finish_auto_walk();
+	void autowalk_move();
+	bool is_autowalking() const;
+	bool no_control() const;
 };
+
+bool getHeroInput(int32_t btn, bool press = false, bool drunk = false);
 
 bool usingActiveShield(int32_t itmid = -1);
 int32_t getCurrentShield(bool requireActive = true);
