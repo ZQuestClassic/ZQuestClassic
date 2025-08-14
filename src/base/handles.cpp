@@ -171,6 +171,13 @@ ffc_handle_t const& combined_handle_t::get_ffc() const
 	return std::get<ffc_handle_t>(*this);
 }
 
+combined_handle_t::operator bool() const
+{
+	if (std::holds_alternative<rpos_handle_t>(*this))
+		return bool(std::get<rpos_handle_t>(*this));
+
+	return bool(std::get<ffc_handle_t>(*this));
+}
 mapscr* combined_handle_t::base_scr() const
 {
 	if (std::holds_alternative<rpos_handle_t>(*this))

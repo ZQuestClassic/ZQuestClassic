@@ -39,7 +39,7 @@ bool hasComboWizard(int32_t type)
 		// case cTRIGGERGENERIC: case cCSWITCH:
 		// case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
-		case cCUTSCENETRIG:
+		case cCUTSCENETRIG: case cCUTSCENEEFFECT:
 		case cSIGNPOST:
 		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
@@ -88,7 +88,8 @@ ComboWizardDialog::ComboWizardDialog(ComboEditorDialog& parent) : local_ref(pare
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_counters(GUI::ZCListData::counters(true,true)),
 	list_dirs(GUI::ZCListData::dirs(8,false)),
-	list_torch_shapes(GUI::ZCListData::light_shapes())
+	list_torch_shapes(GUI::ZCListData::light_shapes()),
+	alt_refs()
 {
 	memset(rs_sz, 0, sizeof(rs_sz));
 }
@@ -367,6 +368,10 @@ void ComboWizardDialog::update(bool first)
 		{
 			bool player = (local_ref.usrflags & cflag2);
 			grids[0]->setDisabled(!player);
+			break;
+		}
+		case cCUTSCENEEFFECT:
+		{
 			break;
 		}
 	}
@@ -803,6 +808,10 @@ void ComboWizardDialog::endUpdate()
 			}
 			break;
 		}
+		case cCUTSCENEEFFECT:
+		{
+			break;
+		}
 	}
 }
 #define IH_BTN(hei, inf) \
@@ -933,7 +942,22 @@ void combo_default(newcombo& ref, bool typeonly)
 			[[fallthrough]];
 		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
 			break;
-		//
+		case cCUTSCENEEFFECT:
+		{
+			switch(ref.attribytes[0])
+			{
+				default:
+					ref.attribytes[0] = CUTEFF_PLAYER_WALK;
+				[[fallthrough]];
+				case CUTEFF_PLAYER_WALK:
+					ref.attributes[0] = ref.attributes[1] = 0;
+					ref.attributes[2] = 0;
+					SETFLAG(ref.usrflags, cflag1, true);
+					SETFLAG(ref.usrflags, cflag2, false);
+					break;
+			}
+			break;
+		}
 	}
 }
 std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
@@ -4395,6 +4419,104 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				)
 			));
 			frames[0]->setDisabled(crumble_type != CMBTY_CRUMBLE_RESET);	
+			break;
+		}
+		case cCUTSCENEEFFECT:
+		{
+			byte& effect_type = local_ref.attribytes[0];
+			lists[0] = GUI::ListData({
+				{ "Player Walk", CUTEFF_PLAYER_WALK, "The player auto-walks to the destination (angularly) (when triggered via '->ComboType Effects')."
+					"\nTriggers 'ComboType Causes->' when the player finishes the auto-walk (either because they reached their destination,"
+					" or because they reached the edge of the screen on their way to the destination, triggering just before scrolling occurs)"
+					"\nNOTE: The player will walk ignoring solidity and most combo types in a straight line to the destination."
+					"\nRequires 'Newer Hero Movement'." + QRHINT({qr_NEW_HERO_MOVEMENT2}) }
+			});
+			std::shared_ptr<GUI::Grid> g;
+			switch(effect_type)
+			{
+				case CUTEFF_PLAYER_WALK:
+				{
+					auto rel_flags = cflag1|cflag2;
+					lists[1] = GUI::ListData({
+						{ "Absolute", 0 },
+						{ "Relative to Combo", cflag1 },
+						{ "Relative to Player", cflag2 }
+					});
+					int32_t& dest_x = local_ref.attributes[0];
+					int32_t& dest_y = local_ref.attributes[1];
+					int32_t& move_speed = local_ref.attributes[2];
+					g = Rows<3>(
+						Label(text = "Dest X:", hAlign = 1.0),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = dest_x,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								dest_x = val;
+							}),
+						INFOBTN("The X position the player will walk to."),
+						Label(text = "Dest Y:", hAlign = 1.0),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = dest_y,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								dest_y = val;
+							}),
+						INFOBTN("The Y position the player will walk to."),
+						Label(text = "Dest Position:", hAlign = 1.0),
+						DropDownList(data = lists[1],
+							fitParent = true, selectedValue = local_ref.usrflags & rel_flags,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_ref.usrflags = (local_ref.usrflags & ~rel_flags) | val;
+							}),
+						INFOBTN("If the 'Dest X'/'Dest Y' are Absolute within the region, Relative to the Combo's position,"
+							" or Relative to the Player's current position."),
+						Label(text = "Move Speed", hAlign = 1.0),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = move_speed,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								move_speed = val;
+							}),
+						INFOBTN("The speed the player will move at, in pixels per frame. If '0', the player will use their normal step speed.")
+					);
+					break;
+				}
+				default: // bad type, default and reload
+				{
+					effect_type = CUTEFF_PLAYER_WALK;
+					combo_default(local_ref, true);
+					refresh_dlg();
+					break;
+				}
+			}
+			std::shared_ptr<GUI::Grid> col;
+			windowRow->add(col = Column(
+				Row(
+					ddls[0] = DropDownList(data = lists[0],
+						fitParent = true, selectedValue = effect_type,
+						onSelectFunc = [&](int32_t val)
+						{
+							alt_refs[effect_type] = local_ref;
+							
+							effect_type = val;
+							
+							auto ref_it = alt_refs.find(val);
+							if(ref_it != alt_refs.end())
+								local_ref = ref_it->second;
+							else
+								combo_default(local_ref, true);
+						}),
+					INFOBTN_REF(lists[0].findInfo(effect_type))
+				)
+			));
+			if(g) col->add(g);
 			break;
 		}
 		default: //Should be unreachable

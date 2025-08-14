@@ -371,6 +371,12 @@ enum class ScriptType {
 	Last = EngineSubscreen,
 };
 
+enum cutscene_effect_types : byte
+{
+	CUTEFF_PLAYER_WALK,
+	CUTEFF_MAX
+};
+
 // directions
 enum direction { dir_invalid = -1, up, down, left, right, l_up, r_up, l_down, r_down };
 static const char* dirstr[] = {"up","down","left","right","up-left","up-right","down-left","down-right"};

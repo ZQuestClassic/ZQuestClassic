@@ -332,6 +332,18 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 	}
 }
 
+void do_cutscene_effect(const combined_handle_t& handle)
+{
+	auto& cmb = handle.combo();
+	if(cmb.type != cCUTSCENEEFFECT) return;
+	switch(cmb.attribytes[0])
+	{
+		case CUTEFF_PLAYER_WALK:
+			Hero.start_auto_walk(handle);
+			break;
+	}
+}
+
 void do_cutscene_flags(newcombo const& cmb)
 {
 	if(cmb.type != cCUTSCENETRIG) return;
@@ -3093,6 +3105,9 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, size_t idx, int32_t spec
 				used_bit = true;
 				switch(cmb.type)
 				{
+					case cCUTSCENEEFFECT:
+						do_cutscene_effect(rpos_handle);
+						break;
 					case cCUTSCENETRIG:
 						do_cutscene_flags(cmb);
 						break;
@@ -3360,6 +3375,9 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, size_t idx, int32_t specia
 				used_bit = true;
 				switch(cmb.type)
 				{
+					case cCUTSCENEEFFECT:
+						do_cutscene_effect(ffc_handle);
+						break;
 					case cCUTSCENETRIG:
 						do_cutscene_flags(cmb);
 						break;

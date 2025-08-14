@@ -49,6 +49,8 @@ private:
 		list_dropsets, list_sfx, list_counters,
 		list_dirs, list_torch_shapes;
 	
+	std::map<byte, newcombo> alt_refs;
+	
 	void setRadio(size_t rs, size_t ind);
 	size_t getRadio(size_t rs);
 	
