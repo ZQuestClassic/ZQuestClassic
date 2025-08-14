@@ -23349,6 +23349,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			return false;
 		}
 	} 
+	Hero.finish_auto_walk();
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
 	//we also need to check if dmaps are sideview here! -Z

@@ -4474,27 +4474,27 @@ bool weapon::animate(int32_t index)
 			
 			if(clk==1)                                            // then check directional input
 			{
-				if(Up())
+				if(getHeroInput(btnUp))
 				{
 					dir=up;
 					
-					if(Left())  dir=l_up;
+					if(getHeroInput(btnLeft))  dir=l_up;
 					
-					if(Right()) dir=r_up;
+					if(getHeroInput(btnRight)) dir=r_up;
 				}
-				else if(Down())
+				else if(getHeroInput(btnDown))
 				{
 					dir=down;
 					
-					if(Left())  dir=l_down;
+					if(getHeroInput(btnLeft))  dir=l_down;
 					
-					if(Right()) dir=r_down;
+					if(getHeroInput(btnRight)) dir=r_down;
 				}
-				else if(Left())
+				else if(getHeroInput(btnLeft))
 				{
 					dir=left;
 				}
-				else if(Right())
+				else if(getHeroInput(btnRight))
 				{
 					dir=right;
 				}
@@ -4572,9 +4572,9 @@ bool weapon::animate(int32_t index)
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
-				if(Up())
+				if(getHeroInput(btnUp))
 				{
-					if(Left() )  
+					if(getHeroInput(btnLeft) )  
 					{
 						LOADGFX(hshot.wpn5);
 						dir=l_up;
@@ -4595,7 +4595,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(Right() ) 
+					else if(getHeroInput(btnRight) ) 
 					{
 						LOADGFX(hshot.wpn5);
 						dir=r_up;
@@ -4619,11 +4619,11 @@ bool weapon::animate(int32_t index)
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
-				else if(Down())
+				else if(getHeroInput(btnDown))
 				{
 					//dir=down; //Up would already have been set if facing down.
 					
-					if(Left() )  
+					if(getHeroInput(btnLeft) )  
 					{
 						LOADGFX(hshot.wpn5);
 						dir=l_down;
@@ -4644,7 +4644,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(Right() ) 
+					else if(getHeroInput(btnRight) ) 
 					{
 						LOADGFX(hshot.wpn5);
 						dir=r_down;
@@ -4863,9 +4863,9 @@ bool weapon::animate(int32_t index)
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
-				if(Up())
+				if(getHeroInput(btnUp))
 				{
-					if(Left() )  
+					if(getHeroInput(btnLeft) )  
 					{
 						LOADGFX(hshot.wpn6);
 						dir=l_up;
@@ -4886,7 +4886,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(Right() ) 
+					else if(getHeroInput(btnRight) ) 
 					{
 						LOADGFX(hshot.wpn6);
 						dir=r_up;
@@ -4911,11 +4911,11 @@ bool weapon::animate(int32_t index)
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
 			
-				else if(Down())
+				else if(getHeroInput(btnDown))
 				{
 					//dir=down; //Up would already have been set if facing down.
 					
-					if(Left() )  
+					if(getHeroInput(btnLeft) )  
 					{
 						LOADGFX(hshot.wpn6);
 						dir=l_down;
@@ -4936,7 +4936,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(Right() ) 
+					else if(getHeroInput(btnRight) ) 
 					{
 						LOADGFX(hshot.wpn6);
 						dir=r_down;
@@ -4978,9 +4978,9 @@ bool weapon::animate(int32_t index)
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
-				if(Up())
+				if(getHeroInput(btnUp))
 				{
-					if(Left() )  
+					if(getHeroInput(btnLeft) )  
 					{
 						LOADGFX(hshot.wpn7);
 						dir=l_up;
@@ -5001,7 +5001,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(Right() ) 
+					else if(getHeroInput(btnRight) ) 
 					{
 						LOADGFX(hshot.wpn7);
 						dir=r_up;
@@ -5026,11 +5026,11 @@ bool weapon::animate(int32_t index)
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
 			
-				else if(Down())
+				else if(getHeroInput(btnDown))
 				{
 					//dir=down; //Up would already have been set if facing down.
 					
-					if(Left() )  
+					if(getHeroInput(btnLeft) )  
 					{
 						LOADGFX(hshot.wpn7);
 						dir=l_down;
@@ -5051,7 +5051,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(Right() ) 
+					else if(getHeroInput(btnRight) ) 
 					{
 						LOADGFX(hshot.wpn7);
 						dir=r_down;
