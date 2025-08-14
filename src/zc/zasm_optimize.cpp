@@ -2202,8 +2202,7 @@ static bool optimize_calling_mode(OptContext& ctx)
 
 static bool optimize_inline_functions(OptContext& ctx)
 {
-	// TODO: investigate crash https://zeldaclassic.sentry.io/share/issue/183b71c8a8404aa588125763804aac5c/
-	if (!should_run_experimental_passes())
+	if (ctx.script->size <= 1)
 		return false;
 
 	struct InlineFunctionData
@@ -2274,6 +2273,12 @@ static bool optimize_inline_functions(OptContext& ctx)
 					continue;
 
 				int reg = arg1;
+				if (reg >= D(INITIAL_D))
+				{
+					bail = true;
+					break;
+				}
+
 				data.internal_reg_to_value[reg] = arg2;
 				data.internal_reg_to_type[reg] = 1;
 				continue;
@@ -2301,11 +2306,11 @@ static bool optimize_inline_functions(OptContext& ctx)
 	}
 
 	std::vector<pc_t> store_stack_pcs;
-	for (pc_t i = 0; i < ctx.script->size; i++)
+	for (pc_t i = 0; i < ctx.script->size - 1; i++)
 	{
 		auto& instr = C(i);
 
-		if (one_of(instr.command, PUSHR) && instr.arg1 == rSFRAME)
+		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
 		{
 			store_stack_pcs.push_back(i);
 			continue;
@@ -2333,6 +2338,24 @@ static bool optimize_inline_functions(OptContext& ctx)
 			continue;
 
 		auto& data = it->second;
+
+		if (i == 0)
+		{
+			// Unexpected.
+			ASSERT(false);
+			data.all_uses_inlined = false;
+			continue;
+		}
+
+		auto& prev_instr = C(i - 1);
+		if (!one_of(prev_instr.command, PUSHR, PUSHV, PUSHARGSR, PUSHARGSV, NOP))
+		{
+			// Class functions will "SETR CLASS_THISKEY" just before the call. Currently ignoring
+			// those.
+			data.all_uses_inlined = false;
+			continue;
+		}
+
 		if (bisect_tool_should_skip())
 		{
 			data.all_uses_inlined = false;
@@ -2345,16 +2368,22 @@ static bool optimize_inline_functions(OptContext& ctx)
 		int stack_to_external_value_reg_type[8];
 		for (int i = 0; i < 8; i++) stack_to_external_value_reg_type[i] = -1;
 
-		ASSERT(one_of(C(i - 1).command, PUSHR, PUSHV, PUSHARGSR, PUSHARGSV, NOP));
-		stack_to_external_value[0] = C(i - 1).arg1;
-		stack_to_external_value_reg_type[0] = one_of(C(i - 1).command, PUSHR, PUSHARGSR) ? 1 : 0;
+		stack_to_external_value[0] = prev_instr.arg1;
+		stack_to_external_value_reg_type[0] = one_of(prev_instr.command, PUSHR, PUSHARGSR) ? 1 : 0;
 
 		std::vector<ffscript> inlined_zasm;
 		ffscript inline_instr = data.inline_instr;
 
 		if (inline_instr.command == LOAD)
 		{
-			ASSERT(stack_to_external_value[inline_instr.arg2] != -1);
+			if (stack_to_external_value[inline_instr.arg2] == -1)
+			{
+				// Unexpected.
+				ASSERT(false);
+				data.all_uses_inlined = false;
+				continue;
+			}
+
 			if (stack_to_external_value_reg_type[inline_instr.arg2] == 0)
 			{
 				inlined_zasm.emplace_back(SETV, inline_instr.arg1, stack_to_external_value[inline_instr.arg2]);
@@ -2389,7 +2418,7 @@ static bool optimize_inline_functions(OptContext& ctx)
 			store_stack_pcs.pop_back();
 
 		pc_t hole_start_pc = i;
-		if (C(i - 1).command != PUSHARGSR)
+		if (prev_instr.command != PUSHARGSR)
 			hole_start_pc -= 1;
 		pc_t hole_final_pc = i + 1;
 		bool store_stack_part_of_hole =
@@ -2747,7 +2776,7 @@ void zasm_optimize()
 			zasm_optimize_trace("note: zasm optimizer disabled by user, but must run in minimal mode to support jit");
 	}
 
-	bool parallel = !get_flag_bool("-test-bisect").value_or(false);
+	bool parallel = should_run_optimizer_in_parallel();
 	zasm_for_every_script(parallel, [&](auto script){
 		if (script->optimized)
 			return;
