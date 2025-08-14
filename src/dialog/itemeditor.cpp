@@ -1615,15 +1615,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								//
 								Label(text = "Sound:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.playsound,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								DropDownList(data = list_sfx,
+									fitParent = true, selectedValue = local_itemref.playsound,
+									onSelectFunc = [&](int32_t val)
 									{
 										local_itemref.playsound = val;
-									}
-								),
+									}),
 								Checkbox(colSpan = 2,
 									hAlign = 0.0,
 									checked = (local_itemref.flags & item_keep_old),
@@ -1654,38 +1651,40 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								)
 							),
-							Column(framed = true, fitParent = true,
-								Row(
-									Label(text = "String:"),
-									DropDownList(data = list_strings,
-										selectedValue = local_itemref.pstring,
-										fitParent = true,
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.pstring = val;
-										}
-									)
-								),
-								Row(
-									INFOBTN("The pickup string shows every time the item is collected, instead of just once."),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.pickup_string_flags & itemdataPSTRING_ALWAYS),
-										text = "Always",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_ALWAYS,state);
-										}
+							Frame(fitParent = true,
+								Column(
+									Row(
+										Label(text = "String:"),
+										DropDownList(data = list_strings,
+											selectedValue = local_itemref.pstring,
+											fitParent = true,
+											onSelectFunc = [&](int32_t val)
+											{
+												local_itemref.pstring = val;
+											}
+										)
 									),
-									INFOBTN("The pickup string shows only if the item is held up, such as when received from a chest."),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.pickup_string_flags & itemdataPSTRING_IP_HOLDUP),
-										text = "Only Held",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_IP_HOLDUP,state);
-										}
+									Row(
+										INFOBTN("The pickup string shows every time the item is collected, instead of just once."),
+										Checkbox(
+											hAlign = 0.0,
+											checked = (local_itemref.pickup_string_flags & itemdataPSTRING_ALWAYS),
+											text = "Always",
+											onToggleFunc = [&](bool state)
+											{
+												SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_ALWAYS,state);
+											}
+										),
+										INFOBTN("The pickup string shows only if the item is held up, such as when received from a chest."),
+										Checkbox(
+											hAlign = 0.0,
+											checked = (local_itemref.pickup_string_flags & itemdataPSTRING_IP_HOLDUP),
+											text = "Only Held",
+											onToggleFunc = [&](bool state)
+											{
+												SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_IP_HOLDUP,state);
+											}
+										)
 									)
 								)
 							)
