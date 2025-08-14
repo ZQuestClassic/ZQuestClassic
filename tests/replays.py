@@ -460,17 +460,11 @@ class WebPlayerInterface:
         replay_path = args.replay.path
         output_dir = args.output_dir
 
-        if replay_path.is_relative_to(root_dir / 'tests/replays'):
-            rel_replay_path = replay_path.relative_to(root_dir / 'tests/replays')
-        else:
-            # Not one of our normal replays - so copy it over.
-            rel_replay_path = 'tmp.zplay'
-            shutil.copy(
-                replay_path,
-                ctx.build_folder / 'packages/web/files/test_replays' / rel_replay_path,
-            )
-
-        url = f'play/?{ctx.mode}=test_replays/{rel_replay_path}'
+        path_no_leading_slash = replay_path.as_posix()
+        if path_no_leading_slash.startswith('/'):
+            path_no_leading_slash = path_no_leading_slash[1:]
+        host_path = f'/host/{path_no_leading_slash}'
+        url = f'play/?{ctx.mode}={host_path}'
 
         extra_args = [
             '-replay-exit-when-done',

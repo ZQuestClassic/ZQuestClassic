@@ -3861,6 +3861,7 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 {
 	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
 	replay_start(mode, replay_file, frame);
+	// TODO: check if replay failed to load.
 
 	std::string qst_meta = replay_get_meta_str("qst");
 	testingqst_name = qst_meta;
@@ -3868,6 +3869,12 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 	if (!std::filesystem::path(qst_meta).is_absolute())
 	{
 		auto resolved_qst = std::filesystem::path(replay_file).parent_path() / qst_meta;
+#ifdef __EMSCRIPTEN__
+		if (em_is_lazy_file(resolved_qst))
+		{
+			em_fetch_file(resolved_qst);
+		}
+#endif
 		if (std::filesystem::is_regular_file(resolved_qst))
 		{
 			testingqst_name = resolved_qst.string();
@@ -3878,12 +3885,20 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 	if (std::filesystem::path(qst_meta).is_relative() && !std::filesystem::is_regular_file(testingqst_name))
 	{
 		fs::path qstpath_fs = fs::path(qstdir) / fs::path(qst_meta);
+#ifdef __EMSCRIPTEN__
+		if (em_is_lazy_file(qstpath_fs))
+		{
+			em_fetch_file(qstpath_fs);
+		}
+#endif
 		if (std::filesystem::is_regular_file(qstpath_fs))
 			testingqst_name = qstpath_fs.string();
 	}
 
 	if (!std::filesystem::is_regular_file(testingqst_name))
 	{
+		Z_error("File not found: %s\n", testingqst_name.c_str());
+
 		enter_sys_pal();
 		InfoDialog("Error loading replay", fmt::format("File not found: {}", testingqst_name)).show();
 		exit_sys_pal();
@@ -3891,7 +3906,6 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 		replay_quit();
 		testingqst_name = "";
 
-		Z_error("File not found: %s\n", testingqst_name.c_str());
 		if (!load_replay_file_deffered_called)
 		{
 			// This was called from the CLI, so abort.

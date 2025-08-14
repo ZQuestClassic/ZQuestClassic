@@ -96,6 +96,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20.x
+      - run: npm add mime-types
       # puppeteer caches Chrome in ~/.ccache/puppeteer, but only on npm install. Which means
       # restored caches from actions/setup-node will never install Chrome.
       - run: npm rm puppeteer && npm add puppeteer@24.12.0
@@ -125,8 +126,6 @@ jobs:
         env:
           ZC_EMCC_CMAKE_EXTRA_FLAGS: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
       - run: cmake --build build_emscripten --config RelWithDebInfo -t web
-        env:
-          ZC_PACKAGE_REPLAYS: 1
       - run: ccache -s
 
       - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1

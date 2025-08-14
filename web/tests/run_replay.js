@@ -38,17 +38,14 @@ replayUrl.searchParams.append('storage', 'idb');
 console.log(replayUrl.href);
 const zplay = replayUrl.searchParams.get('assert') || replayUrl.searchParams.get('replay') || replayUrl.searchParams.get('update');
 const headless = replayUrl.searchParams.has('headless');
+const browser = await puppeteer.launch({
+  headless: headless ? 'new' : false,
+});
 
 async function runReplay(zplay) {
-  const onClose = () => {
-    return browser.close();
-  };
   const zplaySplit = zplay.split('/');
   const zplayName = zplaySplit[zplaySplit.length - 1];
 
-  const browser = await puppeteer.launch({
-    headless: headless ? 'new' : false,
-  });
   const page = await browser.newPage();
 
   let hasExited = false;
@@ -93,7 +90,7 @@ async function runReplay(zplay) {
       'Assert failed',
     ];
     if (bad.some(t => text.includes(t))) {
-      onClose();
+      await browser.close();
       process.exit(1);
     }
   });
@@ -157,8 +154,13 @@ async function runReplay(zplay) {
     fs.writeFileSync(`${outputFolder}/${zplayName}.roundtrip`, roundtrip);
   }
 
-  await onClose();
   return exitCode;
 }
 
-process.exit(await runReplay(zplay));
+let code = 1;
+try {
+  code = await runReplay(zplay);
+} finally {
+  await browser.close();
+  process.exit(code);
+}

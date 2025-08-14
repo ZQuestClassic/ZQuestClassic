@@ -15,7 +15,7 @@ parser.add_argument('--target')
 args = parser.parse_args()
 
 html_template = (web_dir / 'index.html').read_text()
-CI = 'ZC_PACKAGE_REPLAYS' in os.environ
+CI = 'CI' in os.environ
 out_file = Path(args.build_folder) / f'{args.target}.html'
 
 

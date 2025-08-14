@@ -62,7 +62,7 @@ globalThis.ZC = {
       }
     });
 
-    const contentType = await response.headers.get('Content-Type');
+    const contentType = response.headers.get('Content-Type');
     if (contentType === 'application/json' || url.endsWith('.json')) {
       const json = new TextDecoder('utf-8').decode(await response.arrayBuffer());
       return JSON.parse(json);
@@ -83,6 +83,11 @@ globalThis.ZC = {
   },
   async fetchAsByteArray(url, opts) {
     const response = await ZC.fetch(url, opts);
+    if (!response.ok) {
+      console.error('bad response for url:', url, response);
+      return null;
+    }
+
     return new Uint8Array(await response.arrayBuffer());
   },
   url: '',

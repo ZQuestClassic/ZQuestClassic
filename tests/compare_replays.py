@@ -307,7 +307,7 @@ def create_compare_report(
     print(f'report written to {out_path}')
 
 
-# TODO use webserver.py
+# TODO use webserver.mjs
 def start_webserver():
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 

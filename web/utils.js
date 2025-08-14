@@ -40,6 +40,7 @@ export async function fetchWithProgress(url, opts, progressCb) {
       controller.close();
     },
   }), {
+    ok: response.ok,
     status: response.status,
     statusText: response.statusText,
     headers: response.headers,

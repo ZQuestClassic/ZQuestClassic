@@ -423,9 +423,8 @@ if is_web:
     print('starting webserver')
     webserver_p = subprocess.Popen(
         [
-            'python',
-            root_dir / 'scripts/webserver.py',
-            '--dir',
+            'node',
+            root_dir / 'scripts/webserver.mjs',
             args.build_folder / 'packages/web',
         ],
         stdout=subprocess.PIPE,
@@ -433,8 +432,10 @@ if is_web:
         text=True,
     )
     while webserver_p.poll() == None:
-        if 'serving up' in webserver_p.stdout.readline():
+        if 'Server running' in webserver_p.stdout.readline():
             break
+    if webserver_p.poll() is not None:
+        raise Exception(f'Could not start webserver: {webserver_p.stderr.read()}')
     print('webserver started')
 
 

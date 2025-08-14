@@ -70,14 +70,21 @@ EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
     } catch {
     }
 
-    const url = window.ZC.pathToUrl[path];
+	// /host is handled by webserver.mjs, for local development only.
+    const url = path.startsWith('/host') ? path : window.ZC.pathToUrl[path];
     if (!url) return;
 
     const data = await ZC.fetchAsByteArray(url);
+	if (!data) {
+		// Fetch failed (could be offline).
+		console.error(`error fetching ${path}`, e);
+		return;
+	}
+
+	FS.mkdirTree(PATH.dirname(path));
     FS.writeFile(path, data);
   } catch (e) {
-    // Fetch failed (could be offline).
-    console.error(`error loading ${path}`, e);
+    console.error(`error fetching ${path}`, e);
   }
 });
 void em_fetch_file(std::string path) {
@@ -88,6 +95,10 @@ void em_fetch_file(std::string path) {
 // when a file is already present)?
 bool em_is_lazy_file(std::string path) {
   path = (fs::current_path() / path).string();
+
+  if (strncmp("/host/", path.c_str(), strlen("/host/")) == 0) {
+    return true;
+  }
 
   if (strncmp("/quests/", path.c_str(), strlen("/quests/")) == 0) {
     return true;
