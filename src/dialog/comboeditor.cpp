@@ -53,7 +53,7 @@ bool hasCTypeEffects(int32_t type)
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
-		case cSHOOTER: case cCUTSCENETRIG:
+		case cSHOOTER: case cCUTSCENETRIG: case cCUTSCENEEFFECT:
 		case cSAVE: case cSAVE2:
 			return true;
 	}
@@ -63,7 +63,7 @@ bool hasCTypeCauses(int32_t type)
 {
 	switch(type)
 	{
-		case cPITFALL: case cWATER:
+		case cPITFALL: case cWATER: case cCUTSCENEEFFECT:
 			return true;
 	}
 	return false;
@@ -470,6 +470,10 @@ std::string getComboTypeHelpText(int32_t id)
 		case cCUTSCENETRIG:
 			typehelp = "When activated with ComboType Effects, either stops an active cutscene, or"
 				" sets the active cutscene rules.";
+			break;
+		case cCUTSCENEEFFECT:
+			typehelp = "Can be used for a variety of effects useful for 'cutscenes', such as forcing the player"
+				" to walk to a specific spot. Use the Wizard to set up the effect.";
 			break;
 		case cPUSHBLOCK:
 			typehelp = "A pushable block, that works separately from push flags. Highly configurable.";
@@ -1559,6 +1563,19 @@ void ComboEditorDialog::loadComboType()
 					"\nAdd the values of whichever buttons you would like to ALLOW during the cutscene.";
 				l_attribyte[0] = "Error SFX";
 				h_attribyte[0] = "If >0, SFX played when trying to press a disabled button";
+			}
+			break;
+		}
+		case cCUTSCENEEFFECT:
+		{
+			for(size_t q = 0; q < 16; ++q)
+			{
+				h_flag[q] = "Use the Wizard to set up this combo.";
+				if(q > 7) continue;
+				h_attribyte[q] = "Use the Wizard to set up this combo.";
+				h_attrishort[q] = "Use the Wizard to set up this combo.";
+				if(q > 3) continue;
+				h_attribute[q] = "Use the Wizard to set up this combo.";
 			}
 			break;
 		}
