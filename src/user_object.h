@@ -10,6 +10,7 @@
 
 enum class ScriptType;
 struct zasm_script;
+class sprite;
 
 // Only script arrays and custom user objects can be restored right now.
 // All other object types are set to NULL.
@@ -24,6 +25,7 @@ struct user_abstract_obj
 	uint32_t id;
 	ScriptType owned_type;
 	int32_t owned_i;
+	int32_t owned_sprite_id;
 	bool global;
 
 	virtual ~user_abstract_obj() = default;
@@ -35,16 +37,25 @@ struct user_abstract_obj
 	{
 		owned_type = ScriptType::None;
 		owned_i = 0;
+		owned_sprite_id = 0;
 	}
+
+	bool is_owned()
+	{
+		return owned_type != ScriptType::None || owned_sprite_id;
+	}
+
 	void clear()
 	{
 		disown();
 	}
 
-	void own(ScriptType type, int32_t i);
-	bool own_clear(ScriptType type, int32_t i);
-	bool own_clear_any();
-	bool own_clear_cont();
+	void set_owned_by_script(ScriptType type, int32_t i);
+	void set_owned_by_sprite(sprite* sprite);
+	bool script_own_clear(ScriptType type, int32_t i);
+	bool script_own_clear_any();
+	bool script_own_clear_cont();
+	bool sprite_own_clear(int32_t id);
 };
 
 struct ArrayOwner : user_abstract_obj
@@ -54,6 +65,7 @@ struct ArrayOwner : user_abstract_obj
 	bool specCleared;
 	void reset();
 	void reown(ScriptType ty, int32_t i);
+	void reown(sprite* spr);
 };
 
 struct script_array : public user_abstract_obj

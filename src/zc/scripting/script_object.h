@@ -24,6 +24,7 @@ user_abstract_obj* get_script_object(uint32_t id);
 user_abstract_obj* get_script_object_checked(uint32_t id);
 const std::map<uint32_t, std::unique_ptr<user_abstract_obj>>& get_script_objects();
 void own_script_object(user_abstract_obj* object, ScriptType type, int i);
+void own_script_object(user_abstract_obj* object, sprite* sprite);
 void free_script_object(uint32_t id);
 void delete_script_object(uint32_t id, bool remove_refs = true);
 std::set<uint32_t> find_script_objects_reachable_from_global_roots();

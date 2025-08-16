@@ -974,7 +974,7 @@ weapon::~weapon()
 		if(dragItem)
 			dragItem->is_dragged = false;
 	}
-	FFCore.destroyScriptableObject(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+	FFCore.destroySprite(this);
 	cleanup_sfx();
 }
 
@@ -3220,7 +3220,7 @@ void weapon::limited_animate()
 				if(script && clear_boom_script)
 				{
 					script = 0;
-					FFCore.destroyScriptableObject(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+					FFCore.destroySprite(this);
 				}
 				rundeath = true;
 				if(fixboom) moveflags &= ~move_obeys_grav;
@@ -3248,7 +3248,7 @@ void weapon::limited_animate()
 				if(script && clear_boom_script)
 				{
 					script = 0;
-					FFCore.destroyScriptableObject(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+					FFCore.destroySprite(this);
 				}
 				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
@@ -3263,7 +3263,7 @@ void weapon::limited_animate()
 				if(script && clear_boom_script)
 				{
 					script = 0;
-					FFCore.destroyScriptableObject(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+					FFCore.destroySprite(this);
 				}
 				if(fixboom) moveflags &= ~move_obeys_grav;
 			}

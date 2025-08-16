@@ -184,6 +184,7 @@ void load_region(int dmap, int screen);
 std::tuple<const rpos_handle_t*, int> get_current_region_handles();
 std::tuple<const rpos_handle_t*, int> get_current_region_handles(mapscr* scr);
 void mark_current_region_handles_dirty();
+void delete_temporary_screens(mapscr** screens);
 void clear_temporary_screens();
 std::vector<mapscr*> take_temporary_scrs();
 void calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w, int world_h, int x, int y);

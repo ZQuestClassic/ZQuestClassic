@@ -16,11 +16,11 @@ item::~item()
 {
 	if (dummy)
 		return;
-	// TODO: we should have an item manager class in zc and manage lifetime explicitly, not via dtors.
+
 #ifndef IS_EDITOR
 	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && (!get_qr(qr_OLD_FAIRY_LIMIT) || replay_version_check(28)))
 		killfairynew(*this);
-	FFCore.destroyScriptableObject(ScriptType::ItemSprite, getUID());
+	FFCore.destroySprite(this);
 #endif
 }
 

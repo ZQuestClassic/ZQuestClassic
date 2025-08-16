@@ -1458,7 +1458,9 @@ enum __Error
         _OutOfBounds, //library array out of bounds
         _InvalidSpriteUID //bad npc, ffc, etc.
     };
-    
+
+	static void release_sprite_owned_objects(int32_t sprite_id);
+	static void destroySprite(sprite* sprite);
 	static void destroyScriptableObject(ScriptType scriptType, const int32_t UID);
 	static void destroyScriptableObjectsOfType(ScriptType scriptType);
 	static void deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID);
@@ -1485,7 +1487,7 @@ void do_set(int reg, int value);
 int32_t run_script(ScriptType type, word script, int32_t i = -1); //Global scripts don't need 'i'
 int32_t ffscript_engine(const bool preload);
 
-int32_t get_own_i(ScriptType type);
+sprite* get_own_sprite(ScriptType type);
 
 void deallocateArray(const int32_t ptrval);
 void clearScriptHelperData();

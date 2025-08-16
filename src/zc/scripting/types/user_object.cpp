@@ -267,8 +267,8 @@ std::optional<int32_t> user_object_run_command(word command)
 			user_object* obj = user_objects.check(id);
 			if(!obj) break;
 			ScriptType own_type = (ScriptType)sarg2;
-			int32_t own_i = get_own_i(own_type);
-			own_script_object(obj, own_type, own_i);
+			sprite* own_sprite = get_own_sprite(own_type);
+			own_script_object(obj, own_sprite);
 			break;
 		}
 		default: return std::nullopt;

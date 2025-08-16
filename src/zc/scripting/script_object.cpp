@@ -273,13 +273,30 @@ void own_script_object(user_abstract_obj* object, ScriptType type, int i)
 {
 	if (!ZScriptVersion::gc())
 	{
-		object->own(type, i);
+		object->set_owned_by_script(type, i);
 		return;
 	}
 
-	bool was_owned = object->owned_type != ScriptType::None;
-	object->own(type, i);
+	bool was_owned = object->is_owned();
+	object->set_owned_by_script(type, i);
 	bool is_owned = type != ScriptType::None;
+	if (was_owned && !is_owned)
+		script_object_ref_dec(object);
+	else if (!was_owned && is_owned)
+		script_object_ref_inc(object);
+}
+
+void own_script_object(user_abstract_obj* object, sprite* sprite)
+{
+	if (!ZScriptVersion::gc())
+	{
+		object->set_owned_by_sprite(sprite);
+		return;
+	}
+
+	bool was_owned = object->is_owned();
+	object->set_owned_by_sprite(sprite);
+	bool is_owned = sprite;
 	if (was_owned && !is_owned)
 		script_object_ref_dec(object);
 	else if (!was_owned && is_owned)

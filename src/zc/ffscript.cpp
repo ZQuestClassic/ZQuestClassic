@@ -2535,10 +2535,57 @@ void ArrayManager::log_invalid_operation() const
 	}
 }
 
-// Call only when the underlying engine object is being deleted. This deallocs script data, and
-// invalidates any internal array references that may remain.
-// Any script type given to this function must also be handled in
-// script_array::internal_array_id::matches.
+void FFScript::release_sprite_owned_objects(int32_t sprite_id)
+{
+	std::vector<uint32_t> ids_to_clear;
+	for (auto& script_object : script_objects | std::views::values)
+	{
+		if (script_object->sprite_own_clear(sprite_id))
+		{
+			ids_to_clear.push_back(script_object->id);
+			script_object->disown();
+		}
+	}
+
+	if (ZScriptVersion::gc())
+	{
+		for (auto id : ids_to_clear)
+			script_object_ref_dec(id);
+	}
+	else
+	{
+		for (auto id : ids_to_clear)
+			delete_script_object(id);
+	}
+
+	if (!ZScriptVersion::gc_arrays())
+	{
+		for (int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+		{
+			if (arrayOwner[i].sprite_own_clear(sprite_id))
+				FFScript::deallocateArray(i);
+		}
+	}
+}
+
+// Called when the sprite object is being destroyed.
+//
+// - clears any object references retained by a sprite via "ownership".
+//   See the comment above user_abstract_obj::set_owned_by_script for more.
+// - clears script engine data
+// - invalidates any internal array references that refer to this sprite
+void FFScript::destroySprite(sprite* sprite)
+{
+	DCHECK(sprite->get_scrtype().has_value());
+	ScriptType scriptType = *sprite->get_scrtype();
+	int32_t uid = sprite->getUID();
+	FFCore.release_sprite_owned_objects(uid);
+	FFCore.deallocateAllScriptOwned(scriptType, uid);
+	FFCore.reset_script_engine_data(scriptType, uid);
+	expire_internal_script_arrays(scriptType, uid);
+}
+
+// Same as "onDestroySprite", but for non-sprite things.
 void FFScript::destroyScriptableObject(ScriptType scriptType, const int32_t UID)
 {
 	FFCore.deallocateAllScriptOwned(scriptType, UID);
@@ -2558,11 +2605,10 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	std::vector<uint32_t> ids_to_clear;
 	for (auto& script_object : script_objects | std::views::values)
 	{
-		if (script_object->own_clear(scriptType, UID))
+		if (script_object->script_own_clear(scriptType, UID))
 		{
 			ids_to_clear.push_back(script_object->id);
-			script_object->owned_type = ScriptType::None;
-			script_object->owned_i = 0;
+			script_object->disown();
 		}
 	}
 
@@ -2592,7 +2638,7 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	{
 		for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 		{
-			if(arrayOwner[i].own_clear(scriptType,UID))
+			if(arrayOwner[i].script_own_clear(scriptType,UID))
 				deallocateArray(i);
 		}
 	}
@@ -2606,8 +2652,7 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 		if (script_object->owned_type == scriptType)
 		{
 			ids_to_clear.push_back(script_object->id);
-			script_object->owned_type = ScriptType::None;
-			script_object->owned_i = 0;
+			script_object->disown();
 		}
 	}
 
@@ -2671,11 +2716,10 @@ void FFScript::deallocateAllScriptOwnedCont()
 	std::vector<uint32_t> ids_to_clear;
 	for (auto& script_object : script_objects | std::views::values)
 	{
-		if (script_object->own_clear_cont())
+		if (script_object->script_own_clear_cont())
 		{
 			ids_to_clear.push_back(script_object->id);
-			script_object->owned_type = ScriptType::None;
-			script_object->owned_i = 0;
+			script_object->disown();
 		}
 	}
 
@@ -2707,7 +2751,7 @@ void FFScript::deallocateAllScriptOwnedCont()
 		{
 			if(localRAM[i].Valid())
 			{
-				if(arrayOwner[i].own_clear_cont())
+				if(arrayOwner[i].script_own_clear_cont())
 					deallocateArray(i);
 			}
 		}
@@ -18579,6 +18623,32 @@ void do_own_array(int arrindx, ScriptType scriptType, const int32_t UID)
 	else Z_scripterrlog_force_trace("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
 }
 
+void do_own_array(int arrindx, sprite* spr)
+{
+	ArrayManager am(arrindx);
+	
+	if(am.internal())
+	{
+		Z_scripterrlog_force_trace("Cannot 'OwnArray()' an internal array '%d'\n", arrindx);
+		return;
+	}
+	if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
+	{
+		//ignore global arrays
+	}
+	else if(!am.invalid())
+	{
+		if(arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
+		{
+			arrayOwner[arrindx].reown(spr);
+			arrayOwner[arrindx].specOwned = true;
+		}
+		else if(arrindx < 0) //object array
+			Z_scripterrlog_force_trace("Cannot 'OwnArray()' an object-based array '%d'\n", arrindx);
+	}
+	else Z_scripterrlog_force_trace("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
+}
+
 void do_destroy_array()
 {
 	if (ZScriptVersion::gc_arrays())
@@ -24339,23 +24409,22 @@ void do_writepodarr()
 	ArrayH::setArray(id, sargvec->size(), sargvec->data(), false);
 }
 
-int32_t get_own_i(ScriptType type)
+sprite* get_own_sprite(ScriptType type)
 {
 	switch(type)
 	{
 		case ScriptType::Lwpn:
-			return ri->lwpn;
+			return checkLWpn(ri->lwpn);
 		case ScriptType::Ewpn:
-			return ri->ewpn;
+			return checkEWpn(ri->ewpn);
 		case ScriptType::ItemSprite:
-			return ri->itemref;
+			return checkItem(ri->itemref);
 		case ScriptType::NPC:
-			return ri->guyref;
+			return checkNPC(ri->guyref);
 		case ScriptType::FFC:
-			if (auto ffc = ResolveFFC(ri->ffcref))
-				return ffc->index;
+			return ResolveFFC(ri->ffcref);
 	}
-	return 0;
+	return nullptr;
 }
 
 portal* loadportal(savedportal& p);
@@ -26811,8 +26880,8 @@ int32_t run_script_int(bool is_jitted)
 				user_bitmap* b = checkBitmap(bmpid, false);
 				if(!b) break;
 				ScriptType own_type = (ScriptType)sarg2;
-				int32_t own_i = get_own_i(own_type);
-				own_script_object(b, own_type, own_i);
+				sprite* own_sprite = get_own_sprite(own_type);
+				own_script_object(b, own_sprite);
 				break;
 			}
 			case OBJ_OWN_PALDATA:
@@ -26821,8 +26890,8 @@ int32_t run_script_int(bool is_jitted)
 				user_paldata* pd = checkPalData(palid, false);
 				if(!pd) break;
 				ScriptType own_type = (ScriptType)sarg2;
-				int32_t own_i = get_own_i(own_type);
-				own_script_object(pd, own_type, own_i);
+				sprite* own_sprite = get_own_sprite(own_type);
+				own_script_object(pd, own_sprite);
 				break;
 			}
 			case OBJ_OWN_FILE:
@@ -26831,8 +26900,8 @@ int32_t run_script_int(bool is_jitted)
 				user_file* f = checkFile(fileid, false);
 				if(!f) break;
 				ScriptType own_type = (ScriptType)sarg2;
-				int32_t own_i = get_own_i(own_type);
-				own_script_object(f, own_type, own_i);
+				sprite* own_sprite = get_own_sprite(own_type);
+				own_script_object(f, own_sprite);
 				break;
 			}
 			case OBJ_OWN_DIR:
@@ -26841,8 +26910,8 @@ int32_t run_script_int(bool is_jitted)
 				user_dir* dr = checkDir(dirid, false);
 				if(!dr) break;
 				ScriptType own_type = (ScriptType)sarg2;
-				int32_t own_i = get_own_i(own_type);
-				own_script_object(dr, own_type, own_i);
+				sprite* own_sprite = get_own_sprite(own_type);
+				own_script_object(dr, own_sprite);
 				break;
 			}
 			case OBJ_OWN_STACK:
@@ -26851,8 +26920,8 @@ int32_t run_script_int(bool is_jitted)
 				user_stack* st = checkStack(stackid, false);
 				if(!st) break;
 				ScriptType own_type = (ScriptType)sarg2;
-				int32_t own_i = get_own_i(own_type);
-				own_script_object(st, own_type, own_i);
+				sprite* own_sprite = get_own_sprite(own_type);
+				own_script_object(st, own_sprite);
 				break;
 			}
 			case OBJ_OWN_RNG:
@@ -26861,16 +26930,16 @@ int32_t run_script_int(bool is_jitted)
 				user_rng* r = checkRNG(rngid, false);
 				if(!r) break;
 				ScriptType own_type = (ScriptType)sarg2;
-				int32_t own_i = get_own_i(own_type);
-				own_script_object(r, own_type, own_i);
+				sprite* own_sprite = get_own_sprite(own_type);
+				own_script_object(r, own_sprite);
 				break;
 			}
 			case OBJ_OWN_ARRAY:
 			{
 				int arrid = get_register(sarg1);
 				ScriptType own_type = (ScriptType)sarg2;
-				int32_t own_i = get_own_i(own_type);
-				do_own_array(arrid, own_type, own_i);
+				sprite* own_sprite = get_own_sprite(own_type);
+				do_own_array(arrid, own_sprite);
 				break;
 			}
 				

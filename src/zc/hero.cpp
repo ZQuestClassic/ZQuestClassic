@@ -30072,14 +30072,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	}
 
 	// Bye!
-	for (int i = 0; i < 136*7; i++)
-	{
-		if (old_temporary_screens[i])
-		{
-			free(old_temporary_screens[i]);
-			old_temporary_screens[i] = NULL;
-		}
-	}
+	delete_temporary_screens(old_temporary_screens.data());
 	FFCore.ScrollingScreensAll.clear();
 
 	if(!get_qr(qr_SCROLLWARP_NO_RESET_FRAME))

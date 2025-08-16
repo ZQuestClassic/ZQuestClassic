@@ -293,17 +293,29 @@ void mark_current_region_handles_dirty()
 	current_region_rpos_handles_dirty = true;
 }
 
-void clear_temporary_screens()
+void delete_temporary_screens(mapscr** screens)
 {
 	for (int i = 0; i < 136*7; i++)
 	{
-		if (temporary_screens[i])
-		{
-			free(temporary_screens[i]);
-			temporary_screens[i] = NULL;
-		}
-	}
+		if (!screens[i])
+			continue;
 
+		mapscr* scr = screens[i];
+		int num_ffcs = scr->numFFC();
+		for (int i = 0; i < num_ffcs; i++)
+		{
+			sprite* ffc = &scr->ffcs[i];
+			if (ffc->uid)
+				FFCore.release_sprite_owned_objects(ffc->uid);
+		}
+		delete scr;
+		screens[i] = NULL;
+	}
+}
+
+void clear_temporary_screens()
+{
+	delete_temporary_screens(temporary_screens);
 	origin_scr = nullptr;
 	hero_scr = nullptr;
 }
@@ -6187,6 +6199,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 		}
 	}
 
+	// When loading a new screen, all previous FFC scripts end, with one exception.
 	// Based on origin_ffc_overlay, some ffc scripts don't get reset. This set starts with all of
 	// them, but scripts that need their data to persist will be removed.
 	loadscr_ffc_script_ids_to_remove.clear();
@@ -6248,6 +6261,15 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 
 	for (int index : loadscr_ffc_script_ids_to_remove)
 	{
+		// Note: ideally would use "destroySprite", but during scrolling the previous
+		// screen's FFCs are still accessible (even though only the new screen's FFC scripts run).
+		// The only difference is a call to "release_sprite_owned_objects". To defer FFC script
+		// owned objects being released until the end of the scroll, here "destroyScriptableObject"
+		// is used instead.
+		//
+		// So when is "release_sprite_owned_objects" called for FFCs? For scrolling screen
+		// transitions, it's at the end of "scrollscr" via "delete_temporary_screens". Otherwise,
+		// it is called above when "load_region" calls "clear_temporary_screens".
 		FFCore.destroyScriptableObject(ScriptType::FFC, index);
 	}
 
