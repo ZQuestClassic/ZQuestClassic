@@ -26237,7 +26237,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		if(DMaps[cur_dmap].color != c)
 			loadlvlpal(DMaps[cur_dmap].color);
 		
-		int prevscr = cur_screen;
+		auto prev_region = cur_region;
+		int prev_origin_screen = cur_screen;
 		loadscr(cur_dmap, wscr + DMaps[cur_dmap].xoff, -1, overlay);
 		scr = hero_scr;
 		lightingInstant(); // Also sets naturaldark
@@ -26246,10 +26247,27 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		// state for the new screen.
 		if (!kill_action)
 		{
-			if (get_screen_state(prevscr).loaded_enemies)
-				get_screen_state(cur_screen).loaded_enemies = true;
+			// Mark the "loaded_enemies" state true if the previous screen had it as true.
+			// The new screen is attempted to be matched 1:1 with screens in the old region, but if
+			// the regions are different sizes then the nearest screen is used (it's clamped).
+			for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+				int previous_screen_x = zc_min(prev_region.screen_width, region_scr_x);
+				int previous_screen_y = zc_min(prev_region.screen_height, region_scr_y);
+				int previous_screen = prev_origin_screen + previous_screen_x + previous_screen_y*16;
+				if (get_screen_state(previous_screen).loaded_enemies)
+					get_screen_state(scr->screen).loaded_enemies = true;
+			});
+
+			// Update "screen_spawned" for every sprite to keep it valid.
+			for_every_sprite([&](sprite& spr) {
+				int x = get_region_relative_dx(spr.screen_spawned, prev_origin_screen);
+				int y = get_region_relative_dy(spr.screen_spawned, prev_origin_screen);
+				x = zc_min(x, cur_region.screen_width);
+				y = zc_min(y, cur_region.screen_height);
+				spr.screen_spawned = cur_screen + x + y*16;
+			});
 		}
-		
+
 		x = hero_scr->warpreturnx[wrindex];
 		y = hero_scr->warpreturny[wrindex];
 		
