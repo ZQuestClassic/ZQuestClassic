@@ -1920,7 +1920,8 @@ extern int32_t flagval;
 void clear_ornextflag();
 void ornextflag(bool flag);
 
-int32_t get_mi();
+int32_t get_mi(int32_t);
+int32_t get_mi(mapdata const&);
 int32_t get_total_mi();
 int get_mouse_state(int index);
 

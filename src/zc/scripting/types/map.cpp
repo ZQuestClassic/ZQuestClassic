@@ -327,17 +327,17 @@ static ArrayRegistrar MAPDATAINITDARRAY_registrar(MAPDATAINITDARRAY, []{
 }());
 
 static ArrayRegistrar MAPDATASCREENSTATED_registrar(MAPDATASCREENSTATED, []{
-	static ScriptingArray_ObjectComputed<mapscr, bool> impl(
-		[](mapscr* scr){ return mMAXIND; },
-		[](mapscr* scr, int index) -> bool {
-			int mi = mapind(cur_map, scr->screen);
+	static ScriptingArray_ObjectComputed<mapdata, bool> impl(
+		[](mapdata* mapdata){ return mMAXIND; },
+		[](mapdata* mapdata, int index) -> bool {
+			int mi = get_mi(*mapdata);
 			if (mi < 0)
 				return false;
 
 			return (game->maps[mi] >> index) & 1;
 		},
-		[](mapscr* scr, int index, bool value){
-			int mi = mapind(cur_map, scr->screen);
+		[](mapdata* mapdata, int index, bool value){
+			int mi = get_mi(*mapdata);
 			if (value)
 				setmapflag_mi(mi, 1 << index);
 			else
@@ -350,17 +350,17 @@ static ArrayRegistrar MAPDATASCREENSTATED_registrar(MAPDATASCREENSTATED, []{
 }());
 
 static ArrayRegistrar MAPDATAEXSTATED_registrar(MAPDATAEXSTATED, []{
-	static ScriptingArray_ObjectComputed<mapscr, bool> impl(
-		[](mapscr* scr){ return 32; },
-		[](mapscr* scr, int index) -> bool {
-			int mi = mapind(cur_map, scr->screen);
+	static ScriptingArray_ObjectComputed<mapdata, bool> impl(
+		[](mapdata* mapdata){ return 32; },
+		[](mapdata* mapdata, int index) -> bool {
+			int mi = get_mi(*mapdata);
 			if (mi < 0)
 				return false;
 
 			return (game->xstates[mi] >> index) & 1;
 		},
-		[](mapscr* scr, int index, bool value){
-			int mi = mapind(cur_map, scr->screen);
+		[](mapdata* mapdata, int index, bool value){
+			int mi = get_mi(*mapdata);
 			if (value)
 				setxmapflag_mi(mi, 1 << index);
 			else

@@ -921,26 +921,29 @@ int32_t get_screeneflags(mapscr *m, int32_t flagset)
 	return flagval;
 }
 
-int32_t get_mi(int32_t ref)
+int32_t get_mi(mapdata const& ref)
 {
-	auto result = decode_mapdata_ref(ref);
-	if (result.canonical())
+	if (ref.canonical())
 	{
-		if (result.screen >= MAPSCRSNORMAL) return -1;
-		return mapind(result.scr->map, result.screen);
+		if (ref.screen >= MAPSCRSNORMAL) return -1;
+		return mapind(ref.scr->map, ref.screen);
 	}
-	else if (result.current())
+	else if (ref.current())
 	{
-		if (result.screen >= MAPSCRSNORMAL) return -1;
-		return mapind(cur_map, result.screen);
+		if (ref.screen >= MAPSCRSNORMAL) return -1;
+		return mapind(cur_map, ref.screen);
 	}
-	else if (result.scrolling())
+	else if (ref.scrolling())
 	{
-		if (result.screen >= MAPSCRSNORMAL) return -1;
-		return mapind(scrolling_map, result.screen);
+		if (ref.screen >= MAPSCRSNORMAL) return -1;
+		return mapind(scrolling_map, ref.screen);
 	}
 
 	return -1;
+}
+int32_t get_mi(int32_t ref)
+{
+	return get_mi(decode_mapdata_ref(ref));
 }
 
 int32_t get_ref_map_index(int32_t ref)
