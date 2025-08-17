@@ -19294,6 +19294,9 @@ enemy* find_guy_nth_for_id(int screen, int id, int n, int mask)
 
 bool scriptloadenemies(int screen)
 {
+	auto& state = get_screen_state(screen);
+	state.loaded_enemies = true;
+
 	if (sle_clk || script_sle[screen]) return false;
 
 	mapscr* scr = get_scr(screen);
