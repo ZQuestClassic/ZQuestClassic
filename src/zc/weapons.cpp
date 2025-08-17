@@ -39,7 +39,7 @@ static bool CanComboTrigger(weapon *w)
 	{
 		case wSword: case wBeam: case wBrang: case wBomb: case wSBomb: case wLitBomb: case wLitSBomb:
 		case wArrow: case wFire: case wWhistle: case wBait: case wWand: case wMagic: case wWind:
-		case wRefMagic: case wRefFireball: case wRefRock: case wHammer: case wHookshot:
+		case wRefMagic: case wRefFireball: case wRefRock: case wHammer: case wHookshot: case wSwitchHook:
 		case wFSparkle: case wSSparkle: case wCByrna: case wRefBeam: case wStomp:
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
@@ -1296,10 +1296,10 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			dummy_bool[0]=false; //grenade armed?
 			break;
 		}
-		case wHookshot:
+		case wHookshot: case wSwitchHook:
 		{
 			hookshot_used=true;
-			hs_switcher = family_class == itype_switchhook;
+			hs_switcher = family_class == itype_switchhook || id == wSwitchHook;
 			
 			if(isDummy || itemid < 0)
 				itemid = getCanonicalItemID(itemsbuf, family_class);
@@ -2214,7 +2214,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			LOADGFX(*ret);
 			break;
 		}
-		case wHookshot:
+		case wHookshot: case wSwitchHook:
 		{
 			if(spr)
 				ret = *spr;
@@ -2723,7 +2723,7 @@ void weapon::load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr)
 	{
 		case wSword: case wHammer: case wBugNet: case wWand: case wBomb: case wSBomb: case wWhistle:
 		case wCatching: case wHookshot: case wHSHandle: case wHSChain: case wSSparkle: case wFSparkle:
-		case wSmack: case wPhantom: case wStomp:
+		case wSmack: case wPhantom: case wStomp: case wSwitchHook:
 			break; // melee or special cases, leave flags as they are
 		default:
 			moveflags = data.moveflags;
@@ -2762,6 +2762,7 @@ void weapon::load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr)
 	{
 		case wBeam: case wRefBeam: case wSSparkle: case wFSparkle:
 		case wHookshot: case wHSHandle: case wHSChain: case wPhantom:
+		case wSwitchHook:
 			do_size = false;
 			break;
 		case wSword: case wWand: case wHammer: case wCByrna: case wWhistle:
@@ -2986,7 +2987,7 @@ bool weapon::clip()
         c[2] = d2?32:(16-nb1);
         c[3] = world_w - (d2?48:32-nb1);
     }
-    else if(id==wHookshot||id==wHSChain)
+    else if(id==wHookshot||id==wHSChain||id==wSwitchHook)
     {
         c[0] = d2?8:0;
         c[1] = world_h - (d2?24:16);
@@ -3802,6 +3803,7 @@ bool weapon::animate(int32_t index)
 			case wCByrna:
 			case wHammer:
 			case wHookshot:
+			case wSwitchHook:
 			case wWhistle:
 			case wFSparkle:
 			case wHSChain:
@@ -3826,6 +3828,7 @@ bool weapon::animate(int32_t index)
 			case wCByrna:
 			case wHammer:
 			case wHookshot:
+			case wSwitchHook:
 			case wWhistle:
 			case wFSparkle:
 			case wHSChain:
@@ -4544,7 +4547,7 @@ bool weapon::animate(int32_t index)
 			break;
 		}
 		
-		case wHookshot:
+		case wHookshot: case wSwitchHook:
 		{
 			if(dead==0)  // Set by ZScript
 			{
@@ -6241,51 +6244,71 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 	
 	return true;
 }
+shield_flags weapon::get_refl_flag() const
+{
+	switch(id)
+	{
+		case wMagic: case wRefMagic: case ewMagic:
+			return sh_magic;
+		case wWind:
+			return sh_lw_wind;
+		case ewWind:
+			return sh_ew_wind;
+		case wBeam: case wRefBeam: case ewSword:
+			return sh_sword;
+		case wScript1:
+			return sh_script | sh_script1;
+		case wScript2:
+			return sh_script | sh_script2;
+		case wScript3:
+			return sh_script | sh_script3;
+		case wScript4:
+			return sh_script | sh_script4;
+		case wScript5:
+			return sh_script | sh_script5;
+		case wScript6:
+			return sh_script | sh_script6;
+		case wScript7:
+			return sh_script | sh_script7;
+		case wScript8:
+			return sh_script | sh_script8;
+		case wScript9:
+			return sh_script | sh_script9;
+		case wScript10:
+			return sh_script | sh_script10;
+		case ewRock: case wRefRock:
+			return sh_rock;
+		case wArrow: case ewArrow: case wRefArrow:
+			return sh_arrow;
+		case ewFireball: case ewFireball2: case wRefFireball:
+			return (type&1) ? sh_fireball2 : sh_fireball;
+		case wFire: case ewFlame: case wRefFire:
+			return sh_flame;
+		case ewFlame2: case wRefFire2:
+			return sh_flame2;
+	}
+	return sh_none;
+}
 bool weapon::do_mirror() // returns true if animate needs to early-break
 {
-	dword refl_flag = 0;
+	dword refl_flag = get_refl_flag();
 	bool can_duplicate = true;
 	bool block_check = false;
 	bool ret_ignorecombo = false, ret_fail = false;
 	switch(id)
 	{
 		case wMagic: case wRefMagic: case ewMagic:
-			refl_flag = sh_magic;
 			block_check = true;
 			ret_fail = true;
 			break;
 		case wWind:
 			can_duplicate = false;
 			block_check = true;
-			refl_flag = sh_lw_wind;
 			ret_fail = true;
-			break;
-		case ewWind:
-			refl_flag = sh_ew_wind;
 			break;
 		case wBeam: case wRefBeam: case ewSword:
-			refl_flag = sh_sword;
 			ret_ignorecombo = true;
 			ret_fail = true;
-			break;
-		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
-		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
-			refl_flag = sh_script | (sh_script1 << (id-wScript1));
-			break;
-		case ewRock: case wRefRock:
-			refl_flag = sh_rock;
-			break;
-		case wArrow: case ewArrow: case wRefArrow:
-			refl_flag = sh_arrow;
-			break;
-		case ewFireball: case ewFireball2: case wRefFireball:
-			refl_flag = (type&1) ? sh_fireball2 : sh_fireball;
-			break;
-		case wFire: case ewFlame: case wRefFire:
-			refl_flag = sh_flame;
-			break;
-		case ewFlame2: case wRefFire2:
-			refl_flag = sh_flame2;
 			break;
 	}
 	
@@ -6444,7 +6467,8 @@ void weapon::collision_check()
 	if(isLWeapon)
 	{
 		check_enemy_lweapon_collision(this);
-		(void)Hero.try_lwpn_hit(this);
+		if(!Hero.try_lwpn_special_hit(this))
+			(void)Hero.try_lwpn_hit(this);
 	}
 	else
 	{
@@ -6754,10 +6778,10 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 	}
 	break;
         
-    case wHookshot:
+    case wHookshot: case wSwitchHook:
         if(misc==0)
         {
-			if(family_class==itype_switchhook)
+			if(family_class==itype_switchhook || id == wSwitchHook)
 			{
 				if(e && !switching_object && (ehitType < 0 || e->switch_hooked))
 				{
@@ -7321,7 +7345,7 @@ void weapon::draw(BITMAP *dest)
 			
 			break;
 			
-		case wHookshot:
+		case wHookshot: case wSwitchHook:
 			break;
 			
 		case wWind:

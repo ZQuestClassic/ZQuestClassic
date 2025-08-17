@@ -132,6 +132,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_0_7(GUI::ListData::numbers(false,0,8)),
 	list_light_shapes(GUI::ZCListData::light_shapes()),
 	list_strings(GUI::ZCListData::strings(true)),
+	list_statuses(GUI::ZCListData::statusnames(false, true)),
 	list_items(GUI::ZCListData::items(true)),
 	list_items_0none(GUI::ZCListData::items(true).filter(
 		[&](GUI::ListItem& itm)

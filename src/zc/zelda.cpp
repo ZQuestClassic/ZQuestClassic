@@ -1201,34 +1201,6 @@ int32_t  HeroHoverClk()
 {
     return Hero.getHoverClk();
 }
-int32_t  HeroSwordClk()
-{
-    return Hero.getSwordClk();
-}
-int32_t  HeroItemClk()
-{
-    return Hero.getItemClk();
-}
-int32_t  HeroShieldClk()
-{
-	return Hero.getShieldClk();
-}
-void setSwordClk(int32_t newclk)
-{
-    Hero.setSwordClk(newclk);
-}
-void setItemClk(int32_t newclk)
-{
-    Hero.setItemClk(newclk);
-}
-void setShieldClk(int32_t newclk)
-{
-	Hero.setShieldClk(newclk);
-}
-bool HeroIsJinxed()
-{
-	return (HeroSwordClk() || HeroItemClk() || HeroShieldClk());
-}
 int32_t  HeroLStep()
 {
     return Hero.getLStep();
@@ -2957,29 +2929,23 @@ void do_magic_casting()
 
 void update_hookshot()
 {
-    int32_t hs_x, hs_y, hs_z,hs_dx, hs_dy;
-    bool check_hs=false;
-    int32_t dist_bx, dist_by, hs_w;
-    chainlinks.animate();
-    //  char tempbuf[80];
-    //  char tempbuf2[80];
-    
-    //find out where the head is and make it
-    //easy to reference
-    if(Lwpns.idFirst(wHookshot)>-1)
+	chainlinks.animate();
+	
+	auto hook_id = Lwpns.idFirst(wHookshot);
+	if(hook_id < 0) hook_id = Lwpns.idFirst(wSwitchHook);
+	
+	if (hook_id > -1)
     {
-        check_hs=true;
-    }
-    
-    if(check_hs)
-    {
-		weapon* hookweap = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
-        int32_t parentitem = hookweap->parentitem;
-        hs_x=hookweap->x;
-        hs_y=hookweap->y;
-        hs_z=hookweap->z;
-        hs_dx=hs_x-hs_startx;
-        hs_dy=hs_y-hs_starty;
+		weapon* hookweap = (weapon*)Lwpns.spr(hook_id);
+		int32_t parentitem = hookweap->parentitem;
+		
+		int32_t hs_x = hookweap->x;
+		int32_t hs_y = hookweap->y;
+		int32_t hs_z = hookweap->z;
+		int32_t hs_dx = hs_x-hs_startx;
+		int32_t hs_dy = hs_y-hs_starty;
+		
+		int32_t dist_bx, dist_by, hs_w;
         
         //extending
         if(hookweap->misc==0)

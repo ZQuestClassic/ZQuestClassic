@@ -9,7 +9,7 @@ int32_t script_hero_sprite = 0;
 int32_t script_hero_flip = -1;
 int32_t script_hero_cset = -1;
 
-byte hero_defenses[wMax];
+bounded_map<byte,byte> hero_defenses {wMax, 0};
 
 int32_t hammeroffsets[4];
 
@@ -925,11 +925,7 @@ void setupherotiles(int32_t style)
 void setupherodefenses()
 {
     //For now this just zeroes out Hero's defenses by default, set these to appropriate defaults if necessary if defense implementation is extended. -Jman
-    for (int32_t i = 0; i < wMax; i++)
-    {
-        hero_defenses[i] = 0;
-    }
-    
+    hero_defenses.clear();
 }
 
 void setupherooffsets()

@@ -20,6 +20,7 @@
 #include "hero_tiles.h"
 #include "subscr.h"
 #include "base/zfix.h"
+#include "status_fx.h"
 #include <vector>
 
 extern movingblock mblock2;                                 //mblock[4]?
@@ -210,9 +211,6 @@ public:
 		attackclk,//attack timeout.
 		attack,   //current attack wpnid.
 		attackid, //current attack itemid.
-		swordclk, //sword jinx timeout.
-		itemclk,  //item jinx timeout.
-		shieldjinxclk, //shield jinx timeout.
 		didstuff, //played the whistle? used the blue candle?
 		blowcnt,  //number of times whistle blown on this screen.
 		stepoutindex, // where to step out when in a passageway
@@ -237,8 +235,6 @@ public:
 		switchhookstyle, //the switchhook animation style
 		switchhookarg; //a parameter based on the switchhook style
 	int32_t shiftdir, // shift direction when walking into corners of solid combos
-		lstunclock, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
-		lbunnyclock,
 		sdir, // scrolling direction
 		sideswimdir,  //for forcing hero to face left or right in sideview
 		immortal; //Timer for being unable to die
@@ -275,7 +271,7 @@ public:
 	int32_t swimsiderate;
 	int32_t swimdownrate;
 	zfix shove_offset;
-	byte defence[wMax];
+	bounded_map<byte,byte> defence {wMax, 0};
 	int32_t subscr_speed;
 	bool is_warping;
 	byte dying_flags;
@@ -329,6 +325,7 @@ public:
 	int sliding;
 	byte ice_entry_count, ice_entry_mcount;
 
+	StatusData status;
 private:
 	ffcdata const* platform_ffc;
 	bool lamp_paid;
@@ -375,9 +372,11 @@ public:
 	bool nextcombo_wf(int32_t d);
 	bool nextcombo_solid(int32_t d);
 	
-	bool check_ewpn_collide(weapon* w);
-	bool try_lwpn_hit(weapon* w);
-	bool try_ewpn_hit(weapon* w, bool force = false);
+	int ewpn_collide_defend(weapon* w, int32_t& power, int32_t& hdir);
+	int lwpn_collide_defend(weapon* w, int32_t& power, int32_t& hdir, bool skip_coll = false);
+	int try_ewpn_hit(weapon* w);
+	int try_lwpn_hit(weapon* w, bool skip_coll = false, optional<int32_t> dmg_override = nullopt);
+	bool try_lwpn_special_hit(weapon* w);
 	void checkhit();
 	
 	void doHit(int32_t hitdir, int iframes = 48);
@@ -435,7 +434,9 @@ public:
 	void run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
 	void calc_darkroom_hero(int32_t x1, int32_t y1);
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
-	int32_t defend(weapon *w);
+	bool shield_block_w(weapon* w);
+	int32_t old_defend(weapon *w);
+	int32_t defend(weapon *w, int32_t& power, int32_t& hdir);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	int getHammerState() const;
 	bool handle_portal_collide(portal* p);
@@ -467,8 +468,8 @@ private:
 #define CMPDIR_RIGHT 0x8
 	int32_t compareDir(int32_t other);
 	
-	int32_t  EwpnHit();
-	int32_t  LwpnHit();
+	bool EwpnHit();
+	bool LwpnHit();
 	void heroDeathAnimation();
 	void win_game();
    
@@ -485,10 +486,12 @@ public:
 	void checkitems(int32_t index = -1);
 	int32_t DrunkClock();
 	void setDrunkClock(int32_t newdrunkclk);
-	int32_t StunClock();
+	int32_t getStunClock();
 	void setStunClock(int32_t v);
-	int32_t BunnyClock();
+	int32_t getBunnyClock();
 	void setBunnyClock(int32_t v);
+	int32_t getStatusClock(word status_id);
+	void setStatusClock(word status_id, int32_t v);
 	HeroClass();
 	void init();
 	virtual void drawshadow(BITMAP* dest, bool translucent);
@@ -608,8 +611,6 @@ public:
 	
 	void sethitHeroUID(int32_t type, int32_t screen);
 	void ClearhitHeroUIDs();
-	void set_defence(int32_t def, int32_t v);
-	int32_t get_defence(int32_t def);
 	int32_t gethitHeroUID(int32_t type);
 	
 	void setHurtSFX(int32_t sfx); //Set Hero;s hurt sfx
@@ -648,6 +649,8 @@ public:
 	bool on_ffc_platform();
 	void check_platform_ffc();
 	void clear_platform_ffc();
+	
+	void update_status(EntityStatus const& stat, word clk, int32_t dur, word indx);
 };
 
 bool usingActiveShield(int32_t itmid = -1);
@@ -666,6 +669,7 @@ bool usekey(int32_t num);
 int32_t enemy_dp(int32_t index);
 int32_t ewpn_dp(int32_t index);
 int32_t lwpn_dp(int32_t index);
+int32_t wpn_dp(weapon* w);
 bool checkbunny(int32_t itemid);
 bool usesSwordJinx(int32_t itemid);
 bool checkitem_jinx(int32_t itemid);

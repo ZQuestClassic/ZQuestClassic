@@ -2,6 +2,7 @@
 #define ZC_HERO_TILES_H_
 
 #include "base/zdefs.h"
+#include "base/containers.h"
 
 enum
 {
@@ -25,7 +26,7 @@ extern int32_t script_hero_flip;
 extern int32_t hero_animation_speed;
 extern int32_t liftspeed;
 
-extern byte hero_defenses[wMax];
+extern bounded_map<byte,byte> hero_defenses;
 
 extern int32_t hammeroffsets[4];
 
