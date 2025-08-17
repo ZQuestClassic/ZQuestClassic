@@ -1300,7 +1300,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									InfoDialog("Level Info","Most passive items only take effect if they are the highest level you own.\n"
 										"By default, subscreens use the highest level item of an itemclass for displaying.").show();
 								}),
-							NUM_FIELD_W(fam_type, 1, 255, ATTR_WID),
+							NUM_FIELD_W(level, 1, 255, ATTR_WID),
 							l_power = Label(width=ATTR_LAB_WID,textAlign=2),
 							ib_power = Button(forceFitH = true, text = "?",
 								disabled = true,

@@ -78,6 +78,9 @@ public:
     int32_t txsz = -1;
 	// tile height
 	int32_t tysz = -1;
+    // Specific to the sprite subclass. For items, this is the item type. For weapons, it's the weapon type. etc.
+    // Not unique. For a unique identifer, use "getUID()".
+    // If negative, the sprite will not render.
     int32_t id;
     zfix slopeid;
     byte onplatid = 0;

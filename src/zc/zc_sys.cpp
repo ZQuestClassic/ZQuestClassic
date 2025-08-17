@@ -1946,7 +1946,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 			int maxid = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
 			
 			if(maxid != -1 && (itemsbuf[maxid].flags & item_flag1)) //Active clock
-				return itemsbuf[maxid].fam_type;
+				return itemsbuf[maxid].level;
 			
 			return has_item(itype_clock,1) ? 1 : 0;
 		}
@@ -2014,7 +2014,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 			if(maxid == -1)
 				return 0;
 				
-			return itemsbuf[maxid].fam_type;
+			return itemsbuf[maxid].level;
 	}
 }
 
@@ -2087,9 +2087,9 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 			if(check_bunny && !checkbunny(i))
 				continue;
 			
-			if(itemsbuf[i].fam_type >= highestlevel)
+			if(itemsbuf[i].level >= highestlevel)
 			{
-				highestlevel = itemsbuf[i].fam_type;
+				highestlevel = itemsbuf[i].level;
 				result=i;
 			}
 		}

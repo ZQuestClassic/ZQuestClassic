@@ -39,7 +39,12 @@ public:
 	void load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr = nullptr);
     void setAngle(double angletoset);
     void doAutoRotate(bool dodir = false, bool doboth = false);
-    int32_t power,type,dead,clk2,misc2;
+    int32_t power,dead,clk2,misc2;
+    // The level (or "sub-type") of the weapon.
+    // Each weapon type (sprite::id) uses this differently (and some not at all).
+    // For weapons created by an item, it's the item level.
+    // For fireballs, the first bit is the "boss fireball" flag.
+    int32_t level;
 	rpos_t ignorecombo;
     bool isLit; //if true, this weapon is providing light to the current screen
     int32_t parentid, //Enemy who created it

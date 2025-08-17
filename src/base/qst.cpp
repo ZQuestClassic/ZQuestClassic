@@ -6424,7 +6424,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
                 if(tempitem.family == 0xFF)
                     tempitem.family = itype_misc;
                     
-            if(!p_getc(&tempitem.fam_type,f))
+            if(!p_getc(&tempitem.level,f))
             {
                 return qe_invalid;
             }
@@ -7200,15 +7200,15 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			switch(i)
 			{
 				case iTriforce:
-					tempitem.fam_type=1;
+					tempitem.level=1;
 					break;
 					
 				case iBigTri:
-					tempitem.fam_type=0;
+					tempitem.level=0;
 					break;
 					
 				case iBombs:
-					tempitem.fam_type=i_bomb;
+					tempitem.level=i_bomb;
 					tempitem.power=4;
 					tempitem.wpn=wBOMB;
 					tempitem.wpn2=wBOOM;
@@ -7219,7 +7219,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					break;
 					
 				case iSBomb:
-					tempitem.fam_type=i_sbomb;
+					tempitem.level=i_sbomb;
 					tempitem.power=16;
 					tempitem.wpn=wSBOMB;
 					tempitem.wpn2=wSBOOM;
@@ -7435,7 +7435,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					
 				case iL2SpinScroll:
 					tempitem.family=itype_spinscroll2;
-					tempitem.fam_type=1;
+					tempitem.level=1;
 					tempitem.cost_amount[0]=8;
 					tempitem.power=2;
 					tempitem.misc1 = 20;
@@ -7448,7 +7448,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					
 				case iL2QuakeScroll:
 					tempitem.family=itype_quakescroll2;
-					tempitem.fam_type=1;
+					tempitem.level=1;
 					tempitem.power = 2;
 					tempitem.misc1=0x20;
 					tempitem.misc2=192;
@@ -7564,8 +7564,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 11 && tempitem.family == itype_triforcepiece)
 		{
-			tempitem.flags = (tempitem.fam_type ? item_gamedata : item_none);
-			tempitem.playsound = (tempitem.fam_type ? WAV_SCALE : WAV_CLEARED);
+			tempitem.flags = (tempitem.level ? item_gamedata : item_none);
+			tempitem.playsound = (tempitem.level ? WAV_SCALE : WAV_CLEARED);
 		}
 		
 		if(s_version < 12) // June 2007: More Misc. attributes.
@@ -7681,7 +7681,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			{
 				tempitem.usesound = WAV_SCALE;
 				
-				if(tempitem.fam_type)
+				if(tempitem.level)
 					tempitem.misc3=50;
 			}
 			else if(tempitem.family == itype_potion)
@@ -9464,7 +9464,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					tempitem.flags |= item_flag11; //Divine Fire
 					break;
 				case itype_candle:
-					SETFLAG(tempitem.flags, item_flag9, tempitem.fam_type > 1); //Strong Fire
+					SETFLAG(tempitem.flags, item_flag9, tempitem.level > 1); //Strong Fire
 					tempitem.flags &= ~item_flag10; //Magic Fire
 					tempitem.flags &= ~item_flag11; //Divine Fire
 					break;
@@ -9486,8 +9486,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		}
 
 		
-		if(tempitem.fam_type==0)  // Always do this
-			tempitem.fam_type=1;
+		if(tempitem.level==0)  // Always do this
+			tempitem.level=1;
 			
 		itemsbuf[i] = tempitem;
 	}

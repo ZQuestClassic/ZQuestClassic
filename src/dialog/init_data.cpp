@@ -235,7 +235,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		if(families.find(family) == families.end())
 			families[family] = map<int32_t, vector<int32_t> >();
 		
-		int32_t level = zc_max(1, itemsbuf[q].fam_type);
+		int32_t level = zc_max(1, itemsbuf[q].level);
 		
 		if(families[family].find(level) == families[family].end())
 			families[family][level] = vector<int32_t>();

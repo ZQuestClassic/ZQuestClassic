@@ -2717,7 +2717,7 @@ void do_magic_casting()
             {
 		    //divine fire level fix to go here
                 //Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,3,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
-                Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
+                Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,itemsbuf[magicitem].level,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
                                      isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Hero.getUID(), false, 0, 0, 0));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 		w->fakez = HeroFakeZ();
@@ -2880,7 +2880,7 @@ void do_magic_casting()
             {
                 weapon* w=static_cast<weapon*>(Lwpns.spr(i));
                 if(w->id==wPhantom &&
-                  w->type>=pDIVINEPROTECTIONROCKET1 && w->type<=pDIVINEPROTECTIONROCKETTRAILRETURN2)
+                  w->level>=pDIVINEPROTECTIONROCKET1 && w->level<=pDIVINEPROTECTIONROCKETTRAILRETURN2)
                     Lwpns.del(i);
             }
             
@@ -2939,7 +2939,7 @@ void do_magic_casting()
             {
                 weapon* w=static_cast<weapon*>(Lwpns.spr(i));
                 if(w->id==wPhantom &&
-                  w->type>=pDIVINEPROTECTIONROCKET1 && w->type<=pDIVINEPROTECTIONROCKETTRAILRETURN2)
+                  w->level>=pDIVINEPROTECTIONROCKET1 && w->level<=pDIVINEPROTECTIONROCKETTRAILRETURN2)
                     Lwpns.del(i);
             }
             

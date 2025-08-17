@@ -158,7 +158,7 @@ struct itemdata
     byte delay;                                               // extra delay factor (-1) for first frame
     int32_t ltm;                                                 // Hero Tile Modifier
     int32_t family;												// What family the item is in
-    byte fam_type;	//level										// What type in this family the item is
+    byte level;										// What type in this family the item is
     int32_t power;	// Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
     item_flags flags;
     word script;												// Which script the item is using

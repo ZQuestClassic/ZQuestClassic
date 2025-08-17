@@ -1830,7 +1830,7 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 		int32_t damg = cmb.attributes[0]/10000L;
 		if(damg < 1) damg = 4;
 		auto parentitem = cmb.attribytes[4]>0 ? cmb.attribytes[4] : -1;
-		auto wlvl = parentitem>-1 ? itemsbuf[parentitem].fam_type : 0;
+		auto wlvl = parentitem>-1 ? itemsbuf[parentitem].level : 0;
 		switch(wpn)
 		{
 			//eweapons
@@ -1979,7 +1979,7 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 		int32_t damg = cmb.attributes[0]/10000L;
 		if(damg < 1) damg = 4;
 		auto parentitem = cmb.attribytes[4]>0 ? cmb.attribytes[4] : -1;
-		auto wlvl = parentitem>-1 ? itemsbuf[parentitem].fam_type : 0;
+		auto wlvl = parentitem>-1 ? itemsbuf[parentitem].level : 0;
 		switch(wpn)
 		{
 			//eweapons
@@ -2157,7 +2157,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	if(lw)
 	{
 		int pitem = cmb.attribytes[6]>0 ? cmb.attribytes[6] : -1;
-		int plvl = pitem > -1 ? itemsbuf[pitem].fam_type : 0;
+		int plvl = pitem > -1 ? itemsbuf[pitem].level : 0;
 		
 		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,plvl,damage,wdir,pitem, Hero.getUID(),false,0,1,0,0,weapspr,autorot);
 		if (!Lwpns.add(wpn)) return nullptr;
@@ -2185,7 +2185,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	}
 	if(weapid == ewFireball || weapid == ewFireball2)
 	{
-		SETFLAG(wpn->type, 1, boss);
+		SETFLAG(wpn->level, 1, boss);
 	}
 	wpn->unblockable = cmb.attribytes[4] & WPNUNB_ALL;
 	
@@ -3571,7 +3571,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 	auto& cmb = rpos_handle.combo();
 	itemdata const& glove = itemsbuf[gloveid];
 
-	if(cmb.liftlvl > glove.fam_type) return false;
+	if(cmb.liftlvl > glove.level) return false;
 
 	auto [cx, cy] = rpos_handle.xy();
 
@@ -3616,11 +3616,11 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 		{
 			case itype_bomb:
 				wtype = wLitBomb;
-				wlvl = prntitm.fam_type;
+				wlvl = prntitm.level;
 				break;
 			case itype_sbomb:
 				wtype = wLitSBomb;
-				wlvl = prntitm.fam_type;
+				wlvl = prntitm.level;
 				break;
 			default:
 				prntid = gloveid;

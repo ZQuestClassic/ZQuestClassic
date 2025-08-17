@@ -23010,7 +23010,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
     }
     
 	int id = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
-	return id > -1 ? itemsbuf[id].fam_type : 0;
+	return id > -1 ? itemsbuf[id].level : 0;
 }
 
 int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
@@ -23034,9 +23034,9 @@ int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 		{
 			if ((zq_ignore_item_ownership || game->get_item(i)) && itemsbuf[i].family == itemtype)
 			{
-				if (itemsbuf[i].fam_type >= highestlevel)
+				if (itemsbuf[i].level >= highestlevel)
 				{
-					highestlevel = itemsbuf[i].fam_type;
+					highestlevel = itemsbuf[i].level;
 					result = i;
 				}
 			}

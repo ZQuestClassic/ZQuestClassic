@@ -3831,7 +3831,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		}
 		
 		if(!power)
-			hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_brang))*game->get_hero_dmgmult();
+			hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].level : current_item(itype_brang))*game->get_hero_dmgmult();
 		else
 			hp-=power;
 			
@@ -3861,7 +3861,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 			break;
 		}
 		
-		if(!power) hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_hookshot))*game->get_hero_dmgmult();
+		if(!power) hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].level : current_item(itype_hookshot))*game->get_hero_dmgmult();
 		else
 			hp-=power;
 			
@@ -11503,7 +11503,7 @@ void eStalfos::KillWeapon()
 {
 	for(int32_t i=0; i<Ewpns.Count(); i++)
 	{
-		if(((weapon*)Ewpns.spr(i))->type==misc && Ewpns.spr(i)->id==ewBrang)
+		if(((weapon*)Ewpns.spr(i))->level==misc && Ewpns.spr(i)->id==ewBrang)
 		{
 			//only kill this Goriya's boomerang -DD
 			if(((weapon *)Ewpns.spr(i))->parentid == getUID())

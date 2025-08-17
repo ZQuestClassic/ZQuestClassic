@@ -863,7 +863,7 @@ enum defWpnSprite
 	wsLast
 };
 
-// phantom weapon types
+// phantom (wPhantom) weapon types
 enum
 {
     pDIVINEFIREROCKET, pDIVINEFIREROCKETRETURN, pDIVINEFIREROCKETTRAIL, pDIVINEFIREROCKETTRAILRETURN, pMESSAGEMORE,

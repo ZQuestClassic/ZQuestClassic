@@ -53,18 +53,26 @@ class lweapon {
 
 	// The weapon type. Some types have hardcoded behaviors.
 	//
+	// @value [LWeaponType]
 	// @zasm_var LWPNID
 	internal int Type;
 
 	// Exactly the same as [Type], use that instead.
 	//
+	// @value [LWeaponType]
 	// @zasm_var LWPNID
 	internal int ID;
 
 	// Exactly the same as [Type], use that instead.
 	//
+	// @value [LWeaponType]
 	// @zasm_var LWPNID
 	internal int Family;
+
+	// For lweapons, the level of the weapon.
+	//
+	// @zasm_var LWPNLEVEL
+	internal int Level;
 
 	// The special info for the lweapon.
 	//
@@ -174,11 +182,6 @@ class lweapon {
 	//
 	// @zasm_var LWPNPARENT
 	internal int Parent;
-
-	// For lweapons, the level of the weapon.
-	//
-	// @zasm_var LWPNLEVEL
-	internal int Level;
 
 	// The weapon script running on this weapon.
 	//

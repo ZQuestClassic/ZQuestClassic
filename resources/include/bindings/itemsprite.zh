@@ -11,12 +11,10 @@ class itemsprite {
 	internal itemsprite();
 
 	// @value [enum ItemID]
-
 	// @zasm_var ITEMID
 	internal int ID;
 
 	// @value [enum ItemType]
-
 	// @zasm_var ITEMFAMILY
 	internal int Type;
 

@@ -459,7 +459,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.fam_type,f))
+	if(!p_getc(&tempitem.level,f))
 	{
 		return 0;
 	}
@@ -973,7 +973,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(13);
 			}
 			
-			if(!p_putc(itemsbuf[i].fam_type,f))
+			if(!p_putc(itemsbuf[i].level,f))
 			{
 				new_return(14);
 			}

@@ -8425,7 +8425,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(13);
             }
             
-            if(!p_putc(itemsbuf[i].fam_type,f))
+            if(!p_putc(itemsbuf[i].level,f))
             {
                 new_return(14);
             }

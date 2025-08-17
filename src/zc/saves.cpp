@@ -2166,7 +2166,7 @@ static void update_icon(save_t* save)
 	int32_t ring = 0;
 	if (maxringid != -1)
 	{
-		ring = itemsbuf[maxringid].fam_type;
+		ring = itemsbuf[maxringid].level;
 	}
 	if (ring > 0) --ring;
 	int32_t i = ring;

@@ -3357,7 +3357,7 @@ void passiveitem_script(int32_t id, bool doRun = false)
 		FFCore.reset_script_engine_data(ScriptType::Item, id);
 		
 		if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
-			&& current_item(itemsbuf[id].family) > itemsbuf[id].fam_type)
+			&& current_item(itemsbuf[id].family) > itemsbuf[id].level)
 		{
 			FFCore.doscript(ScriptType::Item, id) = false;
 			return;
@@ -3986,7 +3986,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     if((get_bit(screengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
 		return;
 
-    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].level : current_item(itype_sword);
 	
 	if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid_layer[layer-1],i,1);
 	if(isCuttableNextType(type))
@@ -4123,7 +4123,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	
 	mapscr *s = cur_screen >= 128 ? special_warp_return_scr : rpos_handle.scr;
 	
-	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].level : current_item(itype_sword);
 	byte skipsecrets = 0;
 	
 	if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
@@ -4508,7 +4508,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 
 	mapscr* s = rpos_handle.scr;
     
-    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].level : current_item(itype_sword);
     
     {
 	    if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid_layer[layer-1],i,1);
@@ -4659,7 +4659,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
     mapscr *s = cur_screen >= 128 ? special_warp_return_scr : rpos_handle.scr;
     
-    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].level : current_item(itype_sword);
     byte skipsecrets = 0;
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
@@ -5046,7 +5046,7 @@ void HeroClass::check_slash_block(weapon *w)
     
     mapscr *s = cur_screen >= 128 ? special_warp_return_scr : rpos_handle.scr;
     
-    int32_t sworditem = (par_item >-1 ? itemsbuf[par_item].fam_type : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
+    int32_t sworditem = (par_item >-1 ? itemsbuf[par_item].level : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
     
     if(!ignorescreen)
     {
@@ -6079,7 +6079,7 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	{
 		itemdata const& stomp = itemsbuf[stompid];
 		bool reflect = false; //unused, always false
-		if(!sh_check(stomp.misc2, 0, w->id, reflect, w->type&1, true))
+		if(!sh_check(stomp.misc2, 0, w->id, reflect, w->level&1, true))
 		{
 			w->onhit(false);
 			sfx(WAV_CHINK,pan(x.getInt()));
@@ -6126,7 +6126,7 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	
 	bool reflect = false;
 	
-	if(!sh_check(shield.misc1, shield.misc2, w->id, reflect, w->type&1, true))
+	if(!sh_check(shield.misc1, shield.misc2, w->id, reflect, w->level&1, true))
 		return true;
 	
 	if(reflect && (w->unblockable&WPNUNB_REFL))
@@ -6160,7 +6160,7 @@ int32_t HeroClass::EwpnHit()
 			{
 				itemdata const& stomp = itemsbuf[stompid];
 				bool reflect = false; //unused, always false
-				if(!sh_check(stomp.misc2, 0, ew->id, reflect, ew->type&1, true))
+				if(!sh_check(stomp.misc2, 0, ew->id, reflect, ew->level&1, true))
 				{
 					ew->onhit(false);
 					sfx(WAV_CHINK,pan(x.getInt()));
@@ -6207,7 +6207,7 @@ int32_t HeroClass::EwpnHit()
 			
 			bool reflect = false;
 			
-			if(!sh_check(shield.misc1, shield.misc2, ew->id, reflect, ew->type&1, true))
+			if(!sh_check(shield.misc1, shield.misc2, ew->id, reflect, ew->level&1, true))
 				return i;
 			
 			if(reflect && (ew->unblockable&WPNUNB_REFL))
@@ -6261,7 +6261,7 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 			if(!allow_inactive && ((lift_wpn && (liftflags & LIFTFL_DIS_SHIELD)) || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF))
 				return i;
 			
-			if(!sh_check(shield.misc1, shield.misc2, lw->id, reflect, lw->type&1, true))
+			if(!sh_check(shield.misc1, shield.misc2, lw->id, reflect, lw->level&1, true))
 				return i;
 			
 			paymagiccost(itemid);
@@ -6362,7 +6362,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 				{
 					bool reflect = false;
 					// sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
-					if(sh_check(itemsbuf[itemid].misc3, itemsbuf[itemid].misc4, t->id, reflect, ((weapon*)t)->type&1, false))
+					if(sh_check(itemsbuf[itemid].misc3, itemsbuf[itemid].misc4, t->id, reflect, ((weapon*)t)->level&1, false))
 					{
 						w->dead=1;
 						weapon *ew = ((weapon*)t);
@@ -6745,7 +6745,7 @@ void HeroClass::checkhit()
 						bool reflect = false;
 						// sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
 						
-						if(sh_check(itemsbuf[itemid].misc3, itemsbuf[itemid].misc4, t->id, reflect, ((weapon*)t)->type&1, false))
+						if(sh_check(itemsbuf[itemid].misc3, itemsbuf[itemid].misc4, t->id, reflect, ((weapon*)t)->level&1, false))
 						{
 							((weapon*)s)->dead=1;
 							weapon *ew = ((weapon*)t);
@@ -7662,7 +7662,7 @@ void HeroClass::addsparkle2(int32_t type1, int32_t type2)
     {
         weapon *w = (weapon*)Lwpns.spr(i);
         
-        if(w->id == wPhantom && w->type == type1)
+        if(w->id == wPhantom && w->level == type1)
         {
             arrow = i;
             break;
@@ -11089,7 +11089,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		for(int32_t q = 0; q < Lwpns.Count(); ++q)
 		{
 			weapon* w = (weapon*)Lwpns.spr(q);
-			if((w->lift_level && w->lift_level <= glove.fam_type))
+			if((w->lift_level && w->lift_level <= glove.level))
 			{
 				auto tmpflags = w->misc_wflags;
 				w->misc_wflags &= ~WFLAG_NO_COLL_WHEN_STILL;
@@ -11376,7 +11376,7 @@ void HeroClass::doSwitchHook(byte style)
 				{
 					if((cmb.usrflags&cflag1) && player_scr->data[player_pos])
 						continue; //don't swap with non-zero combo
-					if(zc_max(1,itemsbuf[(w && w->parentitem>-1) ? w->parentitem : current_item_id(itype_switchhook)].fam_type) < cmb.attribytes[0])
+					if(zc_max(1,itemsbuf[(w && w->parentitem>-1) ? w->parentitem : current_item_id(itype_switchhook)].level) < cmb.attribytes[0])
 						continue; //too low a switchhook level
 					hooked_layerbits |= 1<<q; //Swapping
 					if(cmb.usrflags&cflag3)
@@ -11938,13 +11938,13 @@ bool HeroClass::startwpn(int32_t itemid)
 				wy=zc_max(wy,16);
 			}
 			
-			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,lit_ty,itm.fam_type,
+			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,lit_ty,itm.level,
 				itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true);
 			bool lifted = false;
 			if(itm.flags & item_flag4)
 			{
 				auto liftid = current_item_id(itype_liftglove);
-				if(liftid > -1 && (itm.weap_data.lift_level <= itemsbuf[liftid].fam_type))
+				if(liftid > -1 && (itm.weap_data.lift_level <= itemsbuf[liftid].level))
 				{
 					lift(wpn, itm.weap_data.lift_time, itm.weap_data.lift_height);
 					set_liftflags(liftid);
@@ -11987,12 +11987,12 @@ bool HeroClass::startwpn(int32_t itemid)
 			int32_t type, pow;
 			if ( get_qr(qr_BROKENBOOKCOST) )
 			{
-				type = bookid != -1 ? current_item(itype_book) : itm.fam_type;
+				type = bookid != -1 ? current_item(itype_book) : itm.level;
 				pow = (bookid != -1 ? current_item_power(itype_book) : itm.power)*game->get_hero_dmgmult();
 			}
 			else
 			{
-				type = (bookid != -1 && paybook) ? current_item(itype_book) : itm.fam_type;
+				type = (bookid != -1 && paybook) ? current_item(itype_book) : itm.level;
 				pow = ((bookid != -1 && paybook) ? current_item_power(itype_book) : itm.power)*game->get_hero_dmgmult();
 			}
 			for(int32_t i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
@@ -12082,7 +12082,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				temppower = game->get_hero_dmgmult()*itm.misc2;
 			}
 
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itm.fam_type,temppower,dir,itemid,getUID(),false,false,true));
+			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itm.level,temppower,dir,itemid,getUID(),false,false,true));
 			sfx(itm.usesound2, pan(wx));
 		}
 		break;
@@ -12113,7 +12113,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wFire,
 								 //(itm.fam_type > 1), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
-								 (itm.fam_type), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
+								 (itm.level), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
 								 itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 			sfx(itm.usesound,pan(wx));
 			attack=wFire;
@@ -12139,7 +12139,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(replay_version_check(0,30))
 				wpnstep = itm.misc1/100;
 			
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wtype,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
+			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wtype,itm.level,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			if(!(itm.weap_data.flags & wdata_set_step))
 				((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
 			sfx(itm.usesound,pan(wx));
@@ -12163,7 +12163,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(replay_version_check(0,30))
 				wpnstep = itm.misc1/100;
 		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
+			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itm.level,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			if(!(itm.weap_data.flags & wdata_set_step))
 				((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
 			sfx(itm.usesound,pan(wx));
@@ -12182,7 +12182,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			paymagiccost(itemid);
 			
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wArrow,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
+			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wArrow,itm.level,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
 			sfx(itm.usesound,pan(wx));
 		}
@@ -12243,7 +12243,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			paymagiccost(itemid);
 			current_item_power(itype_brang);
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBrang,itm.fam_type,(itm.power*game->get_hero_dmgmult()),dir,itemid,getUID(),false,false,true));
+			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBrang,itm.level,(itm.power*game->get_hero_dmgmult()),dir,itemid,getUID(),false,false,true));
 		}
 		break;
 		
@@ -12324,7 +12324,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				use_hookshot = false;
 			if(use_hookshot)
 			{
-				int32_t hookitem = itm.fam_type;
+				int32_t hookitem = itm.level;
 				int32_t hookpower = itm.power;
 				byte allow_diagonal = (itm.flags & item_flag2) ? 1 : 0; 
 			
@@ -12941,7 +12941,7 @@ bool HeroClass::doattack()
 					}
 					
 					int hmrid = (directWpn>-1 && itemsbuf[directWpn].family==itype_hammer) ? directWpn : current_item_id(itype_hammer);
-					int hmrlvl = hmrid < 0 ? 1 : itemsbuf[hmrid].fam_type;
+					int hmrlvl = hmrid < 0 ? 1 : itemsbuf[hmrid].level;
 					if(hmrlvl < 1) hmrlvl = 1;
 					int rad = quakescroll.misc2;
 					for_every_combo([&](const auto& handle) {
@@ -30642,7 +30642,7 @@ void dospecialmoney(mapscr* scr, int32_t index)
         //also give Hero an actual Bomb item
         for(int32_t i=0; i<MAXITEMS; i++)
         {
-            if(itemsbuf[i].family == itype_bomb && itemsbuf[i].fam_type == 1)
+            if(itemsbuf[i].family == itype_bomb && itemsbuf[i].level == 1)
                 getitem(i, true, true);
         }
         
@@ -30738,8 +30738,8 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 				for(int32_t i=0; i<MAXITEMS; i++)
 				{
 					// Find the item which is as close to this item's fam_type as possible.
-					if(itemsbuf[i].family==itemsbuf[id].family && itemsbuf[i].fam_type>itemsbuf[id].fam_type
-							&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+					if(itemsbuf[i].family==itemsbuf[id].family && itemsbuf[i].level>itemsbuf[id].level
+							&& (nextitem>-1 ? itemsbuf[i].level<=itemsbuf[nextitem].level : true))
 					{
 						nextitem = i;
 					}
@@ -30776,7 +30776,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		
 		int32_t curitm = current_item_id(idat.family);
 		if(!get_qr(qr_KEEPOLD_APPLIES_RETROACTIVELY)
-			|| curitm < 0 || (itemsbuf[curitm].fam_type <= idat.fam_type)
+			|| curitm < 0 || (itemsbuf[curitm].level <= idat.level)
 			|| (itemsbuf[curitm].flags & item_keep_old))
 		{
 			game->set_item(id,true);
@@ -30785,9 +30785,9 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		
 		if(!(idat.flags & item_keep_old))
 		{
-			if(!get_qr(qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.family)<idat.fam_type)
+			if(!get_qr(qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.family)<idat.level)
 			{
-				removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
+				removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.level);
 			}
 		}
 		
@@ -30861,7 +30861,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	//add lower-level items
 	if(idat.flags&item_gain_old)
 	{
-		for(int32_t i=idat.fam_type-1; i>0; i--)
+		for(int32_t i=idat.level-1; i>0; i--)
 		{
 			int32_t potid = getItemID(itemsbuf, idat.family, i);
 			
@@ -31289,8 +31289,8 @@ void HeroClass::checkitems(int32_t index)
 				for(int32_t i=0; i<MAXITEMS; i++)
 				{
 					// Find the item which is as close to this item's fam_type as possible.
-					if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
-							&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+					if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].level>itemsbuf[id2].level
+							&& (nextitem>-1 ? itemsbuf[i].level<=itemsbuf[nextitem].level : true))
 					{
 						nextitem = i;
 					}

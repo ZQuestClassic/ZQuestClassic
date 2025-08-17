@@ -320,7 +320,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	frames = itm.frames;
 	flip = itm.misc_flags>>2;
 	family = itm.family;
-	lvl = itm.fam_type;
+	lvl = itm.level;
 	pstring = itm.pstring;
 	pickup_string_flags = itm.pickup_string_flags;
 	linked_parent = family == itype_progressive_itm ? -1 : 0;
@@ -797,7 +797,7 @@ void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family,
 {
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
-		if(items[i].family == family && items[i].fam_type < level)
+		if(items[i].family == family && items[i].level < level)
 		{
 			g->set_item_no_flush(i, false);
 			if ( game->forced_bwpn == i ) 
@@ -857,9 +857,9 @@ int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t fami
 	{
 		if(items[i].family == family && source->get_item(i))
 		{
-			if(items[i].fam_type >= highestlevel)
+			if(items[i].level >= highestlevel)
 			{
-				highestlevel = items[i].fam_type;
+				highestlevel = items[i].level;
 				result=i;
 			}
 		}
@@ -877,9 +877,9 @@ int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t famil
 	{
 		if(items[i].family == family && source->get_item(i) && (checkenabled?(!(source->items_off[i])):1))
 		{
-			if(items[i].fam_type >= highestlevel)
+			if(items[i].level >= highestlevel)
 			{
-				highestlevel = items[i].fam_type;
+				highestlevel = items[i].level;
 				result=i;
 			}
 		}
@@ -897,9 +897,9 @@ int32_t getHighestLevelEvenUnowned(itemdata *items, int32_t family)
 	{
 		if(items[i].family == family)
 		{
-			if(items[i].fam_type >= highestlevel)
+			if(items[i].level >= highestlevel)
 			{
-				highestlevel = items[i].fam_type;
+				highestlevel = items[i].level;
 				result=i;
 			}
 		}
@@ -914,7 +914,7 @@ int32_t getItemID(itemdata *items, int32_t family, int32_t level)
 	
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
-		if(items[i].family == family && items[i].fam_type == level)
+		if(items[i].family == family && items[i].level == level)
 			return i;
 	}
 	
@@ -940,9 +940,9 @@ int32_t getCanonicalItemID(itemdata *items, int32_t family)
 	
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
-		if(items[i].family == family && (items[i].fam_type < lowestlevel || lowestlevel == -1))
+		if(items[i].family == family && (items[i].level < lowestlevel || lowestlevel == -1))
 		{
-			lowestlevel = items[i].fam_type;
+			lowestlevel = items[i].level;
 			lowestid = i;
 		}
 	}
@@ -1111,7 +1111,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		CPYFLAG(flags, item_gamedata, other.flags);
 	if(pasteflags.get(ITM_ADVP_ATTRIBS))
 	{
-		fam_type = other.fam_type;
+		level = other.level;
 		power = other.power;
 		misc1 = other.misc1;
 		misc2 = other.misc2;

@@ -38,16 +38,19 @@ class eweapon {
 
 	// The weapon type. Some types have hardcoded behaviors.
 	//
+	// @value [EWeaponType]
 	// @zasm_var EWPNID
 	internal int Type;
 
 	// Exactly the same as [Type], use that instead.
 	//
+	// @value [EWeaponType]
 	// @zasm_var EWPNID
 	internal int ID;
 
 	// Exactly the same as [Type], use that instead.
 	//
+	// @value [EWeaponType]
 	// @zasm_var EWPNID
 	internal int Family;
 

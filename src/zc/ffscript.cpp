@@ -4348,7 +4348,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].fam_type)*10000;
+			ret=(itemsbuf[ri->idata].level)*10000;
 			break;
 			
 		case IDATAKEEP:
@@ -5142,7 +5142,7 @@ int32_t get_register(int32_t arg)
 
 		case LWPNLEVEL:
 			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->type)*10000;
+				ret=(((weapon*)(s))->level)*10000;
 				
 			break;
 		
@@ -5391,7 +5391,7 @@ int32_t get_register(int32_t arg)
 			
 		case EWPNLEVEL:
 			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->type*10000;
+				ret=((weapon*)(s))->level*10000;
 				
 			break;
 			
@@ -12167,7 +12167,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].fam_type)=vbound(value/10000, 0, 512);
+			(itemsbuf[ri->idata].level)=vbound(value/10000, 0, 512);
 			flushItemCache();
 			break;
 		case IDATAKEEP:
@@ -12961,7 +12961,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case LWPNLEVEL:
 			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)(s))->type)=value/10000;
+				(((weapon*)(s))->level)=value/10000;
 				
 			break;
 		
@@ -13183,7 +13183,7 @@ void set_register(int32_t arg, int32_t value)
 			
 		case EWPNLEVEL:
 			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->type=(value/10000);
+				((weapon*)s)->level=(value/10000);
 				
 			break;
 		  
@@ -31725,7 +31725,7 @@ bool FFScript::itemScriptEngine()
 			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
-					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
+					&& current_item(itemsbuf[q].family) > itemsbuf[q].level)
 					data.doscript = 0;
 				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
@@ -31818,7 +31818,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
-					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
+					&& current_item(itemsbuf[q].family) > itemsbuf[q].level)
 					data.doscript = 0;
 				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
@@ -35188,7 +35188,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",13);
 			}
 			
-			if(!p_putc(itemsbuf[i].fam_type,f))
+			if(!p_putc(itemsbuf[i].level,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",14);
 			}
@@ -35603,7 +35603,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",13);
 			}
 			
-			if(!p_getc(&itemsbuf[i].fam_type,f))
+			if(!p_getc(&itemsbuf[i].level,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",14);
 			}

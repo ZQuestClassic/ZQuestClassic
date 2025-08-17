@@ -86,7 +86,7 @@ static bool MatchComboTrigger(weapon *w, combo_trigger const& trig)
 	if(w->isLWeapon) //min/max level check
 	{
 		//Nothing should ever count as 'level 0'
-		int lv = w->type, tlv = trig.triggerlevel;
+		int lv = w->level, tlv = trig.triggerlevel;
 		if(lv<1) lv=1;
 		if(tlv<1) tlv=1;
 		if(!(trig.trigger_flags.get(TRIGFLAG_INVERTMINMAX) ? lv <= tlv : lv >= tlv))
@@ -711,7 +711,7 @@ weapon::weapon(weapon const & other):
      //Struct Element			Type		Purpose
     sprite(other),
     power(other.power), 		//int32_t
-    type(other.type), 			//int32_t
+    level(other.level), 			//int32_t
     dead(other.dead),			//int32_t
     clk2(other.clk2),			//int32_t
     misc2(other.misc2),			//int32_t
@@ -989,7 +989,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	z=Z;
 	screen_spawned=get_screen_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
-	type=Type;
+	level=Type;
 	isolated_freeze_viewport = true;
 	power=pow;
 	parentitem=Parentitem;
@@ -1042,9 +1042,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	has_shadow = true;
 	if ( Parentitem > -1 )
 	{
-		quantity_iterator = type; //wCByrna uses this for positioning.
+		quantity_iterator = level; //wCByrna uses this for positioning.
 		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) )
-			type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
+			level = itemsbuf[Parentitem].level; //the weapon level for real lweapons.
 			//Note: eweapons use this for boss weapon block flags
 			// Note: wInd uses type for special properties.
 			//Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
@@ -1100,7 +1100,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(Type&2)
 			{
 				misc=(Type>>3)-1;
-				type &= ~2;
+				level &= ~2;
 			}
 			else
 				misc=-1;
@@ -1708,7 +1708,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		}
 		case wPhantom:
 		{
-			switch(type)
+			switch(level)
 			{
 				case pDIVINEFIREROCKET:
 					if(get_qr(qr_MORESOUNDS))
@@ -2655,7 +2655,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				ret = *spr;
 			else
 			{
-				switch(type)
+				switch(level)
 				{
 					case pDIVINEFIREROCKET:
 					case pDIVINEPROTECTIONROCKET1:
@@ -3092,7 +3092,7 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
     {
 	    //Add lw->Level check here. -Z
         if(parentitem<0 || (combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl >=
-                            itemsbuf[parentitem].fam_type))
+                            itemsbuf[parentitem].level))
         {
             return true;
         }
@@ -3121,7 +3121,7 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
             || get_bit(combo_class_buf[FFCOMBOTYPE(wx,wy)].block_weapon, id))
     {
         if(parentitem<0 || (combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl >=
-                            itemsbuf[parentitem].fam_type))
+                            itemsbuf[parentitem].level))
         {
             return true;
         }
@@ -3969,7 +3969,7 @@ bool weapon::animate(int32_t index)
 		
 		case wBeam: case wRefBeam:
 		{
-			for(int32_t i2=0; i2<=zc_min(type-1,3) && dead!=23; i2++)
+			for(int32_t i2=0; i2<=zc_min(level-1,3) && dead!=23; i2++)
 			{
 				if(trigger_secrets_if_flag(x,y,mfSWORDBEAM+i2,true)) dead=23;
 			}
@@ -4132,7 +4132,7 @@ bool weapon::animate(int32_t index)
 				if(clk==94 || get_qr(qr_INSTABURNFLAGS))
 				{
 					triggerfire(x,y,this,true,
-						true,parentitem < 0 ? type > 1 : (parent.flags & item_flag9),
+						true,parentitem < 0 ? level > 1 : (parent.flags & item_flag9),
 						parent.flags & item_flag10,parent.flags & item_flag11);
 				}
 			}
@@ -4392,7 +4392,7 @@ bool weapon::animate(int32_t index)
 				}
 			*/
 			
-			int32_t branglevel = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].fam_type;
+			int32_t branglevel = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].level;
 			
 			switch ( branglevel )
 			{
@@ -5079,7 +5079,7 @@ bool weapon::animate(int32_t index)
 		
 		case wPhantom:
 		{
-			switch(type)
+			switch(level)
 			{
 				case pDIVINEFIREROCKET:
 					if(y <= -200)
@@ -6279,7 +6279,7 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 			refl_flag = sh_arrow;
 			break;
 		case ewFireball: case ewFireball2: case wRefFireball:
-			refl_flag = (type&1) ? sh_fireball2 : sh_fireball;
+			refl_flag = (level&1) ? sh_fireball2 : sh_fireball;
 			break;
 		case wFire: case ewFlame: case wRefFire:
 			refl_flag = sh_flame;
@@ -7344,7 +7344,7 @@ void weapon::draw(BITMAP *dest)
 			break;
 			
 		case wPhantom:
-			switch(type)
+			switch(level)
 			{
 			case pDIVINEPROTECTIONROCKET1:
 			case pDIVINEPROTECTIONROCKETRETURN1:
@@ -7575,7 +7575,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
 	txsz = width > 0 ? width : 1;
 	tysz = height > 0 ? height : 1;
     id=Id;
-    type=0;
+    level=0;
     power=0;
     specialinfo = 0;
     parentitem=-1;
