@@ -40399,7 +40399,7 @@ j_command:
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 				data.initialized = false;
-				int index = ItemH::getItemIndex(i);
+				int index = EwpnH::getEWeaponIndex(i);
 				if (index != -1)
 					Ewpns.spr(index)->weaponscript = 0;
 			}
