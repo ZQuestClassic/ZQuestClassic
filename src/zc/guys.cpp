@@ -1315,19 +1315,12 @@ bool enemy::animate(int32_t index)
 			
 		}
 	}
-	if(!isSideViewGravity() && (moveflags & move_can_pitfall))
+	if (can_pitfall() && ((z <= 0 && fakez <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
 	{
-		if(can_pitfall() && ((z <= 0 && fakez <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
-		{
+		if (!isSideViewGravity() && (moveflags & move_can_pitfall))
 			fallCombo = check_pits();
-		}
-	}
-	if(!isSideViewGravity() && (moveflags & move_can_waterdrown))
-	{
-		if(can_pitfall() && ((z <= 0 && fakez <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
-		{
+		if (!(isSideViewGravity() && get_qr(qr_OLD_SPRITE_FALL_DROWN)) && (moveflags & move_can_waterdrown))
 			drownCombo = check_water();
-		}
 	}
 	
 	runKnockback(); //scripted knockback handling

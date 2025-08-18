@@ -1020,6 +1020,9 @@ static GUI::ListData compatRulesList
 	{ "Old Weapon Reflection", qr_OLD_WEAPON_REFLECTION,
 		"If checked, some weapon types will not be reflected by mirror/prism combos, regardless of"
 		" the 'Reflect Flags' of the combos." },
+	{ "Old Non-Player Falling/Drowning", qr_OLD_SPRITE_FALL_DROWN,
+		"If checked, enemies, weapons, and items will fall/drown using a hardcoded 16x16 hitbox instead of"
+		" their actual hitbox, and enemies/items will not drown in sideview." },
 };
 
 static GUI::ListData enemiesRulesList
