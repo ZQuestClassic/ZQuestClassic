@@ -1280,7 +1280,7 @@ struct guydata
     
     int16_t hp;
     
-    int16_t  family, cset, anim, e_anim, frate, e_frate;
+    int16_t  type, cset, anim, e_anim, frate, e_frate;
     int16_t  dp, wdp, weapon;
     
     int16_t  rate, hrate, step, homing, grumble, item_set;

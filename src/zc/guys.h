@@ -58,7 +58,7 @@ public:
 
 	guy_flags flags;
 	
-	int16_t  family, dcset, anim;
+	int16_t  type, dcset, anim;
 	int16_t  dp, wdp, wpn;
 	
 	int16_t  rate, hrate, homing, grumble;

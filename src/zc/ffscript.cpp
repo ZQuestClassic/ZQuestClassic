@@ -8723,7 +8723,7 @@ int32_t get_register(int32_t arg)
 		case NPCDATAEWIDTH: GET_NPCDATA_VAR_BYTE(e_width, "ExWidth"); break;
 		case NPCDATAEHEIGHT: GET_NPCDATA_VAR_BYTE(e_height, "ExHeight"); break;
 		case NPCDATAHP: GET_NPCDATA_VAR_INT16(hp, "HP"); break;
-		case NPCDATATYPE: GET_NPCDATA_VAR_INT16(family, "Family"); break;
+		case NPCDATATYPE: GET_NPCDATA_VAR_INT16(type, "Family"); break;
 		case NPCDATACSET: GET_NPCDATA_VAR_INT16(cset, "CSet"); break;
 		case NPCDATAANIM: GET_NPCDATA_VAR_INT16(anim, "Anim"); break;
 		case NPCDATAEANIM: GET_NPCDATA_VAR_INT16(e_anim, "ExAnim"); break;
@@ -16221,7 +16221,7 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATASCRIPT: SET_NPCDATA_VAR_BYTE(script, "Script"); break;
 		case NPCDATAEHEIGHT: SET_NPCDATA_VAR_BYTE(e_height, "ExHeight"); break;
 		case NPCDATAHP: SET_NPCDATA_VAR_DWORD(hp, "HP"); break;
-		case NPCDATATYPE: SET_NPCDATA_VAR_DWORD(family, "Family"); break;
+		case NPCDATATYPE: SET_NPCDATA_VAR_DWORD(type, "Family"); break;
 		case NPCDATACSET: SET_NPCDATA_VAR_DWORD(cset, "CSet"); break;
 		case NPCDATAANIM: SET_NPCDATA_VAR_DWORD(anim, "Anim"); break;
 		case NPCDATAEANIM: SET_NPCDATA_VAR_DWORD(e_anim, "ExAnim"); break;
@@ -23783,7 +23783,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				guys.spr(i)->z = 0;
 			}
 			
-			if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			if(((enemy*)guys.spr(i))->type!=eeTRAP && ((enemy*)guys.spr(i))->type!=eeSPINTILE)
 			guys.spr(i)->yofs += 2;
 		}
 	}
@@ -23791,7 +23791,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 	{
 		for(int32_t i=0; i<guys.Count(); i++)
 		{
-			if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			if(((enemy*)guys.spr(i))->type!=eeTRAP && ((enemy*)guys.spr(i))->type!=eeSPINTILE)
 			guys.spr(i)->yofs -= 2;
 		}
 	}
@@ -30369,7 +30369,7 @@ void FFScript::getNPCData_e_tile(){ GET_NPCDATA_FUNCTION_VAR_INT(e_tile); }
 void FFScript::getNPCData_e_width(){ GET_NPCDATA_FUNCTION_VAR_INT(e_width); } 
 void FFScript::getNPCData_e_height() { GET_NPCDATA_FUNCTION_VAR_INT(e_height); }
 void FFScript::getNPCData_hp(){ GET_NPCDATA_FUNCTION_VAR_INT(hp); } 
-void FFScript::getNPCData_family(){ GET_NPCDATA_FUNCTION_VAR_INT(family); } 
+void FFScript::getNPCData_family(){ GET_NPCDATA_FUNCTION_VAR_INT(type); } 
 void FFScript::getNPCData_cset(){ GET_NPCDATA_FUNCTION_VAR_INT(cset); } 
 void FFScript::getNPCData_anim(){ GET_NPCDATA_FUNCTION_VAR_INT(anim); } 
 void FFScript::getNPCData_e_anim(){ GET_NPCDATA_FUNCTION_VAR_INT(e_anim); } 
@@ -30528,7 +30528,7 @@ void FFScript::setNPCData_e_tile(){SET_NPCDATA_FUNCTION_VAR_INT(e_tile,ZS_WORD);
 void FFScript::setNPCData_e_width(){SET_NPCDATA_FUNCTION_VAR_INT(e_width,ZS_BYTE);}
 void FFScript::setNPCData_e_height() { SET_NPCDATA_FUNCTION_VAR_INT(e_height, ZS_BYTE); }
 void FFScript::setNPCData_hp(){SET_NPCDATA_FUNCTION_VAR_INT(hp,ZS_SHORT);}
-void FFScript::setNPCData_family(){SET_NPCDATA_FUNCTION_VAR_INT(family,ZS_SHORT);}
+void FFScript::setNPCData_family(){SET_NPCDATA_FUNCTION_VAR_INT(type,ZS_SHORT);}
 void FFScript::setNPCData_cset(){SET_NPCDATA_FUNCTION_VAR_INT(cset,ZS_SHORT);}
 void FFScript::setNPCData_anim(){SET_NPCDATA_FUNCTION_VAR_INT(anim,ZS_SHORT);}
 void FFScript::setNPCData_e_anim(){SET_NPCDATA_FUNCTION_VAR_INT(e_anim,ZS_SHORT);}
@@ -34498,7 +34498,7 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",17);
 			}
 			
-			if(!p_igetw(&guysbuf[i].family,f))
+			if(!p_igetw(&guysbuf[i].type,f))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",18);
 			}
@@ -34853,7 +34853,7 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",17);
 		}
 		
-		if(!p_iputw(guysbuf[i].family,f))
+		if(!p_iputw(guysbuf[i].type,f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",18);
 		}

@@ -1580,7 +1580,7 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	return 0;
 	}
 
-	if(!p_igetw(&tempguy.family,f))
+	if(!p_igetw(&tempguy.type,f))
 	{
 	return 0;
 	}
@@ -2015,7 +2015,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		return 0;
 		}
 		
-		if(!p_iputw(guysbuf[i].family,f))
+		if(!p_iputw(guysbuf[i].type,f))
 		{
 		return 0;
 		}

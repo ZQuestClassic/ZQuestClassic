@@ -363,7 +363,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	flags=d->flags;
 	flags=d->flags;
 	s_tile=d->s_tile; //secondary (additional) tile(s)
-	family=d->family;
+	type=d->type;
 	dcset=d->cset;
 	cs=dcset;
 	anim=get_qr(qr_NEWENEMYTILES)?d->e_anim:d->anim;
@@ -489,7 +489,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	hashero=false;
 	
 	// If they forgot the invisibility flag, here's another failsafe:
-	if(o_tile==0 && family!=eeSPINTILE)
+	if(o_tile==0 && type!=eeSPINTILE)
 		flags |= guy_invisible;
 		
 //  step = d->step/100.0;
@@ -532,7 +532,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	
 	SIZEflags = d->SIZEflags;
 	
-	if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
+	if((wpn==ewBomb || wpn==ewSBomb) && type!=eeOTHER && type!=eeFIRE && (type!=eeWALK || dmisc2 != e2tBOMBCHU))
 		wpn = 0;
 	
 	//tile should never be 0 after init --Z (failsafe)
@@ -2025,7 +2025,7 @@ void enemy::FireWeapon()
 // Apparently, this function is only used for hookshots...
 bool enemy::hitshield(int32_t wpnx, int32_t wpny, int32_t xdir)
 {
-	if(!(family==eeWALK || family==eeFIRE || family==eeOTHER))
+	if(!(type==eeWALK || type==eeFIRE || type==eeOTHER))
 		return false;
 		
 	bool ret = false;
@@ -2252,7 +2252,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			//if ( dmisc18 > 0 ) dummy_wpn_id = dmisc18;
 			
 			//Z_scripterrlog("new id is %d\n", new_id);
-				switch(guysbuf[new_id&0xFFF].family)
+				switch(guysbuf[new_id&0xFFF].type)
 				{
 					//Fixme: possible enemy memory leak. (minor)
 					case eeWALK:
@@ -2665,7 +2665,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					// add segments of segmented enemies
 				int32_t c=0;
 				
-				switch(guysbuf[new_id&0xFFF].family)
+				switch(guysbuf[new_id&0xFFF].type)
 				{
 					case eeMOLD:
 					{
@@ -2890,7 +2890,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			
 			
 			yofs = -32768;
-			switch(guysbuf[new_id&0xFFF].family)
+			switch(guysbuf[new_id&0xFFF].type)
 			{
 				case eeGLEEOK:
 				{
@@ -3123,7 +3123,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		case edSWITCH:
 		{
 			if(Hero.switchhookclk) return 0; //Already switching!
-			switch(family)
+			switch(type)
 			{
 				case eeAQUA: case eeMOLD: case eeDONGO: case eeMANHAN: case eeGLEEOK:
 				case eeDIG: case eeGHOMA: case eeLANM: case eePATRA: case eeGANON:
@@ -3878,8 +3878,8 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 							   && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot)) <= 0));
 							   
 		// Peahats, Darknuts, Aquamentuses, Pols Voices, Wizzrobes, Manhandlas
-		if(!(family==eePEAHAT || family==eeAQUA || family==eeMANHAN || (family==eeWIZZ && !ignorehookshot)
-				|| (family==eeWALK && dmisc9==e9tPOLSVOICE) || (family==eeWALK && flags&(guy_shield_back|guy_shield_front|guy_shield_left|guy_shield_right))))
+		if(!(type==eePEAHAT || type==eeAQUA || type==eeMANHAN || (type==eeWIZZ && !ignorehookshot)
+				|| (type==eeWALK && dmisc9==e9tPOLSVOICE) || (type==eeWALK && flags&(guy_shield_back|guy_shield_front|guy_shield_left|guy_shield_right))))
 			return 0;
 			
 		power = game->get_hero_dmgmult();
@@ -3946,7 +3946,7 @@ hitclock:
 		sfx(WAV_EHIT, pan(int32_t(x)));
 		sfx(hitsfx, pan(int32_t(x)));
 	}
-	if(family==eeGUY)
+	if(type==eeGUY)
 		sfx(WAV_EDEAD, pan(int32_t(x)));
 		
 	// Penetrating weapons
@@ -4040,7 +4040,7 @@ void enemy::draw(BITMAP *dest)
 	if (scr->flags3&fINVISROOM)
 	{
 		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
-		!((itemsbuf[Hero.getLastLensID()].flags & item_flag5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
+		!((itemsbuf[Hero.getLastLensID()].flags & item_flag5) && lensclk) && type!=eeGANON) canSee = DRAW_CLOAKED;
 	}
 	//Lens check
 	if (lensclk)
@@ -4249,7 +4249,7 @@ void enemy::drawzcboss(BITMAP *dest)
 	if((scr->flags3&fINVISROOM) &&
 			!(current_item(itype_amulet)) &&
 			!(get_qr(qr_LENSSEESENEMIES) &&
-			  lensclk) && family!=eeGANON)
+			  lensclk) && type!=eeGANON)
 	{
 		sprite::drawcloaked(dest);
 	}
@@ -4453,7 +4453,7 @@ bool enemy::hit(weapon *w)
 bool enemy::can_pitfall(bool checkspawning)
 {
 	if((fading||isspawning)&&checkspawning) return false; //Don't fall during spawn.
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 		case eeAQUA:
 		case eeDIG:
@@ -4587,7 +4587,7 @@ void enemy::fix_coords(bool bound)
 }
 bool enemy::cannotpenetrate()
 {
-	return (family == eeAQUA || family == eeMANHAN || family == eeGHOMA);
+	return (type == eeAQUA || type == eeMANHAN || type == eeGHOMA);
 }
 
 bool enemy::canmove_old(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2)
@@ -6379,7 +6379,7 @@ int32_t enemy::n_frame_n_dir(int32_t frames, int32_t ndir, int32_t f4)
 	int32_t b = o_tile;
 	
 	// Darknuts, but also Wizzrobes and Wallmasters
-	switch(family)
+	switch(type)
 	{
 	case eeWALK:
 		if(dmisc9==e9tPOLSVOICE && clk2>=0 && do_animation)
@@ -6427,7 +6427,7 @@ int32_t enemy::n_frame_n_dir(int32_t frames, int32_t ndir, int32_t f4)
 			break;
 		}
 
-		if(family==eeWALK)
+		if(type==eeWALK)
 		tile=zc_min(tile+f4, t+frames*(zc_max(dir, 0)+1)-1);
 		else
 		tile+=f4;
@@ -6677,7 +6677,7 @@ void enemy::update_enemy_frame()
 	if (get_qr(qr_OLD_TILE_INITIALIZATION) || tile == 0) tile = o_tile; //tile was initialized here before. It needs to be initialized here as well.
 	
 	if(get_qr(qr_ANONE_NOANIM)
-		&& anim == aNONE && family != eeGUY)
+		&& anim == aNONE && type != eeGUY)
 		return;
 	int32_t newfrate = zc_max(frate,4);
 	int32_t f4=abs(clk/(newfrate/4)); // casts clk to [0,1,2,3]
@@ -9185,7 +9185,7 @@ bool eWallM::animate(int32_t index)
 			int32_t wallm_cnt=0;
 			
 			for(int32_t i=0; i<guys.Count(); i++)
-				if(((enemy*)guys.spr(i))->family==eeWALLM)
+				if(((enemy*)guys.spr(i))->type==eeWALLM)
 				{
 					int32_t m=((enemy*)guys.spr(i))->misc;
 					
@@ -10720,7 +10720,7 @@ bool eStalfos::animate(int32_t index)
 		int32_t id2=dmisc3;
 		for(int32_t i=0; i < dmisc4; i++)
 		{
-			if(addenemy(screen_spawned,x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
+			if(addenemy(screen_spawned,x,y,id2+(guysbuf[id2].type==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
 				((enemy*)guys.spr(kids+i))->count_enemy = false;
 		}
 		
@@ -16736,7 +16736,7 @@ void kill_em_all()
 	{
 		enemy *e = ((enemy*)guys.spr(i));
 		
-		if(e->flags&(1<<3) && !(e->family == eeGHINI && e->dmisc1 == 1)) continue;
+		if(e->flags&(1<<3) && !(e->type == eeGHINI && e->dmisc1 == 1)) continue;
 		
 		e->kickbucket();
 	}
@@ -16748,7 +16748,7 @@ bool can_kill_em_all()
 	{
 		enemy *e = ((enemy*)guys.spr(i));
 		
-		if(e->flags&(1<<3) && !(e->family == eeGHINI && e->dmisc1 == 1)) continue;
+		if(e->flags&(1<<3) && !(e->type == eeGHINI && e->dmisc1 == 1)) continue;
 		if(e->superman) continue;
 		return true;
 	}
@@ -16764,7 +16764,7 @@ int32_t GuyHit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_
 		if(guys.spr(i)->hit(tx,ty,tz,txsz,tysz,tzsz))
 		{
 			if(((enemy*)guys.spr(i))->stunclk==0 &&  ((enemy*)guys.spr(i))->frozenclock==0 && (!get_qr(qr_SAFEENEMYFADE) || ((enemy*)guys.spr(i))->fading != fade_flicker)
-					&&(((enemy*)guys.spr(i))->d->family != eeGUY || ((enemy*)guys.spr(i))->dmisc1))
+					&&(((enemy*)guys.spr(i))->d->type != eeGUY || ((enemy*)guys.spr(i))->dmisc1))
 			{
 				return i;
 			}
@@ -16833,7 +16833,7 @@ bool CarryHero()
 {
 	for(int32_t i=0; i<guys.Count(); i++)
 	{
-		if(((guy*)(guys.spr(i)))->family==eeWALLM)
+		if(((guy*)(guys.spr(i)))->type==eeWALLM)
 		{
 			if(((eWallM*)guys.spr(i))->hashero)
 			{
@@ -16947,7 +16947,7 @@ int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int3
 	int32_t ret = 0;
 	sprite *e=NULL;
 	
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 		//Fixme: possible enemy memory leak. (minor)
 	case eeWALK:
@@ -17220,7 +17220,7 @@ int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int3
 	// add segments of segmented enemies
 	int32_t c=0;
 	
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 	case eeMOLD:
 	{
@@ -17395,7 +17395,7 @@ int32_t addenemy_z(int32_t screen,int32_t x,int32_t y,int32_t z,int32_t id,int32
 	int32_t ret = 0;
 	sprite *e=NULL;
 	
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 		//Fixme: possible enemy memory leak. (minor)
 	case eeWALK:
@@ -17666,7 +17666,7 @@ int32_t addenemy_z(int32_t screen,int32_t x,int32_t y,int32_t z,int32_t id,int32
 	// add segments of segmented enemies
 	int32_t c=0;
 	
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 	case eeMOLD:
 	{
@@ -17850,7 +17850,7 @@ bool isjumper(int32_t id)
 	{
 		return false;
 	}
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 	case eeROCK:
 	case eeTEK:
@@ -17870,7 +17870,7 @@ bool isfixedtogrid(int32_t id)
 	{
 		return false;
 	}
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 	case eeWALK:
 	case eeLEV:
@@ -17894,7 +17894,7 @@ bool isflier(int32_t id)
 	{
 		return false;
 	}
-	switch(guysbuf[id&0xFFF].family) //id&0x0FFF)
+	switch(guysbuf[id&0xFFF].type) //id&0x0FFF)
 	{
 	case eePEAHAT:
 	case eeKEESE:
@@ -17918,7 +17918,7 @@ bool never_in_air(int32_t id)
 	{
 		return false;
 	}
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 	case eeMANHAN:
 	case eeMOLD:
@@ -17944,7 +17944,7 @@ bool canfall(int32_t id)
 	{
 		return false;
 	}
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 	case eeGUY:
 	{
@@ -17989,7 +17989,7 @@ bool enemy::enemycanfall(int32_t id, bool checkgrav)
 	
 	//In ZQ, eeFIRE is Other(floating) and eeOTHER is 'other'.
 	
-	switch(guysbuf[id&0xFFF].family)
+	switch(guysbuf[id&0xFFF].type)
 	{
 	case eeGUY:
 	{
@@ -18300,7 +18300,7 @@ static bool ok2add(mapscr* scr, int32_t id)
 	if(getmapflag(scr, mNEVERRET) && (guysbuf[id].flags & guy_never_return))
 		return false;
 		
-	switch(guysbuf[id].family)
+	switch(guysbuf[id].type)
 	{
 		// I added a special case for shooters because having traps on the same screen
 		// was preventing them from spawning due to TMPNORET. This means they will
@@ -18326,8 +18326,8 @@ static bool ok2add(mapscr* scr, int32_t id)
 	}
 	case eeGANON:
 	case eeTRAP:
-		if ((guysbuf[id].family == eeGANON && !get_qr(qr_CAN_PLACE_GANON))
-		|| (guysbuf[id].family == eeTRAP && !get_qr(qr_CAN_PLACE_TRAPS))) return false;
+		if ((guysbuf[id].type == eeGANON && !get_qr(qr_CAN_PLACE_GANON))
+		|| (guysbuf[id].type == eeTRAP && !get_qr(qr_CAN_PLACE_TRAPS))) return false;
 		[[fallthrough]];
 	default:
 		if (guysbuf[id].flags&guy_ignoretmpnr) return true;
@@ -18809,7 +18809,7 @@ bool can_side_load(int32_t id)
 
 	id = id&0xFFF;
 
-	switch(guysbuf[id].family)
+	switch(guysbuf[id].type)
 	{
 	case eeTEK:
 	case eeLEV:
@@ -18957,7 +18957,7 @@ static void side_load_enemies(mapscr* scr)
 		{
 			if(addenemy(screen, x,y,scr->enemy[--sle_cnt],0))
 			{
-				if (((enemy*)guys.spr(enemy_slot))->family != eeTEK)
+				if (((enemy*)guys.spr(enemy_slot))->type != eeTEK)
 				{
 					guys.spr(enemy_slot)->dir = dir;
 				}
@@ -19021,7 +19021,7 @@ bool is_starting_pos(mapscr* scr, int32_t i, int32_t x, int32_t y, int32_t t)
 	// Can't jump onto it?
 	if
 	(
-		guysbuf[scr->enemy[i]].family==eeTEK 
+		guysbuf[scr->enemy[i]].type==eeTEK 
 		
 		&&
 		(
@@ -19037,9 +19037,9 @@ bool is_starting_pos(mapscr* scr, int32_t i, int32_t x, int32_t y, int32_t t)
 	}
 		
 	// Other off-limit combos
-	if((!isflier(scr->enemy[i])&& guysbuf[scr->enemy[i]].family!=eeTEK &&
+	if((!isflier(scr->enemy[i])&& guysbuf[scr->enemy[i]].type!=eeTEK &&
 			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[scr->enemy[i]]))) &&
-			guysbuf[scr->enemy[i]].family!=eeZORA)
+			guysbuf[scr->enemy[i]].type!=eeZORA)
 		return false;
 		
 	// Don't ever generate enemies on these combos!
@@ -19047,7 +19047,7 @@ bool is_starting_pos(mapscr* scr, int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	//BS Dodongos need at least 2 spaces.
-	if ((guysbuf[scr->enemy[i]].family==eeDONGO)&&(guysbuf[scr->enemy[i]].attributes[9] == 1))
+	if ((guysbuf[scr->enemy[i]].type==eeDONGO)&&(guysbuf[scr->enemy[i]].attributes[9] == 1))
 	{
 		if(((x<16) ||_walkflag(x-16,y+8, 2))&&
 				((x>224)||_walkflag(x+16,y+8, 2))&&
@@ -19190,7 +19190,7 @@ void spawnEnemy(mapscr* scr, int& pos, int& clk, int offx, int offy, int& fastgu
 		if(BSZ&&((scr->enemy[i]>0&&scr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 		{
 			// Special case for blue leevers
-			if(guysbuf[scr->enemy[i]].family==eeLEV && guysbuf[scr->enemy[i]].attributes[0] == 1)
+			if(guysbuf[scr->enemy[i]].type==eeLEV && guysbuf[scr->enemy[i]].attributes[0] == 1)
 				c=-15*(i+1);
 			else
 				c=-15;
@@ -19230,7 +19230,7 @@ placed_enemy:
 			if (e)
 			{
 				//grab the first segment. Not accurate to how older versions did it, but the way they did it might be incompatible with enemy editor.
-				if ((e->family == eeLANM) && !get_qr(qr_NO_LANMOLA_RINGLEADER))
+				if ((e->type == eeLANM) && !get_qr(qr_NO_LANMOLA_RINGLEADER))
 				{
 					e = find_guy_nth_for_id(screen, scr->enemy[i], 2, 0xFFF);
 				}
@@ -21169,7 +21169,7 @@ int32_t enemy::getFlashingCSet()
 	}
 
 	//Hurt animations
-	if(family==eeGANON)
+	if(type==eeGANON)
 		return (((hclk-1)>>1)&3)+6;
 	else if(hclk<33 && !get_qr(qr_ENEMIESFLICKER))
 		return (((hclk-1)>>1)&3)+6;
@@ -21179,7 +21179,7 @@ int32_t enemy::getFlashingCSet()
 
 bool enemy::is_hitflickerframe(bool olddrawing)
 {
-	if (family == eeGANON || !hclk || !get_qr(qr_ENEMIESFLICKER))
+	if (type == eeGANON || !hclk || !get_qr(qr_ENEMIESFLICKER))
 		return false;
 
 	if (!olddrawing && !getCanFlicker())

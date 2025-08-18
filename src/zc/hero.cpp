@@ -7428,7 +7428,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	//!TODO SOLIDPUSH Enemy flag to make them not deal contact damage
 	//!Add a flag check to this if:
 	else if (!(enemyptr->stunclk==0 && enemyptr->frozenclock==0 && (!get_qr(qr_SAFEENEMYFADE) || enemyptr->fading != fade_flicker)
-			&& (enemyptr->d->family != eeGUY || enemyptr->dmisc1)))
+			&& (enemyptr->d->type != eeGUY || enemyptr->dmisc1)))
 	{
 		return -1;
 	}
@@ -7473,7 +7473,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
 		sethitHeroUID(HIT_BY_NPC_ENGINE_UID,enemyptr->getUID());
 		sethitHeroUID(HIT_BY_NPC_ID, enemyptr->id);
-		sethitHeroUID(HIT_BY_NPC_TYPE, enemyptr->family);
+		sethitHeroUID(HIT_BY_NPC_TYPE, enemyptr->type);
 	}
 	
 	hitdir = hdir;
@@ -7505,7 +7505,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	int32_t dm7 = enemyptr->dmisc7;
 	int32_t dm8 = enemyptr->dmisc8;
 	
-	switch(enemyptr->family)
+	switch(enemyptr->type)
 	{
 		case eeWALLM:
 			if(enemyptr->hp>0)
@@ -23847,7 +23847,7 @@ void HeroClass::checkspecial()
 					// if room has traps, guys don't come back
 					for (int32_t i=0; i<eMAXGUYS; i++)
 					{
-						if (guysbuf[i].family==eeTRAP && guysbuf[i].attributes[1]
+						if (guysbuf[i].type==eeTRAP && guysbuf[i].attributes[1]
 							&& guys.idCount(i, screen))
 						{
 							setmapflag(scr, mTMPNORET);
@@ -26667,7 +26667,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				guys.spr(i)->fakez = 0;
 			}
 			
-			if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			if(((enemy*)guys.spr(i))->type!=eeTRAP && ((enemy*)guys.spr(i))->type!=eeSPINTILE)
 				guys.spr(i)->yofs += 2;
 		}
 	}
@@ -26675,7 +26675,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	{
 		for(int32_t i=0; i<guys.Count(); i++)
 		{
-			if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			if(((enemy*)guys.spr(i))->type!=eeTRAP && ((enemy*)guys.spr(i))->type!=eeSPINTILE)
 				guys.spr(i)->yofs -= 2;
 		}
 	}

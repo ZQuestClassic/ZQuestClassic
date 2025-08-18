@@ -648,7 +648,7 @@ void EnemyListerDialog::update()
 			"\neTile: {}\nHP: {}\nDamage: {}\nW. Damage: {}\nFamily: {}\nDrop: {}\nScript: {}\nW Script: {}"
 			"\n\nCopied:\n{}",
 			selected_val, enemy.tile, enemy.s_tile,
-			enemy.e_tile, enemy.hp, enemy.dp, enemy.wdp, enemy.family, enemy.item_set, enemy.script, enemy.weap_data.script,
+			enemy.e_tile, enemy.hp, enemy.dp, enemy.wdp, enemy.type, enemy.item_set, enemy.script, enemy.weap_data.script,
 			copied_name));
 		if(unsigned(selected_val) > 0)
 		{

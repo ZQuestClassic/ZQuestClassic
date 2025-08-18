@@ -17307,7 +17307,7 @@ int32_t efrontfacingtile(int32_t id)
         break;
         
     case aNEWZORA:
-        if(guysbuf[id].family==eeZORA)
+        if(guysbuf[id].type==eeZORA)
             usetile=44;
             
         break;

@@ -4946,7 +4946,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	for(int32_t i=0; i<guys.Count(); i++)
 	{
-		if(((enemy*)guys.spr(i))->family == eeWALK)
+		if(((enemy*)guys.spr(i))->type == eeWALK)
 		{
 			if(((eStalfos*)guys.spr(i))->hashero)
 			{
@@ -4954,7 +4954,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 		}
 		
-		if(((enemy*)guys.spr(i))->family == eeWALLM)
+		if(((enemy*)guys.spr(i))->type == eeWALLM)
 		{
 			if(((eWallM*)guys.spr(i))->hashero)
 			{

@@ -2844,7 +2844,7 @@ void weapon::load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr)
 		{
 			if(id == ewFlame || id == ewFlame2)
 			{
-				switch (e->family)
+				switch (e->type)
 				{
 					case eeGLEEOK:
 						if (e->dmisc3 == 1) step = data.step * 2;
@@ -6761,7 +6761,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 			{
 				if(e && !switching_object && (ehitType < 0 || e->switch_hooked))
 				{
-					switch(e->family)
+					switch(e->type)
 					{
 						case eeAQUA: case eeMOLD: case eeDONGO: case eeMANHAN: case eeGLEEOK:
 						case eeDIG: case eeGHOMA: case eeLANM: case eePATRA: case eeGANON:

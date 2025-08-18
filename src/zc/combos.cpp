@@ -1432,7 +1432,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 						id2=i;
 						
 						// This is mostly for backwards-compatability
-						if(guysbuf[i].family==eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
+						if(guysbuf[i].type==eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
 						{
 							eclk=0;
 						}
@@ -1455,7 +1455,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 				int32_t searching = 1;
 				int32_t armosxsz = 1;
 				int32_t armosysz = 1;
-				switch(guysbuf[id2].family)
+				switch(guysbuf[id2].type)
 				{
 					case eeGHOMA:
 						armosxsz = 3;
@@ -1577,7 +1577,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 							activation_counters[(int)rpos] = 61;
 					}
 				}
-				if (guysbuf[id2].family == eeGHOMA) 
+				if (guysbuf[id2].type == eeGHOMA) 
 				{
 					if ( COMBOTYPE(tx + chx + 1, ty) == cARMOS ) xpos += 16;
 				}
@@ -1665,7 +1665,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 						id2=i;
 						
 						// This is mostly for backwards-compatability
-						if(guysbuf[i].family==eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
+						if(guysbuf[i].type==eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
 						{
 							eclk=0;
 						}

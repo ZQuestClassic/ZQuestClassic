@@ -387,7 +387,7 @@ void EnemyEditorDialog::loadEnemyType()
 	l_attribute[15] = "Transform Into Enemy:";
 	l_attribute[16] = "Transform Inv Time:";
 	
-	switch(local_guyref.family)
+	switch(local_guyref.type)
 	{
 		case eeWALK:
 		{
@@ -637,7 +637,7 @@ void EnemyEditorDialog::loadEnemyType()
 		//ib_bflags[q]->setDisabled(h_bflag[q].empty());
 	}
 
-	switch (local_guyref.family)
+	switch (local_guyref.type)
 	{
 	case eeWALK:
 		ddl_attributes[0]->setListData(list_walkmisc1);
@@ -758,7 +758,7 @@ void EnemyEditorDialog::loadEnemyType()
 
 void EnemyEditorDialog::loadAttributes()
 {
-	switch(local_guyref.family)
+	switch(local_guyref.type)
 	{
 		case eeWALK:
 		{
@@ -894,7 +894,7 @@ void EnemyEditorDialog::loadAttributes()
 void EnemyEditorDialog::updateWarnings()
 {
 	warnings.clear();
-	switch(local_guyref.family)
+	switch(local_guyref.type)
 	{
 		case eeWALK:
 			if(local_guyref.attributes[0] == e1tSUMMON)
@@ -984,7 +984,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::DropDownField(auto* field, GUI::
 
 inline bool EnemyEditorDialog::NoDefenses()
 {
-	return local_guyref.family == eeROCK || local_guyref.family == eeTRAP || local_guyref.family == eeDONGO || local_guyref.family == eeGANON;
+	return local_guyref.type == eeROCK || local_guyref.type == eeTRAP || local_guyref.type == eeDONGO || local_guyref.type == eeGANON;
 }
 
 std::shared_ptr<GUI::Widget> EnemyEditorDialog::DefenseField(const std::vector<int>& indices, bool _dobutton)
@@ -1123,15 +1123,15 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 
-#define MAXHALT (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?999:16
-#define MAXRATE (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?999:16
-#define MAXHOMING (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?9999:256
-#define MAXSTEP (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?9999:1000
-#define HAS_SHIELD (local_guyref.family==eeWALK||local_guyref.family==eeFIRE||local_guyref.family==eeOTHER)
-#define	TURNFREQHALTRATE local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN \
-	|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG ? "Turn Freq:" : "Halt Rate:"
-#define	TURNFREQHALTRATEHINT local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN \
-	|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG ? \
+#define MAXHALT (local_guyref.type==eeFIRE||local_guyref.type==eeOTHER||(local_guyref.type>=eeSCRIPT01&&local_guyref.type<=eeFFRIENDLY10))?999:16
+#define MAXRATE (local_guyref.type==eeFIRE||local_guyref.type==eeOTHER||(local_guyref.type>=eeSCRIPT01&&local_guyref.type<=eeFFRIENDLY10))?999:16
+#define MAXHOMING (local_guyref.type==eeFIRE||local_guyref.type==eeOTHER||(local_guyref.type>=eeSCRIPT01&&local_guyref.type<=eeFFRIENDLY10))?9999:256
+#define MAXSTEP (local_guyref.type==eeFIRE||local_guyref.type==eeOTHER||(local_guyref.type>=eeSCRIPT01&&local_guyref.type<=eeFFRIENDLY10))?9999:1000
+#define HAS_SHIELD (local_guyref.type==eeWALK||local_guyref.type==eeFIRE||local_guyref.type==eeOTHER)
+#define	TURNFREQHALTRATE local_guyref.type == eeKEESE || local_guyref.type == eeGHINI || local_guyref.type == eePEAHAT || local_guyref.type == eeMANHAN \
+	|| local_guyref.type == eeGLEEOK || local_guyref.type == eePATRA || local_guyref.type == eeDIG ? "Turn Freq:" : "Halt Rate:"
+#define	TURNFREQHALTRATEHINT local_guyref.type == eeKEESE || local_guyref.type == eeGHINI || local_guyref.type == eePEAHAT || local_guyref.type == eeMANHAN \
+	|| local_guyref.type == eeGLEEOK || local_guyref.type == eePATRA || local_guyref.type == eeDIG ? \
 	"Turn Freq: How often this enemy considers turning after moving to a new combo\nRanges from 0 (never) to 16 (always)." : \
 	"Halt Rate: How often this enemy considers stopping after moving to a new combo\nRanges from 0 (never) to 16 (always)."
 
@@ -1328,7 +1328,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 										data = list_families,
 										hAlign = 0.0,
 										fitParent = true,
-										selectedValue = local_guyref.family,
+										selectedValue = local_guyref.type,
 										onSelectionChanged = message::ENEMYTYPE
 									),
 									Label(text = "Item Set:", hAlign = 1.0, rightPadding = 0_px),
@@ -1700,7 +1700,7 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 	case message::ENEMYTYPE:
 	{
-		local_guyref.family = int32_t(msg.argument);
+		local_guyref.type = int32_t(msg.argument);
 		loadEnemyType();
 		return false;
 	}
@@ -1752,7 +1752,7 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				string name = old_guy_string[index];
 				enemy_name = name;
 				// sprites
-				local_guyref.spr_shadow = (local_guyref.family == eeROCK && local_guyref.attributes[9] == 1) ? iwLargeShadow : iwShadow;
+				local_guyref.spr_shadow = (local_guyref.type == eeROCK && local_guyref.attributes[9] == 1) ? iwLargeShadow : iwShadow;
 				local_guyref.spr_death = iwDeath;
 				local_guyref.spr_spawn = iwSpawn;
 				// darknuts

@@ -6843,11 +6843,11 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			bool darknut=false;
 			bool gleeok=false;
 			
-			if(enemy.family==eeWALK && ((enemy.flags&(guy_shield_back|guy_shield_front|guy_shield_left|guy_shield_right))!=0))
+			if(enemy.type==eeWALK && ((enemy.flags&(guy_shield_back|guy_shield_front|guy_shield_left|guy_shield_right))!=0))
 				darknut=true;
-			else if(enemy.family==eeGLEEOK)
+			else if(enemy.type==eeGLEEOK)
 				gleeok=true;
-			else if (enemy.family == eePATRA)
+			else if (enemy.type == eePATRA)
 			{
 				if (!get_qr(qr_PATRAS_USE_HARDCODED_OFFSETS))
 				{

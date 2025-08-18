@@ -11100,7 +11100,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(17);
 			}
 			
-			if(!p_iputw(guysbuf[i].family,f))
+			if(!p_iputw(guysbuf[i].type,f))
 			{
 				new_return(18);
 			}

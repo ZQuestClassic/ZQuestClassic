@@ -9745,7 +9745,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 static void guy_update_firesfx(guydata& tempguy)
 {
 	tempguy.firesfx = 0;
-	if (tempguy.family == eeWIZZ)
+	if (tempguy.type == eeWIZZ)
 	{
 		switch (tempguy.attributes[1])
 		{
@@ -9800,7 +9800,7 @@ static void guy_update_firesfx(guydata& tempguy)
 	}
 	else
 	{
-		if ((tempguy.family == eeWALK || tempguy.family == eePROJECTILE) && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
+		if ((tempguy.type == eeWALK || tempguy.type == eePROJECTILE) && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
 		{
 			tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
 		}
@@ -9910,7 +9910,7 @@ void init_guys(int32_t guyversion)
     for(int32_t i=0; i<OLDMAXGUYS; i++)
     {
         guysbuf[i] = default_guys[i];
-        guysbuf[i].spr_shadow = (guysbuf[i].family==eeROCK && guysbuf[i].attributes[9] == 1) ? iwLargeShadow : iwShadow;
+        guysbuf[i].spr_shadow = (guysbuf[i].type==eeROCK && guysbuf[i].attributes[9] == 1) ? iwLargeShadow : iwShadow;
 		guysbuf[i].spr_death = iwDeath;
 		guysbuf[i].spr_spawn = iwSpawn;
         // Patra fix: 2.10 BSPatras used spDIG. 2.50 Patras use CSet 7.
@@ -14041,7 +14041,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.family),f))
+            if(!p_igetw(&(tempguy.type),f))
             {
                 return qe_invalid;
             }
@@ -14183,7 +14183,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             }
             
             // HIGHLY UNORTHODOX UPDATING THING, part 2
-            if(fixpolsvoice && tempguy.family==eePOLSV)
+            if(fixpolsvoice && tempguy.type==eePOLSV)
             {
                 tempguy.step /= 2;
             }
@@ -14228,7 +14228,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 
                 if(guyversion < 13)  // April 2009 - a tiny Wizzrobe update
                 {
-                    if(tempguy.family == eeWIZZ && !(tempguy.attributes[0]))
+                    if(tempguy.type == eeWIZZ && !(tempguy.attributes[0]))
                         tempguy.attributes[4] = 74;
                 }
 
@@ -14560,7 +14560,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 						return qe_invalid;
 		    if ( guy_cversion < 4 )
 		    {
-			if ( tempguy.family == eeKEESE )
+			if ( tempguy.type == eeKEESE )
 			{
 
 				if ( !tempguy.attributes[0] )
@@ -14570,13 +14570,13 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					
 				}
 			}
-			if ( tempguy.family == eePEAHAT )
+			if ( tempguy.type == eePEAHAT )
 			{	
 				tempguy.attributes[15] = 80;
 				tempguy.attributes[16] = 16;
 			}
 
-			if ( tempguy.family == eeGHINI )
+			if ( tempguy.type == eeGHINI )
 			{	
 				tempguy.attributes[15] = 120;
 				tempguy.attributes[16] = 10;
@@ -14774,7 +14774,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 	    if ( guyversion < 42 && guy_cversion < 4  ) 
 	    {
 		    
-			if ( tempguy.family == eeKEESE )
+			if ( tempguy.type == eeKEESE )
 			{
 
 				if ( !tempguy.attributes[0] )
@@ -14784,12 +14784,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					
 				}
 			}
-			if ( tempguy.family == eePEAHAT )
+			if ( tempguy.type == eePEAHAT )
 			{	
 				tempguy.attributes[15] = 80;
 				tempguy.attributes[16] = 16;
 			}
-			if ( tempguy.family == eeGHINI )
+			if ( tempguy.type == eeGHINI )
 			{	
 				tempguy.attributes[15] = 120;
 				tempguy.attributes[16] = 10;
@@ -14831,13 +14831,13 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             
             if(guyversion < 10) // December 2007 - Dodongo CSet fix
             {
-                if(get_bit(deprecated_rules,46) && tempguy.family==eeDONGO && tempguy.attributes[0]==0)
+                if(get_bit(deprecated_rules,46) && tempguy.type==eeDONGO && tempguy.attributes[0]==0)
                     tempguy.bosspal = spDIG;
             }
             
             if(guyversion < 11) // December 2007 - Spinning Tile fix
             {
-                if(tempguy.family==eeSPINTILE)
+                if(tempguy.type==eeSPINTILE)
                 {
                     tempguy.flags |= guy_superman;
                     tempguy.item_set = 0; // Don't drop items
@@ -14849,7 +14849,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             {
                 if(get_bit(deprecated_rules, qr_NOROPE2FLASH_DEP))
                 {
-                    if(tempguy.family==eeROPE)
+                    if(tempguy.type==eeROPE)
                     {
                         tempguy.flags &= ~guy_flashing;
                     }
@@ -14857,13 +14857,13 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 
                 if(get_bit(deprecated_rules, qr_NOBUBBLEFLASH_DEP))
                 {
-                    if(tempguy.family==eeBUBBLE)
+                    if(tempguy.type==eeBUBBLE)
                     {
                         tempguy.flags &= ~guy_flashing;
                     }
                 }
                 
-                if((tempguy.family==eeGHINI)&&(tempguy.attributes[0]))
+                if((tempguy.type==eeGHINI)&&(tempguy.attributes[0]))
                 {
                     if(get_bit(deprecated_rules, qr_GHINI2BLINK_DEP))
                     {
@@ -14908,7 +14908,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             
             if(guyversion < 17)  // December 2009
             {
-                if(tempguy.family==eePROJECTILE)
+                if(tempguy.type==eePROJECTILE)
                 {
                     tempguy.attributes[0] = 0;
                 }
@@ -14916,19 +14916,19 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             
             if(guyversion < 18)  // January 2010
             {
-                bool boss = (tempguy.family == eeAQUA || tempguy.family==eeDONGO || tempguy.family == eeMANHAN || tempguy.family == eeGHOMA || tempguy.family==eeDIG
-                             || tempguy.family == eeGLEEOK || tempguy.family==eePATRA || tempguy.family == eeGANON || tempguy.family==eeMOLD);
+                bool boss = (tempguy.type == eeAQUA || tempguy.type==eeDONGO || tempguy.type == eeMANHAN || tempguy.type == eeGHOMA || tempguy.type==eeDIG
+                             || tempguy.type == eeGLEEOK || tempguy.type==eePATRA || tempguy.type == eeGANON || tempguy.type==eeMOLD);
                              
-                tempguy.hitsfx = (boss && tempguy.family != eeMOLD && tempguy.family != eeDONGO && tempguy.family != eeDIG) ? WAV_GASP : 0;
-                tempguy.deadsfx = (boss && (tempguy.family != eeDIG || tempguy.attributes[9] == 0)) ? WAV_GASP : WAV_EDEAD;
+                tempguy.hitsfx = (boss && tempguy.type != eeMOLD && tempguy.type != eeDONGO && tempguy.type != eeDIG) ? WAV_GASP : 0;
+                tempguy.deadsfx = (boss && (tempguy.type != eeDIG || tempguy.attributes[9] == 0)) ? WAV_GASP : WAV_EDEAD;
                 
-                if(tempguy.family == eeAQUA)
+                if(tempguy.type == eeAQUA)
                     for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eRAQUAM].defense[j];
-                else if(tempguy.family == eeMANHAN)
+                else if(tempguy.type == eeMANHAN)
                     for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eMANHAN].defense[j];
-                else if(tempguy.family==eePATRA)
+                else if(tempguy.type==eePATRA)
                     for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
-                else if(tempguy.family==eeGHOMA)
+                else if(tempguy.type==eeGHOMA)
                 {
                     for(int32_t j=0; j<edefLAST; j++)
                         tempguy.defense[j] = default_guys[eGOHMA1].defense[j];
@@ -14939,32 +14939,32 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                     
                     tempguy.attributes[0]--;
                 }
-                else if(tempguy.family == eeGLEEOK)
+                else if(tempguy.type == eeGLEEOK)
                 {
                     for(int32_t j=0; j<edefLAST; j++)
                         tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
                         
                     if(tempguy.attributes[2]==1 && !tempguy.weapon) tempguy.weapon = ewFlame;
                 }
-                else if(tempguy.family == eeARMOS)
+                else if(tempguy.type == eeARMOS)
                 {
-                    tempguy.family=eeWALK;
+                    tempguy.type=eeWALK;
                     tempguy.hrate = 0;
                     tempguy.attributes[9] = tempguy.attributes[0];
                     tempguy.attributes[0] = tempguy.attributes[1] = tempguy.attributes[2] = tempguy.attributes[3] = tempguy.attributes[4] = tempguy.attributes[5] = tempguy.attributes[6] = tempguy.attributes[7] = 0;
                     tempguy.attributes[0] = tempguy.attributes[1] = tempguy.attributes[2] = tempguy.attributes[3] = tempguy.attributes[4] = tempguy.attributes[5] = tempguy.attributes[6] = tempguy.attributes[7] = 0;
                     tempguy.attributes[8] = e9tARMOS;
                 }
-                else if(tempguy.family == eeGHINI && !tempguy.attributes[0])
+                else if(tempguy.type == eeGHINI && !tempguy.attributes[0])
                 {
-                    tempguy.family=eeWALK;
+                    tempguy.type=eeWALK;
                     tempguy.hrate = 0;
                     tempguy.attributes[0] = tempguy.attributes[1] = tempguy.attributes[2] = tempguy.attributes[3] = tempguy.attributes[4] = tempguy.attributes[5] =
                                                         tempguy.attributes[6] = tempguy.attributes[7] = tempguy.attributes[8] = tempguy.attributes[9] = 0;
                 }
                 
                 // Spawn animation flags
-                if(tempguy.family == eeWALK && (tempguy.flags&guy_armos || tempguy.flags&guy_ghini))
+                if(tempguy.type == eeWALK && (tempguy.flags&guy_armos || tempguy.flags&guy_ghini))
                     tempguy.flags |= guy_fade_flicker;
                 else
                     tempguy.flags &= (guy_flags)0x0F00000F; // Get rid of the unused flags!
@@ -14972,7 +14972,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             
             if(guyversion < 20)  // April 2010
             {
-                if(tempguy.family == eeTRAP)
+                if(tempguy.type == eeTRAP)
                 {
                     tempguy.attributes[1] = tempguy.attributes[9];
                     
@@ -14985,19 +14985,19 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 }
                 
                 // Bomb Blast fix
-                if(tempguy.weapon==ewBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.attributes[1] != e2tBOMBCHU))
+                if(tempguy.weapon==ewBomb && tempguy.type!=eeROPE && (tempguy.type!=eeWALK || tempguy.attributes[1] != e2tBOMBCHU))
                     tempguy.weapon = ewLitBomb;
-                else if(tempguy.weapon==ewSBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.attributes[1] != e2tBOMBCHU))
+                else if(tempguy.weapon==ewSBomb && tempguy.type!=eeROPE && (tempguy.type!=eeWALK || tempguy.attributes[1] != e2tBOMBCHU))
                     tempguy.weapon = ewLitSBomb;
             }
             
             if(guyversion < 21)  // September 2011
             {
-                if(tempguy.family == eeKEESE || tempguy.family == eeKEESETRIB)
+                if(tempguy.type == eeKEESE || tempguy.type == eeKEESETRIB)
                 {
-                    if(tempguy.family == eeKEESETRIB)
+                    if(tempguy.type == eeKEESETRIB)
                     {
-                        tempguy.family = eeKEESE;
+                        tempguy.type = eeKEESE;
                         tempguy.attributes[1] = e2tKEESETRIB;
                         tempguy.attributes[0] = 0;
                     }
@@ -15005,11 +15005,11 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                     tempguy.rate = 2;
                     tempguy.hrate = 8;
                     tempguy.homing = 0;
-                    tempguy.step= (tempguy.family == eeKEESE && tempguy.attributes[0] ? 100:62);
+                    tempguy.step= (tempguy.type == eeKEESE && tempguy.attributes[0] ? 100:62);
                 }
-                else if(tempguy.family == eePEAHAT || tempguy.family==eePATRA)
+                else if(tempguy.type == eePEAHAT || tempguy.type==eePATRA)
                 {
-                    if(tempguy.family == eePEAHAT)
+                    if(tempguy.type == eePEAHAT)
                     {
                         tempguy.rate = 4;
                         tempguy.step = 62;
@@ -15020,22 +15020,22 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                     tempguy.hrate = 8;
                     tempguy.homing = 0;
                 }
-                else if(tempguy.family == eeDIG || tempguy.family == eeMANHAN)
+                else if(tempguy.type == eeDIG || tempguy.type == eeMANHAN)
                 {
-                    if(tempguy.family == eeMANHAN)
+                    if(tempguy.type == eeMANHAN)
                         tempguy.step=50;
                         
                     tempguy.hrate = 16;
                     tempguy.homing = 0;
                 }
-                else if(tempguy.family == eeGLEEOK)
+                else if(tempguy.type == eeGLEEOK)
                 {
                     tempguy.rate = 2;
                     tempguy.homing = 0;
                     tempguy.hrate = 9;
                     tempguy.step=89;
                 }
-                else if(tempguy.family == eeGHINI)
+                else if(tempguy.type == eeGHINI)
                 {
                     tempguy.rate = 4;
                     tempguy.hrate = 12;
@@ -15044,7 +15044,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 }
                 
                 // Bigdig random rate fix
-                if(tempguy.family==eeDIG && tempguy.attributes[9]==1)
+                if(tempguy.type==eeDIG && tempguy.attributes[9]==1)
                 {
                     tempguy.rate = 2;
                 }
@@ -15052,15 +15052,15 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             
             if(guyversion < 24) // November 2012
             {
-                if(tempguy.family==eeLANM)
+                if(tempguy.type==eeLANM)
                     tempguy.attributes[2] = 1;
-                else if(tempguy.family==eeMOLD)
+                else if(tempguy.type==eeMOLD)
                     tempguy.attributes[1] = 0;
             }
 	    
 	    if(guyversion < 33) //Whistle defence did not exist before this version of 2.54. -Z
 	    {
-		if(tempguy.family!=eeDIG)
+		if(tempguy.type!=eeDIG)
 		{
 			tempguy.defense[edefWhistle] = edIGNORE; //Might need to be ignore, universally. 
 		}
@@ -15070,7 +15070,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 	    if ( Header->zelda_version <= 0x210 ) 
 	    {
 		al_trace("Detected version %d for dodongo patch.\n",Header->zelda_version);
-		if ( tempguy.family == eeDONGO ) 
+		if ( tempguy.type == eeDONGO ) 
 		{
 			tempguy.deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
 		}
@@ -15097,7 +15097,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			}
 			else
 			{
-				switch(tempguy.family)
+				switch(tempguy.type)
 				{
 					//No gravity; floats over pits
 					case eeTEK: case eePEAHAT: case eeROCK: case eeTRAP:
@@ -15140,7 +15140,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			}
 			if(guyversion < 43)
 			{
-				switch(tempguy.family)
+				switch(tempguy.type)
 				{
 					//No gravity; floats over pits
 					case eeTEK: case eePEAHAT: case eeROCK: case eeTRAP:
@@ -15158,7 +15158,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			}
 			if (guyversion < 44)
 			{
-				if ( tempguy.family == eeGHOMA )
+				if ( tempguy.type == eeGHOMA )
 				{
 					tempguy.flags |= guy_fade_instant;
 				}
@@ -15180,14 +15180,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			}
 			else
 			{
-				tempguy.spr_shadow = (tempguy.family==eeROCK && tempguy.attributes[9]==1) ? iwLargeShadow : iwShadow;
+				tempguy.spr_shadow = (tempguy.type==eeROCK && tempguy.attributes[9]==1) ? iwLargeShadow : iwShadow;
 				tempguy.spr_death = iwDeath;
 				tempguy.spr_spawn = iwSpawn;
 			}
 			
 			if(guyversion < 46)
 			{
-				if(tempguy.family == eeWALK && tempguy.attributes[8] == e9tPOLSVOICE)
+				if(tempguy.type == eeWALK && tempguy.attributes[8] == e9tPOLSVOICE)
 				{
 					tempguy.moveflags |= move_can_waterwalk;
 				}
@@ -15195,7 +15195,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 
 			if (guyversion < 47)
 			{
-				if (tempguy.family == eeDIG && tempguy.attributes[9]!=1)
+				if (tempguy.type == eeDIG && tempguy.attributes[9]!=1)
 				{
 					tempguy.flags |= guy_ignore_kill_all;
 				}
@@ -15203,7 +15203,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 
 			if (guyversion < 49)
 			{
-				if (tempguy.family == eeWALK && (tempguy.attributes[6]==e7tPERMJINX || tempguy.attributes[6]==e7tTEMPJINX || tempguy.attributes[6]==e7tUNJINX)) //BUBBLE CHECK
+				if (tempguy.type == eeWALK && (tempguy.attributes[6]==e7tPERMJINX || tempguy.attributes[6]==e7tTEMPJINX || tempguy.attributes[6]==e7tUNJINX)) //BUBBLE CHECK
 				{
 					switch (tempguy.attributes[7]) {
 						case 0: //Sword
@@ -15310,7 +15310,7 @@ void update_guy_1(guydata *tempguy) // November 2009
     bool doesntcount = false;
     tempguy->flags &= ~guy_weak_arrow; // Formerly 'weak to arrow' which wasn't implemented
     
-    switch(tempguy->family)
+    switch(tempguy->type)
     {
     case 1: //eeWALK
         switch(tempguy->attributes[9])
@@ -15330,7 +15330,7 @@ void update_guy_1(guydata *tempguy) // November 2009
         break;
         
     case 2: //eeSHOOT
-        tempguy->family = eeWALK;
+        tempguy->type = eeWALK;
         
         switch(tempguy->attributes[9])
         {
@@ -15402,7 +15402,7 @@ darknuts:
         */
     case 11: //eeGEL
     case 33: //eeGELTRIB
-        if(tempguy->family==33)
+        if(tempguy->type==33)
         {
             tempguy->attributes[3] = 1;
             
@@ -15418,7 +15418,7 @@ darknuts:
             tempguy->attributes[1] = 0;
         }
         
-        tempguy->family = eeWALK;
+        tempguy->type = eeWALK;
         
         if(tempguy->attributes[0])
         {
@@ -15432,7 +15432,7 @@ darknuts:
     case 12: //eeZOL
         tempguy->attributes[3]=tempguy->attributes[2];
         tempguy->attributes[2]=tempguy->attributes[1];
-        tempguy->family = eeWALK;
+        tempguy->type = eeWALK;
         tempguy->attributes[1]=e2tSPLITHIT;
         
         if(tempguy->attributes[0])
@@ -15444,7 +15444,7 @@ darknuts:
         break;
         
     case 13: //eeROPE
-        tempguy->family = eeWALK;
+        tempguy->type = eeWALK;
         tempguy->attributes[8] = e9tROPE;
         
         if(tempguy->attributes[0])
@@ -15458,14 +15458,14 @@ darknuts:
         break;
         
     case 14: //eeGORIYA
-        tempguy->family = eeWALK;
+        tempguy->type = eeWALK;
         
         if(tempguy->attributes[0]!=2) tempguy->attributes[0] = 0;
         
         break;
         
     case 17: //eeBUBBLE
-        tempguy->family = eeWALK;
+        tempguy->type = eeWALK;
         tempguy->attributes[7] = tempguy->attributes[1];
         tempguy->attributes[6] = tempguy->attributes[0] + 1;
         tempguy->attributes[0] = tempguy->attributes[1] = 0;
@@ -15478,7 +15478,7 @@ darknuts:
         
     case 35: //eeVIRETRIB
     case 18: //eeVIRE
-        tempguy->family = eeWALK;
+        tempguy->type = eeWALK;
         tempguy->attributes[3]=tempguy->attributes[2];
         tempguy->attributes[2]=tempguy->attributes[1];
         tempguy->attributes[1]=e2tSPLITHIT;
@@ -15486,7 +15486,7 @@ darknuts:
         break;
         
     case 19: //eeLIKE
-        tempguy->family = eeWALK;
+        tempguy->type = eeWALK;
         tempguy->attributes[6] = e7tEATITEMS;
         tempguy->attributes[7]=95;
         break;
@@ -15497,7 +15497,7 @@ darknuts:
         tempguy->defense[edefMAGIC] = tempguy->defense[edefBYRNA] = edCHINK;
         tempguy->defense[edefARROW] = ed1HKO;
         tempguy->defense[edefHOOKSHOT] = edSTUNONLY;
-        tempguy->family = eeWALK;
+        tempguy->type = eeWALK;
         tempguy->attributes[8] = e9tPOLSVOICE;
         tempguy->rate = 4;
         tempguy->homing = 32;
@@ -15541,8 +15541,8 @@ darknuts:
         for(int32_t i = 0; i < edefLAST; i++)
             if(!(i==edefSBOMB && (tempguy->flags & guy_sbombonly)))
                 tempguy->defense[i] = (i==edefBRANG && tempguy->defense[i] != edIGNORE
-                                       && tempguy->family != eeROCK && tempguy->family != eeTRAP
-                                       && tempguy->family != eePROJECTILE) ? edSTUNORIGNORE : edIGNORE;
+                                       && tempguy->type != eeROCK && tempguy->type != eeTRAP
+                                       && tempguy->type != eePROJECTILE) ? edSTUNORIGNORE : edIGNORE;
     }
     
     tempguy->flags &= ~(guy_superman|guy_sbombonly);

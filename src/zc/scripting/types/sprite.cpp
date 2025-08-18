@@ -33,7 +33,7 @@ static bool enemy_has_hero(sprite* s)
 {
 	if (auto e = dynamic_cast<enemy*>(s); e)
 	{
-		if (e->family == eeWALLM || e->family == eeWALK)
+		if (e->type == eeWALLM || e->type == eeWALK)
 			return e->hashero;
 	}
 
@@ -542,7 +542,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 
 				s->cs = (value / 10000) & 0xF;
 				if (auto e = dynamic_cast<enemy*>(s))
-					if (e->family == eeLEV)
+					if (e->type == eeLEV)
 						e->dcset = e->cs;
 			}
 			break;
