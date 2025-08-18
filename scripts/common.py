@@ -3,7 +3,6 @@ import shlex
 import subprocess
 
 from pathlib import Path
-from typing import List
 
 
 def get_release_platform() -> ['mac', 'windows', 'linux']:
@@ -36,7 +35,7 @@ def run_zc_command(binaries, args):
     return subprocess.Popen(args2, cwd=cwd, shell=shell)
 
 
-def find_path(dir: Path, one_of: List[str]):
+def find_path(dir: Path, one_of: list[str]):
     for p in one_of:
         if (dir / p).exists():
             return dir / p

@@ -9,7 +9,6 @@ import os
 from argparse import ArgumentTypeError
 from pathlib import Path
 from time import sleep
-from typing import List
 
 import intervaltree
 
@@ -105,7 +104,7 @@ def start_test_workflow_run(
     runs_on: str,
     arch: str,
     compiler: str,
-    extra_args: List[str],
+    extra_args: list[str],
 ):
     repo = gh.get_repo(repo_str)
     test_workflow = repo.get_workflow('test.yml')
@@ -167,8 +166,8 @@ def poll_workflow_run(gh: Github, repo_str: str, run_id: int):
 # Returns a list of args to give to `run_replay_tests.py`, to collect snapshots of the failing replay
 # tests provided by `test_results_paths`
 def get_args_for_collect_baseline_from_test_results(
-    test_results_paths: List[Path],
-) -> List[str]:
+    test_results_paths: list[Path],
+) -> list[str]:
     failing_segments_by_replay = {}
     name_to_path = {}
     for path in test_results_paths:
@@ -229,7 +228,7 @@ def get_args_for_collect_baseline_from_test_results(
 # branch.
 # Returns the workflow run id, after job finishes.
 def collect_baseline_from_test_results(
-    gh: Github, repo: str, baseline_branch: str, test_results_paths: List[Path]
+    gh: Github, repo: str, baseline_branch: str, test_results_paths: list[Path]
 ) -> int:
     extra_args = get_args_for_collect_baseline_from_test_results(test_results_paths)
     if not baseline_branch:

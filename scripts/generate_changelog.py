@@ -6,7 +6,6 @@ import sys
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List
 
 from git_hooks.common import valid_scopes, valid_types
 
@@ -114,7 +113,7 @@ class Commit:
     subject: str
     oneline: str
     body: str
-    squashed_commits: List['Commit'] = field(default_factory=lambda: [])
+    squashed_commits: list['Commit'] = field(default_factory=lambda: [])
 
     def scope_and_oneline(self):
         if self.scope:
@@ -205,7 +204,7 @@ def get_scope_label(scope: str):
             return scope.capitalize()
 
 
-def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
+def split_text_into_logical_markdown_chunks(text: str) -> list[str]:
     """
     Splits the input into separate chunks, such that each is a logical markdown chunk
     (ex: list, code block, paragraph). Allows for constructing a pretty markdown result from
@@ -282,7 +281,7 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
 
 
 def stringify_changelog(
-    commits_by_type: Dict[str, List[Commit]], format: str, to_sha: str
+    commits_by_type: dict[str, list[Commit]], format: str, to_sha: str
 ) -> str:
     lines = []
     oneliner = release_oneliners.get(to_sha, None)
@@ -315,7 +314,7 @@ def stringify_changelog(
             label = get_type_label(type)
             lines.append(f'# {label}\n')
 
-            commits_by_scope: Dict[str, List[Commit]] = {}
+            commits_by_scope: dict[str, list[Commit]] = {}
             for commit in commits:
                 by_scope = commits_by_scope.get(commit.scope, [])
                 commits_by_scope[commit.scope] = by_scope
@@ -402,7 +401,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         encoding='utf-8',
     ).strip()
 
-    commits: List[Commit] = []
+    commits: list[Commit] = []
     for commit_text in commits_text.splitlines():
         short_hash, hash, subject = commit_text.split(' ', 2)
         if hash in overrides and overrides[hash][0] == 'drop':
@@ -489,7 +488,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         )
     commits = [c for c in commits if c.hash not in squashed_hashes]
 
-    commits_by_type: Dict[str, List[Commit]] = {}
+    commits_by_type: dict[str, list[Commit]] = {}
     for type in valid_types:
         commits_by_type[type] = []
     commits_by_type['CustomSection'] = []

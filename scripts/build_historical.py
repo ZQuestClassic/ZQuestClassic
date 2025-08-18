@@ -5,7 +5,6 @@ import traceback
 import zipfile
 
 from pathlib import Path
-from typing import List
 
 import archives
 import git_helpers
@@ -16,7 +15,7 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 
 
-def run_command(args: List[str], **kwargs):
+def run_command(args: list[str], **kwargs):
     p = subprocess.run(args, capture_output=True, encoding='utf-8', **kwargs)
     if p.returncode != 0:
         cmd = ' '.join(args)

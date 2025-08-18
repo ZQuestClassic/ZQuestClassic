@@ -14,7 +14,7 @@ from pathlib import Path
 
 # TODO :(
 # from ..tests.replays import ReplayTestResults
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Literal, Optional
 
 
 @dataclass
@@ -30,12 +30,12 @@ class RunResult:
     frame: int = None
     num_frames: int = None
     failing_frame: int = None
-    unexpected_gfx_frames: List[int] = None
-    unexpected_gfx_segments: List[Tuple[int, int]] = None
-    unexpected_gfx_segments_limited: List[Tuple[int, int]] = None
-    exceptions: List[str] = field(default_factory=list)
+    unexpected_gfx_frames: list[int] = None
+    unexpected_gfx_segments: list[tuple[int, int]] = None
+    unexpected_gfx_segments_limited: list[tuple[int, int]] = None
+    exceptions: list[str] = field(default_factory=list)
     # Only for compare report.
-    snapshots: List[Any] = None
+    snapshots: list = None
 
 
 @dataclass
@@ -47,7 +47,7 @@ class ReplayTestResults:
     git_ref: Optional[str]
     zc_version: str
     time: str
-    runs: List[List[RunResult]]
+    runs: list[list[RunResult]]
     # Only for compare report.
     label: str = None
 
@@ -120,7 +120,7 @@ def clear_dir(dir: Path):
         shutil.rmtree(dir)
 
 
-def run_replay(args: List[str]):
+def run_replay(args: list[str]):
     return subprocess.run(
         [
             sys.executable,

@@ -12,7 +12,6 @@ import shutil
 
 from argparse import ArgumentTypeError
 from pathlib import Path
-from typing import List
 
 import intervaltree
 
@@ -74,7 +73,7 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
         print(f'{directory} has no snapshots')
 
     # Only process the last run of each replay.
-    replay_runs: List[RunResult] = []
+    replay_runs: list[RunResult] = []
     for runs in reversed(test_results.runs):
         for run in runs:
             if any(r for r in replay_runs if r.name == run.name):
@@ -109,8 +108,8 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
 # `directory` can include just one test run (a folder with test_results.json);
 # or many. For the latter, they will be grouped into a single test run per
 # platform (so that sharding does not generate multiple test runs).
-def collect_many_test_results_from_dir(directory: Path) -> List[ReplayTestResults]:
-    test_runs: List[ReplayTestResults] = []
+def collect_many_test_results_from_dir(directory: Path) -> list[ReplayTestResults]:
+    test_runs: list[ReplayTestResults] = []
 
     extract_tars(directory)
     for test_results_path in directory.rglob('test_results.json'):
@@ -137,13 +136,13 @@ def collect_many_test_results_from_dir(directory: Path) -> List[ReplayTestResult
 
 def collect_many_test_results_from_ci(
     gh: Github, repo: str, workflow_run_id: str
-) -> List[ReplayTestResults]:
+) -> list[ReplayTestResults]:
     workflow_dir = get_gha_artifacts_with_retry(gh, repo, workflow_run_id)
     return collect_many_test_results_from_dir(workflow_dir)
 
 
 def create_compare_report(
-    test_runs: List[ReplayTestResults], out_dir: Path = default_out_dir
+    test_runs: list[ReplayTestResults], out_dir: Path = default_out_dir
 ):
     if out_dir.exists():
         shutil.rmtree(out_dir)
@@ -180,7 +179,7 @@ def create_compare_report(
 
                 print('! replay_name', replay_name)
                 print('! replay_budget', replay_budget)
-                runs: List[RunResult] = []
+                runs: list[RunResult] = []
                 for test_results in test_runs:
                     for run in test_results.runs[0]:
                         if run.name == replay_name:

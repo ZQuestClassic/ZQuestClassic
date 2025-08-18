@@ -5,7 +5,6 @@ import uuid
 
 from http import HTTPStatus
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 import boto3
 
@@ -45,7 +44,7 @@ def connect_s3():
     )
 
 
-def parse_meta(replay_text: str) -> Dict[str, str]:
+def parse_meta(replay_text: str) -> dict[str, str]:
     meta = {}
 
     for line in replay_text.splitlines():
@@ -58,7 +57,7 @@ def parse_meta(replay_text: str) -> Dict[str, str]:
     return meta
 
 
-def parse_replay(replay_text: str) -> Tuple[Dict[str, str], List[str]]:
+def parse_replay(replay_text: str) -> tuple[dict[str, str], list[str]]:
     """Returns tuple: meta, steps"""
     meta = {}
     steps = []

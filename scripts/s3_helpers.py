@@ -1,11 +1,9 @@
 import re
 
-from typing import List
-
 import requests
 
 
-def _list_bucket_impl(bucket_url: str, marker: str, keys: List[str]):
+def _list_bucket_impl(bucket_url: str, marker: str, keys: list[str]):
     url = f'{bucket_url}?max-keys=1000'
     if marker:
         url += f'&marker={marker}'

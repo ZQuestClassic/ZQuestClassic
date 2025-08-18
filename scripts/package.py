@@ -8,7 +8,6 @@ import sys
 import time
 
 from pathlib import Path
-from typing import List, Tuple
 
 system = platform.system()
 
@@ -83,11 +82,11 @@ def glob_maybe(base_dir: Path, pattern: str):
     return [(base_dir, f) for f in files if f.is_file()]
 
 
-def files(base_dir: Path, files: List[str] = None):
+def files(base_dir: Path, files: list[str] = None):
     if files == None:
         return glob(base_dir, '**/*')
 
-    new_files: List[Tuple[Path, Path]] = []
+    new_files: list[tuple[Path, Path]] = []
     for f in files:
         path = base_dir / f
         new_files.append((base_dir, path))
@@ -142,9 +141,9 @@ def preprocess_base_config(config_text: str, cfg_os: str):
 
 
 def copy_files_to_package(
-    files: List[Tuple[Path, Path]],
+    files: list[tuple[Path, Path]],
     dest_dir: Path,
-    exclude_files: List[Tuple[Path, Path]] = None,
+    exclude_files: list[tuple[Path, Path]] = None,
 ):
     if exclude_files:
         files = list(set(files) - set(exclude_files))
@@ -250,8 +249,8 @@ def collect_licenses(package_dir: Path):
 
 def do_packaging(
     package_dir: Path,
-    files: List[Tuple[Path, Path]],
-    exclude_files: List[Tuple[Path, Path]] = None,
+    files: list[tuple[Path, Path]],
+    exclude_files: list[tuple[Path, Path]] = None,
     include_licenses=False,
 ):
     prepare_package(package_dir)

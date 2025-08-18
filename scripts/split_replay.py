@@ -13,7 +13,7 @@ import shutil
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import run_target
 
@@ -31,7 +31,7 @@ class ReplayStep:
 
 @dataclass
 class ReplayPart:
-    steps: List[ReplayStep] = field(default_factory=list)
+    steps: list[ReplayStep] = field(default_factory=list)
     save_index: int = None
     last_key_step: Optional[ReplayStep] = None
 

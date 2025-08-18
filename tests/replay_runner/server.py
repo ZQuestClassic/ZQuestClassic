@@ -14,7 +14,6 @@ import sys
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 import aiohttp
 
@@ -47,7 +46,7 @@ class Client:
         await self.send_msg({'type': 'view', 'view': view, 'data': data})
 
 
-clients: List[Client] = []
+clients: list[Client] = []
 view_store = {}
 test_results_last_update = {}
 
@@ -77,7 +76,7 @@ def try_parse_json(text: str):
         return None
 
 
-def create_proc(program: str, args: List[str]):
+def create_proc(program: str, args: list[str]):
     return asyncio.create_subprocess_exec(
         program,
         *args,

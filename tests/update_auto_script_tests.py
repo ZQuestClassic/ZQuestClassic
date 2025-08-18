@@ -19,7 +19,6 @@ import sys
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 from lib.replay_helpers import parse_result_txt_file
 from replays import ReplayTestResults
@@ -120,7 +119,7 @@ def create_replay(test: Test):
     test.replay_path.write_text(content)
 
 
-def run_replays(tests: List[Test], update=False):
+def run_replays(tests: list[Test], update=False):
     if not tests:
         return
 
@@ -164,7 +163,7 @@ def run_replays(tests: List[Test], update=False):
         exit(output.returncode)
 
 
-def validate(tests: List[Test]):
+def validate(tests: list[Test]):
     print('validating auto script tests')
 
     failed_verification = False

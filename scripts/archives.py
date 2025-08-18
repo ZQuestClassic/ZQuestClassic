@@ -16,7 +16,7 @@ import zipfile
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Literal, Union
+from typing import Literal
 
 import common
 import git_helpers
@@ -44,7 +44,7 @@ bucket_url = 'https://zc-archives.nyc3.cdn.digitaloceanspaces.com'
 class Revision:
     tag: str  # also could be a full sha hash
     commit_count: int
-    type: Union[Literal['release'], Literal['test'], Literal['local']]
+    type: Literal['release', 'test', 'local']
     is_local_build = False
 
     def dir(self):
@@ -192,7 +192,7 @@ def get_revisions(
     include_test_builds=True,
     may_build_locally=False,
 ):
-    revisions: List[Revision] = []
+    revisions: list[Revision] = []
 
     if channel == 'main':
         branch = 'main'

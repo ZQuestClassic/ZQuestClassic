@@ -14,7 +14,6 @@ import os
 import sys
 
 from pathlib import Path
-from typing import List
 
 import archives
 import common
@@ -108,7 +107,7 @@ def check_revision(revision: Revision):
     return answer
 
 
-def run_bisect(revisions: List[Revision]):
+def run_bisect(revisions: list[Revision]):
     tags = [r.tag for r in revisions]
     if args.bad not in tags:
         raise Exception(f'did not find release {args.bad}')

@@ -57,7 +57,6 @@ import time
 from argparse import ArgumentTypeError
 from pathlib import Path
 from time import sleep
-from typing import List
 
 import cutie
 
@@ -274,7 +273,7 @@ class ReplayTimeoutException(Exception):
     pass
 
 
-def group_arg(raw_values: List[str], allow_concat=False):
+def group_arg(raw_values: list[str], allow_concat=False):
     default_arg = None
     arg_by_replay = {}
     if raw_values:
@@ -524,7 +523,7 @@ replays.sort(key=lambda replay: -estimated_durations[replay.name])
 
 
 # https://stackoverflow.com/a/6856593/2788187
-def get_shards(replays: List[Replay], n: int) -> List[List[Replay]]:
+def get_shards(replays: list[Replay], n: int) -> list[list[Replay]]:
     result = [[] for i in range(n)]
     sums = {i: 0 for i in range(n)}
     c = 0
@@ -768,7 +767,7 @@ def on_exit():
 
 
 class ProgressDisplay:
-    def __init__(self, replays: List[Replay], use_curses: bool, emoji: bool):
+    def __init__(self, replays: list[Replay], use_curses: bool, emoji: bool):
         self.use_curses = use_curses
         self.emoji = emoji
         self.replay_log_names = {r.name: self.get_replay_log_name(r) for r in replays}

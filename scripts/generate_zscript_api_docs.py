@@ -12,7 +12,6 @@ import time
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import Optional
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent

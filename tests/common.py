@@ -7,7 +7,6 @@ import sys
 import unittest
 
 from pathlib import Path
-from typing import List
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -28,7 +27,7 @@ def get_release_platform() -> ['mac', 'windows', 'linux']:
         raise Exception(f'unexpected system: {system}')
 
 
-def get_recent_release_tag(args: List[str]):
+def get_recent_release_tag(args: list[str]):
     command = f'git describe --tags --abbrev=0 ' + ' '.join(args)
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
 

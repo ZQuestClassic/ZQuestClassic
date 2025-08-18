@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from time import sleep
 from timeit import default_timer as timer
-from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Tuple, Union
+from typing import Any, Callable, Generator, Literal, Optional
 
 from common import get_release_platform
 from lib.replay_helpers import parse_result_txt_file, read_replay_meta
@@ -91,12 +91,12 @@ class RunResult:
     frame: int = None
     num_frames: int = None
     failing_frame: int = None
-    unexpected_gfx_frames: List[int] = None
-    unexpected_gfx_segments: List[Tuple[int, int]] = None
-    unexpected_gfx_segments_limited: List[Tuple[int, int]] = None
-    exceptions: List[str] = field(default_factory=list)
+    unexpected_gfx_frames: list[int] = None
+    unexpected_gfx_segments: list[tuple[int, int]] = None
+    unexpected_gfx_segments_limited: list[tuple[int, int]] = None
+    exceptions: list[str] = field(default_factory=list)
     # Only for compare report.
-    snapshots: List[Any] = None
+    snapshots: list[Any] = None
 
 
 @dataclass
@@ -108,7 +108,7 @@ class ReplayTestResults:
     git_ref: Optional[str]
     zc_version: str
     time: str
-    runs: List[List[RunResult]]
+    runs: list[list[RunResult]]
     # Only for compare report.
     label: str = None
 
@@ -247,7 +247,7 @@ def estimate_fps(replay: Replay):
     return fps / estimate_divisor
 
 
-def apply_test_filter(tests: List[Path], filter: str):
+def apply_test_filter(tests: list[Path], filter: str):
     filter_as_path = Path(filter)
 
     exact_match = next((t for t in tests if t == filter_as_path.absolute()), None)
@@ -288,7 +288,7 @@ def get_replay_name(replay_file: Path, replays_dir: Path):
         return replay_file.name
 
 
-def load_replays(replay_paths: List[Path], relative_to: Path) -> List[Replay]:
+def load_replays(replay_paths: list[Path], relative_to: Path) -> list[Replay]:
     replays = []
     for path in replay_paths:
         if not path.exists():
@@ -320,7 +320,7 @@ class RunReplayTestsContext:
     test_results: ReplayTestResults
     mode: str
     arch: str
-    replays: List[Replay]
+    replays: list[Replay]
     build_folder: Path
     test_results_dir: Path
     runs_dir: Path
@@ -329,7 +329,7 @@ class RunReplayTestsContext:
     debugger: bool
     headless: bool
     jit: bool
-    extra_args: List[str]
+    extra_args: list[str]
 
 
 @dataclass
@@ -540,7 +540,7 @@ class WebPlayerInterface:
         self.p.wait()
 
 
-RunReplayTestGenerator = Generator[Tuple[int, str, RunResult], None, None]
+RunReplayTestGenerator = Generator[tuple[int, str, RunResult], None, None]
 
 
 def _run_replay_test(
@@ -713,9 +713,9 @@ def _run_replay_test(
 class RunReplayTestsProgress:
     all_results: ReplayTestResults
     results: RunResult
-    active: List[RunResult]
-    pending: List[Replay]
-    status: Dict[str, str]
+    active: list[RunResult]
+    pending: list[Replay]
+    status: dict[str, str]
     eta: str
     summary: str
 
@@ -727,9 +727,9 @@ def _run_replays(
     concurrency = ctx.concurrency
     runs_dir = ctx.runs_dir
 
-    results: List[RunResult] = []
+    results: list[RunResult] = []
     pending_replays = [*replays]
-    active_tests: List[RunReplayTestGenerator] = []
+    active_tests: list[RunReplayTestGenerator] = []
     active_results = []
     replays_by_name = {r.name: r for r in replays}
 
@@ -865,17 +865,17 @@ def _run_replays(
 
 
 def run_replays(
-    replays: List[Replay],
+    replays: list[Replay],
     mode: str,
     runs_on: str,
     arch: str,
     test_results_dir: Path,
     build_folder: Path,
-    extra_args: List[str],
+    extra_args: list[str],
     debugger=False,
     headless=True,
     jit=True,
-    concurrency: Optional[Union[int, bool]] = True,
+    concurrency: Optional[int | bool] = True,
     prune_test_results=False,
     timeout=True,
     retries=0,
@@ -936,7 +936,7 @@ def run_replays(
 
     if prune_test_results:
         # Only keep the last run of each replay.
-        replay_runs: List[RunResult] = []
+        replay_runs: list[RunResult] = []
         for runs in reversed(test_results.runs):
             for run in runs:
                 if any(r for r in replay_runs if r.name == run.name):

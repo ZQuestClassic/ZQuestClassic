@@ -11,7 +11,6 @@ import subprocess
 import sys
 
 from pathlib import Path
-from typing import List, Set
 
 from joblib import Memory
 from zquest import constants
@@ -40,7 +39,7 @@ quest_rules = {
     qr: qr_name for qr, qr_name in enumerate(constants.quest_rules) if qr_name
 }
 
-quest_database: List[Path] = None
+quest_database: list[Path] = None
 if args.quest_database:
     quest_database = list(args.quest_database.rglob('*.qst'))
 
@@ -124,7 +123,7 @@ def trim_nul_str(s: str):
     return s[0:index]
 
 
-def print_quest_rules(qsts: List[Path]):
+def print_quest_rules(qsts: list[Path]):
     for qst in qsts:
         qrs_bf = get_qst_rules(qst)
         header = read_qst(qst)[0]
@@ -141,7 +140,7 @@ def print_quest_rules(qsts: List[Path]):
         print('```')
 
 
-def count_quest_rules(qsts: List[Path]):
+def count_quest_rules(qsts: list[Path]):
     counts = {qr: 0 for qr in quest_rules.keys()}
     for qst in qsts:
         qrs_bf = get_qst_rules(qst)
@@ -151,7 +150,7 @@ def count_quest_rules(qsts: List[Path]):
     return counts
 
 
-def determine_missing_coverage(covered_qrs: Set[int], uncovered_qsts: Set[Path]):
+def determine_missing_coverage(covered_qrs: set[int], uncovered_qsts: set[Path]):
     qst_to_uncovered_count = {}
     for qst in uncovered_qsts:
         qrs_bf = get_qst_rules(qst)
