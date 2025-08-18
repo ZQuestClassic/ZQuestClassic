@@ -983,6 +983,9 @@ static GUI::ListData compatRulesList
 	{ "'Custom Weapon's ignore size flags", qr_CUSTOM_WEAPON_BROKEN_SIZE,
 		"If checked, Custom Weapons will not properly set their Extend value, causing changes"
 		" to tile width/height to not visually appear." },
+	{ "Old Non-Player Falling/Drowning", qr_OLD_SPRITE_FALL_DROWN,
+		"If checked, enemies, weapons, and items will fall/drown using a hardcoded 16x16 hitbox instead of"
+		" their actual hitbox, and enemies/items will not drown in sideview." },
 };
 
 static GUI::ListData enemiesRulesList

@@ -141,9 +141,7 @@ public:
 	virtual void post_animate();
 	//virtual void solid_push(solid_object* pusher);
     virtual void check_conveyor();
-	virtual int32_t get_pit(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
 	virtual int32_t check_pits(); //Returns combo ID of pit fallen into; 0 for not fallen.
-	virtual int32_t get_water(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
 	virtual int32_t check_water(); //Returns combo ID of pit fallen into; 0 for not fallen.
     int32_t real_x(zfix fx);
     int32_t real_y(zfix fy);
