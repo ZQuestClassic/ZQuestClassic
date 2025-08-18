@@ -8835,8 +8835,17 @@ bool zc_key_pressed()
 	return false;
 }
 
-bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
+bool getInput(int32_t btn, int input_flags)
 {
+	if((input_flags & INPUT_HERO_ACTION) && Hero.no_control())
+		return false;
+	
+	bool press = input_flags & INPUT_PRESS;
+	bool drunk = input_flags & INPUT_DRUNK;
+	bool ignoreDisable = input_flags & INPUT_IGNORE_DISABLE;
+	bool eatEntirely = input_flags & INPUT_EAT_ENTIRELY;
+	bool peek = input_flags & INPUT_PEEK;
+	
 	bool ret = false, drunkstate = false, rawret = false;;
 	bool* flag = &down_control_states[btn];
 	switch(btn)
@@ -8891,17 +8900,17 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 	return ret;
 }
 
-byte getIntBtnInput(byte intbtn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
+byte getIntBtnInput(byte intbtn, int input_flags)
 {
 	byte ret = 0;
-	if(intbtn & INT_BTN_A) ret |= getInput(btnA, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_A : 0;
-	if(intbtn & INT_BTN_B) ret |= getInput(btnB, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_B : 0;
-	if(intbtn & INT_BTN_L) ret |= getInput(btnL, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_L : 0;
-	if(intbtn & INT_BTN_R) ret |= getInput(btnR, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_R : 0;
-	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_EX1 : 0;
-	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_EX2 : 0;
-	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_EX3 : 0;
-	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_EX4 : 0;
+	if(intbtn & INT_BTN_A) ret |= getInput(btnA, input_flags) ? INT_BTN_A : 0;
+	if(intbtn & INT_BTN_B) ret |= getInput(btnB, input_flags) ? INT_BTN_B : 0;
+	if(intbtn & INT_BTN_L) ret |= getInput(btnL, input_flags) ? INT_BTN_L : 0;
+	if(intbtn & INT_BTN_R) ret |= getInput(btnR, input_flags) ? INT_BTN_R : 0;
+	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, input_flags) ? INT_BTN_EX1 : 0;
+	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, input_flags) ? INT_BTN_EX2 : 0;
+	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, input_flags) ? INT_BTN_EX3 : 0;
+	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, input_flags) ? INT_BTN_EX4 : 0;
 	return ret; //No early return, to make sure all button presses are eaten that should be! -Em
 }
 
@@ -9010,221 +9019,221 @@ bool cI()
 
 bool rUp()
 {
-	return getInput(btnUp, true);
+	return getInput(btnUp, INPUT_PRESS);
 }
 bool rDown()
 {
-	return getInput(btnDown, true);
+	return getInput(btnDown, INPUT_PRESS);
 }
 bool rLeft()
 {
-	return getInput(btnLeft, true);
+	return getInput(btnLeft, INPUT_PRESS);
 }
 bool rRight()
 {
-	return getInput(btnRight, true);
+	return getInput(btnRight, INPUT_PRESS);
 }
 bool rAbtn()
 {
-	return getInput(btnA, true);
+	return getInput(btnA, INPUT_PRESS);
 }
 bool rBbtn()
 {
-	return getInput(btnB, true);
+	return getInput(btnB, INPUT_PRESS);
 }
 bool rSbtn()
 {
-	return getInput(btnS, true);
+	return getInput(btnS, INPUT_PRESS);
 }
 bool rMbtn()
 {
-	return getInput(btnM, true);
+	return getInput(btnM, INPUT_PRESS);
 }
 bool rLbtn()
 {
-	return getInput(btnL, true);
+	return getInput(btnL, INPUT_PRESS);
 }
 bool rRbtn()
 {
-	return getInput(btnR, true);
+	return getInput(btnR, INPUT_PRESS);
 }
 bool rPbtn()
 {
-	return getInput(btnP, true);
+	return getInput(btnP, INPUT_PRESS);
 }
 bool rEx1btn()
 {
-	return getInput(btnEx1, true);
+	return getInput(btnEx1, INPUT_PRESS);
 }
 bool rEx2btn()
 {
-	return getInput(btnEx2, true);
+	return getInput(btnEx2, INPUT_PRESS);
 }
 bool rEx3btn()
 {
-	return getInput(btnEx3, true);
+	return getInput(btnEx3, INPUT_PRESS);
 }
 bool rEx4btn()
 {
-	return getInput(btnEx4, true);
+	return getInput(btnEx4, INPUT_PRESS);
 }
 bool rAxisUp()
 {
-	return getInput(btnAxisUp, true);
+	return getInput(btnAxisUp, INPUT_PRESS);
 }
 bool rAxisDown()
 {
-	return getInput(btnAxisDown, true);
+	return getInput(btnAxisDown, INPUT_PRESS);
 }
 bool rAxisLeft()
 {
-	return getInput(btnAxisLeft, true);
+	return getInput(btnAxisLeft, INPUT_PRESS);
 }
 bool rAxisRight()
 {
-	return getInput(btnAxisRight, true);
+	return getInput(btnAxisRight, INPUT_PRESS);
 }
 
 bool rF11()
 {
-	return getInput(btnF11, true);
+	return getInput(btnF11, INPUT_PRESS);
 }
 bool rQ()
 {
-	return getInput(btnQ, true);
+	return getInput(btnQ, INPUT_PRESS);
 }
 bool rI()
 {
-	return getInput(btnI, true);
+	return getInput(btnI, INPUT_PRESS);
 }
 
 bool DrunkUp()
 {
-	return getInput(btnUp, false, true);
+	return getInput(btnUp, INPUT_DRUNK);
 }
 bool DrunkDown()
 {
-	return getInput(btnDown, false, true);
+	return getInput(btnDown, INPUT_DRUNK);
 }
 bool DrunkLeft()
 {
-	return getInput(btnLeft, false, true);
+	return getInput(btnLeft, INPUT_DRUNK);
 }
 bool DrunkRight()
 {
-	return getInput(btnRight, false, true);
+	return getInput(btnRight, INPUT_DRUNK);
 }
 bool DrunkcAbtn()
 {
-	return getInput(btnA, false, true);
+	return getInput(btnA, INPUT_DRUNK);
 }
 bool DrunkcBbtn()
 {
-	return getInput(btnB, false, true);
+	return getInput(btnB, INPUT_DRUNK);
 }
 bool DrunkcEx1btn()
 {
-	return getInput(btnEx1, false, true);
+	return getInput(btnEx1, INPUT_DRUNK);
 }
 bool DrunkcEx2btn()
 {
-	return getInput(btnEx2, false, true);
+	return getInput(btnEx2, INPUT_DRUNK);
 }
 bool DrunkcSbtn()
 {
-	return getInput(btnS, false, true);
+	return getInput(btnS, INPUT_DRUNK);
 }
 bool DrunkcMbtn()
 {
-	return getInput(btnM, false, true);
+	return getInput(btnM, INPUT_DRUNK);
 }
 bool DrunkcLbtn()
 {
-	return getInput(btnL, false, true);
+	return getInput(btnL, INPUT_DRUNK);
 }
 bool DrunkcRbtn()
 {
-	return getInput(btnR, false, true);
+	return getInput(btnR, INPUT_DRUNK);
 }
 bool DrunkcPbtn()
 {
-	return getInput(btnP, false, true);
+	return getInput(btnP, INPUT_DRUNK);
 }
 
 bool DrunkrUp()
 {
-	return getInput(btnUp, true, true);
+	return getInput(btnUp, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrDown()
 {
-	return getInput(btnDown, true, true);
+	return getInput(btnDown, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrLeft()
 {
-	return getInput(btnLeft, true, true);
+	return getInput(btnLeft, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrRight()
 {
-	return getInput(btnRight, true, true);
+	return getInput(btnRight, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrAbtn()
 {
-	return getInput(btnA, true, true);
+	return getInput(btnA, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrBbtn()
 {
-	return getInput(btnB, true, true);
+	return getInput(btnB, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrEx1btn()
 {
-	return getInput(btnEx1, true, true);
+	return getInput(btnEx1, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrEx2btn()
 {
-	return getInput(btnEx2, true, true);
+	return getInput(btnEx2, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrEx3btn()
 {
-	return getInput(btnEx3, true, true);
+	return getInput(btnEx3, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrEx4btn()
 {
-	return getInput(btnEx4, true, true);
+	return getInput(btnEx4, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrSbtn()
 {
-	return getInput(btnS, true, true);
+	return getInput(btnS, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrMbtn()
 {
-	return getInput(btnM, true, true);
+	return getInput(btnM, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrLbtn()
 {
-	return getInput(btnL, true, true);
+	return getInput(btnL, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrRbtn()
 {
-	return getInput(btnR, true, true);
+	return getInput(btnR, INPUT_PRESS | INPUT_DRUNK);
 }
 bool DrunkrPbtn()
 {
-	return getInput(btnP, true, true);
+	return getInput(btnP, INPUT_PRESS | INPUT_DRUNK);
 }
 
 void eat_buttons()
 {
-	getInput(btnA, true, false, true);
-	getInput(btnB, true, false, true);
-	getInput(btnS, true, false, true);
-	getInput(btnM, true, false, true);
-	getInput(btnL, true, false, true);
-	getInput(btnR, true, false, true);
-	getInput(btnP, true, false, true);
-	getInput(btnEx1, true, false, true);
-	getInput(btnEx2, true, false, true);
-	getInput(btnEx3, true, false, true);
-	getInput(btnEx4, true, false, true);
+	getInput(btnA, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnB, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnM, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnL, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnR, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnP, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnEx1, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnEx2, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnEx3, INPUT_PRESS | INPUT_IGNORE_DISABLE);
+	getInput(btnEx4, INPUT_PRESS | INPUT_IGNORE_DISABLE);
 }
 
 // Is true for the _first frame_ of a key press.

@@ -4474,27 +4474,27 @@ bool weapon::animate(int32_t index)
 			
 			if(clk==1)                                            // then check directional input
 			{
-				if(getHeroInput(btnUp))
+				if(getInput(btnUp, INPUT_HERO_ACTION))
 				{
 					dir=up;
 					
-					if(getHeroInput(btnLeft))  dir=l_up;
+					if(getInput(btnLeft, INPUT_HERO_ACTION))  dir=l_up;
 					
-					if(getHeroInput(btnRight)) dir=r_up;
+					if(getInput(btnRight, INPUT_HERO_ACTION)) dir=r_up;
 				}
-				else if(getHeroInput(btnDown))
+				else if(getInput(btnDown, INPUT_HERO_ACTION))
 				{
 					dir=down;
 					
-					if(getHeroInput(btnLeft))  dir=l_down;
+					if(getInput(btnLeft, INPUT_HERO_ACTION))  dir=l_down;
 					
-					if(getHeroInput(btnRight)) dir=r_down;
+					if(getInput(btnRight, INPUT_HERO_ACTION)) dir=r_down;
 				}
-				else if(getHeroInput(btnLeft))
+				else if(getInput(btnLeft, INPUT_HERO_ACTION))
 				{
 					dir=left;
 				}
-				else if(getHeroInput(btnRight))
+				else if(getInput(btnRight, INPUT_HERO_ACTION))
 				{
 					dir=right;
 				}
@@ -4572,9 +4572,9 @@ bool weapon::animate(int32_t index)
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
-				if(getHeroInput(btnUp))
+				if(getInput(btnUp, INPUT_HERO_ACTION))
 				{
-					if(getHeroInput(btnLeft) )  
+					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
 						LOADGFX(hshot.wpn5);
 						dir=l_up;
@@ -4595,7 +4595,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(getHeroInput(btnRight) ) 
+					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
 						LOADGFX(hshot.wpn5);
 						dir=r_up;
@@ -4619,11 +4619,11 @@ bool weapon::animate(int32_t index)
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
-				else if(getHeroInput(btnDown))
+				else if(getInput(btnDown, INPUT_HERO_ACTION))
 				{
 					//dir=down; //Up would already have been set if facing down.
 					
-					if(getHeroInput(btnLeft) )  
+					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
 						LOADGFX(hshot.wpn5);
 						dir=l_down;
@@ -4644,7 +4644,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(getHeroInput(btnRight) ) 
+					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
 						LOADGFX(hshot.wpn5);
 						dir=r_down;
@@ -4863,9 +4863,9 @@ bool weapon::animate(int32_t index)
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
-				if(getHeroInput(btnUp))
+				if(getInput(btnUp, INPUT_HERO_ACTION))
 				{
-					if(getHeroInput(btnLeft) )  
+					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
 						LOADGFX(hshot.wpn6);
 						dir=l_up;
@@ -4886,7 +4886,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(getHeroInput(btnRight) ) 
+					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
 						LOADGFX(hshot.wpn6);
 						dir=r_up;
@@ -4911,11 +4911,11 @@ bool weapon::animate(int32_t index)
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
 			
-				else if(getHeroInput(btnDown))
+				else if(getInput(btnDown, INPUT_HERO_ACTION))
 				{
 					//dir=down; //Up would already have been set if facing down.
 					
-					if(getHeroInput(btnLeft) )  
+					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
 						LOADGFX(hshot.wpn6);
 						dir=l_down;
@@ -4936,7 +4936,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(getHeroInput(btnRight) ) 
+					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
 						LOADGFX(hshot.wpn6);
 						dir=r_down;
@@ -4978,9 +4978,9 @@ bool weapon::animate(int32_t index)
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
-				if(getHeroInput(btnUp))
+				if(getInput(btnUp, INPUT_HERO_ACTION))
 				{
-					if(getHeroInput(btnLeft) )  
+					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
 						LOADGFX(hshot.wpn7);
 						dir=l_up;
@@ -5001,7 +5001,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(getHeroInput(btnRight) ) 
+					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
 						LOADGFX(hshot.wpn7);
 						dir=r_up;
@@ -5026,11 +5026,11 @@ bool weapon::animate(int32_t index)
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
 			
-				else if(getHeroInput(btnDown))
+				else if(getInput(btnDown, INPUT_HERO_ACTION))
 				{
 					//dir=down; //Up would already have been set if facing down.
 					
-					if(getHeroInput(btnLeft) )  
+					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
 						LOADGFX(hshot.wpn7);
 						dir=l_down;
@@ -5051,7 +5051,7 @@ bool weapon::animate(int32_t index)
 						
 					}
 					
-					else if(getHeroInput(btnRight) ) 
+					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
 						LOADGFX(hshot.wpn7);
 						dir=r_down;

@@ -531,7 +531,7 @@ void ending()
 		}
 		
 		load_control_state();
-		getInput(btnS, true, false, true);//rSbtn();
+		getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE);
 	}
 	
 	do
@@ -557,7 +557,7 @@ void ending()
 		
 		load_control_state();
 	}
-	while(!getInput(btnS, true, false, true)); //rSbtn()
+	while (!getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE));
 	advanceframe(true);
 	
 	credits_skip:

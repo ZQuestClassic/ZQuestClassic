@@ -208,7 +208,14 @@ int wrap(int x,int low,int high);
 
 #define QSTPWD_LEN                 256
 
-enum controls //Args for 'getInput()'
+// Args for 'getInput()'
+#define INPUT_PRESS                0x01
+#define INPUT_DRUNK                0x02
+#define INPUT_IGNORE_DISABLE       0x04
+#define INPUT_EAT_ENTIRELY         0x08
+#define INPUT_PEEK                 0x10
+#define INPUT_HERO_ACTION          0x20
+enum controls
 {
 	//control_state indeces
 	btnUp, btnDown, btnLeft, btnRight, btnA, btnB, btnS, btnL, btnR, btnP, btnEx1, btnEx2, btnEx3, btnEx4, btnAxisUp, btnAxisDown, btnAxisLeft, btnAxisRight,
