@@ -7198,9 +7198,6 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 			case wRefArrow:
 			case wRefFire:
 			case wRefFire2:
-				reflect = true;
-				break;
-				
 			case wScript1:
 			case wScript2:
 			case wScript3:
@@ -7212,9 +7209,6 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 			case wScript9:
 			case wScript10:
 				reflect = true;
-				
-				//prevents the block below from moving it to 'Lwpns'... needed for compat -Em
-				isLWeapon = true;
 				break;
 		}
 		if(reflect)
@@ -7222,12 +7216,11 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 			ignoreHero = true;
 			if(!(replay_is_active()&&replay_get_meta_str("sav")=="link_to_the_heavens_16_of_17.sav"))
 				ignorecombo = -1;
-			if(!isLWeapon)
-			{
-				if(Ewpns.remove(this))
-					Lwpns.add(this);
-				isLWeapon = true;
-			}
+
+			if(Ewpns.remove(this))
+				Lwpns.add(this);
+			isLWeapon = true;
+
 			if(angular)
 			{
 				switch(linkdir)
