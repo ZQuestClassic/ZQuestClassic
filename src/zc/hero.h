@@ -660,8 +660,6 @@ public:
 	bool no_control() const;
 };
 
-bool getHeroInput(int32_t btn, bool press = false, bool drunk = false);
-
 bool usingActiveShield(int32_t itmid = -1);
 int32_t getCurrentShield(bool requireActive = true);
 bool isRaftFlag(int32_t flag);

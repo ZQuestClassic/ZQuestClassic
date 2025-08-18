@@ -7901,7 +7901,7 @@ void ViewMap()
 		if (replay_version_check(11))
 			load_control_state();
 		
-		if(getInput(btnS, true, false, true)) //rSbtn
+		if (getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE))
 			done = true;
 			
 	}

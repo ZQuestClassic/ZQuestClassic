@@ -93,8 +93,8 @@ extern bool button_hold[ZC_CONTROL_STATES];
 void load_control_state();
 extern int32_t sfx_voice[WAV_COUNT];
 
-bool getInput(int32_t btn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false, bool peek = false);
-byte getIntBtnInput(byte intbtn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false, bool peek = false);
+bool getInput(int32_t btn, int input_flags = 0);
+byte getIntBtnInput(byte intbtn, int input_flags = 0);
 byte checkIntBtnVal(byte intbtn, byte vals);
 
 bool Up();

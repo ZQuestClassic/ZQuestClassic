@@ -1556,7 +1556,7 @@ void game_over(int32_t type)
 		do {
 			load_control_state();
 		}
-		while(getInput(btnS, true, false, true));//rSbtn
+		while (getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE));
 	}
 	
 	do
@@ -1565,7 +1565,7 @@ void game_over(int32_t type)
 		
 		if(f==-1)
 		{
-			if(getInput(btnUp, true, false, true))//rUp
+			if (getInput(btnUp, INPUT_PRESS | INPUT_IGNORE_DISABLE))
 			{
 				sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
 				pos=(pos==0)?2:pos-1;
@@ -1575,8 +1575,8 @@ void game_over(int32_t type)
 					if(pos==1) pos--;
 				}
 			}
-			
-			if(getInput(btnDown, true, false, true))//rDown
+
+			if (getInput(btnDown, INPUT_PRESS | INPUT_IGNORE_DISABLE))
 			{
 				sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
 				pos=(pos+1)%3;
@@ -1586,8 +1586,8 @@ void game_over(int32_t type)
 					if(pos==1) pos++;
 				}
 			}
-			
-			if(getInput(btnS, true, false, true)) ++f;//rSbtn
+
+			if (getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE)) ++f;
 		}
 		
 		if(f>=0)
@@ -1739,19 +1739,19 @@ bool save_game(bool savepoint, int32_t type)
 			
 			if(f==-1)
 			{
-				if(getInput(btnUp, true, false, true))//rUp
+				if (getInput(btnUp, INPUT_PRESS | INPUT_IGNORE_DISABLE))
 				{
 					sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
 					pos=(pos==0)?2:pos-1;
 				}
-				
-				if(getInput(btnDown, true, false, true))//rDown
+
+				if (getInput(btnDown, INPUT_PRESS | INPUT_IGNORE_DISABLE))
 				{
 					sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
 					pos=(pos+1)%3;
 				}
-				
-				if(getInput(btnS, true, false, true)) ++f;//rSbtn
+
+				if (getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE)) ++f;
 			}
 			
 			if(f>=0)
@@ -1846,19 +1846,19 @@ bool save_game(bool savepoint, int32_t type)
 					
 					if(g==-1)
 					{
-						if(getInput(btnUp, true, false, true))//rUp
+						if (getInput(btnUp, INPUT_PRESS | INPUT_IGNORE_DISABLE))
 						{
 							sfx(WAV_CHINK);
 							pos2=(pos2==0)?1:pos2-1;
 						}
-						
-						if(getInput(btnDown, true, false, true))//rDown
+
+						if (getInput(btnDown, INPUT_PRESS | INPUT_IGNORE_DISABLE))
 						{
 							sfx(WAV_CHINK);
 							pos2=(pos2+1)%2;
 						}
-						
-						if(getInput(btnS, true, false, true)) ++g;//rSbtn
+
+						if (getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE)) ++g;
 					}
 					
 					if(g>=0)
