@@ -13734,18 +13734,64 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 	if(can_pitfall(ignore_hover))
 	{
 		bool can_diag = (diagonalMovement || NO_GRIDLOCK);
-		int32_t ispitul = getpitfall(x,y+(bigHitbox?0:8));
-		int32_t ispitbl = getpitfall(x,y+15);
-		int32_t ispitur = getpitfall(x+15,y+(bigHitbox?0:8));
-		int32_t ispitbr = getpitfall(x+15,y+15);
-		int32_t ispitul_50 = getpitfall(x+8,y+(bigHitbox?8:12));
-		int32_t ispitbl_50 = getpitfall(x+8,y+(bigHitbox?7:11));
-		int32_t ispitur_50 = getpitfall(x+7,y+(bigHitbox?8:12));
-		int32_t ispitbr_50 = getpitfall(x+7,y+(bigHitbox?7:11));
-		int32_t ispitul_75 = getpitfall(x+12,y+(bigHitbox?12:14));
-		int32_t ispitbl_75 = getpitfall(x+12,y+(bigHitbox?3:9));
-		int32_t ispitur_75 = getpitfall(x+3,y+(bigHitbox?12:14));
-		int32_t ispitbr_75 = getpitfall(x+3,y+(bigHitbox?3:9));
+		int sens_offset = 2;
+		if(replay_version_check(43)) sens_offset = 0;
+		
+		int x1, x2, x3, x4, x5, x6, x7, x8, y1, y2, y3, y4, y5, y6, y7, y8;
+		x1 = x;
+		x2 = x + 15;
+		x3 = x1 + sens_offset;
+		x4 = x2 - sens_offset;
+		x5 = x + 3;
+		x6 = x + 7;
+		x7 = x + 8;
+		x8 = x + 12;
+		if(bigHitbox)
+		{
+			y1 = y;
+			y2 = y + 15;
+			y3 = y1 + sens_offset;
+			y4 = y2 - sens_offset;
+			y5 = y + 3;
+			y6 = y + 7;
+			y7 = y + 8;
+			y8 = y + 12;
+		}
+		else
+		{
+			y1 = y + 8;
+			y2 = y + 15;
+			y3 = y1 + (sens_offset / 2);
+			y4 = y2 - (sens_offset / 2);
+			y5 = y + 9;
+			y6 = y + 11;
+			y7 = y + 12;
+			y8 = y + 14;
+		}
+		
+		int32_t ispitul, ispitbl, ispitur, ispitbr;
+		ispitul = getpitfall(x3,y3);
+		ispitbl = getpitfall(x3,y4);
+		ispitur = getpitfall(x4,y3);
+		ispitbr = getpitfall(x4,y4);
+		if(replay_version_check(43))
+		{
+			// only use x3/x4/y3/y4 for pits that have no pull
+			if(!(ispitul && (combobuf[ispitul].usrflags&cflag5)))
+				ispitul = getpitfall(x1,y1);
+			if(!(ispitbl && (combobuf[ispitbl].usrflags&cflag5)))
+				ispitbl = getpitfall(x1,y2);
+			if(!(ispitur && (combobuf[ispitur].usrflags&cflag5)))
+				ispitur = getpitfall(x2,y1);
+			if(!(ispitbr && (combobuf[ispitbr].usrflags&cflag5)))
+				ispitbr = getpitfall(x2,y2);
+		}
+		
+		int32_t ispitul_50 = getpitfall(x7,y7), ispitbl_50 = getpitfall(x7,y6),
+			ispitur_50 = getpitfall(x6,y7), ispitbr_50 = getpitfall(x6,y6),
+			ispitul_75 = getpitfall(x8,y8), ispitbl_75 = getpitfall(x8,y5),
+			ispitur_75 = getpitfall(x5,y8), ispitbr_75 = getpitfall(x5,y5);
+		
 		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
 		{
 			case 4: return -2; //Fully over pit; fall in
@@ -14089,14 +14135,9 @@ void HeroClass::pitfall()
 			}
 		}
 	}
-	else if(can_pitfall())
+	else if(check_pitslide() == -2)
 	{
-		bool ispitul = ispitfall(x,y+(bigHitbox?0:8));
-		bool ispitbl = ispitfall(x,y+15);
-		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
-		bool ispitbr = ispitfall(x+15,y+15);
-		int32_t pitctr = getpitfall(x+8,y+(bigHitbox?8:12));
-		if(ispitul && ispitbl && ispitur && ispitbr && pitctr)
+		if(int32_t pitctr = getpitfall(x+8,y+(bigHitbox?8:12)))
 		{
 			if(!(hoverflags & HOV_PITFALL_OUT) && try_hover()) return;
 			if(!bigHitbox && !ispitfall(x,y)) y = (y.getInt() + 8 - (y.getInt() % 8)); //Make the falling sprite fully over the pit
