@@ -5057,7 +5057,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	// Draw the Moving Fairy above layer 3
 	for(int32_t i=0; i<items.Count(); i++)
-		if(itemsbuf[items.spr(i)->id].family == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
+		if(itemsbuf[items.spr(i)->id].type == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
 			items.spr(i)->draw(framebuf);
 	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW);
 	

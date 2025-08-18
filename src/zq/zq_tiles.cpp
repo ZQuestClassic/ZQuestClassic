@@ -6498,7 +6498,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 		{
 			auto id = bii[u].i;
 			itemdata& itm = itemsbuf[id];
-			if(itm.family == itype_bottle)
+			if(itm.type == itype_bottle)
 			{
 				vector<std::tuple<int,int,int>> rects;
 				auto fr = itm.frames;

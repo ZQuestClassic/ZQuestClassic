@@ -149,7 +149,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 				return false;
 			if(itm.value == -1) //Change the none value to 0
 				itm.value = 0;
-			else switch(itemsbuf[itm.value].family) //Limit valid item types
+			else switch(itemsbuf[itm.value].type) //Limit valid item types
 			{
 				case itype_bomb:
 					itm.text += fmt::format(" [{}]",ZI.getWeapName(wLitBomb));

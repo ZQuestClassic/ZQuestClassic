@@ -772,11 +772,11 @@ void integrityCheckSideWarpDest()
                 int32_t ctype = combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type;
                 
                 // Check Triforce items as well.
-                bool triforce = (itemsbuf[ts->item].family==itype_triforcepiece && itemsbuf[ts->item].flags & item_flag1);
+                bool triforce = (itemsbuf[ts->item].type==itype_triforcepiece && itemsbuf[ts->item].flags & item_flag1);
                 
                 if(ts->room==rSP_ITEM && !triforce)
                 {
-                    triforce = (itemsbuf[ts->item].family==itype_triforcepiece && itemsbuf[ts->item].flags & item_flag1);
+                    triforce = (itemsbuf[ts->item].type==itype_triforcepiece && itemsbuf[ts->item].flags & item_flag1);
                 }
                 
                 if(ctype==cAWARPA || triforce)

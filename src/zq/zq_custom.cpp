@@ -454,7 +454,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.family,f))
+	if(!p_igetl(&tempitem.type,f))
 	{
 		return 0;
 	}
@@ -599,7 +599,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			return 0;
 		}
 		tempitem.cost_amount[0] = tempbyte;
-		switch(tempitem.family)
+		switch(tempitem.type)
 		{
 			case itype_arrow:
 			case itype_bomb:
@@ -968,7 +968,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(12);
 			}
 			
-			if(!p_iputl(itemsbuf[i].family,f))
+			if(!p_iputl(itemsbuf[i].type,f))
 			{
 				new_return(13);
 			}

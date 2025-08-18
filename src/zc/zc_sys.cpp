@@ -2076,7 +2076,7 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	
 	for(int i=0; i<MAXITEMS; i++)
 	{
-		if(game->get_item(i) && itemsbuf[i].family==itemtype && !item_disabled(i))
+		if(game->get_item(i) && itemsbuf[i].type==itemtype && !item_disabled(i))
 		{
 			if(checkmagic && itemtype != itype_magicring)
 				if(!checkmagiccost(i))
@@ -2121,7 +2121,7 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 		auto ovid = game->OverrideItems[itype];
 		if(ovid < 0 || ovid >= MAXITEMS)
 			return -1;
-		if(itemsbuf[ovid].family == itype)
+		if(itemsbuf[ovid].type == itype)
 		{
 			if(itype == itype_magicring)
 				checkmagic = false;
@@ -2164,7 +2164,7 @@ int32_t heart_container_id()
 {
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
-		if(itemsbuf[i].family == itype_heartcontainer)
+		if(itemsbuf[i].type == itype_heartcontainer)
 		{
 			return i;
 		}
@@ -2324,7 +2324,7 @@ int32_t item_tile_mod()
 		
 		itemdata const& itm = itemsbuf[itemid];
 		
-		switch(itm.family)
+		switch(itm.type)
 		{
 			case itype_shield:
 				if(itm.flags & item_flag9) //active shield

@@ -4338,7 +4338,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].family)*10000;
+			ret=(itemsbuf[ri->idata].type)*10000;
 			break;
 			
 		case IDATALEVEL:
@@ -11891,7 +11891,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].family)=vbound(value/10000,0, 254);
+			(itemsbuf[ri->idata].type)=vbound(value/10000,0, 254);
 			flushItemCache();
 			break;
 		
@@ -31725,7 +31725,7 @@ bool FFScript::itemScriptEngine()
 			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
-					&& current_item(itemsbuf[q].family) > itemsbuf[q].level)
+					&& current_item(itemsbuf[q].type) > itemsbuf[q].level)
 					data.doscript = 0;
 				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
@@ -31818,7 +31818,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
-					&& current_item(itemsbuf[q].family) > itemsbuf[q].level)
+					&& current_item(itemsbuf[q].type) > itemsbuf[q].level)
 					data.doscript = 0;
 				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
@@ -35183,7 +35183,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",12);
 			}
 			
-			if(!p_iputl(itemsbuf[i].family,f))
+			if(!p_iputl(itemsbuf[i].type,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",13);
 			}
@@ -35598,7 +35598,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",12);
 			}
 			
-			if(!p_igetl(&itemsbuf[i].family,f))
+			if(!p_igetl(&itemsbuf[i].type,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",13);
 			}

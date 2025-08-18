@@ -156,7 +156,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM))
 		{
 			items.add(new item(x, y, 0,
-				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].family==itype_triforcepiece ||
+				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].type==itype_triforcepiece ||
 				(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -282,7 +282,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM))
 		{
 			items.add(new item(ffc->x, ffc->y,(zfix)0,
-				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].family==itype_triforcepiece ||
+				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].type==itype_triforcepiece ||
 				(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -1087,7 +1087,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
 			for ( int32_t q = 0; q < MAXITEMS; ++q )
 			{
-				if ( itemsbuf[q].family == itype_bosskey )
+				if ( itemsbuf[q].type == itype_bosskey )
 				{
 					key_item = q; break;
 				}
@@ -1203,7 +1203,7 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
 			for ( int32_t q = 0; q < MAXITEMS; ++q )
 			{
-				if ( itemsbuf[q].family == itype_bosskey )
+				if ( itemsbuf[q].type == itype_bosskey )
 				{
 					key_item = q; break;
 				}
@@ -1299,7 +1299,7 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 			int32_t key_item = 0;
 			for (int32_t q = 0; q < MAXITEMS; ++q)
 			{
-				if (itemsbuf[q].family == itype_bosskey)
+				if (itemsbuf[q].type == itype_bosskey)
 				{
 					key_item = q; break;
 				}
@@ -1361,7 +1361,7 @@ bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 			int32_t key_item = 0;
 			for (int32_t q = 0; q < MAXITEMS; ++q)
 			{
-				if (itemsbuf[q].family == itype_bosskey)
+				if (itemsbuf[q].type == itype_bosskey)
 				{
 					key_item = q; break;
 				}
@@ -3612,7 +3612,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 	if(prntid)
 	{
 		itemdata const& prntitm = itemsbuf[prntid];
-		switch(prntitm.family)
+		switch(prntitm.type)
 		{
 			case itype_bomb:
 				wtype = wLitBomb;

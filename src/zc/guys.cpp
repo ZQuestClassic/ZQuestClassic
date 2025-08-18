@@ -1685,7 +1685,7 @@ void enemy::leave_item()
 		drop_item = select_dropitem(thedropset,x,y);
 	}
 	
-	if(drop_item>=0&&((itemsbuf[drop_item].family!=itype_fairy)||!m_walkflag(x,y,0,dir)))
+	if(drop_item>=0&&((itemsbuf[drop_item].type!=itype_fairy)||!m_walkflag(x,y,0,dir)))
 	{
 		item* itm;
 		if (get_qr(qr_ENEMY_DROPS_USE_HITOFFSETS))
@@ -3779,7 +3779,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		if(enemyHitWeapon > -1)
 		{
 			int32_t p = 0;
-			int32_t f = itemsbuf[enemyHitWeapon].family;
+			int32_t f = itemsbuf[enemyHitWeapon].type;
 			
 			switch(f)
 			{
@@ -3957,7 +3957,7 @@ hitclock:
 		if(wpnId==wArrow)
 		{
 			//If we use an arrow type for the item's Weapon type, the flags differ, so we need to rely on the flags from an arrow class. 
-			if(item>=0 && (itemsbuf[item].flags&item_flag1) && (itemsbuf[parent_item].family == itype_arrow))
+			if(item>=0 && (itemsbuf[item].flags&item_flag1) && (itemsbuf[parent_item].type == itype_arrow))
 				return 0;
 			else if(get_qr(qr_ARROWS_ALWAYS_PENETRATE)) return 0;
 			//if(item<0)
@@ -3969,7 +3969,7 @@ hitclock:
 		{
 
 			//If we use an swordbeam type for the item's Weapon type, the flags differ, so we need to rely on the flags from an arrow class. 
-			if(item>=0 && (itemsbuf[item].flags&item_flag3) && (itemsbuf[parent_item].family == itype_sword))
+			if(item>=0 && (itemsbuf[item].flags&item_flag3) && (itemsbuf[parent_item].type == itype_sword))
 				return 0;
 			
 			else if(get_qr(qr_SWORDBEAMS_ALWAYS_PENETRATE)) return 0;
@@ -18220,7 +18220,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 					scr->itemy+(get_qr(qr_NOITEMOFFSET)?0:1);
 				add_item_for_screen(screen, new item(offx + x, offy + y,
 								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
-								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
+								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].type==itype_triforcepiece ||
 										   (scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 			}
 		}
@@ -19759,7 +19759,7 @@ void setupscreen()
 			curItem->o_delay = 0;
 			curItem->frames = cmb.frames;
 			curItem->flip = cmb.flip;
-			curItem->family = itype_bottlefill; //no pickup w/o empty bottle
+			curItem->type = itype_bottlefill; //no pickup w/o empty bottle
 			curItem->pstring = 0;
 			curItem->pickup = ipHOLDUP+ipFADE+ipCHECK;
 			curItem->flash = false;
@@ -20840,7 +20840,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						e->hitby[HIT_BY_LWEAPON] = indx+1;
 					e->hitby[HIT_BY_LWEAPON_UID] = w->getUID();
 					e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
-					if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].family; 
+					if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].type; 
 					else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
 					e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
 					e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
@@ -20887,7 +20887,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+						bool isKey = itemsbuf[theItem->id].type==itype_key||itemsbuf[theItem->id].type==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
 							|| (((itemsbuf[w->parentitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
@@ -20916,7 +20916,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+						bool isKey = itemsbuf[theItem->id].type==itype_key||itemsbuf[theItem->id].type==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
 							|| (((itemsbuf[pitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & item_flag7)&&isKey))&& !priced)))
 						{
@@ -20938,7 +20938,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+						bool isKey = itemsbuf[theItem->id].type==itype_key||itemsbuf[theItem->id].type==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
 							|| (((itemsbuf[pitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
@@ -21003,7 +21003,7 @@ void dragging_item()
 				// Drag the Fairy enemy as well as the Fairy item
 				int32_t id = dragItem->id;
 				
-				if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)
+				if(itemsbuf[id].type ==itype_fairy && itemsbuf[id].misc3)
 				{
 					movefairynew2(w->x,w->y,*dragItem);
 				}
@@ -21079,7 +21079,7 @@ static void roaming_item(mapscr* scr)
 		{
 			auto [x, y] = translate_screen_coordinates_to_world(screen);
 			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE
-					+ (((scr->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
+					+ (((scr->flags3&fHOLDITEM) || (itemsbuf[Item].type==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
 			((item*)items.spr(items.Count() - 1))->screen_spawned = screen;
 			state.item_state = ScreenItemState::CarriedByEnemy;

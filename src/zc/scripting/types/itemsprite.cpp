@@ -98,7 +98,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			if (auto s = checkItem(ri->itemref))
 			{
 				zfix x;
-				bool is_fairy = itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3;
+				bool is_fairy = itemsbuf[s->id].type==itype_fairy && itemsbuf[s->id].misc3;
 				if (is_fairy)
 				{
 					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
@@ -123,7 +123,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			if (auto s = checkItem(ri->itemref))
 			{
 				zfix y;
-				bool is_fairy = itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3;
+				bool is_fairy = itemsbuf[s->id].type==itype_fairy && itemsbuf[s->id].misc3;
 				if (is_fairy)
 				{
 					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
@@ -153,7 +153,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 		case ITEMTYPE:
 			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)s->family)*10000;
+				ret=((int32_t)s->type)*10000;
 			}
 			break;
 		
@@ -574,7 +574,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 		case ITEMTYPE:
 			if (auto s = checkItem(ri->itemref))
 			{
-				(((item *)s)->family)=value/10000;
+				(((item *)s)->type)=value/10000;
 			}
 			
 			break;
@@ -600,7 +600,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 				s->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
-				if(itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3)
+				if(itemsbuf[s->id].type==itype_fairy && itemsbuf[s->id].misc3)
 				{
 					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					if (fairy)
@@ -615,7 +615,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 				s->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
-				if(itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3)
+				if(itemsbuf[s->id].type==itype_fairy && itemsbuf[s->id].misc3)
 				{
 					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					if (fairy)

@@ -73,12 +73,12 @@ int32_t select_dropitem(int32_t item_set)
         {
             int32_t current_item=item_drop_sets[item_set].item[k-1];
             
-            if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].family == itype_magic))
+            if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].type == itype_magic))
             {
                 current_chance=0;
             }
             
-            if((!get_qr(qr_TRUEARROWS))&&(itemsbuf[current_item].family == itype_arrowammo))
+            if((!get_qr(qr_TRUEARROWS))&&(itemsbuf[current_item].type == itype_arrowammo))
             {
                 current_chance=0;
             }
@@ -115,12 +115,12 @@ int32_t select_dropitem(int32_t item_set)
         int32_t current_chance=item_drop_sets[item_set].chance[k];
         int32_t current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
         
-        if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].family == itype_magic))
+        if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].type == itype_magic))
         {
             current_chance=0;
         }
         
-        if((!get_qr(qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].family == itype_arrowammo))
+        if((!get_qr(qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].type == itype_arrowammo))
         {
             current_chance=0;
         }
@@ -158,11 +158,11 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 {
 	int32_t drop_item = select_dropitem(item_set);
 	
-    if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy && !get_qr(qr_OLD_FAIRY_LIMIT))
+    if(drop_item>=0 && itemsbuf[drop_item].type==itype_fairy && !get_qr(qr_OLD_FAIRY_LIMIT))
     {
         for(int32_t j=0; j<items.Count(); ++j)
         {
-            if((itemsbuf[items.spr(j)->id].family==itype_fairy)&&((abs(items.spr(j)->x-x)<32)||(abs(items.spr(j)->y-y)<32)))
+            if((itemsbuf[items.spr(j)->id].type==itype_fairy)&&((abs(items.spr(j)->x-x)<32)||(abs(items.spr(j)->y-y)<32)))
             {
                 drop_item=-1;
                 break;

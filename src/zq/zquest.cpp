@@ -23032,7 +23032,7 @@ int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 
 		for (int32_t i = 0; i < MAXITEMS; i++)
 		{
-			if ((zq_ignore_item_ownership || game->get_item(i)) && itemsbuf[i].family == itemtype)
+			if ((zq_ignore_item_ownership || game->get_item(i)) && itemsbuf[i].type == itemtype)
 			{
 				if (itemsbuf[i].level >= highestlevel)
 				{
@@ -23045,7 +23045,7 @@ int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 	}
     for(int32_t i=0; i<MAXITEMS; i++)
     {
-        if(itemsbuf[i].family==itemtype)
+        if(itemsbuf[i].type==itemtype)
             return i;
     }
     

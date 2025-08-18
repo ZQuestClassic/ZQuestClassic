@@ -61,7 +61,7 @@ bool weapon::no_triggers() const
 		{
 			if(parentitem < 0) break;
 			itemdata const& itm = itemsbuf[parentitem];
-			if(itm.family == itype_hammer && (itm.flags & item_flag1) && Hero.getHammerState() < 3)
+			if(itm.type == itype_hammer && (itm.flags & item_flag1) && Hero.getHammerState() < 3)
 				return true;
 			break;
 		}
@@ -252,7 +252,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM))
 		{
 			items.add(new item(x, y, 0,
-				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].family==itype_triforcepiece ||
+				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].type==itype_triforcepiece ||
 				(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -381,7 +381,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		{
 			items.add(new item(ffc->x, ffc->y,
 				(zfix)0,
-				ffc_handle.scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[ffc_handle.scr->catchall].family==itype_triforcepiece ||
+				ffc_handle.scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[ffc_handle.scr->catchall].type==itype_triforcepiece ||
 				(ffc_handle.scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((ffc_handle.scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -869,7 +869,7 @@ void weapon::cleanup_sfx()
 			break;
 		case wSSparkle:
 		case wFSparkle:
-			if(parentitem>=0 && itemsbuf[parentitem].family==itype_cbyrna)
+			if(parentitem>=0 && itemsbuf[parentitem].type==itype_cbyrna)
 				break;
 			return;
 		default: return; //No repeating sfx
@@ -889,7 +889,7 @@ void weapon::cleanup_sfx()
     
     // Check each Lwpn to see if this weapon's sound is also allocated by it.
 	int32_t use_sfx = 0;
-	if(parentitem >= 0 && (itemsbuf[parentitem].family != itype_whistle || id != wWind)) use_sfx = itemsbuf[parentitem].usesound;
+	if(parentitem >= 0 && (itemsbuf[parentitem].type != itype_whistle || id != wWind)) use_sfx = itemsbuf[parentitem].usesound;
 	else switch(id)
 	{
 		case ewBrang:
@@ -921,8 +921,8 @@ void weapon::cleanup_sfx()
             
             int32_t wparent = w->parentitem;
             
-            if(wparent>=0 && (itemsbuf[wparent].family == itype_brang || itemsbuf[wparent].family == itype_divineprotection
-                              || itemsbuf[wparent].family == itype_hookshot || itemsbuf[wparent].family == itype_cbyrna))
+            if(wparent>=0 && (itemsbuf[wparent].type == itype_brang || itemsbuf[wparent].type == itype_divineprotection
+                              || itemsbuf[wparent].type == itype_hookshot || itemsbuf[wparent].type == itype_cbyrna))
             {
                 if(itemsbuf[wparent].usesound == use_sfx)
                     return;
@@ -1227,7 +1227,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			glowRad = game->get_light_rad(); //Default light radius for fires
 			if ( parentitem > -1 )
 			{
-				switch(parent.family)
+				switch(parent.type)
 				{
 					case itype_divinefire: // Divine Fire. This uses magicitem rather than itemid
 						step = 0; 
@@ -2077,7 +2077,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				ret = *spr;
 			else if ( parentitem > -1 )
 			{
-				switch(parent.family)
+				switch(parent.type)
 				{
 					case itype_divinefire: // Divine Fire. This uses magicitem rather than itemid
 						if(magicitem >-1 && !isDummy)
@@ -2908,7 +2908,7 @@ bool weapon::isHeroWeapon()
 }
 bool weapon::isHeroMelee()
 {
-	int32_t family = itemsbuf[parentitem].family;
+	int32_t family = itemsbuf[parentitem].type;
 	if ( family == itype_sword && id != wBeam ) return true;
 	//if ( id == wBeam )  return true;
 	return false;
@@ -3212,7 +3212,7 @@ void weapon::limited_animate()
 			bool canboom = (fixboom || step==0);
 			if(clk==(misc-2) && canboom)
 			{
-				id = parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
+				id = parentitem>-1 ? ((itemsbuf[parentitem].type==itype_sbomb) ? wSBomb:wBomb)
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb);
 				hxofs=2000;
 				step = 0;
@@ -3482,7 +3482,7 @@ bool weapon::animate(int32_t index)
 		{
 			item* ptr = (item*)items.spr(j);
 			
-			if((itemsbuf[ptr->id].family == itype_bottlefill) && !game->canFillBottle())
+			if((itemsbuf[ptr->id].type == itype_bottlefill) && !game->canFillBottle())
 				continue; //No picking these up unless you have a bottle to fill!
 			int32_t pickup = ptr->pickup;
 			if((pickup & ipCANGRAB) || (pickup & ipTIMER))
@@ -4095,7 +4095,7 @@ bool weapon::animate(int32_t index)
 					triggerfire(x,y,this,true,true,false,false,false);
 				}
 			}
-			else if(parentitem<0 || (parentitem>-1 && parent.family!=itype_book))
+			else if(parentitem<0 || (parentitem>-1 && parent.type!=itype_book))
 			{
 				if(clk==32)
 				{
@@ -5190,7 +5190,7 @@ bool weapon::animate(int32_t index)
 		   
 			bool brokebook = get_qr(qr_BROKENBOOKCOST);
 			itemdata const& book = itemsbuf[brokebook ? (parentitem>-1 ? parentitem : current_item_id(itype_book)) : linkedItem];
-			if((id==wMagic && (brokebook ? current_item(itype_book) : (linkedItem && book.family == itype_book)) &&
+			if((id==wMagic && (brokebook ? current_item(itype_book) : (linkedItem && book.type == itype_book)) &&
 				book.flags&item_flag1) && get_qr(qr_INSTABURNFLAGS))
 			{
 				triggerfire(x,y,this,true,
@@ -6833,7 +6833,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 		}
 		else
 		{
-			if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
+			if(((id==wMagic && linkedItem && itemsbuf[linkedItem].type==itype_book &&
 				(itemsbuf[linkedItem].flags&item_flag1))) && Lwpns.idCount(wFire)<2)
 			{
 				Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[linkedItem].misc4)*game->get_hero_dmgmult(),0,linkedItem,-1,false,0,1));

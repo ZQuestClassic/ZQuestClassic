@@ -6378,7 +6378,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				tempitem.flags=item_none;
                 tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=
                                                 tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
-                tempitem.family=0xFF;
+                tempitem.type=0xFF;
                 tempitem.playsound=WAV_SCALE;
                 reset_itembuf(&tempitem,i);
                 
@@ -6408,21 +6408,21 @@ int32_t readitems(PACKFILE *f, word version, word build)
         {
 			if ( s_version >= 31 )
 			{
-				if(!p_igetl(&tempitem.family,f))
+				if(!p_igetl(&tempitem.type,f))
 				{
 					return qe_invalid;
 				}    
 			}
             else
 			{		    
-				if(!p_getc(&tempitem.family,f))
+				if(!p_getc(&tempitem.type,f))
 				{
 					return qe_invalid;
 				}
             }
             if(s_version < 16)
-                if(tempitem.family == 0xFF)
-                    tempitem.family = itype_misc;
+                if(tempitem.type == 0xFF)
+                    tempitem.type = itype_misc;
                     
             if(!p_getc(&tempitem.level,f))
             {
@@ -6636,7 +6636,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
                         // Version 24: sh_ice -> sh_script; previously, all shields could block script weapons
                         if(s_version<24)
                         {
-                            if(tempitem.family==itype_shield)
+                            if(tempitem.type==itype_shield)
                             {
                                 tempitem.misc1|=sh_script;
                             }
@@ -6751,7 +6751,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					}
 					else tempitem.usesound2 = 0;
 					
-					if(s_version < 50 && tempitem.family == itype_mirror)
+					if(s_version < 50 && tempitem.type == itype_mirror)
 					{
 						//Split continue/dmap warp effect/sfx, port for old
 						tempitem.misc2 = tempitem.misc1;
@@ -7007,7 +7007,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
         else
         {
             tempitem.count=-1;
-            tempitem.family=itype_misc;
+            tempitem.type=itype_misc;
 			tempitem.flags=item_none;
             tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
             tempitem.playsound=WAV_SCALE;
@@ -7045,7 +7045,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		else
 		{
 			tempitem.moveflags = (move_obeys_grav | move_can_pitfall);
-			switch(tempitem.family)
+			switch(tempitem.type)
 			{
 				case itype_divinefire:
 					if(!(tempitem.flags & item_flag3))
@@ -7070,7 +7070,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		else
 		{
 			SETFLAG(tempitem.weap_data.wflags, WFLAG_UPDATE_IGNITE_SPRITE, tempitem.flags & item_burning_sprites);
-			switch(tempitem.family)
+			switch(tempitem.type)
 			{
 				case itype_liftglove:
 					tempitem.weap_data.wflags = WFLAG_BREAK_WHEN_LANDING;
@@ -7434,7 +7434,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					break;
 					
 				case iL2SpinScroll:
-					tempitem.family=itype_spinscroll2;
+					tempitem.type=itype_spinscroll2;
 					tempitem.level=1;
 					tempitem.cost_amount[0]=8;
 					tempitem.power=2;
@@ -7447,7 +7447,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					break;
 					
 				case iL2QuakeScroll:
-					tempitem.family=itype_quakescroll2;
+					tempitem.type=itype_quakescroll2;
 					tempitem.level=1;
 					tempitem.power = 2;
 					tempitem.misc1=0x20;
@@ -7557,12 +7557,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		}
 		
 		//add the misc flag for bomb
-		if(s_version < 10 && tempitem.family == itype_bomb)
+		if(s_version < 10 && tempitem.type == itype_bomb)
 		{
 			tempitem.flags = (tempitem.flags & ~item_flag1) | (get_qr(qr_LONGBOMBBOOM_DEP) ? item_flag1 : item_none);
 		}
 		
-		if(s_version < 11 && tempitem.family == itype_triforcepiece)
+		if(s_version < 11 && tempitem.type == itype_triforcepiece)
 		{
 			tempitem.flags = (tempitem.level ? item_gamedata : item_none);
 			tempitem.playsound = (tempitem.level ? WAV_SCALE : WAV_CLEARED);
@@ -7590,7 +7590,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				break;
 			}
 			
-			switch(tempitem.family)
+			switch(tempitem.type)
 			{
 			case itype_hoverboots:
 				tempitem.usesound = WAV_ZN1HOVER;
@@ -7660,15 +7660,15 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 13) // July 2007
 		{
-			if(tempitem.family == itype_whistle)
+			if(tempitem.type == itype_whistle)
 			{
 				tempitem.misc1 = (tempitem.power==2 ? 4 : 3);
 				tempitem.power = 1;
 				tempitem.flags|=item_flag1;
 			}
-			else if(tempitem.family == itype_wand)
+			else if(tempitem.type == itype_wand)
 				tempitem.flags|=item_flag1;
-			else if(tempitem.family == itype_book)
+			else if(tempitem.type == itype_book)
 			{
 				tempitem.flags|=item_flag1;
 				tempitem.power = 2;
@@ -7677,14 +7677,14 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 14) // August 2007
 		{
-			if(tempitem.family == itype_fairy)
+			if(tempitem.type == itype_fairy)
 			{
 				tempitem.usesound = WAV_SCALE;
 				
 				if(tempitem.level)
 					tempitem.misc3=50;
 			}
-			else if(tempitem.family == itype_potion)
+			else if(tempitem.type == itype_potion)
 			{
 				tempitem.flags |= item_gain_old;
 			}
@@ -7692,11 +7692,11 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 17) // November 2007
 		{
-			if(tempitem.family == itype_candle && !tempitem.wpn3)
+			if(tempitem.type == itype_candle && !tempitem.wpn3)
 			{
 				tempitem.wpn3 = wFIRE;
 			}
-			else if(tempitem.family == itype_arrow && tempitem.power>4)
+			else if(tempitem.type == itype_arrow && tempitem.power>4)
 			{
 				tempitem.flags|=item_flag1;
 			}
@@ -7704,11 +7704,11 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 18) // New Year's Eve 2007
 		{
-			if(tempitem.family == itype_whistle)
+			if(tempitem.type == itype_whistle)
 				tempitem.misc2 = 8; // Use the Whistle warp ring
-			else if(tempitem.family == itype_bait)
+			else if(tempitem.type == itype_bait)
 				tempitem.misc1 = 768; // Frames until it goes
-			else if(tempitem.family == itype_triforcepiece)
+			else if(tempitem.type == itype_triforcepiece)
 			{
 				if(tempitem.flags & item_gamedata)
 				{
@@ -7720,7 +7720,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 19)  // January 2008
 		{
-			if(tempitem.family == itype_divineprotection)
+			if(tempitem.type == itype_divineprotection)
 			{
 				if (get_bit(deprecated_rules,qr_NOBOMBPALFLASH+1)) tempitem.flags |= item_flag3;
 				if (get_bit(deprecated_rules,qr_NOBOMBPALFLASH+2)) tempitem.flags |= item_flag4;
@@ -7729,7 +7729,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 20)  // October 2008
 		{
-			if(tempitem.family == itype_divineprotection)
+			if(tempitem.type == itype_divineprotection)
 			{
 				tempitem.wpn6=wDIVINEPROTECTION2A;
 				tempitem.wpn7=wDIVINEPROTECTION2B;
@@ -7746,10 +7746,10 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			{
 				tempitem.flags &= ~item_unused;
 				
-				if(tempitem.family == itype_sword ||
-						tempitem.family == itype_wand ||
-						tempitem.family == itype_candle ||
-						tempitem.family == itype_cbyrna)
+				if(tempitem.type == itype_sword ||
+						tempitem.type == itype_wand ||
+						tempitem.type == itype_candle ||
+						tempitem.type == itype_cbyrna)
 				{
 					tempitem.flags |= item_flag4;
 				}
@@ -7758,7 +7758,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 22)  // September 2009
 		{
-			if(tempitem.family == itype_sbomb || tempitem.family == itype_bomb)
+			if(tempitem.type == itype_sbomb || tempitem.type == itype_bomb)
 			{
 				tempitem.misc3 = tempitem.power/2;
 			}
@@ -7766,9 +7766,9 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 23)    // March 2011
 		{
-			if(tempitem.family == itype_divinefire)
+			if(tempitem.type == itype_divinefire)
 				tempitem.wpn5 = wFIRE;
-			else if(tempitem.family == itype_book)
+			else if(tempitem.type == itype_book)
 				tempitem.wpn2 = wFIRE;
 		}
 		
@@ -7777,16 +7777,16 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		// incorrect behavior.
 		if(s_version < 25)    // January 2012
 		{
-			if(tempitem.family == itype_bombbag)
+			if(tempitem.type == itype_bombbag)
 				tempitem.flags |= item_flag1;
 				
-			if(tempitem.family == itype_divinefire)
+			if(tempitem.type == itype_divinefire)
 				tempitem.flags |= item_flag3; // Sideview gravity flag
 		}
 		
 		if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
 		{
-			switch(tempitem.family)
+			switch(tempitem.type)
 			{
 				case itype_sword:
 				{
@@ -9159,23 +9159,23 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		//Port quest rules to items
 		if( s_version <= 31) 
 		{
-			if(tempitem.family == itype_bomb)
+			if(tempitem.type == itype_bomb)
 			{
 				if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= item_flag2;
 				else tempitem.flags &= ~ item_flag2;
 			}
-			else if(tempitem.family == itype_sbomb)
+			else if(tempitem.type == itype_sbomb)
 			{
 				if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= item_flag2;
 				else tempitem.flags &= ~ item_flag2;
 			}
 			
-			else if(tempitem.family == itype_brang)
+			else if(tempitem.type == itype_brang)
 			{
 				if ( get_qr(qr_BRANGPICKUP) )  tempitem.flags |= item_flag4;
 				else tempitem.flags &= ~ item_flag4;
 			}	
-			else if(tempitem.family == itype_wand)
+			else if(tempitem.type == itype_wand)
 			{
 				if ( get_qr(qr_NOWANDMELEE) )  tempitem.flags |= item_flag3;
 				else tempitem.flags &= ~ item_flag3;
@@ -9185,22 +9185,22 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		//Port quest rules to items
 		if( s_version <= 37) 
 		{
-			if(tempitem.family == itype_flippers)
+			if(tempitem.type == itype_flippers)
 			{
 				if ( (get_qr(qr_NODIVING)) ) tempitem.flags |= item_flag1;
 				else tempitem.flags &= ~ item_flag1;
 			}
-			else if(tempitem.family == itype_sword)
+			else if(tempitem.type == itype_sword)
 			{
 				if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= item_flag5;
 				else tempitem.flags &= ~ item_flag5;
 			}
-			else if(tempitem.family == itype_wand)
+			else if(tempitem.type == itype_wand)
 			{
 				if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= item_flag5;
 				else tempitem.flags &= ~ item_flag5;
 			}
-			else if(tempitem.family == itype_book || tempitem.family == itype_candle)
+			else if(tempitem.type == itype_book || tempitem.type == itype_candle)
 			{
 				//@Emily: What was qrFIREPROOFHERO2 again, and does that also need to enable this?
 				if ( (get_qr(qr_FIREPROOFHERO)) ) tempitem.flags |= item_flag3;
@@ -9210,7 +9210,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 38)
 		{
-			if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
+			if(tempitem.type == itype_brang || tempitem.type == itype_hookshot)
 			{
 				if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= item_flag4;
 				else tempitem.flags &= ~item_flag4;
@@ -9218,7 +9218,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags |= item_flag5 | item_flag6;
 				else tempitem.flags &= ~(item_flag5|item_flag6);
 			} 
-			else if(tempitem.family == itype_arrow)
+			else if(tempitem.type == itype_arrow)
 			{
 				if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= item_flag4;
 				else tempitem.flags &= ~item_flag4;
@@ -9230,12 +9230,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 39)
 		{
-			if(tempitem.family == itype_divinefire || tempitem.family == itype_book || tempitem.family == itype_candle)
+			if(tempitem.type == itype_divinefire || tempitem.type == itype_book || tempitem.type == itype_candle)
 			{
 				if(get_qr(qr_TEMPCANDLELIGHT)) tempitem.flags |= item_flag5;
 				else tempitem.flags &= ~item_flag5;
 			}
-			else if(tempitem.family == itype_potion)
+			else if(tempitem.type == itype_potion)
 			{
 				if(get_qr(qr_NONBUBBLEMEDICINE))
 				{
@@ -9248,7 +9248,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					else tempitem.flags &= ~item_flag4;
 				}
 			}
-			else if(tempitem.family == itype_triforcepiece)
+			else if(tempitem.type == itype_triforcepiece)
 			{
 				if(get_qr(qr_NONBUBBLETRIFORCE))
 				{
@@ -9265,22 +9265,22 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 40)
 		{
-			if(tempitem.family == itype_ring || tempitem.family == itype_perilring)
+			if(tempitem.type == itype_ring || tempitem.type == itype_perilring)
 			{
 				if(get_qr(qr_RINGAFFECTDAMAGE))tempitem.flags |= item_flag1;
 				else tempitem.flags &= ~item_flag1;
 			} 
-			else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna)
+			else if(tempitem.type == itype_candle || tempitem.type == itype_sword || tempitem.type == itype_wand || tempitem.type == itype_cbyrna)
 			{
 				if(get_qr(qr_SLASHFLIPFIX))tempitem.flags |= item_flag8;
 				else tempitem.flags &= ~item_flag8;
 			}
-			if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer)
+			if(tempitem.type == itype_sword || tempitem.type == itype_wand || tempitem.type == itype_hammer)
 			{
 				if(get_qr(qr_NOITEMMELEE))tempitem.flags |= item_flag7;
 				else tempitem.flags &= ~item_flag7;
 			} 
-			else if(tempitem.family == itype_cbyrna)
+			else if(tempitem.type == itype_cbyrna)
 			{
 				tempitem.flags |= item_flag7;
 			}
@@ -9288,7 +9288,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 41 )
 		{
-			if(tempitem.family == itype_sword)
+			if(tempitem.type == itype_sword)
 			{
 				if(get_qr(qr_SWORDMIRROR))tempitem.flags |= item_flag9;
 				else tempitem.flags &= ~item_flag9;
@@ -9300,24 +9300,24 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 42 )
 		{
-			if(tempitem.family == itype_wand)
+			if(tempitem.type == itype_wand)
 			{
 				if(get_qr(qr_NOWANDMELEE))tempitem.flags |= item_flag3;
 				else tempitem.flags &= ~item_flag3;
 				
 				tempitem.flags &= ~item_flag6;
 			} 
-			else if(tempitem.family == itype_hammer)
+			else if(tempitem.type == itype_hammer)
 			{
 				tempitem.flags &= ~item_flag3;
 			} 
-			else if(tempitem.family == itype_cbyrna)
+			else if(tempitem.type == itype_cbyrna)
 			{
 				tempitem.flags |= item_flag3;
 				
 				tempitem.flags &= ~item_flag6;
 			} 
-			else if(tempitem.family == itype_sword)
+			else if(tempitem.type == itype_sword)
 			{
 				if(get_qr(qr_MELEEMAGICCOST))tempitem.flags |= item_flag6;
 				else tempitem.flags &= ~item_flag6;
@@ -9326,7 +9326,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 43 )
 		{
-			if(tempitem.family == itype_whistle)
+			if(tempitem.type == itype_whistle)
 			{
 				if(get_qr(qr_WHIRLWINDMIRROR))tempitem.flags |= item_flag3;
 				else tempitem.flags &= ~item_flag3;
@@ -9335,7 +9335,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 45 )
 		{
-			if(tempitem.family == itype_flippers)
+			if(tempitem.type == itype_flippers)
 			{
 				tempitem.misc1 = 50; //Dive length, default 50 frames -V
 				tempitem.misc2 = 30; //Dive cooldown, default 30 frames -V
@@ -9344,7 +9344,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 46 )
 		{
-			if(tempitem.family == itype_raft)
+			if(tempitem.type == itype_raft)
 			{
 				tempitem.misc1 = 1; //Rafting speed modifier; default 1. Negative slows, positive speeds.
 			}
@@ -9369,7 +9369,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if ( s_version < 35 ) //new Lens of Truth flags		
 		{
-			if ( tempitem.family == itype_lens )
+			if ( tempitem.type == itype_lens )
 			{
 				if ( get_qr(qr_RAFTLENS) ) 
 				{
@@ -9402,7 +9402,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 51 )
 		{
-			if( tempitem.family == itype_candle )
+			if( tempitem.type == itype_candle )
 			{
 				tempitem.misc4 = 50; //Step speed
 			}
@@ -9410,12 +9410,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if( s_version < 52 )
 		{
-			if( tempitem.family == itype_shield )
+			if( tempitem.type == itype_shield )
 				tempitem.flags |= item_flag1; //'Block Front' flag
 		}
 		if(s_version < 53)
 		{
-			switch(tempitem.family)
+			switch(tempitem.type)
 			{
 				case itype_arrow:
 					tempitem.cost_counter[1] = crARROWS;
@@ -9437,12 +9437,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		}
 		if( s_version < 54 )
 		{
-			if( tempitem.family == itype_flippers )
+			if( tempitem.type == itype_flippers )
 				tempitem.misc3 = INT_BTN_A; //'Block Front' flag
 		}
 		if(s_version < 55)
 		{
-			switch(tempitem.family)
+			switch(tempitem.type)
 			{
 				case itype_spinscroll:
 				case itype_quakescroll:
@@ -9456,7 +9456,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		}
 		if(s_version < 56)
 		{
-			switch(tempitem.family)
+			switch(tempitem.type)
 			{
 				case itype_divinefire:
 					SETFLAG(tempitem.flags, item_flag9, version < 0x255); //Strong Fire
@@ -9477,7 +9477,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		}
 		if (s_version < 61)
 		{
-			switch (tempitem.family)
+			switch (tempitem.type)
 			{
 				case itype_sword:
 					tempitem.usesound2 = WAV_BEAM;
@@ -10014,18 +10014,18 @@ void init_item_drop_sets()
         {
             int32_t it = item_drop_sets[i].item[j];
             
-            if((itemsbuf[it].family == itype_rupee && ((itemsbuf[it].amount)&0xFFF) == 10)
+            if((itemsbuf[it].type == itype_rupee && ((itemsbuf[it].amount)&0xFFF) == 10)
                     && !get_bit(deprecated_rules, qr_ALLOW10RUPEEDROPS_DEP))
             {
                 item_drop_sets[i].chance[j+1]=0;
             }
-            else if(itemsbuf[it].family == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
+            else if(itemsbuf[it].type == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
             {
                 item_drop_sets[i].chance[j+1]=0;
             }
             
             // From Sept 2007 to Dec 2008, non-gameplay items were prohibited.
-            if(itemsbuf[it].family == itype_misc)
+            if(itemsbuf[it].type == itype_misc)
             {
                 // If a non-gameplay item was selected, then item drop was aborted.
                 // Reflect this by increasing the 'Nothing' chance accordingly.
@@ -18518,7 +18518,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 			{
 				auto const& pitm = itemsbuf[temp_combo.lift_parent_item];
 				auto weap_glow = weap_data.light_rads[WPNSPR_BASE];
-				switch(pitm.family)
+				switch(pitm.type)
 				{
 					case itype_bomb:
 					case itype_sbomb:
@@ -21494,19 +21494,19 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version)
                 {
                     int32_t it = tempitemdrop.item[j];
                     
-                    if((itemsbuf[it].family == itype_rupee
+                    if((itemsbuf[it].type == itype_rupee
                             && ((itemsbuf[it].amount)&0xFFF) == 10)
                             && !get_bit(deprecated_rules, qr_ALLOW10RUPEEDROPS_DEP))
                     {
                         tempitemdrop.chance[j+1]=0;
                     }
-                    else if(itemsbuf[it].family == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
+                    else if(itemsbuf[it].type == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
                     {
                         tempitemdrop.chance[j+1]=0;
                     }
                     
                     // From Sept 2007 to Dec 2008, non-gameplay items were prohibited.
-                    if(itemsbuf[it].family == itype_misc)
+                    if(itemsbuf[it].type == itype_misc)
                     {
                         // If a non-gameplay item was selected, then item drop was aborted.
                         // Reflect this by increasing the 'Nothing' chance accordingly.
@@ -21723,7 +21723,7 @@ void portCandleRules()
 	//itemdata itemsbuf;
 	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
 	{
-		if ( itemsbuf[q].family == itype_candle )
+		if ( itemsbuf[q].type == itype_candle )
 		{
 			if ( hurtshero ) itemsbuf[q].flags |= item_flag2;
 			else itemsbuf[q].flags &= ~ item_flag2;
@@ -21737,7 +21737,7 @@ void portBombRules()
 	//itemdata itemsbuf;
 	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
 	{
-		if ( itemsbuf[q].family == itype_bomb )
+		if ( itemsbuf[q].type == itype_bomb )
 		{
 			if ( hurtshero ) itemsbuf[q].flags |= item_flag2;
 			else itemsbuf[q].flags &= ~ item_flag2;

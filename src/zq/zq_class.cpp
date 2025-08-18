@@ -8420,7 +8420,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(12);
             }
             
-            if(!p_iputl(itemsbuf[i].family,f))
+            if(!p_iputl(itemsbuf[i].type,f))
             {
                 new_return(13);
             }

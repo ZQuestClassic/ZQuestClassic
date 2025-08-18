@@ -2815,7 +2815,7 @@ void update_sso_name()
 			if(widg->iid > -1)
 			{
 				itemdata const& itm = itemsbuf[widg->iid];
-				onamestr = fmt::format("{} (Item: {})", onamestr, itm.get_name(true,itm.family==itype_arrow));
+				onamestr = fmt::format("{} (Item: {})", onamestr, itm.get_name(true,itm.type==itype_arrow));
 			}
 			else onamestr = fmt::format("{} (Class: {})", onamestr, ZI.getItemClassName(widg->iclass));
 		}

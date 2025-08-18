@@ -1164,7 +1164,7 @@ static ArrayRegistrar DISABLEDITEM_registrar(DISABLEDITEM, []{
 		},
 		[](int, int index, bool value){
 			game->items_off[index] = value;
-			removeFromItemCache(itemsbuf[index].family);
+			removeFromItemCache(itemsbuf[index].type);
 			return true;
 		}
 	);

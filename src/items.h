@@ -76,7 +76,7 @@ public:
     int32_t fairyUID;
     word pstring; //pickup string
     word pickup_string_flags;
-    int32_t family;
+    int32_t type;
     byte lvl;
     int32_t linked_parent;
 	bool is_dragged;
@@ -157,7 +157,7 @@ struct itemdata
     byte speed;                                               // animation speed
     byte delay;                                               // extra delay factor (-1) for first frame
     int32_t ltm;                                                 // Hero Tile Modifier
-    int32_t family;												// What family the item is in
+    int32_t type;												// What family the item is in
     byte level;										// What type in this family the item is
     int32_t power;	// Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
     item_flags flags;

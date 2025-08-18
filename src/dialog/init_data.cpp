@@ -227,7 +227,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	
 	for(int32_t q = 0; q < MAXITEMS; ++q)
 	{
-		int32_t family = itemsbuf[q].family;
+		int32_t family = itemsbuf[q].type;
 		
 		if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[q].flags & item_gamedata))
 			continue;

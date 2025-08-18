@@ -2660,7 +2660,7 @@ void do_magic_casting()
 
     // TODO(crash): check that .add succeeds.
     
-    switch(itemsbuf[magicitem].family)
+    switch(itemsbuf[magicitem].type)
     {
     case itype_divinefire:
     {

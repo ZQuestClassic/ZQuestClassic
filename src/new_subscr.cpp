@@ -2267,7 +2267,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 	if(btnitem_ids[btn] > nullval)
 	{
 		bool dodraw = true;
-		switch(itemsbuf[btnitem_ids[btn]&0xFF].family)
+		switch(itemsbuf[btnitem_ids[btn]&0xFF].type)
 		{
 			case itype_arrow:
 				if(btnitem_ids[btn]&0xF000)
@@ -3557,7 +3557,7 @@ int32_t SW_ItemSlot::getItemVal() const
 	if(iid > -1)
 	{
 		bool select = false;
-		switch(itemsbuf[iid].family)
+		switch(itemsbuf[iid].type)
 		{
 			case itype_bomb:
 				if(check_bomb(iid))
@@ -3585,7 +3585,7 @@ int32_t SW_ItemSlot::getItemVal() const
 		if (select && !item_disabled(iid) && game->get_item(iid))
 		{
 			int32_t ret = iid;
-			if(ret>-1 && itemsbuf[ret].family == itype_arrow)
+			if(ret>-1 && itemsbuf[ret].type == itype_arrow)
 				ret += 0xF000; //bow
 			return ret;
 		}
@@ -3668,7 +3668,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 	if(iid > -1)
 	{
 		bool select = false;
-		switch(itemsbuf[iid].family)
+		switch(itemsbuf[iid].type)
 		{
 			case itype_bomb:
 				if(check_bomb(iid))
@@ -3708,7 +3708,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 		if (select && !item_disabled(iid) && game->get_item(iid))
 		{
 			auto ret = iid;
-			if(ret>-1 && itemsbuf[ret].family == itype_arrow)
+			if(ret>-1 && itemsbuf[ret].type == itype_arrow)
 				ret += 0xF000; //bow
 			return ret;
 		}
@@ -5221,7 +5221,7 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 			#endif
 			
 			itemdata const& itm = itemsbuf[itemid];
-			str = itm.get_name(false,itm.family==itype_arrow && !bowarrow);
+			str = itm.get_name(false,itm.type==itype_arrow && !bowarrow);
 			if(widg->getType() == widgITEMSLOT && (widg->flags&SUBSCR_CURITM_IGNR_SP_SELTEXT))
 			{
 				//leave the name as-is

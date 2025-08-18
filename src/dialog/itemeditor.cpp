@@ -106,16 +106,16 @@ ItemNameInfo defInfo =
 void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 {
 	inf->clear();
-	inf->iclass = ref.family;
+	inf->iclass = ref.type;
 	#define _SET(mem, str, helpstr) \
 	do{ \
 		inf->mem = str; \
 		inf->h_##mem = helpstr; \
 	}while(false)
 	#define FLAG(val) (ref.flags & item_flag##val)
-	std::string classname(ZI.getItemClassName(ref.family));
+	std::string classname(ZI.getItemClassName(ref.type));
 	
-	switch(ref.family)
+	switch(ref.type)
 	{
 		case itype_fairy:
 		{
@@ -1188,7 +1188,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::MoveFlag(move_flags index, string
 
 int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 {
-	if(local_itemref.family != itype_bottle)
+	if(local_itemref.type != itype_bottle)
 		return local_itemref.tile;
 	int32_t o_tile = local_itemref.tile;
 	int32_t tile = o_tile + bottleVal * (zc_max(local_itemref.frames,1)
@@ -1265,7 +1265,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						"\nFor some types, such as Bottles, the text '%s' in the display name will be replaced with a special string (such as the bottle contents)."
 						"\nEx: 'Bottle (%s)' becomes 'Bottle (Empty)', or 'Bottle (Health Potion)'"),
 					wizardButton = Button(
-						text = "Wizard", disabled = !hasItemWizard(local_itemref.family),
+						text = "Wizard", disabled = !hasItemWizard(local_itemref.type),
 						rowSpan = 2, minwidth = 150_px,
 						padding = 0_px, forceFitH = true, onClick = message::WIZARD
 					),
@@ -1275,15 +1275,15 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					DropDownList(data = list_items,
 						fitParent = true, padding = 0_px,
 						maxwidth = 400_px,
-						selectedValue = local_itemref.family,
+						selectedValue = local_itemref.type,
 						onSelectionChanged = message::ITEMCLASS
 					),
 					Button(forceFitH = true, text = "?",
 						minheight = 24_px,
 						onPressFunc = [&]()
 						{
-							InfoDialog(ZI.getItemClassName(local_itemref.family),
-								get_ic_help(local_itemref.family)).show();
+							InfoDialog(ZI.getItemClassName(local_itemref.type),
+								get_ic_help(local_itemref.type)).show();
 						})
 				)
 			),
@@ -2401,7 +2401,7 @@ void ItemEditorDialog::refreshScripts()
 void ItemEditorDialog::loadItemClass()
 {
 	animFrame->setTile(calcBottleTile(local_itemref, bottleType));
-	animSwitcher->switchTo(local_itemref.family == itype_bottle ? 1 : 0);
+	animSwitcher->switchTo(local_itemref.type == itype_bottle ? 1 : 0);
 	
 	ItemNameInfo inf;
 	loadinfo(&inf, local_itemref);
@@ -2424,7 +2424,7 @@ void ItemEditorDialog::loadItemClass()
 			load_meta(inf,meta);
 		}
 	}
-	wizardButton->setDisabled(!hasItemWizard(local_itemref.family));
+	wizardButton->setDisabled(!hasItemWizard(local_itemref.type));
 	#define __SET(obj, mem) \
 	l_##obj->setText(inf.mem.size() ? inf.mem : defInfo.mem); \
 	h_##obj = (inf.h_##mem.size() ? inf.h_##mem : ""); \
@@ -2483,7 +2483,7 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::ITEMCLASS:
 		{
-			local_itemref.family = int32_t(msg.argument);
+			local_itemref.type = int32_t(msg.argument);
 			loadItemClass();
 			return false;
 		}
@@ -2515,7 +2515,7 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		
 		case message::WIZARD:
-			if(hasItemWizard(local_itemref.family))
+			if(hasItemWizard(local_itemref.type))
 			{
 				call_item_wizard(*this);
 				rerun_dlg = true;

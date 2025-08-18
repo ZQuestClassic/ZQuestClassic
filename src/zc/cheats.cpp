@@ -206,7 +206,7 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
     {
         for (int32_t i = 0; i < MAXITEMS; i++)
         {
-            if (itemsbuf[i].family == itype_bomb || itemsbuf[i].family == itype_sbomb)
+            if (itemsbuf[i].type == itype_bomb || itemsbuf[i].type == itype_sbomb)
                 getitem(i, true);
         }
 

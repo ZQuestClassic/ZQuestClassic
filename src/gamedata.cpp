@@ -968,7 +968,7 @@ int32_t gamedata::fillBottle(byte val)
 	bool temp[256] = {false};
 	for(size_t q = 0; q < MAXITEMS; ++q)
 	{
-		if(get_item(q) && itemsbuf[q].family == itype_bottle)
+		if(get_item(q) && itemsbuf[q].type == itype_bottle)
 		{
 			size_t bind = itemsbuf[q].misc1;
 			if(bind < 256)
@@ -993,7 +993,7 @@ bool gamedata::canFillBottle()
 	bool temp[256] = {false};
 	for(size_t q = 0; q < MAXITEMS; ++q)
 	{
-		if(get_item(q) && itemsbuf[q].family == itype_bottle)
+		if(get_item(q) && itemsbuf[q].type == itype_bottle)
 		{
 			size_t bind = itemsbuf[q].misc1;
 			if(bind < 256)
