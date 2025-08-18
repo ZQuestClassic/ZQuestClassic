@@ -13717,6 +13717,7 @@ bool HeroClass::try_hover()
 //Returns bitwise; lower 8 are dir pulled in, next 16 are combo ID, 25th bit is bool for if can be resisted
 //Returns '-1' if not being pulled
 //Returns '-2' if should be falling in
+static const int32_t flag_pit_irresistable = (1<<24);
 int32_t HeroClass::check_pitslide(bool ignore_hover)
 {
 	//Pitfall todo -Emily
@@ -13745,7 +13746,6 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 		int32_t ispitbl_75 = getpitfall(x+12,y+(bigHitbox?3:9));
 		int32_t ispitur_75 = getpitfall(x+3,y+(bigHitbox?12:14));
 		int32_t ispitbr_75 = getpitfall(x+3,y+(bigHitbox?3:9));
-		static const int32_t flag_pit_irresistable = (1<<24);
 		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
 		{
 			case 4: return -2; //Fully over pit; fall in
@@ -13974,6 +13974,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		pit_pullclk = 0;
 		return false;
 	}
+	bool irresistable = val & (replay_version_check(43) ? flag_pit_irresistable : 0x100);
 	int32_t dir = val&0xFF;
 	int32_t cmbid = (val&0xFFFF00)>>8;
 	int32_t sensitivity = combobuf[cmbid].attribytes[2];
@@ -13997,7 +13998,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		sensitivity = 1;
 	}
 	if(pit_pullclk++ % sensitivity) //No pull this frame
-		return (val&0x100);
+		return irresistable;
 	for(; step > 0 && !fallclk; --step)
 	{
 		switch(dir)
@@ -14016,7 +14017,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		}
 		pitfall();
 	}
-	return fallclk || (val&0x100);
+	return fallclk || irresistable;
 }
 
 void HeroClass::pitfall()
