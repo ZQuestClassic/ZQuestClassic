@@ -925,7 +925,7 @@ void DrawToLayer(item i, int layer, int opacity)
 //Creates and returns an exact copy of the passed LWeapon. Assumes that the passed pointer is valid.
 lweapon Duplicate(lweapon a)
 {
-	lweapon b = Screen->CreateLWeapon(a->ID);
+	lweapon b = Screen->CreateLWeapon(a->Type);
 	b->X = a->X;
 	b->Y = a->Y;
 	b->Z = a->Z;
@@ -961,7 +961,7 @@ lweapon Duplicate(lweapon a)
 	b->Flip = a->Flip;
 	for (int i = 0; i < 32; ++i)
 		b->Misc[i] = a->Misc[i];
-	b->ID = a->ID;
+	b->Type = a->Type;
 	b->ScriptTile = a->ScriptTile;
 	b->ScriptFlip = a->ScriptFlip;
 	b->Animation = a->Animation;
@@ -978,7 +978,7 @@ lweapon Duplicate(lweapon a)
 //Creates and returns an exact copy of the passed EWeapon. Assumes that the passed pointer is valid.
 eweapon Duplicate(eweapon a)
 {
-	eweapon b = Screen->CreateEWeapon(a->ID);
+	eweapon b = Screen->CreateEWeapon(a->Type);
 	b->X = a->X;
 	b->Y = a->Y;
 	b->Z = a->Z;
@@ -1014,7 +1014,7 @@ eweapon Duplicate(eweapon a)
 	b->Flip = a->Flip;
 	for (int i = 0; i < 32; ++i)
 		b->Misc[i] = a->Misc[i];
-	b->ID = a->ID;
+	b->Type = a->Type;
 	b->ScriptTile = a->ScriptTile;
 	b->ScriptFlip = a->ScriptFlip;
 	b->Animation = a->Animation;
@@ -1164,19 +1164,19 @@ bool GetDMapFlag(int dmap, DMapFlag flag)
 	return dm->Flagset[flag];
 }
 
-int GetFirstItemOf(int itemclass)
+int GetFirstItemOf(int type)
 {
 	itemdata id;
 	for(int q = 0; q <= MAX_ITEMDATA; ++q)
 	{
 		id = Game->LoadItemData(q);
-		if(id->Type == itemclass)
+		if(id->Type == type)
 			return q;
 	}
 	return -1;
 }
 
-int GetHighestLevelItem(int itemclass)
+int GetHighestLevelItem(int type)
 {
 	itemdata id;
 	int ret = -1;
@@ -1185,7 +1185,7 @@ int GetHighestLevelItem(int itemclass)
 	for(int i = 0; i <= MAX_HIGHEST_LEVEL_ITEM_CHECK; ++i)
 	{
 		id = Game->LoadItemData(i);
-		if(id->Family != itemclass)
+		if(id->Type != type)
 			continue;
 		if(id->Level > curlevel)
 		{
@@ -1206,7 +1206,7 @@ int GetHighestLevelItem(item i)
 	for(int i = 0; i <= MAX_HIGHEST_LEVEL_ITEM_CHECK; ++i )
 	{
 		id = Game->LoadItemData(i);
-		if(id->Family != argid->Family)
+		if(id->Type != argid->Type)
 			continue;
 		if(id->Level > curlevel)
 		{
@@ -1221,7 +1221,7 @@ int GetHighestLevelItem(item i)
  * Faster than the old function; this now works
  * exactly how the engine handles it. -Em
  */
-int GetHighestLevelItemOwned(int itemclass)
+int GetHighestLevelItemOwned(int type)
 {
 	int result = -1;
 	int highestlevel = -1;
@@ -1229,7 +1229,7 @@ int GetHighestLevelItemOwned(int itemclass)
 	for(int i=0; i<=MAX_HIGHEST_LEVEL_ITEM_CHECK; ++i)
 	{
 		itemdata id = Game->LoadItemData(i);
-		if(id->Family == itemclass && Hero->Item[i])
+		if(id->Type == type && Hero->Item[i])
 		{
 			if(id->Level >= highestlevel)
 			{
@@ -1482,7 +1482,7 @@ bool HasHeavyBoots()
 	for ( int q = 0; q < 256; ++q )
 	{
 		id = Game->LoadItemData(q);
-		if ( id->Family == IC_BOOTS && /*iron*/ id->Flags[1] ) return true;
+		if ( id->Type == IC_BOOTS && /*iron*/ id->Flags[1] ) return true;
 	}
 	return false;
 }
@@ -1882,7 +1882,7 @@ eweapon LoadEWeaponOf(int type)
 	for ( int i = Screen->NumEWeapons; i > 0; --i )
 	{
 		w = Screen->LoadEWeapon(i);
-		if (w->ID == type) return w;
+		if (w->Type == type) return w;
 	}
 	eweapon w2; //NULL
 	return w2;
@@ -1898,7 +1898,7 @@ lweapon LoadLWeaponOf(int type)
 	for ( int i = Screen->NumLWeapons; i > 0; --i )
 	{
 		w = Screen->LoadLWeapon(i);
-		if (w->ID == type) return w;
+		if (w->Type == type) return w;
 	}
 	lweapon w2; //NULL
 	return w2;
@@ -2099,7 +2099,7 @@ int NumEWeaponsOf(int type)
 	for (int i = Screen->NumEWeapons; i > 0; --i)
 	{
 		w = Screen->LoadEWeapon(i);
-		if (w->ID == type)
+		if (w->Type == type)
 			++ret;
 	}
 	return ret;
@@ -2138,7 +2138,7 @@ int NumLWeaponsOf(int type)
 	for (int i = Screen->NumLWeapons; i > 0; --i)
 	{
 		w = Screen->LoadLWeapon(i);
-		if (w->ID == type)
+		if (w->Type == type)
 			++ret;
 	}
 	return ret;

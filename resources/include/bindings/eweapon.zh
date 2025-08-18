@@ -38,21 +38,9 @@ class eweapon {
 
 	// The weapon type. Some types have hardcoded behaviors.
 	//
-	// @value [EWeaponType]
+	// @value [enum EWeaponType]
 	// @zasm_var EWPNID
 	internal int Type;
-
-	// Exactly the same as [Type], use that instead.
-	//
-	// @value [EWeaponType]
-	// @zasm_var EWPNID
-	internal int ID;
-
-	// Exactly the same as [Type], use that instead.
-	//
-	// @value [EWeaponType]
-	// @zasm_var EWPNID
-	internal int Family;
 
 	// For lweapons, the level of the weapon.
 	//
@@ -418,4 +406,14 @@ class eweapon {
 	//   POP REFEWPN
 	//   OBJ_OWN_CLASS D2 0.0009
 	internal void OwnObject(untyped object);
+
+	// @soft_deprecated Exactly the same as [Type], use that instead.
+	// @value [enum EWeaponType]
+	// @zasm_var EWPNID
+	internal int ID;
+
+	// @soft_deprecated Exactly the same as [Type], use that instead.
+	// @value [enum EWeaponType]
+	// @zasm_var EWPNID
+	internal int Family;
 }

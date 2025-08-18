@@ -652,7 +652,7 @@ void EWeaponToLWeapon(eweapon a, lweapon b)
 		return;
 	}
 	//if ( type == -1 ) return type;
-	b->ID = type;
+	b->Type = type;
 	b->X = a->X;
 	b->Y = a->Y;
 	b->Z = a->Z;
@@ -1070,7 +1070,7 @@ void LWeaponToEWeapon(lweapon a, eweapon b){
 		Trace("Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting.");
 		return;
 	}
-	b->ID = type;
+	b->Type = type;
 	b->X = a->X;
 	b->Y = a->Y;
 	b->Z = a->Z;

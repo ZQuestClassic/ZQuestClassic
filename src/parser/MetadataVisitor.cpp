@@ -193,8 +193,6 @@ static std::string getComment(const AST* node)
 			continue;
 		if (k == "zasm_var")
 			continue;
-		if (k == "internal_array")
-			continue;
 
 		s << "\n\n**@" << k << "**";
 		if (!v.empty())

@@ -119,37 +119,45 @@ class Type:
 
 
 @dataclass
-class Variable:
+class Symbol:
     symbol_id: int
     loc: Location
     comment: Comment
     name: str
+
+    def deprecated(self) -> bool:
+        return self.comment and (
+            self.comment.has_tag('deprecated')
+            or self.comment.has_tag('soft_deprecated')
+        )
+
+    def deprecation_message(self) -> Optional[str]:
+        if not self.comment:
+            return None
+        if self.comment.has_tag('deprecated'):
+            return self.comment.get_tag_single('deprecated')
+        if self.comment.has_tag('soft_deprecated'):
+            return self.comment.get_tag_single('soft_deprecated')
+        return None
+
+
+@dataclass
+class Variable(Symbol):
     type: Type
     value: Optional[str]
 
     def link(self) -> str:
         return reflink(self, self.name)
 
-    def deprecated(self) -> bool:
-        return self.comment and self.comment.has_tag('deprecated')
-
 
 @dataclass
-class EnumMember:
-    symbol_id: int
-    loc: Location
-    comment: Comment
-    name: str
+class EnumMember(Symbol):
     value: str
     type: Type
 
 
 @dataclass
-class Enum:
-    symbol_id: int
-    loc: Location
-    comment: Comment
-    name: str
+class Enum(Symbol):
     prefix: str
     members: list[EnumMember]
 
@@ -177,11 +185,7 @@ class Parameters:
 
 
 @dataclass
-class Function:
-    symbol_id: int
-    loc: Location
-    comment: Comment
-    name: str
+class Function(Symbol):
     parameters: Parameters
     return_type: Type
     constructor: bool
@@ -189,16 +193,9 @@ class Function:
     def link(self) -> str:
         return reflink(self, self.name)
 
-    def deprecated(self) -> bool:
-        return self.comment and self.comment.has_tag('deprecated')
-
 
 @dataclass
-class Class:
-    symbol_id: int
-    loc: Location
-    comment: Comment
-    name: str
+class Class(Symbol):
     parent: Optional[Class]
     constructors: list[Function]
     functions: list[Function]
@@ -267,6 +264,7 @@ def parse_doc_comment(x) -> Optional[Comment]:
             'index',
             'length',
             'reassign_ptr',
+            'soft_deprecated',
             'value',
             'vargs',
             'zasm_ref',
@@ -482,24 +480,24 @@ def get_doc_data(script_path: Path) -> list[File]:
     return files
 
 
-def walk(symbol, cb, parent=None):
-    cb(symbol, parent)
-    if isinstance(symbol, Class):
-        for x in symbol.functions:
-            walk(x, cb, symbol)
-        for x in symbol.constructors:
-            walk(x, cb, symbol)
-        for x in symbol.variables:
-            walk(x, cb, symbol)
-    elif isinstance(symbol, File) or isinstance(symbol, Scope):
-        for x in symbol.functions:
-            walk(x, cb, symbol)
-        for x in symbol.variables:
-            walk(x, cb, symbol)
-        for x in symbol.classes:
-            walk(x, cb, symbol)
-        for x in symbol.enums:
-            walk(x, cb, symbol)
-    elif isinstance(symbol, Enum):
-        for x in symbol.members:
-            walk(x, cb, symbol)
+def walk(node, cb, parent=None):
+    cb(node, parent)
+    if isinstance(node, Class):
+        for x in node.functions:
+            walk(x, cb, node)
+        for x in node.constructors:
+            walk(x, cb, node)
+        for x in node.variables:
+            walk(x, cb, node)
+    elif isinstance(node, File) or isinstance(node, Scope):
+        for x in node.functions:
+            walk(x, cb, node)
+        for x in node.variables:
+            walk(x, cb, node)
+        for x in node.classes:
+            walk(x, cb, node)
+        for x in node.enums:
+            walk(x, cb, node)
+    elif isinstance(node, Enum):
+        for x in node.members:
+            walk(x, cb, node)

@@ -380,12 +380,6 @@ class itemdata {
 	// @zasm_var IDATAFAMILY
 	internal int Type;
 
-	// Exactly the same as [Type] - use that instead.
-	//
-	// @value [enum ItemType]
-	// @zasm_var IDATAFAMILY
-	internal int Family;
-
 	// @zasm_var IDATALEVEL
 	internal int Level;
 
@@ -963,4 +957,9 @@ class itemdata {
 	//   POP REFITEMCLASS
 	//   RUNITEMSCRIPT D2
 	internal void RunScript(int mode = ISCR_PERPETUAL);
+
+	// @soft_deprecated Exactly the same as [Type], use that instead.
+	// @value [enum ItemType]
+	// @zasm_var IDATAFAMILY
+	internal int Family;
 }

@@ -76,23 +76,23 @@ symbols_by_id = {}
 seen_refs = []
 for file in all_files:
 
-    def cb(symbol, parent):
-        if hasattr(symbol, 'symbol_id'):
-            if symbol.symbol_id:
-                symbols_by_id[symbol.symbol_id] = symbol
+    def cb(node, parent):
+        if hasattr(node, 'symbol_id'):
+            if node.symbol_id:
+                symbols_by_id[node.symbol_id] = node
 
-        if isinstance(symbol, Class) or isinstance(symbol, Enum):
-            types[symbol.name] = symbol
+        if isinstance(node, Class) or isinstance(node, Enum):
+            types[node.name] = node
 
-        if not hasattr(symbol, 'loc'):
+        if not hasattr(node, 'loc'):
             return
 
         if 'bindings' in file.name:
             ref = 'globals_'
             if isinstance(parent, Class):
                 ref = 'globals_' if parent.is_global() else 'classes_'
-            elif isinstance(symbol, Class):
-                ref = 'globals_' if symbol.is_global() else 'classes_'
+            elif isinstance(node, Class):
+                ref = 'globals_' if node.is_global() else 'classes_'
         else:
             rel_file = Path(file.name).relative_to(resources_dir)
             lib = next((x for x in libraries if x in str(rel_file)), None)
@@ -104,18 +104,18 @@ for file in all_files:
         if 'bindings' in file.name and isinstance(parent, Class):
             ref += f'{parent.name}_'
 
-        if isinstance(symbol, Function):
-            if symbol.constructor:
+        if isinstance(node, Function):
+            if node.constructor:
                 ref += 'ctor_'
             else:
                 ref += 'fun_'
-        elif isinstance(symbol, Variable):
+        elif isinstance(node, Variable):
             ref += 'var_'
-        elif isinstance(symbol, Enum):
+        elif isinstance(node, Enum):
             ref += 'enum_'
-        elif isinstance(symbol, EnumMember):
+        elif isinstance(node, EnumMember):
             ref += 'enum_member_'
-        ref += symbol.name
+        ref += node.name
 
         # Sphinx refs are normalized to lowercase.
         ref = ref.lower()
@@ -127,7 +127,7 @@ for file in all_files:
             attempts += 1
             ref = f'{initial_ref}_{attempts}'
 
-        symbol.loc.ref = ref
+        node.loc.ref = ref
         seen_refs.append(ref)
 
     walk(file, cb)
@@ -300,16 +300,12 @@ def add_comment(symbol):
         add(format_comment(symbol.comment.text))
         add('')
 
-    if symbol.comment and symbol.comment.has_tag('deprecated'):
-        notice = symbol.comment.get_tag_single('deprecated')
-        if notice == True:
-            notice = ''
-        else:
-            notice = notice.replace('\n', ' ')
+    if (deprecation := symbol.deprecation_message()) is not None:
+        deprecation = deprecation.replace('\n', ' ')
         add('')
         add('.. deprecated::')
         add('')
-        add(format_comment(notice))
+        add(format_comment(deprecation))
         add('')
 
 
@@ -391,16 +387,16 @@ def handle_scope(symbol):
     variables = []
     enums = []
 
-    def cb(symbol, parent):
-        if isinstance(symbol, Function):
-            if symbol.constructor:
-                constructors.append(symbol)
+    def cb(node, parent):
+        if isinstance(node, Function):
+            if node.constructor:
+                constructors.append(node)
             else:
-                functions.append(symbol)
-        elif isinstance(symbol, Variable):
-            variables.append(symbol)
-        elif isinstance(symbol, Enum):
-            enums.append(symbol)
+                functions.append(node)
+        elif isinstance(node, Variable):
+            variables.append(node)
+        elif isinstance(node, Enum):
+            enums.append(node)
 
     walk(symbol, cb)
 

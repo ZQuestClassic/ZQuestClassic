@@ -386,9 +386,9 @@ bool pressingItem(int id)
 		   ||(GetEquipmentB()==id && Link->PressB) );
 }
 
-//Returns the id of the highest level item of the given class that Link has acquired.
+//Returns the id of the highest level item of the given type that Link has acquired.
 //Unlike GetHighestLevelItem(), only applies to items Link owns
-int GetCurrentItem(int itemclass)
+int GetCurrentItem(int type)
 {
 	itemdata id;
 	int ret = -1;
@@ -397,7 +397,7 @@ int GetCurrentItem(int itemclass)
 		if(!Link->Item[i])
 			continue;
 		id = Game->LoadItemData(i);
-		if(id->Family != itemclass)
+		if(id->Type != type)
 			continue;
 		if(id->Level > curlevel){
 			curlevel = id->Level;

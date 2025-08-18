@@ -18,11 +18,6 @@ class itemsprite {
 	// @zasm_var ITEMFAMILY
 	internal int Type;
 
-	// Exactly the same as [Type] - use that instead.
-	//
-	// @zasm_var ITEMFAMILY
-	internal int Family;
-
 	// Max number of itemsprites currently allowed.
 	//
 	// @zasm_var SPRITEMAXITEM
@@ -251,4 +246,8 @@ class itemsprite {
 	//   POP REFITEM
 	//   OBJ_OWN_CLASS D2 0.0011
 	internal void OwnObject(untyped object);
+
+	// @soft_deprecated Exactly the same as [Type], use that instead.
+	// @zasm_var ITEMFAMILY
+	internal int Family;
 }

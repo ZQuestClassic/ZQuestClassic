@@ -208,16 +208,8 @@ class npcdata {
 	// The type, or 'npc class' of the npc.
 	//
 	// @value [enum NPCType]
-
 	// @zasm_var NPCDATAFAMILY
 	internal int Type;
-
-	// Exactly the same as [Type], use that instead.
-	//
-	// @value [enum NPCType]
-
-	// @zasm_var NPCDATAFAMILY
-	internal int Family;
 
 	// The base tile used by the npc.
 	//
@@ -542,4 +534,9 @@ class npcdata {
 	//   POP REFNPCCLASS
 	//   NPCDATAGETNAME D2
 	internal void GetName(char32[] ptr);
+
+	// @soft_deprecated Exactly the same as [Type], use that instead.
+	// @value [enum NPCType]
+	// @zasm_var NPCDATAFAMILY
+	internal int Family;
 }

@@ -810,7 +810,7 @@ int GetDefaultEWeaponSprite(int weaponID)
 
             id=Game->LoadItemData(i);
 
-            if(id->Family!=IC_BRANG)
+            if(id->Type!=IC_BRANG)
                 continue;
 
             if(id->Level>maxLevel)
@@ -889,7 +889,7 @@ bool IsDummyEWeapon(eweapon wpn)
 // Make a copy of the given eweapon, which should be a dummy
 void __CopyEWeapon(eweapon prototype, int centerX, int centerY, float angle)
 {
-    eweapon wpn=Screen->CreateEWeapon(prototype->ID);
+    eweapon wpn=Screen->CreateEWeapon(prototype->Type);
     if(prototype->Misc[__EWI_DUMMY_SPRITE]>0)
         wpn->UseSprite(prototype->Misc[__EWI_DUMMY_SPRITE]);
 

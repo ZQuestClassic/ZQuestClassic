@@ -232,23 +232,14 @@ class npc {
 	internal npc();
 
 	// @value [enum NPCID]
-
 	// @zasm_var NPCID
 	internal const int ID;
 
 	// The type, or 'npc class' of the npc.
 	//
 	// @value [enum NPCType]
-
 	// @zasm_var NPCTYPE
 	internal int Type;
-
-	// Exactly the same as [Type], use that instead.
-	//
-	// @value [enum NPCType]
-
-	// @zasm_var NPCTYPE
-	internal int Family;
 
 	// The current frame of the npc's animation.
 	//
@@ -295,7 +286,6 @@ class npc {
 	// The movement status of an npc, usually flying.
 	//
 	// @value [enum NPCMoveStatus]
-
 	// @zasm_var NPCMOVESTATUS
 	internal int MoveStatus;
 
@@ -322,14 +312,12 @@ class npc {
 	// The weapon type used by the npc.
 	//
 	// @value [enum NPCWeapon]
-
 	// @zasm_var NPCWEAPON
 	internal int Weapon;
 
 	// The Dropset ID that this npc will drop from when killed.
 	//
 	// @value [enum ItemSet]
-
 	// @zasm_var NPCITEMSET
 	internal int ItemSet;
 
@@ -348,7 +336,7 @@ class npc {
 	// @zasm_var NPCBGSFX
 	internal int SFX;
 
-	// the weapon's total visual Y-offset.
+	// Total visual Y-offset.
 	//
 	// @zasm_var NPCTOTALDYOFFS
 	internal const int TotalDYOffset;
@@ -386,7 +374,6 @@ class npc {
 	//
 	// @index [enum NPCDefenseIndex]
 	// @value [enum NPCDefenseType]
-
 	// @zasm_var NPCDEFENSED
 	internal int Defense[];
 
@@ -1078,4 +1065,9 @@ class npc {
 	//   POP REFNPC
 	//   OBJ_OWN_CLASS D2 0.0007
 	internal void OwnObject(untyped object);
+
+	// @soft_deprecated Exactly the same as [Type], use that instead.
+	// @value [enum NPCType]
+	// @zasm_var NPCTYPE
+	internal int Family;
 }

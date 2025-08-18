@@ -46,6 +46,10 @@
 //
 //   Mark as deprecated, with an optional message.
 //
+// @soft_deprecated
+//
+//   Same as deprecated, but the compiler never shows a deprecation message. Only the documentation site will.
+//
 // @exit
 //
 //   Mark that the function exits the script.
