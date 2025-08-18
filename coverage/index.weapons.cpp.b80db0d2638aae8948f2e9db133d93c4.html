@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-08-14 17:56:01</td>
+      <td>2025-08-18 06:27:36</td>
     </tr>
   </table>
 </div>
@@ -53,8 +53,8 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>2794</td>
-      <td>4892</td>
+      <td>2793</td>
+      <td>4890</td>
       <td class="coverage-low">57.1%</td>
     </tr>
   </table>
@@ -107,7 +107,7 @@
     <tr><td><a href="#l6440">weapon::collision_check() (line 6440)</a></td><td>called 35 times, returned 35 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l701">weapon::convertType(bool) (line 701)</a></td><td>called 1137 times, returned 1137 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l6990">weapon::doAutoRotate(bool, bool) (line 6990)</a></td><td>called 2042975 times, returned 2042975 times</td><td>18.0%</td></tr>
-    <tr><td><a href="#l6374">weapon::do_death_fx() (line 6374)</a></td><td>called 519074 times, returned 519074 times</td><td>52.0%</td></tr>
+    <tr><td><a href="#l6374">weapon::do_death_fx() (line 6374)</a></td><td>called 519073 times, returned 519073 times</td><td>52.0%</td></tr>
     <tr><td><a href="#l6244">weapon::do_mirror() (line 6244)</a></td><td>called 423807 times, returned 423807 times</td><td>54.0%</td></tr>
     <tr><td><a href="#l7005">weapon::draw(BITMAP*) (line 7005)</a></td><td>called 23476483 times, returned 14677485 times</td><td>78.0%</td></tr>
     <tr><td><a href="#l7530">weapon::draw_hitbox() (line 7530)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -653,7 +653,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1293017</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">itm</span><span class="p">.</span><span class="n">family</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_hammer</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">itm</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">item_flag1</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Hero</span><span class="p">.</span><span class="n">getHammerState</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">itm</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_hammer</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">itm</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">item_flag1</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Hero</span><span class="p">.</span><span class="n">getHammerState</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l65" href="#l65">65</a></td>
@@ -874,7 +874,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3773301</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">lv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trig</span><span class="p">.</span><span class="n">triggerlevel</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">lv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trig</span><span class="p">.</span><span class="n">triggerlevel</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
@@ -2159,7 +2159,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">catchall</span><span class="p">,</span><span class="n">ipONETIME2</span><span class="o">|</span><span class="n">ipBIGRANGE</span><span class="o">|</span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">catchall</span><span class="p">].</span><span class="n">family</span><span class="o">==</span><span class="n">itype_triforcepiece</span><span class="w"> </span><span class="o">||</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">catchall</span><span class="p">,</span><span class="n">ipONETIME2</span><span class="o">|</span><span class="n">ipBIGRANGE</span><span class="o">|</span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">catchall</span><span class="p">].</span><span class="n">type</span><span class="o">==</span><span class="n">itype_triforcepiece</span><span class="w"> </span><span class="o">||</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l256" href="#l256">256</a></td>
@@ -3062,7 +3062,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">ffc_handle</span><span class="p">.</span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">catchall</span><span class="p">,</span><span class="n">ipONETIME2</span><span class="o">|</span><span class="n">ipBIGRANGE</span><span class="o">|</span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">ffc_handle</span><span class="p">.</span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">catchall</span><span class="p">].</span><span class="n">family</span><span class="o">==</span><span class="n">itype_triforcepiece</span><span class="w"> </span><span class="o">||</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">ffc_handle</span><span class="p">.</span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">catchall</span><span class="p">,</span><span class="n">ipONETIME2</span><span class="o">|</span><span class="n">ipBIGRANGE</span><span class="o">|</span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">ffc_handle</span><span class="p">.</span><span class="n">scr</span><span class="o">-&gt;</span><span class="n">catchall</span><span class="p">].</span><span class="n">type</span><span class="o">==</span><span class="n">itype_triforcepiece</span><span class="w"> </span><span class="o">||</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l385" href="#l385">385</a></td>
@@ -5900,7 +5900,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">821</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">type</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">type</span><span class="p">),</span><span class="w"> 			</span><span class="c1">//int32_t</span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">level</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">level</span><span class="p">),</span><span class="w"> 			</span><span class="c1">//int32_t</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l715" href="#l715">715</a></td>
@@ -7142,7 +7142,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">61147</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">parentitem</span><span class="o">&gt;=</span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">family</span><span class="o">==</span><span class="n">itype_cbyrna</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">parentitem</span><span class="o">&gt;=</span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">type</span><span class="o">==</span><span class="n">itype_cbyrna</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l873" href="#l873">873</a></td>
@@ -7320,7 +7320,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">20030</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">parentitem</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">family</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">itype_whistle</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">wWind</span><span class="p">))</span><span class="w"> </span><span class="n">use_sfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">usesound</span><span class="p">;</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">parentitem</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">itype_whistle</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">wWind</span><span class="p">))</span><span class="w"> </span><span class="n">use_sfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">usesound</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l893" href="#l893">893</a></td>
@@ -7586,7 +7586,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">12086</td>
-      <td class="src coveredLine"><span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">wparent</span><span class="o">&gt;=</span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">wparent</span><span class="p">].</span><span class="n">family</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_brang</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">wparent</span><span class="p">].</span><span class="n">family</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_divineprotection</span></td>
+      <td class="src coveredLine"><span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">wparent</span><span class="o">&gt;=</span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">wparent</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_brang</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">wparent</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_divineprotection</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l925" href="#l925">925</a></td>
@@ -7602,7 +7602,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2397</td>
-      <td class="src partialCoveredLine"><span class="w">                              </span><span class="o">||</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">wparent</span><span class="p">].</span><span class="n">family</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_hookshot</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">wparent</span><span class="p">].</span><span class="n">family</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_cbyrna</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">                              </span><span class="o">||</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">wparent</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_hookshot</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">wparent</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_cbyrna</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l926" href="#l926">926</a></td>
@@ -7993,17 +7993,15 @@
       <td class="lineno"><a id="l977" href="#l977">977</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/4</summary>
+        <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 811578 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 811578 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
       <td class="linecount partialCoveredLine">811578</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">FFCore</span><span class="p">.</span><span class="n">destroyScriptableObject</span><span class="p">(</span><span class="n">isLWeapon</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">ScriptType</span><span class="o">::</span><span class="n">Lwpn</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">ScriptType</span><span class="o">::</span><span class="n">Ewpn</span><span class="p">,</span><span class="w"> </span><span class="n">getUID</span><span class="p">());</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">FFCore</span><span class="p">.</span><span class="n">destroySprite</span><span class="p">(</span><span class="k">this</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l978" href="#l978">978</a></td>
@@ -8167,7 +8165,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">810801</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">type</span><span class="o">=</span><span class="n">Type</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">level</span><span class="o">=</span><span class="n">Type</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l993" href="#l993">993</a></td>
@@ -8582,7 +8580,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">205411</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">quantity_iterator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w"> </span><span class="c1">//wCByrna uses this for positioning.</span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">quantity_iterator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">level</span><span class="p">;</span><span class="w"> </span><span class="c1">//wCByrna uses this for positioning.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1046" href="#l1046">1046</a></td>
@@ -8609,7 +8607,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">205083</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">Parentitem</span><span class="p">].</span><span class="n">fam_type</span><span class="p">;</span><span class="w"> </span><span class="c1">//the weapon level for real lweapons.</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">Parentitem</span><span class="p">].</span><span class="n">level</span><span class="p">;</span><span class="w"> </span><span class="c1">//the weapon level for real lweapons.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1048" href="#l1048">1048</a></td>
@@ -9106,7 +9104,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">76909</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="n">type</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="mi">2</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="n">level</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="mi">2</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1104" href="#l1104">1104</a></td>
@@ -10218,7 +10216,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2604</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">switch</span><span class="p">(</span><span class="n">parent</span><span class="p">.</span><span class="n">family</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">switch</span><span class="p">(</span><span class="n">parent</span><span class="p">.</span><span class="n">type</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1231" href="#l1231">1231</a></td>
@@ -14295,7 +14293,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">125060</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">switch</span><span class="p">(</span><span class="n">type</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">switch</span><span class="p">(</span><span class="n">level</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1712" href="#l1712">1712</a></td>
@@ -17469,7 +17467,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2604</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">switch</span><span class="p">(</span><span class="n">parent</span><span class="p">.</span><span class="n">family</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">switch</span><span class="p">(</span><span class="n">parent</span><span class="p">.</span><span class="n">type</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2081" href="#l2081">2081</a></td>
@@ -22226,7 +22224,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">125060</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">switch</span><span class="p">(</span><span class="n">type</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">switch</span><span class="p">(</span><span class="n">level</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2659" href="#l2659">2659</a></td>
@@ -23683,7 +23681,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">21277</td>
-      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="o">-&gt;</span><span class="n">family</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">				</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2848" href="#l2848">2848</a></td>
@@ -24202,7 +24200,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">family</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">type</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2912" href="#l2912">2912</a></td>
@@ -25849,7 +25847,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">138</td>
-      <td class="src coveredLine"><span class="w">                            </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">fam_type</span><span class="p">))</span></td>
+      <td class="src coveredLine"><span class="w">                            </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">level</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3096" href="#l3096">3096</a></td>
@@ -26087,7 +26085,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">57</td>
-      <td class="src coveredLine"><span class="w">                            </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">fam_type</span><span class="p">))</span></td>
+      <td class="src coveredLine"><span class="w">                            </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">level</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3125" href="#l3125">3125</a></td>
@@ -26887,7 +26885,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">1577</td>
-      <td class="src coveredLine"><span class="w">				</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parentitem</span><span class="o">&gt;</span><span class="mi">-1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">family</span><span class="o">==</span><span class="n">itype_sbomb</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">wSBomb</span><span class="o">:</span><span class="n">wBomb</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">				</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parentitem</span><span class="o">&gt;</span><span class="mi">-1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="p">].</span><span class="n">type</span><span class="o">==</span><span class="n">itype_sbomb</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">wSBomb</span><span class="o">:</span><span class="n">wBomb</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3216" href="#l3216">3216</a></td>
@@ -26959,7 +26957,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">FFCore</span><span class="p">.</span><span class="n">destroyScriptableObject</span><span class="p">(</span><span class="n">isLWeapon</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">ScriptType</span><span class="o">::</span><span class="n">Lwpn</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">ScriptType</span><span class="o">::</span><span class="n">Ewpn</span><span class="p">,</span><span class="w"> </span><span class="n">getUID</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">FFCore</span><span class="p">.</span><span class="n">destroySprite</span><span class="p">(</span><span class="k">this</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3224" href="#l3224">3224</a></td>
@@ -27200,7 +27198,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">FFCore</span><span class="p">.</span><span class="n">destroyScriptableObject</span><span class="p">(</span><span class="n">isLWeapon</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">ScriptType</span><span class="o">::</span><span class="n">Lwpn</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">ScriptType</span><span class="o">::</span><span class="n">Ewpn</span><span class="p">,</span><span class="w"> </span><span class="n">getUID</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">FFCore</span><span class="p">.</span><span class="n">destroySprite</span><span class="p">(</span><span class="k">this</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3252" href="#l3252">3252</a></td>
@@ -27337,7 +27335,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">FFCore</span><span class="p">.</span><span class="n">destroyScriptableObject</span><span class="p">(</span><span class="n">isLWeapon</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">ScriptType</span><span class="o">::</span><span class="n">Lwpn</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">ScriptType</span><span class="o">::</span><span class="n">Ewpn</span><span class="p">,</span><span class="w"> </span><span class="n">getUID</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">FFCore</span><span class="p">.</span><span class="n">destroySprite</span><span class="p">(</span><span class="k">this</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3267" href="#l3267">3267</a></td>
@@ -29158,7 +29156,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">].</span><span class="n">family</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_bottlefill</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">canFillBottle</span><span class="p">())</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">].</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_bottlefill</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">canFillBottle</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3486" href="#l3486">3486</a></td>
@@ -33486,7 +33484,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">2206407</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i2</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i2</span><span class="o">&lt;=</span><span class="n">zc_min</span><span class="p">(</span><span class="n">type</span><span class="mi">-1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">dead</span><span class="o">!=</span><span class="mi">23</span><span class="p">;</span><span class="w"> </span><span class="n">i2</span><span class="o">++</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i2</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i2</span><span class="o">&lt;=</span><span class="n">zc_min</span><span class="p">(</span><span class="n">level</span><span class="mi">-1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">dead</span><span class="o">!=</span><span class="mi">23</span><span class="p">;</span><span class="w"> </span><span class="n">i2</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3973" href="#l3973">3973</a></td>
@@ -34556,7 +34554,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">460728</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">parentitem</span><span class="o">&lt;</span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">parentitem</span><span class="o">&gt;</span><span class="mi">-1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">parent</span><span class="p">.</span><span class="n">family</span><span class="o">!=</span><span class="n">itype_book</span><span class="p">))</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">parentitem</span><span class="o">&lt;</span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">parentitem</span><span class="o">&gt;</span><span class="mi">-1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">parent</span><span class="p">.</span><span class="n">type</span><span class="o">!=</span><span class="n">itype_book</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l4099" href="#l4099">4099</a></td>
@@ -34879,7 +34877,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">330438</td>
-      <td class="src coveredLine"><span class="w">						</span><span class="nb">true</span><span class="p">,</span><span class="n">parentitem</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">parent</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">item_flag9</span><span class="p">),</span></td>
+      <td class="src coveredLine"><span class="w">						</span><span class="nb">true</span><span class="p">,</span><span class="n">parentitem</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">parent</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">item_flag9</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l4136" href="#l4136">4136</a></td>
@@ -37110,7 +37108,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">476297</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">branglevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="o">&gt;</span><span class="mi">-1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">parentitem</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">current_item_id</span><span class="p">(</span><span class="n">itype_brang</span><span class="p">)].</span><span class="n">fam_type</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">branglevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">parentitem</span><span class="o">&gt;</span><span class="mi">-1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">parentitem</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">current_item_id</span><span class="p">(</span><span class="n">itype_brang</span><span class="p">)].</span><span class="n">level</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l4396" href="#l4396">4396</a></td>
@@ -42568,7 +42566,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">129625</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">switch</span><span class="p">(</span><span class="n">type</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">switch</span><span class="p">(</span><span class="n">level</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5083" href="#l5083">5083</a></td>
@@ -43434,7 +43432,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">94222</td>
-      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">((</span><span class="n">id</span><span class="o">==</span><span class="n">wMagic</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">brokebook</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">current_item</span><span class="p">(</span><span class="n">itype_book</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">linkedItem</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="n">family</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_book</span><span class="p">))</span><span class="w"> </span><span class="o">&amp;&amp;</span></td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">((</span><span class="n">id</span><span class="o">==</span><span class="n">wMagic</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">brokebook</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">current_item</span><span class="p">(</span><span class="n">itype_book</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">linkedItem</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">itype_book</span><span class="p">))</span><span class="w"> </span><span class="o">&amp;&amp;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5194" href="#l5194">5194</a></td>
@@ -46674,8 +46672,8 @@
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 14039633 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 1282297 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 764620 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 13275013 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 764621 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 13275012 times.</div>
         </div>
         </details>
       </td>
@@ -46686,14 +46684,14 @@
       <td class="lineno"><a id="l5582" href="#l5582">5582</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">13792690</td>
+      <td class="linecount coveredLine">13792688</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5583" href="#l5583">5583</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14514425</td>
+      <td class="linecount coveredLine">14514423</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -51889,7 +51887,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">refl_flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">sh_fireball2</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">sh_fireball</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">refl_flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">level</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">sh_fireball2</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">sh_fireball</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6283" href="#l6283">6283</a></td>
@@ -52629,7 +52627,7 @@
       <td class="lineno"><a id="l6374" href="#l6374">6374</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">weapon</span><span class="o">::</span><span class="n">do_death_fx</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -52645,12 +52643,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 519074 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 519073 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">519074</td>
+      <td class="linecount partialCoveredLine">519073</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">death_spawnitem</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -52694,12 +52692,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 519058 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 519057 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 16 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">death_spawndropset</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -52798,14 +52796,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 519054 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 519053 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 20 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">519074</td>
+      <td class="linecount partialCoveredLine">519073</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">switch</span><span class="p">(</span><span class="n">death_sprite</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -52869,11 +52867,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 9 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 519045 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 519044 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">519054</td>
+      <td class="linecount coveredLine">519053</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">death_sprite</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -52915,12 +52913,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 519037 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 519036 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 37 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">death_sfx</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -52941,49 +52939,49 @@
       <td class="lineno"><a id="l6405" href="#l6405">6405</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_spawnitem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6406" href="#l6406">6406</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_item_pflags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6407" href="#l6407">6407</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_spawndropset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6408" href="#l6408">6408</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_sprite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6409" href="#l6409">6409</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">death_sfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6410" href="#l6410">6410</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">rundeath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6411" href="#l6411">6411</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">519074</td>
+      <td class="linecount coveredLine">519073</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -55847,7 +55845,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">switch</span><span class="p">(</span><span class="n">e</span><span class="o">-&gt;</span><span class="n">family</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">switch</span><span class="p">(</span><span class="n">e</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6765" href="#l6765">6765</a></td>
@@ -56437,7 +56435,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1812</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(((</span><span class="n">id</span><span class="o">==</span><span class="n">wMagic</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">linkedItem</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">linkedItem</span><span class="p">].</span><span class="n">family</span><span class="o">==</span><span class="n">itype_book</span><span class="w"> </span><span class="o">&amp;&amp;</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(((</span><span class="n">id</span><span class="o">==</span><span class="n">wMagic</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">linkedItem</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">linkedItem</span><span class="p">].</span><span class="n">type</span><span class="o">==</span><span class="n">itype_book</span><span class="w"> </span><span class="o">&amp;&amp;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6837" href="#l6837">6837</a></td>
@@ -60838,7 +60836,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">129298</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">switch</span><span class="p">(</span><span class="n">type</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">switch</span><span class="p">(</span><span class="n">level</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7348" href="#l7348">7348</a></td>
@@ -62687,7 +62685,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">type</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7579" href="#l7579">7579</a></td>
