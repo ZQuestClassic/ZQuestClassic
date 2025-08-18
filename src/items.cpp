@@ -133,20 +133,15 @@ bool item::animate(int32_t)
 					}
 				}
 			}
-			if ( moveflags & move_can_pitfall )
-			{
-				if(!subscreenItem && !force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
-				{
+		}
+		if (!subscreenItem && !force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family != itype_fairy)
+		{
+			if (!isSideViewGravity())
+				if (moveflags & move_can_pitfall)
 					fallCombo = check_pits();
-				}
-			}
-			if ( moveflags & move_can_waterdrown )
-			{
-				if(!subscreenItem && !force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
-				{
+			if (!(isSideViewGravity() && get_qr(qr_OLD_SPRITE_FALL_DROWN)))
+				if (moveflags & move_can_waterdrown)
 					drownCombo = check_water();
-				}
-			}
 		}
 #endif
 	}
