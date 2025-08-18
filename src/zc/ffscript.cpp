@@ -4331,7 +4331,7 @@ int32_t get_register(int32_t arg)
 			ret=(itemsbuf[ri->idata].weap_data.override_flags)*10000;
 			break;
 		
-		case IDATAFAMILY:
+		case IDATATYPE:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
@@ -4955,7 +4955,7 @@ int32_t get_register(int32_t arg)
 				
 			break;
 			
-		case LWPNID:
+		case LWPNTYPE:
 			if(0!=(s=checkLWpn(ri->lwpn)))
 				ret=((weapon*)(s))->id*10000;
 				
@@ -5530,7 +5530,7 @@ int32_t get_register(int32_t arg)
 				
 			break;
 			
-		case EWPNID:
+		case EWPNTYPE:
 			if(0!=(s=checkEWpn(ri->ewpn)))
 				ret=((weapon*)(s))->id*10000;
 				
@@ -8723,7 +8723,7 @@ int32_t get_register(int32_t arg)
 		case NPCDATAEWIDTH: GET_NPCDATA_VAR_BYTE(e_width, "ExWidth"); break;
 		case NPCDATAEHEIGHT: GET_NPCDATA_VAR_BYTE(e_height, "ExHeight"); break;
 		case NPCDATAHP: GET_NPCDATA_VAR_INT16(hp, "HP"); break;
-		case NPCDATAFAMILY: GET_NPCDATA_VAR_INT16(family, "Family"); break;
+		case NPCDATATYPE: GET_NPCDATA_VAR_INT16(family, "Family"); break;
 		case NPCDATACSET: GET_NPCDATA_VAR_INT16(cset, "CSet"); break;
 		case NPCDATAANIM: GET_NPCDATA_VAR_INT16(anim, "Anim"); break;
 		case NPCDATAEANIM: GET_NPCDATA_VAR_INT16(e_anim, "ExAnim"); break;
@@ -11885,7 +11885,7 @@ void set_register(int32_t arg, int32_t value)
 	//Itemdata Variables
 		//not mine, but let;s guard some of them all the same -Z
 		//item class
-		case IDATAFAMILY:
+		case IDATATYPE:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
@@ -12762,7 +12762,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 			
-		case LWPNID:
+		case LWPNTYPE:
 			if(0!=(s=checkLWpn(ri->lwpn)))
 				((weapon*)s)->id=(value/10000);
 				
@@ -13353,7 +13353,7 @@ void set_register(int32_t arg, int32_t value)
 				
 			break;
 			
-		case EWPNID:
+		case EWPNTYPE:
 			if(0!=(s=checkEWpn(ri->ewpn)))
 				((weapon*)s)->id=(value/10000);
 				
@@ -16221,7 +16221,7 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATASCRIPT: SET_NPCDATA_VAR_BYTE(script, "Script"); break;
 		case NPCDATAEHEIGHT: SET_NPCDATA_VAR_BYTE(e_height, "ExHeight"); break;
 		case NPCDATAHP: SET_NPCDATA_VAR_DWORD(hp, "HP"); break;
-		case NPCDATAFAMILY: SET_NPCDATA_VAR_DWORD(family, "Family"); break;
+		case NPCDATATYPE: SET_NPCDATA_VAR_DWORD(family, "Family"); break;
 		case NPCDATACSET: SET_NPCDATA_VAR_DWORD(cset, "CSet"); break;
 		case NPCDATAANIM: SET_NPCDATA_VAR_DWORD(anim, "Anim"); break;
 		case NPCDATAEANIM: SET_NPCDATA_VAR_DWORD(e_anim, "ExAnim"); break;

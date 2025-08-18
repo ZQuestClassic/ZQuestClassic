@@ -614,7 +614,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case EWPNSTEP: return "eweapon::Step";
 		case EWPNTIMEOUT: return "eweapon::Timeout";
 		case EWPNTOTALDYOFFS: return "eweapon::TotalDYOffset";
-		case EWPNID: return "eweapon::Type";
+		case EWPNTYPE: return "eweapon::Type";
 		case EWEAPONSCRIPTUID: return "eweapon::UID";
 		case EWPNUNBL: return "eweapon::Unblockable";
 		case EWPNVX: return "eweapon::Vx";
@@ -713,7 +713,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case IDATATILEH: return "itemdata::TileHeight";
 		case IDATALTM: return "itemdata::TileMod";
 		case IDATATILEW: return "itemdata::TileWidth";
-		case IDATAFAMILY: return "itemdata::Type";
+		case IDATATYPE: return "itemdata::Type";
 		case IDATAFLAGUNUSED: return "itemdata::Unused";
 		case IDATAUSEBURNSPR: return "itemdata::UseBurnSprites";
 		case IDATAUSESOUND: return "itemdata::UseSound";
@@ -756,7 +756,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case ITEMPSTRINGFLAGS: return "itemsprite::PickupStringFlags";
 		case ITEMSPRITESCRIPT: return "itemsprite::Script";
 		case ITEMOVERRIDEFLAGS: return "itemsprite::SizeFlags";
-		case ITEMFAMILY: return "itemsprite::Type";
+		case ITEMTYPE: return "itemsprite::Type";
 		case ITEMSCRIPTUID: return "itemsprite::UID";
 		case LWPNASPEED: return "lweapon::ASpeed";
 		case LWPNANGLE: return "lweapon::Angle";
@@ -793,7 +793,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case LWPNSTEP: return "lweapon::Step";
 		case LWPNTIMEOUT: return "lweapon::Timeout";
 		case LWPNTOTALDYOFFS: return "lweapon::TotalDYOffset";
-		case LWPNID: return "lweapon::Type";
+		case LWPNTYPE: return "lweapon::Type";
 		case LWEAPONSCRIPTUID: return "lweapon::UID";
 		case LWPNUNBL: return "lweapon::Unblockable";
 		case LWPNVX: return "lweapon::Vx";
@@ -1039,7 +1039,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case NPCDATATILEHEIGHT: return "npcdata::TileHeight";
 		case NPCDATATILEWIDTH: return "npcdata::TileWidth";
 		case NPCDATATOUCHDAMAGE: return "npcdata::TouchDamage";
-		case NPCDATAFAMILY: return "npcdata::Type";
+		case NPCDATATYPE: return "npcdata::Type";
 		case NPCDATAWEAPON: return "npcdata::Weapon";
 		case NPCDATAWEAPONDAMAGE: return "npcdata::WeaponDamage";
 		case NPCDATAWEAPONINITD: return "npcdata::WeaponInitD[]";

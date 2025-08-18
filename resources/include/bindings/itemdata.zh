@@ -377,7 +377,7 @@ class itemdata {
 	internal const int ID;
 
 	// @value [enum ItemType]
-	// @zasm_var IDATAFAMILY
+	// @zasm_var IDATATYPE
 	internal int Type;
 
 	// @zasm_var IDATALEVEL
@@ -960,6 +960,6 @@ class itemdata {
 
 	// @soft_deprecated Exactly the same as [Type], use that instead.
 	// @value [enum ItemType]
-	// @zasm_var IDATAFAMILY
+	// @zasm_var IDATATYPE
 	internal int Family;
 }

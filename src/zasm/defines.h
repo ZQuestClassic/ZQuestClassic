@@ -1323,7 +1323,7 @@ enum ASM_DEFINE
 #define LWPNDRAWTYPE         0x025F
 #define LWPNPOWER            0x0260
 #define LWPNDEAD             0x0261
-#define LWPNID               0x0262
+#define LWPNTYPE               0x0262
 #define LWPNTILE             0x0263
 #define LWPNCSET             0x0264
 #define LWPNFLASHCSET        0x0265
@@ -1381,7 +1381,7 @@ enum ASM_DEFINE
 #define ITEMFLASH            0x0297
 #define ITEMFLIP             0x0298
 #define ITEMCOUNT            0x0299
-#define IDATAFAMILY          0x029A
+#define IDATATYPE          0x029A
 #define IDATALEVEL           0x029B
 #define IDATAKEEP            0x029C
 #define IDATAAMOUNT          0x029D
@@ -1526,7 +1526,7 @@ enum ASM_DEFINE
 #define EWPNDRAWTYPE         0x089E
 #define EWPNPOWER            0x089F
 #define EWPNDEAD             0x08A0
-#define EWPNID               0x08A1
+#define EWPNTYPE               0x08A1
 #define EWPNTILE             0x08A2
 #define EWPNCSET             0x08A3
 #define EWPNFLASHCSET        0x08A4
@@ -1966,7 +1966,7 @@ enum ASM_DEFINE
 #define NPCDATAEWIDTH 0x11A0
 #define NPCDATAEHEIGHT 0x11A1
 #define NPCDATAHP 0x11A2
-#define NPCDATAFAMILY 0x11A3
+#define NPCDATATYPE 0x11A3
 #define NPCDATACSET 0x11A4
 #define NPCDATAANIM 0x11A5
 #define NPCDATAEANIM 0x11A6
@@ -2373,7 +2373,7 @@ enum ASM_DEFINE
 #define NPCMATCHINITDLABEL			0x1322	
 #define LWPNSCRIPT			0x1323
 #define LWPNINITD			0x1324	
-#define ITEMFAMILY			0x1325	
+#define ITEMTYPE			0x1325	
 #define ITEMLEVEL			0x1326	
 
 #define EWPNSCRIPT			0x1327	

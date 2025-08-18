@@ -39,7 +39,7 @@ class eweapon {
 	// The weapon type. Some types have hardcoded behaviors.
 	//
 	// @value [enum EWeaponType]
-	// @zasm_var EWPNID
+	// @zasm_var EWPNTYPE
 	internal int Type;
 
 	// For lweapons, the level of the weapon.
@@ -409,11 +409,11 @@ class eweapon {
 
 	// @soft_deprecated Exactly the same as [Type], use that instead.
 	// @value [enum EWeaponType]
-	// @zasm_var EWPNID
+	// @zasm_var EWPNTYPE
 	internal int ID;
 
 	// @soft_deprecated Exactly the same as [Type], use that instead.
 	// @value [enum EWeaponType]
-	// @zasm_var EWPNID
+	// @zasm_var EWPNTYPE
 	internal int Family;
 }

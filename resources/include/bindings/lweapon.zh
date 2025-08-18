@@ -54,7 +54,7 @@ class lweapon {
 	// The weapon type. Some types have hardcoded behaviors.
 	//
 	// @value [enum LWeaponType]
-	// @zasm_var LWPNID
+	// @zasm_var LWPNTYPE
 	internal int Type;
 
 	// For lweapons, the level of the weapon.
@@ -449,11 +449,11 @@ class lweapon {
 
 	// @soft_deprecated Exactly the same as [Type], use that instead.
 	// @value [enum LWeaponType]
-	// @zasm_var LWPNID
+	// @zasm_var LWPNTYPE
 	internal int ID;
 
 	// @soft_deprecated Exactly the same as [Type], use that instead.
 	// @value [enum LWeaponType]
-	// @zasm_var LWPNID
+	// @zasm_var LWPNTYPE
 	internal int Family;
 }

@@ -150,7 +150,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			}
 			break;
 
-		case ITEMFAMILY:
+		case ITEMTYPE:
 			if (auto s = checkItem(ri->itemref))
 			{
 				ret=((int32_t)s->family)*10000;
@@ -571,7 +571,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 {
 	switch (reg)
 	{
-		case ITEMFAMILY:
+		case ITEMTYPE:
 			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->family)=value/10000;

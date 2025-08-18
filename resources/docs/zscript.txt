@@ -5031,7 +5031,7 @@ untyped Misc[32];			ZASM Instruction:
 /************************************************************************************************************/
 
 	int Family;			ZASM Instruction: 
-					IDATAFAMILY
+					IDATATYPE
 	/**
 	* The kind of item to which this class belongs (swords, boomerangs,
 	* potions, etc.) Use the IC_ constants in std.zh to set or compare this

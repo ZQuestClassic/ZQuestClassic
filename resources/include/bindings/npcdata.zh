@@ -208,7 +208,7 @@ class npcdata {
 	// The type, or 'npc class' of the npc.
 	//
 	// @value [enum NPCType]
-	// @zasm_var NPCDATAFAMILY
+	// @zasm_var NPCDATATYPE
 	internal int Type;
 
 	// The base tile used by the npc.
@@ -537,6 +537,6 @@ class npcdata {
 
 	// @soft_deprecated Exactly the same as [Type], use that instead.
 	// @value [enum NPCType]
-	// @zasm_var NPCDATAFAMILY
+	// @zasm_var NPCDATATYPE
 	internal int Family;
 }

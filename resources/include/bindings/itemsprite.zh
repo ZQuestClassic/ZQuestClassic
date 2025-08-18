@@ -15,7 +15,7 @@ class itemsprite {
 	internal int ID;
 
 	// @value [enum ItemType]
-	// @zasm_var ITEMFAMILY
+	// @zasm_var ITEMTYPE
 	internal int Type;
 
 	// Max number of itemsprites currently allowed.
@@ -248,6 +248,6 @@ class itemsprite {
 	internal void OwnObject(untyped object);
 
 	// @soft_deprecated Exactly the same as [Type], use that instead.
-	// @zasm_var ITEMFAMILY
+	// @zasm_var ITEMTYPE
 	internal int Family;
 }

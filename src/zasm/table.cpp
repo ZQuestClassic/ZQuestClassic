@@ -1283,7 +1283,7 @@ static constexpr script_variable variable_list[]=
 	{ "ITEMFLASH", ITEMFLASH, 0},
 	{ "ITEMFLIP", ITEMFLIP, 0},
 	{ "ITEMCOUNT", ITEMCOUNT, 0},
-	{ "IDATAFAMILY", IDATAFAMILY, 0},
+	{ "IDATATYPE", IDATATYPE, 0},
 	{ "IDATALEVEL", IDATALEVEL, 0},
 	{ "IDATAKEEP", IDATAKEEP, 0},
 	{ "IDATAAMOUNT", IDATAAMOUNT, 0},
@@ -1366,7 +1366,7 @@ static constexpr script_variable variable_list[]=
 	{ "LWPNDRAWTYPE", LWPNDRAWTYPE, 0},
 	{ "LWPNPOWER", LWPNPOWER, 0},
 	{ "LWPNDEAD", LWPNDEAD, 0},
-	{ "LWPNID", LWPNID, 0},
+	{ "LWPNTYPE", LWPNTYPE, 0},
 	{ "LWPNTILE", LWPNTILE, 0},
 	{ "LWPNCSET", LWPNCSET, 0},
 	{ "LWPNFLASHCSET", LWPNFLASHCSET, 0},
@@ -1390,7 +1390,7 @@ static constexpr script_variable variable_list[]=
 	{ "EWPNDRAWTYPE", EWPNDRAWTYPE, 0},
 	{ "EWPNPOWER", EWPNPOWER, 0},
 	{ "EWPNDEAD", EWPNDEAD, 0},
-	{ "EWPNID", EWPNID, 0},
+	{ "EWPNTYPE", EWPNTYPE, 0},
 	{ "EWPNTILE", EWPNTILE, 0},
 	{ "EWPNCSET", EWPNCSET, 0},
 	{ "EWPNFLASHCSET", EWPNFLASHCSET, 0},
@@ -1764,7 +1764,7 @@ static constexpr script_variable variable_list[]=
 	{"NPCDATAEWIDTH", NPCDATAEWIDTH, 0},
 	{"NPCDATAEHEIGHT", NPCDATAEHEIGHT, 0},
 	{"NPCDATAHP", NPCDATAHP, 0},
-	{"NPCDATAFAMILY", NPCDATAFAMILY, 0},
+	{"NPCDATATYPE", NPCDATATYPE, 0},
 	{"NPCDATACSET", NPCDATACSET, 0},
 	{"NPCDATAANIM", NPCDATAANIM, 0},
 	{"NPCDATAEANIM", NPCDATAEANIM, 0},
@@ -2171,7 +2171,7 @@ static constexpr script_variable variable_list[]=
 	//lweapon scripts
 	{"LWPNSCRIPT", LWPNSCRIPT, 0},
 	{"LWPNINITD", LWPNINITD, 0},
-	{"ITEMFAMILY", ITEMFAMILY, 0},
+	{"ITEMTYPE", ITEMTYPE, 0},
 	{"ITEMLEVEL", ITEMLEVEL, 0},
 	
 	{"EWPNSCRIPT", EWPNSCRIPT, 0},
@@ -4133,7 +4133,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case ITEMFAKEZ:
 		case ITEMFALLCLK:
 		case ITEMFALLCMB:
-		case ITEMFAMILY:
+		case ITEMTYPE:
 		case ITEMFLASH:
 		case ITEMFLASHCSET:
 		case ITEMFLIP:
