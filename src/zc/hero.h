@@ -308,6 +308,8 @@ public:
 	int32_t last_lens_id; // active lens of truth
 	int32_t last_grav_boots_id; // active gravity (up/down/passive) boots
 	int32_t last_rocs_id; // active roc item
+	int32_t current_rocs_jump_id; // roc item responsible for the current jump, waiting to have a delayed effect
+	bool released_jump_button; // if jump was released after it was pressed
 	
 	int currentscroll; //currently active spin/quake scroll
 	word last_savepoint_id; //combo id of save point

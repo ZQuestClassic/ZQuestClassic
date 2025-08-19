@@ -432,6 +432,12 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(5))
 				_SET(misc[3], "Held Terminal Velocity", "Max fall speed of Link when this item is held. Useful for floating down while holding jump.");
 			_SET(misc[4], "Coyote Time", "Number of frames after leaving a ledge via non-jump that you can still jump");
+			if(FLAG(6))
+			{
+				_SET(misc[5], "Jump Release Decay", "This much will be subtracted from the player's Jump each frame after the button is released."
+					" (This will not cause it to go below 0. If this is set to 0, the player's jump will be fully neutralized instead.)");
+				SWAPTYPE(5, nswapDEC);
+			}
 			_SET(flag[0], "Jump is Power/100", "If enabled, the Hero jumps with a force"
 				" of 'power' instead of '(power*80)+160'");
 			_SET(flag[1], "Hold to change Hero gravity", "If enabled, holding the button this item is attached to will change"
@@ -444,6 +450,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(2))
 				_SET(flag[3], "Held Gravity doesn't affect upward momentum", "If enabled, 'Hold to change Hero gravity' will"
 					" not affect the Hero when rising.");
+			_SET(flag[5], "Decay On Release", "If enabled, the player's jump speed drops after the item button is released.");
 			inf->actionsnd[0] = "Jumping Sound:";
 			break;
 		}
@@ -1346,21 +1353,21 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								}),
 							NUM_FIELD_W(power, 0, MAX_ZSCRIPT_INT, ATTR_WID)
 						),
-						Rows<6>(framed = true,
-							ATTRIB_FIELD(misc1,0),
-							ATTRIB_FIELD(misc6,5),
-							
-							ATTRIB_FIELD(misc2,1),
-							ATTRIB_FIELD(misc7,6),
-							
-							ATTRIB_FIELD(misc3,2),
-							ATTRIB_FIELD(misc8,7),
-							
-							ATTRIB_FIELD(misc4,3),
-							ATTRIB_FIELD(misc9,8),
-							
-							ATTRIB_FIELD(misc5,4),
-							ATTRIB_FIELD(misc10,9)
+						Frame(info = "Some fields may allow decimal values. Accessing these via script"
+						" should use 'LAttributes' instead of 'Attributes', as 'Attributes' will read the"
+						" value as 10000* larger than it is displayed here for such fields.",
+							Rows_Columns<3,5>(
+								ATTRIB_FIELD(misc1,0),
+								ATTRIB_FIELD(misc2,1),
+								ATTRIB_FIELD(misc3,2),
+								ATTRIB_FIELD(misc4,3),
+								ATTRIB_FIELD(misc5,4),
+								ATTRIB_FIELD(misc6,5),
+								ATTRIB_FIELD(misc7,6),
+								ATTRIB_FIELD(misc8,7),
+								ATTRIB_FIELD(misc9,8),
+								ATTRIB_FIELD(misc10,9)
+							)
 						)
 					)),
 					TabRef(name = "Flags", Column(padding = 0_px,

@@ -1865,7 +1865,8 @@ void HeroClass::init()
     magiccastclk=0;
     magicitem = div_prot_item = -1;
 	last_lens_id = 0; //Should be -1 (-Z)
-	last_grav_boots_id = last_rocs_id = -1;
+	last_grav_boots_id = last_rocs_id = current_rocs_jump_id = -1;
+	released_jump_button = false;
 	last_lift_id.reset();
 	last_savepoint_id = 0;
 	misc_internal_hero_flags = 0;
@@ -8267,9 +8268,28 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	bool platformfell2 = false;
-	auto rocs_id = getRocsPressed();
-	//!TODO on releasing roc's effects go here
-	last_rocs_id = rocs_id; // reset the cached roc's feather ID
+	last_rocs_id = getRocsPressed(); // reset the cached roc's feather ID
+	if (current_rocs_jump_id > -1 && current_rocs_jump_id != last_rocs_id)
+		released_jump_button = true;
+	if (current_rocs_jump_id > -1 && released_jump_button)
+	{
+		itemdata const& last_rocs = itemsbuf[current_rocs_jump_id];
+		if (fall < 0)
+		{
+			if (last_rocs.flags & item_flag6)
+			{
+				int32_t jump_loss = last_rocs.misc6 / 100;
+				fall = zc_min(0_zf, fall + jump_loss);
+			}
+			if (fall >= 0)
+				try_hover();
+		}
+		if (fall >= 0)
+		{
+			current_rocs_jump_id = -1;
+			released_jump_button = false;
+		}
+	}
 	last_grav_boots_id = -1; // clear grav boots, so that they are re-checked in get_gravity()/get_terminalv() if needed
 	int32_t gravity3 = get_grav_fall();
 	int32_t termv = get_terminalv();
@@ -10898,6 +10918,12 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	}
 	
 	paymagiccost(jumpid);
+	
+	if (itm.flags & item_flag6) // delayed effect on release, store the jump id
+	{
+		current_rocs_jump_id = jumpid;
+		released_jump_button = false;
+	}
 	
 	if(!standing)
 	{
