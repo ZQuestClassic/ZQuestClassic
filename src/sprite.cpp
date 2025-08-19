@@ -2665,6 +2665,23 @@ void sprite::setCanFlicker(bool v)
 	can_flicker = v;
 }
 
+int32_t sprite::get_gravity(bool skip_custom) const
+{
+	if (custom_gravity && !skip_custom)
+		return custom_gravity.getZLong();
+	return zinit.gravity;
+}
+int32_t sprite::get_terminalv(bool skip_custom) const
+{
+	if (custom_terminal_v && !skip_custom)
+		return custom_terminal_v.getZLong() / 100;
+	return zinit.terminalv;
+}
+int32_t sprite::get_grav_fall() const
+{
+	return get_gravity() / 100;
+}
+
 //Moving Block 
 
 movingblock::movingblock() : sprite(), blockLayer(0), step(0.5)

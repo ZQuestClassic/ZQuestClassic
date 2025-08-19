@@ -407,6 +407,37 @@ void HeroClass::set_liftflags(int liftid)
 	SETFLAG(liftflags, LIFTFL_DROP_ON_HIT, itm.flags & item_flag5);
 }
 
+int32_t HeroClass::get_gravity(bool skip_custom) const
+{
+	if (custom_gravity && !skip_custom)
+		return custom_gravity.getZLong();
+	int32_t rocs = getRocsPressed();
+	if (rocs != -1)
+	{
+		itemdata const& itm = itemsbuf[rocs];
+		if (itm.flags & item_flag2) 
+		{
+			if ((!(itm.flags & item_flag3) || fall < 0) &&
+				(!(itm.flags & item_flag4) || fall > 0))
+				return itm.misc3 * 100;
+		}
+	}
+	return sprite::get_gravity(skip_custom);
+}
+int32_t HeroClass::get_terminalv(bool skip_custom) const
+{
+	if (custom_terminal_v && !skip_custom)
+		return custom_terminal_v.getZLong() / 100;
+	int32_t rocs = getRocsPressed();
+	if (rocs != -1)
+	{
+		itemdata const& itm = itemsbuf[rocs];
+		if (itm.flags & item_flag5)
+			return itm.misc4;
+	}
+	return sprite::get_terminalv(skip_custom);
+}
+
 void HeroClass::set_respawn_point(bool setwarp)
 {
 	zfix oldx = x, oldy = y;
@@ -2762,7 +2793,7 @@ void HeroClass::draw(BITMAP* dest)
 			// Keep this consistent with checkspecial2, line 7800-ish...
 			bool inwater = iswaterex_z3(MAPCOMBO(x+4,y+9), -1, x+4, y+9, true, false)  && iswaterex_z3(MAPCOMBO(x+4,y+15), -1, x+4, y+15, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+9), -1, x+11, y+9, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+15), -1, x+11, y+15, true, false);
 			
-			int32_t jumping2 = int32_t(jumping*((zinit.gravity / 100)/16.0));
+			int32_t jumping2 = int32_t(jumping * (get_grav_fall() / 16.0));
 			bool noliftspr = get_qr(qr_NO_LIFT_SPRITE);
 			bool advancetile = script_hero_sprite <= 0;
 			switch(zinit.heroAnimationStyle)
@@ -8205,22 +8236,15 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	bool platformfell2 = false;
-	int32_t gravity3 = (zinit.gravity/100);
-	int32_t termv = (zinit.terminalv);
-	int32_t rocs = getRocsPressed();
-	if (rocs != -1)
+	int32_t gravity3 = get_grav_fall();
+	int32_t termv = get_terminalv();
+	
+	if (fall > termv)
 	{
-		itemdata const& itm = itemsbuf[rocs];
-		if (itm.flags & item_flag2) 
-		{
-			if ((!(itm.flags & item_flag3) || fall < 0) && 
-				(!(itm.flags & item_flag4) || fall > 0)) gravity3 = itm.misc3;
-		}
-		if (itm.flags & item_flag5) 
-		{
-			termv = itm.misc4;
-			if (fall > termv) fall = termv;
-		}
+		int32_t rocs = getRocsPressed();
+		if (rocs != -1)
+			if (itemsbuf[rocs].flags & item_flag5) 
+				fall = termv;
 	}
 	bool nograv = (sideview_mode() && is_autowalking());
 	if(nograv)
@@ -8603,7 +8627,7 @@ heroanimate_skip_liftwpn:;
 					if (fakefall <= termv && !(moveflags & move_no_fake_z) && fakez > 0) fakefall += gravity3;
 				}
 			}
-			else if(((fall+(int32_t)(zinit.gravity / 100) > 0 && fall<=0 && !(moveflags & move_no_real_z) && z > 0) || (fakefall+gravity3 > 0 && fakefall<=0 && !(moveflags & move_no_fake_z) && fakez > 0))
+			else if (((fall + gravity3 > 0 && fall <= 0 && !(moveflags & move_no_real_z) && z > 0) || (fakefall + gravity3 > 0 && fakefall <= 0 && !(moveflags & move_no_fake_z) && fakez > 0))
 				&& try_hover())
 				;
 			else 
@@ -10954,7 +10978,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 						lift_wpn->step = 0;
 						break;
 					case down: //step converts into straight down fall
-						lift_wpn->fall = zc_min(basestep,zinit.terminalv);
+						lift_wpn->fall = zc_min(basestep,lift_wpn->get_terminalv());
 						lift_wpn->step = 0;
 						break;
 				}

@@ -1237,8 +1237,8 @@ bool enemy::animate(int32_t index)
 					else
 					{
 						y+=fall/100;
-						if(fall <= (int32_t)zinit.terminalv)
-							fall += (zinit.gravity/100);
+						if(fall <= get_terminalv())
+							fall += get_grav_fall();
 					}
 				}
 				else
@@ -1281,8 +1281,8 @@ bool enemy::animate(int32_t index)
 					}
 					if(hit)
 						fall = 0;
-					else if(fall <= (int32_t)zinit.terminalv)
-							fall += (zinit.gravity/100);
+					else if(fall <= get_terminalv())
+						fall += get_grav_fall();
 				}
 			}
 		}
@@ -1295,8 +1295,8 @@ bool enemy::animate(int32_t index)
 					
 				if(fakez<0)
 					fakez = fakefall = 0;
-				else if(fakefall <= (int32_t)zinit.terminalv)
-					fakefall += (zinit.gravity/100);
+				else if(fakefall <= get_terminalv())
+					fakefall += get_grav_fall();
 				
 				if (fakez<=0 && fakefall > 0 && !get_qr(qr_FLUCTUATING_ENEMY_JUMP)) fakefall = 0;
 			}
@@ -1307,8 +1307,8 @@ bool enemy::animate(int32_t index)
 					
 				if(z<0)
 					z = fall = 0;
-				else if(fall <= (int32_t)zinit.terminalv)
-					fall += (zinit.gravity/100);
+				else if(fall <= get_terminalv())
+					fall += get_grav_fall();
 				
 				if (z<=0 && fall > 0 && !get_qr(qr_FLUCTUATING_ENEMY_JUMP)) fall = 0;
 			}

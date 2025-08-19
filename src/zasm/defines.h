@@ -3276,7 +3276,12 @@ enum ASM_DEFINE
 #define MAPDATAEXCARRY             0x165D
 #define MAPDATAEXRESET             0x165E
 
-#define NUMVARIABLES         0x165F
+#define SPRITE_GRAVITY_STRENGTH             0x165F
+#define SPRITE_TERMINAL_VELOCITY            0x1660
+#define SPRITE_CUSTOM_GRAVITY_STRENGTH      0x1661
+#define SPRITE_CUSTOM_TERMINAL_VELOCITY     0x1662
+
+#define NUMVARIABLES         0x1663
 
 //} End variables
 

@@ -443,8 +443,9 @@ bool movingblock::animate(int32_t)
 	{
 		if(done || grav_step) // Only apply upon "clicking into place" over the pit, or if already falling
 		{
-			zfix grav = zslongToFix(zinit.gravity);
-			grav_step = zc_min(grav_step+grav, zfix(zinit.terminalv));
+			zfix grav = zslongToFix(get_gravity());
+			zfix terminalv = get_terminalv();
+			grav_step = zc_min(grav_step + grav, terminalv);
 			
 			if(done) // was about to snap into place, but falls instead
 			{

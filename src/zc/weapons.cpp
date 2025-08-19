@@ -3703,10 +3703,8 @@ bool weapon::animate(int32_t index)
 			{
 				y+=fall/100;
 				
-				if(fall <= (int32_t)zinit.terminalv)
-				{
-					fall += (zinit.gravity/100);
-				}
+				if(fall <= get_terminalv())
+					fall += get_grav_fall();
 			}
 			else
 			{
@@ -3758,10 +3756,8 @@ bool weapon::animate(int32_t index)
 						}
 					}
 				}
-				else if(fakefall <= (int32_t)zinit.terminalv)
-				{
-					fakefall += (zinit.gravity/100);
-				}
+				else if(fakefall <= get_terminalv())
+					fakefall += get_grav_fall();
 			}
 			if (!(moveflags & move_no_real_z))
 			{
@@ -3786,10 +3782,8 @@ bool weapon::animate(int32_t index)
 						}
 					}
 				}
-				else if(fall <= (int32_t)zinit.terminalv)
-				{
-					fall += (zinit.gravity/100);
-				}
+				else if(fall <= get_terminalv())
+					fall += get_grav_fall();
 			}
 		}
 	}
