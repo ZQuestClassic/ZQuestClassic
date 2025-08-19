@@ -137,6 +137,8 @@ public:
 	byte glowRad, glowShape;
 	
 	int32_t ignore_delete;
+	
+	zfix custom_gravity, custom_terminal_v;
     
     sprite();
     sprite(sprite const & other);
@@ -167,7 +169,6 @@ public:
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
     virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
     
-    
     virtual int32_t hitdir(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz,int32_t dir);
     virtual void move(zfix dx,zfix dy);
     virtual void move(zfix s);
@@ -176,6 +177,10 @@ public:
     void explode(int32_t mode);
 	bool getCanFlicker();
 	void setCanFlicker(bool v);
+	
+	virtual int32_t get_gravity(bool skip_custom = false) const;
+	virtual int32_t get_terminalv(bool skip_custom = false) const;
+	virtual int32_t get_grav_fall() const;
 	
 	virtual int32_t run_script(int32_t mode);
 	

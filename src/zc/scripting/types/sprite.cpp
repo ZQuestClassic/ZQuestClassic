@@ -209,6 +209,30 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 				return (s->moveflags & move_obeys_grav) ? 10000 : 0;
 			return 0;
 		}
+		case SPRITE_GRAVITY_STRENGTH:
+		{
+			if (auto s = get_sprite(ri->spriteref))
+				return s->get_gravity(true);
+			return 0;
+		}
+		case SPRITE_TERMINAL_VELOCITY:
+		{
+			if (auto s = get_sprite(ri->spriteref))
+				return s->get_terminalv(true) * 100;
+			return 0;
+		}
+		case SPRITE_CUSTOM_GRAVITY_STRENGTH:
+		{
+			if (auto s = get_sprite(ri->spriteref))
+				return s->custom_gravity.getZLong();
+			return 0;
+		}
+		case SPRITE_CUSTOM_TERMINAL_VELOCITY:
+		{
+			if (auto s = get_sprite(ri->spriteref))
+				return s->custom_terminal_v.getZLong();
+			return 0;
+		}
 		case SPRITE_FLIP:
 		{
 			if (auto s = get_sprite(ri->spriteref))
@@ -615,6 +639,18 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		{
 			if (auto s = get_sprite(ri->spriteref))
 				SETFLAG(s->moveflags, move_obeys_grav, value);
+			break;
+		}
+		case SPRITE_CUSTOM_GRAVITY_STRENGTH:
+		{
+			if (auto s = get_sprite(ri->spriteref))
+				s->custom_gravity = zslongToFix(value);
+			break;
+		}
+		case SPRITE_CUSTOM_TERMINAL_VELOCITY:
+		{
+			if (auto s = get_sprite(ri->spriteref))
+				s->custom_terminal_v = zslongToFix(value);
 			break;
 		}
 		case SPRITE_FLIP:

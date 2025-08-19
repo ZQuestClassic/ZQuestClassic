@@ -203,6 +203,26 @@ class sprite {
 	//
 	// @zasm_var SPRITE_GRAVITY
 	internal bool Gravity;
+	
+	// The current strength of gravity on this sprite.
+	//
+	// @zasm_var SPRITE_GRAVITY_STRENGTH
+	internal const int GravityStrength;
+	
+	// The current terminal velocity of this sprite.
+	//
+	// @zasm_var SPRITE_TERMINAL_VELOCITY
+	internal const int TerminalVelocity;
+	
+	// If non-zero, overrides the current [GravityStrength].
+	//
+	// @zasm_var SPRITE_CUSTOM_GRAVITY_STRENGTH
+	internal int CustomGravityStrength;
+	
+	// If non-zero, overrides the current [TerminalVelocity].
+	//
+	// @zasm_var SPRITE_CUSTOM_TERMINAL_VELOCITY
+	internal int CustomTerminalVelocity;
 
 	// How to flip (or rotate) the sprite.
 	//

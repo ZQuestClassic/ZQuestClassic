@@ -55,7 +55,6 @@ extern int32_t fairy_cnt;
 bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id);
 bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy);
 bool can_drop(zfix x, zfix y);
-void item_fall(zfix& x, zfix& y, zfix& fall);
 int32_t item_pits(zfix& x, zfix& y, int32_t& fallclk);
 int32_t select_dropitem(int32_t item_set);
 int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y);

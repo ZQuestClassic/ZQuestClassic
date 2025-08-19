@@ -39,28 +39,6 @@ bool can_drop(zfix x, zfix y)
 		((checkSVLadderPlatform(x+4,y+16)) || (checkSVLadderPlatform(x+12,y+16)))));
 }
 
-void item_fall(zfix& x, zfix& y, zfix& fall)
-{
-	if(!get_qr(qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && checkSVLadderPlatform(x+4,y+(fall/100)+15))
-	{
-		y+=fall/100;
-		y-=int32_t(y)%16; //Fix to top of ladder
-		fall = 0;
-	}
-	else
-	{
-		y+=fall/100;
-		
-		if((fall/100)==0 && fall>0)
-			fall*=(fall>0 ? 2 : 0.5); // That oughta do something about the floatiness.
-			
-		if(fall <= (int32_t)zinit.terminalv)
-		{
-			fall += (zinit.gravity / 100);
-		}
-	}
-}
-
 int32_t select_dropitem(int32_t item_set)
 {
     int32_t total_chance=0;

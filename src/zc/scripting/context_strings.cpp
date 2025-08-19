@@ -1082,6 +1082,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SHOPDATATYPE: return "shopdata::Type";
 		case SPRITE_ENGINE_ANIMATE: return "sprite::Animation";
 		case SPRITE_CSET: return "sprite::CSet";
+		case SPRITE_CUSTOM_GRAVITY_STRENGTH: return "sprite::CustomGravityStrength";
+		case SPRITE_CUSTOM_TERMINAL_VELOCITY: return "sprite::CustomTerminalVelocity";
 		case SPRITE_DIR: return "sprite::Dir";
 		case SPRITE_DRAW_STYLE: return "sprite::DrawStyle";
 		case SPRITE_X_OFFSET: return "sprite::DrawXOffset";
@@ -1096,6 +1098,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SPRITE_FALL_CLK: return "sprite::Falling";
 		case SPRITE_FLIP: return "sprite::Flip";
 		case SPRITE_GRAVITY: return "sprite::Gravity";
+		case SPRITE_GRAVITY_STRENGTH: return "sprite::GravityStrength";
 		case SPRITE_HIT_HEIGHT: return "sprite::HitHeight";
 		case SPRITE_HIT_WIDTH: return "sprite::HitWidth";
 		case SPRITE_HIT_OFFSET_X: return "sprite::HitXOffset";
@@ -1115,6 +1118,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SPRITE_SHADOW_YOFS: return "sprite::ShadowYOffset";
 		case SPRITE_SPAWN_SCREEN: return "sprite::SpawnScreen";
 		case SPRITE_SWHOOKED: return "sprite::SwitchHooked";
+		case SPRITE_TERMINAL_VELOCITY: return "sprite::TerminalVelocity";
 		case SPRITE_TILE: return "sprite::Tile";
 		case SPRITE_TILE_H: return "sprite::TileHeight";
 		case SPRITE_TILE_W: return "sprite::TileWidth";

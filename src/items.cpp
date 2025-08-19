@@ -77,7 +77,22 @@ bool item::animate(int32_t)
 				( moveflags & move_obeys_grav ) //if the user set item->Gravity = false, let it float. -Z
 			)
 			{
-				item_fall(x, y, fall);
+				if (!get_qr(qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && checkSVLadderPlatform(x + 4, y + (fall / 100) + 15))
+				{
+					y += fall / 100;
+					y -= int32_t(y) % 16; //Fix to top of ladder
+					fall = 0;
+				}
+				else
+				{
+					y += fall / 100;
+
+					if ((fall / 100) == 0 && fall > 0)
+						fall *= (fall > 0 ? 2 : 0.5); // That oughta do something about the floatiness.
+
+					if (fall <= get_terminalv())
+						fall += get_grav_fall();
+				}
 			}
 			else if(!can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
 			{
@@ -103,14 +118,14 @@ bool item::animate(int32_t)
 						fakez = 0;
 						fakefall = -fakefall/2;
 					}
-					else if(fakez <= 1 && abs(fakefall) < (int32_t)(zinit.gravity / 100))
+					else if(fakez <= 1 && abs(fakefall) < get_grav_fall())
 					{
 						fakez=0;
 						fakefall=0;
 					}
-					else if(fakefall <= (int32_t)zinit.terminalv)
+					else if(fakefall <= get_terminalv())
 					{
-						fakefall += (zinit.gravity / 100);
+						fakefall += get_grav_fall();
 					}
 				}
 				if (!(moveflags & move_no_real_z))
@@ -122,14 +137,14 @@ bool item::animate(int32_t)
 						z = 0;
 						fall = -fall/2;
 					}
-					else if(z <= 1 && abs(fall) < (int32_t)(zinit.gravity / 100))
+					else if(z <= 1 && abs(fall) < get_grav_fall())
 					{
 						z=0;
 						fall=0;
 					}
-					else if(fall <= (int32_t)zinit.terminalv)
+					else if(fall <= get_terminalv())
 					{
-						fall += (zinit.gravity / 100);
+						fall += get_grav_fall();
 					}
 				}
 			}
