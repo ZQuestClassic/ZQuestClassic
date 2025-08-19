@@ -1308,7 +1308,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								{
 									InfoDialog("Power Info",h_power).show();
 								}),
-							NUM_FIELD_W(power, 0, 255, ATTR_WID)
+							NUM_FIELD_W(power, 0, MAX_ZSCRIPT_INT, ATTR_WID)
 						),
 						Rows<6>(framed = true,
 							ATTRIB_FIELD(misc1,0),
