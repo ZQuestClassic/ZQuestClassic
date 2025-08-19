@@ -192,6 +192,7 @@ sprite* get_viewport_sprite();
 void set_viewport_sprite(sprite* spr);
 void update_viewport();
 void update_heroscr();
+viewport_t get_sprite_freeze_rect();
 mapscr* determine_hero_screen_from_coords();
 bool edge_of_region(direction dir);
 int get_screen_for_world_xy(int x, int y);

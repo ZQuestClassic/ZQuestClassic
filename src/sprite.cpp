@@ -2336,12 +2336,7 @@ void sprite_list::animate()
 	active_iterator = 0;
 
 #ifdef IS_PLAYER
-	viewport_t freeze_rect = viewport;
-	int tile_buffer = 3;
-	freeze_rect.w += 16 * tile_buffer * 2;
-	freeze_rect.h += 16 * tile_buffer * 2;
-	freeze_rect.x -= 16 * tile_buffer;
-	freeze_rect.y -= 16 * tile_buffer;
+	viewport_t freeze_rect = get_sprite_freeze_rect();
 #endif
 
 	while(active_iterator<count)

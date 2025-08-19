@@ -2215,7 +2215,8 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 	if(cmb.type != cSHOOTER) return false;
 	if(!cmb.attribytes[1]) return false; //no weapon
 	if(wx >= world_w || wx < -15 || wy >= world_h || wy < -15) return false;
-	
+	if (!get_sprite_freeze_rect().contains_point(wx, wy)) return false;
+
 	bool proxstop = cmb.usrflags&cflag4;
 	bool invprox = cmb.usrflags&cflag9;
 	zfix proxlim = zslongToFix(cmb.attributes[1]);

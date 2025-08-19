@@ -408,6 +408,22 @@ void update_heroscr()
 		mark_visited(new_screen); // Mark each screen the hero steps foot in as visited
 }
 
+// TODO: should add a moveflag to sprites to configure the size of this rect (or effectively disable
+// freezing if the rect returns is large enough). See:
+// https://discord.com/channels/876899628556091432/1358483603700449581
+// https://discord.com/channels/876899628556091432/1130384911983980554
+// 
+viewport_t get_sprite_freeze_rect()
+{
+	viewport_t freeze_rect = viewport;
+	int tile_buffer = 3;
+	freeze_rect.w += 16 * tile_buffer * 2;
+	freeze_rect.h += 16 * tile_buffer * 2;
+	freeze_rect.x -= 16 * tile_buffer;
+	freeze_rect.y -= 16 * tile_buffer;
+	return freeze_rect;
+}
+
 mapscr* determine_hero_screen_from_coords()
 {
 	int x = vbound(Hero.getX().getInt(), 0, world_w - 1);
