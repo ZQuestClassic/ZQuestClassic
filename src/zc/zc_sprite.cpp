@@ -368,7 +368,7 @@ bool movingblock::animate(int32_t)
 			int s = combobuf[fallCombo].attribytes[0];
 			if(block_cmb.sfx_falling)
 				s = block_cmb.sfx_falling;
-			sfx(s, pan(x.getInt()));
+			sfx(s, pan(x));
 		}
 		clk = 0;
 		solid_update(false);
@@ -388,7 +388,7 @@ bool movingblock::animate(int32_t)
 			}
 			else if(block_cmb.sfx_drowning)
 				s = block_cmb.sfx_drowning;
-			sfx(s, pan(x.getInt()));
+			sfx(s, pan(x));
 		}
 		clk = 0;
 		solid_update(false);
@@ -685,7 +685,7 @@ bool movingblock::animate(int32_t)
 			if(fallclk||drownclk) return false;
 			
 			if(block_cmb.attribytes[2])
-				sfx(block_cmb.attribytes[2],(int32_t)x);
+				sfx(block_cmb.attribytes[2],pan(x));
 			bool didtrigger = trigger;
 			if(didtrigger)
 			{

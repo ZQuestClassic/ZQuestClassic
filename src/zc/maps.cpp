@@ -5806,7 +5806,7 @@ void openshutters(mapscr* scr)
 	});
 
 	if(opened_door)
-		sfx(WAV_DOOR,128);
+		sfx(WAV_DOOR);
 }
 
 void clear_darkroom_bitmaps()

@@ -2843,7 +2843,7 @@ bool breakable::animate(int32_t)
 				case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
 				case 3: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
 			}
-			if(breaksfx) sfx(breaksfx,int32_t(x));
+			if(breaksfx) sfx(breaksfx,pan(x));
 			if(dropitem > -1)
 			{
 				item* itm = (new item(x, y, z, dropitem, ipBIGRANGE + ipTIMER, 0));

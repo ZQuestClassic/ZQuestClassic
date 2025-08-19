@@ -35,7 +35,7 @@ bool item::animate(int32_t)
 	{
 		if(fallclk > 0)
 		{
-			if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+			if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x));
 			if(!--fallclk) return true;
 			
 			wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
@@ -50,7 +50,7 @@ bool item::animate(int32_t)
 		}
 		if(drownclk > 0)
 		{
-			//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+			//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x));
 			//!TODO: Drown SFX
 			if(!--drownclk) return true;
 			

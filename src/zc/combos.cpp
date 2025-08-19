@@ -169,7 +169,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 			// newflag = s->secretflag[ft];
 			screen_combo_modify_postroutine(rpos_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
+				sfx(combobuf[cid].attribytes[2],pan(bx));
 		}
 		
 		//loop next combo
@@ -215,7 +215,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = rpos_handle.data();
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
+				sfx(combobuf[cid].attribytes[2],pan(bx));
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
@@ -294,7 +294,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 			// newflag = s->secretflag[ft];
 			screen_ffc_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
+				sfx(combobuf[cid].attribytes[2],pan(ffc->x));
 		}
 		
 		//loop next combo
@@ -320,7 +320,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
+				sfx(combobuf[cid].attribytes[2],pan(ffc->x));
 			
 			
 		}
@@ -664,11 +664,11 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 	{
 		if (cmb.usrflags&cflag3)
 		{
-			sfx(cmb.attribytes[2],int32_t(x));
+			sfx(cmb.attribytes[2],pan(x));
 		}
 		else if (isBushType(type) || isFlowersType(type) || isGrassType(type))
 		{
-			sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(x));
+			sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(x));
 		}
 	}
 	spawn_decoration(cmb, rpos_handle);
@@ -765,11 +765,11 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 	{
 		if (cmb.usrflags&cflag3)
 		{
-			sfx(cmb.attribytes[2],int32_t(x));
+			sfx(cmb.attribytes[2],pan(x));
 		}
 		else if (isBushType(type) || isFlowersType(type) || isGrassType(type))
 		{
-			sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(x));
+			sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(x));
 		}
 	}
 	spawn_decoration_xy(cmb, x, y, ffc.x+(ffc.hit_width / 2), ffc.y+(ffc.hit_height / 2));

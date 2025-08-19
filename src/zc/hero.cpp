@@ -2733,7 +2733,7 @@ void HeroClass::draw(BITMAP* dest)
 				
 				if(attackclk==15 && z==0 && fakez==0 && (sideviewhammerpound() || !isSideViewHero()))
 				{
-					sfx(((iswaterex_z3(MAPCOMBO(x+wx+8,y+wy), -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_qr(qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
+					sfx(((iswaterex_z3(MAPCOMBO(x+wx+8,y+wy), -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_qr(qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x));
 				}
 				
 				goto herodraw_end;
@@ -4040,16 +4040,16 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
+				sfx(combobuf[cid].attribytes[2],pan(bx));
 			}
 		}
 		else
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
+				sfx(combobuf[cid].attribytes[2],pan(bx));
 			}
-			else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
+			else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 		}
 	}
 	
@@ -4279,16 +4279,16 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				if (cmb.usrflags&cflag3)
 				{
-					sfx(cmb.attribytes[2],int32_t(bx));
+					sfx(cmb.attribytes[2],pan(bx));
 				}
 			}
 			else
 			{
 				if (cmb.usrflags&cflag3)
 				{
-					sfx(cmb.attribytes[2],int32_t(bx));
+					sfx(cmb.attribytes[2],pan(bx));
 				}
-				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
@@ -4348,16 +4348,16 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				if (cmb_ff.usrflags&cflag3)
 				{
-					sfx(cmb_ff.attribytes[2],int32_t(bx));
+					sfx(cmb_ff.attribytes[2],pan(bx));
 				}
 			}
 			else
 			{
 				if (cmb_ff.usrflags&cflag3)
 				{
-					sfx(cmb_ff.attribytes[2],int32_t(bx));
+					sfx(cmb_ff.attribytes[2],pan(bx));
 				}
-				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 
@@ -4563,16 +4563,16 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
-				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
@@ -4814,16 +4814,16 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
-				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
@@ -4891,16 +4891,16 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
-				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
@@ -5179,16 +5179,16 @@ void HeroClass::check_slash_block(weapon *w)
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
-				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
@@ -5248,16 +5248,16 @@ void HeroClass::check_slash_block(weapon *w)
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(combobuf[cid].attribytes[2],pan(bx));
 				}
-				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
@@ -5447,7 +5447,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         }
         
         if(type==cPOUND && get_qr(qr_MORESOUNDS))
-            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
+            sfx(QMisc.miscsfx[sfxHAMMERPOUND],pan(bx));
         
         putcombo(scrollbuf, bx - viewport.x, by - viewport.y, s->data[pos], s->cset[pos]);
     }
@@ -5457,7 +5457,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
 		current_ffc_handle->ffc->recently_hit = true;
 
         if(type2==cPOUND && get_qr(qr_MORESOUNDS))
-            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
+            sfx(QMisc.miscsfx[sfxHAMMERPOUND],pan(bx));
     }
     
     return;
@@ -5546,7 +5546,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	}
 	
 	if(type==cPOUND && get_qr(qr_MORESOUNDS))
-		sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
+		sfx(QMisc.miscsfx[sfxHAMMERPOUND],pan(bx));
 	
 
 	putcombo(scrollbuf,bx-viewport.x,by-viewport.y,s->data[i],s->cset[i]);
@@ -5647,7 +5647,7 @@ int32_t HeroClass::defend(weapon *w)
 			}
 			else 
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
+				sfx(WAV_CHINK,pan(x));
 				w->dead = 0;
 				return -1;
 			}
@@ -5668,7 +5668,7 @@ int32_t HeroClass::defend(weapon *w)
 		{
 			if (w->power < 1) 
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
+				sfx(WAV_CHINK,pan(x));
 				w->dead = 0;
 				return -1;
 			}
@@ -5681,7 +5681,7 @@ int32_t HeroClass::defend(weapon *w)
 		{
 			if (w->power < 2) 
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
+				sfx(WAV_CHINK,pan(x));
 				w->dead = 0;
 				return -1;
 			}
@@ -5694,7 +5694,7 @@ int32_t HeroClass::defend(weapon *w)
 		{
 			if (w->power < 4) 
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
+				sfx(WAV_CHINK,pan(x));
 				w->dead = 0;
 				return -1;
 			}
@@ -5707,7 +5707,7 @@ int32_t HeroClass::defend(weapon *w)
 		{
 			if (w->power < 6) 
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
+				sfx(WAV_CHINK,pan(x));
 				w->dead = 0;
 				return -1;
 			}
@@ -5720,7 +5720,7 @@ int32_t HeroClass::defend(weapon *w)
 		{
 			if (w->power < 8) 
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
+				sfx(WAV_CHINK,pan(x));
 				w->dead = 0;
 				return -1;
 			}
@@ -5731,7 +5731,7 @@ int32_t HeroClass::defend(weapon *w)
 		}
 		case edCHINK: // : IMPLEMENTED : Bounces off, plays SFX_CHINK
 		{
-			sfx(WAV_CHINK,pan(int32_t(x)));
+			sfx(WAV_CHINK,pan(x));
 			w->dead = 0;
 			return -1;
 		}
@@ -5756,7 +5756,7 @@ int32_t HeroClass::defend(weapon *w)
 		{
 			if (w->power < 10) 
 			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
+				sfx(WAV_CHINK,pan(x));
 				w->dead = 0;
 				return -1;
 			}
@@ -5782,7 +5782,7 @@ int32_t HeroClass::defend(weapon *w)
 		}
 		case edHEAL: // : IMPLEMENTED : Gain the weapon damage in HP.
 		{
-			//sfx(WAV_HEAL,pan(int32_t(x)));
+			//sfx(WAV_HEAL,pan(x));
 			game->set_life(zc_min(game->get_life()+w->power, game->get_maxlife()));
 			w->dead = 0;
 			return -1;
@@ -5818,7 +5818,7 @@ int32_t HeroClass::defend(weapon *w)
 			w->power = 0;
 			w->dead = 0;
 			int32_t itemid = getCurrentShield();
-			//sfx(WAV_BREAKSHIELD,pan(int32_t(x)));
+			//sfx(WAV_BREAKSHIELD,pan(x));
 			if(itemsbuf[itemid].flags&item_edible)
 				game->set_item(itemid, false);
 			//Remove Hero's shield
@@ -6081,7 +6081,7 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 		if(!sh_check(stomp.misc2, 0, w->id, reflect, w->level&1, true))
 		{
 			w->onhit(false);
-			sfx(WAV_CHINK,pan(x.getInt()));
+			sfx(WAV_CHINK,pan(x));
 			return false;
 		}
 	}
@@ -6136,7 +6136,7 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	int32_t oldid = w->id;
 	w->onhit(false, reflect ? 2 : 1, dir);
 	
-	sfx(shield.usesound,pan(x.getInt()));
+	sfx(shield.usesound,pan(x));
 	return true;
 }
 
@@ -6162,7 +6162,7 @@ int32_t HeroClass::EwpnHit()
 				if(!sh_check(stomp.misc2, 0, ew->id, reflect, ew->level&1, true))
 				{
 					ew->onhit(false);
-					sfx(WAV_CHINK,pan(x.getInt()));
+					sfx(WAV_CHINK,pan(x));
 					continue;
 				}
 			}
@@ -6217,7 +6217,7 @@ int32_t HeroClass::EwpnHit()
 			int32_t oldid = ew->id;
 			ew->onhit(false, reflect ? 2 : 1, dir);
 			
-			sfx(shield.usesound,pan(x.getInt()));
+			sfx(shield.usesound,pan(x));
 		}
 	}
 	
@@ -6266,7 +6266,7 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 			paymagiccost(itemid);
 			
 			lw->onhit(false, reflect ? 2 : 1, dir);
-			sfx(shield.usesound,pan(x.getInt()));
+			sfx(shield.usesound,pan(x));
 		}
 		
 	return -1;
@@ -7068,7 +7068,7 @@ void HeroClass::doHit(int32_t hdir, int iframes)
 		tapping = false;
 	}
 	
-	sfx(getHurtSFX(),pan(x.getInt()));
+	sfx(getHurtSFX(),pan(x));
 }
 
 bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer, bool solid, bool do_health_check) //layer = -1, solid = false, do_health_check = true
@@ -7491,7 +7491,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		
 	hclk=iframes;
 	check_on_hit();
-	sfx(getHurtSFX(),pan(x.getInt()));
+	sfx(getHurtSFX(),pan(x));
 	
 	if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
 	{
@@ -9385,7 +9385,7 @@ heroanimate_skip_liftwpn:;
 						int32_t itemid = find_bottle_for_slot(slot,true);
 						stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
 						if(itemid > -1)
-							sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+							sfx(itemsbuf[itemid].usesound,pan(x));
 						for(size_t q = 0; q < 20; ++q)
 							do_death_refill_waitframe();
 						double inc = max/60.0; //1 second
@@ -10833,7 +10833,7 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 		reset_ladder();
 	
 	if(itm.usesound)
-		sfx(itm.usesound,pan(x.getInt()));
+		sfx(itm.usesound,pan(x));
 	
 	if(passive)
 	{
@@ -10991,7 +10991,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			lift_wpn = nullptr;
 			last_lift_id.reset();
 			if(glove.usesound2)
-				sfx(glove.usesound2,pan(int32_t(x)));
+				sfx(glove.usesound2,pan(x));
 		}
 		else last_lift_id = liftid;
 		
@@ -11642,7 +11642,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					if(!paidmagic)
 						paymagiccost(itemid);
 					stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
-					sfx(itm.usesound,pan(x.getInt()));
+					sfx(itm.usesound,pan(x));
 					for(size_t q = 0; q < 20; ++q)
 						do_refill_waitframe();
 					double inc = max/60.0; //1 second
@@ -12427,9 +12427,9 @@ bool HeroClass::startwpn(int32_t itemid)
 				w->step=0;
 				doSwitchHook(itm.misc5);
 				if(itm.usesound2)
-					sfx(itm.usesound2,pan(int32_t(x)));
+					sfx(itm.usesound2,pan(x));
 				else if(QMisc.miscsfx[sfxSWITCHED])
-					sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+					sfx(QMisc.miscsfx[sfxSWITCHED],pan(x));
 				stop_sfx(itm.usesound);
 			}
 		}
@@ -12773,7 +12773,7 @@ bool HeroClass::doattack()
 		{
 			if(!(itemsbuf[scrollid].flags&item_flag1))
 				paymagiccost(scrollid);
-			sfx(itemsbuf[scrollid].usesound2,pan(x.getInt()));
+			sfx(itemsbuf[scrollid].usesound2,pan(x));
 		}
 		else if(charging==magiccharge)
 		{
@@ -12782,7 +12782,7 @@ bool HeroClass::doattack()
 				if(!(itemsbuf[scroll2id].flags&item_flag1))
 					paymagiccost(scroll2id);
 				charging++; // charging>magiccharge signifies a successful supercharge.
-				sfx(itemsbuf[scroll2id].usesound2,pan(x.getInt()));
+				sfx(itemsbuf[scroll2id].usesound2,pan(x));
 			}
 		}
 	}
@@ -12856,7 +12856,7 @@ bool HeroClass::doattack()
 					if(!get_qr(qr_BROKEN_SWORD_SPIN_TRIGGERS))
 						if(weapon* w = find_first_wtype(wSword))
 							w->reset_wgrids();
-					sfx(spinscroll.usesound,pan(x.getInt()));
+					sfx(spinscroll.usesound,pan(x));
 					if(spinscroll.flags&item_flag1)
 						paymagiccost(id);
 				}
@@ -12876,7 +12876,7 @@ bool HeroClass::doattack()
 				{
 					currentscroll = id;
 					spins = super ? 2 : 1;
-					sfx(quakescroll.usesound,pan(x.getInt()));
+					sfx(quakescroll.usesound,pan(x));
 					quakeclk=quakescroll.misc1;
 					
 					// general area stun
@@ -13672,7 +13672,7 @@ bool HeroClass::try_hover()
 			hoverflags |= HOV_INF;
 		}
 		
-		sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+		sfx(itemsbuf[itemid].usesound,pan(x));
 	}
 	if(itemsbuf[itemid].wpn)
 		decorations.add(new dHover(x, y, dHOVER, 0));
@@ -13989,7 +13989,7 @@ void HeroClass::pitfall()
 	if(fallclk)
 	{
 		drop_liftwpn();
-		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x));
 		//Handle falling
 		if(!--fallclk)
 		{
@@ -14432,7 +14432,7 @@ void HeroClass::moveheroOld()
 			attack=wSword;
 			
 			attackclk=0;
-			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
+			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x));
 			
 			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
@@ -14736,7 +14736,7 @@ void HeroClass::moveheroOld()
 				if(spins%5==0)
 				{
 					int id = currentscroll > -1 ? currentscroll : (current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll));
-					sfx(itemsbuf[id].usesound,pan(x.getInt()));
+					sfx(itemsbuf[id].usesound,pan(x));
 				}
 				attackclk=1;
 				
@@ -18845,7 +18845,7 @@ bool HeroClass::premove()
 			attack=wSword;
 			
 			attackclk=0;
-			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
+			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x));
 			
 			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
@@ -19147,7 +19147,7 @@ bool HeroClass::premove()
 				if(spins%5==0)
 				{
 					int id = currentscroll > -1 ? currentscroll : (current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll));
-					sfx(itemsbuf[id].usesound,pan(x.getInt()));
+					sfx(itemsbuf[id].usesound,pan(x));
 				}
 				attackclk=1;
 				
@@ -22701,7 +22701,7 @@ void HeroClass::checkswordtap()
 		if(tap_sfx < 0)
 			tap_sfx = QMisc.miscsfx[sfxTAP];
 		if(tap_sfx)
-			sfx(tap_sfx,pan(x.getInt()));
+			sfx(tap_sfx,pan(x));
 	}
 }
 
@@ -24994,7 +24994,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			if (combobuf[water].usrflags&cflag1) Drown(1);
 			else Drown();
 			if(byte drown_sfx = combobuf[water].attribytes[4])
-				sfx(drown_sfx, pan(int32_t(x)));
+				sfx(drown_sfx, pan(x));
 		}
 		else if (!isSwimming())
 		{
@@ -25122,7 +25122,7 @@ RaftingStuff:
 							reset_swordcharge();
 							action=rafting; FFCore.setHeroAction(rafting);
 							raftclk=0;
-							if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+							if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x));
 							else sfx(get_scr_for_world_xy(tx,ty+11)->secretsfx);
 						}
 						else if (get_qr(qr_BETTER_RAFT) && doraft)
@@ -25134,7 +25134,7 @@ RaftingStuff:
 									reset_swordcharge();
 									action=rafting; FFCore.setHeroAction(rafting);
 									raftclk=0;
-									if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+									if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x));
 									else sfx(get_scr_for_world_xy(tx+8,ty+11)->secretsfx);
 									dir = i;
 									break;
@@ -25179,7 +25179,7 @@ RaftingStuff:
 						reset_swordcharge();
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
-						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x));
 						else sfx(get_scr_for_world_xy(tx,ty)->secretsfx);
 					}
 					else if (get_qr(qr_BETTER_RAFT) && doraft)
@@ -25191,7 +25191,7 @@ RaftingStuff:
 								reset_swordcharge();
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
-								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x));
 								else sfx(get_scr_for_world_xy(tx+8,ty+8)->secretsfx);
 								dir = i;
 								break;
@@ -25241,7 +25241,7 @@ RaftingStuff:
 						reset_swordcharge();
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
-						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x));
 						else sfx(get_scr_for_world_xy(tx,ty)->secretsfx);
 					}
 					else if (get_qr(qr_BETTER_RAFT) && doraft)
@@ -25253,7 +25253,7 @@ RaftingStuff:
 								reset_swordcharge();
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
-								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x));
 								else sfx(get_scr_for_world_xy(tx+8,ty+8)->secretsfx);
 								dir = i;
 								break;
@@ -25303,7 +25303,7 @@ RaftingStuff:
 						reset_swordcharge();
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
-						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x));
 						else sfx(get_scr_for_world_xy(tx,ty)->secretsfx);
 					}
 					else if (get_qr(qr_BETTER_RAFT) && doraft)
@@ -25315,7 +25315,7 @@ RaftingStuff:
 								reset_swordcharge();
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
-								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x));
 								else sfx(get_scr_for_world_xy(tx+8,ty+8)->secretsfx);
 								dir = i;
 								break;
@@ -25797,7 +25797,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		kill_sfx();
 		ALLOFF();
 		//play sound
-		if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
+		if(warpsfx > 0) sfx(warpsfx,pan(x));
 		specialcave = PASSAGEWAY;
 		byte warp_screen_2 = wscr + DMaps[wdmap].xoff;
 		draw_screen(false);
@@ -26284,7 +26284,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			kill_sfx();
 		}
 		//play sound
-		if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
+		if(warpsfx > 0) sfx(warpsfx,pan(x));
 		if(wtype==wtIWARPZAP)
 		{
 			zapout();
@@ -26503,7 +26503,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				kill_sfx();
 			}
 			//play sound
-			if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));	
+			if(warpsfx > 0) sfx(warpsfx,pan(x));	
 			if(wtype==wtIWARPZAP)
 			{
 				zapout();
@@ -27199,7 +27199,7 @@ void HeroClass::walkdown(bool opening) //entering cave
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(x.getInt()));
+    sfx(WAV_STAIRS,pan(x));
     clk=0;
     // Fix Hero's position to the grid
     y=TRUNCATE_TILE(y.getInt());
@@ -27263,7 +27263,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(x.getInt()));
+    sfx(WAV_STAIRS,pan(x));
     clk=0;
     action=climbcovertop; FFCore.setHeroAction(climbcovertop);
     attack=wNone;
@@ -27318,7 +27318,7 @@ void HeroClass::walkup(bool opening) //exiting cave
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(x.getInt()));
+    sfx(WAV_STAIRS,pan(x));
     dir=down;
     clk=0;
     action=climbcoverbottom; FFCore.setHeroAction(climbcoverbottom);
@@ -27368,7 +27368,7 @@ void HeroClass::walkup2(bool opening) //entering cave2
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(x.getInt()));
+    sfx(WAV_STAIRS,pan(x));
     dir=up;
     clk=0;
     action=climbcovertop; FFCore.setHeroAction(climbcovertop);
@@ -32552,7 +32552,7 @@ void HeroClass::heroDeathAnimation()
 		switch(f)
 		{
 		case   0:
-			sfx(getHurtSFX(),pan(x.getInt()));
+			sfx(getHurtSFX(),pan(x));
 			break;
 			//Death sound.
 		case  60:

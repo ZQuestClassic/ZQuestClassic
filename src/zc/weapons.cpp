@@ -264,7 +264,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 			scr->sflag[pos] = scr->secretflag[ft];
 			screen_combo_modify_postroutine(rpos_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],x);
+				sfx(combobuf[cid].attribytes[2],pan(x));
 		}
 		
 		//loop next combo
@@ -310,7 +310,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,x,y) : MAPCOMBO(x,y);
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],x);
+				sfx(combobuf[cid].attribytes[2],pan(x));
 			
 			
 		}
@@ -392,7 +392,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 			ffc->cset = ffc_handle.scr->secretcset[ft];
 			screen_ffc_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
+				sfx(combobuf[cid].attribytes[2],pan(ffc->x));
 		}
 		
 		//loop next combo
@@ -419,7 +419,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
+				sfx(combobuf[cid].attribytes[2],pan(ffc->x));
 		}
 
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
@@ -1712,19 +1712,19 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				case pDIVINEFIREROCKET:
 					if(get_qr(qr_MORESOUNDS))
-						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
+						sfx(WAV_ZN1ROCKETUP,pan(x));
 					step = 4;
 					break;
 					
 				case pDIVINEFIREROCKETRETURN:
 					if(get_qr(qr_MORESOUNDS))
-						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
+						sfx(WAV_ZN1ROCKETDOWN,pan(x));
 					step = 4;
 					break;
 					
 				case pDIVINEPROTECTIONROCKET1:
 					if(get_qr(qr_MORESOUNDS))
-						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
+						sfx(WAV_ZN1ROCKETUP,pan(x));
 						
 					step = 4;
 					drawstyle=parent.flags & item_flag2 ? 1 : 0;
@@ -1732,7 +1732,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					
 				case pDIVINEPROTECTIONROCKETRETURN1:
 					if(get_qr(qr_MORESOUNDS))
-						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
+						sfx(WAV_ZN1ROCKETDOWN,pan(x));
 						
 					step = 4;
 					drawstyle=parent.flags & item_flag2 ? 1 : 0;
@@ -3228,7 +3228,7 @@ void weapon::limited_animate()
 			
 			if(clk==(misc-1) && canboom)
 			{
-				sfx(parentitem<0 ? WAV_BOMB : itemsbuf[parentitem].usesound,pan(int32_t(x)));
+				sfx(parentitem<0 ? WAV_BOMB : itemsbuf[parentitem].usesound,pan(x));
 				
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
@@ -3387,7 +3387,7 @@ bool weapon::animate(int32_t index)
 	}
 	if(fallclk > 0)
 	{
-		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x));
 		if(!--fallclk)
 		{
 			if(!weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_DEATH_FRAME))
@@ -3424,7 +3424,7 @@ bool weapon::animate(int32_t index)
 	}
 	if(drownclk > 0)
 	{
-		//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
+		//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[drownCombo].attribytes[0], pan(x));
 		//!TODO: Drown SFX
 		if(!--drownclk)
 		{
@@ -3960,7 +3960,7 @@ bool weapon::animate(int32_t index)
 			
 			if(parentitem>-1 && dead != 1) //Perhaps don't play the sound if the weapon is dead?
 			{
-				sfx(itemsbuf[parentitem].usesound,pan(int32_t(x)),true,false);
+				sfx(itemsbuf[parentitem].usesound,pan(x),true,false);
 			}
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 
@@ -4041,7 +4041,7 @@ bool weapon::animate(int32_t index)
 				dead=1;
 			}
 			else if(get_qr(qr_MORESOUNDS) && dead < 1)
-				sfx(WAV_ZN1WHIRLWIND,pan(int32_t(x)),true,false);
+				sfx(WAV_ZN1WHIRLWIND,pan(x),true,false);
 				
 			if((parentitem==-1 && get_qr(qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & item_flag3))
 			{
@@ -4211,7 +4211,7 @@ bool weapon::animate(int32_t index)
 			
 			if(clk==(misc-1) && step==0)
 			{
-				sfx(specialsfx,pan(int32_t(x)));
+				sfx(specialsfx,pan(x));
 					
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
@@ -4468,7 +4468,7 @@ bool weapon::animate(int32_t index)
 			if(clk==0)                                            // delay a frame
 			{
 				++clk;
-				sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int32_t(x)),true);
+				sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(x),true);
 				return false;
 			}
 			
@@ -4539,7 +4539,7 @@ bool weapon::animate(int32_t index)
 				
 				seekHero();
 			}
-			sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int32_t(x)),true,false);
+			sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(x),true,false);
 			
 			break;
 		}
@@ -4766,7 +4766,7 @@ bool weapon::animate(int32_t index)
 						switching_object = ffc;
 					}
 					Hero.doSwitchHook(hshot.misc5);
-					sfx(hshot.usesound2,pan(int32_t(x)));
+					sfx(hshot.usesound2,pan(x));
 					stop_sfx(hshot.usesound);
 					hs_switcher = true;
 				}
@@ -4785,7 +4785,7 @@ bool weapon::animate(int32_t index)
 			{
 				++clk;
 				
-				if(misc < 2) sfx(hshot.usesound,pan(int32_t(x)),true);
+				if(misc < 2) sfx(hshot.usesound,pan(x),true);
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				return false;
 			}
@@ -4827,7 +4827,7 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			
-			if(misc < 2) sfx(hshot.usesound,pan(int32_t(x)),true,false);
+			if(misc < 2) sfx(hshot.usesound,pan(x),true,false);
 			
 			if(blocked())
 			{
@@ -5380,7 +5380,7 @@ bool weapon::animate(int32_t index)
 				if(get_qr(qr_MORESOUNDS))
 				{
 					//if (step!=0)
-					sfx(specialsfx, pan(int32_t(x)), true);
+					sfx(specialsfx, pan(x), true);
 					//else
 					;//stop_sfx(WAV_BRANG);
 				}
@@ -6400,7 +6400,7 @@ void weapon::do_death_fx()
 			decorations.add(new comboSprite(x, y-(z+fakez), dCOMBOSPRITE, 0, death_sprite));
 	}
 	if(death_sfx > 0)
-		sfx(death_sfx, pan(int32_t(x)));
+		sfx(death_sfx, pan(x));
 	
 	death_spawnitem = -1;
 	death_item_pflags = 0;
@@ -6773,13 +6773,13 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 						if(parentitem > -1)
 						{
 							if(itemsbuf[parentitem].usesound2)
-								sfx(itemsbuf[parentitem].usesound2,pan(int32_t(x)));
+								sfx(itemsbuf[parentitem].usesound2,pan(x));
 							else if(QMisc.miscsfx[sfxSWITCHED])
-								sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+								sfx(QMisc.miscsfx[sfxSWITCHED],pan(x));
 							stop_sfx(itemsbuf[parentitem].usesound);
 						}
 						else if(QMisc.miscsfx[sfxSWITCHED])
-							sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+							sfx(QMisc.miscsfx[sfxSWITCHED],pan(x));
 						break;
 					}
 				}
