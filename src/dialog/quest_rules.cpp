@@ -1507,7 +1507,10 @@ static GUI::ListData playerRulesList
 		"If enabled, disables the built in Hero gridlock. This does not allow the Hero to move diagonally,"
 		" but it does allow them to change direction when not aligned with the 8x8 pixel grid."},
 	{ "Invincible Hero Flickers", qr_HEROFLICKER,
-		"If enabled, the Hero will flicker when invincible or after taking damage instead of flashing colors."}
+		"If enabled, the Hero will flicker when invincible or after taking damage instead of flashing colors." },
+	{ "Improved Player Jump/Fall Animation", qr_BETTER_PLAYER_JUMP_ANIM,
+		"If enabled, the Hero's jump/fall animation will play at a consistent speed without pausing, and will"
+		" loop instead of overflowing into the walking animation." },
 };
 
 static GUI::ListData subscrRulesList
