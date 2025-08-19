@@ -144,7 +144,10 @@ const char *itemclass_help_string_defaults[itype_max] =
 		" with string control codes.", //Note
 	"When used, can refill up to 5 counters, and optionally cure sword jinxes.",
 	"When used, attempts to lift something in front of the Hero, OR throws the"
-		" already lifted object."
+		" already lifted object.", // Lift Glove
+	"Modifies the player's gravity while owned.", // Gravity Boots
+	"Modifies the player's gravity when holding 'Up' in sideview.", // Gravity Up Boots
+	"Modifies the player's gravity when holding 'Down' in sideview.", // Gravity Down Boots
 };
 const char default_ctype_strings[cMAX][255] = 
 {
@@ -321,7 +324,7 @@ const char default_itype_strings[itype_max][255] =
 	"Custom Weapon 06", "Custom Weapon 07", "Custom Weapon 08", "Custom Weapon 09", "Custom Weapon 10",
 	"Ice Rod", "Attack Ring", "Lanterns", "Pearls", "Bottles", "Bottle Fillers", "Bug Nets", "Mirrors",
 	"SwitchHooks", "Item Bundle", "Progressive Item", "Note", "Refiller",
-	"Lift Glove"
+	"Lift Glove", "Gravity Boots", "Gravity Up Boots", "Gravity Down Boots"
 };
 const char counter_default_names[MAX_COUNTERS][255] =
 {

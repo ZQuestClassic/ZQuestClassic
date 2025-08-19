@@ -1023,6 +1023,8 @@ static GUI::ListData compatRulesList
 	{ "Old Non-Player Falling/Drowning", qr_OLD_SPRITE_FALL_DROWN,
 		"If checked, enemies, weapons, and items will fall/drown using a hardcoded 16x16 hitbox instead of"
 		" their actual hitbox, and enemies/items will not drown in sideview." },
+	{ "Old Terminal Velocity", qr_OLD_TERMINAL_VELOCITY,
+		"If enabled, terminal velocity is not applied as an absolute max speed." },
 };
 
 static GUI::ListData enemiesRulesList

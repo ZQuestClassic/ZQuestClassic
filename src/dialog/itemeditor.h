@@ -23,6 +23,7 @@ struct ItemNameInfo
 	int32_t iclass;
 	std::string power;
 	std::string misc[10];
+	byte misc_input_type[10];
 	std::string flag[16];
 	std::string wpn[10];
 	std::string actionsnd[2];
@@ -40,6 +41,7 @@ struct ItemNameInfo
 			h_flag[q].clear();
 			if(q > 9) continue;
 			misc[q].clear();
+			misc_input_type[q] = nswapLDEC;
 			h_misc[q].clear();
 			wpn[q].clear();
 			h_wpn[q].clear();
@@ -73,6 +75,7 @@ private:
 	std::shared_ptr<GUI::Widget> IT_INITD(int index);
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> tf_it_initd[8];
+	std::shared_ptr<GUI::TextField> tf_attribs[10];
 	std::shared_ptr<GUI::Label> l_attribs[10];
 	std::shared_ptr<GUI::Label> l_it_initds[8];
 	std::shared_ptr<GUI::Label> l_spr[10];

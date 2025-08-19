@@ -181,6 +181,7 @@ public:
 	virtual int32_t get_gravity(bool skip_custom = false) const;
 	virtual int32_t get_terminalv(bool skip_custom = false) const;
 	virtual int32_t get_grav_fall() const;
+	bool handle_termv();
 	
 	virtual int32_t run_script(int32_t mode);
 	
