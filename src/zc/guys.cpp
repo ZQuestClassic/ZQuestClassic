@@ -1208,6 +1208,7 @@ bool enemy::animate(int32_t index)
 		hp=-1000; //kill it, as it is not immortal, and no quest bit or rule is enabled
 	}
 	//fall down
+	handle_termv();
 	if((enemycanfall(id) || (moveflags & move_obeys_grav) )&& fading != fade_flicker && clk>=0)
 	{
 		if(isSideViewGravity())
@@ -1315,6 +1316,7 @@ bool enemy::animate(int32_t index)
 			
 		}
 	}
+	handle_termv();
 	if (can_pitfall() && ((z <= 0 && fakez <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
 	{
 		if (!isSideViewGravity() && (moveflags & move_can_pitfall))

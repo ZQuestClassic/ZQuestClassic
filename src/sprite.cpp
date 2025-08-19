@@ -2681,6 +2681,24 @@ int32_t sprite::get_grav_fall() const
 {
 	return get_gravity() / 100;
 }
+bool sprite::handle_termv()
+{
+	if (get_qr(qr_OLD_TERMINAL_VELOCITY))
+		return false;
+	bool ret = false;
+	auto termv = get_terminalv();
+	if (fall > termv)
+	{
+		fall = termv;
+		ret = true;
+	}
+	if (fakefall > termv)
+	{
+		fakefall = termv;
+		ret = true;
+	}
+	return ret;
+}
 
 //Moving Block 
 

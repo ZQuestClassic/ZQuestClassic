@@ -3694,6 +3694,7 @@ bool weapon::animate(int32_t index)
 	else findcombotriggers();
 	
 	// fall down
+	handle_termv();
 	if ( moveflags & move_obeys_grav ) // from above, or if scripted
 	{
 		if(isSideViewGravity())
@@ -3787,6 +3788,7 @@ bool weapon::animate(int32_t index)
 			}
 		}
 	}
+	handle_termv();
 	if(moveflags & move_can_pitfall)
 	{
 		switch(id)

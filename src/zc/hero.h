@@ -304,7 +304,11 @@ public:
 	int32_t walkspeed; //Hero's walking speed.
 	int32_t lastHitBy[NUM_HIT_TYPES_USED][2]; //[enemy, eweapon, combo, flag
 	
-	int32_t last_lens_id;// The item ID of the last Lens of Truth type item used
+	// most recently used items of specific types that need to be stored after initial use
+	int32_t last_lens_id; // active lens of truth
+	int32_t last_grav_boots_id; // active gravity (up/down/passive) boots
+	int32_t last_rocs_id; // active roc item
+	
 	int currentscroll; //currently active spin/quake scroll
 	word last_savepoint_id; //combo id of save point
 	

@@ -92,6 +92,10 @@ ItemNameInfo defInfo =
 		"Attributes[7]:","Attributes[8]:","Attributes[9]:"
 	},
 	{
+		nswapLDEC, nswapLDEC, nswapLDEC, nswapLDEC, nswapLDEC,
+		nswapLDEC, nswapLDEC, nswapLDEC, nswapLDEC, nswapLDEC,
+	},
+	{
 		"Flags[0]", "Flags[1]", "Flags[2]", "Flags[3]", "Flags[4]", "Flags[5]",
 		"Flags[6]", "Flags[7]", "Flags[8]", "Flags[9]", "Flags[10]", "Flags[11]",
 		"Flags[12]", "Flags[13]", "Flags[14]","Constant Script"
@@ -113,6 +117,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		inf->h_##mem = helpstr; \
 	}while(false)
 	#define FLAG(val) (ref.flags & item_flag##val)
+	#define SWAPTYPE(indx, val) inf->misc_input_type[indx] = val
 	std::string classname(ZI.getItemClassName(ref.type));
 	
 	switch(ref.type)
@@ -353,6 +358,35 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[2], "Disable Shield", "Makes the shield not protect from projectiles, in the same way as when the Hero is attacking");
 			_SET(flag[3], "Disable Item Use", "Stop the use of items unrelated to lifting while an object is lifted");
 			_SET(flag[4], "Drop When Hit", "Held object is dropped when receiving damage");
+			break;
+		}
+		case itype_gravity_boots:
+		{
+			_SET(misc[0], "Passive Gravity", "The player's Gravity while they own this item, in px/frame^2");
+			_SET(misc[1], "Passive TerminalV", "The player's Terminal Velocity while they own this item, in px/frame");
+			_SET(flag[0], "Sideview Only", "The change will only apply while in Sideview");
+			SWAPTYPE(0, nswapDEC);
+			SWAPTYPE(1, nswapDEC);
+			break;
+		}
+		case itype_gravity_up_boots:
+		{
+			_SET(misc[0], "Up Gravity", "The player's Gravity while in sideview"
+				" and holding the Up direction, in px/frame^2");
+			_SET(misc[1], "Up TerminalV", "The player's Terminal Velocity while in sideview"
+				" and holding the Up direction, in px/frame");
+			SWAPTYPE(0, nswapDEC);
+			SWAPTYPE(1, nswapDEC);
+			break;
+		}
+		case itype_gravity_down_boots:
+		{
+			_SET(misc[0], "Down Gravity", "The player's Gravity while in sideview"
+				" and holding the Down direction, in px/frame^2");
+			_SET(misc[1], "Down TerminalV", "The player's Terminal Velocity while in sideview"
+				" and holding the Down direction, in px/frame");
+			SWAPTYPE(0, nswapDEC);
+			SWAPTYPE(1, nswapDEC);
 			break;
 		}
 		case itype_magicring:
@@ -986,6 +1020,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 	}
 	#undef _SET
 	#undef FLAG
+	#undef SWAPTYPE
 }
 
 char const* get_ic_help(size_t q)
@@ -1061,9 +1096,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::ATTRIB_FIELD_IMPL(int32_t* mem, i
 		{
 			InfoDialog("Attribute Info",h_attribs[index]).show();
 		}),
-		TextField(maxLength = 11,
-			type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID,
-			val = *mem,
+		tf_attribs[index] = TextField(maxLength = 11,
+			type = GUI::TextField::type::NOSWAP_ZSINT,
+			swap_type = nswapLDEC,
+			width = ATTR_WID, val = *mem,
 			onValChangedFunc = [mem](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				*mem = val;
@@ -2433,47 +2469,23 @@ void ItemEditorDialog::loadItemClass()
 	
 	__SET(power, power);
 	
-	__SET(attribs[0], misc[0]);
-	__SET(attribs[1], misc[1]);
-	__SET(attribs[2], misc[2]);
-	__SET(attribs[3], misc[3]);
-	__SET(attribs[4], misc[4]);
-	__SET(attribs[5], misc[5]);
-	__SET(attribs[6], misc[6]);
-	__SET(attribs[7], misc[7]);
-	__SET(attribs[8], misc[8]);
-	__SET(attribs[9], misc[9]);
-	
-	__SET(flags[0], flag[0]);
-	__SET(flags[1], flag[1]);
-	__SET(flags[2], flag[2]);
-	__SET(flags[3], flag[3]);
-	__SET(flags[4], flag[4]);
-	__SET(flags[5], flag[5]);
-	__SET(flags[6], flag[6]);
-	__SET(flags[7], flag[7]);
-	__SET(flags[8], flag[8]);
-	__SET(flags[9], flag[9]);
-	__SET(flags[10], flag[10]);
-	__SET(flags[11], flag[11]);
-	__SET(flags[12], flag[12]);
-	__SET(flags[13], flag[13]);
-	__SET(flags[14], flag[14]);
-	__SET(flags[15], flag[15]);
-	
-	__SET(sfx[0], actionsnd[0]);
-	__SET(sfx[1], actionsnd[1]);
-	
-	__SET(spr[0], wpn[0]);
-	__SET(spr[1], wpn[1]);
-	__SET(spr[2], wpn[2]);
-	__SET(spr[3], wpn[3]);
-	__SET(spr[4], wpn[4]);
-	__SET(spr[5], wpn[5]);
-	__SET(spr[6], wpn[6]);
-	__SET(spr[7], wpn[7]);
-	__SET(spr[8], wpn[8]);
-	__SET(spr[9], wpn[9]);
+	for(int q = 0; q < 10; ++q)
+	{
+		__SET(attribs[q], misc[q]);
+		tf_attribs[q]->setSwapType(inf.misc_input_type[q]);
+	}
+	for(int q = 0; q < 16; ++q)
+	{
+		__SET(flags[q], flag[q]);
+	}
+	for(int q = 0; q < 2; ++q)
+	{
+		__SET(sfx[q], actionsnd[q]);
+	}
+	for(int q = 0; q < 10; ++q)
+	{
+		__SET(spr[q], wpn[q]);
+	}
 	#undef __SET
 }
 

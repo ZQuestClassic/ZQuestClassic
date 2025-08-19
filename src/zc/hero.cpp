@@ -407,34 +407,64 @@ void HeroClass::set_liftflags(int liftid)
 	SETFLAG(liftflags, LIFTFL_DROP_ON_HIT, itm.flags & item_flag5);
 }
 
+int32_t get_grav_boots_id()
+{
+	if (Hero.last_grav_boots_id > -1)
+		return Hero.last_grav_boots_id;;
+	int32_t grav_id;
+	if (Hero.sideview_mode())
+	{
+		if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION))
+		{
+			if ((grav_id = current_item_id(itype_gravity_down_boots, true)) >= 0)
+				if (checkmagiccost(grav_id) && checkbunny(grav_id))
+					return (Hero.last_grav_boots_id = grav_id);
+		}
+		if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION))
+		{
+			if ((grav_id = current_item_id(itype_gravity_up_boots, true)) >= 0)
+				if (checkmagiccost(grav_id) && checkbunny(grav_id))
+					return (Hero.last_grav_boots_id = grav_id);
+		}
+	}
+	if ((grav_id = current_item_id(itype_gravity_boots, true)) >= 0)
+		if (checkmagiccost(grav_id) && checkbunny(grav_id))
+			if (!(itemsbuf[grav_id].flags & item_flag1) || Hero.sideview_mode()) // sideview-only boots only work in sideview
+				return (Hero.last_grav_boots_id = grav_id);
+	return -1;
+}
 int32_t HeroClass::get_gravity(bool skip_custom) const
 {
 	if (custom_gravity && !skip_custom)
 		return custom_gravity.getZLong();
-	int32_t rocs = getRocsPressed();
-	if (rocs != -1)
+	if (last_rocs_id != -1)
 	{
-		itemdata const& itm = itemsbuf[rocs];
-		if (itm.flags & item_flag2) 
+		itemdata const& itm = itemsbuf[last_rocs_id];
+		if (itm.flags & item_flag2)
 		{
 			if ((!(itm.flags & item_flag3) || fall < 0) &&
 				(!(itm.flags & item_flag4) || fall > 0))
 				return itm.misc3 * 100;
 		}
 	}
+	int32_t grav_id = get_grav_boots_id();
+	if (grav_id > -1)
+		return itemsbuf[grav_id].misc1;
 	return sprite::get_gravity(skip_custom);
 }
 int32_t HeroClass::get_terminalv(bool skip_custom) const
 {
 	if (custom_terminal_v && !skip_custom)
 		return custom_terminal_v.getZLong() / 100;
-	int32_t rocs = getRocsPressed();
-	if (rocs != -1)
+	if (last_rocs_id != -1)
 	{
-		itemdata const& itm = itemsbuf[rocs];
+		itemdata const& itm = itemsbuf[last_rocs_id];
 		if (itm.flags & item_flag5)
 			return itm.misc4;
 	}
+	int32_t grav_id = get_grav_boots_id();
+	if (grav_id >= 0)
+		return itemsbuf[grav_id].misc2 / 100;
 	return sprite::get_terminalv(skip_custom);
 }
 
@@ -1835,6 +1865,7 @@ void HeroClass::init()
     magiccastclk=0;
     magicitem = div_prot_item = -1;
 	last_lens_id = 0; //Should be -1 (-Z)
+	last_grav_boots_id = last_rocs_id = -1;
 	last_lift_id.reset();
 	last_savepoint_id = 0;
 	misc_internal_hero_flags = 0;
@@ -8236,15 +8267,27 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	bool platformfell2 = false;
+	auto rocs_id = getRocsPressed();
+	//!TODO on releasing roc's effects go here
+	last_rocs_id = rocs_id; // reset the cached roc's feather ID
+	last_grav_boots_id = -1; // clear grav boots, so that they are re-checked in get_gravity()/get_terminalv() if needed
 	int32_t gravity3 = get_grav_fall();
 	int32_t termv = get_terminalv();
-	
-	if (fall > termv)
+	bool used_grav_or_termv = false;
+
+	if (handle_termv())
+		used_grav_or_termv = true;
+	else if (fall > termv || fakefall > termv)
 	{
-		int32_t rocs = getRocsPressed();
-		if (rocs != -1)
-			if (itemsbuf[rocs].flags & item_flag5) 
+		if ((last_grav_boots_id != -1) ||
+			(last_rocs_id != -1 && (itemsbuf[last_rocs_id].flags & item_flag5)))
+		{
+			if (fall > termv)
 				fall = termv;
+			if (fakefall > termv)
+				fakefall = termv;
+			used_grav_or_termv = true;
+		}
 	}
 	bool nograv = (sideview_mode() && is_autowalking());
 	if(nograv)
@@ -8395,6 +8438,7 @@ heroanimate_skip_liftwpn:;
 			hoverclk = -hoverclk;
 			reset_ladder();
 			fall = gravity3;
+			used_grav_or_termv = true;
 			inair = false;
 		}
 		else if (hoverclk < 1 && !inair && fall == 0 && !IsSideSwim() && justmoved <= 0)
@@ -8504,17 +8548,20 @@ heroanimate_skip_liftwpn:;
 				if(tick_hover() && !ladderx && !laddery)
 				{
 					fall += gravity3;
+					used_grav_or_termv = true;
 				}
 			}
 			else if(fall+gravity3 > 0 && fall<=0
 				&& try_hover())
-				;
+				used_grav_or_termv = true;
 			else if(!ladderx && !laddery && !getOnSideviewLadder() && !IsSideSwim())
 			{
 				fall += gravity3;
-				
+				used_grav_or_termv = true;
 			}
 		}
+		else if(needFall)
+			used_grav_or_termv = true;
 	}
 	else // Topdown gravity
 	{
@@ -8623,22 +8670,46 @@ heroanimate_skip_liftwpn:;
 			{
 				if(tick_hover())
 				{
-					if (fall <= termv && !(moveflags & move_no_real_z) && z > 0) fall += gravity3;
-					if (fakefall <= termv && !(moveflags & move_no_fake_z) && fakez > 0) fakefall += gravity3;
+					if (!(moveflags & move_no_real_z) && z > 0)
+					{
+						if (fall <= termv) fall += gravity3;
+						used_grav_or_termv = true;
+					}
+					if (!(moveflags & move_no_fake_z) && fakez > 0)
+					{
+						if (fakefall <= termv) fakefall += gravity3;
+						used_grav_or_termv = true;
+					}
 				}
 			}
 			else if (((fall + gravity3 > 0 && fall <= 0 && !(moveflags & move_no_real_z) && z > 0) || (fakefall + gravity3 > 0 && fakefall <= 0 && !(moveflags & move_no_fake_z) && fakez > 0))
 				&& try_hover())
-				;
+				used_grav_or_termv = true;
 			else 
 			{
-				if (fall <= termv && !(moveflags & move_no_real_z) && z > 0) fall += gravity3;
-				if (fakefall <= termv && !(moveflags & move_no_fake_z) && fakez > 0) fakefall += gravity3;
+				if (!(moveflags & move_no_real_z) && z > 0)
+				{
+					if (fall <= termv) fall += gravity3;
+					used_grav_or_termv = true;
+				}
+				if (!(moveflags & move_no_fake_z) && fakez > 0)
+				{
+					if (fakefall <= termv) fakefall += gravity3;
+					used_grav_or_termv = true;
+				}
 			}
 		}
+		if(fall > termv && !(moveflags & move_no_real_z) && z>0 || fakefall > termv && !(moveflags & move_no_fake_z) && fakez > 0)
+			used_grav_or_termv = true;
 		if (fakez<0) fakez = 0;
 		if (z<0) z = 0;
 	}
+
+	if (handle_termv())
+		used_grav_or_termv = true;
+
+	if (used_grav_or_termv && last_grav_boots_id > -1) // if the gravity boots affected the player's falling, charge their cost
+		paymagiccost(last_grav_boots_id);
 	
 	if(drunkclk)
 	{
