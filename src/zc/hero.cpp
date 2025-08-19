@@ -1321,14 +1321,16 @@ void HeroClass::setFakeZfix(zfix new_z)
 
 void HeroClass::setFall(zfix new_fall)
 {
-    fall=new_fall;
-    justmoved = 2;
-    jumping=-1;
+	fall = new_fall;
+	justmoved = 2;
+	if (!jumping && fall || !get_qr(qr_BETTER_PLAYER_JUMP_ANIM))
+		jumping = -1;
 }
 void HeroClass::setFakeFall(zfix new_fall)
 {
-    fakefall=new_fall;
-    jumping=-1;
+	fakefall = new_fall;
+	if (!jumping && fakefall || !get_qr(qr_BETTER_PLAYER_JUMP_ANIM))
+		jumping = -1;
 }
 void HeroClass::setJump(zfix new_jump)
 {
@@ -2824,8 +2826,21 @@ void HeroClass::draw(BITMAP* dest)
 		{
 			// Keep this consistent with checkspecial2, line 7800-ish...
 			bool inwater = iswaterex_z3(MAPCOMBO(x+4,y+9), -1, x+4, y+9, true, false)  && iswaterex_z3(MAPCOMBO(x+4,y+15), -1, x+4, y+15, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+9), -1, x+11, y+9, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+15), -1, x+11, y+15, true, false);
+
+			optional<uint32_t> jumping_frame;
+
+			if (get_qr(qr_BETTER_PLAYER_JUMP_ANIM))
+			{
+				if (jumping && fall)
+					jumping_frame = (jumping / 6) % 3;
+			}
+			else
+			{
+				auto val = int32_t(jumping * (get_grav_fall() / 16.0));
+				if (val > 0 && val < 24)
+					jumping_frame = val / 8;
+			}
 			
-			int32_t jumping2 = int32_t(jumping * (get_grav_fall() / 16.0));
 			bool noliftspr = get_qr(qr_NO_LIFT_SPRITE);
 			bool advancetile = script_hero_sprite <= 0;
 			switch(zinit.heroAnimationStyle)
@@ -2907,10 +2922,10 @@ void HeroClass::draw(BITMAP* dest)
 						}
 					}
 				}
-				else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
+				else if ((z > 0 || fakez > 0 || isSideViewHero()) && jumping_frame && game->get_life() > 0 && action != rafting)
 				{
 					herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
-					if(advancetile) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+					if (advancetile) tile += (*jumping_frame) * (extend == 2 ? 2 : 1);
 				}
 				else if(fallclk>0)
 				{
@@ -3021,10 +3036,10 @@ void HeroClass::draw(BITMAP* dest)
 					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
 					if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
-				else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0)
+				else if ((z > 0 || fakez > 0 || isSideViewHero()) && jumping_frame && game->get_life() > 0)
 				{
 					herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
-					if(advancetile) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+					if (advancetile) tile += (*jumping_frame) * (extend == 2 ? 2 : 1);
 				}
 				else if(fallclk>0)
 				{
@@ -3117,10 +3132,10 @@ void HeroClass::draw(BITMAP* dest)
 					l-=((l>3)?1:0)+((l>12)?1:0);
 					if (script_hero_sprite <= 0 ) tile+=(l/2)*(extend==2?2:1);
 				}
-				else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0)
+				else if ((z > 0 || fakez > 0 || isSideViewHero()) && jumping_frame && game->get_life() > 0)
 				{
 					herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
-					if (script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+					if (script_hero_sprite <= 0) tile += (*jumping_frame) * (extend == 2 ? 2 : 1);
 				}
 				else if(fallclk>0)
 				{
@@ -8518,11 +8533,11 @@ heroanimate_skip_liftwpn:;
 			needFall = true;
 		}
 		// Continue falling.
-
+		
 		if(fall <= termv && needFall)
 		{
 			inair = true;
-			if(fall != 0 || hoverclk>0)
+			if (fall != 0 || hoverclk > 0)
 				jumping++;
 				
 			// Bump head if: hit a solid combo from beneath, or hit a solid combo in the screen above this one.
@@ -8581,7 +8596,11 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		else if(needFall)
+		{
+			if (get_qr(qr_BETTER_PLAYER_JUMP_ANIM) && (fall != 0 || hoverclk > 0))
+				jumping++;
 			used_grav_or_termv = true;
+		}
 	}
 	else // Topdown gravity
 	{
@@ -8720,7 +8739,11 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		if(fall > termv && !(moveflags & move_no_real_z) && z>0 || fakefall > termv && !(moveflags & move_no_fake_z) && fakez > 0)
+		{
+			if (get_qr(qr_BETTER_PLAYER_JUMP_ANIM) && (fall != 0 || fakefall != 0 || hoverclk > 0))
+				jumping++;
 			used_grav_or_termv = true;
+		}
 		if (fakez<0) fakez = 0;
 		if (z<0) z = 0;
 	}
