@@ -7662,11 +7662,26 @@ void ViewMap()
 		0.03125, 0.04419, 0.0625, 0.08839, 0.125, 0.177, 0.25, 0.3535,
 		0.50, 0.707, 1.0, 1.414, 2.0, 2.828, 4.0, 5.657, 8.0
 	};
-	
-	int32_t px = ((8-(cur_screen&15)) << 9)  - 256;
-	int32_t py = ((4-(cur_screen>>4)) * 352) - 176;
-	int32_t lx = ((cur_screen&15)<<8)  + HeroX()+8;
-	int32_t ly = ((cur_screen>>4)*176) + HeroY()+8;
+
+	// Cursor position for hero, in absolute map coordinates.
+	int32_t lx = ((cur_screen & 15) << 8) + HeroX() + 8;
+	int32_t ly = ((cur_screen >> 4) * 176) + HeroY() + 8;
+
+	int32_t px;
+	int32_t py;
+	if (is_in_scrolling_region())
+	{
+		// Center the player on the middle of the map view.
+		px = (16*256/2 - lx) * 2;
+		py = (8*176/2 - ly) * 2;
+	}
+	else
+	{
+		// Center the current screen on the middle of the map view.
+		px = ((8-(cur_screen&15)) << 9)  - 256;
+		py = ((4-(cur_screen>>4)) * 352) - 176;
+	}
+
 	int32_t sc = 6;
 	
 	bool done=false, redraw=true;
