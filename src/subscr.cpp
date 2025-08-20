@@ -2289,7 +2289,7 @@ void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
 		
 		for(int32_t x2=0; x2<=7; ++x2)
 		{
-			int scrx = (x2 - thedmap.xoff);
+			int scrx = x2 + thedmap.xoff;
 			int scrid = scrx + y2*0x10;
 			
 			int x_1 = x2*8, x_2 = x_1+6;
