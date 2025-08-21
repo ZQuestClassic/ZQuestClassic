@@ -1781,7 +1781,6 @@ int32_t init_game()
 	zc_game_srand(initial_seed, &drunk_rng);
 
 	onload_gswitch_timers();
-	flushItemCache();
 	ResetSaveScreenSettings();
 	
 	int32_t ret = load_quest(game);
@@ -1792,6 +1791,8 @@ int32_t init_game()
 		GameLoaded = false;
 		return 1;
 	}
+
+	flushItemCache();
 
 	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
 
