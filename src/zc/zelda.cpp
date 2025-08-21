@@ -1760,7 +1760,6 @@ int32_t init_game()
 	zc_game_srand(initial_seed, &drunk_rng);
 
 	onload_gswitch_timers();
-	flushItemCache();
 	ResetSaveScreenSettings();
 	
 	int32_t ret = load_quest(game);
@@ -1771,6 +1770,10 @@ int32_t init_game()
 		GameLoaded = false;
 		return 1;
 	}
+
+	flushItemCache();
+
+	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
 
 	if (replay_is_active())
 	{
@@ -1999,9 +2002,6 @@ int32_t init_game()
 		FFCore.usr_sfx_volume = 10000 * 100;
 		FFCore.usr_music_volume = 10000 * 100;
 	}
-	
-	//show quest metadata when loading it
-	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
 	
 	//FFCore.init(); ///Initialise new ffscript engine core. 
 	if(!firstplay && !get_qr(qr_OLD_INIT_SCRIPT_TIMING))
