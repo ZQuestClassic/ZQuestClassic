@@ -191,7 +191,7 @@ enum //new subscreen object types
 	widgOLDCTR, widgMMAPTITLE, widgMMAP, widgLMAP, widgBGCOLOR,
 	widgITEMSLOT, widgMCGUFF_FRAME, widgMCGUFF, widgTILEBLOCK, widgMINITILE,
 	widgSELECTOR, widgLGAUGE, widgMGAUGE, widgTEXTBOX, widgSELECTEDTEXT,
-	widgMISCGAUGE, widgBTNCOUNTER, widgCOUNTERPERCBAR,
+	widgMISCGAUGE, widgBTNCOUNTER, widgCOUNTERPERCBAR, widgITMCOOLDOWNGAUGE,
 	widgMAX
 };
 extern const std::string subwidg_internal_names[widgMAX];
@@ -945,9 +945,9 @@ struct SW_GaugePiece : public SubscrWidget
 	SW_GaugePiece() = default;
 	virtual ~SW_GaugePiece() = default;
 	
-	virtual word get_ctr() const = 0;
-	virtual word get_ctr_max() const = 0;
-	virtual word get_per_container() const = 0;
+	virtual dword get_ctr() const = 0;
+	virtual dword get_ctr_max() const = 0;
+	virtual dword get_per_container() const = 0;
 	virtual bool infinite() const;
 	
 	virtual int16_t getX() const override; //Returns x in pixels
@@ -970,9 +970,9 @@ struct SW_LifeGaugePiece : public SW_GaugePiece
 
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual byte getType() const override;
-	virtual word get_ctr() const override;
-	virtual word get_ctr_max() const override;
-	virtual word get_per_container() const override;
+	virtual dword get_ctr() const override;
+	virtual dword get_ctr_max() const override;
+	virtual dword get_per_container() const override;
 	virtual bool infinite() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
@@ -992,9 +992,9 @@ struct SW_MagicGaugePiece : public SW_GaugePiece
 
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual byte getType() const override;
-	virtual word get_ctr() const override;
-	virtual word get_ctr_max() const override;
-	virtual word get_per_container() const override;
+	virtual dword get_ctr() const override;
+	virtual dword get_ctr_max() const override;
+	virtual dword get_per_container() const override;
 	virtual bool infinite() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
@@ -1014,9 +1014,9 @@ struct SW_MiscGaugePiece : public SW_GaugePiece
 
 	virtual bool load_old(subscreen_object const& old) override {return false;};
 	virtual byte getType() const override;
-	virtual word get_ctr() const override;
-	virtual word get_ctr_max() const override;
-	virtual word get_per_container() const override;
+	virtual dword get_ctr() const override;
+	virtual dword get_ctr_max() const override;
+	virtual dword get_per_container() const override;
 	virtual bool infinite() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
@@ -1024,6 +1024,29 @@ struct SW_MiscGaugePiece : public SW_GaugePiece
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
+};
+
+#define SUBSCR_NUMFLAG_COOLDOWNGAUGE       SUBSCR_NUMFLAG_GAUGE
+struct SW_ItemCooldownGauge : public SW_GaugePiece
+{
+	dword total_points = 16, per_container = 1;
+	int32_t item_class, specific_item_id = -1;
+	int8_t button_id = -1;
+
+	SW_ItemCooldownGauge() = default;
+
+	virtual bool load_old(subscreen_object const& old) override { return false; };
+	virtual byte getType() const override;
+	virtual dword get_ctr() const override;
+	virtual dword get_ctr_max() const override;
+	virtual dword get_per_container() const override;
+	virtual bool infinite() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE* f) const override;
+protected:
+	virtual int32_t read(PACKFILE* f, word s_version) override;
 };
 
 #define SUBSCR_TEXTBOX_WORDWRAP        SUBSCRFLAG_SPEC_01

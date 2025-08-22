@@ -327,9 +327,7 @@ static ArrayRegistrar SUBWIDGTY_CORNER_registrar(SUBWIDGTY_CORNER, []{
 				case widgMINITILE:
 					return 1;
 
-				case widgLGAUGE:
-				case widgMGAUGE:
-				case widgMISCGAUGE:
+				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					return 4;
 
 				default:
@@ -343,9 +341,7 @@ static ArrayRegistrar SUBWIDGTY_CORNER_registrar(SUBWIDGTY_CORNER, []{
 				case widgMINITILE:
 					return ((SW_MiniTile*)widg)->crn;
 
-				case widgLGAUGE:
-				case widgMGAUGE:
-				case widgMISCGAUGE:
+				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					return ((SW_GaugePiece*)widg)->mts[index].crn();
 				
 				default: NOTREACHED();
@@ -358,9 +354,7 @@ static ArrayRegistrar SUBWIDGTY_CORNER_registrar(SUBWIDGTY_CORNER, []{
 					((SW_MiniTile*)widg)->crn = value;
 					break;
 
-				case widgLGAUGE:
-				case widgMGAUGE:
-				case widgMISCGAUGE:
+				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					((SW_GaugePiece*)widg)->mts[index].setCrn(value);
 					break;
 
@@ -430,9 +424,7 @@ static ArrayRegistrar SUBWIDGTY_CSET_registrar(SUBWIDGTY_CSET, []{
 				case widgMINITILE:
 					return 1;
 
-				case widgLGAUGE:
-				case widgMGAUGE:
-				case widgMISCGAUGE:
+				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					return 4;
 
 				default:
@@ -448,9 +440,7 @@ static ArrayRegistrar SUBWIDGTY_CSET_registrar(SUBWIDGTY_CSET, []{
 				case widgTILEBLOCK: return ((SW_TileBlock*)widg)->cs.get_cset();
 				case widgMINITILE: return ((SW_MiniTile*)widg)->cs.get_cset();
 
-				case widgLGAUGE:
-				case widgMGAUGE:
-				case widgMISCGAUGE:
+				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					return ((SW_GaugePiece*)widg)->mts[index].cset;
 
 				default: NOTREACHED();
@@ -472,9 +462,7 @@ static ArrayRegistrar SUBWIDGTY_CSET_registrar(SUBWIDGTY_CSET, []{
 					((SW_MiniTile*)widg)->cs.set_int_cset(value);
 					break;
 
-				case widgLGAUGE:
-				case widgMGAUGE:
-				case widgMISCGAUGE:
+				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					value = vbound(value, 0, 15);
 					((SW_GaugePiece*)widg)->mts[index].cset = value;
 					break;
@@ -500,9 +488,7 @@ static ArrayRegistrar SUBWIDGTY_TILE_registrar(SUBWIDGTY_TILE, []{
 				case widgMINITILE:
 					return 1;
 
-				case widgLGAUGE:
-				case widgMGAUGE:
-				case widgMISCGAUGE:
+				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					return 4;
 
 				default:
@@ -518,9 +504,7 @@ static ArrayRegistrar SUBWIDGTY_TILE_registrar(SUBWIDGTY_TILE, []{
 				case widgTILEBLOCK: return ((SW_TileBlock*)widg)->tile;
 				case widgMINITILE: return ((SW_MiniTile*)widg)->get_int_tile();
 
-				case widgLGAUGE:
-				case widgMGAUGE:
-				case widgMISCGAUGE:
+				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					return ((SW_GaugePiece*)widg)->mts[index].tile();
 
 				default: NOTREACHED();
@@ -544,9 +528,7 @@ static ArrayRegistrar SUBWIDGTY_TILE_registrar(SUBWIDGTY_TILE, []{
 					value = vbound(value, -ssmstMAX, NEWMAXTILES-1);
 					((SW_MiniTile*)widg)->set_int_tile(value);
 					break;
-				case widgLGAUGE:
-				case widgMGAUGE:
-				case widgMISCGAUGE:
+				case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 					((SW_GaugePiece*)widg)->mts[index].setTile(value);
 					break;
 

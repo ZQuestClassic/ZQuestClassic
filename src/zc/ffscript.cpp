@@ -10028,6 +10028,9 @@ int32_t get_register(int32_t arg)
 					case widgBTNCOUNTER:
 						ret = 10000*((SW_BtnCounter*)widg)->btn;
 						break;
+					case widgITMCOOLDOWNGAUGE:
+						ret = 10000*((SW_ItemCooldownGauge*)widg)->button_id;
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						ret = -10000;
@@ -10094,11 +10097,10 @@ int32_t get_register(int32_t arg)
 					case widgOLDCTR:
 						ret = 10000*((SW_Counters*)widg)->infitm;
 						break;
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->inf_item;
 						break;
+					case widgITMCOOLDOWNGAUGE:
 					default:
 						bad_subwidg_type(false, ty);
 						ret = -10000;
@@ -10229,6 +10231,9 @@ int32_t get_register(int32_t arg)
 					case widgITEMSLOT:
 						ret = 10000*((SW_ItemSlot*)widg)->iclass;
 						break;
+					case widgITMCOOLDOWNGAUGE:
+						ret = 10000*((SW_ItemCooldownGauge*)widg)->item_class;
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -10245,6 +10250,9 @@ int32_t get_register(int32_t arg)
 				{
 					case widgITEMSLOT:
 						ret = 10000*((SW_ItemSlot*)widg)->iid;
+						break;
+					case widgITMCOOLDOWNGAUGE:
+						ret = 10000*((SW_ItemCooldownGauge*)widg)->specific_item_id;
 						break;
 					default:
 						bad_subwidg_type(false, ty);
@@ -10368,9 +10376,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->frames;
 						break;
 					default:
@@ -10388,9 +10394,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->speed;
 						break;
 					default:
@@ -10408,9 +10412,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->delay;
 						break;
 					default:
@@ -10428,9 +10430,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->container;
 						break;
 					default:
@@ -10448,9 +10448,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*(((SW_GaugePiece*)widg)->gauge_wid+1);
 						break;
 					default:
@@ -10468,9 +10466,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*(((SW_GaugePiece*)widg)->gauge_hei+1);
 						break;
 					default:
@@ -10488,9 +10484,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*(((SW_GaugePiece*)widg)->unit_per_frame+1);
 						break;
 					default:
@@ -10508,9 +10502,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->hspace;
 						break;
 					default:
@@ -10528,9 +10520,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->vspace;
 						break;
 					default:
@@ -10548,9 +10538,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->grid_xoff;
 						break;
 					default:
@@ -10568,9 +10556,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->grid_yoff;
 						break;
 					default:
@@ -10588,9 +10574,7 @@ int32_t get_register(int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_GaugePiece*)widg)->anim_val;
 						break;
 					default:
@@ -10628,6 +10612,27 @@ int32_t get_register(int32_t arg)
 				{
 					case widgMISCGAUGE:
 						ret = 10000*((SW_MiscGaugePiece*)widg)->per_container;
+						break;
+					case widgITMCOOLDOWNGAUGE:
+						ret = 10000*((SW_ItemCooldownGauge*)widg)->per_container;
+						break;
+					default:
+						bad_subwidg_type(false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TOTAL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITMCOOLDOWNGAUGE:
+						ret = 10000*((SW_ItemCooldownGauge*)widg)->total_points;
 						break;
 					default:
 						bad_subwidg_type(false, ty);
@@ -17354,6 +17359,9 @@ void set_register(int32_t arg, int32_t value)
 					case widgBTNCOUNTER:
 						((SW_BtnCounter*)widg)->btn = val;
 						break;
+					case widgITMCOOLDOWNGAUGE:
+						((SW_ItemCooldownGauge*)widg)->button_id = val;
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -17420,11 +17428,10 @@ void set_register(int32_t arg, int32_t value)
 					case widgOLDCTR:
 						((SW_Counters*)widg)->infitm = val;
 						break;
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE:
 						((SW_GaugePiece*)widg)->inf_item = val;
 						break;
+					case widgITMCOOLDOWNGAUGE:
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -17560,6 +17567,9 @@ void set_register(int32_t arg, int32_t value)
 					case widgITEMSLOT:
 						((SW_ItemSlot*)widg)->iclass = val;
 						break;
+					case widgITMCOOLDOWNGAUGE:
+						((SW_ItemCooldownGauge*)widg)->item_class = val;
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -17577,6 +17587,9 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgITEMSLOT:
 						((SW_ItemSlot*)widg)->iid = val;
+						break;
+					case widgITMCOOLDOWNGAUGE:
+						((SW_ItemCooldownGauge*)widg)->specific_item_id = val;
 						break;
 					default:
 						bad_subwidg_type(false, ty);
@@ -17707,9 +17720,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->frames = val;
 						break;
 					default:
@@ -17727,9 +17738,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->speed = val;
 						break;
 					default:
@@ -17747,9 +17756,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->delay = val;
 						break;
 					default:
@@ -17767,9 +17774,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->container = val;
 						break;
 					default:
@@ -17787,9 +17792,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->gauge_wid = val;
 						break;
 					default:
@@ -17807,9 +17810,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->gauge_hei = val;
 						break;
 					default:
@@ -17827,9 +17828,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->unit_per_frame = val-1;
 						break;
 					default:
@@ -17847,9 +17846,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->hspace = val;
 						break;
 					default:
@@ -17867,9 +17864,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->vspace = val;
 						break;
 					default:
@@ -17887,9 +17882,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->grid_xoff = val;
 						break;
 					default:
@@ -17907,9 +17900,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->grid_yoff = val;
 						break;
 					default:
@@ -17927,9 +17918,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgLGAUGE:
-					case widgMGAUGE:
-					case widgMISCGAUGE:
+					case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 						((SW_GaugePiece*)widg)->anim_val = val;
 						break;
 					default:
@@ -17961,12 +17950,33 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
-				auto val = vbound(value/10000,1,65535);
+				auto val = zc_max(value/10000,1);
 				auto ty = widg->getType();
 				switch(ty)
 				{
 					case widgMISCGAUGE:
 						((SW_MiscGaugePiece*)widg)->per_container = val;
+						break;
+					case widgITMCOOLDOWNGAUGE:
+						((SW_ItemCooldownGauge*)widg)->per_container = val;
+						break;
+					default:
+						bad_subwidg_type(false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TOTAL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
+			{
+				auto val = zc_max(value/10000,1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITMCOOLDOWNGAUGE:
+						((SW_ItemCooldownGauge*)widg)->total_points = val;
 						break;
 					default:
 						bad_subwidg_type(false, ty);

@@ -55,6 +55,17 @@ DropDownList(data = lister, \
 	} \
 )
 
+#define DDL_PROC(var, lister, proc) \
+DropDownList(data = lister, \
+	fitParent = true, \
+	selectedValue = var, \
+	onSelectFunc = [=](int32_t val) \
+	{ \
+		var = val; \
+		proc(); \
+	} \
+)
+
 #define DDL_EX(var, lister, ...) \
 DropDownList(data = lister, \
 	fitParent = true, \

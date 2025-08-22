@@ -395,6 +395,7 @@ class subscreenwidget {
 	// - [SUBWIDG_TILEBLOCK] - 1 values
 	// - [SUBWIDG_MINITILE] - 1 values
 	// - [SUBWIDG_MISCGAUGE] - 4 values
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE] - 4 values
 	// - [SUBWIDG_LGAUGE] - 4 values
 	// - [SUBWIDG_MGAUGE] - 4 values
 	//
@@ -410,6 +411,7 @@ class subscreenwidget {
 	// - [SUBWIDG_TILEBLOCK] - 1 values
 	// - [SUBWIDG_MINITILE] - 1 values
 	// - [SUBWIDG_MISCGAUGE] - 4 values
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE] - 4 values
 	// - [SUBWIDG_LGAUGE] - 4 values
 	// - [SUBWIDG_MGAUGE] - 4 values
 	//
@@ -553,6 +555,7 @@ class subscreenwidget {
 	//
 	// - [SUBWIDG_BTNITM]
 	// - [SUBWIDG_BTNCOUNTER]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @value [enum SubscreenItemButton]
 
@@ -643,6 +646,7 @@ class subscreenwidget {
 	// The itemclass used by the widget (0 <= ItemType < IC_MAXUSABLE)
 	//
 	// - [SUBWIDG_ITEMSLOT]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_ITEMCLASS
 	internal int ItemType;
@@ -650,6 +654,7 @@ class subscreenwidget {
 	// The item ID used by the widget (-1 <= ItemID < NUM_ITEMDATA)
 	//
 	// - [SUBWIDG_ITEMSLOT]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_ITEMID
 	internal int ItemID;
@@ -704,6 +709,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE] - 4 values
 	// - [SUBWIDG_MGAUGE] - 4 values
 	// - [SUBWIDG_MISCGAUGE] - 4 values
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE] - 4 values
 	//
 	// @zasm_var SUBWIDGTY_CORNER
 	internal int Corner[];
@@ -713,6 +719,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_FRAMES
 	internal int Frames;
@@ -722,6 +729,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_SPEED
 	internal int Speed;
@@ -731,6 +739,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_DELAY
 	internal int Delay;
@@ -740,6 +749,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_CONTAINER
 	internal int Container;
@@ -749,6 +759,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_GAUGE_WID
 	internal int GaugeWid;
@@ -758,6 +769,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_GAUGE_HEI
 	internal int GaugeHei;
@@ -767,6 +779,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_UNITS
 	internal int Units;
@@ -776,6 +789,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_HSPACE
 	internal int HSpace;
@@ -785,6 +799,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_VSPACE
 	internal int VSpace;
@@ -794,6 +809,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_GRIDX
 	internal int GridX;
@@ -803,6 +819,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_GRIDY
 	internal int GridY;
@@ -812,6 +829,7 @@ class subscreenwidget {
 	// - [SUBWIDG_LGAUGE]
 	// - [SUBWIDG_MGAUGE]
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_ANIMVAL
 	internal int AnimVal;
@@ -826,9 +844,17 @@ class subscreenwidget {
 	// The counter amount per "container" for the widget
 	//
 	// - [SUBWIDG_MISCGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
 	// @zasm_var SUBWIDGTY_PERCONTAINER
 	internal int PerContainer;
+
+	// The "total points" for the widget
+	//
+	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
+	//
+	// @zasm_var SUBWIDGTY_TOTAL
+	internal int Total;
 
 	// The widget's tabsize value
 	//

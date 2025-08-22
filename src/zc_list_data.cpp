@@ -1270,6 +1270,8 @@ static const GUI::ListData subscrWidgets =
 		" for any counter" },
 	{ "Button Counter", widgBTNCOUNTER, "Shows a counter used by a specified button as a cost" },
 	{ "Counter Percentage Bar", widgCOUNTERPERCBAR, "Shows a colored bar filled for a specified counter" },
+	{ "Gauge Piece: Item Cooldown", widgITMCOOLDOWNGAUGE, "Allows building highly customizable gauges"
+		" for item cooldowns." },
 };
 
 GUI::ListData const& GUI::ZCListData::subscr_widgets()
@@ -1323,9 +1325,18 @@ static const GUI::ListData button
 	{ "Y", 3 }
 };
 
-GUI::ListData const& GUI::ZCListData::buttons()
+static const GUI::ListData button_none
 {
-	return button;
+	{ "(None)", -1 },
+	{ "A", 0 },
+	{ "B", 1 },
+	{ "X", 2 },
+	{ "Y", 3 }
+};
+
+GUI::ListData const& GUI::ZCListData::buttons(bool none)
+{
+	return none ? button_none : button;
 }
 
 static const GUI::ListData autocombo_types

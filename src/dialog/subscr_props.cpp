@@ -33,6 +33,7 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_shadtype(GUI::ZCListData::shadow_types()),
 	list_aligns(GUI::ZCListData::alignments()),
 	list_buttons(GUI::ZCListData::buttons()),
+	list_buttons_none(GUI::ZCListData::buttons(true)),
 	list_items(GUI::ZCListData::items(true)),
 	list_items_no_none(GUI::ZCListData::items(true, false)),
 	list_counters(GUI::ZCListData::ss_counters(true)), //All counters
@@ -324,6 +325,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgMCGUFF_FRAME:
 			case widgLGAUGE:
 			case widgMGAUGE:
+			case widgMISCGAUGE:
+			case widgITMCOOLDOWNGAUGE:
 			case widgCOUNTER:
 			case widgOLDCTR:
 			case widgBTNCOUNTER:
@@ -498,6 +501,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			}
 			case widgLGAUGE:
+			case widgMGAUGE:
+			case widgMISCGAUGE:
+			case widgITMCOOLDOWNGAUGE:
 				break;
 			case widgLMETER:
 				break;
@@ -507,8 +513,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid = Column(MISC_COLOR_SEL(w->c_line, "Line Color", 1));
 				break;
 			}
-			case widgMGAUGE:
-				break;
 			case widgMMETER:
 				break;
 			case widgMMAP:
@@ -801,7 +805,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				SW_ItemSlot* w = dynamic_cast<SW_ItemSlot*>(local_subref);
 				attrib_grid = Rows<3>(
 					labels[0] = Label(text = "Item Class:", hAlign = 1.0),
-					ddl = DDL(w->iclass, list_itemclass),
+					ddls[0] = DDL(w->iclass, list_itemclass),
 					INFOBTN("The highest level owned of this itemclass will be tied to this item slot."),
 					Label(text = "Item Override:", hAlign = 1.0),
 					DropDownList(data = list_items,
@@ -866,37 +870,45 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case widgLGAUGE:
-			case widgMGAUGE:
-			case widgMISCGAUGE:
+			case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 			{
-				std::string ctrname;
+				bool show_infinite_item = true;
+				std::string ctrname, valname;
 				switch(widgty)
 				{
 					case widgLGAUGE:
 						ctrname = "HP";
+						valname = "Health";
 						break;
 					case widgMGAUGE:
 						ctrname = "MP";
+						valname = "Magic";
 						break;
 					case widgMISCGAUGE:
 						ctrname = "counter";
+						valname = "counter value";
+						break;
+					case widgITMCOOLDOWNGAUGE:
+						show_infinite_item = false;
+						ctrname = "cooldown";
+						valname = "gauge value";
 						break;
 				}
 				SW_GaugePiece* w = dynamic_cast<SW_GaugePiece*>(local_subref);
+				std::shared_ptr<GUI::Grid> tmp_gs[2];
 				int g = 0;
 				extra_grids["Gauge"] = Row(padding = 0_px,
-					Column(padding = 0_px,
+					tmp_gs[0] = Column(padding = 0_px,
 						Rows<2>(padding = 0_px,
 							Row(colSpan = 2,
 								Label(text = "Gauge Tiles"),
 								INFOBTN("The tiles used by the gauge. Which tile is used depends on the 'Container' value."
-									"\nThe 'Mod' checkbox determines if the tile should be adjusted based on current HP."
+									"\nThe 'Mod' checkbox determines if the tile should be adjusted based on current "+valname+"."
 										" The tile layout 'Mod' uses is determined by the 'Full Tile' flag and 'Old Gauge Tile Layout'"
 										" quest rule."
 									"\nIf 'Full Tile' is checked, the layout is as follows: The selected tile appears if the"
-										" container has < 'Units per frame' hp, with any animation frames after it. The next tile appears"
-										" if the container has < 'Units per frame *2' hp, etc. If the container is the last"
+										" container has < 'Units per frame' "+valname+", with any animation frames after it. The next tile appears"
+										" if the container has < 'Units per frame *2' "+valname+", etc. If the container is the last"
 										" full container, and 'Unique Last' is checked, it uses the tile after the full tile."
 									"\nIf 'Full Tile' is not checked but 'Old Gauge Tile Layout' is off, it uses the same layout as"
 										" the 'Full Tile' layout, but uses minitiles in that order instead."
@@ -910,12 +922,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							GAUGE_MINITILE(1,"Last",w->mts[1],w->flags,SUBSCR_GAUGE_MOD2),
 							GAUGE_MINITILE(2,"Cap",w->mts[2],w->flags,SUBSCR_GAUGE_MOD3),
 							GAUGE_MINITILE(3,"After Cap",w->mts[3],w->flags,SUBSCR_GAUGE_MOD4)
-						),
-						Rows<2>(padding = 0_px,
-							labels[3] = Label(text = "Infinite Item:"),
-							INFOBTN("Having this item counts as having 'infinite' of this counter,"
-								" as far as the infinite-related flags are concerned."),
-							ddl = DDL_EX(w->inf_item, list_items, colSpan = 2)
 						)
 					),
 					Column(padding = 0_px,
@@ -932,8 +938,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 										refr_info();
 									}),
 								INFOBTN("How many points should be allocated to each tile. Ex. If you have 16"
-									" HP per container, but only want to show 1/8 hearts, you can use"
-									" 2 units per frame (2 = 16/8) and only set up 1/8 heart tiles."),
+									" points per container, but only want to show 1/8th containers, you can use"
+									" 2 units per frame (2 = 16/8) and only set up 1/8th container tiles."),
 								Label(text = "Container:", hAlign = 1.0),
 								NUM_FIELD(w->container, 0, 9999),
 								INFOBTN("The container number this piece represents. For a value of n,"
@@ -1004,8 +1010,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							)
 						),
 						Row(padding = 0_px,
-							Rows<2>(vAlign = 0.0,
-								INFOBTN("Animates only when "+ctrname+" is <= 'Anim Cond'"),
+							tmp_gs[1] = Rows<2>(vAlign = 0.0,
+								INFOBTN("Animates only when "+valname+" is <= 'Anim Cond'"),
 								cbs[0] = Checkbox(
 									text = "Animate Only Under...", hAlign = 0.0,
 									checked = w->flags & SUBSCR_GAUGE_ANIM_UNDER,
@@ -1015,7 +1021,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 										refr_info();
 									}
 								),
-								INFOBTN("Animates only when "+ctrname+" is >= 'Anim Cond'"),
+								INFOBTN("Animates only when "+valname+" is >= 'Anim Cond'"),
 								cbs[1] = Checkbox(
 									text = "Animate Only Over...", hAlign = 0.0,
 									checked = w->flags & SUBSCR_GAUGE_ANIM_OVER,
@@ -1034,30 +1040,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									onToggleFunc = [&, w](bool state)
 									{
 										SETFLAG(w->flags, SUBSCR_GAUGE_ANIM_SKIP, state);
-										refr_info();
-									}
-								),
-								INFOBTN("Will be invisible if infinite of the counter IS possessed."
-									" Counts owning the 'Infinite Item', or hardcoded infinities like"
-									" wallets granting infinite money."),
-								Checkbox(
-									text = "No Infinite", hAlign = 0.0,
-									checked = w->flags & SUBSCR_GAUGE_INFITM_BAN,
-									onToggleFunc = [&, w](bool state)
-									{
-										SETFLAG(w->flags, SUBSCR_GAUGE_INFITM_BAN, state);
-										refr_info();
-									}
-								),
-								INFOBTN("Will be invisible if infinite of the counter IS NOT possessed."
-									" Counts owning the 'Infinite Item', or hardcoded infinities like"
-									" wallets granting infinite money."),
-								Checkbox(
-									text = "Require Infinite", hAlign = 0.0,
-									checked = w->flags & SUBSCR_GAUGE_INFITM_REQ,
-									onToggleFunc = [&, w](bool state)
-									{
-										SETFLAG(w->flags, SUBSCR_GAUGE_INFITM_REQ, state);
 										refr_info();
 									}
 								)
@@ -1087,6 +1069,39 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						)
 					)
 				);
+				
+				if(show_infinite_item)
+				{
+					tmp_gs[0]->add(Rows<2>(padding = 0_px,
+						labels[3] = Label(text = "Infinite Item:"),
+						INFOBTN("Having this item counts as having 'infinite' of this counter,"
+							" as far as the infinite-related flags are concerned."),
+						ddls[0] = DDL_EX(w->inf_item, list_items, colSpan = 2)
+					));
+					tmp_gs[1]->add(INFOBTN("Will be invisible if infinite of the counter IS possessed."
+						" Counts owning the 'Infinite Item', or hardcoded infinities like"
+						" wallets granting infinite money."));
+					tmp_gs[1]->add(Checkbox(
+						text = "No Infinite", hAlign = 0.0,
+						checked = w->flags & SUBSCR_GAUGE_INFITM_BAN,
+						onToggleFunc = [&, w](bool state)
+						{
+							SETFLAG(w->flags, SUBSCR_GAUGE_INFITM_BAN, state);
+							refr_info();
+						}));
+					tmp_gs[1]->add(INFOBTN("Will be invisible if infinite of the counter IS NOT possessed."
+						" Counts owning the 'Infinite Item', or hardcoded infinities like"
+						" wallets granting infinite money."));
+					tmp_gs[1]->add(Checkbox(
+						text = "Require Infinite", hAlign = 0.0,
+						checked = w->flags & SUBSCR_GAUGE_INFITM_REQ,
+						onToggleFunc = [&, w](bool state)
+						{
+							SETFLAG(w->flags, SUBSCR_GAUGE_INFITM_REQ, state);
+							refr_info();
+						}));
+				}
+				
 				switch(widgty)
 				{
 					case widgLGAUGE:
@@ -1118,6 +1133,29 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							Label(text = "Per Container", hAlign = 1.0),
 							NUM_FIELD(w->per_container, 1, 65535),
 							INFOBTN("The number of the counter 'per container' of the gauge.")
+						);
+						break;
+					}
+					case widgITMCOOLDOWNGAUGE:
+					{
+						SW_ItemCooldownGauge* w = dynamic_cast<SW_ItemCooldownGauge*>(local_subref);
+						attrib_grid = Rows<3>(
+							Label(text = "Item ID:", hAlign = 1.0),
+							DDL_PROC(w->specific_item_id, list_items, updateAttr),
+							INFOBTN("Which specific item to display the cooldown of."),
+							labels[3] = Label(text = "Button:", hAlign = 1.0),
+							ddls[0] = DDL_PROC(w->button_id, list_buttons_none, updateAttr),
+							INFOBTN("Which button's current item to display the cooldown of."),
+							labels[4] = Label(text = "Item Type:", hAlign = 1.0),
+							ddls[1] = DDL(w->item_class, list_itemclass),
+							INFOBTN("Which item type's current owned item to display the cooldown of."),
+							//
+							Label(text = "Total Points", hAlign = 1.0),
+							NUM_FIELD(w->total_points, 1, MAX_ZSCRIPT_INT),
+							INFOBTN("The number of 'gauge value' represented by 'max cooldown'."),
+							Label(text = "Per Container", hAlign = 1.0),
+							NUM_FIELD(w->per_container, 1, MAX_ZSCRIPT_INT),
+							INFOBTN("The number of 'gauge value' 'per container' of the gauge.")
 						);
 						break;
 					}
@@ -1254,7 +1292,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						}
 					),
 					Label(text = "Special Tile:", hAlign = 1.0),
-					ddl = DropDownList(data = special_tile_list,
+					ddls[0] = DropDownList(data = special_tile_list,
 						fitParent = true,
 						selectedValue = w->special_tile,
 						onSelectFunc = [=](int32_t val)
@@ -2021,8 +2059,19 @@ void SubscrPropDialog::updateAttr()
 		case widgITEMSLOT:
 		{
 			SW_ItemSlot* w = dynamic_cast<SW_ItemSlot*>(local_subref);
-			ddl->setDisabled(w->iid > -1);
+			ddls[0]->setDisabled(w->iid > -1);
 			labels[0]->setDisabled(w->iid > -1);
+			break;
+		}
+		case widgITMCOOLDOWNGAUGE:
+		{
+			SW_ItemCooldownGauge* w = dynamic_cast<SW_ItemCooldownGauge*>(local_subref);
+			bool no_btn = w->specific_item_id > -1;
+			bool no_class = no_btn || w->button_id > -1;
+			ddls[0]->setDisabled(no_btn);
+			labels[3]->setDisabled(no_btn);
+			ddls[1]->setDisabled(no_class);
+			labels[4]->setDisabled(no_class);
 			break;
 		}
 	}
@@ -2095,7 +2144,8 @@ void SubscrPropDialog::update_wh()
 
 void SubscrPropDialog::refr_info()
 {
-	switch(local_subref->getType())
+	auto ty = local_subref->getType();
+	switch(ty)
 	{
 		case widgITEMSLOT:
 		{
@@ -2106,15 +2156,12 @@ void SubscrPropDialog::refr_info()
 			def_eqp_cboxes[3]->setDisabled(dis || !get_qr(qr_SET_YBUTTON_ITEMS));
 			break;
 		}
-		case widgLGAUGE:
-		case widgMGAUGE:
-		case widgMISCGAUGE:
+		case widgLGAUGE: case widgMGAUGE: case widgMISCGAUGE: case widgITMCOOLDOWNGAUGE:
 		{
 			SW_GaugePiece* w = dynamic_cast<SW_GaugePiece*>(local_subref);
 			bool frcond = w->frames <= 1;
 			bool acond = frcond || !(w->flags & (SUBSCR_GAUGE_ANIM_UNDER|SUBSCR_GAUGE_ANIM_OVER));
 			bool frcond2 = frcond || (!acond && w->frames <= 2 && (w->flags & SUBSCR_GAUGE_ANIM_SKIP));
-			bool infcond = !(w->flags & (SUBSCR_GAUGE_INFITM_REQ|SUBSCR_GAUGE_INFITM_BAN));
 			for(int q = 0; q < 8; ++q)
 				gauge_gw[q]->setDisabled(!(w->gauge_wid || w->gauge_hei));
 			for(int q = 0; q < 4; ++q)
@@ -2125,12 +2172,16 @@ void SubscrPropDialog::refr_info()
 			labels[1]->setDisabled(frcond2);
 			tfs[2]->setDisabled(frcond2);
 			labels[2]->setDisabled(frcond2);
-			ddl->setDisabled(infcond);
-			labels[3]->setDisabled(infcond);
 			cbs[0]->setDisabled(frcond);
 			cbs[1]->setDisabled(frcond);
 			cbs[2]->setDisabled(acond);
 			cbs[3]->setDisabled(acond);
+			if(ty != widgITMCOOLDOWNGAUGE)
+			{
+				bool infcond = !(w->flags & (SUBSCR_GAUGE_INFITM_REQ|SUBSCR_GAUGE_INFITM_BAN));
+				ddls[0]->setDisabled(infcond);
+				labels[3]->setDisabled(infcond);
+			}
 			break;
 		}
 	}	

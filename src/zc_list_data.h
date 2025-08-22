@@ -65,7 +65,7 @@ namespace GUI::ZCListData
 	GUI::ListData const& light_shapes();
 	GUI::ListData const& dmaptypes();
 	GUI::ListData const& alignments();
-	GUI::ListData const& buttons();
+	GUI::ListData const& buttons(bool none = false);
 	GUI::ListData const& autocombotypes();
 	GUI::ListData const& scripttypes();
 	GUI::ListData const& patterntypes();
