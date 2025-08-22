@@ -1128,10 +1128,9 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 
 			if(arg2 < 1) break; //do nothing
 
-			modify_sp(cc, vStackIndex, -arg2);
-
 			// Grab value from register and push onto stack, repeatedly
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			modify_sp(cc, vStackIndex, -arg2);
 			for(int q = 0; q < arg2; ++q)
 			{
 				cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2, (-q - 1 + arg2) * 4), val);

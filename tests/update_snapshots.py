@@ -17,7 +17,7 @@ def run(path: Path):
     subprocess.check_call(run_args)
 
 
-run(script_dir / 'test_jit.py')
+# run(script_dir / 'test_jit.py')
 run(script_dir / 'test_optimize_zasm.py')
 run(script_dir / 'test_optimize_zasm_unit.py')
 run(script_dir / 'test_zscript.py')
