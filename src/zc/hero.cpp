@@ -9481,15 +9481,12 @@ heroanimate_skip_liftwpn:;
 		
 		if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
-			for(int32_t i=0; i<Lwpns.Count(); i++)
+			for (int32_t i = 0; i < Lwpns.Count(); i++)
 			{
-				weapon *w = ((weapon*)Lwpns.spr(i));
-				
-				if(w->id==wCByrna)
-				{
-					w->dead=1;
-				}
-		
+				weapon* w = ((weapon*)Lwpns.spr(i));
+
+				if (w->id == wCByrna && !w->weapon_dying_frame)
+					w->dead = 1;
 			}
 			//kill the sound effect for the orbits -Z 14FEB2019
 			stop_sfx(itemsbuf[itemid].usesound);
@@ -29768,35 +29765,14 @@ bool checkitem_jinx(int32_t itemid)
 
 void stopCaneOfByrna()
 {
-	for(int32_t i=0; i<Lwpns.Count(); i++)
+	for (int32_t i = 0; i < Lwpns.Count(); i++)
 	{
-		weapon *w = ((weapon*)Lwpns.spr(i));
-		if(w->id==wCByrna)
-			w->dead=1;
+		weapon* w = ((weapon*)Lwpns.spr(i));
+		if (w->id == wCByrna && !w->weapon_dying_frame)
+			w->dead = 1;
 	}
 }
 
-/* Crashes if used by ffscript.cpp, in case LINKITEMD
-void stopCaneOfByrna()
-{
-	byte prnt_cane = -1; 
-	weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wCByrna)));
-        prnt_cane = ew->parentitem;
-	for(int32_t i=0; i<Lwpns.Count(); i++)
-	{
-		weapon *w = ((weapon*)Lwpns.spr(i));
-        
-		if(w->id==wCByrna)
-		{
-			w->dead=1;
-		}
-	}
-	if ( prnt_cane > -1 )
-	{
-		stop_sfx(itemsbuf[prnt_cane].usesound);
-	}
-}
-*/
 //Check if there are no beams, kill sfx, and reset last_cane_of_byrna_item_id
 void HeroClass::cleanupByrna()
 {
