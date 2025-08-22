@@ -333,7 +333,7 @@ std::vector<std::pair<int32_t, int32_t>> clock_zoras;
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
 int32_t nets=1580, magicitem=-1,div_prot_item=-1, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
-int32_t magicdrainclk=0, conveyclk=3;
+int32_t conveyclk=3;
 byte newconveyorclk = 0;
 bool cheats_execute_goto=false, cheats_execute_light=false;
 int32_t checkx = 0, checky = 0;
@@ -366,12 +366,11 @@ bool region_is_lit, scrolling_region_is_lit, darkroom, naturaldark;
 bool is_any_room_dark;
 
 bool down_control_states[controls::btnLast] = {false};
-bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
-     SystemKeys=true,NESquit= false,volkeys= false,useCD=false,boughtsomething=false,
+bool SystemKeys=true,NESquit= false,volkeys= false,boughtsomething=false,
      hookshot_used=false, hookshot_frozen=false,
      pull_hero=false, hs_fix=false, hs_switcher=false,
-     cheat_superman=false, gofast=false, checkhero=true, didpit=false, heart_beep=true,
-     pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
+     cheat_superman=false, gofast=false, didpit=false, heart_beep=true,
+     castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
      activated_timed_warp=false;
 rpos_t hooked_comborpos = rpos_t::None;
 int32_t switchhook_cost_item = -1;
@@ -1635,7 +1634,7 @@ void init_game_vars(bool is_cont_game = false)
 		cheat=0;
 		show_layers[0]=show_layers[1]=show_layers[2]=show_layers[3]=show_layers[4]=show_layers[5]=show_layers[6]=true;
 		show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
-		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
+		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=gofast=false;
 	}
 
 	// Various things use the frame counter to do random stuff (ex: runDrunkRNG).
@@ -1672,7 +1671,23 @@ void init_game_vars(bool is_cont_game = false)
 	add_nl1bsparkle=false;
 	add_nl2asparkle=false;
 	add_nl2bsparkle=false;
-	gofast=false;
+	boughtsomething = false;
+	castnext = false;
+	clock_zoras.clear();
+	didpit = false;
+	hooked_comborpos = rpos_t::None;
+	hooked_layerbits = 0;
+	conveyclk = 3;
+	newconveyorclk = 0;
+	hookshot_frozen = false;
+	hookshot_used = false;
+	hs_fix = false;
+	hs_switcher = false;
+	is_conveyor_stunned = 0;
+	is_on_conveyor = 0;
+	msg_it.reset();
+	pull_hero = false;
+	switchhook_cost_item = -1;
 	wavy=quakeclk=0;
 	if (zscriptDrawingRenderTarget) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1);
 	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] = new_sub_indexes[sstOVERLAY] = -1;
@@ -1680,7 +1695,7 @@ void init_game_vars(bool is_cont_game = false)
 	script_hero_flip = -1; 
 	script_hero_cset = -1;
 	region_is_lit=darkroom=naturaldark=false;
-	sle_x=sle_y=newscr_clk=0;
+	sle_x=sle_y=0;
 	Bwpn=Awpn=Xwpn=Ywpn=-1;
 	FFCore.kb_typing_mode = false;
 	activated_timed_warp=false;

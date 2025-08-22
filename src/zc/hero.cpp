@@ -1815,6 +1815,8 @@ void HeroClass::init()
 	hoverflags = 0;
     lbunnyclock = 0;
 	lamp_paid = false;
+	autowalk_combo_id = -1;
+	autowalk_handle = {};
     
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -4192,8 +4194,6 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 				s->cset[i] = s->undercset;
 				s->sflag[i] = 0;
 			}
-			
-			//pausenow=true;
 		}
 	}
 	else if(!ignorescreen && skipsecrets)
@@ -4726,8 +4726,6 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
                 s->cset[i] = s->undercset;
                 s->sflag[i] = 0;
             }
-            
-            //pausenow=true;
         }
     }
     else if(skipsecrets && (!ignorescreen || dontignore))
@@ -5105,8 +5103,6 @@ void HeroClass::check_slash_block(weapon *w)
                 s->cset[i] = s->undercset;
                 s->sflag[i] = 0;
             }
-            
-            //pausenow=true;
         }
     }
     
@@ -6564,28 +6560,25 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 
 void HeroClass::checkhit()
 {
-	if(checkhero==true)
+	if(hclk>0)
 	{
-		if(hclk>0)
-		{
-			--hclk;
-		}
+		--hclk;
+	}
+	
+	if(DivineProtectionShieldClk>0)
+	{
+		--DivineProtectionShieldClk;
 		
-		if(DivineProtectionShieldClk>0)
+		if(DivineProtectionShieldClk == 0 && div_prot_item != -1)
 		{
-			--DivineProtectionShieldClk;
-			
-			if(DivineProtectionShieldClk == 0 && div_prot_item != -1)
-			{
-				stop_sfx(itemsbuf[div_prot_item].usesound);
-				stop_sfx(itemsbuf[div_prot_item].usesound+1);
-				div_prot_item = -1;
-			}
-			else if(get_qr(qr_MORESOUNDS) && !(DivineProtectionShieldClk&0xF00) && div_prot_item != -1)
-			{
-				stop_sfx(itemsbuf[div_prot_item].usesound);
-				cont_sfx(itemsbuf[div_prot_item].usesound+1);
-			}
+			stop_sfx(itemsbuf[div_prot_item].usesound);
+			stop_sfx(itemsbuf[div_prot_item].usesound+1);
+			div_prot_item = -1;
+		}
+		else if(get_qr(qr_MORESOUNDS) && !(DivineProtectionShieldClk&0xF00) && div_prot_item != -1)
+		{
+			stop_sfx(itemsbuf[div_prot_item].usesound);
+			cont_sfx(itemsbuf[div_prot_item].usesound+1);
 		}
 	}
 	
