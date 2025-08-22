@@ -1274,3 +1274,50 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 	}
 }
 
+static void apply_cooldown_ring(cooldown_data& data)
+{
+	auto cooldown_ring_id = current_item_id(itype_cooldown_ring, true);
+	if (unsigned(cooldown_ring_id) >= MAXITEMS)
+		return;
+	if (!checkmagiccost(cooldown_ring_id) || !checkbunny(cooldown_ring_id))
+		return;
+	itemdata const& cdring = itemsbuf[cooldown_ring_id];
+	if (!data.max_cooldown && !(cdring.flags & item_flag1))
+		return; // don't affect items already at 0 cooldown unless flag is set
+	zfix max_cd = data.max_cooldown;
+	max_cd += cdring.misc1;
+	max_cd *= cdring.misc2;
+	max_cd /= cdring.misc3;
+	max_cd.doMax(0); // no negatives
+	max_cd += cdring.misc4;
+	
+	int new_cd = max_cd.doMax(0).getCeil(); // no negatives
+	if (data.max_cooldown == new_cd) // didn't change at all
+		return;
+	if (cdring.flags & item_flag2) // strictly decrease
+		if (new_cd >= data.max_cooldown)
+			return;
+	if (cdring.flags & item_flag3) // strictly increase
+		if (new_cd <= data.max_cooldown)
+			return;
+	
+	data.max_cooldown = new_cd;
+	data.cooldown_ring_id = cooldown_ring_id; // store the ID to maybe pay magic cost later
+}
+cooldown_data calc_item_cooldown(int item_id)
+{
+	if (unsigned(item_id) >= MAXITEMS)
+		return {};
+	cooldown_data data;
+	
+	data.max_cooldown = data.base_cooldown = itemsbuf[item_id].cooldown;
+	apply_cooldown_ring(data);
+	
+#ifdef IS_PLAYER
+	data.cooldown = Hero.item_cooldown[item_id];
+#else
+	data.cooldown = data.max_cooldown - (subscr_item_clk % (data.max_cooldown+1));
+#endif
+	return data;
+}
+

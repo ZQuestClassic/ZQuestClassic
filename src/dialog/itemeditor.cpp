@@ -389,6 +389,17 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			SWAPTYPE(1, nswapDEC);
 			break;
 		}
+		case itype_cooldown_ring:
+		{
+			_SET(misc[0], "Add (before)", "Add this many frames to all item cooldowns, before multiplication and division. (Use negatives to subtract)");
+			_SET(misc[1], "Multiply", "Multiply all cooldowns by this. (Yes, 0 works)");
+			_SET(misc[2], "Divide", "Divide all cooldowns by this. If '0', treated as '1'.");
+			_SET(misc[3], "Add (after)", "Add this many frames to all item cooldowns, after multiplication and division. (Use negatives to subtract)");
+			_SET(flag[0], "Affect 0-cooldown Items", "Only if checked will items with '0' as their item editor cooldown be affected.");
+			_SET(flag[1], "Strictly Decrease", "If the result would make the cooldown longer, it is ignored.");
+			_SET(flag[2], "Strictly Increase", "If the result would make the cooldown shorter, it is ignored.");
+			break;
+		}
 		case itype_magicring:
 		{
 			_SET(power, "Infinite Magic:", "If >0, grants infinite magic");

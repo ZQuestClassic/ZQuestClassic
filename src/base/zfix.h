@@ -209,6 +209,18 @@ public:
 	{
 		return doBound(zfix(low_ipart,low_dpart),zfix(high_ipart,high_dpart));
 	}
+	zfix& doMax(zfix min)
+	{
+		if (val < min.val)
+			val = min.val;
+		return *this;
+	}
+	zfix& doMin(zfix max)
+	{
+		if (val > max.val)
+			val = max.val;
+		return *this;
+	}
 	
 	zfix& do_round(roundType rt);
 	int32_t round(roundType rt) const

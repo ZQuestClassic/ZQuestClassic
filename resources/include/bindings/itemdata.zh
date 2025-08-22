@@ -262,9 +262,13 @@ enum ItemType {
 	IC_NOTE                    = 277,
 	IC_REFILL                  = 278,
 	IC_LIFTGLOVE               = 279,
+	IC_GRAVITY_BOOTS           = 280,
+	IC_GRAVITY_UP_BOOTS        = 281,
+	IC_GRAVITY_DOWN_BOOTS      = 282,
+	IC_COOLDOWN_RING           = 283,
 
 	//Itemclasses not less than this are reserved for future engine itemclasses
-	IC_MAXUSABLE               = 280,
+	IC_MAXUSABLE               = 284,
 
 	IC_MAX                     = 512 //Last of enum. All itemclassesare < this.
 };

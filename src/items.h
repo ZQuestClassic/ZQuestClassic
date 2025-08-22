@@ -289,4 +289,11 @@ void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char le
 
 std::string bottle_name(size_t type);
 std::string bottle_slot_name(size_t slot, std::string const& emptystr);
+
+struct cooldown_data
+{
+	int cooldown, max_cooldown, base_cooldown;
+	int cooldown_ring_id = -1;
+};
+cooldown_data calc_item_cooldown(int item_id);
 #endif
