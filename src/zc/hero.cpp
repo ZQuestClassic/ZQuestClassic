@@ -12872,9 +12872,16 @@ bool HeroClass::on_cooldown(int32_t itemid)
 void HeroClass::start_cooldown(int32_t itemid)
 {
 	if (itemid < 0 || itemid >= MAXITEMS) return;
-	itemdata const& itm = itemsbuf[itemid];
-	if(itm.cooldown > 0 && itm.cooldown > item_cooldown[itemid])
-		item_cooldown[itemid] = itm.cooldown;
+	if (item_cooldown[itemid] < 0) return; // set to perma-cooldown (via script, presumably)
+	auto cd_data = calc_item_cooldown(itemid);
+	if(cd_data.max_cooldown <= 0) return;
+	if(cd_data.max_cooldown > item_cooldown[itemid])
+	{
+		item_cooldown[itemid] = cd_data.max_cooldown;
+		paymagiccost(cd_data.cooldown_ring_id);
+	}
+	else if(cd_data.base_cooldown > item_cooldown[itemid]) // cd ring still *did something*, so still pay
+		paymagiccost(cd_data.cooldown_ring_id);
 }
 
 bool HeroClass::doattack()

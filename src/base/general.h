@@ -285,6 +285,7 @@ enum // used for gamedata ITEMS
 	itype_icerod, itype_atkring, itype_lantern, itype_pearl, itype_bottle, itype_bottlefill, itype_bugnet,
 	itype_mirror, itype_switchhook, itype_itmbundle, itype_progressive_itm, itype_note, itype_refill,
 	itype_liftglove, itype_gravity_boots, itype_gravity_up_boots, itype_gravity_down_boots,
+	itype_cooldown_ring,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 

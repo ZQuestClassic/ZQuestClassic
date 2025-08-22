@@ -26330,6 +26330,10 @@ bool checkmagiccost(int32_t itemid, bool checkTime)
 	return checkCost(id.cost_counter[0], id.cost_amount[0])
 		&& checkCost(id.cost_counter[1], id.cost_amount[1]);
 }
+bool checkbunny(int32_t itemid)
+{
+	return true;
+}
 
 void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 {

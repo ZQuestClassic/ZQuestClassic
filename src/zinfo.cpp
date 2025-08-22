@@ -148,6 +148,7 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"Modifies the player's gravity while owned.", // Gravity Boots
 	"Modifies the player's gravity when holding 'Up' in sideview.", // Gravity Up Boots
 	"Modifies the player's gravity when holding 'Down' in sideview.", // Gravity Down Boots
+	"Modifies the cooldown of all items with cooldowns.", // Cooldown Ring
 };
 const char default_ctype_strings[cMAX][255] = 
 {
@@ -324,7 +325,8 @@ const char default_itype_strings[itype_max][255] =
 	"Custom Weapon 06", "Custom Weapon 07", "Custom Weapon 08", "Custom Weapon 09", "Custom Weapon 10",
 	"Ice Rod", "Attack Ring", "Lanterns", "Pearls", "Bottles", "Bottle Fillers", "Bug Nets", "Mirrors",
 	"SwitchHooks", "Item Bundle", "Progressive Item", "Note", "Refiller",
-	"Lift Glove", "Gravity Boots", "Gravity Up Boots", "Gravity Down Boots"
+	"Lift Glove", "Gravity Boots", "Gravity Up Boots", "Gravity Down Boots",
+	"Cooldown Ring"
 };
 const char counter_default_names[MAX_COUNTERS][255] =
 {

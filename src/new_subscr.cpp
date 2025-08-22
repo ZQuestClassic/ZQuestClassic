@@ -113,25 +113,6 @@ static int get_subscr_item_id(int family, bool compat = false)
 	return current_item_id(family,false,false,false);
 }
 
-static int get_item_maxcooldown(int item_id)
-{
-	if (unsigned(item_id) >= MAXITEMS)
-		return 0;
-	return itemsbuf[item_id].cooldown;
-}
-
-static int get_item_cooldown(int item_id)
-{
-	if (unsigned(item_id) >= MAXITEMS)
-		return 0;
-#ifdef IS_PLAYER
-	return Hero.item_cooldown[item_id];
-#else
-	auto max = get_item_maxcooldown(item_id);
-	return max - (subscr_item_clk % (max+1));
-#endif
-}
-
 void refresh_subscr_items()
 {
 	subscr_itemless = false;
@@ -5204,10 +5185,11 @@ dword SW_ItemCooldownGauge::get_ctr() const
 	if (unsigned(item_id) >= MAXITEMS)
 		return 0;
 
-	zfix cooldown = get_item_cooldown(item_id);
-	zfix max_cooldown = get_item_maxcooldown(item_id);
+	auto cd_data = calc_item_cooldown(item_id);
+	zfix cooldown = cd_data.cooldown;
+	zfix max_cooldown = cd_data.max_cooldown;
 	zfix perc = cooldown < 0 ? 1.0_zf : (cooldown / max_cooldown);
-
+	perc = vbound(perc, 0_zf, 1_zf);
 	return (perc * zfix(total_points)).getCeil(); 
 }
 dword SW_ItemCooldownGauge::get_ctr_max() const
@@ -5516,7 +5498,7 @@ void SW_CounterPercentBar::draw(BITMAP* dest, int32_t xofs, int32_t yofs, Subscr
 	
 	auto cur = get_ssc_ctr(counter);
 	auto max = get_ssc_ctrmax(counter);
-	zfix perc = max ? vbound((zfix(cur)/max), 1_zf, 0_zf) : 0_zf;
+	zfix perc = max ? vbound((zfix(cur)/max), 0_zf, 1_zf) : 0_zf;
 	auto x2 = x+xofs, y2 = y+yofs;
 	bool vertical = (flags&SUBSCR_COUNTERPERCBAR_VERTICAL);
 	bool invert = bool(flags&SUBSCR_COUNTERPERCBAR_INVERT) != vertical; // vertical naturally inverts
