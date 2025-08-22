@@ -1269,6 +1269,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SUBWIDGTY_TABSIZE: return "subscreenwidget::TabSize";
 		case SUBWIDGPGTARG: return "subscreenwidget::TargetPage";
 		case SUBWIDGTY_TILE: return "subscreenwidget::Tile[]";
+		case SUBWIDGTY_TOTAL: return "subscreenwidget::Total";
 		case SUBWIDGTYPE: return "subscreenwidget::Type";
 		case SUBWIDGTY_UNITS: return "subscreenwidget::Units";
 		case SUBWIDGTY_VSPACE: return "subscreenwidget::VSpace";

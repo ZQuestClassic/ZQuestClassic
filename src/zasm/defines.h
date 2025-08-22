@@ -3283,8 +3283,9 @@ enum ASM_DEFINE
 
 #define IDATACOOLDOWN        0x1663
 #define HEROITEMCOOLDOWN     0x1664
+#define SUBWIDGTY_TOTAL      0x1665
 
-#define NUMVARIABLES         0x1665
+#define NUMVARIABLES         0x1666
 
 //} End variables
 

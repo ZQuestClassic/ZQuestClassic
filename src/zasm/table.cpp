@@ -3014,6 +3014,7 @@ static constexpr script_variable variable_list[]=
 	{ "SPRITE_CUSTOM_TERMINAL_VELOCITY", SPRITE_CUSTOM_TERMINAL_VELOCITY, 0 },
 	{ "IDATACOOLDOWN", IDATACOOLDOWN, 0 },
 	{ "HEROITEMCOOLDOWN", HEROITEMCOOLDOWN, 0 },
+	{ "SUBWIDGTY_TOTAL", SUBWIDGTY_TOTAL, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.
