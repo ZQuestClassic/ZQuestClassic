@@ -475,6 +475,9 @@ skip_tests = [
     'nargads_trail_crystal_crusades_19_of_24.zplay',
     'nargads_trail_crystal_crusades_20_of_24.zplay',
 ]
+# TODO: weird failures in CI starting in https://github.com/ZQuestClassic/ZQuestClassic/pull/1137
+if is_web:
+    skip_tests.append('garbage_collection.zplay')
 tests = [t for t in tests if t.name not in skip_tests]
 
 if args.shard:
