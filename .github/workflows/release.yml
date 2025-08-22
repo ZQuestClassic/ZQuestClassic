@@ -119,7 +119,7 @@ jobs:
 
       - uses: mymindstorm/setup-emsdk@v12
         with:
-          version: "4.0.8"
+          version: "4.0.13"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
 
       - name: Install Node.js 18.x

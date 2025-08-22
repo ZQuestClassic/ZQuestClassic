@@ -15,7 +15,7 @@ fi
 cd "$ROOT"
 mkdir -p build_emscripten
 
-EMCC_VERSION=4.0.8
+EMCC_VERSION=4.0.13
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
 source emsdk_env.sh
@@ -133,6 +133,8 @@ CMAKE_EXE_LINKER_FLAGS_DEBUG+=(
 embuilder build sdl2
 
 embuilder build libpng libpng-mt
+
+embuilder build libjpeg
 
 embuilder build ogg vorbis
 

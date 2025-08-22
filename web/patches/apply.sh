@@ -60,7 +60,7 @@ then
   embuilder clear sdl2_mixer_mid
 fi
 
-apply_patch "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.32.0" "$SCRIPT_DIR/sdl2.patch" $GIT_CLEAN
+apply_patch "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.32.8" "$SCRIPT_DIR/sdl2.patch" $GIT_CLEAN
 apply_patch "$EMCC_CACHE_DIR/ports/sdl2_mixer/SDL_mixer-zc-fork-1" "$SCRIPT_DIR/sdl2_mixer.patch" $GIT_CLEAN
 apply_patch _deps/allegro5-src "$SCRIPT_DIR/allegro5.patch" $NO_GIT_CLEAN
 
