@@ -19252,8 +19252,11 @@ enemy* find_guy_nth_for_id(int screen, int id, int n, int mask)
 
 bool scriptloadenemies(int screen)
 {
+	// https://discord.com/channels/876899628556091432/1395904851908755577
+	bool replay_compat_enemies_load_bug = replay_is_active() && replay_get_meta_bool("compat_scriptloadenemies");
 	auto& state = get_screen_state(screen);
-	state.loaded_enemies = true;
+	if (!replay_compat_enemies_load_bug)
+		state.loaded_enemies = true;
 
 	if (sle_clk || script_sle[screen]) return false;
 
