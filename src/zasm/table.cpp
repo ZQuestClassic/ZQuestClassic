@@ -3012,6 +3012,8 @@ static constexpr script_variable variable_list[]=
 	{ "SPRITE_TERMINAL_VELOCITY", SPRITE_TERMINAL_VELOCITY, 0 },
 	{ "SPRITE_CUSTOM_GRAVITY_STRENGTH", SPRITE_CUSTOM_GRAVITY_STRENGTH, 0 },
 	{ "SPRITE_CUSTOM_TERMINAL_VELOCITY", SPRITE_CUSTOM_TERMINAL_VELOCITY, 0 },
+	{ "IDATACOOLDOWN", IDATACOOLDOWN, 0 },
+	{ "HEROITEMCOOLDOWN", HEROITEMCOOLDOWN, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -3423,6 +3425,7 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case LINKDEFENCE:
 		case LINKHITBY:
 		case LINKITEMD:
+		case HEROITEMCOOLDOWN:
 		case LINKMISCD:
 		case LWPNBURNLIGHTRADIUS:
 		case LWPNFLAGS:
@@ -3784,6 +3787,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case IDATAWPNINITD:
 		case IDATAMOVEFLAGS:
 		case IDATAWMOVEFLAGS:
+		case IDATACOOLDOWN:
 			return REFITEMCLASS;
 		
 		case SPRITEDATAFLAGS:

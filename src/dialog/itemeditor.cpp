@@ -1538,6 +1538,19 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,item_validate_only_2,state);
 									}
 								)
+							),
+							Rows<3>(
+								Label(text = "Cooldown:", hAlign = 1.0),
+								TextField(
+									val = local_itemref.cooldown,
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, low = 0, high = MAX_ZSCRIPT_INT,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.cooldown = val;
+									}
+								),
+								INFOBTN("After using the item, it goes on cooldown unable to be used again for this many frames.")
 							)
 						),
 						Column(

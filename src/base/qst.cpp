@@ -7096,6 +7096,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					break;
 			}
 		}
+		
+		if (s_version >= 64)
+		{
+			if (!p_igetl(&tempitem.cooldown, f))
+				return qe_invalid;
+		}
         
 		if (!should_skip)
 		{

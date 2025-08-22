@@ -4577,6 +4577,15 @@ int32_t get_register(int32_t arg)
 			}
 			ret=(itemsbuf[ri->idata].cost_amount[1])*10000;
 			break;
+		case IDATACOOLDOWN:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret = (itemsbuf[ri->idata].cooldown) * 10000;
+			break;
 		//cost counter ref
 		case IDATACOSTCOUNTER:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -12415,6 +12424,14 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			itemsbuf[ri->idata].cost_amount[1]=vbound(value/10000,32767,-32768);
+			break;
+		case IDATACOOLDOWN:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
+				break;
+			}
+			itemsbuf[ri->idata].cooldown = zc_max(value/10000,0);
 			break;
 		//cost counter ref
 		case IDATACOSTCOUNTER:

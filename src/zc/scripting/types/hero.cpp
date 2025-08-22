@@ -102,6 +102,13 @@ static ArrayRegistrar LINKITEMD_registrar(LINKITEMD, []{
 	return &impl;
 }());
 
+static ArrayRegistrar HEROITEMCOOLDOWN_registrar(HEROITEMCOOLDOWN, []{
+	static ScriptingArray_ObjectMemberContainer<HeroClass, &HeroClass::item_cooldown> impl;
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar LINKHITBY_registrar(LINKHITBY, []{
 	static ScriptingArray_GlobalComputed<int> impl(
 		[](int) { return NUM_HIT_TYPES_USED; },

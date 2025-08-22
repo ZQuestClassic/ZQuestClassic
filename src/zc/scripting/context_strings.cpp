@@ -164,6 +164,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case HEROISWARPING: return "Hero->IsWarping";
 		case LINKITEMA: return "Hero->ItemA";
 		case LINKITEMB: return "Hero->ItemB";
+		case HEROITEMCOOLDOWN: return "Hero->ItemCooldown[]";
 		case LINKITEMJINX: return "Hero->ItemJinx";
 		case LINKITEMX: return "Hero->ItemX";
 		case LINKITEMY: return "Hero->ItemY";
@@ -656,6 +657,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case IDATACOLLECTFLAGS: return "itemdata::CollectFlags";
 		case IDATACOMBINE: return "itemdata::Combine";
 		case IDATACONSTSCRIPT: return "itemdata::ConstantScript";
+		case IDATACOOLDOWN: return "itemdata::Cooldown";
 		case IDATAMAGCOST: return "itemdata::Cost";
 		case IDATACOST2: return "itemdata::Cost2";
 		case IDATACOSTCOUNTER: return "itemdata::CostCounter";

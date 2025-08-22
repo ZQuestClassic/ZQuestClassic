@@ -253,6 +253,7 @@ bool usingActiveShield(int32_t itmid)
 		itmid = (Hero.active_shield_id < 0
 			? current_item_id(itype_shield,true,true) : Hero.active_shield_id);
 	if(itmid < 0) return false;
+	if (Hero.active_shield_id != itmid && Hero.on_cooldown(itmid)) return false;
 	auto const& itm = itemsbuf[itmid];
 	if(item_disabled(itmid)) return false;
 	if(!checkitem_jinx(itmid)) return false;
@@ -827,6 +828,7 @@ void HeroClass::resetflags(bool all)
     inwallm=false;
     inlikelike=blowcnt=whirlwind=specialcave=hclk=fairyclk=refill_why=didstuff=0;
 	usecounts.clear();
+	item_cooldown.fill(0);
     
 	if(swordclk>0 || all)
 	{
@@ -1749,6 +1751,7 @@ void HeroClass::init()
 {
 	cache_tile_mod_clear();
 	usecounts.clear();
+	item_cooldown.fill(0);
 	scale = 0;
 	rotation = 0;
 	do_animation = true;
@@ -8754,6 +8757,10 @@ heroanimate_skip_liftwpn:;
 	if (used_grav_or_termv && last_grav_boots_id > -1) // if the gravity boots affected the player's falling, charge their cost
 		paymagiccost(last_grav_boots_id);
 	
+	for (int q = 0; q < MAXITEMS; ++q)
+		if (item_cooldown[q] > 0)
+			--item_cooldown[q];
+	
 	if(drunkclk)
 	{
 		--drunkclk;
@@ -9691,6 +9698,8 @@ heroanimate_skip_liftwpn:;
 	}
 	
 	active_shield_id = refreshActiveShield();
+	if (active_shield_id > -1 && !shield_active && on_cooldown(active_shield_id))
+		active_shield_id = -1;
 	bool sh = active_shield_id > -1;
 	itemdata const& shield = itemsbuf[active_shield_id];
 	//Handle direction forcing. This runs every frame so that scripts can interact with dir still.
@@ -9705,6 +9714,7 @@ heroanimate_skip_liftwpn:;
 		if(sh) //Toggle active shield on
 		{
 			sfx(shield.usesound2); //'Activate' sfx
+			start_cooldown(active_shield_id);
 		}
 	}
 	
@@ -10743,6 +10753,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 	if(mirrorid < 0)
 		mirrorid = current_item_id(itype_mirror);
 	if(mirrorid < 0) return;
+	if (on_cooldown(mirrorid)) return;
 	
 	if((hero_scr->flags9&fDISABLE_MIRROR) || !(checkbunny(mirrorid) && checkmagiccost(mirrorid)))
 	{
@@ -10768,6 +10779,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 	if(DMaps[cur_dmap].flags & dmfMIRRORCONTINUE)
 	{
 		paymagiccost(mirrorid);
+		start_cooldown(mirrorid);
 		if(mirror.usesound2) sfx(mirror.usesound2);
 		
 		doWarpEffect(mirror.misc2, true);
@@ -10796,6 +10808,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 		if((offscr%16 != destscr%16) || unsigned(destscr) >= 0x80)
 			return;
 		paymagiccost(mirrorid);
+		start_cooldown(mirrorid);
 		
 		//Store some values to restore if 'warp fails'
 		int32_t tLastEntrance = lastentrance,
@@ -10912,6 +10925,7 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(passive) did_passive_jump = false;
 	else if(did_passive_jump) return false; //don't jump twice in the same frame
 	
+	if (on_cooldown(jumpid)) return false;
 	if(nomove_action(action)) return false; //can't jump while ex. drowning
 	if(onWater(true)) return false; //Don't allow jumping off of water frame-perfectly...
 	
@@ -10941,6 +10955,7 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	}
 	
 	paymagiccost(jumpid);
+	start_cooldown(jumpid);
 	
 	if (itm.flags & item_flag6) // delayed effect on release, store the jump id
 	{
@@ -11020,6 +11035,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		else liftid = current_item_id(itype_liftglove,true,true);
 	}
 	if(!can_lift(liftid)) return;
+	if (on_cooldown(liftid)) return;
 	itemdata const& glove = itemsbuf[liftid];
 	byte intbtn = byte(glove.misc1&0xFF);
 	if(passive)
@@ -11133,6 +11149,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		{
 			getIntBtnInput(intbtn, INPUT_PRESS | INPUT_DRUNK); //eat buttons
 		}
+		start_cooldown(liftid);
 		return;
 	}
 	
@@ -11265,6 +11282,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		paidmagic = true;
 		paymagiccost(liftid);
 	}
+	start_cooldown(liftid);
 	set_liftflags(liftid);
 	if(passive)
 		getIntBtnInput(intbtn, INPUT_PRESS | INPUT_DRUNK); //eat buttons
@@ -11603,6 +11621,7 @@ void HeroClass::doSwitchHook(byte style)
 bool HeroClass::startwpn(int32_t itemid)
 {
 	if(itemid < 0) return false;
+	if (on_cooldown(itemid)) return false;
 	itemdata const& itm = itemsbuf[itemid];
 	if(((dir==up && y<24) || (dir==down && y>world_h-48) ||
 			(dir==left && x<32) || (dir==right && x>world_w-48)) && !(get_qr(qr_ITEMSONEDGES) || inlikelike))
@@ -11668,6 +11687,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
+			start_cooldown(itemid);
 			
 			if(itm.misc1 || itm.misc2)
 			{
@@ -11707,6 +11727,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				paidmagic = true;
 				paymagiccost(itemid);
+				start_cooldown(itemid);
 
 				int i = itemid;
 				FFCore.reset_script_engine_data(ScriptType::Item, i);
@@ -11774,7 +11795,10 @@ bool HeroClass::startwpn(int32_t itemid)
 					if(bt->flags & BTFLAG_CURESHJINX)
 						shieldjinxclk = 0;
 					if(!paidmagic)
+					{
 						paymagiccost(itemid);
+						start_cooldown(itemid);
+					}
 					stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
 					sfx(itm.usesound,pan(x));
 					for(size_t q = 0; q < 20; ++q)
@@ -11834,6 +11858,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				{
 					sfx(itm.usesound);
 					paymagiccost(itemid);
+					start_cooldown(itemid);
 				}
 			}
 			dowpn = -1;
@@ -11873,6 +11898,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				sfx((cur_screen >= 128 ? special_warp_return_scr : hero_scr)->secretsfx);
 				setupscreen();
 				action=none; FFCore.setHeroAction(none);
+				start_cooldown(itemid);
 			}
 			
 			ret = false;
@@ -11889,6 +11915,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
+			start_cooldown(itemid);
 			sfx(itm.usesound);
 			
 			if(dir==up || dir==right)
@@ -12003,6 +12030,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if((itm.flags & item_flag4) && lift_wpn)
 			{
 				do_liftglove(-1,false); //Throw the already-held weapon
+				start_cooldown(itemid);
 				return false;
 			}
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -12011,6 +12039,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
+			start_cooldown(itemid);
 				
 			if(itm.misc1>0) // If not remote bombs
 				deselectbombs(sbomb);
@@ -12050,6 +12079,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			int32_t bookid = current_item_id(itype_book);
+			if (bookid > -1 && on_cooldown(bookid))
+				bookid = -1;
 			bool paybook = (bookid>-1 && checkbunny(bookid) && checkmagiccost(bookid));
 			
 			if(!(itm.flags&item_flag1) && !paybook)  //Can the wand shoot without the book?
@@ -12091,7 +12122,12 @@ bool HeroClass::startwpn(int32_t itemid)
 			else misc_internal_hero_flags &= ~LF_PAID_WAND_COST;
 			
 			if(paybook)
-				paymagiccost(current_item_id(itype_book));
+			{
+				paymagiccost(bookid);
+				start_cooldown(bookid);
+			}
+			
+			start_cooldown(itemid);
 				
 			if(bookid != -1)
 			{
@@ -12151,6 +12187,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!(misc_internal_hero_flags & LF_PAID_SWORD_COST))//If already paid to use sword melee, don't charge again
 				paymagiccost(itemid);
 			else misc_internal_hero_flags &= ~LF_PAID_SWORD_COST;
+			
+			start_cooldown(itemid);
 
 			int temppower;
 			if(itm.flags & item_flag2)
@@ -12190,6 +12228,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			
 			paymagiccost(itemid);
+			start_cooldown(itemid);
 			
 			if(itm.flags&item_flag1) ++usecounts[countid];
 			
@@ -12216,6 +12255,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			if(!get_qr(qr_CUSTOMWEAPON_IGNORE_COST))
 				paymagiccost(itemid);
+			start_cooldown(itemid);
 			
 			zfix wpnstep = zfix(itm.misc1)/100;
 			if(replay_version_check(0,30))
@@ -12240,6 +12280,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			if(!get_qr(qr_CUSTOMWEAPON_IGNORE_COST))
 				paymagiccost(itemid);
+			start_cooldown(itemid);
 			
 			zfix wpnstep = zfix(itm.misc1)/100;
 			if(replay_version_check(0,30))
@@ -12263,6 +12304,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			
 			paymagiccost(itemid);
+			start_cooldown(itemid);
 			
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wArrow,itm.level,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
@@ -12290,6 +12332,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(paycost)
 				paymagiccost(itemid);
+			start_cooldown(itemid);
 			sfx(itm.usesound,pan(wx));
 			
 			if(grumble)
@@ -12324,6 +12367,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
+			start_cooldown(itemid);
+			
 			current_item_power(itype_brang);
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBrang,itm.level,(itm.power*game->get_hero_dmgmult()),dir,itemid,getUID(),false,false,true));
 		}
@@ -12344,6 +12389,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(sw && (itm.flags&item_flag8))
 				switchhook_cost_item = itemid;
 			else paymagiccost(itemid);
+			
+			start_cooldown(itemid);
 			
 			bool use_hookshot=true;
 			bool hit_hs = false, hit_solid = false, insta_switch = false;
@@ -12579,6 +12626,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
+			start_cooldown(itemid);
+			
 			if (IsSideSwim()) {action=sideswimcasting; FFCore.setHeroAction(sideswimcasting);}
 			else {action=casting; FFCore.setHeroAction(casting);}
 			magicitem=itemid;
@@ -12594,6 +12643,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
+			start_cooldown(itemid);
+			
 			if (IsSideSwim()) {action=sideswimcasting; FFCore.setHeroAction(sideswimcasting);}
 			else {action=casting; FFCore.setHeroAction(casting);}
 			magicitem=itemid;
@@ -12609,6 +12660,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
+			start_cooldown(itemid);
+			
 			if (IsSideSwim()) {action=sideswimcasting; FFCore.setHeroAction(sideswimcasting);}
 			else {action=casting; FFCore.setHeroAction(casting);}
 			magicitem=itemid;
@@ -12631,6 +12684,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
+			start_cooldown(itemid);
+			
 			last_cane_of_byrna_item_id = itemid; 
 			for(int32_t i=0; i<itm.misc3; i++)
 			{
@@ -12658,6 +12713,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			
 			paymagiccost(itemid);
+			start_cooldown(itemid);
 			
 			setClock(watch=true);
 			
@@ -12680,6 +12736,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			
 			paymagiccost(itemid);
+			start_cooldown(itemid);
 			
 			kill_em_all();
 			sfx(itm.usesound);
@@ -12750,13 +12807,25 @@ bool HeroClass::startwpn(int32_t itemid)
 				return item_error();
 			}
 			paymagiccost(itemid);
+			start_cooldown(itemid);
 			sfx(itm.usesound);
 			ret = false;
 			break;
 		}
 		
-		default:
+		case itype_lens:
+			// don't start cooldown here, it's activated elsewhere
 			ret = false;
+			break;
+		case itype_shield:
+			if (!(itm.flags & item_flag9)) // don't start cooldown here for active shields
+				start_cooldown(itemid);
+			ret = false;
+			break;
+		default:
+			start_cooldown(itemid);
+			ret = false;
+			break;
 	}
 	
 	if(itm.flags & item_downgrade)
@@ -12795,7 +12864,18 @@ bool HeroClass::startwpn(int32_t itemid)
 
 	return ret;
 }
-
+bool HeroClass::on_cooldown(int32_t itemid)
+{
+	if (itemid < 0 || itemid >= MAXITEMS) return false;
+	return item_cooldown[itemid];
+}
+void HeroClass::start_cooldown(int32_t itemid)
+{
+	if (itemid < 0 || itemid >= MAXITEMS) return;
+	itemdata const& itm = itemsbuf[itemid];
+	if(itm.cooldown > 0 && itm.cooldown > item_cooldown[itemid])
+		item_cooldown[itemid] = itm.cooldown;
+}
 
 bool HeroClass::doattack()
 {
@@ -13178,15 +13258,17 @@ void do_lens()
 	
 	int32_t wpnPressed = getWpnPressed(itype_lens);
 	int32_t itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Hero.getLastLensID()>0 ? Hero.getLastLensID() : current_item_id(itype_lens);
+	if (lensid < 0 && Hero.on_cooldown(itemid))
+		itemid = -1;
 	if(itemid >= 0)
 	{
 		if(isWpnPressed(itype_lens) && checkitem_jinx(itemid) && !lensclk && checkbunny(itemid) && checkmagiccost(itemid))
 		{
 			if(lensid<0)
 			{
-				lensid=itemid;
+				lensid = itemid;
 				if(itemsbuf[itemid].type == itype_lens)
-				Hero.setLastLensID(itemid);
+					Hero.setLastLensID(itemid);
 				if(get_qr(qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
 			}
 			
@@ -13210,9 +13292,10 @@ void do_lens()
 			if(!lensclk)
 			{
 				
-				if(lensid>-1)
+				if(lensid > -1)
 				{
-					lensid=-1;
+					Hero.start_cooldown(lensid);
+					lensid = -1;
 					lensclk = 0;
 					
 					if(get_qr(qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
@@ -14544,11 +14627,22 @@ void HeroClass::moveheroOld()
 			directWpn = directItemY;
 		}
 		
-		if(directWpn >= MAXITEMS) directWpn = -1;
-		
-		// The Quick Sword only allows repeated sword or wand swings.
-		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
-			btnwpn=-1;
+		auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+		if (on_cooldown(itmid))
+		{
+			directWpn = olddirectwpn;
+			btnwpn = -1;
+			dowpn = -1;
+			did_scriptb = false;
+		}
+		else
+		{
+			if(directWpn >= MAXITEMS) directWpn = -1;
+			
+			// The Quick Sword only allows repeated sword or wand swings.
+			if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
+				btnwpn=-1;
+		}
 	}
 	
 	auto swordid = (directWpn>-1 ? directWpn : current_item_id(itype_sword));
@@ -14650,11 +14744,11 @@ void HeroClass::moveheroOld()
 	
 	bool no_jinx = true;
 	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
+	auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 	if(liftonly)
 	{
 		if(replay_version_check(38) && btnwpn > -1)
 		{
-			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 			no_jinx = checkitem_jinx(itmid);
 			if(no_jinx)
 				startwpn(itmid);
@@ -14754,7 +14848,6 @@ void HeroClass::moveheroOld()
 		}
 		else
 		{
-			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 			no_jinx = checkitem_jinx(itmid);
 			if(no_jinx)
 			{
@@ -18957,11 +19050,22 @@ bool HeroClass::premove()
 			directWpn = directItemY;
 		}
 		
-		if(directWpn >= MAXITEMS) directWpn = -1;
-		
-		// The Quick Sword only allows repeated sword or wand swings.
-		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
-			btnwpn=-1;
+		auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+		if (on_cooldown(itmid))
+		{
+			directWpn = olddirectwpn;
+			btnwpn = -1;
+			dowpn = -1;
+			did_scriptb = false;
+		}
+		else
+		{
+			if(directWpn >= MAXITEMS) directWpn = -1;
+			
+			// The Quick Sword only allows repeated sword or wand swings.
+			if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
+				btnwpn=-1;
+		}
 	}
 	
 	auto swordid = (directWpn>-1 ? directWpn : current_item_id(itype_sword));
@@ -19061,11 +19165,11 @@ bool HeroClass::premove()
 	
 	bool no_jinx = true;
 	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
+	auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 	if(liftonly)
 	{
 		if(replay_version_check(38) && btnwpn > -1)
 		{
-			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 			no_jinx = checkitem_jinx(itmid);
 			if(no_jinx)
 				startwpn(itmid);
@@ -19165,7 +19269,6 @@ bool HeroClass::premove()
 		}
 		else
 		{
-			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 			no_jinx = checkitem_jinx(itmid);
 			if(no_jinx)
 			{

@@ -500,6 +500,11 @@ class itemdata {
 	// @zasm_var IDATACOSTCOUNTER2
 	internal int CostCounter2;
 
+	// After using the item, it goes on cooldown unable to be used again for this many frames.
+	//
+	// @zasm_var IDATACOOLDOWN
+	internal int Cooldown;
+
 	// The number of max hearts required to pick up the item.
 	//
 	// @zasm_var IDATAMINHEARTS
