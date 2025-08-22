@@ -1803,7 +1803,7 @@ void HeroClass::init()
     falling_oldy = y;
     magiccastclk=0;
     magicitem = div_prot_item = -1;
-	last_lens_id = 0; //Should be -1 (-Z)
+	last_lens_id = -1;
 	last_lift_id.reset();
 	last_savepoint_id = 0;
 	misc_internal_hero_flags = 0;
