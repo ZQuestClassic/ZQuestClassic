@@ -3281,7 +3281,10 @@ enum ASM_DEFINE
 #define SPRITE_CUSTOM_GRAVITY_STRENGTH      0x1661
 #define SPRITE_CUSTOM_TERMINAL_VELOCITY     0x1662
 
-#define NUMVARIABLES         0x1663
+#define IDATACOOLDOWN        0x1663
+#define HEROITEMCOOLDOWN     0x1664
+
+#define NUMVARIABLES         0x1665
 
 //} End variables
 

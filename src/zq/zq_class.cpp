@@ -8771,6 +8771,8 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 				new_return(97);
 			if(auto ret = write_weap_data(itemsbuf[i].weap_data, f))
 				return ret;
+			if (!p_iputl(itemsbuf[i].cooldown, f))
+				new_return(98);
         }
         
         if(writecycle==0)

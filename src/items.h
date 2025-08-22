@@ -231,6 +231,8 @@ struct itemdata
 	move_flags moveflags = (move_obeys_grav | move_can_pitfall);
 	weapon_data weap_data;
 	
+	int32_t cooldown;
+	
 	std::string get_name(bool init = false, bool plain = false) const;
 	//helper functions because stupid shit
 	int32_t misc(size_t ind) const

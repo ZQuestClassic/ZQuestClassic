@@ -158,10 +158,20 @@ class hero {
 
 	// @zasm_var LINKHELD
 	internal int HeldItem;
-
+	
+	// An array of items. Each index is 'true' if the player 'Owns' the item - which is generally
+	//   only possible for items marked as [itemdata::EquipmentItem|Equipment Items].
+	//
 	// @index [enum ItemID]
 	// @zasm_var LINKITEMD
 	internal bool Item[];
+	
+	// An array of item cooldowns for each item. If > 0, the engine will tick the cooldown down each frame.
+	//   If non-zero, the item cannot be used.
+	//
+	// @index [enum ItemID]
+	// @zasm_var HEROITEMCOOLDOWN
+	internal int ItemCooldown[];
 
 	// The number of pixels that the Hero moves in a frame, based on
 	// present coordinates. The movement is taken from [X] and [Y]:
