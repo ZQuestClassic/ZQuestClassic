@@ -368,6 +368,65 @@ static void expect(std::string name, zasm_script* script, std::vector<ffscript>&
 	}
 }
 
+template <typename T>
+static void for_every_side_effect_d_registers_only(const ffscript& instr, T fn)
+{
+	std::array<bool, 8> r{}, w{};
+
+	for (auto [reg, rw] : get_command_implicit_dependencies(instr.command))
+	{
+		if (reg >= 8)
+			continue;
+
+		r[reg] |= rw == ARGTY::READWRITE_REG || rw == ARGTY::READ_REG;
+		w[reg] |= rw == ARGTY::READWRITE_REG || rw == ARGTY::WRITE_REG;
+	}
+
+	for_every_register_side_effect_args_only(instr, [&](bool read, bool write, int reg, int argn){
+		for (auto reg2 : get_register_dependencies(reg))
+			if (reg2 < 8) r[reg2] |= true;
+
+		if (reg >= 8)
+			return;
+
+		r[reg] |= read;
+		w[reg] |= write;
+	});
+
+	for (int i = 0; i < 8; i++)
+	{
+		bool read = r[i];
+		bool write = w[i];
+		if (read || write)
+			fn(read, write, i);
+	}
+}
+
+template <typename T>
+static void for_every_register_side_effect(const ffscript& instr, T fn)
+{
+	for (auto [reg, rw] : get_command_implicit_dependencies(instr.command))
+	{
+		bool read = rw == ARGTY::READWRITE_REG || rw == ARGTY::READ_REG;
+		bool write = rw == ARGTY::READWRITE_REG || rw == ARGTY::WRITE_REG;
+		fn(read, write, reg, -1);
+	}
+
+	for_every_register_side_effect_args_only(instr, [&](bool read, bool write, int reg, int argn){
+		if (auto r = get_register_ref_dependency(reg))
+			fn(true, false, *r, -1);
+		for (auto r : get_register_dependencies(reg))
+			fn(true, false, r, -1);
+		fn(read, write, reg, argn);
+	});
+}
+
+struct block_vars
+{
+	uint8_t in, out, gen, kill;
+	bool returns;
+};
+
 struct OptContext
 {
 	uint32_t saved;
@@ -375,6 +434,7 @@ struct OptContext
 	ZasmFunction fn;
 	ZasmCFG cfg;
 	bool cfg_stale;
+	std::vector<block_vars> liveness_vars;
 	std::vector<pc_t> block_starts;
 	std::set<pc_t> block_unreachable;
 	StructuredZasm* structured_zasm;
@@ -383,6 +443,18 @@ struct OptContext
 
 #define C(i) (ctx.script->zasm[i])
 #define E(i) (ctx.cfg.block_edges.at(i))
+
+static pc_t get_block_final(const OptContext& ctx, int block)
+{
+	return block == ctx.block_starts.size() - 1 ?
+		ctx.fn.final_pc :
+		ctx.block_starts.at(block + 1) - 1;
+}
+
+static std::pair<pc_t, pc_t> get_block_bounds(const OptContext& ctx, int block)
+{
+	return {ctx.block_starts.at(block), get_block_final(ctx, block)};
+}
 
 static OptContext create_context_no_cfg(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
 {
@@ -404,6 +476,84 @@ static void add_context_cfg(OptContext& ctx)
 	ctx.block_starts = std::vector<pc_t>(ctx.cfg.block_starts.begin(), ctx.cfg.block_starts.end());
 	ctx.block_unreachable.clear();
 	ctx.cfg_stale = false;
+}
+
+// https://en.wikipedia.org/wiki/Data-flow_analysis
+// https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
+// https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
+static void add_context_liveness(OptContext& ctx)
+{
+	std::map<pc_t, std::vector<pc_t>> precede;
+	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
+		precede[i] = {};
+	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
+	{
+		for (pc_t e : E(i))
+		{
+			precede.at(e).push_back(i);
+		}
+	}
+
+	auto& vars = ctx.liveness_vars;
+	vars.resize(ctx.block_starts.size());
+
+	std::set<pc_t> worklist;
+	for (pc_t block_index = 0; block_index < ctx.block_starts.size(); block_index++)
+	{
+		worklist.insert(block_index);
+
+		uint8_t gen = 0;
+		uint8_t kill = 0;
+		bool returns = false;
+		auto [start_pc, final_pc] = get_block_bounds(ctx, block_index);
+		for (pc_t i = start_pc; i <= final_pc; i++)
+		{
+			int command = C(i).command;
+			if (command == CALLFUNC)
+			{
+				kill = 0xFF;
+				continue;
+			}
+
+			if (command == RETURNFUNC)
+				returns = true;
+
+			for_every_side_effect_d_registers_only(C(i), [&](bool read, bool write, int reg){
+				if (read)
+				{
+					if (!(kill & (1 << reg)))
+						gen |= 1 << reg;
+				}
+				if (write)
+					kill |= 1 << reg;
+			});
+		}
+
+		vars[block_index] = {0, 0, gen, kill, returns};
+	}
+
+	while (!worklist.empty())
+	{
+		pc_t block_index = *worklist.begin();
+		worklist.erase(worklist.begin());
+
+		auto& [in, out, gen, kill, returns] = vars.at(block_index);
+
+		out = 0;
+		for (pc_t e : E(block_index))
+			out |= vars.at(e).in;
+		if (returns)
+			out |= 1 << D(2);
+
+		uint8_t old_in = in;
+		in = gen | (out & ~kill);
+
+		if (in != old_in)
+		{
+			for (pc_t e : precede.at(block_index))
+				worklist.insert(e);
+		}
+	}
 }
 
 static OptContext create_context(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
@@ -510,59 +660,6 @@ static bool has_implemented_register_invalidations(int reg)
 	}
 
 	return true;
-}
-
-template <typename T>
-static void for_every_side_effect_d_registers_only(const ffscript& instr, T fn)
-{
-	std::array<bool, 8> r{}, w{};
-
-	for (auto [reg, rw] : get_command_implicit_dependencies(instr.command))
-	{
-		if (reg >= 8)
-			continue;
-
-		r[reg] |= rw == ARGTY::READWRITE_REG || rw == ARGTY::READ_REG;
-		w[reg] |= rw == ARGTY::READWRITE_REG || rw == ARGTY::WRITE_REG;
-	}
-
-	for_every_register_side_effect_args_only(instr, [&](bool read, bool write, int reg, int argn){
-		for (auto reg2 : get_register_dependencies(reg))
-			if (reg2 < 8) r[reg2] |= true;
-
-		if (reg >= 8)
-			return;
-
-		r[reg] |= read;
-		w[reg] |= write;
-	});
-
-	for (int i = 0; i < 8; i++)
-	{
-		bool read = r[i];
-		bool write = w[i];
-		if (read || write)
-			fn(read, write, i);
-	}
-}
-
-template <typename T>
-static void for_every_register_side_effect(const ffscript& instr, T fn)
-{
-	for (auto [reg, rw] : get_command_implicit_dependencies(instr.command))
-	{
-		bool read = rw == ARGTY::READWRITE_REG || rw == ARGTY::READ_REG;
-		bool write = rw == ARGTY::READWRITE_REG || rw == ARGTY::WRITE_REG;
-		fn(read, write, reg, -1);
-	}
-
-	for_every_register_side_effect_args_only(instr, [&](bool read, bool write, int reg, int argn){
-		if (auto r = get_register_ref_dependency(reg))
-			fn(true, false, *r, -1);
-		for (auto r : get_register_dependencies(reg))
-			fn(true, false, r, -1);
-		fn(read, write, reg, argn);
-	});
 }
 
 template<typename T>
@@ -880,18 +977,6 @@ static bool optimize_stack(OptContext& ctx)
 	});
 
 	return true;
-}
-
-static pc_t get_block_final(const OptContext& ctx, int block)
-{
-	return block == ctx.block_starts.size() - 1 ?
-		ctx.fn.final_pc :
-		ctx.block_starts.at(block + 1) - 1;
-}
-
-static std::pair<pc_t, pc_t> get_block_bounds(const OptContext& ctx, int block)
-{
-	return {ctx.block_starts.at(block), get_block_final(ctx, block)};
 }
 
 struct SimulationState
@@ -2469,93 +2554,16 @@ static bool optimize_inline_functions(OptContext& ctx)
 	return true;
 }
 
-// https://en.wikipedia.org/wiki/Data-flow_analysis
-// https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
-// https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
 static bool optimize_dead_code(OptContext& ctx)
 {
 	if (!should_run_experimental_passes())
 		return false;
 
 	add_context_cfg(ctx);
-
-	std::map<pc_t, std::vector<pc_t>> precede;
-	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
-		precede[i] = {};
-	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
-	{
-		for (pc_t e : E(i))
-		{
-			precede.at(e).push_back(i);
-		}
-	}
-
-	struct block_vars {
-		uint8_t in, out, gen, kill;
-		bool returns;
-	};
-	std::vector<block_vars> vars(ctx.block_starts.size());
-
-	std::set<pc_t> worklist;
-	for (pc_t block_index = 0; block_index < ctx.block_starts.size(); block_index++)
-	{
-		worklist.insert(block_index);
-
-		uint8_t gen = 0;
-		uint8_t kill = 0;
-		bool returns = false;
-		auto [start_pc, final_pc] = get_block_bounds(ctx, block_index);
-		for (pc_t i = start_pc; i <= final_pc; i++)
-		{
-			int command = C(i).command;
-			if (command == CALLFUNC)
-			{
-				kill = 0xFF;
-				continue;
-			}
-
-			if (command == RETURNFUNC)
-				returns = true;
-
-			for_every_side_effect_d_registers_only(C(i), [&](bool read, bool write, int reg){
-				if (read)
-				{
-					if (!(kill & (1 << reg)))
-						gen |= 1 << reg;
-				}
-				if (write)
-					kill |= 1 << reg;
-			});
-		}
-
-		vars.at(block_index) = {0, 0, gen, kill, returns};
-	}
-
-	while (!worklist.empty())
-	{
-		pc_t block_index = *worklist.begin();
-		worklist.erase(worklist.begin());
-
-		auto& [in, out, gen, kill, returns] = vars.at(block_index);
-
-		out = 0;
-		for (pc_t e : E(block_index))
-			out |= vars.at(e).in;
-		if (returns)
-			out |= 1 << D(2);
-
-		uint8_t old_in = in;
-		in = gen | (out & ~kill);
-
-		if (in != old_in)
-		{
-			for (pc_t e : precede.at(block_index))
-				worklist.insert(e);
-		}
-	}
+	add_context_liveness(ctx);
 
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
-		uint8_t out = vars.at(block_index).out;
+		uint8_t out = ctx.liveness_vars.at(block_index).out;
 
 		// fmt::print("{} in: ", block_index);
 		// for (int i = 0; i < 8; i++) if (in & (1 << i)) fmt::print("D{} ", i);
