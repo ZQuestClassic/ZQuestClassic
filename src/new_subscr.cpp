@@ -6463,7 +6463,7 @@ bool ZCSubscreen::get_page_pos(int32_t itmid, word& pgpos)
 }
 int32_t ZCSubscreen::get_item_pos(word pgpos)
 {
-	if(pgpos&0xFF >= pages.size()) return -1;
+	if((pgpos&0xFF) >= pages.size()) return -1;
 	return pages[pgpos&0xFF].get_item_pos(pgpos>>8, false);
 }
 void ZCSubscreen::delete_page(byte id)
