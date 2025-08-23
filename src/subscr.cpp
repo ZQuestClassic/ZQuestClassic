@@ -2277,58 +2277,59 @@ void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t
     }
 }
 
-void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
+void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t bg_color, int32_t vis_color)
 {
-	int32_t si=0;
-	auto const& thedmap = DMaps[get_sub_dmap()];
-	auto const& reg = Regions[thedmap.map];
-	
-	for(int32_t y2=0; y2<=7; ++y2)
-	{
-		byte dl = thedmap.grid[si];
-		
-		for(int32_t x2=0; x2<=7; ++x2)
-		{
-			int scrx = x2 + thedmap.xoff;
-			int scrid = scrx + y2*0x10;
-			
-			int x_1 = x2*8, x_2 = x_1+6;
-			int y_1 = y2*4, y_2 = y_1 + 2;
-			if(scrx >= 0 && reg.get_region_id(scrid) != 0)
-			{
-				bool top = scrid >= 0x10 && reg.is_same_region(scrid, scrid-0x10);
-				bool bottom = scrid < 0x70 && reg.is_same_region(scrid, scrid+0x10);
-				bool left = (scrid & 0xF) && reg.is_same_region(scrid, scrid-1);
-				bool right = (scrid & 0xF) < 0xF && reg.is_same_region(scrid, scrid+1);
-				
-				if(top)
-					y_1 -= 2;
-				if(bottom)
-					y_2 += 2;
-				if(left)
-					x_1 -= 2;
-				if(right)
-					x_2 += 2;
-			}
-			
-			if(c2==-1)
-			{
-				if(dl&0x80)
-					rectfill(dest,x_1+x,y_1+y,x_2+x,y_2+y,c1);
-			}
-			else
-			{
-				rectfill(dest,x_1+x,y_1+y,x_2+x,y_2+y,c2);
-				
-				if(dl&0x80)
-					rectfill(dest,x_1+x+2,y_1+y,x_2+x-2,y_2+y,c1);
-			}
-			
-			dl<<=1;
-		}
-		
-		++si;
-	}
+    if (unvis_color < 0 && bg_color < 0 && vis_color < 0) 
+        return;
+
+    int32_t si = 0;
+    auto dmid = get_sub_dmap();
+    auto const& thedmap = DMaps[dmid];
+    auto const& reg = Regions[thedmap.map];
+
+    for (int32_t y2 = 0; y2 <= 7; ++y2)
+    {
+        byte dl = thedmap.grid[si];
+
+        for (int32_t x2 = 0; x2 <= 7; ++x2)
+        {
+            int scrx = x2 + thedmap.xoff;
+            int scrid = scrx + y2 * 0x10;
+
+            int x_1 = x2 * 8, x_2 = x_1 + 6;
+            int y_1 = y2 * 4, y_2 = y_1 + 2;
+            if (scrx >= 0 && reg.get_region_id(scrid) != 0)
+            {
+                //bool top = scrid >= 0x10 && reg.is_same_region(scrid, scrid - 0x10);
+                bool bottom = scrid < 0x70 && reg.is_same_region(scrid, scrid + 0x10);
+                bool left = (scrid & 0xF) && reg.is_same_region(scrid, scrid - 1);
+                bool right = (scrid & 0xF) < 0xF && reg.is_same_region(scrid, scrid + 1);
+
+                if (bottom)
+                    y_2 += 1;
+                if (left)
+                    x_1 -= 1;
+                if (right)
+                    x_2 += 1;
+            }
+
+            bool visited = get_bmaps((dmid << 7) | scrid);
+            auto fg_color = (visited && vis_color > -1) ? vis_color : unvis_color;
+
+            if (bg_color > -1)
+            {
+                rectfill(dest, x_1 + x, y_1 + y, x_2 + x, y_2 + y, bg_color);
+                x_1 += 2;
+                x_2 -= 2;
+            }
+            if ((dl & 0x80) && fg_color > -1)
+                rectfill(dest, x_1 + x, y_1 + y, x_2 + x, y_2 + y, fg_color);
+
+            dl <<= 1;
+        }
+
+        ++si;
+    }
 }
 
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h)
