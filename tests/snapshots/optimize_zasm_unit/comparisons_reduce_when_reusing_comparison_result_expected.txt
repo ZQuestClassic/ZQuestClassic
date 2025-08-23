@@ -120,10 +120,50 @@ rewrite 26: GOTOCMP         28               >=
 
 25: COMPAREV        D2               1      
 26: GOTOCMP         28               >=     
+
+[spurious_branches] Block #0
+
+34: SETV            D3               5      
+	D3 = 5
+35: COMPAREV        D3               10     
+	D3 = 5
+36: SETLESS         D2              
+	D2 = 1
+	D3 = 5
+37: COMPAREV        D2               0      
+	D2 = 1
+	D3 = 5
+38: GOTOTRUE        41              
+	D2 = 1
+	D3 = 5
+inferred D2: 0
+41: SETV            D2               99     
+	D2 = 99
+	D3 = 5
+42: RETURNFUNC     
+	D2 = 99
+	D3 = 5
+	side_effects
+rewrite 38: GOTOCMP         41               ==     
+
+[reduce_comparisons] Block #0
+
+35: COMPAREV        D3               10     
+36: SETLESS         D2              
+	D2 = D3 <= 10
+37: COMPAREV        D2               0      
+	D2 = D3 <= 10
+38: GOTOCMP         41               ==     
+	D2 = D3 <= 10
+rewrite 35: 4 -> 3 commands
+35: COMPAREV        D3               10     
+36: SETCMP          D2               <=     
+37: GOTOCMP         41               >      
+38: NOP            
 Function #0 (run_none-0)
     0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
     1: CALLFUNC        19                           [Call Function #2]
-    2: NOP
+    2: CALLFUNC        34                           [Call Function #3]
     3: NOP
     4: QUIT
 
@@ -161,3 +201,15 @@ Function #2
    31: GOTO            33
    32: NOP                                          [Block 3 -> 4]
    33: RETURNFUNC                                   [Block 4 -> ]
+
+
+Function #3
+   34: SETV            D3               5           [Block 0 -> 1, 2]
+   35: COMPAREV        D3               10
+   36: SETCMP          D2               <=
+   37: GOTOCMP         41               >
+   38: NOP                                          [Block 1 -> ]
+   39: TRACER          D2
+   40: QUIT
+   41: SETV            D2               99          [Block 2 -> ]
+   42: RETURNFUNC

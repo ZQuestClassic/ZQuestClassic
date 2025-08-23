@@ -1890,6 +1890,47 @@ static bool optimize_spurious_branches(OptContext& ctx)
 	return true;
 }
 
+static bool block_reads_register(const OptContext& ctx, pc_t block_index, int reg_to_check)
+{
+    auto [start_pc, final_pc] = get_block_bounds(ctx, block_index);
+
+	// TODO: this makes the function name a lie: it actually looks at all the code after the given
+	// block. Need to borrow the data-flow analysis of optimize_dead_code in order to do this
+	// properly.
+	final_pc = ctx.fn.final_pc;
+
+    for (pc_t i = start_pc; i <= final_pc; i++)
+    {
+        // Functions return their value by setting D2. A RETURNFUNC is a "read" of D2's intended value.
+        if (C(i).command == RETURNFUNC && reg_to_check == D(2))
+            return true;
+
+        // Function calls invalidate D2, acting as a "write" that kills its incoming value.
+        if (C(i).command == CALLFUNC && reg_to_check == D(2))
+            return false;
+
+        bool read_found = false;
+        bool write_found = false;
+        for_every_register_side_effect(C(i), [&](bool read, bool write, int arg, int argn){
+			if (read_found || write_found)
+				return;
+
+            if (arg == reg_to_check)
+            {
+                if (read) read_found = true;
+                else if (write) write_found = true;
+            }
+        });
+
+        if (read_found)
+            return true;
+        if (write_found)
+            return false;
+    }
+
+    return false;
+}
+
 static bool optimize_reduce_comparisons(OptContext& ctx)
 {
 	add_context_cfg(ctx);
@@ -1966,9 +2007,10 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 			// If the comparison operands are compared again after the branch, then reducing the comparison
 			// would break the code.
 			pc_t target_pc = C(final_pc).arg1;
+			pc_t target_block_id = ctx.cfg.start_pc_to_block_id.at(target_pc);
 			{
 				bool target_block_reuses_comparison_operands = false;
-				auto [s, e] = get_block_bounds(ctx, ctx.cfg.start_pc_to_block_id.at(target_pc));
+				auto [s, e] = get_block_bounds(ctx, target_block_id);
 				for (pc_t i = s; i <= e; i++)
 				{
 					int command = C(i).command;
@@ -1986,48 +2028,26 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 
 			// Determine if D2 is reused after the branch. If so, and the original code
 			// sets the comparison result to D2, we need continue setting it (we are removing all but the GOTOCMP).
-			// Note: big assumption here: that only the branch might use D2. Not checking if the fall through block
-			//       might use D2.
 
-			bool target_block_uses_d2 = false;
+			bool successor_uses_d2 = false;
 			if (writes_comparison_result_to_d2)
 			{
-				auto [s, e] = get_block_bounds(ctx, ctx.cfg.start_pc_to_block_id.at(target_pc));
-				for (pc_t i = s; i <= ctx.fn.final_pc; i++)
+				// TODO: should use liveness analysis instead (from optimize_dead_code)...
+				//   successor_uses_d2 = ctx.liveness_vars.at(block_index).out & (1 << D(2))
+				if (block_reads_register(ctx, target_block_id, D(2)))
 				{
-					int command = C(i).command;
-
-					if (command == NOP)
-						continue;
-
-					// Functions return their value by setting D2.
-					if (command == RETURNFUNC)
-					{
-						target_block_uses_d2 = true;
-						break;
-					}
-
-					// Function calls invalidate D2.
-					if (command == CALLFUNC)
-						break;
-
-					bool writes_d2 = false;
-					for_every_register_side_effect(C(i), [&](bool read, bool write, int arg, int argn){
-						if (arg == D(2))
-						{
-							if (read && !writes_d2)
-								target_block_uses_d2 = true;
-							else if (write)
-								writes_d2 = true;
-						}
-					});
-
-					if (writes_d2 || target_block_uses_d2)
-						break;
+					successor_uses_d2 = true;
+				}
+				else
+				{
+					pc_t fallthrough_pc = final_pc + 1;
+					pc_t fallthrough_block_id = ctx.cfg.start_pc_to_block_id.at(fallthrough_pc);
+					if (block_reads_register(ctx, fallthrough_block_id, D(2)))
+						successor_uses_d2 = true;
 				}
 			}
 
-			if (target_block_uses_d2 && state.d[2].is_expression())
+			if (successor_uses_d2 && state.d[2].is_expression())
 			{
 				// TODO: wasm jit backend currently can only handle pairs of a COMPARE with a single SETX/GOTOX.
 				if (is_web())
