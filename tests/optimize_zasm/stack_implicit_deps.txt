@@ -1,0 +1,16 @@
+; Do not optimize out preserving CLASS_THISKEY, because ZCLASS_CONSTRUCT writes to it.
+Function #0 (run_none-0)
+    0: SETV            D2               0           [Block 0 -> ]
+    1: SETR            CLASS_THISKEY2   CLASS_THISKEY
+    2: ZCLASS_CONSTRUCT CLASS_THISKEY    { 1 }
+    3: ZCLASS_MARK_TYPE { 0, 8 }
+    4: SETR            D4               SP2
+    5: PUSHR           CLASS_THISKEY2
+    6: SETV            D2               0
+    7: PUSHR           CLASS_THISKEY
+    8: ZCLASS_CONSTRUCT D2               { 0 }
+    9: POP             CLASS_THISKEY
+   10: ZCLASS_WRITE    CLASS_THISKEY    0
+   11: SETR            D2               CLASS_THISKEY
+   12: POP             CLASS_THISKEY
+   13: RETURNFUNC

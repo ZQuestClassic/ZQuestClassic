@@ -93,8 +93,8 @@ static void zasm_optimize_trace(fmt::format_string<Args...> s, Args&&... args)
 static bool bisect_tool_should_skip()
 {
 #ifdef ENABLE_BISECT_TOOL
-	static int c = 0;
-	static int x = get_flag_int("-test-bisect").value();
+	static int64_t c = 0;
+	static int64_t x = get_flag_int("-test-bisect").value();
 	// Skip the first x calls.
 	bool skip = 0 <= c && c < x;
 	c++;
@@ -427,7 +427,7 @@ static void remove(OptContext& ctx, pc_t pc)
 }
 
 template <typename T>
-static void for_every_command_register_arg(const ffscript& instr, T fn)
+static void for_every_register_side_effect_args_only(const ffscript& instr, T fn)
 {
 	auto sc = get_script_command(instr.command);
 
@@ -451,7 +451,7 @@ static void for_every_command_register_arg(const ffscript& instr, T fn)
 }
 
 template <typename T>
-static void for_every_command_arg(ffscript& instr, T fn)
+static void for_every_side_effect_all_args(ffscript& instr, T fn)
 {
 	auto sc = get_script_command(instr.command);
 
@@ -513,7 +513,7 @@ static bool has_implemented_register_invalidations(int reg)
 }
 
 template <typename T>
-static void for_every_command_register_arg_d(const ffscript& instr, T fn)
+static void for_every_side_effect_d_registers_only(const ffscript& instr, T fn)
 {
 	std::array<bool, 8> r{}, w{};
 
@@ -526,7 +526,7 @@ static void for_every_command_register_arg_d(const ffscript& instr, T fn)
 		w[reg] |= rw == ARGTY::READWRITE_REG || rw == ARGTY::WRITE_REG;
 	}
 
-	for_every_command_register_arg(instr, [&](bool read, bool write, int reg, int argn){
+	for_every_register_side_effect_args_only(instr, [&](bool read, bool write, int reg, int argn){
 		for (auto reg2 : get_register_dependencies(reg))
 			if (reg2 < 8) r[reg2] |= true;
 
@@ -547,7 +547,7 @@ static void for_every_command_register_arg_d(const ffscript& instr, T fn)
 }
 
 template <typename T>
-static void for_every_command_register_arg_include_indices(const ffscript& instr, T fn)
+static void for_every_register_side_effect(const ffscript& instr, T fn)
 {
 	for (auto [reg, rw] : get_command_implicit_dependencies(instr.command))
 	{
@@ -556,7 +556,7 @@ static void for_every_command_register_arg_include_indices(const ffscript& instr
 		fn(read, write, reg, -1);
 	}
 
-	for_every_command_register_arg(instr, [&](bool read, bool write, int reg, int argn){
+	for_every_register_side_effect_args_only(instr, [&](bool read, bool write, int reg, int argn){
 		if (auto r = get_register_ref_dependency(reg))
 			fn(true, false, *r, -1);
 		for (auto r : get_register_dependencies(reg))
@@ -786,7 +786,7 @@ static bool optimize_setr_pushr(OptContext& ctx)
 			if (j + 2 <= final_pc)
 			{
 				bool reads_from_reg = false;
-				for_every_command_register_arg_include_indices(C(j + 2), [&](bool read, bool write, int reg, int arg){
+				for_every_register_side_effect(C(j + 2), [&](bool read, bool write, int reg, int argn){
 					if (reg == C(j).arg1 && read)
 						reads_from_reg = true;
 				});
@@ -805,47 +805,9 @@ static bool optimize_setr_pushr(OptContext& ctx)
 	return true;
 }
 
+// Remove PUSH/POPs used to preserve registers that aren't used.
 static bool optimize_stack(OptContext& ctx)
 {
-	// TODO: investigate why this is breaking codegen for write
-	//
-	// no optimizer:
-	//
-	// Function #204
-	// 	27842: SETV            D2               0           [Block 0 -> ]
-	// 	27843: SETR            CLASS_THISKEY2   CLASS_THISKEY
-	// 	27844: ZCLASS_CONSTRUCT CLASS_THISKEY    { 1 }      
-	// 	27845: ZCLASS_MARK_TYPE { 0, 8 }                    
-	// 	27846: SETR            D4               SP2         
-	// 	27847: PUSHR           CLASS_THISKEY2               
-	// 	27848: SETV            D2               0           
-	// 	27849: PUSHR           CLASS_THISKEY                
-	// 	27850: ZCLASS_CONSTRUCT D2               { 0 }      
-	// 	27851: POP             CLASS_THISKEY                
-	// 	27852: ZCLASS_WRITE    CLASS_THISKEY    0           
-	// 	27853: SETR            D2               CLASS_THISKEY
-	// 	27854: POP             CLASS_THISKEY                
-	// 	27855: RETURNFUNC               
-	//
-	// optimized:
-	// 	Function #204
-	// 	27842: SETV            D2               0           [Block 0 -> ]
-	// 	27843: SETR            CLASS_THISKEY2   CLASS_THISKEY
-	// 	27844: ZCLASS_CONSTRUCT CLASS_THISKEY    { 1 }      
-	// 	27845: ZCLASS_MARK_TYPE { 0, 8 }                    
-	// 	27846: SETR            D4               SP2         
-	// 	27847: PUSHR           CLASS_THISKEY2               
-	// 	27848: SETV            D2               0           
-	// 	27849: NOP                                             ------ where did push/pop go? ZCLASS_CONSTRUCT is marked as writing to CLASS_THISKEY...
-	// 	27850: ZCLASS_CONSTRUCT D2               { 0 }      
-	// 	27851: NOP                                          
-	// 	27852: ZCLASS_WRITE    CLASS_THISKEY    0           
-	// 	27853: SETR            D2               CLASS_THISKEY
-	// 	27854: POP             CLASS_THISKEY                
-	// 	27855: RETURNFUNC                  
-	if (!should_run_experimental_passes())
-		return false;                 
-
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
 		for (int j = start_pc; j < final_pc; j++)
@@ -862,12 +824,17 @@ static bool optimize_stack(OptContext& ctx)
 				{
 					if (count != 0)
 						break;
+
 					if (bisect_tool_should_skip())
 						break;
-					remove(ctx, j);
-					remove(ctx, k);
+
+					remove(ctx, j); // Remove PUSHR.
+					remove(ctx, k); // Remove POP.
 					break;
 				}
+
+				if (command == CALLFUNC)
+					break;
 
 				switch (command)
 				{
@@ -890,15 +857,19 @@ static bool optimize_stack(OptContext& ctx)
 				if (count < 0)
 					break;
 
+				// If the register that was preserved on the stack was written to between the PUSH
+				// and the POP, it doesn't necessarily mean that the register needs to be preserved.
+				// It's possible that the register is never read from after, or is written to before
+				// the next read. To know for sure, we need to do data-flow analyis, such as in
+				// optimize_dead_code. For now, be conservative and leave some optimizations on the
+				// table: keep this stack usage if anything writes to the register between the
+				// PUSH/POP.
 				bool writes_to_reg = false;
-				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg, int argn){
+				for_every_register_side_effect(C(k), [&](bool read, bool write, int arg, int argn){
 					if (arg == reg && write)
 						writes_to_reg = true;
 				});
 				if (writes_to_reg)
-					break;
-
-				if (command == CALLFUNC)
 					break;
 			}
 		}
@@ -1441,7 +1412,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 			command_handled = false;
 	}
 
-	for_every_command_register_arg_include_indices(C(state.pc), [&](bool read, bool write, int reg, int argn){
+	for_every_register_side_effect(C(state.pc), [&](bool read, bool write, int reg, int argn){
 		if (!write)
 			return;
 
@@ -1697,7 +1668,7 @@ static bool optimize_propagate_values(OptContext& ctx)
 
 		while (true)
 		{
-			for_every_command_register_arg_include_indices(C(state.pc), [&](bool read, bool write, int reg, int argn){
+			for_every_register_side_effect(C(state.pc), [&](bool read, bool write, int reg, int argn){
 				if (read && !write)
 				{
 					if (!(reg >= D(0) && reg < D(INITIAL_D)))
@@ -1944,7 +1915,7 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 					break;
 				}
 
-				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg, int argn){
+				for_every_register_side_effect(C(k), [&](bool read, bool write, int arg, int argn){
 					if (arg == D(2) && write)
 					{
 						writes_comparison_result_to_d2 = true;
@@ -2032,7 +2003,7 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 						break;
 
 					bool writes_d2 = false;
-					for_every_command_register_arg(C(i), [&](bool read, bool write, int arg, int argn){
+					for_every_register_side_effect(C(i), [&](bool read, bool write, int arg, int argn){
 						if (arg == D(2))
 						{
 							if (read && !writes_d2)
@@ -2396,7 +2367,7 @@ static bool optimize_inline_functions(OptContext& ctx)
 		}
 		else
 		{
-			for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg, int argn){
+			for_every_side_effect_all_args(inline_instr, [&](bool read, bool write, int& reg, int argn){
 				if (read || write)
 				{
 					if (data.internal_reg_to_type[reg] == 0)
@@ -2517,7 +2488,7 @@ static bool optimize_dead_code(OptContext& ctx)
 			if (command == RETURNFUNC)
 				returns = true;
 
-			for_every_command_register_arg_d(C(i), [&](bool read, bool write, int reg){
+			for_every_side_effect_d_registers_only(C(i), [&](bool read, bool write, int reg){
 				if (read)
 				{
 					if (!(kill & (1 << reg)))
@@ -2567,7 +2538,7 @@ static bool optimize_dead_code(OptContext& ctx)
 		pc_t i = final_pc;
 		while (true)
 		{
-			for_every_command_register_arg_d(C(i), [&](bool read, bool write, int reg){
+			for_every_side_effect_d_registers_only(C(i), [&](bool read, bool write, int reg){
 				if (write)
 				{
 					if (!(live & (1 << reg)))
@@ -2866,7 +2837,7 @@ static zasm_script zasm_from_string(std::string text)
 	return {std::move(instructions)};
 }
 
-// Used by test_optimize_zasm_test.py
+// Used by test_optimize_zasm_unit.py
 void zasm_optimize_run_for_file(std::string path)
 {
 	std::string text = util::read_text_file(path);

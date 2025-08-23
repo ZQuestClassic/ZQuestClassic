@@ -20,7 +20,7 @@ void common_main_setup(App id, int argc, char **argv);
 // If `-no-name` flag is set, returns false
 // Otherwise returns std::nullopt
 std::optional<bool> get_flag_bool(const char* name);
-std::optional<int> get_flag_int(const char* name);
+std::optional<int64_t> get_flag_int(const char* name);
 std::optional<std::string> get_flag_string(const char* name);
 App get_app_id();
 bool is_web();

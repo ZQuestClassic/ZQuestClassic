@@ -375,10 +375,6 @@ class CLIPlayerInterface:
             '-optimize-zasm-experimental',
         ]
 
-        # TODO: remove when "stack" optimizer pass is fixed.
-        if replay_path.name == 'auto_bug_nested_class_constructors.zplay':
-            exe_args.remove('-optimize-zasm-experimental')
-
         if extra_args:
             exe_args.extend(extra_args)
 
@@ -472,9 +468,6 @@ class WebPlayerInterface:
             '-optimize-zasm',
             '-optimize-zasm-experimental',
         ]
-        # TODO: remove when "stack" optimizer pass is fixed.
-        if replay_path.name == 'auto_bug_nested_class_constructors.zplay':
-            extra_args.remove('-optimize-zasm-experimental')
         if ctx.extra_args:
             extra_args.extend(ctx.extra_args)
 

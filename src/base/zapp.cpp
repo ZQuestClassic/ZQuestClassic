@@ -169,11 +169,11 @@ std::optional<bool> get_flag_bool(const char* name)
 	return std::nullopt;
 }
 
-std::optional<int> get_flag_int(const char* name)
+std::optional<int64_t> get_flag_int(const char* name)
 {
 	int arg = used_switch(argc, argv, name);
 	if (arg == 0) return std::nullopt;
-	return std::stoi(argv[arg + 1]);
+	return std::stoll(argv[arg + 1]);
 }
 
 std::optional<std::string> get_flag_string(const char* name)

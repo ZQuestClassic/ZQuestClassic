@@ -143,7 +143,7 @@ std::optional<int> parse_zasm_compare_arg(char const* buf)
 	return cmp;
 }
 
-static std::optional<int> parse_zasm_arg(const std::string& text, ARGTY type)
+static std::optional<int> parse_zasm_numerical_arg(const std::vector<std::string>& tokens, int& token_index, ARGTY type)
 {
 	switch (type)
 	{
@@ -152,6 +152,7 @@ static std::optional<int> parse_zasm_arg(const std::string& text, ARGTY type)
 		case ARGTY::READWRITE_REG:
 		case ARGTY::UNUSED_REG:
 		{
+			auto& text = tokens[token_index++];
 			if (auto var = get_script_variable(text))
 				return *var;
 			return std::nullopt;
@@ -160,6 +161,7 @@ static std::optional<int> parse_zasm_arg(const std::string& text, ARGTY type)
 
 		case ARGTY::LITERAL_REG:
 		{
+			auto& text = tokens[token_index++];
 			if (text[0] != '@')
 				return std::nullopt;
 
@@ -170,11 +172,13 @@ static std::optional<int> parse_zasm_arg(const std::string& text, ARGTY type)
 
 		case ARGTY::LITERAL:
 		{
+			auto& text = tokens[token_index++];
 			return std::stoi(text);
 		}
 
 		case ARGTY::COMPARE_OP:
 		{
+			auto& text = tokens[token_index++];
 			return parse_zasm_compare_arg(text.c_str()).value();
 		}
 	}
@@ -182,22 +186,39 @@ static std::optional<int> parse_zasm_arg(const std::string& text, ARGTY type)
 	return std::nullopt;
 }
 
-// TODO: this does not yet parse vec or str args
 ffscript parse_zasm_op(std::string op_str)
 {
+	ffscript result{};
+
 	auto tokens = util::split_args(op_str);
 	assert(tokens.size() > 0);
+
 	auto sc = get_script_command(tokens[1]);
+	result.command = sc->command;
 
-	int arg1 = 0;
-	int arg2 = 0;
-	int arg3 = 0;
+	int token_index = 2;
 	if (sc->args >= 1)
-		arg1 = parse_zasm_arg(tokens[2], sc->arg_type[0]).value();
+		result.arg1 = parse_zasm_numerical_arg(tokens, token_index, sc->arg_type[0]).value();
 	if (sc->args >= 2)
-		arg2 = parse_zasm_arg(tokens[3], sc->arg_type[1]).value();
+		result.arg2 = parse_zasm_numerical_arg(tokens, token_index, sc->arg_type[1]).value();
 	if (sc->args >= 3)
-		arg3 = parse_zasm_arg(tokens[4], sc->arg_type[2]).value();
+		result.arg3 = parse_zasm_numerical_arg(tokens, token_index, sc->arg_type[2]).value();
 
-	return {(word)sc->command, arg1, arg2, arg3};
+	if (sc->arr_type == 1)
+	{
+		result.strptr = new std::string(tokens[token_index++]);
+	}
+	else if (sc->arr_type == 2)
+	{
+		result.vecptr = new std::vector<int32_t>();
+		CHECK(tokens[token_index++] == "{");
+		while (token_index < tokens.size() - 1)
+		{
+			int val = std::stoi(tokens[token_index++]);
+			result.vecptr->push_back(val);
+		}
+		CHECK(tokens[token_index++] == "}");
+	}
+
+	return result;
 }

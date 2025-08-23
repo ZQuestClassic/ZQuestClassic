@@ -1,0 +1,21 @@
+; D0 is restored by POP and is live-out of its block.
+; The PUSHR/POP pair must be preserved.
+Function #0 (run_none-0)
+    0: CALLFUNC        4                            [Block 0 -> ][Call Function #1]
+    1: NOP
+    2: NOP
+    3: QUIT
+
+
+Function #1
+    4: SETR            D0               LINKX       [Block 0 -> 2]
+    5: ADDV            D0               1
+    6: PUSHR           D0
+    7: SETV            D0               50
+    8: ADDV            D0               1
+    9: TRACER          D0
+   10: POP             D0
+   11: GOTO            13
+   12: NOP                                          [Block 1 -> 2]
+   13: TRACER          D0                           [Block 2 -> ]
+   14: RETURNFUNC
