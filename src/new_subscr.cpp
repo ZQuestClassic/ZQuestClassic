@@ -113,6 +113,54 @@ static int get_subscr_item_id(int family, bool compat = false)
 	return current_item_id(family,false,false,false);
 }
 
+static int calc_item_from_class_id_button(int specific_item_id, int button_id, int item_class)
+{
+	int item_id = -1;
+	if (specific_item_id > -1)
+		item_id = specific_item_id;
+	else if (button_id > -1)
+	{
+		if (button_id >= 4) return 0;
+		int ids[] = { Awpn,Bwpn,Xwpn,Ywpn };
+		item_id = NEG_OR_MASK(ids[button_id], 0xFF);
+	}
+	else
+	{
+		auto family = -1;
+		switch (item_class)
+		{
+			case itype_bowandarrow:
+			case itype_arrow:
+#ifdef IS_PLAYER
+				if (get_subscr_item_id(itype_bow) > -1
+					&& get_subscr_item_id(itype_arrow) > -1)
+					family = itype_arrow;
+#else
+				family = itype_arrow;
+#endif
+				break;
+			case itype_letterpotion:
+#ifdef IS_PLAYER
+				if (get_subscr_item_id(itype_potion) > -1)
+					family = itype_potion;
+				else if (get_subscr_item_id(itype_letter) > -1)
+					family = itype_letter;
+#else
+				if (get_subscr_item_id(itype_potion) > -1)
+					family = itype_potion;
+				else family = itype_letter;
+#endif
+				break;
+			default:
+				family = item_class;
+				break;
+		}
+		if (family < 0) return 0;
+		item_id = get_subscr_item_id(family);
+	}
+	return item_id;
+}
+
 void refresh_subscr_items()
 {
 	subscr_itemless = false;
@@ -5139,57 +5187,22 @@ byte SW_ItemCooldownGauge::getType() const
 
 dword SW_ItemCooldownGauge::get_ctr() const
 {
-	int item_id = -1;
-	if (specific_item_id > -1)
-		item_id = specific_item_id;
-	else if (button_id > -1)
-	{
-		if (button_id >= 4) return 0;
-		int ids[] = { Awpn,Bwpn,Xwpn,Ywpn };
-		item_id = NEG_OR_MASK(ids[button_id], 0xFF);
-	}
-	else
-	{
-		auto family = -1;
-		switch (item_class)
-		{
-			case itype_bowandarrow:
-			case itype_arrow:
-#ifdef IS_PLAYER
-				if (get_subscr_item_id(itype_bow) > -1
-					&& get_subscr_item_id(itype_arrow) > -1)
-					family = itype_arrow;
-#else
-				family = itype_arrow;
-#endif
-				break;
-			case itype_letterpotion:
-#ifdef IS_PLAYER
-				if (get_subscr_item_id(itype_potion) > -1)
-					family = itype_potion;
-				else if (get_subscr_item_id(itype_letter) > -1)
-					family = itype_letter;
-#else
-				if (get_subscr_item_id(itype_potion) > -1)
-					family = itype_potion;
-				else family = itype_letter;
-#endif
-				break;
-			default:
-				family = item_class;
-				break;
-		}
-		if (family < 0) return 0;
-		item_id = get_subscr_item_id(family);
-	}
+	int item_id = calc_item_from_class_id_button(specific_item_id, button_id, item_class);
 	if (unsigned(item_id) >= MAXITEMS)
 		return 0;
-
+	
+	auto b = zq_ignore_item_ownership;
+	zq_ignore_item_ownership = false;
+	
 	auto cd_data = calc_item_cooldown(item_id);
+	
+	zq_ignore_item_ownership = b;
+	
 	zfix cooldown = cd_data.cooldown;
 	zfix max_cooldown = cd_data.max_cooldown;
 	zfix perc = cooldown < 0 ? 1.0_zf : (cooldown / max_cooldown);
 	perc = vbound(perc, 0_zf, 1_zf);
+	
 	return (perc * zfix(total_points)).getCeil(); 
 }
 dword SW_ItemCooldownGauge::get_ctr_max() const
@@ -5255,6 +5268,162 @@ int32_t SW_ItemCooldownGauge::write(PACKFILE* f) const
 	if (!p_iputl(total_points, f))
 		new_return(1);
 	if (!p_iputl(per_container, f))
+		new_return(1);
+	return 0;
+}
+
+int16_t SW_ItemCooldownText::getX() const
+{
+	auto tx = x+shadow_x(shadtype);
+	switch(align)
+	{
+		case sstaCENTER:
+			return tx-getW()/2;
+		case sstaRIGHT:
+			return tx-getW();
+	}
+	return tx;
+}
+int16_t SW_ItemCooldownText::getY() const
+{
+	return y+shadow_y(shadtype);
+}
+word SW_ItemCooldownText::getW() const
+{
+	int32_t len = text_length(get_zc_font(fontid), get_text().c_str());
+	return len == 0 ? 8 : len;
+}
+word SW_ItemCooldownText::getH() const
+{
+	return text_height(get_zc_font(fontid));
+}
+byte SW_ItemCooldownText::getType() const
+{
+	return widgITMCOOLDOWNTEXT;
+}
+string SW_ItemCooldownText::format_text(int cd) const
+{
+	int frames = cd % 60;
+	int seconds = (cd / 60) % 60;
+	int minutes = ((cd / 60) / 60) % 60;
+	
+	string text;
+	if (flags & SUBSCR_COOLDOWNTEXT_ALTSTYLE)
+	{
+		if (minutes)
+			text += fmt::format("{}m{:02}", minutes, seconds);
+		else
+			text += fmt::format("{}", seconds);
+		
+		text += fmt::format(".{:02}s", frames);
+	}
+	else
+	{
+		if (minutes)
+			text += fmt::format("{}:{:02}", minutes, seconds);
+		else
+			text += fmt::format("{}", seconds);
+		
+		text += fmt::format(".{:02}", frames);
+	}
+	return text;
+}
+string SW_ItemCooldownText::get_text() const
+{
+	int item_id = calc_item_from_class_id_button(specific_item_id, button_id, item_class);
+	if (unsigned(item_id) >= MAXITEMS)
+		return "";
+	
+	auto b = zq_ignore_item_ownership;
+	zq_ignore_item_ownership = false;
+	
+	auto cd_data = calc_item_cooldown(item_id);
+	
+	zq_ignore_item_ownership = b;
+	
+	auto cd = cd_data.cooldown;
+	if (!cd)
+		return "";
+	if (cd < 0)
+	{
+		cd = cd_data.max_cooldown; // display max time for 'infinite' cooldowns
+		if (!cd) cd = 60; // default display 1s
+	}
+	return format_text(cd);
+}
+void SW_ItemCooldownText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	FONT* tempfont = get_zc_font(fontid);
+	textout_styled_aligned_ex(dest,tempfont,get_text().c_str(),x+xofs,y+yofs,
+		shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
+}
+SubscrWidget* SW_ItemCooldownText::clone() const
+{
+	return new SW_ItemCooldownText(*this);
+}
+bool SW_ItemCooldownText::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_ItemCooldownText const* other = dynamic_cast<SW_ItemCooldownText const*>(src);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
+	fontid = other->fontid;
+	align = other->align;
+	shadtype = other->shadtype;
+	c_text = other->c_text;
+	c_shadow = other->c_shadow;
+	c_bg = other->c_bg;
+	item_class = other->item_class;
+	specific_item_id = other->specific_item_id;
+	button_id = other->button_id;
+	return true;
+}
+int32_t SW_ItemCooldownText::read(PACKFILE *f, word s_version)
+{
+	if(auto ret = SubscrWidget::read(f,s_version))
+		return ret;
+	if(!p_igetl(&fontid,f))
+		return qe_invalid;
+	if(!p_getc(&align,f))
+		return qe_invalid;
+	if(!p_getc(&shadtype,f))
+		return qe_invalid;
+	if(auto ret = c_text.read(f,s_version))
+		return ret;
+	if(auto ret = c_shadow.read(f,s_version))
+		return ret;
+	if(auto ret = c_bg.read(f,s_version))
+		return ret;
+	if (!p_igetl(&item_class, f))
+		return qe_invalid;
+	if (!p_igetl(&specific_item_id, f))
+		return qe_invalid;
+	if (!p_getc(&button_id, f))
+		return qe_invalid;
+	return 0;
+}
+int32_t SW_ItemCooldownText::write(PACKFILE *f) const
+{
+	if(auto ret = SubscrWidget::write(f))
+		return ret;
+	if(!p_iputl(fontid,f))
+		new_return(1);
+	if(!p_putc(align,f))
+		new_return(1);
+	if(!p_putc(shadtype,f))
+		new_return(1);
+	if(auto ret = c_text.write(f))
+		return ret;
+	if(auto ret = c_shadow.write(f))
+		return ret;
+	if(auto ret = c_bg.write(f))
+		return ret;
+	if (!p_iputl(item_class, f))
+		new_return(1);
+	if (!p_iputl(specific_item_id, f))
+		new_return(1);
+	if (!p_putc(button_id, f))
 		new_return(1);
 	return 0;
 }
@@ -5745,6 +5914,9 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 		case widgITMCOOLDOWNGAUGE:
 			widg = new SW_ItemCooldownGauge();
 			break;
+		case widgITMCOOLDOWNTEXT:
+			widg = new SW_ItemCooldownText();
+			break;
 		case widgTEXTBOX:
 			widg = new SW_TextBox();
 			break;
@@ -5819,6 +5991,8 @@ byte SubscrWidget::numFlags(byte type)
 			return SUBSCR_NUMFLAG_BTNCOUNTER;
 		case widgITMCOOLDOWNGAUGE:
 			return SUBSCR_NUMFLAG_COOLDOWNGAUGE;
+		case widgITMCOOLDOWNTEXT:
+			return SUBSCR_NUMFLAG_COOLDOWNTEXT;
 	}
 	return 0;
 }

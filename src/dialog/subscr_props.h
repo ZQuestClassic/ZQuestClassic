@@ -41,7 +41,7 @@ protected:
 	std::shared_ptr<GUI::SelTileSwatch> tswatches[2];
 	std::shared_ptr<GUI::DropDownList> ddls[2];
 	std::shared_ptr<GUI::TextField> fonttf;
-	std::shared_ptr<GUI::Label> labels[5];
+	std::shared_ptr<GUI::Label> labels[6];
 	std::shared_ptr<GUI::TextField> tfs[3];
 	std::shared_ptr<GUI::Checkbox> cbs[4];
 	
@@ -75,6 +75,7 @@ protected:
 	
 	void updateSelectable();
 	void updateAttr();
+	void updatePreview();
 	void updateColors();
 	void updateConditions();
 	void update_wh();

@@ -1272,6 +1272,7 @@ static const GUI::ListData subscrWidgets =
 	{ "Counter Percentage Bar", widgCOUNTERPERCBAR, "Shows a colored bar filled for a specified counter" },
 	{ "Gauge Piece: Item Cooldown", widgITMCOOLDOWNGAUGE, "Allows building highly customizable gauges"
 		" for item cooldowns." },
+	{ "Item Cooldown Text", widgITMCOOLDOWNTEXT, "Shows a timer for item cooldowns." },
 };
 
 GUI::ListData const& GUI::ZCListData::subscr_widgets()
