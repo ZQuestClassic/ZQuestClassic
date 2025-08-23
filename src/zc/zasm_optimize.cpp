@@ -1555,7 +1555,12 @@ static bool compile_conditional(SimulationValue& expression, std::vector<ffscrip
 	else if (lhs.is_register() && rhs.is_number())
 		result.emplace_back(COMPAREV, arg1, arg2);
 	else if (lhs.is_number() && rhs.is_register())
-		result.emplace_back(COMPAREV, arg1, arg2);
+	{
+		// This would emit a COMPAREV2, but evaluate_binary_op normalizes results to always place
+		// number operands on the left.
+		ASSERT(false);
+		return false;
+	}
 	else
 	{
 		ASSERT(false);
