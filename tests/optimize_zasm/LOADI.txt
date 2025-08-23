@@ -1,7 +1,7 @@
 ; SETR, ADDV, LOADI -> LOADD
 Function #0 (run_none-0)
     0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
-    1: NOP
+    1: CALLFUNC        14                           [Call Function #2]
     2: NOP
     3: NOP
     4: QUIT
@@ -17,3 +17,14 @@ Function #1
    11: LOADI           D2               D6
    12: PUSHR           D2
    13: RETURNFUNC
+
+
+Function #2
+   14: NOP                                          [Block 0 -> ]
+   15: PUSHV           0
+   16: SETR            D4               SP2
+   17: SETR            D6               D4
+   18: ADDV            D6               10000
+   19: SETV            D2               0
+   20: STOREI          D2               D6
+   21: RETURNFUNC

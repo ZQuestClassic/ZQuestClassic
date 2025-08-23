@@ -703,9 +703,13 @@ static bool optimize_load_store(OptContext& ctx)
 		if (bail)
 			continue;
 
-		int addv_arg2 = C(setr_pc + 1).arg2;
-		ASSERT(C(setr_pc + 1).command == ADDV);
+		if (C(setr_pc + 1).command != ADDV)
+		{
+			ASSERT(false);
+			continue;
+		}
 
+		int addv_arg2 = C(setr_pc + 1).arg2;
 		word new_command = command == LOADI ? LOADD : STORED;
 		C(i) = {new_command, arg1, addv_arg2};
 		remove(ctx, setr_pc, setr_pc + 1);
