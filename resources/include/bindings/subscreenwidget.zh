@@ -1,5 +1,6 @@
 enum SubscreenItemButton
 {
+	ITMBTN_NONE = -1,
 	ITMBTN_A,
 	ITMBTN_B,
 	ITMBTN_X,
@@ -428,6 +429,7 @@ class subscreenwidget {
 	// - [SUBWIDG_BTNCOUNTER]
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @value [enum Font]
 
@@ -443,6 +445,7 @@ class subscreenwidget {
 	// - [SUBWIDG_BTNCOUNTER]
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @value [enum TextAlignment]
 
@@ -459,6 +462,7 @@ class subscreenwidget {
 	// - [SUBWIDG_BTNCOUNTER]
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @value [enum ShadowType]
 
@@ -476,6 +480,7 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	// - [SUBWIDG_MCGUFF_FRAME]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @zasm_var SUBWIDGTY_COLOR_TXT
 	internal int ColorText;
@@ -498,6 +503,7 @@ class subscreenwidget {
 	// - [SUBWIDG_BTNCOUNTER]
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @zasm_var SUBWIDGTY_COLOR_SHD
 	internal int ColorShadow;
@@ -522,6 +528,7 @@ class subscreenwidget {
 	// - [SUBWIDG_SELECTEDTEXT]
 	// - [SUBWIDG_BGCOLOR]
 	// - [SUBWIDG_COUNTERPERCBAR]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @zasm_var SUBWIDGTY_COLOR_BG
 	internal int ColorBG;
@@ -556,6 +563,7 @@ class subscreenwidget {
 	// - [SUBWIDG_BTNITM]
 	// - [SUBWIDG_BTNCOUNTER]
 	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @value [enum SubscreenItemButton]
 
@@ -647,6 +655,7 @@ class subscreenwidget {
 	//
 	// - [SUBWIDG_ITEMSLOT]
 	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @zasm_var SUBWIDGTY_ITEMCLASS
 	internal int ItemType;
@@ -655,6 +664,7 @@ class subscreenwidget {
 	//
 	// - [SUBWIDG_ITEMSLOT]
 	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @zasm_var SUBWIDGTY_ITEMID
 	internal int ItemID;
@@ -858,8 +868,8 @@ class subscreenwidget {
 
 	// The widget's tabsize value
 	//
-	// - [SUBWIDG_TEXT]
 	// - [SUBWIDG_TEXTBOX]
+	// - [SUBWIDG_SELECTEDTEXT]
 	//
 	// @zasm_var SUBWIDGTY_TABSIZE
 	internal int TabSize;
@@ -911,13 +921,14 @@ class subscreenwidget {
 	//   SUBWIDG_SET_LABEL D2
 	internal void SetLabel(char32[] str);
 
-	// Gets/Sets the text for this widget.
+	// Gets the text for this widget.
 	//
-	// If the buffer provided for GetText() is too small, it will *automatically
+	// If the buffer provided is too small, it will *automatically
 	// be resized to fit*.
 	//
 	// - [SUBWIDG_TEXT]
 	// - [SUBWIDG_TEXTBOX]
+	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @zasm
 	//   POP D2
@@ -925,10 +936,7 @@ class subscreenwidget {
 	//   SUBWIDG_TY_GETTEXT D2
 	internal void GetText(char32[] buf);
 
-	// Gets/Sets the text for this widget.
-	//
-	// If the buffer provided for [GetText] is too small, it will *automatically
-	// be resized to fit*.
+	// Sets the text for this widget.
 	//
 	// - [SUBWIDG_TEXT]
 	// - [SUBWIDG_TEXTBOX]

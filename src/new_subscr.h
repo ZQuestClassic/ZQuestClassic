@@ -191,7 +191,7 @@ enum //new subscreen object types
 	widgOLDCTR, widgMMAPTITLE, widgMMAP, widgLMAP, widgBGCOLOR,
 	widgITEMSLOT, widgMCGUFF_FRAME, widgMCGUFF, widgTILEBLOCK, widgMINITILE,
 	widgSELECTOR, widgLGAUGE, widgMGAUGE, widgTEXTBOX, widgSELECTEDTEXT,
-	widgMISCGAUGE, widgBTNCOUNTER, widgCOUNTERPERCBAR, widgITMCOOLDOWNGAUGE,
+	widgMISCGAUGE, widgBTNCOUNTER, widgCOUNTERPERCBAR, widgITMCOOLDOWNGAUGE, widgITMCOOLDOWNTEXT,
 	widgMAX
 };
 extern const std::string subwidg_internal_names[widgMAX];
@@ -1047,6 +1047,34 @@ struct SW_ItemCooldownGauge : public SW_GaugePiece
 	virtual int32_t write(PACKFILE* f) const override;
 protected:
 	virtual int32_t read(PACKFILE* f, word s_version) override;
+};
+
+#define SUBSCR_COOLDOWNTEXT_ALTSTYLE       SUBSCRFLAG_SPEC_01
+#define SUBSCR_NUMFLAG_COOLDOWNTEXT        1
+struct SW_ItemCooldownText : public SubscrWidget
+{
+	int32_t fontid;
+	byte align, shadtype;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
+	int32_t item_class, specific_item_id = -1;
+	int8_t button_id = -1;
+	
+	SW_ItemCooldownText() = default;
+	
+	std::string format_text(int cd) const;
+	std::string get_text() const;
+	virtual bool load_old(subscreen_object const& old) override { return false; }
+	virtual int16_t getX() const override; //Returns x in pixels
+	virtual int16_t getY() const override; //Returns y in pixels
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_TEXTBOX_WORDWRAP        SUBSCRFLAG_SPEC_01

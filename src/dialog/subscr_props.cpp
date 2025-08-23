@@ -327,6 +327,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgMGAUGE:
 			case widgMISCGAUGE:
 			case widgITMCOOLDOWNGAUGE:
+			case widgITMCOOLDOWNTEXT:
 			case widgCOUNTER:
 			case widgOLDCTR:
 			case widgBTNCOUNTER:
@@ -505,6 +506,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgMISCGAUGE:
 			case widgITMCOOLDOWNGAUGE:
 				break;
+			case widgITMCOOLDOWNTEXT:
+			{
+				SW_ItemCooldownText* w = dynamic_cast<SW_ItemCooldownText*>(local_subref);
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				break;
+			}
 			case widgLMETER:
 				break;
 			case widgLINE:
@@ -1161,6 +1171,52 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					}
 				}
 				
+				break;
+			}
+			case widgITMCOOLDOWNTEXT:
+			{
+				SW_ItemCooldownText* w = dynamic_cast<SW_ItemCooldownText*>(local_subref);
+				mergetype = mtFORCE_TAB;
+				attrib_grid = Column(
+					Row(
+						Rows<2>(
+							Label(text = "Font:", hAlign = 1.0),
+							DDL_FONT(w->fontid),
+							Label(text = "Style:", hAlign = 1.0),
+							DDL(w->shadtype, list_shadtype),
+							Label(text = "Alignment:", hAlign = 1.0),
+							DDL(w->align, list_aligns)
+						),
+						Rows<3>(
+							Label(text = "Item ID:", hAlign = 1.0),
+							DDL_PROC(w->specific_item_id, list_items, updateAttr),
+							INFOBTN("Which specific item to display the cooldown of."),
+							labels[0] = Label(text = "Button:", hAlign = 1.0),
+							ddls[0] = DDL_PROC(w->button_id, list_buttons_none, updateAttr),
+							INFOBTN("Which button's current item to display the cooldown of."),
+							labels[1] = Label(text = "Item Type:", hAlign = 1.0),
+							ddls[1] = DDL(w->item_class, list_itemclass),
+							INFOBTN("Which item type's current owned item to display the cooldown of.")
+						)
+					),
+					Checkbox(
+						text = "Alternate Style",
+						checked = local_subref->flags & SUBSCR_COOLDOWNTEXT_ALTSTYLE,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_subref->flags, SUBSCR_COOLDOWNTEXT_ALTSTYLE, state);
+							updatePreview();
+						}
+					),
+					Frame(title = "Preview", info = "Only previews the style, not the font/shadow/etc",
+						Rows<2>(spacing = 2_em,
+							labels[2] = Label(textAlign = 1, minwidth = 6_em),
+							labels[3] = Label(textAlign = 1, minwidth = 6_em),
+							labels[4] = Label(textAlign = 1, minwidth = 6_em),
+							labels[5] = Label(textAlign = 1, minwidth = 6_em)
+						)
+					)
+				);
 				break;
 			}
 			case widgLMETER:
@@ -2017,6 +2073,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	cond_item_sels[CI_PICKED] = cond_itms_list->getSelectedValue();
 	updateSelectable();
 	updateAttr();
+	updatePreview();
 	refr_info();
 	return window;
 }
@@ -2072,6 +2129,36 @@ void SubscrPropDialog::updateAttr()
 			labels[3]->setDisabled(no_btn);
 			ddls[1]->setDisabled(no_class);
 			labels[4]->setDisabled(no_class);
+			break;
+		}
+		case widgITMCOOLDOWNTEXT:
+		{
+			SW_ItemCooldownText* w = dynamic_cast<SW_ItemCooldownText*>(local_subref);
+			bool no_btn = w->specific_item_id > -1;
+			bool no_class = no_btn || w->button_id > -1;
+			ddls[0]->setDisabled(no_btn);
+			labels[0]->setDisabled(no_btn);
+			ddls[1]->setDisabled(no_class);
+			labels[1]->setDisabled(no_class);
+			break;
+		}
+	}
+}
+void SubscrPropDialog::updatePreview()
+{
+	switch(local_subref->getType())
+	{
+		case widgITMCOOLDOWNTEXT:
+		{
+			const int MIN = 60 * 60;
+			const int SEC = 60;
+			
+			SW_ItemCooldownText* w = dynamic_cast<SW_ItemCooldownText*>(local_subref);
+			
+			labels[2]->setText(w->format_text(5 * MIN + 30 * SEC + 30));
+			labels[3]->setText(w->format_text(10 * MIN + 45 * SEC));
+			labels[4]->setText(w->format_text(2 * SEC + 15));
+			labels[5]->setText(w->format_text(20 * SEC));
 			break;
 		}
 	}

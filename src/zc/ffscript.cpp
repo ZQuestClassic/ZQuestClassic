@@ -9684,6 +9684,9 @@ int32_t get_register(int32_t arg)
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->fontid;
 						break;
+					case widgITMCOOLDOWNTEXT:
+						ret = 10000*((SW_ItemCooldownText*)widg)->fontid;
+						break;
 					case widgTEXTBOX:
 						ret = 10000*((SW_TextBox*)widg)->fontid;
 						break;
@@ -9723,6 +9726,9 @@ int32_t get_register(int32_t arg)
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->align;
 						break;
+					case widgITMCOOLDOWNTEXT:
+						ret = 10000*((SW_ItemCooldownText*)widg)->align;
+						break;
 					case widgTEXTBOX:
 						ret = 10000*((SW_TextBox*)widg)->align;
 						break;
@@ -9758,6 +9764,9 @@ int32_t get_register(int32_t arg)
 				{
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->shadtype;
+						break;
+					case widgITMCOOLDOWNTEXT:
+						ret = 10000*((SW_ItemCooldownText*)widg)->shadtype;
 						break;
 					case widgTEXTBOX:
 						ret = 10000*((SW_TextBox*)widg)->shadtype;
@@ -9797,6 +9806,9 @@ int32_t get_register(int32_t arg)
 				{
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->c_text.get_int_color();
+						break;
+					case widgITMCOOLDOWNTEXT:
+						ret = 10000*((SW_ItemCooldownText*)widg)->c_text.get_int_color();
 						break;
 					case widgTEXTBOX:
 						ret = 10000*((SW_TextBox*)widg)->c_text.get_int_color();
@@ -9839,6 +9851,9 @@ int32_t get_register(int32_t arg)
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->c_shadow.get_int_color();
 						break;
+					case widgITMCOOLDOWNTEXT:
+						ret = 10000*((SW_ItemCooldownText*)widg)->c_shadow.get_int_color();
+						break;
 					case widgTEXTBOX:
 						ret = 10000*((SW_TextBox*)widg)->c_shadow.get_int_color();
 						break;
@@ -9876,6 +9891,9 @@ int32_t get_register(int32_t arg)
 				{
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->c_bg.get_int_color();
+						break;
+					case widgITMCOOLDOWNTEXT:
+						ret = 10000*((SW_ItemCooldownText*)widg)->c_bg.get_int_color();
 						break;
 					case widgTEXTBOX:
 						ret = 10000*((SW_TextBox*)widg)->c_bg.get_int_color();
@@ -10030,6 +10048,9 @@ int32_t get_register(int32_t arg)
 						break;
 					case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_ItemCooldownGauge*)widg)->button_id;
+						break;
+					case widgITMCOOLDOWNTEXT:
+						ret = 10000*((SW_ItemCooldownText*)widg)->button_id;
 						break;
 					default:
 						bad_subwidg_type(false, ty);
@@ -10234,6 +10255,9 @@ int32_t get_register(int32_t arg)
 					case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_ItemCooldownGauge*)widg)->item_class;
 						break;
+					case widgITMCOOLDOWNTEXT:
+						ret = 10000*((SW_ItemCooldownText*)widg)->item_class;
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -10253,6 +10277,9 @@ int32_t get_register(int32_t arg)
 						break;
 					case widgITMCOOLDOWNGAUGE:
 						ret = 10000*((SW_ItemCooldownGauge*)widg)->specific_item_id;
+						break;
+					case widgITMCOOLDOWNTEXT:
+						ret = 10000*((SW_ItemCooldownText*)widg)->specific_item_id;
 						break;
 					default:
 						bad_subwidg_type(false, ty);
@@ -17005,6 +17032,9 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->fontid = val;
 						break;
+					case widgITMCOOLDOWNTEXT:
+						((SW_ItemCooldownText*)widg)->fontid = val;
+						break;
 					case widgTEXTBOX:
 						((SW_TextBox*)widg)->fontid = val;
 						break;
@@ -17044,6 +17074,9 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->align = val;
 						break;
+					case widgITMCOOLDOWNTEXT:
+						((SW_ItemCooldownText*)widg)->align = val;
+						break;
 					case widgTEXTBOX:
 						((SW_TextBox*)widg)->align = val;
 						break;
@@ -17079,6 +17112,9 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgTEXT:
 						((SW_Text*)widg)->shadtype = val;
+						break;
+					case widgITMCOOLDOWNTEXT:
+						((SW_ItemCooldownText*)widg)->shadtype = val;
 						break;
 					case widgTEXTBOX:
 						((SW_TextBox*)widg)->shadtype = val;
@@ -17118,6 +17154,9 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgTEXT:
 						((SW_Text*)widg)->c_text.set_int_color(val);
+						break;
+					case widgITMCOOLDOWNTEXT:
+						((SW_ItemCooldownText*)widg)->c_text.set_int_color(val);
 						break;
 					case widgTEXTBOX:
 						((SW_TextBox*)widg)->c_text.set_int_color(val);
@@ -17161,6 +17200,9 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->c_shadow.set_int_color(val);
 						break;
+					case widgITMCOOLDOWNTEXT:
+						((SW_ItemCooldownText*)widg)->c_shadow.set_int_color(val);
+						break;
 					case widgTEXTBOX:
 						((SW_TextBox*)widg)->c_shadow.set_int_color(val);
 						break;
@@ -17199,6 +17241,9 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgTEXT:
 						((SW_Text*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgITMCOOLDOWNTEXT:
+						((SW_ItemCooldownText*)widg)->c_bg.set_int_color(val);
 						break;
 					case widgTEXTBOX:
 						((SW_TextBox*)widg)->c_bg.set_int_color(val);;
@@ -17349,18 +17394,21 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 			{
-				auto val = vbound(value/10000,0,3);
+				auto val = vbound(value/10000,-1,3);
 				auto ty = widg->getType();
 				switch(ty)
 				{
 					case widgBTNITM:
-						((SW_ButtonItem*)widg)->btn = val;
+						((SW_ButtonItem*)widg)->btn = zc_max(0, val);
 						break;
 					case widgBTNCOUNTER:
-						((SW_BtnCounter*)widg)->btn = val;
+						((SW_BtnCounter*)widg)->btn = zc_max(0, val);
 						break;
 					case widgITMCOOLDOWNGAUGE:
 						((SW_ItemCooldownGauge*)widg)->button_id = val;
+						break;
+					case widgITMCOOLDOWNTEXT:
+						((SW_ItemCooldownText*)widg)->button_id = val;
 						break;
 					default:
 						bad_subwidg_type(false, ty);
@@ -17570,6 +17618,9 @@ void set_register(int32_t arg, int32_t value)
 					case widgITMCOOLDOWNGAUGE:
 						((SW_ItemCooldownGauge*)widg)->item_class = val;
 						break;
+					case widgITMCOOLDOWNTEXT:
+						((SW_ItemCooldownText*)widg)->item_class = val;
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -17590,6 +17641,9 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					case widgITMCOOLDOWNGAUGE:
 						((SW_ItemCooldownGauge*)widg)->specific_item_id = val;
+						break;
+					case widgITMCOOLDOWNTEXT:
+						((SW_ItemCooldownText*)widg)->specific_item_id = val;
 						break;
 					default:
 						bad_subwidg_type(false, ty);
@@ -28714,15 +28768,18 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
 				{
-					std::string const* str = nullptr;
+					optional<string> str;
 					byte ty = widg->getType();
 					switch(ty)
 					{
 						case widgTEXT:
-							str = &((SW_Text*)widg)->text;
+							str = ((SW_Text*)widg)->text;
 							break;
 						case widgTEXTBOX:
-							str = &((SW_TextBox*)widg)->text;
+							str = ((SW_TextBox*)widg)->text;
+							break;
+						case widgITMCOOLDOWNTEXT:
+							str = ((SW_ItemCooldownText*)widg)->get_text();
 							break;
 						default:
 							bad_subwidg_type(true, ty);
