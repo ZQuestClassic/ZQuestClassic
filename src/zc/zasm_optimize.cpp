@@ -802,16 +802,32 @@ static bool optimize_goto_next_instruction(OptContext& ctx)
 	return true;
 }
 
-static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, bool write_at_end = false)
+static bool optimize_conseq_additive(OptContext& ctx)
 {
+	add_context_cfg(ctx);
+
+	bool is_entry_fn = ctx.fn.is_entry_function;
+
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
 		for (pc_t j = final_pc; j > start_pc; j--)
 		{
-			int command = C(j).command;
+			word command = C(j).command;
 			int arg1 = C(j).arg1;
-			if (command != from) continue;
 
-			if ((from == PUSHV || from == PUSHR) && ctx.structured_zasm->function_calls.contains(j + 1))
+			// Use a switch to identify any of the optimizable commands.
+			word to_command;
+			bool write_at_end = false;
+			switch (command)
+			{
+				case PUSHR:     to_command = PUSHARGSR;   break;
+				case PUSHV:     to_command = PUSHARGSV;   break;
+				case PUSHVARGR: to_command = PUSHVARGSR;  break;
+				case PUSHVARGV: to_command = PUSHVARGSV;  break;
+				case POP:       to_command = POPARGS;     write_at_end = true; break;
+				default:        continue; // Not an instruction we can combine
+			}
+
+			if ((command == PUSHV || command == PUSHR) && ctx.structured_zasm->function_calls.contains(j + 1))
 			{
 				// Don't break the thing that function calls are derived from in older ZASM.
 				continue;
@@ -823,12 +839,13 @@ static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, b
 			{
 				int prev_command = C(start - 1).command;
 				int prev_arg1 = C(start - 1).arg1;
-				if (prev_command != from)
+				if (prev_command != command)
 					break;
+
 				// D5 is a special "null" register - it is never valid to read
 				// from it, so we are free to remove writes.
 				// ...except for the initial script call, which may have set initd[5].
-				if (!(prev_arg1 == arg1 || (!ctx.fn.is_entry_function && prev_arg1 == D(5))))
+				if (!(prev_arg1 == arg1 || (!is_entry_fn && prev_arg1 == D(5))))
 					break;
 
 				start--;
@@ -842,12 +859,12 @@ static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, b
 
 				if (write_at_end)
 				{
-					C(end) = {to, arg1, count};
+					C(end) = {to_command, arg1, count};
 					remove(ctx, start, end - 1);
 				}
 				else
 				{
-					C(start) = {to, arg1, count};
+					C(start) = {to_command, arg1, count};
 					remove(ctx, start + 1, end);
 				}
 
@@ -855,16 +872,7 @@ static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, b
 			}
 		}
 	});
-}
 
-static bool optimize_conseq_additive(OptContext& ctx)
-{
-	add_context_cfg(ctx);
-	optimize_conseq_additive_impl(ctx, PUSHR, PUSHARGSR);
-	optimize_conseq_additive_impl(ctx, PUSHV, PUSHARGSV);
-	optimize_conseq_additive_impl(ctx, PUSHVARGR, PUSHVARGSR);
-	optimize_conseq_additive_impl(ctx, PUSHVARGV, PUSHVARGSV);
-	optimize_conseq_additive_impl(ctx, POP, POPARGS, true);
 	return true;
 }
 
