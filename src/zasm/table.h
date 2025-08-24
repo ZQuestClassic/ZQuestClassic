@@ -7,6 +7,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 enum class ARGTY : byte
 {
@@ -63,7 +64,7 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 
 // Many registers use the value within data registers when evaluating its value.
 // For example, GLOBALRAM uses both rINDEX and rINDEX2 to index a specific array.
-std::initializer_list<int> get_register_dependencies(int reg);
+const std::vector<int>& get_register_dependencies(int reg);
 
 // Same as get_register_dependencies, but just returns a single register (at most) representing
 // some ref that references a specific game entity.

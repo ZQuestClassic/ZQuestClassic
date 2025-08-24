@@ -383,6 +383,7 @@ struct CommandMetadata
 };
 
 static std::vector<CommandMetadata> command_meta_cache;
+static std::vector<uint8_t> register_dependency_mask_cache;
 
 static void init_meta_cache()
 {
@@ -390,6 +391,7 @@ static void init_meta_cache()
 		return;
 
 	command_meta_cache.resize(NUMCOMMANDS);
+	register_dependency_mask_cache.resize(NUMVARIABLES);
 
 	for (int i = 0; i < NUMCOMMANDS; i++)
 	{
@@ -420,6 +422,17 @@ static void init_meta_cache()
 				meta.args[argn].writes = write;
 			}
 		}
+	}
+
+	for (int i = 0; i < NUMVARIABLES; i++)
+	{
+		uint8_t mask = 0;
+		for (int r : get_register_dependencies(i))
+		{
+			if (r < 8)
+				mask |= (1 << r);
+		}
+		register_dependency_mask_cache[i] = mask;
 	}
 }
 
@@ -604,11 +617,7 @@ static void add_context_liveness(OptContext& ctx)
 						kill |= (1 << reg);
 				}
 
-				for (auto r : get_register_dependencies(reg))
-				{
-					if (r < 8)
-						if (!(kill & (1 << r))) gen |= (1 << r);
-				}
+				gen |= (register_dependency_mask_cache[reg] & ~kill);
 			}
 		}
 

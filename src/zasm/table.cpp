@@ -3309,7 +3309,7 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 	return {};
 }
 
-std::initializer_list<int> get_register_dependencies(int reg)
+static std::vector<int> _get_register_dependencies(int reg)
 {
 	switch (reg)
 	{
@@ -3625,8 +3625,7 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case SUBWIDGTY_TILE:
 		case TANGOARR:
 		{
-			static auto r1 = {rINDEX};
-			return r1;
+			return {rINDEX};
 		}
 
 		case CREATEBITMAP:
@@ -3641,8 +3640,7 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case SCRIPTRAM:
 		case SDDD:
 		{
-			static auto r = {rINDEX, rINDEX2};
-			return r;
+			return {rINDEX, rINDEX2};
 		}
 
 		case COMBOCDM:
@@ -3653,32 +3651,40 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case COMBOTDM:
 		case SDDDD:
 		{
-			static auto r = {rINDEX, rINDEX2, rEXP1};
-			return r;
+			return {rINDEX, rINDEX2, rEXP1};
 		}
 
 		case DISTANCE:
 		case LONGDISTANCE:
 		{
-			static auto r = {rINDEX, rINDEX2, rEXP1, rSFTEMP};
-			return r;
+			return {rINDEX, rINDEX2, rEXP1, rSFTEMP};
 		}
 
 		case DISTANCESCALE:
 		case LONGDISTANCESCALE:
 		{
-			static auto r = {rINDEX, rINDEX2, rEXP1, rSFTEMP, rWHAT_NO_7};
-			return r;
+			return {rINDEX, rINDEX2, rEXP1, rSFTEMP, rWHAT_NO_7};
 		}
 
 		case ZCLASS_MARK_TYPE:
 		{
-			static auto r = {CLASS_THISKEY};
-			return r;
+			return {CLASS_THISKEY};
 		}
 	}
 
 	return {};
+}
+
+static auto register_dependencies = [](){
+	std::array<std::vector<int>, NUMVARIABLES> result;
+	for (int i = 0; i < NUMVARIABLES; i++)
+		result[i] = _get_register_dependencies(i);
+	return result;
+}();
+
+const std::vector<int>& get_register_dependencies(int reg)
+{
+	return register_dependencies[reg];
 }
 
 std::optional<int> get_register_ref_dependency(int reg)
@@ -4304,6 +4310,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 
 bool has_register_dependency(int reg)
 {
-	return get_register_dependencies(reg).size() || get_register_ref_dependency(reg).has_value();
+	return register_dependencies[reg].size() || get_register_ref_dependency(reg).has_value();
 }
 
