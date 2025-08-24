@@ -356,6 +356,8 @@ static GUI::ListData comboRulesList
 	{ "Custom Combos Work On All Layers", qr_CUSTOMCOMBOS_EVERY_LAYER, 
 		"If enabled, all layers will also be checked for custom"
 		" triggers ('Triggers' tab in the Combo Editor). Only affects weapon trigger types."},
+	{ "Armos/Grave combo types work on layers", qr_ARMOS_GRAVE_ON_LAYERS,
+		"If enabled, armos and grave combos will work on layers."},
 	{ "Slash Combos Work On Layers 1 And 2", qr_BUSHESONLAYERS1AND2,
 		"If enabled, Bushes, Flowers, Tall Grass, Generic Combos, and"
 		" etc will work on Layers 1 and 2."},

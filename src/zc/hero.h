@@ -679,7 +679,6 @@ int32_t getCurrentShield(bool requireActive = true);
 bool isRaftFlag(int32_t flag);
 void do_lens();
 void do_210_lens();
-int32_t touchcombo(int32_t x,int32_t y);
 extern bool did_secret;
 int32_t selectWlevel(int32_t d);
 void computeMaxArrows();
