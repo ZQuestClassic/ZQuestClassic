@@ -3012,6 +3012,20 @@ void handle_trigger_results(mapscr* scr, combo_trigger const& trig, int32_t cx, 
 		set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind, false);
 	else if(trig.exdoor_dir > -1)
 		set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind);
+	
+	if (trig.trigger_flags.get(TRIGFLAG_REVERT_GRAVITY))
+	{
+		auto* canonical_screen = get_canonical_scr(scr->map, scr->screen);
+		CPYFLAG(scr->flags10, fSCREEN_GRAVITY, canonical_screen->flags10);
+		scr->screen_gravity = canonical_screen->screen_gravity;
+		scr->screen_terminal_v = canonical_screen->screen_terminal_v;
+	}
+	else if (trig.trigger_flags.get(TRIGFLAG_SET_GRAVITY))
+	{
+		scr->flags10 |= fSCREEN_GRAVITY;
+		scr->screen_gravity = trig.trig_gravity;
+		scr->screen_terminal_v = trig.trig_terminal_v;
+	}
 }
 
 // Triggers a combo at a given position.

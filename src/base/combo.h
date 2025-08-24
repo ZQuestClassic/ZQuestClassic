@@ -117,6 +117,8 @@ struct combo_trigger
 	int32_t force_ice_combo = -1;
 	zfix force_ice_vx, force_ice_vy;
 	
+	zfix trig_gravity, trig_terminal_v;
+	
 	bool is_blank() const;
 	void clear();
 	bool operator==(combo_trigger const& other) const = default;
@@ -353,6 +355,8 @@ enum ComboTriggerFlag
 	TRIGFLAG_FORCE_ICE_VY,
 	TRIGFLAG_UNIGNITE_WEAPONS,
 	TRIGFLAG_CANCEL_TRIGGER,
+	TRIGFLAG_SET_GRAVITY,
+	TRIGFLAG_REVERT_GRAVITY,
 	
 	TRIGFLAG_MAX
 };

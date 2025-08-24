@@ -162,6 +162,8 @@ enum ComboTriggerFlag
 	TRIGFLAG_HERO_FORCE_VY, // When triggered, sets [Hero->IceVy] to [combotrigger->ForceIceVy].
 	TRIGFLAG_UNIGNITE_WEAPONS, // Changes [TRIGFLAG_IGNITE_WEAPONS_ANY],[TRIGFLAG_IGNITE_WEAPONS_STRONG],[TRIGFLAG_IGNITE_WEAPONS_MAGIC],[TRIGFLAG_IGNITE_WEAPONS_DIVINE] to 'Unignite' the weapon instead
 	TRIGFLAG_CANCEL_TRIGGER, // Makes triggers below this trigger on the same combo with the same cause NOT be triggered by this cause
+	TRIGFLAG_SET_GRAVITY, // When triggered, sets [Screen->GravityStrength] and [Screen->TerminalVelocity] to [combotrigger->GravityStrength] and [combotrigger->TerminalVelocity] respectively.
+	TRIGFLAG_REVERT_GRAVITY, // When triggered, resets [Screen->GravityStrength] and [Screen->TerminalVelocity] to the original values of the screen.
 	TRIGFLAG_MAX
 };
 
@@ -582,6 +584,16 @@ class combotrigger {
 	//
 	// @zasm_var CMBTRIGGERICEVY
 	internal int ForceIceVy;
+	
+	// Sets [Screen->GravityStrength] to this value if [TRIGFLAG_SET_GRAVITY] is set;
+	//
+	// @zasm_var CMBTRIGGER_GRAVITY
+	internal int GravityStrength;
+	
+	// Sets [Screen->TerminalVelocity] to this value if [TRIGFLAG_SET_GRAVITY] is set;
+	//
+	// @zasm_var CMBTRIGGER_TERMINAL_VELOCITY
+	internal int TerminalVelocity;
 	
 	// Gets the label for this trigger.
 	//

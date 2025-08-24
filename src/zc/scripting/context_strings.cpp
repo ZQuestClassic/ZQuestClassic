@@ -504,6 +504,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGGTIMER: return "combotrigger::GStateTimer";
 		case CMBTRIGGENSCRIPT: return "combotrigger::GenScript";
 		case CMBTRIGGSTATE: return "combotrigger::GlobalState";
+		case CMBTRIGGER_GRAVITY: return "combotrigger::GravityStrength";
 		case CMBTRIGGERPLAYERBOUNCE: return "combotrigger::HeroBounce";
 		case CMBTRIGITEMJINX: return "combotrigger::ItemJinx";
 		case CMBTRIGLITEMS: return "combotrigger::LItems";
@@ -532,6 +533,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGITEMPICKUP: return "combotrigger::SpawnItemPickup";
 		case CMBTRIGSTUN: return "combotrigger::Stun";
 		case CMBTRIGSWORDJINX: return "combotrigger::SwordJinx";
+		case CMBTRIGGER_TERMINAL_VELOCITY: return "combotrigger::TerminalVelocity";
 		case CMBTRIGTIMER: return "combotrigger::Timer";
 		case CMBTRIGTINTB: return "combotrigger::TintB";
 		case CMBTRIGTINTG: return "combotrigger::TintG";
