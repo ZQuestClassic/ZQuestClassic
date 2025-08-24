@@ -1,0 +1,39 @@
+rewrite 0: 4 -> 2 commands
+0: SETV            D3               100    
+1: TRACER          D3              
+2: NOP            
+3: NOP            
+rewrite 5: 4 -> 1 commands
+5: SETV            D2               200    
+6: NOP            
+7: NOP            
+8: NOP            
+rewrite 11: 3 -> 0 commands
+11: NOP            
+12: NOP            
+13: NOP            
+Function #0 (run_none-0)
+    0: SETV            D3               100         [Block 0 -> ]
+    1: TRACER          D3
+    2: NOP
+    3: NOP
+    4: NOP
+    5: SETV            D2               200
+    6: NOP
+    7: NOP
+    8: NOP
+    9: TRACER          D2
+   10: NOP
+   11: NOP
+   12: NOP
+   13: NOP
+   14: QUIT
+   15: NOP
+   16: NOP
+   17: NOP
+   18: NOP
+   19: NOP
+   20: NOP
+   21: NOP
+   22: NOP
+   23: NOP

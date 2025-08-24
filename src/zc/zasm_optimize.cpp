@@ -2362,7 +2362,7 @@ static bool optimize_inline_functions(OptContext& ctx)
 		for (int i = 0; i < 8; i++) data.internal_reg_to_value[i] = -1;
 
 		int stack = 0;
-		bool bail = true;
+		bool bail = false;
 		bool found_instr = false;
 		for (pc_t k = fn.start_pc; k <= fn.final_pc; k++)
 		{
@@ -2420,18 +2420,37 @@ static bool optimize_inline_functions(OptContext& ctx)
 				continue;
 			}
 
+			if (command == LOAD)
+			{
+				if (found_instr)
+					continue;
+
+				int reg = arg1;
+				if (reg >= D(INITIAL_D))
+				{
+					bail = true;
+					break;
+				}
+
+				int stack_idx = arg2;
+				data.internal_reg_to_value[reg] = stack_idx;
+				data.internal_reg_to_type[reg] = 0;
+				continue;
+			}
+
 			if (found_instr)
 			{
 				bail = true;
 				break;
 			}
 
-			bail = false;
 			found_instr = true;
 			C(k).copy(data.inline_instr);
 		}
 		if (bail)
 			continue;
+		if (!found_instr)
+			data.inline_instr.command = NOP;
 		if (command_is_goto(data.inline_instr.command))
 			continue;
 		// TODO: why does inlining a QUIT break things? It does for crucible_quest.zplay
@@ -2501,6 +2520,7 @@ static bool optimize_inline_functions(OptContext& ctx)
 		int stack_to_external_value[8];
 		for (int i = 0; i < 8; i++) stack_to_external_value[i] = -1;
 
+		// 0 - literal value, 1 - z-register/number
 		int stack_to_external_value_reg_type[8];
 		for (int i = 0; i < 8; i++) stack_to_external_value_reg_type[i] = -1;
 
@@ -2510,24 +2530,29 @@ static bool optimize_inline_functions(OptContext& ctx)
 		std::vector<ffscript> inlined_zasm;
 		ffscript inline_instr = data.inline_instr;
 
-		if (inline_instr.command == LOAD)
+		if (inline_instr.command == NOP)
 		{
-			if (stack_to_external_value[inline_instr.arg2] == -1)
+			// According to the calling convention, only D2 is preserved as the
+			// return value. Any side effects on other D-registers are ignored.
+			int reg = D(2);
+			if (data.internal_reg_to_type[reg] == 0)
 			{
-				// Unexpected.
-				ASSERT(false);
-				data.all_uses_inlined = false;
-				continue;
+				int stack_index = data.internal_reg_to_value[reg];
+				if (stack_to_external_value_reg_type[stack_index] == 1)
+				{
+					if (reg != stack_to_external_value[stack_index])
+						inlined_zasm.emplace_back(SETR, reg, stack_to_external_value[stack_index]);
+				}
+				else
+					inlined_zasm.emplace_back(SETV, reg, stack_to_external_value[stack_index]);
 			}
-
-			if (stack_to_external_value_reg_type[inline_instr.arg2] == 0)
+			else if (data.internal_reg_to_type[reg] == 1 && reg != data.internal_reg_to_value[reg])
 			{
-				inlined_zasm.emplace_back(SETV, inline_instr.arg1, stack_to_external_value[inline_instr.arg2]);
+				inlined_zasm.emplace_back(SETR, reg, data.internal_reg_to_value[reg]);
 			}
 			else
 			{
-				if (stack_to_external_value[inline_instr.arg2] != inline_instr.arg1)
-					inlined_zasm.emplace_back(SETR, inline_instr.arg1, stack_to_external_value[inline_instr.arg2]);
+				// Must have been an empty function - no interesting instruction, and didn't set D2.
 			}
 		}
 		else
@@ -2536,7 +2561,13 @@ static bool optimize_inline_functions(OptContext& ctx)
 				if (read || write)
 				{
 					if (data.internal_reg_to_type[reg] == 0)
-						reg = stack_to_external_value[data.internal_reg_to_value[reg]];
+					{
+						int stack_index = data.internal_reg_to_value[reg];
+						if (stack_to_external_value_reg_type[stack_index] == 1)
+							reg = stack_to_external_value[stack_index];
+						else
+							inlined_zasm.emplace_back(SETV, reg, stack_to_external_value[stack_index]);
+					}
 					else if (read)
 					{
 						inlined_zasm.emplace_back(SETR, reg, data.internal_reg_to_value[reg]);

@@ -6,6 +6,9 @@ rewrite 13: 3 -> 1 commands
 13: ADDR            D4               D4     
 14: NOP            
 15: NOP            
+rewrite 21: 2 -> 1 commands
+21: SETR            D2               LINKX  
+22: NOP            
 rewrite 23: 3 -> 1 commands
 23: ADDR            D4               D4     
 24: NOP            
@@ -31,13 +34,13 @@ Function #0 (run_none-0)
    17: PUSHR           D4
    18: CALLFUNC        35                           [Call Function #1]
    19: POP             D4
-   20: PUSHARGSR       D4               2
-   21: CALLFUNC        44                           [Call Function #3]
-   22: POP             D4
+   20: PUSHARGSR       D4               1
+   21: NOP
+   22: NOP
    23: NOP
    24: NOP
    25: NOP
-   26: TRACER          D2
+   26: TRACER          LINKX
    27: POP             D4
    28: TRACER          D4
    29: NOP
@@ -61,13 +64,10 @@ Function #2
    41: NOP
    42: NOP
    43: RETURNFUNC
-
-
-Function #3
-   44: NOP                                          [Block 0 -> ]
-   45: SETR            D2               LINKX
+   44: NOP
+   45: NOP
    46: NOP
-   47: RETURNFUNC
+   47: NOP
    48: NOP
    49: NOP
    50: NOP

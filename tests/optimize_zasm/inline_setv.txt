@@ -1,0 +1,40 @@
+; Test that the generic inliner can handle literal values (PUSHV)
+; by generating a SETV instruction for a non-LOAD command.
+; Functions created w/ compiler
+; Function #1: fn (x) { Trace(x) }
+; Function #2: fn (x) { return x } (not sure why this set D4...)
+; Function #3: fn () { } (empty)
+Function #0 (run_none-0)
+    0: PUSHR           D4                           [Block 0 -> ]
+    1: PUSHV           100
+    2: CALLFUNC        15                           [Call Function #1]
+    3: POP             D4
+    4: NOP
+    5: PUSHR           D4
+    6: PUSHV           200
+    7: CALLFUNC        18                           [Call Function #2]
+    8: POP             D4
+    9: TRACER          D2
+   10: NOP
+   11: PUSHR           D4
+   12: CALLFUNC        22                           [Call Function #3]
+   13: POP             D4
+   14: QUIT
+
+
+Function #1
+   15: LOAD            D3               0           [Block 0 -> ]
+   16: TRACER          D3
+   17: RETURNFUNC
+
+
+Function #2
+   18: SETR            D4               SP2         [Block 0 -> ]
+   19: LOAD            D2               0
+   20: POP             D5
+   21: RETURNFUNC
+
+
+Function #3
+   22: SETR            D4               SP2         [Block 0 -> ]
+   23: RETURNFUNC
