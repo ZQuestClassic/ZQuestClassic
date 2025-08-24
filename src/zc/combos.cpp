@@ -1031,55 +1031,55 @@ bool trigger_lockblock(const combined_handle_t& handle)
 bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 {
 	auto layer = handle.layer(); // ffc = 7
-	if (layer > 0 && layer != 7)
+	if (layer > 0 && layer != 7 && !get_qr(qr_ARMOS_GRAVE_ON_LAYERS))
 		return false;
 	auto& counters = activation_counters[layer];
-	
+
 	if (counters[handle.id()]) return false;
 	int32_t gc = 0;
-	for(int32_t i=0; i<guys.Count(); ++i)
+	for (int32_t i = 0; i < guys.Count(); ++i)
 	{
-		if(((enemy*)guys.spr(i))->mainguy)
+		if (((enemy*)guys.spr(i))->mainguy)
 		{
 			++gc;
 		}
 	}
-	if(gc > 10) return false; // Fail if >10 enemies on screen?
+	if (gc > 10) return false; // Fail if >10 enemies on screen?
 
 	auto& cmb = handle.combo();
 	int32_t eclk = -14;
 	int32_t id2 = 0;
 	auto [tx, ty] = handle.xy();
 	bool nextcmb = false;
-	switch(cmb.type)
+	switch (cmb.type)
 	{
 		case cARMOS:
 		{
-			if(cmb.usrflags&cflag1) //custom ID
+			if (cmb.usrflags & cflag1) //custom ID
 			{
-				int32_t r = (cmb.usrflags&cflag2) ? zc_oldrand()%2 : 0;
-				id2 = cmb.attribytes[0+r];
+				int32_t r = (cmb.usrflags & cflag2) ? zc_oldrand() % 2 : 0;
+				id2 = cmb.attribytes[0 + r];
 			}
 			else //default ID
 			{
-				for(int32_t i=0; i<eMAXGUYS; i++)
+				for (int32_t i = 0; i < eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags&guy_armos)
+					if (guysbuf[i].flags & guy_armos)
 					{
-						id2=i;
-						
+						id2 = i;
+
 						// This is mostly for backwards-compatability
-						if(guysbuf[i].type==eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
+						if (guysbuf[i].type == eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
 						{
-							eclk=0;
+							eclk = 0;
 						}
-						
+
 						break;
 					}
 				}
 			}
-			
-			if(handle.is_rpos() && (cmb.usrflags&cflag3)) //handle large enemy (EARLY RETURN)
+
+			if (handle.is_rpos() && (cmb.usrflags & cflag3)) //handle large enemy (EARLY RETURN)
 			{
 				counters[handle.id()] = 61;
 				//! To-do Adjust for larger enemies, but we need it to be directional. 
@@ -1088,11 +1088,11 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 				//nmew idea = check while the upper-left corner combo is armos
 				///move up one and check if it is armos, check the next, and stop as soon as that is not armos
 				///then do the same going left
-				
+
 				int32_t searching = 1;
 				int32_t armosxsz = 1;
 				int32_t armosysz = 1;
-				switch(guysbuf[id2].type)
+				switch (guysbuf[id2].type)
 				{
 					case eeGHOMA:
 						armosxsz = 3;
@@ -1105,52 +1105,52 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 					default:
 						break;
 				}
-				if ((guysbuf[id2].SIZEflags&OVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
-				if ((guysbuf[id2].SIZEflags&OVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
-				
-				if ( armosxsz > 1 || armosysz > 1 )
+				if ((guysbuf[id2].SIZEflags & OVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
+				if ((guysbuf[id2].SIZEflags & OVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
+
+				if (armosxsz > 1 || armosysz > 1)
 				{
-					switch(trigdir)
+					switch (trigdir)
 					{
 						case -1: //triggered not by touch
 							[[fallthrough]];
 						case up: //touched armos from below
 						{
-							while(searching == 1) //find the top edge of an armos block
+							while (searching == 1) //find the top edge of an armos block
 							{
 								chy -= 16;
-								if ( ty + chy < 0 ) break; //don't go out of bounds
-								
+								if (ty + chy < 0) break; //don't go out of bounds
+
 								if (get_rpos_handle_for_world_xy(tx, ty + chy, layer).ctype() == cARMOS)
 								{
-									ypos -=16;
+									ypos -= 16;
 								}
 								else searching = 2;
 							}
-							while(searching == 2) //find the left edge of an armos block
+							while (searching == 2) //find the left edge of an armos block
 							{
 								chx -= 16;
-								if ( tx + chx < 0 ) break; //don't go out of bounds
+								if (tx + chx < 0) break; //don't go out of bounds
 
 								if (get_rpos_handle_for_world_xy(tx + chx, ty, layer).ctype() == cARMOS)
 								{
-									xpos -=16;
+									xpos -= 16;
 								}
 								else searching = 3;
 							}
-							
+
 							break;
 						}
 						case down: //touched armos from above
 						{
-							while(searching == 1) //find the left edge of an armos block
+							while (searching == 1) //find the left edge of an armos block
 							{
 								chx -= 16;
-								if ( tx + chx < 0 ) break; //don't go out of bounds
-								
+								if (tx + chx < 0) break; //don't go out of bounds
+
 								if (get_rpos_handle_for_world_xy(tx + chx, ty, layer).ctype() == cARMOS)
 								{
-									xpos -=16;
+									xpos -= 16;
 								}
 								else searching = 3;
 							}
@@ -1158,71 +1158,71 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 						[[fallthrough]];
 						case left: //touched right edge of armos
 						{
-							while(searching == 1) //find the top edge of an armos block
+							while (searching == 1) //find the top edge of an armos block
 							{
 								chy -= 16;
-								if ( ty + chy < 0 ) break; //don't go out of bounds
+								if (ty + chy < 0) break; //don't go out of bounds
 
 								if (get_rpos_handle_for_world_xy(tx, ty + chy, layer).ctype() == cARMOS)
 								{
-									ypos -=16;
+									ypos -= 16;
 								}
 								else searching = 2;
 							}
-							while(searching == 2) //find the left edge of an armos block
+							while (searching == 2) //find the left edge of an armos block
 							{
 								chx -= 16;
-								if ( tx + chx < 0 ) break; //don't go out of bounds
+								if (tx + chx < 0) break; //don't go out of bounds
 
 								if (get_rpos_handle_for_world_xy(tx + chx, ty, layer).ctype() == cARMOS)
 								{
-									xpos -=16;
+									xpos -= 16;
 								}
 								else searching = 3;
 							}
 							break;
 						}
-							
+
 						case right: //touched left edge of armos
 						{
-							while(searching == 1) //find the top edge of an armos block
+							while (searching == 1) //find the top edge of an armos block
 							{
 								chy -= 16;
-								if ( ty + chy < 0 ) break; //don't go out of bounds
+								if (ty + chy < 0) break; //don't go out of bounds
 
 								if (get_rpos_handle_for_world_xy(tx, ty + chy, layer).ctype() == cARMOS)
 								{
-									ypos -=16;
+									ypos -= 16;
 								}
 								else searching = 2;
 							}
 							break;
 						}
-					
-						
+
+
 					}
 				}
-				
-				int32_t xpos2 = tx+xpos;
-				int32_t ypos2 = ty+ypos;
+
+				int32_t xpos2 = tx + xpos;
+				int32_t ypos2 = ty + ypos;
 				for (int32_t n = 0; n < armosysz; n++)
 				{
-					for (int32_t m = 0; m < armosxsz; m++) 
+					for (int32_t m = 0; m < armosxsz; m++)
 					{
-						rpos_t rpos = COMBOPOS_REGION_B(xpos2 + m*16, ypos2 + n*16);
+						rpos_t rpos = COMBOPOS_REGION_B(xpos2 + m * 16, ypos2 + n * 16);
 						if (rpos != rpos_t::None)
 							counters[int(rpos)] = 61;
 					}
 				}
-				if (guysbuf[id2].type == eeGHOMA) 
+				if (guysbuf[id2].type == eeGHOMA)
 				{
-					if ( COMBOTYPE(tx + chx + 1, ty) == cARMOS ) xpos += 16;
+					if (COMBOTYPE(tx + chx + 1, ty) == cARMOS) xpos += 16;
 				}
-				if(addenemy(handle.get_screen(),tx+xpos,ty+1+ypos,id2,0))
+				if (addenemy(handle.get_screen(), tx + xpos, ty + 1 + ypos, id2, 0))
 				{
-					enemy* en = ((enemy*)guys.spr(guys.Count()-1));
-					en->did_armos=false;
-					en->fading=fade_flicker;
+					enemy* en = ((enemy*)guys.spr(guys.Count() - 1));
+					en->did_armos = false;
+					en->fading = fade_flicker;
 					en->flags |= guy_armos;
 				}
 				return true;
@@ -1234,34 +1234,34 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 			[[fallthrough]];
 		case cGRAVE:
 		{
-			if(cmb.usrflags&cflag1) //Custom ID
+			if (cmb.usrflags & cflag1) //Custom ID
 			{
-				int32_t r = (cmb.usrflags&cflag2) ? zc_oldrand()%2 : 0;
-				id2 = cmb.attribytes[0+r];
+				int32_t r = (cmb.usrflags & cflag2) ? zc_oldrand() % 2 : 0;
+				id2 = cmb.attribytes[0 + r];
 			}
 			else //Default ID
 			{
-				for(int32_t i=0; i<eMAXGUYS; i++)
+				for (int32_t i = 0; i < eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags&guy_ghini)
+					if (guysbuf[i].flags & guy_ghini)
 					{
-						id2=i;
-						eclk=0; // This is mostly for backwards-compatability
+						id2 = i;
+						eclk = 0; // This is mostly for backwards-compatability
 						break;
 					}
 				}
 			}
-			if(nextcmb)
+			if (nextcmb)
 				handle.increment_data();
 			break;
 		}
 		default: return false;
 	}
 	counters[handle.id()] = 61;
-	if(!addenemy(handle.get_screen(),tx,ty+3,id2,eclk))
+	if (!addenemy(handle.get_screen(), tx, ty + 3, id2, eclk))
 		return false;
-	enemy* e = (enemy*)guys.spr(guys.Count()-1);
-	e->did_armos=false;
+	enemy* e = (enemy*)guys.spr(guys.Count() - 1);
+	e->did_armos = false;
 	e->activated_handle = handle;
 	return true;
 }

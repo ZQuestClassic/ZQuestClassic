@@ -23031,42 +23031,6 @@ void HeroClass::fairycircle(int32_t type)
 	}
 }
 
-int32_t touchcombo(int32_t x,int32_t y)
-{
-	for (int32_t i = 0; i <= 1; ++i)
-	{
-		if (get_qr(qr_OLD_BRIDGE_COMBOS))
-		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,i)) return 0;
-		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,i)) return 0;
-		}
-	}
-	if (!_effectflag(x,y,1, -1)) return 0;
-	newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
-	if(cmb.only_gentrig)
-		return 0;
-	switch(cmb.type)
-	{
-		case cBSGRAVE:
-		case cGRAVE:
-			if(MAPFLAG(x,y)||MAPCOMBOFLAG(x,y)) //!DIMITODO: all flags break graves, not just push flags
-			{
-				break;
-			}
-
-			[[fallthrough]];
-		case cARMOS:
-		{
-			return cmb.type;
-		}
-	}
-    
-	return 0;
-}
-
 static int32_t GridX(int32_t x) 
 {
 	return (x >> 4) << 4;
@@ -23958,14 +23922,17 @@ void HeroClass::handleSpotlights()
 
 void HeroClass::checktouchblk()
 {
-	if(toogam) return;
-	
-	if(!pushing)
+	if (toogam) return;
+
+	if (getAction() == hopping && !isSideViewHero())
 		return;
-		
+
+	if (!pushing)
+		return;
+
 	int32_t tdir = dir; //Bad hack #2. _L_, your welcome to fix this properly. ;)
-	
-	if(charging > 0 || spins > 0) //if not I probably will at some point...
+
+	if (charging > 0 || spins > 0) //if not I probably will at some point...
 	{
 		if (getInput(btnUp, INPUT_HERO_ACTION) && getInput(btnLeft, INPUT_HERO_ACTION)) tdir = (charging % 2) * 2;
 		else if (getInput(btnUp, INPUT_HERO_ACTION) && getInput(btnRight, INPUT_HERO_ACTION)) tdir = (charging % 2) * 3;
@@ -23979,63 +23946,77 @@ void HeroClass::checktouchblk()
 			else if (getInput(btnRight, INPUT_HERO_ACTION)) tdir = 3;
 		}
 	}
-	
-	int32_t tx=0,ty=-1;
-	
-	switch(tdir)
+
+	int xs[2], ys[2];
+	int pos_count = 0;
+	switch (tdir)
 	{
-	case up:
-		if(touchcombo(x,y+(bigHitbox?0:7)))
-		{
-			tx=x;
-			ty=y+(bigHitbox?0:7);
-		}
-		else if(touchcombo(x+8,y+(bigHitbox?0:7)))
-		{
-			tx=x+8;
-			ty=y+(bigHitbox?0:7);
-		}
-		
-		break;
-		
-	case down:
-		if(touchcombo(x,y+16))
-		{
-			tx=x;
-			ty=y+16;
-		}
-		else if(touchcombo(x+8,y+16))
-		{
-			tx=x+8;
-			ty=y+16;
-		}
-		
-		break;
-		
-	case left:
-		if(touchcombo(x-1,y+15))
-		{
-			tx=x-1;
-			ty=y+15;
-		}
-		
-		break;
-		
-	case right:
-		if(touchcombo(x+16,y+15))
-		{
-			tx=x+16;
-			ty=y+15;
-		}
-		
-		break;
+		case up:
+			xs[0] = x;
+			ys[0] = y + (bigHitbox ? 0 : 7);
+			xs[1] = x + 8;
+			ys[1] = y + (bigHitbox ? 0 : 7);
+			pos_count = 2;
+			break;
+
+		case down:
+			xs[0] = x;
+			ys[0] = y + 16;
+			xs[1] = x + 8;
+			ys[1] = y + 16;
+			pos_count = 2;
+			break;
+
+		case left:
+			xs[0] = x - 1;
+			ys[0] = y + 15;
+			pos_count = 1;
+			break;
+
+		case right:
+			xs[0] = x + 16;
+			ys[0] = y + 15;
+			pos_count = 1;
+			break;
 	}
-	
-	if(ty>=0)
+	int max_layer = get_qr(qr_ARMOS_GRAVE_ON_LAYERS) ? 6 : 0;
+	int start_layer = zc_max(2, max_layer);
+	bool pos_done[2] = { false,false };
+	for (int layer = start_layer; layer >= 0; --layer)
 	{
-		if (getAction() != hopping || isSideViewHero())
+		for (int idx = 0; idx < pos_count; ++idx)
 		{
-			trigger_armos_grave(get_rpos_handle_for_world_xy(tx, ty, 0), dir);
+			if (pos_done[idx]) continue;
+			auto tx = xs[idx];
+			auto ty = ys[idx];
+			auto rpos_handle = get_rpos_handle_for_world_xy(tx, ty, layer);
+			newcombo const& cmb = rpos_handle.combo();
+			if (cmb.type == cBRIDGE)
+			{
+				if (get_qr(qr_OLD_BRIDGE_COMBOS)
+					? !_walkflag_layer(x, y, layer - 1)
+					: _effectflag_layer(x, y, layer - 1))
+				{
+					pos_done[idx] = true; // cover lower layers at this position
+					continue;
+				}
+			}
+			if (layer > max_layer) continue; // only checking this layer for bridges
+			if (!_effectflag(x, y, 1, layer - 1)) continue;
+			if (cmb.only_gentrig) continue;
+			switch (cmb.type)
+			{
+				case cBSGRAVE: case cGRAVE:
+					if (cmb.flag || rpos_handle.sflag())
+						continue;
+					break;
+				case cARMOS:
+					break;
+				default:
+					continue;
+			}
+			trigger_armos_grave(rpos_handle, dir);
+			break; // only one per layer, even if multiple poses match
 		}
 	}
 }
