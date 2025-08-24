@@ -5095,6 +5095,14 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			}
 		}
 
+		if (s_version > 22 && (tempDMap.flags & dmfCUSTOM_GRAVITY))
+		{
+			if (!p_igetzf(&tempDMap.dmap_gravity, f))
+				return qe_invalid;
+			if (!p_igetzf(&tempDMap.dmap_terminal_v, f))
+				return qe_invalid;
+		}
+
 		if (!should_skip)
 		{
 			if(loading_tileset_flags & TILESET_CLEARMAPS)
@@ -17377,6 +17385,14 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		if(version > 29)
 			if(!p_getlstr(&temp_mapscr->usr_notes, f))
 				return qe_invalid;
+		
+		if (version >= 35 && (temp_mapscr->flags10 & fSCREEN_GRAVITY))
+		{
+			if (!p_igetzf(&temp_mapscr->screen_gravity, f))
+				return qe_invalid;
+			if (!p_igetzf(&temp_mapscr->screen_terminal_v, f))
+				return qe_invalid;
+		}
 	}
 
 	temp_mapscr->shinkToFitFFCs();

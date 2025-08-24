@@ -1108,6 +1108,7 @@ bool enemy::Dead(int32_t index)
 // the guys sprite list; index is the enemy's index in the list.
 bool enemy::animate(int32_t index)
 {
+	update_current_screen();
 	if(sclk <= 0) hitdir = -1;
 	if(switch_hooked)
 	{
@@ -8793,6 +8794,7 @@ bool ePeahat::animate(int32_t index)
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(slide())
 	{
+		update_current_screen();
 		return false;
 	}
 	
@@ -13658,6 +13660,7 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eMoldorm::animate(int32_t index)
 {
+	update_current_screen();
 	if(switch_hooked) return enemy::animate(index);
 	int32_t max_y = isdungeon(screen_spawned) ? 100 : 100+28; //warning: Ugly hack. -Z
 	if ( y > (max_y) )

@@ -49,6 +49,8 @@ private:
 	std::shared_ptr<GUI::Switcher> leff_switch;
 	std::shared_ptr<GUI::Checkbox> lens_cb[2][7];
 	
+	std::shared_ptr<GUI::TextField> grav_tf[2];
+	
 	std::shared_ptr<GUI::Button> databtn;
 	
 	mapscr* thescr;

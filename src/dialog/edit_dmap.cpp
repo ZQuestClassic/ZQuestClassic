@@ -290,158 +290,197 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					silenceMusicPreview();
 					refreshGridSquares();
 				},
-				TabRef(name = "Mechanics", Column(
-					Row(
-						Label(text = "Map:"),
-						DropDownList(data = list_maps,
-							fitParent = true,
-							selectedValue = local_dmap.map + 1,
-							onSelectFunc = [&](int32_t val)
-							{
-								local_dmap.map = val - 1;
-								dmap_mmap->setCurMap(val);
-							}),
-						Label(text = "Type:"),
-						DropDownList(data = list_types,
-							fitParent = true,
-							selectedValue = local_dmap.type & dmfTYPE,
-							onSelectFunc = [&](int32_t val)
-							{
-								bool wassmol = sm_dmap(local_dmap.type);
-								local_dmap.type = (local_dmap.type & ~dmfTYPE) | (val & dmfTYPE);
-								bool smol = sm_dmap(local_dmap.type);
-								if (smol != wassmol)
+				TabRef(name = "Mechanics", TabPanel(
+					TabRef(name = "1", Column(
+						Row(
+							Label(text = "Map:"),
+							DropDownList(data = list_maps,
+								fitParent = true,
+								selectedValue = local_dmap.map + 1,
+								onSelectFunc = [&](int32_t val)
 								{
-									dmap_mmap->setSmallDMap(smol);
-									dmap_grid->setSmallDMap(smol);
-									dmap_slider->setDisabled(!smol);
-									if (smol)
+									local_dmap.map = val - 1;
+									dmap_mmap->setCurMap(val);
+								}),
+							Label(text = "Type:"),
+							DropDownList(data = list_types,
+								fitParent = true,
+								selectedValue = local_dmap.type & dmfTYPE,
+								onSelectFunc = [&](int32_t val)
+								{
+									bool wassmol = sm_dmap(local_dmap.type);
+									local_dmap.type = (local_dmap.type & ~dmfTYPE) | (val & dmfTYPE);
+									bool smol = sm_dmap(local_dmap.type);
+									if (smol != wassmol)
 									{
-										local_dmap.xoff = dmap_slider->getOffset();
-										dmap_mmap->setOffset(local_dmap.xoff);
+										dmap_mmap->setSmallDMap(smol);
+										dmap_grid->setSmallDMap(smol);
+										dmap_slider->setDisabled(!smol);
+										if (smol)
+										{
+											local_dmap.xoff = dmap_slider->getOffset();
+											dmap_mmap->setOffset(local_dmap.xoff);
+										}
+										else
+										{
+											local_dmap.xoff = 0;
+											dmap_mmap->setOffset(0);
+										}
+										refreshGridSquares();
 									}
-									else
-									{
-										local_dmap.xoff = 0;
-										dmap_mmap->setOffset(0);
-									}
-									refreshGridSquares();
-								}
-							}),
-						Label(text = "Level:"),
-						TextField(
-							fitParent = true, minwidth = 3_em,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 511, val = local_dmap.level,
-							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-							{
-								local_dmap.level = val;
-							})
-					),
-					Rows<4>(
-						dmap_mmap = DMapMinimap(
-							colSpan = 2,
-							rightMargin = 6_px,
-							curMap = local_dmap.map + 1,
-							smallDMap = sm_dmap(local_dmap.type),
-							offset = local_dmap.xoff
-						),
-						dmap_grid = DMapMapGrid(
-							colSpan = 2,
-							leftMargin = 6_px,
-							mapGridPtr = &local_dmap.grid[0],
-							continueScreen = local_dmap.cont, compassScreen = local_dmap.compass,
-							smallDMap = sm_dmap(local_dmap.type),
-							onUpdate = [&](byte* byteptr, byte compassScreen, byte continueScreen)
-							{
-								if (compassScreen != local_dmap.compass)
-								{
-									local_dmap.compass = compassScreen;
-									compass_field->setVal(compassScreen);
-								}
-								if (continueScreen != local_dmap.cont)
-								{
-									local_dmap.cont = continueScreen;
-									continue_field->setVal(continueScreen);
-								}
-							}),
-						dmap_slider = Slider(
-							colSpan = 2, fitParent = true, 
-							disabled = !sm_dmap(local_dmap.type),
-							offset = local_dmap.xoff,
-							maxheight = 16_px,
-							minOffset = -7, maxOffset = 15,
-							onValChangedFunc = [&](int32_t offset)
-							{
-								local_dmap.xoff = offset;
-								dmap_mmap->setOffset(offset);
-							}),
-						Row(colSpan = 2,
-							Label(text = "Mirror DMap:", hAlign = 1.0),
+								}),
+							Label(text = "Level:"),
 							TextField(
-								hAlign = 0.0,
-								minwidth = 3_em,
+								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = 511, val = local_dmap.mirrorDMap,
+								low = 0, high = 511, val = local_dmap.level,
 								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 								{
-									local_dmap.mirrorDMap = val;
+									local_dmap.level = val;
+								})
+						),
+						Rows<4>(
+							dmap_mmap = DMapMinimap(
+								colSpan = 2,
+								rightMargin = 6_px,
+								curMap = local_dmap.map + 1,
+								smallDMap = sm_dmap(local_dmap.type),
+								offset = local_dmap.xoff
+							),
+							dmap_grid = DMapMapGrid(
+								colSpan = 2,
+								leftMargin = 6_px,
+								mapGridPtr = &local_dmap.grid[0],
+								continueScreen = local_dmap.cont, compassScreen = local_dmap.compass,
+								smallDMap = sm_dmap(local_dmap.type),
+								onUpdate = [&](byte* byteptr, byte compassScreen, byte continueScreen)
+								{
+									if (compassScreen != local_dmap.compass)
+									{
+										local_dmap.compass = compassScreen;
+										compass_field->setVal(compassScreen);
+									}
+									if (continueScreen != local_dmap.cont)
+									{
+										local_dmap.cont = continueScreen;
+										continue_field->setVal(continueScreen);
+									}
 								}),
-							INFOBTN("If '> -1', the Mirror will warp you to the specified dmap from this dmap.")
-						),
-						Row(colSpan = 2, hAlign = 0.0,
-							INFOBTN("Sets the player's continue point to the continue screen when entering this DMap in most circumstances."),
-							Checkbox(checked = local_dmap.type & dmfCONTINUE,
-								text = "Continue here",
-								onToggleFunc = [&](bool state)
+							dmap_slider = Slider(
+								colSpan = 2, fitParent = true, 
+								disabled = !sm_dmap(local_dmap.type),
+								offset = local_dmap.xoff,
+								maxheight = 16_px,
+								minOffset = -7, maxOffset = 15,
+								onValChangedFunc = [&](int32_t offset)
 								{
-									SETFLAG(local_dmap.type, dmfCONTINUE, state);
-									refreshGridSquares();
-								})
-						),
-						continue_frame = Frame(colSpan = 2, style = GUI::Frame::style::GREEN,
-							Row(padding = 0_px,
-								Label(text = "Continue: 0x", hAlign = 1.0, rightPadding = 0_px),
-								continue_field = TextField(
+									local_dmap.xoff = offset;
+									dmap_mmap->setOffset(offset);
+								}),
+							Row(colSpan = 2,
+								Label(text = "Mirror DMap:", hAlign = 1.0),
+								TextField(
 									hAlign = 0.0,
-									fitParent = true, minwidth = 2_em,
-									type = GUI::TextField::type::INT_HEX,
-									low = 0, high = 127, val = local_dmap.cont,
+									minwidth = 3_em,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -1, high = 511, val = local_dmap.mirrorDMap,
 									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 									{
-										dmap_grid->setContinueScreen(val);
-										local_dmap.cont = val;
+										local_dmap.mirrorDMap = val;
 									}),
-								INFOBTN("The screen where the player spawns in the map in some circumstances.\nCtrl + Click to place.")
-							)
-						),
-						Row(colSpan = 2, hAlign = 0.0,
-							INFOBTN("If checked, no compass marker will appear on the subscreen minimap."),
-							Checkbox(checked = local_dmap.flags & dmfNOCOMPASS,
-								text = "No Compass",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_dmap.flags, dmfNOCOMPASS, state);
-									refreshGridSquares();
-								})
-						),
-						compass_frame = Frame(colSpan = 2, style = GUI::Frame::style::RED,
-							Row(padding = 0_px,
-								Label(text = "Compass: 0x", hAlign = 1.0, rightPadding = 0_px),
-								compass_field = TextField(
-									hAlign = 0.0,
-									fitParent = true, minwidth = 2_em,
-									type = GUI::TextField::type::INT_HEX,
-									low = 0x00, high = 0x7F, val = local_dmap.compass,
-									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+								INFOBTN("If '> -1', the Mirror will warp you to the specified dmap from this dmap.")
+							),
+							Row(colSpan = 2, hAlign = 0.0,
+								INFOBTN("Sets the player's continue point to the continue screen when entering this DMap in most circumstances."),
+								Checkbox(checked = local_dmap.type & dmfCONTINUE,
+									text = "Continue here",
+									onToggleFunc = [&](bool state)
 									{
-										dmap_grid->setCompassScreen(val);
-										local_dmap.compass = val;
-									}),
-								INFOBTN("The screen where the compass marker appears on the map. \nAlt + Click to place.")
+										SETFLAG(local_dmap.type, dmfCONTINUE, state);
+										refreshGridSquares();
+									})
+							),
+							continue_frame = Frame(colSpan = 2, style = GUI::Frame::style::GREEN,
+								Row(padding = 0_px,
+									Label(text = "Continue: 0x", hAlign = 1.0, rightPadding = 0_px),
+									continue_field = TextField(
+										hAlign = 0.0,
+										fitParent = true, minwidth = 2_em,
+										type = GUI::TextField::type::INT_HEX,
+										low = 0, high = 127, val = local_dmap.cont,
+										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+										{
+											dmap_grid->setContinueScreen(val);
+											local_dmap.cont = val;
+										}),
+									INFOBTN("The screen where the player spawns in the map in some circumstances.\nCtrl + Click to place.")
+								)
+							),
+							Row(colSpan = 2, hAlign = 0.0,
+								INFOBTN("If checked, no compass marker will appear on the subscreen minimap."),
+								Checkbox(checked = local_dmap.flags & dmfNOCOMPASS,
+									text = "No Compass",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_dmap.flags, dmfNOCOMPASS, state);
+										refreshGridSquares();
+									})
+							),
+							compass_frame = Frame(colSpan = 2, style = GUI::Frame::style::RED,
+								Row(padding = 0_px,
+									Label(text = "Compass: 0x", hAlign = 1.0, rightPadding = 0_px),
+									compass_field = TextField(
+										hAlign = 0.0,
+										fitParent = true, minwidth = 2_em,
+										type = GUI::TextField::type::INT_HEX,
+										low = 0x00, high = 0x7F, val = local_dmap.compass,
+										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+										{
+											dmap_grid->setCompassScreen(val);
+											local_dmap.compass = val;
+										}),
+									INFOBTN("The screen where the compass marker appears on the map. \nAlt + Click to place.")
+								)
 							)
 						)
-					)
+					)),
+					TabRef(name = "2", Column(
+						Frame(title = "Gravity",
+							Column(
+								Rows<2>(padding = 0_px,
+									INFOBTN("The 'Gravity' and 'Terminal Velocity' set here will apply for this dmap."),
+									Checkbox(checked = local_dmap.flags & dmfCUSTOM_GRAVITY,
+										text = "Customize Gravity", fitParent = true,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_dmap.flags, dmfCUSTOM_GRAVITY, state);
+											for (int q = 0; q < 2; ++q)
+												grav_tf[q]->setDisabled(!state);
+										})
+								),
+								Rows<2>(padding = 0_px,
+									Label(text = "Gravity:", hAlign = 1.0),
+									grav_tf[0] = TextField(maxLength = 11,
+										type = GUI::TextField::type::NOSWAP_ZSINT,
+										swap_type = nswapDEC, val = local_dmap.dmap_gravity.getZLong(),
+										disabled = !(local_dmap.flags & dmfCUSTOM_GRAVITY),
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_dmap.dmap_gravity = zslongToFix(val);
+										}),
+									Label(text = "Terminal Velocity:", hAlign = 1.0),
+									grav_tf[1] = TextField(maxLength = 11,
+										type = GUI::TextField::type::NOSWAP_ZSINT,
+										swap_type = nswapDEC, val = local_dmap.dmap_terminal_v.getZLong(),
+										disabled = !(local_dmap.flags & dmfCUSTOM_GRAVITY),
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_dmap.dmap_terminal_v = zslongToFix(val);
+										})
+								)
+							)
+						)
+					))
 				)),
 				TabRef(name = "Appearance", Column(
 					Rows<2>(

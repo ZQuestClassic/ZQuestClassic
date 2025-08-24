@@ -281,6 +281,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SCREENFLAGSD: return "Screen->Flags[]";
 		case SCREENDATAEXDOOR: return "Screen->GetExDoor()";
 		case GETRENDERTARGET: return "Screen->GetRenderTarget";
+		case SCREENDATA_GRAVITY_STRENGTH: return "Screen->GravityStrength";
 		case SCREENDATAGUY: return "Screen->Guy";
 		case SCREENDATAGUYCOUNT: return "Screen->GuyCount";
 		case SCREENDATAHASITEM: return "Screen->HasItem";
@@ -345,6 +346,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SCREENDATASTAIRY: return "Screen->StairsY";
 		case SCREENSTATED: return "Screen->State[]";
 		case SCREENDATASTRING: return "Screen->String";
+		case SCREENDATA_TERMINAL_VELOCITY: return "Screen->TerminalVelocity";
 		case SCREENDATATILEWARPDMAP: return "Screen->TileWarpDMap[]";
 		case SCREENDATATILEWARPOVFLAGS: return "Screen->TileWarpOverlay[]";
 		case SCREENDATATWARPRETSQR: return "Screen->TileWarpReturnSquare[]";
@@ -550,6 +552,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case DMAPDATADISABLEDITEMS: return "dmapdata::DisabledItems[]";
 		case DMAPDATAFLAGS: return "dmapdata::Flags";
 		case DMAPDATAFLAGARR: return "dmapdata::Flagset[]";
+		case DMAPDATA_GRAVITY_STRENGTH: return "dmapdata::GravityStrength";
 		case DMAPDATAGRID: return "dmapdata::Grid[]";
 		case DMAPDATAID: return "dmapdata::ID";
 		case DMAPINITD: return "dmapdata::InitD[]";
@@ -577,6 +580,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case DMAPSCRIPT: return "dmapdata::Script";
 		case DMAPDATASIDEVIEW: return "dmapdata::Sideview";
 		case DMAPDATASUBINITD: return "dmapdata::SubInitD[]";
+		case DMAPDATA_TERMINAL_VELOCITY: return "dmapdata::TerminalVelocity";
 		case DMAPDATATYPE: return "dmapdata::Type";
 		case DROPSETCHANCES: return "dropsetdata::Chances[]";
 		case DROPSETITEMS: return "dropsetdata::Items[]";
@@ -848,6 +852,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case MAPDATAFLAGS: return "mapdata::Flags[]";
 		case MAPDATAEXDOOR: return "mapdata::GetExDoor()";
 		case MAPDATAINTID: return "mapdata::GetFFCInitD()";
+		case MAPDATA_GRAVITY_STRENGTH: return "mapdata::GravityStrength";
 		case MAPDATAGUY: return "mapdata::Guy";
 		case MAPDATAGUYCOUNT: return "mapdata::GuyCount";
 		case MAPDATAHASITEM: return "mapdata::HasItem";
@@ -895,6 +900,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case MAPDATASTAIRY: return "mapdata::StairsY";
 		case MAPDATASCREENSTATED: return "mapdata::State[]";
 		case MAPDATASTRING: return "mapdata::String";
+		case MAPDATA_TERMINAL_VELOCITY: return "mapdata::TerminalVelocity";
 		case MAPDATATILEWARPDMAP: return "mapdata::TileWarpDMap[]";
 		case MAPDATATILEWARPOVFLAGS: return "mapdata::TileWarpOverlay[]";
 		case MAPDATATWARPRETSQR: return "mapdata::TileWarpReturnSquare[]";
@@ -1084,6 +1090,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SHOPDATATYPE: return "shopdata::Type";
 		case SPRITE_ENGINE_ANIMATE: return "sprite::Animation";
 		case SPRITE_CSET: return "sprite::CSet";
+		case SPRITE_CURRENT_SCREEN: return "sprite::CurrentScreen";
 		case SPRITE_CUSTOM_GRAVITY_STRENGTH: return "sprite::CustomGravityStrength";
 		case SPRITE_CUSTOM_TERMINAL_VELOCITY: return "sprite::CustomTerminalVelocity";
 		case SPRITE_DIR: return "sprite::Dir";

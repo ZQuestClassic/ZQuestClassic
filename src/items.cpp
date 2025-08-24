@@ -26,6 +26,7 @@ item::~item()
 
 bool item::animate(int32_t)
 {
+	update_current_screen();
 	if(switch_hooked)
 	{
 		solid_update(false);

@@ -185,6 +185,9 @@ enum ScreenFlag
 	SFL_SCRIPT_3 = 58,
 	SFL_SCRIPT_4 = 59,
 	SFL_SCRIPT_5 = 60,
+	
+	// Gravity
+	SFL_CUSTOM_GRAV = 74, // use screen-specific [screendata::GravityStrength|Gravity Strength] and [screendata::TerminalVelocity|Terminal Velocity]
 };
 
 // Screen Flag groups, used with [Screen->Flags].
@@ -577,6 +580,16 @@ class screendata {
 	// @value Varies based on [ScreenEnemyFlagGroup]
 	// @zasm_var SCREENEFLAGSD
 	internal const int EFlags[];
+
+	// If [SFL_CUSTOM_GRAV] is set, this gravity applies on the screen.
+	//
+	// @zasm_var SCREENDATA_GRAVITY_STRENGTH
+	internal int GravityStrength;
+
+	// If [SFL_CUSTOM_GRAV] is set, this terminal velocity applies on the screen.
+	//
+	// @zasm_var SCREENDATA_TERMINAL_VELOCITY
+	internal int TerminalVelocity;
 
 	// The special room type.
 	//

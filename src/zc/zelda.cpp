@@ -313,7 +313,6 @@ byte use_win32_proc=1, console_enabled = 0;
 int32_t home_screen,frame=0,cur_map=0,dlevel,scrolling_hero_screen=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 dword light_wave_clk = 0;
 bool scrolling_using_new_region_coords;
-int32_t hero_screen=0;
 int32_t cur_screen=0;
 int32_t currscr_for_passive_subscr;
 direction scrolling_dir;
@@ -1976,16 +1975,16 @@ int32_t init_game()
 	{
 		if((DMaps[cur_dmap].type&dmfTYPE)==dmOVERW)
 		{
-			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont;
+			home_screen = cur_screen = Hero.current_screen = DMaps[cur_dmap].cont;
 		}
 		else
 		{
-			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
+			home_screen = cur_screen = Hero.current_screen = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
 		}
 	}
 	else
 	{
-		home_screen = cur_screen = hero_screen = game->get_continue_scrn();
+		home_screen = cur_screen = Hero.current_screen = game->get_continue_scrn();
 	}
 	
 	lastentrance = cur_screen;
@@ -2034,7 +2033,7 @@ int32_t init_game()
 
 	Hero.init();
 	if (use_testingst_start
-		&& hero_screen == testingqst_screen
+		&& Hero.current_screen == testingqst_screen
 		&& cur_dmap == testingqst_dmap)
 	{
 		if (hero_scr->warpreturnx[testingqst_retsqr] != 0 || hero_scr->warpreturny[testingqst_retsqr] != 0)
@@ -2403,7 +2402,7 @@ int32_t cont_game()
 	lighting(false,true);
 	Hero.init();
 	if (use_testingst_start
-		&& hero_screen == testingqst_screen
+		&& Hero.current_screen == testingqst_screen
 		&& cur_dmap == testingqst_dmap)
 	{
 		Hero.setX(hero_scr->warpreturnx[testingqst_retsqr]);
@@ -2517,18 +2516,18 @@ void restart_level()
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
-		home_screen = cur_screen = hero_screen = lastentrance;
+		home_screen = cur_screen = Hero.current_screen = lastentrance;
 		init_dmap();
 	}
 	else
 	{
 		if((DMaps[cur_dmap].type&dmfTYPE)==dmOVERW)
 		{
-			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont;
+			home_screen = cur_screen = Hero.current_screen = DMaps[cur_dmap].cont;
 		}
 		else
 		{
-			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
+			home_screen = cur_screen = Hero.current_screen = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
 		}
 	}
 	

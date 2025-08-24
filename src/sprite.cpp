@@ -47,7 +47,7 @@ sprite::sprite(): solid_object()
 {
     uid = 0;
 	parent = nullptr;
-	screen_spawned = -1;
+	screen_spawned = current_screen = -1;
 	isspawning = false;
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=fall=fakefall=fakez=0;
     slopeid = 0;
@@ -2669,12 +2669,28 @@ int32_t sprite::get_gravity(bool skip_custom) const
 {
 	if (custom_gravity && !skip_custom)
 		return custom_gravity.getZLong();
+#ifdef IS_PLAYER
+	mapscr* current_scr = get_scr_maybe(cur_map, current_screen);
+	if (current_scr && (current_scr->flags10 & fSCREEN_GRAVITY))
+		return current_scr->screen_gravity.getZLong();
+	auto const& dmap = DMaps[cur_dmap];
+	if (dmap.flags & dmfCUSTOM_GRAVITY)
+		return dmap.dmap_gravity.getZLong();
+#endif
 	return zinit.gravity;
 }
 int32_t sprite::get_terminalv(bool skip_custom) const
 {
 	if (custom_terminal_v && !skip_custom)
 		return custom_terminal_v.getZLong() / 100;
+#ifdef IS_PLAYER
+	mapscr* current_scr = get_scr_maybe(cur_map, current_screen);
+	if (current_scr && (current_scr->flags10 & fSCREEN_GRAVITY))
+		return current_scr->screen_terminal_v.getZLong() / 100;
+	auto const& dmap = DMaps[cur_dmap];
+	if (dmap.flags & dmfCUSTOM_GRAVITY)
+		return dmap.dmap_terminal_v.getZLong();
+#endif
 	return zinit.terminalv;
 }
 int32_t sprite::get_grav_fall() const
@@ -2698,6 +2714,19 @@ bool sprite::handle_termv()
 		ret = true;
 	}
 	return ret;
+}
+
+void sprite::update_current_screen()
+{
+#ifdef IS_PLAYER
+	int cx = x + hxofs + hit_width / 2;
+	int cy = y + hyofs + hit_height / 2;
+	
+	int new_screen = get_screen_for_world_xy(cx, cy);
+	
+	if (is_in_current_region(new_screen))
+		current_screen = new_screen;
+#endif
 }
 
 //Moving Block 

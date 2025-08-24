@@ -352,6 +352,7 @@ bool movingblock::animate(int32_t)
 	{
 		return false;
 	}
+	update_current_screen();
 
 	auto end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
 	int end_pos = end_rpos_handle.pos;

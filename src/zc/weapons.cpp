@@ -3364,6 +3364,7 @@ void weapon::limited_animate()
 }
 bool weapon::animate(int32_t index)
 {
+	update_current_screen();
 	if(weapon_start_frame)
 	{
 		if(get_qr(qr_WEAPONS_EXTRA_SPAWN_FRAME))

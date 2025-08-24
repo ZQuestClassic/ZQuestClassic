@@ -246,129 +246,193 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 				ptr = &screendata_tab,
 				TabRef(name = "Flags 1", Row(
 					Column(vAlign = 0.0,
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Room Type", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags6,fCAVEROOM,1,"Treat as Interior Screen","If checked, this screen will be treated as part of an 'Interior' dmap, instead of the current dmap's type."),
-							SCR_CB(flags6,fDUNGEONROOM,1,"Treat as Dungeon Screen","If checked, this screen will be treated as part of a 'Dungeon' dmap, instead of the current dmap's type."),
-							SCR_CB(flags7,fSIDEVIEW,1,"Toggle Sideview Gravity","If checked, this screen's sideview gravity will be the opposite of the current dmap's.") //!TODO QRHINT sideview-related QRs
+						Frame(title = "Room Type",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags6,fCAVEROOM,1,"Treat as Interior Screen","If checked, this screen will be treated as part of an 'Interior' dmap, instead of the current dmap's type."),
+								SCR_CB(flags6,fDUNGEONROOM,1,"Treat as Dungeon Screen","If checked, this screen will be treated as part of a 'Dungeon' dmap, instead of the current dmap's type."),
+								SCR_CB(flags7,fSIDEVIEW,1,"Toggle Sideview Gravity","If checked, this screen's sideview gravity will be the opposite of the current dmap's.") //!TODO QRHINT sideview-related QRs
+							)
 						),
-						Rows<2>(hAlign = 0.0,
-							Label(text = "View", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags3,fINVISHERO,1,"Invisible Hero","Hides the Hero on this screen"),
-							SCR_CB(flags7,fNOHEROMARK,1,"No Hero Minimap Marker","Hides the Hero location minimap marker on this screen"),
-							SCR_CB(flags3,fNOSUBSCR,1,"No Subscreen","Hides the subscreen on this screen"),
-							SCR_CB(flags3,fNOSUBSCROFFSET,1,". . . But Don't Offset Screen","Prevents 'No Subscreen' from offsetting the screen"),
-							SCR_CB(flags7,fLAYER2BG,1,"Toggle Layer 2 is BG","If checked, this screen will use the opposite of the dmap setting for Layer 2 being drawn in the background."),
-							SCR_CB(flags7,fLAYER3BG,1,"Toggle Layer 3 is BG","If checked, this screen will use the opposite of the dmap setting for Layer 3 being drawn in the background."),
-							SCR_CB(flags,fDARK,1,"Dark Room","If this room should be dark or not. Type of darkness depends on 'New Dark Rooms' setting." + QRHINT({qr_NEW_DARKROOM})),
-							SCR_CB(flags9,fDARK_DITHER,1,". . . Dithered Darkness","The entire room's darkness is dithered.\nOnly applies with 'New Dark Rooms' enabled." + QRHINT({qr_NEW_DARKROOM})),
-							SCR_CB(flags9,fDARK_TRANS,1,". . . Transparent Darkness","The entire room's darkness is transparent.\nOnly applies with 'New Dark Rooms' enabled." + QRHINT({qr_NEW_DARKROOM}))
+						Frame(title = "View",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags3,fINVISHERO,1,"Invisible Hero","Hides the Hero on this screen"),
+								SCR_CB(flags7,fNOHEROMARK,1,"No Hero Minimap Marker","Hides the Hero location minimap marker on this screen"),
+								SCR_CB(flags3,fNOSUBSCR,1,"No Subscreen","Hides the subscreen on this screen"),
+								SCR_CB(flags3,fNOSUBSCROFFSET,1,". . . But Don't Offset Screen","Prevents 'No Subscreen' from offsetting the screen"),
+								SCR_CB(flags7,fLAYER2BG,1,"Toggle Layer 2 is BG","If checked, this screen will use the opposite of the dmap setting for Layer 2 being drawn in the background."),
+								SCR_CB(flags7,fLAYER3BG,1,"Toggle Layer 3 is BG","If checked, this screen will use the opposite of the dmap setting for Layer 3 being drawn in the background."),
+								SCR_CB(flags,fDARK,1,"Dark Room","If this room should be dark or not. Type of darkness depends on 'New Dark Rooms' setting." + QRHINT({qr_NEW_DARKROOM})),
+								SCR_CB(flags9,fDARK_DITHER,1,". . . Dithered Darkness","The entire room's darkness is dithered.\nOnly applies with 'New Dark Rooms' enabled." + QRHINT({qr_NEW_DARKROOM})),
+								SCR_CB(flags9,fDARK_TRANS,1,". . . Transparent Darkness","The entire room's darkness is transparent.\nOnly applies with 'New Dark Rooms' enabled." + QRHINT({qr_NEW_DARKROOM}))
+							)
 						)
 					),
 					Column(vAlign = 0.0,
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Secrets", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags,fSHUTTERS,1,"Block->Shutters","If checked, dungeon shutters in the room will open when a block is pushed, instead of when enemies are defeated."),
-							SCR_CB(flags5,fTEMPSECRETS,1,"Temporary Secrets","Secrets triggered on this screen will reset when leaving the screen."),
-							SCR_CB(flags6,fTRIGGERFPERM,1,"All Triggers->Perm Secret","Triggering all 'Trigger->' mapflags (flags 94 and 95) will trigger a permanent secret."),
-							SCR_CB(flags6,fTRIGGERF1631,1,"All Triggers->16-31","Triggering all 'Trigger->' mapflags (flags 94 and 95) will trigger secret combos 16-31.")
+						Frame(title = "Secrets",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags,fSHUTTERS,1,"Block->Shutters","If checked, dungeon shutters in the room will open when a block is pushed, instead of when enemies are defeated."),
+								SCR_CB(flags5,fTEMPSECRETS,1,"Temporary Secrets","Secrets triggered on this screen will reset when leaving the screen."),
+								SCR_CB(flags6,fTRIGGERFPERM,1,"All Triggers->Perm Secret","Triggering all 'Trigger->' mapflags (flags 94 and 95) will trigger a permanent secret."),
+								SCR_CB(flags6,fTRIGGERF1631,1,"All Triggers->16-31","Triggering all 'Trigger->' mapflags (flags 94 and 95) will trigger secret combos 16-31.")
+							)
 						),
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Warp", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags5,fDIRECTAWARP,1,"Auto-Warps are Direct","Auto typed warps on this screen will not alter the Hero's position."),
-							SCR_CB(flags5,fDIRECTSWARP,1,"Sensitive Warps are Direct","Sensitive typed warps on this screen will not alter the Hero's position."),
-							SCR_CB(flags3,fIWARP_SPRITE_CARRYOVER,1,"Sprites Carry Over In Warps","Sprite objects, such as enemies, items, and weapons, will follow through warps from this screen."),
-							SCR_CB(flags9,fDISABLE_MIRROR,1,"Disable Magic Mirror","Magic Mirror type items don't work on this screen.")
+						Frame(title = "Warp",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags5,fDIRECTAWARP,1,"Auto-Warps are Direct","Auto typed warps on this screen will not alter the Hero's position."),
+								SCR_CB(flags5,fDIRECTSWARP,1,"Sensitive Warps are Direct","Sensitive typed warps on this screen will not alter the Hero's position."),
+								SCR_CB(flags3,fIWARP_SPRITE_CARRYOVER,1,"Sprites Carry Over In Warps","Sprite objects, such as enemies, items, and weapons, will follow through warps from this screen."),
+								SCR_CB(flags9,fDISABLE_MIRROR,1,"Disable Magic Mirror","Magic Mirror type items don't work on this screen.")
+							)
 						),
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Maze", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags,fMAZE,1,"Use Maze Path","This screen will act as a mystical maze requiring a specific path to be followed to escape."),
-							SCR_CB(flags8,fMAZEvSIDEWARP,1,"Maze Overrides Side Warps","The Maze Path's mystical looping is prioritized over sidewarps if this is checked."),
-							SCR_CB(flags10,fMAZE_CAN_GET_LOST,1,"Can Get Lost In Maze","Going any direction other than the exit gets the hero \"lost\" - in this state, leaving in the direction of the exit does not leave the maze, but does get the hero \"unlost\" (so using the exit direction once more will actually leave the maze)."),
-							SCR_CB(flags10,fMAZE_LOOPY,1,"Loopy Maze","Instead of scrolling, taking any non-exit direction in a maze will move the player to the opposite side (without reloading the screen), with an optional wipe effect (see Maze Path dialog).\nIf the maze is within a scrolling region, this presents a neat illusion of an endless maze")
+						Frame(title = "Maze",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags,fMAZE,1,"Use Maze Path","This screen will act as a mystical maze requiring a specific path to be followed to escape."),
+								SCR_CB(flags8,fMAZEvSIDEWARP,1,"Maze Overrides Side Warps","The Maze Path's mystical looping is prioritized over sidewarps if this is checked."),
+								SCR_CB(flags10,fMAZE_CAN_GET_LOST,1,"Can Get Lost In Maze","Going any direction other than the exit gets the hero \"lost\" - in this state, leaving in the direction of the exit does not leave the maze, but does get the hero \"unlost\" (so using the exit direction once more will actually leave the maze)."),
+								SCR_CB(flags10,fMAZE_LOOPY,1,"Loopy Maze","Instead of scrolling, taking any non-exit direction in a maze will move the player to the opposite side (without reloading the screen), with an optional wipe effect (see Maze Path dialog).\nIf the maze is within a scrolling region, this presents a neat illusion of an endless maze")
+							)
 						)
 					)
 				)),
 				TabRef(name = "Flags 2", Row(
 					Column(vAlign = 0.0,
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Combos", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags2,fAIRCOMBOS,1,"Combos Affect Midair Hero","If checked, combos such as damage combos and conveyors will affect the Hero even in mid-air."),
-							SCR_CB(flags3,fCYCLEONINIT,1,"Cycle Combos On Screen Init","If checked, all combos on the screen that are set to 'cycle' will be forcibly cycled once before the screen appears.\nThis can be used for fancy tricks related to one-time animations not re-playing."),
-							SCR_CB(flags5,fDAMAGEWITHBOOTS,1,"Damage Combos Ignore Boots","If checked, damage combos on this screen bypass the Boots itemtype."),
-							SCR_CB(flags6,fTOGGLERINGDAMAGE,1,"Toggle 'Rings Affect Damage Combos'","If checked, Ring and Peril Ring items affecting damage combos uses the opposite setting on this screen.")
+						Frame(title = "Combos",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags2,fAIRCOMBOS,1,"Combos Affect Midair Hero","If checked, combos such as damage combos and conveyors will affect the Hero even in mid-air."),
+								SCR_CB(flags3,fCYCLEONINIT,1,"Cycle Combos On Screen Init","If checked, all combos on the screen that are set to 'cycle' will be forcibly cycled once before the screen appears.\nThis can be used for fancy tricks related to one-time animations not re-playing."),
+								SCR_CB(flags5,fDAMAGEWITHBOOTS,1,"Damage Combos Ignore Boots","If checked, damage combos on this screen bypass the Boots itemtype."),
+								SCR_CB(flags6,fTOGGLERINGDAMAGE,1,"Toggle 'Rings Affect Damage Combos'","If checked, Ring and Peril Ring items affecting damage combos uses the opposite setting on this screen.")
+							)
 						),
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Save", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags4,fSAVEROOM,1,"Save Point->Continue Here","When saving at a 'Save' combo on this screen, set this as the continue screen."),
-							SCR_CB(flags4,fAUTOSAVE,1,"Save Game On Entry","Immediately save and set this screen as the continue point when entering this screen."),
-							SCR_CB(flags6,fCONTINUEHERE,1,"Continue Here","When entering this screen, set it as the continue point for 'F6->Continue'."),
-							SCR_CB(flags6,fNOCONTINUEHERE,1,"No Continue Here After Warp","When warping to this screen, DON'T set it as the continue point for 'F6->Continue'.")
+						Frame(title = "Save",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags4,fSAVEROOM,1,"Save Point->Continue Here","When saving at a 'Save' combo on this screen, set this as the continue screen."),
+								SCR_CB(flags4,fAUTOSAVE,1,"Save Game On Entry","Immediately save and set this screen as the continue point when entering this screen."),
+								SCR_CB(flags6,fCONTINUEHERE,1,"Continue Here","When entering this screen, set it as the continue point for 'F6->Continue'."),
+								SCR_CB(flags6,fNOCONTINUEHERE,1,"No Continue Here After Warp","When warping to this screen, DON'T set it as the continue point for 'F6->Continue'.")
+							)
 						),
-						Rows<2>(hAlign = 0.0,
-							Label(text = "FFC", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags6,fWRAPAROUNDFF,1,"FF Combos Wrap Around","If checked, FFCs will wrap around at 32 pixels off the edge of the screen."),
-							SCR_CB(flags5,fNOFFCARRYOVER,1,"No FFC Carryover","If set, no FFC will carryover (even w/ the FFC's 'carryover' flag set).")
+						Frame(title = "FFC",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags6,fWRAPAROUNDFF,1,"FF Combos Wrap Around","If checked, FFCs will wrap around at 32 pixels off the edge of the screen."),
+								SCR_CB(flags5,fNOFFCARRYOVER,1,"No FFC Carryover","If set, no FFC will carryover (even w/ the FFC's 'carryover' flag set).")
+							)
 						)
 					),
 					Column(vAlign = 0.0,
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Whistle", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags,fWHISTLE,1,"Whistle->Stairs","Triggers the 'Stairs' secret when the whistle is played."),
-							SCR_CB(flags7,fWHISTLEPAL,1,"Whistle->Palette Change","Using the whistle on this screen will cause a hardcoded shift in the palette, usually used to visually 'dry up' water alongside 'Whistle->Dry Lake'."),
-							SCR_CB(flags7,fWHISTLEWATER,1,"Whistle->Dry Lake","Using the whistle on this screen will 'dry up' water")
+						Frame(title = "Whistle",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags,fWHISTLE,1,"Whistle->Stairs","Triggers the 'Stairs' secret when the whistle is played."),
+								SCR_CB(flags7,fWHISTLEPAL,1,"Whistle->Palette Change","Using the whistle on this screen will cause a hardcoded shift in the palette, usually used to visually 'dry up' water alongside 'Whistle->Dry Lake'."),
+								SCR_CB(flags7,fWHISTLEWATER,1,"Whistle->Dry Lake","Using the whistle on this screen will 'dry up' water")
+							)
 						),
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Misc", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags,fLADDER,1,"Toggle 'Allow Ladder'","The state of 'Allow Ladder Anywhere' QR is reversed on this screen." + QRHINT({qr_LADDERANYWHERE})),
-							SCR_CB(flags5,fTOGGLEDIVING,1,"Toggle 'No Diving'","Toggles whether flippers can dive or not on this screen."),
-							SCR_CB_D(flags8,fGENERALSCRIPT1,1,"Script 1"),
-							SCR_CB_D(flags8,fGENERALSCRIPT2,1,"Script 2"),
-							SCR_CB_D(flags8,fGENERALSCRIPT3,1,"Script 3"),
-							SCR_CB_D(flags8,fGENERALSCRIPT4,1,"Script 4"),
-							SCR_CB_D(flags8,fGENERALSCRIPT5,1,"Script 5")
+						Frame(title = "Misc",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags,fLADDER,1,"Toggle 'Allow Ladder'","The state of 'Allow Ladder Anywhere' QR is reversed on this screen." + QRHINT({qr_LADDERANYWHERE})),
+								SCR_CB(flags5,fTOGGLEDIVING,1,"Toggle 'No Diving'","Toggles whether flippers can dive or not on this screen."),
+								SCR_CB_D(flags8,fGENERALSCRIPT1,1,"Script 1"),
+								SCR_CB_D(flags8,fGENERALSCRIPT2,1,"Script 2"),
+								SCR_CB_D(flags8,fGENERALSCRIPT3,1,"Script 3"),
+								SCR_CB_D(flags8,fGENERALSCRIPT4,1,"Script 4"),
+								SCR_CB_D(flags8,fGENERALSCRIPT5,1,"Script 5")
+							)
 						)
 					)
 				)),
 				TabRef(name = "Flags 3", Row(
 					Column(vAlign = 0.0,
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Items", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags3,fHOLDITEM,1,"Hold Up Item","The screen's item/special item will be held above the Hero's head."),
-							SCR_CB(flags7,fITEMFALLS,1,"Item Falls From Ceiling","The screen's item drops from above."),
-							SCR_CB(flags8,fSECRETITEM,1,"Secrets->Item","The screen's item spawns when secrets are triggered."),
-							SCR_CB(flags8,fITEMSECRET,1,"Item->Secrets","Collecting the screen's item triggers secrets (temporary)"),
-							SCR_CB(flags9,fITEMSECRETPERM,1,". . . Permanent","The secrets triggered by 'Item->Secrets' are permanent instead of temporary."),
-							SCR_CB(flags9,fITEMRETURN,1,"Item Always Returns","The screen's item always respawns."),
-							SCR_CB(flags9,fBELOWRETURN,1,"Special Item Always Returns","The screen's special item always respawns.")
+						Frame(title = "Items",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags3,fHOLDITEM,1,"Hold Up Item","The screen's item/special item will be held above the Hero's head."),
+								SCR_CB(flags7,fITEMFALLS,1,"Item Falls From Ceiling","The screen's item drops from above."),
+								SCR_CB(flags8,fSECRETITEM,1,"Secrets->Item","The screen's item spawns when secrets are triggered."),
+								SCR_CB(flags8,fITEMSECRET,1,"Item->Secrets","Collecting the screen's item triggers secrets (temporary)"),
+								SCR_CB(flags9,fITEMSECRETPERM,1,". . . Permanent","The secrets triggered by 'Item->Secrets' are permanent instead of temporary."),
+								SCR_CB(flags9,fITEMRETURN,1,"Item Always Returns","The screen's item always respawns."),
+								SCR_CB(flags9,fBELOWRETURN,1,"Special Item Always Returns","The screen's special item always respawns.")
+							)
+						)
+					),
+					Column(vAlign = 0.0,
+						Frame(title = "Gravity",
+							fitParent = true,
+							Column(
+								Rows<2>(padding = 0_px,
+									INFOBTN("The 'Gravity' and 'Terminal Velocity' set here will apply for this screen."),
+									Checkbox(checked = local_scr.flags10 & fSCREEN_GRAVITY,
+										text = "Customize Gravity", fitParent = true,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_scr.flags10, fSCREEN_GRAVITY, state);
+											for (int q = 0; q < 2; ++q)
+												grav_tf[q]->setDisabled(!state);
+										})
+								),
+								Rows<2>(padding = 0_px,
+									Label(text = "Gravity:", hAlign = 1.0),
+									grav_tf[0] = TextField(maxLength = 11,
+										type = GUI::TextField::type::NOSWAP_ZSINT,
+										swap_type = nswapDEC, val = local_scr.screen_gravity.getZLong(),
+										disabled = !(local_scr.flags10 & fSCREEN_GRAVITY),
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_scr.screen_gravity = zslongToFix(val);
+										}),
+									Label(text = "Terminal Velocity:", hAlign = 1.0),
+									grav_tf[1] = TextField(maxLength = 11,
+										type = GUI::TextField::type::NOSWAP_ZSINT,
+										swap_type = nswapDEC, val = local_scr.screen_terminal_v.getZLong(),
+										disabled = !(local_scr.flags10 & fSCREEN_GRAVITY),
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_scr.screen_terminal_v = zslongToFix(val);
+										})
+								)
+							)
 						)
 					)
 				)),
 				TabRef(name = "E. Flags", Row(
 					Column(vAlign = 0.0,
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Enemy Flags", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags11,efLEADER,1,"Ringleader","The first enemy listed in the screen's enemy list will be a 'Ringleader'. When this enemy dies, all other enemies will die."),
-							SCR_CB(flags11,efCARRYITEM,1,"Enemy Carries Item","The first enemy listed in the screen's enemy list will carry the screen's item."),
-							SCR_CB(flags3,fINVISROOM,1,"Invisible Enemies","The enemies in this room are invisible."),
-							SCR_CB(flags11,efBOSS,1,"Dungeon Boss","Defeating the enemies in this room counts as 'beating the dungeon boss'. If you have defeated the dungeon boss, these enemies will not respawn."),
-							SCR_CB(flags2,fFLOATTRAPS,1,"Traps Ignore Solidity","Traps on this screen will go through solid walls."),
-							SCR_CB(flags3,fENEMIESRETURN,1,"Enemies Always Return","The enemies on this screen always respawn."),
-							SCR_CB(flags,fITEM,1,"Enemies->Item","Killing all enemies spawns the screen item. (Note: This OVERRIDES 'Enemy Carries Item')"),
-							SCR_CB(flags2,fCLEARSECRET,1,"Enemies->Secrets","Killing all enemies triggers screen secrets (temporarily)"),
-							SCR_CB(flags4,fENEMYSCRTPERM,1,". . . Permanent","The secrets triggered by 'Enemies->Secret' are permanent instead of temporary."),
-							SCR_CB(flags9,fENEMIES_STAY_DEAD,1,"Enemies->Stay Dead","Killing all enemies causes enemies to never respawn."),
-							SCR_CB(flags9,fENEMY_WAVES,1,"Chain 'Enemies->' Triggers","If a combo uses the triggers tab on the 'Enemies->' trigger event to spawn more enemies, other 'kill all enemies' effects will wait for the new enemies to die as well.")
+						Frame(title = "Enemy Flags",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags11,efLEADER,1,"Ringleader","The first enemy listed in the screen's enemy list will be a 'Ringleader'. When this enemy dies, all other enemies will die."),
+								SCR_CB(flags11,efCARRYITEM,1,"Enemy Carries Item","The first enemy listed in the screen's enemy list will carry the screen's item."),
+								SCR_CB(flags3,fINVISROOM,1,"Invisible Enemies","The enemies in this room are invisible."),
+								SCR_CB(flags11,efBOSS,1,"Dungeon Boss","Defeating the enemies in this room counts as 'beating the dungeon boss'. If you have defeated the dungeon boss, these enemies will not respawn."),
+								SCR_CB(flags2,fFLOATTRAPS,1,"Traps Ignore Solidity","Traps on this screen will go through solid walls."),
+								SCR_CB(flags3,fENEMIESRETURN,1,"Enemies Always Return","The enemies on this screen always respawn."),
+								SCR_CB(flags,fITEM,1,"Enemies->Item","Killing all enemies spawns the screen item. (Note: This OVERRIDES 'Enemy Carries Item')"),
+								SCR_CB(flags2,fCLEARSECRET,1,"Enemies->Secrets","Killing all enemies triggers screen secrets (temporarily)"),
+								SCR_CB(flags4,fENEMYSCRTPERM,1,". . . Permanent","The secrets triggered by 'Enemies->Secret' are permanent instead of temporary."),
+								SCR_CB(flags9,fENEMIES_STAY_DEAD,1,"Enemies->Stay Dead","Killing all enemies causes enemies to never respawn."),
+								SCR_CB(flags9,fENEMY_WAVES,1,"Chain 'Enemies->' Triggers","If a combo uses the triggers tab on the 'Enemies->' trigger event to spawn more enemies, other 'kill all enemies' effects will wait for the new enemies to die as well.")
+							)
 						)
 					),
 					Column(vAlign = 0.0,
-						Rows<2>(hAlign = 0.0,
-							Label(text = "Environmental Enemies", hAlign = 0.0, colSpan = 2),
-							SCR_CB(flags11,efZORA,1,"Fish",fmt::format("1x {}",ene_str[0])),
-							SCR_CB(flags11,efTRAP4,1,"Corner Traps",fmt::format("4x {} in corners",ene_str[1])),
-							SCR_CB(flags11,efTRAP2,1,"Middle Traps",fmt::format("2x {} in the middle",ene_str[2])),
-							SCR_CB(flags11,efROCKS,1,"Falling Rocks",fmt::format("3x {}",ene_str[3])),
-							SCR_CB(flags11,efFIREBALLS,1,"Shooting Statues",fmt::format("1x {} per Statue",ene_str[4]))
+						Frame(title = "Environmental Enemies",
+							fitParent = true,
+							Rows<2>(hAlign = 0.0,
+								SCR_CB(flags11,efZORA,1,"Fish",fmt::format("1x {}",ene_str[0])),
+								SCR_CB(flags11,efTRAP4,1,"Corner Traps",fmt::format("4x {} in corners",ene_str[1])),
+								SCR_CB(flags11,efTRAP2,1,"Middle Traps",fmt::format("2x {} in the middle",ene_str[2])),
+								SCR_CB(flags11,efROCKS,1,"Falling Rocks",fmt::format("3x {}",ene_str[3])),
+								SCR_CB(flags11,efFIREBALLS,1,"Shooting Statues",fmt::format("1x {} per Statue",ene_str[4]))
+							)
 						)
 					)
 				)),

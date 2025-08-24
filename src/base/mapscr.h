@@ -192,6 +192,8 @@ struct mapscr
 	
 	string usr_notes;
 	
+	zfix screen_gravity, screen_terminal_v;
+	
 	void zero_memory();
 
 private:
@@ -296,9 +298,10 @@ struct screendata : mapscr {};
 #define fENEMY_WAVES        0x40
 #define fENEMIES_STAY_DEAD  0x80
 
-//flags10 - ENTIRE FLAGS10 RESERVED FOR Z3 SCROLLING! Please don't use :)
+//flags10
 #define fMAZE_CAN_GET_LOST  0x01
 #define fMAZE_LOOPY         0x02
+#define fSCREEN_GRAVITY     0x03
 // ----
 
 // flags11 aka enemy flags

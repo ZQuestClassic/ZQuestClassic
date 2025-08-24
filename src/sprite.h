@@ -59,7 +59,7 @@ public:
 			parent->children.push_back(this);
 	}
 
-    uint8_t screen_spawned;
+    uint8_t screen_spawned, current_screen;
     zfix z,fall,fakefall,fakez;
     int32_t tile,shadowtile,cs,flip,c_clk,clk,misc;
     int16_t flickercolor;
@@ -182,6 +182,8 @@ public:
 	virtual int32_t get_terminalv(bool skip_custom = false) const;
 	virtual int32_t get_grav_fall() const;
 	bool handle_termv();
+	
+	virtual void update_current_screen();
 	
 	virtual int32_t run_script(int32_t mode);
 	

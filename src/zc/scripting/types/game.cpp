@@ -375,7 +375,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			break;
 
 		case HERO_SCREEN:
-			ret=hero_screen*10000;
+			ret=Hero.current_screen*10000;
 			break;
 
 		case ALLOCATEBITMAPR:

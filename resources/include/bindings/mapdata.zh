@@ -694,6 +694,16 @@ class mapdata {
 	// @value Varies based on [ScreenEnemyFlagGroup]
 	// @zasm_var MAPDATASCREENEFLAGSD
 	internal const int EFlags[];
+
+	// If [SFL_CUSTOM_GRAV] is set, this gravity applies on the screen.
+	//
+	// @zasm_var MAPDATA_GRAVITY_STRENGTH
+	internal int GravityStrength;
+
+	// If [SFL_CUSTOM_GRAV] is set, this terminal velocity applies on the screen.
+	//
+	// @zasm_var MAPDATA_TERMINAL_VELOCITY
+	internal int TerminalVelocity;
 	
 	// The [combodata] placed at each position on the screen.
 	//

@@ -34,6 +34,7 @@ enum DMapFlag
 	DMFS_BUNNY,               //Become Bunny with no Pearl
 	DMFS_MIRRORCONTINUE,      //Mirror Continues instead of Warping
 	DMFS_EXTENDEDVIEWPORT,    //If checked, the viewport extends into the part of the screen normally occupied by the passive subscreen.
+	DMFS_CUSTOM_GRAVITY,      // use dmap-specific [dmapdata::GravityStrength|Gravity Strength] and [dmapdata::TerminalVelocity|Terminal Velocity]
 	DMFS_MAX
 };
 
@@ -200,6 +201,16 @@ class dmapdata {
 	// @index [enum DMapFlag]
 	// @zasm_var DMAPDATAFLAGARR
 	internal bool Flagset[];
+	
+	// If [DMFS_CUSTOM_GRAVITY] is set, this gravity applies on the dmap.
+	//
+	// @zasm_var DMAPDATA_GRAVITY_STRENGTH
+	internal int GravityStrength;
+
+	// If [DMFS_CUSTOM_GRAVITY] is set, this terminal velocity applies on the dmap.
+	//
+	// @zasm_var DMAPDATA_TERMINAL_VELOCITY
+	internal int TerminalVelocity;
 
 	// If true, the dmap is treated as sideview by default; screens with the
 	// sideview flag enabled will toggle sideview back *off*.
