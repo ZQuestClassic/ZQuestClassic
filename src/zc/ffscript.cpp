@@ -8674,6 +8674,21 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGGER_GRAVITY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->trig_gravity;
+			else ret = -10000;
+			break;
+			break;
+		}
+		case CMBTRIGGER_TERMINAL_VELOCITY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				ret = trig->trig_terminal_v;
+			else ret = -10000;
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		//npcdata nd-> variables
 			
@@ -16289,6 +16304,18 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 				trig->force_ice_vy = zslongToFix(value);
+			break;
+		}
+		case CMBTRIGGER_GRAVITY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->trig_gravity = zslongToFix(value);
+			break;
+		}
+		case CMBTRIGGER_TERMINAL_VELOCITY:
+		{
+			if(auto* trig = get_combo_trigger(ri->combotrigref))
+				trig->trig_terminal_v = zslongToFix(value);
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//

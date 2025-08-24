@@ -150,7 +150,8 @@ static bool has_trigger_effect(combo_trigger const& trig)
 		TRIGFLAG_LITEM_SET,TRIGFLAG_LITEM_UNSET,TRIGFLAG_TINT_CLEAR,TRIGFLAG_SETPLAYER_X_ABS,
 		TRIGFLAG_SETPLAYER_X_REL_CMB,TRIGFLAG_SETPLAYER_Y_ABS,
 		TRIGFLAG_SETPLAYER_Y_REL_CMB,TRIGFLAG_SETPLAYER_Z_ABS,
-		TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY,TRIGFLAG_CANCEL_TRIGGER })) return true;
+		TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY,TRIGFLAG_CANCEL_TRIGGER,
+		TRIGFLAG_SET_GRAVITY, TRIGFLAG_REVERT_GRAVITY })) return true;
 	if(trig.dest_player_x || trig.dest_player_y || trig.dest_player_z) return true;
 	if(trig.force_ice_combo > -1) return true;
 	if(trig.dest_player_dir > -1) return true;
@@ -205,6 +206,8 @@ void ComboTriggerDialog::updateWarnings()
 	}
 	if(!has_ignite && local_ref.trigger_flags.get(TRIGFLAG_UNIGNITE_WEAPONS))
 		warnings.emplace_back("Trigger has '...Unignite' flag, but no 'Ignite' flags are used!");
+	if (local_ref.trigger_flags.all({ TRIGFLAG_SET_GRAVITY, TRIGFLAG_REVERT_GRAVITY }))
+		warnings.emplace_back("'Set Gravity' does nothing when 'Revert Gravity' is checked!");
 	if(local_ref.trigger_flags.get(TRIGFLAG_UNSETEXSTATE) && local_ref.exstate < 0)
 		warnings.emplace_back("Can't unset ExState -1!");
 	if(local_ref.trigger_flags.get(TRIGFLAG_UNSETEXDOOR) && local_ref.exdoor_dir < 0)
@@ -690,6 +693,33 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											local_ref.fail_msgstr = val*10000;
 										}),
 									IBTN_T("Fail Trigger String", "The string to play when triggered, but the combo trigger's conditions fail. Negative values are special, reading the string number from somewhere else.")
+								),
+								Column(framed = true, padding = DEFAULT_PADDING*1.5,
+									hAlign = 0.0,
+									Rows<2>(
+										IBTN("Sets the screen's gravity to the specified value."),
+										TRIGFLAG(TRIGFLAG_SET_GRAVITY, "Set Gravity"),
+										IBTN("Reverts the screen's gravity to editor settings."),
+										TRIGFLAG(TRIGFLAG_REVERT_GRAVITY, "Revert Gravity")
+									),
+									Rows<2>(
+										Label(text = "Gravity:", hAlign = 1.0),
+										TextField(maxLength = 11,
+											type = GUI::TextField::type::NOSWAP_ZSINT,
+											swap_type = nswapDEC, val = local_ref.trig_gravity.getZLong(),
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.trig_gravity = zslongToFix(val);
+											}),
+										Label(text = "Terminal Velocity:", hAlign = 1.0),
+										TextField(maxLength = 11,
+											type = GUI::TextField::type::NOSWAP_ZSINT,
+											swap_type = nswapDEC, val = local_ref.trig_terminal_v.getZLong(),
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.trig_terminal_v = zslongToFix(val);
+											})
+									)
 								)
 							)
 						)
