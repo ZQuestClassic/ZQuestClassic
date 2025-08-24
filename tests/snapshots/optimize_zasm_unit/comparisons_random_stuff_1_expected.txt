@@ -62,10 +62,10 @@ rewrite 0: 2 -> 2 commands
 	D2 = Bool(D2)
 8: GOTOCMP         10               ==     
 	D2 = Bool(D2)
-rewrite 5: 4 -> 2 commands
+rewrite 5: 4 -> 3 commands
 5: COMPAREV        D2               0      
-6: GOTOCMP         10               ==     
-7: NOP            
+6: SETCMP          D2               !=     
+7: GOTOCMP         10               ==     
 8: NOP            
 
 [reduce_comparisons] Block #3
@@ -82,9 +82,9 @@ Function #0 (run_none-0)
     3: PUSHR           D2
     4: LOAD            D2               0
     5: COMPAREV        D2               0
-    6: GOTOCMP         10               ==
-    7: NOP                                          [Block 2 -> 6]
-    8: NOP
+    6: SETCMP          D2               !=
+    7: GOTOCMP         10               ==
+    8: NOP                                          [Block 2 -> 6]
     9: GOTO            15
    10: LOAD            D2               0           [Block 3 -> 4, 5]
    11: COMPAREV        D2               0
