@@ -500,8 +500,6 @@ static void add_context_liveness(OptContext& ctx)
 	std::set<pc_t> worklist;
 	for (pc_t block_index = 0; block_index < ctx.block_starts.size(); block_index++)
 	{
-		worklist.insert(block_index);
-
 		uint8_t gen = 0;
 		uint8_t kill = 0;
 		bool returns = false;
@@ -530,6 +528,10 @@ static void add_context_liveness(OptContext& ctx)
 		}
 
 		vars[block_index] = {0, 0, gen, kill, returns};
+
+		// Minor optimization: only seed the worklist with exit blocks or blocks that use a register.
+		if (returns || gen || E(block_index).empty())
+			worklist.insert(block_index);
 	}
 
 	while (!worklist.empty())
