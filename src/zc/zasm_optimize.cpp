@@ -368,30 +368,94 @@ static void expect(std::string name, zasm_script* script, std::vector<ffscript>&
 	}
 }
 
+struct CommandArgumentInfo
+{
+	bool is_reg = false;
+	bool reads = false;
+	bool writes = false;
+};
+
+struct CommandMetadata
+{
+	uint8_t implicit_read_mask = 0;
+	uint8_t implicit_write_mask = 0;
+	CommandArgumentInfo args[3];
+};
+
+static std::vector<CommandMetadata> command_meta_cache;
+
+static void init_meta_cache()
+{
+	if (command_meta_cache.size())
+		return;
+
+	command_meta_cache.resize(NUMCOMMANDS);
+
+	for (int i = 0; i < NUMCOMMANDS; i++)
+	{
+		auto sc = get_script_command(i);
+		if (!sc)
+			continue;
+
+		auto& meta = command_meta_cache[i];
+
+		for (auto [reg, rw] : get_command_implicit_dependencies(i))
+		{
+			if (reg >= 8)
+				continue;
+
+			if (rw == ARGTY::READ_REG || rw == ARGTY::READWRITE_REG)
+				meta.implicit_read_mask |= (1 << reg);
+			if (rw == ARGTY::WRITE_REG || rw == ARGTY::READWRITE_REG)
+				meta.implicit_write_mask |= (1 << reg);
+		}
+
+		for (int argn = 0; argn < 3; ++argn)
+		{
+			if (sc->is_register(argn))
+			{
+				meta.args[argn].is_reg = true;
+				auto [read, write] = get_command_rw(i, argn);
+				meta.args[argn].reads = read;
+				meta.args[argn].writes = write;
+			}
+		}
+	}
+}
+
 template <typename T>
 static void for_every_side_effect_d_registers_only(const ffscript& instr, T fn)
 {
 	std::array<bool, 8> r{}, w{};
 
-	for (auto [reg, rw] : get_command_implicit_dependencies(instr.command))
+	auto& meta = command_meta_cache[instr.command];
+	for (int i = 0; i < 8; i++)
 	{
-		if (reg >= 8)
-			continue;
-
-		r[reg] |= rw == ARGTY::READWRITE_REG || rw == ARGTY::READ_REG;
-		w[reg] |= rw == ARGTY::READWRITE_REG || rw == ARGTY::WRITE_REG;
+		r[i] = meta.implicit_read_mask & (1 << i);
+		w[i] = meta.implicit_write_mask & (1 << i);
 	}
 
-	for_every_register_side_effect_args_only(instr, [&](bool read, bool write, int reg, int argn){
-		for (auto reg2 : get_register_dependencies(reg))
-			if (reg2 < 8) r[reg2] |= true;
+	const int32_t* p_arg = &instr.arg1;
+	for (int argn = 0; argn < 3; ++argn)
+	{
+		const auto& arg_info = meta.args[argn];
+		if (!arg_info.is_reg) continue;
 
-		if (reg >= 8)
-			return;
+		int reg = p_arg[argn];
+		if (reg < 8)
+		{
+			if (arg_info.reads)
+				r[reg] = true;
+			if (arg_info.writes)
+				w[reg] = true;
+		}
 
-		r[reg] |= read;
-		w[reg] |= write;
-	});
+		for (auto reg : get_register_dependencies(reg))
+		{
+			if (reg < 8)
+				r[reg] = true;
+		}
+	}
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -511,25 +575,41 @@ static void add_context_liveness(OptContext& ctx)
 		auto [start_pc, final_pc] = get_block_bounds(ctx, block_index);
 		for (pc_t i = start_pc; i <= final_pc; i++)
 		{
-			int command = C(i).command;
-			if (command == CALLFUNC)
+			auto& instr = C(i);
+			if (instr.command == CALLFUNC)
 			{
 				kill = 0xFF;
 				continue;
 			}
 
-			if (command == RETURNFUNC)
+			if (instr.command == RETURNFUNC)
 				returns = true;
 
-			for_every_side_effect_d_registers_only(C(i), [&](bool read, bool write, int reg){
-				if (read)
+			auto& meta = command_meta_cache[instr.command];
+			gen |= (meta.implicit_read_mask & ~kill);
+			kill |= meta.implicit_write_mask;
+
+			const int32_t* p_arg = &instr.arg1;
+			for (int argn = 0; argn < 3; ++argn)
+			{
+				const auto& arg_info = meta.args[argn];
+				if (!arg_info.is_reg) continue;
+
+				int reg = p_arg[argn];
+				if (reg < 8)
 				{
-					if (!(kill & (1 << reg)))
-						gen |= 1 << reg;
+					if (arg_info.reads)
+						if (!(kill & (1 << reg))) gen |= (1 << reg);
+					if (arg_info.writes)
+						kill |= (1 << reg);
 				}
-				if (write)
-					kill |= 1 << reg;
-			});
+
+				for (auto r : get_register_dependencies(reg))
+				{
+					if (r < 8)
+						if (!(kill & (1 << r))) gen |= (1 << r);
+				}
+			}
 		}
 
 		vars[block_index] = {0, 0, gen, kill, returns};
@@ -2748,6 +2828,9 @@ void zasm_optimize()
 			zasm_optimize_trace("note: zasm optimizer disabled by user, but must run in minimal mode to support jit");
 	}
 
+	if (!minimal_mode)
+		init_meta_cache();
+
 	bool parallel = should_run_optimizer_in_parallel();
 	zasm_for_every_script(parallel, [&](auto script){
 		if (script->optimized)
@@ -2875,6 +2958,7 @@ void zasm_optimize_run_for_file(std::string path)
 
 	fmt::println("\noutput:");
 	verbose = true;
+	init_meta_cache();
 	zasm_optimize(&script);
 	fmt::println("{}", zasm_to_string_clean(&script));
 }
