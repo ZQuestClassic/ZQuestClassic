@@ -23380,8 +23380,7 @@ void FFScript::AlloffLimited(int32_t flagset)
 	
 	watch=freeze_guys=loaded_guys=blockpath=false;
 
-	activation_counters.clear();
-	activation_counters_ffc.clear();
+	activation_counters.fill({});
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		get_screen_state(scr->screen).loaded_enemies = false;
 	});

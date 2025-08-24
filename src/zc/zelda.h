@@ -402,8 +402,7 @@ extern mapscr* origin_scr;
 extern mapscr special_warp_return_scrs[7];
 // &special_warp_return_scrs[0]
 extern mapscr* special_warp_return_scr;
-extern std::map<int, byte> activation_counters;
-extern std::map<int, byte> activation_counters_ffc;
+extern std::array<std::map<int, byte>, 8> activation_counters;
 extern char   sig_str[44];
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];

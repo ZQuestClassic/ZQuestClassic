@@ -2590,7 +2590,7 @@ bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, 
 		{
 			auto ffc_handle = *s->getFFCHandle(i, screen_index_offset);
 			auto& cmb = ffc_handle.combo();
-			if(triggers && force_ex_trigger_ffc_any(ffc_handle, xflag))
+			if(triggers && force_ex_trigger_any(ffc_handle, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
@@ -2658,7 +2658,7 @@ bool remove_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, uint d
 		for (uint8_t i = 0; i < c; i++)
 		{
 			auto ffc_handle = *scr->getFFCHandle(i, screen_index_offset);
-			if (triggers && force_ex_door_trigger_ffc_any(ffc_handle, dir, ind))
+			if (triggers && force_ex_door_trigger_any(ffc_handle, dir, ind))
 				didit = true;
 			else; //future door combo types?
 		}
