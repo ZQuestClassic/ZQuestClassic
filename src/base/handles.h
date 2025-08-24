@@ -41,6 +41,7 @@ struct rpos_handle_t
 	}
 
 	mapscr* base_scr() const;
+	mapscr* get_mapscr() const;
 
 	newcombo& combo() const;
 	cpos_info& info() const;
@@ -80,6 +81,8 @@ struct ffc_handle_t
 	{
 		return scr;
 	}
+	mapscr* get_mapscr() const;
+	int32_t layer() const;
 
 	const newcombo& combo() const;
 	cpos_info& info() const;
@@ -112,11 +115,31 @@ struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
 	
 	operator bool() const;
 	mapscr* base_scr() const;
-	const newcombo& combo() const;
-	int data() const;
+	mapscr* get_mapscr() const;
+	int32_t layer() const;
+	int32_t get_screen() const;
 	int id() const;
+	int local_id() const;
+	
+	const newcombo& combo() const;
+	cpos_info& info() const;
 	std::pair<int32_t, int32_t> xy() const;
 	std::pair<int32_t, int32_t> center_xy() const;
+	
+	int data() const;
+	void set_data(int32_t value) const;
+	void modify_data(int32_t delta) const;
+	void increment_data() const;
+	void decrement_data() const;
+	
+	int32_t cset() const;
+	void set_cset(int32_t cset) const;
+	
+	uint8_t sflag() const;
+	void set_sflag(uint8_t value) const;
+	
+	uint8_t cflag() const;
+	uint8_t ctype() const;
 };
 
 #endif

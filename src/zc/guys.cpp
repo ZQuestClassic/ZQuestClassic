@@ -449,7 +449,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	stickclk = 0;
 	submerged = false;
 	didScriptThisFrame = false;
-	ffcactivated = std::nullopt;
+	activated_handle = std::nullopt;
 	hitdir = -1;
 	editorflags = d->editorflags; //set by Enemy Editor 
 	//Set the drawing flag for this sprite.
@@ -7889,7 +7889,7 @@ bool eFire::animate(int32_t index)
 			fading=0;
 			
 			if(flags&guy_armos && z==0 && fakez==0)
-				removearmos(x,y,ffcactivated);
+				removearmos(x,y);
 				
 			clk2=0;
 			
@@ -7902,7 +7902,7 @@ bool eFire::animate(int32_t index)
 			return Dead(index);
 		}
 		else if(flags&guy_armos && z==0 && fakez==0 && clk==0)
-			removearmos(x,y,ffcactivated);
+			removearmos(x,y);
 	}
 	
 	return enemy::animate(index);
@@ -8000,7 +8000,7 @@ bool eOther::animate(int32_t index)
 			fading=0;
 			
 			if(flags&guy_armos && z==0 && fakez==0)
-				removearmos(x,y,ffcactivated);
+				removearmos(x,y);
 				
 			clk2=0;
 			
@@ -8013,7 +8013,7 @@ bool eOther::animate(int32_t index)
 			return Dead(index);
 		}
 		else if(flags&guy_armos && z==0 && fakez==0 && clk==0)
-			removearmos(x,y,ffcactivated);
+			removearmos(x,y);
 	}
 	
 	return enemy::animate(index);
@@ -8111,7 +8111,7 @@ bool eScript::animate(int32_t index)
 			fading=0;
 			
 			if(flags&guy_armos && z==0 && fakez==0)
-				removearmos(x,y,ffcactivated);
+				removearmos(x,y);
 				
 			clk2=0;
 			
@@ -8124,7 +8124,7 @@ bool eScript::animate(int32_t index)
 			return Dead(index);
 		}
 		else if(flags&guy_armos && z==0 && fakez==0 && clk==0)
-			removearmos(x,y,ffcactivated);
+			removearmos(x,y);
 	}
 	
 	return enemy::animate(index);
@@ -8224,7 +8224,7 @@ bool eFriendly::animate(int32_t index)
 			fading=0;
 			
 			if(flags&guy_armos && z==0 && fakez==0)
-				removearmos(x,y,ffcactivated);
+				removearmos(x,y);
 				
 			clk2=0;
 			
@@ -8237,7 +8237,7 @@ bool eFriendly::animate(int32_t index)
 			return Dead(index);
 		}
 		else if(flags&guy_armos && z==0 && fakez==0 && clk==0)
-			removearmos(x,y,ffcactivated);
+			removearmos(x,y);
 	}
 	
 	return enemy::animate(index);
@@ -8299,97 +8299,57 @@ void eFriendly::repair_shield()
 }
 
 
-void enemy::removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcactive)
+void enemy::removearmos(int32_t ax,int32_t ay)
 {
-	if (ffcactive) 
-	{
-		removearmosffc(*ffcactive);
-		return;
-	}
 	if(did_armos)
-	{
 		return;
-	}
-
-	auto rpos_handle = get_rpos_handle_for_world_xy(ax, ay, 0);
-	mapscr* scr = rpos_handle.scr;
-	ax = TRUNCATE_TILE(ax);
-	ay = TRUNCATE_TILE(ay);
-
 	did_armos=true;
-	int32_t cd = rpos_handle.pos;
-	int32_t f = rpos_handle.sflag();
-	int32_t f2 = rpos_handle.cflag();
+	auto handle = activated_handle;
 
-	if (rpos_handle.ctype() != cARMOS)
+	auto layer = handle ? handle->layer() : 0;
+	if (!handle || handle->is_rpos())
+		handle = get_rpos_handle_for_world_xy(ax, ay, layer);
+	mapscr* scr = handle->get_mapscr();
+	
+	auto [tx, ty] = handle->xy();
+	if (handle->is_rpos())
 	{
-		return;
+		tx = TRUNCATE_TILE(ax);
+		ty = TRUNCATE_TILE(ay);
 	}
 	
-	scr->data[cd] = scr->undercombo;
-	scr->cset[cd] = scr->undercset;
-	scr->sflag[cd] = 0;
+	int32_t f = handle->sflag();
+	int32_t f2 = handle->cflag();
+
+	if (handle->ctype() != cARMOS)
+		return;
+	
 	
 	if(f == mfARMOS_SECRET || f2 == mfARMOS_SECRET)
 	{
-		scr->data[cd] = scr->secretcombo[sSTAIRS];
-		scr->cset[cd] = scr->secretcset[sSTAIRS];
-		scr->sflag[cd]=scr->secretflag[sSTAIRS];
+		handle->set_data(scr->secretcombo[sSTAIRS]);
+		handle->set_cset(scr->secretcset[sSTAIRS]);
+		handle->set_sflag(scr->secretflag[sSTAIRS]);
 		sfx(scr->secretsfx);
+	}
+	else
+	{
+		handle->set_data(scr->undercombo);
+		handle->set_cset(scr->undercset);
+		handle->set_sflag(0);
 	}
 	
 	if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
 	{
 		if(!getmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
 		{
-			additem(ax,ay,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+			additem(tx,ty,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 			sfx(scr->secretsfx);
 		}
 	}
 	
-	putcombo(scrollbuf,ax,ay,scr->data[cd],scr->cset[cd]);
+	putcombo(scrollbuf,tx,ty,handle->data(),handle->cset());
 }
-
-void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
-{
-	if(did_armos)
-	{
-		return;
-	}
-	
-	did_armos=true;
-	ffcdata& ffc = *ffc_handle.ffc;
-	mapscr* scr = ffc_handle.scr;
-	auto& cmb = ffc_handle.combo();
-	int32_t f2 = cmb.flag;
-	
-	if(cmb.type!=cARMOS)
-	{
-		return;
-	}
-	
-	ffc_handle.set_data(scr->undercombo);
-	ffc_handle.set_cset(scr->undercset);
-	
-	if(f2 == mfARMOS_SECRET)
-	{
-		ffc_handle.set_data(scr->secretcombo[sSTAIRS]);
-		ffc_handle.set_cset(scr->secretcset[sSTAIRS]);
-		sfx(scr->secretsfx);
-	}
-	
-	if(f2 == mfARMOS_ITEM)
-	{
-		if(!getmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
-		{
-			additem(ffc.x,ffc.y,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-			sfx(scr->secretsfx);
-		}
-	}
-	
-	putcombo(scrollbuf,ffc.x,ffc.y,ffc_handle.data(),ffc.cset);
-}
-
 
 eGhini::eGhini(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
@@ -8418,24 +8378,24 @@ bool eGhini::animate(int32_t index)
 				misc=2;
 				
 			floater_walk((misc==1)?0:rate,hrate,zslongToFix(dstep*100),zslongToFix(dstep*10),10,dmisc16,dmisc17); //120,10);
-			removearmos(x,y,ffcactivated);
+			removearmos(x,y);
 		}
 		else if(clk4>=60)
 		{
 			misc=1;
 			clk3=32;
 			fading=0;
-			if (ffcactivated) 
+			if (activated_handle) 
 			{
-				activation_counters_ffc[ffcactivated->id] = 0;
-				removearmosffc(*ffcactivated);
+				activation_counters[activated_handle->layer()][activated_handle->id()] = 0;
+				removearmos(x, y);
 			}
 			else 
 			{
 				rpos_t rpos = COMBOPOS_REGION_B(x, y);
 				if (rpos != rpos_t::None)
 				{
-					activation_counters[(int)rpos] = 0;
+					activation_counters[0][int(rpos)] = 0;
 					removearmos(x,y);
 				}
 			}
@@ -8488,7 +8448,7 @@ bool eTektite::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(get_qr(qr_ENEMIESZAXIS))
@@ -8764,7 +8724,7 @@ bool eItemFairy::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	return enemy::animate(index);
@@ -8803,7 +8763,7 @@ bool ePeahat::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(stunclk==0 && clk>96)
@@ -8928,7 +8888,7 @@ bool eLeever::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(clk>=0 && !slide())
@@ -9177,7 +9137,7 @@ bool eWallM::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	hxofs=1000;
@@ -9390,7 +9350,7 @@ bool eTrap::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(misc==0)                                               // waiting
@@ -9714,7 +9674,7 @@ bool eTrap2::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(!get_qr(qr_PHANTOMPLACEDTRAPS))
@@ -9870,7 +9830,7 @@ bool eRock::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(++clk2==0)                                             // start it
@@ -9988,7 +9948,7 @@ bool eBoulder::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	zfix *vert;
@@ -10159,7 +10119,7 @@ bool eProjectile::animate(int32_t index)
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	double _MSVC2022_tmp1, _MSVC2022_tmp2;
@@ -10275,7 +10235,7 @@ bool eNPC::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	switch(dmisc2)
@@ -10412,7 +10372,7 @@ bool eSpinTile::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	++misc;
@@ -10517,7 +10477,7 @@ bool eZora::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(watch)
@@ -10760,8 +10720,8 @@ bool eStalfos::animate(int32_t index)
 		//if a custom size (not 16px by 16px)
 			
 		//if a custom size (not 16px by 16px)
-		if (ffcactivated)
-			removearmosffc(*ffcactivated); 
+		if (activated_handle && !activated_handle->is_rpos())
+			removearmos(x,y); 
 		else
 		{
 			if (txsz > 1 || tysz > 1 || (SIZEflags&OVERRIDE_HIT_WIDTH) || (SIZEflags&OVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
@@ -10796,7 +10756,7 @@ bool eStalfos::animate(int32_t index)
 		else return enemy::animate(index);
 	}
 	else if(flags&guy_armos && z==0 && fakez == 0 && clk==0)
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 		
 	
 	if(hashero)
@@ -11571,7 +11531,7 @@ bool eKeese::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(dmisc1 == 1) //Walk style. 0 is keese, 1 is bat.
@@ -11762,7 +11722,7 @@ bool eWizzrobe::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(dmisc1) // Floating
@@ -12311,7 +12271,7 @@ bool eDodongo::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(clk2)                                                  // ate a bomb
@@ -12441,7 +12401,7 @@ bool eDodongo2::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(clk2)                                                  // ate a bomb
@@ -12631,7 +12591,7 @@ bool eAquamentus::animate(int32_t index)
 	//  fbx=x+((id==eRAQUAM)?4:-4);
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	fbx=x;
@@ -12830,7 +12790,7 @@ bool eGohma::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		if (ffcactivated) removearmosffc(*ffcactivated);
+		if (activated_handle && !activated_handle->is_rpos()) removearmos(x,y);
 		else
 		{
 			removearmos(zc_max(x-16, 0_zf),y);
@@ -13016,7 +12976,7 @@ bool eLilDig::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(misc<=128)
@@ -13108,7 +13068,7 @@ bool eBigDig::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	switch(misc)
@@ -13309,7 +13269,7 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
    
 	switch(misc)
@@ -13677,7 +13637,7 @@ bool eMoldorm::animate(int32_t index)
 
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(clk2)
@@ -13991,7 +13951,7 @@ bool eLanmola::animate(int32_t index)
 	if(switch_hooked) return enemy::animate(index);
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(clk2)
@@ -14269,7 +14229,7 @@ bool eManhandla::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	
@@ -14650,7 +14610,7 @@ bool esManhandla::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if(--clk2<=0)
@@ -14779,7 +14739,7 @@ bool eGleeok::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	// Check if a head was killed somehow...
@@ -15400,7 +15360,7 @@ bool ePatra::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	if ((clk4 <=0 || clk4%2) && (clk7 <= 0 || clk6 <= -16))
@@ -16305,7 +16265,7 @@ bool ePatraBS::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y,ffcactivated);
+		removearmos(x,y);
 	}
 	
 	variable_walk_8(rate,homing,hrate,spw_floater);

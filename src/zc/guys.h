@@ -69,7 +69,7 @@ public:
 	byte hitsfx,deadsfx;
 	bool submerged;
 	
-	std::optional<ffc_handle_t> ffcactivated;
+	std::optional<combined_handle_t> activated_handle;
 
 	int32_t  clk2,sclk;
 	int32_t  starting_hp;
@@ -272,8 +272,7 @@ protected:
 	// to allow for different sfx on defeating enemy
 	virtual void death_sfx();
 	virtual void move(zfix dx,zfix dy);
-	virtual void removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcactive = std::nullopt);
-	virtual void removearmosffc(const ffc_handle_t& ffc_handle);
+	virtual void removearmos(int32_t ax,int32_t ay);
 	virtual void move(zfix s);
 	void leave_item();
 	

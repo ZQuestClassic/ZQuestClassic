@@ -389,8 +389,7 @@ char   fontsdat_sig[52]={0};
 char   cheat_goto_dmap_str[4]={0};
 char   cheat_goto_screen_str[3]={0};
 int32_t  visited[6]={0};
-std::map<int, byte> activation_counters;
-std::map<int, byte> activation_counters_ffc;
+std::array<std::map<int, byte>, 8> activation_counters;
 mapscr* origin_scr;
 mapscr special_warp_return_scrs[7];
 mapscr* special_warp_return_scr = &special_warp_return_scrs[0];
@@ -1141,8 +1140,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     maze_state = {};
     stop_sfx(WAV_BRANG);
     
-	activation_counters.clear();
-	activation_counters_ffc.clear();
+	activation_counters.fill({});
 
     sle_clk=0;
 	mblock2.clear();
@@ -3280,20 +3278,10 @@ void game_loop()
 
 		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
 		{
-			for (auto q : activation_counters)
-			{
-				if (q.second > 0)
-				{
-					q.second -= 1;
-				}
-			}
-			for (auto q : activation_counters_ffc)
-			{
-				if (q.second > 0)
-				{
-					q.second -= 1;
-				}
-			}
+			for (auto counters : activation_counters)
+				for (auto q : counters)
+					if (q.second > 0)
+						q.second -= 1;
 		}
 		if ( !FFCore.system_suspend[susptCOMBOANIM] )
 		{
