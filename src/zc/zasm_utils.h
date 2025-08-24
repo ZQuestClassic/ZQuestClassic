@@ -41,10 +41,12 @@ struct StructuredZasm
 
 struct ZasmCFG
 {
-	std::set<pc_t> block_starts;
-	std::map<pc_t, pc_t> start_pc_to_block_id;
+	std::vector<pc_t> block_starts;
 	// Block id => vec of block ids it can go to
 	std::vector<std::vector<pc_t>> block_edges;
+
+	bool contains_block_start(pc_t pc) const;
+	pc_t block_id_from_start_pc(pc_t pc) const;
 };
 
 // Given a ZASM script, discover all functions within (including function names, start/end pcs,

@@ -222,6 +222,13 @@ std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, Structure
 
 static bool is_in_ranges(pc_t pc, const std::vector<std::pair<pc_t, pc_t>> pc_ranges)
 {
+	// Fast path for common case.
+	if (pc_ranges.size() == 1)
+	{
+		const auto& range = pc_ranges.front();
+		return pc >= range.first && pc <= range.second;
+	}
+
 	for (auto [start_pc, final_pc] : pc_ranges)
 	{
 		if (pc >= start_pc && pc <= final_pc)
@@ -233,13 +240,29 @@ static bool is_in_ranges(pc_t pc, const std::vector<std::pair<pc_t, pc_t>> pc_ra
 	return false;
 }
 
+bool ZasmCFG::contains_block_start(pc_t pc) const
+{
+	return std::binary_search(block_starts.begin(), block_starts.end(), pc);
+}
+
+pc_t ZasmCFG::block_id_from_start_pc(pc_t pc) const
+{
+	auto it = std::lower_bound(block_starts.begin(), block_starts.end(), pc);
+	return std::distance(block_starts.begin(), it);
+}
+
 ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges)
 {
-	std::set<pc_t> block_starts;
+	ZasmCFG cfg{};
+
+	// Reserve an amount proportional to the number of instructions.
+	// Note: picked randomly, one could do more research here.
+	auto& block_starts = cfg.block_starts;
+	block_starts.reserve(pc_ranges.back().second / 4); 
 
 	for (auto [start_pc, final_pc] : pc_ranges)
 	{
-		block_starts.insert(start_pc);
+		block_starts.push_back(start_pc);
 		for (pc_t i = start_pc; i <= final_pc; i++)
 		{
 			int command = script->zasm[i].command;
@@ -260,55 +283,53 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 					continue;
 				}
 
-				block_starts.insert(arg1);
+				block_starts.push_back(arg1);
 				if (i + 1 <= final_pc)
-					block_starts.insert(i + 1);
+					block_starts.push_back(i + 1);
 			}
 			else if (command_is_wait(command))
 			{
 				if (i + 1 <= final_pc)
-					block_starts.insert(i + 1);
+					block_starts.push_back(i + 1);
 			}
 		}
 	}
 
-	std::map<pc_t, pc_t> start_pc_to_block_id;
+	// Sort and remove duplicates.
+	std::sort(block_starts.begin(), block_starts.end());
+	block_starts.erase(std::unique(block_starts.begin(), block_starts.end()), block_starts.end());
 
-	std::vector<pc_t> block_starts_vec(block_starts.begin(), block_starts.end());
-	for (pc_t j = 0; j < block_starts_vec.size(); j++)
-	{
-		start_pc_to_block_id[block_starts_vec[j]] = j;
-	}
-
-	std::vector<std::vector<pc_t>> block_edges;
-
+	auto& block_edges = cfg.block_edges;
 	block_edges.resize(block_starts.size());
-	for (pc_t j = 1; j < block_starts_vec.size(); j++)
+
+	for (pc_t j = 1; j < block_starts.size(); j++)
 	{
-		int i = block_starts_vec[j];
+		auto& edges = block_edges[j - 1];
+		edges.reserve(2);
+		int i = block_starts[j];
 		int prev_command = script->zasm[i - 1].command;
 		int prev_arg1 = script->zasm[i - 1].arg1;
-		if ((prev_command == GOTO || prev_command == CALLFUNC) && start_pc_to_block_id.contains(prev_arg1))
+		if ((prev_command == GOTO || prev_command == CALLFUNC) && is_in_ranges(prev_arg1, pc_ranges))
 		{
 			// Previous block unconditionally continues to some other block.
-			auto other_block = start_pc_to_block_id[prev_arg1];
-			block_edges[j - 1].push_back(other_block);
+			auto other_block = cfg.block_id_from_start_pc(prev_arg1);
+			edges.push_back(other_block);
 		}
 		else if (prev_command == GOTOCMP || prev_command == GOTOTRUE || prev_command == GOTOFALSE || prev_command == GOTOLESS || prev_command == GOTOMORE)
 		{
 			// Previous block conditionally continues to this one, or some other block.
-			block_edges[j - 1].push_back(j);
-			auto other_block = start_pc_to_block_id[prev_arg1];
-			block_edges[j - 1].push_back(other_block);
+			edges.push_back(j);
+			auto other_block = cfg.block_id_from_start_pc(prev_arg1);
+			edges.push_back(other_block);
 		}
 		else if (prev_command != QUIT && prev_command != RETURN && prev_command != RETURNFUNC && prev_command != GOTOR)
 		{
 			// Previous block unconditionally continues to this one.
-			block_edges[j - 1].push_back(j);
+			edges.push_back(j);
 		}
 	}
 
-	return {block_starts, start_pc_to_block_id, block_edges};
+	return cfg;
 }
 
 static std::string zasm_fn_get_name(const ZasmFunction& function)
@@ -336,7 +357,7 @@ static std::string zasm_to_string(const zasm_script* script, const StructuredZas
 			ss <<
 				std::setw(5) << std::right << i << ": " <<
 				std::left << std::setw(45) << str;
-			if (cfg.block_starts.contains(i))
+			if (cfg.contains_block_start(i))
 			{
 				auto& edges = cfg.block_edges[block_id];
 				ss << fmt::format("[Block {} -> {}]", block_id++, fmt::join(edges, ", "));

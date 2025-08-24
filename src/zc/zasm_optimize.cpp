@@ -512,7 +512,6 @@ struct OptContext
 	ZasmCFG cfg;
 	bool cfg_stale;
 	std::vector<block_vars> liveness_vars;
-	std::vector<pc_t> block_starts;
 	std::set<pc_t> block_unreachable;
 	StructuredZasm* structured_zasm;
 	bool debug;
@@ -523,14 +522,14 @@ struct OptContext
 
 static pc_t get_block_final(const OptContext& ctx, int block)
 {
-	return block == ctx.block_starts.size() - 1 ?
+	return block == ctx.cfg.block_starts.size() - 1 ?
 		ctx.fn.final_pc :
-		ctx.block_starts.at(block + 1) - 1;
+		ctx.cfg.block_starts.at(block + 1) - 1;
 }
 
 static std::pair<pc_t, pc_t> get_block_bounds(const OptContext& ctx, int block)
 {
-	return {ctx.block_starts.at(block), get_block_final(ctx, block)};
+	return {ctx.cfg.block_starts.at(block), get_block_final(ctx, block)};
 }
 
 static OptContext create_context_no_cfg(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
@@ -550,7 +549,6 @@ static void add_context_cfg(OptContext& ctx)
 		return;
 
 	ctx.cfg = zasm_construct_cfg(ctx.script, {{ctx.fn.start_pc, ctx.fn.final_pc}});
-	ctx.block_starts = std::vector<pc_t>(ctx.cfg.block_starts.begin(), ctx.cfg.block_starts.end());
 	ctx.block_unreachable.clear();
 	ctx.cfg_stale = false;
 }
@@ -560,8 +558,8 @@ static void add_context_cfg(OptContext& ctx)
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
 static void add_context_liveness(OptContext& ctx)
 {
-	std::vector<std::vector<pc_t>> precede(ctx.block_starts.size());
-	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
+	std::vector<std::vector<pc_t>> precede(ctx.cfg.block_starts.size());
+	for (pc_t i = 0; i < ctx.cfg.block_starts.size(); i++)
 	{
 		for (pc_t e : E(i))
 		{
@@ -574,13 +572,13 @@ static void add_context_liveness(OptContext& ctx)
 	}
 
 	auto& vars = ctx.liveness_vars;
-	vars.resize(ctx.block_starts.size());
+	vars.resize(ctx.cfg.block_starts.size());
 
 	std::vector<pc_t> worklist;
-	worklist.reserve(ctx.block_starts.size());
-	std::vector<bool> in_worklist(ctx.block_starts.size());
+	worklist.reserve(ctx.cfg.block_starts.size());
+	std::vector<bool> in_worklist(ctx.cfg.block_starts.size());
 
-	for (pc_t block_index = 0; block_index < ctx.block_starts.size(); block_index++)
+	for (pc_t block_index = 0; block_index < ctx.cfg.block_starts.size(); block_index++)
 	{
 		uint8_t gen = 0;
 		uint8_t kill = 0;
@@ -771,15 +769,15 @@ static bool has_implemented_register_invalidations(int reg)
 template<typename T>
 static void optimize_by_block(OptContext& ctx, T cb)
 {
-	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
+	for (pc_t i = 0; i < ctx.cfg.block_starts.size(); i++)
 	{
 		if (ctx.block_unreachable.contains(i))
 			continue;
 
-		pc_t start_pc = ctx.block_starts[i];
-		pc_t final_pc = i == ctx.block_starts.size() - 1 ?
+		pc_t start_pc = ctx.cfg.block_starts[i];
+		pc_t final_pc = i == ctx.cfg.block_starts.size() - 1 ?
 			ctx.fn.final_pc :
-			ctx.block_starts[i + 1] - 1;
+			ctx.cfg.block_starts[i + 1] - 1;
 		cb(i, start_pc, final_pc);
 	}
 }
@@ -1660,7 +1658,7 @@ static void simulate_infer_branch(OptContext& ctx, SimulationState& state)
 	if (ctx.debug)
 		fmt::println("inferred D2: {}", state.d[2].to_string());
 	state.pc = C(state.pc).arg1;
-	state.block = ctx.cfg.start_pc_to_block_id.at(state.pc);
+	state.block = ctx.cfg.block_id_from_start_pc(state.pc);
 	state.final_pc = get_block_final(ctx, state.block);
 }
 
@@ -1671,7 +1669,7 @@ static bool simulate_block_advance(OptContext& ctx, SimulationState& state)
 		if (E(state.block).size() == 0)
 			return false;
 
-		pc_t next_block = ctx.cfg.start_pc_to_block_id.at(state.pc + 1);
+		pc_t next_block = ctx.cfg.block_id_from_start_pc(state.pc + 1);
 		ASSERT(E(state.block).size() == 1);
 		ASSERT(E(state.block).at(0) == next_block);
 		state.pc += 1;
@@ -1684,7 +1682,7 @@ static bool simulate_block_advance(OptContext& ctx, SimulationState& state)
 	{
 		ASSERT(!ctx.structured_zasm->function_calls.contains(state.pc));
 		state.pc = C(state.pc).arg1;
-		pc_t next_block = ctx.cfg.start_pc_to_block_id.at(state.pc);
+		pc_t next_block = ctx.cfg.block_id_from_start_pc(state.pc);
 		state.block = next_block;
 		state.final_pc = get_block_final(ctx, state.block);
 		return true;
@@ -1707,7 +1705,7 @@ static bool simulate_block_advance(OptContext& ctx, SimulationState& state)
 	else
 		state.pc += 1;
 
-	state.block = ctx.cfg.start_pc_to_block_id.at(state.pc);
+	state.block = ctx.cfg.block_id_from_start_pc(state.pc);
 	state.final_pc = get_block_final(ctx, state.block);
 	return true;
 }
@@ -2161,7 +2159,7 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 			pc_t target_pc = C(final_pc).arg1;
 			{
 				bool target_block_reuses_comparison_operands = false;
-				pc_t target_block_id = ctx.cfg.start_pc_to_block_id.at(target_pc);
+				pc_t target_block_id = ctx.cfg.block_id_from_start_pc(target_pc);
 				auto [s, e] = get_block_bounds(ctx, target_block_id);
 				for (pc_t i = s; i <= e; i++)
 				{

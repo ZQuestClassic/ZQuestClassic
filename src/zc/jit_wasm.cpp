@@ -437,10 +437,10 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 		for (auto sd : script->script_datas)
 		{
-			if (!cfg.start_pc_to_block_id.contains(sd->pc))
+			if (!cfg.contains_block_start(sd->pc))
 				continue;
 
-			auto block_id = cfg.start_pc_to_block_id.at(sd->pc);
+			auto block_id = cfg.block_id_from_start_pc(sd->pc);
 
 			wasm.emitI32Const(sd->pc);
 			wasm.emitGlobalGet(state.g_idx_start_pc);
@@ -488,7 +488,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	{
 		for (pc_t i = start_pc; i <= final_pc; i++)
 		{
-			if (cfg.block_starts.contains(i))
+			if (cfg.contains_block_start(i))
 			{
 				wasm.emitEnd();
 				current_block_index += 1;
@@ -512,7 +512,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 			if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
 			{
-				if (cfg.block_starts.contains(i + 1))
+				if (cfg.contains_block_start(i + 1))
 				{
 					wasm.emitEnd();
 					current_block_index += 1;
@@ -693,7 +693,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					}
 
 					// Set target block index, in case we must branch.
-					size_t target_block_index = cfg.start_pc_to_block_id.at(next_arg1) + 1;
+					size_t target_block_index = cfg.block_id_from_start_pc(next_arg1) + 1;
 					wasm.emitI32Const(target_block_index);
 					wasm.emitGlobalSet(g_idx_target_block_id);
 
@@ -739,7 +739,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				{
 					if (command_is_compiled(script->zasm[j].command))
 						break;
-					if (cfg.block_starts.contains(j))
+					if (cfg.contains_block_start(j))
 						break;
 
 					uncompiled_command_count += 1;
@@ -810,7 +810,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					// In both the "call within the yielder function case", or the "branch within a function" case,
 					// we set the target block index and jump back to the loop-switch.
 
-					size_t target_block_index = cfg.start_pc_to_block_id.at(arg1) + 1;
+					size_t target_block_index = cfg.block_id_from_start_pc(arg1) + 1;
 					wasm.emitI32Const(target_block_index);
 					wasm.emitGlobalSet(g_idx_target_block_id);
 
