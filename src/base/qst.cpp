@@ -16831,7 +16831,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			}
 		}
 
-		temp_mapscr->shinkToFitFFCs();
+		temp_mapscr->shrinkToFitFFCs();
 	}
 
 	
@@ -17395,7 +17395,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		}
 	}
 
-	temp_mapscr->shinkToFitFFCs();
+	temp_mapscr->shrinkToFitFFCs();
 
 	return 0;
 }

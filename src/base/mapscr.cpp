@@ -211,7 +211,7 @@ void mapscr::zero_memory()
 	*this = mapscr();
 }
 
-void mapscr::shinkToFitFFCs()
+void mapscr::shrinkToFitFFCs()
 {
 	int lastffc = -1;
 	for (int w = ffcs.size() - 1; w >= 0; --w)
