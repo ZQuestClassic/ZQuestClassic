@@ -442,7 +442,7 @@ struct OptContext
 };
 
 #define C(i) (ctx.script->zasm[i])
-#define E(i) (ctx.cfg.block_edges.at(i))
+#define E(i) (ctx.cfg.block_edges[i])
 
 static pc_t get_block_final(const OptContext& ctx, int block)
 {
@@ -483,21 +483,26 @@ static void add_context_cfg(OptContext& ctx)
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
 static void add_context_liveness(OptContext& ctx)
 {
-	std::map<pc_t, std::vector<pc_t>> precede;
-	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
-		precede[i] = {};
+	std::vector<std::vector<pc_t>> precede(ctx.block_starts.size());
 	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
 	{
 		for (pc_t e : E(i))
 		{
-			precede.at(e).push_back(i);
+			// By far the most common number of predecessors is 2. Prevent some reallocations by
+			// preserving that much upfront.
+			if (precede[e].empty())
+				precede[e].reserve(2);
+			precede[e].push_back(i);
 		}
 	}
 
 	auto& vars = ctx.liveness_vars;
 	vars.resize(ctx.block_starts.size());
 
-	std::set<pc_t> worklist;
+	std::vector<pc_t> worklist;
+	worklist.reserve(ctx.block_starts.size());
+	std::vector<bool> in_worklist(ctx.block_starts.size());
+
 	for (pc_t block_index = 0; block_index < ctx.block_starts.size(); block_index++)
 	{
 		uint8_t gen = 0;
@@ -531,19 +536,23 @@ static void add_context_liveness(OptContext& ctx)
 
 		// Minor optimization: only seed the worklist with exit blocks or blocks that use a register.
 		if (returns || gen || E(block_index).empty())
-			worklist.insert(block_index);
+		{
+			worklist.push_back(block_index);
+			in_worklist[block_index] = true;
+		}
 	}
 
 	while (!worklist.empty())
 	{
-		pc_t block_index = *worklist.begin();
-		worklist.erase(worklist.begin());
+		pc_t block_index = worklist.back();
+		worklist.pop_back();
+		in_worklist[block_index] = false;
 
-		auto& [in, out, gen, kill, returns] = vars.at(block_index);
+		auto& [in, out, gen, kill, returns] = vars[block_index];
 
 		out = 0;
 		for (pc_t e : E(block_index))
-			out |= vars.at(e).in;
+			out |= vars[e].in;
 		if (returns)
 			out |= 1 << D(2);
 
@@ -552,8 +561,14 @@ static void add_context_liveness(OptContext& ctx)
 
 		if (in != old_in)
 		{
-			for (pc_t e : precede.at(block_index))
-				worklist.insert(e);
+			for (pc_t predecessor : precede[block_index])
+			{
+				if (!in_worklist[predecessor])
+				{
+					worklist.push_back(predecessor);
+					in_worklist[predecessor] = true;
+				}
+			}
 		}
 	}
 }
