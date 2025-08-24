@@ -63,6 +63,12 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 				return s->screen_spawned * 10000;
 			break;
 		}
+		case SPRITE_CURRENT_SCREEN:
+		{
+			if (auto s = get_sprite(ri->spriteref))
+				return s->current_screen * 10000;
+			break;
+		}
 		case SPRITE_X:
 		{
 			if (auto s = get_sprite(ri->spriteref))

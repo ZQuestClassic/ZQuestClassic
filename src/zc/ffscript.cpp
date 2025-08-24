@@ -1584,7 +1584,7 @@ static bool set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		case ScriptType::Hero:
 		{
 			curscript = playerscripts[script];
-			ri->screenref = hero_screen;
+			ri->screenref = Hero.current_screen;
 			if (!data.initialized)
 			{
 				got_initialized = true;
@@ -6248,6 +6248,16 @@ int32_t get_register(int32_t arg)
 			ret = ((get_scr(ri->screenref)->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
 			break;
 		}
+		case SCREENDATA_GRAVITY_STRENGTH:
+		{
+			ret = get_scr(ri->screenref)->screen_gravity.getZLong();
+			break;
+		}
+		case SCREENDATA_TERMINAL_VELOCITY:
+		{
+			ret = get_scr(ri->screenref)->screen_terminal_v.getZLong();
+			break;
+		}
 		case SCREENDATALENSLAYER:	 	GET_SCREENDATA_VAR_BYTE(lens_layer); break;	//B, OLD QUESTS ONLY?
 
 		case SCREENSECRETSTRIGGERED:
@@ -6704,6 +6714,24 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
+		case MAPDATA_GRAVITY_STRENGTH:
+		{
+			if (mapscr *m = ResolveMapdataScr(ri->mapsref))
+			{
+				ret = m->screen_gravity.getZLong();
+			}
+			else ret = -10000;
+			break;
+		}
+		case MAPDATA_TERMINAL_VELOCITY:
+		{
+			if (mapscr *m = ResolveMapdataScr(ri->mapsref))
+			{
+				ret = m->screen_terminal_v.getZLong();
+			}
+			else ret = -10000;
+			break;
+		}
 		case MAPDATALENSLAYER:	 	GET_MAPDATA_VAR_BYTE(lens_layer); break;	//B, OLD QUESTS ONLY?
 		case MAPDATAMAP:
 		{
@@ -6821,6 +6849,16 @@ int32_t get_register(int32_t arg)
 		case DMAPDATAMIDI:	//byte
 		{
 			ret = (DMaps[ri->dmapsref].midi-MIDIOFFSET_DMAP) * 10000; break;
+		}
+		case DMAPDATA_GRAVITY_STRENGTH:
+		{
+			ret = DMaps[ri->dmapsref].dmap_gravity.getZLong();
+			break;
+		}
+		case DMAPDATA_TERMINAL_VELOCITY:
+		{
+			ret = DMaps[ri->dmapsref].dmap_terminal_v.getZLong();
+			break;
 		}
 		case DMAPDATACONTINUE:	//byte
 		{
@@ -14006,6 +14044,16 @@ void set_register(int32_t arg, int32_t value)
 			get_scr(ri->screenref)->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
 			break;
 		}
+		case SCREENDATA_GRAVITY_STRENGTH:
+		{
+			get_scr(ri->screenref)->screen_gravity = zslongToFix(value);
+			break;
+		}
+		case SCREENDATA_TERMINAL_VELOCITY:
+		{
+			get_scr(ri->screenref)->screen_terminal_v = zslongToFix(value);
+			break;
+		}
 		case SCREENDATALENSLAYER:	 	SET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
 		
 		case SCREENDATAGUYCOUNT:
@@ -14466,6 +14514,22 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		case MAPDATA_GRAVITY_STRENGTH:
+		{
+			if (mapscr *m = ResolveMapdataScr(ri->mapsref))
+			{
+				m->screen_gravity = zslongToFix(value);
+			}
+			break;
+		}
+		case MAPDATA_TERMINAL_VELOCITY:
+		{
+			if (mapscr *m = ResolveMapdataScr(ri->mapsref))
+			{
+				m->screen_terminal_v = zslongToFix(value);
+			}
+			break;
+		}
 		case MAPDATALENSLAYER:	 	SET_MAPDATA_VAR_BYTE(lens_layer); break;	//B, OLD QUESTS ONLY?
 
 		case MAPDATASCRDATASIZE:
@@ -14541,6 +14605,16 @@ void set_register(int32_t arg, int32_t value)
 		case DMAPDATAMIDI:	//byte
 		{
 			DMaps[ri->dmapsref].midi = ((byte)((value / 10000)+MIDIOFFSET_DMAP)); break;
+		}
+		case DMAPDATA_GRAVITY_STRENGTH:
+		{
+			DMaps[ri->dmapsref].dmap_gravity = zslongToFix(value);
+			break;
+		}
+		case DMAPDATA_TERMINAL_VELOCITY:
+		{
+			DMaps[ri->dmapsref].dmap_terminal_v = zslongToFix(value);
+			break;
 		}
 		case DMAPDATACONTINUE:	//byte
 		{
@@ -23505,7 +23579,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				loadlvlpal(DMaps[cur_dmap].color);
 			
 			lightingInstant(); // Also sets naturaldark
-			int prev_screen = hero_screen;
+			int prev_screen = Hero.current_screen;
 			loadscr(cur_dmap, screen + DMaps[cur_dmap].xoff, -1, overlay);
 
 			// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
@@ -23513,7 +23587,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			if (warpFlags&warpFlagDONTCLEARSPRITES)
 			{
 				if (get_screen_state(prev_screen).loaded_enemies)
-					get_screen_state(hero_screen).loaded_enemies = true;
+					get_screen_state(Hero.current_screen).loaded_enemies = true;
 			}
 			
 			Hero.x = (zfix)wx;
@@ -23549,7 +23623,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 					}
 			}
 			
-			markBmap(Hero.dir^1, hero_screen);
+			markBmap(Hero.dir^1, Hero.current_screen);
 			
 			if(iswaterex_z3(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), -1, Hero.x, Hero.y+8, true) && _walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) && current_item(itype_flippers))
 			{
@@ -23686,7 +23760,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				}
 			}
 			
-			markBmap(Hero.dir^1, hero_screen);
+			markBmap(Hero.dir^1, Hero.current_screen);
 			//preloaded freeform combos
 			ffscript_engine(true);
 			Hero.reset_hookshot();

@@ -469,6 +469,34 @@ int32_t HeroClass::get_terminalv(bool skip_custom) const
 	return sprite::get_terminalv(skip_custom);
 }
 
+void HeroClass::update_current_screen()
+{
+	int cx = x + 8, cy = y + 8;
+	if (replay_version_check(0, 43)) // hero_screen previously used top-left, not center
+	{
+		cx = x;
+		cy = y;
+	}
+	
+	int scr_x = vbound(cx, 0, world_w - 1) / 256;
+	int scr_y = vbound(cy, 0, world_h - 1) / 176;
+	int new_screen = cur_screen + scr_x + scr_y * 16;
+	if (maze_state.active == 1)
+		new_screen = maze_state.scr->screen;
+	if (current_screen != new_screen && scr_x >= 0 && scr_y >= 0 && scr_x < 16 && scr_y < 8 && is_in_current_region(new_screen))
+	{
+		region_scr_dx = scr_x;
+		region_scr_dy = scr_y;
+		current_screen = new_screen;
+		prev_hero_scr = hero_scr;
+		hero_scr = get_scr(current_screen);
+		screen_spawned = current_screen;
+		playLevelMusic();
+	}
+	if (game->get_regionmapping() == REGION_MAPPING_PHYSICAL)
+		mark_visited(new_screen); // Mark each screen the hero steps foot in as visited
+}
+
 void HeroClass::set_respawn_point(bool setwarp)
 {
 	zfix oldx = x, oldy = y;
@@ -7895,7 +7923,7 @@ void HeroClass::handle_portal_prox(portal* p)
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
-	update_heroscr();
+	update_current_screen();
 
 	int32_t lsave=0;
 	if(immortal > 0)
@@ -10372,7 +10400,7 @@ heroanimate_skip_liftwpn:;
 			{
 				sfx(hero_scr->secretsfx);
 				if(!get_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE))
-					set_doorstate(hero_screen, dir);
+					set_doorstate(current_screen, dir);
 			}
 			
 			action=none; FFCore.setHeroAction(none);
@@ -11854,7 +11882,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			if(!msg_active)
 			{
-				if(play_combo_string(itm.misc1, hero_screen))
+				if(play_combo_string(itm.misc1, current_screen))
 				{
 					sfx(itm.usesound);
 					paymagiccost(itemid);
@@ -14441,7 +14469,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			 //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 1; i <= 2; ++i)
 	{
-		if (get_scr_layer_valid(hero_screen, i))
+		if (get_scr_layer_valid(current_screen, i))
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -18140,7 +18168,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			
 			for (int32_t i = 1; i <= 2; ++i)
 			{
-				if (get_scr_layer_valid(hero_screen, i))
+				if (get_scr_layer_valid(current_screen, i))
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -20218,7 +20246,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 		     //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 1; i <= 2; ++i)
 	{
-		if (get_scr_layer_valid(hero_screen, i))
+		if (get_scr_layer_valid(current_screen, i))
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -21954,7 +21982,7 @@ void HeroClass::oldcheckbosslockblock()
 			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
-				if (get_scr_layer_valid(hero_screen, 2))
+				if (get_scr_layer_valid(current_screen, 2))
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -22772,16 +22800,16 @@ endsigns:
 }
 
 // Checks for locked doors, and potentially unlocks them.
-// Only looks at `hero_screen`.
+// Only looks at `current_screen`.
 void HeroClass::checklocked()
 {
 	if(toogam) return; //Walk through walls. 
-	if(!isdungeon(hero_screen)) return;
+	if(!isdungeon(current_screen)) return;
 	if( !diagonalMovement && pushing!=8) return;
 	//This is required to allow the player to open a door, while sliding along a wall (pressing in the direction of the door, and sliding left or right)
 	if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
 
-	auto [offx, offy] = translate_screen_coordinates_to_world(hero_screen);
+	auto [offx, offy] = translate_screen_coordinates_to_world(current_screen);
 	int x = this->x - offx;
 	int y = this->y - offy;
 
@@ -22818,13 +22846,13 @@ void HeroClass::checklocked()
 			{
 				putdoor(hero_scr, scrollbuf, d, dUNLOCKED);
 				hero_scr->door[d]=dUNLOCKED;
-				set_doorstate(hero_screen, d);
+				set_doorstate(current_screen, d);
 				sfx(WAV_DOOR);
 				markBmap();
 
 				// set_doorstate updates the door state of the opposite screen too, but it doesn't
 				// update anything for the current region. Do that here.
-				if (mapscr* opp_scr = get_scr_current_region_dir(hero_screen, (direction)d))
+				if (mapscr* opp_scr = get_scr_current_region_dir(current_screen, (direction)d))
 				{
 					if (opp_scr->door[d^1] == dLOCKED)
 					{
@@ -22841,13 +22869,13 @@ void HeroClass::checklocked()
 			{
 				putdoor(hero_scr, scrollbuf, d, dOPENBOSS);
 				hero_scr->door[d]=dOPENBOSS;
-				set_doorstate(hero_screen, d);
+				set_doorstate(current_screen, d);
 				sfx(WAV_DOOR);
 				markBmap();
 
 				// set_doorstate updates the door state of the opposite screen too, but it doesn't
 				// update anything for the current region. Do that here.
-				if (mapscr* opp_scr = get_scr_current_region_dir(hero_screen, (direction)d))
+				if (mapscr* opp_scr = get_scr_current_region_dir(current_screen, (direction)d))
 				{
 					if (opp_scr->door[d^1] == dBOSS)
 					{
@@ -26260,7 +26288,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			}
 		}
 		
-		markBmap(dir^1, hero_screen);
+		markBmap(dir^1, current_screen);
 		//preloaded freeform combos
 		ffscript_engine(true);
 	
@@ -26634,7 +26662,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		y += region_scr_dy * 176;
 		update_viewport();
 		
-		markBmap(dir^1, hero_screen);
+		markBmap(dir^1, current_screen);
 		
 		int32_t checkwater = iswaterex_z3(MAPCOMBO(x,y+8), -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
 		
@@ -26825,7 +26853,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			y += region_scr_dy * 176;
 			update_viewport();
 			
-			markBmap(dir^1, hero_screen);
+			markBmap(dir^1, current_screen);
 			
 			if(iswaterex_z3(MAPCOMBO(x,y+8), -1, x,y+8) && _walkflag(x,y+8,0,STANDING_Z_STATE) && current_item(itype_flippers))
 			{
@@ -28016,7 +28044,7 @@ static bool has_advanced_maze(mapscr* scr)
 
 void HeroClass::maybe_begin_advanced_maze()
 {
-	if (!(hero_scr->flags&fMAZE) || hero_screen == scrolling_maze_last_solved_screen || maze_state.active)
+	if (!(hero_scr->flags&fMAZE) || current_screen == scrolling_maze_last_solved_screen || maze_state.active)
 		return;
 
 	// Basic mazes are handled in scrollscr.
@@ -28029,14 +28057,14 @@ void HeroClass::maybe_begin_advanced_maze()
 	maze_state.transition_wipe = hero_scr->maze_transition_wipe;
 	maze_state.can_get_lost = hero_scr->flags10&fMAZE_CAN_GET_LOST;
 	maze_state.scr = hero_scr;
-	maze_state.exit_screen = screen_index_direction(hero_screen, (direction)hero_scr->exitdir);
+	maze_state.exit_screen = screen_index_direction(current_screen, (direction)hero_scr->exitdir);
 	maze_state.last_check_herox = x;
 	maze_state.last_check_heroy = y;
 
 	if (maze_state.loopy)
 	{
-		int dx = get_region_relative_dx(prev_hero_scr->screen) - get_region_relative_dx(hero_screen);
-		int dy = get_region_relative_dy(prev_hero_scr->screen) - get_region_relative_dy(hero_screen);
+		int dx = get_region_relative_dx(prev_hero_scr->screen) - get_region_relative_dx(current_screen);
+		int dy = get_region_relative_dy(prev_hero_scr->screen) - get_region_relative_dy(current_screen);
 		maze_state.enter_dir = XY_DELTA_TO_DIR(sign2(dx), sign2(dy));
 	}
 }
@@ -28094,14 +28122,14 @@ void HeroClass::checkscroll()
 			if (determine_hero_screen_from_coords()->screen == maze_state.exit_screen)
 			{
 				maze_state.active = false;
-				update_heroscr();
+				update_current_screen();
 				return;
 			}
 
 			if (maze_state.enter_dir != dir_invalid && determine_hero_screen_from_coords() == prev_hero_scr)
 			{
 				maze_state.active = false;
-				update_heroscr();
+				update_current_screen();
 				return;
 			}
 		}
@@ -28185,7 +28213,7 @@ void HeroClass::checkscroll()
 				if (maze_state.transition_wipe)
 					closescreen(maze_state.transition_wipe - 1);
 
-				loadscr(cur_dmap, hero_screen, -1, false);
+				loadscr(cur_dmap, current_screen, -1, false);
 				maze_state.scr = get_scr(maze_screen);
 
 				// A bit janky, but works: clear all state (as usual during a screen change), but keep
@@ -28302,28 +28330,28 @@ bool HeroClass::edge_of_dmap(int32_t side)
     switch(side)
     {
     case up:
-        return hero_screen<16;
+        return current_screen<16;
         
     case down:
-        return hero_screen>=112;
+        return current_screen>=112;
         
     case left:
-        if((hero_screen&15)==0)
+        if((current_screen&15)==0)
             return true;
             
         if((DMaps[cur_dmap].type&dmfTYPE)!=dmOVERW)
             //    if(dlevel)
-            return (((hero_screen&15)-DMaps[cur_dmap].xoff)<=0);
+            return (((current_screen&15)-DMaps[cur_dmap].xoff)<=0);
             
         break;
         
     case right:
-        if((hero_screen&15)==15)
+        if((current_screen&15)==15)
             return true;
             
         if((DMaps[cur_dmap].type&dmfTYPE)!=dmOVERW)
             //    if(dlevel)
-            return (((hero_screen&15)-DMaps[cur_dmap].xoff)>=7);
+            return (((current_screen&15)-DMaps[cur_dmap].xoff)>=7);
             
         break;
     }
@@ -28787,7 +28815,7 @@ struct nearby_scrolling_screens_t
 
 // Returns all the screens (old and new region) that need to be rendered during scrolling, along
 // with thier draw offsets.
-// Note: The destination screen is hero_screen, the starting screen is scrolling_hero_screen.
+// Note: The destination screen is Hero.current_screen, the starting screen is scrolling_hero_screen.
 // old_viewport_start: the viewport in the old region at start of scrolling
 // new_viewport_final: the viewport in the new region at end of scrolling
 // old_region_visible: the viewport in the old region that will be visible
@@ -28849,9 +28877,9 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	{
 		// ... anchored at the point where the screen scrolling starts.
 		dx = get_region_relative_dx(cur_screen, scrolling_region.origin_screen) -
-			(get_region_relative_dx(hero_screen, scrolling_region.origin_screen) - get_region_relative_dx(scrolling_hero_screen, scrolling_region.origin_screen));
+			(get_region_relative_dx(Hero.current_screen, scrolling_region.origin_screen) - get_region_relative_dx(scrolling_hero_screen, scrolling_region.origin_screen));
 		dy = get_region_relative_dy(cur_screen, scrolling_region.origin_screen) -
-			(get_region_relative_dy(hero_screen, scrolling_region.origin_screen) - get_region_relative_dy(scrolling_hero_screen, scrolling_region.origin_screen));
+			(get_region_relative_dy(Hero.current_screen, scrolling_region.origin_screen) - get_region_relative_dy(scrolling_hero_screen, scrolling_region.origin_screen));
 		if      (scrolling_dir == up) dy -= 1;
 		else if (scrolling_dir == down) dy += 1;
 		else if (scrolling_dir == left) dx -= 1;
@@ -29156,7 +29184,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	int original_destscr = dest_screen;
 	if (dest_screen == -1)
 	{
-		dest_screen = hero_screen;
+		dest_screen = current_screen;
 		if (checkmaze(origin_scr, false) && !edge_of_dmap(scrolldir)) {
 			dest_screen = screen_index_direction(dest_screen, (direction)scrolldir);
 		}
@@ -29317,7 +29345,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	FFCore.ScrollingData[SCROLLDATA_ORY] = -viewport.y;
 
 	// Get the screen coords of the top-left of the screen we are scrolling away from.
-	auto [old_sx, old_sy] = translate_screen_coordinates_to_world(hero_screen);
+	auto [old_sx, old_sy] = translate_screen_coordinates_to_world(current_screen);
 	FFCore.ScrollingData[SCROLLDATA_OX] = old_sx - viewport.x;
 	FFCore.ScrollingData[SCROLLDATA_OY] = old_sy - viewport.y;
 
@@ -29356,7 +29384,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	conveyclk = 2;
 	screenscrolling = true;
 	scrolling_dir = (direction) scrolldir;
-	scrolling_hero_screen = hero_screen;
+	scrolling_hero_screen = current_screen;
 	scrolling_region = cur_region;
 	scrolling_region_is_lit = region_is_lit;
 
@@ -29541,7 +29569,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		case dmDNGN:
 			if(!get_qr(qr_DUNGEONS_USE_CLASSIC_CHARTING))
 			{
-				markBmap(scrolldir, hero_screen);
+				markBmap(scrolldir, current_screen);
 			}
 			break;
 		case dmOVERW: case dmBSOVERW:
@@ -29549,7 +29577,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 				break;
 			[[fallthrough]];
 		case dmCAVE:
-			markBmap(scrolldir, hero_screen);
+			markBmap(scrolldir, current_screen);
 			break;
 	}
 
@@ -30325,7 +30353,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	});
 	markBmap();
 
-	if (isdungeon(hero_screen))
+	if (isdungeon(current_screen))
 	{
 		switch(hero_scr->door[scrolldir^1])
 		{

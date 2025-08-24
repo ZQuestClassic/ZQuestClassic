@@ -81,6 +81,7 @@ private:
 	std::string h_map_initds[8];
 	std::shared_ptr<GUI::RegionGrid> region_grid;
 	std::shared_ptr<GUI::Checkbox> region_checks[10];
+	std::shared_ptr<GUI::TextField> grav_tf[2];
 
 	std::shared_ptr<GUI::Switcher> string_switch;
 	

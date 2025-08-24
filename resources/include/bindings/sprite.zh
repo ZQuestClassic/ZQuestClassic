@@ -51,6 +51,12 @@ class sprite {
 	// @zasm_var SPRITE_SPAWN_SCREEN
 	internal const int SpawnScreen;
 
+	// The screen index this sprite is currently on, updating as it moves around.
+	//
+	// @versionadded 3.0
+	// @zasm_var SPRITE_CURRENT_SCREEN
+	internal const int CurrentScreen;
+
 	// @zasm_var SPRITE_X
 	internal int X;
 

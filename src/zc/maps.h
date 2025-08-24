@@ -57,7 +57,7 @@ extern int region_num_rpos;
 		  the viewport bounds to the edges. This behavior is modified by `viewport_mode`, which
 		  can be modified by scripts via `Viewport->`
 		- the top-left screen is loaded as `cur_screen` / `origin_scr`
-        - `hero_screen` / `hero_scr` is the screen where the hero currently is, and updates as the
+        - `Hero.current_screen` / `hero_scr` is the screen where the hero currently is, and updates as the
 		  player moves around.
 */
 struct region_t
@@ -191,7 +191,6 @@ void calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w,
 sprite* get_viewport_sprite();
 void set_viewport_sprite(sprite* spr);
 void update_viewport();
-void update_heroscr();
 viewport_t get_sprite_freeze_rect();
 mapscr* determine_hero_screen_from_coords();
 bool edge_of_region(direction dir);

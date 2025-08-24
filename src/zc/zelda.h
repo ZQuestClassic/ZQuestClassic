@@ -310,9 +310,6 @@ extern int32_t slot_arg, slot_arg2;
 // The top-left screen index of the current region. Also know as the origin screen index.
 // Corresponds to origin_scr.
 extern int32_t cur_screen;
-// Screen the player is currently on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to cur_screen.
-// Corresponds to hero_scr.
-extern int32_t hero_screen;
 // Screen the player is currently on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to origin_scr.
 extern mapscr* hero_scr;
 // Screen the player was last on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to origin_scr.

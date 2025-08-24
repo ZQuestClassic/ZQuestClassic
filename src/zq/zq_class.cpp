@@ -7798,6 +7798,13 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 				new_return(46);
 			if (!p_iputl(DMaps[i].intro_string_id, f))
 				new_return(47);
+			if (DMaps[i].flags & dmfCUSTOM_GRAVITY)
+			{
+				if (!p_iputzf(DMaps[i].dmap_gravity, f))
+					new_return(48);
+				if (!p_iputzf(DMaps[i].dmap_terminal_v, f))
+					new_return(49);
+			}
 		}
         
         if(writecycle==0)
@@ -9400,6 +9407,14 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	
 	if(!p_putlstr(screen.usr_notes, f))
 		return qe_invalid;
+	
+	if (screen.flags10 & fSCREEN_GRAVITY)
+	{
+		if (!p_iputzf(screen.screen_gravity, f))
+			return qe_invalid;
+		if (!p_iputzf(screen.screen_terminal_v, f))
+			return qe_invalid;
+	}
 	
 	return qe_OK;
 }

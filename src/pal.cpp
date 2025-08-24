@@ -562,7 +562,7 @@ void dryuplake()
     {
         if(hero_scr->flags & fWHISTLE)
         {
-            if(reveal_hidden_stairs(hero_scr, hero_screen, true))
+            if(reveal_hidden_stairs(hero_scr, Hero.current_screen, true))
             {
                 sfx(hero_scr->secretsfx);
             }

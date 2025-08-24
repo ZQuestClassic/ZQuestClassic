@@ -383,31 +383,6 @@ void update_viewport()
 	calculate_viewport(viewport, cur_dmap, cur_screen, world_w, world_h, x, y);
 }
 
-void update_heroscr()
-{
-	void playLevelMusic();
-
-	int x = vbound(Hero.getX().getInt(), 0, world_w - 1);
-	int y = vbound(Hero.getY().getInt(), 0, world_h - 1);
-	int dx = x / 256;
-	int dy = y / 176;
-	int new_screen = cur_screen + dx + dy * 16;
-	if (maze_state.active == 1)
-		new_screen = maze_state.scr->screen;
-	if (hero_screen != new_screen && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(new_screen))
-	{
-		region_scr_dx = dx;
-		region_scr_dy = dy;
-		hero_screen = new_screen;
-		prev_hero_scr = hero_scr;
-		hero_scr = get_scr(hero_screen);
-		Hero.screen_spawned = hero_screen;
-		playLevelMusic();
-	}
-	if (game->get_regionmapping() == REGION_MAPPING_PHYSICAL)
-		mark_visited(new_screen); // Mark each screen the hero steps foot in as visited
-}
-
 // TODO: should add a moveflag to sprites to configure the size of this rect (or effectively disable
 // freezing if the rect returns is large enough). See:
 // https://discord.com/channels/876899628556091432/1358483603700449581
@@ -437,8 +412,8 @@ bool edge_of_region(direction dir)
 {
 	if (!is_in_scrolling_region()) return true;
 
-	int screen_x = hero_screen % 16;
-	int screen_y = hero_screen / 16;
+	int screen_x = Hero.current_screen % 16;
+	int screen_y = Hero.current_screen / 16;
 	if (dir == up) screen_y -= 1;
 	if (dir == down) screen_y += 1;
 	if (dir == left) screen_x -= 1;
@@ -898,7 +873,7 @@ int32_t isdungeon(int32_t screen)
 
 int32_t isdungeon()
 {
-	return isdungeon(cur_dmap, hero_screen);
+	return isdungeon(cur_dmap, Hero.current_screen);
 }
 
 bool canPermSecret(int32_t dmap, int32_t screen)
@@ -1193,7 +1168,7 @@ void handle_region_load_trigger()
 				handle_screen_load_trigger(create_screen_handles_one(get_scr(screen)));
 		}
 	}
-	else handle_screen_load_trigger(create_screen_handles_one(get_scr(hero_screen)));
+	else handle_screen_load_trigger(create_screen_handles_one(get_scr(Hero.current_screen)));
 }
 
 static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t screen, int32_t flags, bool secrets_do_replay_comment)
@@ -3538,7 +3513,7 @@ optional<int> nextscr(int screen, int dir)
 std::pair<int32_t, int32_t> nextscr2(int32_t dir)
 {
 	int32_t map = cur_map;
-    int32_t screen = screenscrolling ? scrolling_hero_screen : hero_screen;
+    int32_t screen = screenscrolling ? scrolling_hero_screen : Hero.current_screen;
 	return nextscr2(map, screen, dir);
 }
 
@@ -5913,7 +5888,7 @@ static void load_a_screen_and_layers_init(int dmap, int screen, int ldir, bool s
 
 	if (screen == cur_screen)
 		origin_scr = base_scr;
-	if (screen == hero_screen)
+	if (screen == Hero.current_screen)
 		hero_scr = prev_hero_scr = base_scr;
 
 	if (source->script > 0)
@@ -6040,7 +6015,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 			{
 			case d1WAYSHUTTER:
 			case dSHUTTER:
-				if ((ldir^1)==i && screen == hero_screen)
+				if ((ldir^1)==i && screen == Hero.current_screen)
 				{
 					base_scr->door[i]=dOPENSHUTTER;
 				}
@@ -6127,7 +6102,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 // screens in the same region does not use this, because every screen in a region is loaded into
 // temporary memory up front.
 //
-// If scr >= 0x80, `hero_screen` will be saved to `home_screen` and also be loaded into
+// If scr >= 0x80, `Hero.current_screen` will be saved to `home_screen` and also be loaded into
 // `special_warp_return_scr`.
 //
 // If origin_screen_overlay is true, the old origin_scr combos will be copied to the new origin_scr combos
@@ -6226,8 +6201,8 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	}
 
 	load_region(destdmap, screen);
-	home_screen = screen >= 0x80 ? hero_screen : cur_screen;
-	hero_screen = screen;
+	home_screen = screen >= 0x80 ? Hero.current_screen : cur_screen;
+	Hero.current_screen = screen;
 
 	cpos_clear_all();
 	FFCore.destroyScriptableObjectsOfType(ScriptType::Screen);
@@ -6330,7 +6305,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	}
 
 	enemy_spawning_has_checked_been_here = false;
-	markBmap(-1, hero_screen);
+	markBmap(-1, Hero.current_screen);
 	Hero.maybe_begin_advanced_maze();
 }
 

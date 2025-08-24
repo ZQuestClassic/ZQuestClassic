@@ -595,7 +595,7 @@ void markBmap(int32_t dir, int32_t sc)
 }
 void markBmap()
 {
-	markBmap(-1, hero_screen);
+	markBmap(-1, Hero.current_screen);
 }
 
 void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)

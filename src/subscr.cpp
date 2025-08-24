@@ -3376,8 +3376,8 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
 	{
 		int screen = get_homescr();
 #ifdef IS_PLAYER
-		if (hero_screen < 0x80)
-			screen = hero_screen;
+		if (Hero.current_screen < 0x80)
+			screen = Hero.current_screen;
 #endif
 
 		if(herocolor==-1)

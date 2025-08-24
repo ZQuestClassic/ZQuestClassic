@@ -49,6 +49,8 @@ struct dmap
 	int32_t tmusic_xfade_in;
 	int32_t tmusic_xfade_out;
 	uint32_t intro_string_id;
+	
+	zfix dmap_gravity, dmap_terminal_v;
 
 	void clear()
 	{
@@ -83,7 +85,7 @@ extern dmap *DMaps;
 #define dmfBUNNYIFNOPEARL   0x100000
 #define dmfMIRRORCONTINUE   0x200000
 #define dmfEXTENDEDVIEWPORT 0x400000
-#define dmfZ3_RESERVERD_2   0x800000
+#define dmfCUSTOM_GRAVITY   0x800000
 
 // dmap types
 enum { dmDNGN, dmOVERW, dmCAVE, dmBSOVERW, dmMAX };
