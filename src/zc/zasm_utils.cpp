@@ -288,7 +288,7 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 		int i = block_starts_vec[j];
 		int prev_command = script->zasm[i - 1].command;
 		int prev_arg1 = script->zasm[i - 1].arg1;
-		if (prev_command == GOTO || prev_command == CALLFUNC)
+		if ((prev_command == GOTO || prev_command == CALLFUNC) && start_pc_to_block_id.contains(prev_arg1))
 		{
 			// Previous block unconditionally continues to some other block.
 			auto other_block = start_pc_to_block_id[prev_arg1];
