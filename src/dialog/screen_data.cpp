@@ -444,26 +444,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							text = "P", hAlign = 1.0, onPressFunc = [&]()
 							{
 								auto flags = local_scr.nocarry;
-								static const vector<CheckListInfo> scrstates =
-								{
-									{ "Door Up" },
-									{ "Door Down" },
-									{ "Door Left" },
-									{ "Door Right" },
-									{ "Screen Item" },
-									{ "Special Item" },
-									{ "Some Enemies Never Return" },
-									{ "Enemies Temp No Return" },
-									{ "Lockblock" },
-									{ "Boss Lockblock" },
-									{ "Chest" },
-									{ "Locked Chest" },
-									{ "Boss Chest" },
-									{ "Secrets" },
-									{ "Visited" },
-									{ "Light Triggers" },
-									{ "All Enemies Don't Return" },
-								};
+								auto& scrstates = GUI::ZCCheckListData::screen_state();
 								if(!call_checklist_dialog("Select states to NOT CARRY OVER",scrstates,flags,8))
 									return;
 								local_scr.nocarry = flags;
@@ -477,26 +458,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							text = "P", hAlign = 1.0, onPressFunc = [&]()
 							{
 								auto flags = local_scr.noreset;
-								static const vector<CheckListInfo> scrstates =
-								{
-									{ "Door Up" },
-									{ "Door Down" },
-									{ "Door Left" },
-									{ "Door Right" },
-									{ "Screen Item" },
-									{ "Special Item" },
-									{ "Some Enemies Never Return" },
-									{ "Enemies Temp No Return" },
-									{ "Lockblock" },
-									{ "Boss Lockblock" },
-									{ "Chest" },
-									{ "Locked Chest" },
-									{ "Boss Chest" },
-									{ "Secrets" },
-									{ "Visited" },
-									{ "Light Triggers" },
-									{ "All Enemies Don't Return" },
-								};
+								auto& scrstates = GUI::ZCCheckListData::screen_state();
 								if(!call_checklist_dialog("Select states to NOT RESET",scrstates,flags,8))
 									return;
 								local_scr.noreset = flags;
@@ -510,13 +472,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							text = "P", hAlign = 1.0, onPressFunc = [&]()
 							{
 								auto flags = local_scr.exstate_carry;
-								static const vector<CheckListInfo> exstates =
-								{
-									{ "0" }, { "1" }, { "2" }, { "3" }, { "4" }, { "5" }, { "6" }, { "7" },
-									{ "8" }, { "9" }, { "10" }, { "11" }, { "12" }, { "13" }, { "14" }, { "15" },
-									{ "16" }, { "17" }, { "18" }, { "19" }, { "20" }, { "21" }, { "22" }, { "23" },
-									{ "24" }, { "25" }, { "26" }, { "27" }, { "28" }, { "29" }, { "30" }, { "31" },
-								};
+								auto& exstates = GUI::ZCCheckListData::ex_state();
 								if(!call_checklist_dialog("Select ExStates to CARRY OVER",exstates,flags,8))
 									return;
 								local_scr.exstate_carry = flags;
@@ -530,13 +486,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							text = "P", hAlign = 1.0, onPressFunc = [&]()
 							{
 								auto flags = local_scr.exstate_reset;
-								static const vector<CheckListInfo> exstates =
-								{
-									{ "0" }, { "1" }, { "2" }, { "3" }, { "4" }, { "5" }, { "6" }, { "7" },
-									{ "8" }, { "9" }, { "10" }, { "11" }, { "12" }, { "13" }, { "14" }, { "15" },
-									{ "16" }, { "17" }, { "18" }, { "19" }, { "20" }, { "21" }, { "22" }, { "23" },
-									{ "24" }, { "25" }, { "26" }, { "27" }, { "28" }, { "29" }, { "30" }, { "31" },
-								};
+								auto& exstates = GUI::ZCCheckListData::ex_state();
 								if(!call_checklist_dialog("Select ExStates to RESET",exstates,flags,8))
 									return;
 								local_scr.exstate_reset = flags;

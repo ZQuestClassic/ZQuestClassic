@@ -75,4 +75,17 @@ namespace GUI::ZCListData
 	GUI::ListData const& doortypes();
 }
 
+namespace GUI::ZCCheckListData
+{
+	std::vector<CheckListInfo> numbers(int first, int last);
+	std::vector<CheckListInfo> const& level_states();
+	std::vector<CheckListInfo> const& global_states();
+	std::vector<CheckListInfo> level_items();
+	std::vector<CheckListInfo> const& dir_4();
+	std::vector<CheckListInfo> const& dir_8();
+	std::vector<CheckListInfo> const& buttons();
+	std::vector<CheckListInfo> const& screen_state();
+	std::vector<CheckListInfo> const& ex_state();
+}
+
 #endif

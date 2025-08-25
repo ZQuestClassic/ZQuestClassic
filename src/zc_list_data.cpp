@@ -1468,3 +1468,102 @@ GUI::ListData const& GUI::ZCListData::doortypes()
 {
 	return door_types;
 }
+
+// Checklist Data
+
+vector<CheckListInfo> GUI::ZCCheckListData::numbers(int first, int last)
+{
+	vector<CheckListInfo> vec;
+	int inc = (first < last) ? 1 : -1;
+	for (int q = first; q != (last + inc); q += inc)
+		vec.emplace_back(std::to_string(q));
+	return vec;
+}
+vector<CheckListInfo> const& GUI::ZCCheckListData::level_states()
+{
+	static vector<CheckListInfo> vec = numbers(0, 31);
+	return vec;
+}
+vector<CheckListInfo> const& GUI::ZCCheckListData::global_states()
+{
+	static vector<CheckListInfo> vec = numbers(0, 255);
+	return vec;
+}
+vector<CheckListInfo> GUI::ZCCheckListData::level_items()
+{
+	vector<CheckListInfo> vec;
+	for (int q = 0; q < li_max; ++q)
+		vec.emplace_back(ZI.getLevelItemName(q), ZI.getLevelItemHelp(q));
+	return vec;
+}
+vector<CheckListInfo> const& GUI::ZCCheckListData::dir_4()
+{
+	static const vector<CheckListInfo> vec =
+	{
+		{ "Up" },
+		{ "Down" },
+		{ "Left" },
+		{ "Right" },
+	};
+	return vec;
+}
+vector<CheckListInfo> const& GUI::ZCCheckListData::dir_8()
+{
+	static const vector<CheckListInfo> vec =
+	{
+		{ "Up" },
+		{ "Down" },
+		{ "Left" },
+		{ "Right" },
+		{ "Up Left" },
+		{ "Up Right" },
+		{ "Down Left" },
+		{ "Down Right" },
+	};
+	return vec;
+}
+vector<CheckListInfo> const& GUI::ZCCheckListData::buttons()
+{
+	static const vector<CheckListInfo> vec =
+	{
+		{ "A" },
+		{ "B" },
+		{ "L" },
+		{ "R" },
+		{ "Ex1" },
+		{ "Ex2" },
+		{ "Ex3" },
+		{ "Ex4" },
+	};
+	return vec;
+}
+vector<CheckListInfo> const& GUI::ZCCheckListData::screen_state()
+{
+	static const vector<CheckListInfo> vec =
+	{
+		{ "Door Up" },
+		{ "Door Down" },
+		{ "Door Left" },
+		{ "Door Right" },
+		{ "Screen Item" },
+		{ "Special Item" },
+		{ "Some Enemies Never Return" },
+		{ "Enemies Temp No Return" },
+		{ "Lockblock" },
+		{ "Boss Lockblock" },
+		{ "Chest" },
+		{ "Locked Chest" },
+		{ "Boss Chest" },
+		{ "Secrets" },
+		{ "Visited" },
+		{ "Light Triggers" },
+		{ "All Enemies Don't Return" },
+	};
+	return vec;
+}
+vector<CheckListInfo> const& GUI::ZCCheckListData::ex_state()
+{
+	static vector<CheckListInfo> vec = numbers(0, 31);
+	return vec;
+}
+
