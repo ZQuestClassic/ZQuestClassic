@@ -1515,8 +1515,18 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 			return qe_invalid;
 		if(!p_getc(&req_counter_cond_type,f))
 			return qe_invalid;
-		if(!p_getc(&req_litems,f))
-			return qe_invalid;
+		if(s_version >= 15)
+		{
+			if(!p_igetw(&req_litems,f))
+				return qe_invalid;
+		}
+		else
+		{
+			byte b;
+			if(!p_getc(&b,f))
+				return qe_invalid;
+			req_litems = word(b);
+		}
 		if(!p_igetw(&req_litem_level,f))
 			return qe_invalid;
 		byte tempb;
@@ -1613,7 +1623,7 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_putc(req_counter_cond_type,f))
 		new_return(1);
-	if(!p_putc(req_litems,f))
+	if(!p_iputw(req_litems,f))
 		new_return(1);
 	if(!p_iputw(req_litem_level,f))
 		new_return(1);
@@ -3360,8 +3370,18 @@ int32_t SW_MMap::read(PACKFILE *f, word s_version)
 		return ret;
 	if(s_version >= 13)
 	{
-		if(!p_getc(&compass_litems,f))
-			return qe_invalid;
+		if (s_version >= 15)
+		{
+			if(!p_igetw(&compass_litems,f))
+				return qe_invalid;
+		}
+		else
+		{
+			byte b;
+			if(!p_getc(&b,f))
+				return qe_invalid;
+			compass_litems = word(b);
+		}
 	}
 	if(auto ret = c_plr.read(f,s_version))
 		return ret;
@@ -3375,7 +3395,7 @@ int32_t SW_MMap::write(PACKFILE *f) const
 {
 	if(auto ret = SubscrWidget::write(f))
 		return ret;
-	if(!p_putc(compass_litems,f))
+	if(!p_iputw(compass_litems,f))
 		new_return(1);
 	if(auto ret = c_plr.write(f))
 		return ret;

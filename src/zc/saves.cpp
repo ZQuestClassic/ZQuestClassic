@@ -356,10 +356,18 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		
 		game.set_timevalid(tempbyte);
 		
-		if(section_version >= 37)
+		if(section_version >= 46)
 		{
 			if(!p_getbvec(&game.lvlitems,f))
 				return 25;
+		}
+		else if(section_version >= 37)
+		{
+			bounded_vec<word,byte> tmpbvec;
+			if(!p_getbvec(&tmpbvec,f))
+				return 25;
+			for(dword q = 0; q < tmpbvec.capacity(); ++q)
+				game.lvlitems[q] = word(tmpbvec[q]);
 		}
 		else if(section_version <= 5)
 		{

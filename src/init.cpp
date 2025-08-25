@@ -1299,7 +1299,7 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 					if (key == "triforce")
 					{
 						for(int q = 0; q < 8; ++q)
-							SETFLAG(result->litems[q+1], liTRIFORCE, get_bitl(as_int,q));
+							SETFLAG(result->litems[q+1], (1 << li_mcguffin), get_bitl(as_int,q));
 						continue;
 					}
 					DEPRPROP(rupies,counter[crMONEY]);
@@ -1323,10 +1323,10 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 			}
 			if(delta_version < 2)
 			{
-				DEPRPROP_LITEM_BIT(map, liMAP)
-				DEPRPROP_LITEM_BIT(compass, liCOMPASS)
-				DEPRPROP_LITEM_BIT(boss_key, liBOSSKEY)
-				DEPRPROP_LITEM_BIT(mcguffin, liTRIFORCE)
+				DEPRPROP_LITEM_BIT(map, (1 << li_map))
+				DEPRPROP_LITEM_BIT(compass, (1 << li_compass))
+				DEPRPROP_LITEM_BIT(boss_key, (1 << li_boss_key))
+				DEPRPROP_LITEM_BIT(mcguffin, (1 << li_mcguffin))
 			}
 			#undef DEPRPROP_LITEM_BIT
 			#undef DEPRPROP_OFFS

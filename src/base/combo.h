@@ -95,7 +95,7 @@ struct combo_trigger
 	word trig_genscr;
 	byte trig_group;
 	word trig_group_val;
-	byte trig_levelitems;
+	word trig_levelitems;
 	dword req_level_state, unreq_level_state;
 	bitstring req_global_state, unreq_global_state;
 	int16_t trigdmlevel = -1;

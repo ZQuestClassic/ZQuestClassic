@@ -23,7 +23,7 @@ struct zinitdata
 {
 	byte items[MAXITEMS/8];
 	
-	byte litems[MAXLEVELS] = {0};
+	word litems[MAXLEVELS] = {0};
 	bounded_vec<word,byte> level_keys {MAXLEVELS};
 	
 	word counter[MAX_COUNTERS];

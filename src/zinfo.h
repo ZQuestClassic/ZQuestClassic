@@ -15,11 +15,15 @@ struct zinfo
 	void clear_ctr_name();
 	void clear_weap_name();
 	void clear_etype_name();
+	void clear_li_name();
+	void clear_li_help();
+	void clear_li_abbr();
 	void clear();
 	zinfo();
 
 	//ZQ Only
 	char *ic_help_string[itype_max];
+	char *litem_help_string[li_max];
 	char *ctype_name[cMAX];
 	char *ctype_help_string[cMAX];
 	char *mf_name[mfMAX];
@@ -30,6 +34,8 @@ struct zinfo
 	//Shared
 	char *ic_name[itype_max];
 	char *ctr_name[MAX_COUNTERS];
+	char *litem_name[li_max];
+	char *litem_abbr[li_max];
 	
 	bool isUsableItemclass(size_t q);
 	bool isUsableComboType(size_t q);
@@ -46,6 +52,9 @@ struct zinfo
 	char const* getMapFlagHelp(size_t q);
 	char const* getCtrName(int32_t q);
 	char const* getEnemyTypeName(size_t q);
+	char const* getLevelItemName(size_t q);
+	char const* getLevelItemHelp(size_t q);
+	char const* getLevelItemAbbr(size_t q);
 	
 	void copyFrom(zinfo const& other);
 	bool isNull();

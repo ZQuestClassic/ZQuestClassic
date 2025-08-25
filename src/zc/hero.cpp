@@ -22019,7 +22019,7 @@ void HeroClass::oldcheckbosslockblock()
 	}
 	int32_t cid = found1 ? cid1 : cid2;
 	
-	if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
+	if(!(game->lvlitems[dlevel]&(1 << li_boss_key))) return;
 	
 	
 	// Run Boss Key Script
@@ -22161,7 +22161,7 @@ void HeroClass::oldcheckchest(int32_t type)
 			break;
 			
 		case cBOSSCHEST:
-			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
+			if(!(game->lvlitems[dlevel]&(1 << li_boss_key))) return;
 			// Run Boss Key Script
 			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
 			for ( int32_t q = 0; q < MAXITEMS; ++q )
@@ -22410,7 +22410,7 @@ void HeroClass::checkchest(int32_t type)
 			int altcmb = cmb->attributes[2]/10000;
 			prompt_combo = cmb->attributes[1]/10000;
 			if(altcmb && ((islocked && !can_locked_combo(*cmb))
-				|| (isbosslocked && !(game->lvlitems[dlevel]&liBOSSKEY))))
+				|| (isbosslocked && !(game->lvlitems[dlevel]&(1 << li_boss_key)))))
 				prompt_combo = altcmb;
 			prompt_cset = cmb->attribytes[4];
 			prompt_x = cmb->attrishorts[0];
@@ -22865,7 +22865,7 @@ void HeroClass::checklocked()
 		}
 		else if(hero_scr->door[d]==dBOSS)
 		{
-			if(game->lvlitems[dlevel]&liBOSSKEY)
+			if(game->lvlitems[dlevel]&(1 << li_boss_key))
 			{
 				putdoor(hero_scr, scrollbuf, d, dOPENBOSS);
 				hero_scr->door[d]=dOPENBOSS;
@@ -24255,7 +24255,7 @@ void HeroClass::checkspecial()
     	// set boss flag when boss is gone
 		if (state.loaded_enemies && scr->flags11&efBOSS && !hasmainguy)
 		{
-			game->lvlitems[dlevel]|=liBOSS;
+			game->lvlitems[dlevel]|=(1 << li_boss_killed);
 			stop_sfx(scr->bosssfx);
 		}
 
@@ -25761,14 +25761,14 @@ int32_t selectWlevel(int32_t d)
     
     do
     {
-        if(d==0 && (game->lvlitems[l+1] & liTRIFORCE))
+        if(d==0 && (game->lvlitems[l+1] & (1 << li_mcguffin)))
             break;
         else if(d<0)
             l = (l==0) ? 7 : l-1;
         else
             l = (l==7) ? 0 : l+1;
     }
-    while(!(game->lvlitems[l+1] & liTRIFORCE));
+    while(!(game->lvlitems[l+1] & (1 << li_mcguffin)));
     
     game->set_wlevel(l);
     return l;
@@ -31294,15 +31294,15 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		
 		
 		case itype_map:
-			game->lvlitems[dlevel]|=liMAP;
+			game->lvlitems[dlevel]|=(1 << li_map);
 			break;
 			
 		case itype_compass:
-			game->lvlitems[dlevel]|=liCOMPASS;
+			game->lvlitems[dlevel]|=(1 << li_compass);
 			break;
 			
 		case itype_bosskey:
-			game->lvlitems[dlevel]|=liBOSSKEY;
+			game->lvlitems[dlevel]|=(1 << li_boss_key);
 			break;
 			
 		case itype_fairy:
@@ -31411,15 +31411,15 @@ void takeitem(int32_t id)
 			break;
 			
 		case itype_map:
-			game->lvlitems[dlevel]&=~liMAP;
+			game->lvlitems[dlevel]&=~(1 << li_map);
 			break;
 			
 		case itype_compass:
-			game->lvlitems[dlevel]&=~liCOMPASS;
+			game->lvlitems[dlevel]&=~(1 << li_compass);
 			break;
 			
 		case itype_bosskey:
-			game->lvlitems[dlevel]&=~liBOSSKEY;
+			game->lvlitems[dlevel]&=~(1 << li_boss_key);
 			break;
 			
 		case itype_lkey:
@@ -31972,7 +31972,7 @@ void HeroClass::checkitems(int32_t index)
 	if(itemsbuf[id2].type==itype_triforcepiece
 		&& itemsbuf[id2].misc2 <= 0 && linked_parent == eeGANON)
 	{
-		game->lvlitems[dlevel]|=liBOSS;
+		game->lvlitems[dlevel]|=(1 << li_boss_killed);
 	}
 	handle_triforce(item_scr, id2);
 	if(!holdclk)
@@ -32210,7 +32210,7 @@ void HeroClass::getTriforce(int32_t id2)
 	}
 	if(itemsbuf[id2].flags & item_gamedata)
 	{
-		game->lvlitems[dlevel]|=liTRIFORCE;
+		game->lvlitems[dlevel]|=(1 << li_mcguffin);
 	}
     
 	int32_t f=0;
@@ -32832,7 +32832,7 @@ void HeroClass::ganon_intro()
     loaded_guys=true;
     loaditem(scr, offx, offy);
     
-    if(game->lvlitems[dlevel]&liBOSS)
+    if(game->lvlitems[dlevel]&(1 << li_boss_killed))
     {
         return;
     }

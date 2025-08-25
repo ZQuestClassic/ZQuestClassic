@@ -30,10 +30,9 @@ private:
 	void setOfs(size_t ofs);
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> sBombMax;
-	std::shared_ptr<GUI::Label> l_lab[10];
-	std::shared_ptr<GUI::Checkbox> l_comp[10], l_maps[10], l_bkey[10], l_mcguff[10],
-		l_bkill[10], l_custom1[10], l_custom2[10], l_custom3[10];
-	std::shared_ptr<GUI::TextField> l_keys[10];
+	std::shared_ptr<GUI::Label> l_lab[5];
+	std::shared_ptr<GUI::Checkbox> l_lvlitem[li_max][5];
+	std::shared_ptr<GUI::TextField> l_keys[5];
 	std::shared_ptr<GUI::Switcher> icswitcher;
 	std::shared_ptr<GUI::Button> genscr_btn;
 	std::map<int32_t,int32_t> switchids;
@@ -51,6 +50,7 @@ private:
 	std::shared_ptr<GUI::Widget> COUNTER_FRAME(int ctr);
 	std::shared_ptr<GUI::Widget> BTN_100(int val);
 	std::shared_ptr<GUI::Widget> BTN_10(int val);
+	std::shared_ptr<GUI::Widget> BTN_05(int val);
 };
 
 class InitGenscriptWizard : public GUI::Dialog<InitGenscriptWizard>

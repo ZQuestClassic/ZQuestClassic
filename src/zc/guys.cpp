@@ -13347,7 +13347,7 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 		{
 			misc=5;
 
-			//game->lvlitems[dlevel]|=liBOSS;
+			//game->lvlitems[dlevel]|=(1 << li_boss_killed);
 			
 			sfx(WAV_CLEARED);
 			//Add the big TF over the ashes!
@@ -13532,7 +13532,7 @@ void getBigTri(mapscr* scr, int32_t id2)
 	
 	if(itemsbuf[id2].flags & item_gamedata)
 	{
-		game->lvlitems[dlevel]|=liTRIFORCE;
+		game->lvlitems[dlevel]|=(1 << li_mcguffin);
 	}
 	
 	setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
@@ -19373,7 +19373,7 @@ void loadenemies()
 		state.loaded_enemies = true;
 
 		// check if it's the dungeon boss and it has been beaten before
-		if (scr->flags11&efBOSS && game->lvlitems[dlevel]&liBOSS)
+		if (scr->flags11&efBOSS && game->lvlitems[dlevel]&(1 << li_boss_killed))
 			return;
 
 		int32_t loadcnt = 10;
@@ -20251,7 +20251,7 @@ static bool parsemsgcode(const StringCommand& command)
 		{
 			int32_t lev = args[0];
 			
-			if(lev<MAXLEVELS && game->lvlitems[lev]&liTRIFORCE)
+			if(lev<MAXLEVELS && game->lvlitems[lev]&(1 << li_mcguffin))
 			{
 				last_arg = 1;
 				goto switched;

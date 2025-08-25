@@ -76,7 +76,7 @@ struct gamedata
 	int16_t _dcounter[MAX_COUNTERS];
 	
 	char version[17];
-	bounded_vec<word,byte> lvlitems {MAXLEVELS, 0};
+	bounded_vec<word,word> lvlitems {MAXLEVELS, 0};
 	bounded_vec<word,byte> lvlkeys {MAXLEVELS, 0};
 	bounded_vec<word,dword> lvlswitches {MAXLEVELS, 0};
 	byte _continue_scrn;

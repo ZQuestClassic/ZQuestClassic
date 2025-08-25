@@ -21,7 +21,8 @@ ZInfoDialog::ZInfoDialog() : lzinfo(),
 	list_mapflag(GUI::ZCListData::mapflag(numericalFlags, true, true)),
 	list_counters(GUI::ZCListData::counters(true, true)),
 	list_weapon(GUI::ZCListData::weaptypes(true)),
-	list_efamilies(GUI::ZCListData::efamilies(true))
+	list_efamilies(GUI::ZCListData::efamilies(true)),
+	list_level_items(GUI::ZCListData::level_items(true, true))
 {}
 
 static bool extzinf;
@@ -41,10 +42,11 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	}
 	else lzinfo.copyFrom(ZI); //Load ZInfo Data
 	
-	static int32_t selic = 0, selct = 0, selmf = 0, selctr = 0, selwpn = 0, seletype = 0;;
+	static int32_t selic = 0, selct = 0, selmf = 0, selctr = 0, selwpn = 0, seletype = 0, sel_li;
 	static char **icnameptr = nullptr, **ichelpptr = nullptr, **ctnameptr = nullptr,
 	            **cthelpptr = nullptr, **mfnameptr = nullptr, **mfhelpptr = nullptr,
-				**ctrnameptr = nullptr, **wpnptr = nullptr,  **etypeptr = nullptr;
+				**ctrnameptr = nullptr, **wpnptr = nullptr,  **etypeptr = nullptr,
+				**li_name_ptr = nullptr, **li_abbr_ptr = nullptr, **li_help_string_ptr = nullptr;
 	extzinf = header.external_zinfo;
 	icnameptr = &(lzinfo.ic_name[selic]);
 	ichelpptr = &(lzinfo.ic_help_string[selic]);
@@ -55,9 +57,12 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	ctrnameptr = &(lzinfo.ctr_name[selctr]);
 	wpnptr = &(lzinfo.weap_name[selwpn]);
 	etypeptr = &(lzinfo.etype_name[seletype]);
+	li_name_ptr = &(lzinfo.litem_name[sel_li]);
+	li_abbr_ptr = &(lzinfo.litem_abbr[sel_li]);
+	li_help_string_ptr = &(lzinfo.litem_help_string[sel_li]);
 	std::shared_ptr<GUI::Window> window = Window(
 		title = "ZInfo Editor",
-		info = "By unchecking 'default' for an itemclass, it will allow entry of a string which will be stored in"
+		info = "By unchecking 'default' for a type, it will allow entry of a string which will be stored in"
 			" the quest's \"zinfo\". If 'External ZInfo' is checked, zinfo will not be saved to the quest file,"
 			" but instead to a separate '.zinfo' file. If the external file is not found, it will load default data instead.",
 		onClose = message::CANCEL,
@@ -563,8 +568,158 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 									}).show();
 							})
 					)
+				)),
+				TabRef(name = "Level Items", Rows<3>(
+					vAlign = 0.0,
+					DropDownList(data = list_level_items,
+						colSpan = 3, fitParent = true,
+						selectedValue = sel_li,
+						onSelectFunc = [&](int32_t val)
+						{
+							sel_li = val;
+							li_name_ptr = &(lzinfo.litem_name[sel_li]);
+							li_abbr_ptr = &(lzinfo.litem_abbr[sel_li]);
+							li_help_string_ptr = &(lzinfo.litem_help_string[sel_li]);
+							fields[FLD_LI_NAME]->setText((*li_name_ptr) ? (*li_name_ptr) : "");
+							fields[FLD_LI_NAME]->setDisabled(!(*li_name_ptr));
+							defcheck[FLD_LI_NAME]->setChecked(!(*li_name_ptr));
+							fields[FLD_LI_ABBR]->setText((*li_abbr_ptr) ? (*li_abbr_ptr) : "");
+							fields[FLD_LI_ABBR]->setDisabled(!(*li_abbr_ptr));
+							defcheck[FLD_LI_ABBR]->setChecked(!(*li_abbr_ptr));
+							helplbl[LBL_LI_HELP]->setText((*li_help_string_ptr) ? (*li_help_string_ptr) : "");
+							fields[FLD_LI_HELP]->setText((*li_help_string_ptr) ? (*li_help_string_ptr) : "");
+							fields[FLD_LI_HELP]->setDisabled(!(*li_help_string_ptr));
+							defcheck[FLD_LI_HELP]->setChecked(!(*li_help_string_ptr));
+						}
+					),
+					Label(text = "Level Item Name:"),
+					fields[FLD_LI_NAME] = TextField(
+						maxwidth = 20_em,
+						maxLength = 255, text = ((*li_name_ptr) ? (*li_name_ptr) : ""),
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
+						{
+							std::string str(sv);
+							assignchar(li_name_ptr, str.size() ? str.c_str() : nullptr);
+						}),
+					defcheck[FLD_LI_NAME] = Checkbox(text = "Default",
+						onToggleFunc = [&](bool state)
+						{
+							if(state)
+							{
+								assignchar(li_name_ptr, nullptr);
+								fields[FLD_LI_NAME]->setText("");
+								fields[FLD_LI_NAME]->setDisabled(true);
+							}
+							else fields[FLD_LI_NAME]->setDisabled(false);
+						}),
+					Label(text = "Level Item Abbreviation:"),
+					fields[FLD_LI_ABBR] = TextField(
+						maxwidth = 20_em,
+						maxLength = 4, text = ((*li_abbr_ptr) ? (*li_abbr_ptr) : ""),
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
+						{
+							std::string str(sv);
+							assignchar(li_abbr_ptr, str.size() ? str.c_str() : nullptr);
+						}),
+					defcheck[FLD_LI_ABBR] = Checkbox(text = "Default",
+						onToggleFunc = [&](bool state)
+						{
+							if(state)
+							{
+								assignchar(li_abbr_ptr, nullptr);
+								fields[FLD_LI_ABBR]->setText("");
+								fields[FLD_LI_ABBR]->setDisabled(true);
+							}
+							else fields[FLD_LI_ABBR]->setDisabled(false);
+						}),
+					Label(text = "Level Item Help Text:"),
+					fields[FLD_LI_HELP] = TextField(
+						maxwidth = 20_em,
+						maxLength = 65535, text = ((*li_help_string_ptr) ? (*li_help_string_ptr) : ""),
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
+						{
+							std::string str(sv);
+							assignchar(li_help_string_ptr, str.size() ? str.c_str() : nullptr);
+							helplbl[LBL_LI_HELP]->setText(str);
+						}),
+					defcheck[FLD_LI_HELP] = Checkbox(text = "Default",
+						onToggleFunc = [&](bool state)
+						{
+							if(state)
+							{
+								assignchar(li_help_string_ptr, nullptr);
+								helplbl[LBL_LI_HELP]->setText("");
+								fields[FLD_LI_HELP]->setText("");
+								fields[FLD_LI_HELP]->setDisabled(true);
+							}
+							else fields[FLD_LI_HELP]->setDisabled(false);
+						}),
+					helplbl[LBL_LI_HELP] = Label(noHLine = true,
+						colSpan = 3, forceFitW = true,
+						framed = true, height = 6_em,
+						vPadding = 6_px, textAlign = 1
+					),
+					Row(
+						padding = 0_px,
+						colSpan = 3,
+						Label(text = "Reset all level item..."),
+						Button(
+							text = "Names",
+							minwidth = 40_px,
+							onPressFunc = [&]()
+							{
+								AlertDialog("Are you sure?",
+									"This will clear ALL level item names to default!",
+									[&](bool ret,bool)
+									{
+										if(ret)
+										{
+											lzinfo.clear_li_name();
+											fields[FLD_LI_NAME]->setText("");
+											fields[FLD_LI_NAME]->setDisabled(true);
+											defcheck[FLD_LI_NAME]->setChecked(true);
+										}
+									}).show();
+							}),
+						Button(
+							text = "Abbreviations",
+							minwidth = 40_px,
+							onPressFunc = [&]()
+							{
+								AlertDialog("Are you sure?",
+									"This will clear ALL level item abbreviations to default!",
+									[&](bool ret,bool)
+									{
+										if(ret)
+										{
+											lzinfo.clear_li_abbr();
+											fields[FLD_LI_ABBR]->setText("");
+											fields[FLD_LI_ABBR]->setDisabled(true);
+											defcheck[FLD_LI_ABBR]->setChecked(true);
+										}
+									}).show();
+							}),
+						Button(
+							text = "Help Text",
+							minwidth = 40_px,
+							onPressFunc = [&]()
+							{
+								AlertDialog("Are you sure?",
+									"This will clear ALL level item helptext to default!",
+									[&](bool ret,bool)
+									{
+										if(ret)
+										{
+											lzinfo.clear_li_help();
+											helplbl[LBL_LI_HELP]->setText("");
+											fields[FLD_LI_HELP]->setText("");
+											fields[FLD_LI_HELP]->setDisabled(true);
+											defcheck[FLD_LI_HELP]->setChecked(true);
+										}
+									}).show();
+							})
+					)
 				))
-				
 			),
 			Row(padding = 0_px,
 				Checkbox(text = "External ZInfo",
@@ -629,6 +784,17 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	fields[FLD_ETYPE_NAME]->setText((*etypeptr) ? (*etypeptr) : "");
 	fields[FLD_ETYPE_NAME]->setDisabled(!(*etypeptr));
 	defcheck[FLD_ETYPE_NAME]->setChecked(!(*etypeptr));
+	
+	fields[FLD_LI_NAME]->setText((*li_name_ptr) ? (*li_name_ptr) : "");
+	fields[FLD_LI_NAME]->setDisabled(!(*li_name_ptr));
+	defcheck[FLD_LI_NAME]->setChecked(!(*li_name_ptr));
+	fields[FLD_LI_ABBR]->setText((*li_abbr_ptr) ? (*li_abbr_ptr) : "");
+	fields[FLD_LI_ABBR]->setDisabled(!(*li_abbr_ptr));
+	defcheck[FLD_LI_ABBR]->setChecked(!(*li_abbr_ptr));
+	helplbl[LBL_LI_HELP]->setText((*li_help_string_ptr) ? (*li_help_string_ptr) : "");
+	fields[FLD_LI_HELP]->setText((*li_help_string_ptr) ? (*li_help_string_ptr) : "");
+	fields[FLD_LI_HELP]->setDisabled(!(*li_help_string_ptr));
+	defcheck[FLD_LI_HELP]->setChecked(!(*li_help_string_ptr));
 	return window;
 }
 

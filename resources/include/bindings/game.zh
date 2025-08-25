@@ -134,14 +134,23 @@ enum MouseCursor
 @Bitflags("int")
 enum LevelItemBitflags
 {
-	LI_TRIFORCE                    = 0x01, // The Triforce of this Level has been obtained.
-	LI_MAP                         = 0x02, // The Dungeon Map of this Level has been obtained.
-	LI_COMPASS                     = 0x04, // The Compass of this Level has been obtained.
-	LI_BOSS                        = 0x08, // A "Dungeon Boss" enemy has been slain.
-	LI_BOSSKEY                     = 0x10, // The Boss Key of this Level has been obtained.
-	LI_CUSTOM01                    = 0x20, // The Custom01 flag of this Level has been set.
-	LI_CUSTOM02                    = 0x40, // The Custom02 flag of this Level has been set.
-	LI_CUSTOM03                    = 0x80, // The Custom03 flag of this Level has been set.
+	LI_MCGUFFIN                    = 0x0001, // The McGuffin of this Level has been obtained.
+	LI_TRIFORCE                    = LI_MCGUFFIN, // @deprecated
+	LI_MAP                         = 0x0002, // The Dungeon Map of this Level has been obtained.
+	LI_COMPASS                     = 0x0004, // The Compass of this Level has been obtained.
+	LI_BOSS                        = 0x0008, // A "Dungeon Boss" enemy has been slain.
+	LI_BOSSKEY                     = 0x0010, // The Boss Key of this Level has been obtained.
+	LI_CUSTOM01                    = 0x0020, // The Custom01 flag of this Level has been set.
+	LI_CUSTOM02                    = 0x0040, // The Custom02 flag of this Level has been set.
+	LI_CUSTOM03                    = 0x0080, // The Custom03 flag of this Level has been set.
+	LI_CUSTOM04                    = 0x0100, // The Custom04 flag of this Level has been set.
+	LI_CUSTOM05                    = 0x0200, // The Custom05 flag of this Level has been set.
+	LI_CUSTOM06                    = 0x0400, // The Custom06 flag of this Level has been set.
+	LI_CUSTOM07                    = 0x0800, // The Custom07 flag of this Level has been set.
+	LI_CUSTOM08                    = 0x1000, // The Custom08 flag of this Level has been set.
+	LI_CUSTOM09                    = 0x2000, // The Custom09 flag of this Level has been set.
+	LI_CUSTOM10                    = 0x4000, // The Custom10 flag of this Level has been set.
+	LI_CUSTOM11                    = 0x8000, // The Custom11 flag of this Level has been set.
 };
 
 // Used with [Game->GameOverScreen].

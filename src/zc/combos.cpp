@@ -874,7 +874,7 @@ bool trigger_chest(const combined_handle_t& handle)
 			break;
 			
 		case cBOSSCHEST:
-			if(!(game->lvlitems[dlevel]&liBOSSKEY))
+			if(!(game->lvlitems[dlevel]&(1 << li_boss_key)))
 			{
 				play_combo_string(cmb.attributes[3]/10000L);
 				return false;
@@ -989,7 +989,7 @@ bool trigger_lockblock(const combined_handle_t& handle)
 			
 		case cBOSSLOCKBLOCK:
 		{
-			if (!(game->lvlitems[dlevel] & liBOSSKEY))
+			if (!(game->lvlitems[dlevel] & (1 << li_boss_key)))
 			{
 				play_combo_string(cmb.attributes[3]/10000L);
 				return false;

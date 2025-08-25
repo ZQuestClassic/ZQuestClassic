@@ -1812,7 +1812,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				{
 					for(int32_t i=0; i<MAXLEVELS; i++)
 					{
-						if(game->lvlitems[i]&liTRIFORCE)
+						if(game->lvlitems[i]&(1 << li_mcguffin))
 						{
 							return true;
 						}
@@ -1822,12 +1822,12 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				}
 				
 				case -1:
-					return (game->lvlitems[dlevel]&liTRIFORCE);
+					return (game->lvlitems[dlevel]&(1 << li_mcguffin));
 					
 				default:
 					if(it>=0&&it<MAXLEVELS)
 					{
-						return (game->lvlitems[it]&liTRIFORCE);
+						return (game->lvlitems[it]&(1 << li_mcguffin));
 					}
 					
 					break;
@@ -1844,7 +1844,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				{
 					for(int32_t i=0; i<MAXLEVELS; i++)
 					{
-						if(game->lvlitems[i]&liMAP)
+						if(game->lvlitems[i]&(1 << li_map))
 						{
 							return true;
 						}
@@ -1854,12 +1854,12 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				}
 				
 				case -1:
-					return (game->lvlitems[dlevel]&liMAP)!=0;
+					return (game->lvlitems[dlevel]&(1 << li_map))!=0;
 					
 				default:
 					if(it>=0&&it<MAXLEVELS)
 					{
-						return (game->lvlitems[it]&liMAP)!=0;
+						return (game->lvlitems[it]&(1 << li_map))!=0;
 					}
 					
 					break;
@@ -1876,7 +1876,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				{
 					for(int32_t i=0; i<MAXLEVELS; i++)
 					{
-						if(game->lvlitems[i]&liCOMPASS)
+						if(game->lvlitems[i]&(1 << li_compass))
 						{
 							return true;
 						}
@@ -1886,12 +1886,12 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				}
 				
 				case -1:
-					return (game->lvlitems[dlevel]&liCOMPASS)!=0;
+					return (game->lvlitems[dlevel]&(1 << li_compass))!=0;
 					
 				default:
 					if(it>=0&&it<MAXLEVELS)
 					{
-						return (game->lvlitems[it]&liCOMPASS)!=0;
+						return (game->lvlitems[it]&(1 << li_compass))!=0;
 					}
 					
 					break;
@@ -1907,7 +1907,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				{
 					for(int32_t i=0; i<MAXLEVELS; i++)
 					{
-						if(game->lvlitems[i]&liBOSSKEY)
+						if(game->lvlitems[i]&(1 << li_boss_key))
 						{
 							return true;
 						}
@@ -1917,12 +1917,12 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				}
 				
 				case -1:
-					return (game->lvlitems[dlevel]&liBOSSKEY)?1:0;
+					return (game->lvlitems[dlevel]&(1 << li_boss_key))?1:0;
 					
 				default:
 					if(it>=0&&it<MAXLEVELS)
 					{
-						return (game->lvlitems[it]&liBOSSKEY)?1:0;
+						return (game->lvlitems[it]&(1 << li_boss_key))?1:0;
 					}
 					break;
 			}
@@ -1968,7 +1968,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 			
 			for(int i=0; i<MAXLEVELS; i++)
 			{
-				count+=(game->lvlitems[i]&liTRIFORCE)?1:0;
+				count+=(game->lvlitems[i]&(1 << li_mcguffin))?1:0;
 			}
 			
 			return count;
@@ -1980,7 +1980,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 			
 			for(int i=0; i<MAXLEVELS; i++)
 			{
-				count+=(game->lvlitems[i]&liMAP)?1:0;
+				count+=(game->lvlitems[i]&(1 << li_map))?1:0;
 			}
 			
 			return count;
@@ -1992,7 +1992,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 			
 			for(int i=0; i<MAXLEVELS; i++)
 			{
-				count+=(game->lvlitems[i]&liCOMPASS)?1:0;
+				count+=(game->lvlitems[i]&(1 << li_compass))?1:0;
 			}
 			
 			return count;
@@ -2004,7 +2004,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 			
 			for(int i=0; i<MAXLEVELS; i++)
 			{
-				count+=(game->lvlitems[i]&liBOSSKEY)?1:0;
+				count+=(game->lvlitems[i]&(1 << li_boss_key))?1:0;
 			}
 			
 			return count;
@@ -4895,7 +4895,7 @@ int32_t TriforceCount()
 	int32_t c=0;
 	
 	for(int32_t i=1; i<=8; i++)
-		if(game->lvlitems[i]&liTRIFORCE)
+		if(game->lvlitems[i]&(1 << li_mcguffin))
 			++c;
 			
 	return c;

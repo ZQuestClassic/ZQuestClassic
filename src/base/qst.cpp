@@ -7038,8 +7038,17 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if ( s_version >= 60 )
 		{
-			if(!p_getc(&tempitem.pickup_litems,f))
-				return qe_invalid;
+			if ( s_version >= 65 )
+			{
+				if(!p_igetw(&tempitem.pickup_litems,f))
+					return qe_invalid;
+			}
+			else
+			{
+				if(!p_getc(&padding,f))
+					return qe_invalid;
+				tempitem.pickup_litems = word(padding);
+			}
 			if(!p_igetw(&tempitem.pickup_litem_level,f))
 				return qe_invalid;
 		}
@@ -18219,8 +18228,17 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 	}
 	if(s_version >= 46)
 	{
-		if(!p_getc(&temp_trigger.trig_levelitems,f))
-			return qe_invalid;
+		if (s_version >= 59)
+		{
+			if(!p_igetw(&temp_trigger.trig_levelitems,f))
+				return qe_invalid;
+		}
+		else
+		{
+			if(!p_getc(&tempbyte,f))
+				return qe_invalid;
+			temp_trigger.trig_levelitems = word(tempbyte);
+		}
 		if(!p_igetw(&temp_trigger.trigdmlevel,f))
 			return qe_invalid;
 		if(s_version >= 48)
@@ -20184,7 +20202,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
 		for(int q = 0; q < 8; ++q)
-			SETFLAG(temp_zinit.litems[q+1], liTRIFORCE, get_bitl(tempbyte, q));
+			SETFLAG(temp_zinit.litems[q+1], (1 << li_mcguffin), get_bitl(tempbyte, q));
 		
 		int level_count = 32;
 		if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
@@ -20199,8 +20217,8 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 				return qe_invalid;
 		for(int q = 0; q < level_count*8; ++q)
 		{
-			SETFLAG(temp_zinit.litems[q], liMAP, get_bit(tmp_map, q));
-			SETFLAG(temp_zinit.litems[q], liCOMPASS, get_bit(tmp_compass, q));
+			SETFLAG(temp_zinit.litems[q], (1 << li_map), get_bit(tmp_map, q));
+			SETFLAG(temp_zinit.litems[q], (1 << li_compass), get_bit(tmp_compass, q));
 		}
 		
 		if((Header->zelda_version > 0x192)||
@@ -20217,7 +20235,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 			}
 			for(int q = 0; q < level_count*8; ++q)
 			{
-				SETFLAG(temp_zinit.litems[q], liBOSSKEY, get_bit(tmp_boss_key, q));
+				SETFLAG(temp_zinit.litems[q], (1 << li_boss_key), get_bit(tmp_boss_key, q));
 			}
 		}
 		
@@ -20369,7 +20387,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 			}
 			for(int q = 0; q < 32*8; ++q)
 			{
-				SETFLAG(temp_zinit.litems[q], liBOSSKEY, get_bit(tmp_boss_key, q));
+				SETFLAG(temp_zinit.litems[q], (1 << li_boss_key), get_bit(tmp_boss_key, q));
 			}
 		}
 		
@@ -21177,8 +21195,17 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			for(int q = 0; q < MAXLEVELS; ++q)
 			{
-				if(!p_getc(&temp_zinit.litems[q], f))
-					return qe_invalid;
+				if (s_version >= 44)
+				{
+					if(!p_igetw(&temp_zinit.litems[q], f))
+						return qe_invalid;
+				}
+				else
+				{
+					if(!p_getc(&padding, f))
+						return qe_invalid;
+					temp_zinit.litems[q] = word(padding);
+				}
 			}
 		}
 		else
@@ -21200,10 +21227,10 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			}
 			for(int q = 0; q < MAXLEVELS; ++q)
 			{
-				SETFLAG(temp_zinit.litems[q], liMAP, get_bit(tmp_map, q));
-				SETFLAG(temp_zinit.litems[q], liCOMPASS, get_bit(tmp_compass, q));
-				SETFLAG(temp_zinit.litems[q], liBOSSKEY, get_bit(tmp_boss_key, q));
-				SETFLAG(temp_zinit.litems[q], liTRIFORCE, get_bit(tmp_mcguffin, q));
+				SETFLAG(temp_zinit.litems[q], (1 << li_map), get_bit(tmp_map, q));
+				SETFLAG(temp_zinit.litems[q], (1 << li_compass), get_bit(tmp_compass, q));
+				SETFLAG(temp_zinit.litems[q], (1 << li_boss_key), get_bit(tmp_boss_key, q));
+				SETFLAG(temp_zinit.litems[q], (1 << li_mcguffin), get_bit(tmp_mcguffin, q));
 			}
 		}
 		if(!p_getbvec(&temp_zinit.level_keys, f))

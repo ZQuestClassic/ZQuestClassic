@@ -776,6 +776,13 @@ Button(forceFitH = true, text = "?", \
 	{ \
 		displayinfo("Info",inf); \
 	})
+#define INFOBTN_T(title, inf) \
+Button(forceFitH = true, text = "?", \
+	onClick = message::REFR_INFO, \
+	onPressFunc = [=]() \
+	{ \
+		displayinfo(title,inf); \
+	})
 #define INFOBTN_F(inf,...) \
 Button(forceFitH = true, text = "?", \
 	onClick = message::REFR_INFO, \
