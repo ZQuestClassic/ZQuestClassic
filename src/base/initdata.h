@@ -24,7 +24,8 @@ struct zinitdata
 	byte items[MAXITEMS/8];
 	
 	word litems[MAXLEVELS] = {0};
-	bounded_vec<word,byte> level_keys {MAXLEVELS};
+	bounded_vec<word,dword> lvlswitches {MAXLEVELS, 0};
+	bounded_vec<word,byte> level_keys {MAXLEVELS, 0};
 	
 	word counter[MAX_COUNTERS];
 	word mcounter[MAX_COUNTERS] = {0, 255, 0, 0, 0, 255}; // crMONEY/crKEYS = 255

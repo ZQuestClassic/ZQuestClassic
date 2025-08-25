@@ -103,6 +103,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	
 	for(int32_t i=0; i<MAXLEVELS; i++)
 		zinit2->litems[i] = gdata->lvlitems[i];
+	zinit2->lvlswitches = gdata->lvlswitches;
 	zinit2->level_keys = gdata->lvlkeys;
 	for(uint q = 0; q < NUM_BOTTLE_SLOTS; ++q)
 		zinit2->bottle_slot[q] = gdata->bottleSlots[q];
