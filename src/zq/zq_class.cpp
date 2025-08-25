@@ -14334,6 +14334,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		for(uint q = 0; q < NUM_BOTTLE_SLOTS; ++q)
 			if (!p_putc(zinit.bottle_slot[q], f))
 				new_return(76);
+		if (!p_putbvec(zinit.lvlswitches, f))
+			new_return(77);
 		
 		if(writecycle==0)
 		{

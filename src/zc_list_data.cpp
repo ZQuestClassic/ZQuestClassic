@@ -1507,7 +1507,7 @@ vector<CheckListInfo> const& GUI::ZCCheckListData::dir_4()
 	};
 	return vec;
 }
-vector<CheckListInfo> const& GUI::ZCCheckListData::dir_8()
+vector<CheckListInfo> const& GUI::ZCCheckListData::dir_8()
 {
 	static const vector<CheckListInfo> vec =
 	{

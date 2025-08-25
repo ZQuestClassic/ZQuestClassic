@@ -21391,11 +21391,16 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 			}
 		}
-	}
-	if(s_version >= 43)
-		for(uint q = 0; q < NUM_BOTTLE_SLOTS; ++q)
-			if (!p_getc(&temp_zinit.bottle_slot[q], f))
+		
+		if(s_version >= 43)
+			for(uint q = 0; q < NUM_BOTTLE_SLOTS; ++q)
+				if (!p_getc(&temp_zinit.bottle_slot[q], f))
+					return qe_invalid;
+		
+		if(s_version >= 44)
+			if (!p_getbvec(&temp_zinit.lvlswitches, f))
 				return qe_invalid;
+	}
 	if (should_skip)
 		return 0;
 

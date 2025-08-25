@@ -1037,6 +1037,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	
 	for(int32_t i=0; i<MAXLEVELS; i++)
 		game2->lvlitems[i] = zinit2->litems[i];
+	game2->lvlswitches = zinit2->lvlswitches;
 	game2->lvlkeys = zinit2->level_keys;
 	for(uint q = 0; q < NUM_BOTTLE_SLOTS; ++q)
 		game2->bottleSlots[q] = zinit2->bottle_slot[q];
@@ -1141,6 +1142,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	VEC_PROP_2D(gen_data) \
 	ARRAY_PROP(items) \
 	VEC_PROP(level_keys) \
+	VEC_PROP(lvlswitches) \
 	ARRAY_PROP(litems) \
 	ARRAY_PROP(mcounter) \
 	BITSTR_PROP(flags)

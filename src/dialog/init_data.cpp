@@ -59,6 +59,7 @@ void InitDataDialog::setOfs(size_t ofs)
 		for (int li = 0; li < li_max; ++li)
 			l_lvlitem[li][q]->setVisible(vis);
 		l_keys[q]->setVisible(vis);
+		l_statebtn[q]->setVisible(vis);
 		
 		if (!vis) continue;
 		
@@ -481,7 +482,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		);
 	
 	std::shared_ptr<GUI::TabPanel> tabs;
-	std::shared_ptr<GUI::Grid> litem_grid = Rows_Columns<2+li_max, 12>(spacing = 0_px);
+	std::shared_ptr<GUI::Grid> litem_grid = Rows<3+li_max>(spacing = 0_px);
 	{
 		auto lbl_wid = isZC ? 26_px : 30_px;
 		// labels
@@ -492,6 +493,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				padding = 0_px, textAlign = 1
 			));
 		litem_grid->add(Label(text = "Key", minwidth = lbl_wid, padding = 0_px));
+		litem_grid->add(Label(text = "State", minwidth = lbl_wid, padding = 0_px));
 		// info
 		litem_grid->add(DummyWidget(height = 1.5_em, padding = 0_px));
 		for (int li = 0; li < li_max; ++li)
@@ -500,6 +502,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			litem_grid->add(helpstr && helpstr[0] ? LITEM_INFO(ZI.getLevelItemName(li), helpstr) : LITEM_DINFO());
 		}
 		litem_grid->add(LITEM_INFO("Level Keys", "Keys that are only usable in a specific level."));
+		litem_grid->add(LITEM_INFO("Level States", "Switchable states that are specific for each level."));
 	}
 	// fill the litems via loop
 	for(int ind = 0; ind < 5; ++ind)
@@ -520,6 +523,17 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_zinit.level_keys[ind+levelsOffset] = val;
+			}
+		));
+		litem_grid->add(l_statebtn[ind] = Button(
+			width = 1.5_em, padding = 0_px, forceFitH = true,
+			text = "P", onPressFunc = [&, ind]()
+			{
+				dword flags = local_zinit.lvlswitches[ind+levelsOffset];
+				auto& lstates = GUI::ZCCheckListData::level_states();
+				if(!call_checklist_dialog("Select 'Req States'",lstates,flags,8))
+					return;
+				local_zinit.lvlswitches[ind+levelsOffset] = flags;
 			}
 		));
 	}

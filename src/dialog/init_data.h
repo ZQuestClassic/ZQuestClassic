@@ -33,6 +33,7 @@ private:
 	std::shared_ptr<GUI::Label> l_lab[5];
 	std::shared_ptr<GUI::Checkbox> l_lvlitem[li_max][5];
 	std::shared_ptr<GUI::TextField> l_keys[5];
+	std::shared_ptr<GUI::Button> l_statebtn[5];
 	std::shared_ptr<GUI::Switcher> icswitcher;
 	std::shared_ptr<GUI::Button> genscr_btn;
 	std::map<int32_t,int32_t> switchids;
