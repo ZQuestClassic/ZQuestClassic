@@ -148,29 +148,29 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            16
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          58
+#define V_COMBOS          59
 #define V_CSETS            6 //palette data
 #define V_MAPS            35
 #define V_DMAPS           23
 #define V_DOORS            1
-#define V_ITEMS           64
+#define V_ITEMS           65
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        43
+#define V_INITDATA        44
 #define V_GUYS            54
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        45
+#define V_SAVEGAME        46
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
-#define V_SUBSCREEN        14
+#define V_SUBSCREEN        15
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         28
 #define V_SFX              8
 #define V_FAVORITES        4
-#define V_ZINFO            4
+#define V_ZINFO            5
 
 // not 'real' sections, just separate version numbers
 #define V_COMPATRULE       87
@@ -252,17 +252,17 @@ if(close_button_quit) \
 #define ZQ_CHEATS2       5
 #define ZQ_MAXDATA      20
 
-// lvlitems flags
-#define liTRIFORCE      0x01
-#define liMAP           0x02
-#define liCOMPASS       0x04
-#define liBOSS          0x08
-#define liBOSSKEY       0x10
-#define liCUSTOM01      0x20
-#define liCUSTOM02      0x40
-#define liCUSTOM03      0x80
+// lvlitems
+enum level_item
+{
+	li_mcguffin, li_map, li_compass, li_boss_killed,
+	li_boss_key, li_custom_01, li_custom_02, li_custom_03,
+	li_custom_04, li_custom_05, li_custom_06, li_custom_07,
+	li_custom_08, li_custom_09, li_custom_10, li_custom_11,
+	li_max
+};
 
-#define liALL           0xFF
+#define LI_ALL ((1 << li_max)-1)
 
 // sprite drawing flag bits
 #define sprdrawflagALWAYSOLDDRAWS 1

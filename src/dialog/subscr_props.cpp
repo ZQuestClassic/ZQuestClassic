@@ -14,6 +14,7 @@
 #include "subscr_transition.h"
 #include "subscr_macros.h"
 #include "items.h"
+#include "zinfo.h"
 
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern ZCSubscreen subscr_edit;
@@ -1243,6 +1244,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case widgMMAP:
 			{
+				std::shared_ptr<GUI::Grid> tmp_litem_grid;
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
 				mergetype = mtFORCE_TAB;
 				attrib_grid = Row(
@@ -1257,18 +1259,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					),
 					Frame(title = "Compass Blink Stops",
 						info = "The compass marker will stop blinking when all of these are collected for the current level",
-						Columns<4>(
-							CBOX(w->compass_litems, liTRIFORCE, "McGuffin", 1),
-							CBOX(w->compass_litems, liMAP, "Map", 1),
-							CBOX(w->compass_litems, liCOMPASS, "Compass", 1),
-							CBOX(w->compass_litems, liBOSS, "Boss Killed", 1),
-							CBOX(w->compass_litems, liBOSSKEY, "Boss Key", 1),
-							CBOX(w->compass_litems, liCUSTOM01, "Custom 01", 1),
-							CBOX(w->compass_litems, liCUSTOM02, "Custom 02", 1),
-							CBOX(w->compass_litems, liCUSTOM03, "Custom 03", 1)
-						)
+						tmp_litem_grid = Columns<li_max/2>()
 					)
 				);
+				for (int q = 0; q < li_max; ++q)
+					tmp_litem_grid->add(CBOX(w->compass_litems, (1 << q), ZI.getLevelItemName(q), 1));
 				break;
 			}
 			case widgMMAPTITLE:
@@ -1860,6 +1855,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	cond_item_sels[CI_REQ_NOT] = local_subref->req_unowned_items.empty() ? -1 : *(local_subref->req_unowned_items.begin());
 	updateConditions();
 	std::shared_ptr<GUI::List> cond_itms_list;
+	std::shared_ptr<GUI::Grid> litem_grid;
 	tpan->add(TabRef(name = "Conditions",
 		TabPanel(
 			TabRef(name = "Items",
@@ -1988,24 +1984,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					),
 					Frame(title = "Level Items", info = "All checked LItems are required, unless 'Invert' is checked, then it is required to have none instead.",
 						Row(
-							Rows_Columns<2, 4>(
-								INFOBTN("The Hero has the McGuffin for the specified level"),
-								CBOX(local_subref->req_litems, liTRIFORCE, "McGuffin", 1),
-								INFOBTN("The Hero has the Map for the specified level"),
-								CBOX(local_subref->req_litems, liMAP, "Map", 1),
-								INFOBTN("The Hero has the Compass for the specified level"),
-								CBOX(local_subref->req_litems, liCOMPASS, "Compass", 1),
-								INFOBTN("The Hero has cleared the 'Dungeon Boss' room for the specified level"),
-								CBOX(local_subref->req_litems, liBOSS, "Boss Killed", 1),
-								INFOBTN("The Hero has the Boss Key for the specified level"),
-								CBOX(local_subref->req_litems, liBOSSKEY, "Boss Key", 1),
-								INFOBTN("The Hero has the 'Custom 01' for the specified level"),
-								CBOX(local_subref->req_litems, liCUSTOM01, "Custom 01", 1),
-								INFOBTN("The Hero has the 'Custom 02' for the specified level"),
-								CBOX(local_subref->req_litems, liCUSTOM02, "Custom 02", 1),
-								INFOBTN("The Hero has the 'Custom 03' for the specified level"),
-								CBOX(local_subref->req_litems, liCUSTOM03, "Custom 03", 1)
-							),
+							litem_grid = Rows_Columns<2, li_max/2>(),
 							Rows<3>(
 								Label(text = "For Level:"),
 								TextField(
@@ -2036,6 +2015,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			)
 		)
 	));
+	// handle litems
+	{
+		for (int q = 0; q < li_max; ++q)
+		{
+			auto* helpstr = ZI.getLevelItemHelp(q);
+			litem_grid->add(helpstr && helpstr[0] ? INFOBTN(helpstr) : DINFOBTN());
+			litem_grid->add(CBOX(local_subref->req_litems, (1 << q), ZI.getLevelItemName(q), 1));
+		}
+	}
 	tpan->add(TabRef(name = "Script",
 		Row(
 			Label(text = "Label:"),

@@ -8770,7 +8770,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			std::string dispname(itemsbuf[i].display_name);
 			if(!p_putcstr(dispname,f))
 				new_return(92);
-			if(!p_putc(itemsbuf[i].pickup_litems, f))
+			if(!p_iputw(itemsbuf[i].pickup_litems, f))
 				new_return(95);
 			if(!p_iputw(itemsbuf[i].pickup_litem_level, f))
 				new_return(96);
@@ -9583,7 +9583,7 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 89;
 	if(!p_putc(tmp_trig.exdoor_ind,f))
 		return 90;
-	if(!p_putc(tmp_trig.trig_levelitems,f))
+	if(!p_iputw(tmp_trig.trig_levelitems,f))
 		return 91;
 	if(!p_iputw(tmp_trig.trigdmlevel,f))
 		return 92;
@@ -14194,7 +14194,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 				new_return(5);
 		for(int q = 0; q < MAXLEVELS; ++q)
 		{
-			if(!p_putc(zinit.litems[q], f))
+			if(!p_iputw(zinit.litems[q], f))
 				new_return(6);
 		}
 		if(!p_putbvec(zinit.level_keys, f))

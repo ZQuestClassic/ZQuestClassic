@@ -339,6 +339,34 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::level_items(bool numbered, bool skipNone)
+{
+	GUI::ListData ls;
+	if (!skipNone)
+		ls.add(numbered ? "(None) (-001)" : "(None)", -1);
+	
+	for(int li = 0; li < li_max; ++li)
+	{
+		char const* li_name = ZI.getLevelItemName(li);
+		std::string name;
+        if(li_name[0])
+		{
+			if(numbered)
+				name = fmt::format("{} ({:03})", li_name, li);
+			else name = li_name;
+		}
+		else 
+		{
+			if(numbered)
+				name = fmt::format("li{:02} ({:03})", li, li);
+			else name = fmt::format("li{:02}",li);
+		}
+		ls.add(name, li);
+	}
+	
+	return ls;
+}
+
 GUI::ListData GUI::ZCListData::combotype(bool numbered, bool skipNone)
 {
 	GUI::ListData ls;

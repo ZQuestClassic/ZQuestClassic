@@ -14,6 +14,7 @@ namespace GUI::ZCListData
 	GUI::ListData items(bool numbered = false, bool none = true);
 	GUI::ListData dropsets(bool numbered = false, bool none = false);
 	GUI::ListData itemclass(bool numbered = false, bool zero_none = false);
+	GUI::ListData level_items(bool numbered = false, bool skipNone = false);
 	GUI::ListData combotype(bool numbered = false, bool skipNone = false);
 	GUI::ListData mapflag(int32_t numericalFlags, bool numbered = false, bool skipNone = false);
 	GUI::ListData counters(bool numbered = false, bool skipNone = false);

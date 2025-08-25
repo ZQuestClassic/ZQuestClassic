@@ -75,7 +75,8 @@ void Label::fitText()
 	size_t currentLine = 1;
 	int32_t max_width = 0;
 	int32_t i;
-	for(i = 0; data[i] && (!maxLines || currentLine < maxLines); ++i)
+	auto max_line = maxLines ? maxLines : 200;
+	for(i = 0; data[i] && currentLine < max_line; ++i)
 	{
 		char c = data[i];
 		if(c == '\n')
@@ -135,6 +136,7 @@ void Label::fitText()
 			}
 		}
 	}
+	DCHECK(currentLine < zc_max(max_line, 200)); // likely endless overflow via something not fitting at all
 	oss << data; //add the rest
 	
 	widthSoFar = text_length(f, data);

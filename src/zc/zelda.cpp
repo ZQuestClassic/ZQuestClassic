@@ -1994,7 +1994,7 @@ int32_t init_game()
 	cur_map = DMaps[cur_dmap].map;
 	dlevel = DMaps[cur_dmap].level;
 	
-	game->lvlitems[9] &= ~liBOSS;
+	game->lvlitems[9] &= ~(1 << li_boss_killed);
 	
 	ALLOFF(true,true,true);
 	
@@ -2381,7 +2381,7 @@ int32_t cont_game()
 	
 	if(dlevel==0)
 	{
-		game->lvlitems[9]&=~liBOSS;
+		game->lvlitems[9]&=~(1 << li_boss_killed);
 	}
 	
 	ALLOFF();

@@ -12483,7 +12483,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].pickup_litems = vbound(value/10000, 0, 214748) & liALL;
+			itemsbuf[ri->idata].pickup_litems = vbound(value/10000, 0, 214748) & LI_ALL;
 			break;
 		case IDATAPICKUPLITEMLEVEL:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -15394,7 +15394,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
 			}
 			else if(auto* trig = get_first_combo_trigger())
-				trig->trig_levelitems = (value/10000)&liALL;
+				trig->trig_levelitems = (value/10000)&LI_ALL;
 			break;
 		}
 		case COMBODTRIGDMAPLVL:
@@ -16070,7 +16070,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(ri->combotrigref))
 			{
-				trig->trig_levelitems = (value/10000) & liALL;
+				trig->trig_levelitems = (value/10000) & LI_ALL;
 			}
 			break;
 		}
@@ -17044,7 +17044,7 @@ void set_register(int32_t arg, int32_t value)
 		case SUBWIDGREQLITEMS:
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref))
-				widg->req_litems = vbound(value/10000,0,liALL);
+				widg->req_litems = vbound(value/10000,0,LI_ALL);
 			break;
 		}
 		case SUBWIDGREQLITEMLEVEL:

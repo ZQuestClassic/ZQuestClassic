@@ -334,7 +334,7 @@ struct SubscrWidget
 	word req_counter_val;
 	byte req_counter_cond_type = CONDTY_NONE;
 	
-	byte req_litems;
+	word req_litems;
 	int16_t req_litem_level = -1;
 	
 	bool is_disabled;
@@ -703,7 +703,7 @@ private:
 struct SW_MMap : public SubscrWidget
 {
 	SubscrColorInfo c_plr, c_cmp_blink, c_cmp_off;
-	byte compass_litems = liTRIFORCE;
+	word compass_litems = (1 << li_mcguffin);
 	
 	SW_MMap() = default;
 	SW_MMap(subscreen_object const& old);

@@ -1622,7 +1622,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									fitParent = true,
 									vPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 255, val = local_ref.trig_levelitems,
+									low = 0, high = LI_ALL, val = local_ref.trig_levelitems,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_ref.trig_levelitems = val;
@@ -1632,17 +1632,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									text = "P", hAlign = 1.0, onPressFunc = [&]()
 									{
 										int32_t flags = local_ref.trig_levelitems;
-										static const vector<CheckListInfo> litem_names =
-										{
-											{ "McGuffin", "The Hero has the McGuffin for the 'Trig DMap Level'" },
-											{ "Map", "The Hero has the Map for the 'Trig DMap Level'" },
-											{ "Compass", "The Hero has the Compass for the 'Trig DMap Level'" },
-											{ "Boss Killed", "The Hero has cleared the 'Dungeon Boss' room for the 'Trig DMap Level'" },
-											{ "Boss Key", "The Hero has the Boss Key for the 'Trig DMap Level'" },
-											{ "Custom 1", "The Hero has the Custom 1 state for the 'Trig DMap Level'" },
-											{ "Custom 2", "The Hero has the Custom 2 state for the 'Trig DMap Level'" },
-											{ "Custom 3", "The Hero has the Custom 3 state for the 'Trig DMap Level'" },
-										};
+										vector<CheckListInfo> litem_names;
+										for (int q = 0; q < li_max; ++q)
+											litem_names.emplace_back(ZI.getLevelItemName(q), ZI.getLevelItemHelp(q));
 										if(!call_checklist_dialog("Select 'Req Flags'",litem_names,flags))
 											return;
 										local_ref.trig_levelitems = flags;

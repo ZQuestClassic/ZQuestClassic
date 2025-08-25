@@ -366,6 +366,26 @@ const char etype_default_names[eeMAX][255] =
 	"Friendly NPC 06","Friendly NPC 07","Friendly NPC 08","Friendly NPC 09","Friendly NPC 10"
 };
 
+const char litem_default_names[li_max][255] =
+{
+	"McGuffin", "Map", "Compass", "Boss Killed", "Boss Key", "Custom 01", "Custom 02", "Custom 03",
+	"Custom 04", "Custom 05", "Custom 06", "Custom 07", "Custom 08", "Custom 09", "Custom 10", "Custom 11",
+};
+const char litem_default_abbrs[li_max][255] =
+{
+	"McG", "Map", "Comp", "Boss", "BKey", "C1", "C2", "C3",
+	"C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11",
+};
+const char litem_default_helps[li_max][255] =
+{
+	"The main collectable of the game.",
+	"The map, to help find your way.",
+	"The compass, to guide you to your destination.",
+	"The boss has been defeated.",
+	"The big key to open the way.",
+	"", "", "", "", "", "", "", "", "", "", "",
+};
+
 void assignchar(char** p, char const* str)
 {
 	if(*p) free(*p);
@@ -392,6 +412,9 @@ zinfo::zinfo()
 	memset(ctr_name, 0, sizeof(ctr_name));
 	memset(weap_name, 0, sizeof(weap_name));
 	memset(etype_name, 0, sizeof(etype_name));
+	memset(litem_name, 0, sizeof(litem_name));
+	memset(litem_help_string, 0, sizeof(litem_help_string));
+	memset(litem_abbr, 0, sizeof(litem_abbr));
 }
 
 void zinfo::clear_ic_help()
@@ -457,6 +480,27 @@ void zinfo::clear_etype_name()
 		assignchar(etype_name+q, nullptr);
 	}
 }
+void zinfo::clear_li_name()
+{
+	for (auto q = 0; q < li_max; ++q)
+	{
+		assignchar(litem_name+q, nullptr);
+	}
+}
+void zinfo::clear_li_help()
+{
+	for (auto q = 0; q < li_max; ++q)
+	{
+		assignchar(litem_help_string+q, nullptr);
+	}
+}
+void zinfo::clear_li_abbr()
+{
+	for (auto q = 0; q < li_max; ++q)
+	{
+		assignchar(litem_abbr+q, nullptr);
+	}
+}
 void zinfo::clear()
 {
 	clear_ic_help();
@@ -468,6 +512,9 @@ void zinfo::clear()
 	clear_weap_name();
 	clear_ctr_name();
 	clear_etype_name();
+	clear_li_name();
+	clear_li_help();
+	clear_li_abbr();
 }
 
 static char const* nilptr = "";
@@ -578,6 +625,31 @@ char const* zinfo::getEnemyTypeName(size_t q)
 		return etype_default_names[q];
 	return nilptr;
 }
+char const* zinfo::getLevelItemName(size_t q)
+{
+	if (valid_str(litem_name[q]))
+		return litem_name[q];
+	if (valid_str(litem_default_names[q]))
+		return litem_default_names[q];
+	return nilptr;
+}
+char const* zinfo::getLevelItemAbbr(size_t q)
+{
+	if (valid_str(litem_abbr[q]))
+		return litem_abbr[q];
+	if (valid_str(litem_default_abbrs[q]))
+		return litem_default_abbrs[q];
+	return nilptr;
+}
+char const* zinfo::getLevelItemHelp(size_t q)
+{
+	if (valid_str(litem_help_string[q]))
+		return litem_help_string[q];
+	if (valid_str(litem_default_helps[q]))
+		return litem_default_helps[q];
+	return nilptr;
+}
+
 
 void zinfo::copyFrom(zinfo const& other)
 {
@@ -608,6 +680,12 @@ void zinfo::copyFrom(zinfo const& other)
 	for (auto q = 0; q < eeMAX; ++q)
 	{
 		assignchar(etype_name+q, other.etype_name[q]);
+	}
+	for (auto q = 0; q < li_max; ++q)
+	{
+		assignchar(litem_name+q, other.litem_name[q]);
+		assignchar(litem_help_string+q, other.litem_help_string[q]);
+		assignchar(litem_abbr+q, other.litem_abbr[q]);
 	}
 }
 
@@ -776,6 +854,43 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 			if (namesize)
 				if (!pfwrite(z.etype_name[q], namesize, f))
 					new_return(23);
+		}
+		
+		if (!p_putc(li_max, f)) //num litem types
+		{
+			new_return(24);
+		}
+		for (auto q = 0; q < li_max; ++q)
+		{
+			byte namesize = (byte)(vbound(valid_str(z.litem_name[q]) ? strlen(z.litem_name[q]) : 0, 0, 255));
+
+			if (!p_putc(namesize, f))
+			{
+				new_return(25);
+			}
+			if (namesize)
+				if (!pfwrite(z.litem_name[q], namesize, f))
+					new_return(26);
+			
+			byte abbrsize = (byte)(vbound(valid_str(z.litem_abbr[q]) ? strlen(z.litem_abbr[q]) : 0, 0, 255));
+
+			if (!p_putc(abbrsize, f))
+			{
+				new_return(27);
+			}
+			if (abbrsize)
+				if (!pfwrite(z.litem_abbr[q], abbrsize, f))
+					new_return(28);
+			
+			word htxtsz = (valid_str(z.litem_help_string[q]) ? strlen(z.litem_help_string[q]) : 0);
+
+			if (!p_iputw(htxtsz, f))
+			{
+				new_return(29);
+			}
+			if (htxtsz)
+				if (!pfwrite(z.litem_help_string[q], htxtsz, f))
+					new_return(30);
 		}
 		
 		if(writecycle==0)
@@ -1009,6 +1124,55 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 			}
 		}
 	}
+	if(section_version > 4)
+	{
+		byte num_litypes;
+		if (!p_getc(&num_litypes, f))
+			return qe_invalid;
+		if (num_litypes > li_max)
+			return qe_invalid;
+		for (auto q = 0; q < num_litypes; ++q)
+		{
+			byte namesize;
+			if (!p_getc(&namesize, f))
+				return qe_invalid;
+			if (namesize)
+			{
+				char* p = (char*)malloc(namesize + 1);
+				if (!p) return qe_nomem;
+				if (!pfread(p, namesize, f))
+					return qe_invalid;
+				p[namesize] = 0;
+				z.litem_name[q] = p;
+			}
+			
+			byte abbrsize;
+			if (!p_getc(&abbrsize, f))
+				return qe_invalid;
+			if (abbrsize)
+			{
+				char* p = (char*)malloc(abbrsize + 1);
+				if (!p) return qe_nomem;
+				if (!pfread(p, abbrsize, f))
+					return qe_invalid;
+				p[abbrsize] = 0;
+				z.litem_abbr[q] = p;
+			}
+			
+			word htxtsz;
+			if (!p_igetw(&htxtsz, f))
+				return qe_invalid;
+			if (htxtsz)
+			{
+				char* p = (char*)malloc(htxtsz + 1);
+				if (!p) return qe_nomem;
+				if (!pfread(p, htxtsz, f))
+					return qe_invalid;
+				p[htxtsz] = 0;
+				z.litem_help_string[q] = p;
+			}
+		}
+	}
 	return 0;
 }
 
@@ -1018,10 +1182,29 @@ bool zinfo::isNull()
 	{
 		if(ic_name[q]) return false;
 		if(ic_help_string[q]) return false;
+	}
+	for(auto q = 0; q < cMAX; ++q)
+	{
 		if(ctype_name[q]) return false;
 		if(ctype_help_string[q]) return false;
+	}
+	for(auto q = 0; q < mfMAX; ++q)
+	{
 		if(mf_name[q]) return false;
 		if(mf_help_string[q]) return false;
 	}
+	for(auto q = 0; q < wMax; ++q)
+		if(weap_name[q]) return false;
+	for(auto q = 0; q < eeMAX; ++q)
+		if(etype_name[q]) return false;
+	for(auto q = 0; q < MAX_COUNTERS; ++q)
+		if(ctr_name[q]) return false;
+	for(auto q = 0; q < li_max; ++q)
+	{
+		if(litem_name[q]) return false;
+		if(litem_abbr[q]) return false;
+		if(litem_help_string[q]) return false;
+	}
+		
 	return true;
 }

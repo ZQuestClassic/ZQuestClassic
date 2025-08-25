@@ -225,7 +225,7 @@ struct itemdata
 	
 	char display_name[256];
 	
-	byte pickup_litems;
+	word pickup_litems;
 	int16_t pickup_litem_level = -1;
 	
 	move_flags moveflags = (move_obeys_grav | move_can_pitfall);

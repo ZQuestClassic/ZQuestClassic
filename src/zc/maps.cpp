@@ -7231,7 +7231,7 @@ void map_bkgsfx(bool on)
 	{
 		cont_sfx(hero_scr->oceansfx);
 		
-		if(hero_scr->bosssfx && !(game->lvlitems[dlevel]&liBOSS))
+		if(hero_scr->bosssfx && !(game->lvlitems[dlevel]&(1 << li_boss_killed)))
 			cont_sfx(hero_scr->bosssfx);
 	}
 	else

@@ -1162,17 +1162,6 @@ l_flags[index] = Checkbox( \
 	} \
 ) \
 
-#define LITEM_CHECK(txt, flag) \
-Checkbox( \
-	hAlign = 0.0, \
-	text = txt, \
-	checked = (local_itemref.pickup_litems & flag), \
-	onToggleFunc = [&](bool state) \
-	{ \
-		SETFLAG(local_itemref.pickup_litems,flag,state); \
-	} \
-)
-
 template <typename T>
 std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int index)
 {
@@ -1270,6 +1259,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Item Editor (%d): %s", index, itemname.c_str());
+	std::shared_ptr<GUI::Grid> litem_grid;
 	window = Window(
 		use_vsync = true,
 		title = titlebuf,
@@ -1759,16 +1749,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						Column(
 							Frame(title = "Gain Level Items",
 								Column(padding = 0_px,
-									Columns<4>(
-										LITEM_CHECK("McGuffin", liTRIFORCE),
-										LITEM_CHECK("Map", liMAP),
-										LITEM_CHECK("Compass", liCOMPASS),
-										LITEM_CHECK("Boss Killed", liBOSS),
-										LITEM_CHECK("Boss Key", liBOSSKEY),
-										LITEM_CHECK("Custom 01", liCUSTOM01),
-										LITEM_CHECK("Custom 02", liCUSTOM02),
-										LITEM_CHECK("Custom 03", liCUSTOM03)
-									),
+									litem_grid = Rows_Columns<2,li_max/2>(),
 									Row(
 										Label(text = "For Level:"),
 										TextField(
@@ -2375,6 +2356,19 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 			)
 		)
 	);
+	for (int q = 0; q < li_max; ++q)
+	{
+		auto* helpstr = ZI.getLevelItemName(q);
+		litem_grid->add(helpstr && helpstr[0] ? INFOBTN(helpstr) : DINFOBTN());
+		litem_grid->add(Checkbox(
+			hAlign = 0.0,
+			text = ZI.getLevelItemName(q),
+			checked = (local_itemref.pickup_litems & (1 << q)),
+			onToggleFunc = [&](bool state)
+			{
+				SETFLAG(local_itemref.pickup_litems, (1 << q), state);
+			}));
+	}
 	refreshScripts();
 	return window;
 }

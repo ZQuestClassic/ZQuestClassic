@@ -49,23 +49,23 @@ InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, std::function<vo
 
 void InitDataDialog::setOfs(size_t ofs)
 {
-	bool _510 = levelsOffset==510;
-	levelsOffset = vbound(ofs/10, 0, 51)*10;
-	if(!(_510 || levelsOffset==510)) return;
-	
-	bool vis = levelsOffset!=510;
-	for(int32_t q = 2; q < 10; ++q)
+	levelsOffset = vbound(ofs, 0, MAXLEVELS-1);
+	levelsOffset -= levelsOffset % 5; // truncate to multiple of 5
+	for(int32_t q = 0; q < 5; ++q)
 	{
+		bool vis = q+levelsOffset < MAXLEVELS;
+		
 		l_lab[q]->setVisible(vis);
-		l_maps[q]->setVisible(vis);
-		l_comp[q]->setVisible(vis);
-		l_bkey[q]->setVisible(vis);
-		l_mcguff[q]->setVisible(vis);
-		l_bkill[q]->setVisible(vis);
-		l_custom1[q]->setVisible(vis);
-		l_custom2[q]->setVisible(vis);
-		l_custom3[q]->setVisible(vis);
+		for (int li = 0; li < li_max; ++li)
+			l_lvlitem[li][q]->setVisible(vis);
 		l_keys[q]->setVisible(vis);
+		
+		if (!vis) continue;
+		
+		l_lab[q]->setText(std::to_string(q+levelsOffset));
+		for (int li = 0; li < li_max; ++li)
+			l_lvlitem[li][q]->setChecked(local_zinit.litems[q+levelsOffset] & (1 << li));
+		l_keys[q]->setVal(local_zinit.level_keys[q+levelsOffset]);
 	}
 }
 
@@ -121,6 +121,20 @@ ColorSel(disabled = dis, hAlign = 1.0, val = local_zinit.member, \
 	{ \
 		local_zinit.member = val; \
 	})
+
+#define LITEM_INFO(title, info) \
+Button(forceFitH = true, text = "?", \
+	onClick = message::REFR_INFO, \
+	padding = 0_px, \
+	onPressFunc = [=]() \
+	{ \
+		displayinfo(title, info); \
+	})
+
+#define LITEM_DINFO() \
+Button(forceFitH = true, text = "?", \
+	onClick = message::REFR_INFO, \
+	padding = 0_px, disabled = true)
 
 //}
 
@@ -179,7 +193,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_100(int val)
 	sprintf(str, "%03d", val);
 
 	return Button(maxwidth = 4_em, padding = 0_px, margins = 0_px,
-		text = str, onClick = message::LEVEL, onPressFunc = [&, val]()
+		maxheight = 2.25_em,
+		text = str, onPressFunc = [&, val]()
 		{
 			setOfs((levelsOffset%100)+val);
 		}
@@ -195,9 +210,27 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_10(int val)
 	sprintf(str, "%02d", val);
 
 	return Button(maxwidth = 4_em, padding = 0_px, margins = 0_px,
-		text = str, onClick = message::LEVEL, onPressFunc = [&, val]()
+		maxheight = 2.25_em,
+		text = str, onPressFunc = [&, val]()
 		{
-			setOfs(((levelsOffset/100)*100) + val);
+			setOfs(((levelsOffset/100)*100) + (levelsOffset%10) + val);
+		}
+	);
+}
+
+std::shared_ptr<GUI::Widget> InitDataDialog::BTN_05(int val)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	char str[10];
+	sprintf(str, "%d", val);
+
+	return Button(maxwidth = 4_em, padding = 0_px, margins = 0_px,
+		maxheight = 2.25_em,
+		text = str, onPressFunc = [&, val]()
+		{
+			setOfs(((levelsOffset/10)*10) + val);
 		}
 	);
 }
@@ -448,42 +481,40 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		);
 	
 	std::shared_ptr<GUI::TabPanel> tabs;
-	
-	std::shared_ptr<GUI::Grid> litem_grid = Rows_Columns<10, 6>(spacing = isZC ? 1_px : DEFAULT_PADDING);
-	// fill the litems via loop
-	for(int ind = 0; ind < 10; ++ind)
+	std::shared_ptr<GUI::Grid> litem_grid = Rows_Columns<2+li_max, 12>(spacing = 0_px);
 	{
-		if(ind % 5 == 0) // add header
+		auto lbl_wid = isZC ? 26_px : 30_px;
+		// labels
+		litem_grid->add(_d);
+		for (int li = 0; li < li_max; ++li)
+			litem_grid->add(Label(text = ZI.getLevelItemAbbr(li),
+				minwidth = lbl_wid,
+				padding = 0_px, textAlign = 1
+			));
+		litem_grid->add(Label(text = "Key", minwidth = lbl_wid, padding = 0_px));
+		// info
+		litem_grid->add(DummyWidget(height = 1.5_em, padding = 0_px));
+		for (int li = 0; li < li_max; ++li)
 		{
-			litem_grid->add(_d);
-			litem_grid->add(Label(text = "M", padding = 0_px));
-			litem_grid->add(Label(text = "C", padding = 0_px));
-			litem_grid->add(Label(text = "B", padding = 0_px));
-			litem_grid->add(Label(text = "T", padding = 0_px));
-			litem_grid->add(Label(text = "D", padding = 0_px));
-			litem_grid->add(Label(text = "C1", padding = 0_px));
-			litem_grid->add(Label(text = "C2", padding = 0_px));
-			litem_grid->add(Label(text = "C3", padding = 0_px));
-			litem_grid->add(Label(text = "Key", padding = 0_px));
+			auto* helpstr = ZI.getLevelItemHelp(li);
+			litem_grid->add(helpstr && helpstr[0] ? LITEM_INFO(ZI.getLevelItemName(li), helpstr) : LITEM_DINFO());
 		}
-		#define LEVEL_CBOX(arr, flag) \
-		arr[ind] = Checkbox(checked = local_zinit.litems[ind+levelsOffset]&flag, \
-			padding = 0_px, \
-			onToggleFunc = [&, ind](bool state) \
-			{ \
-				SETFLAG(local_zinit.litems[ind+levelsOffset], flag, state); \
-			})
+		litem_grid->add(LITEM_INFO("Level Keys", "Keys that are only usable in a specific level."));
+	}
+	// fill the litems via loop
+	for(int ind = 0; ind < 5; ++ind)
+	{
 		litem_grid->add(l_lab[ind] = Label(text = std::to_string(ind),
 			textAlign = 2, hAlign = 1.0, minwidth = 2_em
 		));
-		litem_grid->add(LEVEL_CBOX(l_maps, liMAP));
-		litem_grid->add(LEVEL_CBOX(l_comp, liCOMPASS));
-		litem_grid->add(LEVEL_CBOX(l_bkey, liBOSSKEY));
-		litem_grid->add(LEVEL_CBOX(l_mcguff, liTRIFORCE));
-		litem_grid->add(LEVEL_CBOX(l_bkill, liBOSS));
-		litem_grid->add(LEVEL_CBOX(l_custom1, liCUSTOM01));
-		litem_grid->add(LEVEL_CBOX(l_custom2, liCUSTOM02));
-		litem_grid->add(LEVEL_CBOX(l_custom3, liCUSTOM03));
+		for (int li = 0; li < li_max; ++li)
+			litem_grid->add(l_lvlitem[li][ind] = Checkbox(
+				checked = local_zinit.litems[ind+levelsOffset]&(1 << li),
+				padding = 0_px,
+				onToggleFunc = [&, ind, li](bool state)
+				{
+					SETFLAG(local_zinit.litems[ind+levelsOffset], (1 << li), state);
+				}));
 		litem_grid->add(l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
 			val = local_zinit.level_keys[ind+levelsOffset], high = 255, padding = 0_px,
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
@@ -491,7 +522,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				local_zinit.level_keys[ind+levelsOffset] = val;
 			}
 		));
-		#undef LEVEL_CBOX
 	}
 	
 	window = Window(
@@ -506,7 +536,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				TabRef(name = "Counters", counter_panel),
 				TabRef(name = "LItems", Column(
 					Row(
-						BTN_100(000),
+						BTN_100(0),
 						BTN_100(100),
 						BTN_100(200),
 						BTN_100(300),
@@ -514,7 +544,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						BTN_100(500)
 					),
 					Row(
-						BTN_10(00),
+						BTN_10(0),
 						BTN_10(10),
 						BTN_10(20),
 						BTN_10(30),
@@ -525,13 +555,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						BTN_10(80),
 						BTN_10(90)
 					),
+					Row(
+						BTN_05(0),
+						BTN_05(5)
+					),
 					Frame(title = "Level Items",
-						info = "M = Map"
-							"\nC = Compass"
-							"\nB = Boss Key"
-							"\nT = Dungeon Treasure (McGuffin)"
-							"\nD = Boss Defeated"
-							"\nC1, C2, C3 = Custom LItems",
 						litem_grid
 					)
 				)),
@@ -714,25 +742,6 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
-		case message::LEVEL:
-		{
-			for(int32_t q = 0; q < 10; ++q)
-			{
-				if(q+levelsOffset > 511)
-					break;
-				l_lab[q]->setText(std::to_string(q+levelsOffset));
-				l_maps[q]->setChecked(local_zinit.litems[q+levelsOffset] & liMAP);
-				l_comp[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCOMPASS);
-				l_bkey[q]->setChecked(local_zinit.litems[q+levelsOffset] & liBOSSKEY);
-				l_mcguff[q]->setChecked(local_zinit.litems[q+levelsOffset] & liTRIFORCE);
-				l_bkill[q]->setChecked(local_zinit.litems[q+levelsOffset] & liBOSS);
-				l_custom1[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCUSTOM01);
-				l_custom2[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCUSTOM02);
-				l_custom3[q]->setChecked(local_zinit.litems[q+levelsOffset] & liCUSTOM03);
-				l_keys[q]->setVal(local_zinit.level_keys[q+levelsOffset]);
-			}
-		}
-		return false;
 		case message::OK:
 		{
 			local_zinit.cont_heart = std::min(local_zinit.cont_heart, word(CONT_PERC?100:local_zinit.mcounter[crLIFE]));
