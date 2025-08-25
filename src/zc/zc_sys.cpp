@@ -23,6 +23,7 @@
 #include "base/version.h"
 #include "base/zc_alleg.h"
 #include "gamedata.h"
+#include "zc/frame_timings.h"
 #include "zc/replay_upload.h"
 #include "zc/zc_init.h"
 #include "init.h"
@@ -188,6 +189,7 @@ void zc_exit(int code)
 
 	zscript_coloured_console.kill();
 	jit_shutdown();
+	frame_timings_end();
 	quit_game();
 
 	Z_message("ZQuest Classic website: https://zquestclassic.com\n");
@@ -4549,6 +4551,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		sfx_cleanup();
 	
 	jit_poll();
+
+	frame_timings_poll();
 
 #ifdef __EMSCRIPTEN__
 	// Yield the main thread back to the browser occasionally.

@@ -25,6 +25,7 @@
 
 #include <stdlib.h>
 
+#include "zc/frame_timings.h"
 #include "zc/replay_upload.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
@@ -1727,6 +1728,8 @@ void init_game_vars(bool is_cont_game = false)
 
 int32_t init_game()
 {
+	frame_timings_init(get_flag_bool("-frame-timings").value_or(false));
+
 	if (saves_current_selection() == -1)
 		Z_error_fatal("Failed to load save: init_game\n");
 	if (auto r = saves_select(saves_current_selection()); !r)
