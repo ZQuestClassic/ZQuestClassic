@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-08-24 12:35:46</td>
+      <td>2025-08-25 09:00:48</td>
     </tr>
   </table>
 </div>
@@ -74,11 +74,11 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l41">sprite::getUID() (line 41)</a></td><td>called 84020357 times, returned 84020357 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l194">sprite::get_scrtype() const (line 194)</a></td><td>called 55070809 times, returned 55070809 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l194">sprite::get_scrtype() const (line 194)</a></td><td>called 55070765 times, returned 55070765 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l34">sprite::operator=(sprite const&amp;) (line 34)</a></td><td>called 76548 times, returned 76548 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l53">sprite::setParent(sprite*) (line 53)</a></td><td>called 4472218 times, returned 4472218 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l233">sprite_list::getMax() (line 233)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l234">sprite_list::setMax(int) (line 234)</a></td><td>called 4802 times, returned 4802 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l234">sprite_list::setMax(int) (line 234)</a></td><td>called 4796 times, returned 4796 times</td><td>75.0%</td></tr>
   </table>
 </details>
 
@@ -1476,7 +1476,7 @@
       <td class="lineno"><a id="l194" href="#l194">194</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">55070809</td>
+      <td class="linecount coveredLine">55070765</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="n">optional</span><span class="o">&lt;</span><span class="n">ScriptType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_scrtype</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">nullopt</span><span class="p">;}</span></td>
     </tr>
     <tr class="source-line">
@@ -1758,12 +1758,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 4802 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 4796 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">4802</td>
+      <td class="linecount partialCoveredLine">4796</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setMax</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">max</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">max_sprites</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">max</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SLMAX</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">SLMAX</span><span class="p">);}</span></td>
     </tr>
     <tr class="source-line">
