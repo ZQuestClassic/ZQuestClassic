@@ -178,9 +178,12 @@ public:
 	bool getCanFlicker();
 	void setCanFlicker(bool v);
 	
-	virtual int32_t get_gravity(bool skip_custom = false) const;
-	virtual int32_t get_terminalv(bool skip_custom = false) const;
+	// zfix returns in px/frame^2 and px/frame
+	// _fall returns modified by *100 and cast to int
+	virtual zfix get_gravity(bool skip_custom = false) const;
+	virtual zfix get_terminalv(bool skip_custom = false) const;
 	virtual int32_t get_grav_fall() const;
+	virtual int32_t get_terminalv_fall() const;
 	bool handle_termv();
 	
 	virtual void update_current_screen();
@@ -284,10 +287,10 @@ public:
     byte undercset;
 	byte blockLayer;
 	zfix step;
-	zfix grav_step;
 	bool force_many;
 	bool no_icy;
 	bool new_block;
+	bool grav_falling;
     
 	cpos_info blockinfo;
 	
@@ -298,7 +301,7 @@ public:
     void push_new(zfix bx,zfix by,int32_t d,int32_t f,zfix spd);
 	bool check_hole() const;
 	bool check_trig() const;
-	bool check_side_fall() const;
+	bool check_side_fall(bool antigrav) const;
 	bool active() const;
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);

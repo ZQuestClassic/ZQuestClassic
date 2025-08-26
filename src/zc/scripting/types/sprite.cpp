@@ -218,13 +218,13 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		case SPRITE_GRAVITY_STRENGTH:
 		{
 			if (auto s = get_sprite(ri->spriteref))
-				return s->get_gravity(true);
+				return s->get_gravity(true).getZLong();
 			return 0;
 		}
 		case SPRITE_TERMINAL_VELOCITY:
 		{
 			if (auto s = get_sprite(ri->spriteref))
-				return s->get_terminalv(true) * 100;
+				return s->get_terminalv(true).getZLong();
 			return 0;
 		}
 		case SPRITE_CUSTOM_GRAVITY_STRENGTH:

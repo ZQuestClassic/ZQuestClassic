@@ -3705,7 +3705,7 @@ bool weapon::animate(int32_t index)
 			{
 				y+=fall/100;
 				
-				if(fall <= get_terminalv())
+				if(fall <= get_terminalv_fall())
 					fall += get_grav_fall();
 			}
 			else
@@ -3758,7 +3758,7 @@ bool weapon::animate(int32_t index)
 						}
 					}
 				}
-				else if(fakefall <= get_terminalv())
+				else if(fakefall <= get_terminalv_fall())
 					fakefall += get_grav_fall();
 			}
 			if (!(moveflags & move_no_real_z))
@@ -3784,7 +3784,7 @@ bool weapon::animate(int32_t index)
 						}
 					}
 				}
-				else if(fall <= get_terminalv())
+				else if(fall <= get_terminalv_fall())
 					fall += get_grav_fall();
 			}
 		}
