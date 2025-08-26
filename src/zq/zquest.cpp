@@ -26323,25 +26323,39 @@ ffcdata* slopes_getFFC(int id)
 	return nullptr;
 }
 
-#ifdef __EMSCRIPTEN__
-extern "C" void open_test_mode()
+int calculate_test_dmap()
 {
 	int dmap = -1;
-	int32_t pal = Map.getcolor();
+	auto pal = Map.getcolor();
+	int scr = Map.getCurrScr();
+	int scrx = scr & 0x0F;
 	for(auto q = 0; q < MAXDMAPS; ++q)
 	{
-		if(DMaps[q].map == Map.getCurrMap())
+		auto& dm = DMaps[q];
+		if(dm.map != Map.getCurrMap())
+			continue;
+		if((dm.type&dmfTYPE)!=dmOVERW)
 		{
-			if(pal == DMaps[q].color)
-			{
-				dmap = q;
-				break;
-			}
-			if(dmap < 0)
-				dmap = q;
+			if(scrx < dm.xoff || scrx >= dm.xoff+8)
+				continue;
+		}
+		if(dmap < 0)
+			dmap = q; // soft-accept this, but look for better still
+		if(pal == dm.color)
+		{
+			dmap = q;
+			// found the best match we have information for, break out
+			break;
 		}
 	}
 	if(dmap < 0) dmap = 0;
+	return dmap;
+}
+
+#ifdef __EMSCRIPTEN__
+extern "C" void open_test_mode()
+{
+	int dmap = calculate_test_dmap();
 
 	em_open_test_mode(filepath, dmap, Map.getCurrScr(), -1);
 }
