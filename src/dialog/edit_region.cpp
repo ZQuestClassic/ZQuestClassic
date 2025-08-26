@@ -5,6 +5,9 @@
 #include <gui/builder.h>
 #include <fmt/format.h>
 #include <base/qrs.h>
+#include "zq/zq_misc.h"
+#include "zq/render.h"
+#include "zc_list_data.h"
 
 // This is a snapshot of all the compat QRs as of Feb 17, 2025.
 static std::vector<int> old_qrs = {
@@ -157,9 +160,16 @@ static std::vector<int> get_problematic_qrs()
 	return result;
 }
 
-void call_edit_region_dialog(int32_t slot)
+void call_edit_map_settings(int32_t slot)
 {
-	EditRegionDialog(slot).show();
+	pause_dlg_tint(true);
+	zq_set_screen_never_freeze(true);
+	
+	EditMapSettingsDialog(slot).show();
+	
+	pause_dlg_tint(false);
+	zq_set_screen_never_freeze(false);
+	Map.refresh_color();
 }
 
 static bool validate_regions(const regions_data& data)
@@ -169,9 +179,20 @@ static bool validate_regions(const regions_data& data)
 	return get_all_region_descriptions(result, region_ids);
 }
 
-EditRegionDialog::EditRegionDialog(int32_t slot) :
-	mapslot(slot), the_regions_data(&Regions[slot]), local_regions_data(Regions[slot])
+EditMapSettingsDialog::EditMapSettingsDialog(int32_t slot) :
+	mapslot(slot), the_regions_data(&Regions[slot]), local_regions_data(Regions[slot]),
+	region_valid(false),
+	list_lpals(GUI::ZCListData::lpals())
 {
+	for (int q = 0; q < MAPSCRS; ++q)
+	{
+		if (Map.Scr(q)->is_valid())
+		{
+			region_valid = true;
+			break;
+		}
+	}
+	local_info = map_infos[mapslot];
 }
 
 #define BTN_REGIONIDX(index, indexstr) \
@@ -181,9 +202,22 @@ region_checks[index] = Checkbox(checked = region_grid->getCurrentRegionIndex() =
 	{ \
 		region_grid->setCurrentRegionIndex(index); \
 		refreshRegionGrid(); \
-	}) \
+	})
 
-std::shared_ptr<GUI::Widget> EditRegionDialog::view()
+#define DEF_LAYER(lyr) \
+Label(text = fmt::format("{}:", lyr), hAlign = 1.0), \
+TextField( \
+	fitParent = true, \
+	type = GUI::TextField::type::NOSWAP_ZSINT, \
+	swap_type = nswapLDEC, minwidth = 3_em, \
+	low = 0, high = map_count, val = local_info.autolayers[lyr-1], \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_info.autolayers[lyr-1] = val; \
+	})
+
+static size_t tabpos = 0;
+std::shared_ptr<GUI::Widget> EditMapSettingsDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
@@ -192,45 +226,45 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 	auto problematic_qrs = get_problematic_qrs();
 
 	char titlebuf[256];
-	sprintf(titlebuf, "Edit Regions for Map %d", mapslot + 1);
+	sprintf(titlebuf, "Edit Map Settings (%d)", mapslot + 1);
+	std::shared_ptr<GUI::Grid> reg_col;
 	window = Window(
 		title = titlebuf,
-		info =  "Screens with the same Region ID define a single Region\n"
-				"  of screens connected via free-scrolling\n\n"
-				"Regions must be rectangular\n\n"
-				"For more on Regions, see the Z3 User Guide",
 		onClose = message::CANCEL,
 		use_vsync = true,
 		Column(
-			Frame(
-				RegionGrid(
-					focused = true,
-					localRegionsData = &local_regions_data,
-					onUpdate = [&]()
-					{
-						refreshRegionGrid();
-					})
-			),
-			Frame(title = "Select Region ID:",
-				Row(
-					BTN_REGIONIDX(0, "0 (no scrolling)"),
-					BTN_REGIONIDX(1, "1"),
-					BTN_REGIONIDX(2, "2"),
-					BTN_REGIONIDX(3, "3"),
-					BTN_REGIONIDX(4, "4"),
-					BTN_REGIONIDX(5, "5"),
-					BTN_REGIONIDX(6, "6"),
-					BTN_REGIONIDX(7, "7"),
-					BTN_REGIONIDX(8, "8"),
-					BTN_REGIONIDX(9, "9")
-				)
-			),
-			Row(
-				Button(text = "Z3 User Guide",
-					onPressFunc = [&]()
-					{
-						util::open_web_link("https://docs.zquestclassic.com/tutorials/z3_user_guide");
-					}
+			TabPanel(ptr = &tabpos,
+				TabRef(name = "Regions", reg_col = Column()),
+				TabRef(name = "Defaults",
+					Column(
+						Frame(title = "AutoLayer Maps",
+							Rows_Columns<2, 3>(
+								DEF_LAYER(1),
+								DEF_LAYER(2),
+								DEF_LAYER(3),
+								DEF_LAYER(4),
+								DEF_LAYER(5),
+								DEF_LAYER(6)
+							)
+						),
+						Frame(
+							Rows<2>(
+								Label(text = "Screen Palette:"),
+								DropDownList(data = list_lpals,
+									fitParent = true,
+									selectedValue = local_info.autopalette,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_info.autopalette = val;
+										
+										// Preview the palette in the background
+										loadlvlpal(val);
+										rebuild_trans_table();
+										refresh(rALL);
+									})
+							)
+						)
+					)
 				)
 			),
 			Row(
@@ -245,16 +279,62 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 				Button(
 					text = "Cancel",
 					minwidth = 90_px,
-					onClick = message::CANCEL),
-				Button(text = "Problematic QRs", onClick = message::QRS, disabled = problematic_qrs.empty())
+					onClick = message::CANCEL)
 			)
 		)
 	);
-
+	
+	std::shared_ptr<GUI::Button> z3_guide_btn = Button(
+		text = "Z3 User Guide",
+		onPressFunc = [&]()
+		{
+			util::open_web_link("https://docs.zquestclassic.com/tutorials/z3_user_guide");
+		});
+	if (region_valid)
+	{
+		reg_col->add(Frame(info = "Screens with the same Region ID define a single Region\n"
+			"  of screens connected via free-scrolling\n\n"
+			"Regions must be rectangular\n\n"
+			"For more on Regions, see the Z3 User Guide",
+			RegionGrid(topPadding = DEFAULT_PADDING+1.5_em,
+				focused = true,
+				localRegionsData = &local_regions_data,
+				onUpdate = [&]()
+				{
+					refreshRegionGrid();
+				}))
+			);
+		reg_col->add(Frame(title = "Select Region ID:",
+			Row(
+				BTN_REGIONIDX(0, "0 (no scrolling)"),
+				BTN_REGIONIDX(1, "1"),
+				BTN_REGIONIDX(2, "2"),
+				BTN_REGIONIDX(3, "3"),
+				BTN_REGIONIDX(4, "4"),
+				BTN_REGIONIDX(5, "5"),
+				BTN_REGIONIDX(6, "6"),
+				BTN_REGIONIDX(7, "7"),
+				BTN_REGIONIDX(8, "8"),
+				BTN_REGIONIDX(9, "9")
+			)
+		));
+		reg_col->add(Row(
+				z3_guide_btn,
+				Button(text = "Problematic QRs",
+					onClick = message::QRS,
+					disabled = problematic_qrs.empty())
+			));
+	}
+	else
+	{
+		reg_col->add(Label(text = "There must be at least one valid screen in a map to configure regions."));
+		reg_col->add(z3_guide_btn);
+	}
+	
 	return window;
 }
 
-void EditRegionDialog::refreshRegionGrid()
+void EditMapSettingsDialog::refreshRegionGrid()
 {
 	int32_t idx = region_grid->getCurrentRegionIndex();
 	for (int32_t i = 0; i < 10; ++i)
@@ -263,32 +343,49 @@ void EditRegionDialog::refreshRegionGrid()
 	}
 }
 
-bool EditRegionDialog::handleMessage(const GUI::DialogMessage<message>& msg)
+bool EditMapSettingsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch (msg.message)
 	{
-	case message::QRS:
-	{
-		InfoDialog("Problematic QRs",
-			"Compat QRs use less tested portions of the ZC engine, and so may create issues\n"
-			"when enabled while using the Regions feature.\n"
-			"You should disable as many of these as you can." + QRHINT(get_problematic_qrs())
-		).show();
-		break;
-	}
-	case message::OK:
-		if (!validate_regions(local_regions_data))
+		case message::QRS:
 		{
-			InfoDialog("Bad regions", "Scrolling regions must be rectangular").show();
-			return false;
+			InfoDialog("Problematic QRs",
+				"Compat QRs use less tested portions of the ZC engine, and so may create issues\n"
+				"when enabled while using the Regions feature.\n"
+				"You should disable as many of these as you can." + QRHINT(get_problematic_qrs())
+			).show();
+			break;
 		}
+		case message::OK:
+		{
+			if (!validate_regions(local_regions_data))
+			{
+				InfoDialog("Bad regions", "Scrolling regions must be rectangular").show();
+				return false;
+			}
 
-		*the_regions_data = local_regions_data;
-		saved = false;
-		[[fallthrough]];
-	case message::CANCEL:
-	default:
-		return true;
+			if (region_valid)
+			{
+				*the_regions_data = local_regions_data;
+				Map.regions_mark_dirty();
+			}
+			auto& mapinf = map_infos[mapslot];
+			bool dirty_screen_defaults = mapinf != local_info;
+
+			if (dirty_screen_defaults) // reset the defaults of invalid screens
+			{
+				mapinf = local_info;
+				for (auto q = 0; q < MAPSCRS; ++q)
+					if (!(Map.Scr(q)->is_valid()))
+						Map.clearscr(q);
+			}
+			if (region_valid || dirty_screen_defaults)
+				saved = false;
+			return true;
+		}
+		case message::CANCEL:
+		default:
+			return true;
 	}
 	return false;
 }
