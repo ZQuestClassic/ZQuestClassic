@@ -45,7 +45,7 @@ void call_testqst_dialog()
 			return;
 	}
 	test_start_dmap = calculate_test_dmap();
-	test_start_screen = Map.getCurrScr();
+	test_start_screen = zc_min(0x7F, Map.getCurrScr());
 	
 	TestQstDialog().show();
 }
