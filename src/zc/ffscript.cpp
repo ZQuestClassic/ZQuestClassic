@@ -3111,7 +3111,7 @@ static void bad_subwidg_type(bool func, byte type)
 }
 
 // TODO: Remove this.
-sprite *s;
+static sprite *s;
 
 int32_t item_flag(item_flags flag)
 {
