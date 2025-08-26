@@ -5901,6 +5901,7 @@ static void load_a_screen_and_layers_init(int dmap, int screen, int ldir, bool s
 			mapscr* layer_scr = new mapscr(*get_canonical_scr(source->layermap[i]-1, source->layerscreen[i]));
 			layer_scr->map = cur_map;
 			layer_scr->screen = screen;
+			layer_scr->valid |= mVALID;
 			screens.push_back(layer_scr);
 		}
 		else

@@ -72,7 +72,7 @@ struct mapscr
 	// screen.
 	byte screen;
 	byte valid;
-	bool is_valid() const { return valid; }
+	bool is_valid() const { return valid&mVALID; }
 
 	byte guy;
 	int32_t guytile = -1;
