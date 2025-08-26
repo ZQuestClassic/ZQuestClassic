@@ -27663,6 +27663,8 @@ bool HeroClass::check_prescroll()
 	static int world_w = 256;
 	static int world_h = 176;
 
+	if (toogam)
+		return true;
 	if(get_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL))
 		return true; // skip checks
 	if (x <= world_w-16 && x >= 0 && y <= world_h-16 && y >= 0)
