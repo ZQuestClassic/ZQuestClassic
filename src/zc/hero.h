@@ -426,6 +426,7 @@ public:
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
 	void handle_passive_buttons();
+	void for_each_rpos_stood_on(std::function<void(const rpos_handle_t&)> proc);
 	void land_on_ground();
 	bool do_jump(int32_t jumpid, bool passive);
 	void drop_liftwpn();
