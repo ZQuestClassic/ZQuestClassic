@@ -1293,11 +1293,11 @@ static NewMenu quest_menu
 	{ "&Options ", onRulesDlg },
 	{ "&Test", onTestQst },
 	{ "&Items", onCustomItems },
-	{ "Ene&mies", onCustomEnemies },
+	{ "&Enemies", onCustomEnemies },
 	{ "&Hero", onCustomHero },
 	{ "&Strings", onStrings },
 	{ "&DMaps", onDmaps },
-	{ "&Regions", onRegions },
+	{ "&Map Settings", onMaps },
 	{ "I&nit Data", onInit },
 	{ "Misc D&ata ", &misc_menu },
 	{ "&ZInfo", onZInfo },
@@ -3277,17 +3277,8 @@ int32_t onToggleDarkness()
 int32_t onIncMap()
 {
     int32_t m=Map.getCurrMap();
-    int32_t oldcolor=Map.getcolor();
     Map.setCurrMap(m+1>=map_count?0:m+1);
-    // Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
-    
-    int32_t newcolor=Map.getcolor();
-    
-    if(newcolor!=oldcolor)
-    {
-        rebuild_trans_table();
-    }
     
     refresh(rALL);
     return D_O_K;
@@ -3295,18 +3286,12 @@ int32_t onIncMap()
 
 int32_t onDecMap()
 {
-    int32_t m=Map.getCurrMap();
-    int32_t oldcolor=Map.getcolor();
+    int32_t m = Map.getCurrMap();
     Map.setCurrMap((m-1<0)?map_count-1:zc_min(m-1,map_count-1));
     // Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     
-    int32_t newcolor=Map.getcolor();
-    
-    if(newcolor!=oldcolor)
-    {
-        rebuild_trans_table();
-    }
+    Map.refresh_color();
     
     refresh(rALL);
     return D_O_K;
@@ -13468,9 +13453,8 @@ int32_t onDecScrPal()
 		return D_O_K;
 	}
     restore_mouse();
-    int32_t c=Map.getcolor();
-    c+=511;
-    c=c%512;
+    int32_t c = Map.getcolor();
+    c = (c+511) % 512;
     Map.setcolor(c);
     refresh(rALL);
 	saved = false;
@@ -13485,9 +13469,8 @@ int32_t onIncScrPal()
 		return D_O_K;
 	}
     restore_mouse();
-    int32_t c=Map.getcolor();
-    c+=1;
-    c=c%512;
+    int32_t c = Map.getcolor();
+    c = (c+1)%512;
     Map.setcolor(c);
     refresh(rALL);
 	saved = false;
@@ -13512,10 +13495,8 @@ int32_t onDecScrPal16()
 		return D_O_K;
 	}
     restore_mouse(); 
-    int32_t c=Map.getcolor();
-      
+    int32_t c = Map.getcolor();
     c = PalWrap( ( c-0x10 ), 0, 511 );
-     
     Map.setcolor(c);
     refresh(rALL);
 	saved = false;
@@ -13530,8 +13511,7 @@ int32_t onIncScrPal16()
 		return D_O_K;
 	}
     restore_mouse();
-    int32_t c=Map.getcolor();
-      	    
+    int32_t c = Map.getcolor();
     c = PalWrap( ( c+0x10 ), 0, 511 );
     Map.setcolor(c);
     refresh(rALL);
@@ -15338,28 +15318,9 @@ int32_t onDmaps()
     return D_O_K;
 }
 
-int32_t onRegions()
+int32_t onMaps()
 {
-	bool valid = false;
-	for (int i = 0; i < MAPSCRS; i++)
-	{
-		if (Map.Scr(i)->is_valid())
-		{
-			valid = true;
-			break;
-		}
-	}
-
-	if (valid)
-	{
-    	call_edit_region_dialog(Map.getCurrMap());
-		Map.regions_mark_dirty();
-	}
-	else
-	{
-		InfoDialog("Invalid maps", "There must be at least one valid screen in a map to configure regions").show();
-	}
-
+	call_edit_map_settings(Map.getCurrMap());
     return D_O_K;
 }
 
@@ -22608,7 +22569,7 @@ int32_t onLayers()
 			
 			if(al[i][2])
 			{
-				map_autolayers[Map.getCurrMap()*6+i] = al[i][0];
+				map_infos[Map.getCurrMap()].autolayers[i] = al[i][0];
 				for(int32_t j=0; j<128; j++)
 				{
 					auto& curmapscr = TheMaps[Map.getCurrMap()*MAPSCRS+j];
@@ -25493,8 +25454,7 @@ finished:
 	prv_mode=0;
 	prv_warp=0;
 	Map.end_prv();
-	loadlvlpal(Map.getcolor());
-	rebuild_trans_table();
+	Map.refresh_color();
 	refresh(rMAP+rMENU);
 	
 	while(gui_mouse_b())

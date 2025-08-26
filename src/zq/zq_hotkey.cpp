@@ -184,7 +184,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_DEFAULT_COMBOS: return "Default Combos";
 		case ZQKEY_DELETE_MAP: return "Delete Map";
 		case ZQKEY_DMAPS: return "DMaps";
-		case ZQKEY_REGIONS: return "Regions";
+		case ZQKEY_MAPS: return "Map Settings";
 		case ZQKEY_DOOR_COMBO_SETS: return "Door Combo Sets";
 		case ZQKEY_PASTE_DOORS: return "Paste Doors";
 		case ZQKEY_ENDSTRING: return "End String";
@@ -411,7 +411,7 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_DEFAULT_COMBOS: return "ZQKEY_DEFAULT_COMBOS";
 		case ZQKEY_DELETE_MAP: return "ZQKEY_DELETE_MAP";
 		case ZQKEY_DMAPS: return "ZQKEY_DMAPS";
-		case ZQKEY_REGIONS: return "ZQKEY_REGIONS";
+		case ZQKEY_MAPS: return "ZQKEY_MAPS";
 		case ZQKEY_DOOR_COMBO_SETS: return "ZQKEY_DOOR_COMBO_SETS";
 		case ZQKEY_PASTE_DOORS: return "ZQKEY_PASTE_DOORS";
 		case ZQKEY_ENDSTRING: return "ZQKEY_ENDSTRING";
@@ -754,8 +754,8 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Clear the current Map";
 		case ZQKEY_DMAPS:
 			return "Open the DMap Editor";
-		case ZQKEY_REGIONS:
-			return "Open the Regions Editor";
+		case ZQKEY_MAPS:
+			return "Open the Map Settings Editor";
 		case ZQKEY_DOOR_COMBO_SETS:
 			return "Edit the quest's NES Door Combo Sets";
 		case ZQKEY_PASTE_DOORS:
@@ -1085,7 +1085,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_DEFAULT_COMBOS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_DELETE_MAP].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_DMAPS].setval(0, 0, 0, 0);
-	zq_hotkeys[ZQKEY_REGIONS].setval(0, 0, 0, 0);
+	zq_hotkeys[ZQKEY_MAPS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_DOOR_COMBO_SETS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_PASTE_DOORS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_ENDSTRING].setval(0, 0, 0, 0);
@@ -1181,6 +1181,9 @@ void default_hotkeys()
 void load_hotkeys()
 {
 	default_hotkeys();
+	map<string, string> upgrade_key_names = {
+		{ "ZQKEY_MAPS", "ZQKEY_MAPS" }
+	};
 	map<string, uint> keymap;
 	for(uint q = 1; q < ZQKEY_MAX; ++q)
 	{
@@ -1190,6 +1193,18 @@ void load_hotkeys()
 		int nv = zc_get_config("ZQ_HOTKEY",cfgname,v);
 		if(v != nv)
 			zq_hotkeys[q].setval(nv);
+	}
+	for (auto [oldname, newname] : upgrade_key_names)
+	{
+		auto it = keymap.find(newname);
+		if (it == keymap.end()) continue;
+		auto q = it->second;
+		int v = zq_hotkeys[q].getval();
+		int nv = zc_get_config("ZQ_HOTKEY",oldname.c_str(),v);
+		if(v != nv)
+			zq_hotkeys[q].setval(nv);
+		zc_set_config("ZQ_HOTKEY", oldname.c_str(), nullptr); // clear old config
+		zc_set_config("ZQ_HOTKEY", newname.c_str(), v); // and set the new one
 	}
 	for(int q = 0; q < MAXFAVORITECOMMANDS; ++q)
 	{
@@ -1533,8 +1548,8 @@ int run_hotkey(uint hkey)
 		case ZQKEY_DMAPS:
 			onDmaps();
 			break;
-		case ZQKEY_REGIONS:
-			onRegions();
+		case ZQKEY_MAPS:
+			onMaps();
 			break;
 		case ZQKEY_DOOR_COMBO_SETS:
 			onDoorCombos();

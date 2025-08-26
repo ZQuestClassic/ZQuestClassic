@@ -183,7 +183,7 @@ int32_t onRules2();
 int32_t onCheats();
 int32_t onStrings();
 int32_t onDmaps();
-int32_t onRegions();
+int32_t onMaps();
 int32_t onTiles();
 int32_t onCombos();
 int32_t onMidis();

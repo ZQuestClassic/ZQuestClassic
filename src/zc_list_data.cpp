@@ -751,7 +751,7 @@ GUI::ListData GUI::ZCListData::lpals()
 	for (int q = 0; q < 0x1FF; ++q)
 	{
 		sprintf(buf, "%.3X - %s", q, palnames[q]);
-		ls.add(buf, q + 1);
+		ls.add(buf, q);
 	}
 	return ls;
 }

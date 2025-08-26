@@ -370,12 +370,20 @@ bool get_all_region_descriptions(std::vector<region_description>& result, const 
 extern std::array<regions_data, MAXMAPS> Regions;
 // Every map screen (136 per map).
 extern std::vector<mapscr> TheMaps;
-extern std::vector<word>   map_autolayers;
 extern word map_count;
 
 int map_screen_index(int map, int screen);
 int screen_index_direction(int screen, direction dir);
 const mapscr* get_canonical_scr(int map, int screen);
 int map_scr_xy_to_index(int x, int y);
+
+struct map_info // misc data for entire maps
+{
+	word autolayers[6];
+	word autopalette;
+
+	bool operator==(map_info const& other) const = default;
+};
+extern std::vector<map_info> map_infos;
 
 #endif

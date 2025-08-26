@@ -431,16 +431,11 @@ void zmap::setCursor(MapCursor new_cursor)
 	if (cursor == new_cursor)
 		return;
 
-	optional<int> oldcolor;
-	if (screens)
-		oldcolor = getcolor();
+	if (!screens) Color = -1;
 
 	cursor = new_cursor;
 
-	int newcolor = getcolor();
-	loadlvlpal(newcolor);
-	if (!oldcolor || *oldcolor != newcolor)
-		rebuild_trans_table();
+	refresh_color();
 	
 	reset_combo_animations2();
 	mmap_mark_dirty();
@@ -585,9 +580,7 @@ bool zmap::isValid(int32_t map, int32_t scr)
 
 void zmap::setCurrMap(int32_t index)
 {
-	optional<int> oldcolor;
-	if(screens)
-		oldcolor = getcolor();
+	if (!screens) Color = -1;
 	scrpos[cursor.map] = cursor.screen;
 	scrview[cursor.map] = cursor.viewscr;
 	cursor.map = bound(index,0,map_count);
@@ -596,10 +589,7 @@ void zmap::setCurrMap(int32_t index)
 	cursor.viewscr = scrview[cursor.map];
 	cursor.setScreen(scrpos[cursor.map]);
 
-	int newcolor = getcolor();
-	loadlvlpal(newcolor);
-	if(!oldcolor || *oldcolor != newcolor)
-		rebuild_trans_table();
+	refresh_color();
 	
 	reset_combo_animations2();
 	mmap_mark_dirty();
@@ -615,20 +605,10 @@ void zmap::setCurrScr(int32_t scr)
     if (scr == cursor.screen)
 		return;
 
-    int32_t oldcolor=getcolor();
 	cursor.setScreen(scr);
-    if (!(screens[cursor.screen].valid&mVALID))
-    {
-        oldcolor=-1;
-    }
-
-    int32_t newcolor=getcolor();
-    loadlvlpal(newcolor);
-    if (newcolor!=oldcolor)
-    {
-        rebuild_trans_table();
-    }
-
+	
+	refresh_color();
+	
     reset_combo_animations2();
     setlayertarget();
     mmap_mark_dirty();
@@ -681,30 +661,36 @@ void zmap::setlayertarget()
     }
 }
 
-void zmap::setcolor(int color, mapscr* scr)
+void zmap::refresh_color()
 {
-	if (!scr) scr = CurrScr();
-	scr->valid |= mVALID;
-	scr->color = color;
-
-	if(Color!=color)
+	auto color = getcolor();
+	if (Color != color)
 	{
-		Color = color;
 		loadlvlpal(color);
 		rebuild_trans_table();
 	}
+}
+
+void zmap::setcolor(int color, mapscr* scr)
+{
+	if (!scr)
+		scr = CurrScr();
+	scr->valid |= mVALID;
+	scr->color = color;
+
+	refresh_color();
 
 	mmap_mark_dirty();
 }
 
 int32_t zmap::getcolor()
 {
-    if(prv_mode)
-    {
-        return prvscr.color;
-    }
-    
-    return screens[cursor.screen].color;
+	mapscr& scr = prv_mode ? prvscr : screens[cursor.screen];
+	
+	if (scr.valid & mVALID)
+		return scr.color;
+	
+	return map_infos[cursor.map].autopalette;
 }
 
 void zmap::resetflags()
@@ -825,12 +811,16 @@ void zmap::clearscr(int32_t scr)
 {
     screens[scr].zero_memory();
     screens[scr].valid=mVERSION;
+	auto const& mapinf = map_infos[cursor.map];
 	for(int q = 0; q < 6; ++q)
 	{
-		auto layer = map_autolayers[cursor.map*6+q];
+		auto layer = mapinf.autolayers[q];
 		screens[scr].layermap[q] = layer;
 		screens[scr].layerscreen[q] = layer ? scr : 0;
 	}
+	screens[scr].color = mapinf.autopalette;
+	if (scr == cursor.screen)
+		refresh_color();
 	mmap_mark_dirty();
 }
 
@@ -4764,8 +4754,6 @@ void zmap::Paste(const mapscr& copymapscr, int screen)
 {
     if(can_paste)
     {
-        int32_t oldcolor=getcolor();
-        
         if(!(screens[screen].valid&mVALID))
         {
             screens[screen].valid |= mVALID;
@@ -4786,13 +4774,7 @@ void zmap::Paste(const mapscr& copymapscr, int screen)
             screens[screen].sflag[i] = copymapscr.sflag[i];
         }
         
-        int32_t newcolor=getcolor();
-        loadlvlpal(newcolor);
-        
-        if(newcolor!=oldcolor)
-        {
-            rebuild_trans_table();
-        }
+        refresh_color();
         
         saved=false;
     }
@@ -4976,17 +4958,9 @@ void zmap::PastePalette(const mapscr& copymapscr, int screen)
 {
     if(can_paste)
     {
-        int32_t oldcolor=getcolor();
         screens[screen].color = copymapscr.color;
-        int32_t newcolor=getcolor();
-        loadlvlpal(newcolor);
-        
         screens[screen].valid|=mVALID;
-        
-        if(newcolor!=oldcolor)
-        {
-            rebuild_trans_table();
-        }
+		refresh_color();
         
         saved=false;
     }
@@ -4996,20 +4970,12 @@ void zmap::PasteAll(const mapscr& copymapscr, int screen)
 {
     if(can_paste)
     {
-        int32_t oldcolor=getcolor();
         copy_mapscr(&screens[screen], &copymapscr);
 		zinit.screen_data[cursor.map*MAPSCRS+cursor.screen] = copyscrdata;
-        //screens[screen]=copymapscr;
-        int32_t newcolor=getcolor();
-        loadlvlpal(newcolor);
-        
         screens[screen].valid|=mVALID;
         
-        if(newcolor!=oldcolor)
-        {
-            rebuild_trans_table();
-        }
-        
+		refresh_color();
+		
         saved=false;
     }
 }
@@ -5019,8 +4985,6 @@ void zmap::PasteToAll(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        int32_t oldcolor=getcolor();
-        
         for(int32_t x=0; x<128; x++)
         {
             if(!(screens[x].valid&mVALID))
@@ -5037,18 +5001,7 @@ void zmap::PasteToAll(const mapscr& copymapscr)
             }
         }
         
-        int32_t newcolor=getcolor();
-        loadlvlpal(newcolor);
-        
-        if(!(screens[cursor.screen].valid&mVALID))
-        {
-            newcolor=-1;
-        }
-        
-        if(newcolor!=oldcolor)
-        {
-            rebuild_trans_table();
-        }
+        refresh_color();
         
         saved=false;
     }
@@ -5058,8 +5011,6 @@ void zmap::PasteAllToAll(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        int32_t oldcolor=getcolor();
-        
         for(int32_t x=0; x<128; x++)
         {
             copy_mapscr(&screens[x], &copymapscr);
@@ -5067,19 +5018,8 @@ void zmap::PasteAllToAll(const mapscr& copymapscr)
             //screens[x]=copymapscr;
         }
         
-        int32_t newcolor=getcolor();
-        loadlvlpal(newcolor);
-        
-        if(!(screens[cursor.screen].valid&mVALID))
-        {
-            newcolor=-1;
-        }
-        
-        if(newcolor!=oldcolor)
-        {
-            rebuild_trans_table();
-        }
-        
+        refresh_color();
+		
         saved=false;
     }
 }
@@ -5531,8 +5471,7 @@ void zmap::prv_dowarp(int32_t type, int32_t index)
             //setCurrMap(DMaps[dmap].map);
             //setCurrScr(scr+DMaps[dmap].xoff);
             set_prvscr(DMaps[dmap].map,scr+DMaps[dmap].xoff);
-            loadlvlpal(getcolor());
-            rebuild_trans_table();
+            refresh_color();
             //prv_cmbcycle=0;
             break;
         }
@@ -5552,8 +5491,7 @@ void zmap::prv_dowarp(int32_t type, int32_t index)
             //setCurrMap(DMaps[dmap].map);
             //setCurrScr(scr+DMaps[dmap].xoff);
             set_prvscr(DMaps[dmap].map,scr+DMaps[dmap].xoff);
-            loadlvlpal(getcolor());
-            rebuild_trans_table();
+            refresh_color();
             //prv_cmbcycle=0;
             break;
         }
@@ -6315,7 +6253,7 @@ bool setMapCount2(int32_t c)
     {
         TheMaps.resize(c*MAPSCRS);
 		Map.force_refr_pointer();
-		map_autolayers.resize(c*6);
+		map_infos.resize(c);
     }
     catch(...)
     {
@@ -6328,12 +6266,12 @@ bool setMapCount2(int32_t c)
     {
         for(int32_t mc=oldmapcount; mc<map_count; mc++)
         {
+			// copy the default palette to the new maps
+			map_infos[mc].autopalette = map_infos[cur_map].autopalette;
+			
             Map.setCurrMap(mc);
-            
             for(int32_t ms=0; ms<MAPSCRS; ms++)
-            {
                 Map.clearscr(ms);
-            }
         }
         Map.setCurrMap(cur_map);
     }
@@ -9458,7 +9396,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 		{
 			new_return(5);
 		}
-		map_autolayers.resize(map_count*6);
+		map_infos.resize(map_count);
 		for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
 		{
 			byte valid = 0;
@@ -9480,12 +9418,15 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 			if(!valid) continue;
 			
 			{ //per-map info
+				auto const& mapinf = map_infos[i];
 				for(int q = 0; q < 6; ++q)
 				{
-					size_t ind = i*6+q;
-					if(!p_iputw(map_autolayers[ind],f))
+					if(!p_iputw(mapinf.autolayers[q],f))
 						new_return(7);
 				}
+				if(!p_iputw(mapinf.autopalette,f))
+					new_return(9);
+				
 
 				for(int32_t j=0; j<8; j++)
 				{

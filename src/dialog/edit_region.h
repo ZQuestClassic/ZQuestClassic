@@ -19,14 +19,14 @@
 #include <gui/list_data.h>
 #include "base/mapscr.h"
 
-void call_edit_region_dialog(int32_t slot);
+void call_edit_map_settings(int32_t slot);
 
-class EditRegionDialog : public GUI::Dialog<EditRegionDialog>
+class EditMapSettingsDialog : public GUI::Dialog<EditMapSettingsDialog>
 {
 public:
-	enum class message { OK, CANCEL, QRS };
+	enum class message { OK, CANCEL, QRS, REFR_INFO };
 
-	EditRegionDialog(int32_t slot);
+	EditMapSettingsDialog(int32_t slot);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -39,8 +39,14 @@ private:
 	std::shared_ptr<GUI::Checkbox> region_checks[10];
 
 	int32_t mapslot;
+	bool region_valid;
+	map_info local_info;
+	word autolayers[6];
+	word palette;
 	regions_data* the_regions_data;
 	regions_data local_regions_data;
+	
+	GUI::ListData list_lpals;
 };
 
 #endif

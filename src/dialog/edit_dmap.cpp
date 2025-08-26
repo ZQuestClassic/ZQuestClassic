@@ -487,10 +487,10 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 						Label(text = "Level Palette:"),
 						DropDownList(data = list_lpals,
 							fitParent = true,
-							selectedValue = local_dmap.color + 1,
+							selectedValue = local_dmap.color,
 							onSelectFunc = [&](int32_t val)
 							{
-								local_dmap.color = val - 1;
+								local_dmap.color = val;
 							})
 					),
 					string_switch = Switcher(

@@ -1276,7 +1276,7 @@ int32_t get_qst_buffers()
 {
     TheMaps.resize(MAPSCRS);
 	old_combo_pages.resize(MAPSCRS);
-	map_autolayers.resize(6);
+	map_infos.resize(1);
 
     Z_message("OK\n");
     
@@ -16949,16 +16949,18 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		{
 			int map = scrind/MAPSCRS;
 			int screen = scrind%MAPSCRS;
-			if(version > 25 && scrind > -1 && (map*6+5) < map_autolayers.size())
+			if(version > 25 && scrind > -1 && map < map_infos.size())
 			{
-				//Empty screen, apply autolayers
+				auto const& mapinf = map_infos[map];
+				//Empty screen, apply defaults
 				for(int q = 0; q < 6; ++q)
 				{
-					auto layermap = map_autolayers[map*6+q];
+					auto layermap = mapinf.autolayers[q];
 					temp_mapscr->layermap[q] = layermap;
 					if(layermap)
 						temp_mapscr->layerscreen[q] = screen;
 				}
+				temp_mapscr->color = mapinf.autopalette;
 			}
 			return 0;
 		}
@@ -17475,8 +17477,8 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		TheMaps.resize(_mapsSize);
 		old_combo_pages.clear();
 		old_combo_pages.resize(_mapsSize);
-		map_autolayers.clear();
-		map_autolayers.resize(temp_map_count*6);
+		map_infos.clear();
+		map_infos.resize(temp_map_count);
 		if(version >= 31)
 			Regions = {};
 	}
@@ -17493,11 +17495,15 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		{
 			if (version > 25)
 			{
+				auto& mapinf = map_infos[i];
 				for(int q = 0; q < 6; ++q)
 				{
-					if(!p_igetw(&map_autolayers[i*6+q],f))
+					if(!p_igetw(&mapinf.autolayers[q],f))
 						return qe_invalid;
 				}
+				if (version >= 36)
+					if(!p_igetw(&mapinf.autopalette,f))
+						return qe_invalid;
 			}
 
 			if (version >= 31)
@@ -22800,8 +22806,8 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		TheMaps.clear();
 		TheMaps.resize(MAPSCRS*1);
 		map_count = 1;
-		map_autolayers.clear();
-		map_autolayers.resize(6*1);
+		map_infos.clear();
+		map_infos.resize(1);
 	}
 
 	if(loading_tileset_flags & TILESET_CLEARHEADER)

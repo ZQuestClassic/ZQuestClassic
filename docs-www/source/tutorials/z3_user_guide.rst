@@ -8,7 +8,7 @@ This is written for experienced users of ZC, and describes the major changes rel
 Regions
 -------
 
-Regions consist of a subset of the screens of a map (not a DMap). A map can contain multiple regions. They are defined in the ``Quest > Regions`` editor. The positive numbers in the grid denote a region ID - neighboring screens with the same region ID are considered to be the same Region. Region IDs have no particular meaning, and can be re-used within the same map (as long as they are not touching a region of the same ID, they make up distinct regions).
+Regions consist of a subset of the screens of a map (not a DMap). A map can contain multiple regions. They are defined in the ``Quest > Map Settings`` editor. The positive numbers in the grid denote a region ID - neighboring screens with the same region ID are considered to be the same Region. Region IDs have no particular meaning, and can be re-used within the same map (as long as they are not touching a region of the same ID, they make up distinct regions).
 
 Note: current limitations require that regions must be rectangular with no holes.
 

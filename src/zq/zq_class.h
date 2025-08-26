@@ -386,7 +386,8 @@ public:
 	void setViewSize(int32_t size);
 	int32_t getViewSize();
     void setlayertarget();
-    void setcolor(int color, mapscr* scr = nullptr);
+    void refresh_color();
+	void setcolor(int color, mapscr* scr = nullptr);
     int32_t getcolor();
     void resetflags();
     word tcmbdat(int32_t pos);
