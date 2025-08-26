@@ -4735,8 +4735,8 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//LWeapon Variables
 		case LWPNSPECIAL:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((int32_t)((weapon*)(s))->specialinfo)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=((int32_t)s->specialinfo)*10000;
 			
 				
 			break;
@@ -4747,20 +4747,20 @@ int32_t get_register(int32_t arg)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((int32_t)((weapon*)(s))->scale)*100.0;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=((int32_t)s->scale)*100.0;
 				
 			break;
 		
 		case LWPNX:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((weapon*)(s))->x).getZLong();  
+					ret=(s->x).getZLong();  
 				}
 				else 
-					ret=((int32_t)((weapon*)(s))->x)*10000;
+					ret=((int32_t)s->x)*10000;
 			}
 				
 			break;
@@ -4773,115 +4773,115 @@ int32_t get_register(int32_t arg)
 		}
 	
 		case LWPNY:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((weapon*)(s))->y).getZLong();  
+					ret=(s->y).getZLong();  
 				}
 				else 
-					ret=((int32_t)((weapon*)(s))->y)*10000;
+					ret=((int32_t)s->y)*10000;
 			}
 			break;
 			
 		case LWPNZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((weapon*)(s))->z).getZLong();  
+					ret=(s->z).getZLong();  
 				}
 				else 
-					ret=((int32_t)((weapon*)(s))->z)*10000;
+					ret=((int32_t)s->z)*10000;
 			}
 				
 			break;
 			
 		case LWPNJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->fall.getZLong() / -100;
+				ret = s->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
 		
 		case LWPNFAKEJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
+				ret = s->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
 			
 		case LWPNDIR:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->dir*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->dir*10000;
 				
 			break;
 		 
 		case LWPNGRAVITY:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret= (((weapon*)(s))->moveflags & move_obeys_grav) ? 10000 : 0;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret= (s->moveflags & move_obeys_grav) ? 10000 : 0;
 				
 			break;
 			
 		case LWPNSTEP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
-					ret=((weapon*)s)->step.getZLong() * 100;
+					ret=s->step.getZLong() * 100;
 				}
 				//old, buggy code replication, round two: Go! -Z
-				//else ret = ( ( ( ((weapon*)s)->step ) * 100.0 ).getZLong() );
+				//else ret = ( ( ( s->step ) * 100.0 ).getZLong() );
 				
 				//else 
 				//{
 					//old, buggy code replication, round THREE: Go! -Z
-				//	double tmp = ( ((weapon*)s)->step.getFloat() ) * 1000000.0;
+				//	double tmp = ( s->step.getFloat() ) * 1000000.0;
 				//	ret = (int32_t)tmp;
 				//}
 				
 				//old, buggy code replication, round FOUR: Go! -Z
-				else ret = (int32_t)((float)((weapon*)s)->step * 1000000.0);
+				else ret = (int32_t)((float)s->step * 1000000.0);
 			}
 			break;
 			
 		case LWPNANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(int32_t)(((weapon*)(s))->angle*10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(int32_t)(s->angle*10000);
 				
 			break;
 		
 		case LWPNDEGANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret=(int32_t)(((weapon*)(s))->angle*(180.0 / PI)*10000);
+				ret=(int32_t)(s->angle*(180.0 / PI)*10000);
 			}
 				
 			break;
 			
 		case LWPNVX:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				if (((weapon*)(s))->angular)
-					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+				if (s->angular)
+					ret = int32_t(zc::math::Cos(s->angle)*10000.0*s->step);
 				else
 				{
-					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					switch(NORMAL_DIR(s->dir))
 					{
 						case l_up:
 						case l_down:
 						case left:
-							ret = int32_t(-10000.0*((weapon*)s)->step);
+							ret = int32_t(-10000.0*s->step);
 							break;
 							
 						case r_down:
 						case r_up:
 						case right:
-							ret = int32_t(10000.0*((weapon*)s)->step);
+							ret = int32_t(10000.0*s->step);
 							break;
 						
 						default:
@@ -4894,23 +4894,23 @@ int32_t get_register(int32_t arg)
 			break;
 		
 		case LWPNVY:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				if (((weapon*)(s))->angular)
-					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+				if (s->angular)
+					ret = int32_t(zc::math::Sin(s->angle)*10000.0*s->step);
 				else
 				{
-					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					switch(NORMAL_DIR(s->dir))
 					{
 						case l_up:
 						case r_up:
 						case up:
-							ret = int32_t(-10000.0*((weapon*)s)->step);
+							ret = int32_t(-10000.0*s->step);
 							break;
 						case l_down:
 						case r_down:
 						case down:
-							ret = int32_t(10000.0*((weapon*)s)->step);
+							ret = int32_t(10000.0*s->step);
 							break;
 							
 						default:
@@ -4923,110 +4923,110 @@ int32_t get_register(int32_t arg)
 			break;
 				
 		case LWPNANGULAR:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->angular*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->angular*10000;
 				
 			break;
 			
 		case LWPNAUTOROTATE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->autorotate*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->autorotate*10000;
 				
 			break;
 			
 		case LWPNBEHIND:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->behind*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->behind*10000;
 				
 			break;
 			
 		case LWPNDRAWTYPE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->drawstyle*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->drawstyle*10000;
 				
 			break;
 			
 		case LWPNPOWER:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->power*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->power*10000;
 				
 			break;
 		/*
 		case LWPNRANGE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->scriptrange*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->scriptrange*10000;
 				
 			break;
 		*/        
 		case LWPNDEAD:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->dead*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->dead*10000;
 				
 			break;
 			
 		case LWPNTYPE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->id*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->id*10000;
 				
 			break;
 			
 		case LWPNTILE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->tile*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->tile*10000;
 				
 			break;
 		
 		case LWPNSCRIPTTILE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->scripttile*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->scripttile*10000;
 				
 			break;
 		
 		case LWPNSCRIPTFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->scriptflip*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->scriptflip*10000;
 				
 			break;
 			
 		case LWPNCSET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->cs*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->cs*10000;
 				
 			break;
 			
 		case LWPNFLASHCSET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->o_cset>>4)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->o_cset>>4)*10000;
 				
 			break;
 			
 		case LWPNFRAMES:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->frames*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->frames*10000;
 				
 			break;
 			
 		case LWPNFRAME:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->aframe*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->aframe*10000;
 				
 			break;
 			
 		case LWPNASPEED:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->o_speed*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->o_speed*10000;
 				
 			break;
 			
 		case LWPNFLASH:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->flash*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->flash*10000;
 				
 			break;
 			
 		case LWPNFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->flip*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->flip*10000;
 				
 			break;
 			
@@ -5035,147 +5035,147 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case LWPNEXTEND:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->extend*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->extend*10000;
 				
 			break;
 			
 		case LWPNOTILE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->o_tile*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->o_tile*10000;
 				
 			break;
 			
 		case LWPNOCSET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->o_cset&15)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->o_cset&15)*10000;
 				
 			break;
 			
 		case LWPNHXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->hxofs)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->hxofs)*10000;
 				
 			break;
 			
 		case LWPNHYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->hyofs)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->hyofs)*10000;
 				
 			break;
 			
 		case LWPNXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((int32_t)(((weapon*)(s))->xofs))*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=((int32_t)(s->xofs))*10000;
 				
 			break;
 			
 		case LWPNYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=((int32_t)(s->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 			
 		case LWPNSHADOWXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((int32_t)(((weapon*)(s))->shadowxofs))*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=((int32_t)(s->shadowxofs))*10000;
 				
 			break;
 			
 		case LWPNSHADOWYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((int32_t)(((weapon*)(s))->shadowyofs))*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=((int32_t)(s->shadowyofs))*10000;
 				
 			break;
 			
 		case LWPNTOTALDYOFFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret = ((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
-					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
+			if(auto s=checkLWpn(ri->lwpn))
+				ret = ((int32_t)(s->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
+					+ ((s->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000;
 			break;
 			
 		case LWPNZOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((int32_t)(((weapon*)(s))->zofs))*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=((int32_t)(s->zofs))*10000;
 				
 			break;
 			
 		case LWPNHXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->hit_width)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->hit_width)*10000;
 				
 			break;
 			
 		case LWPNHYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->hit_height)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->hit_height)*10000;
 				
 			break;
 			
 		case LWPNHZSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->hzsz)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->hzsz)*10000;
 				
 			break;
 			
 		case LWPNTXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->txsz)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->txsz)*10000;
 				
 			break;
 			
 		case LWPNTYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->tysz)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->tysz)*10000;
 				
 			break;
 			
 		case LWPNCOLLDET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->scriptcoldet)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->scriptcoldet)*10000;
 				
 			break;
 		
 		case LWPNENGINEANIMATE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->do_animation)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->do_animation)*10000;
 				
 			break;
 		
 		case LWPNPARENT:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->parentitem)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->parentitem)*10000;
 				
 			break;
 
 		case LWPNLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->level)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->level)*10000;
 				
 			break;
 		
 		case LWPNSCRIPT:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->script)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->script)*10000;
 				
 			break;
 		
 		case LWPNUSEWEAPON:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->useweapon)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->useweapon)*10000;
 				
 			break;
 		
 		case LWPNUSEDEFENCE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->usedefense)*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->usedefense)*10000;
 				
 			break;
 		
 		case LWEAPONSCRIPTUID:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=(((weapon*)(s))->getUID());
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=(s->getUID());
 				
 			break;
 
@@ -5185,136 +5185,136 @@ int32_t get_register(int32_t arg)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				ret=((weapon*)(s))->rotation*10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				ret=s->rotation*10000;
 				
 			break;
 		
 		case LWPNFALLCLK:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->fallclk * 10000;
+				ret = s->fallclk * 10000;
 			}
 			break;
 		
 		case LWPNFALLCMB:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->fallCombo * 10000;
+				ret = s->fallCombo * 10000;
 			}
 			break;
 		
 		case LWPNDROWNCLK:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->drownclk * 10000;
+				ret = s->drownclk * 10000;
 			}
 			break;
 		
 		case LWPNDROWNCMB:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->drownCombo * 10000;
+				ret = s->drownCombo * 10000;
 			}
 			break;
 			
 		case LWPNFAKEZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((weapon*)(s))->fakez).getZLong();  
+					ret=(s->fakez).getZLong();  
 				}
 				else 
-					ret=((int32_t)((weapon*)(s))->fakez)*10000;
+					ret=((int32_t)s->fakez)*10000;
 			}
 			break;
 
 		case LWPNGLOWRAD:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->glowRad * 10000;
+				ret = s->glowRad * 10000;
 			}
 			break;
 			
 		case LWPNGLOWSHP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->glowShape * 10000;
+				ret = s->glowShape * 10000;
 			}
 			break;
 			
 		case LWPNUNBL:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->unblockable * 10000;
+				ret = s->unblockable * 10000;
 			}
 			break;
 			
 		case LWPNSHADOWSPR:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->spr_shadow * 10000;
+				ret = s->spr_shadow * 10000;
 			}
 			break;
 		case LWSWHOOKED:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case LWPNTIMEOUT:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->weap_timeout * 10000;
+				ret = s->weap_timeout * 10000;
 			}
 			break;
 		case LWPNDEATHITEM:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->death_spawnitem * 10000;
+				ret = s->death_spawnitem * 10000;
 			}
 			break;
 		case LWPNDEATHDROPSET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->death_spawndropset * 10000;
+				ret = s->death_spawndropset * 10000;
 			}
 			break;
 		case LWPNDEATHIPICKUP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->death_item_pflags * 10000;
+				ret = s->death_item_pflags * 10000;
 			}
 			break;
 		case LWPNDEATHSPRITE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->death_sprite * 10000;
+				ret = s->death_sprite * 10000;
 			}
 			break;
 		case LWPNDEATHSFX:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->death_sfx * 10000;
+				ret = s->death_sfx * 10000;
 			}
 			break;
 		case LWPNLIFTLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->lift_level * 10000;
+				ret = s->lift_level * 10000;
 			}
 			break;
 		case LWPNLIFTTIME:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->lift_time * 10000;
+				ret = s->lift_time * 10000;
 			}
 			break;
 		case LWPNLIFTHEIGHT:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				ret = ((weapon*)(s))->lift_height.getZLong();
+				ret = s->lift_height.getZLong();
 			}
 			break;
 			
@@ -5326,20 +5326,20 @@ int32_t get_register(int32_t arg)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((int32_t)((weapon*)(s))->scale)*100.0;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=((int32_t)s->scale)*100.0;
 				
 			break;
 
 		case EWPNX:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((weapon*)(s))->x).getZLong();
+					ret=(s->x).getZLong();
 				}
 				else 
-					ret=((int32_t)((weapon*)(s))->x)*10000;
+					ret=((int32_t)s->x)*10000;
 			}
 			break;
 			
@@ -5351,117 +5351,117 @@ int32_t get_register(int32_t arg)
 		}
 	
 		case EWPNY:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((weapon*)(s))->y).getZLong();
+					ret=(s->y).getZLong();
 				}
 				else 
-					 ret=((int32_t)((weapon*)(s))->y)*10000;
+					 ret=((int32_t)s->y)*10000;
 			}
 			break;
 			
 		case EWPNZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((weapon*)(s))->z).getZLong();
+					ret=(s->z).getZLong();
 				}
 				else 
-					ret=((int32_t)((weapon*)(s))->z)*10000;
+					ret=((int32_t)s->z)*10000;
 			}
 			break;
 			
 		case EWPNJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->fall.getZLong() / -100;
+				ret = s->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
 		
 		case EWPNFAKEJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
+				ret = s->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
 			
 		case EWPNDIR:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->dir*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->dir*10000;
 				
 			break;
 			
 		case EWPNLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->level*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->level*10000;
 				
 			break;
 			
 		case EWPNGRAVITY:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((((weapon*)(s))->moveflags & move_obeys_grav) ? 10000 : 0);
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=((s->moveflags & move_obeys_grav) ? 10000 : 0);
 				
 			break;
 			
 		case EWPNSTEP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
-					ret=((weapon*)s)->step.getZLong() * 100;
+					ret=s->step.getZLong() * 100;
 				}
 				//old, buggy code replication, round two: Go! -Z
-				//else ret = ( ( ( ((weapon*)s)->step ) * 100.0 ).getZLong() );
+				//else ret = ( ( ( s->step ) * 100.0 ).getZLong() );
 				//old, buggy code replication, round FOUR: Go! -Z
-				else ret = (int32_t)((float)((weapon*)s)->step * 1000000.0);
+				else ret = (int32_t)((float)s->step * 1000000.0);
 			}
 			//else 
 			//{
 				//old, buggy code replication, round THREE: Go! -Z
-			//	double tmp = ( ((weapon*)s)->step.getFloat() ) * 1000000.0;
+			//	double tmp = ( s->step.getFloat() ) * 1000000.0;
 			//	ret = int32_t(tmp);
 			//}
 			break;
 			
 		case EWPNANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(int32_t)(((weapon*)(s))->angle*10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(int32_t)(s->angle*10000);
 				
 			break;
 			
 		case EWPNDEGANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret=(int32_t)(((weapon*)(s))->angle*(180.0 / PI)*10000);
+				ret=(int32_t)(s->angle*(180.0 / PI)*10000);
 			}
 				
 			break;
 			
 		case EWPNVX:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				if (((weapon*)(s))->angular)
-					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+				if (s->angular)
+					ret = int32_t(zc::math::Cos(s->angle)*10000.0*s->step);
 				else
 				{
-					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					switch(NORMAL_DIR(s->dir))
 					{
 						case l_up:
 						case l_down:
 						case left:
-							ret = int32_t(-10000.0*((weapon*)s)->step);
+							ret = int32_t(-10000.0*s->step);
 							break;
 						case r_up:
 						case r_down:
 						case right:
-							ret = int32_t(10000.0*((weapon*)s)->step);
+							ret = int32_t(10000.0*s->step);
 							break;
 							
 						default:
@@ -5474,23 +5474,23 @@ int32_t get_register(int32_t arg)
 			break;
 		
 		case EWPNVY:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				if (((weapon*)(s))->angular)
-					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+				if (s->angular)
+					ret = int32_t(zc::math::Sin(s->angle)*10000.0*s->step);
 				else
 				{
-					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					switch(NORMAL_DIR(s->dir))
 					{
 						case l_up:
 						case r_up:
 						case up:
-							ret = int32_t(-10000.0*((weapon*)s)->step);
+							ret = int32_t(-10000.0*s->step);
 							break;
 						case l_down:
 						case r_down:
 						case down:
-							ret = int32_t(10000.0*((weapon*)s)->step);
+							ret = int32_t(10000.0*s->step);
 							break;
 							
 						default:
@@ -5504,104 +5504,104 @@ int32_t get_register(int32_t arg)
 			
 			
 		case EWPNANGULAR:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->angular*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->angular*10000;
 				
 			break;
 			
 		case EWPNAUTOROTATE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->autorotate*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->autorotate*10000;
 				
 			break;
 			
 		case EWPNBEHIND:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->behind*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->behind*10000;
 				
 			break;
 			
 		case EWPNDRAWTYPE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->drawstyle*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->drawstyle*10000;
 				
 			break;
 			
 		case EWPNPOWER:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->power*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->power*10000;
 				
 			break;
 			
 		case EWPNDEAD:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->dead*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->dead*10000;
 				
 			break;
 			
 		case EWPNTYPE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->id*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->id*10000;
 				
 			break;
 			
 		case EWPNTILE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->tile*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->tile*10000;
 				
 			break;
 		
 		case EWPNSCRIPTTILE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->scripttile*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->scripttile*10000;
 				
 			break;
 		
 		case EWPNSCRIPTFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->scriptflip*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->scriptflip*10000;
 				
 			break;
 			
 		case EWPNCSET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->cs*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->cs*10000;
 				
 			break;
 			
 		case EWPNFLASHCSET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->o_cset>>4)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->o_cset>>4)*10000;
 				
 			break;
 			
 		case EWPNFRAMES:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->frames*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->frames*10000;
 				
 			break;
 			
 		case EWPNFRAME:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->aframe*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->aframe*10000;
 				
 			break;
 			
 		case EWPNASPEED:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->o_speed*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->o_speed*10000;
 				
 			break;
 			
 		case EWPNFLASH:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->flash*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->flash*10000;
 				
 			break;
 			
 		case EWPNFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->flip*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->flip*10000;
 				
 			break;
 
@@ -5611,8 +5611,8 @@ int32_t get_register(int32_t arg)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'");
 				break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->rotation*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->rotation*10000;
 				
 			break;
 
@@ -5621,261 +5621,261 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case EWPNEXTEND:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->extend*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->extend*10000;
 				
 			break;
 			
 		case EWPNOTILE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((weapon*)(s))->o_tile*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=s->o_tile*10000;
 				
 			break;
 			
 		case EWPNOCSET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->o_cset&15)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->o_cset&15)*10000;
 				
 			break;
 			
 		case EWPNHXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->hxofs)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->hxofs)*10000;
 				
 			break;
 			
 		case EWPNHYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->hyofs)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->hyofs)*10000;
 				
 			break;
 			
 		case EWPNXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((int32_t)(((weapon*)(s))->xofs))*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=((int32_t)(s->xofs))*10000;
 				
 			break;
 			
 		case EWPNYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=((int32_t)(s->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 			
 		case EWPNSHADOWXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((int32_t)(((weapon*)(s))->shadowxofs))*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=((int32_t)(s->shadowxofs))*10000;
 				
 			break;
 			
 		case EWPNSHADOWYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((int32_t)(((weapon*)(s))->shadowyofs))*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=((int32_t)(s->shadowyofs))*10000;
 				
 			break;
 		case EWPNTOTALDYOFFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret = ((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
-					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
+			if(auto s=checkEWpn(ri->ewpn))
+				ret = ((int32_t)(s->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
+					+ ((s->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0) * 10000);
 			break;
 			
 		case EWPNZOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=((int32_t)(((weapon*)(s))->zofs))*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=((int32_t)(s->zofs))*10000;
 				
 			break;
 			
 		case EWPNHXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->hit_width)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->hit_width)*10000;
 				
 			break;
 			
 		case EWPNHYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->hit_height)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->hit_height)*10000;
 				
 			break;
 			
 		case EWPNHZSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->hzsz)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->hzsz)*10000;
 				
 			break;
 			
 		case EWPNTXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->txsz)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->txsz)*10000;
 				
 			break;
 			
 		case EWPNTYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->tysz)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->tysz)*10000;
 				
 			break;
 			
 		case EWPNCOLLDET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->scriptcoldet)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->scriptcoldet)*10000;
 				
 			break;
 		
 		case EWPNENGINEANIMATE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->do_animation)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->do_animation)*10000;
 				
 			break;
 		
 		case EWPNPARENT:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret= ((get_qr(qr_OLDEWPNPARENT)) ? (((weapon*)(s))->parentid)*10000 : (((weapon*)(s))->parentid));
+			if(auto s=checkEWpn(ri->ewpn))
+				ret= ((get_qr(qr_OLDEWPNPARENT)) ? (s->parentid)*10000 : (s->parentid));
 		
 			break;
 		
 		case EWEAPONSCRIPTUID:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->getUID());
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->getUID());
 				
 			break;
 		
 		case EWPNPARENTUID:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 				ret = s->parent ? s->parent->getUID() : 0;
 				
 			break;
 		
 		case EWPNSCRIPT:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				ret=(((weapon*)(s))->script)*10000;
+			if(auto s=checkEWpn(ri->ewpn))
+				ret=(s->script)*10000;
 				
 			break;
 		
 		case EWPNFALLCLK:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->fallclk * 10000;
+				ret = s->fallclk * 10000;
 			}
 			break;
 		
 		case EWPNFALLCMB:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->fallCombo * 10000;
+				ret = s->fallCombo * 10000;
 			}
 			break;
 		
 		case EWPNDROWNCLK:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->drownclk * 10000;
+				ret = s->drownclk * 10000;
 			}
 			break;
 		
 		case EWPNDROWNCMB:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->drownCombo * 10000;
+				ret = s->drownCombo * 10000;
 			}
 			break;
 		case EWPNFAKEZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((weapon*)(s))->fakez).getZLong();
+					ret=(s->fakez).getZLong();
 				}
 				else 
-					ret=((int32_t)((weapon*)(s))->fakez)*10000;
+					ret=((int32_t)s->fakez)*10000;
 			}
 			break;
 		
 		case EWPNGLOWRAD:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->glowRad * 10000;
+				ret = s->glowRad * 10000;
 			}
 			break;
 			
 		case EWPNGLOWSHP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->glowShape * 10000;
+				ret = s->glowShape * 10000;
 			}
 			break;
 			
 		case EWPNUNBL:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->unblockable * 10000;
+				ret = s->unblockable * 10000;
 			}
 			break;
 			
 		case EWPNSHADOWSPR:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->spr_shadow * 10000;
+				ret = s->spr_shadow * 10000;
 			}
 			break;
 		case EWSWHOOKED:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case EWPNTIMEOUT:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->weap_timeout * 10000;
+				ret = s->weap_timeout * 10000;
 			}
 			break;
 		case EWPNDEATHITEM:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->death_spawnitem * 10000;
+				ret = s->death_spawnitem * 10000;
 			}
 			break;
 		case EWPNDEATHDROPSET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->death_spawndropset * 10000;
+				ret = s->death_spawndropset * 10000;
 			}
 			break;
 		case EWPNDEATHIPICKUP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->death_item_pflags * 10000;
+				ret = s->death_item_pflags * 10000;
 			}
 			break;
 		case EWPNDEATHSPRITE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->death_sprite * 10000;
+				ret = s->death_sprite * 10000;
 			}
 			break;
 		case EWPNDEATHSFX:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->death_sfx * 10000;
+				ret = s->death_sfx * 10000;
 			}
 			break;
 		case EWPNLIFTLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->lift_level * 10000;
+				ret = s->lift_level * 10000;
 			}
 			break;
 		case EWPNLIFTTIME:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->lift_time * 10000;
+				ret = s->lift_time * 10000;
 			}
 			break;
 		case EWPNLIFTHEIGHT:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				ret = ((weapon*)(s))->lift_height.getZLong();
+				ret = s->lift_height.getZLong();
 			}
 			break;
 		
@@ -12630,14 +12630,14 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->scale=(zfix)(value/100.0);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->scale=(zfix)(value/100.0);
 				
 			break;
 		
 		case LWPNX:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->x=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->x=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 			break;
 		
 		case SPRITEMAXLWPN:
@@ -12648,59 +12648,59 @@ void set_register(int32_t arg, int32_t value)
 		}
 			
 		case LWPNY:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->y=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->y=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 			break;
 			
 		case LWPNZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				if(((weapon*)s)->z < 0) ((weapon*)s)->z = 0_zf;
+				s->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				if(s->z < 0) s->z = 0_zf;
 			}
 				
 			break;
 			
 		case LWPNJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->fall=zslongToFix(value)*-100;
+			if(auto s=checkLWpn(ri->lwpn))
+				s->fall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case LWPNFAKEJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->fakefall=zslongToFix(value)*-100;
+			if(auto s=checkLWpn(ri->lwpn))
+				s->fakefall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case LWPNDIR:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)s)->dir=(value/10000);
-				((weapon*)s)->doAutoRotate(true);
+				s->dir=(value/10000);
+				s->doAutoRotate(true);
 			}
 				
 			break;
 			
 		case LWPNSPECIAL:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->specialinfo=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->specialinfo=(value/10000);
 				
 			break;
 		 
 		case LWPNGRAVITY:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				if(value)
-					((weapon*)s)->moveflags |= move_obeys_grav;
+					s->moveflags |= move_obeys_grav;
 				else
-					((weapon*)s)->moveflags &= ~move_obeys_grav;
+					s->moveflags &= ~move_obeys_grav;
 			}
 			break;
 			
 		case LWPNSTEP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				// fp math is bad for replay, so always ignore this QR when replay is active.
 				// TODO: can we just delete this QR? Would it actually break anything? For now,
@@ -12708,17 +12708,17 @@ void set_register(int32_t arg, int32_t value)
 				// ignored.
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
-					((weapon*)s)->step= zslongToFix(value / 100);
+					s->step= zslongToFix(value / 100);
 				}
 				else
 				{
 					//old, buggy code replication, round two: Go! -Z
 					//zfix val = zslongToFix(value);
 					//val.doFloor();
-					//((weapon*)s)->step = ((val / 100.0).getFloat());
+					//s->step = ((val / 100.0).getFloat());
 					
 					//old, buggy code replication, round THREE: Go! -Z
-					((weapon*)s)->step = ((value/10000)/100.0);
+					s->step = ((value/10000)/100.0);
 				}
 				
 			}
@@ -12726,44 +12726,44 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)s)->angle=(double)(value/10000.0);
-				((weapon*)(s))->doAutoRotate();
+				s->angle=(double)(value/10000.0);
+				s->doAutoRotate();
 			}
 				
 			break;
 			
 		case LWPNDEGANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				double rangle = (value / 10000.0) * (PI / 180.0);
-				((weapon*)s)->angle=(double)(rangle);
-				((weapon*)(s))->doAutoRotate();
+				s->angle=(double)(rangle);
+				s->doAutoRotate();
 			}
 				
 			break;
 			
 		case LWPNVX:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				double vy;
 				double vx = (value / 10000.0);
-				if (((weapon*)(s))->angular)
-					vy = zc::math::Sin(((weapon*)s)->angle)*((weapon*)s)->step;
+				if (s->angular)
+					vy = zc::math::Sin(s->angle)*s->step;
 				else
 				{
-					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					switch(NORMAL_DIR(s->dir))
 					{
 						case l_up:
 						case r_up:
 						case up:
-							vy = -1.0*((weapon*)s)->step;
+							vy = -1.0*s->step;
 							break;
 						case l_down:
 						case r_down:
 						case down:
-							vy = ((weapon*)s)->step;
+							vy = s->step;
 							break;
 							
 						default:
@@ -12771,34 +12771,34 @@ void set_register(int32_t arg, int32_t value)
 							break;
 					}
 				}
-				((weapon*)s)->angular = true;
-				((weapon*)s)->angle=atan2(vy, vx);
-				((weapon*)s)->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
-				((weapon*)(s))->doAutoRotate();
+				s->angular = true;
+				s->angle=atan2(vy, vx);
+				s->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+				s->doAutoRotate();
 			}
 				
 			break;
 		
 		case LWPNVY:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				double vx;
 				double vy = (value / 10000.0);
-				if (((weapon*)(s))->angular)
-					vx = zc::math::Cos(((weapon*)s)->angle)*((weapon*)s)->step;
+				if (s->angular)
+					vx = zc::math::Cos(s->angle)*s->step;
 				else
 				{
-					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					switch(NORMAL_DIR(s->dir))
 					{
 						case l_up:
 						case l_down:
 						case left:
-							vx = -1.0*((weapon*)s)->step;
+							vx = -1.0*s->step;
 							break;
 						case r_down:
 						case r_up:
 						case right:
-							vx = ((weapon*)s)->step;
+							vx = s->step;
 							break;
 							
 						default:
@@ -12806,127 +12806,127 @@ void set_register(int32_t arg, int32_t value)
 							break;
 					}
 				}
-				((weapon*)s)->angular = true;
-				((weapon*)s)->angle=atan2(vy, vx);
-				((weapon*)s)->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
-				((weapon*)(s))->doAutoRotate();
+				s->angular = true;
+				s->angle=atan2(vy, vx);
+				s->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+				s->doAutoRotate();
 			}
 				
 			break;
 			
 		case LWPNANGULAR:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)s)->angular=(value!=0);
-				((weapon*)(s))->doAutoRotate(false, true);
+				s->angular=(value!=0);
+				s->doAutoRotate(false, true);
 			}
 				
 			break;
 			
 		case LWPNAUTOROTATE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)s)->autorotate=(value!=0);
-				((weapon*)(s))->doAutoRotate(false, true);
+				s->autorotate=(value!=0);
+				s->doAutoRotate(false, true);
 			}
 				
 			break;
 			
 		case LWPNBEHIND:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->behind=(value!=0);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->behind=(value!=0);
 				
 			break;
 			
 		case LWPNDRAWTYPE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->drawstyle=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->drawstyle=(value/10000);
 				
 			break;
 			
 		case LWPNPOWER:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->power=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->power=(value/10000);
 				
 			break;
 		/*
 		case LWPNRANGE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-			((weapon*)s)->scriptrange=vbound((value/10000),0,512); //Allow it to move off-screen. -Z           
+			if(auto s=checkLWpn(ri->lwpn))
+			s->scriptrange=vbound((value/10000),0,512); //Allow it to move off-screen. -Z           
 			break;
 		*/        
 		case LWPNDEAD:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
 				auto dead = value/10000;
-				((weapon*)s)->dead=dead;
-				if(dead != 0) ((weapon*)s)->weapon_dying_frame = false;
+				s->dead=dead;
+				if(dead != 0) s->weapon_dying_frame = false;
 			}
 			break;
 			
 		case LWPNTYPE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->id=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->id=(value/10000);
 				
 			break;
 			
 		case LWPNTILE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->tile=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->tile=(value/10000);
 				
 			break;
 		
 		case LWPNSCRIPTTILE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->scripttile=vbound((value/10000),-1,NEWMAXTILES-1);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->scripttile=vbound((value/10000),-1,NEWMAXTILES-1);
 				
 			break;
 		
 		case LWPNSCRIPTFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->scriptflip=vbound((value/10000),-1,127);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->scriptflip=vbound((value/10000),-1,127);
 				
 			break;
 			
 		case LWPNCSET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->cs=(value/10000)&15;
+			if(auto s=checkLWpn(ri->lwpn))
+				s->cs=(value/10000)&15;
 				
 			break;
 			
 		case LWPNFLASHCSET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->o_cset)|=(value/10000)<<4;
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->o_cset)|=(value/10000)<<4;
 				
 			break;
 			
 		case LWPNFRAMES:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->frames=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->frames=(value/10000);
 				
 			break;
 			
 		case LWPNFRAME:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->aframe=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->aframe=(value/10000);
 				
 			break;
 			
 		case LWPNASPEED:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->o_speed=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->o_speed=(value/10000);
 				
 			break;
 			
 		case LWPNFLASH:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->flash=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->flash=(value/10000);
 				
 			break;
 			
 		case LWPNFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->flip=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->flip=(value/10000);
 				
 			break;
 
@@ -12936,23 +12936,23 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->rotation=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->rotation=(value/10000);
 				
 			break;
 			
 		case LWPNEXTEND:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				((weapon*)s)->extend=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				s->extend=(value/10000);
 				
 			break;
 			
 		case LWPNOTILE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-					((weapon*)s)->o_tile=(value/10000);
-					((weapon*)s)->ref_o_tile=(value/10000);
-					//((weapon*)s)->script_wrote_otile=1; //Removing this as of 26th October, 2019 -Z
+					s->o_tile=(value/10000);
+					s->ref_o_tile=(value/10000);
+					//s->script_wrote_otile=1; //Removing this as of 26th October, 2019 -Z
 				//if at some future point we WANT writing ->Tile to also overwrite ->OriginalTile,
 				//then either the user will need to manually write tile, or we can add a QR and 
 				// write ->tile here. 'script_wrote_otile' is out.
@@ -12960,44 +12960,44 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNOCSET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->o_cset)|=(value/10000)&15;
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->o_cset)|=(value/10000)&15;
 				
 			break;
 			
 		case LWPNHXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->hxofs)=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->hxofs)=(value/10000);
 				
 			break;
 			
 		case LWPNHYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->hyofs)=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->hyofs)=(value/10000);
 				
 			break;
 			
 		case LWPNXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->xofs)=(zfix)(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->xofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case LWPNYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
 		
 		case LWPNSHADOWXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->shadowxofs)=(zfix)(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->shadowxofs)=(zfix)(value/10000);
 				
 			break;
 		
 		case LWPNSHADOWYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->shadowyofs)=(zfix)(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->shadowyofs)=(zfix)(value/10000);
 				
 			break;
 			
@@ -13005,50 +13005,50 @@ void set_register(int32_t arg, int32_t value)
 			break; //READ-ONLY
 			
 		case LWPNZOFS:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->zofs)=(zfix)(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->zofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case LWPNHXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->hit_width)=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->hit_width)=(value/10000);
 				
 			break;
 			
 		case LWPNHYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->hit_height)=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->hit_height)=(value/10000);
 				
 			break;
 			
 		case LWPNHZSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->hzsz)=(value/10000);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->hzsz)=(value/10000);
 				
 			break;
 			
 		case LWPNTXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->txsz)=vbound((value/10000),1,20);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->txsz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case LWPNTYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)s)->tysz)=vbound((value/10000),1,20);
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->tysz)=vbound((value/10000),1,20);
 				
 			break;
 
 		case LWPNCOLLDET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)(s))->scriptcoldet) = value;
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->scriptcoldet) = value;
 
 			break;
 		
 		case LWPNENGINEANIMATE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)(s))->do_animation)=value;
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->do_animation)=value;
 				
 			break;
 		
@@ -13056,168 +13056,168 @@ void set_register(int32_t arg, int32_t value)
 		{
 			//int32_t pitm = (vbound(value/10000,1,(MAXITEMS-1)));
 					
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)(s))->parentitem)=(vbound(value/10000,-1,(MAXITEMS-1)));
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->parentitem)=(vbound(value/10000,-1,(MAXITEMS-1)));
 			break;
 		}
 
 		case LWPNLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-				(((weapon*)(s))->level)=value/10000;
+			if(auto s=checkLWpn(ri->lwpn))
+				(s->level)=value/10000;
 				
 			break;
 		
 		case LWPNSCRIPT:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				(((weapon*)(s))->script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+				(s->script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
-						(((weapon*)(s))->initD[q]) = 0;
+						(s->initD[q]) = 0;
 				}
 				on_reassign_script_engine_data(ScriptType::Lwpn, ri->lwpn);
 			}  
 			break;
 		
 		case LWPNUSEWEAPON:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-			(((weapon*)(s))->useweapon)=vbound(value/10000,0,255);
+			if(auto s=checkLWpn(ri->lwpn))
+			(s->useweapon)=vbound(value/10000,0,255);
 				
 			break;
 		
 		case LWPNUSEDEFENCE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
-			(((weapon*)(s))->usedefense)=vbound(value/10000,0,255);
+			if(auto s=checkLWpn(ri->lwpn))
+			(s->usedefense)=vbound(value/10000,0,255);
 				
 			break;
 
 		case LWPNFALLCLK:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				if(((weapon*)(s))->fallclk != 0 && value == 0)
+				if(s->fallclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
-					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+					s->cs = s->o_cset;
+					s->tile = s->o_tile;
 				}
-				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
-				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
+				else if(s->fallclk == 0 && value != 0) s->o_cset = s->cs;
+				s->fallclk = vbound(value/10000,0,70);
 			}
 			break;
 		case LWPNFALLCMB:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+				s->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case LWPNDROWNCLK:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				if(((weapon*)(s))->drownclk != 0 && value == 0)
+				if(s->drownclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
-					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+					s->cs = s->o_cset;
+					s->tile = s->o_tile;
 				}
-				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
-				((weapon*)(s))->drownclk = vbound(value/10000,0,70);
+				else if(s->drownclk == 0 && value != 0) s->o_cset = s->cs;
+				s->drownclk = vbound(value/10000,0,70);
 			}
 			break;
 		case LWPNDROWNCMB:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
+				s->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case LWPNFAKEZ:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = 0_zf;
+				s->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				if(s->fakez < 0) s->fakez = 0_zf;
 			}
 				
 			break;
 
 		case LWPNGLOWRAD:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
+				s->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case LWPNGLOWSHP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
+				s->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case LWPNUNBL:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
+				s->unblockable = (value/10000)&WPNUNB_ALL;
 			}
 			break;
 			
 		case LWPNSHADOWSPR:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
+				s->spr_shadow = vbound(value/10000, 0, 255);
 			}
 			break;
 		case LWSWHOOKED:
 			break; //read-only
 		case LWPNTIMEOUT:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
+				s->weap_timeout = vbound(value/10000,0,214748);
 			}
 			break;
 		case LWPNDEATHITEM:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
+				s->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
 			}
 			break;
 		case LWPNDEATHDROPSET:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
+				s->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
 			}
 			break;
 		case LWPNDEATHIPICKUP:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->death_item_pflags = value/10000;
+				s->death_item_pflags = value/10000;
 			}
 			break;
 		case LWPNDEATHSPRITE:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
+				s->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
 			}
 			break;
 		case LWPNDEATHSFX:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->death_sfx = vbound(value/10000,0,WAV_COUNT);
+				s->death_sfx = vbound(value/10000,0,WAV_COUNT);
 			}
 			break;
 		case LWPNLIFTLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->lift_level = vbound(value/10000,0,255);
+				s->lift_level = vbound(value/10000,0,255);
 			}
 			break;
 		case LWPNLIFTTIME:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->lift_time = vbound(value/10000,0,255);
+				s->lift_time = vbound(value/10000,0,255);
 			}
 			break;
 		case LWPNLIFTHEIGHT:
-			if(0!=(s=checkLWpn(ri->lwpn)))
+			if(auto s=checkLWpn(ri->lwpn))
 			{
-				((weapon*)(s))->lift_height = zslongToFix(value);
+				s->lift_height = zslongToFix(value);
 			}
 			break;
 			
@@ -13229,14 +13229,14 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->scale=(zfix)(value/100.0);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->scale=(zfix)(value/100.0);
 				
 			break;
 		
 		case EWPNX:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->x = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+			if(auto s=checkEWpn(ri->ewpn))
+				s->x = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
 		
@@ -13248,117 +13248,117 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case EWPNY:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->y = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+			if(auto s=checkEWpn(ri->ewpn))
+				s->y = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
 			
 		case EWPNZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				if(((weapon*)s)->z < 0) ((weapon*)s)->z = 0_zf;
+				s->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				if(s->z < 0) s->z = 0_zf;
 			}
 				
 			break;
 			
 		case EWPNJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->fall=zslongToFix(value)*-100;
+			if(auto s=checkEWpn(ri->ewpn))
+				s->fall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case EWPNFAKEJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->fakefall=zslongToFix(value)*-100;
+			if(auto s=checkEWpn(ri->ewpn))
+				s->fakefall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case EWPNDIR:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)s)->dir=(value/10000);
-				((weapon*)s)->doAutoRotate(true);
+				s->dir=(value/10000);
+				s->doAutoRotate(true);
 			}
 				
 			break;
 			
 		case EWPNLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->level=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->level=(value/10000);
 				
 			break;
 		  
 		case EWPNGRAVITY:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				if(value)
-					((weapon*)s)->moveflags |= move_obeys_grav;
+					s->moveflags |= move_obeys_grav;
 				else
-					((weapon*)s)->moveflags &= ~move_obeys_grav;
+					s->moveflags &= ~move_obeys_grav;
 			}
 			break;
 			
 		case EWPNSTEP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
-					((weapon*)s)->step= zslongToFix(value / 100);
+					s->step= zslongToFix(value / 100);
 				}
 				else
 				{
 					//old, buggy code replication, round two: Go! -Z
 					//zfix val = zslongToFix(value);
 					//val.doFloor();
-					//((weapon*)s)->step = ((val / 100.0).getFloat());
+					//s->step = ((val / 100.0).getFloat());
 					
 					//old, buggy code replication, round THREE: Go! -Z
-					((weapon*)s)->step = ((value/10000)/100.0);
+					s->step = ((value/10000)/100.0);
 				}
 			}
 				
 			break;
 			
 		case EWPNANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)s)->angle=(double)(value/10000.0);
-				((weapon*)(s))->doAutoRotate();
+				s->angle=(double)(value/10000.0);
+				s->doAutoRotate();
 			}
 				
 			break;
 			
 		case EWPNDEGANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				double rangle = (value / 10000.0) * (PI / 180.0);
-				((weapon*)s)->angle=(double)(rangle);
-				((weapon*)(s))->doAutoRotate();
+				s->angle=(double)(rangle);
+				s->doAutoRotate();
 			}
 				
 			break;
 			
 		case EWPNVX:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				double vy;
 				double vx = (value / 10000.0);
-				if (((weapon*)(s))->angular)
-					vy = zc::math::Sin(((weapon*)s)->angle)*((weapon*)s)->step;
+				if (s->angular)
+					vy = zc::math::Sin(s->angle)*s->step;
 				else
 				{
-					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					switch(NORMAL_DIR(s->dir))
 					{
 						case l_up:
 						case r_up:
 						case up:
-							vy = -1.0*((weapon*)s)->step;
+							vy = -1.0*s->step;
 							break;
 						case l_down:
 						case r_down:
 						case down:
-							vy = ((weapon*)s)->step;
+							vy = s->step;
 							break;
 							
 						default:
@@ -13366,34 +13366,34 @@ void set_register(int32_t arg, int32_t value)
 							break;
 					}
 				}
-				((weapon*)s)->angular = true;
-				((weapon*)s)->angle=atan2(vy, vx);
-				((weapon*)s)->step=FFCore.Distance(0, 0, vx, vy)/10000;
-				((weapon*)(s))->doAutoRotate();
+				s->angular = true;
+				s->angle=atan2(vy, vx);
+				s->step=FFCore.Distance(0, 0, vx, vy)/10000;
+				s->doAutoRotate();
 			}
 				
 			break;
 		
 		case EWPNVY:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				double vx;
 				double vy = (value / 10000.0);
-				if (((weapon*)(s))->angular)
-					vx = zc::math::Cos(((weapon*)s)->angle)*((weapon*)s)->step;
+				if (s->angular)
+					vx = zc::math::Cos(s->angle)*s->step;
 				else
 				{
-					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					switch(NORMAL_DIR(s->dir))
 					{
 						case l_up:
 						case l_down:
 						case left:
-							vx = -1.0*((weapon*)s)->step;
+							vx = -1.0*s->step;
 							break;
 						case r_down:
 						case r_up:
 						case right:
-							vx = ((weapon*)s)->step;
+							vx = s->step;
 							break;
 							
 						default:
@@ -13401,123 +13401,123 @@ void set_register(int32_t arg, int32_t value)
 							break;
 					}
 				}
-				((weapon*)s)->angular = true;
-				((weapon*)s)->angle=atan2(vy, vx);
-				((weapon*)s)->step=FFCore.Distance(0, 0, vx, vy)/10000;
-				((weapon*)(s))->doAutoRotate();
+				s->angular = true;
+				s->angle=atan2(vy, vx);
+				s->step=FFCore.Distance(0, 0, vx, vy)/10000;
+				s->doAutoRotate();
 			}
 				
 			break;
 			
 		case EWPNANGULAR:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)s)->angular=(value!=0);
-				((weapon*)(s))->doAutoRotate(false, true);
+				s->angular=(value!=0);
+				s->doAutoRotate(false, true);
 			}
 				
 			break;
 			
 		case EWPNAUTOROTATE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)s)->autorotate=(value!=0);
-				((weapon*)(s))->doAutoRotate(false, true);
+				s->autorotate=(value!=0);
+				s->doAutoRotate(false, true);
 			}
 				
 			break;
 			
 		case EWPNBEHIND:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->behind=(value!=0);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->behind=(value!=0);
 				
 			break;
 			
 		case EWPNDRAWTYPE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->drawstyle=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->drawstyle=(value/10000);
 				
 			break;
 			
 		case EWPNPOWER:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->power=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->power=(value/10000);
 				
 			break;
 			
 		case EWPNDEAD:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
 				auto dead = value/10000;
-				((weapon*)s)->dead=dead;
-				if(dead != 0) ((weapon*)s)->weapon_dying_frame = false;
+				s->dead=dead;
+				if(dead != 0) s->weapon_dying_frame = false;
 			}
 				
 			break;
 			
 		case EWPNTYPE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->id=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->id=(value/10000);
 				
 			break;
 			
 		case EWPNTILE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->tile=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->tile=(value/10000);
 				
 			break;
 			
 		case EWPNSCRIPTTILE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->scripttile=vbound((value/10000),-1, NEWMAXTILES-1);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->scripttile=vbound((value/10000),-1, NEWMAXTILES-1);
 				
 			break;
 		
 		case EWPNSCRIPTFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->scriptflip=vbound((value/10000),-1, 127);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->scriptflip=vbound((value/10000),-1, 127);
 				
 			break;
 			
 		case EWPNCSET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->cs=(value/10000)&15;
+			if(auto s=checkEWpn(ri->ewpn))
+				s->cs=(value/10000)&15;
 				
 			break;
 			
 		case EWPNFLASHCSET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->o_cset)|=(value/10000)<<4;
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->o_cset)|=(value/10000)<<4;
 				
 			break;
 			
 		case EWPNFRAMES:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->frames=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->frames=(value/10000);
 				
 			break;
 			
 		case EWPNFRAME:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->aframe=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->aframe=(value/10000);
 				
 			break;
 			
 		case EWPNASPEED:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->o_speed=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->o_speed=(value/10000);
 				
 			break;
 			
 		case EWPNFLASH:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->flash=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->flash=(value/10000);
 				
 			break;
 			
 		case EWPNFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->flip=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->flip=(value/10000);
 				
 			break;
 			
@@ -13527,265 +13527,265 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'");
 				break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->rotation=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->rotation=(value/10000);
 				
 			break;
 			
 		case EWPNEXTEND:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				((weapon*)s)->extend=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				s->extend=(value/10000);
 				
 			break;
 			
 		case EWPNOTILE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)s)->o_tile=(value/10000);
-				((weapon*)s)->ref_o_tile=(value/10000);
+				s->o_tile=(value/10000);
+				s->ref_o_tile=(value/10000);
 			}
 				
 			break;
 			
 		case EWPNOCSET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->o_cset)|=(value/10000)&15;
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->o_cset)|=(value/10000)&15;
 				
 			break;
 			
 		case EWPNHXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->hxofs)=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->hxofs)=(value/10000);
 				
 			break;
 			
 		case EWPNHYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->hyofs)=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->hyofs)=(value/10000);
 				
 			break;
 			
 		case EWPNXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->xofs)=(zfix)(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->xofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
 			
 		case EWPNSHADOWXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->shadowxofs)=(zfix)(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->shadowxofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNSHADOWYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->shadowyofs)=(zfix)(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->shadowyofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNZOFS:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->zofs)=(zfix)(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->zofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNHXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->hit_width)=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->hit_width)=(value/10000);
 				
 			break;
 			
 		case EWPNHYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->hit_height)=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->hit_height)=(value/10000);
 				
 			break;
 			
 		case EWPNHZSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->hzsz)=(value/10000);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->hzsz)=(value/10000);
 				
 			break;
 			
 		case EWPNTXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->txsz)=vbound((value/10000),1,20);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->txsz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case EWPNTYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)s)->tysz)=vbound((value/10000),1,20);
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->tysz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case EWPNCOLLDET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)(s))->scriptcoldet)=value;
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->scriptcoldet)=value;
 				
 			break;
 		
 		case EWPNENGINEANIMATE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)(s))->do_animation)=value;
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->do_animation)=value;
 				
 			break;
 		
 		
 		case EWPNPARENTUID:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 				s->setParent(sprite::getByUID(value));
 			break;
 		
 		case EWPNPARENT:
-			if(0!=(s=checkEWpn(ri->ewpn)))
-				(((weapon*)(s))->parentid)= ( (get_qr(qr_OLDEWPNPARENT)) ? value / 10000 : value );
+			if(auto s=checkEWpn(ri->ewpn))
+				(s->parentid)= ( (get_qr(qr_OLDEWPNPARENT)) ? value / 10000 : value );
 				
 			break;
 		
 		case EWPNSCRIPT:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				(((weapon*)(s))->script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+				(s->script)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
-						(((weapon*)(s))->initD[q]) = 0;
+						(s->initD[q]) = 0;
 				}
 				on_reassign_script_engine_data(ScriptType::Ewpn, ri->ewpn);
 			}
 			break;
 		
 		case EWPNFALLCLK:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				if(((weapon*)(s))->fallclk != 0 && value == 0)
+				if(s->fallclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
-					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+					s->cs = s->o_cset;
+					s->tile = s->o_tile;
 				}
-				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
-				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
+				else if(s->fallclk == 0 && value != 0) s->o_cset = s->cs;
+				s->fallclk = vbound(value/10000,0,70);
 			}
 			break;
 		case EWPNFALLCMB:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+				s->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case EWPNDROWNCLK:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				if(((weapon*)(s))->drownclk != 0 && value == 0)
+				if(s->drownclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
-					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+					s->cs = s->o_cset;
+					s->tile = s->o_tile;
 				}
-				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
-				((weapon*)(s))->drownclk = vbound(value/10000,0,70);
+				else if(s->drownclk == 0 && value != 0) s->o_cset = s->cs;
+				s->drownclk = vbound(value/10000,0,70);
 			}
 			break;
 		case EWPNDROWNCMB:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
+				s->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case EWPNFAKEZ:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = 0_zf;
+				s->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				if(s->fakez < 0) s->fakez = 0_zf;
 			}
 				
 			break;
 		
 		case EWPNGLOWRAD:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
+				s->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 		case EWPNGLOWSHP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
+				s->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case EWPNUNBL:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
+				s->unblockable = (value/10000)&WPNUNB_ALL;
 			}
 			break;
 			
 		case EWPNSHADOWSPR:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
+				s->spr_shadow = vbound(value/10000, 0, 255);
 			}
 			break;
 		case EWSWHOOKED:
 			break; //read-only
 		case EWPNTIMEOUT:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
+				s->weap_timeout = vbound(value/10000,0,214748);
 			}
 			break;case EWPNDEATHITEM:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
+				s->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
 			}
 			break;
 		case EWPNDEATHDROPSET:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
+				s->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
 			}
 			break;
 		case EWPNDEATHIPICKUP:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->death_item_pflags = value/10000;
+				s->death_item_pflags = value/10000;
 			}
 			break;
 		case EWPNDEATHSPRITE:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
+				s->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
 			}
 			break;
 		case EWPNDEATHSFX:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->death_sfx = vbound(value/10000,0,WAV_COUNT);
+				s->death_sfx = vbound(value/10000,0,WAV_COUNT);
 			}
 			break;
 		case EWPNLIFTLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->lift_level = vbound(value/10000,0,255);
+				s->lift_level = vbound(value/10000,0,255);
 			}
 			break;
 		case EWPNLIFTTIME:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->lift_time = vbound(value/10000,0,255);
+				s->lift_time = vbound(value/10000,0,255);
 			}
 			break;
 		case EWPNLIFTHEIGHT:
-			if(0!=(s=checkEWpn(ri->ewpn)))
+			if(auto s=checkEWpn(ri->ewpn))
 			{
-				((weapon*)(s))->lift_height = zslongToFix(value);
+				s->lift_height = zslongToFix(value);
 			}
 			break;
 		
@@ -20056,48 +20056,49 @@ void do_lwpnmakeangular()
 {
 	if(LwpnH::loadWeapon(ri->lwpn) == SH::_NoError)
 	{
-		if (!LwpnH::getWeapon()->angular)
+		auto w = LwpnH::getWeapon();
+		if (!w->angular)
 		{
 			double vx;
 			double vy;
-			switch(NORMAL_DIR(LwpnH::getWeapon()->dir))
+			switch(NORMAL_DIR(w->dir))
 			{
 				case l_up:
 				case l_down:
 				case left:
-					vx = -1.0*((weapon*)s)->step;
+					vx = -1.0*w->step;
 					break;
 				case r_down:
 				case r_up:
 				case right:
-					vx = ((weapon*)s)->step;
+					vx = w->step;
 					break;
 					
 				default:
 					vx = 0;
 					break;
 			}
-			switch(NORMAL_DIR(LwpnH::getWeapon()->dir))
+			switch(NORMAL_DIR(w->dir))
 			{
 				case l_up:
 				case r_up:
 				case up:
-					vy = -1.0*((weapon*)s)->step;
+					vy = -1.0*w->step;
 					break;
 				case l_down:
 				case r_down:
 				case down:
-					vy = ((weapon*)s)->step;
+					vy = w->step;
 					break;
 					
 				default:
 					vy = 0;
 					break;
 			}
-			LwpnH::getWeapon()->angular = true;
-			LwpnH::getWeapon()->angle=atan2(vy, vx);
-			LwpnH::getWeapon()->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
-			LwpnH::getWeapon()->doAutoRotate();
+			w->angular = true;
+			w->angle=atan2(vy, vx);
+			w->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+			w->doAutoRotate();
 		}
 	}
 }
@@ -20119,48 +20120,49 @@ void do_ewpnmakeangular()
 {
 	if(EwpnH::loadWeapon(ri->ewpn) == SH::_NoError)
 	{
-		if (!EwpnH::getWeapon()->angular)
+		auto w = EwpnH::getWeapon();
+		if (!w->angular)
 		{
 			double vx;
 			double vy;
-			switch(NORMAL_DIR(EwpnH::getWeapon()->dir))
+			switch(NORMAL_DIR(w->dir))
 			{
 				case l_up:
 				case l_down:
 				case left:
-					vx = -1.0*((weapon*)s)->step;
+					vx = -1.0*w->step;
 					break;
 				case r_down:
 				case r_up:
 				case right:
-					vx = ((weapon*)s)->step;
+					vx = w->step;
 					break;
 					
 				default:
 					vx = 0;
 					break;
 			}
-			switch(NORMAL_DIR(EwpnH::getWeapon()->dir))
+			switch(NORMAL_DIR(w->dir))
 			{
 				case l_up:
 				case r_up:
 				case up:
-					vy = -1.0*((weapon*)s)->step;
+					vy = -1.0*w->step;
 					break;
 				case l_down:
 				case r_down:
 				case down:
-					vy = ((weapon*)s)->step;
+					vy = w->step;
 					break;
 					
 				default:
 					vy = 0;
 					break;
 			}
-			EwpnH::getWeapon()->angular = true;
-			EwpnH::getWeapon()->angle=atan2(vy, vx);
-			EwpnH::getWeapon()->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
-			EwpnH::getWeapon()->doAutoRotate();
+			w->angular = true;
+			w->angle=atan2(vy, vx);
+			w->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+			w->doAutoRotate();
 		}
 	}
 }
@@ -32159,7 +32161,7 @@ int32_t FFScript::getTime(int32_t type)
 
 void FFScript::do_lweapon_delete()
 {
-	if(0!=(s=checkLWpn(ri->lwpn)))
+	if(auto s=checkLWpn(ri->lwpn))
 	{
 		if(s==Hero.lift_wpn)
 		{
@@ -32172,7 +32174,7 @@ void FFScript::do_lweapon_delete()
 
 void FFScript::do_eweapon_delete()
 {
-	if(0!=(s=checkEWpn(ri->ewpn)))
+	if(auto s=checkEWpn(ri->ewpn))
 	{
 		Ewpns.del(s);
 	}
