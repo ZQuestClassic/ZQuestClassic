@@ -432,7 +432,7 @@ dword getNumGlobalArrays();
 extern int32_t  resx,resy,scrx,scry;
 extern int32_t window_width, window_height;
 
-extern bool toogam;
+extern bool walk_through_walls;
 extern bool ignoreSideview;
 
 extern int32_t script_mouse_x;
