@@ -28249,6 +28249,8 @@ void HeroClass::checkscroll()
 
 bool HeroClass::check_prescroll()
 {
+	if (walk_through_walls)
+		return true;
 	if(get_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL))
 		return true; // skip checks
 	if (x <= world_w-16 && x >= 0 && y <= world_h-16 && y >= 0)
