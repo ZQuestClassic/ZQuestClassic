@@ -2665,44 +2665,48 @@ void sprite::setCanFlicker(bool v)
 	can_flicker = v;
 }
 
-int32_t sprite::get_gravity(bool skip_custom) const
+zfix sprite::get_gravity(bool skip_custom) const
 {
 	if (custom_gravity && !skip_custom)
-		return custom_gravity.getZLong();
+		return custom_gravity;
 #ifdef IS_PLAYER
 	mapscr* current_scr = get_scr_maybe(cur_map, current_screen);
 	if (current_scr && (current_scr->flags10 & fSCREEN_GRAVITY))
-		return current_scr->screen_gravity.getZLong();
+		return current_scr->screen_gravity;
 	auto const& dmap = DMaps[cur_dmap];
 	if (dmap.flags & dmfCUSTOM_GRAVITY)
-		return dmap.dmap_gravity.getZLong();
+		return dmap.dmap_gravity;
 #endif
-	return zinit.gravity;
+	return zslongToFix(zinit.gravity);
 }
-int32_t sprite::get_terminalv(bool skip_custom) const
+zfix sprite::get_terminalv(bool skip_custom) const
 {
 	if (custom_terminal_v && !skip_custom)
-		return custom_terminal_v.getZLong() / 100;
+		return custom_terminal_v;
 #ifdef IS_PLAYER
 	mapscr* current_scr = get_scr_maybe(cur_map, current_screen);
 	if (current_scr && (current_scr->flags10 & fSCREEN_GRAVITY))
-		return current_scr->screen_terminal_v.getZLong() / 100;
+		return current_scr->screen_terminal_v;
 	auto const& dmap = DMaps[cur_dmap];
 	if (dmap.flags & dmfCUSTOM_GRAVITY)
-		return dmap.dmap_terminal_v.getZLong();
+		return dmap.dmap_terminal_v;
 #endif
-	return zinit.terminalv;
+	return zslongToFix(zinit.terminalv * 100);
 }
 int32_t sprite::get_grav_fall() const
 {
-	return get_gravity() / 100;
+	return get_gravity().getZLong() / 100;
+}
+int32_t sprite::get_terminalv_fall() const
+{
+	return get_terminalv().getZLong() / 100;
 }
 bool sprite::handle_termv()
 {
 	if (get_qr(qr_OLD_TERMINAL_VELOCITY))
 		return false;
 	bool ret = false;
-	auto termv = get_terminalv();
+	auto termv = get_terminalv_fall();
 	if (fall > termv)
 	{
 		fall = termv;

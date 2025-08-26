@@ -353,8 +353,8 @@ public:
 	void doSwitchHook(byte style);
 	bool isStanding(bool forJump = false);
 	std::pair<int32_t,int32_t> get_grav_vars() const;
-	int32_t get_gravity(bool skip_custom = false) const;
-	int32_t get_terminalv(bool skip_custom = false) const;
+	zfix get_gravity(bool skip_custom = false) const;
+	zfix get_terminalv(bool skip_custom = false) const;
 	void update_current_screen();
 	void explode(int32_t type);
 	int32_t getTileModifier();

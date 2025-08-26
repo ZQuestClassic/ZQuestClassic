@@ -434,10 +434,10 @@ int32_t get_grav_boots_id()
 				return (Hero.last_grav_boots_id = grav_id);
 	return -1;
 }
-int32_t HeroClass::get_gravity(bool skip_custom) const
+zfix HeroClass::get_gravity(bool skip_custom) const
 {
 	if (custom_gravity && !skip_custom)
-		return custom_gravity.getZLong();
+		return custom_gravity;
 	if (last_rocs_id != -1)
 	{
 		itemdata const& itm = itemsbuf[last_rocs_id];
@@ -445,27 +445,27 @@ int32_t HeroClass::get_gravity(bool skip_custom) const
 		{
 			if ((!(itm.flags & item_flag3) || fall < 0) &&
 				(!(itm.flags & item_flag4) || fall > 0))
-				return itm.misc3 * 100;
+				return zslongToFix(itm.misc3 * 100);
 		}
 	}
 	int32_t grav_id = get_grav_boots_id();
 	if (grav_id > -1)
-		return itemsbuf[grav_id].misc1;
+		return zslongToFix(itemsbuf[grav_id].misc1);
 	return sprite::get_gravity(skip_custom);
 }
-int32_t HeroClass::get_terminalv(bool skip_custom) const
+zfix HeroClass::get_terminalv(bool skip_custom) const
 {
 	if (custom_terminal_v && !skip_custom)
-		return custom_terminal_v.getZLong() / 100;
+		return custom_terminal_v;
 	if (last_rocs_id != -1)
 	{
 		itemdata const& itm = itemsbuf[last_rocs_id];
 		if (itm.flags & item_flag5)
-			return itm.misc4;
+			return zslongToFix(itm.misc4 * 100);
 	}
 	int32_t grav_id = get_grav_boots_id();
 	if (grav_id >= 0)
-		return itemsbuf[grav_id].misc2 / 100;
+		return zslongToFix(itemsbuf[grav_id].misc2);
 	return sprite::get_terminalv(skip_custom);
 }
 
@@ -8338,7 +8338,7 @@ heroanimate_skip_liftwpn:;
 	}
 	last_grav_boots_id = -1; // clear grav boots, so that they are re-checked in get_gravity()/get_terminalv() if needed
 	int32_t gravity3 = get_grav_fall();
-	int32_t termv = get_terminalv();
+	int32_t termv = get_terminalv_fall();
 	bool used_grav_or_termv = false;
 
 	if (handle_termv())
@@ -11142,7 +11142,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 						lift_wpn->step = 0;
 						break;
 					case down: //step converts into straight down fall
-						lift_wpn->fall = zc_min(basestep,lift_wpn->get_terminalv());
+						lift_wpn->fall = zc_min(basestep,lift_wpn->get_terminalv_fall());
 						lift_wpn->step = 0;
 						break;
 				}
