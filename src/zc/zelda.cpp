@@ -488,7 +488,7 @@ int32_t scrx= 0,scry= 0;
 int32_t window_width = 0, window_height = 0;
 extern byte pause_in_background;
 extern signed char pause_in_background_menu_init;
-bool toogam=false;
+bool walk_through_walls=false;
 bool ignoreSideview=false;
 int32_t script_mouse_x;
 int32_t script_mouse_y;
@@ -4820,7 +4820,7 @@ reload_for_replay_file:
 	{
 		// this is here to continually fix the keyboard repeat
 		set_keyboard_rate(250,33);
-		toogam = false;
+		walk_through_walls = false;
 		ignoreSideview=false;
 		clear_bitmap(lightbeam_bmp);
 		if(Quit!=qCONT)

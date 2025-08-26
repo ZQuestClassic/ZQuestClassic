@@ -3657,7 +3657,7 @@ void updatescr(bool allowwavy)
 	update_bmp_size(&wavybuf, framebuf->w, framebuf->h);
 	update_bmp_size(&panorama, framebuf->w, framebuf->h);
 
-	if(toogam)
+	if(walk_through_walls)
 	{
 		textout_ex(framebuf,font,"no walls",8,216,1,-1);
 	}
@@ -7781,7 +7781,7 @@ void System()
 			if(cheat < 4)
 				cheat_menu.chop_index = cheat_menu.ind_at(MENUID_CHEAT_CHOP_L1+cheat);
 			cheat_menu.select_uid(MENUID_CHEAT_INVULN, getClock());
-			cheat_menu.select_uid(MENUID_CHEAT_NOCLIP, toogam);
+			cheat_menu.select_uid(MENUID_CHEAT_NOCLIP, walk_through_walls);
 			cheat_menu.select_uid(MENUID_CHEAT_IGNORESV, ignoreSideview);
 			cheat_menu.select_uid(MENUID_CHEAT_GOFAST, gofast);
 			

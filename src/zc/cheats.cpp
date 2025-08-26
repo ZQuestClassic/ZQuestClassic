@@ -247,8 +247,8 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
 
     case Walls:
     {
-        toogam = !toogam;
-        if (toogam)
+        walk_through_walls = !walk_through_walls;
+        if (walk_through_walls)
         {
             cheat_superman = true;
             setClock(true);

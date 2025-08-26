@@ -150,7 +150,7 @@ static inline bool on_sideview_solid_oldpos(sprite* obj, bool ignoreFallthrough 
 
 static inline bool no_plat_action()
 {
-	if(Hero.fallclk || Hero.drownclk || toogam || Hero.getOnSideviewLadder())
+	if(Hero.fallclk || Hero.drownclk || walk_through_walls || Hero.getOnSideviewLadder())
 		return true;
 	switch(Hero.action)
 	{
@@ -678,7 +678,7 @@ bool HeroClass::can_pitfall(bool ignore_hover)
 		|| action==rafting
 		|| z>0 || fakez>0 || fall<0 || fakefall<0
 		|| (hoverclk && !ignore_hover)
-		|| inlikelike || inwallm || pull_hero || toogam
+		|| inlikelike || inwallm || pull_hero || walk_through_walls
 		|| (ladderx||laddery) || getOnSideviewLadder()
 		|| drownclk || !(moveflags & move_can_pitfall)
 		|| platform_ffc);
@@ -8105,7 +8105,7 @@ heroanimate_skip_liftwpn:;
 	{
 		if (get_qr(qr_SHALLOW_SENSITIVE))
 		{
-			if (action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim() && !(ladderx+laddery) && !pull_hero && !toogam)
+			if (action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim() && !(ladderx+laddery) && !pull_hero && !walk_through_walls)
 			{
 				bool b1 = iswaterex_z3(FFORCOMBO(x+11,y+15), -1, x+11, y+15, false, false, true, true);
 				bool b2 = iswaterex_z3(FFORCOMBO(x+4,y+15), -1, x+4, y+15, false, false, true, true);
@@ -8390,7 +8390,7 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		// Fall, unless on a ladder, sideview ladder, rafting, using the hookshot, drowning, sideswimming or cheating.
-		if (!(toogam && getInput(btnUp, INPUT_HERO_ACTION)) && !drownclk && action != rafting && !IsSideSwim() && !pull_hero && !((ladderx || laddery) && fall > 0) && !getOnSideviewLadder())
+		if (!(walk_through_walls && getInput(btnUp, INPUT_HERO_ACTION)) && !drownclk && action != rafting && !IsSideSwim() && !pull_hero && !((ladderx || laddery) && fall > 0) && !getOnSideviewLadder())
 		{
 			int32_t ydiff = fall/(spins && fall<0 ? 200:100);
 			falling_oldy = y; // Stomp Boots-related variable
@@ -10273,7 +10273,7 @@ heroanimate_skip_liftwpn:;
 	});
 
 	zfix dx, dy;
-	if (sideview_mode() && !on_sideview_solid_oldpos(this, false, 1) && on_sideview_solid_oldpos(this, false, 2) && !toogam && !is_autowalking())
+	if (sideview_mode() && !on_sideview_solid_oldpos(this, false, 1) && on_sideview_solid_oldpos(this, false, 2) && !walk_through_walls && !is_autowalking())
 	{
 		if (slide_slope(this, dx, dy, slopeid))
 		{
@@ -10284,7 +10284,7 @@ heroanimate_skip_liftwpn:;
 	if (onplatid <= 0) slopeid = 0;
 	else --onplatid;
 	bool onplatform = (on_sideview_solid_oldpos(this, false, 1) && !getInput(btnUp, INPUT_HERO_ACTION));
-	if(!toogam && !is_autowalking())
+	if(!walk_through_walls && !is_autowalking())
 	{
 		for (auto q = 0; check_slope(this, true) && q < 2; ++q)
 		{
@@ -10613,7 +10613,7 @@ int32_t HeroClass::push_move(zfix dx, zfix dy)
 
 bool HeroClass::setSolid(bool set)
 {
-	bool actual = set && !toogam; //not solid when noclipping
+	bool actual = set && !walk_through_walls; //not solid when noclipping
 	bool ret = solid_object::setSolid(actual);
 	solid = set;
 	return ret;
@@ -13717,7 +13717,7 @@ void HeroClass::do_hopping()
 void HeroClass::do_rafting()
 {
 
-	if(toogam)
+	if(walk_through_walls)
 	{
 		action=none; FFCore.setHeroAction(none);
 		return;
@@ -15326,7 +15326,7 @@ void HeroClass::moveheroOld()
 			walkable = false;
 			if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) && (holddir == -1 || holddir == up))
 			{
-				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 				{
 				}
 				else
@@ -15356,7 +15356,7 @@ void HeroClass::moveheroOld()
 					}
 					
 					//walkable if Ladder can be placed or is already placed vertically
-					if(isSideViewHero() && !toogam && !((can_deploy_ladder() && get_qr(qr_OLD_LADDER_ITEM_SIDEVIEW)) || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !walk_through_walls && !((can_deploy_ladder() && get_qr(qr_OLD_LADDER_ITEM_SIDEVIEW)) || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -15557,7 +15557,7 @@ void HeroClass::moveheroOld()
 
 			if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION) && (holddir == -1 || holddir == down))
 			{
-				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 				{
 				}
 				else
@@ -15587,7 +15587,7 @@ void HeroClass::moveheroOld()
 					}
 					
 					//bool walkable;
-					if(isSideViewHero() && !toogam && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !walk_through_walls && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -15780,7 +15780,7 @@ void HeroClass::moveheroOld()
 
 			if (getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION) && (holddir == -1 || holddir == left))
 			{
-				if(isdungeon() && (y<=26 || y>=world_h - 42) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (y<=26 || y>=world_h - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 				{
 				}
 				else
@@ -16014,7 +16014,7 @@ void HeroClass::moveheroOld()
 
 			if (getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) && (holddir == -1 || holddir == right))
 			{
-				if(isdungeon() && (y<=26 || y>=world_h - 42) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (y<=26 || y>=world_h - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 				{
 				}
 				else
@@ -16250,7 +16250,7 @@ void HeroClass::moveheroOld()
 		{
 			if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) && (holddir == -1 || holddir == up))
 			{
-				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 				{
 				}
 				else
@@ -16276,7 +16276,7 @@ void HeroClass::moveheroOld()
 					}
 					
 					//walkable if Ladder can be placed or is already placed vertically
-					if(isSideViewHero() && !toogam && !(((replay_version_check(0, 23) || get_qr(qr_OLD_LADDER_ITEM_SIDEVIEW)) && can_deploy_ladder()) || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !walk_through_walls && !(((replay_version_check(0, 23) || get_qr(qr_OLD_LADDER_ITEM_SIDEVIEW)) && can_deploy_ladder()) || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -16419,7 +16419,7 @@ void HeroClass::moveheroOld()
 
 			if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION) && (holddir == -1 || holddir == down))
 			{
-				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 				{
 				}
 				else
@@ -16445,7 +16445,7 @@ void HeroClass::moveheroOld()
 					}
 					
 					//bool walkable;
-					if(isSideViewHero() && !toogam && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !walk_through_walls && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -16594,7 +16594,7 @@ void HeroClass::moveheroOld()
 
 			if (getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION) && (holddir == -1 || holddir == left))
 			{
-				if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 				{
 				}
 				else
@@ -16761,7 +16761,7 @@ void HeroClass::moveheroOld()
 
 			if (getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) && (holddir == -1 || holddir == right))
 			{
-				if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 				{
 				}
 				else
@@ -16961,7 +16961,7 @@ void HeroClass::moveheroOld()
 	temp_x = x;
 	temp_y = y;
 	
-	if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
+	if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 	{
 		if(get_qr(qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 			goto LEFTRIGHT_NEWMOVE;
@@ -17319,7 +17319,7 @@ LEFTRIGHT_NEWMOVE:
 		temp_x = x;
 		temp_y = y;
 		temp_step = hero_newstep;
-		if(isdungeon() && (temp_y<=26 || temp_y>=134) && !get_qr(qr_FREEFORM) && !toogam)
+		if(isdungeon() && (temp_y<=26 || temp_y>=134) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 		{
 			return;
 		}
@@ -17792,7 +17792,7 @@ LEFTRIGHT_NEWMOVE:
 		
 LEFTRIGHT_OLDMOVE:
 
-		if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam)
+		if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
 		{
 			return;
 		}
@@ -17977,7 +17977,7 @@ LEFTRIGHT_OLDMOVE:
 
 bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* canladder)
 {
-	if(toogam) return false;
+	if(walk_through_walls) return false;
 	int dx = zdx.getRound(), dy = zdy.getRound();
 	
 	bool solid = false;
@@ -18278,7 +18278,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 
 bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv, int* canladder)
 {
-	if(toogam) return true;
+	if(walk_through_walls) return true;
 	if(!(dx || dy)) return true;
 	zfix bx = x, by = y+(bigHitbox?0:8); //left/top
 	zfix rx = x+15.9999_zf, ry = y+15.9999_zf; //right/bottom
@@ -19460,8 +19460,8 @@ bool HeroClass::premove()
 void HeroClass::movehero()
 {
 	bool earlyret = false;
-	bool nohorz = (isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam);
-	bool novert = (isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam);
+	bool nohorz = (isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !walk_through_walls);
+	bool novert = (isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls);
 	zfix dx, dy;
 	auto push=pushing;
 	pushing=0;
@@ -20677,7 +20677,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 		return ret;
 	}
 
-    if(toogam)
+    if(walk_through_walls)
     {
         ret.setUnwalkable(false);
         return ret;
@@ -21193,7 +21193,7 @@ HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 		ret.setFlags(~1);
 		ret.setHopDir(-1);
 	}
-	if(toogam) return ret;
+	if(walk_through_walls) return ret;
 	if (mblock2.active())
 		ret.setUnwalkable(mblock2.hit(wx,wy,0,1,1,1));
 	if (collide_object(wx, wy,1, 1))
@@ -21203,7 +21203,7 @@ HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 
 bool HeroClass::checksoliddamage()
 {
-	if(toogam) return false;
+	if(walk_through_walls) return false;
 
 	if (get_qr(qr_NO_SIDEVIEW_SOLID_DAMAGE) && get_qr(qr_NOSOLIDDAMAGECOMBOS)) return false; //no point checking if both of these rules are on
     
@@ -21342,7 +21342,7 @@ bool HeroClass::checksoliddamage()
 }
 void HeroClass::checkpushblock()
 {
-	if(toogam) return;
+	if(walk_through_walls) return;
 	
 	if(z!=0||fakez!=0) return;
 	
@@ -21732,7 +21732,7 @@ bool islockeddoor(int32_t x, int32_t y, int32_t lock)
 
 void HeroClass::oldchecklockblock()
 {
-	if(toogam) return;
+	if(walk_through_walls) return;
 	
 	int32_t bx = TRUNCATE_TILE(x.getInt());
 	int32_t bx2 = TRUNCATE_TILE(x.getInt() + 8);
@@ -21882,7 +21882,7 @@ void HeroClass::oldchecklockblock()
 
 void HeroClass::oldcheckbosslockblock()
 {
-	if(toogam) return;
+	if(walk_through_walls) return;
 	
 	int32_t bx = TRUNCATE_TILE(x.getInt());
 	int32_t bx2 = TRUNCATE_TILE(x.getInt()+8);
@@ -22057,7 +22057,7 @@ void HeroClass::oldcheckbosslockblock()
 void HeroClass::oldcheckchest(int32_t type)
 {
 	// chests aren't affected by hero_scr->flags2&fAIRCOMBOS
-	if(toogam || z>0 || fakez > 0) return;
+	if(walk_through_walls || z>0 || fakez > 0) return;
 	if(pushing<8) return;
 
 	int32_t bx = TRUNCATE_TILE(x.getInt());
@@ -22228,7 +22228,7 @@ void HeroClass::checkchest(int32_t type)
 			oldcheckbosslockblock();
 		return;
 	}
-	if(toogam || z>0 || fakez > 0) return;
+	if(walk_through_walls || z>0 || fakez > 0) return;
 	zfix bx, by;
 	zfix bx2, by2;
 	zfix fx(-1), fy(-1);
@@ -22504,7 +22504,7 @@ void HeroClass::checkgenpush()
 
 void HeroClass::checksigns() //Also checks for generic trigger buttons
 {
-	if(toogam || z>0 || fakez>0) return;
+	if(walk_through_walls || z>0 || fakez>0) return;
 	if(msg_active || (msg_onscreen && get_qr(qr_MSGDISAPPEAR)))
 		return; //Don't overwrite a message waiting to be dismissed
 	zfix bx, by;
@@ -22803,7 +22803,7 @@ endsigns:
 // Only looks at `current_screen`.
 void HeroClass::checklocked()
 {
-	if(toogam) return; //Walk through walls. 
+	if(walk_through_walls) return; //Walk through walls. 
 	if(!isdungeon(current_screen)) return;
 	if( !diagonalMovement && pushing!=8) return;
 	//This is required to allow the player to open a door, while sliding along a wall (pressing in the direction of the door, and sliding left or right)
@@ -23922,7 +23922,7 @@ void HeroClass::handleSpotlights()
 
 void HeroClass::checktouchblk()
 {
-	if (toogam) return;
+	if (walk_through_walls) return;
 
 	if (getAction() == hopping && !isSideViewHero())
 		return;
@@ -24338,7 +24338,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		}
 	}
 	
-	if(toogam) return;
+	if(walk_through_walls) return;
 	
 	bool didstrig = false;
 	
@@ -27782,7 +27782,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 
 bool HeroClass::nextcombo_wf(int32_t d2)
 {
-    if(toogam || (action!=swimming && !IsSideSwim() && action != swimhit) || hopclk==0) //!DIMITODO: ...does swimming just let you ignore smart scrolling entirely!?
+    if(walk_through_walls || (action!=swimming && !IsSideSwim() && action != swimhit) || hopclk==0) //!DIMITODO: ...does swimming just let you ignore smart scrolling entirely!?
         return false;
         
     // assumes Hero is about to scroll screens
@@ -27853,7 +27853,7 @@ bool HeroClass::nextcombo_wf(int32_t d2)
 
 bool HeroClass::nextcombo_solid(int32_t d2)
 {
-	if(toogam || cur_screen>=128)
+	if(walk_through_walls || cur_screen>=128)
 		return false;
 
 	// assumes Hero is about to scroll screens
@@ -30311,7 +30311,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	// Check for raft flags
 	if((get_qr(qr_BROKEN_RAFT_SCROLL) || lastaction == rafting)
-		&& action!=rafting && hopclk==0 && !toogam)
+		&& action!=rafting && hopclk==0 && !walk_through_walls)
 	{
 		if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
 		{
@@ -33816,11 +33816,11 @@ void HeroClass::kill(bool bypassFairy)
 }
 bool HeroClass::sideview_mode() const
 {
-	return isSideViewHero() && (moveflags & move_obeys_grav) && !toogam;
+	return isSideViewHero() && (moveflags & move_obeys_grav) && !walk_through_walls;
 }
 bool HeroClass::is_unpushable() const
 {
-	return toogam;
+	return walk_through_walls;
 }
 
 HeroClass Hero;
