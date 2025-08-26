@@ -26356,8 +26356,9 @@ int calculate_test_dmap()
 extern "C" void open_test_mode()
 {
 	int dmap = calculate_test_dmap();
+	int scr = zc_min(0x7F, Map.getCurrScr());
 
-	em_open_test_mode(filepath, dmap, Map.getCurrScr(), -1);
+	em_open_test_mode(filepath, dmap, scr, -1);
 }
 
 extern "C" void get_shareable_url()
