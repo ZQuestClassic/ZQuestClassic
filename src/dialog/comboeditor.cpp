@@ -3146,7 +3146,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									CMB_GEN_FLAG(2,"Allow walk-on-top","The Player can walk along the top of this combo's solid parts"
 										" if they are on it, or above the combo's 'Z Height'."),
 									CMB_GEN_FLAG(3,"Walk-on-top -8px DrawYOffset","While the Player is walking on top of this combo,"
-										" they will be visually offset up by 8 pixels.")
+										" they will be visually offset up by 8 pixels."),
+									CMB_GEN_FLAG(4,"Step 'in front' in sideview","The effects of 'landing'/'standing'/'walking' on this"
+										" combo will occur when landing 'in front' of the combo in sideview, rather than 'on top' of the combo.")
 								)
 							),
 							Frame(title = "Hero Speed Mod",

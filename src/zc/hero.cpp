@@ -8233,33 +8233,28 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		
-		auto rpos = COMBOPOS_REGION_B(x+8,y+(sideview_mode()?16:12));
-		for(int q = 0; q < 7; ++q)
-		{
-			if (rpos == rpos_t::None)
-				break;
-
-			auto rpos_handle = get_rpos_handle(rpos, q);
-			auto& cmb = rpos_handle.combo();
-			byte csfx = action == walking ? cmb.sfx_walking : cmb.sfx_standing;
-			byte cspr = action == walking ? cmb.spr_walking : cmb.spr_standing;
-			if(csfx)
-				sfx_no_repeat(csfx);
-			auto indx = decorations.idFirst(dCUSTOMWALK);
-			if(cspr)
+		for_each_rpos_stood_on([&](const rpos_handle_t& handle)
 			{
-				if(indx < 0)
+				auto& cmb = handle.combo();
+				byte csfx = action == walking ? cmb.sfx_walking : cmb.sfx_standing;
+				byte cspr = action == walking ? cmb.spr_walking : cmb.spr_standing;
+				if(csfx)
+					sfx_no_repeat(csfx, pan(x));
+				auto indx = decorations.idFirst(dCUSTOMWALK);
+				if(cspr)
 				{
-					if(decorations.add(new customWalkSprite(x, y, dCUSTOMWALK, 0, -1)))
-						indx = decorations.Count()-1;
+					if(indx < 0)
+					{
+						if(decorations.add(new customWalkSprite(x, y, dCUSTOMWALK, 0, -1)))
+							indx = decorations.Count()-1;
+					}
+					if(indx > -1)
+					{
+						if(customWalkSprite* spr = dynamic_cast<customWalkSprite*>(decorations.spr(indx)))
+							spr->run_sprite(cspr);
+					}
 				}
-				if(indx > -1)
-				{
-					if(customWalkSprite* spr = dynamic_cast<customWalkSprite*>(decorations.spr(indx)))
-						spr->run_sprite(cspr);
-				}
-			}
-		}
+			});
 	}
 	
 	if(stomping)
@@ -10896,6 +10891,30 @@ void HeroClass::handle_passive_buttons()
 	do_jump(-1,true);
 }
 
+void HeroClass::for_each_rpos_stood_on(std::function<void(const rpos_handle_t&)> proc)
+{
+	auto rpos = COMBOPOS_REGION_B(x+8, y+(sideview_mode()?16:12));
+	auto rpos2 = sideview_mode() ? COMBOPOS_REGION_B(x+8, y+12) : rpos_t::None;
+	if (rpos != rpos_t::None || rpos2 != rpos_t::None)
+	{
+		for (int layer = 0; layer < 7; ++layer)
+		{
+			if (rpos != rpos_t::None)
+			{
+				auto handle = get_rpos_handle(rpos, layer);
+				if (!sideview_mode() || !(handle.combo().genflags & cflag5))
+					proc(handle);
+			}
+			if (rpos2 != rpos_t::None)
+			{
+				auto handle = get_rpos_handle(rpos2, layer);
+				if (handle.combo().genflags & cflag5) // sideview_mode() already checked above
+					proc(handle);
+			}
+		}
+	}
+}
+
 void HeroClass::land_on_ground()
 {
 	if (fakez<0) fakez = 0;
@@ -10905,30 +10924,26 @@ void HeroClass::land_on_ground()
 	if(get_qr(qr_OLD_LANDING_SFX))
 	{
 		if(!sideview_mode() && ((iswaterex_z3(MAPCOMBO(x,y+8), -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER))
-			sfx(WAV_ZN1SPLASH,x.getInt());
+			sfx(WAV_ZN1SPLASH,pan(x));
 		played_land_sfx = true;
 	}
 
-	auto rpos = COMBOPOS_REGION_B(x+8, y+(sideview_mode()?16:12));
-	for (int q = 0; q < 7; ++q)
-	{
-		if (rpos == rpos_t::None) break;
-
-		auto rpos_handle = get_rpos_handle(rpos, q);
-		auto& cmb = rpos_handle.combo();
-		byte csfx = cmb.sfx_landing;
-		if (csfx && !get_qr(qr_OLD_LANDING_SFX))
+	for_each_rpos_stood_on([&](const rpos_handle_t& handle)
 		{
-			sfx(csfx, x.getInt());
-			played_land_sfx = true;
-		}
-		trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-			return trig.trigger_flags.get(TRIGFLAG_PLAYERLANDHERE);
+			auto& cmb = handle.combo();
+			byte csfx = cmb.sfx_landing;
+			if (csfx && !get_qr(qr_OLD_LANDING_SFX))
+			{
+				sfx(csfx, pan(x));
+				played_land_sfx = true;
+			}
+			trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
+				return trig.trigger_flags.get(TRIGFLAG_PLAYERLANDHERE);
+			});
 		});
-	}
-
+	
 	if(!played_land_sfx && QMisc.miscsfx[sfxHERO_LANDS])
-		sfx(QMisc.miscsfx[sfxHERO_LANDS], x.getInt());
+		sfx(QMisc.miscsfx[sfxHERO_LANDS], pan(x));
 	
 	
 	for_some_rpos([&](const rpos_handle_t& rpos_handle) {
