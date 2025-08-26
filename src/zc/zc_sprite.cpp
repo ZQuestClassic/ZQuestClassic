@@ -140,7 +140,8 @@ void movingblock::clear()
 	flip = 0;
 	blockLayer = 0;
 	clk = 0;
-	step = grav_step = 0;
+	step = 0;
+	grav_falling = false;
 	blockinfo.clear();
 	solid_update(false);
 }
@@ -160,21 +161,38 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 {
 	new_block = false;
 	step = 0.5;
-	grav_step = 0;
+	grav_falling = false;
 	trigger=false;
 	x=bx;
 	y=by;
 	dir=d2;
 	xofs = 0;
 	yofs = playing_field_offset;
+    oldflag=f;
+	rpos_t rpos = COMBOPOS_REGION(x.getInt(), y.getInt());
+	size_t combopos = RPOS_TO_POS(rpos);
+	auto rpos_handle = get_rpos_handle(rpos, blockLayer);
+	mapscr *m = rpos_handle.scr;
+    bcombo =  m->data[combopos];
+    oldcset = m->cset[combopos];
+    cs     = (isdungeon(m->screen) && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
+    tile = combobuf[bcombo].tile;
+    flip = combobuf[bcombo].flip;
+	bool antigrav = get_gravity() < 0;
 	switch(dir)
 	{
 		case up:
 			endx = x;
+			endy = y;
+			if (antigrav && check_side_fall(antigrav))
+				grav_falling = true;
 			endy = y-16;
 			break;
 		case down:
 			endx = x;
+			endy = y;
+			if (!antigrav && check_side_fall(antigrav))
+				grav_falling = true;
 			endy = y+16;
 			yofs = playing_field_offset - 0.5;
 			break;
@@ -197,16 +215,6 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 		xofs = 0;
 		yofs = playing_field_offset;
 	}
-    oldflag=f;
-	rpos_t rpos = COMBOPOS_REGION(x.getInt(), y.getInt());
-	size_t combopos = RPOS_TO_POS(rpos);
-	auto rpos_handle = get_rpos_handle(rpos, blockLayer);
-	mapscr *m = rpos_handle.scr;
-    bcombo =  m->data[combopos];
-    oldcset = m->cset[combopos];
-    cs     = (isdungeon(m->screen) && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
-    tile = combobuf[bcombo].tile;
-    flip = combobuf[bcombo].flip;
     //   cs = ((*di)&0x700)>>8;
     m->data[combopos] = m->undercombo;
     m->cset[combopos] = m->undercset;
@@ -220,21 +228,38 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 {
 	new_block = true;
 	step = spd;
-	grav_step = 0;
+	grav_falling = false;
 	trigger=false;
 	x=bx;
 	y=by;
 	dir=d2;
 	xofs = 0;
 	yofs = playing_field_offset;
+    oldflag=f;
+	rpos_t rpos = COMBOPOS_REGION(x.getInt(), y.getInt());
+	auto rpos_handle = get_rpos_handle(rpos, blockLayer);
+	int32_t combopos = RPOS_TO_POS(rpos);
+	mapscr *m = rpos_handle.scr;
+    bcombo =  m->data[combopos];
+    oldcset = m->cset[combopos];
+    cs     = (isdungeon(m->screen) && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
+    tile = combobuf[bcombo].tile;
+    flip = combobuf[bcombo].flip;
+	bool antigrav = get_gravity() < 0;
 	switch(dir)
 	{
 		case up:
 			endx = x;
+			endy = y;
+			if (antigrav && check_side_fall(antigrav))
+				grav_falling = true;
 			endy = y-16;
 			break;
 		case down:
 			endx = x;
+			endy = y;
+			if (!antigrav && check_side_fall(antigrav))
+				grav_falling = true;
 			endy = y+16;
 			yofs = playing_field_offset - 0.5;
 			break;
@@ -257,16 +282,6 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 		xofs = 0;
 		yofs = playing_field_offset;
 	}
-    oldflag=f;
-	rpos_t rpos = COMBOPOS_REGION(x.getInt(), y.getInt());
-	auto rpos_handle = get_rpos_handle(rpos, blockLayer);
-	int32_t combopos = RPOS_TO_POS(rpos);
-	mapscr *m = rpos_handle.scr;
-    bcombo =  m->data[combopos];
-    oldcset = m->cset[combopos];
-    cs     = (isdungeon(m->screen) && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
-    tile = combobuf[bcombo].tile;
-    flip = combobuf[bcombo].flip;
     //   cs = ((*di)&0x700)>>8;
     m->data[combopos] = m->undercombo;
     m->cset[combopos] = m->undercset;
@@ -299,22 +314,25 @@ bool movingblock::check_hole() const
 	return false;
 }
 
-bool movingblock::check_side_fall() const
+bool movingblock::check_side_fall(bool antigrav) const
 {
 	if(!isSideViewGravity()) return false;
 	if(!(new_block ? (combobuf[bcombo].usrflags&cflag11) : get_qr(qr_PUSHBLOCKS_FALL_IN_SIDEVIEW)))
 		return false;
 	
-	if(endy+24 < 0 || endy+24 > world_h-8)	
-		return false;
+	if (!get_gravity() && (!grav_falling || !step))
+		return false; // no gravity to move it, and no motion happening, so can't fall
 	
-	int pflag = MAPFLAG2(blockLayer-1,endx,endy+24);
-	int iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy+24);
-	if(pflag == mfNOBLOCKS || iflag == mfNOBLOCKS)
+	int tx = endx, ty = endy + 8 + (antigrav ? -16 : 16);
+	
+	if(ty < 0 || ty >= world_h)	
 		return false;
-	if(checkSVLadderPlatform(endx, endy+24))
+	auto rpos_handle = get_rpos_handle_for_world_xy(tx, ty, blockLayer);
+	if(rpos_handle.sflag() == mfNOBLOCKS || rpos_handle.cflag() == mfNOBLOCKS)
 		return false;
-	return !_walkflag(endx, endy+24, 2);
+	if(!antigrav && checkSVLadderPlatform(tx, ty))
+		return false;
+	return !_walkflag(tx, ty, 2);
 }
 
 bool movingblock::check_trig() const
@@ -323,7 +341,7 @@ bool movingblock::check_trig() const
 
 	if(fallclk || drownclk)
 		return false;
-	if((rpos_handle.sflag()==mfBLOCKTRIGGER)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKTRIGGER)
+	if(rpos_handle.sflag() == mfBLOCKTRIGGER || rpos_handle.cflag() == mfBLOCKTRIGGER)
 		return true;
 	else if(!get_qr(qr_BLOCKHOLE_SAME_ONLY))
 	{
@@ -334,7 +352,7 @@ bool movingblock::check_trig() const
 
 			auto rpos_handle_2 = get_rpos_handle_for_screen(rpos_handle.screen, lyr, rpos_handle.pos);
 			if(rpos_handle_2.sflag() == mfBLOCKTRIGGER
-				|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
+				|| rpos_handle_2.cflag() == mfBLOCKTRIGGER)
 				return true;
 		}
 	}
@@ -406,11 +424,11 @@ bool movingblock::animate(int32_t)
 	bool done = false;
 	
 	//Move
-	move(grav_step ? grav_step : step);
+	move(step);
 	zfix ox = x, oy = y; //grab the x/y after moving, before any snapping
 	
 	//Check if the block has reached the next grid-alignment
-	if(new_block || grav_step)
+	if(new_block || grav_falling)
 	{
 		switch(dir)
 		{
@@ -440,27 +458,57 @@ bool movingblock::animate(int32_t)
 	else done = (--clk==0);
 	
 	//Check for sideview gravity
-	if(check_side_fall())
+	zfix grav = get_gravity();
+	if(grav_falling || (done && check_side_fall(grav < 0)))
 	{
-		if(done || grav_step) // Only apply upon "clicking into place" over the pit, or if already falling
+		zfix terminalv = get_terminalv().doAbs();
+		auto grav_dir = (grav < 0 ? up : down);
+		if (dir != grav_dir) // changing dir
 		{
-			zfix grav = zslongToFix(get_gravity());
-			zfix terminalv = get_terminalv();
-			grav_step = zc_min(grav_step + grav, terminalv);
-			
-			if(done) // was about to snap into place, but falls instead
+			if (grav_falling) // gravity changed?
 			{
-				endy += 16; //already sanity checked in check_side_fall()
-				done = false;
-				clk = 32;
-				
-				end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
-				end_pos = end_rpos_handle.pos;
-				m = end_rpos_handle.scr;
-				m0 = get_scr_for_world_xy(endx, endy);
-				
-				dir = down;
+				if (dir != up && dir != down) // sanity check?
+				{
+					dir = grav_dir;
+					step = 0;
+				}
+				else
+				{
+					step = zc_min(step - abs(grav), terminalv);
+					if (step < 0) // falling negatively; flip direction
+					{
+						dir = grav_dir;
+						step.doAbs();
+					}
+				}
 			}
+			else // just starting falling; reset step
+			{
+				dir = grav_dir;
+				step = 0;
+			}
+		}
+		else step = zc_min(step + abs(grav), terminalv);
+		
+		if(done && (!grav_falling || check_side_fall(dir == up)))
+		{
+			// was about to snap into place, but falls instead
+			endy += (dir == up) ? -16 : 16; //already sanity checked in check_side_fall()
+			grav_falling = true;
+			done = false;
+			clk = 32;
+			
+			end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
+			end_pos = end_rpos_handle.pos;
+			m = end_rpos_handle.scr;
+			m0 = get_scr_for_world_xy(endx, endy);
+		}
+		else // sanity check for gravity flipping
+		{
+			if (endy > y && dir == up)
+				endy -= 16;
+			else if(endy < y && dir == down)
+				endy += 16;
 		}
 	}
 	
@@ -479,7 +527,7 @@ bool movingblock::animate(int32_t)
 	}
 	
 	//Check for icy blocks/floors that might continue the slide
-	if(!grav_step && done && !no_icy && !fallclk && !drownclk)
+	if(!grav_falling && done && !no_icy && !fallclk && !drownclk)
 	{
 		int icy_cid = get_icy(endx+8,endy+8 + ((isSideViewGravity() && !get_qr(qr_BROKEN_ICY_FLOOR_SIDEVIEW)) ? 16 : 0),ICY_BLOCK);
 		if(new_block)
@@ -605,7 +653,7 @@ bool movingblock::animate(int32_t)
 			trigger = false; bhole = false;
 
 			int f1 = end_rpos_handle.sflag();
-			int f2 = MAPCOMBOFLAG2(blockLayer-1,endx,endy);
+			int f2 = end_rpos_handle.cflag();
 			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 			bool no_trig_replace = get_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
 			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
@@ -796,14 +844,14 @@ bool movingblock::animate(int32_t)
 		}
 		else
 		{
-			if(grav_step)
+			if(grav_falling)
 			{
 				x = endx;
 				y = endy;
 			}
 			
 			int32_t f1 = end_rpos_handle.sflag();
-			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
+			int32_t f2 = end_rpos_handle.cflag();
 			trigger = false; bhole = (f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE;
 			
 			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
@@ -887,7 +935,7 @@ bool movingblock::animate(int32_t)
 			}
 			else if(!fallclk&&!drownclk)
 			{
-				f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
+				f2 = end_rpos_handle.cflag();
 				
 				if(!(force_many || (f2==mfPUSHUDINS && dir<=down) ||
 						(f2==mfPUSHLRINS && dir>=left) ||

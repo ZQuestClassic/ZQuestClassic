@@ -92,7 +92,7 @@ bool item::animate(int32_t)
 					if ((fall / 100) == 0 && fall > 0)
 						fall *= (fall > 0 ? 2 : 0.5); // That oughta do something about the floatiness.
 
-					if (fall <= get_terminalv())
+					if (fall <= get_terminalv_fall())
 						fall += get_grav_fall();
 				}
 			}
@@ -125,7 +125,7 @@ bool item::animate(int32_t)
 						fakez=0;
 						fakefall=0;
 					}
-					else if(fakefall <= get_terminalv())
+					else if(fakefall <= get_terminalv_fall())
 					{
 						fakefall += get_grav_fall();
 					}
@@ -144,7 +144,7 @@ bool item::animate(int32_t)
 						z=0;
 						fall=0;
 					}
-					else if(fall <= get_terminalv())
+					else if(fall <= get_terminalv_fall())
 					{
 						fall += get_grav_fall();
 					}
