@@ -2031,17 +2031,6 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 			return false;
 	}
 	
-	if(trig.trigger_flags.get(TRIGFLAG_REQ_JUMP_LE))
-	{
-		if(Hero.getJump() > trig.req_player_jump)
-			return false;
-	}
-	if(trig.trigger_flags.get(TRIGFLAG_REQ_JUMP_GE))
-	{
-		if(Hero.getJump() < trig.req_player_jump)
-			return false;
-	}
-	
 	if(trig.req_player_dir && !(trig.req_player_dir & (1 << Hero.dir)))
 		return false;
 	

@@ -1620,6 +1620,15 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 					text = "OK",
 					minwidth = 90_px,
 					onClick = message::OK),
+				Button(text = "Summarize",
+					fitParent = true,
+					onPressFunc = [&]()
+					{
+						string title = "Trigger Summary";
+						if (!local_ref.label.empty())
+							title += fmt::format(" '{}'", local_ref.label);
+						InfoDialog(title, local_ref.summarize(parent_comboref), nullopt, nullptr, 0).show();
+					}),
 				warnbtn = Button(
 					text = "Warnings",
 					minwidth = 90_px,

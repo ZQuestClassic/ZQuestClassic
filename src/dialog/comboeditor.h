@@ -73,7 +73,8 @@ private:
 	std::shared_ptr<GUI::TileFrame> animFrame;
 	std::shared_ptr<GUI::List> triggerList;
 	std::shared_ptr<GUI::Button> trigbtnAddCursor, trigbtnAddEnd, trigbtnCopy, trigbtnEdit,
-		trigbtnDelete, trigbtnPasteNewCursor, trigbtnPasteNewEnd, trigbtnPaste, trigbtnUp, trigbtnDown;
+		trigbtnDelete, trigbtnPasteNewCursor, trigbtnPasteNewEnd, trigbtnPaste, trigbtnUp,
+		trigbtnDown, trigbtnSummarize, trigbtnSummarizeAll;
 	
 	string h_initd[8], h_attribute[4], h_attribyte[8],
 		h_attrishort[8], h_flag[16];

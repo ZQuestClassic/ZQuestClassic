@@ -19,8 +19,8 @@ class InfoDialog: public GUI::Dialog<InfoDialog>
 public:
 	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR, BTN };
 
-	InfoDialog(string const& title, string const& text, optional<string> subtext = nullopt, byte* dest_qrs = nullptr);
-	InfoDialog(string const& title, vector<string> const& lines, optional<string> subtext = nullopt, byte* dest_qrs = nullptr);
+	InfoDialog(string const& title, string const& text, optional<string> subtext = nullopt, byte* dest_qrs = nullptr, int text_align = 1);
+	InfoDialog(string const& title, vector<string> const& lines, optional<string> subtext = nullopt, byte* dest_qrs = nullptr, int text_align = 1);
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -30,6 +30,7 @@ protected:
 	std::shared_ptr<GUI::Window> window;
 	string d_title, d_text;
 	optional<string> d_subtext;
+	int _text_align;
 	
 	
 	std::set<int> qrs; //related qrs

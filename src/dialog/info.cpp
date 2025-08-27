@@ -34,19 +34,21 @@ void displayinfo(string const& title, vector<string> const& lines, optional<stri
 }
 
 InfoDialog::InfoDialog(string const& title, string const& text,
-	optional<string> subtext, byte* dest_qrs):
+	optional<string> subtext, byte* dest_qrs, int text_align):
 	d_title(title),
 	d_text(text), d_subtext(subtext),
-	dest_qrs(dest_qrs)
+	dest_qrs(dest_qrs),
+	_text_align(text_align)
 {
 	postinit();
 }
 
 InfoDialog::InfoDialog(string const& title, vector<string> const& lines,
-	optional<string> subtext, byte* dest_qrs):
+	optional<string> subtext, byte* dest_qrs, int text_align):
 	d_title(title),
 	d_text(), d_subtext(subtext),
-	dest_qrs(dest_qrs)
+	dest_qrs(dest_qrs),
+	_text_align(text_align)
 {
 	size_t size = 0;
 
@@ -241,12 +243,13 @@ std::shared_ptr<GUI::Grid> InfoDialog::build_text()
 	std::shared_ptr<GUI::Grid> col = Column(padding = 0_px);
 	Size maxw = Size::pixels(zq_screen_w)-12_px-5_em;
 	Size maxh = (DEFAULT_PADDING*20)+20_em;
+	double hal = _text_align / 2.0;
 	if(d_subtext)
 		col->add(Label(noHLine = true, hPadding = 2_em,
-			maxwidth = maxw, textAlign = 1, text = *d_subtext));
+			maxwidth = maxw, hAlign = hal, textAlign = _text_align, text = *d_subtext));
 	std::shared_ptr<GUI::Label> main_label =
 		Label(noHLine = true, hPadding = 2_em,
-			maxwidth = maxw, textAlign = 1, text = d_text);
+			maxwidth = maxw, hAlign = hal, textAlign = _text_align, text = d_text);
 	main_label->calculateSize();
 	if(main_label->getHeight() > maxh)
 	{
