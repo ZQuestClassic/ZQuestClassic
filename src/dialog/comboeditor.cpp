@@ -2206,6 +2206,8 @@ void ComboEditorDialog::updateTriggerIndex()
 {
 	trigbtnAddCursor->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS);
 	trigbtnAddEnd->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS);
+	trigbtnSummarizeAll->setDisabled(local_comboref.triggers.empty());
+	trigbtnSummarize->setDisabled(trigger_index < 0);
 	trigbtnCopy->setDisabled(trigger_index < 0);
 	trigbtnEdit->setDisabled(trigger_index < 0);
 	trigbtnDelete->setDisabled(trigger_index < 0);
@@ -2797,6 +2799,33 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					Frame(
 						Row(
 							Column(
+								Row(
+									trigbtnSummarizeAll = Button(text = "Summarize All",
+										fitParent = true,
+										onPressFunc = [&]()
+										{
+											std::ostringstream oss;
+											bool first = true;
+											for (auto const& trig : local_comboref.triggers)
+											{
+												if (first)
+													first = false;
+												else oss << "\n\n";
+												oss << trig.summarize(local_comboref);
+											}
+											InfoDialog("All Trigger Summary", oss.str(), nullopt, nullptr, 0).show();
+										}),
+									trigbtnSummarize = Button(text = "Summarize",
+										fitParent = true,
+										onPressFunc = [&]()
+										{
+											auto const& trig = local_comboref.triggers[trigger_index];
+											string title = fmt::format("Trigger Summary ({:03})", trigger_index);
+											if (!trig.label.empty())
+												title += fmt::format(" '{}'", trig.label);
+											InfoDialog(title, trig.summarize(local_comboref), nullopt, nullptr, 0).show();
+										})
+								),
 								triggerList = List(
 									data = list_triggers,
 									disabled = local_comboref.triggers.empty(),

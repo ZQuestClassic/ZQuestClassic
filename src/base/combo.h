@@ -69,6 +69,7 @@ enum
 	CMB_ADVP_SZ
 };
 
+struct newcombo;
 struct combo_trigger
 {
 	string label;
@@ -119,6 +120,7 @@ struct combo_trigger
 	
 	zfix trig_gravity, trig_terminal_v;
 	
+	std::string summarize(newcombo const& cmb) const;
 	bool is_blank() const;
 	void clear();
 	bool operator==(combo_trigger const& other) const = default;

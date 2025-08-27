@@ -471,6 +471,13 @@ public:
 	}
 	void normalize() {cont.normalize();}
 	void clear() {cont.clear();}
+	bool empty() const
+	{
+		for (auto val : cont.inner())
+			if (val)
+				return false;
+		return true;
+	}
 	bounded_vec<storage_t,byte>& inner() {return cont;}
 	bounded_vec<storage_t,byte> const& inner() const {return cont;}
 	bool operator==(bitstring const& other) const = default;
