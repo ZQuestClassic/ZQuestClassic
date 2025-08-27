@@ -3141,7 +3141,7 @@ enum ASM_DEFINE
 #define SPRITE_SHADOW_SPR       0x15E4
 #define SPRITE_DROWN_CLK        0x15E5
 #define SPRITE_DROWN_CMB        0x15E6
-#define SPRITE_SHADOW_XOFS      0x16E7
+// unused      0x15E7
 #define SPRITE_SHADOW_YOFS      0x15E8
 #define SPRITE_MISCD            0x15E9
 
@@ -3294,8 +3294,11 @@ enum ASM_DEFINE
 #define SPRITE_CURRENT_SCREEN          0x166C
 #define CMBTRIGGER_GRAVITY             0x166D
 #define CMBTRIGGER_TERMINAL_VELOCITY   0x166E
+// unused block (we can fill this out)
+#define SPRITE_SHADOW_XOFS      0x16E7
+// Note: define new variables in above unused block
 
-#define NUMVARIABLES         0x166F
+#define NUMVARIABLES         0x16E8
 
 //} End variables
 
