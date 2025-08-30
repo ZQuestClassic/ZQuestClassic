@@ -6607,6 +6607,8 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 	{
 		if(tsetflags & TILESET_BUGFIX)
 			applyRuleTemplate(ruletemplateFixCompat);
+		if(tsetflags & TILESET_SCR_BUGFIX)
+			applyRuleTemplate(ruletemplateFixZSCompat);
 
 		int32_t accessret = quest_access(filename, &header);
 		
