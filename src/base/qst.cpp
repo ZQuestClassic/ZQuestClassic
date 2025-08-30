@@ -3555,6 +3555,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_SPRITE_FALL_DROWN, 1);
 	if (compatrule_version < 87)
 		set_qr(qr_OLD_TERMINAL_VELOCITY, 1);
+	if (compatrule_version < 88)
+		set_qr(qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

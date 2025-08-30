@@ -1770,6 +1770,10 @@ GUI::ListData bugfixRulesList
 	{ "Game->Suspend[susptFFCSCRIPTS] suspends screen scripts", qr_ZS_OLD_SUSPEND_FFC,
 		"If checked, setting 'Game->Suspend[susptFFCSCRIPTS]' will suspend screen scripts."
 		"\nIf disabled only the ffcscripts will be suspended."},
+	{ "Game->LevelStates[] and GlobalStates[] don't trigger switches", qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES,
+		"If checked, setting 'Game->LevelStates[]' and 'Game->GlobalStates[] will NOT trigger"
+		" the effects of these states changing. (Note: Even with this unchecked, 'Game->LevelStates[]'"
+		" only causes changes when the current level's index is written to)" },
 };
 
 extern GUI::ListData compileSettingList;

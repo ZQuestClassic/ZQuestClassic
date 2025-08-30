@@ -921,7 +921,10 @@ static ArrayRegistrar GAMEGSWITCH_registrar(GAMEGSWITCH, []{
 			return game->gswitch_timers[index];
 		},
 		[](int, int index, int value) {
+			bool old = game->gswitch_timers[index];
 			game->gswitch_timers[index] = value;
+			if (old != bool(value) && !get_qr(qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES))
+				toggle_gswitches(index, false);
 			return true;
 		}
 	);
@@ -963,7 +966,19 @@ static ArrayRegistrar GAMELKEYSD_registrar(GAMELKEYSD, []{
 }());
 
 static ArrayRegistrar GAMELSWITCH_registrar(GAMELSWITCH, []{
-	static ScriptingArray_ObjectMemberContainer<gamedata, &gamedata::lvlswitches> impl;
+	static ScriptingArray_GlobalComputed<dword> impl(
+		[](int) { return game->lvlswitches.size(); },
+		[](int, int index) -> dword {
+			return game->lvlswitches[index];
+		},
+		[](int, int index, dword value) {
+			auto old = game->lvlswitches[index];
+			game->lvlswitches[index] = value;
+			if (index == dlevel && !get_qr(qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES))
+				toggle_switches(old ^ value, false);
+			return true;
+		}
+	);
 	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
