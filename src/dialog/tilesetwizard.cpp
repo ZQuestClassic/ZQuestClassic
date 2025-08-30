@@ -43,7 +43,7 @@ bool call_tileset_wizard()
 	return wizard.success();
 }
 
-TilesetWizard::TilesetWizard() : tileset_choice(cambria), tsetflags(TILESET_CLEARHEADER|TILESET_BUGFIX)
+TilesetWizard::TilesetWizard() : tileset_choice(cambria), tsetflags(TILESET_CLEARHEADER|TILESET_BUGFIX|TILESET_SCR_BUGFIX)
 {}
 
 #define TILESET_FLAG(bit, txt) \
@@ -101,6 +101,7 @@ std::shared_ptr<GUI::Widget> TilesetWizard::view()
 
 			g->add(Rows<1>(
 				TILESET_FLAG(TILESET_BUGFIX, "Apply bug fixes"),
+				TILESET_FLAG(TILESET_SCR_BUGFIX, "Apply script bug fixes"),
 				TILESET_FLAG(TILESET_CLEARMAPS, "Clear tileset maps"),
 				TILESET_FLAG(TILESET_CLEARSCRIPTS, "Clear tileset scripts")
 			));
