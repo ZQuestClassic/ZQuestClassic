@@ -20856,7 +20856,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].type==itype_key||itemsbuf[theItem->id].type==itype_lkey;
-						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((itemsbuf[w->parentitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							if(!Hero.switchhookclk)
@@ -20867,7 +20867,7 @@ void check_enemy_lweapon_collision(weapon *w)
 								theItem->switch_hooked = true;
 								w->misc = 2;
 								w->step = 0;
-								theItem->clk2=256;
+								theItem->clk2 = game->get_item_timeout_dur() / 2;
 								Hero.doSwitchHook(game->get_switchhookstyle());
 								if(QMisc.miscsfx[sfxSWITCHED])
 									sfx(QMisc.miscsfx[sfxSWITCHED],pan(w->x));
@@ -20885,7 +20885,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].type==itype_key||itemsbuf[theItem->id].type==itype_lkey;
-						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((itemsbuf[pitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & item_flag7)&&isKey))&& !priced)))
 						{
 							if(itemsbuf[theItem->id].collect_script)
@@ -20907,7 +20907,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].type==itype_key||itemsbuf[theItem->id].type==itype_lkey;
-						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((itemsbuf[pitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							int32_t pickup = theItem->pickup;
@@ -20937,7 +20937,7 @@ void check_enemy_lweapon_collision(weapon *w)
 							if(w->dragging==-1)
 							{
 								w->dead=1;
-								theItem->clk2=256;
+								theItem->clk2 = game->get_item_timeout_dur() / 2;
 								w->dragging=j;
 								theItem->is_dragged = true;
 							}

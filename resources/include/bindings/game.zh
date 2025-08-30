@@ -102,16 +102,20 @@ enum GenericIndex
 	// Jump value when exiting water from the top.
 	// If 0, Link can only leave the top of the water via
 	// sideview ladder.
-	GEN_SIDESWIM_EXITJUMP  = 21,
-	GEN_BUNNY_TILEMOD      = 22, //Tile modifier to apply while [Hero] is bunnified
-	GEN_SWITCHHOOK_STYLE   = 23, //Which 'SW_EFF' style to use for the 'Switch w/ Hero' enemy defense
-	GEN_FLICKER_FRAMES     = 24, //How many frames Link / enemies flicker for with the flicker damage effect
-	GEN_FLICKER_COLOR      = 25, //Color used for the flicker effect
-	GEN_FLICKER_TRANSP     = 26, //Number of transparency passes for the flicker effect
-	GEN_LIGHT_WAVE_RATE    = 27,
-	GEN_LIGHT_WAVE_SIZE    = 28,
-	GEN_REGION_MAPPING     = 29, //Which [RegionMapping] (method of mapping) is used for regions
-	GEN_MAX                = 30
+	GEN_SIDESWIM_EXITJUMP    = 21,
+	GEN_BUNNY_TILEMOD        = 22, //Tile modifier to apply while [Hero] is bunnified
+	GEN_SWITCHHOOK_STYLE     = 23, //Which 'SW_EFF' style to use for the 'Switch w/ Hero' enemy defense
+	GEN_FLICKER_FRAMES       = 24, //How many frames Link / enemies flicker for with the flicker damage effect
+	GEN_FLICKER_COLOR        = 25, //Color used for the flicker effect
+	GEN_FLICKER_TRANSP       = 26, //Number of transparency passes for the flicker effect
+	GEN_LIGHT_WAVE_RATE      = 27,
+	GEN_LIGHT_WAVE_SIZE      = 28,
+	GEN_REGION_MAPPING       = 29, //Which [RegionMapping] (method of mapping) is used for regions
+	GEN_ITEM_SPAWN_FLICKER   = 30, // The duration of flickering after an item spawns
+	GEN_ITEM_TIMEOUT_DUR     = 31, // The duration before disappearing items vanish
+	GEN_ITEM_TIMEOUT_FLICKER = 32, // The duration disappearing items flicker before they vanish
+	GEN_ITEM_FLICKER_SPEED   = 33, // The speed items flicker at
+	GEN_MAX                  = 34
 };
 
 enum RegionMapping

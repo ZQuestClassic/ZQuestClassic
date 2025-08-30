@@ -1300,6 +1300,14 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					return 94;
 			}
 		}
+		
+		if (section_version < 47)
+		{
+			game.set_item_spawn_flicker(zinit.item_spawn_flicker);
+			game.set_item_timeout_dur(zinit.item_timeout_dur);
+			game.set_item_timeout_flicker(zinit.item_timeout_flicker);
+			game.set_item_flicker_speed(zinit.item_flicker_speed);
+		}
 	}
 	
 	return 0;

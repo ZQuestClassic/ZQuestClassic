@@ -94,6 +94,10 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->spriteflickercolor = gdata->get_spriteflickercolor();
 	zinit2->spriteflickertransp = gdata->get_spriteflickertransp();
 	zinit2->region_mapping = gdata->get_regionmapping();
+	zinit2->item_spawn_flicker = gdata->get_item_spawn_flicker();
+	zinit2->item_timeout_dur = gdata->get_item_timeout_dur();
+	zinit2->item_timeout_flicker = gdata->get_item_timeout_flicker();
+	zinit2->item_flicker_speed = gdata->get_item_flicker_speed();
 	
 	for(int32_t q = 0; q < MAX_COUNTERS; ++q)
 	{

@@ -950,6 +950,42 @@ void gamedata::set_regionmapping(byte val)
 	set_generic(val, genREGIONMAPPING);
 }
 
+word gamedata::get_item_spawn_flicker()
+{
+	return get_generic(genITEM_SPAWN_FLICKER);
+}
+void gamedata::set_item_spawn_flicker(word val)
+{
+	set_generic(val, genITEM_SPAWN_FLICKER);
+}
+
+word gamedata::get_item_timeout_dur()
+{
+	return zc_max(1, get_generic(genITEM_TIMEOUT_TIME));
+}
+void gamedata::set_item_timeout_dur(word val)
+{
+	set_generic(val, genITEM_TIMEOUT_TIME);
+}
+
+word gamedata::get_item_timeout_flicker()
+{
+	return get_generic(genITEM_TIMEOUT_FLICKER);
+}
+void gamedata::set_item_timeout_flicker(word val)
+{
+	set_generic(val, genITEM_TIMEOUT_FLICKER);
+}
+
+byte gamedata::get_item_flicker_speed()
+{
+	return zc_max(1, get_generic(genITEM_FLICKER_SPEED));
+}
+void gamedata::set_item_flicker_speed(byte val)
+{
+	set_generic(val, genITEM_FLICKER_SPEED);
+}
+
 void gamedata::set_item(int32_t id, bool value)
 {
     set_item_no_flush(id, value);

@@ -3488,7 +3488,7 @@ bool weapon::animate(int32_t index)
 			int32_t pickup = ptr->pickup;
 			if((pickup & ipCANGRAB) || (pickup & ipTIMER))
 			{
-				if(((pickup & ipCANGRAB) || ptr->clk2 >= 32) && !ptr->fallclk && !ptr->drownclk)
+				if(((pickup & ipCANGRAB) || ptr->clk2 >= game->get_item_spawn_flicker()) && !ptr->fallclk && !ptr->drownclk)
 				{
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1))
 					{

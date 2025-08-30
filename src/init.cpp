@@ -1015,6 +1015,10 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_mp_per_block(zinit2->magic_per_block);
 	game2->set_hero_dmgmult(zinit2->hero_damage_multiplier);
 	game2->set_regionmapping(zinit2->region_mapping);
+	game2->set_item_spawn_flicker(zinit2->item_spawn_flicker);
+	game2->set_item_timeout_dur(zinit2->item_timeout_dur);
+	game2->set_item_timeout_flicker(zinit2->item_timeout_flicker);
+	game2->set_item_flicker_speed(zinit2->item_flicker_speed);
 	game2->set_ene_dmgmult(zinit2->ene_damage_multiplier);
 	game2->set_dither_type(zinit2->dither_type);
 	game2->set_dither_arg(zinit2->dither_arg);
@@ -1100,6 +1104,10 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(heroSideswimUpStep) \
 	PROP(heroStep) \
 	PROP(hp_per_heart) \
+	PROP(item_spawn_flicker) \
+	PROP(item_timeout_dur) \
+	PROP(item_timeout_flicker) \
+	PROP(item_flicker_speed) \
 	PROP(jump_hero_layer_threshold) \
 	PROP(last_map) \
 	PROP(last_screen) \
