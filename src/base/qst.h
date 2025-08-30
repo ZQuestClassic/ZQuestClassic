@@ -268,5 +268,6 @@ void init_favorites();
 #define TILESET_CLEARSCRIPTS   0x02
 #define TILESET_CLEARHEADER    0x04
 #define TILESET_BUGFIX         0x08
+#define TILESET_SCR_BUGFIX     0x10
 
 #endif                                                      // _ZC_QST_H_
