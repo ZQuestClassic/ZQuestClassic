@@ -14277,6 +14277,14 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 				new_return(76);
 		if (!p_putbvec(zinit.lvlswitches, f))
 			new_return(77);
+		if (!p_iputw(zinit.item_spawn_flicker, f))
+			new_return(78);
+		if (!p_iputw(zinit.item_timeout_dur, f))
+			new_return(79);
+		if (!p_iputw(zinit.item_timeout_flicker, f))
+			new_return(80);
+		if (!p_putc(zinit.item_flicker_speed, f))
+			new_return(81);
 		
 		if(writecycle==0)
 		{

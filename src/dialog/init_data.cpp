@@ -606,10 +606,29 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Rows<3>(
 								margins = 0_px,
 								padding = 0_px,
-								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC), INFOBTN("Some objects draw higher-layer when their Z is greater than this value"),
-								VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC), INFOBTN("Multiplier of the subscreen's fall speed"),
 								VAL_FIELD(byte,"Hero Damage Mult:",1,255,hero_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by the Hero."),
 								VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by enemies."),
+								VAL_FIELD(byte, "Heart Pieces:", 0, 255, hcp, false), INFOBTN("Number of Heart Pieces the Hero starts with"),
+								VAL_FIELD(byte, "HP Per HC:", 1, 255, hcp_per_hc, false), INFOBTN("Number of Heart Pieces to create a new Heart Container"),
+								//
+								VAL_FIELD(byte, "Magic Drain Rate:", 0, 255, magicdrainrate, false),
+								INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
+									" 'Learn Half Magic' room, this value is halved (rounded down)."
+									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
+									" >-1, that piece will only show up when its 'Show' value is equal to"
+									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
+									" your starting value is high enough, you can allow stacking several"
+									" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true)
+							)
+						)
+					)),
+					TabRef(name = "Graphical", Row(
+						Column(vAlign = 0.0,
+							Rows<3>(
+								margins = 0_px,
+								padding = 0_px,
+								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC), INFOBTN("Some objects draw higher-layer when their Z is greater than this value"),
+								VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC), INFOBTN("Multiplier of the subscreen's fall speed"),
 								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Hero Tile Modifier' added when the Hero is a bunny."),
 								//
 								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false),
@@ -626,19 +645,12 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								VAL_FIELD(byte, "Flicker Timing:", 0, 255, spriteflickerspeed, false), INFOBTN("How many frames sprites will flicker for. If 0, will hide for the duration of the iframes" + QRHINT({ qr_HEROFLICKER, qr_ENEMIESFLICKER })),
 								COLOR_FIELD("Flicker Color:", spriteflickercolor, false), INFOBTN("If not color 0, sprites will flicker to this color. Will not work with 'Old (Faster) Sprite Drawing'" + QRHINT({ qr_HEROFLICKER, qr_ENEMIESFLICKER, qr_OLDSPRITEDRAWS })),
 								VAL_FIELD(byte, "Flicker Transparency Passes:", 0, 3, spriteflickertransp, false), INFOBTN("How many transparency passes the flicker effect uses. 0 will be a solid color" + QRHINT({ qr_HEROFLICKER, qr_ENEMIESFLICKER, qr_OLDSPRITEDRAWS })),
-								VAL_FIELD(byte, "Heart Pieces:", 0, 255, hcp, false), INFOBTN("Number of Heart Pieces the Hero starts with"),
-								VAL_FIELD(byte, "HP Per HC:", 1, 255, hcp_per_hc, false), INFOBTN("Number of Heart Pieces to create a new Heart Container"),
 								//
-								VAL_FIELD(byte, "Magic Drain Rate:", 0, 255, magicdrainrate, false),
-								INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
-									" 'Learn Half Magic' room, this value is halved (rounded down)."
-									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
-									" >-1, that piece will only show up when its 'Show' value is equal to"
-									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
-									" your starting value is high enough, you can allow stacking several"
-									" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true)
-									)
-								//
+								VAL_FIELD(word, "Item Spawn Flicker Duration:", 0, 65535, item_spawn_flicker, false), INFOBTN("Items that flicker when they spawn in will flicker for this many frames."),
+								VAL_FIELD(word, "Item Timeout Duration:", 0, 65535, item_timeout_dur, false), INFOBTN("Items that despawn over time will take this many frames to despawn."),
+								VAL_FIELD(word, "Item Timeout Flicker Duration:", 0, 65535, item_timeout_flicker, false), INFOBTN("Items that despawn over time will flicker for this many frames before vanishing."),
+								VAL_FIELD(byte, "Item Flicker Speed:", 0, 255, item_flicker_speed, false), INFOBTN("Items that despawn over time and are flickering will flicker at this speed.")
+							)
 						)
 					)),
 					TabRef(name = "Movement", Row(

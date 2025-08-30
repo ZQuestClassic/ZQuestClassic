@@ -75,6 +75,9 @@ struct zinitdata
 	
 	byte region_mapping;
 	
+	word item_spawn_flicker = 32, item_timeout_dur = 512, item_timeout_flicker = 0;
+	byte item_flicker_speed = 2;
+	
 	bitstring gen_doscript;
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};
 	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC};

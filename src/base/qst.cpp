@@ -21406,6 +21406,18 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		if(s_version >= 44)
 			if (!p_getbvec(&temp_zinit.lvlswitches, f))
 				return qe_invalid;
+		
+		if (s_version >= 45)
+		{
+			if (!p_igetw(&temp_zinit.item_spawn_flicker, f))
+				return qe_invalid;
+			if (!p_igetw(&temp_zinit.item_timeout_dur, f))
+				return qe_invalid;
+			if (!p_igetw(&temp_zinit.item_timeout_flicker, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.item_flicker_speed, f))
+				return qe_invalid;
+		}
 	}
 	if (should_skip)
 		return 0;

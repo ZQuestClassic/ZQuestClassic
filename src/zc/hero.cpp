@@ -3743,7 +3743,7 @@ bool HeroClass::checkstab()
 				continue; //No picking these up unless you have a bottle to fill!
 			if((ptr->pickup & ipCANGRAB) || (ptr->pickup & ipTIMER) || dofairy)
 			{
-				if(((ptr->pickup & ipCANGRAB) || ptr->clk2 >= 32 || dofairy) && !ptr->fallclk && !ptr->drownclk)
+				if(((ptr->pickup & ipCANGRAB) || ptr->clk2 >= game->get_item_spawn_flicker() || dofairy) && !ptr->fallclk && !ptr->drownclk)
 				{
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1)))
@@ -31604,7 +31604,7 @@ void HeroClass::checkitems(int32_t index)
 		if(itemsbuf[id2].type == itype_bottlefill && !game->canFillBottle())
 			return; //No picking these up unless you have a bottle to fill!
 		
-		if(((pickup&ipTIMER) && (ptr->clk2 < 32))&& !(pickup & ipCANGRAB))
+		if(((pickup&ipTIMER) && (ptr->clk2 < game->get_item_spawn_flicker()))&& !(pickup & ipCANGRAB))
 			if(ptr->id!=iFairyMoving)
 				// wait for it to stop flashing, doesn't check for other items yet
 				return;

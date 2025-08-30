@@ -954,9 +954,9 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 				}
 				
 				// If making an item timeout, set its timer
-				if(newpickup & ipFADE)
+				if(newpickup & ipFADE) // this isn't the right flag? bleh... Also doing the wrong thing?
 				{
-					(s->clk2) = 512;
+					(s->clk2) = game->get_item_timeout_dur();
 				}
 				//else if(newpickup & ~ipFADE)
 				//{

@@ -321,6 +321,18 @@ public:
 	
 	byte get_regionmapping();
 	void set_regionmapping(byte val);
+	
+	word get_item_spawn_flicker();
+	void set_item_spawn_flicker(word val);
+	
+	word get_item_timeout_dur();
+	void set_item_timeout_dur(word val);
+	
+	word get_item_timeout_flicker();
+	void set_item_timeout_flicker(word val);
+	
+	byte get_item_flicker_speed();
+	void set_item_flicker_speed(byte val);
 
 	byte get_continue_scrn() const;
 	void set_continue_scrn(byte s);

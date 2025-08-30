@@ -269,12 +269,8 @@ bool item::animate(int32_t)
 	}
 	
 	if(pickup&ipTIMER)
-	{
-		if(++clk2 == 512)
-		{
+		if(++clk2 == game->get_item_timeout_dur())
 			return true;
-		}
-	}
 	
 	return false;
 }
@@ -289,13 +285,20 @@ void item::draw(BITMAP *dest)
 		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
 		sprite::drawshadow(dest,get_qr(qr_TRANSSHADOWS) != 0);
 	}
-	if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1 || fallclk || drownclk)
+	bool ignore_flicker = fallclk || drownclk;
+	if (!ignore_flicker)
 	{
-		if(clk2>32 || (clk2&2)==0 || itemsbuf[id].type == itype_fairy || fallclk || drownclk)
+		if ((pickup & ipFADE) && fadeclk >= 0 && !(fadeclk & 1))
+			return; // flicker for ipFADE
+		if (clk2 % (game->get_item_flicker_speed() * 2) >= game->get_item_flicker_speed())
 		{
-			sprite::draw(dest);
+			if (clk2 <= game->get_item_spawn_flicker() && itemsbuf[id].type != itype_fairy)
+				return; // flicker for items spawning in
+			if ((pickup & ipTIMER) && clk2 >= (game->get_item_timeout_dur() - game->get_item_timeout_flicker()))
+				return; // flicker for timeout items before vanishing
 		}
 	}
+	sprite::draw(dest);
 }
 
 void item::draw_hitbox()
