@@ -290,6 +290,7 @@ void item::draw(BITMAP *dest)
 	{
 		if ((pickup & ipFADE) && fadeclk >= 0 && !(fadeclk & 1))
 			return; // flicker for ipFADE
+#ifdef IS_PLAYER
 		if (clk2 % (game->get_item_flicker_speed() * 2) >= game->get_item_flicker_speed())
 		{
 			if (clk2 <= game->get_item_spawn_flicker() && itemsbuf[id].type != itype_fairy)
@@ -297,6 +298,7 @@ void item::draw(BITMAP *dest)
 			if ((pickup & ipTIMER) && clk2 >= (game->get_item_timeout_dur() - game->get_item_timeout_flicker()))
 				return; // flicker for timeout items before vanishing
 		}
+#endif
 	}
 	sprite::draw(dest);
 }
