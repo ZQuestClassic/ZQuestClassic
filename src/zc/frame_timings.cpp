@@ -78,6 +78,8 @@ void frame_timings_end()
 	double max_time_ms = sorted.back() / 1000.0;
 	double median_time_ms = sorted[sorted.size() / 2] / 1000.0;
 	double p95_time_ms = sorted[sorted.size() * 0.95] / 1000.0;
+	double p99_time_ms = sorted[sorted.size() * 0.99] / 1000.0;
+	double p99_9_time_ms = sorted[sorted.size() * 0.999] / 1000.0;
 
 	al_trace("\n=== frame timings ===\n\n");
 	al_trace("frames: %zu\n", timings.size());
@@ -86,14 +88,18 @@ void frame_timings_end()
 	al_trace("max: %.1f ms\n", max_time_ms);
 	al_trace("p50 (median): %.1f ms\n", median_time_ms);
 	al_trace("p95: %.1f ms\n", p95_time_ms);
+	al_trace("p99: %.1f ms\n", p99_time_ms);
+	al_trace("p99.9: %.1f ms\n", p99_9_time_ms);
 	for (int j = 0; j < 5; j++)
 		al_trace("frames >= %d ms: %d (%.1f%%)\n", thresholds[j] / 1000, counts[j], 100.0 * counts[j] / timings.size());
 
 	al_trace("all frames >= 10 ms:\n");
 	for (int i = 0; i < timings.size(); i++)
 	{
+		// The +1 aligns with the replay frame count.
+		int frame = i + 1;
 		if (timings[i] >= MICRO(10))
-			al_trace("%d: %.1f ms\n", i, timings[i] / 1000.0);
+			al_trace("%d: %.1f ms\n", frame, timings[i] / 1000.0);
 	}
 	al_trace("\n");
 
