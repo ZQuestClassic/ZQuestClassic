@@ -25051,29 +25051,39 @@ void HeroClass::checkspecial2(int32_t *ls)
 		}
 		else
 		{
-			types[0] = COMBOTYPE(x1,y1);
+			rpos_handles[0] = get_rpos_handle_for_world_xy(x1, y1, 0);
+			rpos_handles[1] = get_rpos_handle_for_world_xy(x1, y2, 0);
+			rpos_handles[2] = get_rpos_handle_for_world_xy(x2, y1, 0);
+			rpos_handles[3] = get_rpos_handle_for_world_xy(x2, y2, 0);
+			
+			types[0] = rpos_handles[0].ctype();
 			if (auto ffc_handle = getFFCAt(x1, y1))
 				types[0] = ffc_handle->ctype();
 			
-			types[1] = COMBOTYPE(x1,y2);
+			types[1] = rpos_handles[1].ctype();
 			if (auto ffc_handle = getFFCAt(x1, y2))
 				types[1] = ffc_handle->ctype();
 
-			types[2] = COMBOTYPE(x2,y1);
+			types[2] = rpos_handles[2].ctype();
 			if (auto ffc_handle = getFFCAt(x2, y1))
 				types[2] = ffc_handle->ctype();
 
-			types[3] = COMBOTYPE(x2,y2);
+			types[3] = rpos_handles[3].ctype();
 			if (auto ffc_handle = getFFCAt(x2, y2))
 				types[3] = ffc_handle->ctype();
-
-			int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
-			if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
-				typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
-				
+			
+			auto rpos_handle = get_rpos_handle_for_world_xy((x2+x1)/2, (y2+y1)/2, 0);
+			auto typec = rpos_handle.ctype();
+			auto cid = rpos_handle.data();
+			if (auto ffc_handle = getFFCAt((x2+x1)/2, (y2+y1)/2))
+			{
+				typec = ffc_handle->ctype();
+				cid = ffc_handle->data();
+			}
+			
 			if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
 					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-				water = typec;
+				water = cid;
 		}
 	}
 	
