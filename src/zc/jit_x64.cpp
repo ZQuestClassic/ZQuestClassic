@@ -1764,7 +1764,6 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 
 	if (compiled_fn)
 	{
-		jit_printf("success\n");
 		if (jit_env_test)
 		{
 			jit_printf("discarding compiled function because of -jit-env-test\n");

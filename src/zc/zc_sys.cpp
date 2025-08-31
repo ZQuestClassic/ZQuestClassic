@@ -4549,8 +4549,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	
 	if(sfxcleanup)
 		sfx_cleanup();
-	
-	jit_poll();
 
 	frame_timings_poll();
 

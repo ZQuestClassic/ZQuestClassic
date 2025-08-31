@@ -617,6 +617,7 @@ set(zcbase_sources
 	src/base/version.cpp
 	src/base/weapon_data.cpp
 	src/base/win32.cpp
+	src/base/worker_pool.cpp
 	src/base/zapp.cpp
 	src/base/zc_alleg.cpp
 	src/base/zc_math.cpp

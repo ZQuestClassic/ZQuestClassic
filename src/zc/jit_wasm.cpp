@@ -1519,10 +1519,6 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		error(script, "failed to compile");
 		return nullptr;
 	}
-	else
-	{
-		jit_printf("success\n");
-	}
 
 	auto fn = new JittedFunctionHandle(module_id);
 	fn->pc_to_block_id = std::move(state.pc_to_block_id);

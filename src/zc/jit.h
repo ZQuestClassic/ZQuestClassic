@@ -22,7 +22,6 @@ bool jit_is_enabled();
 void jit_set_enabled(bool enabled);
 JittedScriptHandle* jit_create_script_handle(script_data* script, refInfo* ri, bool just_initialized);
 void jit_startup();
-void jit_poll();
 void jit_shutdown();
 
 // The following vary per backend.

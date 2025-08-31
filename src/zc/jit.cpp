@@ -2,30 +2,57 @@
 
 // Opportunities for improvement:
 // * Preprocess the ZASM byte code into function sections, and only compile one function at a time when deemed "hot".
-// * Multiple PUSHR (for example: Maths in playground.qst) commands could be combined to only modify the stack index pointer
-//   just once. Could be problematic for cases where an overflow might happen (detect this?). Same for POP.
 // * Compile: LSHIFTR RSHIFTR
 
 #include "zc/jit.h"
+#include "base/worker_pool.h"
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "zc/script_debug.h"
-#include "zc/zasm_optimize.h"
-#include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include "zconfig.h"
 #include <fmt/format.h>
 #include <algorithm>
-#include <array>
 #include <map>
 #include <filesystem>
+#include <memory>
 #include <thread>
 
 static bool is_enabled;
 static bool jit_log_enabled;
 
+static std::unique_ptr<WorkerPool> worker_pool;
+static const int MAX_THREADS = 16;
+static int worker_pool_generation;
+static ALLEGRO_MUTEX* compiled_scripts_mutex;
+static ALLEGRO_COND* compiled_scripts_cond;
 // Values may be null.
 static std::map<zasm_script_id, JittedFunctionHandle*> compiled_functions;
+
+static void create_compile_task(zasm_script* script)
+{
+	worker_pool->add_task([script](){
+		int generation = worker_pool_generation;
+
+		jit_printf("[jit] compiling script: %s id: %d\n", script->name.c_str(), script->id);
+		JittedFunctionHandle* fn = jit_compile_script(script);
+
+		al_lock_mutex(compiled_scripts_mutex);
+
+		// Only store the result if a new quest hasn't been loaded in the meantime.
+		if (worker_pool_generation == generation)
+		{
+			compiled_functions[script->id] = fn;
+		}
+		else
+		{
+			jit_release(fn); // Stale result, release it.
+		}
+
+		al_broadcast_cond(compiled_scripts_cond);
+		al_unlock_mutex(compiled_scripts_mutex);
+	});
+}
 
 void jit_printf(const char *format, ...)
 {
@@ -39,279 +66,78 @@ void jit_printf(const char *format, ...)
 	al_trace("%s", buffer);
 }
 
-enum class ThreadState
-{
-	Inactive,
-	Starting,
-	Running,
-	Stopping,
-	Done,
-};
-
-struct ThreadInfo
-{
-	int id;
-	ThreadState state = ThreadState::Inactive;
-	ALLEGRO_THREAD* thread;
-};
-
-enum class TaskState
-{
-	Pending,
-	Active,
-	Done,
-};
-
-static const int MAX_THREADS = 16;
-static std::array<ThreadInfo, MAX_THREADS> thread_infos;
-static std::map<zasm_script_id, TaskState> task_states;
-static std::vector<zasm_script_id> active_tasks;
-static std::vector<zasm_script*> pending_scripts;
-static ALLEGRO_MUTEX* tasks_mutex;
-static ALLEGRO_COND* tasks_cond;
-static ALLEGRO_COND* task_finish_cond;
-
 static JittedFunctionHandle* find_function_handle(zasm_script *script)
 {
 	JittedFunctionHandle* fn;
 
 	// First check if script is already compiled.
-	al_lock_mutex(tasks_mutex);
+	al_lock_mutex(compiled_scripts_mutex);
 	auto it = compiled_functions.find(script->id);
 	if (it != compiled_functions.end())
 	{
 		fn = it->second;
-		al_unlock_mutex(tasks_mutex);
+		al_unlock_mutex(compiled_scripts_mutex);
 		return fn;
 	}
 
-	al_unlock_mutex(tasks_mutex);
+	al_unlock_mutex(compiled_scripts_mutex);
 	return nullptr;
 }
 
-// Returns a JittedFunction. If already compiled, returns the cached reference.
-// If a thread is currently compiling this script, waits for that thread to finish.
-// Otherwise compile the script on this thread.
-// If null is returned, the script failed to compile.
-static JittedFunctionHandle* compile_if_needed(zasm_script* script)
-{
-	JittedFunctionHandle* fn;
-
-	// First check if script is already compiled.
-	al_lock_mutex(tasks_mutex);
-	auto it = compiled_functions.find(script->id);
-	if (it != compiled_functions.end())
-	{
-		fn = it->second;
-		al_unlock_mutex(tasks_mutex);
-		return fn;
-	}
-
-	// Next check if a thread is currently compiling this script.
-	if (task_states[script->id] == TaskState::Active)
-	{
-		// Wait for task to finish.
-		jit_printf("jit: [*] waiting for thread to compile script: %s id: %d\n", script->name.c_str(), script->id);
-		while (!compiled_functions.contains(script->id))
-		{
-			al_wait_cond(task_finish_cond, tasks_mutex);
-		}
-
-		fn = compiled_functions[script->id];
-		al_unlock_mutex(tasks_mutex);
-		return fn;
-	}
-
-	// Finally, just compile the script here. No need to keep lock during this.
-	auto pending_it = std::find(pending_scripts.begin(), pending_scripts.end(), script);
-	if (pending_it != pending_scripts.end())
-		pending_scripts.erase(pending_it);
-	al_unlock_mutex(tasks_mutex);
-
-	jit_printf("jit: [*] compiling script: %s id: %d\n", script->name.c_str(), script->id);
-	fn = jit_compile_script(script);
-
-	al_lock_mutex(tasks_mutex);
-	compiled_functions[script->id] = fn;
-	al_unlock_mutex(tasks_mutex);
-
-	return fn;
-}
-
-static int thread_pool_generation_count;
-
-static void * compile_script_proc(ALLEGRO_THREAD *thread, void *arg)
-{
-	ThreadInfo* thread_info = (ThreadInfo*)arg;
-	int id = thread_info->id;
-	jit_printf("jit: [%d] thread started\n", id);
-
-	al_lock_mutex(tasks_mutex);
-	thread_info->state = ThreadState::Running;
-	while (true)
-	{
-		while (!(al_get_thread_should_stop(thread) || pending_scripts.size()))
-		{
-			al_wait_cond(tasks_cond, tasks_mutex);
-		}
-
-		if (al_get_thread_should_stop(thread))
-		{
-			break;
-		}
-
-		int generation = thread_pool_generation_count;
-		auto script = pending_scripts.back();
-		pending_scripts.pop_back();
-		task_states[script->id] = TaskState::Active;
-		active_tasks.push_back(script->id);
-		al_unlock_mutex(tasks_mutex);
-
-		jit_printf("jit: [%d] compiling script: %s id: %d\n", id, script->name.c_str(), script->id);
-		auto fn = jit_compile_script(script);
-
-		al_lock_mutex(tasks_mutex);
-		if (auto it = std::find(active_tasks.begin(), active_tasks.end(), script->id); it != active_tasks.end())
-			active_tasks.erase(it);
-		if (thread_pool_generation_count != generation)
-		{
-			// This task is now useless, since a new quest was loaded.
-			continue;
-		}
-		task_states[script->id] = TaskState::Done;
-		compiled_functions[script->id] = fn;
-		// This is what signals the main thread that this script is ready.
-		al_broadcast_cond(task_finish_cond);
-		// Go back to top of loop, still with the mutex locked.
-	}
-
-	thread_info->state = ThreadState::Done;
-	al_unlock_mutex(tasks_mutex);
-	jit_printf("jit: [%d] done\n", id);
-	return nullptr;
-}
-
-static void create_compile_tasks(script_data *scripts[], size_t start, size_t max, ScriptType type)
+static void collect_scripts(std::vector<zasm_script*>& scripts, script_data *scripts_array[], size_t start, size_t max, ScriptType type)
 {
 	for (size_t i = start; i < max; i++)
 	{
-		auto script = scripts[i];
+		auto script = scripts_array[i];
 		if (script && script->valid() && !compiled_functions.contains(script->zasm_script->id))
 		{
-			if (std::find(pending_scripts.begin(), pending_scripts.end(), script->zasm_script.get()) == pending_scripts.end())
+			if (std::find(scripts.begin(), scripts.end(), script->zasm_script.get()) == scripts.end())
 			{
-				pending_scripts.push_back(script->zasm_script.get());
-				task_states[script->zasm_script->id] = TaskState::Pending;
+				scripts.push_back(script->zasm_script.get());
 			}
 		}
 	}
 }
 
-static void create_compile_tasks(script_data *scripts[], size_t len, ScriptType type)
+static void collect_scripts(std::vector<zasm_script*>& scripts, script_data *scripts_array[], size_t len, ScriptType type)
 {
-	create_compile_tasks(scripts, 0, len, type);
+	collect_scripts(scripts, scripts_array, 0, len, type);
 }
 
-static bool set_compilation_thread_pool_size(int target_size)
+static std::vector<zasm_script*> collect_scripts()
 {
-	if (target_size > MAX_THREADS)
-		target_size = MAX_THREADS;
+	std::vector<zasm_script*> scripts;
 
-	al_lock_mutex(tasks_mutex);
-	int num_active_threads = 0;
-	for (auto& thread_info : thread_infos)
-	{
-		if (thread_info.state == ThreadState::Running || thread_info.state == ThreadState::Starting)
-			num_active_threads += 1;
-	}
-	al_unlock_mutex(tasks_mutex);
-
-	int delta = target_size - num_active_threads;
-	if (delta == 0)
-		return true;
-
-	jit_printf("jit: changing from %d to %d threads\n", num_active_threads, target_size);
-
-	if (delta > 0)
-	{
-		for (auto& thread_info : thread_infos)
-		{
-			if (delta == 0)
-				break;
-			if (thread_info.state != ThreadState::Inactive)
-				continue;
-
-			ALLEGRO_THREAD *t = al_create_thread(compile_script_proc, &thread_info);
-			if (!t)
-			{
-				return false;
-			}
-			thread_info.thread = t;
-			thread_info.state = ThreadState::Starting;
-			al_start_thread(t);
-			delta--;
-		}
-	}
-	else
-	{
-		al_lock_mutex(tasks_mutex);
-
-		for (auto& thread_info : thread_infos)
-		{
-			if (delta == 0)
-				break;
-			if (!(thread_info.state == ThreadState::Running || thread_info.state == ThreadState::Starting))
-				continue;
-
-			al_set_thread_should_stop(thread_info.thread);
-			thread_info.state = ThreadState::Stopping;
-			++delta;
-		}
-
-		al_broadcast_cond(tasks_cond);
-		al_unlock_mutex(tasks_mutex);
-	}
-
-	return true;
-}
-
-static void create_compile_tasks()
-{
-	al_lock_mutex(tasks_mutex);
-	task_states.clear();
-	active_tasks.clear();
-	pending_scripts.clear();
-	create_compile_tasks(ffscripts, NUMSCRIPTFFC, ScriptType::FFC);
-	create_compile_tasks(itemscripts, NUMSCRIPTITEM, ScriptType::Item);
-	create_compile_tasks(guyscripts, NUMSCRIPTGUYS, ScriptType::NPC);
-	create_compile_tasks(screenscripts, NUMSCRIPTSCREEN, ScriptType::Screen);
-	create_compile_tasks(lwpnscripts, NUMSCRIPTWEAPONS, ScriptType::Lwpn);
-	create_compile_tasks(ewpnscripts, NUMSCRIPTWEAPONS, ScriptType::Ewpn);
-	create_compile_tasks(dmapscripts, NUMSCRIPTSDMAP, ScriptType::DMap);
-	create_compile_tasks(itemspritescripts, NUMSCRIPTSITEMSPRITE, ScriptType::ItemSprite);
-	create_compile_tasks(comboscripts, NUMSCRIPTSCOMBODATA, ScriptType::Combo);
-	create_compile_tasks(genericscripts, NUMSCRIPTSGENERIC, ScriptType::Generic);
-	create_compile_tasks(subscreenscripts, NUMSCRIPTSSUBSCREEN, ScriptType::EngineSubscreen);
+	collect_scripts(scripts, ffscripts, NUMSCRIPTFFC, ScriptType::FFC);
+	collect_scripts(scripts, itemscripts, NUMSCRIPTITEM, ScriptType::Item);
+	collect_scripts(scripts, guyscripts, NUMSCRIPTGUYS, ScriptType::NPC);
+	collect_scripts(scripts, screenscripts, NUMSCRIPTSCREEN, ScriptType::Screen);
+	collect_scripts(scripts, lwpnscripts, NUMSCRIPTWEAPONS, ScriptType::Lwpn);
+	collect_scripts(scripts, ewpnscripts, NUMSCRIPTWEAPONS, ScriptType::Ewpn);
+	collect_scripts(scripts, dmapscripts, NUMSCRIPTSDMAP, ScriptType::DMap);
+	collect_scripts(scripts, itemspritescripts, NUMSCRIPTSITEMSPRITE, ScriptType::ItemSprite);
+	collect_scripts(scripts, comboscripts, NUMSCRIPTSCOMBODATA, ScriptType::Combo);
+	collect_scripts(scripts, genericscripts, NUMSCRIPTSGENERIC, ScriptType::Generic);
+	collect_scripts(scripts, subscreenscripts, NUMSCRIPTSSUBSCREEN, ScriptType::EngineSubscreen);
 	// Skip the first two - are priortizied below the sort.
-	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_INIT+2, NUMSCRIPTGLOBAL, ScriptType::Global);
+	collect_scripts(scripts, globalscripts, GLOBAL_SCRIPT_INIT+2, NUMSCRIPTGLOBAL, ScriptType::Global);
 	// Sort by # of commands, so that biggest scripts get compiled first.
-	std::sort(pending_scripts.begin(), pending_scripts.end(), [](zasm_script* a, zasm_script* b) {
+	std::sort(scripts.begin(), scripts.end(), [](zasm_script* a, zasm_script* b) {
 		return a->size < b->size;
 	});
 	// Make sure player and global scripts (just the INIT and GAME ones) are compiled first, as they
 	// are needed on frame 1.
-	create_compile_tasks(playerscripts, NUMSCRIPTHERO, ScriptType::Hero);
-	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_INIT, 2, ScriptType::Global);
+	collect_scripts(scripts, playerscripts, NUMSCRIPTHERO, ScriptType::Hero);
+	collect_scripts(scripts, globalscripts, GLOBAL_SCRIPT_INIT, 2, ScriptType::Global);
 	if (jit_log_enabled)
 	{
-		for (auto a : pending_scripts) 
+		for (auto script : scripts)
 		{
-			jit_printf("jit: %d: %d\n", a->id, (int)a->size);
+			jit_printf("[jit] script %s: %zu\n", script->name.c_str(), script->size);
 		}
 	}
 
-	al_broadcast_cond(tasks_cond);
-	al_unlock_mutex(tasks_mutex);
+	return scripts;
 }
 
 bool jit_is_enabled()
@@ -351,6 +177,7 @@ void jit_startup()
 	auto processor_count = std::thread::hardware_concurrency();
 	if (num_threads < 0)
 		num_threads = std::max(1, (int)processor_count / -num_threads);
+	num_threads = std::min(MAX_THREADS, num_threads);
 
 	// Currently can only compile WASM on main browser thread, so always precompile scripts.
 	if (is_web() || num_threads == 0)
@@ -359,17 +186,10 @@ void jit_startup()
 		precompile = true;
 	}
 
-	for (int i = 0; i < thread_infos.size(); i++)
-	{
-		thread_infos[i].id = i;
-	}
-
-	if (!tasks_mutex)
-		tasks_mutex = al_create_mutex();
-	if (!tasks_cond)
-		tasks_cond = al_create_cond();
-	if (!task_finish_cond)
-		task_finish_cond = al_create_cond();
+	if (!compiled_scripts_mutex)
+		compiled_scripts_mutex = al_create_mutex();
+	if (!compiled_scripts_cond)
+		compiled_scripts_cond = al_create_cond();
 
 	// Only clear compiled functions if quest has changed since last quest load.
 	// TODO: could get even smarter and hash each ZASM script, only recompiling if something really changed.
@@ -379,79 +199,47 @@ void jit_startup()
 	if (should_clear)
 	{
 		previous_state = state;
-		al_lock_mutex(tasks_mutex);
-		thread_pool_generation_count++;
+		al_lock_mutex(compiled_scripts_mutex);
+		worker_pool_generation++;
 		for (auto &it : compiled_functions)
 		{
 			jit_release(it.second);
 		}
 		compiled_functions.clear();
-		al_unlock_mutex(tasks_mutex);
+		al_unlock_mutex(compiled_scripts_mutex);
 	}
 
-	create_compile_tasks();
+	auto scripts = collect_scripts();
 
 	// Never make more threads than there are tasks.
-	if (pending_scripts.size() + active_tasks.size() < num_threads)
-		num_threads = pending_scripts.size() + active_tasks.size();
-	set_compilation_thread_pool_size(num_threads);
-
-	al_lock_mutex(tasks_mutex);
-	al_broadcast_cond(tasks_cond);
-	al_unlock_mutex(tasks_mutex);
+	if (scripts.size() < num_threads)
+		num_threads = scripts.size();
+	if (num_threads > 0)
+	{
+		jit_printf("[jit] creating worker pool with %d threads\n", num_threads);
+		worker_pool = std::make_unique<WorkerPool>(num_threads);
+		for (auto script : scripts)
+			create_compile_task(script);
+	}
 
 	if (precompile)
 	{
 		// Handle special case where there are no worker threads.
 		if (num_threads == 0)
 		{
-			while (!pending_scripts.empty())
+			for (auto script : scripts)
 			{
-				compile_if_needed(pending_scripts.back());
+				jit_printf("[jit] compiling script: %s id: %d\n", script->name.c_str(), script->id);
+				compiled_functions[script->id] = jit_compile_script(script);
 			}
 		}
-
-		al_lock_mutex(tasks_mutex);
-		while (pending_scripts.size() || active_tasks.size())
+		else
 		{
-			al_wait_cond(task_finish_cond, tasks_mutex);
-		}
-		al_unlock_mutex(tasks_mutex);
-	}
-}
-
-void jit_poll()
-{
-	if (!is_enabled)
-		return;
-
-	if (tasks_mutex == nullptr)
-		return;
-
-	al_lock_mutex(tasks_mutex);
-
-	int active_threads = 0;
-	for (auto& thread_info : thread_infos)
-	{
-		if (thread_info.state == ThreadState::Done)
-		{
-			jit_printf("jit: [%d] destroy\n", thread_info.id);
-			al_destroy_thread(thread_info.thread);
-			thread_info.thread = nullptr;
-			thread_info.state = ThreadState::Inactive;
-		}
-
-		if (thread_info.state == ThreadState::Running || thread_info.state == ThreadState::Starting)
-		{
-			active_threads += 1;
+			worker_pool->wait_for_all();
 		}
 	}
 
-	int tasks_left = active_tasks.size() + pending_scripts.size();
-	al_unlock_mutex(tasks_mutex);
-
-	if (active_threads > tasks_left)
-		set_compilation_thread_pool_size(tasks_left);
+	scripts.clear();
 }
 
 void jit_shutdown()
@@ -459,30 +247,16 @@ void jit_shutdown()
 	if (!is_enabled)
 		return;
 
-	if (tasks_mutex == nullptr)
-		return;
+	worker_pool.reset();
 
-	set_compilation_thread_pool_size(0);
-	for (auto& thread_info : thread_infos)
+	if (compiled_scripts_mutex)
 	{
-		if (thread_info.thread)
-			al_destroy_thread(thread_info.thread);
+		al_destroy_mutex(compiled_scripts_mutex);
+		compiled_scripts_mutex = nullptr;
 	}
-	thread_infos = {};
-
-	if (tasks_mutex)
+	if (compiled_scripts_cond)
 	{
-		al_destroy_mutex(tasks_mutex);
-		tasks_mutex = nullptr;
-	}
-	if (tasks_cond)
-	{
-		al_destroy_cond(tasks_cond);
-		tasks_cond = nullptr;
-	}
-	if (task_finish_cond)
-	{
-		al_destroy_cond(task_finish_cond);
-		task_finish_cond = nullptr;
+		al_destroy_cond(compiled_scripts_cond);
+		compiled_scripts_cond = nullptr;
 	}
 }
