@@ -964,11 +964,14 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 {
 	game2->set_maxlife(zinit2->mcounter[crLIFE]);
 	game2->set_maxbombs(zinit2->mcounter[crBOMBS]);
-	game2->set_maxcounter(zinit2->mcounter[crBOMBS]/zc_max(1,zinit2->bomb_ratio), 6);
+	game2->set_maxcounter(zinit2->mcounter[crBOMBS]/zc_max(1,zinit2->bomb_ratio), crSBOMBS);
 	game2->set_maxmagic(zinit2->mcounter[crMAGIC]);
 	game2->set_maxarrows(zinit2->mcounter[crARROWS]);
-	game2->set_maxcounter(zinit2->mcounter[crMONEY], 1);
-	game2->set_maxcounter(zinit2->mcounter[crKEYS], 5);
+	game2->set_maxcounter(zinit2->mcounter[crMONEY], crMONEY);
+	game2->set_maxcounter(zinit2->mcounter[crKEYS], crKEYS);
+	
+	for(int32_t q = 0; q < 100; ++q)
+		game2->set_maxcounter(zinit2->mcounter[q+crCUSTOM1], q+crCUSTOM1);
 	
 	//set up the items
 	for(int32_t i=0; i<MAXITEMS; i++)
@@ -1053,10 +1056,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_arrows(zinit2->counter[crARROWS]);
 	
 	for(int32_t q = 0; q < 100; ++q)
-	{
 		game2->set_counter(zinit2->counter[q+crCUSTOM1], q+ crCUSTOM1);
-		game2->set_maxcounter(zinit2->mcounter[q+crCUSTOM1], q+crCUSTOM1);
-	}
 	
 	if(freshquest)
 	{
