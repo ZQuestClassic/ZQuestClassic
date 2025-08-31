@@ -24496,33 +24496,20 @@ void HeroClass::checkspecial2(int32_t *ls)
 		}
 		else
 		{
-			types[0] = COMBOTYPE(x1,y1);
+			cids[0] = FFORCOMBO(x1, y1);
+			cids[1] = FFORCOMBO(x1, y2);
+			cids[2] = FFORCOMBO(x2, y1);
+			cids[3] = FFORCOMBO(x2, y2);
 			
-			if(MAPFFCOMBO(x1,y1))
-				types[0] = FFCOMBOTYPE(x1,y1);
-				
-			types[1] = COMBOTYPE(x1,y2);
+			for (int q = 0; q < 4; ++q)
+				types[q] = combobuf[cids[q]].type;
 			
-			if(MAPFFCOMBO(x1,y2))
-				types[1] = FFCOMBOTYPE(x1,y2);
-				
-			types[2] = COMBOTYPE(x2,y1);
+			int cid = FFORCOMBO((x2+x1)/2,(y2+y1)/2);
+			int typec = combobuf[cid].type;
 			
-			if(MAPFFCOMBO(x2,y1))
-				types[2] = FFCOMBOTYPE(x2,y1);
-				
-			types[3] = COMBOTYPE(x2,y2);
-			
-			if(MAPFFCOMBO(x2,y2))
-				types[3] = FFCOMBOTYPE(x2,y2);
-				
-			int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
-			if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
-				typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
-				
 			if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
 					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-				water = typec;
+				water = cid;
 		}
 	}
 	
