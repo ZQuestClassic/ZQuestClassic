@@ -1880,7 +1880,9 @@ static bool load_from_save_file_expect_one(ReadMode read_mode, fs::path path, sa
 		return false;
 	}
 
+	auto old_index = out_save.index;
 	out_save = std::move(saves[0]);
+	out_save.index = old_index;
 	out_save.path = path;
 	return true;
 }
