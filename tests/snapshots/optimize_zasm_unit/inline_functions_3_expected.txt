@@ -64,7 +64,10 @@ Function #2
    41: NOP
    42: NOP
    43: RETURNFUNC
-   44: NOP
+
+
+Function #3
+   44: NOP                                          [Block 0 -> ]
    45: NOP
    46: NOP
    47: NOP

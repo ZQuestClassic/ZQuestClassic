@@ -75,7 +75,10 @@ Function #2
    59: POP             D3
    60: NOP
    61: RETURNFUNC
-   62: NOP
+
+
+Function #3
+   62: NOP                                          [Block 0 -> ]
    63: NOP
    64: NOP
    65: NOP

@@ -1,5 +1,6 @@
 #include "zc/zasm_utils.h"
 #include "base/zdefs.h"
+#include "zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/parallel.h"
 #include "zc/script_debug.h"
@@ -14,8 +15,8 @@
 
 bool StructuredZasm::is_modern_function_calling()
 {
-	// UNKNOWN is included b/c scripts like "global init" don't have any function calls, so might as
-	// well consider it "modern".
+	// UNKNOWN is included b/c scripts like "global init" don't typically have any function calls,
+	// so might as well consider it "modern".
 	return calling_mode == CALLING_MODE_CALLFUNC_RETURNFUNC || calling_mode == CALLING_MODE_UNKNOWN;
 }
 
@@ -109,6 +110,13 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 		else if (command == STARTDESTRUCTOR)
 		{
 			function_start_pcs_set.insert(i);
+			continue;
+		}
+		else if (command == RETURNFUNC && i + 1 < script->size)
+		{
+			int next_command = script->zasm[i + 1].command;
+			if (next_command != 0xFFFF)
+				function_start_pcs_set.insert(i + 1);
 			continue;
 		}
 		else if (legacy_calling_mode && command == GOTO)

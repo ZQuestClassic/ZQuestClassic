@@ -29,4 +29,7 @@ Function #0 (run_none-0)
     6: GOTO            8
     7: NOP                                          [Block 3 -> 4]
     8: RETURNFUNC                                   [Block 4 -> ]
-    9: QUIT
+
+
+Function #1
+    9: QUIT                                         [Block 0 -> ]
