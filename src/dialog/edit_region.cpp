@@ -384,8 +384,9 @@ bool EditMapSettingsDialog::handleMessage(const GUI::DialogMessage<message>& msg
 			return true;
 		}
 		case message::CANCEL:
-		default:
 			return true;
+		case message::REFR_INFO:
+			return false;
 	}
 	return false;
 }
