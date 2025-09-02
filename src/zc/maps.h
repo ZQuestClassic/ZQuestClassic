@@ -174,7 +174,8 @@ int get_current_region_id();
 bool is_in_current_region(int map, int screen);
 bool is_in_current_region(int screen);
 bool is_in_current_region(mapscr* scr);
-bool is_in_scrolling_region(int screen);
+// Returns true if the screen is inside the region currently being scrolled away from (scrolling_region).
+bool is_in_screenscrolling_region(int screen);
 void calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy);
 void load_region(int dmap, int screen);
 // Returns a rpos_handle of the top-left position for every valid

@@ -22282,7 +22282,7 @@ void FFScript::do_loadmapdata_scrollscr2(const bool v)
 		return;
 	}
 
-	if (!is_in_scrolling_region(screen))
+	if (!is_in_screenscrolling_region(screen))
 	{
 		scripting_log_error_with_context("Must use a screen in the current scrolling region. got: {}", screen);
 		ri->mapsref = 0;

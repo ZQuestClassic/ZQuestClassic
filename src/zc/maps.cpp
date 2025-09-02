@@ -73,34 +73,13 @@ void maps_init_game_vars()
 
 static region_ids_t current_region_ids;
 
-static bool is_a_region(int map, int scr)
+// Returns true if the (map, screen) is inside a scrolling region.
+static bool is_in_scrolling_region(int map, int screen)
 {
-	return get_region_id(map, scr) != 0;
+	return get_region_id(map, screen) != 0;
 }
 
-static bool is_same_region_id(int region_origin_scr, int map, int scr)
-{
-	if (!is_a_region(map, scr)) return false;
-	int region_id = get_region_id(map, region_origin_scr);
-	return region_id && region_id == get_region_id(map, scr);
-}
-
-bool is_in_current_region(int map, int screen)
-{
-	return map == cur_map && screen >= 0 && screen < 128 && screen_in_current_region[screen];
-}
-
-bool is_in_current_region(int screen)
-{
-	return screen < 128 && screen_in_current_region[screen];
-}
-
-bool is_in_current_region(mapscr* scr)
-{
-	return scr->map == cur_map && scr->screen < 128 && screen_in_current_region[scr->screen];
-}
-
-bool is_in_scrolling_region(int screen)
+bool is_in_screenscrolling_region(int screen)
 {
 	if (!screenscrolling) return false;
 
@@ -116,12 +95,40 @@ bool is_in_scrolling_region()
 	return cur_region.screen_count > 1;
 }
 
+static bool is_same_region_id(int region_origin_scr, int map, int scr)
+{
+	if (!is_in_scrolling_region(map, scr)) return false;
+	int region_id = get_region_id(map, region_origin_scr);
+	return region_id && region_id == get_region_id(map, scr);
+}
+
+bool is_in_current_region(int map, int screen)
+{
+	if (map != cur_map)
+		return false;
+
+	if (screen >= 0 && screen < 128)
+		return screen_in_current_region[screen];
+
+	return screen == cur_screen;
+}
+
+bool is_in_current_region(int screen)
+{
+	return screen == cur_screen || (screen >= 0 && screen < 128 && screen_in_current_region[screen]);
+}
+
+bool is_in_current_region(mapscr* scr)
+{
+	return scr->map == cur_map && is_in_current_region(scr->screen);
+}
+
 bool is_extended_height_mode()
 {
 	return cur_region.screen_height > 1 && (DMaps[cur_dmap].flags & dmfEXTENDEDVIEWPORT);
 }
 
-// Returns 0 if this is not a region.
+// Returns 0 if this is not a scrolling region.
 int get_region_id(int map, int screen)
 {
 	if (screen >= 128) return 0;
@@ -139,7 +146,7 @@ void calculate_region(int map, int screen, region_t& region, int& region_scr_dx,
 {
 	region.map = map;
 
-	if (!(is_a_region(map, screen)) || screen >= 0x80)
+	if (!is_in_scrolling_region(map, screen))
 	{
 		region.region_id = 0;
 		region.origin_screen = screen;
@@ -340,7 +347,7 @@ void calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w,
 	if (viewport_mode == ViewportMode::Script)
 		return;
 
-	if (!is_a_region(DMaps[dmap].map, screen))
+	if (!is_in_scrolling_region(DMaps[dmap].map, screen))
 	{
 		viewport.x = 0;
 		viewport.y = 0;
