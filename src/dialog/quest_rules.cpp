@@ -1027,6 +1027,9 @@ static GUI::ListData compatRulesList
 		" their actual hitbox, and enemies/items will not drown in sideview." },
 	{ "Old Terminal Velocity", qr_OLD_TERMINAL_VELOCITY,
 		"If enabled, terminal velocity is not applied as an absolute max speed." },
+	{ "Broken Armos/Graves with Large Hitbox Player", qr_BROKEN_ARMOS_GRAVE_BIGHITBOX_COLLISION,
+		"If enabled, and 'Large Hitbox' for the Player is enabled, armos/graves will not activate"
+		" from below, and will only activate from the sides if you are near their top side." },
 };
 
 static GUI::ListData enemiesRulesList

@@ -23964,13 +23964,14 @@ void HeroClass::checktouchblk()
 
 	int xs[2], ys[2];
 	int pos_count = 0;
+	bool fixed_big_hitbox = bigHitbox && !get_qr(qr_BROKEN_ARMOS_GRAVE_BIGHITBOX_COLLISION);
 	switch (tdir)
 	{
 		case up:
 			xs[0] = x;
-			ys[0] = y + (bigHitbox ? 0 : 7);
+			ys[0] = y + (fixed_big_hitbox ? -1 : (bigHitbox ? 0 : 7));
 			xs[1] = x + 8;
-			ys[1] = y + (bigHitbox ? 0 : 7);
+			ys[1] = ys[0];
 			pos_count = 2;
 			break;
 
@@ -23978,7 +23979,7 @@ void HeroClass::checktouchblk()
 			xs[0] = x;
 			ys[0] = y + 16;
 			xs[1] = x + 8;
-			ys[1] = y + 16;
+			ys[1] = ys[0];
 			pos_count = 2;
 			break;
 
@@ -23986,12 +23987,24 @@ void HeroClass::checktouchblk()
 			xs[0] = x - 1;
 			ys[0] = y + 15;
 			pos_count = 1;
+			if (fixed_big_hitbox)
+			{
+				xs[1] = xs[0];
+				ys[1] = y + 7;
+				pos_count = 2;
+			}
 			break;
 
 		case right:
 			xs[0] = x + 16;
 			ys[0] = y + 15;
 			pos_count = 1;
+			if (fixed_big_hitbox)
+			{
+				xs[1] = xs[0];
+				ys[1] = y + 7;
+				pos_count = 2;
+			}
 			break;
 	}
 	int max_layer = get_qr(qr_ARMOS_GRAVE_ON_LAYERS) ? 6 : 0;
