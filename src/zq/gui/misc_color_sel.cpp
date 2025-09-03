@@ -10,7 +10,7 @@ namespace GUI
 {
 static bool isCSet(int32_t val)
 {
-	return val <= 11;
+	return val <= 13;
 }
 static const ListData colTyList
 {
@@ -55,7 +55,7 @@ static const ListData miscColList
 MiscColorSel::MiscColorSel(): onUpdate(NULL), c1(0), c2(0)
 {
 	setFitParent(true);
-	for(auto q = 0; q <= 11; ++q)
+	for(auto q = 0; q <= 13; ++q)
 	{
 		c2s[q] = 0;
 	}
