@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-08-25 09:00:48</td>
+      <td>2025-09-03 02:14:11</td>
     </tr>
   </table>
 </div>
@@ -41,9 +41,9 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>55</td>
-      <td>82</td>
-      <td class="coverage-low">67.1%</td>
+      <td>60</td>
+      <td>87</td>
+      <td class="coverage-low">69.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -774,11 +774,39 @@
       <td class="lineno"><a id="l97" href="#l97">97</a></td>
       <td class="linebranch">
       </td>
+      <td class="linecount coveredLine">20</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">item_spawn_flicker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_item_spawn_flicker</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l98" href="#l98">98</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">20</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">item_timeout_dur</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_item_timeout_dur</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l99" href="#l99">99</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">20</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">item_timeout_flicker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_item_timeout_flicker</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l100" href="#l100">100</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">20</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">item_flicker_speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_item_flicker_speed</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l101" href="#l101">101</a></td>
+      <td class="linebranch">
+      </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l98" href="#l98">98</a></td>
+      <td class="lineno"><a id="l102" href="#l102">102</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
@@ -792,42 +820,42 @@
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MAX_COUNTERS</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">q</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l99" href="#l99">99</a></td>
+      <td class="lineno"><a id="l103" href="#l103">103</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l100" href="#l100">100</a></td>
+      <td class="lineno"><a id="l104" href="#l104">104</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2140</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_counter</span><span class="p">(</span><span class="n">q</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l101" href="#l101">101</a></td>
+      <td class="lineno"><a id="l105" href="#l105">105</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2140</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">mcounter</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_maxcounter</span><span class="p">(</span><span class="n">q</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l102" href="#l102">102</a></td>
+      <td class="lineno"><a id="l106" href="#l106">106</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2140</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l103" href="#l103">103</a></td>
+      <td class="lineno"><a id="l107" href="#l107">107</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l104" href="#l104">104</a></td>
+      <td class="lineno"><a id="l108" href="#l108">108</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
@@ -841,21 +869,28 @@
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">MAXLEVELS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l105" href="#l105">105</a></td>
+      <td class="lineno"><a id="l109" href="#l109">109</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">10240</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">litems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">lvlitems</span><span class="p">[</span><span class="n">i</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l106" href="#l106">106</a></td>
+      <td class="lineno"><a id="l110" href="#l110">110</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">20</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">lvlswitches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">lvlswitches</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l111" href="#l111">111</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">20</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">level_keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">lvlkeys</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l107" href="#l107">107</a></td>
+      <td class="lineno"><a id="l112" href="#l112">112</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
@@ -869,77 +904,77 @@
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="n">uint</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_BOTTLE_SLOTS</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">q</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l108" href="#l108">108</a></td>
+      <td class="lineno"><a id="l113" href="#l113">113</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">5120</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">bottle_slot</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">bottleSlots</span><span class="p">[</span><span class="n">q</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l109" href="#l109">109</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l110" href="#l110">110</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">20</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">magicdrainrate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_magicdrainrate</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l111" href="#l111">111</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">20</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">flags</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">INIT_FL_CANSLASH</span><span class="p">,</span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_canslash</span><span class="p">());</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l112" href="#l112">112</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l113" href="#l113">113</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">20</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">cont_heart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_cont_hearts</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l114" href="#l114">114</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hcp_per_hc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_hcp_per_hc</span><span class="p">();</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l115" href="#l115">115</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">20</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">flags</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">INIT_FL_CONTPERCENT</span><span class="p">,</span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_cont_percent</span><span class="p">());</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">magicdrainrate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_magicdrainrate</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l116" href="#l116">116</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="linecount coveredLine">20</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">flags</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">INIT_FL_CANSLASH</span><span class="p">,</span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_canslash</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l117" href="#l117">117</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//now set up the items!</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l118" href="#l118">118</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">20</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">cont_heart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_cont_hearts</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l119" href="#l119">119</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">20</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hcp_per_hc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_hcp_per_hc</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l120" href="#l120">120</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">20</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">flags</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">INIT_FL_CONTPERCENT</span><span class="p">,</span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_cont_percent</span><span class="p">());</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l121" href="#l121">121</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l122" href="#l122">122</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">//now set up the items!</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l123" href="#l123">123</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
@@ -953,77 +988,77 @@
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">MAXITEMS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l119" href="#l119">119</a></td>
+      <td class="lineno"><a id="l124" href="#l124">124</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l120" href="#l120">120</a></td>
+      <td class="lineno"><a id="l125" href="#l125">125</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">5120</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">set_item</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">get_item</span><span class="p">(</span><span class="n">i</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l121" href="#l121">121</a></td>
+      <td class="lineno"><a id="l126" href="#l126">126</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">5120</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l122" href="#l122">122</a></td>
+      <td class="lineno"><a id="l127" href="#l127">127</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l123" href="#l123">123</a></td>
+      <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">20</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hero_swim_mult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">swim_mult</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l124" href="#l124">124</a></td>
+      <td class="lineno"><a id="l129" href="#l129">129</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">20</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">hero_swim_div</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gdata</span><span class="o">-&gt;</span><span class="n">swim_div</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l125" href="#l125">125</a></td>
+      <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l126" href="#l126">126</a></td>
+      <td class="lineno"><a id="l131" href="#l131">131</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">20</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zinit2</span><span class="o">-&gt;</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l127" href="#l127">127</a></td>
+      <td class="lineno"><a id="l132" href="#l132">132</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">20</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">zinit2</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l128" href="#l128">128</a></td>
+      <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l129" href="#l129">129</a></td>
+      <td class="lineno"><a id="l134" href="#l134">134</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-08-25 09:00:48</td>
+      <td>2025-09-03 02:14:11</td>
     </tr>
   </table>
 </div>
@@ -73,7 +73,7 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l24">EditRegionDialog::~EditRegionDialog() (line 24)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l24">EditMapSettingsDialog::~EditMapSettingsDialog() (line 24)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
 
@@ -240,7 +240,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">call_edit_region_dialog</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slot</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">call_edit_map_settings</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slot</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
@@ -254,7 +254,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="n">class</span><span class="w"> </span><span class="n">EditRegionDialog</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">Dialog</span><span class="o">&lt;</span><span class="n">EditRegionDialog</span><span class="o">&gt;</span></td>
+      <td class="src uncoveredLine"><span class="n">class</span><span class="w"> </span><span class="n">EditMapSettingsDialog</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">Dialog</span><span class="o">&lt;</span><span class="n">EditMapSettingsDialog</span><span class="o">&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
@@ -275,7 +275,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">enum</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">OK</span><span class="p">,</span><span class="w"> </span><span class="n">CANCEL</span><span class="p">,</span><span class="w"> </span><span class="n">QRS</span><span class="w"> </span><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="k">enum</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">OK</span><span class="p">,</span><span class="w"> </span><span class="n">CANCEL</span><span class="p">,</span><span class="w"> </span><span class="n">QRS</span><span class="p">,</span><span class="w"> </span><span class="n">REFR_INFO</span><span class="w"> </span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
@@ -289,7 +289,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">EditRegionDialog</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slot</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">EditMapSettingsDialog</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slot</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
@@ -380,38 +380,80 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">regions_data</span><span class="o">*</span><span class="w"> </span><span class="n">the_regions_data</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">region_valid</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">regions_data</span><span class="w"> </span><span class="n">local_regions_data</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">map_info</span><span class="w"> </span><span class="n">local_info</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l44" href="#l44">44</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">autolayers</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l45" href="#l45">45</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">palette</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">	</span><span class="n">regions_data</span><span class="o">*</span><span class="w"> </span><span class="n">the_regions_data</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">regions_data</span><span class="w"> </span><span class="n">local_regions_data</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l48" href="#l48">48</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l49" href="#l49">49</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">GUI</span><span class="o">::</span><span class="n">ListData</span><span class="w"> </span><span class="n">list_lpals</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l50" href="#l50">50</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l51" href="#l51">51</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l52" href="#l52">52</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-08-25 09:00:48</td>
+      <td>2025-09-03 02:14:11</td>
     </tr>
   </table>
 </div>
@@ -42,20 +42,20 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>13</td>
-      <td>13</td>
-      <td class="coverage-high">100.0%</td>
+      <td>14</td>
+      <td class="coverage-high">92.9%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
       <td>7</td>
-      <td>7</td>
-      <td class="coverage-high">100.0%</td>
+      <td>8</td>
+      <td class="coverage-medium">87.5%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
       <td>4</td>
-      <td>12</td>
-      <td class="coverage-low">33.3%</td>
+      <td>16</td>
+      <td class="coverage-low">25.0%</td>
     </tr>
   </table>
 </div>
@@ -73,13 +73,14 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l75">mapscr::is_valid() const (line 75)</a></td><td>called 5455627135 times, returned 5455627135 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l385">map_info::operator==(map_info const&amp;) const (line 385)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l75">mapscr::is_valid() const (line 75)</a></td><td>called 5424709247 times, returned 5424709247 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l67">mapscr::mapscr() (line 67)</a></td><td>called 2179191 times, returned 2179191 times</td><td>60.0%</td></tr>
-    <tr><td><a href="#l67">mapscr::mapscr(mapscr const&amp;) (line 67)</a></td><td>called 102882 times, returned 102882 times</td><td>50.0%</td></tr>
-    <tr><td><a href="#l67">mapscr::mapscr(mapscr&amp;&amp;) (line 67)</a></td><td>called 15800 times, returned 15800 times</td><td>60.0%</td></tr>
+    <tr><td><a href="#l67">mapscr::mapscr(mapscr const&amp;) (line 67)</a></td><td>called 102344 times, returned 102344 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l67">mapscr::mapscr(mapscr&amp;&amp;) (line 67)</a></td><td>called 15262 times, returned 15262 times</td><td>60.0%</td></tr>
     <tr><td><a href="#l67">mapscr::operator=(mapscr const&amp;) (line 67)</a></td><td>called 112960 times, returned 112960 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l67">mapscr::operator=(mapscr&amp;&amp;) (line 67)</a></td><td>called 234142 times, returned 234142 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l67">mapscr::~mapscr() (line 67)</a></td><td>called 2293876 times, returned 2293876 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l67">mapscr::~mapscr() (line 67)</a></td><td>called 2292800 times, returned 2292800 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -562,9 +563,9 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">4/12</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2282073 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 2281535 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 2282073 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 2281535 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
           <div class="takenBranch">&check; Branch 4 taken 2179191 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
@@ -572,12 +573,12 @@
           <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
-          <div class="takenBranch">&check; Branch 10 taken 15800 times.</div>
+          <div class="takenBranch">&check; Branch 10 taken 15262 times.</div>
           <div class="notTakenBranch">&cross; Branch 11 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">4477064</td>
+      <td class="linecount partialCoveredLine">4475988</td>
       <td class="src partialCoveredLine"><span class="k">struct</span><span class="w"> </span><span class="nc">mapscr</span></td>
     </tr>
     <tr class="source-line">
@@ -633,8 +634,8 @@
       <td class="lineno"><a id="l75" href="#l75">75</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5455627135</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">valid</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></td>
+      <td class="linecount coveredLine">5424709247</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">valid</span><span class="o">&amp;</span><span class="n">mVALID</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l76" href="#l76">76</a></td>
@@ -2720,66 +2721,122 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">word</span><span class="o">&gt;</span><span class="w">   </span><span class="n">map_autolayers</span><span class="p">;</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">map_count</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l374" href="#l374">374</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">map_count</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l375" href="#l375">375</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">int</span><span class="w"> </span><span class="nf">map_screen_index</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l376" href="#l376">376</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int</span><span class="w"> </span><span class="nf">map_screen_index</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int</span><span class="w"> </span><span class="nf">screen_index_direction</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="n">dir</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l377" href="#l377">377</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int</span><span class="w"> </span><span class="nf">screen_index_direction</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="n">dir</span><span class="p">);</span></td>
+      <td class="src "><span class="k">const</span><span class="w"> </span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="nf">get_canonical_scr</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l378" href="#l378">378</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">const</span><span class="w"> </span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="nf">get_canonical_scr</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int</span><span class="w"> </span><span class="nf">map_scr_xy_to_index</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l379" href="#l379">379</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int</span><span class="w"> </span><span class="nf">map_scr_xy_to_index</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l380" href="#l380">380</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">map_info</span><span class="w"> </span><span class="c1">// misc data for entire maps</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l381" href="#l381">381</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l382" href="#l382">382</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">autolayers</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l383" href="#l383">383</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">autopalette</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l384" href="#l384">384</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l385" href="#l385">385</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">operator</span><span class="o">==</span><span class="p">(</span><span class="n">map_info</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l386" href="#l386">386</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l387" href="#l387">387</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">map_info</span><span class="o">&gt;</span><span class="w"> </span><span class="n">map_infos</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l388" href="#l388">388</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l389" href="#l389">389</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l390" href="#l390">390</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
