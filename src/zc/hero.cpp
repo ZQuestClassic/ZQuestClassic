@@ -421,52 +421,7 @@ void HeroClass::set_respawn_point(bool setwarp)
 			if(sideview_mode() && !on_sideview_solid(x,y,true)) break; //in air sideview
 			if(check_pitslide(true) != -1) break; //On a pit
 			if (ladderx+laddery) break; //on the ladder
-			
-			{ //Check water
-				int32_t water = 0;
-				int32_t types[4] = {0};
-				int32_t x1 = x+4, x2 = x+11,
-					y1 = y+9, y2 = y+15;
-				if (get_qr(qr_SMARTER_WATER))
-				{
-					if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
-					iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
-					iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
-					iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
-				}
-				else
-				{
-					types[0] = COMBOTYPE(x1,y1);
-					
-					if(MAPFFCOMBO(x1,y1))
-						types[0] = FFCOMBOTYPE(x1,y1);
-						
-					types[1] = COMBOTYPE(x1,y2);
-					
-					if(MAPFFCOMBO(x1,y2))
-						types[1] = FFCOMBOTYPE(x1,y2);
-						
-					types[2] = COMBOTYPE(x2,y1);
-					
-					if(MAPFFCOMBO(x2,y1))
-						types[2] = FFCOMBOTYPE(x2,y1);
-						
-					types[3] = COMBOTYPE(x2,y2);
-					
-					if(MAPFFCOMBO(x2,y2))
-						types[3] = FFCOMBOTYPE(x2,y2);
-						
-					int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
-					if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
-						typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
-						
-					if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
-							combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-						water = typec;
-				}
-				if(water > 0)
-					break;
-			} //End check water
+			if (onWater(false)) break;
 			
 			int poses[4] = {
 				COMBOPOS(x,y+(bigHitbox?0:8)),
@@ -10758,7 +10713,7 @@ void HeroClass::deselectbombs(int32_t super)
 int32_t potion_life=0;
 int32_t potion_magic=0;
 
-bool HeroClass::onWater(bool drownonly)
+int HeroClass::onWater(bool drownonly)
 {
 	int32_t water = 0;
 	int32_t types[4] = {0};
@@ -10773,43 +10728,31 @@ bool HeroClass::onWater(bool drownonly)
 	}
 	else
 	{
-		types[0] = COMBOTYPE(x1,y1);
+		int cids[4] = {0};
+		cids[0] = FFORCOMBO(x1, y1);
+		cids[1] = FFORCOMBO(x1, y2);
+		cids[2] = FFORCOMBO(x2, y1);
+		cids[3] = FFORCOMBO(x2, y2);
 		
-		if(MAPFFCOMBO(x1,y1))
-			types[0] = FFCOMBOTYPE(x1,y1);
-			
-		types[1] = COMBOTYPE(x1,y2);
+		for (int q = 0; q < 4; ++q)
+			types[q] = combobuf[cids[q]].type;
 		
-		if(MAPFFCOMBO(x1,y2))
-			types[1] = FFCOMBOTYPE(x1,y2);
-			
-		types[2] = COMBOTYPE(x2,y1);
+		int cid = FFORCOMBO((x2+x1)/2,(y2+y1)/2);
+		int typec = combobuf[cid].type;
 		
-		if(MAPFFCOMBO(x2,y1))
-			types[2] = FFCOMBOTYPE(x2,y1);
-			
-		types[3] = COMBOTYPE(x2,y2);
-		
-		if(MAPFFCOMBO(x2,y2))
-			types[3] = FFCOMBOTYPE(x2,y2);
-			
-		int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
-		if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
-			typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
-			
 		if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
 				combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-			water = typec;
+			water = cid;
 	}
 	if(water > 0)
 	{
-		if(!drownonly) return true;
+		if(!drownonly) return water;
 		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
 		{
-			return true;
+			return water;
 		}
 	}
-	return false;
+	return 0;
 }
 
 bool HeroClass::mirrorBonk()
@@ -24485,32 +24428,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	//
 	if(get_qr(qr_DROWN) || CanSideSwim())
 	{
-		y1 = ty+9;
-		y2 = ty+15;
-		if (get_qr(qr_SMARTER_WATER))
-		{
-			if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
-			iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
-			iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
-			iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
-		}
-		else
-		{
-			cids[0] = FFORCOMBO(x1, y1);
-			cids[1] = FFORCOMBO(x1, y2);
-			cids[2] = FFORCOMBO(x2, y1);
-			cids[3] = FFORCOMBO(x2, y2);
-			
-			for (int q = 0; q < 4; ++q)
-				types[q] = combobuf[cids[q]].type;
-			
-			int cid = FFORCOMBO((x2+x1)/2,(y2+y1)/2);
-			int typec = combobuf[cid].type;
-			
-			if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
-					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-				water = cid;
-		}
+		water = onWater(false);
 	}
 	
 	
