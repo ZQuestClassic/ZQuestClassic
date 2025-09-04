@@ -86,6 +86,22 @@ std::string const& getTagName(int32_t ruletype)
 
 static GUI::ListData animRulesList
 {
+	{ "Classic Drawing Order", qr_CLASSIC_DRAWING_ORDER,
+		"When enabled, uses the classic drawing order code."
+		" When disabled, uses the newer drawing code, which has several effects:"
+		"\n- 'Negative' layers draw in the proper order (-3 is behind -2)"
+		"\n- Scripts can draw to layers '-1' through '-7' to draw in the BG"
+		"\n- Sprites (enemies, weapons, player, etc) are drawn in their Z-order."
+		" This means that higher enemies will be drawn above lower enemies."
+		"\n- Several special script 'layer timings', notably sprite related ones"
+		" such as 'SPLAYER_LWEAP_ABOVE_DRAW', will no longer be used, as said"
+		" 'timings' don't exist anymore." },
+	{ "Y-Sort Sprites", qr_YSORT_SPRITES,
+		"Requires 'Classic Drawing Order' be disabled."
+		"\nWhen enabled, sprites which share the same Z coordinate will additionally"
+		" have their draws ordered by their Y-value, such that sprites lower on the"
+		" screen (higher Y values) are drawn over sprites higher on the screen."
+		+ QRHINT({qr_CLASSIC_DRAWING_ORDER}) },
 	{ "BS-Zelda Animation Quirks", qr_BSZELDA, 
 		"Affects a number of small miscellaneous stuff to make Z1 more"
 		" accurate to BS Zelda. Guy fires have their positions adjusted,"
@@ -1030,6 +1046,8 @@ static GUI::ListData compatRulesList
 	{ "Broken Armos/Graves with Large Hitbox Player", qr_BROKEN_ARMOS_GRAVE_BIGHITBOX_COLLISION,
 		"If enabled, and 'Large Hitbox' for the Player is enabled, armos/graves will not activate"
 		" from below, and will only activate from the sides if you are near their top side." },
+	{ "Old Weapon Animate Timings", qr_OLD_WEAPON_DRAW_ANIMATE_TIMING,
+		"If enabled, weapons animate when they are drawn (instead of when they are processed); and they draw their shadow during their own draw, instead of separately." },
 };
 
 static GUI::ListData enemiesRulesList

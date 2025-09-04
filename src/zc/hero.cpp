@@ -678,6 +678,7 @@ void HeroClass::setBunnyClock(int32_t v)
 HeroClass::HeroClass() : sprite()
 {
 	lift_wpn = nullptr;
+	uid = 1; // hardcoded hero uid
     init();
 }
 
@@ -29787,6 +29788,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	new_region_offset_y = ny - get_region_relative_dy(dest_screen)*176;
 
 	cur_dmap = new_dmap;
+	bool classic_draw = get_qr(qr_CLASSIC_DRAWING_ORDER);
 	for (int i = 0; (scroll_counter >= 0 && delay != 0) || align_counter || pfo_counter; i++, scroll_counter--)
 	{
 		// Scripts see the hero position as if relative to the scrolling viewport. This is a weird
@@ -29971,14 +29973,20 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		clear_bitmap(framebuf);
 		clear_info_bmp();
-
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
-			mapscr* base_scr = screen_handles[0].base_scr;
-			if(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(framebuf, 0, screen_handles[2], offx, offy);
-		});
-		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG))
-			do_primitives(framebuf, 2);
-		do_ffc_scroll_layer(framebuf, -2, nearby_screens, new_region_offset_x, new_region_offset_y);
+		if (!classic_draw)
+			for (int layer = -7; layer <= -4; ++layer)
+				do_ffc_scroll_layer(framebuf, layer, nearby_screens, new_region_offset_x, new_region_offset_y);
+		
+		if(classic_draw) // -2 < -3
+		{
+			for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+				mapscr* base_scr = screen_handles[0].base_scr;
+				if(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(framebuf, 0, screen_handles[2], offx, offy);
+			});
+			if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG))
+				do_primitives(framebuf, 2);
+			do_ffc_scroll_layer(framebuf, -2, nearby_screens, new_region_offset_x, new_region_offset_y);
+		}
 		
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			mapscr* base_scr = screen_handles[0].base_scr;
@@ -29987,7 +29995,20 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG))
 			do_primitives(framebuf, 3);
 		do_ffc_scroll_layer(framebuf, -3, nearby_screens, new_region_offset_x, new_region_offset_y);
-
+		
+		if(!classic_draw) // -2 > -3
+		{
+			for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+				mapscr* base_scr = screen_handles[0].base_scr;
+				if(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(framebuf, 0, screen_handles[2], offx, offy);
+			});
+			if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG))
+				do_primitives(framebuf, 2);
+			do_ffc_scroll_layer(framebuf, -2, nearby_screens, new_region_offset_x, new_region_offset_y);
+			do_ffc_scroll_layer(framebuf, -1, nearby_screens, new_region_offset_x, new_region_offset_y);
+		}
+		
+		
 		combotile_add_y = is_unsmooth_vertical_scrolling ? -3 : 0;
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			offy += playing_field_offset;
@@ -30120,7 +30141,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		do_layer_primitives(framebuf, 5);
 		do_ffc_scroll_layer(framebuf, 5, nearby_screens, new_region_offset_x, new_region_offset_y);
 		
-		do_ffc_scroll_layer(framebuf, -1, nearby_screens, new_region_offset_x, new_region_offset_y);
+		do_ffc_scroll_layer(framebuf, -1000, nearby_screens, new_region_offset_x, new_region_offset_y);
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			do_layer(framebuf, 0, screen_handles[6], offx, offy); //layer 6

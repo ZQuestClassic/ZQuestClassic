@@ -263,6 +263,8 @@ bool item::animate(int32_t)
 	}
 #endif
 	
+	if ((z > 0 || fakez > 0) && get_qr(qr_ITEMSHADOWS) && !get_qr(qr_CLASSIC_DRAWING_ORDER))
+		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
 	if(fadeclk==0 && !subscreenItem)
 	{
 		return true;
@@ -277,10 +279,10 @@ bool item::animate(int32_t)
 
 void item::draw(BITMAP *dest)
 {
-	if(pickup&ipNODRAW || tile==0 || force_grab)
+	if((pickup&ipNODRAW) || tile==0 || force_grab)
 		return;
-		
-	if ( (z > 0 || fakez > 0) && get_qr(qr_ITEMSHADOWS) )
+	
+	if ( (z > 0 || fakez > 0) && get_qr(qr_ITEMSHADOWS) && get_qr(qr_CLASSIC_DRAWING_ORDER))
 	{
 		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
 		sprite::drawshadow(dest,get_qr(qr_TRANSSHADOWS) != 0);
@@ -301,6 +303,20 @@ void item::draw(BITMAP *dest)
 #endif
 	}
 	sprite::draw(dest);
+}
+
+bool item::can_drawshadow() const
+{
+	if((pickup&ipNODRAW) || tile==0 || force_grab)
+		return false;
+	return (z > 0 || fakez > 0) && get_qr(qr_ITEMSHADOWS);
+}
+
+void item::drawshadow(BITMAP* dest, bool translucent)
+{
+	if (!can_drawshadow() || get_qr(qr_CLASSIC_DRAWING_ORDER))
+		return;
+	sprite::drawshadow(dest, translucent);
 }
 
 void item::draw_hitbox()

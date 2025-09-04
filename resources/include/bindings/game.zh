@@ -7,6 +7,17 @@ enum GravityIndex
 	GR_AIRDRAG
 };
 
+// Used with [Game->LayerZThresholds]
+enum LayerZIndex
+{
+	LAYERZ_GROUND,
+	LAYERZ_3,
+	LAYERZ_4,
+	LAYERZ_OVERHEAD,
+	LAYERZ_5,
+	LAYERZ_MAX,
+};
+
 // Used with [Game->Scrolling].
 enum ScrollingIndex
 {
@@ -603,6 +614,13 @@ class Game {
 	// @index [enum GravityIndex]
 	// @zasm_var GAMEGRAVITY
 	internal int Gravity[];
+
+	// The Z values where sprites change what layer they are drawn on.
+	// See 'Init Data->Vars->Draw Order'
+	//
+	// @index [LayerZIndex]
+	// @zasm_var GAMELAYERZTHRESHOLDS
+	internal int LayerZThresholds[];
 
 	// An array of values related to scrolling. See [ScrollingIndex] for specifics. If not
 	// scrolling, all values are 0 unless otherwise stated.

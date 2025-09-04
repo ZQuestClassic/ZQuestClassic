@@ -3849,6 +3849,7 @@ int32_t onSaveMapPic()
 	
 	// draw the map
 	
+	bool classic_draw = get_qr(qr_CLASSIC_DRAWING_ORDER);
 	for(int32_t y=0; y<8; y++)
 	{
 		for(int32_t x=0; x<16; x++)
@@ -3868,17 +3869,28 @@ int32_t onSaveMapPic()
 
 			int xx = 0;
 			int yy = -playing_field_offset;
+			
+			if (!classic_draw)
+				for (int layer = -7; layer <= -4; ++layer)
+					do_ffc_layer(_screen_draw_buffer, layer, screen_handles[0], xx, yy);
 
-			if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			if(classic_draw)
 			{
-				do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+					do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
 				do_ffc_layer(_screen_draw_buffer, -2, screen_handles[0], xx, yy);
 			}
 
 			if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
-			{
 				do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
-				do_ffc_layer(_screen_draw_buffer, -3, screen_handles[0], xx, yy);
+			do_ffc_layer(_screen_draw_buffer, -3, screen_handles[0], xx, yy);
+
+			if(!classic_draw)
+			{
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+					do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, -2, screen_handles[0], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, -1, screen_handles[0], xx, yy);
 			}
 
 			if(lenscheck(scr,0))
@@ -3921,7 +3933,7 @@ int32_t onSaveMapPic()
 			do_layer(_screen_draw_buffer, 0, screen_handles[5], xx, yy);
 			do_ffc_layer(_screen_draw_buffer, 5, screen_handles[0], xx, yy);
 			if(replay_version_check(40))
-				do_ffc_layer(_screen_draw_buffer, -1, screen_handles[0], xx, yy);
+				do_ffc_layer(_screen_draw_buffer, -1000, screen_handles[0], xx, yy);
 			do_layer(_screen_draw_buffer, 0, screen_handles[6], xx, yy);
 			do_ffc_layer(_screen_draw_buffer, 6, screen_handles[0], xx, yy);
 			do_ffc_layer(_screen_draw_buffer, 7, screen_handles[0], xx, yy);

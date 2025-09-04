@@ -406,6 +406,7 @@ public:
 	CScriptDrawingCommands* pop_commands();
 	void push_commands(CScriptDrawingCommands* other, bool del = true);
     
+	std::vector<int> get_dirty_layers_in_range(int min, int max);
 public: 
 	int32_t count;
 protected:
