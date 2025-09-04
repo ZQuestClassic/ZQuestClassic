@@ -31789,7 +31789,7 @@ void HeroClass::checkitems(int32_t index)
 			}
 			if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 			{
-				if ( (pstr > 0 && pstr < msg_count) && ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )
+				if ( (pstr > 0 && pstr < msg_count) && ( ( ( (pstr_flags&itemdataPSTRING_ALWAYS) || (pstr_flags&itemdataPSTRING_NOMARK) || ((pstr_flags&itemdataPSTRING_IP_HOLDUP) && replay_version_check(0, 44)) || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )
 				{
 					if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
 				}
