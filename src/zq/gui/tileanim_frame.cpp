@@ -241,7 +241,7 @@ void TileFrame::realize(DialogRunner& runner)
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		newGUIProc<tile_anim_proc>,
-		x, y, getHeight()-4, getHeight()-4,
+		x, y, getWidth()-4, getHeight()-4,
 		fgColor, bgColor,
 		0,
 		getFlags(),
