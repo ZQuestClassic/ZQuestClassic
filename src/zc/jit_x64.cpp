@@ -859,12 +859,25 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 
 			if(arg2 < 1) break; //do nothing
 
-			// Grab value from register and push onto stack, repeatedly
 			x86::Gp val = get_z_register(state, cc, arg1);
 			modify_sp(state, cc, state.vSp, -arg2);
-			for(int q = 0; q < arg2; ++q)
+
+			// Push onto stack [arg2] times.
+			if (arg2 < 8)
 			{
-				cc.mov(x86::ptr_32(state.ptrStackBase, state.vSp, 2, (-q - 1 + arg2) * 4), val);
+				// For small [arg2], it's likely faster to emit a bunch of movs.
+				for (int i = 0; i < arg2; i++)
+					cc.mov(x86::ptr_32(state.ptrStackBase, state.vSp, 2, i * 4), val);
+			}
+			else
+			{
+				// Otherwise, rep stos is probably faster.
+				// See: https://reviews.llvm.org/D32002
+				x86::Gp num = cc.newInt32();
+				cc.mov(num, arg2);
+				x86::Gp address = cc.newIntPtr();
+				cc.lea(address, x86::ptr_32(state.ptrStackBase, state.vSp, 2));
+				cc.rep(num).stos(x86::ptr_32(address), val);
 			}
 		}
 		break;
@@ -876,10 +889,25 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 
 			modify_sp(state, cc, state.vSp, -arg2);
 
-			// Push value onto stack, repeatedly
-			for(int q = 0; q < arg2; ++q)
+			// Push onto stack [arg2] times.
+			if (arg2 < 8)
 			{
-				cc.mov(x86::ptr_32(state.ptrStackBase, state.vSp, 2, (-q - 1 + arg2) * 4), arg1);
+				// For small [arg2], it's likely faster to emit a bunch of movs.
+				for (int i = 0; i < arg2; i++)
+					cc.mov(x86::ptr_32(state.ptrStackBase, state.vSp, 2, i * 4), arg1);
+			}
+			else
+			{
+				// Otherwise, rep stos is probably faster.
+				// See: https://reviews.llvm.org/D32002
+				x86::Gp val = cc.newInt32();
+				cc.mov(val, arg1);
+	
+				x86::Gp num = cc.newInt32();
+				cc.mov(num, arg2);
+				x86::Gp address = cc.newIntPtr();
+				cc.lea(address, x86::ptr_32(state.ptrStackBase, state.vSp, 2));
+				cc.rep(num).stos(x86::ptr_32(address), val);
 			}
 		}
 		break;
