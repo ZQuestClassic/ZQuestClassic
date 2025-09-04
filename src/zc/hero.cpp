@@ -531,52 +531,7 @@ void HeroClass::set_respawn_point(bool setwarp)
 			if(sideview_mode() && !on_sideview_solid(x,y,true)) break; //in air sideview
 			if(check_pitslide(true) != -1) break; //On a pit
 			if (ladderx+laddery) break; //on the ladder
-			
-			{ //Check water
-				int32_t water = 0;
-				int32_t types[4] = {0};
-				int32_t x1 = x+4, x2 = x+11,
-					y1 = y+9, y2 = y+15;
-				if (get_qr(qr_SMARTER_WATER))
-				{
-					if (iswaterex_z3(0, -1, x1, y1, true, false) &&
-					iswaterex_z3(0, -1, x1, y2, true, false) &&
-					iswaterex_z3(0, -1, x2, y1, true, false) &&
-					iswaterex_z3(0, -1, x2, y2, true, false)) water = iswaterex_z3(0, -1, (x2+x1)/2,(y2+y1)/2, true, false);
-				}
-				else
-				{
-					types[0] = COMBOTYPE(x1,y1);
-					
-					if(MAPFFCOMBO(x1,y1))
-						types[0] = FFCOMBOTYPE(x1,y1);
-						
-					types[1] = COMBOTYPE(x1,y2);
-					
-					if(MAPFFCOMBO(x1,y2))
-						types[1] = FFCOMBOTYPE(x1,y2);
-						
-					types[2] = COMBOTYPE(x2,y1);
-					
-					if(MAPFFCOMBO(x2,y1))
-						types[2] = FFCOMBOTYPE(x2,y1);
-						
-					types[3] = COMBOTYPE(x2,y2);
-					
-					if(MAPFFCOMBO(x2,y2))
-						types[3] = FFCOMBOTYPE(x2,y2);
-						
-					int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
-					if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
-						typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
-						
-					if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
-							combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-						water = typec;
-				}
-				if(water > 0)
-					break;
-			} //End check water
+			if (onWater(false)) break;
 			
 			rpos_t rposes[] = {
 				COMBOPOS_REGION_B(x,y+(bigHitbox?0:8)),
@@ -10696,7 +10651,7 @@ void HeroClass::deselectbombs(int32_t super)
 int32_t potion_life=0;
 int32_t potion_magic=0;
 
-bool HeroClass::onWater(bool drownonly)
+int HeroClass::onWater(bool drownonly)
 {
 	int32_t water = 0;
 	int32_t types[4] = {0};
@@ -10711,43 +10666,50 @@ bool HeroClass::onWater(bool drownonly)
 	}
 	else
 	{
-		types[0] = COMBOTYPE(x1,y1);
+		rpos_handle_t rpos_handles[4];
+		rpos_handles[0] = get_rpos_handle_for_world_xy(x1, y1, 0);
+		rpos_handles[1] = get_rpos_handle_for_world_xy(x1, y2, 0);
+		rpos_handles[2] = get_rpos_handle_for_world_xy(x2, y1, 0);
+		rpos_handles[3] = get_rpos_handle_for_world_xy(x2, y2, 0);
 		
-		if(MAPFFCOMBO(x1,y1))
-			types[0] = FFCOMBOTYPE(x1,y1);
-			
-		types[1] = COMBOTYPE(x1,y2);
+		types[0] = rpos_handles[0].ctype();
+		if (auto ffc_handle = getFFCAt(x1, y1))
+			types[0] = ffc_handle->ctype();
 		
-		if(MAPFFCOMBO(x1,y2))
-			types[1] = FFCOMBOTYPE(x1,y2);
-			
-		types[2] = COMBOTYPE(x2,y1);
+		types[1] = rpos_handles[1].ctype();
+		if (auto ffc_handle = getFFCAt(x1, y2))
+			types[1] = ffc_handle->ctype();
+
+		types[2] = rpos_handles[2].ctype();
+		if (auto ffc_handle = getFFCAt(x2, y1))
+			types[2] = ffc_handle->ctype();
+
+		types[3] = rpos_handles[3].ctype();
+		if (auto ffc_handle = getFFCAt(x2, y2))
+			types[3] = ffc_handle->ctype();
 		
-		if(MAPFFCOMBO(x2,y1))
-			types[2] = FFCOMBOTYPE(x2,y1);
-			
-		types[3] = COMBOTYPE(x2,y2);
+		auto rpos_handle = get_rpos_handle_for_world_xy((x2+x1)/2, (y2+y1)/2, 0);
+		auto typec = rpos_handle.ctype();
+		auto cid = rpos_handle.data();
+		if (auto ffc_handle = getFFCAt((x2+x1)/2, (y2+y1)/2))
+		{
+			typec = ffc_handle->ctype();
+			cid = ffc_handle->data();
+		}
 		
-		if(MAPFFCOMBO(x2,y2))
-			types[3] = FFCOMBOTYPE(x2,y2);
-			
-		int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
-		if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
-			typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
-			
 		if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
 				combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-			water = typec;
+			water = cid;
 	}
 	if(water > 0)
 	{
-		if(!drownonly) return true;
+		if(!drownonly) return water;
 		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))) 
 		{
-			return true;
+			return water;
 		}
 	}
-	return false;
+	return 0;
 }
 
 bool HeroClass::mirrorBonk()
@@ -25053,51 +25015,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	//
 	if(get_qr(qr_DROWN) || CanSideSwim())
 	{
-		y1 = ty+9;
-		y2 = ty+15;
-		if (get_qr(qr_SMARTER_WATER))
-		{
-			if (iswaterex_z3(0, -1, x1, y1, true, false) &&
-			iswaterex_z3(0, -1, x1, y2, true, false) &&
-			iswaterex_z3(0, -1, x2, y1, true, false) &&
-			iswaterex_z3(0, -1, x2, y2, true, false)) water = iswaterex_z3(0, -1, (x2+x1)/2,(y2+y1)/2, true, false);
-		}
-		else
-		{
-			rpos_handles[0] = get_rpos_handle_for_world_xy(x1, y1, 0);
-			rpos_handles[1] = get_rpos_handle_for_world_xy(x1, y2, 0);
-			rpos_handles[2] = get_rpos_handle_for_world_xy(x2, y1, 0);
-			rpos_handles[3] = get_rpos_handle_for_world_xy(x2, y2, 0);
-			
-			types[0] = rpos_handles[0].ctype();
-			if (auto ffc_handle = getFFCAt(x1, y1))
-				types[0] = ffc_handle->ctype();
-			
-			types[1] = rpos_handles[1].ctype();
-			if (auto ffc_handle = getFFCAt(x1, y2))
-				types[1] = ffc_handle->ctype();
-
-			types[2] = rpos_handles[2].ctype();
-			if (auto ffc_handle = getFFCAt(x2, y1))
-				types[2] = ffc_handle->ctype();
-
-			types[3] = rpos_handles[3].ctype();
-			if (auto ffc_handle = getFFCAt(x2, y2))
-				types[3] = ffc_handle->ctype();
-			
-			auto rpos_handle = get_rpos_handle_for_world_xy((x2+x1)/2, (y2+y1)/2, 0);
-			auto typec = rpos_handle.ctype();
-			auto cid = rpos_handle.data();
-			if (auto ffc_handle = getFFCAt((x2+x1)/2, (y2+y1)/2))
-			{
-				typec = ffc_handle->ctype();
-				cid = ffc_handle->data();
-			}
-			
-			if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
-					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-				water = cid;
-		}
+		water = onWater(false);
 	}
 	
 	// Pits (aka direct warps) have a bigger 'hitbox' than stairs...
