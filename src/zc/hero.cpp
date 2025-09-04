@@ -14093,7 +14093,7 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 	return -1;
 }
 
-static bool replay_compat_pitslide_bug()
+static bool replay_compat_check_zc_version_2_55_11()
 {
 	if (!replay_is_active())
 		return false;
@@ -14110,6 +14110,16 @@ static bool replay_compat_pitslide_bug()
 		return true;
 
 	return false;
+}
+
+static bool replay_compat_pitslide_bug()
+{
+	return replay_compat_check_zc_version_2_55_11();
+}
+
+static bool replay_compat_held_items_only_held_always_bug()
+{
+	return replay_compat_check_zc_version_2_55_11();
 }
 
 bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
@@ -30910,7 +30920,7 @@ void HeroClass::checkitems(int32_t index)
 			}
 			if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 			{
-				if ( (pstr > 0 && pstr < msg_count) && ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )
+				if ( (pstr > 0 && pstr < msg_count) && ( ( ( (pstr_flags&itemdataPSTRING_ALWAYS) || (pstr_flags&itemdataPSTRING_NOMARK) || ((pstr_flags&itemdataPSTRING_IP_HOLDUP) && replay_compat_held_items_only_held_always_bug()) || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )
 				{
 					if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
 				}
