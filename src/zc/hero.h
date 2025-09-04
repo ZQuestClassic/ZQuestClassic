@@ -422,7 +422,7 @@ public:
 	bool startwpn(int32_t itemid);
 	bool on_cooldown(int32_t itemid);
 	void start_cooldown(int32_t itemid);
-	bool onWater(bool drownonly);
+	int onWater(bool drownonly);
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
 	void handle_passive_buttons();
