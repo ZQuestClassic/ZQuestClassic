@@ -18626,6 +18626,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_igetzf(&temp_combo.z_step_height,f))
 					return qe_invalid;
 			}
+			if(s_version >= 60)
+			{
+				if(!p_getc(&temp_combo.dive_under_level,f))
+					return qe_invalid;
+			}
 		}
 		if(combo_has_flags&CHAS_MISC_WEAP_DATA)
 		{

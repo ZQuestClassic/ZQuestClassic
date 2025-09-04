@@ -8115,6 +8115,16 @@ int32_t get_register(int32_t arg)
 			else ret = combobuf[ri->combosref].z_step_height.getZLong();
 			break;
 		}
+		case COMBOD_DIVE_UNDER_LEVEL:
+		{
+			ret = 0;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else ret = combobuf[ri->combosref].dive_under_level * 10000;
+			break;
+		}
 		//COMBOCLASS STRUCT
 		//case COMBODNAME:		//CHAR[64], STRING
 		case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies); break;			//C
@@ -15798,6 +15808,16 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 				combobuf[ri->combosref].z_step_height = zslongToFix(zc_max(0,value));
+			break;
+		}
+		case COMBOD_DIVE_UNDER_LEVEL:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				scripting_log_error_with_context("Invalid combodata ID: {}", ri->combosref);
+			}
+			else
+				combobuf[ri->combosref].dive_under_level = (byte)vbound(value / 10000, 0, 255);
 			break;
 		}
 	
@@ -23566,12 +23586,12 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			if(wasswimming)
 			{
 				Hero.setAction(swimming); FFCore.setHeroAction(swimming);
-				Hero.diveclk = olddiveclk;
+				Hero.set_dive(olddiveclk);
 			}
 			if(wassideswim)
 			{
 				Hero.setAction(sideswimming); FFCore.setHeroAction(sideswimming);
-				Hero.diveclk = 0;
+				Hero.set_dive(0);
 			}
 			doWarpEffect(warpEffect, true);
 			int32_t c = DMaps[cur_dmap].color;

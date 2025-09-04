@@ -3183,7 +3183,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							Frame(title = "Hero Speed Mod",
 								info = "Speed Modification only applies if the Quest Rule 'Newer Hero Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
 								Rows<3>(
-									Label(text = "Multiplier:"),
+									Label(text = "Multiplier:", hAlign = 1.0),
 									TextField(type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_mult,
 										fitParent = true,
@@ -3193,7 +3193,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										}),
 									IBTN("Multiplies the Hero's speed by this value when walking over this combo."),
 									//
-									Label(text = "Divisor:"),
+									Label(text = "Divisor:", hAlign = 1.0),
 									TextField(type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_div,
 										fitParent = true,
@@ -3204,7 +3204,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									IBTN("Divides the Hero's speed by this value when walking over this combo. Applies after mult."
 										"\nIf 0, no division is performed."),
 									//
-									Label(text = "Additive:"),
+									Label(text = "Additive:", hAlign = 1.0),
 									TextField(maxLength = 13, type = GUI::TextField::type::NOSWAP_ZSINT,
 										hAlign = 1.0, val = local_comboref.speed_add.getZLong(),
 										swap_type = nswapDEC,
@@ -3218,7 +3218,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							Frame(
 								Rows<3>(
-									Label(text = "Z Height"),
+									Label(text = "Z Height:", hAlign = 1.0),
 									TextField(
 										fitParent = true, maxLength = 11,
 										type = GUI::TextField::type::FIXED_DECIMAL, places = 4,
@@ -3230,7 +3230,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									IBTN("A Z-height for the block, allowing you to jump atop it, and from block to block."
 										" If set to 0, acts as infinitely tall."
 										" Has no effect if 'Allow walk-on-top' is not checked."),
-									Label(text = "Z Step"),
+									Label(text = "Z Step:", hAlign = 1.0),
 									TextField(
 										fitParent = true, maxLength = 11,
 										type = GUI::TextField::type::FIXED_DECIMAL, places = 4,
@@ -3242,7 +3242,19 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										}),
 									IBTN("The Z amount below the block's Z-height that you can jump atop it from. This allows"
 										" for 'walking up stairs' type effects."
-										" Has no effect if 'Allow walk-on-top' is not checked.")
+										" Has no effect if 'Allow walk-on-top' is not checked."),
+									Label(text = "Dive Under Level:", hAlign = 1.0),
+									TextField(maxLength = 3, type = GUI::TextField::type::NOSWAP_ZSINT,
+										val = local_comboref.dive_under_level,
+										swap_type = nswapLDEC, fitParent = true,
+										low = 0, high = 255,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.dive_under_level = byte(val);
+										}),
+									IBTN("If >0 and diving with flippers of at least this level, can 'dive under' this combo's solidity."
+										"\nTo make this visually look right, this combo should be on layer 1 or 2,"
+										" with the Player set to draw under layer 1 while diving." + QRHINT({qr_HERO_DIVE_UNDER_LAYER_1}))
 								)
 							)
 						)

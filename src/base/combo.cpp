@@ -1050,6 +1050,7 @@ bool newcombo::is_blank(bool ignoreEff) const
 	
 	if(z_height) return false;
 	if(z_step_height) return false;
+	if(dive_under_level) return false;
 	
 	if(!triggers.empty()) return false;
 	if(!misc_weap_data.is_blank()) return false;
@@ -1086,6 +1087,7 @@ int newcombo::each_tile(std::function<bool(int32_t)> proc) const
 
 void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 {
+	if (&other == this) return;
 	if(flags.get(CMB_ADVP_TILE))
 	{
 		tile = other.tile;
@@ -1189,6 +1191,7 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 	{
 		z_height = other.z_height;
 		z_step_height = other.z_step_height;
+		dive_under_level = other.dive_under_level;
 		CPYFLAG(genflags, cflag3|cflag4, other.genflags); // z-height related flags
 	}
 	if(flags.get(CMB_ADVP_MISC_WEAP_DATA))

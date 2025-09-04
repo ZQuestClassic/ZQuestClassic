@@ -64,7 +64,7 @@ do { \
 
 #define CPYFLAG(v, fl, other) \
 do { \
-	v = (v&~fl)|(other&fl); \
+	v = (v&~(fl))|(other&(fl)); \
 } while(false)
 
 int wrap(int x,int low,int high);
@@ -104,6 +104,8 @@ int wrap(int x,int low,int high);
 #define MIN_ZSCRIPT_INT            (-214748)
 #define MAX_DWORD                  dword(-1)
 #define MIN_DWORD                  0
+
+#define STANDING_Z_MAX             214748.3648_zf
 
 #define SINGLE_TILE_SIZE           128
 #define TILES_PER_ROW              20

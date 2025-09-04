@@ -180,6 +180,7 @@ struct newcombo
 	byte only_gentrig;
 	
 	zfix z_height, z_step_height;
+	byte dive_under_level;
 	
 	void set_tile(int32_t newtile);
 	void clear();

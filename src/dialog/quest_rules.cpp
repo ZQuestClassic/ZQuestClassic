@@ -1514,8 +1514,10 @@ static GUI::ListData playerRulesList
 	{ "Invincible Hero Flickers", qr_HEROFLICKER,
 		"If enabled, the Hero will flicker when invincible or after taking damage instead of flashing colors." },
 	{ "Improved Player Jump/Fall Animation", qr_BETTER_PLAYER_JUMP_ANIM,
-		"If enabled, the Hero's jump/fall animation will play at a consistent speed without pausing, and will"
+		"If enabled, the Player's jump/fall animation will play at a consistent speed without pausing, and will"
 		" loop instead of overflowing into the walking animation." },
+	{ "Player Draws Under Layer 1 While Diving", qr_HERO_DIVE_UNDER_LAYER_1,
+		"If enabled, the Player will be drawn under layer 1 while diving." },
 };
 
 static GUI::ListData subscrRulesList

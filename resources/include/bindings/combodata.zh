@@ -400,6 +400,12 @@ class combodata {
 	//
 	// @zasm_var COMBOD_Z_STEP_HEIGHT
 	internal int ZStepHeight;
+	
+	// If >0 and the player is diving with flippers of at least this level,
+	// the player will ignore the solidity of this combo.
+	//
+	// @zasm_var COMBOD_DIVE_UNDER_LEVEL
+	internal int DiveUnderLevel;
 
 	// Gets the first trigger of this combo whose name exactly matches 'buf'.
 	//
