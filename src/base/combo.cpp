@@ -253,7 +253,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		bool cause_ex1 = exstate > -1 && !trigger_flags.get(TRIGFLAG_UNSETEXSTATE);
 		bool cause_ex2 = exdoor_dir > -1 && !trigger_flags.get(TRIGFLAG_UNSETEXDOOR);
 		if (cause_ex1)
-			causes << indent << "ExState " << exstate;
+			causes << indent << fmt::format("ExState {}", exstate);
 		if (cause_ex2)
 			causes << (cause_ex1 ? ", " : indent) << fmt::format("ExDoor {} {}", dirstr_proper[exdoor_dir], exdoor_ind);
 		if (cause_ex1 || cause_ex2)
