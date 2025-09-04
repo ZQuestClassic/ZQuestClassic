@@ -2745,16 +2745,27 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		rectfill(dest,x,y,x+255,y+175,bgfill);
 	}
 	
-	if(XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
-		_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, false, HL_LAYER(2));
-	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -2);
+	if(get_qr(qr_CLASSIC_DRAWING_ORDER))
+	{
+		if(XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
+			_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, false, HL_LAYER(2));
+		_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -2);
+	}
 	
 	if(XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG))
 		_zmap_drawlayer(dest, x, y, layers[3], antiflags, basescr->layeropacity[3-1]!=255, XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG), HL_LAYER(3));
 	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -3);
 	
-	_zmap_drawlayer(dest, x, y, layers[0], antiflags, false, (XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG)||XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG)), HL_LAYER(0), true);
+	if(!get_qr(qr_CLASSIC_DRAWING_ORDER))
+	{
+		if(XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
+			_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, true, HL_LAYER(2));
+		_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -2);
+	}
+	
+	_zmap_drawlayer(dest, x, y, layers[0], antiflags, false, !get_qr(qr_CLASSIC_DRAWING_ORDER) || (XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG)||XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG)), HL_LAYER(0), true);
 	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 0);
+	
 	
 	_zmap_drawlayer(dest, x, y, layers[1], antiflags, basescr->layeropacity[1-1]!=255, true, HL_LAYER(1));
 	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 1);
@@ -3066,8 +3077,10 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 		rectfill(dest,x,y,x+255,y+15,0);
 	}
 	
-	
-	for(int32_t k=1; k<3; k++)
+	bool olddraw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	int order[2] = {2,1};
+	if (olddraw) zc_swap(order[0],order[1]);
+	for(int k : order)
 	{
 		if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
 		{
@@ -3095,7 +3108,7 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 			byte cmbcset = (i < 176 ? layer->cset[i] : 0);
 			int32_t cmbflag = (i < 176 ? layer->sflag[i] : 0);
 			drawcombo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),
-				cmbflag,(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
+				cmbflag,!olddraw || (layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
 		}
 	}
 	
@@ -3362,8 +3375,10 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 		rectfill(dest,x,y,x+15,y+175,0);
 	}
 	
-	
-	for(int32_t k=1; k<3; k++)
+	bool olddraw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	int order[2] = {2,1};
+	if (olddraw) zc_swap(order[0],order[1]);
+	for(int k : order)
 	{
 		if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
 		{
@@ -3391,7 +3406,7 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 			byte cmbcset = layer->cset[i];
 			int32_t cmbflag = layer->sflag[i];
 			drawcombo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag,
-				(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
+				!olddraw || (layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
 		}
 	}
 	
@@ -3637,7 +3652,10 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 		rectfill(dest,x,y,x+15,y+15,0);
 	}
 	
-	for(int32_t k=1; k<3; k++)
+	bool olddraw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	int order[2] = {2,1};
+	if (olddraw) zc_swap(order[0],order[1]);
+	for(int k : order)
 	{
 		if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
 		{
@@ -3660,7 +3678,7 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 		byte cmbcset = layer->cset[c];
 		int32_t cmbflag = layer->sflag[c];
 		drawcombo(dest,x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag,
-			(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
+			!olddraw || (layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
 	}
 	
 	
@@ -14290,6 +14308,9 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(80);
 		if (!p_putc(zinit.item_flicker_speed, f))
 			new_return(81);
+		for(int q = 0; q < SPRITE_THRESHOLD_MAX; ++q)
+			if (!p_iputw(zinit.sprite_z_thresholds[q], f))
+				new_return(82);
 		
 		if(writecycle==0)
 		{

@@ -3025,6 +3025,7 @@ static constexpr script_variable variable_list[]=
 	{ "CMBTRIGGER_GRAVITY", CMBTRIGGER_GRAVITY, 0 },
 	{ "CMBTRIGGER_TERMINAL_VELOCITY", CMBTRIGGER_TERMINAL_VELOCITY, 0 },
 	{ "COMBOD_DIVE_UNDER_LEVEL", COMBOD_DIVE_UNDER_LEVEL, 0 },
+	{ "GAMELAYERZTHRESHOLDS", GAMELAYERZTHRESHOLDS, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -3386,6 +3387,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case GAMEEVENTDATA:
 		case GAMEGENERICD:
 		case GAMEGRAVITY:
+		case GAMELAYERZTHRESHOLDS:
 		case GAMEGSWITCH:
 		case GAMEGUYCOUNT:
 		case GAMEGUYCOUNTD:

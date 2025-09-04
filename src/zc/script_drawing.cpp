@@ -12305,14 +12305,34 @@ void CScriptDrawingCommands::push_commands(CScriptDrawingCommands* other, bool d
 	if(del) delete other;
 }
 
+vector<int> CScriptDrawingCommands::get_dirty_layers_in_range(int min, int max)
+{
+	vector<int> ret;
+	for(int layer : dirty_layers)
+	{
+		if(layer < min) continue;
+		if(layer > max) break;
+		ret.push_back(layer);
+	}
+	return ret;
+}
+
 void do_script_draws(BITMAP *targetBitmap, mapscr* scr, int32_t xoff, int32_t yoff, bool hideLayer7)
 {
-	if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, xoff, yoff);
-	if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, xoff, yoff);
+	if(get_qr(qr_CLASSIC_DRAWING_ORDER))
+		if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			do_primitives(targetBitmap, 2, xoff, yoff);
+	if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+		do_primitives(targetBitmap, 3, xoff, yoff);
+	if(!get_qr(qr_CLASSIC_DRAWING_ORDER))
+		if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+			do_primitives(targetBitmap, 2, xoff, yoff);
 	do_primitives(targetBitmap, 0, xoff, yoff);
 	do_primitives(targetBitmap, 1, xoff, yoff);
-	if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, xoff, yoff);
-	if(!XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, xoff, yoff);
+	if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
+		do_primitives(targetBitmap, 2, xoff, yoff);
+	if(!XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
+		do_primitives(targetBitmap, 3, xoff, yoff);
 	do_primitives(targetBitmap, 4, xoff, yoff);
 	do_primitives(targetBitmap, 5, xoff, yoff);
 	do_primitives(targetBitmap, 6, xoff, yoff);

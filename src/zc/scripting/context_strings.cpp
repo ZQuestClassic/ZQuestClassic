@@ -65,6 +65,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case GAMELKEYSD: return "Game->LKeys[]";
 		case GAMEENTRDMAP: return "Game->LastEntranceDMap";
 		case GAMEENTRSCR: return "Game->LastEntranceScreen";
+		case GAMELAYERZTHRESHOLDS: return "Game->LayerZThresholds[]";
 		case GAMELSWITCH: return "Game->LevelStates[]";
 		case LOADMAPDATA: return "Game->LoadMapData()";
 		case GAMEMCOUNTERD: return "Game->MCounter[]";

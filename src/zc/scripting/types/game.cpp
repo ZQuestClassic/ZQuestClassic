@@ -1315,6 +1315,13 @@ static ArrayRegistrar GAMEGRAVITY_registrar(GAMEGRAVITY, []{
 	return &impl;
 }());
 
+static ArrayRegistrar GAMELAYERZTHRESHOLDS_registrar(GAMELAYERZTHRESHOLDS, []{
+	static ScriptingArray_GlobalCArray impl(zinit.sprite_z_thresholds, comptime_array_size(zinit.sprite_z_thresholds));
+	impl.setDefaultValue(0);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar GAME_SAVED_PORTALS_registrar(GAME_SAVED_PORTALS, []{
 	static ScriptingArray_GlobalComputed<int> impl(
 		[](int){ return game->user_portals.size(); },

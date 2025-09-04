@@ -234,7 +234,7 @@ bool tooclose(int32_t x,int32_t y,int32_t d)
 	return (abs(int32_t(HeroX())-x)<d && abs(int32_t(HeroY())-y)<d);
 }
 
-bool enemy::overpit(enemy *e)
+bool enemy::overpit() const
 {
 	// This function (and shadow_overpit) has been broken since it was written, and only
 	// checked the same diagonal of the hitbox, over and over again. The bug is because both
@@ -257,7 +257,7 @@ bool enemy::overpit(enemy *e)
 	return false;
 }
 
-bool enemy::shadow_overpit(enemy *e)
+bool enemy::shadow_overpit() const
 {
 	// for ( int32_t q = 0; q < hxsz; ++q )
 	{
@@ -3985,7 +3985,7 @@ hitclock:
 	return ret;
 }
 
-bool enemy::dont_draw()
+bool enemy::dont_draw() const
 {
 	if(fading==fade_invisible || (((flags&guy_blinking)||(fading==fade_flicker)) && (clk&1)))
 		return true;
@@ -4351,35 +4351,35 @@ void enemy::drawblock(BITMAP *dest,int32_t mask)
 	tile=thold;
 }
 
-void enemy::drawshadow(BITMAP *dest, bool translucent)
+bool enemy::can_drawshadow() const
 {
 	if(dont_draw() || isSideViewGravity())
-	{
-		return;
-	}
+		return false;
 	
 	if(dying)
-	{
-		return;
-	}
+		return false;
 	
 	mapscr* scr = get_scr(screen_spawned);
 	if(((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
 			(darkroom))
-	{
+		return false;
+	
+	if(z <= 0 && fakez <= 0 && enemycanfall(id, false))
+		return false;
+	
+	if(shadow_overpit())
+		return false;
+	
+	return true;
+}
+void enemy::drawshadow(BITMAP *dest, bool translucent)
+{
+	if(!can_drawshadow())
 		return;
-	}
-	else
-	{
-		if(enemycanfall(id, false) && shadowtile == 0)
-			shadowtile = wpnsbuf[spr_shadow].tile;
-			
-		if(z>0 || fakez>0 || !enemycanfall(id, false))
-		{
-			if(!shadow_overpit(this))
-			sprite::drawshadow(dest,translucent);
-		}
-	}
+	if(enemycanfall(id, false) && shadowtile == 0)
+		shadowtile = wpnsbuf[spr_shadow].tile;
+	
+	sprite::drawshadow(dest,translucent);
 }
 
 void enemy::masked_draw(BITMAP *dest,int32_t mx,int32_t my,int32_t mw,int32_t mh)
@@ -6101,7 +6101,7 @@ void enemy::variable_walk_8(int32_t newrate,int32_t newhoming, int32_t newclk,in
 void enemy::floater_walk(int32_t newrate,int32_t newclk,zfix ms,zfix ss,int32_t s,int32_t p, int32_t g)
 {
 	++clk2;
-	byte over_pit = overpit(this);
+	bool over_pit = overpit();
 	
 	if(dmisc1 && over_pit) p = 0;
 	switch(movestatus)
@@ -8647,9 +8647,16 @@ bool eTektite::animate(int32_t index)
 	return enemy::animate(index);
 }
 
-void eTektite::drawshadow(BITMAP *dest,bool translucent)
+bool eTektite::can_drawshadow() const
 {
 	if(z<1 && fakez<1 && get_qr(qr_ENEMIESZAXIS))
+		return false;
+	
+	return enemy::can_drawshadow();
+}
+void eTektite::drawshadow(BITMAP *dest,bool translucent)
+{
+	if(!can_drawshadow())
 		return;
 		
 	int32_t tempy=yofs;
@@ -8687,8 +8694,7 @@ void eTektite::drawshadow(BITMAP *dest,bool translucent)
 	{
 		yofs+=zc_max(0,zc_min(clk2start-clk2,clk2));
 	}
-	if(!shadow_overpit(this))
-		enemy::drawshadow(dest,translucent);
+	enemy::drawshadow(dest,translucent);
 	yofs=tempy;
 }
 
@@ -8798,8 +8804,10 @@ bool ePeahat::animate(int32_t index)
 
 void ePeahat::drawshadow(BITMAP *dest, bool translucent)
 {
-	int32_t tempy=yofs;
 	flip = 0;
+	if(!can_drawshadow())
+		return;
+	int32_t tempy=yofs;
 	shadowtile = wpnsbuf[spr_shadow].tile+posframe;
 	
 	if(!get_qr(qr_ENEMIESZAXIS))
@@ -8807,8 +8815,7 @@ void ePeahat::drawshadow(BITMAP *dest, bool translucent)
 		yofs+=8;
 		yofs+=int32_t(step/zslongToFix(dstep*10));
 	}
-	if(!shadow_overpit(this))
-		enemy::drawshadow(dest,translucent);
+	enemy::drawshadow(dest,translucent);
 	yofs=tempy;
 }
 
@@ -9893,24 +9900,29 @@ bool eRock::animate(int32_t index)
 	return enemy::animate(index);
 }
 
+bool eRock::can_drawshadow() const
+{
+	if(shadow_overpit())
+		return false;
+	
+	return clk2>=0;
+}
 void eRock::drawshadow(BITMAP *dest, bool translucent)
 {
-	if(clk2>=0)
-	{
-		int32_t tempy=yofs;
-		flip = 0;
-		int32_t fdiv = frate/4;
-		int32_t efrate = fdiv == 0 ? 0 : clk/fdiv;
-		int32_t f2=get_qr(qr_NEWENEMYTILES)?
-			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[spr_shadow].tile+f2;
-		
-		yofs+=8;
-		yofs+=zc_max(0,zc_min(29-clk3,clk3));
-		if(!shadow_overpit(this))
-			sprite::drawshadow(dest, translucent);
-		yofs=tempy;
-	}
+	if(!can_drawshadow())
+		return;
+	int32_t tempy=yofs;
+	flip = 0;
+	int32_t fdiv = frate/4;
+	int32_t efrate = fdiv == 0 ? 0 : clk/fdiv;
+	int32_t f2=get_qr(qr_NEWENEMYTILES)?
+		   efrate:((clk>=(frate>>1))?1:0);
+	shadowtile = wpnsbuf[spr_shadow].tile+f2;
+	
+	yofs+=8;
+	yofs+=zc_max(0,zc_min(29-clk3,clk3));
+	sprite::drawshadow(dest, translucent);
+	yofs=tempy;
 }
 
 void eRock::draw(BITMAP *dest)
@@ -10014,35 +10026,37 @@ bool eBoulder::animate(int32_t index)
 	return enemy::animate(index);
 }
 
+bool eBoulder::can_drawshadow() const
+{
+	if(shadow_overpit())
+		return false;
+	
+	return clk2>=0;
+}
 void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 {
-	if(clk2>=0)
-	{
-		int32_t tempy=yofs;
-		flip = 0;
-		int32_t f2=((clk<<2)/frate)<<1;
-		shadowtile = wpnsbuf[spr_shadow].tile+f2;
-		yofs+=zc_max(0,zc_min(29-clk3,clk3));
-		
-		yofs+=8;
-		xofs-=8;
-		if(!shadow_overpit(this))
-			sprite::drawshadow(dest, translucent);
-		xofs+=16;
-		++shadowtile;
-		if(!shadow_overpit(this))
-			sprite::drawshadow(dest, translucent);
-		yofs+=16;
-		shadowtile+=20;
-		if(!shadow_overpit(this))
-			sprite::drawshadow(dest, translucent);
-		xofs-=16;
-		--shadowtile;
-		if(!shadow_overpit(this))
-			sprite::drawshadow(dest, translucent);
-		xofs+=8;
-		yofs=tempy;
-	}
+	if(!can_drawshadow())
+		return;
+	int32_t tempy=yofs;
+	flip = 0;
+	int32_t f2=((clk<<2)/frate)<<1;
+	shadowtile = wpnsbuf[spr_shadow].tile+f2;
+	yofs+=zc_max(0,zc_min(29-clk3,clk3));
+	
+	yofs+=8;
+	xofs-=8;
+	sprite::drawshadow(dest, translucent);
+	xofs+=16;
+	++shadowtile;
+	sprite::drawshadow(dest, translucent);
+	yofs+=16;
+	shadowtile+=20;
+	sprite::drawshadow(dest, translucent);
+	xofs-=16;
+	--shadowtile;
+	sprite::drawshadow(dest, translucent);
+	xofs+=8;
+	yofs=tempy;
 }
 
 void eBoulder::draw(BITMAP *dest)
@@ -10407,10 +10421,11 @@ void eSpinTile::draw(BITMAP *dest)
 void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 {
 	flip = 0;
+	if(!can_drawshadow())
+		return;
 	shadowtile = wpnsbuf[spr_shadow].tile+(clk%4);
 	yofs+=4;
-	if(!shadow_overpit(this))
-		enemy::drawshadow(dest, translucent);
+	enemy::drawshadow(dest, translucent);
 	yofs-=4;
 }
 
@@ -11226,6 +11241,10 @@ void eStalfos::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
+bool eStalfos::can_drawshadow() const
+{
+	return enemy::can_drawshadow();
+}
 void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 {
 	int32_t tempy=yofs;
@@ -11271,8 +11290,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 			shadowtile+=f2?1:0;
 		}
 	}
-	if(!shadow_overpit(this))
-		enemy::drawshadow(dest, translucent);
+	enemy::drawshadow(dest, translucent);
 	yofs=tempy;
 }
 
@@ -11616,10 +11634,19 @@ bool eKeese::animate(int32_t index)
 	return enemy::animate(index);
 }
 
+bool eKeese::can_drawshadow() const
+{
+	if(get_qr(qr_ENEMIESZAXIS) && step <= 0)
+		return false;
+	
+	return enemy::can_drawshadow();
+}
 void eKeese::drawshadow(BITMAP *dest, bool translucent)
 {
-	int32_t tempy=yofs;
 	flip = 0;
+	if(!can_drawshadow())
+		return;
+	int32_t tempy=yofs;
 	shadowtile = wpnsbuf[spr_shadow].tile+posframe;
 	
 	yofs+=zc_min(int32_t(step/zslongToFix(dstep*10)), 8);
@@ -11628,8 +11655,7 @@ void eKeese::drawshadow(BITMAP *dest, bool translucent)
 		yofs+=int32_t(step/zslongToFix(dstep*10));
 	}
 	
-	if(!shadow_overpit(this) && (!get_qr(qr_ENEMIESZAXIS) || step > 0))
-		enemy::drawshadow(dest, translucent);
+	enemy::drawshadow(dest, translucent);
 	yofs=tempy;
 }
 
@@ -17938,7 +17964,7 @@ bool canfall(int32_t id)
 	return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
-bool enemy::enemycanfall(int32_t id, bool checkgrav)
+bool enemy::enemycanfall(int32_t id, bool checkgrav) const
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
 	{

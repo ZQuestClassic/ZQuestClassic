@@ -64,6 +64,8 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->gravity=zinit.gravity;
 	zinit2->terminalv=zinit.terminalv;
 	zinit2->jump_hero_layer_threshold=zinit.jump_hero_layer_threshold;
+	for(int q = 0; q < SPRITE_THRESHOLD_MAX; ++q)
+		zinit2->sprite_z_thresholds[q] = zinit.sprite_z_thresholds[q];
 	zinit2->heroStep=zinit.heroStep;
 	zinit2->shove_offset=zinit.shove_offset;
 	zinit2->air_drag=zinit.air_drag;

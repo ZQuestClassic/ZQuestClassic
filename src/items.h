@@ -89,7 +89,9 @@ public:
     item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy = false);
     virtual ~item();
     virtual bool animate(int32_t index);
+	virtual bool can_drawshadow() const;
     virtual void draw(BITMAP *dest);
+	virtual void drawshadow(BITMAP* dest, bool translucent);
 	virtual int32_t run_script(int32_t mode);
 	virtual optional<ScriptType> get_scrtype() const {return ScriptType::ItemSprite;}
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;

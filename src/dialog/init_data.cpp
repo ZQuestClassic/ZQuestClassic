@@ -92,6 +92,19 @@ TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
 Label(text = name, hAlign = 0.0), \
 VAL_FIELD_IMPL<t>(minval, maxval, &local_zinit.member, dis)
 
+#define ZTHRESH_FIELD(name, idx) \
+Label(text = name, hAlign = 0.0), \
+TextField(maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
+	hAlign = 1.0, low = -1, high = 65534, \
+	val = (local_zinit.sprite_z_thresholds[idx] == word(-1) ? -1 : local_zinit.sprite_z_thresholds[idx]), \
+	width = 4.5_em, \
+	fitParent = true, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_zinit.sprite_z_thresholds[idx] = word(val); \
+	} \
+)
+
 #define DEC_VAL_FIELD(name, minval, maxval, numPlaces, member, dis) \
 Label(text = name, hAlign = 0.0), \
 TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
@@ -627,7 +640,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Rows<3>(
 								margins = 0_px,
 								padding = 0_px,
-								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC), INFOBTN("Some objects draw higher-layer when their Z is greater than this value"),
 								VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC), INFOBTN("Multiplier of the subscreen's fall speed"),
 								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Hero Tile Modifier' added when the Hero is a bunny."),
 								//
@@ -650,6 +662,36 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								VAL_FIELD(word, "Item Timeout Duration:", 0, 65535, item_timeout_dur, false), INFOBTN("Items that despawn over time will take this many frames to despawn."),
 								VAL_FIELD(word, "Item Timeout Flicker Duration:", 0, 65535, item_timeout_flicker, false), INFOBTN("Items that despawn over time will flicker for this many frames before vanishing."),
 								VAL_FIELD(byte, "Item Flicker Speed:", 0, 255, item_flicker_speed, false), INFOBTN("Items that despawn over time and are flickering will flicker at this speed.")
+							)
+						)
+					)),
+					TabRef(name = "Draw Order", Row(
+						Column(vAlign = 0.0,
+							Rows<3>(
+								margins = 0_px, padding = 0_px,
+								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC),
+								INFOBTN("Some objects draw higher-layer when their Z is greater than this value."
+									"\nOnly used when 'Classic Drawing Order' is enabled." + QRHINT({qr_CLASSIC_DRAWING_ORDER}))
+							),
+							Row(
+								margins = 0_px, padding = 0_px,
+								Label(text = "New Drawing Height Thresholds"),
+								INFOBTN("Only used when 'Classic Drawing Order' is disabled."
+									"\nEach of these values represents a Z-threshold for a given sprite draw timing."
+									" At the specified timing, all sprites will be drawn which have a Z lower than the specified value"
+									" (and have not already been drawn that frame)."
+									"\nTo 'disable' a draw timing, set its' value equal to the value of the timing listed above it."
+									"\nAny sprites higher than the last threshold, will be drawn automatically at a final timing."
+									"\nTo draw every sprite remaining, enter the value '-1'."
+									+ QRHINT({qr_CLASSIC_DRAWING_ORDER}))
+							),
+							Rows<3>(
+								margins = 0_px, padding = 0_px,
+								ZTHRESH_FIELD("Ground Z Threshold:", SPRITE_THRESHOLD_GROUND), INFOBTN("Sprites with Z below this threshold will draw above all of the 'ground' (between layer 2 and layer 3)"),
+								ZTHRESH_FIELD("Layer 3 Z Threshold:", SPRITE_THRESHOLD_3), INFOBTN("Sprites with Z between the prior threshold and this threshold will draw on layer 3"),
+								ZTHRESH_FIELD("Layer 4 Z Threshold:", SPRITE_THRESHOLD_4), INFOBTN("Sprites with Z between the prior threshold and this threshold will draw on layer 4"),
+								ZTHRESH_FIELD("Overhead Z Threshold:", SPRITE_THRESHOLD_OVERHEAD), INFOBTN("Sprites with Z between the prior threshold and this threshold will draw just above 'Overhead' combos"),
+								ZTHRESH_FIELD("Layer 5 Z Threshold:", SPRITE_THRESHOLD_5), INFOBTN("Sprites with Z between the prior threshold and this threshold will draw on layer 5.\nSprites with Z at or above this threshold will draw on layer 6.")
 							)
 						)
 					)),

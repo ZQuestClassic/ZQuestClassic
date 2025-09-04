@@ -3559,6 +3559,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES, 1);
 	if (compatrule_version < 89)
 		set_qr(qr_BROKEN_ARMOS_GRAVE_BIGHITBOX_COLLISION, 1);
+	
+	if (compatrule_version < 90)
+	{
+		set_qr(qr_CLASSIC_DRAWING_ORDER, 1);
+		set_qr(qr_OLD_WEAPON_DRAW_ANIMATE_TIMING, 1);
+	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -21427,7 +21433,23 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			if (!p_getc(&temp_zinit.item_flicker_speed, f))
 				return qe_invalid;
 		}
+		if(s_version >= 46)
+		{
+			for(int q = 0; q < SPRITE_THRESHOLD_MAX; ++q)
+				if(!p_igetw(&temp_zinit.sprite_z_thresholds[q], f))
+					return qe_invalid;
+		}
 	}
+	
+	if(s_version < 46)
+	{
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_GROUND] = temp_zinit.jump_hero_layer_threshold;
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_3] = temp_zinit.jump_hero_layer_threshold;
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_4] = temp_zinit.jump_hero_layer_threshold;
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_OVERHEAD] = word(-1);
+		temp_zinit.sprite_z_thresholds[SPRITE_THRESHOLD_5] = word(-1);
+	}
+	
 	if (should_skip)
 		return 0;
 

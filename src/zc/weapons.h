@@ -56,7 +56,6 @@ public:
     int32_t o_speed, o_type, frames, o_flip, ref_o_tile;
 	byte script_wrote_otile;
     int32_t temp1;
-    bool behind;
     bool autorotate;
 	byte linkedItem;
 	byte unblockable;
@@ -172,7 +171,10 @@ public:
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
 	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
+	void animate_graphics();
+	virtual bool can_drawshadow() const;
     virtual void draw(BITMAP *dest);
+    virtual void drawshadow(BITMAP *dest, bool translucent);
     virtual void update_weapon_frame(int32_t change, int32_t orig);
 	virtual int32_t run_script(int32_t mode);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;

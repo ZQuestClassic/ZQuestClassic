@@ -1153,6 +1153,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	VEC_PROP(lvlswitches) \
 	ARRAY_PROP(litems) \
 	ARRAY_PROP(mcounter) \
+	ARRAY_PROP(sprite_z_thresholds) \
 	BITSTR_PROP(flags)
 
 static int DELTA_VERSION = 2;

@@ -385,8 +385,8 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 							}
 						),
 						//
-						NOSWAP_FIELD("Layer:", ffc.layer, 0, 7, 
-							"The layer (0-7) the ffc will be drawn on. Ignored if 'Draw Over' is checked."
+						NOSWAP_FIELD("Layer:", ffc.layer, -7, 7,
+							"The layer (-7 to 7) the ffc will be drawn on. Ignored if 'Draw Over' is checked."
 							" Will draw above the combos AND script draws on the specified layer.")
 					),
 					cmb_container = Column(width = 128_px + 5_px + 1_em + text_length(GUI_DEF_FONT, "Combo: 99999"), height = 128_px,

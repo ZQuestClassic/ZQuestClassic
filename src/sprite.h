@@ -129,6 +129,7 @@ public:
 	bool isspawning;
 	bool can_flicker;
 	bool hide_hitbox;
+    bool behind;
 	
 	byte spr_shadow, spr_death, spr_spawn;
 	int16_t spr_death_anim_clk, spr_spawn_anim_clk;
@@ -149,6 +150,7 @@ public:
     virtual void drawzcboss(BITMAP* dest);                        // main layer
     virtual void draw8(BITMAP* dest);                       // main layer
     virtual void drawcloaked(BITMAP* dest);                 // main layer
+	virtual bool can_drawshadow() const;
     virtual void drawshadow(BITMAP* dest, bool translucent);// main layer
     virtual void draw2(BITMAP* dest);                       // top layer for special needs
     virtual void drawcloaked2(BITMAP* dest);                // top layer for special needs
@@ -164,6 +166,8 @@ public:
     int32_t real_ground_y(zfix fy);
     int32_t real_z(zfix fz);
     int32_t fake_z(zfix fz);
+	zfix total_z() const;
+	zfix center_y() const;
     virtual bool hit();
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
@@ -206,6 +210,10 @@ enum //run_script modes
 
 #define SLMAX 255*(511*4)+1
 
+struct SpriteSorter
+{
+	bool operator()(sprite* s1, sprite* s2) const;
+};
 class sprite_list
 {
     sprite *sprites[SLMAX];
@@ -336,6 +344,13 @@ public:
 		int32_t fromdropset, byte breaksfx, int8_t breaksprtype, byte breakspr, int32_t breaktimer);
 	
 	virtual bool animate(int32_t);
+};
+
+class tempsprite_shadow : public sprite
+{
+public:
+	tempsprite_shadow(sprite* parent);
+	void draw(BITMAP *dest) override;
 };
 
 bool insideRotRect(double x, double y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4);

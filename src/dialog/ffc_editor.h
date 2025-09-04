@@ -27,7 +27,7 @@ struct ffdata
 	word delay;
 	ffc_flags flags;
 	word link;
-	byte layer;
+	int8_t layer;
 	byte twid : 2;
 	byte fwid : 6;
 	byte thei : 2;
