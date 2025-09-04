@@ -223,7 +223,6 @@ public:
 	//spacing so no confusion between byte and int32_t
 	byte skipstep,lstep, 
 		hopclk, // hopping into water timeout.
-		diveclk, // diving timeout.
 		whirlwind, // is Hero inside an arriving whirlwind? (yes = 255)
 		specialcave, // is Hero inside a special cave?
 		hitdir, // direction from which damage was taken.
@@ -241,6 +240,7 @@ public:
 		lbunnyclock,
 		sdir, // scrolling direction
 		sideswimdir,  //for forcing hero to face left or right in sideview
+		diveclk, // diving timeout.
 		immortal; //Timer for being unable to die
 	int32_t hammer_swim_up_offset,
 		hammer_swim_down_offset,
@@ -346,6 +346,7 @@ private:
 public:
 	
 	// Methods below here.
+	zfix get_standing_z_state() const;
 	void clear_ice();
 	void force_ice_velocity(optional<zfix> vx, optional<zfix> vy);
 	bool isLifting();
@@ -497,7 +498,6 @@ private:
 	void addsparkle(int32_t wpn);
 	void addsparkle2(int32_t type1, int32_t type2);
 	void PhantomsCleanup();
-	
 public:
 	int32_t ringpower(int32_t dmg, bool noPeril = false, bool noRing = false);
 	void ganon_intro();
@@ -596,6 +596,8 @@ public:
 	int32_t  getPushing();
 	void reset_swordcharge();
 	void reset_hookshot();
+	void set_dive(int32_t newdive);
+	void tick_diving();
 	bool can_deploy_ladder();
 	void reset_ladder();
 	bool refill();

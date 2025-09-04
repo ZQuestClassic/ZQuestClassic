@@ -2054,6 +2054,9 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 				for (int32_t m = layer; m <= 1; m++)
 				{
 					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2, true)];
+					if (hero && cmb.dive_under_level && (Hero.get_standing_z_state() <= -cmb.dive_under_level))
+						continue; // dive under this layer
+					
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						if (cmb.type == cBRIDGE && !(cmb.walk&(1<<b))) 
@@ -2071,9 +2074,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					if (get_qr(qr_NO_SOLID_SWIM))
 					{
 						if ((cmb.type != cBRIDGE || (!get_qr(qr_OLD_BRIDGE_COMBOS) && !(cmb.walk&(0x10<<b)))) && (cmb.walk&(1<<b)) && !((cmb.usrflags&cflag4) && cmb.type == cWATER && (cmb.walk&(0x10<<b)) && ShallowCheck))
-						{
 							return 0;
-						}						
 					}
 					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4)
 						|| (hero && current_item(itype_flippers) < cmb.attribytes[0])
@@ -4621,11 +4622,13 @@ void draw_screen(bool showhero, bool runGeneric)
 
 	set_draw_screen_clip(scrollbuf);
 
+	bool hero_draw_done = false;
+	bool is_cave_walking = ((Hero.getAction()==climbcovertop)||(Hero.getAction()==climbcoverbottom));
 	if(!(get_qr(qr_LAYER12UNDERCAVE)))
 	{
-		if(showhero &&
-				((Hero.getAction()==climbcovertop)||(Hero.getAction()==climbcoverbottom)))
+		if(showhero && is_cave_walking)
 		{
+			hero_draw_done = true;
 			if(Hero.getAction()==climbcovertop)
 			{
 				cmby2=16;
@@ -4651,7 +4654,16 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 		}
 	}
-
+	
+	if (get_qr(qr_HERO_DIVE_UNDER_LAYER_1) && Hero.isDiving())
+	{
+		Hero.draw_under(scrollbuf);
+		decorations.draw2(scrollbuf,true);
+		Hero.draw(scrollbuf);
+		decorations.draw(scrollbuf,true);
+		hero_draw_done = true;
+	}
+	
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		do_layer(scrollbuf, 0, screen_handles[1], offx, offy); // LAYER 1
 	});
@@ -4681,9 +4693,9 @@ void draw_screen(bool showhero, bool runGeneric)
 
 	if(get_qr(qr_LAYER12UNDERCAVE))
 	{
-		if(showhero &&
-				((Hero.getAction()==climbcovertop)||(Hero.getAction()==climbcoverbottom)))
+		if(showhero && is_cave_walking)
 		{
+			hero_draw_done = true;
 			if(Hero.getAction()==climbcovertop)
 			{
 				cmby2=16;
@@ -4778,7 +4790,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
 		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 
-	if(showhero && ((Hero.getAction()!=climbcovertop)&&(Hero.getAction()!=climbcoverbottom)))
+	if(showhero && !hero_draw_done)
 	{
 		Hero.draw_under(framebuf);
 		
@@ -4787,6 +4799,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			decorations.draw2(framebuf,true);
 			Hero.draw(framebuf);
 			decorations.draw(framebuf,true);
+			hero_draw_done = true;
 		}
 	}
 	
@@ -4919,14 +4932,14 @@ void draw_screen(bool showhero, bool runGeneric)
 		mirror_portal.draw(framebuf);
 	portals.draw(framebuf,true);
 	
-	if(showhero && ((Hero.getAction()!=climbcovertop)&& (Hero.getAction()!=climbcoverbottom)))
+	if(showhero && !is_cave_walking)
 	{
 		if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
 			mblock2.draw(framebuf,-1);
 			do_primitives(framebuf, SPLAYER_MOVINGBLOCK);
 		}
-		if(!Hero.isSwimming())
+		if(!hero_draw_done)
 		{
 			if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 			{
@@ -4938,6 +4951,7 @@ void draw_screen(bool showhero, bool runGeneric)
 				decorations.draw2(framebuf,true);
 				Hero.draw(framebuf);
 				decorations.draw(framebuf,true);
+				hero_draw_done = true;
 			}
 		}
 	}
@@ -6827,6 +6841,12 @@ void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y)
 }
 static inline bool standing_on_z(newcombo const& cmb, zfix const& standing_z_state)
 {
+	if (cmb.dive_under_level)
+	{
+		if (standing_z_state <= -cmb.dive_under_level)
+			return true;
+	}
+	
 	zfix cmb_z, cmb_z_step;
 	if(cmb.type == cCSWITCHBLOCK && (cmb.usrflags & cflag9))
 	{
@@ -6840,7 +6860,11 @@ static inline bool standing_on_z(newcombo const& cmb, zfix const& standing_z_sta
 	}
 	else return false;
 	
-	return (standing_z_state < 0 || (cmb_z>0 && (cmb_z - cmb_z_step) <= standing_z_state));
+	if (standing_z_state == STANDING_Z_MAX) // 'infinity'
+		return true;
+	if (!cmb_z) return false; // infinite height
+	
+	return (cmb_z - cmb_z_step) <= standing_z_state;
 }
 bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt)
 {

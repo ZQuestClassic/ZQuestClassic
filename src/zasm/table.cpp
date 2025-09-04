@@ -3024,6 +3024,7 @@ static constexpr script_variable variable_list[]=
 	{ "SPRITE_CURRENT_SCREEN", SPRITE_CURRENT_SCREEN, 0 },
 	{ "CMBTRIGGER_GRAVITY", CMBTRIGGER_GRAVITY, 0 },
 	{ "CMBTRIGGER_TERMINAL_VELOCITY", CMBTRIGGER_TERMINAL_VELOCITY, 0 },
+	{ "COMBOD_DIVE_UNDER_LEVEL", COMBOD_DIVE_UNDER_LEVEL, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.
