@@ -9,10 +9,10 @@ uint32_t WasmModuleBuilder::internFuncType(const WasmResultType &params,
       continue;
     bool same = true;
     for (size_t j = 0; j < params.size(); j++)
-      if (types[i].params[i] != params[i])
+      if (types[i].params[j] != params[j])
         same = false;
     for (size_t j = 0; j < results.size(); j++)
-      if (types[i].results[i] != results[i])
+      if (types[i].results[j] != results[j])
         same = false;
     if (same)
       return i;
