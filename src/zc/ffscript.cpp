@@ -155,7 +155,6 @@ extern byte monochrome_console;
 
 static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
-int32_t jitted_uncompiled_command_count;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
@@ -24869,13 +24868,13 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 
 	script_funcrun = false;
 
-	JittedScriptHandle* jitted_script = nullptr;
+	JittedScriptInstance* j_instance = nullptr;
 	if (jit_is_enabled())
 	{
 		auto& data = get_script_engine_data(type, i);
-		if (!data.jitted_script)
-			data.jitted_script = std::shared_ptr<JittedScriptHandle>(jit_create_script_handle(curscript, ri, got_initialized));
-		jitted_script = data.jitted_script.get();
+		if (!data.j_instance)
+			data.j_instance = std::shared_ptr<JittedScriptInstance>(jit_create_script_instance(curscript, ri, got_initialized));
+		j_instance = data.j_instance.get();
 	}
 
 	runtime_script_debug_handle = nullptr;
@@ -24906,7 +24905,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	}
 
 	int32_t result;
-	if (jitted_script)
+	if (j_instance)
 	{
 		if (ri->waitframes)
 		{
@@ -24915,12 +24914,12 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		}
 		else
 		{
-			// Retain the script handler because if deleted while running, terrible things can happen (crash),
+			// Retain the script instance because if deleted while running, terrible things can happen (crash),
 			// as the jit runtimes often write to it. Typically a script won't delete its own script handle,
 			// but scripts can run nested, so lets capture a temporary retaining reference as part of the
 			// call stack.
-			auto retainer = data.jitted_script;
-			result = jit_run_script(jitted_script);
+			auto retainer = data.j_instance;
+			result = jit_run_script(j_instance);
 
 			if (result == RUNSCRIPT_JIT_STACK_OVERFLOW || result == RUNSCRIPT_JIT_CALL_LIMIT)
 			{
@@ -24944,7 +24943,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	}
 	else
 	{
-		result = run_script_int(false);
+		result = run_script_int();
 	}
 
 	if (ZScriptVersion::gc())
@@ -24975,8 +24974,57 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	return result;
 }
 
-int32_t run_script_int(bool is_jitted)
+// Run [count] number of commands (unless something errors).
+int32_t run_script_jit_sequence(JittedScriptInstance* j_instance, int32_t pc, uint32_t sp, int32_t count)
 {
+	ri->pc = pc;
+	ri->sp = sp;
+	j_instance->uncompiled_command_count = count;
+	j_instance->sequence_mode = true;
+	j_instance->should_wait = false;
+	int r = run_script_int(j_instance);
+	if (r != RUNSCRIPT_OK)
+		return r;
+
+	return j_instance->should_wait ? RUNSCRIPT_STOPPED : RUNSCRIPT_OK;
+}
+
+// Run a single command.
+int32_t run_script_jit_one(JittedScriptInstance* j_instance, int32_t pc, uint32_t sp)
+{
+	ri->pc = pc;
+	ri->sp = sp;
+	j_instance->uncompiled_command_count = 1;
+	j_instance->sequence_mode = true;
+	j_instance->should_wait = false;
+	int r = run_script_int(j_instance);
+	if (r != RUNSCRIPT_OK)
+		return r;
+
+	return j_instance->should_wait ? RUNSCRIPT_STOPPED : RUNSCRIPT_OK;
+}
+
+// Runs the script until the next function call, return, wait frame, or error.
+int32_t run_script_jit_until_call_or_return(JittedScriptInstance* j_instance, int32_t pc, uint32_t sp)
+{
+	ri->pc = pc;
+	ri->sp = sp;
+	j_instance->uncompiled_command_count = -1;
+	j_instance->sequence_mode = false;
+	j_instance->should_wait = false;
+	int r = run_script_int(j_instance);
+	if (r != RUNSCRIPT_OK)
+		return r;
+
+	return j_instance->should_wait ? RUNSCRIPT_STOPPED : RUNSCRIPT_OK;
+}
+
+// When j_instance is null, that means the interperter is fully in charge.
+// Otherwise, the JIT may still call this function for the many commands that are not compiled, or
+// during the period before a function is "hot" enough to have been compiled.
+int32_t run_script_int(JittedScriptInstance* j_instance)
+{
+	bool is_jitted = j_instance;
 	ScriptType type = curScriptType;
 	word script = curScriptNum;
 	int32_t i = curScriptIndex;
@@ -24984,7 +25032,6 @@ int32_t run_script_int(bool is_jitted)
 	current_zasm_command=(ASM_DEFINE)0; // this is actually SETV, but we never will print that as a context string, so it's fine.
 
 	int commands_run = 0;
-	int jit_waiting_nop = false;
 	bool old_script_funcrun = script_funcrun && curscript->meta.ffscript_v < 23;
 	if(!is_jitted)
 	{
@@ -25021,7 +25068,8 @@ int32_t run_script_int(bool is_jitted)
 		
 	#endif
 	}
-	//j_command
+
+	// This is used to help debug differences w/ the JIT implementation. See scripts/jit_runtime_debug.py.
 	bool is_debugging = script_debug_is_runtime_debugging() == 2;
 	bool increment = true;
 	static std::vector<ffscript> empty_zasm = {{0xFFFF}};
@@ -25039,9 +25087,9 @@ int32_t run_script_int(bool is_jitted)
 		sargstr = op.strptr;
 		sargvec = op.vecptr;
 
-		current_zasm_command = (ASM_DEFINE)op.command;
+		current_zasm_command = (ASM_DEFINE)scommand;
 
-		if (is_debugging && (!is_jitted || commands_run > 0))
+		if (is_debugging && (!is_jitted || !j_instance->sequence_mode || commands_run > 0))
 		{
 			runtime_script_debug_handle->pre_command();
 		}
@@ -25173,7 +25221,7 @@ int32_t run_script_int(bool is_jitted)
 		if(waiting && scommand != NOP)
 		{
 			if (is_jitted)
-				jit_waiting_nop = true;
+				j_instance->should_wait = true;
 			break;
 		}
 		
@@ -25238,7 +25286,7 @@ int32_t run_script_int(bool is_jitted)
 				// of the interpreter loop. This is especially good for how `zasm_optimize`
 				// works, since it replaces many commands with a sequence of NOPs.
 				// No need to do a bounds check - the last command should always be 0xFFFF.
-				if (is_debugging)
+				if (is_debugging || is_jitted)
 					break;
 				while (zasm[ri->pc + 1].command == NOP)
 					ri->pc++;
@@ -25252,6 +25300,13 @@ int32_t run_script_int(bool is_jitted)
 					scommand = 0xFFFF;
 					break;
 				}
+
+				// When is_jitted is true, GOTO can only be processed here when j_instance->sequence_mode is false.
+				// Track back edges (jumps to a loop head). The JIT will compiled the current
+				// function if this is called enough.
+				if (is_jitted && ri->pc > sarg1)
+					jit_profiler_increment_function_back_edge(j_instance, sarg1);
+
 				ri->pc = sarg1;
 				increment = false;
 				break;
@@ -25360,6 +25415,11 @@ int32_t run_script_int(bool is_jitted)
 				}
 				ri->pc = sarg1;
 				increment = false;
+
+				// When is_jitted is true, CALLFUNC can only be processed here when j_instance->sequence_mode is false.
+				// And when it is called, it marks the end of run_script_int.
+				if (is_jitted)
+					j_instance->uncompiled_command_count = commands_run + 1;
 				break;
 			}
 			case RETURNFUNC:
@@ -25379,6 +25439,11 @@ int32_t run_script_int(bool is_jitted)
 				{
 					scommand = 0xFFFF;
 				}
+
+				// When is_jitted is true, RETURNFUNC can only be processed here when j_instance->sequence_mode is false.
+				// And when it is called, it marks the end of run_script_int.
+				if (is_jitted)
+					j_instance->uncompiled_command_count = commands_run + 1;
 				break;
 			}
 				
@@ -29170,7 +29235,7 @@ int32_t run_script_int(bool is_jitted)
 		
 		// If running a JIT compiled script, we're only here to do a few commands.
 		commands_run += 1;
-		if (is_jitted && commands_run == jitted_uncompiled_command_count)
+		if (is_jitted && commands_run == j_instance->uncompiled_command_count)
 		{
 			current_zasm_command=(ASM_DEFINE)0;
 			break;
@@ -29239,11 +29304,11 @@ int32_t run_script_int(bool is_jitted)
 		script_exit_cleanup(no_dealloc);
 		return RUNSCRIPT_STOPPED;
 	}
-	else
-		ri->pc++;
 
-	if(jit_waiting_nop)
-		return RUNSCRIPT_STOPPED;
+	if (is_jitted && commands_run == j_instance->uncompiled_command_count)
+		return RUNSCRIPT_OK;
+
+	ri->pc++;
 
 	return RUNSCRIPT_OK;
 }

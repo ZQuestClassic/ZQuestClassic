@@ -518,7 +518,10 @@ void register_existing_script_array(script_array* array);
 std::vector<script_array*> get_script_arrays();
 script_array* checkArray(uint32_t id, bool skipError = false);
 
-int32_t run_script_int(bool is_jitted);
+int32_t run_script_jit_sequence(JittedScriptInstance* j_instance, int32_t pc, uint32_t sp, int32_t count);
+int32_t run_script_jit_one(JittedScriptInstance* j_instance, int32_t pc, uint32_t sp);
+int32_t run_script_jit_until_call_or_return(JittedScriptInstance* j_instance, int32_t pc, uint32_t sp);
+int32_t run_script_int(JittedScriptInstance* j_instance = nullptr);
 
 void clearConsole();
 
@@ -1885,7 +1888,7 @@ struct ScriptEngineData {
 	refInfo ref;
 	int32_t stack[MAX_STACK_SIZE];
 	bounded_vec<word, int32_t> ret_stack {MAX_CALL_FRAMES};
-	std::shared_ptr<JittedScriptHandle> jitted_script;
+	std::shared_ptr<JittedScriptInstance> j_instance;
 	// This is used as a boolean for all but ScriptType::Item.
 	byte doscript = true;
 	bool waitdraw;
@@ -1894,7 +1897,7 @@ struct ScriptEngineData {
 	void clear_ref()
 	{
 		ref.Clear();
-		jitted_script = {};
+		j_instance = {};
 		initialized = false;
 	}
 
@@ -1902,7 +1905,7 @@ struct ScriptEngineData {
 	{
 		// No need to zero the stack.
 		ref = refInfo();
-		jitted_script = {};
+		j_instance = {};
 		doscript = true;
 		waitdraw = false;
 		initialized = false;

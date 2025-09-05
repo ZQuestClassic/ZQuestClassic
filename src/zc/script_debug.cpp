@@ -4,13 +4,11 @@
 #include "base/zdefs.h"
 #include "zc/ffscript.h"
 #include "zc/replay.h"
-#include "zc/zasm_utils.h"
 #include "zasm/table.h"
 #include "zasm/serialize.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
-#include <iomanip>
 #include <sstream>
 
 extern refInfo *ri;
@@ -211,7 +209,7 @@ void ScriptDebugHandle::pre_command()
 		std::string line = script_debug_registers_and_stack_to_string();
 		util::replchar(line, '\n', ' ');
 
-		replay_step_comment(fmt::format("{} {} | {}", i, zasm_op_to_string(op), line));
+		replay_step_comment(fmt::format("pc: {} {} | {}", i, zasm_op_to_string(op), line));
 
 		if (command == COMPAREV || command == COMPARER)
 		{

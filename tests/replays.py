@@ -395,12 +395,12 @@ class CLIPlayerInterface:
             exe_args.append('-jit')
             exe_args.append('-jit-log')
             exe_args.append('-jit-fatal-compile-errors')
-
-            # These are so short, should precompile otherwise no jit will be used.
-            if replay.name.startswith('playground'):
+            # Only test the "hot code only" compilation for a few replays. For all others,
+            # precompile all scripts on load.
+            if not replay.name.startswith('yuurand') and not replay.name.startswith('freedom'):
                 exe_args.append('-jit-precompile')
         else:
-            extra_args.append('-no-jit')
+            exe_args.append('-no-jit')
 
         if ctx.headless:
             exe_args.append('-headless')
@@ -484,10 +484,7 @@ class WebPlayerInterface:
             extra_args.append('-jit')
             extra_args.append('-jit-log')
             extra_args.append('-jit-fatal-compile-errors')
-
-            # These are so short, should precompile otherwise no jit will be used.
-            if replay.name.startswith('playground'):
-                extra_args.append('-jit-precompile')
+            extra_args.append('-jit-precompile')
         else:
             extra_args.append('-no-jit')
 

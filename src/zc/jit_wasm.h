@@ -5,15 +5,15 @@
 #include "zc/zasm_utils.h"
 #include <cstdint>
 
-struct JittedFunctionHandle
+struct JittedScript
 {
 	int module_id;
 	std::map<pc_t, uint32_t> pc_to_block_id;
 };
 
-struct JittedScriptHandle
+struct JittedScriptInstance
 {
-	JittedFunctionHandle* fn;
+	JittedScript* j_script;
 	script_data* script;
 	refInfo* ri;
 	uint32_t handle_id;
@@ -21,8 +21,12 @@ struct JittedScriptHandle
 	pc_t call_stack_ret_index;
 	// nth WaitX instruction last execution stopped at. If 0, then the script has not run yet.
 	uint32_t wait_index;
+	bool should_wait;
+	// If true, run_script_int is being called to execute exactly [uncompiled_command_count] commands.
+	bool sequence_mode;
+	int32_t uncompiled_command_count;
 
-	~JittedScriptHandle();
+	~JittedScriptInstance();
 };
 
 #endif

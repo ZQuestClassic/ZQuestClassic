@@ -226,9 +226,10 @@ void scr_func_exec::execute()
 		destructstr = &name;
 		bool old_funcrun = script_funcrun;
 		script_funcrun = true;
-		
-		run_script_int(false);
-		
+
+		// TODO: doesn't use JIT...
+		run_script_int();
+
 		script_funcrun = old_funcrun;
 		destructstr = oldstr;
 		//

@@ -4058,11 +4058,12 @@ void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 
 	strcpy(qstpath, quest_path);
 	printf("Hash: %s\n", QHeader.hash().c_str());
+	if (jit_precompile)
+		jit_set_enabled(true);
 	zasm_optimize();
 	if (jit_precompile)
 	{
 		printf("compiling scripts ...\n");
-		jit_set_enabled(true);
 		jit_startup();
 	}
 	exit(0);
@@ -4085,6 +4086,8 @@ void do_extract_zasm_command(const char* quest_path)
 	strcpy(qstpath, quest_path);
 	bool top_functions = true;
 	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
+	if (get_flag_bool("-jit").value_or(false))
+		jit_set_enabled(true);
 	zasm_optimize();
 	zasm_for_every_script(true, [&](zasm_script* script){
 		ScriptDebugHandle h(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);

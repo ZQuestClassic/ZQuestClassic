@@ -1,33 +1,68 @@
 #ifndef ZC_JIT_X64_H_
 #define ZC_JIT_X64_H_
 
-#include "base/general.h"
 #include "base/zdefs.h"
 #include "zc/zasm_utils.h"
 #include <cstdint>
+#include <deque>
 #include <map>
 
-typedef int32_t (*CompiledFunction)(int32_t* registers, int32_t* global_registers,
-								  int32_t* stack, uint32_t* stack_index, uint32_t* pc,
-								  uintptr_t* call_stack_rets, uint32_t* call_stack_ret_index,
-								  uint32_t* wait_index, uint32_t start_pc);
+class ScriptDebugHandle;
+struct JittedScriptInstance;
 
-struct JittedFunctionHandle
+struct JittedExecutionContext
 {
-	CompiledFunction compiled_fn;
-	std::map<pc_t, uintptr_t> call_pc_to_return_address;
-	std::map<pc_t, uint32_t> wait_frame_pc_to_index;
+	JittedScriptInstance* j_instance;
+	int32_t ret_code;
+	int32_t* registers;
+	int32_t* global_registers;
+	int32_t* stack_base;
+	uint32_t sp;
+	pc_t pc;
+	pc_t call_pc;
+	uint64_t saved_regs[4];
 };
 
-struct JittedScriptHandle
+using JittedFunctionImpl = int (*)(JittedExecutionContext* ctx);
+using DispatcherStub = int (*)(uintptr_t target_address, uint32_t stack_size, JittedExecutionContext* ctx);
+
+struct JittedFunction
 {
-	JittedFunctionHandle* fn;
+	JittedFunctionImpl exec;
+	pc_t id;
+	std::map<pc_t, intptr_t> pc_to_address;
+	std::map<pc_t, uint32_t> pc_to_stack_size;
+};
+
+struct JittedScript
+{
+	StructuredZasm structured_zasm;
+	ZasmCFG cfg;
+	std::map<pc_t, pc_t> start_pc_to_fn_id;
+	std::vector<JittedFunction> compiled_functions;
+	std::deque<JittedFunction> pending_compiled_jit_functions;
+	std::unique_ptr<ScriptDebugHandle> debug_handle;
+	ALLEGRO_MUTEX* mutex;
+	std::map<pc_t, uintptr_t> pc_to_address;
+	std::map<pc_t, uint32_t> pc_to_stack_size;
+	DispatcherStub dispatcher_stub;
+	std::map<pc_t, pc_t> pc_to_containing_function_id_cache;
+	// Tracks how many times functions are called in the interpeter.
+	std::vector<int> profiler_function_call_count;
+	// Tracks how many times functions execute a loop iteration in the interpeter.
+	std::vector<int> profiler_function_back_edge_count;
+	std::vector<bool> functions_requested_to_be_compiled;
+};
+
+struct JittedScriptInstance
+{
+	JittedScript* j_script;
 	script_data* script;
 	refInfo* ri;
-	uintptr_t call_stack_rets[MAX_CALL_FRAMES];
-	uint32_t call_stack_ret_index;
-	// nth WaitX instruction last execution stopped at. If 0, then the script has not run yet.
-	uint32_t wait_index;
+	bool should_wait;
+	// If true, run_script_int is being called to execute exactly [uncompiled_command_count] commands.
+	bool sequence_mode;
+	int32_t uncompiled_command_count;
 };
 
 #endif

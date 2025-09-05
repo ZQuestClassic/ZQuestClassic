@@ -32,6 +32,11 @@ WorkerPool::~WorkerPool()
 	al_destroy_cond(finished_cond);
 }
 
+size_t WorkerPool::num_workers() const
+{
+	return workers.size();
+}
+
 void WorkerPool::add_task(std::function<void()> task)
 {
 	al_lock_mutex(mutex);

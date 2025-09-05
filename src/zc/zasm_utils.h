@@ -14,7 +14,7 @@ typedef uint32_t pc_t;
 struct ZasmFunction
 {
 	pc_t id;
-	std::string name;
+	std::string _name;
 	pc_t start_pc;
 	pc_t final_pc;
 	bool may_yield;
@@ -22,6 +22,15 @@ struct ZasmFunction
 	std::set<pc_t> called_by_functions;
 	// Currently nothing needs this.
 	// std::set<pc_t> calls_functions;
+
+	const std::string& name() const
+	{
+		static std::string empty = "<empty>";
+		if (_name.empty())
+			return empty;
+		else
+			return _name;
+	}
 };
 
 struct StructuredZasm

@@ -187,7 +187,7 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 	for (auto sd : script->script_datas)
 	{
 		auto& fn = functions.at(start_pc_to_function.at(sd->pc));
-		fn.name = fmt::format("run_{}", sd->name());
+		fn._name = fmt::format("run_{}", sd->name());
 		fn.is_entry_function = true;
 	}
 
@@ -340,12 +340,12 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 	return cfg;
 }
 
-static std::string zasm_fn_get_name(const ZasmFunction& function)
+static std::string zasm_fn_get_label(const ZasmFunction& function)
 {
-	if (function.name.empty())
+	if (function._name.empty())
 		return fmt::format("Function #{}", function.id);
 	else
-		return fmt::format("Function #{} ({})", function.id, function.name);
+		return fmt::format("Function #{} ({})", function.id, function._name);
 }
 
 static std::string zasm_to_string(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg, std::set<pc_t> function_ids)
@@ -372,7 +372,7 @@ static std::string zasm_to_string(const zasm_script* script, const StructuredZas
 			}
 			if ((command == GOTO && structured_zasm.start_pc_to_function.contains(op.arg1)) || command == CALLFUNC)
 			{
-				ss << fmt::format("[Call {}]", zasm_fn_get_name(structured_zasm.functions[structured_zasm.start_pc_to_function.at(op.arg1)]));
+				ss << fmt::format("[Call {}]", zasm_fn_get_label(structured_zasm.functions[structured_zasm.start_pc_to_function.at(op.arg1)]));
 			}
 			ss << '\n';
 		}
@@ -382,13 +382,27 @@ static std::string zasm_to_string(const zasm_script* script, const StructuredZas
 	return ss.str();
 }
 
+static size_t count_non_nop_instructions(const zasm_script* script, size_t start_pc, size_t final_pc)
+{
+	size_t count = 0;
+	for (size_t pc = start_pc; pc <= final_pc; pc++)
+	{
+		if (script->zasm[pc].command != NOP)
+			count++;
+	}
+	return count;
+}
+
 std::string zasm_to_string(const zasm_script* script, bool top_functions, bool generate_yielder)
 {
 	std::stringstream ss;
 
 	auto structured_zasm = zasm_construct_structured(script);
 
+	// fn id, length
 	std::vector<std::pair<pc_t, size_t>> fn_lengths;
+	// fn id, start_pc, len
+	std::vector<std::tuple<pc_t, pc_t, size_t>> block_lengths;
 
 	std::set<pc_t> yielding_fns;
 	size_t yielding_fn_length = 0;
@@ -403,7 +417,7 @@ std::string zasm_to_string(const zasm_script* script, bool top_functions, bool g
 		{
 			auto& fn = structured_zasm.functions[fn_id];
 			pc_ranges.emplace_back(fn.start_pc, fn.final_pc);
-			yielding_fn_length += fn.final_pc - fn.start_pc + 1;
+			yielding_fn_length += count_non_nop_instructions(script, fn.start_pc, fn.final_pc);
 		}
 		auto cfg = zasm_construct_cfg(script, pc_ranges);
 		ss << "yielder" << '\n';
@@ -420,11 +434,22 @@ std::string zasm_to_string(const zasm_script* script, bool top_functions, bool g
 
 		auto& fn = structured_zasm.functions[fn_id];
 		auto cfg = zasm_construct_cfg(script, {{fn.start_pc, fn.final_pc}});
-		ss << zasm_fn_get_name(fn) << '\n';
+		ss << zasm_fn_get_label(fn) << '\n';
 		ss << zasm_to_string(script, structured_zasm, cfg, {fn_id});
 		ss << '\n';
 
-		fn_lengths.emplace_back(fn_id, fn.final_pc - fn.start_pc + 1);
+		fn_lengths.emplace_back(fn_id, count_non_nop_instructions(script, fn.start_pc, fn.final_pc));
+
+		auto block_starts = std::vector<pc_t>(cfg.block_starts.begin(), cfg.block_starts.end());
+		for (pc_t i = 0; i < cfg.block_starts.size(); i++)
+		{
+			pc_t start_pc = block_starts[i];
+			pc_t final_pc = i == block_starts.size() - 1 ?
+				fn.final_pc :
+				block_starts[i + 1] - 1;
+			size_t len = count_non_nop_instructions(script, start_pc, final_pc);
+			block_lengths.emplace_back(fn_id, start_pc, len);
+		}
 	}
 
 	if (top_functions)
@@ -436,7 +461,22 @@ std::string zasm_to_string(const zasm_script* script, bool top_functions, bool g
 		int lengths_printed = 0;
 		for (auto [fn_id, length] : fn_lengths)
 		{
-			std::string name = fn_id == -1 ? "yielder" : zasm_fn_get_name(structured_zasm.functions.at(fn_id));
+			std::string name = fn_id == -1 ? "yielder" : zasm_fn_get_label(structured_zasm.functions.at(fn_id));
+			double percent = (double)length / script->size * 100;
+			ss << std::setw(15) << std::left << name + ": " << std::setw(6) << std::left << length << " " << (int)percent << '%' << '\n';
+			if (++lengths_printed == 5) break;
+		}
+		ss << '\n';
+
+		ss << "Top blocks:\n\n";
+		std::sort(block_lengths.begin(), block_lengths.end(), [](auto &left, auto &right) {
+			return std::get<2>(left) > std::get<2>(right);
+		});
+		lengths_printed = 0;
+		for (auto [fn_id, start_pc, length] : block_lengths)
+		{
+			std::string name = fn_id == -1 ? "yielder" : zasm_fn_get_label(structured_zasm.functions.at(fn_id));
+			name += fmt::format(" #{}", start_pc);
 			double percent = (double)length / script->size * 100;
 			ss << std::setw(15) << std::left << name + ": " << std::setw(6) << std::left << length << " " << (int)percent << '%' << '\n';
 			if (++lengths_printed == 5) break;

@@ -1770,7 +1770,10 @@ void saves_init()
 {
 	saves.clear();
 	currgame = -1;
-	game = new gamedata();
+	if (game)
+		game->Clear();
+	else
+		game = new gamedata();
 }
 
 static bool load_from_save_file(ReadMode read_mode, fs::path filename, std::vector<save_t>& out_saves, std::string& err)

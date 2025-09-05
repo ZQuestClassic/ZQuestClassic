@@ -1,5 +1,8 @@
 # Debugs problems with JIT by comparing against non-JIT execution, and finds the first instance
 # of an instruction resulting in unexpected registers/stack.
+#
+# To debug a replay that is failing only in JIT, run:
+#   python scripts/jit_runtime_debug.py --replay_path tests/replays/stellar_seas_randomizer.zplay
 
 import argparse
 import dataclasses
@@ -140,12 +143,12 @@ def copy_and_trim_zplay(from_path: Path, to_path: Path, frame_limit: int):
     lines = from_path.read_text().splitlines()
     for i, line in enumerate(lines):
         if line.startswith('M'):
-            # qst path resolving is tricky. Need to copy the qst to the target directory.
-            if line.startswith('M qst'):
+            if line.startswith('M qst '):
                 qst_path = line.replace('M qst ', '')
-                dest_qst_path = to_path.parent / qst_path
-                dest_qst_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy(from_path.parent / qst_path, dest_qst_path)
+                lines[i] = f'M qst {from_path.parent / qst_path}'
+            elif line.startswith('M sav '):
+                sav_path = line.replace('M sav ', '')
+                lines[i] = f'M sav {from_path.parent / sav_path}'
             continue
 
         frame = int(line.split(' ')[1])
@@ -173,7 +176,7 @@ def find_frame_where_script_broke(test_results_folder: Path):
         # If the result of a script was different than expected, then the issue is not a
         # prior frame but instead in the same frame as the failure frame.
         type, frame, data = first_failure.split(' ', 2)
-        return frame
+        return int(frame)
 
     roundtrip_lines = roundtrip_lines[0:first_failure_index]
     last_index = find_last_index_containing(
@@ -185,7 +188,7 @@ def find_frame_where_script_broke(test_results_folder: Path):
     return int(frame)
 
 
-extra_args = '-jit-log -replay-save-result-every-frame -replay-fail-assert-instant'
+extra_args = '-jit-precompile -replay-save-result-every-frame -replay-fail-assert-instant'
 test_results_folder_0 = root_dir / '.tmp/jit_runtime_debug_test_results_0'
 clear_dir(test_results_folder_0)
 p = run_replay(
@@ -197,7 +200,6 @@ p = run_replay(
         '--jit',
         '--extra_args',
         extra_args,
-        '--filter',
         replay_path,
     ]
 )
@@ -238,7 +240,7 @@ for run in failing_runs:
         exit(1)
 
     # Get failing JIT
-    extra_args = '-script-runtime-debug 1 -jit-log -replay-save-result-every-frame -replay-fail-assert-instant'
+    extra_args = '-script-runtime-debug 1 -jit-precompile -replay-save-result-every-frame -replay-fail-assert-instant'
     test_results_folder_2 = root_dir / '.tmp/jit_runtime_debug_test_results_2'
     clear_dir(test_results_folder_2)
     p = run_replay(
@@ -261,8 +263,7 @@ for run in failing_runs:
     frame = find_frame_where_script_broke(test_results_folder_2)
     print(f'script seems to have broken at frame: {frame}')
 
-    # Now we update the replay again, but with instruction-level runtime debugging.
-    # Copy the failing replay, and update it with script-level runtime debugging.
+    # Update the replay again, but with instruction-level runtime debugging.
     extra_args = f'-script-runtime-debug 2 -script-runtime-debug-frame {frame}'
     test_results_folder_3 = root_dir / '.tmp/jit_runtime_debug_test_results_3'
     clear_dir(test_results_folder_3)
@@ -284,7 +285,7 @@ for run in failing_runs:
         exit(1)
 
     # Get failing JIT
-    extra_args = f'-script-runtime-debug 2 -script-runtime-debug-frame {frame} -jit-log -replay-fail-assert-instant'
+    extra_args = f'-script-runtime-debug 2 -script-runtime-debug-frame {frame} -jit-precompile -replay-fail-assert-instant'
     test_results_folder_4 = root_dir / '.tmp/jit_runtime_debug_test_results_4'
     clear_dir(test_results_folder_4)
     p = run_replay(
@@ -321,6 +322,8 @@ for run in failing_runs:
     but_was, shoulda_been = roundtrip_lines[bad_line_index - 0].split('«')
     print(f'shoulda been:\n\t{shoulda_been.strip()}\nbut was:\n\t{but_was.strip()}')
     print('\ntip: copy/paste this in an editor with word wrap off')
+    print()
+    print(f'for more, see {roundtrip_path}')
 
     # Only bother showing one bad thing at a time.
     break

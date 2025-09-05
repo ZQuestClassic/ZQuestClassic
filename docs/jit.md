@@ -71,11 +71,32 @@ This can result in ~20x better performance for scripts that are just pure math. 
 
 `GOTO` commands will emit a `jmp` to a label that is placed at the correct place in the generated assembly.
 
-Function calls are tricky. They work by pushing the current pc onto the stack, and recalling that pc on `RETURNFUNC`. The JIT compilation turns the function call into a `jmp`, and stores on a stack a _function call return address_ (defined by generating a label just after the function call). On `RETURNFUNC` code is emitted to pop from this stack and `jmp` to the location. Given these are arbitary jumps and not `call` ops, the assembler is also told where a `RETURNFUNC` `jmp` can possibly return to, which helps asmjit with register allocation. In the future, these may be compiled into actual function calls on-demand.
+Scripts are compiled per-function. Once a function is run enough (lots of calls to it, or it loops a lot internally), it will be compiled. Compilation happens in a worker pool – the main thread does not wait for it to be compiled. Once the worker pool compiles a function, the main thread can then run it when executing that function. Until then, the interpreter handles executing that function.
 
-When a `WaitX` command is hit, the compiled function will save the location of that command and return. The next time it is called, it will jump straight to the next instruction after that `WaitX` command. This is tracked via `jitted_script->wait_index`.
+If precompiling is enabled, all functions are compiled on quest load, before the game starts.
 
-A script may not have been compiled before the engine needs to run an instance of it. In that case, the engine will use the ZASM interpreter to start. When the script is done being compiled, the engine will upgrade that instance of the script to use the compiled version. This is handled in `jit_create_script_handle_impl`. Just a few bits of state have to be translated - namely the pc the script ended on last, and the function call stack.
+When a `WaitX` command is hit, the compiled function will save the location of that command and return. The next time it is called, it will jump straight to the next instruction after that `WaitX` command. This is tracked via `JittedScript::pc_to_address`.
+
+## Configuration
+
+```ini
+# in zc.cfg ...
+
+# Enable for JIT-compilation of ZASM scripts.
+jit = 1
+# Number of background threads for compiling scripts.
+# -1 to set to number of available CPU threads
+# -x to set to (number of available CPU threads) / x
+# 0 to only compile on the main thread
+jit_threads = -2
+# When a function is called this many times, it is deemed "hot" and will be compiled by the JIT.
+jit_hot_function_call_count = 10
+# When a function loops this many times, it is deemed "hot" and will be compiled by the JIT.
+jit_hot_function_loop_count = 1000
+# Compile all scripts on quest load, and wait for it to finish before starting the game.
+# Note that this totally ignores the above two "hot" thresholds.
+jit_precompile = 0
+```
 
 ## Debugging
 
@@ -98,7 +119,7 @@ Given a replay that fails only when using JIT, this is how you can debug what's 
 1. The script will run that replay w/ JIT, then w/o JIT, then show you where the registers/stack/pc first differ
 1. Hopefully, you'll now see the exact instruction that results in a problem. If a fix seems non-trivial, it may be best to figure out how to create similar ZASM using a much smaller script, so you don't have to wait however long the replay is when iterating on a fix.
 
-It can also be useful to compile only the script you're debugging in `jit_create_script_handle`: `if (script->id != {ScriptType::Player, 1}) return nullptr;`
+It can also be useful to compile only the script you're debugging in `jit_create_script_impl`: `if (script->id != {ScriptType::Player, 1}) return nullptr;`
 
 ## WASM backend
 

@@ -20,6 +20,8 @@ public:
     // Destructor. Stops all threads and waits for them to finish.
     ~WorkerPool();
 
+	size_t num_workers() const;
+
     void add_task(std::function<void()> task);
 
     void wait_for_all();

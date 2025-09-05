@@ -1320,7 +1320,7 @@ public:
 	optional<int32_t> cmp_strcache;
 	std::set<uint32_t> stack_pos_is_object;
 	bool overflow;
-	
+
 	void Clear()
 	{
 		*this = refInfo();
@@ -1701,7 +1701,7 @@ struct zasm_script
 	// TODO: remove the necessity of this terminal command being here.
 	bool valid() const
 	{
-		return !zasm.empty() && zasm[0] != 0xFFFF;
+		return !zasm.empty() && zasm[0].command != 0xFFFF;
 	}
 };
 

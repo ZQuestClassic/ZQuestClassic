@@ -245,8 +245,6 @@ def run_replays():
     failing_runs = []
     for run in test_results.runs[-1]:
         if not run.success:
-            if '0FF17D261771D591F9B3BF1919A39D88' in run.path:
-                print(run)
             failing_runs.append(run)
 
     if failing_runs:
