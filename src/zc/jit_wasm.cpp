@@ -32,7 +32,6 @@
 #include "zc/jit.h"
 #include "zc/script_debug.h"
 #include "zc/wasm_compiler.h"
-#include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include "zasm/serialize.h"
@@ -1324,8 +1323,8 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 		return nullptr;
 	}
 
-	WasmCompiler comp;
-	CompilationState state = {};
+	WasmCompiler comp{};
+	CompilationState state{};
 
 	state.runtime_debugging = script_debug_is_runtime_debugging() == 2;
 
@@ -1465,7 +1464,8 @@ JittedFunctionHandle* jit_compile_script(zasm_script* script)
 
 			// If this script is not synchronous, call the yielder function (which will again handle jumping to the
 			// correct entry block for the first call).
-			wasm.emitCall(fn_yielder_idx);
+			if (fn_yielder_idx != -1)
+				wasm.emitCall(fn_yielder_idx);
 		}
 		else
 		{
@@ -1587,7 +1587,7 @@ JittedScriptHandle* jit_create_script_handle_impl(script_data* script, refInfo* 
 	int handle_id = em_create_wasm_handle(fn->module_id);
 	if (!handle_id)
 	{
-		al_trace("[jit] Error creating wasm handle. script: %s id: %d\n", script->zasm_script->name.c_str(), script->id);
+		al_trace("[jit] Error creating wasm handle. script: %s\n", script->zasm_script->name.c_str());
 		return nullptr;
 	}
 
