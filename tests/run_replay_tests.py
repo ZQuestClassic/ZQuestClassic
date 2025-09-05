@@ -1036,7 +1036,7 @@ if mode == 'assert':
         print('all replay tests passed')
     else:
         print(f'{len(failing_replays)} replay tests failed')
-        if not is_ci and not args.no_report_on_failure and sys.stdout.isatty():
+        if not is_ci and not args.no_report_on_failure and interactive and sys.stdout.isatty():
             prompt_to_create_compare_report()
         exit(2)
 else:
