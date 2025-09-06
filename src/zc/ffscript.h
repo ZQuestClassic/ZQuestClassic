@@ -1887,7 +1887,7 @@ public:
 struct ScriptEngineData {
 	refInfo ref;
 	int32_t stack[MAX_STACK_SIZE];
-	bounded_vec<word, int32_t> ret_stack {MAX_CALL_FRAMES};
+	int32_t ret_stack[MAX_CALL_FRAMES];
 	std::shared_ptr<JittedScriptInstance> j_instance;
 	// This is used as a boolean for all but ScriptType::Item.
 	byte doscript = true;

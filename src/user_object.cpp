@@ -1,3 +1,4 @@
+#include "base/general.h"
 #include "base/zdefs.h"
 #include "user_object.h"
 #include "zasm/table.h"
@@ -10,7 +11,7 @@ void pop_ri();
 extern refInfo* ri;
 extern script_data* curscript;
 extern int32_t(*stack)[MAX_STACK_SIZE];
-extern bounded_vec<word, int32_t>* ret_stack;
+extern int32_t(*ret_stack)[MAX_CALL_FRAMES];
 extern ScriptType curScriptType;
 extern word curScriptNum;
 extern int32_t curScriptIndex;
@@ -197,7 +198,7 @@ void scr_func_exec::clear()
 void scr_func_exec::execute()
 {
 	static int32_t static_stack[MAX_STACK_SIZE];
-	static bounded_vec<word, int32_t> static_ret_stack;
+	static int32_t static_ret_stack[MAX_CALL_FRAMES];
 	script_data* sc_data = load_scrdata(type,script,i);
 	if(!pc || !sc_data || !sc_data->valid())
 		return;
@@ -220,7 +221,7 @@ void scr_func_exec::execute()
 		curScriptNum = script;
 		curScriptIndex = i;
 		memset(static_stack, 0, sizeof(int32_t)*MAX_STACK_SIZE);
-		static_ret_stack.clear();
+		memset(static_stack, 0, sizeof(int32_t)*MAX_CALL_FRAMES);
 		// Run  the destructor script
 		std::string* oldstr = destructstr;
 		destructstr = &name;

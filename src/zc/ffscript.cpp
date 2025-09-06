@@ -695,7 +695,7 @@ string *sargstr;
 refInfo *ri;
 script_data *curscript;
 int32_t(*stack)[MAX_STACK_SIZE];
-bounded_vec<word, int32_t>* ret_stack;
+int32_t(*ret_stack)[MAX_CALL_FRAMES];
 vector<int32_t> zs_vargs;
 ScriptType curScriptType;
 word curScriptNum;
@@ -715,7 +715,7 @@ static vector<string*> sargstr_cache;
 static vector<refInfo*> ricache;
 static vector<script_data*> sdcache;
 static vector<int32_t(*)[MAX_STACK_SIZE]> stackcache;
-static vector<bounded_vec<word, int32_t>*> ret_stack_cache;
+static vector<int32_t(*)[MAX_CALL_FRAMES]> ret_stack_cache;
 void push_ri()
 {
 	sarg1cache.push_back(sarg1);
@@ -18446,19 +18446,19 @@ bool check_stack(uint32_t sp)
 
 void retstack_push(int32_t val)
 {
-	if(ri->retsp >= ret_stack->size())
+	if(ri->retsp >= MAX_CALL_FRAMES)
 	{
 		log_call_limit_error();
 		ri->overflow = true;
 		return;
 	}
-	ret_stack->at(ri->retsp++) = val;
+	(*ret_stack)[ri->retsp++] = val;
 }
 optional<int32_t> retstack_pop()
 {
 	if(!ri->retsp)
 		return nullopt; //return from root, so, QUIT
-	return ret_stack->at(--ri->retsp);
+	return (*ret_stack)[--ri->retsp];
 }
 
 void stack_push(int32_t val)

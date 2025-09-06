@@ -1574,7 +1574,7 @@ JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, J
 			return nullptr;
 		}
 
-		extern bounded_vec<word, int32_t>* ret_stack;
+		extern int32_t(*ret_stack)[MAX_CALL_FRAMES];
 		j_instance->call_stack_ret_index = ri->retsp;
 		for (int i = 0; i < ri->retsp; i++)
 		{
@@ -1594,7 +1594,6 @@ JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, J
 		}
 
 		jit_printf("[jit] running script upgraded to jit: %s\n", script->name().c_str());
-		(*ret_stack).clear();
 		ri->retsp = 0;
 	}
 
