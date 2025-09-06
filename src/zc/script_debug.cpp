@@ -97,6 +97,7 @@ void ScriptDebugHandle::update_file()
 
 		al_make_directory(dir.c_str());
 		file = al_fopen(path.c_str(), "w");
+		al_trace("[debug] writing zasm to %s\n", path.c_str());
 	}
 }
 
