@@ -90,6 +90,7 @@ void ScriptDebugHandle::update_file()
 			path = fmt::format("{}/zasm-{}-{}-{}.txt", dir, ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name);
 		al_make_directory(dir.c_str());
 		file = al_fopen(path.c_str(), "w");
+		al_trace("[debug] writing zasm to %s\n", path.c_str());
 	}
 }
 
