@@ -526,7 +526,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							const char	*logger_name/*=NULL*/,
 							const char	*helper_executable/*=NULL*/)
 {
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
 	return 0;
 #else
 	if (m_textlog) {
@@ -540,7 +540,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 
 void CConsoleLogger::kill()
 {
-#ifndef __EMSCRIPTEN__
+#ifdef HAS_NFD
 	if (m_textlog) {
 		al_close_native_text_log(m_textlog);
 		m_textlog = NULL;
@@ -563,7 +563,7 @@ int32_t CConsoleLogger::Close(void)
 //////////////////////////////////////////////////////////////////////////
 inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 {
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
 	::printf("%s", lpszText);
 #else
 	al_append_native_text_log(m_textlog, "%s", lpszText);
@@ -573,7 +573,7 @@ inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 
 bool CConsoleLogger::valid()
 {
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
 	return 1;
 #else
 	return m_textlog != NULL;
@@ -595,7 +595,7 @@ int32_t CConsoleLogger::printf(const char *format,...)
 	
 	va_end(argList);
 	
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
 	::printf("%s", tmp);
 #else
 	al_append_native_text_log(m_textlog, "%s", tmp);
@@ -702,7 +702,7 @@ int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 	
 	va_end(argList);
 
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
 	::printf("%s", tmp);
 #else
 	al_append_native_text_log(m_textlog, "%s", tmp);
@@ -713,7 +713,7 @@ int32_t CConsoleLoggerEx::safeprint(int32_t attributes,const char *str)
 {
 	int32_t sz = strlen(str);
 
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
 	::printf("%s", str);
 #else
 	al_append_native_text_log(m_textlog, "%s", str);
@@ -736,7 +736,7 @@ int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 	
 	va_end(argList);
 	
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
 	::printf("%s", tmp);
 #else
 	al_append_native_text_log(m_textlog, "%s", tmp);
@@ -747,7 +747,7 @@ int32_t CConsoleLoggerEx::safeprint(const char *str)
 {
 	int32_t sz = strlen(str);
 
-#ifdef __EMSCRIPTEN__
+#ifndef HAS_NFD
 	::printf("%s", str);
 #else
 	al_append_native_text_log(m_textlog, "%s", str);
