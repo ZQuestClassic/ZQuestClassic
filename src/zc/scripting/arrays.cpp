@@ -96,36 +96,35 @@ class ZasmArrayManager
 public:
 	void registerArray(int zasm_var, IScriptingArray* impl)
 	{
-		DCHECK(!m_arrays.contains(zasm_var));
+		DCHECK(!m_arrays[zasm_var]);
 		m_arrays[zasm_var] = impl;
 	}
 
 	bool isRegistered(int zasm_var)
 	{
-		return m_arrays.contains(zasm_var);
+		return m_arrays[zasm_var];
 	}
 
 	size_t getSize(int zasm_var, int ref) const
 	{
-		if (auto it = m_arrays.find(zasm_var); it != m_arrays.end())
-			return it->second->getSize(ref);
+		if (auto impl = m_arrays[zasm_var])
+			return impl->getSize(ref);
 
 		return 0;
 	}
 
 	int getElement(int zasm_var, int ref, int index) const
 	{
-		if (auto it = m_arrays.find(zasm_var); it != m_arrays.end())
-			return it->second->getElement(ref, index);
+		if (auto impl = m_arrays[zasm_var])
+			return impl->getElement(ref, index);
 
 		return 0;
 	}
 
 	bool setElement(int zasm_var, int ref, int index, int value)
 	{
-		if (auto it = m_arrays.find(zasm_var); it != m_arrays.end())
+		if (auto impl = m_arrays[zasm_var])
 		{
-			auto impl = it->second;
 			if (impl->readOnly())
 			{
 				scripting_log_error_with_context("Cannot modify read-only array");
@@ -139,7 +138,7 @@ public:
 	}
 
 private:
-	std::map<int, IScriptingArray*> m_arrays;
+	IScriptingArray* m_arrays[NUMVARIABLES];
 };
 
 static ZasmArrayManager g_arrayManager;
