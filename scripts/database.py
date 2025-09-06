@@ -83,7 +83,7 @@ class Database:
             manifest_path = self.path / 'manifest.json'
         else:
             manifest_path = self.download('manifest.json')
-        self.data = json.loads(manifest_path.read_text())
+        self.data = json.loads(manifest_path.read_text('utf-8'))
 
         self.quests = []
         for entry in self.data.values():
