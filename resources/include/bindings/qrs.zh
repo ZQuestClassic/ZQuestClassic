@@ -2556,3 +2556,6 @@ enum QR
 	qr_MAX
 };
 
+// Old names for old script compat
+const QR qr_WEAPONS_EXTRA_FRAME = qr_WEAPONS_EXTRA_DEATH_FRAME;
+

@@ -26934,7 +26934,9 @@ void dev_output_qrs(string const& fname)
 		{ qr_BROKEN_CONVEYORS, "qr_BROKEN_CONVEYORS" },
 		{ qr_ZS_OLD_SUSPEND_FFC, "qr_ZS_OLD_SUSPEND_FFC" },
 	};
-	
+	static std::map<string, string> qr_compat_names = {
+		{ "qr_WEAPONS_EXTRA_FRAME", qr_const_names[qr_WEAPONS_EXTRA_DEATH_FRAME]}
+	};
 	GUI::ListData qrs = combinedQRList() + combinedZSRList();
 	qrs.valsort();
 	bool warn = false;
@@ -27029,5 +27031,10 @@ void dev_output_qrs(string const& fname)
 	if (did_skip)
 		file << " = " << qr_MAX;
 	file << "\n};\n\n";
+	
+	file << "// Old names for old script compat\n";
+	for(auto [old_name, new_name] : qr_compat_names)
+		file << "const QR " << old_name << " = " << new_name << ";\n";
+	file << "\n";
 }
 
