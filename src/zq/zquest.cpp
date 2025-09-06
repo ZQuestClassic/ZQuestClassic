@@ -23375,6 +23375,21 @@ void dev_output_qrs(string const& fname);
 
 int32_t main(int32_t argc,char **argv)
 {
+	int dev_qrs_arg = used_switch(argc, argv, "-dev-qrs-zscript");
+	if (dev_qrs_arg > 0)
+	{
+		if (dev_qrs_arg + 1 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -dev-qrs-zscript output.zs\n");
+			exit(1);
+		}
+		string fname(argv[dev_qrs_arg + 1]);
+		dev_output_qrs(fname);
+		if (used_switch(argc,argv,"-q"))
+			exit(0);
+	}
+
 	int test_zc_arg = used_switch(argc, argv, "-test-zc");
 	if (test_zc_arg > 0)
 		set_headless_mode();
@@ -23893,19 +23908,6 @@ int32_t main(int32_t argc,char **argv)
 		}
 
 		zq_exit(0);
-	}
-
-	int dev_qrs_arg = used_switch(argc, argv, "-dev-qrs-zscript");
-	if (dev_qrs_arg > 0)
-	{
-		if (dev_qrs_arg + 1 > argc)
-		{
-			printf("%d\n", argc);
-			printf("expected -dev-qrs-zscript output.zs\n");
-			zq_exit(1);
-		}
-		string fname(argv[dev_qrs_arg + 1]);
-		dev_output_qrs(fname);
 	}
 
 	if (!is_headless())
@@ -26392,7 +26394,8 @@ static vector<string> wrap_qr_info(string info)
 	info = info.substr(0, info.find_last_not_of(" \t\n")+1);
 	if (info.empty())
 		return {};
-	info = info.substr(info.find_first_not_of(" \t\n"));
+	if (auto ws_idx = info.find_first_not_of(" \t\n"); ws_idx != string::npos)
+		info = info.substr(ws_idx);
 	if (info.size() <= max_chars && info.find_first_of("\n") == string::npos)
 		return { info };
 	vector<string> ret;
@@ -26939,7 +26942,7 @@ void dev_output_qrs(string const& fname)
 	};
 	GUI::ListData qrs = combinedQRList() + combinedZSRList();
 	qrs.valsort();
-	bool warn = false;
+	
 	std::ostringstream missing_qrs;
 	qrs.filter([&](GUI::ListItem& ref)
 		{
