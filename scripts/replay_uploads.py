@@ -182,6 +182,7 @@ def run_replays_process(args):
     test_results_folder = root_dir / '.tmp/replay_uploads_test_results'
     if test_results_folder.exists():
         shutil.rmtree(test_results_folder)
+    test_results_folder.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
             sys.executable,
