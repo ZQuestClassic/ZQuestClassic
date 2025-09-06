@@ -14,7 +14,7 @@ sys.path.append(str((root_dir / 'scripts').absolute()))
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--build_folder', help='The location of the build folder. ex: build/Release', default='build/Release'
+    '--build_folder', help='The location of the build folder. ex: build/Release'
 )
 parser.add_argument(
     '--output', help='The path to output the file', default=dest_file
@@ -22,7 +22,9 @@ parser.add_argument(
 args = parser.parse_args()
 if args.output:
     dest_file = args.output
-build_folder = Path(args.build_folder).absolute()
+build_folder = None
+if args.build_folder:
+    build_folder = Path(args.build_folder).absolute()
 
 def output_qr_enum_file():
     run_target.check_run('zeditor', [
