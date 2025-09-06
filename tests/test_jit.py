@@ -17,6 +17,7 @@ import os
 import platform
 import re
 import shutil
+import subprocess
 import sys
 import unittest
 import zlib
@@ -39,6 +40,8 @@ expected_dir = test_dir / 'snapshots/jit'
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
+
+CI = 'CI' in os.environ
 
 
 class TestJIT(ZCTestCase):
@@ -73,7 +76,9 @@ class TestJIT(ZCTestCase):
         ]
         p = run_target.run('zplayer', run_args)
         if p.returncode:
-            raise Exception(f'error: {p.returncode}\n\nSTDERR:\n\n{p.stderr}\n\nSTDOUT:\n\n{p.stdout}')
+            raise Exception(
+                f'error: {p.returncode}\n\nSTDERR:\n\n{p.stderr}\n\nSTDOUT:\n\n{p.stdout}'
+            )
 
         return output_dir
 
@@ -133,6 +138,39 @@ class TestJIT(ZCTestCase):
         )
         for qst in test_dir.rglob('replays/scripting/**/*.zplay'):
             self.run_for_qst(qst.stem, qst, hash=True)
+
+    # Test that scripts/jit_runtime_debug.py works.
+    def test_jit_runtime_debug_test(self):
+        if platform.system() == 'Windows' and platform.architecture()[0] != '64bit':
+            raise unittest.SkipTest('unsupported platform')
+        # TODO: need to debug this test on windows. So for now, just skip.
+        if platform.system() == 'Windows':
+            raise unittest.SkipTest('needs investigation')
+        # TODO: skip in CI until windows is resolved.
+        if CI:
+            raise unittest.SkipTest('skipping in CI')
+
+        output = subprocess.check_output(
+            [
+                sys.executable,
+                root_dir / 'scripts/jit_runtime_debug.py',
+                '--replay_path',
+                root_dir / 'tests/replays/playground/ghost_armos.zplay',
+                '--build_folder',
+                run_target.get_build_folder(),
+                '--test_this_script',
+            ],
+            stderr=subprocess.STDOUT,
+            encoding='utf-8',
+        )
+        output = (
+            output[
+                output.rfind('found first bad script failure:') : output.find('tip:')
+            ].strip()
+            + '\n'
+        )
+        expected_path = expected_dir / 'jit_runtime_debug_test.txt'
+        self.expect_snapshot(expected_path, output, args.update)
 
 
 if __name__ == '__main__':

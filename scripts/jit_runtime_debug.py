@@ -85,6 +85,7 @@ parser.add_argument(
     help='The location of the build folder to use to collect non-JIT baseline. Useful to speed things up by giving a non-web build',
 )
 parser.add_argument('--replay_path', required=True)
+parser.add_argument('--test_this_script', action='store_true')
 
 args = parser.parse_args()
 
@@ -188,7 +189,11 @@ def find_frame_where_script_broke(test_results_folder: Path):
     return int(frame)
 
 
-extra_args = '-jit-precompile -replay-save-result-every-frame -replay-fail-assert-instant'
+extra_args = (
+    '-jit-precompile -replay-save-result-every-frame -replay-fail-assert-instant'
+)
+if args.test_this_script:
+    extra_args += ' -jit-runtime-debug-test-force-bug'
 test_results_folder_0 = root_dir / '.tmp/jit_runtime_debug_test_results_0'
 clear_dir(test_results_folder_0)
 p = run_replay(
@@ -241,6 +246,8 @@ for run in failing_runs:
 
     # Get failing JIT
     extra_args = '-script-runtime-debug 1 -jit-precompile -replay-save-result-every-frame -replay-fail-assert-instant'
+    if args.test_this_script:
+        extra_args += ' -jit-runtime-debug-test-force-bug'
     test_results_folder_2 = root_dir / '.tmp/jit_runtime_debug_test_results_2'
     clear_dir(test_results_folder_2)
     p = run_replay(
@@ -286,6 +293,8 @@ for run in failing_runs:
 
     # Get failing JIT
     extra_args = f'-script-runtime-debug 2 -script-runtime-debug-frame {frame} -jit-precompile -replay-fail-assert-instant'
+    if args.test_this_script:
+        extra_args += ' -jit-runtime-debug-test-force-bug'
     test_results_folder_4 = root_dir / '.tmp/jit_runtime_debug_test_results_4'
     clear_dir(test_results_folder_4)
     p = run_replay(

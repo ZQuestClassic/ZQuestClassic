@@ -952,6 +952,10 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				break;
 				case SETV:
 				{
+					// For test_jit_runtime_debug_test.
+					static bool jit_runtime_debug_test_force_bug = get_flag_bool("-jit-runtime-debug-test-force-bug").value_or(false);
+					if (jit_runtime_debug_test_force_bug) arg2++;
+
 					set_z_register(state, arg1, [&](){
 						wasm.emitI32Const(arg2);
 					});
