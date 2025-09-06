@@ -932,6 +932,16 @@ if(NOT EMSCRIPTEN AND NOT (DEFINED ENV{CI} AND CMAKE_CXX_COMPILER_ID MATCHES "Cl
 	add_dependencies(zplayer gen_zscript_context_strings)
 endif()
 
+# qr generation
+set(gen_zscript_qr_enum scripts/generate_qr_constants.py zeditor)
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_qr_constants.py --build_folder "${BUILD_FOLDER}"
+	OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/resources/include/bindings/qrs.zh
+	DEPENDS ${gen_zscript_qr_enum}
+)
+add_custom_target(gen_zscript_qr_enum DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/include/bindings/qrs.zh zeditor)
+
+
 #############################################################
 # ZQuest
 #############################################################
