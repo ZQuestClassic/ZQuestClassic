@@ -10,7 +10,7 @@ rm -rf "$TEST_DIR"
 mkdir -p "$TEST_DIR"
 
 # Add an entire quest file.
-cp "$ROOT/tests/replays/classic_1st.qst" "$TEST_DIR"
+cp "$ROOT/tests/replays/classic_1st/classic_1st.qst" "$TEST_DIR"
 
 # Add every replay test file <5MB, but trim some large sections.
 SECTIONS="TILES MIDIS MAPS CSETS DMAPS"
@@ -23,7 +23,8 @@ cd zquest-data
 git pull
 python3 setup.py install
 mkdir "$TEST_DIR/trim_these"
-cp "$ROOT"/tests/replays/*.qst "$TEST_DIR/trim_these"
+# TODO: (2025) this probably doesn't work anymore. Need to copy directory structure.
+cp "$ROOT"/tests/replays/**.qst "$TEST_DIR/trim_these"
 find "$TEST_DIR/trim_these" -type f -name '*.qst' -size +5M -delete
 find "$TEST_DIR/trim_these" -name '*.qst' \
     -exec bash -c "echo \"{}\" ; echo ======= ; python3 examples/trim_sections.py \"{}\" --output {} --trim $SECTIONS" \;

@@ -114,8 +114,8 @@ And some CLI options:
 
 Given a replay that fails only when using JIT, this is how you can debug what's wrong with the compiled code:
 
-1. Have a failing replay, for example: `tests/replays/playground_maths.zplay`
-1. Run `python scripts/jit_runtime_debug.py --replay_path tests/replays/playground_maths.zplay`
+1. Have a failing replay, for example: `tests/replays/playground/maths.zplay`
+1. Run `python scripts/jit_runtime_debug.py --replay_path tests/replays/playground/maths.zplay`
 1. The script will run that replay w/ JIT, then w/o JIT, then show you where the registers/stack/pc first differ
 1. Hopefully, you'll now see the exact instruction that results in a problem. If a fix seems non-trivial, it may be best to figure out how to create similar ZASM using a much smaller script, so you don't have to wait however long the replay is when iterating on a fix.
 

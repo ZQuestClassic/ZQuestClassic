@@ -28,7 +28,7 @@ def get_frame_from_snapshot_index(path: str) -> int:
 
 def create_test_replay(contents):
     contents = contents.replace(
-        'classic_1st.qst', str(root_dir / 'tests/replays/classic_1st.qst')
+        'classic_1st.qst', str(root_dir / 'tests/replays/classic_1st/classic_1st.qst')
     )
     if tmp_dir.exists():
         shutil.rmtree(tmp_dir)
@@ -72,7 +72,7 @@ class TestReplays(unittest.TestCase):
             raise unittest.SkipTest('skipping test because gcc')
 
         failing_replay_contents = (
-            root_dir / 'tests/replays/classic_1st_lvl1.zplay'
+            root_dir / 'tests/replays/classic_1st/classic_1st_lvl1.zplay'
         ).read_text()
         failing_replay_contents = failing_replay_contents.replace(
             'C 549 g Gbu', 'C 549 g blah'
@@ -142,7 +142,7 @@ class TestReplays(unittest.TestCase):
             raise unittest.SkipTest('skipping test because gcc')
 
         failing_replay_contents = (
-            root_dir / 'tests/replays/classic_1st_lvl1.zplay'
+            root_dir / 'tests/replays/classic_1st/classic_1st_lvl1.zplay'
         ).read_text()
         failing_replay_contents = failing_replay_contents.replace('C 549 g Gbu\n', '')
         failing_replay_contents = failing_replay_contents.replace('C 1574 g GE%\n', '')
@@ -177,7 +177,7 @@ class TestReplays(unittest.TestCase):
             raise unittest.SkipTest('skipping test because gcc')
 
         failing_replay_contents = (
-            root_dir / 'tests/replays/classic_1st_lvl1.zplay'
+            root_dir / 'tests/replays/classic_1st/classic_1st_lvl1.zplay'
         ).read_text()
 
         segment_1 = [100, 60 * 20 + 500]
@@ -280,7 +280,7 @@ class TestReplays(unittest.TestCase):
             raise unittest.SkipTest('skipping test because gcc')
 
         failing_replay_contents = (
-            root_dir / 'tests/replays/classic_1st_lvl1.zplay'
+            root_dir / 'tests/replays/classic_1st/classic_1st_lvl1.zplay'
         ).read_text()
         lines = failing_replay_contents.splitlines()
         failing_replay_contents = '\n'.join(
@@ -324,7 +324,7 @@ class TestReplays(unittest.TestCase):
                 '-frame',
                 '100',
                 '-test',
-                root_dir / 'tests/replays/classic_1st.qst',
+                root_dir / 'tests/replays/classic_1st/classic_1st.qst',
                 '0',
                 '119',
             ],
@@ -350,7 +350,7 @@ class TestReplays(unittest.TestCase):
         if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':
             raise unittest.SkipTest('skipping test because gcc')
 
-        replay_path = root_dir / 'tests/replays/classic_1st_lvl1.zplay'
+        replay_path = root_dir / 'tests/replays/classic_1st/classic_1st_lvl1.zplay'
         replays_folder = run_target.get_build_folder() / 'replays'
         replays_folder.mkdir(exist_ok=True)
         state_path = replays_folder / 'state.json'

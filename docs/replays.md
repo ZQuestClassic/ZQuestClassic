@@ -22,7 +22,7 @@ Replays are implemented in `replay.cpp`.
 
 The player emits `.zplay.result.txt` files when the replay system is active. This allows for external programs (our python test scripts) to poll the results as the program runs.
 
-The replays tests run in CI live in `tests/replays`, and can be run like this: `python3 tests/run_replay_tests.py --filter tests/replays/classic_1st.zplay`. The results are summarized in `.tmp/default/test_results.json`.
+The replays tests run in CI live in `tests/replays`, and can be run like this: `python3 tests/run_replay_tests.py --filter tests/replays/classic_1st/classic_1st.zplay`. The results are summarized in `.tmp/default/test_results.json`.
 
 A local web app makes common usages simpler. To start, run: `python tests/replay_runner/server.py`.
 

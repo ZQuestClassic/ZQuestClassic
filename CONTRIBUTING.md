@@ -26,10 +26,13 @@ You can run `source venv/bin/deactivate` to exit the virtual environment (or jus
 
 We have hundreds of replay test files (`tests/replays/**/*.zplay`), which are text files that have recorded inputs of actual gameplay. This accounts for 100+ hours of real user gameplay. To avoid regressions, we play this input back to the game engine, and in CI make sure that every single frame is drawn as expected. See [`./docs/replays.md`](./docs/replays.md) for further detail about the replay system.
 
-This command will run a single replay test:
-
 ```sh
-python tests/run_replay_tests.py --filter tests/replays/classic_1st.zplay
+# runs a single replay test:
+python tests/run_replay_tests.py --filter tests/replays/classic_1st/classic_1st.zplay
+# equivalent to:
+python tests/run_replay_tests.py --filter classic_1st.zplay
+# or to run all classic_1st replays:
+python tests/run_replay_tests.py --filter classic_1st
 ```
 
 * by default this runs against `build/Release`, but you can configure which folder to use with `--build_folder`

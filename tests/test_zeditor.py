@@ -118,8 +118,8 @@ class TestZEditor(unittest.TestCase):
             return
 
         test_cases = [
-            ('classic_1st.zplay', 'classic_1st.qst', []),
-            ('ss_jenny.zplay', 'ss_jenny.qst', []),
+            ('classic_1st/classic_1st.zplay', 'classic_1st/classic_1st.qst', []),
+            ('ss_jenny/ss_jenny.zplay', 'ss_jenny/ss_jenny.qst', []),
             # Mostly works. See https://discord.com/channels/876899628556091432/1368485306394738718/1368803385289211976
             (
                 'freedom_in_chains.zplay',
@@ -135,7 +135,7 @@ class TestZEditor(unittest.TestCase):
                     if qst_path.startswith('quests/')
                     else root_dir / 'tests/replays' / qst_path
                 )
-                tmp_qst_dir = tmp_dir / f'resave-{zplay_path}'
+                tmp_qst_dir = tmp_dir / f'resave-{Path(zplay_path).stem}'
                 tmp_qst_dir.mkdir(exist_ok=True)
                 tmp_qst_path = tmp_qst_dir / 'tmp.qst'
 
@@ -153,7 +153,7 @@ class TestZEditor(unittest.TestCase):
                 replay_content = (root_dir / 'tests/replays' / zplay_path).read_text(
                     'utf-8'
                 )
-                replay_content = replay_content.replace(qst_path, 'tmp.qst')
+                replay_content = replay_content.replace(Path(qst_path).name, 'tmp.qst')
                 replay_path = tmp_qst_dir / 'tmp.zplay'
                 replay_path.write_text(replay_content)
 
@@ -259,7 +259,7 @@ class TestZEditor(unittest.TestCase):
         args = [
             '-headless',
             '-export-strings',
-            root_dir / 'tests/replays/classic_1st.qst',
+            root_dir / 'tests/replays/classic_1st/classic_1st.qst',
             tsv_path,
         ]
         run_target.check_run('zeditor', args)
@@ -281,7 +281,7 @@ class TestZEditor(unittest.TestCase):
             'zeditor',
             [
                 '-package',
-                root_dir / 'tests/replays/classic_1st.qst',
+                root_dir / 'tests/replays/classic_1st/classic_1st.qst',
                 'package-test',
             ],
         )
