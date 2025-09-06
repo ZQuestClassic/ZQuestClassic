@@ -322,6 +322,10 @@ async function fetchExternalMusic(page: puppeteer.Page, quest: QuestManifest, re
     } else {
       throw new Error(`unknown host provider: ${url}`);
     }
+
+    if (!url.startsWith('http')) {
+      throw new Error(`invalid url: ${url} from host: ${host}`);
+    }
   
     if (!handled) {
       console.log(`[${quest.id}] downloading ${url}`);
@@ -792,6 +796,8 @@ async function processPurezcId(page: puppeteer.Page, type: EntryType, index: num
   if (isNew || contentHashUpdated) {
     releases.unshift(thisRelease);
   }
+
+  await new Promise(resolve => setTimeout(resolve, 3000));
 }
 
 async function waitUntilDownload(page: puppeteer.Page) {
@@ -1192,7 +1198,6 @@ A: No.
       try {
         console.log(`[${id}]`);
         await processPurezcId(page, type, i);
-        await new Promise(resolve => setTimeout(resolve, 3000));
       } catch (e) {
         console.error(`[${id}]`, e);
         console.error(`[${id}]`, 'will try again next run');
@@ -1224,6 +1229,10 @@ A: No.
   if (isLoggedIn) {
     const seenAuthors = new Set();
     for (const quest of questsMap.values()) {
+      if (!quest.authors) {
+        continue;
+      }
+
       for (const author of quest.authors) {
         if (!author.id || seenAuthors.has(author.id)) continue;
         seenAuthors.add(author.id);
@@ -1288,6 +1297,13 @@ A: No.
       '--acl-public',
       `${DB}/`,
       's3://zc-data/',
+    ], {stdio: 'inherit'});
+
+    execFileSync('s3cmd', [
+      'setacl',
+      's3://zc-data/',
+      '--acl-public',
+      '--recursive',
     ], {stdio: 'inherit'});
 
     console.log('\nadding encoding headers');
