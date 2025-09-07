@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-09-06 08:41:12</td>
+      <td>2025-09-07 04:59:20</td>
     </tr>
   </table>
 </div>
@@ -103,28 +103,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/general.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zdefs.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zdefs.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/zasm_utils.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6" href="#l6">6</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/zasm_utils.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;deque&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
@@ -145,171 +145,416 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">CompiledFunction</span><span class="p">)(</span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">registers</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">global_registers</span><span class="p">,</span></td>
+      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">ScriptDebugHandle</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l11" href="#l11">11</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">								  </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">stack</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="o">*</span><span class="w"> </span><span class="n">stack_index</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="o">*</span><span class="w"> </span><span class="n">pc</span><span class="p">,</span></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">JittedScriptInstance</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l12" href="#l12">12</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">								  </span><span class="kt">uintptr_t</span><span class="o">*</span><span class="w"> </span><span class="n">call_stack_rets</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="o">*</span><span class="w"> </span><span class="n">call_stack_ret_index</span><span class="p">,</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">								  </span><span class="kt">uint32_t</span><span class="o">*</span><span class="w"> </span><span class="n">wait_index</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">start_pc</span><span class="p">);</span></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">JittedExecutionContext</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l14" href="#l14">14</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l15" href="#l15">15</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">JittedFunctionHandle</span></td>
+      <td class="src "><span class="w">	</span><span class="n">JittedScriptInstance</span><span class="o">*</span><span class="w"> </span><span class="n">j_instance</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l16" href="#l16">16</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ret_code</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">CompiledFunction</span><span class="w"> </span><span class="n">compiled_fn</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">registers</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l18" href="#l18">18</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">pc_t</span><span class="p">,</span><span class="w"> </span><span class="kt">uintptr_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">call_pc_to_return_address</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">global_registers</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">pc_t</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">wait_frame_pc_to_index</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">stack_base</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">sp</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">pc_t</span><span class="w"> </span><span class="n">pc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l22" href="#l22">22</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">JittedScriptHandle</span></td>
+      <td class="src "><span class="w">	</span><span class="n">pc_t</span><span class="w"> </span><span class="n">call_pc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">saved_regs</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l24" href="#l24">24</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">JittedFunctionHandle</span><span class="o">*</span><span class="w"> </span><span class="n">fn</span><span class="p">;</span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">script_data</span><span class="o">*</span><span class="w"> </span><span class="n">script</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l26" href="#l26">26</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">refInfo</span><span class="o">*</span><span class="w"> </span><span class="n">ri</span><span class="p">;</span></td>
+      <td class="src "><span class="n">using</span><span class="w"> </span><span class="n">JittedFunctionImpl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="n">JittedExecutionContext</span><span class="o">*</span><span class="w"> </span><span class="n">ctx</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">call_stack_rets</span><span class="p">[</span><span class="n">MAX_CALL_FRAMES</span><span class="p">];</span></td>
+      <td class="src "><span class="n">using</span><span class="w"> </span><span class="n">DispatcherStub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">target_address</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">stack_size</span><span class="p">,</span><span class="w"> </span><span class="n">JittedExecutionContext</span><span class="o">*</span><span class="w"> </span><span class="n">ctx</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">call_stack_ret_index</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// nth WaitX instruction last execution stopped at. If 0, then the script has not run yet.</span></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">JittedFunction</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">wait_index</span><span class="p">;</span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l31" href="#l31">31</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="n">JittedFunctionImpl</span><span class="w"> </span><span class="n">exec</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">pc_t</span><span class="w"> </span><span class="n">id</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">pc_t</span><span class="p">,</span><span class="w"> </span><span class="kt">intptr_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pc_to_address</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">pc_t</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pc_to_stack_size</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l35" href="#l35">35</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l36" href="#l36">36</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l37" href="#l37">37</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">JittedScript</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l38" href="#l38">38</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l39" href="#l39">39</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">StructuredZasm</span><span class="w"> </span><span class="n">structured_zasm</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l40" href="#l40">40</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">ZasmCFG</span><span class="w"> </span><span class="n">cfg</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l41" href="#l41">41</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">pc_t</span><span class="p">,</span><span class="w"> </span><span class="n">pc_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">start_pc_to_fn_id</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l42" href="#l42">42</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">JittedFunction</span><span class="o">&gt;</span><span class="w"> </span><span class="n">compiled_functions</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l43" href="#l43">43</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">deque</span><span class="o">&lt;</span><span class="n">JittedFunction</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pending_compiled_jit_functions</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l44" href="#l44">44</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">ScriptDebugHandle</span><span class="o">&gt;</span><span class="w"> </span><span class="n">debug_handle</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l45" href="#l45">45</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">ALLEGRO_MUTEX</span><span class="o">*</span><span class="w"> </span><span class="n">mutex</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l46" href="#l46">46</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">pc_t</span><span class="p">,</span><span class="w"> </span><span class="kt">uintptr_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pc_to_address</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l47" href="#l47">47</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">pc_t</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pc_to_stack_size</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l48" href="#l48">48</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">DispatcherStub</span><span class="w"> </span><span class="n">dispatcher_stub</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l49" href="#l49">49</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">pc_t</span><span class="p">,</span><span class="w"> </span><span class="n">pc_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pc_to_containing_function_id_cache</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l50" href="#l50">50</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Tracks how many times functions are called in the interpeter.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l51" href="#l51">51</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">profiler_function_call_count</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l52" href="#l52">52</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Tracks how many times functions execute a loop iteration in the interpeter.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l53" href="#l53">53</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">profiler_function_back_edge_count</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l54" href="#l54">54</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">functions_requested_to_be_compiled</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l55" href="#l55">55</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l56" href="#l56">56</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l57" href="#l57">57</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">JittedScriptInstance</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l58" href="#l58">58</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l59" href="#l59">59</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">JittedScript</span><span class="o">*</span><span class="w"> </span><span class="n">j_script</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l60" href="#l60">60</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">script_data</span><span class="o">*</span><span class="w"> </span><span class="n">script</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l61" href="#l61">61</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">refInfo</span><span class="o">*</span><span class="w"> </span><span class="n">ri</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l62" href="#l62">62</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">should_wait</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l63" href="#l63">63</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// If true, run_script_int is being called to execute exactly [uncompiled_command_count] commands.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l64" href="#l64">64</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">sequence_mode</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l65" href="#l65">65</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">uncompiled_command_count</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l66" href="#l66">66</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l67" href="#l67">67</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l68" href="#l68">68</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l69" href="#l69">69</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
