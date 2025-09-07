@@ -46,7 +46,7 @@ class TestOptimizeZasm(ZCTestCase):
 
         run_args = [
             '-headless',
-            '-extract-zasm',
+            '-load-and-quit',
             qst_path,
             '-optimize-zasm',
             '-optimize-zasm-experimental',
@@ -71,7 +71,7 @@ class TestOptimizeZasm(ZCTestCase):
                     if '[total]' in line:
                         break
 
-                if line.startswith('Finished optimizing scripts'):
+                if line.startswith('[optimizer] Finished optimizing scripts'):
                     filtered_lines.append(line)
 
             if not filtered_lines:
@@ -80,6 +80,7 @@ class TestOptimizeZasm(ZCTestCase):
                 return
 
             output = '\n'.join(filtered_lines) + '\n'
+            output = output.replace('[optimizer] ', '')
             expected_path = expected_dir / f'{qst_path.stem}.txt'
             self.expect_snapshot(expected_path, output, args.update)
 

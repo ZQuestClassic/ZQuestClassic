@@ -8,6 +8,7 @@
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "zc/script_debug.h"
+#include "zc/zasm_pipeline.h"
 #include "zc/zelda.h"
 #include "zconfig.h"
 #include <fmt/format.h>
@@ -15,21 +16,18 @@
 #include <map>
 #include <filesystem>
 #include <memory>
-#include <thread>
 
 static bool is_enabled;
 static bool jit_log_enabled;
 static bool jit_precompile;
 
-static std::unique_ptr<WorkerPool> worker_pool;
-static const int MAX_THREADS = 16;
 static int worker_pool_generation;
 static ALLEGRO_MUTEX* compiled_scripts_mutex;
 static ALLEGRO_COND* compiled_scripts_cond;
 // Values may be null.
 static std::map<zasm_script_id, JittedScript*> compiled_scripts;
 
-static void create_compile_task(zasm_script* script)
+static void create_compile_task(WorkerPool* worker_pool, zasm_script* script)
 {
 	worker_pool->add_task([script](){
 		int generation = worker_pool_generation;
@@ -139,13 +137,6 @@ static std::vector<zasm_script*> collect_scripts()
 	// are needed on frame 1.
 	collect_scripts(scripts, playerscripts, NUMSCRIPTHERO, ScriptType::Hero);
 	collect_scripts(scripts, globalscripts, GLOBAL_SCRIPT_INIT, 2, ScriptType::Global);
-	if (jit_log_enabled)
-	{
-		for (auto script : scripts)
-		{
-			jit_printf("[jit] script %s: %zu\n", script->name.c_str(), script->size);
-		}
-	}
 
 	return scripts;
 }
@@ -170,13 +161,12 @@ bool jit_should_precompile()
 	return jit_precompile;
 }
 
-WorkerPool* jit_get_worker_pool()
-{
-	return worker_pool.get();
-}
-
 JittedScriptInstance* jit_create_script_instance(script_data* script, refInfo* ri, bool just_initialized)
 {
+	// Not started yet by zasm_pipeline.cpp
+	if (!compiled_scripts_mutex)
+		return nullptr;
+
 	auto j_script = find_jitted_script(script->zasm_script.get());
 	if (j_script)
 		return jit_create_script_impl(script, ri, j_script, just_initialized);
@@ -190,26 +180,13 @@ JittedScriptInstance* jit_create_script_instance(script_data* script, refInfo* r
 // If the script engine starts a script before compilation is done, it will use the ZASM
 // interpreter (run_script_int) at first. When compilation finishes, the script data is upgraded to
 // use the jitted script.
-void jit_startup()
+void jit_startup(bool precompile)
 {
 	if (!is_enabled)
 		return;
 
 	jit_log_enabled = is_feature_enabled("-jit-log", "ZSCRIPT", "jit_log", false) || is_ci();
-	jit_precompile = is_feature_enabled("-jit-precompile", "ZSCRIPT", "jit_precompile", false);
-	int num_threads = get_flag_int("-jit-threads").value_or(zc_get_config("ZSCRIPT", "jit_threads", -2));
-
-	auto processor_count = std::thread::hardware_concurrency();
-	if (num_threads < 0)
-		num_threads = std::max(0, (int)processor_count / -num_threads);
-	num_threads = std::min(MAX_THREADS, num_threads);
-
-	// Currently can only compile WASM on main browser thread, so always precompile scripts.
-	if (is_web() || num_threads == 0)
-	{
-		num_threads = 0;
-		jit_precompile = true;
-	}
+	jit_precompile = precompile;
 
 	if (!compiled_scripts_mutex)
 		compiled_scripts_mutex = al_create_mutex();
@@ -239,21 +216,20 @@ void jit_startup()
 	std::chrono::steady_clock::time_point start_time, end_time;
 	start_time = std::chrono::steady_clock::now();
 
-	// Never make more threads than there are tasks.
-	if (num_threads > 0)
+	auto worker_pool = zasm_pipeline_worker_pool();
+
+	if (worker_pool)
 	{
-		al_trace("[jit] creating worker pool with %d threads\n", num_threads);
 		if (jit_precompile)
 			al_trace("[jit] precompiling ...\n");
-		worker_pool = std::make_unique<WorkerPool>(num_threads);
 		for (auto script : scripts)
-			create_compile_task(script);
+			create_compile_task(worker_pool, script);
 	}
 
 	if (jit_precompile)
 	{
 		// Handle special case where there are no worker threads.
-		if (num_threads == 0)
+		if (!worker_pool)
 		{
 			for (auto script : scripts)
 			{
@@ -275,8 +251,6 @@ void jit_shutdown()
 {
 	if (!is_enabled)
 		return;
-
-	worker_pool.reset();
 
 	if (compiled_scripts_mutex)
 	{

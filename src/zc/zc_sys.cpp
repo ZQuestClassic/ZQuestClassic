@@ -25,6 +25,7 @@
 #include "gamedata.h"
 #include "zc/frame_timings.h"
 #include "zc/replay_upload.h"
+#include "zc/zasm_pipeline.h"
 #include "zc/zc_init.h"
 #include "init.h"
 #include "zc/replay.h"
@@ -188,7 +189,7 @@ void zc_exit(int code)
 	save_game_configs();
 
 	zscript_coloured_console.kill();
-	jit_shutdown();
+	zasm_pipeline_shutdown();
 	frame_timings_end();
 	quit_game();
 
@@ -4596,6 +4597,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 			}
 		}
 	}
+
+	zasm_pipeline_poll();
 }
 
 void zapout()

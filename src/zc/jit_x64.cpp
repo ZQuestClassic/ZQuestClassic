@@ -5,6 +5,7 @@
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include "zc/zasm_pipeline.h"
 #include "zc/zasm_utils.h"
 #include "zasm/serialize.h"
 #include "zconsole/ConsoleLogger.h"
@@ -1823,7 +1824,7 @@ static bool compile_and_queue_function(zasm_script* script, JittedScript* j_scri
 // call to exec_script) reduces a lot of lock overhead.
 static void create_compile_function_task(JittedScript* j_script, zasm_script* script, const ZasmFunction& fn)
 {
-	if (auto worker_pool = jit_get_worker_pool())
+	if (auto worker_pool = zasm_pipeline_worker_pool())
 	{
 		worker_pool->add_task([script, j_script, fn](){
 			compile_and_queue_function(script, j_script, fn);

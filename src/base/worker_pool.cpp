@@ -56,6 +56,14 @@ void WorkerPool::wait_for_all()
 	al_unlock_mutex(mutex);
 }
 
+void WorkerPool::terminate()
+{
+	al_lock_mutex(mutex);
+	stopping = true;
+	tasks.clear();
+	al_unlock_mutex(mutex);
+}
+
 // Static function passed to al_create_thread.
 void* WorkerPool::worker_proc(ALLEGRO_THREAD* thread, void* arg)
 {

@@ -26,6 +26,9 @@ public:
 
     void wait_for_all();
 
+	// Drops all pending tasks and stops accepting new ones.
+	void terminate();
+
 private:
     // The main function for each worker thread.
     static void* worker_proc(ALLEGRO_THREAD* thread, void* arg);

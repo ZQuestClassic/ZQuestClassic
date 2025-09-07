@@ -1566,18 +1566,20 @@ struct ffscript
 	{
 		other.copy(*this);
 	}
-	ffscript(ffscript&& other) : vecptr(), strptr()
+	ffscript(ffscript&& other) : ffscript()
 	{
-		other.give(*this);
+		swap(other);
 	}
 	ffscript& operator=(ffscript const& other)
 	{
-		other.copy(*this);
+		ffscript temp(other);
+		swap(temp);
 		return *this;
 	}
-	ffscript& operator=(ffscript&& other)
+
+	ffscript& operator=(ffscript&& other) noexcept
 	{
-		other.give(*this);
+		swap(other);
 		return *this;
 	}
 	~ffscript()
@@ -1594,17 +1596,14 @@ struct ffscript
 		}
 	}
 	
-	void give(ffscript& other)
+	void swap(ffscript& other) noexcept
 	{
-		other.command = command;
-		other.arg1 = arg1;
-		other.arg2 = arg2;
-		other.arg3 = arg3;
-		other.vecptr = vecptr;
-		other.strptr = strptr;
-		vecptr = nullptr;
-		strptr = nullptr;
-		clear();
+		std::swap(command, other.command);
+        std::swap(arg1, other.arg1);
+        std::swap(arg2, other.arg2);
+        std::swap(arg3, other.arg3);
+        std::swap(vecptr, other.vecptr);
+        std::swap(strptr, other.strptr);
 	}
 	void clear()
 	{

@@ -30,6 +30,7 @@
 #include "zc/jit.h"
 #include "zc/parallel.h"
 #include "zc/script_debug.h"
+#include "zc/zasm_pipeline.h"
 #include "zc/zasm_utils.h"
 #include "zasm/table.h"
 #include "zasm/serialize.h"
@@ -48,11 +49,11 @@
 #include <algorithm>
 #include <mutex>
 #include <sstream>
+#include <fmt/format.h>
 
 static bool verbose;
-static bool minimal_mode;
 
-static bool zasm_optimize_enabled()
+bool zasm_optimize_is_enabled()
 {
 	static bool enabled = is_feature_enabled("-optimize-zasm", "ZSCRIPT", "optimize_zasm", true);
 	return enabled;
@@ -70,14 +71,14 @@ static bool should_run_experimental_passes()
 static bool should_run_optimizer_in_parallel()
 {
 	static bool parallel = !is_web() && !get_flag_bool("-optimize-zasm-no-parallel").value_or(false) && !get_flag_int("-test-bisect").has_value();
-	return parallel && ZScriptVersion::singleZasmChunk();
+	return parallel;
 }
 
 template <typename... Args>
 static void zasm_optimize_trace(fmt::format_string<Args...> s, Args&&... args)
 {
     std::string text = fmt::format(s, std::forward<Args>(args)...);
-	al_trace("%s\n", text.c_str());
+	al_trace("[optimizer] %s\n", text.c_str());
 }
 
 // Very useful tool for identifying a single bad optimization.
@@ -2711,15 +2712,50 @@ static std::vector<std::pair<std::string, std::function<bool(OptContext&)>>> fun
 	{"dead_code", optimize_dead_code},
 };
 
+static bool is_sync;
+
+static bool is_minimal_mode()
+{
+	if (!zasm_optimize_is_enabled())
+	{
+		if (!jit_is_enabled())
+			return false;
+
+		// Old-style function calling (what optimize_calling_mode fixes) does not work well with
+		// jit-compiled scripts. The reason is that when a script is compiled while already running,
+		// in order to "upgrade" the script data from the interpreter to the compiled script, we
+		// need full knowledge of the function calling stack. Old scripts stored the return pc on
+		// the stack, and used GOTOR to return, while new scripts use a separate return call stack.
+		// Initializing the compiled script's context requires the return call stack, so we must at
+		// least run that optimization pass.
+		return true;
+	}
+
+	return false;
+}
+
 static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair<std::string, std::function<bool(OptContext&)>> pass)
 {
 	auto start_time = std::chrono::steady_clock::now();
-
 	auto [name, fn] = pass;
-	if (minimal_mode && name != "calling_mode")
+
+	if (is_minimal_mode())
 	{
-		results.passes[i].skipped = true;
-		return;
+		if (name != "calling_mode")
+		{
+			results.passes[i].skipped = true;
+			return;
+		}
+	}
+
+	// Many optimizations cannot be done safely for already-running scripts.
+	if (!is_sync)
+	{
+		if (name == "inline_functions" || name == "load_store" || name == "propagate_values" || name == "spurious_branches" || name == "unreachable_blocks" || name == "unreachable_blocks_2")
+		{
+			results.passes[i].skipped = true;
+			return;
+		}
 	}
 
 	ctx.saved = 0;
@@ -2753,7 +2789,7 @@ static OptimizeResults create_opt_results()
 	return results;
 }
 
-static OptimizeResults zasm_optimize(zasm_script* script)
+OptimizeResults zasm_optimize_script(zasm_script* script)
 {
 	OptimizeResults results = create_opt_results();
 
@@ -2788,7 +2824,7 @@ static OptimizeResults zasm_optimize(zasm_script* script)
 		script->zasm[pop_pc] = {POP, D(2)};
 	}
 
-	if (should_run_optimizer_in_parallel())
+	if (should_run_optimizer_in_parallel() && ZScriptVersion::singleZasmChunk())
 	{
 		std::vector<OptimizeResults> function_results;
 		function_results.reserve(structured_zasm.functions.size());
@@ -2843,78 +2879,43 @@ static OptimizeResults zasm_optimize(zasm_script* script)
 	return results;
 }
 
-void zasm_optimize()
+static OptimizeResults results;
+static std::chrono::steady_clock::time_point result_start_time;
+static bool results_finalized;
+
+static void init_optimizer_results()
 {
-	minimal_mode = false;
-	if (!zasm_optimize_enabled())
+	results = create_opt_results();
+	result_start_time = std::chrono::steady_clock::now();
+	results_finalized = false;
+}
+
+static void update_optimizer_results(int log_level, zasm_script* script, const OptimizeResults& r)
+{
+	static std::mutex mutex;
+	std::lock_guard<std::mutex> lock(mutex);
+
+	results.instructions_processed += script->size;
+	double pct = 100.0 * r.instructions_saved / script->size;
+	if (log_level >= 2)
+		zasm_optimize_trace("\t[{}] saved {} instr ({:.1f}%), took {} ms", script->name, r.instructions_saved, pct, r.elapsed / 1000);
+
+	for (int i = 0; i < results.passes.size(); i++)
 	{
-		if (!jit_is_enabled())
-			return;
+		if (r.passes[i].skipped)
+			continue;
 
-		// Old-style function calling (what optimize_calling_mode fixes) does not work well with
-		// jit-compiled scripts. The reason is that when a script is compiled while already running,
-		// in order to "upgrade" the script data from the interpreter to the compiled script, we
-		// need full knowledge of the function calling stack. Old scripts stored the return pc on
-		// the stack, and used GOTOR to return, while new scripts use the return call stack.
-		// Initializing the compiled script's context requires the return call stack, so we must at
-		// least run that optimization pass.
-		minimal_mode = true;
+		results.passes[i].instructions_saved += r.passes[i].instructions_saved;
+		results.passes[i].elapsed += r.passes[i].elapsed;
+		results.passes[i].skipped = false;
 	}
+	results.instructions_saved += r.instructions_saved;
+}
 
-	int log_level = get_flag_int("-zasm-optimize-log").value_or(1);
-
-	int size = 0;
-	auto start_time = std::chrono::steady_clock::now();
-	OptimizeResults results = create_opt_results();
-
-	if (log_level >= 1)
-	{
-		zasm_optimize_trace("Optimizing scripts...");
-		if (minimal_mode)
-			zasm_optimize_trace("note: zasm optimizer disabled by user, but must run in minimal mode to support jit");
-	}
-
-	if (!minimal_mode)
-		init_meta_cache();
-
-	bool parallel = should_run_optimizer_in_parallel();
-	zasm_for_every_script(parallel, [&](auto script){
-		if (script->optimized)
-			return;
-
-		auto r = zasm_optimize(script);
-
-		static std::mutex mutex;
-		{
-			std::lock_guard<std::mutex> lock(mutex);
-
-			size += script->size;
-			double pct = 100.0 * r.instructions_saved / script->size;
-			if (log_level >= 2)
-				zasm_optimize_trace("\t[{}] saved {} instr ({:.1f}%), took {} ms", script->name, r.instructions_saved, pct, r.elapsed / 1000);
-
-			for (int i = 0; i < results.passes.size(); i++)
-			{
-				if (r.passes[i].skipped)
-					continue;
-
-				results.passes[i].instructions_saved += r.passes[i].instructions_saved;
-				results.passes[i].elapsed += r.passes[i].elapsed;
-				results.passes[i].skipped = false;
-			}
-			results.instructions_saved += r.instructions_saved;
-		}
-	});
-
-	if (size == 0)
-	{
-		if (log_level >= 1)
-			zasm_optimize_trace("No scripts found.");
-		return;
-	}
-
+static void finalize_optimizer_results(int log_level)
+{
 	auto end_time = std::chrono::steady_clock::now();
-	results.elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+	results.elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end_time - result_start_time).count();
 
 	if (log_level >= 1)
 	{
@@ -2925,13 +2926,131 @@ void zasm_optimize()
 			if (pass.skipped)
 				continue;
 
-			double pct = 100.0 * pass.instructions_saved / size;
+			double pct = 100.0 * pass.instructions_saved / results.instructions_processed;
 			zasm_optimize_trace("\t[{}] saved {} instr ({:.1f}%), took {} ms", pass.name, pass.instructions_saved, pct, pass.elapsed / 1000);
 		}
 
-		double pct = 100.0 * results.instructions_saved / size;
+		double pct = 100.0 * results.instructions_saved / results.instructions_processed;
 		zasm_optimize_trace("\t[{}] saved {} instr ({:.1f}%), took {} ms\n", "total", results.instructions_saved, pct, results.elapsed / 1000);
 	}
+}
+
+void zasm_optimize_sync()
+{
+	bool minimal_mode = is_minimal_mode();
+	if (!zasm_optimize_is_enabled() && !minimal_mode)
+		return;
+
+	is_sync = true;
+	init_optimizer_results();
+
+	int log_level = get_flag_int("-zasm-optimize-log").value_or(1);
+	if (log_level >= 1)
+	{
+		zasm_optimize_trace("Optimizing scripts...");
+		if (minimal_mode)
+			zasm_optimize_trace("zasm optimizer not directly enabled, but must run in minimal mode to support jit");
+	}
+
+	if (!minimal_mode)
+		init_meta_cache();
+
+	bool parallel = should_run_optimizer_in_parallel() && !ZScriptVersion::singleZasmChunk();
+	zasm_for_every_script(parallel, [&](auto script){
+		if (script->optimized)
+			return;
+
+		auto r = zasm_optimize_script(script);
+		update_optimizer_results(log_level, script, r);
+	});
+
+	if (results.instructions_processed == 0)
+	{
+		if (log_level >= 1)
+			zasm_optimize_trace("No scripts found.");
+		return;
+	}
+
+	finalize_optimizer_results(log_level);
+}
+struct pending_optimization_result
+{
+	zasm_script* script;
+	std::vector<ffscript> optimized_zasm;
+};
+static std::vector<pending_optimization_result> pending_optimization_results;
+static std::mutex pending_optimization_results_mutex;
+static int num_optimizations_left_to_commit;
+
+void zasm_optimize_async_init()
+{
+	init_meta_cache();
+	num_optimizations_left_to_commit = 0;
+
+	auto worker_pool = zasm_pipeline_worker_pool();
+
+	init_optimizer_results();
+	int log_level = get_flag_int("-zasm-optimize-log").value_or(1);
+
+	// Need to run a couple passes synchronously, because once a script has started the
+	// optimizations are no longer safe.
+	if (log_level >= 1 && is_minimal_mode())
+		zasm_optimize_trace("zasm optimizer not directly enabled, but must run in minimal mode to support jit");
+
+	is_sync = true;
+
+	auto start_time = std::chrono::steady_clock::now();
+	zasm_for_every_script(should_run_optimizer_in_parallel(), [&](auto script){
+		if (script->optimized)
+			return;
+
+		auto structured_zasm = zasm_construct_structured(script);
+		OptContext ctx = create_context_no_cfg(structured_zasm, script, structured_zasm.functions.front());
+		OptimizeResults r = create_opt_results();
+		// TODO: skip if quest is new enough
+		run_pass(r, 0, ctx, script_passes[0]); // calling_mode (see comment in is_minimal_mode)
+		run_pass(r, script_passes.size() + 2, ctx, function_passes[2]); // load_store (not safe to optimize async, but has a big impact so do it now)
+		update_optimizer_results(log_level, script, r);
+	});
+
+	auto end_time = std::chrono::steady_clock::now();
+	if (log_level >= 2)
+		zasm_optimize_trace("sync optimization time: {} ms", std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count());
+
+	is_sync = false;
+
+	zasm_for_every_script(false, [&](auto script){
+		if (script->optimized)
+			return;
+
+		num_optimizations_left_to_commit++;
+		worker_pool->add_task([script, log_level](){
+			zasm_script copy = *script;
+			auto r = zasm_optimize_script(&copy);
+			update_optimizer_results(log_level, script, r);
+
+			std::lock_guard<std::mutex> lock(pending_optimization_results_mutex);
+			pending_optimization_results.push_back({script, std::move(copy.zasm)});
+		});
+	});
+}
+
+bool zasm_optimize_async_poll()
+{
+	std::lock_guard<std::mutex> lock(pending_optimization_results_mutex);
+	for (auto& [script, optimized_zasm] : pending_optimization_results)
+	{
+		script->zasm = std::move(optimized_zasm);
+		script->optimized = true;
+		num_optimizations_left_to_commit--;
+	}
+	pending_optimization_results.clear();
+
+	bool finished = num_optimizations_left_to_commit == 0;
+	if (finished)
+		finalize_optimizer_results(get_flag_int("-zasm-optimize-log").value_or(1));
+
+	return finished;
 }
 
 static bool _TEST(std::string& name_var, std::string name)
@@ -3004,8 +3123,9 @@ void zasm_optimize_run_for_file(std::string path)
 
 	fmt::println("\noutput:");
 	verbose = true;
+	is_sync = true;
 	init_meta_cache();
-	zasm_optimize(&script);
+	zasm_optimize_script(&script);
 	fmt::println("{}", zasm_to_string_clean(&script));
 }
 

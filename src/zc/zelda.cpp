@@ -28,6 +28,7 @@
 #include "zc/frame_timings.h"
 #include "zc/replay_upload.h"
 #include "zc/zasm_optimize.h"
+#include "zc/zasm_pipeline.h"
 #include "zc/zasm_utils.h"
 #include "zc/zc_subscr.h"
 #include "zconfig.h"
@@ -1836,7 +1837,7 @@ int32_t init_game()
 			replay_set_meta_bool("qst_modified", true);
 	}
 
-	zasm_optimize();
+	zasm_pipeline_init();
 
 	if (replay_version_check(0, 39))
 		set_qr(qr_HIDE_BOTTOM_8_PIXELS, 1);
@@ -1889,8 +1890,6 @@ int32_t init_game()
 			Z_error_fatal("error applying init data delta: %s\n", error.c_str());
 		}
 	}
-
-	jit_startup();
 
 	if (!firstplay) load_genscript(*game);
 	genscript_timing = SCR_TIMING_START_FRAME;
@@ -4058,14 +4057,11 @@ void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 
 	strcpy(qstpath, quest_path);
 	printf("Hash: %s\n", QHeader.hash().c_str());
+
 	if (jit_precompile)
 		jit_set_enabled(true);
-	zasm_optimize();
-	if (jit_precompile)
-	{
-		printf("compiling scripts ...\n");
-		jit_startup();
-	}
+	zasm_pipeline_init(true);
+
 	exit(0);
 }
 
@@ -4088,7 +4084,7 @@ void do_extract_zasm_command(const char* quest_path)
 	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
 	if (get_flag_bool("-jit").value_or(false))
 		jit_set_enabled(true);
-	zasm_optimize();
+	zasm_pipeline_init(true);
 	zasm_for_every_script(true, [&](zasm_script* script){
 		ScriptDebugHandle h(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);
 		h.print(zasm_to_string(script, top_functions, generate_yielder).c_str());
@@ -4107,7 +4103,7 @@ int main(int argc, char **argv)
 	qstpath = (char*)malloc(2048);
 	qstdir[0] = 0;
 	qstpath[0] = 0;
-	reset_scripts_hook = jit_shutdown;
+	reset_scripts_hook = zasm_pipeline_shutdown;
 
 #ifdef _WIN32
 	// For purposes of packaging a standalone app.

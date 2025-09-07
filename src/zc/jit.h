@@ -26,10 +26,9 @@ bool jit_is_enabled();
 void jit_set_enabled(bool enabled);
 bool jit_log_is_enabled();
 bool jit_should_precompile();
-WorkerPool* jit_get_worker_pool();
 JittedScriptInstance* jit_create_script_instance(script_data* script, refInfo* ri, bool just_initialized);
 void jit_profiler_increment_function_back_edge(JittedScriptInstance* j_instance, pc_t pc);
-void jit_startup();
+void jit_startup(bool precompile);
 void jit_shutdown();
 
 // The following vary per backend.
