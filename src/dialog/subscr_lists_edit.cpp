@@ -110,7 +110,7 @@ void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
 	bool newslot = si>=vec.size();
 	NewMenu rcmenu
 	{
-		{ "&Copy", [&](){ci = si;}, nullopt, newslot },
+		{ "&Copy", [&](){ci = si;}, nullopt, newslot ? MFL_DIS : 0 },
 		{ "Paste", "&v", [&]()
 			{
 				if(ci==si) return;

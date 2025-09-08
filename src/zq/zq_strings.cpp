@@ -152,26 +152,26 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 				MsgStrings[msg_at_pos(index)].copyText(MsgStrings[zqstr_copysrc]);
 				strlist_dlg[2].flags |= D_DIRTY;
 				saved = false;
-			}, nullopt, no_pasting },
+			}, nullopt, no_pasting ? MFL_DIS : 0 },
 		{ "Paste", [&]()
 			{
 				//Overloaded assignment copies both
 				MsgStrings[msg_at_pos(index)] = MsgStrings[zqstr_copysrc];
 				strlist_dlg[2].flags|=D_DIRTY;
 				saved = false;
-			}, nullopt, no_pasting },
+			}, nullopt, no_pasting ? MFL_DIS : 0 },
 		{ "Adv. Paste", [&]()
 			{
 				string_advpaste(msg_at_pos(index));
 				strlist_dlg[2].flags|=D_DIRTY;
 				saved = false;
-			}, nullopt, no_pasting },
+			}, nullopt, no_pasting ? MFL_DIS : 0 },
 		{ "Adv. Paste to All", [&]()
 			{
 				string_advpaste(-1);
 				strlist_dlg[2].flags|=D_DIRTY;
 				saved = false;
-			}, nullopt, no_pasting },
+			}, nullopt, no_pasting ? MFL_DIS : 0 },
 		{},
 		{ "Set As Template", [&]()
 			{

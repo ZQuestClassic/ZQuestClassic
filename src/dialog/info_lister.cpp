@@ -342,8 +342,8 @@ void ItemListerDialog::rclick(int x, int y)
 {
 	NewMenu rcmenu {
 		{ "&Copy", [&](){copy(); update();} },
-		{ "&Adv. Paste", [&](){if(adv_paste()) refresh_dlg();}, 0, copied_item_id < 0 },
-		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_item_id < 0 },
+		{ "&Adv. Paste", [&](){if(adv_paste()) refresh_dlg();}, 0, copied_item_id < 0 ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_item_id < 0 ? MFL_DIS : 0 },
 		{ "&Save", [&](){save(); update();} },
 		{ "&Load", [&](){load(); update();} },
 	};
@@ -520,7 +520,7 @@ void SpriteListerDialog::rclick(int x, int y)
 {
 	NewMenu rcmenu {
 		{ "&Copy", [&](){copy(); update();} },
-		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_sprite_id < 0 },
+		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_sprite_id < 0 ? MFL_DIS : 0 },
 		{ "&Save", [&](){save(); update();} },
 		{ "&Load", [&](){load(); update();} },
 	};
@@ -700,8 +700,8 @@ void EnemyListerDialog::rclick(int x, int y)
 {
 	NewMenu rcmenu{
 		{ "&Copy", [&]() {copy(); update(); } },
-		//{ "&Adv. Paste", [&]() {adv_paste(); update(); }, 0, copied_enemy_id < 0 },
-		{ "Paste", "&v", [&]() {if(paste()) refresh_dlg();}, 0, copied_enemy_id < 0 },
+		//{ "&Adv. Paste", [&]() {if(adv_paste()) refresh_dlg(); }, 0, copied_enemy_id < 0 ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&]() {if(paste()) refresh_dlg();}, 0, copied_enemy_id < 0 ? MFL_DIS : 0 },
 		{ "&Save", [&]() {save(); update(); } },
 		{ "&Load", [&]() {load(); update(); } },
 	};

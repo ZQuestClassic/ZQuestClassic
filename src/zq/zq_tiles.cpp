@@ -10278,12 +10278,12 @@ REDRAW:
 					{
 						bool b = copy_tiles(tile, tile2, copy, copycnt, rect_sel, false);
 						if(saved) saved = !b;
-					}, nullopt, copy < 0 },
+					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Move", [&]()
 					{
 						bool b = copy_tiles(tile, tile2, copy, copycnt, rect_sel, true);
 						if(saved) saved = !b;
-					}, nullopt, copy < 0 },
+					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Clear", [&]()
 					{
 						delete_tiles(tile, tile2, rect_sel);
@@ -10308,12 +10308,12 @@ REDRAW:
 					{
 						bool b = scale_or_rotate_tiles(tile, tile2, cs, false);
 						if(saved) saved = !b;
-					}, nullopt, type != 0 },
+					}, nullopt, type != 0 ? MFL_DIS : 0 },
 				{ "Angular Rotation", [&]()
 					{
 						bool b = scale_or_rotate_tiles(tile, tile2, cs, true);
 						if(saved) saved = !b;
-					}, nullopt, type != 0 },
+					}, nullopt, type != 0 ? MFL_DIS : 0 },
 				{ "Color Depth", &select_tile_color_depth_menu },
 				{},
 				{ "Blank?", [&]()
@@ -10354,7 +10354,7 @@ REDRAW:
 							make_combos_rect(top, left, rows, columns, cs);
 						else
 							make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
-					}, nullopt, type != 0 },
+					}, nullopt, type != 0 ? MFL_DIS : 0 },
 				{ "Insert", [&]()
 					{
 						bool warn = (rect_sel
@@ -10389,7 +10389,7 @@ REDRAW:
 						
 						copy=-1;
 						tile2=tile=z;
-					}, nullopt, type != 0 },
+					}, nullopt, type != 0 ? MFL_DIS : 0 },
 				{ "Remove", [&]()
 					{
 						bool warn = (rect_sel
@@ -10424,7 +10424,7 @@ REDRAW:
 						
 						copy=-1;
 						tile2=tile=z;
-					}, nullopt, type != 0 },
+					}, nullopt, type != 0 ? MFL_DIS : 0 },
 			};
 			rcmenu.pop(window_mouse_x(),window_mouse_y());
 			redraw = true;
