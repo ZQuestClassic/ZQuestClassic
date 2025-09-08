@@ -11802,7 +11802,7 @@ REDRAW:
 					} },
 				{ "Paste", [&]()
 					{
-						if((CHECK_CTRL_CMD) && copy != -1)
+						if((CHECK_CTRL_CMD))
 						{
 							if(advpaste(tile, tile2, copy))
 							{
@@ -11815,32 +11815,37 @@ REDRAW:
 						
 						masscopy=(key[KEY_LSHIFT] || key[KEY_RSHIFT])?1:0;
 						
-						if(copy>-1)
-						{
-							go_combos();
-							copy_combos(tile,tile2,copy,copycnt,masscopy);
-							setup_combo_animations();
-							setup_combo_animations2();
-							saved=false;
-						}
-					} },
+						go_combos();
+						copy_combos(tile,tile2,copy,copycnt,masscopy);
+						setup_combo_animations();
+						setup_combo_animations2();
+						saved=false;
+					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Adv. Paste", [&]()
 					{
-						if(copy > -1)
+						if(advpaste(tile, tile2, copy))
 						{
-							if(advpaste(tile, tile2, copy))
-							{
-								saved=false;
-								redraw=true;
-								copy=-1;
-							}
+							saved=false;
+							redraw=true;
+							copy=-1;
 						}
-					} },
+					}, nullopt, copy < 0 ? MFL_DIS : 0 },
+				{ "Move", [&]()
+					{
+						if(copy!=zc_min(tile,tile2))
+						{
+							move_combos(tile,tile2,copy,copycnt);
+							saved=false;
+							setup_combo_animations();
+							setup_combo_animations2();
+						}
+						redraw=true;
+					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Swap", [&]()
 					{
 						tile=tile2=zc_min(tile,tile2);
 						
-						if(copy>=0 && tile!=copy)
+						if(tile!=copy)
 						{
 							go_combos();
 							
@@ -11854,7 +11859,7 @@ REDRAW:
 							setup_combo_animations2();
 						}
 						copy=-1;
-					} },
+					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Delete", [&]()
 					{
 						string msg;
