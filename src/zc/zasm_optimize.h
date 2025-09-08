@@ -26,9 +26,6 @@ struct OptimizeResults
 
 bool zasm_optimize_is_enabled();
 void zasm_optimize_sync();
-void zasm_optimize_async_init();
-// Return true if done.
-bool zasm_optimize_async_poll();
 void zasm_optimize();
 OptimizeResults zasm_optimize_script(zasm_script* script);
 bool zasm_optimize_test();

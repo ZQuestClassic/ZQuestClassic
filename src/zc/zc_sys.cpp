@@ -4597,8 +4597,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 			}
 		}
 	}
-
-	zasm_pipeline_poll();
 }
 
 void zapout()

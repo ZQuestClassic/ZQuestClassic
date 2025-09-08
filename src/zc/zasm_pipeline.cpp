@@ -37,19 +37,21 @@ static void init_worker_pool(int num_threads)
 	}
 }
 
-enum class PipelineStage
-{
-	NotStarted,
-	WaitingForOptimizer,
-	Done,
-};
+static bool pipeline_initialized;
 
-static PipelineStage stage;
-
+// If enabled, runs the zasm optimizer synchronously (but in parallel on as many threads as
+// available).
+//
+// Then, if enabled starts the JIT system. If precompile is enabled, all scripts will be compiled
+// before the function returns. Otherwise, the JIT will compile functions in the worker pool as they
+// become hot.
+//
+// Note: running the optimizer in the worker pool async (while the game is playing) was explored,
+// and mostly implemented in a3e48bba. But it was removed because the optimizer runs fast enough,
+// and the extra complications and compromises (not all passes could run) are not worth it.
 void zasm_pipeline_init(bool force_precompile)
 {
-	DCHECK(stage == PipelineStage::NotStarted);
-	stage = PipelineStage::NotStarted;
+	CHECK(!pipeline_initialized);
 
 	if (!jit_is_enabled() && !zasm_optimize_is_enabled())
 	{
@@ -58,71 +60,32 @@ void zasm_pipeline_init(bool force_precompile)
 	}
 
 	int num_worker_threads = get_worker_thread_count();
-	bool precompile = force_precompile || (jit_is_enabled() && is_feature_enabled("-jit-precompile", "ZSCRIPT", "jit_precompile", false));
+	bool precompile = force_precompile || is_feature_enabled("-jit-precompile", "ZSCRIPT", "jit_precompile", false);
 
 	// Currently can only compile WASM on main browser thread, so always precompile scripts.
 	if (is_web())
 		precompile = true;
 	if (get_flag_int("-test-bisect").has_value() || get_flag_int("-test-jit-bisect").has_value())
 		precompile = true;
-	if (!precompile && !num_worker_threads)
+	if (!precompile && !num_worker_threads && jit_is_enabled())
 	{
 		zasm_pipeline_trace("no threads assigned for worker pool, so must precompile");
 		precompile = true;
 	}
 
+	zasm_pipeline_trace("optimizer: {}, jit: {}", zasm_optimize_is_enabled(), jit_is_enabled());
 	if (precompile)
+		zasm_pipeline_trace("precompiling scripts");
+
+	zasm_optimize_sync();
+
+	if (jit_is_enabled())
 	{
-		zasm_pipeline_trace("precompiling scripts. optimizer: {}, jit: {}", zasm_optimize_is_enabled(), jit_is_enabled());
-		zasm_optimize_sync();
 		init_worker_pool(num_worker_threads);
-		if (jit_is_enabled())
-			jit_startup(true);
-		stage = PipelineStage::Done;
-		return;
+		jit_startup(precompile);
 	}
 
-	bool optimize_zasm_async = is_feature_enabled("-optimize-zasm-async", "ZSCRIPT", "optimize_zasm_async", false);
-	if (optimize_zasm_async)
-	{
-		stage = PipelineStage::WaitingForOptimizer;
-		init_worker_pool(num_worker_threads);
-		zasm_optimize_async_init();
-	}
-	else
-	{
-		zasm_optimize_sync();
-		init_worker_pool(num_worker_threads);
-		stage = PipelineStage::Done;
-	}
-}
-
-void zasm_pipeline_poll()
-{
-	DCHECK(stage != PipelineStage::NotStarted);
-
-	switch (stage)
-	{
-		case PipelineStage::NotStarted:
-		{
-			return;
-		}
-		case PipelineStage::WaitingForOptimizer:
-		{
-			if (zasm_optimize_async_poll())
-			{
-				jit_startup(false);
-				stage = PipelineStage::Done;
-				if (jit_is_enabled())
-					zasm_pipeline_trace("finished optimizing scripts, jit can now compile");
-			}
-			break;
-		}
-		case PipelineStage::Done:
-		{
-			return;
-		}
-	}
+	pipeline_initialized = true;
 }
 
 void zasm_pipeline_shutdown()
@@ -135,7 +98,7 @@ void zasm_pipeline_shutdown()
 		worker_pool.reset();
 	}
 
-	stage = PipelineStage::NotStarted;
+	pipeline_initialized = false;
 }
 
 WorkerPool* zasm_pipeline_worker_pool()
