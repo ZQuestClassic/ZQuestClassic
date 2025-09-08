@@ -863,7 +863,7 @@ bool ComboPoolPageObj::do_rclick(int indx)
 	NewMenu rcmenu
 	{
 		{ "&Copy", [&](){try_copy();} },
-		{ "Paste", "&v", [&](){ret = try_paste();}, nullopt, !copyind },
+		{ "Paste", "&v", [&](){ret = try_paste();}, nullopt, !copyind ? MFL_DIS : 0 },
 		{ "&Edit", [&](){try_edit(); ret = true;} },
 		{ "&Delete", [&](){ret = try_delete();} },
 	};
@@ -1009,7 +1009,7 @@ bool AutoComboPageObj::do_rclick(int indx)
 	NewMenu rcmenu
 	{
 		{ "&Copy", [&](){try_copy();} },
-		{ "Paste", "&v", [&](){ret = try_paste();}, nullopt, !copyind },
+		{ "Paste", "&v", [&](){ret = try_paste();}, nullopt, !copyind ? MFL_DIS : 0 },
 		{ "&Edit", [&](){try_edit(); ret = true;} },
 		{ "&Delete", [&](){ret = try_delete();} },
 	};
@@ -1096,7 +1096,7 @@ bool AliasPageObj::do_rclick(int indx)
 	NewMenu rcmenu
 	{
 		{ "&Copy", [&](){try_copy();} },
-		{ "Paste", "&v", [&](){ret = try_paste();}, nullopt, !copyind },
+		{ "Paste", "&v", [&](){ret = try_paste();}, nullopt, !copyind ? MFL_DIS : 0 },
 		{ "&Edit", [&](){try_edit(); ret = true;} },
 		{ "&Delete", [&](){ret = try_delete();} },
 	};

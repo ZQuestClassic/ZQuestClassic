@@ -1629,8 +1629,6 @@ void set_console_state()
 	etc_menu.select_uid(MENUID_ETC_DEBUG_CONSOLE, console_is_open);
 }
 
-NewMenu foo_menu{{"FOO",[](){InfoDialog("PLACEHOLDER","THIS IS A PLACEHOLDER").show();}}};
-
 TopMenu the_menu
 {
     { "&File", &file_menu },
@@ -10564,7 +10562,7 @@ void domouse()
 											set_ffc_data.y = scr->ffcs[i].y;
 											Map.DoSetFFCCommand(Map.getCurrMap(), active_visible_screen->screen, i, set_ffc_data);
 										}
-									}, nullopt, Map.getCopyFFC() < 0 },
+									}, nullopt, Map.getCopyFFC() < 0 ? MFL_DIS : 0 },
 								{ "Edit FFC", [&](){call_ffc_dialog(i, active_visible_screen->scr, active_visible_screen->screen);} },
 								{ "Clear FFC", [&]()
 									{
@@ -12807,7 +12805,7 @@ void seldata_rclick_func(int32_t index, int32_t x, int32_t y)
 			{
 				seldata_paste_func(seldata_copy, index);
 				saved = false;
-			}, 0, seldata_copy < 0 },
+			}, 0, seldata_copy < 0 ? MFL_DIS : 0 },
 	};
 	rcmenu.pop(x, y);
 }
