@@ -8,6 +8,7 @@
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "zc/script_debug.h"
+#include "zc/zasm_optimize.h"
 #include "zc/zasm_pipeline.h"
 #include "zc/zelda.h"
 #include "zconfig.h"
@@ -195,21 +196,25 @@ void jit_startup(bool precompile)
 
 	// Only clear compiled scripts if quest has changed since last quest load.
 	// TODO: could get even smarter and hash each ZASM script, only recompiling if something really changed.
-	static std::pair<std::string, std::filesystem::file_time_type> previous_state;
-	std::pair<std::string, std::filesystem::file_time_type> state = {qstpath, std::filesystem::last_write_time(qstpath)};
-	bool should_clear = state != previous_state;
-	if (should_clear)
+	al_lock_mutex(compiled_scripts_mutex);
 	{
-		previous_state = state;
-		al_lock_mutex(compiled_scripts_mutex);
-		worker_pool_generation++;
-		for (auto &it : compiled_scripts)
+		static std::tuple<std::string, std::filesystem::file_time_type, bool> previous_state;
+		std::tuple<std::string, std::filesystem::file_time_type, bool> state = {qstpath, std::filesystem::last_write_time(qstpath), zasm_optimize_is_enabled()};
+		bool should_clear = state != previous_state;
+		if (should_clear)
 		{
-			jit_release(it.second);
+			previous_state = state;
+			for (auto &it : compiled_scripts)
+			{
+				jit_release(it.second);
+			}
+			compiled_scripts.clear();
 		}
-		compiled_scripts.clear();
-		al_unlock_mutex(compiled_scripts_mutex);
+
+		// TODO: not sure this is needed anymore.
+		worker_pool_generation++;
 	}
+	al_unlock_mutex(compiled_scripts_mutex);
 
 	auto scripts = collect_scripts();
 
