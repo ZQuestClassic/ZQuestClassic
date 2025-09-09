@@ -13,7 +13,9 @@ function compile(Module: any, filename: string) {
   const success = result === 0;
   const output = new TextDecoder().decode(Module.FS.readFile(consolePath));
   const { diagnostics, metadata } = JSON.parse(output);
-  return { success, diagnostics, metadata };
+  const zasmPath = 'zasm.txt';
+  const zasm = new TextDecoder().decode(Module.FS.readFile(zasmPath));
+  return { success, diagnostics, metadata, zasm };
 };
 
 async function setup() {

@@ -11,7 +11,7 @@
     body {
       margin: 0;
       padding: 0;
-      overflow: none;
+      overflow: hidden;
     }
 
     .hidden {
@@ -36,7 +36,10 @@
     }
 
     .editor {
+      overflow: hidden;
       flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .loading {
@@ -49,10 +52,17 @@
       font-size: 3em;
     }
 
+    .split-pane-container {
+      height: 100%;
+      display: flex;
+      flex-grow: 1;
+    }
+
     .editor-container {
       height: 100%;
       display: flex;
       flex-direction: column;
+      width: 100%;
     }
     .current-model {
       flex-grow: 1;
@@ -64,6 +74,7 @@
       background-color: var(--vscode-menu-background, #00212b);
       overflow-x: auto;
     }
+
     .tab {
       display: flex;
       padding: 2px 5px;
@@ -72,20 +83,43 @@
       text-align: center;
       user-select: none;
     }
+
     .tab--selected {
       background-color: var(--vscode-editor-lineHighlightBackground);
     }
+
     .tab + .tab {
       border-left: 1px solid var(--vscode-menu-foreground, #f0f0f0);
     }
+
     .tab__close {
       padding-left: 5px;
       font-size: smaller;
     }
+
     .tabs__add {
       padding: 5px;
       user-select: none;
       cursor: pointer;
+    }
+
+    .zasm-pane {
+      width: 50%;
+      background-color: var(--vscode-editor-background, #002b36);
+      color: var(--vscode-menu-foreground, #f0f0f0);
+      padding: 10px;
+      overflow: auto;
+      display: none;
+      white-space: pre;
+      font-family: monospace;
+    }
+
+    .split-pane-container.show-zasm .editor-container {
+      width: 50%;
+    }
+
+    .split-pane-container.show-zasm .zasm-pane {
+      display: block;
     }
   </style>
 
@@ -111,6 +145,7 @@
           <option value="light_plus">Light Plus</option>
           <option value="light_vs">Light VS</option>
         </select>
+        <button class="zasm-btn">Show ZASM</button>
       </div>
       <div>
         <button class="share-btn hidden">
@@ -128,11 +163,14 @@
     </div>
     <div class="editor">
       <div class="loading">loading ...</div>
-      <div class="editor-container hidden">
-        <div class="tabs">
-          <div class="tabs__add">+</div>
+      <div class="split-pane-container hidden">
+        <div class="editor-container">
+          <div class="tabs">
+            <div class="tabs__add">+</div>
+          </div>
+          <div class="current-model"></div>
         </div>
-        <div class="current-model"></div>
+        <div class="zasm-pane"></div>
       </div>
     </div>
     <div id="zc-log"></div>

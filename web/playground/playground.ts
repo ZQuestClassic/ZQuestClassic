@@ -30,6 +30,7 @@ interface DocumentMetadata {
 
 interface ModelState {
   metadata?: DocumentMetadata;
+  zasm?: string;
   view?: monaco.editor.ICodeEditorViewState | null;
   readOnly: boolean;
 }
@@ -43,9 +44,11 @@ let contentGistId: string;
 let contentUrl: string;
 let ownsGist = false;
 
-const openEl = findElement('.open-btn') as HTMLAnchorElement;
-const shareEl = findElement('.share-btn');
-const embedEl = findElement('.embed-btn');
+const openBtnEl = findElement('.open-btn') as HTMLAnchorElement;
+const shareBtnEl = findElement('.share-btn');
+const embedBtnEl = findElement('.embed-btn');
+const zasmBtnEl = findElement('.zasm-btn');
+const zasmPaneEl = findElement('.zasm-pane');
 
 async function initWorker() {
   ZScriptWorker.worker.addEventListener('message', e => {
@@ -86,7 +89,7 @@ const ZScriptWorker = {
     return ZScriptWorker.sendCommand('read', { path });
   },
 
-  compile(path: string): Promise<{ metadata: DocumentMetadata, diagnostics: any[] }> {
+  compile(path: string): Promise<{ metadata: DocumentMetadata, diagnostics: any[], zasm: string }> {
     return ZScriptWorker.sendCommand('compile', { path });
   },
 };
@@ -175,6 +178,7 @@ async function recompileModel(model: monaco.editor.ITextModel) {
   const result = await ZScriptWorker.compile(model.uri.path);
   const state = getState(model);
   state.metadata = result.metadata;
+  state.zasm = result.zasm;
 
   const markers = result.diagnostics.map(d => {
     const severity = d.severity === 1 ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning;
@@ -193,6 +197,7 @@ async function recompileModel(model: monaco.editor.ITextModel) {
 async function onContentUpdated(model: monaco.editor.ITextModel) {
   await ZScriptWorker.writeFile(model.uri.path, model.getValue());
   await recompileModel(model);
+  updateZasm(model);
 }
 
 async function loadFromGist(gist: string) {
@@ -345,7 +350,6 @@ function closeTab(model: monaco.editor.ITextModel, tabEl: HTMLElement) {
     const nextModel = nextTabEl && monaco.editor.getModel(monaco.Uri.parse(nextTabEl.dataset.uri ?? ''));
     if (nextModel) {
       openModel(nextModel);
-      onContentUpdated(nextModel);
     }
   }
 
@@ -373,6 +377,13 @@ function openModel(model: monaco.editor.ITextModel) {
   }
   tabsEl.querySelector('.tab--selected')?.classList.remove('tab--selected');
   tabEl.classList.add('tab--selected');
+
+  onContentUpdated(model);
+}
+
+function updateZasm(model: monaco.editor.ITextModel) {
+  const zasm = getState(model).zasm ?? 'Loading...';
+  zasmPaneEl.textContent = `ZASM for ${basename(model.uri)}:\n\n${zasm}`;
 }
 
 async function share() {
@@ -433,7 +444,7 @@ async function share() {
     }
   }
 
-  embedEl.classList.remove('hidden');
+  embedBtnEl.classList.remove('hidden');
   ownsGist = true;
   findElement('.share-btn').textContent = 'Update Gist';
 }
@@ -446,13 +457,18 @@ export async function main() {
     monaco.editor.setTheme(e.target.value.replaceAll('_', '-'));
   });
 
+  zasmBtnEl.addEventListener('click', () => {
+    const splitPaneEl = findElement('.split-pane-container');
+    splitPaneEl.classList.toggle('show-zasm');
+  });
+
   const [, , files] = await Promise.all([
     loadEditor('solarized-dark-color-theme'),
     initWorker(),
     loadFiles(),
   ]);
   findElement('.loading').classList.add('hidden');
-  findElement('.editor-container').classList.remove('hidden');
+  findElement('.split-pane-container').classList.remove('hidden');
 
   tabsEl.addEventListener('click', (e) => {
     if (!(e.target instanceof HTMLElement)) return;
@@ -477,25 +493,24 @@ export async function main() {
       closeTab(model, tabEl);
     } else {
       openModel(model);
-      onContentUpdated(model);
     }
   });
 
   if (isFramed) {
-    openEl.href = location.href;
-    openEl.classList.remove('hidden');
+    openBtnEl.href = location.href;
+    openBtnEl.classList.remove('hidden');
   } else {
-    shareEl.addEventListener('click', share);
-    shareEl.classList.remove('hidden');
+    shareBtnEl.addEventListener('click', share);
+    shareBtnEl.classList.remove('hidden');
   }
 
-  embedEl.addEventListener('click', () => {
+  embedBtnEl.addEventListener('click', () => {
     const html = `<iframe width=800 height=800 src="${location.href}"></iframe>`;
     navigator.clipboard.writeText(html);
     logger.log('HTML embed copied to clipboard.');
   });
   if (!isFramed && (contentGistId || contentUrl)) {
-    embedEl.classList.remove('hidden');
+    embedBtnEl.classList.remove('hidden');
   }
 
   monaco.languages.registerHoverProvider('zscript', {
@@ -560,7 +575,6 @@ export async function main() {
       } else if (monaco.Position.isIPosition(selectionOrPosition)) {
         editor.revealPositionNearTop(selectionOrPosition);
       }
-      await onContentUpdated(model);
       return true;
     }
   });

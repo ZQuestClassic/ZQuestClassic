@@ -574,6 +574,17 @@ extern "C" int compile_script(const char* script_path)
 	out << data.dump(2);
 	out.close();
 
+	const char* zasm_out = "zasm.txt";
+	bool zasm_commented = true;
+	if (FILE* outfile = fopen(zasm_out, "w"))
+	{
+		string str;
+		if (result)
+			write_script(result->zasm, str, zasm_commented, &result->theScripts);
+		fwrite(str.c_str(), sizeof(char), str.size(), outfile);
+		fclose(outfile);
+	}
+
 	if (!result)
 		zconsole_info("%s", "Failure!");
 	return code;
