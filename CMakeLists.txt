@@ -922,6 +922,7 @@ endif()
 #   RelWithDebInfo/libzcbase.a(zsys.cpp.o): in function `temp_name(char*)':
 if(NOT EMSCRIPTEN AND NOT (DEFINED ENV{CI} AND CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
 	file(GLOB_RECURSE zscript_binding_files "resources/include/bindings/*.zh")
+	list(REMOVE_ITEM zscript_binding_files "${CMAKE_CURRENT_SOURCE_DIR}/resources/include/bindings/qrs.zh")
 	set(gen_zscript_context_strings scripts/generate_zasm_context_strings.py zscript ${zscript_binding_files})
 	add_custom_command(
 		COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_zasm_context_strings.py --build_folder "${BUILD_FOLDER}"
