@@ -23,7 +23,6 @@ enum ReplayMode
     Record,
     Assert,
     Update,
-    ManualTakeover,
 };
 
 std::string replay_mode_to_string(ReplayMode mode);
@@ -42,7 +41,6 @@ void replay_stop(bool aborted = false);
 void replay_quit();
 void replay_save();
 void replay_save(std::filesystem::path path);
-void replay_stop_manual_takeover();
 
 void replay_step_comment(std::string comment);
 void replay_step_comment_loadscr(int screen);

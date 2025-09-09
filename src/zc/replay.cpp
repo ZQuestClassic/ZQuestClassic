@@ -69,7 +69,6 @@ static size_t replay_log_current_index;
 static size_t replay_log_current_quit_index;
 static size_t replay_log_current_state_index;
 static size_t assert_current_index;
-static size_t manual_takeover_start_index;
 static bool has_assert_failed;
 static bool has_aborted;
 static int failing_frame;
@@ -878,7 +877,7 @@ static void load_replay(std::map<std::string, std::string>& meta_map, std::files
             replay_log.push_back(std::make_unique<StateReplayStep>(frame, (ReplayStateType)state_type, value));
         }
 
-        if (frame_arg != -1 && replay_log.size() && replay_log.back()->frame > frame_arg && mode != ReplayMode::Update)
+        if (frame_arg != -1 && replay_log.size() && replay_log.back()->frame > frame_arg)
         {
             replay_log.pop_back();
             break;
@@ -1119,54 +1118,6 @@ static void check_assert()
     }
 }
 
-static size_t old_start_of_next_screen_index;
-static bool stored_control_state[KeyMapReplayStep::NumButtons];
-
-static void start_manual_takeover()
-{
-    manual_takeover_start_index = replay_log_current_index;
-    old_start_of_next_screen_index = -1;
-    for (size_t i = manual_takeover_start_index; i < replay_log.size(); i++)
-    {
-        if (replay_log[i]->type != TypeComment)
-            continue;
-
-        auto comment_step = static_cast<CommentReplayStep *>(replay_log[i].get());
-        if (comment_step->comment.rfind("scr=", 0) != 0 && comment_step->comment.rfind("dmap=", 0) != 0)
-            continue;
-
-        old_start_of_next_screen_index = i;
-        break;
-    }
-    // TODO: support updating the very last screen.
-    ASSERT(old_start_of_next_screen_index != -1);
-
-    // Calculate what the button state is at the beginning of the next screen.
-    // The state will be restored to this after the manual takeover is done.
-    for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
-        stored_control_state[i] = raw_control_state[i];
-    for (size_t i = manual_takeover_start_index; i < old_start_of_next_screen_index; i++)
-    {
-        if (replay_log[i]->type != TypeKeyDown && replay_log[i]->type != TypeKeyUp)
-            continue;
-
-        auto key_step = static_cast<KeyReplayStep *>(replay_log[i].get());
-        stored_control_state[key_step->key_index] = key_step->type == TypeKeyDown;
-    }
-
-    // Avoid unexpected input when manual takeover starts, which can be awkward to play.
-	for (int i = 0; i < KEY_MAX; i++)
-	{
-		_key[i] = 0;
-		key[i] = 0;
-	}
-
-    mode = ReplayMode::ManualTakeover;
-    uninstall_keyboard_handlers();
-    Throttlefps = true;
-    Paused = true;
-}
-
 static void maybe_take_snapshot()
 {
 	if (mode == ReplayMode::Assert)
@@ -1241,7 +1192,6 @@ std::string replay_mode_to_string(ReplayMode mode)
 		case ReplayMode::Record: return "record";
 		case ReplayMode::Assert: return "assert";
 		case ReplayMode::Update: return "update";
-		case ReplayMode::ManualTakeover: return "manual_takeover";
 	}
 	return "unknown";
 }
@@ -1257,7 +1207,6 @@ std::map<std::string, std::string> replay_load_meta(std::filesystem::path path)
 void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
 {
     ASSERT(mode == ReplayMode::Off);
-    ASSERT(mode_ != ReplayMode::Off && mode_ != ReplayMode::ManualTakeover);
     time_started = std::chrono::steady_clock::now();
     time_started_system = std::chrono::system_clock::now();
     mode = mode_;
@@ -1278,7 +1227,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     gfx_got_mismatch = false;
     replay_path = path;
     if (output_dir.empty()) output_dir = replay_path.parent_path();
-    manual_takeover_start_index = assert_current_index = replay_log_current_index = frame_count = 0;
+    assert_current_index = replay_log_current_index = frame_count = 0;
     frame_arg = frame;
     prev_gfx_hash = 0;
     prev_gfx_hash_was_same = false;
@@ -1295,7 +1244,6 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     switch (mode)
     {
     case ReplayMode::Off:
-    case ReplayMode::ManualTakeover:
         return;
     case ReplayMode::Record:
     {
@@ -1397,14 +1345,7 @@ void replay_poll()
 
     if (frame_arg != -1 && frame_arg <= frame_count && replay_is_replaying())
     {
-        if (mode == ReplayMode::Update)
-        {
-            start_manual_takeover();
-            enter_sys_pal();
-            jwin_alert("Recording", "Re-recording until new screen is loaded", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-            exit_sys_pal();
-        }
-        else if (mode != ReplayMode::Assert)
+        if (mode != ReplayMode::Assert)
         {
             Throttlefps = true;
             Paused = true;
@@ -1438,9 +1379,6 @@ void replay_poll()
         do_recording_poll();
         if (frame_count == replay_log.back()->frame)
             replay_stop();
-        break;
-    case ReplayMode::ManualTakeover:
-        do_recording_poll();
         break;
     }
 
@@ -1809,81 +1747,6 @@ void replay_save(std::filesystem::path path)
     save_replay(path.string(), record_log);
 }
 
-void replay_stop_manual_takeover()
-{
-    ASSERT(mode == ReplayMode::ManualTakeover);
-
-    // Update the replay log to account for the newly added steps.
-    int old_frame_duration = replay_log[old_start_of_next_screen_index]->frame - frame_arg;
-    int new_frame_duration = frame_count - frame_arg;
-    int frame_delta = new_frame_duration - old_frame_duration;
-    for (size_t i = old_start_of_next_screen_index; i < replay_log.size(); i++)
-    {
-        replay_log[i]->frame += frame_delta;
-    }
-
-    // Restore button state.
-    std::vector<std::unique_ptr<ReplayStep>> restore_log;
-    for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
-        raw_control_state[i] = stored_control_state[i];
-
-    // Insert some button steps to make the replay_log match what the record_log will have inserted on the next
-    // call to do_recording_poll.
-    // This is the same as do_recording_poll, but without setting the previous control state variable.
-    for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
-    {
-        bool state = raw_control_state[i];
-        if (state == previous_control_state[i])
-            continue;
-
-        int key_index = KeyMapReplayStep::current.button_keys[i];
-        restore_log.push_back(std::make_unique<KeyReplayStep>(frame_count, state ? TypeKeyDown : TypeKeyUp, i, key_index));
-    }
-
-    int num_steps_before = replay_log.size();
-    // TODO: technically these should be inserted at the end of this frame's steps (button steps are always at the end),
-    // but even then they could be out-of-order from how the record log would write them (since button steps are written
-    // in a specific order, this is additive, and we aren't taking into account the presence of existing button steps on this frame).
-    // But whatever. This is just so we can do save_replay on the replay_log to write _something_ when the player is done,
-    // in case the recording needs to have multiple screens updated (just have to repeat this manual takeover once for every screen,
-    // picking up from the previous replay_log saved at the end of this function).
-    replay_log.insert(replay_log.begin() + old_start_of_next_screen_index,
-		std::make_move_iterator(restore_log.begin()), std::make_move_iterator(restore_log.end()));
-    // Erase the old steps.
-    replay_log.erase(replay_log.begin() + manual_takeover_start_index, replay_log.begin() + old_start_of_next_screen_index);
-    // Insert the new steps.
-    replay_log.insert(replay_log.begin() + manual_takeover_start_index,
-		std::make_move_iterator(record_log.begin() + manual_takeover_start_index), std::make_move_iterator(record_log.end()));
-    int steps_delta = replay_log.size() - num_steps_before;
-
-    save_replay(replay_path.string(), replay_log);
-    replay_log_current_index = record_log.size();
-    mode = ReplayMode::Update;
-    install_keyboard_handlers();
-    frame_arg = -1;
-    enter_sys_pal();
-    jwin_alert("Recording", "Done re-recording, resuming replay from here", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-    exit_sys_pal();
-
-    // TODO currently just for manually debugging this system. Instead, should somehow enable assert mode when going back to ::Update.
-    bool DEBUG_MANUAL_OVERRIDE = false;
-    if (DEBUG_MANUAL_OVERRIDE)
-    {
-        // Skip the assertion index to the first step after the mark of the new frame, to skip over the injected out-of-order button steps.
-        assert_current_index = old_start_of_next_screen_index + steps_delta;
-        for (size_t i = assert_current_index; i < replay_log.size(); i++)
-        {
-            if (replay_log[i]->frame != frame_count)
-            {
-                assert_current_index = i;
-                break;
-            }
-        }
-        // assert_current_index = record_log.size() - 1; // Should be this, but can't b/c out-of-order reason from big comment above.
-        mode = ReplayMode::Assert;
-    }
-}
-
 void replay_step_comment(std::string comment)
 {
     if (replay_is_recording())
@@ -2179,7 +2042,7 @@ bool replay_is_replaying()
 
 bool replay_is_recording()
 {
-    return mode == ReplayMode::Record || mode == ReplayMode::Assert || mode == ReplayMode::Update || mode == ReplayMode::ManualTakeover;
+    return mode == ReplayMode::Record || mode == ReplayMode::Assert || mode == ReplayMode::Update;
 }
 
 void replay_set_frame_arg(int frame)
