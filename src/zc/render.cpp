@@ -314,7 +314,7 @@ void render_zc()
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	render_tree_draw(&rti_root);
 
-	ALLEGRO_FONT* a5font = get_zc_font_a5(font_lfont_l);//al_create_builtin_font();
+	ALLEGRO_FONT* a5font = get_zc_font_a5(font_gboraclepfont);
 	static int font_scale = 3;
 
 	std::vector<std::string> lines_left;
