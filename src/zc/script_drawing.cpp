@@ -82,9 +82,9 @@ static std::optional<std::pair<int, int>> get_draw_origin_offset(DrawOrigin draw
 
 std::pair<int, bool> resolveScriptingBitmapId(int scripting_bitmap_id)
 {
-	if (scripting_bitmap_id < 0)
+	if ((scripting_bitmap_id % 10000 == 0) && (scripting_bitmap_id >= -20000 && scripting_bitmap_id <= 60000))
 	{
-		// Handles zscript values for RT_SCREEN, etc.
+		// Handles zscript values for RT_SCREEN, RT_BITMAP0, etc.
 		return {scripting_bitmap_id / 10000, false};
 	}
 	else if (scripting_bitmap_id - 10 >= -2 && scripting_bitmap_id - 10 <= rtBMP6)

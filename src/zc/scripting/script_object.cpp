@@ -24,6 +24,11 @@ static bool is_reserved_object_id(uint32_t id)
 	if (id >= 9 && id <= 16)
 		return true;
 
+	// RT_SCREEN, RT_BITMAP0, etc. can be given the draw commands. We must be able to
+	// distinguish those from user bitmaps, so make this range unusable.
+	if (id < 60000 || id == -10000 || id == -20000)
+		return true;
+
 	// These are often used to indicate "no value" (such as accessing an invalid array or out of
 	// bounds).
 	if (id == -10000 || id == -1)
@@ -38,13 +43,16 @@ static uint32_t get_next_script_object_id()
 
 	if (next_script_object_id_freelist.empty())
 	{
-		// Don't start at 1 because the first objects are expected to remain allocated.
-		uint32_t id = 1000;
+		// Don't start at 1 because is_reserved_object_id excludes all low values.
+		uint32_t id = 60000;
 		while (next_script_object_id_freelist.size() < ID_FREELIST_FILL_AMOUNT)
 		{
 			if (!script_objects.contains(id) && !is_reserved_object_id(id))
 				next_script_object_id_freelist.push_back(id);
 			id++;
+
+			if (unlikely(id == (uint32_t)-1))
+				break;
 		}
 	}
 
@@ -62,7 +70,7 @@ void init_script_objects()
 {
 	next_script_object_id_freelist.clear();
 	// See `is_reserved_object_id` for why ids do not begin at 1.
-	for (uint32_t id = 1000; id >= 100; id--)
+	for (uint32_t id = 61000; id >= 60001; id--)
 		next_script_object_id_freelist.push_back(id);
 	script_objects.clear();
 	script_object_ids_by_type.clear();
