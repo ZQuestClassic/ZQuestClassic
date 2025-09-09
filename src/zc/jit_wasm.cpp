@@ -382,6 +382,10 @@ static bool command_is_compiled(int command)
 	case MULTR:
 	case MULTV:
 	case NOP:
+	// case ORR:
+	// case ORR32:
+	// case ORV:
+	// case ORV32:
 	case PEEK:
 	case SETR:
 	case SETV:

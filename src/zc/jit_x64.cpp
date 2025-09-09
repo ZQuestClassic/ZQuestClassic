@@ -670,6 +670,10 @@ static bool command_is_compiled(int command)
 	case MULTR:
 	case MULTV:
 	case NOP:
+	case ORR:
+	case ORR32:
+	case ORV:
+	case ORV32:
 	case PEEK:
 	case REF_REMOVE:
 	case SETR:
@@ -1141,6 +1145,49 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			div_10000(cc, val2);
 			cc.and_(val, val2);
 			cc.imul(val, 10000);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ORV:
+		{
+			x86::Gp val = get_z_register(state, cc, arg1);
+
+			div_10000(cc, val);
+			cc.or_(val, arg2 / 10000);
+			cc.imul(val, 10000);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ORR:
+		{
+			x86::Gp val = get_z_register(state, cc, arg1);
+			x86::Gp val2 = get_z_register(state, cc, arg2);
+
+			div_10000(cc, val);
+			div_10000(cc, val2);
+			cc.or_(val, val2);
+			cc.imul(val, 10000);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ORR32:
+		{
+			x86::Gp val = get_z_register(state, cc, arg1);
+			x86::Gp val2 = get_z_register(state, cc, arg2);
+
+			cc.or_(val, val2);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ORV32:
+		{
+			x86::Gp val = get_z_register(state, cc, arg1);
+
+			cc.or_(val, arg2);
 
 			set_z_register(state, cc, arg1, val);
 		}
