@@ -5150,9 +5150,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	homescr = scr;
 	if (tmp == 0 && replay_is_active())
 	{
-		if (replay_get_mode() == ReplayMode::ManualTakeover)
-			replay_stop_manual_takeover();
-
 		if (destdmap != -1)
 		{
 			if (strlen(DMaps[destdmap].name) > 0)
