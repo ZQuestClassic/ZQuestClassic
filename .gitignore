@@ -140,4 +140,6 @@ output/
 changelogs/nightly.txt
 *.log
 
-api_server/secrets.sh
+api_server
+venv
+*.tsbuildinfo
