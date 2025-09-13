@@ -7,7 +7,7 @@
 #define NUM      ARGTY::LITERAL
 #define NUM_REG  ARGTY::LITERAL_REG
 #define CMP      ARGTY::COMPARE_OP
-#define REG      ARGTY::UNUSED_REG
+#define REG_UNIMPLEMENTED      ARGTY::UNUSED_REG
 #define REG_R    ARGTY::READ_REG
 #define REG_W    ARGTY::WRITE_REG
 #define REG_RW   ARGTY::READWRITE_REG
@@ -89,9 +89,9 @@ static constexpr script_command command_list[]=
 	{ "PUSHR", PUSHR, 1, { REG_R }, 0, 0 },
 	{ "PUSHV", PUSHV, 1, { NUM }, 0, 0 },
 	{ "POP", POP, 1, { REG_W }, 0, 0 },
-	{ "ENQUEUER", ENQUEUER, 2, { REG, REG }, 0, UNIMPL }, // Unimplemented
-	{ "ENQUEUEV", ENQUEUEV, 2, { REG, NUM }, 0, UNIMPL }, // Unimplemented
-	{ "DEQUEUE", DEQUEUE, 1, { REG }, 0, UNIMPL }, // Unimplemented
+	{ "ENQUEUER", ENQUEUER, 2, { REG_UNIMPLEMENTED, REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented
+	{ "ENQUEUEV", ENQUEUEV, 2, { REG_UNIMPLEMENTED, NUM }, 0, UNIMPL }, // Unimplemented
+	{ "DEQUEUE", DEQUEUE, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented
 	{ "PLAYSOUNDR", PLAYSOUNDR, 1, { REG_R }, 0, 0 },
 	{ "PLAYSOUNDV", PLAYSOUNDV, 1, { NUM }, 0, 0 },
 	{ "LOADLWEAPONR", LOADLWEAPONR, 1, { REG_R }, 0, 0 },
@@ -129,7 +129,7 @@ static constexpr script_command command_list[]=
 	{ "ELLIPSE2", ELLIPSE2, 0, {}, 0, 0 },
 	{ "SPLINER", SPLINER, 0, {}, 0, 0 },
 	{ "FLOODFILL", FLOODFILL, 0, {}, 0, 0 },
-	{ "COMPOUNDR", COMPOUNDR, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
+	{ "COMPOUNDR", COMPOUNDR, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
 	{ "COMPOUNDV", COMPOUNDV, 1, { NUM }, 0, UNIMPL }, // Unimplemented - no case
 	{ "MSGSTRR", MSGSTRR, 1, { REG_R }, 0, 0 },
 	{ "MSGSTRV", MSGSTRV, 1, { NUM }, 0, 0 },
@@ -196,9 +196,9 @@ static constexpr script_command command_list[]=
 	{ "QUADR", QUADR, 0, {}, 0, 0 },
 	{ "TRIANGLER", TRIANGLER, 0, {}, 0, 0 },
 	{ "ARCSINR", ARCSINR, 2, { REG_W, REG_R }, 0, 0 },
-	{ "ARCSINV", ARCSINV, 2, { NUM, REG }, 0, UNIMPL }, //!TODO ERROR Writes to sarg1 as a register, reads from sarg2 as a literal
+	{ "ARCSINV", ARCSINV, 2, { NUM, REG_UNIMPLEMENTED }, 0, UNIMPL }, //!TODO ERROR Writes to sarg1 as a register, reads from sarg2 as a literal
 	{ "ARCCOSR", ARCCOSR, 2, { REG_W, REG_R }, 0, 0 },
-	{ "ARCCOSV", ARCCOSV, 2, { NUM, REG }, 0, UNIMPL }, //!TODO ERROR Writes to sarg1 as a register, reads from sarg2 as a literal
+	{ "ARCCOSV", ARCCOSV, 2, { NUM, REG_UNIMPLEMENTED }, 0, UNIMPL }, //!TODO ERROR Writes to sarg1 as a register, reads from sarg2 as a literal
 	{ "GAMEEND", GAMEEND, 0, {}, 0, 0 },
 	{ "GAMEEXIT", GAMEEXIT, 0, {}, 0, 0 },
 	{ "DRAWINTR", DRAWINTR, 0, {}, 0, 0 },
@@ -273,8 +273,8 @@ static constexpr script_command command_list[]=
 	{ "PIXELARRAYR", PIXELARRAYR, 0, {}, 0, 0 },
 	{ "TILEARRAYR", TILEARRAYR, 0, {}, 0, 0 },
 	{ "COMBOARRAYR", COMBOARRAYR, 0, {}, 0, 0 },
-	{ "PAUSESFX", PAUSESFX, 1, { REG }, 0, 0 },
-	{ "RESUMESFX", RESUMESFX, 1, { REG }, 0, 0 },
+	{ "PAUSESFX", PAUSESFX, 1, { REG_UNIMPLEMENTED }, 0, 0 },
+	{ "RESUMESFX", RESUMESFX, 1, { REG_UNIMPLEMENTED }, 0, 0 },
 	{ "CONTINUESFX", CONTINUESFX, 1, { REG_R }, 0, 0 },
 	{ "ADJUSTSFX", ADJUSTSFX, 0, {}, 0, 0 },
 	{ "GETITEMSCRIPT", GETITEMSCRIPT, 1, { REG_RW }, 0, 0 },
@@ -321,7 +321,7 @@ static constexpr script_command command_list[]=
 	{ "GETNPCDATAHITSFX", GETNPCDATAHITSFX, 2, { REG_RW, REG_R }, 0, 0 },
 	{ "GETNPCDATAFIRESFX", GETNPCDATAFIRESFX, 2, { REG_W, REG_R }, 0, 0 },
 	//two inputs one return
-	{ "GETNPCDATASCRIPTDEF", GETNPCDATASCRIPTDEF, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
+	{ "GETNPCDATASCRIPTDEF", GETNPCDATASCRIPTDEF, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
 	{ "GETNPCDATADEFENSE", GETNPCDATADEFENSE, 1, { REG_W }, 0, 0 },
 	{ "GETNPCDATASIZEFLAG", GETNPCDATASIZEFLAG, 1, { REG_W }, 0, 0 },
 	{ "GETNPCDATAATTRIBUTE", GETNPCDATAATTRIBUTE, 1, { REG_W }, 0, 0 },
@@ -525,7 +525,7 @@ static constexpr script_command command_list[]=
 	{ "GETNPCDATAEHEIGHT", GETNPCDATAEHEIGHT, 2, { REG_RW, REG_R }, 0, 0 },
 	{ "SETNPCDATATILE", SETNPCDATATILE, 2, { REG_RW, REG_R }, 0, 0 },
 	{ "SETNPCDATAEHEIGHT", SETNPCDATAEHEIGHT, 2, { REG_RW, REG_R }, 0, 0 },
-	{ "GETSPRITEDATASTRING", GETSPRITEDATASTRING, 2, { REG, REG }, 0, UNIMPL }, // Unimplemented - no case
+	{ "GETSPRITEDATASTRING", GETSPRITEDATASTRING, 2, { REG_UNIMPLEMENTED, REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
 	//SpriteData
 	{ "GETSPRITEDATATILE", GETSPRITEDATATILE, 2, { REG_W, REG_R }, 0, 0 },
 	{ "GETSPRITEDATAMISC", GETSPRITEDATAMISC, 2, { REG_W, REG_R }, 0, 0 },
@@ -533,7 +533,7 @@ static constexpr script_command command_list[]=
 	{ "GETSPRITEDATAFRAMES", GETSPRITEDATAFRAMES, 2, { REG_W, REG_R }, 0, 0 },
 	{ "GETSPRITEDATASPEED", GETSPRITEDATASPEED, 2, { REG_W, REG_R }, 0, 0 },
 	{ "GETSPRITEDATATYPE", GETSPRITEDATATYPE, 2, { REG_W, REG_R }, 0, 0 },
-	{ "SETSPRITEDATASTRING", SETSPRITEDATASTRING, 2, { REG, REG }, 0, UNIMPL }, // Unimplemented - no case
+	{ "SETSPRITEDATASTRING", SETSPRITEDATASTRING, 2, { REG_UNIMPLEMENTED, REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
 	{ "SETSPRITEDATATILE", SETSPRITEDATATILE, 2, { REG_RW, REG_R }, 0, 0 },
 	{ "SETSPRITEDATAMISC", SETSPRITEDATAMISC, 2, { REG_RW, REG_R }, 0, 0 },
 	{ "SETSPRITEDATACSETS", SETSPRITEDATACSETS, 2, { REG_RW, REG_R }, 0, 0 },
@@ -690,7 +690,7 @@ static constexpr script_command command_list[]=
 	{ "ISVALIDBITMAP", ISVALIDBITMAP, 1, { REG_RW }, 0, 0 },
 	{ "READBITMAP", READBITMAP, 0, {}, 0, 0 },
 	{ "WRITEBITMAP", WRITEBITMAP, 0, {}, 0, 0 },
-	{ "ALLOCATEBITMAP", ALLOCATEBITMAP, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
+	{ "ALLOCATEBITMAP", ALLOCATEBITMAP, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
 	{ "CLEARBITMAP", CLEARBITMAP, 0, {}, 0, 0 },
 	{ "REGENERATEBITMAP", REGENERATEBITMAP, 0, {}, 0, 0 },
 	{ "BMPBLITTO", BMPBLITTO, 0, {}, 0, 0 },
@@ -722,16 +722,16 @@ static constexpr script_command command_list[]=
 	{ "SETLESSI", SETLESSI, 1, { REG_W }, 0, CMPUSED },
 	
 	{ "ARRAYCOPY", ARRAYCOPY, 2, { REG_R, REG_R }, 0, 0 },
-	{ "ARRAYNCOPY", ARRAYNCOPY, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
+	{ "ARRAYNCOPY", ARRAYNCOPY, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
 	
 	//1 INPUT, NO RETURN
-	{ "REMCHR", REMCHR, 2, { REG, REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRINGUPPERLOWER", STRINGUPPERLOWER, 2, { REG, REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRINGLOWERUPPER", STRINGLOWERUPPER, 2, { REG, REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRINGCONVERTCASE", STRINGCONVERTCASE, 2, { REG, REG }, 0, UNIMPL }, // Unimplemented - no case
+	{ "REMCHR", REMCHR, 2, { REG_UNIMPLEMENTED, REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRINGUPPERLOWER", STRINGUPPERLOWER, 2, { REG_UNIMPLEMENTED, REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRINGLOWERUPPER", STRINGLOWERUPPER, 2, { REG_UNIMPLEMENTED, REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRINGCONVERTCASE", STRINGCONVERTCASE, 2, { REG_UNIMPLEMENTED, REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
 	
 	//1 input, 1 ret
-	{ "XLEN", XLEN, 2, { REG, REG_R }, 0, UNIMPL }, // Unimplemented
+	{ "XLEN", XLEN, 2, { REG_UNIMPLEMENTED, REG_R }, 0, UNIMPL }, // Unimplemented
 	{ "XTOI", XTOI, 2, { REG_W, REG_R }, 0, 0 },
 	{ "ILEN", ILEN, 2, { REG_W, REG_R }, 0, 0 },
 	{ "ATOI", ATOI, 2, { REG_W, REG_R }, 0, 0 },
@@ -746,24 +746,24 @@ static constexpr script_command command_list[]=
 	{ "STRCHR", STRCHR, 1, { REG_W }, 0, 0 },
 	{ "STRRCHR", STRRCHR, 1, { REG_W }, 0, 0 },
 	//2 INP, 1 RET OVERLOADS
-	{ "XLEN2", XLEN2, 1, { REG }, 0, UNIMPL }, // Unimplemented
+	{ "XLEN2", XLEN2, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented
 	{ "XTOI2", XTOI2, 1, { REG_W }, 0, 0 },
-	{ "ILEN2", ILEN2, 1, { REG }, 0, UNIMPL }, // Unimplemented
-	{ "ATOI2", ATOI2, 1, { REG }, 0, UNIMPL }, // Unimplemented
-	{ "REMCHR2", REMCHR2, 1, { REG }, 0, UNIMPL }, // Unimplemented
+	{ "ILEN2", ILEN2, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented
+	{ "ATOI2", ATOI2, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented
+	{ "REMCHR2", REMCHR2, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented
 	
 	//3 INPUT 1 RET
-	{ "XTOA3", XTOA3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRCATF", STRCATF, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "ITOA3", ITOA3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRSTR3", STRSTR3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "REMNCHR3", REMNCHR3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRCAT3", STRCAT3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRNCAT3", STRNCAT3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRCHR3", STRCHR3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRRCHR3", STRRCHR3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRSPN3", STRSPN3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "STRCSPN3", STRCSPN3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
+	{ "XTOA3", XTOA3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRCATF", STRCATF, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "ITOA3", ITOA3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRSTR3", STRSTR3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "REMNCHR3", REMNCHR3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRCAT3", STRCAT3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRNCAT3", STRNCAT3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRCHR3", STRCHR3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRRCHR3", STRRCHR3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRSPN3", STRSPN3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
+	{ "STRCSPN3", STRCSPN3, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
 	
 	{ "UPPERTOLOWER", UPPERTOLOWER, 2, { REG_W, REG_R }, 0, 0 },
 	{ "LOWERTOUPPER", LOWERTOUPPER, 2, { REG_W, REG_R }, 0, 0 },
