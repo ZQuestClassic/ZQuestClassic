@@ -126,7 +126,6 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 				case ARGTY::READ_REG:
 				case ARGTY::WRITE_REG:
 				case ARGTY::READWRITE_REG:
-				case ARGTY::UNUSED_REG:
 				{
 					if (!get_script_variable(tokens[i]))
 					{
@@ -157,6 +156,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 					break;
 				}
 
+				case ARGTY::UNUSED_REG:
 				default:
 				{
 					handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Unsupported zasm arg type in command `{}`", command)));
