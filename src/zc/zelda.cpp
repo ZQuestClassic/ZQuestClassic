@@ -4725,7 +4725,7 @@ reload_for_replay_file:
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false) || used_switch(argc, argv, "-jit-print-asm");
 	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_fatal_compile_errors", false) || used_switch(argc, argv, "-jit-fatal-compile-errors");
 	hangcount = zc_get_config("ZSCRIPT","ZASM_Hangcount",1000);
-	jit_set_enabled(is_feature_enabled("-jit", "ZSCRIPT", "jit", false));
+	jit_set_enabled(is_feature_enabled("-jit", "ZSCRIPT", "jit", true));
 	
 #ifdef _WIN32
 	
