@@ -2589,13 +2589,13 @@ static bool optimize_inline_functions(OptContext& ctx)
 		bool must_keep_store_stack = false;
 		if (C(i + 1).command == PEEK)
 			must_keep_store_stack = true;
-		else
-			store_stack_pcs.pop_back();
 
 		pc_t hole_start_pc = i;
 		if (prev_instr.command != PUSHARGSR)
 			hole_start_pc -= 1;
-		pc_t hole_final_pc = i + 1;
+		pc_t hole_final_pc = i;
+		if (C(i + 1).command != PEEK && hole_start_pc > 0 && C(hole_start_pc - 1).command != PEEK)
+			hole_final_pc += 1;
 		bool store_stack_part_of_hole =
 			(store_stack_pc == hole_start_pc - 1 || store_stack_pc == hole_start_pc) && C(store_stack_pc).command != PUSHARGSR && !must_keep_store_stack;
 		if (store_stack_part_of_hole)
@@ -2604,6 +2604,7 @@ static bool optimize_inline_functions(OptContext& ctx)
 		if (inlined_zasm.size() > hole_length)
 		{
 			data.all_uses_inlined = false;
+			store_stack_pcs.pop_back();
 			continue;
 		}
 
@@ -2616,8 +2617,12 @@ static bool optimize_inline_functions(OptContext& ctx)
 				fmt::println("{}: {}", i, zasm_op_to_string(C(i)));
 		}
 
+		if (hole_start_pc > 0 && C(hole_start_pc - 1).command == PEEK)
+			must_keep_store_stack = true;
+
 		if (!must_keep_store_stack)
 		{
+			store_stack_pcs.pop_back();
 			if (C(store_stack_pc).command == PUSHARGSR)
 			{
 				if (C(store_stack_pc).arg1 > 2)
