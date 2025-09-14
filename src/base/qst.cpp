@@ -3566,6 +3566,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_WEAPON_DRAW_ANIMATE_TIMING, 1);
 	}
 
+	if (compatrule_version < 91)
+		set_qr(qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX, 1);
+
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);

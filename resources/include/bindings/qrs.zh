@@ -2407,6 +2407,12 @@ enum QR
 	// If disabled, when misc attribute 10 is positive for rope enemies it will be used to configure the charging speed.
 	qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE,
 
+	// 'Scripts bound index for some internal arrays'
+	//
+	// If enabled, some internal arrays will bound the index used to the valid range for the array. When disabled, internal arrays will never bound
+	// their index. Additionally, all internal arrays will support negative indices.
+	qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX,
+
 	// 'Old (Buggy) ZScript Volume Access'
 	//
 	// If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior, which was bugged and wrote directly to the

@@ -106,7 +106,13 @@ an array using a :ref:`for-each<stmt_for_each>` loop.
 
 Additionally, you may access an array using *negative* indexes. These
 will access the array *backwards*, ex. `arr[-1]` will access the
-*last* element in the array `arr`. This currently does not work for internal arrays (such as :ref:`Screen->D[]<globals_screen_var_d>`).
+*last* element in the array `arr`.
+
+.. versionchanged:: 3.0
+	Since 3.0, negative indices also work for internal arrays (such as :ref:`Screen->D[]<globals_screen_var_d>`), but only
+	when the QR :ref:`qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX[]<globals_enum_qr>` is off.
+	
+	Otherwise, some internal arrays may bound (aka "clamp") the index to a valid value.
 
 .. tab-set::
 

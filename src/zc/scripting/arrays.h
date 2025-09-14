@@ -5,10 +5,12 @@
 
 #include "base/combo.h"
 #include "base/general.h"
+#include "base/qrs.h"
 #include "new_subscr.h"
 #include "zc/ffscript.h"
 #include <cstddef>
 #include <functional>
+#include <optional>
 #include <type_traits>
 #include <utility>
 
@@ -89,6 +91,24 @@ namespace transforms
 	}
 }
 
+template <typename T>
+static int convert_value(int value, bool mul10000)
+{
+	if constexpr (std::is_same<T, bool>::value)
+		return value;
+	else
+		return mul10000 ? value / 10000 : value;
+}
+
+static int bound_index(int index, int low, int high)
+{
+	if (index >= low && index <= high)
+		return index;
+
+	scripting_log_error_with_context("Using invalid index {}, bounding to valid range between {} and {}", index, low, high);
+	return index < low ? low : high;
+}
+
 // Helper struct to make the static_assert dependent on the template parameter
 template<typename>
 struct always_false : std::false_type {};
@@ -161,16 +181,18 @@ public:
 	virtual bool setElement(int ref, int index, int value) = 0;
 
 	void setDefaultValue(int defaultValue) { m_defaultValue = defaultValue; }
-	int getDefaultValue() const { return m_defaultValue; }
 
 	void setMul10000(bool v) { m_mul10000 = v; }
 
 	void setReadOnly() { m_readOnly = true; }
 	bool readOnly() { return m_readOnly; }
 
-	void boundIndex() { m_boundGetterIndex = m_boundSetterIndex = true; }
-	void boundGetterIndex() { m_boundGetterIndex = true; }
-	void boundSetterIndex() { m_boundSetterIndex = true; }
+	// Note: Do not use for new arrays.
+	void compatBoundIndex() { m_boundGetterIndex = m_boundSetterIndex = true; }
+	// Note: Do not use for new arrays.
+	void compatBoundGetterIndex() { m_boundGetterIndex = true; }
+	// Note: Do not use for new arrays.
+	void compatBoundSetterIndex() { m_boundSetterIndex = true; }
 
 	void setValueTransform(std::function<std::optional<int>(int)> valueTransform) { m_valueTransform = std::move(valueTransform); }
 
@@ -189,25 +211,91 @@ protected:
 			value = m_mul10000 ? value / 10000 : value;
 		return m_valueTransform ? m_valueTransform(value) : value;
 	}
-};
 
-template <typename T>
-static int convert_value(int value, bool mul10000)
-{
-	if constexpr (std::is_same<T, bool>::value)
-		return value;
-	else
-		return mul10000 ? value / 10000 : value;
-}
+	std::optional<size_t> resolveIndex(int index, size_t size, bool compat_should_bound) const
+	{
+		bool supports_neg_indices = !get_qr(qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX);
+		if (supports_neg_indices)
+		{
+			if (index >= 0)
+			{
+				if ((size_t)index < size)
+					return index;
+			}
+			else
+			{
+				// Wrap around from the end.
+				auto new_index = (std::ptrdiff_t)size + index;
+				if (new_index >= 0)
+					return new_index;
+			}
 
-static int bound_index(int index, int low, int high)
-{
-	if (index >= low && index <= high)
+			scripting_log_error_with_context("Invalid array index {} for internal array of size {}", index, size);
+			return std::nullopt;
+		}
+
+		if (compat_should_bound)
+		{
+			if (size == 0)
+			{
+				scripting_log_error_with_context("Attempted to access empty internal array with index: {}", index);
+				return std::nullopt;
+			}
+
+			return bound_index(index, 0, size - 1);
+		}
+
+		if (BC::checkIndex2(index, size) != SH::_NoError)
+			return std::nullopt;
+
 		return index;
+	}
 
-	scripting_log_error_with_context("Using invalid index {}, bounding to valid range between {} and {}", index, low, high);
-	return index < low ? low : high;
-}
+	std::optional<size_t> resolveIndexOneIndexed(int index, size_t size, bool compat_should_bound) const
+	{
+		if (index == 0)
+		{
+			scripting_log_error_with_context("Invalid array index {} for 1-indexed internal array", index);
+			return std::nullopt;
+		}
+
+		bool supports_neg_indices = !get_qr(qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX);
+		if (supports_neg_indices)
+		{
+			if (index >= 0)
+			{
+				if ((size_t)index <= size)
+					return index;
+			}
+			else
+			{
+				// Wrap around from the end.
+				auto new_index = (std::ptrdiff_t)size + index;
+				if (new_index > 0)
+					return new_index;
+			}
+
+			scripting_log_error_with_context("Invalid array index {} for 1-indexed internal array of size {}", index, size);
+			return std::nullopt;
+		}
+
+		if (compat_should_bound)
+		{
+			if (size == 0)
+			{
+				scripting_log_error_with_context("Attempted to access empty internal array with index: {}", index);
+				return std::nullopt;
+			}
+
+			return bound_index(index, 1, size);
+		}
+
+		if (BC::checkIndex2OneIndex(index, size) != SH::_NoError)
+			return std::nullopt;
+
+		return index;
+	}
+};
 
 template<typename T_Element>
 class ScriptingArray_GlobalCArray : public IScriptingArray {
@@ -218,19 +306,17 @@ public:
 
 	int getElement(int, int index) const override
 	{
-		if (m_boundGetterIndex)
-			index = bound_index(index, 0, m_size - 1);
-		else if (BC::checkIndex2(index, m_size) != SH::_NoError)
-			return m_defaultValue;
+		if (auto resolved_index = resolveIndex(index, m_size, m_boundGetterIndex))
+			return m_data[*resolved_index] * (m_mul10000 ? 10000 : 1);
 
-		return m_data[index] * (m_mul10000 ? 10000 : 1);
+		return m_defaultValue;
 	}
 
 	bool setElement(int, int index, int value) override
 	{
-		if (m_boundSetterIndex)
-			index = bound_index(index, 0, m_size - 1);
-		else if (BC::checkIndex2(index, m_size) != SH::_NoError)
+		if (auto resolved_index = resolveIndex(index, m_size, m_boundSetterIndex))
+			index = *resolved_index;
+		else
 			return false;
 
 		if (auto val = transformValue<T_Element>(value))
@@ -290,10 +376,8 @@ public:
 		if (!m_skipIndexCheck)
 		{
 			size_t sz = getSize(ref);
-			if (m_boundGetterIndex)
-				index = bound_index(index, 0, sz - 1);
-			else if (BC::checkIndex2(index, sz) != SH::_NoError)
-				return m_defaultValue;
+			if (auto resolved_index = resolveIndex(index, sz, m_boundGetterIndex))
+				index = *resolved_index;
 		}
 
 		return m_getFunc(ref, index) * (m_mul10000 ? 10000 : 1);
@@ -304,9 +388,9 @@ public:
 		if (!m_skipIndexCheck)
 		{
 			size_t sz = getSize(ref);
-			if (m_boundSetterIndex)
-				index = bound_index(index, 0, sz - 1);
-			else if (BC::checkIndex2(index, sz) != SH::_NoError)
+			if (auto resolved_index = resolveIndex(index, sz, m_boundSetterIndex))
+				index = *resolved_index;
+			else
 				return false;
 		}
 
@@ -341,20 +425,18 @@ public:
 	int getElement(int ref, int index) const override
 	{
 		size_t sz = getSize(ref);
-		if (m_boundGetterIndex)
-			index = bound_index(index, 1, sz);
-		else if (BC::checkIndex2OneIndex(index, sz) != SH::_NoError)
-			return m_defaultValue;
+		if (auto resolved_index = resolveIndexOneIndexed(index, sz, m_boundGetterIndex))
+			return m_getFunc(ref, *resolved_index) * (m_mul10000 ? 10000 : 1);
 
-		return m_getFunc(ref, index) * (m_mul10000 ? 10000 : 1);
+		return m_defaultValue;
 	}
 
 	bool setElement(int ref, int index, int value) override
 	{
 		size_t sz = getSize(ref);
-		if (m_boundSetterIndex)
-			index = bound_index(index, 1, sz);
-		else if (BC::checkIndex2OneIndex(index, sz) != SH::_NoError)
+		if (auto resolved_index = resolveIndexOneIndexed(index, sz, m_boundSetterIndex))
+			index = *resolved_index;
+		else
 			return false;
 
 		if (auto val = transformValue<int>(value))
@@ -387,12 +469,10 @@ public:
 		if (!obj)
 			return 0;
 
-		if (m_boundGetterIndex)
-			index = bound_index(index, 0, N::value - 1);
-		else if (BC::checkIndex2(index, N::value) != SH::_NoError)
-			return m_defaultValue;
+		if (auto resolved_index = resolveIndex(index, N::value, m_boundGetterIndex))
+			return (obj->*T_MemberPtr)[*resolved_index] * (m_mul10000 ? 10000 : 1);
 
-		return (obj->*T_MemberPtr)[index] * (m_mul10000 ? 10000 : 1);
+		return m_defaultValue;
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -401,9 +481,9 @@ public:
 		if (!obj)
 			return false;
 
-		if (m_boundSetterIndex)
-			index = bound_index(index, 0, N::value - 1);
-		else if (BC::checkIndex2(index, N::value) != SH::_NoError)
+		if (auto resolved_index = resolveIndex(index, N::value, m_boundSetterIndex))
+			index = *resolved_index;
+		else
 			return false;
 
 		if (auto val = transformValue<ElementType>(value))
@@ -442,12 +522,10 @@ public:
 		if (!obj)
 			return 0;
 
-		if (m_boundGetterIndex)
-			index = bound_index(index, 0, N::value - 1);
-		else if (BC::checkIndex2(index, N::value) != SH::_NoError)
-			return m_defaultValue;
+		if (auto resolved_index = resolveIndex(index, N::value, m_boundGetterIndex))
+			return (obj->*T_MemberPtr.*T_SubMemberPtr)[*resolved_index] * (m_mul10000 ? 10000 : 1);
 
-		return (obj->*T_MemberPtr.*T_SubMemberPtr)[index] * (m_mul10000 ? 10000 : 1);
+		return m_defaultValue;
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -456,9 +534,9 @@ public:
 		if (!obj)
 			return false;
 
-		if (m_boundSetterIndex)
-			index = bound_index(index, 0, N::value - 1);
-		else if (BC::checkIndex2(index, N::value) != SH::_NoError)
+		if (auto resolved_index = resolveIndex(index, N::value , m_boundSetterIndex))
+			index = *resolved_index;
+		else
 			return false;
 
 		if (auto val = transformValue<ElementType>(value))
@@ -527,10 +605,8 @@ public:
 		if (!m_skipIndexCheck)
 		{
 			size_t sz = m_sizeFunc(obj);
-			if (m_boundGetterIndex)
-				index = bound_index(index, 0, sz - 1);
-			else if (BC::checkIndex2(index, sz) != SH::_NoError)
-				return m_defaultValue;
+			if (auto resolved_index = resolveIndex(index, sz, m_boundGetterIndex))
+				index = *resolved_index;
 		}
 
 		T_Element result = m_getFunc(obj, index);
@@ -550,9 +626,9 @@ public:
 		if (!m_skipIndexCheck)
 		{
 			size_t sz = m_sizeFunc(obj);
-			if (m_boundSetterIndex)
-				index = bound_index(index, 0, sz - 1);
-			else if (BC::checkIndex2(index, sz) != SH::_NoError)
+			if (auto resolved_index = resolveIndex(index, sz, m_boundSetterIndex))
+				index = *resolved_index;
+			else
 				return false;
 		}
 
@@ -588,12 +664,10 @@ public:
 		if (!obj)
 			return 0;
 
-		if (m_boundGetterIndex)
-			index = bound_index(index, 0, N - 1);
-		else if (BC::checkIndex2(index, N) != SH::_NoError)
-			return m_defaultValue;
+		if (auto resolved_index = resolveIndex(index, N, m_boundGetterIndex))
+			return ((obj->*T_MemberPtr >> *resolved_index) & 1 ? 1 : 0) * (m_mul10000 ? 10000 : 1);
 
-		return ((obj->*T_MemberPtr >> index) & 1 ? 1 : 0) * (m_mul10000 ? 10000 : 1);
+		return m_defaultValue;
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -602,9 +676,9 @@ public:
 		if (!obj)
 			return false;
 
-		if (m_boundSetterIndex)
-			index = bound_index(index, 0, N - 1);
-		else if (BC::checkIndex2(index, N) != SH::_NoError)
+		if (auto resolved_index = resolveIndex(index, N, m_boundSetterIndex))
+			index = *resolved_index;
+		else
 			return false;
 
 		if (auto val = transformValue<bool>(value))
@@ -640,12 +714,10 @@ public:
 		if (!obj)
 			return 0;
 
-		if (m_boundGetterIndex)
-			index = bound_index(index, 0, N - 1);
-		else if (BC::checkIndex2(index, N) != SH::_NoError)
-			return m_defaultValue;
+		if (auto resolved_index = resolveIndex(index, N, m_boundGetterIndex))
+			return ((obj->*T_MemberPtr.*T_SubMemberPtr >> *resolved_index) & 1 ? 1 : 0) * (m_mul10000 ? 10000 : 1);
 
-		return ((obj->*T_MemberPtr.*T_SubMemberPtr >> index) & 1 ? 1 : 0) * (m_mul10000 ? 10000 : 1);
+		return m_defaultValue;
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -654,9 +726,9 @@ public:
 		if (!obj)
 			return false;
 
-		if (m_boundSetterIndex)
-			index = bound_index(index, 0, N - 1);
-		else if (BC::checkIndex2(index, N) != SH::_NoError)
+		if (auto resolved_index = resolveIndex(index, N, m_boundSetterIndex))
+			index = *resolved_index;
+		else
 			return false;
 
 		if (auto val = transformValue<bool>(value))
@@ -692,12 +764,10 @@ public:
 		if (!obj)
 			return 0;
 
-		if (m_boundGetterIndex)
-			index = bound_index(index, 0, N - 1);
-		else if (BC::checkIndex2(index, N) != SH::_NoError)
-			return m_defaultValue;
+		if (auto resolved_index = resolveIndex(index, N, m_boundGetterIndex))
+			return ((obj->*T_MemberPtr).get(*resolved_index) ? 1 : 0) * (m_mul10000 ? 10000 : 1);
 
-		return ((obj->*T_MemberPtr).get(index) ? 1 : 0) * (m_mul10000 ? 10000 : 1);
+		return m_defaultValue;
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -706,9 +776,9 @@ public:
 		if (!obj)
 			return false;
 
-		if (m_boundSetterIndex)
-			index = bound_index(index, 0, N - 1);
-		else if (BC::checkIndex2(index, N) != SH::_NoError)
+		if (auto resolved_index = resolveIndex(index, N, m_boundSetterIndex))
+			index = *resolved_index;
+		else
 			return false;
 
 		if (auto val = transformValue<bool>(value))
@@ -751,12 +821,10 @@ public:
 
 		const auto& container = obj->*T_MemberPtr;
 
-		if (m_boundGetterIndex)
-			index = bound_index(index, 0, container.size() - 1);
-		else if (BC::checkIndex2(index, container.size()) != SH::_NoError)
-			return m_defaultValue;
+		if (auto resolved_index = resolveIndex(index, container.size(), m_boundGetterIndex))
+			return container[*resolved_index] * (m_mul10000 ? 10000 : 1);
 
-		return container[index] * (m_mul10000 ? 10000 : 1);
+		return m_defaultValue;
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -766,9 +834,9 @@ public:
 
 		auto& container = (obj->*T_MemberPtr);
 
-		if (m_boundSetterIndex)
-			index = bound_index(index, 0, container.size() - 1);
-		else if (BC::checkIndex2(index, container.size()) != SH::_NoError)
+		if (auto resolved_index = resolveIndex(index, container.size(), m_boundSetterIndex))
+			index = *resolved_index;
+		else
 			return false;
 
 		if (auto val = transformValue<ElementType>(value))

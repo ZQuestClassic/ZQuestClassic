@@ -842,8 +842,7 @@ class screendata {
 	// The Map IDs used by screen layers 1 through 6, represented as [1] through
 	// [6].
 	//
-	// Index [0] does nothing, and trying to access it will report an error to
-	// the log.
+	// This array is 1-indexed, so index [0] does nothing and is invalid to access.
 	//
 	// This only refers to the screen denoted by [Index].
 	//
@@ -853,8 +852,7 @@ class screendata {
 	// The Screen IDs used by screen layers 1 through 6, represented as [1]
 	// through [6].
 	//
-	// Index [0] does nothing, and trying to access it will report an error to
-	// the log.
+	// This array is 1-indexed, so index [0] does nothing and is invalid to access.
 	//
 	// This only refers to the screen denoted by [Index].
 	//
@@ -865,8 +863,7 @@ class screendata {
 	//
 	// Valid layers are 1 through 6, represented as [1] through [6].
 	//
-	// Index [0] does nothing, and trying to access it will report an error to
-	// the log.
+	// This array is 1-indexed, so index [0] does nothing and is invalid to access.
 	//
 	// @zasm_var SCREENDATALAYEROPACITY
 	internal int LayerOpacity[];

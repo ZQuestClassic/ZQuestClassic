@@ -559,7 +559,7 @@ static ArrayRegistrar MAPDATASCREENEFLAGSD_registrar(MAPDATASCREENEFLAGSD, []{
 	);
 	impl.setDefaultValue(0);
 	impl.setMul10000(true);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	impl.readOnly();
 	return &impl;
 }());
@@ -572,7 +572,7 @@ static ArrayRegistrar MAPDATASCREENFLAGSD_registrar(MAPDATASCREENFLAGSD, []{
 	);
 	impl.setDefaultValue(0);
 	impl.setMul10000(true);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	impl.readOnly();
 	return &impl;
 }());
@@ -733,20 +733,42 @@ static ArrayRegistrar MAPDATALAYEROPACITY_registrar(MAPDATALAYEROPACITY, []{
 
 // mapdata ffc arrays.
 
-// The size of all these arrays is the number of valid FFCs, but writing beyond that is allowed and
-// is a way to initialize an FFC. Therefore "skipIndexCheck" is used.
+// The size of all these arrays is based on the highest valid FFC, but writing beyond that is
+// allowed and is a way to initialize an FFC. Therefore "skipIndexCheck" is used.
+
+static ffc_handle_t resolve_ffc_handle_for_scripting_index(mapdata* mapdata, int index)
+{
+	bool supports_neg_indices = !get_qr(qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX);
+	if (supports_neg_indices && index < 0)
+	{
+		size_t size = mapdata->scr->numFFC();
+		index += size;
+		if (index < 0)
+		{
+			scripting_log_error_with_context("Invalid array index {} for internal array of size {}", index, size);
+			return ffc_handle_t{};
+		}
+	}
+
+	return mapdata->resolve_ffc_handle(index);
+}
+
+static ffcdata* resolve_ffc_for_scripting_index(mapdata* mapdata, int index)
+{
+	return resolve_ffc_handle_for_scripting_index(mapdata, index).ffc;
+}
 
 static ArrayRegistrar MAPDATAFFCSET_registrar(MAPDATAFFCSET, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index){
-			if (auto ffc = mapdata->resolve_ffc_handle(index))
+			if (auto ffc = resolve_ffc_handle_for_scripting_index(mapdata, index))
 				return ffc.cset();
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc_handle(index))
+			if (auto ffc = resolve_ffc_handle_for_scripting_index(mapdata, index))
 				ffc.set_cset(value);
 		}
 	);
@@ -760,13 +782,13 @@ static ArrayRegistrar MAPDATAFFDATA_registrar(MAPDATAFFDATA, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index){
-			if (auto ffc = mapdata->resolve_ffc_handle(index))
+			if (auto ffc = resolve_ffc_handle_for_scripting_index(mapdata, index))
 				return ffc.data();
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc_handle(index))
+			if (auto ffc = resolve_ffc_handle_for_scripting_index(mapdata, index))
 				ffc.set_data(value);
 		}
 	);
@@ -780,13 +802,13 @@ static ArrayRegistrar MAPDATAFFDELAY_registrar(MAPDATAFFDELAY, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->delay;
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->delay = value;
 		}
 	);
@@ -800,13 +822,13 @@ static ArrayRegistrar MAPDATAFFEFFECTWIDTH_registrar(MAPDATAFFEFFECTWIDTH, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->hit_width;
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->hit_width = value;
 		}
 	);
@@ -820,13 +842,13 @@ static ArrayRegistrar MAPDATAFFEFFECTHEIGHT_registrar(MAPDATAFFEFFECTHEIGHT, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->hit_height;
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->hit_height = value;
 		}
 	);
@@ -841,13 +863,13 @@ static ArrayRegistrar MAPDATAFFWIDTH_registrar(MAPDATAFFWIDTH, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->txsz;
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->txsz = value;
 		}
 	);
@@ -862,13 +884,13 @@ static ArrayRegistrar MAPDATAFFHEIGHT_registrar(MAPDATAFFHEIGHT, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->tysz;
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->tysz = value;
 		}
 	);
@@ -883,13 +905,13 @@ static ArrayRegistrar MAPDATAFFX_registrar(MAPDATAFFX, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->x.getZLong();
 
 			return -10000;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->x = zslongToFix(value);
 		}
 	);
@@ -903,13 +925,13 @@ static ArrayRegistrar MAPDATAFFY_registrar(MAPDATAFFY, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->y.getZLong();
 
 			return -10000;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->y = zslongToFix(value);
 		}
 	);
@@ -923,13 +945,13 @@ static ArrayRegistrar MAPDATAFFXDELTA_registrar(MAPDATAFFXDELTA, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->vx.getZLong();
 
 			return -10000;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->vx = zslongToFix(value);
 		}
 	);
@@ -943,13 +965,13 @@ static ArrayRegistrar MAPDATAFFYDELTA_registrar(MAPDATAFFYDELTA, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->vy.getZLong();
 
 			return -10000;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->vy = zslongToFix(value);
 		}
 	);
@@ -963,13 +985,13 @@ static ArrayRegistrar MAPDATAFFXDELTA2_registrar(MAPDATAFFXDELTA2, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->ax.getZLong();
 
 			return -10000;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->ax = zslongToFix(value);
 		}
 	);
@@ -983,13 +1005,13 @@ static ArrayRegistrar MAPDATAFFYDELTA2_registrar(MAPDATAFFYDELTA2, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->ay.getZLong();
 
 			return -10000;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->ay = zslongToFix(value);
 		}
 	);
@@ -1003,13 +1025,13 @@ static ArrayRegistrar MAPDATAFFFLAGS_registrar(MAPDATAFFFLAGS, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->flags;
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 			{
 				ffc->flags = (ffc_flags)value;
 				ffc->updateSolid();
@@ -1026,13 +1048,13 @@ static ArrayRegistrar MAPDATAFFLINK_registrar(MAPDATAFFLINK, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->link;
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->link = value;
 		}
 	);
@@ -1047,13 +1069,13 @@ static ArrayRegistrar MAPDATAFFSCRIPT_registrar(MAPDATAFFSCRIPT, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				return ffc->script;
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
-			if (auto ffc = mapdata->resolve_ffc(index))
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
 				ffc->script = value;
 		}
 	);
@@ -1069,10 +1091,13 @@ static ArrayRegistrar MAPDATAFFINITIALISED_registrar(MAPDATAFFINITIALISED, []{
 	static ScriptingArray_ObjectComputed<mapdata, bool> impl(
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> bool {
-			return get_ffc_script_engine_data(index).initialized;
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
+				return get_ffc_script_engine_data(ffc->index).initialized;
+			return false;
 		},
 		[](mapdata* mapdata, int index, bool value){
-			get_ffc_script_engine_data(index).initialized = value;
+			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
+				get_ffc_script_engine_data(ffc->index).initialized = value;
 		}
 	);
 	impl.setDefaultValue(-10000);

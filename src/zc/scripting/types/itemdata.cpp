@@ -13,7 +13,7 @@ static ArrayRegistrar IDATAMISCD_registrar(IDATAMISCD, []{
 	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::wpn_misc_d> impl;
 	impl.setDefaultValue(-10000);
 	impl.setMul10000(true);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 
@@ -35,7 +35,7 @@ static ArrayRegistrar IDATAWPNINITD_registrar(IDATAWPNINITD, []{
 	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::initd> impl;
 	impl.setDefaultValue(-10000);
 	impl.setMul10000(false);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 
@@ -95,7 +95,7 @@ static ArrayRegistrar IDATAATTRIB_registrar(IDATAATTRIB, []{
 	);
 	impl.setDefaultValue(-10000);
 	impl.setMul10000(true);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 
@@ -139,7 +139,7 @@ static ArrayRegistrar IDATAATTRIB_L_registrar(IDATAATTRIB_L, []{
 	);
 	impl.setDefaultValue(-1);
 	impl.setMul10000(false);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 

@@ -240,13 +240,13 @@ static ArrayRegistrar KEYBINDINGS_registrar(KEYBINDINGS, []{
 
 static ArrayRegistrar BUTTONHELD_registrar(BUTTONHELD, []{
 	static ScriptingArray_GlobalCArray impl(button_hold, comptime_array_size(button_hold));
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 
 static ArrayRegistrar BUTTONINPUT_registrar(BUTTONINPUT, []{
 	static ScriptingArray_GlobalCArray impl(control_state, comptime_array_size(control_state));
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	impl.setSideEffect([](int index){
 		if (index < 11 && get_qr(qr_FIXDRUNKINPUTS))
 			drunk_toggle_state[index] = false;
@@ -256,7 +256,7 @@ static ArrayRegistrar BUTTONINPUT_registrar(BUTTONINPUT, []{
 
 static ArrayRegistrar BUTTONPRESS_registrar(BUTTONPRESS, []{
 	static ScriptingArray_GlobalCArray impl(button_press, comptime_array_size(button_press));
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	impl.setSideEffect([](int index) {
 		if (index < 11 && get_qr(qr_FIXDRUNKINPUTS)) {
 			drunk_toggle_state[index] = false;

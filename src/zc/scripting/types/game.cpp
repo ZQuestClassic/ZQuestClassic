@@ -1232,7 +1232,7 @@ static ArrayRegistrar SETGAMEOVERELEMENT_registrar(SETGAMEOVERELEMENT, []{
 		}
 	);
 	impl.setMul10000(true);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 
@@ -1251,7 +1251,7 @@ static ArrayRegistrar SETGAMEOVERSTRING_registrar(SETGAMEOVERSTRING, []{
 		}
 	);
 	impl.setMul10000(true);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 
@@ -1268,7 +1268,7 @@ static ArrayRegistrar FFRULE_registrar(FFRULE, []{
 		}
 	);
 	impl.setMul10000(true);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 

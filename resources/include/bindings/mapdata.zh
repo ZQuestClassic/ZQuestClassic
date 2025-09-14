@@ -474,20 +474,20 @@ class mapdata {
 	// @zasm_var MAPDATAEXRESET
 	internal bool ExStateReset[];
 
-	// The map and screen for each layer. Index [0] of these arrays does
-	// nothing, and is invalid to access.
+	// The map for each layer.
+	// This array is 1-indexed, so index [0] does nothing and is invalid to access.
 	//
 	// @zasm_var MAPDATALAYERMAP
 	internal int LayerMap[];
 
-	// The map and screen for each layer. Index [0] of these arrays does
-	// nothing, and is invalid to access.
+	// The screen for each layer.
+	// This array is 1-indexed, so index [0] does nothing and is invalid to access.
 	//
 	// @zasm_var MAPDATALAYERSCREEN
 	internal int LayerScreen[];
 
-	// The opacity value (`OP_OPAQUE` or `OP_TRANS`) for each layer. Index [0]
-	// does nothing, and is invalid to access.
+	// The opacity value (`OP_OPAQUE` or `OP_TRANS`) for each layer.
+	// This array is 1-indexed, so index [0] does nothing and is invalid to access.
 	//
 	// @zasm_var MAPDATALAYEROPACITY
 	internal int LayerOpacity[];

@@ -37,7 +37,7 @@ static WeaponArrayRegistrar WPNINITD_registrar(LWPNINITD, EWPNINITD, []{
 	static ScriptingArray_ObjectMemberCArray<weapon, &weapon::initD> impl;
 	impl.setDefaultValue(0);
 	impl.setMul10000(false);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 
@@ -45,7 +45,7 @@ static WeaponArrayRegistrar WPNMISCD_registrar(LWPNMISCD, EWPNMISCD, []{
 	static ScriptingArray_ObjectMemberCArray<weapon, &weapon::miscellaneous> impl;
 	impl.setDefaultValue(0);
 	impl.setMul10000(false);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	return &impl;
 }());
 

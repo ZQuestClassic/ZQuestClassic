@@ -253,7 +253,7 @@ static ArrayRegistrar SCREENEFLAGSD_registrar(SCREENEFLAGSD, []{
 	);
 	impl.setDefaultValue(0);
 	impl.setMul10000(true);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	impl.readOnly();
 	return &impl;
 }());
@@ -266,7 +266,7 @@ static ArrayRegistrar SCREENFLAGSD_registrar(SCREENFLAGSD, []{
 	);
 	impl.setDefaultValue(0);
 	impl.setMul10000(true);
-	impl.boundIndex();
+	impl.compatBoundIndex();
 	impl.readOnly();
 	return &impl;
 }());

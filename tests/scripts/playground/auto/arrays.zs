@@ -108,14 +108,11 @@ generic script arrays
 		Screen->ComboD[0] = 100;
 		ComboD[0]++;
 		Test::AssertEqual(ComboD[0], 101);
-		// TODO: negative indices currently do not work for internal arrays.
-		// Need to:
-		// 1. implement in each IScriptingArray's getElement/setElement
-		// 2. figure out what to do about "index bounding" internal arrays.
-		//    Maybe add a QR for neg. index internal arrays, and have that
-		//    avoid the existing index bounding behavior.
-		// ComboD[175] = 102;
-		// Test::AssertEqual(ComboD[-1], 102);
+
+		ComboD[-1] = 102;
+		Test::AssertEqual(ComboD[-1], 102);
+		Test::AssertEqual(ComboD[175], 102);
+
 		ResizeArray(ComboD, 12); // Logs an error.
 		Test::AssertEqual(SizeOfArray(ComboD), 176);
 

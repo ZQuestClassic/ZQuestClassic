@@ -13,7 +13,6 @@
 //     static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::initd> impl;
 //     impl.setDefaultValue(-10000);
 //     impl.setMul10000(false);
-//     impl.boundIndex();
 //     return &impl;
 // }());
 //
@@ -69,9 +68,10 @@
 //
 //    b) Configure the integer type (false for "long", true for "fixed-point int"): impl.setMul10000(false)
 //
-//    c) If the index is bounded (forced to be a valid index using vbound), use `impl.boundIndex()`.
+//    c) If the index is bounded (forced to be a valid index using vbound), use `impl.compatBoundIndex()`.
 //       Do not use this for new code, it's an anti-pattern. When the index is not bounded, it is instead
-//       validated, and an errors is logged when an invalid index is used.
+//       validated, and an error is logged when an invalid index is used.
+//       If qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX is off, index bounding never happens.
 //
 //    d) If the value is bounded or validated, use `impl.setValueTransform(...)` For example, to vbound between
 //       0 and 255: `impl.setValueTransform(transforms::vboundByte)`. There's also `transforms::vbound<low, min>`

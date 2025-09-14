@@ -1716,7 +1716,6 @@ GUI::ListData scriptRulesList
 	{ "Combos Run Scripts on Layer 6", qr_COMBOSCRIPTS_LAYER_6 },
 	{ "Use Old Global Init and SaveLoad Timing", qr_OLD_INIT_SCRIPT_TIMING },
 	{ "Passive Subscreen Script runs during wipes/refills", qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN },
-	{ "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)", qr_SCRIPTS_6_BIT_COLOR},
 };
 
 GUI::ListData instructionRulesList
@@ -1748,6 +1747,10 @@ GUI::ListData instructionRulesList
 		" the new feature allowing accessing negative indexes of an array to backwards-index them"
 		" (i.e. 'arr[-1]' is the LAST element in the array) will be DISABLED if this is on."
 		"\nUseful for debugging if you're using this feature *by mistake*." },
+	{ "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)", qr_SCRIPTS_6_BIT_COLOR},
+	{ "Scripts bound index for some internal arrays", qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX,
+		"If enabled, some internal arrays will bound the index used to the valid range for the array."
+		" When disabled, internal arrays will never bound their index. Additionally, all internal arrays will support negative indices."},
 	{ "Game->Generic[GEN_CONTINUEHEARTS] is in 'Hearts'", qr_SCRIPT_CONTHP_IS_HEARTS,
 		"If checked, read/write to 'Game->Generic[GEN_CONTINUEHEARTS]' is in 'Hearts'. Otherwise,"
 		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)"}
@@ -1880,7 +1883,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
 				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
 				qr_OLD_BROKEN_WARPEX_MUSIC, qr_OLD_HERO_WARP_RETSQUARE, qr_ZS_OLD_SUSPEND_FFC,
-				qr_SCRIPTS_6_BIT_COLOR, qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES,
+				qr_SCRIPTS_6_BIT_COLOR, qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES, qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX,
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);
