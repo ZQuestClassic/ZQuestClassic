@@ -16,8 +16,8 @@ enum WipeEffect
 // Determines how to interpret coordinates given to [Screen] draw functions.
 enum DrawOrigin
 {
-	// Equal to [DRAW_ORIGIN_REGION], unless in a scrolling region (or scrolling to/from one), in which
-	// case this is equal to [DRAW_ORIGIN_PLAYING_FIELD].
+	// When in a scrolling region (or scrolling to/from one), this is equal to [DRAW_ORIGIN_REGION].
+	// Otherwise, this is equal to [DRAW_ORIGIN_PLAYING_FIELD].
 	DRAW_ORIGIN_DEFAULT = 0L,
 	// The origin `(0, 0)` is the top-left pixel of the playing field (where screen combos are drawn).
 	// Normally, this is just below the passive subscreen. But in extended height mode,
