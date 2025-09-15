@@ -858,7 +858,6 @@ static ArrayRegistrar SPRITE_MISCD_registrar(SPRITE_MISCD, []{
 			sprite->miscellaneous[index] = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -874,7 +873,6 @@ static ArrayRegistrar SPRITE_MOVE_FLAGS_registrar(SPRITE_MOVE_FLAGS, []{
 			SETFLAG(sprite->moveflags, bit, value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());

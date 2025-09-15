@@ -4,14 +4,12 @@
 
 static ArrayRegistrar SUBWIDGGENFLAG_registrar(SUBWIDGGENFLAG, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidget, &SubscrWidget::genflags, SUBSCRFLAG_GEN_COUNT> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SUBWIDGPOSFLAG_registrar(SUBWIDGPOSFLAG, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidget, &SubscrWidget::posflags, sspNUM> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -28,28 +26,24 @@ static ArrayRegistrar SUBWIDGFLAG_registrar(SUBWIDGFLAG, []{
 			SETFLAG(widg->flags, (1<<index), value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SUBWIDGBTNPG_registrar(SUBWIDGBTNPG, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidgetActive, &SubscrWidgetActive::pg_btns, 8> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SUBWIDGBTNPRESS_registrar(SUBWIDGBTNPRESS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidgetActive, &SubscrWidgetActive::gen_script_btns, 8> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SUBWIDGPRESSINITD_registrar(SUBWIDGPRESSINITD, []{
 	static ScriptingArray_ObjectMemberCArray<SubscrWidgetActive, &SubscrWidgetActive::generic_initd> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -66,7 +60,6 @@ static ArrayRegistrar SUBWIDGSELECTORASPD_registrar(SUBWIDGSELECTORASPD, []{
 			widg->selector_override.tileinfo[index].speed = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<1, 255>);
 	return &impl;
@@ -84,7 +77,6 @@ static ArrayRegistrar SUBWIDGSELECTORFRM_registrar(SUBWIDGSELECTORFRM, []{
 			widg->selector_override.tileinfo[index].frames = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<1, 255>);
 	return &impl;
@@ -102,7 +94,6 @@ static ArrayRegistrar SUBWIDGSELECTORTILE_registrar(SUBWIDGSELECTORTILE, []{
 			widg->selector_override.tileinfo[index].tile = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, NEWMAXTILES - 1>);
 	return &impl;
@@ -120,7 +111,6 @@ static ArrayRegistrar SUBWIDGSELECTORHEI_registrar(SUBWIDGSELECTORHEI, []{
 			widg->selector_override.tileinfo[index].sh = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
@@ -138,7 +128,6 @@ static ArrayRegistrar SUBWIDGSELECTORWID_registrar(SUBWIDGSELECTORWID, []{
 			widg->selector_override.tileinfo[index].sw = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
@@ -156,7 +145,6 @@ static ArrayRegistrar SUBWIDGSELECTORDELAY_registrar(SUBWIDGSELECTORDELAY, []{
 			widg->selector_override.tileinfo[index].delay = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -175,7 +163,6 @@ static ArrayRegistrar SUBWIDGSELECTORCSET_registrar(SUBWIDGSELECTORCSET, []{
 			cs = (cs & 0xF0) | value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 0x0F>);
 	return &impl;
@@ -194,7 +181,6 @@ static ArrayRegistrar SUBWIDGSELECTORFLASHCSET_registrar(SUBWIDGSELECTORFLASHCSE
 			cs = (cs & 0x0F) | (value << 4);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 0x0F>);
 	return &impl;
@@ -214,7 +200,6 @@ static ArrayRegistrar SUBWIDGTRANSPGARGS_registrar(SUBWIDGTRANSPGARGS, []{
 			trans.arg[index] = value / SubscrTransition::argScale(trans.type, index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -234,7 +219,6 @@ static ArrayRegistrar SUBWIDGTRANSPGFLAGS_registrar(SUBWIDGTRANSPGFLAGS, []{
 			SETFLAG(trans.flags, (1<<index), value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -255,7 +239,6 @@ static ArrayRegistrar SUBWIDGREQOWNITEMS_registrar(SUBWIDGREQOWNITEMS, []{
 				widg->req_owned_items.erase(index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -275,7 +258,6 @@ static ArrayRegistrar SUBWIDGREQUNOWNITEMS_registrar(SUBWIDGREQUNOWNITEMS, []{
 				widg->req_unowned_items.erase(index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -306,7 +288,7 @@ static ArrayRegistrar SUBWIDGPOSES_registrar(SUBWIDGPOSES, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -362,7 +344,7 @@ static ArrayRegistrar SUBWIDGTY_CORNER_registrar(SUBWIDGTY_CORNER, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 3>);
 	return &impl;
@@ -407,7 +389,7 @@ static ArrayRegistrar SUBWIDGTY_COUNTERS_registrar(SUBWIDGTY_COUNTERS, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<sscMIN+1, MAX_COUNTERS-1>);
 	return &impl;
@@ -471,7 +453,7 @@ static ArrayRegistrar SUBWIDGTY_CSET_registrar(SUBWIDGTY_CSET, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<-sscsMAX, 15>);
 	return &impl;
@@ -536,7 +518,7 @@ static ArrayRegistrar SUBWIDGTY_TILE_registrar(SUBWIDGTY_TILE, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, NEWMAXTILES-1>);
 	return &impl;

@@ -4,70 +4,70 @@
 
 static ArrayRegistrar DMAPINITD_registrar(DMAPINITD, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::initD> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATADISABLEDITEMS_registrar(DMAPDATADISABLEDITEMS, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::disableditems> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATAGRID_registrar(DMAPDATAGRID, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::grid> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATAMAPINITD_registrar(DMAPDATAMAPINITD, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::onmap_initD> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATASUBINITD_registrar(DMAPDATASUBINITD, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::sub_initD> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATAMINIMAPTILE_registrar(DMAPDATAMINIMAPTILE, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::minimap_tile> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATAMINIMAPCSET_registrar(DMAPDATAMINIMAPCSET, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::minimap_cset> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATALARGEMAPCSET_registrar(DMAPDATALARGEMAPCSET, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::largemap_cset> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATALARGEMAPTILE_registrar(DMAPDATALARGEMAPTILE, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::largemap_tile> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATAFLAGARR_registrar(DMAPDATAFLAGARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<dmap, &dmap::flags, 32> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -103,7 +103,7 @@ static ArrayRegistrar DMAPDATACHARTED_registrar(DMAPDATACHARTED, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 0x8F>);
 	return &impl;

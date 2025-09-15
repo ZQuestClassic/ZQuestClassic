@@ -21,7 +21,7 @@ static ArrayRegistrar COMBODD_registrar(COMBODD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<MAXCOMBOS>);
 	return &impl;
@@ -44,7 +44,7 @@ static ArrayRegistrar COMBOCD_registrar(COMBOCD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<15>);
 	return &impl;
@@ -65,7 +65,7 @@ static ArrayRegistrar COMBOFD_registrar(COMBOFD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<256>);
 	return &impl;
@@ -86,7 +86,7 @@ static ArrayRegistrar COMBOID_registrar(COMBOID, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<256>);
 	return &impl;
@@ -110,7 +110,7 @@ static ArrayRegistrar COMBOTD_registrar(COMBOTD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<256>);
 	return &impl;
@@ -133,7 +133,7 @@ static ArrayRegistrar COMBOED_registrar(COMBOED, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<16>);
 	return &impl;
@@ -156,7 +156,7 @@ static ArrayRegistrar COMBOSD_registrar(COMBOSD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<16>);
 	return &impl;
@@ -174,7 +174,7 @@ static ArrayRegistrar COMBODATAD_registrar(COMBODATAD, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-1);
+	impl.compatSetDefaultValue(-1);
 	impl.setMul10000(false);
 	impl.readOnly();
 	return &impl;
@@ -182,7 +182,6 @@ static ArrayRegistrar COMBODATAD_registrar(COMBODATAD, []{
 
 static ArrayRegistrar SCRDOORD_registrar(SCRDOORD, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::door> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setSideEffect([](auto scr, int index, int value) {
 		putdoor(scr, scrollbuf, index, value, true, true);
@@ -201,7 +200,6 @@ static ArrayRegistrar SCREEN_FLAG_registrar(SCREEN_FLAG, []{
 			SETFLAG(flag, 1 << (index%8), value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -214,7 +212,7 @@ static ArrayRegistrar SCREENDATASWARPRETSQR_registrar(SCREENDATASWARPRETSQR, []{
 			scr->warpreturnc = (scr->warpreturnc&~(3<<(8+(index*2)))) | (value<<(8+(index*2)));
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 3>);
 	return &impl;
@@ -228,7 +226,7 @@ static ArrayRegistrar SCREENDATATWARPRETSQR_registrar(SCREENDATATWARPRETSQR, []{
 			scr->warpreturnc = (scr->warpreturnc&~(3<<(index*2))) | (value<<(index*2));
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 3>);
 	return &impl;
@@ -240,7 +238,7 @@ static ArrayRegistrar SCREENDATAFLAGS_registrar(SCREENDATAFLAGS, []{
 		[](screendata* scr, int index){ return (&scr->flags)[index]; },
 		[](screendata* scr, int index, byte value){ (&scr->flags)[index] = value; }
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -251,7 +249,6 @@ static ArrayRegistrar SCREENEFLAGSD_registrar(SCREENEFLAGSD, []{
 		[](screendata* scr, int index){ return get_screeneflags(scr, index); },
 		[](screendata* scr, int index, int value){}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.compatBoundIndex();
 	impl.readOnly();
@@ -264,7 +261,6 @@ static ArrayRegistrar SCREENFLAGSD_registrar(SCREENFLAGSD, []{
 		[](screendata* scr, int index){ return get_screenflags(scr, index); },
 		[](screendata* scr, int index, int value){}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.compatBoundIndex();
 	impl.readOnly();
@@ -273,7 +269,6 @@ static ArrayRegistrar SCREENFLAGSD_registrar(SCREENFLAGSD, []{
 
 static ArrayRegistrar SCREENDATAENEMY_registrar(SCREENDATAENEMY, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::enemy> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<MAXGUYS>);
 	return &impl;
@@ -281,63 +276,54 @@ static ArrayRegistrar SCREENDATAENEMY_registrar(SCREENDATAENEMY, []{
 
 static ArrayRegistrar SCREENDATANORESETARR_registrar(SCREENDATANORESETARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::noreset, mMAXIND> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SCREENDATANOCARRYARR_registrar(SCREENDATANOCARRYARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::nocarry, mMAXIND> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SCREENDATAEXRESET_registrar(SCREENDATAEXRESET, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::exstate_reset, 32> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SCREENDATAEXCARRY_registrar(SCREENDATAEXCARRY, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::exstate_carry, 32> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SCREENDATALAYERINVIS_registrar(SCREENDATALAYERINVIS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::hidelayers, 7> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SCREENDATASCRIPTDRAWS_registrar(SCREENDATASCRIPTDRAWS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::hidescriptlayers, 7> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SCREENDATASIDEWARPOVFLAGS_registrar(SCREENDATASIDEWARPOVFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::sidewarpoverlayflags, 4> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SCREENDATATILEWARPOVFLAGS_registrar(SCREENDATATILEWARPOVFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::tilewarpoverlayflags, 4> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SCREENLENSHIDES_registrar(SCREENLENSHIDES, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::lens_hide, 7> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setSideEffect([](auto scr, int index, int value) {
 		if (value) scr->lens_show &= ~(1<<index);
@@ -347,7 +333,6 @@ static ArrayRegistrar SCREENLENSHIDES_registrar(SCREENLENSHIDES, []{
 
 static ArrayRegistrar SCREENLENSSHOWS_registrar(SCREENLENSSHOWS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<screendata, &screendata::lens_show, 7> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setSideEffect([](auto scr, int index, int value) {
 		if (value) scr->lens_hide &= ~(1<<index);
@@ -382,7 +367,7 @@ static ArrayRegistrar SCREENDATALAYERMAP_registrar(SCREENDATALAYERMAP, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -415,7 +400,7 @@ static ArrayRegistrar SCREENDATALAYERSCREEN_registrar(SCREENDATALAYERSCREEN, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<MAPSCRS>);
 	return &impl;
@@ -447,7 +432,7 @@ static ArrayRegistrar SCREENDATALAYEROPACITY_registrar(SCREENDATALAYEROPACITY, [
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -455,7 +440,6 @@ static ArrayRegistrar SCREENDATALAYEROPACITY_registrar(SCREENDATALAYEROPACITY, [
 
 static ArrayRegistrar SCREENDATAPATH_registrar(SCREENDATAPATH, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::path> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -463,7 +447,6 @@ static ArrayRegistrar SCREENDATAPATH_registrar(SCREENDATAPATH, []{
 
 static ArrayRegistrar SCREENDATASIDEWARPSC_registrar(SCREENDATASIDEWARPSC, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::sidewarpscr> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -471,7 +454,6 @@ static ArrayRegistrar SCREENDATASIDEWARPSC_registrar(SCREENDATASIDEWARPSC, []{
 
 static ArrayRegistrar SCREENDATASIDEWARPDMAP_registrar(SCREENDATASIDEWARPDMAP, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::sidewarpdmap> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundInt);
 	return &impl;
@@ -479,7 +461,6 @@ static ArrayRegistrar SCREENDATASIDEWARPDMAP_registrar(SCREENDATASIDEWARPDMAP, [
 
 static ArrayRegistrar SCREENDATASECRETCOMBO_registrar(SCREENDATASECRETCOMBO, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::secretcombo> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundInt);
 	return &impl;
@@ -487,7 +468,6 @@ static ArrayRegistrar SCREENDATASECRETCOMBO_registrar(SCREENDATASECRETCOMBO, []{
 
 static ArrayRegistrar SCREENDATASECRETCSET_registrar(SCREENDATASECRETCSET, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::secretcset> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -495,7 +475,6 @@ static ArrayRegistrar SCREENDATASECRETCSET_registrar(SCREENDATASECRETCSET, []{
 
 static ArrayRegistrar SCREENDATASECRETFLAG_registrar(SCREENDATASECRETFLAG, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::secretflag> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -503,7 +482,6 @@ static ArrayRegistrar SCREENDATASECRETFLAG_registrar(SCREENDATASECRETFLAG, []{
 
 static ArrayRegistrar SCREENDATASIDEWARPTYPE_registrar(SCREENDATASIDEWARPTYPE, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::sidewarptype> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -511,7 +489,6 @@ static ArrayRegistrar SCREENDATASIDEWARPTYPE_registrar(SCREENDATASIDEWARPTYPE, [
 
 static ArrayRegistrar SCREENDATATILEWARPSCREEN_registrar(SCREENDATATILEWARPSCREEN, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::tilewarpscr> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -519,7 +496,6 @@ static ArrayRegistrar SCREENDATATILEWARPSCREEN_registrar(SCREENDATATILEWARPSCREE
 
 static ArrayRegistrar SCREENDATATILEWARPTYPE_registrar(SCREENDATATILEWARPTYPE, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::tilewarptype> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -527,7 +503,6 @@ static ArrayRegistrar SCREENDATATILEWARPTYPE_registrar(SCREENDATATILEWARPTYPE, [
 
 static ArrayRegistrar SCREENDATAWARPRETX_registrar(SCREENDATAWARPRETX, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::warpreturnx> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -535,7 +510,6 @@ static ArrayRegistrar SCREENDATAWARPRETX_registrar(SCREENDATAWARPRETX, []{
 
 static ArrayRegistrar SCREENDATAWARPRETY_registrar(SCREENDATAWARPRETY, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::warpreturny> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -543,7 +517,6 @@ static ArrayRegistrar SCREENDATAWARPRETY_registrar(SCREENDATAWARPRETY, []{
 
 static ArrayRegistrar SCREENDATATILEWARPDMAP_registrar(SCREENDATATILEWARPDMAP, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::tilewarpdmap> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundInt);
 	return &impl;
@@ -551,7 +524,6 @@ static ArrayRegistrar SCREENDATATILEWARPDMAP_registrar(SCREENDATATILEWARPDMAP, [
 
 static ArrayRegistrar SCREENINITD_registrar(SCREENINITD, []{
 	static ScriptingArray_ObjectMemberCArray<screendata, &screendata::screeninitd> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -574,7 +546,6 @@ static ArrayRegistrar SCREENSTATED_registrar(SCREENSTATED, []{
 				unsetmapflag_mi(mi, 1 << index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -597,7 +568,6 @@ static ArrayRegistrar SCREENEXSTATED_registrar(SCREENEXSTATED, []{
 				unsetxmapflag_mi(mi, 1 << index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -625,7 +595,7 @@ static ArrayRegistrar SCREENSIDEWARPID_registrar(SCREENSIDEWARPID, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<-1, 3>);
 	return &impl;
@@ -653,7 +623,6 @@ static ArrayRegistrar SCREENSCRDATA_registrar(SCREENSCRDATA, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -677,7 +646,6 @@ static ArrayRegistrar SDD_registrar(SDD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -694,7 +662,6 @@ static ArrayRegistrar SCREEN_NPCS_registrar(SCREEN_NPCS, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.setReadOnly();
 	return &impl;
@@ -712,7 +679,6 @@ static ArrayRegistrar SCREEN_ITEMS_registrar(SCREEN_ITEMS, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.setReadOnly();
 	return &impl;
@@ -730,7 +696,6 @@ static ArrayRegistrar SCREEN_LWEAPONS_registrar(SCREEN_LWEAPONS, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.setReadOnly();
 	return &impl;
@@ -748,7 +713,6 @@ static ArrayRegistrar SCREEN_EWEAPONS_registrar(SCREEN_EWEAPONS, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.setReadOnly();
 	return &impl;
@@ -766,7 +730,6 @@ static ArrayRegistrar SCREEN_PORTALS_registrar(SCREEN_PORTALS, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.setReadOnly();
 	return &impl;
@@ -792,7 +755,6 @@ static ArrayRegistrar SCREEN_FFCS_registrar(SCREEN_FFCS, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.setReadOnly();
 	return &impl;

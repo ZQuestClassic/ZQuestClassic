@@ -28,7 +28,7 @@ static ArrayRegistrar SHOPDATAHASITEM_registrar(SHOPDATAHASITEM, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -59,7 +59,7 @@ static ArrayRegistrar SHOPDATAITEM_registrar(SHOPDATAITEM, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -84,7 +84,7 @@ static ArrayRegistrar SHOPDATAPRICE_registrar(SHOPDATAPRICE, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
@@ -109,7 +109,7 @@ static ArrayRegistrar SHOPDATASTRING_registrar(SHOPDATASTRING, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 32767>);
 	return &impl;

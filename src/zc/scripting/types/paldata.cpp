@@ -23,7 +23,7 @@ static ArrayRegistrar PALDATAR_registrar(PALDATAR, []{
 			FFCore.do_paldata_setrgb(pd, index, value, 0);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(value_transform_rgb);
 	return &impl;
@@ -39,7 +39,7 @@ static ArrayRegistrar PALDATAG_registrar(PALDATAG, []{
 			FFCore.do_paldata_setrgb(pd, index, value, 1);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(value_transform_rgb);
 	return &impl;
@@ -55,7 +55,7 @@ static ArrayRegistrar PALDATAB_registrar(PALDATAB, []{
 			FFCore.do_paldata_setrgb(pd, index, value, 2);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(value_transform_rgb);
 	return &impl;
@@ -81,7 +81,7 @@ static ArrayRegistrar PALDATACOLOR_registrar(PALDATACOLOR, []{
 			pd->set_color(index, c);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
 }());

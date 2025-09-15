@@ -4,7 +4,7 @@
 
 static ArrayRegistrar DROPSETITEMS_registrar(DROPSETITEMS, []{
 	static ScriptingArray_ObjectMemberCArray<item_drop_object, &item_drop_object::item> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, MAXITEMS-1>);
 	return &impl;
@@ -22,7 +22,7 @@ static ArrayRegistrar DROPSETCHANCES_registrar(DROPSETCHANCES, []{
 			drop->chance[index + 1] = value; // +1 is because '0' is 'nothing''s chance
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 32767>);
 	return &impl;

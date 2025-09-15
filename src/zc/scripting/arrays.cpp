@@ -2,7 +2,6 @@
 //
 //    static ArrayRegistrar GAMEBOTTLEST_registrar(GAMEBOTTLEST, []{
 //        static ScriptingArray_ObjectMemberCArray<gamedata, &gamedata::bottleSlots> impl;
-//        impl.setDefaultValue(0);
 //        impl.setMul10000(true);
 //        return &impl;
 //    }());
@@ -11,7 +10,7 @@
 //
 // static ArrayRegistrar IDATAWPNINITD_registrar(IDATAWPNINITD, []{
 //     static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::initd> impl;
-//     impl.setDefaultValue(-10000);
+//     impl.compatSetDefaultValue(-10000);
 //     impl.setMul10000(false);
 //     return &impl;
 // }());
@@ -64,26 +63,19 @@
 //
 // 4. Configure the array.
 //
-//    a) Configure the default value (prefer 0, else use -10000/-1 if needed): impl.setDefaultValue(0)
+//    a) Configure the integer type (false for "long", true for "fixed-point int"): impl.setMul10000(false)
 //
-//    b) Configure the integer type (false for "long", true for "fixed-point int"): impl.setMul10000(false)
-//
-//    c) If the index is bounded (forced to be a valid index using vbound), use `impl.compatBoundIndex()`.
-//       Do not use this for new code, it's an anti-pattern. When the index is not bounded, it is instead
-//       validated, and an error is logged when an invalid index is used.
-//       If qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX is off, index bounding never happens.
-//
-//    d) If the value is bounded or validated, use `impl.setValueTransform(...)` For example, to vbound between
+//    b) If the value is bounded or validated, use `impl.setValueTransform(...)` For example, to vbound between
 //       0 and 255: `impl.setValueTransform(transforms::vboundByte)`. There's also `transforms::vbound<low, min>`
 //       to use any bounds. To validate instead (disallowing values outside a range), use
 //       `transforms::validate<low, max>`. Lastly, you can use any arbitary lambda function: return std::nullopt
 //       to reject a value, and return an integer otherwise (optionally modifying it).
 //
-//    e) Configure `impl.setSideEffect` to run some code after an array value is successfully set. Useful for an
+//    c) Configure `impl.setSideEffect(...)` to run some code after an array value is successfully set. Useful for an
 //       array that otherwise fits the use case of the simpler interfaces (no need to reach for the more general
 //       Global interface).
 //
-//    f) If read-only: `impl.setReadOnly()`
+//    d) If read-only: `impl.setReadOnly()`
 
 #include "zc/scripting/arrays.h"
 #include "base/check.h"

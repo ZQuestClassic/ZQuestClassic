@@ -2345,7 +2345,8 @@ ArrayManager::ArrayManager(int32_t ptr) : ArrayManager(ptr,can_neg_array){}
 
 int32_t ArrayManager::get(int32_t indx) const
 {
-	if(_invalid) return -10000;
+	if(_invalid)
+		return get_qr(qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE) ? -10000 : 0;
 	if(aptr)
 	{
 		int32_t sz = size();
@@ -2369,7 +2370,8 @@ int32_t ArrayManager::get(int32_t indx) const
 			return legacy_get_int_arr(legacy_internal_id, indx);
 		}
 	}
-	return -10000;
+
+	return get_qr(qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE) ? -10000 : 0;
 }
 
 void ArrayManager::set(int32_t indx, int32_t val)

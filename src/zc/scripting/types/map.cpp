@@ -6,7 +6,6 @@
 
 static ArrayRegistrar MAPDATADOOR_registrar(MAPDATADOOR, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::door> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -32,7 +31,7 @@ static ArrayRegistrar MAPDATACOMBODD_registrar(MAPDATACOMBODD, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<MAXCOMBOS>);
 	return &impl;
@@ -49,7 +48,7 @@ static ArrayRegistrar MAPDATACOMBODATAD_registrar(MAPDATACOMBODATAD, []{
 		},
 		[](mapdata* mapdata, int index, int value){}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.setValueTransform(transforms::validate<MAXCOMBOS>);
 	impl.readOnly();
@@ -76,7 +75,7 @@ static ArrayRegistrar MAPDATACOMBOCD_registrar(MAPDATACOMBOCD, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<15>);
 	return &impl;
@@ -103,7 +102,7 @@ static ArrayRegistrar MAPDATACOMBOTD_registrar(MAPDATACOMBOTD, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<cMAX>);
 	return &impl;
@@ -123,7 +122,7 @@ static ArrayRegistrar MAPDATACOMBOFD_registrar(MAPDATACOMBOFD, []{
 				rpos_handle.set_sflag(value);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<256>);
 	return &impl;
@@ -143,7 +142,7 @@ static ArrayRegistrar MAPDATACOMBOID_registrar(MAPDATACOMBOID, []{
 				rpos_handle.combo().flag = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<256>);
 	return &impl;
@@ -180,7 +179,7 @@ static ArrayRegistrar MAPDATACOMBOSD_registrar(MAPDATACOMBOSD, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<16>);
 	return &impl;
@@ -217,7 +216,7 @@ static ArrayRegistrar MAPDATACOMBOED_registrar(MAPDATACOMBOED, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<16>);
 	return &impl;
@@ -225,7 +224,6 @@ static ArrayRegistrar MAPDATACOMBOED_registrar(MAPDATACOMBOED, []{
 
 static ArrayRegistrar MAPDATAPATH_registrar(MAPDATAPATH, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::path> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -233,7 +231,6 @@ static ArrayRegistrar MAPDATAPATH_registrar(MAPDATAPATH, []{
 
 static ArrayRegistrar MAPDATASIDEWARPSC_registrar(MAPDATASIDEWARPSC, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::sidewarpscr> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -241,7 +238,6 @@ static ArrayRegistrar MAPDATASIDEWARPSC_registrar(MAPDATASIDEWARPSC, []{
 
 static ArrayRegistrar MAPDATASIDEWARPDMAP_registrar(MAPDATASIDEWARPDMAP, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::sidewarpdmap> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundInt);
 	return &impl;
@@ -249,7 +245,6 @@ static ArrayRegistrar MAPDATASIDEWARPDMAP_registrar(MAPDATASIDEWARPDMAP, []{
 
 static ArrayRegistrar MAPDATASECRETCOMBO_registrar(MAPDATASECRETCOMBO, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::secretcombo> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundInt);
 	return &impl;
@@ -257,7 +252,6 @@ static ArrayRegistrar MAPDATASECRETCOMBO_registrar(MAPDATASECRETCOMBO, []{
 
 static ArrayRegistrar MAPDATASECRETCSET_registrar(MAPDATASECRETCSET, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::secretcset> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -265,7 +259,6 @@ static ArrayRegistrar MAPDATASECRETCSET_registrar(MAPDATASECRETCSET, []{
 
 static ArrayRegistrar MAPDATASECRETFLAG_registrar(MAPDATASECRETFLAG, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::secretflag> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -273,7 +266,6 @@ static ArrayRegistrar MAPDATASECRETFLAG_registrar(MAPDATASECRETFLAG, []{
 
 static ArrayRegistrar MAPDATASIDEWARPTYPE_registrar(MAPDATASIDEWARPTYPE, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::sidewarptype> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -281,7 +273,6 @@ static ArrayRegistrar MAPDATASIDEWARPTYPE_registrar(MAPDATASIDEWARPTYPE, []{
 
 static ArrayRegistrar MAPDATATILEWARPSCREEN_registrar(MAPDATATILEWARPSCREEN, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::tilewarpscr> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -289,7 +280,6 @@ static ArrayRegistrar MAPDATATILEWARPSCREEN_registrar(MAPDATATILEWARPSCREEN, []{
 
 static ArrayRegistrar MAPDATATILEWARPTYPE_registrar(MAPDATATILEWARPTYPE, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::tilewarptype> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -297,7 +287,6 @@ static ArrayRegistrar MAPDATATILEWARPTYPE_registrar(MAPDATATILEWARPTYPE, []{
 
 static ArrayRegistrar MAPDATAWARPRETX_registrar(MAPDATAWARPRETX, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::warpreturnx> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -305,7 +294,6 @@ static ArrayRegistrar MAPDATAWARPRETX_registrar(MAPDATAWARPRETX, []{
 
 static ArrayRegistrar MAPDATAWARPRETY_registrar(MAPDATAWARPRETY, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::warpreturny> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -313,7 +301,6 @@ static ArrayRegistrar MAPDATAWARPRETY_registrar(MAPDATAWARPRETY, []{
 
 static ArrayRegistrar MAPDATATILEWARPDMAP_registrar(MAPDATATILEWARPDMAP, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::tilewarpdmap> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundInt);
 	return &impl;
@@ -321,7 +308,6 @@ static ArrayRegistrar MAPDATATILEWARPDMAP_registrar(MAPDATATILEWARPDMAP, []{
 
 static ArrayRegistrar MAPDATAINITDARRAY_registrar(MAPDATAINITDARRAY, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::screeninitd> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -344,7 +330,6 @@ static ArrayRegistrar MAPDATASCREENSTATED_registrar(MAPDATASCREENSTATED, []{
 				unsetmapflag_mi(mi, 1 << index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -367,7 +352,6 @@ static ArrayRegistrar MAPDATAEXSTATED_registrar(MAPDATAEXSTATED, []{
 				unsetxmapflag_mi(mi, 1 << index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -395,7 +379,7 @@ static ArrayRegistrar MAPDATASIDEWARPID_registrar(MAPDATASIDEWARPID, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<-1, 3>);
 	return &impl;
@@ -423,7 +407,6 @@ static ArrayRegistrar MAPDATASCRDATA_registrar(MAPDATASCRDATA, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -436,7 +419,7 @@ static ArrayRegistrar MAPDATASWARPRETSQR_registrar(MAPDATASWARPRETSQR, []{
 			scr->warpreturnc = (scr->warpreturnc&~(3<<(8+(index*2)))) | (value<<(8+(index*2)));
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 3>);
 	return &impl;
@@ -450,7 +433,7 @@ static ArrayRegistrar MAPDATATWARPRETSQR_registrar(MAPDATATWARPRETSQR, []{
 			scr->warpreturnc = (scr->warpreturnc&~(3<<(index*2))) | (value<<(index*2));
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 3>);
 	return &impl;
@@ -458,7 +441,6 @@ static ArrayRegistrar MAPDATATWARPRETSQR_registrar(MAPDATATWARPRETSQR, []{
 
 static ArrayRegistrar MAPDATAENEMY_registrar(MAPDATAENEMY, []{
 	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::enemy> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<MAXGUYS>);
 	return &impl;
@@ -466,63 +448,54 @@ static ArrayRegistrar MAPDATAENEMY_registrar(MAPDATAENEMY, []{
 
 static ArrayRegistrar MAPDATANORESETARR_registrar(MAPDATANORESETARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::noreset, mMAXIND> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar MAPDATANOCARRYARR_registrar(MAPDATANOCARRYARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::nocarry, mMAXIND> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar MAPDATAEXRESET_registrar(MAPDATAEXRESET, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::exstate_reset, 32> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar MAPDATAEXCARRY_registrar(MAPDATAEXCARRY, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::exstate_carry, 32> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar MAPDATALAYERINVIS_registrar(MAPDATALAYERINVIS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::hidelayers, 7> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar MAPDATASCRIPTDRAWS_registrar(MAPDATASCRIPTDRAWS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::hidescriptlayers, 7> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar MAPDATASIDEWARPOVFLAGS_registrar(MAPDATASIDEWARPOVFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::sidewarpoverlayflags, 4> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar MAPDATATILEWARPOVFLAGS_registrar(MAPDATATILEWARPOVFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::tilewarpoverlayflags, 4> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar MAPDATALENSHIDES_registrar(MAPDATALENSHIDES, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::lens_hide, 7> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setSideEffect([](auto scr, int index, int value) {
 		if (value) scr->lens_show &= ~(1<<index);
@@ -532,7 +505,6 @@ static ArrayRegistrar MAPDATALENSHIDES_registrar(MAPDATALENSHIDES, []{
 
 static ArrayRegistrar MAPDATALENSSHOWS_registrar(MAPDATALENSSHOWS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<mapscr, &mapscr::lens_show, 7> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setSideEffect([](auto scr, int index, int value) {
 		if (value) scr->lens_hide &= ~(1<<index);
@@ -546,7 +518,7 @@ static ArrayRegistrar MAPDATAFLAGS_registrar(MAPDATAFLAGS, []{
 		[](mapscr* scr, int index){ return (&scr->flags)[index]; },
 		[](mapscr* scr, int index, byte value){ (&scr->flags)[index] = value; }
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -557,7 +529,6 @@ static ArrayRegistrar MAPDATASCREENEFLAGSD_registrar(MAPDATASCREENEFLAGSD, []{
 		[](mapscr* scr, int index){ return get_screeneflags(scr, index); },
 		[](mapscr* scr, int index, int value){}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.compatBoundIndex();
 	impl.readOnly();
@@ -570,7 +541,6 @@ static ArrayRegistrar MAPDATASCREENFLAGSD_registrar(MAPDATASCREENFLAGSD, []{
 		[](mapscr* scr, int index){ return get_screenflags(scr, index); },
 		[](mapscr* scr, int index, int value){}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.compatBoundIndex();
 	impl.readOnly();
@@ -588,7 +558,6 @@ static ArrayRegistrar MAPDATA_FLAG_registrar(MAPDATA_FLAG, []{
 			SETFLAG(flag, 1 << (index%8), value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -611,7 +580,7 @@ static ArrayRegistrar MAPDATAMISCD_registrar(MAPDATAMISCD, []{
 			game->screen_d[mi][index] = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -649,7 +618,7 @@ static ArrayRegistrar MAPDATALAYERMAP_registrar(MAPDATALAYERMAP, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -688,7 +657,7 @@ static ArrayRegistrar MAPDATALAYERSCREEN_registrar(MAPDATALAYERSCREEN, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::validate<MAPSCRS>);
 	return &impl;
@@ -725,7 +694,7 @@ static ArrayRegistrar MAPDATALAYEROPACITY_registrar(MAPDATALAYEROPACITY, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -772,7 +741,7 @@ static ArrayRegistrar MAPDATAFFCSET_registrar(MAPDATAFFCSET, []{
 				ffc.set_cset(value);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	return &impl;
@@ -792,7 +761,7 @@ static ArrayRegistrar MAPDATAFFDATA_registrar(MAPDATAFFDATA, []{
 				ffc.set_data(value);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	return &impl;
@@ -812,7 +781,7 @@ static ArrayRegistrar MAPDATAFFDELAY_registrar(MAPDATAFFDELAY, []{
 				ffc->delay = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	return &impl;
@@ -832,7 +801,7 @@ static ArrayRegistrar MAPDATAFFEFFECTWIDTH_registrar(MAPDATAFFEFFECTWIDTH, []{
 				ffc->hit_width = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	return &impl;
@@ -852,7 +821,7 @@ static ArrayRegistrar MAPDATAFFEFFECTHEIGHT_registrar(MAPDATAFFEFFECTHEIGHT, []{
 				ffc->hit_height = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	impl.setValueTransform(transforms::validate<0, 10000>);
@@ -873,7 +842,7 @@ static ArrayRegistrar MAPDATAFFWIDTH_registrar(MAPDATAFFWIDTH, []{
 				ffc->txsz = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	impl.setValueTransform(transforms::validate<0, 10000>);
@@ -894,7 +863,7 @@ static ArrayRegistrar MAPDATAFFHEIGHT_registrar(MAPDATAFFHEIGHT, []{
 				ffc->tysz = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	impl.setValueTransform(transforms::validate<0, 4>);
@@ -915,7 +884,7 @@ static ArrayRegistrar MAPDATAFFX_registrar(MAPDATAFFX, []{
 				ffc->x = zslongToFix(value);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.skipIndexCheck();
 	return &impl;
@@ -935,7 +904,7 @@ static ArrayRegistrar MAPDATAFFY_registrar(MAPDATAFFY, []{
 				ffc->y = zslongToFix(value);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.skipIndexCheck();
 	return &impl;
@@ -955,7 +924,7 @@ static ArrayRegistrar MAPDATAFFXDELTA_registrar(MAPDATAFFXDELTA, []{
 				ffc->vx = zslongToFix(value);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.skipIndexCheck();
 	return &impl;
@@ -975,7 +944,7 @@ static ArrayRegistrar MAPDATAFFYDELTA_registrar(MAPDATAFFYDELTA, []{
 				ffc->vy = zslongToFix(value);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.skipIndexCheck();
 	return &impl;
@@ -995,7 +964,7 @@ static ArrayRegistrar MAPDATAFFXDELTA2_registrar(MAPDATAFFXDELTA2, []{
 				ffc->ax = zslongToFix(value);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.skipIndexCheck();
 	return &impl;
@@ -1015,7 +984,7 @@ static ArrayRegistrar MAPDATAFFYDELTA2_registrar(MAPDATAFFYDELTA2, []{
 				ffc->ay = zslongToFix(value);
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.skipIndexCheck();
 	return &impl;
@@ -1038,7 +1007,7 @@ static ArrayRegistrar MAPDATAFFFLAGS_registrar(MAPDATAFFFLAGS, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	return &impl;
@@ -1058,7 +1027,7 @@ static ArrayRegistrar MAPDATAFFLINK_registrar(MAPDATAFFLINK, []{
 				ffc->link = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	impl.setValueTransform(transforms::validate<0, MAXFFCS>);
@@ -1079,7 +1048,7 @@ static ArrayRegistrar MAPDATAFFSCRIPT_registrar(MAPDATAFFSCRIPT, []{
 				ffc->script = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	// TODO: Not sure this makes sense...
@@ -1100,7 +1069,7 @@ static ArrayRegistrar MAPDATAFFINITIALISED_registrar(MAPDATAFFINITIALISED, []{
 				get_ffc_script_engine_data(ffc->index).initialized = value;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.skipIndexCheck();
 	return &impl;

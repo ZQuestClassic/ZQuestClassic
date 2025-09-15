@@ -4,14 +4,14 @@
 
 static ArrayRegistrar IDATAINITDD_registrar(IDATAINITDD, []{
 	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::initiald> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
 }());
 
 static ArrayRegistrar IDATAMISCD_registrar(IDATAMISCD, []{
 	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::wpn_misc_d> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.compatBoundIndex();
 	return &impl;
@@ -19,21 +19,19 @@ static ArrayRegistrar IDATAMISCD_registrar(IDATAMISCD, []{
 
 static ArrayRegistrar IDATAMOVEFLAGS_registrar(IDATAMOVEFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<itemdata, &itemdata::moveflags, 11> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar IDATAWMOVEFLAGS_registrar(IDATAWMOVEFLAGS, []{
 	static ScriptingArray_ObjectSubMemberBitwiseFlags<itemdata, &itemdata::weap_data, &weapon_data::moveflags, 11> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar IDATAWPNINITD_registrar(IDATAWPNINITD, []{
 	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::initd> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.compatBoundIndex();
 	return &impl;
@@ -41,7 +39,7 @@ static ArrayRegistrar IDATAWPNINITD_registrar(IDATAWPNINITD, []{
 
 static ArrayRegistrar IDATABURNINGSPR_registrar(IDATABURNINGSPR, []{
 	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::burnsprs> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -49,7 +47,7 @@ static ArrayRegistrar IDATABURNINGSPR_registrar(IDATABURNINGSPR, []{
 
 static ArrayRegistrar IDATABURNINGLIGHTRAD_registrar(IDATABURNINGLIGHTRAD, []{
 	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::light_rads> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -93,7 +91,7 @@ static ArrayRegistrar IDATAATTRIB_registrar(IDATAATTRIB, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.compatBoundIndex();
 	return &impl;
@@ -137,7 +135,7 @@ static ArrayRegistrar IDATAATTRIB_L_registrar(IDATAATTRIB_L, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-1);
+	impl.compatSetDefaultValue(-1);
 	impl.setMul10000(false);
 	impl.compatBoundIndex();
 	return &impl;
@@ -181,7 +179,7 @@ static ArrayRegistrar IDATASPRITE_registrar(IDATASPRITE, []{
 			}
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
@@ -270,7 +268,6 @@ static ArrayRegistrar IDATAFLAGS_registrar(IDATAFLAGS, []{
 			}
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());

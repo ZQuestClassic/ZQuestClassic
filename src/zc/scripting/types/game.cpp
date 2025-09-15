@@ -820,7 +820,6 @@ std::optional<int32_t> game_run_command(word command)
 
 static ArrayRegistrar GAMEBOTTLEST_registrar(GAMEBOTTLEST, []{
 	static ScriptingArray_ObjectMemberCArray<gamedata, &gamedata::bottleSlots> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -836,7 +835,7 @@ static ArrayRegistrar GAMECOUNTERD_registrar(GAMECOUNTERD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -852,7 +851,7 @@ static ArrayRegistrar GAMEDCOUNTERD_registrar(GAMEDCOUNTERD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -868,7 +867,6 @@ static ArrayRegistrar GAMEEVENTDATA_registrar(GAMEEVENTDATA, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -909,7 +907,6 @@ static ArrayRegistrar GAMEGENERICD_registrar(GAMEGENERICD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -928,7 +925,6 @@ static ArrayRegistrar GAMEGSWITCH_registrar(GAMEGSWITCH, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -946,21 +942,18 @@ static ArrayRegistrar GAMEGUYCOUNT_registrar(GAMEGUYCOUNT, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar GAMELITEMSD_registrar(GAMELITEMSD, []{
 	static ScriptingArray_ObjectMemberContainer<gamedata, &gamedata::lvlitems> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar GAMELKEYSD_registrar(GAMELKEYSD, []{
 	static ScriptingArray_ObjectMemberContainer<gamedata, &gamedata::lvlkeys> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -979,14 +972,13 @@ static ArrayRegistrar GAMELSWITCH_registrar(GAMELSWITCH, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
 
 static ArrayRegistrar GAMEOVERRIDEITEMS_registrar(GAMEOVERRIDEITEMS, []{
 	static ScriptingArray_ObjectMemberContainer<gamedata, &gamedata::OverrideItems> impl;
-	impl.setDefaultValue(-20000);
+	impl.compatSetDefaultValue(-20000);
 	impl.setMul10000(true);
 	impl.setValueTransform([](int value){ return value < -1 || value >= MAXITEMS ? -2 : value; });
 	return &impl;
@@ -1003,14 +995,13 @@ static ArrayRegistrar GAMEMCOUNTERD_registrar(GAMEMCOUNTERD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar GAMEMISCSFX_registrar(GAMEMISCSFX, []{
 	static ScriptingArray_GlobalCArray impl(QMisc.miscsfx, comptime_array_size(QMisc.miscsfx));
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setValueTransform(transforms::vboundByte);
 	impl.setMul10000(true);
 	return &impl;
@@ -1018,7 +1009,7 @@ static ArrayRegistrar GAMEMISCSFX_registrar(GAMEMISCSFX, []{
 
 static ArrayRegistrar GAMEMISCSPR_registrar(GAMEMISCSPR, []{
 	static ScriptingArray_GlobalCArray impl(QMisc.sprites, comptime_array_size(QMisc.sprites));
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setValueTransform(transforms::vboundByte);
 	impl.setMul10000(true);
 	return &impl;
@@ -1026,7 +1017,6 @@ static ArrayRegistrar GAMEMISCSPR_registrar(GAMEMISCSPR, []{
 
 static ArrayRegistrar GAMESCROLLING_registrar(GAMESCROLLING, []{
 	static ScriptingArray_GlobalCArray impl(FFCore.ScrollingData, comptime_array_size(FFCore.ScrollingData));
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.readOnly();
 	return &impl;
@@ -1034,7 +1024,6 @@ static ArrayRegistrar GAMESCROLLING_registrar(GAMESCROLLING, []{
 
 static ArrayRegistrar GAMESUSPEND_registrar(GAMESUSPEND, []{
 	static ScriptingArray_GlobalCArray impl(FFCore.system_suspend, comptime_array_size(FFCore.system_suspend));
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -1047,7 +1036,6 @@ static ArrayRegistrar GAMETRIGGROUPS_registrar(GAMETRIGGROUPS, []{
 		},
 		[](int, int index, int value) { return false; }
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.readOnly();
 	return &impl;
@@ -1063,7 +1051,7 @@ static ArrayRegistrar DMAPMAP_registrar(DMAPMAP, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.readOnly();
 	return &impl;
@@ -1079,7 +1067,7 @@ static ArrayRegistrar DMAPOFFSET_registrar(DMAPOFFSET, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.readOnly();
 	return &impl;
@@ -1096,7 +1084,7 @@ static ArrayRegistrar DMAPFLAGSD_registrar(DMAPFLAGSD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -1112,7 +1100,7 @@ static ArrayRegistrar DMAPLEVELD_registrar(DMAPLEVELD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -1128,7 +1116,7 @@ static ArrayRegistrar DMAPCOMPASSD_registrar(DMAPCOMPASSD, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -1144,7 +1132,7 @@ static ArrayRegistrar DMAPCONTINUED_registrar(DMAPCONTINUED, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -1165,7 +1153,7 @@ static ArrayRegistrar DMAPLEVELPAL_registrar(DMAPLEVELPAL, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 0x1FF>);
 	return &impl;
@@ -1183,7 +1171,6 @@ static ArrayRegistrar DISABLEDITEM_registrar(DISABLEDITEM, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -1214,7 +1201,7 @@ static ArrayRegistrar DMAPMIDID_registrar(DMAPMIDID, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -1310,14 +1297,13 @@ static ArrayRegistrar GAMEGRAVITY_registrar(GAMEGRAVITY, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
 }());
 
 static ArrayRegistrar GAMELAYERZTHRESHOLDS_registrar(GAMELAYERZTHRESHOLDS, []{
 	static ScriptingArray_GlobalCArray impl(zinit.sprite_z_thresholds, comptime_array_size(zinit.sprite_z_thresholds));
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -1332,7 +1318,6 @@ static ArrayRegistrar GAME_SAVED_PORTALS_registrar(GAME_SAVED_PORTALS, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.setReadOnly();
 	return &impl;

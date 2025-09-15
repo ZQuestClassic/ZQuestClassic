@@ -4,21 +4,18 @@
 
 static ArrayRegistrar SUBDATABTNLEFT_registrar(SUBDATABTNLEFT, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<ZCSubscreenActive, &ZCSubscreenActive::btn_left, 8> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SUBDATABTNRIGHT_registrar(SUBDATABTNRIGHT, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<ZCSubscreenActive, &ZCSubscreenActive::btn_right, 8> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SUBDATAINITD_registrar(SUBDATAINITD, []{
 	static ScriptingArray_ObjectMemberCArray<ZCSubscreenActive, &ZCSubscreenActive::initd> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -45,7 +42,6 @@ static ArrayRegistrar SUBDATAFLAGS_registrar(SUBDATAFLAGS, []{
 			SETFLAG(sub->flags, 1<<index, value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -62,7 +58,6 @@ static ArrayRegistrar SUBDATASELECTORASPD_registrar(SUBDATASELECTORASPD, []{
 			sub->selector_setting.tileinfo[index].speed = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<1, 255>);
 	return &impl;
@@ -109,7 +104,6 @@ static ArrayRegistrar SUBDATATRANSARGS_registrar(SUBDATATRANSARGS, []{
 			trans.arg[index] = value / SubscrTransition::argScale(trans.type, index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -128,7 +122,6 @@ static ArrayRegistrar SUBDATATRANSLEFTARGS_registrar(SUBDATATRANSLEFTARGS, []{
 			trans.arg[index] = value / SubscrTransition::argScale(trans.type, index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -147,7 +140,6 @@ static ArrayRegistrar SUBDATATRANSRIGHTARGS_registrar(SUBDATATRANSRIGHTARGS, []{
 			trans.arg[index] = value / SubscrTransition::argScale(trans.type, index);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -193,7 +185,6 @@ static ArrayRegistrar SUBDATATRANSFLAGS_registrar(SUBDATATRANSFLAGS, []{
 			SETFLAG(trans.flags, (1<<index), value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -212,7 +203,6 @@ static ArrayRegistrar SUBDATATRANSLEFTFLAGS_registrar(SUBDATATRANSLEFTFLAGS, []{
 			SETFLAG(trans.flags, (1<<index), value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -231,7 +221,6 @@ static ArrayRegistrar SUBDATATRANSRIGHTFLAGS_registrar(SUBDATATRANSRIGHTFLAGS, [
 			SETFLAG(trans.flags, (1<<index), value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -250,7 +239,6 @@ static ArrayRegistrar SUBDATASELECTORCSET_registrar(SUBDATASELECTORCSET, []{
 			cs = (cs&0xF0) | value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 0x0F>);
 	return &impl;
@@ -270,7 +258,6 @@ static ArrayRegistrar SUBDATASELECTORFLASHCSET_registrar(SUBDATASELECTORFLASHCSE
 			cs = (cs&0x0F) | (value<<4);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 0x0F>);
 	return &impl;
@@ -288,7 +275,6 @@ static ArrayRegistrar SUBDATASELECTORDELAY_registrar(SUBDATASELECTORDELAY, []{
 			sub->selector_setting.tileinfo[index].delay = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 255>);
 	return &impl;
@@ -306,7 +292,6 @@ static ArrayRegistrar SUBDATASELECTORFRM_registrar(SUBDATASELECTORFRM, []{
 			sub->selector_setting.tileinfo[index].frames = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<1, 255>);
 	return &impl;
@@ -324,7 +309,6 @@ static ArrayRegistrar SUBDATASELECTORWID_registrar(SUBDATASELECTORWID, []{
 			sub->selector_setting.tileinfo[index].sw = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
@@ -342,7 +326,6 @@ static ArrayRegistrar SUBDATASELECTORHEI_registrar(SUBDATASELECTORHEI, []{
 			sub->selector_setting.tileinfo[index].sh = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
@@ -360,7 +343,6 @@ static ArrayRegistrar SUBDATASELECTORTILE_registrar(SUBDATASELECTORTILE, []{
 			sub->selector_setting.tileinfo[index].tile = value;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, NEWMAXTILES - 1>);
 	return &impl;
@@ -384,7 +366,6 @@ static ArrayRegistrar SUBDATAPAGES_registrar(SUBDATAPAGES, []{
 		},
 		[](int, int index, int value){ return false; }
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.readOnly();
 	return &impl;

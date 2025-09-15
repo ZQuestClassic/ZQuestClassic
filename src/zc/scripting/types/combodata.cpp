@@ -6,14 +6,14 @@
 
 static ArrayRegistrar COMBODATTRIBUTES_registrar(COMBODATTRIBUTES, []{
 	static ScriptingArray_ObjectMemberCArray<newcombo, &newcombo::attributes> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
 }());
 
 static ArrayRegistrar COMBODATTRISHORTS_registrar(COMBODATTRISHORTS, []{
 	static ScriptingArray_ObjectMemberCArray<newcombo, &newcombo::attrishorts> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<-32768, 32767>);
 	return &impl;
@@ -21,7 +21,7 @@ static ArrayRegistrar COMBODATTRISHORTS_registrar(COMBODATTRISHORTS, []{
 
 static ArrayRegistrar COMBODATTRIBYTES_registrar(COMBODATTRIBYTES, []{
 	static ScriptingArray_ObjectMemberCArray<newcombo, &newcombo::attribytes> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 
 	impl.setValueTransform(transforms::vbound<0, 214747>);
@@ -30,7 +30,6 @@ static ArrayRegistrar COMBODATTRIBYTES_registrar(COMBODATTRIBYTES, []{
 
 static ArrayRegistrar COMBODGENFLAGARR_registrar(COMBODGENFLAGARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<newcombo, &newcombo::genflags, 4> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -54,14 +53,12 @@ static ArrayRegistrar COMBODLIFTFLAGS_registrar(COMBODLIFTFLAGS, []{
 				SETFLAG(cmb->liftflags, bit, value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar COMBODUSRFLAGARR_registrar(COMBODUSRFLAGARR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<newcombo, &newcombo::usrflags, 16> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -79,7 +76,6 @@ static ArrayRegistrar COMBODATAINITD_registrar(COMBODATAINITD, []{
 			cmb->initd[index] = value * ( get_qr(qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
@@ -99,7 +95,6 @@ static ArrayRegistrar COMBODTRIGGERBUTTON_registrar(COMBODTRIGGERBUTTON, []{
 				SETFLAG(trig->triggerbtn, 1<<index, value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -129,7 +124,6 @@ static ArrayRegistrar COMBODTRIGGERFLAGS2_registrar(COMBODTRIGGERFLAGS2, []{
 			}
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -149,7 +143,7 @@ static ArrayRegistrar COMBODTRIGGERS_registrar(COMBODTRIGGERS, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.readOnly();
 	return &impl;
@@ -198,7 +192,7 @@ static ArrayRegistrar COMBODTRIGGERFLAGS_registrar(COMBODTRIGGERFLAGS, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<0, 214747>);
 	return &impl;

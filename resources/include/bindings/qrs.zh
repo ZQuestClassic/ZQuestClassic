@@ -2413,6 +2413,12 @@ enum QR
 	// their index. Additionally, all internal arrays will support negative indices.
 	qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX,
 
+	// 'Scripts return non-zero for out-of-bounds access of some arrays'
+	//
+	// If enabled, some arrays will return a non-zero value (typically -1) when accessing an out-of-bounds index (though most return zero). When
+	// disabled, all out-of-bounds accesses return zero.
+	qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE,
+
 	// 'Old (Buggy) ZScript Volume Access'
 	//
 	// If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior, which was bugged and wrote directly to the

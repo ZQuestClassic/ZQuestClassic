@@ -1751,6 +1751,9 @@ GUI::ListData instructionRulesList
 	{ "Scripts bound index for some internal arrays", qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX,
 		"If enabled, some internal arrays will bound the index used to the valid range for the array."
 		" When disabled, internal arrays will never bound their index. Additionally, all internal arrays will support negative indices."},
+	{ "Scripts return non-zero for out-of-bounds access of some arrays", qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE,
+		"If enabled, some arrays will return a non-zero value (typically -1) when accessing an out-of-bounds index (though most return zero)."
+		" When disabled, all out-of-bounds accesses return zero."},
 	{ "Game->Generic[GEN_CONTINUEHEARTS] is in 'Hearts'", qr_SCRIPT_CONTHP_IS_HEARTS,
 		"If checked, read/write to 'Game->Generic[GEN_CONTINUEHEARTS]' is in 'Hearts'. Otherwise,"
 		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)"}
@@ -1884,6 +1887,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
 				qr_OLD_BROKEN_WARPEX_MUSIC, qr_OLD_HERO_WARP_RETSQUARE, qr_ZS_OLD_SUSPEND_FFC,
 				qr_SCRIPTS_6_BIT_COLOR, qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES, qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX,
+				qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE,
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);

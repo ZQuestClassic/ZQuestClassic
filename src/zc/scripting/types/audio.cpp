@@ -72,7 +72,7 @@ static ArrayRegistrar AUDIOVOLUME_registrar(AUDIOVOLUME, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -88,7 +88,6 @@ static ArrayRegistrar MUSICUPDATEFLAGS_registrar(MUSICUPDATEFLAGS, []{
 			return true;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());

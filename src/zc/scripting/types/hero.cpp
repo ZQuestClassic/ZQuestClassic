@@ -19,14 +19,12 @@ static ArrayRegistrar LINKDEFENCE_registrar(LINKDEFENCE, []{
 
 static ArrayRegistrar HEROLIFTFLAGS_registrar(HEROLIFTFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<HeroClass, &HeroClass::liftflags, NUM_LIFTFL> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar HEROMOVEFLAGS_registrar(HEROMOVEFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<HeroClass, &HeroClass::moveflags, 11> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -104,7 +102,6 @@ static ArrayRegistrar LINKITEMD_registrar(LINKITEMD, []{
 
 static ArrayRegistrar HEROITEMCOOLDOWN_registrar(HEROITEMCOOLDOWN, []{
 	static ScriptingArray_ObjectMemberContainer<HeroClass, &HeroClass::item_cooldown> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -145,7 +142,6 @@ static ArrayRegistrar LINKHITBY_registrar(LINKHITBY, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.readOnly();
 	return &impl;

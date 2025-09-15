@@ -4,7 +4,7 @@
 
 static ArrayRegistrar BOTTLEAMOUNT_registrar(BOTTLEAMOUNT, []{
 	static ScriptingArray_ObjectMemberCArray<bottletype, &bottletype::amount> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
@@ -12,7 +12,7 @@ static ArrayRegistrar BOTTLEAMOUNT_registrar(BOTTLEAMOUNT, []{
 
 static ArrayRegistrar BOTTLECOUNTER_registrar(BOTTLECOUNTER, []{
 	static ScriptingArray_ObjectMemberCArray<bottletype, &bottletype::counter> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<-1, MAX_COUNTERS - 1>);
 	return &impl;
@@ -20,7 +20,7 @@ static ArrayRegistrar BOTTLECOUNTER_registrar(BOTTLECOUNTER, []{
 
 static ArrayRegistrar BOTTLEPERCENT_registrar(BOTTLEPERCENT, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<bottletype, &bottletype::flags, 3> impl;
-	impl.setDefaultValue(-10000);
+	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;
 }());
@@ -55,7 +55,6 @@ static ArrayRegistrar BOTTLEFLAGS_registrar(BOTTLEFLAGS, []{
 			SETFLAG(btl->flags, flag, value);
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());

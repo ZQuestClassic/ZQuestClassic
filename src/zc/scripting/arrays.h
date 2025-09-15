@@ -180,7 +180,12 @@ public:
 	virtual int getElement(int ref, int index) const = 0;
 	virtual bool setElement(int ref, int index, int value) = 0;
 
-	void setDefaultValue(int defaultValue) { m_defaultValue = defaultValue; }
+	// Note: Do not use for new arrays.
+	void compatSetDefaultValue(int defaultValue) { m_defaultValue = defaultValue; }
+	int getDefaultValue() const
+	{
+		return get_qr(qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE) ? m_defaultValue : 0;
+	}
 
 	void setMul10000(bool v) { m_mul10000 = v; }
 
@@ -196,8 +201,10 @@ public:
 
 	void setValueTransform(std::function<std::optional<int>(int)> valueTransform) { m_valueTransform = std::move(valueTransform); }
 
-protected:
+private:
 	int m_defaultValue;
+
+protected:
 	bool m_mul10000 = true;
 	bool m_readOnly;
 	bool m_boundGetterIndex;
@@ -309,7 +316,7 @@ public:
 		if (auto resolved_index = resolveIndex(index, m_size, m_boundGetterIndex))
 			return m_data[*resolved_index] * (m_mul10000 ? 10000 : 1);
 
-		return m_defaultValue;
+		return getDefaultValue();
 	}
 
 	bool setElement(int, int index, int value) override
@@ -428,7 +435,7 @@ public:
 		if (auto resolved_index = resolveIndexOneIndexed(index, sz, m_boundGetterIndex))
 			return m_getFunc(ref, *resolved_index) * (m_mul10000 ? 10000 : 1);
 
-		return m_defaultValue;
+		return getDefaultValue();
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -472,7 +479,7 @@ public:
 		if (auto resolved_index = resolveIndex(index, N::value, m_boundGetterIndex))
 			return (obj->*T_MemberPtr)[*resolved_index] * (m_mul10000 ? 10000 : 1);
 
-		return m_defaultValue;
+		return getDefaultValue();
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -525,7 +532,7 @@ public:
 		if (auto resolved_index = resolveIndex(index, N::value, m_boundGetterIndex))
 			return (obj->*T_MemberPtr.*T_SubMemberPtr)[*resolved_index] * (m_mul10000 ? 10000 : 1);
 
-		return m_defaultValue;
+		return getDefaultValue();
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -600,7 +607,7 @@ public:
 	{
 		auto* obj = resolveScriptingObject<T_Object>(ref);
 		if (!obj)
-			return m_defaultValue;
+			return getDefaultValue();
 
 		if (!m_skipIndexCheck)
 		{
@@ -667,7 +674,7 @@ public:
 		if (auto resolved_index = resolveIndex(index, N, m_boundGetterIndex))
 			return ((obj->*T_MemberPtr >> *resolved_index) & 1 ? 1 : 0) * (m_mul10000 ? 10000 : 1);
 
-		return m_defaultValue;
+		return getDefaultValue();
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -717,7 +724,7 @@ public:
 		if (auto resolved_index = resolveIndex(index, N, m_boundGetterIndex))
 			return ((obj->*T_MemberPtr.*T_SubMemberPtr >> *resolved_index) & 1 ? 1 : 0) * (m_mul10000 ? 10000 : 1);
 
-		return m_defaultValue;
+		return getDefaultValue();
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -767,7 +774,7 @@ public:
 		if (auto resolved_index = resolveIndex(index, N, m_boundGetterIndex))
 			return ((obj->*T_MemberPtr).get(*resolved_index) ? 1 : 0) * (m_mul10000 ? 10000 : 1);
 
-		return m_defaultValue;
+		return getDefaultValue();
 	}
 
 	bool setElement(int ref, int index, int value) override
@@ -817,14 +824,14 @@ public:
 	int getElement(int ref, int index) const override
 	{
 		auto* obj = resolveScriptingObject<T_Object>(ref);
-		if (!obj) return m_defaultValue;
+		if (!obj) return getDefaultValue();
 
 		const auto& container = obj->*T_MemberPtr;
 
 		if (auto resolved_index = resolveIndex(index, container.size(), m_boundGetterIndex))
 			return container[*resolved_index] * (m_mul10000 ? 10000 : 1);
 
-		return m_defaultValue;
+		return getDefaultValue();
 	}
 
 	bool setElement(int ref, int index, int value) override

@@ -20,7 +20,6 @@ static ArrayRegistrar SUBPGWIDGETS_registrar(SUBPGWIDGETS, []{
 		},
 		[](int, int index, int value){ return false; }
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	impl.readOnly();
 	return &impl;

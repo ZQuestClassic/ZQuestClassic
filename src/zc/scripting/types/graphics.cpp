@@ -12,7 +12,6 @@ static ArrayRegistrar IS8BITTILE_registrar(IS8BITTILE, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.readOnly();
 	return &impl;
@@ -28,7 +27,6 @@ static ArrayRegistrar ISBLANKTILE_registrar(ISBLANKTILE, []{
 			return false;
 		}
 	);
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	impl.readOnly();
 	return &impl;

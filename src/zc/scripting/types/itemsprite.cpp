@@ -1187,21 +1187,18 @@ std::optional<int32_t> itemsprite_run_command(word command)
 
 static ArrayRegistrar ITEMMISCD_registrar(ITEMMISCD, []{
 	static ScriptingArray_ObjectMemberCArray<item, &item::miscellaneous> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());
 
 static ArrayRegistrar ITEMMOVEFLAGS_registrar(ITEMMOVEFLAGS, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<item, &item::moveflags, 11> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar ITEMSPRITEINITD_registrar(ITEMSPRITEINITD, []{
 	static ScriptingArray_ObjectMemberCArray<item, &item::initD> impl;
-	impl.setDefaultValue(0);
 	impl.setMul10000(false);
 	return &impl;
 }());

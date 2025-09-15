@@ -3567,7 +3567,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 
 	if (compatrule_version < 91)
+	{
 		set_qr(qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX, 1);
+		set_qr(qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE, 1);
+	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
