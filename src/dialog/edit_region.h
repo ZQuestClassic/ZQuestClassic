@@ -24,7 +24,7 @@ void call_edit_map_settings(int32_t slot);
 class EditMapSettingsDialog : public GUI::Dialog<EditMapSettingsDialog>
 {
 public:
-	enum class message { OK, CANCEL, QRS, REFR_INFO };
+	enum class message { REFR_INFO, OK, CANCEL, QRS };
 
 	EditMapSettingsDialog(int32_t slot);
 
