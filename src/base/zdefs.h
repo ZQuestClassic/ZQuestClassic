@@ -1559,8 +1559,8 @@ struct guydata
 // For discussion: https://discord.com/channels/876899628556091432/1120883971950125147/1319734005871939615
 enum class DrawOrigin
 {
-	// Equal to `Region`, unless in a scrolling region (or scrolling to/from one), in which
-	// case this is equal to `PlayingField`.
+	// When in a scrolling region (or scrolling to/from one), this is equal to `Region`.
+	// Otherwise, this is equal to `PlayingField`.
 	Default,
 	// The origin `(0, 0)` is the top-left pixel of the playing field (where screen combos are drawn).
 	// Normally, this is just below the passive subscreen. But in extended height mode,
