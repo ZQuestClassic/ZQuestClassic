@@ -29217,6 +29217,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		int scroll_width = std::min(viewport.w, new_viewport.w);
 		scroll_amount = scrolldir == up || scrolldir == down ? scroll_height : scroll_width;
 		scroll_counter = scroll_amount / step;
+		if (scroll_amount % step != 0)
+			scroll_counter++;
 
 		dx = 0;
 		dy = 0;
@@ -29920,7 +29922,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			move_counter++;
 			{
 				viewport.x = initial_viewport.x + step * move_counter * dx;
-				viewport.y = initial_viewport.y + step * move_counter * dy + playing_field_offset - old_original_playing_field_offset;
+				viewport.y = initial_viewport.y + std::min(step * move_counter, scroll_amount) * dy + playing_field_offset - old_original_playing_field_offset;
 			}
 
 			// This is the only thing that moves the hero.
