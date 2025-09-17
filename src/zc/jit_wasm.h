@@ -8,7 +8,6 @@
 struct JittedScript
 {
 	int module_id;
-	std::map<pc_t, uint32_t> pc_to_block_id;
 };
 
 struct JittedScriptInstance
@@ -16,7 +15,7 @@ struct JittedScriptInstance
 	JittedScript* j_script;
 	script_data* script;
 	refInfo* ri;
-	uint32_t handle_id;
+	int handle_id;
 	pc_t call_stack_rets[MAX_CALL_FRAMES];
 	pc_t call_stack_ret_index;
 	// nth WaitX instruction last execution stopped at. If 0, then the script has not run yet.

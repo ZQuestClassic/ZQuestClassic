@@ -1413,7 +1413,7 @@ bool& FFScript::waitdraw(ScriptType type, int index)
 	return get_script_engine_data(type, index).waitdraw;
 }
 
-static bool set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, int index)
+static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, int index)
 {
 	bool got_initialized = false;
 
@@ -1719,8 +1719,6 @@ static bool set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 	
 	if (got_initialized)
 		ri->pc = curscript->pc;
-
-	return got_initialized;
 }
 
 static ffcdata *ResolveFFCWithID(ffc_id_t id)
@@ -24856,7 +24854,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	}
 
 	auto& data = get_script_engine_data(type, i);
-	bool got_initialized = set_current_script_engine_data(data, type, script, i);
+	set_current_script_engine_data(data, type, script, i);
 
 	// Because qst.cpp likes to write script_data without setting this.
 	curscript->meta.script_type = type;
@@ -24875,7 +24873,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	{
 		auto& data = get_script_engine_data(type, i);
 		if (!data.j_instance)
-			data.j_instance = std::shared_ptr<JittedScriptInstance>(jit_create_script_instance(curscript, ri, got_initialized));
+			data.j_instance = std::shared_ptr<JittedScriptInstance>(jit_create_script_instance(curscript, ri));
 		j_instance = data.j_instance.get();
 	}
 

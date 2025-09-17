@@ -162,7 +162,7 @@ bool jit_should_precompile()
 	return jit_precompile;
 }
 
-JittedScriptInstance* jit_create_script_instance(script_data* script, refInfo* ri, bool just_initialized)
+JittedScriptInstance* jit_create_script_instance(script_data* script, refInfo* ri)
 {
 	// Not started yet by zasm_pipeline.cpp
 	if (!compiled_scripts_mutex)
@@ -170,7 +170,7 @@ JittedScriptInstance* jit_create_script_instance(script_data* script, refInfo* r
 
 	auto j_script = find_jitted_script(script->zasm_script.get());
 	if (j_script)
-		return jit_create_script_impl(script, ri, j_script, just_initialized);
+		return jit_create_script_impl(script, ri, j_script);
 
 	// Not ready yet (or the script could not be compiled).
 	return nullptr;

@@ -77,8 +77,6 @@ struct CompilationState
 	uint8_t g_idx_sp;
 	uint8_t g_idx_target_block_id;
 	uint32_t g_idx_start_pc;
-
-	std::map<pc_t, uint32_t> pc_to_block_id;
 };
 
 #ifdef __EMSCRIPTEN__
@@ -720,8 +718,6 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 			{
 				ASSERT(may_yield);
 
-				state.pc_to_block_id[i] = current_block_index + 1;
-
 				// j_instance->wait_index = current_block_index + 1
 				{
 					wasm.emitGlobalGet(g_idx_wait_index);
@@ -791,8 +787,6 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 							modify_global_idx(wasm, g_idx_ret_stack_index, -1);
 							continue;
 						}
-
-						state.pc_to_block_id[i] = current_block_index + 1;
 
 						// The function call is to some other may-yield function which is inlined in the yielder function.
 						// Before we "call" it, we need to remember where to return to. To do that, we push the index of the
@@ -1539,68 +1533,11 @@ JittedScript* jit_compile_script(zasm_script* script)
 	}
 
 	auto fn = new JittedScript(module_id);
-	fn->pc_to_block_id = std::move(state.pc_to_block_id);
-
 	return fn;
 }
 
-JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, JittedScript* j_script, bool just_initialized)
+JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, JittedScript* j_script)
 {
-	// Since we currently can't compile WASM scripts on background threads, there's never a need to
-	// upgrade an existing script. Instead, when jit is enabled on the web, we precompile all
-	// scripts when the quest first loads.
-	if (!just_initialized)
-	{
-		// Should never actually happen.
-		CHECK(false);
-		return nullptr;
-	}
-
-	JittedScriptInstance* j_instance = new JittedScriptInstance{};
-
-	j_instance->j_script = j_script;
-	j_instance->script = script;
-	j_instance->ri = ri;
-
-	// TODO: this probably works, but not tested (see above).
-	if (!just_initialized)
-	{
-		if (auto r = util::find(j_script->pc_to_block_id, ri->pc - 1))
-		{
-			j_instance->wait_index = *r;
-		}
-		else
-		{
-			al_trace("[jit] bail on upgrade, ri->pc = %d\n", ri->pc);
-			delete j_instance;
-			if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL) abort();
-			DCHECK(false);
-			return nullptr;
-		}
-
-		extern int32_t(*ret_stack)[MAX_CALL_FRAMES];
-		j_instance->call_stack_ret_index = ri->retsp;
-		for (int i = 0; i < ri->retsp; i++)
-		{
-			pc_t pc = (*ret_stack)[i];
-			if (auto r = util::find(j_script->pc_to_block_id, pc - 1))
-			{
-				j_instance->call_stack_rets[i] = *r;
-			}
-			else
-			{
-				al_trace("[jit] bail on upgrade, bad call stack return pc = %d\n", pc);
-				delete j_instance;
-				if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL) abort();
-				DCHECK(false);
-				return nullptr;
-			}
-		}
-
-		jit_printf("[jit] running script upgraded to jit: %s\n", script->name().c_str());
-		ri->retsp = 0;
-	}
-
 	int handle_id = em_create_wasm_handle(j_script->module_id);
 	if (!handle_id)
 	{
@@ -1608,9 +1545,12 @@ JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, J
 		return nullptr;
 	}
 
-	j_instance->handle_id = handle_id;
-
-	return j_instance;
+	return new JittedScriptInstance{
+		.j_script = j_script,
+		.script = script,
+		.ri = ri,
+		.handle_id = handle_id,
+	};
 }
 
 void jit_profiler_increment_function_back_edge(JittedScriptInstance* j_instance, pc_t pc)

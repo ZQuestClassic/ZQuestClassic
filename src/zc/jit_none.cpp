@@ -10,7 +10,7 @@ int jit_run_script(JittedScriptInstance* j_instance)
 	return RUNSCRIPT_ERROR;
 }
 
-JittedScriptInstance* jit_create_script_impl(script_data *script, refInfo* ri, JittedScript* j_script, bool just_initialized)
+JittedScriptInstance* jit_create_script_impl(script_data *script, refInfo* ri, JittedScript* j_script)
 {
 	return nullptr;
 }

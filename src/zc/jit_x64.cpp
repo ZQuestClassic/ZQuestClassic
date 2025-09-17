@@ -2091,7 +2091,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 	return j_script;
 }
 
-JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, JittedScript* j_script, bool just_initialized)
+JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, JittedScript* j_script)
 {
 	return new JittedScriptInstance{
 		.j_script = j_script,
