@@ -118,7 +118,7 @@ jobs:
         run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-tag }} --for-nightly=${{ github.event.inputs.full_release != 'true' }} > new_changelog.md
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
         with:
           name: ${{ needs.create-tag.outputs.release-name }}
           tag_name: ${{ needs.create-tag.outputs.release-tag }}
