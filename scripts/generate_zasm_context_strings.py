@@ -466,5 +466,6 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 '''
 
 out_path = root_dir / 'src/zc/scripting/context_strings.cpp'
-out_path.write_text(cpp_file)
-print(f'written to {out_path}')
+if not out_path.exists() or out_path.read_text('utf-8') != cpp_file:
+    out_path.write_text(cpp_file)
+    print(f'written to {out_path}')

@@ -923,18 +923,17 @@ endif()
 if(NOT EMSCRIPTEN AND NOT (DEFINED ENV{CI} AND CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
 	file(GLOB_RECURSE zscript_binding_files "resources/include/bindings/*.zh")
 	list(REMOVE_ITEM zscript_binding_files "${CMAKE_CURRENT_SOURCE_DIR}/resources/include/bindings/qrs.zh")
-	set(gen_zscript_context_strings scripts/generate_zasm_context_strings.py zscript ${zscript_binding_files})
 	add_custom_command(
 		COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_zasm_context_strings.py --build_folder "${BUILD_FOLDER}"
 		OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp
-		DEPENDS ${gen_zscript_context_strings}
+		DEPENDS scripts/generate_zasm_context_strings.py ${zscript_binding_files}
 	)
-	add_custom_target(gen_zscript_context_strings DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp)
+	add_custom_target(gen_zscript_context_strings DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp zscript)
 	add_dependencies(zplayer gen_zscript_context_strings)
 endif()
 
 # qr generation
-set(gen_zscript_qr_enum scripts/generate_qr_constants.py zeditor)
+set(gen_zscript_qr_enum scripts/generate_qr_constants.py)
 add_custom_command(
 	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_qr_constants.py --build_folder "${BUILD_FOLDER}"
 	OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/resources/include/bindings/qrs.zh
@@ -1140,13 +1139,26 @@ endif()
 
 # See docs/versioning.md
 set(gen_version_header_deps scripts/generate_version_header.py)
-if(EXISTS ".git/refs/tags")
-   list(APPEND gen_version_header_deps .git/refs/tags)
+find_program(GIT_EXECUTABLE NAMES git)
+if(GIT_EXECUTABLE)
+	execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --git-dir
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_DIR
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+	list(APPEND gen_version_header_deps
+		${CMAKE_CURRENT_SOURCE_DIR}/${GIT_DIR}/HEAD
+		${CMAKE_CURRENT_SOURCE_DIR}/${GIT_DIR}/refs/tags
+        ${CMAKE_CURRENT_SOURCE_DIR}/${GIT_DIR}/index
+	)
 endif()
 add_custom_command(
 	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_version_header.py --version "${ZC_VERSION}"
 	OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/base/version_header.h
 	DEPENDS ${gen_version_header_deps}
+	COMMENT "Generating src/base/version_header.h ..."
 )
 add_custom_target(generate_version_header DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/base/version_header.h)
 add_dependencies(zcbase generate_version_header)
@@ -1281,9 +1293,8 @@ function (create_replay_tests_target target_name)
 		USES_TERMINAL
 		COMMAND ${PYTHON} -Xutf8 ${CMAKE_CURRENT_SOURCE_DIR}/tests/run_replay_tests.py --no-emoji --build_folder "${BUILD_FOLDER}" ${command_args}
 		OUTPUT ${target_name}.stamp
-		DEPENDS zelda
 	)
-	add_custom_target(${target_name} DEPENDS ${target_name}.stamp)
+	add_custom_target(${target_name} DEPENDS ${target_name}.stamp zplayer)
 	set_source_files_properties(${target_name}.stamp PROPERTIES SYMBOLIC 1)
 endfunction()
 

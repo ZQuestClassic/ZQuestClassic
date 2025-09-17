@@ -34,4 +34,6 @@ code = '\n'.join(
         '',
     ]
 )
-header_path.write_text(code)
+
+if not header_path.exists() or header_path.read_text('utf-8') != code:
+    header_path.write_text(code)
