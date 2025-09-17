@@ -923,7 +923,10 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	//section version info
 	if(!p_igetw(&section_version,f))
 		return qe_invalid;
-	
+
+	if (section_version > V_ZINFO)
+			return qe_version;
+
 	if(!read_deprecated_section_cversion(f))
 		return qe_invalid;
 	

@@ -204,7 +204,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build);
 int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets);
 int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init);
-int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes);
+int32_t readmidis(PACKFILE *f, zquestheader *Header, zctune *tunes);
 int32_t readcheatcodes(PACKFILE *f, zquestheader *Header);
 int32_t readinitdata(PACKFILE *f, zquestheader *Header);
 int32_t readffscript(PACKFILE *f, zquestheader *Header);

@@ -8,6 +8,7 @@
 #include "base/general.h"
 #include "base/version.h"
 #include "base/zapp.h"
+#include "base/zdefs.h"
 #include "dialog/info.h"
 #include "metadata/metadata.h"
 
@@ -6209,6 +6210,9 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
         pack_fclose(f);
         return false;
     }
+
+	if (s_version > V_SUBSCREEN)
+		return qe_version;
     
     if(!read_deprecated_section_cversion(f))
     {
