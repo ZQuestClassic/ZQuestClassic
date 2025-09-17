@@ -2712,27 +2712,6 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 		if(!r)
 			return qe_silenterr;
 	}
-	else if(tempheader.compareDate() > 0)
-	{
-		bool r = true;
-		if(loadquest_report)
-		{
-			enter_sys_pal();
-			AlertDialog("Quest saved in newer build",
-				fmt::format("This quest was last saved in a newer build of ZQuest, and may have"
-					" issues loading in this build."
-					"\n{}"
-					"\n\nWould you like to continue loading anyway?",
-					tempheader.getVerCmpStr()),
-				[&](bool ret,bool)
-				{
-					r = ret;
-				}).show();
-			exit_sys_pal();
-		}
-		if(!r)
-			return qe_silenterr;
-	}
 	//}
 	
 	read_ext_zinfo = tempheader.external_zinfo;
