@@ -183,6 +183,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 	{
 		return 2;
 	}
+
+	if (section_version > V_SAVEGAME)
+		return qe_version;
 	
 	if(!p_igetw(&section_cversion,f))
 	{
