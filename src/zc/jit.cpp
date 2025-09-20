@@ -186,6 +186,8 @@ void jit_startup(bool precompile)
 	if (!is_enabled)
 		return;
 
+	zasm_init_meta_cache();
+
 	jit_log_enabled = is_feature_enabled("-jit-log", "ZSCRIPT", "jit_log", false) || is_ci();
 	jit_precompile = precompile;
 

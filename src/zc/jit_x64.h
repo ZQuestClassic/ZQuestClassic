@@ -38,6 +38,8 @@ struct JittedScript
 {
 	StructuredZasm structured_zasm;
 	ZasmCFG cfg;
+	ZasmLiveness liveness;
+	std::vector<std::vector<pc_t>> block_predecessors;
 	std::vector<pc_t> function_start_pcs;
 	std::vector<JittedFunction> compiled_functions;
 	std::deque<JittedFunction> pending_compiled_jit_functions;

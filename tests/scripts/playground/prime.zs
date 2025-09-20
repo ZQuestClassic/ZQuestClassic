@@ -20,6 +20,8 @@ ffc script Prime
 
     bool is_prime(int x)
     {
+        // TODO: it'd be great if the compiler detected loop invariants, and pulled "x/2" outside of
+        // the loop.
         for (int i = 2; i <= x/2; i++)
         {
             if (x % i == 0)

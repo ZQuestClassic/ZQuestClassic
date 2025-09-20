@@ -1,7 +1,10 @@
 #include "zc/jit_x64.h"
+#include "asmjit/x86/x86operand.h"
 #include "base/general.h"
 #include "base/qrs.h"
+#include "base/util.h"
 #include "base/zdefs.h"
+#include "zasm/table.h"
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
@@ -25,8 +28,23 @@ static int EXEC_RESULT_CALL = 2;
 static int EXEC_RESULT_RETURN = 3;
 static int EXEC_RESULT_EXIT = 4;
 
+struct CachedRegister
+{
+	x86::Gp reg;
+	bool dirty;
+};
+
+struct CachedStackValue
+{
+	x86::Gp reg;
+	bool is_constant = false;
+	int value = -1;
+	int amount = 1;
+};
+
 struct CompilationState
 {
+	zasm_script* script;
 	JittedScript* j_script;
 	pc_t start_pc;
 	pc_t final_pc;
@@ -35,6 +53,9 @@ struct CompilationState
 	x86::Gp vResult;
 	x86::Gp vSp;
 	x86::Gp vSwitchKey;
+	bool use_cached_regs;
+	std::map<int, CachedRegister> cached_d_regs;
+	std::vector<CachedStackValue> cached_d_reg_stack;
 	x86::Gp ptrCtx;
 	x86::Gp ptrRegisters;
 	x86::Gp ptrStackBase;
@@ -44,9 +65,37 @@ struct CompilationState
 	// When to end the "lookahead" for stack pointer bounds checking (and start checking again).
 	pc_t num_push_commands_in_row_end_pc;
 	bool modified_stack;
+	bool runtime_debugging;
 };
 
 extern ScriptDebugHandle* runtime_script_debug_handle;
+
+// Very useful tool for identifying a single bad function compilation.
+// Use with a tool like `find-first-fail`: https://gitlab.com/ole.tange/tangetools/-/blob/master/find-first-fail/find-first-fail
+// 1. Enable ENABLE_BISECT_TOOL below.
+// 2. Make a new script `tmp.sh` calling a failing replay (change to use the failing replay, but don't change --extra_args):
+//        python tests/run_replay_tests.py --filter stellar --frame 40000 --not_interactive --extra_args="-replay-fail-assert-instant -jit-precompile -jit-threads 0 -test-jit-bisect $1"
+// 3. Run the bisect script (may need to increase the end range if script is large, as it is based on number of functions):
+//        bash ~/tools/find-first-fail.sh -s 0 -e 10000 -v -q bash tmp.sh
+// 4. For the number given, set `-test-jit-bisect` to that, and set a breakpoint
+//    where specified in bisect_tool_should_skip. Whatever function being processed is the one to focus on.
+// #define ENABLE_BISECT_TOOL
+static bool bisect_tool_should_skip()
+{
+#ifdef ENABLE_BISECT_TOOL
+	static int64_t c = 0;
+	static int64_t x = get_flag_int("-test-jit-bisect").value();
+	// Skip the first x calls.
+	bool skip = 0 <= c && c < x;
+	c++;
+	if (!skip)
+		// Set a breakpoint here.
+		x = x;
+	return skip;
+#else
+	return false;
+#endif
+}
 
 static void debug_pre_command(int32_t pc, uint32_t sp)
 {
@@ -66,142 +115,6 @@ public:
 		al_trace("[jit ERROR] AsmJit error: %s\n", message);
 	}
 };
-
-static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
-{
-	x86::Gp val = cc.newInt32();
-	if (r >= D(0) && r < D(INITIAL_D))
-	{
-		cc.mov(val, x86::ptr_32(state.ptrRegisters, r * 4));
-	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
-	{
-		x86::Gp address = cc.newIntPtr();
-		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
-		cc.mov(val, x86::ptr_32(address, (r - GD(0)) * 4));
-	}
-	else if (r == SP)
-	{
-		cc.mov(val, state.vSp);
-		cc.imul(val, 10000);
-	}
-	else if (r == SP2)
-	{
-		cc.mov(val, state.vSp);
-	}
-	else if (r == SWITCHKEY)
-	{
-		cc.mov(val, state.vSwitchKey);
-	}
-	else
-	{
-		// Call external get_register.
-		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(state.calling_convention));
-		invokeNode->setArg(0, r);
-		invokeNode->setRet(0, val);
-	}
-	return val;
-}
-
-static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int r)
-{
-	x86::Gp val = cc.newInt64();
-	if (r >= D(0) && r < D(INITIAL_D))
-	{
-		cc.movsxd(val, x86::ptr_32(state.ptrRegisters, r * 4));
-	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
-	{
-		x86::Gp address = cc.newIntPtr();
-		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
-		cc.movsxd(val, x86::ptr_32(address, (r - GD(0)) * 4));
-	}
-	else if (r == SP)
-	{
-		cc.movsxd(val, state.vSp);
-		cc.imul(val, 10000);
-	}
-	else if (r == SP2)
-	{
-		cc.movsxd(val, state.vSp);
-	}
-	else if (r == SWITCHKEY)
-	{
-		cc.movsxd(val, state.vSwitchKey);
-	}
-	else
-	{
-		// Call external get_register.
-		x86::Gp val32 = cc.newInt32();
-		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(state.calling_convention));
-		invokeNode->setArg(0, r);
-		invokeNode->setRet(0, val32);
-		cc.movsxd(val, val32);
-	}
-	return val;
-}
-
-template <typename T>
-static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T val)
-{
-	if (r >= D(0) && r < D(INITIAL_D))
-	{
-		cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), val);
-	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
-	{
-		x86::Gp address = cc.newIntPtr();
-		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
-		cc.mov(x86::ptr_32(address, (r - GD(0)) * 4), val);
-	}
-	else if (r == SP || r == SP2)
-	{
-		// TODO
-		Z_error_fatal("Unimplemented: set SP");
-	}
-	else if (r == SWITCHKEY)
-	{
-		state.vSwitchKey = cc.newInt32();
-		cc.mov(state.vSwitchKey, val);
-	}
-	else
-	{
-		// Only some registers have an extra check when writing to them.
-		auto set_fn = set_register;
-		if (is_guarded_script_register(r))
-			set_fn = do_set;
-
-		// Call external set_register.
-		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, set_fn, FuncSignatureT<void, int32_t, int32_t>(state.calling_convention));
-		invokeNode->setArg(0, r);
-		invokeNode->setArg(1, val);
-	}
-}
-
-static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, x86::Mem mem)
-{
-	x86::Gp val = cc.newInt32();
-	cc.mov(val, mem);
-	set_z_register(state, cc, r, val);
-}
-
-static void restore_regs(CompilationState& state, x86::Compiler& cc)
-{
-	cc.mov(x86::rbx, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 24));
-	cc.mov(x86::r15, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 16));
-	cc.mov(x86::r14, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 8));
-	cc.mov(x86::r13, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 0));
-}
-
-static x86::Gp get_ctx_script_instance(CompilationState& state, x86::Compiler& cc)
-{
-	x86::Gp ptr = cc.newIntPtr();
-	cc.mov(ptr, x86::ptr_32(state.ptrCtx, offsetof(JittedExecutionContext, j_instance)));
-	return ptr;
-}
 
 template <typename T>
 static void set_ctx_pc(CompilationState& state, x86::Compiler& cc, T pc)
@@ -224,6 +137,14 @@ template <typename T>
 static void set_ctx_ret_code(CompilationState& state, x86::Compiler& cc, T ret_code)
 {
 	cc.mov(x86::ptr_32(state.ptrCtx, offsetof(JittedExecutionContext, ret_code)), ret_code);
+}
+
+static void restore_regs(CompilationState& state, x86::Compiler& cc)
+{
+	cc.mov(x86::rbx, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 24));
+	cc.mov(x86::r15, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 16));
+	cc.mov(x86::r14, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 8));
+	cc.mov(x86::r13, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, saved_regs) + 0));
 }
 
 static void modify_sp(CompilationState& state, x86::Compiler& cc, x86::Gp vStackIndex, int delta)
@@ -259,6 +180,318 @@ static void check_sp(CompilationState& state, x86::Compiler& cc, x86::Gp vStackI
 	restore_regs(state, cc);
 	cc.ret(state.vResult);
 	cc.bind(label);
+}
+
+static void do_stack_push_many(CompilationState& state, x86::Compiler& cc, int offset, int amount, x86::Gp val)
+{
+	// Push onto stack [amount] times.
+	if (amount < 8)
+	{
+		// For small [amount], it's likely faster to emit a bunch of movs.
+		for (int i = 0; i < amount; i++)
+			cc.mov(x86::ptr_32(state.ptrStackBase, state.vSp, 2, (offset - i) * 4), val);
+	}
+	else
+	{
+		// Otherwise, rep stos is probably faster.
+		// See: https://reviews.llvm.org/D32002
+		x86::Gp num = cc.newInt32();
+		cc.mov(num, amount);
+		int start_offset_bytes = (offset - amount + 1) * 4;
+		x86::Gp address = cc.newIntPtr();
+		cc.lea(address, x86::ptr_32(state.ptrStackBase, state.vSp, 2, start_offset_bytes));
+		cc.rep(num).stos(x86::ptr_32(address), val);
+	}
+}
+
+static void flush_stack_cache(CompilationState& state, x86::Compiler& cc)
+{
+	if (!state.cached_d_reg_stack.empty())
+	{
+		if (DEBUG_JIT_PRINT_ASM)
+			cc.setInlineComment("flush cached stack");
+
+		int stack_change = 0;
+		for (auto& [reg, is_constant, value, amount] : state.cached_d_reg_stack)
+		{
+			stack_change += amount;
+		}
+
+		check_sp(state, cc, state.vSp, -stack_change);
+		modify_sp(state, cc, state.vSp, -stack_change);
+
+		int i = stack_change - 1;
+		for (auto& [reg, is_constant, value, amount] : state.cached_d_reg_stack)
+		{
+			if (is_constant)
+			{
+				if (amount < 8)
+				{
+					for (int j = 0; j < amount; j++)
+						cc.mov(x86::ptr_32(state.ptrStackBase, state.vSp, 2, (i - j) * 4), value);
+				}
+				else
+				{
+					x86::Gp reg = cc.newInt32();
+					cc.mov(reg, value);
+					do_stack_push_many(state, cc, i, amount, reg);
+				}
+			}
+			else
+			{
+				do_stack_push_many(state, cc, i, amount, reg);
+			}
+
+			i -= amount;
+		}
+		state.cached_d_reg_stack.clear();
+	}
+}
+
+static void flush_cache(CompilationState& state, x86::Compiler& cc, uint8_t register_mask = -1)
+{
+	if (!state.cached_d_regs.empty())
+	{
+		if (DEBUG_JIT_PRINT_ASM)
+			cc.setInlineComment("flush cached registers");
+
+		for (auto& [r, cached_reg] : state.cached_d_regs)
+		{
+			if (cached_reg.dirty && (register_mask & (1 << r)))
+				cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), cached_reg.reg);
+		}
+		state.cached_d_regs.clear();
+	}
+
+	flush_stack_cache(state, cc);
+}
+
+static void write_some_cached_registers(CompilationState& state, x86::Compiler& cc, uint8_t register_mask)
+{
+	if (state.cached_d_regs.empty())
+		return;
+
+	if (DEBUG_JIT_PRINT_ASM)
+		cc.setInlineComment("write cached registers");
+
+	for (auto& [r, cached_reg] : state.cached_d_regs)
+	{
+		if (cached_reg.dirty && (register_mask & (1 << r)))
+			cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), cached_reg.reg);
+	}
+}
+
+static void flush_cache_for_dependent_registers(CompilationState& state, x86::Compiler& cc, int r)
+{
+	if (state.cached_d_regs.empty())
+		return;
+
+	auto dep_regs = get_register_dependencies(r);
+	if (dep_regs.empty())
+		return;
+
+	std::erase_if(state.cached_d_regs, [&](const auto& pair){
+		if (util::contains(dep_regs, pair.first))
+		{
+			if (pair.second.dirty)
+				cc.mov(x86::ptr_32(state.ptrRegisters, pair.first * 4), pair.second.reg);
+			return true;
+		}
+
+		return false;
+	});
+}
+
+static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
+{
+	if (state.use_cached_regs && r >= D(0) && r < D(INITIAL_D))
+	{
+		if (!state.cached_d_regs.contains(r))
+		{
+			x86::Gp val = cc.newInt32();
+			cc.mov(val, x86::ptr_32(state.ptrRegisters, r * 4));
+			state.cached_d_regs[r] = {.reg=val};
+			return val;
+		}
+
+		return state.cached_d_regs[r].reg;
+	}
+
+	x86::Gp val = cc.newInt32();
+	if (r >= D(0) && r < D(INITIAL_D))
+	{
+		cc.mov(val, x86::ptr_32(state.ptrRegisters, r * 4));
+	}
+	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	{
+		x86::Gp address = cc.newIntPtr();
+		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
+		cc.mov(val, x86::ptr_32(address, (r - GD(0)) * 4));
+	}
+	else if (r == SP)
+	{
+		flush_stack_cache(state, cc);
+		cc.mov(val, state.vSp);
+		cc.imul(val, 10000);
+	}
+	else if (r == SP2)
+	{
+		flush_stack_cache(state, cc);
+		cc.mov(val, state.vSp);
+	}
+	else if (r == SWITCHKEY)
+	{
+		cc.mov(val, state.vSwitchKey);
+	}
+	else
+	{
+		flush_cache_for_dependent_registers(state, cc, r);
+
+		// Call external get_register.
+		InvokeNode *invokeNode;
+		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setRet(0, val);
+	}
+	return val;
+}
+
+static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int r)
+{
+	x86::Gp val = cc.newInt64();
+	if (r >= D(0) && r < D(INITIAL_D))
+	{
+		if (state.use_cached_regs)
+		{
+			x86::Gp val32;
+			if (!state.cached_d_regs.contains(r))
+			{
+				x86::Gp val32 = cc.newInt32();
+				cc.mov(val32, x86::ptr_32(state.ptrRegisters, r * 4));
+				state.cached_d_regs[r] = {.reg=val32};
+			}
+
+			val32 = state.cached_d_regs[r].reg;
+			cc.movsxd(val, val32);
+		}
+		else
+		{
+			cc.movsxd(val, x86::ptr_32(state.ptrRegisters, r * 4));
+		}
+	}
+	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	{
+		x86::Gp address = cc.newIntPtr();
+		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
+		cc.movsxd(val, x86::ptr_32(address, (r - GD(0)) * 4));
+	}
+	else if (r == SP)
+	{
+		cc.movsxd(val, state.vSp);
+		cc.imul(val, 10000);
+	}
+	else if (r == SP2)
+	{
+		cc.movsxd(val, state.vSp);
+	}
+	else if (r == SWITCHKEY)
+	{
+		cc.movsxd(val, state.vSwitchKey);
+	}
+	else
+	{
+		flush_cache_for_dependent_registers(state, cc, r);
+
+		// Call external get_register.
+		x86::Gp val32 = cc.newInt32();
+		InvokeNode *invokeNode;
+		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setRet(0, val32);
+		cc.movsxd(val, val32);
+	}
+	return val;
+}
+
+template <typename T>
+static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T val)
+{
+	if (r >= D(0) && r < D(INITIAL_D))
+	{
+		if (state.use_cached_regs)
+		{
+			for (auto& [reg, is_constant, value, amount] : state.cached_d_reg_stack)
+			{
+				if (!is_constant && value == r)
+				{
+					state.cached_d_regs.erase(r);
+					break;
+				}
+			}
+
+			if (state.cached_d_regs.contains(r))
+			{
+				auto& cached_reg = state.cached_d_regs[r];
+				cc.mov(cached_reg.reg, val);
+				cached_reg.dirty = true;
+			}
+			else
+			{
+				x86::Gp reg = cc.newInt32();
+				state.cached_d_regs[r] = {.reg = reg, .dirty = true};
+				cc.mov(reg, val);
+			}
+		}
+		else
+		{
+			cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), val);
+		}
+	}
+	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	{
+		x86::Gp address = cc.newIntPtr();
+		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
+		cc.mov(x86::ptr_32(address, (r - GD(0)) * 4), val);
+	}
+	else if (r == SP || r == SP2)
+	{
+		// TODO
+		Z_error_fatal("Unimplemented: set SP");
+	}
+	else if (r == SWITCHKEY)
+	{
+		state.vSwitchKey = cc.newInt32();
+		cc.mov(state.vSwitchKey, val);
+	}
+	else
+	{
+		flush_cache_for_dependent_registers(state, cc, r);
+
+		// Only some registers have an extra check when writing to them.
+		auto set_fn = set_register;
+		if (is_guarded_script_register(r))
+			set_fn = do_set;
+
+		// Call external set_register.
+		InvokeNode *invokeNode;
+		cc.invoke(&invokeNode, set_fn, FuncSignatureT<void, int32_t, int32_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, val);
+	}
+}
+
+static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, x86::Mem mem)
+{
+	x86::Gp val = cc.newInt32();
+	cc.mov(val, mem);
+	set_z_register(state, cc, r, val);
+}
+
+static x86::Gp get_ctx_script_instance(CompilationState& state, x86::Compiler& cc)
+{
+	x86::Gp ptr = cc.newIntPtr();
+	cc.mov(ptr, x86::ptr_32(state.ptrCtx, offsetof(JittedExecutionContext, j_instance)));
+	return ptr;
 }
 
 static void div_10000(x86::Compiler& cc, x86::Gp dividend)
@@ -302,6 +535,31 @@ static void div_10000(x86::Compiler& cc, x86::Gp dividend)
 static void zero(x86::Compiler& cc, x86::Gp reg)
 {
 	cc.xor_(reg, reg);
+}
+
+static void add_constant(x86::Compiler& cc, x86::Gp reg, int value)
+{
+	if (value == 0)
+		return;
+
+	// Prefer inc/dec for smaller code size.
+	if (value == 1)
+		cc.inc(reg);
+	else if (value == -1)
+		cc.dec(reg);
+	else
+		cc.add(reg, value);
+}
+
+static x86::Gp immutable_add_constant(x86::Compiler& cc, x86::Gp reg, int value)
+{
+	if (value == 0)
+		return reg;
+
+	x86::Gp r = cc.newInt32();
+	cc.mov(r, reg);
+	add_constant(cc, r, value);
+	return r;
 }
 
 static void cast_bool(x86::Compiler& cc, x86::Gp reg)
@@ -493,10 +751,7 @@ static void compile_compare(CompilationState& state, x86::Compiler& cc, int pc, 
 	{
 		// TODO: needs to check for stack overflow.
 		// Write directly value on the stack (arg1 to offset arg2)
-		x86::Gp offset = cc.newInt32();
-		cc.mov(offset, state.vSp);
-		if (arg2)
-			cc.add(offset, arg2);
+		x86::Gp offset = immutable_add_constant(cc, state.vSp, arg2);
 		auto cmp = arg3 & CMP_FLAGS;
 		switch(cmp) //but only conditionally
 		{
@@ -755,6 +1010,39 @@ static void log_error_mod_0()
 static size_t debug_last_pc;
 #endif
 
+static x86::Gp compile_modv(CompilationState& state, x86::Compiler& cc, x86::Gp arg1, int arg2)
+{
+	if (arg2 == 0)
+	{
+		x86::Gp val = cc.newInt32();
+		zero(cc, val);
+
+		InvokeNode *invokeNode;
+		cc.invoke(&invokeNode, log_error_div_0, FuncSignatureT<void>(state.calling_convention));
+		return val;
+	}
+
+	// https://stackoverflow.com/a/8022107/2788187
+	if (arg2 > 0 && (arg2 & (-arg2)) == arg2)
+	{
+		// Power of 2.
+		// Because numbers in zscript are fixed point, "2" is really "20000"... so this won't
+		// ever really be utilized.
+		cc.and_(arg1, arg2 - 1);
+		return arg1;
+	}
+	else
+	{
+		x86::Gp divisor = cc.newInt32();
+		cc.mov(divisor, arg2);
+		x86::Gp rem = cc.newInt32();
+		zero(cc, rem);
+		cc.cdq(rem, arg1);
+		cc.idiv(rem, arg1, divisor);
+		return rem;
+	}
+}
+
 // Every command here must be reflected in command_is_compiled!
 static void compile_single_command(CompilationState& state, x86::Compiler& cc, const ffscript& instr, pc_t pc, zasm_script *script)
 {
@@ -765,8 +1053,6 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 	switch (command)
 	{
 		case NOP:
-			if (DEBUG_JIT_PRINT_ASM)
-				cc.nop();
 			break;
 		case QUIT:
 		{
@@ -829,15 +1115,17 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			// TODO: needs to check for stack overflow.
 			// Write directly value on the stack (arg1 to offset arg2)
-			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, state.vSp);
-			if (arg2)
-				cc.add(offset, arg2);
-			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), arg1);
+			cc.mov(x86::ptr_32(state.ptrStackBase, state.vSp, 2, arg2 * 4), arg1);
 		}
 		break;
 		case PUSHV:
 		{
+			if (state.use_cached_regs)
+			{
+				state.cached_d_reg_stack.push_back({.is_constant=true, .value=arg1});
+				break;
+			}
+
 			handle_check_sp_push(state, cc, script, pc, state.vSp);
 
 			modify_sp(state, cc, state.vSp, -1);
@@ -846,6 +1134,18 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		break;
 		case PUSHR:
 		{
+			if (state.use_cached_regs)
+			{
+				// Usually don't need to copy the register, but code like `while (i++ < frames)`
+				// will push the value of `i` via D2 first, then modify D2 and store it back. asmjit
+				// should remove the extra register copy when not necessary during register
+				// allocation.
+				x86::Gp copy = cc.newInt32();
+				cc.mov(copy, get_z_register(state, cc, arg1));
+				state.cached_d_reg_stack.push_back({.reg=copy});
+				break;
+			}
+
 			handle_check_sp_push(state, cc, script, pc, state.vSp);
 
 			// Grab value from register and push onto stack.
@@ -856,6 +1156,12 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		break;
 		case PUSHARGSR:
 		{
+			if (state.use_cached_regs)
+			{
+				state.cached_d_reg_stack.push_back({.reg=get_z_register(state, cc, arg1), .value=arg1, .amount=arg2});
+				break;
+			}
+
 			handle_check_sp_push(state, cc, script, pc, state.vSp);
 
 			if(arg2 < 1) break; //do nothing
@@ -884,6 +1190,12 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		break;
 		case PUSHARGSV:
 		{
+			if (state.use_cached_regs)
+			{
+				state.cached_d_reg_stack.push_back({.is_constant=true, .value=arg1, .amount=arg2});
+				break;
+			}
+
 			handle_check_sp_push(state, cc, script, pc, state.vSp);
 
 			if(arg2 < 1) break; //do nothing
@@ -932,21 +1244,15 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case LOAD:
 		{
 			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
-			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
-			if (arg2)
-				cc.add(offset, arg2);
-
-			set_z_register(state, cc, arg1, x86::ptr_32(state.ptrStackBase, offset, 2));
+			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
+			set_z_register(state, cc, arg1, x86::ptr_32(state.ptrStackBase, sframe, 2, arg2 * 4));
 		}
 		break;
 		case LOADD:
 		{
 			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
-			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
-			if (arg2)
-				cc.add(offset, arg2);
+			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
+			x86::Gp offset = immutable_add_constant(cc, sframe, arg2);
 			div_10000(cc, offset);
 
 			set_z_register(state, cc, arg1, x86::ptr_32(state.ptrStackBase, offset, 2));
@@ -963,9 +1269,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		break;
 		case REF_REMOVE:
 		{
-			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, arg1);
-			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
+			x86::Gp offset = immutable_add_constant(cc, sframe, arg1);
 
 			InvokeNode *invokeNode;
 			void script_remove_object_ref(int32_t offset);
@@ -976,20 +1281,16 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case STORE:
 		{
 			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
-			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, arg2);
-			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
-
+			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
 			x86::Gp val = get_z_register(state, cc, arg1);
-			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), val);
+			cc.mov(x86::ptr_32(state.ptrStackBase, sframe, 2, arg2 * 4), val);
 		}
 		break;
 		case STORE_OBJECT:
 		{
 			// Same as STORE, but for a ref-counted object.
-			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, arg2);
-			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
+			x86::Gp offset = immutable_add_constant(cc, sframe, arg2);
 
 			x86::Gp val = get_z_register(state, cc, arg1);
 
@@ -1003,22 +1304,17 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case STOREV:
 		{
 			// Write directly value on the stack (offset is arg2 + rSFRAME register).
-			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
-			if (arg2)
-				cc.add(offset, arg2);
-			
-			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), arg1);
+			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
+			cc.mov(x86::ptr_32(state.ptrStackBase, sframe, 2, arg2 * 4), arg1);
 		}
 		break;
 		case STORED:
 		{
 			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
-			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, arg2);
-			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
+			x86::Gp offset = immutable_add_constant(cc, sframe, arg2);
 			div_10000(cc, offset);
-			
+
 			x86::Gp val = get_z_register(state, cc, arg1);
 			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), val);
 		}
@@ -1026,12 +1322,10 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case STOREDV:
 		{
 			// Write directly value on the stack (offset is arg2 + rSFRAME register).
-			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
-			if (arg2)
-				cc.add(offset, arg2);
+			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
+			x86::Gp offset = immutable_add_constant(cc, sframe, arg2);
 			div_10000(cc, offset);
-			
+
 			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), arg1);
 		}
 		break;
@@ -1047,14 +1341,31 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		break;
 		case POP:
 		{
+			if (state.use_cached_regs && !state.cached_d_reg_stack.empty())
+			{
+				auto& cached_value = state.cached_d_reg_stack.back();
+				if (cached_value.is_constant)
+					set_z_register(state, cc, arg1, cached_value.value);
+				else
+					set_z_register(state, cc, arg1, cached_value.reg);
+
+				if (--cached_value.amount == 0)
+					state.cached_d_reg_stack.pop_back();
+				break;
+			}
+
 			x86::Gp val = cc.newInt32();
 			cc.mov(val, x86::ptr_32(state.ptrStackBase, state.vSp, 2));
 			modify_sp(state, cc, state.vSp, 1);
 			set_z_register(state, cc, arg1, val);
 		}
 		break;
+		// Note: I'm pretty sure this always POPs to D5, which is the null register and can be
+		// ignored.
 		case POPARGS:
 		{
+			flush_stack_cache(state, cc);
+
 			// int32_t num = sarg2;
 			// ri->sp += num;
 			modify_sp(state, cc, state.vSp, arg2);
@@ -1068,8 +1379,33 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 
 			// int32_t value = SH::read_stack(read);
 			// set_register(sarg1, value);
+			if (arg1 != D(5) || state.runtime_debugging) // Skip setting the "null" register (unless runtime debugging).
+			{
+				x86::Gp val = cc.newInt32();
+				cc.mov(val, x86::ptr_32(state.ptrStackBase, read, 2));
+				set_z_register(state, cc, arg1, val);
+			}
+		}
+		break;
+		case PEEK:
+		{
+			if (state.use_cached_regs && !state.cached_d_reg_stack.empty())
+			{
+				auto& cached_value = state.cached_d_reg_stack.back();
+				if (cached_value.is_constant)
+				{
+					set_z_register(state, cc, arg1, cached_value.value);
+					break;
+				}
+				else if (cached_value.reg.isValid())
+				{
+					set_z_register(state, cc, arg1, cached_value.reg);
+					break;
+				}
+			}
+
 			x86::Gp val = cc.newInt32();
-			cc.mov(val, x86::ptr_32(state.ptrStackBase, read, 2));
+			cc.mov(val, x86::ptr_32(state.ptrStackBase, state.vSp, 2));
 			set_z_register(state, cc, arg1, val);
 		}
 		break;
@@ -1104,12 +1440,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case ADDV:
 		{
 			x86::Gp val = get_z_register(state, cc, arg1);
-			if (arg2 == 1)
-				cc.inc(val);
-			else if (arg2 == -1)
-				cc.dec(val);
-			else
-				cc.add(val, arg2);
+			add_constant(cc, val, arg2);
 			set_z_register(state, cc, arg1, val);
 		}
 		break;
@@ -1228,37 +1559,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		break;
 		case MODV:
 		{
-			if (arg2 == 0)
-			{
-				x86::Gp val = cc.newInt32();
-				zero(cc, val);
-				set_z_register(state, cc, arg1, val);
-
-				InvokeNode *invokeNode;
-				cc.invoke(&invokeNode, log_error_div_0, FuncSignatureT<void>(state.calling_convention));
-				break;
-			}
-
-			// https://stackoverflow.com/a/8022107/2788187
-			x86::Gp val = get_z_register(state, cc, arg1);
-			if (arg2 > 0 && (arg2 & (-arg2)) == arg2)
-			{
-				// Power of 2.
-				// Because numbers in zscript are fixed point, "2" is really "20000"... so this won't
-				// ever really be utilized.
-				cc.and_(val, arg2 - 1);
-				set_z_register(state, cc, arg1, val);
-			}
-			else
-			{
-				x86::Gp divisor = cc.newInt32();
-				cc.mov(divisor, arg2);
-				x86::Gp rem = cc.newInt32();
-				zero(cc, rem);
-				cc.cdq(rem, val);
-				cc.idiv(rem, val, divisor);
-				set_z_register(state, cc, arg1, rem);
-			}
+			x86::Gp result = compile_modv(state, cc, get_z_register(state, cc, arg1), arg2);
+			set_z_register(state, cc, arg1, result);
 		}
 		break;
 		case MODR:
@@ -1290,12 +1592,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case SUBV:
 		{
 			x86::Gp val = get_z_register(state, cc, arg1);
-			if (arg2 == -1)
-				cc.inc(val);
-			else if (arg2 == 1)
-				cc.dec(val);
-			else
-				cc.sub(val, arg2);
+			add_constant(cc, val, -arg2);
 			set_z_register(state, cc, arg1, val);
 		}
 		break;
@@ -1466,13 +1763,6 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			set_z_register(state, cc, arg1, val);
 		}
 		break;
-		case PEEK:
-		{
-			x86::Gp val = cc.newInt32();
-			cc.mov(val, x86::ptr_32(state.ptrStackBase, state.vSp, 2));
-			set_z_register(state, cc, arg1, val);
-		}
-		break;
 		default:
 		{
 			Z_error_fatal("[jit ERROR] Unimplemented command: %s", zasm_op_to_string(command, arg1, arg2, instr.arg3, nullptr, nullptr).c_str());
@@ -1505,9 +1795,11 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 	bool runtime_debugging = script_debug_is_runtime_debugging() == 2;
 
 	CompilationState state{
+		.script = script,
 		.j_script = j_script,
 		.start_pc = start_pc,
 		.final_pc = final_pc,
+		.runtime_debugging = runtime_debugging,
 	};
 
 	CodeHolder code;
@@ -1624,7 +1916,6 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 		cc.test(resume_addr_reg, resume_addr_reg); 
 		cc.jz(L_normal_entry); // If it's zero, this is a normal function start.
 		cc.jmp(resume_addr_reg, resume_annotation);
-
 		cc.bind(L_normal_entry);
 	}
 
@@ -1633,10 +1924,108 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 	std::string comment;
 	std::map<int, int> uncompiled_command_counts;
 
+	static bool use_cached_regs_enabled = is_feature_enabled("-jit-cache-registers", "ZSCRIPT", "jit_cache_registers", true);
+	state.use_cached_regs = use_cached_regs_enabled && !runtime_debugging;
+
+	pc_t current_block_id = j_script->cfg.block_id_from_start_pc(start_pc);
+
 	for (pc_t i = start_pc; i <= final_pc; i++)
 	{
 		const auto& op = script->zasm[i];
 		int command = op.command;
+
+		bool is_block_start;
+		if (i == start_pc)
+		{
+			is_block_start = true;
+		}
+		else
+		{
+			is_block_start = state.j_script->cfg.contains_block_start(i);
+			if (is_block_start)
+				current_block_id++;
+		}
+
+		if (command_is_wait(command))
+		{
+			flush_cache(state, cc);
+		}
+		else if (!command_is_compiled(command))
+		{
+			flush_cache(state, cc);
+
+			// Note: I tried to be more clever here, only flushing registers
+			// that may be used by the compiled commands, but it wasn't working.
+			// Below was my attempt.
+
+			// uint8_t reads = 0;
+			// uint8_t writes = 0;
+			// for (pc_t j = i; j <= final_pc; j++)
+			// {
+			// 	const auto& instr = script->zasm[j];
+			// 	if (!command_is_compiled(instr.command))
+			// 	{
+			// 		for_every_register_side_effect(instr, [&](bool read, bool write, int reg, int argn){
+			// 			if (reg < 8 && read && !((1 << reg) | write))
+			// 				reads |= 1 << reg;
+			// 			if (reg < 8 && write)
+			// 				writes |= 1 << reg;
+			// 		});
+			// 	}
+			// 	else break;
+			// }
+
+			// write_some_cached_registers(state, cc, reads);
+			// flush_stack_cache(state, cc);
+			// std::erase_if(state.cached_d_regs, [&](const auto& pair){
+			// 	return writes | (1 << pair.first);
+			// });
+		}
+		else if (command_is_goto(command) || command == CALLFUNC || command == RETURNFUNC)
+		{
+			if (j_script->cfg.contains_block_start(i + 1))
+			{
+				uint8_t out = j_script->liveness[current_block_id].out;
+				for (auto& [r, cached_reg] : state.cached_d_regs)
+				{
+					if (!(out & (1 << r)))
+						cached_reg.dirty = false;
+				}
+			}
+
+			flush_cache(state, cc);
+		}
+		else if (is_block_start)
+		{
+			pc_t block_id = current_block_id;
+			bool is_linear_flow =
+				block_id > 0 &&
+				j_script->cfg.block_edges[block_id - 1].size() == 1 &&
+				j_script->cfg.block_edges[block_id - 1][0] == block_id &&
+				j_script->block_predecessors[block_id].size() == 1;
+			if (!is_linear_flow)
+			{
+				if (current_block_id > 0)
+				{
+					uint8_t out = j_script->liveness[current_block_id - 1].out;
+					for (auto& [r, cached_reg] : state.cached_d_regs)
+					{
+						if (!(out & (1 << r)))
+							cached_reg.dirty = false;
+					}
+				}
+
+				flush_cache(state, cc);
+			}
+		}
+
+		if (command == COMPAREV || command == COMPARER)
+		{
+			// Compare commands emit a cmp, but so does the stack check. So flush the stack here so
+			// that it doesn't need to be done in the "flush_cache" above, which would interrupt the
+			// compare's command cmp result.
+			flush_stack_cache(state, cc);
+		}
 
 		if (state.goto_labels.contains(i))
 		{
@@ -1662,7 +2051,10 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 		}
 
 		if (DEBUG_JIT_PRINT_ASM)
+		{
 			cc.setInlineComment((comment = fmt::format("{} {}", i, zasm_op_to_string(op))).c_str());
+			cc.nop();
+		}
 
 #ifdef JIT_DEBUG_CRASH
 		if (true)
@@ -1709,13 +2101,6 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 		{
 			if (DEBUG_JIT_PRINT_ASM && command != 0xFFFF)
 				uncompiled_command_counts[command]++;
-
-			if (DEBUG_JIT_PRINT_ASM)
-			{
-				std::string op_str = zasm_op_to_string(op);
-				cc.setInlineComment((comment = fmt::format("{} {}", i, op_str)).c_str());
-				cc.nop();
-			}
 
 			// Every command that is not compiled to assembly must go through the regular interpreter function.
 			// In order to reduce function call overhead, we call into the interpreter function in batches.
@@ -1841,33 +2226,6 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 		.pc_to_resume_address = std::move(pc_to_resume_address),
 	};
 	return j_fn;
-}
-
-// Very useful tool for identifying a single bad function compilation.
-// Use with a tool like `find-first-fail`: https://gitlab.com/ole.tange/tangetools/-/blob/master/find-first-fail/find-first-fail
-// 1. Enable ENABLE_BISECT_TOOL below.
-// 2. Make a new script `tmp.sh` calling a failing replay (change to use the failing replay, but don't change --extra_args):
-//        python tests/run_replay_tests.py --filter stellar --frame 40000 --not_interactive --extra_args="-replay-fail-assert-instant -jit-precompile -jit-threads 0 -test-jit-bisect $1"
-// 3. Run the bisect script (may need to increase the end range if script is large, as it is based on number of functions):
-//        bash ~/tools/find-first-fail.sh -s 0 -e 10000 -v -q bash tmp.sh
-// 4. For the number given, set `-test-jit-bisect` to that, and set a breakpoint
-//    where specified in bisect_tool_should_skip. Whatever function being processed is the one to focus on.
-// #define ENABLE_BISECT_TOOL
-static bool bisect_tool_should_skip()
-{
-#ifdef ENABLE_BISECT_TOOL
-	static int64_t c = 0;
-	static int64_t x = get_flag_int("-test-jit-bisect").value();
-	// Skip the first x calls.
-	bool skip = 0 <= c && c < x;
-	c++;
-	if (!skip)
-		// Set a breakpoint here.
-		x = x;
-	return skip;
-#else
-	return false;
-#endif
 }
 
 static bool compile_and_queue_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn)
@@ -2009,6 +2367,17 @@ static JittedScript* init_jitted_script(zasm_script* script)
 		.structured_zasm = std::move(structured_zasm),
 		.cfg = zasm_construct_cfg(script, pc_ranges),
 	};
+
+	j_script->liveness = zasm_run_liveness_analysis(script, j_script->cfg);
+
+	j_script->block_predecessors.resize(j_script->cfg.block_starts.size());
+	for (pc_t i = 0; i < j_script->block_predecessors.size(); i++)
+	{
+		for (pc_t edge : j_script->cfg.block_edges[i])
+		{
+			j_script->block_predecessors[edge].push_back(i);
+		}
+	}
 
 	j_script->function_start_pcs.reserve(j_script->structured_zasm.functions.size());
 	for (const auto& fn : j_script->structured_zasm.functions)
