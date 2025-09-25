@@ -3315,6 +3315,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 {
 	switch (reg)
 	{
+		// These are mostly arrays.
 		case AUDIOVOLUME:
 		case BOTTLEAMOUNT:
 		case BOTTLECOUNTER:
@@ -3328,20 +3329,29 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case BUTTONHELD:
 		case BUTTONINPUT:
 		case BUTTONPRESS:
+		case CMBTRIGBUTTON:
+		case CMBTRIGFLAGS:
+		case CMBTRIGGERREQPLAYERDIR:
+		case CMBTRIGREQGLOBALSTATE:
+		case CMBTRIGREQLVLSTATE:
+		case CMBTRIGUNREQGLOBALSTATE:
+		case CMBTRIGUNREQLVLSTATE:
 		case COMBOCD:
+		case COMBODATAD:
 		case COMBODATAINITD:
 		case COMBODATTRIBUTES:
 		case COMBODATTRIBYTES:
 		case COMBODATTRISHORTS:
 		case COMBODBLOCKWEAPON:
 		case COMBODD:
-		case COMBODATAD:
-		case MAPDATACOMBODATAD:
 		case COMBODGENFLAGARR:
+		case COMBODLIFTFLAGS:
 		case COMBODSTRIKEWEAPONS:
 		case COMBODTRIGGERBUTTON:
 		case COMBODTRIGGERFLAGS:
 		case COMBODTRIGGERFLAGS2:
+		case COMBODTRIGGERS:
+		case COMBODUSRFLAGARR:
 		case COMBOED:
 		case COMBOFD:
 		case COMBOID:
@@ -3381,17 +3391,18 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case FFINITDD:
 		case FFMISCD:
 		case FFRULE:
+		case GAME_SAVED_PORTALS:
 		case GAMEBOTTLEST:
 		case GAMECOUNTERD:
 		case GAMEDCOUNTERD:
 		case GAMEEVENTDATA:
 		case GAMEGENERICD:
 		case GAMEGRAVITY:
-		case GAMELAYERZTHRESHOLDS:
 		case GAMEGSWITCH:
 		case GAMEGUYCOUNT:
 		case GAMEGUYCOUNTD:
 		case GAMEITEMSD:
+		case GAMELAYERZTHRESHOLDS:
 		case GAMELITEMSD:
 		case GAMELKEYSD:
 		case GAMELSWITCH:
@@ -3411,6 +3422,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case GENDATARELOADSTATE:
 		case GHOSTARR:
 		case GLOBALRAMD:
+		case HEROITEMCOOLDOWN:
 		case HEROLIFTFLAGS:
 		case HEROMOVEFLAGS:
 		case HEROSTEPS:
@@ -3421,11 +3433,11 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case IDATAFLAGS:
 		case IDATAINITDD:
 		case IDATAMISCD:
+		case IDATAMOVEFLAGS:
 		case IDATASPRITE:
 		case IDATAUSEMVT:
-		case IDATAWPNINITD:
-		case IDATAMOVEFLAGS:
 		case IDATAWMOVEFLAGS:
+		case IDATAWPNINITD:
 		case IS8BITTILE:
 		case ISBLANKTILE:
 		case ITEMMISCD:
@@ -3438,7 +3450,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case LINKDEFENCE:
 		case LINKHITBY:
 		case LINKITEMD:
-		case HEROITEMCOOLDOWN:
 		case LINKMISCD:
 		case LWPNBURNLIGHTRADIUS:
 		case LWPNFLAGS:
@@ -3446,7 +3457,9 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case LWPNMISCD:
 		case LWPNMOVEFLAGS:
 		case LWPNSPRITES:
+		case MAPDATA_FLAG:
 		case MAPDATACOMBOCD:
+		case MAPDATACOMBODATAD:
 		case MAPDATACOMBODD:
 		case MAPDATACOMBOED:
 		case MAPDATACOMBOFD:
@@ -3455,6 +3468,8 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case MAPDATACOMBOTD:
 		case MAPDATADOOR:
 		case MAPDATAENEMY:
+		case MAPDATAEXCARRY:
+		case MAPDATAEXRESET:
 		case MAPDATAEXSTATED:
 		case MAPDATAFFCSET:
 		case MAPDATAFFDATA:
@@ -3482,6 +3497,8 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case MAPDATALENSHIDES:
 		case MAPDATALENSSHOWS:
 		case MAPDATAMISCD:
+		case MAPDATANOCARRYARR:
+		case MAPDATANORESETARR:
 		case MAPDATANUMFF:
 		case MAPDATAPATH:
 		case MAPDATASCRDATA:
@@ -3505,10 +3522,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case MAPDATATWARPRETSQR:
 		case MAPDATAWARPRETX:
 		case MAPDATAWARPRETY:
-		case MAPDATANOCARRYARR:
-		case MAPDATANORESETARR:
-		case MAPDATAEXCARRY:
-		case MAPDATAEXRESET:
 		case MESSAGEDATAFLAGSARR:
 		case MESSAGEDATAMARGINS:
 		case MOUSEARR:
@@ -3519,8 +3532,10 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case NPCDATADEFENSE:
 		case NPCDATAFLAG:
 		case NPCDATAINITD:
+		case NPCDATAMOVEFLAGS:
 		case NPCDATASHIELD:
 		case NPCDATAWEAPONINITD:
+		case NPCDATAWMOVEFLAGS:
 		case NPCDD:
 		case NPCDEFENSED:
 		case NPCHITBY:
@@ -3536,18 +3551,25 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case RAWKEY:
 		case READKEY:
 		case SCRDOORD:
+		case SCREEN_EWEAPONS:
+		case SCREEN_FFCS:
+		case SCREEN_FLAG:
+		case SCREEN_ITEMS:
+		case SCREEN_LWEAPONS:
+		case SCREEN_NPCS:
+		case SCREEN_PORTALS:
 		case SCREENDATADOOR:
 		case SCREENDATAENEMY:
-		case SCREENDATAFFINITIALISED:
-		case SCREENDATAFLAGS:
-		case SCREENDATANOCARRYARR:
-		case SCREENDATANORESETARR:
 		case SCREENDATAEXCARRY:
 		case SCREENDATAEXRESET:
+		case SCREENDATAFFINITIALISED:
+		case SCREENDATAFLAGS:
 		case SCREENDATALAYERINVIS:
 		case SCREENDATALAYERMAP:
 		case SCREENDATALAYEROPACITY:
 		case SCREENDATALAYERSCREEN:
+		case SCREENDATANOCARRYARR:
+		case SCREENDATANORESETARR:
 		case SCREENDATANUMFF:
 		case SCREENDATAPATH:
 		case SCREENDATASCRIPTDRAWS:
@@ -3577,10 +3599,14 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SCREENSTATED:
 		case SCRIPTRAMD:
 		case SDD:
+		case SETGAMEOVERELEMENT:
+		case SETGAMEOVERSTRING:
 		case SHOPDATAHASITEM:
 		case SHOPDATAITEM:
 		case SHOPDATAPRICE:
 		case SHOPDATASTRING:
+		case SPRITE_MISCD:
+		case SPRITE_MOVE_FLAGS:
 		case SPRITEDATAFLAGS:
 		case STDARR:
 		case SUBDATABTNLEFT:
@@ -3606,12 +3632,12 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SUBWIDGBTNPG:
 		case SUBWIDGBTNPRESS:
 		case SUBWIDGFLAG:
-		case SUBWIDGREQOWNITEMS:
-		case SUBWIDGREQUNOWNITEMS:
 		case SUBWIDGGENFLAG:
 		case SUBWIDGPOSES:
 		case SUBWIDGPOSFLAG:
 		case SUBWIDGPRESSINITD:
+		case SUBWIDGREQOWNITEMS:
+		case SUBWIDGREQUNOWNITEMS:
 		case SUBWIDGSELECTORASPD:
 		case SUBWIDGSELECTORCSET:
 		case SUBWIDGSELECTORDELAY:
@@ -4315,4 +4341,3 @@ bool has_register_dependency(int reg)
 {
 	return register_dependencies[reg].size() || get_register_ref_dependency(reg).has_value();
 }
-
