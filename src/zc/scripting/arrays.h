@@ -385,6 +385,8 @@ public:
 			size_t sz = getSize(ref);
 			if (auto resolved_index = resolveIndex(index, sz, m_boundGetterIndex))
 				index = *resolved_index;
+			else
+				return getDefaultValue();
 		}
 
 		return m_getFunc(ref, index) * (m_mul10000 ? 10000 : 1);
@@ -614,6 +616,8 @@ public:
 			size_t sz = m_sizeFunc(obj);
 			if (auto resolved_index = resolveIndex(index, sz, m_boundGetterIndex))
 				index = *resolved_index;
+			else
+				return getDefaultValue();
 		}
 
 		T_Element result = m_getFunc(obj, index);
