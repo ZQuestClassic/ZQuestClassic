@@ -2,7 +2,6 @@
 #define ZASM_OPTIMIZE_H_
 
 #include "base/zdefs.h"
-#include "zc/zasm_utils.h"
 
 #include <string>
 

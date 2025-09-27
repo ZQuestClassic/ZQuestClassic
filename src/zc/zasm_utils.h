@@ -11,6 +11,24 @@
 
 typedef uint32_t pc_t;
 
+struct CommandArgumentInfo
+{
+	bool is_reg = false;
+	bool reads = false;
+	bool writes = false;
+};
+
+struct CommandMetadata
+{
+	uint8_t implicit_read_mask = 0;
+	uint8_t implicit_write_mask = 0;
+	CommandArgumentInfo args[3];
+};
+
+void zasm_init_meta_cache();
+const std::vector<CommandMetadata>& zasm_get_command_meta_cache();
+const std::vector<uint8_t>& zasm_get_register_dependency_mask_cache();
+
 struct ZasmFunction
 {
 	pc_t id;
@@ -53,10 +71,21 @@ struct ZasmCFG
 	std::vector<pc_t> block_starts;
 	// Block id => vec of block ids it can go to
 	std::vector<std::vector<pc_t>> block_edges;
+	pc_t final_pc;
 
 	bool contains_block_start(pc_t pc) const;
 	pc_t block_id_from_start_pc(pc_t pc) const;
+	pc_t get_block_final(int block) const;
+	std::pair<pc_t, pc_t> get_block_bounds(int block) const;
 };
+
+struct ZasmBlockVars
+{
+	uint8_t in, out, gen, kill;
+	bool returns;
+};
+
+using ZasmLiveness = std::vector<ZasmBlockVars>;
 
 // Given a ZASM script, discover all functions within (including function names, start/end pcs,
 // and function calls).
@@ -90,6 +119,8 @@ std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, Structure
 //
 // https://www2.cs.arizona.edu/~collberg/Teaching/453/2009/Handouts/Handout-15.pdf
 ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges);
+
+ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg);
 
 std::string zasm_to_string(const zasm_script* script, bool top_functions = false, bool generate_yielder = false);
 

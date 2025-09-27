@@ -13,6 +13,70 @@
 #include <vector>
 #include <sstream>
 
+static std::vector<CommandMetadata> command_meta_cache;
+static std::vector<uint8_t> register_dependency_mask_cache;
+
+void zasm_init_meta_cache()
+{
+	if (command_meta_cache.size())
+		return;
+
+	command_meta_cache.resize(NUMCOMMANDS);
+	register_dependency_mask_cache.resize(NUMVARIABLES);
+
+	for (int i = 0; i < NUMCOMMANDS; i++)
+	{
+		auto sc = get_script_command(i);
+		if (!sc)
+			continue;
+
+		auto& meta = command_meta_cache[i];
+
+		for (auto [reg, rw] : get_command_implicit_dependencies(i))
+		{
+			if (reg >= 8)
+				continue;
+
+			if (rw == ARGTY::READ_REG || rw == ARGTY::READWRITE_REG)
+				meta.implicit_read_mask |= (1 << reg);
+			if (rw == ARGTY::WRITE_REG || rw == ARGTY::READWRITE_REG)
+				meta.implicit_write_mask |= (1 << reg);
+		}
+
+		for (int argn = 0; argn < 3; ++argn)
+		{
+			if (sc->is_register(argn))
+			{
+				meta.args[argn].is_reg = true;
+				auto [read, write] = get_command_rw(i, argn);
+				meta.args[argn].reads = read;
+				meta.args[argn].writes = write;
+			}
+		}
+	}
+
+	for (int i = 0; i < NUMVARIABLES; i++)
+	{
+		uint8_t mask = 0;
+		for (int r : get_register_dependencies(i))
+		{
+			if (r < 8)
+				mask |= (1 << r);
+		}
+		register_dependency_mask_cache[i] = mask;
+	}
+}
+
+const std::vector<CommandMetadata>& zasm_get_command_meta_cache()
+{
+	return command_meta_cache;
+}
+
+const std::vector<uint8_t>& zasm_get_register_dependency_mask_cache()
+{
+	return register_dependency_mask_cache;
+}
+
 bool StructuredZasm::is_modern_function_calling()
 {
 	// UNKNOWN is included b/c scripts like "global init" don't typically have any function calls,
@@ -259,9 +323,23 @@ pc_t ZasmCFG::block_id_from_start_pc(pc_t pc) const
 	return std::distance(block_starts.begin(), it);
 }
 
+pc_t ZasmCFG::get_block_final(int block) const
+{
+	return block == block_starts.size() - 1 ?
+		final_pc :
+		block_starts.at(block + 1) - 1;
+}
+
+std::pair<pc_t, pc_t> ZasmCFG::get_block_bounds(int block) const
+{
+	return {block_starts.at(block), get_block_final(block)};
+}
+
 ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges)
 {
 	ZasmCFG cfg{};
+
+	cfg.final_pc = pc_ranges.back().second;
 
 	// Reserve an amount proportional to the number of instructions.
 	// Note: picked randomly, one could do more research here.
@@ -338,6 +416,118 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 	}
 
 	return cfg;
+}
+
+// https://en.wikipedia.org/wiki/Data-flow_analysis
+// https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
+// https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
+ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg)
+{
+	#define C(i) (script->zasm[i])
+	#define E(i) (cfg.block_edges[i])
+
+	std::vector<std::vector<pc_t>> precede(cfg.block_starts.size());
+	for (pc_t i = 0; i < cfg.block_starts.size(); i++)
+	{
+		for (pc_t e : E(i))
+		{
+			// By far the most common number of predecessors is 2. Prevent some reallocations by
+			// preserving that much upfront.
+			if (precede[e].empty())
+				precede[e].reserve(2);
+			precede[e].push_back(i);
+		}
+	}
+
+	ZasmLiveness vars;
+	vars.resize(cfg.block_starts.size());
+
+	std::vector<pc_t> worklist;
+	worklist.reserve(cfg.block_starts.size());
+	std::vector<bool> in_worklist(cfg.block_starts.size());
+
+	for (pc_t block_index = 0; block_index < cfg.block_starts.size(); block_index++)
+	{
+		uint8_t gen = 0;
+		uint8_t kill = 0;
+		bool returns = false;
+		auto [start_pc, final_pc] = cfg.get_block_bounds(block_index);
+		for (pc_t i = start_pc; i <= final_pc; i++)
+		{
+			auto& instr = C(i);
+			if (instr.command == CALLFUNC)
+			{
+				kill = 0xFF;
+				continue;
+			}
+
+			if (instr.command == RETURNFUNC)
+				returns = true;
+
+			auto& meta = command_meta_cache[instr.command];
+			gen |= (meta.implicit_read_mask & ~kill);
+			kill |= meta.implicit_write_mask;
+
+			const int32_t* p_arg = &instr.arg1;
+			for (int argn = 0; argn < 3; ++argn)
+			{
+				const auto& arg_info = meta.args[argn];
+				if (!arg_info.is_reg) continue;
+
+				int reg = p_arg[argn];
+				if (reg < 8)
+				{
+					if (arg_info.reads)
+						if (!(kill & (1 << reg))) gen |= (1 << reg);
+					if (arg_info.writes)
+						kill |= (1 << reg);
+				}
+
+				gen |= (register_dependency_mask_cache[reg] & ~kill);
+			}
+		}
+
+		vars[block_index] = {0, 0, gen, kill, returns};
+
+		// Minor optimization: only seed the worklist with exit blocks or blocks that use a register.
+		if (returns || gen || E(block_index).empty())
+		{
+			worklist.push_back(block_index);
+			in_worklist[block_index] = true;
+		}
+	}
+
+	while (!worklist.empty())
+	{
+		pc_t block_index = worklist.back();
+		worklist.pop_back();
+		in_worklist[block_index] = false;
+
+		auto& [in, out, gen, kill, returns] = vars[block_index];
+
+		out = 0;
+		for (pc_t e : E(block_index))
+			out |= vars[e].in;
+		if (returns)
+			out |= 1 << D(2);
+
+		uint8_t old_in = in;
+		in = gen | (out & ~kill);
+
+		if (in != old_in)
+		{
+			for (pc_t predecessor : precede[block_index])
+			{
+				if (!in_worklist[predecessor])
+				{
+					worklist.push_back(predecessor);
+					in_worklist[predecessor] = true;
+				}
+			}
+		}
+	}
+
+	return vars;
 }
 
 static std::string zasm_fn_get_label(const ZasmFunction& function)

@@ -368,79 +368,12 @@ static void expect(std::string name, zasm_script* script, std::vector<ffscript>&
 	}
 }
 
-struct CommandArgumentInfo
-{
-	bool is_reg = false;
-	bool reads = false;
-	bool writes = false;
-};
-
-struct CommandMetadata
-{
-	uint8_t implicit_read_mask = 0;
-	uint8_t implicit_write_mask = 0;
-	CommandArgumentInfo args[3];
-};
-
-static std::vector<CommandMetadata> command_meta_cache;
-static std::vector<uint8_t> register_dependency_mask_cache;
-
-static void init_meta_cache()
-{
-	if (command_meta_cache.size())
-		return;
-
-	command_meta_cache.resize(NUMCOMMANDS);
-	register_dependency_mask_cache.resize(NUMVARIABLES);
-
-	for (int i = 0; i < NUMCOMMANDS; i++)
-	{
-		auto sc = get_script_command(i);
-		if (!sc)
-			continue;
-
-		auto& meta = command_meta_cache[i];
-
-		for (auto [reg, rw] : get_command_implicit_dependencies(i))
-		{
-			if (reg >= 8)
-				continue;
-
-			if (rw == ARGTY::READ_REG || rw == ARGTY::READWRITE_REG)
-				meta.implicit_read_mask |= (1 << reg);
-			if (rw == ARGTY::WRITE_REG || rw == ARGTY::READWRITE_REG)
-				meta.implicit_write_mask |= (1 << reg);
-		}
-
-		for (int argn = 0; argn < 3; ++argn)
-		{
-			if (sc->is_register(argn))
-			{
-				meta.args[argn].is_reg = true;
-				auto [read, write] = get_command_rw(i, argn);
-				meta.args[argn].reads = read;
-				meta.args[argn].writes = write;
-			}
-		}
-	}
-
-	for (int i = 0; i < NUMVARIABLES; i++)
-	{
-		uint8_t mask = 0;
-		for (int r : get_register_dependencies(i))
-		{
-			if (r < 8)
-				mask |= (1 << r);
-		}
-		register_dependency_mask_cache[i] = mask;
-	}
-}
-
 template <typename T>
 static void for_every_side_effect_d_registers_only(const ffscript& instr, T fn)
 {
 	std::array<bool, 8> r{}, w{};
 
+	auto& command_meta_cache = zasm_get_command_meta_cache();
 	auto& meta = command_meta_cache[instr.command];
 	for (int i = 0; i < 8; i++)
 	{
@@ -498,12 +431,6 @@ static void for_every_register_side_effect(const ffscript& instr, T fn)
 	});
 }
 
-struct block_vars
-{
-	uint8_t in, out, gen, kill;
-	bool returns;
-};
-
 struct OptContext
 {
 	uint32_t saved;
@@ -511,7 +438,7 @@ struct OptContext
 	ZasmFunction fn;
 	ZasmCFG cfg;
 	bool cfg_stale;
-	std::vector<block_vars> liveness_vars;
+	ZasmLiveness liveness_vars;
 	std::set<pc_t> block_unreachable;
 	StructuredZasm* structured_zasm;
 	bool debug;
@@ -519,18 +446,6 @@ struct OptContext
 
 #define C(i) (ctx.script->zasm[i])
 #define E(i) (ctx.cfg.block_edges[i])
-
-static pc_t get_block_final(const OptContext& ctx, int block)
-{
-	return block == ctx.cfg.block_starts.size() - 1 ?
-		ctx.fn.final_pc :
-		ctx.cfg.block_starts.at(block + 1) - 1;
-}
-
-static std::pair<pc_t, pc_t> get_block_bounds(const OptContext& ctx, int block)
-{
-	return {ctx.cfg.block_starts.at(block), get_block_final(ctx, block)};
-}
 
 static OptContext create_context_no_cfg(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
 {
@@ -553,111 +468,9 @@ static void add_context_cfg(OptContext& ctx)
 	ctx.cfg_stale = false;
 }
 
-// https://en.wikipedia.org/wiki/Data-flow_analysis
-// https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
-// https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
 static void add_context_liveness(OptContext& ctx)
 {
-	std::vector<std::vector<pc_t>> precede(ctx.cfg.block_starts.size());
-	for (pc_t i = 0; i < ctx.cfg.block_starts.size(); i++)
-	{
-		for (pc_t e : E(i))
-		{
-			// By far the most common number of predecessors is 2. Prevent some reallocations by
-			// preserving that much upfront.
-			if (precede[e].empty())
-				precede[e].reserve(2);
-			precede[e].push_back(i);
-		}
-	}
-
-	auto& vars = ctx.liveness_vars;
-	vars.resize(ctx.cfg.block_starts.size());
-
-	std::vector<pc_t> worklist;
-	worklist.reserve(ctx.cfg.block_starts.size());
-	std::vector<bool> in_worklist(ctx.cfg.block_starts.size());
-
-	for (pc_t block_index = 0; block_index < ctx.cfg.block_starts.size(); block_index++)
-	{
-		uint8_t gen = 0;
-		uint8_t kill = 0;
-		bool returns = false;
-		auto [start_pc, final_pc] = get_block_bounds(ctx, block_index);
-		for (pc_t i = start_pc; i <= final_pc; i++)
-		{
-			auto& instr = C(i);
-			if (instr.command == CALLFUNC)
-			{
-				kill = 0xFF;
-				continue;
-			}
-
-			if (instr.command == RETURNFUNC)
-				returns = true;
-
-			auto& meta = command_meta_cache[instr.command];
-			gen |= (meta.implicit_read_mask & ~kill);
-			kill |= meta.implicit_write_mask;
-
-			const int32_t* p_arg = &instr.arg1;
-			for (int argn = 0; argn < 3; ++argn)
-			{
-				const auto& arg_info = meta.args[argn];
-				if (!arg_info.is_reg) continue;
-
-				int reg = p_arg[argn];
-				if (reg < 8)
-				{
-					if (arg_info.reads)
-						if (!(kill & (1 << reg))) gen |= (1 << reg);
-					if (arg_info.writes)
-						kill |= (1 << reg);
-				}
-
-				gen |= (register_dependency_mask_cache[reg] & ~kill);
-			}
-		}
-
-		vars[block_index] = {0, 0, gen, kill, returns};
-
-		// Minor optimization: only seed the worklist with exit blocks or blocks that use a register.
-		if (returns || gen || E(block_index).empty())
-		{
-			worklist.push_back(block_index);
-			in_worklist[block_index] = true;
-		}
-	}
-
-	while (!worklist.empty())
-	{
-		pc_t block_index = worklist.back();
-		worklist.pop_back();
-		in_worklist[block_index] = false;
-
-		auto& [in, out, gen, kill, returns] = vars[block_index];
-
-		out = 0;
-		for (pc_t e : E(block_index))
-			out |= vars[e].in;
-		if (returns)
-			out |= 1 << D(2);
-
-		uint8_t old_in = in;
-		in = gen | (out & ~kill);
-
-		if (in != old_in)
-		{
-			for (pc_t predecessor : precede[block_index])
-			{
-				if (!in_worklist[predecessor])
-				{
-					worklist.push_back(predecessor);
-					in_worklist[predecessor] = true;
-				}
-			}
-		}
-	}
+	ctx.liveness_vars = zasm_run_liveness_analysis(ctx.script, ctx.cfg);
 }
 
 static OptContext create_context(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
@@ -1114,7 +927,7 @@ struct SimulationState
 	void set_block(const OptContext& ctx, pc_t target_block)
 	{
 		block = target_block;
-		std::tie(pc, final_pc) = get_block_bounds(ctx, target_block);
+		std::tie(pc, final_pc) = ctx.cfg.get_block_bounds(target_block);
 	}
 };
 
@@ -1667,7 +1480,7 @@ static void simulate_infer_branch(OptContext& ctx, SimulationState& state)
 		fmt::println("inferred D2: {}", state.d[2].to_string());
 	state.pc = C(state.pc).arg1;
 	state.block = ctx.cfg.block_id_from_start_pc(state.pc);
-	state.final_pc = get_block_final(ctx, state.block);
+	state.final_pc = ctx.cfg.get_block_final(state.block);
 }
 
 static bool simulate_block_advance(OptContext& ctx, SimulationState& state)
@@ -1682,7 +1495,7 @@ static bool simulate_block_advance(OptContext& ctx, SimulationState& state)
 		ASSERT(E(state.block).at(0) == next_block);
 		state.pc += 1;
 		state.block = next_block;
-		state.final_pc = get_block_final(ctx, state.block);
+		state.final_pc = ctx.cfg.get_block_final(state.block);
 		return true;
 	}
 
@@ -1692,7 +1505,7 @@ static bool simulate_block_advance(OptContext& ctx, SimulationState& state)
 		state.pc = C(state.pc).arg1;
 		pc_t next_block = ctx.cfg.block_id_from_start_pc(state.pc);
 		state.block = next_block;
-		state.final_pc = get_block_final(ctx, state.block);
+		state.final_pc = ctx.cfg.get_block_final(state.block);
 		return true;
 	}
 
@@ -1714,7 +1527,7 @@ static bool simulate_block_advance(OptContext& ctx, SimulationState& state)
 		state.pc += 1;
 
 	state.block = ctx.cfg.block_id_from_start_pc(state.pc);
-	state.final_pc = get_block_final(ctx, state.block);
+	state.final_pc = ctx.cfg.get_block_final(state.block);
 	return true;
 }
 
@@ -2168,7 +1981,7 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 			{
 				bool target_block_reuses_comparison_operands = false;
 				pc_t target_block_id = ctx.cfg.block_id_from_start_pc(target_pc);
-				auto [s, e] = get_block_bounds(ctx, target_block_id);
+				auto [s, e] = ctx.cfg.get_block_bounds(target_block_id);
 				for (pc_t i = s; i <= e; i++)
 				{
 					int command = C(i).command;
@@ -2248,7 +2061,7 @@ static bool optimize_unreachable_blocks(OptContext& ctx)
 			if (bisect_tool_should_skip())
 				continue;
 
-			auto [block_start, block_final] = get_block_bounds(ctx, i);
+			auto [block_start, block_final] = ctx.cfg.get_block_bounds(i);
 			for (pc_t k = block_start; k <= block_final; k++)
 			{
 				// Avoid double counting already removed instructions.
@@ -2944,7 +2757,7 @@ void zasm_optimize_sync()
 	}
 
 	if (!minimal_mode)
-		init_meta_cache();
+		zasm_init_meta_cache();
 
 	bool parallel = should_run_optimizer_in_parallel() && !ZScriptVersion::singleZasmChunk();
 	zasm_for_every_script(parallel, [&](auto script){
@@ -3035,7 +2848,7 @@ void zasm_optimize_run_for_file(std::string path)
 
 	fmt::println("\noutput:");
 	verbose = true;
-	init_meta_cache();
+	zasm_init_meta_cache();
 	zasm_optimize_script(&script);
 	fmt::println("{}", zasm_to_string_clean(&script));
 }
