@@ -114,6 +114,7 @@ struct ReplayStep
     ReplayStep(int frame, char type) : frame(frame), type(type)
     {
     }
+    virtual ~ReplayStep() = default;
     virtual void run() = 0;
     virtual std::string print() = 0;
 };
