@@ -2367,7 +2367,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 			hAlign = 0.0,
 			text = ZI.getLevelItemName(q),
 			checked = (local_itemref.pickup_litems & (1 << q)),
-			onToggleFunc = [&](bool state)
+			onToggleFunc = [&, q](bool state)
 			{
 				SETFLAG(local_itemref.pickup_litems, (1 << q), state);
 			}));
