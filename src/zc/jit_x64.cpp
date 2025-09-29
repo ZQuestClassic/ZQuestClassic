@@ -39,8 +39,8 @@ struct CompilationState
 	x86::Gp ptrRegisters;
 	x86::Gp ptrStackBase;
 	std::map<int, Label> goto_labels;
-	// Return labels for both function calls and wait frame commands.
-	std::map<int, Label> return_labels;
+	// Labels for both function calls and wait frame commands.
+	std::map<int, Label> resume_labels;
 	// When to end the "lookahead" for stack pointer bounds checking (and start checking again).
 	pc_t num_push_commands_in_row_end_pc;
 	bool modified_stack;
@@ -241,7 +241,7 @@ static void check_sp(CompilationState& state, x86::Compiler& cc, x86::Gp vStackI
 	else
 	{
 		x86::Gp val = cc.newUInt32();
-		cc.mov(val, state.vSp);
+		cc.mov(val, vStackIndex);
 		// Prefer inc/dec for smaller code size.
 		if (offset == 1)
 			cc.inc(val);
@@ -593,7 +593,7 @@ static void compile_command_interpreter(CompilationState& state, x86::Compiler& 
 		// here because RUNSCRIPT_OK is the default value.
 		cc.je(state.L_End);
 
-		cc.bind(state.return_labels[i]);
+		cc.bind(state.resume_labels[i]);
 		return;
 	}
 
@@ -810,13 +810,9 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 				if (state.modified_stack)
 					set_ctx_sp(state, cc, state.vSp);
 				cc.mov(state.vResult, EXEC_RESULT_CALL);
-
-				cc.cmp(state.ptrCtx, 0);
-				cc.je(state.return_labels[pc]);
 				restore_regs(state, cc);
 				cc.ret(state.vResult);
-
-				cc.bind(state.return_labels[pc]);
+				cc.bind(state.resume_labels[pc]);
 			}
 		}
 		break;
@@ -1548,6 +1544,7 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 	x86::Compiler cc(&code);
 
 	// Create control flow labels.
+	JumpAnnotation* resume_annotation = cc.newJumpAnnotation();
 	for (size_t i = start_pc; i <= final_pc; i++)
 	{
 		int command = script->zasm[i].command;
@@ -1561,17 +1558,19 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 		{
 			// If the last command in a function, it will never return.
 			if (i != final_pc)
-				state.return_labels[i] = cc.newLabel();
+				state.resume_labels[i] = cc.newLabel();
 		}
 		else if (command_is_wait(command))
 		{
-			state.return_labels[i] = cc.newLabel();
+			state.resume_labels[i] = cc.newLabel();
 		}
 	}
 
-	auto fnNode = cc.addFunc(FuncSignatureT<int, JittedExecutionContext*>(state.calling_convention));
+	for (auto& [pc, label] : state.resume_labels)
+		resume_annotation->addLabel(label);
 
-	state.ptrCtx = cc.newIntPtr();
+	auto fnNode = cc.addFunc(FuncSignatureT<int, JittedExecutionContext*>(state.calling_convention));
+	state.ptrCtx = cc.newIntPtr("ctx");
 	fnNode->setArg(0, state.ptrCtx);
 
 	// - r13: JittedExecutionContext*
@@ -1597,10 +1596,37 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 
 		state.vSp = x86::ebx;
 		cc.mov(state.vSp, x86::ptr_32(state.ptrCtx, offsetof(JittedExecutionContext, sp)));
+
+		// Note: the below code does the same, but uses virtual registers instead. I've found that
+		// asmjit's binpack register allocator takes too long to run, so I replaced it with a linear
+		// allocator. However, a linear allocator works really bad for registers used throughout the
+		// entire function, so it's better to explicitly assign them like above.
+		// If the below were used instead, we could get rid of the "saved_regs" too. But I don't
+		// think there is much of a performance difference.
+
+		// state.ptrRegisters = cc.newIntPtr("registers");
+		// cc.mov(state.ptrRegisters, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, registers)));
+		// state.ptrStackBase = cc.newIntPtr("stack_base");
+		// cc.mov(state.ptrStackBase, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, stack_base)));
+		// state.vSp = cc.newUInt32("sp");
+		// cc.mov(state.vSp, x86::ptr_32(state.ptrCtx, offsetof(JittedExecutionContext, sp)));
 	}
 
 	state.vResult = cc.newUInt32("result");
 	state.L_End = cc.newLabel();
+
+	// If needed, jump to the resume address.
+	{
+		Label L_normal_entry = cc.newLabel();
+
+		x86::Gp resume_addr_reg = cc.newIntPtr("resume_address");
+		cc.mov(resume_addr_reg, x86::ptr(state.ptrCtx, offsetof(JittedExecutionContext, resume_address)));
+		cc.test(resume_addr_reg, resume_addr_reg); 
+		cc.jz(L_normal_entry); // If it's zero, this is a normal function start.
+		cc.jmp(resume_addr_reg, resume_annotation);
+
+		cc.bind(L_normal_entry);
+	}
 
 	// cc.setInlineComment does not make a copy of the string, so we need to keep
 	// comment strings around a bit longer than the invocation.
@@ -1766,12 +1792,10 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 
 	uintptr_t base = code.baseAddress();
 
-	std::map<pc_t, intptr_t> pc_to_address;
-	std::map<pc_t, uint32_t> pc_to_stack_size;
-	for (const auto& it : state.return_labels)
+	std::map<pc_t, uintptr_t> pc_to_resume_address;
+	for (const auto& it : state.resume_labels)
 	{
-		pc_to_address[it.first] = base + code.labelOffsetFromBase(it.second);
-		pc_to_stack_size[it.first] = fnNode->frame().finalStackSize();
+		pc_to_resume_address[it.first] = base + code.labelOffsetFromBase(it.second);
 	}
 
 	end_time = std::chrono::steady_clock::now();
@@ -1814,8 +1838,7 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 	JittedFunction j_fn{
 		.exec = compiled_fn,
 		.id = fn.id,
-		.pc_to_address = std::move(pc_to_address),
-		.pc_to_stack_size = std::move(pc_to_stack_size),
+		.pc_to_resume_address = std::move(pc_to_resume_address),
 	};
 	return j_fn;
 }
@@ -1933,9 +1956,29 @@ static void profiler_increment_function_call(JittedExecutionContext* ctx, const 
 	}
 }
 
+static pc_t find_function_id_containing_pc(const std::vector<pc_t>& function_start_pcs, pc_t pc)
+{
+	pc_t fn_id;
+	if (auto it = std::upper_bound(function_start_pcs.begin(), function_start_pcs.end(), pc); it != function_start_pcs.begin())
+	{
+		fn_id = std::distance(function_start_pcs.begin(), it) - 1;
+	}
+	else
+	{
+		// Shouldn't happen.
+		jit_error("[jit ERROR] unknown function for pc: %d\n", pc);
+		fn_id = -1;
+	}
+
+	return fn_id;
+}
+
 static int stub_exec_function(JittedExecutionContext* ctx)
 {
-	pc_t fn_id = ctx->j_instance->j_script->start_pc_to_fn_id[ctx->pc];
+	JittedScriptInstance* j_instance = ctx->j_instance;
+	JittedScript* j_script = j_instance->j_script;
+	pc_t fn_id = find_function_id_containing_pc(j_script->function_start_pcs, ctx->pc);
+	CHECK(fn_id != -1);
 	ZasmFunction& fn = ctx->j_instance->j_script->structured_zasm.functions[fn_id];
 
 	profiler_increment_function_call(ctx, fn);
@@ -1953,112 +1996,32 @@ static int stub_exec_function(JittedExecutionContext* ctx)
 	return EXEC_RESULT_CONTINUE;
 }
 
-static DispatcherStub create_dispatcher_stub(JittedScript* j_script)
-{
-	CodeHolder code;
-	code.init(rt.environment());
-
-	StringLogger logger;
-	if (DEBUG_JIT_PRINT_ASM)
-		code.setLogger(&logger);
-
-	x86::Assembler a(&code);
-#ifdef _WIN64
-	// Windows x64 calling convention.
-	x86::Gp target_addr = x86::rcx;
-	x86::Gp stack_size  = x86::rdx;
-	x86::Gp ctx_ptr     = x86::r8;
-#else
-	// System V calling convention (Linux, macOS, etc).
-	x86::Gp target_addr = x86::rdi;
-	x86::Gp stack_size  = x86::rsi;
-	x86::Gp ctx_ptr     = x86::rdx;
-#endif
-
-	// Preserve.
-	auto tmp = x86::rax;
-	a.mov(tmp, x86::r13);
-	a.mov(x86::r13, ctx_ptr);
-	a.mov(x86::ptr(x86::r13, offsetof(JittedExecutionContext, saved_regs) + 0), tmp);
-	a.mov(x86::ptr(x86::r13, offsetof(JittedExecutionContext, saved_regs) + 8), x86::r14);
-	a.mov(x86::ptr(x86::r13, offsetof(JittedExecutionContext, saved_regs) + 16), x86::r15);
-	a.mov(x86::ptr(x86::r13, offsetof(JittedExecutionContext, saved_regs) + 24), x86::rbx);
-
-	// Set up the dedicated callee-preserved registers for the JIT'd environment.
-	// These must match the registers used in compile_function.
-	// - r13: JittedExecutionContext*
-	// - r14: int32_t* registers
-	// - r15: int32_t* stack_base
-	// - ebx: int32_t sp
-	a.mov(x86::ebx, x86::ptr(x86::r13, offsetof(JittedExecutionContext, sp)));
-	a.mov(x86::r14, x86::ptr(x86::r13, offsetof(JittedExecutionContext, registers)));
-	a.mov(x86::r15, x86::ptr(x86::r13, offsetof(JittedExecutionContext, stack_base)));
-
-	// Jump to the target address, and modify the stack pointer based on the target function stack
-	// size.
-
-	a.sub(x86::rsp, stack_size);
-	a.jmp(target_addr);
-
-	a.finalize();
-
-	// Add the code to the JIT runtime and get a callable function pointer.
-	DispatcherStub stub_ptr = nullptr;
-	Error err = rt.add(&stub_ptr, &code);
-	if (err)
-	{
-		jit_error("[jit ERROR] failed to create dispatcher stub: %s\n", asmjit::DebugUtils::errorAsString(err));
-		return nullptr;
-	}
-
-	auto debug_handle = j_script->debug_handle.get();
-	if (debug_handle)
-	{
-		debug_handle->print(
-			CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"asmjit dispatcher assembly:\n\n");
-		debug_handle->print(
-			CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			logger.data());
-		debug_handle->print("\n");
-		debug_handle->update_file();
-	}
-
-	return stub_ptr;
-}
-
 static JittedScript* init_jitted_script(zasm_script* script)
 {
 	StructuredZasm structured_zasm = zasm_construct_structured(script);
-	std::map<pc_t, pc_t> start_pc_to_fn_id;
 	std::vector<std::pair<pc_t, pc_t>> pc_ranges;
 	for (const auto& fn : structured_zasm.functions)
 	{
 		pc_ranges.emplace_back(fn.start_pc, fn.final_pc);
-		start_pc_to_fn_id[fn.start_pc] = fn.id;
 	}
 
 	auto j_script = new JittedScript{
 		.structured_zasm = std::move(structured_zasm),
 		.cfg = zasm_construct_cfg(script, pc_ranges),
-		.start_pc_to_fn_id = std::move(start_pc_to_fn_id),
 	};
 
-	j_script->compiled_functions.resize(j_script->structured_zasm.functions.size());
+	j_script->function_start_pcs.reserve(j_script->structured_zasm.functions.size());
+	for (const auto& fn : j_script->structured_zasm.functions)
+	{
+		j_script->function_start_pcs.push_back(fn.start_pc);
+	}
+
+	j_script->compiled_functions.reserve(j_script->structured_zasm.functions.size());
 	for (ZasmFunction& fn : j_script->structured_zasm.functions)
-		j_script->compiled_functions[fn.id] = {stub_exec_function};
+		j_script->compiled_functions.push_back({stub_exec_function, fn.id});
 
 	if (DEBUG_JIT_PRINT_ASM)
 		j_script->debug_handle = std::make_unique<ScriptDebugHandle>(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);
-
-	j_script->dispatcher_stub = create_dispatcher_stub(j_script);
-	if (!j_script->dispatcher_stub)
-	{
-		jit_release(j_script);
-		return nullptr;
-	}
 
 	j_script->mutex = al_create_mutex();
 
@@ -2103,41 +2066,35 @@ JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, J
 static bool exec_script(JittedExecutionContext* ctx)
 {
 	JittedScriptInstance* j_instance = ctx->j_instance;
+	JittedScript* j_script = j_instance->j_script;
 
-	intptr_t goto_address = 0;
-	if (j_instance->script->pc != ctx->pc)
-	{
-		if (auto address = util::find(j_instance->j_script->pc_to_address, ctx->pc - 1))
-		{
-			goto_address = *address;
-		}
-	}
+	pc_t fn_id = find_function_id_containing_pc(j_script->function_start_pcs, ctx->pc);
 
 	int exec_result;
-	if (goto_address)
+	if (fn_id != -1)
 	{
-		uint32_t stack_size = j_instance->j_script->pc_to_stack_size[ctx->pc - 1];
-		exec_result = j_instance->j_script->dispatcher_stub(goto_address, stack_size, ctx);
+		auto& j_fn = j_script->compiled_functions[fn_id];
+
+		ctx->resume_address = 0;
+		if (ctx->pc != j_script->structured_zasm.functions[fn_id].start_pc)
+		{
+			if (auto address = util::find(j_script->pc_to_resume_address, ctx->pc - 1))
+				ctx->resume_address = *address;
+		}
+
+		exec_result = j_fn.exec(ctx);
 	}
 	else
 	{
-		if (auto fn_id = util::find(j_instance->j_script->start_pc_to_fn_id, ctx->pc))
+		// Fallback to the interpreter if no function was found (error case).
+		if (int r = run_script_jit_until_call_or_return(j_instance, ctx->pc, ctx->sp))
 		{
-			auto& j_fn = j_instance->j_script->compiled_functions[*fn_id];
-			exec_result = j_fn.exec(ctx);
+			ctx->ret_code = r;
+			return false;
 		}
-		else
-		{
-			if (int r = run_script_jit_until_call_or_return(j_instance, ctx->pc, ctx->sp))
-			{
-				ctx->ret_code = r;
-				return false;
-			}
-
-			ctx->pc = j_instance->ri->pc;
-			ctx->sp = j_instance->ri->sp;
-			return true;
-		}
+		ctx->pc = j_instance->ri->pc;
+		ctx->sp = j_instance->ri->sp;
+		return true;
 	}
 
 	if (exec_result == EXEC_RESULT_CALL)
@@ -2187,10 +2144,8 @@ int jit_run_script(JittedScriptInstance* j_instance)
 		while (!pending.empty())
 		{
 			JittedFunction& j_fn = pending.front();
-			j_instance->j_script->pc_to_address.insert(j_fn.pc_to_address.begin(), j_fn.pc_to_address.end());
-			j_instance->j_script->pc_to_stack_size.insert(j_fn.pc_to_stack_size.begin(), j_fn.pc_to_stack_size.end());
-			j_fn.pc_to_address.clear();
-			j_fn.pc_to_stack_size.clear();
+			j_instance->j_script->pc_to_resume_address.insert(j_fn.pc_to_resume_address.begin(), j_fn.pc_to_resume_address.end());
+			j_fn.pc_to_resume_address.clear();
 			j_instance->j_script->compiled_functions[j_fn.id] = std::move(j_fn);
 			pending.pop_front();
 		}
