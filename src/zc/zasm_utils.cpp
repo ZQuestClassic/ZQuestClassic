@@ -384,22 +384,26 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 	// Sort and remove duplicates.
 	std::sort(block_starts.begin(), block_starts.end());
 	block_starts.erase(std::unique(block_starts.begin(), block_starts.end()), block_starts.end());
+	size_t num_blocks = block_starts.size();
 
 	auto& block_edges = cfg.block_edges;
-	block_edges.resize(block_starts.size());
+	block_edges.resize(num_blocks);
 
-	for (pc_t j = 1; j < block_starts.size(); j++)
+	for (pc_t j = 1; j <= num_blocks; j++)
 	{
 		auto& edges = block_edges[j - 1];
 		edges.reserve(2);
-		int i = block_starts[j];
-		int prev_command = script->zasm[i - 1].command;
-		int prev_arg1 = script->zasm[i - 1].arg1;
-		if ((prev_command == GOTO || prev_command == CALLFUNC) && is_in_ranges(prev_arg1, pc_ranges))
+		int i = j < num_blocks ? block_starts[j] - 1 : cfg.final_pc;
+		int prev_command = script->zasm[i].command;
+		int prev_arg1 = script->zasm[i].arg1;
+		if (prev_command == GOTO || prev_command == CALLFUNC)
 		{
-			// Previous block unconditionally continues to some other block.
-			auto other_block = cfg.block_id_from_start_pc(prev_arg1);
-			edges.push_back(other_block);
+			if (is_in_ranges(prev_arg1, pc_ranges))
+			{
+				// Previous block unconditionally continues to some other block.
+				auto other_block = cfg.block_id_from_start_pc(prev_arg1);
+				edges.push_back(other_block);
+			}
 		}
 		else if (prev_command == GOTOCMP || prev_command == GOTOTRUE || prev_command == GOTOFALSE || prev_command == GOTOLESS || prev_command == GOTOMORE)
 		{
@@ -408,7 +412,7 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 			auto other_block = cfg.block_id_from_start_pc(prev_arg1);
 			edges.push_back(other_block);
 		}
-		else if (prev_command != QUIT && prev_command != RETURN && prev_command != RETURNFUNC && prev_command != GOTOR)
+		else if (prev_command != QUIT && prev_command != RETURN && prev_command != RETURNFUNC && prev_command != GOTOR && prev_command != GAMEEXIT && j != num_blocks)
 		{
 			// Previous block unconditionally continues to this one.
 			edges.push_back(j);
