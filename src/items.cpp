@@ -1141,7 +1141,6 @@ void itemdata::clear()
 }
 void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 {
-	if(pasteflags.get(ITM_ADVP_NAME))
 	if(pasteflags.get(ITM_ADVP_DISP_NAME))
 		strcpy(display_name, other.display_name);
 	if(pasteflags.get(ITM_ADVP_ITMCLASS))

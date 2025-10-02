@@ -342,8 +342,8 @@ void ItemListerDialog::rclick(int x, int y)
 {
 	NewMenu rcmenu {
 		{ "&Copy", [&](){copy(); update();} },
-		{ "&Adv. Paste", [&](){adv_paste(); update();}, 0, copied_item_id < 0 },
-		{ "Paste", "&v", [&](){paste(); update();}, 0, copied_item_id < 0 },
+		{ "&Adv. Paste", [&](){if(adv_paste()) refresh_dlg();}, 0, copied_item_id < 0 },
+		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_item_id < 0 },
 		{ "&Save", [&](){save(); update();} },
 		{ "&Load", [&](){load(); update();} },
 	};
@@ -399,6 +399,8 @@ bool ItemListerDialog::adv_paste()
 	if(!call_checklist_dialog("Advanced Paste",advp_names,pasteflags))
 		return false;
 	itemsbuf[selected_val].advpaste(itemsbuf[copied_item_id], pasteflags);
+	if(pasteflags.get(ITM_ADVP_NAME))
+		strcpy(item_string[selected_val], item_string[copied_item_id]);
 	saved = false;
 	return true;
 }
@@ -518,7 +520,7 @@ void SpriteListerDialog::rclick(int x, int y)
 {
 	NewMenu rcmenu {
 		{ "&Copy", [&](){copy(); update();} },
-		{ "Paste", "&v", [&](){paste(); update();}, 0, copied_sprite_id < 0 },
+		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_sprite_id < 0 },
 		{ "&Save", [&](){save(); update();} },
 		{ "&Load", [&](){load(); update();} },
 	};
@@ -699,7 +701,7 @@ void EnemyListerDialog::rclick(int x, int y)
 	NewMenu rcmenu{
 		{ "&Copy", [&]() {copy(); update(); } },
 		//{ "&Adv. Paste", [&]() {adv_paste(); update(); }, 0, copied_enemy_id < 0 },
-		{ "Paste", "&v", [&]() {paste(); update(); }, 0, copied_enemy_id < 0 },
+		{ "Paste", "&v", [&]() {if(paste()) refresh_dlg();}, 0, copied_enemy_id < 0 },
 		{ "&Save", [&]() {save(); update(); } },
 		{ "&Load", [&]() {load(); update(); } },
 	};
