@@ -4878,6 +4878,7 @@ reload_for_replay_file:
 			advanceframe(true);
 			FFCore.runF6Engine();
 		}
+		active_cutscene.clear();
 		clear_info_bmp();
 
 		if (load_replay_file_deffered_called)
