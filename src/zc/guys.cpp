@@ -19330,7 +19330,10 @@ void loadenemies()
 			return;
 		
 		if(getmapflag(scr, mNO_ENEMIES_RETURN))
+		{
+			state.loaded_enemies = true;
 			return;
+		}
 
 		// dungeon basements
 		static byte dngn_enemy_x[4] = {32,96,144,208};
