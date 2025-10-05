@@ -13848,6 +13848,7 @@ bool HeroClass::try_hover()
 //Returns bitwise; lower 8 are dir pulled in, next 16 are combo ID, 25th bit is bool for if can be resisted
 //Returns '-1' if not being pulled
 //Returns '-2' if should be falling in
+static const int32_t flag_pit_irresistable = (1<<24);
 int32_t HeroClass::check_pitslide(bool ignore_hover)
 {
 	//Pitfall todo -Emily
@@ -13876,7 +13877,6 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 		int32_t ispitbl_75 = getpitfall(x+12,y+(bigHitbox?3:9));
 		int32_t ispitur_75 = getpitfall(x+3,y+(bigHitbox?12:14));
 		int32_t ispitbr_75 = getpitfall(x+3,y+(bigHitbox?3:9));
-		static const int32_t flag_pit_irresistable = (1<<24);
 		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
 		{
 			case 4: return -2; //Fully over pit; fall in
@@ -14093,6 +14093,25 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 	return -1;
 }
 
+static bool replay_compat_pitslide_bug()
+{
+	if (!replay_is_active())
+		return false;
+
+	auto zc_version_created = replay_get_zc_version_created();
+	if (!zc_version_created.well_formed)
+		return false;
+
+	if (zc_version_created.major < 2)
+		return true; // Replays didn't exist at this point ... but whatever.
+	if (zc_version_created.major == 2 && zc_version_created.minor < 55)
+		return true; // Replays didn't exist at this point ... but whatever.
+	if (zc_version_created.major == 2 && zc_version_created.minor == 55 && zc_version_created.patch < 11)
+		return true;
+
+	return false;
+}
+
 bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
 {
 	pitfall();
@@ -14105,6 +14124,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		pit_pullclk = 0;
 		return false;
 	}
+	bool irresistable = val & (replay_compat_pitslide_bug() ? 0x100 : flag_pit_irresistable);
 	int32_t dir = val&0xFF;
 	int32_t cmbid = (val&0xFFFF00)>>8;
 	int32_t sensitivity = combobuf[cmbid].attribytes[2];
@@ -14128,7 +14148,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		sensitivity = 1;
 	}
 	if(pit_pullclk++ % sensitivity) //No pull this frame
-		return (val&0x100);
+		return irresistable;
 	for(; step > 0 && !fallclk; --step)
 	{
 		switch(dir)
@@ -14147,7 +14167,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		}
 		pitfall();
 	}
-	return fallclk || (val&0x100);
+	return fallclk || irresistable;
 }
 
 bool HeroClass::pitfall()
@@ -18331,7 +18351,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 	bool checkladder = dy < 0;
 	auto check_drown_fall = [&]()
 		{
-			if (replay_version_check(0, 45))
+			if (replay_compat_pitslide_bug())
 				return false;
 			if (!ladderx && !laddery)
 			{

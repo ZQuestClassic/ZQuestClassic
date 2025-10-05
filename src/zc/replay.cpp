@@ -7,6 +7,7 @@
 #include "zc/zelda.h"
 #include <array>
 #include <exception>
+#include <optional>
 #include <string>
 #include <vector>
 #include <map>
@@ -94,6 +95,7 @@ static std::array<int, 4> current_mouse_state;
 static std::chrono::time_point<std::chrono::steady_clock> time_started;
 static std::chrono::time_point<std::chrono::system_clock> time_started_system;
 static std::chrono::time_point<std::chrono::steady_clock> time_result_saved;
+static std::optional<ZCVersion> zc_version_created;
 
 struct FramebufHistoryEntry
 {
@@ -1273,6 +1275,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
 	snapshot_frames.clear();
     framebuf_history_index = 0;
     version_use_latest = false;
+    zc_version_created.reset();
     replay_forget_input();
 
     switch (mode)
@@ -1325,6 +1328,7 @@ void replay_continue(std::filesystem::path path)
     ASSERT(mode == ReplayMode::Off);
     mode = ReplayMode::Record;
     frame_arg = -1;
+	zc_version_created.reset();
     prev_mouse_state = {0, 0, 0, 0};
     current_mouse_state = {0, 0, 0, 0};
     replay_forget_input();
@@ -2066,6 +2070,37 @@ ReplayMode replay_get_mode()
 int replay_get_version()
 {
     return version;
+}
+
+ZCVersion replay_get_zc_version_created()
+{
+	if (zc_version_created.has_value())
+		return *zc_version_created;
+
+	ZCVersion result{};
+	std::string str = replay_get_meta_str("zc_version_created");
+
+	if (str.starts_with("2.55-alpha") || str.starts_with("nightly-"))
+	{
+		result = {.well_formed = true, .major = 2, .minor = 55};
+	}
+	else if (!str.empty())
+	{
+		std::vector<std::string> parts;
+		util::split(str, parts, '.');
+		if (parts.size() >= 3)
+		{
+			errno = 0;
+			int major = std::strtol(parts[0].data(), nullptr, 10);
+			int minor = std::strtol(parts[1].data(), nullptr, 10);
+			int patch = std::strtol(parts[2].data(), nullptr, 10);
+			if (!errno)
+				result = {.well_formed = true, .major = major, .minor = minor, .patch = patch};
+		}
+	}
+
+	zc_version_created = result;
+	return result;
 }
 
 bool replay_version_check(int min, int max)
