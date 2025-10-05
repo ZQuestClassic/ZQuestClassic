@@ -15,6 +15,7 @@ static AccessorTable GlobalTable[] =
 	{ "WaitEvent",               0,         ZTID_FLOAT,   -1,          0,  {},{} },
 	{ "Trace",                   0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED },{} },
 	{ "Trace",                   1,          ZTID_VOID,   -1,          0,  { ZTID_LONG },{} },
+	{ "Trace",                   2,          ZTID_VOID,   -1,          0,  { ZTID_CHAR },{} },
 	{ "TraceB",                  0,          ZTID_VOID,   -1,          0,  { ZTID_BOOL },{} },
 	{ "TraceS",                  0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT },{} },
 	{ "TraceNL",                 0,          ZTID_VOID,   -1,          0,  {},{} },
@@ -409,6 +410,17 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 		LABELBACK(label);
 		addOpcode2 (code, new OTraceLRegister(new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Trace(char32[] val)
+	{
+		Function* function = getFunction("Trace",2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OTrace6Register(new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}
