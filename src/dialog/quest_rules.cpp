@@ -1048,6 +1048,8 @@ static GUI::ListData compatRulesList
 		" from below, and will only activate from the sides if you are near their top side." },
 	{ "Old Weapon Animate Timings", qr_OLD_WEAPON_DRAW_ANIMATE_TIMING,
 		"If enabled, weapons animate when they are drawn (instead of when they are processed); and they draw their shadow during their own draw, instead of separately." },
+	{ "Old Pitfall Sensitivity", qr_OLD_PIT_SENSITIVITY,
+		"If enabled, iptfall combos will be less sensitive, allowing them to be walked over in some cases." },
 };
 
 static GUI::ListData enemiesRulesList
