@@ -13864,11 +13864,12 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 	//Update std.zh with relevant new stuff
 	if(can_pitfall(ignore_hover))
 	{
+		const int sens_offs = get_qr(qr_OLD_PIT_SENSITIVITY) ? 0 : 1;
 		bool can_diag = (diagonalMovement || NO_GRIDLOCK);
-		int32_t ispitul = getpitfall(x,y+(bigHitbox?0:8));
-		int32_t ispitbl = getpitfall(x,y+15);
-		int32_t ispitur = getpitfall(x+15,y+(bigHitbox?0:8));
-		int32_t ispitbr = getpitfall(x+15,y+15);
+		int32_t ispitul = getpitfall(x+sens_offs,y+(bigHitbox?0:8)+sens_offs);
+		int32_t ispitbl = getpitfall(x+sens_offs,y+15-sens_offs);
+		int32_t ispitur = getpitfall(x+15-sens_offs,y+(bigHitbox?0:8)+sens_offs);
+		int32_t ispitbr = getpitfall(x+15-sens_offs,y+15-sens_offs);
 		int32_t ispitul_50 = getpitfall(x+8,y+(bigHitbox?8:12));
 		int32_t ispitbl_50 = getpitfall(x+8,y+(bigHitbox?7:11));
 		int32_t ispitur_50 = getpitfall(x+7,y+(bigHitbox?8:12));
@@ -14182,6 +14183,10 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 
 bool HeroClass::pitfall()
 {
+	const int sens_offs = get_qr(qr_OLD_PIT_SENSITIVITY) ? 0 : 1;
+	zfix x1 = x + sens_offs, x2 = x + 15 - sens_offs;
+	zfix y1 = y + (bigHitbox?0:8) + sens_offs, y2 = y + 15 - sens_offs;
+	zfix cx = x + 8, cy = y + (bigHitbox?8:12);
 	if(fallclk)
 	{
 		drop_liftwpn();
@@ -14238,15 +14243,58 @@ bool HeroClass::pitfall()
 	}
 	else if(can_pitfall())
 	{
-		bool ispitul = ispitfall(x,y+(bigHitbox?0:8));
-		bool ispitbl = ispitfall(x,y+15);
-		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
-		bool ispitbr = ispitfall(x+15,y+15);
-		int32_t pitctr = getpitfall(x+8,y+(bigHitbox?8:12));
+		bool ispitul = ispitfall(x1,y1);
+		bool ispitbl = ispitfall(x1,y2);
+		bool ispitur = ispitfall(x2,y1);
+		bool ispitbr = ispitfall(x2,y2);
+		int32_t pitctr = getpitfall(cx,cy);
 		if(ispitul && ispitbl && ispitur && ispitbr && pitctr)
 		{
 			if(!(hoverflags & HOV_PITFALL_OUT) && try_hover()) return false;
-			if(!bigHitbox && !ispitfall(x,y)) y = (y.getInt() + 8 - (y.getInt() % 8)); //Make the falling sprite fully over the pit
+			if(get_qr(qr_OLD_PIT_SENSITIVITY))
+			{
+				if(!bigHitbox && !ispitfall(x+8,y))  //Make the falling sprite fully over the pit
+					y = (y.getInt() + 8 - (y.getInt() % 8));
+			}
+			else
+			{
+				if (!ispitfall(x+8, y))
+				{
+					for(int q = 1; q < (bigHitbox ? 8 : 12); ++q)
+						if(ispitfall(x+8, y+q))
+						{
+							y += q; //Make the falling sprite fully over the pit
+							break;
+						}
+				}
+				if (!ispitfall(x+8, y+15))
+				{
+					for(int q = 1; q < 8; ++q)
+						if(ispitfall(x+8, y+15-q))
+						{
+							y -= q; //Make the falling sprite fully over the pit
+							break;
+						}
+				}
+				if (!ispitfall(x, y+8))
+				{
+					for(int q = 1; q < 8; ++q)
+						if(ispitfall(x+q, y+8))
+						{
+							x += q; //Make the falling sprite fully over the pit
+							break;
+						}
+				}
+				if (!ispitfall(x+15, y+8))
+				{
+					for(int q = 1; q < 8; ++q)
+						if(ispitfall(x+15-q, y+8))
+						{
+							x -= q; //Make the falling sprite fully over the pit
+							break;
+						}
+				}
+			}
 			fallclk = PITFALL_FALL_FRAMES;
 			fallCombo = pitctr;
 			action=falling; FFCore.setHeroAction(falling);

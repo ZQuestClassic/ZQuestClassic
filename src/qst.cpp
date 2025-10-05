@@ -3460,6 +3460,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_CUSTOM_WEAPON_BROKEN_SIZE, 1);
 		set_qr(qr_OLD_SPRITE_FALL_DROWN, 1);
 	}
+	if (tempheader.compareVer(2, 55, 11) < 0)
+		set_qr(qr_OLD_PIT_SENSITIVITY, 1);
 
 	memcpy(Header, &tempheader, sizeof(tempheader));
 	
