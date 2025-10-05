@@ -10713,8 +10713,23 @@ void HeroClass::deselectbombs(int32_t super)
 int32_t potion_life=0;
 int32_t potion_magic=0;
 
+static bool drown_check(int cid)
+{
+	int flippers_id = current_item_id(itype_flippers);
+	if (flippers_id < 0)
+		return true;
+	itemdata const& itm = itemsbuf[flippers_id];
+	newcombo const& cmb = combobuf[cid];
+	return (itm.fam_type < cmb.attribytes[0] || ((cmb.usrflags & cflag1) && !(itm.flags & ITEM_FLAG3)));
+}
 int HeroClass::onWater(bool drownonly)
 {
+	if (replay_is_active() && replay_get_meta_str("sav") == "nargads_trail_crystal_crusades_23_of_24.sav")
+		; // old broken behavior skips the below check in some circumstances
+	else if(ladderx || laddery || hoverclk || action == rafting
+		|| inlikelike || DRIEDLAKE || z || fakez || fall < 0 || fakefall < 0
+		|| (platform_ffc && !sideview_mode()))
+		return 0; // player isn't in water
 	int32_t water = 0;
 	int32_t types[4] = {0};
 	int32_t x1 = x+4, x2 = x+11,
@@ -10746,11 +10761,8 @@ int HeroClass::onWater(bool drownonly)
 	}
 	if(water > 0)
 	{
-		if(!drownonly) return water;
-		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
-		{
+		if(!drownonly || drown_check(water))
 			return water;
-		}
 	}
 	return 0;
 }
@@ -14138,7 +14150,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 	return fallclk || (val&0x100);
 }
 
-void HeroClass::pitfall()
+bool HeroClass::pitfall()
 {
 	if(fallclk)
 	{
@@ -14192,6 +14204,7 @@ void HeroClass::pitfall()
 				go_respawn_point();
 			}
 		}
+		return true;
 	}
 	else if(can_pitfall())
 	{
@@ -14202,7 +14215,7 @@ void HeroClass::pitfall()
 		int32_t pitctr = getpitfall(x+8,y+(bigHitbox?8:12));
 		if(ispitul && ispitbl && ispitur && ispitbr && pitctr)
 		{
-			if(!(hoverflags & HOV_PITFALL_OUT) && try_hover()) return;
+			if(!(hoverflags & HOV_PITFALL_OUT) && try_hover()) return false;
 			if(!bigHitbox && !ispitfall(x,y)) y = (y.getInt() + 8 - (y.getInt() % 8)); //Make the falling sprite fully over the pit
 			fallclk = PITFALL_FALL_FRAMES;
 			fallCombo = pitctr;
@@ -14210,8 +14223,25 @@ void HeroClass::pitfall()
 			spins = 0;
 			charging = 0;
 			drop_liftwpn();
+			return true;
 		}
 	}
+	return false;
+}
+
+bool HeroClass::try_drown()
+{
+	if(ladderx || laddery) return false;
+	if(action == drowning || action == lavadrowning) return true;
+	int water = onWater(true);
+	if(!water) return false;
+	drownCombo = water;
+	if (combobuf[water].usrflags&cflag1)
+		Drown(1);
+	else Drown();
+	if(byte drown_sfx = combobuf[water].attribytes[4])
+		sfx(drown_sfx, pan(x));
+	return true;
 }
 
 void HeroClass::mod_steps(std::vector<zfix*>& v)
@@ -18299,6 +18329,25 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 	if(dx && dy)
 		shove = false;
 	bool checkladder = dy < 0;
+	auto check_drown_fall = [&]()
+		{
+			if (replay_version_check(0, 45))
+				return false;
+			if (!ladderx && !laddery)
+			{
+				if (earlyret) // no side effects
+				{
+					if (check_pitslide() == -2 || onWater(true))
+						return true;
+				}
+				else
+				{
+					if (pitfall() || try_drown())
+						return true; // falling/drowning ends the movement instantly
+				}
+			}
+			return false;
+		};
 	
 	const int scl = 2;
 	while(abs(dx) > scl || abs(dy) > scl)
@@ -18327,6 +18376,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				ret = false;
 			}
 		}
+		if(check_drown_fall()) return false;
 	}
 	
 	bool skipdmg = earlyret || get_qr(qr_LENIENT_SOLID_DAMAGE) || get_qr(qr_NOSOLIDDAMAGECOMBOS) || hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS));
@@ -18442,6 +18492,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 					
 					if(shoved && scr_canmove(dx, 0, kb, ign_sv))
 					{
+						if(check_drown_fall()) return false;
 						x += dx;
 						stopped = false;
 					}
@@ -18493,6 +18544,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		}
 	}
 	ladderstuff = -1;
+	if(check_drown_fall()) return false;
 	if(dy)
 	{
 		if(scr_canmove(0, dy, kb, ign_sv, &ladderstuff))
@@ -18605,6 +18657,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 					
 					if(shoved && scr_canmove(0, dy, kb, ign_sv))
 					{
+						if(check_drown_fall()) return false;
 						y += dy;
 						stopped = false;
 					}
@@ -24596,17 +24649,20 @@ void HeroClass::checkspecial2(int32_t *ls)
 	// * Not a dried lake.
 	
 	// This used to check for swimming too, but I moved that into the block so that you can drown in higher-leveled water. -Dimi
-	if(water > 0 && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE
-		&& ((get_qr(qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0) || CanSideSwim())
-		&& (sideview_mode() || !platform_ffc))
+	// Moved some of the checks into `onWater()`, others into `drown_check()` -Em
+	if(water > 0 && (get_qr(qr_DROWN) || CanSideSwim()))
 	{
-		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
+		if(drown_check(water))
 		{
-			if(!(ladderx+laddery)) drownCombo = water;
-			if (combobuf[water].usrflags&cflag1) Drown(1);
-			else Drown();
-			if(byte drown_sfx = combobuf[water].attribytes[4])
-				sfx(drown_sfx, pan(int32_t(x)));
+			if(!ladderx && !laddery)
+			{
+				drownCombo = water;
+				if (combobuf[water].usrflags&cflag1)
+					Drown(1);
+				else Drown();
+				if(byte drown_sfx = combobuf[water].attribytes[4])
+					sfx(drown_sfx, pan(x));
+			}
 		}
 		else if (!isSwimming())
 		{
