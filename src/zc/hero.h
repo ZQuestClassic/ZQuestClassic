@@ -343,7 +343,8 @@ public:
 	bool try_hover();
 	int32_t check_pitslide(bool ignore_hover = false);
 	bool pitslide();
-	void pitfall();
+	bool pitfall();
+	bool try_drown();
 	void moveheroOld();
 	void mod_steps(std::vector<zfix*>& v);
 	void get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir);
