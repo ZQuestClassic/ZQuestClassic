@@ -3557,6 +3557,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE, 1);
 	}
 
+	if (compatrule_version < 92 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 11) < 0))
+		set_qr(qr_OLD_PIT_SENSITIVITY, 1);
+
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
