@@ -3143,8 +3143,6 @@ int32_t whichlayer(int32_t scr)
 	return -1;
 }
 
-sprite *s;
-
 int32_t item_flag(int32_t flag)
 {
 	if(unsigned(ri->idata) >= MAXITEMS)
@@ -4283,7 +4281,7 @@ int32_t get_register(const int32_t arg)
 					"item->Scale");
 				ret = -1; break;
 			}
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)((item*)(s))->scale)*100.0;
 			}
@@ -4291,7 +4289,7 @@ int32_t get_register(const int32_t arg)
 		
 		case ITEMX:
 		{
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				zfix x;
 				bool is_fairy = itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3;
@@ -4316,7 +4314,7 @@ int32_t get_register(const int32_t arg)
 
 		case ITEMY:
 		{
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				zfix y;
 				bool is_fairy = itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3;
@@ -4340,14 +4338,14 @@ int32_t get_register(const int32_t arg)
 		break;
 		
 		case ITEMSPRITESCRIPT:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)((item*)(s))->script)*10000;
 			}
 			break;
 		
 		case ITEMSPRITEINITD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,7);
 				ret=((int32_t)((item*)(s))->initD[a]);
@@ -4355,14 +4353,14 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case ITEMFAMILY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)((item*)(s))->family)*10000;
 			}
 			break;
 		
 		case ITEMLEVEL:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)((item*)(s))->lvl)*10000;
 			}
@@ -4376,7 +4374,7 @@ int32_t get_register(const int32_t arg)
 		}
 		
 		case ITEMSCRIPTUID:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)((item*)(s))->script_UID); //Literal, not *10000
 			}
@@ -4384,7 +4382,7 @@ int32_t get_register(const int32_t arg)
 		
 			
 		case ITEMZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -4396,7 +4394,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case ITEMJUMP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)(s))->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -4404,7 +4402,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case ITEMFAKEJUMP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)(s))->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -4412,55 +4410,55 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case ITEMDRAWTYPE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->drawstyle*10000;
 			}
 			break;
 		  
 		case ITEMGRAVITY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((((item*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
 			}
 			break;
 			
 		case ITEMID:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->id*10000;
 			}
 			break;
 			
 		case ITEMTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->tile*10000;
 			}
 			break;
 			
 		case ITEMSCRIPTTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->scripttile*10000;
 			}
 			break;
 			
 		case ITEMSCRIPTFLIP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->scriptflip*10000;
 			}
 			break;
 		
 		case ITEMPSTRING:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->pstring*10000;
 			}
 			break;
 		case ITEMPSTRINGFLAGS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->pickup_string_flags*10000;
 			}
@@ -4470,77 +4468,77 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case ITEMOTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->o_tile*10000;
 			}
 			break;
 			
 		case ITEMCSET:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->o_cset&15)*10000;
 			}
 			break;
 			
 		case ITEMFLASHCSET:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->o_cset>>4)*10000;
 			}
 			break;
 			
 		case ITEMFRAMES:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->frames*10000;
 			}
 			break;
 			
 		case ITEMFRAME:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->aframe*10000;
 			}
 			break;
 		
 		case ITEMACLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->aclk*10000;
 			}
 			break;    
 		
 		case ITEMASPEED:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->o_speed*10000;
 			}
 			break;
 			
 		case ITEMDELAY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->o_delay*10000;
 			}
 			break;
 			
 		case ITEMFLIP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->flip*10000;
 			}
 			break;
 			
 		case ITEMFLASH:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->flash*10000;
 			}
 			break;
 			
 		case ITEMHXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->hxofs)*10000;
 			}
@@ -4553,42 +4551,42 @@ int32_t get_register(const int32_t arg)
 					"item->Rotation");
 				ret = -1; break;
 			}
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->rotation)*10000;
 			}
 			break;
 
 		case ITEMHYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->hyofs)*10000;
 			}
 			break;
 			
 		case ITEMXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)(((item*)(s))->xofs))*10000;
 			}
 			break;
 			
 		case ITEMYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)(((item*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 			}
 			break;
 		
 		case ITEMSHADOWXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)(((item*)(s))->shadowyofs))*10000;
 			}
 			break;
 			
 		case ITEMSHADOWYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)(((item*)(s))->shadowxofs))*10000;
 			}
@@ -4596,42 +4594,42 @@ int32_t get_register(const int32_t arg)
 			
 			
 		case ITEMZOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((int32_t)(((item*)(s))->zofs))*10000;
 			}
 			break;
 			
 		case ITEMHXSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->hit_width)*10000;
 			}
 			break;
 			
 		case ITEMHYSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->hit_height)*10000;
 			}
 			break;
 			
 		case ITEMHZSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->hzsz)*10000;
 			}
 			break;
 			
 		case ITEMTXSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->txsz)*10000;
 			}
 			break;
 			
 		case ITEMTYSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=(((item*)(s))->tysz)*10000;
 			}
@@ -4646,14 +4644,14 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case ITEMEXTEND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->extend*10000;
 			}
 			break;
 			
 		case ITEMPICKUP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->pickup*10000;
 			}
@@ -4661,7 +4659,7 @@ int32_t get_register(const int32_t arg)
 			
 			
 		case ITEMMISCD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				ret=(((item*)(s))->miscellaneous[a]);
@@ -4669,35 +4667,35 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case ITEMFALLCLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)(s))->fallclk * 10000;
 			}
 			break;
 		
 		case ITEMFALLCMB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)(s))->fallCombo * 10000;
 			}
 			break;
 		
 		case ITEMDROWNCLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)(s))->drownclk * 10000;
 			}
 			break;
 		
 		case ITEMDROWNCMB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)(s))->drownCombo * 10000;
 			}
 			break;
 		
 		case ITEMFAKEZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -4711,7 +4709,7 @@ int32_t get_register(const int32_t arg)
 		
 		case ITEMMOVEFLAGS:
 		{
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") != SH::_NoError)
@@ -4726,67 +4724,67 @@ int32_t get_register(const int32_t arg)
 		}
 		
 		case ITEMGLOWRAD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)(s))->glowRad * 10000;
 			}
 			break;
 			
 		case ITEMGLOWSHP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)(s))->glowShape * 10000;
 			}
 			break;
 			
 		case ITEMDIR:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)(s))->dir * 10000;
 			}
 			break;
 			
 		case ITEMENGINEANIMATE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = int32_t(((item*)(s))->do_animation) * 10000;
 			}
 			break;
 			
 		case ITEMSHADOWSPR:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = int32_t(((item*)(s))->spr_shadow) * 10000;
 			}
 			break;
 		case ITEMDROPPEDBY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = int32_t(((item*)(s))->from_dropset) * 10000;
 			}
 			break;
 		case ITMSWHOOKED:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case ITEMFORCEGRAB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret = ((item*)s)->get_forcegrab() ? 10000 : 0;
 			}
 			break;
 			
 		case ITEMNOSOUND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->noSound ? 10000 : 0;
 			}
 			break;
 			
 		case ITEMNOHOLDSOUND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				ret=((item*)(s))->noHoldSound ? 10000 : 0;
 			}
@@ -6110,7 +6108,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		//case EWPNPARENTUID:
-			//if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
+			//iauto !=(s=checkEWpn(ri->ewpn, "ScriptUID"))
 			//	ret=(((weapon*)(s))->parent_script_UID); //literal, not *10000
 				
 			
@@ -6512,7 +6510,7 @@ int32_t get_register(const int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//LWeapon Variables
 		case LWPNSPECIAL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Special")))
+			if(auto s=checkLWpn(ri->lwpn,"Special"))
 				ret=((int32_t)((weapon*)(s))->specialinfo)*10000;
 			
 				
@@ -6525,13 +6523,13 @@ int32_t get_register(const int32_t arg)
 					"lweapon->Scale");
 				ret = -1; break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+			if(auto s=checkLWpn(ri->lwpn,"Scale"))
 				ret=((int32_t)((weapon*)(s))->scale)*100.0;
 				
 			break;
 		
 		case LWPNX:
-			if(0!=(s=checkLWpn(ri->lwpn,"X")))
+			if(auto s=checkLWpn(ri->lwpn,"X"))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -6551,7 +6549,7 @@ int32_t get_register(const int32_t arg)
 		}
 	
 		case LWPNY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
+			if(auto s=checkLWpn(ri->lwpn,"Y"))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -6563,7 +6561,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LWPNZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
+			if(auto s=checkLWpn(ri->lwpn,"Z"))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -6576,7 +6574,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LWPNJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
+			if(auto s=checkLWpn(ri->lwpn,"Jump"))
 			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -6585,7 +6583,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case LWPNFAKEJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn,"FakeJump")))
+			if(auto s=checkLWpn(ri->lwpn,"FakeJump"))
 			{
 				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -6594,19 +6592,19 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LWPNDIR:
-			if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
+			if(auto s=checkLWpn(ri->lwpn,"Dir"))
 				ret=((weapon*)(s))->dir*10000;
 				
 			break;
 		 
 		case LWPNGRAVITY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
+			if(auto s=checkLWpn(ri->lwpn,"Gravity"))
 				ret= (((weapon*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0;
 				
 			break;
 			
 		case LWPNSTEP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
+			if(auto s=checkLWpn(ri->lwpn,"Step"))
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
@@ -6628,13 +6626,13 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LWPNANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Angle")))
+			if(auto s=checkLWpn(ri->lwpn,"Angle"))
 				ret=(int32_t)(((weapon*)(s))->angle*10000);
 				
 			break;
 		
 		case LWPNDEGANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DegAngle")))
+			if(auto s=checkLWpn(ri->lwpn,"DegAngle"))
 			{
 				ret=(int32_t)(((weapon*)(s))->angle*(180.0 / PI)*10000);
 			}
@@ -6642,7 +6640,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LWPNVX:
-			if(0!=(s=checkLWpn(ri->lwpn,"Vx")))
+			if(auto s=checkLWpn(ri->lwpn,"Vx"))
 			{
 				if (((weapon*)(s))->angular)
 					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
@@ -6672,7 +6670,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case LWPNVY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Vy")))
+			if(auto s=checkLWpn(ri->lwpn,"Vy"))
 			{
 				if (((weapon*)(s))->angular)
 					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
@@ -6701,109 +6699,109 @@ int32_t get_register(const int32_t arg)
 			break;
 				
 		case LWPNANGULAR:
-			if(0!=(s=checkLWpn(ri->lwpn,"Angular")))
+			if(auto s=checkLWpn(ri->lwpn,"Angular"))
 				ret=((weapon*)(s))->angular*10000;
 				
 			break;
 			
 		case LWPNAUTOROTATE:
-			if(0!=(s=checkLWpn(ri->lwpn,"AutoRotate")))
+			if(auto s=checkLWpn(ri->lwpn,"AutoRotate"))
 				ret=((weapon*)(s))->autorotate*10000;
 				
 			break;
 			
 		case LWPNBEHIND:
-			if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
+			if(auto s=checkLWpn(ri->lwpn,"Behind"))
 				ret=((weapon*)(s))->behind*10000;
 				
 			break;
 			
 		case LWPNDRAWTYPE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawStyle")))
+			if(auto s=checkLWpn(ri->lwpn,"DrawStyle"))
 				ret=((weapon*)(s))->drawstyle*10000;
 				
 			break;
 			
 		case LWPNPOWER:
-			if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
+			if(auto s=checkLWpn(ri->lwpn,"Damage"))
 				ret=((weapon*)(s))->power*10000;
 				
 			break;
 		/*
 		case LWPNRANGE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Range")))
+			if(auto s=checkLWpn(ri->lwpn,"Range"))
 				ret=((weapon*)(s))->scriptrange*10000;
 				
 			break;
 		*/        
 		case LWPNDEAD:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
+			if(auto s=checkLWpn(ri->lwpn,"DeadState"))
 				ret=((weapon*)(s))->dead*10000;
 				
 			break;
 			
 		case LWPNID:
-			if(0!=(s=checkLWpn(ri->lwpn,"ID")))
+			if(auto s=checkLWpn(ri->lwpn,"ID"))
 				ret=((weapon*)(s))->id*10000;
 				
 			break;
 			
 		case LWPNTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Tile")))
+			if(auto s=checkLWpn(ri->lwpn,"Tile"))
 				ret=((weapon*)(s))->tile*10000;
 				
 			break;
 		
 		case LWPNSCRIPTTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptTile")))
+			if(auto s=checkLWpn(ri->lwpn,"ScriptTile"))
 				ret=((weapon*)(s))->scripttile*10000;
 				
 			break;
 		
 		case LWPNSCRIPTFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptFlip")))
+			if(auto s=checkLWpn(ri->lwpn,"ScriptFlip"))
 				ret=((weapon*)(s))->scriptflip*10000;
 				
 			break;
 			
 		case LWPNCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"CSet")))
+			if(auto s=checkLWpn(ri->lwpn,"CSet"))
 				ret=((weapon*)(s))->cs*10000;
 				
 			break;
 			
 		case LWPNFLASHCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"FlashCSet")))
+			if(auto s=checkLWpn(ri->lwpn,"FlashCSet"))
 				ret=(((weapon*)(s))->o_cset>>4)*10000;
 				
 			break;
 			
 		case LWPNFRAMES:
-			if(0!=(s=checkLWpn(ri->lwpn,"NumFrames")))
+			if(auto s=checkLWpn(ri->lwpn,"NumFrames"))
 				ret=((weapon*)(s))->frames*10000;
 				
 			break;
 			
 		case LWPNFRAME:
-			if(0!=(s=checkLWpn(ri->lwpn,"Frame")))
+			if(auto s=checkLWpn(ri->lwpn,"Frame"))
 				ret=((weapon*)(s))->aframe*10000;
 				
 			break;
 			
 		case LWPNASPEED:
-			if(0!=(s=checkLWpn(ri->lwpn,"ASpeed")))
+			if(auto s=checkLWpn(ri->lwpn,"ASpeed"))
 				ret=((weapon*)(s))->o_speed*10000;
 				
 			break;
 			
 		case LWPNFLASH:
-			if(0!=(s=checkLWpn(ri->lwpn,"Flash")))
+			if(auto s=checkLWpn(ri->lwpn,"Flash"))
 				ret=((weapon*)(s))->flash*10000;
 				
 			break;
 			
 		case LWPNFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Flip")))
+			if(auto s=checkLWpn(ri->lwpn,"Flip"))
 				ret=((weapon*)(s))->flip*10000;
 				
 			break;
@@ -6813,104 +6811,104 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LWPNEXTEND:
-			if(0!=(s=checkLWpn(ri->lwpn,"Extend")))
+			if(auto s=checkLWpn(ri->lwpn,"Extend"))
 				ret=((weapon*)(s))->extend*10000;
 				
 			break;
 			
 		case LWPNOTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
+			if(auto s=checkLWpn(ri->lwpn,"OriginalTile"))
 				ret=((weapon*)(s))->o_tile*10000;
 				
 			break;
 			
 		case LWPNOCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"OriginalCSet")))
+			if(auto s=checkLWpn(ri->lwpn,"OriginalCSet"))
 				ret=(((weapon*)(s))->o_cset&15)*10000;
 				
 			break;
 			
 		case LWPNHXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitXOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"HitXOffset"))
 				ret=(((weapon*)(s))->hxofs)*10000;
 				
 			break;
 			
 		case LWPNHYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitYOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"HitYOffset"))
 				ret=(((weapon*)(s))->hyofs)*10000;
 				
 			break;
 			
 		case LWPNXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawXOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"DrawXOffset"))
 				ret=((int32_t)(((weapon*)(s))->xofs))*10000;
 				
 			break;
 			
 		case LWPNYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"DrawYOffset"))
 				ret=((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 			
 		case LWPNSHADOWXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowXOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"ShadowXOffset"))
 				ret=((int32_t)(((weapon*)(s))->shadowxofs))*10000;
 				
 			break;
 			
 		case LWPNSHADOWYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowYOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"ShadowYOffset"))
 				ret=((int32_t)(((weapon*)(s))->shadowyofs))*10000;
 				
 			break;
 			
 		case LWPNTOTALDYOFFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"TotalDYOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"TotalDYOffset"))
 				ret = ((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000;
 			break;
 			
 		case LWPNZOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawZOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"DrawZOffset"))
 				ret=((int32_t)(((weapon*)(s))->zofs))*10000;
 				
 			break;
 			
 		case LWPNHXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitWidth")))
+			if(auto s=checkLWpn(ri->lwpn,"HitWidth"))
 				ret=(((weapon*)(s))->hit_width)*10000;
 				
 			break;
 			
 		case LWPNHYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitHeight")))
+			if(auto s=checkLWpn(ri->lwpn,"HitHeight"))
 				ret=(((weapon*)(s))->hit_height)*10000;
 				
 			break;
 			
 		case LWPNHZSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitZHeight")))
+			if(auto s=checkLWpn(ri->lwpn,"HitZHeight"))
 				ret=(((weapon*)(s))->hzsz)*10000;
 				
 			break;
 			
 		case LWPNTXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"TileWidth")))
+			if(auto s=checkLWpn(ri->lwpn,"TileWidth"))
 				ret=(((weapon*)(s))->txsz)*10000;
 				
 			break;
 			
 		case LWPNTYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"TileHeight")))
+			if(auto s=checkLWpn(ri->lwpn,"TileHeight"))
 				ret=(((weapon*)(s))->tysz)*10000;
 				
 			break;
 			
 		case LWPNMISCD:
-			if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
+			if(auto s=checkLWpn(ri->lwpn,"Misc"))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				ret=(((weapon*)(s))->miscellaneous[a]);
@@ -6919,43 +6917,43 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LWPNCOLLDET:
-			if(0!=(s=checkLWpn(ri->lwpn,"CollDetection")))
+			if(auto s=checkLWpn(ri->lwpn,"CollDetection"))
 				ret=(((weapon*)(s))->scriptcoldet)*10000;
 				
 			break;
 		
 		case LWPNENGINEANIMATE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
+			if(auto s=checkLWpn(ri->lwpn,"Animation"))
 				ret=(((weapon*)(s))->do_animation)*10000;
 				
 			break;
 		
 		case LWPNPARENT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
+			if(auto s=checkLWpn(ri->lwpn,"Parent"))
 				ret=(((weapon*)(s))->parentitem)*10000;
 				
 			break;
 
 		case LWPNLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Level")))
+			if(auto s=checkLWpn(ri->lwpn,"Level"))
 				ret=(((weapon*)(s))->type)*10000;
 				
 			break;
 		
 		case LWPNSCRIPT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Script")))
+			if(auto s=checkLWpn(ri->lwpn,"Script"))
 				ret=(((weapon*)(s))->weaponscript)*10000;
 				
 			break;
 		
 		case LWPNUSEWEAPON:
-			if(0!=(s=checkLWpn(ri->lwpn,"Weapon")))
+			if(auto s=checkLWpn(ri->lwpn,"Weapon"))
 				ret=(((weapon*)(s))->useweapon)*10000;
 				
 			break;
 		
 		case LWPNUSEDEFENCE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Defense")))
+			if(auto s=checkLWpn(ri->lwpn,"Defense"))
 				ret=(((weapon*)(s))->usedefence)*10000;
 				
 			break;
@@ -6963,7 +6961,7 @@ int32_t get_register(const int32_t arg)
 		case LWPNINITD:
 		{
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
-			if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
+			if(auto s=checkLWpn(ri->lwpn,"InitD[]"))
 			{
 				ret=(((weapon*)(s))->weap_initd[a]);
 			}
@@ -6971,7 +6969,7 @@ int32_t get_register(const int32_t arg)
 		}
 		
 		case LWEAPONSCRIPTUID:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptUID")))
+			if(auto s=checkLWpn(ri->lwpn,"ScriptUID"))
 				ret=(((weapon*)(s))->script_UID); //literal, not *10000
 				
 			break;
@@ -6983,41 +6981,41 @@ int32_t get_register(const int32_t arg)
 					"lweapon->Rotation");
 				ret = -1; break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
+			if(auto s=checkLWpn(ri->lwpn,"Rotation"))
 				ret=((weapon*)(s))->rotation*10000;
 				
 			break;
 		
 		case LWPNFALLCLK:
-			if(0!=(s=checkLWpn(ri->lwpn,"Falling")))
+			if(auto s=checkLWpn(ri->lwpn,"Falling"))
 			{
 				ret = ((weapon*)(s))->fallclk * 10000;
 			}
 			break;
 		
 		case LWPNFALLCMB:
-			if(0!=(s=checkLWpn(ri->lwpn,"FallCombo")))
+			if(auto s=checkLWpn(ri->lwpn,"FallCombo"))
 			{
 				ret = ((weapon*)(s))->fallCombo * 10000;
 			}
 			break;
 		
 		case LWPNDROWNCLK:
-			if(0!=(s=checkLWpn(ri->lwpn,"Drowning")))
+			if(auto s=checkLWpn(ri->lwpn,"Drowning"))
 			{
 				ret = ((weapon*)(s))->drownclk * 10000;
 			}
 			break;
 		
 		case LWPNDROWNCMB:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrownCombo")))
+			if(auto s=checkLWpn(ri->lwpn,"DrownCombo"))
 			{
 				ret = ((weapon*)(s))->drownCombo * 10000;
 			}
 			break;
 			
 		case LWPNFAKEZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"FakeZ")))
+			if(auto s=checkLWpn(ri->lwpn,"FakeZ"))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -7030,7 +7028,7 @@ int32_t get_register(const int32_t arg)
 		
 		case LWPNMOVEFLAGS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
+			if(auto s=checkLWpn(ri->lwpn,"MoveFlags[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, 10, "lweapon->MoveFlags[]") != SH::_NoError)
@@ -7045,7 +7043,7 @@ int32_t get_register(const int32_t arg)
 		}
 		case LWPNFLAGS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
+			if(auto s=checkLWpn(ri->lwpn,"Flags[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") != SH::_NoError)
@@ -7060,7 +7058,7 @@ int32_t get_register(const int32_t arg)
 		}
 		case LWPNSPRITES:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
+			if(auto s=checkLWpn(ri->lwpn,"Sprites[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") != SH::_NoError)
@@ -7072,7 +7070,7 @@ int32_t get_register(const int32_t arg)
 		}
 		case LWPNBURNLIGHTRADIUS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"BurnLightRadius[]")))
+			if(auto s=checkLWpn(ri->lwpn,"BurnLightRadius[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->BurnLightRadius[]") != SH::_NoError)
@@ -7084,88 +7082,88 @@ int32_t get_register(const int32_t arg)
 		}
 		
 		case LWPNGLOWRAD:
-			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
+			if(auto s=checkLWpn(ri->lwpn,"LightRadius"))
 			{
 				ret = ((weapon*)(s))->glowRad * 10000;
 			}
 			break;
 			
 		case LWPNGLOWSHP:
-			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			if(auto s=checkLWpn(ri->lwpn,"LightShape"))
 			{
 				ret = ((weapon*)(s))->glowShape * 10000;
 			}
 			break;
 			
 		case LWPNUNBL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Unblockable")))
+			if(auto s=checkLWpn(ri->lwpn,"Unblockable"))
 			{
 				ret = ((weapon*)(s))->unblockable * 10000;
 			}
 			break;
 			
 		case LWPNSHADOWSPR:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowSprite")))
+			if(auto s=checkLWpn(ri->lwpn,"ShadowSprite"))
 			{
 				ret = ((weapon*)(s))->spr_shadow * 10000;
 			}
 			break;
 		case LWSWHOOKED:
-			if(0!=(s=checkLWpn(ri->lwpn,"SwitchHooked")))
+			if(auto s=checkLWpn(ri->lwpn,"SwitchHooked"))
 			{
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case LWPNTIMEOUT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Timeout")))
+			if(auto s=checkLWpn(ri->lwpn,"Timeout"))
 			{
 				ret = ((weapon*)(s))->weap_timeout * 10000;
 			}
 			break;
 		case LWPNDEATHITEM:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathItem")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathItem"))
 			{
 				ret = ((weapon*)(s))->death_spawnitem * 10000;
 			}
 			break;
 		case LWPNDEATHDROPSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathDropset")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathDropset"))
 			{
 				ret = ((weapon*)(s))->death_spawndropset * 10000;
 			}
 			break;
 		case LWPNDEATHIPICKUP:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathItemPFlags")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathItemPFlags"))
 			{
 				ret = ((weapon*)(s))->death_item_pflags * 10000;
 			}
 			break;
 		case LWPNDEATHSPRITE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathSprite")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathSprite"))
 			{
 				ret = ((weapon*)(s))->death_sprite * 10000;
 			}
 			break;
 		case LWPNDEATHSFX:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathSFX")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathSFX"))
 			{
 				ret = ((weapon*)(s))->death_sfx * 10000;
 			}
 			break;
 		case LWPNLIFTLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftLevel")))
+			if(auto s=checkLWpn(ri->lwpn,"LiftLevel"))
 			{
 				ret = ((weapon*)(s))->lift_level * 10000;
 			}
 			break;
 		case LWPNLIFTTIME:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftTime")))
+			if(auto s=checkLWpn(ri->lwpn,"LiftTime"))
 			{
 				ret = ((weapon*)(s))->lift_time * 10000;
 			}
 			break;
 		case LWPNLIFTHEIGHT:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftHeight")))
+			if(auto s=checkLWpn(ri->lwpn,"LiftHeight"))
 			{
 				ret = ((weapon*)(s))->lift_height.getZLong();
 			}
@@ -7180,13 +7178,13 @@ int32_t get_register(const int32_t arg)
 					"eweapon->Scale");
 				ret = -1; break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn, "Scale")))
+			if(auto s=checkEWpn(ri->ewpn, "Scale"))
 				ret=((int32_t)((weapon*)(s))->scale)*100.0;
 				
 			break;
 
 		case EWPNX:
-			if(0!=(s=checkEWpn(ri->ewpn, "X")))
+			if(auto s=checkEWpn(ri->ewpn, "X"))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -7205,7 +7203,7 @@ int32_t get_register(const int32_t arg)
 		}
 	
 		case EWPNY:
-			if(0!=(s=checkEWpn(ri->ewpn, "Y")))
+			if(auto s=checkEWpn(ri->ewpn, "Y"))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -7217,7 +7215,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case EWPNZ:
-			if(0!=(s=checkEWpn(ri->ewpn, "Z")))
+			if(auto s=checkEWpn(ri->ewpn, "Z"))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -7229,7 +7227,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case EWPNJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
+			if(auto s=checkEWpn(ri->ewpn, "Jump"))
 			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -7238,7 +7236,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case EWPNFAKEJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn, "FakeJump")))
+			if(auto s=checkEWpn(ri->ewpn, "FakeJump"))
 			{
 				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -7247,25 +7245,25 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case EWPNDIR:
-			if(0!=(s=checkEWpn(ri->ewpn, "Dir")))
+			if(auto s=checkEWpn(ri->ewpn, "Dir"))
 				ret=((weapon*)(s))->dir*10000;
 				
 			break;
 			
 		case EWPNLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn, "Level")))
+			if(auto s=checkEWpn(ri->ewpn, "Level"))
 				ret=((weapon*)(s))->type*10000;
 				
 			break;
 			
 		case EWPNGRAVITY:
-			if(0!=(s=checkEWpn(ri->ewpn, "Gravity")))
+			if(auto s=checkEWpn(ri->ewpn, "Gravity"))
 				ret=((((weapon*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
 				
 			break;
 			
 		case EWPNSTEP:
-			if(0!=(s=checkEWpn(ri->ewpn, "Step")))
+			if(auto s=checkEWpn(ri->ewpn, "Step"))
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
@@ -7285,13 +7283,13 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case EWPNANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Angle")))
+			if(auto s=checkEWpn(ri->ewpn,"Angle"))
 				ret=(int32_t)(((weapon*)(s))->angle*10000);
 				
 			break;
 			
 		case EWPNDEGANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DegAngle")))
+			if(auto s=checkEWpn(ri->ewpn,"DegAngle"))
 			{
 				ret=(int32_t)(((weapon*)(s))->angle*(180.0 / PI)*10000);
 			}
@@ -7299,7 +7297,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case EWPNVX:
-			if(0!=(s=checkEWpn(ri->ewpn,"Vx")))
+			if(auto s=checkEWpn(ri->ewpn,"Vx"))
 			{
 				if (((weapon*)(s))->angular)
 					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
@@ -7328,7 +7326,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case EWPNVY:
-			if(0!=(s=checkEWpn(ri->ewpn,"Vy")))
+			if(auto s=checkEWpn(ri->ewpn,"Vy"))
 			{
 				if (((weapon*)(s))->angular)
 					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
@@ -7358,103 +7356,103 @@ int32_t get_register(const int32_t arg)
 			
 			
 		case EWPNANGULAR:
-			if(0!=(s=checkEWpn(ri->ewpn,"Angular")))
+			if(auto s=checkEWpn(ri->ewpn,"Angular"))
 				ret=((weapon*)(s))->angular*10000;
 				
 			break;
 			
 		case EWPNAUTOROTATE:
-			if(0!=(s=checkEWpn(ri->ewpn,"AutoRotate")))
+			if(auto s=checkEWpn(ri->ewpn,"AutoRotate"))
 				ret=((weapon*)(s))->autorotate*10000;
 				
 			break;
 			
 		case EWPNBEHIND:
-			if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
+			if(auto s=checkEWpn(ri->ewpn,"Behind"))
 				ret=((weapon*)(s))->behind*10000;
 				
 			break;
 			
 		case EWPNDRAWTYPE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawStyle")))
+			if(auto s=checkEWpn(ri->ewpn,"DrawStyle"))
 				ret=((weapon*)(s))->drawstyle*10000;
 				
 			break;
 			
 		case EWPNPOWER:
-			if(0!=(s=checkEWpn(ri->ewpn,"Damage")))
+			if(auto s=checkEWpn(ri->ewpn,"Damage"))
 				ret=((weapon*)(s))->power*10000;
 				
 			break;
 			
 		case EWPNDEAD:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeadState")))
+			if(auto s=checkEWpn(ri->ewpn,"DeadState"))
 				ret=((weapon*)(s))->dead*10000;
 				
 			break;
 			
 		case EWPNID:
-			if(0!=(s=checkEWpn(ri->ewpn,"ID")))
+			if(auto s=checkEWpn(ri->ewpn,"ID"))
 				ret=((weapon*)(s))->id*10000;
 				
 			break;
 			
 		case EWPNTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Tile")))
+			if(auto s=checkEWpn(ri->ewpn,"Tile"))
 				ret=((weapon*)(s))->tile*10000;
 				
 			break;
 		
 		case EWPNSCRIPTTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"ScriptTile")))
+			if(auto s=checkEWpn(ri->ewpn,"ScriptTile"))
 				ret=((weapon*)(s))->scripttile*10000;
 				
 			break;
 		
 		case EWPNSCRIPTFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn,"ScriptFlip")))
+			if(auto s=checkEWpn(ri->ewpn,"ScriptFlip"))
 				ret=((weapon*)(s))->scriptflip*10000;
 				
 			break;
 			
 		case EWPNCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"CSet")))
+			if(auto s=checkEWpn(ri->ewpn,"CSet"))
 				ret=((weapon*)(s))->cs*10000;
 				
 			break;
 			
 		case EWPNFLASHCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"FlashCSet")))
+			if(auto s=checkEWpn(ri->ewpn,"FlashCSet"))
 				ret=(((weapon*)(s))->o_cset>>4)*10000;
 				
 			break;
 			
 		case EWPNFRAMES:
-			if(0!=(s=checkEWpn(ri->ewpn,"NumFrames")))
+			if(auto s=checkEWpn(ri->ewpn,"NumFrames"))
 				ret=((weapon*)(s))->frames*10000;
 				
 			break;
 			
 		case EWPNFRAME:
-			if(0!=(s=checkEWpn(ri->ewpn,"Frame")))
+			if(auto s=checkEWpn(ri->ewpn,"Frame"))
 				ret=((weapon*)(s))->aframe*10000;
 				
 			break;
 			
 		case EWPNASPEED:
-			if(0!=(s=checkEWpn(ri->ewpn,"ASpeed")))
+			if(auto s=checkEWpn(ri->ewpn,"ASpeed"))
 				ret=((weapon*)(s))->o_speed*10000;
 				
 			break;
 			
 		case EWPNFLASH:
-			if(0!=(s=checkEWpn(ri->ewpn,"Flash")))
+			if(auto s=checkEWpn(ri->ewpn,"Flash"))
 				ret=((weapon*)(s))->flash*10000;
 				
 			break;
 			
 		case EWPNFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn,"Flip")))
+			if(auto s=checkEWpn(ri->ewpn,"Flip"))
 				ret=((weapon*)(s))->flip*10000;
 				
 			break;
@@ -7466,7 +7464,7 @@ int32_t get_register(const int32_t arg)
 					"eweapon->Rotation");
 				break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
+			if(auto s=checkEWpn(ri->ewpn,"Rotation"))
 				ret=((weapon*)(s))->rotation*10000;
 				
 			break;
@@ -7476,103 +7474,103 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case EWPNEXTEND:
-			if(0!=(s=checkEWpn(ri->ewpn,"Extend")))
+			if(auto s=checkEWpn(ri->ewpn,"Extend"))
 				ret=((weapon*)(s))->extend*10000;
 				
 			break;
 			
 		case EWPNOTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"OriginalTile")))
+			if(auto s=checkEWpn(ri->ewpn,"OriginalTile"))
 				ret=((weapon*)(s))->o_tile*10000;
 				
 			break;
 			
 		case EWPNOCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"OriginalCSet")))
+			if(auto s=checkEWpn(ri->ewpn,"OriginalCSet"))
 				ret=(((weapon*)(s))->o_cset&15)*10000;
 				
 			break;
 			
 		case EWPNHXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitXOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"HitXOffset"))
 				ret=(((weapon*)(s))->hxofs)*10000;
 				
 			break;
 			
 		case EWPNHYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitYOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"HitYOffset"))
 				ret=(((weapon*)(s))->hyofs)*10000;
 				
 			break;
 			
 		case EWPNXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawXOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"DrawXOffset"))
 				ret=((int32_t)(((weapon*)(s))->xofs))*10000;
 				
 			break;
 			
 		case EWPNYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"DrawYOffset"))
 				ret=((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 			
 		case EWPNSHADOWXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowXOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"ShadowXOffset"))
 				ret=((int32_t)(((weapon*)(s))->shadowxofs))*10000;
 				
 			break;
 			
 		case EWPNSHADOWYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowYOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"ShadowYOffset"))
 				ret=((int32_t)(((weapon*)(s))->shadowyofs))*10000;
 				
 			break;
 		case EWPNTOTALDYOFFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"TotalDYOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"TotalDYOffset"))
 				ret = ((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0) * 10000);
 			break;
 			
 		case EWPNZOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawZOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"DrawZOffset"))
 				ret=((int32_t)(((weapon*)(s))->zofs))*10000;
 				
 			break;
 			
 		case EWPNHXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitWidth")))
+			if(auto s=checkEWpn(ri->ewpn,"HitWidth"))
 				ret=(((weapon*)(s))->hit_width)*10000;
 				
 			break;
 			
 		case EWPNHYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitHeight")))
+			if(auto s=checkEWpn(ri->ewpn,"HitHeight"))
 				ret=(((weapon*)(s))->hit_height)*10000;
 				
 			break;
 			
 		case EWPNHZSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitZHeight")))
+			if(auto s=checkEWpn(ri->ewpn,"HitZHeight"))
 				ret=(((weapon*)(s))->hzsz)*10000;
 				
 			break;
 			
 		case EWPNTXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"TileWidth")))
+			if(auto s=checkEWpn(ri->ewpn,"TileWidth"))
 				ret=(((weapon*)(s))->txsz)*10000;
 				
 			break;
 			
 		case EWPNTYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"TileHeight")))
+			if(auto s=checkEWpn(ri->ewpn,"TileHeight"))
 				ret=(((weapon*)(s))->tysz)*10000;
 				
 			break;
 			
 		case EWPNMISCD:
-			if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
+			if(auto s=checkEWpn(ri->ewpn,"Misc"))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				ret=(((weapon*)(s))->miscellaneous[a]);
@@ -7581,37 +7579,37 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case EWPNCOLLDET:
-			if(0!=(s=checkEWpn(ri->ewpn,"CollDetection")))
+			if(auto s=checkEWpn(ri->ewpn,"CollDetection"))
 				ret=(((weapon*)(s))->scriptcoldet)*10000;
 				
 			break;
 		
 		case EWPNENGINEANIMATE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
+			if(auto s=checkEWpn(ri->ewpn,"Animation"))
 				ret=(((weapon*)(s))->do_animation)*10000;
 				
 			break;
 		
 		case EWPNPARENT:
-			if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
+			if(auto s=checkEWpn(ri->ewpn, "Parent"))
 				ret= ((get_qr(qr_OLDEWPNPARENT)) ? (((weapon*)(s))->parentid)*10000 : (((weapon*)(s))->parentid));
 		
 			break;
 		
 		case EWEAPONSCRIPTUID:
-			if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
+			if(auto s=checkEWpn(ri->ewpn, "ScriptUID"))
 				ret=(((weapon*)(s))->script_UID); //literal, not *10000
 				
 			break;
 		
 		case EWPNPARENTUID:
-			if(0!=(s=checkEWpn(ri->ewpn, "ParentUID")))
+			if(auto s=checkEWpn(ri->ewpn, "ParentUID"))
 				ret=(((weapon*)(s))->parent_script_UID); //literal, not *10000
 				
 			break;
 		
 		case EWPNSCRIPT:
-			if(0!=(s=checkEWpn(ri->ewpn,"Script")))
+			if(auto s=checkEWpn(ri->ewpn,"Script"))
 				ret=(((weapon*)(s))->weaponscript)*10000;
 				
 			break;
@@ -7619,7 +7617,7 @@ int32_t get_register(const int32_t arg)
 		case EWPNINITD:
 		{
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
-			if(0!=(s=checkEWpn(ri->ewpn,"InitD[]")))
+			if(auto s=checkEWpn(ri->ewpn,"InitD[]"))
 			{
 				ret=(((weapon*)(s))->weap_initd[a]);
 			}
@@ -7627,34 +7625,34 @@ int32_t get_register(const int32_t arg)
 		}
 		
 		case EWPNFALLCLK:
-			if(0!=(s=checkEWpn(ri->ewpn,"Falling")))
+			if(auto s=checkEWpn(ri->ewpn,"Falling"))
 			{
 				ret = ((weapon*)(s))->fallclk * 10000;
 			}
 			break;
 		
 		case EWPNFALLCMB:
-			if(0!=(s=checkEWpn(ri->ewpn,"FallCombo")))
+			if(auto s=checkEWpn(ri->ewpn,"FallCombo"))
 			{
 				ret = ((weapon*)(s))->fallCombo * 10000;
 			}
 			break;
 		
 		case EWPNDROWNCLK:
-			if(0!=(s=checkEWpn(ri->ewpn,"Drowning")))
+			if(auto s=checkEWpn(ri->ewpn,"Drowning"))
 			{
 				ret = ((weapon*)(s))->drownclk * 10000;
 			}
 			break;
 		
 		case EWPNDROWNCMB:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrownCombo")))
+			if(auto s=checkEWpn(ri->ewpn,"DrownCombo"))
 			{
 				ret = ((weapon*)(s))->drownCombo * 10000;
 			}
 			break;
 		case EWPNFAKEZ:
-			if(0!=(s=checkEWpn(ri->ewpn, "FakeZ")))
+			if(auto s=checkEWpn(ri->ewpn, "FakeZ"))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -7667,7 +7665,7 @@ int32_t get_register(const int32_t arg)
 		
 		case EWPNMOVEFLAGS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
+			if(auto s=checkEWpn(ri->ewpn,"MoveFlags[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, 10, "eweapon->MoveFlags[]") != SH::_NoError)
@@ -7682,7 +7680,7 @@ int32_t get_register(const int32_t arg)
 		}
 		case EWPNFLAGS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
+			if(auto s=checkEWpn(ri->ewpn,"Flags[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") != SH::_NoError)
@@ -7697,7 +7695,7 @@ int32_t get_register(const int32_t arg)
 		}
 		case EWPNSPRITES:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"Sprites[]")))
+			if(auto s=checkEWpn(ri->ewpn,"Sprites[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") != SH::_NoError)
@@ -7709,7 +7707,7 @@ int32_t get_register(const int32_t arg)
 		}
 		case EWPNBURNLIGHTRADIUS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"BurnLightRadius[]")))
+			if(auto s=checkEWpn(ri->ewpn,"BurnLightRadius[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->BurnLightRadius[]") != SH::_NoError)
@@ -7721,88 +7719,88 @@ int32_t get_register(const int32_t arg)
 		}
 		
 		case EWPNGLOWRAD:
-			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			if(auto s=checkEWpn(ri->ewpn,"LightRadius"))
 			{
 				ret = ((weapon*)(s))->glowRad * 10000;
 			}
 			break;
 			
 		case EWPNGLOWSHP:
-			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			if(auto s=checkEWpn(ri->ewpn,"LightShape"))
 			{
 				ret = ((weapon*)(s))->glowShape * 10000;
 			}
 			break;
 			
 		case EWPNUNBL:
-			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
+			if(auto s=checkEWpn(ri->ewpn,"Unblockable"))
 			{
 				ret = ((weapon*)(s))->unblockable * 10000;
 			}
 			break;
 			
 		case EWPNSHADOWSPR:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowSprite")))
+			if(auto s=checkEWpn(ri->ewpn,"ShadowSprite"))
 			{
 				ret = ((weapon*)(s))->spr_shadow * 10000;
 			}
 			break;
 		case EWSWHOOKED:
-			if(0!=(s=checkEWpn(ri->ewpn,"SwitchHooked")))
+			if(auto s=checkEWpn(ri->ewpn,"SwitchHooked"))
 			{
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case EWPNTIMEOUT:
-			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
+			if(auto s=checkEWpn(ri->ewpn,"Timeout"))
 			{
 				ret = ((weapon*)(s))->weap_timeout * 10000;
 			}
 			break;
 		case EWPNDEATHITEM:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathItem")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathItem"))
 			{
 				ret = ((weapon*)(s))->death_spawnitem * 10000;
 			}
 			break;
 		case EWPNDEATHDROPSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathDropset")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathDropset"))
 			{
 				ret = ((weapon*)(s))->death_spawndropset * 10000;
 			}
 			break;
 		case EWPNDEATHIPICKUP:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathItemPFlags")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathItemPFlags"))
 			{
 				ret = ((weapon*)(s))->death_item_pflags * 10000;
 			}
 			break;
 		case EWPNDEATHSPRITE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathSprite")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathSprite"))
 			{
 				ret = ((weapon*)(s))->death_sprite * 10000;
 			}
 			break;
 		case EWPNDEATHSFX:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathSFX")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathSFX"))
 			{
 				ret = ((weapon*)(s))->death_sfx * 10000;
 			}
 			break;
 		case EWPNLIFTLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftLevel")))
+			if(auto s=checkEWpn(ri->ewpn,"LiftLevel"))
 			{
 				ret = ((weapon*)(s))->lift_level * 10000;
 			}
 			break;
 		case EWPNLIFTTIME:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftTime")))
+			if(auto s=checkEWpn(ri->ewpn,"LiftTime"))
 			{
 				ret = ((weapon*)(s))->lift_time * 10000;
 			}
 			break;
 		case EWPNLIFTHEIGHT:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftHeight")))
+			if(auto s=checkEWpn(ri->ewpn,"LiftHeight"))
 			{
 				ret = ((weapon*)(s))->lift_height.getZLong();
 			}
@@ -7810,7 +7808,7 @@ int32_t get_register(const int32_t arg)
 		
 		/*
 		case LWEAPONSCRIPTUID:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptUID")))
+			if(auto s=checkLWpn(ri->lwpn,"ScriptUID"))
 				ret=(((weapon*)(s))->getScriptUID()); //literal, not *10000
 				
 			break;
@@ -17326,7 +17324,7 @@ void set_register(int32_t arg, int32_t value)
 	//Item Variables
 		
 		case ITEMFAMILY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->family)=value/10000;
 			}
@@ -17334,7 +17332,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case ITEMLEVEL:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->lvl)=value/10000;
 			}
@@ -17349,7 +17347,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case ITEMX:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				s->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
@@ -17364,7 +17362,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 
 		case ITEMY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				s->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
@@ -17380,7 +17378,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case ITEMSPRITESCRIPT:
 			FFScript::deallocateAllScriptOwned(ScriptType::ItemSprite, ri->itemref);
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(s->script)=(value/10000);
 			}
@@ -17393,7 +17391,7 @@ void set_register(int32_t arg, int32_t value)
 					"item->Scale");
 				break;
 			}
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(s->scale)=(zfix)(value/100.0);
 			}
@@ -17401,7 +17399,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(s->z)=(zfix)(value/10000);
 				
@@ -17412,7 +17410,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMJUMP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->fall)=zslongToFix(value)*-100;
 			}
@@ -17420,7 +17418,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case ITEMFAKEJUMP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->fakefall)=zslongToFix(value)*-100;
 			}
@@ -17428,7 +17426,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMDRAWTYPE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->drawstyle)=value/10000;
 			}
@@ -17436,7 +17434,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		 case ITEMSPRITEINITD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,7);
 				(((item *)s)->initD[a])=value;
@@ -17445,7 +17443,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMGRAVITY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				if(value)
 					((item *)s)->moveflags |= FLAG_OBEYS_GRAV;
@@ -17456,7 +17454,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMID:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->id)=value/10000;
 				flushItemCache();
@@ -17465,7 +17463,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->tile)=vbound(value/10000,0,NEWMAXTILES-1);
 			}
@@ -17473,21 +17471,21 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMSCRIPTTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->scripttile)=vbound(value/10000,-1,NEWMAXTILES-1);
 			}
 			break;
 			
 		case ITEMSCRIPTFLIP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->scriptflip)=vbound((value/10000),-1,127);
 			}
 			break;
 		
 		case ITEMPSTRING:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->pstring)=vbound(value/10000,0,(msg_count-1));
 			}
@@ -17495,7 +17493,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case ITEMPSTRINGFLAGS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->pickup_string_flags)=vbound(value/10000, 0, 214748);
 			}
@@ -17506,7 +17504,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMOTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->o_tile)=vbound(value/10000,0,NEWMAXTILES-1);
 			}
@@ -17514,7 +17512,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMCSET:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->o_cset) = (((item *)s)->o_cset & ~15) | ((value/10000)&15);
 				(((item *)s)->cs) = (((item *)s)->o_cset & 15);
@@ -17523,7 +17521,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMFLASHCSET:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->o_cset) = ((value/10000)<<4) | (((item *)s)->o_cset & 15);
 			}
@@ -17531,7 +17529,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMFRAMES:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->frames)=value/10000;
 			}
@@ -17539,7 +17537,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMFRAME:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->aframe)=value/10000;
 			}
@@ -17547,7 +17545,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMASPEED:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->o_speed)=value/10000;
 			}
@@ -17555,7 +17553,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		 case ITEMACLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->aclk)=value/10000;
 			}
@@ -17563,7 +17561,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case ITEMDELAY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->o_delay)=value/10000;
 			}
@@ -17571,7 +17569,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMFLIP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->flip)=value/10000;
 			}
@@ -17579,7 +17577,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMFLASH:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->flash)= (value/10000)?1:0;
 			}
@@ -17587,7 +17585,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMEXTEND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(((item *)s)->extend)=value/10000;
 			}
@@ -17595,7 +17593,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMHXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->hxofs=value/10000;
 			}
@@ -17609,7 +17607,7 @@ void set_register(int32_t arg, int32_t value)
 					"item->Rotation");
 				break;
 			}
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->rotation=value/10000;
 			}
@@ -17617,7 +17615,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMHYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->hyofs=value/10000;
 			}
@@ -17625,7 +17623,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->xofs=(zfix)(value/10000);
 			}
@@ -17633,7 +17631,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->yofs=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			}
@@ -17641,7 +17639,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMSHADOWXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->shadowxofs=(zfix)(value/10000);
 			}
@@ -17649,7 +17647,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case ITEMSHADOWYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->shadowyofs=(zfix)(value/10000);
 			}
@@ -17657,7 +17655,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case ITEMZOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->zofs=(zfix)(value/10000);
 			}
@@ -17665,7 +17663,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMHXSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->hit_width=value/10000;
 			}
@@ -17673,7 +17671,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMHYSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->hit_height=value/10000;
 			}
@@ -17681,7 +17679,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMHZSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->hzsz=value/10000;
 			}
@@ -17689,7 +17687,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMTXSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->txsz=vbound((value/10000),1,20);
 			}
@@ -17697,7 +17695,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMTYSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->tysz=vbound((value/10000),1,20);
 			}
@@ -17705,7 +17703,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMPICKUP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				int32_t newpickup = value/10000;
 				// Values that the questmaker should not use, ever
@@ -17806,7 +17804,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMMISCD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				(((item*)(s))->miscellaneous[a])=value;
@@ -17814,7 +17812,7 @@ void set_register(int32_t arg, int32_t value)
 			
 			break;
 		case ITEMFALLCLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				if(((item*)(s))->fallclk != 0 && value == 0)
 				{
@@ -17826,13 +17824,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case ITEMFALLCMB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case ITEMDROWNCLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				if(((item*)(s))->drownclk != 0 && value == 0)
 				{
@@ -17844,13 +17842,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case ITEMDROWNCMB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case ITEMFAKEZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				(s->fakez)=(zfix)(value/10000);
 				
@@ -17862,7 +17860,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case ITEMMOVEFLAGS:
 		{
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") == SH::_NoError)
@@ -17879,41 +17877,41 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case ITEMGLOWRAD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case ITEMGLOWSHP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case ITEMDIR:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->dir=(value/10000);
 			}
 			break;
 			
 		case ITEMENGINEANIMATE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->do_animation=value;
 			}
 			break;
 			
 		case ITEMSHADOWSPR:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->spr_shadow=vbound(value/10000,0,255);
 			}
 			break;
 		case ITEMDROPPEDBY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->from_dropset=vbound(value/10000,-1,255);
 			}
@@ -17921,19 +17919,19 @@ void set_register(int32_t arg, int32_t value)
 		case ITMSWHOOKED:
 			break; //read-only
 		case ITEMFORCEGRAB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->set_forcegrab(value!=0);
 			}
 			break;
 		case ITEMNOSOUND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->noSound = (value!=0);
 			}
 			break;
 		case ITEMNOHOLDSOUND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				((item*)(s))->noHoldSound = (value!=0);
 			}
@@ -18479,7 +18477,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		/*
 		case ITEMMISCD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if(auto s=checkItem(ri->itemref))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				(((item*)(s))->miscellaneous[a])=value;
@@ -18787,13 +18785,13 @@ void set_register(int32_t arg, int32_t value)
 					"lweapon->Scale");
 				break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+			if(auto s=checkLWpn(ri->lwpn,"Scale"))
 				((weapon*)s)->scale=(zfix)(value/100.0);
 				
 			break;
 		
 		case LWPNX:
-			if(0!=(s=checkLWpn(ri->lwpn,"X")))
+			if(auto s=checkLWpn(ri->lwpn,"X"))
 				((weapon*)s)->x=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 			break;
 		
@@ -18805,13 +18803,13 @@ void set_register(int32_t arg, int32_t value)
 		}
 			
 		case LWPNY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
+			if(auto s=checkLWpn(ri->lwpn,"Y"))
 				((weapon*)s)->y=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 			break;
 			
 		case LWPNZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
+			if(auto s=checkLWpn(ri->lwpn,"Z"))
 			{
 				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->z < 0) ((weapon*)s)->z = 0_zf;
@@ -18820,19 +18818,19 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
+			if(auto s=checkLWpn(ri->lwpn,"Jump"))
 				((weapon*)s)->fall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case LWPNFAKEJUMP:
-			if(0!=(s=checkLWpn(ri->lwpn,"FakeJump")))
+			if(auto s=checkLWpn(ri->lwpn,"FakeJump"))
 				((weapon*)s)->fakefall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case LWPNDIR:
-			if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
+			if(auto s=checkLWpn(ri->lwpn,"Dir"))
 			{
 				((weapon*)s)->dir=(value/10000);
 				((weapon*)s)->doAutoRotate(true);
@@ -18841,13 +18839,13 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNSPECIAL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Special")))
+			if(auto s=checkLWpn(ri->lwpn,"Special"))
 				((weapon*)s)->specialinfo=(value/10000);
 				
 			break;
 		 
 		case LWPNGRAVITY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
+			if(auto s=checkLWpn(ri->lwpn,"Gravity"))
 			{
 				if(value)
 					((weapon*)s)->moveflags |= FLAG_OBEYS_GRAV;
@@ -18857,7 +18855,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNSTEP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
+			if(auto s=checkLWpn(ri->lwpn,"Step"))
 			{
 				// fp math is bad for replay, so always ignore this QR when replay is active.
 				// TODO: can we just delete this QR? Would it actually break anything? For now,
@@ -18883,7 +18881,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Angle")))
+			if(auto s=checkLWpn(ri->lwpn,"Angle"))
 			{
 				((weapon*)s)->angle=(double)(value/10000.0);
 				((weapon*)(s))->doAutoRotate();
@@ -18892,7 +18890,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNDEGANGLE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DegAngle")))
+			if(auto s=checkLWpn(ri->lwpn,"DegAngle"))
 			{
 				double rangle = (value / 10000.0) * (PI / 180.0);
 				((weapon*)s)->angle=(double)(rangle);
@@ -18902,7 +18900,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNVX:
-			if(0!=(s=checkLWpn(ri->lwpn,"Vx")))
+			if(auto s=checkLWpn(ri->lwpn,"Vx"))
 			{
 				double vy;
 				double vx = (value / 10000.0);
@@ -18937,7 +18935,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case LWPNVY:
-			if(0!=(s=checkLWpn(ri->lwpn,"Vy")))
+			if(auto s=checkLWpn(ri->lwpn,"Vy"))
 			{
 				double vx;
 				double vy = (value / 10000.0);
@@ -18972,7 +18970,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNANGULAR:
-			if(0!=(s=checkLWpn(ri->lwpn,"Angular")))
+			if(auto s=checkLWpn(ri->lwpn,"Angular"))
 			{
 				((weapon*)s)->angular=(value!=0);
 				((weapon*)(s))->doAutoRotate(false, true);
@@ -18981,7 +18979,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNAUTOROTATE:
-			if(0!=(s=checkLWpn(ri->lwpn,"AutoRotate")))
+			if(auto s=checkLWpn(ri->lwpn,"AutoRotate"))
 			{
 				((weapon*)s)->autorotate=(value!=0);
 				((weapon*)(s))->doAutoRotate(false, true);
@@ -18990,30 +18988,30 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNBEHIND:
-			if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
+			if(auto s=checkLWpn(ri->lwpn,"Behind"))
 				((weapon*)s)->behind=(value!=0);
 				
 			break;
 			
 		case LWPNDRAWTYPE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawStyle")))
+			if(auto s=checkLWpn(ri->lwpn,"DrawStyle"))
 				((weapon*)s)->drawstyle=(value/10000);
 				
 			break;
 			
 		case LWPNPOWER:
-			if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
+			if(auto s=checkLWpn(ri->lwpn,"Damage"))
 				((weapon*)s)->power=(value/10000);
 				
 			break;
 		/*
 		case LWPNRANGE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Range")))
+			if(auto s=checkLWpn(ri->lwpn,"Range"))
 			((weapon*)s)->scriptrange=vbound((value/10000),0,512); //Allow it to move off-screen. -Z           
 			break;
 		*/        
 		case LWPNDEAD:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
+			if(auto s=checkLWpn(ri->lwpn,"DeadState"))
 			{
 				auto dead = value/10000;
 				((weapon*)s)->dead=dead;
@@ -19022,67 +19020,67 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNID:
-			if(0!=(s=checkLWpn(ri->lwpn,"ID")))
+			if(auto s=checkLWpn(ri->lwpn,"ID"))
 				((weapon*)s)->id=(value/10000);
 				
 			break;
 			
 		case LWPNTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Tile")))
+			if(auto s=checkLWpn(ri->lwpn,"Tile"))
 				((weapon*)s)->tile=(value/10000);
 				
 			break;
 		
 		case LWPNSCRIPTTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptTile")))
+			if(auto s=checkLWpn(ri->lwpn,"ScriptTile"))
 				((weapon*)s)->scripttile=vbound((value/10000),-1,NEWMAXTILES-1);
 				
 			break;
 		
 		case LWPNSCRIPTFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn,"ScriptFlip")))
+			if(auto s=checkLWpn(ri->lwpn,"ScriptFlip"))
 				((weapon*)s)->scriptflip=vbound((value/10000),-1,127);
 				
 			break;
 			
 		case LWPNCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"CSet")))
+			if(auto s=checkLWpn(ri->lwpn,"CSet"))
 				((weapon*)s)->cs=(value/10000)&15;
 				
 			break;
 			
 		case LWPNFLASHCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"FlashCSet")))
+			if(auto s=checkLWpn(ri->lwpn,"FlashCSet"))
 				(((weapon*)s)->o_cset)|=(value/10000)<<4;
 				
 			break;
 			
 		case LWPNFRAMES:
-			if(0!=(s=checkLWpn(ri->lwpn,"NumFrames")))
+			if(auto s=checkLWpn(ri->lwpn,"NumFrames"))
 				((weapon*)s)->frames=(value/10000);
 				
 			break;
 			
 		case LWPNFRAME:
-			if(0!=(s=checkLWpn(ri->lwpn,"Frame")))
+			if(auto s=checkLWpn(ri->lwpn,"Frame"))
 				((weapon*)s)->aframe=(value/10000);
 				
 			break;
 			
 		case LWPNASPEED:
-			if(0!=(s=checkLWpn(ri->lwpn,"ASpeed")))
+			if(auto s=checkLWpn(ri->lwpn,"ASpeed"))
 				((weapon*)s)->o_speed=(value/10000);
 				
 			break;
 			
 		case LWPNFLASH:
-			if(0!=(s=checkLWpn(ri->lwpn,"Flash")))
+			if(auto s=checkLWpn(ri->lwpn,"Flash"))
 				((weapon*)s)->flash=(value/10000);
 				
 			break;
 			
 		case LWPNFLIP:
-			if(0!=(s=checkLWpn(ri->lwpn,"Flip")))
+			if(auto s=checkLWpn(ri->lwpn,"Flip"))
 				((weapon*)s)->flip=(value/10000);
 				
 			break;
@@ -19094,19 +19092,19 @@ void set_register(int32_t arg, int32_t value)
 					"lweapon->Rotation");
 				break;
 			}
-			if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
+			if(auto s=checkLWpn(ri->lwpn,"Rotation"))
 				((weapon*)s)->rotation=(value/10000);
 				
 			break;
 			
 		case LWPNEXTEND:
-			if(0!=(s=checkLWpn(ri->lwpn,"Extend")))
+			if(auto s=checkLWpn(ri->lwpn,"Extend"))
 				((weapon*)s)->extend=(value/10000);
 				
 			break;
 			
 		case LWPNOTILE:
-			if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
+			if(auto s=checkLWpn(ri->lwpn,"OriginalTile"))
 			{
 				//zprint("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
 					((weapon*)s)->o_tile=(value/10000);
@@ -19120,43 +19118,43 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNOCSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"OriginalCSet")))
+			if(auto s=checkLWpn(ri->lwpn,"OriginalCSet"))
 				(((weapon*)s)->o_cset)|=(value/10000)&15;
 				
 			break;
 			
 		case LWPNHXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitXOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"HitXOffset"))
 				(((weapon*)s)->hxofs)=(value/10000);
 				
 			break;
 			
 		case LWPNHYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitYOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"HitYOffset"))
 				(((weapon*)s)->hyofs)=(value/10000);
 				
 			break;
 			
 		case LWPNXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawXOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"DrawXOffset"))
 				(((weapon*)s)->xofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case LWPNYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"DrawYOffset"))
 				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
 		
 		case LWPNSHADOWXOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowXOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"ShadowXOffset"))
 				(((weapon*)s)->shadowxofs)=(zfix)(value/10000);
 				
 			break;
 		
 		case LWPNSHADOWYOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowYOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"ShadowYOffset"))
 				(((weapon*)s)->shadowyofs)=(zfix)(value/10000);
 				
 			break;
@@ -19165,43 +19163,43 @@ void set_register(int32_t arg, int32_t value)
 			break; //READ-ONLY
 			
 		case LWPNZOFS:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrawZOffset")))
+			if(auto s=checkLWpn(ri->lwpn,"DrawZOffset"))
 				(((weapon*)s)->zofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case LWPNHXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitWidth")))
+			if(auto s=checkLWpn(ri->lwpn,"HitWidth"))
 				(((weapon*)s)->hit_width)=(value/10000);
 				
 			break;
 			
 		case LWPNHYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitHeight")))
+			if(auto s=checkLWpn(ri->lwpn,"HitHeight"))
 				(((weapon*)s)->hit_height)=(value/10000);
 				
 			break;
 			
 		case LWPNHZSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"HitZHeight")))
+			if(auto s=checkLWpn(ri->lwpn,"HitZHeight"))
 				(((weapon*)s)->hzsz)=(value/10000);
 				
 			break;
 			
 		case LWPNTXSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"TileWidth")))
+			if(auto s=checkLWpn(ri->lwpn,"TileWidth"))
 				(((weapon*)s)->txsz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case LWPNTYSZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"TileHeight")))
+			if(auto s=checkLWpn(ri->lwpn,"TileHeight"))
 				(((weapon*)s)->tysz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case LWPNMISCD:
-			if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
+			if(auto s=checkLWpn(ri->lwpn,"Misc"))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				(((weapon*)(s))->miscellaneous[a])=value;
@@ -19210,13 +19208,13 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LWPNCOLLDET:
-			if(0!=(s=checkLWpn(ri->lwpn,"CollDetection")))
+			if(auto s=checkLWpn(ri->lwpn,"CollDetection"))
 				(((weapon*)(s))->scriptcoldet) = value;
 
 			break;
 		
 		case LWPNENGINEANIMATE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
+			if(auto s=checkLWpn(ri->lwpn,"Animation"))
 				(((weapon*)(s))->do_animation)=value;
 				
 			break;
@@ -19226,19 +19224,19 @@ void set_register(int32_t arg, int32_t value)
 			//int32_t pitm = (vbound(value/10000,1,(MAXITEMS-1)));
 			//zprint("Attempting to set ParentItem to: %d\n", pitm); 
 					
-			if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
+			if(auto s=checkLWpn(ri->lwpn,"Parent"))
 				(((weapon*)(s))->parentitem)=(vbound(value/10000,-1,(MAXITEMS-1)));
 			break;
 		}
 
 		case LWPNLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Level")))
+			if(auto s=checkLWpn(ri->lwpn,"Level"))
 				(((weapon*)(s))->type)=value/10000;
 				
 			break;
 		
 		case LWPNSCRIPT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Script")))
+			if(auto s=checkLWpn(ri->lwpn,"Script"))
 			{
 				FFScript::deallocateAllScriptOwned(ScriptType::Lwpn, ri->lwpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
@@ -19251,13 +19249,13 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case LWPNUSEWEAPON:
-			if(0!=(s=checkLWpn(ri->lwpn,"Weapon")))
+			if(auto s=checkLWpn(ri->lwpn,"Weapon"))
 			(((weapon*)(s))->useweapon)=vbound(value/10000,0,255);
 				
 			break;
 		
 		case LWPNUSEDEFENCE:
-			if(0!=(s=checkLWpn(ri->lwpn,"Defense")))
+			if(auto s=checkLWpn(ri->lwpn,"Defense"))
 			(((weapon*)(s))->usedefence)=vbound(value/10000,0,255);
 				
 			break;
@@ -19265,14 +19263,14 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNINITD:
 		{
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
-			if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
+			if(auto s=checkLWpn(ri->lwpn,"InitD[]"))
 			{
 				(((weapon*)(s))->weap_initd[a])=value;
 			}
 			break;
 		}
 		case LWPNFALLCLK:
-			if(0!=(s=checkLWpn(ri->lwpn,"Falling")))
+			if(auto s=checkLWpn(ri->lwpn,"Falling"))
 			{
 				if(((weapon*)(s))->fallclk != 0 && value == 0)
 				{
@@ -19284,13 +19282,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case LWPNFALLCMB:
-			if(0!=(s=checkLWpn(ri->lwpn,"FallCombo")))
+			if(auto s=checkLWpn(ri->lwpn,"FallCombo"))
 			{
 				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case LWPNDROWNCLK:
-			if(0!=(s=checkLWpn(ri->lwpn,"Drowning")))
+			if(auto s=checkLWpn(ri->lwpn,"Drowning"))
 			{
 				if(((weapon*)(s))->drownclk != 0 && value == 0)
 				{
@@ -19302,13 +19300,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case LWPNDROWNCMB:
-			if(0!=(s=checkLWpn(ri->lwpn,"DrownCombo")))
+			if(auto s=checkLWpn(ri->lwpn,"DrownCombo"))
 			{
 				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case LWPNFAKEZ:
-			if(0!=(s=checkLWpn(ri->lwpn,"FakeZ")))
+			if(auto s=checkLWpn(ri->lwpn,"FakeZ"))
 			{
 				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = 0_zf;
@@ -19318,7 +19316,7 @@ void set_register(int32_t arg, int32_t value)
 			
 		case LWPNMOVEFLAGS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
+			if(auto s=checkLWpn(ri->lwpn,"MoveFlags[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, 10, "lweapon->MoveFlags[]") == SH::_NoError)
@@ -19335,7 +19333,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case LWPNFLAGS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
+			if(auto s=checkLWpn(ri->lwpn,"Flags[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") == SH::_NoError)
@@ -19352,7 +19350,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case LWPNSPRITES:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
+			if(auto s=checkLWpn(ri->lwpn,"Sprites[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") == SH::_NoError)
@@ -19362,7 +19360,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case LWPNBURNLIGHTRADIUS:
 		{
-			if(0!=(s=checkLWpn(ri->lwpn,"BurnLightRadius[]")))
+			if(auto s=checkLWpn(ri->lwpn,"BurnLightRadius[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->BurnLightRadius[]") == SH::_NoError)
@@ -19372,28 +19370,28 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case LWPNGLOWRAD:
-			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
+			if(auto s=checkLWpn(ri->lwpn,"LightRadius"))
 			{
 				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case LWPNGLOWSHP:
-			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			if(auto s=checkLWpn(ri->lwpn,"LightShape"))
 			{
 				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case LWPNUNBL:
-			if(0!=(s=checkLWpn(ri->lwpn,"Unblockable")))
+			if(auto s=checkLWpn(ri->lwpn,"Unblockable"))
 			{
 				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
 			}
 			break;
 			
 		case LWPNSHADOWSPR:
-			if(0!=(s=checkLWpn(ri->lwpn,"ShadowSprite")))
+			if(auto s=checkLWpn(ri->lwpn,"ShadowSprite"))
 			{
 				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
 			}
@@ -19401,55 +19399,55 @@ void set_register(int32_t arg, int32_t value)
 		case LWSWHOOKED:
 			break; //read-only
 		case LWPNTIMEOUT:
-			if(0!=(s=checkLWpn(ri->lwpn,"Timeout")))
+			if(auto s=checkLWpn(ri->lwpn,"Timeout"))
 			{
 				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
 			}
 			break;
 		case LWPNDEATHITEM:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathItem")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathItem"))
 			{
 				((weapon*)(s))->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
 			}
 			break;
 		case LWPNDEATHDROPSET:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathDropset")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathDropset"))
 			{
 				((weapon*)(s))->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
 			}
 			break;
 		case LWPNDEATHIPICKUP:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathItemPFlags")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathItemPFlags"))
 			{
 				((weapon*)(s))->death_item_pflags = value/10000;
 			}
 			break;
 		case LWPNDEATHSPRITE:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathSprite")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathSprite"))
 			{
 				((weapon*)(s))->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
 			}
 			break;
 		case LWPNDEATHSFX:
-			if(0!=(s=checkLWpn(ri->lwpn,"DeathSFX")))
+			if(auto s=checkLWpn(ri->lwpn,"DeathSFX"))
 			{
 				((weapon*)(s))->death_sfx = vbound(value/10000,0,WAV_COUNT);
 			}
 			break;
 		case LWPNLIFTLEVEL:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftLevel")))
+			if(auto s=checkLWpn(ri->lwpn,"LiftLevel"))
 			{
 				((weapon*)(s))->lift_level = vbound(value/10000,0,255);
 			}
 			break;
 		case LWPNLIFTTIME:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftTime")))
+			if(auto s=checkLWpn(ri->lwpn,"LiftTime"))
 			{
 				((weapon*)(s))->lift_time = vbound(value/10000,0,255);
 			}
 			break;
 		case LWPNLIFTHEIGHT:
-			if(0!=(s=checkLWpn(ri->lwpn,"LiftHeight")))
+			if(auto s=checkLWpn(ri->lwpn,"LiftHeight"))
 			{
 				((weapon*)(s))->lift_height = zslongToFix(value);
 			}
@@ -19464,13 +19462,13 @@ void set_register(int32_t arg, int32_t value)
 					"eweapon->Scale");
 				break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn,"Scale")))
+			if(auto s=checkEWpn(ri->ewpn,"Scale"))
 				((weapon*)s)->scale=(zfix)(value/100.0);
 				
 			break;
 		
 		case EWPNX:
-			if(0!=(s=checkEWpn(ri->ewpn,"X")))
+			if(auto s=checkEWpn(ri->ewpn,"X"))
 				((weapon*)s)->x = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
@@ -19483,13 +19481,13 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case EWPNY:
-			if(0!=(s=checkEWpn(ri->ewpn,"Y")))
+			if(auto s=checkEWpn(ri->ewpn,"Y"))
 				((weapon*)s)->y = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
 			
 		case EWPNZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"Z")))
+			if(auto s=checkEWpn(ri->ewpn,"Z"))
 			{
 				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->z < 0) ((weapon*)s)->z = 0_zf;
@@ -19498,19 +19496,19 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn,"Jump")))
+			if(auto s=checkEWpn(ri->ewpn,"Jump"))
 				((weapon*)s)->fall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case EWPNFAKEJUMP:
-			if(0!=(s=checkEWpn(ri->ewpn,"FakeJump")))
+			if(auto s=checkEWpn(ri->ewpn,"FakeJump"))
 				((weapon*)s)->fakefall=zslongToFix(value)*-100;
 				
 			break;
 			
 		case EWPNDIR:
-			if(0!=(s=checkEWpn(ri->ewpn,"Dir")))
+			if(auto s=checkEWpn(ri->ewpn,"Dir"))
 			{
 				((weapon*)s)->dir=(value/10000);
 				((weapon*)s)->doAutoRotate(true);
@@ -19519,13 +19517,13 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn,"Level")))
+			if(auto s=checkEWpn(ri->ewpn,"Level"))
 				((weapon*)s)->type=(value/10000);
 				
 			break;
 		  
 		case EWPNGRAVITY:
-			if(0!=(s=checkEWpn(ri->ewpn,"Gravity")))
+			if(auto s=checkEWpn(ri->ewpn,"Gravity"))
 			{
 				if(value)
 					((weapon*)s)->moveflags |= FLAG_OBEYS_GRAV;
@@ -19535,7 +19533,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNSTEP:
-			if(0!=(s=checkEWpn(ri->ewpn,"Step")))
+			if(auto s=checkEWpn(ri->ewpn,"Step"))
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
@@ -19557,7 +19555,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Angle")))
+			if(auto s=checkEWpn(ri->ewpn,"Angle"))
 			{
 				((weapon*)s)->angle=(double)(value/10000.0);
 				((weapon*)(s))->doAutoRotate();
@@ -19566,7 +19564,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNDEGANGLE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DegAngle")))
+			if(auto s=checkEWpn(ri->ewpn,"DegAngle"))
 			{
 				double rangle = (value / 10000.0) * (PI / 180.0);
 				((weapon*)s)->angle=(double)(rangle);
@@ -19576,7 +19574,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNVX:
-			if(0!=(s=checkEWpn(ri->ewpn,"Vx")))
+			if(auto s=checkEWpn(ri->ewpn,"Vx"))
 			{
 				double vy;
 				double vx = (value / 10000.0);
@@ -19611,7 +19609,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case EWPNVY:
-			if(0!=(s=checkEWpn(ri->ewpn,"Vy")))
+			if(auto s=checkEWpn(ri->ewpn,"Vy"))
 			{
 				double vx;
 				double vy = (value / 10000.0);
@@ -19646,7 +19644,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNANGULAR:
-			if(0!=(s=checkEWpn(ri->ewpn,"Angular")))
+			if(auto s=checkEWpn(ri->ewpn,"Angular"))
 			{
 				((weapon*)s)->angular=(value!=0);
 				((weapon*)(s))->doAutoRotate(false, true);
@@ -19655,7 +19653,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNAUTOROTATE:
-			if(0!=(s=checkEWpn(ri->ewpn,"AutoRotate")))
+			if(auto s=checkEWpn(ri->ewpn,"AutoRotate"))
 			{
 				((weapon*)s)->autorotate=(value!=0);
 				((weapon*)(s))->doAutoRotate(false, true);
@@ -19664,25 +19662,25 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNBEHIND:
-			if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
+			if(auto s=checkEWpn(ri->ewpn,"Behind"))
 				((weapon*)s)->behind=(value!=0);
 				
 			break;
 			
 		case EWPNDRAWTYPE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawStyle")))
+			if(auto s=checkEWpn(ri->ewpn,"DrawStyle"))
 				((weapon*)s)->drawstyle=(value/10000);
 				
 			break;
 			
 		case EWPNPOWER:
-			if(0!=(s=checkEWpn(ri->ewpn,"Damage")))
+			if(auto s=checkEWpn(ri->ewpn,"Damage"))
 				((weapon*)s)->power=(value/10000);
 				
 			break;
 			
 		case EWPNDEAD:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeadState")))
+			if(auto s=checkEWpn(ri->ewpn,"DeadState"))
 			{
 				auto dead = value/10000;
 				((weapon*)s)->dead=dead;
@@ -19692,67 +19690,67 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNID:
-			if(0!=(s=checkEWpn(ri->ewpn,"ID")))
+			if(auto s=checkEWpn(ri->ewpn,"ID"))
 				((weapon*)s)->id=(value/10000);
 				
 			break;
 			
 		case EWPNTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Tile")))
+			if(auto s=checkEWpn(ri->ewpn,"Tile"))
 				((weapon*)s)->tile=(value/10000);
 				
 			break;
 			
 		case EWPNSCRIPTTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"ScriptTile")))
+			if(auto s=checkEWpn(ri->ewpn,"ScriptTile"))
 				((weapon*)s)->scripttile=vbound((value/10000),-1, NEWMAXTILES-1);
 				
 			break;
 		
 		case EWPNSCRIPTFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn,"ScriptFlip")))
+			if(auto s=checkEWpn(ri->ewpn,"ScriptFlip"))
 				((weapon*)s)->scriptflip=vbound((value/10000),-1, 127);
 				
 			break;
 			
 		case EWPNCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"CSet")))
+			if(auto s=checkEWpn(ri->ewpn,"CSet"))
 				((weapon*)s)->cs=(value/10000)&15;
 				
 			break;
 			
 		case EWPNFLASHCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"FlashCSet")))
+			if(auto s=checkEWpn(ri->ewpn,"FlashCSet"))
 				(((weapon*)s)->o_cset)|=(value/10000)<<4;
 				
 			break;
 			
 		case EWPNFRAMES:
-			if(0!=(s=checkEWpn(ri->ewpn,"NumFrames")))
+			if(auto s=checkEWpn(ri->ewpn,"NumFrames"))
 				((weapon*)s)->frames=(value/10000);
 				
 			break;
 			
 		case EWPNFRAME:
-			if(0!=(s=checkEWpn(ri->ewpn,"Frame")))
+			if(auto s=checkEWpn(ri->ewpn,"Frame"))
 				((weapon*)s)->aframe=(value/10000);
 				
 			break;
 			
 		case EWPNASPEED:
-			if(0!=(s=checkEWpn(ri->ewpn,"ASpeed")))
+			if(auto s=checkEWpn(ri->ewpn,"ASpeed"))
 				((weapon*)s)->o_speed=(value/10000);
 				
 			break;
 			
 		case EWPNFLASH:
-			if(0!=(s=checkEWpn(ri->ewpn,"Flash")))
+			if(auto s=checkEWpn(ri->ewpn,"Flash"))
 				((weapon*)s)->flash=(value/10000);
 				
 			break;
 			
 		case EWPNFLIP:
-			if(0!=(s=checkEWpn(ri->ewpn,"Flip")))
+			if(auto s=checkEWpn(ri->ewpn,"Flip"))
 				((weapon*)s)->flip=(value/10000);
 				
 			break;
@@ -19764,19 +19762,19 @@ void set_register(int32_t arg, int32_t value)
 					"eweapon->Rotation");
 				break;
 			}
-			if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
+			if(auto s=checkEWpn(ri->ewpn,"Rotation"))
 				((weapon*)s)->rotation=(value/10000);
 				
 			break;
 			
 		case EWPNEXTEND:
-			if(0!=(s=checkEWpn(ri->ewpn,"Extend")))
+			if(auto s=checkEWpn(ri->ewpn,"Extend"))
 				((weapon*)s)->extend=(value/10000);
 				
 			break;
 			
 		case EWPNOTILE:
-			if(0!=(s=checkEWpn(ri->ewpn,"OriginalTile")))
+			if(auto s=checkEWpn(ri->ewpn,"OriginalTile"))
 			{
 				((weapon*)s)->o_tile=(value/10000);
 				((weapon*)s)->ref_o_tile=(value/10000);
@@ -19785,31 +19783,31 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNOCSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"OriginalCSet")))
+			if(auto s=checkEWpn(ri->ewpn,"OriginalCSet"))
 				(((weapon*)s)->o_cset)|=(value/10000)&15;
 				
 			break;
 			
 		case EWPNHXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitXOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"HitXOffset"))
 				(((weapon*)s)->hxofs)=(value/10000);
 				
 			break;
 			
 		case EWPNHYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitYOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"HitYOffset"))
 				(((weapon*)s)->hyofs)=(value/10000);
 				
 			break;
 			
 		case EWPNXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawXOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"DrawXOffset"))
 				(((weapon*)s)->xofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"DrawYOffset"))
 				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
@@ -19817,55 +19815,55 @@ void set_register(int32_t arg, int32_t value)
 			break; //READ-ONLY
 			
 		case EWPNSHADOWXOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowXOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"ShadowXOffset"))
 				(((weapon*)s)->shadowxofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNSHADOWYOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowYOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"ShadowYOffset"))
 				(((weapon*)s)->shadowyofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNZOFS:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrawZOffset")))
+			if(auto s=checkEWpn(ri->ewpn,"DrawZOffset"))
 				(((weapon*)s)->zofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNHXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitWidth")))
+			if(auto s=checkEWpn(ri->ewpn,"HitWidth"))
 				(((weapon*)s)->hit_width)=(value/10000);
 				
 			break;
 			
 		case EWPNHYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitHeight")))
+			if(auto s=checkEWpn(ri->ewpn,"HitHeight"))
 				(((weapon*)s)->hit_height)=(value/10000);
 				
 			break;
 			
 		case EWPNHZSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"HitZHeight")))
+			if(auto s=checkEWpn(ri->ewpn,"HitZHeight"))
 				(((weapon*)s)->hzsz)=(value/10000);
 				
 			break;
 			
 		case EWPNTXSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"TileWidth")))
+			if(auto s=checkEWpn(ri->ewpn,"TileWidth"))
 				(((weapon*)s)->txsz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case EWPNTYSZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"TileHeight")))
+			if(auto s=checkEWpn(ri->ewpn,"TileHeight"))
 				(((weapon*)s)->tysz)=vbound((value/10000),1,20);
 				
 			break;
 			
 		case EWPNMISCD:
-			if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
+			if(auto s=checkEWpn(ri->ewpn,"Misc"))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
 				(((weapon*)(s))->miscellaneous[a])=value;
@@ -19874,31 +19872,31 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNCOLLDET:
-			if(0!=(s=checkEWpn(ri->ewpn,"CollDetection")))
+			if(auto s=checkEWpn(ri->ewpn,"CollDetection"))
 				(((weapon*)(s))->scriptcoldet)=value;
 				
 			break;
 		
 		case EWPNENGINEANIMATE:
-			if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
+			if(auto s=checkEWpn(ri->ewpn,"Animation"))
 				(((weapon*)(s))->do_animation)=value;
 				
 			break;
 		
 		
 		case EWPNPARENTUID:
-			if(0!=(s=checkEWpn(ri->ewpn, "ParentUID")))
+			if(auto s=checkEWpn(ri->ewpn, "ParentUID"))
 			(((weapon*)(s))->parent_script_UID) = value; //literal, not *10000
 			break;
 		
 		case EWPNPARENT:
-			if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
+			if(auto s=checkEWpn(ri->ewpn, "Parent"))
 				(((weapon*)(s))->parentid)= ( (get_qr(qr_OLDEWPNPARENT)) ? value / 10000 : value );
 				
 			break;
 		
 		case EWPNSCRIPT:
-			if(0!=(s=checkEWpn(ri->ewpn,"Script")))
+			if(auto s=checkEWpn(ri->ewpn,"Script"))
 			{
 				FFScript::deallocateAllScriptOwned(ScriptType::Ewpn, ri->ewpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
@@ -19913,14 +19911,14 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNINITD:
 		{
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
-			if(0!=(s=checkEWpn(ri->ewpn,"InitD[]")))
+			if(auto s=checkEWpn(ri->ewpn,"InitD[]"))
 			{
 				(((weapon*)(s))->weap_initd[a])=value;
 			}
 			break;
 		}
 		case EWPNFALLCLK:
-			if(0!=(s=checkEWpn(ri->ewpn,"Falling")))
+			if(auto s=checkEWpn(ri->ewpn,"Falling"))
 			{
 				if(((weapon*)(s))->fallclk != 0 && value == 0)
 				{
@@ -19932,13 +19930,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case EWPNFALLCMB:
-			if(0!=(s=checkEWpn(ri->ewpn,"FallCombo")))
+			if(auto s=checkEWpn(ri->ewpn,"FallCombo"))
 			{
 				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case EWPNDROWNCLK:
-			if(0!=(s=checkEWpn(ri->ewpn,"Drowning")))
+			if(auto s=checkEWpn(ri->ewpn,"Drowning"))
 			{
 				if(((weapon*)(s))->drownclk != 0 && value == 0)
 				{
@@ -19950,13 +19948,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		case EWPNDROWNCMB:
-			if(0!=(s=checkEWpn(ri->ewpn,"DrownCombo")))
+			if(auto s=checkEWpn(ri->ewpn,"DrownCombo"))
 			{
 				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case EWPNFAKEZ:
-			if(0!=(s=checkEWpn(ri->ewpn,"FakeZ")))
+			if(auto s=checkEWpn(ri->ewpn,"FakeZ"))
 			{
 				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = 0_zf;
@@ -19966,7 +19964,7 @@ void set_register(int32_t arg, int32_t value)
 			
 		case EWPNMOVEFLAGS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
+			if(auto s=checkEWpn(ri->ewpn,"MoveFlags[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, 10, "eweapon->MoveFlags[]") == SH::_NoError)
@@ -19983,7 +19981,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case EWPNFLAGS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
+			if(auto s=checkEWpn(ri->ewpn,"Flags[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") == SH::_NoError)
@@ -20000,7 +19998,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case EWPNSPRITES:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"Sprites[]")))
+			if(auto s=checkEWpn(ri->ewpn,"Sprites[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") == SH::_NoError)
@@ -20010,7 +20008,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case EWPNBURNLIGHTRADIUS:
 		{
-			if(0!=(s=checkEWpn(ri->ewpn,"BurnLightRadius[]")))
+			if(auto s=checkEWpn(ri->ewpn,"BurnLightRadius[]"))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->BurnLightRadius[]") == SH::_NoError)
@@ -20020,27 +20018,27 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case EWPNGLOWRAD:
-			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			if(auto s=checkEWpn(ri->ewpn,"LightRadius"))
 			{
 				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 		case EWPNGLOWSHP:
-			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			if(auto s=checkEWpn(ri->ewpn,"LightShape"))
 			{
 				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case EWPNUNBL:
-			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
+			if(auto s=checkEWpn(ri->ewpn,"Unblockable"))
 			{
 				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
 			}
 			break;
 			
 		case EWPNSHADOWSPR:
-			if(0!=(s=checkEWpn(ri->ewpn,"ShadowSprite")))
+			if(auto s=checkEWpn(ri->ewpn,"ShadowSprite"))
 			{
 				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
 			}
@@ -20048,54 +20046,54 @@ void set_register(int32_t arg, int32_t value)
 		case EWSWHOOKED:
 			break; //read-only
 		case EWPNTIMEOUT:
-			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
+			if(auto s=checkEWpn(ri->ewpn,"Timeout"))
 			{
 				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
 			}
 			break;case EWPNDEATHITEM:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathItem")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathItem"))
 			{
 				((weapon*)(s))->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
 			}
 			break;
 		case EWPNDEATHDROPSET:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathDropset")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathDropset"))
 			{
 				((weapon*)(s))->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
 			}
 			break;
 		case EWPNDEATHIPICKUP:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathItemPFlags")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathItemPFlags"))
 			{
 				((weapon*)(s))->death_item_pflags = value/10000;
 			}
 			break;
 		case EWPNDEATHSPRITE:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathSprite")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathSprite"))
 			{
 				((weapon*)(s))->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
 			}
 			break;
 		case EWPNDEATHSFX:
-			if(0!=(s=checkEWpn(ri->ewpn,"DeathSFX")))
+			if(auto s=checkEWpn(ri->ewpn,"DeathSFX"))
 			{
 				((weapon*)(s))->death_sfx = vbound(value/10000,0,WAV_COUNT);
 			}
 			break;
 		case EWPNLIFTLEVEL:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftLevel")))
+			if(auto s=checkEWpn(ri->ewpn,"LiftLevel"))
 			{
 				((weapon*)(s))->lift_level = vbound(value/10000,0,255);
 			}
 			break;
 		case EWPNLIFTTIME:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftTime")))
+			if(auto s=checkEWpn(ri->ewpn,"LiftTime"))
 			{
 				((weapon*)(s))->lift_time = vbound(value/10000,0,255);
 			}
 			break;
 		case EWPNLIFTHEIGHT:
-			if(0!=(s=checkEWpn(ri->ewpn,"LiftHeight")))
+			if(auto s=checkEWpn(ri->ewpn,"LiftHeight"))
 			{
 				((weapon*)(s))->lift_height = zslongToFix(value);
 			}
@@ -30675,48 +30673,49 @@ void do_lwpnmakeangular()
 {
 	if(LwpnH::loadWeapon(ri->lwpn, "lweapon->MakeAngular") == SH::_NoError)
 	{
-		if (!LwpnH::getWeapon()->angular)
+		auto w = LwpnH::getWeapon();
+		if (!w->angular)
 		{
 			double vx;
 			double vy;
-			switch(NORMAL_DIR(LwpnH::getWeapon()->dir))
+			switch(NORMAL_DIR(w->dir))
 			{
 				case l_up:
 				case l_down:
 				case left:
-					vx = -1.0*((weapon*)s)->step;
+					vx = -1.0*w->step;
 					break;
 				case r_down:
 				case r_up:
 				case right:
-					vx = ((weapon*)s)->step;
+					vx = w->step;
 					break;
 					
 				default:
 					vx = 0;
 					break;
 			}
-			switch(NORMAL_DIR(LwpnH::getWeapon()->dir))
+			switch(NORMAL_DIR(w->dir))
 			{
 				case l_up:
 				case r_up:
 				case up:
-					vy = -1.0*((weapon*)s)->step;
+					vy = -1.0*w->step;
 					break;
 				case l_down:
 				case r_down:
 				case down:
-					vy = ((weapon*)s)->step;
+					vy = w->step;
 					break;
 					
 				default:
 					vy = 0;
 					break;
 			}
-			LwpnH::getWeapon()->angular = true;
-			LwpnH::getWeapon()->angle=atan2(vy, vx);
-			LwpnH::getWeapon()->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
-			LwpnH::getWeapon()->doAutoRotate();
+			w->angular = true;
+			w->angle=atan2(vy, vx);
+			w->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+			w->doAutoRotate();
 		}
 	}
 }
@@ -30738,48 +30737,49 @@ void do_ewpnmakeangular()
 {
 	if(EwpnH::loadWeapon(ri->ewpn, "eweapon->MakeAngular") == SH::_NoError)
 	{
-		if (!EwpnH::getWeapon()->angular)
+		auto w = EwpnH::getWeapon();
+		if (!w->angular)
 		{
 			double vx;
 			double vy;
-			switch(NORMAL_DIR(EwpnH::getWeapon()->dir))
+			switch(NORMAL_DIR(w->dir))
 			{
 				case l_up:
 				case l_down:
 				case left:
-					vx = -1.0*((weapon*)s)->step;
+					vx = -1.0*w->step;
 					break;
 				case r_down:
 				case r_up:
 				case right:
-					vx = ((weapon*)s)->step;
+					vx = w->step;
 					break;
 					
 				default:
 					vx = 0;
 					break;
 			}
-			switch(NORMAL_DIR(EwpnH::getWeapon()->dir))
+			switch(NORMAL_DIR(w->dir))
 			{
 				case l_up:
 				case r_up:
 				case up:
-					vy = -1.0*((weapon*)s)->step;
+					vy = -1.0*w->step;
 					break;
 				case l_down:
 				case r_down:
 				case down:
-					vy = ((weapon*)s)->step;
+					vy = w->step;
 					break;
 					
 				default:
 					vy = 0;
 					break;
 			}
-			EwpnH::getWeapon()->angular = true;
-			EwpnH::getWeapon()->angle=atan2(vy, vx);
-			EwpnH::getWeapon()->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
-			EwpnH::getWeapon()->doAutoRotate();
+			w->angular = true;
+			w->angle=atan2(vy, vx);
+			w->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+			w->doAutoRotate();
 		}
 	}
 }
@@ -43816,7 +43816,7 @@ void FFScript::do_npc_delete()
 
 void FFScript::do_lweapon_delete()
 {
-	if(0!=(s=checkLWpn(ri->lwpn,"Remove()")))
+	if(auto s=checkLWpn(ri->lwpn,"Remove()"))
 	{
 		if(s==Hero.lift_wpn)
 		{
@@ -43829,7 +43829,7 @@ void FFScript::do_lweapon_delete()
 
 void FFScript::do_eweapon_delete()
 {
-	if(0!=(s=checkEWpn(ri->ewpn,"Remove()")))
+	if(checkEWpn(ri->ewpn,"Remove()"))
 	{
 		Ewpns.del(EwpnH::getEWeaponIndex(ri->ewpn));
 	}
@@ -43837,7 +43837,7 @@ void FFScript::do_eweapon_delete()
 
 bool FFScript::do_itemsprite_delete()
 {
-	if(0!=(s=checkItem(ri->itemref)))
+	if(auto s=checkItem(ri->itemref))
 	{
 		auto ind = ItemH::getItemIndex(ri->itemref);
 		if(!items.del(ind)) return false;
