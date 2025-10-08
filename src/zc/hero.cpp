@@ -14208,6 +14208,41 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 	return -1;
 }
 
+static bool replay_compat_check_zc_version_2_55_11()
+{
+	if (!replay_is_active())
+		return false;
+
+	auto zc_version_created = replay_get_zc_version_created();
+	if (zc_version_created.well_formed)
+	{
+		if (zc_version_created.major < 2)
+			return true; // Replays didn't exist at this point ... but whatever.
+		if (zc_version_created.major == 2 && zc_version_created.minor < 55)
+			return true; // Replays didn't exist at this point ... but whatever.
+		if (zc_version_created.major == 2 && zc_version_created.minor == 55 && zc_version_created.patch < 11)
+			return true;
+	}
+
+	return replay_version_check(45);
+}
+
+static bool replay_compat_pitslide_bug()
+{
+	if (replay_compat_check_zc_version_2_55_11())
+		return true;
+
+	return !replay_version_check(45);
+}
+
+static bool replay_compat_held_items_only_held_always_bug()
+{
+	if (replay_compat_check_zc_version_2_55_11())
+		return true;
+
+	return !replay_version_check(44);
+}
+
 bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
 {
 	pitfall();
@@ -14220,7 +14255,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		pit_pullclk = 0;
 		return false;
 	}
-	bool irresistable = val & (replay_version_check(45) ? flag_pit_irresistable : 0x100);
+	bool irresistable = val & (replay_compat_pitslide_bug() ? 0x100 : flag_pit_irresistable);
 	int32_t dir = val&0xFF;
 	int32_t cmbid = (val&0xFFFF00)>>8;
 	int32_t sensitivity = combobuf[cmbid].attribytes[2];
@@ -18635,7 +18670,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 	bool checkladder = dy < 0;
 	auto check_drown_fall = [&]()
 		{
-			if (replay_version_check(0, 45))
+			if (replay_compat_pitslide_bug())
 				return false;
 			if (!ladderx && !laddery)
 			{
@@ -31918,7 +31953,7 @@ void HeroClass::checkitems(int32_t index)
 			}
 			if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 			{
-				if ( (pstr > 0 && pstr < msg_count) && ( ( ( (pstr_flags&itemdataPSTRING_ALWAYS) || (pstr_flags&itemdataPSTRING_NOMARK) || ((pstr_flags&itemdataPSTRING_IP_HOLDUP) && replay_version_check(0, 44)) || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )
+				if ( (pstr > 0 && pstr < msg_count) && ( ( ( (pstr_flags&itemdataPSTRING_ALWAYS) || (pstr_flags&itemdataPSTRING_NOMARK) || ((pstr_flags&itemdataPSTRING_IP_HOLDUP) && replay_compat_held_items_only_held_always_bug()) || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )
 				{
 					if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
 				}
