@@ -1992,7 +1992,8 @@ struct zctune
         loop_start=-1;
         loop_end=-1;
         flags=0;
-        destroy_midi(data);
+        if (data)
+            destroy_midi(data);
         data = NULL;
     }
 };
