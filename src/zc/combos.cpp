@@ -1,3 +1,4 @@
+#include "base/general.h"
 #include "base/handles.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -1793,7 +1794,7 @@ void do_ex_trigger(const combined_handle_t& handle, size_t idx)
 	auto& trig = cmb.triggers[idx];
 	if (trig.trigchange)
 	{
-		handle.set_data(cid + trig.trigchange);
+		handle.modify_data(trig.trigchange);
 	}
 	if (trig.trigcschange)
 	{
@@ -2322,7 +2323,7 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 	if (trig.trigchange)
 	{
 		used_bit = true;
-		handle.set_data(cid + trig.trigchange);
+		handle.set_data(BOUND_COMBO(cid + trig.trigchange));
 	}
 	if (trig.trigcschange)
 	{
