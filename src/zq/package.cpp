@@ -91,9 +91,9 @@ static bool set_icon(std::wstring exe_path, std::wstring icon_path)
 }
 #endif
 
-std::optional<std::string> package_create(std::string quest_path_, std::string package_name)
-{
 #ifdef _WIN32
+static std::optional<std::string> _package_create(std::string quest_path_, std::string package_name)
+{
 	auto root_dir = fs::path("");
 	auto quest_path = fs::path(quest_path_);
 	auto quest_dir = quest_path.parent_path();
@@ -179,6 +179,20 @@ std::optional<std::string> package_create(std::string quest_path_, std::string p
 	}
 
 	return std::nullopt;
+}
+#endif
+
+std::optional<std::string> package_create(std::string quest_path_, std::string package_name)
+{
+#ifdef _WIN32
+	try
+	{
+		return _package_create(quest_path_, package_name);
+	}
+	catch (const std::filesystem::filesystem_error& e)
+	{
+		return fmt::format("Filesystem error: {}", e.what());
+	}
 #else
 	return "Not implemented";
 #endif
