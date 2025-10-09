@@ -3788,7 +3788,7 @@ int32_t onNonGUISnapshot()
 	}
 	while(num<99999 && exists(buf));
 
-	if (no_subscreen() && !(hero_scr->flags3&fNOSUBSCROFFSET) && !key[KEY_ALT])
+	if (hero_scr && no_subscreen() && !(hero_scr->flags3&fNOSUBSCROFFSET) && !key[KEY_ALT])
 	{
 		BITMAP *b = create_bitmap_ex(8, 256, viewport.visible_height(show_bottom_8px));
 		clear_to_color(b,0);
