@@ -1,3 +1,4 @@
+#include "base/general.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "zc/zc_ffc.h"
@@ -2317,7 +2318,7 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 	newcombo const& cmb = combobuf[cid];	
 	if(cmb.trigchange)
 	{
-		tmp->data[pos] = cid+cmb.trigchange;
+		tmp->data[pos] = BOUND_COMBO(cid+cmb.trigchange);
 	}
 	if(cmb.trigcschange)
 	{
@@ -2746,7 +2747,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			if(cmb.trigchange)
 			{
 				used_bit = true;
-				tmp->data[pos] = cid+cmb.trigchange;
+				tmp->data[pos] = BOUND_COMBO(cid+cmb.trigchange);
 			}
 			if(cmb.trigcschange)
 			{
