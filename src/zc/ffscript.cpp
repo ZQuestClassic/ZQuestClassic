@@ -19940,8 +19940,12 @@ void FFScript::do_graphics_getpixel()
 	{
 		bitty = scrollbuf;
 	}
+
+	// Note: getpixel will return -1 when out of bounds.
+	if (!is_inside_bitmap(bitty, xpos, ypos, false))
+		Z_scripterrlog("Invalid coordinate for getpixel. Bitmap: %dx%d, pixel: %dx%d\n", bitty->w, bitty->h, xpos, ypos);
 	
-	int32_t ret =  getpixel(bitty, xpos, ypos); //This is a palette index value. 
+	int32_t ret =  getpixel(bitty, xpos, ypos); //This is a palette index value.
 	
 	if(!get_qr(qr_BROKEN_GETPIXEL_VALUE))
 		ret *= 10000;
@@ -30372,8 +30376,14 @@ int32_t FFScript::do_getpixel()
 		yoffset = 0;
 	}
 	
+	int32_t xv = ri->d[rINDEX]/10000;
 	int32_t yv = ri->d[rINDEX2]/10000 + yoffset;
-	int32_t ret =  getpixel(bitty, ri->d[rINDEX]/10000, yv); //This is a palette index value. 
+
+	// Note: getpixel will return -1 when out of bounds.
+	if (!is_inside_bitmap(bitty, xv, yv, false))
+		Z_scripterrlog("Invalid coordinate for getpixel. Bitmap: %dx%d, pixel: %dx%d\n", bitty->w, bitty->h, xv, yv);
+
+	int32_t ret =  getpixel(bitty, xv, yv); //This is a palette index value. 
 	if(!get_qr(qr_BROKEN_GETPIXEL_VALUE))
 		ret *= 10000;
 	return ret;

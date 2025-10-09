@@ -95,7 +95,7 @@ class Graphics {
 	//   SETR D2 MAXDRAWS
 	internal int MaxDraws();
 
-	// Same as [bitmap::GetPixel]
+	// Same as [bitmap::GetPixel].
 	//
 	// @zasm
 	//   POP D0

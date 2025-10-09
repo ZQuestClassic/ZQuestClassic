@@ -19,7 +19,7 @@ class bitmap {
 	internal const int Height;
 
 	// Returns the palette index at the given position on the bitmap *at the
-	// start of the frame*.
+	// start of the frame*. Returns -1 if coordinates are out-of-bounds.
 	//
 	// @zasm
 	//   POP D0
