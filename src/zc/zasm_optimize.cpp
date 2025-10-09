@@ -2761,7 +2761,7 @@ void zasm_optimize_sync()
 
 	bool parallel = should_run_optimizer_in_parallel() && !ZScriptVersion::singleZasmChunk();
 	zasm_for_every_script(parallel, [&](auto script){
-		if (script->optimized)
+		if (script->optimized || script->size <= 1)
 			return;
 
 		auto r = zasm_optimize_script(script);
