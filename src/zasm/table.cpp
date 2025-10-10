@@ -1670,7 +1670,6 @@ static constexpr script_variable variable_list[]=
 	{ "IDATAUSEWPN", IDATAUSEWPN, 0}, //UseWeapon
 	{ "IDATAUSEDEF", IDATAUSEDEF, 0}, //UseDefense
 	{ "IDATAWRANGE", IDATAWRANGE, 0}, //Range
-	{ "IDATAUSEMVT", IDATAUSEMVT, 0}, //Movement[]
 	{ "IDATADURATION", IDATADURATION, 0}, //Duration
 	
 	{ "IDATADUPLICATES", IDATADUPLICATES, 0}, //Duplicates
@@ -3435,7 +3434,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case IDATAMISCD:
 		case IDATAMOVEFLAGS:
 		case IDATASPRITE:
-		case IDATAUSEMVT:
 		case IDATAWMOVEFLAGS:
 		case IDATAWPNINITD:
 		case IS8BITTILE:

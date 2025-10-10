@@ -4079,19 +4079,6 @@ int32_t get_register(int32_t arg)
 			}
 			ret=(itemsbuf[ri->idata].magiccosttimer[1])*10000;
 			break;
-		// Note: never used?
-		case IDATAUSEMVT:
-		{
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
-				ret = -10000;
-				break;
-			}
-			int32_t a = vbound((ri->d[rINDEX] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
-			ret=(itemsbuf[ri->idata].weap_pattern[a])*10000;
-		}
-		break;
 		
 		case IDATADURATION:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -12227,18 +12214,6 @@ void set_register(int32_t arg, int32_t value)
 			}
 			(itemsbuf[ri->idata].weap_data.override_flags)=(value/10000);
 			break;
-		
-		case IDATAUSEMVT:
-		{
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				scripting_log_error_with_context("Invalid itemdata access: {}", ri->idata);
-				break;
-			}
-			int32_t a = vbound((ri->d[rINDEX] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
-			(itemsbuf[ri->idata].weap_pattern[a])=vbound(value/10000, 0, 255);
-			break;
-		}
 		
 		case IDATALEVEL:
 			if(unsigned(ri->idata) >= MAXITEMS)

@@ -847,16 +847,13 @@ class itemdata {
 	// @zasm_var IDATAMISC
 	internal int Flash;
 
-	// @deprecated Use [Defense] instead!
-	// @zasm_var IDATAUSEDEF
-	internal int Defence;
-
 	// The default defense resolution (e.g. OHKO) that the weapon uses
 	// when it strikes an enemy.
 	//
 	// If `> -1`, and the enemy had a defense resolution of `None`, the default
 	// defense resolution is used in place of `None`.
 	//
+	// @deprecated_alias Defence
 	// @zasm_var IDATAUSEDEF
 	internal int Defense;
 

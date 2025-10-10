@@ -196,7 +196,7 @@ struct itemdata
     byte usesound, usesound2;
     
     //To implement next;
-    int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
+    int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z Note: totally unused.
     int32_t weaprange; //default range -Z
     int32_t weapduration; //default duration, 0 = infinite. 
     int32_t duplicates; //Number of duplicate weapons generated.
