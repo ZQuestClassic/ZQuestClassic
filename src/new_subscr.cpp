@@ -1648,12 +1648,12 @@ bool SubscrWidget::check_conditions() const
 		return false;
 	for(auto iid : req_owned_items)
 	{
-		if(!game->get_item(iid))
+		if(!game->get_item(iid) || !checkbunny(iid) || item_disabled(iid))
 			return false;
 	}
 	for(auto iid : req_unowned_items)
 	{
-		if(game->get_item(iid))
+		if(game->get_item(iid) && checkbunny(iid) && !item_disabled(iid))
 			return false;
 	}
 	if(req_counter != crNONE && req_counter_cond_type != CONDTY_NONE)
