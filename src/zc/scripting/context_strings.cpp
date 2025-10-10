@@ -209,8 +209,6 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case HERORESPAWNY: return "Hero->RespawnY";
 		case HEROSCRIPTCSET: return "Hero->ScriptCSet";
 		case HEROSCRICECMB: return "Hero->ScriptIceCombo";
-		case GAMESETA: return "Hero->SetItemA()";
-		case GAMESETB: return "Hero->SetItemB()";
 		case SETITEMSLOT: return "Hero->SetItemSlot()";
 		case HEROSHIELDJINX: return "Hero->ShieldJinx";
 		case HEROSHOVEOFFSET: return "Hero->ShoveOffset";

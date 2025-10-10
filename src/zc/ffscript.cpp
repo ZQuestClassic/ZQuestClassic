@@ -11552,26 +11552,6 @@ void set_register(int32_t arg, int32_t value)
 			script_hero_flip=vbound((value/10000),-1,256);
 			break;
 		
-		case GAMESETA:
-		{
-			//int32_t state   = (ri->d[rINDEX2]/10000);
-			//int32_t extend = (ri->d[rINDEX2]/10000);
-			//int32_t dir = (ri->d[rINDEX]/10000);
-			// Z_message("Trying to force-set the A-button item().\n");
-			// Hero.setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-		}
-		break;
-		
-		case GAMESETB:
-		{
-			//int32_t state   = (ri->d[rINDEX2]/10000);
-			//int32_t extend = (ri->d[rINDEX2]/10000);
-			//int32_t dir = (ri->d[rINDEX]/10000);
-			// Z_message("Trying to force-set the A-button item().\n");
-			// Hero.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-		}
-		break;
-		
 		//Set Hero Diagonal
 		case LINKDIAG:
 			Hero.setDiagMove(value?1:0);

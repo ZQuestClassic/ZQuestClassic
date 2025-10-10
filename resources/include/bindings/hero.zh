@@ -850,16 +850,6 @@ class hero {
 	//   LINKWARPEXR D2
 	internal void Warp(int warp_id);
 
-	// @zasm
-	//   POP D3
-	//   SETR GAMESETA D3
-	internal void SetItemA(int item_id);
-
-	// @zasm
-	//   POP D3
-	//   SETR GAMESETB D3
-	internal void SetItemB(int item_id);
-
 	// Set the Hero's button items, with options for forcing them.
 	//
 	// @param [ItemSlot] slot
