@@ -564,7 +564,9 @@ static bool has_implemented_register_invalidations(int reg)
 		case REFMSGDATA:
 		case REFNPCCLASS:
 		case REFPALDATA:
+		case REFPORTAL:
 		case REFRNG:
+		case REFSAVPORTAL:
 		case REFSCREENDATA:
 		case REFSHOPDATA:
 		case REFSPRITEDATA:
