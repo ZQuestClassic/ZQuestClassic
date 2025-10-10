@@ -6119,36 +6119,6 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
         
 }
 
-
-void bmp_do_getpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
-{
-    //sdci[1]=layer
-    //sdci[2]=x1
-    //sdci[3]=y1
-    
-	//sdci[DRAWCMD_BMP_TARGET] Bitmap Pointer
-    if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
-    {
-	Z_scripterrlog("bitmap->GetPixel() wanted to read from an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
-	return;
-    }
-	BITMAP *refbmp = resolveScriptingBitmap(sdci[DRAWCMD_BMP_TARGET]);
-	if ( refbmp == NULL ) return;
-    
-    
-    if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
-    int32_t x1 = sdci[2]/10000;
-    int32_t y1 = (sdci[3]/10000)+yoffset;
-    int32_t col = getpixel(refbmp, x1, y1);
-    Z_scripterrlog("bitmap->GetPixel col is %d\n",col);
-    Z_scripterrlog("bitmap->GetPixel bitmap ptr is is %d\n",(sdci[DRAWCMD_BMP_TARGET]));
-    FFCore.set_sarg1(col);
-}
-
-
-
-
 void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
@@ -12168,8 +12138,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 			case BMPDRAWSTRINGR2: bmp_do_drawstringr2(bmp, i, sdci, xoffset, yoffset); break;
 			case BMPQUADR: bmp_do_drawquadr(bmp, sdci, xoffset, yoffset); break;
 			case BMPQUAD3DR: bmp_do_drawquad3dr(bmp, i, sdci, xoffset, yoffset); break;
-				
-			case BITMAPGETPIXEL: bmp_do_getpixelr(bmp, sdci, xoffset, yoffset); break;
 			case BMPTRIANGLER: bmp_do_drawtriangler(bmp, sdci, xoffset, yoffset); break;
 			case BMPTRIANGLE3DR: bmp_do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset); break;
 			case BMPPOLYGONR: bmp_do_polygonr(bmp, i, sdci, xoffset, yoffset); break;

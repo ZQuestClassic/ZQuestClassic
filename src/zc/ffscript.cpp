@@ -5877,10 +5877,6 @@ int32_t get_register(int32_t arg)
 				ret = s->lift_height.getZLong();
 			}
 			break;
-		
-		case GETPIXEL:
-			ret=FFCore.do_getpixel();
-			break;
 
 		case SCREENSCRDATASIZE:
 		{
@@ -23119,11 +23115,6 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		case BMPDRAWSCREENCOMBOIR:
 		case BMPDRAWSCREENCOMBOTR:
 			set_user_bitmap_command_args(j, 6); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+6); break;
-		case BITMAPGETPIXEL:
-		{
-			set_user_bitmap_command_args(j, 3); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+3);
-			break;
-		}
 		case BMPBLIT:	
 		{
 			set_user_bitmap_command_args(j, 16); 
@@ -27070,7 +27061,6 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case BMPDRAWSCREENCOMBOFR:
 			case BMPDRAWSCREENCOMBOIR:
 			case BMPDRAWSCREENCOMBOTR:
-			case BITMAPGETPIXEL:
 			case BMPBLIT:
 			case BMPBLITTO:
 			case BMPTILEBLIT:
@@ -30054,11 +30044,6 @@ void FFScript::do_directory_free()
 
 ///----------------------------------------------------------------------------------------------------
 
-void FFScript::set_sarg1(int32_t v)
-{
-	set_register(sarg1, v);
-}
-
 void FFScript::do_isvalidbitmap()
 {
 	int32_t id = get_register(sarg1);
@@ -30347,46 +30332,6 @@ int32_t FFScript::GetDefaultWeaponSFX(int32_t wpn_id)
 			return WAV_ZN1FIREBALL; break;
 	}
 	return -1; //no assign
-}
-
-//bitmap->GetPixel()
-
-
-int32_t FFScript::do_getpixel()
-{
-	int32_t xoffset = 0, yoffset = 0;
-	int32_t xoff = 0; int32_t yoff = 0;
-	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0)
-		|| (get_qr(qr_BITMAPOFFSETFIX)!=0) );
-	
-	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref, screen);
-	if(!bitty)
-	{
-		bitty = scrollbuf;
-	}
-	// draw to screen with subscreen offset
-	if(!brokenOffset && ri->bitmapref == rtSCREEN + 10 )
-	{
-		xoffset = xoff;
-		yoffset = 56; //should this be -56?
-	}
-	else
-	{
-		xoffset = 0;
-		yoffset = 0;
-	}
-	
-	int32_t xv = ri->d[rINDEX]/10000;
-	int32_t yv = ri->d[rINDEX2]/10000 + yoffset;
-
-	// Note: getpixel will return -1 when out of bounds.
-	if (!is_inside_bitmap(bitty, xv, yv, false))
-		Z_scripterrlog("Invalid coordinate for getpixel. Bitmap: %dx%d, pixel: %dx%d\n", bitty->w, bitty->h, xv, yv);
-
-	int32_t ret =  getpixel(bitty, xv, yv); //This is a palette index value. 
-	if(!get_qr(qr_BROKEN_GETPIXEL_VALUE))
-		ret *= 10000;
-	return ret;
 }
 
 void FFScript::do_bmpcollision()

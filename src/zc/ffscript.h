@@ -1040,7 +1040,6 @@ byte temp_no_stepforward;
 
 byte subscreen_scroll_speed;
 
-void set_sarg1(int32_t v);
 void setSubscreenScrollSpeed(byte n);
 int32_t getSubscreenScrollSpeed();
 void do_fx_zap(const bool v);
@@ -1075,7 +1074,6 @@ void SetFFEngineFlag(int32_t flag, bool v);
 void SetItemMessagePlayed(int32_t itm);
 bool GetItemMessagePlayed(int32_t itm);
 	
-int32_t do_getpixel();
 void do_bmpcollision();
 int32_t GetDefaultWeaponSprite(int32_t w);
 int32_t GetDefaultWeaponSFX(int32_t wpn_id);
