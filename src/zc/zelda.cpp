@@ -2020,14 +2020,13 @@ int32_t init_game()
 		FFCore.usr_music_volume = 10000 * 100;
 	}
 	
-	//FFCore.init(); ///Initialise new ffscript engine core. 
+	loadscr(cur_dmap, cur_screen, -1, false);
+
 	if(!firstplay && !get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 	{
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
-
-	loadscr(cur_dmap, cur_screen, -1, false);
 
 	mark_visited(cur_screen);
 
