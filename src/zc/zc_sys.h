@@ -28,7 +28,7 @@ void do_DwmFlush();
 #endif
 
 void draw_lens_under(BITMAP *dest, bool layer);
-void draw_lens_over();
+void draw_lens_over(BITMAP *dest);
 void fix_menu();
 int32_t onFullscreenMenu();
 void f_Quit(int32_t type);

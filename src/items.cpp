@@ -7,6 +7,7 @@
 #include "zc/ffscript.h"
 #include <fmt/format.h>
 #include "base/misctypes.h"
+#include "zc/zelda.h"
 
 char *item_string[MAXITEMS];
 

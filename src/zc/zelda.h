@@ -230,6 +230,8 @@ extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp
 				*msg_menu_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3],
 				*temp_buf2, *prim_bmp,
 				*script_menu_buf, *f6_menu_buf;
+// The portion of the framebuf without the passive subscreen. Only used in extended height mode.
+extern BITMAP* framebuf_no_passive_subscreen;
 extern BITMAP   *darkscr_bmp, *darkscr_bmp_trans;
 extern BITMAP *lightbeam_bmp;
 extern bool lightbeam_present;

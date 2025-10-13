@@ -10417,7 +10417,7 @@ heroanimate_skip_liftwpn:;
 		{
 		case 0:
 		{
-			if( FFCore.runScriptedActiveSusbcreen() )
+			if( FFCore.runScriptedActiveSubscreen() )
 			{
 				break;
 			}

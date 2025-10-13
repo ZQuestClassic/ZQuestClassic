@@ -4597,7 +4597,53 @@ static void draw_sprites(BITMAP* dest, set<sprite*, SpriteSorter>& sprite_set, s
 		clear_clip_rect(dest);
 }
 
-void draw_screen(bool showhero, bool runGeneric)
+static void draw_high_darkness(BITMAP* dest)
+{
+	do_primitives(dest, SPLAYER_DARKROOM_UNDER);
+	set_clip_rect(dest, 0, playing_field_offset, dest->w, dest->h);
+	if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
+	{
+		ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
+		ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
+	}
+
+	color_map = &trans_table2;
+	if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
+	{
+		draw_trans_sprite(dest, darkscr_bmp, 0, 0);
+		if(get_qr(qr_NEWDARK_TRANS_STACKING))
+			draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
+	}
+	else
+	{
+		masked_blit(darkscr_bmp, dest, 0, 0, 0, 0, dest->w, dest->h);
+		draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
+	}
+	color_map = &trans_table;
+
+	set_clip_rect(dest, 0, 0, dest->w, dest->h);
+	do_primitives(dest, SPLAYER_DARKROOM_OVER);
+}
+
+static void draw_screen_post_passive_subscreen(BITMAP* dest, bool any_dark)
+{
+	draw_msgstr(6, dest);
+
+	if (get_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN))
+		draw_msgstr(6, dest);
+
+	if (get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && any_dark)
+		draw_high_darkness(dest);
+
+	_do_current_ffc_layer(dest, 7);
+	draw_msgstr(7, dest);
+}
+
+// Draws to framebuf.
+//
+// But if drawPassiveSubscreenSeparate is true: framebuf_no_passive_subscreen will also contain all
+// draws excluding the passive subscreen.
+void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSeparate)
 {
 	bool classic_draw = get_qr(qr_CLASSIC_DRAWING_ORDER);
 	clear_info_bmp();
@@ -4609,8 +4655,9 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 
-	clear_bitmap(framebuf);
-	clear_clip_rect(framebuf);
+	BITMAP* dest = framebuf;
+	clear_bitmap(dest);
+	clear_clip_rect(dest);
 	
 	int32_t cmby2=0;
 	
@@ -4861,11 +4908,11 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_2);
 	}
 	
-	// Blit those layers onto framebuf
+	// Blit those layers onto dest (framebuf)
 
-	set_draw_screen_clip(framebuf);
+	set_draw_screen_clip(dest);
 
-	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 232);
+	blit(scrollbuf, dest, 0, 0, 0, 0, 256, 232);
 
 	// After this point, scrollbuf is no longer drawn to - so things like dosubscr have access to a "partially rendered" frame.
 	// I think only used for COOLSCROLL==0? Seems like a silly feature...
@@ -4875,29 +4922,29 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		bool dotime = false;
 		if (replay_version_check(22)) dotime = game->should_show_time();
-		put_passive_subscr(framebuf, 0, 0, dotime, sspUP);
+		put_passive_subscr(dest, 0, 0, dotime, sspUP);
 	}
 	
-	// Draw some sprites onto framebuf
-	set_clip_rect(framebuf,0,0,256,232);
+	// Draw some sprites onto dest
+	set_clip_rect(dest,0,0,256,232);
 	
 	if(!(pricesdisplaybuf->clip))
 	{
-		masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,176);
+		masked_blit(pricesdisplaybuf,dest,0,0,0,playing_field_offset,256,176);
 	}
 
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
-		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+		add_clip_rect(dest, 0, playing_field_offset, dest->w, dest->h);
 
 	if(showhero && !hero_draw_done)
 	{
-		Hero.draw_under(framebuf);
+		Hero.draw_under(dest);
 		
 		if(Hero.isSwimming())
 		{
-			decorations.draw2(framebuf,true);
-			Hero.draw(framebuf);
-			decorations.draw(framebuf,true);
+			decorations.draw2(dest,true);
+			Hero.draw(dest);
+			decorations.draw(dest,true);
 			hero_draw_done = true;
 		}
 	}
@@ -4923,156 +4970,156 @@ void draw_screen(bool showhero, bool runGeneric)
 				{
 					if (do_clip)
 					{
-						Ewpns.drawshadow_smooth_maze(framebuf,get_qr(qr_TRANSSHADOWS));
-						Lwpns.drawshadow_smooth_maze(framebuf,get_qr(qr_TRANSSHADOWS));
+						Ewpns.drawshadow_smooth_maze(dest,get_qr(qr_TRANSSHADOWS));
+						Lwpns.drawshadow_smooth_maze(dest,get_qr(qr_TRANSSHADOWS));
 					}
 					else
 					{
-						Ewpns.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS),true);
-						Lwpns.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS),true);
+						Ewpns.drawshadow(dest,get_qr(qr_TRANSSHADOWS),true);
+						Lwpns.drawshadow(dest,get_qr(qr_TRANSSHADOWS),true);
 					}
 				}
 				for(int32_t i=0; i<Ewpns.Count(); i++)
 				{
 					if(((weapon *)Ewpns.spr(i))->behind)
-						Ewpns.spr(i)->draw(framebuf);
+						Ewpns.spr(i)->draw(dest);
 				}
-				do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW);
+				do_primitives(dest, SPLAYER_EWEAP_BEHIND_DRAW);
 				
 				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					if(((weapon *)Lwpns.spr(i))->behind)
-						Lwpns.spr(i)->draw(framebuf);
+						Lwpns.spr(i)->draw(dest);
 				}
-				do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW);
+				do_primitives(dest, SPLAYER_LWEAP_BEHIND_DRAW);
 
 				if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 				{
 					if (do_clip)
-						guys.drawshadow_smooth_maze(framebuf,get_qr(qr_TRANSSHADOWS)!=0);
+						guys.drawshadow_smooth_maze(dest,get_qr(qr_TRANSSHADOWS)!=0);
 					else
-						guys.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS)!=0,true);
+						guys.drawshadow(dest,get_qr(qr_TRANSSHADOWS)!=0,true);
 				}
 				if (do_clip)
-					guys.draw_smooth_maze(framebuf);
+					guys.draw_smooth_maze(dest);
 				else
-					guys.draw(framebuf,true);
+					guys.draw(dest,true);
 				if (do_clip)
 				{
 					int maze_screen = maze_state.scr->screen;
 					auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
-					set_clip_rect(framebuf, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+					set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
 				}
-				do_primitives(framebuf, SPLAYER_NPC_DRAW);
+				do_primitives(dest, SPLAYER_NPC_DRAW);
 				if (do_clip)
-					clear_clip_rect(framebuf);
+					clear_clip_rect(dest);
 
-				chainlinks.draw(framebuf,true);
-				do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW);
-				//Lwpns.draw(framebuf,true);
+				chainlinks.draw(dest,true);
+				do_primitives(dest, SPLAYER_CHAINLINK_DRAW);
+				//Lwpns.draw(dest,true);
 				
 				for(int32_t i=0; i<Ewpns.Count(); i++)
 				{
 					if(!((weapon *)Ewpns.spr(i))->behind)
-						Ewpns.spr(i)->draw(framebuf);
+						Ewpns.spr(i)->draw(dest);
 				}
-				do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW);
+				do_primitives(dest, SPLAYER_EWEAP_FRONT_DRAW);
 				
 				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					if(!((weapon *)Lwpns.spr(i))->behind)
-						Lwpns.spr(i)->draw(framebuf);
+						Lwpns.spr(i)->draw(dest);
 				}
-				do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW);
+				do_primitives(dest, SPLAYER_LWEAP_FRONT_DRAW);
 
 				if (do_clip)
-					items.draw_smooth_maze(framebuf);
+					items.draw_smooth_maze(dest);
 				else
-					items.draw(framebuf,true);
+					items.draw(dest,true);
 				if (do_clip)
 				{
 					int maze_screen = maze_state.scr->screen;
 					auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
-					set_clip_rect(framebuf, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+					set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
 				}
-				do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW);
+				do_primitives(dest, SPLAYER_ITEMSPRITE_DRAW);
 				if (do_clip)
-					clear_clip_rect(framebuf);
+					clear_clip_rect(dest);
 			}
 			else
 			{
 				for(int32_t i=0; i<Ewpns.Count(); i++)
 				{
 					if(((weapon *)Ewpns.spr(i))->behind)
-						Ewpns.spr(i)->draw(framebuf);
+						Ewpns.spr(i)->draw(dest);
 				}
-				do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW);
+				do_primitives(dest, SPLAYER_EWEAP_BEHIND_DRAW);
 			
 				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					if(((weapon *)Lwpns.spr(i))->behind)
-						Lwpns.spr(i)->draw(framebuf);
+						Lwpns.spr(i)->draw(dest);
 				}
-				do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW);
+				do_primitives(dest, SPLAYER_LWEAP_BEHIND_DRAW);
 				
 				if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 				{
-					guys.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS)!=0,true);
+					guys.drawshadow(dest,get_qr(qr_TRANSSHADOWS)!=0,true);
 				}
 				
-				items.draw(framebuf,false);
-				do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW);
-				chainlinks.draw(framebuf,false);
-				do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW);
-				//Lwpns.draw(framebuf,false);
-				guys.draw(framebuf,false);
-				do_primitives(framebuf, SPLAYER_NPC_DRAW);
+				items.draw(dest,false);
+				do_primitives(dest, SPLAYER_ITEMSPRITE_DRAW);
+				chainlinks.draw(dest,false);
+				do_primitives(dest, SPLAYER_CHAINLINK_DRAW);
+				//Lwpns.draw(dest,false);
+				guys.draw(dest,false);
+				do_primitives(dest, SPLAYER_NPC_DRAW);
 				
 				for(int32_t i=0; i<Ewpns.Count(); i++)
 				{
 					if(!((weapon *)Ewpns.spr(i))->behind)
 					{
-						Ewpns.spr(i)->draw(framebuf);
+						Ewpns.spr(i)->draw(dest);
 					}
 				}
-				do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW);
+				do_primitives(dest, SPLAYER_EWEAP_FRONT_DRAW);
 			
 				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					if(!((weapon *)Lwpns.spr(i))->behind)
 					{
-						Lwpns.spr(i)->draw(framebuf);
+						Lwpns.spr(i)->draw(dest);
 					}
 				}
-				do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW);
+				do_primitives(dest, SPLAYER_LWEAP_FRONT_DRAW);
 			}
 			
-			guys.draw2(framebuf,true);
+			guys.draw2(dest,true);
 		}
 		
 		if(mirror_portal.destdmap > -1)
-			mirror_portal.draw(framebuf);
-		portals.draw(framebuf,true);
+			mirror_portal.draw(dest);
+		portals.draw(dest,true);
 		
 		if(showhero && !is_cave_walking)
 		{
 			if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 			{
-				mblock2.draw(framebuf,-1);
-				do_primitives(framebuf, SPLAYER_MOVINGBLOCK);
+				mblock2.draw(dest,-1);
+				do_primitives(dest, SPLAYER_MOVINGBLOCK);
 			}
 			if(!hero_draw_done)
 			{
 				if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 				{
-					Hero.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS)!=0);
+					Hero.drawshadow(dest,get_qr(qr_TRANSSHADOWS)!=0);
 				}
 				
 				if(Hero.getZ() <= (zfix)zinit.jump_hero_layer_threshold)
 				{
-					decorations.draw2(framebuf,true);
-					Hero.draw(framebuf);
-					decorations.draw(framebuf,true);
+					decorations.draw2(dest,true);
+					Hero.draw(dest);
+					decorations.draw(dest,true);
 					hero_draw_done = true;
 				}
 			}
@@ -5084,7 +5131,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			{
 				if(((eStalfos*)guys.spr(i))->hashero)
 				{
-					guys.spr(i)->draw(framebuf);
+					guys.spr(i)->draw(dest);
 				}
 			}
 			
@@ -5092,16 +5139,16 @@ void draw_screen(bool showhero, bool runGeneric)
 			{
 				if(((eWallM*)guys.spr(i))->hashero)
 				{
-					guys.spr(i)->draw(framebuf);
+					guys.spr(i)->draw(dest);
 				}
 			}
 			
 			if(guys.spr(i)->z+guys.spr(i)->fakez > Hero.getZ()+Hero.getFakeZ())
 			{
 				//Jumping enemies in front of Hero.
-				guys.spr(i)->draw(framebuf);
+				guys.spr(i)->draw(dest);
 			}
-			do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW);
+			do_primitives(dest, SPLAYER_NPC_ABOVEPLAYER_DRAW);
 		}
 	}
 	else
@@ -5144,88 +5191,88 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 	auto sprite_it = sorted_sprites.begin();
 	if (!classic_draw)
-		draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_GROUND]);
+		draw_sprites(dest, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_GROUND]);
 	
-	// Draw some layers onto framebuf
-	set_draw_screen_clip(framebuf);
+	// Draw some layers onto dest
+	set_draw_screen_clip(dest);
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
-		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+		add_clip_rect(dest, 0, playing_field_offset, dest->w, dest->h);
 
 	// Handle layer 3 NOT being used as background layers.
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		if (!XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
-			do_layer(framebuf, 0, screen_handles[3], offx, offy);
+			do_layer(dest, 0, screen_handles[3], offx, offy);
 	});
 	
 	if (!classic_draw)
-		draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_3]);
+		draw_sprites(dest, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_3]);
 	
 	if(!XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 	{
-		do_layer_primitives(framebuf, 3);
-		particles.draw(framebuf, true, 3);
+		do_layer_primitives(dest, 3);
+		particles.draw(dest, true, 3);
 	}
-	_do_current_ffc_layer(framebuf, 3);
+	_do_current_ffc_layer(dest, 3);
 	if(!XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 		draw_msgstr(3);
 	
 	
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-		do_layer(framebuf, 0, screen_handles[4], offx, offy);
+		do_layer(dest, 0, screen_handles[4], offx, offy);
 	});
 	
 	if (!classic_draw)
-		draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_4]);
+		draw_sprites(dest, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_4]);
 	
-	do_layer_primitives(framebuf, 4);
-	particles.draw(framebuf, true, 4);
-	_do_current_ffc_layer(framebuf, 4);
+	do_layer_primitives(dest, 4);
+	particles.draw(dest, true, 4);
+	_do_current_ffc_layer(dest, 4);
 	draw_msgstr(4);
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-		do_layer(framebuf, -1, screen_handles[0], offx, offy);
+		do_layer(dest, -1, screen_handles[0], offx, offy);
 		if (get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 		{
-			do_layer(framebuf, -1, screen_handles[1], offx, offy);
-			do_layer(framebuf, -1, screen_handles[2], offx, offy);
+			do_layer(dest, -1, screen_handles[1], offx, offy);
+			do_layer(dest, -1, screen_handles[2], offx, offy);
 		}
 	});
 
-	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB);
+	do_primitives(dest, SPLAYER_OVERHEAD_CMB);
 	
-	// Draw some flying sprites onto framebuf
-	clear_clip_rect(framebuf);
+	// Draw some flying sprites onto dest
+	clear_clip_rect(dest);
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
-		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+		add_clip_rect(dest, 0, playing_field_offset, dest->w, dest->h);
 	
 	if (classic_draw)
 	{
 		//Jumping Hero and jumping enemies are drawn on this layer.
 		if(Hero.getZ() > (zfix)zinit.jump_hero_layer_threshold)
 		{
-			decorations.draw2(framebuf,false);
-			Hero.draw(framebuf);
-			chainlinks.draw(framebuf,true);
-			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW);
+			decorations.draw2(dest,false);
+			Hero.draw(dest);
+			chainlinks.draw(dest,true);
+			do_primitives(dest, SPLAYER_CHAINLINK_DRAW);
 			
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(Lwpns.spr(i)->z+Lwpns.spr(i)->fakez > (zfix)zinit.jump_hero_layer_threshold)
 				{
-					Lwpns.spr(i)->draw(framebuf);
+					Lwpns.spr(i)->draw(dest);
 				}
 			}
-			do_primitives(framebuf, SPLAYER_LWEAP_ABOVE_DRAW);
+			do_primitives(dest, SPLAYER_LWEAP_ABOVE_DRAW);
 			
-			decorations.draw(framebuf,false);
+			decorations.draw(dest,false);
 		}
 		
 		if(!get_qr(qr_ENEMIESZAXIS)) for(int32_t i=0; i<guys.Count(); i++)
 		{
 			if((isflier(guys.spr(i)->id)) || (guys.spr(i)->z+guys.spr(i)->fakez) > (zfix)zinit.jump_hero_layer_threshold)
 			{
-				guys.spr(i)->draw(framebuf);
+				guys.spr(i)->draw(dest);
 			}
 		}
 		else
@@ -5234,60 +5281,60 @@ void draw_screen(bool showhero, bool runGeneric)
 			{
 				if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > 0 || guys.spr(i)->fakez > 0)
 				{
-					guys.spr(i)->draw(framebuf);
+					guys.spr(i)->draw(dest);
 				}
 			}
 		}
-		do_primitives(framebuf, SPLAYER_NPC_AIRBORNE_DRAW);
+		do_primitives(dest, SPLAYER_NPC_AIRBORNE_DRAW);
 	}
-	else draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_OVERHEAD]);
+	else draw_sprites(dest, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_OVERHEAD]);
 	
 	// Draw the Moving Fairy above layer 3
 	for(int32_t i=0; i<items.Count(); i++)
 		if(itemsbuf[items.spr(i)->id].type == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
-			items.spr(i)->draw(framebuf);
-	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW);
+			items.spr(i)->draw(dest);
+	do_primitives(dest, SPLAYER_FAIRYITEM_DRAW);
 	
-	// Draw some layers onto framebuf
+	// Draw some layers onto dest
 
-	set_draw_screen_clip(framebuf);
+	set_draw_screen_clip(dest);
 
 	if (lightbeam_present)
 	{
 		color_map = &trans_table2;
 		if(get_qr(qr_LIGHTBEAM_TRANSPARENT))
-			draw_trans_sprite(framebuf, lightbeam_bmp, 0, playing_field_offset);
+			draw_trans_sprite(dest, lightbeam_bmp, 0, playing_field_offset);
 		else
-			masked_blit(lightbeam_bmp, framebuf, 0, 0, 0, playing_field_offset, 256, 176);
+			masked_blit(lightbeam_bmp, dest, 0, 0, 0, playing_field_offset, 256, 176);
 		color_map = &trans_table;
 	}
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-		do_layer(framebuf, 0, screen_handles[5], offx, offy);
+		do_layer(dest, 0, screen_handles[5], offx, offy);
 	});
 
 	if (!classic_draw)
-		draw_sprites(framebuf, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_5]);
+		draw_sprites(dest, sorted_sprites, sprite_it, zinit.sprite_z_thresholds[SPRITE_THRESHOLD_5]);
 	
-	do_layer_primitives(framebuf, 5);
-	particles.draw(framebuf, true, 5);
-	_do_current_ffc_layer(framebuf, 5);
+	do_layer_primitives(dest, 5);
+	particles.draw(dest, true, 5);
+	_do_current_ffc_layer(dest, 5);
 	draw_msgstr(5);
 	
-	_do_current_ffc_layer(framebuf, -1000); // 'overhead' freeform combos
+	_do_current_ffc_layer(dest, -1000); // 'overhead' freeform combos
 
-	do_primitives(framebuf, SPLAYER_OVERHEAD_FFC);
+	do_primitives(dest, SPLAYER_OVERHEAD_FFC);
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-		do_layer(framebuf, 0, screen_handles[6], offx, offy);
+		do_layer(dest, 0, screen_handles[6], offx, offy);
 	});
 
 	if (!classic_draw)
-		draw_sprites(framebuf, sorted_sprites, sprite_it, word(-1));
+		draw_sprites(dest, sorted_sprites, sprite_it, word(-1));
 	
-	do_layer_primitives(framebuf, 6);
-	particles.draw(framebuf, true, 6);
-	_do_current_ffc_layer(framebuf, 6);
+	do_layer_primitives(dest, 6);
+	particles.draw(dest, true, 6);
+	_do_current_ffc_layer(dest, 6);
 
 	bool any_dark = false;
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
@@ -5319,8 +5366,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	//Darkroom if under the subscreen
 	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && any_dark)
 	{
-		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER);
-		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+		do_primitives(dest, SPLAYER_DARKROOM_UNDER);
+		set_clip_rect(dest, 0, playing_field_offset, dest->w, dest->h);
 		if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
 			ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
@@ -5330,78 +5377,53 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table2;
 		if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
 		{
-			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
+			draw_trans_sprite(dest, darkscr_bmp, 0, 0);
 			if(get_qr(qr_NEWDARK_TRANS_STACKING))
-				draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
+				draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
 		}
 		else
 		{
-			masked_blit(darkscr_bmp, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
-			draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
+			masked_blit(darkscr_bmp, dest, 0, 0, 0, 0, dest->w, dest->h);
+			draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
 		}
 		color_map = &trans_table;
 		
-		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-		do_primitives(framebuf, SPLAYER_DARKROOM_OVER);
+		set_clip_rect(dest, 0, 0, dest->w, dest->h);
+		do_primitives(dest, SPLAYER_DARKROOM_OVER);
 	}
 
-	if (is_extended_height_mode() && lensclk && !FFCore.system_suspend[susptLENS])
+	if (is_in_scrolling_region() && lensclk && !FFCore.system_suspend[susptLENS])
 	{
-		draw_lens_over();
+		draw_lens_over(dest);
 		--lensclk;
 	}
 
-	// Draw some text on framebuf
+	// Draw some text on dest
 	
-	set_clip_rect(framebuf,0,0,256,232);
+	set_clip_rect(dest,0,0,256,232);
 
 	if(!get_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN))
 		draw_msgstr(6);
-	
+
 	// Draw the subscreen, without clipping
 	if(get_qr(qr_SUBSCREENOVERSPRITES))
 	{
-		put_passive_subscr(framebuf, 0, 0, game->should_show_time(), sspUP);
-		do_primitives(framebuf, 7);
+		if (drawPassiveSubscreenSeparate)
+			blit(dest, framebuf_no_passive_subscreen, 0, 0, 0, 0, dest->w, dest->h);
+
+		put_passive_subscr(dest, 0, 0, game->should_show_time(), sspUP);
+
+		do_primitives(dest, 7);
+		if (drawPassiveSubscreenSeparate)
+			do_primitives(framebuf_no_passive_subscreen, 7);
 	}
 	else if (!classic_draw)
-		do_primitives(framebuf, 7);
-	
-	if(get_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN))
-		draw_msgstr(6);
-	
-	// Handle high-drawn darkness
-	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && any_dark)
-	{
-		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER);
-		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
-		if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
-		{
-			ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
-			ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
-		}
-		
-		color_map = &trans_table2;
-		if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
-		{
-			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
-			if(get_qr(qr_NEWDARK_TRANS_STACKING))
-				draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
-		}
-		else
-		{
-			masked_blit(darkscr_bmp, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
-			draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
-		}
-		color_map = &trans_table;
-		
-		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-		do_primitives(framebuf, SPLAYER_DARKROOM_OVER);
-	}
-	
-	_do_current_ffc_layer(framebuf, 7);
-	draw_msgstr(7);
-	
+		do_primitives(dest, 7);
+
+	draw_screen_post_passive_subscreen(dest, any_dark);
+	if (drawPassiveSubscreenSeparate)
+		draw_screen_post_passive_subscreen(framebuf_no_passive_subscreen, any_dark);
+
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 	

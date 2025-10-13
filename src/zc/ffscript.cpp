@@ -31745,7 +31745,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	return true;
 }
 
-bool FFScript::runScriptedActiveSusbcreen()
+bool FFScript::runScriptedActiveSubscreen()
 {
 	word activesubscript = DMaps[cur_dmap].active_sub_script;
 	if(!activesubscript || !dmapscripts[activesubscript]->valid()) return false; //No script to run

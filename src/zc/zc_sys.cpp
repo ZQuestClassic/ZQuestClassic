@@ -3518,7 +3518,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	}
 }
 
-void draw_lens_over()
+void draw_lens_over(BITMAP *dest)
 {
 	int w = 288;
 	int h = 240;
@@ -3537,8 +3537,8 @@ void draw_lens_over()
 		last_width=width;
 	}
 	
-	masked_blit(lens_scr, framebuf, w-(HeroX()+8)+viewport.x, h-(HeroY()+8)+viewport.y, 0, playing_field_offset, 256, viewport.h);
-	do_primitives(framebuf, SPLAYER_LENS_OVER);
+	masked_blit(lens_scr, dest, w-(HeroX()+8)+viewport.x, h-(HeroY()+8)+viewport.y, 0, playing_field_offset, 256, viewport.h);
+	do_primitives(dest, SPLAYER_LENS_OVER);
 }
 
 static void update_bmp_size(BITMAP** bmp_ptr, int w, int h)
@@ -7584,13 +7584,20 @@ void updateShowBottomPixels()
 		clear_bitmap(new_framebuf);
 		blit(framebuf, new_framebuf, 0, 0, 0, 0, new_framebuf->w, new_framebuf->h);
 
+		BITMAP* new_framebuf_active_subscreen = create_bitmap_ex(8, 256, target_bitmap_height);
+		clear_bitmap(new_framebuf_active_subscreen);
+		if (framebuf_no_passive_subscreen)
+			blit(framebuf_no_passive_subscreen, new_framebuf_active_subscreen, 0, 0, 0, 0, new_framebuf_active_subscreen->w, new_framebuf_active_subscreen->h);
+
 		destroy_bitmap(framebuf);
+		destroy_bitmap(framebuf_no_passive_subscreen);
 		destroy_bitmap(script_menu_buf);
 		destroy_bitmap(f6_menu_buf);
 		destroy_bitmap(darkscr_bmp);
 		destroy_bitmap(darkscr_bmp_trans);
 
 		framebuf = new_framebuf;
+		framebuf_no_passive_subscreen = new_framebuf_active_subscreen;
 		script_menu_buf = create_bitmap_ex(8, 256, target_bitmap_height);
 		f6_menu_buf = create_bitmap_ex(8, 256, target_bitmap_height);
 		darkscr_bmp = create_bitmap_ex(8, 256, target_bitmap_height);

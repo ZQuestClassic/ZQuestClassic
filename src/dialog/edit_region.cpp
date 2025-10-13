@@ -9,8 +9,8 @@
 #include "zq/render.h"
 #include "zc_list_data.h"
 
-// This is a snapshot of all the compat QRs as of Feb 17, 2025.
 static std::vector<int> old_qrs = {
+	// This is a snapshot of all the compat QRs as of Feb 17, 2025.
 	// qr_OLD_STRING_EDITOR_MARGINS, // TODO QRHINT doesnt know about needing to do what onStrFix does
 	// qr_STRING_FRAME_OLD_WIDTH_HEIGHT, // TODO QRHINT doesnt know about needing to do what onStrFix does
 	qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
@@ -143,6 +143,10 @@ static std::vector<int> old_qrs = {
 	qr_WARPS_RESTART_DMAPSCRIPT,
 	qr_WIZZROBES_DONT_OBEY_STUN,
 	qr_WRONG_BRANG_TRAIL_DIR,
+
+	// In scrolling regions w/ extended height viewport, this should be on otherwise sprites and
+	// overhead combos are drawn over the subscreen.
+	qr_SUBSCREENOVERSPRITES,
 };
 
 // To reduce the amount of old features that need to be upgraded for region support, we suggest

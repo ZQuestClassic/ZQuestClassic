@@ -246,6 +246,7 @@ BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp,
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
+BITMAP* framebuf_no_passive_subscreen;
 BITMAP     *zcmouse[NUM_ZCMOUSE];
 PALETTE    RAMpal;
 PALETTE    pal_gui;
@@ -3492,21 +3493,45 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_LWPN_WAITDRAW);
 		if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) FFCore.itemSpriteScriptEngineOnWaitdraw();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
-		
-		
-		
 
-		
-		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(true,true);
+		// When opening the active subscreen (dosubscr called via Hero.animate() above), the
+		// previous frame is used as the background to crawl the passive and active subscreens over.
+		// Normally framebuf would contain the passive subscreen too, so if the passive subscreen is
+		// transparent this could create a problem in scrolling regions (the passive subscreen would
+		// appear twice). To resolve this, we also draw everything except the passive subscreen to
+		// another bitmap: framebuf_no_passive_subscreen.
+		// All this happens only when in extended height mode, since otherwise the passive subscreen
+		// will have a solid background and thus the duplication can't be seen. So no need to do the
+		// extra work in that case.
+		bool drawPassiveSubscreenSeparate = false;
+		if ( !FFCore.system_suspend[susptSCREENDRAW] )
+		{
+			// Only supported when the nesfix qr_SUBSCREENOVERSPRITES is on. Otherwise, there'd be
+			// too much double drawing.
+			drawPassiveSubscreenSeparate = is_extended_height_mode() && get_qr(qr_SUBSCREENOVERSPRITES);
+			draw_screen(true, true, drawPassiveSubscreenSeparate);
+		}
 		else FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
-		
-		//clear Hero's last hits 
-		//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
+
 		if(linkedmsgclk==1 && !do_end_str)
 		{
 			if(wpnsbuf[iwMore].tile!=0)
 			{
-				putweapon(framebuf,zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
+				if (drawPassiveSubscreenSeparate)
+				{
+					// Need to draw to two bitmaps.
+					int aclk_before = lens_hint_weapon[wPhantom][0];
+					int aframe_before = lens_hint_weapon[wPhantom][1];
+					// This will modify the two local variables.
+					putweapon(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, aclk_before, aframe_before, -1);
+					// This will modify the lens_hint_weapon animation data.
+					putweapon(framebuf_no_passive_subscreen, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
+					// Result is one clk/frame step, not two.
+				}
+				else
+				{
+					putweapon(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
+				}
 			}
 		}
 		
@@ -3618,9 +3643,11 @@ void game_loop()
 			}
 
 			// In extended height mode, the lens effect has to be done before drawing the subscreen.
-			if(!is_extended_height_mode() && lensclk && !FFCore.system_suspend[susptLENS])
+			if(!is_in_scrolling_region() && lensclk && !FFCore.system_suspend[susptLENS])
 			{
-				draw_lens_over();
+				draw_lens_over(framebuf);
+				if (drawPassiveSubscreenSeparate)
+					draw_lens_over(framebuf_no_passive_subscreen);
 				--lensclk;
 			}
 
@@ -3642,9 +3669,8 @@ void game_loop()
 		}
 			// Other effects in zc_sys.cpp
 		}
-		
+
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
-		//  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int32_t(zc_oldrand()%16)));
 		break;
 	}
 }
@@ -4294,6 +4320,7 @@ int main(int argc, char **argv)
 
 	// Note: These will be recreated in apply_qr_rule.
 	framebuf  = create_bitmap_ex(8,256,224);
+	framebuf_no_passive_subscreen = create_bitmap_ex(8,256,224);
 	script_menu_buf = create_bitmap_ex(8,256,224);
 	f6_menu_buf = create_bitmap_ex(8,256,224);
 	darkscr_bmp = create_bitmap_ex(8, 256, 224);

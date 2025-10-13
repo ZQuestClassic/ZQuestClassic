@@ -93,7 +93,15 @@ void dosubscr()
 	BITMAP* subscr_scrolling_bitmap = create_bitmap(256, h);
 
 	// Copy the complete frame.
-	blit(framebuf,subscr_scrolling_bitmap,0,playing_field_offset,0,0,256,h);
+	// Go see the long comment in game_loop about drawPassiveSubscreenSeparate.
+	if (is_extended_height_mode())
+	{
+		blit(framebuf_no_passive_subscreen,subscr_scrolling_bitmap,0,playing_field_offset,0,0,256,h);
+	}
+	else
+	{
+		blit(framebuf,subscr_scrolling_bitmap,0,playing_field_offset,0,0,256,h);
+	}
 	
 	bool use_a = get_qr(qr_SELECTAWPN), use_x = get_qr(qr_SET_XBUTTON_ITEMS),
 		 use_y = get_qr(qr_SET_YBUTTON_ITEMS);

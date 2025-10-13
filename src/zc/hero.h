@@ -240,6 +240,7 @@ public:
 		sdir, // scrolling direction
 		sideswimdir,  //for forcing hero to face left or right in sideview
 		diveclk, // diving timeout.
+		lsave,
 		immortal; //Timer for being unable to die
 	int32_t hammer_swim_up_offset,
 		hammer_swim_down_offset,
@@ -513,6 +514,7 @@ public:
 	virtual void drawshadow(BITMAP* dest, bool translucent);
 	virtual void draw(BITMAP* dest);
 	virtual bool animate(int32_t index);
+	void maybeOpenActiveSubscreen();
 	bool push_pixel(zfix dx, zfix dy);
 	int32_t push_move(zfix dx, zfix dy);
 	virtual bool setSolid(bool set);

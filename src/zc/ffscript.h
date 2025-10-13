@@ -761,7 +761,7 @@ void runOnDeathEngine();
 void runOnLaunchEngine();
 void runGenericPassiveEngine(int32_t scrtm);
 bool runGenericFrozenEngine(const word script, const int32_t* init_data = nullptr);
-bool runScriptedActiveSusbcreen();
+bool runScriptedActiveSubscreen();
 bool runOnMapScriptEngine();
 void doScriptMenuDraws();
 void runOnSaveEngine();
