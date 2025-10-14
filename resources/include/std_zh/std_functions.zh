@@ -3386,7 +3386,7 @@ void ClearFFC(int ffc_id)
 }
 
 // Returns true if an npc's Misc. flag is set.
-// @deprecated
+// @deprecated Use [npc::Flags] instead
 bool GetNPCMiscFlag(npc e, int flag)
 {
 	#option WARN_DEPRECATED off

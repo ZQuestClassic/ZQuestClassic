@@ -606,6 +606,24 @@ NewbieBoss.z Line 3237 @ Columns 3-18 - Warning S094: Function 'Game::PlaySound(
 
 
 INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 3073 @ Columns 6-16 - Warning S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.
+
+3071    }
+3072    void EZB_DoLaser(int layer, int x, int y, int width, int angle, int damage, int laserColors, int forceColor, int state, int frame, int maxFrames){
+3073        if(ScreenFlag(1, 4)&&layer==2) //Layer -2
+               ^~~~~~~~~~
+
+
+INFO: Use [Screen->Flag] instead!
+NewbieBoss.z Line 3075 @ Columns 11-21 - Warning S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.
+
+3073    if(ScreenFlag(1, 4)&&layer==2) //Layer -2
+3074        layer = 1;
+3075    else if(ScreenFlag(1, 5)&&layer==3) //Layer -3
+                ^~~~~~~~~~
+
+
+INFO: Use [Screen->Flag] instead!
 NewbieBoss.z Line 3080 @ Columns 47-61 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 3078    if(state==0){
@@ -678,6 +696,24 @@ NewbieBoss.z Line 3116 @ Columns 50-64 - Warning S108: Arrays should be explicit
                                                          ^~~~~~~~~~~~~~
 
 
+NewbieBoss.z Line 3052 @ Columns 6-16 - Warning S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.
+
+3050    }
+3051    void EZB_DrawLaser(int layer, int x, int y, int width, int angle, int color){
+3052        if(ScreenFlag(1, 4)&&layer==2) //Layer -2
+               ^~~~~~~~~~
+
+
+INFO: Use [Screen->Flag] instead!
+NewbieBoss.z Line 3054 @ Columns 11-21 - Warning S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.
+
+3052    if(ScreenFlag(1, 4)&&layer==2) //Layer -2
+3053        layer = 1;
+3054    else if(ScreenFlag(1, 5)&&layer==3) //Layer -3
+                ^~~~~~~~~~
+
+
+INFO: Use [Screen->Flag] instead!
 NewbieBoss.z Line 2758 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 2756    int h = Ghost_TileHeight;
@@ -686,6 +722,15 @@ NewbieBoss.z Line 2758 @ Columns 15-31 - Warning S108: Arrays should be explicit
                     ^~~~~~~~~~~~~~~~
 
 
+NewbieBoss.z Line 2765 @ Columns 6-16 - Warning S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.
+
+2763    
+2764    int layer = 2;
+2765    if(ScreenFlag(1, 4)) //Layer -2
+           ^~~~~~~~~~
+
+
+INFO: Use [Screen->Flag] instead!
 NewbieBoss.z Line 2924 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 2922    }
@@ -1367,6 +1412,24 @@ NewbieBoss.z Line 3539 @ Columns 3-21 - Warning S108: Arrays should be explicitl
         ^~~~~~~~~~~~~~~~~~
 
 
+NewbieBoss.z Line 3176 @ Columns 6-16 - Warning S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.
+
+3174    }
+3175    void EZB_Shockwave(int layer, int x, int y, int rad1, int rad2, int rings, int damage, int color1, int color2, int color3){
+3176        if(ScreenFlag(1, 4)&&layer==2) //Layer -2
+               ^~~~~~~~~~
+
+
+INFO: Use [Screen->Flag] instead!
+NewbieBoss.z Line 3178 @ Columns 11-21 - Warning S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.
+
+3176    if(ScreenFlag(1, 4)&&layer==2) //Layer -2
+3177        layer = 1;
+3178    else if(ScreenFlag(1, 5)&&layer==3) //Layer -3
+                ^~~~~~~~~~
+
+
+INFO: Use [Screen->Flag] instead!
 NewbieBoss.z Line 2774 @ Columns 14-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 2772    }
@@ -3771,6 +3834,34 @@ stdout:
     {
       "range": {
         "start": {
+          "line": 3072,
+          "character": 5
+        },
+        "end": {
+          "line": 3072,
+          "character": 15
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.\nUse [Screen->Flag] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3074,
+          "character": 10
+        },
+        "end": {
+          "line": 3074,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.\nUse [Screen->Flag] instead!"
+    },
+    {
+      "range": {
+        "start": {
           "line": 3079,
           "character": 46
         },
@@ -3897,6 +3988,34 @@ stdout:
     {
       "range": {
         "start": {
+          "line": 3051,
+          "character": 5
+        },
+        "end": {
+          "line": 3051,
+          "character": 15
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.\nUse [Screen->Flag] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3053,
+          "character": 10
+        },
+        "end": {
+          "line": 3053,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.\nUse [Screen->Flag] instead!"
+    },
+    {
+      "range": {
+        "start": {
           "line": 2757,
           "character": 14
         },
@@ -3907,6 +4026,20 @@ stdout:
       },
       "severity": 2,
       "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2764,
+          "character": 5
+        },
+        "end": {
+          "line": 2764,
+          "character": 15
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.\nUse [Screen->Flag] instead!"
     },
     {
       "range": {
@@ -5097,6 +5230,34 @@ stdout:
       },
       "severity": 2,
       "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3175,
+          "character": 5
+        },
+        "end": {
+          "line": 3175,
+          "character": 15
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.\nUse [Screen->Flag] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3177,
+          "character": 10
+        },
+        "end": {
+          "line": 3177,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'ScreenFlag(int, int)' is deprecated, and should not be used.\nUse [Screen->Flag] instead!"
     },
     {
       "range": {
