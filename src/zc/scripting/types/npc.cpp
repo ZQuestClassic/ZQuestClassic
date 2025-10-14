@@ -2192,6 +2192,12 @@ static ArrayRegistrar NPCDD_registrar(NPCDD, []{
 	return &impl;
 }());
 
+static ArrayRegistrar NPCFLAGS_registrar(NPCFLAGS, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<enemy, &enemy::flags, MAX_NPC_FLAGS> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar NPCSCRDEFENSED_registrar(NPCSCRDEFENSED, []{
 	static ScriptingArray_ObjectComputed<enemy, byte> impl(
 		[](enemy* enemy){ return edefSCRIPTDEFS_MAX + 1; },

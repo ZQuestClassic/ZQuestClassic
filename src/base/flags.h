@@ -35,7 +35,6 @@ enum guy_flags : uint64_t
 	                                  // qr_UNBEATABLES_DONT_KEEP_DEAD impacts this behavior.
 	guy_fade_flicker        = LLF(4),
 	guy_fade_instant        = LLF(5),
-	guy_burning_sprites     = LLF(6), // Weapons use burning sprites.
 	guy_shield_front        = LLF(24), // Invulnerable in the front (relative to direction of movement).
 	guy_shield_left         = LLF(25), // Invulnerable on the left (relative to direction of movement).
 	guy_shield_right        = LLF(26), // Invulnerable on the right (relative to direction of movement).
@@ -46,6 +45,7 @@ enum guy_flags : uint64_t
 	// Old flags, some reused.
 	guy_superman            = LLF(3),
 	guy_sbombonly           = LLF(4),
+	guy_burning_sprites     = LLF(6), // Weapons use burning sprites.
 	guy_weak_arrow          = LLF(29),
 
 	//previous guyflags 2

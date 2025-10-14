@@ -216,8 +216,7 @@ class npcdata {
 	// @zasm_var NPCDATATILE
 	internal int Tile;
 
-	// Undocumented. Refer to https://github.com/ZQuestClassic/ZQuestClassic/blob/main/src/base/flags.h#L31
-	//
+	// @index [enum NPCFlags]
 	// @zasm_var NPCDATAFLAG
 	internal bool Flags[];
 

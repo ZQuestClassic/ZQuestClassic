@@ -175,6 +175,43 @@ enum NPCMiscBitflags
 	NPCMF_HAMMERBREAKS             = 0x2000, // Hammer Can break Shield.
 };
 
+enum NPCFlags
+{
+	NPCF_0POWERWEAPS, // Damaged by 0-Power Weapons.
+	NPCF_ISINVISIBLE, // Is Invisible.
+	NPCF_NEVERRETURNS, // Never Returns After Death.
+	NPCF_NOT_BEATABLE, // Doesn't Count as beatable Enemy.
+	NPCF_SPAWNFLICKER, // Flicker in when spawning
+	NPCF_SPAWNINSTANT, // Spawn instantly
+	// some unused indexes
+	NPCF_SHIELD_FRONT = 24, // Shielded on Front
+	NPCF_SHIELD_LEFT, // Shielded on Left
+	NPCF_SHIELD_RIGHT, // Shielded on Right
+	NPCF_SHIELD_BACK, // Shielded on Back
+	NPCF_SHIELD_BREAKABLE, // Shield is breakable
+	// some unused indexes
+	NPCF_ONLY_LENS = 31, // Only visible to lens
+	NPCF_FLASHING, // Is flashing
+	NPCF_IS_FISH, // Is spawned by 'Fish' flags
+	NPCF_IS_FALLING_ROCK, // Is spawned by 'Falling Rock' flags
+	NPCF_IS_CORNER_TRAP, // Is spawned by 'Corner Traps' flags
+	NPCF_IS_HORZ_TRAP, // Is spawned by 'Horz Trap' flags
+	NPCF_IS_VERT_TRAP, // Is spawned by 'Vert Trap' flags
+	NPCF_IS_4WAY_TRAP, // Is spawned by '4-Way Trap' flags
+	NPCF_IS_LR_TRAP, // Is spawned by 'LR Trap' flags
+	NPCF_IS_UD_TRAP, // Is spawned by 'UD Trap' flags
+	NPCF_IS_MIDDLE_TRAP, // Is spawned by 'Middle Traps' flags
+	NPCF_IS_SHOOTING_STATUE, // Is spawned by 'Shooting Statues' flags
+	NPCF_IS_LIVING_STATUE, // Is spawned by 'Armos' combo type
+	NPCF_IS_GRAVE_SPAWNED, // Is spawned by 'Grave' combo type
+	NPCF_IS_BIG_BOSS, // Is spawned by 'Ganon' room type
+	NPCF_FLICKERING, // Is flickering
+	NPCF_TRANSLUCENT, // Is translucent
+	NPCF_IGNORE_TEMP_NO_RETURN, // Ignores temp no return
+	NPCF_IGNORE_KILL_ALL, // Ignores kill all enemies
+	NPCF_MAX
+};
+
 // Default item drop sets.
 enum ItemSet
 {
@@ -351,10 +388,15 @@ class npc {
 	// @zasm_var NPCDD
 	internal untyped Attributes[];
 
+	// @deprecated Use [Flags] instead.
 	// @value [enum NPCMiscBitflags]
-
 	// @zasm_var NPCMFLAGS
 	internal int MiscFlags;
+	
+	// The flags of the enemy.
+	// @index [enum NPCFlags]
+	// @zasm_var NPCFLAGS
+	internal bool Flags[];
 
 	// @zasm_var NPCCOLLDET
 	internal bool CollDetection;

@@ -3021,6 +3021,7 @@ static constexpr script_variable variable_list[]=
 	{ "CMBTRIGGER_TERMINAL_VELOCITY", CMBTRIGGER_TERMINAL_VELOCITY, 0 },
 	{ "COMBOD_DIVE_UNDER_LEVEL", COMBOD_DIVE_UNDER_LEVEL, 0 },
 	{ "GAMELAYERZTHRESHOLDS", GAMELAYERZTHRESHOLDS, 0 },
+	{ "NPCFLAGS", NPCFLAGS, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -3535,6 +3536,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case NPCDATAWEAPONINITD:
 		case NPCDATAWMOVEFLAGS:
 		case NPCDD:
+		case NPCFLAGS:
 		case NPCDEFENSED:
 		case NPCHITBY:
 		case NPCINITD:
@@ -4244,6 +4246,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCCOLLDET:
 		case NPCCSET:
 		case NPCDD:
+		case NPCFLAGS:
 		case NPCDEATHSPR:
 		case NPCDEFENSED:
 		case NPCDIR:
