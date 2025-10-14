@@ -238,6 +238,8 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 		ene_str[q] = "[No Enemy Set]";
 	}
 	
+	static const int TICS_PER_MINUTE = 60 * 60;
+	static const int TICS_PER_SECOND = 60;
 	window = Window(
 		title = "Screen Data",
 		onClose = message::CANCEL,
@@ -636,25 +638,68 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "T. Warp", Rows<3>(
+				TabRef(name = "T. Warp", Rows<5>(
 					INFOBTN("If non-zero, then after this time (in 1/60th of a second increments),"
 						" a sidewarp will be triggered (default sidewarp A)."),
 					Label(text = "Timed Warp Ticks"),
-					TextField(
-						fitParent = true,
+					twarp_only_tics = TextField(
+						fitParent = true, colSpan = 3,
 						type = GUI::TextField::type::INT_DECIMAL,
 						low = 0, high = 65535,
 						val = local_scr.timedwarptics,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							local_scr.timedwarptics = val;
+							twarp_mins->setVal(local_scr.timedwarptics / TICS_PER_MINUTE);
+							twarp_secs->setVal((local_scr.timedwarptics % TICS_PER_MINUTE) / TICS_PER_SECOND);
+							twarp_tics->setVal(local_scr.timedwarptics % TICS_PER_SECOND);
+							refreshTWarp();
+						}),
+					Label(text = "...Mins, Secs, 1/60th secs:", colSpan = 2),
+					twarp_mins = TextField(
+						fitParent = true,
+						type = GUI::TextField::type::INT_DECIMAL,
+						low = 0, high = 65535 / TICS_PER_MINUTE,
+						val = local_scr.timedwarptics / TICS_PER_MINUTE,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							local_scr.timedwarptics = (val * TICS_PER_MINUTE) + (local_scr.timedwarptics % TICS_PER_MINUTE);
+							twarp_only_tics->setVal(local_scr.timedwarptics);
+							refreshTWarp();
+						}),
+					twarp_secs = TextField(
+						fitParent = true,
+						type = GUI::TextField::type::INT_DECIMAL,
+						low = 0, high = 59,
+						val = (local_scr.timedwarptics % TICS_PER_MINUTE) / TICS_PER_SECOND,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							local_scr.timedwarptics =
+								(local_scr.timedwarptics - (local_scr.timedwarptics % TICS_PER_MINUTE))
+								+ (val * TICS_PER_SECOND)
+								+ (local_scr.timedwarptics % TICS_PER_SECOND);
+							twarp_only_tics->setVal(local_scr.timedwarptics);
+							refreshTWarp();
+						}),
+					twarp_tics = TextField(
+						fitParent = true,
+						type = GUI::TextField::type::INT_DECIMAL,
+						low = 0, high = 59,
+						val = local_scr.timedwarptics % 60,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							auto base_tics = (local_scr.timedwarptics - (local_scr.timedwarptics % 60));
+							local_scr.timedwarptics = base_tics + val;
+							if (local_scr.timedwarptics < base_tics) // overflow! Bound the value!
+								local_scr.timedwarptics = 65535;
+							twarp_only_tics->setVal(local_scr.timedwarptics);
 							refreshTWarp();
 						}),
 					//
-					twarp_lbl = Label(text = "60.00 seconds\n99 minutes 99 seconds and 99/60ths", colSpan = 3, fitParent = true, textAlign = 1),
-					SCR_CB(flags4,fTIMEDDIRECT,2,"Timed Warp is Direct", "The timed warp will not alter the Hero's position."),
-					SCR_CB(flags4,fDISABLETIME,2,"Secrets Disable Timed Warp", "If secrets are triggered, the timed warp will no longer occur."),
-					SCR_CB(flags5,fRANDOMTIMEDWARP,2,"Timed Warp Is Random Side", "Instead of being Sidewarp A, the timed warp will choose a random sidewarp from A,B,C,D.")
+					twarp_lbl = Label(text = "60.00 seconds\n99 minutes 99 seconds and 99/60ths", colSpan = 5, fitParent = true, textAlign = 1),
+					SCR_CB(flags4,fTIMEDDIRECT,4,"Timed Warp is Direct", "The timed warp will not alter the Hero's position."),
+					SCR_CB(flags4,fDISABLETIME,4,"Secrets Disable Timed Warp", "If secrets are triggered, the timed warp will no longer occur."),
+					SCR_CB(flags5,fRANDOMTIMEDWARP,4,"Timed Warp Is Random Side", "Instead of being Sidewarp A, the timed warp will choose a random sidewarp from A,B,C,D.")
 				)),
 				TabRef(name = "Script", Column(
 					Row(

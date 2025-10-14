@@ -50,6 +50,7 @@ private:
 	std::shared_ptr<GUI::Checkbox> lens_cb[2][7];
 	
 	std::shared_ptr<GUI::TextField> grav_tf[2];
+	std::shared_ptr<GUI::TextField> twarp_only_tics, twarp_mins, twarp_secs, twarp_tics;
 	
 	std::shared_ptr<GUI::Button> databtn;
 	
