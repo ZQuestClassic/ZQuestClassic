@@ -1439,7 +1439,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					GuyFlag(guy_trph, "Spawned By 'Horz Trap' Combo Type/Flag"),
 					GuyFlag(guy_trpv, "Spawned By 'Vert Trap' Combo Type/Flag"),
 					GuyFlag(guy_trp4, "Spawned By '4-Way Trap' Combo Type/Flag"),
-					GuyFlag(guy_trplr, "Spawned By 'LF Trap' Combo Type/Flag"),
+					GuyFlag(guy_trplr, "Spawned By 'LR Trap' Combo Type/Flag"),
 					GuyFlag(guy_trpud, "Spawned By 'UD Trap' Combo Type/Flag"),
 					GuyFlag(guy_trp2, "Spawned By 'Middle Traps' Screen Flag"),
 					GuyFlag(guy_fire, "Spawned By 'Shooting Statues' Screen Flag"),

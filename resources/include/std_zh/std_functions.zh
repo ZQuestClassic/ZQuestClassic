@@ -1037,7 +1037,7 @@ bool EnemiesAlive()
 		npc n = Screen->LoadNPC(q);
 		if ( n->Type != NPCT_PROJECTILE )
 		{
-			unless ( (n->MiscFlags&NPCMF_NOT_BEATABLE) )
+			unless ( n->Flags[NPCF_NOT_BEATABLE] )
 			{
 				if ( n->Type != NPCT_FAIRY )
 				{
@@ -1414,12 +1414,6 @@ void GetMessage(int ID, char32[] ptr)
 	md->Get(ptr);
 	for(; ptr[sz-1] == ' '; --sz);
 	ptr[sz] = 0;
-}
-
-//Returns true if an npc's Misc. flag is set.
-bool GetNPCMiscFlag(npc e, int flag)
-{
-	return (e->MiscFlags&flag);
 }
 
 //Get an NPC's name from an ID
@@ -2077,7 +2071,7 @@ int NumberEnemies()
 		npc n = Screen->LoadNPC(q);
 		if ( n->Type != NPCT_PROJECTILE )
 		{
-			unless ( (n->MiscFlags&NPCMF_NOT_BEATABLE) )
+			unless ( n->Flags[NPCF_NOT_BEATABLE] )
 			{
 				if ( n->Type != NPCT_FAIRY )
 				{
@@ -3389,4 +3383,12 @@ void ClearFFC(int ffc_id)
 	f->EffectHeight = 0;
 	f->Link = 0;
 	for ( int q = 0; q < 16; ++q ) f->Misc[q] = 0;
+}
+
+// Returns true if an npc's Misc. flag is set.
+// @deprecated
+bool GetNPCMiscFlag(npc e, int flag)
+{
+	#option WARN_DEPRECATED off
+	return (e->MiscFlags&flag);
 }

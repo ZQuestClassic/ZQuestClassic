@@ -609,7 +609,7 @@ void __Ghost_ShrinkAway(ffc this, npc ghost)
     else
         layer=2;
     
-    if((ghost->MiscFlags&100000000b)!=0 || this->Flags[FFCF_TRANS])
+    if(ghost->Flags[NPCF_TRANSLUCENT] || this->Flags[FFCF_TRANS])
         opacity=OP_TRANS;
     else
         opacity=OP_OPAQUE;
@@ -695,7 +695,7 @@ void __DeathAnimSFX(int id, int x)
 bool __Ghost_IsFlickering(npc ghost)
 {
     // "Is Flickering" flag is set
-    if((ghost->MiscFlags&10000000b)!=0)
+    if(ghost->Flags[NPCF_FLICKERING])
         return true;
     
     // Enemy is flickering from being hit

@@ -952,6 +952,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case NPCDEATHSPR: return "npc::DeathSprite";
 		case NPCDEFENSED: return "npc::Defense[]";
 		case NPCFADING: return "npc::Fading";
+		case NPCFLAGS: return "npc::Flags[]";
 		case NPCFLASHINGCSET: return "npc::FlashingCSet";
 		case NPCFLICKERCOLOR: return "npc::FlickerColor";
 		case NPCFLICKERTRANSP: return "npc::FlickerTransparencyPasses";
