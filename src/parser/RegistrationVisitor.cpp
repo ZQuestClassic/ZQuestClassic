@@ -519,20 +519,21 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 
 	for (auto fn_decl : host.functions)
 	{
+		scope->initFunctionBinding(fn_decl->func, this);
+		
 		if (!fn_decl->getFlag(FUNCFLAG_INTERNAL))
 			continue;
 
-		scope->initFunctionBinding(fn_decl->func, this);
 		if (user_class.internalRefVarString.empty())
 			fn_decl->func->setIntFlag(IFUNCFLAG_SKIPPOINTER);
 	}
 
 	for (auto fn_decl : host.constructors)
 	{
+		scope->initFunctionBinding(fn_decl->func, this);
+		
 		if (!fn_decl->getFlag(FUNCFLAG_INTERNAL))
 			continue;
-
-		scope->initFunctionBinding(fn_decl->func, this);
 
 		if (fn_decl->func->getFlag(FUNCFLAG_NIL))
 		{

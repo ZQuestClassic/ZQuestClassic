@@ -44,6 +44,15 @@ void Scope::invalidateStackSize()
 void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 {
 	auto parsed_comment = fn->getNode()->getParsedComment();
+	if (auto depr_message = parsed_comment.get_tag("deprecated"))
+	{
+		fn->setFlag(FUNCFLAG_DEPRECATED);
+		fn->setInfo(*depr_message);
+	}
+	
+	if (!fn->getFlag(FUNCFLAG_INTERNAL))
+		return;
+	
 	if (parsed_comment.contains_tag("delete"))
 	{
 		fn->setFlag(FUNCFLAG_NIL);
@@ -73,11 +82,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 
 	if (parsed_comment.contains_tag("exit"))
 		fn->setFlag(FUNCFLAG_EXITS|FUNCFLAG_NEVER_RETURN);
-	if (auto depr_message = parsed_comment.get_tag("deprecated"))
-	{
-		fn->setFlag(FUNCFLAG_DEPRECATED);
-		fn->setInfo(*depr_message);
-	}
+	
 	if (parsed_comment.contains_tag("reassign_ptr"))
 		fn->setIntFlag(IFUNCFLAG_REASSIGNPTR);
 
@@ -1652,8 +1657,7 @@ Function* BasicScope::addFunction(
 	{
 		fun->numOptionalParams = node->optparams.size();
 	}
-	if (flags&FUNCFLAG_INTERNAL)
-		initFunctionBinding(fun, handler);
+	initFunctionBinding(fun, handler);
 
 	functionsByName_[name].push_back(fun);
 	functionsBySignature_[signature] = fun;
