@@ -472,7 +472,7 @@ void dosubscr()
 
 		clear_to_color(framebuf, BLACK);
 
-		if(compat && COOLSCROLL) //copy the playing field back onto the screen
+		if(COOLSCROLL) //copy the playing field back onto the screen
 			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
 		//else nothing to do; the playing field has scrolled off the screen
 		
