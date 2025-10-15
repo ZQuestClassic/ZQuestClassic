@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-10-14 23:59:01</td>
+      <td>2025-10-15 02:24:49</td>
     </tr>
   </table>
 </div>
@@ -173,7 +173,7 @@
     <tr><td><a href="#l3571">ZScript::BuildOpcodes::stringLiteralDeclaration(ZScript::ASTStringLiteral&amp;, ZScript::OpcodeContext&amp;) (line 3571)</a></td><td>called 2881 times, returned 2881 times</td><td>60.0%</td></tr>
     <tr><td><a href="#l3623">ZScript::BuildOpcodes::stringLiteralFree(ZScript::ASTStringLiteral&amp;, ZScript::OpcodeContext&amp;) (line 3623)</a></td><td>called 71259 times, returned 71259 times</td><td>58.0%</td></tr>
     <tr><td><a href="#l133">ZScript::BuildOpcodes::visit(ZScript::AST&amp;, void*) (line 133)</a></td><td>called 17388516 times, returned 17388516 times</td><td>44.0%</td></tr>
-    <tr><td><a href="#l4296">ZScript::CleanupVisitor::visit(ZScript::AST&amp;, void*) (line 4296)</a></td><td>called 25847206 times, returned 25847206 times</td><td>84.0%</td></tr>
+    <tr><td><a href="#l4296">ZScript::CleanupVisitor::visit(ZScript::AST&amp;, void*) (line 4296)</a></td><td>called 25847885 times, returned 25847885 times</td><td>84.0%</td></tr>
     <tr><td><a href="#l4026">ZScript::LValBOHelper::LValBOHelper(ZScript::Program&amp;, ZScript::BuildOpcodes*) (line 4026)</a></td><td>called 963098 times, returned 963098 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l4022">ZScript::LValBOHelper::LValBOHelper(ZScript::Program&amp;, ZScript::Scope*) (line 4022)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l4039">ZScript::LValBOHelper::addOpcode(ZScript::Opcode*) (line 4039)</a></td><td>called 3924750 times, returned 3924750 times</td><td>100.0%</td></tr>
@@ -40585,7 +40585,7 @@
       <td class="lineno"><a id="l4296" href="#l4296">4296</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">25847206</td>
+      <td class="linecount coveredLine">25847885</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">CleanupVisitor</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">AST</span><span class="o">&amp;</span><span class="w"> </span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -40602,11 +40602,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 25847206 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 25847885 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">25847206</td>
+      <td class="linecount partialCoveredLine">25847885</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">isDisabled</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">//Don&#39;t visit disabled nodes.</span></td>
     </tr>
     <tr class="source-line">
@@ -40616,11 +40616,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 24944664 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 902542 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 903221 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">25847206</td>
+      <td class="linecount coveredLine">25847885</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">node</span><span class="p">.</span><span class="n">reachable</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">//Don&#39;t visit unreachable nodes for ZASM generation</span></td>
     </tr>
     <tr class="source-line">
@@ -41065,7 +41065,7 @@
       <td class="lineno"><a id="l4351" href="#l4351">4351</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">25847206</td>
+      <td class="linecount coveredLine">25847885</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

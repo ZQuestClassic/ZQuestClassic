@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-10-14 23:59:01</td>
+      <td>2025-10-15 02:24:49</td>
     </tr>
   </table>
 </div>
@@ -99,7 +99,7 @@
     <tr><td><a href="#l1422">ZScript::SemanticAnalyzer::caseExprCall(ZScript::ASTExprCall&amp;, void*) (line 1422)</a></td><td>called 1180542 times, returned 1180542 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l1690">ZScript::SemanticAnalyzer::caseExprCall(ZScript::ASTExprCall&amp;, void*)::$_0::operator()(ZScript::Function*, ZScript::Function*) const (line 1690)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1806">ZScript::SemanticAnalyzer::caseExprCast(ZScript::ASTExprCast&amp;, void*) (line 1806)</a></td><td>called 5692 times, returned 5692 times</td><td>13.0%</td></tr>
-    <tr><td><a href="#l1155">ZScript::SemanticAnalyzer::caseExprConst(ZScript::ASTExprConst&amp;, void*) (line 1155)</a></td><td>called 373288 times, returned 373288 times</td><td>37.0%</td></tr>
+    <tr><td><a href="#l1155">ZScript::SemanticAnalyzer::caseExprConst(ZScript::ASTExprConst&amp;, void*) (line 1155)</a></td><td>called 374022 times, returned 374022 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l1801">ZScript::SemanticAnalyzer::caseExprDecrement(ZScript::ASTExprDecrement&amp;, void*) (line 1801)</a></td><td>called 52760 times, returned 52760 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1769">ZScript::SemanticAnalyzer::caseExprDelete(ZScript::ASTExprDelete&amp;, void*) (line 1769)</a></td><td>called 6 times, returned 6 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l1902">ZScript::SemanticAnalyzer::caseExprDivide(ZScript::ASTExprDivide&amp;, void*) (line 1902)</a></td><td>called 61121 times, returned 61121 times</td><td>100.0%</td></tr>
@@ -135,7 +135,7 @@
     <tr><td><a href="#l233">ZScript::SemanticAnalyzer::caseRange(ZScript::ASTRange&amp;, void*) (line 233)</a></td><td>called 2208 times, returned 2208 times</td><td>28.0%</td></tr>
     <tr><td><a href="#l976">ZScript::SemanticAnalyzer::caseScript(ZScript::ASTScript&amp;, void*) (line 976)</a></td><td>called 2689 times, returned 2689 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l514">ZScript::SemanticAnalyzer::caseScriptTypeDef(ZScript::ASTScriptTypeDef&amp;, void*) (line 514)</a></td><td>called 2298 times, returned 2298 times</td><td>21.0%</td></tr>
-    <tr><td><a href="#l106">ZScript::SemanticAnalyzer::caseSetOption(ZScript::ASTSetOption&amp;, void*) (line 106)</a></td><td>called 8823 times, returned 8823 times</td><td>36.0%</td></tr>
+    <tr><td><a href="#l106">ZScript::SemanticAnalyzer::caseSetOption(ZScript::ASTSetOption&amp;, void*) (line 106)</a></td><td>called 9557 times, returned 9557 times</td><td>36.0%</td></tr>
     <tr><td><a href="#l408">ZScript::SemanticAnalyzer::caseStmtBreak(ZScript::ASTStmtBreak&amp;, void*) (line 408)</a></td><td>called 88635 times, returned 88635 times</td><td>58.0%</td></tr>
     <tr><td><a href="#l428">ZScript::SemanticAnalyzer::caseStmtContinue(ZScript::ASTStmtContinue&amp;, void*) (line 428)</a></td><td>called 17658 times, returned 17658 times</td><td>25.0%</td></tr>
     <tr><td><a href="#l257">ZScript::SemanticAnalyzer::caseStmtFor(ZScript::ASTStmtFor&amp;, void*) (line 257)</a></td><td>called 130819 times, returned 130819 times</td><td>82.0%</td></tr>
@@ -1105,7 +1105,7 @@
       <td class="lineno"><a id="l106" href="#l106">106</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">8823</td>
+      <td class="linecount coveredLine">9557</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">SemanticAnalyzer</span><span class="o">::</span><span class="n">caseSetOption</span><span class="p">(</span><span class="n">ASTSetOption</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1122,11 +1122,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 3674 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 5149 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 5883 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">8823</td>
+      <td class="linecount coveredLine">9557</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">host</span><span class="p">.</span><span class="n">registered</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">//Skip if already handled</span></td>
     </tr>
     <tr class="source-line">
@@ -1140,7 +1140,7 @@
       <td class="lineno"><a id="l110" href="#l110">110</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5149</td>
+      <td class="linecount coveredLine">5883</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">RecursiveVisitor</span><span class="o">::</span><span class="n">caseSetOption</span><span class="p">(</span><span class="n">host</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1150,11 +1150,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 5149 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 5883 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">5149</td>
+      <td class="linecount partialCoveredLine">5883</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">breakRecursion</span><span class="p">(</span><span class="n">host</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1178,11 +1178,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 5149 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 5883 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">5149</td>
+      <td class="linecount partialCoveredLine">5883</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">host</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1247,12 +1247,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 5149 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 5883 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">5149</td>
+      <td class="linecount partialCoveredLine">5883</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">host</span><span class="p">.</span><span class="n">option</span><span class="p">.</span><span class="n">isValid</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -1301,7 +1301,7 @@
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5149</td>
+      <td class="linecount coveredLine">5883</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">CompileOptionSetting</span><span class="w"> </span><span class="n">setting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">host</span><span class="p">.</span><span class="n">getSetting</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">scope</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1310,14 +1310,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 5149 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 5883 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 5149 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 5883 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">5149</td>
+      <td class="linecount partialCoveredLine">5883</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">setting</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">// error</span></td>
     </tr>
     <tr class="source-line">
@@ -1326,14 +1326,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 5149 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 5883 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 5149 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 5883 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">5149</td>
+      <td class="linecount partialCoveredLine">5883</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">scope</span><span class="o">-&gt;</span><span class="n">setOption</span><span class="p">(</span><span class="n">host</span><span class="p">.</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">setting</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1343,11 +1343,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 5149 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 5883 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">8823</td>
+      <td class="linecount partialCoveredLine">9557</td>
       <td class="src partialCoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -10672,7 +10672,7 @@
       <td class="lineno"><a id="l1155" href="#l1155">1155</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">373288</td>
+      <td class="linecount coveredLine">374022</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">SemanticAnalyzer::caseExprConst</span><span class="p">(</span><span class="n">ASTExprConst</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -10686,7 +10686,7 @@
       <td class="lineno"><a id="l1157" href="#l1157">1157</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">373288</td>
+      <td class="linecount coveredLine">374022</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">RecursiveVisitor</span><span class="o">::</span><span class="n">caseExprConst</span><span class="p">(</span><span class="n">host</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -10695,12 +10695,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 373288 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 374022 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">373288</td>
+      <td class="linecount partialCoveredLine">374022</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">breakRecursion</span><span class="p">(</span><span class="n">host</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -10716,12 +10716,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 373288 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 374022 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">373288</td>
+      <td class="linecount partialCoveredLine">374022</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">host</span><span class="p">.</span><span class="n">getCompileTimeValue</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">scope</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -10756,7 +10756,7 @@
       <td class="lineno"><a id="l1165" href="#l1165">1165</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">373288</td>
+      <td class="linecount coveredLine">374022</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
