@@ -3177,11 +3177,32 @@ void apply_qr_rule(int qr_id)
 			updateShowBottomPixels();
 			break;
 		}
+		case qr_COOLSCROLL:
+		case qr_FADEBLACKWIPE:
+		case qr_OVALWIPE:
+		case qr_SMASWIPE:
+		case qr_TRIANGLEWIPE:
+		{
+			COOLSCROLL =
+				(get_qr(qr_COOLSCROLL)!=0 ? 1 : 0) |
+				(get_qr(qr_OVALWIPE)!=0 ? 2 : 0) |
+				(get_qr(qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
+				(get_qr(qr_SMASWIPE)!=0 ? 8 : 0) |
+				(get_qr(qr_FADEBLACKWIPE)!=0 ? 16 : 0);
+			break;
+		}
+		case qr_BSZELDA:
+		{
+			BSZ = value;
+			break;
+		}
 	}
 }
 
 static void apply_qr_rules()
 {
+	apply_qr_rule(qr_BSZELDA);
+	apply_qr_rule(qr_COOLSCROLL);
 	apply_qr_rule(qr_HIDE_BOTTOM_8_PIXELS);
 	apply_qr_rule(qr_LTTPCOLLISION);
 	apply_qr_rule(qr_LTTPWALK);

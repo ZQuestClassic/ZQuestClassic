@@ -1939,14 +1939,7 @@ int32_t init_game()
 		sprintf(qst_files_path,"Files/%s",str.substr(pos, dotpos-pos).c_str());
 		regulate_path(qst_files_path);
 	}
-	
-	BSZ = get_qr(qr_BSZELDA)!=0;
-	
-	COOLSCROLL = (get_qr(qr_COOLSCROLL)!=0 ? 1 : 0) |
-				 (get_qr(qr_OVALWIPE)!=0 ? 2 : 0) |
-				 (get_qr(qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
-				 (get_qr(qr_SMASWIPE)!=0 ? 8 : 0) |
-				 (get_qr(qr_FADEBLACKWIPE)!=0 ? 16 : 0);
+
 	identifyCFEnemies();
 
 	if(firstplay)

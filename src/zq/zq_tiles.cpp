@@ -7000,7 +7000,6 @@ void for_every_used_tile(std::function<void(int32_t)> proc)
 
 bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess> source_process, int diff, ComboMoveUndo* on_undo)
 {
-	bool BSZ2 = get_qr(qr_BSZELDA);
 	bool move = source_process.has_value();
 	ComboMoveUndo local_undo;
 	ComboMoveUndo& storage = on_undo ? *on_undo : local_undo;
