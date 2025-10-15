@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-10-04 23:47:00</td>
+      <td>2025-10-14 23:59:01</td>
     </tr>
   </table>
 </div>
@@ -54,8 +54,8 @@
     <tr>
       <th scope="row">Branches:</th>
       <td>1690</td>
-      <td>3856</td>
-      <td class="coverage-low">43.8%</td>
+      <td>3864</td>
+      <td class="coverage-low">43.7%</td>
     </tr>
   </table>
 </div>
@@ -456,7 +456,7 @@
     <tr><td><a href="#l1312">SubscrWidget::SubscrWidget(subscreen_object const&amp;) (line 1312)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1308">SubscrWidget::SubscrWidget(unsigned char) (line 1308)</a></td><td>called 1565 times, returned 1565 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1634">SubscrWidget::check_btns(unsigned char, ZCSubscreen&amp;) const (line 1634)</a></td><td>called 197803 times, returned 197803 times</td><td>50.0%</td></tr>
-    <tr><td><a href="#l1643">SubscrWidget::check_conditions() const (line 1643)</a></td><td>called 560337470 times, returned 560337470 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l1643">SubscrWidget::check_conditions() const (line 1643)</a></td><td>called 560337470 times, returned 560337470 times</td><td>46.0%</td></tr>
     <tr><td><a href="#l1370">SubscrWidget::clone() const (line 1370)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1374">SubscrWidget::copy_prop(SubscrWidget const*, bool) (line 1374)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1356">SubscrWidget::draw(BITMAP*, int, int, SubscrPage&amp;) const (line 1356)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -13769,7 +13769,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">get_item</span><span class="p">(</span><span class="n">iid</span><span class="p">))</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">get_item</span><span class="p">(</span><span class="n">iid</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">checkbunny</span><span class="p">(</span><span class="n">iid</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">item_disabled</span><span class="p">(</span><span class="n">iid</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1652" href="#l1652">1652</a></td>
@@ -13811,7 +13811,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">get_item</span><span class="p">(</span><span class="n">iid</span><span class="p">))</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">get_item</span><span class="p">(</span><span class="n">iid</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">checkbunny</span><span class="p">(</span><span class="n">iid</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">item_disabled</span><span class="p">(</span><span class="n">iid</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1657" href="#l1657">1657</a></td>
