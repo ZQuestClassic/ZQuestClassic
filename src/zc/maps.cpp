@@ -4670,7 +4670,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	{
 		for (int layer = -7; layer <= -4; ++layer)
 		{
-			_do_current_ffc_layer(framebuf, layer);
+			_do_current_ffc_layer(scrollbuf, layer);
 			if (script_drawing_commands.is_dirty(layer))
 				do_primitives(scrollbuf, layer);
 		}
@@ -4733,7 +4733,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 		
 		do_primitives(scrollbuf, -2);
 		
-		_do_current_ffc_layer(framebuf, -1);
+		_do_current_ffc_layer(scrollbuf, -1);
 		do_primitives(scrollbuf, -1);
 	}
 	
