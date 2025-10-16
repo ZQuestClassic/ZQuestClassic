@@ -475,6 +475,10 @@ skip_tests = [
     'nargads_trail_crystal_crusades_19_of_24.zplay',
     'nargads_trail_crystal_crusades_20_of_24.zplay',
 ]
+if platform.system() == 'Windows' and mode == 'update':
+    # See _is_known_failure_test
+    skip_tests.append('terror_of_necromancy_demo5_2_of_5.zplay')
+    skip_tests.append('the_deep/the_deep_4_of_6.zplay')
 # TODO: weird failures in CI starting in https://github.com/ZQuestClassic/ZQuestClassic/pull/1137
 if is_web:
     skip_tests.append('garbage_collection.zplay')
@@ -738,19 +742,6 @@ def prompt_to_create_compare_report():
     start_webserver()
 
 
-def is_known_failure_test(run: RunResult):
-    if run.success:
-        return False
-
-    # Example:
-    # if run.name == 'triggers.zplay' and run.unexpected_gfx_segments == [[11154, 11217]]:
-    #     print('!!! filtering out known replay test failure !!!')
-    #     print('dithered lighting is off-by-some only during scrolling')
-    #     return True
-
-    return False
-
-
 if test_results_dir.exists() and next(
     test_results_dir.rglob('test_results.json'), None
 ):
@@ -904,9 +895,6 @@ class ProgressDisplay:
 
 
 def should_consider_failure(run: RunResult):
-    if is_known_failure_test(run):
-        return False
-
     if not run.success:
         return True
 
@@ -1036,7 +1024,12 @@ if mode == 'assert':
         print('all replay tests passed')
     else:
         print(f'{len(failing_replays)} replay tests failed')
-        if not is_ci and not args.no_report_on_failure and interactive and sys.stdout.isatty():
+        if (
+            not is_ci
+            and not args.no_report_on_failure
+            and interactive
+            and sys.stdout.isatty()
+        ):
             prompt_to_create_compare_report()
         exit(2)
 else:

@@ -62,7 +62,7 @@ class TestReplays(unittest.TestCase):
         if not test_results_path.exists():
             print(output.stdout)
             raise Exception('could not find test_results.json')
-        self.assertEqual(output.returncode, 2)
+        self.assertEqual(output.returncode, 2, output.stdout)
 
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
         return ReplayTestResults(**test_results_json)

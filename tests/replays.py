@@ -397,7 +397,9 @@ class CLIPlayerInterface:
             exe_args.append('-jit-fatal-compile-errors')
             # Only test the "hot code only" compilation for a few replays. For all others,
             # precompile all scripts on load.
-            if not replay.name.startswith('yuurand') and not replay.name.startswith('freedom'):
+            if not replay.name.startswith('yuurand') and not replay.name.startswith(
+                'freedom'
+            ):
                 exe_args.append('-jit-precompile')
         else:
             exe_args.append('-no-jit')
@@ -963,6 +965,15 @@ def _is_known_failure_test(run: RunResult, arch: str):
     ):
         ignore = True
 
+    if (
+        is_windows
+        and name == 'terror_of_necromancy_demo5_2_of_5.zplay'
+        and run.failing_frame == 87672
+    ):
+        ignore = 'dithered lighting rendering is slightly different on windows'
+
     if ignore:
         print(f'!!! [{run.name}] filtering out known replay test failure !!!')
+        if isinstance(ignore, str):
+            print(f'reason: {ignore}')
     return ignore
