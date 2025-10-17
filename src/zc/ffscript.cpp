@@ -31359,10 +31359,16 @@ string get_filestr(const bool relative, bool is_file) //Used for 'FileSystem' fu
 
 	if (!relative)
 	{
-		user_path = user_path.substr(user_path.find_first_not_of('/'),string::npos); //Kill leading '/'
+		// Kill leading '/'
+		size_t first = user_path.find_first_not_of('/');
+		if (first != string::npos)
+			user_path = user_path.substr(first, string::npos);
+
+		// Kill trailing '/'
 		size_t last = user_path.find_last_not_of('/');
-		if(last!=string::npos)++last;
-		user_path = user_path.substr(0,last); //Kill trailing '/'
+		if (last != string::npos)
+			user_path = user_path.substr(0, last + 1);
+
 		return user_path;
 	}
 
