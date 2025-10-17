@@ -201,6 +201,7 @@ std::optional<int32_t> user_object_run_command(word command)
 		}
 		case STARTDESTRUCTOR:
 		{
+			CHECK(sargvec);
 			zprint2("STARTDESTRUCTOR: %s\n", sargstr->c_str());
 			//This opcode's EXISTENCE indicates the first opcode
 			//of a user_object destructor function.
@@ -217,6 +218,7 @@ std::optional<int32_t> user_object_run_command(word command)
 		}
 		case ZCLASS_MARK_TYPE:
 		{
+			CHECK(sargvec);
 			auto& vec = *sargvec;
 			assert(vec.size() % 2 == 0);
 
