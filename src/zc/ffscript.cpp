@@ -42968,10 +42968,20 @@ string get_filestr(const bool relative) //Used for 'FileSystem' functions.
 	int32_t strptr = get_register(sarg1)/10000;
 	string the_string;
 	ArrayH::getString(strptr, the_string, 512);
-	the_string = the_string.substr(the_string.find_first_not_of('/'),string::npos); //Kill leading '/'
-	size_t last = the_string.find_last_not_of('/');
-	if(last!=string::npos)++last;
-	the_string = the_string.substr(0,last); //Kill trailing '/'
+	size_t first = the_string.find_first_not_of('/');
+
+	if (first == string::npos)
+	{
+		the_string.clear();
+	}
+	else
+	{
+		the_string = the_string.substr(first, string::npos); //Kill leading '/'
+		size_t last = the_string.find_last_not_of('/');
+		if(last!=string::npos)++last;
+		the_string = the_string.substr(0,last); //Kill trailing '/'
+	}
+
 	if(relative)
 	{
 		char buf[2048+1] = {0};
