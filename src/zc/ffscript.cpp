@@ -44665,7 +44665,7 @@ void FFScript::do_getitembyname()
 	int32_t num = -1;
 	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
 	
-	for(int32_t q = 0; q < MAXNPCS; q++)
+	for(int32_t q = 0; q < MAXITEMS; q++)
 	{
 		if(!(strcmp(the_string.c_str(), item_string[q])))
 		{
