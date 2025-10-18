@@ -11040,7 +11040,6 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		int i = liftid;
 		FFCore.reset_script_engine_data(ScriptType::Item, i);
 		ZScriptVersion::RunScript(ScriptType::Item, glove.script, i);
-		FFCore.deallocateAllScriptOwned(ScriptType::Item,i);
 		
 		bool has_weapon = lift_wpn;
 		if(has_weapon != had_weapon) //Item action script changed the lift information
