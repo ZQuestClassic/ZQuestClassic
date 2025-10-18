@@ -1049,7 +1049,10 @@ static GUI::ListData compatRulesList
 	{ "Old Weapon Animate Timings", qr_OLD_WEAPON_DRAW_ANIMATE_TIMING,
 		"If enabled, weapons animate when they are drawn (instead of when they are processed); and they draw their shadow during their own draw, instead of separately." },
 	{ "Old Pitfall Sensitivity", qr_OLD_PIT_SENSITIVITY,
-		"If enabled, iptfall combos will be less sensitive, allowing them to be walked over in some cases." },
+		"If enabled, pitfall combos will be less sensitive, allowing them to be walked over in some cases." },
+	{ "Active Shields and Roc Items on Buttons don't run scripts", qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT,
+		"If enabled, shields with 'Active Use' checked, and Roc Items with 'Button' set to non-zero,"
+		" will not run their Action Script." }
 };
 
 static GUI::ListData enemiesRulesList

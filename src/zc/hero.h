@@ -430,6 +430,7 @@ public:
 	void handle_passive_buttons();
 	void for_each_rpos_stood_on(std::function<void(const rpos_handle_t&)> proc);
 	void land_on_ground();
+	bool run_item_action_script(int itemid, bool paid_magic);
 	bool do_jump(int32_t jumpid, bool passive);
 	void drop_liftwpn();
 	void do_liftglove(int32_t liftid, bool passive);
