@@ -3463,6 +3463,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (tempheader.compareVer(2, 55, 11) < 0)
 		set_qr(qr_OLD_PIT_SENSITIVITY, 1);
 
+	// Older than 2.55.12?
+	if (tempheader.compareVer(2, 55, 12) < 0)
+		set_qr(qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT, 1);
+
 	memcpy(Header, &tempheader, sizeof(tempheader));
 	
 	return 0;

@@ -9754,6 +9754,8 @@ heroanimate_skip_liftwpn:;
 		if(sh) //Toggle active shield on
 		{
 			sfx(shield.usesound2); //'Activate' sfx
+			if (!get_qr(qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT))
+				run_item_action_script(active_shield_id, true);
 		}
 	}
 	
@@ -10905,6 +10907,30 @@ void HeroClass::handle_passive_buttons()
 	do_jump(-1,true);
 }
 
+bool HeroClass::run_item_action_script(int itemid, bool paid_magic)
+{
+	if (unsigned(itemid) > MAXITEMS)
+		return false;
+	itemdata const& itm = itemsbuf[itemid];
+	if (!itm.script)
+		return false;
+	if (FFCore.doscript(ScriptType::Item, itemid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING))
+		return false; //already running!
+	if (!checkitem_jinx(itemid))
+		return false;
+	if (!(paid_magic || checkmagiccost(itemid)))
+		return false;
+	if (!checkbunny(itemid))
+		return false;
+	if (!paid_magic)
+		paymagiccost(itemid);
+	FFCore.reset_script_engine_data(ScriptType::Item, itemid);
+	ZScriptVersion::RunScript(ScriptType::Item, itm.script, itemid);
+	
+	did_scriptb = true; // unsure if this is really necessary, but copying this part just in case.
+	return true;
+}
+
 static bool did_passive_jump = false;
 bool HeroClass::do_jump(int32_t jumpid, bool passive)
 {
@@ -10966,6 +10992,8 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	{
 		did_passive_jump = true;
 		getIntBtnInput(intbtn, true, true, false, false, false); //eat buttons
+		if (!get_qr(qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT))
+			run_item_action_script(jumpid, true);
 	}
 	return true;
 }
@@ -11033,18 +11061,9 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		return;
 	
 	bool paidmagic = had_weapon; //don't pay to throw, only to lift
-	if(glove.script)
+	if (run_item_action_script(liftid, paidmagic))
 	{
-		if(!paidmagic)
-		{
-			paidmagic = true;
-			paymagiccost(liftid);
-		}
-		
-		int i = liftid;
-		FFCore.reset_script_engine_data(ScriptType::Item, i);
-		ZScriptVersion::RunScript(ScriptType::Item, glove.script, i);
-		
+		paidmagic = true;
 		bool has_weapon = lift_wpn;
 		if(has_weapon != had_weapon) //Item action script changed the lift information
 		{

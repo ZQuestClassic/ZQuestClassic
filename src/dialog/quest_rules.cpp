@@ -987,7 +987,10 @@ static GUI::ListData compatRulesList
 		"If checked, enemies, weapons, and items will fall/drown using a hardcoded 16x16 hitbox instead of"
 		" their actual hitbox, and enemies/items will not drown in sideview." },
 	{ "Old Pitfall Sensitivity", qr_OLD_PIT_SENSITIVITY,
-		"If enabled, iptfall combos will be less sensitive, allowing them to be walked over in some cases." },
+		"If enabled, pitfall combos will be less sensitive, allowing them to be walked over in some cases." },
+	{ "Active Shields and Roc Items on Buttons don't run scripts", qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT,
+		"If enabled, shields with 'Active Use' checked, and Roc Items with 'Button' set to non-zero,"
+		" will not run their Action Script." }
 };
 
 static GUI::ListData enemiesRulesList

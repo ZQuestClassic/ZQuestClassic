@@ -403,6 +403,7 @@ public:
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
 	void handle_passive_buttons();
+	bool run_item_action_script(int itemid, bool paid_magic);
 	bool do_jump(int32_t jumpid, bool passive);
 	void drop_liftwpn();
 	void do_liftglove(int32_t liftid, bool passive);
