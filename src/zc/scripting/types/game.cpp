@@ -45,6 +45,20 @@ void do_getsavename()
 		Z_scripterrlog("Array supplied to 'Game->GetSaveName' not large enough\n");
 }
 
+void do_getscreenflags()
+{
+	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
+	int32_t scrn  = ri->d[rINDEX2] / 10000;
+	int32_t flagset = ri->d[rINDEX] / 10000;
+	
+	if(BC::checkMapID(map) != SH::_NoError ||
+			BC::checkBounds(scrn, 0, 0x87) != SH::_NoError ||
+			BC::checkBounds(flagset, 0, 9) != SH::_NoError)
+		return;
+		
+	set_register(sarg1, get_screenflags(&TheMaps[map * MAPSCRS + scrn], flagset));
+}
+
 void do_setsavename()
 {
 	int32_t arrayptr = get_register(sarg1);
@@ -773,6 +787,10 @@ std::optional<int32_t> game_run_command(word command)
 			break;
 		}
 
+		case GETSCREENFLAGS:
+			do_getscreenflags();
+			break;
+
 		case GETSAVENAME:
 			do_getsavename();
 			break;
@@ -996,6 +1014,21 @@ static ArrayRegistrar GAMEMCOUNTERD_registrar(GAMEMCOUNTERD, []{
 		}
 	);
 	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar GAMEMISC_registrar(GAMEMISC, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int) { return comptime_array_size(QMisc.questmisc); },
+		[](int ref, int index) -> int {
+			return game->get_maxcounter(index) * (get_qr(qr_OLDQUESTMISC) ? 10000 : 1);
+		},
+		[](int ref, int index, int value) {
+			game->set_maxcounter(value / (get_qr(qr_OLDQUESTMISC) ? 10000 : 1), index);
+			return true;
+		}
+	);
+	impl.setMul10000(false);
 	return &impl;
 }());
 
