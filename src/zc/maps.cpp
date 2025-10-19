@@ -7235,18 +7235,21 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 	}
 	
 	const mapscr *s1, *s2;
-	
-	if ( m->layermap[0] > 0 )
+	s1 = s2 = m;
+
+	if ( m->layermap[0] > 0 && m->layermap[0] <= map_count )
 	{
-		s1 = get_canonical_scr(m->layermap[0], m->layerscreen[0]);
+		const mapscr* s = get_canonical_scr(m->layermap[0] - 1, m->layerscreen[0]);
+		if (s->is_valid())
+			s1 = s;
 	}
-	else s1 = m;
 	
-	if ( m->layermap[1] > 0 )
+	if ( m->layermap[1] > 0 && m->layermap[1] <= map_count )
 	{
-		s2 = get_canonical_scr(m->layermap[1], m->layerscreen[1]);
+		const mapscr* s = get_canonical_scr(m->layermap[1] - 1, m->layerscreen[1]);
+		if (s->is_valid())
+			s2 = s;
 	}
-	else s2 = m;
 
 	zfix unused;
 	return _walkflag_new(m, s1, s2, x, y, unused, false) || (cnt != 1 && _walkflag_new(m, s1, s2, x + 8, y, unused, false));
