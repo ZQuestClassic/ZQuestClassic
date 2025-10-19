@@ -8843,6 +8843,7 @@ heroanimate_skip_liftwpn:;
 	
 	if(hookshot_frozen || switch_hooked)
 	{
+		bool snap_player = hs_fix && replay_version_check(46);
 		if(hookshot_used || switch_hooked)
 		{
 			if (IsSideSwim()) {action=sideswimfreeze; FFCore.setHeroAction(sideswimfreeze);} 
@@ -9312,7 +9313,7 @@ heroanimate_skip_liftwpn:;
 			reset_hookshot();
 		}
 		
-		if(hs_fix)
+		if(snap_player)
 		{
 			if(dir==up || dir==down)
 			{
