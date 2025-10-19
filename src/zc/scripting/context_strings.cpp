@@ -1494,10 +1494,6 @@ const char* scripting_get_zasm_register_context_string(int reg)
         case NPCZ: return "npc::Z";
         case NPCZOFS: return "npc::DrawZOffset";
         case SCREENDATAWARPRETURNC: return "Screen->WarpReturnC";
-        case SETNPCDATAATTRIBUTE: return "npcdata::SetAttribute()";
-        case SETNPCDATADEFENSE: return "npcdata::SetDefense()";
-        case SETNPCDATASCRIPTDEF: return "npcdata::SetScriptDefense()";
-        case SETNPCDATASIZEFLAG: return "npcdata::SetSizeFlag()";
 	}
 
 	return nullptr;
@@ -2056,70 +2052,6 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case WEBSOCKET_SEND: return "websocket::Send()";
 		case XTOA: return "xtoa()";
 		case XTOI: return "xtoi()";
-
-        // The following are all retired ZASM commands.
-
-        case GETNPCDATAANIM: return "npcdata::GetAnim()";
-        case GETNPCDATAATTRIBUTE: return "npcdata::GetAttribute()";
-        case GETNPCDATABGSFX: return "npcdata::GetBGSFX()";
-        case GETNPCDATACSET: return "npcdata::GetCSet()";
-        case GETNPCDATADEATHSFX: return "npcdata::GetDeathSFX()";
-        case GETNPCDATADEFENSE: return "npcdata::GetDefense()";
-        case GETNPCDATADROPSET: return "npcdata::GetDropset()";
-        case GETNPCDATAEANIM: return "npcdata::GetEAnim()";
-        case GETNPCDATAEFRAMERATE: return "npcdata::GetEFramerate()";
-        case GETNPCDATAEHEIGHT: return "npcdata::GetEHeight()";
-        case GETNPCDATAETILE: return "npcdata::GetETile()";
-        case GETNPCDATAEWIDTH: return "npcdata::GetEWidth()";
-        case GETNPCDATAFAMILY: return "npcdata::GetFamily()";
-        case GETNPCDATAFLAGS: return "npcdata::GetFlags()";
-        case GETNPCDATAFLAGS2: return "npcdata::GetFlags2()";
-        case GETNPCDATAFRAMERATE: return "npcdata::GetFramerate()";
-        case GETNPCDATAHALT: return "npcdata::GetHaltRate()";
-        case GETNPCDATAHEIGHT: return "npcdata::GetHeight()";
-        case GETNPCDATAHITHEIGHT: return "npcdata::GetHitHeight()";
-        case GETNPCDATAHITSFX: return "npcdata::GetHitSFX()";
-        case GETNPCDATAHITWIDTH: return "npcdata::GetHitWidth()";
-        case GETNPCDATAHITZ: return "npcdata::GetHitZHeight()";
-        case GETNPCDATAHOMING: return "npcdata::GetHoming()";
-        case GETNPCDATAHP: return "npcdata::GetHP()";
-        case GETNPCDATAHUNGER: return "npcdata::GetHunger()";
-        case GETNPCDATAHXOFS: return "npcdata::GetHitXOffset()";
-        case GETNPCDATAHYOFS: return "npcdata::GetHitYOffset()";
-        case GETNPCDATARANDOM: return "npcdata::GetRandom()";
-        case GETNPCDATASCRIPTDEF: return "npcdata::GetScriptDefense()";
-        case GETNPCDATASHEIGHT: return "npcdata::GetSHeight()";
-        case GETNPCDATASIZEFLAG: return "npcdata::GetSizeFlag()";
-        case GETNPCDATASTEP: return "npcdata::GetStep()";
-        case GETNPCDATASTILE: return "npcdata::GetSTile()";
-        case GETNPCDATASWIDTH: return "npcdata::GetSWidth()";
-        case GETNPCDATATILE: return "npcdata::GetTile()";
-        case GETNPCDATATILEHEIGHT: return "npcdata::GetTileHeight()";
-        case GETNPCDATATILEWIDTH: return "npcdata::GetTileWidth()";
-        case GETNPCDATATOUCHDMG: return "npcdata::GetTouchDamage()";
-        case GETNPCDATAWEAPON: return "npcdata::GetWeapon()";
-        case GETNPCDATAWIDTH: return "npcdata::GetWidth()";
-        case GETNPCDATAWPNDAMAGE: return "npcdata::GetWeaponDamage()";
-        case GETNPCDATAWPNSPRITE: return "npcdata::GetWeaponSprite()";
-        case GETNPCDATAXOFS: return "npcdata::GetDrawXOffset()";
-        case GETNPCDATAYOFS: return "npcdata::GetDrawYOffset()";
-        case GETNPCDATAZOFS: return "npcdata::GetDrawZOffset()";
-        case SETNPCDATAANIM: return "npcdata::SetAnim()";
-        case SETNPCDATACSET: return "npcdata::SetCSet()";
-        case SETNPCDATAEANIM: return "npcdata::SetEAnim()";
-        case SETNPCDATAEHEIGHT: return "npcdata::SetEHeight()";
-        case SETNPCDATAETILE: return "npcdata::SetETile()";
-        case SETNPCDATAEWIDTH: return "npcdata::SetEWidth()";
-        case SETNPCDATAFAMILY: return "npcdata::SetFamily()";
-        case SETNPCDATAFLAGS: return "npcdata::SetFlags()";
-        case SETNPCDATAFLAGS2: return "npcdata::SetFlags2()";
-        case SETNPCDATAHEIGHT: return "npcdata::SetHeight()";
-        case SETNPCDATAHP: return "npcdata::SetHP()";
-        case SETNPCDATASHEIGHT: return "npcdata::SetSHeight()";
-        case SETNPCDATASTILE: return "npcdata::SetSTile()";
-        case SETNPCDATASWIDTH: return "npcdata::SetSWidth()";
-        case SETNPCDATATILE: return "npcdata::SetTile()";
-        case SETNPCDATAWIDTH: return "npcdata::SetWidth()";
 	}
 
 	return nullptr;
