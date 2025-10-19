@@ -7963,6 +7963,9 @@ void HeroClass::handle_portal_prox(portal* p)
 	if(!p) return;
 	p->prox_active = !(abs(x - p->x) < 12 && abs(y - p->y) < 12);
 }
+
+static bool replay_compat_hookshot_snap_player_bug();
+
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
@@ -8907,6 +8910,7 @@ heroanimate_skip_liftwpn:;
 	
 	if(hookshot_frozen || switch_hooked)
 	{
+		bool snap_player = hs_fix && !replay_compat_hookshot_snap_player_bug();
 		if(hookshot_used || switch_hooked)
 		{
 			if (IsSideSwim()) {action=sideswimfreeze; FFCore.setHeroAction(sideswimfreeze);} 
@@ -9361,7 +9365,7 @@ heroanimate_skip_liftwpn:;
 			reset_hookshot();
 		}
 		
-		if(hs_fix)
+		if(snap_player)
 		{
 			if(dir==up)
 			{
@@ -14093,7 +14097,7 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 	return -1;
 }
 
-static bool replay_compat_check_zc_version_2_55_11()
+static bool replay_compat_check_zc_version_2_55(int patch)
 {
 	if (!replay_is_active())
 		return false;
@@ -14106,7 +14110,7 @@ static bool replay_compat_check_zc_version_2_55_11()
 		return true; // Replays didn't exist at this point ... but whatever.
 	if (zc_version_created.major == 2 && zc_version_created.minor < 55)
 		return true; // Replays didn't exist at this point ... but whatever.
-	if (zc_version_created.major == 2 && zc_version_created.minor == 55 && zc_version_created.patch < 11)
+	if (zc_version_created.major == 2 && zc_version_created.minor == 55 && zc_version_created.patch < patch)
 		return true;
 
 	return false;
@@ -14114,12 +14118,17 @@ static bool replay_compat_check_zc_version_2_55_11()
 
 static bool replay_compat_pitslide_bug()
 {
-	return replay_compat_check_zc_version_2_55_11();
+	return replay_compat_check_zc_version_2_55(11);
 }
 
 static bool replay_compat_held_items_only_held_always_bug()
 {
-	return replay_compat_check_zc_version_2_55_11();
+	return replay_compat_check_zc_version_2_55(11);
+}
+
+static bool replay_compat_hookshot_snap_player_bug()
+{
+	return replay_compat_check_zc_version_2_55(12);
 }
 
 bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable

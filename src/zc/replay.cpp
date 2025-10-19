@@ -2080,6 +2080,8 @@ ZCVersion replay_get_zc_version_created()
 
 	ZCVersion result{};
 	std::string str = replay_get_meta_str("zc_version_created");
+	if (str.empty())
+		str = replay_get_meta_str("zc_version_updated");
 
 	if (str.starts_with("2.55-alpha") || str.starts_with("nightly-"))
 	{
