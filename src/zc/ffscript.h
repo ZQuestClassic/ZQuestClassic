@@ -738,7 +738,7 @@ void setHeroAction(int32_t a);
 int32_t getHeroAction();
 void Play_Level_Music();
 int32_t getTime(int32_t type); //get system RTC Information.
-void getRTC(const bool v);
+void getRTC();
 int32_t getQuestHeaderInfo(int32_t type);
 void do_graphics_getpixel();
 
@@ -1640,5 +1640,28 @@ int get_mouse_state(int index);
 
 bool pc_overflow(dword pc, bool print_err = true);
 bool check_stack(uint32_t sp);
+
+// Uncomment locally to run the -debug-print-register-deps command
+// #define DEBUG_REGISTER_DEPS
+
+#ifdef DEBUG_REGISTER_DEPS
+
+#define GET_D(r) debug_get_d(r)
+#define SET_D(r, v) debug_set_d(r, v)
+#define GET_REF(x) debug_get_ref(#x)
+
+int debug_get_d(int r);
+int debug_set_d(int r, int v);
+int debug_get_ref(std::string reg_name);
+int debug_get_ref(int r);
+void print_d_register_deps();
+
+#else
+
+#define GET_D(r) ri->d[r]
+#define SET_D(r, v) ri->d[r] = (v)
+#define GET_REF(x) (ri->x+0)
+
+#endif
 
 #endif

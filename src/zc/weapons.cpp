@@ -1064,7 +1064,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	duplicates = 0;
 	count1 = count2 = count3 = count4 = count5 = 0;
 	temp1 = 0;
-	scriptrange = blastsfx = wpnsprite = 0;
+	wpnsprite = 0;
 	for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
 	for ( int32_t q = 0; q < 128; q++ ) weapname[q] = 0;
 	

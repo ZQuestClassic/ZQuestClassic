@@ -151,7 +151,7 @@ bool script_array::internal_array_id::matches(ScriptType script_type) const
 		case ScriptType::ItemSprite: return zasm_var_ref == REFITEM;
 		case ScriptType::Lwpn: return zasm_var_ref == REFLWPN;
 		case ScriptType::NPC: return zasm_var_ref == REFNPC;
-		case ScriptType::Screen: return zasm_var_ref == REFSCREENDATA;
+		case ScriptType::Screen: return zasm_var_ref == REFSCREEN;
 	}
 
 	return false;

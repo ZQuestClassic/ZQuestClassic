@@ -77,7 +77,7 @@ POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
 GOTO 42; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 PUSHR D0; void run(int) Params
-PUSHR REFITEMCLASS; void run(int) Body Start
+PUSHR REFITEMDATA; void run(int) Body Start
 SETR D4 SP2
 LOAD D2 0.0001; if() #433 Test
 COMPAREV D2 0
@@ -1915,11 +1915,11 @@ COMPAREV D2 0
 GOTOCMP 1921 ==; Test 'unless' AND continue 1; AND unless() #187 Body
 LOAD D2 0; InlineFunc[itemdata Game::LoadItemData(int)] Params
 LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
-SETR D2 REFITEMCLASS; InlineFunc[itemdata Game::LoadItemData(int)] Body End
+SETR D2 REFITEMDATA; InlineFunc[itemdata Game::LoadItemData(int)] Body End
 STORE D2 0.0001
 LOAD D2 0.0001; if() #188 Test
 PUSHR D2
-POP REFITEMCLASS
+POP REFITEMDATA
 SETR D2 IDATATYPE
 COMPAREV D2 1
 SETCMP D2 I!=
@@ -1927,7 +1927,7 @@ COMPAREV D2 0
 GOTOCMP 1921 !=; Test 'if' AND continue 1; AND if() #188 Body
 LOAD D2 0.0001; if() #189 Test
 PUSHR D2
-POP REFITEMCLASS
+POP REFITEMDATA
 SETR D2 IDATALEVEL
 PUSHR D2
 LOAD D2 0.0002
@@ -1938,7 +1938,7 @@ COMPAREV D2 0
 GOTOCMP 1921 ==; Test 'if'
 LOAD D2 0.0001; if() #189 Body Start
 PUSHR D2
-POP REFITEMCLASS
+POP REFITEMDATA
 SETR D2 IDATALEVEL
 STORE D2 0.0002
 LOAD D2 0.0002; if() #190 Test

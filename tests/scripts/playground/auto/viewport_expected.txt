@@ -529,9 +529,9 @@ SETV D2 1
 PUSHR D2
 SETV D2 15; InlineFunc[itemdata Game::LoadItemData(int)] Params
 LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
-SETR D2 REFITEMCLASS; InlineFunc[itemdata Game::LoadItemData(int)] Body End
+SETR D2 REFITEMDATA; InlineFunc[itemdata Game::LoadItemData(int)] Body End
 PUSHR D2
-POP REFITEMCLASS
+POP REFITEMDATA
 SETR D2 IDATAID
 PUSHR D2
 POP D0
@@ -541,9 +541,9 @@ SETV D2 1
 PUSHR D2
 SETV D2 13; InlineFunc[itemdata Game::LoadItemData(int)] Params
 LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
-SETR D2 REFITEMCLASS; InlineFunc[itemdata Game::LoadItemData(int)] Body End
+SETR D2 REFITEMDATA; InlineFunc[itemdata Game::LoadItemData(int)] Body End
 PUSHR D2
-POP REFITEMCLASS
+POP REFITEMDATA
 SETR D2 IDATAID
 PUSHR D2
 POP D0
@@ -569,12 +569,12 @@ GETLWEAPONSCRIPT D2; InlineFunc[int Game::GetLWeaponScript(char32[])] Body
 PUSHR D2
 SETV D2 13; InlineFunc[itemdata Game::LoadItemData(int)] Params
 LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
-SETR D2 REFITEMCLASS; InlineFunc[itemdata Game::LoadItemData(int)] Body End
+SETR D2 REFITEMDATA; InlineFunc[itemdata Game::LoadItemData(int)] Body End
 POP D3
 PUSHR D2
 PUSHR D3
 POP D2
-POP REFITEMCLASS
+POP REFITEMDATA
 SETR IDATAWEAPONSCRIPT D2
 SETV D2 30; InlineFunc[void Waitframes(int)] Params
 WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body

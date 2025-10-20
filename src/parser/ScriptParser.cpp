@@ -801,7 +801,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				else if (type == ParserScriptType::item )
 				{
 					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFITEMCLASS)));
+						new OPushRegister(new VarArgument(REFITEMDATA)));
 				}
 				else if (type == ParserScriptType::npc )
 				{
@@ -831,7 +831,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				else if (type == ParserScriptType::subscreendata)
 				{
 					addOpcode2(funccode,
-						new OPushRegister(new VarArgument(REFSUBSCREEN)));
+						new OPushRegister(new VarArgument(REFSUBSCREENDATA)));
 				}
 				else if (type == ParserScriptType::combodata)
 				{

@@ -117,8 +117,6 @@ public:
     
     bool isHeroWeapon();
     bool isHeroMelee();
-    //2.6 ZScript -Z
-    int32_t scriptrange,blastsfx;
     
     //2.6 enemy editor weapon sprite
     int32_t wpnsprite;

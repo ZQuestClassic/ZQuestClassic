@@ -7049,7 +7049,7 @@ int Charted[128];
  * Data is stored bitwise, using the 'CHRT_' constants in std_constants.zh
  *     Ex: To read visited state, use 'dm->Charted[scr] & CHRT_VISITED'
  * If the screen value is off the edge of the dmap, it will return '-1'.
- * If the screen values is >127 or the dmapref is invalid,
+ * If the screen values is >127 or the dmapdataref is invalid,
  *     an error will be logged, and it will return '-1'.
 
 	

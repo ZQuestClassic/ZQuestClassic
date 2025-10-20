@@ -1297,25 +1297,26 @@ public:
 	uint32_t retsp; //stack pointer for the return stack
 	
 	uint32_t ffcref;
-	int32_t idata;
-	dword itemref, guyref, lwpn, ewpn;
-	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapsref, zmsgref, shopsref;
-	DrawOrigin screen_draw_origin;
-	int32_t screen_draw_origin_target;
-	int32_t mapsref;
-	dword dropsetref;
+	int32_t itemdataref;
+	dword itemref, npcref, lwpnref, ewpnref;
+	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapdataref, msgdataref, shopdataref;
+	int32_t mapdataref;
+	dword dropsetdataref;
 	dword fileref, directoryref, rngref, stackref, paldataref;
 	dword bottletyperef, bottleshopref, genericdataref;
-	int32_t combosref, comboposref;
-	dword combotrigref;
-	int32_t portalref, saveportalref;
+	int32_t combodataref, comboposref;
+	dword combotriggerref;
+	int32_t portalref, savportalref;
 	int32_t websocketref;
-	dword subdataref, subpageref, subwidgref;
-	
+	dword subscreendataref, subscreenpageref, subscreenwidgref;
+
 	int32_t switchkey; //used for switch statements
 	dword thiskey, thiskey2; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
-	
+
+	DrawOrigin screen_draw_origin;
+	int32_t screen_draw_origin_target;
+
 	int32_t cmp_op1, cmp_op2; //cached compare operands
 	optional<int32_t> cmp_strcache;
 	std::set<uint32_t> stack_pos_is_object;

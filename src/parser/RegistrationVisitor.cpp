@@ -282,9 +282,9 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 			{
 				fn = scope->addGetter(&ty, decl->getName(), params, {}, 0);
 				// `Screen` is special: normal usage doesn't use a ref variable explicity in the generated ZASM,
-				// but when getting a reference to an array must save the current value of REFSCREENDATA. The
+				// but when getting a reference to an array must save the current value of REFSCREEN. The
 				// alternative is to use `@zasm_ref` on screendata but that's wasteful.
-				getInternalArray(user_class->getName() == "screendata" ? REFSCREENDATA : refvar, fn, fn_value);
+				getInternalArray(user_class->getName() == "screendata" ? REFSCREEN : refvar, fn, fn_value);
 
 				auto params2 = params;
 				params2.push_back(&DataType::FLOAT);

@@ -47,9 +47,9 @@ void do_getsavename()
 
 void do_getscreenflags()
 {
-	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
-	int32_t scrn  = ri->d[rINDEX2] / 10000;
-	int32_t flagset = ri->d[rINDEX] / 10000;
+	int32_t map     = (GET_D(rEXP1) / 10000) - 1;
+	int32_t scrn  = GET_D(rINDEX2) / 10000;
+	int32_t flagset = GET_D(rINDEX) / 10000;
 	
 	if(BC::checkMapID(map) != SH::_NoError ||
 			BC::checkBounds(scrn, 0, 0x87) != SH::_NoError ||
@@ -205,9 +205,9 @@ void do_setdmapintro(const bool v)
 // This is for the deprecated Game->GetComboData functions (and friends).
 static int HandleGameScreenGetter(std::function<int(mapscr*, int)> cb, const char* context)
 {
-	int32_t pos = (ri->d[rINDEX])/10000;
-	int32_t screen = (ri->d[rEXP1]/10000);
-	int32_t map = (ri->d[rINDEX2]/10000)-1;
+	int32_t pos = (GET_D(rINDEX))/10000;
+	int32_t screen = (GET_D(rEXP1)/10000);
+	int32_t map = (GET_D(rINDEX2)/10000)-1;
 	int32_t index = zc_max(map_screen_index(map, screen), 0);
 	int32_t layr = whichlayer(map, screen);
 
@@ -249,9 +249,9 @@ static auto ResolveGameScreens(const char* context)
 	};
 	result_t result{};
 
-	int32_t pos = (ri->d[rINDEX])/10000;
-	int32_t screen = (ri->d[rEXP1]/10000);
-	int32_t map = (ri->d[rINDEX2]/10000)-1;
+	int32_t pos = (GET_D(rINDEX))/10000;
+	int32_t screen = (GET_D(rEXP1)/10000);
+	int32_t map = (GET_D(rINDEX2)/10000)-1;
 	int32_t index = zc_max(map_screen_index(map, screen), 0);
 	int32_t layr = whichlayer(map, screen);
 
@@ -471,11 +471,13 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			// Gah! >:(  Screen state is stored in game->maps, which uses 128 screens per map,
 			// but the compiler multiplies the map number by 136, so it has to be corrected here.
 			// Yeah, the compiler could be fixed, but that wouldn't cover existing quests...
-			int32_t mi = ri->d[rINDEX] / 10000;
-			mi -= 8*((ri->d[rINDEX] / 10000) / MAPSCRS);
-			
+			int32_t mi = GET_D(rINDEX) / 10000;
+			mi -= 8*((GET_D(rINDEX) / 10000) / MAPSCRS);
+
+			int32_t flag = GET_D(rINDEX2) / 10000;
+
 			if(BC::checkMapID(mi>>7) == SH::_NoError)
-				ret=(game->maps[mi] >> (ri->d[rINDEX2] / 10000) & 1) ? 10000 : 0;
+				ret=(game->maps[mi] >> flag & 1) ? 10000 : 0;
 			else
 				ret=0;
 				
@@ -618,9 +620,9 @@ bool game_set_register(int32_t reg, int32_t value)
 		
 		case COMBOTDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
+			int32_t pos = (GET_D(rINDEX))/10000;
+			int32_t sc = (GET_D(rEXP1)/10000);
+			int32_t m = (GET_D(rINDEX2)/10000)-1;
 			int32_t screen = zc_max(m*MAPSCRS+sc,0);
 						    
 			if(pos < 0 || pos >= 176) 
@@ -653,9 +655,9 @@ bool game_set_register(int32_t reg, int32_t value)
 		
 		case COMBOIDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
+			int32_t pos = (GET_D(rINDEX))/10000;
+			int32_t sc = (GET_D(rEXP1)/10000);
+			int32_t m = (GET_D(rINDEX2)/10000)-1;
 			int32_t screen = zc_max(m*MAPSCRS+sc,0);
 						    
 			if(pos < 0 || pos >= 176) 
@@ -686,10 +688,10 @@ bool game_set_register(int32_t reg, int32_t value)
 		case COMBOSDM:
 		{
 			//This is how it was in 2.50.1-2
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t screen = (ri->d[rINDEX2]/10000)*MAPSCRS+(ri->d[rEXP1]/10000);
+			int32_t pos = (GET_D(rINDEX))/10000;
+			int32_t screen = (GET_D(rINDEX2)/10000)*MAPSCRS+(GET_D(rEXP1)/10000);
 			//This (below) us the precise code from 2.50.1 (?)
-			//int32_t screen = zc_max((ri->d[rINDEX2]/10000)*MAPSCRS+(ri->d[rEXP1]/10000),0); //Not below 0. 
+			//int32_t screen = zc_max((GET_D(rINDEX2)/10000)*MAPSCRS+(GET_D(rEXP1)/10000),0); //Not below 0. 
 
 			//if(pos < 0 || pos >= 176 || scr < 0) break;
 			if(pos < 0 || pos >= 176) 
@@ -709,15 +711,15 @@ bool game_set_register(int32_t reg, int32_t value)
 
 		case SCREENSTATEDD:
 		{
-			int32_t mi = ri->d[rINDEX]/10000;
+			int32_t mi = GET_D(rINDEX)/10000;
 			mi -= 8*(mi/MAPSCRS);
 			
 			if(BC::checkMapID(mi>>7) == SH::_NoError)
 			{
 				if (value)
-					setmapflag_mi(mi, 1<<(ri->d[rINDEX2]/10000));
+					setmapflag_mi(mi, 1<<(GET_D(rINDEX2)/10000));
 				else
-					unsetmapflag_mi(mi, 1 << (ri->d[rINDEX2] / 10000), true);
+					unsetmapflag_mi(mi, 1 << (GET_D(rINDEX2) / 10000), true);
 			}
 		}
 		break;

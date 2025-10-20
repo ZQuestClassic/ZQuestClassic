@@ -371,7 +371,7 @@ enum ItemScriptRunMode
 
 // Metadata for a specific item type (not an instance of one). Load with [Game->LoadItemData].
 //
-// @zasm_ref REFITEMCLASS
+// @zasm_ref REFITEMDATA
 class itemdata {
 	// @delete
 	internal itemdata();
@@ -925,7 +925,7 @@ class itemdata {
 	//
 	// @zasm
 	//   POP D2
-	//   POP REFITEMCLASS
+	//   POP REFITEMDATA
 	//   ITEMNAME D2
 	internal void GetName(char32[] buf);
 
@@ -933,7 +933,7 @@ class itemdata {
 	//
 	// @zasm
 	//   POP D2
-	//   POP REFITEMCLASS
+	//   POP REFITEMDATA
 	//   ITEMGETDISPLAYNAME D2
 	internal void GetDisplayName(int buf);
 
@@ -941,7 +941,7 @@ class itemdata {
 	//
 	// @zasm
 	//   POP D2
-	//   POP REFITEMCLASS
+	//   POP REFITEMDATA
 	//   ITEMSETDISPLAYNAME D2
 	internal void SetDisplayName(int buf);
 
@@ -951,7 +951,7 @@ class itemdata {
 	//
 	// @zasm
 	//   POP D2
-	//   POP REFITEMCLASS
+	//   POP REFITEMDATA
 	//   ITEMGETSHOWNNAME D2
 	internal void GetShownName(int buf);
 
@@ -960,7 +960,7 @@ class itemdata {
 	// @param [ItemScriptRunMode] mode
 	// @zasm
 	//   POP D2
-	//   POP REFITEMCLASS
+	//   POP REFITEMDATA
 	//   RUNITEMSCRIPT D2
 	internal void RunScript(int mode = ISCR_PERPETUAL);
 

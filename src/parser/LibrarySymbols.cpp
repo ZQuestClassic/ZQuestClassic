@@ -82,7 +82,7 @@ void getInternalArray(int32_t refVar, Function* function, int32_t zasm_var)
 		addOpcode2 (code, new OLoadInternalArrayRef(new VarArgument(EXP1), new LiteralVarArgument(zasm_var), new VarArgument(refVar)));
 		LABELBACK(label);
 		//pop object pointer
-		if (refVar == REFSCREENDATA)
+		if (refVar == REFSCREEN)
 			function->setIntFlag(IFUNCFLAG_SKIPPOINTER);
 		else
 			POPREF();

@@ -89,7 +89,7 @@ Function #5
    72: NOP
    73: NOP
    74: POP             REFFFC
-   75: SETR            X                D3
+   75: SETR            FX               D3
    76: PUSHR           D4
    77: NOP
    78: NOP

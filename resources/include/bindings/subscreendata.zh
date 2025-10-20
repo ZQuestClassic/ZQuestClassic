@@ -316,7 +316,7 @@ enum // Flags for SUBWIDG_COUNTERPERCBAR
 	SUBW_COUNTERPERCBAR_NUMFLAGS
 };
 
-// @zasm_ref REFSUBSCREEN
+// @zasm_ref REFSUBSCREENDATA
 class subscreendata {
 	// @delete
 	internal subscreendata();
@@ -583,7 +583,7 @@ class subscreendata {
 	//
 	// @zasm
 	//   POP D2
-	//   POP REFSUBSCREEN
+	//   POP REFSUBSCREENDATA
 	//   SUBDATA_GET_NAME D2
 	internal void GetName(char32[] buf);
 
@@ -591,7 +591,7 @@ class subscreendata {
 	//
 	// @zasm
 	//   POP D2
-	//   POP REFSUBSCREEN
+	//   POP REFSUBSCREENDATA
 	//   SUBDATA_SET_NAME D2
 	internal void SetName(char32[] buf);
 

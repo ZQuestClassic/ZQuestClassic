@@ -3420,7 +3420,7 @@ SETR GD4 D2
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD_INTERNAL_ARRAY_REF D2 @SCREEN_NPCS REFSCREENDATA
+LOAD_INTERNAL_ARRAY_REF D2 @SCREEN_NPCS REFSCREEN
 STORE_OBJECT D2 0.0003
 PUSHR D4
 ALLOCATEMEMV D2 12 0; UsrFunc[void check(char32[], int, int)] Params Start
@@ -3447,7 +3447,7 @@ PEEK D4
 ALLOCATEMEMV D2 23 0; UsrFunc[void check(char32[], int, int)] Params Start
 WRITEPODSTRING D2 "RefCount(Screen->NPCs)"
 PUSHR D2
-LOAD_INTERNAL_ARRAY_REF D2 @SCREEN_NPCS REFSCREENDATA; InlineFunc[long RefCount(untyped)] Params
+LOAD_INTERNAL_ARRAY_REF D2 @SCREEN_NPCS REFSCREEN; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End

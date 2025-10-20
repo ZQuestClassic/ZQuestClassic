@@ -14,8 +14,8 @@ Function #0 (run_none-0)
     4: NOP
     5: NOP
     6: NOP
-    7: SETR            D2               GD0
-    8: ARRAYSIZE       D2
+    7: NOP
+    8: ARRAYSIZE       GD0
     9: NOP
    10: NOP
    11: PUSHR           D2

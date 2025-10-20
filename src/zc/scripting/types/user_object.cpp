@@ -74,7 +74,7 @@ static void do_constructclass(ScriptType type, word script, int32_t i)
 	
 	size_t num_vars = sargvec->at(0);
 	size_t total_vars = num_vars + sargvec->size()-1;
-	auto destr_pc = ri->d[rEXP1];
+	auto destr_pc = GET_D(rEXP1);
 
 	if (auto obj = user_objects.create())
 	{
@@ -107,7 +107,8 @@ static void do_constructclass(ScriptType type, word script, int32_t i)
 static void do_readclass()
 {
 	dword id = get_register(sarg1);
-	ri->d[rEXP1] = 0;
+	SET_D(rEXP1, 0);
+
 	int32_t ind = sarg2;
 	if (auto obj = user_objects.check(id))
 	{
@@ -117,13 +118,15 @@ static void do_readclass()
 		}
 		else
 		{
-			ri->d[rEXP1] = obj->data.at(ind);
+			SET_D(rEXP1, obj->data.at(ind));
 		}
 	}
 }
 
 static void do_writeclass()
 {
+	int data = GET_D(rEXP1);
+
 	dword id = get_register(sarg1);
 	int32_t ind = sarg2;
 	if (auto obj = user_objects.check(id))
@@ -137,7 +140,7 @@ static void do_writeclass()
 			bool is_object = obj->isMemberObjectType(ind);
 			if (is_object)
 				script_object_ref_dec(obj->data[ind]);
-			obj->data[ind] = ri->d[rEXP1];
+			obj->data[ind] = data;
 			if (is_object)
 				script_object_ref_inc(obj->data[ind]);
 		}
@@ -147,7 +150,7 @@ static void do_writeclass()
 static void do_freeclass()
 {
 	// Deleting is no longer needed. To keep reference counting simpler, simply do nothing on delete.
-	ri->d[rEXP1] = 0;
+	SET_D(rEXP1, 0);
 }
 
 void user_object_init()

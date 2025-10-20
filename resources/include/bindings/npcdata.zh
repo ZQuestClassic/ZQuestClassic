@@ -200,7 +200,7 @@ enum NPCFade
 
 // Metadata for a specific npc type (not an instance of one). Load with [Game->LoadNPCData].
 //
-// @zasm_ref REFNPCCLASS
+// @zasm_ref REFNPCDATA
 class npcdata {
 	// @delete
 	internal npcdata();
@@ -530,7 +530,7 @@ class npcdata {
 	//
 	// @zasm
 	//   POP D2
-	//   POP REFNPCCLASS
+	//   POP REFNPCDATA
 	//   NPCDATAGETNAME D2
 	internal void GetName(char32[] ptr);
 

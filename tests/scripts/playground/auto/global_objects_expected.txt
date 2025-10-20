@@ -503,7 +503,7 @@ POP D4
 LOAD D2 0.0001; if() #2 Test
 COMPAREV D2 0
 GOTOCMP 483 ==; Test 'if'
-LOAD_INTERNAL_ARRAY_REF D2 @SDD REFSCREENDATA; if() #2 Body Start
+LOAD_INTERNAL_ARRAY_REF D2 @SDD REFSCREEN; if() #2 Body Start
 SET_OBJECT GD1 D2
 SETR D2 GD1; InlineFunc[void GlobalObject(untyped)] Params
 ZCLASS_GLOBALIZE D2; InlineFunc[void GlobalObject(untyped)] Body

@@ -888,7 +888,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   LOADITEMDATAR D2
-	//   SETR D2 REFITEMCLASS
+	//   SETR D2 REFITEMDATA
 	internal itemdata LoadItemData(int item);
 
 	// @deprecated Use [Audio->MIDI] instead!
@@ -1122,7 +1122,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   LOADNPCDATAR D2
-	//   SETR D2 REFNPCCLASS
+	//   SETR D2 REFNPCDATA
 	internal npcdata LoadNPCData(int id);
 
 	// Loads a Combo Editor table data ref for combo [id], to a [combodata]
@@ -1267,7 +1267,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   LOADDROPSETR D2
-	//   SETR D2 REFDROPS
+	//   SETR D2 REFDROPSETDATA
 	internal dropsetdata LoadDropset(int id);
 
 	// @deprecated Use `new randgen()` instead.

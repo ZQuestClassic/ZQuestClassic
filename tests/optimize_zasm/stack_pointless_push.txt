@@ -93,7 +93,7 @@ Function #5
    72: PUSHR           D3
    73: POP             D2
    74: POP             REFFFC
-   75: SETR            X                D2
+   75: SETR            FX               D2
    76: PUSHR           D4
    77: SETR            D2               GD3
    78: PUSHR           D2

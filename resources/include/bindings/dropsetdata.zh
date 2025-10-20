@@ -1,6 +1,6 @@
 // For randomly selecting an item. Load with [Game->LoadDropset].
 //
-// @zasm_ref REFDROPS
+// @zasm_ref REFDROPSETDATA
 class dropsetdata {
 	// @delete
 	internal dropsetdata();
@@ -24,7 +24,7 @@ class dropsetdata {
 	// Randomly selects an item from the dropset, and returns its ID.
 	//
 	// @zasm
-	//   POP REFDROPS
+	//   POP REFDROPSETDATA
 	//   SETR D2 DROPSETCHOOSE
 	internal int Choose();
 }

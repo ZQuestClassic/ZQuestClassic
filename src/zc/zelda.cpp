@@ -2313,6 +2313,11 @@ int32_t init_game()
 	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptScriptedActiveSubscreen();
 	if(get_qr(qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);  //Here is a much safer place...
+
+#ifdef DEBUG_REGISTER_DEPS
+	print_d_register_deps();
+#endif
+
 	return 0;
 }
 
@@ -4060,6 +4065,56 @@ static void allocate_crap()
 	}
 }
 
+static void init_bitmaps()
+{
+	set_color_depth(8);
+
+	// Note: These will be recreated in apply_qr_rule.
+	framebuf  = create_bitmap_ex(8,256,224);
+	framebuf_no_passive_subscreen = create_bitmap_ex(8,256,224);
+	script_menu_buf = create_bitmap_ex(8,256,224);
+	f6_menu_buf = create_bitmap_ex(8,256,224);
+	darkscr_bmp = create_bitmap_ex(8, 256, 224);
+	darkscr_bmp_trans = create_bitmap_ex(8, 256, 224);
+
+	menu_bmp  = create_bitmap_ex(8,640,480);
+	// TODO: old scrolling code is silly and needs a big scrollbuf bitmap.
+	scrollbuf_old = create_bitmap_ex(8,512,406);
+	scrollbuf = create_bitmap_ex(8,256,176+56);
+	screen2   = create_bitmap_ex(8,320,240);
+	tmp_scr   = create_bitmap_ex(8,320,240);
+	tmp_bmp   = create_bitmap_ex(8,32,32);
+	prim_bmp  = create_bitmap_ex(8,512,512);
+	msg_bg_display_buf = create_bitmap_ex(8,256, 176);
+	msg_txt_display_buf = create_bitmap_ex(8,256, 176);
+	msg_bg_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
+	msg_txt_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
+	msg_menu_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
+	msg_portrait_bmp_buf = create_bitmap_ex(8, 256, 256);
+	msg_portrait_display_buf = create_bitmap_ex(8, 256, 256);
+	pricesdisplaybuf = create_bitmap_ex(8,256, 176);
+	lightbeam_bmp = create_bitmap_ex(8, 256, 176);
+	
+	if(!framebuf || !scrollbuf || !tmp_bmp || !tmp_scr
+			|| !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
+			|| !script_menu_buf || !f6_menu_buf)
+	{
+		Z_error_fatal("Error");
+	}
+	
+	clear_bitmap(lightbeam_bmp);
+	clear_bitmap(scrollbuf);
+	clear_bitmap(framebuf);
+	clear_bitmap(msg_bg_display_buf);
+	set_clip_state(msg_bg_display_buf, 1);
+	clear_bitmap(msg_txt_display_buf);
+	set_clip_state(msg_txt_display_buf, 1);
+	clear_bitmap(msg_portrait_display_buf);
+	set_clip_state(msg_portrait_display_buf, 1);
+	clear_bitmap(pricesdisplaybuf);
+	set_clip_state(pricesdisplaybuf, 1);
+}
+
 void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 {
 	// We need to init some stuff before loading a quest file will work.
@@ -4307,60 +4362,12 @@ int main(int argc, char **argv)
 	}
 	
 	Z_message("OK\n");
-	
-	// allocate bitmap buffers
-	set_color_depth(8);
-
-	// Note: These will be recreated in apply_qr_rule.
-	framebuf  = create_bitmap_ex(8,256,224);
-	framebuf_no_passive_subscreen = create_bitmap_ex(8,256,224);
-	script_menu_buf = create_bitmap_ex(8,256,224);
-	f6_menu_buf = create_bitmap_ex(8,256,224);
-	darkscr_bmp = create_bitmap_ex(8, 256, 224);
-	darkscr_bmp_trans = create_bitmap_ex(8, 256, 224);
-
-	menu_bmp  = create_bitmap_ex(8,640,480);
-	// TODO: old scrolling code is silly and needs a big scrollbuf bitmap.
-	scrollbuf_old = create_bitmap_ex(8,512,406);
-	scrollbuf = create_bitmap_ex(8,256,176+56);
-	screen2   = create_bitmap_ex(8,320,240);
-	tmp_scr   = create_bitmap_ex(8,320,240);
-	tmp_bmp   = create_bitmap_ex(8,32,32);
-	prim_bmp  = create_bitmap_ex(8,512,512);
-	msg_bg_display_buf = create_bitmap_ex(8,256, 176);
-	msg_txt_display_buf = create_bitmap_ex(8,256, 176);
-	msg_bg_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
-	msg_txt_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
-	msg_menu_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
-	msg_portrait_bmp_buf = create_bitmap_ex(8, 256, 256);
-	msg_portrait_display_buf = create_bitmap_ex(8, 256, 256);
-	pricesdisplaybuf = create_bitmap_ex(8,256, 176);
-	lightbeam_bmp = create_bitmap_ex(8, 256, 176);
-	
-	if(!framebuf || !scrollbuf || !tmp_bmp || !tmp_scr
-			|| !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
-			|| !script_menu_buf || !f6_menu_buf)
-	{
-		Z_error_fatal("Error");
-	}
-	
-	clear_bitmap(lightbeam_bmp);
-	clear_bitmap(scrollbuf);
-	clear_bitmap(framebuf);
-	clear_bitmap(msg_bg_display_buf);
-	set_clip_state(msg_bg_display_buf, 1);
-	clear_bitmap(msg_txt_display_buf);
-	set_clip_state(msg_txt_display_buf, 1);
-	clear_bitmap(msg_portrait_display_buf);
-	set_clip_state(msg_portrait_display_buf, 1);
-	clear_bitmap(pricesdisplaybuf);
-	set_clip_state(pricesdisplaybuf, 1);
-	
+	init_bitmaps();
 	Z_message("Initializing music... ");
 	zcmusic_init();
 	zcmixer = zcmixer_create();
 	Z_message("OK\n");
-	
+
 	int32_t tempmode=GFX_AUTODETECT;
 	int32_t res_arg = used_switch(argc,argv,"-res");
 	
@@ -4620,6 +4627,13 @@ reload_for_replay_file:
 		testingqst_screen = (uint8_t)screen;
 		testingqst_retsqr = (uint8_t)retsqr;
 	}
+
+#ifdef DEBUG_REGISTER_DEPS
+	CHECK(used_switch(argc, argv, "-debug-print-register-deps"));
+	zqtesting_mode = true;
+	use_testingst_start = true;
+	testingqst_name = "quests/examples/255example.qst";
+#endif
 
 	if (used_switch(argc, argv, "-replay-exit-when-done") > 0)
 		replay_enable_exit_when_done();

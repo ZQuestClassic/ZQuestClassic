@@ -1,6 +1,8 @@
 #include "zasm/table.h"
-#include "base/zdefs.h"
+#include "allegro/base.h"
+#include "base/general.h"
 #include "zasm/defines.h"
+#include <array>
 #include <optional>
 #include <utility>
 
@@ -34,7 +36,6 @@ static constexpr script_command command_list[]=
 	{ "DIVV", DIVV, 2, { REG_RW, NUM }, 0, 0 },
 	{ "WAITFRAME", WAITFRAME, 0, {}, 0, 0 },
 	{ "GOTO", GOTO, 1, { NUM }, 0, 0 },
-	{ "CHECKTRIG", CHECKTRIG, 0, {}, 0, 0 },
 	{ "WARP", WARP, 2, { NUM, NUM }, 0, 0 },
 	{ "COMPARER", COMPARER, 2, { REG_R, REG_R }, 0, CMPSET },
 	{ "COMPAREV", COMPAREV, 2, { REG_R, NUM }, 0, CMPSET },
@@ -166,7 +167,6 @@ static constexpr script_command command_list[]=
 	{ "ALLOCATEMEMV", ALLOCATEMEMV, 3, { REG_W, NUM, NUM }, 0, 0 },
 	{ "ALLOCATEGMEMV", ALLOCATEGMEMV, 3, { REG_W, NUM, NUM }, 0, 0 },
 	{ "DEALLOCATEMEMR", DEALLOCATEMEMR, 1, { REG_R }, 0, 0 },
-	{ "DEALLOCATEMEMV", DEALLOCATEMEMV, 1, { NUM }, 0, 0 },
 	{ "WAITDRAW", WAITDRAW, 0, {}, 0, 0 },
 	{ "ARCTANR", ARCTANR, 1, { REG_W }, 0, 0 },
 	{ "LWPNUSESPRITER", LWPNUSESPRITER, 1, { REG_R }, 0, 0 },
@@ -251,8 +251,6 @@ static constexpr script_command command_list[]=
 	{ "SETDMAPNAME", SETDMAPNAME, 2, { REG_R, REG_R }, 0, 0 },
 	{ "SETDMAPTITLE", SETDMAPTITLE, 2, { REG_R, REG_R }, 0, 0 },
 	{ "SETDMAPINTRO", SETDMAPINTRO, 2, { REG_R, REG_R }, 0, 0 },
-	{ "GREYSCALEON", GREYSCALEON, 0, {}, 0, 0 },
-	{ "GREYSCALEOFF", GREYSCALEOFF, 0, {}, 0, 0 },
 	{ "ENDSOUNDR", ENDSOUNDR, 1, { REG_R }, 0, 0 },
 	{ "ENDSOUNDV", ENDSOUNDV, 1, { NUM }, 0, 0 },
 	{ "PAUSESOUNDR", PAUSESOUNDR, 1, { REG_R }, 0, 0 },
@@ -282,9 +280,6 @@ static constexpr script_command command_list[]=
 	
 	{ "LOADSPRITEDATAR", LOADSPRITEDATAR, 1, { REG_R }, 0, 0 },
 	{ "LOADSPRITEDATAV", LOADSPRITEDATAV, 1, { NUM }, 0, 0 },
- 
-	{ "LOADSCREENDATAR", LOADSCREENDATAR, 1, { REG_R }, 0, 0 },
-	{ "LOADSCREENDATAV", LOADSCREENDATAV, 1, { NUM }, 0, 0 },
 
 	{ "LOADBITMAPDATAR", LOADBITMAPDATAR, 1, { REG_R }, 0, 0 },
 	{ "LOADBITMAPDATAV", LOADBITMAPDATAV, 1, { NUM }, 0, 0 },
@@ -367,21 +362,14 @@ static constexpr script_command command_list[]=
 	{ "BMPBLIT", BMPBLIT, 0, {}, 0, 0 },
 	
 	{ "LINKWARPEXR", LINKWARPEXR, 1, { REG_R }, 0, 0 },
-	{ "LINKWARPEXV", LINKWARPEXV, 1, { NUM }, 0, 0 },
 	{ "LINKEXPLODER", LINKEXPLODER, 1, { REG_R }, 0, 0 },
-	{ "LINKEXPLODEV", LINKEXPLODEV, 1, { NUM }, 0, 0 },
 	{ "NPCEXPLODER", NPCEXPLODER, 1, { REG_R }, 0, 0 },
-	{ "NPCEXPLODEV", NPCEXPLODEV, 1, { NUM }, 0, 0 },
 	
 	{ "ITEMEXPLODER", ITEMEXPLODER, 1, { REG_R }, 0, 0 },
-	{ "ITEMEXPLODEV", ITEMEXPLODEV, 1, { NUM }, 0, 0 },
 	{ "LWEAPONEXPLODER", LWEAPONEXPLODER, 1, { REG_R }, 0, 0 },
-	{ "LWEAPONEXPLODEV", LWEAPONEXPLODEV, 1, { NUM }, 0, 0 },
 	{ "EWEAPONEXPLODER", EWEAPONEXPLODER, 1, { REG_R }, 0, 0 },
-	{ "EWEAPONEXPLODEV", EWEAPONEXPLODEV, 1, { NUM }, 0, 0 },
 	{ "RUNITEMSCRIPT", RUNITEMSCRIPT, 1, { REG_R }, 0, 0 },
 	{ "GETRTCTIMER", GETRTCTIMER, 1, { REG_RW }, 0, 0 },
-	{ "GETRTCTIMEV", GETRTCTIMEV, 1, { NUM }, 0, UNIMPL }, //!TODO ERROR Reads from and writes to sarg1 as a register
 	
 	//new npc functions for npc scripts
 	{ "NPCDEAD", NPCDEAD, 1, { REG_W }, 0, 0 },
@@ -400,13 +388,11 @@ static constexpr script_command command_list[]=
 	// moved to a var: { "NPCLINEDUP", NPCLINEDUP, 0, {}, 0, 0 },
 	{ "NPCLINKINRANGE", NPCLINKINRANGE, 1, { REG_RW }, 0, 0 }, //!TODO ERROR Writes the unused sarg2 as a register
 	{ "NPCATTACK", NPCATTACK, 0, {}, 0, 0 },
-	{ "NPCPLACEONAXIS", NPCPLACEONAXIS, 0, {}, 0, 0 },
 	{ "NPCADD", NPCADD, 1, { REG_R }, 0, 0 },
 	{ "NPCFIREBREATH", NPCFIREBREATH, 1, { REG_R }, 0, 0 },
 	{ "NPCCANSLIDE", NPCCANSLIDE, 1, { REG_W }, 0, 0 },
 	{ "NPCSLIDE", NPCSLIDE, 1, { REG_W }, 0, 0 },
 	{ "NPCHITWITH", NPCHITWITH, 1, { REG_RW }, 0, 0 },
-	{ "NPCGETINITDLABEL", NPCGETINITDLABEL, 0, {}, 0, 0 },
 	// moved to a var: { "NPCCOLLISION", NPCCOLLISION, 0, {}, 0, 0 }, //how to implement this?
 	{ "GAMECONTINUE", GAMECONTINUE, 0, {}, 0, 0 },
 	{ "MAPDATAISSOLID", MAPDATAISSOLID, 1, { REG_W }, 0, 0 },
@@ -419,7 +405,6 @@ static constexpr script_command command_list[]=
 	{ "ISVALIDBITMAP", ISVALIDBITMAP, 1, { REG_RW }, 0, 0 },
 	{ "READBITMAP", READBITMAP, 0, {}, 0, 0 },
 	{ "WRITEBITMAP", WRITEBITMAP, 0, {}, 0, 0 },
-	{ "ALLOCATEBITMAP", ALLOCATEBITMAP, 1, { REG_UNIMPLEMENTED }, 0, UNIMPL }, // Unimplemented - no case
 	{ "CLEARBITMAP", CLEARBITMAP, 0, {}, 0, 0 },
 	{ "REGENERATEBITMAP", REGENERATEBITMAP, 0, {}, 0, 0 },
 	{ "BMPBLITTO", BMPBLITTO, 0, {}, 0, 0 },
@@ -888,7 +873,7 @@ static constexpr script_variable variable_list[]=
 	//name id maxcount
 	{ "D", D(0), INITIAL_D},
 	{ "DATA", DATA, 0},
-	{ "CSET", FCSET, 0},
+	{ "FCSET", FCSET, 0},
 	{ "DELAY", DELAY, 0},
 	{ "REFSPRITE", REFSPRITE, 0},
 	{ "SPRITE_X", SPRITE_X, 0 },
@@ -931,8 +916,8 @@ static constexpr script_variable variable_list[]=
 	{ "SPRITE_SHADOW_XOFS", SPRITE_SHADOW_XOFS, 0 },
 	{ "SPRITE_SHADOW_YOFS", SPRITE_SHADOW_YOFS, 0 },
 	{ "SPRITE_MISCD", SPRITE_MISCD, 0 },
-	{ "X", FX, 0},
-	{ "Y", FY, 0},
+	{ "FX", FX, 0},
+	{ "FY", FY, 0},
 	{ "XD", XD, 0},
 	{ "YD", YD, 0},
 	{ "XD2", XD2, 0},
@@ -1056,13 +1041,13 @@ static constexpr script_variable variable_list[]=
 	{ "COMBOTD", COMBOTD, 0},
 	{ "COMBOID", COMBOID, 0},
 	{ "COMBOSD", COMBOSD, 0},
-	{ "REFITEMCLASS", REFITEMCLASS, 0},
+	{ "REFITEMDATA", REFITEMDATA, 0},
 	{ "REFITEM", REFITEM, 0},
 	{ "REFFFC", REFFFC, 0},
 	{ "REFLWPN", REFLWPN, 0},
 	{ "REFEWPN", REFEWPN, 0},
 	{ "REFNPC", REFNPC, 0},
-	{ "REFNPCCLASS", REFNPCCLASS, 0},
+	{ "REFNPCDATA", REFNPCDATA, 0},
 	{ "LWPNX", LWPNX, 0},
 	{ "LWPNY", LWPNY, 0},
 	{ "LWPNZ", LWPNZ, 0},
@@ -1264,14 +1249,14 @@ static constexpr script_variable variable_list[]=
 	{ "DMAPMAP", DMAPMAP, 0},
 	// { "__RESERVED_FOR_GAMETHROTTLE", __RESERVED_FOR_GAMETHROTTLE, 0},
 	{ "REFMAPDATA", REFMAPDATA, 0},
-	{ "REFSCREENDATA", REFSCREENDATA, 0},
+	{ "REFSCREEN", REFSCREEN, 0},
 	{ "REFCOMBODATA", REFCOMBODATA, 0},
 	{ "REFSPRITEDATA", REFSPRITEDATA, 0},
 	{ "REFBITMAP", REFBITMAP, 0},
 	{ "REFDMAPDATA", REFDMAPDATA, 0},
 	{ "REFSHOPDATA", REFSHOPDATA, 0},
 	{ "REFMSGDATA", REFMSGDATA, 0},
-	{ "REFDROPS", REFDROPS, 0},
+	{ "REFDROPSETDATA", REFDROPSETDATA, 0},
 	{ "IDATAMAGICTIMER", IDATAMAGICTIMER, 0},
 	{ "IDATALTM", IDATALTM, 0},
 	{ "IDATASCRIPT", IDATASCRIPT, 0},
@@ -1329,7 +1314,6 @@ static constexpr script_variable variable_list[]=
 	{ "LINKCANFLICKER", LINKCANFLICKER, 0},
 	{ "LINKHURTSFX", LINKHURTSFX, 0},
 	{ "NOACTIVESUBSC", NOACTIVESUBSC, 0},
-	{ "LWPNRANGE", LWPNRANGE, 0},
 	{ "ZELDAVERSION", ZELDAVERSION, 0},
 	{ "ZELDABUILD", ZELDABUILD, 0},
 	{ "ZELDABETA", ZELDABETA, 0},
@@ -1409,8 +1393,7 @@ static constexpr script_variable variable_list[]=
 	
 	{"COMBODATAID", COMBODATAID, 0},
 	{"REFFILE", REFFILE, 0},
-	{"REFSUBSCREEN", REFSUBSCREEN, 0},
-
+	{"REFSUBSCREENDATA", REFSUBSCREENDATA, 0},
 	{"SETGAMEOVERELEMENT", SETGAMEOVERELEMENT, 0},
 	{"SETGAMEOVERSTRING", SETGAMEOVERSTRING, 0},
 	{"MOUSEARR", MOUSEARR, 0},
@@ -1815,7 +1798,7 @@ static constexpr script_variable variable_list[]=
 	{"COMBODSECRETCOMBO", COMBODSECRETCOMBO, 0},
 	{"COMBODSINGULAR", COMBODSINGULAR, 0},
 	{"COMBODSLOWWALK", COMBODSLOWWALK, 0},
-	{"COMBODSTATUETYPEs", COMBODSTATUETYPE, 0},
+	{"COMBODSTATUETYPE", COMBODSTATUETYPE, 0},
 	{"COMBODSTEPTYPE", COMBODSTEPTYPE, 0},
 	{"COMBODSTEPCHANGEINTO", COMBODSTEPCHANGEINTO, 0},
 	{"COMBODSTRIKEWEAPONS", COMBODSTRIKEWEAPONS, 0},
@@ -2041,9 +2024,6 @@ static constexpr script_variable variable_list[]=
 	{ "NPCSLIDECLK", NPCSLIDECLK, 0},
 	{ "NPCFADING", NPCFADING, 0},
 	{ "DISTANCE", DISTANCE, 0},
-	{ "STDARR", STDARR, 0},
-	{ "GHOSTARR", GHOSTARR, 0},
-	{ "TANGOARR", TANGOARR, 0},
 	{ "NPCHALTCLK", NPCHALTCLK, 0},
 	{ "NPCMOVESTATUS", NPCMOVESTATUS, 0},
 	{ "DISTANCESCALE", DISTANCESCALE, 0},
@@ -2720,6 +2700,7 @@ static constexpr script_variable variable_list[]=
 	{ "COMBOD_DIVE_UNDER_LEVEL", COMBOD_DIVE_UNDER_LEVEL, 0 },
 	{ "GAMELAYERZTHRESHOLDS", GAMELAYERZTHRESHOLDS, 0 },
 	{ "NPCFLAGS", NPCFLAGS, 0 },
+	{"", -1},
 };
 
 // Don't rely on `command_list` to be indexed by command.
@@ -2811,6 +2792,7 @@ std::optional<int> get_script_variable(const std::string& var_name)
 	return std::nullopt;
 }
 
+// Note: generated automatically (ctrl+f DEBUG_REGISTER_DEPS)
 std::initializer_list<CommandDependency> get_command_implicit_dependencies(int command)
 {
 	typedef std::initializer_list<CommandDependency> T;
@@ -2823,21 +2805,25 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case REF_DEC:
 		case REF_INC:
 		case REF_REMOVE:
-		case STORE_OBJECT:
 		case STORE:
-		case STOREV:
 		case STORED:
 		case STOREDV:
+		case STOREV:
+		case STORE_OBJECT:
 		{
 			static T r = {{rSFRAME, REG_R}};
 			return r;
 		}
 
 		case ATOI2:
+		case CONTINUESFX:
 		case ILEN2:
+		case NPCKNOCKBACK:
+		case PAUSESFX:
 		case READPODARRAYR:
 		case READPODARRAYV:
 		case REMCHR2:
+		case RESUMESFX:
 		case WRITEPODARRAYRR:
 		case WRITEPODARRAYRV:
 		case WRITEPODARRAYVR:
@@ -2846,121 +2832,6 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case XTOI2:
 		{
 			static T r = {{rINDEX, REG_R}};
-			return r;
-		}
-
-		case ZCLASS_WRITE:
-		{
-			static T r = {{rEXP1, REG_R}};
-			return r;
-		}
-
-		case ZCLASS_CONSTRUCT:
-		{
-			static T r = {{rEXP1, REG_R}, {CLASS_THISKEY, REG_W}};
-			return r;
-		}
-		
-		case READBITMAP:
-		{
-			static T r = {{rEXP2, REG_R}};
-			return r;
-		}
-
-		case ARRAYPOP:
-		case ARRAYPUSH:
-		case CHARWIDTHR:
-		case CHOOSEVARG:
-		case CREATEPORTAL:
-		case CREATESAVPORTAL:
-		case CURRENTITEMID:
-		case FILECREATE:
-		case FILEFLUSH:
-		case FILEGETCHAR:
-		case FILEISALLOCATED:
-		case FILEISVALID:
-		case FILEOPEN:
-		case FILEPUTCHAR:
-		case FILEREADSTR:
-		case FILEREMOVE:
-		case FILESEEK:
-		case FILEUNGETCHAR:
-		case FILEWRITESTR:
-		case FONTHEIGHTR:
-		case HEROCANMOVE:
-		case HEROCANMOVEATANGLE:
-		case HEROCANMOVEXY:
-		case HEROISFLICKERFRAME:
-		case HEROLIFTRELEASE:
-		case HEROMOVE:
-		case HEROMOVEATANGLE:
-		case HEROMOVEXY:
-		case LOADPORTAL:
-		case LOADSAVPORTAL:
-		case MAKEVARGARRAY:
-		case MAXVARG:
-		case MESSAGEHEIGHTR:
-		case MESSAGEWIDTHR:
-		case MINVARG:
-		case NPCCANPLACE:
-		case NPCISFLICKERFRAME:
-		case NPCMOVEPAUSED:
-		case RNGLRAND1:
-		case RNGLRAND2:
-		case RNGLRAND3:
-		case RNGRAND1:
-		case RNGRSEED:
-		case SAVEDPORTALGENERATE:
-		case SCREENDOSPAWN:
-		case SPRINTFA:
-		case SPRINTFVARG:
-		case STRINGWIDTHR:
-		case SUBPAGE_FIND_WIDGET_BY_LABEL:
-		case SUBPAGE_FIND_WIDGET:
-		case SUBPAGE_MOVE_SEL:
-		case SUBPAGE_NEW_WIDG:
-		case WEBSOCKET_LOAD:
-		case WRAPDEGREES:
-		case WRAPRADIANS:
-		case ZCLASS_FREE:
-		case ZCLASS_READ:
-		{
-			static T r = {{rEXP1, REG_W}};
-			return r;
-		}
-
-		case REGENERATEBITMAP:
-		{
-			static T r = {{rEXP2, REG_RW}};
-			return r;
-		}
-
-		case FILEREADBYTES:
-		case FILEREADCHARS:
-		case FILEREADINTS:
-		case FILEWRITEBYTES:
-		case FILEWRITECHARS:
-		case FILEWRITEINTS:
-		{
-			static T r = {{rINDEX, REG_R}, {rEXP1, REG_W}};
-			return r;
-		}
-
-		case FILEALLOCATE:
-		case NPCADD:
-		{
-			static T r = {{rEXP1, REG_W}, {rEXP2, REG_W}};
-			return r;
-		}
-
-		case NPCCANMOVEANGLE:
-		case NPCCANMOVEDIR:
-		case NPCCANMOVEXY:
-		case NPCMOVE:
-		case NPCMOVEANGLE:
-		case NPCMOVEXY:
-		{
-			static T r = {{rINDEX, REG_R}, {rEXP1, REG_RW}, {rEXP2, REG_R}};
 			return r;
 		}
 
@@ -2979,7 +2850,27 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}};
 			return r;
 		}
-		
+
+		case GETSCREENFLAGS:
+		case GRAPHICSGETPIXEL:
+		case ISSOLIDLAYER:
+		case MAPDATAISSOLIDLYR:
+		{
+			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}, {rEXP1, REG_R}};
+			return r;
+		}
+
+		case FILEREADBYTES:
+		case FILEREADCHARS:
+		case FILEREADINTS:
+		case FILEWRITEBYTES:
+		case FILEWRITECHARS:
+		case FILEWRITEINTS:
+		{
+			static T r = {{rINDEX, REG_R}, {rEXP1, REG_W}};
+			return r;
+		}
+
 		case STRINGNCOMPARE:
 		case STRINGNICOMPARE:
 		{
@@ -2987,13 +2878,112 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 			return r;
 		}
 
-		case MAPDATAISSOLIDLYR:
-		case ISSOLIDLAYER:
+		case NPCCANMOVEANGLE:
+		case NPCCANMOVEDIR:
+		case NPCCANMOVEXY:
+		case NPCMOVE:
+		case NPCMOVEANGLE:
+		case NPCMOVEXY:
 		{
-			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}, {rEXP1, REG_R}};
+			static T r = {{rINDEX, REG_R}, {rEXP1, REG_RW}, {rEXP2, REG_R}};
 			return r;
 		}
-		
+
+		case READBITMAP:
+		case REGENERATEBITMAP:
+		{
+			static T r = {{rEXP2, REG_W}};
+			return r;
+		}
+
+		case ARRAYPOP:
+		case ARRAYPUSH:
+		case ARRAYSIZE:
+		case CHARWIDTHR:
+		case CHOOSEVARG:
+		case CREATEPALDATA:
+		case CREATEPALDATACLR:
+		case CREATEPORTAL:
+		case CREATERGB:
+		case CREATERGBHEX:
+		case CREATESAVPORTAL:
+		case CURRENTITEMID:
+		case ENHCROSSFADE:
+		case FILEFLUSH:
+		case FILEGETCHAR:
+		case FILEISALLOCATED:
+		case FILEISVALID:
+		case FILEPUTCHAR:
+		case FILEREADSTR:
+		case FILEREMOVE:
+		case FILESEEK:
+		case FILEUNGETCHAR:
+		case FILEWRITESTR:
+		case FONTHEIGHTR:
+		case GETTILEPIXEL:
+		case HEROCANMOVE:
+		case HEROCANMOVEATANGLE:
+		case HEROCANMOVEXY:
+		case HEROISFLICKERFRAME:
+		case HEROLIFTRELEASE:
+		case HEROMOVE:
+		case HEROMOVEATANGLE:
+		case HEROMOVEXY:
+		case LOADPORTAL:
+		case LOADRNG:
+		case LOADSAVPORTAL:
+		case LOADSTACK:
+		case LOADSUBDATARV:
+		case MAKEVARGARRAY:
+		case MAXVARG:
+		case MESSAGEHEIGHTR:
+		case MESSAGEWIDTHR:
+		case MINVARG:
+		case MIXCLR:
+		case NPCCANPLACE:
+		case NPCISFLICKERFRAME:
+		case NPCMOVEPAUSED:
+		case RNGLRAND1:
+		case RNGLRAND2:
+		case RNGLRAND3:
+		case RNGRAND1:
+		case RNGRSEED:
+		case SAVEDPORTALGENERATE:
+		case SCREENDOSPAWN:
+		case SPRINTFA:
+		case SPRINTFV:
+		case SPRINTFVARG:
+		case STRINGWIDTHR:
+		case SUBPAGE_FIND_WIDGET:
+		case SUBPAGE_FIND_WIDGET_BY_LABEL:
+		case SUBPAGE_MOVE_SEL:
+		case SUBPAGE_NEW_WIDG:
+		case WEBSOCKET_LOAD:
+		case WRAPDEGREES:
+		case WRAPRADIANS:
+		case ZCLASS_FREE:
+		case ZCLASS_READ:
+		{
+			static T r = {{rEXP1, REG_W}};
+			return r;
+		}
+
+		case FILEALLOCATE:
+		case FILECREATE:
+		case FILEOPEN:
+		case FILEOPENMODE:
+		case NPCADD:
+		{
+			static T r = {{rEXP1, REG_W}, {rEXP2, REG_W}};
+			return r;
+		}
+
+		case ZCLASS_WRITE:
+		{
+			static T r = {{rEXP1, REG_R}};
+			return r;
+		}
+
 		case POP:
 		case POPARGS:
 		case PUSHARGSR:
@@ -3004,16 +2994,28 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 			static T r = {{SP, REG_RW}, {SP2, REG_RW}};
 			return r;
 		}
+
+		case ZCLASS_MARK_TYPE:
+		{
+			static T r = {{CLASS_THISKEY, REG_W}};
+			return r;
+		}
+
+		case ZCLASS_CONSTRUCT:
+		{
+			static T r = {{rEXP1, REG_R}, {CLASS_THISKEY, REG_W}};
+			return r;
+		}
 	}
 
 	return {};
 }
 
+// Note: generated automatically (ctrl+f DEBUG_REGISTER_DEPS)
 static std::vector<int> _get_register_dependencies(int reg)
 {
 	switch (reg)
 	{
-		// These are mostly arrays.
 		case AUDIOVOLUME:
 		case BOTTLEAMOUNT:
 		case BOTTLECOUNTER:
@@ -3089,7 +3091,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case FFINITDD:
 		case FFMISCD:
 		case FFRULE:
-		case GAME_SAVED_PORTALS:
 		case GAMEBOTTLEST:
 		case GAMECOUNTERD:
 		case GAMEDCOUNTERD:
@@ -3099,7 +3100,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case GAMEGSWITCH:
 		case GAMEGUYCOUNT:
 		case GAMEGUYCOUNTD:
-		case GAMEITEMSD:
 		case GAMELAYERZTHRESHOLDS:
 		case GAMELITEMSD:
 		case GAMELKEYSD:
@@ -3112,20 +3112,20 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case GAMESCROLLING:
 		case GAMESUSPEND:
 		case GAMETRIGGROUPS:
+		case GAME_SAVED_PORTALS:
 		case GDD:
 		case GENDATADATA:
 		case GENDATAEVENTSTATE:
 		case GENDATAEXITSTATE:
 		case GENDATAINITD:
 		case GENDATARELOADSTATE:
-		case GHOSTARR:
 		case GLOBALRAMD:
 		case HEROITEMCOOLDOWN:
 		case HEROLIFTFLAGS:
 		case HEROMOVEFLAGS:
 		case HEROSTEPS:
-		case IDATAATTRIB_L:
 		case IDATAATTRIB:
+		case IDATAATTRIB_L:
 		case IDATABURNINGLIGHTRAD:
 		case IDATABURNINGSPR:
 		case IDATAFLAGS:
@@ -3154,7 +3154,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case LWPNMISCD:
 		case LWPNMOVEFLAGS:
 		case LWPNSPRITES:
-		case MAPDATA_FLAG:
 		case MAPDATACOMBOCD:
 		case MAPDATACOMBODATAD:
 		case MAPDATACOMBODD:
@@ -3219,6 +3218,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case MAPDATATWARPRETSQR:
 		case MAPDATAWARPRETX:
 		case MAPDATAWARPRETY:
+		case MAPDATA_FLAG:
 		case MESSAGEDATAFLAGSARR:
 		case MESSAGEDATAMARGINS:
 		case MOUSEARR:
@@ -3234,8 +3234,8 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case NPCDATAWEAPONINITD:
 		case NPCDATAWMOVEFLAGS:
 		case NPCDD:
-		case NPCFLAGS:
 		case NPCDEFENSED:
+		case NPCFLAGS:
 		case NPCHITBY:
 		case NPCINITD:
 		case NPCMISCD:
@@ -3249,13 +3249,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case RAWKEY:
 		case READKEY:
 		case SCRDOORD:
-		case SCREEN_EWEAPONS:
-		case SCREEN_FFCS:
-		case SCREEN_FLAG:
-		case SCREEN_ITEMS:
-		case SCREEN_LWEAPONS:
-		case SCREEN_NPCS:
-		case SCREEN_PORTALS:
 		case SCREENDATADOOR:
 		case SCREENDATAENEMY:
 		case SCREENDATAEXCARRY:
@@ -3295,6 +3288,13 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SCREENSCRDATA:
 		case SCREENSIDEWARPID:
 		case SCREENSTATED:
+		case SCREEN_EWEAPONS:
+		case SCREEN_FFCS:
+		case SCREEN_FLAG:
+		case SCREEN_ITEMS:
+		case SCREEN_LWEAPONS:
+		case SCREEN_NPCS:
+		case SCREEN_PORTALS:
 		case SCRIPTRAMD:
 		case SDD:
 		case SETGAMEOVERELEMENT:
@@ -3303,10 +3303,9 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SHOPDATAITEM:
 		case SHOPDATAPRICE:
 		case SHOPDATASTRING:
+		case SPRITEDATAFLAGS:
 		case SPRITE_MISCD:
 		case SPRITE_MOVE_FLAGS:
-		case SPRITEDATAFLAGS:
-		case STDARR:
 		case SUBDATABTNLEFT:
 		case SUBDATABTNRIGHT:
 		case SUBDATAFLAGS:
@@ -3350,7 +3349,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SUBWIDGTY_COUNTERS:
 		case SUBWIDGTY_CSET:
 		case SUBWIDGTY_TILE:
-		case TANGOARR:
 		{
 			return {rINDEX};
 		}
@@ -3392,11 +3390,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		{
 			return {rINDEX, rINDEX2, rEXP1, rSFTEMP, rWHAT_NO_7};
 		}
-
-		case ZCLASS_MARK_TYPE:
-		{
-			return {CLASS_THISKEY};
-		}
 	}
 
 	return {};
@@ -3418,39 +3411,9 @@ std::optional<int> get_register_ref_dependency(int reg)
 {
 	switch (reg)
 	{
-		case SUBPGWIDGETS:
-			return REFSUBSCREENPAGE;
-
-		case SUBWIDGBTNPG:
-		case SUBWIDGBTNPRESS:
-		case SUBWIDGFLAG:
-		case SUBWIDGGENFLAG:
-		case SUBWIDGPOSES:
-		case SUBWIDGPOSFLAG:
-		case SUBWIDGPRESSINITD:
-		case SUBWIDGREQOWNITEMS:
-		case SUBWIDGREQUNOWNITEMS:
-		case SUBWIDGSELECTORASPD:
-		case SUBWIDGSELECTORCSET:
-		case SUBWIDGSELECTORDELAY:
-		case SUBWIDGSELECTORFLASHCSET:
-		case SUBWIDGSELECTORFRM:
-		case SUBWIDGSELECTORHEI:
-		case SUBWIDGSELECTORTILE:
-		case SUBWIDGSELECTORWID:
-		case SUBWIDGTRANSPGARGS:
-		case SUBWIDGTRANSPGFLAGS:
-		case SUBWIDGTY_CORNER:
-		case SUBWIDGTY_COUNTERS:
-		case SUBWIDGTY_CSET:
-		case SUBWIDGTY_TILE:
-			return REFSUBSCREENWIDG;
-
-		case BOTTLEAMOUNT:
-		case BOTTLECOUNTER:
-		case BOTTLEFLAGS:
-		case BOTTLEPERCENT:
-			return REFBOTTLETYPE;
+		case BITMAPHEIGHT:
+		case BITMAPWIDTH:
+			return REFBITMAP;
 
 		case BSHOPCOMBO:
 		case BSHOPCSET:
@@ -3458,277 +3421,19 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case BSHOPPRICE:
 		case BSHOPSTR:
 			return REFBOTTLESHOP;
-		
-		case SUBDATABTNLEFT:
-		case SUBDATABTNRIGHT:
-		case SUBDATAFLAGS:
-		case SUBDATAINITD:
-		case SUBDATAPAGES:
-		case SUBDATASELECTORASPD:
-		case SUBDATASELECTORCSET:
-		case SUBDATASELECTORDELAY:
-		case SUBDATASELECTORFLASHCSET:
-		case SUBDATASELECTORFRM:
-		case SUBDATASELECTORHEI:
-		case SUBDATASELECTORTILE:
-		case SUBDATASELECTORWID:
-		case SUBDATATRANSARGS:
-		case SUBDATATRANSFLAGS:
-		case SUBDATATRANSLEFTARGS:
-		case SUBDATATRANSLEFTFLAGS:
-		case SUBDATATRANSRIGHTARGS:
-		case SUBDATATRANSRIGHTFLAGS:
-			return REFSUBSCREEN;
 
-		case DMAPDATACHARTED:
-		case DMAPDATADISABLEDITEMS:
-		case DMAPDATAFLAGARR:
-		case DMAPDATAGRID:
-		case DMAPDATALARGEMAPCSET:
-		case DMAPDATALARGEMAPTILE:
-		case DMAPDATAMAPINITD:
-		case DMAPDATAMINIMAPCSET:
-		case DMAPDATAMINIMAPTILE:
-		case DMAPDATASUBINITD:
-			return REFDMAPDATA;
-
-		case DROPSETCHANCES:
-		case DROPSETITEMS:
-			return REFDROPS;
-
-		case EWPNBURNLIGHTRADIUS:
-		case EWPNFLAGS:
-		case EWPNINITD:
-		case EWPNMISCD:
-		case EWPNMOVEFLAGS:
-		case EWPNSPRITES:
-			return REFEWPN;
-
-		case LWPNBURNLIGHTRADIUS:
-		case LWPNFLAGS:
-		case LWPNINITD:
-		case LWPNMISCD:
-		case LWPNMOVEFLAGS:
-		case LWPNSPRITES:
-			return REFLWPN;
-
-		case GENDATADATA:
-		case GENDATAEVENTSTATE:
-		case GENDATAEXITSTATE:
-		case GENDATAINITD:
-		case GENDATARELOADSTATE:
-			return REFGENERICDATA;
-
-		case IDATAATTRIB_L:
-		case IDATAATTRIB:
-		case IDATABURNINGLIGHTRAD:
-		case IDATABURNINGSPR:
-		case IDATAFLAGS:
-		case IDATAINITDD:
-		case IDATAMISCD:
-		case IDATASPRITE:
-		case IDATAWPNINITD:
-		case IDATAMOVEFLAGS:
-		case IDATAWMOVEFLAGS:
-		case IDATACOOLDOWN:
-			return REFITEMCLASS;
-		
-		case SPRITEDATAFLAGS:
-			return REFSPRITEDATA;
-
-		case MAPDATA_FLAG:
-		case MAPDATACOMBOCD:
-		case MAPDATACOMBODATAD:
-		case MAPDATACOMBODD:
-		case MAPDATACOMBOED:
-		case MAPDATACOMBOFD:
-		case MAPDATACOMBOID:
-		case MAPDATACOMBOSD:
-		case MAPDATACOMBOTD:
-		case MAPDATADOOR:
-		case MAPDATAENEMY:
-		case MAPDATAEXSTATED:
-		case MAPDATAFFCSET:
-		case MAPDATAFFDATA:
-		case MAPDATAFFDELAY:
-		case MAPDATAFFEFFECTHEIGHT:
-		case MAPDATAFFEFFECTWIDTH:
-		case MAPDATAFFFLAGS:
-		case MAPDATAFFHEIGHT:
-		case MAPDATAFFINITIALISED:
-		case MAPDATAFFLINK:
-		case MAPDATAFFSCRIPT:
-		case MAPDATAFFWIDTH:
-		case MAPDATAFFX:
-		case MAPDATAFFXDELTA:
-		case MAPDATAFFXDELTA2:
-		case MAPDATAFFY:
-		case MAPDATAFFYDELTA:
-		case MAPDATAFFYDELTA2:
-		case MAPDATAFLAGS:
-		case MAPDATAINITDARRAY:
-		case MAPDATALAYERINVIS:
-		case MAPDATALAYERMAP:
-		case MAPDATALAYEROPACITY:
-		case MAPDATALAYERSCREEN:
-		case MAPDATALENSHIDES:
-		case MAPDATALENSSHOWS:
-		case MAPDATAMISCD:
-		case MAPDATANUMFF:
-		case MAPDATAPATH:
-		case MAPDATASCRDATA:
-		case MAPDATASCREENEFLAGSD:
-		case MAPDATASCREENFLAGSD:
-		case MAPDATASCREENSTATED:
-		case MAPDATASCRIPTDRAWS:
-		case MAPDATASECRETCOMBO:
-		case MAPDATASECRETCSET:
-		case MAPDATASECRETFLAG:
-		case MAPDATASIDEWARPDMAP:
-		case MAPDATASIDEWARPID:
-		case MAPDATASIDEWARPOVFLAGS:
-		case MAPDATASIDEWARPSC:
-		case MAPDATASIDEWARPTYPE:
-		case MAPDATASWARPRETSQR:
-		case MAPDATATILEWARPDMAP:
-		case MAPDATATILEWARPOVFLAGS:
-		case MAPDATATILEWARPSCREEN:
-		case MAPDATATILEWARPTYPE:
-		case MAPDATATWARPRETSQR:
-		case MAPDATAWARPRETX:
-		case MAPDATAWARPRETY:
-		case MAPDATANOCARRYARR:
-		case MAPDATANORESETARR:
-		case MAPDATAEXCARRY:
-		case MAPDATAEXRESET:
-			return REFMAPDATA;
-		
-		case PALDATAB:
-		case PALDATACOLOR:
-		case PALDATAG:
-		case PALDATAR:
-			return REFPALDATA;
-		
-		case SCRDOORD:
-		case SCREEN_FLAG:
-		case SCREENDATAENEMY:
-		case SCREENDATAFLAGS:
-		case SCREENDATANOCARRYARR:
-		case SCREENDATANORESETARR:
-		case SCREENDATAEXCARRY:
-		case SCREENDATAEXRESET:
-		case SCREENDATALAYERINVIS:
-		case SCREENDATALAYERMAP:
-		case SCREENDATALAYEROPACITY:
-		case SCREENDATALAYERSCREEN:
-		case SCREENDATANUMFF:
-		case SCREENDATAPATH:
-		case SCREENDATASCRIPTDRAWS:
-		case SCREENDATASECRETCOMBO:
-		case SCREENDATASECRETCSET:
-		case SCREENDATASECRETFLAG:
-		case SCREENDATASIDEWARPDMAP:
-		case SCREENDATASIDEWARPOVFLAGS:
-		case SCREENDATASIDEWARPSC:
-		case SCREENDATASIDEWARPTYPE:
-		case SCREENDATASWARPRETSQR:
-		case SCREENDATATILEWARPDMAP:
-		case SCREENDATATILEWARPOVFLAGS:
-		case SCREENDATATILEWARPSCREEN:
-		case SCREENDATATILEWARPTYPE:
-		case SCREENDATATWARPRETSQR:
-		case SCREENDATAWARPRETX:
-		case SCREENDATAWARPRETY:
-		case SCREENEFLAGSD:
-		case SCREENEXSTATED:
-		case SCREENFLAGSD:
-		case SCREENINITD:
-		case SCREENLENSHIDES:
-		case SCREENLENSSHOWS:
-		case SCREENSCRDATA:
-		case SCREENSIDEWARPID:
-		case SCREENSTATED:
-		case SDD:
-			return REFSCREENDATA;
-		
-		case SHOPDATAHASITEM:
-		case SHOPDATAITEM:
-		case SHOPDATAPRICE:
-		case SHOPDATASTRING:
-			return REFSHOPDATA;
-
-		case SPRITE_X:
-		case SPRITE_Y:
-		case SPRITE_Z:
-		case SPRITE_FAKE_Z:
-		case SPRITE_X_OFFSET:
-		case SPRITE_Y_OFFSET:
-		case SPRITE_Z_OFFSET:
-		case SPRITE_ROTATION:
-		case SPRITE_DIR:
-		case SPRITE_TILE:
-		case SPRITE_SCRIPT_TILE:
-		case SPRITE_TILE_W:
-		case SPRITE_TILE_H:
-		case SPRITE_CSET:
-		case SPRITE_SCALE:
-		case SPRITE_DRAW_STYLE:
-		case SPRITE_JUMP:
-		case SPRITE_FAKE_JUMP:
-		case SPRITE_GRAVITY:
-		case SPRITE_GRAVITY_STRENGTH:
-		case SPRITE_TERMINAL_VELOCITY:
-		case SPRITE_CUSTOM_GRAVITY_STRENGTH:
-		case SPRITE_CUSTOM_TERMINAL_VELOCITY:
-		case SPRITE_FLIP:
-		case SPRITE_SCRIPT_FLIP:
-		case SPRITE_ENGINE_ANIMATE:
-		case SPRITE_EXTEND:
-		case SPRITE_HIT_WIDTH:
-		case SPRITE_HIT_HEIGHT:
-		case SPRITE_HIT_ZHEIGHT:
-		case SPRITE_HIT_OFFSET_X:
-		case SPRITE_HIT_OFFSET_Y:
-		case SPRITE_FALL_CLK:
-		case SPRITE_FALL_CMB:
-		case SPRITE_MOVE_FLAGS:
-		case SPRITE_LIGHT_RADIUS:
-		case SPRITE_LIGHT_SHAPE:
-		case SPRITE_SWHOOKED:
-		case SPRITE_SHADOW_SPR:
-		case SPRITE_DROWN_CLK:
-		case SPRITE_DROWN_CMB:
-		case SPRITE_SHADOW_XOFS:
-		case SPRITE_SHADOW_YOFS:
-		case SPRITE_MISCD:
-			return REFSPRITE;
-
-		case DATA:
-		case DELAY:
-		case FCSET:
-		case FFCHEIGHT:
-		case FFCID:
-		case FFCLAYER:
-		case FFCWIDTH:
-		case FFFLAGSD:
-		case FFINITDD:
-		case FFLINK:
-		case FFMISCD:
-		case FFSCRIPT:
-		case FFTHEIGHT:
-		case FFTWIDTH:
-		case FX:
-		case FY:
-		case XD:
-		case XD2:
-		case YD:
-		case YD2:
-			return REFFFC;
+		case BOTTLEAMOUNT:
+		case BOTTLECOUNTER:
+		case BOTTLEFLAGS:
+		case BOTTLENEXT:
+		case BOTTLEPERCENT:
+			return REFBOTTLETYPE;
 
 		case COMBODACLK:
 		case COMBODAKIMANIMY:
 		case COMBODANIMFLAGS:
 		case COMBODASPEED:
+		case COMBODATAID:
 		case COMBODATAINITD:
 		case COMBODATASCRIPT:
 		case COMBODATTRIBUTES:
@@ -3752,7 +3457,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODFFATTRCHANGE:
 		case COMBODFLAG:
 		case COMBODFLIP:
-		case COMBODFOO:
 		case COMBODFOORDECOTILE:
 		case COMBODFOORDECOTYPE:
 		case COMBODFRAME:
@@ -3771,10 +3475,10 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODLIFTHEIGHT:
 		case COMBODLIFTITEM:
 		case COMBODLIFTLEVEL:
-		case COMBODLIFTSFX:
-		case COMBODLIFTTIME:
 		case COMBODLIFTLIGHTRAD:
 		case COMBODLIFTLIGHTSHAPE:
+		case COMBODLIFTSFX:
+		case COMBODLIFTTIME:
 		case COMBODLIFTUNDERCMB:
 		case COMBODLIFTUNDERCS:
 		case COMBODLIFTWEAPONITEM:
@@ -3791,6 +3495,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODNEXTTIMER:
 		case COMBODNMODMPAMOUNT:
 		case COMBODNOPUSHBLOCK:
+		case COMBODNUMTRIGGERS:
+		case COMBODONLYGEN:
 		case COMBODOTILE:
 		case COMBODOVERHEAD:
 		case COMBODPLACENPC:
@@ -3820,7 +3526,10 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODTILE:
 		case COMBODTOUCHITEM:
 		case COMBODTOUCHSTAIRS:
+		case COMBODTRIGBOSSPAL:
+		case COMBODTRIGBUNNY:
 		case COMBODTRIGCSETCHANGE:
+		case COMBODTRIGDMAPLVL:
 		case COMBODTRIGEXDOORDIR:
 		case COMBODTRIGEXDOORIND:
 		case COMBODTRIGEXSTATE:
@@ -3846,9 +3555,21 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODTRIGGERSFX:
 		case COMBODTRIGGERTIMER:
 		case COMBODTRIGGERTYPE:
+		case COMBODTRIGITEMJINX:
 		case COMBODTRIGITEMPICKUP:
+		case COMBODTRIGLITEMS:
+		case COMBODTRIGLVLPAL:
+		case COMBODTRIGPUSHTIME:
+		case COMBODTRIGQUAKETIME:
+		case COMBODTRIGSHIELDJINX:
 		case COMBODTRIGSPAWNENEMY:
 		case COMBODTRIGSPAWNITEM:
+		case COMBODTRIGSTUN:
+		case COMBODTRIGSWORDJINX:
+		case COMBODTRIGTINTB:
+		case COMBODTRIGTINTG:
+		case COMBODTRIGTINTR:
+		case COMBODTRIGWAVYTIME:
 		case COMBODTYPE:
 		case COMBODUSRFLAGARR:
 		case COMBODUSRFLAGS:
@@ -3860,21 +3581,247 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODWATER:
 		case COMBODWHISTLE:
 		case COMBODWINGAME:
+		case COMBOD_DIVE_UNDER_LEVEL:
+		case COMBOD_Z_HEIGHT:
+		case COMBOD_Z_STEP_HEIGHT:
 			return REFCOMBODATA;
 
+		case CMBTRIGBOSSPAL:
+		case CMBTRIGBUNNY:
 		case CMBTRIGBUTTON:
-		case CMBTRIGREQLVLSTATE:
-		case CMBTRIGUNREQLVLSTATE:
-		case CMBTRIGREQGLOBALSTATE:
-		case CMBTRIGUNREQGLOBALSTATE:
-		case CMBTRIGGERREQPLAYERDIR:
+		case CMBTRIGCHANGECMB:
+		case CMBTRIGCOOLDOWN:
+		case CMBTRIGCOPYCAT:
+		case CMBTRIGCSETCHANGE:
+		case CMBTRIGCTR:
+		case CMBTRIGCTRAMNT:
+		case CMBTRIGDMAPLVL:
+		case CMBTRIGEXDOORDIR:
+		case CMBTRIGEXDOORIND:
+		case CMBTRIGEXSTATE:
 		case CMBTRIGFLAGS:
+		case CMBTRIGGENSCRIPT:
+		case CMBTRIGGERDESTHEROX:
+		case CMBTRIGGERDESTHEROY:
+		case CMBTRIGGERDESTHEROZ:
+		case CMBTRIGGERFAILPROMPTCID:
+		case CMBTRIGGERFAILPROMPTCS:
+		case CMBTRIGGERFAILSTR:
+		case CMBTRIGGERFORCEPLAYERDIR:
+		case CMBTRIGGERICECOMBO:
+		case CMBTRIGGERICEVX:
+		case CMBTRIGGERICEVY:
+		case CMBTRIGGERPLAYERBOUNCE:
+		case CMBTRIGGERPROMPTCID:
+		case CMBTRIGGERPROMPTCS:
+		case CMBTRIGGERPROMPTX:
+		case CMBTRIGGERPROMPTY:
+		case CMBTRIGGERREQPLAYERDIR:
+		case CMBTRIGGERREQPLAYERJUMP:
+		case CMBTRIGGERREQPLAYERX:
+		case CMBTRIGGERREQPLAYERY:
+		case CMBTRIGGERREQPLAYERZ:
+		case CMBTRIGGERTRIGSTR:
+		case CMBTRIGGER_GRAVITY:
+		case CMBTRIGGER_TERMINAL_VELOCITY:
+		case CMBTRIGGROUP:
+		case CMBTRIGGROUPVAL:
+		case CMBTRIGGSTATE:
+		case CMBTRIGGTIMER:
+		case CMBTRIGITEMJINX:
+		case CMBTRIGITEMPICKUP:
+		case CMBTRIGLIGHTBEAM:
+		case CMBTRIGLITEMS:
+		case CMBTRIGLSTATE:
+		case CMBTRIGLVLPAL:
+		case CMBTRIGPROX:
+		case CMBTRIGPUSHTIME:
+		case CMBTRIGQUAKETIME:
+		case CMBTRIGREQGLOBALSTATE:
+		case CMBTRIGREQITEM:
+		case CMBTRIGREQLVLSTATE:
+		case CMBTRIGSFX:
+		case CMBTRIGSHIELDJINX:
+		case CMBTRIGSPAWNENEMY:
+		case CMBTRIGSPAWNITEM:
+		case CMBTRIGSTUN:
+		case CMBTRIGSWORDJINX:
+		case CMBTRIGTIMER:
+		case CMBTRIGTINTB:
+		case CMBTRIGTINTG:
+		case CMBTRIGTINTR:
+		case CMBTRIGUNREQGLOBALSTATE:
+		case CMBTRIGUNREQLVLSTATE:
+		case CMBTRIGWAVYTIME:
+		case CMBTRIGWPNLEVEL:
 			return REFCOMBOTRIGGER;
 
-		case GETRENDERTARGET:
+		case DIRECTORYSIZE:
+			return REFDIRECTORY;
+
+		case DMAPDATAASUBSCRIPT:
+		case DMAPDATACHARTED:
+		case DMAPDATACOMPASS:
+		case DMAPDATACONTINUE:
+		case DMAPDATADISABLEDITEMS:
+		case DMAPDATAFLAGARR:
+		case DMAPDATAFLAGS:
+		case DMAPDATAGRID:
+		case DMAPDATAINTROSTRINGID:
+		case DMAPDATALARGEMAPCSET:
+		case DMAPDATALARGEMAPTILE:
+		case DMAPDATALEVEL:
+		case DMAPDATALOOPEND:
+		case DMAPDATALOOPSTART:
+		case DMAPDATAMAP:
+		case DMAPDATAMAPINITD:
+		case DMAPDATAMAPSCRIPT:
+		case DMAPDATAMIDI:
+		case DMAPDATAMINIMAPCSET:
+		case DMAPDATAMINIMAPTILE:
+		case DMAPDATAMIRRDMAP:
+		case DMAPDATAMUISCTRACK:
+		case DMAPDATAOFFSET:
+		case DMAPDATAPALETTE:
+		case DMAPDATAPSUBSCRIPT:
+		case DMAPDATASIDEVIEW:
+		case DMAPDATASUBINITD:
+		case DMAPDATASUBSCRA:
+		case DMAPDATASUBSCRO:
+		case DMAPDATASUBSCRP:
+		case DMAPDATATYPE:
+		case DMAPDATAXFADEIN:
+		case DMAPDATAXFADEOUT:
+		case DMAPDATA_GRAVITY_STRENGTH:
+		case DMAPDATA_TERMINAL_VELOCITY:
+		case DMAPSCRIPT:
+			return REFDMAPDATA;
+
+		case DROPSETCHANCES:
+		case DROPSETCHOOSE:
+		case DROPSETITEMS:
+		case DROPSETNULLCHANCE:
+			return REFDROPSETDATA;
+
+		case EWEAPONSCRIPTUID:
+		case EWPNANGLE:
+		case EWPNANGULAR:
+		case EWPNASPEED:
+		case EWPNAUTOROTATE:
+		case EWPNBEHIND:
+		case EWPNBURNLIGHTRADIUS:
+		case EWPNCOLLDET:
+		case EWPNCSET:
+		case EWPNDEAD:
+		case EWPNDEATHDROPSET:
+		case EWPNDEATHIPICKUP:
+		case EWPNDEATHITEM:
+		case EWPNDEATHSFX:
+		case EWPNDEATHSPRITE:
+		case EWPNDEGANGLE:
+		case EWPNDIR:
+		case EWPNDRAWTYPE:
+		case EWPNDROWNCLK:
+		case EWPNDROWNCMB:
+		case EWPNENGINEANIMATE:
+		case EWPNEXTEND:
+		case EWPNFAKEJUMP:
+		case EWPNFAKEZ:
+		case EWPNFALLCLK:
+		case EWPNFALLCMB:
+		case EWPNFLAGS:
+		case EWPNFLASH:
+		case EWPNFLASHCSET:
+		case EWPNFLIP:
+		case EWPNFRAME:
+		case EWPNFRAMES:
+		case EWPNGLOWRAD:
+		case EWPNGLOWSHP:
+		case EWPNGRAVITY:
+		case EWPNHXOFS:
+		case EWPNHXSZ:
+		case EWPNHYOFS:
+		case EWPNHYSZ:
+		case EWPNHZSZ:
+		case EWPNINITD:
+		case EWPNJUMP:
+		case EWPNLEVEL:
+		case EWPNLIFTHEIGHT:
+		case EWPNLIFTLEVEL:
+		case EWPNLIFTTIME:
+		case EWPNMISCD:
+		case EWPNMOVEFLAGS:
+		case EWPNOCSET:
+		case EWPNOTILE:
+		case EWPNPARENT:
+		case EWPNPARENTUID:
+		case EWPNPOWER:
+		case EWPNROTATION:
+		case EWPNSCALE:
+		case EWPNSCRIPT:
+		case EWPNSCRIPTFLIP:
+		case EWPNSCRIPTTILE:
+		case EWPNSHADOWSPR:
+		case EWPNSHADOWXOFS:
+		case EWPNSHADOWYOFS:
+		case EWPNSPRITES:
+		case EWPNSTEP:
+		case EWPNTILE:
+		case EWPNTIMEOUT:
+		case EWPNTOTALDYOFFS:
+		case EWPNTXSZ:
+		case EWPNTYPE:
+		case EWPNTYSZ:
+		case EWPNUNBL:
+		case EWPNVX:
+		case EWPNVY:
+		case EWPNX:
+		case EWPNXOFS:
+		case EWPNY:
+		case EWPNYOFS:
+		case EWPNZ:
+		case EWPNZOFS:
+		case EWSWHOOKED:
+			return REFEWPN;
+
+		case DATA:
+		case DELAY:
+		case FCSET:
+		case FFCHEIGHT:
+		case FFCID:
+		case FFCLAYER:
+		case FFCWIDTH:
+		case FFFLAGSD:
+		case FFINITDD:
+		case FFLINK:
+		case FFMISCD:
+		case FFSCRIPT:
+		case FFTHEIGHT:
+		case FFTWIDTH:
+		case FX:
+		case FY:
+		case XD:
+		case XD2:
+		case YD:
+		case YD2:
+			return REFFFC;
+
+		case FILEEOF:
+		case FILEERR:
+		case FILEPOS:
+			return REFFILE;
+
+		case GENDATADATA:
+		case GENDATAEVENTSTATE:
+		case GENDATAEXITSTATE:
+		case GENDATAINITD:
+		case GENDATARELOADSTATE:
+		case GENDATARUNNING:
+		case GENDATASIZE:
+			return REFGENERICDATA;
+
 		case ITEMACLK:
 		case ITEMASPEED:
-		case ITEMCOUNT:
 		case ITEMCSET:
 		case ITEMDELAY:
 		case ITEMDIR:
@@ -3888,7 +3835,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case ITEMFAKEZ:
 		case ITEMFALLCLK:
 		case ITEMFALLCMB:
-		case ITEMTYPE:
 		case ITEMFLASH:
 		case ITEMFLASHCSET:
 		case ITEMFLIP:
@@ -3911,7 +3857,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case ITEMNOHOLDSOUND:
 		case ITEMNOSOUND:
 		case ITEMOTILE:
-		case ITEMOVERRIDEFLAGS:
 		case ITEMPICKUP:
 		case ITEMPSTRING:
 		case ITEMPSTRINGFLAGS:
@@ -3927,6 +3872,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case ITEMSPRITESCRIPT:
 		case ITEMTILE:
 		case ITEMTXSZ:
+		case ITEMTYPE:
 		case ITEMTYSZ:
 		case ITEMX:
 		case ITEMXOFS:
@@ -3937,14 +3883,326 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case ITMSWHOOKED:
 			return REFITEM;
 
+		case IDATAAMOUNT:
+		case IDATAASPEED:
+		case IDATAATTRIB:
+		case IDATAATTRIB_L:
+		case IDATABUNNYABLE:
+		case IDATABURNINGLIGHTRAD:
+		case IDATABURNINGSPR:
+		case IDATACOLLECTFLAGS:
+		case IDATACOMBINE:
+		case IDATACONSTSCRIPT:
+		case IDATACOOLDOWN:
+		case IDATACOST2:
+		case IDATACOSTCOUNTER:
+		case IDATACOSTCOUNTER2:
+		case IDATACOUNTER:
+		case IDATACSET:
+		case IDATADELAY:
+		case IDATADOWNGRADE:
+		case IDATADRAWLAYER:
+		case IDATADUPLICATES:
+		case IDATADURATION:
+		case IDATADXOFS:
+		case IDATADYOFS:
+		case IDATAEDIBLE:
+		case IDATAFLAGS:
+		case IDATAFLAGUNUSED:
+		case IDATAFLASHCSET:
+		case IDATAFRAMES:
+		case IDATAGAINLOWER:
+		case IDATAGRADUAL:
+		case IDATAHXOFS:
+		case IDATAHXSZ:
+		case IDATAHYOFS:
+		case IDATAHYSZ:
+		case IDATAHZSZ:
+		case IDATAID:
+		case IDATAINITDD:
+		case IDATAJINXIMMUNE:
+		case IDATAJINXSWAP:
+		case IDATAKEEP:
+		case IDATAKEEPOLD:
+		case IDATALEVEL:
+		case IDATALTM:
+		case IDATAMAGCOST:
+		case IDATAMAGICTIMER:
+		case IDATAMAGICTIMER2:
+		case IDATAMAX:
+		case IDATAMINHEARTS:
+		case IDATAMISC:
+		case IDATAMISCD:
+		case IDATAMOVEFLAGS:
+		case IDATAOVERRIDEFL:
+		case IDATAOVERRIDEFLWEAP:
+		case IDATAPFLAGS:
+		case IDATAPICKUP:
+		case IDATAPICKUPLITEMLEVEL:
+		case IDATAPICKUPLITEMS:
+		case IDATAPOWER:
+		case IDATAPSCRIPT:
+		case IDATAPSOUND:
+		case IDATAPSTRING:
+		case IDATARUPEECOST:
+		case IDATASCRIPT:
+		case IDATASETMAX:
+		case IDATASPRITE:
+		case IDATASPRSCRIPT:
+		case IDATASSWIMDISABLED:
+		case IDATATILE:
+		case IDATATILEH:
+		case IDATATILEHWEAP:
+		case IDATATILEW:
+		case IDATATILEWWEAP:
+		case IDATATYPE:
+		case IDATAUSEBURNSPR:
+		case IDATAUSEDEF:
+		case IDATAUSESOUND:
+		case IDATAUSESOUND2:
+		case IDATAUSEWPN:
+		case IDATAVALIDATE:
+		case IDATAVALIDATE2:
+		case IDATAWEAPHXOFS:
+		case IDATAWEAPHXSZ:
+		case IDATAWEAPHYOFS:
+		case IDATAWEAPHYSZ:
+		case IDATAWEAPHZSZ:
+		case IDATAWEAPONSCRIPT:
+		case IDATAWEAPXOFS:
+		case IDATAWEAPYOFS:
+		case IDATAWMOVEFLAGS:
+		case IDATAWPNINITD:
+		case IDATAWRANGE:
+			return REFITEMDATA;
+
+		case LWEAPONSCRIPTUID:
+		case LWPNANGLE:
+		case LWPNANGULAR:
+		case LWPNASPEED:
+		case LWPNAUTOROTATE:
+		case LWPNBEHIND:
+		case LWPNBURNLIGHTRADIUS:
+		case LWPNCOLLDET:
+		case LWPNCSET:
+		case LWPNDEAD:
+		case LWPNDEATHDROPSET:
+		case LWPNDEATHIPICKUP:
+		case LWPNDEATHITEM:
+		case LWPNDEATHSFX:
+		case LWPNDEATHSPRITE:
+		case LWPNDEGANGLE:
+		case LWPNDIR:
+		case LWPNDRAWTYPE:
+		case LWPNDROWNCLK:
+		case LWPNDROWNCMB:
+		case LWPNENGINEANIMATE:
+		case LWPNEXTEND:
+		case LWPNFAKEJUMP:
+		case LWPNFAKEZ:
+		case LWPNFALLCLK:
+		case LWPNFALLCMB:
+		case LWPNFLAGS:
+		case LWPNFLASH:
+		case LWPNFLASHCSET:
+		case LWPNFLIP:
+		case LWPNFRAME:
+		case LWPNFRAMES:
+		case LWPNGLOWRAD:
+		case LWPNGLOWSHP:
+		case LWPNGRAVITY:
+		case LWPNHXOFS:
+		case LWPNHXSZ:
+		case LWPNHYOFS:
+		case LWPNHYSZ:
+		case LWPNHZSZ:
+		case LWPNINITD:
+		case LWPNJUMP:
+		case LWPNLEVEL:
+		case LWPNLIFTHEIGHT:
+		case LWPNLIFTLEVEL:
+		case LWPNLIFTTIME:
+		case LWPNMISCD:
+		case LWPNMOVEFLAGS:
+		case LWPNOCSET:
+		case LWPNOTILE:
+		case LWPNPARENT:
+		case LWPNPOWER:
+		case LWPNROTATION:
+		case LWPNSCALE:
+		case LWPNSCRIPT:
+		case LWPNSCRIPTFLIP:
+		case LWPNSCRIPTTILE:
+		case LWPNSHADOWSPR:
+		case LWPNSHADOWXOFS:
+		case LWPNSHADOWYOFS:
+		case LWPNSPECIAL:
+		case LWPNSPRITES:
+		case LWPNSTEP:
+		case LWPNTILE:
+		case LWPNTIMEOUT:
+		case LWPNTOTALDYOFFS:
+		case LWPNTXSZ:
+		case LWPNTYPE:
+		case LWPNTYSZ:
+		case LWPNUNBL:
+		case LWPNUSEDEFENCE:
+		case LWPNUSEWEAPON:
+		case LWPNVX:
+		case LWPNVY:
+		case LWPNX:
+		case LWPNXOFS:
+		case LWPNY:
+		case LWPNYOFS:
+		case LWPNZ:
+		case LWPNZOFS:
+		case LWSWHOOKED:
+			return REFLWPN;
+
+		case MAPDATABOSSSFX:
+		case MAPDATACATCHALL:
+		case MAPDATACOLOUR:
+		case MAPDATACOMBOCD:
+		case MAPDATACOMBODATAD:
+		case MAPDATACOMBODD:
+		case MAPDATACOMBOED:
+		case MAPDATACOMBOFD:
+		case MAPDATACOMBOID:
+		case MAPDATACOMBOSD:
+		case MAPDATACOMBOTD:
+		case MAPDATACSENSITIVE:
+		case MAPDATADOOR:
+		case MAPDATADOORCOMBOSET:
+		case MAPDATAENEMY:
+		case MAPDATAENEMYFLAGS:
+		case MAPDATAENTRYX:
+		case MAPDATAENTRYY:
+		case MAPDATAEXCARRY:
+		case MAPDATAEXDOOR:
+		case MAPDATAEXITDIR:
+		case MAPDATAEXRESET:
+		case MAPDATAEXSTATED:
+		case MAPDATAFFCSET:
+		case MAPDATAFFDATA:
+		case MAPDATAFFDELAY:
+		case MAPDATAFFEFFECTHEIGHT:
+		case MAPDATAFFEFFECTWIDTH:
+		case MAPDATAFFFLAGS:
+		case MAPDATAFFHEIGHT:
+		case MAPDATAFFINITIALISED:
+		case MAPDATAFFLINK:
+		case MAPDATAFFSCRIPT:
+		case MAPDATAFFWIDTH:
+		case MAPDATAFFX:
+		case MAPDATAFFXDELTA:
+		case MAPDATAFFXDELTA2:
+		case MAPDATAFFY:
+		case MAPDATAFFYDELTA:
+		case MAPDATAFFYDELTA2:
+		case MAPDATAFLAGS:
+		case MAPDATAGUY:
+		case MAPDATAGUYCOUNT:
+		case MAPDATAHASITEM:
+		case MAPDATAHOLDUPSFX:
+		case MAPDATAINITDARRAY:
+		case MAPDATAITEM:
+		case MAPDATAITEMX:
+		case MAPDATAITEMY:
+		case MAPDATALAYERINVIS:
+		case MAPDATALAYERMAP:
+		case MAPDATALAYEROPACITY:
+		case MAPDATALAYERSCREEN:
+		case MAPDATALENSHIDES:
+		case MAPDATALENSLAYER:
+		case MAPDATALENSSHOWS:
+		case MAPDATAMAP:
+		case MAPDATAMISCD:
+		case MAPDATANEXTMAP:
+		case MAPDATANEXTSCREEN:
+		case MAPDATANOCARRY:
+		case MAPDATANOCARRYARR:
+		case MAPDATANORESET:
+		case MAPDATANORESETARR:
+		case MAPDATAOCEANSFX:
+		case MAPDATAPATH:
+		case MAPDATAPATTERN:
+		case MAPDATAREGIONID:
+		case MAPDATAROOM:
+		case MAPDATASCRDATA:
+		case MAPDATASCRDATASIZE:
+		case MAPDATASCREEN:
+		case MAPDATASCREENEFLAGSD:
+		case MAPDATASCREENFLAGSD:
+		case MAPDATASCREENMIDI:
+		case MAPDATASCREENSTATED:
+		case MAPDATASCRIPT:
+		case MAPDATASCRIPTDRAWS:
+		case MAPDATASECRETCOMBO:
+		case MAPDATASECRETCSET:
+		case MAPDATASECRETFLAG:
+		case MAPDATASECRETSFX:
+		case MAPDATASIDEWARPDMAP:
+		case MAPDATASIDEWARPID:
+		case MAPDATASIDEWARPINDEX:
+		case MAPDATASIDEWARPOVFLAGS:
+		case MAPDATASIDEWARPSC:
+		case MAPDATASIDEWARPTYPE:
+		case MAPDATASTAIRX:
+		case MAPDATASTAIRY:
+		case MAPDATASTRING:
+		case MAPDATASWARPRETSQR:
+		case MAPDATATILEWARPDMAP:
+		case MAPDATATILEWARPOVFLAGS:
+		case MAPDATATILEWARPSCREEN:
+		case MAPDATATILEWARPTYPE:
+		case MAPDATATIMEDWARPTICS:
+		case MAPDATATWARPRETSQR:
+		case MAPDATAUNDERCOMBO:
+		case MAPDATAUNDERCSET:
+		case MAPDATAVALID:
+		case MAPDATAWARPARRIVALX:
+		case MAPDATAWARPARRIVALY:
+		case MAPDATAWARPRETURNC:
+		case MAPDATAWARPRETX:
+		case MAPDATAWARPRETY:
+		case MAPDATA_FLAG:
+		case MAPDATA_GRAVITY_STRENGTH:
+		case MAPDATA_TERMINAL_VELOCITY:
+			return REFMAPDATA;
+
+		case MESSAGEDATACSET:
+		case MESSAGEDATAFLAGS:
+		case MESSAGEDATAFONT:
+		case MESSAGEDATAH:
+		case MESSAGEDATAHSPACE:
+		case MESSAGEDATALISTPOS:
+		case MESSAGEDATANEXT:
+		case MESSAGEDATAPORTCSET:
+		case MESSAGEDATAPORTHEI:
+		case MESSAGEDATAPORTTILE:
+		case MESSAGEDATAPORTWID:
+		case MESSAGEDATAPORTX:
+		case MESSAGEDATAPORTY:
+		case MESSAGEDATASFX:
+		case MESSAGEDATATEXTHEI:
+		case MESSAGEDATATEXTLEN:
+		case MESSAGEDATATEXTWID:
+		case MESSAGEDATATILE:
+		case MESSAGEDATATRANS:
+		case MESSAGEDATAVSPACE:
+		case MESSAGEDATAW:
+		case MESSAGEDATAX:
+		case MESSAGEDATAY:
+			return REFMSGDATA;
+
 		case NPCBEHAVIOUR:
 		case NPCBGSFX:
 		case NPCBOSSPAL:
 		case NPCCANFLICKER:
 		case NPCCOLLDET:
+		case NPCCOLLISION:
 		case NPCCSET:
 		case NPCDD:
-		case NPCFLAGS:
 		case NPCDEATHSPR:
 		case NPCDEFENSED:
 		case NPCDIR:
@@ -3959,6 +4217,9 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCFAKEZ:
 		case NPCFALLCLK:
 		case NPCFALLCMB:
+		case NPCFIRESFX:
+		case NPCFLAGS:
+		case NPCFLASHINGCSET:
 		case NPCFLICKERCOLOR:
 		case NPCFLICKERTRANSP:
 		case NPCFRAME:
@@ -3982,6 +4243,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCHYOFS:
 		case NPCHYSZ:
 		case NPCHZSZ:
+		case NPCID:
 		case NPCIMMORTAL:
 		case NPCINITD:
 		case NPCINVINC:
@@ -3989,6 +4251,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCITEMSET:
 		case NPCJUMP:
 		case NPCKNOCKBACKSPEED:
+		case NPCLINEDUP:
+		case NPCMFLAGS:
 		case NPCMISCD:
 		case NPCMOVEFLAGS:
 		case NPCMOVESTATUS:
@@ -4006,6 +4270,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCSCRIPT:
 		case NPCSCRIPTFLIP:
 		case NPCSCRIPTTILE:
+		case NPCSCRIPTUID:
 		case NPCSHADOWSPR:
 		case NPCSHADOWXOFS:
 		case NPCSHADOWYOFS:
@@ -4014,8 +4279,11 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCSPAWNSPR:
 		case NPCSTEP:
 		case NPCSTUN:
+		case NPCSUBMERGED:
 		case NPCSUPERMAN:
+		case NPCSWHOOKED:
 		case NPCTILE:
+		case NPCTOTALDYOFFS:
 		case NPCTXSZ:
 		case NPCTYPE:
 		case NPCTYSZ:
@@ -4029,11 +4297,402 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCZ:
 		case NPCZOFS:
 			return REFNPC;
+
+		case NPCDATAANIM:
+		case NPCDATABGSFX:
+		case NPCDATACSET:
+		case NPCDATADEATHSFX:
+		case NPCDATADROPSET:
+		case NPCDATAEANIM:
+		case NPCDATAEFRAMERATE:
+		case NPCDATAEHEIGHT:
+		case NPCDATAETILE:
+		case NPCDATAEWIDTH:
+		case NPCDATAFIRESFX:
+		case NPCDATAFLAGS1:
+		case NPCDATAFLAGS2:
+		case NPCDATAFRAMERATE:
+		case NPCDATAFROZENCSET:
+		case NPCDATAFROZENTILE:
+		case NPCDATAHALT:
+		case NPCDATAHEIGHT:
+		case NPCDATAHITHEIGHT:
+		case NPCDATAHITSFX:
+		case NPCDATAHITWIDTH:
+		case NPCDATAHITZ:
+		case NPCDATAHOMING:
+		case NPCDATAHP:
+		case NPCDATAHUNGER:
+		case NPCDATAHXOFS:
+		case NPCDATAHYOFS:
+		case NPCDATARANDOM:
+		case NPCDATASCRIPT:
+		case NPCDATASHEIGHT:
+		case NPCDATASIZEFLAG:
+		case NPCDATASTEP:
+		case NPCDATASTILE:
+		case NPCDATASWIDTH:
+		case NPCDATATILE:
+		case NPCDATATILEHEIGHT:
+		case NPCDATATILEWIDTH:
+		case NPCDATATOUCHDAMAGE:
+		case NPCDATATYPE:
+		case NPCDATAWEAPON:
+		case NPCDATAWEAPONDAMAGE:
+		case NPCDATAWEAPONSCRIPT:
+		case NPCDATAWIDTH:
+		case NPCDATAWPNSPRITE:
+		case NPCDATAXOFS:
+		case NPCDATAYOFS:
+		case NPCDATAZOFS:
+		case NPCDDEATHSPR:
+		case NPCDSHADOWSPR:
+		case NPCDSPAWNSPR:
+		case NPCMATCHINITDLABEL:
+			return REFNPCDATA;
+
+		case PALDATAB:
+		case PALDATACOLOR:
+		case PALDATAG:
+		case PALDATAR:
+			return REFPALDATA;
+
+		case PORTALACLK:
+		case PORTALAFRM:
+		case PORTALASPD:
+		case PORTALCLOSEDIS:
+		case PORTALDMAP:
+		case PORTALFRAMES:
+		case PORTALOTILE:
+		case PORTALSAVED:
+		case PORTALSCREEN:
+		case PORTALWARPSFX:
+		case PORTALWARPVFX:
+		case PORTALX:
+		case PORTALY:
+			return REFPORTAL;
+
+		case SAVEDPORTALDESTDMAP:
+		case SAVEDPORTALDSTSCREEN:
+		case SAVEDPORTALPORTAL:
+		case SAVEDPORTALSPRITE:
+		case SAVEDPORTALSRCDMAP:
+		case SAVEDPORTALSRCSCREEN:
+		case SAVEDPORTALWARPSFX:
+		case SAVEDPORTALWARPVFX:
+		case SAVEDPORTALX:
+		case SAVEDPORTALY:
+			return REFSAVPORTAL;
+
+		case ROOMDATA:
+		case ROOMTYPE:
+		case SCRDOORD:
+		case SCREENDATABOSSSFX:
+		case SCREENDATACATCHALL:
+		case SCREENDATACOLOUR:
+		case SCREENDATACSENSITIVE:
+		case SCREENDATADOOR:
+		case SCREENDATADOORCOMBOSET:
+		case SCREENDATAENEMY:
+		case SCREENDATAENEMYFLAGS:
+		case SCREENDATAENTRYX:
+		case SCREENDATAENTRYY:
+		case SCREENDATAEXCARRY:
+		case SCREENDATAEXDOOR:
+		case SCREENDATAEXITDIR:
+		case SCREENDATAEXRESET:
+		case SCREENDATAFLAGS:
+		case SCREENDATAGUY:
+		case SCREENDATAGUYCOUNT:
+		case SCREENDATAHASITEM:
+		case SCREENDATAHOLDUPSFX:
+		case SCREENDATAITEM:
+		case SCREENDATAITEMX:
+		case SCREENDATAITEMY:
+		case SCREENDATALAYERINVIS:
+		case SCREENDATALAYERMAP:
+		case SCREENDATALAYEROPACITY:
+		case SCREENDATALAYERSCREEN:
+		case SCREENDATALENSLAYER:
+		case SCREENDATANEXTMAP:
+		case SCREENDATANEXTSCREEN:
+		case SCREENDATANOCARRY:
+		case SCREENDATANOCARRYARR:
+		case SCREENDATANORESET:
+		case SCREENDATANORESETARR:
+		case SCREENDATAOCEANSFX:
+		case SCREENDATAPATH:
+		case SCREENDATAPATTERN:
+		case SCREENDATAROOM:
+		case SCREENDATASCREENMIDI:
+		case SCREENDATASCRIPTDRAWS:
+		case SCREENDATASECRETCOMBO:
+		case SCREENDATASECRETCSET:
+		case SCREENDATASECRETFLAG:
+		case SCREENDATASECRETSFX:
+		case SCREENDATASIDEWARPDMAP:
+		case SCREENDATASIDEWARPINDEX:
+		case SCREENDATASIDEWARPOVFLAGS:
+		case SCREENDATASIDEWARPSC:
+		case SCREENDATASIDEWARPTYPE:
+		case SCREENDATASTAIRX:
+		case SCREENDATASTAIRY:
+		case SCREENDATASTRING:
+		case SCREENDATASWARPRETSQR:
+		case SCREENDATATILEWARPDMAP:
+		case SCREENDATATILEWARPOVFLAGS:
+		case SCREENDATATILEWARPSCREEN:
+		case SCREENDATATILEWARPTYPE:
+		case SCREENDATATIMEDWARPTICS:
+		case SCREENDATATWARPRETSQR:
+		case SCREENDATAUNDERCOMBO:
+		case SCREENDATAUNDERCSET:
+		case SCREENDATAVALID:
+		case SCREENDATAWARPARRIVALX:
+		case SCREENDATAWARPARRIVALY:
+		case SCREENDATAWARPRETURNC:
+		case SCREENDATAWARPRETX:
+		case SCREENDATAWARPRETY:
+		case SCREENDATA_GRAVITY_STRENGTH:
+		case SCREENDATA_TERMINAL_VELOCITY:
+		case SCREENEFLAGSD:
+		case SCREENEXSTATED:
+		case SCREENFLAGSD:
+		case SCREENINITD:
+		case SCREENLENSHIDES:
+		case SCREENLENSSHOWS:
+		case SCREENSCRDATA:
+		case SCREENSCRIPT:
+		case SCREENSECRETSTRIGGERED:
+		case SCREENSIDEWARPID:
+		case SCREENSTATED:
+		case SCREEN_FLAG:
+		case SDD:
+		case UNDERCOMBO:
+		case UNDERCSET:
+			return REFSCREEN;
+
+		case SHOPDATAHASITEM:
+		case SHOPDATAITEM:
+		case SHOPDATAPRICE:
+		case SHOPDATASTRING:
+			return REFSHOPDATA;
+
+		case SPRITE_CSET:
+		case SPRITE_CURRENT_SCREEN:
+		case SPRITE_CUSTOM_GRAVITY_STRENGTH:
+		case SPRITE_CUSTOM_TERMINAL_VELOCITY:
+		case SPRITE_DIR:
+		case SPRITE_DRAW_STYLE:
+		case SPRITE_DROWN_CLK:
+		case SPRITE_DROWN_CMB:
+		case SPRITE_ENGINE_ANIMATE:
+		case SPRITE_EXTEND:
+		case SPRITE_FAKE_JUMP:
+		case SPRITE_FAKE_Z:
+		case SPRITE_FALL_CLK:
+		case SPRITE_FALL_CMB:
+		case SPRITE_FLIP:
+		case SPRITE_GRAVITY:
+		case SPRITE_GRAVITY_STRENGTH:
+		case SPRITE_HIT_HEIGHT:
+		case SPRITE_HIT_OFFSET_X:
+		case SPRITE_HIT_OFFSET_Y:
+		case SPRITE_HIT_WIDTH:
+		case SPRITE_HIT_ZHEIGHT:
+		case SPRITE_JUMP:
+		case SPRITE_LIGHT_RADIUS:
+		case SPRITE_LIGHT_SHAPE:
+		case SPRITE_MISCD:
+		case SPRITE_MOVE_FLAGS:
+		case SPRITE_ROTATION:
+		case SPRITE_SCALE:
+		case SPRITE_SCRIPT_FLIP:
+		case SPRITE_SCRIPT_TILE:
+		case SPRITE_SHADOW_SPR:
+		case SPRITE_SHADOW_XOFS:
+		case SPRITE_SHADOW_YOFS:
+		case SPRITE_SPAWN_SCREEN:
+		case SPRITE_SWHOOKED:
+		case SPRITE_TERMINAL_VELOCITY:
+		case SPRITE_TILE:
+		case SPRITE_TILE_H:
+		case SPRITE_TILE_W:
+		case SPRITE_X:
+		case SPRITE_X_OFFSET:
+		case SPRITE_Y:
+		case SPRITE_Y_OFFSET:
+		case SPRITE_Z:
+		case SPRITE_Z_OFFSET:
+			return REFSPRITE;
+
+		case SPRITEDATACSETS:
+		case SPRITEDATAFLAGS:
+		case SPRITEDATAFLCSET:
+		case SPRITEDATAFRAMES:
+		case SPRITEDATAID:
+		case SPRITEDATAMISC:
+		case SPRITEDATASPEED:
+		case SPRITEDATATILE:
+		case SPRITEDATATYPE:
+			return REFSPRITEDATA;
+
+		case STACKFULL:
+		case STACKSIZE:
+			return REFSTACK;
+
+		case SUBDATABTNLEFT:
+		case SUBDATABTNRIGHT:
+		case SUBDATACURPG:
+		case SUBDATACURSORPOS:
+		case SUBDATAFLAGS:
+		case SUBDATAINITD:
+		case SUBDATANUMPG:
+		case SUBDATAPAGES:
+		case SUBDATASCRIPT:
+		case SUBDATASELECTORASPD:
+		case SUBDATASELECTORCSET:
+		case SUBDATASELECTORDELAY:
+		case SUBDATASELECTORDSTH:
+		case SUBDATASELECTORDSTW:
+		case SUBDATASELECTORDSTX:
+		case SUBDATASELECTORDSTY:
+		case SUBDATASELECTORFLASHCSET:
+		case SUBDATASELECTORFRM:
+		case SUBDATASELECTORHEI:
+		case SUBDATASELECTORTILE:
+		case SUBDATASELECTORWID:
+		case SUBDATATRANSARGS:
+		case SUBDATATRANSCLK:
+		case SUBDATATRANSFLAGS:
+		case SUBDATATRANSFROMPG:
+		case SUBDATATRANSLEFTARGS:
+		case SUBDATATRANSLEFTFLAGS:
+		case SUBDATATRANSLEFTSFX:
+		case SUBDATATRANSLEFTTY:
+		case SUBDATATRANSRIGHTARGS:
+		case SUBDATATRANSRIGHTFLAGS:
+		case SUBDATATRANSRIGHTSFX:
+		case SUBDATATRANSRIGHTTY:
+		case SUBDATATRANSTOPG:
+		case SUBDATATRANSTY:
+		case SUBDATATYPE:
+			return REFSUBSCREENDATA;
+
+		case SUBPGCURSORPOS:
+		case SUBPGINDEX:
+		case SUBPGNUMWIDG:
+		case SUBPGSUBDATA:
+		case SUBPGWIDGETS:
+			return REFSUBSCREENPAGE;
+
+		case SUBWIDGBTNPG:
+		case SUBWIDGBTNPRESS:
+		case SUBWIDGDISPITM:
+		case SUBWIDGEQPITM:
+		case SUBWIDGFLAG:
+		case SUBWIDGGENFLAG:
+		case SUBWIDGH:
+		case SUBWIDGINDEX:
+		case SUBWIDGPAGE:
+		case SUBWIDGPGMODE:
+		case SUBWIDGPGTARG:
+		case SUBWIDGPOS:
+		case SUBWIDGPOSES:
+		case SUBWIDGPOSFLAG:
+		case SUBWIDGPRESSINITD:
+		case SUBWIDGPRESSSCRIPT:
+		case SUBWIDGREQCOUNTER:
+		case SUBWIDGREQCOUNTERCOND:
+		case SUBWIDGREQCOUNTERVAL:
+		case SUBWIDGREQLITEMLEVEL:
+		case SUBWIDGREQLITEMS:
+		case SUBWIDGREQOWNITEMS:
+		case SUBWIDGREQSCRIPTDISABLED:
+		case SUBWIDGREQUNOWNITEMS:
+		case SUBWIDGSELECTORASPD:
+		case SUBWIDGSELECTORCSET:
+		case SUBWIDGSELECTORDELAY:
+		case SUBWIDGSELECTORDSTH:
+		case SUBWIDGSELECTORDSTW:
+		case SUBWIDGSELECTORDSTX:
+		case SUBWIDGSELECTORDSTY:
+		case SUBWIDGSELECTORFLASHCSET:
+		case SUBWIDGSELECTORFRM:
+		case SUBWIDGSELECTORHEI:
+		case SUBWIDGSELECTORTILE:
+		case SUBWIDGSELECTORWID:
+		case SUBWIDGTRANSPGARGS:
+		case SUBWIDGTRANSPGFLAGS:
+		case SUBWIDGTRANSPGSFX:
+		case SUBWIDGTRANSPGTY:
+		case SUBWIDGTYPE:
+		case SUBWIDGTY_ALIGN:
+		case SUBWIDGTY_ANIMVAL:
+		case SUBWIDGTY_BUTTON:
+		case SUBWIDGTY_COLOR_BG:
+		case SUBWIDGTY_COLOR_BG2:
+		case SUBWIDGTY_COLOR_CMPBLNK:
+		case SUBWIDGTY_COLOR_CMPOFF:
+		case SUBWIDGTY_COLOR_FILL:
+		case SUBWIDGTY_COLOR_OLINE:
+		case SUBWIDGTY_COLOR_PLAYER:
+		case SUBWIDGTY_COLOR_ROOM:
+		case SUBWIDGTY_COLOR_SHD:
+		case SUBWIDGTY_COLOR_SHD2:
+		case SUBWIDGTY_COLOR_TXT:
+		case SUBWIDGTY_COLOR_TXT2:
+		case SUBWIDGTY_CONTAINER:
+		case SUBWIDGTY_CORNER:
+		case SUBWIDGTY_COSTIND:
+		case SUBWIDGTY_COUNTERS:
+		case SUBWIDGTY_CSET:
+		case SUBWIDGTY_DELAY:
+		case SUBWIDGTY_FLIP:
+		case SUBWIDGTY_FONT:
+		case SUBWIDGTY_FRAMECSET:
+		case SUBWIDGTY_FRAMES:
+		case SUBWIDGTY_FRAMETILE:
+		case SUBWIDGTY_GAUGE_HEI:
+		case SUBWIDGTY_GAUGE_WID:
+		case SUBWIDGTY_GRIDX:
+		case SUBWIDGTY_GRIDY:
+		case SUBWIDGTY_HSPACE:
+		case SUBWIDGTY_INFCHAR:
+		case SUBWIDGTY_INFITM:
+		case SUBWIDGTY_ITEMCLASS:
+		case SUBWIDGTY_ITEMID:
+		case SUBWIDGTY_LITEMS:
+		case SUBWIDGTY_MAXDIG:
+		case SUBWIDGTY_MINDIG:
+		case SUBWIDGTY_NUMBER:
+		case SUBWIDGTY_PERCONTAINER:
+		case SUBWIDGTY_PIECECSET:
+		case SUBWIDGTY_PIECETILE:
+		case SUBWIDGTY_SHADOWTY:
+		case SUBWIDGTY_SHOWDRAIN:
+		case SUBWIDGTY_SPEED:
+		case SUBWIDGTY_TABSIZE:
+		case SUBWIDGTY_TILE:
+		case SUBWIDGTY_TOTAL:
+		case SUBWIDGTY_UNITS:
+		case SUBWIDGTY_VSPACE:
+		case SUBWIDGW:
+		case SUBWIDGX:
+		case SUBWIDGY:
+		case SUBWIDG_DISPH:
+		case SUBWIDG_DISPW:
+		case SUBWIDG_DISPX:
+		case SUBWIDG_DISPY:
+			return REFSUBSCREENWIDG;
+
+		case WEBSOCKET_HAS_MESSAGE:
+		case WEBSOCKET_MESSAGE_TYPE:
+		case WEBSOCKET_STATE:
+			return REFWEBSOCKET;
 	}
 
-	// TODO: see has_implemented_register_invalidations
-
-	return std::nullopt;
+	return {};
 }
 
 bool does_register_use_stack(int reg)

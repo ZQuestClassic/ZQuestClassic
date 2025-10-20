@@ -45,13 +45,13 @@ namespace util
 	}
 
 	template<class K, class V>
-	std::optional<V> find(const std::map<K, V>& map, const K& key)
+	V* find(std::map<K, V>& map, const K& key)
 	{
 		auto it = map.find(key);
 		if (it != map.end())
-			return it->second;
+			return &(it->second);
 		else
-			return std::nullopt;
+			return nullptr;
 	}
 
 	template<typename TInputIter>

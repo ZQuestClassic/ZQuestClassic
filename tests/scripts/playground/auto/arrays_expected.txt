@@ -420,7 +420,7 @@ PUSHR D2
 PUSHV 18; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.0735; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREENDATA
+LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREEN
 STORE_OBJECT D2 0.0004
 SETV D2 100
 PUSHR D2
@@ -528,7 +528,7 @@ POP D4; for(each) #2 Body End
 GOTO 482; for(each) #2 End
 SETV D2 0
 STORE D2 0.0003
-LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREENDATA; for(each) #3 ArrDecl
+LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREEN; for(each) #3 ArrDecl
 STORE_OBJECT D2 0.0001
 STOREV 0 0.0002; for(each) #3 IndxDecl
 STOREV 0 0; for(each) #3 ValDecl
@@ -558,7 +558,7 @@ PUSHV 176; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.0735; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool)] Params Start
-LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREENDATA; UsrFunc[bool ArrayContains(int[], int)] Params Start
+LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREEN; UsrFunc[bool ArrayContains(int[], int)] Params Start
 PUSHR D2
 PUSHV 175; UsrFunc[bool ArrayContains(int[], int)] Params End
 CALLFUNC 0.0637; UsrFunc[bool ArrayContains(int[], int)] Call
@@ -567,7 +567,7 @@ PUSHR D2; UsrFunc[void Assert(bool)] Params End
 CALLFUNC 0.0827; UsrFunc[void Assert(bool)] Call
 PEEK D4
 PUSHR D4; UsrFunc[void Assert(bool)] Params Start
-LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREENDATA; UsrFunc[bool ArrayContains(int[], int)] Params Start
+LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREEN; UsrFunc[bool ArrayContains(int[], int)] Params Start
 PUSHR D2
 PUSHV 176; UsrFunc[bool ArrayContains(int[], int)] Params End
 CALLFUNC 0.0637; UsrFunc[bool ArrayContains(int[], int)] Call
@@ -577,13 +577,13 @@ SETCMP D2 I==
 PUSHR D2; UsrFunc[void Assert(bool)] Params End
 CALLFUNC 0.0827; UsrFunc[void Assert(bool)] Call
 PEEK D4
-LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREENDATA; UsrFunc[void AssertEqual(int[], int[])] Params Start
+LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREEN; UsrFunc[void AssertEqual(int[], int[])] Params Start
 PUSHR D2
-LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREENDATA
+LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREEN
 PUSHR D2; UsrFunc[void AssertEqual(int[], int[])] Params End
 CALLFUNC 0.0800; UsrFunc[void AssertEqual(int[], int[])] Call
 PEEK D4
-LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREENDATA; UsrFunc[void AssertEqual(int[], int[])] Params Start
+LOAD_INTERNAL_ARRAY_REF D2 @COMBODD REFSCREEN; UsrFunc[void AssertEqual(int[], int[])] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void AssertEqual(int[], int[])] Params End

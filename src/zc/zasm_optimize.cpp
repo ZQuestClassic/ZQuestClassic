@@ -554,24 +554,24 @@ static bool has_implemented_register_invalidations(int reg)
 		case REFBOTTLETYPE:
 		case REFDIRECTORY:
 		case REFDMAPDATA:
-		case REFDROPS:
+		case REFDROPSETDATA:
 		case REFEWPN:
 		case REFFILE:
 		case REFGENERICDATA:
-		case REFITEMCLASS:
+		case REFITEMDATA:
 		case REFLWPN:
 		case REFMAPDATA:
 		case REFMSGDATA:
-		case REFNPCCLASS:
+		case REFNPCDATA:
 		case REFPALDATA:
 		case REFPORTAL:
 		case REFRNG:
 		case REFSAVPORTAL:
-		case REFSCREENDATA:
+		case REFSCREEN:
 		case REFSHOPDATA:
 		case REFSPRITEDATA:
 		case REFSTACK:
-		case REFSUBSCREEN:
+		case REFSUBSCREENDATA:
 		case REFSUBSCREENPAGE:
 		case REFSUBSCREENWIDG:
 		case REFWEBSOCKET:
