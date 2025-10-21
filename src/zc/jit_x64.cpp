@@ -2345,7 +2345,8 @@ static int stub_exec_function(JittedExecutionContext* ctx)
 	{
 		ctx->pc = ctx->j_instance->ri->pc;
 		ctx->sp = ctx->j_instance->ri->sp;
-		ctx->ret_code = r;
+		ctx->ret_code = ctx->j_instance->should_wait ? RUNSCRIPT_OK : r;
+		ctx->j_instance->should_wait = false;
 		return EXEC_RESULT_EXIT;
 	}
 
@@ -2458,7 +2459,8 @@ static bool exec_script(JittedExecutionContext* ctx)
 		// Fallback to the interpreter if no function was found (error case).
 		if (int r = run_script_jit_until_call_or_return(j_instance, ctx->pc, ctx->sp))
 		{
-			ctx->ret_code = r;
+			ctx->ret_code = ctx->j_instance->should_wait ? RUNSCRIPT_OK : r;
+			ctx->j_instance->should_wait = false;
 			return false;
 		}
 		ctx->pc = j_instance->ri->pc;
