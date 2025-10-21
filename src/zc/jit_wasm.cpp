@@ -28,6 +28,7 @@
 #include "base/general.h"
 #include "base/zapp.h"
 #include "base/zdefs.h"
+#include "zasm/table.h"
 #include "zc/ffscript.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
@@ -231,6 +232,14 @@ static void get_z_register(CompilationState& state, int r)
 	}
 	else
 	{
+		if (does_register_use_stack(r))
+		{
+			// ri->sp = g_idx_sp
+			state.wasm->emitGlobalGet(state.g_idx_ri);
+			state.wasm->emitGlobalGet(state.g_idx_sp);
+			state.wasm->emitI32Store(4*9); // ri->sp
+		}
+
 		state.wasm->emitI32Const(r);
 		state.wasm->emitCall(state.f_idx_get_register);
 	}
@@ -252,6 +261,14 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 	}
 	else
 	{
+		if (does_register_use_stack(r))
+		{
+			// ri->sp = g_idx_sp
+			state.wasm->emitGlobalGet(state.g_idx_ri);
+			state.wasm->emitGlobalGet(state.g_idx_sp);
+			state.wasm->emitI32Store(4*9); // ri->sp
+		}
+
 		state.wasm->emitI32Const(r);
 		fn();
 		state.wasm->emitCall(state.f_idx_set_register);
@@ -516,12 +533,6 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 			if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
 			{
-				if (cfg.contains_block_start(i + 1))
-				{
-					wasm.emitEnd();
-					current_block_index += 1;
-				}
-
 				#define VAL(x, v) {\
 					if (v) wasm.emitI32Const((next_arg2 & CMP_BOOL) ? !!x : x);\
 					else\
@@ -542,6 +553,19 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				int next_command = script->zasm[i + 1].command;
 				int next_arg1 = script->zasm[i + 1].arg1;
 				int next_arg2 = script->zasm[i + 1].arg2;
+
+				if (!command_uses_comparison_result(next_command) && next_command != NOP)
+				{
+					// This shouldn't happen for functional code, but a statement like `x == 1;` can
+					// result in a loose compare command. Just ignore it.
+					continue;
+				}
+
+				if (cfg.contains_block_start(i + 1))
+				{
+					wasm.emitEnd();
+					current_block_index += 1;
+				}
 
 				if (next_command == NOP)
 				{

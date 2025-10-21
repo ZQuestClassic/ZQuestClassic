@@ -70,6 +70,9 @@ const std::vector<int>& get_register_dependencies(int reg);
 // some ref that references a specific game entity.
 std::optional<int> get_register_ref_dependency(int reg);
 
+// Returns true if a register reads from the stack.
+bool does_register_use_stack(int reg);
+
 bool has_register_dependency(int reg);
 
 #endif

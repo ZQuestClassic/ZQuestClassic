@@ -4036,6 +4036,21 @@ std::optional<int> get_register_ref_dependency(int reg)
 	return std::nullopt;
 }
 
+bool does_register_use_stack(int reg)
+{
+	// Note: Don't make new registers that read from the stack. Use a command instead, and pass
+	// values via args if possible.
+
+	switch (reg)
+	{
+		case MAPDATAEXDOOR:
+		case SCREENDATAEXDOOR:
+			return true;
+	}
+
+	return false;
+}
+
 bool has_register_dependency(int reg)
 {
 	return register_dependencies[reg].size() || get_register_ref_dependency(reg).has_value();

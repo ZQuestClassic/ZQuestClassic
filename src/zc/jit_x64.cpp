@@ -12,6 +12,7 @@
 #include "zc/zasm_utils.h"
 #include "zasm/serialize.h"
 #include "zconsole/ConsoleLogger.h"
+#include <cstdint>
 #include <fmt/format.h>
 #include <memory>
 #include <chrono>
@@ -302,6 +303,30 @@ static void flush_cache_for_dependent_registers(CompilationState& state, x86::Co
 	});
 }
 
+static int32_t get_register_and_restore_sp(int32_t arg, uint32_t sp)
+{
+	extern refInfo *ri;
+
+	ri->sp = sp;
+	return get_register(arg);
+}
+
+static void set_register_and_restore_sp(int32_t arg, int32_t value, uint32_t sp)
+{
+	extern refInfo *ri;
+
+	ri->sp = sp;
+	set_register(arg, value);
+}
+
+// Must use virtual register to pass as function argument via cc.invoke.
+static x86::Gp get_tmp_sp(CompilationState& state, x86::Compiler& cc)
+{
+	x86::Gp sp = cc.newInt32();
+	cc.mov(sp, state.vSp);
+	return sp;
+}
+
 static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
 {
 	if (state.use_cached_regs && r >= D(0) && r < D(INITIAL_D))
@@ -342,6 +367,19 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
 	else if (r == SWITCHKEY)
 	{
 		cc.mov(val, state.vSwitchKey);
+	}
+	else if (does_register_use_stack(r))
+	{
+		flush_cache_for_dependent_registers(state, cc, r);
+		flush_stack_cache(state, cc);
+		x86::Gp stackIndex = get_tmp_sp(state, cc);
+
+		// Call external get_register_and_restore_sp.
+		InvokeNode *invokeNode;
+		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignatureT<int32_t, int32_t, uint32_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, stackIndex);
+		invokeNode->setRet(0, val);
 	}
 	else
 	{
@@ -397,6 +435,21 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int
 	else if (r == SWITCHKEY)
 	{
 		cc.movsxd(val, state.vSwitchKey);
+	}
+	else if (does_register_use_stack(r))
+	{
+		flush_cache_for_dependent_registers(state, cc, r);
+		flush_stack_cache(state, cc);
+		x86::Gp stackIndex = get_tmp_sp(state, cc);
+
+		// Call external get_register_and_restore_sp.
+		x86::Gp val32 = cc.newInt32();
+		InvokeNode *invokeNode;
+		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignatureT<int32_t, int32_t, uint32_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, stackIndex);
+		invokeNode->setRet(0, val32);
+		cc.movsxd(val, val32);
 	}
 	else
 	{
@@ -462,6 +515,19 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 	{
 		state.vSwitchKey = cc.newInt32();
 		cc.mov(state.vSwitchKey, val);
+	}
+	else if (does_register_use_stack(r))
+	{
+		flush_cache_for_dependent_registers(state, cc, r);
+		flush_stack_cache(state, cc);
+		x86::Gp stackIndex = get_tmp_sp(state, cc);
+
+		// Call external set_register_and_restore_sp.
+		InvokeNode *invokeNode;
+		cc.invoke(&invokeNode, set_register_and_restore_sp, FuncSignatureT<void, int32_t, int32_t, uint32_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, val);
+		invokeNode->setArg(2, stackIndex);
 	}
 	else
 	{
@@ -815,8 +881,7 @@ static void ret_if_not_ok(CompilationState& state, x86::Compiler& cc, x86::Gp re
 static void compile_command_interpreter(CompilationState& state, x86::Compiler& cc, zasm_script *script, int i, int count, bool is_wait = false)
 {
 	x86::Gp scriptInstancePtr = get_ctx_script_instance(state, cc);
-	x86::Gp stackIndex = cc.newInt32();
-	cc.mov(stackIndex, state.vSp);
+	x86::Gp stackIndex = get_tmp_sp(state, cc);
 
 	InvokeNode *invokeNode;
 	if (count == 1)
@@ -2074,8 +2139,7 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 		// trace being printed just once for the entire group of instructions.
 		if (runtime_debugging && !command_uses_comparison_result(command))
 		{
-			x86::Gp sp = cc.newInt32();
-			cc.mov(sp, state.vSp);
+			x86::Gp sp = get_tmp_sp(state, cc);
 
 			InvokeNode *invokeNode;
 			cc.invoke(&invokeNode, debug_pre_command, FuncSignatureT<void, int32_t, uint32_t>(state.calling_convention));
