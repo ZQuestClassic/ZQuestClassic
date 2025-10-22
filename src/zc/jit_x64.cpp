@@ -29,6 +29,9 @@ static int EXEC_RESULT_CALL = 2;
 static int EXEC_RESULT_RETURN = 3;
 static int EXEC_RESULT_EXIT = 4;
 
+static int hot_function_loop_count_threshold;
+static int hot_function_call_count_threshold;
+
 struct CachedRegister
 {
 	x86::Gp reg;
@@ -2349,8 +2352,7 @@ static pc_t find_function_id_for_pc(JittedScriptInstance* j_instance, pc_t pc)
 // When a function loops enough times, create a compile task.
 void jit_profiler_increment_function_back_edge(JittedScriptInstance* j_instance, pc_t pc)
 {
-	static int threshold = std::max(1, (int)get_flag_int("-jit-hot-function-loop-count").value_or(zc_get_config("ZSCRIPT", "jit_hot_function_loop_count", 1000)));
-
+	int threshold = hot_function_loop_count_threshold;
 	pc_t fn_id = find_function_id_for_pc(j_instance, pc);
 	if (fn_id == -1)
 		return;
@@ -2367,8 +2369,7 @@ void jit_profiler_increment_function_back_edge(JittedScriptInstance* j_instance,
 // When a function is called enough times, create a compile task.
 static void profiler_increment_function_call(JittedExecutionContext* ctx, const ZasmFunction& fn)
 {
-	static int threshold = std::max(1, (int)get_flag_int("-jit-hot-function-call-count").value_or(zc_get_config("ZSCRIPT", "jit_hot_function_call_count", 10)));
-
+	int threshold = hot_function_call_count_threshold;
 	auto j_instance = ctx->j_instance;
 	int n = ++j_instance->j_script->profiler_function_call_count[fn.id];
 	if (n == threshold && !j_instance->j_script->functions_requested_to_be_compiled[fn.id])
@@ -2464,6 +2465,12 @@ static JittedScript* init_jitted_script(zasm_script* script)
 	j_script->functions_requested_to_be_compiled.resize(j_script->structured_zasm.functions.size());
 
 	return j_script;
+}
+
+void jit_startup_impl()
+{
+	hot_function_loop_count_threshold = std::max(1, (int)get_flag_int("-jit-hot-function-loop-count").value_or(zc_get_config("ZSCRIPT", "jit_hot_function_loop_count", 1000)));
+	hot_function_call_count_threshold = std::max(1, (int)get_flag_int("-jit-hot-function-call-count").value_or(zc_get_config("ZSCRIPT", "jit_hot_function_call_count", 10)));
 }
 
 // Doesn't actually compile anything (unless precompile is enabled).

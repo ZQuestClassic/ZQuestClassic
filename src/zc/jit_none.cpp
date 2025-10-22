@@ -1,5 +1,9 @@
 #include "zc/jit.h"
 
+void jit_startup_impl()
+{
+}
+
 JittedScript* jit_compile_script(zasm_script* script)
 {
 	return nullptr;

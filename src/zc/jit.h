@@ -33,6 +33,7 @@ void jit_shutdown();
 
 // The following vary per backend.
 
+void jit_startup_impl();
 JittedScript* jit_compile_script(zasm_script* script);
 JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, JittedScript* j_script);
 int jit_run_script(JittedScriptInstance* j_instance);

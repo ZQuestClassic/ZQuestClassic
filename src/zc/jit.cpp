@@ -191,6 +191,8 @@ void jit_startup(bool precompile)
 	jit_log_enabled = is_feature_enabled("-jit-log", "ZSCRIPT", "jit_log", false) || is_ci();
 	jit_precompile = precompile;
 
+	jit_startup_impl();
+
 	if (!compiled_scripts_mutex)
 		compiled_scripts_mutex = al_create_mutex();
 	if (!compiled_scripts_cond)

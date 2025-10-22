@@ -1322,6 +1322,10 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	return wasm;
 }
 
+void jit_startup_impl()
+{
+}
+
 JittedScript* jit_compile_script(zasm_script* script)
 {
 	if (script->size <= 1)
