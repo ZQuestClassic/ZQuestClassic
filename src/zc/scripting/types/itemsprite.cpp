@@ -261,9 +261,6 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 				ret=s->pickup_string_flags*10000;
 			}
 			break;
-		case ITEMOVERRIDEFLAGS:
-			ret=0;
-			break;
 			
 		case ITEMOTILE:
 			if (auto s = checkItem(GET_REF(itemref)))
@@ -732,9 +729,6 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 				(((item *)s)->pickup_string_flags)=vbound(value/10000, 0, 214748);
 			}
 			
-			break;
-		
-		case ITEMOVERRIDEFLAGS:
 			break;
 			
 		case ITEMOTILE:

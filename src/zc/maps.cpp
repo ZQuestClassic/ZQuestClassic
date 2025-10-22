@@ -815,31 +815,6 @@ void Z_message_d(const char *format,...)
 
 bool checktrigger=false;
 
-void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
-{
-    //reference/optimization: the start of the unused drawing command index can now be queried. -Gleeok
-    int32_t index = script_drawing_commands.GetNext();
-    
-    if(index < 0)
-        return;
-        
-    int32_t *sdci = &script_drawing_commands[index][0];
-    
-    sdci[0] = RECTR;
-    sdci[1] = 30000;
-    sdci[2] = x1*10000;
-    sdci[3] = y1*10000;
-    sdci[4] = x2*10000;
-    sdci[5] = y2*10000;
-    sdci[6] = 10000;
-    sdci[7] = 10000;
-    sdci[8] = 0;
-    sdci[9] = 0;
-    sdci[10] = 0;
-    sdci[11] = 10000;
-    sdci[12] = 1280000;
-}
-
 void clear_dmap(word i)
 {
 	DMaps[i].clear();

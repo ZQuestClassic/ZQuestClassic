@@ -763,7 +763,6 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case ITEMPSTRING: return "itemsprite::PickupString";
 		case ITEMPSTRINGFLAGS: return "itemsprite::PickupStringFlags";
 		case ITEMSPRITESCRIPT: return "itemsprite::Script";
-		case ITEMOVERRIDEFLAGS: return "itemsprite::SizeFlags";
 		case ITEMTYPE: return "itemsprite::Type";
 		case ITEMSCRIPTUID: return "itemsprite::UID";
 		case LWPNASPEED: return "lweapon::ASpeed";

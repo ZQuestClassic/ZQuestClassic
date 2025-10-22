@@ -126,12 +126,6 @@ class itemsprite {
 	// @zasm_var ITEMSCRIPTUID
 	internal const int UID;
 
-	// Bitflags that determines how internal engine sizing of items is applied.
-	//
-	// @deprecated Never implemented.
-	// @zasm_var ITEMOVERRIDEFLAGS
-	internal int SizeFlags;
-
 	// Returns the max number of itemsprites currently allowed.
 	//
 	// @deprecated Use [Max] instead!

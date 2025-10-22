@@ -5978,14 +5978,6 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 
-		// Note: never used?
-		case GAMEGUYCOUNTD:
-		{
-			int mi = mapind(cur_map, GET_D(rINDEX) / 10000);
-			ret = game->guys[mi] * 10000;
-			break;
-		}
-
 		case ALLOCATEBITMAPR:
 			ret=FFCore.get_free_bitmap();
 			break;
@@ -6206,8 +6198,6 @@ int32_t get_register(int32_t arg)
 		case SCREENDATAWARPARRIVALX: 	GET_SCREENDATA_VAR_BYTE(warparrivalx); break;	//b
 		case SCREENDATAWARPARRIVALY: 	GET_SCREENDATA_VAR_BYTE(warparrivaly); break;	//b
 		case SCREENDATASIDEWARPINDEX: 	GET_SCREENDATA_VAR_BYTE(sidewarpindex); break;	//b
-		case SCREENDATAUNDERCOMBO: 	GET_SCREENDATA_VAR_INT32(undercombo); break;	//w
-		case SCREENDATAUNDERCSET:	 	GET_SCREENDATA_VAR_BYTE(undercset); break; //b
 		case SCREENDATACATCHALL:	 	GET_SCREENDATA_VAR_INT32(catchall); break; //W
 
 		case SCREENDATACSENSITIVE: 	GET_SCREENDATA_VAR_BYTE(csensitive); break;	//B
@@ -13579,13 +13569,6 @@ void set_register(int32_t arg, int32_t value)
 			game->scriptDataResize(index, value/10000);
 			break;
 		}
-
-		case GAMEGUYCOUNTD:
-		{
-			int mi = mapind(cur_map, GET_D(rINDEX) / 10000);
-			game->guys[mi] = value / 10000;
-			break;
-		}
 			
 	///----------------------------------------------------------------------------------------------------//
 	//BottleTypes
@@ -13748,8 +13731,6 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAWARPARRIVALX: 	SET_SCREENDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
 		case SCREENDATAWARPARRIVALY: 	SET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 		case SCREENDATASIDEWARPINDEX: 	SET_SCREENDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
-		case SCREENDATAUNDERCOMBO: 	SET_SCREENDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
-		case SCREENDATAUNDERCSET:	 	SET_SCREENDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
 		case SCREENDATACATCHALL:	 	SET_SCREENDATA_VAR_INT32(catchall,	"Catchall"); break; //W
 
 		case SCREENDATACSENSITIVE: 	SET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B

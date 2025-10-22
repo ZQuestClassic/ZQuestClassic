@@ -16,7 +16,6 @@
 #include "weap_data_editor.h"
 
 extern bool saved;
-extern comboclass *combo_class_buf;
 extern itemdata *itemsbuf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
