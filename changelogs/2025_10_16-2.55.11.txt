@@ -1,0 +1,159 @@
+https://zquestclassic.com/releases/2.55.11
+
+# Features
+
+zc: optimize ORR/ORV/ORR32/ORV32 in x64 jit
+zq: add 'Script Bugfix' option (default on) to new file dialog
+
+zscript: support `Trace(string)`
+  When a string is given to `Trace()`, it now smartly prints that string,
+  same as `TraceS` would.
+
+zscript: log error when GetPixel input is out-of-bounds
+
+# Bug Fixes
+
+
+refuse large string allocation when loading qst
+  Corrupt or newer qst files should never crash (just show an error), but
+  in some cases the loading code can try to allocate huge strings from bad
+  data. Now, refuse to allocate large strings to avoid a potential crash.
+
+properly apply 'custom' counter max increases given by starting items
+zc: prevent crash from div-by-0 with enemy misc
+  Many configurable enemy misc values are used as the dividend in a
+  modulus operation. If these values are set to 0, a crash can happen. The
+  result now is to return 0 (same result as when configured with 1).
+
+zc: ignore corrupted enemies in 1.90 or older quests
+  Somehow, quests saved in old versions could sometimes set invalid screen
+  enemies. Modern ZC has more enemies, so those bad quests were now
+  loading scary new enemies like Ice Wizzrobes where before they might do
+  nothing interesting.
+  
+  Now, when loading 1.90 or older quests, any enemy ids that were not
+  possible at the time are now ignored.
+
+zc: stop drawing dive items in lens view after pickup
+  This bug only happened if the `Old Special Room Screenstate Detection`
+  QR was on.
+
+zc: pitfalls + Block Hole flag on same layer as block using wrong next combo
+zc: handle when save no longer exists with "Reload Last Quest" on
+  Instead of closing the program when the last quest save file cannot be
+  loaded, load the title screen instead.
+  
+  Also, store the save path instead of the slot index, since the latter
+  can change when manually adding or deleting save files.
+
+zc: do not unselect A button when loading save
+  A bug in initializing the game resulted in the A button always being
+  unequipped (unless it was forcibly set with a script).
+
+zc: cane of byrna sparkles lingering after death if extra dying frame qr is on
+zc: prevent possible crash in ZCSubscreen::get_item_pos
+zc: avoid "invalid save slot index" when creating new save
+  Creating a new save slot could sometimes invalidate all existing save
+  slots (until the program was restarted).
+
+zc: tile width/height not working for custom/ice weapons
+zc: wrong combo ID used for some water behavior
+  When the "New Water Collision" QR is off, the combo type instead of the
+  combo ID was being used to control some behavior (such as the damage
+  amount).
+
+zc: pit/water corner cutting (newer movement only)
+zc: minimap title requiring map item didn't actually check for item
+  When "Invisible w/o Map item" was set, the map item wasn't always being
+  checked.
+
+zc: falling/drowning issues
+  Enemies/items/weapons were not using correct hitbox for falling/drowning
+  Enemies/items were immune to drowning in sideview
+
+zc: move custom eweapon to lweapon sprite list when reflected
+zc: walk-through-walls not being respected for pit/water scroll check
+zc: prevent memory leak from replay steps
+zc: 'Move' missing from combo page rclick menu
+zc: held-up items treated 'Only Held' pickup string flag as 'Always'
+zc: cutscene trigger combos that allow F6 softlocking on F6
+zc: walking over pits in some cases (made pits more sensitive)
+zc: prevent trigger change effect resulting in invalid combo
+  When the combo change for a trigger effect produces a combo with a bad
+  ID (negative or larger than the max), the engine would crash. Now, the
+  resulting combo is clamped to the valid range.
+
+zc: allow background to be transparent in active subscreens
+  When the compat QR "Old Engine Subscreen Quirks" is off, a bug caused
+  the background for active subscreens to never display the playing field
+  even when the subscreen did not have a solid background.
+
+zq: allow item editor to enter larger numbers for the Power field
+zq: subscreen editor color selectors not showing cset 12/13 properly
+zq: improve test mode screen matching
+  Take into account the dmap xoff value when selecting the default dmap
+  to use for test mode.
+
+zq: prevent test mode from using screens >= 0x80
+zq: use correct width for tile anim preview frames
+zq: properly set enemy move flags when saving old quests
+  Quests older than 2.11 were accidentally clearing enemy move flags if
+  saved in the editor, resulting in enemies not be able to traverse over
+  water or pits.
+
+zq: handle all filesystem errors when creating quest package
+zscript: clear eweapon script when it ends
+  When a script ends, the scripting engine is supposed to clear the
+  object's script so that it cannot run again. But a bug prevented that
+  from happening for eweapons.
+  
+  Normally that wouldn't matter, but if the weapon was reflected it would
+  then try to run the eweapon script on the newly created lweapon.
+  
+  And normally, _that_ would maybe mostly work, but another bug actually
+  caused a crash to happen instead.
+  
+  So now eweapons have their script cleared when it ends, and the crash is
+  avoided.
+
+zscript: prevent crash when drawing to system bitmap render targets
+  Script draws to the `RT_BITMAP0`, `RT_BITMAP1`, etc. bitmaps could
+  result in a crash.
+  
+  This regressed in 2.55.9.
+
+zscript: correctly handle COMPAREV2 in x64 jit
+zscript: use correct sprite for step in weapon MakeAngular
+  The wrong variable was being referenced to access the weapon's step
+  value. Instead of using the weapon, it used whatever was last set to a
+  global `sprite` variable in the scripting engine (which could possibly
+  result in a crash).
+
+zscript: load initial screen before onSaveLoad global script
+  When the "Use Old Global Init and SaveLoad Timing" compat QR is off, the
+  onSaveLoad global script ran before the initial screen even loaded. That
+  made accessing anything on `Screen` do the wrong thing.
+  
+  Now, this global script can access the initially loaded screen.
+
+
+# Refactors
+
+check each file section version for validity
+
+remove date check when loading qst
+  The date check had some correctness issues and was kind of complicated,
+  and the explict version checks are sufficient, so it's been removed.
+
+zc: use monospace font for text overlay (fps, etc.)
+zq: save test mode replays to "replays/test" folder
+  Just to separate from replays for normal saves.
+
+
+# Tests
+
+add stellar_seas_intro.zplay
+
+# CI
+
+[win] update vcpkg to 2025.08.27

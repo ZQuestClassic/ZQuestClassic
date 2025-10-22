@@ -2,6 +2,58 @@
 # ! These are all the commits in the main branch that were cherry-picked to 2.55.x, and then a 2.55.x release was first to have them in an official release
 
 # ! cherry-pick -x
+drop 2546414377dbcfa429747ee1c8480041ad35abd8 fix(zc): allow background to be transparent in active subscreens
+drop cf7b17d3ee599790db2d72c64c5d5c96a3637998 fix(zscript): load initial screen before onSaveLoad global script
+drop 408947a3c6b5f5b3635e886d43be9893c8fd817d feat(zscript): log error when GetPixel input is out-of-bounds
+drop e7669e21c13eaac1b2a438de64ad06704a32dfab fix(zc): prevent trigger change effect resulting in invalid combo
+drop e49d6a4d557043cbe8aeca56701f578c4f50f188 fix(zq): handle all filesystem errors when creating quest package
+drop 200da23865c643748baf750939a5a0ff083d3997 fix(zq)!: use create_directories for "replays/test" folder creation
+drop 213e0f3dda62c5ed81f12d163c8648549de71adb fix(zc): walking over pits in some cases (made pits more sensitive)
+drop 84e0b19b402fe201a3aaa35e43d2c62dd0ab171e fix(zc): cutscene trigger combos that allow F6 softlocking on F6
+drop 82f2b310593e5b07d1d7f9fa4ac957a166095eed fix(zc)!: held-up items treated 'Only Held' pickup string flag as 'Always'
+drop 51d7015179987367576a8e83f4b3721a94a68efa refactor: remove date check when loading qst
+drop fa68a9f0bea86b4a8bf2fa95a9aa9275edd14bdf refactor: check each file section version for validity
+drop 658b4f05e5eacf76b5b3db3735240e2aa14fa7b1 fix: 'Move' missing from combo page rclick menu
+drop 01ddc66af9f0fa0840a584e5c35b116b96c1c31c fix(zc): prevent memory leak from replay steps
+drop 40ae1928face7169bcfc7628ddd79e64e7c0b7e9 ci!: update mathieu-bour/setup-sentry-cli action
+drop a908144232c3c68768f921eb9e0a741709e39c1b ci!: update softprops/action-gh-release action
+drop b8d605b508d668e53a6b9c213eab211906e0abe1 refactor(zq): save test mode replays to "replays/test" folder
+drop 273372cb1ea2d501496a12636a8ad999b39815ad docs!: default draw origin comment was backwards
+drop 02fa7e84959e20c94157ebd78f2df8d6c719a41b ci: [win] update vcpkg to 2025.08.27
+drop f172f20a713a43ceb9e2db339325e9a310d79993 fix(zq): properly set enemy move flags when saving old quests
+drop 34ead2e3b2e4ece09d8499cada89f2c5a6fb8315 feat(zc): optimize ORR/ORV/ORR32/ORV32 in x64 jit
+drop 850c93244d25e661d293d71503c3e8a61c2cb7ec misc(zc)!: print output path when writing zasm to file
+drop 45c130b348e3d9f4b4493c7454f2d156ca0efc43 fix(zq)!: Tile anim preview frames using wrong width
+drop 288cfdb6db84a861a259ed5baaf28d2ede2fd510 fix(zc)!: walk-through-walls not being respected by "Sometimes scroll over pits/water" fix
+drop f5b3a2d09d78050c6791cda0cb07f91ee308bca4 fix(zscript): use correct sprite for step in weapon MakeAngular
+drop ca576cdca702a235e4181a2517ffadcd26c70b71 fix(zc): move custom eweapon to lweapon sprite list when reflected
+drop c20ae1a3d876da7eaad1f6e01e5bb7cb06fcd2f7 fix(zc): falling/drowning issues
+drop 11ade10594eee3c2d0c019c781056035004ede20 fix(zc)!: minimap title set to require map item, wasn't checking for map item
+drop c11d1f74b7498afd7ba4efba88bec106f8056a1c fix(zc)!: pitfall function checking wrong bit from slide function return
+drop f52deb041786634614eafb87f5fe77013398f360 fix(zc): pit/water corner cutting (newer movement only)
+drop abb716becaac3a51f77d55144e11a594e9a1cf6a fix(zc)!: some more things that were expecting a water combo ID were getting the combo type
+drop 160c7726abd853686f534cb2fdf55e4a9cb89244 fix(zc)!: some things that were expecting a water combo ID were getting the combo type
+drop c01734369fc56211fd52d8478149d13f57768d1e fix(zc)!: custom and ice weapons ignoring tile width/height
+drop 6234795f6284a940acc34a39e414a264afd2f7d1 fix(zscript)!: correctly handle COMPAREV2 in jit
+drop a7532ac6e6228d7dbe1700eae5bb36614cd5138c fix(zq)!: prevent test mode from using screens >= 0x80
+drop 238a9eeffaffa6ec2c446808d0d0baf7986e44ed fix(zq)!: improve test mode screen matching
+drop 24da1b97309ecaa5b63762acdd00bc2f3b76b6fc misc!: add 'Script Bugfix' option (default on) to new file dialog
+drop c11658d7dc4a9ff5ec0672b16adc4d362986385d fix(zc): save slot 0 always being loaded from title screen
+drop acad5780adc581a1ddb148a3c93d020371368c11 fix(zc): avoid "invalid save slot index" when creating new save
+drop da3d695ee60a20faa4fd0f14d74fef586f6d4da9 refactor(zc): use monospace font for text overlay (fps, etc.)
+drop 491824681dcdb2b95048f8be787f77e12c11a457 fix(zq)!: subscreen editor color selectors not showing cset 12/13 properly
+drop 2b1b0b3889c39fdf25f35122690e8e2e37074d4f fix: 'custom' counter max increases given by starting items will apply properly
+drop 4011485c23cddd583ee73c888f37023bf52293f8 fix(zc): prevent possible crash in ZCSubscreen::get_item_pos
+drop 9a2f1a4b908b48046274fee9ab89a2943b0b0c31 fix(zc): cane of byrna sparkles lingering after death if extra dying frame qr is on
+drop 9806fb8abdb506ecb3e2e8222f5f169b98340bd0 fix(zc): do not unselect A button when loading save
+drop ce230ca81bcc538896541bfddc1bb53540969ed1 fix(zq): allow item editor to enter larger numbers for the Power field
+drop 5e65a9547bec6c27f59cc643aff6ae7108951584 fix: refuse large string allocation when loading qst
+drop 1b2f693046b246eedc82052db0e58bf0c52eb2a5 build!: fix sometimes needing sudo to build on mac
+drop c87f283c28a585cc621c32e442b779b4c2c318f4 fix(zc): handle when save no longer exists with "Reload Last Quest" on
+drop 3ec74f434f4e356469b4fa9a303af2919bdb2c35 fix(zc)!: pitfalls + Block Hole flag on same layer as block using wrong next combo
+drop 94796c4eb8900065259b73a6d97617c2398ac9b4 fix(zc): stop drawing dive items in lens view after pickup
+drop dc69f7b14a05fe74eb565a5f511b4a9fe595da53 fix(zc): ignore corrupted enemies in 1.90 or older quests
+drop 668058fc116b15abded5aa35623dff9c11b0ea10 fix(zc): prevent crash from div-by-0 with enemy misc
 drop 36be1aaaf7e069334846b29c98405f0e9a3a6536 misc!: remove Co-authored-by lines from changelog
 drop d82e3b0dc1ae080a5e085e5896366365eb8ea119 fix(zc): prevent crash when accessing invalid enemy data
 drop 86c79154df37ce80c82dd2941e8bdb9ba30749ae fix(zq): update Cambria tileset
@@ -539,6 +591,7 @@ drop 5b2e5ccb2ee020ed0a72a0cce69e3b3ed81811eb fix(zq): lockblock/chest combo wiz
 drop c47b6f2dbbb4e7a510c7cf1fc7f4fc3d16e44da3 feat: include The Deep quest in release package
 drop 9dfd04a559b316734ef871c88e18739d9a2b2b88 misc!: add 2.55.9 changelog
 drop af1586ae0987360a7cffe8897c47c8c6425411ae fix(zc)!: remove incorrect ASSERT for whistle item with no sound
+drop ab62458e24bbc374c4c6a271728cb82012a5869f chore!: add 2.55.10 changelog
 
 # ! same subject
 drop 58abb5008f1c0c3c7b7177818e9967afbd84ba99 fix(zscript): properly allocate file list to prevent `FileSystem->LoadDirectory()` crash
