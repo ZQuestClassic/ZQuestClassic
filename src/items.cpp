@@ -68,7 +68,7 @@ bool item::animate(int32_t)
 			return false;
 		}
 #ifndef IS_EDITOR
-		handle_termv();
+		if (!subscreenItem) handle_termv();
 		if(isSideViewGravity() && !subscreenItem)
 		{
 			if((
@@ -152,7 +152,7 @@ bool item::animate(int32_t)
 				}
 			}
 		}
-		handle_termv();
+		if (!subscreenItem) handle_termv();
 		if (!subscreenItem && !force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].type != itype_fairy)
 		{
 			if (!isSideViewGravity())
