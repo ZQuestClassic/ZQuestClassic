@@ -225,10 +225,17 @@ std::optional<int32_t> websocket_run_command(word command)
 						script_object_ref_inc(ws->message_array_id);
 				}
 
+				ArrayManager am(ws->message_array_id);
 				if (message_type == WebSocketMessageType::Text)
+				{
 					ArrayH::setArray(ws->message_array_id, message, true);
+					am.resize(message.size() + 1); // even though resize is true above, it doesn't actually always resize...
+				}
 				else
+				{
 					ArrayH::setArray(ws->message_array_id, message.size(), message.data(), false, true);
+					am.resize(message.size()); // even though resize is true above, it doesn't actually always resize...
+				}
 
 				if (ZScriptVersion::gc_arrays())
 					set_register(sarg1, ws->message_array_id);
