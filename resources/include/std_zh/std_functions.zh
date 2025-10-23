@@ -249,8 +249,8 @@ void ClearTileRow(int ref, int length)
 	for(int i=0;i<length;++i) ClearTile(ref+i);
 }
 
-//Returns true if there is a collision between the hitboxes of an lweapon and an eweapon.
-bool Collision(lweapon a, eweapon b)
+//Returns true if there is a collision between the hitboxes of two sprites.
+bool Collision(sprite a, sprite b)
 {
 	int ax = a->X + a->HitXOffset;
 	int bx = b->X + b->HitXOffset;
@@ -259,129 +259,21 @@ bool Collision(lweapon a, eweapon b)
 	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
-//A collision between an lweapon and an lweapon.
-bool Collision(lweapon a, lweapon b)
+//A collision between an ffc and a sprite. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
+bool Collision(ffc f, sprite s)
 {
-	int ax = a->X + a->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = a->Y + a->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	int bx = s->X + s->HitXOffset;
+	int by = s->Y + s->HitYOffset;
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, bx, by, bx+s->HitWidth-1, by+s->HitHeight-1);
 }
 
-//A collision between an eweapon and an eweapon.
-bool Collision(eweapon a, eweapon b)
+// A collision between an ffc and an ffc. Uses TileWidth and TileHeight for the FFCs' bounding boxes.
+bool Collision(sprite s, ffc b)
 {
-	int ax = a->X + a->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = a->Y + a->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return Collision(b, s);
 }
 
-//A collision between an lweapon and an npc.
-bool Collision(lweapon a, npc b)
-{
-	int ax = a->X + a->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = a->Y + a->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an eweapon and an npc.
-bool Collision(eweapon a, npc b)
-{
-	int ax = a->X + a->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = a->Y + a->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an npc and an npc.
-bool Collision(npc a, npc b)
-{
-	int ax = a->X + a->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = a->Y + a->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an item and an lweapon.
-bool Collision(item a, lweapon b)
-{
-	int ax = a->X + a->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = a->Y + a->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an item and an eweapon.
-bool Collision(item a, eweapon b)
-{
-	int ax = a->X + a->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = a->Y + a->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an item and an npc.
-bool Collision(item a, npc b)
-{
-	int ax = a->X + a->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = a->Y + a->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an item and an item.
-bool Collision(item a, item b)
-{
-	int ax = a->X + a->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = a->Y + a->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an ffc and an lweapon. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
-bool Collision(ffc f, lweapon b)
-{
-	int bx = b->X + b->HitXOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1);
-}
-
-//A collision between an ffc and an eweapon. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
-bool Collision(ffc f, eweapon b)
-{
-	int bx = b->X + b->HitXOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1);
-}
-
-//A collision between an ffc and an npc. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
-bool Collision(ffc f, npc b)
-{
-	int bx = b->X + b->HitXOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1);
-}
-
-//A collision between an ffc and an item. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
-bool Collision(ffc f, item b)
-{
-	int bx = b->X + b->HitXOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1);
-}
-
-//A collision between an ffc and an ffc. Uses TileWidth and TileHeight for the FFCs' bounding boxes.
+// A collision between an ffc and an ffc. Uses TileWidth and TileHeight for the FFCs' bounding boxes.
 bool Collision(ffc f, ffc f2)
 {
 	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, f2->X, f2->Y, f2->X+f2->TileWidth*16-1, f2->Y+f2->TileHeight*16-1);
@@ -393,99 +285,15 @@ bool Collision(ffc f, int radius1, ffc f2, int radius2)
 	return CircleCollision(f->X+f->TileWidth/2, f->Y+f->TileHeight/2, radius1,f2->X+f2->TileWidth/2, f2->Y+f2->TileHeight/2, radius2);
 }
 
-// So that you don't have to remember the ordering of the args
-bool Collision(eweapon a, lweapon b)
-{
-	return Collision(b, a);
-}
-
-bool Collision(npc a, lweapon b)
-{
-	return Collision(b, a);
-}
-
-bool Collision(npc a, eweapon b)
-{
-	return Collision(b, a);
-}
-
-bool Collision(lweapon a, item b)
-{
-	return Collision(b, a);
-}
-
-bool Collision(eweapon a, item b)
-{
-	return Collision(b, a);
-}
-
-bool Collision(npc a, item b)
-{
-	return Collision(b, a);
-}
-
-bool Collision(lweapon a, ffc b)
-{
-	return Collision(b, a);
-}
-
-bool Collision(eweapon a, ffc b)
-{
-	return Collision(b, a);
-}
-
-bool Collision(npc a, ffc b)
-{
-	return Collision(b, a);
-}
-
-bool Collision(item a, ffc b)
-{
-	return Collision(b, a);
-}
-
-// Returns true if there is a collision between Link's hitbox and the eweapon's.
+// Returns true if there is a collision between Link's hitbox and a sprite's.
 // This only checks hitboxes.
-bool Collision(eweapon b)
+bool Collision(sprite s)
 {
 	int ax = Hero->X + Hero->HitXOffset;
-	int bx = b->X + b->HitXOffset;
+	int bx = s->X + s->HitXOffset;
 	int ay = Hero->Y + Hero->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= b->Z) && (Hero->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the lweapon's.
-// This only checks hitboxes.
-bool Collision(lweapon b)
-{
-	int ax = Hero->X + Hero->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = Hero->Y + Hero->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= b->Z) && (Hero->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the item's.
-// This only checks hitboxes.
-bool Collision(item b)
-{
-	int ax = Hero->X + Hero->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = Hero->Y + Hero->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= b->Z) && (Hero->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the npc's.
-// This only checks hitboxes.  Uses TileWidth and TileHeight to find the center of the FFCs.
-bool Collision(npc b)
-{
-	int ax = Hero->X + Hero->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = Hero->Y + Hero->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= b->Z) && (Hero->Z <= b->Z + b->HitZHeight);
+	int by = s->Y + s->HitYOffset;
+	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+s->HitWidth-1, by+s->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= s->Z) && (Hero->Z <= s->Z + s->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the FFC's.
@@ -497,7 +305,7 @@ bool Collision(ffc f)
 	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1);
 }
 
-//Only legal from combodata scripts as this->Collision
+// Only legal from combodata scripts as it relies on [combodata::X] and [combodata::Y].
 bool Collision(combodata f)
 {
 	int ax = Hero->X + Hero->HitXOffset;
@@ -1499,24 +1307,9 @@ int HasTriforce(int level)
 }
 
 // Returns the Y coordinate of the bottom edge of the hitbox.
-int HitboxBottom(eweapon a)
+int HitboxBottom(sprite s)
 {
-	return (a->Y + a->HitYOffset + a->HitHeight - 1);
-}
-
-int HitboxBottom(lweapon a)
-{
-	return (a->Y + a->HitYOffset + a->HitHeight - 1);
-}
-
-int HitboxBottom(item a)
-{
-	return (a->Y + a->HitYOffset + a->HitHeight - 1);
-}
-
-int HitboxBottom(npc a)
-{
-	return (a->Y + a->HitYOffset + a->HitHeight - 1);
+	return (s->Y + s->HitYOffset + s->HitHeight - 1);
 }
 
 //Uses TileWidth and TileHeight for the FFC's bounding box.
@@ -1526,26 +1319,12 @@ int HitboxBottom(ffc a)
 }
 
 // Returns the X coordinate of the left edge of the hitbox.
-int HitboxLeft(eweapon a)
+int HitboxLeft(sprite s)
 {
-	return (a->X + a->HitXOffset);
+	return (s->X + s->HitXOffset);
 }
 
-int HitboxLeft(lweapon a)
-{
-	return (a->X + a->HitXOffset);
-}
-
-int HitboxLeft(item a)
-{
-	return (a->X + a->HitXOffset);
-}
-
-int HitboxLeft(npc a)
-{
-	return (a->X + a->HitXOffset);
-}
-
+// Returns the X coordinate of the left edge of the hitbox.
 int HitboxLeft(ffc a)
 {
 	return a->X;
@@ -1797,64 +1576,21 @@ int LastComboOf(int t, int layer)
 	return -1;
 }
 
-//Returns if Link is left of an npc.
-bool LeftOf(npc n){ return Hero->X < n->X; }
-//Returns if Link is above, below, left of, or right of an ffc.
-bool LeftOf(ffc n){ return Hero->X < n->X; }
-//Returns if Link is above, below, left of, or right of an eweapon.
-bool LeftOf(eweapon n){ return Hero->X < n->X; }
-//Returns if Link is above, below, left of, or right of an lweapon.
-bool LeftOf(lweapon n){ return Hero->X < n->X; }
-
-
 // Interpolates between p1 and p2 given 't' clamped within range 0,1.
 float Lerp(float p1, float p2, float t)
 {
 	return (p1 + (p2 - p1) * t);
 }
 
-// Returns true if there is a collision between Link's hitbox and the eweapon's.
+// Returns true if there is a collision between Link's hitbox and the sprite's.
 // This only checks hitboxes.
-bool LinkCollision(eweapon b)
+bool LinkCollision(sprite s)
 {
 	int ax = Hero->X + Hero->HitXOffset;
-	int bx = b->X + b->HitXOffset;
+	int bx = s->X + s->HitXOffset;
 	int ay = Hero->Y + Hero->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= b->Z) && (Hero->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the lweapon's.
-// This only checks hitboxes.
-bool LinkCollision(lweapon b)
-{
-	int ax = Hero->X + Hero->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = Hero->Y + Hero->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= b->Z) && (Hero->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the item's.
-// This only checks hitboxes.
-bool LinkCollision(item b)
-{
-	int ax = Hero->X + Hero->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = Hero->Y + Hero->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= b->Z) && (Hero->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the npc's.
-// This only checks hitboxes.  Uses TileWidth and TileHeight to find the center of the FFCs.
-bool LinkCollision(npc b)
-{
-	int ax = Hero->X + Hero->HitXOffset;
-	int bx = b->X + b->HitXOffset;
-	int ay = Hero->Y + Hero->HitYOffset;
-	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= b->Z) && (Hero->Z <= b->Z + b->HitZHeight);
+	int by = s->Y + s->HitYOffset;
+	return RectCollision(ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1, bx, by, bx+s->HitWidth-1, by+s->HitHeight-1) && (Hero->Z + Hero->HitZHeight >= s->Z) && (Hero->Z <= s->Z + s->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the FFC's.
