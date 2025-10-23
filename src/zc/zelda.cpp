@@ -4601,6 +4601,14 @@ reload_for_replay_file:
 		int32_t dm = atoi(argv[test_arg+2]);
 		int32_t screen = atoi(argv[test_arg+3]);
 		int32_t retsqr = (test_arg+4 >= argc) ? 0 : atoi(argv[test_arg+4]);
+
+#ifdef __EMSCRIPTEN__
+		if (em_is_lazy_file(testingqst_name))
+		{
+			em_fetch_file(testingqst_name);
+		}
+#endif
+
 		if(!fileexists(testingqst_name.c_str()))
 		{
 			Z_error_fatal( "-test invalid parameter: 'quest_file_path' was '%s',"

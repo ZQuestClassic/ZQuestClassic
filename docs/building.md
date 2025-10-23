@@ -172,8 +172,8 @@ Now, build with cmake as normal. Note the output of the above script:
 > 
 > you only need to re-run configure_emscripten.sh if something in this file is changed
 > 
-> be sure to start a local webserver in the web package folder:
->   cd build_emscripten/Debug/packages/web && npx statikk --port 8000 --coi
+> be sure to start a local webserver:
+>   node scripts/webserver.mjs
 
 # ccache
 

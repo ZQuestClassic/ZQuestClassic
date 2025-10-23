@@ -64,6 +64,7 @@ LINKER_FLAGS=(
   -lidbfs.js
   -lproxyfs.js
   -lembind
+  -lwebsocket.js
   -pthread
 )
 EMCC_AND_LINKER_FLAGS=(
@@ -192,6 +193,6 @@ to build just a single app:
 
 you only need to re-run configure_emscripten.sh if something in this file is changed
 
-be sure to start a local webserver in the web package folder:
-  cd build_emscripten/Debug/packages/web && npx statikk --port 8000 --coi
+be sure to start a local webserver:
+  node scripts/webserver.mjs
 "

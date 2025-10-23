@@ -50,4 +50,8 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(port, hostname, () => {
 	console.log(`Server running at http://${hostname}:${port}/`);
+	console.log(`root dir: ${rootDir}\n`);
+	console.log('tip: can access files from host filesystem via /host/...');
+	console.log('for example: http://localhost:8000/play/?test=/host/Users/connorclark/code/ZeldaClassic/tests/replays/playground/playground.qst&dmap=0&screen=0');
+	console.log('or:          http://localhost:8000/play/?assert=/host/Users/connorclark/code/ZeldaClassic/tests/replays/playground/circle.zplay');
 });

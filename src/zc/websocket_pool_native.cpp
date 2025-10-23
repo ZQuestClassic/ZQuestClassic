@@ -9,8 +9,9 @@
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #endif
 
-#include "websocket_pool.h"
-#include "websocketpp/frame.hpp"
+#include "zc/websocket_pool.h"
+
+#include <websocketpp/frame.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>

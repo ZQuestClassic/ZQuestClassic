@@ -19,6 +19,7 @@ option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
+set(WANT_WEBSOCKETS TRUE CACHE BOOL "Support websockets in zscript")
 set(WANT_NFD TRUE CACHE BOOL "Include nativefiledialog")
 set(WANT_DEBUG_FILES FALSE CACHE BOOL "Generate separate debug files - .dSYM on Mac, .debug on Linux")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
@@ -794,7 +795,13 @@ endif()
 # Networking
 #############################################################
 
-if(NOT EMSCRIPTEN)
+if(NOT WANT_WEBSOCKETS)
+	add_library(websocket INTERFACE)
+	target_sources(websocket INTERFACE src/zc/websocket_pool_unsupported.cpp)
+elseif(EMSCRIPTEN)
+	add_library(websocket INTERFACE)
+	target_sources(websocket INTERFACE src/zc/websocket_pool_web.cpp)
+else()
 	find_package(OpenSSL)
 
 	FetchContent_Declare(
@@ -830,12 +837,9 @@ if(NOT EMSCRIPTEN)
 		target_compile_definitions(websocket INTERFACE HAS_SSL)
 	endif()
 
-	target_sources(websocket INTERFACE src/zc/websocket_pool.cpp)
+	target_sources(websocket INTERFACE src/zc/websocket_pool_native.cpp)
 	# websocketpp cmake stomps on ours ...
 	set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
-else()
-	add_library(websocket INTERFACE)
-	target_sources(websocket INTERFACE src/zc/websocket_pool_unsupported.cpp)
 endif()
 
 #############################################################
