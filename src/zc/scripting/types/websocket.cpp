@@ -20,7 +20,7 @@ struct user_websocket : public user_abstract_obj
 		if (message_array_id)
 		{
 			if (ZScriptVersion::gc_arrays())
-				script_object_ref_dec(message_array_id);
+				script_object_autorelease_pool.push_back(message_array_id);
 			else
 				FFScript::deallocateArray(message_array_id);
 		}
