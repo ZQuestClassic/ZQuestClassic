@@ -892,20 +892,21 @@ class npc {
 
 	// Similar to Screen->CreateNPC(), except:
 	//
-	// (1) It uses an arry literal for its args, with varying size.
+	// - It uses an arry literal for its args, with varying size:
+	//   a) {id}
+	//   b) {id, x, y}
+	// - It works based on an existing pointer
 	//
-	// (2) You can either create an npc only by its ID, or you can do
+	// For example:
 	//
-	// that and set its spawn coordinates at the same time.
+	// ```
+	// npc n;
+	// n->Create({NPC_ARMOS}));
+	// // or...
+	// n->Create({NPC_ARMOS, 100, 50}));
+	// ```
 	//
-	// (3) It works based on an existing pointer, such as:
-	//
-	// npc n; n->Create{args});
-	//
-	// { int id }
-	//
-	// { int id, int x, int y }
-	//
+	// @see [NPCID]
 	// @reassign_ptr
 	// @zasm
 	//   POP D2
