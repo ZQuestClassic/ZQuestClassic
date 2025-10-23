@@ -24119,6 +24119,8 @@ sprite* get_own_sprite(ScriptType type)
 {
 	switch(type)
 	{
+		case ScriptType::None:
+			return ResolveBaseSprite(GET_REF(spriteref));
 		case ScriptType::Lwpn:
 			return checkLWpn(GET_REF(lwpnref));
 		case ScriptType::Ewpn:

@@ -362,4 +362,68 @@ class sprite {
 	//
 	// @zasm_var SPRITE_MISCD
 	internal untyped Misc[];
+
+	// Grants 'Ownership' of the parameter object to this sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSPRITE
+	//   OBJ_OWN_BITMAP D2 0
+	internal void Own(bitmap b);
+
+	// Grants 'Ownership' of the parameter object to this sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSPRITE
+	//   OBJ_OWN_PALDATA D2 0
+	internal void Own(paldata b);
+
+	// Grants 'Ownership' of the parameter object to this sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSPRITE
+	//   OBJ_OWN_FILE D2 0
+	internal void Own(file b);
+
+	// Grants 'Ownership' of the parameter object to this sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSPRITE
+	//   OBJ_OWN_DIR D2 0
+	internal void Own(directory b);
+
+	// Grants 'Ownership' of the parameter object to this sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSPRITE
+	//   OBJ_OWN_STACK D2 0
+	internal void Own(stack b);
+
+	// Grants 'Ownership' of the parameter object to this sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSPRITE
+	//   OBJ_OWN_RNG D2 0
+	internal void Own(randgen b);
+
+	// Grants 'Ownership' of the parameter object to this sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSPRITE
+	//   OBJ_OWN_ARRAY D2 0
+	internal void OwnArray(untyped array);
+
+	// Grants 'Ownership' of the parameter object to this sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSPRITE
+	//   OBJ_OWN_CLASS D2 0
+	internal void OwnObject(untyped object);
 }

@@ -717,6 +717,11 @@ vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
 	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope, bool ignoreParams)
 {
 	vector<Function*> functions = user_class.getScope().getLocalFunctions(name);
+	if (user_class.getParentClass())
+	{
+		vector<Function*> parentFunctions = user_class.getParentClass()->getScope().getLocalFunctions(name);
+		functions.insert(functions.end(), parentFunctions.begin(), parentFunctions.end());
+	}
 	if (!ignoreParams)
 		trimBadFunctions(functions, parameterTypes, scope, false);
 	for (vector<Function*>::iterator it = functions.begin();

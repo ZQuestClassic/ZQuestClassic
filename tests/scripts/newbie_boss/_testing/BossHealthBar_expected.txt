@@ -4009,11 +4009,11 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2
-LOAD D2 0.0001; InlineFunc[void npc::OwnObject(untyped)] Params Start
+LOAD D2 0.0001; InlineFunc[void sprite::OwnObject(untyped)] Params Start
 PUSHR D2
-LOAD D2 0; InlineFunc[void npc::OwnObject(untyped)] Params End
-POP REFNPC; InlineFunc[void npc::OwnObject(untyped)] Body Start
-OBJ_OWN_CLASS D2 0.0007; InlineFunc[void npc::OwnObject(untyped)] Body End
+LOAD D2 0; InlineFunc[void sprite::OwnObject(untyped)] Params End
+POP REFSPRITE; InlineFunc[void sprite::OwnObject(untyped)] Body Start
+OBJ_OWN_CLASS D2 0; InlineFunc[void sprite::OwnObject(untyped)] Body End
 LOAD D2 0; return Start
 REF_AUTORELEASE D2
 REF_REMOVE 0
