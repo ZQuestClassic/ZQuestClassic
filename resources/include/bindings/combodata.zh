@@ -51,6 +51,7 @@ class combodata {
 	//
 	// Using this from any other combodata variable is illegal and undefined.
 	//
+	// @deprecated_getter PosX
 	// @zasm_var COMBOXR
 	internal const int X;
 
@@ -59,6 +60,7 @@ class combodata {
 	//
 	// Using this from any other combodata variable is illegal and undefined.
 	//
+	// @deprecated_getter PosY
 	// @zasm_var COMBOYR
 	internal const int Y;
 
@@ -67,6 +69,7 @@ class combodata {
 	//
 	// Using this from any other combodata variable is illegal and undefined.
 	//
+	// @deprecated_getter Pos
 	// @zasm_var COMBOPOSR
 	internal const int Pos;
 
@@ -75,6 +78,7 @@ class combodata {
 	//
 	// Using this from any other combodata variable is illegal and undefined.
 	//
+	// @deprecated_getter Layer
 	// @zasm_var COMBOLAYERR
 	internal const int Layer;
 
@@ -329,50 +333,6 @@ class combodata {
 
 	// @zasm_var COMBODNEXTTIMER
 	internal int NextTimer;
-
-	// Returns the X-coordinate of a combo from a combodata script, from the
-	// 'this->' pointer as 'this->PosX()'.
-	//
-	// Using this from any other combodata variable is illegal and undefined.
-	//
-	// @deprecated Use [X] instead!
-	// @zasm
-	//   POP REFCOMBODATA
-	//   SETR D2 COMBOXR
-	internal int PosX();
-
-	// Returns the Y-coordinate of a combo from a combodata script, from the
-	// 'this->' pointer as 'this->PosY()'.
-	//
-	// Using this from any other combodata variable is illegal and undefined.
-	//
-	// @deprecated Use [Y] instead!
-	// @zasm
-	//   POP REFCOMBODATA
-	//   SETR D2 COMBOYR
-	internal int PosY();
-
-	// Returns the combo screen index of a combo from a combodata script, from
-	// the 'this->' pointer as 'this->Pos()'.
-	//
-	// Using this from any other combodata variable is illegal and undefined.
-	//
-	// @deprecated Use [Pos] instead!
-	// @zasm
-	//   POP REFCOMBODATA
-	//   SETR D2 COMBOPOSR
-	internal int Pos();
-
-	// Returns the layer the combo is on in a combodata script, from the
-	// 'this->' pointer as 'this->Layer()'
-	//
-	// Using this from any other combodata variable is illegal and undefined.
-	//
-	// @deprecated Use [Layer] instead!
-	// @zasm
-	//   POP REFCOMBODATA
-	//   SETR D2 COMBOLAYERR
-	internal int Layer();
 	
 	// The combo's triggers.
 	//

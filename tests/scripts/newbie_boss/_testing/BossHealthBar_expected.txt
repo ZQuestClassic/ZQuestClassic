@@ -29,7 +29,7 @@ BossHealthBar.z Line 156 @ Columns 13-28 - Warning S094: Function 'screendata::N
                      ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 BossHealthBar.z Line 405 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 403    void HealthBar_CapString(int str){
@@ -54,7 +54,7 @@ BossHealthBar.z Line 321 @ Columns 13-28 - Warning S094: Function 'screendata::N
                      ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 BossHealthBar.z Line 699 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 697    void HealthBar_CapString(int str){
@@ -79,7 +79,7 @@ BossHealthBar.z Line 566 @ Columns 13-28 - Warning S094: Function 'screendata::N
                      ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 BossHealthBar.z Line 928 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 926    void HealthBar_CapString(int str){
@@ -104,7 +104,7 @@ BossHealthBar.z Line 788 @ Columns 13-28 - Warning S094: Function 'screendata::N
                      ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 Pass 5: Checking code paths
 BossHealthBar.z Line 155 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
 
@@ -188,7 +188,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -230,7 +230,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -272,7 +272,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -314,7 +314,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -12028,7 +12028,7 @@ RETURNFUNC; Func[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] B
 PUSHARGSV 0 0.0003; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0002
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #221 setup
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #221 setup
 STORE D2 0.0001
 LOAD D2 0.0001; for() #221 LoopTest
 COMPAREV D2 1
@@ -12708,7 +12708,7 @@ POPARGS D5 0.0009
 RETURNFUNC; Func[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Body End
 PUSHARGSV 0 0.0002; Func[npc HealthBar_GetNPC(int, int)] Body Start
 SETR D4 SP2
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #225 setup
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #225 setup
 STORE D2 0.0001
 LOAD D2 0.0001; for() #225 LoopTest
 COMPAREV D2 1
@@ -13348,7 +13348,7 @@ RETURNFUNC; Func[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] B
 PUSHARGSV 0 0.0003; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0002
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #230 setup
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #230 setup
 STORE D2 0.0001
 LOAD D2 0.0001; for() #230 LoopTest
 COMPAREV D2 1
@@ -14155,7 +14155,7 @@ POPARGS D5 0.0009
 RETURNFUNC; Func[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Body End
 PUSHARGSV 0 0.0002; Func[npc HealthBar_GetNPC(int, int)] Body Start
 SETR D4 SP2
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #235 setup
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #235 setup
 STORE D2 0.0001
 LOAD D2 0.0001; for() #235 LoopTest
 COMPAREV D2 1

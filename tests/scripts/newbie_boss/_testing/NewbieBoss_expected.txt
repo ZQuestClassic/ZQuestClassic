@@ -1818,7 +1818,7 @@ NewbieBoss.z Line 688 @ Columns 11-26 - Warning S094: Function 'screendata::NumN
                 ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 NewbieBoss.z Line 689 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
 
 687    else if(constantAttack==46){ //Summon
@@ -1917,7 +1917,7 @@ NewbieBoss.z Line 982 @ Columns 11-26 - Warning S094: Function 'screendata::NumN
                 ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 NewbieBoss.z Line 984 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
 
 982    if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
@@ -1935,7 +1935,7 @@ NewbieBoss.z Line 991 @ Columns 11-26 - Warning S094: Function 'screendata::NumN
                 ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 NewbieBoss.z Line 993 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
 
 991    if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
@@ -1953,7 +1953,7 @@ NewbieBoss.z Line 1002 @ Columns 11-26 - Warning S094: Function 'screendata::Num
                  ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 NewbieBoss.z Line 1004 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
 
 1002    if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
@@ -2187,7 +2187,7 @@ NewbieBoss.z Line 1437 @ Columns 21-36 - Warning S094: Function 'screendata::Num
                        ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 NewbieBoss.z Line 1445 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
 
 1443            j = m-176;
@@ -2331,7 +2331,7 @@ NewbieBoss.z Line 1668 @ Columns 21-36 - Warning S094: Function 'screendata::Num
                        ^~~~~~~~~~~~~~~
 
 
-INFO: Use [NumNPCs] instead!
+INFO: Use NumNPCs instead!
 NewbieBoss.z Line 1676 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
 
 1674            j = m-176;
@@ -5929,7 +5929,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -6083,7 +6083,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -6111,7 +6111,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -6139,7 +6139,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -6503,7 +6503,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -6727,7 +6727,7 @@ stdout:
         }
       },
       "severity": 2,
-      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse NumNPCs instead!"
     },
     {
       "range": {
@@ -11111,7 +11111,7 @@ COMPAREV D2 46
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3717 ==; Test 'if'
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND if() #1026 Test AND if() #578 Body Start
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND if() #1026 Test AND if() #578 Body Start
 COMPAREV D2 40
 GOTOCMP 3684 >=
 PUSHR D4
@@ -13969,7 +13969,7 @@ COMPAREV D2 19
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6593 ==; Test 'if'
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND if() #1052 Test AND if() #1051 Body Start
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND if() #1052 Test AND if() #1051 Body Start
 COMPAREV D2 40
 GOTOCMP 6542 >=
 PUSHR D4
@@ -14037,7 +14037,7 @@ COMPAREV D2 20
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6689 ==; Test 'if'
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND if() #1054 Test AND if() #1053 Body Start
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND if() #1054 Test AND if() #1053 Body Start
 COMPAREV D2 40
 GOTOCMP 6610 >=
 PUSHR D4
@@ -14133,7 +14133,7 @@ COMPAREV D2 21
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6785 ==; Test 'if'
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND if() #1056 Test AND if() #1055 Body Start
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND if() #1056 Test AND if() #1055 Body Start
 COMPAREV D2 40
 GOTOCMP 6706 >=
 PUSHR D4
@@ -17665,7 +17665,7 @@ LOAD D2 0.0044
 POP D3
 COMPARER D3 D2
 GOTOCMP 10238 >=
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body
 COMPAREV D2 40
 GOTOCMP 10238 >=
 PUSHR D4
@@ -19581,7 +19581,7 @@ LOAD D2 0.0044
 POP D3
 COMPARER D3 D2
 GOTOCMP 12154 >=
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body
 COMPAREV D2 40
 GOTOCMP 12154 >=
 PUSHR D4

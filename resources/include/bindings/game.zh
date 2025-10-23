@@ -566,6 +566,7 @@ class Game {
 
 	// The number of maps in the quest.
 	//
+	// @deprecated_getter MapCount
 	// @zasm_var GAMEMAXMAPS
 	internal const int MapCount;
 
@@ -672,6 +673,7 @@ class Game {
 
 	// Returns the number of saved portals that currently exist.
 	//
+	// @deprecated_getter NumSavedPortals
 	// @zasm_var SAVEDPORTALCOUNT
 	internal const int NumSavedPortals;
 
@@ -1108,13 +1110,6 @@ class Game {
 	//   GETGENERICSCRIPT D2
 	internal int GetGenericScript(char32[] name);
 
-	// The number of maps in the quest.
-	//
-	// @deprecated Use [MapCount] instead!
-	// @zasm
-	//   SETR D2 GAMEMAXMAPS
-	internal int MapCount();
-
 	// Loads an Enemy Editor table data ref for NPC [id], to a [npcdata]
 	// pointer.
 	//
@@ -1364,13 +1359,6 @@ class Game {
 	internal void SetCustomCursor(bitmap b, int fx, int fy,
 								  bool sys_recolor = false,
 								  bool user_scale = false);
-
-	// Returns the number of saved portals that currently exist.
-	//
-	// @deprecated Use [NumSavedPortals] instead!
-	// @zasm
-	//   SETR D2 SAVEDPORTALCOUNT
-	internal int NumSavedPortals();
 
 	// Loads a 'Saved Portal' pointer. Use 1 <= [saved_portal_id] <=
 	// [NumSavedPortals], OR [saved_portal_id] == -1 to access the Magic

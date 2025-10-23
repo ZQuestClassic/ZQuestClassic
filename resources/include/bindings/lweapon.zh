@@ -71,6 +71,7 @@ class lweapon {
 
 	// Returns the max number of weapons currently allowed.
 	//
+	// @deprecated_getter SPRITEMAXLWPN
 	// @zasm_var SPRITEMAXLWPN
 	internal int Max;
 
@@ -306,14 +307,6 @@ class lweapon {
 	// @deprecated - This is now just the internal engine ID, which is the same as doing `<int>some_sprite`.
 	// @zasm_var LWEAPONSCRIPTUID
 	internal const int UID;
-
-	// Returns the max number of weapons currently allowed.
-	//
-	// @deprecated Use [Max]' instead!
-	// @zasm
-	//   POP REFLWPN
-	//   SETR D2 SPRITEMAXLWPN
-	internal int Max();
 
 	// Sets the max number of weapons allowed to a new value. Range `1-1024`.
 	//

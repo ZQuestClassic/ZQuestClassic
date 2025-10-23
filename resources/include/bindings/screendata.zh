@@ -516,6 +516,7 @@ class screendata {
 	// Returns the number of the given object type that are present on the
 	// current screen.
 	//
+	// @deprecated_getter NumItems
 	// @zasm_var ITEMCOUNT
 	internal const int NumItems;
 
@@ -532,6 +533,7 @@ class screendata {
 	// Returns the number of the given object type that are present on the
 	// current screen.
 	//
+	// @deprecated_getter NumNPCs
 	// @zasm_var NPCCOUNT
 	internal const int NumNPCs;
 
@@ -544,12 +546,14 @@ class screendata {
 	// Returns the number of the given object type that are present on the
 	// current screen.
 	//
+	// @deprecated_getter NumLWeapons
 	// @zasm_var LWPNCOUNT
 	internal const int NumLWeapons;
 
 	// Returns the number of the given object type that are present on the
 	// current screen.
 	//
+	// @deprecated_getter NumEWeapons
 	// @zasm_var EWPNCOUNT
 	internal const int NumEWeapons;
 
@@ -966,12 +970,14 @@ class screendata {
 
 	// Returns true if secrets have been triggered on this screen (including temp).
 	//
+	// @deprecated_getter SecretsTriggered
 	// @zasm_var SCREENSECRETSTRIGGERED
 	internal const bool SecretsTriggered;
 
 	// Returns the number of the given object type that are present on the
 	// current screen.
 	//
+	// @deprecated_getter NumPortals
 	// @zasm_var PORTALCOUNT
 	internal const int NumPortals;
 
@@ -1090,14 +1096,6 @@ class screendata {
 	// @zasm_var SCREENDATALENSLAYER
 	internal int LensLayer;
 
-	// Returns the number of the given object type that are present on the
-	// current screen.
-	//
-	// @deprecated Use [NumItems] instead!
-	// @zasm
-	//   SETR D2 ITEMCOUNT
-	internal int NumItems();
-
 	// Where '1 <= n <= [NumItems]', returns a pointer to the nth object on
 	// the screen.
 	//
@@ -1135,14 +1133,6 @@ class screendata {
 	//   POP D2
 	//   LOAD_FFC_2 D2 D3
 	internal ffc LoadFFC(int screen, int index);
-
-	// Returns the number of the given object type that are present on the
-	// current screen.
-	//
-	// @deprecated Use [NumNPCs] instead!
-	// @zasm
-	//   SETR D2 NPCCOUNT
-	internal int NumNPCs();
 
 	// Where `1 <= n <= NumNPCs`, returns a pointer to the nth npc on the
 	// screen.
@@ -1511,14 +1501,6 @@ class screendata {
 	//   MSGSTRR D3
 	internal void Message(int message_id);
 
-	// Returns the number of the given object type that are present on the
-	// current screen.
-	//
-	// @deprecated Use [NumLWeapons] instead!
-	// @zasm
-	//   SETR D2 LWPNCOUNT
-	internal int NumLWeapons();
-
 	// Returns a pointer to the nth [lweapon] on the screen.
 	//
 	// @param [int] n - Between 1 and [NumLWeapons] (inclusive).
@@ -1537,14 +1519,6 @@ class screendata {
 	//   CREATELWEAPONR D2
 	//   SETR D2 REFLWPN
 	internal lweapon CreateLWeapon(int type);
-
-	// Returns the number of the given object type that are present on the
-	// current screen.
-	//
-	// @deprecated Use [NumEWeapons] instead!
-	// @zasm
-	//   SETR D2 EWPNCOUNT
-	internal int NumEWeapons();
 
 	// Returns a pointer to the nth [eweapon] on the screen.
 	//
@@ -1676,14 +1650,6 @@ class screendata {
 							int width, int height, bool overlay = true,
 							int opacity = OP_OPAQUE);
 
-	// Returns true if secrets have been triggered on this screen (including
-	// temp).
-	//
-	// @deprecated Use [SecretsTriggered] instead!
-	// @zasm
-	//   SETR D2 SCREENSECRETSTRIGGERED
-	internal bool SecretsTriggered();
-
 	// Immediately attempts to spawn all the screen enemies ([Enemy]), using the [Pattern].
 	//
 	// @zasm
@@ -1699,14 +1665,6 @@ class screendata {
 	//   POP D2
 	//   SCRTRIGGERCOMBO2 D2 D3 D1
 	internal bool TriggerCombo(int layer, int pos, int trig_index = 0);
-
-	// Returns the number of the given object type that are present on the
-	// current screen.
-	//
-	// @deprecated Use [NumPortals] instead!
-	// @zasm
-	//   SETR D2 PORTALCOUNT
-	internal int NumPortals();
 
 	// Returns a pointer to the nth [portal] on the screen.
 	//

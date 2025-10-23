@@ -49,6 +49,7 @@ class eweapon {
 
 	// Returns the max number of weapons currently allowed.
 	//
+	// @deprecated_getter Max
 	// @zasm_var SPRITEMAXEWPN
 	internal int Max;
 
@@ -266,14 +267,6 @@ class eweapon {
 	// @deprecated
 	// @zasm_var EWPNPARENTUID
 	internal int ParentUID;
-
-	// Returns the max number of weapons currently allowed.
-	//
-	// @deprecated Use [Max] instead!
-	// @zasm
-	//   POP REFEWPN
-	//   SETR D2 SPRITEMAXEWPN
-	internal int Max();
 
 	// Sets the max number of weapons allowed to a new value. Range `1-1024`.
 	//

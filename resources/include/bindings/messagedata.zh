@@ -129,12 +129,14 @@ class messagedata {
 	// Returns the height, in pixels, of the message text - not including line
 	// wrap / breaks.
 	//
+	// @deprecated_getter TextHeight
 	// @zasm_var MESSAGEDATATEXTHEI
 	internal const int TextHeight;
 
 	// Returns the width, in pixels, of the message text - not including line
 	// wrap / breaks.
 	//
+	// @deprecated_getter TextWidth
 	// @zasm_var MESSAGEDATATEXTWID
 	internal const int TextWidth;
 
@@ -166,22 +168,4 @@ class messagedata {
 	//   POP REFMSGDATA
 	//   MESSAGEDATASETSTRINGR D3
 	internal void Set(char32[] str);
-
-	// Returns the width/height, in pixels, of the message text - not including
-	// line wrap / breaks.
-	//
-	// @deprecated Use [TextHeight] instead!
-	// @zasm
-	//   POP REFMSGDATA
-	//   SETR D2 MESSAGEDATATEXTHEI
-	internal int TextHeight();
-
-	// Returns the width/height, in pixels, of the message text - not including
-	// line wrap / breaks.
-	//
-	// @deprecated Use [TextWidth] instead!
-	// @zasm
-	//   POP REFMSGDATA
-	//   SETR D2 MESSAGEDATATEXTWID
-	internal int TextWidth();
 }

@@ -24,6 +24,7 @@ class Graphics {
 	// Returns the number of script drawing commands that are currently waiting
 	// in the draw queue.
 	//
+	// @deprecated_getter NumDraws
 	// @zasm_var NUMDRAWS
 	internal const int NumDraws;
 
@@ -31,6 +32,7 @@ class Graphics {
 	// this, no further drawing commands will work until the queue has been
 	// cleared (i.e. the next frame)
 	//
+	// @deprecated_getter MaxDraws
 	// @zasm_var MAXDRAWS
 	internal const int MaxDraws;
 
@@ -77,23 +79,6 @@ class Graphics {
 	// @zasm
 	//   CLEARTINT
 	internal void ClearTint();
-
-	// Returns the number of script drawing commands that are currently waiting
-	// in the draw queue.
-	//
-	// @deprecated Use [NumDraws] instead!
-	// @zasm
-	//   SETR D2 NUMDRAWS
-	internal int NumDraws();
-
-	// Returns the limit of the drawing queue. If [NumDraws] returns the same as
-	// this, no further drawing commands will work until the queue has been
-	// cleared (i.e. the next frame)
-	//
-	// @deprecated Use [MaxDraws] instead!
-	// @zasm
-	//   SETR D2 MAXDRAWS
-	internal int MaxDraws();
 
 	// Same as [bitmap::GetPixel].
 	//

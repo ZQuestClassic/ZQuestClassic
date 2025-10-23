@@ -285,6 +285,7 @@ class npc {
 
 	// Returns the max number of npcs currently allowed.
 	//
+	// @deprecated_getter Max
 	// @zasm_var SPRITEMAXNPC
 	internal int Max;
 
@@ -593,14 +594,6 @@ class npc {
 	// @deprecated
 	// @zasm_var NPCPARENTUID
 	internal int ParentUID;
-
-	// Returns the max number of npcs currently allowed.
-	//
-	// @deprecated Use [Max] instead!
-	// @zasm
-	//   POP REFNPC
-	//   SETR D2 SPRITEMAXNPC
-	internal int Max();
 
 	// Sets the max number of npcs allowed to a new value. Range `1-1024`.
 	//
