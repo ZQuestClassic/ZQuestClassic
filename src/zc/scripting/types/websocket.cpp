@@ -1,7 +1,8 @@
-#include "base/zc_array.h"
+#include "zc/scripting/types/websocket.h"
 #include "base/zdefs.h"
 #include "zasm/defines.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/arrays.h"
 #include "zc/scripting/script_object.h"
 #include "zc/websocket_pool.h"
 #include "zscriptversion.h"
@@ -11,74 +12,70 @@ extern refInfo *ri;
 
 #define MAX_USER_WEBSOCKETS 3
 
-struct user_websocket : public user_abstract_obj
+user_websocket::~user_websocket()
 {
-	~user_websocket()
-	{
-		if (connection_id != -1)
-			websocket_pool_close(connection_id);
-		if (message_array_id)
-		{
-			if (ZScriptVersion::gc_arrays())
-				script_object_autorelease_pool.push_back(message_array_id);
-			else
-				FFScript::deallocateArray(message_array_id);
-		}
-	}
-
-	void get_retained_ids(std::vector<uint32_t>& ids)
+	if (connection_id != -1)
+		websocket_pool_close(connection_id);
+	if (message_array_id)
 	{
 		if (ZScriptVersion::gc_arrays())
-			ids.push_back(message_array_id);
+			script_object_autorelease_pool.push_back(message_array_id);
+		else
+			FFScript::deallocateArray(message_array_id);
 	}
+}
 
-	bool connect(std::string url)
-	{
-		connection_id = websocket_pool_connect(url, err);
-		this->url = url;
-		return connection_id != -1;
-	}
+void user_websocket::get_retained_ids(std::vector<uint32_t>& ids)
+{
+	if (ZScriptVersion::gc_arrays())
+		ids.push_back(message_array_id);
+}
 
-	void send(WebSocketMessageType type, std::string message)
-	{
-		if (connection_id == -1 || type == WebSocketMessageType::None) return;
-		websocket_pool_send(connection_id, type, message);
-	}
+bool user_websocket::connect(std::string url)
+{
+	connection_id = websocket_pool_connect(url, err);
+	this->url = url;
+	return connection_id != -1;
+}
 
-	bool has_message()
-	{
-		if (connection_id == -1) return false;
-		return websocket_pool_has_message(connection_id);
-	}
+void user_websocket::send(WebSocketMessageType type, std::string message)
+{
+	if (connection_id == -1 || type == WebSocketMessageType::None) return;
+	websocket_pool_send(connection_id, type, message);
+}
 
-	std::string receive_message()
-	{
-		if (connection_id == -1) return "";
-		auto [type, message] = websocket_pool_receive(connection_id);
-		last_message_type = type;
-		return message;
-	}
+bool user_websocket::has_message()
+{
+	if (connection_id == -1) return false;
+	return websocket_pool_has_message(connection_id);
+}
 
-	WebSocketStatus get_state() const
-	{
-		if (connection_id == -1) return WebSocketStatus::Closed;
-		return websocket_pool_status(connection_id);
-	}
+std::string user_websocket::receive_message()
+{
+	if (connection_id == -1) return "";
+	auto [type, message] = websocket_pool_receive(connection_id);
+	last_message_type = type;
+	return message;
+}
 
-	std::string get_error() const
-	{
-		if (connection_id == -1) return err;
-		return websocket_pool_error(connection_id);
-	}
+WebSocketStatus user_websocket::get_state() const
+{
+	if (connection_id == -1) return WebSocketStatus::Closed;
+	return websocket_pool_status(connection_id);
+}
 
-	int connection_id = -1;
-	std::string url;
-	std::string err;
-	uint32_t message_array_id;
-	WebSocketMessageType last_message_type;
-};
+std::string user_websocket::get_error() const
+{
+	if (connection_id == -1) return err;
+	return websocket_pool_error(connection_id);
+}
 
 static UserDataContainer<user_websocket, MAX_USER_WEBSOCKETS> user_websockets = {script_object_type::websocket, "websocket"};
+
+user_websocket* checkWebsocket(int32_t ref, bool skipError)
+{
+	return user_websockets.check(ref, skipError);
+}
 
 void websocket_init()
 {
@@ -94,7 +91,6 @@ std::optional<int32_t> websocket_get_register(int32_t reg)
 	{
 		case WEBSOCKET_STATE:
 		{
-			ret = 0;
 			auto ws = user_websockets.check(GET_REF(websocketref));
 			if (!ws) break;
 
@@ -103,7 +99,6 @@ std::optional<int32_t> websocket_get_register(int32_t reg)
 		}
 		case WEBSOCKET_HAS_MESSAGE:
 		{
-			ret = 0;
 			auto ws = user_websockets.check(GET_REF(websocketref));
 			if (!ws) break;
 
@@ -112,7 +107,6 @@ std::optional<int32_t> websocket_get_register(int32_t reg)
 		}
 		case WEBSOCKET_MESSAGE_TYPE:
 		{
-			ret = 0;
 			auto ws = user_websockets.check(GET_REF(websocketref));
 			if (!ws) break;
 
@@ -248,3 +242,14 @@ std::optional<int32_t> websocket_run_command(word command)
 
 	return RUNSCRIPT_OK;
 }
+
+static ArrayRegistrar WEBSOCKET_URL_registrar(WEBSOCKET_URL, []{
+	static ScriptingArray_ObjectComputed<user_websocket, char> impl(
+		[](user_websocket* ws){ return ws->url.size() + 1; },
+		[](user_websocket* ws, int index) -> char { return ws->url[index]; },
+		[](user_websocket* ws, int index, char value){}
+	);
+	impl.setMul10000(true);
+	impl.setReadOnly();
+	return &impl;
+}());

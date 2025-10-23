@@ -1289,7 +1289,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case WEBSOCKET_HAS_MESSAGE: return "websocket::HasMessage";
 		case WEBSOCKET_MESSAGE_TYPE: return "websocket::MessageType";
 		case WEBSOCKET_STATE: return "websocket::State";
-		case WEBSOCKET_URL: return "websocket::URL";
+		case WEBSOCKET_URL: return "websocket::URL[]";
 
         // The following are all retired ZASM registers.
 

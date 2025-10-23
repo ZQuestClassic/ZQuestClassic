@@ -8,6 +8,7 @@
 #include "base/qrs.h"
 #include "new_subscr.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/types/websocket.h"
 #include <cstddef>
 #include <functional>
 #include <optional>
@@ -144,6 +145,8 @@ static T* resolveScriptingObject(int ref)
 		return checkMapDataScr(ref);
 	else if constexpr (std::is_same<T, user_paldata>::value)
 		return checkPalData(ref);
+	else if constexpr (std::is_same<T, user_websocket>::value)
+		return checkWebsocket(ref);
 	else if constexpr (std::is_same<T, screendata>::value)
 		return checkScreen(ref);
 	else if constexpr (std::is_same<T, ZCSubscreen>::value)

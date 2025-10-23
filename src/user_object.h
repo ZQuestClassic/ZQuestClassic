@@ -6,6 +6,7 @@
 #include "base/zc_array.h"
 #include "base/general.h"
 #include <map>
+#include <optional>
 #include <vector>
 
 enum class ScriptType;

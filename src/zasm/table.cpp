@@ -4682,6 +4682,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case WEBSOCKET_HAS_MESSAGE:
 		case WEBSOCKET_MESSAGE_TYPE:
 		case WEBSOCKET_STATE:
+		case WEBSOCKET_URL:
 			return REFWEBSOCKET;
 	}
 

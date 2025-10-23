@@ -32,7 +32,7 @@ class websocket {
 	internal const WebsocketType MessageType;
 
 	// @zasm_var WEBSOCKET_URL
-	internal char32 URL;
+	internal const char32[] URL;
 
 	// Gets the current websocket error message (if any).
 	//

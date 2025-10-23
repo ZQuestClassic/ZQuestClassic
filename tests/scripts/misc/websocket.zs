@@ -4,10 +4,10 @@ generic script WebSocketScript
 {
     void run()
     {
-        printf("Connecting to websocket.\n");
         websocket ws = new websocket("wss://echo.websocket.org");
-        bool hasSentMessage = false;
+        printf("Connecting to %s ...\n", ws->URL);
 
+        bool hasSentMessage = false;
         while (true)
         {
             if (ws->State == WEBSOCKET_STATE_CONNECTING)
