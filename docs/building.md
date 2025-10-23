@@ -107,16 +107,28 @@ cmake --build build --config Release -t install
 
 By default this will install to `~/zquestclassic`. You can open the launcher with: `cd ~/zquestclassic; ./bin/zlauncher`
 
-# Building w/ OGG support on Windows
+# (optional) Building w/ optional libraries on Windows
 
-You'll need to install libogg and libvorbis. This is typically already present on Unix systems, but for Windows you can use `vcpkg`:
+Various features rely on third-party libraries that are optional for building. Without these libraries, the features will be disabled. The features include:
+
+* OGG support (libogg, libvorbis)
+* Tracker support (DUMB - IT, XM, S3M, MOD)
+* Updater / replay uploader (curl)
+* Secure websockets (openssl)
+
+To get these libraries on Windows, you can use `vcpkg`:
 
 ```sh
+# need to place vcpkg somewhere. I like to use ~/tools but can be anywhere.
 cd ~/tools
+
+# download and setup vcpkg
 git clone https://github.com/microsoft/vcpkg
 cd vcpkg
 ./bootstrap-vcpkg.bat
-./vcpkg.exe install --triplet x64-windows libogg libvorbis
+
+# install libraries
+./vcpkg.exe install --triplet x64-windows libogg libvorbis curl dumb openssl
 ```
 
 You then need to configure your CMake build with the `vcpkg` toolchain:
@@ -125,21 +137,7 @@ You then need to configure your CMake build with the `vcpkg` toolchain:
 cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/c/Users/cjamc/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
 
-Note: this needs to be a fresh build folder, otherwise the toolchain won't be updated.
-
-If these libraries are not present, you can still build but won't be able to play OGG music.
-
-# Building w/ tracker (DUMB - IT, XM, S3M, MOD) for updater on Windows
-
-```sh
-./vcpkg.exe install --triplet x64-windows dumb
-```
-
-# Building w/ CURL for updater on Windows
-
-```sh
-./vcpkg.exe install --triplet x64-windows curl
-```
+Note: this needs to be a fresh build folder, otherwise the toolchain won't be updated. If you already have a `build` folder delete it first.
 
 # Building with Ninja and MSVC
 
