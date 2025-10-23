@@ -236,7 +236,10 @@ std::optional<int32_t> websocket_run_command(word command)
 				else
 					ArrayH::setArray(ws->message_array_id, message.size(), message.data(), false, true);
 
-				set_register(sarg1, ws->message_array_id * 10000);
+				if (ZScriptVersion::gc_arrays())
+					set_register(sarg1, ws->message_array_id);
+				else
+					set_register(sarg1, ws->message_array_id * 10000);
 			}
 			break;
 		}

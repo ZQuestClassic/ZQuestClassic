@@ -5,8 +5,7 @@ generic script WebSocketScript
     void run()
     {
         printf("Connecting to websocket.\n");
-        websocket ws = Game->LoadWebSocket("ws://ws.ifelse.io");
-        ws->Own();
+        websocket ws = new websocket("wss://ws.ifelse.io");
         bool hasSentMessage = false;
 
         while (true)
