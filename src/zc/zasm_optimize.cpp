@@ -541,46 +541,6 @@ static void for_every_side_effect_all_args(ffscript& instr, T fn)
 	}
 }
 
-// TODO: finish implementing these in get_register_ref_dependency,
-// then delete this function.
-static bool has_implemented_register_invalidations(int reg)
-{
-	switch (reg)
-	{
-		case CLASS_THISKEY:
-		case CLASS_THISKEY2:
-		case REFBITMAP:
-		case REFBOTTLESHOP:
-		case REFBOTTLETYPE:
-		case REFDIRECTORY:
-		case REFDMAPDATA:
-		case REFDROPSETDATA:
-		case REFEWPN:
-		case REFFILE:
-		case REFGENERICDATA:
-		case REFITEMDATA:
-		case REFLWPN:
-		case REFMAPDATA:
-		case REFMSGDATA:
-		case REFNPCDATA:
-		case REFPALDATA:
-		case REFPORTAL:
-		case REFRNG:
-		case REFSAVPORTAL:
-		case REFSCREEN:
-		case REFSHOPDATA:
-		case REFSPRITEDATA:
-		case REFSTACK:
-		case REFSUBSCREENDATA:
-		case REFSUBSCREENPAGE:
-		case REFSUBSCREENWIDG:
-		case REFWEBSOCKET:
-			return false;
-	}
-
-	return true;
-}
-
 template<typename T>
 static void optimize_by_block(OptContext& ctx, T cb)
 {
@@ -1436,8 +1396,6 @@ static void simulate(OptContext& ctx, SimulationState& state)
 			simulate_set_value(ctx, state, reg, reg(reg));
 		if (!IS_GENERIC_REG(reg))
 			state.side_effects = true;
-		if (!has_implemented_register_invalidations(reg))
-			state.bail = true;
 	});
 
 	return;
@@ -1723,9 +1681,6 @@ static bool optimize_propagate_values(OptContext& ctx)
 					flush(reg);
 					reg_reads[reg] = false;
 				}
-
-				if (write && !has_implemented_register_invalidations(reg))
-					state.bail = true;
 			});
 			if (state.bail)
 				break;
