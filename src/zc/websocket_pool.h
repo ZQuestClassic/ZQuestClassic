@@ -16,7 +16,7 @@ enum class WebSocketMessageType
 };
 
 int websocket_pool_connect(std::string url, std::string& err);
-void websocket_pool_send(int connection_id, WebSocketMessageType type, std::string message);
+void websocket_pool_send(int connection_id, WebSocketMessageType type, const std::string& message);
 bool websocket_pool_has_message(int connection_id);
 std::pair<WebSocketMessageType, std::string> websocket_pool_receive(int connection_id);
 WebSocketStatus websocket_pool_status(int connection_id);

@@ -8,7 +8,7 @@ int websocket_pool_connect(std::string url, std::string& err)
     return -1;
 }
 
-void websocket_pool_send(int connection_id, WebSocketMessageType type, std::string message)
+void websocket_pool_send(int connection_id, WebSocketMessageType type, const std::string& message)
 {
 }
 

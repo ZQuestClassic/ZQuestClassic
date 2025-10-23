@@ -5,7 +5,7 @@ generic script WebSocketScript
     void run()
     {
         printf("Connecting to websocket.\n");
-        websocket ws = new websocket("wss://ws.ifelse.io");
+        websocket ws = new websocket("wss://echo.websocket.org");
         bool hasSentMessage = false;
 
         while (true)

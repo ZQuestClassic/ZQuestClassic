@@ -795,6 +795,8 @@ endif()
 #############################################################
 
 if(NOT EMSCRIPTEN)
+	find_package(OpenSSL)
+
 	FetchContent_Declare(
 		asio
 		GIT_REPOSITORY
@@ -823,6 +825,11 @@ if(NOT EMSCRIPTEN)
 	target_include_directories(websocket INTERFACE ${websocketpp_SOURCE_DIR})
 	target_compile_definitions(websocket INTERFACE _WEBSOCKETPP_CPP11_STL_ ASIO_STANDALONE)
 	target_link_libraries(websocket INTERFACE asio)
+	if (OpenSSL_FOUND)
+		target_link_libraries(websocket INTERFACE OpenSSL::SSL)
+		target_compile_definitions(websocket INTERFACE HAS_SSL)
+	endif()
+
 	target_sources(websocket INTERFACE src/zc/websocket_pool.cpp)
 	# websocketpp cmake stomps on ours ...
 	set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
