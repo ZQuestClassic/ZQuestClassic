@@ -346,7 +346,7 @@ async function getLatestPzcId(page: puppeteer.Page, type: EntryType) {
 }
 
 function getZcInstallFolder() {
-  const releasePath = `${TMP}/archives/release/2.55.4`;
+  const releasePath = `${TMP}/archives/release/3.0.0-prerelease.138+2025-10-22`;
   if (!fs.existsSync(releasePath)) {
     console.error(`not found: ${releasePath}`);
     process.exit(1);
