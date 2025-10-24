@@ -3977,8 +3977,13 @@ void BuildOpcodes::push_param(bool varg)
 		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getArgument());
 		if(destreg && destreg->ID == EXP1)
 		{
-			optarg->pop_back();
-			return; //skip end
+			if (!varg)
+			{
+				optarg->pop_back();
+				return; //skip end
+			}
+
+			reg = destreg->clone();
 		}
 	}
 	if(!(lit || reg))

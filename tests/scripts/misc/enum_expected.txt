@@ -69,7 +69,9 @@ PUSHR D2
 WRITEPODARRAY D2 {1,2,4,8,16}
 POP D2
 POP D0
-WRITEPODARRAYVR 4 D2; InlineFunc[void printf(char32[])] Params End
+WRITEPODARRAYVR 4 D2
+POP D2
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 POP D5
