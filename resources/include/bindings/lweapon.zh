@@ -98,13 +98,9 @@ class lweapon {
 
 	// The amount of damage the weapon deals.
 	//
+	// @alias Damage
 	// @zasm_var LWPNPOWER
 	internal int Power;
-
-	// The amount of damage the weapon deals.
-	//
-	// @zasm_var LWPNPOWER
-	internal int Damage;
 
 	// If the weapon is angular (instead of directional)
 	//

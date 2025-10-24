@@ -433,13 +433,9 @@ class itemdata {
 
 	// The item power. Usage depends on itemclass.
 	//
+	// @alias Damage
 	// @zasm_var IDATAPOWER
 	internal int Power;
-
-	// The item power. Usage depends on itemclass.
-	//
-	// @zasm_var IDATAPOWER
-	internal int Damage;
 
 	// The 8 InitD values shared by the item's Action, Pickup, and Sprite
 	// scripts.

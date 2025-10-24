@@ -265,7 +265,12 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 		auto var_type = ty.baseType(*scope, nullptr);
 		auto deprecated = parsed_comment.get_tag("deprecated");
 
-		// Add a getter.
+		std::vector<std::string> names = {decl->getName()};
+		for (auto alias : parsed_comment.get_multi_tag("alias"))
+			names.push_back(alias);
+
+		// Add getter(s).
+		for (auto& name : names)
 		{
 			Function* fn;
 
@@ -275,12 +280,12 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 
 			if (is_constant_zero)
 			{
-				fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
+				fn = scope->addGetter(var_type, name, params, {}, 0);
 				getConstant(refvar, fn, fn_value);
 			}
 			else if (is_arr)
 			{
-				fn = scope->addGetter(&ty, decl->getName(), params, {}, 0);
+				fn = scope->addGetter(&ty, name, params, {}, 0);
 				// `Screen` is special: normal usage doesn't use a ref variable explicity in the generated ZASM,
 				// but when getting a reference to an array must save the current value of REFSCREEN. The
 				// alternative is to use `@zasm_ref` on screendata but that's wasteful.
@@ -288,7 +293,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 
 				auto params2 = params;
 				params2.push_back(&DataType::FLOAT);
-				Function* fn2 = scope->addFunction(var_type, decl->getName(), params2, {});
+				Function* fn2 = scope->addFunction(var_type, name, params2, {});
 				getIndexedVariable(refvar, fn2, fn_value);
 				if (deprecated)
 				{
@@ -298,7 +303,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 			}
 			else
 			{
-				fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
+				fn = scope->addGetter(var_type, name, params, {}, 0);
 				getVariable(refvar, fn, fn_value);
 			}
 
@@ -309,7 +314,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 			}
 		}
 
-		// Add deprecated getters.
+		// Add deprecated getter.
 		if (auto deprecated_getter = parsed_comment.get_tag("deprecated_getter"))
 		{
 			if (is_arr)
@@ -333,7 +338,8 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 		if (is_constant_zero)
 			continue;
 
-		// Add a setter.
+		// Add setter(s).
+		for (auto& name : names)
 		{
 			Function* fn;
 
@@ -344,7 +350,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 
 			if (is_arr)
 			{
-				fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+				fn = scope->addSetter(&DataType::ZVOID, name, params, {}, 0);
 				fn->setFlag(FUNCFLAG_READ_ONLY);
 
 				std::vector<const DataType*> params2;
@@ -352,7 +358,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 					params2.push_back(user_class->getType());
 				params2.push_back(&DataType::FLOAT);
 				params2.push_back(var_type);
-				Function* fn2 = scope->addFunction(&DataType::ZVOID, decl->getName(), params2, {});
+				Function* fn2 = scope->addFunction(&DataType::ZVOID, name, params2, {});
 				setIndexedVariable(refvar, fn2, fn_value);
 				if (deprecated)
 				{
@@ -362,12 +368,12 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 			}
 			else if (var_type == &DataType::BOOL)
 			{
-				fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+				fn = scope->addSetter(&DataType::ZVOID, name, params, {}, 0);
 				setBoolVariable(refvar, fn, fn_value);
 			}
 			else
 			{
-				fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+				fn = scope->addSetter(&DataType::ZVOID, name, params, {}, 0);
 				setVariable(refvar, fn, fn_value);
 			}
 
@@ -922,6 +928,13 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		if(parsing_user_class == puc_vars)
 		{
 			UserClassVar::create(*scope, host, *type, this);
+			for (auto alias : host.list->getParsedComment().get_multi_tag("alias"))
+			{
+				auto copy = host.clone();
+				copy->identifier->setValue(alias);
+				copy->list = host.list;
+				UserClassVar::create(*scope, *copy, *type, this);
+			}
 		}
 		else
 		{

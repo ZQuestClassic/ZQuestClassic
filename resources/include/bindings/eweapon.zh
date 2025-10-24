@@ -76,13 +76,9 @@ class eweapon {
 
 	// The amount of damage the weapon deals.
 	//
+	// @alias Damage
 	// @zasm_var EWPNPOWER
 	internal int Power;
-
-	// The amount of damage the weapon deals.
-	//
-	// @zasm_var EWPNPOWER
-	internal int Damage;
 
 	// If the weapon is angular (instead of directional)
 	//
