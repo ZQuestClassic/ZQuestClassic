@@ -391,15 +391,13 @@ class subscreendata {
 
 	// The flags for left/right transitions.
 	//
-	// Use the `TRANSFLAG_` constants to access these.
-	//
+	// @index [TRANSFLAG_MAX]
 	// @zasm_var SUBDATATRANSLEFTFLAGS
 	internal bool TransLeftFlags[];
 
 	// The arguments used for left/right transitions.
 	//
-	// Use the 'TRANS_`_ARG_` constants to access these
-	//
+	// @index [TRANS_INSTANT_ARG_MAX] [TRANS_SLIDE_ARG_MAX] [TRANS_PIXEL_ARG_MAX]
 	// @zasm_var SUBDATATRANSLEFTARGS
 	internal int TransLeftArgs[];
 
@@ -417,15 +415,13 @@ class subscreendata {
 
 	// The flags for left/right transitions.
 	//
-	// Use the `TRANSFLAG_` constants to access these.
-	//
+	// @index [TRANSFLAG_MAX]
 	// @zasm_var SUBDATATRANSRIGHTFLAGS
 	internal bool TransRightFlags[];
 
 	// The arguments used for left/right transitions.
 	//
-	// Use the 'TRANS_`_ARG_` constants to access these
-	//
+	// @index [TRANS_INSTANT_ARG_MAX] [TRANS_SLIDE_ARG_MAX] [TRANS_PIXEL_ARG_MAX]
 	// @zasm_var SUBDATATRANSRIGHTARGS
 	internal int TransRightArgs[];
 
