@@ -117,13 +117,13 @@ void scripting_log_error_with_context(std::string text)
 	{
 		std::vector<const char*> context;
 
-		const char* register_string = scripting_get_zasm_register_context_string(current_zasm_register);
-		if (register_string)
-			context.push_back(register_string);
-
 		const char* command_string = scripting_get_zasm_command_context_string(current_zasm_command);
 		if (command_string)
 			context.push_back(command_string);
+
+		const char* register_string = scripting_get_zasm_register_context_string(current_zasm_register);
+		if (register_string)
+			context.push_back(register_string);
 
 		if (!current_zasm_extra_context.empty())
 			context.push_back(current_zasm_extra_context.c_str());
