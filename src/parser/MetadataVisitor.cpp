@@ -181,7 +181,7 @@ static std::string getComment(const AST* node)
 	if (node->doc_comment.empty())
 		return "";
 
-	auto parsed_comment = node->getParsedComment();
+	auto& parsed_comment = node->getParsedComment();
 	std::ostringstream s;
 	if (!parsed_comment.description.empty())
 		s << parsed_comment.description;

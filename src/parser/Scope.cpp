@@ -43,7 +43,7 @@ void Scope::invalidateStackSize()
 
 void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 {
-	auto parsed_comment = fn->getNode()->getParsedComment();
+	auto& parsed_comment = fn->getNode()->getParsedComment();
 	if (auto depr_message = parsed_comment.get_tag("deprecated"))
 	{
 		fn->setFlag(FUNCFLAG_DEPRECATED);

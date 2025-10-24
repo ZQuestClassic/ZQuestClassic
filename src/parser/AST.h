@@ -270,7 +270,7 @@ namespace ZScript
 		bool reachable() const {return isReachable;}
 		void mark_reachable(bool b = true) {isReachable = b;}
 
-		ParsedComment getParsedComment() const;
+		const ParsedComment& getParsedComment() const;
 	
 		// Subclass Predicates (replacing typeof and such).
 		virtual bool isTypeArrow() const {return false;}
@@ -293,6 +293,7 @@ namespace ZScript
 		bool isRegistered;
 		//If this node has been reached by ReturnVisitor
 		bool isReachable;
+		mutable std::optional<ParsedComment> parsed_comment;
 	};
 
 

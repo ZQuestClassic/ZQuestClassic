@@ -221,7 +221,7 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 
 void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 {
-	auto parsed_comment = var->getParsedComment();
+	auto& parsed_comment = var->getParsedComment();
 
 	int refvar = NUL;
 	UserClass* user_class = nullptr;
@@ -391,7 +391,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 
 void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 {
-	auto parsed_comment = host.getParsedComment();
+	auto& parsed_comment = host.getParsedComment();
 	UserClass* parent_class = nullptr;
 	if (auto parent_class_name = parsed_comment.get_tag("extends"))
 	{

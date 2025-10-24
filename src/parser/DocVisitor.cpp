@@ -99,7 +99,7 @@ static json getCommentJson(const AST* node)
 	if (node->doc_comment.empty())
 		return nullptr;
 
-	auto parsed_comment = node->getParsedComment();
+	auto& parsed_comment = node->getParsedComment();
 	json result = json::object();
 
 	result["tags"] = json::array();

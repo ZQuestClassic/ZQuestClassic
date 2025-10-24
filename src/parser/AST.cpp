@@ -59,9 +59,12 @@ AST::AST(LocationData const& location)
 	: location(location), errorDisabled(false), disabled_(false), isRegistered(false), isReachable(true)
 {}
 
-ParsedComment AST::getParsedComment() const
+const ParsedComment& AST::getParsedComment() const
 {
-	return ParsedComment(doc_comment);
+	if (!parsed_comment)
+		parsed_comment = std::make_optional<ParsedComment>(doc_comment);
+
+	return parsed_comment.value();
 }
 
 // ASTFile
