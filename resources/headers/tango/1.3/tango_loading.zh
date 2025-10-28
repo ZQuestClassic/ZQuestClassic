@@ -6,7 +6,6 @@ const int __TANGO_PAD_ORDINAL = 9;
 const int __TANGO_PAD_SAVENAME = 8;
 // @string's padding is customizable, so it's in the main tango.zh file.
 
-
 // Loads a ZScript string into a text slot.
 void Tango_LoadString(int slot, char32[] string)
 {
@@ -64,10 +63,15 @@ void __Tango_LoadString(int slot, char32[] str, bool append, int startChar)
         __Tango_Buffer[destPtr]=NULL;
         return;
     }
-    
-    int strStart=__Tango_FindSrcStart(str, startChar);
-    
-    __Tango_LoadIntoBuffer(str, strStart, destPtr);
+
+    // Go through messagedata so we can parse commands via messagedata::Segments[].
+    // Just need to grab a potentially in-use messagedata and restore it after.
+    messagedata md = Game->LoadMessageData(1);
+    char32 old_str[0];
+    md->Get(old_str);
+    md->Set(str);
+    __Tango_LoadMessage(slot, 1, append, startChar);
+    md->Set(old_str);
 }
 
 void __Tango_LoadMessage(int slot, int msg, bool append, int startChar)
@@ -84,11 +88,65 @@ void __Tango_LoadMessage(int slot, int msg, bool append, int startChar)
         __Tango_Buffer[destPtr]=NULL;
         return;
     }
-    
-    char32 buffer[256];
-    Game->GetMessage(msg, buffer);
-    int srcPtr=__Tango_FindSrcStart(buffer, startChar);
-    
+
+    messagedata md = Game->LoadMessageData(msg);
+
+    char32 buffer[0];
+    md->Get(buffer);
+
+    int srcPtr = __Tango_FindSrcStart(buffer, startChar);
+
+    int i = 0;
+    int j = srcPtr;
+    int[] segments = md->Segments;
+    while (i < SizeOfArray(segments))
+    {
+        int type = segments[i++];
+        int start = segments[i++];
+        int length = segments[i++];
+
+        if (type == MSG_SEGMENT_TYPE_COMMAND)
+        {
+            int code = segments[i++];
+            int numArgs = segments[i++];
+            if (start < srcPtr)
+            {
+                i += numArgs;
+                continue;
+            }
+
+            buffer[j++] = code + 1;
+
+            for (int k = 0; k < numArgs; k++)
+            {
+                buffer[j++] = segments[i++] + 1;
+            }
+        }
+        else if (type == MSG_SEGMENT_TYPE_LITERAL || type == MSG_SEGMENT_TYPE_INVALID)
+        {
+            // Skip if the entire segment is before srcPtr.
+            int segment_end = start + length;
+            if (segment_end <= srcPtr) continue;
+
+            // Find the correct starting 'k' index within this literal.
+            int k_start = 0;
+            if (start < srcPtr)
+            {
+                // srcPtr is inside this literal, so start k part-way through.
+                k_start = srcPtr - start;
+            }
+
+            for (int k = k_start; k < length; k++)
+            {
+                buffer[j++] = buffer[start + k];
+            }
+        }
+    }
+
+    // Set terminating null byte.
+    ResizeArray(buffer, j + 1);
+    buffer[j] = 0;
+
     __Tango_LoadIntoBuffer(buffer, srcPtr, destPtr);
 }
 

@@ -931,6 +931,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case MESSAGEDATAPORTWID: return "messagedata::PortraitTileWidth";
 		case MESSAGEDATAPORTX: return "messagedata::PortraitX";
 		case MESSAGEDATAPORTY: return "messagedata::PortraitY";
+		case MESSAGEDATASEGMENTS: return "messagedata::Segments[]";
 		case MESSAGEDATASFX: return "messagedata::Sound";
 		case MESSAGEDATATEXTHEI: return "messagedata::TextHeight";
 		case MESSAGEDATATEXTWID: return "messagedata::TextWidth";

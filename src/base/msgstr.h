@@ -40,6 +40,7 @@ struct MsgStr
 	// Use `serialize` instead to get a human readable string.
 	std::string s;
 	mutable ParsedMsgStr parsed_msg_str;
+	mutable std::vector<int32_t> segments_as_int_array;
 	word nextstring;
 	int32_t tile;
 	byte cset;
@@ -78,6 +79,7 @@ struct MsgStr
 	void parse() const;
 	// A human-readable encoding of the string.
 	std::string serialize() const;
+	const std::vector<int32_t>& segmentsAsIntArray() const;
 
 	struct iterator
 	{

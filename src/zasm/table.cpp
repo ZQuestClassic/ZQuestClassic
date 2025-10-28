@@ -2696,6 +2696,7 @@ static constexpr script_variable variable_list[]=
 	{ "COMBOD_DIVE_UNDER_LEVEL", COMBOD_DIVE_UNDER_LEVEL, 0 },
 	{ "GAMELAYERZTHRESHOLDS", GAMELAYERZTHRESHOLDS, 0 },
 	{ "NPCFLAGS", NPCFLAGS, 0 },
+	{ "MESSAGEDATASEGMENTS", MESSAGEDATASEGMENTS, 0 },
 	{"", -1},
 };
 
@@ -4178,6 +4179,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case MESSAGEDATAPORTWID:
 		case MESSAGEDATAPORTX:
 		case MESSAGEDATAPORTY:
+		case MESSAGEDATASEGMENTS:
 		case MESSAGEDATASFX:
 		case MESSAGEDATATEXTHEI:
 		case MESSAGEDATATEXTLEN:

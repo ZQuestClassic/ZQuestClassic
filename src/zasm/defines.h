@@ -3293,6 +3293,7 @@ enum ASM_DEFINE
 #define COMBOD_DIVE_UNDER_LEVEL        0x166F
 #define GAMELAYERZTHRESHOLDS           0x1670
 #define NPCFLAGS                       0x1671
+#define MESSAGEDATASEGMENTS             0x1672
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7
 // Note: define new variables in above unused block

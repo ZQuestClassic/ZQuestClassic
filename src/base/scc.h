@@ -54,20 +54,25 @@
 #define MSGC_TRIG_CMB_COPYCAT      137  // 1 arg (copycat id)
 //138+
 
+#define MAX_SCC_ARGS 6
+
 struct StringCommand
 {
+	word start; // starting index in source string
+	byte length; // length in source string
 	byte code;
 	byte num_args;
-	word args[6];
+	word args[MAX_SCC_ARGS];
 };
 
 struct ParsedMsgStr
 {
+	// Literals are stored in literals, and commands are stored in commands.
+	enum class SegmentType {Invalid, Literal, Command};
+
 	std::vector<std::string_view> literals;
 	std::vector<StringCommand> commands;
-	// 0 = literal
-	// 1 = command
-	std::vector<byte> segment_types;
+	std::vector<SegmentType> segment_types;
 
 	std::string serialize() const;
 };

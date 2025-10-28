@@ -21706,7 +21706,7 @@ void FFScript::do_messagedata_getstring(const bool v)
 	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
 		
-	if(ArrayH::setArray(arrayptr, MsgStrings[ID].s) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr, MsgStrings[ID].s, true) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'messagedata->Get()' not large enough\n");
 }
 

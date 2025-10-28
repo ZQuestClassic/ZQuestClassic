@@ -115,6 +115,7 @@ void MsgStr::clear()
 	s = "";
 	s.shrink_to_fit();
 	parsed_msg_str = {};
+	segments_as_int_array.clear();
 	nextstring = 0;
 	tile=0;
 	cset=0;
@@ -161,6 +162,7 @@ void MsgStr::parse() const
 	}
 
 	this->parsed_msg_str = std::move(parsed_msg_str);
+	segments_as_int_array.clear();
 }
 
 std::string MsgStr::serialize() const
@@ -168,6 +170,44 @@ std::string MsgStr::serialize() const
 	if (parsed_msg_str.literals.empty())
 		parse();
 	return parsed_msg_str.serialize();
+}
+
+const std::vector<int32_t>& MsgStr::segmentsAsIntArray() const
+{
+	if (parsed_msg_str.literals.empty() && parsed_msg_str.commands.empty())
+		parse();
+
+	if (segments_as_int_array.empty())
+	{
+		size_t literals = 0;
+		size_t commands = 0;
+		for (int i = 0; i < parsed_msg_str.segment_types.size(); i++)
+		{
+			auto type = parsed_msg_str.segment_types[i];
+			segments_as_int_array.push_back((int)type);
+
+			if (type == ParsedMsgStr::SegmentType::Command)
+			{
+				auto& cmd = parsed_msg_str.commands[commands++];
+
+				segments_as_int_array.push_back(cmd.start); // source start
+				segments_as_int_array.push_back(cmd.length); // source length
+				segments_as_int_array.push_back(cmd.code);
+				segments_as_int_array.push_back(cmd.num_args);
+				for (int j = 0; j < cmd.num_args; j++)
+					segments_as_int_array.push_back(cmd.args[j]);
+			}
+			else
+			{
+				auto& literal = parsed_msg_str.literals[literals++];
+				size_t offset = literal.data() - s.data();
+				segments_as_int_array.push_back(offset); // source start
+				segments_as_int_array.push_back(literal.size()); // source length
+			}
+		}
+	}
+
+	return segments_as_int_array;
 }
 
 MsgStr::iterator MsgStr::create_iterator() const
@@ -227,15 +267,15 @@ bool MsgStr::iterator::next_segment()
 		return true;
 	}
 
-	if (str->parsed_msg_str.segment_types[segment_index++] == 0)
-	{
-		state = CHARACTER;
-		buffer = str->parsed_msg_str.literals[literal_index++];
-	}
-	else
+	if (str->parsed_msg_str.segment_types[segment_index++] == ParsedMsgStr::SegmentType::Command)
 	{
 		state = COMMAND;
 		command = str->parsed_msg_str.commands[command_index++];
+	}
+	else
+	{
+		state = CHARACTER;
+		buffer = str->parsed_msg_str.literals[literal_index++];
 	}
 
 	return false;

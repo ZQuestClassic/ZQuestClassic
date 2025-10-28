@@ -1,4 +1,5 @@
 #include "stringcontrolcode.h"
+#include "base/scc.h"
 #include "common.h"
 #include "info.h"
 #include <gui/builder.h>
@@ -1072,9 +1073,9 @@ bool SCCDialog::load_scc_str(std::string const& str)
 {
 	size_t q = 0;
 	byte scc;
-	int32_t t_args[6];
+	int32_t t_args[MAX_SCC_ARGS];
 	int cur_arg = -1;
-	int limit = 6;
+	int limit = MAX_SCC_ARGS;
 	while(q < str.size() && cur_arg < limit)
 	{
 		if(str.at(q) == '\\') //SCC escape slash

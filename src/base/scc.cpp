@@ -114,23 +114,29 @@ value_and_warnings<ParsedMsgStr> parse_legacy_msg_str(const std::string& str)
 			continue;
 		}
 
+		if (prev != cur)
+		{
+			parsed_msg_str.literals.emplace_back(str.begin() + prev, str.begin() + cur);
+			parsed_msg_str.segment_types.push_back(ParsedMsgStr::SegmentType::Literal);
+			prev = cur;
+		}
+
 		auto expected_args_opt = get_scc_command_num_args(c - 1);
 		if (!expected_args_opt)
 		{
 			warnings.push_back(fmt::format("Unknown command {}", (int)c - 1));
+
 			cur++;
+			parsed_msg_str.literals.emplace_back(str.begin() + prev, str.begin() + cur);
+			parsed_msg_str.segment_types.push_back(ParsedMsgStr::SegmentType::Invalid);
+			prev = cur;
 			continue;
 		}
 
-		if (prev != cur)
-		{
-			parsed_msg_str.literals.emplace_back(str.begin() + prev, str.begin() + cur);
-			parsed_msg_str.segment_types.push_back(0);
-		}
-		
 		auto& command = parsed_msg_str.commands.emplace_back();
+		command.start = cur;
 		command.code = c - 1;
-		parsed_msg_str.segment_types.push_back(1);
+		parsed_msg_str.segment_types.push_back(ParsedMsgStr::SegmentType::Command);
 
 		int expected_args = *expected_args_opt;
 		int found_num_args;
@@ -148,6 +154,7 @@ value_and_warnings<ParsedMsgStr> parse_legacy_msg_str(const std::string& str)
 
 		cur++;
 		prev = cur;
+		command.length = cur - command.start;
 	}
 
 	// prev can be larger than last here, since the calculation for last unfortunately may also
@@ -157,7 +164,7 @@ value_and_warnings<ParsedMsgStr> parse_legacy_msg_str(const std::string& str)
 	if (prev < last)
 	{
 		parsed_msg_str.literals.emplace_back(str.begin() + prev, str.begin() + last);
-		parsed_msg_str.segment_types.push_back(0);
+		parsed_msg_str.segment_types.push_back(ParsedMsgStr::SegmentType::Literal);
 	}
 
 	return result;
@@ -176,16 +183,16 @@ std::string ParsedMsgStr::serialize() const
 	size_t command_index = 0;
 	for (int i = 0; i < segment_types.size(); i++)
 	{
-		if (segment_types[i] == 0)
-		{
-			result += literals[literal_index++];
-		}
-		else
+		if (segment_types[i] == ParsedMsgStr::SegmentType::Command)
 		{
 			auto& command = commands[command_index++];
 			result += fmt::format("\\{}", command.code);
 			for (int j = 0; j < command.num_args; j++)
 				result += fmt::format("\\{}", command.args[j]);
+		}
+		else
+		{
+			result += literals[literal_index++];
 		}
 	}
 

@@ -11,6 +11,13 @@ enum MessageFlag
 	MSGFLAG_TRANS_FG,     // If the text should be translucent
 };
 
+enum MessageSegmentType
+{
+	MSG_SEGMENT_TYPE_INVALID,
+	MSG_SEGMENT_TYPE_LITERAL,
+	MSG_SEGMENT_TYPE_COMMAND,
+}
+;
 // For accessing and editing message strings (`Quests > Strings`). Load with [Game->LoadMessageData].
 //
 // @tutorial /tutorials/scc
@@ -129,6 +136,9 @@ class messagedata {
 	// Returns the height, in pixels, of the message text - not including line
 	// wrap / breaks.
 	//
+	// Note: this is busted in the presence of commands, escaped characters, or
+	// excessive whitespace.
+	//
 	// @deprecated_getter TextHeight
 	// @zasm_var MESSAGEDATATEXTHEI
 	internal const int TextHeight;
@@ -136,11 +146,17 @@ class messagedata {
 	// Returns the width, in pixels, of the message text - not including line
 	// wrap / breaks.
 	//
+	// Note: this is busted in the presence of commands, escaped characters, or
+	// excessive whitespace.
+	//
 	// @deprecated_getter TextWidth
 	// @zasm_var MESSAGEDATATEXTWID
 	internal const int TextWidth;
 
-	// The length, in characters, of the message.
+	// The length, in bytes, of the underlying message data.
+	//
+	// Note: in the presence of commands or escaped characters this is not the same as the displayed
+	// number of characters. To get the true character length, see [Segments].
 	//
 	// @zasm_var MESSAGEDATATEXTLEN
 	internal const int Length;
@@ -153,7 +169,24 @@ class messagedata {
 	// @zasm_var MESSAGEDATAFLAGS
 	internal int Flag;
 
-	// Loads the message into the provided string buffer.
+	// The result of parsing this string for SCCs and escaped characters.
+	//
+	// The data returned in the array is formatted like this:
+	//
+	// 1) segment type: [MessageSegmentType]
+	// 2) Text literals: start position, length
+	//    Commands: start position in source text, length, # of args, ...args
+	//
+	// For example, the string "Hello \Color\1\2\ World" returns 3 segments:
+	//
+	// 1. 3 numbers: [MSG_SEGMENT_TYPE_LITERAL] 0 6 ("Hello ")
+	// 2. 6 numbers: [MSG_SEGMENT_TYPE_COMMAND] 6 12 2 1 2 (\Color\1\2\ )
+	// 3. 3 numbers: [MSG_SEGMENT_TYPE_LITERAL] 18 5 ("World")
+	//
+	// @zasm_var MESSAGEDATASEGMENTS
+	internal const int[] Segments;
+
+	// Loads the raw message data into the provided string buffer.
 	//
 	// @zasm
 	//   POP D3
@@ -161,7 +194,7 @@ class messagedata {
 	//   MESSAGEDATAGETSTRINGR D3
 	internal void Get(char32[] str);
 
-	// Sets the message to the provided string.
+	// Sets the raw message data to the provided string.
 	//
 	// @zasm
 	//   POP D3

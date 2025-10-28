@@ -15,3 +15,14 @@ static ArrayRegistrar MESSAGEDATAFLAGSARR_registrar(MESSAGEDATAFLAGSARR, []{
 	impl.setMul10000(true);
 	return &impl;
 }());
+
+static ArrayRegistrar MESSAGEDATASEGMENTS_registrar(MESSAGEDATASEGMENTS, []{
+	static ScriptingArray_ObjectComputed<MsgStr, int32_t> impl(
+		[](MsgStr* msg){ return msg->segmentsAsIntArray().size(); },
+		[](MsgStr* msg, int index){ return msg->segmentsAsIntArray()[index]; },
+		[](MsgStr* msg, int index, int value){}
+	);
+	impl.setMul10000(true);
+	impl.setReadOnly();
+	return &impl;
+}());
