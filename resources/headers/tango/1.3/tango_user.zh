@@ -1,5 +1,6 @@
 // Functions for the user's use that don't really fit elsewhere.
 
+#include "tango.zh"
 
 void Tango_Start()
 {

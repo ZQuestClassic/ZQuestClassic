@@ -2,7 +2,7 @@
 
 const int __TANGO_FULL_LOGGING = 0;
 
-void __Tango_LogMessage(int msg, untyped data)
+void __Tango_LogMessage(int code, untyped data)
 {
     // Ignore it
 }

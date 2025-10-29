@@ -35,10 +35,10 @@ const int TQS_SFX_CANCEL = 0;
 const int STYLE_TQS = 0;
 
 
-// Use this function to display a ZScript string (int[]).
+// Use this function to display a ZScript string (char32[]).
 // The return value will be the ID of the slot used or
 // TANGO_INVALID if no text slot was available.
-int ShowString(int str)
+int ShowString(char32[] str)
 {
     int slot=Tango_GetFreeSlot(TANGO_SLOT_ANY);
     if(slot==TANGO_INVALID)

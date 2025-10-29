@@ -85,7 +85,7 @@ void __Tango_LoadMessage(int slot, int msg, bool append, int startChar)
         return;
     }
     
-    int buffer[256];
+    char32 buffer[256];
     Game->GetMessage(msg, buffer);
     int srcPtr=__Tango_FindSrcStart(buffer, startChar);
     

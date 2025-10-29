@@ -2,7 +2,7 @@
 
 const int __TANGO_FULL_LOGGING = 1;
 
-void __Tango_LogMessage(int msg, untyped data)
+void __Tango_LogMessage(int code, untyped data)
 {
     if(__TANGO_LOGGING_LEVEL<2)
         return;
@@ -10,18 +10,18 @@ void __Tango_LogMessage(int msg, untyped data)
     int str[]="tango.zh: ";
     TraceS(str);
     
-    if(msg==__TANGO_MSG_LOAD_START)
+    if(code==__TANGO_MSG_LOAD_START)
     {
         int str2[]="loading text:\n%s\n";
         printf(str2, data);
     }
-    else if(msg==__TANGO_MSG_LOAD_END)
+    else if(code==__TANGO_MSG_LOAD_END)
     {
         int str2[]="finished loading";
         TraceS(str2);
         TraceNL();
     }
-    else if(msg==__TANGO_NO_SLOTS_FREE)
+    else if(code==__TANGO_NO_SLOTS_FREE)
     {
         if(data==TANGO_SLOT_ANY)
         {

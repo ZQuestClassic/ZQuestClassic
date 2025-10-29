@@ -16,5 +16,6 @@
 #include "auto/sprites.zs"
 #include "auto/stack_limit.zs"
 #include "auto/std_unit.zs"
+#include "auto/tango.zs"
 #include "auto/varargs.zs"
 #include "auto/viewport.zs"
