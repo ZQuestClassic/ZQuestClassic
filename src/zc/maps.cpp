@@ -7529,16 +7529,17 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 				if(cmb.type == cCSWITCH) return; //Switches don't toggle other layers
 				for(int32_t lyr2 = 0; lyr2 < 7; ++lyr2) //Toggle same pos on other layers, if flag set
 				{
-					if(lyr==lyr2) return;
-					if(!(cmb.usrflags&(1<<lyr2))) return;
-					if(togglegrid[pos]&(1<<lyr2)) return;
-					mapscr* scr_2 = (lyr2 ? get_scr_layer(screen, lyr2) : m);
+					if(lyr==lyr2) continue;
+					if(!(cmb.usrflags&(1<<lyr2))) continue;
+					if(togglegrid[pos]&(1<<lyr2)) continue;
+
+					mapscr* scr_2 = screen_handles[lyr2].scr;
 					if(!scr_2->data[pos]) //Don't increment empty space
-						return;
+						continue;
 					newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
 					if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK) && !(cmb.usrflags & cflag11)
 							&& cmb_2.attribytes[0] < 32 && (flags&(1<<cmb_2.attribytes[0])))
-						return; //This is a switch/block that will be hit later in the loop!
+						continue; //This is a switch/block that will be hit later in the loop!
 					set<int32_t> oldData2;
 					//Increment the combo/cset by the original cmb's attributes
 					oldData2.insert(scr_2->data[pos]);

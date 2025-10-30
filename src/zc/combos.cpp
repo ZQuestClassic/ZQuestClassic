@@ -421,7 +421,7 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 		if(lyr == skip_layer) continue;
 		if(!(cmb.usrflags&(1<<lyr))) continue;
 
-		auto rpos_handle = get_rpos_handle(rpos, lyr + 1);
+		auto rpos_handle = get_rpos_handle(rpos, lyr);
 		if (!rpos_handle.scr->is_valid())
 			continue;
 		if(!rpos_handle.data()) //Don't increment empty space
