@@ -20073,8 +20073,6 @@ static bool parsemsgcode(const StringCommand& command)
 			int32_t dy =  args[3];
 			int32_t wfx =  args[4];
 			int32_t sfx =  args[5];
-			if(dx >= MAX_SCC_ARG) dx = -1;
-			if(dy >= MAX_SCC_ARG) dy = -1;
 			FFCore.warp_player(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
 			do_end_str = true;
 			return true;
@@ -20228,7 +20226,7 @@ static bool parsemsgcode(const StringCommand& command)
 			return true;
 		}
 		
-		case MSGC_GOTOIF:
+		case MSGC_GOTOIFITEM:
 		{
 			int32_t it = args[0];
 			

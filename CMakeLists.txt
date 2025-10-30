@@ -647,6 +647,9 @@ if (USE_NFD)
 	target_compile_definitions(zcbase PUBLIC HAS_NFD)
 endif()
 
+add_executable(zc_test_runner src/base/test_runner.cpp src/base/scc_test.cpp)
+target_link_libraries(zc_test_runner PRIVATE zcbase)
+
 # std::execution supplementation.
 # For std::execution::par, seq, and par_unseq.
 # On compilers with support poolSTL does nothing, else poolSTL aliases poolstl::par to the std::execution policies.

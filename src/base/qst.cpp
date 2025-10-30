@@ -3563,6 +3563,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (compatrule_version < 93 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 12) < 0))
 		set_qr(qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT, 1);
 
+	if (compatrule_version < 94)
+		set_qr(qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING, 1);
+
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
@@ -3796,6 +3799,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 		for(int32_t i=0; i<temp_msg_count; i++)
 		{
 			init_msgstr(&tempMsgString);
+			if (s_version >= 11)
+				tempMsgString.encoding_type = MsgStr::EncodingType::Ascii;
 			tempMsgString.listpos = i;
 			if(s_version > 8)
 			{
@@ -3821,7 +3826,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			{
 				buf[0] = 0;
 			}
-			
+
 			if(!p_igetw(&tempMsgString.nextstring,f))
 			{
 				return qe_invalid;
@@ -3836,16 +3841,19 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			{
 				// June 2008: A bug corrupted the last 4 chars of a string.
 				// Discard these.
-				if(s_version<3)
+				if (!should_skip)
 				{
-					for(int32_t j=140; j<144; j++)
+					if(s_version<3)
 					{
-						buf[j] = '\0';
+						for(int32_t j=140; j<144; j++)
+						{
+							buf[j] = '\0';
+						}
 					}
+					if(string_length > 8192) string_length = 8192;
+					buf[string_length]='\0'; //Force-terminate
+					tempMsgString.set(buf, tempMsgString.encoding_type);
 				}
-				if(string_length > 8192) string_length = 8192;
-				buf[string_length]='\0'; //Force-terminate
-				tempMsgString.setFromLegacyEncoding(buf);
 				
 				if ( s_version >= 6 )
 				{

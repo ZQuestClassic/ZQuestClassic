@@ -2,6 +2,7 @@
 #define ZC_DIALOG_SCC_H_
 
 #include "base/msgstr.h"
+#include "base/scc.h"
 #include <gui/dialog.h>
 #include <gui/drop_down_list.h>
 #include <gui/checkbox.h>
@@ -30,7 +31,7 @@ public:
 private:
 	std::shared_ptr<GUI::Window> window;
 	byte curscc;
-	int32_t args[256][MAX_SCC_ARGS];
+	int32_t args[256][MAX_SCC_ARG_COUNT];
 	GUI::ListData list_sccs, list_shtype, list_strings, list_items, list_counters, list_dmaps,
 		list_weffect, list_sfx, list_midi, list_screenstate, list_font, list_font_order,
 		list_genscr;

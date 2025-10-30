@@ -114,7 +114,7 @@ def get_build_folder():
         ]
         targets = [
             get_exe_name(x)
-            for x in ['zplayer', 'zeditor', 'zlauncher', 'zscript', 'zupdater']
+            for x in ['zplayer', 'zeditor', 'zlauncher', 'zscript', 'zupdater', 'zc_test_runner']
         ]
 
         def get_mtime(path: Path):

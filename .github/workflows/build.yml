@@ -21,6 +21,10 @@ on:
         type: boolean
         default: false
         description: "Whether to include debug info in the packaged artifact"
+      test-runner:
+        type: boolean
+        default: false
+        description: "Whether to include the test runner in the packaged artifact"
       # The following is for releases only.
       official:
         type: boolean
@@ -54,7 +58,7 @@ env:
   CCACHE_DIR: ${{ github.workspace }}/.ccache
   CCACHE_MAXSIZE: 400M
   CCACHE_SLOPPINESS: time_macros
-  TARGET: zplayer zeditor zscript zlauncher zupdater
+  TARGET: zplayer zeditor zscript zlauncher zupdater zc_test_runner
 
 jobs:
   build:
@@ -218,6 +222,9 @@ jobs:
           if release_version != 'zc':
             package_script_args = f'--version {release_version}'
             package_script_args_mac = release_version
+
+          if '${{ inputs.test-runner }}' == 'true':
+            package_script_args += '--test_runner'
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             print('{0}={1}'.format('package-orig-name', package_orig_name), file=f)

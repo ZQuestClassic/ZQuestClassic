@@ -13,7 +13,6 @@
 extern char namebuf[9];
 
 void init_msgstr(MsgStr *str);
-std::string parse_to_legacy_msg_str_encoding(std::string const& s);
 void strip_trailing_spaces(std::string& str);
 int32_t msg_code_operands(byte cc);
 

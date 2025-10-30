@@ -1,5 +1,8 @@
 #include "base/util.h"
+#include "allegro/debug.h"
+#include "base/general.h"
 #include "base/process_management.h"
+#include "base/zdefs.h"
 #include <cstdlib>
 #include <fstream>
 #include <sstream>

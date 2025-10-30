@@ -18,8 +18,8 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 18,
-    "symbols": 44,
-    "identifiers": 153,
+    "symbols": 45,
+    "identifiers": 157,
     "elided": true
   }
 }
@@ -77,18 +77,25 @@ COMPAREV D2 0
 GOTOCMP 52 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
 GOTO 44; while() #2 End
-CALLFUNC 0.0421; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0428; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHARGSV 0 0.0003
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0428; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0435; UsrFunc[void Init(int)] Call
 POP D4
 SETV D2 0
 PUSHR D2
 SETV D2 41
+PUSHR D2
+POP D0
+POP D2
+SETR FFRULE D2
+SETV D2 1
+PUSHR D2
+SETV D2 489
 PUSHR D2
 POP D0
 POP D2
@@ -99,14 +106,14 @@ PUSHR D4
 ALLOCATEMEMV D2 12 0; UsrFunc[void playMessage(char32[])] Params Start
 WRITEPODSTRING D2 "hello world"
 PUSHR D2; UsrFunc[void playMessage(char32[])] Params End
-CALLFUNC 0.0471; UsrFunc[void playMessage(char32[])] Call
+CALLFUNC 0.0478; UsrFunc[void playMessage(char32[])] Call
 POP D4
 STOREV 32 0.0001; for() #152 setup
 LOAD D2 0.0001; for() #152 LoopTest
 COMPAREV D2 126
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 108 ==; for() #152 TestFail?
+GOTOCMP 115 ==; for() #152 TestFail?
 ALLOCATEMEMV D2 1 0; for() #152 Body Start
 STORE_OBJECT D2 0
 LOAD D2 0; InlineFunc[int sprintf(char32[], char32[])] Params Start
@@ -117,7 +124,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int scc(int)] Params Start
 PUSHR D2; UsrFunc[int scc(int)] Params End
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
@@ -132,11 +139,11 @@ REF_REMOVE 0; for() #152 Body End
 LOAD D2 0.0001; for() #152 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 77; for() #152 End
+GOTO 84; for() #152 End
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[void playMessage(char32[])] Params Start
 PUSHR D2; UsrFunc[void playMessage(char32[])] Params End
-CALLFUNC 0.0471; UsrFunc[void playMessage(char32[])] Call
+CALLFUNC 0.0478; UsrFunc[void playMessage(char32[])] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[int sprintf(char32[], char32[])] Params Start
 PUSHR D2
@@ -145,7 +152,7 @@ WRITEPODSTRING D2 "hello %cworld"
 PUSHR D2
 PUSHR D4
 PUSHV 25; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
@@ -153,7 +160,7 @@ POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[])] Body End
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[void playMessage(char32[])] Params Start
 PUSHR D2; UsrFunc[void playMessage(char32[])] Params End
-CALLFUNC 0.0471; UsrFunc[void playMessage(char32[])] Call
+CALLFUNC 0.0478; UsrFunc[void playMessage(char32[])] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[int sprintf(char32[], char32[])] Params Start
 PUSHR D2
@@ -162,17 +169,17 @@ WRITEPODSTRING D2 "hello %c%c%cworld"
 PUSHR D2
 PUSHR D4
 PUSHV 1; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 1; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 2; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
@@ -182,7 +189,7 @@ LOAD D2 0.0001; for() #153 LoopTest
 COMPAREV D2 50
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 195 ==; for() #153 TestFail?
+GOTOCMP 202 ==; for() #153 TestFail?
 ALLOCATEMEMV D2 1 0; for() #153 Body Start
 STORE_OBJECT D2 0
 LOAD D2 0; InlineFunc[int sprintf(char32[], char32[])] Params Start
@@ -192,19 +199,19 @@ WRITEPODSTRING D2 "%c%c%c!"
 PUSHR D2
 PUSHR D4
 PUSHV 1; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 0; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int scc(int)] Params Start
 MODV D2 10
 PUSHR D2; UsrFunc[int scc(int)] Params End
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
@@ -219,11 +226,11 @@ REF_REMOVE 0; for() #153 Body End
 LOAD D2 0.0001; for() #153 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 153; for() #153 End
+GOTO 160; for() #153 End
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[void playMessage(char32[])] Params Start
 PUSHR D2; UsrFunc[void playMessage(char32[])] Params End
-CALLFUNC 0.0471; UsrFunc[void playMessage(char32[])] Call
+CALLFUNC 0.0478; UsrFunc[void playMessage(char32[])] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[int sprintf(char32[], char32[])] Params Start
 PUSHR D2
@@ -232,22 +239,22 @@ WRITEPODSTRING D2 "sounds....%c%c..............%c%c..........done"
 PUSHR D2
 PUSHR D4
 PUSHV 20; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 1; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 20; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 2; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
@@ -255,7 +262,7 @@ POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[])] Body End
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[void playMessage(char32[])] Params Start
 PUSHR D2; UsrFunc[void playMessage(char32[])] Params End
-CALLFUNC 0.0471; UsrFunc[void playMessage(char32[])] Call
+CALLFUNC 0.0478; UsrFunc[void playMessage(char32[])] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[int sprintf(char32[], char32[])] Params Start
 PUSHR D2
@@ -264,37 +271,37 @@ WRITEPODSTRING D2 "counter set%c%c%c check%c%c%c%c"
 PUSHR D2
 PUSHR D4
 PUSHV 12; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 1; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 10; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 6; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 1; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 10; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 2; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
@@ -305,7 +312,7 @@ PUSHR D4
 PUSHV 1; UsrFunc[messagedata setMessage(int, char32[])] Params Start
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[messagedata setMessage(int, char32[])] Params End
-CALLFUNC 0.0486; UsrFunc[messagedata setMessage(int, char32[])] Call
+CALLFUNC 0.0493; UsrFunc[messagedata setMessage(int, char32[])] Call
 POP D4
 POP D3
 PUSHR D2
@@ -318,16 +325,16 @@ PUSHV 2; UsrFunc[messagedata setMessage(int, char32[])] Params Start
 ALLOCATEMEMV D2 8 0
 WRITEPODSTRING D2 "true..."
 PUSHR D2; UsrFunc[messagedata setMessage(int, char32[])] Params End
-CALLFUNC 0.0486; UsrFunc[messagedata setMessage(int, char32[])] Call
+CALLFUNC 0.0493; UsrFunc[messagedata setMessage(int, char32[])] Call
 PEEK D4
 PUSHV 3; UsrFunc[messagedata setMessage(int, char32[])] Params Start
 ALLOCATEMEMV D2 9 0
 WRITEPODSTRING D2 "false..."
 PUSHR D2; UsrFunc[messagedata setMessage(int, char32[])] Params End
-CALLFUNC 0.0486; UsrFunc[messagedata setMessage(int, char32[])] Call
+CALLFUNC 0.0493; UsrFunc[messagedata setMessage(int, char32[])] Call
 PEEK D4
 PUSHV 1; UsrFunc[void playMessage(int)] Params
-CALLFUNC 0.0449; UsrFunc[void playMessage(int)] Call
+CALLFUNC 0.0456; UsrFunc[void playMessage(int)] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[int sprintf(char32[], char32[])] Params Start
 PUSHR D2
@@ -336,37 +343,37 @@ WRITEPODSTRING D2 "counter set%c%c%c check%c%c%c%c"
 PUSHR D2
 PUSHR D4
 PUSHV 12; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 1; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 10; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 6; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 1; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 100; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 2; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
@@ -377,7 +384,7 @@ PUSHR D4
 PUSHV 1; UsrFunc[messagedata setMessage(int, char32[])] Params Start
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[messagedata setMessage(int, char32[])] Params End
-CALLFUNC 0.0486; UsrFunc[messagedata setMessage(int, char32[])] Call
+CALLFUNC 0.0493; UsrFunc[messagedata setMessage(int, char32[])] Call
 POP D4
 POP D3
 PUSHR D2
@@ -390,16 +397,16 @@ PUSHV 2; UsrFunc[messagedata setMessage(int, char32[])] Params Start
 ALLOCATEMEMV D2 8 0
 WRITEPODSTRING D2 "true..."
 PUSHR D2; UsrFunc[messagedata setMessage(int, char32[])] Params End
-CALLFUNC 0.0486; UsrFunc[messagedata setMessage(int, char32[])] Call
+CALLFUNC 0.0493; UsrFunc[messagedata setMessage(int, char32[])] Call
 PEEK D4
 PUSHV 3; UsrFunc[messagedata setMessage(int, char32[])] Params Start
 ALLOCATEMEMV D2 9 0
 WRITEPODSTRING D2 "false..."
 PUSHR D2; UsrFunc[messagedata setMessage(int, char32[])] Params End
-CALLFUNC 0.0486; UsrFunc[messagedata setMessage(int, char32[])] Call
+CALLFUNC 0.0493; UsrFunc[messagedata setMessage(int, char32[])] Call
 PEEK D4
 PUSHV 1; UsrFunc[void playMessage(int)] Params
-CALLFUNC 0.0449; UsrFunc[void playMessage(int)] Call
+CALLFUNC 0.0456; UsrFunc[void playMessage(int)] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[int sprintf(char32[], char32[])] Params Start
 PUSHR D2
@@ -408,32 +415,32 @@ WRITEPODSTRING D2 "speed%c%c.......%c%c............%c%c...."
 PUSHR D2
 PUSHR D4
 PUSHV 2; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 0; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 2; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 10; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 2; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2
 PUSHR D4
 PUSHV 60; UsrFunc[int scc(int)] Params
-CALLFUNC 0.0540; UsrFunc[int scc(int)] Call
+CALLFUNC 0.0547; UsrFunc[int scc(int)] Call
 POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
@@ -441,7 +448,7 @@ POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[])] Body End
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[void playMessage(char32[])] Params Start
 PUSHR D2; UsrFunc[void playMessage(char32[])] Params End
-CALLFUNC 0.0471; UsrFunc[void playMessage(char32[])] Call
+CALLFUNC 0.0478; UsrFunc[void playMessage(char32[])] Call
 POP D4
 REF_REMOVE 0.0002
 POPARGS D5 0.0004
@@ -466,7 +473,7 @@ LOAD D2 0; if() #420 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 447 ==; Test 'if'
+GOTOCMP 454 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #420 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -480,7 +487,7 @@ SETR D3 D2; InlineFunc[void screendata::Message(int)] Params End
 MSGSTRR D3; InlineFunc[void screendata::Message(int)] Body
 SETR D2 SHOWNMSG; while() #3 Test
 COMPAREV D2 0
-GOTOCMP 469 ==; Test 'while'
+GOTOCMP 476 ==; Test 'while'
 PUSHV 36; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start AND while() #3 Body Start
 SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
 POP D2; InlineFunc[void WaitTo(ScriptTiming, bool)] Body Start
@@ -493,7 +500,7 @@ POP D0
 POP D2
 SETR BUTTONINPUT D2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
-GOTO 453; while() #3 End
+GOTO 460; while() #3 End
 POP D5
 RETURNFUNC; Func[void playMessage(int)] Body End
 SETR D4 SP2; Func[void playMessage(char32[])] Body Start
@@ -503,10 +510,10 @@ PUSHR D4
 PUSHV 1; UsrFunc[messagedata setMessage(int, char32[])] Params Start
 LOAD D2 0
 PUSHR D2; UsrFunc[messagedata setMessage(int, char32[])] Params End
-CALLFUNC 0.0486; UsrFunc[messagedata setMessage(int, char32[])] Call
+CALLFUNC 0.0493; UsrFunc[messagedata setMessage(int, char32[])] Call
 PEEK D4
 PUSHV 1; UsrFunc[void playMessage(int)] Params
-CALLFUNC 0.0449; UsrFunc[void playMessage(int)] Call
+CALLFUNC 0.0456; UsrFunc[void playMessage(int)] Call
 POP D4
 REF_REMOVE 0
 POP D5

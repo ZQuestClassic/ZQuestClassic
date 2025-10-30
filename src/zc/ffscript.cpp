@@ -29,6 +29,7 @@
 #include "base/packfile.h"
 #include "base/misctypes.h"
 #include "base/initdata.h"
+#include "base/scc.h"
 #include "base/version.h"
 #include "new_subscr.h"
 #include "zc/maps.h"
@@ -21696,7 +21697,11 @@ void FFScript::do_messagedata_setstring(const bool v)
 	
 	std::string s;
 	ArrayH::getString(arrayptr, s, MSG_NEW_SIZE);
-	MsgStrings[ID].setFromLegacyEncoding(s);
+
+	auto encoding_type = get_qr(qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING) ?
+		MsgStr::EncodingType::Binary :
+		MsgStr::EncodingType::Ascii;
+	MsgStrings[ID].set(s, encoding_type);
 }
 void FFScript::do_messagedata_getstring(const bool v)
 {
@@ -21705,7 +21710,12 @@ void FFScript::do_messagedata_getstring(const bool v)
 	
 	if(BC::checkMessage(ID) != SH::_NoError)
 		return;
-		
+
+	if (get_qr(qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING))
+		MsgStrings[ID].ensureLegacyEncoding();
+	else
+		MsgStrings[ID].ensureAsciiEncoding();
+
 	if(ArrayH::setArray(arrayptr, MsgStrings[ID].s, true) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'messagedata->Get()' not large enough\n");
 }

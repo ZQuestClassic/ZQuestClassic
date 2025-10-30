@@ -8,8 +8,10 @@
 #include <utility>
 #include <vector>
 
+using warnings = std::vector<std::string>;
+
 template <typename T>
-using value_and_warnings = std::pair<T, std::vector<std::string>>;
+using value_and_warnings = std::pair<T, warnings>;
 
 int32_t get_bit(byte const* bitstr,int32_t bit);
 void set_bit(byte *bitstr,int32_t bit,bool val);

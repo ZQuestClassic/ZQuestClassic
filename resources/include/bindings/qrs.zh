@@ -2371,6 +2371,16 @@ enum QR
 	// If enabled, weapons animate when they are drawn (instead of when they are processed); and they draw their shadow during their own draw,
 	// instead of separately.
 	qr_OLD_WEAPON_DRAW_ANIMATE_TIMING,
+
+	// 'Old Pitfall Sensitivity'
+	//
+	// If enabled, pitfall combos will be less sensitive, allowing them to be walked over in some cases.
+	qr_OLD_PIT_SENSITIVITY,
+
+	// 'Active Shields and Roc Items on Buttons don't run scripts'
+	//
+	// If enabled, shields with 'Active Use' checked, and Roc Items with 'Button' set to non-zero, will not run their Action Script.
+	qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT,
 	qr_SCRIPTS_6_BIT_COLOR = 60 * 8, // 'Scripts use 6-bit color (0-63) instead of 8-bit (0-255)'
 
 	// 'Broken Hero Position Exposed To Scripts When Scrolling'
@@ -2418,6 +2428,12 @@ enum QR
 	// If enabled, some arrays will return a non-zero value (typically -1) when accessing an out-of-bounds index (though most return zero). When
 	// disabled, all out-of-bounds accesses return zero.
 	qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE,
+
+	// 'Scripts use legacy binary encoding for messagedata strings'
+	//
+	// If enabled, reading or writing the contents of messagedata strings will use the legacy binary encoding. When disabled, the more capable
+	// ascii encoding is used.
+	qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING,
 
 	// 'Old (Buggy) ZScript Volume Access'
 	//

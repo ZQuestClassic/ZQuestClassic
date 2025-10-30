@@ -10295,6 +10295,7 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
         
         for(int32_t i=0; i<msg_count; i++)
         {
+			MsgStrings[i].ensureAsciiEncoding();
 			int32_t sz = MsgStrings[i].s.size();
 			if(sz > 8192) sz = 8192;
 			if(!p_iputl(sz, f))
@@ -10574,12 +10575,10 @@ int32_t writestrings_tsv(PACKFILE *f)
     new_return(0);
 }
 
-std::string parse_to_legacy_msg_str_encoding(std::string const& s);
-
 void parse_strings_tsv(std::string tsv)
 {
 	std::map<std::string, std::function<void(MsgStr&, const std::string&)>> fields = {
-		{ "message", [](auto& msg, auto& text){ msg.setFromLegacyEncoding(parse_to_legacy_msg_str_encoding(text)); } },
+		{ "message", [](auto& msg, auto& text){ msg.setFromAsciiEncoding(text); } },
 		{ "next", [](auto& msg, auto& text){ msg.nextstring = std::stoi(text); } },
 		{ "tile", [](auto& msg, auto& text){ msg.tile = std::stoi(text); } },
 		{ "cset", [](auto& msg, auto& text){ msg.cset = std::stoi(text); } },

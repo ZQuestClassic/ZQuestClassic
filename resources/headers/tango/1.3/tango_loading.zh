@@ -89,65 +89,19 @@ void __Tango_LoadMessage(int slot, int msg, bool append, int startChar)
         return;
     }
 
-    messagedata md = Game->LoadMessageData(msg);
+    // Tango expects the binary encoding. Temporarily set the QR to that if needed.
+    bool isUsingBinaryEncoding = Game->FFRules[qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING];
+    if (!isUsingBinaryEncoding)
+        Game->FFRules[qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING] = true;
 
     char32 buffer[0];
+    messagedata md = Game->LoadMessageData(msg);
     md->Get(buffer);
-
     int srcPtr = __Tango_FindSrcStart(buffer, startChar);
-
-    int i = 0;
-    int j = srcPtr;
-    int[] segments = md->Segments;
-    while (i < SizeOfArray(segments))
-    {
-        int type = segments[i++];
-        int start = segments[i++];
-        int length = segments[i++];
-
-        if (type == MSG_SEGMENT_TYPE_COMMAND)
-        {
-            int code = segments[i++];
-            int numArgs = segments[i++];
-            if (start < srcPtr)
-            {
-                i += numArgs;
-                continue;
-            }
-
-            buffer[j++] = code + 1;
-
-            for (int k = 0; k < numArgs; k++)
-            {
-                buffer[j++] = segments[i++] + 1;
-            }
-        }
-        else if (type == MSG_SEGMENT_TYPE_LITERAL || type == MSG_SEGMENT_TYPE_INVALID)
-        {
-            // Skip if the entire segment is before srcPtr.
-            int segment_end = start + length;
-            if (segment_end <= srcPtr) continue;
-
-            // Find the correct starting 'k' index within this literal.
-            int k_start = 0;
-            if (start < srcPtr)
-            {
-                // srcPtr is inside this literal, so start k part-way through.
-                k_start = srcPtr - start;
-            }
-
-            for (int k = k_start; k < length; k++)
-            {
-                buffer[j++] = buffer[start + k];
-            }
-        }
-    }
-
-    // Set terminating null byte.
-    ResizeArray(buffer, j + 1);
-    buffer[j] = 0;
-
     __Tango_LoadIntoBuffer(buffer, srcPtr, destPtr);
+
+    if (!isUsingBinaryEncoding)
+        Game->FFRules[qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING] = false;
 }
 
 // Find the position after the start character or 0 if it's not in the string.

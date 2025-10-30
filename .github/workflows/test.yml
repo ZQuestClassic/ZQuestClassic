@@ -68,6 +68,7 @@ jobs:
       compiler: ${{ inputs.compiler }}
       config: ${{ inputs.config }}
       debug-info: true
+      test-runner: true
 
   test:
     needs: build

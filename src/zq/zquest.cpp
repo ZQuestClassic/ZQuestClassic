@@ -26936,6 +26936,9 @@ void dev_output_qrs(string const& fname)
 		{ qr_SETENEMYWEAPONSOUNDSONWPNCHANGE, "qr_SETENEMYWEAPONSOUNDSONWPNCHANGE" },
 		{ qr_BROKEN_CONVEYORS, "qr_BROKEN_CONVEYORS" },
 		{ qr_ZS_OLD_SUSPEND_FFC, "qr_ZS_OLD_SUSPEND_FFC" },
+		{ qr_OLD_PIT_SENSITIVITY, "qr_OLD_PIT_SENSITIVITY" },
+		{ qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT, "qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT" },
+		{ qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING, "qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING" },
 	};
 	static std::map<string, string> qr_compat_names = {
 		{ "qr_WEAPONS_EXTRA_FRAME", qr_const_names[qr_WEAPONS_EXTRA_DEATH_FRAME]}
@@ -26947,7 +26950,7 @@ void dev_output_qrs(string const& fname)
 	qrs.filter([&](GUI::ListItem& ref)
 		{
 			if (!qr_const_names.contains(ref.value))
-				missing_qrs << ref.value << " [" << ref.text << "], ";
+				missing_qrs << ref.value << " [" << ref.text << "]\n";
 			return true;
 		});
 	
@@ -26956,14 +26959,14 @@ void dev_output_qrs(string const& fname)
 	{
 		missing_str = missing_str.substr(0, missing_str.size() - 2); // trailing comma
 		printf("error: missing qr constants!\n%s\n", missing_str.c_str());
-		zq_exit(1);
+		exit(1);
 	}
 	
 	std::ofstream file(fname);
 	if (file.fail())
 	{
 		printf("error outputting file '%s'\n", fname.c_str());
-		zq_exit(1);
+		exit(1);
 	}
 	
 	file << "// Quest rules. Used to toggle legacy behavior and other quest-wide options.\n";

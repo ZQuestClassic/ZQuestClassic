@@ -7,8 +7,7 @@
 
 #include "base/util.h"
 #include "base/headers.h"
-
-namespace fs = std::filesystem;
+#include "zconfig.h"
 
 static std::map<std::string, std::string> base_config;
 static std::map<std::string, std::string> user_config;

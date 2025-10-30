@@ -27,6 +27,11 @@ parser.add_argument(
     help='package the extras instead of the main package',
 )
 parser.add_argument(
+    '--test_runner',
+    action='store_true',
+    help='package the test runner in main package',
+)
+parser.add_argument(
     '--clean_first',
     action='store_true',
     help='Delete package folder before copying over files',
@@ -531,6 +536,9 @@ else:
                 *(glob(build_dir, '*.dylib') if system == 'Darwin' else []),
             ]
         )
+
+        if args.test_runner:
+            zc_files.append(binary_file(build_dir, 'zc_test_runner'))
 
         if system == 'Windows':
             zc_files.append(binary_file(build_dir, 'zconsole'))

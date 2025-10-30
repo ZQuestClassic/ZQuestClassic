@@ -7,14 +7,15 @@
 #include <vector>
 #include <string_view>
 
-#define MAX_SCC_ARG 65023
+#define MIN_SCC_ARG (-214748)
+#define MAX_SCC_ARG 214748
 
 /* Note: Printable ASCII begins at 32 and ends at 126, inclusive. */
 #define MSGC_COLOUR                1    // 2 args (cset,swatch)
 #define MSGC_SPEED                 2    // 1 arg  (speed)
 #define MSGC_GOTOIFGLOBAL          3    // 3 args (register, val, newtring)
 #define MSGC_GOTOIFRAND            4    // 2 args (factor, newstring)
-#define MSGC_GOTOIF                5    // 2 args (itemid, newstring)
+#define MSGC_GOTOIFITEM                5    // 2 args (itemid, newstring)
 #define MSGC_GOTOIFCTR             6    // 3 args (counter, val, newstring)
 #define MSGC_GOTOIFCTRPC           7    // 3 args (counter, val, newstring)
 #define MSGC_GOTOIFTRI             8    // 2 args (level, newstring)
@@ -54,7 +55,7 @@
 #define MSGC_TRIG_CMB_COPYCAT      137  // 1 arg (copycat id)
 //138+
 
-#define MAX_SCC_ARGS 6
+#define MAX_SCC_ARG_COUNT 6
 
 struct StringCommand
 {
@@ -62,9 +63,16 @@ struct StringCommand
 	byte length; // length in source string
 	byte code;
 	byte num_args;
-	word args[MAX_SCC_ARGS];
+	int32_t args[MAX_SCC_ARG_COUNT];
 };
 
+// `segment_types` is the order of each part of the strings. `literals` and `commands` should be
+// traversed in increasing order based on the values in `segment_types`.
+//
+// Invalid segments are also stored in literals, but serialization must ignore escaping rules. This
+// allows bad commands to roundtrip without losing information. Otherwise, a command like `\2\1`
+// (which is missing a trailing slash, and thus interpreted as a literal) would incorrectly be saved
+// as `\\2\\1`.
 struct ParsedMsgStr
 {
 	// Literals are stored in literals, and commands are stored in commands.
@@ -77,7 +85,9 @@ struct ParsedMsgStr
 	std::string serialize() const;
 };
 
+std::optional<const char*> get_scc_command_name(int code);
 std::optional<int> get_scc_command_num_args(int code);
-value_and_warnings<ParsedMsgStr> parse_legacy_msg_str(const std::string& str);
+value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str);
+value_and_warnings<ParsedMsgStr> parse_legacy_binary_msg_str(const std::string& str);
 
 #endif

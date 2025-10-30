@@ -37,75 +37,76 @@ std::string run_scc_dlg(MsgStr const* ref)
 std::string calc_retstr(byte scc, int32_t* args)
 {
 	if(!is_msgc(scc))
-	{
 		return "";
-	}
+
 	std::ostringstream oss;
-	oss << "\\" << word(scc);
+	oss << "\\" << get_scc_command_name(scc).value();
 	auto count = msg_code_operands(scc);
-	int32_t val;
 	for(auto q = 0; q < count; ++q)
 	{
-		if(unsigned(args[q]) >= MAX_SCC_ARG)
-			val = -1;
-		else val = word(args[q]);
-		oss << "\\" << val;
+		oss << "\\" << args[q];
 	}
+	oss << "\\ ";
 	return oss.str();
+}
+
+static void addCommand(GUI::ListData& ld, int code)
+{
+	ld.add(get_scc_command_name(code).value(), code);
 }
 
 const GUI::ListData SCCListData()
 {
 	std::string mcguffinname(ZI.getItemClassName(itype_triforcepiece));
 	GUI::ListData ld;
-	ld.add("Text Color", 1);
-	ld.add("Text Speed", 2);
-	ld.add("Text Font", 135);
-	ld.add("Shadow Color", 26);
-	ld.add("Shadow Type", 27);
+	addCommand(ld, 1); // Text Color
+	addCommand(ld, 2); // Text Speed
+	addCommand(ld, 135); // Text Font
+	addCommand(ld, 26); // Shadow Color
+	addCommand(ld, 27); // Shadow Type
 	
-	ld.add("Goto If Screen->D[]", 23);
-	ld.add("Goto If Current Screen->D[]", 3);
-	ld.add("Goto If Random", 4);
-	ld.add("Goto If Item", 5);
-	ld.add("Goto If Counter >=", 6);
-	ld.add("Goto If Counter >= %", 7);
-	ld.add("Goto If Level " + mcguffinname, 8);
-	ld.add("Goto If " + mcguffinname + " Count", 9);
+	addCommand(ld, 23); // Go Screen->D[]
+	addCommand(ld, 3); // Go Current Screen->D[]
+	addCommand(ld, 4); // Go Random
+	addCommand(ld, 5); // Go Item
+	addCommand(ld, 6); // Go Counter >=
+	addCommand(ld, 7); // Go Counter >= %
+	addCommand(ld, 8); // Go McGuffin
+	addCommand(ld, 9); // Go McGuffin Count
+
+	addCommand(ld, 10); // Counter Increase
+	addCommand(ld, 11); // Counter Decrease
+	addCommand(ld, 12); // Counter Set
+	addCommand(ld, 13); // Counter Increase %
+	addCommand(ld, 14); // Counter Decrease %
+	addCommand(ld, 15); // Counter Set %
 	
-	ld.add("Counter Increase", 10);
-	ld.add("Counter Decrease", 11);
-	ld.add("Counter Set", 12);
-	ld.add("Counter Increase %", 13);
-	ld.add("Counter Decrease %", 14);
-	ld.add("Counter Set %", 15);
+	addCommand(ld, 16); // Give Item
+	addCommand(ld, 17); // Take Item
 	
-	ld.add("Give Item", 16);
-	ld.add("Take Item", 17);
+	addCommand(ld, 18); // Warp
+	addCommand(ld, 20); // Play SFX
+	addCommand(ld, 21); // Play MIDI
 	
-	ld.add("Warp", 18);
-	ld.add("Play SFX", 20);
-	ld.add("Play MIDI", 21);
+	addCommand(ld, 22); // Insert Hero Name
+	addCommand(ld, 25); // Line Break
+	addCommand(ld, 28); // Draw Tile
 	
-	ld.add("Insert Hero Name", 22);
-	ld.add("Line Break", 25);
-	ld.add("Draw Tile", 28);
+	addCommand(ld, 29); // End String
+	addCommand(ld, 30); // Wait For Press A
 	
-	ld.add("End String", 29);
-	ld.add("Wait For Press A", 30);
+	addCommand(ld, 128); // Setup Menu Cursor
+	addCommand(ld, 129); // Add Menu Choice
+	addCommand(ld, 130); // Run Menu
+	addCommand(ld, 131); // Go If Menu Choice
 	
-	ld.add("Setup Menu Cursor", 128);
-	ld.add("Add Menu Choice", 129);
-	ld.add("Run Menu", 130);
-	ld.add("Goto If Menu Choice", 131);
+	addCommand(ld, 19); // Set Screen->D[]
+	addCommand(ld, 133); // Set Current Screen State
+	addCommand(ld, 134); // Set Screen State
 	
-	ld.add("Set Screen->D[]", 19);
-	ld.add("Set Current Screen State", 133);
-	ld.add("Set Screen State", 134);
-	
-	ld.add("Run Frozen Generic Script", 136);
-	ld.add("Trigger Screen Secrets", 132);
-	ld.add("Trigger Combo Copycat", 137);
+	addCommand(ld, 136); // Run Frozen Generic Script
+	addCommand(ld, 132); // Trigger Screen Secrets
+	addCommand(ld, 137); // Trigger Combo Copycat
 	return ld;
 }
 
@@ -208,7 +209,7 @@ std::string scc_help(byte scc)
 		case MSGC_GOTOIFGLOBAL: return "Switch to another string if an index of the"
 			" current screen's 'Screen->D[]' is at least a given value";
 		case MSGC_GOTOIFRAND: return "Switch to another string based on random chance";
-		case MSGC_GOTOIF: return "Switch to another string if the Hero owns an item";
+		case MSGC_GOTOIFITEM: return "Switch to another string if the Hero owns an item";
 		case MSGC_GOTOIFCTR: return "Switch to another string if the Hero has enough"
 			" of a specific counter";
 		case MSGC_GOTOIFCTRPC: return "Switch to another string if the Hero has enough"
@@ -391,7 +392,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			);
 			break;
 		}
-		case MSGC_GOTOIF:
+		case MSGC_GOTOIFITEM:
 		{
 			sgrid = Column(padding = 0_px, vAlign = 0.0,
 				Row(padding = 0_px, hAlign = 1.0,
@@ -415,7 +416,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					DDL(cur_args[0],list_counters),
 					INFOBTN("Switch strings if enough of this counter is full"),
 					TXT("Amount:"),
-					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
+					NUM_FIELD(cur_args[1],MIN_SCC_ARG,MAX_SCC_ARG),
 					INFOBTN("Switch strings if at least this much of the counter is full")
 				),
 				Row(padding = 0_px, hAlign = 1.0,
@@ -485,7 +486,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					DDL(cur_args[0],list_counters),
 					INFOBTN("Counter to increase"),
 					TXT("Amount:"),
-					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
+					NUM_FIELD(cur_args[1],MIN_SCC_ARG,MAX_SCC_ARG),
 					INFOBTN("Amount to increase the counter by")
 				)
 			);
@@ -499,7 +500,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					DDL(cur_args[0],list_counters),
 					INFOBTN("Counter to decrease"),
 					TXT("Amount:"),
-					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
+					NUM_FIELD(cur_args[1],MIN_SCC_ARG,MAX_SCC_ARG),
 					INFOBTN("Amount to decrease the counter by")
 				)
 			);
@@ -513,7 +514,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					DDL(cur_args[0],list_counters),
 					INFOBTN("Counter to set"),
 					TXT("Amount:"),
-					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
+					NUM_FIELD(cur_args[1],MIN_SCC_ARG,MAX_SCC_ARG),
 					INFOBTN("Amount to set the counter to")
 				)
 			);
@@ -697,7 +698,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				),
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("Value:"),
-					NUM_FIELD(cur_args[3],0,MAX_SCC_ARG),
+					NUM_FIELD(cur_args[3],MIN_SCC_ARG,MAX_SCC_ARG),
 					INFOBTN("Value to assign to register")
 				)
 			);
@@ -748,7 +749,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				),
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("Value:"),
-					NUM_FIELD(cur_args[3],0,MAX_SCC_ARG),
+					NUM_FIELD(cur_args[3],MIN_SCC_ARG,MAX_SCC_ARG),
 					INFOBTN("Value to check against 'Screen->D[]' (This is a 'long' value, so '1' here represents '0.0001' in zscript)")
 				),
 				Row(padding = 0_px, hAlign = 1.0,
@@ -1071,66 +1072,32 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 
 bool SCCDialog::load_scc_str(std::string const& str)
 {
-	size_t q = 0;
-	byte scc;
-	int32_t t_args[MAX_SCC_ARGS];
-	int cur_arg = -1;
-	int limit = MAX_SCC_ARGS;
-	while(q < str.size() && cur_arg < limit)
+	auto [parsed_msg_str, warnings] = parse_ascii_msg_str(str);
+
+	if (warnings.size())
 	{
-		if(str.at(q) == '\\') //SCC escape slash
-		{
-			size_t ind = 0;
-			char buf[8] = {0};
-			++q;
-			while(q < str.size())
-			{
-				char c = str.at(q);
-				bool cont = false;
-				switch(c)
-				{
-					case '-': case '0': case '1': case '2': case '3':
-					case '4': case '5': case '6': case '7': case '8':
-					case '9':
-						buf[ind++] = c;
-						buf[ind] = 0;
-						cont = ind<6;
-						++q;
-						break;
-				}
-				if(!cont) break;
-			}
-			int32_t val = atoi(buf);
-			//if(val < 0) val = MAX_SCC_ARG;
-			
-			if(cur_arg < 0)
-			{
-				scc = byte(val);
-				limit = msg_code_operands(scc);
-				++cur_arg;
-			}
-			else
-			{
-				t_args[cur_arg++] = val;
-			}
-		}
-		else break;
+		al_trace("Warning: found message string with SCC warnings: %s\n", parsed_msg_str.serialize().c_str());
+		for (auto& error : warnings)
+			al_trace("\t%s\n", error.c_str());
 	}
-	if(cur_arg < 0) return false; //no scc
-	if(cur_arg < limit) return false; //missing params
-	
-	curscc = scc;
-	for(q = 0; q < limit; ++q)
-	{
-		args[scc][q] = t_args[q];
-	}
-	switch(scc)
+
+	if (parsed_msg_str.commands.size() != 1)
+		return false;
+
+	auto& cmd = parsed_msg_str.commands[0];
+	int scc = cmd.code;
+
+	for (int i = 0; i < cmd.num_args; i++)
+		args[scc][i] = cmd.args[i];
+
+	switch (scc)
 	{
 		case MSGC_WARP:
 		{
-			warp_xy_toggle = unsigned(t_args[2]) < MAX_SCC_ARG;
+			warp_xy_toggle = cmd.args[2] >= MIN_SCC_ARG && cmd.args[2] <= MAX_SCC_ARG;
 		}
 	}
+
 	return true;
 }
 

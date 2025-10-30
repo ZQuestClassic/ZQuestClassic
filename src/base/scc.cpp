@@ -1,48 +1,68 @@
 #include "base/scc.h"
+#include "base/check.h"
+#include "base/util.h"
+#include "fmt/format.h"
+
 #include <map>
 #include <optional>
 
-static std::map<int, int> legacy_scc_num_args = {
-	{MSGC_COLOUR, 2}, // (cset,swatch)
-	{MSGC_SPEED, 1}, //  (speed)
-	{MSGC_GOTOIFGLOBAL, 3}, // (register, val, newtring)
-	{MSGC_GOTOIFRAND, 2}, // (factor, newstring)
-	{MSGC_GOTOIF, 2}, // (itemid, newstring)
-	{MSGC_GOTOIFCTR, 3}, // (counter, val, newstring)
-	{MSGC_GOTOIFCTRPC, 3}, // (counter, val, newstring)
-	{MSGC_GOTOIFTRI, 2}, // (level, newstring)
-	{MSGC_GOTOIFTRICOUNT, 2}, // (tricount, newstring)
-	{MSGC_CTRUP, 2}, // (counter, val)
-	{MSGC_CTRDN, 2}, // (counter, val)
-	{MSGC_CTRSET, 2}, // (counter, val)
-	{MSGC_CTRUPPC, 2}, // (counter, val)
-	{MSGC_CTRDNPC, 2}, // (counter, val)
-	{MSGC_CTRSETPC, 2}, // (counter, val)
-	{MSGC_GIVEITEM, 1}, //  (itemid)
-	{MSGC_TAKEITEM, 1}, //  (itemid)
-	{MSGC_WARP, 6}, // (dmap, screen, x, y, effect, sound
-	{MSGC_SETSCREEND, 4}, // (dmap, screen, reg, value)
-	{MSGC_SFX, 1}, //  (sfx)
-	{MSGC_MIDI, 1}, //  (midi)
-	{MSGC_NAME, 0},
-	{MSGC_GOTOIFCREEND, 5}, // (dmap, screen, reg, val, newstring)
-	{MSGC_CHANGEPORTRAIT, 0}, // not implemented
-	{MSGC_NEWLINE, 0},
-	{MSGC_SHDCOLOR, 2}, // (cset,swatch)
-	{MSGC_SHDTYPE, 1}, //  (type)
-	{MSGC_DRAWTILE, 5}, // (tile, cset, wid, hei, flip)
-	{MSGC_ENDSTRING, 0},
-	{MSGC_WAIT_ADVANCE, 0},
-	{MSGC_SETUPMENU, 5}, // (tile, cset, wid, hei, flip)
-	{MSGC_MENUCHOICE, 5}, // (pos, upos, dpos, lpos, rpos)
-	{MSGC_RUNMENU, 0},
-	{MSGC_GOTOMENUCHOICE, 2}, // (pos, newstring)
-	{MSGC_TRIGSECRETS, 1}, // (perm)
-	{MSGC_SETSCREENSTATE, 2}, // (ind, state)
-	{MSGC_SETSCREENSTATER, 4}, // (map, screen, ind, state)
-	{MSGC_FONT, 1}, // (font)
-	{MSGC_RUN_FRZ_GENSCR, 2}, // (script num, force_redraw)
-	{MSGC_TRIG_CMB_COPYCAT, 1}, // (copycat id)
+struct StringCommandDefn
+{
+	const char* name;
+	int num_args;
+};
+
+static std::map<int, StringCommandDefn> scc_commands =
+{
+	// Formatting.
+	{MSGC_COLOUR, {"TextColor", 2}}, // (cset,swatch)
+	{MSGC_SHDCOLOR, {"ShadowColor", 2}}, // (cset,swatch)
+	{MSGC_SHDTYPE, {"ShadowType", 1}}, //  (type)
+	{MSGC_SPEED, {"Speed", 1}}, //  (speed)
+	{MSGC_DRAWTILE, {"Tile", 5}}, // (tile, cset, wid, hei, flip)
+	{MSGC_NEWLINE, {"Newline", 0}},
+	{MSGC_FONT, {"Font", 1}}, // (font)
+	{MSGC_NAME, {"Name", 0}},
+	{MSGC_CHANGEPORTRAIT, {"Portrait", 1}}, // not implemented
+
+	// Menu
+	{MSGC_SETUPMENU, {"SetupMenu", 5}}, // (tile, cset, wid, hei, flip)
+	{MSGC_MENUCHOICE, {"MenuChoice", 5}}, // (pos, upos, dpos, lpos, rpos)
+	{MSGC_RUNMENU, {"RunMenu", 0}},
+	{MSGC_GOTOMENUCHOICE, {"GoIfMenuChoice", 2}}, // (pos, newstring)
+
+	// Switch
+	{MSGC_GOTOIFGLOBAL, {"GoIfScreenD", 3}}, // (register, val, newtring)
+	{MSGC_GOTOIFRAND, {"GoIfRand", 2}}, // (factor, newstring)
+	{MSGC_GOTOIFITEM, {"GoIfItem", 2}}, // (itemid, newstring)
+	{MSGC_GOTOIFCTR, {"GoIfCounter", 3}}, // (counter, val, newstring)
+	{MSGC_GOTOIFCTRPC, {"GoIfCounter%", 3}}, // (counter, val, newstring)
+	{MSGC_GOTOIFTRI, {"GoIfMcGuffin", 2}}, // (level, newstring)
+	{MSGC_GOTOIFTRICOUNT, {"GoIfMcGuffinCount", 2}}, // (tricount, newstring)
+	{MSGC_GOTOIFCREEND, {"GoIfAnyScreenD", 5}}, // (dmap, screen, reg, val, newstring)
+
+	// Control Mod
+	{MSGC_CTRUP, {"CounterAdd", 2}}, // (counter, val)
+	{MSGC_CTRDN, {"CounterSubtract", 2}}, // (counter, val)
+	{MSGC_CTRSET, {"CounterSet", 2}}, // (counter, val)
+	{MSGC_CTRUPPC, {"CounterAdd%", 2}}, // (counter, val)
+	{MSGC_CTRDNPC, {"CounterSubtract%", 2}}, // (counter, val)
+	{MSGC_CTRSETPC, {"CounterSet%", 2}}, // (counter, val)
+	{MSGC_GIVEITEM, {"GiveItem", 1}}, //  (itemid)
+	{MSGC_TAKEITEM, {"TakeItem", 1}}, //  (itemid)
+
+	// Misc
+	{MSGC_WARP, {"Warp", 6}}, // (dmap, screen, x, y, effect, sound
+	{MSGC_SETSCREEND, {"SetScreenD", 4}}, // (dmap, screen, reg, value)
+	{MSGC_SFX, {"SFX", 1}}, //  (sfx)
+	{MSGC_MIDI, {"MIDI", 1}}, //  (midi)
+	{MSGC_WAIT_ADVANCE, {"WaitAdvance", 0}},
+	{MSGC_ENDSTRING, {"EndString", 0}},
+	{MSGC_TRIGSECRETS, {"TriggerSecrets", 1}}, // (perm)
+	{MSGC_TRIG_CMB_COPYCAT, {"TriggerComboCopycat", 1}}, // (copycat id)
+	{MSGC_SETSCREENSTATE, {"SetScreenState", 2}}, // (ind, state)
+	{MSGC_SETSCREENSTATER, {"SetAnyScreenState", 4}}, // (map, screen, ind, state)
+	{MSGC_RUN_FRZ_GENSCR, {"RunFrozenGenericScript", 2}}, // (script num, force_redraw)
 };
 
 // Increments i and returns the control code argument pointed at.
@@ -66,12 +86,430 @@ static std::optional<word> parse_legacy_binary_argument(const std::string& str, 
 	return ret;
 }
 
+std::optional<const char*> get_scc_command_name(int code)
+{
+	auto it = scc_commands.find(code);
+	if (it == scc_commands.end())
+		return std::nullopt;
+	return it->second.name;
+}
+
 std::optional<int> get_scc_command_num_args(int code)
 {
-	auto it = legacy_scc_num_args.find(code);
-	if (it == legacy_scc_num_args.end())
+	auto it = scc_commands.find(code);
+	if (it == scc_commands.end())
 		return std::nullopt;
-	return it->second;
+	return it->second.num_args;
+}
+
+struct NumberParseResult
+{
+	int32_t value;
+	// The index after the last digit of the number.
+	size_t next_index;
+	bool overflow;
+};
+
+/**
+* @brief Parses an optional-signed decimal number from a string, with
+* robust overflow/underflow checks.
+*
+* @param str The string to parse.
+* @param start The index to start parsing from.
+* @return An optional NumberParseResult. Returns std::nullopt if no digits
+* are found after the optional sign (e.g., "\-", "\F").
+*/
+std::optional<NumberParseResult> parse_ascii_number(const std::string& str, size_t start)
+{
+	size_t i = start;
+	if (i >= str.size())
+		return std::nullopt; // Reached end of string
+
+	bool is_negative = false;
+	if (str[i] == '-')
+	{
+		is_negative = true;
+		i++;
+	}
+
+	// Check if there are any digits after the (optional) sign
+	if (i >= str.size() || !std::isdigit(static_cast<unsigned char>(str[i])))
+		return std::nullopt; // No number found (e.g., "\-", "\F", "\")
+
+	int val = 0;
+	int max_int = MAX_SCC_ARG;
+	int min_int = MIN_SCC_ARG;
+	bool overflow = false;
+
+	while (i < str.size() && std::isdigit(static_cast<unsigned char>(str[i])))
+	{
+		int digit = (str[i] - '0');
+		if (!overflow)
+		{
+			if (is_negative)
+			{
+				// Check for underflow before multiplying
+				if (val < min_int / 10 || (val == min_int / 10 && -digit < min_int % 10))
+				{
+					overflow = true;
+					val = min_int;
+				}
+				else
+				{
+					val = val * 10 - digit;
+				}
+			}
+			else
+			{
+				// Check for overflow before multiplying
+				if (val > max_int / 10 || (val == max_int / 10 && digit > max_int % 10))
+				{
+					overflow = true;
+					val = max_int;
+				}
+				else
+				{
+					val = val * 10 + digit;
+				}
+			}
+		}
+
+		i++;
+	}
+
+	return {{static_cast<int32_t>(val), i, overflow}};
+}
+
+static bool compareStringsCaseIns(const std::string& str1, const std::string& str2)
+{
+	if (str1.length() != str2.length())
+		return false;
+
+	for (int i = 0; i < str1.length(); ++i)
+	{
+		if (tolower(str1[i]) != tolower(str2[i]))
+			return false;
+	}
+
+	return true;
+}
+
+static void consume_until_slash(const std::string& str, size_t& cur)
+{
+	while (cur < str.size() && str[cur] != '\\') cur++;
+}
+
+static const std::optional<int> lookup_string_command(const std::string& str, size_t& cur, std::vector<std::string>& warnings)
+{
+	size_t start = cur;
+	consume_until_slash(str, cur);
+	std::string name = std::string(str.substr(start, cur - start));
+
+	for (auto& [code, defn] : scc_commands)
+	{
+		if (compareStringsCaseIns(defn.name, name))
+			return code;
+	}
+
+	return std::nullopt;
+}
+
+static bool parse_ascii_scc_command(
+	const std::string& str,
+	size_t& cur,
+	StringCommand& cmd,
+	std::vector<std::string>& warnings)
+{
+	DCHECK(str[cur] == '\\');
+
+	size_t start_index = cur;
+	cur += 1; // Skip initiator '\'
+	const size_t last = str.size();
+
+	// Parse command code
+	std::optional<int> code;
+
+	if (isalpha(str[cur]))
+	{
+		if (auto r = lookup_string_command(str, cur, warnings))
+			code = *r;
+	}
+	else if (auto num_res_opt = parse_ascii_number(str, cur))
+	{
+		auto num_res = *num_res_opt;
+		code = num_res.overflow ? 0 : num_res.value;
+		cur = num_res.next_index;
+	}
+
+	if (!code)
+		consume_until_slash(str, cur);
+
+	cmd.code = code.value_or(0);
+	auto expected_args_opt = get_scc_command_num_args(cmd.code);
+	bool is_unknown_command = !expected_args_opt.has_value();
+	int expected_args = expected_args_opt.value_or(0);
+	int found_num_args = 0;
+
+	// Parse arguments.
+	bool found_overflowed_argument = false;
+	bool found_underflowed_argument = false;
+	bool found_non_numeric_argument = false;
+	bool found_double_slash = false;
+	while (cur < str.size())
+	{
+		if (cur >= last || str[cur] != '\\')
+			break;
+		if (str[cur + 1] == ' ' || cur + 1 == str.size())
+			break;
+
+		cur++; // Skip arg '\'
+
+		// Terminator.
+		if (str[cur] == ' ')
+			break;
+		if (str[cur] == '\\')
+		{
+			found_double_slash = true;
+			cur--;
+			break;
+		}
+
+		int32_t value = 0;
+
+		auto arg_res_opt = parse_ascii_number(str, cur);
+		if (arg_res_opt)
+		{
+			auto arg_res = *arg_res_opt;
+			if (arg_res.overflow)
+			{
+				if (arg_res.value > 0)
+					found_overflowed_argument = true;
+				else
+					found_underflowed_argument = true;
+			}
+
+			value = arg_res.value;
+			cur = arg_res.next_index;
+		}
+		else
+		{
+			found_non_numeric_argument = true;
+			consume_until_slash(str, cur);
+		}
+
+		if (found_num_args < MAX_SCC_ARG_COUNT)
+			cmd.args[found_num_args] = value;
+		found_num_args++;
+	}
+
+	cmd.num_args = std::min(found_num_args, MAX_SCC_ARG_COUNT);
+
+	// Check terminator: must end in one of:
+	//   `\ `
+	//   `\<EOS>` (end of string)
+	bool missing_slash = cur == last || str[cur] != '\\';
+	if (!missing_slash) cur++; // Skip terminator '\'
+
+	bool overflowed = found_underflowed_argument || found_overflowed_argument;
+	bool is_valid_command = cmd.code != 0 && !missing_slash && !is_unknown_command && expected_args == found_num_args && !overflowed && !found_non_numeric_argument && !found_double_slash;
+
+	if (is_unknown_command)
+	{
+		warnings.push_back(fmt::format("Ignoring unknown command: {}", str.substr(start_index, cur - start_index)));
+	}
+	else if (missing_slash || found_double_slash)
+	{
+		warnings.push_back(fmt::format("Expected slash (followed by either space or end of string) at end of command: {}", str.substr(start_index, cur - start_index)));
+	}
+	else
+	{
+		if (expected_args != found_num_args && !is_unknown_command)
+			warnings.push_back(fmt::format("Expected {} args, but got {} for command: {}", expected_args, found_num_args, str.substr(start_index, cur - start_index)));
+		if (found_non_numeric_argument)
+			warnings.push_back(fmt::format("Found non-numeric argument for command: {}", str.substr(start_index, cur - start_index)));
+		if (found_overflowed_argument)
+			warnings.push_back(fmt::format("Found argument that was too big for command: {} (max value is {})", str.substr(start_index, cur - start_index), MAX_SCC_ARG));
+		else if (found_underflowed_argument)
+			warnings.push_back(fmt::format("Found argument that was too small for command: {} (min value is {})", str.substr(start_index, cur - start_index), MIN_SCC_ARG));
+	}
+
+	// At end of string. This is a valid terminator.
+	if (cur == last)
+		return is_valid_command;
+
+	// Followed by a space. This is a valid terminator.
+	if (str[cur] == ' ')
+	{
+		cur++;
+	}
+	else
+	{
+		// Only produce this warning if everything else checks out.
+		if (is_valid_command)
+			warnings.push_back(fmt::format("Expected slash (followed by either space or end of string) at end of command: {}", str.substr(start_index, cur - start_index)));
+		is_valid_command = false;
+	}
+
+	return is_valid_command;
+}
+
+// Parses an plain ascii-encoded msg str (with negative nums and escapes).
+//
+// - Unlike parse_legacy_binary_msg_str, this supports negative numbers and command text names (\Speed
+//   is the same as \2)
+// - Msg strs is encoded as ascii, mixing literals and commands
+// - Commands are written as the command code followed by a fixed number of arguments: "\3\1\2\"
+// - Commands must end with a backslash, then either a space or the end of the string. The space is
+//   always ignored. This allows for an unambigous and simpler to read grammar
+// - A literal backslash must be escaped: '\\' for '\'
+//
+// Example: "FIGHT \\ \10\100\-23\"
+//
+// - "FIGHT \ " is a literal (the \\ becomes \).
+// - \10 is the start of a command code (10), with two args (100, -23).
+value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str)
+{
+	value_and_warnings<ParsedMsgStr> result;
+	auto& [parsed_msg_str, warnings] = result;
+
+	size_t cur = 0;
+	const size_t last = str.size();
+	
+	// Tracks the starting index of the current literal segment.
+	size_t literal_start_index = 0;
+	bool is_parsing_invalid_segment = false;
+	bool found_unescaped_braces = false;
+
+	// Helper to push a literal segment as a string_view
+	auto push_literal = [&](size_t literal_end_index) {
+		if (literal_end_index > literal_start_index)
+		{
+			parsed_msg_str.literals.emplace_back(
+				str.data() + literal_start_index,
+				literal_end_index - literal_start_index
+			);
+			parsed_msg_str.segment_types.push_back(
+				is_parsing_invalid_segment ? ParsedMsgStr::SegmentType::Invalid : ParsedMsgStr::SegmentType::Literal);
+			is_parsing_invalid_segment = false;
+		}
+
+		// Mark that we are no longer in a literal segment.
+		literal_start_index = std::string_view::npos; 
+	};
+
+	while (cur < last)
+	{
+		// If we're not in a literal segment, start one at the current index.
+		if (literal_start_index == std::string_view::npos)
+			literal_start_index = cur;
+
+		char c = str[cur];
+
+		if (c == '\n')
+		{
+			push_literal(cur++);
+
+			auto& cmd = parsed_msg_str.commands.emplace_back();
+			cmd.code = MSGC_NEWLINE;
+			parsed_msg_str.segment_types.push_back(ParsedMsgStr::SegmentType::Command);
+
+			continue;
+		}
+
+		// Will eventually support expression inside curly braces. For now, just warn.
+		// https://discord.com/channels/876899628556091432/1277878877057978460/1360390301713170783
+		if (!found_unescaped_braces && (c == '{' || c == '}'))
+		{
+			found_unescaped_braces = true;
+			warnings.push_back("Error: { and } characters must be escaped: \\{ and \\}");
+		}
+
+		if (c == '{')
+		{
+			push_literal(cur);
+			literal_start_index = cur;
+
+			// Consume until next unescaped }
+			cur++;
+			while (cur < str.size())
+			{
+				if (str[cur] == '}' && str[cur - 1] != '\\')
+				{
+					cur++;
+					break;
+				}
+
+				cur++;
+			}
+
+			is_parsing_invalid_segment = true;
+			push_literal(cur++);
+			continue;
+		}
+
+		if (c != '\\')
+		{
+			// Regular character, just advance
+			cur++;
+			continue;
+		}
+
+		// We found a '\'. Check for an escaped character.
+		if (cur + 1 < last)
+		{
+			// The literals are stored as string_view, so we need to split escaped characters across
+			// multiple literal segments.
+			char next = str[cur + 1];
+			if (next == '{' || next == '}')
+			{
+				push_literal(cur);
+				// skip the escaping slash, and put the start of the next
+				// literal at the escaped character.
+				literal_start_index = cur + 1;
+				cur += 2;
+				continue;
+			}
+			else if (next == '\\')
+			{
+				push_literal(cur + 1); // Push "literal\"
+				cur += 2; // Skip both the slashes.
+				continue;
+			}
+		}
+
+		if (cur + 1 == last)
+		{
+			push_literal(cur);
+
+			warnings.push_back("Unexpected trailing slash (expected either a command or another slash)");
+			is_parsing_invalid_segment = true;
+			literal_start_index = cur;
+			cur++;
+			push_literal(cur);
+			break;
+		}
+
+		size_t command_start_index = cur;
+		StringCommand cmd;
+		if (parse_ascii_scc_command(str, cur, cmd, warnings))
+		{
+			push_literal(command_start_index);
+			cmd.start = command_start_index;
+			cmd.length = cur - command_start_index;
+			parsed_msg_str.commands.emplace_back(std::move(cmd));
+			parsed_msg_str.segment_types.push_back(ParsedMsgStr::SegmentType::Command);
+		}
+		else
+		{
+			is_parsing_invalid_segment = true;
+			push_literal(cur);
+		}
+	}
+
+	// Add any trailing literal
+	push_literal(last);
+
+	return result;
 }
 
 // Parses a "legacy" encoding of a msg str mixed with plain ascii and binary-encoded string commands.
@@ -80,10 +518,10 @@ std::optional<int> get_scc_command_num_args(int code)
 // Each string command is an encoded code of 1-30 or 127+, followed by a fixed number of
 // arguments.
 // The command code is written as +1 the actual value of the code.
-// The number of arguments is determined by legacy_scc_num_args.
+// The number of arguments is determined by scc_commands.
 // Each argument is 1 or 3 bytes long. If the first byte is followed by a 255 byte, then it is a
 // 3-byte encoded value. See parse_legacy_binary_argument.
-value_and_warnings<ParsedMsgStr> parse_legacy_msg_str(const std::string& str)
+value_and_warnings<ParsedMsgStr> parse_legacy_binary_msg_str(const std::string& str)
 {
 	value_and_warnings<ParsedMsgStr> result;
 	auto& [parsed_msg_str, warnings] = result;
@@ -170,11 +608,7 @@ value_and_warnings<ParsedMsgStr> parse_legacy_msg_str(const std::string& str)
 	return result;
 }
 
-// Generates a string with human-readable string commands. Each command starts with `\`, is followed
-// by the command code, then each successive argument separated by `\`. For example, this is a color
-// command: `\26\1\3`.
-// This is only used to present a human-readable/editable string in the editor. For saving back to
-// the legacy encoding format, see parse_to_legacy_msg_str_encoding.
+// Generates a string that should roundtrip back into a ParsedMsgStr via parse_ascii_msg_str.
 std::string ParsedMsgStr::serialize() const
 {
 	std::string result;
@@ -186,13 +620,24 @@ std::string ParsedMsgStr::serialize() const
 		if (segment_types[i] == ParsedMsgStr::SegmentType::Command)
 		{
 			auto& command = commands[command_index++];
-			result += fmt::format("\\{}", command.code);
+			result += fmt::format("\\{}", scc_commands[command.code].name);
 			for (int j = 0; j < command.num_args; j++)
 				result += fmt::format("\\{}", command.args[j]);
+			if (i == segment_types.size() - 1)
+				result += "\\";
+			else
+				result += "\\ ";
 		}
 		else
 		{
-			result += literals[literal_index++];
+			std::string s = std::string(literals[literal_index++]);
+			if (segment_types[i] == ParsedMsgStr::SegmentType::Literal)
+			{
+				util::replstr(s, R"(\)", R"(\\)");
+				util::replstr(s, R"({)", R"(\{)");
+				util::replstr(s, R"(})", R"(\})");
+			}
+			result += s;
 		}
 	}
 

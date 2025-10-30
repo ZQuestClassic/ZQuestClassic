@@ -1,5 +1,7 @@
 #include "msgstr.h"
 #include "allegro/debug.h"
+#include "base/scc.h"
+#include <string>
 
 MsgStr *MsgStrings;
 
@@ -14,10 +16,11 @@ MsgStr& MsgStr::operator=(MsgStr const& other)
 // Copy text data - just s and nextstring
 void MsgStr::copyText(MsgStr const& other)
 {
+	encoding_type=other.encoding_type;
 	s.resize(other.s.size());
 	s.assign(other.s.c_str());
 	nextstring=other.nextstring;
-	parse();
+	parse(); // TODO: this is definitely double-parsing on qst load.
 }
 
 // Copy style data - everything except s, nextstring, and listpos
@@ -62,6 +65,7 @@ void MsgStr::advpaste(MsgStr const& other, bitstring const& flags)
 	if(flags.get(STR_ADVP_TEXT))
 	{
 		s = other.s;
+		encoding_type = other.encoding_type;
 		parsed_msg_str = {};
 	}
 	if(flags.get(STR_ADVP_NEXTSTR))
@@ -114,6 +118,7 @@ void MsgStr::clear()
 {
 	s = "";
 	s.shrink_to_fit();
+	encoding_type = EncodingType::Binary;
 	parsed_msg_str = {};
 	segments_as_int_array.clear();
 	nextstring = 0;
@@ -145,30 +150,100 @@ void MsgStr::clear()
 	drawlayer=6;
 }
 
-void MsgStr::setFromLegacyEncoding(std::string text)
+warnings MsgStr::setFromAsciiEncoding(std::string text)
 {
-	s = text;
-	parse();
+	s = std::move(text);
+	encoding_type = EncodingType::Ascii;
+	return parse();
 }
 
-void MsgStr::parse() const
+warnings MsgStr::setFromLegacyEncoding(std::string text)
 {
-	auto [parsed_msg_str, warnings] = parse_legacy_msg_str(s);
+	s = std::move(text);
+	encoding_type = EncodingType::Binary;
+	return parse();
+}
+
+warnings MsgStr::set(std::string text, EncodingType encoding_type)
+{
+	return encoding_type == EncodingType::Ascii ?
+		setFromAsciiEncoding(std::move(text)) :
+		setFromLegacyEncoding(std::move(text));
+}
+
+warnings MsgStr::parse() const
+{
+	auto [parsed_msg_str, warnings] = encoding_type == EncodingType::Ascii ? parse_ascii_msg_str(s) : parse_legacy_binary_msg_str(s);
 	if (warnings.size())
 	{
 		al_trace("Warning: found message string with SCC warnings: %s\n", parsed_msg_str.serialize().c_str());
-		for (auto& error : warnings)
-			al_trace("\t%s\n", error.c_str());
+		for (auto& warning : warnings)
+			al_trace("\t%s\n", warning.c_str());
 	}
 
 	this->parsed_msg_str = std::move(parsed_msg_str);
 	segments_as_int_array.clear();
+	return warnings;
 }
 
+void MsgStr::ensureLegacyEncoding()
+{
+	if (encoding_type == EncodingType::Binary)
+		return;
+
+	parse();
+
+	std::string binary;
+	size_t literal_index = 0;
+	size_t command_index = 0;
+	for (int i = 0; i < parsed_msg_str.segment_types.size(); i++)
+	{
+		if (parsed_msg_str.segment_types[i] == ParsedMsgStr::SegmentType::Command)
+		{
+			auto& command = parsed_msg_str.commands[command_index++];
+
+			binary += (char)((command.code % 254) + 1);
+
+			for (int j = 0; j < command.num_args; j++)
+			{
+				if (command.args[j] >= 254)
+				{
+					binary += (char)0xff;
+					binary += (char)(command.args[j] + 1);
+				}
+				else
+				{
+					binary += (char)(command.args[j] + 1);
+				}
+			}
+		}
+		else
+		{
+			binary += parsed_msg_str.literals[literal_index++];
+		}
+	}
+
+	s = std::move(binary);
+	parsed_msg_str = {};
+	encoding_type = EncodingType::Binary;
+}
+
+void MsgStr::ensureAsciiEncoding()
+{
+	if (encoding_type == EncodingType::Ascii)
+		return;
+
+	s = serialize();
+	parsed_msg_str = {};
+	encoding_type = EncodingType::Ascii;
+}
+
+// Note: this always returns an ascii-compatible encoding.
 std::string MsgStr::serialize() const
 {
-	if (parsed_msg_str.literals.empty())
+	if (parsed_msg_str.literals.empty() && parsed_msg_str.commands.empty())
 		parse();
+
 	return parsed_msg_str.serialize();
 }
 
@@ -212,7 +287,7 @@ const std::vector<int32_t>& MsgStr::segmentsAsIntArray() const
 
 MsgStr::iterator MsgStr::create_iterator() const
 {
-	if (parsed_msg_str.literals.empty())
+	if (parsed_msg_str.literals.empty() && parsed_msg_str.commands.empty())
 		parse();
 
 	MsgStr::iterator it{this};
@@ -226,8 +301,8 @@ bool MsgStr::iterator::next()
 
 void MsgStr::iterator::set_buffer(std::string text)
 {
-	buffer = text;
-	state = text.empty() ? IDLE : CHARACTER;
+	buffer = std::move(text);
+	state = buffer.empty() ? IDLE : CHARACTER;
 	word = "";
 	j = 0;
 	k = 0;
@@ -267,7 +342,8 @@ bool MsgStr::iterator::next_segment()
 		return true;
 	}
 
-	if (str->parsed_msg_str.segment_types[segment_index++] == ParsedMsgStr::SegmentType::Command)
+	auto segment_type = str->parsed_msg_str.segment_types[segment_index++];
+	if (segment_type == ParsedMsgStr::SegmentType::Command)
 	{
 		state = COMMAND;
 		command = str->parsed_msg_str.commands[command_index++];

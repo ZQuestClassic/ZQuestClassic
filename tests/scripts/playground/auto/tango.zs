@@ -3,6 +3,9 @@
 
 generic script tango
 {
+	const int SCC_COLOR = 1;
+	const int SCC_NEWLINE = 25;
+
 	void runTangoLoop(int frames)
 	{
 		while (frames-- > 0)
@@ -21,8 +24,9 @@ generic script tango
 	void showMenu()
 	{
 		Game->SetMessage(1, "Pick one!@26@choice(1)Option A@26@choice(2)Option B@domenu()@26@if(@equal(@chosen 1) @append(2))@else(@append(3))");
-		ShowMessage(1);
+		int slot = ShowMessage(1);
 		runTangoLoop(60 * 3);
+		Tango_ClearSlot(slot);
 	}
 
 	int scc(int code)
@@ -30,10 +34,9 @@ generic script tango
 		return code + 1;
 	}
 
-	void showSCC()
+	void showSCCBinaryEncoding()
 	{
-		const int SCC_COLOR = 1;
-		const int SCC_NEWLINE = 25;
+		Game->FFRules[qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING] = true;
 
 		char32 s[0];
 		sprintf(s, "hello %c%c%cworld!", scc(SCC_COLOR), scc(1), scc(2));
@@ -41,6 +44,17 @@ generic script tango
 		sprintf(s, "%cHow are you?", scc(SCC_NEWLINE));
 		Tango_AppendString(slot, s);
 		runTangoLoop(60 * 3);
+		Tango_ClearSlot(slot);
+	}
+
+	void showSCCAsciiEncoding()
+	{
+		Game->FFRules[qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING] = false;
+
+		int slot = ShowString("hello \\TextColor\\1\\2\\ world!");
+		Tango_AppendString(slot, "\\Newline\\ How are you?");
+		runTangoLoop(60 * 3);
+		Tango_ClearSlot(slot);
 	}
 
 	void run()
@@ -56,7 +70,9 @@ generic script tango
 
 		showMenu();
 		Waitframes(20);
-		showSCC();
+		showSCCBinaryEncoding();
+		Waitframes(20);
+		showSCCAsciiEncoding();
 		Waitframes(20);
 
 		Test::End();

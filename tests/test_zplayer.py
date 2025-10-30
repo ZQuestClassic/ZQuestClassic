@@ -5,6 +5,7 @@
 #   python tests/test_zplayer.py
 
 import os
+import platform
 import sys
 import unittest
 
@@ -16,6 +17,9 @@ root_dir = script_dir.parent
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
 
+CI = 'CI' in os.environ
+is_mac = platform.system() == 'Darwin'
+
 
 class TestZPlayer(unittest.TestCase):
     def setUp(self):
@@ -26,6 +30,16 @@ class TestZPlayer(unittest.TestCase):
             'zplayer',
             ['-test-zc'],
         )
+
+    def test_zc_test_runner(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            raise unittest.SkipTest('skipping test because emscripten')
+        if is_mac and CI:
+            raise unittest.SkipTest(
+                'skipping test because CI does not currently package test runner'
+            )
+
+        run_target.check_run('zc_test_runner', [])
 
 
 if __name__ == '__main__':

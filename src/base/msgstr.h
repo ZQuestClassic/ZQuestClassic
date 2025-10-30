@@ -36,9 +36,13 @@ enum
 
 struct MsgStr
 {
-	// This is the underlying, raw data. SCC commands are encoded in a special way.
+	enum class EncodingType {Binary, Ascii};
+
+	// This is the underlying, raw data. If encoding_type is binary,
+	// this uses the "legacy" function to parse.
 	// Use `serialize` instead to get a human readable string.
 	std::string s;
+	EncodingType encoding_type;
 	mutable ParsedMsgStr parsed_msg_str;
 	mutable std::vector<int32_t> segments_as_int_array;
 	word nextstring;
@@ -75,8 +79,12 @@ struct MsgStr
 	void copyAll(MsgStr const& other);
 	void advpaste(MsgStr const& other, bitstring const& pasteflags);
 	void clear();
-	void setFromLegacyEncoding(std::string text);
-	void parse() const;
+	warnings setFromAsciiEncoding(std::string text);
+	warnings setFromLegacyEncoding(std::string text);
+	warnings set(std::string text, EncodingType encoding_type);
+	warnings parse() const;
+	void ensureLegacyEncoding();
+	void ensureAsciiEncoding();
 	// A human-readable encoding of the string.
 	std::string serialize() const;
 	const std::vector<int32_t>& segmentsAsIntArray() const;

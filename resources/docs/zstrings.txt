@@ -1,3 +1,10 @@
+See https://docs.zquestclassic.com/tutorials/message_strings for the new documentation.
+
+The rest of this documents messages strings as they worked in 2.55.
+
+-------
+
+
 ZStrings Documentation
 Document Revision: 16th Dec, 2023
 For ZC 2.55 and above

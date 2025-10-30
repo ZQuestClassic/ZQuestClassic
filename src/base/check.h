@@ -3,6 +3,8 @@
 #ifndef BASE_CHECK_H_
 #define BASE_CHECK_H_
 
+#include "allegro/debug.h"
+
 #undef likely
 #undef unlikely
 #if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)

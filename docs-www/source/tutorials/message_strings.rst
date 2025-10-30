@@ -1,0 +1,244 @@
+Message strings
+===============
+
+Message strings are defined in the string editor: ``Quests > Strings``. The text content of a message string is a mix of literals (ex: "It's dangerous to go alone!") and string control codes, which are abbreviated as SCC (ex: for changing the text color, or warping the player, etc). SCCs can be typed manually in the string editor, or inserted via the SCC wizard.
+
+When a message string is rendered, the literals and commands print and execute in order.
+
+This page describes the syntax for message strings, lists all SCCs, and describes how to work with message strings in ZScript.
+
+Syntax
+------
+
+The syntax for a SCC is this: ``\CommandName\arg1\arg2\``, where "arg1" and "arg2" are numbers.
+
+* Unless the SCC is at the end of a string, the last slash must be followed by a space (the space will be ignored by the string parser)
+* The command name is case insensitive
+* Instead of the command name, the code can be used too. But when saved the editor will change it to the command name
+* Certain characters must be escaped with a backward slash: ``\\``, ``\{``, ``\}``
+
+For example: ``It's dangerous to go alone! \TextColor\2\3\ Take this!`` first prints "It's dangerous to go alone! ", changes the text color, then prints "Take this!". There will be exactly one space between the sentences ("It's dangerous to go alone! Take this!"), but there would be no spaces if the message string were instead ``It's dangerous to go alone!\TextColor\2\3\ Take this!``.
+
+If the author makes an error when writing a SCC, the command will not execute and instead will display as a string literal.
+
+A valid command requires:
+
+* A specific number of arguments
+* Each argument to be valid
+* A slash at the end of each command (including a space, except if the command is at the end of string)
+
+.. note:: ``{`` and ``}`` are reserved for future enhancements, which is why they must be escaped.
+
+Syntax (2.55)
++++++++++++++
+
+2.55 has a slightly different syntax for SCCs in the string editor:
+
+* Commands use codes, not names: ``\1\arg1\arg2``
+* Commands do not end with a ``\`` and a space
+* Commands arguments cannot be negative
+* ASCII characters can be inserted using the "commands" ``\31 through \125``. The ASCII value printed is 1 more than the number in the string.
+* To print a backwards slash, the only option is ``\91``
+* The syntax expects authors to make no mistakes when typing out SCCs. For example, if you provide 3 arguments instead of 2, the last argument will be interpreted as the next command, potentially resulting in strange effects
+
+However, in 2.55 the string as shown in the editor is not how the string is encoded; it uses a special binary encoding, not ASCII. Scripts that access string data via :ref:`classes_messagedata` must be familiar with this binary encoding. See the "ZScript" section for more.
+
+Commands
+--------
+
+Formatting
+++++++++++
+
+These commands affect how the string is rendered, such as changing the font, text color, or inserting characters or tiles into the message.
+
+.. Tip: get the suggested vscode extensions for rst (.vscode/extensions.json) to simplify table editing.
+
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+| Code | Format                                 | Format (2.55)                       | Description                                                                                                |
++======+========================================+=====================================+============================================================================================================+
+| 1    | ``\TextColor\cset\color\``             | ``\1\cset\color``                   | Changes the text color to the specified color                                                              |
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+| 26   | ``\ShadowColor\cset\color\``           | ``\26\cset\color``                  | Changes the shadow color to the specified color                                                            |
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+| 27   | ``\ShadowType\type\``                  | ``\27\type``                        | Changes the shadow type to the specified style. See "Shadow types" below table                             |
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+| 2    | ``\Speed\speed\``                      | ``\2\speed``                        | Changes the text speed. 'speed' is the number of frames between each character, where '0' is instantaneous |
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+| 135  | ``\Font\font\``                        | ``\135\font``                       | Changes the text font. 'font' is the ID number of the new font to use                                      |
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+| 25   | ``\Newline\``                          | ``\25``                             | New Line - breaks to the next line                                                                         |
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+| 22   | ``\Name\``                             | ``\22``                             | Inserts the save file name as text                                                                         |
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+| 28   | ``\Tile\tile\cset\width\height\flip\`` | ``\28\tile\cset\width\height\flip`` | Draws a tile block inline with the text, as though it were a custom font character                         |
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+| 24   | ``\Portrait\portrait_id\``             | ``\24\portrait_id``                 | Unimplemented; reserved for changing portrait                                                              |
++------+----------------------------------------+-------------------------------------+------------------------------------------------------------------------------------------------------------+
+
+Shadow types:
+
+0. No Shadow
+1. Basic shadow, no text
+2. 'U' shadow, no text
+3. Full outline shadow, no text
+4. '+' outline shadow, no text
+5. 'X' outline shadow, no text
+6. Basic shadow, behind text
+7. 'U' shadow, behind text
+8. Full outline shadow, behind text
+9. '+' outline shadow, behind text
+10. 'X' outline shadow, behind text
+
+
+Menu
+++++
+
+These commands relate to popping up a menu for the player to select a choice from.
+
++------+---------------------------------------------------------+-------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Code | Format                                                  | Format (2.55)                                   | Description                                                                                                                                                                                                                                      |
++======+=========================================================+=================================================+==================================================================================================================================================================================================================================================+
+| 128  | ``\SetupMenu\tile\cset\width\height\flip\``             | ``\128\tile\cset\width\height\flip``            | Starts a menu, and sets the menu cursor                                                                                                                                                                                                          |
++------+---------------------------------------------------------+-------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 129  | ``\MenuChoice\pos\up_pos\down_pos\left_pos\right_pos\`` | ``\129\pos\up_pos\down_pos\left_pos\right_pos`` | Creates a menu cursor position. 'pos' is the index of this position, while the 4 directional values are the position that will be moved to when that direction is pressed. If a directional pos is the same as 'pos', that direction is disabled |
++------+---------------------------------------------------------+-------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 130  | ``\RunMenu\``                                           | ``\130``                                        | Start running menu. If no ``\129`` codes have been run, the menu instantly exits with the '0' pos selected                                                                                                                                       |
++------+---------------------------------------------------------+-------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+Switch
+++++++
+
+These commands conditionally change to a different string. If switched to a string that does not exist, an empty string will be loaded.
+
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+| Code | Format                                                    | Format (2.55)                                | Description                                                                                |
++======+===========================================================+==============================================+============================================================================================+
+| 3    | ``\GoIfScreenD\register\value\newstring\``                | ``\3\register\value\newstring``              | if ``Screen->D[register] >= value``, switches to newstring                                 |
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+| 23   | ``\GoIfAnyScreenD\dmap\screen\register\value\newstring\`` | ``\23\dmap\screen\register\value\newstring`` | Same as above, but for any screen (not just the current)                                   |
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+| 4    | ``\GoIfRand\factor\newstring\``                           | ``\4\factor\newstring``                      | Randomly has a 1/factor chance to switch to newstring                                      |
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+| 5    | ``\GoIfItem\itemid\newstring\``                           | ``\5\itemid\newstring``                      | Go to newstring if the specified item is owned                                           |
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+| 6    | ``\GoIfCounter\counter\value\newstring\``                 | ``\6\counter\value\newstring``               | Go to newstring if the specified counter is >= value                                       |
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+| 7    | ``\GoIfCounter%\counter\percent\newstring\``              | ``\7\counter\percent\newstring``             | Go to newstring if the specified counter is at least percent full                          |
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+| 8    | ``\GoIfMcGuffin\levelid\newstring\``                      | ``\8\levelid\newstring``                     | Go to newstring if the triforce from the specified level is owned                          |
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+| 9    | ``\GoIfMcGuffinCount\numtriforce\newstring\``             | ``\9\numtriforce\newstring``                 | Go to newstring if at least numtriforce triforce pieces are owned                          |
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+| 131  | ``\GoIfMenuChoice\pos\newstring\``                        | ``\131\pos\newstring``                       | Go to if menu selection. Switches to the new string if 'pos' is the selected menu position |
++------+-----------------------------------------------------------+----------------------------------------------+--------------------------------------------------------------------------------------------+
+
+Control Mod
++++++++++++
+
+These commands modify counters or items.
+
++------+------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
+| Code | Format                             | Format (2.55)       | Description                                                                                                                     |
++======+====================================+=====================+=================================================================================================================================+
+| 10   | ``\CounterAdd\ctr\val\``           | ``\10\ctr\val``     | Adds 'val' to 'ctr'                                                                                                             |
++------+------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
+| 11   | ``\CounterSubtract\ctr\val\``      | ``\11\ctr\val``     | Subtracts 'val' from 'ctr'                                                                                                      |
++------+------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
+| 12   | ``\CounterSet\ctr\val\``           | `\12\ctr\val`       | Sets 'ctr' to 'val'                                                                                                             |
++------+------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
+| 13   | ``\CounterAdd%\ctr\percent\``      | ``\13\ctr\percent`` | Adds 'percent' % to 'ctr'                                                                                                       |
++------+------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
+| 14   | ``\CounterSubtract%\ctr\percent\`` | ``\14\ctr\percent`` | Subtracts 'percent' % from 'ctr'                                                                                                |
++------+------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
+| 15   | ``\CounterSet%\ctr\percent\``      | ``\15\ctr\percent`` | Sets 'ctr' to 'percent' % full                                                                                                  |
++------+------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
+| 16   | ``\GiveItem\itemid\``              | ``\16\itemid``      | Gives the player 'itemid', silently. The item is not held up, nor does its' pickup script run; though its' counter effects will |
++------+------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
+| 17   | ``\TakeItem\itemid\``              | ``\17\itemid``      | Takes 'itemid' from the player, silently. Its' pickup counter modifications will be reversed when removed                       |
++------+------------------------------------+---------------------+---------------------------------------------------------------------------------------------------------------------------------+
+
+Misc
+++++
+
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| Code | Format                                                      | Format (2.55)                           | Description                                                                                                                                       |
++======+=============================================================+=========================================+===================================================================================================================================================+
+||     ||                                                            ||                                        || Warps the player to 'dmap,screen'                                                                                                                |
+|| 18  || ``\Warp\dmap\screen\x\y\effect\sound\``                    || ``\18\dmap\screen\x\y\effect\sound``   ||                                                                                                                                                  |
+||     ||                                                            ||                                        || If x < 0, then y is treated as a return square(0-3 for return squares A-D, 5 for pit warp).                                                      |
+||     ||                                                            ||                                        ||                                                                                                                                                  |
+||     ||                                                            ||                                        || If x >= 0, then x and y act as destination coordinates.                                                                                          |
+||     ||                                                            ||                                        ||                                                                                                                                                  |
+||     ||                                                            ||                                        || Effects:                                                                                                                                         |
+||     ||                                                            ||                                        ||                                                                                                                                                  |
+||     ||                                                            ||                                        || 0. WARPEFFECT_NONE                                                                                                                               |
+||     ||                                                            ||                                        || 1. WARPEFFECT_ZAP                                                                                                                                |
+||     ||                                                            ||                                        || 2. WARPEFFECT_WAVE                                                                                                                               |
+||     ||                                                            ||                                        || 3. WARPEFFECT_INSTANT                                                                                                                            |
+||     ||                                                            ||                                        || 4. WARPEFFECT_OPENWIPE                                                                                                                           |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 19   | ``\SetScreenD\dmap\screen\register\value\``                 | ``\19\dmap\screen\register\value``      | Sets ``Screen->D[register] = value`` for the specified screen                                                                                     |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 20   | ``\SFX\sfx_id\``                                            | ``\20\sfx_id``                          | Plays a specified sfx                                                                                                                             |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 21   | ``\MIDI\midi_id\``                                          | ``\21\midi_id``                         | Plays a specified quest midi (cannot play the built-in midis)                                                                                     |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 29   | ``\EndString\``                                             | ``\29``                                 | Immediately exits the current string. If there is a 'next string', it will begin immediately. The prompt to press 'A' to continue will be skipped |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 30   | ``\WaitAdvance\``                                           | ``\30``                                 | Pauses the string and prompts the player to press A to continue (as normally occurs at the end of a string)                                       |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 132  | ``\TriggerSecrets\perm\``                                   | ``\132\perm``                           | Triggers secrets, which are permanent unless 'perm' is '0'                                                                                        |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 133  | ``\SetScreenState\flag\state\``                             | ``\133\flag\state``                     | Sets a screen state on the current screen                                                                                                         |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 134  | ``\SetAnyScreenState\map\screen\flag\state\``               | ``\134\map\screen\flag\state``          | Same as above, but for any map/screen                                                                                                             |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 136  | ``\RunFrozenGenericScript\generic_script_id\force_redraw\`` | ``\136\generic_script_id\force_redraw`` | Run the specified generic script, in RunFrozen mode                                                                                               |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 137  | ``\TriggerComboCopycat\copy_cat_id\``                       | ``\137\copy_cat_id``                    |                                                                                                                                                   |
++------+-------------------------------------------------------------+-----------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+
+ZScript
+-------
+
+Scripts can read or write to message strings via :ref:`classes_messagedata`, which includes SCCs.
+
+.. versionadded:: 3.0
+   The individual string literals and commands can be read via :ref:`messagedata::Segments[]<classes_messagedata_var_segments>`.
+
+In 2.55, the text stored in :ref:`classes_messagedata` uses a binary encoding: how the string is displayed in the editor is not how it appears in scripts; each command is not stored as ``\1\2\3``, but instead the command code and each argument is encoded as that value plus 1. For example, ``\1\2\3`` encodes as three numbers: 2, 3, 4.
+
+Since 3.0, the text stored in :ref:`classes_messagedata` is exactly the text seen in the editor: it's just ASCII. However, the older binary encoding can still be used if :ref:`qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING<globals_enum_member_qr_old_scripts_message_data_binary_encoding>` is enabled. This is only necessary if the strings contain SCCs, and if the code processing them still expect the binary encoding.
+
+Example: Writing SCCs
++++++++++++++++++++++
+
+The following are a couple example scripts found in ZC's tests folder, which gives some insight into how to programmatically write SSCs.
+
+The first test script shows examples for writing in both the ASCII and binary encodings:
+
+.. only:: html
+
+   .. zscript::
+      :url: https://raw.githubusercontent.com/ZQuestClassic/ZQuestClassic/refs/heads/main/tests/scripts/playground/auto/tango.zs
+
+
+The second test script shows just writing SCCs in the binary encoding:
+
+.. only:: html
+
+   .. zscript::
+      :url: https://raw.githubusercontent.com/ZQuestClassic/ZQuestClassic/refs/heads/main/tests/scripts/playground/auto/scc.zs
+
+
+Example: Reading SCCs
++++++++++++++++++++++
+
+For reading SCCs, it's highly recommended to use :ref:`messagedata::Segments[]<classes_messagedata_var_segments>`, which handles the parsing and works the same regardless of the encoding used.
+
+This example is from :ref:`tango<lib_tango>`, the text library. It shows reading SCCs from the binary encoding.
+
+.. only:: html
+
+   .. zscript::
+      :url: https://raw.githubusercontent.com/ZQuestClassic/ZQuestClassic/refs/heads/main/resources/headers/tango/1.3/tango_stringControlCode.zh

@@ -14,10 +14,8 @@ void __Tango_LogError(int error)
     
     if(__TANGO_ONSCREEN_NOTIFICATION!=0)
         __Tango_Data[__TDIDX_ERROR_NOTIFICATION]=300;
-    
-    int str[]="tango.zh error ";
-    TraceS(str);
-    TraceToBase(error, 10, 0);
+
+    printf("tango.zh error: %d\n", error);
 }
 
 void __Tango_LogError(int error, untyped data)

@@ -5,10 +5,12 @@
 	// List of extensions which should be recommended for users of this workspace.
 	"recommendations": [
 		"cjamcl.zquest-lsp",
+		"lextudio.restructuredtext",
 		"ms-python.black-formatter",
 		"ms-python.debugpy",
 		"ms-python.isort",
 		"ms-python.python",
+		"swyddfa.esbonio",
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
 	"unwantedRecommendations": [

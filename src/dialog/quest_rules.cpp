@@ -1759,6 +1759,9 @@ GUI::ListData instructionRulesList
 	{ "Scripts return non-zero for out-of-bounds access of some arrays", qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE,
 		"If enabled, some arrays will return a non-zero value (typically -1) when accessing an out-of-bounds index (though most return zero)."
 		" When disabled, all out-of-bounds accesses return zero."},
+	{ "Scripts use legacy binary encoding for messagedata strings", qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING,
+		"If enabled, reading or writing the contents of messagedata strings will use the legacy binary encoding."
+		" When disabled, the more capable ascii encoding is used."},
 	{ "Game->Generic[GEN_CONTINUEHEARTS] is in 'Hearts'", qr_SCRIPT_CONTHP_IS_HEARTS,
 		"If checked, read/write to 'Game->Generic[GEN_CONTINUEHEARTS]' is in 'Hearts'. Otherwise,"
 		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)"}
@@ -1892,7 +1895,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
 				qr_OLD_BROKEN_WARPEX_MUSIC, qr_OLD_HERO_WARP_RETSQUARE, qr_ZS_OLD_SUSPEND_FFC,
 				qr_SCRIPTS_6_BIT_COLOR, qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES, qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX,
-				qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE,
+				qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE, qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING,
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);

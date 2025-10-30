@@ -4,12 +4,12 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#include "base/zdefs.h"
+#include "base/zfix.h"
 #include <algorithm>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
-#include <optional>
+#include <map>
 #include <sstream>
 #include <string>
 #include <sys/stat.h>
@@ -23,6 +23,8 @@ typedef int32_t mode_t;
 #endif
 
 namespace fs = std::filesystem;
+
+struct BITMAP;
 
 namespace util
 {

@@ -47,6 +47,7 @@ generic script scc
 	{
 		Test::Init();
 		Game->FFRules[qr_ALLOWFASTMSG] = false;
+		Game->FFRules[qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING] = true;
 		char32 s[1000];
 
 		playMessage("hello world");

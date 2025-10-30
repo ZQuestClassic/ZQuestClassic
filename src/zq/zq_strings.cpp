@@ -24,7 +24,6 @@ int32_t strlist_del();
 int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
 void build_bistringcat_list();
 const char *stringcatlist(int32_t index, int32_t *list_size);
-std::string parse_to_legacy_msg_str_encoding(std::string const& s);
 int32_t msg_code_operands(byte cc);
 int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c);
 void strlist_rclick_func(int32_t index, int32_t x, int32_t y);
@@ -457,7 +456,7 @@ int32_t onStrings()
 			
 			init_msgstr(&(MsgStrings[msg_count]));
 			MsgStrings[msg_count].listpos = msg_count;
-			MsgStrings[msg_count++].setFromLegacyEncoding("<New String>");
+			MsgStrings[msg_count++].setFromAsciiEncoding("<New String>");
 		}
 		
 		strlist_dlg[7].dp=msgmore_xstring;
@@ -809,61 +808,6 @@ void strip_trailing_spaces(std::string& str)
 	str = str.substr(0, str.find_last_not_of(' ')+1);
 }
 
-std::string parse_to_legacy_msg_str_encoding(std::string const& s)
-{
-	std::string smsg;
-	
-	for(uint32_t i=0; i<s.size() && smsg.size()< MSGBUF_SIZE; i++)
-	{
-		// Is it a backslash-escaped number?
-		if(s[i]=='\\')
-		{
-			int32_t msgcc = 0;
-			byte twofiftyfives = 0;
-			byte digits = 0;
-			
-			bool neg = false;
-			if(i+1 < s.size() && s[i+1] == '-')
-			{
-				neg = true;
-				++i;
-			}
-			// Read the entire number
-			while(i+1<s.size() && s[i+1]>='0' && s[i+1]<='9' && ++digits <= 5)
-			{
-				++i;
-				msgcc*=10; // Move the current number one decimal place right.
-				msgcc+=byte(s[i]-'0');
-				
-				// A hack to allow multi-byte numbers.
-				if(msgcc >= 254)
-				{
-					twofiftyfives = (msgcc/254)<<0;
-				}
-			}
-			if(neg)
-			{
-				msgcc = MAX_SCC_ARG;
-				twofiftyfives = (msgcc/254)<<0;
-			}
-			smsg += (char)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
-
-			// A hack to allow multi-byte numbers, continued
-			if(twofiftyfives > 0)
-			{
-				smsg += (char)0xff;
-				smsg += (char)twofiftyfives;
-			}
-		}
-		else
-		{
-			smsg += (char)((s[i] >= 32 && s[i] <=126) ? s[i] : ' ');
-		}
-	}
-	
-	return smsg;
-}
-
 int32_t mprvfont=0;
 int32_t mprvflags=0;
 int32_t mprvvspace=0;
@@ -928,7 +872,7 @@ void rebuild_string_list()
 void reset_msgstr(int32_t index)
 {
 	bound(index,0,msg_strings_size-1);
-	MsgStrings[index].setFromLegacyEncoding("");
+	MsgStrings[index].setFromAsciiEncoding("");
 	MsgStrings[index].nextstring=0;
 }
 
