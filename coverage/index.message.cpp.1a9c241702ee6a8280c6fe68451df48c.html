@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-10-29 07:48:21</td>
+      <td>2025-10-30 08:29:14</td>
     </tr>
   </table>
 </div>
@@ -41,20 +41,20 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>10</td>
-      <td>11</td>
-      <td class="coverage-high">90.9%</td>
+      <td>17</td>
+      <td>20</td>
+      <td class="coverage-medium">85.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>2</td>
-      <td>2</td>
-      <td class="coverage-high">100.0%</td>
+      <td>5</td>
+      <td>6</td>
+      <td class="coverage-medium">83.3%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>5</td>
-      <td>10</td>
+      <td>8</td>
+      <td>16</td>
       <td class="coverage-low">50.0%</td>
     </tr>
   </table>
@@ -75,6 +75,10 @@
     </tr>
     <tr><td><a href="#l5">$_1::operator()() const (line 5)</a></td><td>called 427 times, returned 427 times</td><td>71.0%</td></tr>
     <tr><td><a href="#l13">$_2::operator()() const (line 13)</a></td><td>called 427 times, returned 427 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l19">$_3::operator()() const (line 19)</a></td><td>called 427 times, returned 427 times</td><td>71.0%</td></tr>
+    <tr><td><a href="#l21">$_3::operator()() const::&#39;lambda&#39;(MsgStr*)::operator()(MsgStr*) const (line 21)</a></td><td>called 33 times, returned 33 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l22">$_3::operator()() const::&#39;lambda&#39;(MsgStr*, int)::operator()(MsgStr*, int) const (line 22)</a></td><td>called 24 times, returned 24 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l23">$_3::operator()() const::&#39;lambda&#39;(MsgStr*, int, int)::operator()(MsgStr*, int, int) const (line 23)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
 
@@ -235,6 +239,94 @@
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l18" href="#l18">18</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l19" href="#l19">19</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">854</td>
+      <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">ArrayRegistrar</span><span class="w"> </span><span class="nf">MESSAGEDATASEGMENTS_registrar</span><span class="p">(</span><span class="n">MESSAGEDATASEGMENTS</span><span class="p">,</span><span class="w"> </span><span class="p">[]{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l20" href="#l20">20</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">3/6</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 427 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
+          <div class="takenBranch">&check; Branch 3 taken 427 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 427 times.</div>
+          <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">427</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">ScriptingArray_ObjectComputed</span><span class="o">&lt;</span><span class="n">MsgStr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">impl</span><span class="p">(</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l21" href="#l21">21</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">460</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="p">[](</span><span class="n">MsgStr</span><span class="o">*</span><span class="w"> </span><span class="n">msg</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">segmentsAsIntArray</span><span class="p">().</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="p">},</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l22" href="#l22">22</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">24</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="p">[](</span><span class="n">MsgStr</span><span class="o">*</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">segmentsAsIntArray</span><span class="p">()[</span><span class="n">index</span><span class="p">];</span><span class="w"> </span><span class="p">},</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l23" href="#l23">23</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">[](</span><span class="n">MsgStr</span><span class="o">*</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">){}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l24" href="#l24">24</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l25" href="#l25">25</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">427</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">impl</span><span class="p">.</span><span class="n">setMul10000</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l26" href="#l26">26</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">427</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">impl</span><span class="p">.</span><span class="n">setReadOnly</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l27" href="#l27">27</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">427</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">impl</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l28" href="#l28">28</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}());</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
