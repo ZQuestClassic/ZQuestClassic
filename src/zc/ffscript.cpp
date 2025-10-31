@@ -32543,10 +32543,9 @@ void FFScript::do_tracetobase()
 		s2 += ss.str();
 		break;
 	}
-	TraceScriptIDs();
-	s2 += "\n";
-	al_trace("%s", s2.c_str());
-	
+
+	traceStr(s2);
+
 	if ( console_enabled ) 
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
