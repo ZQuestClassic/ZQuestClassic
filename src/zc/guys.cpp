@@ -20195,7 +20195,7 @@ static bool parsemsgcode(const StringCommand& command)
 		{
 			int32_t arg = args[0];
 			int32_t d = zc_min(7,arg);
-			int32_t s = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+			int32_t s = ((get_currdmap())<<7) + msgscr->screen-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
 			arg = args[1];
 
 			if(game->screen_d[s][d] >= arg)
