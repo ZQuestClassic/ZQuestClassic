@@ -1,4 +1,5 @@
 #include "base/handles.h"
+#include "base/scc.h"
 #include "base/zdefs.h"
 #include <cstring>
 #include <optional>
@@ -20502,6 +20503,11 @@ static msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 			std::string text = parsemsgcode2(msg_it->command);
 			if (wait_advance)
 				break;
+			if (do_run_menu)
+			{
+				msg_it->set_buffer("");
+				break;
+			}
 
 			if (text.empty())
 			{
