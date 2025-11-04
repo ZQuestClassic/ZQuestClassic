@@ -437,6 +437,7 @@ public:
 	bool can_lift(int32_t gloveid);
 	void handle_lift(bool dec = true);
 	void lift(weapon* w, byte timer, zfix height);
+	bool is_holding_item() const;
 	void check_on_hit();
 	bool doattack();
 	bool can_attack();
@@ -503,7 +504,7 @@ private:
 public:
 	int32_t ringpower(int32_t dmg, bool noPeril = false, bool noRing = false);
 	void ganon_intro();
-	void checkitems(int32_t index = -1);
+	bool checkitems(int32_t index = -1);
 	int32_t DrunkClock();
 	void setDrunkClock(int32_t newdrunkclk);
 	int32_t StunClock();
