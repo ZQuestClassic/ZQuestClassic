@@ -785,9 +785,9 @@ std::pair<int32_t, int32_t> COMBOXY_REGION_INDEX(rpos_t rpos)
 	return {x, y};
 }
 
-int32_t mapind(int32_t map, int32_t scr)
+int32_t mapind(int32_t map, int32_t screen)
 {
-	return map * MAPSCRSNORMAL + scr;
+	return map * MAPSCRSNORMAL + screen;
 }
 
 FONT *get_zc_font(int index);

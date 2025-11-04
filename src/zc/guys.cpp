@@ -20063,7 +20063,26 @@ static bool parsemsgcode(const StringCommand& command)
 			}
 			return true;
 		}
-			
+
+		case MSGC_COLLECTITEM:
+		{
+			int32_t itemID = args[0];
+
+			if (!items.has_space())
+			{
+				Z_error("SCC: No room to spawn item\n");
+				return true;
+			}
+
+			additem(0, (get_qr(qr_NOITEMOFFSET) ? 1: 0), itemID, ipHOLDUP);
+			auto* s = (item*)items.spr(items.Count() - 1);
+			s->screen_spawned = msgscr->screen;
+			s->set_forcegrab(true);
+			// The item will be collected by Hero::checkItems when the message box closes. However,
+			// if qr_MSGFREEZE is off, this command will instantly close the message box. It's
+			// expected that new quests have that QR on.
+			return true;
+		}
 		
 		case MSGC_WARP:
 		{
@@ -20191,7 +20210,7 @@ static bool parsemsgcode(const StringCommand& command)
 			return true;
 		}
 		
-		case MSGC_GOTOIFGLOBAL:
+		case MSGC_GOTOIFSCREEND:
 		{
 			int32_t arg = args[0];
 			int32_t d = zc_min(7,arg);
@@ -20201,6 +20220,292 @@ static bool parsemsgcode(const StringCommand& command)
 			if(game->screen_d[s][d] >= arg)
 			{
 				last_arg = 2;
+				goto switched;
+			}
+
+			return true;
+		}
+
+		case MSGC_GOTOIFGLOBALSTATE:
+		{
+			int32_t index = args[0];
+			bool value = args[1];
+
+			if (unsigned(index) >= NUM_GSWITCHES)
+			{
+				Z_error("SCC: Global state %d is invalid\n", index);
+				return true;
+			}
+
+			bool state = game->gswitch_timers[index] != 0;
+
+			if (state == value)
+			{
+				last_arg = 2;
+				goto switched;
+			}
+
+			return true;
+		}
+
+		case MSGC_SETGLOBALSTATE:
+		{
+			int32_t index = args[0];
+			int32_t value = args[1];
+
+			if (unsigned(index) >= NUM_GSWITCHES)
+			{
+				Z_error("SCC: Global state %d is invalid\n", index);
+				return true;
+			}
+
+			if (bool(game->gswitch_timers[index]) != bool(value))
+				toggle_gswitches(index, false);
+			game->gswitch_timers[index] = value;
+
+			return true;
+		}
+
+		case MSGC_GOTOIFSCREENSTATE:
+		{
+			int32_t flag = args[0];
+			bool value = args[1];
+
+			if (unsigned(flag) >= mMAXIND)
+			{
+				Z_error("SCC: Screen state %d is invalid\n", flag);
+				return true;
+			}
+
+			bool state = getmapflag(msgscr, 1<<flag);
+			if (state == value)
+			{
+				last_arg = 2;
+				goto switched;
+			}
+
+			return true;
+		}
+
+		case MSGC_GOTOIFANYSCREENSTATE:
+		{
+			int32_t map = args[0];
+			int32_t screen = args[1];
+			int32_t flag = args[2];
+			bool value = args[3];
+
+			if (unsigned(flag)>=mMAXIND)
+			{
+				Z_error("SCC: Screen state %d is invalid\n", flag);
+				return true;
+			}
+
+			if (map < 1 || map > map_count)
+			{
+				Z_error("SCC: Map %d is invalid\n", map);
+				return true;
+			}
+
+			if (unsigned(screen)>=0x80)
+			{
+				Z_error("SCC: Screen %d is invalid\n", screen);
+				return true;
+			}
+
+			int mi = mapind(map, screen);
+			bool state = (game->maps[mi] & (1<<flag)) != 0;
+			if (state == value)
+			{
+				last_arg = 4;
+				goto switched;
+			}
+
+			return true;
+		}
+
+		case MSGC_GOTOIFSCREENEXSTATE:
+		{
+			int32_t flag = args[0];
+			bool value = args[1];
+
+			if (unsigned(flag) >= 32)
+			{
+				Z_error("SCC: Screen ExState %d is invalid\n", flag);
+				return true;
+			}
+
+			bool state = getxmapflag(msgscr->screen, 1<<flag);
+			if (state == value)
+			{
+				last_arg = 2;
+				goto switched;
+			}
+
+			return true;
+		}
+
+		case MSGC_GOTOIFANYSCREENEXSTATE:
+		{
+			int32_t map = args[0];
+			int32_t screen = args[1];
+			int32_t flag = args[2];
+			bool value = args[3];
+
+			if (unsigned(flag) >= 32)
+			{
+				Z_error("SCC: Screen ExState %d is invalid\n", flag);
+				return true;
+			}
+
+			if (map < 1 || map > map_count)
+			{
+				Z_error("SCC: Map %d is invalid\n", map);
+				return true;
+			}
+
+			if (unsigned(screen)>=0x80)
+			{
+				Z_error("SCC: Screen %d is invalid\n", screen);
+				return true;
+			}
+
+			bool state = getxmapflag(mapind(map, screen), 1<<flag);
+			if (state == value)
+			{
+				last_arg = 4;
+				goto switched;
+			}
+
+			return true;
+		}
+
+		case MSGC_GOTOIFLEVELSTATE:
+		{
+			int32_t level = args[0];
+			int32_t flag = args[1];
+			bool value = args[2];
+
+			if (level == -1)
+				level = dlevel;
+
+			if (unsigned(level) >= game->lvlswitches.size())
+			{
+				Z_error("SCC: Level %d is invalid\n", level);
+				return true;
+			}
+
+			if (unsigned(flag) >= 32)
+			{
+				Z_error("SCC: Level state %d is invalid\n", flag);
+				return true;
+			}
+
+			bool state = game->lvlswitches[level] & (1<<flag);
+			if (state == value)
+			{
+				last_arg = 3;
+				goto switched;
+			}
+
+			return true;
+		}
+
+		case MSGC_SETLEVELSTATE:
+		{
+			int32_t level = args[0];
+			int32_t flag = args[1];
+			bool value = args[2];
+
+			if (level == -1)
+				level = dlevel;
+
+			if (unsigned(level) >= game->lvlswitches.size())
+			{
+				Z_error("SCC: Level %d is invalid\n", level);
+				return true;
+			}
+
+			if (unsigned(flag) >= 32)
+			{
+				Z_error("SCC: Level state %d is invalid\n", flag);
+				return true;
+			}
+
+			if (level == dlevel)
+			{
+				if (bool(game->lvlswitches[level] & (1<<flag)) != value)
+					toggle_switches(1<<flag, false);
+			}
+			else
+			{
+				SETFLAG(game->lvlswitches[level], 1<<flag, value);
+			}
+
+			return true;
+		}
+
+		case MSGC_GOTOIFLEVELITEM:
+		{
+			int32_t level = args[0];
+			int32_t flag = args[1];
+			bool value = args[2];
+
+			if (level == -1)
+				level = dlevel;
+
+			if (unsigned(level) >= game->lvlitems.size())
+			{
+				Z_error("SCC: Level %d is invalid\n", level);
+				return true;
+			}
+
+			if (unsigned(flag) >= 16)
+			{
+				Z_error("SCC: Level item %d is invalid\n", flag);
+				return true;
+			}
+
+			bool state = game->lvlitems[level] & (1<<flag);
+			if (state == value)
+			{
+				last_arg = 3;
+				goto switched;
+			}
+
+			return true;
+		}
+
+		case MSGC_SETLEVELITEM:
+		{
+			int32_t level = args[0];
+			int32_t flag = args[1];
+			bool value = args[2];
+
+			if (level == -1)
+				level = dlevel;
+
+			if (unsigned(level) >= game->lvlitems.size())
+			{
+				Z_error("SCC: Level %d is invalid\n", level);
+				return true;
+			}
+
+			if (unsigned(flag) >= 16)
+			{
+				Z_error("SCC: Level item %d is invalid\n", flag);
+				return true;
+			}
+
+			SETFLAG(game->lvlitems[level], 1<<flag, value);
+
+			return true;
+		}
+
+		case MSGC_GOTOIFSECRETS:
+		{
+			if (get_screen_state(msgscr->screen).triggered_secrets)
+			{
+				last_arg = 0;
 				goto switched;
 			}
 
@@ -20344,7 +20649,13 @@ static bool parsemsgcode(const StringCommand& command)
 
 			return true;
 		}
-		
+
+		case MSGC_KILLHERO:
+		{
+			bool bypass_revive = args[0];
+			Hero.kill(bypass_revive);
+			return true;
+		}
 		case MSGC_ENDSTRING:
 		{
 			do_end_str = true;
@@ -20354,6 +20665,19 @@ static bool parsemsgcode(const StringCommand& command)
 		{
 			wait_advance = true;
 			linkedmsgclk = 51;
+			return true;
+		}
+		case MSGC_DELAY:
+		case MSGC_FORCE_DELAY:
+		{
+			int frames = args[0];
+			if (frames <= 0)
+			{
+				Z_error("SCC: frames %d is invalid (must be >0)\n", frames);
+				return true;
+			}
+
+			msg_it->set_post_segment_delay(frames, command.code == MSGC_FORCE_DELAY);
 			return true;
 		}
 		case MSGC_TRIGSECRETS:
@@ -20376,7 +20700,7 @@ static bool parsemsgcode(const StringCommand& command)
 			int32_t flag = args[0];
 			if(unsigned(flag)>=mMAXIND)
 			{
-				Z_error("SCC 133: Flag %d is invalid\n", flag);
+				Z_error("SCC 133: State %d is invalid\n", flag);
 				return true;
 			}
 			bool state = args[1];
@@ -20404,7 +20728,7 @@ static bool parsemsgcode(const StringCommand& command)
 			int32_t flag = args[2];
 			if(unsigned(flag)>=mMAXIND)
 			{
-				Z_error("SCC 134: Flag %d is invalid\n", flag);
+				Z_error("SCC 134: State %d is invalid\n", flag);
 				return true;
 			}
 			bool state = args[3];
@@ -20414,6 +20738,56 @@ static bool parsemsgcode(const StringCommand& command)
 				unsetmapflag_mi(msgscr, mapind(map,scrid),1<<flag,true);
 			return true;
 		}
+
+		case MSGC_SETANYSCREENEXSTATE:
+		{
+			int32_t map = args[0];
+			int32_t screen = args[1];
+			int32_t flag = args[2];
+
+			if (unsigned(flag) >= 32)
+			{
+				Z_error("SCC: Screen ExState %d is invalid\n", flag);
+				return true;
+			}
+
+			if (map < 1 || map > map_count)
+			{
+				Z_error("SCC: Map %d is invalid\n", map);
+				return true;
+			}
+
+			if (unsigned(screen)>=0x80)
+			{
+				Z_error("SCC: Screen %d is invalid\n", screen);
+				return true;
+			}
+
+			bool state = args[3];
+			if(state)
+				setxmapflag(mapind(map, screen), 1<<flag);
+			else
+				unsetxmapflag(mapind(map, screen), 1<<flag);
+			return true;
+		}
+
+		case MSGC_SETSCREENEXSTATE:
+		{
+			int32_t flag = args[0];
+			if (unsigned(flag) >= 32)
+			{
+				Z_error("SCC: Screen ExState %d is invalid\n", flag);
+				return true;
+			}
+
+			bool state = args[1];
+			if(state)
+				setxmapflag(msgscr->screen, 1<<flag);
+			else
+				unsetxmapflag(msgscr->screen, 1<<flag);
+			return true;
+		}
+
 switched:
 		int32_t lev = args[last_arg];
 		if(lev && get_qr(qr_SCC_GOTO_RESPECTS_CONTFLAG)
@@ -20438,6 +20812,14 @@ static std::string parsemsgcode2(const StringCommand& command)
 	if (command.code == MSGC_NAME)
 	{
 		return game->get_name();
+	}
+	else if (command.code == MSGC_COUNTER)
+	{
+		return fmt::format("{}", game->get_counter(command.args[0]));
+	}
+	else if (command.code == MSGC_MAXCOUNTER)
+	{
+		return fmt::format("{}", game->get_maxcounter(command.args[0]));
 	}
 	else
 	{
@@ -20519,7 +20901,7 @@ static msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 				msg_it->set_buffer(text);
 				msg_it->next();
 				if (one_frame_command_delay)
-					msg_it->post_segment_delay = 1;
+					msg_it->set_post_segment_delay(1, false);
 			}
 		}
 
@@ -20753,6 +21135,8 @@ void putmsg()
 		{
 			if (msgspeed && !(cBbtn() && get_qr(qr_ALLOWMSGBYPASS)))
 				goto breakout; // break out if message speed was changed to non-zero
+			if (msg_it->get_post_segment_delay() && msg_it->get_post_segment_delay_forced())
+				goto breakout; // or if a ForceDelay command was hit.
 
 			auto tick = msg_tick(msg_it->character != " ", true);
 			if (tick == msg_tick_break)
@@ -20770,9 +21154,15 @@ void putmsg()
 	{
 breakout:
 		word tempspeed = msgspeed;
+		bool go_fast = get_qr(qr_ALLOWFASTMSG) && cAbtn();
 		if (do_run_menu)
 			tempspeed = 0;
-		if(((msgclk++)%(tempspeed+1)<tempspeed)&&((!cAbtn())||(!get_qr(qr_ALLOWFASTMSG))))
+		if (msg_it->get_post_segment_delay() && msg_it->peek(0).empty())
+		{
+			tempspeed = 0;
+			msg_it->set_post_segment_delay_fast(go_fast);
+		}
+		if ((msgclk++ % (tempspeed+1) < tempspeed) && !go_fast)
 			return;
 	}
 

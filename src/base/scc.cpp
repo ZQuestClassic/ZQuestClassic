@@ -32,7 +32,7 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_GOTOMENUCHOICE, {"GoIfMenuChoice", 2}}, // (pos, newstring)
 
 	// Switch
-	{MSGC_GOTOIFGLOBAL, {"GoIfScreenD", 3}}, // (register, val, newtring)
+	{MSGC_GOTOIFSCREEND, {"GoIfScreenD", 3}}, // (register, val, newstring)
 	{MSGC_GOTOIFRAND, {"GoIfRand", 2}}, // (factor, newstring)
 	{MSGC_GOTOIFITEM, {"GoIfItem", 2}}, // (itemid, newstring)
 	{MSGC_GOTOIFCTR, {"GoIfCounter", 3}}, // (counter, val, newstring)
@@ -40,6 +40,14 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_GOTOIFTRI, {"GoIfMcGuffin", 2}}, // (level, newstring)
 	{MSGC_GOTOIFTRICOUNT, {"GoIfMcGuffinCount", 2}}, // (tricount, newstring)
 	{MSGC_GOTOIFCREEND, {"GoIfAnyScreenD", 5}}, // (dmap, screen, reg, val, newstring)
+	{MSGC_GOTOIFGLOBALSTATE, {"GoIfGlobalState", 3}}, // (state, value, newstring)
+	{MSGC_GOTOIFSCREENSTATE, {"GoIfScreenState", 3}}, // (state, value, newstring)
+	{MSGC_GOTOIFANYSCREENSTATE, {"GoIfAnyScreenState", 5}}, // (map, screen, state, value, newstring)
+	{MSGC_GOTOIFSCREENEXSTATE, {"GoIfScreenExState", 3}}, // (state, value, newstring)
+	{MSGC_GOTOIFANYSCREENEXSTATE, {"GoIfAnyScreenExState", 5}}, // (map, screen, state, value, newstring)
+	{MSGC_GOTOIFLEVELSTATE, {"GoIfLevelState", 4}}, // (level, state, value, newstring)
+	{MSGC_GOTOIFLEVELITEM, {"GoIfLevelItem", 4}}, // (level, item, value, newstring)
+	{MSGC_GOTOIFSECRETS, {"GoIfSecrets", 1}}, // (newstring)
 
 	// Control Mod
 	{MSGC_CTRUP, {"CounterAdd", 2}}, // (counter, val)
@@ -49,6 +57,7 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_CTRDNPC, {"CounterSubtract%", 2}}, // (counter, val)
 	{MSGC_CTRSETPC, {"CounterSet%", 2}}, // (counter, val)
 	{MSGC_GIVEITEM, {"GiveItem", 1}}, //  (itemid)
+	{MSGC_COLLECTITEM, {"CollectItem", 1}}, // (itemid)
 	{MSGC_TAKEITEM, {"TakeItem", 1}}, //  (itemid)
 
 	// Misc
@@ -57,12 +66,22 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_SFX, {"SFX", 1}}, //  (sfx)
 	{MSGC_MIDI, {"MIDI", 1}}, //  (midi)
 	{MSGC_WAIT_ADVANCE, {"WaitAdvance", 0}},
+	{MSGC_DELAY, {"Delay", 1}},
+	{MSGC_FORCE_DELAY, {"ForceDelay", 1}},
 	{MSGC_ENDSTRING, {"EndString", 0}},
 	{MSGC_TRIGSECRETS, {"TriggerSecrets", 1}}, // (perm)
 	{MSGC_TRIG_CMB_COPYCAT, {"TriggerComboCopycat", 1}}, // (copycat id)
-	{MSGC_SETSCREENSTATE, {"SetScreenState", 2}}, // (ind, state)
-	{MSGC_SETSCREENSTATER, {"SetAnyScreenState", 4}}, // (map, screen, ind, state)
+	{MSGC_SETSCREENSTATE, {"SetScreenState", 2}}, // (state, value)
+	{MSGC_SETSCREENSTATER, {"SetAnyScreenState", 4}}, // (map, screen, state, value)
+	{MSGC_SETSCREENEXSTATE, {"SetScreenExState", 2}}, // (state, value)
+	{MSGC_SETANYSCREENEXSTATE, {"SetAnyScreenExState", 4}}, // (map, screen, state, value)
+	{MSGC_SETGLOBALSTATE, {"SetGlobalState", 2}}, // (state, value)
+	{MSGC_SETLEVELSTATE, {"SetLevelState", 3}}, // (level, state, value)
+	{MSGC_SETLEVELITEM, {"SetLevelItem", 3}}, // (level, item, value)
 	{MSGC_RUN_FRZ_GENSCR, {"RunFrozenGenericScript", 2}}, // (script num, force_redraw)
+	{MSGC_COUNTER, {"Counter", 1}}, // (ctr)
+	{MSGC_MAXCOUNTER, {"MaxCounter", 1}}, // (ctr)
+	{MSGC_KILLHERO, {"KillHero", 1}}, // (bypass_revive)
 };
 
 // Increments i and returns the control code argument pointed at.

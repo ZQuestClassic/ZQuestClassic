@@ -103,5 +103,23 @@ generic script scc
 			scc(SCC_SPEED), scc(60)
 		);
 		playMessage(s);
+
+		Game->FFRules[qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING] = false;
+
+		playMessage("speed\\Speed\\0\\ .......\\Speed\\10\\ ............\\Speed\\60\\ ....");
+
+		playMessage("Hey. \\ForceDelay\\120\\ Go away.");
+
+		playMessage("Life: \\Counter\\0\\ /\\MaxCounter\\0\\");
+
+		playMessage("Take this!\\CollectItem\\10\\");
+		Waitframes(60 * 3);
+
+		setMessage(1, "Take this!\\CollectItem\\11\\")->Next = 2;
+		setMessage(2, "Have a \\TextColor\\3\\8\\ nice day!\\CollectItem\\12\\");
+		playMessage(1);
+		Waitframes(60 * 5);
+
+		Test::End();
 	}
 }

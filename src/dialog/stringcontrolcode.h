@@ -33,7 +33,7 @@ private:
 	byte curscc;
 	int32_t args[256][MAX_SCC_ARG_COUNT];
 	GUI::ListData list_sccs, list_shtype, list_strings, list_items, list_counters, list_dmaps,
-		list_weffect, list_sfx, list_midi, list_screenstate, list_font, list_font_order,
+		list_weffect, list_sfx, list_midi, list_screenstate, list_level_items, list_font, list_font_order,
 		list_genscr;
 	std::shared_ptr<GUI::DropDownList> fontlist;
 	std::shared_ptr<GUI::Button> miscbtn;

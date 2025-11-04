@@ -145,7 +145,7 @@ int32_t COMBOY_REGION(rpos_t rpos);
 rpos_t COMBOPOS_REGION_INDEX(int32_t x, int32_t y);
 std::pair<int32_t, int32_t> COMBOXY_REGION_INDEX(rpos_t rpos);
 
-int32_t mapind(int32_t map, int32_t scr);
+int32_t mapind(int32_t map, int32_t screen);
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
 
 extern int32_t view_map_show_mode;

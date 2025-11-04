@@ -364,10 +364,13 @@ bool MsgStr::iterator::next_word()
 
 	if (j >= buffer.size())
 	{
-		if (post_segment_delay)
+		if (post_segment_delay > 0)
 		{
 			state = IDLE;
-			post_segment_delay--;
+			if (!post_segment_delay_forced && post_segment_delay_fast)
+				post_segment_delay = zc_max(0, post_segment_delay - 5);
+			else
+				post_segment_delay--;
 			return false;
 		}
 
@@ -425,4 +428,26 @@ bool MsgStr::iterator::next_character()
 
 	state = IDLE;
 	return false;
+}
+
+void MsgStr::iterator::set_post_segment_delay(int frames, bool forced)
+{
+	post_segment_delay = frames;
+	post_segment_delay_forced = forced;
+	post_segment_delay_fast = false;
+}
+
+void MsgStr::iterator::set_post_segment_delay_fast(bool fast)
+{
+	post_segment_delay_fast = fast;
+}
+
+int MsgStr::iterator::get_post_segment_delay() const
+{
+	return post_segment_delay;
+}
+
+bool MsgStr::iterator::get_post_segment_delay_forced() const
+{
+	return post_segment_delay_forced;
 }

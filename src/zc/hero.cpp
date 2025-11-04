@@ -31640,7 +31640,13 @@ bool HeroClass::checkitems(int32_t index)
 			if (itm->get_forcegrab())
 			{
 				// Wait for currently held item animation to finish.
-				if ((itm->pickup & ipHOLDUP) && is_holding_item())
+				// Also wait for any ongoing message to finish. Otherwise an item created from the
+				// CollectItem SCC will close the message box at the end of the string, ignoring any
+				// subsequent linked messages. Instead, collect the item only after all messages are
+				// done.
+				// I tried applying this check for even non-forcegrab items, but it didn't work out:
+				// https://discord.com/channels/876899628556091432/1277878877057978460/1435172573611561083
+				if ((itm->pickup & ipHOLDUP) && (is_holding_item() || linkedmsgclk))
 					continue;
 
 				if (checkitems(i))

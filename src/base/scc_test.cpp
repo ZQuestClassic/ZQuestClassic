@@ -386,7 +386,7 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 		},
 		TC{
 			"Incomplete args (reaches end of string, no slash terminator)",
-			R"(\3\1\2)", // MSGC_GOTOIFGLOBAL expects 3 args
+			R"(\3\1\2)", // MSGC_GOTOIFSCREEND expects 3 args
 			/*segments*/ {Invalid},
 			/*literals*/ {R"(\3\1\2)"},
 			/*commands*/ {},

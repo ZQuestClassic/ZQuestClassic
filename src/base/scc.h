@@ -13,7 +13,7 @@
 /* Note: Printable ASCII begins at 32 and ends at 126, inclusive. */
 #define MSGC_COLOUR                1    // 2 args (cset,swatch)
 #define MSGC_SPEED                 2    // 1 arg  (speed)
-#define MSGC_GOTOIFGLOBAL          3    // 3 args (register, val, newtring)
+#define MSGC_GOTOIFSCREEND          3    // 3 args (register, val, newstring)
 #define MSGC_GOTOIFRAND            4    // 2 args (factor, newstring)
 #define MSGC_GOTOIFITEM                5    // 2 args (itemid, newstring)
 #define MSGC_GOTOIFCTR             6    // 3 args (counter, val, newstring)
@@ -48,12 +48,31 @@
 #define MSGC_RUNMENU               130  // 0 args
 #define MSGC_GOTOMENUCHOICE        131  // 2 args (pos, newstring)
 #define MSGC_TRIGSECRETS           132  // 1 arg (perm)
-#define MSGC_SETSCREENSTATE        133  // 2 args (ind, state)
-#define MSGC_SETSCREENSTATER       134  // 4 args (map, screen, ind, state)
+#define MSGC_SETSCREENSTATE        133  // 2 args (state, value)
+#define MSGC_SETSCREENSTATER       134  // 4 args (map, screen, state, value)
 #define MSGC_FONT                  135  // 1 arg (font)
 #define MSGC_RUN_FRZ_GENSCR        136  // 2 args (script num, force_redraw)
 #define MSGC_TRIG_CMB_COPYCAT      137  // 1 arg (copycat id)
-//138+
+// Added in 3.0+
+#define MSGC_GOTOIFGLOBALSTATE     138  // 3 args (index, value, newstring)
+#define MSGC_GOTOIFSCREENSTATE     139  // 3 args (flag, value, newstring)
+#define MSGC_GOTOIFANYSCREENSTATE  140  // 5 args (map, screen, flag, value, newstring)
+#define MSGC_GOTOIFSCREENEXSTATE   141  // 3 args (state, value, newstring)
+#define MSGC_GOTOIFANYSCREENEXSTATE 142 // 5 args (map, screen, state, value, newstring)
+#define MSGC_GOTOIFLEVELSTATE      143  // 4 args (level, flag, value, newstring)
+#define MSGC_GOTOIFLEVELITEM       144  // 4 args (level, flag, value, newstring)
+#define MSGC_GOTOIFSECRETS         145  // 1 arg (newstring)
+#define MSGC_SETSCREENEXSTATE      146  // 2 args (state, value)
+#define MSGC_SETANYSCREENEXSTATE   147  // 4 args (map, screen, state, value)
+#define MSGC_SETGLOBALSTATE        148  // 2 args (index, value)
+#define MSGC_SETLEVELSTATE         149  // 3 args (level, flag, value)
+#define MSGC_SETLEVELITEM          150  // 3 args (level, flag, value)
+#define MSGC_COUNTER               151  // 1 arg (ctr)
+#define MSGC_MAXCOUNTER            152  // 1 arg (ctr)
+#define MSGC_KILLHERO              153  // 1 arg (bypass_revive)
+#define MSGC_COLLECTITEM           154  // 1 arg (itemid)
+#define MSGC_DELAY                 155  // 1 arg (frames)
+#define MSGC_FORCE_DELAY           156  // 1 arg (frames)
 
 #define MAX_SCC_ARG_COUNT 6
 

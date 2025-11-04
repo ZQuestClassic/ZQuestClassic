@@ -57,56 +57,74 @@ static void addCommand(GUI::ListData& ld, int code)
 
 const GUI::ListData SCCListData()
 {
-	std::string mcguffinname(ZI.getItemClassName(itype_triforcepiece));
 	GUI::ListData ld;
-	addCommand(ld, 1); // Text Color
-	addCommand(ld, 2); // Text Speed
-	addCommand(ld, 135); // Text Font
-	addCommand(ld, 26); // Shadow Color
-	addCommand(ld, 27); // Shadow Type
+	addCommand(ld, MSGC_COLOUR); // Text Color
+	addCommand(ld, MSGC_SPEED); // Text Speed
+	addCommand(ld, MSGC_DELAY);
+	addCommand(ld, MSGC_FORCE_DELAY);
+	addCommand(ld, MSGC_FONT); // Text Font
+	addCommand(ld, MSGC_SHDCOLOR); // Shadow Color
+	addCommand(ld, MSGC_SHDTYPE); // Shadow Type
 	
-	addCommand(ld, 23); // Go Screen->D[]
-	addCommand(ld, 3); // Go Current Screen->D[]
-	addCommand(ld, 4); // Go Random
-	addCommand(ld, 5); // Go Item
-	addCommand(ld, 6); // Go Counter >=
-	addCommand(ld, 7); // Go Counter >= %
-	addCommand(ld, 8); // Go McGuffin
-	addCommand(ld, 9); // Go McGuffin Count
+	addCommand(ld, MSGC_GOTOIFCREEND); // Go If Screen->D[]
+	addCommand(ld, MSGC_GOTOIFSCREEND); // Go If Current Screen->D[]
+	addCommand(ld, MSGC_GOTOIFRAND); // Go If Random
+	addCommand(ld, MSGC_GOTOIFITEM); // Go If Item
+	addCommand(ld, MSGC_GOTOIFCTR); // Go If Counter >=
+	addCommand(ld, MSGC_GOTOIFCTRPC); // Go If Counter >= %
+	addCommand(ld, MSGC_GOTOIFTRI); // Go If McGuffin
+	addCommand(ld, MSGC_GOTOIFTRICOUNT); // Go If McGuffin Count
+	addCommand(ld, MSGC_GOTOIFGLOBALSTATE); // Go If Global State
+	addCommand(ld, MSGC_GOTOIFSCREENSTATE); // Go If Screen State
+	addCommand(ld, MSGC_GOTOIFANYSCREENSTATE); // Go If Any Screen State
+	addCommand(ld, MSGC_GOTOIFSCREENEXSTATE);
+	addCommand(ld, MSGC_GOTOIFANYSCREENEXSTATE);
+	addCommand(ld, MSGC_GOTOIFLEVELSTATE); // Go If Level State
+	addCommand(ld, MSGC_GOTOIFLEVELITEM); // Go If Level Item
+	addCommand(ld, MSGC_GOTOIFSECRETS); // Go If Secrets
 
-	addCommand(ld, 10); // Counter Increase
-	addCommand(ld, 11); // Counter Decrease
-	addCommand(ld, 12); // Counter Set
-	addCommand(ld, 13); // Counter Increase %
-	addCommand(ld, 14); // Counter Decrease %
-	addCommand(ld, 15); // Counter Set %
+	addCommand(ld, MSGC_CTRUP); // Counter Increase
+	addCommand(ld, MSGC_CTRDN); // Counter Decrease
+	addCommand(ld, MSGC_CTRSET); // Counter Set
+	addCommand(ld, MSGC_CTRUPPC); // Counter Increase %
+	addCommand(ld, MSGC_CTRDNPC); // Counter Decrease %
+	addCommand(ld, MSGC_CTRSETPC); // Counter Set %
 	
-	addCommand(ld, 16); // Give Item
-	addCommand(ld, 17); // Take Item
+	addCommand(ld, MSGC_COLLECTITEM); // Collect Item
+	addCommand(ld, MSGC_GIVEITEM); // Give Item
+	addCommand(ld, MSGC_TAKEITEM); // Take Item
 	
-	addCommand(ld, 18); // Warp
-	addCommand(ld, 20); // Play SFX
-	addCommand(ld, 21); // Play MIDI
+	addCommand(ld, MSGC_WARP); // Warp
+	addCommand(ld, MSGC_SFX); // Play SFX
+	addCommand(ld, MSGC_MIDI); // Play MIDI
 	
-	addCommand(ld, 22); // Insert Hero Name
-	addCommand(ld, 25); // Line Break
-	addCommand(ld, 28); // Draw Tile
+	addCommand(ld, MSGC_NAME); // Insert Hero Name
+	addCommand(ld, MSGC_COUNTER); // Insert Counter
+	addCommand(ld, MSGC_MAXCOUNTER); // Insert Max Counter
+	addCommand(ld, MSGC_NEWLINE); // Line Break
+	addCommand(ld, MSGC_DRAWTILE); // Draw Tile
 	
-	addCommand(ld, 29); // End String
-	addCommand(ld, 30); // Wait For Press A
+	addCommand(ld, MSGC_ENDSTRING); // End String
+	addCommand(ld, MSGC_WAIT_ADVANCE); // Wait For Press A
 	
-	addCommand(ld, 128); // Setup Menu Cursor
-	addCommand(ld, 129); // Add Menu Choice
-	addCommand(ld, 130); // Run Menu
-	addCommand(ld, 131); // Go If Menu Choice
+	addCommand(ld, MSGC_SETUPMENU); // Setup Menu Cursor
+	addCommand(ld, MSGC_MENUCHOICE); // Add Menu Choice
+	addCommand(ld, MSGC_RUNMENU); // Run Menu
+	addCommand(ld, MSGC_GOTOMENUCHOICE); // Go If Menu Choice
 	
-	addCommand(ld, 19); // Set Screen->D[]
-	addCommand(ld, 133); // Set Current Screen State
-	addCommand(ld, 134); // Set Screen State
+	addCommand(ld, MSGC_SETSCREEND); // Set Screen->D[]
+	addCommand(ld, MSGC_SETSCREENSTATE); // Set Current Screen State
+	addCommand(ld, MSGC_SETSCREENSTATER); // Set Screen State
+	addCommand(ld, MSGC_SETSCREENEXSTATE); // Set Current Screen ExState
+	addCommand(ld, MSGC_SETANYSCREENEXSTATE); // Set Screen ExState
+	addCommand(ld, MSGC_SETGLOBALSTATE); // Set Global State
+	addCommand(ld, MSGC_SETLEVELSTATE); // Set Level State
+	addCommand(ld, MSGC_SETLEVELITEM); // Set Level Item
 	
-	addCommand(ld, 136); // Run Frozen Generic Script
-	addCommand(ld, 132); // Trigger Screen Secrets
-	addCommand(ld, 137); // Trigger Combo Copycat
+	addCommand(ld, MSGC_RUN_FRZ_GENSCR); // Run Frozen Generic Script
+	addCommand(ld, MSGC_TRIGSECRETS); // Trigger Screen Secrets
+	addCommand(ld, MSGC_TRIG_CMB_COPYCAT); // Trigger Combo Copycat
+	addCommand(ld, MSGC_KILLHERO); // Kill Hero
 	return ld;
 }
 
@@ -122,7 +140,15 @@ void SCCDialog::default_args()
 	args[MSGC_FONT][0] = refstr->font;
 	
 	args[MSGC_TRIG_CMB_COPYCAT][0] = 1;
-	
+
+	args[MSGC_DELAY][0] = 1;
+	args[MSGC_FORCE_DELAY][0] = 1;
+
+	args[MSGC_GOTOIFLEVELITEM][0] = -1;
+	args[MSGC_GOTOIFLEVELSTATE][0] = -1;
+	args[MSGC_SETLEVELITEM][0] = -1;
+	args[MSGC_SETLEVELSTATE][0] = -1;
+
 	warp_xy_toggle = true;
 }
 
@@ -174,6 +200,7 @@ SCCDialog::SCCDialog() :
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_midi(GUI::ZCListData::midinames(true)),
 	list_screenstate(GUI::ZCListData::screenstate()),
+	list_level_items(GUI::ZCListData::level_items()),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
 	list_genscr(GUI::ZCListData::generic_script())
@@ -206,7 +233,7 @@ std::string scc_help(byte scc)
 	{
 		case MSGC_COLOUR: return "Change the text color of the text after the SCC";
 		case MSGC_SPEED: return "Change the text speed after the SCC";
-		case MSGC_GOTOIFGLOBAL: return "Switch to another string if an index of the"
+		case MSGC_GOTOIFSCREEND: return "Switch to another string if an index of the"
 			" current screen's 'Screen->D[]' is at least a given value";
 		case MSGC_GOTOIFRAND: return "Switch to another string based on random chance";
 		case MSGC_GOTOIFITEM: return "Switch to another string if the Hero owns an item";
@@ -226,6 +253,7 @@ std::string scc_help(byte scc)
 		case MSGC_CTRSETPC: return "Set a counter to a percentage of its' maximum";
 		case MSGC_GIVEITEM: return "'Silently' give an item to the Hero. This will not"
 			" cause all normal item pickup effects to occur.";
+		case MSGC_COLLECTITEM: return "The Hero collects an item. The item will be held up by the player when the message box closes.";
 		case MSGC_TAKEITEM: return "Remove an item from the Hero. This works similarly to"
 			" an enemy eating the item.";
 		case MSGC_WARP: return "Warp the Hero";
@@ -253,6 +281,24 @@ std::string scc_help(byte scc)
 		case MSGC_FONT: return "Change the text font of text after the SCC";
 		case MSGC_RUN_FRZ_GENSCR: return "Run a generic script in the frozen mode.";
 		case MSGC_TRIG_CMB_COPYCAT: return "Trigger a combo triggers tab 'Copycat' id";
+		case MSGC_GOTOIFGLOBALSTATE: return "Switch to another string if global state is set";
+		case MSGC_GOTOIFSCREENSTATE: return "Switch to another string if current screen state is set";
+		case MSGC_GOTOIFANYSCREENSTATE: return "Switch to another string if screen state is set";
+		case MSGC_GOTOIFLEVELSTATE: return "Switch to another string if level state is set";
+		case MSGC_GOTOIFLEVELITEM: return "Switch to another string if level item is set";
+		case MSGC_GOTOIFSECRETS: return "Switch to another string if current screen's secrets have triggered";
+		case MSGC_SETGLOBALSTATE: return "Set global state";
+		case MSGC_SETLEVELSTATE: return "Set level state";
+		case MSGC_SETLEVELITEM: return "Set level item";
+		case MSGC_COUNTER: return "Insert the counter value in the string";
+		case MSGC_MAXCOUNTER: return "Insert the max counter value in the string";
+		case MSGC_KILLHERO: return "Kill hero";
+		case MSGC_GOTOIFSCREENEXSTATE: return "Switch to another string if current screen ExState is set";
+		case MSGC_SETSCREENEXSTATE: return "Set current screen ExState";
+		case MSGC_GOTOIFANYSCREENEXSTATE: return "Switch to another string if screen ExState is set";
+		case MSGC_SETANYSCREENEXSTATE: return "Set screen ExState";
+		case MSGC_DELAY: return "Delay the string processing by a number of frames (respecting A/B button speed up)";
+		case MSGC_FORCE_DELAY: return "Delay the string processing by a number of frames (ignoring A/B button speed up)";
 	}
 	return "";
 }
@@ -357,7 +403,16 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			);
 			break;
 		}
-		case MSGC_GOTOIFGLOBAL:
+		case MSGC_DELAY:
+		case MSGC_FORCE_DELAY:
+		{
+			sgrid = Row(padding = 0_px, vAlign = 0.0,
+				TXT("Delay (frames):"),
+				NUM_FIELD(cur_args[0], 1, MAX_SCC_ARG)
+			);
+			break;
+		}
+		case MSGC_GOTOIFSCREEND:
 		{
 			sgrid = Column(padding = 0_px, vAlign = 0.0,
 				Rows<3>(padding = 0_px, hAlign = 1.0,
@@ -573,6 +628,17 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			);
 			break;
 		}
+		case MSGC_COLLECTITEM:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Item:"),
+					DDL(cur_args[0],list_items),
+					INFOBTN("Item to collect and hold up")
+				)
+			);
+			break;
+		}
 		case MSGC_TAKEITEM:
 		{
 			sgrid = Column(padding = 0_px, vAlign = 0.0,
@@ -729,6 +795,313 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 		case MSGC_NAME:
 			sgrid = Row(DummyWidget());
 			break;
+		case MSGC_COUNTER:
+		case MSGC_MAXCOUNTER:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Counter:"),
+					DDL(cur_args[0],list_counters)
+				)
+			);
+			break;
+		}
+
+		case MSGC_SETGLOBALSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("State:"),
+					NUM_FIELD(cur_args[0], 0, NUM_GSWITCHES - 1),
+					INFOBTN("The global state to set")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Value:"),
+					NUM_FIELD(cur_args[1], -1, MAX_SCC_ARG),
+					INFOBTN("The global state to set. -1 means 'enabled', 0 means 'disabled', and >0 means 'enabled for n frames'")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[1]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[1] = state?1:0;
+					}
+				)
+			);
+			break;
+		}
+
+		case MSGC_SETLEVELSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Level:"),
+					NUM_FIELD(cur_args[0], -1, 31),
+					INFOBTN("The level to set (-1 is current level)")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("State:"),
+					NUM_FIELD(cur_args[1], 0, 31),
+					INFOBTN("The level state to set")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[2]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[2] = state?1:0;
+					}
+				)
+			);
+			break;
+		}
+
+		case MSGC_SETLEVELITEM:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Level:"),
+					NUM_FIELD(cur_args[0], -1, 31),
+					INFOBTN("The level to set (-1 is current level)")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Item:"),
+					DDL(cur_args[1], list_level_items),
+					INFOBTN("The level item to set")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[2]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[2] = state?1:0;
+					}
+				)
+			);
+			break;
+		}
+
+		case MSGC_GOTOIFSECRETS:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[0],list_strings),
+					INFOBTN("String to switch to if secrets have triggered on current screen")
+				)
+			);
+			break;
+		}
+
+		case MSGC_GOTOIFGLOBALSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("State:"),
+					NUM_FIELD(cur_args[0], 0, NUM_GSWITCHES - 1),
+					INFOBTN("The global state to check")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[1]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[1] = state?1:0;
+					}
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[2],list_strings),
+					INFOBTN("String to switch to if condition met")
+				)
+			);
+			break;
+		}
+
+		case MSGC_GOTOIFLEVELSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Level:"),
+					NUM_FIELD(cur_args[0], -1, 31),
+					INFOBTN("The level to check (-1 is current level)")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("State:"),
+					NUM_FIELD(cur_args[1], 0, 31),
+					INFOBTN("The level state to check")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[2]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[2] = state?1:0;
+					}
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[3],list_strings),
+					INFOBTN("String to switch to if condition met")
+				)
+			);
+			break;
+		}
+
+		case MSGC_GOTOIFLEVELITEM:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Level:"),
+					NUM_FIELD(cur_args[0], -1, 31),
+					INFOBTN("The level to check (-1 is current level)")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Item:"),
+					DDL(cur_args[1], list_level_items),
+					INFOBTN("The level item to check")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[2]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[2] = state?1:0;
+					}
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[3],list_strings),
+					INFOBTN("String to switch to if condition met")
+				)
+			);
+			break;
+		}
+
+		case MSGC_GOTOIFSCREENSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("State:"),
+					DDL(cur_args[0],list_screenstate),
+					INFOBTN("The screen state to check")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[1]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[1] = state?1:0;
+					}
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[2],list_strings),
+					INFOBTN("String to switch to if condition met")
+				)
+			);
+			break;
+		}
+		case MSGC_GOTOIFANYSCREENSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Map:"),
+					NUM_FIELD(cur_args[0],0,255),
+					INFOBTN("Map to modify")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Screen:"),
+					HEX_FIELD(cur_args[1],0,255),
+					INFOBTN("Screen to modify")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("State:"),
+					DDL(cur_args[2],list_screenstate),
+					INFOBTN("The screen state to set")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[3]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[3] = state?1:0;
+					}
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[4],list_strings),
+					INFOBTN("String to switch to if condition met")
+				)
+			);
+			break;
+		}
+
+		case MSGC_GOTOIFSCREENEXSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("ExState:"),
+					NUM_FIELD(cur_args[0],0,31),
+					INFOBTN("The screen state to check")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[1]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[1] = state?1:0;
+					}
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[2],list_strings),
+					INFOBTN("String to switch to if condition met")
+				)
+			);
+			break;
+		}
+
+		case MSGC_GOTOIFANYSCREENEXSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Map:"),
+					NUM_FIELD(cur_args[0],0,255),
+					INFOBTN("Map to modify")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Screen:"),
+					HEX_FIELD(cur_args[1],0,255),
+					INFOBTN("Screen to modify")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("ExState:"),
+					NUM_FIELD(cur_args[2],0,31),
+					INFOBTN("The screen state to check")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[3]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[3] = state?1:0;
+					}
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[4],list_strings),
+					INFOBTN("String to switch to if condition met")
+				)
+			);
+			break;
+		}
+
+		case MSGC_KILLHERO:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Checkbox(text = "Bypass revive (fairies)",
+					checked = cur_args[0]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[0] = state?1:0;
+					}
+				)
+			);
+			break;
+		}
+
 		case MSGC_GOTOIFCREEND:
 		{
 			sgrid = Column(padding = 0_px, vAlign = 0.0,
@@ -962,7 +1335,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 		{
 			sgrid = Column(padding = 0_px, vAlign = 0.0,
 				Row(padding = 0_px, hAlign = 1.0,
-					TXT("DMap:"),
+					TXT("Map:"),
 					NUM_FIELD(cur_args[0],0,255),
 					INFOBTN("Map to modify")
 				),
@@ -986,6 +1359,55 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			);
 			break;
 		}
+
+		case MSGC_SETSCREENEXSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("ExState:"),
+					NUM_FIELD(cur_args[0],0,31),
+					INFOBTN("The screen ExState to set")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[1]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[1] = state?1:0;
+					}
+				)
+			);
+			break;
+		}
+
+		case MSGC_SETANYSCREENEXSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Map:"),
+					NUM_FIELD(cur_args[0],0,255),
+					INFOBTN("Map to modify")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Screen:"),
+					HEX_FIELD(cur_args[1],0,255),
+					INFOBTN("Screen to modify")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("ExState:"),
+					NUM_FIELD(cur_args[2],0,31),
+					INFOBTN("The screen ExState to set")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[3]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[3] = state?1:0;
+					}
+				)
+			);
+			break;
+		}
+
 		case MSGC_FONT:
 		{
 			sgrid = Row(padding = 0_px, vAlign = 0.0,

@@ -113,6 +113,13 @@ struct MsgStr
 		// Returns the rest of the current word.
 		const char* remaining_word() const;
 
+		// Set how many frames to idle after a segment finishes. If forced, then holding the A
+		// button to speed up messages will not have an effect.
+		void set_post_segment_delay(int frames, bool forced);
+		void set_post_segment_delay_fast(bool fast);
+		int get_post_segment_delay() const;
+		bool get_post_segment_delay_forced() const;
+
 		state state = NOT_STARTED;
 		// A single character. This is a string because eventually this may contain a unicode
 		// character, which is larger than one byte.
@@ -120,8 +127,6 @@ struct MsgStr
 		std::string character;
 		// This is only valid if `state` is COMMAND.
 		StringCommand command;
-		// How many frames to idle after a segment finishes.
-		int post_segment_delay = 0;
 
 	private:
 		bool next_segment();
@@ -143,6 +148,12 @@ struct MsgStr
 		int j = 0;
 		// The index into `word` - `character` will be set based on this when `next()` is called.
 		int k = 0;
+		// How many frames to idle after a segment finishes.
+		int post_segment_delay = 0;
+		// If holding down "A/B" will decrease post_segment_delay faster.
+		bool post_segment_delay_forced = false;
+		// Set to true when the A button is held to speed up post_segment_delay (if post_segment_delay_forced is false).
+		bool post_segment_delay_fast = false;
 	};
 
 	iterator create_iterator() const;

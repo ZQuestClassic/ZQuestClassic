@@ -1,4 +1,5 @@
 #include "msgstr_preview.h"
+#include "base/scc.h"
 #include "zq/zquest.h"
 #include "base/qrs.h"
 #include "base/msgstr.h"
@@ -142,6 +143,18 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 					case MSGC_NAME:
 					{
 						it.set_buffer(namebuf);
+						break;
+					}
+
+					case MSGC_COUNTER:
+					{
+						it.set_buffer("99");
+						break;
+					}
+
+					case MSGC_MAXCOUNTER:
+					{
+						it.set_buffer("100");
 						break;
 					}
 
