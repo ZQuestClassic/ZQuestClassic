@@ -1,9 +1,12 @@
 #ifndef ZC_GUI_MACROS_H_
 #define ZC_GUI_MACROS_H_
 
+#include <memory>
 #include <type_traits>
 #include <utility>
 #include "gui/helper.h"
+#include "gui/tabpanel.h"
+#include "gui/tabref.h"
 
 namespace GUI::Internal
 {

@@ -533,6 +533,11 @@ void TextField::setOnValChanged(std::function<void(type,std::string_view,int32_t
 	onValChanged = std::move(newOnValChanged);
 }
 
+void TextField::setOnCursorChanged(std::function<void(type,int32_t,int32_t)> newOnCursorChanged)
+{
+	onCursorChanged = std::move(newOnCursorChanged);
+}
+
 void TextField::setFixedPlaces(size_t places)
 {
 	places = vbound(places,1,4);
@@ -751,7 +756,13 @@ int32_t TextField::onEvent(int32_t event, MessageDispatcher& sendMessage)
 				if(onValChanged) onValChanged(tfType, getText(), getVal());
 			}
 			break;
-			
+
+		case geCHANGE_CURSOR:
+		{
+			if(onCursorChanged) onCursorChanged(tfType, get_str_selected_pos(), get_str_selected_endpos());
+			break;
+		}
+
 		case geUPDATE_SWAP:
 			if(isSwapType())
 			{
@@ -805,7 +816,6 @@ size_t TextField::get_str_pos()
 
 int32_t TextField::get_str_selected_pos()
 {
-	size_t len = strlen((char const*)alDialog->dp);
 	int32_t cursor_start = alDialog->d2 & 0x0000FFFF;
 	if (cursor_start == 0xFFFF)
 		cursor_start = -1;
@@ -814,11 +824,16 @@ int32_t TextField::get_str_selected_pos()
 
 int32_t TextField::get_str_selected_endpos()
 {
-	size_t len = strlen((char const*)alDialog->dp);
 	int32_t cursor_end = int32_t((alDialog->d2 & 0xFFFF0000) >> 16);
 	if (cursor_end == 0xFFFF)
 		cursor_end = -1;
 	return cursor_end;
+}
+
+void TextField::set_str_selected_pos(int32_t pos)
+{
+	int32_t end = 0xFFFF;
+	alDialog->d2 = pos | (end << 16);
 }
 
 void TextField::refresh_cb_swap()

@@ -97,6 +97,8 @@ public:
 
 	/* Sets a function to be called on value change. */
 	void setOnValChanged(std::function<void(type,std::string_view,int32_t)> newOnValChanged);
+	/* Sets a function to be called when the cursor changes. */
+	void setOnCursorChanged(std::function<void(type,int32_t,int32_t)> newOnCursorChanged);
 	
 	void setFixedPlaces(size_t places);
 	void setSwapType(int32_t newtype);
@@ -105,6 +107,7 @@ public:
 	size_t get_str_pos();
 	int32_t get_str_selected_pos();
 	int32_t get_str_selected_endpos();
+	void set_str_selected_pos(int32_t pos);
 	void refresh_cb_swap();
 private:
 	std::unique_ptr<char[]> buffer;
@@ -123,6 +126,7 @@ private:
 	int32_t onEnterMsg, onValueChangedMsg;
 	bool valSet;
 	std::function<void(type,std::string_view,int32_t)> onValChanged;
+	std::function<void(type,int32_t,int32_t)> onCursorChanged;
 	
 	void applyReadableFont();
 	void applyVisibility(bool visible) override;

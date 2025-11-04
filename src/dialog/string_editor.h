@@ -1,6 +1,7 @@
 #ifndef ZC_DIALOG_STRINGEDIT_H_
 #define ZC_DIALOG_STRINGEDIT_H_
 
+#include "gui/button.h"
 #include <gui/dialog.h>
 #include <gui/label.h>
 #include <gui/text_field.h>
@@ -27,6 +28,7 @@ private:
 	size_t strIndex;
 	int32_t addAfter;
 	MsgStr tmpMsgStr;
+	int32_t currentSCCIndex = -1;
 	
 	GUI::ListData list_nextstr, list_font, list_font_order, list_shtype;
 	
@@ -34,7 +36,10 @@ private:
 	std::shared_ptr<GUI::DropDownList> font_dd, nextstr_dd;
 	std::shared_ptr<GUI::Checkbox> fontsort_cb;
 	std::shared_ptr<GUI::TextField> str_field;
+	std::shared_ptr<GUI::Button> scc_wizard_button;
 	std::shared_ptr<GUI::Window> window;
+
+	void updateCurrentSCC(int32_t cursor_start, int32_t cursor_end);
 };
 
 #endif

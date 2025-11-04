@@ -1,6 +1,8 @@
 #include "string_editor.h"
+#include "base/scc.h"
 #include "base/zsys.h"
 #include "base/msgstr.h"
+#include "dialog/stringcontrolcode.h"
 #include "zq/zquest.h"
 #include "info.h"
 #include "subscr.h"
@@ -15,7 +17,6 @@ extern word msg_count;
 extern std::map<int32_t, int32_t> msglistcache;
 extern std::string helpstr;
 
-std::string run_scc_dlg(MsgStr const* ref);
 void strip_trailing_spaces(char *str);
 void strip_trailing_spaces(std::string& str);
 int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
@@ -116,6 +117,33 @@ Button(forceFitH = true, text = "?", \
 	})
 //}
 
+void StringEditorDialog::updateCurrentSCC(int32_t cursor_start, int32_t cursor_end)
+{
+	size_t commands_index = 0;
+	bool found_scc = false;
+
+	for (auto segment_type : tmpMsgStr.parsed_msg_str.segment_types)
+	{
+		if (segment_type == ParsedMsgStr::SegmentType::Command)
+		{
+			auto& command = tmpMsgStr.parsed_msg_str.commands[commands_index++];
+			// -1 to make the last character (usually the trailing space) not count, so that if the
+			// cursor is at the very end then insertion can still happen.
+			size_t command_end = command.start + command.length - 1;
+			if (cursor_start >= command.start && cursor_start < command_end)
+			{
+				if (cursor_end == -1 || cursor_end < command_end)
+					found_scc = true;
+
+				break;
+			}
+		}
+	}
+
+	scc_wizard_button->setText(found_scc ? "Update SCC" : "Insert SCC");
+	currentSCCIndex = found_scc ? commands_index - 1 : -1;
+}
+
 static size_t stred_tab_1 = 0;
 bool sorted_fontdd = true;
 std::shared_ptr<GUI::Widget> StringEditorDialog::view()
@@ -126,6 +154,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 	sorted_fontdd = zc_get_config("zquest","stringed_sorted_font",1);
 
 	// TODO: use warnings
+	tmpMsgStr.ensureAsciiEncoding();
 	auto warnings = tmpMsgStr.parse();
 	std::string str = tmpMsgStr.serialize();
 	const char* start_text = str.c_str();
@@ -142,6 +171,10 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					// preview->setText(foo); // I think this is not used...
 					// TODO: use warnings
 					tmpMsgStr.setFromAsciiEncoding(foo);
+				},
+				onCursorChangedFunc = [&](GUI::TextField::type, int32_t start, int32_t end)
+				{
+					updateCurrentSCC(start, end);
 				}
 			),
 			preview = MsgPreview(data = &tmpMsgStr, indx = strIndex, text = start_text),
@@ -157,12 +190,12 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						strncpy(namebuf, foo.c_str(), 8);
 					}
 				),
-				Button(
+				scc_wizard_button = Button(
 					text = "Insert SCC", forceFitH = true,
 					onPressFunc = [&]()
 					{
 						bool old_fontsort = sorted_fontdd;
-						std::string scc = run_scc_dlg(&tmpMsgStr);
+						std::string scc = run_scc_dlg(&tmpMsgStr, currentSCCIndex);
 						if(old_fontsort != sorted_fontdd)
 						{
 							font_dd->setListData(sorted_fontdd ? list_font : list_font_order);
@@ -172,20 +205,37 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 							return;
 						std::string fullstr;
 						fullstr.assign(str_field->getText());
-						int32_t pos = str_field->get_str_selected_pos();
-						int32_t endpos = str_field->get_str_selected_endpos();
-						size_t len = str_field->get_str_pos();
-						if (pos > 0 && fullstr.size() != 0 && fullstr[pos - 1] == '\\')
-							scc = " " + scc;
+
 						std::string outstr;
-						if(endpos>-1)
-							outstr = fullstr.substr(0, pos) + scc + fullstr.substr(zc_min(len, endpos+1));
+						if (currentSCCIndex == -1)
+						{
+							// inserting
+							int32_t pos = str_field->get_str_selected_pos();
+							int32_t endpos = str_field->get_str_selected_endpos();
+							size_t len = str_field->get_str_pos();
+							if (pos > 0 && fullstr.size() != 0 && fullstr[pos - 1] == '\\')
+								scc = " " + scc;
+
+							if(endpos>-1)
+								outstr = fullstr.substr(0, pos) + scc + fullstr.substr(zc_min(len, endpos+1));
+							else
+								outstr = fullstr.substr(0, pos) + scc + fullstr.substr(pos);
+							str_field->set_str_selected_pos(pos + scc.length());
+						}
 						else
-							outstr = fullstr.substr(0, pos) + scc + fullstr.substr(pos);
+						{
+							// replacing
+							auto& command = tmpMsgStr.parsed_msg_str.commands[currentSCCIndex];
+							outstr = fullstr.substr(0, command.start) + scc + fullstr.substr(command.start + command.length);
+							str_field->set_str_selected_pos(command.start + scc.size() - 1);
+						}
+
 						str_field->setText(outstr);
+						str_field->setFocused(true);
 						preview->setText(outstr);
 						// TODO: use warnings
 						tmpMsgStr.setFromAsciiEncoding(outstr);
+						updateCurrentSCC(str_field->get_str_selected_pos(), -1);
 					}),
 				Button(text = "Copy Text",
 					forceFitH = true,

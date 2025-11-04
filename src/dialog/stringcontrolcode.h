@@ -13,7 +13,7 @@
 #include <gui/window.h>
 #include <functional>
 
-std::string run_scc_dlg(MsgStr const* ref);
+std::string run_scc_dlg(MsgStr const* ref, int current_scc_index);
 
 class SCCDialog: public GUI::Dialog<SCCDialog>
 {

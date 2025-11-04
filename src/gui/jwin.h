@@ -129,7 +129,7 @@ extern char newGuiMarker;
  */
 enum guiEvent
 {
-    geCLICK, geCHANGE_SELECTION, geCHANGE_VALUE, geCLOSE, geENTER, geTOGGLE, geUPDATE_SWAP,
+    geCLICK, geCHANGE_SELECTION, geCHANGE_VALUE, geCHANGE_CURSOR, geCLOSE, geENTER, geTOGGLE, geUPDATE_SWAP,
 	geRADIO, geRCLICK, geDCLICK
 };
 

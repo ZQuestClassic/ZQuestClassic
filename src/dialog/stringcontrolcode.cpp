@@ -19,17 +19,19 @@ void call_geninit_wzrd(zinitdata& start, size_t index);
 
 static std::string retstr;
 static MsgStr const* refstr = nullptr;
+static int command_index = -1;
 static MsgStr def_refstr;
 
 const char *msgslist(int32_t index, int32_t *list_size);
 int32_t msg_code_operands(byte cc);
 bool is_msgc(byte cc);
-std::string run_scc_dlg(MsgStr const* ref)
+std::string run_scc_dlg(MsgStr const* ref, int current_scc_index)
 {
 	if(ref)
 		refstr = ref;
 	else refstr = nullptr;
 	retstr = "";
+	command_index = current_scc_index;
 	SCCDialog().show();
 	return retstr;
 }
@@ -206,8 +208,19 @@ SCCDialog::SCCDialog() :
 	list_genscr(GUI::ZCListData::generic_script())
 {
 	memset(args, 0, sizeof(args));
-	default_args();
-	curscc = MSGC_COLOUR;
+
+	if (command_index == -1)
+	{
+		curscc = MSGC_COLOUR;
+		default_args();
+	}
+	else
+	{
+		auto& command = refstr->parsed_msg_str.commands[command_index];
+		curscc = command.code;
+		for (int i = 0; i < command.num_args; i++) args[command.code][i] = command.args[i];
+	}
+
 	cur_args = nullptr;
 	::ListData msgs_list(msgslist, &font);
 	list_strings = GUI::ListData(msgs_list, 0);

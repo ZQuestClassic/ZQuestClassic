@@ -1944,6 +1944,8 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 		case MSG_CLICK:
 		{
+			int oldcursor = d->d2;
+
 			if(d->flags & (D_DISABLED|D_READONLY))
 				break;
 			if(d->dp2)
@@ -2039,6 +2041,8 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			object_message(d, MSG_DRAW, 0);
 			font = oldfont;
 			dclick = false;
+			if (oldcursor != d->d2)
+				GUI_EVENT(d, geCHANGE_CURSOR);
 			break;
 		}
 
@@ -2360,6 +2364,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				cursor_end = (int16_t)strlen((char*)d->dp) - 1;
 				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
 				d->flags |= D_DIRTY;
+				GUI_EVENT(d, geCHANGE_CURSOR);
 				break;
 			}
 			else if(lower_c >= 32 && !ctrl)
@@ -2406,6 +2411,8 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				cursor_end = ecursor; cursor_start = scursor;
 				if (cursor_end == cursor_start) cursor_end = -1;
 				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
+
+				GUI_EVENT(d, geCHANGE_CURSOR);
 			}
 			
 			/* if we changed something, better redraw... */
