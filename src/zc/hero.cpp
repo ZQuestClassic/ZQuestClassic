@@ -11474,22 +11474,6 @@ void HeroClass::lift(weapon* w, byte timer, zfix height)
 	else liftheight = height;
 }
 
-bool HeroClass::is_holding_item() const
-{
-	switch (action)
-	{
-		case landhold1:
-		case landhold2:
-		case sidewaterhold1:
-		case sidewaterhold2:
-		case waterhold1:
-		case waterhold2:
-			return true;
-	}
-
-	return false;
-}
-
 void HeroClass::check_on_hit() // Called when the player is hit
 {
 	if(lift_wpn && (liftflags & LIFTFL_DROP_ON_HIT))
@@ -31629,18 +31613,16 @@ void HeroClass::handle_triforce(mapscr* scr, int32_t id)
 }
 
 // Attempt to pick up an item. (-1 = check items touching Hero.)
-// Returns true if the item was collected and removed from "items" spritelist.
-bool HeroClass::checkitems(int32_t index)
+void HeroClass::checkitems(int32_t index)
 {	
 	if(index==-1)
 	{
-		for (int i = 0; i < items.Count(); i++)
+		for(auto ind = items.Count()-1; ind >= 0; --ind)
 		{
-			item* itm = (item*)items.spr(i);
-			if (itm->get_forcegrab())
+			item* itm = (item*)items.spr(ind);
+			if(itm->get_forcegrab())
 			{
-				if (checkitems(i))
-					i--;
+				checkitems(ind);
 			}
 		}
 		if(diagonalMovement || NO_GRIDLOCK)
@@ -31651,7 +31633,7 @@ bool HeroClass::checkitems(int32_t index)
 	}
 	
 	if(index==-1)
-		return false;
+		return;
 
 	item* ptr = (item*)items.spr(index);
 	int32_t pickup = ptr->pickup;
@@ -31665,14 +31647,6 @@ bool HeroClass::checkitems(int32_t index)
 	// `screen_spawned` is probably same as `heroscr`, but could not be if the item moved around.
 	int32_t item_screen = ptr->screen_spawned;
 	mapscr* item_scr = get_scr_maybe(cur_map, item_screen);
-
-	// Wait for currently held item animation to finish.
-	if ((pickup & ipHOLDUP) && is_holding_item())
-	{
-		// Make the item invisible, and make sure it won't go away.
-		ptr->set_forcegrab(true);
-		return false;
-	}
 
 	// I haven't observed this happening, but there are crash reports showing that an
 	// item sprite does not have a screen_spawned for the current screens.
@@ -31688,7 +31662,7 @@ bool HeroClass::checkitems(int32_t index)
 	if (cur_screen >= 128)
 		item_scr = special_warp_return_scr;
 
-	if(ptr->fallclk > 0) return false; //Don't pick up a falling item
+	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
 	if(itemsbuf[id2].type == itype_progressive_itm)
 	{
@@ -31707,12 +31681,12 @@ bool HeroClass::checkitems(int32_t index)
 	if(bottledummy) //Dummy bullshit! 
 	{
 		if(!game->canFillBottle())
-			return false;
+			return;
 		if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
 		{
 			if(!current_item_power(itype_wallet))
 			{
-				if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return false;
+				if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
 				int32_t tmpprice = -abs(prices[PriceIndex]);
 				//game->change_drupy(-abs(prices[priceindex]));
 				int32_t total = game->get_drupy()-tmpprice;
@@ -31744,12 +31718,12 @@ bool HeroClass::checkitems(int32_t index)
 	else
 	{
 		if(itemsbuf[id2].type == itype_bottlefill && !game->canFillBottle())
-			return false; //No picking these up unless you have a bottle to fill!
+			return; //No picking these up unless you have a bottle to fill!
 		
 		if(((pickup&ipTIMER) && (ptr->clk2 < game->get_item_spawn_flicker()))&& !(pickup & ipCANGRAB))
 			if(ptr->id!=iFairyMoving)
 				// wait for it to stop flashing, doesn't check for other items yet
-				return false;
+				return;
 				
 		if(pickup&ipENEMY)                                        // item was being carried by enemy
 			if(more_carried_items(item_screen)<=1)  // 1 includes this own item.
@@ -31760,11 +31734,11 @@ bool HeroClass::checkitems(int32_t index)
 			if(pickup&ipMONEY)
 				dospecialmoney(item_scr, index);
 				
-			return false;
+			return;
 		}
 		
 		if(get_qr(qr_HEARTSREQUIREDFIX) && !canget(id2))
-			return false;
+			return;
 		
 		int32_t nextitem = -1;
 		do
@@ -31803,20 +31777,20 @@ bool HeroClass::checkitems(int32_t index)
 			{
 			case rSP_ITEM:                                        // special item
 				if(!canget(id2)) // These ones always need the Hearts Required check
-					return false;
+					return;
 					
 				break;
 				
 			case rP_SHOP:                                         // potion shop
 				if(msg_active)
-					return false;
+					return;
 				[[fallthrough]];
 			case rSHOP:                                           // shop
 				if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
 				{
 					if(!current_item_power(itype_wallet))
 					{
-						if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return false;
+						if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
 						int32_t tmpprice = -abs(prices[PriceIndex]);
 						//game->change_drupy(-abs(prices[priceindex]));
 						int32_t total = game->get_drupy()-tmpprice;
@@ -31865,7 +31839,7 @@ bool HeroClass::checkitems(int32_t index)
 			
 			throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
 			bool nullify = ev[4] != 0;
-			if(nullify) return false;
+			if(nullify) return;
 			id2 = ev[0]/10000;
 			pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
 			pstr = ev[2] / 10000;
@@ -32136,8 +32110,6 @@ bool HeroClass::checkitems(int32_t index)
 	handle_triforce(item_scr, id2);
 	if(!holdclk)
 		post_item_collect();
-
-	return true;
 }
 
 void HeroClass::StartRefill(int32_t refillWhat)
