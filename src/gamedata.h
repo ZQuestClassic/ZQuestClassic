@@ -388,8 +388,9 @@ public:
 		bottleSlots[slot] = val;
 	}
 	
-	int32_t fillBottle(byte val);
-	bool canFillBottle();
+	void check_bottle_slots(std::set<dword>& slots) const;
+	bool hasBottle(byte type, byte quant = 1) const;
+	int32_t fillBottle(byte val, byte replace = 0, byte quant = 1);
 	
 	void set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite);
 	void load_portal();

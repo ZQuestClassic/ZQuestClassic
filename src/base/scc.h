@@ -34,7 +34,7 @@
 #define MSGC_MIDI                  21   // 1 arg  (midi)
 #define MSGC_NAME                  22   // 0 args
 #define MSGC_GOTOIFCREEND          23   // 5 args (dmap, screen, reg, val, newstring)
-#define MSGC_CHANGEPORTRAIT        24   // not implemented
+#define MSGC_CHANGEPORTRAIT        24   // 6 args (tile, cset, x, y, twid, thei)
 #define MSGC_NEWLINE               25   // 0 args
 #define MSGC_SHDCOLOR              26   // 2 args (cset,swatch)
 #define MSGC_SHDTYPE               27   // 1 arg  (type)
@@ -73,6 +73,8 @@
 #define MSGC_COLLECTITEM           154  // 1 arg (itemid)
 #define MSGC_DELAY                 155  // 1 arg (frames)
 #define MSGC_FORCE_DELAY           156  // 1 arg (frames)
+#define MSGC_GOTOIFBOTTLE          157  // 3 args (quantity, fill type, newstring)
+#define MSGC_CHANGEBOTTLE          158  // 3 args (quantity, old fill type, new fill type)
 
 #define MAX_SCC_ARG_COUNT 6
 
