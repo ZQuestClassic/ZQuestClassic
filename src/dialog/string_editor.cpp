@@ -9,6 +9,7 @@
 #include "gui/editbox.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
+#include <fmt/ranges.h>
 
 extern bool saved;
 extern char msgbuf[MSGBUF_SIZE];
@@ -117,6 +118,13 @@ Button(forceFitH = true, text = "?", \
 	})
 //}
 
+void StringEditorDialog::onTextUpdated(std::string text)
+{
+	msgStrWarnings = tmpMsgStr.setFromAsciiEncoding(std::move(text));
+	warnings_button->setText(fmt::format("Warnings ({})", msgStrWarnings.size()));
+	warnings_button->setDisabled(msgStrWarnings.empty());
+}
+
 void StringEditorDialog::updateCurrentSCC(int32_t cursor_start, int32_t cursor_end)
 {
 	size_t commands_index = 0;
@@ -153,11 +161,10 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 	using GUI::Props::indx;
 	sorted_fontdd = zc_get_config("zquest","stringed_sorted_font",1);
 
-	// TODO: use warnings
 	tmpMsgStr.ensureAsciiEncoding();
-	auto warnings = tmpMsgStr.parse();
 	std::string str = tmpMsgStr.serialize();
 	const char* start_text = str.c_str();
+
 	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &stred_tab_1,
 		TabRef(name = "String", Column(
 			str_field = TextField(fitParent = true,
@@ -169,8 +176,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					std::string foo;
 					foo.assign(v);
 					// preview->setText(foo); // I think this is not used...
-					// TODO: use warnings
-					tmpMsgStr.setFromAsciiEncoding(foo);
+					onTextUpdated(std::move(foo));
 				},
 				onCursorChangedFunc = [&](GUI::TextField::type, int32_t start, int32_t end)
 				{
@@ -233,8 +239,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						str_field->setText(outstr);
 						str_field->setFocused(true);
 						preview->setText(outstr);
-						// TODO: use warnings
-						tmpMsgStr.setFromAsciiEncoding(outstr);
+						onTextUpdated(std::move(outstr));
 						updateCurrentSCC(str_field->get_str_selected_pos(), -1);
 					}),
 				Button(text = "Copy Text",
@@ -250,9 +255,9 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						std::string tmp;
 						if(get_al_clipboard(tmp))
 						{
-							str_field->setText(tmp);
 							preview->setText(tmp);
-							tmpMsgStr.setFromAsciiEncoding(tmp);
+							str_field->setText(tmp);
+							onTextUpdated(std::move(tmp));
 						}
 						else InfoDialog("Error","No text found on clipboard").show();
 					})
@@ -392,9 +397,20 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					onPressFunc = []()
 					{
 						util::open_web_link("https://docs.zquestclassic.com/tutorials/message_strings");
+					}),
+				warnings_button = Button(
+					text = "Warnings (0)",
+					minwidth = 90_px,
+					onPressFunc = [&]()
+					{
+						std::string text = fmt::format("{}", fmt::join(msgStrWarnings, "\n"));
+						do_box_edit(text, "Message String Warnings", true, true);
 					})
 			)
 		));
+
+	onTextUpdated(str);
+
 	return window;
 }
 
