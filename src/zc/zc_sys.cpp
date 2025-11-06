@@ -2052,6 +2052,10 @@ void flushItemCache(bool justcost)
 // This is used often, so it should be as direct as possible.
 int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
+	// Validate itemtype to prevent map corruption from invalid keys
+	if(itemtype < 0 || itemtype >= itype_max)
+		return -1;
+	
 	bool use_cost_cache = replay_version_check(19);
 	if(jinx_check)
 	{
@@ -2067,10 +2071,12 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	if (!jinx_check && !check_bunny
 		&& (use_cost_cache || itemtype != itype_ring))
 	{
-		auto& cache = checkmagic && use_cost_cache ? itemcache_cost : itemcache;
-		auto res = cache.find(itemtype);
+		// Don't hold a reference to the map across potential modifications
+		// Instead, select which map to use and query it directly
+		auto* cache_ptr = (checkmagic && use_cost_cache) ? &itemcache_cost : &itemcache;
+		auto res = cache_ptr->find(itemtype);
 		
-		if(res != cache.end())
+		if(res != cache_ptr->end())
 			return res->second;
 	}
 	
@@ -2104,6 +2110,8 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 		{
 			if (!checkmagic)
 				itemcache[itemtype] = result;
+			// Only call checkmagiccost with valid item IDs (result >= 0)
+			// Short-circuit evaluation ensures checkmagiccost is not called when result < 0
 			if (checkmagic || result < 0 || checkmagiccost(result))
 				itemcache_cost[itemtype] = result;
 		}
