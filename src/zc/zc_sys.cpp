@@ -2052,6 +2052,10 @@ void flushItemCache(bool justcost)
 // This is used often, so it should be as direct as possible.
 int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
+	// Add bounds checking to prevent invalid map lookups
+	if(itemtype < 0 || itemtype >= itype_max)
+		return -1;
+	
 	bool use_cost_cache = replay_version_check(19);
 	if(jinx_check)
 	{
@@ -2067,10 +2071,11 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	if (!jinx_check && !check_bunny
 		&& (use_cost_cache || itemtype != itype_ring))
 	{
-		auto& cache = checkmagic && use_cost_cache ? itemcache_cost : itemcache;
-		auto res = cache.find(itemtype);
+		// Use pointer to avoid potential reference issues with map
+		std::map<int32_t, int32_t>* cache = (checkmagic && use_cost_cache) ? &itemcache_cost : &itemcache;
+		auto res = cache->find(itemtype);
 		
-		if(res != cache.end())
+		if(res != cache->end())
 			return res->second;
 	}
 	
