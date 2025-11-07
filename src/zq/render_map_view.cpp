@@ -10,6 +10,8 @@ static MapViewRTI rti_map_view;
 
 void MapViewRTI::render(bool bitmap_resized)
 {
+	Map.ConfigureCursorHistory(false);
+
 	// This mode is used by "View Map", via "mapview_open".
 	if (view_map_mode)
 	{
@@ -32,9 +34,12 @@ void MapViewRTI::render(bool bitmap_resized)
 			}
 		}
 
-		Map.setCursor(previous_cursor);
 		destroy_bitmap(bmap4_single);
 		al_destroy_bitmap(bmap5_single);
+
+		Map.setCursor(previous_cursor);
+		Map.ConfigureCursorHistory(true);
+
 		return;
 	}
 
@@ -120,6 +125,7 @@ void MapViewRTI::render(bool bitmap_resized)
 	}
 
 	Map.setCursor(previous_cursor);
+	Map.ConfigureCursorHistory(true);
 }
 
 MapViewRTI* mapview_get_rti()

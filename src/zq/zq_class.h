@@ -254,9 +254,14 @@ class zmap
     mapscr copymapscr;
     mapscr prvscr; //NEW
     mapscr prvlayers[6];
-    std::deque<std::shared_ptr<user_input_command>> undo_stack;
-    std::stack<std::shared_ptr<user_input_command>> redo_stack;
-    //int32_t prv_mode; //NEW
+
+    std::deque<std::shared_ptr<user_input_command>> input_undo_stack;
+    std::stack<std::shared_ptr<user_input_command>> input_redo_stack;
+
+    bool cursor_history_enabled = true;
+    std::deque<MapCursor> cursor_undo_stack;
+    std::stack<MapCursor> cursor_redo_stack;
+
     int32_t prv_cmbcycle, prv_map, prv_scr, prv_freeze, prv_advance, prv_time; //NEW
     bool can_paste;
     // A screen which uses the current screen as a layer
@@ -320,6 +325,15 @@ public:
     void PasteGuy(const mapscr& copymapscr, int screen);
     void PastePalette(const mapscr& copymapscr, int screen);
     void PasteEnemies(const mapscr& copymapscr, int screen);
+
+	// Cursor history navigation.
+	bool CanGoBack() const;
+	bool CanGoForward() const;
+	void GoBack();
+	void GoForward();
+	void CapCursorHistory();
+	void ConfigureCursorHistory(bool enable);
+
     void update_combo_cycling();
     void update_freeform_combos();
     int32_t getMapCount();
@@ -361,6 +375,7 @@ public:
     void scroll(int32_t dir, bool warp);
     MapCursor getCursor() const;
     void setCursor(MapCursor new_cursor);
+	void pushCursorToHistory(MapCursor cursor);
     bool isValidPosition(ComboPosition pos) const;
     int getScreenForPosition(ComboPosition pos) const;
     mapscr *CurrScr();

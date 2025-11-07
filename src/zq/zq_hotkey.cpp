@@ -59,6 +59,8 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_NULL_KEY: return "(None)";
 		case ZQKEY_UNDO: return "Undo";
 		case ZQKEY_REDO: return "Redo";
+		case ZQKEY_BACK: return "Go Back";
+		case ZQKEY_FORWARD: return "Go Forward";
 		case ZQKEY_MINUS_FLAG: return "Flag -";
 		case ZQKEY_PLUS_FLAG: return "Flag +";
 		case ZQKEY_SAVE: return "Save";
@@ -286,6 +288,8 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_NULL_KEY: return "None";
 		case ZQKEY_UNDO: return "ZQKEY_UNDO";
 		case ZQKEY_REDO: return "ZQKEY_REDO";
+		case ZQKEY_BACK: return "ZQKEY_BACK";
+		case ZQKEY_FORWARD: return "ZQKEY_FORWARD";
 		case ZQKEY_MINUS_FLAG: return "ZQKEY_MINUS_FLAG";
 		case ZQKEY_PLUS_FLAG: return "ZQKEY_PLUS_FLAG";
 		case ZQKEY_SAVE: return "ZQKEY_SAVE";
@@ -516,6 +520,10 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Undo the last edit";
 		case ZQKEY_REDO:
 			return "Redo the last undone change";
+		case ZQKEY_BACK:
+			return "Go back in screen / zoom level history";
+		case ZQKEY_FORWARD:
+			return "Go forward in screen / zoom level history";
 		case ZQKEY_MINUS_FLAG:
 			break;
 		case ZQKEY_PLUS_FLAG:
@@ -1264,6 +1272,10 @@ bool disabled_hotkey(uint hkey)
 			return !Map.CanUndo();
 		case ZQKEY_REDO:
 			return !Map.CanRedo();
+		case ZQKEY_BACK:
+			return !Map.CanGoBack();
+		case ZQKEY_FORWARD:
+			return !Map.CanGoForward();
 		case ZQKEY_DOORS:
 			return Map.getCurrScr() >= MAPSCRS;
 	}
@@ -1306,6 +1318,12 @@ int run_hotkey(uint hkey)
 			return onUndo();
 		case ZQKEY_REDO:
 			return onRedo();
+		case ZQKEY_BACK:
+			Map.GoBack();
+			break;
+		case ZQKEY_FORWARD:
+			Map.GoForward();
+			break;
 		case ZQKEY_MINUS_FLAG:
 			return onDecreaseFlag();
 		case ZQKEY_PLUS_FLAG:

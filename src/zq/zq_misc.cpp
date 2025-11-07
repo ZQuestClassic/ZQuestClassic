@@ -1039,8 +1039,8 @@ void handlePreviewMode()
 		void reload_zq_gui();
 		reload_zq_gui();
 
-		Map.setViewSize(1);
 		Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());		
+		Map.setViewSize(1);
 
 		mmap_set_zoom(false);
 		

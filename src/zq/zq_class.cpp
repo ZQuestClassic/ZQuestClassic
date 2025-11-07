@@ -22,6 +22,7 @@
 #include "zc/zelda.h"
 #include "zq/zq_class.h"
 #include "zq/render.h"
+#include "zq/render_map_view.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
 #include "base/qst.h"
@@ -156,11 +157,11 @@ void zmap::force_refr_pointer()
 }
 bool zmap::CanUndo()
 {
-    return undo_stack.size() > 0;
+    return input_undo_stack.size() > 0;
 }
 bool zmap::CanRedo()
 {
-    return redo_stack.size() > 0;
+    return input_redo_stack.size() > 0;
 }
 bool zmap::CanPaste()
 {
@@ -430,18 +431,31 @@ MapCursor zmap::getCursor() const
 
 void zmap::setCursor(MapCursor new_cursor)
 {
-	if (cursor == new_cursor)
+	if (cursor == new_cursor && screens)
 		return;
 
-	if (!screens) Color = -1;
+	if (screens)
+		pushCursorToHistory(std::move(cursor));
+	cursor = std::move(new_cursor);
 
-	cursor = new_cursor;
+	if (!screens) Color = -1;
+	screens = &TheMaps[cursor.map*MAPSCRS];
 
 	refresh_color();
-	
+	setlayertarget();
 	reset_combo_animations2();
 	mmap_mark_dirty();
 	regions_mark_dirty();
+}
+
+void zmap::pushCursorToHistory(MapCursor cursor)
+{
+	if (cursor_history_enabled)
+	{
+		cursor_undo_stack.push_back(std::move(cursor));
+		cursor_redo_stack = {};
+		CapCursorHistory();
+	}
 }
 
 bool zmap::isValidPosition(ComboPosition pos) const
@@ -581,20 +595,15 @@ bool zmap::isValid(int32_t map, int32_t scr)
 
 void zmap::setCurrMap(int32_t index)
 {
-	if (!screens) Color = -1;
 	scrpos[cursor.map] = cursor.screen;
 	scrview[cursor.map] = cursor.viewscr;
-	cursor.map = bound(index,0,map_count);
-	screens = &TheMaps[cursor.map*MAPSCRS];
 
-	cursor.viewscr = scrview[cursor.map];
-	cursor.setScreen(scrpos[cursor.map]);
+	auto new_cursor = cursor;
+	new_cursor.map = bound(index,0,map_count);
 
-	refresh_color();
-	
-	reset_combo_animations2();
-	mmap_mark_dirty();
-	regions_mark_dirty();
+	new_cursor.viewscr = scrview[new_cursor.map];
+	new_cursor.setScreen(scrpos[new_cursor.map]);
+	setCursor(std::move(new_cursor));
 }
 
 int32_t  zmap::getCurrScr()
@@ -606,14 +615,9 @@ void zmap::setCurrScr(int32_t scr)
     if (scr == cursor.screen)
 		return;
 
-	cursor.setScreen(scr);
-	
-	refresh_color();
-	
-    reset_combo_animations2();
-    setlayertarget();
-    mmap_mark_dirty();
-	regions_mark_dirty();
+	auto new_cursor = cursor;
+	new_cursor.setScreen(scr);
+	setCursor(std::move(new_cursor));
 }
 
 int32_t zmap::getViewScr()
@@ -623,7 +627,9 @@ int32_t zmap::getViewScr()
 
 void zmap::setViewSize(int32_t size)
 {
-	cursor.setSize(size);
+	auto new_cursor = cursor;
+	new_cursor.setSize(size);
+	setCursor(std::move(new_cursor));
 }
 
 int32_t zmap::getViewSize()
@@ -4461,11 +4467,11 @@ void zmap::FinishListCommand()
 {
     if (current_list_command->commands.size() == 1)
     {
-        undo_stack.push_back(current_list_command->commands[0]);
+        input_undo_stack.push_back(current_list_command->commands[0]);
     }
     else if (current_list_command->commands.size() > 1)
     {
-        undo_stack.push_back(current_list_command);
+        input_undo_stack.push_back(current_list_command);
     }
     CapCommandHistory();
     current_list_command = nullptr;
@@ -4484,7 +4490,8 @@ bool zmap::InListCommand() const
 
 void zmap::ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip_execute)
 {
-    redo_stack = std::stack<std::shared_ptr<user_input_command>>();
+    input_redo_stack = {};
+
     if (!skip_execute) command->execute();
     if (current_list_command)
     {
@@ -4496,7 +4503,7 @@ void zmap::ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip
     }
     else
     {
-        undo_stack.push_back(command);
+        input_undo_stack.push_back(command);
         CapCommandHistory();
     }
     saved = false;
@@ -4504,11 +4511,11 @@ void zmap::ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip
 
 void zmap::UndoCommand()
 {
-    if (undo_stack.size() <= 0) return;
+    if (input_undo_stack.size() <= 0) return;
 
     // If not currently looking at the associated screen, first change the view
     // and wait for the next call to actually undo this command.
-    auto command = undo_stack.back();
+    auto command = input_undo_stack.back();
     if (command->cursor.map != Map.getCurrMap() || command->cursor.screen != Map.getCurrScr())
     {
         setCursor(command.get()->cursor);
@@ -4516,18 +4523,18 @@ void zmap::UndoCommand()
     }
 
     command->undo();
-    redo_stack.push(command);
-    undo_stack.pop_back();
+    input_redo_stack.push(command);
+    input_undo_stack.pop_back();
     saved = false;
 }
 
 void zmap::RedoCommand()
 {
-    if (redo_stack.size() <= 0) return;
+    if (input_redo_stack.size() <= 0) return;
 
     // If not currently selected the associated screen, first change the cursor
     // and wait for the next call to actually execute this command.
-    auto command = redo_stack.top();
+    auto command = input_redo_stack.top();
     if (command->cursor.map != Map.getCurrMap() || command->cursor.screen != Map.getCurrScr())
     {
         setCursor(command.get()->cursor);
@@ -4535,16 +4542,16 @@ void zmap::RedoCommand()
     }
 
     command->execute();
-    undo_stack.push_back(command);
-    redo_stack.pop();
+    input_undo_stack.push_back(command);
+    input_redo_stack.pop();
     saved = false;
 }
 
 void zmap::ClearCommandHistory()
 {
     current_list_command = nullptr;
-    undo_stack = std::deque<std::shared_ptr<user_input_command>>();
-    redo_stack = std::stack<std::shared_ptr<user_input_command>>();
+    input_undo_stack = {};
+    input_redo_stack = {};
 }
 
 // Extra amount is from mapscr's vectors.
@@ -4559,11 +4566,11 @@ void zmap::CapCommandHistory()
     do
     {
         size = 0;
-        for (auto command : undo_stack)
+        for (auto command : input_undo_stack)
         {
             size += command->size();
         }
-        if (size > max_command_size) undo_stack.pop_front();
+        if (size > max_command_size) input_undo_stack.pop_front();
     } while (size > max_command_size);
 }
 
@@ -5060,6 +5067,56 @@ void zmap::PasteEnemies(const mapscr& copymapscr, int screen)
     }
 }
 
+bool zmap::CanGoBack() const
+{
+    return !cursor_undo_stack.empty();
+}
+
+bool zmap::CanGoForward() const
+{
+    return !cursor_redo_stack.empty();
+}
+
+void zmap::GoBack()
+{
+	if (!CanGoBack())
+		return;
+
+	cursor_redo_stack.push(cursor);
+
+	ConfigureCursorHistory(false);
+	setCursor(cursor_undo_stack.back());
+	ConfigureCursorHistory(true);
+
+	cursor_undo_stack.pop_back();
+}
+
+void zmap::GoForward()
+{
+	if (!CanGoForward())
+		return;
+
+	cursor_undo_stack.push_back(cursor);
+
+	ConfigureCursorHistory(false);
+	setCursor(cursor_redo_stack.top());
+	ConfigureCursorHistory(true);
+
+	cursor_redo_stack.pop();
+}
+
+void zmap::CapCursorHistory()
+{
+	int max_history_size = 1000;
+	while (cursor_undo_stack.size() > max_history_size)
+		cursor_undo_stack.pop_front();
+}
+
+void zmap::ConfigureCursorHistory(bool enable)
+{
+	cursor_history_enabled = enable;
+}
+
 void zmap::setCopyFFC(int32_t n)
 {
 	copyffc = n;
@@ -5431,13 +5488,14 @@ void zmap::update_freeform_combos()
 
 void zmap::goto_dmapscr(int dmap, int scr)
 {
-	setCurrMap(DMaps[dmap].map);
-	setCurrScr(scr+DMaps[dmap].xoff);
+	goto_mapscr(DMaps[dmap].map, scr);
 }
 void zmap::goto_mapscr(int map, int scr)
 {
-	setCurrMap(map);
-	setCurrScr(scr);
+	auto new_cursor = cursor;
+	new_cursor.map = map;
+	new_cursor.setScreen(scr);
+	setCursor(std::move(new_cursor));
 }
 
 void zmap::dowarp(int32_t type, int32_t index)
@@ -6587,11 +6645,16 @@ int32_t load_quest(const char *filename, bool show_progress)
 		else
 		{
 			Map.clear();
-			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
-			Map.setCurrScr(zinit.last_screen);
 
 			std::string qst_cfg_header = qst_cfg_header_from_path(filename);
-			Map.setViewSize(zc_get_config(qst_cfg_header.c_str(), "zoom_num_screens", 1));
+			int view_size = zc_get_config(qst_cfg_header.c_str(), "zoom_num_screens", 1);
+
+			Map.setCursor(MapCursor{
+				.map = vbound(zinit.last_map, 0, map_count - 1),
+				.screen = zinit.last_screen,
+				.viewscr = zinit.last_screen,
+				.size = view_size,
+			});
 
 			extern int32_t current_mappage;
 			current_mappage = 0;
