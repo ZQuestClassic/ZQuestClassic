@@ -80,3 +80,27 @@ drop 9a75c5452b9837bf6ac84a0441728e9e513ff422 build: upgrade sentry to 0.9.0
 
 # ! reverted
 drop 636cd693ebcc1cbec50ced5af8ece8be31f04f64 fix(zc): only grab one held item at a time
+
+reword c4ff8de1a0e9aa5f2c9aeb7ebfef556d8ffc20d2 feat: add many new SCCs
+- CollectItem
+- Delay
+- ForceDelay
+- KillHero
+- Counter
+- MaxCounter
+- GoIfAnyScreenState
+- GoIfGlobalState
+- GoIfLevelItem
+- GoIfLevelState
+- GoIfScreenState
+- GoIfSecrets
+- GoIfScreenExState
+- GoIfAnyScreenExState
+- SetGlobalState
+- SetLevelItem
+- SetLevelState
+- SetScreenExState
+- SetAnyScreenExState
+
+See https://docs.zquestclassic.com/tutorials/message_strings for details.
+=end
