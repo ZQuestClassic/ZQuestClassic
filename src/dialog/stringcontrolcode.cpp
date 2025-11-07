@@ -67,6 +67,7 @@ const GUI::ListData SCCListData()
 	addCommand(ld, MSGC_FONT); // Text Font
 	addCommand(ld, MSGC_SHDCOLOR); // Shadow Color
 	addCommand(ld, MSGC_SHDTYPE); // Shadow Type
+	addCommand(ld, MSGC_CHANGEPORTRAIT); // Portrait
 	
 	addCommand(ld, MSGC_GOTOIFCREEND); // Go If Screen->D[]
 	addCommand(ld, MSGC_GOTOIFSCREEND); // Go If Current Screen->D[]
@@ -84,6 +85,7 @@ const GUI::ListData SCCListData()
 	addCommand(ld, MSGC_GOTOIFLEVELSTATE); // Go If Level State
 	addCommand(ld, MSGC_GOTOIFLEVELITEM); // Go If Level Item
 	addCommand(ld, MSGC_GOTOIFSECRETS); // Go If Secrets
+	addCommand(ld, MSGC_GOTOIFBOTTLE); // Go If Bottle
 
 	addCommand(ld, MSGC_CTRUP); // Counter Increase
 	addCommand(ld, MSGC_CTRDN); // Counter Decrease
@@ -95,6 +97,8 @@ const GUI::ListData SCCListData()
 	addCommand(ld, MSGC_COLLECTITEM); // Collect Item
 	addCommand(ld, MSGC_GIVEITEM); // Give Item
 	addCommand(ld, MSGC_TAKEITEM); // Take Item
+	
+	addCommand(ld, MSGC_CHANGEBOTTLE); // Change Bottle
 	
 	addCommand(ld, MSGC_WARP); // Warp
 	addCommand(ld, MSGC_SFX); // Play SFX
@@ -150,6 +154,16 @@ void SCCDialog::default_args()
 	args[MSGC_GOTOIFLEVELSTATE][0] = -1;
 	args[MSGC_SETLEVELITEM][0] = -1;
 	args[MSGC_SETLEVELSTATE][0] = -1;
+	
+	args[MSGC_GOTOIFBOTTLE][0] = 1;
+	args[MSGC_CHANGEBOTTLE][0] = 1;
+	
+	args[MSGC_CHANGEPORTRAIT][0] = refstr->portrait_tile;
+	args[MSGC_CHANGEPORTRAIT][1] = refstr->portrait_cset;
+	args[MSGC_CHANGEPORTRAIT][2] = refstr->portrait_x;
+	args[MSGC_CHANGEPORTRAIT][3] = refstr->portrait_y;
+	args[MSGC_CHANGEPORTRAIT][4] = refstr->portrait_tw;
+	args[MSGC_CHANGEPORTRAIT][5] = refstr->portrait_th;
 
 	warp_xy_toggle = true;
 }
@@ -205,7 +219,8 @@ SCCDialog::SCCDialog() :
 	list_level_items(GUI::ZCListData::level_items()),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
-	list_genscr(GUI::ZCListData::generic_script())
+	list_genscr(GUI::ZCListData::generic_script()),
+	list_bottletypes(GUI::ZCListData::bottletype())
 {
 	memset(args, 0, sizeof(args));
 
@@ -284,6 +299,7 @@ std::string scc_help(byte scc)
 			" if one is set.";
 		case MSGC_WAIT_ADVANCE: return "Immediately pause the string until the Hero presses 'A'"
 			" to advance the text";
+		case MSGC_CHANGEPORTRAIT: return "Change the current portrait";
 		case MSGC_SETUPMENU: return "Sets the Menu Cursor up as a tile draw";
 		case MSGC_MENUCHOICE: return "Adds a menu choice";
 		case MSGC_RUNMENU: return "Starts a menu";
@@ -312,6 +328,9 @@ std::string scc_help(byte scc)
 		case MSGC_SETANYSCREENEXSTATE: return "Set screen ExState";
 		case MSGC_DELAY: return "Delay the string processing by a number of frames (respecting A/B button speed up)";
 		case MSGC_FORCE_DELAY: return "Delay the string processing by a number of frames (ignoring A/B button speed up)";
+		case MSGC_GOTOIFBOTTLE: return "Switch to another string if the Hero has enough of a specific bottle fill type.";
+		case MSGC_CHANGEBOTTLE: return "Change some number of bottles from one specific fill type to another."
+			" If the Hero does not have enough, as many as possible will be changed.";
 	}
 	return "";
 }
@@ -659,6 +678,48 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					TXT("Item:"),
 					DDL(cur_args[0],list_items),
 					INFOBTN("Item to take silently")
+				)
+			);
+			break;
+		}
+		case MSGC_GOTOIFBOTTLE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Quantity:"),
+					NUM_FIELD(cur_args[0],1,NUM_BOTTLE_SLOTS),
+					INFOBTN("How many of the specified fill to require. (Minimum 1)")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Bottle Fill:"),
+					DDL(cur_args[1],list_bottletypes),
+					INFOBTN("Require this type of bottle fill to switch strings.")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[2],list_strings),
+					INFOBTN("String to switch to if the player owns at least the specified number of the specified bottle fill type.")
+				)
+			);
+			break;
+		}
+		case MSGC_CHANGEBOTTLE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Quantity:"),
+					NUM_FIELD(cur_args[0],1,NUM_BOTTLE_SLOTS),
+					INFOBTN("How many fills to (try to) change. (Minimum 1)")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Old Bottle Fill:"),
+					DDL(cur_args[1],list_bottletypes),
+					INFOBTN("The type of fill to replace.")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("New Bottle Fill:"),
+					DDL(cur_args[2],list_bottletypes),
+					INFOBTN("The type of fill to replace with.")
 				)
 			);
 			break;
@@ -1220,6 +1281,47 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					TXT("Height (pixels):"),
 					NUM_FIELD(cur_args[3],0,255),
 					INFOBTN("Height of the draw, in pixels")
+				)
+			);
+			break;
+		}
+		case MSGC_CHANGEPORTRAIT:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Tile/CSet:"),
+					SelTileSwatch(
+						tile = cur_args[0],
+						cset = cur_args[1],
+						showFlip = true,
+						showvals = true,
+						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
+						{
+							cur_args[0] = t;
+							cur_args[1] = c;
+						}
+					),
+					INFOBTN("Tile/CSet of the portrait")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("X (pixels):"),
+					NUM_FIELD(cur_args[2],0,255),
+					INFOBTN("X of the portrait, in pixels")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Y (pixels):"),
+					NUM_FIELD(cur_args[3],0,255),
+					INFOBTN("Y of the portrait, in pixels")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Width (tiles):"),
+					NUM_FIELD(cur_args[4],0,255),
+					INFOBTN("Width of the portrait, in tiles")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Height (tiles):"),
+					NUM_FIELD(cur_args[5],0,255),
+					INFOBTN("Height of the portrait, in tiles")
 				)
 			);
 			break;

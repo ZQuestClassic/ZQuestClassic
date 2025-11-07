@@ -999,52 +999,52 @@ void gamedata::set_item_no_flush(int32_t id, bool value)
         
     item[id]=value;
 }
-int32_t gamedata::fillBottle(byte val)
+
+void gamedata::check_bottle_slots(std::set<dword>& slots) const
 {
-	bool temp[256] = {false};
+	slots.clear();
 	for(size_t q = 0; q < MAXITEMS; ++q)
 	{
 		if(get_item(q) && itemsbuf[q].type == itype_bottle)
 		{
 			size_t bind = itemsbuf[q].misc1;
-			if(bind < 256)
-			{
-				temp[bind] = true;
-			}
+			if(bind < NUM_BOTTLE_SLOTS)
+				slots.insert(bind);
 		}
 	}
-	for(size_t q = 0; q < NUM_BOTTLE_SLOTS; ++q)
+}
+bool gamedata::hasBottle(byte type, byte quant) const
+{
+	if (!quant) return true;
+	std::set<dword> slots;
+	check_bottle_slots(slots);
+	for(dword q : slots)
 	{
-		if(!temp[q]) continue; //don't own bottle
-		if(bottleSlots[q] == 0)
+		if(bottleSlots[q] == type)
+			if(!--quant)
+				return true;
+	}
+	return false;
+}
+int32_t gamedata::fillBottle(byte val, byte replace, byte quant)
+{
+	if (!quant) return -1;
+	std::set<dword> slots;
+	check_bottle_slots(slots);
+	for(dword q : slots)
+	{
+		if(bottleSlots[q] == replace)
 		{
 			set_bottle_slot(q, val);
+			if (quant > 1)
+			{
+				--quant;
+				continue;
+			}
 			return q;
 		}
 	}
 	return -1;
-}
-bool gamedata::canFillBottle()
-{
-	bool temp[256] = {false};
-	for(size_t q = 0; q < MAXITEMS; ++q)
-	{
-		if(get_item(q) && itemsbuf[q].type == itype_bottle)
-		{
-			size_t bind = itemsbuf[q].misc1;
-			if(bind < 256)
-			{
-				temp[bind] = true;
-			}
-		}
-	}
-	for(size_t q = 0; q < NUM_BOTTLE_SLOTS; ++q)
-	{
-		if(!temp[q]) continue; //don't own bottle
-		if(bottleSlots[q] == 0)
-			return true;
-	}
-	return false;
 }
 
 void gamedata::set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite)

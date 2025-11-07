@@ -23,7 +23,7 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_NEWLINE, {"Newline", 0}},
 	{MSGC_FONT, {"Font", 1}}, // (font)
 	{MSGC_NAME, {"Name", 0}},
-	{MSGC_CHANGEPORTRAIT, {"Portrait", 1}}, // not implemented
+	{MSGC_CHANGEPORTRAIT, {"Portrait", 6}}, // (tile, cset, x, y, twid, thei)
 
 	// Menu
 	{MSGC_SETUPMENU, {"SetupMenu", 5}}, // (tile, cset, wid, hei, flip)
@@ -48,6 +48,7 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_GOTOIFLEVELSTATE, {"GoIfLevelState", 4}}, // (level, state, value, newstring)
 	{MSGC_GOTOIFLEVELITEM, {"GoIfLevelItem", 4}}, // (level, item, value, newstring)
 	{MSGC_GOTOIFSECRETS, {"GoIfSecrets", 1}}, // (newstring)
+	{MSGC_GOTOIFBOTTLE, {"GoIfBottle", 3}}, // (quantity, fill type, newstring)
 
 	// Control Mod
 	{MSGC_CTRUP, {"CounterAdd", 2}}, // (counter, val)
@@ -59,6 +60,7 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_GIVEITEM, {"GiveItem", 1}}, //  (itemid)
 	{MSGC_COLLECTITEM, {"CollectItem", 1}}, // (itemid)
 	{MSGC_TAKEITEM, {"TakeItem", 1}}, //  (itemid)
+	{MSGC_CHANGEBOTTLE, {"ChangeBottle", 3}}, // (quantity, old fill type, new fill type)
 
 	// Misc
 	{MSGC_WARP, {"Warp", 6}}, // (dmap, screen, x, y, effect, sound

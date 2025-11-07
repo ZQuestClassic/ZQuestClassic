@@ -3482,7 +3482,7 @@ bool weapon::animate(int32_t index)
 		{
 			item* ptr = (item*)items.spr(j);
 			
-			if((itemsbuf[ptr->id].type == itype_bottlefill) && !game->canFillBottle())
+			if((itemsbuf[ptr->id].type == itype_bottlefill) && !game->hasBottle(0))
 				continue; //No picking these up unless you have a bottle to fill!
 			int32_t pickup = ptr->pickup;
 			if((pickup & ipCANGRAB) || (pickup & ipTIMER))

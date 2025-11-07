@@ -20512,11 +20512,6 @@ static bool parsemsgcode(const StringCommand& command)
 			return true;
 		}
 		
-		case MSGC_CHANGEPORTRAIT:
-		{
-			return true; //not implemented
-		}
-		
 		case MSGC_GOTOIFCREEND:
 		{
 			int32_t dmap =     (args[0]<<7); //dmap and screen may be transposed here.
@@ -20590,6 +20585,38 @@ static bool parsemsgcode(const StringCommand& command)
 				goto switched;
 			}
 
+			return true;
+		}
+		
+		case MSGC_GOTOIFBOTTLE:
+		{
+			int quant = args[0];
+			int type = args[1];
+			if (game->hasBottle(type, quant))
+			{
+				last_arg = 2;
+				goto switched;
+			}
+			return true;
+		}
+		case MSGC_CHANGEBOTTLE:
+		{
+			int quant = args[0];
+			int old_type = args[1];
+			int new_type = args[2];
+			game->fillBottle(new_type, old_type, quant);
+			return true;
+		}
+		
+		case MSGC_CHANGEPORTRAIT:
+		{
+			prt_tile = args[0];
+			prt_cset = args[1];
+			prt_x = args[2];
+			prt_y = args[3];
+			prt_tw = args[4];
+			prt_th = args[5];
+			msg_prt();
 			return true;
 		}
 		

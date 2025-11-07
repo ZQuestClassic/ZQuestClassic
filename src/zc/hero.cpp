@@ -3705,7 +3705,7 @@ bool HeroClass::checkstab()
 			bool dofairy = (attack==wBugNet && itemsbuf[ptr->id].type == itype_fairy)
 				&& (bugnetid > -1 && !(itemsbuf[bugnetid].flags & item_flag1));
 			
-			if((itemsbuf[ptr->id].type == itype_bottlefill || dofairy) && !game->canFillBottle())
+			if((itemsbuf[ptr->id].type == itype_bottlefill || dofairy) && !game->hasBottle(0))
 				continue; //No picking these up unless you have a bottle to fill!
 			if((ptr->pickup & ipCANGRAB) || (ptr->pickup & ipTIMER) || dofairy)
 			{
@@ -31708,7 +31708,7 @@ bool HeroClass::checkitems(int32_t index)
 	
 	if(bottledummy) //Dummy bullshit! 
 	{
-		if(!game->canFillBottle())
+		if(!game->hasBottle(0))
 			return false;
 		if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
 		{
@@ -31745,7 +31745,7 @@ bool HeroClass::checkitems(int32_t index)
 	}
 	else
 	{
-		if(itemsbuf[id2].type == itype_bottlefill && !game->canFillBottle())
+		if(itemsbuf[id2].type == itype_bottlefill && !game->hasBottle(0))
 			return false; //No picking these up unless you have a bottle to fill!
 		
 		if(((pickup&ipTIMER) && (ptr->clk2 < game->get_item_spawn_flicker()))&& !(pickup & ipCANGRAB))
