@@ -21,6 +21,7 @@
 #include "base/msgstr.h"
 #include "zc/zelda.h"
 #include "zq/zq_class.h"
+#include "zq/render.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
 #include "base/qst.h"
@@ -6548,6 +6549,8 @@ void popup_bugfix_dlg(const char* cfg, byte* dest_qrs)
 
 int32_t load_quest(const char *filename, bool show_progress)
 {
+	zq_freeze_all_rti();
+
 	char buf[2048];
 	byte skip_flags[4];
 
@@ -6639,6 +6642,8 @@ int32_t load_quest(const char *filename, bool show_progress)
 
 int32_t load_tileset(const char *filename, dword tsetflags)
 {
+	zq_freeze_all_rti();
+
 	byte skip_flags[4];
 	
 	for(int32_t i=0; i<4; ++i)

@@ -177,3 +177,17 @@ void zalleg_create_window()
 	zapp_setup_icon();
 	initFonts();
 }
+
+void zalleg_wait_for_all_keys_up()
+{
+	while (true)
+	{
+		bool found = false;
+		for (int i = 0; i < KEY_MAX; i++)
+			if (key[i]) found = true;
+		if (!found) break;
+		
+		poll_keyboard();
+		update_hw_screen();
+	}
+}

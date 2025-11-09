@@ -1,10 +1,14 @@
 #include "zq/render_hotkeys.h"
 
+#include "allegro/keyboard.h"
 #include "allegro5/bitmap.h"
 #include "allegro5/color.h"
 #include "base/fonts.h"
 #include "base/render.h"
 #include "base/hotkey.h"
+#include "base/zdefs.h"
+#include "base/zsys.h"
+#include "zalleg/zalleg.h"
 #include "zq/render.h"
 #include "zq/zq_hotkey.h"
 
@@ -405,24 +409,40 @@ private:
 static HotKeysRTI rti_hotkeys("hot_keys");
 static bool is_active = false;
 
-void hotkeys_toggle_display(bool show)
+void hotkeys_run()
 {
-	is_active = show;
-
-	if (!is_active)
-	{
-		rti_hotkeys.remove();
-		return;
-	}
-
-	auto parent = get_screen_rti();
+	auto parent = get_root_rti();
 	parent->add_child(&rti_hotkeys);
 	rti_hotkeys.set_size(parent->width, parent->height);
-}
 
-bool hotkeys_is_active()
-{
-	return is_active;
+	zq_freeze_all_rti();
+	rti_hotkeys.freeze = false;
+
+	zalleg_wait_for_all_keys_up();
+
+	is_active = true;
+	keyboard_lowlevel_callback = [](int scancode) {
+		// any key release
+		if (scancode & 0x80)
+			is_active = false;
+	};
+
+	while (is_active)
+	{
+		if (close_button_quit)
+			break;
+		if (gui_mouse_b())
+			break;
+
+		poll_keyboard();
+		update_hw_screen();
+	}
+
+	is_active = false;
+	keyboard_lowlevel_callback = nullptr;
+
+	clear_keybuf();
+	rti_hotkeys.remove();
 }
 
 void hotkeys_invalidate()

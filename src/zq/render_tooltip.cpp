@@ -2,7 +2,6 @@
 #include "base/render.h"
 #include "base/zdefs.h"
 #include "zq/render.h"
-#include "zq/render_hotkeys.h"
 #include "zq/zquest.h"
 #include <algorithm>
 
@@ -198,6 +197,7 @@ static void add_highlight(size_and_pos pos, int thickness)
 	rti_highlight.pos = pos2;
 	rti_highlight.set_size(pos2.w, pos2.h);
 	rti_highlight.dirty = true;
+	rti_highlight.freeze = false;
 }
 
 void ttip_clear_timer()
@@ -209,7 +209,7 @@ ToolTipRTI::ToolTipRTI(std::string name) : LegacyBitmapRTI(name) {}
 
 void ToolTipRTI::prepare()
 {
-	if (!EnableTooltips || hotkeys_is_active())
+	if (!EnableTooltips)
 	{
 		visible = false;
 		return;
@@ -254,6 +254,7 @@ void ToolTipRTI::prepare()
 	if (rti_text.text != tooltip->text)
 	{
 		rti_text.dirty = true;
+		rti_text.freeze = false;
 		rti_text.text = tooltip->text;
 	}
 

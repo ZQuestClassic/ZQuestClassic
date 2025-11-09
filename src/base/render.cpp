@@ -321,7 +321,7 @@ void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskin
 	al_draw_bitmap(buf, dx, dy, 0);
 }
 
-void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::string text, int x, int y, int scale, ALLEGRO_COLOR color, ALLEGRO_COLOR bgcolor)
+void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, const std::string& text, int x, int y, int scale, ALLEGRO_COLOR color, ALLEGRO_COLOR bgcolor)
 {
 	ALLEGRO_STATE oldstate;
 	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
@@ -355,7 +355,7 @@ void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::string text, i
 	al_restore_state(&oldstate);
 }
 
-void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlignment align, int scale)
+void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, const std::vector<std::string>& lines, TextJustify justify, TextAlignment align, int scale)
 {
 	int resx = al_get_bitmap_width(bitmap);
 	int resy = al_get_bitmap_height(bitmap);
@@ -369,7 +369,7 @@ void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<s
 		int x = justify == TextJustify::left ?
 			5 :
 			resx - al_get_text_width(font, line.c_str())*scale - 5;
-		render_text(bitmap, font, line.c_str(), x, text_y, scale, al_map_rgb_f(1, 1, 1), al_map_rgba_f(0, 0, 0, 0.6));
+		render_text(bitmap, font, line, x, text_y, scale, al_map_rgb_f(1, 1, 1), al_map_rgba_f(0, 0, 0, 0.6));
 		text_y += (scale*font_height + 3) * (align == TextAlignment::bottom ? -1 : 1);
 	}
 }

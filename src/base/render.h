@@ -221,8 +221,8 @@ enum class TextAlignment {
 	top,
 	bottom,
 };
-void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::string text, int x, int y, int scale, ALLEGRO_COLOR color = al_map_rgb_f(1,1,1), ALLEGRO_COLOR bgcolor = al_map_rgba_f(0, 0, 0, 0));
-void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlignment align, int scale);
+void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, const std::string& text, int x, int y, int scale, ALLEGRO_COLOR color = al_map_rgb_f(1,1,1), ALLEGRO_COLOR bgcolor = al_map_rgba_f(0, 0, 0, 0));
+void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, const std::vector<std::string>& lines, TextJustify justify, TextAlignment align, int scale);
 
 namespace MouseSprite
 {

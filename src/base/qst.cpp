@@ -22996,13 +22996,6 @@ invalid:
     
 }
 
-static bool _is_loading_quest;
-
-bool is_loading_quest()
-{
-	return _is_loading_quest;
-}
-
 std::string get_last_loaded_qstpath()
 {
 	return last_loaded_qstpath;
@@ -23025,13 +23018,11 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	if (!is_ci())
 		loadquest_report = report;
 
-	_is_loading_quest = true;
 	auto start = std::chrono::steady_clock::now();
 	zprint2("Loading qst: %s\n", filename);
 	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata);
 	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 	zprint2("Time to load qst: %d ms\n", load_ms);
-	_is_loading_quest = false;
 	if (ret)
 		zprint2("Error: %s\n", qst_error[ret]);
 

@@ -1312,7 +1312,6 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 	colors_dlg[26].d1   =(count==pdLEVEL)?16:0;
 	colors_dlg[26].dp   =(count==pdLEVEL)?palnames[(first-poLEVEL)/pdLEVEL]:NULL;
 	
-	//char (*buf)[4]= new char[count][4];
 	char buf[50][4];
 	
 	for(int32_t i=0; i<15; i++)
@@ -1466,7 +1465,6 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 	
 	comeback();
 	destroy_bitmap(bmp);
-	//delete[] buf;
 	zq_hide_screen(false);
 	popup_zqdialog_end();
 	return int32_t(ret==23);

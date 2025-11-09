@@ -166,6 +166,7 @@ static std::vector<int> get_problematic_qrs()
 
 void call_edit_map_settings(int32_t slot)
 {
+	// So the palette is clearly visible in the background.
 	pause_dlg_tint(true);
 	zq_set_screen_never_freeze(true);
 	

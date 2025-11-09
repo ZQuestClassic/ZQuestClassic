@@ -1299,9 +1299,6 @@ int run_hotkey(uint hkey)
 	if(disabled_hotkey(hkey))
 		return D_O_K;
 
-	if (hotkeys_is_active() && hkey != ZQKEY_SHOW_HOTKEYS)
-		hotkeys_toggle_display(false);
-
 	switch(hkey)
 	{
 		case ZQKEY_NULL_KEY: break;
@@ -1884,7 +1881,7 @@ int do_zq_hotkey_dialog()
 
 int do_zq_list_hotkeys_dialog()
 {
-	hotkeys_toggle_display(true);
+	hotkeys_run();
 	return D_O_K;
 }
 

@@ -617,7 +617,7 @@ int toggleConsole()
 
 int showHotkeys()
 {
-	hotkeys_toggle_display(!hotkeys_is_active());
+	hotkeys_run();
 	return D_O_K;
 }
 
@@ -4556,7 +4556,13 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		close_the_map();
 		return D_O_K;
 	}
-	
+
+	zq_freeze_all_rti();
+	if (isviewingmap)
+		rti_map_view.freeze = false;
+	else
+		get_screen_rti()->freeze = false;
+
 	get_bw(pal,pblack,pwhite);
 	
 	int32_t oldfgcolor = gui_fg_color;
@@ -4576,6 +4582,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	viewer_overlay_rti.set_size(buf->w, buf->h);
 	viewer_overlay_rti.a4_bitmap = buf;
 	viewer_overlay_rti.transparency_index = 15;
+	viewer_overlay_rti.freeze = false;
 	get_root_rti()->add_child(&viewer_overlay_rti);
 	
 	zc_set_palette(pal);
@@ -4934,10 +4941,7 @@ int32_t onViewMapEx(bool skipmenu)
 {
     int32_t temp_aligns=ShowMisalignments;
     ShowMisalignments=0;
-    //if(load_the_map()==0)
-    //{
     launchPicViewer(&bmap,mappal,&mapx, &mapy, &mapscale,true,skipmenu);
-    //}
     ShowMisalignments=temp_aligns;
     return D_O_K;
 }
@@ -5532,6 +5536,8 @@ void draw_screenunit(int32_t unit, int32_t flags)
 	{
 		case rSCRMAP:
 		{
+			mmap_mark_active();
+
 			size_and_pos *mini_sqr = &minimap;
 			size_and_pos *real_mini_sqr = &real_minimap;
 			
@@ -5557,7 +5563,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					if(Map.Scr(i)->valid&mVALID)
 					{
-						// Handled by mmap_draw.
+						// Drawing is handled by mmap_draw.
 					}
 					else
 					{
@@ -10111,16 +10117,6 @@ void domouse()
 	auto mz = mouse_z;
 	bool lclick = mb&1;
 	bool rclick = mb&2;
-
-	if (mb && hotkeys_is_active())
-	{
-		hotkeys_toggle_display(false);
-		while (gui_mouse_b())
-		{
-			custom_vsync();
-		}
-		return;
-	}
 	
 	FONT* tfont = font;
 	if(zoomed_minimap)
@@ -25292,6 +25288,7 @@ void run_zq_frame()
 	}
 
 	domouse();
+	get_screen_rti()->freeze = false;
 	custom_vsync();
 	refresh(rCLEAR|rALL);
 }

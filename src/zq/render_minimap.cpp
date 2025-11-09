@@ -1,10 +1,9 @@
 #include "zq/render_minimap.h"
 
+#include "allegro5/bitmap_io.h"
 #include "base/render.h"
-#include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "gui/jwin_a5.h"
-#include "base/qst.h"
 #include "zq/render.h"
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"
@@ -99,7 +98,7 @@ void MiniMapRTI::prepare()
 	// TODO: for web, changing the target bitmap is really expensive.
 	// Seems like a bug. https://discord.com/channels/993415281244393504/1163652238011551816
 	// So for now, disable the cursor blinking so we only redraw when the something actually changes.
-	if (!is_web()) mmap_blink_count++;
+	if (!is_web() && !rti_dialogs.visible) mmap_blink_count++;
 
 	int32_t cursor_color = get_cursor_color();
 	if (prev_cursor_color != cursor_color)
@@ -109,7 +108,6 @@ void MiniMapRTI::prepare()
 	}
 
 	visible = !prv_mode;
-	freeze = rti_dialogs.visible || is_loading_quest() || !Map.Scr(0);
 }
 
 void MiniMapRTI::render(bool bitmap_resized)
@@ -122,6 +120,11 @@ void MiniMapRTI::render(bool bitmap_resized)
 	// TODO: why is this happening?
 	if (bitmap_resized && is_web())
 		install_int(mmap_mark_dirty_delayed, 1);
+}
+
+void mmap_mark_active()
+{
+	rti_minimap.freeze = false;
 }
 
 void mmap_mark_dirty()

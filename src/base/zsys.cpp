@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <cstring>
+#include "allegro/keyboard.h"
 #include "base/zapp.h"
 #include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>

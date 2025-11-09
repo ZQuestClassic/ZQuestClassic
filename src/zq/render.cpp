@@ -3,6 +3,7 @@
 #include "base/render.h"
 #include "zconfig.h"
 #include "base/gui.h"
+#include "zq/zquest.h"
 
 extern int32_t prv_mode;
 extern bool DragAspect;
@@ -48,6 +49,8 @@ static void init_render_tree()
 {
 	if (rti_root.has_children())
 		return;
+
+	rti_root.set_size(screen->w, screen->h);
 
 	set_bitmap_create_flags(true);
 	rti_screen.set_size(screen->w, screen->h);
@@ -137,6 +140,17 @@ void zq_hide_screen(bool hidden)
 void zq_set_screen_never_freeze(bool value)
 {
 	screen_never_freeze = value;
+}
+
+void zq_freeze_all_rti(RenderTreeItem* rti)
+{
+	if (!rti) rti = &rti_root;
+
+	for (auto child : rti->get_children())
+	{
+		child->freeze = true;
+		zq_freeze_all_rti(child);
+	}
 }
 
 void render_zq()

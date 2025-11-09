@@ -10,6 +10,7 @@ extern DATAFILE *sfxdata;
 
 void zalleg_setup_allegro(App id, int argc, char **argv);
 void zalleg_create_window();
+void zalleg_wait_for_all_keys_up();
 
 // TODO: move base/zc_alleg stuff here.
 
