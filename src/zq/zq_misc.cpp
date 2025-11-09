@@ -1,5 +1,6 @@
 #include "base/qrs.h"
 #include "base/packfile.h"
+#include "base/render.h"
 #include "base/version.h"
 #include "base/zapp.h"
 #include "base/zc_alleg.h"
@@ -1024,33 +1025,35 @@ int32_t onShowWalkability()
 int32_t onPreviewMode()
 {
 	prv_mode=(prv_mode+1)%2;
+	return D_O_K;
+}
 
-	if(prv_mode)
+void handlePreviewMode()
+{
+	if (prv_mode)
 	{
-		popup_zqdialog_start();
-
+		// Save.
 		MapCursor previous_cursor = Map.getCursor();
-		Map.setViewSize(1);
+		bool tempcb=ComboBrush!=0;
 
 		void reload_zq_gui();
 		reload_zq_gui();
 
+		Map.setViewSize(1);
 		Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());		
 
 		mmap_set_zoom(false);
 		
-		bool tempcb=ComboBrush!=0;
 		ComboBrush=0;
 		restore_mouse();
 		clear_tooltip();
 		dopreview();
+
+		// Restore.
 		ComboBrush=tempcb;
 		Map.setCursor(previous_cursor);
 		reload_zq_gui();
-
-		popup_zqdialog_end();
 	}
-	return D_O_K;
 }
 
 int32_t onShowFlags()

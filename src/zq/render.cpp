@@ -57,6 +57,7 @@ static void init_render_tree()
 	rti_screen.bitmap = create_a5_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
 	rti_screen.visible = true;
+	rti_screen.transparency_index = 0;
 
 	rti_root.add_child(&rti_screen);
 	rti_root.add_child(&rti_dialogs);

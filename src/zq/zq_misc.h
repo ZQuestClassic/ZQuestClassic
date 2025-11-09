@@ -285,6 +285,7 @@ int32_t onShowCSet();
 int32_t onShowCType();
 int32_t onShowWalkability();
 int32_t onPreviewMode();
+void handlePreviewMode();
 int32_t onShowFlags();
 int32_t onP();
 int32_t onShowComboInfoCSet();

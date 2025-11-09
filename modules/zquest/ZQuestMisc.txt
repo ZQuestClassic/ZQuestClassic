@@ -28,6 +28,7 @@ src/zq/autocombo/pattern_replace.cpp
 src/zq/autocombo/pattern_denseforest.cpp
 src/zq/autocombo/pattern_extend.cpp
 src/zq/render_hotkeys.cpp
+src/zq/render_map_view.cpp
 src/zq/render_minimap.cpp
 src/zq/render_tooltip.cpp
 src/zq/moveinfo.cpp

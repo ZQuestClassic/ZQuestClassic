@@ -442,7 +442,6 @@ void zmap::setCursor(MapCursor new_cursor)
 	reset_combo_animations2();
 	mmap_mark_dirty();
 	regions_mark_dirty();
-	refresh(rALL);
 }
 
 bool zmap::isValidPosition(ComboPosition pos) const
@@ -687,7 +686,12 @@ void zmap::setcolor(int color, mapscr* scr)
 
 int32_t zmap::getcolor()
 {
-	mapscr& scr = prv_mode ? prvscr : screens[cursor.screen];
+	return getcolor(cursor.screen);
+}
+
+int32_t zmap::getcolor(int screen)
+{
+	mapscr& scr = prv_mode ? prvscr : screens[screen];
 	
 	if (scr.valid & mVALID)
 		return scr.color;

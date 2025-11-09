@@ -389,6 +389,7 @@ public:
     void refresh_color();
 	void setcolor(int color, mapscr* scr = nullptr);
     int32_t getcolor();
+	int32_t getcolor(int screen);
     void resetflags();
     word tcmbdat(int32_t pos);
     word tcmbcset(int32_t pos);

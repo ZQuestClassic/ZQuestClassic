@@ -847,7 +847,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK(OPT_CUSTOMFONT, "Custom Fonts"),
 					ROW_CHECK(OPT_TOOLTIPS, "Enable Tooltips"),
 					ROW_CHECK(OPT_TOOLTIP_HIGHLIGHT, "Tooltips Highlight Target"),
-					ROW_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
+					ROW_CHECK_I(OPT_NEXTPREVIEW, "No Next-Screen Preview", "If disabled, a row/column of the neighboring screens will show in Compact mode (only if zoom level is <= 2x2, and High Quality Screen Rendering is off)"),
 					ROW_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
 					ROW_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window")
 				),
