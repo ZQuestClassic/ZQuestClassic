@@ -1649,7 +1649,6 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile,bool creat
 		}
 	}
 	
-	custom_vsync();
 	blit(screen2,screen,0,0,0,0,zq_screen_w,zq_screen_w);
 	update_tool_cursor();
 	SCRFIX();
@@ -2158,7 +2157,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
 	}
 	
-	custom_vsync();
 	zc_set_palette(tpal);
 	draw_edit_scr(tile,flip,cs,oldtile, true);
 	
@@ -3181,8 +3179,8 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		
 		if(redraw)
 		{
-			custom_vsync();
 			draw_edit_scr(tile,flip,cs,oldtile, false);
+			custom_vsync();
 		}
 		else
 		{
@@ -5664,7 +5662,6 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	int32_t screen_xofs=window_xofs+6;
 	int32_t screen_yofs=window_yofs+25;
 	
-	custom_vsync();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
 	SCRFIX();
 	destroy_bitmap(buf);
@@ -5759,7 +5756,6 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	int32_t screen_xofs=window_xofs+6;
 	int32_t screen_yofs=window_yofs+25;
 	
-	custom_vsync();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
 	SCRFIX();
 	destroy_bitmap(buf);
@@ -10665,7 +10661,6 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	int32_t screen_xofs=window_xofs+6;
 	int32_t screen_yofs=window_yofs+25;
 	
-	custom_vsync();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
 	SCRFIX();
 	//destroy_bitmap(buf);
