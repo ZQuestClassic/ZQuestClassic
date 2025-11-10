@@ -8543,6 +8543,7 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
             
             while(gui_mouse_b()==1)
             {
+                poll_keyboard(); // re-check shift key!
                 x=int32_t((gui_mouse_x()-startxint)/mapscreensize)-cursoroffx;
                 y=int32_t((gui_mouse_y()-startyint)/mapscreensize)-cursoroffy;
                 showxypos_cursor_icon=true;
