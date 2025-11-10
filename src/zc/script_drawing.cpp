@@ -11856,14 +11856,14 @@ void do_primitives(BITMAP *targetBitmap, int32_t type)
 
 void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yoff)
 {
-	color_map = &trans_table2;
-	
 	if(type > 7)
 		return;
 	if(type >= 0 && origin_scr->hidescriptlayers & (1<<type))
 		return; //Script draws hidden for this layer
 	if(!script_drawing_commands.is_dirty(type))
 		return; //No draws to this layer
+
+	color_map = &trans_table2;
 	//--script_drawing_commands[][] reference--
 	//[][0]: type
 	//[][1-16]: defined by type
