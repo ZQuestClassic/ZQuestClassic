@@ -121,7 +121,7 @@ void showQuestReport()
 		{
 			switch(ret)
 			{
-				case 8:
+				case 9:
 				{
 					if(!prompt_for_new_file_compat("Save Quest Report (.txt)","txt",NULL,datapath,false))
 						return false;
