@@ -8567,6 +8567,7 @@ static void doxypos(byte &px2, byte &py2, int32_t color, SnapMode snap_mode,
 			int32_t x, y;
             do
             {
+                poll_keyboard(); // re-check shift key!
                 x=int32_t((gui_mouse_x()-startxint+offx)/mapscreen_single_scale)-cursoroffx;
                 y=int32_t((gui_mouse_y()-startyint+offy)/mapscreen_single_scale)-cursoroffy;
                 showxypos_cursor_icon=true;
