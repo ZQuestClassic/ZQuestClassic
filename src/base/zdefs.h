@@ -2081,11 +2081,6 @@ INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
 }
 
-INLINE void SCRFIX()
-{
-    putpixel(screen,0,0,getpixel(screen,0,0));
-}
-
 extern void flushItemCache(bool justcost = false);
 extern void removeFromItemCache(int32_t itemclass);
 

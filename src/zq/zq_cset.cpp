@@ -207,7 +207,6 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 			vline(screen,color+d->x+c_x_offs,d->y+c_y_offs,d->y+c_y_offs+c_hei-1,edi);
 			hline(screen,d->x+sat_x_offs,ratio+d->y+sat_y_offs,d->x+sat_x_offs+misc_wh-1,edi);
 			textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %3d %3d %3d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
-			SCRFIX();
 			break;
 	}
 	return ret;

@@ -1639,7 +1639,6 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile,bool creat
 	custom_vsync();
 	blit(screen2,screen,0,0,0,0,zq_screen_w,zq_screen_w);
 	update_tool_cursor();
-	SCRFIX();
 }
 
 void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
@@ -3188,7 +3187,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			}
 			
 			update_tool_cursor();
-			SCRFIX();
 		}
 		
 	}
@@ -3942,7 +3940,6 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	
 	//int32_t rectw = 16*mul;
 	//rect(screen,selx+screen_xofs,sely+screen_yofs,selx+screen_xofs+((width-1)*rectw)+rectw-1,sely+screen_yofs+((height-1)*rectw)+rectw-1,white);
-	SCRFIX();
 	font = oldfont;
 }
 
@@ -4429,7 +4426,6 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 				textprintf_centre_ex(status,font,120,106,jwin_pal[jcTEXTFG],-1,"%d flipped (hv) %s",duplicates_found[3],((DuplicateAction[3]<2)?"found":"discarded"));
 				textprintf_centre_ex(status,font,120,128,jwin_pal[jcTEXTFG],-1,"Press any key to stop.");
 				blit(status,screen,0, 0, 40, 20, 240, 140);
-				SCRFIX();
 			}
 			
 			canadd=true;
@@ -5393,9 +5389,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 			blit(screen3,screen,selxl,selyl,selxl+screen_xofs,selyl+screen_yofs,selwidth*w,selheight*w);
 		}
 		
-		//    SCRFIX();
 		++f;
-		
 	}
 	while(!done);
 	
@@ -5649,8 +5643,6 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	
 	custom_vsync();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
-	SCRFIX();
-	destroy_bitmap(buf);
 }
 
 void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int32_t flip,int32_t cs,int32_t copy,int32_t page, bool always_use_flip)
@@ -5744,8 +5736,6 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	
 	custom_vsync();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
-	SCRFIX();
-	destroy_bitmap(buf);
 }
 /*
 void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
@@ -10719,8 +10709,6 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	
 	custom_vsync();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
-	SCRFIX();
-	//destroy_bitmap(buf);
 }
 
 void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols)
@@ -11101,8 +11089,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 					safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
 				}
 			}
-			
-			SCRFIX();
 		}
 		
 		++f;
@@ -11785,8 +11771,6 @@ REDRAW:
 					safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
 				}
 			}
-			
-			SCRFIX();
 		}
 		
 		++f;

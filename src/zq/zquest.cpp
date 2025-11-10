@@ -7479,7 +7479,6 @@ void refresh(int32_t flags, bool update)
 	
 	ComboBrushPause=0;
 	
-	SCRFIX();
 	if(update)
 		custom_vsync();
 	is_refreshing = refreshing = false;
