@@ -73,7 +73,7 @@ jobs:
             compiler: msvc
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
-          - runs-on: macos-13
+          - runs-on: macos-15-intel
             arch: intel
             compiler: clang
             config: RelWithDebInfo
