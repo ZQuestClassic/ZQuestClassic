@@ -456,10 +456,14 @@ if(WIN32)
 	endif()
 endif()
 
+# Turn off warnings for all targets that aren't ours (warnings for our targets are set in Misc. section)
 if(MSVC)
-	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
 	add_compile_options(/W0)
+else()
+	add_compile_options(-Wno-error)
+endif()
 
+if(MSVC)
 	# Build in parallel - speeds up the build on multicore machines.
 	add_compile_options(/MP)
 
@@ -586,7 +590,7 @@ list(APPEND IMAGELIBS al5img)
 add_library(fmt STATIC
 	third_party/fmt/src/format.cc
 )
-target_include_directories(fmt PUBLIC third_party/fmt/include)
+target_include_directories(fmt PUBLIC SYSTEM third_party/fmt/include)
 
 set(zcbase_sources
 	src/base/about.cpp
