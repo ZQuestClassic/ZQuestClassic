@@ -2064,14 +2064,24 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	if(!Hero.BunnyClock() || itemtype == itype_pearl) // bunny_check does not apply
 		check_bunny = false;
 	if(itemtype == itype_ring) checkmagic = true;
+	
+	// Check cache (avoid holding reference across function calls that might modify the cache)
 	if (!jinx_check && !check_bunny
 		&& (use_cost_cache || itemtype != itype_ring))
 	{
-		auto& cache = checkmagic && use_cost_cache ? itemcache_cost : itemcache;
-		auto res = cache.find(itemtype);
-		
-		if(res != cache.end())
-			return res->second;
+		// Select which cache to use and look up directly, without holding a reference
+		if (checkmagic && use_cost_cache)
+		{
+			auto res = itemcache_cost.find(itemtype);
+			if(res != itemcache_cost.end())
+				return res->second;
+		}
+		else
+		{
+			auto res = itemcache.find(itemtype);
+			if(res != itemcache.end())
+				return res->second;
+		}
 	}
 	
 	int result = -1;
@@ -2104,7 +2114,8 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 		{
 			if (!checkmagic)
 				itemcache[itemtype] = result;
-			if (checkmagic || result < 0 || checkmagiccost(result))
+			// Only call checkmagiccost if result is a valid item index
+			if (checkmagic || result < 0 || (result < MAXITEMS && checkmagiccost(result)))
 				itemcache_cost[itemtype] = result;
 		}
 		else
