@@ -32755,15 +32755,6 @@ void HeroClass::heroDeathAnimation()
 					if(f==60)
 					{
 						red_shift();
-						create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
-						create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-						memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-                        
-						for(int32_t q=0; q<PAL_SIZE; q++)
-						{
-							trans_table2.data[0][q] = q;
-							trans_table2.data[q][q] = q;
-						}
 					}
                     
 					if(f>=60 && f<=169)
@@ -32772,22 +32763,11 @@ void HeroClass::heroDeathAnimation()
 						//reuse our static subscreen
 						blit(subscrbmp,framebuf,0,0,0,0,256,original_playing_field_offset);
 						red_shift();
-                        
 					}
                     
 					if(f>=139 && f<=169)//fade from red to black
 					{
 						fade_interpolate(RAMpal,black_palette,RAMpal, (f-138)<<1, 224, 255);
-						create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
-						create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-						memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-                        
-						for(int32_t q=0; q<PAL_SIZE; q++)
-						{
-							trans_table2.data[0][q] = q;
-							trans_table2.data[q][q] = q;
-						}
-                        
 						refreshpal=true;
 					}
 				}
