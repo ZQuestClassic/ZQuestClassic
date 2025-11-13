@@ -2697,6 +2697,7 @@ static constexpr script_variable variable_list[]=
 	{ "GAMELAYERZTHRESHOLDS", GAMELAYERZTHRESHOLDS, 0 },
 	{ "NPCFLAGS", NPCFLAGS, 0 },
 	{ "MESSAGEDATASEGMENTS", MESSAGEDATASEGMENTS, 0 },
+	{ "SPRITE_DRAW_Y", SPRITE_DRAW_Y, 0 },
 	{"", -1},
 };
 
@@ -4519,6 +4520,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SPRITE_Y_OFFSET:
 		case SPRITE_Z:
 		case SPRITE_Z_OFFSET:
+		case SPRITE_DRAW_Y:
 			return REFSPRITE;
 
 		case SPRITEDATACSETS:
