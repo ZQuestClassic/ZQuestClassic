@@ -2586,11 +2586,10 @@ void overtile16_scale(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset
 	if(blank_tile_table[tile])
 		return;
 	
-	BITMAP* tmp = create_bitmap_ex(8,16,16);
+	static BITMAP* tmp = create_bitmap_ex(8,16,16);
 	clear_bitmap(tmp);
 	overtile16(tmp,tile,0,0,cset,flip);
 	masked_stretch_blit(tmp,dest,0,0,16,16,x,y,dw,dh);
-	destroy_bitmap(tmp);
 }
 
 static void draw_tile16_cs2_fast(BITMAP *dest, const byte *si, int32_t x, int32_t y, int32_t cset[], int32_t flip, bool over)
