@@ -2711,6 +2711,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 {
 	#define HL_LAYER(lyr) (!(NoHighlightLayer0 && hl_layer == 0) && hl_layer > -1 && hl_layer != lyr)
 	int32_t antiflags=(flags&~cFLAGS)&~cWALK;
+	bool olddraw = get_qr(qr_CLASSIC_DRAWING_ORDER);
 	
 	if(map<0)
 		map=cursor.map;
@@ -2758,7 +2759,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		rectfill(dest,x,y,x+255,y+175,bgfill);
 	}
 	
-	if(get_qr(qr_CLASSIC_DRAWING_ORDER))
+	if(olddraw)
 	{
 		if(XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
 			_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, false, HL_LAYER(2));
@@ -2771,7 +2772,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		_zmap_drawlayer(dest, x, y, layers[3], antiflags, basescr->layeropacity[3-1]!=255, XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG), HL_LAYER(3));
 	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -3);
 	
-	if(!get_qr(qr_CLASSIC_DRAWING_ORDER))
+	if(!olddraw)
 	{
 		if(XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
 			_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, true, HL_LAYER(2));
@@ -2779,7 +2780,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	}
 	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -1);
 	
-	_zmap_drawlayer(dest, x, y, layers[0], antiflags, false, !get_qr(qr_CLASSIC_DRAWING_ORDER) || (XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG)||XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG)), HL_LAYER(0), true);
+	_zmap_drawlayer(dest, x, y, layers[0], antiflags, false, !olddraw || (XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG)||XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG)), HL_LAYER(0), true);
 	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 0);
 	
 	
@@ -2789,157 +2790,75 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	if(!XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
 		_zmap_drawlayer(dest, x, y, layers[2], antiflags, basescr->layeropacity[2-1]!=255, true, HL_LAYER(2));
 	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 2);
-	
-	int32_t doortype[4];
-	
-	for(int32_t i=0; i<4; i++)
+
+    struct DoorDrawData
 	{
-		switch(basescr->door[i])
-		{
-		case dOPEN:
-			doortype[i]=dt_pass;
-			break;
-			
-		case dLOCKED:
-			doortype[i]=dt_lock;
-			break;
-			
-		case d1WAYSHUTTER:
-		case dSHUTTER:
-			doortype[i]=dt_shut;
-			break;
-			
-		case dBOSS:
-			doortype[i]=dt_boss;
-			break;
-			
-		case dBOMB:
-			doortype[i]=dt_bomb;
-			break;
-		}
-	}
-	
-	switch(basescr->door[up])
+        int over_pos;       // Position for over_door (dBOMB)
+        int put_pos;        // Position for put_door (standard doors)
+        int walk_x;         // Pre-calculated X offset for dWALK
+        int walk_y;         // Pre-calculated Y offset for dWALK
+    };
+
+    static const DoorDrawData door_data[4] = {
+        //  over, put, walk_x, walk_y
+        {  39,    7,   120,   16 }, // up
+        { 135,  151,   120,  144 }, // down
+        {  66,   64,    16,   80 }, // left
+        {  77,   78,   224,   80 }  // right
+    };
+
+	auto door_set = DoorComboSets[screens[cursor.screen].door_combo_set];
+	bool walk_trans = get_bit(door_set.flags, df_walktrans);
+
+    int32_t doortype[4];
+    for(int32_t i=0; i<4; i++)
 	{
-	case dBOMB:
-		over_door(dest,39,up,x,y,false, screen);
-		[[fallthrough]];
-	case dOPEN:
-	case dLOCKED:
-	case d1WAYSHUTTER:
-	case dSHUTTER:
-	case dBOSS:
-		put_door(dest,7,up,doortype[up],x,y,false,screen);
-		break;
-		
-	case dWALK:
-		if(get_bit(DoorComboSets[screens[cursor.screen].door_combo_set].flags,df_walktrans))
+        switch(basescr->door[i])
 		{
-			overcombo(dest,((23&15)<<4)+8+x,(23&0xF0)+y,
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcombo[0],
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcset[0]);
-		}
-		else
-		
-		{
-			put_combo(dest,((23&15)<<4)+8+x,(23&0xF0)+y,
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcombo[0],
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcset[0],0,0);
-		}
-		
-		break;
-	}
-	
-	switch(basescr->door[down])
+            case dOPEN:         doortype[i]=dt_pass; break;
+            case dLOCKED:       doortype[i]=dt_lock; break;
+            case d1WAYSHUTTER:
+            case dSHUTTER:      doortype[i]=dt_shut; break;
+            case dBOSS:         doortype[i]=dt_boss; break;
+            case dBOMB:         doortype[i]=dt_bomb; break;
+            default:            doortype[i]=0; // Default or unhandled
+        }
+    }
+
+    for (int i = 0; i < 4; ++i)
 	{
-	case dBOMB:
-		over_door(dest,135,down,x,y,false,screen);
-		[[fallthrough]];
-	case dOPEN:
-	case dLOCKED:
-	case d1WAYSHUTTER:
-	case dSHUTTER:
-	case dBOSS:
-		put_door(dest,151,down,doortype[down],x,y,false,screen);
-		break;
-		
-	case dWALK:
-		if(get_bit(DoorComboSets[screens[cursor.screen].door_combo_set].flags,df_walktrans))
-		{
-			overcombo(dest,((151&15)<<4)+8+x,(151&0xF0)+y,
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcombo[1],
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcset[1]);
-		}
-		else
-		{
-			put_combo(dest,((151&15)<<4)+8+x,(151&0xF0)+y,
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcombo[1],
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcset[1],0,0);
-		}
-		
-		break;
-	}
-	
-	switch(basescr->door[left])
-	{
-	case dBOMB:
-		over_door(dest,66,left,x,y,false,screen);
-		[[fallthrough]];
-	case dOPEN:
-	case dLOCKED:
-	case d1WAYSHUTTER:
-	case dSHUTTER:
-	case dBOSS:
-		put_door(dest,64,left,doortype[left],x,y,false,screen);
-		break;
-		
-	case dWALK:
-		if(get_bit(DoorComboSets[screens[cursor.screen].door_combo_set].flags,df_walktrans))
-		{
-			overcombo(dest,((81&15)<<4)+x,(81&0xF0)+y,
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcombo[2],
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcset[2]);
-		}
-		else
-		{
-			put_combo(dest,((81&15)<<4)+x,(81&0xF0)+y,
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcombo[2],
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcset[2],0,0);
-		}
-		
-		break;
-	}
-	
-	switch(basescr->door[right])
-	{
-	
-	case dBOMB:
-		over_door(dest,77,right,x,y,false,screen);
-		[[fallthrough]];
-	case dOPEN:
-	case dLOCKED:
-	case d1WAYSHUTTER:
-	case dSHUTTER:
-	case dBOSS:
-		put_door(dest,78,right,doortype[right],x,y,false,screen);
-		break;
-		
-	case dWALK:
-		if(get_bit(DoorComboSets[screens[cursor.screen].door_combo_set].flags,df_walktrans))
-		{
-			overcombo(dest,((94&15)<<4)+x,(94&0xF0)+y,
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcombo[3],
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcset[3]);
-		}
-		else
-		{
-			put_combo(dest,((94&15)<<4)+x,(94&0xF0)+y,
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcombo[3],
-					  DoorComboSets[screens[cursor.screen].door_combo_set].walkthroughcset[3],0,0);
-		}
-		
-		break;
-	}
+        const auto& d = door_data[i];
+        const int current_door_type_id = basescr->door[i];
+
+        switch (current_door_type_id) {
+            case dBOMB:
+                // Draw bombable overlay, then fall through to draw the door
+                over_door(dest, d.over_pos, i, x, y, false, screen);
+                [[fallthrough]];
+            
+            case dOPEN:
+            case dLOCKED:
+            case d1WAYSHUTTER:
+            case dSHUTTER:
+            case dBOSS:
+			{
+                put_door(dest, d.put_pos, i, doortype[i], x, y, false, screen);
+                break;
+			}
+                
+            case dWALK:
+                if (walk_trans) {
+                    overcombo(dest, d.walk_x + x, d.walk_y + y,
+                              door_set.walkthroughcombo[i],
+                              door_set.walkthroughcset[i]);
+                } else {
+                    put_combo(dest, d.walk_x + x, d.walk_y + y,
+                              door_set.walkthroughcombo[i],
+                              door_set.walkthroughcset[i], 0, 0);
+                }
+                break;
+        }
+    }
 	
 	if((basescr->hasitem != 0) && !(flags&cNOITEM))
 	{
@@ -3016,6 +2935,9 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	{
 		if(LayerMaskInt[CurrentLayer]!=0)
 		{
+			int32_t _lscr=(basescr->layermap[CurrentLayer-1]-1)*MAPSCRS+basescr->layerscreen[CurrentLayer-1];
+			auto* scr = _lscr>-1 && _lscr<map_count*MAPSCRS ? &TheMaps[_lscr] : nullptr;
+
 			for(int32_t i=0; i<176; i++)
 			{
 				if(CurrentLayer==0)
@@ -3030,14 +2952,12 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					}
 					else if(basescr->layermap[CurrentLayer-1] > 0)
 					{
-						int32_t _lscr=(basescr->layermap[CurrentLayer-1]-1)*MAPSCRS+basescr->layerscreen[CurrentLayer-1];
-						
-						if(_lscr>-1 && _lscr<map_count*MAPSCRS)
+						if(scr)
 						{
 							put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,
-									  TheMaps[_lscr].data[i],
-									  TheMaps[_lscr].cset[i], flags,
-									  TheMaps[_lscr].sflag[i]);
+									  scr->data[i],
+									  scr->cset[i], flags,
+									  scr->sflag[i]);
 						}
 					}
 				}
@@ -3050,16 +2970,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	if(dark && !(flags&cNODARK)
 		&& !((Flags&cNEWDARK) && get_qr(qr_NEW_DARKROOM)))
 	{
-		for(int32_t j=0; j<80; j++)
-		{
-			for(int32_t i=0; i<(80)-j; i++)
-			{
-				if(((i^j)&1)==0)
-				{
-					putpixel(dest,x+i,y+j,vc(blackout_color));
-				}
-			}
-		}
+        int col = vc(blackout_color);
+        for(int32_t j=0; j<80; j++) {
+            // Logic: ((i^j)&1)==0 means parity matches
+            int start = (j&1); 
+            for(int32_t i=start; i<(80)-j; i+=2) {
+                putpixel(dest,x+i,y+j,col);
+            }
+        }
 	}
 	
 	if(ShowMisalignments)
