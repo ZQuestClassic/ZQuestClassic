@@ -91,7 +91,7 @@ class bitmap {
 	//   BMPSPLINER
 	//   POPARGS D5 0.0012
 	internal void Spline(int layer, int x1, int y1, int x2, int y2, int x3,
-						 int y3, int x4, int y4, int color, int opacity = 1);
+						 int y3, int x4, int y4, int color, int opacity = OP_OPAQUE);
 
 	// Identical to [Screen->PutPixel], but it draws to a target bitmap.
 	//
