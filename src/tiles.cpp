@@ -2522,15 +2522,15 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 		cb = dest->cb;
 	}
 
-	if (x + 16 < cl)
+	if (x + 16 <= cl)
 		return;
-	if (x > cr)
+	if (x >= cr)
 		return;
-	if (y + 16 < ct)
+	if (y + 16 <= ct)
 		return;
-	if (y > cb)
+	if (y >= cb)
 		return;
-		
+
 	if(tile<0 || tile>=NEWMAXTILES)
 	{
 		rectfill(dest,x,y,x+15,y+15,0);
@@ -2548,50 +2548,10 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 	cset &= 15;
 	cset <<= CSET_SHFT;
 	const byte *si = get_tile_bytes(tile, flip&5);
-	byte *di;
 
-	// 0: fast, no bounds checking
-	// 1: slow, bounds checking
-	int draw_mode = x < cl || y < ct || x >= cr-16 || y >= cb-16 ? 1 : 0;
-	if (draw_mode == 1)
-	{
-		draw_tile16_unified(dest, cl, ct, cr, cb, si, x, y, cset, flip, true);
-		return;
-	}
-
-	if((flip&2)==0)
-	{
-		for(int32_t dy=0; dy<16; ++dy)
-		{
-			di = &(dest->line[y+dy][x]);
-
-			for(int32_t dx=0; dx<16; ++dx)
-			{
-				if(*si)
-					*di=*si+cset;
-					
-				++di;
-				++si;
-			}
-		}
-	}
-	else
-	{
-		for(int32_t dy=15; dy>=0; --dy)
-		{
-			di = &(dest->line[y+dy][x]);
-			
-			for(int32_t dx=0; dx<16; ++dx)
-			{
-				if(*si)
-					*di=*si+cset;
-					
-				++di;
-				++si;
-			}
-		}
-	}
+	draw_tile16_unified(dest, cl, ct, cr, cb, si, x, y, cset, flip, true);
 }
+
 void overtile16_scale(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int dw, int dh)
 {
 	if(x<-dw || y<-dh)
