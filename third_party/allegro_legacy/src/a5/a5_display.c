@@ -604,7 +604,14 @@ static void render_8_8888(BITMAP * bp, ALLEGRO_BITMAP * a5bp)
     ALLEGRO_LOCKED_REGION * lr;
     uint8_t * line_8;
     uint32_t * line_32;
-    int i, j;
+    int i, j, tmp_index;
+
+    // local edit
+    if (transparent_palette_index != -1)
+    {
+      tmp_index = _a5_screen_palette_a5[transparent_palette_index];
+      _a5_screen_palette_a5[transparent_palette_index] = 0;
+    }
 
     lr = al_lock_bitmap(a5bp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
     if(lr)
@@ -616,20 +623,16 @@ static void render_8_8888(BITMAP * bp, ALLEGRO_BITMAP * a5bp)
             for(j = 0; j < bp->w; j++)
             {
                 int index = bp->line[i][j];
-                if (index == transparent_palette_index)
-                {
-                  line_32[j] = 0;
-                }
-                else
-                {
-                  line_32[j] = _a5_screen_palette_a5[index];
-                }
+                line_32[j] = _a5_screen_palette_a5[index];
             }
             line_8 += lr->pitch;
             line_32 = (uint32_t *)line_8;
         }
         al_unlock_bitmap(a5bp);
     }
+
+    if (transparent_palette_index != -1)
+      _a5_screen_palette_a5[transparent_palette_index] = tmp_index;
 }
 
 static void render_other_8(BITMAP * bp)
