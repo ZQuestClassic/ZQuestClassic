@@ -828,6 +828,63 @@ byte rotate_walk(byte v)
 }
 
 
+static void draw_tile16_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
+{
+	int start_x = 0;
+	int end_x = 16;
+
+	// Clip x.
+	if (x < cl) start_x = cl - x;
+	if (x + 16 > cr) end_x = cr - x;
+	int visible_width = end_x - start_x;
+	if (visible_width <= 0) return;
+
+	// Instead of complex source-Y clipping, we find the
+	// visible destination Y range.
+	int clip_top    = std::max(ct, 0);
+	int clip_bottom = std::min(cb, dest->h);
+	int visible_y_start = std::max(clip_top, y);
+	int visible_y_end   = std::min(clip_bottom, y + 16);
+	if (visible_y_start >= visible_y_end) return;
+
+	bool v_flip = (flip & 2);
+
+	// Loop from the first visible destination line to the last
+	for (int dest_y = visible_y_start; dest_y < visible_y_end; ++dest_y)
+	{
+		// Now, calculate the correct source row (dy) for this dest_y
+		int dy;
+		if (v_flip)
+			dy = (y + 15) - dest_y; // Flipped mapping
+		else
+			dy = dest_y - y;        // Normal mapping
+
+		// Set up pointers for this row
+		const byte* __restrict src_ptr = si + (dy * 16) + start_x;
+
+		// This access is now safe because:
+		// dest_y >= visible_y_start >= clip_top >= 0
+		// dest_y <  visible_y_end   <= clip_bottom <= dest->h
+		uint8_t* __restrict d_ptr = dest->line[dest_y] + x + start_x;
+
+		if (transparency)
+		{
+			for (int i = 0; i < visible_width; ++i)
+			{
+				uint8_t pixel = *src_ptr++;
+				if (pixel)
+					*d_ptr = pixel + cset;
+				d_ptr++;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < visible_width; ++i)
+				*d_ptr++ = (*src_ptr++) + cset;
+		}
+	}
+}
+
 void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -1839,23 +1896,6 @@ static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, con
 //         si += 8 + skipx_after;
 //     }
 // }
-
-static void draw_tile16_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
-{
-    for (int32_t dy = 0; dy < 16; ++dy)
-    {
-        for (int32_t dx = 0; dx < 16; ++dx)
-        {
-            int destx = x + dx;
-            int desty = y + (flip&2 ? 15 - dy : dy);
-            if (destx >= cl && desty >= ct && destx < cr && desty < cb)
-            {
-                if (!transparency || *si) dest->line[desty][destx] = *si + cset;
-            }
-            si++;
-        }
-    }
-}
 
 void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
