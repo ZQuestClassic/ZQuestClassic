@@ -857,56 +857,62 @@ static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, con
         si += 8;
     }
 }
-// TODO: tried to maybe make this faster, but it isn't quite right.
-// static void draw_tile8_unified(BITMAP* dest, byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
-// {
-//     bool fh = flip&1;
-//     bool fv = flip&2;
-//     int dx = fh ? -1 : 1;
-//     int dy = fv ? -1 : 1;
-//     int x0 = x + (fh ? 7 : 0);
-//     int y0 = y + (fv ? 7 : 0);
-//     int x1 = x0 + dx * 8;
-//     int y1 = y0 + dy * 8;
 
-//     int x_s = std::clamp(x0, 0, dest->w - 1);
-//     int y_s = std::clamp(y0, 0, dest->h - 1);
-//     int x_e = std::clamp(x1, -1, dest->w);
-//     int y_e = std::clamp(y1, -1, dest->h);
-
-//     int skipx_before = std::abs(std::clamp(x0, 0, dest->w) - x0);
-//     int skipx_after = std::abs(x_e - x1);
-//     int skipy_before = std::abs(std::clamp(y0, 0, dest->h) - y0);
-
-//     si += skipy_before * 16;
-
-//     for (int32_t y2 = y_s; y2 != y_e; y2 += dy)
-//     {
-//         si += skipx_before;
-//         for (int32_t x2 = x_s; x2 != x_e; x2 += dx)
-//         {
-//             if (!transparency || *si) dest->line[y2][x2] = *si + cset;
-//             si++;
-//         }
-//         si += 8 + skipx_after;
-//     }
-// }
-
-static void draw_tile16_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
+static void draw_tile16_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
 {
-    for (int32_t dy = 0; dy < 16; ++dy)
-    {
-        for (int32_t dx = 0; dx < 16; ++dx)
-        {
-            int destx = x + dx;
-            int desty = y + (flip&2 ? 15 - dy : dy);
-            if (destx >= cl && desty >= ct && destx < cr && desty < cb)
-            {
-                if (!transparency || *si) dest->line[desty][destx] = *si + cset;
-            }
-            si++;
-        }
-    }
+	int start_x = 0;
+	int end_x = 16;
+
+	// Clip x.
+	if (x < cl) start_x = cl - x;
+	if (x + 16 > cr) end_x = cr - x;
+	int visible_width = end_x - start_x;
+	if (visible_width <= 0) return;
+
+	// Instead of complex source-Y clipping, we find the
+	// visible destination Y range.
+	int clip_top    = std::max(ct, 0);
+	int clip_bottom = std::min(cb, dest->h);
+	int visible_y_start = std::max(clip_top, y);
+	int visible_y_end   = std::min(clip_bottom, y + 16);
+	if (visible_y_start >= visible_y_end) return;
+
+	bool v_flip = (flip & 2);
+
+	// Loop from the first visible destination line to the last
+	for (int dest_y = visible_y_start; dest_y < visible_y_end; ++dest_y)
+	{
+		// Now, calculate the correct source row (dy) for this dest_y
+		int dy;
+		if (v_flip)
+			dy = (y + 15) - dest_y; // Flipped mapping
+		else
+			dy = dest_y - y;        // Normal mapping
+
+		// Set up pointers for this row
+		const byte* __restrict src_ptr = si + (dy * 16) + start_x;
+
+		// This access is now safe because:
+		// dest_y >= visible_y_start >= clip_top >= 0
+		// dest_y <  visible_y_end   <= clip_bottom <= dest->h
+		uint8_t* __restrict d_ptr = dest->line[dest_y] + x + start_x;
+
+		if (transparency)
+		{
+			for (int i = 0; i < visible_width; ++i)
+			{
+				uint8_t pixel = *src_ptr++;
+				if (pixel)
+					*d_ptr = pixel + cset;
+				d_ptr++;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < visible_width; ++i)
+				*d_ptr++ = (*src_ptr++) + cset;
+		}
+	}
 }
 
 static void draw_tile16_unified_translucent(BITMAP* dest, int cl, int ct, int cr, int cb, const byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
