@@ -44,17 +44,17 @@ POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
-LOAD D2 0.0001; if() #421 Test
+LOAD D2 0.0001; if() #432 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 30 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #421 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #432 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #421 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #432 Body End
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
 SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
@@ -125,27 +125,27 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 247 ==; Test 'while'
-LOAD D2 0.0002; if() #422 Test AND while() #3 Body Start
+LOAD D2 0.0002; if() #433 Test AND while() #3 Body Start
 MODV D2 60
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 108 ==; Test 'if'
-SETV D2 59; InlineFunc[void Audio::PlaySound(int)] Params AND if() #422 Body Start
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #422 Body End
-LOAD D2 0.0004; if() #97 Test
+SETV D2 59; InlineFunc[void Audio::PlaySound(int)] Params AND if() #433 Body Start
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #433 Body End
+LOAD D2 0.0004; if() #111 Test
 PUSHR D2
 POP REFLWPN
 SETR D2 LWPNVX
 COMPAREV D2 0
 GOTOCMP 159 ==; Test 'if'
-SETV D2 0; if() #423 Test AND if() #97 Body Start
+SETV D2 0; if() #434 Test AND if() #111 Body Start
 PUSHR D2
 POP D0
 SETR D2 BUTTONINPUT
 COMPAREV D2 0
 GOTOCMP 136 ==; Test 'if'
-LOAD D2 0.0004; if() #423 Body Start
+LOAD D2 0.0004; if() #434 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
@@ -160,14 +160,14 @@ POP REFSPRITE
 SETR SPRITE_Y D2
 LOAD D2 0.0003
 SUBV D2 1
-STORE D2 0.0003; if() #423 Body End
-SETV D2 1; if() #424 Test
+STORE D2 0.0003; if() #434 Body End
+SETV D2 1; if() #435 Test
 PUSHR D2
 POP D0
 SETR D2 BUTTONINPUT
 COMPAREV D2 0
 GOTOCMP 203 ==; Test 'if'
-LOAD D2 0.0004; if() #424 Body Start
+LOAD D2 0.0004; if() #435 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
@@ -182,15 +182,15 @@ POP REFSPRITE
 SETR SPRITE_Y D2
 LOAD D2 0.0003
 ADDV D2 1
-STORE D2 0.0003; if() #424 Body End
-GOTO 203; if() #97 Body End
-SETV D2 2; if() #425 Test AND if() #97 Else Start
+STORE D2 0.0003; if() #435 Body End
+GOTO 203; if() #111 Body End
+SETV D2 2; if() #436 Test AND if() #111 Else Start
 PUSHR D2
 POP D0
 SETR D2 BUTTONINPUT
 COMPAREV D2 0
 GOTOCMP 181 ==; Test 'if'
-LOAD D2 0.0004; if() #425 Body Start
+LOAD D2 0.0004; if() #436 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -205,14 +205,14 @@ POP REFSPRITE
 SETR SPRITE_X D2
 LOAD D2 0.0003
 ADDV D2 1
-STORE D2 0.0003; if() #425 Body End
-SETV D2 3; if() #426 Test
+STORE D2 0.0003; if() #436 Body End
+SETV D2 3; if() #437 Test
 PUSHR D2
 POP D0
 SETR D2 BUTTONINPUT
 COMPAREV D2 0
 GOTOCMP 203 ==; Test 'if'
-LOAD D2 0.0004; if() #426 Body Start
+LOAD D2 0.0004; if() #437 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -227,16 +227,16 @@ POP REFSPRITE
 SETR SPRITE_X D2
 LOAD D2 0.0003
 SUBV D2 1
-STORE D2 0.0003; if() #426 Body End
-SETV D2 4; if() #97 Else End AND if() #427 Test
+STORE D2 0.0003; if() #437 Body End
+SETV D2 4; if() #111 Else End AND if() #438 Test
 PUSHR D2
 POP D0
 SETR D2 BUTTONINPUT
 COMPAREV D2 0
 GOTOCMP 212 ==; Test 'if'
-SETV D2 1; if() #427 Body Start
+SETV D2 1; if() #438 Body Start
 STORE D2 0.0001
-GOTO 247; break 1; AND if() #427 Body End
+GOTO 247; break 1; AND if() #438 Body End
 LOAD D2 0.0003
 PUSHR D2
 LOAD D2 0.0002; InlineFunc[int Cos(int)] Params Start
@@ -272,10 +272,10 @@ POP REFSPRITE
 SETR SPRITE_ROTATION D2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
 GOTO 92; while() #3 End
-LOAD D2 0.0001; if() #428 Test
+LOAD D2 0.0001; if() #439 Test
 COMPAREV D2 0
 GOTOCMP 309 ==; Test 'if'
-SETV D2 4; InlineFunc[lweapon screendata::CreateLWeapon(int)] Params AND if() #428 Body Start
+SETV D2 4; InlineFunc[lweapon screendata::CreateLWeapon(int)] Params AND if() #439 Body Start
 CREATELWEAPONR D2; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body Start
 SETR D2 REFLWPN; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body End
 STORE D2 0
@@ -333,7 +333,7 @@ POP D2
 POP REFLWPN
 SETR LWPNVY D2
 SETV D2 30; InlineFunc[void Waitframes(int)] Params
-WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body AND if() #428 Body End
+WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body AND if() #439 Body End
 SETV D2 0
 PUSHR D2
 SETV D2 0
@@ -499,24 +499,24 @@ LOAD D2 0.0001
 POP D3
 ADDR D2 D3
 STORE D2 0.0002
-LOAD D2 0.0002; if() #98 Test
+LOAD D2 0.0002; if() #112 Test
 COMPAREV D2 -360
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 483 ==; Test 'if'
-LOAD D2 0.0002; if() #98 Body Start
+LOAD D2 0.0002; if() #112 Body Start
 ADDV D2 360
 STORE D2 0.0002
-GOTO 491; if() #98 Body End
-LOAD D2 0.0002; if() #429 Test AND if() #98 Else Start
+GOTO 491; if() #112 Body End
+LOAD D2 0.0002; if() #440 Test AND if() #112 Else Start
 COMPAREV D2 360
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 491 ==; Test 'if'
-LOAD D2 0.0002; if() #429 Body Start
+LOAD D2 0.0002; if() #440 Body Start
 SUBV D2 360
-STORE D2 0.0002; if() #429 Body End
-WAITFRAME; if() #98 Else End AND InlineFunc[void Waitframe()] Body AND for() #156 Body End
+STORE D2 0.0002; if() #440 Body End
+WAITFRAME; if() #112 Else End AND InlineFunc[void Waitframe()] Body AND for() #156 Body End
 LOAD D2 0; for() #156 LoopIncrement
 ADDV D2 1
 STORE D2 0
@@ -714,16 +714,16 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D2 0; if() #420 Test
+LOAD D2 0; if() #431 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 699 ==; Test 'if'
-PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #420 Body Start
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #431 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #420 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #431 Body End
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
 PUSHARGSV 0 0.0004; Func[void loadRegion(int, int)] Body Start

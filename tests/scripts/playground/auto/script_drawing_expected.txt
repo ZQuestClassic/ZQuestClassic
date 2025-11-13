@@ -44,17 +44,17 @@ POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
-LOAD D2 0.0001; if() #364 Test
+LOAD D2 0.0001; if() #375 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 30 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #364 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #375 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #364 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #375 Body End
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
 SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
@@ -269,16 +269,16 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D2 0; if() #363 Test
+LOAD D2 0; if() #374 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 254 ==; Test 'if'
-PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #363 Body Start
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #374 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #363 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #374 Body End
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
 PUSHARGSV 0 0.0004; Func[void loadRegion(int, int)] Body Start
@@ -384,12 +384,12 @@ PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
 CALLFUNC 0.0172; UsrFunc[int Angle(int, int, int, int)] Call
 POP D4
 STORE D2 0.0002
-LOAD D2 0.0004; if() #422 Test
+LOAD D2 0.0004; if() #433 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 416 ==; Test 'if'
-LOAD D2 0.0012; if() #422 Body Start
+LOAD D2 0.0012; if() #433 Body Start
 PUSHR D2
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[int VectorX(int, int)] Params Start
@@ -440,7 +440,7 @@ CALLFUNC 0.0218; UsrFunc[int VectorY(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
-STORE D2 0.0009; if() #422 Body End
+STORE D2 0.0009; if() #433 Body End
 ALLOCATEMEMV D2 12 0
 PUSHR D2
 WRITEPODARRAY D2 {0,0,0,0,0,0,0,0,0,0,0,0}
@@ -671,10 +671,10 @@ LOAD D2 0.0001
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 11 D2
-LOAD D2 0.0003; if() #97 Test
+LOAD D2 0.0003; if() #111 Test
 COMPAREV D2 0
 GOTOCMP 663 ==; Test 'if'
-LOAD D2 0.0003; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Params Start AND if() #97 Body Start
+LOAD D2 0.0003; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Params Start AND if() #111 Body Start
 PUSHR D2
 LOAD D2 0.0013
 PUSHR D2
@@ -687,8 +687,8 @@ LOAD D2 0.0005
 PUSHR D2; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Params End
 BMPPOLYGONR; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void bitmap::Polygon(int, int, int[], int, int)] Body End
-GOTO 674; if() #97 Body End
-LOAD D2 0.0013; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params Start AND if() #97 Else Start
+GOTO 674; if() #111 Body End
+LOAD D2 0.0013; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params Start AND if() #111 Else Start
 PUSHR D2
 PUSHV 6
 LOAD D2 0.0001
@@ -698,7 +698,7 @@ PUSHR D2
 LOAD D2 0.0005
 PUSHR D2; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params End
 POLYGONR; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body Start
-POPARGS D5 0.0005; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body End AND if() #97 Else End
+POPARGS D5 0.0005; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body End AND if() #111 Else End
 REF_REMOVE 0.0001
 REF_REMOVE 0.0003
 POPARGS D5 0.0014
