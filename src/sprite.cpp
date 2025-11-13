@@ -356,6 +356,16 @@ zfix sprite::total_z() const
 	return z+fakez;
 }
 
+zfix sprite::draw_y() const
+{
+	zfix drawy = y + yofs - (z + zofs + fakez);
+#ifdef IS_PLAYER
+	if (switch_hooked && Hero.switchhookstyle == swRISE)
+		drawy -= (8-(abs(Hero.switchhookclk-32)/4));
+#endif
+	return drawy;
+}
+
 zfix sprite::center_y() const
 {
 	return y + yofs + (tysz * 8);

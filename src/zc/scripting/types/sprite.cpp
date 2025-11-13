@@ -111,6 +111,12 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 				return s->zofs * 10000;
 			return 0;
 		}
+		case SPRITE_DRAW_Y:
+		{
+			if (auto s = get_sprite(GET_REF(spriteref)))
+				return (s->draw_y() - (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset)).getZLong();
+			return 0;
+		}
 		case SPRITE_ROTATION:
 		{
 			if (get_qr(qr_OLDSPRITEDRAWS))

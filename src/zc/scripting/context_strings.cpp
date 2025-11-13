@@ -1099,6 +1099,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SPRITE_DIR: return "sprite::Dir";
 		case SPRITE_DRAW_STYLE: return "sprite::DrawStyle";
 		case SPRITE_X_OFFSET: return "sprite::DrawXOffset";
+		case SPRITE_DRAW_Y: return "sprite::DrawY()";
 		case SPRITE_Y_OFFSET: return "sprite::DrawYOffset";
 		case SPRITE_Z_OFFSET: return "sprite::DrawZOffset";
 		case SPRITE_DROWN_CMB: return "sprite::DrownCombo";
@@ -1995,6 +1996,7 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case SAVEDPORTALREMOVE: return "savedportal::Remove()";
 		case SPRINTFVARG: return "sprintf()";
 		case SPRINTFA: return "sprintfa()";
+		case ADDR: return "sprite::DrawX()";
 		case OBJ_OWN_BITMAP: return "sprite::Own()";
 		case OBJ_OWN_PALDATA: return "sprite::Own()";
 		case OBJ_OWN_FILE: return "sprite::Own()";

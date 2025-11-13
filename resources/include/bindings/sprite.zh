@@ -101,6 +101,21 @@ class sprite {
 	//
 	// @zasm_var SPRITE_Z_OFFSET
 	internal int DrawZOffset;
+	
+	// The current X position plus draw offset
+	//
+	// @zasm
+	//   POP REFSPRITE
+	//   SETR D2 SPRITE_X
+	//   ADDR D2 SPRITE_X_OFFSET
+	internal int DrawX();
+	
+	// The current Y position plus draw offset (including the draw offset caused by Z/DrawZOffset/FakeZ/etc)
+	//
+	// @zasm
+	//   POP REFSPRITE
+	//   SETR D2 SPRITE_DRAW_Y
+	internal int DrawY();
 
 	// Rotation of the sprite draw, in degrees.
 	//
@@ -277,6 +292,22 @@ class sprite {
 	//
 	// @zasm_var SPRITE_HIT_OFFSET_Y
 	internal int HitYOffset;
+	
+	// The current X position plus hit offset
+	//
+	// @zasm
+	//   POP REFSPRITE
+	//   SETR D2 SPRITE_X
+	//   ADDR D2 SPRITE_HIT_OFFSET_X
+	internal int HitX();
+	
+	// The current Y position plus hit offset
+	//
+	// @zasm
+	//   POP REFSPRITE
+	//   SETR D2 SPRITE_Y
+	//   ADDR D2 SPRITE_HIT_OFFSET_Y
+	internal int HitY();
 
 	// The timer indicating how many more frames the sprite will fall. If 0, the
 	// sprite is not falling. Max value of 70, which is the value at the start
