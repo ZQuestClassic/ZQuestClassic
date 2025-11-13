@@ -1199,6 +1199,19 @@ int GetLayerComboT(int layer, int pos)
 	return Game->LoadTempScreen(layer)->ComboT[pos];
 }
 
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboE(int layer, int pos)
+{
+	if (layer < 0 || layer > 6)
+	{
+		printf("Invalid layer %d passed to GetLayerComboE \n",layer);
+		return -1;
+	}
+
+	return Game->LoadTempScreen(layer)->ComboE[pos];
+}
+
 // Returns true if Link has the level item 'itm' from level 'level'
 // Overloaded to use the current level if no 'level' arg is entered
 //
@@ -3128,3 +3141,92 @@ bool GetNPCMiscFlag(npc e, int flag)
 	#option WARN_DEPRECATED off
 	return (e->MiscFlags&flag);
 }
+
+// Returns the total amount the player has in a counter after its respective Drain Counter is taken into account.
+int DrainedCounter(int counter)
+{
+	return Clamp(Game->Counter[counter] + Game->DCounter[counter], 0, Game->MCounter[counter]);
+}
+
+//Takes player inputs and converts them to a direction
+int InputToDir(bool diagonal = true)
+{
+	if(Input->Button[CB_UP]) //Up directions
+	{
+		if((Input->Button[CB_LEFT]) && diagonal) //Up Left
+			return DIR_UPLEFT;
+		else if((Input->Button[CB_RIGHT]) && diagonal) //Up Right
+			return DIR_UPRIGHT;
+		else //Up
+			return DIR_UP;
+	}
+	else if(Input->Button[CB_DOWN]) //Down directions
+	{
+		if((Input->Button[CB_LEFT]) && diagonal) // Down Left
+			return DIR_DOWNLEFT;
+		else if((Input->Button[CB_RIGHT]) && diagonal) //Down Right
+			return DIR_DOWNRIGHT;
+		else //Down
+			return DIR_DOWN;
+	}
+	else if(Input->Button[CB_LEFT]) //Left
+		return DIR_LEFT;
+	else if(Input->Button[CB_RIGHT]) //Right
+		return DIR_RIGHT;
+	return -1; //No inputs
+}
+
+//Takes a direction and inputs it for the player.
+void DirToInput(int dir, bool val = true)
+{
+	if(dir == DIR_UP || dir == DIR_UPLEFT || dir == DIR_UPRIGHT)
+		Input->Button[CB_UP] = val;
+	if(dir == DIR_DOWN || dir == DIR_DOWNLEFT || dir == DIR_DOWNRIGHT)
+		Input->Button[CB_DOWN] = val;
+	if(dir == DIR_LEFT || dir == DIR_UPLEFT || dir == DIR_DOWNLEFT)
+		Input->Button[CB_LEFT] = val;
+	if(dir == DIR_RIGHT || dir == DIR_UPRIGHT || dir == DIR_DOWNRIGHT)
+		Input->Button[CB_RIGHT] = val;
+}
+
+//Takes player inputs and converts them to a direction
+int PressToDir(bool diagonal = true)
+{
+	if(Input->Press[CB_UP]) //Up directions
+	{
+		if((Input->Press[CB_LEFT]) && diagonal) //Up Left
+			return DIR_UPLEFT;
+		else if((Input->Press[CB_RIGHT]) && diagonal) //Up Right
+			return DIR_UPRIGHT;
+		else //Up
+			return DIR_UP;
+	}
+	else if(Input->Press[CB_DOWN]) //Down directions
+	{
+		if((Input->Press[CB_LEFT]) && diagonal) // Down Left
+			return DIR_DOWNLEFT;
+		else if((Input->Press[CB_RIGHT]) && diagonal) //Down Right
+			return DIR_DOWNRIGHT;
+		else //Down
+			return DIR_DOWN;
+	}
+	else if(Input->Press[CB_LEFT]) //Left
+		return DIR_LEFT;
+	else if(Input->Press[CB_RIGHT]) //Right
+		return DIR_RIGHT;
+	return -1; //No inputs
+}
+
+//Takes a direction and inputs it for the player.
+void DirToPress(int dir, bool val = true)
+{
+	if(dir == DIR_UP || dir == DIR_UPLEFT || dir == DIR_UPRIGHT)
+		Input->Press[CB_UP] = val;
+	if(dir == DIR_DOWN || dir == DIR_DOWNLEFT || dir == DIR_DOWNRIGHT)
+		Input->Press[CB_DOWN] = val;
+	if(dir == DIR_LEFT || dir == DIR_UPLEFT || dir == DIR_DOWNLEFT)
+		Input->Press[CB_LEFT] = val;
+	if(dir == DIR_RIGHT || dir == DIR_UPRIGHT || dir == DIR_DOWNRIGHT)
+		Input->Press[CB_RIGHT] = val;
+}
+
