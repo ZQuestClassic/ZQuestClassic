@@ -2230,7 +2230,7 @@ namespace ZScript
 		bool isConstant() const /*override*/ {return true;}
 		bool isLiteral() const {return true;}
 
-		DataTypeArray const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
+		DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
 		
 		// The data declaration that this literal may be part of. If NULL that
 		// means this is not part of a data declaration. This should be managed by
