@@ -30063,9 +30063,9 @@ void FFScript::do_strcat()
 	//char str_c[2048];
 	//strcpy(str_c, strA.c_str());
 	string strC = strA + strB;
-	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr_a, strC, true) == SH::_Overflow)
 	{
-		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
+		scripting_log_error_with_context("Dest string parameter is too small and couldn't be resized! Size is: {}", strA.size());
 		set_register(sarg1, 0);
 	}
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
@@ -30229,8 +30229,8 @@ void FFScript::do_strcpy(const bool a, const bool b)
 
 	ArrayH::getString(arrayptr_a, strA);
 
-	if(ArrayH::setArray(arrayptr_b, strA) == SH::_Overflow)
-		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
+	if(ArrayH::setArray(arrayptr_b, strA, true) == SH::_Overflow)
+		scripting_log_error_with_context("Dest string parameter is too small and couldn't be resized! Size is: {}", strA.size());
 }
 void FFScript::do_arraycpy(const bool a, const bool b)
 {
