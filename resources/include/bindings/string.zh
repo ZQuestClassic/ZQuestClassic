@@ -19,7 +19,7 @@ class string {
 	//   REF_AUTORELEASE D2
 	internal string(string str);
 	
-	// Returns a new string of 'other' concatenated after this string.
+	// Returns a new string of 'b' concatenated to the end of 'a'
 	// 
 	// @zasm
 	//   POP D1
@@ -30,6 +30,21 @@ class string {
 	//   SETR D2 D0
 	//   REF_AUTORELEASE D2
 	static internal operator string plus(string a, string b);
+	
+	// Returns a new string of 'str' repeated 'count' times
+	// 
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   STRMULTR D2 D3
+	static internal operator string times(string str, int count);
+	// Returns a new string of 'str' repeated 'count' times
+	// 
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   STRMULTR D2 D3
+	static internal operator string times(int count, string str);
 	
 	// Appends the contents of 'other' at the end of this string.
 	//

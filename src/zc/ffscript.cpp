@@ -24972,6 +24972,21 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case ITOA: FFCore.do_itoa(); break;
 			case ITOACAT: FFCore.do_itoacat(); break;
 			case STRCAT: FFCore.do_strcat(); break;
+			case STRMULTR:
+			{
+				int32_t arrayptr = get_register(sarg1);
+				string str;
+				ArrayH::getString(arrayptr, str);
+				std::ostringstream oss;
+				for (int q = get_register(sarg2) / 10000; q > 0; --q)
+					oss << str;
+				if(ArrayH::setArray(arrayptr, oss.str(), true) == SH::_Overflow)
+				{
+					scripting_log_error_with_context("Dest string parameter is too small and couldn't be resized! Size is: {}", str.size());
+					set_register(sarg1, 0);
+				}
+				break;
+			}
 			case STRSPN: FFCore.do_strspn(); break;
 			case STRCHR: FFCore.do_strchr(); break;
 			case STRRCHR: FFCore.do_strrchr(); break;
