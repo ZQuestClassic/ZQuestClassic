@@ -526,6 +526,8 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 			ASTFuncDecl* func = *it;
 			func->returnType.reset(new ASTDataType(newBaseType, func->location));
 		}
+		if (host.getName() == "string")
+			DataType::STRING = newBaseType;
 	}
 
 	// Recurse on user_class elements with its scope.

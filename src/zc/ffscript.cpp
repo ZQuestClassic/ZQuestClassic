@@ -17842,9 +17842,9 @@ void do_internal_stricmp()
 	ri->cmp_strcache = stricmp(strA.c_str(), strB.c_str());
 }
 
-void do_resize_array()
+void do_resize_array(const bool v)
 {
-	int32_t size = vbound(get_register(sarg2) / 10000, 0, 214748);
+	int32_t size = vbound(SH::get_arg(sarg2, v) / 10000, 0, 214748);
 	dword ptrval = get_register(sarg1);
 	ArrayManager am(ptrval);
 	am.resize(size);
@@ -24719,7 +24719,10 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				break;
 			
 			case RESIZEARRAYR:
-				do_resize_array();
+				do_resize_array(false);
+				break;
+			case RESIZEARRAYV:
+				do_resize_array(true);
 				break;
 			case OWNARRAYR:
 				do_own_array(get_register(sarg1), type, i);

@@ -255,7 +255,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 }
 unique_ptr<ScriptsData> ZScript::compile(string const& filename, bool metadata_visitor, bool doc_visitor)
 {
-	DataType::STRING = DataTypeArray::create(DataType::CHAR);
+	DataType::CHAR_ARRAY = DataTypeArray::create(DataType::CHAR);
 
 	auto ret = _compile_helper(filename, metadata_visitor, doc_visitor);
 

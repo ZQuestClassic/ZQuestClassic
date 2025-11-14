@@ -181,7 +181,18 @@ internal void Trace(bool val);
 //   POP D2
 //   TRACE6 D2
 //   TRACE3
-internal void Trace(char32[] string);
+internal void Trace(char32[] str);
+
+// Prints the passed string to the output console. Includes a newline character
+// after the string.
+//
+// To print a string without an extra newline, use [TraceS].
+//
+// @zasm
+//   POP D2
+//   TRACE6 D2
+//   TRACE3
+internal void Trace(string str);
 
 // Prints the passed string to the output console. Does not include a newline
 // character after the string.
@@ -191,7 +202,7 @@ internal void Trace(char32[] string);
 // @zasm
 //   POP D3
 //   TRACE6 D3
-internal void TraceS(char32[] string);
+internal void TraceS(char32[] str);
 
 // Prints a newline character to the output console.
 //
@@ -610,28 +621,28 @@ internal long atol(char32[] str);
 // @zasm
 //   POP D3
 //   ILEN D2 D3
-internal int ilen(char32[] string);
+internal int ilen(char32[] str);
 
 // Lowercases the string (modifies).
 //
 // @zasm
 //   POP D3
 //   UPPERTOLOWER D2 D3
-internal void utol(char32[] string);
+internal void utol(char32[] str);
 
 // Uppercases the string (modifies).
 //
 // @zasm
 //   POP D3
 //   LOWERTOUPPER D2 D3
-internal void ltou(char32[] string);
+internal void ltou(char32[] str);
 
 // Swaps casing (a->A, A->a) for the string passed (modifies).
 //
 // @zasm
 //   POP D3
 //   CONVERTCASE D2 D3
-internal void convcase(char32[] string);
+internal void convcase(char32[] str);
 
 // Converts the value [val] to a string, and writes to [dest].
 //

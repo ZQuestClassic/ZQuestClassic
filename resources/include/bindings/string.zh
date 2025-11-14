@@ -1,0 +1,53 @@
+// @zasm_ref D0
+class string {
+	// @zasm
+	//   ALLOCATEMEMV D2 1 0
+	//   REF_AUTORELEASE D2
+	internal string();
+	
+	// @zasm
+	//   POP D0
+	//   ARRAYSIZE D0
+	//   ALLOCATEMEMR D2 D2 0
+	//   STRINGCOPY D2 D0
+	//   REF_AUTORELEASE D2
+	internal string(char32[] arr);
+
+	// The number of characters in the string (not including null-terminator)
+	//
+	// @zasm_read
+	//   POP D0
+	//   STRINGLENGTH d2 D0
+	internal const int Length;
+	
+	// The size of the array (including the null-terminator and beyond)
+	//
+	// @zasm_read
+	//   POP D0
+	//   ARRAYSIZE D0
+	internal const int Capacity;
+
+	// Grants 'Ownership' of the string to the currently running script.
+	//
+	// @zasm
+	//   POP D0
+	//   OWNARRAYR D0
+	internal void Own();
+
+	// Clears the string (becomes equal to "")
+	//
+	// @zasm
+	//   POP D0
+	//   RESIZEARRAYV D0 1
+	//   WRITEPODARRAYVV 0 0
+	internal void Clear();
+	
+	// Prints the passed string to the output console. Includes a newline character
+	// after the string.
+	//
+	// @zasm
+	//   POP D2
+	//   TRACE6 D2
+	//   TRACE3
+	internal void Trace();
+}

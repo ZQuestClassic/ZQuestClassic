@@ -2849,9 +2849,11 @@ std::string ASTStringLiteral::asString() const
 	return "\"" + value + "\"";
 }
 
-DataTypeArray const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+DataType const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	return DataType::STRING;
+	if (DataType::STRING)
+		return DataType::STRING;
+	return DataType::CHAR_ARRAY;
 }
 
 

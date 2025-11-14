@@ -1457,7 +1457,7 @@ class Game {
 	//   POP D2
 	//   POP D3
 	//   GETMESSAGE D3 D2
-	internal void GetMessage(int string, char32[] buffer);
+	internal void GetMessage(int message, char32[] buffer);
 
 	// Places string 'str[]' into ZQ Message 'message'.
 	//

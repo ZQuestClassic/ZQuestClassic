@@ -2035,6 +2035,8 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case STRINGCOPY: return "strcpy()";
 		case STRCSPN: return "strcspn()";
 		case STRINGICOMPARE: return "stricmp()";
+		case WRITEPODARRAYVV: return "string::Clear()";
+		case REF_AUTORELEASE: return "string::string()";
 		case STRINGLENGTH: return "strlen()";
 		case STRINGNCOMPARE: return "strncmp()";
 		case STRINGNICOMPARE: return "strnicmp()";
