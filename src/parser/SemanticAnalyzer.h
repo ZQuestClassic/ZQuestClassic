@@ -108,7 +108,13 @@ namespace ZScript
 		void analyzeIncrement(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(
 				ASTBinaryExpr& host, ZScript::DataType const& leftType,
-				ZScript::DataType const& rightType);
+				ZScript::DataType const& rightType, optional<string> override_name = nullopt);
+		
+		vector<Function*> best_functions_cast(vector<Function*>& base_funcs, vector<DataType const*> const& parameterTypes);
+		void best_functions_optparam(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);
+		void best_functions_namespace(vector<Function*>& bestFunctions);
+		void best_function_untyped(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);
+		void best_function_error(AST& host, vector<Function*>& bestFunctions, FunctionSignature const& signature);
 
 	};
 }	

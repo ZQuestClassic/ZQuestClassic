@@ -19,6 +19,17 @@ class string {
 	//   REF_AUTORELEASE D2
 	internal string(string str);
 	
+	// Returns a new string of 'other' concatenated after this string.
+	// 
+	// @zasm
+	//   POP D1
+	//   POP D2
+	//   ALLOCATEMEMV D0 1 0
+	//   STRINGCOPY D0 D2
+	//   STRCAT D2
+	//   SETR D2 D0
+	//   REF_AUTORELEASE D2
+	static internal operator string plus(string a, string b);
 	
 	// Appends the contents of 'other' at the end of this string.
 	//

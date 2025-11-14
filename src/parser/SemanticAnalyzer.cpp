@@ -925,6 +925,46 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		handleError(CompileError::BadVArgType(&host, paramTypes.back()->getName()));
 		return;
 	}
+	auto func_name = host.getName();
+	if (host.getFlag(FUNCFLAG_OPERATOR))
+	{
+		if (!host.getFlag(FUNCFLAG_STATIC))
+		{
+			handleError(CompileError::Error(&host, "Operator functions must be static class functions!"));
+			return;
+		}
+		static std::map<int, std::set<string>> operator_strings = {
+			{2, {"plus", "minus", "times", "divide", "index_get"}},
+			{3, {"index_set"}}
+		};
+		bool found = false;
+		for (auto [count, names] : operator_strings)
+		{
+			if (names.contains(func_name))
+			{
+				if (count != paramTypes.size())
+				{
+					handleError(CompileError::Error(&host, fmt::format("Invalid parameter count '{}' for operator '{}', expected '{}'", paramTypes.size(), func_name, count)));
+					return;
+				}
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			handleError(CompileError::Error(&host, "Invalid parameter count for operator function!"));
+			return;
+		}
+		if (func_name == "index_get" || func_name == "index_set")
+		{
+			if (*paramTypes[1] != DataType::FLOAT)
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' must take 'int' index parameter", func_name)));
+				return;
+			}
+		}
+	}
 	if(host.prototype)
 	{
 		//Check the default return
@@ -963,7 +1003,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 
 	// Add the function to the scope.
 	Function* function = func_lives_in->addFunction(
-			&returnType, host.getName(), paramTypes, paramNames, host.getFlags(), &host, this, extern_scope);
+			&returnType, func_name, paramTypes, paramNames, host.getFlags(), &host, this, extern_scope);
 	host.func = function;
 
 	if(breakRecursion(host)) return;
@@ -1419,6 +1459,232 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	}
 }
 
+vector<Function*> SemanticAnalyzer::best_functions_cast(vector<Function*>& base_funcs, vector<DataType const*> const& parameterTypes)
+{
+	vector<Function*> bestFunctions;
+	int32_t bestCastCount = parameterTypes.size() + 1;
+	for (vector<Function*>::iterator it = base_funcs.begin();
+		 it != base_funcs.end(); ++it)
+	{
+		// Count number of casts.
+		Function& function = **it;
+		int32_t castCount = 0;
+		size_t lowsize = zc_min(parameterTypes.size(), function.paramTypes.size());
+		for(size_t i = 0; i < lowsize; ++i)
+		{
+			DataType const& from = getNaiveType(*parameterTypes[i], scope);
+			DataType const& to = getNaiveType(*function.paramTypes[i], scope);
+			if (from == to) continue;
+			++castCount;
+		}
+
+		// If this beats the record, clear results and keep it.
+		if (castCount < bestCastCount)
+		{
+			bestFunctions.clear();
+			bestFunctions.push_back(&function);
+			bestCastCount = castCount;
+		}
+
+		// If this just matches the record, append it.
+		else if (castCount == bestCastCount)
+			bestFunctions.push_back(&function);
+	}
+	return bestFunctions;
+}
+void SemanticAnalyzer::best_functions_optparam(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes)
+{
+	if(bestFunctions.size() > 1)
+	{
+		auto targSize = parameterTypes.size();
+		int32_t bestDiff = -1;
+		//Find the best (minimum) difference between the passed param count and function max param count
+		for(auto it = bestFunctions.begin(); it != bestFunctions.end(); ++it)
+		{
+			int32_t maxSize = (*it)->paramTypes.size();
+			int32_t diff = maxSize - targSize;
+			if(bestDiff < 0 || diff < bestDiff) bestDiff = diff;
+		}
+		//Remove any functions that don't share the minimum difference.
+		for(auto it = bestFunctions.begin(); it != bestFunctions.end();)
+		{
+			int32_t maxSize = (*it)->paramTypes.size();
+			int32_t diff = maxSize - targSize;
+			if(diff > bestDiff)
+				it = bestFunctions.erase(it);
+			else ++it;
+		}
+	}
+}
+void SemanticAnalyzer::best_functions_namespace(vector<Function*>& bestFunctions)
+{
+	if(bestFunctions.size() > 1)
+	{
+		std::map<Function*, Scope*> bestNSs;
+		std::map<Function*, Scope*> bestScripts;
+		for (vector<Function*>::const_iterator it = bestFunctions.begin();
+		     it != bestFunctions.end(); ++it)
+		{
+			Scope* ns = NULL;
+			Scope* scr = NULL;
+			for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
+			{
+				if(!scr && current->isScript())
+				{
+					scr = current;
+				}
+				if(current->isNamespace())
+				{
+					ns = current;
+					break;
+				}
+			}
+			bestNSs[*it] = ns;
+			bestScripts[*it] = scr;
+		}
+		Function* bestFound = NULL;
+		for(Scope* current = scope; current; current = current->getParent())
+		{
+			if(current->isScript())
+			{
+				for (vector<Function*>::const_iterator it = bestFunctions.begin();
+				     it != bestFunctions.end(); ++it)
+				{
+					if(current == bestScripts[*it])
+					{
+						if(bestFound)
+						{
+							bestFound = NULL;
+							current = NULL;
+							break;
+						}
+						else bestFound = *it;
+					}
+				}
+			}
+			else if(current->isNamespace())
+			{
+				for (vector<Function*>::const_iterator it = bestFunctions.begin();
+				     it != bestFunctions.end(); ++it)
+				{
+					if(current == bestNSs[*it])
+					{
+						if(bestFound)
+						{
+							bestFound = NULL;
+							current = NULL;
+							break;
+						}
+						else bestFound = *it;
+					}
+				}
+			}
+			if(!current) break;
+		}
+		if(bestFound) //Found a singular best; override the prior calculations, and salvage the call! -V
+		{
+			bestFunctions.clear();
+			bestFunctions.push_back(bestFound);
+		}
+	}
+}
+void SemanticAnalyzer::best_function_untyped(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes)
+{
+	if(bestFunctions.size() > 1)
+	{
+		vector<Function*> newBestFunctions = bestFunctions;
+		size_t maxsize = 0;
+		for(auto it = newBestFunctions.begin(); it != newBestFunctions.end(); ++it)
+		{
+			if(maxsize < (*it)->paramTypes.size())
+				maxsize = (*it)->paramTypes.size();
+		}
+		//Remove any strictly-less-specific functions
+		for(size_t p = 0; p < maxsize; ++p)
+		{
+			int flag = 0;
+			for(auto it = bestFunctions.begin(); flag != 3 && it != bestFunctions.end();++it)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() <= p)
+					continue;
+				bool ut = pty.at(p)->isUntyped();
+				if(ut) flag |= 1;
+				else flag |= 2;
+			}
+			if(flag != 3) continue;
+			for(auto it = newBestFunctions.begin(); it != newBestFunctions.end();)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() <= p)
+				{
+					++it;
+					continue;
+				}
+				bool ut = pty.at(p)->isUntyped();
+				if (ut) //untyped, keep
+				{
+					++it;
+					continue;
+				}
+				else if(parameterTypes.size() > p)
+				{
+					DataType const& from = getNaiveType(*parameterTypes[p], scope);
+					DataType const& to = getNaiveType(*pty[p], scope);
+					if(from == to) //Exact match, keep
+					{
+						++it;
+						continue;
+					}
+				}
+				//Not exact match, not untyped; junk it.
+				it = newBestFunctions.erase(it);
+				continue;
+			}
+			if(newBestFunctions.size() == 0)
+				break; //Nothing left to loop on
+		}
+		if(newBestFunctions.size() > 0) //Don't overwrite if eliminated all
+			bestFunctions = newBestFunctions;
+	}
+}
+void SemanticAnalyzer::best_function_error(AST& host, vector<Function*>& bestFunctions, FunctionSignature const& signature)
+{
+	if (bestFunctions.size() == 0)
+	{
+		handleError(
+				CompileError::NoFuncMatch(&host, signature.asString()));
+	}
+	else
+	{
+		// Sort to keep order same across platforms.
+		std::sort(bestFunctions.begin(), bestFunctions.end(), [](Function* a, Function* b) {
+			return a->id < b->id;
+		});
+
+		// Build list of function signatures.
+		ostringstream oss;
+		for (vector<Function*>::const_iterator it = bestFunctions.begin();
+			 it != bestFunctions.end(); ++it)
+		{
+			oss << "        ";
+			string namespacenames = "";
+			for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
+			{
+				if(!current->isNamespace()) continue;
+				NamespaceScope* ns = static_cast<NamespaceScope*>(current);
+				namespacenames = ns->namesp->getName() + "::" + namespacenames;
+			}
+			oss << namespacenames << (*it)->getSignature().asString() << "\n";
+		}
+		
+		handleError(
+				CompileError::TooFuncMatch(
+						&host,
+						signature.asString(),
+						oss.str()));
+	}
+}
 void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 {
 	// Cast left.
@@ -1496,223 +1762,18 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope); //Never `using` arrow functions
 
 	// Find function with least number of casts.
-	vector<Function*> bestFunctions;
-	int32_t bestCastCount = parameterTypes.size() + 1;
-	for (vector<Function*>::iterator it = functions.begin();
-		 it != functions.end(); ++it)
-	{
-		// Count number of casts.
-		Function& function = **it;
-		int32_t castCount = 0;
-		size_t lowsize = zc_min(parameterTypes.size(), function.paramTypes.size());
-		for(size_t i = 0; i < lowsize; ++i)
-		{
-			DataType const& from = getNaiveType(*parameterTypes[i], scope);
-			DataType const& to = getNaiveType(*function.paramTypes[i], scope);
-			if (from == to) continue;
-			++castCount;
-		}
-
-		// If this beats the record, clear results and keep it.
-		if (castCount < bestCastCount)
-		{
-			bestFunctions.clear();
-			bestFunctions.push_back(&function);
-			bestCastCount = castCount;
-		}
-
-		// If this just matches the record, append it.
-		else if (castCount == bestCastCount)
-			bestFunctions.push_back(&function);
-	}
+	vector<Function*> bestFunctions = best_functions_cast(functions, parameterTypes);
 	// We may have failed, but let's check optional parameters first...
-	if(bestFunctions.size() > 1)
-	{
-		auto targSize = parameterTypes.size();
-		int32_t bestDiff = -1;
-		//Find the best (minimum) difference between the passed param count and function max param count
-		for(auto it = bestFunctions.begin(); it != bestFunctions.end(); ++it)
-		{
-			int32_t maxSize = (*it)->paramTypes.size();
-			int32_t diff = maxSize - targSize;
-			if(bestDiff < 0 || diff < bestDiff) bestDiff = diff;
-		}
-		//Remove any functions that don't share the minimum difference.
-		for(auto it = bestFunctions.begin(); it != bestFunctions.end();)
-		{
-			int32_t maxSize = (*it)->paramTypes.size();
-			int32_t diff = maxSize - targSize;
-			if(diff > bestDiff)
-				it = bestFunctions.erase(it);
-			else ++it;
-		}
-	}
+	best_functions_optparam(bestFunctions, parameterTypes);
 	// We may have failed, though namespaces may resolve the issue. Check for namespace closeness.
-	if(bestFunctions.size() > 1)
-	{
-		std::map<Function*, Scope*> bestNSs;
-		std::map<Function*, Scope*> bestScripts;
-		for (vector<Function*>::const_iterator it = bestFunctions.begin();
-		     it != bestFunctions.end(); ++it)
-		{
-			Scope* ns = NULL;
-			Scope* scr = NULL;
-			for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
-			{
-				if(!scr && current->isScript())
-				{
-					scr = current;
-				}
-				if(current->isNamespace())
-				{
-					ns = current;
-					break;
-				}
-			}
-			bestNSs[*it] = ns;
-			bestScripts[*it] = scr;
-		}
-		Function* bestFound = NULL;
-		for(Scope* current = scope; current; current = current->getParent())
-		{
-			if(current->isScript())
-			{
-				for (vector<Function*>::const_iterator it = bestFunctions.begin();
-				     it != bestFunctions.end(); ++it)
-				{
-					if(current == bestScripts[*it])
-					{
-						if(bestFound)
-						{
-							bestFound = NULL;
-							current = NULL;
-							break;
-						}
-						else bestFound = *it;
-					}
-				}
-			}
-			else if(current->isNamespace())
-			{
-				for (vector<Function*>::const_iterator it = bestFunctions.begin();
-				     it != bestFunctions.end(); ++it)
-				{
-					if(current == bestNSs[*it])
-					{
-						if(bestFound)
-						{
-							bestFound = NULL;
-							current = NULL;
-							break;
-						}
-						else bestFound = *it;
-					}
-				}
-			}
-			if(!current) break;
-		}
-		if(bestFound) //Found a singular best; override the prior calculations, and salvage the call! -V
-		{
-			bestFunctions.clear();
-			bestFunctions.push_back(bestFound);
-		}
-	}
+	best_functions_namespace(bestFunctions);
 	// We may have failed, but give higher priority to 'untyped' first...
-	if(bestFunctions.size() > 1)
-	{
-		vector<Function*> newBestFunctions = bestFunctions;
-		size_t maxsize = 0;
-		for(auto it = newBestFunctions.begin(); it != newBestFunctions.end(); ++it)
-		{
-			if(maxsize < (*it)->paramTypes.size())
-				maxsize = (*it)->paramTypes.size();
-		}
-		//Remove any strictly-less-specific functions
-		for(size_t p = 0; p < maxsize; ++p)
-		{
-			int flag = 0;
-			for(auto it = bestFunctions.begin(); flag != 3 && it != bestFunctions.end();++it)
-			{
-				auto& pty = (*it)->paramTypes;
-				if (pty.size() <= p)
-					continue;
-				bool ut = pty.at(p)->isUntyped();
-				if(ut) flag |= 1;
-				else flag |= 2;
-			}
-			if(flag != 3) continue;
-			for(auto it = newBestFunctions.begin(); it != newBestFunctions.end();)
-			{
-				auto& pty = (*it)->paramTypes;
-				if (pty.size() <= p)
-				{
-					++it;
-					continue;
-				}
-				bool ut = pty.at(p)->isUntyped();
-				if (ut) //untyped, keep
-				{
-					++it;
-					continue;
-				}
-				else if(parameterTypes.size() > p)
-				{
-					DataType const& from = getNaiveType(*parameterTypes[p], scope);
-					DataType const& to = getNaiveType(*pty[p], scope);
-					if(from == to) //Exact match, keep
-					{
-						++it;
-						continue;
-					}
-				}
-				//Not exact match, not untyped; junk it.
-				it = newBestFunctions.erase(it);
-				continue;
-			}
-			if(newBestFunctions.size() == 0)
-				break; //Nothing left to loop on
-		}
-		if(newBestFunctions.size() > 0) //Don't overwrite if eliminated all
-			bestFunctions = newBestFunctions;
-	}
+	best_function_untyped(bestFunctions, parameterTypes);
 	// We failed.
 	if (bestFunctions.size() != 1)
 	{
 		FunctionSignature signature(host.left->asString(), parameterTypes);
-		if (bestFunctions.size() == 0)
-		{
-			handleError(
-					CompileError::NoFuncMatch(&host, signature.asString()));
-		}
-		else
-		{
-			// Sort to keep order same across platforms.
-			std::sort(bestFunctions.begin(), bestFunctions.end(), [](Function* a, Function* b) {
-				return a->id < b->id;
-			});
-
-			// Build list of function signatures.
-			ostringstream oss;
-			for (vector<Function*>::const_iterator it = bestFunctions.begin();
-			     it != bestFunctions.end(); ++it)
-			{
-				oss << "        ";
-				string namespacenames = "";
-				for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
-				{
-					if(!current->isNamespace()) continue;
-					NamespaceScope* ns = static_cast<NamespaceScope*>(current);
-					namespacenames = ns->namesp->getName() + "::" + namespacenames;
-				}
-				oss << namespacenames << (*it)->getSignature().asString() << "\n";
-			}
-			
-			handleError(
-					CompileError::TooFuncMatch(
-							&host,
-							signature.asString(),
-							oss.str()));
-		}
+		best_function_error(host, bestFunctions, signature);
 		return;
 	}
 	
@@ -1881,17 +1942,17 @@ void SemanticAnalyzer::caseExprAppxEQ(ASTExprAppxEQ& host, void*)
 
 void SemanticAnalyzer::caseExprPlus(ASTExprPlus& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "plus");
 }
 
 void SemanticAnalyzer::caseExprMinus(ASTExprMinus& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "minus");
 }
 
 void SemanticAnalyzer::caseExprTimes(ASTExprTimes& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "times");
 }
 
 void SemanticAnalyzer::caseExprExpn(ASTExprExpn& host, void*)
@@ -1901,7 +1962,7 @@ void SemanticAnalyzer::caseExprExpn(ASTExprExpn& host, void*)
 
 void SemanticAnalyzer::caseExprDivide(ASTExprDivide& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "divide");
 }
 
 void SemanticAnalyzer::caseExprModulo(ASTExprModulo& host, void*)
@@ -2085,8 +2146,63 @@ void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
 
 void SemanticAnalyzer::analyzeBinaryExpr(
 		ASTBinaryExpr& host, DataType const& leftType,
-		DataType const& rightType)
+		DataType const& rightType, optional<string> override_name)
 {
+	bool visited = false;
+	if (override_name)
+	{
+		visit(host.left.get());
+		if (breakRecursion(host)) return;
+		visit(host.right.get());
+		if (breakRecursion(host)) return;
+		visited = true;
+		auto& left_type = *host.left->getReadType(scope, this);
+		auto& right_type = *host.right->getReadType(scope, this);
+		
+		UserClass *left_class = left_type.getUsrClass(), *right_class = right_type.getUsrClass();
+		if (left_class || right_class)
+		{
+			vector<DataType const*> param_types = {&left_type, &right_type};
+			vector<Function*> fns;
+			if (left_class)
+			{
+				auto left_fns = lookupClassFuncs(*left_class, *override_name, param_types, scope, false, true);
+				fns.insert(fns.end(), left_fns.begin(), left_fns.end());
+			}
+			if (right_class)
+			{
+				auto right_fns = lookupClassFuncs(*right_class, *override_name, param_types, scope, false, true);
+				if (!fns.empty())
+				{
+					std::erase_if(right_fns, [&](Function* ptr)
+						{
+							for (Function* ptr2 : fns)
+							{
+								if (ptr == ptr2)
+									return true;
+							}
+							return false;
+						});
+				}
+				fns.insert(fns.end(), right_fns.begin(), right_fns.end());
+			}
+			//Remove any non-operator functions
+			std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+			fns = best_functions_cast(fns, param_types);
+			best_functions_optparam(fns, param_types);
+			best_function_untyped(fns, param_types);
+			
+			if (fns.size() == 1)
+			{
+				host.override_fn = fns[0];
+			}
+			else
+			{
+				best_function_error(host, fns, FunctionSignature(*override_name, param_types));
+			}
+			return;
+		}
+	}
 	if (!host.supportsBitflags())
 	{
 		visit(host.left.get());
@@ -2101,7 +2217,8 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		return;
 	}
 
-	visit(host.left.get());
+	if (!visited)
+		visit(host.left.get());
 	if (breakRecursion(host)) return;
 
 	auto leftTypeActual = host.left->getReadType(scope, this);
@@ -2112,7 +2229,8 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		if (breakRecursion(host)) return;
 	}
 
-	visit(host.right.get());
+	if (!visited)
+		visit(host.right.get());
 	if (breakRecursion(host)) return;
 
 	auto rightTypeActual = host.right->getReadType(scope, this);

@@ -1683,6 +1683,8 @@ namespace ZScript
 
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
+		
+		Function* override_fn;
 
 	protected:
 		ASTBinaryExpr& operator=(ASTBinaryExpr const& rhs);
@@ -1697,7 +1699,7 @@ namespace ZScript
 		           LocationData const& location = LOC_NONE);
 		virtual ASTLogExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -1741,7 +1743,7 @@ namespace ZScript
 		           LocationData const& location = LOC_NONE);
 		virtual ASTRelExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -1867,18 +1869,7 @@ namespace ZScript
 		virtual bool supportsBitflags() {return true;}
 		virtual ASTAddExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			auto leftType = left->getReadType(scope, errorHandler);
-			auto rightType = right->getReadType(scope, errorHandler);
-			if (!leftType)
-				left->getReadType(scope, errorHandler);
-			if ((leftType && leftType->isBitflagsEnum()) || rightType->isBitflagsEnum())
-				return leftType;
-			if ((leftType && leftType->isLong()) || rightType->isLong())
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -1919,12 +1910,7 @@ namespace ZScript
 		            LocationData const& location = LOC_NONE);
 		virtual ASTMultExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -1992,16 +1978,7 @@ namespace ZScript
 		           LocationData const& location = LOC_NONE);
 		virtual ASTBitExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			auto leftType = left->getReadType(scope, errorHandler);
-			auto rightType = right->getReadType(scope, errorHandler);
-			if (leftType->isBitflagsEnum() || rightType->isBitflagsEnum())
-				return leftType;
-			if (leftType->isLong() || rightType->isLong())
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -2056,12 +2033,7 @@ namespace ZScript
 				LocationData const& location = LOC_NONE);
 		virtual ASTShiftExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 

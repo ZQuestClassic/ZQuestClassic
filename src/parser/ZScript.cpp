@@ -674,7 +674,7 @@ void Function::alias(Function* func, bool force)
 bool Function::initZASM(std::vector<std::string> const& zasm_lines, CompileErrorHandler* handler)
 {
 	int stack_change = numParams();
-	if (getClass() && !getClass()->internalRefVarString.empty() && !getFlag(FUNCFLAG_CONSTRUCTOR) && !getFlag(FUNCFLAG_DESTRUCTOR))
+	if (getClass() && !getClass()->internalRefVarString.empty() && !getFlag(FUNCFLAG_CONSTRUCTOR) && !getFlag(FUNCFLAG_DESTRUCTOR) && !getFlag(FUNCFLAG_STATIC))
 		stack_change += 1;
 
 	std::vector<std::shared_ptr<Opcode>> code;
