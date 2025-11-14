@@ -231,13 +231,45 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 		refvar = user_class->internalRefVar;
 	}
 
+	bool has_var = parsed_comment.contains_tag("zasm_var");
+	bool has_zasm_read = parsed_comment.contains_tag("zasm_read");
+	bool has_zasm_write = parsed_comment.contains_tag("zasm_write");
 	for (auto decl : var->getDeclarations())
 	{
-		// Internal variables in classes must have a zasm_var.
-		if (user_class && !parsed_comment.contains_tag("zasm_var"))
+		if (has_var && (has_zasm_read || has_zasm_write))
 		{
-			handleError(CompileError::BadInternal(decl, "Expected @zasm_var"));
+			handleError(CompileError::BadInternal(decl, "@zasm_var is exclusive with @zasm_read and @zasm_write"));
 			continue;
+		}
+		
+		auto& ty = decl->manager->type;
+		bool is_arr = ty.isArray();
+		bool is_const = ty.isConstant();
+		
+		if (is_const && has_zasm_write)
+		{
+			handleError(CompileError::BadInternal(decl, "@zasm_write is incompatible with 'const' values"));
+			continue;
+		}
+		
+		// Internal variables in classes must have a zasm_var.
+		if (user_class && !has_var)
+		{
+			if (is_arr)
+			{
+				handleError(CompileError::BadInternal(decl, "Expected @zasm_var"));
+				continue;
+			}
+			else if(is_const && !has_zasm_read)
+			{
+				handleError(CompileError::BadInternal(decl, "Expected @zasm_var or @zasm_read"));
+				continue;
+			}
+			else if(!is_const && !(has_zasm_read && has_zasm_write))
+			{
+				handleError(CompileError::BadInternal(decl, "Expected @zasm_var or @zasm_read and @zasm_write"));
+				continue;
+			}
 		}
 
 		bool is_constant_zero = false;
@@ -254,14 +286,16 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 				continue;
 			}
 		}
+		else if(has_zasm_read)
+		{
+			fn_value = 0;
+		}
 		else
 		{
 			is_constant_zero = true;
 			fn_value = 0;
 		}
 
-		auto& ty = decl->manager->type;
-		bool is_arr = ty.isArray();
 		auto var_type = ty.baseType(*scope, nullptr);
 		auto deprecated = parsed_comment.get_tag("deprecated");
 
@@ -278,7 +312,16 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 			if (user_class)
 				params.push_back(user_class->getType());
 
-			if (is_constant_zero)
+			if (has_zasm_read)
+			{
+				fn = scope->addGetter(var_type, name, params, {}, 0);
+				std::vector<std::string> zasm_lines;
+				if (auto zasm = parsed_comment.get_tag("zasm_read"))
+					util::split(*zasm, zasm_lines, '\n');
+				fn->initZASM(zasm_lines, this);
+				fn->setFlag(FUNCFLAG_INLINE);
+			}
+			else if (is_constant_zero)
 			{
 				fn = scope->addGetter(var_type, name, params, {}, 0);
 				getConstant(refvar, fn, fn_value);
@@ -335,7 +378,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 			getVariable(refvar, fn, fn_value);
 		}
 
-		if (is_constant_zero)
+		if (is_constant_zero || is_const)
 			continue;
 
 		// Add setter(s).
@@ -348,7 +391,16 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 				params.push_back(user_class->getType());
 			params.push_back(var_type);
 
-			if (is_arr)
+			if (has_zasm_write)
+			{
+				fn = scope->addSetter(&DataType::ZVOID, name, params, {}, 0);
+				std::vector<std::string> zasm_lines;
+				if (auto zasm = parsed_comment.get_tag("zasm_write"))
+					util::split(*zasm, zasm_lines, '\n');
+				fn->initZASM(zasm_lines, this);
+				fn->setFlag(FUNCFLAG_INLINE);
+			}
+			else if (is_arr)
 			{
 				fn = scope->addSetter(&DataType::ZVOID, name, params, {}, 0);
 				fn->setFlag(FUNCFLAG_READ_ONLY);
