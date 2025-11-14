@@ -14,18 +14,25 @@ class string {
 	//
 	// @zasm
 	//   POP D0
-	//   ARRAYSIZE D0
-	//   ALLOCATEMEMR D2 D2 0
+	//   ALLOCATEMEMV D2 1 0
 	//   STRINGCOPY D2 D0
 	//   REF_AUTORELEASE D2
 	internal string(string str);
+	
+	
+	// Appends the contents of 'other' at the end of this string.
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   STRCAT D2
+	internal void append(string other);
 	
 	// Returns a copy of the string.
 	//
 	// @zasm
 	//   POP D0
-	//   ARRAYSIZE D0
-	//   ALLOCATEMEMR D2 D2 0
+	//   ALLOCATEMEMV D2 1 0
 	//   STRINGCOPY D2 D0
 	//   REF_AUTORELEASE D2
 	string Copy();
@@ -34,7 +41,7 @@ class string {
 	//
 	// @zasm_read
 	//   POP D0
-	//   STRINGLENGTH d2 D0
+	//   STRINGLENGTH D2 D0
 	internal const int Length;
 	
 	// The size of the array (including the null-terminator and beyond)
