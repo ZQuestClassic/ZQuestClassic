@@ -1,17 +1,34 @@
+// Internal class for Strings.
+// Arrays of type 'char32[]' automatically cast to and from this type.
+//
 // @zasm_ref D0
 class string {
+	// Constructs a new, blank string.
+	//
 	// @zasm
 	//   ALLOCATEMEMV D2 1 0
 	//   REF_AUTORELEASE D2
 	internal string();
 	
+	// Constructs a new string as a copy of 'str'
+	//
 	// @zasm
 	//   POP D0
 	//   ARRAYSIZE D0
 	//   ALLOCATEMEMR D2 D2 0
 	//   STRINGCOPY D2 D0
 	//   REF_AUTORELEASE D2
-	internal string(char32[] arr);
+	internal string(string str);
+	
+	// Returns a copy of the string.
+	//
+	// @zasm
+	//   POP D0
+	//   ARRAYSIZE D0
+	//   ALLOCATEMEMR D2 D2 0
+	//   STRINGCOPY D2 D0
+	//   REF_AUTORELEASE D2
+	string Copy();
 
 	// The number of characters in the string (not including null-terminator)
 	//
