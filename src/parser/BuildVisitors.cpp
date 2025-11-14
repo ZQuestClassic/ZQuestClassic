@@ -3000,6 +3000,18 @@ void BuildOpcodes::caseExprXOR(ASTExprXOR& host, void* param)
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
+bool BuildOpcodes::binaryOpOverride(ASTBinaryExpr& host, void* param)
+{
+	if (!host.override_fn)
+		return false;
+	ASTExprCall call(host.location);
+	call.binding = host.override_fn;
+	call.left = new ASTExprIdentifier(call.binding->name, host.location);
+	call.parameters.push_back(host.left.clone());
+	call.parameters.push_back(host.right.clone());
+	caseExprCall(call, param);
+	return true;
+}
 void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 {
 	if (auto v = host.getCompileTimeValue(this, scope))
@@ -3007,6 +3019,8 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 		CONST_VAL(*v);
 		return;
 	}
+	if (binaryOpOverride(host, param))
+		return;
 	SIDEFX_BINOP();
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
@@ -3043,6 +3057,8 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 		CONST_VAL(*v);
 		return;
 	}
+	if (binaryOpOverride(host, param))
+		return;
 	SIDEFX_BINOP();
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
@@ -3078,6 +3094,8 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 		CONST_VAL(*v);
 		return;
 	}
+	if (binaryOpOverride(host, param))
+		return;
 	SIDEFX_BINOP();
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
@@ -3114,6 +3132,8 @@ void BuildOpcodes::caseExprExpn(ASTExprExpn& host, void *param)
 		CONST_VAL(*v);
 		return;
 	}
+	if (binaryOpOverride(host, param))
+		return;
 	SIDEFX_BINOP();
 	
 	bool do_long = host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
@@ -3193,6 +3213,8 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 		CONST_VAL(*v);
 		return;
 	}
+	if (binaryOpOverride(host, param))
+		return;
 	SIDEFX_BINOP();
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);

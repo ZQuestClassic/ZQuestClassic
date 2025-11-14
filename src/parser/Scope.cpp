@@ -576,7 +576,7 @@ vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vecto
 	return functions;
 }
 vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
-	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope, bool ignoreParams)
+	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope, bool ignoreParams, bool static_funcs)
 {
 	vector<Function*> functions = user_class.getScope().getLocalFunctions(name);
 	if (user_class.getParentClass())
@@ -590,7 +590,7 @@ vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
 		 it != functions.end();)
 	{
 		Function& function = **it;
-		if(function.getFlag(FUNCFLAG_STATIC))
+		if(function.getFlag(FUNCFLAG_STATIC) != static_funcs)
 		{
 			it = functions.erase(it);
 			continue;

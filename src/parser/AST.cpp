@@ -2050,7 +2050,7 @@ DataType const* ASTExprCast::getReadType(Scope* scope, CompileErrorHandler* erro
 
 ASTBinaryExpr::ASTBinaryExpr(ASTExpr* left, ASTExpr* right,
 							 LocationData const& location)
-	: ASTExpr(location), left(left), right(right)
+	: ASTExpr(location), left(left), right(right), override_fn(nullptr)
 {}
 
 bool ASTBinaryExpr::isConstant() const
@@ -2066,6 +2066,12 @@ ASTLogExpr::ASTLogExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTLogExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return &DataType::BOOL;
+}
 
 // ASTExprAnd
 
@@ -2123,6 +2129,12 @@ ASTRelExpr::ASTRelExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTRelExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return &DataType::BOOL;
+}
 
 // ASTExprGT
 
@@ -2314,6 +2326,21 @@ ASTAddExpr::ASTAddExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTAddExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	auto leftType = left->getReadType(scope, errorHandler);
+	auto rightType = right->getReadType(scope, errorHandler);
+	if (!leftType)
+		left->getReadType(scope, errorHandler);
+	if ((leftType && leftType->isBitflagsEnum()) || rightType->isBitflagsEnum())
+		return leftType;
+	if ((leftType && leftType->isLong()) || rightType->isLong())
+		return &DataType::LONG;
+	return &DataType::FLOAT;
+}
+
 
 // ASTExprPlus
 
@@ -2367,6 +2394,14 @@ ASTMultExpr::ASTMultExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTMultExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
+		return &DataType::LONG;
+	return &DataType::FLOAT;
+}
 
 // ASTExprTimes
 
@@ -2510,6 +2545,18 @@ ASTBitExpr::ASTBitExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTBitExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	auto leftType = left->getReadType(scope, errorHandler);
+	auto rightType = right->getReadType(scope, errorHandler);
+	if (leftType->isBitflagsEnum() || rightType->isBitflagsEnum())
+		return leftType;
+	if (leftType->isLong() || rightType->isLong())
+		return &DataType::LONG;
+	return &DataType::FLOAT;
+}
 
 // ASTExprBitAnd
 
@@ -2600,6 +2647,14 @@ ASTShiftExpr::ASTShiftExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTShiftExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
+		return &DataType::LONG;
+	return &DataType::FLOAT;
+}
 
 // ASTExprLShift
 

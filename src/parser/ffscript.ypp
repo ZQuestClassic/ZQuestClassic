@@ -210,6 +210,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token REPEAT
 %token INLINE
 %token INTERNAL
+%token OPERATOR
 %token STATIC
 %token CONSTEXPR
 %left NEW
@@ -745,6 +746,17 @@ Function :
 			func->invalidMsg += " Constructors and destructors cannot be static.";
 		}
 		else func->setFlag(FUNCFLAG_STATIC);
+		$$ = func;
+	}
+	| OPERATOR Function
+	{
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if(func->getFlag(FUNCFLAG_OPERATOR))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `operator`.";
+		}
+		else func->setFlag(FUNCFLAG_OPERATOR);
 		$$ = func;
 	}
 	| INLINE Function

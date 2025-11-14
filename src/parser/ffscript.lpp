@@ -123,6 +123,7 @@ unless			TOKEN( UNLESS );
 repeat			TOKEN( REPEAT );
 inline			TOKEN( INLINE );
 internal		TOKEN( INTERNAL );
+operator		TOKEN( OPERATOR );
 static			TOKEN( STATIC );
 constexpr			TOKEN( CONSTEXPR );
 new			TOKEN( NEW );

@@ -27,6 +27,7 @@ using namespace util;
 #define FUNCFLAG_READ_ONLY          0x00002000 //Function is read-only
 #define FUNCFLAG_INTERNAL           0x00004000 //Function is internal
 #define FUNCFLAG_CONSTEXPR          0x00008000 //Function is constexpr
+#define FUNCFLAG_OPERATOR           0x00010000 //Function is an operator overload
 
 #define IFUNCFLAG_SKIPPOINTER	      0x01
 #define IFUNCFLAG_REASSIGNPTR	      0x02
