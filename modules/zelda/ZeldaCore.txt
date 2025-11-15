@@ -44,6 +44,7 @@ src/zc/scripting/types/directory.cpp
 src/zc/scripting/types/dmapdata.cpp
 src/zc/scripting/types/dropsetdata.cpp
 src/zc/scripting/types/ffc.cpp
+src/zc/scripting/types/file.cpp
 src/zc/scripting/types/game.cpp
 src/zc/scripting/types/genericdata.cpp
 src/zc/scripting/types/graphics.cpp

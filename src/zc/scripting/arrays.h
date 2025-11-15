@@ -15,6 +15,8 @@
 #include <type_traits>
 #include <utility>
 
+#define MAX_ZC_ARRAY_SIZE 214748
+
 int zasm_array_size(int zasm_var, int ref);
 int zasm_array_get(int zasm_var, int ref, int index);
 bool zasm_array_set(int zasm_var, int ref, int index, int value);

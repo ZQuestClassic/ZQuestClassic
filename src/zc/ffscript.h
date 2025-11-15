@@ -306,42 +306,6 @@ struct script_bitmaps
 	user_bitmap& get(int32_t id);
 };
 
-#define MAX_USER_FILES 256
-struct user_file : public user_abstract_obj
-{
-	FILE* file;
-	std::string filepath;
-
-	~user_file()
-	{
-		if (file)
-			fclose(file);
-	}
-	
-	void close()
-	{
-		if(file) fclose(file);
-		file = NULL;
-		filepath = "";
-	}
-	
-	int32_t do_remove()
-	{
-		if(file) fclose(file);
-		file = NULL;
-		int32_t r = remove(filepath.c_str());
-		filepath = "";
-		return r;
-	}
-	
-	void setPath(const char* buf)
-	{
-		if(buf)
-			filepath = buf;
-		else filepath = "";
-	}
-};
-
 #define MAX_USER_STACKS 256
 #define USERSTACK_MAX_SIZE 2147483647
 struct user_stack : public user_abstract_obj
@@ -868,32 +832,6 @@ void user_rng_init();
 void user_paldata_init();
 void user_websockets_init();
 void script_arrays_init();
-
-bool get_scriptfile_path(char* buf, const char* path);
-
-void do_fopen(const bool v, const char* f_mode);
-void do_fremove();
-void do_fclose();
-void do_allocate_file();
-void do_deallocate_file();
-void do_file_isallocated();
-void do_file_isvalid();
-void do_fflush();
-void do_file_readchars();
-void do_file_readbytes();
-void do_file_readstring();
-void do_file_readints();
-void do_file_writechars();
-void do_file_writebytes();
-void do_file_writestring();
-void do_file_writeints();
-void do_file_getchar();
-void do_file_putchar();
-void do_file_ungetchar();
-void do_file_clearerr();
-void do_file_rewind();
-void do_file_seek();
-void do_file_geterr();
 
 void do_loadstack();
 void do_loadrng();

@@ -4,6 +4,7 @@
 #include "base/compiler.h"
 #include "base/ints.h"
 #include "zc/scripting/types/directory.h"
+#include "zc/scripting/types/file.h"
 #include "zc/scripting/types/game.h"
 #include "zc/scripting/types/itemsprite.h"
 #include "zc/scripting/types/npc.h"
@@ -22,6 +23,8 @@ ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_get_register(int32_t reg
 	if (auto r = game_get_register(reg))
 		return *r;
 	if (auto r = npc_get_register(reg))
+		return *r;
+	if (auto r = file_get_register(reg))
 		return *r;
 	if (auto r = directory_get_register(reg))
 		return *r;
@@ -54,6 +57,8 @@ ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_run_command(word command
 	if (auto r = game_run_command(command))
 		return *r;
 	if (auto r = npc_run_command(command))
+		return *r;
+	if (auto r = file_run_command(command))
 		return *r;
 	if (auto r = directory_run_command(command))
 		return *r;
