@@ -866,7 +866,7 @@ static constexpr script_command command_list[]=
 	{ "LOAD_INTERNAL_ARRAY", LOAD_INTERNAL_ARRAY, 2, { REG_W, NUM_REG }, 0, 0 },
 	{ "LOAD_INTERNAL_ARRAY_REF", LOAD_INTERNAL_ARRAY_REF, 3, { REG_W, NUM_REG, REG_R }, 0, 0 },
 	{ "RESIZEARRAYV", RESIZEARRAYV, 2, { REG_R, NUM }, 0, 0 },
-	{ "STRMULTR", STRMULTR, 2, { REG_R, REG_R }, 0, 0 },
+	{ "STRMULTR", STRMULTR, 2, { REG_RW, REG_R }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=

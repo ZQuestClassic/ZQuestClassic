@@ -2261,22 +2261,22 @@ Expr_18 : Expr_17 {$$ = $1;}
 	| Expr_17 PLUSASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprPlus(left->clone(), right, @3), @$);}
+		$$ = new ASTExprPlusAssign(left, right, @$);}
 	// Subtraction Assignment
 	| Expr_17 MINUSASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprMinus(left->clone(), right, @3), @$);}
+		$$ = new ASTExprMinusAssign(left, right, @$);}
 	// Multiplication Assignment
 	| Expr_17 TIMESASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprTimes(left->clone(), right, @3), @$);}
+		$$ = new ASTExprTimesAssign(left, right, @$);}
 	// Division Assignment
 	| Expr_17 DIVIDEASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprDivide(left->clone(), right, @3), @$);}
+		$$ = new ASTExprDivideAssign(left, right, @$);}
 	// Modulus Assignment
 	| Expr_17 MODULOASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;

@@ -15,9 +15,17 @@ class string {
 	// @zasm
 	//   POP D0
 	//   ALLOCATEMEMV D2 1 0
-	//   STRINGCOPY D2 D0
 	//   REF_AUTORELEASE D2
+	//   STRINGCOPY D2 D0
 	internal string(string str);
+	
+	// Copies the contents of 'other' into this string, replacing this string's contents entirely.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D2
+	//   STRINGCOPY D2 D0
+	internal void assign(string other);
 	
 	// Returns a new string of 'b' concatenated to the end of 'a'
 	// 
@@ -25,26 +33,47 @@ class string {
 	//   POP D1
 	//   POP D2
 	//   ALLOCATEMEMV D0 1 0
+	//   REF_AUTORELEASE D0
 	//   STRINGCOPY D0 D2
 	//   STRCAT D2
 	//   SETR D2 D0
-	//   REF_AUTORELEASE D2
 	static internal operator string plus(string a, string b);
+	
+	// Appends the contents of 'b' at the end of 'a'.
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   STRCAT D2
+	static internal operator void plus_assign(string a, string b);
 	
 	// Returns a new string of 'str' repeated 'count' times
 	// 
 	// @zasm
 	//   POP D3
-	//   POP D2
+	//   POP D0
+	//   ALLOCATEMEMV D2 1 0
+	//   REF_AUTORELEASE D2
+	//   STRINGCOPY D2 D0
 	//   STRMULTR D2 D3
 	static internal operator string times(string str, int count);
 	// Returns a new string of 'str' repeated 'count' times
 	// 
 	// @zasm
-	//   POP D2
+	//   POP D0
 	//   POP D3
+	//   ALLOCATEMEMV D2 1 0
+	//   REF_AUTORELEASE D2
+	//   STRINGCOPY D2 D0
 	//   STRMULTR D2 D3
 	static internal operator string times(int count, string str);
+	// Alters the string 'str' to be itself repeated 'count' times
+	// 
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   STRMULTR D2 D3
+	static internal operator void times_assign(string str, int count);
 	
 	// Returns the character at index 'idx' of 'str'
 	//

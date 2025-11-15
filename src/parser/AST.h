@@ -1368,12 +1368,12 @@ namespace ZScript
 		              LocationData const& location = LOC_NONE);
 		ASTExprAssign* clone() const {return new ASTExprAssign(*this);}
 
-		void execute(ASTVisitor& visitor, void* param = NULL);
+		virtual void execute(ASTVisitor& visitor, void* param = NULL);
 
-		bool isConstant() const {return right && right->isConstant();}
-		bool isLiteral() const {return right && right->isLiteral();}
+		virtual bool isConstant() const {return right && right->isConstant();}
+		virtual bool isLiteral() const {return right && right->isLiteral();}
 
-		optional<int32_t> getCompileTimeValue(
+		virtual optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
 			return right ? right->getReadType(scope, errorHandler) : NULL;}
@@ -1382,6 +1382,73 @@ namespace ZScript
 	
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
+	
+		Function* override_fn;
+	};
+	
+	class ASTExprPlusAssign : public ASTExprAssign
+	{
+	public:
+		ASTExprPlusAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LOC_NONE);
+		ASTExprPlusAssign* clone() const {return new ASTExprPlusAssign(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
+
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+	};
+	class ASTExprMinusAssign : public ASTExprAssign
+	{
+	public:
+		ASTExprMinusAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LOC_NONE);
+		ASTExprMinusAssign* clone() const {return new ASTExprMinusAssign(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
+
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+	};
+	class ASTExprTimesAssign : public ASTExprAssign
+	{
+	public:
+		ASTExprTimesAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LOC_NONE);
+		ASTExprTimesAssign* clone() const {return new ASTExprTimesAssign(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
+
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+	};
+	class ASTExprDivideAssign : public ASTExprAssign
+	{
+	public:
+		ASTExprDivideAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LOC_NONE);
+		ASTExprDivideAssign* clone() const {return new ASTExprDivideAssign(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
+
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprIdentifier : public ASTExpr

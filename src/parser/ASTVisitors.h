@@ -108,6 +108,14 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseExprPlusAssign(ASTExprPlusAssign& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseExprMinusAssign(ASTExprMinusAssign& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseExprTimesAssign(ASTExprTimesAssign& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseExprDivideAssign(ASTExprDivideAssign& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseExprIdentifier(
 				ASTExprIdentifier& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -322,6 +330,10 @@ namespace ZScript
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL);
 		virtual void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL);
+		virtual void caseExprPlusAssign(ASTExprPlusAssign& host, void* param = NULL);
+		virtual void caseExprMinusAssign(ASTExprMinusAssign& host, void* param = NULL);
+		virtual void caseExprTimesAssign(ASTExprTimesAssign& host, void* param = NULL);
+		virtual void caseExprDivideAssign(ASTExprDivideAssign& host, void* param = NULL);
 		virtual void caseExprArrow(ASTExprArrow& host, void* param = NULL);
 		virtual void caseExprIndex(ASTExprIndex& host, void* param = NULL);
 		virtual void caseExprCall(ASTExprCall& host, void* param = NULL);

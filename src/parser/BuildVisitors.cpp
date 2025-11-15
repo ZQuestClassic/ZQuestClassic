@@ -1712,6 +1712,47 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 	addOpcodes(helper.getResult());
 }
 
+bool BuildOpcodes::handleSpecialAssignOverride(ASTExprAssign& host, void* param)
+{
+	if (!host.override_fn)
+		return false;
+	ASTExprCall call(host.location);
+	call.binding = host.override_fn;
+	call.left = new ASTExprIdentifier(call.binding->name, host.location);
+	call.parameters.push_back(host.left.clone());
+	call.parameters.push_back(host.right.clone());
+	caseExprCall(call, param);
+	return true;
+}
+void BuildOpcodes::caseExprPlusAssign(ASTExprPlusAssign& host, void* param)
+{
+	if(handleSpecialAssignOverride(host, param))
+		return;
+	ASTExprAssign assign(host.left.clone(), new ASTExprPlus(host.left.clone(), host.right.clone()), host.location);
+	caseExprAssign(assign, param);
+}
+void BuildOpcodes::caseExprMinusAssign(ASTExprMinusAssign& host, void* param)
+{
+	if(handleSpecialAssignOverride(host, param))
+		return;
+	ASTExprAssign assign(host.left.clone(), new ASTExprMinus(host.left.clone(), host.right.clone()), host.location);
+	caseExprAssign(assign, param);
+}
+void BuildOpcodes::caseExprTimesAssign(ASTExprTimesAssign& host, void* param)
+{
+	if(handleSpecialAssignOverride(host, param))
+		return;
+	ASTExprAssign assign(host.left.clone(), new ASTExprTimes(host.left.clone(), host.right.clone()), host.location);
+	caseExprAssign(assign, param);
+}
+void BuildOpcodes::caseExprDivideAssign(ASTExprDivideAssign& host, void* param)
+{
+	if(handleSpecialAssignOverride(host, param))
+		return;
+	ASTExprAssign assign(host.left.clone(), new ASTExprDivide(host.left.clone(), host.right.clone()), host.location);
+	caseExprAssign(assign, param);
+}
+
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	if(sidefx_only)
