@@ -652,8 +652,12 @@ if (USE_NFD)
 	target_compile_definitions(zcbase PUBLIC HAS_NFD)
 endif()
 
-add_executable(zc_test_runner src/base/test_runner.cpp src/base/scc_test.cpp)
-target_link_libraries(zc_test_runner PRIVATE zcbase)
+add_executable(base_test_runner
+	src/test_runner/base_test_runner.cpp
+	src/test_runner/test_runner.cpp
+	src/base/scc_test.cpp
+)
+target_link_libraries(base_test_runner PRIVATE zcbase)
 
 # std::execution supplementation.
 # For std::execution::par, seq, and par_unseq.

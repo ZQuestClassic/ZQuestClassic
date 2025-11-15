@@ -832,14 +832,11 @@ void zeditor_handle_commands()
 	int test_zc_arg = zapp_check_switch("-test-zc", {"test_dir"});
 	if (test_zc_arg)
 	{
-		set_headless_mode();
-
 		std::string test_dir = zapp_get_arg_string(test_zc_arg + 1);
 
-		// We need to init some stuff before loading a quest file will work.
-		int fake_errno = 0;
-		allegro_errno = &fake_errno;
-		get_qst_buffers();
+		set_headless_mode();
+
+		// TODO: convert to TestRunner.
 
 		bool success = true;
 		if (!partial_load_test(test_dir))

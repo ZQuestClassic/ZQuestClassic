@@ -71,5 +71,9 @@ src/zc/zasm_pipeline.cpp
 src/zc/zasm_utils.cpp
 src/zc/wasm_compiler.cpp
 
+src/test_runner/test_runner.cpp
+src/zc/saves_test.cpp
+src/zc/zasm_optimize_test.cpp
+
 ## End of Zelda Core module
 )

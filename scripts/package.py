@@ -538,7 +538,7 @@ else:
         )
 
         if args.test_runner:
-            zc_files.append(binary_file(build_dir, 'zc_test_runner'))
+            zc_files.append(binary_file(build_dir, 'base_test_runner'))
 
         if system == 'Windows':
             zc_files.append(binary_file(build_dir, 'zconsole'))

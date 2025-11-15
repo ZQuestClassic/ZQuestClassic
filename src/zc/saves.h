@@ -78,6 +78,15 @@ bool saves_is_valid_slot(int index);
 bool saves_delete(int32_t index, std::string& err);
 bool saves_copy(int32_t from_index, std::string& err);
 void saves_enable_save_current_replay();
-bool saves_test();
+
+enum class ReadMode
+{
+	All,
+	Header,
+	Size,
+};
+
+bool _write_save(save_t* save, std::string& err);
+bool _load_from_save_file_expect_one(ReadMode read_mode, fs::path path, save_t& out_save, std::string& err);
 
 #endif

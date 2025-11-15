@@ -31,7 +31,7 @@ class TestZPlayer(unittest.TestCase):
             ['-test-zc'],
         )
 
-    def test_zc_test_runner(self):
+    def test_base_test_runner(self):
         if 'emscripten' in str(run_target.get_build_folder()):
             raise unittest.SkipTest('skipping test because emscripten')
         if is_mac and CI:
@@ -39,7 +39,7 @@ class TestZPlayer(unittest.TestCase):
                 'skipping test because CI does not currently package test runner'
             )
 
-        run_target.check_run('zc_test_runner', [])
+        run_target.check_run('base_test_runner', [])
 
 
 if __name__ == '__main__':

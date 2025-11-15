@@ -1,7 +1,11 @@
 #include "base/scc.h"
+#include "test_runner/test_runner.h"
 
 #include <iomanip>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 struct ExpectedCommand
 {
@@ -511,38 +515,40 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 	};
 }
 
+static std::stringstream cur;
+
 template <typename T>
 void print_vec(const std::vector<T>& vec) {
-	std::cerr << "{ ";
+	cur << "{ ";
 	for (size_t i = 0; i < vec.size(); ++i) {
 		if constexpr (std::is_same_v<T, std::string_view> || std::is_same_v<T, std::string>) {
-			std::cerr << "R\"(" << vec[i] << ")\"";
+			cur << "R\"(" << vec[i] << ")\"";
 		} else {
-			std::cerr << (int)vec[i];
+			cur << (int)vec[i];
 		}
-		if (i < vec.size() - 1) std::cerr << ", ";
+		if (i < vec.size() - 1) cur << ", ";
 	}
-	std::cerr << " }";
+	cur << " }";
 }
 
 void print_cmd(const StringCommand& cmd) {
-	std::cerr << "{ code: " << (int)cmd.code 
+	cur << "{ code: " << (int)cmd.code 
 			<< ", num_args: " << (int)cmd.num_args 
 			<< ", args: [ ";
 	for (int i = 0; i < cmd.num_args; ++i) {
-		std::cerr << cmd.args[i] << (i == cmd.num_args - 1 ? "" : ", ");
+		cur << cmd.args[i] << (i == cmd.num_args - 1 ? "" : ", ");
 	}
-	std::cerr << " ] }";
+	cur << " ] }";
 }
 
 void print_cmd(const ExpectedCommand& cmd) {
-	std::cerr << "{ code: " << (int)cmd.code 
+	cur << "{ code: " << (int)cmd.code 
 			<< ", num_args: " << (int)cmd.num_args 
 			<< ", args: [ ";
 	for (size_t i = 0; i < cmd.args.size(); ++i) {
-		std::cerr << cmd.args[i] << (i == cmd.args.size() - 1 ? "" : ", ");
+		cur << cmd.args[i] << (i == cmd.args.size() - 1 ? "" : ", ");
 	}
-	std::cerr << " ] }";
+	cur << " ] }";
 }
 
 // --- ANSI Color Codes for legible output ---
@@ -569,25 +575,25 @@ static bool assert_expectations(const AsciiParserTestCase& tc, const value_and_w
 	// Check segment types
 	if (parsed_msg.segment_types != tc.expected_segment_types) {
 		passed = false;
-		std::cerr << RED << "  [FAIL] " << RESET << context << "Segment types mismatch.\n";
-		std::cerr << "    Expected: "; print_vec(tc.expected_segment_types); std::cerr << "\n";
-		std::cerr << "    Actual  : "; print_vec(parsed_msg.segment_types); std::cerr << "\n";
+		cur << RED << "  [FAIL] " << RESET << context << "Segment types mismatch.\n";
+		cur << "    Expected: "; print_vec(tc.expected_segment_types); cur << "\n";
+		cur << "    Actual  : "; print_vec(parsed_msg.segment_types); cur << "\n";
 	}
 
 	// Check literals
 	if (parsed_msg.literals != tc.expected_literals) {
 		passed = false;
-		std::cerr << RED << "  [FAIL] " << RESET << context << "Literals mismatch.\n";
-		std::cerr << "    Expected: "; print_vec(tc.expected_literals); std::cerr << "\n";
-		std::cerr << "    Actual  : "; print_vec(parsed_msg.literals); std::cerr << "\n";
+		cur << RED << "  [FAIL] " << RESET << context << "Literals mismatch.\n";
+		cur << "    Expected: "; print_vec(tc.expected_literals); cur << "\n";
+		cur << "    Actual  : "; print_vec(parsed_msg.literals); cur << "\n";
 	}
 
 	// Check commands
 	if (parsed_msg.commands.size() != tc.expected_commands.size()) {
 		passed = false;
-		std::cerr << RED << "  [FAIL] " << RESET << context << "Command count mismatch.\n";
-		std::cerr << "    Expected: " << tc.expected_commands.size() << "\n";
-		std::cerr << "    Actual  : " << parsed_msg.commands.size() << "\n";
+		cur << RED << "  [FAIL] " << RESET << context << "Command count mismatch.\n";
+		cur << "    Expected: " << tc.expected_commands.size() << "\n";
+		cur << "    Actual  : " << parsed_msg.commands.size() << "\n";
 	} else {
 		for (size_t i = 0; i < parsed_msg.commands.size(); ++i) {
 			const auto& actual_cmd = parsed_msg.commands[i];
@@ -600,7 +606,7 @@ static bool assert_expectations(const AsciiParserTestCase& tc, const value_and_w
 			// Compare args
 			if (cmd_ok) { // Only check args if basics are right
 				if (static_cast<size_t>(actual_cmd.num_args) != expected_cmd.args.size()) {
-					std::cerr << YELLOW << "  [NOTE] " << RESET << context << "Test case definition mismatch: "
+					cur << YELLOW << "  [NOTE] " << RESET << context << "Test case definition mismatch: "
 							<< "expected num_args (" << expected_cmd.num_args
 							<< ") != size of expected_args vector ("
 							<< expected_cmd.args.size() << ")\n";
@@ -617,9 +623,9 @@ static bool assert_expectations(const AsciiParserTestCase& tc, const value_and_w
 
 			if (!cmd_ok) {
 				passed = false;
-				std::cerr << RED << "  [FAIL] " << RESET << context << "Command " << i << " mismatch.\n";
-				std::cerr << "    Expected: "; print_cmd(expected_cmd); std::cerr << "\n";
-				std::cerr << "    Actual  : "; print_cmd(actual_cmd); std::cerr << "\n";
+				cur << RED << "  [FAIL] " << RESET << context << "Command " << i << " mismatch.\n";
+				cur << "    Expected: "; print_cmd(expected_cmd); cur << "\n";
+				cur << "    Actual  : "; print_cmd(actual_cmd); cur << "\n";
 			}
 		}
 	}
@@ -627,20 +633,16 @@ static bool assert_expectations(const AsciiParserTestCase& tc, const value_and_w
 	// Check warnings
 	if (warnings != tc.expected_warnings) {
 		passed = false;
-		std::cerr << RED << "  [FAIL] " << RESET << context << "warnings mismatch.\n";
-		std::cerr << "    Expected: "; print_vec(tc.expected_warnings); std::cerr << "\n";
-		std::cerr << "    Actual  : "; print_vec(warnings); std::cerr << "\n";
+		cur << RED << "  [FAIL] " << RESET << context << "warnings mismatch.\n";
+		cur << "    Expected: "; print_vec(tc.expected_warnings); cur << "\n";
+		cur << "    Actual  : "; print_vec(warnings); cur << "\n";
 	}
 
 	return passed;
 }
 
-void test_scc()
+TestResults test_scc(bool verbose)
 {
-	std::cerr << "========================================\n";
-	std::cerr << "                scc_test.cpp\n";
-	std::cerr << "========================================\n";
-
 	auto all_test_cases = get_ascii_parser_test_cases();
 	int tests_failed = 0;
 	int test_num = 1;
@@ -648,8 +650,13 @@ void test_scc()
 	for (const auto& tc : all_test_cases)
 	{
 		bool test_passed = true;
-		std::cerr << "--- Test " << std::setw(2) << test_num << ": "
-				<< tc.description << " ---" << std::endl;
+		if (verbose)
+		{
+			std::cerr << "--- Test " << std::setw(2) << test_num << ": "
+					<< tc.description << " ---" << std::endl;
+		}
+
+		cur.clear();
 
 		auto result = parse_ascii_msg_str(tc.input);
 		if (!assert_expectations(tc, result))
@@ -663,30 +670,32 @@ void test_scc()
 				test_passed = false;
 		}
 
-		// --- Test Summary ---
-		if (test_passed) {
-			std::cerr << GREEN << "  [PASS]" << RESET << "\n";
-		} else {
+		if (!test_passed)
 			tests_failed++;
-			std::cerr << "--- End of Test " << test_num << " ---\n";
+
+		if (verbose)
+		{
+			std::cerr << cur.str();
+
+			if (test_passed) {
+				std::cerr << GREEN << "  [PASS]" << RESET << "\n";
+			} else {
+				std::cerr << "--- End of Test " << test_num << " ---\n";
+			}
+			std::cerr << std::endl;
 		}
-		std::cerr << std::endl;
+		else if (!test_passed)
+		{
+			std::cerr << "--- Test " << std::setw(2) << test_num << ": "
+					<< tc.description << " ---" << std::endl;
+			std::cerr << cur.str();
+			std::cerr << std::endl;
+		}
+
 		test_num++;
 	}
 
-	// --- Final Report ---
-	std::cerr << "========================================\n";
-	std::cerr << "                TEST SUMMARY\n";
-	std::cerr << "========================================\n";
-	if (tests_failed == 0) {
-		std::cerr << GREEN << "All " << all_test_cases.size() << " tests passed!" << RESET << std::endl;
-	} else {
-		std::cerr << RED << tests_failed << " out of " << all_test_cases.size() << " tests failed." << RESET << std::endl;
-	}
-	std::cerr << "========================================\n";
-
-	if (tests_failed)
-		exit(1);
+	return TestResults{tests_failed, (int)all_test_cases.size()};
 }
 
 // TODO: make this not needed to compile...

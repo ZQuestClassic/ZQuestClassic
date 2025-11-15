@@ -2,6 +2,7 @@
 #include "base/misctypes.h"
 #include "base/qst.h"
 #include "base/zapp.h"
+#include "test_runner/test_runner.h"
 #include "zc/jit.h"
 #include "zc/replay_upload.h"
 #include "zc/saves.h"
@@ -55,19 +56,20 @@ void zplayer_handle_commands()
 	int test_zc_arg = zapp_check_switch("-test-zc");
 	if (test_zc_arg)
 	{
+		bool verbose = zapp_check_switch("-verbose") || zapp_check_switch("-v");
 		bool success = true;
-		if (!saves_test())
-		{
-			success = false;
-			printf("saves_test failed\n");
-		}
-		if (!zasm_optimize_test())
-		{
-			success = false;
-			printf("zasm_optimize_test failed\n");
-		}
+
+		extern TestResults test_saves(bool);
+		if (!run_tests(test_saves, "test_saves", verbose)) success = false;
+
+		extern TestResults test_zasm_optimize(bool);
+		if (!run_tests(test_zasm_optimize, "test_zasm_optimize", verbose)) success = false;
+
 		if (success)
 			printf("all tests passed\n");
+		else
+			printf("tests failed\n");
+
 		exit(success ? 0 : 1);
 	}
 
