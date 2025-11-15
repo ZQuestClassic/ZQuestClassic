@@ -108,20 +108,13 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL) {
 			caseDefault(host, param);}
-		virtual void caseExprPlusAssign(ASTExprPlusAssign& host, void* param = NULL) {
-			caseDefault(host, param);}
-		virtual void caseExprMinusAssign(ASTExprMinusAssign& host, void* param = NULL) {
-			caseDefault(host, param);}
-		virtual void caseExprTimesAssign(ASTExprTimesAssign& host, void* param = NULL) {
-			caseDefault(host, param);}
-		virtual void caseExprDivideAssign(ASTExprDivideAssign& host, void* param = NULL) {
-			caseDefault(host, param);}
-		virtual void caseExprModuloAssign(ASTExprModuloAssign& host, void* param = NULL) {
-			caseDefault(host, param);}
-		virtual void caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param = NULL) {
-			caseDefault(host, param);}
-		virtual void caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param = NULL) {
-			caseDefault(host, param);}
+
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param = NULL) { \
+	caseDefault(host, param);}
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+
 		virtual void caseExprIdentifier(
 				ASTExprIdentifier& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -336,13 +329,12 @@ namespace ZScript
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL);
 		virtual void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL);
-		virtual void caseExprPlusAssign(ASTExprPlusAssign& host, void* param = NULL);
-		virtual void caseExprMinusAssign(ASTExprMinusAssign& host, void* param = NULL);
-		virtual void caseExprTimesAssign(ASTExprTimesAssign& host, void* param = NULL);
-		virtual void caseExprDivideAssign(ASTExprDivideAssign& host, void* param = NULL);
-		virtual void caseExprModuloAssign(ASTExprModuloAssign& host, void* param = NULL);
-		virtual void caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param = NULL);
-		virtual void caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param = NULL);
+		
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param = NULL);
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+
 		virtual void caseExprArrow(ASTExprArrow& host, void* param = NULL);
 		virtual void caseExprIndex(ASTExprIndex& host, void* param = NULL);
 		virtual void caseExprCall(ASTExprCall& host, void* param = NULL);

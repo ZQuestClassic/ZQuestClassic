@@ -1724,55 +1724,16 @@ bool BuildOpcodes::handleSpecialAssignOverride(ASTExprAssign& host, void* param)
 	caseExprCall(call, param);
 	return true;
 }
-void BuildOpcodes::caseExprPlusAssign(ASTExprPlusAssign& host, void* param)
-{
-	if(handleSpecialAssignOverride(host, param))
-		return;
-	ASTExprAssign assign(host.left.clone(), new ASTExprPlus(host.left.clone(), host.right.clone()), host.location);
-	caseExprAssign(assign, param);
+#define SPECIAL_ASSIGN(ty_base, ty_assign, _override_name) \
+void BuildOpcodes::caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param) \
+{ \
+	if(handleSpecialAssignOverride(host, param)) \
+		return; \
+	ASTExprAssign assign(host.left.clone(), new ASTExpr##ty_base(host.left.clone(), host.right.clone()), host.location); \
+	caseExprAssign(assign, param); \
 }
-void BuildOpcodes::caseExprMinusAssign(ASTExprMinusAssign& host, void* param)
-{
-	if(handleSpecialAssignOverride(host, param))
-		return;
-	ASTExprAssign assign(host.left.clone(), new ASTExprMinus(host.left.clone(), host.right.clone()), host.location);
-	caseExprAssign(assign, param);
-}
-void BuildOpcodes::caseExprTimesAssign(ASTExprTimesAssign& host, void* param)
-{
-	if(handleSpecialAssignOverride(host, param))
-		return;
-	ASTExprAssign assign(host.left.clone(), new ASTExprTimes(host.left.clone(), host.right.clone()), host.location);
-	caseExprAssign(assign, param);
-}
-void BuildOpcodes::caseExprDivideAssign(ASTExprDivideAssign& host, void* param)
-{
-	if(handleSpecialAssignOverride(host, param))
-		return;
-	ASTExprAssign assign(host.left.clone(), new ASTExprDivide(host.left.clone(), host.right.clone()), host.location);
-	caseExprAssign(assign, param);
-}
-void BuildOpcodes::caseExprModuloAssign(ASTExprModuloAssign& host, void* param)
-{
-	if(handleSpecialAssignOverride(host, param))
-		return;
-	ASTExprAssign assign(host.left.clone(), new ASTExprModulo(host.left.clone(), host.right.clone()), host.location);
-	caseExprAssign(assign, param);
-}
-void BuildOpcodes::caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param)
-{
-	if(handleSpecialAssignOverride(host, param))
-		return;
-	ASTExprAssign assign(host.left.clone(), new ASTExprLShift(host.left.clone(), host.right.clone()), host.location);
-	caseExprAssign(assign, param);
-}
-void BuildOpcodes::caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param)
-{
-	if(handleSpecialAssignOverride(host, param))
-		return;
-	ASTExprAssign assign(host.left.clone(), new ASTExprRShift(host.left.clone(), host.right.clone()), host.location);
-	caseExprAssign(assign, param);
-}
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
 
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {

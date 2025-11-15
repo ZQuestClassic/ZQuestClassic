@@ -53,13 +53,12 @@ namespace ZScript
 		void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);
 		void handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, void* param = NULL);
-		void caseExprPlusAssign(ASTExprPlusAssign& host, void* = NULL);
-		void caseExprMinusAssign(ASTExprMinusAssign& host, void* = NULL);
-		void caseExprTimesAssign(ASTExprTimesAssign& host, void* = NULL);
-		void caseExprDivideAssign(ASTExprDivideAssign& host, void* = NULL);
-		void caseExprModuloAssign(ASTExprModuloAssign& host, void* = NULL);
-		void caseExprLShiftAssign(ASTExprLShiftAssign& host, void* = NULL);
-		void caseExprRShiftAssign(ASTExprRShiftAssign& host, void* = NULL);
+
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* = NULL);
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+
 		void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
 		void caseExprArrow(ASTExprArrow& host, void* = NULL);
 		void caseExprIndex(ASTExprIndex& host, void* = NULL);

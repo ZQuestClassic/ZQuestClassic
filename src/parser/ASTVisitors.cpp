@@ -653,34 +653,14 @@ void RecursiveVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
 }
-void RecursiveVisitor::caseExprPlusAssign(ASTExprPlusAssign& host, void* param)
-{
-	caseExprAssign(host, param);
+
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+void RecursiveVisitor::caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param) \
+{ \
+	caseExprAssign(host, param); \
 }
-void RecursiveVisitor::caseExprMinusAssign(ASTExprMinusAssign& host, void* param)
-{
-	caseExprAssign(host, param);
-}
-void RecursiveVisitor::caseExprTimesAssign(ASTExprTimesAssign& host, void* param)
-{
-	caseExprAssign(host, param);
-}
-void RecursiveVisitor::caseExprDivideAssign(ASTExprDivideAssign& host, void* param)
-{
-	caseExprAssign(host, param);
-}
-void RecursiveVisitor::caseExprModuloAssign(ASTExprModuloAssign& host, void* param)
-{
-	caseExprAssign(host, param);
-}
-void RecursiveVisitor::caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param)
-{
-	caseExprAssign(host, param);
-}
-void RecursiveVisitor::caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param)
-{
-	caseExprAssign(host, param);
-}
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
 
 void RecursiveVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {

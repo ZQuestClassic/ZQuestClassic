@@ -1,0 +1,7 @@
+SPECIAL_ASSIGN(Plus, PlusAssign, "plus_assign")
+SPECIAL_ASSIGN(Minus, MinusAssign, "minus_assign")
+SPECIAL_ASSIGN(Times, TimesAssign, "times_assign")
+SPECIAL_ASSIGN(Divide, DivideAssign, "divide_assign")
+SPECIAL_ASSIGN(Modulo, ModuloAssign, "modulo_assign")
+SPECIAL_ASSIGN(LShift, LShiftAssign, "lshift_assign")
+SPECIAL_ASSIGN(RShift, RShiftAssign, "rshift_assign")
