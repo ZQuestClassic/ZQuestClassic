@@ -357,10 +357,8 @@ bool DataTypeArray::canCastTo(DataType const& target, bool allowDeprecatedArrayC
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
-	if (*this == *CHAR_ARRAY && STRING && target == *STRING)
-	{
+	if (STRING && target == *STRING && canCastTo(*CHAR_ARRAY, allowDeprecatedArrayCast))
 		return true;
-	}
 	if (!target.isArray())
 	{
 		// Allows simple types to cast to an array.
@@ -485,10 +483,10 @@ bool DataTypeCustom::canCastTo(DataType const& target, bool allowDeprecatedArray
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
+	if (STRING && *this == *STRING && target.canCastTo(*CHAR_ARRAY, allowDeprecatedArrayCast))
+		return true;
 	if (target.isArray())
 	{
-		if (target == *CHAR_ARRAY && STRING && *this == *STRING)
-			return true;
 		// Allows simple types to cast to an array.
 		// Types that retain object references are not allowed to be cast like this, as that would break reference counting.
 		// This should avoid breaking the vast majority of legacy arrays (which was mostly int).
