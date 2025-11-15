@@ -1689,6 +1689,20 @@ void BuildOpcodes::caseCustomDataTypeDef(ASTDataTypeDef&, void*) {}
 
 void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 {
+	if (ASTExprIndex* idx = dynamic_cast<ASTExprIndex*>(host.left.get()))
+	{
+		if (idx->override_write_fn)
+		{
+			ASTExprCall call(host.location);
+			call.binding = idx->override_write_fn;
+			call.left = new ASTExprIdentifier(call.binding->name, host.location);
+			call.parameters.push_back(idx->array.clone());
+			call.parameters.push_back(idx->index.clone());
+			call.parameters.push_back(host.right.clone());
+			caseExprCall(call, param);
+			return;
+		}
+	}
 	//load the rval into EXP1
 	VISIT_USEVAL(host.right.get(), param);
 	//and store it
@@ -1831,6 +1845,16 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 {
+	if (host.override_read_fn)
+	{
+		ASTExprCall call(host.location);
+		call.binding = host.override_read_fn;
+		call.left = new ASTExprIdentifier(call.binding->name, host.location);
+		call.parameters.push_back(host.array.clone());
+		call.parameters.push_back(host.index.clone());
+		caseExprCall(call, param);
+		return;
+	}
 	// If the left hand side is an arrow, then we'll let it run instead.
 	if (host.array->isTypeArrow())
 	{

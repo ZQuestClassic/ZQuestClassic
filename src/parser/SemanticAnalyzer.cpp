@@ -1439,6 +1439,44 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	if(!(host.array->isTypeArrow()))
 	{
 		DataType const* readty = host.array->getReadType(scope,this);
+		
+		if (readty->isUsrClass())
+		{
+			UserClass* user_class = readty->getUsrClass();
+			vector<DataType const*> param_get_types = {readty, &DataType::FLOAT};
+			vector<DataType const*> param_set_types = {readty, &DataType::FLOAT, &DataType::UNTYPED};
+			vector<Function*> get_fns = lookupClassFuncs(*user_class, "index_get", param_get_types, scope, false, true);
+			vector<Function*> set_fns = lookupClassFuncs(*user_class, "index_set", param_set_types, scope, false, true);
+			//Remove any non-operator functions
+			std::erase_if(get_fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+			std::erase_if(set_fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+			get_fns = best_functions_cast(get_fns, param_get_types);
+			set_fns = best_functions_cast(set_fns, param_set_types);
+			best_functions_optparam(get_fns, param_get_types);
+			best_functions_optparam(set_fns, param_set_types);
+			best_function_untyped(get_fns, param_get_types);
+			best_function_untyped(set_fns, param_set_types);
+			
+			if (get_fns.size() == 1)
+			{
+				host.override_read_fn = get_fns[0];
+			}
+			else
+			{
+				best_function_error(host, get_fns, FunctionSignature("index_get", param_get_types));
+			}
+			
+			if (set_fns.size() == 1)
+			{
+				host.override_write_fn = set_fns[0];
+			}
+			else
+			{
+				best_function_error(host, set_fns, FunctionSignature("index_set", param_set_types));
+			}
+			return;
+		}
+		
 		DataType const* writety = host.array->getWriteType(scope,this);
 		auto ty = readty ? readty : writety;
 		if(!ty || !(ty->isArray() || ty->isUntyped()))
