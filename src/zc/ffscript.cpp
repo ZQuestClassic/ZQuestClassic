@@ -25039,6 +25039,30 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				SET_D(rEXP1, id);
 				break;
 			}
+			case STRINGSUBSTR:
+			{
+				int32_t arrayptr = get_register(sarg1);
+				int32_t start_pos = get_register(sarg2) / 10000;
+				int32_t length = get_register(sarg3) / 10000;
+				size_t substr_len = length < 0 ? string::npos : size_t(length);
+
+				string s;
+				ArrayH::getString(arrayptr, s);
+
+				if (start_pos < 0)
+					start_pos += s.size();
+				size_t pos = size_t(start_pos);
+				
+				if (pos > s.size())
+					s = "";
+				else s = s.substr(start_pos, substr_len);
+				
+				uint32_t sid = allocatemem(s.size(), true, type, i, script_object_type::none);
+				do_autorelease(sid);
+				ArrayH::setArray(sid, s, true);
+				SET_D(rEXP1, sid);
+				break;
+			}
 			case STRSPN: FFCore.do_strspn(); break;
 			case STRCHR: FFCore.do_strchr(); break;
 			case STRRCHR: FFCore.do_strrchr(); break;

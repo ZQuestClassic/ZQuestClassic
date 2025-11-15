@@ -2036,7 +2036,12 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case STRCSPN: return "strcspn()";
 		case STRINGICOMPARE: return "stricmp()";
 		case WRITEPODARRAYVV: return "string::Clear()";
-		case REF_AUTORELEASE: return "string::string()";
+		case REF_AUTORELEASE: return "string::Copy()";
+		case STRINGSPLIT: return "string::Split()";
+		case STRINGSUBSTR: return "string::Substr()";
+		case READPODARRAYR: return "string::index_get()";
+		case WRITEPODARRAYRR: return "string::index_set()";
+		case STRMULTR: return "string::times()";
 		case STRINGLENGTH: return "strlen()";
 		case STRINGNCOMPARE: return "strncmp()";
 		case STRINGNICOMPARE: return "strnicmp()";

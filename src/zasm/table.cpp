@@ -868,6 +868,7 @@ static constexpr script_command command_list[]=
 	{ "RESIZEARRAYV", RESIZEARRAYV, 2, { REG_R, NUM }, 0, 0 },
 	{ "STRMULTR", STRMULTR, 2, { REG_RW, REG_R }, 0, 0 },
 	{ "STRINGSPLIT", STRINGSPLIT, 3, { REG_R, REG_R, REG_R }, 0, 0 },
+	{ "STRINGSUBSTR", STRINGSUBSTR, 3, { REG_R, REG_R, REG_R }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=
@@ -2864,13 +2865,6 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}};
 			return r;
 		}
-		
-		case STRINGSPLIT:
-		{
-			static T r = {{rINDEX, REG_R}, {rEXP1, REG_W}};
-			return r;
-		}
-
 		case GETSCREENFLAGS:
 		case GRAPHICSGETPIXEL:
 		case ISSOLIDLAYER:
@@ -2886,6 +2880,7 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case FILEWRITEBYTES:
 		case FILEWRITECHARS:
 		case FILEWRITEINTS:
+		case STRINGSPLIT:
 		{
 			static T r = {{rINDEX, REG_R}, {rEXP1, REG_W}};
 			return r;
@@ -2983,6 +2978,7 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case WRAPRADIANS:
 		case ZCLASS_FREE:
 		case ZCLASS_READ:
+		case STRINGSUBSTR:
 		{
 			static T r = {{rEXP1, REG_W}};
 			return r;

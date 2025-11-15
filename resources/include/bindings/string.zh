@@ -158,4 +158,14 @@ class string {
 	//   POP D0
 	//   STRINGSPLIT D1 D2 D3
 	internal string[] Split(string delimiter, bool allow_empty = true, int max_split = 0);
+	
+	// Returns a substring of the string, starting at 'start_pos', 'length' long.
+	// If 'length' is -1, uses the rest of the string after 'start_pos'.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP D0
+	//   STRINGSUBSTR D0 D2 D3
+	internal string Substr(int start_pos, int length = -1);
 }
