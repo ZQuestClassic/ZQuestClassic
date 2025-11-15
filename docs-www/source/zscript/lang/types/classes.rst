@@ -121,6 +121,42 @@ that are not *array declarations* still act as normal.
 	Currently, attempting to re-assign a pointer to such an array does not give a compiler
 	error- it simply has no effect. This will likely become a compiler error in the future.
 
+Overloaded Operators
+--------------------
+
+Special functions can be declared using the keywords `static operator`, which will cause operators acting
+on the class to call these functions, instead of erroring or having some other behavior.
+
+Type key:
+- `T1`, `T2`, `T3` - arbitrary types. Must be the same type as the same-numbered T, if it appears multiple times in the same function signature.
+- `cls` - the type matching the class the function belongs to.
+
++----------+-------------------------------------------+------------------------------------------------------------+
+| operator | function signature                        | description                                                |
++==========+===========================================+============================================================+
+| `+`      | `T1 plus(T2 arg1, T3 arg2)`               | Used for adding two args. `T2` or `T3` must be `cls`.      |
++----------+-------------------------------------------+------------------------------------------------------------+
+| `-`      | `T1 minus(T2 arg1, T3 arg2)`              | Used for subtracting two args. `T2` or `T3` must be `cls`. |
++----------+-------------------------------------------+------------------------------------------------------------+
+| `*`      | `T1 times(T2 arg1, T3 arg2)`              | Used for multiplying two args. `T2` or `T3` must be `cls`. |
++----------+-------------------------------------------+------------------------------------------------------------+
+| `/`      | `T1 divide(T2 arg1, T3 arg2)`             | Used for dividing two args. `T2` or `T3` must be `cls`.    |
++----------+-------------------------------------------+------------------------------------------------------------+
+|| `[]`    || `T1 index_get(cls obj, int idx)`         || Used to read/write at indexes of the object.              |
+||         || `T1 index_set(cls obj, int idx, T2 val)` ||                                                           |
++----------+-------------------------------------------+------------------------------------------------------------+
+| `+=`     | `T1 plus_assign(cls obj, T2 val)`         | Used to add something to the object.                       |
++----------+-------------------------------------------+------------------------------------------------------------+
+| `-=`     | `T1 minus_assign(cls obj, T2 val)`        | Used to subtract something from the object.                |
++----------+-------------------------------------------+------------------------------------------------------------+
+| `*=`     | `T1 times_assign(cls obj, T2 val)`        | Used to multiply the object by something.                  |
++----------+-------------------------------------------+------------------------------------------------------------+
+| `/=`     | `T1 divide_assign(cls obj, T2 val)`       | Used to divide the object by something.                    |
++----------+-------------------------------------------+------------------------------------------------------------+
+|          |                                           |                                                            |
++----------+-------------------------------------------+------------------------------------------------------------+
+
+
 Examples
 --------
 
