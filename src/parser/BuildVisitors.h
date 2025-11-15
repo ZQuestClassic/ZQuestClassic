@@ -60,6 +60,11 @@ namespace ZScript
 		virtual void caseCustomDataTypeDef(ASTDataTypeDef& host, void* param);
 		// Expressions
 		virtual void caseExprAssign(ASTExprAssign &host, void *param);
+		bool handleSpecialAssignOverride(ASTExprAssign& host, void* param);
+		virtual void caseExprPlusAssign(ASTExprPlusAssign& host, void* param);
+		virtual void caseExprMinusAssign(ASTExprMinusAssign& host, void* param);
+		virtual void caseExprTimesAssign(ASTExprTimesAssign& host, void* param);
+		virtual void caseExprDivideAssign(ASTExprDivideAssign& host, void* param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);

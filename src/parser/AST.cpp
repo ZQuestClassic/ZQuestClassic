@@ -1721,7 +1721,7 @@ bool ASTExprVarInitializer::valueIsArray(Scope* scope, CompileErrorHandler* erro
 
 ASTExprAssign::ASTExprAssign(ASTExpr* left, ASTExpr* right,
 							 LocationData const& location)
-	: ASTExpr(location), left(left), right(right) {}
+	: ASTExpr(location), left(left), right(right), override_fn(nullptr) {}
 
 void ASTExprAssign::execute(ASTVisitor& visitor, void* param)
 {
@@ -1732,6 +1732,78 @@ std::optional<int32_t> ASTExprAssign::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	return right ? right->getCompileTimeValue(errorHandler, scope) : std::nullopt;
+}
+
+// ASTExprPlusAssign
+
+ASTExprPlusAssign::ASTExprPlusAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprAssign(left, right, location) {}
+
+void ASTExprPlusAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprPlusAssign(*this, param);
+}
+
+DataType const* ASTExprPlusAssign::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return ASTExprPlus(left->clone(), right->clone()).getReadType(scope, errorHandler);
+}
+
+// ASTExprMinusAssign
+
+ASTExprMinusAssign::ASTExprMinusAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprAssign(left, right, location) {}
+
+void ASTExprMinusAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprMinusAssign(*this, param);
+}
+
+DataType const* ASTExprMinusAssign::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return ASTExprMinus(left->clone(), right->clone()).getReadType(scope, errorHandler);
+}
+
+// ASTExprTimesAssign
+
+ASTExprTimesAssign::ASTExprTimesAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprAssign(left, right, location) {}
+
+void ASTExprTimesAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprTimesAssign(*this, param);
+}
+
+DataType const* ASTExprTimesAssign::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return ASTExprTimes(left->clone(), right->clone()).getReadType(scope, errorHandler);
+}
+
+// ASTExprDivideAssign
+
+ASTExprDivideAssign::ASTExprDivideAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprAssign(left, right, location) {}
+
+void ASTExprDivideAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprDivideAssign(*this, param);
+}
+
+DataType const* ASTExprDivideAssign::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return ASTExprDivide(left->clone(), right->clone()).getReadType(scope, errorHandler);
 }
 
 // ASTExprIdentifier

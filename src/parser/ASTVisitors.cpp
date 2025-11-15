@@ -653,6 +653,22 @@ void RecursiveVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
 }
+void RecursiveVisitor::caseExprPlusAssign(ASTExprPlusAssign& host, void* param)
+{
+	caseExprAssign(host, param);
+}
+void RecursiveVisitor::caseExprMinusAssign(ASTExprMinusAssign& host, void* param)
+{
+	caseExprAssign(host, param);
+}
+void RecursiveVisitor::caseExprTimesAssign(ASTExprTimesAssign& host, void* param)
+{
+	caseExprAssign(host, param);
+}
+void RecursiveVisitor::caseExprDivideAssign(ASTExprDivideAssign& host, void* param)
+{
+	caseExprAssign(host, param);
+}
 
 void RecursiveVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {

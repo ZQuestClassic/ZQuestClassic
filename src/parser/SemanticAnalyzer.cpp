@@ -928,13 +928,19 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	auto func_name = host.getName();
 	if (host.getFlag(FUNCFLAG_OPERATOR))
 	{
-		if (!host.getFlag(FUNCFLAG_STATIC))
+		UserClass* user_class = nullptr;
+		if (ClassScope* cs = dynamic_cast<ClassScope*>(func_lives_in))
+			user_class = &cs->user_class;
+		
+		if (!host.getFlag(FUNCFLAG_STATIC) || !user_class)
 		{
 			handleError(CompileError::Error(&host, "Operator functions must be static class functions!"));
 			return;
 		}
 		static std::map<int, std::set<string>> operator_strings = {
-			{2, {"plus", "minus", "times", "divide", "index_get"}},
+			{2, {"plus", "minus", "times", "divide",
+				"plus_assign", "minus_assign", "times_assign", "divide_assign",
+				"index_get"}},
 			{3, {"index_set"}}
 		};
 		bool found = false;
@@ -955,6 +961,14 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		{
 			handleError(CompileError::Error(&host, "Invalid parameter count for operator function!"));
 			return;
+		}
+		if (func_name.ends_with("_assign"))
+		{
+			if (*paramTypes[0] != *user_class->getType())
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' first parameter must match it's class type.", func_name)));
+				return;
+			}
 		}
 		if (func_name == "index_get" || func_name == "index_set")
 		{
@@ -1216,15 +1230,15 @@ void SemanticAnalyzer::caseVarInitializer(ASTExprVarInitializer& host, void*)
 	}
 }
 
-void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
+void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, void*)
 {
-	visit(host.left.get(), paramWrite);
+	visit(host.left.get(), paramReadWrite);
 	if (breakRecursion(host)) return;
-	
-	visit(host.right.get(), paramRead);
-	if (breakRecursion(host)) return;	
 
-    DataType const* rtype = host.right->getReadType(scope, this);
+	visit(host.right.get(), paramRead);
+	if (breakRecursion(host)) return;
+
+	DataType const* rtype = host.right->getReadType(scope, this);
 	if (!rtype)
 	{
 		handleError(
@@ -1232,7 +1246,33 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 				host.right.get(), host.right->asString()));
 		return;
 	}
-    
+	
+	bool skip_cast_check = false;
+	if (ASTExprIndex* idx = dynamic_cast<ASTExprIndex*>(host.left.get()))
+	{
+		DataType const* readty = idx->array->getReadType(scope,this);
+		
+		if (readty->isUsrClass())
+		{
+			UserClass* user_class = readty->getUsrClass();		
+			vector<DataType const*> param_types = {readty, &DataType::FLOAT, rtype};
+			vector<Function*> fns = lookupClassFuncs(*user_class, "index_set", param_types, scope, false, true);
+			std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+			fns = best_functions_cast(fns, param_types);
+			best_functions_optparam(fns, param_types);
+			best_function_untyped(fns, param_types);
+			
+			if (fns.size() == 1)
+			{
+				idx->override_write_fn = fns[0];
+			}
+			else
+			{
+				best_function_error(host, fns, FunctionSignature("index_set", param_types));
+			}
+			skip_cast_check = true;
+		}
+	}
 	DataType const* ltype = host.left->getWriteType(scope, this);
 	if (!ltype)
 	{
@@ -1241,13 +1281,74 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 				host.left.get(), host.left->asString()));
 		return;
 	}
-	
-	checkCast(*rtype, *ltype, &host);
-	if (breakRecursion(host)) return;	
+
+	if (override_name)
+	{
+		DataType const* left_readtype = host.left->getReadType(scope, this);
+		if (left_readtype->isUsrClass() || rtype->isUsrClass())
+		{
+			UserClass *left_class = left_readtype->getUsrClass(), *right_class = rtype->getUsrClass();
+			
+			vector<DataType const*> param_types = {left_readtype, rtype};
+			vector<Function*> fns;
+			if (left_class)
+			{
+				auto left_fns = lookupClassFuncs(*left_class, *override_name, param_types, scope, false, true);
+				fns.insert(fns.end(), left_fns.begin(), left_fns.end());
+			}
+			if (right_class && right_class != left_class)
+			{
+				auto right_fns = lookupClassFuncs(*right_class, *override_name, param_types, scope, false, true);
+				fns.insert(fns.end(), right_fns.begin(), right_fns.end());
+			}
+			//Remove any non-operator functions
+			std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+			fns = best_functions_cast(fns, param_types);
+			best_functions_optparam(fns, param_types);
+			best_function_untyped(fns, param_types);
+			
+			if (fns.size() == 1)
+			{
+				host.override_fn = fns[0];
+			}
+			else
+			{
+				best_function_error(host, fns, FunctionSignature(*override_name, param_types));
+			}
+			return;
+		}
+	}
+
+	if (!skip_cast_check)
+	{
+		checkCast(*rtype, *ltype, &host);
+		if (breakRecursion(host)) return;
+	}
 
 	if (ltype->isConstant())
 		handleError(CompileError::LValConst(&host, host.left->asString()));
-	if (breakRecursion(host)) return;	
+	if (breakRecursion(host)) return;
+}
+void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void* param)
+{
+	handleSpecialAssign(host, nullopt, param);
+}
+
+void SemanticAnalyzer::caseExprPlusAssign(ASTExprPlusAssign& host, void* param)
+{
+	handleSpecialAssign(host, "plus_assign");
+}
+void SemanticAnalyzer::caseExprMinusAssign(ASTExprMinusAssign& host, void* param)
+{
+	handleSpecialAssign(host, "minus_assign");
+}
+void SemanticAnalyzer::caseExprTimesAssign(ASTExprTimesAssign& host, void* param)
+{
+	handleSpecialAssign(host, "times_assign");
+}
+void SemanticAnalyzer::caseExprDivideAssign(ASTExprDivideAssign& host, void* param)
+{
+	handleSpecialAssign(host, "divide_assign");
 }
 
 void SemanticAnalyzer::caseExprIdentifier(
@@ -1348,7 +1449,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		{
 			reader = lookupGetter(host.leftClass->getScope(), host.right->getValue());
 		}
-
+		
 		host.readFunction = reader;
 		if (!host.readFunction)
 		{
@@ -1443,36 +1544,21 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 		if (readty->isUsrClass())
 		{
 			UserClass* user_class = readty->getUsrClass();
-			vector<DataType const*> param_get_types = {readty, &DataType::FLOAT};
-			vector<DataType const*> param_set_types = {readty, &DataType::FLOAT, &DataType::UNTYPED};
-			vector<Function*> get_fns = lookupClassFuncs(*user_class, "index_get", param_get_types, scope, false, true);
-			vector<Function*> set_fns = lookupClassFuncs(*user_class, "index_set", param_set_types, scope, false, true);
+			vector<DataType const*> param_types = {readty, &DataType::FLOAT};
+			vector<Function*> fns = lookupClassFuncs(*user_class, "index_get", param_types, scope, false, true);
 			//Remove any non-operator functions
-			std::erase_if(get_fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
-			std::erase_if(set_fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
-			get_fns = best_functions_cast(get_fns, param_get_types);
-			set_fns = best_functions_cast(set_fns, param_set_types);
-			best_functions_optparam(get_fns, param_get_types);
-			best_functions_optparam(set_fns, param_set_types);
-			best_function_untyped(get_fns, param_get_types);
-			best_function_untyped(set_fns, param_set_types);
+			std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+			fns = best_functions_cast(fns, param_types);
+			best_functions_optparam(fns, param_types);
+			best_function_untyped(fns, param_types);
 			
-			if (get_fns.size() == 1)
+			if (fns.size() == 1)
 			{
-				host.override_read_fn = get_fns[0];
+				host.override_read_fn = fns[0];
 			}
 			else
 			{
-				best_function_error(host, get_fns, FunctionSignature("index_get", param_get_types));
-			}
-			
-			if (set_fns.size() == 1)
-			{
-				host.override_write_fn = set_fns[0];
-			}
-			else
-			{
-				best_function_error(host, set_fns, FunctionSignature("index_set", param_set_types));
+				best_function_error(host, fns, FunctionSignature("index_get", param_types));
 			}
 			return;
 		}
@@ -2197,9 +2283,9 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		auto& left_type = *host.left->getReadType(scope, this);
 		auto& right_type = *host.right->getReadType(scope, this);
 		
-		UserClass *left_class = left_type.getUsrClass(), *right_class = right_type.getUsrClass();
-		if (left_class || right_class)
+		if (left_type.isUsrClass() || right_type.isUsrClass())
 		{
+			UserClass *left_class = left_type.getUsrClass(), *right_class = right_type.getUsrClass();
 			vector<DataType const*> param_types = {&left_type, &right_type};
 			vector<Function*> fns;
 			if (left_class)
