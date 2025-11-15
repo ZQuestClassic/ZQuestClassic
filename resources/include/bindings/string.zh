@@ -10,22 +10,13 @@ class string {
 	//   REF_AUTORELEASE D2
 	internal string();
 	
-	// Constructs a new string as a copy of 'str'
-	//
-	// @zasm
-	//   POP D0
-	//   ALLOCATEMEMV D2 1 0
-	//   REF_AUTORELEASE D2
-	//   STRINGCOPY D2 D0
-	internal string(string str);
-	
 	// Copies the contents of 'other' into this string, replacing this string's contents entirely.
 	//
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   STRINGCOPY D2 D0
-	internal void assign(string other);
+	internal void Assign(string other);
 	
 	// Returns a new string of 'b' concatenated to the end of 'a'
 	// 
@@ -138,26 +129,15 @@ class string {
 	//   WRITEPODARRAYVV 0 0
 	internal void Clear();
 	
-	// Prints the passed string to the output console. Includes a newline character
-	// after the string.
-	//
-	// @zasm
-	//   POP D2
-	//   TRACE6 D2
-	//   TRACE3
-	internal void Trace();
-	
 	// Splits the string into multiple strings wherever 'delimiter' appears.
 	// If 'max_split' is > 0, the number of splits may not exceed max_split.
-	// If 'allow_empty' is false, any empty strings that would be left in the array are ignored.
 	//
 	// @zasm
 	//   POP D3
 	//   POP D2
-	//   POP D1
 	//   POP D0
-	//   STRINGSPLIT D1 D2 D3
-	internal string[] Split(string delimiter, bool allow_empty = true, int max_split = 0);
+	//   STRINGSPLIT D0 D2 D3
+	internal string[] Split(string delimiter, int max_split = 0);
 	
 	// Returns a substring of the string, starting at 'start_pos', 'length' long.
 	// If 'length' is -1, uses the rest of the string after 'start_pos'.

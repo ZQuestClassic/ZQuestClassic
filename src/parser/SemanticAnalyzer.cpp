@@ -1275,7 +1275,7 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 			}
 			else
 			{
-				best_function_error(host, fns, FunctionSignature("index_set", param_types));
+				best_function_error(host, fns, FunctionSignature("index_set", param_types), "Operator Function");
 			}
 			skip_cast_check = true;
 		}
@@ -1320,7 +1320,7 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 			}
 			else
 			{
-				best_function_error(host, fns, FunctionSignature(*override_name, param_types));
+				best_function_error(host, fns, FunctionSignature(*override_name, param_types), "Operator Function");
 			}
 			return;
 		}
@@ -1555,7 +1555,7 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 				if (fns.size() == 1)
 					host.override_read_fn = fns[0];
 				else
-					best_function_error(host, fns, FunctionSignature("index_get", param_types));
+					best_function_error(host, fns, FunctionSignature("index_get", param_types), "Operator Function");
 				return;
 			}
 		}
@@ -1769,12 +1769,11 @@ void SemanticAnalyzer::best_function_untyped(vector<Function*>& bestFunctions, v
 			bestFunctions = newBestFunctions;
 	}
 }
-void SemanticAnalyzer::best_function_error(AST& host, vector<Function*>& bestFunctions, FunctionSignature const& signature)
+void SemanticAnalyzer::best_function_error(AST& host, vector<Function*>& bestFunctions, FunctionSignature const& signature, string const& prefix)
 {
 	if (bestFunctions.size() == 0)
 	{
-		handleError(
-				CompileError::NoFuncMatch(&host, signature.asString()));
+		handleError(CompileError::NoFuncMatch(&host, prefix, signature.asString()));
 	}
 	else
 	{
@@ -1802,7 +1801,7 @@ void SemanticAnalyzer::best_function_error(AST& host, vector<Function*>& bestFun
 		handleError(
 				CompileError::TooFuncMatch(
 						&host,
-						signature.asString(),
+						fmt::format("{} {}", prefix, signature.asString()),
 						oss.str()));
 	}
 }
@@ -1894,7 +1893,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	if (bestFunctions.size() != 1)
 	{
 		FunctionSignature signature(host.left->asString(), parameterTypes);
-		best_function_error(host, bestFunctions, signature);
+		best_function_error(host, bestFunctions, signature, "Function");
 		return;
 	}
 	
@@ -2303,7 +2302,7 @@ bool SemanticAnalyzer::overrideBinaryExpr(ASTBinaryExpr& host, string override_n
 		}
 		else if(require || fns.size() > 1)
 		{
-			best_function_error(host, fns, FunctionSignature(override_name, param_types));
+			best_function_error(host, fns, FunctionSignature(override_name, param_types), "Operator Function");
 		}
 		return true;
 	}

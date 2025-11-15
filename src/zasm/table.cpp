@@ -2880,7 +2880,6 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case FILEWRITEBYTES:
 		case FILEWRITECHARS:
 		case FILEWRITEINTS:
-		case STRINGSPLIT:
 		{
 			static T r = {{rINDEX, REG_R}, {rEXP1, REG_W}};
 			return r;
@@ -2979,6 +2978,7 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case ZCLASS_FREE:
 		case ZCLASS_READ:
 		case STRINGSUBSTR:
+		case STRINGSPLIT:
 		{
 			static T r = {{rEXP1, REG_W}};
 			return r;

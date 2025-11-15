@@ -24999,9 +24999,8 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case STRINGSPLIT:
 			{
-				int32_t arrayptr = GET_D(rINDEX);
-				int32_t delimptr = get_register(sarg1);
-				bool allow_empty = get_register(sarg2) != 0;
+				int32_t arrayptr = get_register(sarg1);
+				int32_t delimptr = get_register(sarg2);
 				int max_split = get_register(sarg3) / 10000;
 				
 				string s, delim;
@@ -25014,13 +25013,10 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				{
 					string sub = s.substr(0, pos);
 					s.erase(0, pos + delim.size());
-					if (allow_empty || !sub.empty())
-					{
-						res.emplace_back(sub);
-						if (max_split > 0)
-							if (!--max_split)
-								break;
-					}
+					res.emplace_back(sub);
+					if (max_split > 0)
+						if (!--max_split)
+							break;
 					pos = s.find(delim);
 				}
 				if (pos == string::npos)
