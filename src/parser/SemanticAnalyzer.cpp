@@ -1237,9 +1237,9 @@ void SemanticAnalyzer::caseVarInitializer(ASTExprVarInitializer& host, void*)
 	}
 }
 
-void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, void*)
+void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, void* param)
 {
-	visit(host.left.get(), paramReadWrite);
+	visit(host.left.get(), param);
 	if (breakRecursion(host)) return;
 
 	visit(host.right.get(), paramRead);
@@ -1269,15 +1269,18 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 			best_functions_optparam(fns, param_types);
 			best_function_untyped(fns, param_types);
 			
-			if (fns.size() == 1)
+			if (!fns.empty())
 			{
-				idx->override_write_fn = fns[0];
+				if (fns.size() == 1)
+				{
+					idx->override_write_fn = fns[0];
+				}
+				else
+				{
+					best_function_error(host, fns, FunctionSignature("index_set", param_types), "Operator Function");
+				}
+				skip_cast_check = true;
 			}
-			else
-			{
-				best_function_error(host, fns, FunctionSignature("index_set", param_types), "Operator Function");
-			}
-			skip_cast_check = true;
 		}
 	}
 	DataType const* ltype = host.left->getWriteType(scope, this);
@@ -1336,15 +1339,15 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 		handleError(CompileError::LValConst(&host, host.left->asString()));
 	if (breakRecursion(host)) return;
 }
-void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void* param)
+void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 {
-	handleSpecialAssign(host, nullopt, param);
+	handleSpecialAssign(host, nullopt, paramRead);
 }
 
 #define SPECIAL_ASSIGN(_, ty_assign, override_name) \
 void SemanticAnalyzer::caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param) \
 { \
-	handleSpecialAssign(host, override_name); \
+	handleSpecialAssign(host, override_name, paramReadWrite); \
 }
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
@@ -1596,6 +1599,10 @@ vector<Function*> SemanticAnalyzer::best_functions_cast(vector<Function*>& base_
 			DataType const& from = getNaiveType(*parameterTypes[i], scope);
 			DataType const& to = getNaiveType(*function.paramTypes[i], scope);
 			if (from == to) continue;
+			if (DataType::STRING &&
+				(((from == *DataType::STRING || from == *DataType::STRING->getConstType()) && to == *DataType::CHAR_ARRAY)
+				|| ((to == *DataType::STRING || to == *DataType::STRING->getConstType()) && from == *DataType::CHAR_ARRAY)))
+				continue;
 			++castCount;
 		}
 
