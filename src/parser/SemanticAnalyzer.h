@@ -122,7 +122,7 @@ void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* = NULL);
 		void best_functions_optparam(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);
 		void best_functions_namespace(vector<Function*>& bestFunctions);
 		void best_function_untyped(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);
-		void best_function_error(AST& host, vector<Function*>& bestFunctions, FunctionSignature const& signature);
+		void best_function_error(AST& host, vector<Function*>& bestFunctions, FunctionSignature const& signature, string const& prefix);
 
 	};
 }	

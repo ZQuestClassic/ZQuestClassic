@@ -1543,7 +1543,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 		if (bestFunctions.size() == 0)
 		{
 			handleError(
-					CompileError::NoFuncMatch(&host, signature.asString()));
+					CompileError::NoFuncMatch(&host, "Function", signature.asString()));
 		}
 		else
 		{
@@ -1571,7 +1571,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 			handleError(
 					CompileError::TooFuncMatch(
 							&host,
-							signature.asString(),
+							fmt::format("Function {}", signature.asString()),
 							oss.str()));
 		}
 		return;
