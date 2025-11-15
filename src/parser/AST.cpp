@@ -1714,7 +1714,7 @@ std::optional<int32_t> ASTExprVarInitializer::getCompileTimeValue(
 bool ASTExprVarInitializer::valueIsArray(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	DataType const* type = getReadType(scope, errorHandler);
-	return type && type->isArray();
+	return type && (type->isArray() || (DataType::STRING && type->canCastTo(*DataType::STRING, scope)));
 }
 
 // ASTExprAssign
