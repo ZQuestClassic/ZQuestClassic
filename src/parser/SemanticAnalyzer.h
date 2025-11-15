@@ -113,10 +113,10 @@ void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* = NULL);
 
 		void analyzeUnaryExpr(ASTUnaryExpr& host, ZScript::DataType const& type);
 		void analyzeIncrement(ASTUnaryExpr& host);
-		bool overrideBinaryExpr(ASTBinaryExpr& host, string override_name, bool require = false);
+		bool overrideBinaryExpr(ASTBinaryExpr& host, string override_name, bool require);
 		void analyzeBinaryExpr(
 				ASTBinaryExpr& host, ZScript::DataType const& leftType,
-				ZScript::DataType const& rightType, string override_name);
+				ZScript::DataType const& rightType, string override_name, bool require_override);
 		
 		vector<Function*> best_functions_cast(vector<Function*>& base_funcs, vector<DataType const*> const& parameterTypes);
 		void best_functions_optparam(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);

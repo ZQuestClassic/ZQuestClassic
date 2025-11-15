@@ -2005,37 +2005,37 @@ void SemanticAnalyzer::caseExprCast(ASTExprCast& host, void* param)
 
 void SemanticAnalyzer::caseExprAnd(ASTExprAnd& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_and");
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_and", false);
 }
 
 void SemanticAnalyzer::caseExprOr(ASTExprOr& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_or");
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_or", false);
 }
 
 void SemanticAnalyzer::caseExprXOR(ASTExprXOR& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_xor");
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_xor", false);
 }
 
 void SemanticAnalyzer::caseExprGT(ASTExprGT& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_gt");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_gt", true);
 }
 
 void SemanticAnalyzer::caseExprGE(ASTExprGE& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_ge");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_ge", true);
 }
 
 void SemanticAnalyzer::caseExprLT(ASTExprLT& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_lt");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_lt", true);
 }
 
 void SemanticAnalyzer::caseExprLE(ASTExprLE& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_le");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_le", true);
 }
 
 void SemanticAnalyzer::caseExprEQ(ASTExprEQ& host, void*)
@@ -2043,7 +2043,7 @@ void SemanticAnalyzer::caseExprEQ(ASTExprEQ& host, void*)
 	RecursiveVisitor::caseExprEQ(host);
 	if (breakRecursion(host)) return;
 	
-	if (!host.strict && overrideBinaryExpr(host, "cmp_eq"))
+	if (!host.strict && overrideBinaryExpr(host, "cmp_eq", false))
 		return;
 
 	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host, true);
@@ -2055,7 +2055,7 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 	RecursiveVisitor::caseExprNE(host);
 	if (breakRecursion(host)) return;
 	
-	if (!host.strict && overrideBinaryExpr(host, "cmp_ne"))
+	if (!host.strict && overrideBinaryExpr(host, "cmp_ne", false))
 		return;
 
 	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host, true);
@@ -2064,62 +2064,62 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 
 void SemanticAnalyzer::caseExprAppxEQ(ASTExprAppxEQ& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_appx_eq");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_appx_eq", true);
 }
 
 void SemanticAnalyzer::caseExprPlus(ASTExprPlus& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "plus");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "plus", true);
 }
 
 void SemanticAnalyzer::caseExprMinus(ASTExprMinus& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "minus");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "minus", true);
 }
 
 void SemanticAnalyzer::caseExprTimes(ASTExprTimes& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "times");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "times", true);
 }
 
 void SemanticAnalyzer::caseExprExpn(ASTExprExpn& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "expn");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "expn", true);
 }
 
 void SemanticAnalyzer::caseExprDivide(ASTExprDivide& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "divide");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "divide", true);
 }
 
 void SemanticAnalyzer::caseExprModulo(ASTExprModulo& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "modulo");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "modulo", true);
 }
 
 void SemanticAnalyzer::caseExprBitAnd(ASTExprBitAnd& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_and");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_and", true);
 }
 
 void SemanticAnalyzer::caseExprBitOr(ASTExprBitOr& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_or");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_or", true);
 }
 
 void SemanticAnalyzer::caseExprBitXor(ASTExprBitXor& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_xor");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_xor", true);
 }
 
 void SemanticAnalyzer::caseExprLShift(ASTExprLShift& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "lshift");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "lshift", true);
 }
 
 void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "rshift");
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "rshift", true);
 }
 
 void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
@@ -2312,14 +2312,14 @@ bool SemanticAnalyzer::overrideBinaryExpr(ASTBinaryExpr& host, string override_n
 
 void SemanticAnalyzer::analyzeBinaryExpr(
 		ASTBinaryExpr& host, DataType const& leftType,
-		DataType const& rightType, string override_name)
+		DataType const& rightType, string override_name, bool require_override)
 {
 	visit(host.left.get());
 	if (breakRecursion(host)) return;
 	visit(host.right.get());
 	if (breakRecursion(host)) return;
 	
-	if (overrideBinaryExpr(host, override_name, true))
+	if (overrideBinaryExpr(host, override_name, require_override))
 		return;
 	
 	if (!host.supportsBitflags())
