@@ -939,9 +939,14 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		}
 		static std::map<int, std::set<string>> operator_strings = {
 			{2, {"plus", "minus", "times", "divide",
-				"modulo", "lshift", "rshift",
-				"plus_assign", "minus_assign", "times_assign", "divide_assign",
-				"modulo_assign", "lshift_assign", "rshift_assign",
+				"modulo", "lshift", "rshift", "bit_and", "bit_xor", "bit_or",
+				"bool_and", "bool_or", "bool_xor",
+				"cmp_ge", "cmp_gt", "cmp_le", "cmp_lt",
+				"cmp_ne", "cmp_eq", "cmp_appx_eq",
+				
+#define SPECIAL_ASSIGN(_ty_base, _ty_assign, override_name) override_name,
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
 				"index_get"}},
 			{3, {"index_set"}}
 		};
@@ -2000,43 +2005,46 @@ void SemanticAnalyzer::caseExprCast(ASTExprCast& host, void* param)
 
 void SemanticAnalyzer::caseExprAnd(ASTExprAnd& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_and");
 }
 
 void SemanticAnalyzer::caseExprOr(ASTExprOr& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_or");
 }
 
 void SemanticAnalyzer::caseExprXOR(ASTExprXOR& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_xor");
 }
 
 void SemanticAnalyzer::caseExprGT(ASTExprGT& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_gt");
 }
 
 void SemanticAnalyzer::caseExprGE(ASTExprGE& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_ge");
 }
 
 void SemanticAnalyzer::caseExprLT(ASTExprLT& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_lt");
 }
 
 void SemanticAnalyzer::caseExprLE(ASTExprLE& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_le");
 }
 
 void SemanticAnalyzer::caseExprEQ(ASTExprEQ& host, void*)
 {
 	RecursiveVisitor::caseExprEQ(host);
 	if (breakRecursion(host)) return;
+	
+	if (!host.strict && overrideBinaryExpr(host, "cmp_eq"))
+		return;
 
 	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host, true);
 	if (breakRecursion(host)) return;
@@ -2046,6 +2054,9 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 {
 	RecursiveVisitor::caseExprNE(host);
 	if (breakRecursion(host)) return;
+	
+	if (!host.strict && overrideBinaryExpr(host, "cmp_ne"))
+		return;
 
 	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host, true);
 	if (breakRecursion(host)) return;
@@ -2053,7 +2064,7 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 
 void SemanticAnalyzer::caseExprAppxEQ(ASTExprAppxEQ& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_appx_eq");
 }
 
 void SemanticAnalyzer::caseExprPlus(ASTExprPlus& host, void*)
@@ -2073,7 +2084,7 @@ void SemanticAnalyzer::caseExprTimes(ASTExprTimes& host, void*)
 
 void SemanticAnalyzer::caseExprExpn(ASTExprExpn& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "expn");
 }
 
 void SemanticAnalyzer::caseExprDivide(ASTExprDivide& host, void*)
@@ -2088,17 +2099,17 @@ void SemanticAnalyzer::caseExprModulo(ASTExprModulo& host, void*)
 
 void SemanticAnalyzer::caseExprBitAnd(ASTExprBitAnd& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_and");
 }
 
 void SemanticAnalyzer::caseExprBitOr(ASTExprBitOr& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_or");
 }
 
 void SemanticAnalyzer::caseExprBitXor(ASTExprBitXor& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_xor");
 }
 
 void SemanticAnalyzer::caseExprLShift(ASTExprLShift& host, void*)
@@ -2260,70 +2271,65 @@ void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
 		handleError(CompileError::LValConst(&host, operand.asString()));
 }
 
+bool SemanticAnalyzer::overrideBinaryExpr(ASTBinaryExpr& host, string override_name, bool require)
+{
+	auto& left_type = *host.left->getReadType(scope, this);
+	auto& right_type = *host.right->getReadType(scope, this);
+
+	if (left_type.isUsrClass() || right_type.isUsrClass())
+	{
+		UserClass *left_class = left_type.getUsrClass(), *right_class = right_type.getUsrClass();
+		vector<DataType const*> param_types = {&left_type, &right_type};
+		vector<Function*> fns;
+		if (left_class)
+		{
+			auto left_fns = lookupClassFuncs(*left_class, override_name, param_types, scope, false, true);
+			fns.insert(fns.end(), left_fns.begin(), left_fns.end());
+		}
+		if (right_class && right_class != left_class)
+		{
+			auto right_fns = lookupClassFuncs(*right_class, override_name, param_types, scope, false, true);
+			fns.insert(fns.end(), right_fns.begin(), right_fns.end());
+		}
+		//Remove any non-operator functions
+		std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+		fns = best_functions_cast(fns, param_types);
+		best_functions_optparam(fns, param_types);
+		best_function_untyped(fns, param_types);
+		
+		if (fns.size() == 1)
+		{
+			host.override_fn = fns[0];
+		}
+		else if(require || fns.size() > 1)
+		{
+			best_function_error(host, fns, FunctionSignature(override_name, param_types));
+		}
+		return true;
+	}
+	return false;
+}
+
 void SemanticAnalyzer::analyzeBinaryExpr(
 		ASTBinaryExpr& host, DataType const& leftType,
-		DataType const& rightType, optional<string> override_name)
+		DataType const& rightType, string override_name)
 {
-	bool visited = false;
-	if (override_name)
-	{
-		visit(host.left.get());
-		if (breakRecursion(host)) return;
-		visit(host.right.get());
-		if (breakRecursion(host)) return;
-		visited = true;
-		auto& left_type = *host.left->getReadType(scope, this);
-		auto& right_type = *host.right->getReadType(scope, this);
-		
-		if (left_type.isUsrClass() || right_type.isUsrClass())
-		{
-			UserClass *left_class = left_type.getUsrClass(), *right_class = right_type.getUsrClass();
-			vector<DataType const*> param_types = {&left_type, &right_type};
-			vector<Function*> fns;
-			if (left_class)
-			{
-				auto left_fns = lookupClassFuncs(*left_class, *override_name, param_types, scope, false, true);
-				fns.insert(fns.end(), left_fns.begin(), left_fns.end());
-			}
-			if (right_class && right_class != left_class)
-			{
-				auto right_fns = lookupClassFuncs(*right_class, *override_name, param_types, scope, false, true);
-				fns.insert(fns.end(), right_fns.begin(), right_fns.end());
-			}
-			//Remove any non-operator functions
-			std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
-			fns = best_functions_cast(fns, param_types);
-			best_functions_optparam(fns, param_types);
-			best_function_untyped(fns, param_types);
-			
-			if (fns.size() == 1)
-			{
-				host.override_fn = fns[0];
-			}
-			else
-			{
-				best_function_error(host, fns, FunctionSignature(*override_name, param_types));
-			}
-			return;
-		}
-	}
+	visit(host.left.get());
+	if (breakRecursion(host)) return;
+	visit(host.right.get());
+	if (breakRecursion(host)) return;
+	
+	if (overrideBinaryExpr(host, override_name, true))
+		return;
+	
 	if (!host.supportsBitflags())
 	{
-		visit(host.left.get());
-		if (breakRecursion(host)) return;
 		checkCast(*host.left->getReadType(scope, this), leftType, &host);
 		if (breakRecursion(host)) return;
 
-		visit(host.right.get());
-		if (breakRecursion(host)) return;
 		checkCast(*host.right->getReadType(scope, this), rightType, &host);
-		
 		return;
 	}
-
-	if (!visited)
-		visit(host.left.get());
-	if (breakRecursion(host)) return;
 
 	auto leftTypeActual = host.left->getReadType(scope, this);
 	bool leftIsEnum = leftTypeActual->isEnum();
@@ -2332,10 +2338,6 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		checkCast(*leftTypeActual, leftType, &host);
 		if (breakRecursion(host)) return;
 	}
-
-	if (!visited)
-		visit(host.right.get());
-	if (breakRecursion(host)) return;
 
 	auto rightTypeActual = host.right->getReadType(scope, this);
 	bool rightIsEnum = rightTypeActual->isEnum();

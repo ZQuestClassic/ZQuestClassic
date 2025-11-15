@@ -2260,7 +2260,7 @@ std::optional<int32_t> ASTExprLE::getCompileTimeValue(
 
 ASTExprEQ::ASTExprEQ(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
-	: ASTRelExpr(left, right, location)
+	: ASTRelExpr(left, right, location), strict(false)
 {}
 
 void ASTExprEQ::execute(ASTVisitor& visitor, void* param)
@@ -2283,7 +2283,7 @@ std::optional<int32_t> ASTExprEQ::getCompileTimeValue(
 
 ASTExprNE::ASTExprNE(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
-	: ASTRelExpr(left, right, location)
+	: ASTRelExpr(left, right, location), strict(false)
 {}
 
 void ASTExprNE::execute(ASTVisitor& visitor, void* param)
