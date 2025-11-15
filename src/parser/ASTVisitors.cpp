@@ -669,6 +669,18 @@ void RecursiveVisitor::caseExprDivideAssign(ASTExprDivideAssign& host, void* par
 {
 	caseExprAssign(host, param);
 }
+void RecursiveVisitor::caseExprModuloAssign(ASTExprModuloAssign& host, void* param)
+{
+	caseExprAssign(host, param);
+}
+void RecursiveVisitor::caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param)
+{
+	caseExprAssign(host, param);
+}
+void RecursiveVisitor::caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param)
+{
+	caseExprAssign(host, param);
+}
 
 void RecursiveVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {

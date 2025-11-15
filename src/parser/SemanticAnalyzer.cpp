@@ -939,7 +939,9 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		}
 		static std::map<int, std::set<string>> operator_strings = {
 			{2, {"plus", "minus", "times", "divide",
+				"modulo", "lshift", "rshift",
 				"plus_assign", "minus_assign", "times_assign", "divide_assign",
+				"modulo_assign", "lshift_assign", "rshift_assign",
 				"index_get"}},
 			{3, {"index_set"}}
 		};
@@ -1349,6 +1351,18 @@ void SemanticAnalyzer::caseExprTimesAssign(ASTExprTimesAssign& host, void* param
 void SemanticAnalyzer::caseExprDivideAssign(ASTExprDivideAssign& host, void* param)
 {
 	handleSpecialAssign(host, "divide_assign");
+}
+void SemanticAnalyzer::caseExprModuloAssign(ASTExprModuloAssign& host, void* param)
+{
+	handleSpecialAssign(host, "modulo_assign");
+}
+void SemanticAnalyzer::caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param)
+{
+	handleSpecialAssign(host, "lshift_assign");
+}
+void SemanticAnalyzer::caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param)
+{
+	handleSpecialAssign(host, "rshift_assign");
 }
 
 void SemanticAnalyzer::caseExprIdentifier(
@@ -2090,7 +2104,7 @@ void SemanticAnalyzer::caseExprDivide(ASTExprDivide& host, void*)
 
 void SemanticAnalyzer::caseExprModulo(ASTExprModulo& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "modulo");
 }
 
 void SemanticAnalyzer::caseExprBitAnd(ASTExprBitAnd& host, void*)
@@ -2110,12 +2124,12 @@ void SemanticAnalyzer::caseExprBitXor(ASTExprBitXor& host, void*)
 
 void SemanticAnalyzer::caseExprLShift(ASTExprLShift& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "lshift");
 }
 
 void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "rshift");
 }
 
 void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
