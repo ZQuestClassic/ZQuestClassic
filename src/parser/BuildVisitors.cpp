@@ -1752,6 +1752,27 @@ void BuildOpcodes::caseExprDivideAssign(ASTExprDivideAssign& host, void* param)
 	ASTExprAssign assign(host.left.clone(), new ASTExprDivide(host.left.clone(), host.right.clone()), host.location);
 	caseExprAssign(assign, param);
 }
+void BuildOpcodes::caseExprModuloAssign(ASTExprModuloAssign& host, void* param)
+{
+	if(handleSpecialAssignOverride(host, param))
+		return;
+	ASTExprAssign assign(host.left.clone(), new ASTExprModulo(host.left.clone(), host.right.clone()), host.location);
+	caseExprAssign(assign, param);
+}
+void BuildOpcodes::caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param)
+{
+	if(handleSpecialAssignOverride(host, param))
+		return;
+	ASTExprAssign assign(host.left.clone(), new ASTExprLShift(host.left.clone(), host.right.clone()), host.location);
+	caseExprAssign(assign, param);
+}
+void BuildOpcodes::caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param)
+{
+	if(handleSpecialAssignOverride(host, param))
+		return;
+	ASTExprAssign assign(host.left.clone(), new ASTExprRShift(host.left.clone(), host.right.clone()), host.location);
+	caseExprAssign(assign, param);
+}
 
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {

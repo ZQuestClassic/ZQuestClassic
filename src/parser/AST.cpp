@@ -1806,6 +1806,60 @@ DataType const* ASTExprDivideAssign::getReadType(Scope* scope, CompileErrorHandl
 	return ASTExprDivide(left->clone(), right->clone()).getReadType(scope, errorHandler);
 }
 
+// ASTExprModuloAssign
+
+ASTExprModuloAssign::ASTExprModuloAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprAssign(left, right, location) {}
+
+void ASTExprModuloAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprModuloAssign(*this, param);
+}
+
+DataType const* ASTExprModuloAssign::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return ASTExprModulo(left->clone(), right->clone()).getReadType(scope, errorHandler);
+}
+
+// ASTExprLShiftAssign
+
+ASTExprLShiftAssign::ASTExprLShiftAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprAssign(left, right, location) {}
+
+void ASTExprLShiftAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprLShiftAssign(*this, param);
+}
+
+DataType const* ASTExprLShiftAssign::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return ASTExprLShift(left->clone(), right->clone()).getReadType(scope, errorHandler);
+}
+
+// ASTExprRShiftAssign
+
+ASTExprRShiftAssign::ASTExprRShiftAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprAssign(left, right, location) {}
+
+void ASTExprRShiftAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprRShiftAssign(*this, param);
+}
+
+DataType const* ASTExprRShiftAssign::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return ASTExprRShift(left->clone(), right->clone()).getReadType(scope, errorHandler);
+}
+
 // ASTExprIdentifier
 
 ASTExprIdentifier::ASTExprIdentifier(string const& name,

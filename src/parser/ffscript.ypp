@@ -2281,17 +2281,17 @@ Expr_18 : Expr_17 {$$ = $1;}
 	| Expr_17 MODULOASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprModulo(left->clone(), right, @3), @$);}
+		$$ = new ASTExprModuloAssign(left, right, @$);}
 	// Left Shift Assignment
 	| Expr_17 LSHIFTASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprLShift(left->clone(), right, @3), @$);}
+		$$ = new ASTExprLShiftAssign(left, right, @$);}
 	// Right Shift Assignment
 	| Expr_17 RSHIFTASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprRShift(left->clone(), right, @3), @$);}
+		$$ = new ASTExprRShiftAssign(left, right, @$);}
 	// Bitwise And Assignment
 	| Expr_17 BITANDASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;

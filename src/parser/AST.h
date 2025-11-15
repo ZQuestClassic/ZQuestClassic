@@ -1450,6 +1450,54 @@ namespace ZScript
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
+	class ASTExprModuloAssign : public ASTExprAssign
+	{
+	public:
+		ASTExprModuloAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LOC_NONE);
+		ASTExprModuloAssign* clone() const {return new ASTExprModuloAssign(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
+
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+	};
+	class ASTExprLShiftAssign : public ASTExprAssign
+	{
+	public:
+		ASTExprLShiftAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LOC_NONE);
+		ASTExprLShiftAssign* clone() const {return new ASTExprLShiftAssign(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
+
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+	};
+	class ASTExprRShiftAssign : public ASTExprAssign
+	{
+	public:
+		ASTExprRShiftAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LOC_NONE);
+		ASTExprRShiftAssign* clone() const {return new ASTExprRShiftAssign(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
+
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+	};
 
 	class ASTExprIdentifier : public ASTExpr
 	{

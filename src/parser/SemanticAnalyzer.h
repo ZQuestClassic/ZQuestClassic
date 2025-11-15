@@ -57,6 +57,9 @@ namespace ZScript
 		void caseExprMinusAssign(ASTExprMinusAssign& host, void* = NULL);
 		void caseExprTimesAssign(ASTExprTimesAssign& host, void* = NULL);
 		void caseExprDivideAssign(ASTExprDivideAssign& host, void* = NULL);
+		void caseExprModuloAssign(ASTExprModuloAssign& host, void* = NULL);
+		void caseExprLShiftAssign(ASTExprLShiftAssign& host, void* = NULL);
+		void caseExprRShiftAssign(ASTExprRShiftAssign& host, void* = NULL);
 		void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
 		void caseExprArrow(ASTExprArrow& host, void* = NULL);
 		void caseExprIndex(ASTExprIndex& host, void* = NULL);

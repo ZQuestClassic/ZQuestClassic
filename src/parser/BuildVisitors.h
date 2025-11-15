@@ -65,6 +65,9 @@ namespace ZScript
 		virtual void caseExprMinusAssign(ASTExprMinusAssign& host, void* param);
 		virtual void caseExprTimesAssign(ASTExprTimesAssign& host, void* param);
 		virtual void caseExprDivideAssign(ASTExprDivideAssign& host, void* param);
+		virtual void caseExprModuloAssign(ASTExprModuloAssign& host, void* param);
+		virtual void caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param);
+		virtual void caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);
