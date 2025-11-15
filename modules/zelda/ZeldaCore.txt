@@ -31,6 +31,7 @@ src/zc/zc_ffc.cpp
 src/zc/commands.cpp
 src/music_playback.cpp
 src/zc/scripting/arrays.cpp
+src/zc/scripting/common.cpp
 src/zc/scripting/context_strings.cpp
 src/zc/scripting/script_object.cpp
 
@@ -39,6 +40,7 @@ src/zc/scripting/types/bottledata.cpp
 src/zc/scripting/types/bottleshopdata.cpp
 src/zc/scripting/types/combodata.cpp
 src/zc/scripting/types/combotrigger.cpp
+src/zc/scripting/types/directory.cpp
 src/zc/scripting/types/dmapdata.cpp
 src/zc/scripting/types/dropsetdata.cpp
 src/zc/scripting/types/ffc.cpp

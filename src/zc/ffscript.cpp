@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
-#include <filesystem>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 //
@@ -37,8 +36,10 @@
 #include "zasm/table.h"
 #include "zc/replay.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/common.h"
 #include "zc/scripting/script_object.h"
 #include "zc/scripting/types.h"
+#include "zc/scripting/types/directory.h"
 #include "zc/scripting/types/websocket.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
@@ -160,10 +161,7 @@ ScriptDebugHandle* runtime_script_debug_handle;
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
 
-static expected<std::string, std::string> parse_user_path(const std::string& user_path, bool is_file);
-
 static UserDataContainer<script_array, 1000000> script_arrays = {script_object_type::array, "array"};
-static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {script_object_type::dir, "directory"};
 static UserDataContainer<user_file, MAX_USER_FILES> user_files = {script_object_type::file, "file"};
 static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {script_object_type::paldata, "paldata"};
 static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {script_object_type::rng, "rng"};
@@ -295,17 +293,6 @@ FONT *get_zc_font(int index);
 
 int32_t combopos_modified = -1;
 static std::vector<word> combo_id_cache;
-
-void user_dir::setPath(const char* buf)
-{
-	if(!list)
-	{
-		list = (FLIST *) calloc(1, sizeof(FLIST));
-	}
-	filepath = std::string(buf) + "/";
-	regulate_path(filepath);
-	list->load(filepath.c_str());
-}
 
 int32_t CScriptDrawingCommands::GetCount()
 {
@@ -2843,11 +2830,6 @@ int32_t getPortalFromSaved(savedportal* p)
 		return false;
 	});
 	return prtl ? prtl->getUID() : 0;
-}
-
-static user_dir *checkDir(uint32_t id,  bool skipError = false)
-{
-	return user_dirs.check(id, skipError);
 }
 
 static user_stack *checkStack(uint32_t id, bool skipError = false)
@@ -8815,18 +8797,6 @@ int32_t get_register(int32_t arg)
 			if(user_file* f = checkFile(GET_REF(fileref), true))
 			{
 				ret = ferror(f->file) * 10000L;
-			}
-			else ret = -10000L;
-			break;
-		}
-		
-		///----------------------------------------------------------------------------------------------------//
-		//Directory->
-		case DIRECTORYSIZE:
-		{
-			if(user_dir* dr = checkDir(GET_REF(directoryref), true))
-			{
-				ret = dr->size() * 10000L;
 			}
 			else ret = -10000L;
 			break;
@@ -20040,35 +20010,6 @@ void FFScript::do_loadrng()
 	SET_D(rEXP1, rng->id);
 }
 
-void FFScript::do_loaddirectory()
-{
-	int32_t arrayptr = get_register(sarg1);
-	string user_path;
-	ArrayH::getString(arrayptr, user_path, 2048);
-
-	std::string resolved_path;
-	if (auto r = parse_user_path(user_path, false); !r)
-	{
-		scripting_log_error_with_context("Error: {}", r.error());
-		return;
-	} else resolved_path = r.value();
-
-	if (checkPath(resolved_path.c_str(), true))
-	{
-		ri->directoryref = user_dirs.get_free();
-		if(!ri->directoryref) return;
-
-		user_dir* d = checkDir(ri->directoryref, true);
-		set_register(sarg1, ri->directoryref);
-		d->setPath(resolved_path.c_str());
-		return;
-	}
-
-	scripting_log_error_with_context("Path '{}' points to a file; must point to a directory!", resolved_path);
-	ri->directoryref = 0;
-	set_register(sarg1, 0);
-}
-
 void FFScript::do_loadstack()
 {
 	ri->stackref = user_stacks.get_free();
@@ -26182,8 +26123,6 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				break;
 			
 			//functions
-			case LOADDIRECTORYR:
-				FFCore.do_loaddirectory(); break;
 			case CREATEPALDATA:
 				FFCore.do_create_paldata(); break;
 			case CREATEPALDATACLR:
@@ -27841,30 +27780,6 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				FFCore.do_file_geterr();
 				break;
 			}
-			//Directory
-			case DIRECTORYGET:
-			{
-				FFCore.do_directory_get();
-				break;
-			}
-			case DIRECTORYRELOAD:
-			{
-				FFCore.do_directory_reload();
-				break;
-			}
-			case DIRECTORYFREE:
-			{
-				FFCore.do_directory_free();
-				break;
-			}
-			case DIRECTORYOWN:
-			{
-				if(user_dir* dr = checkDir(GET_REF(directoryref)))
-				{
-					own_script_object(dr, type, i);
-				}
-				break;
-			}
 			//Stack
 			case STACKFREE:
 			{
@@ -28754,7 +28669,7 @@ void FFScript::user_files_init()
 
 void FFScript::user_dirs_init()
 {
-	user_dirs.clear();
+	dirs_init();
 }
 void FFScript::user_objects_init()
 {
@@ -28792,85 +28707,6 @@ void FFScript::user_websockets_init()
 void FFScript::script_arrays_init()
 {
 	script_arrays.clear();
-}
-
-// Gotten from 'https://fileinfo.com/filetypes/executable'
-static std::set<std::string> banned_extensions = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk"};
-
-// If the path is valid, returns an absolute path under the quest "Files" directory.
-static expected<std::string, std::string> parse_user_path(const std::string& user_path, bool is_file)
-{
-	// First check for non-portable path characters.
-	static const char* invalid_chars = "<>|?*&^$#\":";
-	if (auto index = user_path.find_first_of(invalid_chars) != string::npos)
-	{
-		return make_unexpected(fmt::format("Bad path: {} - invalid character {}", user_path, user_path[index]));
-	}
-	for (char c : user_path)
-	{
-		if (c < 32)
-			return make_unexpected(fmt::format("Bad path: {} - invalid control character {:#x}", user_path, c));
-	}
-
-	// Any leading slashes are ignored.
-	// This makes path always relative.
-	const char* path = user_path.c_str();
-	while (path[0] == '/' || path[0] == '\\')
-		path++;
-
-	// Normalize `user_path` and check if it accesses a parent path.
-	auto files_path = fs::absolute(fs::path(qst_files_path));
-	auto normalized_path = fs::path(path).lexically_normal();
-	if (!normalized_path.empty() && normalized_path.begin()->string() == "..")
-	{
-		return make_unexpected(fmt::format("Bad path: {} (resolved to {}) - cannot access filesystem outside {} (too many ..?)",
-			path, normalized_path.string(), files_path.string()));
-	}
-
-	auto resolved_path = files_path / normalized_path;
-
-	// The above should be enough to guarantee that `resolved_path` is within
-	// the quest "Files" folder, but check to be safe.
-	auto mismatch_pair = std::mismatch(
-		resolved_path.begin(), resolved_path.end(),
-		files_path.begin(), files_path.end());
-	bool is_subpath = mismatch_pair.second == files_path.end();
-	if (!is_subpath)
-	{
-		return make_unexpected(fmt::format("Bad path: {} (resolved to {}) - cannot access filesystem outside {}",
-			user_path, resolved_path.string(), files_path.string()));
-	}
-
-	// Any extension other than banned ones, including no extension, is allowed.
-	if (is_file && resolved_path.has_extension())
-	{
-		auto ext = resolved_path.extension().string();
-		if (banned_extensions.find(ext) != banned_extensions.end())
-			return make_unexpected(fmt::format("Bad path: {} - banned extension", user_path));
-	}
-
-	if (is_file && !resolved_path.has_filename())
-		return make_unexpected(fmt::format("Bad path: {} - missing filename", user_path));
-
-	// https://stackoverflow.com/a/31976060/2788187
-	if (is_file)
-	{
-		static auto banned_fnames = {
-			"..", ".", "AUX", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6",
-			"COM7", "COM8", "COM9", "CON", "LPT1", "LPT2", "LPT3", "LPT4",
-			"LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "NUL", "PRN",
-		};
-
-		auto stem = resolved_path.stem().string();
-		auto fname = resolved_path.filename().string();
-		bool banned = std::find(std::begin(banned_fnames), std::end(banned_fnames), stem) != std::end(banned_fnames);
-		banned |= fname.ends_with(".") || fname.ends_with(" ");
-
-		if (banned)
-			return make_unexpected(fmt::format("Bad path: {} - banned filename", user_path));
-	}
-
-	return resolved_path.string();
 }
 
 bool FFScript::get_scriptfile_path(char* buf, const char* path)
@@ -29352,39 +29188,6 @@ void FFScript::do_file_geterr()
 		{
 			ArrayH::setArray(arrayptr, "\0");
 		}
-	}
-}
-///----------------------------------------------------------------------------------------------------
-//Directory
-
-void FFScript::do_directory_get()
-{
-	int32_t indx = get_register(sarg1) / 10000L;
-	int32_t arrayptr = get_register(sarg2);
-
-	if(user_dir* dr = checkDir(GET_REF(directoryref), true))
-	{
-		char buf[2048] = {0};
-		set_register(sarg1, dr->get(indx, buf) ? 10000L : 0L);
-		if(ArrayH::setArray(arrayptr, string(buf)) == SH::_Overflow)
-			scripting_log_error_with_context("Array is not large enough");
-	}
-	else set_register(sarg1, 0L);
-}
-
-void FFScript::do_directory_reload()
-{
-	if(user_dir* dr = checkDir(GET_REF(directoryref), true))
-	{
-		dr->refresh();
-	}
-}
-
-void FFScript::do_directory_free()
-{
-	if(user_dir* dr = checkDir(GET_REF(directoryref), true))
-	{
-		free_script_object(dr->id);
 	}
 }
 

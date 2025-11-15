@@ -342,40 +342,6 @@ struct user_file : public user_abstract_obj
 	}
 };
 
-#define MAX_USER_DIRS 256
-struct user_dir : public user_abstract_obj
-{
-	FLIST* list;
-	std::string filepath;
-
-	~user_dir()
-	{
-		if (list)
-		{
-			list->clear();
-			free(list);
-			list = NULL;
-		}
-	}
-	
-	void setPath(const char* buf);
-	void refresh()
-	{
-		if(list)
-			list->load(filepath.c_str());
-		else setPath(filepath.c_str());
-	}
-	int32_t size()
-	{
-		return list->size;
-	}
-	bool get(int32_t index, char* buf)
-	{
-		return list->get(index, buf);
-	}
-};
-
-
 #define MAX_USER_STACKS 256
 #define USERSTACK_MAX_SIZE 2147483647
 struct user_stack : public user_abstract_obj
@@ -929,7 +895,6 @@ void do_file_rewind();
 void do_file_seek();
 void do_file_geterr();
 
-void do_loaddirectory();
 void do_loadstack();
 void do_loadrng();
 void do_create_paldata();
@@ -963,9 +928,6 @@ void do_paldata_mix();
 void do_paldata_mixcset();
 void do_paldata_copy();
 void do_paldata_copycset();
-void do_directory_get();
-void do_directory_reload();
-void do_directory_free();
 
 void user_bitmaps_init();
 
