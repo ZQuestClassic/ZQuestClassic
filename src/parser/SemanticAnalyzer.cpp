@@ -2207,21 +2207,9 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 				auto left_fns = lookupClassFuncs(*left_class, *override_name, param_types, scope, false, true);
 				fns.insert(fns.end(), left_fns.begin(), left_fns.end());
 			}
-			if (right_class)
+			if (right_class && right_class != left_class)
 			{
 				auto right_fns = lookupClassFuncs(*right_class, *override_name, param_types, scope, false, true);
-				if (!fns.empty())
-				{
-					std::erase_if(right_fns, [&](Function* ptr)
-						{
-							for (Function* ptr2 : fns)
-							{
-								if (ptr == ptr2)
-									return true;
-							}
-							return false;
-						});
-				}
 				fns.insert(fns.end(), right_fns.begin(), right_fns.end());
 			}
 			//Remove any non-operator functions
