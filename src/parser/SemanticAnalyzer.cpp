@@ -1552,15 +1552,14 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 			best_functions_optparam(fns, param_types);
 			best_function_untyped(fns, param_types);
 			
-			if (fns.size() == 1)
+			if (!fns.empty())
 			{
-				host.override_read_fn = fns[0];
+				if (fns.size() == 1)
+					host.override_read_fn = fns[0];
+				else
+					best_function_error(host, fns, FunctionSignature("index_get", param_types));
+				return;
 			}
-			else
-			{
-				best_function_error(host, fns, FunctionSignature("index_get", param_types));
-			}
-			return;
 		}
 		
 		DataType const* writety = host.array->getWriteType(scope,this);
