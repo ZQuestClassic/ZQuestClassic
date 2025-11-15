@@ -543,6 +543,7 @@ internal long LongDistance(long x1, long y1, long x2, long y2, long scale);
 internal int strcmp(char32[] str1, char32[] str2);
 
 // Compares the contents of the two strings, up to a length limit.
+// Returns 0 if equal.
 //
 // @zasm
 //   POP D1
@@ -552,6 +553,7 @@ internal int strcmp(char32[] str1, char32[] str2);
 internal int strncmp(char32[] str1, char32[] str2, int num_chars);
 
 // Compares the contents of the two strings, case-insensitively.
+// Returns 0 if equal.
 //
 // @zasm
 //   POP D1
@@ -560,6 +562,7 @@ internal int strncmp(char32[] str1, char32[] str2, int num_chars);
 internal int stricmp(char32[] str1, char32[] str2);
 
 // Compares the contents of the two strings, up to a length limit, case-insensitively.
+// Returns 0 if equal.
 //
 // @zasm
 //   POP D1
