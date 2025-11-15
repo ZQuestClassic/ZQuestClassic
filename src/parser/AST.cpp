@@ -2988,7 +2988,7 @@ std::string ASTStringLiteral::asString() const
 DataType const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	if (DataType::STRING)
-		return DataType::STRING;
+		return DataType::STRING->getConstType();
 	return DataType::CHAR_ARRAY;
 }
 
