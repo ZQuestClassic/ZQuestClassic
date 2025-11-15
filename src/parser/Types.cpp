@@ -357,7 +357,7 @@ bool DataTypeArray::canCastTo(DataType const& target, bool allowDeprecatedArrayC
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
-	if (STRING && target == *STRING && canCastTo(*CHAR_ARRAY, allowDeprecatedArrayCast))
+	if (STRING && (target == *STRING || target == *STRING->getConstType()) && canCastTo(*CHAR_ARRAY, allowDeprecatedArrayCast))
 		return true;
 	if (!target.isArray())
 	{
@@ -483,7 +483,7 @@ bool DataTypeCustom::canCastTo(DataType const& target, bool allowDeprecatedArray
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
-	if (STRING && *this == *STRING && target.canCastTo(*CHAR_ARRAY, allowDeprecatedArrayCast))
+	if (STRING && (*this == *STRING || *this == *STRING->getConstType()) && target.canCastTo(*CHAR_ARRAY, allowDeprecatedArrayCast))
 		return true;
 	if (target.isArray())
 	{
