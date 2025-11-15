@@ -1387,6 +1387,16 @@ bool& FFScript::waitdraw(ScriptType type, int index)
 	return get_script_engine_data(type, index).waitdraw;
 }
 
+static void do_autorelease(uint32_t id)
+{
+	if (id && !util::contains(script_object_autorelease_pool, id))
+	{
+		script_object_autorelease_pool.push_back(id);
+		if (auto object = get_script_object_checked(id))
+			object->ref_count++;
+	}
+}
+
 static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, int index)
 {
 	bool got_initialized = false;
@@ -25017,10 +25027,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					res.emplace_back(s);
 				
 				uint32_t id = allocatemem(res.size(), true, type, i, script_object_type::array);
+				do_autorelease(id);
 				ArrayManager am(id);
 				for (size_t q = 0; q < res.size(); ++q)
 				{
 					uint32_t sid = allocatemem(res[q].size(), true, type, i, script_object_type::none);
+					do_autorelease(sid);
 					am.set(q, sid);
 					ArrayH::setArray(sid, res[q], true);
 				}
@@ -27746,12 +27758,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case REF_AUTORELEASE:
 			{
 				uint32_t id = get_register(sarg1);
-				if (id && !util::contains(script_object_autorelease_pool, id))
-				{
-					script_object_autorelease_pool.push_back(id);
-					if (auto object = get_script_object_checked(id))
-						object->ref_count++;
-				}
+				do_autorelease(id);
 				break;
 			}
 			case REF_COUNT:
