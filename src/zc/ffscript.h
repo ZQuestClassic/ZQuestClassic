@@ -54,8 +54,6 @@ static void scripting_log_error_with_context(fmt::format_string<Args...> s, Args
 #define MIN_ZQ_LAYER 0
 #define MAX_FLAGS 512
 
-#define SRAM_VERSION 2
-
 #define MIN_INTERNAL_BITMAP -1 //RT_SCREEN
 #define MAX_INTERNAL_BITMAP 6 //RT_BITMAP6
 #define FFRULES_SIZE 1024
@@ -751,21 +749,6 @@ int32_t Is8BitTile(int32_t i);
 
 defWpnSprite getDefWeaponSprite(int32_t wpnid);
 
-//ZC SRAM
-void read_dmaps(PACKFILE *f, int32_t vers_id);
-void write_dmaps(PACKFILE *f, int32_t vers_id);
-void read_combos(PACKFILE *f, int32_t vers_id);
-void write_combos(PACKFILE *f, int32_t vers_id);
-void write_items(PACKFILE *f, int32_t vers_id);
-void read_items(PACKFILE *f, int32_t vers_id);
-void write_enemies(PACKFILE *f, int32_t vers_id);
-void read_enemies(PACKFILE *f, int32_t vers_id);
-void write_weaponsprtites(PACKFILE *f, int32_t vers_id);
-void read_weaponsprtites(PACKFILE *f, int32_t vers_id);
-void write_mapscreens(PACKFILE *f,int32_t vers_id);
-void read_mapscreens(PACKFILE *f, int32_t vers_id);
-void do_savegamestructs(const bool v, const bool v2);
-void do_loadgamestructs(const bool v, const bool v2);
 int32_t Distance(double x1, double y1, double x2, double y2);
 int32_t Distance(double x1, double y1, double x2, double y2, int32_t scale);
 int32_t LongDistance(double x1, double y1, double x2, double y2);
