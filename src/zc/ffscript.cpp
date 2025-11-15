@@ -24987,6 +24987,46 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				}
 				break;
 			}
+			case STRINGSPLIT:
+			{
+				int32_t arrayptr = GET_D(rINDEX);
+				int32_t delimptr = get_register(sarg1);
+				bool allow_empty = get_register(sarg2) != 0;
+				int max_split = get_register(sarg3) / 10000;
+				
+				string s, delim;
+				ArrayH::getString(arrayptr, s);
+				ArrayH::getString(delimptr, delim);
+				
+				vector<string> res;
+				size_t pos = s.find(delim);
+				while(pos != string::npos)
+				{
+					string sub = s.substr(0, pos);
+					s.erase(0, pos + delim.size());
+					if (allow_empty || !sub.empty())
+					{
+						res.emplace_back(sub);
+						if (max_split > 0)
+							if (!--max_split)
+								break;
+					}
+					pos = s.find(delim);
+				}
+				if (pos == string::npos)
+					res.emplace_back(s);
+				
+				uint32_t id = allocatemem(res.size(), true, type, i, script_object_type::array);
+				ArrayManager am(id);
+				for (size_t q = 0; q < res.size(); ++q)
+				{
+					uint32_t sid = allocatemem(res[q].size(), true, type, i, script_object_type::none);
+					am.set(q, sid);
+					ArrayH::setArray(sid, res[q], true);
+				}
+				SET_D(rEXP1, id);
+				break;
+			}
 			case STRSPN: FFCore.do_strspn(); break;
 			case STRCHR: FFCore.do_strchr(); break;
 			case STRRCHR: FFCore.do_strrchr(); break;

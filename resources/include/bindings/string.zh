@@ -107,7 +107,7 @@ class string {
 	//   ALLOCATEMEMV D2 1 0
 	//   STRINGCOPY D2 D0
 	//   REF_AUTORELEASE D2
-	string Copy();
+	internal string Copy();
 
 	// The number of characters in the string (not including null-terminator)
 	//
@@ -146,4 +146,16 @@ class string {
 	//   TRACE6 D2
 	//   TRACE3
 	internal void Trace();
+	
+	// Splits the string into multiple strings wherever 'delimiter' appears.
+	// If 'max_split' is > 0, the number of splits may not exceed max_split.
+	// If 'allow_empty' is false, any empty strings that would be left in the array are ignored.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP D1
+	//   POP D0
+	//   STRINGSPLIT D1 D2 D3
+	internal string[] Split(string delimiter, bool allow_empty = true, int max_split = 0);
 }
