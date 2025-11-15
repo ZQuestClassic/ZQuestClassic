@@ -1838,6 +1838,8 @@ public: \
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
+		
+		bool strict;
 	};
 
 	class ASTExprNE : public ASTRelExpr
@@ -1852,6 +1854,8 @@ public: \
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
+		
+		bool strict;
 	};
 	
 	class ASTExprAppxEQ : public ASTRelExpr

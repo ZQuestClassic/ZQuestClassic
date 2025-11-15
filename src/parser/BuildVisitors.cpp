@@ -2680,6 +2680,8 @@ void BuildOpcodes::caseExprBoolTree(ASTExprBoolTree& host, void* param)
 }
 void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if(host.tree) //should ALWAYS go in here now? -Em
 	{
 		visit(host.tree.get(), param);
@@ -2777,6 +2779,8 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if(host.tree) //should ALWAYS go in here now? -Em
 	{
 		visit(host.tree.get(), param);
@@ -2873,6 +2877,8 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 
 void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -2890,6 +2896,8 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 
 void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -2907,6 +2915,8 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 
 void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -2924,6 +2934,8 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 
 void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -2941,6 +2953,8 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 
 void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 {
+	if (!host.strict && binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -2965,6 +2979,8 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 
 void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 {
+	if (!host.strict && binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -2989,6 +3005,8 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 
 void BuildOpcodes::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -3030,6 +3048,8 @@ void BuildOpcodes::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
 
 void BuildOpcodes::caseExprXOR(ASTExprXOR& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -3061,13 +3081,13 @@ bool BuildOpcodes::binaryOpOverride(ASTBinaryExpr& host, void* param)
 }
 void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
 		return;
 	}
-	if (binaryOpOverride(host, param))
-		return;
 	SIDEFX_BINOP();
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
@@ -3099,13 +3119,13 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 
 void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
 		return;
 	}
-	if (binaryOpOverride(host, param))
-		return;
 	SIDEFX_BINOP();
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
@@ -3136,13 +3156,13 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 
 void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
 		return;
 	}
-	if (binaryOpOverride(host, param))
-		return;
 	SIDEFX_BINOP();
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
@@ -3174,13 +3194,13 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 
 void BuildOpcodes::caseExprExpn(ASTExprExpn& host, void *param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
 		return;
 	}
-	if (binaryOpOverride(host, param))
-		return;
 	SIDEFX_BINOP();
 	
 	bool do_long = host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
@@ -3255,13 +3275,13 @@ void BuildOpcodes::caseExprExpn(ASTExprExpn& host, void *param)
 
 void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
 		return;
 	}
-	if (binaryOpOverride(host, param))
-		return;
 	SIDEFX_BINOP();
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
@@ -3296,6 +3316,8 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 
 void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -3333,6 +3355,8 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 
 void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -3377,6 +3401,8 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 
 void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -3421,6 +3447,8 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 
 void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -3465,6 +3493,8 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 
 void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -3508,6 +3538,8 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 
 void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 {
+	if (binaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -4375,7 +4407,7 @@ void CleanupVisitor::visit(AST& node, void* param)
 	ASTExpr* exprptr = dynamic_cast<ASTExpr*>(nodeptr);
 	ASTExprAnd* andnode = dynamic_cast<ASTExprAnd*>(nodeptr);
 	ASTExprOr* ornode = dynamic_cast<ASTExprOr*>(nodeptr);
-	bool is_boolexpr = andnode || ornode;
+	bool is_boolexpr = (andnode || ornode) && !(static_cast<ASTBinaryExpr*>(nodeptr)->override_fn);
 	ASTExprBoolTree* cache_tree = booltree;
 	BoolTreeNode* cache_node = active_node;
 	if(!is_boolexpr)
