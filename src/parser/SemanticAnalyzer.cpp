@@ -1336,34 +1336,13 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void* param)
 	handleSpecialAssign(host, nullopt, param);
 }
 
-void SemanticAnalyzer::caseExprPlusAssign(ASTExprPlusAssign& host, void* param)
-{
-	handleSpecialAssign(host, "plus_assign");
+#define SPECIAL_ASSIGN(_, ty_assign, override_name) \
+void SemanticAnalyzer::caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param) \
+{ \
+	handleSpecialAssign(host, override_name); \
 }
-void SemanticAnalyzer::caseExprMinusAssign(ASTExprMinusAssign& host, void* param)
-{
-	handleSpecialAssign(host, "minus_assign");
-}
-void SemanticAnalyzer::caseExprTimesAssign(ASTExprTimesAssign& host, void* param)
-{
-	handleSpecialAssign(host, "times_assign");
-}
-void SemanticAnalyzer::caseExprDivideAssign(ASTExprDivideAssign& host, void* param)
-{
-	handleSpecialAssign(host, "divide_assign");
-}
-void SemanticAnalyzer::caseExprModuloAssign(ASTExprModuloAssign& host, void* param)
-{
-	handleSpecialAssign(host, "modulo_assign");
-}
-void SemanticAnalyzer::caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param)
-{
-	handleSpecialAssign(host, "lshift_assign");
-}
-void SemanticAnalyzer::caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param)
-{
-	handleSpecialAssign(host, "rshift_assign");
-}
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
 
 void SemanticAnalyzer::caseExprIdentifier(
 		ASTExprIdentifier& host, void* param)

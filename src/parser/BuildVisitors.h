@@ -61,13 +61,12 @@ namespace ZScript
 		// Expressions
 		virtual void caseExprAssign(ASTExprAssign &host, void *param);
 		bool handleSpecialAssignOverride(ASTExprAssign& host, void* param);
-		virtual void caseExprPlusAssign(ASTExprPlusAssign& host, void* param);
-		virtual void caseExprMinusAssign(ASTExprMinusAssign& host, void* param);
-		virtual void caseExprTimesAssign(ASTExprTimesAssign& host, void* param);
-		virtual void caseExprDivideAssign(ASTExprDivideAssign& host, void* param);
-		virtual void caseExprModuloAssign(ASTExprModuloAssign& host, void* param);
-		virtual void caseExprLShiftAssign(ASTExprLShiftAssign& host, void* param);
-		virtual void caseExprRShiftAssign(ASTExprRShiftAssign& host, void* param);
+
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param);
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+		
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);
