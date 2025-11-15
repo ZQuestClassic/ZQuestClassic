@@ -46,6 +46,23 @@ class string {
 	//   STRMULTR D2 D3
 	static internal operator string times(int count, string str);
 	
+	// Returns the character at index 'idx' of 'str'
+	//
+	// @zasm
+	//   POP D2
+	//   POP D0
+	//   READPODARRAYR D2 D2
+	static internal operator char32 index_get(string str, int idx);
+	
+	// Sets index 'idx' of 'str' to 'val'. Returns 'val'.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D0
+	//   WRITEPODARRAYRR D3 D2
+	static internal operator char32 index_set(string str, int idx, char32 val);
+	
 	// Appends the contents of 'other' at the end of this string.
 	//
 	// @zasm

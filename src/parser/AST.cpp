@@ -1833,7 +1833,8 @@ DataType const* ASTExprArrow::getWriteType(Scope* scope, CompileErrorHandler* er
 
 ASTExprIndex::ASTExprIndex(ASTExpr* array, ASTExpr* index,
 						   LocationData const& location)
-	: ASTExpr(location), array(array), index(index)
+	: ASTExpr(location), array(array), index(index),
+	override_read_fn(nullptr), override_write_fn(nullptr)
 {}
 
 void ASTExprIndex::execute(ASTVisitor& visitor, void* param)
@@ -1854,6 +1855,8 @@ bool ASTExprIndex::isConstant() const
 
 DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
+	if (override_read_fn)
+		return override_read_fn->returnType;
 	DataType const* type = array->getReadType(scope, errorHandler);
 	if (type && type->isArray())
 	{
@@ -1865,6 +1868,12 @@ DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* err
 
 DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
+	if (override_write_fn)
+	{
+		if (override_write_fn->paramTypes.size() < 3)
+			return NULL;
+		return override_write_fn->paramTypes[2];
+	}
 	DataType const* type = array->getWriteType(scope, errorHandler);
 	if (type && type->isArray())
 	{

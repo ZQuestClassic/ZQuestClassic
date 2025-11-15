@@ -1476,6 +1476,7 @@ namespace ZScript
 	
 		owning_ptr<ASTExpr> array;
 		owning_ptr<ASTExpr> index;
+		Function *override_read_fn, *override_write_fn;
 	};
 
 	class ASTExprCall : public ASTExpr
