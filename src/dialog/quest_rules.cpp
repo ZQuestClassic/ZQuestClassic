@@ -1588,9 +1588,11 @@ static GUI::ListData subscrRulesList
 		"If enabled, Ex3 and Ex4 will shift the item equipped on the A button to whatever item is left or right of it on the"
 		" subscreen, without having to open the subscreen. This is similar to the existing L/R B-Button shifting, but for the"
 		" A button. Disabling this leaves Ex3 and Ex4 open for scripted usage."},
-	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME, 
+	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME,
 		"Bumps up the Max Playtime from 99 hours, 5 minutes, and 54 seconds, to 9000 hours."
 		"Has no downsides, is only here for compatibility sake."},
+	{ "Map Button Closes Subscreen", qr_MAP_BUTTON_CLOSES_SUBSCREEN,
+		"If enabled, the Map button will close the active subscreen."},
 };
 
 static GUI::ListData weaponsRulesList

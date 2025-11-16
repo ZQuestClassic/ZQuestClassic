@@ -499,7 +499,7 @@ void dosubscr()
 		if(Quit)
 			return;
 			
-		if(can_btn && (rSbtn() || (map_subscreen_open && rPbtn())))
+		if(can_btn && (rSbtn() || ((map_subscreen_open || get_qr(qr_MAP_BUTTON_CLOSES_SUBSCREEN)) && rPbtn())))
 			done=true;
 	}
 	while(!done);
