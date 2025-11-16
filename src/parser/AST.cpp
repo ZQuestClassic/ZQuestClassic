@@ -1853,14 +1853,18 @@ bool ASTExprArrow::isTypeArrowNonUsrClass() const
 
 DataType const* ASTExprArrow::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	if(rtype) return rtype;
-	return readFunction ? readFunction->returnType : NULL;
+	if (rtype) return rtype;
+	if (readFunction) return readFunction->returnType;
+	if (u_datum) return &u_datum->type;
+	return NULL;
 }
 
 DataType const* ASTExprArrow::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	if(wtype) return wtype;
-	return writeFunction ? writeFunction->paramTypes.back() : NULL;
+	if (wtype) return wtype;
+	if (writeFunction) return writeFunction->paramTypes.back();
+	if (u_datum) return &u_datum->type;
+	return NULL;
 }
 
 // ASTExprIndex
