@@ -52,7 +52,7 @@ namespace ZScript
 		void caseExprConst(ASTExprConst& host, void* = NULL);
 		void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);
-		void handleSpecialAssign(ASTExprAssign& host, optional<string> override_name);
+		void handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, bool supports_bitflags);
 
 #define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
 void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* = NULL);
@@ -117,13 +117,13 @@ void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* = NULL);
 		void analyzeBinaryExpr(
 				ASTBinaryExpr& host, ZScript::DataType const& leftType,
 				ZScript::DataType const& rightType, string const& override_name, bool require_override);
+		bool checkBitflagError(AST& host, DataType const& leftType, DataType const& rightType);
 		
 		vector<Function*> best_functions_cast(vector<Function*>& base_funcs, vector<DataType const*> const& parameterTypes);
 		void best_functions_optparam(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);
 		void best_functions_namespace(vector<Function*>& bestFunctions);
 		void best_function_untyped(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);
 		void best_function_error(AST& host, vector<Function*>& bestFunctions, FunctionSignature const& signature, string const& prefix);
-
 	};
 }	
 #endif
