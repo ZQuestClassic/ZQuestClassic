@@ -28,9 +28,6 @@ extern script_bitmaps scb;
 #include <stdio.h>
 #include <fstream>
 
-#define DegtoFix(d)     ((d)*0.7111111111111)
-#define RadtoFix(d)     ((d)*40.743665431525)
-
 static int32_t secondary_draw_origin_xoff;
 static int32_t secondary_draw_origin_yoff;
 
@@ -130,19 +127,6 @@ inline bool isPowerOfTwo(int32_t n)
   
    return (ceil(sd_log2(n)) == floor(sd_log2(n))); 
 } 
-
-
-
-template<class T> inline
-fixed degrees_to_fixed(T d)
-{
-    return ftofix(DegtoFix(d));
-}
-template<class T> inline
-fixed radians_to_fixed(T d)
-{
-    return ftofix(RadtoFix(d));
-}
 
 BITMAP* ScriptDrawingBitmapPool::_parent_bmp = 0;
 

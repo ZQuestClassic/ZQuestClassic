@@ -1111,6 +1111,12 @@ int icon_proportion(int icon,int s1,int s2)
 		case BTNICON_STOPSQUARE:
 			sz += 4;
 			break;
+		case BTNICON_GEAR:
+			sz *= 3;
+			break;
+		case BTNICON_TRASH:
+			sz *= 3;
+			break;
 		case BTNICON_PLUS:
 		case BTNICON_MINUS:
 			sz += 4;
@@ -1176,8 +1182,24 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 		case BTNICON_PLUS:
 			if(!(sz%2)) ++sz;
 			aw = ah = w2 = h2 = sz;
-			w2 /= 3;
-			h2 /= 3;
+			w2 = zc_max(1, w2/3);
+			h2 = zc_max(1, h2/3);
+			if(!(h2%2)) ++h2;
+			if(!(w2%2)) ++w2;
+			break;
+		case BTNICON_GEAR:
+			if(!(sz%2)) ++sz;
+			aw = ah = w2 = h2 = sz;
+			w2 = zc_max(1, w2/6);
+			h2 = zc_max(1, h2/6);
+			if(!(h2%2)) ++h2;
+			if(!(w2%2)) ++w2;
+			break;
+		case BTNICON_TRASH:
+			if(!(sz%2)) ++sz;
+			aw = ah = w2 = h2 = sz;
+			w2 = zc_max(1, w2/6);
+			h2 = zc_max(1, h2/6);
 			if(!(h2%2)) ++h2;
 			if(!(w2%2)) ++w2;
 			break;
@@ -1249,6 +1271,54 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 			rectfill(dest, cx, cy+(ah/2)-(h2/2), cx+aw-1, cy+(ah/2)+(h2/2), col);
 			rectfill(dest, cx+(aw/2)-(w2/2), cy, cx+(aw/2)+(w2/2), cy+ah-1, col);
 			break;
+		case BTNICON_GEAR:
+		{
+			BITMAP* tmp = create_bitmap_ex(8, sz, sz);
+			int tx = cx, ty = cy;
+			cx = cy = 0;
+			clear_bitmap(tmp);
+			rectfill(tmp, cx, cy+(ah/2)-(h2/2), cx+aw-1, cy+(ah/2)+(h2/2), col);
+			rectfill(tmp, cx+(aw/2)-(w2/2), cy, cx+(aw/2)+(w2/2), cy+ah-1, col);
+			rotate_sprite(tmp, tmp, 0, 0, ftofix(DegtoFix(45.0)));
+			circlefill(tmp, sz/2, sz/2, round((sz / 2) * 0.6), col);
+			circlefill(tmp, sz/2, sz/2, round((sz / 2) * 0.3), 0);
+			masked_blit(tmp, dest, 0, 0, tx-1, ty-1, sz, sz);
+			destroy_bitmap(tmp);
+			break;
+		}
+		case BTNICON_TRASH:
+		{
+			BITMAP* tmp = create_bitmap_ex(8, sz, sz);
+			clear_bitmap(tmp);
+			int tx = cx, ty = cy;
+			cx = cy = 0;
+			const int TOP_GAP = 2;
+			const int TOP_BUMP_H = 4;
+			const int TOP_BUMP_CUT_V = 2;
+			int TOP_BUMP_CUT_H = w2;
+			int INNER_VGAP = zc_max(1, h2/2);
+			int VLINE_WIDTH = zc_max(1, w2/2);
+			if (!(VLINE_WIDTH%2)) --VLINE_WIDTH;
+			rectfill(tmp, cx + aw * 0.25_zf, cy, cx + aw * 0.75_zf, cy + TOP_BUMP_H, col);
+			rectfill(tmp, cx + aw * 0.25_zf + TOP_BUMP_CUT_H, cy + TOP_BUMP_CUT_V, cx + aw * 0.75_zf - TOP_BUMP_CUT_H, cy + TOP_BUMP_H, 0);
+			rectfill(tmp, cx, cy + (TOP_GAP + TOP_BUMP_H), cx+aw-1, cy+h2, col);
+			int xs[] = {cx, cx+aw-1, cx+aw-1-w2, cx+w2};
+			int ys[] = {cy+h2+TOP_GAP, cy+h2+TOP_GAP, cy+ah-1, cy+ah-1};
+			triangle(tmp, xs[0], ys[0], xs[1], ys[1], xs[2], ys[2], col);
+			triangle(tmp, xs[2], ys[2], xs[3], ys[3], xs[0], ys[0], col);
+			
+			zfix tw = aw;
+			zfix xls[] = {cx + tw * 0.25_zf + 1, cx + tw * 0.5_zf, cx + tw * 0.75_zf - 1};
+			int ly = cy+h2+TOP_GAP+INNER_VGAP;
+			int ly2 = cy+ah-1-INNER_VGAP;
+			int yls[] = {ly2 - 2, ly2, ly2 - 2};
+			for (int q = 0; q < 3; ++q)
+				rectfill(tmp, xls[q] - VLINE_WIDTH / 2_zf, ly, xls[q] + VLINE_WIDTH / 2_zf, yls[q], 0);
+			
+			masked_blit(tmp, dest, 0, 0, tx, ty, sz, sz);
+			destroy_bitmap(tmp);
+			break;
+		}
 	}
 }
 /* draw_graphics_button:

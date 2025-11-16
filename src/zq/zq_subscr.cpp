@@ -1310,7 +1310,7 @@ DIALOG subscreen_dlg[] =
 	{ jwin_ctext_proc,      134,  0,      30,     16,    0,                 0,                0,       0,          0,                      0, pgbuf, NULL, NULL },
 	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_ARROW_LEFT,     0, NULL, NULL, NULL },
 	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_ARROW_RIGHT,    0, NULL, NULL, NULL },
-	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_MINUS,          0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_TRASH,          0, NULL, NULL, NULL },
 	// 50
 	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_PLUS,           0, NULL, NULL, NULL },
 	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_ARROW_LEFT2,    0, NULL, NULL, NULL },
