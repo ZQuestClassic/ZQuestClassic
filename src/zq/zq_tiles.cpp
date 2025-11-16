@@ -6949,6 +6949,16 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 				ref->name = fmt::format("Overlay Subscr {} - {}", q, ref->name);
 			}
 		}
+		for(auto q = 0; q < subscreens_map.size(); ++q)
+		{
+			size_t indx = movelist->move_refs.size();
+			collect_subscreen_tiles(subscreens_map[q], *movelist.get());
+			for(; indx < movelist->move_refs.size(); ++indx)
+			{
+				auto& ref = movelist->move_refs[indx];
+				ref->name = fmt::format("Map Subscr {} - {}", q, ref->name);
+			}
+		}
 		if(!every_proc && !movelist->check_prot())
 			return false;
 	}

@@ -152,11 +152,11 @@ static T* resolveScriptingObject(int ref)
 	else if constexpr (std::is_same<T, ZCSubscreen>::value)
 		return checkSubData(ref);
 	else if constexpr (std::is_same<T, ZCSubscreenActive>::value)
-		return (ZCSubscreenActive*)checkSubData(ref, sstACTIVE);
+		return (ZCSubscreenActive*)checkSubData(ref, {sstACTIVE,sstMAP});
 	else if constexpr (std::is_same<T, SubscrWidget>::value)
 		return checkSubWidg(ref);
 	else if constexpr (std::is_same<T, SubscrWidgetActive>::value)
-		return (SubscrWidgetActive*)checkSubWidg(ref, sstACTIVE);
+		return (SubscrWidgetActive*)checkSubWidg(ref, {sstACTIVE,sstMAP});
 	else if constexpr (std::is_same<T, bottletype>::value)
 		return checkBottleData(ref);
 	else if constexpr (std::is_same<T, bottleshoptype>::value)

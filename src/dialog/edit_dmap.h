@@ -93,7 +93,7 @@ private:
 
 	GUI::ListData list_maps, list_types;
 	GUI::ListData list_activesub, list_passivesub, list_overlaysub,
-		list_strings, list_lpals;
+		list_mapsub, list_strings, list_lpals;
 	GUI::ListData list_midis, list_tracks;
 	GUI::ListData list_disableditems, list_items;
 	GUI::ListData list_dmapscript;

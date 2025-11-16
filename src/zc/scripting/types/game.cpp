@@ -780,6 +780,9 @@ std::optional<int32_t> game_run_command(word command)
 				case sstOVERLAY:
 					vec = &subscreens_overlay;
 					break;
+				case sstMAP:
+					vec = &subscreens_map;
+					break;
 				default:
 					Z_scripterrlog("Invalid Subscreen Type passed to ???: %d\n", ty);
 					break;
