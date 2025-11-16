@@ -1500,11 +1500,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	// Find write function.
 	if (param == paramWrite || param == paramReadWrite)
 	{
-		if ((host.wtype && host.wtype->isConstant()) || (host.u_datum && host.u_datum->type.isConstant()))
-		{
-			handleError(CompileError::LValConst(&host, host.asString()));
-			return;
-		}
+		if (DataType const* wty = host.getWriteType(scope, this); wty && wty->isConstant())
+			return; // Let the parent caller handle throwing the error
 		Function* writer;
 		if (host.index)
 		{
