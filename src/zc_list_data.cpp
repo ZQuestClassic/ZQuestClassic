@@ -756,13 +756,16 @@ GUI::ListData GUI::ZCListData::lpals()
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::subscreens(byte type, bool numbered)
+GUI::ListData GUI::ZCListData::subscreens(byte type, bool numbered, bool incl_none)
 {
 	std::vector<ZCSubscreen>& vec =
 		(type == sstACTIVE ? subscreens_active
 		: (type == sstPASSIVE ? subscreens_passive
-		: subscreens_overlay));
+		: (type == sstOVERLAY ? subscreens_overlay
+		: subscreens_map)));
 	GUI::ListData ls;
+	if (incl_none)
+		ls.add("(None)", -1);
 	for(int q = 0; q < vec.size(); ++q)
 	{
 		if(numbered)

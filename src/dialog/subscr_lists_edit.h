@@ -16,7 +16,7 @@ class SubscrListEditDialog: public GUI::Dialog<SubscrListEditDialog>
 public:
 	enum class message
 	{
-		REFR_INFO, REFRESH, DONE, EDIT0, EDIT1, EDIT2, DEL0, DEL1, DEL2
+		REFR_INFO, REFRESH, DONE, EDIT0, EDIT1, EDIT2, EDIT3, DEL0, DEL1, DEL2, DEL3
 	};
 
 	SubscrListEditDialog() = default;

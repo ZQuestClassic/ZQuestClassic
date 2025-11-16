@@ -53,11 +53,14 @@ extern subscreen_object z3_active_a[80];
 extern subscreen_object z3_passive_a[66];
 extern subscreen_object z3_active_ab[82];
 extern subscreen_object z3_passive_ab[75];
-extern std::vector<ZCSubscreen> subscreens_active, subscreens_passive, subscreens_overlay;
+extern std::vector<ZCSubscreen> subscreens_active, subscreens_passive, subscreens_overlay, subscreens_map;
 extern ZCSubscreen *new_subscreen_active;
 extern ZCSubscreen *new_subscreen_passive;
 extern ZCSubscreen *new_subscreen_overlay;
-extern int new_sub_indexes[3];
+extern ZCSubscreen *new_subscreen_map;
+extern bool map_subscreen_open;
+#define CURRENT_ACTIVE_SUBSCREEN (map_subscreen_open ? new_subscreen_map : new_subscreen_active)
+extern int new_sub_indexes[sstMAX];
 extern bool subscreen_open;
 extern int active_sub_yoff;
 

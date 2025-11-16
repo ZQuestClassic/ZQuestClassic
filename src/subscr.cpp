@@ -23,12 +23,13 @@ extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 int get_sub_dmap();
 
 ZCSubscreen *new_subscreen_active = nullptr, *new_subscreen_passive = nullptr,
-	*new_subscreen_overlay = nullptr;
-int new_sub_indexes[3] = {0};
+	*new_subscreen_overlay = nullptr, *new_subscreen_map = nullptr;
+bool map_subscreen_open = false;
+int new_sub_indexes[sstMAX] = {0};
 bool subscreen_open = false; //For script reading
 int active_sub_yoff = -224; //For script reading
 
-std::vector<ZCSubscreen> subscreens_active, subscreens_passive, subscreens_overlay;
+std::vector<ZCSubscreen> subscreens_active, subscreens_passive, subscreens_overlay, subscreens_map;
 
 static const int32_t notscrolling = sspUP | sspDOWN;
 static const int32_t pos = notscrolling | sspSCROLLING;
@@ -3395,9 +3396,9 @@ void update_subscreens(int32_t dmap)
 	if(dmap<0)
 		dmap=get_sub_dmap();
 	
-	ZCSubscreen *next_active = nullptr, *next_passive = nullptr, *next_overlay = nullptr;
+	ZCSubscreen *next_active = nullptr, *next_passive = nullptr, *next_overlay = nullptr, *next_map = nullptr;
 	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] =
-		new_sub_indexes[sstOVERLAY] = -1;
+		new_sub_indexes[sstOVERLAY] = new_sub_indexes[sstMAP] = -1;
 	int indx = DMaps[dmap].active_subscreen;
 	if(unsigned(indx) < subscreens_active.size())
 	{
@@ -3416,6 +3417,12 @@ void update_subscreens(int32_t dmap)
 		next_overlay = &subscreens_overlay[indx];
 		new_sub_indexes[sstOVERLAY] = indx;
 	}
+	indx = DMaps[dmap].map_subscreen;
+	if(unsigned(indx) < subscreens_map.size())
+	{
+		next_map = &subscreens_map[indx];
+		new_sub_indexes[sstMAP] = indx;
+	}
 	
 	if(get_qr(qr_OLD_SUBSCR) && new_subscreen_active && next_active)
 	{
@@ -3426,6 +3433,7 @@ void update_subscreens(int32_t dmap)
 	new_subscreen_passive = next_passive;
 	new_subscreen_active = next_active;
 	new_subscreen_overlay = next_overlay;
+	new_subscreen_map = next_map;
 }
 
 void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)

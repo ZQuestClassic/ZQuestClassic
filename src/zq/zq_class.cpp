@@ -7770,6 +7770,8 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 				if (!p_iputzf(DMaps[i].dmap_terminal_v, f))
 					new_return(49);
 			}
+			if(!p_iputw(DMaps[i].map_subscreen, f))
+				new_return(50);
 		}
         
         if(writecycle==0)
@@ -12165,6 +12167,18 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 		for(int32_t i=0; i<sz; i++)
 		{
 			int32_t ret = subscreens_overlay[i].write(f);
+			fake_pack_writing=(writecycle==0);
+			
+			if(ret!=0)
+				new_return(ret);
+		}
+		
+		sz = subscreens_map.size();
+		if(!p_putc(sz,f))
+			new_return(5);
+		for(int32_t i=0; i<sz; i++)
+		{
+			int32_t ret = subscreens_map[i].write(f);
 			fake_pack_writing=(writecycle==0);
 			
 			if(ret!=0)
