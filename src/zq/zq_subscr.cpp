@@ -1215,6 +1215,12 @@ static int32_t onSubscreenSettings()
 	call_subscrsettings_dialog();
 	return D_O_K;
 }
+void call_subscr_pagesettings_dialog();
+static int32_t onSubscreenPageSettings()
+{
+	call_subscr_pagesettings_dialog();
+	return D_O_K;
+}
 enum
 {
 	MENUID_SS_SETTINGS_DELETE,
@@ -1245,11 +1251,12 @@ static std::string arrow_infos[5] =
 		"\nIf shift held: Resize by 1 grid step",
 	"Move preview of item selector",
 	"L/R: Change Page (-1/+1)"
-		"\n-/+: Delete/Add Page"
+		"\nTrash/+: Delete/Add Page"
 		"\nLL/RR: Change Page (Home/End)"
 		"\n<>: Swap Pages (left/right)"
+		"\nGear: Page Settings"
 };
-static char pgbuf[16] = "Pg 1/1";
+static char pgbuf[16] = "Page 1/1";
 static char subscr_titlebuf[64] = "Subscreen Editor";
 DIALOG subscreen_dlg[] =
 {
@@ -1325,6 +1332,7 @@ DIALOG subscreen_dlg[] =
 	{ jwin_text_proc,        0,   0,     181,     16,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL },
 	{ jwin_button_proc,      0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     0,                      0, (void*)"Copy Pg", NULL, NULL },
 	{ jwin_button_proc,      0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     0,                      0, (void*)"Paste New Pg", NULL, NULL },
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_GEAR,           0, NULL, NULL, NULL },
 	
 	{ d_keyboard_proc,      0,    0,      0,       0,    0,                 0,                'v',     0,          0,                      0, (void *) onSubscrPaste, NULL, NULL },
 	{ d_keyboard_proc,      0,    0,      0,       0,    0,                 0,                'c',     0,          0,                      0, (void *) onSubscrCopy, NULL, NULL },
@@ -2394,7 +2402,7 @@ void update_subscr_dlg(bool start)
 			subscreen_dlg[46].y += (subscreen_dlg[47].h-dlg_fh(subscreen_dlg[46]))/2;
 			
 			subscreen_dlg[51].y = subscreen_dlg[52].y = subscreen_dlg[53].y =
-				subscreen_dlg[54].y = subscreen_dlg[55].y =
+				subscreen_dlg[54].y = subscreen_dlg[55].y = subscreen_dlg[59].y =
 				subscreen_dlg[50].y+subscreen_dlg[50].h;
 			
 			subscreen_dlg[1].y = subscreen_dlg[2].y =
@@ -2415,13 +2423,14 @@ void update_subscr_dlg(bool start)
 		}
 	}
 	bool nopages = !(subty == sstACTIVE || subty == sstMAP);
-	for(int q = 46; q <= 55; ++q)
+	for(int q = 46; q <= 59; ++q)
+	{
+		if (q == 56) continue;
 		SETFLAG(subscreen_dlg[q].flags,D_HIDDEN,nopages);
-	SETFLAG(subscreen_dlg[57].flags,D_HIDDEN,nopages);
-	SETFLAG(subscreen_dlg[58].flags,D_HIDDEN,nopages);
+	}
 	if(!nopages)
 	{
-		sprintf(pgbuf, "Pg %d/%zd", subscr_edit.curpage+1,subscr_edit.pages.size());
+		sprintf(pgbuf, "Page %d/%zd", subscr_edit.curpage+1,subscr_edit.pages.size());
 		SETFLAG(subscreen_dlg[47].flags,D_DISABLED,subscr_edit.curpage<1);
 		SETFLAG(subscreen_dlg[48].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
 		SETFLAG(subscreen_dlg[50].flags,D_DISABLED,subscr_edit.pages.size()>=MAX_SUBSCR_PAGES);
@@ -2430,12 +2439,14 @@ void update_subscr_dlg(bool start)
 		SETFLAG(subscreen_dlg[52].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
 		SETFLAG(subscreen_dlg[54].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
 		SETFLAG(subscreen_dlg[58].flags,D_DISABLED,subscr_edit.pages.size()>=MAX_SUBSCR_PAGES || !has_copied_page);
-		int tw = 8+dlg_fontlen(subscreen_dlg[46]);
+		int bw = subscreen_dlg[55].w + subscreen_dlg[59].w;
+		int tw = 8 + zc_max(dlg_fontlen(subscreen_dlg[46]), bw);
 		subscreen_dlg[51].x = subscreen_dlg[47].x = subscreen_dlg[46].x-(tw/2)-subscreen_dlg[47].w;
 		subscreen_dlg[52].x = subscreen_dlg[48].x = subscreen_dlg[46].x+(tw/2);
 		subscreen_dlg[53].x = subscreen_dlg[49].x = subscreen_dlg[47].x - subscreen_dlg[49].w;
 		subscreen_dlg[54].x = subscreen_dlg[50].x = subscreen_dlg[48].x + subscreen_dlg[48].w;
-		subscreen_dlg[55].x = subscreen_dlg[46].x - subscreen_dlg[55].w/2;
+		subscreen_dlg[55].x = subscreen_dlg[46].x - bw/2;
+		subscreen_dlg[59].x = subscreen_dlg[46].x + bw/2 - subscreen_dlg[59].w;
 		
 		subscreen_dlg[57].w = 8+dlg_fontlen(subscreen_dlg[57]);
 		subscreen_dlg[57].h = std::max(30,8+dlg_fh(subscreen_dlg[57]));
@@ -2499,6 +2510,9 @@ bool edit_subscreen()
 					break;
 				case 54: // Swap Right
 					subscr_edit.swap_pages(subscr_edit.curpage,subscr_edit.curpage+1);
+					break;
+				case 59: // Page Settings
+					onSubscreenPageSettings();
 					break;
 				case 49: // Del Page
 				{

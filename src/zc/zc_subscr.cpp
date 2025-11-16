@@ -467,7 +467,11 @@ void dosubscr()
 				}
 			}
 			if(CURRENT_ACTIVE_SUBSCREEN->curpage == pgnum)
-				CURRENT_ACTIVE_SUBSCREEN->check_btns(btn_press);
+			{
+				btn_press = CURRENT_ACTIVE_SUBSCREEN->cur_page().check_btns(btn_press, *CURRENT_ACTIVE_SUBSCREEN);
+				if(CURRENT_ACTIVE_SUBSCREEN->curpage == pgnum)
+					CURRENT_ACTIVE_SUBSCREEN->check_btns(btn_press);
+			}
 		}
 		
 		do_dcounters();
