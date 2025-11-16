@@ -52,12 +52,13 @@ namespace ZScript
 		void caseExprConst(ASTExprConst& host, void* = NULL);
 		void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);
-		void handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, void* param = NULL);
+		void handleSpecialAssign(ASTExprAssign& host, optional<string> override_name);
 
 #define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
 void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* = NULL);
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
+		void caseExprBitNotAssign(ASTExprBitNotAssign& host, void* = NULL);
 
 		void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
 		void caseExprArrow(ASTExprArrow& host, void* = NULL);
@@ -111,12 +112,11 @@ void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* = NULL);
 		////////////////////////////////////////////////////////////////
 		// Helper Functions.
 
-		void analyzeUnaryExpr(ASTUnaryExpr& host, ZScript::DataType const& type);
-		void analyzeIncrement(ASTUnaryExpr& host);
-		bool overrideBinaryExpr(ASTBinaryExpr& host, string override_name, bool require);
+		void analyzeUnaryExpr(ASTUnaryExpr& host, DataType const& type, string const& override_name, bool require_override, void* param = nullptr);
+		bool overrideBinaryExpr(ASTBinaryExpr& host, string const& override_name, bool require);
 		void analyzeBinaryExpr(
 				ASTBinaryExpr& host, ZScript::DataType const& leftType,
-				ZScript::DataType const& rightType, string override_name, bool require_override);
+				ZScript::DataType const& rightType, string const& override_name, bool require_override);
 		
 		vector<Function*> best_functions_cast(vector<Function*>& base_funcs, vector<DataType const*> const& parameterTypes);
 		void best_functions_optparam(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);

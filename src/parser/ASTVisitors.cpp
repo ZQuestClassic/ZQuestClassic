@@ -661,6 +661,10 @@ void RecursiveVisitor::caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param
 }
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
+void RecursiveVisitor::caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param)
+{
+	caseExprAssign(host, param);
+}
 
 void RecursiveVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {

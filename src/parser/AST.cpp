@@ -1752,6 +1752,21 @@ DataType const* ASTExpr##ty_assign::getReadType(Scope* scope, CompileErrorHandle
 }
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
+ASTExprBitNotAssign::ASTExprBitNotAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprAssign(left, right, location) {}
+
+void ASTExprBitNotAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprBitNotAssign(*this, param);
+}
+
+DataType const* ASTExprBitNotAssign::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return ASTExprBitAnd(left->clone(), new ASTExprBitNot(right->clone())).getReadType(scope, errorHandler);
+}
 
 // ASTExprIdentifier
 
@@ -1938,8 +1953,15 @@ DataType const* ASTExprCall::getWriteType(Scope* scope, CompileErrorHandler* err
 // ASTUnaryExpr
 
 ASTUnaryExpr::ASTUnaryExpr(LocationData const& location)
-	: ASTExpr(location)
+	: ASTExpr(location), override_fn(nullptr)
 {}
+
+DataType const* ASTUnaryExpr::getOverrideReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return nullptr;
+}
 
 // ASTExprDelete
 

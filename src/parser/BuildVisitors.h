@@ -66,6 +66,7 @@ namespace ZScript
 virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param);
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
+		virtual void caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param);
 		
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
@@ -250,6 +251,7 @@ virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param);
 		void buildPreOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 		void buildPostOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 		
+		bool unaryOpOverride(ASTUnaryExpr& host, void* param);
 		bool binaryOpOverride(ASTBinaryExpr& host, void* param);
 		
 		void push_param(bool varg = false);

@@ -114,6 +114,8 @@ virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param = NULL) {
 	caseDefault(host, param);}
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
+		virtual void caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param = NULL) {
+			caseDefault(host, param);}
 
 		virtual void caseExprIdentifier(
 				ASTExprIdentifier& host, void* param = NULL) {
@@ -334,6 +336,7 @@ virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param = NULL) {
 virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param = NULL);
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
+		virtual void caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param = NULL);
 
 		virtual void caseExprArrow(ASTExprArrow& host, void* param = NULL);
 		virtual void caseExprIndex(ASTExprIndex& host, void* param = NULL);

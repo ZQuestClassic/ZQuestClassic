@@ -2312,8 +2312,7 @@ Expr_18 : Expr_17 {$$ = $1;}
 	| Expr_17 BITNOTASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), new ASTExprBitNot(right, @$), @3);
-		$$ = new ASTExprAssign(left, rval, @$);}
+		$$ = new ASTExprBitNotAssign(left, right, @$);}
 	// Bitwise Xor Assignment
 	| Expr_17 BITXORASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
