@@ -926,66 +926,6 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		return;
 	}
 	auto func_name = host.getName();
-	if (host.getFlag(FUNCFLAG_OPERATOR))
-	{
-		UserClass* user_class = nullptr;
-		if (ClassScope* cs = dynamic_cast<ClassScope*>(func_lives_in))
-			user_class = &cs->user_class;
-		
-		if (!host.getFlag(FUNCFLAG_STATIC) || !user_class)
-		{
-			handleError(CompileError::Error(&host, "Operator functions must be static class functions!"));
-			return;
-		}
-		static std::map<int, std::set<string>> operator_strings = {
-			{2, {"plus", "minus", "times", "divide",
-				"modulo", "lshift", "rshift", "bit_and", "bit_xor", "bit_or",
-				"bool_and", "bool_or", "bool_xor",
-				"cmp_ge", "cmp_gt", "cmp_le", "cmp_lt",
-				"cmp_ne", "cmp_eq", "cmp_appx_eq",
-				
-#define SPECIAL_ASSIGN(_ty_base, _ty_assign, override_name) override_name,
-#include "special_assign.xtable"
-#undef SPECIAL_ASSIGN
-				"index_get"}},
-			{3, {"index_set"}}
-		};
-		bool found = false;
-		for (auto [count, names] : operator_strings)
-		{
-			if (names.contains(func_name))
-			{
-				if (count != paramTypes.size())
-				{
-					handleError(CompileError::Error(&host, fmt::format("Invalid parameter count '{}' for operator '{}', expected '{}'", paramTypes.size(), func_name, count)));
-					return;
-				}
-				found = true;
-				break;
-			}
-		}
-		if (!found)
-		{
-			handleError(CompileError::Error(&host, "Invalid parameter count for operator function!"));
-			return;
-		}
-		if (func_name.ends_with("_assign"))
-		{
-			if (*paramTypes[0] != *user_class->getType())
-			{
-				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' first parameter must match it's class type.", func_name)));
-				return;
-			}
-		}
-		if (func_name == "index_get" || func_name == "index_set")
-		{
-			if (*paramTypes[1] != DataType::FLOAT)
-			{
-				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' must take 'int' index parameter", func_name)));
-				return;
-			}
-		}
-	}
 	if(host.prototype)
 	{
 		//Check the default return
@@ -1021,6 +961,83 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		if(breakRecursion(host)) return;
 	}
 	if(breakRecursion(host)) return;
+	
+	if (host.getFlag(FUNCFLAG_OPERATOR))
+	{
+		UserClass* user_class = nullptr;
+		if (ClassScope* cs = dynamic_cast<ClassScope*>(func_lives_in))
+			user_class = &cs->user_class;
+		
+		if (!host.getFlag(FUNCFLAG_STATIC) || !user_class)
+		{
+			handleError(CompileError::Error(&host, "Operator functions must be static class functions!"));
+			return;
+		}
+		static std::map<int, std::set<string>> operator_strings = {
+			{1, {
+				"pre_increment", "post_increment", "pre_decrement", "post_decrement",
+				"bit_not", "bool_not", "negate",
+			}},
+			{2, {
+				"plus", "minus", "times", "divide", "expn",
+				"modulo", "lshift", "rshift", "bit_and", "bit_xor", "bit_or",
+				"bool_and", "bool_or", "bool_xor",
+				"cmp_ge", "cmp_gt", "cmp_le", "cmp_lt",
+				"cmp_ne", "cmp_eq", "cmp_appx_eq",
+				
+#define SPECIAL_ASSIGN(_ty_base, _ty_assign, override_name) override_name,
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+				"bit_not_assign",
+				
+				"index_get"
+			}},
+			{3, {"index_set"}}
+		};
+		bool found = false;
+		for (auto [count, names] : operator_strings)
+		{
+			if (names.contains(func_name))
+			{
+				if (count != paramTypes.size())
+				{
+					handleError(CompileError::Error(&host, fmt::format("Invalid parameter count '{}' for operator '{}', expected '{}'", paramTypes.size(), func_name, count)));
+					return;
+				}
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			handleError(CompileError::Error(&host, fmt::format("Invalid operator function '{}'!", func_name)));
+			return;
+		}
+		if (func_name.ends_with("_assign"))
+		{
+			if (*paramTypes[0] != *user_class->getType())
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' first parameter must match it's class type.", func_name)));
+				return;
+			}
+		}
+		if (func_name.starts_with("post_"))
+		{
+			if (returnType.isVoid())
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' cannot return 'void'.", func_name)));
+				return;
+			}
+		}
+		if (func_name == "index_get" || func_name == "index_set")
+		{
+			if (*paramTypes[1] != DataType::FLOAT)
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' must take 'int' index parameter", func_name)));
+				return;
+			}
+		}
+	}
 
 	// Add the function to the scope.
 	Function* function = func_lives_in->addFunction(
@@ -1237,9 +1254,9 @@ void SemanticAnalyzer::caseVarInitializer(ASTExprVarInitializer& host, void*)
 	}
 }
 
-void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, void* param)
+void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string> override_name)
 {
-	visit(host.left.get(), param);
+	visit(host.left.get(), paramReadWrite);
 	if (breakRecursion(host)) return;
 
 	visit(host.right.get(), paramRead);
@@ -1341,16 +1358,20 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 }
 void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 {
-	handleSpecialAssign(host, nullopt, paramRead);
+	handleSpecialAssign(host, nullopt);
 }
 
 #define SPECIAL_ASSIGN(_, ty_assign, override_name) \
 void SemanticAnalyzer::caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param) \
 { \
-	handleSpecialAssign(host, override_name, paramReadWrite); \
+	handleSpecialAssign(host, override_name); \
 }
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
+void SemanticAnalyzer::caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param)
+{
+	handleSpecialAssign(host, "bit_not_assign");
+}
 
 void SemanticAnalyzer::caseExprIdentifier(
 		ASTExprIdentifier& host, void* param)
@@ -1952,7 +1973,7 @@ void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
 			host.done = true;
 		}
 	}
-	analyzeUnaryExpr(host, DataType::FLOAT);
+	analyzeUnaryExpr(host, DataType::FLOAT, "negate", true);
 }
 void SemanticAnalyzer::caseExprDelete(ASTExprDelete& host, void*)
 {
@@ -1968,27 +1989,29 @@ void SemanticAnalyzer::caseExprDelete(ASTExprDelete& host, void*)
 
 void SemanticAnalyzer::caseExprNot(ASTExprNot& host, void*)
 {
+	analyzeUnaryExpr(host, DataType::UNTYPED, "bool_not", false);
+	if (host.override_fn)
+		return; // if overridden, don't simplify duplicate nots
 	while(ASTExprNot* ptr = dynamic_cast<ASTExprNot*>(host.operand.get()))
 	{
 		host.invert();
 		host.operand.reset(ptr->operand.release());
 	}
-	analyzeUnaryExpr(host, DataType::UNTYPED);
 }
 
 void SemanticAnalyzer::caseExprBitNot(ASTExprBitNot& host, void*)
 {
-	analyzeUnaryExpr(host, DataType::FLOAT);
+	analyzeUnaryExpr(host, DataType::FLOAT, "bit_not", true);
 }
 
 void SemanticAnalyzer::caseExprIncrement(ASTExprIncrement& host, void*)
 {
-	analyzeIncrement(host);
+	analyzeUnaryExpr(host, DataType::FLOAT, host.is_pre ? "pre_increment" : "post_increment", true, paramReadWrite);
 }
 
 void SemanticAnalyzer::caseExprDecrement(ASTExprDecrement& host, void*)
 {
-	analyzeIncrement(host);
+	analyzeUnaryExpr(host, DataType::FLOAT, host.is_pre ? "pre_decrement" : "post_decrement", true, paramReadWrite);
 }
 
 void SemanticAnalyzer::caseExprCast(ASTExprCast& host, void* param)
@@ -2254,30 +2277,46 @@ void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 void SemanticAnalyzer::caseIsIncluded(ASTIsIncluded& host, void*)
 {}
 
-void SemanticAnalyzer::analyzeUnaryExpr(
-		ASTUnaryExpr& host, DataType const& type)
+void SemanticAnalyzer::analyzeUnaryExpr(ASTUnaryExpr& host, DataType const& type, string const& override_name, bool require_override, void* param)
 {
-	visit(host.operand.get());
+	visit(host.operand.get(), param);
 	if (breakRecursion(host)) return;
 	
-	checkCast(*host.operand->getReadType(scope, this), type, &host);
-	if (breakRecursion(host)) return;
-}
-
-void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
-{
-	visit(host.operand.get(), paramReadWrite);
-    if (breakRecursion(host)) return;
-
 	ASTExpr& operand = *host.operand;
 	DataType const& ty = *operand.getReadType(scope, this);
-    checkCast(ty, DataType::FLOAT, &host);
-    if (breakRecursion(host)) return;
-	if (ty.isConstant())
+	
+	if (ty.isUsrClass())
+	{
+		UserClass* user_class = ty.getUsrClass();
+		vector<DataType const*> param_types = {&ty};
+		vector<Function*> fns = lookupClassFuncs(*user_class, override_name, param_types, scope, false, true);
+		//Remove any non-operator functions
+		std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+		fns = best_functions_cast(fns, param_types);
+		best_functions_optparam(fns, param_types);
+		best_function_untyped(fns, param_types);
+		
+		if (require_override || !fns.empty())
+		{
+			if (fns.size() == 1)
+			{
+				host.override_fn = fns[0];
+			}
+			else
+			{
+				best_function_error(host, fns, FunctionSignature(override_name, param_types), "Operator Function");
+			}
+			return;
+		}
+	}
+	
+	checkCast(ty, type, &host);
+	if (breakRecursion(host)) return;
+	if (ty.isConstant() && (param == paramWrite || param == paramReadWrite))
 		handleError(CompileError::LValConst(&host, operand.asString()));
 }
 
-bool SemanticAnalyzer::overrideBinaryExpr(ASTBinaryExpr& host, string override_name, bool require)
+bool SemanticAnalyzer::overrideBinaryExpr(ASTBinaryExpr& host, string const& override_name, bool require)
 {
 	auto& left_type = *host.left->getReadType(scope, this);
 	auto& right_type = *host.right->getReadType(scope, this);
@@ -2318,7 +2357,7 @@ bool SemanticAnalyzer::overrideBinaryExpr(ASTBinaryExpr& host, string override_n
 
 void SemanticAnalyzer::analyzeBinaryExpr(
 		ASTBinaryExpr& host, DataType const& leftType,
-		DataType const& rightType, string override_name, bool require_override)
+		DataType const& rightType, string const& override_name, bool require_override)
 {
 	visit(host.left.get());
 	if (breakRecursion(host)) return;

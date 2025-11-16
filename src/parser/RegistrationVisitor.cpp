@@ -1188,7 +1188,84 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		if(breakRecursion(host)) return;
 	}
 	if(breakRecursion(host)) return;
-	
+	if (host.getFlag(FUNCFLAG_OPERATOR))
+	{
+		UserClass* user_class = nullptr;
+		if (ClassScope* cs = dynamic_cast<ClassScope*>(func_lives_in))
+			user_class = &cs->user_class;
+		
+		if (!host.getFlag(FUNCFLAG_STATIC) || !user_class)
+		{
+			handleError(CompileError::Error(&host, "Operator functions must be static class functions!"));
+			return;
+		}
+		static std::map<int, std::set<string>> operator_strings = {
+			{1, {
+				"pre_increment", "post_increment", "pre_decrement", "post_decrement",
+				"bit_not", "bool_not", "negate",
+			}},
+			{2, {
+				"plus", "minus", "times", "divide", "expn",
+				"modulo", "lshift", "rshift", "bit_and", "bit_xor", "bit_or",
+				"bool_and", "bool_or", "bool_xor",
+				"cmp_ge", "cmp_gt", "cmp_le", "cmp_lt",
+				"cmp_ne", "cmp_eq", "cmp_appx_eq",
+				
+#define SPECIAL_ASSIGN(_ty_base, _ty_assign, override_name) override_name,
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+				"bit_not_assign",
+				
+				"index_get"
+			}},
+			{3, {"index_set"}}
+		};
+		bool found = false;
+		auto func_name = host.getName();
+		for (auto [count, names] : operator_strings)
+		{
+			if (names.contains(func_name))
+			{
+				if (count != paramTypes.size())
+				{
+					handleError(CompileError::Error(&host, fmt::format("Invalid parameter count '{}' for operator '{}', expected '{}'", paramTypes.size(), func_name, count)));
+					return;
+				}
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			handleError(CompileError::Error(&host, fmt::format("Invalid operator function '{}'!", func_name)));
+			return;
+		}
+		if (func_name.ends_with("_assign"))
+		{
+			if (*paramTypes[0] != *user_class->getType())
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' first parameter must match it's class type.", func_name)));
+				return;
+			}
+		}
+		if (func_name.starts_with("post_"))
+		{
+			if (returnType.isVoid())
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' cannot return 'void'.", func_name)));
+				return;
+			}
+		}
+		if (func_name == "index_get" || func_name == "index_set")
+		{
+			if (*paramTypes[1] != DataType::FLOAT)
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' must take 'int' index parameter", func_name)));
+				return;
+			}
+		}
+	}
+
 	doRegister(host);
 	
 	// Add the function to the scope.

@@ -1727,13 +1727,20 @@ bool BuildOpcodes::handleSpecialAssignOverride(ASTExprAssign& host, void* param)
 #define SPECIAL_ASSIGN(ty_base, ty_assign, _override_name) \
 void BuildOpcodes::caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param) \
 { \
-	if(handleSpecialAssignOverride(host, param)) \
+	if (handleSpecialAssignOverride(host, param)) \
 		return; \
-	ASTExprAssign assign(host.left.clone(), new ASTExpr##ty_base(host.left.clone(), host.right.clone()), host.location); \
+	ASTExprAssign assign(host.left.clone(), new ASTExpr##ty_base(host.left.clone(), host.right.clone(), host.location), host.location); \
 	caseExprAssign(assign, param); \
 }
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
+void BuildOpcodes::caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param)
+{
+	if (handleSpecialAssignOverride(host, param))
+		return;
+	ASTExprAssign assign(host.left.clone(), new ASTExprBitAnd(host.left.clone(), new ASTExprBitNot(host.right.clone(), host.right->location), host.location), host.location);
+	caseExprAssign(assign, param);
+}
 
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
@@ -2371,6 +2378,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 {
+	if (unaryOpOverride(host, param))
+		return;
 	if (auto val = host.getCompileTimeValue(this, scope))
 	{
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
@@ -2391,6 +2400,8 @@ void BuildOpcodes::caseExprDelete(ASTExprDelete& host, void* param)
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 {
+	if (unaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -2420,6 +2431,8 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 
 void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 {
+	if (unaryOpOverride(host, param))
+		return;
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -2438,6 +2451,8 @@ void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 
 void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 {
+	if (unaryOpOverride(host, param))
+		return;
 	vector<shared_ptr<Opcode>> ops;
 	
 	// Increment EXP1
@@ -2450,6 +2465,8 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 
 void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 {
+	if (unaryOpOverride(host, param))
+		return;
 	vector<shared_ptr<Opcode>> ops;
 	
 	// Increment EXP1
@@ -3067,6 +3084,17 @@ void BuildOpcodes::caseExprXOR(ASTExprXOR& host, void* param)
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
+bool BuildOpcodes::unaryOpOverride(ASTUnaryExpr& host, void* param)
+{
+	if (!host.override_fn)
+		return false;
+	ASTExprCall call(host.location);
+	call.binding = host.override_fn;
+	call.left = new ASTExprIdentifier(call.binding->name, host.location);
+	call.parameters.push_back(host.operand.clone());
+	caseExprCall(call, param);
+	return true;
+}
 bool BuildOpcodes::binaryOpOverride(ASTBinaryExpr& host, void* param)
 {
 	if (!host.override_fn)

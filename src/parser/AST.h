@@ -1405,6 +1405,22 @@ public: \
 };
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
+	class ASTExprBitNotAssign : public ASTExprAssign
+	{
+	public:
+		ASTExprBitNotAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LOC_NONE);
+		ASTExprBitNotAssign* clone() const {return new ASTExprBitNotAssign(*this);}
+	
+		void execute(ASTVisitor& visitor, void* param = NULL);
+	
+		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
+	
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+	};
 
 	class ASTExprIdentifier : public ASTExpr
 	{
@@ -1536,10 +1552,13 @@ public: \
 		virtual bool isConstant() const {return operand->isConstant();}
 		virtual bool isLiteral() const {return operand->isLiteral();}
 
+		virtual DataType const* getOverrideReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 		
 		owning_ptr<ASTExpr> operand;
+
+		Function* override_fn;
 	};
 	
 	class ASTExprDelete : public ASTUnaryExpr
@@ -1571,6 +1590,8 @@ public: \
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
 			auto type = operand->getReadType(scope, errorHandler);
 			if (type->isLong())
 				return &DataType::LONG;
@@ -1591,7 +1612,12 @@ public: \
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
+			return &DataType::BOOL;
+		}
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 		
 		void invert() {inverted = !inverted;}
@@ -1612,6 +1638,8 @@ public: \
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
 			auto type = operand->getReadType(scope, errorHandler);
 			if (type->isBitflagsEnum())
 				return type;
@@ -1635,6 +1663,8 @@ public: \
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
 			if(operand->isLong(scope, errorHandler))
 				return &DataType::LONG;
 			return &DataType::FLOAT;
@@ -1657,6 +1687,8 @@ public: \
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
 			if(operand->isLong(scope, errorHandler))
 				return &DataType::LONG;
 			return &DataType::FLOAT;
