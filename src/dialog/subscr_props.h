@@ -20,6 +20,8 @@
 
 bool call_subscrprop_dialog(SubscrWidget* widg, int32_t obj_ind);
 
+extern const GUI::ListData list_pgmode;
+
 class SubscrPropDialog: public GUI::Dialog<SubscrPropDialog>
 {
 public:

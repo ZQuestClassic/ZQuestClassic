@@ -73,10 +73,10 @@ const std::string subscr_infos[sstMAX] = {
 SubscrTransition subscr_pg_transition;
 int subscr_item_clk = 0, subscr_pg_clk = 0;
 byte subscr_pg_from, subscr_pg_to;
-static ZCSubscreen* subscr_anim = nullptr;
+static ZCSubscreen *subscr_anim_from = nullptr, *subscr_anim_to = nullptr;
 
 int subscr_override_clkoffsets[MAXITEMS];
-bool subscr_itemless = false, subscr_pg_animating = false;
+bool subscr_itemless = false, subscr_pg_animating = false, subscr_anim_map = false;
 int btnitem_clks[4] = {0};
 int btnitem_ids[4] = {-1,-1,-1,-1};
 BITMAP *subscr_pg_bmp1 = nullptr, *subscr_pg_bmp2 = nullptr, *subscr_pg_subbmp = nullptr;
@@ -693,7 +693,7 @@ void subscrpg_clear_animation()
 	subscr_pg_animating = false;
 	subscr_pg_clk = subscr_pg_from = subscr_pg_to = 0;
 	subscr_pg_transition.clear();
-	subscr_anim = nullptr;
+	subscr_anim_from = subscr_anim_to = nullptr;
 	if(subscr_pg_bmp1)
 		destroy_bitmap(subscr_pg_bmp1);
 	if(subscr_pg_bmp2)
@@ -705,7 +705,7 @@ void subscrpg_clear_animation()
 
 #define SUBSCR_ACTIVE_WIDTH 256
 #define SUBSCR_ACTIVE_HEIGHT 168
-bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& parent)
+bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& src, ZCSubscreen& dest)
 {
 	if(subscr_pg_animating)
 		return false;
@@ -716,7 +716,9 @@ bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZC
 	subscr_pg_to = to;
 	subscr_pg_transition = transition;
 	subscr_pg_animating = true;
-	subscr_anim = &parent;
+	subscr_anim_from = &src;
+	subscr_anim_to = &dest;
+	subscr_anim_map = &dest == new_subscreen_map;
 	if(transition.type != sstrINSTANT)
 	{
 		subscr_pg_bmp1 = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUBSCR_ACTIVE_HEIGHT);
@@ -1165,8 +1167,6 @@ int32_t SubscrSelectorInfo::write(PACKFILE *f) const
 	return 0;
 }
 
-
-
 bool SubscrTransition::draw(BITMAP* dest, BITMAP* p1, BITMAP* p2, int dx, int dy)
 {	//Returns true for failure/end of animation
 	if(type <= 0 || type >= sstrMAX)
@@ -1304,6 +1304,35 @@ int32_t SubscrTransition::argScale(byte ty, byte ind)
 			break;
 	}
 	return 10000;
+}
+
+int32_t SubscrPageTransition::read(PACKFILE *f, word s_version)
+{
+	if (!p_getc(&pg_btns, f))
+		return qe_invalid;
+	if (!p_getc(&pg_mode, f))
+		return qe_invalid;
+	if (!p_getc(&pg_targ, f))
+		return qe_invalid;
+	if (!p_getc(&flags, f))
+		return qe_invalid;
+	if (auto ret = pg_trans.read(f, s_version))
+		return ret;
+	return 0;
+}
+int32_t SubscrPageTransition::write(PACKFILE *f) const
+{
+	if (!p_putc(pg_btns, f))
+		new_return(1);
+	if (!p_putc(pg_mode, f))
+		new_return(1);
+	if (!p_putc(pg_targ, f))
+		new_return(1);
+	if (!p_putc(flags, f))
+		new_return(1);
+	if (auto ret = pg_trans.write(f))
+		return ret;
+	return 0;
 }
 
 SubscrWidget::SubscrWidget(byte ty) : SubscrWidget()
@@ -1635,7 +1664,7 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 void SubscrWidget::check_btns(byte btnflgs, ZCSubscreen& parent) const
 {
 	if(pg_mode && (btnflgs&pg_btns))
-		parent.page_change(pg_mode, pg_targ, pg_trans, genflags&SUBSCRFLAG_PGGOTO_NOWRAP);
+		parent.page_change(pg_mode, pg_targ, pg_trans, genflags&SUBSCRFLAG_PGGOTO_NOWRAP, genflags&SUBSCRFLAG_PGGOTO_SWAPMAPSUBSCR);
 }
 std::string SubscrWidget::getTypeName() const
 {
@@ -6348,6 +6377,10 @@ void SubscrPage::clear()
 		delete ptr;
 	contents.clear();
 }
+void SubscrPage::copy_settings(const SubscrPage& src)
+{
+	transitions = src.transitions;
+}
 void SubscrPage::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
 {
 	for(SubscrWidget* widg : contents)
@@ -6378,15 +6411,19 @@ SubscrPage& SubscrPage::operator=(SubscrPage const& other)
 	cursor_pos = other.cursor_pos;
 	index = other.index;
 	parent = other.parent;
+	copy_settings(other);
 	for(SubscrWidget* widg : other.contents)
 	{
 		push_back(widg->clone());
 	}
+	force_update();
 	return *this;
 }
 SubscrPage::SubscrPage(const SubscrPage& other)
 {
 	*this = other;
+	copy_settings(other);
+	force_update();
 }
 int32_t SubscrPage::read(PACKFILE *f, word s_version)
 {
@@ -6403,6 +6440,15 @@ int32_t SubscrPage::read(PACKFILE *f, word s_version)
 			return qe_invalid;
 		push_back(widg);
 	}
+	byte tr_sz = 0;
+	if (s_version >= 16)
+	{
+		if(!p_getc(&tr_sz,f))
+			return qe_invalid;
+	}
+	for(byte q = 0; q < tr_sz; ++q)
+		if (auto ret = transitions.emplace_back().read(f, s_version))
+			return ret;
 	return 0;
 }
 int32_t SubscrPage::write(PACKFILE *f) const
@@ -6415,7 +6461,12 @@ int32_t SubscrPage::write(PACKFILE *f) const
 	for(word q = 0; q < sz; ++q)
 		if(auto ret = contents[q]->write(f))
 			return ret;
-	
+	byte tr_sz = transitions.size();
+	if (!p_putc(tr_sz, f))
+		new_return(1);
+	for (byte q = 0; q < tr_sz; ++q)
+		if (auto ret = transitions[q].write(f))
+			return ret;
 	return 0;
 }
 word SubscrPage::getIndex() const
@@ -6450,6 +6501,19 @@ SubscrWidget* SubscrPage::at(size_t ind)
 SubscrWidget* const& SubscrPage::operator[](size_t ind) const
 {
 	return contents[ind];
+}
+
+byte SubscrPage::check_btns(byte btnflgs, ZCSubscreen& parent) const
+{
+	for (auto const& trans: transitions)
+	{
+		if(trans.pg_mode && (btnflgs&trans.pg_btns))
+		{
+			btnflgs &= ~trans.pg_btns;
+			parent.page_change(trans.pg_mode, trans.pg_targ, trans.pg_trans, trans.flags&SUBSCR_PAGE_TRANSITION_NOWRAP, trans.flags&SUBSCR_PAGE_TRANSITION_SWAPMAPSUBSCR);
+		}
+	}
+	return btnflgs;
 }
 void SubscrPage::force_update()
 {
@@ -6588,13 +6652,13 @@ void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool 
 {
 	if(pages.empty()) return;
 	
-	if((sub_type == sstACTIVE || sub_type == sstMAP) && subscr_pg_animating && subscr_anim == this)
+	if(subscr_pg_animating && (subscr_anim_from == this || subscr_anim_to == this))
 	{
-		if(subscr_pg_to >= pages.size())
+		if(subscr_pg_to >= subscr_anim_to->pages.size())
 			; //fail animation
 		else if(subscr_pg_transition.type == sstrINSTANT)
 			curpage = subscr_pg_to; //instant anim
-		else if(subscr_pg_from >= pages.size() || !subscr_pg_bmp1
+		else if(subscr_pg_from >= subscr_anim_from->pages.size() || !subscr_pg_bmp1
 			|| !subscr_pg_bmp2 || !subscr_pg_subbmp)
 			; //fail animation
 		else //progress through animation
@@ -6602,19 +6666,35 @@ void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool 
 			clear_bitmap(subscr_pg_bmp1);
 			clear_bitmap(subscr_pg_bmp2);
 			//Draw both pages to their respective subbitmaps
+			if (subscr_anim_from != subscr_anim_to)
+			{
+				if (subscr_anim_from == this)
+					subscr_anim_to->draw(dest, xofs, yofs, pos, showtime);
+				else
+				{
+					pages[subscr_pg_to].draw(subscr_pg_bmp2,0,0,pos,showtime);
+					return;
+				}
+			}
+			else pages[subscr_pg_to].draw(subscr_pg_bmp2,0,0,pos,showtime);
 			pages[subscr_pg_from].draw(subscr_pg_bmp1,0,0,pos,showtime);
-			pages[subscr_pg_to].draw(subscr_pg_bmp2,0,0,pos,showtime);
 			//Draw to the screen animation-dependently
 			if(subscr_pg_transition.draw(dest,subscr_pg_bmp1,subscr_pg_bmp2,xofs,yofs))
+			{
 				//animation finished
-				curpage = subscr_pg_to;
+				map_subscreen_open = subscr_anim_map;
+				subscr_anim_to->curpage = subscr_pg_to;
+			}
 			else
 			{
 				++subscr_pg_clk;
 				return;
 			}
 		}
+		ZCSubscreen* ptr = subscr_anim_to ? subscr_anim_to : this;
 		subscrpg_clear_animation();
+		ptr->draw(dest, xofs, yofs, pos, showtime);
+		return;
 	}
 	
 	size_t page = curpage >= pages.size() ? 0 : curpage;
@@ -6780,6 +6860,7 @@ bool ZCSubscreen::wrap_pg(int& pg, bool nowrap)
 	}
 	return true;
 }
+
 void ZCSubscreen::check_btns(byte btnflgs)
 {
 	if(subscr_pg_animating) return;
@@ -6798,12 +6879,19 @@ void ZCSubscreen::check_btns(byte btnflgs)
 	else return;
 	if(!wrap_pg(pg,flags&SUBFLAG_ACT_NOPAGEWRAP))
 		return;
-	subscrpg_animate(curpage,pg,*tr,*this);
+	subscrpg_animate(curpage,pg,*tr,*this,*this);
 }
-void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& trans, bool nowrap)
+void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& trans, bool nowrap, bool swap_map)
 {
 	if(subscr_pg_animating) return;
-	int pg = curpage;
+	ZCSubscreen* dest = this;
+	if (swap_map && new_subscreen_map)
+	{
+		if (this == new_subscreen_map)
+			dest = new_subscreen_active;
+		else dest = new_subscreen_map;
+	}
+	int pg = dest->curpage;
 	switch(mode)
 	{
 		case PGGOTO_NEXT:
@@ -6813,15 +6901,15 @@ void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& tran
 			--pg;
 			break;
 		case PGGOTO_TRG:
-			if(targ < pages.size())
+			if(targ < dest->pages.size())
 				pg = targ;
 			break;
 	}
-	if(pg == curpage)
+	if(pg == curpage && dest == this)
 		return;
-	if(!wrap_pg(pg,nowrap))
+	if(!dest->wrap_pg(pg,nowrap))
 		return;
-	subscrpg_animate(curpage,pg,trans,*this);
+	subscrpg_animate(curpage,pg,trans,*this,*dest);
 }
 
 ZCSubscreen::ZCSubscreen(ZCSubscreen const& other)

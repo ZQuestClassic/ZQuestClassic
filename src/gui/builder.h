@@ -868,6 +868,65 @@ Columns<4>( \
 			SETFLAG(var,0x80,state); \
 		}) \
 )
+#define _INTBTN_PANEL_HELPER_CAPTURE(var, ...) \
+Columns<4>( \
+	Checkbox( \
+		text = "A", hAlign = 0.0, \
+		checked = var&0x1, \
+		onToggleFunc = [&, __VA_ARGS__](bool state) \
+		{ \
+			SETFLAG(var,0x1,state); \
+		}), \
+	Checkbox( \
+		text = "B", hAlign = 0.0, \
+		checked = var&0x2, \
+		onToggleFunc = [&, __VA_ARGS__](bool state) \
+		{ \
+			SETFLAG(var,0x2,state); \
+		}), \
+	Checkbox( \
+		text = "L", hAlign = 0.0, \
+		checked = var&0x4, \
+		onToggleFunc = [&, __VA_ARGS__](bool state) \
+		{ \
+			SETFLAG(var,0x4,state); \
+		}), \
+	Checkbox( \
+		text = "R", hAlign = 0.0, \
+		checked = var&0x8, \
+		onToggleFunc = [&, __VA_ARGS__](bool state) \
+		{ \
+			SETFLAG(var,0x8,state); \
+		}), \
+	Checkbox( \
+		text = "Ex1", hAlign = 0.0, \
+		checked = var&0x10, \
+		onToggleFunc = [&, __VA_ARGS__](bool state) \
+		{ \
+			SETFLAG(var,0x10,state); \
+		}), \
+	Checkbox( \
+		text = "Ex2", hAlign = 0.0, \
+		checked = var&0x20, \
+		onToggleFunc = [&, __VA_ARGS__](bool state) \
+		{ \
+			SETFLAG(var,0x20,state); \
+		}), \
+	Checkbox( \
+		text = "Ex3", hAlign = 0.0, \
+		checked = var&0x40, \
+		onToggleFunc = [&, __VA_ARGS__](bool state) \
+		{ \
+			SETFLAG(var,0x40,state); \
+		}), \
+	Checkbox( \
+		text = "Ex4", hAlign = 0.0, \
+		checked = var&0x80, \
+		onToggleFunc = [&, __VA_ARGS__](bool state) \
+		{ \
+			SETFLAG(var,0x80,state); \
+		}) \
+)
 
 #define INTBTN_PANEL_EX(var,ltxt,inftxt,...) \
 Column(padding = 0_px, __VA_ARGS__, \
@@ -901,64 +960,7 @@ Frame(title = ltxt, \
 
 #define _INTBTN_PANEL_HELPER2(var,ltxt) \
 	Label(text = ltxt), \
-	Columns<4>( \
-		Checkbox( \
-			text = "A", hAlign = 0.0, \
-			checked = var&0x1, \
-			onToggleFunc = [&](bool state) \
-			{ \
-				SETFLAG(var,0x1,state); \
-			}), \
-		Checkbox( \
-			text = "B", hAlign = 0.0, \
-			checked = var&0x2, \
-			onToggleFunc = [&](bool state) \
-			{ \
-				SETFLAG(var,0x2,state); \
-			}), \
-		Checkbox( \
-			text = "L", hAlign = 0.0, \
-			checked = var&0x4, \
-			onToggleFunc = [&](bool state) \
-			{ \
-				SETFLAG(var,0x4,state); \
-			}), \
-		Checkbox( \
-			text = "R", hAlign = 0.0, \
-			checked = var&0x8, \
-			onToggleFunc = [&](bool state) \
-			{ \
-				SETFLAG(var,0x8,state); \
-			}), \
-		Checkbox( \
-			text = "Ex1", hAlign = 0.0, \
-			checked = var&0x10, \
-			onToggleFunc = [&](bool state) \
-			{ \
-				SETFLAG(var,0x10,state); \
-			}), \
-		Checkbox( \
-			text = "Ex2", hAlign = 0.0, \
-			checked = var&0x20, \
-			onToggleFunc = [&](bool state) \
-			{ \
-				SETFLAG(var,0x20,state); \
-			}), \
-		Checkbox( \
-			text = "Ex3", hAlign = 0.0, \
-			checked = var&0x40, \
-			onToggleFunc = [&](bool state) \
-			{ \
-				SETFLAG(var,0x40,state); \
-			}), \
-		Checkbox( \
-			text = "Ex4", hAlign = 0.0, \
-			checked = var&0x80, \
-			onToggleFunc = [&](bool state) \
-			{ \
-				SETFLAG(var,0x80,state); \
-			}) \
-	) \
+	_INTBTN_PANEL_HELPER(var) \
 )
 #define INTBTN_PANEL2_EX(var,ltxt,...) \
 Column(padding = 0_px, __VA_ARGS__, _INTBTN_PANEL_HELPER2(var,ltxt)

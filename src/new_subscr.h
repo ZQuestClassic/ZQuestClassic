@@ -21,7 +21,7 @@ extern byte subscr_pg_from, subscr_pg_to;
 extern bool subscr_itemless, subscr_pg_animating;
 
 void subscrpg_clear_animation();
-bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& parent);
+bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& src, ZCSubscreen& dest);
 
 word get_ssc_ctrmax(int ctr);
 word get_ssc_ctr(int ctr, bool* infptr = nullptr);
@@ -77,6 +77,15 @@ struct subscreen_group
 	subscreen_object objects[MAXSUBSCREENITEMS];
 };
 //
+
+enum //PGGOTO modes
+{
+	PGGOTO_NONE,
+	PGGOTO_NEXT,
+	PGGOTO_PREV,
+	PGGOTO_TRG,
+	PGGOTO_MAX
+};
 
 struct SubscrColorInfo
 {
@@ -149,6 +158,18 @@ struct SubscrTransition
 	int32_t write(PACKFILE *f) const;
 	static byte num_args(byte ty);
 	static int32_t argScale(byte ty, byte ind);
+};
+
+#define SUBSCR_PAGE_TRANSITION_NOWRAP         0x01
+#define SUBSCR_PAGE_TRANSITION_SWAPMAPSUBSCR  0x02
+struct SubscrPageTransition
+{
+	byte pg_btns, pg_mode = PGGOTO_TRG, pg_targ;
+	SubscrTransition pg_trans;
+	byte flags;
+	
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
 };
 
 enum //Transition types
@@ -257,15 +278,6 @@ enum //subscreen text alignment
 	sstaLEFT, sstaCENTER, sstaRIGHT, sstaMAX
 };
 
-enum //PGGOTO modes
-{
-	PGGOTO_NONE,
-	PGGOTO_NEXT,
-	PGGOTO_PREV,
-	PGGOTO_TRG,
-	PGGOTO_MAX
-};
-
 //when to display an element
 #define sspUP                         0x01
 #define sspDOWN                       0x02
@@ -273,13 +285,14 @@ enum //PGGOTO modes
 #define sspNOMSGSTR                   0x08
 #define sspNUM 4
 
-#define SUBSCRFLAG_SELECTABLE         0x00000001
-#define SUBSCRFLAG_PGGOTO_NOWRAP      0x00000002
-#define SUBSCRFLAG_SELOVERRIDE        0x00000004
-#define SUBSCRFLAG_REQ_COUNTER_MAX    0x00000008
-#define SUBSCRFLAG_REQ_COUNTER_PERC   0x00000010
-#define SUBSCRFLAG_REQ_INVERT_LITEM   0x00000020
-#define SUBSCRFLAG_GEN_COUNT 5
+#define SUBSCRFLAG_SELECTABLE              0x00000001
+#define SUBSCRFLAG_PGGOTO_NOWRAP           0x00000002
+#define SUBSCRFLAG_SELOVERRIDE             0x00000004
+#define SUBSCRFLAG_REQ_COUNTER_MAX         0x00000008
+#define SUBSCRFLAG_REQ_COUNTER_PERC        0x00000010
+#define SUBSCRFLAG_REQ_INVERT_LITEM        0x00000020
+#define SUBSCRFLAG_PGGOTO_SWAPMAPSUBSCR    0x00000040
+#define SUBSCRFLAG_GEN_COUNT 7
 
 #define SUBSCRFLAG_SPEC_01            0x00000001
 #define SUBSCRFLAG_SPEC_02            0x00000002
@@ -1140,6 +1153,7 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCRPAGE_MAX_TRANSITIONS 8
 #define MAX_SUBSCR_PAGES 255
 struct SubscrPage
 {
@@ -1161,6 +1175,7 @@ struct SubscrPage
 	//add_widg?
 	void swap_widg(word ind1, word ind2);
 	void clear();
+	void copy_settings(const SubscrPage& src);
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 	void swap(SubscrPage& other);
 	
@@ -1183,7 +1198,10 @@ struct SubscrPage
 	SubscrWidget* const& operator[](size_t ind) const;
 
 	std::vector<SubscrWidget*> contents;
+	
+	std::vector<SubscrPageTransition> transitions;
 
+	byte check_btns(byte btnflgs, ZCSubscreen& parent) const;
 private:
 	word index;
 	ZCSubscreen const* parent;
@@ -1232,7 +1250,7 @@ struct ZCSubscreen
 	int32_t write(PACKFILE *f) const;
 	
 	void check_btns(byte btnflgs);
-	void page_change(byte mode, byte targ, SubscrTransition const& trans, bool nowrap);
+	void page_change(byte mode, byte targ, SubscrTransition const& trans, bool nowrap, bool swap_map);
 private:
 	bool wrap_pg(int& pg, bool nowrap);
 };

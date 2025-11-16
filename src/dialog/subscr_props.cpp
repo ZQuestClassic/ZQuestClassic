@@ -74,7 +74,7 @@ static const GUI::ListData wrapping_type_list
 	{ "Character", 0 },
 	{ "Word", 1 }
 };
-static const GUI::ListData list_pgmode
+const GUI::ListData list_pgmode
 {
 	{ "None", PGGOTO_NONE },
 	{ "Next", PGGOTO_NEXT },
@@ -1753,7 +1753,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									DummyWidget(),
 									CBOX(local_subref->genflags,SUBSCRFLAG_PGGOTO_NOWRAP,"No Wrap",1),
 									INFOBTN("If checked, trying to page left from page 0 or"
-										" right from the final page will do nothing.")
+										" right from the final page will do nothing."),
+									//
+									DummyWidget(),
+									CBOX(local_subref->genflags,SUBSCRFLAG_PGGOTO_SWAPMAPSUBSCR,"Swap Map Subscreen",1),
+									INFOBTN("If checked, changes between the active and map subscreens.")
 								),
 								INTBTN_PANEL2(local_subref->pg_btns,"Page Button:")
 							)
