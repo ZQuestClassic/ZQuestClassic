@@ -1270,6 +1270,16 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 				host.right.get(), host.right->asString()));
 		return;
 	}
+	DataType const* ltype = host.left->getWriteType(scope, this);
+	if (!ltype)
+	{
+		handleError(
+			CompileError::NoWriteType(
+				host.left.get(), host.left->asString()));
+		return;
+	}
+	else if (ltype->isConstant())
+		handleError(CompileError::LValConst(&host, host.left->asString()));
 	
 	bool skip_cast_check = false;
 	if (ASTExprIndex* idx = dynamic_cast<ASTExprIndex*>(host.left.get()))
@@ -1300,15 +1310,7 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 			}
 		}
 	}
-	DataType const* ltype = host.left->getWriteType(scope, this);
-	if (!ltype)
-	{
-		handleError(
-			CompileError::NoWriteType(
-				host.left.get(), host.left->asString()));
-		return;
-	}
-
+	
 	if (override_name)
 	{
 		DataType const* left_readtype = host.left->getReadType(scope, this);
@@ -1352,8 +1354,6 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 		if (breakRecursion(host)) return;
 	}
 
-	if (ltype->isConstant())
-		handleError(CompileError::LValConst(&host, host.left->asString()));
 	if (breakRecursion(host)) return;
 }
 void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
@@ -1500,6 +1500,11 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	// Find write function.
 	if (param == paramWrite || param == paramReadWrite)
 	{
+		if ((host.wtype && host.wtype->isConstant()) || (host.u_datum && host.u_datum->type.isConstant()))
+		{
+			handleError(CompileError::LValConst(&host, host.asString()));
+			return;
+		}
 		Function* writer;
 		if (host.index)
 		{
