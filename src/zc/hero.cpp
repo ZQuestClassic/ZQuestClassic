@@ -9348,7 +9348,11 @@ heroanimate_skip_liftwpn:;
 	if (getInput(btnP, INPUT_PRESS | INPUT_HERO_ACTION))
 	{
 		if( !FFCore.runOnMapScriptEngine() ) //OnMap script replaces the 'onViewMap()' call
-			onViewMap();
+		{
+			if (DMaps[cur_dmap].map_subscreen >= 0)
+				dosubscr(true);
+			else onViewMap();
+		}
 	}   
 	for(int32_t i=0; i<Lwpns.Count(); i++)
 	{
@@ -10429,7 +10433,7 @@ heroanimate_skip_liftwpn:;
 			else if ( !stopSubscreenFalling() )
 			{
 				conveyclk=3;
-				dosubscr();
+				dosubscr(false);
 				newscr_clk += frame - tmp_subscr_clk;
 			}
 			break;
@@ -33048,7 +33052,7 @@ void HeroClass::ganon_intro()
         {
             conveyclk=3;
             int32_t tmp_subscr_clk = frame;
-            dosubscr();
+            dosubscr(false);
             newscr_clk += frame - tmp_subscr_clk;
         }
         

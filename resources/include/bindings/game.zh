@@ -707,6 +707,11 @@ class Game {
 	// @zasm_var GAMEASUBOPEN
 	internal const bool ActiveSubscreenOpen;
 
+	// True if the map subscreen is currently open.
+	//
+	// @zasm_var GAMEMSUBOPEN
+	internal const bool MapSubscreenOpen;
+
 	// The Y offset of the active subscreen, used while it is opening/closing.
 	//
 	// Value is `-224` if subscreen is closed, `-56` if it is open, or the
@@ -729,6 +734,11 @@ class Game {
 	//
 	// @zasm_var GAMENUMOSUB
 	internal int NumOverlaySubscreens;
+
+	// Returns the total number of overlay subscreens
+	//
+	// @zasm_var GAMENUMMSUB
+	internal int NumMapSubscreens;
 
 	// Returns the highest valid ID of the strings in the ZQuest String Editor.
 	//
@@ -1389,9 +1399,9 @@ class Game {
 	internal int CurrentItemID(int itemtype, int bitflags = 1L);
 
 	// Loads the [subscreendata] pointer for the specified
-	// active/passive/overlay subscreen.
+	// active subscreen.
 	//
-	// Use id `-1` to load the current subscreen of the type.
+	// Use id `-1` to load the current active subscreen.
 	//
 	// @zasm
 	//   POP D2
@@ -1399,9 +1409,9 @@ class Game {
 	internal subscreendata LoadASubData(int id);
 
 	// Loads the [subscreendata] pointer for the specified
-	// active/passive/overlay subscreen.
+	// passivesubscreen.
 	//
-	// Use id `-1` to load the current subscreen of the type.
+	// Use id `-1` to load the current passive subscreen.
 	//
 	// @zasm
 	//   POP D2
@@ -1409,14 +1419,24 @@ class Game {
 	internal subscreendata LoadPSubData(int id);
 
 	// Loads the [subscreendata] pointer for the specified
-	// active/passive/overlay subscreen.
+	// overlay subscreen.
 	//
-	// Use id `-1` to load the current subscreen of the type.
+	// Use id `-1` to load the current overlay subscren.
 	//
 	// @zasm
 	//   POP D2
 	//   LOADSUBDATARV D2 2
 	internal subscreendata LoadOSubData(int id);
+
+	// Loads the [subscreendata] pointer for the specified
+	// map subscreen.
+	//
+	// Use id `-1` to load the current map subscreen.
+	//
+	// @zasm
+	//   POP D2
+	//   LOADSUBDATARV D2 3
+	internal subscreendata LoadMSubData(int id);
 
 	// @zasm
 	//   SWAPSUBSCREENV 0

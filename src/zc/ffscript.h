@@ -709,9 +709,9 @@ item_drop_object *checkDropSetData(int32_t ref);
 wpndata *checkSpriteData(int32_t ref);
 MsgStr *checkMessageData(int32_t ref);
 user_genscript *checkGenericScr(int32_t ref);
-SubscrWidget *checkSubWidg(int32_t ref, int req_widg_ty = -1, int req_sub_ty = -1);
-ZCSubscreen *checkSubData(int32_t ref, int req_ty = -1);
-SubscrPage *checkSubPage(int32_t ref, int req_ty = -1);
+SubscrWidget *checkSubWidg(int32_t ref, std::set<int> const& req_sub_tys = {}, int req_widg_ty = -1);
+ZCSubscreen *checkSubData(int32_t ref, std::set<int> const& req_tys = {});
+SubscrPage *checkSubPage(int32_t ref, std::set<int> const& req_tys = {});
 combo_trigger* checkComboTrigger(dword ref);
 combo_trigger* get_first_combo_trigger();
 
@@ -1154,6 +1154,7 @@ static void do_triggersecret(const bool v);
 	static void do_load_active_subscreendata(const bool v);
 	static void do_load_passive_subscreendata(const bool v);
 	static void do_load_overlay_subscreendata(const bool v);
+	static void do_load_map_subscreendata(const bool v);
 	static void do_load_subscreendata(const bool v, const bool v2);
 	
 	static void do_checkdir(const bool is_dir);

@@ -49,6 +49,7 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_activesub(GUI::ZCListData::subscreens(sstACTIVE, true)),
 	list_passivesub(GUI::ZCListData::subscreens(sstPASSIVE, true)),
 	list_overlaysub(GUI::ZCListData::subscreens(sstOVERLAY, true)),
+	list_mapsub(GUI::ZCListData::subscreens(sstMAP, true, true)),
 	list_strings(GUI::ZCListData::strings()),
 	list_lpals(GUI::ZCListData::lpals()),
 	list_midis(GUI::ZCListData::midinames(false, true)),
@@ -573,7 +574,18 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								local_dmap.overlay_subscreen = val;
 							}),
 						INFOBTN("The overlay subscreen to use on this dmap. This is "
-							" the menu that draws OVER the entire screen.")
+							" the menu that draws OVER the entire screen."),
+						Label(text = "Map:"),
+						DropDownList(data = list_mapsub,
+							fitParent = true, hAlign = 1.0,
+							selectedValue = local_dmap.map_subscreen,
+							disabled = list_mapsub.invalid(),
+							onSelectFunc = [&](int32_t val)
+							{
+								local_dmap.map_subscreen = val;
+							}),
+						INFOBTN("The map subscreen to use on this dmap. If not '(None)',"
+							" will replace the standard large map when pressing the Map button.")
 					)
 				)),
 				TabRef(name = "Music", Column(

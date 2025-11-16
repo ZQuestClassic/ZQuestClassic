@@ -28,7 +28,7 @@ namespace GUI::ZCListData
 	GUI::ListData sfxnames(bool numbered = false);
 	GUI::ListData midinames(bool numbered = false, bool incl_engine = false);
 	GUI::ListData lpals();
-	GUI::ListData subscreens(byte type, bool numbered = false);
+	GUI::ListData subscreens(byte type, bool numbered = false, bool incl_none = false);
 	GUI::ListData disableditems(byte* disabledarray);
 	GUI::ListData dirs(int count, bool none);
 	GUI::ListData doorsets();

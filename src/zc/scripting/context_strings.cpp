@@ -70,6 +70,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case LOADMAPDATA: return "Game->LoadMapData()";
 		case GAMEMCOUNTERD: return "Game->MCounter[]";
 		case GAMEMAXMAPS: return "Game->MapCount";
+		case GAMEMSUBOPEN: return "Game->MapSubscreenOpen";
 		case GAMEMAXCHEAT: return "Game->MaxCheat";
 		case SPRITEMAXEWPN: return "Game->MaxEWeapons()";
 		case SPRITEMAXITEM: return "Game->MaxItemsprites()";
@@ -80,6 +81,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case GAMEMOUSECURSOR: return "Game->MouseCursor";
 		case GAMENUMASUB: return "Game->NumActiveSubscreens";
 		case GAMEDEATHS: return "Game->NumDeaths";
+		case GAMENUMMSUB: return "Game->NumMapSubscreens";
 		case GAMENUMMESSAGES: return "Game->NumMessages";
 		case GAMENUMOSUB: return "Game->NumOverlaySubscreens";
 		case GAMENUMPSUB: return "Game->NumPassiveSubscreens";

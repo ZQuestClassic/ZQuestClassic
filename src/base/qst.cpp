@@ -5126,6 +5126,9 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			if (!p_igetzf(&tempDMap.dmap_terminal_v, f))
 				return qe_invalid;
 		}
+		if(s_version > 23)
+			if(!p_igetw(&tempDMap.map_subscreen, f))
+				return qe_invalid;
 
 		if (!should_skip)
 		{
@@ -11416,6 +11419,7 @@ int32_t read_old_subscreens(PACKFILE *f, word s_version)
 	subscreens_active.clear();
 	subscreens_passive.clear();
 	subscreens_overlay.clear();
+	subscreens_map.clear();
 	for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
 	{
 		subscreen_group g;
@@ -11979,6 +11983,7 @@ int32_t readsubscreens(PACKFILE *f)
 	subscreens_active.clear();
 	subscreens_passive.clear();
 	subscreens_overlay.clear();
+	subscreens_map.clear();
 	
 	byte sz;
 	if(!p_getc(&sz,f))
@@ -12004,6 +12009,17 @@ int32_t readsubscreens(PACKFILE *f)
 		ZCSubscreen& tmp = subscreens_overlay.emplace_back();
 		if (auto ret = tmp.read(f, s_version))
 			return ret;
+	}
+	if (s_version >= 16)
+	{
+		if(!p_getc(&sz,f))
+			return qe_invalid;
+		for(byte q = 0; q < sz; ++q)
+		{
+			ZCSubscreen& tmp = subscreens_map.emplace_back();
+			if (auto ret = tmp.read(f, s_version))
+				return ret;
+		}
 	}
 	return 0;
 }
@@ -12033,6 +12049,7 @@ void reset_subscreens()
 	subscreens_active.clear();
 	subscreens_passive.clear();
 	subscreens_overlay.clear();
+	subscreens_map.clear();
 }
 
 int32_t setupsubscreens()
