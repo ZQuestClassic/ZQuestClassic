@@ -5,6 +5,19 @@
 
 struct newcombo;
 
+#define DegtoFix(d)     ((d)*0.7111111111111)
+#define RadtoFix(d)     ((d)*40.743665431525)
+template<class T> inline
+fixed degrees_to_fixed(T d)
+{
+    return ftofix(DegtoFix(d));
+}
+template<class T> inline
+fixed radians_to_fixed(T d)
+{
+    return ftofix(RadtoFix(d));
+}
+
 void doDarkroomCircle(int32_t cx, int32_t cy, word glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL,
 	int dith_perc=-1, int trans_perc=-1, int dith_type=-1, int dith_arg=-1,
 	optional<word> wave_rate=nullopt, optional<word> wave_size=nullopt);
