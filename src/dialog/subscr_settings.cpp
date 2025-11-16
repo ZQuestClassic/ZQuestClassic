@@ -52,7 +52,7 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::SUBSCR_INITD(int index)
 	);
 }
 
-size_t subscr_sett_tabs[3];
+static size_t subscr_sett_tabs[3];
 std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 {
 	using namespace GUI::Builder;

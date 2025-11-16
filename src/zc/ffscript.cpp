@@ -1665,7 +1665,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		case ScriptType::EngineSubscreen:
 		{
 			curscript = subscreenscripts[script];
-			ri->subscreendataref = get_subref(-1, sstACTIVE);
+			ri->subscreendataref = get_subref(-1, index);
 			auto [ptr,_ty] = load_subdata(ri->subscreendataref);
 			
 			if (ptr && !data.initialized)
@@ -16499,7 +16499,7 @@ void set_register(int32_t arg, int32_t value)
 					{
 						SubscrTransition tr = subscr_pg_transition;
 						tr.tr_sfx = 0;
-						subscrpg_animate(subscr_pg_from,subscr_pg_to,tr,*CURRENT_ACTIVE_SUBSCREEN);
+						subscrpg_animate(subscr_pg_from,subscr_pg_to,tr,*CURRENT_ACTIVE_SUBSCREEN,*CURRENT_ACTIVE_SUBSCREEN);
 						subscr_pg_clk = val;
 					}
 					else subscr_pg_clk = val;
