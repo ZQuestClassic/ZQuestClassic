@@ -55,6 +55,7 @@ std::shared_ptr<GUI::Widget> SubscrListEditDialog::view()
 	subscr_vecs[0] = &subscreens_active;
 	subscr_vecs[1] = &subscreens_passive;
 	subscr_vecs[2] = &subscreens_overlay;
+	subscr_vecs[3] = &subscreens_map;
 	for(int q = 0; q < sstMAX; ++q)
 	{
 		auto* vec = subscr_vecs[q];
@@ -165,6 +166,7 @@ bool SubscrListEditDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::EDIT0:
 		case message::EDIT1:
 		case message::EDIT2:
+		case message::EDIT3:
 		{
 			size_t cur_type = int(msg.message)-int(message::EDIT0);
 			do_edit_subscr(sel_inds[cur_type],cur_type);
@@ -174,6 +176,7 @@ bool SubscrListEditDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::DEL0:
 		case message::DEL1:
 		case message::DEL2:
+		case message::DEL3:
 		{
 			size_t cur_type = int(msg.message)-int(message::DEL0);
 			auto& vec = *subscr_vecs[cur_type];

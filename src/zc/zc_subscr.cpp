@@ -37,7 +37,7 @@ void put_active_subscr(int32_t y, int32_t pos)
 		rectfill(framebuf, 0, y, framebuf->w, y+8-1, BLACK);
 		y += 8;
 	}
-    show_custom_subscreen(framebuf, new_subscreen_active, 0, y, game->should_show_time(), pos);
+    show_custom_subscreen(framebuf, CURRENT_ACTIVE_SUBSCREEN, 0, y, game->should_show_time(), pos);
 }
 
 void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
@@ -54,6 +54,7 @@ void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 		put_passive_subscr(dest,x,y+distance,showtime,pos);
 	}
 }
+
 
 void dosubscr()
 {
@@ -107,13 +108,13 @@ void dosubscr()
 		 use_y = get_qr(qr_SET_YBUTTON_ITEMS);
 	bool b_only = !(use_a||use_x||use_y||get_qr(qr_SUBSCR_PRESS_TO_EQUIP));
 	//Set the selector to the correct position before bringing up the subscreen -DD
-	if(!new_subscreen_active) return;
+	if(!CURRENT_ACTIVE_SUBSCREEN) return;
 	bool compat = get_qr(qr_OLD_SUBSCR);
 	bool noverify = get_qr(qr_NO_BUTTON_VERIFY);
 	if(compat)
 	{
-		new_subscreen_active->curpage = 0;
-		auto& pg = new_subscreen_active->pages[0];
+		CURRENT_ACTIVE_SUBSCREEN->curpage = 0;
+		auto& pg = CURRENT_ACTIVE_SUBSCREEN->pages[0];
 		if((game->bwpn&0xFF) == 0)
 			pg.cursor_pos = game->bwpn>>8;
 		else if((game->awpn&0xFF) == 0)
@@ -142,13 +143,13 @@ void dosubscr()
 			script_drawing_commands.Clear();
 		}
 		active_sub_yoff = y-playing_field_offset;
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+		if(CURRENT_ACTIVE_SUBSCREEN->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, CURRENT_ACTIVE_SUBSCREEN->script, 0);
 		do_dcounters();
 		Hero.refill();
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
+		if(CURRENT_ACTIVE_SUBSCREEN->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
 		{
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, CURRENT_ACTIVE_SUBSCREEN->script, 0);
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 		//fill in the screen with black to prevent the hall of mirrors effect
@@ -197,10 +198,10 @@ void dosubscr()
 			load_control_state();
 		if(replay_version_check(19))
 			script_drawing_commands.Clear();
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
-		auto pgnum = new_subscreen_active->curpage;
-		auto& pg = new_subscreen_active->cur_page();
+		if(CURRENT_ACTIVE_SUBSCREEN->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, CURRENT_ACTIVE_SUBSCREEN->script, 0);
+		auto pgnum = CURRENT_ACTIVE_SUBSCREEN->curpage;
+		auto& pg = CURRENT_ACTIVE_SUBSCREEN->cur_page();
 		bool can_btn = !subscr_pg_animating;
 		if(can_btn)
 		{
@@ -330,7 +331,7 @@ void dosubscr()
 									Bwpn = eqwpn;
 									game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
 									if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-									game->bwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
+									game->bwpn = ((pg.cursor_pos)<<8) | CURRENT_ACTIVE_SUBSCREEN->curpage;
 									directItemB = NEG_OR_MASK(eqwpn,0xFF);
 								}
 							}
@@ -368,7 +369,7 @@ void dosubscr()
 									
 									Awpn = eqwpn;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-									game->awpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
+									game->awpn = ((pg.cursor_pos)<<8) | CURRENT_ACTIVE_SUBSCREEN->curpage;
 									game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
 									directItemA = NEG_OR_MASK(eqwpn,0xFF);
 								}
@@ -407,7 +408,7 @@ void dosubscr()
 									
 									Xwpn = eqwpn;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-									game->xwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
+									game->xwpn = ((pg.cursor_pos)<<8) | CURRENT_ACTIVE_SUBSCREEN->curpage;
 									game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
 									directItemX = NEG_OR_MASK(eqwpn,0xFF);
 								}
@@ -446,7 +447,7 @@ void dosubscr()
 									
 									Ywpn = eqwpn;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-									game->ywpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
+									game->ywpn = ((pg.cursor_pos)<<8) | CURRENT_ACTIVE_SUBSCREEN->curpage;
 									game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
 									directItemY = NEG_OR_MASK(eqwpn,0xFF);
 								}
@@ -454,19 +455,19 @@ void dosubscr()
 						}
 					}
 					if(!must_equip || eqwpn > -1)
-						widg->check_btns(bpress,*new_subscreen_active);
+						widg->check_btns(bpress,*CURRENT_ACTIVE_SUBSCREEN);
 				}
 			}
-			if(new_subscreen_active->curpage == pgnum)
-				new_subscreen_active->check_btns(btn_press);
+			if(CURRENT_ACTIVE_SUBSCREEN->curpage == pgnum)
+				CURRENT_ACTIVE_SUBSCREEN->check_btns(btn_press);
 		}
 		
 		do_dcounters();
 		Hero.refill();
 		
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
+		if(CURRENT_ACTIVE_SUBSCREEN->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
 		{
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, CURRENT_ACTIVE_SUBSCREEN->script, 0);
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 
@@ -494,7 +495,7 @@ void dosubscr()
 		if(Quit)
 			return;
 			
-		if(can_btn && rSbtn())
+		if(can_btn && (rSbtn() || (map_subscreen_open && rPbtn())))
 			done=true;
 	}
 	while(!done);
@@ -508,13 +509,13 @@ void dosubscr()
 			script_drawing_commands.Clear();
 		}
 		active_sub_yoff = y-playing_field_offset;
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+		if(CURRENT_ACTIVE_SUBSCREEN->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, CURRENT_ACTIVE_SUBSCREEN->script, 0);
 		do_dcounters();
 		Hero.refill();
-		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
+		if(CURRENT_ACTIVE_SUBSCREEN->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
 		{
-			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, CURRENT_ACTIVE_SUBSCREEN->script, 0);
 			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
 		}
 		//fill in the screen with black to prevent the hall of mirrors effect
@@ -547,6 +548,13 @@ void dosubscr()
 	}
 	
 	resume_sfx(WAV_BRANG);
+}
+void dosubscr(bool map_subscr)
+{
+	auto old = map_subscreen_open;
+	map_subscreen_open = map_subscr;
+	dosubscr();
+	map_subscreen_open = old;
 }
 
 void markBmap(int32_t dir, int32_t sc)

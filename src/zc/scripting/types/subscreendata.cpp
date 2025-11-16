@@ -27,6 +27,8 @@ static ArrayRegistrar SUBDATAFLAGS_registrar(SUBDATAFLAGS, []{
 			{
 				case sstACTIVE:
 					return 2;
+				case sstMAP:
+					return 2;
 				case sstPASSIVE:
 					return 0;
 				case sstOVERLAY:
@@ -66,10 +68,9 @@ static ArrayRegistrar SUBDATASELECTORASPD_registrar(SUBDATASELECTORASPD, []{
 static ArrayRegistrar SUBDATATRANSARGS_registrar(SUBDATATRANSARGS, []{
 	static ScriptingArray_ObjectComputed<ZCSubscreenActive, int> impl(
 		[](ZCSubscreenActive* sub){
-			if (sub != new_subscreen_active)
+			if (sub != CURRENT_ACTIVE_SUBSCREEN)
 			{
-				// TODO: can this even happen, given `checkSubData(ref, sstACTIVE)`?
-				scripting_log_error_with_context("Only valid for the current active subscreen!");
+				scripting_log_error_with_context("Only valid for the current active/map subscreen!");
 				return 0;
 			}
 
@@ -78,10 +79,9 @@ static ArrayRegistrar SUBDATATRANSARGS_registrar(SUBDATATRANSARGS, []{
 			return SUBSCR_TRANSITION_MAXARG;
 		},
 		[](ZCSubscreenActive* sub, int index) -> int {
-			if (sub != new_subscreen_active)
+			if (sub != CURRENT_ACTIVE_SUBSCREEN)
 			{
-				// TODO: can this even happen, given `checkSubData(ref, sstACTIVE)`?
-				scripting_log_error_with_context("Only valid for the current active subscreen!");
+				scripting_log_error_with_context("Only valid for the current active/map subscreen!");
 				return 0;
 			}
 
@@ -91,10 +91,9 @@ static ArrayRegistrar SUBDATATRANSARGS_registrar(SUBDATATRANSARGS, []{
 			return trans.arg[index] * SubscrTransition::argScale(trans.type, index);
 		},
 		[](ZCSubscreenActive* sub, int index, int value){
-			if (sub != new_subscreen_active)
+			if (sub != CURRENT_ACTIVE_SUBSCREEN)
 			{
-				// TODO: can this even happen, given `checkSubData(ref, sstACTIVE)`?
-				scripting_log_error_with_context("Only valid for the current active subscreen!");
+				scripting_log_error_with_context("Only valid for the current active/map subscreen!");
 				return;
 			}
 
@@ -147,10 +146,9 @@ static ArrayRegistrar SUBDATATRANSRIGHTARGS_registrar(SUBDATATRANSRIGHTARGS, []{
 static ArrayRegistrar SUBDATATRANSFLAGS_registrar(SUBDATATRANSFLAGS, []{
 	static ScriptingArray_ObjectComputed<ZCSubscreenActive, bool> impl(
 		[](ZCSubscreenActive* sub){
-			if (sub != new_subscreen_active)
+			if (sub != CURRENT_ACTIVE_SUBSCREEN)
 			{
-				// TODO: can this even happen, given `checkSubData(ref, sstACTIVE)`?
-				scripting_log_error_with_context("Only valid for the current active subscreen!");
+				scripting_log_error_with_context("Only valid for the current active/map subscreen!");
 				return 0;
 			}
 
@@ -159,10 +157,9 @@ static ArrayRegistrar SUBDATATRANSFLAGS_registrar(SUBDATATRANSFLAGS, []{
 			return SUBSCR_TRANS_NUMFLAGS;
 		},
 		[](ZCSubscreenActive* sub, int index) -> bool {
-			if (sub != new_subscreen_active)
+			if (sub != CURRENT_ACTIVE_SUBSCREEN)
 			{
-				// TODO: can this even happen, given `checkSubData(ref, sstACTIVE)`?
-				scripting_log_error_with_context("Only valid for the current active subscreen!");
+				scripting_log_error_with_context("Only valid for the current active/map subscreen!");
 				return 0;
 			}
 
@@ -172,10 +169,9 @@ static ArrayRegistrar SUBDATATRANSFLAGS_registrar(SUBDATATRANSFLAGS, []{
 			return trans.flags & (1<<index);
 		},
 		[](ZCSubscreenActive* sub, int index, bool value){
-			if (sub != new_subscreen_active)
+			if (sub != CURRENT_ACTIVE_SUBSCREEN)
 			{
-				// TODO: can this even happen, given `checkSubData(ref, sstACTIVE)`?
-				scripting_log_error_with_context("Only valid for the current active subscreen!");
+				scripting_log_error_with_context("Only valid for the current active/map subscreen!");
 				return;
 			}
 
@@ -352,7 +348,7 @@ static ArrayRegistrar SUBDATAPAGES_registrar(SUBDATAPAGES, []{
 	static ScriptingArray_GlobalComputed<int> impl(
 		[](int ref) -> int {
 			if (auto* sub = checkSubData(ref))
-				return sub->sub_type == sstACTIVE ? sub->pages.size() : 1;
+				return (sub->sub_type == sstACTIVE || sub->sub_type == sstMAP) ? sub->pages.size() : 1;
 			return 0;
 		},
 		[](int ref, int index) -> int {

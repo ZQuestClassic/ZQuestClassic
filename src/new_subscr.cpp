@@ -62,11 +62,12 @@ const std::string subwidg_internal_names[widgMAX] =
 	"SUBWIDG_SELECTOR", "SUBWIDG_LGAUGE", "SUBWIDG_MGAUGE", "SUBWIDG_TEXTBOX", "SUBWIDG_SELECTEDTEXT",
 	"SUBWIDG_MISCGAUGE", "SUBWIDG_BTNCOUNTER",
 };
-const std::string subscr_names[sstMAX] = {"Active","Passive","Overlay"};
+const std::string subscr_names[sstMAX] = {"Active","Passive","Overlay","Map"};
 const std::string subscr_infos[sstMAX] = {
 	"The subscreen that actively opens when you press 'Start'",
 	"The subscreen visible at the top of the screen normally, which moves down when the active opens.",
-	"Like the passive, but visible across the whole screen and does NOT move down for the active opening."
+	"Like the passive, but visible across the whole screen and does NOT move down for the active opening.",
+	"If set, opens when you press 'Map' instead of the default map.",
 	};
 
 SubscrTransition subscr_pg_transition;
@@ -3499,7 +3500,7 @@ word SW_Clear::getH() const
 	auto sub = getParentSub();
 	switch(sub ? sub->sub_type : sstPASSIVE)
 	{
-		case sstACTIVE:
+		case sstACTIVE: case sstMAP:
 			hei = 168;
 			break;
 		case sstPASSIVE:
@@ -4425,7 +4426,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		tempsel.txsz = ((sw%16)?1:0)+(sw/16);
 		tempsel.tysz = ((sh%16)?1:0)+(sh/16);
 	}
-	else if(parentsub->sub_type == sstACTIVE
+	else if((parentsub->sub_type == sstACTIVE || parentsub->sub_type == sstMAP)
 		&& (parentsub->flags & SUBFLAG_ACT_OVERRIDESEL))
 	{
 		auto const& selectile = parentsub->selector_setting.tileinfo[selector_type];
@@ -6587,7 +6588,7 @@ void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool 
 {
 	if(pages.empty()) return;
 	
-	if(sub_type == sstACTIVE && subscr_pg_animating && subscr_anim == this)
+	if((sub_type == sstACTIVE || sub_type == sstMAP) && subscr_pg_animating && subscr_anim == this)
 	{
 		if(subscr_pg_to >= pages.size())
 			; //fail animation
@@ -6662,7 +6663,7 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
         return qe_invalid;
 	if(!p_igetl(&flags,f))
 		new_return(1);
-	bool active = sub_type == sstACTIVE;
+	bool active = sub_type == sstACTIVE || sub_type == sstMAP;
 	if(active)
 	{
 		if(flags & SUBFLAG_ACT_OVERRIDESEL)
@@ -6720,7 +6721,7 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_iputl(flags,f))
 		new_return(1);
-	bool active = sub_type == sstACTIVE;
+	bool active = sub_type == sstACTIVE || sub_type == sstMAP;
 	byte pagecnt = zc_min(MAX_SUBSCR_PAGES,pages.size());
 	if(active)
 	{

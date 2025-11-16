@@ -30,6 +30,7 @@ struct dmap
 	byte active_subscreen;
 	byte passive_subscreen;
 	byte overlay_subscreen;
+	int16_t map_subscreen = -1;
 	byte disableditems[MAXITEMS];
 	int32_t flags;
 	char sideview;

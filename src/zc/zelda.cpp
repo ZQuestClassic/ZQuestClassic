@@ -1621,7 +1621,7 @@ void init_dmap()
 // Sets globals to their default values.
 void init_game_vars(bool is_cont_game = false)
 {
-	new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
+	new_subscreen_map = new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
 
 	// There are many replay tests that were made when these globals were not being reset
 	// on continue. Let's not break them.
@@ -1649,6 +1649,7 @@ void init_game_vars(bool is_cont_game = false)
 	screenscrolling = false;
 	scrolling_using_new_region_coords = false;
 	new_sub_indexes[sstACTIVE] = -1;
+	new_sub_indexes[sstMAP] = -1;
 	loadside = 0;
 	view_map_show_mode = 3;
 	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
@@ -1690,7 +1691,7 @@ void init_game_vars(bool is_cont_game = false)
 	switchhook_cost_item = -1;
 	wavy=quakeclk=0;
 	if (zscriptDrawingRenderTarget) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1);
-	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] = new_sub_indexes[sstOVERLAY] = -1;
+	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] = new_sub_indexes[sstOVERLAY] = new_sub_indexes[sstMAP] -1;
 	script_hero_sprite = 0; 
 	script_hero_flip = -1; 
 	script_hero_cset = -1;
