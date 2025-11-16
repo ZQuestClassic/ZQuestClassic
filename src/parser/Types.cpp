@@ -102,7 +102,8 @@ DataTypeSimple DataType::CHAR(ZTID_CHAR, "char32", &CCHAR);
 DataTypeSimple DataType::LONG(ZTID_LONG, "long", &CLONG);
 DataTypeSimple DataType::BOOL(ZTID_BOOL, "bool", &CBOOL);
 DataTypeSimple DataType::RGBDATA(ZTID_RGBDATA, "rgb", &CRGBDATA);
-const DataTypeArray* DataType::STRING; // set in ZScript::compile due to lifetime issues
+const DataTypeArray* DataType::CHAR_ARRAY; // set in ZScript::compile due to lifetime issues
+const DataTypeCustom* DataType::STRING = nullptr; // set when it is generated from bindings
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -356,6 +357,8 @@ bool DataTypeArray::canCastTo(DataType const& target, bool allowDeprecatedArrayC
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
+	if (STRING && (target == *STRING || target == *STRING->getConstType()) && canCastTo(*CHAR_ARRAY, allowDeprecatedArrayCast))
+		return true;
 	if (!target.isArray())
 	{
 		// Allows simple types to cast to an array.
@@ -480,6 +483,8 @@ bool DataTypeCustom::canCastTo(DataType const& target, bool allowDeprecatedArray
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
+	if (STRING && (*this == *STRING || *this == *STRING->getConstType()) && target.canCastTo(*CHAR_ARRAY, allowDeprecatedArrayCast))
+		return true;
 	if (target.isArray())
 	{
 		// Allows simple types to cast to an array.
@@ -532,6 +537,8 @@ DataType const& DataTypeCustom::getShared(DataType const& target, Scope const* s
 	if(target.isUntyped()) return *this;
 	if(target.isArray()) return UNTYPED;
 	
+	if (target == *CHAR_ARRAY && STRING && *this == *STRING)
+		return *STRING;
 	if(!isClass() && !isUsrClass())
 	{
 		if (DataTypeSimple const* t =

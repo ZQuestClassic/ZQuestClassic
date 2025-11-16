@@ -95,145 +95,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	std::vector<std::string> zasm_lines;
 	if (auto zasm = parsed_comment.get_tag("zasm"))
 		util::split(*zasm, zasm_lines, '\n');
-
-	int stack_change = fn->numParams();
-	if (fn->getClass() && !fn->getClass()->internalRefVarString.empty() && !fn->getFlag(FUNCFLAG_CONSTRUCTOR) && !fn->getFlag(FUNCFLAG_DESTRUCTOR))
-		stack_change += 1;
-
-	std::vector<std::shared_ptr<Opcode>> code;
-	for (auto& op_string : zasm_lines)
-	{
-		if (op_string.empty())
-			continue;
-
-		// Note: this does not support vec or str args.
-		std::vector<std::string> tokens;
-		util::split(op_string, tokens, ' ');
-
-		std::string command = tokens[0];
-		auto sc = get_script_command(command);
-		if (!sc)
-		{
-			handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm command `{}`", command)));
-			return;
-		}
-
-		if (sc->args != tokens.size() - 1)
-		{
-			handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Wrong number of zasm args for command `{}`", command)));
-			return;
-		}
-
-		for (int i = 1; i < tokens.size(); i++)
-		{
-			switch (sc->arg_type[i - 1])
-			{
-				case ARGTY::READ_REG:
-				case ARGTY::WRITE_REG:
-				case ARGTY::READWRITE_REG:
-				{
-					if (!get_script_variable(tokens[i]))
-					{
-						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
-						return;
-					}
-					break;
-				}
-
-				case ARGTY::LITERAL:
-				{
-					try {
-						util::ffparse2(tokens[i], true);
-					} catch (std::exception ex) {
-						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}` ({})", tokens[i], command, ex.what())));
-						return;
-					}
-					break;
-				}
-
-				case ARGTY::COMPARE_OP:
-				{
-					if (!parse_zasm_compare_arg(tokens[i].c_str()))
-					{
-						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
-						return;
-					}
-					break;
-				}
-
-				case ARGTY::UNUSED_REG:
-				default:
-				{
-					handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Unsupported zasm arg type in command `{}`", command)));
-					return;
-				}
-			}
-		}
-
-		if (sc->command == POP)
-			stack_change -= 1;
-		else if (sc->command == PUSHR || sc->command == PUSHV)
-			stack_change += 1;
-		else if (sc->command == POPARGS)
-		{
-			int num = util::ffparse2(tokens[2]);
-			if (num >= 100)
-			{
-				handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Popping way too much, make sure to use '0.0001' syntax")));
-				return;
-			}
-			stack_change -= util::ffparse2(tokens[2]);
-		}
-		else if (sc->command == PUSHARGSR || sc->command == PUSHARGSV)
-		{
-			int num = util::ffparse2(tokens[2]);
-			if (num >= 100)
-			{
-				handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Pushing way too much, make sure to use '0.0001' syntax")));
-				return;
-			}
-			stack_change += util::ffparse2(tokens[2]);
-		}
-
-		// Optimizations in the compiler will look at the class of the code in functions,
-		// so do minimal parsing to cover that. For the rest, just do RawOpcode.
-		if (sc->command == POP)
-			addOpcode2(code, new OPopRegister(new VarArgument(StringToVar(tokens[1]))));
-		else if (sc->command == PUSHR)
-			addOpcode2(code, new OPushRegister(new VarArgument(StringToVar(tokens[1]))));
-		else if (sc->command == PUSHV)
-			addOpcode2(code, new OPushImmediate(new LiteralArgument(util::ffparse2(tokens[1]))));
-		else if (sc->command == TRACER)
-			addOpcode2(code, new OTraceRegister(new VarArgument(StringToVar(tokens[1]))));
-		else if (sc->command == SETR)
-		{
-			auto arg1 = new VarArgument(StringToVar(tokens[1]));
-			auto arg2 = new VarArgument(StringToVar(tokens[2]));
-			addOpcode2(code, new OSetRegister(arg1, arg2));
-		}
-		else if (sc->command == SETV)
-		{
-			auto arg1 = new VarArgument(StringToVar(tokens[1]));
-			auto arg2 = new LiteralArgument(util::ffparse2(tokens[2]));
-			addOpcode2(code, new OSetImmediate(arg1, arg2));
-		}
-		else
-			addOpcode2(code, new RawOpcode(op_string));
-	}
-
-	if (code.empty())
-	{
-		handler->handleError(CompileError::BadInternal(fn->node, fmt::format("No @zasm provided for internal function `{}`", fn->name)));
-		return;
-	}
-
-	if (!fn->getFlag(FUNCFLAG_VARARGS) && stack_change != 0)
-	{
-		handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Stack is not preserved - did you forget to POP the parameters?", fn->name)));
-		return;
-	}
-
-	fn->giveCode(code);
+	fn->initZASM(zasm_lines, handler);
 
 	bool is_constexpr = fn->getFlag(FUNCFLAG_CONSTEXPR);
 	bool found_constexpr_impl = setConstExprForBinding(fn);
@@ -714,7 +576,7 @@ vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vecto
 	return functions;
 }
 vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
-	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope, bool ignoreParams)
+	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope, bool ignoreParams, bool static_funcs)
 {
 	vector<Function*> functions = user_class.getScope().getLocalFunctions(name);
 	if (user_class.getParentClass())
@@ -728,7 +590,7 @@ vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
 		 it != functions.end();)
 	{
 		Function& function = **it;
-		if(function.getFlag(FUNCFLAG_STATIC))
+		if(function.getFlag(FUNCFLAG_STATIC) != static_funcs)
 		{
 			it = functions.erase(it);
 			continue;

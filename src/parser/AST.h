@@ -1368,12 +1368,12 @@ namespace ZScript
 		              LocationData const& location = LOC_NONE);
 		ASTExprAssign* clone() const {return new ASTExprAssign(*this);}
 
-		void execute(ASTVisitor& visitor, void* param = NULL);
+		virtual void execute(ASTVisitor& visitor, void* param = NULL);
 
-		bool isConstant() const {return right && right->isConstant();}
-		bool isLiteral() const {return right && right->isLiteral();}
+		virtual bool isConstant() const {return right && right->isConstant();}
+		virtual bool isLiteral() const {return right && right->isLiteral();}
 
-		optional<int32_t> getCompileTimeValue(
+		virtual optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
 			return right ? right->getReadType(scope, errorHandler) : NULL;}
@@ -1382,6 +1382,44 @@ namespace ZScript
 	
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
+	
+		Function* override_fn;
+	};
+	
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+class ASTExpr##ty_assign : public ASTExprAssign \
+{ \
+public: \
+	ASTExpr##ty_assign(ASTExpr* left = NULL, ASTExpr* right = NULL, \
+		LocationData const& location = LOC_NONE); \
+	ASTExpr##ty_assign* clone() const {return new ASTExpr##ty_assign(*this);} \
+ \
+	void execute(ASTVisitor& visitor, void* param = NULL); \
+ \
+	bool isConstant() const {return false;} \
+	bool isLiteral() const {return false;} \
+ \
+	optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;} \
+	virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler); \
+	virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;} \
+};
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+	class ASTExprBitNotAssign : public ASTExprAssign
+	{
+	public:
+		ASTExprBitNotAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LOC_NONE);
+		ASTExprBitNotAssign* clone() const {return new ASTExprBitNotAssign(*this);}
+	
+		void execute(ASTVisitor& visitor, void* param = NULL);
+	
+		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
+	
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope) {return nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprIdentifier : public ASTExpr
@@ -1476,6 +1514,7 @@ namespace ZScript
 	
 		owning_ptr<ASTExpr> array;
 		owning_ptr<ASTExpr> index;
+		Function *override_read_fn, *override_write_fn;
 	};
 
 	class ASTExprCall : public ASTExpr
@@ -1513,10 +1552,13 @@ namespace ZScript
 		virtual bool isConstant() const {return operand->isConstant();}
 		virtual bool isLiteral() const {return operand->isLiteral();}
 
+		virtual DataType const* getOverrideReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 		
 		owning_ptr<ASTExpr> operand;
+
+		Function* override_fn;
 	};
 	
 	class ASTExprDelete : public ASTUnaryExpr
@@ -1548,6 +1590,8 @@ namespace ZScript
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
 			auto type = operand->getReadType(scope, errorHandler);
 			if (type->isLong())
 				return &DataType::LONG;
@@ -1568,7 +1612,12 @@ namespace ZScript
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
+			return &DataType::BOOL;
+		}
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 		
 		void invert() {inverted = !inverted;}
@@ -1589,6 +1638,8 @@ namespace ZScript
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
 			auto type = operand->getReadType(scope, errorHandler);
 			if (type->isBitflagsEnum())
 				return type;
@@ -1612,6 +1663,8 @@ namespace ZScript
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
 			if(operand->isLong(scope, errorHandler))
 				return &DataType::LONG;
 			return &DataType::FLOAT;
@@ -1634,6 +1687,8 @@ namespace ZScript
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
+			if (auto ty = getOverrideReadType(scope, errorHandler))
+				return ty;
 			if(operand->isLong(scope, errorHandler))
 				return &DataType::LONG;
 			return &DataType::FLOAT;
@@ -1683,6 +1738,8 @@ namespace ZScript
 
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
+		
+		Function* override_fn;
 
 	protected:
 		ASTBinaryExpr& operator=(ASTBinaryExpr const& rhs);
@@ -1697,7 +1754,7 @@ namespace ZScript
 		           LocationData const& location = LOC_NONE);
 		virtual ASTLogExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -1741,7 +1798,7 @@ namespace ZScript
 		           LocationData const& location = LOC_NONE);
 		virtual ASTRelExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -1813,6 +1870,8 @@ namespace ZScript
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
+		
+		bool strict;
 	};
 
 	class ASTExprNE : public ASTRelExpr
@@ -1827,6 +1886,8 @@ namespace ZScript
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
+		
+		bool strict;
 	};
 	
 	class ASTExprAppxEQ : public ASTRelExpr
@@ -1867,18 +1928,7 @@ namespace ZScript
 		virtual bool supportsBitflags() {return true;}
 		virtual ASTAddExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			auto leftType = left->getReadType(scope, errorHandler);
-			auto rightType = right->getReadType(scope, errorHandler);
-			if (!leftType)
-				left->getReadType(scope, errorHandler);
-			if ((leftType && leftType->isBitflagsEnum()) || rightType->isBitflagsEnum())
-				return leftType;
-			if ((leftType && leftType->isLong()) || rightType->isLong())
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -1919,12 +1969,7 @@ namespace ZScript
 		            LocationData const& location = LOC_NONE);
 		virtual ASTMultExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -1992,16 +2037,7 @@ namespace ZScript
 		           LocationData const& location = LOC_NONE);
 		virtual ASTBitExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			auto leftType = left->getReadType(scope, errorHandler);
-			auto rightType = right->getReadType(scope, errorHandler);
-			if (leftType->isBitflagsEnum() || rightType->isBitflagsEnum())
-				return leftType;
-			if (leftType->isLong() || rightType->isLong())
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -2056,12 +2092,7 @@ namespace ZScript
 				LocationData const& location = LOC_NONE);
 		virtual ASTShiftExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
@@ -2230,7 +2261,7 @@ namespace ZScript
 		bool isConstant() const /*override*/ {return true;}
 		bool isLiteral() const {return true;}
 
-		DataTypeArray const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
+		DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
 		
 		// The data declaration that this literal may be part of. If NULL that
 		// means this is not part of a data declaration. This should be managed by

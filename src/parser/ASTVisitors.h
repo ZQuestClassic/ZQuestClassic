@@ -108,6 +108,15 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL) {
 			caseDefault(host, param);}
+
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param = NULL) { \
+	caseDefault(host, param);}
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+		virtual void caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param = NULL) {
+			caseDefault(host, param);}
+
 		virtual void caseExprIdentifier(
 				ASTExprIdentifier& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -322,6 +331,13 @@ namespace ZScript
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL);
 		virtual void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL);
+		
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param = NULL);
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+		virtual void caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param = NULL);
+
 		virtual void caseExprArrow(ASTExprArrow& host, void* param = NULL);
 		virtual void caseExprIndex(ASTExprIndex& host, void* param = NULL);
 		virtual void caseExprCall(ASTExprCall& host, void* param = NULL);

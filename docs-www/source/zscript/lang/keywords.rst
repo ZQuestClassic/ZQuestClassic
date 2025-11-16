@@ -185,8 +185,14 @@ Most operators are left-associative, except assignment operators and the Ternary
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 	| 9        | `>=`             | *expr* >= *expr*            | Returns **true** if the left expr is greater than or equal the right expr.    |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
+	| 10       | `===`            | *expr* === *expr*           | Returns **true** if the two expressions are exactly equal to each other.      |
+	|          |                  |                             | Ignores :ref:`operator overloading<overloaded_operators>`                     |
+	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 	| 10       | | `==`           | | *expr* == *expr*          | Returns **true** if the two expressions are exactly equal to each other.      |
 	|          | | `equals`       | | *expr* equals *expr*      |                                                                               |
+	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
+	| 10       | `!==`            | *expr* !== *expr*           | Returns **false** if the two expressions are exactly equal to each other.     |
+	|          |                  |                             | Ignores :ref:`operator overloading<overloaded_operators>`                     |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 	| 10       | | `!=`           | | *expr* != *expr*          | Returns **false** if the two expressions are exactly equal to each other.     |
 	|          | | `<>`           | | *expr* <> *expr*          |                                                                               |
