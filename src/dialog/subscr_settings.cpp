@@ -82,7 +82,7 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 	std::vector<std::pair<std::string, std::shared_ptr<GUI::Widget>>> tabs;
 	switch(ty)
 	{
-		case sstACTIVE:
+		case sstACTIVE: case sstMAP:
 		{
 			tabs.push_back({"Basic", Rows<3>(
 				Frame(title = "Page Left",
@@ -184,7 +184,8 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 						padding = 0_px, fitParent = true,
 						Rows<2>(vAlign = 0.0,
 							SCRIPT_LIST_PROC("Script:", list_subscript, local_subref.script, refr_script)
-						)
+						),
+						INFOBTN("Both the 'Active' and 'Map' subscreen's script will run if either of them is open.")
 					)
 				)});
 			break;
@@ -203,7 +204,7 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 	for(auto& ref : tabs)
 		tpan->add(TabRef(name = ref.first, ref.second)); 
 	refr_info();
-	if(ty==sstACTIVE)
+	if(ty == sstACTIVE || ty == sstMAP)
 		refr_script();
 	refr_selector();
 	return window;
@@ -211,7 +212,7 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 
 void SubscrSettingsDialog::refr_selector()
 {
-	if(ty == sstACTIVE)
+	if(ty == sstACTIVE || ty == sstMAP)
 	{
 		selector_grid->setDisabled(!(local_subref.flags&SUBFLAG_ACT_OVERRIDESEL));
 	}

@@ -11,5 +11,7 @@ void dmap::validate_subscreens()
 		passive_subscreen = 0;
 	if(overlay_subscreen >= subscreens_overlay.size())
 		overlay_subscreen = 0;
+	if(map_subscreen >= subscreens_map.size() || subscreens_map.empty())
+		map_subscreen = -1;
 }
 

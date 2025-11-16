@@ -477,6 +477,9 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 		case sstACTIVE:
 			hei = 168;
 			break;
+		case sstMAP:
+			hei = 168;
+			break;
 		case sstOVERLAY:
 			hei = 224 + (get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
 			break;
@@ -2279,7 +2282,7 @@ void update_subscr_dlg(bool start)
 		update_sso_name();
 		subscreen_dlg[11].flags|=D_DISABLED;
 		
-		if(subscr_edit.sub_type==sstACTIVE)
+		if(subscr_edit.sub_type == sstACTIVE || subscr_edit.sub_type == sstMAP)
 		{
 			subscreen_dlg[22].flags&=~D_DISABLED;
 			subscreen_dlg[23].flags&=~D_DISABLED;
@@ -2324,6 +2327,10 @@ void update_subscr_dlg(bool start)
 				default:
 				case sstACTIVE:
 					strcpy(subscr_titlebuf,"Active Subscreen Editor");
+					hei = 168;
+					break;
+				case sstMAP:
+					strcpy(subscr_titlebuf,"Map Subscreen Editor");
 					hei = 168;
 					break;
 				case sstPASSIVE:
@@ -2407,7 +2414,7 @@ void update_subscr_dlg(bool start)
 			else subscreen_dlg[3].w = 0;
 		}
 	}
-	bool nopages = subty!=sstACTIVE;
+	bool nopages = !(subty == sstACTIVE || subty == sstMAP);
 	for(int q = 46; q <= 55; ++q)
 		SETFLAG(subscreen_dlg[q].flags,D_HIDDEN,nopages);
 	SETFLAG(subscreen_dlg[57].flags,D_HIDDEN,nopages);
@@ -2694,98 +2701,20 @@ void do_edit_subscr(size_t ind, byte ty)
 	std::vector<ZCSubscreen>& vec =
 		(ty == sstACTIVE ? subscreens_active
 		: (ty == sstPASSIVE ? subscreens_passive
-		: subscreens_overlay));
+		: (ty == sstOVERLAY ? subscreens_overlay
+		: subscreens_map)));
 
 	subscr_edit.clear();
 	if(ind < vec.size())
 		subscr_edit = vec[ind];
 	subscr_edit.sub_type = ty;
 	
-	bool edit_it=true;
-	
-	/* No templates for now... not sure how to handle these
-	if(subscr_edit.pages.empty())
-	{
-		large_dialog(sstemplatelist_dlg);
-			
-		auto ret=do_zqdialog(sstemplatelist_dlg,4);
-		
-		if(ret==6)
-		{
-			if(sstemplatelist_dlg[5].d1<15)
-			{
-				if(sstemplatelist_dlg[5].d1 != 0)
-				{
-					subscreen_object *tempsub;
-					
-					if(sstemplatelist_dlg[4].d1==0)
-					{
-						tempsub = default_subscreen_active[(sstemplatelist_dlg[5].d1-1)/2][(sstemplatelist_dlg[5].d1-1)&1];
-					}
-					else
-					{
-						tempsub = default_subscreen_passive[(sstemplatelist_dlg[5].d1-1)/2][(sstemplatelist_dlg[5].d1-1)&1];
-					}
-					subscr_edit.load_old(tempsub);
-				}
-				
-				if(sstemplatelist_dlg[4].d1==0)
-				{
-					subscr_edit.sub_type=sstACTIVE;
-					subscr_edit.name = activesubscrtype_str[sstemplatelist_dlg[5].d1];
-					subscreen_dlg[4].h=172*2;
-					subscreen_dlg[5].h=subscreen_dlg[4].h-4;
-				}
-				else
-				{
-					subscr_edit.sub_type=sstPASSIVE;
-					subscr_edit.name = passivesubscrtype_str[sstemplatelist_dlg[5].d1];
-					subscreen_dlg[4].h=120;
-					subscreen_dlg[5].h=subscreen_dlg[4].h-4;
-				}
-			}
-			else //Z3
-			{
-				subscreen_object *tempsub;
-				
-				if(sstemplatelist_dlg[4].d1==0)
-				{
-					tempsub = z3_active_a;
-				}
-				else
-				{
-					tempsub = z3_passive_a;
-				}
-				subscr_edit.load_old(tempsub);
-				
-				if(sstemplatelist_dlg[4].d1==0)
-				{
-					subscr_edit.sub_type=sstACTIVE;
-					subscr_edit.name = activesubscrtype_str[sstemplatelist_dlg[5].d1];
-					subscreen_dlg[4].h=344;
-					subscreen_dlg[5].h=subscreen_dlg[4].h-4;
-					
-				}
-				else
-				{
-					subscr_edit.sub_type=sstPASSIVE;
-					subscr_edit.name = passivesubscrtype_str[sstemplatelist_dlg[5].d1];
-					subscreen_dlg[4].h=120;
-					subscreen_dlg[5].h=subscreen_dlg[4].h-4;
-				}
-			}
-		}
-		else
-		{
-			edit_it=false;
-		}
-	}*/
 	if(subscr_edit.pages.empty())
 	{
 		subscr_edit.pages.emplace_back();
 		subscr_edit.pages[0].setParent(&subscr_edit);
 	}
-	if(edit_it && edit_subscreen())
+	if(edit_subscreen())
 	{
 		if(ind < vec.size())
 			vec[ind] = subscr_edit;
@@ -2855,6 +2784,9 @@ void delete_subscreen(size_t ind, byte ty)
 		case sstOVERLAY:
 			vec = &subscreens_overlay;
 			break;
+		case sstMAP:
+			vec = &subscreens_map;
+			break;
 	}
 	if(!vec || ind >= vec->size())
 		return;
@@ -2897,6 +2829,12 @@ void delete_subscreen(size_t ind, byte ty)
 					--DMaps[i].overlay_subscreen;
 				else if(DMaps[i].overlay_subscreen == count)
 					DMaps[i].overlay_subscreen = 0;
+				break;
+			case sstMAP:
+				if(DMaps[i].map_subscreen > count)
+					--DMaps[i].map_subscreen;
+				else if(DMaps[i].map_subscreen == count)
+					DMaps[i].map_subscreen = -1;
 				break;
 		}
 	}
