@@ -35,6 +35,7 @@ src/zc/scripting/common.cpp
 src/zc/scripting/context_strings.cpp
 src/zc/scripting/script_object.cpp
 src/zc/scripting/sram.cpp
+src/zc/scripting/string_utils.cpp
 
 src/zc/scripting/types/audio.cpp
 src/zc/scripting/types/bottledata.cpp
