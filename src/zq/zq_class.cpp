@@ -2738,7 +2738,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		return;
 	}
 	
-	if(LayerMaskInt[0]==0)
+	if(LayerMaskInt[0]==0 || !get_qr(qr_CLASSIC_DRAWING_ORDER))
 	{
 		byte bgfill = 0;
 		if (LayerDitherBG > -1)
@@ -2752,6 +2752,8 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 			_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, false, HL_LAYER(2));
 		_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -2);
 	}
+	else for (int lyr = -7; lyr < -3; ++lyr)
+		_zmap_draw_ffc_layer(dest, x, y, flags, basescr, lyr);
 	
 	if(XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG))
 		_zmap_drawlayer(dest, x, y, layers[3], antiflags, basescr->layeropacity[3-1]!=255, XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG), HL_LAYER(3));
