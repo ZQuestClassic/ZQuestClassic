@@ -3565,6 +3565,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 
 	if (compatrule_version < 94)
 		set_qr(qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING, 1);
+	if (compatrule_version < 95)
+		set_qr(qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

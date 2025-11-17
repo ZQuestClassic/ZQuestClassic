@@ -8355,7 +8355,7 @@ void mark_visited(int screen)
 {
 	if (screen < 0x80)
 	{
-		if(DMaps[cur_dmap].flags&dmfVIEWMAP)
+		if(!get_qr(qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE) || (DMaps[cur_dmap].flags&dmfVIEWMAP))
 			game->maps[mapind(cur_map, screen)] |= mVISITED;
 
 		markBmap(-1, screen);

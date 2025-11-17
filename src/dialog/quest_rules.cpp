@@ -1052,7 +1052,9 @@ static GUI::ListData compatRulesList
 		"If enabled, pitfall combos will be less sensitive, allowing them to be walked over in some cases." },
 	{ "Active Shields and Roc Items on Buttons don't run scripts", qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT,
 		"If enabled, shields with 'Active Use' checked, and Roc Items with 'Button' set to non-zero,"
-		" will not run their Action Script." }
+		" will not run their Action Script." },
+	{ "Only 'Visit' Screens On Mappable DMaps", qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE,
+		"If enabled, screens only have their 'Visited' state set if the current dmap has the flag to allow viewing the map checked." }
 };
 
 static GUI::ListData enemiesRulesList
