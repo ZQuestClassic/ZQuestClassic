@@ -724,7 +724,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							INFOBTN("If the counter should show while empty"),
 							CBOX(w->flags,SUBSCR_COUNTER_SHOW0,"Show Zero",1),
 							INFOBTN("If the counter should only show when an item that uses it is equipped to any button"),
-							CBOX(w->flags,SUBSCR_COUNTER_ONLYSEL,"Only Selected",1)
+							CBOX(w->flags,SUBSCR_COUNTER_ONLYSEL,"Only Selected",1),
+							INFOBTN("If checked, the counter shows the Max value of the specified counter(s) instead of the current value."),
+							CBOX(w->flags,SUBSCR_COUNTER_MAXCTR,"As Max",1),
+							INFOBTN("If checked, instead of showing the current OR max value, the current value AND max value are displayed, separated by a '/'."),
+							CBOX(w->flags,SUBSCR_COUNTER_FRACTION,"As Fraction",1)
 						)
 					)
 				);
@@ -780,7 +784,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							INFOBTN("If checked, 'Cost: 0' will always check the item's 'Use Cost', and 'Cost: 1' to 'Use Cost 2'.\n"
 								"If unchecked, 'Cost: 0' checks the first cost that is not None on an item, whichever that is,"
 								" and 'Cost: 1' the second."),
-							CBOX(w->flags,SUBSCR_BTNCOUNTER_NOCOLLAPSE,"No Collapse",1)
+							CBOX(w->flags,SUBSCR_BTNCOUNTER_NOCOLLAPSE,"No Collapse",1),
+							INFOBTN("If checked, the counter shows the Max value of the specified counter instead of the current value."),
+							CBOX(w->flags,SUBSCR_BTNCOUNTER_MAXCTR,"As Max",1),
+							INFOBTN("If checked, instead of showing the current OR max value, the current value AND max value are displayed, separated by a '/'."),
+							CBOX(w->flags,SUBSCR_COUNTER_MAXCTR,"As Fraction",1)
 						)
 					)
 				);

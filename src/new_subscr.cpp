@@ -2487,7 +2487,9 @@ int16_t SW_Counter::getY() const
 }
 word SW_Counter::getW() const
 {
-	return text_length(get_zc_font(fontid), "0")*(maxdigits>0?maxdigits:zc_max(1,mindigits)) + shadow_w(shadtype);
+	auto digitw = text_length(get_zc_font(fontid), "0") * (maxdigits>0?maxdigits:zc_max(1,mindigits));
+	if (flags & SUBSCR_COUNTER_FRACTION) digitw = (digitw * 2) + text_length(get_zc_font(fontid), "/");
+	return digitw + shadow_w(shadtype);
 }
 word SW_Counter::getH() const
 {
@@ -2497,6 +2499,40 @@ byte SW_Counter::getType() const
 {
 	return widgCOUNTER;
 }
+static string format_counter(int value, int max_value, byte mindigits, byte maxdigits, bool as_frac, bool as_max)
+{
+	if (as_frac) as_max = false;
+	
+	char valstring[80];
+	char formatstring[80];
+	sprintf(formatstring, "%%0%dd", mindigits);
+	string ret;
+	if (!as_max)
+	{
+		if(maxdigits)
+		{
+			auto mval = pow(10,maxdigits);
+			if(value >= mval)
+				value = mval-1;
+		}
+		sprintf(valstring, formatstring, value);
+		ret += valstring;
+	}
+	if (as_frac)
+		ret += "/";
+	if (as_frac || as_max)
+	{
+		if(maxdigits)
+		{
+			auto mval = pow(10,maxdigits);
+			if(max_value >= mval)
+				max_value = mval-1;
+		}
+		sprintf(valstring, formatstring, max_value);
+		ret += valstring;
+	}
+	return ret;
+}
 void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
@@ -2504,7 +2540,7 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 	zq_ignore_item_ownership = false;
 	
 	{
-		int32_t value=0;
+		int32_t value = 0, max_value = 0;
 		bool infinite = false, draw = true;
 		
 		if(zq_view_allinf && (can_inf(ctrs[0],infitm)||can_inf(ctrs[1])||can_inf(ctrs[2])))
@@ -2512,10 +2548,7 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 		else if(game != NULL && infitm > -1 && game->get_item(infitm) && !item_disabled(infitm))
 			infinite = true;
 		
-		char valstring[80];
-		char formatstring[80];
-		sprintf(valstring,"01234567890123456789");
-		sprintf(formatstring, "%%0%dd", mindigits);
+		string display;
 		
 		if(flags&SUBSCR_COUNTER_ONLYSEL)
 		{
@@ -2557,6 +2590,7 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 							continue;
 					}
 				add_ssc_ctr(ctrs[q],infinite,value);
+				max_value += get_ssc_ctrmax(ctrs[q]);
 				if(!is_full_ssc_ctr(ctrs[q]))
 					is_full = false;
 			}
@@ -2571,17 +2605,13 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 			}
 			
 			if(infinite)
-				sprintf(valstring, "%c", infchar);
+				display += infchar;
 			else
 			{
-				if(maxdigits)
-				{
-					auto mval = pow(10,maxdigits);
-					if(value >= mval)
-						value = mval-1;
-				}
-				sprintf(valstring, formatstring, value);
+				display = format_counter(value, max_value, mindigits, maxdigits,
+					flags&SUBSCR_COUNTER_FRACTION, flags&SUBSCR_COUNTER_MAXCTR);
 			}
+			
 			int col_text = c_text.get_color(), col_shadow = c_shadow.get_color(), col_bg = c_bg.get_color();
 			if(is_full)
 			{
@@ -2590,7 +2620,7 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 				col_bg = c_bg2.get_color();
 			}
 			
-			textout_styled_aligned_ex(dest, tempfont, valstring, x+xofs, y+yofs, shadtype, align, col_text, col_shadow, col_bg);
+			textout_styled_aligned_ex(dest, tempfont, display.c_str(), x+xofs, y+yofs, shadtype, align, col_text, col_shadow, col_bg);
 		}
 	}
 	
@@ -2849,7 +2879,9 @@ int16_t SW_BtnCounter::getY() const
 }
 word SW_BtnCounter::getW() const
 {
-	return text_length(get_zc_font(fontid), "0")*(maxdigits>0?maxdigits:zc_max(1,mindigits)) + shadow_w(shadtype);
+	auto digitw = text_length(get_zc_font(fontid), "0") * (maxdigits>0?maxdigits:zc_max(1,mindigits));
+	if (flags & SUBSCR_BTNCOUNTER_FRACTION) digitw = (digitw * 2) + text_length(get_zc_font(fontid), "/");
+	return digitw + shadow_w(shadtype);
 }
 word SW_BtnCounter::getH() const
 {
@@ -2887,18 +2919,16 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 	zq_ignore_item_ownership = false;
 	
 	{
-		int32_t value=0;
+		int32_t value = 0;
 		bool infinite = false;
 		
 		if(zq_view_allinf && (can_inf(counter)))
 			infinite = true;
 		
-		char valstring[80];
-		char formatstring[80];
-		sprintf(valstring,"01234567890123456789");
-		sprintf(formatstring, "%%0%dd", mindigits);
+		string display;
 		
 		add_ssc_ctr(counter,infinite,value);
+		int max_value = get_ssc_ctrmax(counter);
 		bool is_full = is_full_ssc_ctr(counter);
 		
 		if(zq_view_noinf)
@@ -2911,17 +2941,13 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		}
 		
 		if(infinite)
-			sprintf(valstring, "%c", infchar);
+			display += infchar;
 		else
 		{
-			if(maxdigits)
-			{
-				auto mval = pow(10,maxdigits);
-				if(value >= mval)
-					value = mval-1;
-			}
-			sprintf(valstring, formatstring, value);
+			display = format_counter(value, max_value, mindigits, maxdigits,
+				flags&SUBSCR_BTNCOUNTER_FRACTION, flags&SUBSCR_BTNCOUNTER_MAXCTR);
 		}
+		
 		int col_text = c_text.get_color(), col_shadow = c_shadow.get_color(), col_bg = c_bg.get_color();
 		if(is_full)
 		{
@@ -2930,7 +2956,7 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 			col_bg = c_bg2.get_color();
 		}
 		
-		textout_styled_aligned_ex(dest, tempfont, valstring, x+xofs, y+yofs, shadtype, align, col_text, col_shadow, col_bg);
+		textout_styled_aligned_ex(dest, tempfont, display.c_str(), x+xofs, y+yofs, shadtype, align, col_text, col_shadow, col_bg);
 	}
 	
 	zq_ignore_item_ownership = b;
