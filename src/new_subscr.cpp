@@ -1411,11 +1411,21 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 	req_owned_items = src->req_owned_items;
 	req_unowned_items = src->req_unowned_items;
 	req_dmap_floors = src->req_dmap_floors;
+	req_dmap_levels = src->req_dmap_levels;
+	req_dmaps = src->req_dmaps;
+	req_maps = src->req_maps;
+	req_screens = src->req_screens;
 	req_counter = src->req_counter;
 	req_counter_val = src->req_counter_val;
 	req_counter_cond_type = src->req_counter_cond_type;
 	req_litems = src->req_litems;
 	req_litem_level = src->req_litem_level;
+	req_scrstate_map = src->req_scrstate_map;
+	req_scrstate_scr = src->req_scrstate_scr;
+	req_scrstate = src->req_scrstate;
+	req_exstate = src->req_exstate;
+	req_lvlstate = src->req_lvlstate;
+	req_lstate_level = src->req_lstate_level;
 	is_disabled = src->is_disabled;
 	if(all)
 	{
@@ -1567,15 +1577,28 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 		is_disabled = tempb != 0;
 		if (s_version >= 16)
 		{
-			if(!p_getc(&bcount,f))
+			if(!p_getcset(&req_dmap_floors, f))
 				return qe_invalid;
-			req_dmap_floors.clear();
-			for(word q = 0; q < bcount; ++q)
-			{
-				if(!p_getc(&iid,f))
-					return qe_invalid;
-				req_dmap_floors.insert(iid);
-			}
+			if(!p_getwset(&req_dmap_levels, f))
+				return qe_invalid;
+			if(!p_getwset(&req_dmaps, f))
+				return qe_invalid;
+			if(!p_getwset(&req_maps, f))
+				return qe_invalid;
+			if(!p_getcset(&req_screens, f))
+				return qe_invalid;
+			if(!p_igetw(&req_scrstate_map, f))
+				return qe_invalid;
+			if(!p_igetw(&req_scrstate_scr, f))
+				return qe_invalid;
+			if(!p_igetl(&req_scrstate, f))
+				return qe_invalid;
+			if(!p_igetl(&req_exstate, f))
+				return qe_invalid;
+			if(!p_igetl(&req_lvlstate, f))
+				return qe_invalid;
+			if(!p_igetw(&req_lstate_level, f))
+				return qe_invalid;
 		}
 	}
 	
@@ -1673,11 +1696,28 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_putc(is_disabled?1:0,f))
 		new_return(1);
-	if(!p_putc(req_dmap_floors.size(),f))
+	if(!p_putcset(req_dmap_floors, f))
 		new_return(1);
-	for(byte floor : req_dmap_floors)
-		if(!p_putc(floor,f))
-			new_return(1);
+	if(!p_putwset(req_dmap_levels, f))
+		new_return(1);
+	if(!p_putwset(req_dmaps, f))
+		new_return(1);
+	if(!p_putwset(req_maps, f))
+		new_return(1);
+	if(!p_putcset(req_screens, f))
+		new_return(1);
+	if(!p_iputw(req_scrstate_map, f))
+		new_return(1);
+	if(!p_iputw(req_scrstate_scr, f))
+		new_return(1);
+	if(!p_iputl(req_scrstate, f))
+		new_return(1);
+	if(!p_iputl(req_exstate, f))
+		new_return(1);
+	if(!p_iputl(req_lvlstate, f))
+		new_return(1);
+	if(!p_iputw(req_lstate_level, f))
+		new_return(1);
 	return 0;
 }
 void SubscrWidget::check_btns(byte btnflgs, ZCSubscreen& parent) const
@@ -1695,17 +1735,37 @@ bool SubscrWidget::check_conditions() const
 #ifdef IS_PLAYER
 	if(is_disabled) // script-disable condition
 		return false;
+	bool pass_cond = !(genflags&SUBSCRFLAG_REQ_ANY_ITEM);
 	for(auto iid : req_owned_items)
 	{
-		if(!game->get_item(iid) || !checkbunny(iid) || item_disabled(iid))
+		if (genflags&SUBSCRFLAG_REQ_ANY_ITEM) // require at least one
+		{
+			if(game->get_item(iid) && checkbunny(iid) && !item_disabled(iid))
+			{
+				pass_cond = true;
+				break;
+			}
+		}
+		else if(!game->get_item(iid) || !checkbunny(iid) || item_disabled(iid)) // require all
 			return false;
 	}
+	if (!pass_cond) return false;
 	for(auto iid : req_unowned_items)
 	{
 		if(game->get_item(iid) && checkbunny(iid) && !item_disabled(iid))
 			return false;
 	}
-	if (!(req_dmap_floors.empty() || req_dmap_floors.contains(DMaps[get_currdmap()].floor)))
+	auto curdm = get_sub_dmap();
+	dmap const& dm = DMaps[curdm];
+	if (!(req_dmap_floors.empty() || req_dmap_floors.contains(dm.floor)))
+		return false;
+	if (!(req_dmap_levels.empty() || req_dmap_levels.contains(dm.level)))
+		return false;
+	if (!(req_dmaps.empty() || req_dmaps.contains(curdm)))
+		return false;
+	if (!(req_maps.empty() || req_maps.contains(cur_map+1)))
+		return false;
+	if (!(req_screens.empty() || req_screens.contains(home_screen)))
 		return false;
 	if(req_counter != crNONE && req_counter_cond_type != CONDTY_NONE)
 	{
@@ -1750,7 +1810,66 @@ bool SubscrWidget::check_conditions() const
 		{
 			bool inverted = genflags&SUBSCRFLAG_REQ_INVERT_LITEM;
 			auto litems = game->lvlitems[target_lvl]&req_litems;
-			if(inverted ? litems != 0 : litems != req_litems)
+			if (genflags&SUBSCRFLAG_REQ_ANY_LITEM) // require at least one
+			{
+				if(inverted ? litems == req_litems : litems == 0)
+					return false;
+			}
+			else if(inverted ? litems != 0 : litems != req_litems) // require all
+				return false;
+		}
+	}
+	if ((req_scrstate_map || req_scrstate_scr < 0) && (req_scrstate || req_exstate))
+	{
+		int m = req_scrstate_scr < 0 ? cur_map : req_scrstate_map;
+		int s = req_scrstate_scr < 0 ? home_screen : req_scrstate_scr;
+		if (m > 0 && unsigned(s) < MAPSCRSNORMAL)
+		{
+			bool invert = (genflags&SUBSCRFLAG_REQ_INVERT_SCRSTATE);
+			bool any_state = (genflags&SUBSCRFLAG_REQ_ANY_SCRSTATE);
+			auto mi = mapind(m-1, s);
+			auto sstate = game->maps[mi] & req_scrstate;
+			auto exstate = game->xstates[mi] & req_exstate;
+			if (any_state)
+			{
+				if (invert)
+				{
+					if (sstate == req_scrstate && exstate == req_exstate)
+						return false;
+				}
+				else if (!(sstate || exstate))
+					return false;
+			}
+			else
+			{
+				if (invert)
+				{
+					if (sstate || exstate)
+						return false;
+				}
+				else
+				{
+					if (sstate != req_scrstate)
+						return false;
+					if (exstate != req_exstate)
+						return false;
+				}
+			}
+		}
+	}
+	if (req_lvlstate)
+	{
+		int lvl = req_lstate_level < 0 ? dlevel : req_lstate_level;
+		if (unsigned(lvl) < MAXLEVELS)
+		{
+			bool inverted = genflags&SUBSCRFLAG_REQ_INVERT_LSTATE;
+			auto lstates = game->lvlswitches[lvl] & req_lvlstate;
+			if (genflags&SUBSCRFLAG_REQ_ANY_LSTATE) // require at least one
+			{
+				if(inverted ? lstates == req_lvlstate : lstates == 0)
+					return false;
+			}
+			else if(inverted ? lstates != 0 : lstates != req_lvlstate) // require all
 				return false;
 		}
 	}

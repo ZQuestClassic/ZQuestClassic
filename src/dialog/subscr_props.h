@@ -50,15 +50,23 @@ protected:
 	std::shared_ptr<GUI::Grid> selgs[4];
 	std::shared_ptr<GUI::Frame> selframes[3];
 	std::shared_ptr<GUI::TabRef> seltabs[1];
-	std::shared_ptr<GUI::TextField> seltfs[2];
+	std::shared_ptr<GUI::TextField> seltfs[1];
 	std::shared_ptr<GUI::Button> selbtns[1];
 	
-	std::shared_ptr<GUI::List> req_item_list, req_not_item_list, req_floor_list;
+	std::shared_ptr<GUI::TextField> condtfs[5];
+	std::shared_ptr<GUI::DropDownList> condddls[1];
+	
+	std::shared_ptr<GUI::List> req_item_list, req_not_item_list,
+		req_floor_list, req_level_list, req_dmap_list, req_map_list, req_screen_list;
 	
 	std::shared_ptr<GUI::Label> geninitd_lbl[8];
 	std::shared_ptr<GUI::Button> geninitd_btn[8];
 	
-	std::shared_ptr<GUI::Button> reqfloor_btn_del, reqfloor_btn_add;
+	std::shared_ptr<GUI::Button> reqfloor_btn_del, reqfloor_btn_add,
+		reqlevel_btn_del, reqlevel_btn_add,
+		reqdmap_btn_del, reqdmap_btn_add,
+		reqmap_btn_del, reqmap_btn_add,
+		reqscreen_btn_del, reqscreen_btn_add;
 	
 	std::shared_ptr<GUI::Checkbox> def_eqp_cboxes[4];
 	
@@ -69,14 +77,15 @@ protected:
 	int32_t index;
 	byte set_default_btnslot;
 	byte start_default_btnslot;
-	optional<byte> dmap_floor;
+	optional<byte> req_dmap_floor, req_screen;
+	optional<word> req_dmap_level, req_dmap, req_map;
 	
 	zasm_meta local_gen_meta;
 	
 	GUI::ListData list_font, list_shadtype, list_aligns, list_buttons, list_items,
-		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx,
+		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx, list_dmaps,
 		list_costinds, list_items_no_none, list_reqitems, list_reqnotitems,
-		list_reqfloors, list_buttons_none;
+		list_buttons_none, list_reqfloors, list_reqlevels, list_reqdmaps, list_reqmaps, list_reqscreens;
 	
 	void updateSelectable();
 	void updateAttr();
@@ -84,6 +93,10 @@ protected:
 	void updateColors();
 	void updateConditions();
 	void update_dmap_floor(int val, bool update_tf = true);
+	void update_dmap_level(int val, bool update_tf = true);
+	void update_req_dmap(int val, bool update_ddl = true);
+	void update_req_map(int val, bool update_tf = true);
+	void update_req_screen(int val, bool update_tf = true);
 	void update_wh();
 	void refr_info();
 };
