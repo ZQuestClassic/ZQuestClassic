@@ -33,6 +33,7 @@
 //	    ScriptingArray_ObjectMemberBitwiseFlags
 //	    ScriptingArray_ObjectSubMemberBitwiseFlags
 //	    ScriptingArray_ObjectMemberBitstring
+//	    ScriptingArray_ObjectMemberSet
 //	    ScriptingArray_ObjectMemberContainer
 //	    ScriptingArray_ObjectComputed
 //

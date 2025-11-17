@@ -813,6 +813,58 @@ private:
 	std::function<void(T_Object*, int, int)> m_writeSideEffect;
 };
 
+template<typename T_Object, auto T_MemberPtr, size_t N>
+class ScriptingArray_ObjectMemberSet : public IScriptingArray
+{
+public:
+	using MemberType = field_type<T_MemberPtr>::type;
+
+	size_t getSize(int) const override { return N; }
+
+	int getElement(int ref, int index) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj)
+			return 0;
+
+		if (auto resolved_index = resolveIndex(index, N, m_boundGetterIndex))
+			return ((obj->*T_MemberPtr).contains(*resolved_index) ? 1 : 0) * (m_mul10000 ? 10000 : 1);
+
+		return getDefaultValue();
+	}
+
+	bool setElement(int ref, int index, int value) override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj)
+			return false;
+
+		if (auto resolved_index = resolveIndex(index, N, m_boundSetterIndex))
+			index = *resolved_index;
+		else
+			return false;
+
+		if (auto val = transformValue<bool>(value))
+		{
+			if (val.value())
+				(obj->*T_MemberPtr).insert(index);
+			else
+				(obj->*T_MemberPtr).erase(index);
+
+			if (m_writeSideEffect)
+				m_writeSideEffect(obj, index, val.value());
+			return true;
+		}
+
+		return false;
+	}
+
+	void setSideEffect(std::function<void(T_Object*, int, int)> writeSideEffect) { m_writeSideEffect = std::move(writeSideEffect); }
+
+private:
+	std::function<void(T_Object*, int, int)> m_writeSideEffect;
+};
+
 template<typename T_Object, auto T_MemberPtr>
 class ScriptingArray_ObjectMemberContainer : public IScriptingArray
 {

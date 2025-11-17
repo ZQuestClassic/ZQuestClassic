@@ -561,6 +561,17 @@ inline bool p_putvar(vector<T> const& ptr, PACKFILE *f)
 }
 
 template<typename T>
+inline bool p_getvar(std::set<T>* ptr, PACKFILE *f)
+{
+	return p_getlset(ptr,f);
+}
+template<typename T>
+inline bool p_putvar(std::set<T> const& ptr, PACKFILE *f)
+{
+	return p_putlset(ptr,f);
+}
+
+template<typename T>
 inline bool p_getvar(bitstring* ptr, PACKFILE *f)
 {
 	return p_getbitstr(ptr,f);
@@ -1049,6 +1060,115 @@ inline bool p_putlvec(vector<T> const& vec, PACKFILE *f)
 		{
 			if(!p_putvar(vec.at(q), f))
 				return false;
+		}
+	}
+	return true;
+}
+
+template<typename T>
+inline bool p_getcset(std::set<T> *s, PACKFILE *f)
+{
+	s->clear();
+	byte sz = 0;
+	if(!p_getc(&sz,f))
+		return false;
+	if(sz) //set found
+	{
+		T dummy = T();
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getvar(&dummy,f))
+				return false;
+			s->insert(dummy);
+		}
+	}
+	return true;
+}
+template<typename T>
+inline bool p_putcset(std::set<T> const& s, PACKFILE *f)
+{
+	byte sz = byte(zc_min(255,s.size()));
+	if(!p_putc(sz,f))
+		return false;
+	if(sz)
+	{
+		for(T const& val : s)
+		{
+			if(!p_putvar(val, f))
+				return false;
+			if (!--sz) break;
+		}
+	}
+	return true;
+}
+template<typename T>
+inline bool p_getwset(std::set<T> *s, PACKFILE *f)
+{
+	s->clear();
+	word sz = 0;
+	if(!p_igetw(&sz,f))
+		return false;
+	if(sz) //set found
+	{
+		T dummy = T();
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getvar(&dummy,f))
+				return false;
+			s->insert(dummy);
+		}
+	}
+	return true;
+}
+template<typename T>
+inline bool p_putwset(std::set<T> const& s, PACKFILE *f)
+{
+	word sz = word(zc_min(65535,s.size()));
+	if(!p_iputw(sz,f))
+		return false;
+	if(sz)
+	{
+		for(T const& val : s)
+		{
+			if(!p_putvar(val, f))
+				return false;
+			if (!--sz) break;
+		}
+	}
+	return true;
+}
+template<typename T>
+inline bool p_getlset(std::set<T> *s, PACKFILE *f)
+{
+	s->clear();
+	dword sz = 0;
+	if(!p_igetl(&sz,f))
+		return false;
+	if(sz) //set found
+	{
+		T dummy = T();
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getvar(&dummy,f))
+				return false;
+			s->insert(dummy);
+		}
+	}
+	return true;
+}
+template<typename T>
+inline bool p_putlset(std::set<T> const& s, PACKFILE *f)
+{
+	dword sz = s.size();
+	if(!p_iputl(sz,f))
+		return false;
+	if(sz)
+	{
+		for(T const& val : s)
+		{
+			if(!p_putvar(val, f))
+				return false;
+			if (!--sz) break;
 		}
 	}
 	return true;
