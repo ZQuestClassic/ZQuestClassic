@@ -2765,6 +2765,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 			_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, true, HL_LAYER(2));
 		_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -2);
 	}
+	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, -1);
 	
 	_zmap_drawlayer(dest, x, y, layers[0], antiflags, false, !get_qr(qr_CLASSIC_DRAWING_ORDER) || (XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG)||XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG)), HL_LAYER(0), true);
 	_zmap_draw_ffc_layer(dest, x, y, flags, basescr, 0);
