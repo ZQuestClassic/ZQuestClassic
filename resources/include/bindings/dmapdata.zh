@@ -96,6 +96,11 @@ class dmapdata {
 	// @zasm_var DMAPDATALEVEL
 	internal int Level;
 
+	// The Floor Number of this dmap.
+	//
+	// @zasm_var DMAPDATAFLOOR
+	internal int Floor;
+
 	// The DMap offset.
 	//
 	// @zasm_var DMAPDATAOFFSET

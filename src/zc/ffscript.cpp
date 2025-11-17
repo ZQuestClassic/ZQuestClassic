@@ -6865,6 +6865,10 @@ int32_t get_register(int32_t arg)
 		{
 			ret = ((word)DMaps[GET_REF(dmapdataref)].level) * 10000; break;
 		}
+		case DMAPDATAFLOOR:	//byte
+		{
+			ret = ((byte)DMaps[GET_REF(dmapdataref)].floor) * 10000; break;
+		}
 		case DMAPDATAOFFSET:	//char
 		{
 			ret = ((char)DMaps[GET_REF(dmapdataref)].xoff) * 10000; break;
@@ -14386,6 +14390,10 @@ void set_register(int32_t arg, int32_t value)
 		case DMAPDATALEVEL:	//word
 		{
 			DMaps[GET_REF(dmapdataref)].level = ((word)(value / 10000)); break;
+		}
+		case DMAPDATAFLOOR:	//byte
+		{
+			DMaps[GET_REF(dmapdataref)].floor = ((byte)(value / 10000)); break;
 		}
 		case DMAPDATAOFFSET:	//char
 		{

@@ -9,6 +9,7 @@ struct dmap
 {
 	byte map;
 	word level;
+	byte floor;
 	char xoff;
 	byte compass;
 	word color;

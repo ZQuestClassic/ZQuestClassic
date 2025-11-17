@@ -342,6 +342,7 @@ struct SubscrWidget
 	//Conditionals
 	std::set<byte> req_owned_items;
 	std::set<byte> req_unowned_items;
+	std::set<byte> req_dmap_floors;
 	
 	int16_t req_counter = crNONE;
 	word req_counter_val;
