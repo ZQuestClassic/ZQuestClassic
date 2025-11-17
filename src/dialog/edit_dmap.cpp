@@ -293,7 +293,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 				},
 				TabRef(name = "Mechanics", TabPanel(
 					TabRef(name = "1", Column(
-						Row(
+						Rows<4>(
 							Label(text = "Map:"),
 							DropDownList(data = list_maps,
 								fitParent = true,
@@ -338,6 +338,15 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 								{
 									local_dmap.level = val;
+								}),
+							Label(text = "Floor:"),
+							TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_dmap.floor,
+								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+								{
+									local_dmap.floor = val;
 								})
 						),
 						Rows<4>(

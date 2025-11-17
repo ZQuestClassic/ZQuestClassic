@@ -50,13 +50,15 @@ protected:
 	std::shared_ptr<GUI::Grid> selgs[4];
 	std::shared_ptr<GUI::Frame> selframes[3];
 	std::shared_ptr<GUI::TabRef> seltabs[1];
-	std::shared_ptr<GUI::TextField> seltfs[1];
+	std::shared_ptr<GUI::TextField> seltfs[2];
 	std::shared_ptr<GUI::Button> selbtns[1];
 	
-	std::shared_ptr<GUI::List> req_item_list, req_not_item_list;
+	std::shared_ptr<GUI::List> req_item_list, req_not_item_list, req_floor_list;
 	
 	std::shared_ptr<GUI::Label> geninitd_lbl[8];
 	std::shared_ptr<GUI::Button> geninitd_btn[8];
+	
+	std::shared_ptr<GUI::Button> reqfloor_btn_del, reqfloor_btn_add;
 	
 	std::shared_ptr<GUI::Checkbox> def_eqp_cboxes[4];
 	
@@ -67,19 +69,21 @@ protected:
 	int32_t index;
 	byte set_default_btnslot;
 	byte start_default_btnslot;
+	optional<byte> dmap_floor;
 	
 	zasm_meta local_gen_meta;
 	
 	GUI::ListData list_font, list_shadtype, list_aligns, list_buttons, list_items,
 		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx,
 		list_costinds, list_items_no_none, list_reqitems, list_reqnotitems,
-		list_buttons_none;
+		list_reqfloors, list_buttons_none;
 	
 	void updateSelectable();
 	void updateAttr();
 	void updatePreview();
 	void updateColors();
 	void updateConditions();
+	void update_dmap_floor(int val, bool update_tf = true);
 	void update_wh();
 	void refr_info();
 };

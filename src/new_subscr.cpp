@@ -1410,6 +1410,7 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 	posflags = src->posflags;
 	req_owned_items = src->req_owned_items;
 	req_unowned_items = src->req_unowned_items;
+	req_dmap_floors = src->req_dmap_floors;
 	req_counter = src->req_counter;
 	req_counter_val = src->req_counter_val;
 	req_counter_cond_type = src->req_counter_cond_type;
@@ -1520,6 +1521,7 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 	if(s_version >= 14)
 	{
 		word count;
+		byte bcount;
 		byte iid;
 		if(!p_igetw(&count,f))
 			return qe_invalid;
@@ -1563,6 +1565,18 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 		if(!p_getc(&tempb,f))
 			return qe_invalid;
 		is_disabled = tempb != 0;
+		if (s_version >= 16)
+		{
+			if(!p_getc(&bcount,f))
+				return qe_invalid;
+			req_dmap_floors.clear();
+			for(word q = 0; q < bcount; ++q)
+			{
+				if(!p_getc(&iid,f))
+					return qe_invalid;
+				req_dmap_floors.insert(iid);
+			}
+		}
 	}
 	
 	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
@@ -1659,6 +1673,11 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_putc(is_disabled?1:0,f))
 		new_return(1);
+	if(!p_putc(req_dmap_floors.size(),f))
+		new_return(1);
+	for(byte floor : req_dmap_floors)
+		if(!p_putc(floor,f))
+			new_return(1);
 	return 0;
 }
 void SubscrWidget::check_btns(byte btnflgs, ZCSubscreen& parent) const
@@ -1686,6 +1705,8 @@ bool SubscrWidget::check_conditions() const
 		if(game->get_item(iid) && checkbunny(iid) && !item_disabled(iid))
 			return false;
 	}
+	if (!(req_dmap_floors.empty() || req_dmap_floors.contains(DMaps[get_currdmap()].floor)))
+		return false;
 	if(req_counter != crNONE && req_counter_cond_type != CONDTY_NONE)
 	{
 		zfix val = get_ssc_ctr(req_counter);
