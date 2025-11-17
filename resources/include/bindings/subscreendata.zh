@@ -97,10 +97,11 @@ enum SubscreenWidgetGenFlag
 
 enum SubscreenPageMode
 {
-	SUB_PGMODE_NONE, //no page change
+	SUB_PGMODE_NONE, //no transition
 	SUB_PGMODE_NEXT, //next page
 	SUB_PGMODE_PREV, //previous page
 	SUB_PGMODE_TARG, //specified page
+	SUB_PGMODE_CURRENT, //transition to same page
 	SUB_PGMODE_MAX
 };
 
