@@ -556,6 +556,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case DMAPDATADISABLEDITEMS: return "dmapdata::DisabledItems[]";
 		case DMAPDATAFLAGS: return "dmapdata::Flags";
 		case DMAPDATAFLAGARR: return "dmapdata::Flagset[]";
+		case DMAPDATAFLOOR: return "dmapdata::Floor";
 		case DMAPDATA_GRAVITY_STRENGTH: return "dmapdata::GravityStrength";
 		case DMAPDATAGRID: return "dmapdata::Grid[]";
 		case DMAPDATAID: return "dmapdata::ID";
@@ -1258,6 +1259,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SUBWIDGREQCOUNTER: return "subscreenwidget::RequiredCounter";
 		case SUBWIDGREQCOUNTERCOND: return "subscreenwidget::RequiredCounterCond";
 		case SUBWIDGREQCOUNTERVAL: return "subscreenwidget::RequiredCounterValue";
+		case SUBWIDGREQDMAPFLOOR: return "subscreenwidget::RequiredDMapFloors[]";
 		case SUBWIDGREQLITEMLEVEL: return "subscreenwidget::RequiredLItemLevel";
 		case SUBWIDGREQLITEMS: return "subscreenwidget::RequiredLItems";
 		case SUBWIDGREQOWNITEMS: return "subscreenwidget::RequiredOwnedItems[]";

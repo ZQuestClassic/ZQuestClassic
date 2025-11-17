@@ -5127,8 +5127,12 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				return qe_invalid;
 		}
 		if(s_version > 23)
+		{
 			if(!p_igetw(&tempDMap.map_subscreen, f))
 				return qe_invalid;
+			if(!p_getc(&tempDMap.floor, f))
+				return qe_invalid;
+		}
 
 		if (!should_skip)
 		{

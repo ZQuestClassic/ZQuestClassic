@@ -175,6 +175,14 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGREQUNOWNITEMS
 	internal bool RequiredUnownedItems[];
 	
+	// The current dmap's [dmapdata::Floor] must be true in this array (or every index of
+	// this array must be false) for the widget to be active/visible.
+	//
+	// @index 0-255
+	//
+	// @zasm_var SUBWIDGREQDMAPFLOOR
+	internal bool RequiredDMapFloors[];
+	
 	// The counter this widget requires to be active/visible.
 	// Must relate to the [RequiredCounterValue] based on the [RequiredCounterCond].
 	// - If [CR_NONE], no requirement will be checked.

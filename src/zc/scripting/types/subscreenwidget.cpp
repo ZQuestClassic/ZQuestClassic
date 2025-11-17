@@ -262,6 +262,25 @@ static ArrayRegistrar SUBWIDGREQUNOWNITEMS_registrar(SUBWIDGREQUNOWNITEMS, []{
 	return &impl;
 }());
 
+static ArrayRegistrar SUBWIDGREQDMAPFLOOR_registrar(SUBWIDGREQDMAPFLOOR, []{
+	static ScriptingArray_ObjectComputed<SubscrWidget, bool> impl(
+		[](SubscrWidget* widg){
+			return 256;
+		},
+		[](SubscrWidget* widg, int index) -> bool {
+			return widg->req_dmap_floors.contains(index);
+		},
+		[](SubscrWidget* widg, int index, bool value){
+			if (value)
+				widg->req_dmap_floors.insert(index);
+			else
+				widg->req_dmap_floors.erase(index);
+		}
+	);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar SUBWIDGPOSES_registrar(SUBWIDGPOSES, []{
 	static ScriptingArray_ObjectComputed<SubscrWidget, int> impl(
 		[](SubscrWidget* widg){
