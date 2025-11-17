@@ -3298,6 +3298,12 @@ enum ASM_DEFINE
 #define GAMEMSUBOPEN                   0x1674
 #define DMAPDATAFLOOR                  0x1675
 #define SUBWIDGREQDMAPFLOOR            0x1676
+#define SUBWIDGREQLSTATELEVEL          0x1677
+#define SUBWIDGREQMAP                  0x1678
+#define SUBWIDGREQSCREEN               0x1679
+#define SUBWIDGREQSCREENSTATE          0x167A
+#define SUBWIDGREQEXSTATE              0x167B
+#define SUBWIDGREQLSTATE               0x167C
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7
 // Note: define new variables in above unused block

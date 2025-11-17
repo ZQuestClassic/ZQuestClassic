@@ -1262,7 +1262,13 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SUBWIDGREQDMAPFLOOR: return "subscreenwidget::RequiredDMapFloors[]";
 		case SUBWIDGREQLITEMLEVEL: return "subscreenwidget::RequiredLItemLevel";
 		case SUBWIDGREQLITEMS: return "subscreenwidget::RequiredLItems";
+		case SUBWIDGREQLSTATELEVEL: return "subscreenwidget::RequiredLStateLevel";
+		case SUBWIDGREQLSTATE: return "subscreenwidget::RequiredLStates[]";
 		case SUBWIDGREQOWNITEMS: return "subscreenwidget::RequiredOwnedItems[]";
+		case SUBWIDGREQEXSTATE: return "subscreenwidget::RequiredScreenExStates[]";
+		case SUBWIDGREQMAP: return "subscreenwidget::RequiredScreenStateMap";
+		case SUBWIDGREQSCREEN: return "subscreenwidget::RequiredScreenStateScreen";
+		case SUBWIDGREQSCREENSTATE: return "subscreenwidget::RequiredScreenStates[]";
 		case SUBWIDGREQUNOWNITEMS: return "subscreenwidget::RequiredUnownedItems[]";
 		case SUBWIDGREQSCRIPTDISABLED: return "subscreenwidget::ScriptDisabled";
 		case SUBWIDGSELECTORASPD: return "subscreenwidget::SelectorASpeed[]";

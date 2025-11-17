@@ -211,6 +211,7 @@ class subscreenwidget {
 	internal int RequiredCounterValue;
 	
 	// The Level Items that are required to be owned (or unowned, if [SUBW_GENFL_REQ_INVERT_LITEM] is set)
+	// If [SUBW_GENFL_REQ_ANY_LITEM] is set, any state is required instead of every state.
 	//
 	// @value [enum LevelItemBitflags]
 	//
@@ -222,6 +223,46 @@ class subscreenwidget {
 	//
 	// @zasm_var SUBWIDGREQLITEMLEVEL
 	internal int RequiredLItemLevel;
+	
+	// The Level States that are required to be set (or unset, if [SUBW_GENFL_REQ_INVERT_LSTATE] is set)
+	// If [SUBW_GENFL_REQ_ANY_LSTATE] is set, any state is required instead of every state.
+	//
+	// @index 0-31
+	//
+	// @zasm_var SUBWIDGREQLSTATE
+	internal bool RequiredLStates[];
+	
+	// The Level that [RequiredLStates] are checked for. If set to '-1', uses the
+	// current level.
+	//
+	// @zasm_var SUBWIDGREQLSTATELEVEL
+	internal int RequiredLStateLevel;
+	
+	// The Map to require screen states or exstates for.
+	//
+	// @zasm_var SUBWIDGREQMAP
+	internal int RequiredScreenStateMap;
+	
+	// The Map to require screen states or exstates for. If '-1', uses the current map+screen, ignoring [RequiredScreenStateMap].
+	//
+	// @zasm_var SUBWIDGREQSCREEN
+	internal int RequiredScreenStateScreen;
+	
+	// The Screen States that are required to be set (or unset, if [SUBW_GENFL_REQ_INVERT_SCRSTATE] is set)
+	// If [SUBW_GENFL_REQ_ANY_SCRSTATE] is set, any state is required instead of every state.
+	//
+	// @index [enum ScreenState]
+	//
+	// @zasm_var SUBWIDGREQSCREENSTATE
+	internal bool RequiredScreenStates[];
+	
+	// The Screen ExStates that are required to be set (or unset, if [SUBW_GENFL_REQ_INVERT_SCRSTATE] is set)
+	// If [SUBW_GENFL_REQ_ANY_SCRSTATE] is set, any state is required instead of every state.
+	//
+	// @index 0-31
+	//
+	// @zasm_var SUBWIDGREQEXSTATE
+	internal bool RequiredScreenExStates[];
 	
 	// If set to 'true', the widget will not be active/visible.
 	//

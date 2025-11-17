@@ -292,7 +292,13 @@ enum //subscreen text alignment
 #define SUBSCRFLAG_REQ_COUNTER_PERC        0x00000010
 #define SUBSCRFLAG_REQ_INVERT_LITEM        0x00000020
 #define SUBSCRFLAG_PGGOTO_SWAPMAPSUBSCR    0x00000040
-#define SUBSCRFLAG_GEN_COUNT 7
+#define SUBSCRFLAG_REQ_INVERT_SCRSTATE     0x00000080
+#define SUBSCRFLAG_REQ_ANY_ITEM            0x00000100
+#define SUBSCRFLAG_REQ_ANY_LITEM           0x00000200
+#define SUBSCRFLAG_REQ_ANY_SCRSTATE        0x00000400
+#define SUBSCRFLAG_REQ_INVERT_LSTATE       0x00000800
+#define SUBSCRFLAG_REQ_ANY_LSTATE          0x00001000
+#define SUBSCRFLAG_GEN_COUNT 13
 
 #define SUBSCRFLAG_SPEC_01            0x00000001
 #define SUBSCRFLAG_SPEC_02            0x00000002
@@ -344,12 +350,19 @@ struct SubscrWidget
 	std::set<byte> req_unowned_items;
 	std::set<byte> req_dmap_floors;
 	
+	word req_map = 0;
+	int16_t req_scr = 0;
+	dword req_scrstate = 0, req_exstate = 0;
+	
 	int16_t req_counter = crNONE;
 	word req_counter_val;
 	byte req_counter_cond_type = CONDTY_NONE;
 	
 	word req_litems;
 	int16_t req_litem_level = -1;
+	
+	int16_t req_lstate_level = -1;
+	dword req_lvlstate = 0;
 	
 	bool is_disabled;
 	

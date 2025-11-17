@@ -1416,6 +1416,12 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 	req_counter_cond_type = src->req_counter_cond_type;
 	req_litems = src->req_litems;
 	req_litem_level = src->req_litem_level;
+	req_map = src->req_map;
+	req_scr = src->req_scr;
+	req_scrstate = src->req_scrstate;
+	req_exstate = src->req_exstate;
+	req_lvlstate = src->req_lvlstate;
+	req_lstate_level = src->req_lstate_level;
 	is_disabled = src->is_disabled;
 	if(all)
 	{
@@ -1576,6 +1582,18 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 					return qe_invalid;
 				req_dmap_floors.insert(iid);
 			}
+			if(!p_igetw(&req_map, f))
+				return qe_invalid;
+			if(!p_igetw(&req_scr, f))
+				return qe_invalid;
+			if(!p_igetl(&req_scrstate, f))
+				return qe_invalid;
+			if(!p_igetl(&req_exstate, f))
+				return qe_invalid;
+			if(!p_igetl(&req_lvlstate, f))
+				return qe_invalid;
+			if(!p_igetw(&req_lstate_level, f))
+				return qe_invalid;
 		}
 	}
 	
@@ -1678,6 +1696,18 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 	for(byte floor : req_dmap_floors)
 		if(!p_putc(floor,f))
 			new_return(1);
+	if(!p_iputw(req_map, f))
+		new_return(1);
+	if(!p_iputw(req_scr, f))
+		new_return(1);
+	if(!p_iputl(req_scrstate, f))
+		new_return(1);
+	if(!p_iputl(req_exstate, f))
+		new_return(1);
+	if(!p_iputl(req_lvlstate, f))
+		new_return(1);
+	if(!p_iputw(req_lstate_level, f))
+		new_return(1);
 	return 0;
 }
 void SubscrWidget::check_btns(byte btnflgs, ZCSubscreen& parent) const
@@ -1695,11 +1725,21 @@ bool SubscrWidget::check_conditions() const
 #ifdef IS_PLAYER
 	if(is_disabled) // script-disable condition
 		return false;
+	bool pass_cond = !(genflags&SUBSCRFLAG_REQ_ANY_ITEM);
 	for(auto iid : req_owned_items)
 	{
-		if(!game->get_item(iid) || !checkbunny(iid) || item_disabled(iid))
+		if (genflags&SUBSCRFLAG_REQ_ANY_ITEM) // require at least one
+		{
+			if(game->get_item(iid) && checkbunny(iid) && !item_disabled(iid))
+			{
+				pass_cond = true;
+				break;
+			}
+		}
+		else if(!game->get_item(iid) || !checkbunny(iid) || item_disabled(iid)) // require all
 			return false;
 	}
+	if (!pass_cond) return false;
 	for(auto iid : req_unowned_items)
 	{
 		if(game->get_item(iid) && checkbunny(iid) && !item_disabled(iid))
@@ -1750,7 +1790,66 @@ bool SubscrWidget::check_conditions() const
 		{
 			bool inverted = genflags&SUBSCRFLAG_REQ_INVERT_LITEM;
 			auto litems = game->lvlitems[target_lvl]&req_litems;
-			if(inverted ? litems != 0 : litems != req_litems)
+			if (genflags&SUBSCRFLAG_REQ_ANY_LITEM) // require at least one
+			{
+				if(inverted ? litems == req_litems : litems == 0)
+					return false;
+			}
+			else if(inverted ? litems != 0 : litems != req_litems) // require all
+				return false;
+		}
+	}
+	if ((req_map || req_scr < 0) && (req_scrstate || req_exstate))
+	{
+		int m = req_scr < 0 ? cur_map : req_map;
+		int s = req_scr < 0 ? home_screen : req_scr;
+		if (m > 0 && unsigned(s) < MAPSCRSNORMAL)
+		{
+			bool invert = (genflags&SUBSCRFLAG_REQ_INVERT_SCRSTATE);
+			bool any_state = (genflags&SUBSCRFLAG_REQ_ANY_SCRSTATE);
+			auto mi = mapind(m-1, s);
+			auto sstate = game->maps[mi] & req_scrstate;
+			auto exstate = game->xstates[mi] & req_exstate;
+			if (any_state)
+			{
+				if (invert)
+				{
+					if (sstate == req_scrstate && exstate == req_exstate)
+						return false;
+				}
+				else if (!(sstate || exstate))
+					return false;
+			}
+			else
+			{
+				if (invert)
+				{
+					if (sstate || exstate)
+						return false;
+				}
+				else
+				{
+					if (sstate != req_scrstate)
+						return false;
+					if (exstate != req_exstate)
+						return false;
+				}
+			}
+		}
+	}
+	if (req_lvlstate)
+	{
+		int lvl = req_lstate_level < 0 ? dlevel : req_lstate_level;
+		if (unsigned(lvl) < MAXLEVELS)
+		{
+			bool inverted = genflags&SUBSCRFLAG_REQ_INVERT_LSTATE;
+			auto lstates = game->lvlswitches[lvl] & req_lvlstate;
+			if (genflags&SUBSCRFLAG_REQ_ANY_LSTATE) // require at least one
+			{
+				if(inverted ? lstates == req_lvlstate : lstates == 0)
+					return false;
+			}
+			else if(inverted ? lstates != 0 : lstates != req_lvlstate) // require all
 				return false;
 		}
 	}

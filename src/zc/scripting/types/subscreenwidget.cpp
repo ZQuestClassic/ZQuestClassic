@@ -281,6 +281,22 @@ static ArrayRegistrar SUBWIDGREQDMAPFLOOR_registrar(SUBWIDGREQDMAPFLOOR, []{
 	return &impl;
 }());
 
+static ArrayRegistrar SUBWIDGREQSCREENSTATE_registrar(SUBWIDGREQSCREENSTATE, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidget, &SubscrWidget::req_scrstate, mMAXIND> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+static ArrayRegistrar SUBWIDGREQEXSTATE_registrar(SUBWIDGREQEXSTATE, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidget, &SubscrWidget::req_exstate, 32> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+static ArrayRegistrar SUBWIDGREQLSTATE_registrar(SUBWIDGREQLSTATE, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidget, &SubscrWidget::req_lvlstate, 32> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar SUBWIDGPOSES_registrar(SUBWIDGPOSES, []{
 	static ScriptingArray_ObjectComputed<SubscrWidget, int> impl(
 		[](SubscrWidget* widg){

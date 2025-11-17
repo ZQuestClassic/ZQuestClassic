@@ -9491,6 +9491,24 @@ int32_t get_register(int32_t arg)
 				ret = 10000 * widg->req_litem_level;
 			break;
 		}
+		case SUBWIDGREQLSTATELEVEL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+				ret = 10000 * widg->req_lstate_level;
+			break;
+		}
+		case SUBWIDGREQMAP:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+				ret = 10000 * widg->req_map;
+			break;
+		}
+		case SUBWIDGREQSCREEN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+				ret = 10000 * widg->req_scr;
+			break;
+		}
 		case SUBWIDGREQSCRIPTDISABLED:
 		{
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
@@ -16628,6 +16646,24 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
 				widg->req_litem_level = vbound(value/10000,-1,MAXLEVELS);
+			break;
+		}
+		case SUBWIDGREQLSTATELEVEL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+				widg->req_lstate_level = vbound(value/10000,-1,MAXLEVELS);
+			break;
+		}
+		case SUBWIDGREQMAP:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+				widg->req_map = vbound(value/10000,0,map_count);
+			break;
+		}
+		case SUBWIDGREQSCREEN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+				widg->req_scr = vbound(value/10000,-1,MAPSCRSNORMAL-1);
 			break;
 		}
 		case SUBWIDGREQSCRIPTDISABLED:

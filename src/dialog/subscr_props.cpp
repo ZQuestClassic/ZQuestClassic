@@ -1874,38 +1874,51 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	updateConditions();
 	const auto btnsz = 32_px;
 	std::shared_ptr<GUI::List> cond_itms_list;
-	std::shared_ptr<GUI::Grid> litem_grid;
 	tpan->add(TabRef(name = "Conditions",
 		TabPanel(ptr = &sprop_tab_cond,
 			TabRef(name = "Items",
-				Columns<4>(
-					Row(padding = 0_px,
-						Label(text = "Required Owned Items"),
-						INFOBTN("Widget will not exist unless these items are owned.")
+				Columns<2>(
+					Column(
+						Row(padding = 0_px,
+							Label(text = "Required Owned Items"),
+							INFOBTN("Widget will not exist unless these items are owned.")
+						),
+						req_item_list = List(minheight = 100_px,
+							data = list_reqitems,
+							focused = true,
+							selectedValue = cond_item_sels[CI_REQ],
+							onSelectFunc = [&](int32_t val)
+							{
+								cond_item_sels[CI_REQ] = val;
+							}
+						),
+						Rows<2>(
+							INFOBTN("If checked, 'Require Owned Items' will be satisfied if any one of the items is owned, rather than requiring all of them."),
+							Checkbox(
+								text = "Req Any Item", hAlign = 0.0,
+								checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_ITEM,
+								onToggleFunc = [=](bool state)
+								{
+									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_ITEM,state);
+								})
+						)
 					),
-					req_item_list = List(minheight = 100_px,
-						data = list_reqitems,
-						focused = true,
-						selectedValue = cond_item_sels[CI_REQ],
-						onSelectFunc = [&](int32_t val)
-						{
-							cond_item_sels[CI_REQ] = val;
-						}
+					Column(
+						Row(padding = 0_px,
+							Label(text = "Required Unowned Items"),
+							INFOBTN("Widget will not exist if any of these items are owned.")
+						),
+						req_not_item_list = List(minheight = 100_px,
+							data = list_reqnotitems,
+							focused = true,
+							selectedValue = cond_item_sels[CI_REQ_NOT],
+							onSelectFunc = [&](int32_t val)
+							{
+								cond_item_sels[CI_REQ_NOT] = val;
+							}
+						)
 					),
-					Row(padding = 0_px,
-						Label(text = "Required Unowned Items"),
-						INFOBTN("Widget will not exist if any of these items are owned.")
-					),
-					req_not_item_list = List(minheight = 100_px,
-						data = list_reqnotitems,
-						focused = true,
-						selectedValue = cond_item_sels[CI_REQ_NOT],
-						onSelectFunc = [&](int32_t val)
-						{
-							cond_item_sels[CI_REQ_NOT] = val;
-						}
-					),
-					Column(rowSpan = 2,
+					Column(
 						Button(type = GUI::Button::type::ICON,
 							icon = BTNICON_ARROW_LEFT,
 							width = btnsz, height = btnsz,
@@ -1923,7 +1936,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								updateConditions();
 							})
 					),
-					Column(rowSpan = 2,
+					Column(
 						Button(type = GUI::Button::type::ICON,
 							icon = BTNICON_ARROW_LEFT,
 							width = btnsz, height = btnsz,
@@ -1941,22 +1954,24 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								updateConditions();
 							})
 					),
-					Label(text = "Items"),
-					cond_itms_list = List(minheight = 300_px, fitParent = true, rowSpan = 3,
-						data = list_items_no_none.filter([&](GUI::ListItem& itm)
+					Column(rowSpan = 2,
+						Label(text = "Items"),
+						cond_itms_list = List(minheight = 300_px, fitParent = true,
+							data = list_items_no_none.filter([&](GUI::ListItem& itm)
+								{
+									if(itm.value < 0 || itm.value >= MAXITEMS)
+										return false;
+									itemdata const& idata = itemsbuf[itm.value];
+									return bool(idata.flags & item_gamedata); // only ownable items are usable
+								}),
+							isABC = true,
+							focused = true,
+							selectedIndex = 0,
+							onSelectFunc = [&](int32_t val)
 							{
-								if(itm.value < 0 || itm.value >= MAXITEMS)
-									return false;
-								itemdata const& idata = itemsbuf[itm.value];
-								return bool(idata.flags & item_gamedata); // only ownable items are usable
-							}),
-						isABC = true,
-						focused = true,
-						selectedIndex = 0,
-						onSelectFunc = [&](int32_t val)
-						{
-							cond_item_sels[CI_PICKED] = val;
-						}
+								cond_item_sels[CI_PICKED] = val;
+							}
+						)
 					)
 				)
 			),
@@ -2035,33 +2050,100 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								})
 						)
 					),
-					Frame(title = "Level Items", info = "All checked LItems are required, unless 'Invert' is checked, then it is required to have none instead.",
-						Row(
-							litem_grid = Rows_Columns<2, li_max/2>(),
-							Rows<3>(
-								Label(text = "For Level:"),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -1, high = MAXLEVELS, val = local_subref->req_litem_level,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_subref->req_litem_level = val;
-									}),
-								INFOBTN("The required litems will be for this specified level. Specifying '-1' will require the items"
-									" for the *current* level."),
-								Checkbox(
-									text = "Invert", hAlign = 1.0, colSpan = 2,
-									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
-									checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_LITEM,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_LITEM,state);
-									}
-								),
-								INFOBTN("If checked, it will be required to have NONE of the LItems instead of ALL of the LItems.")
-							)
+					Frame(title = "Level Items", info = "All checked LItems are required, unless 'Invert' is checked, then it is required to have none instead."
+						"\nIf 'Any' is checked, then any checked LItem will satisfy the requirement - or if 'Invert' is also checked, then being missing any checked LItem will satisfy it.",
+						Rows<3>(
+							Button(colSpan = 3, text = "Pick LItems",
+								onPressFunc = [&]()
+								{
+									int32_t flags = local_subref->req_litems;
+									auto const litem_names = GUI::ZCCheckListData::level_items();
+									if(!call_checklist_dialog("Select 'Level Items'",litem_names,flags))
+										return;
+									local_subref->req_litems = flags;
+								}
+							),
+							//
+							Label(text = "For Level:"),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -1, high = MAXLEVELS, val = local_subref->req_litem_level,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_subref->req_litem_level = val;
+								}),
+							INFOBTN("The required litems will be for this specified level. Specifying '-1' will require the items"
+								" for the *current* level."),
+							Checkbox(
+								text = "Invert", hAlign = 1.0, colSpan = 2,
+								boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+								checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_LITEM,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_LITEM,state);
+								}
+							),
+							INFOBTN("If checked, it will be required to have NONE of the LItems instead of ALL of the LItems."),
+							Checkbox(
+								text = "Any", hAlign = 1.0, colSpan = 2,
+								boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+								checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_LITEM,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_LITEM,state);
+								}
+							),
+							INFOBTN("If checked, it will be required to have ANY of the LItems instead of ALL of the LItems.")
+						)
+					),
+					Frame(title = "Level States", info = "All checked Level States are required, unless 'Invert' is checked, then it is required to have none instead."
+						"\nIf 'Any' is checked, then any checked Level State will satisfy the requirement - or if 'Invert' is also checked, then being missing any checked Level State will satisfy it.",
+						Rows<3>(
+							Button(colSpan = 3, text = "Pick Level States",
+								onPressFunc = [&]()
+								{
+									int32_t flags = local_subref->req_lvlstate;
+									auto const lstate_names = GUI::ZCCheckListData::level_states();
+									if(!call_checklist_dialog("Select 'Level States'",lstate_names,flags))
+										return;
+									local_subref->req_lvlstate = flags;
+								}
+							),
+							//
+							Label(text = "For Level:"),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -1, high = MAXLEVELS, val = local_subref->req_lstate_level,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_subref->req_lstate_level = val;
+								}),
+							INFOBTN("The required level states will be for this specified level. Specifying '-1' will require the states"
+								" for the *current* level."),
+							Checkbox(
+								text = "Invert", hAlign = 1.0, colSpan = 2,
+								boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+								checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_LSTATE,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_LSTATE,state);
+								}
+							),
+							INFOBTN("If checked, it will be required to have NONE of the Level States instead of ALL of the Level States."),
+							Checkbox(
+								text = "Any", hAlign = 1.0, colSpan = 2,
+								boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+								checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_LSTATE,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_LSTATE,state);
+								}
+							),
+							INFOBTN("If checked, it will be required to have ANY of the Level States instead of ALL of the Level States.")
 						)
 					)
 				)
@@ -2114,20 +2196,83 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									})
 							)
 						)
+					),
+					Frame(title = "Screen State Requirement", info = "If 'Screen' is '-1', the current screen will be checked."
+						"\nOtherwise, if 'Map' is 0, nothing will be checked."
+						"\nIf no 'Req States' or 'Req ExStates' are set, nothing will be checked."
+						"\nBy default, ALL checked states and exstates are required. If 'Invert' is checked, having NONE is required."
+						"\nIf 'Any' is checked, then having ANY of the checked states is enough. Unless 'Invert' is also checked, then you must be missing any of them.",
+						Column(
+							Row(
+								Label(text = "Map:"),
+								TextField(
+									type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+									low = 0, high = map_count,
+									val = local_subref->req_map, minwidth = 4_em,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_subref->req_map = val;
+									}),
+								Label(text = "Screen:"),
+								TextField(
+									type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+									low = -1, high = MAPSCRSNORMAL-1,
+									val = local_subref->req_scr, swap_type = nswapHEX,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_subref->req_scr = val;
+									})
+							),
+							Row(
+								Button(text = "Pick Screen States",
+									onPressFunc = [&]()
+									{
+										int32_t flags = local_subref->req_scrstate;
+										auto const scrstate_names = GUI::ZCCheckListData::screen_state();
+										if(!call_checklist_dialog("Select 'Screen States'",scrstate_names,flags))
+											return;
+										local_subref->req_scrstate = flags;
+									}
+								),
+								Button(text = "Pick Ex States",
+									onPressFunc = [&]()
+									{
+										int32_t flags = local_subref->req_exstate;
+										auto const exstate_names = GUI::ZCCheckListData::ex_state();
+										if(!call_checklist_dialog("Select 'Ex States'",exstate_names,flags))
+											return;
+										local_subref->req_exstate = flags;
+									}
+								)
+							),
+							Rows<2>(hAlign = 1.0,
+								Checkbox(
+									text = "Invert", hAlign = 1.0,
+									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_SCRSTATE,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_SCRSTATE,state);
+									}
+								),
+								INFOBTN("If checked, it will be required to have NONE of the Screen States/ExStates instead of ALL of the Screen States/ExStates."),
+								Checkbox(
+									text = "Any", hAlign = 1.0,
+									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_SCRSTATE,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_SCRSTATE,state);
+									}
+								),
+								INFOBTN("If checked, it will be required to have ANY of the Screen States/ExStates instead of ALL of the Screen States/ExStates.")
+							)
+						)
 					)
 				)
 			)
 		)
 	));
-	// handle litems
-	{
-		for (int q = 0; q < li_max; ++q)
-		{
-			auto* helpstr = ZI.getLevelItemHelp(q);
-			litem_grid->add(helpstr && helpstr[0] ? INFOBTN(helpstr) : DINFOBTN());
-			litem_grid->add(CBOX(local_subref->req_litems, (1 << q), ZI.getLevelItemName(q), 1));
-		}
-	}
 	tpan->add(TabRef(name = "Script",
 		Row(
 			Label(text = "Label:"),
