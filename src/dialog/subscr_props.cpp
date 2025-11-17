@@ -80,6 +80,7 @@ const GUI::ListData list_pgmode
 	{ "Next", PGGOTO_NEXT },
 	{ "Prev", PGGOTO_PREV },
 	{ "Target", PGGOTO_TRG },
+	{ "To Current", PGGOTO_CURRENT },
 };
 static const GUI::ListData list_condty
 {

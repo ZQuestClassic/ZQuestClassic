@@ -7050,9 +7050,9 @@ void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& tran
 			if(targ < dest->pages.size())
 				pg = targ;
 			break;
+		case PGGOTO_CURRENT:
+			break; // don't change the page
 	}
-	if(pg == curpage && dest == this)
-		return;
 	if(!dest->wrap_pg(pg,nowrap))
 		return;
 	subscrpg_animate(curpage,pg,trans,*this,*dest);
