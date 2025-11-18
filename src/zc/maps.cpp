@@ -2060,35 +2060,40 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					}
 				}
 
-				auto found_ffc_not_water = find_ffc([&](const ffc_handle_t& ffc_handle) {
+				bool found_land = false;
+				bool found_water = false;
+				ffc_handle_t water_ffc_handle;
+				find_ffc([&](const ffc_handle_t& ffc_handle) {
 					if (ffcIsAt(ffc_handle, tx2, ty2))
 					{
 						auto ty = ffc_handle.ctype();
-						if(!combo_class_buf[ty].water && !(ShallowCheck && ty == cSHALLOWWATER))
+						bool is_water_type = combo_class_buf[ty].water || (ShallowCheck && ty == cSHALLOWWATER);
+
+						if (!is_water_type) 
+						{
+							found_land = true;
 							return true;
+						}
+						else
+						{
+							// A later FFC might be land, in which case the water will be ignored.
+							if (!found_water)
+							{
+								water_ffc_handle = ffc_handle;
+								found_water = true;
+							}
+						}
 					}
 
 					return false;
 				});
-				if (found_ffc_not_water) return 0;
 
-				if(!i)
+				if (found_land) return 0;
+
+				if (!i && found_water)
 				{
-					auto found_ffc_water = find_ffc([&](const ffc_handle_t& ffc_handle) {
-						if (ffcIsAt(ffc_handle, tx2, ty2))
-						{
-							auto ty = ffc_handle.ctype();
-							if(combo_class_buf[ty].water || (ShallowCheck && ty == cSHALLOWWATER))
-								return true;
-						}
-
-						return false;
-					});
-					if (found_ffc_water)
-					{
-						if(out_handle) *out_handle = *found_ffc_water;
-						return found_ffc_water->data();
-					}
+					if (out_handle) *out_handle = water_ffc_handle;
+					return water_ffc_handle.data();
 				}
 
 				int32_t checkcombo = MAPCOMBO3(map, screen, layer, tx2, ty2, secrets);
