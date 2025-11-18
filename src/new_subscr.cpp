@@ -1763,7 +1763,7 @@ bool SubscrWidget::check_conditions() const
 		return false;
 	if (!(req_dmaps.empty() || req_dmaps.contains(curdm)))
 		return false;
-	if (!(req_maps.empty() || req_maps.contains(cur_map-1)))
+	if (!(req_maps.empty() || req_maps.contains(cur_map+1)))
 		return false;
 	if (!(req_screens.empty() || req_screens.contains(home_screen)))
 		return false;
