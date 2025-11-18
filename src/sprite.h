@@ -167,6 +167,7 @@ public:
     int32_t real_z(zfix fz);
     int32_t fake_z(zfix fz);
 	zfix total_z() const;
+	zfix draw_y() const;
 	zfix center_y() const;
     virtual bool hit();
     virtual bool hit(sprite *s);
