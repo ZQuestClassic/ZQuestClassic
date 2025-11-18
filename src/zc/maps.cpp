@@ -943,25 +943,26 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
     return combobuf[m->data[pos]].flag;
 }
 
-
 // True if the FFC covers x, y and is not ethereal or a changer.
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
 {
-	if (ffc_handle.data()<=0)
-        return false;
+	if (ffc_handle.data() <= 0)
+		return false;
 
-    if((ffc_handle.ffc->flags&(ffc_changer|ffc_ethereal))!=0)
-        return false;
+	if((ffc_handle.ffc->flags&(ffc_changer|ffc_ethereal))!=0)
+		return false;
 
-    int32_t fx=ffc_handle.ffc->x.getInt();
-    if(x<fx || x>fx+(ffc_handle.scr->ffEffectWidth(ffc_handle.i)-1)) // FFC sizes are weird.
-        return false;
-    
-    int32_t fy=ffc_handle.ffc->y.getInt();
-    if(y<fy || y>fy+(ffc_handle.scr->ffEffectHeight(ffc_handle.i)-1))
-        return false;
+	int32_t fx = ffc_handle.ffc->x.getInt();
+	int32_t w = ffc_handle.scr->ffEffectWidth(ffc_handle.i) - 1;
+	if (static_cast<uint32_t>(x - fx) > static_cast<uint32_t>(w))
+		return false;
 
-    return true;
+	int32_t fy = ffc_handle.ffc->y.getInt();
+	int32_t h = ffc_handle.scr->ffEffectHeight(ffc_handle.i) - 1;
+	if (static_cast<uint32_t>(y - fy) > static_cast<uint32_t>(h))
+		return false;
+
+	return true;
 }
 
 int32_t MAPFFCOMBO(int32_t x,int32_t y)

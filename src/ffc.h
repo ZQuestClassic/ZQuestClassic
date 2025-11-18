@@ -45,9 +45,10 @@ typedef uint16_t ffc_id_t;
 class ffcdata : public sprite
 {
 public:
+	word data;
+	ffc_flags flags;
 	uint16_t index;
 	zfix ax, ay;
-	ffc_flags flags;
 	word delay;
 	byte cset;
 	ffc_id_t link;
@@ -59,7 +60,6 @@ public:
 	int32_t prev_changer_x = -10000000, prev_changer_y = -10000000;
 	cpos_info info;
 	bool script_wait_draw;
-	word data;
 	int8_t layer = 1;
 	
 	ffcdata() = default;
