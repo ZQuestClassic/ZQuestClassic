@@ -2540,6 +2540,130 @@ void overtile16_scale(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset
 	destroy_bitmap(tmp);
 }
 
+static void draw_tile16_cs2_fast(BITMAP *dest, const byte *si, int32_t x, int32_t y, int32_t cset[], int32_t flip, bool over)
+{
+	// Vertical flip.
+	bool v_flip = (flip & 2);
+	int i_first = v_flip ? 2 : 0; // Index for the first 8 rows processed
+	int i_last  = v_flip ? 0 : 2; // Index for the last 8 rows processed
+
+	// We need to combine two 8-byte colors into one 16-byte register.
+	// Low 64 bits = Left 8 pixels, High 64 bits = Right 8 pixels.
+
+	// Top half colors (cset[0] left, cset[1] right)
+	__m128i c0 = _mm_set1_epi8((char)cset[i_first]);
+	__m128i c1 = _mm_set1_epi8((char)cset[i_first + 1]);
+	__m128i top_colors = _mm_unpacklo_epi64(c0, c1); 
+
+	// Bottom half colors (cset[2] left, cset[3] right).
+	__m128i c2 = _mm_set1_epi8((char)cset[i_last]);
+	__m128i c3 = _mm_set1_epi8((char)cset[i_last + 1]);
+	__m128i bot_colors = _mm_unpacklo_epi64(c2, c3);
+
+	const uint8_t* src_ptr = si;
+
+	// Pre-calculate the zero vector for transparency checks.
+	__m128i zero = _mm_setzero_si128();
+
+	for (int dy = 0; dy < 16; ++dy)
+	{
+		// Calculate destination pointer
+		// If vertical flip: Map source row 0 to dest row 15.
+		int dest_y_offset = v_flip ? (15 - dy) : dy;
+		uint8_t* d_ptr = dest->line[y + dest_y_offset] + x;
+
+		// Select the correct color set for this row.
+		// Rows 0-7 use top_colors, Rows 8-15 use bot_colors.
+		__m128i color_vec = (dy < 8) ? top_colors : bot_colors;
+
+		// Load source pixels (unaligned).
+		__m128i src_pixels = _mm_loadu_si128((const __m128i*)src_ptr);
+
+		// Apply colors.
+		__m128i out_pixels = _mm_add_epi8(src_pixels, color_vec);
+
+		if (over)
+		{
+			// Transparency.
+			// Check where source is zero (0xFF where zero, 0x00 where pixel exists).
+			__m128i is_zero = _mm_cmpeq_epi8(src_pixels, zero);
+
+			// Load existing background.
+			__m128i bg_pixels = _mm_loadu_si128((const __m128i*)d_ptr);
+
+			// Combine: (Background AND Mask) OR (NewPixel AND NOT Mask)
+			__m128i result = _mm_or_si128(
+				_mm_and_si128(is_zero, bg_pixels),
+				_mm_andnot_si128(is_zero, out_pixels)
+			);
+
+			_mm_storeu_si128((__m128i*)d_ptr, result);
+		}
+		else
+		{
+			// Opaque (simply overwrite).
+			_mm_storeu_si128((__m128i*)d_ptr, out_pixels);
+		}
+
+		src_ptr += 16;
+	}
+}
+
+static void draw_tile16_cs2_safe(BITMAP *dest, int cl, int ct, int cr, int cb, const byte *si, int32_t x, int32_t y, int32_t cset[], int32_t flip, bool over)
+{
+	// Clip.
+	int start_x = 0;
+	int end_x = 16;
+	if (x < cl) start_x = cl - x;
+	if (x + 16 > cr) end_x = cr - x;
+	if (start_x >= end_x) return;
+
+	int clip_top = (ct > 0) ? ct : 0;
+	int clip_bottom = (cb < dest->h) ? cb : dest->h;
+	int visible_y_start = (clip_top > y) ? clip_top : y;
+	int visible_y_end = (clip_bottom < y + 16) ? clip_bottom : y + 16;
+	if (visible_y_start >= visible_y_end) return;
+
+	bool v_flip = (flip & 2);
+
+	for (int dest_y = visible_y_start; dest_y < visible_y_end; ++dest_y)
+	{
+		// Calculate relative Y (0..15) inside the tile
+		int rel_y = dest_y - y;
+
+		// Calculate source Y based on flip
+		int src_y = v_flip ? (15 - rel_y) : rel_y;
+
+		// Point to the start of the source row
+		const byte *src_row = si + (src_y * 16);
+		uint8_t *d_ptr = dest->line[dest_y] + x;
+
+		// Select row colors based on relative Y
+		// If rel_y < 8, we are in the top quadrants (cset 0/1)
+		// If rel_y >= 8, we are in the bottom quadrants (cset 2/3)
+		int cs_left, cs_right;
+		if (rel_y < 8) {
+			cs_left = cset[0]; cs_right = cset[1];
+		} else {
+			cs_left = cset[2]; cs_right = cset[3];
+		}
+
+		// Draw the row loop, handling the Left/Right split manually
+		// to avoid "dx < 8" checks inside the loop.
+		for (int dx = start_x; dx < end_x; ++dx)
+		{
+			// Select color based on column (Left 8 or Right 8)
+			int cs = (dx < 8) ? cs_left : cs_right;
+			
+			byte val = src_row[dx];
+			if (!over || val) 
+			{
+				d_ptr[dx] = val + cs;
+			}
+		}
+	}
+}
+
 void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[],int32_t flip,bool over)
 {
 	int cl = 0;
@@ -2563,84 +2687,32 @@ void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[]
 	if (y > cb)
 		return;
 
-    if(tile<0 || tile>=NEWMAXTILES)
-    {
-        rectfill(dest,x,y,x+15,y+15,0);
-        return;
-    }
+	if(tile<0 || tile>=NEWMAXTILES)
+	{
+		rectfill(dest,x,y,x+15,y+15,0);
+		return;
+	}
 
-    if (blank_tile_table[tile])
-    {
-        if(!over)
-            rectfill(dest, x, y, x + 15, y + 15, 0);
-        return;
-    }
+	if (blank_tile_table[tile])
+	{
+		if(!over)
+			rectfill(dest, x, y, x + 15, y + 15, 0);
+		return;
+	}
 
-    if(newtilebuf[tile].format>tf4Bit)
-        cset[0]=cset[1]=cset[2]=cset[3]=0;
+	if(newtilebuf[tile].format>tf4Bit)
+		cset[0]=cset[1]=cset[2]=cset[3]=0;
 	else for(int q = 0; q < 4; ++q)
 		cset[q] <<= CSET_SHFT;
 
-    const byte* si = get_tile_bytes(tile, flip&5);
+	const byte* si = get_tile_bytes(tile, flip&5);
 
-	bool vflip = (flip&2);
-	for(int dx = 0; dx < 16; ++dx)
-		for(int dy = 0; dy < 16; ++dy)
-		{
-			int tx = x+dx, ty = y+dy;
-			if(tx < cl || tx >= cr || ty < ct || ty >= cb)
-				continue;
-			int cs = cset[(dx<8?0:1)|(dy<8?0:2)];
-			int ind = dx + (16 * (vflip ? 15-dy : dy));
-			if(!over || si[ind])
-				dest->line[ty][tx] = si[ind]+cs;
-		}
+	bool use_fast_draw = (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
+	if (use_fast_draw)
+		draw_tile16_cs2_fast(dest, si, x, y, cset, flip, over);
+	else
+		draw_tile16_cs2_safe(dest, cl, ct, cr, cb, si, x, y, cset, flip, over);
 }
-
-// void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[],int32_t flip,bool over)
-// {
-//     if(x<-15 || y<-15)
-//         return;
-
-//     if(y > dest->h)
-//         return;
-
-//     if(y == dest->h && x > dest->w)
-//         return;
-
-//     if(tile<0 || tile>=NEWMAXTILES)
-//     {
-//         rectfill(dest,x,y,x+15,y+15,0);
-//         return;
-//     }
-
-//     if (blank_tile_table[tile])
-//     {
-//         if(!over)
-//             rectfill(dest, x, y, x + 15, y + 15, 0);
-//         return;
-//     }
-
-//     if(newtilebuf[tile].format>tf4Bit)
-//         cset[0]=cset[1]=cset[2]=cset[3]=0;
-// 	else for(int q = 0; q < 4; ++q)
-// 		cset[q] <<= CSET_SHFT;
-
-//     const byte* si = get_tile_bytes(tile, flip&5);
-
-// 	bool vflip = (flip&2);
-// 	for(int dx = 0; dx < 16; ++dx)
-// 		for(int dy = 0; dy < 16; ++dy)
-// 		{
-// 			int tx = x+dx, ty = y+dy;
-// 			if(tx < 0 || tx >= dest->w || ty < 0 || ty >= dest->h)
-// 				continue;
-// 			int cs = cset[(dx<8?0:1)|(dy<8?0:2)];
-// 			int ind = dx + (16 * (vflip ? 15-dy : dy));
-// 			if(!over || si[ind])
-// 				dest->line[ty][tx] = si[ind]+cs;
-// 		}
-// }
 
 //  cid: fffffsss cccccccc
 //          (f:flags, s:cset, c:combo)
