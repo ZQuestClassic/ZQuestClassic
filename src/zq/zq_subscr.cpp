@@ -86,6 +86,7 @@ int32_t onDistributeMiddle();
 int32_t onDistributeBottom();
 int32_t onItemGrid();
 int32_t onCounterBlock();
+int32_t onMapTileGrid();
 int32_t onGridSnapLeft();
 int32_t onGridSnapCenter();
 int32_t onGridSnapRight();
@@ -420,12 +421,7 @@ static NewMenu ss_wizard_menu
 {
 	{ "Item Grid", onItemGrid },
 	{ "Counter Block", onCounterBlock},
-};
-
-static NewMenu ss_wizard_menu_rc
-{
-	{ "Item Grid", onItemGrid },
-	{ "Counter Block", onCounterBlock},
+	{ "Map Tile Grid", onMapTileGrid},
 };
 
 enum
@@ -455,14 +451,14 @@ static NewMenu subscreen_rc_menu
 	{ "&Align ", &ss_align_menu },
 	{ "&Distribute ", &ss_distribute_menu },
 	{},
-	{ "&Wizards", &ss_wizard_menu_rc },
+	{ "&Wizards", &ss_wizard_menu },
 };
 static NewMenu subscreen_rc_menu_nowidg
 {
 	{ "New ", onNewWidget },
 	{ "Paste New ", onDuplCopiedWidget, MENUID_SS_COPYPASTE_PASTENEW },
 	{},
-	{ "&Wizards", &ss_wizard_menu_rc },
+	{ "&Wizards", &ss_wizard_menu },
 };
 void update_subscr_dlg(bool start);
 int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
@@ -1879,6 +1875,17 @@ int32_t onCounterBlock()
 		y = force_paste_xy[1];
 	}
 	call_subscreen_wizard(subwizardtype::SW_COUNTER_BLOCK, x, y);
+	return D_O_K;
+}
+int32_t onMapTileGrid()
+{
+	int32_t x = 0, y = 0;
+	if (force_paste_xy)
+	{
+		x = force_paste_xy[0];
+		y = force_paste_xy[1];
+	}
+	call_subscreen_wizard(subwizardtype::SW_MAP_TILEBLOCK, x, y);
 	return D_O_K;
 }
 

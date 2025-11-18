@@ -1,6 +1,6 @@
 #include "dialog/subscreenwizard.h"
 #include "info.h"
-#include "dialog/info.h"
+#include "alert.h"
 #include "zc_list_data.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
@@ -41,12 +41,36 @@ void group_select_widget(SubscrWidget* widg)
 	}
 }
 
-SubscreenWizardDialog::SubscreenWizardDialog(subwizardtype stype, int32_t x, int32_t y) : wizard_type(stype),
-basex(x), basey(y), flags(0),
-list_font(GUI::ZCListData::fonts(false, true, true)),
-list_shadtype(GUI::ZCListData::shadow_types())
+static int tileblock_size[2] = {5, 3};
+SubscreenWizardDialog::SubscreenWizardDialog(subwizardtype stype, int32_t x, int32_t y)
+	: wizard_type(stype), basex(x), basey(y), flags(0),
+	list_font(GUI::ZCListData::fonts(false, true, true)),
+	list_shadtype(GUI::ZCListData::shadow_types())
 {
 	memset(rs_sz, 0, sizeof(rs_sz));
+	switch (stype)
+	{
+		case subwizardtype::SW_ITEM_GRID:
+			rs_sz[0] = 4;
+			rs_sel[0] = 1;
+			break;
+		case subwizardtype::SW_MAP_TILEBLOCK:
+		{
+			tf_values[0] = 0;
+			tf_values[1] = basex;
+			tf_values[2] = basey;
+			tf_values[5] = 16;
+			tf_values[6] = 16;
+			tf_values[7] = 1;
+			tf_values[8] = 0;
+			tf_values[9] = -1;
+			cbvals[0] = true;
+			cbvals[1] = false;
+			rs_sz[0] = 4;
+			rs_sel[0] = 0;
+			break;
+		}
+	}
 }
 
 void SubscreenWizardDialog::setRadio(size_t rs, size_t ind)
@@ -56,6 +80,7 @@ void SubscreenWizardDialog::setRadio(size_t rs, size_t ind)
 		auto& radio = rset[rs][q];
 		radio->setChecked(ind == q);
 	}
+	rs_sel[rs] = ind;
 }
 size_t SubscreenWizardDialog::getRadio(size_t rs)
 {
@@ -69,16 +94,22 @@ size_t SubscreenWizardDialog::getRadio(size_t rs)
 	return 0;
 }
 
-#define RESET(member) (local_ref.member = src_ref.member)
-#define ZERO(member) (local_ref.member = 0)
-#define RESET_ZERO(member,flag) (local_ref.member = (flag ? 0 : src_ref.member))
-
-void SubscreenWizardDialog::endUpdate()
+struct TileBlockLayerData
 {
-	for (int32_t q = 0; q < MAXSUBSCREENITEMS; ++q)
-	{
-		sso_selection[q] = false;
-	}
+	vector<vector<TilePickerData>> tile_data;
+	bool you_are_here;
+	word required_litems;
+	dword required_scr_states;
+	int16_t required_floor = -1, required_level = -1;
+};
+
+static vector<TileBlockLayerData> tileblock_sets;
+static optional<TileBlockLayerData> copied_tileblock_set;
+static size_t tab_ptrs[1];
+
+bool SubscreenWizardDialog::finalize()
+{
+	memset(sso_selection, 0, sizeof(sso_selection));
 	switch (wizard_type)
 	{
 		case subwizardtype::SW_ITEM_GRID:
@@ -92,6 +123,7 @@ void SubscreenWizardDialog::endUpdate()
 				for (int32_t x = 0; x < w; ++x)
 				{
 					SubscrWidget* widg = (SW_ItemSlot*)create_new_widget_of(widgITEMSLOT, tfs[1]->getVal() + x * tfs[5]->getVal(), tfs[2]->getVal() + y * tfs[6]->getVal(), false);
+					SETFLAG(widg->flags, SUBSCR_CURITM_NONEQP, non_equippable);
 					group_select_widget(widg);
 					if (non_selectable)
 						widg->genflags &= ~SUBSCRFLAG_SELECTABLE;
@@ -182,7 +214,117 @@ void SubscreenWizardDialog::endUpdate()
 			}
 			break;
 		}
+		case subwizardtype::SW_MAP_TILEBLOCK:
+		{
+			int32_t w = tfs[3]->getVal();
+			int32_t h = tfs[4]->getVal();
+			int32_t mapid = tfs[7]->getVal();
+			int32_t scrid = tfs[8]->getVal();
+			int32_t reqlvl = tfs[9]->getVal();
+			bool non_selectable = rset[0][0]->getChecked();
+			bool overlay = cboxes[0]->getChecked();
+			bool transparent = cboxes[1]->getChecked();
+			if (auto badscr = (scrid + (w-1) + ((h-1) * 0x10)); badscr >= MAPSCRSNORMAL)
+			{
+				bool go_anyway = false;
+				AlertDialog("Screen value out of bounds",
+					fmt::format("Attempting to create a grid of '{}x{}' screens starting with screen '{:#X}'"
+					" would go out of bounds to invalid screen '{:#X}'. Tiles that would match an invalid"
+					" screen will be ignored, their TileBlock widget not being created, if you continue.", w, h, scrid, badscr),
+					[&](bool ret,bool)
+					{
+						go_anyway = ret;
+					}).show();
+				if (!go_anyway)
+					return false;
+			}
+			if (get_qr(qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE))
+			{
+				InfoDialog("Conflicting QR", "A conflicting compat rule \"Only 'Visit' Screens On Mappable DMaps\""
+					" is enabled. This may prevent screens from properly being marked 'Visited'."
+					+ QRHINT({qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE})).show();
+			}
+			for (int idx = 0; idx < tileblock_sets.size(); ++idx)
+			{
+				auto& data = tileblock_sets[idx];
+				data.tile_data.resize(h);
+				for (int32_t y = 0; y < h; ++y)
+				{
+					auto& row_data = data.tile_data[y];
+					row_data.resize(w);
+					for (int32_t x = 0; x < w; ++x)
+					{
+						int screen = scrid + x + (0x10 * y);
+						if (unsigned(screen) >= MAPSCRSNORMAL)
+							continue; // invalid screen, don't create matching widget
+						TilePickerData const& tile_data = row_data[x];
+						if (!tile_data.tile) // don't create for tile 0
+							continue;
+						SW_TileBlock* widg = (SW_TileBlock*)create_new_widget_of(widgTILEBLOCK, tfs[1]->getVal() + x * tfs[5]->getVal(), tfs[2]->getVal() + y * tfs[6]->getVal(), false);
+						group_select_widget(widg);
+						if (non_selectable)
+							widg->genflags &= ~SUBSCRFLAG_SELECTABLE;
+						else
+						{
+							widg->genflags |= SUBSCRFLAG_SELECTABLE;
+							widg->pos = tfs[0]->getVal() + w * y + x;
+							if (rset[0][1]->getChecked()) // Loop L/R
+							{
+								widg->pos_up = widg->pos + (y == 0 ? (w * (h - 1)) : -w);
+								widg->pos_down = widg->pos + (y == h - 1 ? -(w * (h - 1)) : w);
+								widg->pos_left = widg->pos + ((x == 0 && y == 0) ? (w * h - 1) : -1);
+								widg->pos_right = widg->pos + ((x == w - 1 && y == h - 1) ? -(w * h - 1) : 1);
+							}
+							else if (rset[0][2]->getChecked()) // Wrap Sides
+							{
+								widg->pos_up = widg->pos + (y == 0 ? (w * (h - 1)) : -w);
+								widg->pos_down = widg->pos + (y == h - 1 ? -(w * (h - 1)) : w);
+								widg->pos_left = widg->pos + (x == 0 ? w - 1 : -1);
+								widg->pos_right = widg->pos + (x == w - 1 ? -(w - 1) : 1);
+							}
+							else if (rset[0][3]->getChecked()) // No Wrap
+							{
+								widg->pos_up = y == 0 ? 255 : widg->pos - w;
+								widg->pos_down = y == h - 1 ? 255 : widg->pos + w;
+								widg->pos_left = x == 0 ? 255 : widg->pos - 1;
+								widg->pos_right = x == w - 1 ? 255 : widg->pos + 1;
+							}
+						}
+						
+						widg->tile = tile_data.tile;
+						widg->cs.set_int_cset(tile_data.cset);
+						widg->flip = tile_data.flip;
+						SETFLAG(widg->flags, SUBSCR_TILEBL_OVERLAY, overlay);
+						SETFLAG(widg->flags, SUBSCR_TILEBL_TRANSP, transparent);
+						
+						widg->req_litems = data.required_litems;
+						if (data.required_litems)
+							widg->req_litem_level = reqlvl;
+						
+						widg->req_scrstate = data.required_scr_states;
+						if (data.required_scr_states)
+						{
+							widg->req_scrstate_map = mapid;
+							widg->req_scrstate_scr = screen;
+						}
+						if (data.you_are_here)
+						{
+							widg->req_maps = {(word)mapid};
+							widg->req_screens = {(byte)screen};
+						}
+						widg->req_dmap_floors.clear();
+						if (data.required_floor >= 0)
+							widg->req_dmap_floors = { (byte)data.required_floor };
+						widg->req_dmap_levels.clear();
+						if (data.required_level >= 0)
+							widg->req_dmap_levels = { (word)data.required_level };
+					}
+				}
+			}
+			break;
+		}
 	}
+	return true;
 }
 #define IH_BTN(hei, inf) \
 Button(height = hei, text = "?", \
@@ -194,16 +336,27 @@ Button(height = hei, text = "?", \
 
 void SubscreenWizardDialog::updateTitle()
 {
+	string info;
 	switch (wizard_type)
 	{
 		case subwizardtype::SW_ITEM_GRID:
 			tyname = "Item Grid";
+			info = "Creates a grid of items, with selection directions linked between them.";
 			break;
 		case subwizardtype::SW_COUNTER_BLOCK:
 			tyname = "Counter Block";
+			info = "Creates a block of counters.";
+			break;
+		case subwizardtype::SW_MAP_TILEBLOCK:
+			tyname = "Map Tile Grid";
+			info = "Creates 2 blocks of TileBlocks, overlapping. The lower blocks require having the Map, while the "
+				" higher blocks require having visited specific screens. This allows creating a custom 'TileBlock Map',"
+				" with a layer that reveals for the whole dungeon when you have the map, and a layer that reveals as you"
+				" visit rooms.";
 			break;
 	}
 	window->setTitle("Subscreen Wizard (" + tyname + ")");
+	window->setHelp(info);
 }
 
 std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
@@ -254,27 +407,27 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							colSpan = 2,
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -16, high = 256, val = basex
+							low = -15, high = 256, val = basex
 						),
 						Label(text = "Y:", hAlign = 1.0),
 						tfs[2] = TextField(
 							colSpan = 2,
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -16, high = 176, val = basey
+							low = -15, high = 176, val = basey
 						),
 						Label(text = "Width:", hAlign = 1.0),
 						tfs[3] = TextField(
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 32, val = 5
+							low = 1, high = 16, val = 5
 						),
 						INFOBTN("Sets the number of items in the grid along the X-axis"),
 						Label(text = "Height:", hAlign = 1.0),
 						tfs[4] = TextField(
 							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = 1, high = 32, val = 3
+							low = 1, high = 16, val = 3
 						),
 						INFOBTN("Sets the number of items in the grid along the Y-axis"),
 						Label(text = "X Spacing:", hAlign = 1.0),
@@ -295,12 +448,12 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							colSpan = 2, _EX_RBOX, text = "Non-Equippable"
 						),
 						INFOBTN("If checked, items in this grid default to being non equippable, but may still be selectable.")
-						),
+					),
 					Rows<2>(
 						framed = true, frameText = "Connections",
 						rset[0][0] = Radio(
 							hAlign = 0.0,
-							checked = false,
+							checked = rs_sel[0] == 0,
 							text = "Non Selectable",
 							indx = 0,
 							onToggle = message::RSET0
@@ -308,7 +461,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 						INFOBTN("Items in this grid are non selectable."),
 						rset[0][1] = Radio(
 							hAlign = 0.0,
-							checked = true,
+							checked = rs_sel[0] == 1,
 							text = "Loop L/R End to End",
 							indx = 1,
 							onToggle = message::RSET0
@@ -316,7 +469,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 						INFOBTN("Items in this grid will form a complete loop left to right going through every item.\nUse this if you plan to have L/R inventory shifting."),
 						rset[0][2] = Radio(
 							hAlign = 0.0,
-							checked = false,
+							checked = rs_sel[0] == 2,
 							text = "Wrap At Sides",
 							indx = 2,
 							onToggle = message::RSET0
@@ -324,14 +477,14 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 						INFOBTN("Items in this grid will wrap to opposite ends when selecting off the edge.\nThis is not compatible with L/R inventory shifting."),
 						rset[0][3] = Radio(
 							hAlign = 0.0,
-							checked = false,
+							checked = rs_sel[0] == 3,
 							text = "No Wrapping",
 							indx = 3,
 							onToggle = message::RSET0
 						),
 						INFOBTN("Items in this grid will not connect to anything at the edges.\nThis is not compatible with L/R inventory shifting.")
-						)
 					)
+				)
 			);
 			break;
 		}
@@ -451,6 +604,354 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 			);
 			break;
 		}
+		case subwizardtype::SW_MAP_TILEBLOCK:
+		{
+			std::shared_ptr<GUI::TabPanel> tabs;
+			windowRow->add(
+				Rows<2>(
+					Column(
+						Rows<6>(
+							Label(text = "X:", hAlign = 1.0),
+							tfs[1] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -15, high = 256, val = tf_values[1],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tf_values[1] = val;
+								}
+							),
+							INFOBTN("Sets the X-position of the top-left widget."),
+							
+							Label(text = "Width:", hAlign = 1.0),
+							tfs[3] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 1, high = 16, val = tileblock_size[0],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tileblock_size[0] = val;
+								}
+							),
+							INFOBTN("Sets the number of widgets in the grid along the X-axis"),
+							
+							
+							Label(text = "Y:", hAlign = 1.0),
+							tfs[2] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -15, high = 176, val = tf_values[2],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tf_values[2] = val;
+								}
+							),
+							INFOBTN("Sets the Y-position of the top-left widget."),
+							
+							Label(text = "Height:", hAlign = 1.0),
+							tfs[4] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 1, high = 8, val = tileblock_size[1],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tileblock_size[1] = val;
+								}
+							),
+							INFOBTN("Sets the number of widgets in the grid along the Y-axis"),
+							
+							Label(text = "Map:", hAlign = 1.0),
+							tfs[7] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 1, high = map_count, val = tf_values[7],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tf_values[7] = val;
+								}
+							),
+							INFOBTN("Sets the Map to check for conditions"),
+							
+							Label(text = "X Spacing:", hAlign = 1.0),
+							tfs[5] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 1, high = 32, val = tf_values[5],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tf_values[5] = val;
+								}
+							),
+							INFOBTN("Sets the space in pixels between each item in the grid on the X-axis"),
+							
+							Label(text = "Screen:", hAlign = 1.0),
+							tfs[8] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+								swap_type = nswapHEX,
+								low = 0, high = MAPSCRSNORMAL-1, val = tf_values[8],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tf_values[8] = val;
+								}
+							),
+							INFOBTN("Sets the *top-left* Screen to check for conditions."
+								" Each tile in the grid checks a different screen, based on it's position."),
+							
+							Label(text = "Y Spacing:", hAlign = 1.0),
+							tfs[6] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 1, high = 32, val = tf_values[6],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tf_values[6] = val;
+								}
+							),
+							INFOBTN("Sets the space in pixels between each item in the grid on the Y-axis"),
+							
+							Label(text = "LItem Level:", hAlign = 1.0),
+							tfs[9] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -1, high = MAXLEVELS-1, val = tf_values[9],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tf_values[9] = val;
+								}
+							),
+							INFOBTN("Sets which 'level' level items are required for LItem conditions. '-1' represents 'current level'.")
+						),
+						Rows<2>(
+							INFOBTN("The state of the 'Overlay' box for each TileBlock."),
+							cboxes[0] = Checkbox(text = "Overlay", hAlign = 0.0,
+								checked = cbvals[0],
+								onToggleFunc = [&](bool state)
+								{
+									cbvals[0] = state;
+								}
+							),
+							INFOBTN("The state of the 'Transparent' box for each TileBlock."),
+							cboxes[1] = Checkbox(text = "Transparent", hAlign = 0.0,
+								checked = cbvals[1],
+								onToggleFunc = [&](bool state)
+								{
+									cbvals[1] = state;
+								}
+							)
+						)
+					),
+					Column(
+						Rows<3>(
+							Label(text = "Starting Pos:", hAlign = 1.0),
+							tfs[0] = TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 254, val = tf_values[0],
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tf_values[0] = val;
+								}
+							),
+							INFOBTN("The first selector position used by the grid. It will use as many positions in order as there are widgets, unless it's Non-Selectable.")
+						),
+						Rows<2>(
+							framed = true, frameText = "Connections",
+							rset[0][0] = Radio(
+								hAlign = 0.0,
+								checked = rs_sel[0] == 0,
+								text = "Non Selectable",
+								indx = 0,
+								onToggle = message::RSET0
+							),
+							INFOBTN("Widgets in this grid are non selectable."),
+							rset[0][1] = Radio(
+								hAlign = 0.0,
+								checked = rs_sel[0] == 1,
+								text = "Loop L/R End to End",
+								indx = 1,
+								onToggle = message::RSET0
+							),
+							INFOBTN("Widgets in this grid will form a complete loop left to right going through every item.\nUse this if you plan to have L/R inventory shifting."),
+							rset[0][2] = Radio(
+								hAlign = 0.0,
+								checked = rs_sel[0] == 2,
+								text = "Wrap At Sides",
+								indx = 2,
+								onToggle = message::RSET0
+							),
+							INFOBTN("Widgets in this grid will wrap to opposite ends when selecting off the edge.\nThis is not compatible with L/R inventory shifting."),
+							rset[0][3] = Radio(
+								hAlign = 0.0,
+								checked = rs_sel[0] == 3,
+								text = "No Wrapping",
+								indx = 3,
+								onToggle = message::RSET0
+							),
+							INFOBTN("Widgets in this grid will not connect to anything at the edges.\nThis is not compatible with L/R inventory shifting.")
+						)
+					),
+					tabs = TabPanel(colSpan = 2, ptr = &tab_ptrs[0])
+				)
+			);
+			const auto btnsz = 32_px;
+			size_t idx = 0;
+			for (; idx < tileblock_sets.size(); ++idx)
+			{
+				tabs->add(TabRef(name = to_string(idx),
+					Row(
+						Rows<2>(
+							Button(text = "Edit Req LItems", fitParent = true, prefheight = 2.5_em,
+								onPressFunc = [&, idx]()
+								{
+									int32_t flags = tileblock_sets[idx].required_litems;
+									auto const litem_names = GUI::ZCCheckListData::level_items();
+									if(!call_checklist_dialog("Select 'Level Items'",litem_names,flags))
+										return;
+									tileblock_sets[idx].required_litems = (word)flags;
+								}),
+							INFOBTN("These level items are required for this layer of tile widgets to appear. (ex. 'only visible with map')"),
+							Button(text = "Edit Req Screen States", fitParent = true, prefheight = 2.5_em,
+								onPressFunc = [&, idx]()
+								{
+									int32_t flags = tileblock_sets[idx].required_scr_states;
+									auto const scrstate_names = GUI::ZCCheckListData::screen_state();
+									if(!call_checklist_dialog("Select 'Screen States'",scrstate_names,flags))
+										return;
+									tileblock_sets[idx].required_scr_states = (dword)flags;
+								}),
+							INFOBTN("These screen states are required on the matching screen for each tile widget of this layer for them to appear. (ex. 'visited this screen')"),
+							Button(text = "Edit Tiles", fitParent = true, prefheight = 2.5_em,
+								onPressFunc = [&, idx]()
+								{
+									int32_t w = tfs[3]->getVal();
+									int32_t h = tfs[4]->getVal();
+									tileblock_sets[idx].tile_data.resize(h);
+									for (auto& vec : tileblock_sets[idx].tile_data)
+										vec.resize(w);
+									if (w == 0 || h == 0) return;
+									call_tilepicker_dlg("Tiles " + to_string(idx), tileblock_sets[idx].tile_data);
+								}),
+							INFOBTN("Edit the tiles that will be assigned to the tile blocks."
+								" The 'Width' and 'Height' should be set first, as the popup uses those"
+								" to determine how many tiles to display editors for.")
+						),
+						Rows<3>(
+							Label(text = "Require Floor:", hAlign = 1.0),
+							TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -1, high = 255, val = tileblock_sets[idx].required_floor,
+								onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tileblock_sets[idx].required_floor = val;
+								}
+							),
+							INFOBTN("If >-1, this layer of tiles will only be visible when the dmap the hero is currently on has a matching 'Floor' value"),
+							Label(text = "Require Level:", hAlign = 1.0),
+							TextField(
+								fitParent = true, minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -1, high = MAXLEVELS-1, val = tileblock_sets[idx].required_level,
+								onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									tileblock_sets[idx].required_level = val;
+								}
+							),
+							INFOBTN("If >-1, this layer of tiles will only be visible when the dmap the hero is currently on has a matching 'Level' value"),
+							
+							Checkbox(_EX_RBOX, text = "Require Current Screen", colSpan = 2,
+								checked = tileblock_sets[idx].you_are_here,
+								onToggleFunc = [&, idx](bool state)
+								{
+									tileblock_sets[idx].you_are_here = state;
+								}
+							),
+							INFOBTN("This layer of tiles will only be visible when the hero is currently on the corresponding screen. (ex. 'you are here' highlight)")
+						),
+						Column(
+							Row(
+								Button(type = GUI::Button::type::ICON,
+									icon = BTNICON_ARROW_LEFT,
+									disabled = (idx <= 0),
+									width = btnsz, height = btnsz,
+									onPressFunc = [&, idx]()
+									{
+										zc_swap(tileblock_sets[idx], tileblock_sets[idx-1]);
+										--tab_ptrs[0];
+										refresh_dlg();
+									}),
+								Button(type = GUI::Button::type::ICON,
+									icon = BTNICON_TRASH,
+									width = btnsz, height = btnsz,
+									onPressFunc = [&, idx]()
+									{
+										bool doclear = false;
+										AlertDialog("Are you sure?",
+											"This layer of tile settings will be erased.",
+											[&](bool ret,bool)
+											{
+												doclear = ret;
+											}).show();
+										if (!doclear) return;
+										auto it = tileblock_sets.begin();
+										std::advance(it, idx);
+										tileblock_sets.erase(it);
+										if (idx > 0)
+											--tab_ptrs[0];
+										refresh_dlg();
+									}),
+								Button(type = GUI::Button::type::ICON,
+									icon = BTNICON_ARROW_RIGHT,
+									disabled = (idx >= tileblock_sets.size()-1),
+									width = btnsz, height = btnsz,
+									onPressFunc = [&, idx]()
+									{
+										zc_swap(tileblock_sets[idx], tileblock_sets[idx+1]);
+										++tab_ptrs[0];
+										refresh_dlg();
+									})
+							),
+							Rows<2>(
+								Button(text = "Copy",
+									onPressFunc = [&, idx]()
+									{
+										bool was_copied = copied_tileblock_set.has_value();
+										copied_tileblock_set = tileblock_sets[idx];
+										if (!was_copied)
+											refresh_dlg(); // un-disable paste buttons
+									}),
+								Button(text = "Paste",
+									disabled = !copied_tileblock_set,
+									onPressFunc = [&, idx]()
+									{
+										tileblock_sets[idx] = *copied_tileblock_set;
+										refresh_dlg();
+									})
+							)
+						)
+					)
+				));
+			}
+			tabs->add(TabRef(name = "+",
+				Column(
+					Button(text = "Add New TileBlock Layer",
+						onPressFunc = [&]()
+						{
+							tileblock_sets.emplace_back();
+							refresh_dlg();
+						}),
+					Button(text = "Paste New TileBlock Layer",
+						disabled = !copied_tileblock_set,
+						onPressFunc = [&]()
+						{
+							tileblock_sets.push_back(*copied_tileblock_set);
+							refresh_dlg();
+						})
+				)
+			));
+			break;
+		}
 	}
 	updateTitle();
 	return window;
@@ -463,8 +964,7 @@ bool SubscreenWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg
 	case message::UPDATE:
 		return false;
 	case message::OK:
-		endUpdate();
-		return true;
+		return finalize();
 	case message::CANCEL:
 		return true;
 
