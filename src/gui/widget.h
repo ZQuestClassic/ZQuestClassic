@@ -344,6 +344,12 @@ public:
 		return y;
 	}
 
+	/* Sets the widget's width if it hasn't been overridden. */
+	void setPreferredWidth(Size newWidth) noexcept;
+
+	/* Sets the widget's width if it hasn't been overridden. */
+	void setPreferredHeight(Size newHeight) noexcept;
+
 protected:
 	inline bool getWidthOverridden() const noexcept {return flags&f_WIDTH_OVERRIDDEN;}
 	inline bool getHeightOverridden() const noexcept {return flags&f_HEIGHT_OVERRIDDEN;}
@@ -363,12 +369,6 @@ protected:
 	std::any userData;
 	DialogRef frameDialog, frameTextDialog;
 	std::string frameText;
-
-	/* Sets the widget's width if it hasn't been overridden. */
-	void setPreferredWidth(Size newWidth) noexcept;
-
-	/* Sets the widget's width if it hasn't been overridden. */
-	void setPreferredHeight(Size newHeight) noexcept;
 
 	/* Returns a set of flags with which the DIALOG should be initialized.
 	 * The widget should add its own

@@ -42,7 +42,8 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_itemclass(GUI::ZCListData::itemclass(true)),
 	list_genscr(GUI::ZCListData::generic_script()),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
-	list_costinds(GUI::ListData::numbers(false, 0, 2))
+	list_costinds(GUI::ListData::numbers(false, 0, 2)),
+	list_dmaps(GUI::ZCListData::dmaps(true))
 {
 	byte pg = subscr_edit.curpage, ind = index;
 	start_default_btnslot = 0;
@@ -1869,7 +1870,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	cond_item_sels[CI_REQ] = local_subref->req_owned_items.empty() ? -1 : *(local_subref->req_owned_items.begin());
 	cond_item_sels[CI_PICKED] = 0;
 	cond_item_sels[CI_REQ_NOT] = local_subref->req_unowned_items.empty() ? -1 : *(local_subref->req_unowned_items.begin());
-	if (!dmap_floor) dmap_floor = local_subref->req_dmap_floors.empty() ? 0 : *(local_subref->req_dmap_floors.begin());
+	if (!req_dmap_floor) req_dmap_floor = local_subref->req_dmap_floors.empty() ? 0 : *(local_subref->req_dmap_floors.begin());
+	if (!req_dmap_level) req_dmap_level = local_subref->req_dmap_levels.empty() ? 0 : *(local_subref->req_dmap_levels.begin());
+	if (!req_dmap) req_dmap = local_subref->req_dmaps.empty() ? 0 : *(local_subref->req_dmaps.begin());
+	if (!req_map) req_map = local_subref->req_maps.empty() ? 1 : *(local_subref->req_maps.begin());
+	if (!req_screen) req_screen = local_subref->req_screens.empty() ? 0 : *(local_subref->req_screens.begin());
 	cond_item_sels[CI_REQ_NOT] = local_subref->req_unowned_items.empty() ? -1 : *(local_subref->req_unowned_items.begin());
 	req_item_list.reset();
 	req_not_item_list.reset();
@@ -1880,13 +1885,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	tpan->add(TabRef(name = "Conditions",
 		TabPanel(ptr = &sprop_tab_cond,
 			TabRef(name = "Items",
-				Columns<2>(
+				Columns<4>(
+					Row(padding = 0_px,
+						Label(text = "Required Owned Items"),
+						INFOBTN("Widget will not exist unless these items are owned.")
+					),
 					Column(
-						Row(padding = 0_px,
-							Label(text = "Required Owned Items"),
-							INFOBTN("Widget will not exist unless these items are owned.")
-						),
-						req_item_list = List(minheight = 100_px,
+						req_item_list = List(prefheight = 10_em,
 							data = list_reqitems,
 							focused = true,
 							selectedValue = cond_item_sels[CI_REQ],
@@ -1906,22 +1911,20 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								})
 						)
 					),
-					Column(
-						Row(padding = 0_px,
-							Label(text = "Required Unowned Items"),
-							INFOBTN("Widget will not exist if any of these items are owned.")
-						),
-						req_not_item_list = List(minheight = 100_px,
-							data = list_reqnotitems,
-							focused = true,
-							selectedValue = cond_item_sels[CI_REQ_NOT],
-							onSelectFunc = [&](int32_t val)
-							{
-								cond_item_sels[CI_REQ_NOT] = val;
-							}
-						)
+					Row(padding = 0_px,
+						Label(text = "Required Unowned Items"),
+						INFOBTN("Widget will not exist if any of these items are owned.")
 					),
-					Column(
+					req_not_item_list = List(prefheight = 10_em,
+						data = list_reqnotitems,
+						focused = true,
+						selectedValue = cond_item_sels[CI_REQ_NOT],
+						onSelectFunc = [&](int32_t val)
+						{
+							cond_item_sels[CI_REQ_NOT] = val;
+						}
+					),
+					Column(rowSpan = 2,
 						Button(type = GUI::Button::type::ICON,
 							icon = BTNICON_ARROW_LEFT,
 							width = btnsz, height = btnsz,
@@ -1939,7 +1942,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								updateConditions();
 							})
 					),
-					Column(
+					Column(rowSpan = 2,
 						Button(type = GUI::Button::type::ICON,
 							icon = BTNICON_ARROW_LEFT,
 							width = btnsz, height = btnsz,
@@ -1957,246 +1960,430 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								updateConditions();
 							})
 					),
-					Column(rowSpan = 2,
-						Label(text = "Items"),
-						cond_itms_list = List(minheight = 300_px, fitParent = true,
-							data = list_items_no_none.filter([&](GUI::ListItem& itm)
-								{
-									if(itm.value < 0 || itm.value >= MAXITEMS)
-										return false;
-									itemdata const& idata = itemsbuf[itm.value];
-									return bool(idata.flags & item_gamedata); // only ownable items are usable
-								}),
-							isABC = true,
-							focused = true,
-							selectedIndex = 0,
-							onSelectFunc = [&](int32_t val)
+					Label(text = "Items"),
+					cond_itms_list = List(prefheight = 16_em,
+						fitParent = true, rowSpan = 3,
+						data = list_items_no_none.filter([&](GUI::ListItem& itm)
 							{
-								cond_item_sels[CI_PICKED] = val;
-							}
-						)
+								if(itm.value < 0 || itm.value >= MAXITEMS)
+									return false;
+								itemdata const& idata = itemsbuf[itm.value];
+								return bool(idata.flags & item_gamedata); // only ownable items are usable
+							}),
+						isABC = true,
+						focused = true,
+						selectedIndex = 0,
+						onSelectFunc = [&](int32_t val)
+						{
+							cond_item_sels[CI_PICKED] = val;
+						}
 					)
 				)
 			),
 			TabRef(name = "Level / DMap",
-				Row(
-					Frame(title = "DMap Floor", info = "Requires that the current dmap floor number match one of the listed numbers.",
-						Column(
-							req_floor_list = List(minheight = 100_px,
-								forceFitW = true,
-								data = list_reqfloors,
-								focused = true,
-								selectedValue = list_reqfloors.empty() ? -1 : *dmap_floor,
-								onSelectFunc = [&](int32_t val)
-								{
-									update_dmap_floor(val);
-								}),
-							Row(
-								reqfloor_btn_del = Button(type = GUI::Button::type::ICON,
-									icon = BTNICON_TRASH,
-									width = btnsz, height = btnsz,
+				Column(
+					Row(
+						Frame(title = "DMap Floor", info = "Requires that the current dmap floor number matches one of the listed numbers.",
+							Column(
+								req_floor_list = List(prefheight = 6_em,
+									forceFitW = true,
+									data = list_reqfloors,
+									focused = true,
+									selectedValue = list_reqfloors.empty() ? -1 : *req_dmap_floor,
+									onSelectFunc = [&](int32_t val)
+									{
+										update_dmap_floor(val);
+									}),
+								Row(
+									reqfloor_btn_del = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_TRASH,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_dmap_floors.erase(*req_dmap_floor);
+											updateConditions();
+											update_dmap_floor(req_floor_list->getSelectedValue());
+										}),
+									condtfs[1] = TextField(
+										fitParent = true,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = *req_dmap_floor,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											update_dmap_floor(val, false);
+										}),
+									reqfloor_btn_add = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_PLUS,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_dmap_floors.insert(*req_dmap_floor);
+											updateConditions();
+											for (int q = *req_dmap_floor; q < 256; ++q)
+											{
+												if (local_subref->req_dmap_floors.contains(q))
+												{
+													if (q+1 >= 256)
+													{
+														for (int q = *req_dmap_floor; q >= 0; --q)
+														{
+															if (local_subref->req_dmap_floors.contains(q))
+																continue;
+															req_dmap_floor = q;
+															break;
+														}
+													}
+													continue;
+												}
+												req_dmap_floor = q;
+												break;
+											}
+											update_dmap_floor(*req_dmap_floor);
+										})
+								)
+							)
+						),
+						Frame(title = "DMap Level", info = "Requires that the current dmap level number matches one of the listed numb30.",
+							Column(
+								req_level_list = List(prefheight = 6_em,
+									forceFitW = true,
+									data = list_reqlevels,
+									focused = true,
+									selectedValue = list_reqlevels.empty() ? -1 : *req_dmap_level,
+									onSelectFunc = [&](int32_t val)
+									{
+										update_dmap_level(val);
+									}),
+								Row(
+									reqlevel_btn_del = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_TRASH,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_dmap_levels.erase(*req_dmap_level);
+											updateConditions();
+											update_dmap_level(req_level_list->getSelectedValue());
+										}),
+									condtfs[2] = TextField(
+										fitParent = true,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = MAXLEVELS-1, val = *req_dmap_level,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											update_dmap_level(val, false);
+										}),
+									reqlevel_btn_add = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_PLUS,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_dmap_levels.insert(*req_dmap_level);
+											updateConditions();
+											for (int q = *req_dmap_level; q < MAXLEVELS; ++q)
+											{
+												if (local_subref->req_dmap_levels.contains(q))
+												{
+													if (q+1 >= MAXLEVELS)
+													{
+														for (int q = *req_dmap_level; q >= 0; --q)
+														{
+															if (local_subref->req_dmap_levels.contains(q))
+																continue;
+															req_dmap_level = q;
+															break;
+														}
+													}
+													continue;
+												}
+												req_dmap_level = q;
+												break;
+											}
+											update_dmap_level(*req_dmap_level);
+										})
+								)
+							)
+						),
+						Frame(title = "DMap ID", info = "Requires that the current dmap number matches one of the listed numb30.",
+							Column(
+								req_dmap_list = List(prefheight = 6_em,
+									forceFitW = true,
+									data = list_reqdmaps,
+									focused = true,
+									selectedValue = list_reqdmaps.empty() ? -1 : *req_dmap,
+									onSelectFunc = [&](int32_t val)
+									{
+										update_req_dmap(val);
+									}),
+								Row(
+									reqdmap_btn_del = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_TRASH,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_dmaps.erase(*req_dmap);
+											updateConditions();
+											update_req_dmap(req_dmap_list->getSelectedValue());
+										}),
+									condddls[0] = DropDownList(data = list_dmaps,
+										fitParent = true, selectedValue = *req_dmap,
+										onSelectFunc = [&](int32_t val)
+										{
+											update_req_dmap(val, false);
+										}),
+									reqdmap_btn_add = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_PLUS,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_dmaps.insert(*req_dmap);
+											updateConditions();
+											for (int q = *req_dmap; q < MAXDMAPS; ++q)
+											{
+												if (local_subref->req_dmaps.contains(q))
+												{
+													if (q+1 >= MAXDMAPS)
+													{
+														for (int q = *req_dmap; q >= 0; --q)
+														{
+															if (local_subref->req_dmaps.contains(q))
+																continue;
+															req_dmap = q;
+															break;
+														}
+													}
+													continue;
+												}
+												req_dmap = q;
+												break;
+											}
+											update_req_dmap(*req_dmap);
+										})
+								)
+							)
+						)
+					),
+					Row(
+						Frame(title = "Level Items", info = "All checked LItems are required, unless 'Invert' is checked, then it is required to have none instead."
+							"\nIf 'Any' is checked, then any checked LItem will satisfy the requirement - or if 'Invert' is also checked, then being missing any checked LItem will satisfy it.",
+							Rows<3>(
+								Button(colSpan = 3, text = "Pick LItems",
 									onPressFunc = [&]()
 									{
-										local_subref->req_dmap_floors.erase(*dmap_floor);
-										updateConditions();
-										update_dmap_floor(req_floor_list->getSelectedValue());
-									}),
-								seltfs[1] = TextField(
+										int32_t flags = local_subref->req_litems;
+										auto const litem_names = GUI::ZCCheckListData::level_items();
+										if(!call_checklist_dialog("Select 'Level Items'",litem_names,flags))
+											return;
+										local_subref->req_litems = flags;
+									}
+								),
+								//
+								Label(text = "For Level:"),
+								TextField(
 									fitParent = true,
+									vPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 255, val = *dmap_floor,
+									low = -1, high = MAXLEVELS, val = local_subref->req_litem_level,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										update_dmap_floor(val, false);
+										local_subref->req_litem_level = val;
 									}),
-								reqfloor_btn_add = Button(type = GUI::Button::type::ICON,
-									icon = BTNICON_PLUS,
-									width = btnsz, height = btnsz,
+								INFOBTN("The required litems will be for this specified level. Specifying '-1' will require the items"
+									" for the *current* level."),
+								Checkbox(
+									text = "Invert", hAlign = 1.0, colSpan = 2,
+									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_LITEM,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_LITEM,state);
+									}
+								),
+								INFOBTN("If checked, it will be required to have NONE of the LItems instead of ALL of the LItems."),
+								Checkbox(
+									text = "Any", hAlign = 1.0, colSpan = 2,
+									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_LITEM,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_LITEM,state);
+									}
+								),
+								INFOBTN("If checked, it will be required to have ANY of the LItems instead of ALL of the LItems.")
+							)
+						),
+						Frame(title = "Level States", info = "All checked Level States are required, unless 'Invert' is checked, then it is required to have none instead."
+							"\nIf 'Any' is checked, then any checked Level State will satisfy the requirement - or if 'Invert' is also checked, then being missing any checked Level State will satisfy it.",
+							Rows<3>(
+								Button(colSpan = 3, text = "Pick Level States",
 									onPressFunc = [&]()
 									{
-										local_subref->req_dmap_floors.insert(*dmap_floor);
-										updateConditions();
-										for (int q = *dmap_floor; q < 256; ++q)
-										{
-											if (local_subref->req_dmap_floors.contains(q))
-											{
-												if (q+1 >= 256)
-												{
-													for (int q = *dmap_floor; q >= 0; --q)
-													{
-														if (local_subref->req_dmap_floors.contains(q))
-															continue;
-														dmap_floor = q;
-														break;
-													}
-												}
-												continue;
-											}
-											dmap_floor = q;
-											break;
-										}
-										update_dmap_floor(*dmap_floor);
-									})
-							),
-							Button(text = "Invert",
-								onPressFunc = [&]()
-								{
-									std::set<byte> req;
-									for (int q = 0; q < 256; ++q)
-									{
-										if (local_subref->req_dmap_floors.contains(q))
-											continue;
-										req.insert(byte(q));
+										int32_t flags = local_subref->req_lvlstate;
+										auto const lstate_names = GUI::ZCCheckListData::level_states();
+										if(!call_checklist_dialog("Select 'Level States'",lstate_names,flags))
+											return;
+										local_subref->req_lvlstate = flags;
 									}
-									local_subref->req_dmap_floors = req;
-									refresh_dlg();
-								})
-						)
-					),
-					Frame(title = "Level Items", info = "All checked LItems are required, unless 'Invert' is checked, then it is required to have none instead."
-						"\nIf 'Any' is checked, then any checked LItem will satisfy the requirement - or if 'Invert' is also checked, then being missing any checked LItem will satisfy it.",
-						Rows<3>(
-							Button(colSpan = 3, text = "Pick LItems",
-								onPressFunc = [&]()
-								{
-									int32_t flags = local_subref->req_litems;
-									auto const litem_names = GUI::ZCCheckListData::level_items();
-									if(!call_checklist_dialog("Select 'Level Items'",litem_names,flags))
-										return;
-									local_subref->req_litems = flags;
-								}
-							),
-							//
-							Label(text = "For Level:"),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = MAXLEVELS, val = local_subref->req_litem_level,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_subref->req_litem_level = val;
-								}),
-							INFOBTN("The required litems will be for this specified level. Specifying '-1' will require the items"
-								" for the *current* level."),
-							Checkbox(
-								text = "Invert", hAlign = 1.0, colSpan = 2,
-								boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
-								checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_LITEM,
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_LITEM,state);
-								}
-							),
-							INFOBTN("If checked, it will be required to have NONE of the LItems instead of ALL of the LItems."),
-							Checkbox(
-								text = "Any", hAlign = 1.0, colSpan = 2,
-								boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
-								checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_LITEM,
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_LITEM,state);
-								}
-							),
-							INFOBTN("If checked, it will be required to have ANY of the LItems instead of ALL of the LItems.")
-						)
-					),
-					Frame(title = "Level States", info = "All checked Level States are required, unless 'Invert' is checked, then it is required to have none instead."
-						"\nIf 'Any' is checked, then any checked Level State will satisfy the requirement - or if 'Invert' is also checked, then being missing any checked Level State will satisfy it.",
-						Rows<3>(
-							Button(colSpan = 3, text = "Pick Level States",
-								onPressFunc = [&]()
-								{
-									int32_t flags = local_subref->req_lvlstate;
-									auto const lstate_names = GUI::ZCCheckListData::level_states();
-									if(!call_checklist_dialog("Select 'Level States'",lstate_names,flags))
-										return;
-									local_subref->req_lvlstate = flags;
-								}
-							),
-							//
-							Label(text = "For Level:"),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = MAXLEVELS, val = local_subref->req_lstate_level,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_subref->req_lstate_level = val;
-								}),
-							INFOBTN("The required level states will be for this specified level. Specifying '-1' will require the states"
-								" for the *current* level."),
-							Checkbox(
-								text = "Invert", hAlign = 1.0, colSpan = 2,
-								boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
-								checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_LSTATE,
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_LSTATE,state);
-								}
-							),
-							INFOBTN("If checked, it will be required to have NONE of the Level States instead of ALL of the Level States."),
-							Checkbox(
-								text = "Any", hAlign = 1.0, colSpan = 2,
-								boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
-								checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_LSTATE,
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_LSTATE,state);
-								}
-							),
-							INFOBTN("If checked, it will be required to have ANY of the Level States instead of ALL of the Level States.")
+								),
+								//
+								Label(text = "For Level:"),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -1, high = MAXLEVELS, val = local_subref->req_lstate_level,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_subref->req_lstate_level = val;
+									}),
+								INFOBTN("The required level states will be for this specified level. Specifying '-1' will require the states"
+									" for the *current* level."),
+								Checkbox(
+									text = "Invert", hAlign = 1.0, colSpan = 2,
+									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_INVERT_LSTATE,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_INVERT_LSTATE,state);
+									}
+								),
+								INFOBTN("If checked, it will be required to have NONE of the Level States instead of ALL of the Level States."),
+								Checkbox(
+									text = "Any", hAlign = 1.0, colSpan = 2,
+									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_LSTATE,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_LSTATE,state);
+									}
+								),
+								INFOBTN("If checked, it will be required to have ANY of the Level States instead of ALL of the Level States.")
+							)
 						)
 					)
 				)
 			),
-			TabRef(name = "Other",
+			TabRef(name = "Map / Screen",
 				Column(
-					Frame(title = "Counter Requirement", info = "If either the counter or the operator is 'None', no counter will be checked."
-						" If 'Percentage Value' is checked, the percent of total of the selected counter will be compared;"
-						" else if 'Max Value' is checked, the max value of the selected counter will be compared. If neither is checked,"
-						" the current value of the counter will be compared.",
-						Column(
-							Row(
-								DropDownList(data = list_counters,
-									fitParent = true,
-									selectedValue = local_subref->req_counter,
+					Row(
+						Frame(title = "Map ID", info = "Requires that the current map number matches one of the listed numbers.",
+							Column(
+								req_map_list = List(prefheight = 6_em,
+									forceFitW = true,
+									data = list_reqmaps,
+									focused = true,
+									selectedValue = list_reqmaps.empty() ? -1 : *req_map,
 									onSelectFunc = [&](int32_t val)
 									{
-										local_subref->req_counter = val;
+										update_req_map(val);
 									}),
-								DropDownList(data = list_condty,
-									fitParent = true,
-									selectedValue = local_subref->req_counter_cond_type,
+								Row(
+									reqmap_btn_del = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_TRASH,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_maps.erase(*req_map);
+											updateConditions();
+											update_req_map(req_map_list->getSelectedValue());
+										}),
+									condtfs[3] = TextField(
+										fitParent = true,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 1, high = map_count, val = *req_map,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											update_req_map(val, false);
+										}),
+									reqmap_btn_add = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_PLUS,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_maps.insert(*req_map);
+											updateConditions();
+											for (int q = *req_map; q <= map_count; ++q)
+											{
+												if (local_subref->req_maps.contains(q))
+												{
+													if (q+1 > map_count)
+													{
+														for (int q = *req_map; q >= 1; --q)
+														{
+															if (local_subref->req_maps.contains(q))
+																continue;
+															req_map = q;
+															break;
+														}
+													}
+													continue;
+												}
+												req_map = q;
+												break;
+											}
+											update_req_map(*req_map);
+										})
+								)
+							)
+						),
+						Frame(title = "Screen ID", info = "Requires that the current screen number (not including dmap offset) matches one of the listed numbers.",
+							Column(
+								req_screen_list = List(prefheight = 6_em,
+									forceFitW = true,
+									data = list_reqscreens,
+									focused = true,
+									selectedValue = list_reqscreens.empty() ? -1 : *req_screen,
 									onSelectFunc = [&](int32_t val)
 									{
-										local_subref->req_counter_cond_type = val;
+										update_req_screen(val);
 									}),
-								TextField(
-									fitParent = true,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 65535, val = local_subref->req_counter_val,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_subref->req_counter_val = val;
-									})
-							),
-							Row(
-								Checkbox(
-									text = "Max Value", hAlign = 0.0,
-									checked = local_subref->genflags & SUBSCRFLAG_REQ_COUNTER_MAX,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_COUNTER_MAX,state);
-									}),
-								Checkbox(
-									text = "Percentage Value", hAlign = 0.0,
-									checked = local_subref->genflags & SUBSCRFLAG_REQ_COUNTER_PERC,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_COUNTER_PERC,state);
-									})
+								Row(
+									reqscreen_btn_del = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_TRASH,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_screens.erase(*req_screen);
+											updateConditions();
+											update_req_screen(req_screen_list->getSelectedValue());
+										}),
+									condtfs[4] = TextField(
+										fitParent = true,
+										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+										swap_type = nswapHEX,
+										low = 0, high = MAPSCRSNORMAL, val = *req_screen,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											update_req_screen(val, false);
+										}),
+									reqscreen_btn_add = Button(type = GUI::Button::type::ICON,
+										icon = BTNICON_PLUS,
+										width = btnsz, height = btnsz,
+										onPressFunc = [&]()
+										{
+											local_subref->req_screens.insert(*req_screen);
+											updateConditions();
+											for (int q = *req_screen; q < MAPSCRSNORMAL; ++q)
+											{
+												if (local_subref->req_screens.contains(q))
+												{
+													if (q+1 >= MAPSCRSNORMAL)
+													{
+														for (int q = *req_screen; q >= 0; --q)
+														{
+															if (local_subref->req_screens.contains(q))
+																continue;
+															req_screen = q;
+															break;
+														}
+													}
+													continue;
+												}
+												req_screen = q;
+												break;
+											}
+											update_req_screen(*req_screen);
+										})
+								)
 							)
 						)
 					),
@@ -2211,19 +2398,19 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								TextField(
 									type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 									low = 0, high = map_count,
-									val = local_subref->req_map, minwidth = 4_em,
+									val = local_subref->req_scrstate_map, minwidth = 4_em,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										local_subref->req_map = val;
+										local_subref->req_scrstate_map = (word)val;
 									}),
 								Label(text = "Screen:"),
 								TextField(
 									type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 									low = -1, high = MAPSCRSNORMAL-1,
-									val = local_subref->req_scr, swap_type = nswapHEX,
+									val = local_subref->req_scrstate_scr, swap_type = nswapHEX,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										local_subref->req_scr = val;
+										local_subref->req_scrstate_scr = (int16_t)val;
 									})
 							),
 							Row(
@@ -2273,6 +2460,57 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						)
 					)
 				)
+			),
+			TabRef(name = "Counter",
+				Column(
+					Frame(title = "Counter Requirement", info = "If either the counter or the operator is 'None', no counter will be checked."
+						" If 'Percentage Value' is checked, the percent of total of the selected counter will be compared;"
+						" else if 'Max Value' is checked, the max value of the selected counter will be compared. If neither is checked,"
+						" the current value of the counter will be compared.",
+						Column(
+							Row(
+								DropDownList(data = list_counters,
+									fitParent = true,
+									selectedValue = local_subref->req_counter,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_subref->req_counter = val;
+									}),
+								DropDownList(data = list_condty,
+									fitParent = true,
+									selectedValue = local_subref->req_counter_cond_type,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_subref->req_counter_cond_type = val;
+									}),
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 65535, val = local_subref->req_counter_val,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_subref->req_counter_val = val;
+									})
+							),
+							Row(
+								Checkbox(
+									text = "Max Value", hAlign = 0.0,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_COUNTER_MAX,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_COUNTER_MAX,state);
+									}),
+								Checkbox(
+									text = "Percentage Value", hAlign = 0.0,
+									checked = local_subref->genflags & SUBSCRFLAG_REQ_COUNTER_PERC,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_COUNTER_PERC,state);
+									})
+							)
+						)
+					)
+				)
 			)
 		)
 	));
@@ -2312,6 +2550,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	);
 	cond_item_sels[CI_PICKED] = cond_itms_list->getSelectedValue();
 	update_dmap_floor(req_floor_list->getSelectedValue());
+	update_dmap_level(req_level_list->getSelectedValue());
+	update_req_dmap(req_dmap_list->getSelectedValue());
+	update_req_map(req_map_list->getSelectedValue());
+	update_req_screen(req_screen_list->getSelectedValue());
 	updateSelectable();
 	updateAttr();
 	updatePreview();
@@ -2457,7 +2699,6 @@ void SubscrPropDialog::updateConditions()
 		cond_item_sels[CI_REQ_NOT] = req_not_item_list->getSelectedValue();
 	}
 	
-	
 	bool req_floor_empty = local_subref->req_dmap_floors.empty();
 	list_reqfloors.clear();
 	if (req_floor_empty)
@@ -2476,19 +2717,133 @@ void SubscrPropDialog::updateConditions()
 		else req_floor_list->setSelectedValue(sel);
 	}
 	
+	
+	bool req_level_empty = local_subref->req_dmap_levels.empty();
+	list_reqlevels.clear();
+	if (req_level_empty)
+		list_reqlevels.add("---", -1);
+	else for (auto level : local_subref->req_dmap_levels)
+	{
+		list_reqlevels.add(fmt::format("({:03})", level), level);
+	}
+	if(req_level_list)
+	{
+		auto sel = req_level_list->getSelectedValue();
+		req_level_list->setListData(list_reqlevels);
+		
+		if (req_level_empty)
+			req_level_list->setSelectedValue(-1);
+		else req_level_list->setSelectedValue(sel);
+	}
+	bool req_dmap_empty = local_subref->req_dmaps.empty();
+	list_reqdmaps.clear();
+	if (req_dmap_empty)
+		list_reqdmaps.add("---", -1);
+	else for (auto dmap : local_subref->req_dmaps)
+	{
+		list_reqdmaps.add(list_dmaps.accessItem(dmap));
+	}
+	if(req_dmap_list)
+	{
+		auto sel = req_dmap_list->getSelectedValue();
+		req_dmap_list->setListData(list_reqdmaps);
+		
+		if (req_dmap_empty)
+			req_dmap_list->setSelectedValue(-1);
+		else req_dmap_list->setSelectedValue(sel);
+	}
+	bool req_map_empty = local_subref->req_maps.empty();
+	list_reqmaps.clear();
+	if (req_map_empty)
+		list_reqmaps.add("---", -1);
+	else for (auto map : local_subref->req_maps)
+	{
+		list_reqmaps.add(fmt::format("({:03})", map), map);
+	}
+	if(req_map_list)
+	{
+		auto sel = req_map_list->getSelectedValue();
+		req_map_list->setListData(list_reqmaps);
+		
+		if (req_map_empty)
+			req_map_list->setSelectedValue(-1);
+		else req_map_list->setSelectedValue(sel);
+	}
+	bool req_screen_empty = local_subref->req_screens.empty();
+	list_reqscreens.clear();
+	if (req_screen_empty)
+		list_reqscreens.add("---", -1);
+	else for (auto screen : local_subref->req_screens)
+	{
+		list_reqscreens.add(fmt::format("0x{:#X} ({:03})", screen, screen), screen);
+	}
+	if(req_screen_list)
+	{
+		auto sel = req_screen_list->getSelectedValue();
+		req_screen_list->setListData(list_reqscreens);
+		
+		if (req_screen_empty)
+			req_screen_list->setSelectedValue(-1);
+		else req_screen_list->setSelectedValue(sel);
+	}
+	
 	pendDraw();
 }
 
 void SubscrPropDialog::update_dmap_floor(int val, bool update_tf)
 {
 	if (val < 0) val = 0;
-	dmap_floor = val;
+	req_dmap_floor = val;
 	bool in_list = list_reqfloors.hasKey(val);
 	reqfloor_btn_del->setDisabled(!in_list);
 	reqfloor_btn_add->setDisabled(in_list);
 	if (in_list) req_floor_list->setSelectedValue(val);
 	if (update_tf)
-		seltfs[1]->setVal(val);
+		condtfs[1]->setVal(val);
+}
+void SubscrPropDialog::update_dmap_level(int val, bool update_tf)
+{
+	if (val < 0) val = 0;
+	req_dmap_level = val;
+	bool in_list = list_reqlevels.hasKey(val);
+	reqlevel_btn_del->setDisabled(!in_list);
+	reqlevel_btn_add->setDisabled(in_list);
+	if (in_list) req_level_list->setSelectedValue(val);
+	if (update_tf)
+		condtfs[2]->setVal(val);
+}
+void SubscrPropDialog::update_req_dmap(int val, bool update_ddl)
+{
+	if (val < 0) val = 0;
+	req_dmap = val;
+	bool in_list = list_reqdmaps.hasKey(val);
+	reqdmap_btn_del->setDisabled(!in_list);
+	reqdmap_btn_add->setDisabled(in_list);
+	if (in_list) req_dmap_list->setSelectedValue(val);
+	if (update_ddl)
+		condddls[0]->setSelectedValue(val);
+}
+void SubscrPropDialog::update_req_map(int val, bool update_tf)
+{
+	if (val < 0) val = 0;
+	req_map = val;
+	bool in_list = list_reqmaps.hasKey(val);
+	reqmap_btn_del->setDisabled(!in_list);
+	reqmap_btn_add->setDisabled(in_list);
+	if (in_list) req_map_list->setSelectedValue(val);
+	if (update_tf)
+		condtfs[3]->setVal(val);
+}
+void SubscrPropDialog::update_req_screen(int val, bool update_tf)
+{
+	if (val < 0) val = 0;
+	req_screen = val;
+	bool in_list = list_reqscreens.hasKey(val);
+	reqscreen_btn_del->setDisabled(!in_list);
+	reqscreen_btn_add->setDisabled(in_list);
+	if (in_list) req_screen_list->setSelectedValue(val);
+	if (update_tf)
+		condtfs[4]->setVal(val);
 }
 
 void SubscrPropDialog::update_wh()

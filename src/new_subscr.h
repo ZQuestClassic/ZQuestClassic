@@ -347,12 +347,11 @@ struct SubscrWidget
 	std::string label;
 	
 	//Conditionals
-	std::set<byte> req_owned_items;
-	std::set<byte> req_unowned_items;
-	std::set<byte> req_dmap_floors;
+	std::set<byte> req_owned_items, req_unowned_items, req_dmap_floors, req_screens;
+	std::set<word> req_dmap_levels, req_dmaps, req_maps;
 	
-	word req_map = 0;
-	int16_t req_scr = 0;
+	word req_scrstate_map = 0;
+	int16_t req_scrstate_scr = 0;
 	dword req_scrstate = 0, req_exstate = 0;
 	
 	int16_t req_counter = crNONE;

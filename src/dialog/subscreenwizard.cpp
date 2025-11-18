@@ -272,8 +272,8 @@ bool SubscreenWizardDialog::finalize()
 						}
 						if (pass == 1)
 						{
-							widg->req_map = mapid;
-							widg->req_scr = screen;
+							widg->req_scrstate_map = mapid;
+							widg->req_scrstate_scr = screen;
 							widg->req_scrstate = mVISITED;
 						}
 					}

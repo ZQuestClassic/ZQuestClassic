@@ -178,10 +178,42 @@ class subscreenwidget {
 	// The current dmap's [dmapdata::Floor] must be true in this array (or every index of
 	// this array must be false) for the widget to be active/visible.
 	//
-	// @index 0-255
+	// @length 256
 	//
-	// @zasm_var SUBWIDGREQDMAPFLOOR
+	// @zasm_var SUBWIDGREQ_DMAP_FLOOR
 	internal bool RequiredDMapFloors[];
+	
+	// The current dmap's [dmapdata::Level] must be true in this array (or every index of
+	// this array must be false) for the widget to be active/visible.
+	//
+	// @length [NUM_LEVELS]
+	//
+	// @zasm_var SUBWIDGREQ_DMAP_LEVEL
+	internal bool RequiredDMapLevels[];
+	
+	// The current dmap's [dmapdata::ID] must be true in this array (or every index of
+	// this array must be false) for the widget to be active/visible.
+	//
+	// @length [MAX_DMAPS]
+	//
+	// @zasm_var SUBWIDGREQ_DMAP
+	internal bool RequiredDMaps[];
+	
+	// The current map's index must be true in this array (or every index of
+	// this array must be false) for the widget to be active/visible.
+	//
+	// @length [Game::MapCount]
+	//
+	// @zasm_var SUBWIDGREQ_MAP
+	internal bool RequiredMaps[];
+	
+	// The current screen's index must be true in this array (or every index of
+	// this array must be false) for the widget to be active/visible.
+	//
+	// @length 128
+	//
+	// @zasm_var SUBWIDGREQ_SCREEN
+	internal bool RequiredScreens[];
 	
 	// The counter this widget requires to be active/visible.
 	// Must relate to the [RequiredCounterValue] based on the [RequiredCounterCond].
@@ -229,23 +261,23 @@ class subscreenwidget {
 	//
 	// @index 0-31
 	//
-	// @zasm_var SUBWIDGREQLSTATE
+	// @zasm_var SUBWIDGREQ_LEVEL_STATE
 	internal bool RequiredLStates[];
 	
 	// The Level that [RequiredLStates] are checked for. If set to '-1', uses the
 	// current level.
 	//
-	// @zasm_var SUBWIDGREQLSTATELEVEL
+	// @zasm_var SUBWIDGREQ_LEVEL_STATE_LEVEL
 	internal int RequiredLStateLevel;
 	
 	// The Map to require screen states or exstates for.
 	//
-	// @zasm_var SUBWIDGREQMAP
+	// @zasm_var SUBWIDGREQ_SCRSTATE_MAP
 	internal int RequiredScreenStateMap;
 	
 	// The Map to require screen states or exstates for. If '-1', uses the current map+screen, ignoring [RequiredScreenStateMap].
 	//
-	// @zasm_var SUBWIDGREQSCREEN
+	// @zasm_var SUBWIDGREQ_SCRSTATE_SCREEN
 	internal int RequiredScreenStateScreen;
 	
 	// The Screen States that are required to be set (or unset, if [SUBW_GENFL_REQ_INVERT_SCRSTATE] is set)
@@ -253,7 +285,7 @@ class subscreenwidget {
 	//
 	// @index [enum ScreenState]
 	//
-	// @zasm_var SUBWIDGREQSCREENSTATE
+	// @zasm_var SUBWIDGREQ_SCRSTATE_STATE
 	internal bool RequiredScreenStates[];
 	
 	// The Screen ExStates that are required to be set (or unset, if [SUBW_GENFL_REQ_INVERT_SCRSTATE] is set)
@@ -261,7 +293,7 @@ class subscreenwidget {
 	//
 	// @index 0-31
 	//
-	// @zasm_var SUBWIDGREQEXSTATE
+	// @zasm_var SUBWIDGREQ_SCRSTATE_EXSTATE
 	internal bool RequiredScreenExStates[];
 	
 	// If set to 'true', the widget will not be active/visible.

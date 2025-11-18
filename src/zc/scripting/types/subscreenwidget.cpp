@@ -225,73 +225,55 @@ static ArrayRegistrar SUBWIDGTRANSPGFLAGS_registrar(SUBWIDGTRANSPGFLAGS, []{
 }());
 
 static ArrayRegistrar SUBWIDGREQOWNITEMS_registrar(SUBWIDGREQOWNITEMS, []{
-	static ScriptingArray_ObjectComputed<SubscrWidget, bool> impl(
-		[](SubscrWidget* widg){
-			return MAXITEMS;
-		},
-		[](SubscrWidget* widg, int index) -> bool {
-			return widg->req_owned_items.contains(index);
-		},
-		[](SubscrWidget* widg, int index, bool value){
-			if (value)
-				widg->req_owned_items.insert(index);
-			else
-				widg->req_owned_items.erase(index);
-		}
-	);
+	static ScriptingArray_ObjectMemberSet<SubscrWidget, &SubscrWidget::req_owned_items, MAXITEMS> impl;
 	impl.setMul10000(true);
 	return &impl;
 }());
 
 static ArrayRegistrar SUBWIDGREQUNOWNITEMS_registrar(SUBWIDGREQUNOWNITEMS, []{
-	static ScriptingArray_ObjectComputed<SubscrWidget, bool> impl(
-		[](SubscrWidget* widg){
-			return MAXITEMS;
-		},
-		[](SubscrWidget* widg, int index) -> bool {
-			return widg->req_unowned_items.contains(index);
-		},
-		[](SubscrWidget* widg, int index, bool value){
-			if (value)
-				widg->req_unowned_items.insert(index);
-			else
-				widg->req_unowned_items.erase(index);
-		}
-	);
+	static ScriptingArray_ObjectMemberSet<SubscrWidget, &SubscrWidget::req_unowned_items, MAXITEMS> impl;
 	impl.setMul10000(true);
 	return &impl;
 }());
 
-static ArrayRegistrar SUBWIDGREQDMAPFLOOR_registrar(SUBWIDGREQDMAPFLOOR, []{
-	static ScriptingArray_ObjectComputed<SubscrWidget, bool> impl(
-		[](SubscrWidget* widg){
-			return 256;
-		},
-		[](SubscrWidget* widg, int index) -> bool {
-			return widg->req_dmap_floors.contains(index);
-		},
-		[](SubscrWidget* widg, int index, bool value){
-			if (value)
-				widg->req_dmap_floors.insert(index);
-			else
-				widg->req_dmap_floors.erase(index);
-		}
-	);
+static ArrayRegistrar SUBWIDGREQ_DMAP_FLOOR_registrar(SUBWIDGREQ_DMAP_FLOOR, []{
+	static ScriptingArray_ObjectMemberSet<SubscrWidget, &SubscrWidget::req_dmap_floors, 256> impl;
 	impl.setMul10000(true);
 	return &impl;
 }());
 
-static ArrayRegistrar SUBWIDGREQSCREENSTATE_registrar(SUBWIDGREQSCREENSTATE, []{
+static ArrayRegistrar SUBWIDGREQ_DMAP_LEVEL_registrar(SUBWIDGREQ_DMAP_LEVEL, []{
+	static ScriptingArray_ObjectMemberSet<SubscrWidget, &SubscrWidget::req_dmap_levels, MAXLEVELS> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+static ArrayRegistrar SUBWIDGREQ_DMAP_registrar(SUBWIDGREQ_DMAP, []{
+	static ScriptingArray_ObjectMemberSet<SubscrWidget, &SubscrWidget::req_dmaps, MAXDMAPS> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+static ArrayRegistrar SUBWIDGREQ_SCREEN_registrar(SUBWIDGREQ_SCREEN, []{
+	static ScriptingArray_ObjectMemberSet<SubscrWidget, &SubscrWidget::req_maps, MAXMAPS> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+static ArrayRegistrar SUBWIDGREQ_MAP_registrar(SUBWIDGREQ_MAP, []{
+	static ScriptingArray_ObjectMemberSet<SubscrWidget, &SubscrWidget::req_screens, MAPSCRSNORMAL> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar SUBWIDGREQ_SCRSTATE_STATE_registrar(SUBWIDGREQ_SCRSTATE_STATE, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidget, &SubscrWidget::req_scrstate, mMAXIND> impl;
 	impl.setMul10000(true);
 	return &impl;
 }());
-static ArrayRegistrar SUBWIDGREQEXSTATE_registrar(SUBWIDGREQEXSTATE, []{
+static ArrayRegistrar SUBWIDGREQ_SCRSTATE_EXSTATE_registrar(SUBWIDGREQ_SCRSTATE_EXSTATE, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidget, &SubscrWidget::req_exstate, 32> impl;
 	impl.setMul10000(true);
 	return &impl;
 }());
-static ArrayRegistrar SUBWIDGREQLSTATE_registrar(SUBWIDGREQLSTATE, []{
+static ArrayRegistrar SUBWIDGREQ_LEVEL_STATE_registrar(SUBWIDGREQ_LEVEL_STATE, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<SubscrWidget, &SubscrWidget::req_lvlstate, 32> impl;
 	impl.setMul10000(true);
 	return &impl;
