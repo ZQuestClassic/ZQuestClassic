@@ -4958,7 +4958,7 @@ void textprintf_disabled(BITMAP *bmp, AL_CONST FONT *f, int32_t x, int32_t y, in
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     
@@ -4977,7 +4977,7 @@ void textprintf_centre_disabled(BITMAP *bmp, AL_CONST FONT *f, int32_t x, int32_
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_centre_ex(bmp, f, buf, x+1, y+1, color_hl, -1);

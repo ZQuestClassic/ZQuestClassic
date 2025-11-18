@@ -1901,7 +1901,7 @@ void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_styled_aligned_ex(bmp, f, buf, x, y, textstyle, alignment, color, shadow, bg);

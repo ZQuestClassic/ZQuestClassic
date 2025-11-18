@@ -1250,7 +1250,7 @@ void textprintf_shadow_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int3
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_ex(bmp, f, buf, x, y, shadow, bg);
@@ -1265,7 +1265,7 @@ void textprintf_shadow_center_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t 
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
@@ -1280,7 +1280,7 @@ void textprintf_shadow_right_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_ex(bmp, f, buf, x-text_length(f, buf), y, shadow, bg);
@@ -1296,7 +1296,7 @@ void textprintf_shadow_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, in
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_u_ex(bmp, f, buf, x, y, shadow, bg);
@@ -1311,7 +1311,7 @@ void textprintf_shadow_center_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_u_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
@@ -1326,7 +1326,7 @@ void textprintf_shadow_right_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_u_ex(bmp, f, buf, x-text_length(f, buf), y, shadow, bg);
@@ -1342,7 +1342,7 @@ void textprintf_shadow_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, in
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_o_ex(bmp, f, buf, x, y, shadow, bg);
@@ -1357,7 +1357,7 @@ void textprintf_shadow_center_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_o_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
@@ -1372,7 +1372,7 @@ void textprintf_shadow_right_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_o_ex(bmp, f, buf, x-text_length(f, buf), y, shadow, bg);
@@ -1393,7 +1393,7 @@ void textprintf_shadow_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y,
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_plus_ex(bmp, f, buf, x, y, shadow, bg);
@@ -1408,7 +1408,7 @@ void textprintf_shadow_center_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_plus_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
@@ -1423,7 +1423,7 @@ void textprintf_shadow_right_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int3
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_plus_ex(bmp, f, buf, x-text_length(f, buf), y, shadow, bg);
@@ -1438,7 +1438,7 @@ void textprintf_shadow_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, in
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_x_ex(bmp, f, buf, x, y, shadow, bg);
@@ -1453,7 +1453,7 @@ void textprintf_shadow_center_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_x_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
@@ -1468,7 +1468,7 @@ void textprintf_shadow_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadow_x_ex(bmp, f, buf, x-text_length(f, buf), y, shadow, bg);
@@ -1483,7 +1483,7 @@ void textprintf_shadowed_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, in
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_ex(bmp, f, buf, x, y, color, shadow, bg);
@@ -1498,7 +1498,7 @@ void textprintf_shadowed_center_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
@@ -1513,7 +1513,7 @@ void textprintf_shadowed_right_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
@@ -1528,7 +1528,7 @@ void textprintf_shadowed_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, 
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_u_ex(bmp, f, buf, x, y, color, shadow, bg);
@@ -1543,7 +1543,7 @@ void textprintf_shadowed_center_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int3
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_u_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
@@ -1558,7 +1558,7 @@ void textprintf_shadowed_right_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_u_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
@@ -1573,7 +1573,7 @@ void textprintf_shadowed_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, 
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_o_ex(bmp, f, buf, x, y, color, shadow, bg);
@@ -1588,7 +1588,7 @@ void textprintf_shadowed_center_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int3
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_o_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
@@ -1603,7 +1603,7 @@ void textprintf_shadowed_right_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_o_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
@@ -1618,7 +1618,7 @@ void textprintf_shadowed_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t 
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_plus_ex(bmp, f, buf, x, y, color, shadow, bg);
@@ -1633,7 +1633,7 @@ void textprintf_shadowed_center_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, i
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_plus_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
@@ -1648,7 +1648,7 @@ void textprintf_shadowed_right_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, in
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_plus_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
@@ -1664,7 +1664,7 @@ void textprintf_shadowed_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, 
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_x_ex(bmp, f, buf, x, y, color, shadow, bg);
@@ -1679,7 +1679,7 @@ void textprintf_shadowed_center_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int3
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_x_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
@@ -1694,7 +1694,7 @@ void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32
     ASSERT(format);
     
     va_start(ap, format);
-    uvszprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
     
     textout_shadowed_x_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
