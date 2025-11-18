@@ -1054,7 +1054,10 @@ static GUI::ListData compatRulesList
 		"If enabled, shields with 'Active Use' checked, and Roc Items with 'Button' set to non-zero,"
 		" will not run their Action Script." },
 	{ "Only 'Visit' Screens On Mappable DMaps", qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE,
-		"If enabled, screens only have their 'Visited' state set if the current dmap has the flag to allow viewing the map checked." }
+		"If enabled, screens only have their 'Visited' state set if the current dmap has the flag to allow viewing the map checked." },
+	{ "Active/Map Subscreens Always 168 Tall", qr_ACTIVE_SUB_IGNORE_8PX,
+		"If enabled, Active/Map subscrens will be 168 pixels tall, regardless of the 'Hide Bottom 8 Pixels' rule. The extra space will be filled with black."
+		"\nOtherwise, the Active/Map subscreen will match the height based on the 'Hide Bottom 8 Pixels' setting."},
 };
 
 static GUI::ListData enemiesRulesList

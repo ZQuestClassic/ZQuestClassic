@@ -32,7 +32,7 @@ void put_active_subscr(int32_t y, int32_t pos)
 	// Active subscreens do not yet get to use those 8 extra pixels. Until then,
 	// draw 8 black pixels at the top (as the active subscreen will move an additional
 	// 8 pixels and so must obscure the playing field somehow).
-	if (opening_subscr_show_bottom_8px)
+	if (opening_subscr_show_bottom_8px && get_qr(qr_ACTIVE_SUB_IGNORE_8PX))
 	{
 		rectfill(framebuf, 0, y, framebuf->w, y+8-1, BLACK);
 		y += 8;
