@@ -15,10 +15,12 @@
 #include "gui/radioset.h"
 #include "zq/gui/seltile_swatch.h"
 #include "zq/gui/misc_color_sel.h"
+#include "tilepicker.h"
 
 enum class subwizardtype{
 	SW_ITEM_GRID,
-	SW_COUNTER_BLOCK
+	SW_COUNTER_BLOCK,
+	SW_MAP_TILEBLOCK,
 };
 
 void call_subscreen_wizard(subwizardtype stype, int32_t x = 0, int32_t y = 0);
@@ -47,7 +49,11 @@ private:
 	std::shared_ptr<GUI::Radio> rset[10][10];
 	std::shared_ptr<GUI::SelTileSwatch> tswatches[10];
 	std::shared_ptr<GUI::MiscColorSel> misccolorsel[3];
+	
+	int tf_values[10];
 	int32_t misccolors[3][2];
+	bool cbvals[20];
+	size_t rs_sel[10];
 	size_t rs_sz[10];
 
 	GUI::ListData list_font, list_shadtype;
@@ -55,8 +61,8 @@ private:
 	void setRadio(size_t rs, size_t ind);
 	size_t getRadio(size_t rs);
 
-	void endUpdate();
-
+	bool finalize();
+	
 	void updateTitle();
 
 	SubscreenWizardDialog(subwizardtype stype, int32_t x, int32_t y);

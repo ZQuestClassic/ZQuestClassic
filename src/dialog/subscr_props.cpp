@@ -1504,6 +1504,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						minheight = 32_px*TB_LA+4_px,
 						tile = w->tile,
 						cset = w->cs.get_cset(),
+						flip = w->flip,
+						showFlip = true,
 						showvals = false,
 						tilewid = std::min(local_subref->w, (word)TB_LA),
 						tilehei = std::min(local_subref->h, (word)TB_LA),
