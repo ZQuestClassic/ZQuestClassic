@@ -2,6 +2,7 @@
 #include "base/containers.h"
 #include <gui/builder.h>
 #include <utility>
+#include "zq/zq_tiles.h"
 
 bool call_tilepicker_dlg(string const& title, vector<vector<TilePickerData>>& data)
 {
@@ -16,6 +17,8 @@ bool call_tilepicker_dlg(string const& title, vector<vector<TilePickerData>>& da
 TilePickerDialog::TilePickerDialog(string const& title, bool& confirm, vector<vector<TilePickerData>>& data):
 	d_title(title), confirm(confirm), data(data)
 {}
+
+static optional<vector<vector<TilePickerData>>> copied_tiledata;
 
 std::shared_ptr<GUI::Widget> TilePickerDialog::view()
 {
@@ -61,6 +64,54 @@ std::shared_ptr<GUI::Widget> TilePickerDialog::view()
 		padding = 0_px,
 		Column(padding = 0_px,
 			grid,
+			Row(
+				Button(text = "Copy",
+					onPressFunc = [&]()
+					{
+						copied_tiledata = data;
+						refresh_dlg();
+					}),
+				Button(text = "Paste",
+					disabled = !copied_tiledata,
+					onPressFunc = [&]()
+					{
+						size_t row = 0;
+						for (; row < copied_tiledata->size() && row < data.size(); ++row)
+						{
+							auto& row_data = (*copied_tiledata)[row];
+							auto& dest_row_data = data[row];
+							size_t col = 0;
+							for (; col < row_data.size() && col < dest_row_data.size(); ++col)
+								dest_row_data[col] = row_data[col];
+							for(; col < dest_row_data.size(); ++col) // if copy has less cols, clear the remaining cols in the dest
+								dest_row_data[col] = TilePickerData();
+						}
+						for (; row < data.size(); ++row) // if copy has less rows, clear the remaining rows in the dest
+							for (size_t col = 0; col < data[row].size(); ++col)
+								data[row][col] = TilePickerData();
+						refresh_dlg();
+					}),
+				Button(text = "Set All",
+					onPressFunc = [&]()
+					{
+						int t = 0;
+						int f = 0;
+						int cs = 0;
+						if (select_tile_2(t,f,1,cs,true,0,true))
+						{
+							for (size_t row = 0; row < data.size(); ++row)
+								for (size_t col = 0; col < data[row].size(); ++col)
+								{
+									auto& tpd = data[row][col];
+									tpd.tile = t;
+									tpd.cset = cs;
+									tpd.flip = f;
+								}
+							refresh_dlg();
+						}
+					}
+				)
+			),
 			Row(
 				spacing = 2_em,
 				Button(

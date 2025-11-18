@@ -42,7 +42,6 @@ private:
 
 	int32_t basex, basey;
 	int32_t flags;
-	word required_litems;
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> tfs[10];
 	std::shared_ptr<GUI::DropDownList> ddls[10];
@@ -50,10 +49,12 @@ private:
 	std::shared_ptr<GUI::Radio> rset[10][10];
 	std::shared_ptr<GUI::SelTileSwatch> tswatches[10];
 	std::shared_ptr<GUI::MiscColorSel> misccolorsel[3];
-	int32_t misccolors[3][2];
-	size_t rs_sz[10];
 	
-	std::vector<std::vector<TilePickerData>> tiles_map, tiles_visited;
+	int tf_values[10];
+	int32_t misccolors[3][2];
+	bool cbvals[20];
+	size_t rs_sel[10];
+	size_t rs_sz[10];
 
 	GUI::ListData list_font, list_shadtype;
 
@@ -62,7 +63,6 @@ private:
 
 	bool finalize();
 	
-	void setup();
 	void updateTitle();
 
 	SubscreenWizardDialog(subwizardtype stype, int32_t x, int32_t y);
