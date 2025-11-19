@@ -41,7 +41,7 @@ EMCC_FLAGS=(
   -s USE_LIBPNG=1
   -s USE_ZLIB=1
   -pthread
-  -msse2 -msimd128
+  -msse2 -msimd128 -mssse3
   -I "$EMCC_CACHE_INCLUDE_DIR/AL"
 )
 LINKER_FLAGS=(

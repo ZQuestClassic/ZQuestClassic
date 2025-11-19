@@ -1,6 +1,7 @@
 #include "base/zc_alleg.h"
 #include <cstring>
 #include <emmintrin.h>
+#include <tmmintrin.h>
 
 #include "base/zdefs.h"
 #include "base/zsys.h"
@@ -840,23 +841,147 @@ static void draw_tile8_unified(BITMAP* dest, byte *si, int32_t x, int32_t y, int
     }
 }
 
-// A (slow) function to handle any tile8 draw.
-static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip)
+static void draw_tile8_transparent_fast(BITMAP* dest, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip)
 {
-    for (int32_t dy = 0; dy < 8; ++dy)
-    {
-        for (int32_t dx = 0; dx < 8; ++dx)
-        {
-            int destx = x + (flip&1 ? 7 - dx : dx);
-            int desty = y + (flip&2 ? 7 - dy : dy);
-            if (destx >= cl && desty >= ct && destx < cr && desty < cb)
-            {
-                if (*si) dest->line[desty][destx] = *si + cset;
-            }
-            si++;
-        }
-        si += 8;
-    }
+	bool h_flip = flip & 1;
+	bool v_flip = flip & 2;
+
+	// Prepare constants
+	// cset is added to every pixel. Broadcast it to all bytes in a register.
+	__m128i v_cset = _mm_set1_epi8((char)cset);
+	__m128i v_zero = _mm_setzero_si128();
+	
+	// Mask for horizontal flip (SSSE3 _mm_shuffle_epi8)
+	// Reverses the first 8 bytes: 7, 6, 5, 4, 3, 2, 1, 0, and don't care about the top 8
+	__m128i v_hflip_mask = _mm_set_epi8(
+		15, 14, 13, 12, 11, 10, 9, 8, // Upper 64-bits (unused here)
+		0, 1, 2, 3, 4, 5, 6, 7        // Lower 64-bits (Reverses 0-7)
+	);
+
+	// Vertical flip.
+	int start_dy = 0, end_dy = 8, step_dy = 1;
+	if (v_flip)
+	{
+		start_dy = 7;
+		end_dy = -1;
+		step_dy = -1;
+	}
+
+	const byte* __restrict src_row = si;
+
+	for (int dy = start_dy; dy != end_dy; dy += step_dy)
+	{
+		// Load 8 pixels (64 bits) from source
+		// We use loadl_epi64 to load 8 bytes into the lower half of the XMM register
+		// Because we are reading bytes, alignment isn't usually guaranteed, so we use loadu equivalent implied by loadl.
+		__m128i src_pixels = _mm_loadl_epi64((const __m128i*)src_row);
+
+		// Horizontal flip.
+		if (h_flip)
+			src_pixels = _mm_shuffle_epi8(src_pixels, v_hflip_mask);
+
+		// Check Transparency (Mask generation)
+		// _mm_cmpeq_epi8 returns 0xFF where equal, 0x00 where not.
+		// mask is 0xFF where source is Transparent (0), 0x00 where Opaque.
+		__m128i v_trans_mask = _mm_cmpeq_epi8(src_pixels, v_zero);
+
+		// Add cset offset to source pixels
+		// paddb wraps around, which matches the (byte)(*si + cset) behavior
+		src_pixels = _mm_add_epi8(src_pixels, v_cset);
+
+		// Load Destination pixels
+		byte* dest_addr = dest->line[y + dy] + x;
+		__m128i dest_pixels = _mm_loadl_epi64((const __m128i*)dest_addr);
+
+		// Blend: (Dest & Mask) | (Source & ~Mask)
+		// If mask is FF (Transparent), we keep Dest.
+		// If mask is 00 (Opaque), we keep Source.
+		
+		// dest & mask
+		__m128i masked_dest = _mm_and_si128(dest_pixels, v_trans_mask);
+		// source & ~mask
+		__m128i masked_src  = _mm_andnot_si128(v_trans_mask, src_pixels);
+		
+		__m128i result = _mm_or_si128(masked_dest, masked_src);
+
+		// Store result back to memory (lower 64 bits only).
+		_mm_storel_epi64((__m128i*)dest_addr, result);
+
+		src_row += 16;
+	}
+}
+
+// A (slow) function to handle any transparent tile8 draw.
+static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip)
+{
+	bool h_flip = flip & 1;
+	bool v_flip = flip & 2;
+
+	// Calculate the intersection of the tile and the clip rect.
+	int start_x = std::max(x, cl);
+	int end_x   = std::min(x + 8, cr);
+	int start_y = std::max(y, ct);
+	int end_y   = std::min(y + 8, cb);
+
+	// Calculate loop offsets relative to the tile (0..7).
+	int offset_x = start_x - x;
+	int offset_y = start_y - y;
+	int draw_w   = end_x - start_x;
+	int draw_h   = end_y - start_y;
+
+	// Configure strides based on flipping.
+	const int src_pitch_bytes = 16; 
+	const byte* __restrict src_ptr = si;
+
+	// Vertical flip.
+	int dy_step;
+	if (v_flip)
+	{
+		// Start at bottom row of the tile relative to current Y
+		// If we are clipped at the top (offset_y > 0), we skip the *bottom* rows of the source
+		src_ptr += (7 - offset_y) * src_pitch_bytes;
+		dy_step = -src_pitch_bytes;
+	}
+	else
+	{
+		// Normal
+		src_ptr += offset_y * src_pitch_bytes;
+		dy_step = src_pitch_bytes;
+	}
+
+	// Horizontal flip.
+	int dx_step;
+	if (h_flip)
+	{
+		// Start at rightmost pixel
+		// If clipped on left (offset_x > 0), we step back from (7 - offset_x)
+		src_ptr += (7 - offset_x); 
+		dx_step = -1;
+	}
+	else
+	{
+		src_ptr += offset_x;
+		dx_step = 1;
+	}
+
+	// Draw.
+	for (int dy = 0; dy < draw_h; ++dy)
+	{
+		byte* __restrict d_ptr = dest->line[start_y + dy] + start_x;
+		const byte* __restrict s_row_ptr = src_ptr;
+
+		for (int dx = 0; dx < draw_w; ++dx)
+		{
+			byte val = *s_row_ptr;
+			if (val)
+				*d_ptr = val + cset;
+			
+			d_ptr++;
+			s_row_ptr += dx_step;
+		}
+
+		src_ptr += dy_step;
+	}
 }
 
 // Fast drawing for 16x16 tiles, given:
@@ -2161,120 +2286,48 @@ void oldputtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int3
 
 void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
-    int cl = 0;
-    int ct = 0;
-    int cr = dest->w;
-    int cb = dest->h;
-    if (dest->clip)
-    {
-        cl = dest->cl;
-        ct = dest->ct;
-        cr = dest->cr;
-        cb = dest->cb;
-    }
+	int w = 8;
+	int cl = 0;
+	int ct = 0;
+	int cr = dest->w;
+	int cb = dest->h;
+	if (dest->clip)
+	{
+		cl = dest->cl;
+		ct = dest->ct;
+		cr = dest->cr;
+		cb = dest->cb;
+	}
 
-	if (x + 8 < cl)
+	if (x + w < cl)
 		return;
 	if (x > cr)
 		return;
-	if (y + 8 < ct)
+	if (y + w < ct)
 		return;
 	if (y > cb)
 		return;
-        
-    if(blank_tile_quarters_table[tile])
-    {
-        return;
-    }
-    
-    if(newtilebuf[tile>>2].format>tf4Bit)
-    {
-        cset=0;
-    }
-    
-    cset &= 15;
-    cset <<= CSET_SHFT;
-    const byte *bytes = get_tile_bytes(tile>>2, 0);
-    const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
-
-    // 0: fast, no bounds checking
-    // 1: slow, bounds checking
-    int draw_mode = x < cl || y < ct || x >= cr-8 || y >= cb-8 ? 1 : 0;
-    if (draw_mode == 1)
-    {
-        draw_tile8_unified(dest, cl, ct, cr, cb, si, x, y, cset, flip);
-        return;
-    }
-    
-    if(flip&1)
-    {
-        si+=7;
-    }
-    
-	if((flip&2)==0)                                           //not flipped vertically
-	{
-		if(y<0)
-		{
-			si+=(0-y)<<4;
-		}
 		
-		for(int32_t dy=0; dy<8; ++dy)
-		{
-			byte* di = &(dest->line[y+dy][x]);
-			
-			for(int32_t i=0; i<8; ++i)
-			{
-				if(*si)
-				{
-					//            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
-					*(di) = (*si) + cset;
-				}
-				
-				++di;
-				
-				flip&1 ? --si : ++si;
-			}
-			
-			if(flip&1)
-			{
-				si+=24;
-			}
-			else
-			{
-				si+=8;
-				
-			}
-		}
-	}                                                         //flipped vertically
-	else
+	if(blank_tile_quarters_table[tile])
 	{
-		for(int32_t dy=7; dy>=0; --dy)
-		{
-			byte* di = &(dest->line[y+dy][x]);
-			
-			for(int32_t i=0; i<8; ++i)
-			{
-				if(*si)
-				{
-					//            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
-					*(di) = (*si) + cset;
-				}
-				
-				++di;
-				
-				flip&1 ? --si : ++si;
-			}
-			
-			if(flip&1)
-			{
-				si+=24;
-			}
-			else
-			{
-				si+=8;
-			}
-		}
+		return;
 	}
+	
+	if(newtilebuf[tile>>2].format>tf4Bit)
+	{
+		cset=0;
+	}
+	
+	cset &= 15;
+	cset <<= CSET_SHFT;
+	const byte *bytes = get_tile_bytes(tile>>2, 0);
+	const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
+
+	bool use_fast_draw = (x >= cl) && (y >= ct) && (x + w <= cr) && (y + w <= cb);
+	if (use_fast_draw)
+		draw_tile8_transparent_fast(dest, si, x, y, cset, flip);
+	else
+		draw_tile8_unified(dest, cl, ct, cr, cb, si, x, y, cset, flip);
 }
 
 void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
