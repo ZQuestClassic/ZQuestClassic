@@ -5,6 +5,7 @@
 #include <functional>
 #include <string>
 #include <utility>
+#include <vector>
 
 enum App {
     undefined,
@@ -16,6 +17,9 @@ enum App {
 };
 
 void common_main_setup(App id, int argc, char **argv);
+int32_t zapp_check_switch(const char *s, std::vector<const char*> arg_names = {});
+int32_t zapp_get_arg_int(int index);
+std::string zapp_get_arg_string(int index);
 // If `-name` flag is set, returns true
 // If `-no-name` flag is set, returns false
 // Otherwise returns std::nullopt

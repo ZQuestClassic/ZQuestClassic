@@ -192,6 +192,7 @@ void chop_path(char *path)
         path[p-f]=0;
 }
 
+// Note: prefer zapp_check_switch, zapp_get_arg_string, etc.
 int32_t used_switch(int32_t argc,char *argv[],const char *s)
 {
     // assumes a switch won't be in argv[0]

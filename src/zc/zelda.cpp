@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 
+#include "zc/commands.h"
 #include "zc/frame_timings.h"
 #include "zc/replay_upload.h"
 #include "zc/zasm_optimize.h"
@@ -4113,57 +4114,6 @@ static void init_bitmaps()
 	set_clip_state(pricesdisplaybuf, 1);
 }
 
-void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
-{
-	// We need to init some stuff before loading a quest file will work.
-	int fake_errno = 0;
-	allegro_errno = &fake_errno;
-	get_qst_buffers();
-	allocate_crap();
-
-	byte skip_flags[] = {0, 0, 0, 0};
-	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,true,false,0xFF);
-	if (ret)
-		exit(ret);
-
-	strcpy(qstpath, quest_path);
-	printf("Hash: %s\n", QHeader.hash().c_str());
-
-	if (jit_precompile)
-		jit_set_enabled(true);
-	zasm_pipeline_init(true);
-
-	exit(0);
-}
-
-void do_extract_zasm_command(const char* quest_path)
-{
-	// We need to init some stuff before loading a quest file will work.
-	int fake_errno = 0;
-	allegro_errno = &fake_errno;
-	get_qst_buffers();
-	allocate_crap();
-
-	byte skip_flags[] = {0, 0, 0, 0};
-	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
-	if (ret)
-		exit(ret);
-
-	DEBUG_PRINT_TO_FILE = true;
-	strcpy(qstpath, quest_path);
-	bool top_functions = true;
-	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
-	if (get_flag_bool("-jit").value_or(false))
-		jit_set_enabled(true);
-	zasm_pipeline_init(true);
-	zasm_for_every_script(true, [&](zasm_script* script){
-		ScriptDebugHandle h(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);
-		h.print(zasm_to_string(script, top_functions, generate_yielder).c_str());
-	});
-
-	exit(0);
-}
-
 int main(int argc, char **argv)
 {
 	int test_zc_arg = used_switch(argc, argv, "-test-zc");
@@ -4203,90 +4153,6 @@ int main(int argc, char **argv)
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
-	if (used_switch(argc, argv, "-upload-replays"))
-	{
-#ifdef HAS_CURL
-		replay_upload();
-		return 0;
-#else
-		return 1;
-#endif
-	}
-
-	int only_arg = used_switch(argc, argv, "-only");
-	if (only_arg)
-	{
-		fs::path only_path = (fs::current_path() / argv[only_arg+1]);
-		only_qstpath = only_path.string();
-		if (only_path.extension() != ".qst")
-			Z_error_fatal("-only value must be a qst file, but got: %s\n", only_qstpath.c_str());
-		if (!fs::exists(only_path))
-			Z_error_fatal("Could not find file: %s\n", only_qstpath.c_str());
-	}
-
-	int test_opt_zasm_arg = used_switch(argc, argv, "-test-optimize-zasm");
-	if (test_opt_zasm_arg)
-	{
-		zasm_optimize_run_for_file(argv[test_opt_zasm_arg+1]);
-		exit(0);
-	}
-
-	if (test_zc_arg)
-	{
-		bool success = true;
-		if (!saves_test())
-		{
-			success = false;
-			printf("saves_test failed\n");
-		}
-		if (!zasm_optimize_test())
-		{
-			success = false;
-			printf("zasm_optimize_test failed\n");
-		}
-		if (success)
-			printf("all tests passed\n");
-		exit(success ? 0 : 1);
-	}
-
-	int load_and_quit_arg = used_switch(argc, argv, "-load-and-quit");
-	if (load_and_quit_arg > 0)
-	{
-		bool jit_precompile = used_switch(argc, argv, "-jit-precompile") > 0;
-		do_load_and_quit_command(argv[load_and_quit_arg+1], jit_precompile);
-	}
-
-	int extract_zasm_arg = used_switch(argc, argv, "-extract-zasm");
-	if (extract_zasm_arg > 0)
-	{
-		do_extract_zasm_command(argv[extract_zasm_arg+1]);
-	}
-
-	int create_save_arg = used_switch(argc,argv,"-create-save");
-	if (create_save_arg)
-	{
-		set_headless_mode();
-
-		// We need to init some stuff before loading a quest file will work.
-		int fake_errno = 0;
-		allegro_errno = &fake_errno;
-		get_qst_buffers();
-
-		gamedata* new_game = new gamedata();
-		new_game->header.name = "hiro";
-		new_game->header.qstpath = argv[create_save_arg + 1];
-		new_game->set_maxlife(3*16);
-		new_game->set_life(3*16);
-		new_game->set_maxbombs(8);
-		new_game->set_continue_dmap(0);
-		new_game->set_continue_scrn(0xFF);
-
-		if (auto r = saves_create_slot(new_game); !r)
-			Z_error_fatal("failed to create save file: %s\n", r.error().c_str());
-
-		exit(0);
-	}
-
 	bool onlyInstance=true;
 	FFCore.clear_combo_scripts();
 
@@ -4304,17 +4170,10 @@ int main(int argc, char **argv)
 		Z_error_fatal("Error");
 	}
 
-	three_finger_flag=false;
+	zplayer_handle_commands();
 
-	// TODO: digi_volume has been removed as a user controllable setting. It is a global volume control for
-	// a4 music streams, but we use emusic_volume for all enhanced music, so it was a weird double volume control.
-	// Should remove all usages of digi_volume (maybe replacing with emusic_volume where appropriate). For now,
-	// just set to 255.
-	digi_volume = 255;
-	
-	load_game_configs();
-
-	int standalone_arg = used_switch(argc, argv, "-standalone");
+	// TODO: can't move to zplayer_handle_commands b/c doesn't support optional args yet.
+	int standalone_arg = zapp_check_switch("-standalone", {"qst"});
 	if (standalone_arg)
 	{
 		standalone_mode=true;
@@ -4340,8 +4199,15 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(used_switch(argc, argv, "-no_console"))
-		console_enabled = false;
+	three_finger_flag=false;
+
+	// TODO: digi_volume has been removed as a user controllable setting. It is a global volume control for
+	// a4 music streams, but we use emusic_volume for all enhanced music, so it was a weird double volume control.
+	// Should remove all usages of digi_volume (maybe replacing with emusic_volume where appropriate). For now,
+	// just set to 255.
+	digi_volume = 255;
+	
+	load_game_configs();
 	
 	if ( console_enabled )
 	{

@@ -1,6 +1,7 @@
 #include "base/zapp.h"
 #include "base/version.h"
 #include "base/zsys.h"
+#include "fmt/ranges.h"
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -138,7 +139,7 @@ void common_main_setup(App id, int argc_, char **argv_)
 #endif
 
 	// Helps to test crash reporting.
-	if (used_switch(argc, argv, "-crash"))
+	if (zapp_check_switch("-crash"))
 	{
 		abort();
 	}
@@ -155,6 +156,54 @@ void common_main_setup(App id, int argc_, char **argv_)
 	auto update_active_files = fs::path(".updater-active-files");
 	std::error_code ec;
 	fs::remove_all(update_active_files, ec);
+}
+
+int32_t zapp_check_switch(const char *s, std::vector<const char*> arg_names)
+{
+    int index = 0;
+
+    for (int i = 1; i < argc; i++)
+	{
+        if (stricmp(argv[i], s) == 0)
+		{
+			index = i;
+			break;
+		}
+	}
+
+	if (index)
+	{
+		bool bad_args = false;
+		size_t num_args = arg_names.size();
+		if (index + num_args >= argc)
+		{
+			bad_args = true;
+		}
+		else for (int i = 0; i < num_args; i++)
+		{
+			const char* arg = argv[index + i + 1];
+			if (strlen(arg) == 0 || arg[0] == '-')
+			{
+				bad_args = true;
+				break;
+			}
+		}
+
+		if (bad_args)
+			Z_error_fatal("%s\n", fmt::format("expected switch {} to have {} args: {}", s, num_args, fmt::join(arg_names, ", ")).c_str());
+	}
+
+    return index;
+}
+
+int32_t zapp_get_arg_int(int index)
+{
+	return std::stoll(argv[index]);
+}
+
+std::string zapp_get_arg_string(int index)
+{
+	return argv[index];
 }
 
 std::optional<bool> get_flag_bool(const char* name)
