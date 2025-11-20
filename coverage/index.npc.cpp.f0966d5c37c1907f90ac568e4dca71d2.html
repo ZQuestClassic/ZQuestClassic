@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-11-13 04:25:43</td>
+      <td>2025-11-20 06:30:46</td>
     </tr>
   </table>
 </div>
@@ -41,9 +41,9 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>391</td>
+      <td>392</td>
       <td>1228</td>
-      <td class="coverage-low">31.8%</td>
+      <td class="coverage-low">31.9%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>310</td>
+      <td>311</td>
       <td>1010</td>
-      <td class="coverage-low">30.7%</td>
+      <td class="coverage-low">30.8%</td>
     </tr>
   </table>
 </div>
@@ -132,7 +132,7 @@
     <tr><td><a href="#l88">GuyH::hasHero() (line 88)</a></td><td>called 7780448 times, returned 7780448 times</td><td>83.0%</td></tr>
     <tr><td><a href="#l22">GuyH::loadNPC(int) (line 22)</a></td><td>called 122231653 times, returned 122231653 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l679">npc_get_register(int) (line 679)</a></td><td>called 107519762 times, returned 107519762 times</td><td>36.0%</td></tr>
-    <tr><td><a href="#l1934">npc_run_command(unsigned short) (line 1934)</a></td><td>called 119472 times, returned 119472 times</td><td>33.0%</td></tr>
+    <tr><td><a href="#l1934">npc_run_command(unsigned short) (line 1934)</a></td><td>called 119756 times, returned 119756 times</td><td>33.0%</td></tr>
     <tr><td><a href="#l1307">npc_set_register(int, int) (line 1307)</a></td><td>called 14592422 times, returned 14592422 times</td><td>42.0%</td></tr>
   </table>
 </details>
@@ -14697,7 +14697,7 @@
       <td class="lineno"><a id="l1934" href="#l1934">1934</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">119472</td>
+      <td class="linecount coveredLine">119756</td>
       <td class="src coveredLine"><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">npc_run_command</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="n">command</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -14739,14 +14739,14 @@
       <td class="lineno"><a id="l1940" href="#l1940">1940</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">119472</td>
+      <td class="linecount coveredLine">119756</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">ScriptType</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curScriptType</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1941" href="#l1941">1941</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">119472</td>
+      <td class="linecount coveredLine">119756</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curScriptIndex</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -14760,9 +14760,9 @@
       <td class="lineno"><a id="l1943" href="#l1943">1943</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">7/36</summary>
+        <summary class="linebranchSummary">8/36</summary>
         <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
+          <div class="takenBranch">&check; Branch 0 taken 284 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
@@ -14801,7 +14801,7 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">119472</td>
+      <td class="linecount partialCoveredLine">119756</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">command</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -16392,8 +16392,8 @@
       <td class="lineno"><a id="l2165" href="#l2165">2165</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">nullopt</span><span class="p">;</span></td>
+      <td class="linecount coveredLine">284</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">nullopt</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2166" href="#l2166">2166</a></td>
@@ -16420,7 +16420,7 @@
       <td class="lineno"><a id="l2169" href="#l2169">2169</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">119472</td>
+      <td class="linecount coveredLine">119756</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

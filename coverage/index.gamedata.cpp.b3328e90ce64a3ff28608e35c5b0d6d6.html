@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-11-13 04:25:43</td>
+      <td>2025-11-20 06:30:46</td>
     </tr>
   </table>
 </div>
@@ -147,8 +147,8 @@
     <tr><td><a href="#l678">gamedata::get_magicdrainrate() (line 678)</a></td><td>called 18931811 times, returned 18931811 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l404">gamedata::get_maxarrows() (line 404)</a></td><td>called 5706920 times, returned 5706920 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l475">gamedata::get_maxbombs() (line 475)</a></td><td>called 385 times, returned 385 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l231">gamedata::get_maxcounter(unsigned char) const (line 231)</a></td><td>called 568439777 times, returned 568439777 times</td><td>75.0%</td></tr>
-    <tr><td><a href="#l352">gamedata::get_maxlife() const (line 352)</a></td><td>called 25394954 times, returned 25394954 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l231">gamedata::get_maxcounter(unsigned char) const (line 231)</a></td><td>called 600523436 times, returned 600523436 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l352">gamedata::get_maxlife() const (line 352)</a></td><td>called 25395902 times, returned 25395902 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l633">gamedata::get_maxmagic() (line 633)</a></td><td>called 69067510 times, returned 69067510 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l754">gamedata::get_mp_per_block() (line 754)</a></td><td>called 121728235 times, returned 121728235 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l158">gamedata::get_name() const (line 158)</a></td><td>called 93 times, returned 93 times</td><td>100.0%</td></tr>
@@ -2109,7 +2109,7 @@
       <td class="lineno"><a id="l231" href="#l231">231</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">568439777</td>
+      <td class="linecount coveredLine">600523436</td>
       <td class="src coveredLine"><span class="n">word</span><span class="w"> </span><span class="nf">gamedata::get_maxcounter</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -2126,11 +2126,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 568439777 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 600523436 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">568439777</td>
+      <td class="linecount partialCoveredLine">600523436</td>
       <td class="src partialCoveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">c</span><span class="o">&gt;=</span><span class="n">MAX_COUNTERS</span><span class="p">)</span><span class="w">  </span><span class="c1">// Sanity check</span></td>
     </tr>
     <tr class="source-line">
@@ -2151,14 +2151,14 @@
       <td class="lineno"><a id="l236" href="#l236">236</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">568439777</td>
+      <td class="linecount coveredLine">600523436</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_maxcounter</span><span class="p">[</span><span class="n">c</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l237" href="#l237">237</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">568439777</td>
+      <td class="linecount coveredLine">600523436</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -3054,7 +3054,7 @@
       <td class="lineno"><a id="l352" href="#l352">352</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">25394954</td>
+      <td class="linecount coveredLine">25395902</td>
       <td class="src coveredLine"><span class="n">word</span><span class="w"> </span><span class="nf">gamedata::get_maxlife</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -3068,7 +3068,7 @@
       <td class="lineno"><a id="l354" href="#l354">354</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">25394954</td>
+      <td class="linecount coveredLine">25395902</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">get_maxcounter</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
