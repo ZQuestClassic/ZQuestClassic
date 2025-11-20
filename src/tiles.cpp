@@ -1,5 +1,6 @@
 #include "base/zc_alleg.h"
 #include <cstring>
+#include <emmintrin.h>
 
 #include "base/zdefs.h"
 #include "base/zsys.h"
@@ -856,6 +857,50 @@ static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, con
         }
         si += 8;
     }
+}
+
+// Fast drawing for 16x16 tiles, given:
+// - Tile is fully on screen (no clipping needed)
+// - No transparency
+static void draw_tile16_opaque_fast(BITMAP* dest, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip)
+{
+	__m128i cset_vec = _mm_set1_epi8((char)cset);
+
+	const uint8_t* __restrict src_ptr = si;
+	bool v_flip = (flip & 2);
+
+	if (v_flip)
+	{
+		for (int dy = 0; dy < 16; ++dy)
+		{
+			uint8_t* __restrict d_ptr = dest->line[y + (15 - dy)] + x;
+
+			__m128i pixels = _mm_loadu_si128((const __m128i*)src_ptr);
+			pixels = _mm_add_epi8(pixels, cset_vec);
+			_mm_storeu_si128((__m128i*)d_ptr, pixels);
+
+			src_ptr += 16;
+		}
+	}
+	else
+	{
+		for (int dy = 0; dy < 16; ++dy)
+		{
+			uint8_t* __restrict d_ptr = dest->line[y + dy] + x;
+
+			// Load 16 bytes from Source (unaligned)
+			__m128i pixels = _mm_loadu_si128((const __m128i*)src_ptr);
+
+			// Add CSet to all 16 bytes
+			pixels = _mm_add_epi8(pixels, cset_vec);
+
+			// Store 16 bytes to destination (unaligned)
+			// Assembly: movdqu
+			_mm_storeu_si128((__m128i*)d_ptr, pixels);
+
+			src_ptr += 16;
+		}
+	}
 }
 
 static void draw_tile16_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
@@ -2246,13 +2291,13 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         cb = dest->cb;
     }
 
-	if (x + 16 < cl)
+	if (x + 16 <= cl)
 		return;
-	if (x > cr)
+	if (x >= cr)
 		return;
-	if (y + 16 < ct)
+	if (y + 16 <= ct)
 		return;
-	if (y > cb)
+	if (y >= cb)
 		return;
         
     if(tile<0 || tile>=NEWMAXTILES)
@@ -2270,99 +2315,15 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     cset <<= CSET_SHFT;
     const byte *bytes = get_tile_bytes(tile, flip&5);
 
-    // 0: fast, no bounds checking
-    // 1: slow, bounds checking
-    int draw_mode = x < cl || y < ct || x >= cr-16 || y >= cb-16 || x%8 || y%8 ? 1 : 0;
-    if (draw_mode == 1)
-    {
-        draw_tile16_unified(dest, cl, ct, cr, cb, bytes, x, y, cset, flip, false);
-        return;
-    }
-    
-    switch(flip&2)
-    {
-        /*
-          case 1:
-          {
-          byte *si = unpackbuf;
-          for(int32_t dy=0; dy<16; ++dy)
-          {
-          // 1 byte at a time
-          byte *di = &(dest->line[y+dy][x+15]);
-          for(int32_t i=0; i<16; ++i)
-          *(di--) = *(si++) + cset;
-          }
-          } break;
-          */
-    case 2: //vertical
-    {
-        /*
-          dword *si = (dword*)unpackbuf;
-          for(int32_t dy=15; dy>=0; --dy)
-          {
-          // 4 bytes at a time
-          dword *di=&((dword*)dest->line[y+dy])[x>>2];
-          for(int32_t i=0; i<16; i+=4)
-          *(di++) = *(si++) + lcset;
-          }
-          */
-        qword llcset = (((qword)cset)<<56)+(((qword)cset)<<48)+(((qword)cset)<<40)+(((qword)cset)<<32)+(((qword)cset)<<24)+(cset<<16)+(cset<<8)+cset;
-        //      qword llcset = (((qword)cset)<<56)|(((qword)cset)<<48)|(((qword)cset)<<40)|(((qword)cset)<<32)|(((qword)cset)<<24)|(cset<<16)|(cset<<8)|cset;
-        const qword *si = (const qword*)bytes;
-        
-        for(int32_t dy=15; dy>=0; --dy)
-        {
-            // 4 bytes at a time
-            //        qword *di=&((qword*)dest->line[y+dy])[x>>3];
-            qword *di=(qword*)(dest->line[y+dy]+x);
-            
-            for(int32_t i=0; i<16; i+=8)
-                *(di++) = *(si++) + llcset;
-        }
-    }
-    break;
-    
-    /*
-      case 3:
-      {
-      byte *si = unpackbuf;
-      for(int32_t dy=15; dy>=0; --dy)
-      {
-      // 1 byte at a time
-      byte *di = &(dest->line[y+dy][x+15]);
-      for(int32_t i=0; i<16; ++i)
-      *(di--) = *(si++) + cset;
-      }
-      } break;
-      */
-    default: //none or invalid
-    {
-        /*
-          dword *si = (dword*)unpackbuf;
-          for(int32_t dy=0; dy<16; ++dy)
-          {
-          // 4 bytes at a time
-          dword *di=&((dword*)dest->line[y+dy])[x>>2];
-          for(int32_t i=0; i<16; i+=4)
-          *(di++) = *(si++) + lcset;
-          }
-          */
-        qword llcset = (((qword)cset)<<56)+(((qword)cset)<<48)+(((qword)cset)<<40)+(((qword)cset)<<32)+(((qword)cset)<<24)+(cset<<16)+(cset<<8)+cset;
-        //      qword llcset = (((qword)cset)<<56)|(((qword)cset)<<48)|(((qword)cset)<<40)|(((qword)cset)<<32)|(((qword)cset)<<24)|(cset<<16)|(cset<<8)|cset;
-        const qword *si = (const qword*)bytes;
-        
-        for(int32_t dy=0; dy<16; ++dy)
-        {
-            // 4 bytes at a time
-            //        qword *di=&((qword*)dest->line[y+dy])[x>>3];
-            qword *di=(qword*)(dest->line[y+dy]+x);
-            
-            for(int32_t i=0; i<16; i+=8)
-                *(di++) = *(si++) + llcset;
-        }
-    }
-    break;
-    }
+    bool use_fast_draw = (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
+	if (use_fast_draw)
+	{
+		draw_tile16_opaque_fast(dest, bytes, x, y, cset, flip);
+	}
+	else
+	{
+		draw_tile16_unified(dest, cl, ct, cr, cb, bytes, x, y, cset, flip, false);
+	}
 }
 
 void oldputtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
