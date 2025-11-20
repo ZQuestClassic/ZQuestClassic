@@ -492,10 +492,10 @@ void SemanticAnalyzer::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void*)
 		
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
+		newConstType->setSource(&host);
 		//Construct the base type
 		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, nullptr, newConstType->getCustomId());
 		newBaseType->setSource(&host);
-		newConstType->setSource(&host);
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -1026,10 +1026,10 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 	{
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.getName(), &user_class);
+		newConstType->setSource(&host);
 		//Construct the base type
 		DataTypeCustom* newBaseType = new DataTypeCustom(host.getName(), newConstType, &user_class, newConstType->getCustomId());
 		newBaseType->setSource(&host);
-		newConstType->setSource(&host);
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -2105,8 +2105,8 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 	if (breakRecursion(host)) return;
 
 	auto leftTypeActual = host.left->getReadType(scope, this);
-	bool leftIsBitflags = leftTypeActual->isBitflagsEnum();
-	if (!leftIsBitflags)
+	bool leftIsEnum = leftTypeActual->isEnum();
+	if (!leftIsEnum)
 	{
 		checkCast(*leftTypeActual, leftType, &host);
 		if (breakRecursion(host)) return;
@@ -2116,14 +2116,16 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 	if (breakRecursion(host)) return;
 
 	auto rightTypeActual = host.right->getReadType(scope, this);
-	bool rightIsBitflags = leftTypeActual->isBitflagsEnum();
-	if (!rightIsBitflags)
+	bool rightIsEnum = rightTypeActual->isEnum();
+	if (!rightIsEnum)
 	{
 		checkCast(*rightTypeActual, rightType, &host);
 		if (breakRecursion(host)) return;
 	}
 
-	if ((leftIsBitflags || rightIsBitflags) && *leftTypeActual->getMutType() != *rightTypeActual->getMutType())
+	bool leftIsBitflags = leftTypeActual->isBitflagsEnum();
+	bool rightIsBitflags = rightTypeActual->isBitflagsEnum();
+	if ((leftIsEnum && rightIsEnum) && (leftIsBitflags || rightIsBitflags) && *leftTypeActual->getMutType() != *rightTypeActual->getMutType())
 	{
 		handleError(CompileError::Error(&host, fmt::format("Binary operations on bitflags must be on the same type. Instead, got: {}, {}",
 			leftTypeActual->getMutType()->getName(), 
@@ -2131,4 +2133,3 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		return;
 	}
 }
-

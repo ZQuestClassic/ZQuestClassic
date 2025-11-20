@@ -24,6 +24,11 @@ void test()
 	f1 = AF_FRESH + HIT_BY_NPC_ID;
 	// Error.
 	f1 += HIT_BY_NPC_ID;
+	// Error.
+	// This one is actually because `int | bitflag = int`, which can't implicitly cast to
+	// AnimationBitflags. The reason that the binary operation itself is not an error is because it
+	// would break too many existing scripts, given bitflags fields in std are actually just ints.
+	f1 = 2 | HIT_BY_NPC_ID;
 
 	auto f2 = AF_CYCLE|AF_CYCLE;
 	f2 |= AF_FRESH;

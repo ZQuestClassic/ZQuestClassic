@@ -45,43 +45,51 @@ errors_enum_1.zs Line 26 @ Columns 8-21 - Error S109: Binary operations on bitfl
             ^~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 31 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+errors_enum_1.zs Line 31 @ Columns 2-24 - Error T017: Cannot cast from int to AnimationBitflags.
 
-29    f2 |= AF_FRESH;
-30    // Error.
-31    f2 = HIT_BY_NPC_ID;
+29    // AnimationBitflags. The reason that the binary operation itself is not an error is because it
+30    // would break too many existing scripts, given bitflags fields in std are actually just ints.
+31    f1 = 2 | HIT_BY_NPC_ID;
+      ^~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 36 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+
+34    f2 |= AF_FRESH;
+35    // Error.
+36    f2 = HIT_BY_NPC_ID;
       ^~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 36 @ Columns 7-36 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
+errors_enum_1.zs Line 41 @ Columns 7-36 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
 
-34    f3 = AF_CYCLE | <AnimationBitflags>(1);
-35    // Error.
-36    f3 = AF_CYCLE | <OtherBitflags>(1);
+39    f3 = AF_CYCLE | <AnimationBitflags>(1);
+40    // Error.
+41    f3 = AF_CYCLE | <OtherBitflags>(1);
            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 38 @ Columns 7-42 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
+errors_enum_1.zs Line 43 @ Columns 7-42 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
 
-36    f3 = AF_CYCLE | <OtherBitflags>(1);
-37    // Error.
-38    f3 = AF_CYCLE | <const OtherBitflags>(1);
+41    f3 = AF_CYCLE | <OtherBitflags>(1);
+42    // Error.
+43    f3 = AF_CYCLE | <const OtherBitflags>(1);
            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 42 @ Columns 2-18 - Error T017: Cannot cast from bitmap to int.
+errors_enum_1.zs Line 47 @ Columns 2-18 - Error T017: Cannot cast from bitmap to int.
 
-40    auto x = HIT_BY_NPC_ID | HIT_BY_NPC_ID;
-41    // Error: Cannot cast from bitmap to int. Just showing that above resolved to int, not the enum.
-42    x = new bitmap();
+45    auto x = HIT_BY_NPC_ID | HIT_BY_NPC_ID;
+46    // Error: Cannot cast from bitmap to int. Just showing that above resolved to int, not the enum.
+47    x = new bitmap();
       ^~~~~~~~~~~~~~~~
 
 
-errors_enum_1.zs Line 46 @ Columns 2-7 - Error T017: Cannot cast from bitmap to int.
+errors_enum_1.zs Line 51 @ Columns 2-7 - Error T017: Cannot cast from bitmap to int.
 
-44    bitmap b;
-45    // Error.
-46    b | b;
+49    bitmap b;
+50    // Error.
+51    b | b;
       ^~~~~
 
 
@@ -172,6 +180,20 @@ stdout:
         },
         "end": {
           "line": 30,
+          "character": 23
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from int to AnimationBitflags."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 1
+        },
+        "end": {
+          "line": 35,
           "character": 19
         }
       },
@@ -181,11 +203,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 35,
+          "line": 40,
           "character": 6
         },
         "end": {
-          "line": 35,
+          "line": 40,
           "character": 35
         }
       },
@@ -195,11 +217,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 37,
+          "line": 42,
           "character": 6
         },
         "end": {
-          "line": 37,
+          "line": 42,
           "character": 41
         }
       },
@@ -209,11 +231,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 41,
+          "line": 46,
           "character": 1
         },
         "end": {
-          "line": 41,
+          "line": 46,
           "character": 17
         }
       },
@@ -223,11 +245,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 45,
+          "line": 50,
           "character": 1
         },
         "end": {
-          "line": 45,
+          "line": 50,
           "character": 6
         }
       },
@@ -238,7 +260,7 @@ stdout:
   "metadata": {
     "currentFileSymbols": 9,
     "symbols": 15,
-    "identifiers": 72,
+    "identifiers": 74,
     "elided": true
   }
 }
