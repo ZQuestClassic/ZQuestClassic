@@ -528,8 +528,7 @@ namespace ZScript
 		enum Id
 		{
 			idInvalid,
-			idStart,
-			idGlobal = idStart,
+			idGlobal,
 			idFfc,
 			idItem,
 			idNPC,
@@ -543,8 +542,6 @@ namespace ZScript
 			idComboData,
 			idSubscreenData,
 			idGenericScript,
-			
-			idEnd
 		};
 	
 		ParserScriptType() : id_(idInvalid) {}
@@ -589,7 +586,7 @@ namespace ZScript
 		}
 		Id getId() const {return id_;}
 		DataTypeId getThisTypeId() const;
-		bool isValid() const {return id_ >= idStart && id_ < idEnd;}
+		bool isValid() const {return id_ != idInvalid;}
 
 		static ParserScriptType const invalid;
 		static ParserScriptType const global;

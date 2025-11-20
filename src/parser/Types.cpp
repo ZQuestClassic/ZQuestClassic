@@ -626,7 +626,7 @@ namespace // file local
 		string name;
 		DataTypeId thisTypeId;
 	};
-	ScriptTypeData scriptTypes[ParserScriptType::idEnd] = {
+	ScriptTypeData scriptTypes[] = {
 		{"invalid", ZTID_VOID},
 		{"global", ZTID_VOID},
 		{"ffc", ZTID_FFC},
