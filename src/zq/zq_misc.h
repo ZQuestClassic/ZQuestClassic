@@ -71,7 +71,6 @@ extern const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1];
 extern const char *enetype_string[eeMAX];
 extern const char *eneanim_string[aMAX];
 extern const char *eweapon_string[wMax-wEnemyWeapons];
-extern int32_t gocnt;
 
 int32_t filetype(const char *path);
 void load_mice();
@@ -276,8 +275,6 @@ int32_t onSnapshot();
 char const* getSnapName();
 int32_t onMapscrSnapshot();
 int32_t onClearQuestFilepath();
-void go();
-void comeback();
 int32_t checksave();
 int32_t onExit();
 int32_t onAbout();

@@ -96,7 +96,6 @@ void OptionsDialog::loadOptions()
 	
 	//cleanup
     reset_all_combo_animations();
-    go();
 }
 
 void OptionsDialog::saveOptions()
@@ -958,7 +957,6 @@ bool OptionsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			setup_combo_animations();
 			setup_combo_animations2();
 			refresh(rALL);
-			comeback();
 			return true;
 		case message::RELOAD:
 			rerun_dlg = true;

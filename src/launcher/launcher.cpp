@@ -26,7 +26,6 @@ int32_t joystick_index = 0;
 int32_t readsize = 0, writesize = 0;
 int32_t zq_screen_w=LARGE_W;
 int32_t zq_screen_h=LARGE_H;
-BITMAP *tmp_scr;
 BITMAP *mouse_bmp;
 int32_t gui_colorset = 99;
 
@@ -137,10 +136,9 @@ int32_t main(int32_t argc, char* argv[])
 	zalleg_create_window();
 
 	Z_message("Loading bitmaps..."); //{
-	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	mouse_bmp = create_bitmap_ex(8,16,16);
 	
-	if(!(tmp_scr && mouse_bmp && screen))
+	if(!(mouse_bmp && screen))
 	{
 		Z_error_fatal("failed\n");
 		QUIT_LAUNCHER();
@@ -343,16 +341,6 @@ int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 string get_box_cfg_hdr(int num)
 {
 	return "misc";
-}
-
-void go()
-{
-	blit(screen,tmp_scr,0,0,0,0,screen->w,screen->h);
-}
-
-void comeback()
-{
-	blit(tmp_scr,screen,0,0,0,0,screen->w,screen->h);
 }
 
 void large_dialog(DIALOG *)

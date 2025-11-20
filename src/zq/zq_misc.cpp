@@ -891,47 +891,6 @@ int32_t onMapscrSnapshot()
 	return D_O_K;
 }
 
-
-int32_t gocnt=0;
-
-void go()
-{
-    switch(gocnt)
-    {
-    case 0:
-        blit(screen,menu1,0,0,0,0,zq_screen_w,zq_screen_h);
-        break;
-
-    case 1:
-        blit(screen,menu3,0,0,0,0,zq_screen_w,zq_screen_h);
-        break;
-
-    default:
-        return;
-    }
-
-    ++gocnt;
-}
-
-void comeback()
-{
-    switch(gocnt)
-    {
-    case 1:
-        blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-        break;
-
-    case 2:
-        blit(menu3,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-        break;
-
-    default:
-        return;
-    }
-
-    --gocnt;
-}
-
 int32_t checksave()
 {
     if(saved)

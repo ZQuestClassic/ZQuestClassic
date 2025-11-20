@@ -167,7 +167,7 @@ static void trim_filename(std::string& path)
 		path[i--] = 0;
 }
 
-static int getname_nogo(std::string prompt, std::string ext, EXT_LIST *list, std::string initial_path, bool usefilename)
+static int getname(std::string prompt, std::string ext, EXT_LIST *list, std::string initial_path, bool usefilename)
 {
     int sel = 0;
     strcpy(temppath, initial_path.c_str());
@@ -175,15 +175,6 @@ static int getname_nogo(std::string prompt, std::string ext, EXT_LIST *list, std
         return jwin_file_select_ex(prompt.c_str(), temppath, ext.c_str(), 2048, -1, -1, get_zc_font(font_lfont));
     else
         return jwin_file_browse_ex(prompt.c_str(), temppath, list, &sel, 2048, -1, -1, get_zc_font(font_lfont));
-}
-
-static int getname(std::string prompt, std::string ext, EXT_LIST *list, std::string initial_path, bool usefilename)
-{
-	extern BITMAP *tmp_scr;
-    blit(screen,tmp_scr,0,0,0,0,screen->w,screen->h);
-    int ret = getname_nogo(prompt,ext,list,initial_path,usefilename);
-    blit(tmp_scr,screen,0,0,0,0,screen->w,screen->h);
-    return ret;
 }
 
 #define FS_EXPLORER 6
@@ -216,9 +207,6 @@ std::optional<std::string> prompt_for_existing_folder(std::string prompt, std::s
 {
 	if (!use_native_file_dialog)
 	{
-		extern BITMAP *tmp_scr;
-		blit(screen,tmp_scr,0,0,0,0,screen->w,screen->h);
-
 		char path[2048];
 		strcpy(path, initial_path.c_str());
 		int ret = jwin_dfile_select_ex(prompt.c_str(), path, ext.c_str(), 2048, -1, -1, get_zc_font(font_lfont));
@@ -226,11 +214,9 @@ std::optional<std::string> prompt_for_existing_folder(std::string prompt, std::s
 		{
 			if (!jwin_dfile_select_ex(prompt.c_str(), path, ext.c_str(), 2048, -1, -1, get_zc_font(font_lfont)))
 			{
-				blit(tmp_scr,screen,0,0,0,0,screen->w,screen->h);
 				return std::nullopt;
 			}
 
-			blit(tmp_scr,screen,0,0,0,0,screen->w,screen->h);
 			return path;
 		}
 	}

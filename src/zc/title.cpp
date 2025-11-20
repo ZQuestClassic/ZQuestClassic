@@ -912,7 +912,6 @@ bool prompt_for_quest_path(std::string current_qstpath)
 	while(jump_to_file_select || (ret=do_zqdialog(gamemode_dlg,focus_obj))==1)
 	{
 		jump_to_file_select = false;
-		blit(screen,tmp_scr,scrx,scry,0,0,320,240);
 		
 		int32_t  sel=0;
 		static EXT_LIST list[] =
@@ -948,8 +947,6 @@ bool prompt_for_quest_path(std::string current_qstpath)
 		{
 			break;
 		}
-		
-		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
 	}
 
 	exit_sys_pal();

@@ -177,8 +177,6 @@ int32_t after_time();
 
 enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
 
-void go();
-void comeback();
 void dump_pal(BITMAP *dest);
 extern int game_mouse_index;
 bool sys_mouse();

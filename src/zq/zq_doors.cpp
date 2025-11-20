@@ -1480,7 +1480,6 @@ void init_doorcombosets()
 
 int32_t onDoorCombos()
 {
-    go();
     int32_t index=0;
     doorcombosetlist_dlg[0].dp2=get_zc_font(font_lfont);
     doorcombosetlist_dlg[2].dp3 = (void *)&doorlist_rclick_func;
@@ -1526,7 +1525,6 @@ int32_t onDoorCombos()
         }
     }
     
-    comeback();
     return D_O_K;
 }
 

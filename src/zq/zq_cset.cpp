@@ -1268,8 +1268,6 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 		pal[i] = RAMpal[i];
 	}
 	
-	go();
-	
 	int32_t bw = 128;
 	int32_t bh = count*8;
 	
@@ -1463,7 +1461,6 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 	//  gui_fg_color = vc(14);
 	//  gui_bg_color = vc(1);
 	
-	comeback();
 	destroy_bitmap(bmp);
 	zq_hide_screen(false);
 	popup_zqdialog_end();

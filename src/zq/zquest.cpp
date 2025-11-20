@@ -528,7 +528,7 @@ int32_t tempmode=GFX_AUTODETECT;
 RGB_MAP zq_rgb_table;
 COLOR_MAP trans_table, trans_table2;
 MIDI *song=NULL;
-BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
+BITMAP *mapscreenbmp, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 itemdata *itemsbuf;
@@ -12496,8 +12496,6 @@ int32_t onSecretCombo()
 			secret_dlg[q].w = secret_dlg[q].h = 36;
 	}
     
-    go();
-    
     if(do_zqdialog(secret_dlg,3) == 2)
     {
         saved = false;
@@ -12583,7 +12581,6 @@ int32_t onSecretCombo()
         
     }
     
-    comeback();
     return D_O_K;
 }
 
@@ -23962,9 +23959,6 @@ int32_t main(int32_t argc,char **argv)
 	brushbmp = nullptr;
 	brushscreen = nullptr;
 	screen2 = nullptr;
-	tmp_scr = nullptr;
-	menu1 = nullptr;
-	menu3 = nullptr;
 	
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
 	{
@@ -24071,7 +24065,7 @@ int32_t main(int32_t argc,char **argv)
 	dmapbmp_small = create_bitmap_ex(8,65,33);
 	dmapbmp_large = create_bitmap_ex(8,177,81);
 	
-	if(!screen2 || !tmp_scr || !menu1 || !menu3 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
+	if(!screen2 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
 	{
 		Z_error_fatal("Failed to create system bitmaps!\n");
 		return 1;
@@ -25123,9 +25117,6 @@ void load_size_poses()
 	init_bitmap(&brushscreen,(256+(showedges?16:0))*mapscreen_screenunit_scale,(176+(showedges?16:0))*mapscreen_screenunit_scale);
 	
 	init_bitmap(&screen2,zq_screen_w,zq_screen_h);
-	init_bitmap(&tmp_scr,zq_screen_w,zq_screen_h);
-	init_bitmap(&menu1,zq_screen_w,zq_screen_h);
-	init_bitmap(&menu3,zq_screen_w,zq_screen_h);
 	
 	center_zq_class_dialogs();
 	center_zq_files_dialogs();
@@ -25149,9 +25140,6 @@ void destroy_bitmaps_on_exit()
 {
     al_trace("Cleaning bitmaps...");
     destroy_bitmap(screen2);
-    destroy_bitmap(tmp_scr);
-    destroy_bitmap(menu1);
-	destroy_bitmap(menu3);
     destroy_bitmap(mapscreenbmp);
     destroy_bitmap(dmapbmp_small);
     destroy_bitmap(dmapbmp_large);
@@ -25865,13 +25853,11 @@ void check_autosave()
             MouseSprite::set(ZQM_NORMAL);
 			replace_extension(last_timed_save, filepath, "qt0", 2047);
 			set_last_timed_save(last_timed_save);
-            go();
             
             if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD))
             {
                 jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,get_zc_font(font_lfont));
                 time(&auto_save_time_start);
-                comeback();
                 return;
             }
             
@@ -25885,7 +25871,6 @@ void check_autosave()
             
             save_config_file();
             time(&auto_save_time_start);
-            comeback();
         }
     }
 }

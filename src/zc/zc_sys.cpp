@@ -661,16 +661,6 @@ void Z_remove_timers()
 
 //----------------------------------------------------------------
 
-void go()
-{
-	blit(screen,tmp_scr,scrx,scry,0,0,screen->w,screen->h);
-}
-
-void comeback()
-{
-	blit(tmp_scr,screen,0,0,scrx,scry,screen->w,screen->h);
-}
-
 void dump_pal(BITMAP *dest)
 {
 	for(int32_t i=0; i<256; i++)
