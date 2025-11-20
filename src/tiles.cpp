@@ -6,12 +6,11 @@
 #include "base/qrs.h"
 #include "base/combo.h"
 #include "tiles.h"
+#include "base/pal_tables.h"
 #include "zc/combos.h"
 #include "zc/maps.h"
 #include "items.h"
 
-extern RGB_MAP rgb_table;
-extern COLOR_MAP trans_table;
 extern itemdata   *itemsbuf;
 extern wpndata    *wpnsbuf;
 tiledata *newtilebuf, *grabtilebuf;
@@ -921,7 +920,7 @@ static void draw_tile16_unified_translucent(BITMAP* dest, int cl, int ct, int cr
             if (destx >= cl && desty >= ct && destx < cr && desty < cb)
             {
                 if (!transparency || *si)
-					dest->line[desty][destx] = trans_table.data[dest->line[desty][destx]][*si + cset];
+					dest->line[desty][destx] = trans_table->data[dest->line[desty][destx]][*si + cset];
             }
             si++;
         }
@@ -973,8 +972,8 @@ void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t c
             {
                 if(x+i<dest->w)
                 {
-                    //            *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                    *(di) = trans_table.data[(*di)][((*si) + cset)];
+                    //            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                    *(di) = trans_table->data[(*di)][((*si) + cset)];
                     ++di;
                 }
                 
@@ -1006,8 +1005,8 @@ void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t c
             {
                 if(x+i<dest->w)
                 {
-                    //          *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                    *(di) = trans_table.data[(*di)][((*si) + cset)];
+                    //          *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                    *(di) = trans_table->data[(*di)][((*si) + cset)];
                     ++di;
                 }
                 
@@ -1078,8 +1077,8 @@ void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                 {
                     if(*si)
                     {
-                        //            *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                        *(di) = trans_table.data[(*di)][((*si) + cset)];
+                        //            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                        *(di) = trans_table->data[(*di)][((*si) + cset)];
                     }
                     
                     ++di;
@@ -1115,8 +1114,8 @@ void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                 {
                     if(*si)
                     {
-                        //            *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                        *(di) = trans_table.data[(*di)][((*si) + cset)];
+                        //            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                        *(di) = trans_table->data[(*di)][((*si) + cset)];
                     }
                     
                     ++di;
@@ -1187,8 +1186,8 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                     
                 for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
                 {
-                    //          *di=(opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                    *di=trans_table.data[(*di)][((*si) + cset)];
+                    //          *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                    *di=trans_table->data[(*di)][((*si) + cset)];
                     ++di;
                     flip&1 ? --si : ++si;
                 }
@@ -1199,8 +1198,8 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                 {
                     if(x+i<dest->w)
                     {
-                        //            *di=(opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                        *di=trans_table.data[(*di)][((*si) + cset)];
+                        //            *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                        *di=trans_table->data[(*di)][((*si) + cset)];
                         ++di;
                     }
                     
@@ -1228,8 +1227,8 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                     
                 for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
                 {
-                    //          *di=(opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                    *di=trans_table.data[(*di)][((*si) + cset)];
+                    //          *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                    *di=trans_table->data[(*di)][((*si) + cset)];
                     ++di;
                     flip&1 ? --si : ++si;
                 }
@@ -1240,8 +1239,8 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                 {
                     if(x+i<dest->w)
                     {
-                        //            *di=(opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                        *di=trans_table.data[(*di)][((*si) + cset)];
+                        //            *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                        *di=trans_table->data[(*di)][((*si) + cset)];
                         ++di;
                     }
                     
@@ -1332,8 +1331,8 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
                     if(*si)
                     {
                         //            *di=*si+cset;
-                        //            *di=(opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                        *di=trans_table.data[(*di)][((*si) + cset)];
+                        //            *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                        *di=trans_table->data[(*di)][((*si) + cset)];
                     }
                     
                     ++di;
@@ -1349,8 +1348,8 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
                         if(*si)
                         {
                             //              *di=*si+cset;
-                            //              *di=(opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                            *di=trans_table.data[(*di)][((*si) + cset)];
+                            //              *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                            *di=trans_table->data[(*di)][((*si) + cset)];
                         }
                         
                         ++di;
@@ -1380,8 +1379,8 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
                     if(*si)
                     {
                         //            *di=*si+cset;
-                        //            *di=(opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                        *di=trans_table.data[(*di)][((*si) + cset)];
+                        //            *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                        *di=trans_table->data[(*di)][((*si) + cset)];
                     }
                     
                     ++di;
@@ -1397,8 +1396,8 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
                         if(*si)
                         {
                             //              *di=*si+cset;
-                            //              *di=(opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                            *di=trans_table.data[(*di)][((*si) + cset)];
+                            //              *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
+                            *di=trans_table->data[(*di)][((*si) + cset)];
                         }
                         
                         ++di;
@@ -2176,7 +2175,7 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 			{
 				if(*si)
 				{
-					//            *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
+					//            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
 					*(di) = (*si) + cset;
 				}
 				
@@ -2206,7 +2205,7 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 			{
 				if(*si)
 				{
-					//            *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
+					//            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
 					*(di) = (*si) + cset;
 				}
 				

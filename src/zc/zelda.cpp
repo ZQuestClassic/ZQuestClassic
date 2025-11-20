@@ -11,6 +11,7 @@
 #include <sstream>
 
 #include "allegro/file.h"
+#include "base/pal_tables.h"
 #include "subscr.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
@@ -239,16 +240,12 @@ int32_t startdmapxy[6] = {0,0,0,0,0,0};
 
 int32_t curr_tb_page=0;
 
-RGB_MAP rgb_table;
-COLOR_MAP trans_table, trans_table2;
-
 BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
 BITMAP* framebuf_no_passive_subscreen;
 BITMAP     *zcmouse[NUM_ZCMOUSE];
-PALETTE    RAMpal;
 PALETTE    pal_gui;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
@@ -785,12 +782,12 @@ void blit_msgstr_bg(BITMAP* dest, int32_t sx, int32_t sy, int32_t dx, int32_t dy
 		BITMAP* subbmp = create_bitmap_ex(8,w,h);
 		if(subbmp)
 		{
-			color_map = &trans_table2;
+			color_map = trans_table2;
 			clear_bitmap(subbmp);
 			masked_blit(msg_bg_display_buf, subbmp, sx, sy, 0, 0, w, h);
 			draw_trans_sprite(dest, subbmp, dx, dy);
 			destroy_bitmap(subbmp);
-			color_map = &trans_table;
+			color_map = trans_table;
 		}
 	}
 	else
@@ -805,12 +802,12 @@ void blit_msgstr_fg(BITMAP* dest, int32_t sx, int32_t sy, int32_t dx, int32_t dy
 		BITMAP* subbmp = create_bitmap_ex(8,w,h);
 		if(subbmp)
 		{
-			color_map = &trans_table2;
+			color_map = trans_table2;
 			clear_bitmap(subbmp);
 			masked_blit(msg_txt_display_buf, subbmp, sx, sy, 0, 0, w, h);
 			draw_trans_sprite(dest, subbmp, dx, dy);
 			destroy_bitmap(subbmp);
-			color_map = &trans_table;
+			color_map = trans_table;
 		}
 	}
 	else
@@ -4760,7 +4757,7 @@ reload_for_replay_file:
 	clear_to_color(screen,BLACK);
 	Quit = qQUIT;
 	
-	rgb_map = &rgb_table;
+	rgb_map = rgb_table;
 	
 	DEBUG_PRINT_TO_FILE = zc_get_config("ZSCRIPT", "print_zasm_to_file", true);
 	DEBUG_PRINT_TO_CONSOLE = zc_get_config("ZSCRIPT", "print_zasm_to_console", false);

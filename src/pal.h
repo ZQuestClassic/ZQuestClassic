@@ -16,7 +16,6 @@ extern RGB _RGB(int32_t r,int32_t g,int32_t b);
 extern RGB invRGB(RGB s);
 extern RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio);
 
-extern void refresh_rgb_tables();
 extern void copy_pal(RGB *src,RGB *dest);
 extern void loadfullpal();
 extern void loadlvlpal(int32_t level);

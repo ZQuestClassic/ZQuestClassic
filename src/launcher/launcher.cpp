@@ -17,9 +17,6 @@ do{ \
 } \
 while(false)
 
-PALETTE RAMpal;
-COLOR_MAP trans_table, trans_table2;
-
 volatile int32_t lastfps = 0;
 volatile int32_t framecnt = 0;
 int32_t joystick_index = 0;

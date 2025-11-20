@@ -1,6 +1,7 @@
 #include "subscr.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/pal_tables.h"
 #include "tiles.h"
 #include "base/zsys.h"
 #include "zc/ffscript.h"
@@ -2952,7 +2953,7 @@ void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int3
 	//other stuff might already have been drawn on it that needs to be kept
 	//(eg the game screen when pulling down the subscreen) -DD
 	//clear_to_color(dest, 0);
-	color_map=&trans_table;
+	color_map = trans_table;
 	set_trans_blender(0, 0, 0, 128);
 	
 	#ifdef IS_EDITOR

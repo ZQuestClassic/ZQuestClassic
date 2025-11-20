@@ -607,6 +607,7 @@ set(zcbase_sources
 	src/base/msgstr.cpp
 	src/base/new_menu.cpp
 	src/base/packfile.cpp
+	src/base/pal_tables.cpp
 	src/base/process_management.cpp
 	src/base/qrs.cpp
 	src/base/qst.cpp

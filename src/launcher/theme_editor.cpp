@@ -8,7 +8,6 @@
 #include "launcher/launcher.h"
 
 extern int32_t zq_screen_w, zq_screen_h;
-extern PALETTE RAMpal;
 
 extern char temppath[4096];
 char zthemepath[4096] = {0};

@@ -6,6 +6,7 @@
 #include <map>
 
 #include "base/general.h"
+#include "base/pal_tables.h"
 #include "base/version.h"
 #include "base/zapp.h"
 #include "base/zdefs.h"
@@ -2634,9 +2635,9 @@ void drawcombo(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset, in
 		{
 			if(transp)
 			{
-				color_map = &trans_table2;
+				color_map = trans_table2;
 				draw_trans_sprite(dest, buf, x, y);
-				color_map = &trans_table;
+				color_map = trans_table;
 			}
 			else masked_blit(buf, dest, 0, 0, x, y, 16, 16);
 		}

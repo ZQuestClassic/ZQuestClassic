@@ -1,3 +1,4 @@
+#include "base/pal_tables.h"
 #include "base/util.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
@@ -977,9 +978,9 @@ void doSpriteDraw(int32_t drawstyle, BITMAP* dest, BITMAP* src, int32_t x, int32
 {
 	if(drawstyle==1)
 	{
-		color_map = &trans_table2;
+		color_map = trans_table2;
 		draw_trans_sprite(dest, src, x, y);
-		color_map = &trans_table;
+		color_map = trans_table;
 	}
 	else if(drawstyle==2)
 		draw_cloaked_sprite(dest, src, x, y);

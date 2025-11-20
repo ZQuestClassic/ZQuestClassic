@@ -4,6 +4,7 @@
 #include "base/zapp.h"
 #include "dialog/info.h"
 #include <sstream>
+#include "base/pal_tables.h"
 #include "sound/zcmusic.h"
 #include <fmt/format.h>
 #include "base/qrs.h"
@@ -14,7 +15,6 @@ using std::string;
 using std::ostringstream;
 using namespace util;
 
-extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
 volatile bool close_button_quit = false, exiting_program = false, dialog_open_quit = false;

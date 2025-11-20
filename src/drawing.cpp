@@ -45,8 +45,6 @@ extern dword light_wave_clk;
 #define LIGHT_WAVE_CLK 0
 #endif
 
-extern COLOR_MAP trans_table2;
-
 static word calc_wave_rad(word rad, word rate, word size)
 {
 	// non-positive rate and 0 size mean no change
@@ -927,7 +925,7 @@ void monocolor(BITMAP* dest, byte col, byte transp_passes)
 				{
 					for (int q = 0; q < transp_passes; ++q)
 					{
-						c = trans_table2.data[c][col];
+						c = trans_table2->data[c][col];
 					}
 				}
 				else

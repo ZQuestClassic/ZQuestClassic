@@ -1,7 +1,9 @@
 #include <cstring>
 #include <cmath>
 
+#include "allegro/color.h"
 #include "base/files.h"
+#include "base/pal_tables.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/cpool.h"
@@ -3941,7 +3943,6 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	font = oldfont;
 }
 
-RGB_MAP rgb_table;
 COLOR_MAP imagepal_table;
 
 
@@ -4012,8 +4013,10 @@ void load_imagebuf()
 		original_imagebuf_bitmap = load_bitmap(imagepath,imagepal);
 		imagesize = file_size_ex_password(imagepath,"");
 		tilecount=0;
-		create_rgb_table(&rgb_table, imagepal, NULL);
-		rgb_map = &rgb_table;
+
+		RGB_MAP tmp_rgb_table;
+		create_rgb_table(&tmp_rgb_table, imagepal, NULL);
+		rgb_map = &tmp_rgb_table;
 		create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
 		
 		if(!original_imagebuf_bitmap)
@@ -4168,7 +4171,7 @@ error2:
 		break;
 	}
 	
-	rgb_map = &zq_rgb_table;
+	rgb_map = zq_rgb_table;
 	//restore cashed QRs / rules
 	
 	//for ( int32_t q = 0; q < QUESTRULES_NEW_SIZE; ++q )
@@ -10475,7 +10478,6 @@ int32_t onGotoTiles(int32_t startfrom)
 	int32_t f = 0;
 	int32_t c = CSet;
 	reset_pal_cycling();
-	//  loadlvlpal(Map.CurrScr()->color);
 	rebuild_trans_table();
 	select_tile(t, f, 0, c, true);
 	refresh(rALL);
@@ -12133,7 +12135,6 @@ static DIALOG icon_dlg[] =
 int32_t onIcons()
 {
 	PALETTE pal;
-	//  pal = RAMpal;
 	memcpy(pal,RAMpal,sizeof(RAMpal));
 	icon_dlg[0].dp2=get_zc_font(font_lfont);
 	

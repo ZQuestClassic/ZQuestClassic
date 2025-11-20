@@ -132,9 +132,7 @@ extern PALETTE asset_pal;
 
 extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
-extern RGB_MAP rgb_table;
-extern COLOR_MAP trans_table, trans_table2;
-extern RGB_MAP zq_rgb_table;
+extern RGB_MAP* zq_rgb_table;
 extern MIDI *song;
 extern BITMAP *mapscreenbmp, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen;
@@ -144,7 +142,6 @@ extern wpndata  *wpnsbuf;
 extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern newcombo curr_combo;
-extern PALETTE RAMpal;
 extern midi_info Midi_Info;
 extern bool zq_showpal;
 extern bool zoomed_minimap;

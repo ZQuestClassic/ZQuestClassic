@@ -223,8 +223,6 @@ extern int32_t strike_hint_timer;
 extern int32_t strike_hint;
 extern signed char pause_in_background_menu_init;
 
-extern RGB_MAP rgb_table;
-extern COLOR_MAP trans_table, trans_table2;
 extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
                 *msg_txt_bmp_buf, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf,
 				*msg_menu_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3],
@@ -238,7 +236,6 @@ extern bool lightbeam_present;
 #define NUM_ZCMOUSE 1
 extern BITMAP *zcmouse[NUM_ZCMOUSE];
 extern SAMPLE   wav_refill;
-extern PALETTE  RAMpal;
 extern PALETTE  pal_gui;
 extern byte     *colordata;
 extern itemdata *itemsbuf;

@@ -4582,7 +4582,7 @@ static void draw_high_darkness(BITMAP* dest)
 		ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
 	}
 
-	color_map = &trans_table2;
+	color_map = trans_table2;
 	if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
 	{
 		draw_trans_sprite(dest, darkscr_bmp, 0, 0);
@@ -4594,7 +4594,7 @@ static void draw_high_darkness(BITMAP* dest)
 		masked_blit(darkscr_bmp, dest, 0, 0, 0, 0, dest->w, dest->h);
 		draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
 	}
-	color_map = &trans_table;
+	color_map = trans_table;
 
 	set_clip_rect(dest, 0, 0, dest->w, dest->h);
 	do_primitives(dest, SPLAYER_DARKROOM_OVER);
@@ -5276,12 +5276,12 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 
 	if (lightbeam_present)
 	{
-		color_map = &trans_table2;
+		color_map = trans_table2;
 		if(get_qr(qr_LIGHTBEAM_TRANSPARENT))
 			draw_trans_sprite(dest, lightbeam_bmp, 0, playing_field_offset);
 		else
 			masked_blit(lightbeam_bmp, dest, 0, 0, 0, playing_field_offset, 256, 176);
-		color_map = &trans_table;
+		color_map = trans_table;
 	}
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
@@ -5349,7 +5349,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 			ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
 		}
 		
-		color_map = &trans_table2;
+		color_map = trans_table2;
 		if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
 		{
 			draw_trans_sprite(dest, darkscr_bmp, 0, 0);
@@ -5361,7 +5361,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 			masked_blit(darkscr_bmp, dest, 0, 0, 0, 0, dest->w, dest->h);
 			draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
 		}
-		color_map = &trans_table;
+		color_map = trans_table;
 		
 		set_clip_rect(dest, 0, 0, dest->w, dest->h);
 		do_primitives(dest, SPLAYER_DARKROOM_OVER);

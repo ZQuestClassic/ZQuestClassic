@@ -1,3 +1,4 @@
+#include "base/pal_tables.h"
 #include "base/zdefs.h"
 #include "colorname.h"
 #include <sstream>

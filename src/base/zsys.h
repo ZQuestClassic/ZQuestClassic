@@ -7,6 +7,7 @@
 #define ZSYS_H_
 
 #include "base/zdefs.h"
+#include "base/pal_tables.h"
 #include "gui/jwin.h"
 #include "zsyssimple.h"
 

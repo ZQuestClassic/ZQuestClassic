@@ -1,5 +1,6 @@
 #include "paledit.h"
 #include "base/files.h"
+#include "base/pal_tables.h"
 #include "info.h"
 #include "base/zsys.h"
 #include <gui/builder.h>
