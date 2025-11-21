@@ -275,7 +275,7 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				args.push_back("-record");
 				args.push_back(replay_path.string().c_str());
 			}
-			test_killer = launch_process(ZPLAYER_FILE, args);
+			test_killer = launch_process(locate_zapp_file(ZPLAYER_FILE), args);
 #endif
 		}
 		return true;

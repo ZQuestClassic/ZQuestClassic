@@ -39,18 +39,25 @@ class TestZEditor(unittest.TestCase):
         )
 
     def quick_assign(self, qst_path):
-        log = run_target.get_build_folder() / 'allegro.log'
-        if log.exists():
-            log.unlink()
+        allegro_log_path = tmp_dir / 'allegro.log'
+        if allegro_log_path.exists():
+            allegro_log_path.unlink()
         args = [
             '-headless',
             '-quick-assign',
             qst_path,
         ]
         try:
-            run_target.check_run('zeditor', args)
+            run_target.check_run(
+                'zeditor',
+                args,
+                env={
+                    **os.environ,
+                    'ALLEGRO_LEGACY_TRACE': str(allegro_log_path),
+                },
+            )
         except Exception as e:
-            e.add_note(log.read_text())
+            e.add_note(allegro_log_path.read_text())
             raise e
 
     def run_replay(self, output_dir, args):
@@ -179,9 +186,10 @@ class TestZEditor(unittest.TestCase):
             str(root_dir / 'tests/scripts/newbie_boss'),
             str(root_dir / 'tests/scripts/compat'),
         ]
-        (run_target.get_build_folder() / 'includepaths.txt').write_text(
-            ';'.join(include_paths)
-        )
+        resources_folder = run_target.get_build_folder()
+        if resources_folder.name == 'bin':
+            resources_folder = resources_folder / '../share/zquestclassic'
+        (resources_folder / 'includepaths.txt').write_text(';'.join(include_paths))
 
         test_cases = [
             (

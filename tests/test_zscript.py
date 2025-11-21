@@ -33,6 +33,8 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 test_scripts_dir = root_dir / 'tests/scripts'
 expected_dir = test_scripts_dir
+tmp_dir = root_dir / '.tmp/test_zscript'
+tmp_dir.mkdir(exist_ok=True, parents=True)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
@@ -73,13 +75,13 @@ class TestZScript(ZCTestCase):
             str(root_dir / 'resources/headers'),
             str(test_scripts_dir / 'playground'),
         ]
-        zasm_path = run_target.get_build_folder() / 'out.zasm'
+        zasm_path = tmp_dir / 'out.zasm'
         zasm_path.unlink(missing_ok=True)
         args = [
             '-input',
             script_path,
             '-zasm',
-            'out.zasm',
+            str(zasm_path),
             '-commented',
             '-include',
             ';'.join(include_paths),

@@ -66,16 +66,23 @@ def compile():
         ';'.join(include_paths)
     )
 
-    log = run_target.get_build_folder() / 'allegro.log'
-    if log.exists():
-        log.unlink()
+    allegro_log_path = tmp_dir / 'allegro.log'
+    if allegro_log_path.exists():
+        allegro_log_path.unlink()
     args = [
         '-headless',
         '-smart-assign',
         qst_path,
     ]
     try:
-        run_target.check_run('zeditor', args)
+        run_target.check_run(
+            'zeditor',
+            args,
+            env={
+                **os.environ,
+                'ALLEGRO_LEGACY_TRACE': str(allegro_log_path),
+            },
+        )
     except Exception as e:
         e.add_note(log.read_text())
         raise e

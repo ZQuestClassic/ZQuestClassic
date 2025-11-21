@@ -1,5 +1,6 @@
 #include "base/process_management.h"
 #include "base/util.h"
+#include "base/zapp.h"
 #include "base/zdefs.h"
 #include <fmt/format.h>
 #include <sstream>
@@ -436,6 +437,15 @@ BOOL RunOneShot(const char *szCmd, const BOOL UseDos, std::string& output) {
   return true;
 }
 #endif
+
+std::string locate_zapp_file(std::string const& file)
+{
+#ifdef _WIN32
+	return zapp_get_exe_folder_path() + "\\" + file + ".exe";
+#else
+	return zapp_get_exe_folder_path() + "/" + file;
+#endif
+}
 
 process_killer launch_process(std::string file, const std::vector<std::string>& args)
 {

@@ -440,7 +440,7 @@ static bool check_for_updates()
 	has_checked_for_updates = true;
 
 	std::string output;
-	bool success = run_and_get_output(ZUPDATER_FILE, {
+	bool success = run_and_get_output(locate_zapp_file(ZUPDATER_FILE), {
 		"-headless",
 		"-print-next-release",
 	}, output);
@@ -856,10 +856,10 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::ZC:
-			launch_process(ZPLAYER_FILE);
+			launch_process(locate_zapp_file(ZPLAYER_FILE));
 			break;
 		case message::ZQ:
-			launch_process(ZEDITOR_FILE);
+			launch_process(locate_zapp_file(ZEDITOR_FILE));
 			break;
 		case message::SUPPORT:
 		{
@@ -869,7 +869,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::ZU:
 		{
 			std::string output;
-			bool success = run_and_get_output(ZUPDATER_FILE, {
+			bool success = run_and_get_output(locate_zapp_file(ZUPDATER_FILE), {
 				"-headless",
 				"-install",
 				"-asset-url", next_asset_url,
@@ -880,7 +880,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				InfoDialog("Updated!", fmt::format("Updated to {}! Restarting ZLauncher...", next_version)).show();
 				close_button_quit = true;
-				launch_process(ZLAUNCHER_FILE);
+				launch_process(locate_zapp_file(ZLAUNCHER_FILE));
 			}
 			else
 			{

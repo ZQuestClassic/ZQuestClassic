@@ -134,7 +134,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libssl-dev libcurl4-openssl-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils libogg-dev libvorbis-dev libdumb1-dev
 
       - if: ${{ contains(inputs.runs-on, 'mac') }}
-        run: brew install ninja dylibbundler create-dmg ccache dumb libogg libvorbis
+        run: brew install ninja ccache dumb libogg libvorbis
 
       # Setup build cache via ccache.
       - name: ccache cache files
@@ -183,7 +183,7 @@ jobs:
           -DRELEASE_CHANNEL="3"
           -DREPO="${{ github.repository }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
-          -DWANT_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"
+          -DWANT_ZC_TESTS="${{ inputs.test-runner }}"
           -DCMAKE_WIN32_EXECUTABLE=1
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -192,9 +192,10 @@ jobs:
       - run: cmake --build build --config ${{ inputs.config }} --target ${{ env.TARGET }} -j 4 -- -k 0
       - run: ccache -s
 
+      # Fail if any changes were written to any source files.
+      - run: git diff --cached --exit-code
+
       # Package.
-      - if: inputs.debug-info
-        run: echo "PACKAGE_DEBUG_INFO=1" >> "$GITHUB_ENV"
       - name: Set package vars
         id: set-package-vars
         shell: python
@@ -209,60 +210,42 @@ jobs:
           if system == 'Windows':
             arch_label = 'x86' if arch == 'win32' else 'x64'
             package_name = f'{release_version}-windows-{arch_label}.zip'
-            package_orig_name = 'zc.zip'
           elif system == 'Darwin':
             package_name = f'{release_version}-mac.dmg'
-            package_orig_name = 'ZQuestClassic.dmg'
           elif system == 'Linux':
             package_name = f'{release_version}-linux.tar.gz'
-            package_orig_name = 'zc.tar.gz'
-
-          package_script_args = ''
-          package_script_args_mac = ''
-          if release_version != 'zc':
-            package_script_args = f'--version {release_version}'
-            package_script_args_mac = release_version
-
-          if '${{ inputs.test-runner }}' == 'true':
-            package_script_args += '--test_runner'
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-            print('{0}={1}'.format('package-orig-name', package_orig_name), file=f)
             print('{0}={1}'.format('package-name', package_name), file=f)
-            print('{0}={1}'.format('package-script-args', package_script_args), file=f)
-            print('{0}={1}'.format('package-script-args-mac', package_script_args_mac), file=f)
       - name: Package
-        if: inputs.config != 'Coverage' && !contains(inputs.runs-on, 'mac')
+        shell: bash
         run: |
-          python scripts/package.py ${{ steps.set-package-vars.outputs.package-script-args }} --build_folder build/${{ inputs.config }}
-          mv build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-orig-name }} build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
-      - name: Package
-        if: inputs.config != 'Coverage' && contains(inputs.runs-on, 'mac')
-        run: |
-          sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }} ${{ steps.set-package-vars.outputs.package-script-args-mac }}
-          mv build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-orig-name }} build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
+          mkdir -p packages
+          cd build
+          mkdir package_output
+          cpack --verbose -C ${{ inputs.config }} \
+            -D CPACK_PACKAGE_DIRECTORY=$PWD/package_output \
+            ${{ inputs.debug-info && '-D CPACK_CUSTOM_INSTALL_VARIABLES=MAC_CREATE_DEBUG_SYMBOLS_BUNDLE=TRUE' || '' }}
+          mv package_output/*.* ../packages/${{ steps.set-package-vars.outputs.package-name }}
+
       # Coverage builds need the entire build folder.
-      - name: Package
+      - name: tar build folder (Coverage)
         if: inputs.config == 'Coverage'
         run: |
-          python scripts/package.py --build_folder build/${{ inputs.config }} --copy_to_build_folder
           cd build
+          rm -fr package_output
           mkdir -p tmp-src/parser
           cp ../src/parser/lex.yy.cpp tmp-src/parser
           cp ../src/parser/y.tab.cpp tmp-src/parser
           cp ../src/parser/y.tab.hpp tmp-src/parser
           tar czpvf build.tar.gz * --preserve-permissions
-          mkdir ${{ inputs.config }}/packages
-          mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
-
-      # Fail if any changes were written to any source files.
-      - run: git diff --cached --exit-code
+          mv build.tar.gz ../packages/build.tar.gz
 
       # Make build result available to other workflows.
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
-          path: build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
+          path: packages/*.*
 
       # Upload debug symbols to Sentry.
       - name: Setup Sentry CLI

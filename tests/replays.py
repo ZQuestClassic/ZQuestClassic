@@ -353,10 +353,16 @@ class CLIPlayerInterface:
         # TODO: fix this common-ish error, and whatever else is causing random failures.
         # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
         # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
-        exe_path = ctx.build_folder / ('zplayer.exe' if os.name == 'nt' else 'zplayer')
-        if not exe_path.exists():
-            exe_path = ctx.build_folder / ('zelda.exe' if os.name == 'nt' else 'zelda')
-        if not exe_path.exists():
+
+        ext = '.exe' if os.name == 'nt' else ''
+        candidates = [
+            f'zplayer{ext}',
+            f'zelda{ext}',
+        ]
+        exe_path = next(
+            (p for c in candidates if (p := ctx.build_folder / c).exists()), None
+        )
+        if not exe_path:
             print(
                 f'could not find executable at: {ctx.build_folder}\nYou may need to set the --build_folder arg (defaults to build/Release)'
             )

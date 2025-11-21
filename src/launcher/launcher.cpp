@@ -75,7 +75,7 @@ int32_t main(int32_t argc, char* argv[])
 	if (used_switch(argc, argv, "-update"))
 	{
 		std::string output;
-		bool success = run_and_get_output(ZUPDATER_FILE, {"-headless", "-cache"}, output);
+		bool success = run_and_get_output(locate_zapp_file(ZUPDATER_FILE), {"-headless", "-cache"}, output);
 		success &= output.find("Success!") != std::string::npos;
 		printf("%s\n", output.c_str());
 		set_is_exiting();

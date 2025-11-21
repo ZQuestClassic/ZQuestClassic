@@ -143,7 +143,9 @@ def build_locally(revision: Revision, release_platform: str):
             raise Exception('unsupported')
 
     how_to_package = None
-    if (local_build_working_dir / 'scripts/package.py').exists():
+    if (local_build_working_dir / 'packaging'):
+        how_to_package = 'cpack'
+    elif (local_build_working_dir / 'scripts/package.py').exists():
         how_to_package = 'package.py'
     elif (local_build_working_dir / 'output/_auto/buildpack.bat').exists():
         how_to_package = 'bat'
@@ -391,7 +393,6 @@ def build_locally(revision: Revision, release_platform: str):
                     path.write_text('[zeldadx]\nfullscreen = 0')
                 elif path.name == 'zquest.cfg':
                     path.write_text('[zquest]\nfullscreen = 0')
-
     elif how_to_package == 'package.py':
         args = [
             'cmake',

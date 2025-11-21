@@ -452,13 +452,23 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 		return null;
 	}
 
-	let zscriptFolder = settings.installationFolder;
-	if (zscriptFolder.endsWith('.app')) {
-		zscriptFolder += '/Contents/Resources';
+	const installFolder = settings.installationFolder;
+
+	let binFolder = installFolder;
+	let resourcesFolder = installFolder;
+	if (installFolder.endsWith('.app')) {
+		resourcesFolder = path.join(installFolder, 'Contents/Resources');
+		binFolder = resourcesFolder;
+	} else if (fs.existsSync(path.join(installFolder, 'bin'))) {
+		binFolder = path.join(installFolder, 'bin');
+	}
+
+	if (path.basename(binFolder) === 'bin') {
+		resourcesFolder = path.join(binFolder, '../share/zquestclassic');
 	}
 
 	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
-	if (!fs.existsSync(`${zscriptFolder}/${exe}`)) {
+	if (!fs.existsSync(`${binFolder}/${exe}`)) {
 		connection.sendDiagnostics({
 			uri, diagnostics: [{
 				severity: DiagnosticSeverity.Error,
@@ -517,13 +527,13 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 		}
 
 		// If in a checkout of the ZC repo, use the resources folder as cwd.
-		const cwd = checkIfInZCRepo(originPath) ?? zscriptFolder;
+		const cwd = checkIfInZCRepo(originPath) ?? resourcesFolder;
 
-		const cp = await execFile(`${zscriptFolder}/${exe}`, args, {
+		const cp = await execFile(`${binFolder}/${exe}`, args, {
 			cwd,
 			maxBuffer: 20_000_000,
 			signal,
-			env: { ...process.env, ZC_DISABLE_OSX_CHDIR: '1' },
+			env: { ...process.env, ZC_DISABLE_OSX_CHDIR: '1', ZC_DISABLE_CHDIR: '1' },
 		});
 		success = true;
 		stdout = cp.stdout;
