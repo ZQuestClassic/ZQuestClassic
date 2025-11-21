@@ -1651,7 +1651,7 @@ TopMenu the_menu
 
 void rebuild_trans_table();
 int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal,
-                    int32_t *px2, int32_t *py2, double *scale, bool isviewingmap, bool skipmenu = false);
+                    int32_t &px2, int32_t &py2, double &scale, bool isviewingmap, bool skipmenu = false);
 
 int32_t onResetTransparency()
 {
@@ -4519,10 +4519,10 @@ int32_t saveMapAsImage(ALLEGRO_BITMAP* bitmap)
 
 int32_t onViewPic()
 {
-    return launchPicViewer(&pic,picpal,&picx,&picy,&picscale,false);
+    return launchPicViewer(&pic,picpal,picx,picy,picscale,false);
 }
 
-int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *py2, double *scale2, bool isviewingmap, bool skipmenu)
+int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t& px2, int32_t& py2, double& scale, bool isviewingmap, bool skipmenu)
 {
 	restore_mouse();
 	BITMAP *buf;
@@ -4588,6 +4588,14 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		}
 	}
 
+	const double MIN_SCALE = 0.1;
+	const double MAX_SCALE = 5.0;
+	auto mouse_x = gui_mouse_x();
+	auto mouse_y = gui_mouse_y();
+	int mouse_off_x = 0, mouse_off_y = 0;
+	double old_scale = scale;
+	bool mouse_down = false;
+	
 	do
 	{
 		int w, h;
@@ -4604,7 +4612,6 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 
 		if (isviewingmap)
 		{
-			float scale = *scale2;
 			auto root_transform = get_root_rti()->get_transform();
 			int dw = al_get_display_width(all_get_display()) / root_transform.xscale;
 			int dh = al_get_display_height(all_get_display()) / root_transform.yscale;
@@ -4612,7 +4619,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 			mapy = std::max(mapy, (int)(-h*scale + dh));
 			mapx = std::min(mapx, 0);
 			mapy = std::min(mapy, 0);
-			rti_map_view->set_transform({mapx, mapy, scale, scale});
+			rti_map_view->set_transform({mapx, mapy, (float)scale, (float)scale});
 		}
 
 		if(redraw)
@@ -4621,8 +4628,8 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 
 			if (!isviewingmap)
 				stretch_blit(*pictoview, buf, 0, 0, w, h,
-					int32_t(zq_screen_w + (*px2 - w) * *scale2) / 2, int32_t(zq_screen_h + (*py2 - h) * *scale2) / 2,
-					int32_t(w * *scale2), int32_t(h * *scale2));
+					int32_t(zq_screen_w + (px2 - w) * scale) / 2, int32_t(zq_screen_h + (py2 - h) * scale) / 2,
+					int32_t(w * scale), int32_t(h * scale));
 						 
 			if(vp_showpal)
 				for(int32_t i=0; i<256; i++)
@@ -4630,7 +4637,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 					
 			if(vp_showsize)
 			{
-				textprintf_ex(buf,font,0,zq_screen_h-8,pwhite,pblack,"%dx%d %.2f%%",w,h,*scale2*100.0);
+				textprintf_ex(buf,font,0,zq_screen_h-8,pwhite,pblack,"%dx%d %.2f%%",w,h,scale*100.0);
 			}
 			
 			if (!isviewingmap)
@@ -4641,132 +4648,193 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		custom_vsync();
 		
 		int32_t step = 16;
+		double scale_step = 0.95;
+		double scale_bigstep = 2.0;
 		
-		if(*scale2 < 1.0)
-			step = int32_t(4.0/ *scale2);
-			
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+		if(scale < 1.0)
+			step = int32_t(4.0/ scale);
+		
+		bool shift = (key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+		bool ctrl = CHECK_CTRL_CMD;
+		if (shift)
 			step <<= 2;
-			
-		if(CHECK_CTRL_CMD)
+		if (ctrl)
 			step >>= 1;
+		if (shift && ctrl)
+		{
+			scale_step = 0.90;
+			scale_bigstep = 4.0;
+		}
+		else if (shift)
+		{
+			scale_step = 0.80;
+			scale_bigstep = 3.0;
+		}
+		else if(ctrl)
+		{
+			scale_step = 0.975;
+			scale_bigstep = 1.5;
+		}
 			
 		if(key[KEY_UP])
 		{
-			*py2+=step;
+			py2+=step;
 			redraw=true;
 		}
 		
 		if(key[KEY_DOWN])
 		{
-			*py2-=step;
+			py2-=step;
 			redraw=true;
 		}
 		
 		if(key[KEY_LEFT])
 		{
-			*px2+=step;
+			px2+=step;
 			redraw=true;
 		}
 		
 		if(key[KEY_RIGHT])
 		{
-			*px2-=step;
+			px2-=step;
 			redraw=true;
+		}
+		
+		if (bool mouse_down_now = (gui_mouse_b() & 1); mouse_down_now != mouse_down)
+		{
+			mouse_down = mouse_down_now;
+			if (mouse_down)
+			{
+				mouse_x = gui_mouse_x();
+				mouse_y = gui_mouse_y();
+				mouse_off_x = px2;
+				mouse_off_y = py2;
+			}
+		}
+		
+		if (mouse_down)
+		{
+			if (abs(old_scale - scale) > 0.01)
+			{
+				mouse_x = gui_mouse_x();
+				mouse_y = gui_mouse_y();
+				mouse_off_x = px2;
+				mouse_off_y = py2;
+				old_scale = scale;
+			}
+			px2 = mouse_off_x + (gui_mouse_x() - mouse_x);
+			py2 = mouse_off_y + (gui_mouse_y() - mouse_y);
+		}
+		
+		if (mouse_z)
+		{
+			double new_scale = scale;
+			for (int q = 0; q < mouse_z; ++q)
+				new_scale /= scale_step;
+			for (int q = 0; q > mouse_z; --q)
+				new_scale *= scale_step;
+			position_mouse_z(0);
+			
+			auto mx = (gui_mouse_x() - px2) / scale;
+			auto my = (gui_mouse_y() - py2) / scale;
+			scale = vbound(new_scale, MAX_SCALE, MIN_SCALE);
+			
+			px2 = gui_mouse_x() - (mx * scale);
+			py2 = gui_mouse_y() - (my * scale);
 		}
 		
 		if(keypressed() && !redraw)
 			switch(readkey()>>8)
 			{
 			case KEY_PGUP:
-				*scale2*=0.95;
+				scale *= scale_step;
 				
-				if(*scale2<0.1) *scale2=0.1;
+				if(scale<MIN_SCALE) scale = MIN_SCALE;
 				
 				redraw=true;
 				break;
 				
 			case KEY_PGDN:
-				*scale2/=0.95;
+				scale /= scale_step;
 				
-				if(*scale2>5.0) *scale2=5.0;
+				if(scale>MAX_SCALE) scale = MAX_SCALE;
 				
-				redraw=true;
+				redraw = true;
 				break;
 				
 			case KEY_HOME:
-				*scale2/=2.0;
+				scale /= scale_bigstep;
 				
-				if(*scale2<0.1) *scale2=0.1;
+				if(scale<MIN_SCALE) scale = MIN_SCALE;
 				
-				redraw=true;
+				redraw = true;
 				break;
 				
 			case KEY_END:
-				*scale2*=2.0;
+				scale *= scale_bigstep;
 				
-				if(*scale2>5.0) *scale2=5.0;
+				if(scale>MAX_SCALE) scale = MAX_SCALE;
 				
-				redraw=true;
+				redraw = true;
 				break;
 				
 			case KEY_TILDE:
-				*scale2=0.5;
-				redraw=true;
+				scale = 0.5;
+				redraw = true;
 				break;
 				
 			case KEY_Z:
-				*px2=w-zq_screen_w;
-				*py2=h-zq_screen_h;
-				vp_center=false;
-				redraw=true;
+				px2 = w-zq_screen_w;
+				py2 = h-zq_screen_h;
+				vp_center = false;
+				redraw = true;
 				break;
 				
 			case KEY_1:
-				*scale2=1.0;
-				redraw=true;
+				scale = 1.0;
+				redraw = true;
 				break;
 				
 			case KEY_2:
-				*scale2=2.0;
-				redraw=true;
+				scale = 2.0;
+				redraw = true;
 				break;
 				
 			case KEY_3:
-				*scale2=3.0;
-				redraw=true;
+				scale = 3.0;
+				redraw = true;
 				break;
 				
 			case KEY_4:
-				*scale2=4.0;
-				redraw=true;
+				scale = 4.0;
+				redraw = true;
 				break;
 				
 			case KEY_5:
-				*scale2=5.0;
-				redraw=true;
+				scale = 5.0;
+				redraw = true;
 				break;
 				
 			case KEY_C:
-				*px2=*py2=0;
-				redraw=vp_center=true;
+				px2 = py2 = 0;
+				redraw = vp_center = true;
 				break;
 				
 			case KEY_S:
 				vp_showsize = !vp_showsize;
-				redraw=true;
+				redraw = true;
 				break;
 				
 			case KEY_D:
 				vp_showpal = !vp_showpal;
-				redraw=true;
+				redraw = true;
 				break;
 				
 			case KEY_P:
 				if(isviewingmap) break;
 				
 			case KEY_ESC:
-				done=true;
+				done = true;
 				break;
 				
 			case KEY_SPACE:
@@ -4774,14 +4842,14 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 				// TODO: why is `load_the_map` rendering a black dialog?
 				if(isviewingmap ? load_the_map(skipmenu) : load_the_pic(pictoview,pal)==2)
 				{
-					done=true;
+					done = true;
 				}
 				else
 				{
-					redraw=true;
+					redraw = true;
 					gui_bg_color = pblack;
 					gui_fg_color = pwhite;
-					*scale2=1.0;
+					scale = 1.0;
 					zc_set_palette(pal);
 				}
 				
@@ -4912,7 +4980,7 @@ int32_t onViewMapEx(bool skipmenu)
 {
     int32_t temp_aligns=ShowMisalignments;
     ShowMisalignments=0;
-    launchPicViewer(&bmap,mappal,&mapx, &mapy, &mapscale,true,skipmenu);
+    launchPicViewer(&bmap,mappal,mapx, mapy, mapscale,true,skipmenu);
     ShowMisalignments=temp_aligns;
     return D_O_K;
 }
