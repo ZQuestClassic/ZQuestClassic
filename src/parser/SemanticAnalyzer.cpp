@@ -1254,7 +1254,7 @@ void SemanticAnalyzer::caseVarInitializer(ASTExprVarInitializer& host, void*)
 	}
 }
 
-void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string> override_name)
+void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, bool supports_bitflags)
 {
 	visit(host.left.get(), paramReadWrite);
 	if (breakRecursion(host)) return;
@@ -1350,6 +1350,8 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 
 	if (!skip_cast_check)
 	{
+		if (supports_bitflags && checkBitflagError(host, *ltype, *rtype))
+			return;
 		checkCast(*rtype, *ltype, &host);
 		if (breakRecursion(host)) return;
 	}
@@ -1358,19 +1360,19 @@ void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string>
 }
 void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 {
-	handleSpecialAssign(host, nullopt);
+	handleSpecialAssign(host, nullopt, false);
 }
 
-#define SPECIAL_ASSIGN(_, ty_assign, override_name) \
+#define SPECIAL_ASSIGN(ty_base, ty_assign, override_name) \
 void SemanticAnalyzer::caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param) \
 { \
-	handleSpecialAssign(host, override_name); \
+	handleSpecialAssign(host, override_name, ASTExpr##ty_base().supportsBitflags()); \
 }
 #include "special_assign.xtable"
 #undef SPECIAL_ASSIGN
 void SemanticAnalyzer::caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param)
 {
-	handleSpecialAssign(host, "bit_not_assign");
+	handleSpecialAssign(host, "bit_not_assign", true);
 }
 
 void SemanticAnalyzer::caseExprIdentifier(
@@ -2377,30 +2379,36 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		checkCast(*host.right->getReadType(scope, this), rightType, &host);
 		return;
 	}
-
 	auto leftTypeActual = host.left->getReadType(scope, this);
-	bool leftIsEnum = leftTypeActual->isEnum();
-	if (!leftIsEnum)
+	auto rightTypeActual = host.right->getReadType(scope, this);
+	
+	if (checkBitflagError(host, *leftTypeActual, *rightTypeActual))
+		return;
+
+	if (!leftTypeActual->isEnum())
 	{
 		checkCast(*leftTypeActual, leftType, &host);
 		if (breakRecursion(host)) return;
 	}
-
-	auto rightTypeActual = host.right->getReadType(scope, this);
-	bool rightIsEnum = rightTypeActual->isEnum();
-	if (!rightIsEnum)
+	
+	if (!rightTypeActual->isEnum())
 	{
 		checkCast(*rightTypeActual, rightType, &host);
 		if (breakRecursion(host)) return;
 	}
+}
 
-	bool leftIsBitflags = leftTypeActual->isBitflagsEnum();
-	bool rightIsBitflags = rightTypeActual->isBitflagsEnum();
-	if ((leftIsEnum && rightIsEnum) && (leftIsBitflags || rightIsBitflags) && *leftTypeActual->getMutType() != *rightTypeActual->getMutType())
+bool SemanticAnalyzer::checkBitflagError(AST& host, DataType const& leftType, DataType const& rightType)
+{
+	if ((leftType.isEnum() && rightType.isEnum()) && (leftType.isBitflagsEnum() || rightType.isBitflagsEnum()))
 	{
-		handleError(CompileError::Error(&host, fmt::format("Binary operations on bitflags must be on the same type. Instead, got: {}, {}",
-			leftTypeActual->getMutType()->getName(), 
-			rightTypeActual->getMutType()->getName())));
-		return;
+		if (*leftType.getMutType() != *rightType.getMutType())
+		{
+			handleError(CompileError::Error(&host, fmt::format("Binary operations on bitflags must be on the same type. Instead, got: {}, {}",
+				leftType.getMutType()->getName(), 
+				rightType.getMutType()->getName())));
+			return true;
+		}
 	}
+	return false;
 }
