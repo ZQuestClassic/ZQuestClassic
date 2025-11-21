@@ -349,8 +349,12 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(meta['qst_hash'], '5833FF169985B186D58058417E918408')
 
     def test_upload(self):
+        resources_folder = run_target.get_build_folder()
+        if resources_folder.name == 'bin':
+            resources_folder = resources_folder / '../share/zquestclassic'
+
         replay_path = root_dir / 'tests/replays/classic_1st_lvl1.zplay'
-        replays_folder = run_target.get_build_folder() / 'replays'
+        replays_folder = resources_folder / 'replays'
         replays_folder.mkdir(exist_ok=True)
         state_path = replays_folder / 'state.json'
         if state_path.exists():

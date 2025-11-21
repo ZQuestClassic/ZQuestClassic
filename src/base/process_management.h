@@ -20,26 +20,15 @@ static uint32_t __dummy_;
 #include <unistd.h>
 #endif
 
+#define ZPLAYER_FILE "zplayer"
+#define ZEDITOR_FILE "zeditor"
+#define ZSCRIPT_FILE "zscript"
+#define ZLAUNCHER_FILE "zlauncher"
+#define ZUPDATER_FILE "zupdater"
+
 #ifdef _WIN32
-	#define ZPLAYER_FILE "zplayer.exe"
-	#define ZEDITOR_FILE "zeditor.exe"
-	#define ZSCRIPT_FILE "zscript.exe"
-	#define ZLAUNCHER_FILE "zlauncher.exe"
-	#define ZUPDATER_FILE "zupdater.exe"
 	#define PYTHON "pythonw"
-#elif defined(ALLEGRO_LINUX)
-	#define ZPLAYER_FILE "zplayer"
-	#define ZEDITOR_FILE "zeditor"
-	#define ZSCRIPT_FILE "zscript"
-	#define ZLAUNCHER_FILE "zlauncher"
-	#define ZUPDATER_FILE "zupdater"
-	#define PYTHON "python"
 #else
-	#define ZPLAYER_FILE "./zplayer"
-	#define ZEDITOR_FILE "./zeditor"
-	#define ZSCRIPT_FILE "./zscript"
-	#define ZLAUNCHER_FILE "./zlauncher"
-	#define ZUPDATER_FILE "./zupdater"
 	#define PYTHON "python"
 #endif
 
@@ -193,6 +182,7 @@ struct child_process_handler : public io_manager
 	#endif
 };
 
+std::string locate_zapp_file(std::string const& file);
 process_killer launch_process(std::string file, const std::vector<std::string>& args = {});
 process_manager* launch_piped_process(std::string file, std::string pipename, const std::vector<std::string>& args = {});
 void launch_file(std::string const& file);

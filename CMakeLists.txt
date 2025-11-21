@@ -5,26 +5,19 @@ else()
 	cmake_minimum_required(VERSION 3.27)
 endif()
 set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
-project (ZeldaClassic)
+project (ZeldaClassic HOMEPAGE_URL "https://www.zquestclassic.com")
 
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
-endif()
-
-if(LINUX AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-	set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/zquestclassic" CACHE PATH "Default installation folder. Note that /usr/local is ill-advised since many resource files will be placed in the install folder" FORCE)
 endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 include(CodeCoverage)
 
-option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they do not exist yet" ON)
-
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
-set(WANT_DEBUG_FILES FALSE CACHE BOOL "Generate separate debug files - .dSYM on Mac, .debug on Linux")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
@@ -87,7 +80,7 @@ if(LINUX)
 	SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 endif()
 
-if(APPLE AND WANT_DEBUG_FILES)
+if(APPLE)
 	find_program(DSYMUTIL_PROGRAM dsymutil)
 	if (DSYMUTIL_PROGRAM)
 		foreach(lang C CXX)
@@ -98,7 +91,7 @@ if(APPLE AND WANT_DEBUG_FILES)
 	endif()
 endif()
 
-if(LINUX AND WANT_DEBUG_FILES)
+if(LINUX)
 	find_program(EU_STRIP_PROGRAM eu-strip)
 	if (EU_STRIP_PROGRAM)
 		foreach(lang C CXX)
@@ -125,36 +118,54 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   set(${SOURCE_VARIABLE_NAME} ${${SOURCE_VARIABLE_NAME}} ${unit_build_file} PARENT_SCOPE)
 endfunction(enable_unity_build)
 
-function(zc_install_targets)
-	# The cmake `install` target is currently only supported for linux.
-	if(NOT LINUX)
-		return()
-	endif()
-
-	install(TARGETS ${ARGV}
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib/zquestclassic)
-endfunction()
-
-if(NOT LINUX)
-	install(CODE "MESSAGE(FATAL_ERROR \"The cmake `install` target is currently only supported for linux. Use the `package` target instead.\")")
-else()
-	set(PACKAGE_COMMAND "${PYTHON} \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py\" --skip_binaries --skip_archive --build_folder \"\${BUILD_FOLDER}\" --package_folder \"$<INSTALL_PREFIX>\" --keep_existing_files")
-	if(NOT RELEASE_TAG STREQUAL "")
-		set(PACKAGE_COMMAND "${PACKAGE_COMMAND} --current_version ${RELEASE_TAG}")
-	endif()
-	install(CODE "execute_process(COMMAND ${PACKAGE_COMMAND} COMMAND_ERROR_IS_FATAL ANY)")
-
-	set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-	set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-endif()
+set(ZC_INSTALL_TARGETS "")
 
 #############################################################
 # zlib/libpng
 #############################################################
 
-if(NOT EMSCRIPTEN)
+set(BUILD_SHARED_LIBS ON)
+
+# Local windows development is for some reason more finnicky to setup with the very latest
+# zlib/png. For now, use older versions locally.
+if(MSVC AND NOT (DEFINED ENV{CI} OR ZC_OFFICIAL) AND NOT ZLIB_LIBRARIES)
+	FetchContent_Declare(
+		zlib
+		GIT_REPOSITORY
+			https://github.com/Mizux/zlib.git
+		GIT_TAG
+			19d7d6b32ee3af4ed4bdec415f42f518c93b5025
+		EXCLUDE_FROM_ALL
+	)
+	FetchContent_MakeAvailable(zlib)
+
+	if(NOT ZLIB_LIBRARIES)
+		set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
+		set(ZLIB_LIBRARY ZLIB::ZLIB)
+		set(ZLIB_LIBRARIES ZLIB::ZLIB)
+	endif()
+
+	FetchContent_Declare(
+		png
+		GIT_REPOSITORY
+			https://github.com/glennrp/libpng.git
+		GIT_TAG
+			v1.6.38
+		EXCLUDE_FROM_ALL
+	)
+	set(PNG_BUILD_ZLIB ON CACHE BOOL "")
+	set(PNG_STATIC OFF CACHE BOOL "")
+	set(PNG_TESTS OFF CACHE BOOL "")
+	FetchContent_MakeAvailable(png)
+
+	if(NOT PNG_LIBRARIES)
+		set(PNG_LIBRARIES png)
+		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+	endif()
+
+	list(APPEND ZC_INSTALL_TARGETS ${PNG_LIBRARIES})
+elseif(NOT EMSCRIPTEN)
 	FetchContent_Declare(
 		zlib
 		GIT_REPOSITORY
@@ -163,12 +174,8 @@ if(NOT EMSCRIPTEN)
 			v1.3.1
 		EXCLUDE_FROM_ALL
 	)
-	set(BUILD_SHARED_LIBS ON)
 	FetchContent_MakeAvailable(zlib)
 
-	set(ZLIB_ROOT "${zlib_SOURCE_DIR}" CACHE INTERNAL "Root for the zlib library, used by libpng")
-	set(PNG_STATIC OFF CACHE INTERNAL BOOL "")
-	set(PNG_TESTS OFF CACHE INTERNAL BOOL "")
 	FetchContent_Declare(
 		png
 		GIT_REPOSITORY
@@ -177,6 +184,9 @@ if(NOT EMSCRIPTEN)
 			v1.6.47
 		EXCLUDE_FROM_ALL
 	)
+	set(ZLIB_ROOT "${zlib_SOURCE_DIR}" CACHE INTERNAL "Root for the zlib library, used by libpng")
+	set(PNG_STATIC OFF CACHE INTERNAL BOOL "")
+	set(PNG_TESTS OFF CACHE INTERNAL BOOL "")
 	FetchContent_MakeAvailable(png)
 
 	if(NOT PNG_LIBRARIES)
@@ -184,6 +194,8 @@ if(NOT EMSCRIPTEN)
 		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
 		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
 	endif()
+
+	list(APPEND ZC_INSTALL_TARGETS ${ZLIB_LIBRARIES} ${PNG_LIBRARIES})
 endif()
 
 FetchContent_Declare(json
@@ -193,7 +205,6 @@ FetchContent_Declare(json
 FetchContent_MakeAvailable(json)
 
 if (NOT EMSCRIPTEN)
-	set(UUID_SYSTEM_GENERATOR ON CACHE INTERNAL "")
 	FetchContent_Declare(
 		stduuid
 		GIT_REPOSITORY
@@ -203,6 +214,7 @@ if (NOT EMSCRIPTEN)
 		PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/third_party/stduuid.patch
 		EXCLUDE_FROM_ALL
 	)
+	set(UUID_SYSTEM_GENERATOR ON CACHE INTERNAL "")
 	FetchContent_MakeAvailable(stduuid)
 endif()
 
@@ -215,9 +227,14 @@ if (NOT EMSCRIPTEN)
 			17b6e8ce219c0677f94b63636abb9296b28841ca
 		EXCLUDE_FROM_ALL
 	)
+	set(BUILD_SHARED_LIBS_PREV ${BUILD_SHARED_LIBS})
+	set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+	set(NFD_INSTALL OFF CACHE BOOL "" FORCE)
 	FetchContent_MakeAvailable(nativefiledialog) # exposed as nfd
-	zc_install_targets(nfd)
+	set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_PREV} CACHE BOOL "" FORCE)
+	set(USE_NFD ON)
 endif()
+
 
 find_package(CURL)
 
@@ -308,14 +325,14 @@ add_subdirectory(third_party/allegro_legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/allegro_legacy/include ${CMAKE_CURRENT_BINARY_DIR}/third_party/allegro_legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_audio allegro_acodec allegro_main)
 
 if (NOT EMSCRIPTEN)
 	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
 endif()
 
 get_target_property(ALLEGRO_LINK_LIBRARIES allegro_with_legacy INTERFACE_LINK_LIBRARIES)
-zc_install_targets(${ALLEGRO_LINK_LIBRARIES})
+list(APPEND ZC_INSTALL_TARGETS allegro ${ALLEGRO_LINK_LIBRARIES})
 
 if(DEFINED ENV{CI} OR ZC_OFFICIAL)
 	get_target_property(ALLEGRO_CODEC_SOURCES allegro_acodec SOURCES)
@@ -465,6 +482,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"
 	add_compile_options(-mssse3)
 endif()
 
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(is_multi_config)
+	set(BUILD_FOLDER "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+else()
+	set(BUILD_FOLDER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+endif()
+
 #############################################################
 # Allegro Graphics Addons
 #############################################################
@@ -569,6 +593,8 @@ if(NOT WIN32)
 endif()
 if (NOT EMSCRIPTEN)
 	target_link_libraries(zcbase PUBLIC nfd)
+	target_compile_definitions(zcbase PUBLIC HAS_NFD)
+	list(APPEND ZC_INSTALL_TARGETS nfd)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -623,6 +649,7 @@ target_include_directories(zcgui PRIVATE src)
 if(WIN32)
 	add_executable(zconsole src/zconsole/ConsoleLoggerHelper.cpp)
 	target_link_options(zconsole PRIVATE "/SUBSYSTEM:CONSOLE")
+	list(APPEND ZC_INSTALL_TARGETS zconsole)
 endif()
 
 add_library(zconsolelogger STATIC src/zconsole/ConsoleLogger.cpp)
@@ -656,6 +683,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
 	set(SOUNDLIBS gme gme_headers)
+	list(APPEND ZC_INSTALL_TARGETS gme)
 endif()
 
 find_package(dumb QUIET)
@@ -735,7 +763,7 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	FetchContent_MakeAvailable(asmjit)
 	target_link_libraries(zplayer PRIVATE asmjit)
 	target_compile_definitions(zplayer PRIVATE ZC_JIT)
-	zc_install_targets(asmjit)
+	list(APPEND ZC_INSTALL_TARGETS asmjit)
 
 	get_target_property(asm_compile_options asmjit COMPILE_OPTIONS)
 	string(REPLACE "$<NOT:$<CONFIG:Debug>>" "$<NOT:$<CONFIG:Debug,Asan>>" asm_compile_options "${asm_compile_options}")
@@ -824,6 +852,7 @@ if(WIN32)
 	add_executable(zstandalone src/standalone/standalone.cpp)
 	target_link_options(zstandalone PRIVATE "/SUBSYSTEM:WINDOWS")
 	add_dependencies(zeditor zstandalone)
+	list(APPEND ZC_INSTALL_TARGETS zstandalone)
 endif()
 
 #############################################################
@@ -854,8 +883,6 @@ if(CURL_FOUND AND WIN32)
 	target_include_directories(json INTERFACE third_party/json)
 	target_link_libraries(zupdater PRIVATE json)
 
-	set(BUILD_SHARED_LIBS_PREV BUILD_SHARED_LIBS)
-	set(BUILD_SHARED_LIBS OFF)
 	FetchContent_Declare(
 		miniz
 		GIT_REPOSITORY
@@ -864,8 +891,10 @@ if(CURL_FOUND AND WIN32)
 			9ae305f6e109f8f1fbd2130458f1ee6197269b3b
 		EXCLUDE_FROM_ALL
 	)
+	set(BUILD_SHARED_LIBS_PREV ${BUILD_SHARED_LIBS})
+	set(BUILD_SHARED_LIBS OFF)
 	FetchContent_MakeAvailable(miniz)
-	set(BUILD_SHARED_LIBS BUILD_SHARED_LIBS_PREV)
+	set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_PREV} CACHE BOOL "" FORCE)
 	target_link_libraries(zupdater PRIVATE miniz)
 else()
 	message(WARNING "Using Python for zupdater")
@@ -935,6 +964,26 @@ if(WANT_SENTRY)
 		target_link_libraries(${target} PRIVATE sentry)
 		target_compile_definitions(${target} PRIVATE HAS_SENTRY)
 	endforeach()
+
+	list(APPEND ZC_INSTALL_TARGETS crashpad_handler)
+endif()
+
+# See docs/versioning.md
+set(gen_version_header_deps scripts/generate_version_header.py)
+find_program(GIT_EXECUTABLE NAMES git)
+if(GIT_EXECUTABLE)
+	execute_process(
+        COMMAND "${GIT_EXECUTABLE}" rev-parse --git-dir
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE GIT_DIR
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+	list(APPEND gen_version_header_deps
+		"${CMAKE_CURRENT_SOURCE_DIR}/${GIT_DIR}/HEAD"
+		"${CMAKE_CURRENT_SOURCE_DIR}/${GIT_DIR}/refs/tags"
+        "${CMAKE_CURRENT_SOURCE_DIR}/${GIT_DIR}/index"
+	)
 endif()
 
 if(RELEASE_TAG)
@@ -1027,49 +1076,6 @@ else()
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS -Wno-everything)
 endif()
 
-get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if(is_multi_config)
-	set(BUILD_FOLDER "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
-else()
-	set(BUILD_FOLDER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-endif()
-
-add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${BUILD_FOLDER}" --keep_existing_files
-	OUTPUT copy_resources_if_not_exist.stamp
-)
-add_custom_target(copy_resources_if_not_exist DEPENDS copy_resources_if_not_exist.stamp)
-set_source_files_properties(copy_resources_if_not_exist.stamp PROPERTIES SYMBOLIC 1)
-
-add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${BUILD_FOLDER}"
-	OUTPUT copy_resources.stamp
-)
-add_custom_target(copy_resources DEPENDS copy_resources.stamp)
-set_source_files_properties(copy_resources.stamp PROPERTIES SYMBOLIC 1)
-
-add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${BUILD_FOLDER}" --clean_first
-	OUTPUT package.stamp
-	DEPENDS ${zc_targets}
-)
-add_custom_target(package DEPENDS package.stamp)
-set_source_files_properties(package.stamp PROPERTIES SYMBOLIC 1)
-
-add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${BUILD_FOLDER}" --clean_first --skip_archive
-	OUTPUT package_no_archive.stamp
-	DEPENDS ${zc_targets}
-)
-add_custom_target(package_no_archive DEPENDS package_no_archive.stamp)
-set_source_files_properties(package_no_archive.stamp PROPERTIES SYMBOLIC 1)
-
-if(COPY_RESOURCES AND NOT EMSCRIPTEN)
-	foreach(target IN LISTS zc_targets)
-		add_dependencies(${target} copy_resources_if_not_exist)
-	endforeach()
-endif()
-
 # Add some targets for running replay tests.
 # TODO: Visual Studio can't cancel custom commands from CMake
 # https://gitlab.kitware.com/cmake/cmake/-/issues/25183
@@ -1096,6 +1102,12 @@ create_replay_tests_target(run_replay_tests_all_1s --assert --no-jit --max_durat
 create_replay_tests_target(run_replay_tests_all_10s --assert --no-jit --max_duration 10)
 create_replay_tests_target(run_replay_tests_all_100s --assert --no-jit --max_duration 100)
 
+if(EMSCRIPTEN)
+	add_subdirectory(web)
+endif()
+
+add_subdirectory(packaging)
+
 #############################################################
 # Visual Studio
 #############################################################
@@ -1113,7 +1125,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	set_target_properties(zplayer zeditor zscript zlauncher zupdater package package_no_archive PROPERTIES FOLDER "")
+	set_target_properties(zplayer zeditor zscript zlauncher zupdater package_zc PROPERTIES FOLDER "")
 	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme PROPERTIES FOLDER Sound)
@@ -1151,9 +1163,3 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	# The sound system has a known memory issue, so for now set the default debugging args to disable sound.
 	set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_COMMAND_ARGUMENTS "$<$<CONFIG:ASAN>:-s>")
 endif()
-
-if(EMSCRIPTEN)
-	add_subdirectory(web)
-endif()
-
-zc_install_targets(allegro allegro-legacy allegro_with_legacy allegro_audio allegro_acodec zlauncher zplayer zeditor zscript zcsound ${SOUNDLIBS})

@@ -2,6 +2,7 @@
 #define _ZAPP_H_
 
 #include <functional>
+#include <string>
 #include <utility>
 
 enum App {
@@ -14,6 +15,7 @@ enum App {
 };
 
 void common_main_setup(App id, int argc, char **argv);
+std::string zapp_get_exe_folder_path();
 App get_app_id();
 bool is_web();
 bool is_ci();

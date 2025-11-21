@@ -1,7 +1,6 @@
 Some prerequisites to building from source:
 
-- CMake (3.28 or later)
-- Install flexbison (Windows, use https://chocolatey.org/: `choco install winflexbison3`)
+- CMake (3.29 or later)
 - For Windows: Visual Studio 2019 (but later is better)
 
 # Configuring the build
@@ -34,17 +33,116 @@ Download CMake and run the CMake GUI. It will prompt your for the location of th
 
 Click "Generate." This will create a Visual Studio project file for you in the build directory. You can then open up the project file in MSVC and do editing/compilation/debugging in MSVC. You do not need to touch CMake again unless you want to change project configuration options or add/remove source files.
 
+# Building on Windows
+
+## Dependencies
+
+- Install flexbison (Windows, use https://chocolatey.org/: `choco install winflexbison3`)
+
+## (optional) Optional dependencies
+
+Various features rely on third-party libraries that are optional for building. Without these libraries, the features will be disabled. The features include:
+
+* OGG support (libogg, libvorbis)
+* Tracker support (DUMB - IT, XM, S3M, MOD)
+* Updater / replay uploader (curl)
+
+To get these libraries on Windows, you can use `vcpkg`:
+
+```sh
+# need to place vcpkg somewhere. I like to use ~/tools but can be anywhere.
+cd ~/tools
+
+# download and setup vcpkg
+git clone https://github.com/microsoft/vcpkg
+cd vcpkg
+./bootstrap-vcpkg.bat
+
+# install libraries
+./vcpkg.exe install --triplet x64-windows libogg libvorbis curl dumb openssl
+```
+
+You then need to configure your CMake build with the `vcpkg` toolchain (replace the path with where you installed it!):
+
+```sh
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/c/Users/cjamc/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+```
+
+Note: this needs to be a fresh build folder, otherwise the toolchain won't be updated. If you already have a `build` folder delete it first.
+
+## (optional) Using Ninja and MSVC
+
+Typically, on Windows you want to use Visual Studio as the cmake generator, but if you want to use Ninja instead here's how:
+
+> 1. Ensure you have installed the C++/CLI tools for C++ desktop development in the Visual Studio Installer [(reference)](https://gitlab.kitware.com/cmake/cmake/-/issues/19815#note_636971)
+> 
+> 1. Launch `cmd.exe` and configure the environment to use the Microsoft toolchain: `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"`
+Change 64 to 32 if you want to build 32bit.
+> 1. Configure: `cmake -S . -B build -G "Ninja Multi-Config" -DCMAKE_WIN32_EXECUTABLE=1`
+> 1. Build: `cmake --build build --config Debug -t zplayer`
+
+One reason to use Ninja is to use clang instead of MSVC (just skip the environment configuration above); or to use `ccache` for faster builds.
+
+## Building
+
+After configuring the build, you can either build from the command line (like `cmake --build build`), or open the Visual Studio solution file create in `build`. Either way, the binaries will be generated in the `build/{Release|Debug}` folder.
+
+## Installing
+
+You can either use Visual Studio to install, or use cmake from the command line.
+
+* Visual Studio: select the `Release` configuration, then run the `package_zc` target
+* cmake: run `cmake --build build --config Release --target package_zc`
+
+The result will be in a zip file `build/Release/packages`, such as `build/Release/packages/ZQuestClassic-3.0.0-dev.zip`. Unzip it anywhere you like - it is fully portable.
+
+# Building on macOS
+
+## Install dependencies
+
+```sh
+brew install ninja ccache dumb libogg libvorbis
+```
+
+## Building
+
+Configure:
+
+```sh
+cmake -G 'Ninja Multi-Config' -B build -S .
+```
+
+Build:
+
+```sh
+cmake --build build --config Debug
+```
+
+Run:
+
+```sh
+./build/Debug/zlauncher
+```
+
+## Installing
+
+The following command will install to `/Applications/ZQuest Classic.app`:
+
+```sh
+cmake --install build --config Release
+```
+
+You may instead wish to install it somewhere else. If so, set the `--prefix` option in the above install command.
+
 # Building on Linux
 
-## Install Dependencies
+## Install dependencies
 
 ### Linux Mint
 
 ```sh
 sudo apt update
 sudo apt install python3-pip ninja-build libgtk-3-dev libasound2-dev libssl-dev libcurl4-openssl-dev libstdc++-12-dev
-# Can skip this if already have cmake 3.24 or higher
-pip install cmake --upgrade
 ```
 
 ### Ubuntu
@@ -62,26 +160,17 @@ sudo apt install libopengl0 libglu1
 
 ## Building
 
-> NOTE: currently gcc cannot be used, so use clang 17+
-
-Install clang 17:
-
-```sh
-wget https://apt.llvm.org/llvm.sh
-chmod u+x llvm.sh
-sudo ./llvm.sh 17
-# verify
-clang-17 --version
-# clean up
-rm llvm.sh
-```
+Supported compilers: gcc 11.4+, clang 17+
 
 Configure:
 
 ```sh
 # be in the ZQuestClassic git checkout
-# Configure
+
+# configure with clang:
 CC=clang-17 CXX=clang++-17 cmake -G 'Ninja Multi-Config' -B build -S .
+# or configure with gcc:
+cmake -G 'Ninja Multi-Config' -B build -S .
 ```
 
 > NOTE: skip to "Installing" if you are not developing and just want a user installation
@@ -95,65 +184,20 @@ cmake --build build --config Debug
 Run:
 
 ```sh
-cd build/Debug
-./zlauncher
+./build/Debug/zlauncher
 ```
 
 ## Installing
 
-```sh
-cmake --build build --config Release -t install
-```
-
-By default this will install to `~/zquestclassic`. You can open the launcher with: `cd ~/zquestclassic; ./bin/zlauncher`
-
-# Building w/ OGG support on Windows
-
-You'll need to install libogg and libvorbis. This is typically already present on Unix systems, but for Windows you can use `vcpkg`:
+The following command will install to `/opt/zquestclassic`:
 
 ```sh
-cd ~/tools
-git clone https://github.com/microsoft/vcpkg
-cd vcpkg
-./bootstrap-vcpkg.bat
-./vcpkg.exe install --triplet x64-windows libogg libvorbis
+cmake --install build --config Release --prefix /opt/zquestclassic
 ```
 
-You then need to configure your CMake build with the `vcpkg` toolchain:
+Open the launcher with `/opt/zquestclassic/bin/zlauncher`.
 
-```sh
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/c/Users/cjamc/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
-```
-
-Note: this needs to be a fresh build folder, otherwise the toolchain won't be updated.
-
-If these libraries are not present, you can still build but won't be able to play OGG music.
-
-# Building w/ tracker (DUMB - IT, XM, S3M, MOD) for updater on Windows
-
-```sh
-./vcpkg.exe install --triplet x64-windows dumb
-```
-
-# Building w/ CURL for updater on Windows
-
-```sh
-./vcpkg.exe install --triplet x64-windows curl
-```
-
-# Building with Ninja and MSVC
-
-Typically, on Windows you want to use Visual Studio as the cmake generator, but if you want to use Ninja here's how:
-
-> 1. Ensure you have installed the C++/CLI tools for C++ desktop development in the Visual Studio Installer [(reference)](https://gitlab.kitware.com/cmake/cmake/-/issues/19815#note_636971)
-> 
-> 1. Launch `cmd.exe` and configure the environment to use the Microsoft toolchain: `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"`
-Change 64 to 32 if you want to build 32bit.
-> 1. Configure: `cmake -S . -B build -G "Ninja Multi-Config" -DCMAKE_WIN32_EXECUTABLE=1`
-> 1. Build: `cmake --build build --config Debug -t zplayer`
-
-One reason to use Ninja is to use clang instead of MSVC (just skip the environment configuration above);
-or to use `ccache` for faster builds.
+You may instead wish to install it to your home directory (such as `~/zquestclassic`).
 
 # Building the Web version
 
@@ -166,21 +210,20 @@ bash scripts/configure_emscripten.sh
 Now, build with cmake as normal. Note the output of the above script:
 
 > to build the web version:
->   cmake --build build_emscripten --config Release -t web
+>   cmake --build build_emscripten --config Debug -t web
 > 
 > to build just a single app:
->   cmake --build build_emscripten --config Release -t web_zplayer
->   cmake --build build_emscripten --config Release -t web_zeditor
+>   cmake --build build_emscripten --config Debug -t web_zplayer
+>   cmake --build build_emscripten --config Debug -t web_zeditor
 > 
 > you only need to re-run configure_emscripten.sh if something in this file is changed
 > 
 > be sure to start a local webserver in the web package folder:
->   cd build_emscripten/Release/packages/web && npx statikk --port 8000 --coi
+>   cd build_emscripten/Debug/packages/web && npx statikk --port 8000 --coi
 
 # ccache
 
-`ccache` can be used to cache build results, making switching between branches and re-building
-much faster.
+`ccache` can be used to cache build results, which makes switching between branches and re-building much faster.
 
 > OSX: `brew install ccache`
 >
@@ -195,7 +238,7 @@ Note: you'll need to set the env variable `CCACHE_SLOPPINESS=time_macros`.
 
 Note: on Windows, Debug can't be cached yet. https://github.com/ccache/ccache/issues/1040
 
-Some care is needed to ensure build outputs are determinstic. If you do a clean build (`cmake --build build --clean-first`), and then run `ccache -z` and do another clean build, then `ccache -s` will give a report of cache misses/hits. The cache should be full and there should be 0 misses. If there are misses, something in the build output is non deterministic. Read this [article](https://interrupt.memfault.com/blog/ccache-debugging) for how to debug.
+Some care is needed to ensure build outputs are deterministic. If you do a clean build (`cmake --build build --clean-first`), and then run `ccache -z` and do another clean build, then `ccache -s` will give a report of cache misses/hits. The cache should be full and there should be 0 misses. If there are misses, something in the build output is non deterministic. Read this [article](https://interrupt.memfault.com/blog/ccache-debugging) for how to debug.
 
 Other useful links:
 

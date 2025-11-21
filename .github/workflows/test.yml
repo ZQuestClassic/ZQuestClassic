@@ -80,8 +80,7 @@ jobs:
         with:
           name: ${{ needs.build.outputs.artifact-name }}
           path: ${{ needs.build.outputs.artifact-name }}
-      - name: Prepare build folder
-        if: inputs.config != 'Coverage'
+      - name: Prepare package
         uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
         with:
           windows: |
@@ -98,14 +97,16 @@ jobs:
             cp -r "zc-mounted/ZQuest Classic.app.dSYM" zc-extracted
             hdiutil unmount zc-mounted
           linux: |
-            echo "BUILD_FOLDER=$PWD/zc-extracted" >> "$GITHUB_ENV"
+            echo "BUILD_FOLDER=$PWD/zc-extracted/bin" >> "$GITHUB_ENV"
             mkdir zc-extracted
             tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C zc-extracted
-      - name: Prepare build folder
+      - name: Prepare build folder (Coverage)
         if: inputs.config == 'Coverage'
         run: |
-            echo "BUILD_FOLDER=build/Coverage" >> "$GITHUB_ENV"
-            tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
+            mkdir -p build
+            ls ${{ needs.build.outputs.artifact-name }}
+            tar -xvzf ${{ needs.build.outputs.artifact-name }}/build.tar.gz -C build
+            cp -r build/tmp-src/* src/
 
       - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libdumb1
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}

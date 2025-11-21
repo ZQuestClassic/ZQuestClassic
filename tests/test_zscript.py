@@ -33,6 +33,8 @@ expected_dir = test_scripts_dir
 if args.output or args.update:  # Clear old output
     for path in expected_dir.rglob('*_unexpected.txt'):
         os.remove(path)
+tmp_dir = root_dir / '.tmp/test_zscript'
+tmp_dir.mkdir(exist_ok=True, parents=True)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
@@ -48,13 +50,14 @@ class TestZScript(unittest.TestCase):
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
         ]
-        zasm_path = run_target.get_build_folder() / 'out.zasm'
+        zasm_path = tmp_dir / 'out.zasm'
         zasm_path.unlink(missing_ok=True)
         args = [
             '-input',
             script_path,
             '-zasm',
-            'out.zasm',
+            str(zasm_path),
+            '-commented',
             '-include',
             ';'.join(include_paths),
             '-unlinked',

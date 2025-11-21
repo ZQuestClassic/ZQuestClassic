@@ -20,6 +20,7 @@ import * as childProcess from 'child_process';
 import {promisify} from 'util';
 import * as os from 'os';
 import * as fs from 'fs';
+import * as path from 'path';
 
 const execFile = promisify(childProcess.execFile);
 
@@ -195,7 +196,24 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	let success = false;
 	fs.writeFileSync(tmpInput, includeText);
 	fs.writeFileSync(tmpScript, text);
+
+	const installFolder = settings.installationFolder;
+
+	let binFolder = installFolder;
+	let resourcesFolder = installFolder;
+	if (installFolder.endsWith('.app')) {
+		resourcesFolder = path.join(installFolder, 'Contents/Resources');
+		binFolder = resourcesFolder;
+	} else if (fs.existsSync(path.join(installFolder, 'bin'))) {
+		binFolder = path.join(installFolder, 'bin');
+	}
+
+	if (path.basename(binFolder) === 'bin') {
+		resourcesFolder = path.join(binFolder, '../share/zquestclassic');
+	}
+
 	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
+
 	if (settings.printCompilerOutput) {
 		console.log(`Attempting to compile buffer:\n-----\n${includeText}\n-----`);
 	}
@@ -215,8 +233,9 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 		];
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');
-		const cp = await execFile(exe, args, {
-			cwd: settings.installationFolder,
+		const cp = await execFile(`${binFolder}/${exe}`, args, {
+			cwd: resourcesFolder,
+			env: { ...process.env, ZC_DISABLE_OSX_CHDIR: '1', ZC_DISABLE_CHDIR: '1' },
 		});
 		success = true;
 		stdout = cp.stdout;

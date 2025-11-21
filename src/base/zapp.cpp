@@ -5,8 +5,18 @@
 #include <filesystem>
 #include <string>
 
-#ifdef __APPLE__
+#ifdef _WIN32
+#include <algorithm>
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+#include <Windows.h>
+#else
 #include <unistd.h>
+#endif
+
+#ifdef ALLEGRO_MACOSX
+#include <mach-o/dyld.h>
+#include <sys/syslimits.h>
 #endif
 
 #ifdef ALLEGRO_SDL
@@ -40,13 +50,36 @@ namespace fs = std::filesystem;
 
 static App app_id = App::undefined;
 
-bool is_in_osx_application_bundle()
+// No trailing slash.
+static std::string get_exe_folder_path()
 {
-#ifdef __APPLE__
-    return std::filesystem::current_path().string().find(".app/") != std::string::npos;
+	std::string path;
+
+#ifdef _WIN32
+	wchar_t wc[260] = {0};
+	GetModuleFileNameW(NULL, wc, 260);
+	std::wstring ws(wc);
+	std::transform(ws.begin(), ws.end(), std::back_inserter(path), [](wchar_t c) { return (char)c; });
+	std::replace(path.begin(), path.end(), '\\', '/');
+#elif defined(ALLEGRO_MACOSX)
+	char buf[PATH_MAX];
+	uint32_t length = PATH_MAX;
+	if (!_NSGetExecutablePath(buf, &length))
+		path = std::string(buf, length>0 ? length : 0);
+#elif defined(__EMSCRIPTEN__)
+	path = "";
 #else
-    return false;
+	char c[260];
+	int length = (int)readlink("/proc/self/exe", c, 260);
+	path = std::string(c, length>0 ? length : 0);
 #endif
+
+	return path.substr(0, path.rfind('/'));
+}
+
+static bool is_exe_in_bin_folder()
+{
+	return fs::path(zapp_get_exe_folder_path()).filename() == "bin";
 }
 
 void zapp_set_crash_cb(std::function<void()> cb)
@@ -66,6 +99,24 @@ void common_main_setup(App id, int argc, char **argv)
 	if (std::getenv("ZC_HEADLESS") != nullptr)
 	{
 		set_headless_mode();
+	}
+
+	bool disable_chdir = std::getenv("ZC_DISABLE_OSX_CHDIR") != nullptr || std::getenv("ZC_DISABLE_CHDIR") != nullptr;
+	if (!disable_chdir)
+	{
+#ifdef ALLEGRO_LINUX
+		// Change to share/zquestclassic folder.
+		if (is_exe_in_bin_folder())
+		{
+			auto share_path = fs::path(zapp_get_exe_folder_path()) / "../share/zquestclassic";
+			if (fs::exists(share_path))
+				chdir(share_path.c_str());
+		}
+#else
+		std::string new_cwd = zapp_get_exe_folder_path();
+		if (fs::current_path().string() != new_cwd)
+			chdir(new_cwd.c_str());
+#endif
 	}
 
 #ifdef HAS_SENTRY
@@ -113,27 +164,20 @@ void common_main_setup(App id, int argc, char **argv)
 	sentry_set_user(user);
 #endif
 
-    // This allows for opening a binary from Finder and having ZC be in its expected
-    // working directory (the same as the binary). Only used when not inside an application bundle,
-    // and only for testing purposes really. See comment about `SKIP_APP_BUNDLE` in package_mac.sh
-#ifdef __APPLE__
-    if (!is_in_osx_application_bundle() && argc > 0) {
-        chdir(std::filesystem::path(argv[0]).parent_path().c_str());
-    }
-#endif
-
 #ifdef ALLEGRO_SDL
 	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
-#endif
-
-#ifdef ALLEGRO_LINUX
-	setenv("PATH", fmt::format("bin:.:{}", getenv("PATH")).c_str(), true);
 #endif
 
 	// The updater has to move some actively used files to a temporary location, but cannot delete them itself.
 	auto update_active_files = fs::path(".updater-active-files");
 	std::error_code ec;
 	fs::remove_all(update_active_files, ec);
+}
+
+std::string zapp_get_exe_folder_path()
+{
+	static std::string folder_path = get_exe_folder_path();
+	return folder_path;
 }
 
 App get_app_id()

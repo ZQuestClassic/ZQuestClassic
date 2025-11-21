@@ -42,7 +42,7 @@ class TestUpdater(unittest.TestCase):
             package_folder = build_folder / 'packages/zc'
 
         if not package_folder or not package_folder.exists():
-            raise Exception('must run package.py or package_mac.sh first')
+            raise Exception('must run package_zc target')
 
         for app in ['zupdater', 'zlauncher']:
             with self.subTest(msg=f'w/ {app}'):

@@ -136,15 +136,6 @@ static std::pair<std::string, std::map<std::string, std::string>> get_output_map
 	return {output, parse_output_map(output)};
 }
 
-static bool is_in_osx_application_bundle()
-{
-#ifdef __APPLE__
-    return fs::current_path().string().find("/ZQuest Classic.app/") != std::string::npos;
-#else
-    return false;
-#endif
-}
-
 static void require_python()
 {
 	std::string py_version = get_output(PYTHON, {"--version"}, "Python3 is required to run the updater");
@@ -410,13 +401,6 @@ int32_t main(int32_t argc, char* argv[])
 		else
 			fatal("Failed: " + error);
 	}
-
-#ifdef __APPLE__
-	if (!is_in_osx_application_bundle() && argc > 0)
-	{
-        chdir(fs::path(argv[0]).parent_path().c_str());
-    }
-#endif
 
 #ifdef UPDATER_USES_PYTHON
 	require_python();

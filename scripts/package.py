@@ -1,13 +1,19 @@
+# This is mostly dead code. Actually packaging now uses CPack. This script is still used for:
+#
+# - Local development (copy_resources)
+# - Preparing files for the web build
+# - Generating licenses / changelog / preparing config files (the 'new_packager' option - CPack does call this)
+
 import argparse
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
 import time
 
 from pathlib import Path
-from typing import List, Tuple
 
 system = platform.system()
 
@@ -27,46 +33,35 @@ parser.add_argument(
     help='package the extras instead of the main package',
 )
 parser.add_argument(
+    '--new_packager',
+    action='store_true',
+)
+parser.add_argument(
+    '--test_runner',
+    action='store_true',
+    help='package the test runner in main package',
+)
+parser.add_argument(
     '--clean_first',
     action='store_true',
     help='Delete package folder before copying over files',
-)
-parser.add_argument(
-    '--skip_binaries',
-    action='store_true',
-    help='Copy on the runtime resource files, not any of the program entrypoints or shared libraries',
-)
-parser.add_argument(
-    '--copy_to_build_folder',
-    action='store_true',
-    help='Copy to the provided build folder instead of an isolated package folder',
 )
 parser.add_argument(
     '--keep_existing_files',
     action='store_true',
     help='Only copy files that do not yet exist at the destination. For local development',
 )
-parser.add_argument(
-    '--skip_archive', action='store_true', help='Skip the compression step'
-)
-parser.add_argument('--current_version', help='Used to name the changelog generated')
+parser.add_argument('--version', help='Used to name the changelog generated')
 parser.add_argument('--cfg_os')
 args = parser.parse_args()
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 resources_dir = root_dir / 'resources'
+resources_extra_dir = root_dir / 'resources-extra'
 build_dir: Path = Path.cwd() / args.build_folder
 packages_dir = build_dir / 'packages'
 package_dir = Path(args.package_folder) if args.package_folder else packages_dir / 'zc'
-
-
-def binary_file(base_dir: Path, path: str):
-    as_path = base_dir / path
-    if system == 'Windows':
-        return (base_dir, as_path.with_suffix('.exe'))
-    else:
-        return (base_dir, as_path)
 
 
 def glob(base_dir: Path, pattern: str):
@@ -76,21 +71,15 @@ def glob(base_dir: Path, pattern: str):
     return [(base_dir, f) for f in files if f.is_file()]
 
 
-def files(base_dir: Path, files: List[str] = None):
+def files(base_dir: Path, files: list[str] = None):
     if files == None:
         return glob(base_dir, '**/*')
 
-    new_files: List[Tuple[Path, Path]] = []
+    new_files: list[tuple[Path, Path]] = []
     for f in files:
         path = base_dir / f
         new_files.append((base_dir, path))
     return new_files
-
-
-extras = [
-    *glob(resources_dir, 'Addons/**/*'),
-    *glob(resources_dir, 'utilities/**/*'),
-]
 
 
 def system_to_cfg_os(system: str):
@@ -123,6 +112,10 @@ def preprocess_base_config(config_text: str, cfg_os: str):
             if condition_text[0] == '!':
                 condition_text = condition_text[1:]
                 should_negate = True
+
+            if condition_text not in ['web', 'windows', 'mac', 'linux']:
+                raise Exception(f'unexpected condition: {condition_text}')
+
             is_match = condition_text == cfg_os
 
             if should_negate:
@@ -137,9 +130,9 @@ def preprocess_base_config(config_text: str, cfg_os: str):
 
 
 def copy_files_to_package(
-    files: List[Tuple[Path, Path]],
+    files: list[tuple[Path, Path]],
     dest_dir: Path,
-    exclude_files: List[Tuple[Path, Path]] = None,
+    exclude_files: list[tuple[Path, Path]] = None,
 ):
     if exclude_files:
         files = list(set(files) - set(exclude_files))
@@ -178,15 +171,6 @@ def prepare_package(package_dir: Path):
     package_dir.mkdir(parents=True, exist_ok=True)
 
 
-def archive_package(package_dir: Path):
-    dest = shutil.make_archive(
-        base_name=package_dir,
-        format='zip' if system == 'Windows' else 'gztar',
-        root_dir=package_dir,
-    )
-    print(f'archived {dest}')
-
-
 def collect_licenses(package_dir: Path):
     output_dir = package_dir / 'licenses'
     output_dir.mkdir(exist_ok=True, parents=True)
@@ -201,7 +185,17 @@ def collect_licenses(package_dir: Path):
         cmake_deps_dir = build_dir.parent / '_deps'
     third_party_dirs.extend(cmake_deps_dir.glob('*-src'))
 
-    files_to_copy = ['LICENSE', 'AUTHORS', 'CREDITS', 'README']
+    files_to_copy = [
+        'COPYING',
+        'LICENSE',
+        'LICENSE-BSD',
+        'LICENSE-MIT',
+        'LICENSE.MIT',
+        'LICENSE-Boost',
+        'AUTHORS',
+        'CREDITS',
+        'README',
+    ]
 
     for third_party_dir in third_party_dirs:
         if third_party_dir.is_file():
@@ -210,6 +204,9 @@ def collect_licenses(package_dir: Path):
         name = third_party_dir.name.replace('-src', '').replace('_external', '')
         dir = output_dir / name
         dir.mkdir(exist_ok=True)
+
+        if name == 'asio':
+            third_party_dir = third_party_dir / name
 
         for file in files_to_copy:
             # Kinda big.
@@ -232,8 +229,8 @@ def collect_licenses(package_dir: Path):
 
 def do_packaging(
     package_dir: Path,
-    files: List[Tuple[Path, Path]],
-    exclude_files: List[Tuple[Path, Path]] = None,
+    files: list[tuple[Path, Path]],
+    exclude_files: list[tuple[Path, Path]] = None,
     include_licenses=False,
 ):
     prepare_package(package_dir)
@@ -241,8 +238,6 @@ def do_packaging(
     if include_licenses:
         collect_licenses(package_dir)
     print(f'packaged {package_dir}')
-    if not args.skip_archive:
-        archive_package(package_dir)
 
 
 def do_web_packaging():
@@ -255,7 +250,6 @@ def do_web_packaging():
 
     all_files = glob(resources_dir, '**/*')
     ignore_files = [
-        *extras,
         *files(
             resources_dir,
             [
@@ -280,30 +274,34 @@ def do_web_packaging():
             'assets/overworld.mid',
             'assets/title.mid',
             'assets/triforce.mid',
+            'assets/zc/ZC_Forever_HD.mp3',
+            'assets/zc/ZC_Icon_Medium_Player.png',
+            'assets/zc/ZC_Logo.png',
             'base_config/zc.cfg',
             'base_config/zcl.cfg',
             'base_config/zquest.cfg',
             'base_config/zscript.cfg',
             'Classic.nsf',
-            'modules/classic.zmod',
             'modules/classic/classic_fonts.dat',
             'modules/classic/default.qst',
             'modules/classic/title_gfx.dat',
             'modules/classic/zelda.nsf',
             'sfx.dat',
-            'zc_web.cfg',
             'zc.png',
             'zquest_web.cfg',
         ],
     )
-    zeditor_data_files = files(
-        resources_dir,
-        [
-            'docs/zquest.txt',
-            'docs/zstrings.txt',
-            'modules/classic/classic_zquest.dat',
-        ],
-    )
+    zeditor_data_files = [
+        *files(
+            resources_dir,
+            [
+                'assets/zc/ZC_Icon_Medium_Editor.png',
+                'docs/zquest.txt',
+                'docs/zstrings.txt',
+            ],
+        ),
+        *glob(resources_dir, 'assets/editor/**/*'),
+    ]
     lazy_files = list(
         set(all_files) - set(zplayer_data_files) - set(zeditor_data_files)
     )
@@ -318,10 +316,6 @@ def do_web_packaging():
     copy_files_to_package(
         lazy_files, packages_dir / 'web_lazy_files', exclude_files=ignore_files
     )
-    if 'ZC_PACKAGE_REPLAYS' in os.environ:
-        shutil.copytree(
-            root_dir / 'tests/replays', packages_dir / 'web_lazy_files/test_replays'
-        )
 
     emcc_dir = Path(shutil.which('emcc')).parent
     subprocess.check_call(
@@ -360,6 +354,96 @@ def do_web_packaging():
             f'--js-output={build_dir / "zeditor.data.js"}',
         ]
     )
+
+    zscript_playground_data_files = [
+        *glob(resources_dir, 'include/**/*'),
+        *glob(resources_dir, 'headers/**/*'),
+        *files(resources_dir, ['base_config/zscript.cfg']),
+    ]
+    copy_files_to_package(
+        zscript_playground_data_files, packages_dir / 'web_zscript_playground_data'
+    )
+    subprocess.check_call(
+        [
+            'python',
+            emcc_dir / 'tools/file_packager.py',
+            build_dir / 'zscript-playground.data',
+            '--no-node',
+            '--preload',
+            f'{packages_dir}/web_zscript_playground_data@/',
+            '--use-preload-cache',
+            f'--js-output={build_dir / "zscript-playground.data.js"}',
+        ]
+    )
+    text = (
+        build_dir / 'zscript-playground.data.js'
+    ).read_text() + '\nexport default Module;'
+    (build_dir / 'zscript-playground.data.js').write_text(text)
+
+
+def generate_changelog(package_dir: Path):
+    # Generate changelog for changes since last stable release.
+    # For nightly releases, this changelog is saved as `changelogs/nightly.txt` and includes all changes since the last stable release.
+    # For stable releases, this changelog is the same as we would save to `resources/changelogs/DATE-TAG.txt` in source control, except
+    # that hasn't happened yet so it's done here for the release job.
+
+    # May already exist from build cache.
+    nightly_changelog_path = package_dir / 'changelogs/nightly.txt'
+    if nightly_changelog_path.exists():
+        nightly_changelog_path.unlink()
+
+    changelog = None
+    if args.version:
+        major, minor, patch = map(
+            int, re.search(r'^(\d+)\.(\d+)\.(\d+)', args.version).groups()
+        )
+        is_stable_release = patch == '0'
+        # Tag either already exists (we are re-publishing for some reason), or doesn't yet.
+        try:
+            date = subprocess.check_output(
+                f'git log -1 --format=%cs {args.version}', shell=True, encoding='utf-8'
+            ).strip()
+            date = date.replace('-', '_')
+        except:
+            date = time.strftime("%Y_%m_%d")
+
+        try:
+            last_stable = subprocess.check_output(
+                f'git describe --tags --abbrev=0 --match "*.*.0" --match "2.55-alpha-1??" --exclude {args.version}',
+                shell=True,
+                encoding='utf-8',
+            ).strip()
+            changelog = subprocess.check_output(
+                [
+                    sys.executable,
+                    script_dir / 'generate_changelog.py',
+                    '--from',
+                    last_stable,
+                    '--to',
+                    'HEAD',
+                    '--version',
+                    args.version,
+                ],
+                encoding='utf-8',
+            ).strip()
+        except Exception as e:
+            changelog = None
+            print(e)
+
+        if is_stable_release:
+            new_changelog_path = package_dir / f'changelogs/${date}-{args.version}.txt'
+        else:
+            new_changelog_path = package_dir / 'changelogs/nightly.txt'
+
+        if changelog:
+            if is_stable_release:
+                new_changelog_path.write_text(changelog)
+            else:
+                new_changelog_path.write_text(
+                    f'Changes since {last_stable}\n\n{changelog}'
+                )
+        elif new_changelog_path.exists():
+            new_changelog_path.unlink()
 
 
 if 'TEST' in os.environ:
@@ -405,82 +489,23 @@ if 'TEST' in os.environ:
         'ignore_monitor_scale = yes',
     )
 elif args.extras:
-    do_packaging(packages_dir / 'extras', extras)
+    do_packaging(packages_dir / 'extras', glob(resources_extra_dir, '**/*'))
+elif args.new_packager:
+    cfg_os = args.cfg_os or system_to_cfg_os(system)
+    for path in package_dir.rglob('*.cfg'):
+        print(f'preprocessing config: {path}')
+        path.write_text(preprocess_base_config(path.read_text(), cfg_os))
+
+    print('copying software licenses ...')
+    collect_licenses(package_dir)
+
+    print('generating changelog ...')
+    generate_changelog(package_dir)
 elif args.cfg_os == 'web':
     do_web_packaging()
 else:
-    # May already exist from build cache.
-    nightly_changelog_path = root_dir / 'changelogs/nightly.txt'
-    if nightly_changelog_path.exists():
-        nightly_changelog_path.unlink()
-
-    # Generate changelog for changes since last stable release.
-    changelog_path = None
-    try:
-        current_version = args.current_version if args.current_version else 'nightly'
-        last_stable = subprocess.check_output(
-            f'git describe --tags --abbrev=0 --match "2.55*" --exclude {current_version}',
-            shell=True,
-            encoding='utf-8',
-        ).strip()
-        changelog = subprocess.check_output(
-            [
-                sys.executable,
-                script_dir / 'generate_changelog.py',
-                '--from',
-                last_stable,
-                '--to',
-                'HEAD',
-            ],
-            encoding='utf-8',
-        ).strip()
-        if 'nightly' in current_version:
-            changelog_path = nightly_changelog_path
-            changelog = f'Changes since {last_stable}\n\n{changelog}'
-        else:
-            changelog_path = (
-                root_dir
-                / f'changelogs/{time.strftime("%Y_%m_%d")}-{current_version}.txt'
-            )
-    except Exception as e:
-        changelog = None
-        print(e)
-
-    if changelog_path:
-        changelog_path.write_text(changelog)
-
     zc_files = [
         *glob(resources_dir, '**/*'),
-        *glob(root_dir, 'changelogs/**/*'),
     ]
 
-    if args.copy_to_build_folder:
-        copy_files_to_package(zc_files, build_dir, exclude_files=extras)
-        exit(0)
-
-    if not args.skip_binaries:
-        zc_files.extend(
-            [
-                binary_file(build_dir, 'zplayer'),
-                binary_file(build_dir, 'zeditor'),
-                binary_file(build_dir, 'zscript'),
-                binary_file(build_dir, 'zlauncher'),
-                binary_file(build_dir, 'zupdater'),
-                *(glob(build_dir, '*.dll') if system == 'Windows' else []),
-                *(glob(build_dir, '*.so*') if system == 'Linux' else []),
-                *(glob(build_dir, '*.dylib') if system == 'Darwin' else []),
-            ]
-        )
-
-        if system == 'Windows':
-            zc_files.append(binary_file(build_dir, 'zconsole'))
-            zc_files.append(binary_file(build_dir, 'zstandalone'))
-
-        crashpad_binary = binary_file(build_dir, 'crashpad_handler')
-        if crashpad_binary[1].exists():
-            zc_files.append(crashpad_binary)
-
-        if system == 'Linux' and 'PACKAGE_DEBUG_INFO' in os.environ:
-            zc_files += glob(build_dir, '*.debug')
-
-    do_packaging(package_dir, zc_files, exclude_files=extras, include_licenses=True)
+    copy_files_to_package(zc_files, build_dir)
