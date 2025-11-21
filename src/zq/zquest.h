@@ -932,6 +932,8 @@ void update_hw_screen();
 /******  MAIN  ******/
 /********************/
 
+extern volatile int32_t framecnt;
+void anim_hw_screen();
 void custom_vsync();
 void switch_out();
 void switch_in();

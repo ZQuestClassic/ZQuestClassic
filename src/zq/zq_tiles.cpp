@@ -976,7 +976,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 				update_hw_screen();
 			}
 		}
-		rest(1);
+		//rest(1);
 	}
 	
 	if(over)
@@ -2159,12 +2159,8 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	
 	zc_set_palette(tpal);
 	draw_edit_scr(tile,flip,cs,oldtile, true);
-	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-		rest(1);
-	}
+	anim_hw_screen();
+	while(gui_mouse_b()) ; // wait
 	
 	move_origin_x=-1;
 	move_origin_y=-1;
@@ -2245,7 +2241,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		if(exiting_program) break;
 		int32_t temp_mouse_x=gui_mouse_x();
 		int32_t temp_mouse_y=gui_mouse_y();
-		rest(4);
+		//rest(4);
 		bool redraw=false;
 		bool did_wand_select=false;
 		
@@ -3180,7 +3176,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		if(redraw)
 		{
 			draw_edit_scr(tile,flip,cs,oldtile, false);
-			custom_vsync();
+			anim_hw_screen();
 		}
 		else
 		{
@@ -3189,31 +3185,20 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			if(hs)
 			{
 				zoomtile16(screen2,tile,zoomtile.x-1,zoomtile.y-1,cs,flip,zoomtile.xscale);
-			}
-			
-			custom_vsync();
-			
-			if(hs)
-			{
-				// blit(screen2, screen, 79, 31, 79, 31, 129, 129);
 				blit(screen2, screen, zoomtile.x-1,zoomtile.y-1, zoomtile.x-1,zoomtile.y-1, (zoomtile.w*zoomtile.xscale)+1, (zoomtile.h*zoomtile.yscale)+1);
+				anim_hw_screen();
 			}
 			
 			update_tool_cursor();
 			SCRFIX();
 		}
-		
 	}
 	while(!done);
 	
 	unfloat_selection();
 	clear_selection_grid();
 	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-		rest(1);
-	}
+	while(gui_mouse_b()) ; // wait
 	
 	if(done==1)
 	{
@@ -3839,9 +3824,8 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	
 	yofs=16;
 	
-	custom_vsync();
-	
 	stretch_blit(screen2,screen,0,0,320,240,screen_xofs,screen_yofs,640,480);
+	anim_hw_screen();
 	
 	// Suspend the current font while draw_text_button does its work
 	FONT* oldfont = font;
@@ -4861,7 +4845,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 	bool bdown=false;
 	int done=0;
 	int pal=0;
-	int f=0;
 	int black=vc(0),white=vc(15);
 	int selwidth=1, selheight=1;
 	int selx2=0, sely2=0;
@@ -4881,17 +4864,13 @@ void grab_tile(int32_t tile,int32_t &cs)
 	draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
 	grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
 	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-		rest(1);
-	}
+	while(gui_mouse_b()) ; // wait
 	
 	do
 	{
 		HANDLE_CLOSE_ZQDLG();
 		if(exiting_program) break;
-		rest(4);
+		//rest(4);
 		bool redraw=false;
 		
 		if(keypressed())
@@ -5188,22 +5167,20 @@ void grab_tile(int32_t tile,int32_t &cs)
 						}
 						
 						bool changed = (ox!=selx || oy!=sely || ow!=selwidth || oh!=selheight);
-						bool redraw = changed || !(f%8);
+						bool redraw = changed || !(framecnt%8);
 						
 						if(redraw)
 						{
 							draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
 							if(changed)
 								grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
-							if(f&8)
+							if(framecnt&8)
 							{
 								static const int w = 32;
 								rect(screen,(selx*2)+screen_xofs,(sely*2)+screen_yofs,(selx*2)+screen_xofs+((selwidth-1)*w)+(w-1),(sely*2)+screen_yofs+((selheight-1)*w)+(w-1),white);
 							}
 						}
-						else custom_vsync();
-						
-						++f;
+						anim_hw_screen();
 					}
 					while(gui_mouse_b());
 				}
@@ -5385,32 +5362,23 @@ void grab_tile(int32_t tile,int32_t &cs)
 			redraw=true;
 		}
 		
+		if (!(framecnt%8))
+			redraw = true;
 		if(redraw)
 		{
 			draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
-		}
-		else
-		{
-			custom_vsync();
-		}
-		
-		if((f%8)==0)
-		{
 			stretch_blit(screen2,screen3,0, 0, zq_screen_w, zq_screen_h, 0, 0, zq_screen_w*2, zq_screen_h*2);
 				
 			int selxl = selx* 2;
 			int selyl = sely* 2;
 			int w = 32;
 			
-			if(f&8)
+			if(framecnt&8)
 				rect(screen3,selxl,selyl,selxl+((selwidth-1)*w)+(w-1),selyl+((selheight-1)*w)+(w-1),white);
 			
 			blit(screen3,screen,selxl,selyl,selxl+screen_xofs,selyl+screen_yofs,selwidth*w,selheight*w);
 		}
-		
-		//    SCRFIX();
-		++f;
-		
+		anim_hw_screen();
 	}
 	while(!done);
 	
@@ -5473,11 +5441,11 @@ bool tile_is_used(int32_t tile)
 {
 	return used_tile_table[tile];
 }
-void draw_tiles(int32_t first,int32_t cs, int32_t f)
+void draw_tiles(int32_t first,int32_t cs)
 {
-	draw_tiles(screen2, first, cs, f, true);
+	draw_tiles(screen2, first, cs, true);
 }
-void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bool true_empty)
+void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, bool large, bool true_empty)
 {
 	clear_bitmap(dest);
 	BITMAP *buf = create_bitmap_ex(8,16,16);
@@ -5547,9 +5515,9 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 			stretch_blit(buf,dest,0,0,16,16,x,y,w,h);
 		}
 		
-		if((f%32)<=16 && large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
+		if((framecnt%32)<=16 && large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
 		{
-			textprintf_ex(dest,get_zc_font(font_z3smallfont),(x)+l-3,(y)+l-3,vc(int32_t((f%32)/6)+10),-1,"8");
+			textprintf_ex(dest,get_zc_font(font_z3smallfont),(x)+l-3,(y)+l-3,vc(int32_t((framecnt%32)/6)+10),-1,"8");
 		}
 	}
 	
@@ -8973,8 +8941,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	draw_tile_list_window();
-	int32_t f=0;
-	draw_tiles(first,cs,f);
+	draw_tiles(first,cs);
 	
 	if(type==0)
 	{
@@ -8984,14 +8951,11 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	{
 		tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
 	}
+	anim_hw_screen();
 	
 	go_tiles();
 	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-		rest(1);
-	}
+	while(gui_mouse_b()) ; // wait
 	
 	bool bdown=false;
 	
@@ -9030,7 +8994,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	{
 		HANDLE_CLOSE_ZQDLG();
 		if(exiting_program) break;
-		rest(4);
+		//rest(4);
 		int32_t top=TILEROW(zc_min(tile, tile2));
 		int32_t left=zc_min(TILECOL(tile), TILECOL(tile2));
 		int32_t rows=TILEROW(zc_max(tile, tile2))-top+1;
@@ -9093,7 +9057,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						PALETTE temppal;
 						get_palette(temppal);
 						BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-						draw_tiles(tempbmp,first,cs,f,false,true);
+						draw_tiles(tempbmp,first,cs,false,true);
 						save_bitmap(getSnapName(), tempbmp, RAMpal);
 						destroy_bitmap(tempbmp);
 						
@@ -9960,11 +9924,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				}
 				else if(dclick_status == DCLICK_AGAIN)
 				{
-					while(gui_mouse_b())
-					{
-						/* do nothing */
-						rest(1);
-					}
+					while(gui_mouse_b()) ; // wait
 					
 					if(((y>>(5))*TILES_PER_ROW + (x>>(5)) + first)!=t)
 					{
@@ -10064,7 +10024,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						PALETTE temppal;
 						get_palette(temppal);
 						BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-						draw_tiles(tempbmp,first,cs,f,false,true);
+						draw_tiles(tempbmp,first,cs,false,true);
 						save_bitmap(temppath, tempbmp, RAMpal);
 						destroy_bitmap(tempbmp);
 					}
@@ -10110,7 +10070,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 		}
 		
 		bool r_click = false;
-		
+		bool force_draw_select = false;
 		if(gui_mouse_b()&2 && !bdown && type==0)
 		{
 			int32_t x=(gui_mouse_x()-screen_xofs);//&0xFF0;
@@ -10126,7 +10086,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 			}
 			
 			bdown = r_click = true;
-			f=8;
+			force_draw_select = true;
 		}
 		
 		if(gui_mouse_b()==0)
@@ -10136,7 +10096,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 		
 REDRAW:
 
-		if((f%8)==0 || InvalidBG == 1)
+		if(!(framecnt%8) || force_draw_select || InvalidBG == 1)
 			redraw=true;
 		if(otl != tile || otl2 != tile2)
 		{
@@ -10147,54 +10107,53 @@ REDRAW:
 			
 		if(redraw)
 		{
-			draw_tiles(first,cs,f);
-		}
-		if(f&8)
-		{
-			if(rect_sel)
+			draw_tiles(first,cs);
+			if(force_draw_select || (framecnt&8))
 			{
-				for(int32_t i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
-						  zc_min(TILECOL(tile),TILECOL(tile2));
-						i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
-						zc_max(TILECOL(tile),TILECOL(tile2)); i++)
+				if(rect_sel)
 				{
-					if(i>=first && i<first+TILES_PER_PAGE &&
-							TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
-							TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
+					for(int32_t i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+							  zc_min(TILECOL(tile),TILECOL(tile2));
+							i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+							zc_max(TILECOL(tile),TILECOL(tile2)); i++)
 					{
-						int32_t x=TILECOL(i)<<(5);
-						int32_t y=TILEROW(i-first)<<(5);
-						safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
+						if(i>=first && i<first+TILES_PER_PAGE &&
+								TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
+								TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
+						{
+							int32_t x=TILECOL(i)<<(5);
+							int32_t y=TILEROW(i-first)<<(5);
+							safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
+						}
+					}
+				}
+				else
+				{
+					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+					{
+						if(i>=first && i<first+TILES_PER_PAGE)
+						{
+							int32_t x=TILECOL(i)<<(5);
+							int32_t y=TILEROW(i-first)<<(5);
+							safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
+						}
 					}
 				}
 			}
-			else
-			{
-				for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
-				{
-					if(i>=first && i<first+TILES_PER_PAGE)
-					{
-						int32_t x=TILECOL(i)<<(5);
-						int32_t y=TILEROW(i-first)<<(5);
-						safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
-					}
-				}
-			}
-		}
-		
-		if(type==0)
-			tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
-		else
-			tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
 			
-		if(type==2)
-		{
-			char cbuf[16];
-			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-			gui_textout_ln(screen, get_zc_font(font_lfont_l), (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			if(type==0)
+				tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
+			else
+				tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
+				
+			if(type==2)
+			{
+				char cbuf[16];
+				sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
+				gui_textout_ln(screen, get_zc_font(font_lfont_l), (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			}
 		}
-		
-		++f;
+		anim_hw_screen();
 		
 		if(r_click)
 		{
@@ -10379,15 +10338,10 @@ REDRAW:
 			r_click = false;
 			goto REDRAW;
 		}
-		update_hw_screen();
 	}
 	while(!done);
 	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-		rest(1);
-	}
+	while(gui_mouse_b()) ; // wait
 	
 	comeback();
 	register_blank_tiles();
@@ -10430,12 +10384,12 @@ int32_t onGotoTiles(int32_t startfrom)
 	static int32_t t = 0;
 	if (startfrom > -1)
 		t = startfrom;
-	int32_t f = 0;
+	int32_t flip = 0;
 	int32_t c = CSet;
 	reset_pal_cycling();
 	//  loadlvlpal(Map.CurrScr()->color);
 	rebuild_trans_table();
-	select_tile(t, f, 0, c, true);
+	select_tile(t, flip, 0, c, true);
 	refresh(rALL);
 	return D_O_K;
 }
@@ -10763,23 +10717,18 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	draw_combo_list_window();
 	draw_combos(page,cs,true);
 	combo_info(cmb,tile2,cs,copy,copycnt,page,4);
+	anim_hw_screen();
 	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-		rest(1);
-	}
+	while(gui_mouse_b()) ; // wait
 	
 	bool bdown=false;
-	int32_t f=0;
 	int otl = cmb, otl2 = tile2;
 	
 	do
 	{
 		HANDLE_CLOSE_ZQDLG();
 		if(exiting_program) break;
-		rest(4);
-		bool redraw=false;
+		//rest(4);
 		
 		if(mouse_z<0)
 		{
@@ -10790,7 +10739,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 			}
 			
 			position_mouse_z(0);
-			redraw=true;
 		}
 		else if(mouse_z>0)
 		{
@@ -10801,7 +10749,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 			}
 			
 			position_mouse_z(0);
-			redraw=true;
 		}
 		
 		if(keypressed())
@@ -10829,33 +10776,27 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
 				cs = (cs<13) ? cs+1:0;
-				redraw=true;
 				break;
 				
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
 				cs = (cs>0)  ? cs-1:13;
-				redraw=true;
 				break;
 				
 			case KEY_UP:
 				sel_combo(cmb,tile2,-COMBOS_PER_ROW,true);
-				redraw=true;
 				break;
 				
 			case KEY_DOWN:
 				sel_combo(cmb,tile2,COMBOS_PER_ROW,true);
-				redraw=true;
 				break;
 				
 			case KEY_LEFT:
 				sel_combo(cmb,tile2,-1,true);
-				redraw=true;
 				break;
 				
 			case KEY_RIGHT:
 				sel_combo(cmb,tile2,1,true);
-				redraw=true;
 				break;
 				
 			case KEY_PGUP:
@@ -10864,8 +10805,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 					--page;
 					cmb=tile2=(page<<8)+(cmb&0xFF);
 				}
-				
-				redraw=true;
 				break;
 				
 			case KEY_PGDN:
@@ -10874,8 +10813,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 					++page;
 					cmb=tile2=(page<<8)+(cmb&0xFF);
 				}
-				
-				redraw=true;
 				break;
 				
 			case KEY_P:
@@ -10886,7 +10823,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 					page=(zc_min(choosepage,COMBO_PAGES-1));
 					
 				cmb=tile2=(page<<8)+(cmb&0xFF);
-				redraw=true;
 				break;
 			}
 			}
@@ -10924,10 +10860,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				}
 				else if(dclick_status == DCLICK_AGAIN)
 				{
-					while(gui_mouse_b())
-					{
-						/* do nothing */
-					}
+					while(gui_mouse_b()) ; // wait
 					
 					t2 = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
 					
@@ -10948,13 +10881,11 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				if(y<(224*mul)+panel_yofs && page>0)
 				{
 					--page;
-					redraw=true;
 				}
 				
 				if(y>=(224*mul)+panel_yofs && page<COMBO_PAGES-1)
 				{
 					++page;
-					redraw=true;
 				}
 				
 				bdown=true;
@@ -10980,7 +10911,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				//do_scheckbox(screen2,320,440+panel_yofs,16,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],combopage_animate,screen_xofs,screen_yofs);
 				combopage_animate = combopage_animate ? 0 : 1;
 				zc_set_config("ZQ_GUI","combopage_animate",combopage_animate);
-				redraw = true;
 				
 				font = tf;
 			}
@@ -10990,6 +10920,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		
 		bool r_click = false;
 		
+		bool force_draw_select = false;
 		if(gui_mouse_b()&2 && !bdown)
 		{
 			int32_t x=gui_mouse_x()+screen_xofs;
@@ -11010,56 +10941,47 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 			}
 			
 			bdown = r_click = true;
-			f=8;
+			force_draw_select = true;
 		}
 		
 		if(gui_mouse_b()==0)
 			bdown=false;
 		
-		if((f%8) || InvalidBG == 1)
-			redraw = true;
 		if(otl != cmb || otl2 != tile2)
 		{
 			otl = cmb;
 			otl2 = tile2;
-			redraw = true;
 		}
 		
-		if(redraw || combopage_animate)
-			draw_combos(page,cs,true);
-			
-		combo_info(cmb,tile2,cs,copy,copycnt,page,4);
-		
-		if(f&8)
+		// if(true) // redraw every frame now. Eyeball combos need to animate regardless, and cursor blinks every 8 frames anyway.
 		{
-			int32_t x,y;
-			
-			for(int32_t i=zc_min(cmb,tile2); i<=zc_max(cmb,tile2); i++)
+			draw_combos(page,cs,true);
+			combo_info(cmb,tile2,cs,copy,copycnt,page,4);
+			if(force_draw_select || (framecnt&8))
 			{
-				if((i>>8)==page)
+				int32_t x,y;
+				
+				for(int32_t i=zc_min(cmb,tile2); i<=zc_max(cmb,tile2); i++)
 				{
-					int32_t t=i&255;
-					
-					x=((t&3) + ((t/52)<<2)) << 5;
-					y=((t%52)>>2) << 5;
-					
-					safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
+					if((i>>8)==page)
+					{
+						int32_t t=i&255;
+						
+						x=((t&3) + ((t/52)<<2)) << 5;
+						y=((t%52)>>2) << 5;
+						
+						safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
+					}
 				}
 			}
 			
 			SCRFIX();
 		}
-		
-		++f;
-		
+		anim_hw_screen();
 	}
 	while(!done);
 	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-		rest(1);
-	}
+	while(gui_mouse_b()) ; // wait
 	
 	comeback();
 	setup_combo_animations();
@@ -11170,24 +11092,20 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	draw_combo_list_window();
 	draw_combos(page,cs,true);
 	combo_info(tile,tile2,cs,copy,copycnt,page,6);
+	anim_hw_screen();
 	go_combos();
 	position_mouse_z(0);
 	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-	}
+	while(gui_mouse_b()) ; // wait
 	
 	bool bdown=false;
-	int32_t f=0;
 	int otl = tile, otl2 = tile2;
 	
 	do
 	{
 		HANDLE_CLOSE_ZQDLG();
 		if(exiting_program) break;
-		rest(4);
-		bool redraw=false;
+		//rest(4);
 		
 		if(mouse_z<0)
 		{
@@ -11198,7 +11116,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			}
 			
 			position_mouse_z(0);
-			redraw=true;
 		}
 		else if(mouse_z>0)
 		{
@@ -11209,7 +11126,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			}
 			
 			position_mouse_z(0);
-			redraw=true;
 		}
 		
 		if(keypressed())
@@ -11244,12 +11160,10 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					}
 					
 					setup_combo_animations();
-					redraw=true;
 				}
 				else
 				{
 					cs = (cs<13)  ? cs+1:0;
-					redraw=true;
 				}
 				
 				break;
@@ -11269,34 +11183,28 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					}
 					
 					setup_combo_animations();
-					redraw=true;
 				}
 				else
 				{
 					cs = (cs>0)  ? cs-1:13;
-					redraw=true;
 				}
 				
 				break;
 				
 			case KEY_UP:
 				sel_combo(tile,tile2,-COMBOS_PER_ROW,true);
-				redraw=true;
 				break;
 				
 			case KEY_DOWN:
 				sel_combo(tile,tile2,COMBOS_PER_ROW,true);
-				redraw=true;
 				break;
 				
 			case KEY_LEFT:
 				sel_combo(tile,tile2,-1,true);
-				redraw=true;
 				break;
 				
 			case KEY_RIGHT:
 				sel_combo(tile,tile2,1,true);
-				redraw=true;
 				break;
 				
 			case KEY_PGUP:
@@ -11305,8 +11213,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					--page;
 					tile=tile2=(page<<8)+(tile&0xFF);
 				}
-				
-				redraw=true;
 				break;
 				
 			case KEY_PGDN:
@@ -11315,8 +11221,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					++page;
 					tile=tile2=(page<<8)+(tile&0xFF);
 				}
-				
-				redraw=true;
 				break;
 				
 			case KEY_A:
@@ -11324,8 +11228,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				tile=(page<<8);
 				tile2=(page<<8)+(0xFF);
 			}
-			
-			redraw=true;
 			break;
 			
 			case KEY_P:
@@ -11336,19 +11238,16 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					page=(zc_min(choosepage,COMBO_PAGES-1));
 					
 				tile=tile2=(page<<8)+(tile&0xFF);
-				redraw=true;
 			}
 			break;
 			
 			case KEY_U:
 				comeback_combos();
-				redraw=true;
 				break;
 				
 			case KEY_E:
 				go_combos();
 				edit_combo(tile,false,cs);
-				redraw=true;
 				setup_combo_animations();
 				setup_combo_animations2();
 				break;
@@ -11357,7 +11256,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				go_combos();
 				copy=zc_min(tile,tile2);
 				copycnt=abs(tile-tile2)+1;
-				redraw=true;
 				break;
 				
 			case KEY_H:
@@ -11370,7 +11268,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					combobuf[i].csets= (((w2& ~0x50)>>1 | (w2&0x50)<<1) & ~0x0F) | (w2 & 0x0F);
 				}
 				
-				redraw=true;
 				saved=false;
 				break;
 				
@@ -11380,8 +11277,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					move_combos(tile,tile2,copy,copycnt);
 					saved=false;
 				}
-				
-				redraw=true;
 				break;
 				
 			case KEY_S:
@@ -11401,7 +11296,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					setup_combo_animations2();
 				}
 				
-				redraw=true;
 				copy=-1;
 				break;
 				
@@ -11411,7 +11305,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					if(advpaste(tile, tile2, copy))
 					{
 						saved=false;
-						redraw=true;
 						copy=-1;
 					}
 					
@@ -11443,8 +11336,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					setup_combo_animations2();
 					saved=false;
 				}
-				
-				redraw=true;
 				break;
 			case KEY_R:
 				for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
@@ -11454,7 +11345,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					combobuf[i].csets = rotate_cset(combobuf[i].csets);
 				}
 				
-				redraw=true;
 				saved=false;
 				break;
 				
@@ -11482,7 +11372,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						move_combos(tile,tile2,copy, copycnt);
 						//don't allow the user to undo; quest combo references are incorrect -DD
 						go_combos();
-						redraw=true;
 						saved=false;
 					}
 				}
@@ -11499,7 +11388,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					{
 						move_combos(copy,tile2,tile, copycnt);
 						go_combos();
-						redraw=true;
 						saved=false;
 					}
 				}
@@ -11532,7 +11420,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					}
 					
 					tile=tile2=zc_min(tile,tile2);
-					redraw=true;
 					saved=false;
 					setup_combo_animations();
 					setup_combo_animations2();
@@ -11582,11 +11469,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				}
 				else if(dclick_status == DCLICK_AGAIN)
 				{
-					while(gui_mouse_b())
-					{
-						/* do nothing */
-						rest(1);
-					}
+					while(gui_mouse_b()) ; // wait
 					
 					t2 = ((x>>6)*52) + ((x>>4)&3) + ((y>>4)<<2);
 					
@@ -11601,7 +11484,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					{
 						go_combos();
 						edit_combo(tile,false,cs);
-						redraw=true;
 						setup_combo_animations();
 						setup_combo_animations2();
 					}
@@ -11614,13 +11496,11 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				if(y<(224*mul)+panel_yofs && page>0)
 				{
 					--page;
-					redraw=true;
 				}
 				
 				if(y>=(224*mul)+panel_yofs && page<COMBO_PAGES-1)
 				{
 					++page;
-					redraw=true;
 				}
 				
 				bdown=true;
@@ -11635,7 +11515,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				{
 					font = tf;
 					edit_combo(tile,false,cs);
-					redraw=true;
 				}
 				
 				font = tf;
@@ -11660,7 +11539,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				//do_scheckbox(screen2,320,440+panel_yofs,16,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],combopage_animate,screen_xofs,screen_yofs);
 				combopage_animate = combopage_animate ? 0 : 1;
 				zc_set_config("ZQ_GUI","combopage_animate",combopage_animate);
-				redraw = true;
 				
 				font = tf;
 			}
@@ -11669,7 +11547,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 		}
 		
 		bool r_click = false;
-		
+		bool force_draw_select = false;
 		if(gui_mouse_b()&2 && !bdown)
 		{
 			int32_t x=gui_mouse_x()-screen_xofs;
@@ -11692,7 +11570,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			}
 			
 			bdown = r_click = true;
-			f=8;
+			force_draw_select = true;
 		}
 		
 REDRAW:
@@ -11700,41 +11578,37 @@ REDRAW:
 		if(gui_mouse_b()==0)
 			bdown=false;
 		
-		if((f%8) || InvalidBG == 1)
-			redraw = true;
 		if(otl != tile || otl2 != tile2)
 		{
 			otl = tile;
 			otl2 = tile2;
-			redraw = true;
 		}
 		
-		if(redraw || combopage_animate)
-			draw_combos(page,cs,true);
-		
-		combo_info(tile,tile2,cs,copy,copycnt,page,6);
-		
-		if(f&8)
+		// if(true) // redraw every frame now. Eyeball combos need to animate regardless, and cursor blinks every 8 frames anyway.
 		{
-			int32_t x,y;
-			
-			for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+			draw_combos(page,cs,true);
+			combo_info(tile,tile2,cs,copy,copycnt,page,6);
+			if(force_draw_select || (framecnt&8))
 			{
-				if((i>>8)==page)
+				int32_t x,y;
+				
+				for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 				{
-					int32_t t=i&255;
-					
-					x=((t&3) + ((t/52)<<2)) << 5;
-					y=((t%52)>>2) << 5;
-					
-					safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
+					if((i>>8)==page)
+					{
+						int32_t t=i&255;
+						
+						x=((t&3) + ((t/52)<<2)) << 5;
+						y=((t%52)>>2) << 5;
+						
+						safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
+					}
 				}
 			}
 			
 			SCRFIX();
 		}
-		
-		++f;
+		anim_hw_screen();
 		
 		//Seriously? There is duplicate code for the r-click menu? -Gleeok
 		if(r_click)
@@ -11754,7 +11628,6 @@ REDRAW:
 							if(advpaste(tile, tile2, copy))
 							{
 								saved=false;
-								redraw=true;
 								copy=-1;
 							}
 							return;
@@ -11773,7 +11646,6 @@ REDRAW:
 						if(advpaste(tile, tile2, copy))
 						{
 							saved=false;
-							redraw=true;
 							copy=-1;
 						}
 					}, nullopt, copy < 0 ? MFL_DIS : 0 },
@@ -11786,7 +11658,6 @@ REDRAW:
 							setup_combo_animations();
 							setup_combo_animations2();
 						}
-						redraw=true;
 					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Swap", [&]()
 					{
@@ -11921,7 +11792,6 @@ REDRAW:
 					} },
 			};
 			rcmenu.pop(window_mouse_x(),window_mouse_y());
-			redraw = true;
 			r_click = false;
 			goto REDRAW;
 		}
@@ -11929,8 +11799,7 @@ REDRAW:
 	}
 	while(!done);
 	
-	while(gui_mouse_b())
-		rest(1);
+	while(gui_mouse_b()) ; // wait
 	comeback();
 	setup_combo_animations();
 	setup_combo_animations2();
@@ -11958,13 +11827,13 @@ int32_t d_ctile_proc(int32_t msg,DIALOG *d,int32_t c)
 	if(msg==MSG_CLICK)
 	{
 		int32_t t=curr_combo.o_tile;
-		int32_t f=curr_combo.flip;
+		int32_t flip=curr_combo.flip;
 		
-		if(select_tile(t,f,1,CSet,true,0,true))
+		if(select_tile(t,flip,1,CSet,true,0,true))
 		{
 			curr_combo.tile=t;
 			curr_combo.o_tile=t;
-			curr_combo.flip=f;
+			curr_combo.flip=flip;
 			return D_REDRAW;
 		}
 	}
@@ -12038,9 +11907,9 @@ int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t)
 	case MSG_CLICK:
 	{
 		int32_t cs = d->d2;
-		int32_t f  = 0;
+		int32_t flip  = 0;
 		
-		if(select_tile(d->d1,f,1,cs,true))
+		if(select_tile(d->d1,flip,1,cs,true))
 		{
 			int32_t ok=1;
 			

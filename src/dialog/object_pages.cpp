@@ -284,8 +284,7 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 	draw_info();
 	update_hw_screen();
 	
-	while(gui_mouse_b())
-		rest(1);
+	while(gui_mouse_b()) ;
 	int done = 0;
 	bool bdown = false;
 	
@@ -295,9 +294,9 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 	{
 		HANDLE_CLOSE_ZQDLG();
 		if(exiting_program) break;
-		rest(20);
-		bool redraw = false, resel = false;
-		redraw = do_tick();
+		// rest(20);
+		bool resel = false;
+		do_tick();
 		auto osel = sel;
 		auto osel2 = sel2;
 		if(mouse_z)
@@ -307,7 +306,6 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 			else sel += per_page;
 			position_mouse_z(0);
 			resel = true;
-			redraw = true;
 		}
 		if(keypressed())
 		{
@@ -324,12 +322,10 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 				case KEY_EQUALS:
 				case KEY_PLUS_PAD:
 					CSet = WRAP_CS(CSet+1);
-					redraw = true;
 					break;
 				case KEY_MINUS:
 				case KEY_MINUS_PAD:
 					CSet = WRAP_CS(CSet-1);
-					redraw = true;
 					break;
 				case KEY_UP:
 					if(CHECK_CTRL_CMD)
@@ -392,24 +388,19 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 					break;
 				case KEY_E:
 					try_edit();
-					redraw = true;
 					break;
 				case KEY_C:
 					try_copy();
-					redraw = true;
 					break;
 				case KEY_SPACE:
 					toggle_cb(OBJPG_CB_RECTSEL);
-					redraw = true;
 					copyind.reset();
 					break;
 				case KEY_V:
-					if(try_paste())
-						redraw = true;
+					try_paste();
 					break;
 				case KEY_DEL:
-					if(try_delete())
-						redraw = true;
+					try_delete();
 					break;
 				case KEY_U:
 					restore_backup();
@@ -441,7 +432,7 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 			if(hovered)
 			{
 				sel = *hovered;
-				resel = redraw = true;
+				resel = true;
 			}
 		}
 		if(resel)
@@ -515,22 +506,14 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 				if(rclick && hovered)
 				{
 					gui_redraw(true);
-					if(do_rclick(*hovered))
-						redraw = true;
+					do_rclick(*hovered);
 				}
-				redraw = true;
 			}
 		}
 		bdown = click;
 		sel = bound(sel);
 		
-		if(!(clk%8) || InvalidBG == 1)
-			redraw = true;
-		if(sel != osel || sel2 != osel2)
-			redraw = true;
-		
-		if(redraw)
-			gui_redraw();
+		gui_redraw();
 		
 		++clk;;
 		update_hw_screen();
