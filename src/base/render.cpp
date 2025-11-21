@@ -19,7 +19,7 @@ void RenderTreeItem::remove()
 }
 void RenderTreeItem::add_child(RenderTreeItem* child)
 {
-	if (child->parent == this)
+	if (child->parent == this && child == children.back())
 		return;
 
 	if (child->parent)
