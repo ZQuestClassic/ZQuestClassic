@@ -228,7 +228,7 @@ char datapwd[8]   = "longtan";
 #if defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
 #endif
-#ifndef __EMSCRIPTEN__
+#ifdef HAS_NFD
     if (!zscript_coloured_console.valid() && !is_headless())
     {
         al_show_native_message_box(all_get_display(), "ZQuest Classic: I AM ERROR", "", buf, NULL, ALLEGRO_MESSAGEBOX_ERROR);
