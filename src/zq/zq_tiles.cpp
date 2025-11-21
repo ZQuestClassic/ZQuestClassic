@@ -10705,6 +10705,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	int32_t screen_xofs=window_xofs+6;
 	int32_t screen_yofs=window_yofs+25;
 	
+	custom_vsync();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
 }
 
