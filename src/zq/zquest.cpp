@@ -23085,41 +23085,38 @@ void hit_close_button()
 
 extern bool dirty_screen;
 
-void anim_hw_screen(bool force)
+void anim_hw_screen()
 {
-	// if (force || myvsync)
+	++cpoolbrush_index;
+	
+	if(prv_mode)
 	{
-		++cpoolbrush_index;
-		
-		if(prv_mode)
+		if(Map.get_prvtime())
 		{
-			if(Map.get_prvtime())
+			Map.set_prvtime(Map.get_prvtime()-1);
+			
+			if(!Map.get_prvtime())
 			{
-				Map.set_prvtime(Map.get_prvtime()-1);
-				
-				if(!Map.get_prvtime())
-				{
-					prv_warp=1;
-				}
+				prv_warp=1;
 			}
 		}
-		if(AnimationOn)
-		{
-			animate_combos();
-			update_freeform_combos();
-		}
-		
-		if(CycleOn)
-			cycle_palette();
-	
-		animate_coords();
-		update_hw_screen();
 	}
+	if(AnimationOn)
+	{
+		animate_combos();
+		update_freeform_combos();
+	}
+	
+	if(CycleOn)
+		cycle_palette();
+
+	animate_coords();
+	update_hw_screen();
 }
 
 void custom_vsync()
 {
-	anim_hw_screen(true);
+	anim_hw_screen();
 }
 
 void switch_out()
