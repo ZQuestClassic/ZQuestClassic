@@ -10281,6 +10281,7 @@ void domouse()
 		font = get_custom_font(CFONT_GUI);
 		for(int32_t btn=0; btn<mappage_count; ++btn)
 		{
+			if (btn == current_mappage) continue;
 			char tbuf[15];
 			sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
 			auto& sqr = map_page_bar[btn];
@@ -10289,12 +10290,21 @@ void domouse()
 				if(do_layer_button_reset(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,(btn==current_mappage?D_SELECTED:0)))
 				{
 					draw_layer_button(screen, sqr.x,sqr.y,sqr.w,sqr.h,tbuf,D_SELECTED);
-					map_page[current_mappage].map=Map.getCurrMap();
-					map_page[current_mappage].screen=Map.getCurrScr();
-					current_mappage=btn;
-					Map.setCurrMap(map_page[current_mappage].map);
-					Map.setCurrScr(map_page[current_mappage].screen);
-					rebuild_trans_table(); //Woo
+					
+					if (lclick)
+					{
+						map_page[current_mappage].map=Map.getCurrMap();
+						map_page[current_mappage].screen=Map.getCurrScr();
+						current_mappage=btn;
+						Map.setCurrMap(map_page[current_mappage].map);
+						Map.setCurrScr(map_page[current_mappage].screen);
+						rebuild_trans_table(); //Woo
+					}
+					else if (rclick)
+					{
+						map_page[btn].map = 0;
+						map_page[btn].screen = 0;
+					}
 				}
 				goto domouse_doneclick;
 			}
@@ -10453,7 +10463,7 @@ void domouse()
 			int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
 			int32_t ry = layer_panel.y;
 			
-			if((i==0 || Map.CurrScr()->layermap[i-1]) && isinRect(x,y,rx,ry,rx+layerpanel_buttonwidth-1,ry+layerpanel_buttonheight-1))
+			if(i != CurrentLayer && (i == 0 || Map.CurrScr()->layermap[i - 1]) && isinRect(x,y,rx,ry,rx+layerpanel_buttonwidth-1,ry+layerpanel_buttonheight-1))
 			{
 				char tbuf[15];
 				
