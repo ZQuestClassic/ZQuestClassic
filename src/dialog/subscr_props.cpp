@@ -2775,7 +2775,7 @@ void SubscrPropDialog::updateConditions()
 		list_reqscreens.add("---", -1);
 	else for (auto screen : local_subref->req_screens)
 	{
-		list_reqscreens.add(fmt::format("0x{:#X} ({:03})", screen, screen), screen);
+		list_reqscreens.add(fmt::format("0x{:02X} ({:03})", screen, screen), screen);
 	}
 	if(req_screen_list)
 	{
