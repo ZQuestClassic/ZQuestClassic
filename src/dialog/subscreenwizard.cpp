@@ -228,8 +228,8 @@ bool SubscreenWizardDialog::finalize()
 			{
 				bool go_anyway = false;
 				AlertDialog("Screen value out of bounds",
-					fmt::format("Attempting to create a grid of '{}x{}' screens starting with screen '{:#X}'"
-					" would go out of bounds to invalid screen '{:#X}'. Tiles that would match an invalid"
+					fmt::format("Attempting to create a grid of '{}x{}' screens starting with screen '0x{:02X}'"
+					" would go out of bounds to invalid screen '0x{:02X}'. Tiles that would match an invalid"
 					" screen will be ignored, their TileBlock widget not being created, if you continue.", w, h, scrid, badscr),
 					[&](bool ret,bool)
 					{
