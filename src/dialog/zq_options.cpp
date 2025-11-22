@@ -82,6 +82,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_SHOW_FAV_COMBO_MODES] = ShowFavoriteComboModes?1:0;
 	opts[OPT_NO_HIGHLIGHT_LAYER0] = NoHighlightLayer0?1:0;
 	opts[OPT_DRAG_CENTER_OF_SQUARES] = DragCenterOfSquares ? 1 : 0;
+	opts[OPT_SMART_NEW_FFCS] = SmartFFCPlacement ? 1 : 0;
 	
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
@@ -359,6 +360,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_DRAG_CENTER_OF_SQUARES:
 			DragCenterOfSquares = v!=0;
 			zc_set_config("zquest","drag_squares_from_center",v);
+			break;
+		case OPT_SMART_NEW_FFCS:
+			SmartFFCPlacement = v!=0;
+			zc_set_config("zquest","smart_ffc_placement",v);
 			break;
 	}
 }
@@ -865,7 +870,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK_I(OPT_COMPILEONSAVE, "Compile ZScript on Save", "Perform a 'quick compile', recompiling existing scripts and assigning to slots, when saving the quest."),
 					ROW_CHECK_I(OPT_SHOW_FAV_COMBO_MODES, "Show Favorite Combo Modes", "Overlays indicators over special entries in the Favorite Combos list for different drawing modes. (Aliases, Pools, Autocombos)"),
 					ROW_CHECK_I(OPT_NO_HIGHLIGHT_LAYER0, "No Highlight on Layer 0", "The View setting \"Highlight Current Layer\" does not hide layers when selecting Layer 0."),
-					ROW_CHECK_I(OPT_DRAG_CENTER_OF_SQUARES, "Drag Squares From Center", "When dragging 'squares' (FFCs, items, warp squares), drag by their center instead of their top-left.")
+					ROW_CHECK_I(OPT_DRAG_CENTER_OF_SQUARES, "Drag Squares From Center", "When dragging 'squares' (FFCs, items, warp squares), drag by their center instead of their top-left."),
+					ROW_CHECK_I(OPT_SMART_NEW_FFCS, "Smart FFC Placement", "When placing a new FFC, the 'Layer' will be set to the current layer being edited, and the 'Solid' flag will be checked if the FFC's combo is fully solid.")
 				)
 			))
 		)
