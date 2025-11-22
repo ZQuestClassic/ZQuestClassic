@@ -70,6 +70,10 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 			}
 			int32_t tw = data[TileFrame::tfr_dosized] ? data[TileFrame::tfr_skipx]+1 : 1;
 			int32_t th = data[TileFrame::tfr_dosized] ? data[TileFrame::tfr_skipy]+1 : 1;
+			if (data[TileFrame::tfr_tw])
+				tw = data[TileFrame::tfr_tw];
+			if (data[TileFrame::tfr_th])
+				th = data[TileFrame::tfr_th];
 			if(tw < 1) tw = 1;
 			if(th < 1) th = 1;
 			BITMAP *bigbmp = create_bitmap_ex(8,d->w+4,d->h+4);
@@ -192,6 +196,18 @@ void TileFrame::setSkipY(int32_t value)
 	pendDraw();
 }
 
+void TileFrame::setTileW(int32_t value)
+{
+	data[tfr_tw] = vbound(value,0,255);
+	pendDraw();
+}
+
+void TileFrame::setTileH(int32_t value)
+{
+	data[tfr_th] = vbound(value,0,255);
+	pendDraw();
+}
+
 void TileFrame::setFlip(int32_t value)
 {
 	data[tfr_flip] = value&0x7;
@@ -234,6 +250,15 @@ void TileFrame::calculateSize()
 	setPreferredWidth(32_px*(data[tfr_dosized]?data[tfr_skipx]+1:1)+4_px);
 	setPreferredHeight(32_px*(data[tfr_dosized]?data[tfr_skipy]+1:1)+4_px);
 	Widget::calculateSize();
+}
+
+void TileFrame::update_ref_size()
+{
+	if (!alDialog) return;
+	alDialog->x = x;
+	alDialog->y = y;
+	alDialog->w = getWidth()-4;
+	alDialog->h = getHeight()-4;
 }
 
 void TileFrame::realize(DialogRunner& runner)
