@@ -1341,7 +1341,7 @@ static GUI::ListData miscRulesList
 	{ "Reduced Flashing (Epilepsy Protection)", qr_EPILEPSY,
 		"If enabled, certain features in the game are limited visually to make things more epilepsy-friendly"
 		" for players. This includes capping the intensity of wavy effects, reducing the triforce flashes, and more."
-		" Note that players can turn on this rule themselves in the Hero; if you desire consistency, you should turn"
+		" Note that players can turn on this rule themselves in the Player; if you desire consistency, you should turn"
 		" this quest rule on and design around it."},
 	{ "Screen->Wavy Intensity is not affected by Epilepsy Protection", qr_WAVY_NO_EPILEPSY,
 		"If enabled, the intensity of wavy effects is not capped by epilepsy protection. The cap is at 2048*sin for"
