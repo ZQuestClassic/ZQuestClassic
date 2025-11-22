@@ -5,6 +5,7 @@
 
 #include "base/ints.h"
 #include "base/general.h"
+#include "save_menu.h"
 
 enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};
 enum {df_walktrans=0};
@@ -206,6 +207,8 @@ struct miscQdata
 	
 	bottletype bottle_types[NUM_BOTTLE_TYPES];
 	bottleshoptype bottle_shop_types[NUM_BOTTLE_SHOPS];
+	SaveMenu save_menus[NUM_SAVE_MENUS];
+	byte savemenu_game_over, savemenu_f6;
 	
 	byte miscsfx[sfxMAX];
 };

@@ -188,4 +188,19 @@ private:
 	int cache_tw, cache_th;
 	int cache_max_tw, cache_max_th;
 };
+
+class SaveMenuListerDialog : public BasicListerDialog
+{
+public:
+	SaveMenuListerDialog(int index = -1, bool selecting = false);
+	
+protected:
+	void preinit() override;
+	void postinit() override;
+	void update(bool startup = false) override;
+	void edit() override;
+	void rclick(int x, int y) override;
+	void copy() override;
+	bool paste() override;
+};
 #endif

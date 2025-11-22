@@ -233,10 +233,19 @@ int32_t  sfx_count();
 void sfx_cleanup();
 SAMPLE* sfx_get_sample(int32_t index);
 bool sfx_init(int32_t index);
-void sfx(int32_t index,int32_t pan,bool loop, bool restart = true, int32_t vol = 1000000, int32_t freq = -1);
+void sfx(int32_t index,int32_t pan,bool loop, bool restart = true, zfix vol_perc = 100_zf, int32_t freq = -1);
+bool sfx_allocated(int32_t index);
+INLINE void sfx(int32_t index,int32_t pan = 128)
+{
+	sfx(index,vbound(pan, 0, 255) ,false);
+}
+INLINE void sfx_no_repeat(int32_t index, int32_t pan = 128)
+{
+	if (!sfx_allocated(index))
+		sfx(index, vbound(pan, 0, 255), false, false);
+}
 int32_t sfx_get_default_freq(int32_t index);
 int32_t sfx_get_length(int32_t index);
-bool sfx_allocated(int32_t index);
 void cont_sfx(int32_t index);
 void stop_sfx(int32_t index);
 void adjust_sfx(int32_t index,int32_t pan,bool loop);

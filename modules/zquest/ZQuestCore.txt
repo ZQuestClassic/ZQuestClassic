@@ -12,6 +12,7 @@ src/sprite.cpp
 src/solidobject.cpp
 src/subscr.cpp
 src/new_subscr.cpp
+src/save_menu.cpp
 src/hero_tiles.cpp
 src/init.cpp
 src/zinfo.cpp

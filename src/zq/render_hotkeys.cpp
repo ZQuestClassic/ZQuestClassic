@@ -213,6 +213,7 @@ const std::set<int> group_dialog_ids = {
 	ZQKEY_RULESETS,
 	ZQKEY_RULETMPLS,
 	ZQKEY_BIND_HOTKEYS,
+	ZQKEY_SAVE_MENUS,
 };
 
 const std::set<int> group_import_export_ids = {

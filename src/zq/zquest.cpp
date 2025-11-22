@@ -1201,6 +1201,7 @@ static NewMenu misc_menu
 	{ "&Triforce Pieces", onTriPieces },
 	{ "&End String", onEndString },
 	{ "Item &Drop Sets", onItemDropSets },
+	{ "Save Menus", onSaveMenus },
 };
 
 static NewMenu spr_menu
@@ -17038,6 +17039,12 @@ int32_t onBottleShopTypes()
 	return D_O_K;
 }
 
+int32_t onSaveMenus()
+{
+	SaveMenuListerDialog().show();
+	return D_O_K;
+}
+
 
 static char item_drop_set_str_buf[70];
 int32_t item_drop_set_list_size=MAXITEMDROPSETS;
@@ -20995,8 +21002,6 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 
 void doClearSlots(byte* flags);
 
-extern byte compile_success_sample, compile_error_sample,
-	compile_finish_sample, compile_audio_volume;
 static map<string, disassembled_script_data> *doslot_scripts = nullptr;
 bool handle_slot(script_slot_data& slotdata, script_data* scriptdata)
 {
@@ -21735,26 +21740,13 @@ auto_do_slots:
 		char buf[256] = {0};
 		sprintf(buf, "ZScripts successfully loaded into script slots"
 			"\nAssign Slots took %d ms", compile_time_ms);
-		compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,255);
-		compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
-		if ( compile_finish_sample > 0 )
-		{
-			if(sfxdat)
-				sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
-			else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
-			voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
-			voice_start(sfx_voice[compile_finish_sample]);
-		}
+		auto sfx_id = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,255);
+		auto sfx_vol = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,255);
+		if ( sfx_id > 0 && sfx_vol > 0)
+			sfx(sfx_id, 128, false, true, sfx_vol / 1.28_zf);
 		if(!assign_mode)
 			InfoDialog("Slots Assigned",buf).show();
-		if ( compile_finish_sample > 0 )
-		{
-			if(sfx_voice[compile_finish_sample]!=-1)
-			{
-				deallocate_voice(sfx_voice[compile_finish_sample]);
-				sfx_voice[compile_finish_sample]=-1;
-			}
-		}
+		kill_sfx();
 		build_biffs_list();
 		build_biitems_list();
 		retval = true;
@@ -21957,28 +21949,59 @@ void sfx_cleanup()
         }
 }
 
-// allocates a voice for the sample "wav_index" (index into zelda.dat)
-// if a voice is already allocated (and/or playing), then it just returns true
-// Returns true:  voice is allocated
-//         false: unsuccessful
+bool sfx_templist = false;
 SAMPLE templist[WAV_COUNT];
+SAMPLE* sfx_get_sample(int32_t index)
+{
+	// check index
+	if (index<=0 || index>=WAV_COUNT)
+		return nullptr;
+	
+	if (sfx_templist)
+	{
+		if (templist[index].data)
+			return &templist[index];
+		else return nullptr;
+	}
+	else if (sfxdat)
+	{
+		if (index<Z35)
+		{
+			return (SAMPLE*)sfxdata[index].dat;
+		}
+		else
+		{
+			return (SAMPLE*)sfxdata[Z35].dat;
+		}
+	}
+	else
+	{
+		return &customsfxdata[index];
+	}
+
+	return nullptr;
+}
 
 bool sfx_init(int32_t index)
 {
     // check index
     if(index<1 || index>=WAV_COUNT)
         return false;
-        
+	
     if(sfx_voice[index]==-1)
     {
-        sfx_voice[index]=allocate_voice(&templist[index]);
+		SAMPLE* sample = sfx_get_sample(index);
+		if (!sample)
+			return false;
+		
+        sfx_voice[index] = allocate_voice(sample);
     }
     
     return sfx_voice[index] != -1;
 }
 
 // plays an sfx sample
-void sfx(int32_t index,int32_t pan,bool loop,bool restart,int32_t vol,int32_t freq)
+void sfx(int32_t index,int32_t pan,bool loop,bool restart,zfix vol_perc,int32_t freq)
 {
     if(!sfx_init(index))
         return;
@@ -21988,7 +22011,10 @@ void sfx(int32_t index,int32_t pan,bool loop,bool restart,int32_t vol,int32_t fr
     
     int32_t pos = voice_get_position(sfx_voice[index]);
     
+	int temp_volume = (128 * (vol_perc / 100)).getFloor();
+	
     if(restart) voice_set_position(sfx_voice[index],0);
+	voice_set_volume(sfx_voice[index], temp_volume);
     
     if(pos<=0)
         voice_start(sfx_voice[index]);

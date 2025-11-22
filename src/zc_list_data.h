@@ -27,6 +27,7 @@ namespace GUI::ZCListData
 	GUI::ListData defenses(byte first, byte last, bool enemy);
 	GUI::ListData sfxnames(bool numbered = false);
 	GUI::ListData midinames(bool numbered = false, bool incl_engine = false);
+	GUI::ListData savemenus(bool numbered = false, bool incl_def = true, bool only_valid = false);
 	GUI::ListData lpals();
 	GUI::ListData subscreens(byte type, bool numbered = false, bool incl_none = false);
 	GUI::ListData disableditems(byte* disabledarray);

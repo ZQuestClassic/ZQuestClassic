@@ -25748,8 +25748,8 @@ RaftingStuff:
 						(zcmusic->type == ZCMF_GME && zcmusic->track != DMaps[tdm].tmusictrack))
 						music_stop();
 				}
-				else if (DMaps[hero_scr->tilewarpdmap[index]].midi != (currmidi - ZC_MIDI_COUNT + 4) &&
-					get_canonical_scr(DMaps[tdm].map, base_scr->tilewarpscr[index] + DMaps[tdm].xoff)->screen_midi != (currmidi - ZC_MIDI_COUNT + 4))
+				else if (DMaps[hero_scr->tilewarpdmap[index]].midi != (currmidi - MIDIOFFSET_DMAP) &&
+					get_canonical_scr(DMaps[tdm].map, base_scr->tilewarpscr[index] + DMaps[tdm].xoff)->screen_midi != (currmidi - MIDIOFFSET_DMAP))
 					music_stop();
 			}
 		}
@@ -32372,7 +32372,7 @@ void HeroClass::getTriforce(int32_t id2)
 	if(!(itemsbuf[id2].flags & item_flag15)) //No MIDI flag
 	{
 		if(itemsbuf[id2].misc1)
-			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
+			jukebox(itemsbuf[id2].misc1+MIDIOFFSET_ZSCRIPT);
 		else
 			try_zcmusic("zelda.nsf",qstpath,5,ZC_MIDI_TRIFORCE,get_emusic_volume());
 	}

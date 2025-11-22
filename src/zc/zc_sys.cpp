@@ -8349,7 +8349,7 @@ int32_t sfx_get_length(int32_t index)
 }
 
 // plays an sfx sample
-void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t freq)
+void sfx(int32_t index,int32_t pan,bool loop, bool restart, zfix vol_perc, int32_t freq)
 {
 	if(!sfx_init(index))
 		return;
@@ -8366,7 +8366,7 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t
 		voice_set_frequency(sfx_voice[index], freq);
 
 		// Only used by ZScript currently
-		int32_t temp_volume = (sfx_volume * vol) / 10000 / 100;
+		int32_t temp_volume = ((sfx_volume * vol_perc) / 100).getFloor();
 		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (temp_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		voice_set_volume(sfx_voice[index], temp_volume);

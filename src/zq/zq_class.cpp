@@ -8228,6 +8228,117 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 				new_return(27);
 		}
 		
+		//V_MISC >= 17
+		byte save_menu_count = 0;
+		for(size_t q = 0; q < NUM_SAVE_MENUS; ++q)
+			if (!QMisc.save_menus[q].is_empty())
+				save_menu_count = q+1;
+			
+		if (!p_putc(save_menu_count, f))
+			new_return(28);
+		for(size_t q = 0; q < save_menu_count; ++q)
+		{
+			SaveMenu const& menu = QMisc.save_menus[q];
+			
+			byte empty = menu.is_empty() ? 1 : 0;
+			
+			if (!p_putc(empty, f))
+				new_return(29);
+			if (empty) continue;
+			
+			if (!p_putcstr(menu.name, f))
+				new_return(30);
+			
+			if (!p_iputw(menu.flags, f))
+				new_return(31);
+			
+			if (!p_iputl(menu.cursor_tile, f))
+				new_return(32);
+			
+			if (!p_putc(menu.cursor_cset, f))
+				new_return(33);
+			
+			if (!p_putc(menu.cursor_sfx, f))
+				new_return(34);
+			
+			if (!p_putc(menu.choose_sfx, f))
+				new_return(35);
+			
+			if (!p_putc(menu.bg_color, f))
+				new_return(36);
+			
+			if (!p_putc(menu.hspace, f))
+				new_return(37);
+			
+			if (!p_putc(menu.vspace, f))
+				new_return(38);
+			
+			if (!p_putc(menu.opt_x, f))
+				new_return(39);
+			
+			if (!p_putc(menu.opt_y, f))
+				new_return(40);
+			
+			if (!p_putc(menu.text_align, f))
+				new_return(41);
+			
+			if (!p_putc(menu.textbox_align, f))
+				new_return(42);
+			
+			if (!p_iputw(menu.close_frames, f))
+				new_return(43);
+			
+			if (!p_putc(menu.close_flash_rate, f))
+				new_return(44);
+			
+			if (!p_iputw(menu.midi, f))
+				new_return(45);
+			
+			if (!p_iputl(menu.bg_tile, f))
+				new_return(46);
+			
+			if (!p_putc(menu.bg_cset, f))
+				new_return(47);
+			
+			if (!p_putc(menu.bg_tw, f))
+				new_return(48);
+			
+			if (!p_putc(menu.bg_th, f))
+				new_return(49);
+			
+			byte opt_count = zc_min(menu.options.size(), MAX_SAVEMENU_OPTIONS);
+			if (!p_putc(opt_count, f))
+				new_return(50);
+			
+			for (size_t q = 0; q < opt_count; ++q)
+			{
+				SaveMenuOption const& opt = menu.options[q];
+				
+				if (!p_putcstr(opt.text, f))
+					new_return(51);
+				
+				if (!p_iputw(opt.flags, f))
+					new_return(52);
+				
+				if (!p_putc(opt.color, f))
+					new_return(53);
+				
+				if (!p_putc(opt.picked_color, f))
+					new_return(54);
+				
+				if (!p_iputl(opt.font, f))
+					new_return(55);
+				
+				if (!p_iputw(opt.gen_script, f))
+					new_return(56);
+			}
+		}
+		
+		if (!p_putc(QMisc.savemenu_game_over, f))
+			new_return(57);
+		if (!p_putc(QMisc.savemenu_f6, f))
+			new_return(58);
+		
 		if(writecycle==0)
 		{
 			section_size=writesize;

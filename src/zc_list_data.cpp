@@ -724,9 +724,18 @@ GUI::ListData GUI::ZCListData::midinames(bool numbered, bool incl_engine)
 	auto ofs = 1;
 	if (incl_engine)
 	{
-		ls.add("Overworld", 1);
-		ls.add("Dungeon", 2);
-		ls.add("Level 9", 3);
+		if (numbered)
+		{
+			ls.add("Overworld (-003)", 1);
+			ls.add("Dungeon (-002)", 2);
+			ls.add("Level 9 (-001)", 3);
+		}
+		else
+		{
+			ls.add("Overworld", 1);
+			ls.add("Dungeon", 2);
+			ls.add("Level 9", 3);
+		}
 		ofs = 4;
 	}
 	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
@@ -742,7 +751,35 @@ GUI::ListData GUI::ZCListData::midinames(bool numbered, bool incl_engine)
 	return ls;
 }
 
-
+GUI::ListData GUI::ZCListData::savemenus(bool numbered, bool incl_def, bool only_valid)
+{
+	GUI::ListData ls;
+	if (incl_def)
+	{
+		if (numbered)
+			ls.add("[Default] (000)", 0);
+		else ls.add("[Default]", 0);
+	}
+	
+	for(int32_t q = 0; q < NUM_SAVE_MENUS; ++q)
+	{
+		if (only_valid && !QMisc.save_menus[q].is_valid())
+			continue;
+		if(numbered)
+		{
+			if(QMisc.save_menus[q].name[0])
+				ls.add(fmt::format("{} ({:03})",QMisc.save_menus[q].name,q+1),q+1);
+			else
+				ls.add(fmt::format("zz{:02} ({:03})",q+1,q+1),q+1);
+		}
+		else if(QMisc.save_menus[q].name[0])
+			ls.add(QMisc.save_menus[q].name,q+1);
+		else
+			ls.add(fmt::format("zz{:02}", q+1), q+1);
+	}
+	
+	return ls;
+}
 
 GUI::ListData GUI::ZCListData::lpals()
 {

@@ -1230,6 +1230,16 @@ enum ASM_DEFINE
 	
 	LOAD_INTERNAL_ARRAY,
 	LOAD_INTERNAL_ARRAY_REF,
+	
+	SAVEMENU_GETNAME,
+	SAVEMENU_SETNAME,
+	SAVEMENU_REMOVE_OPT,
+	SAVEMENU_ADD_OPT,
+	SAVEMENU_SWAP_OPT,
+	SAVEMENU_OPT_GET_STRING,
+	SAVEMENU_OPT_SET_STRING,
+	SAVEMENU_OPEN,
+	LOADSAVEMENU,
 
 	NUMCOMMANDS
 };
@@ -2804,8 +2814,8 @@ enum ASM_DEFINE
 #define HEROFLASHINGCSET        0x14B2
 #define NPCFLICKERTRANSP        0x14B3
 #define HEROFLICKERTRANSP       0x14B4
-#define RESRVD_VAR_MOOSH15      0x14B5
-#define RESRVD_VAR_MOOSH16      0x14B6
+#define GAME_SAVEMENU_F6        0x14B5
+#define GAME_SAVEMENU_GAMEOVER  0x14B6
 #define RESRVD_VAR_MOOSH17      0x14B7
 #define RESRVD_VAR_MOOSH18      0x14B8
 #define RESRVD_VAR_MOOSH19      0x14B9
@@ -3308,6 +3318,34 @@ enum ASM_DEFINE
 #define SUBWIDGREQ_DMAP                0x167E
 #define SUBWIDGREQ_MAP                 0x167F
 #define SUBWIDGREQ_SCREEN              0x1680
+#define SAVEMENU_CURSORTILE            0x1681
+#define SAVEMENU_CURSORCSET            0x1682
+#define SAVEMENU_BGCOLOR               0x1683
+#define SAVEMENU_SFX_CURSOR            0x1684
+#define SAVEMENU_SFX_CHOOSE            0x1685
+#define SAVEMENU_HSPACE                0x1686
+#define SAVEMENU_VSPACE                0x1687
+#define SAVEMENU_OPTX                  0x1688
+#define SAVEMENU_OPTY                  0x1689
+#define SAVEMENU_TEXT_ALIGN            0x168A
+#define SAVEMENU_TEXT_BOX_ALIGN        0x168B
+#define SAVEMENU_CLOSE_FRAMES          0x168C
+#define SAVEMENU_CLOSE_FLASH_RATE      0x168D
+#define SAVEMENU_MIDI                  0x168E
+#define SAVEMENU_NUM_OPTIONS           0x168F
+#define SAVEMENU_FLAGS                 0x1690
+#define SAVEMENU_OPT_FLAGS             0x1691
+#define SAVEMENU_OPT_COLOR_TEXT        0x1692
+#define SAVEMENU_OPT_COLOR_PICKED      0x1693
+#define SAVEMENU_OPT_FONTS             0x1694
+#define SAVEMENU_OPT_FRZSCR            0x1695
+#define REFSAVEMENU                    0x1696
+#define SAVEMENU_ID                    0x1697
+#define SAVEMENU_BGTILE                0x1698
+#define SAVEMENU_BGCSET                0x1699
+#define SAVEMENU_BGTW                  0x169A
+#define SAVEMENU_BGTH                  0x169B
+
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7
 // Note: define new variables in above unused block

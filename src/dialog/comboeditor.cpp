@@ -1967,6 +1967,8 @@ void ComboEditorDialog::loadComboType()
 				l_attribyte[1] = "Magic Percentage";
 				h_attribyte[1] = "Restore magic up to this percentage, if it is lower.";
 			}
+			l_attribyte[2] = "Save Menu";
+			h_attribyte[2] = "If >0, saving will use the specified Save Menu instead of the default engine save menu.";
 			break;
 		}
 		case cPUSHBLOCK:

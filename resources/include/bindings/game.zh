@@ -396,6 +396,16 @@ class Game {
 	// @zasm_var GAMEMAXCHEAT
 	internal int MaxCheat;
 
+	// The [save_menu] ID used when pressing F6. If 0, the default F6 menu will be used.
+	//
+	// @zasm_var GAME_SAVEMENU_F6
+	internal int SaveMenuF6;
+	
+	// The [save_menu] ID used when dying. If 0, the default game over menu will be used.
+	//
+	// @zasm_var GAME_SAVEMENU_GAMEOVER
+	internal int SaveMenuGameOver;
+
 	// Speed multiplier for the engine subscreen rise/fall. Default 1. Max 85.
 	//
 	// @zasm_var ACTIVESSSPEED
@@ -1311,6 +1321,16 @@ class Game {
 	//   LOADBSHOPDATA D2
 	//   SETR D2 REFBOTTLESHOP
 	internal bottleshopdata LoadBottleShopData(int id);
+
+	// Loads a [save_menu] ref for save_menu number [id] to a
+	// 'save_menu' typed pointer.
+	//
+	// Range 1-32
+	//
+	// @zasm
+	//   POP D2
+	//   LOADSAVEMENU D2
+	internal save_menu LoadSaveMenu(int id);
 
 	// Loads the [genericdata] pointer referencing the specified generic
 	// [scriptslot].

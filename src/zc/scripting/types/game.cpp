@@ -335,6 +335,14 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		case GAMEMAXCHEAT:
 			ret=maxcheat*10000;
 			break;
+		
+		case GAME_SAVEMENU_F6:
+			ret = QMisc.savemenu_f6 * 10000;
+			break;
+		
+		case GAME_SAVEMENU_GAMEOVER:
+			ret = QMisc.savemenu_game_over * 10000;
+			break;
 			
 		case GAMETIME:
 			ret=game->get_time();
@@ -406,7 +414,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			break;
 			
 		case GETMIDI:
-			ret=(currmidi-(ZC_MIDI_COUNT-1))*10000;
+			ret=(currmidi-MIDIOFFSET_ZSCRIPT)*10000;
 			break;
 			
 		case CURDSCR:
@@ -517,6 +525,14 @@ bool game_set_register(int32_t reg, int32_t value)
 			maxcheat=vbound(value/10000,0,4);
 			game->set_cheat(maxcheat);
 			if(cheat > maxcheat) cheat = maxcheat;
+			break;
+		
+		case GAME_SAVEMENU_F6:
+			QMisc.savemenu_f6 = vbound(value/10000, 0, NUM_SAVE_MENUS);
+			break;
+		
+		case GAME_SAVEMENU_GAMEOVER:
+			QMisc.savemenu_game_over = vbound(value/10000, 0, NUM_SAVE_MENUS);
 			break;
 			
 		case GAMETIME:

@@ -35,41 +35,14 @@ extern std::vector<string> asffcscripts, asglobalscripts, asitemscripts,
 	assubscreenscripts;
 extern std::map<int32_t, script_slot_data > globalmap;
 
-byte compile_success_sample = 0;
-byte compile_error_sample = 0;
-byte compile_finish_sample = 0;
-byte compile_audio_volume = 0;
-
 static void compile_sfx(bool success)
 {
-	if ( success )
-	{
-		compile_error_sample = 0;
-		compile_success_sample = vbound(zc_get_config("Compiler","compile_success_sample",20),0,255);
-		if ( compile_success_sample > 0 )
-		{
-			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,255);
-			if(sfxdat)
-				sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
-			else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
-			voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
-			voice_start(sfx_voice[compile_success_sample]);
-		}
-	}
-	else
-	{
-		compile_success_sample = 0;
-		compile_error_sample = vbound(zc_get_config("Compiler","compile_error_sample",28),0,255);
-		if ( compile_error_sample > 0 )
-		{
-			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,255);
-			if(sfxdat)
-				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
-			else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
-			voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
-			voice_start(sfx_voice[compile_error_sample]);
-		}
-	}
+	kill_sfx();
+	auto vol = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,255);
+	if (vol <= 0) return;
+	int sfx_id = vbound(zc_get_config("Compiler",success ? "compile_success_sample" : "compile_error_sample",20),0,255);
+	if (sfx_id > 0)
+		sfx(sfx_id, 128, false, true, vol / 1.28_zf);
 }
 
 int32_t onCompileScript()
@@ -305,22 +278,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 			assign_mode = g_assign_mode;
 		}
 	}
-	if ( compile_success_sample > 0 )
-	{
-		if(sfx_voice[compile_success_sample]!=-1)
-		{
-			deallocate_voice(sfx_voice[compile_success_sample]);
-			sfx_voice[compile_success_sample]=-1;
-		}
-	}
-	if ( compile_error_sample > 0 )
-	{
-		if(sfx_voice[compile_error_sample]!=-1)
-		{
-			deallocate_voice(sfx_voice[compile_error_sample]);
-			sfx_voice[compile_error_sample]=-1;
-		}
-	}
+	kill_sfx();
 	//refresh(rALL);
 	
 	if(compile_cancel)

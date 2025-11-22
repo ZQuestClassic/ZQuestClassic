@@ -144,6 +144,18 @@ int wrap(int x,int low,int high);
 #define MAXCUSTOMMIDIS_ZQ          (4+MAXCUSTOMMIDIS)
 #define MIDIFLAGS_SIZE             ((MAXCUSTOMMIDIS+7)>>3)
 #define MAXCUSTOMTUNES             252
+
+
+#define ZC_MIDI_DUNGEON                  0
+#define ZC_MIDI_ENDING                   1
+#define ZC_MIDI_GAMEOVER                 2
+#define ZC_MIDI_LEVEL9                   3
+#define ZC_MIDI_OVERWORLD                4
+#define ZC_MIDI_TITLE                    5
+#define ZC_MIDI_TRIFORCE                 6
+#define ZC_MIDI_COUNT                    7
+
+#define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
 //Midi offsets
 //The offset from dmap/mapscr-> midi/screen_midi to currmidi
 #define MIDIOFFSET_DMAP            (ZC_MIDI_COUNT-4)
@@ -209,6 +221,7 @@ int wrap(int x,int low,int high);
 #define NUM_BOTTLE_TYPES           64
 #define NUM_BOTTLE_SHOPS           256
 #define NUM_BOTTLE_SLOTS           256
+#define NUM_SAVE_MENUS             32
 
 #define QSTPWD_LEN                 256
 
@@ -238,6 +251,19 @@ enum controls
 #define INT_BTN_EX4     0x80
 #define INT_BTN_X       INT_BTN_EX1
 #define INT_BTN_Y       INT_BTN_EX2
+
+// system colors
+#define lc1(x) ((x)+192)                                    // offset to 'level bg color' x (row 12)
+#define lc2(x) ((x)+208)                                    // offset to 'level fg color' x (row 13)
+#define vc(x)  ((x)+224)                                    // offset to 'VGA color' x (row 14)
+#define dvc(x) ((x)+240)                                    // offset to dark 'VGA color' x (row 15)
+#define r_lc1(x) ((x)-192)
+#define r_lc2(x) ((x)-208)
+#define r_vc(x)  ((x)-224)
+#define r_dvc(x) ((x)-240)
+#define BLACK         253
+#define WHITE         254
+byte zq_fix_ui_color(byte color);
 
 // These values must remain stable.
 // Also must update getScriptObjectTypeId in Types.h

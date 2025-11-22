@@ -7,6 +7,7 @@
 #include "spritedata.h"
 #include "enemyeditor.h"
 #include "midieditor.h"
+#include "save_menu_editor.h"
 #include "sfxdata.h"
 #include "edit_dmap.h"
 #include "info.h"
@@ -17,6 +18,7 @@
 #include "zq/zq_custom.h"
 #include "base/qst.h"
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <utility>
 #include <sstream>
 
@@ -281,7 +283,7 @@ void ItemListerDialog::postinit()
 	window->setHelp(get_info(selecting, true));
 }
 static int copied_item_id = -1;
-void ItemListerDialog::update(bool startup)
+void ItemListerDialog::update(bool)
 {
 	std::string copied_name = "(None)\n";
 	if(unsigned(copied_item_id) < MAXITEMS)
@@ -478,7 +480,7 @@ void SpriteListerDialog::postinit()
 	window->setHelp(get_info(selecting, true));
 }
 static int copied_sprite_id = -1;
-void SpriteListerDialog::update(bool startup)
+void SpriteListerDialog::update(bool)
 {
 	std::string copied_name = "(None)\n";
 	if(unsigned(copied_sprite_id) < MAXWPNS)
@@ -600,7 +602,7 @@ void SubscrWidgListerDialog::postinit()
 	widgInfo->overrideWidth(150_px);
 	widgList->setSelectedIndex(0);
 }
-void SubscrWidgListerDialog::update(bool startup)
+void SubscrWidgListerDialog::update(bool)
 {
 	if(selected_val && unsigned(selected_val) < widgMAX)
 		widgInfo->setText(lister.findInfo(selected_val));
@@ -638,7 +640,7 @@ void EnemyListerDialog::postinit()
 	window->setHelp(get_info(selecting, true));
 }
 static int copied_enemy_id = -1;
-void EnemyListerDialog::update(bool startup)
+void EnemyListerDialog::update(bool)
 {
 	std::string copied_name = "(None)\n";
 	if (unsigned(copied_enemy_id) < MAXGUYS)
@@ -797,7 +799,7 @@ void MidiListerDialog::postinit()
 	window->setHelp(get_info(selecting, false, false, false));
 	widgInfo->capWidth(10_em); // Midi titles can be long, want them to wrap instead of widen
 }
-void MidiListerDialog::update(bool startup)
+void MidiListerDialog::update(bool)
 {
 	if (unsigned(selected_val) < MAXCUSTOMMIDIS)
 	{
@@ -876,7 +878,7 @@ void DMapListerDialog::postinit()
 	window->setHelp(get_info(selecting, true));
 }
 static int16_t copied_dmap_id = -1;
-void DMapListerDialog::update(bool startup)
+void DMapListerDialog::update(bool)
 {
 	widgInfo->setText(fmt::format("\nMap: {}\nLevel: {}\n\nCopied: {}",
 		DMaps[selected_val].map + 1, DMaps[selected_val].level, copied_dmap_id));
@@ -929,7 +931,6 @@ void FFCListerDialog::postinit()
 {
 	window->setHelp(get_info(selecting, false, false));
 }
-
 void FFCListerDialog::update(bool startup)
 {
 	auto copied_ffc_id = Map.getCopyFFC();
@@ -1030,6 +1031,87 @@ bool FFCListerDialog::paste()
 	if (Map.getCopyFFC() < 0 || selected_val < 0)
 		return false;
 	Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), selected_val, Map.getCopyFFCData());
+	return true;
+}
+
+SaveMenuListerDialog::SaveMenuListerDialog(int index, bool selecting) :
+	BasicListerDialog("Select Save Menu", "save_menu", index, selecting)
+{
+	use_preview = false;
+	alphabetized = get_config("alphabetized", false);
+}
+
+void SaveMenuListerDialog::preinit()
+{
+	lister = GUI::ZCListData::savemenus(true);
+	if(selecting)
+		frozen_inds = 1; // lock '(None)'
+	else
+		lister.removeInd(0); // remove '(None)'
+	resort();
+	if (selected_val < 0)
+		selected_val = lister.getValue(0);
+	selected_val = vbound(selected_val, 0, MAXDMAPS - 1);
+}
+void SaveMenuListerDialog::postinit()
+{
+	window->setHelp(get_info(selecting, false, false));
+}
+static int16_t copied_savemenu_id = -1;
+void SaveMenuListerDialog::update(bool)
+{
+	static const string nl_str = string(MAX_SAVEMENU_OPTIONS-1, '\n');
+	string info;
+	if (!selected_val)
+		info = fmt::format("[Default Menu]{}", nl_str);
+	else if (unsigned(selected_val-1) < NUM_SAVE_MENUS)
+	{
+		SaveMenu const& sm = QMisc.save_menus[selected_val-1]; // vals are 1-indexed
+		if (sm.is_empty())
+			info = fmt::format("[Empty]{}", nl_str);
+		else if (sm.options.empty())
+			info = fmt::format("[Invalid - No Options]{}", nl_str);
+		else
+		{
+			vector<string> opt_names;
+			opt_names.reserve(MAX_SAVEMENU_OPTIONS);
+			for (auto const& opt : sm.options)
+				opt_names.push_back(opt.text);
+			opt_names.resize(MAX_SAVEMENU_OPTIONS);
+			info = fmt::format("{}", fmt::join(opt_names, "\n"));
+		}
+	}
+	else info = nl_str;
+	widgInfo->setText(fmt::format("{}\nCopied: {}", info, copied_savemenu_id+1));
+}
+void SaveMenuListerDialog::edit()
+{
+	call_editsavemenu_dialog(selected_val);
+}
+void SaveMenuListerDialog::rclick(int x, int y)
+{
+	if (!selected_val) return; // no rclick menu on the 'Default' option
+	SaveMenu& sm = QMisc.save_menus[selected_val-1];
+	NewMenu rcmenu {
+		{ "Clear", [&](){sm.clear(); update();}, 0, sm.is_empty() ? MFL_DIS : 0 },
+		{ "&Copy", [&](){copy(); update();}, 0, sm.is_empty() ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_savemenu_id < 0 ? MFL_DIS : 0 },
+		// { "&Save", [&](){save(); update();} },
+		// { "&Load", [&](){load(); update();} },
+	};
+	rcmenu.pop(x, y);
+}
+void SaveMenuListerDialog::copy()
+{
+	if (!selected_val) return;
+	copied_savemenu_id = selected_val-1;
+	update();
+}
+bool SaveMenuListerDialog::paste()
+{
+	if (unsigned(copied_savemenu_id) >= NUM_SAVE_MENUS || unsigned(selected_val-1) >= NUM_SAVE_MENUS)
+		return false;
+	QMisc.save_menus[selected_val-1] = QMisc.save_menus[copied_savemenu_id];
 	return true;
 }
 

@@ -146,7 +146,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           9
 #define V_RULES           17
 #define V_STRINGS         11
-#define V_MISC            16
+#define V_MISC            17
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS          60
 #define V_CSETS            6 //palette data
@@ -217,18 +217,6 @@ if(close_button_quit) \
 	handle_close_btn_quit(); \
 	dialog_open_quit = false; \
 }
-
-// system colors
-#define lc1(x) ((x)+192)                                    // offset to 'level bg color' x (row 12)
-#define lc2(x) ((x)+208)                                    // offset to 'level fg color' x (row 13)
-#define vc(x)  ((x)+224)                                    // offset to 'VGA color' x (row 14)
-#define dvc(x) ((x)+240)                                    // offset to dark 'VGA color' x (row 15)
-#define r_lc1(x) ((x)-192)
-#define r_lc2(x) ((x)-208)
-#define r_vc(x)  ((x)-224)
-#define r_dvc(x) ((x)-240)
-#define BLACK         253
-#define WHITE         254
 
 #define LARGE_W       912
 #define LARGE_H       684
@@ -1302,7 +1290,7 @@ public:
 	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapdataref, msgdataref, shopdataref;
 	int32_t mapdataref;
 	dword dropsetdataref;
-	dword fileref, directoryref, rngref, stackref, paldataref;
+	dword fileref, directoryref, rngref, stackref, paldataref, savemenuref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combodataref, comboposref;
 	dword combotriggerref;

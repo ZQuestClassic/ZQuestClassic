@@ -20147,7 +20147,7 @@ static bool parsemsgcode(const StringCommand& command)
 			if(music==0)
 				music_stop();
 			else
-				jukebox(music+(ZC_MIDI_COUNT-1));
+				jukebox(music+MIDIOFFSET_ZSCRIPT);
 				
 			return true;
 		}

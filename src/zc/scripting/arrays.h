@@ -8,7 +8,7 @@
 #include "base/qrs.h"
 #include "new_subscr.h"
 #include "zc/ffscript.h"
-#include "zc/scripting/types/websocket.h"
+#include "zc/scripting/types.h"
 #include <cstddef>
 #include <functional>
 #include <optional>
@@ -169,6 +169,8 @@ static T* resolveScriptingObject(int ref)
 		return checkSpriteData(ref);
 	else if constexpr (std::is_same<T, MsgStr>::value)
 		return checkMessageData(ref);
+	else if constexpr (std::is_same<T, SaveMenu>::value)
+		return checkSaveMenu(ref);
 	else if constexpr (std::is_same<T, gamedata>::value)
 		return game;
 	else if constexpr (std::is_same<T, HeroClass>::value)

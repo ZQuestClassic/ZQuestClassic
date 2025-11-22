@@ -8,6 +8,8 @@ void set_center_root_rti(bool center);
 RenderTreeItem* get_screen_rti();
 void zq_hide_screen(bool hidden);
 void zq_set_screen_never_freeze(bool value);
+void zq_push_unfrozen_dialogs(size_t value);
+void zq_pop_unfrozen_dialogs();
 void zq_freeze_all_rti(RenderTreeItem* rti = nullptr);
 void render_zq();
 
