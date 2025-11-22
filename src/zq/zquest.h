@@ -463,7 +463,6 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
 int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,int32_t*), const char *b1, const char *b2, FONT *title_font, void (*copyFunc)(int32_t, int32_t)=0);
 int32_t select_flag(int32_t &f);
 int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_comboalist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onSecretF();
 int32_t onSecretCombo();

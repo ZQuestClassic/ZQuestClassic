@@ -4,6 +4,8 @@
 #include <gui/dialog.h>
 #include <gui/label.h>
 #include <gui/list.h>
+#include <gui/grid.h>
+#include <gui/checkbox.h>
 #include <gui/window.h>
 #include <zq/gui/tileanim_frame.h>
 #include <zq/gui/dmap_frame.h>
@@ -22,11 +24,11 @@ public:
 	BasicListerDialog(std::string title, std::string cfg_key, int start_val = 0, bool selecting = false) :
 		titleTxt(title), selected_val(start_val), start_val(start_val), frozen_inds(0),
 		selecting(selecting), use_preview(false), editable(true), alphabetized(false),
-		cfg_key(cfg_key){};
+		use_mappreview(false), use_alpha(true), cfg_key(cfg_key){};
 	BasicListerDialog(std::string title, std::string cfg_key, GUI::ListData lister, int start_val = 0, bool selecting = false) :
 		titleTxt(title), lister(lister), selected_val(start_val), start_val(start_val), frozen_inds(0),
 		selecting(selecting), use_preview(false), editable(true), alphabetized(false),
-		cfg_key(cfg_key){};
+		use_mappreview(false), use_alpha(true), cfg_key(cfg_key){};
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -34,7 +36,7 @@ public:
 protected:
 	virtual void preinit(){};
 	virtual void postinit(){};
-	virtual void update(){};
+	virtual void update(bool startup = false){};
 	virtual void edit(){};
 	virtual void rclick(int x, int y){};
 	virtual void copy(){};
@@ -57,7 +59,7 @@ protected:
 	GUI::ListData lister;
 	int selected_val, start_val;
 	size_t frozen_inds;
-	bool selecting, use_preview, editable, alphabetized, use_mappreview;
+	bool selecting, use_preview, editable, alphabetized, use_mappreview, use_alpha;
 	
 	std::string cfg_key;
 	
@@ -66,6 +68,7 @@ protected:
 	std::shared_ptr<GUI::TileFrame> widgPrev;
 	std::shared_ptr<GUI::DMapFrame> mapPrev;
 	std::shared_ptr<GUI::Window> window;
+	std::shared_ptr<GUI::Grid> prev_holder;
 };
 
 class ItemListerDialog: public BasicListerDialog
@@ -76,7 +79,7 @@ public:
 protected:
 	void preinit() override;
 	void postinit() override;
-	void update() override;
+	void update(bool startup = false) override;
 	void edit() override;
 	void rclick(int x, int y) override;
 	void copy() override;
@@ -94,7 +97,7 @@ public:
 protected:
 	void preinit() override;
 	void postinit() override;
-	void update() override;
+	void update(bool startup = false) override;
 	void edit() override;
 	void rclick(int x, int y) override;
 	void copy() override;
@@ -111,7 +114,7 @@ public:
 protected:
 	void preinit() override;
 	void postinit() override;
-	void update() override;
+	void update(bool startup = false) override;
 };
 
 class EnemyListerDialog : public BasicListerDialog
@@ -122,7 +125,7 @@ public:
 protected:
 	void preinit() override;
 	void postinit() override;
-	void update() override;
+	void update(bool startup = false) override;
 	void edit() override;
 	void rclick(int x, int y) override;
 	void copy() override;
@@ -150,7 +153,7 @@ public:
 protected:
 	void preinit() override;
 	void postinit() override;
-	void update() override;
+	void update(bool startup = false) override;
 	void edit() override;
 };
 
@@ -162,9 +165,27 @@ public:
 protected:
 	void preinit() override;
 	void postinit() override;
-	void update() override;
+	void update(bool startup = false) override;
 	void edit() override;
 	void copy() override;
 	bool paste() override;
+};
+
+class FFCListerDialog : public BasicListerDialog
+{
+public:
+	FFCListerDialog(int index = -1, bool selecting = false);
+
+protected:
+	void preinit() override;
+	void postinit() override;
+	void update(bool startup = false) override;
+	void edit() override;
+	void rclick(int x, int y) override;
+	void copy() override;
+	bool paste() override;
+private:
+	int cache_tw, cache_th;
+	int cache_max_tw, cache_max_th;
 };
 #endif

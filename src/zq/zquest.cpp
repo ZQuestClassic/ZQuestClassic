@@ -748,7 +748,6 @@ int32_t midi_volume = 255;
 extern int32_t prv_mode;
 int32_t prv_warp = 0;
 int32_t prv_twon = 0;
-int32_t ff_combo = 0;
 
 int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1;
 int32_t zqColorDepth = 8;
@@ -18802,131 +18801,10 @@ const char *ffcombolist(int32_t index, int32_t *list_size)
 
 static ListData ffcombo_list(ffcombolist, &font);
 
-static DIALOG ffcombo_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,  200,   179,  vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Freeform Combo", NULL, NULL },
-    { jwin_button_proc,     35,   152,   61,   21,  vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,    104,   152,   61,   21,  vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { d_ffcombolist_proc,  11,   24,   49,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &ffcombo_list, NULL, NULL },
-    { d_comboframe_proc,   68,  23,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_bitmap_proc,     70,  25,   16,   16,   0,       0,      0,       0,             0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-    int32_t ret = jwin_droplist_proc(msg,d,c);
-    int32_t d1 = d->d1;
-    int32_t x=ffcombo_sel_dlg[0].x;
-    int32_t y=ffcombo_sel_dlg[0].y;
-    FONT *tempfont=(font);
-    int32_t x2=text_length(tempfont, "Move Delay:")+4;
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-        if(!ffcur) return D_O_K;
-        
-        BITMAP *buf = create_bitmap_ex(8,16,16);
-        
-        if(buf)
-        {
-            clear_bitmap(buf);
-            putcombo(buf,0,0,Map.CurrScr()->ffcs[d1].data,Map.CurrScr()->ffcs[d1].cset);
-            stretch_blit(buf, ffcur, 0,0, 16, 16, 0, 0, ffcur->w, ffcur->h);
-            destroy_bitmap(buf);
-        }
-        
-        object_message(&ffcombo_sel_dlg[5],MSG_DRAW,0);
-        
-        int32_t xd = x+int32_t(68*1.5);
-        int32_t y2 = y+int32_t(55*1.5);
-        int32_t yd = 9;
-        
-        rectfill(screen,xd,y2,xd+x2+100,y2+yd*14,jwin_pal[jcBOX]);
-        
-        textprintf_ex(screen,tempfont,xd,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].data);
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].cset);
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].x.getFloat());
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].y.getFloat());
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].vx.getFloat());
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].vy.getFloat());
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].ax.getFloat());
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].ay.getFloat());
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Linked To:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].link);
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Move Delay:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].delay);
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffEffectWidth(d1)));
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffEffectHeight(d1)));
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffTileWidth(d1)));
-        
-        textprintf_ex(screen,tempfont,xd,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffTileHeight(d1)));
-        
-        break;
-    }
-    
-    return ret;
-}
 int32_t onSelectFFCombo()
 {
-    ffcombo_sel_dlg[0].dp2 = get_zc_font(font_lfont);
-    ffcombo_sel_dlg[3].d1 = ff_combo;
-    ffcur = create_bitmap_ex(8,32,32);
-    
-    if(!ffcur) return D_O_K;
-    
-	Map.CurrScr()->ensureFFC(MAXFFCS - 1);
-    putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].data,Map.CurrScr()->ffcs[ff_combo].cset);
-    ffcombo_sel_dlg[5].dp = ffcur;
-    
-	bool resize = !(ffcombo_sel_dlg[0].d1);
-	large_dialog(ffcombo_sel_dlg);
-	
-	if(resize)
-	{
-		ffcombo_sel_dlg[5].x--;
-		ffcombo_sel_dlg[5].y--;
-	}
-    
-    int32_t ret=do_zqdialog(ffcombo_sel_dlg,0);
-    
-    while(ret==1)
-    {
-        ff_combo = ffcombo_sel_dlg[3].d1;
-        mapscr* scr = active_visible_screen ? active_visible_screen->scr : Map.CurrScr();
-        int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
-        call_ffc_dialog(ff_combo, scr, screen);
-        ret=do_zqdialog(ffcombo_sel_dlg,0);
-    }
-    
-    destroy_bitmap(ffcur);
-    return D_O_K;
+	FFCListerDialog().show();
+	return D_O_K;
 }
 
 const char *globalscriptlist(int32_t index, int32_t *list_size);
@@ -24956,7 +24834,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(editinfo_dlg);
     jwin_center_dialog(editmusic_dlg);
     jwin_center_dialog(editshop_dlg);
-    jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);

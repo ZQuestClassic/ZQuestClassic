@@ -233,6 +233,13 @@ public:
 	{
 		return fmt::format("{}{}.{:04}",val < 0 ? "-" : "",abs(val/10000),abs(val%10000));
 	}
+	std::string str_trim() const
+	{
+		auto s = str();
+		auto idx = s.find_last_not_of("0");
+		if (s[idx] == '.') --idx;
+		return s.substr(0, idx+1);
+	}
 public:
 	
 	zfix() : val(0)											{}

@@ -3,6 +3,7 @@
 #include <base/new_menu.h>
 #include "base/files.h"
 #include "itemeditor.h"
+#include "ffc_editor.h"
 #include "spritedata.h"
 #include "enemyeditor.h"
 #include "midieditor.h"
@@ -49,8 +50,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	
 	preinit();
 	
-	std::shared_ptr<GUI::Grid> g;
-	std::shared_ptr<GUI::Grid> btnrow;
+	std::shared_ptr<GUI::Grid> g, btnrow, wcolumn;
 	window = Window(
 		title = titleTxt,
 		onClose = message::EXIT,
@@ -67,46 +67,48 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 			Ctrl+L=message::LOAD,
 			Enter=message::CONFIRM,
 		},
-		Column(
-			hPadding = 0_px,
-			Row(vPadding = 0_px, fitParent = true,
-				Checkbox(text = "Alphabetized",
-					hAlign = 0.0,
-					checked = alphabetized,
-					onToggleFunc = [&](bool state)
-					{
-						alphabetized = state;
-						set_config("alphabetized", state);
-						resort();
-					})
-			),
-			g = Columns<2>(
-				widgList = List(data = lister, isABC = true,
-					selectedValue = selected_val,
-					rowSpan = 2, fitParent = true,
-					focused = true,
-					onSelectFunc = [&](int32_t val)
-					{
-						if(selected_val == val)
-							return;
-						selected_val = val;
-						update();
-					},
-					onRClickFunc = [&](int32_t val, int32_t x, int32_t y)
-					{
-						if(selected_val != val)
-						{
-							selected_val = val;
-							update();
-						}
-						forceDraw();
-						rclick(x,y);
-					},
-					onDClick = message::CONFIRM)
-			),
-			btnrow = Row(padding = 0_px)
-		)
+		wcolumn = Column(hPadding = 0_px)
 	);
+	
+	if (use_alpha)
+		wcolumn->add(Row(vPadding = 0_px, fitParent = true,
+			Checkbox(text = "Alphabetized",
+				hAlign = 0.0,
+				checked = alphabetized,
+				onToggleFunc = [&](bool state)
+				{
+					alphabetized = state;
+					set_config("alphabetized", state);
+					resort();
+				})
+		));
+	
+	wcolumn->add(g = Columns<2>(
+		widgList = List(data = lister, isABC = true,
+			selectedValue = selected_val,
+			rowSpan = 2, fitParent = true,
+			focused = true,
+			onSelectFunc = [&](int32_t val)
+			{
+				if(selected_val == val)
+					return;
+				selected_val = val;
+				update();
+			},
+			onRClickFunc = [&](int32_t val, int32_t x, int32_t y)
+			{
+				if(selected_val != val)
+				{
+					selected_val = val;
+					update();
+				}
+				forceDraw();
+				rclick(x,y);
+			},
+			onDClick = message::CONFIRM)
+	));
+	
+	wcolumn->add(btnrow = Row(padding = 0_px));
 	
 	//Generate the btnrow
 	{
@@ -131,7 +133,9 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 		
 	if (use_preview)
 	{
-		g->add(widgPrev = TileFrame(visible = false));
+		g->add(Column(prev_holder = Column(padding = 0_px,
+			widgPrev = TileFrame(visible = false)
+		)));
 		g->add(widgInfo = Label(text = "", fitParent = true));
 	}
 	else if(use_mappreview)
@@ -147,7 +151,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	
 	resort();
 	postinit();
-	update();
+	update(true);
 	return window;
 }
 
@@ -277,7 +281,7 @@ void ItemListerDialog::postinit()
 	window->setHelp(get_info(selecting, true));
 }
 static int copied_item_id = -1;
-void ItemListerDialog::update()
+void ItemListerDialog::update(bool startup)
 {
 	std::string copied_name = "(None)\n";
 	if(unsigned(copied_item_id) < MAXITEMS)
@@ -330,8 +334,8 @@ void ItemListerDialog::update()
 	}
 	widgPrev->setVisible(true);
 	widgPrev->setDoSized(true);
-	widgPrev->overrideWidth(Size::pixels(48+4));
-	widgPrev->overrideHeight(Size::pixels(48+4));
+	widgPrev->overrideWidth(Size::pixels(16 * 3 + 4));
+	widgPrev->overrideHeight(Size::pixels(16 * 3 + 4));
 	widgPrev->resetAnim();
 }
 void ItemListerDialog::edit()
@@ -474,7 +478,7 @@ void SpriteListerDialog::postinit()
 	window->setHelp(get_info(selecting, true));
 }
 static int copied_sprite_id = -1;
-void SpriteListerDialog::update()
+void SpriteListerDialog::update(bool startup)
 {
 	std::string copied_name = "(None)\n";
 	if(unsigned(copied_sprite_id) < MAXWPNS)
@@ -508,8 +512,8 @@ void SpriteListerDialog::update()
 		widgPrev->setFlashCS(-1);
 	}
 	widgPrev->setVisible(true);
-	widgPrev->overrideWidth(Size::pixels(48+4));
-	widgPrev->overrideHeight(Size::pixels(48+4));
+	widgPrev->overrideWidth(Size::pixels(16 * 3 + 4));
+	widgPrev->overrideHeight(Size::pixels(16 * 3 + 4));
 	widgPrev->resetAnim();
 }
 void SpriteListerDialog::edit()
@@ -596,7 +600,7 @@ void SubscrWidgListerDialog::postinit()
 	widgInfo->overrideWidth(150_px);
 	widgList->setSelectedIndex(0);
 }
-void SubscrWidgListerDialog::update()
+void SubscrWidgListerDialog::update(bool startup)
 {
 	if(selected_val && unsigned(selected_val) < widgMAX)
 		widgInfo->setText(lister.findInfo(selected_val));
@@ -634,7 +638,7 @@ void EnemyListerDialog::postinit()
 	window->setHelp(get_info(selecting, true));
 }
 static int copied_enemy_id = -1;
-void EnemyListerDialog::update()
+void EnemyListerDialog::update(bool startup)
 {
 	std::string copied_name = "(None)\n";
 	if (unsigned(copied_enemy_id) < MAXGUYS)
@@ -689,8 +693,8 @@ void EnemyListerDialog::update()
 	}
 	widgPrev->setVisible(true);
 	widgPrev->setDoSized(true);
-	widgPrev->overrideWidth(Size::pixels(48 + 4));
-	widgPrev->overrideHeight(Size::pixels(48 + 4));
+	widgPrev->overrideWidth(Size::pixels(16 * 3 + 4));
+	widgPrev->overrideHeight(Size::pixels(16 * 3 + 4));
 }
 void EnemyListerDialog::edit()
 {
@@ -793,7 +797,7 @@ void MidiListerDialog::postinit()
 	window->setHelp(get_info(selecting, false, false, false));
 	widgInfo->capWidth(10_em); // Midi titles can be long, want them to wrap instead of widen
 }
-void MidiListerDialog::update()
+void MidiListerDialog::update(bool startup)
 {
 	if (unsigned(selected_val) < MAXCUSTOMMIDIS)
 	{
@@ -854,10 +858,10 @@ void SFXListerDialog::edit()
 
 DMapListerDialog::DMapListerDialog(int index, bool selecting) :
 	BasicListerDialog("Select DMap", "dmap", index, selecting)
-	{
-		use_preview = false;
-		use_mappreview = true; //ugly hack but it works.
-		alphabetized = get_config("alphabetized", true); //doesnt work???
+{
+	use_preview = false;
+	use_mappreview = true; //ugly hack but it works.
+	alphabetized = get_config("alphabetized", true); //doesnt work???
 }
 
 void DMapListerDialog::preinit()
@@ -872,7 +876,7 @@ void DMapListerDialog::postinit()
 	window->setHelp(get_info(selecting, true));
 }
 static int16_t copied_dmap_id = -1;
-void DMapListerDialog::update()
+void DMapListerDialog::update(bool startup)
 {
 	widgInfo->setText(fmt::format("\nMap: {}\nLevel: {}\n\nCopied: {}",
 		DMaps[selected_val].map + 1, DMaps[selected_val].level, copied_dmap_id));
@@ -898,3 +902,134 @@ bool DMapListerDialog::paste()
 	saved = false;
 	return true;
 }
+
+
+FFCListerDialog::FFCListerDialog(int index, bool selecting) :
+	BasicListerDialog("Select FFC", "ffc", index, selecting)
+{
+	use_preview = true;
+	use_alpha = false;
+	alphabetized = false;
+}
+
+void FFCListerDialog::preinit()
+{
+	mapscr* curscr = Map.CurrScr();
+	lister = GUI::ListData::numbers(false, 0, MAXFFCS, [&](int v)
+		{
+			if (curscr->ffcs.size() <= v)
+				return fmt::format("Empty ({:03})", v+1);
+			return fmt::format("({:03})", v+1);
+		});
+	if (selected_val < 0)
+		selected_val = lister.getValue(0);
+	selected_val = vbound(selected_val, 0, MAXDMAPS - 1);
+}
+void FFCListerDialog::postinit()
+{
+	window->setHelp(get_info(selecting, false, false));
+}
+
+void FFCListerDialog::update(bool startup)
+{
+	auto copied_ffc_id = Map.getCopyFFC();
+	auto copied_ffc_mapscr = Map.CopyScr();
+	auto copied_ffc_map = copied_ffc_mapscr >= 0 ? (copied_ffc_mapscr >> 8) : -1;
+	auto copied_ffc_scr = copied_ffc_mapscr >= 0 ? (copied_ffc_mapscr & 0xFF) : -1;
+	
+	string copystr = "None";
+	if (copied_ffc_id && copied_ffc_map > 0 && copied_ffc_scr > -1)
+	{
+		if (copied_ffc_map != Map.getCurrMap() || copied_ffc_scr != Map.getCurrScr())
+			copystr = fmt::format("{} from M{},S0x{:02X}", copied_ffc_id, copied_ffc_map, copied_ffc_scr);
+		else copystr = to_string(copied_ffc_id);
+	}
+	mapscr* curscr = Map.CurrScr();
+	int max_tw = 1, max_th = 1;
+	for (auto const& ffc : curscr->ffcs)
+	{
+		if (ffc.txsz > max_tw)
+			max_tw = ffc.txsz;
+		if (ffc.tysz > max_th)
+			max_th = ffc.tysz;
+	}
+	if (!startup && (cache_max_tw != max_tw || cache_max_th != max_th))
+		refresh_dlg();
+	cache_max_tw = max_tw;
+	cache_max_th = max_th;
+	
+	if (curscr->ffcs.size() > selected_val)
+	{
+		auto& ffc = curscr->ffcs[selected_val];
+		widgInfo->setText(fmt::format("Combo: {}\nCSet: {}\nTSize: {}, {}\nEffSize: {}, {}"
+			"\nPos: {}, {}\nSpeed: {}, {}"
+			"\nAccel: {}, {}\nLinked: {}\nMove Delay: {}\n\nCopied: {}",
+			ffc.data, ffc.cset, ffc.txsz, ffc.tysz, ffc.hit_width, ffc.hit_height,
+			ffc.x.str_trim(), ffc.y.str_trim(), ffc.vx.str_trim(), ffc.vy.str_trim(),
+			ffc.ax.str_trim(), ffc.ay.str_trim(), ffc.link, ffc.delay, copystr));
+		
+		newcombo const& cmb = combobuf[ffc.data];
+		widgPrev->setTile(cmb.tile);
+		widgPrev->setCSet2(cmb.csets);
+		widgPrev->setFrames(cmb.frames);
+		widgPrev->setSpeed(cmb.speed);
+		widgPrev->setSkipX(cmb.skipanim);
+		widgPrev->setSkipY(cmb.skipanimy);
+		widgPrev->setFlip(cmb.flip);
+		
+		widgPrev->setCSet(ffc.cset);
+		widgPrev->setTileW(ffc.txsz);
+		widgPrev->setTileH(ffc.tysz);
+		
+		widgPrev->setDisabled(false);
+		
+		cache_tw = ffc.txsz;
+		cache_th = ffc.tysz;
+	}
+	else
+	{
+		widgInfo->setText(fmt::format("\n\n\n\n\n\n\n\n\n\nCopied: {}", copystr));
+		widgPrev->setTileW(1);
+		widgPrev->setTileH(1);
+		widgPrev->setDisabled(true);
+		cache_tw = 1;
+		cache_th = 1;
+	}
+	widgInfo->minWidth(Size::pixels(text_length(GUI_DEF_FONT, "EffSize: 8.8888,8.8888") + 5));
+	widgPrev->setVisible(true);
+	prev_holder->overrideWidth(Size::pixels(16 * 2 * cache_max_tw + 4));
+	prev_holder->overrideHeight(Size::pixels(16 * 2 * cache_max_th + 4));
+	widgPrev->overrideWidth(Size::pixels(16 * 2 * cache_tw + 4));
+	widgPrev->overrideHeight(Size::pixels(16 * 2 * cache_th + 4));
+	widgPrev->update_ref_size();
+	widgPrev->resetAnim();
+}
+void FFCListerDialog::edit()
+{
+	call_ffc_dialog(selected_val, Map.CurrScr(), Map.getCurrScr());
+}
+void FFCListerDialog::rclick(int x, int y)
+{
+	mapscr* curscr = Map.CurrScr();
+	NewMenu rcmenu {
+		{ "Clear", [&](){curscr->ffcs[selected_val].clear(); update();}, 0, selected_val >= curscr->ffcs.size() ? MFL_DIS : 0 },
+		{ "&Copy", [&](){copy(); update();}, 0, selected_val >= curscr->ffcs.size() ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, Map.getCopyFFC() < 0 ? MFL_DIS : 0 },
+		// { "&Save", [&](){save(); update();} },
+		// { "&Load", [&](){load(); update();} },
+	};
+	rcmenu.pop(x, y);
+}
+void FFCListerDialog::copy()
+{
+	Map.CopyFFC(Map.getCurrScr(), selected_val);
+	update();
+}
+bool FFCListerDialog::paste()
+{
+	if (Map.getCopyFFC() < 0 || selected_val < 0)
+		return false;
+	Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), selected_val, Map.getCopyFFCData());
+	return true;
+}
+
