@@ -1157,7 +1157,9 @@ static NewMenu graphics_menu
 	{ "Misc co&lors", onMiscColors },
 	{ "&Map styles", onMapStyles },
 	{ "&Door Combo Sets", onDoorCombos },
-	{ "Combo &Aliases", onEditComboAlias },
+	{ "Combo &Aliases", [](){call_alias_pages(); return D_O_K;} },
+	{ "Combo Pools", [](){call_cpool_pages(); return D_O_K;} },
+	{ "Auto Combos", [](){call_autoc_pages(); return D_O_K;} },
 };
 
 static NewMenu audio_menu
