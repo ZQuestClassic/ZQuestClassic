@@ -803,8 +803,6 @@ void doHelp();
 int32_t onZstringshelp();
 int32_t onHelp();
 int32_t onZScripthelp();
-int32_t edit_layers(mapscr* tempscr);
-void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3]);
 int32_t onLayers();
 
 extern volatile int32_t myvsync;
