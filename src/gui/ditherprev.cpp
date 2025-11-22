@@ -17,12 +17,7 @@ int32_t dith_prev_proc(int32_t msg, DIALOG* d, int32_t)
 			jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_ETCHED);
 			int tx = d->x+2, ty = d->y+2;
 			int tw = d->w-4, th = d->h-4;
-			byte col = prev.dcol;
-			switch(col) //special hardcoded colors
-			{
-				case BLACK: col = 0xE0; break;
-				case WHITE: col = 0xEF; break;
-			}
+			byte col = zq_fix_ui_color(prev.dcol);
 			BITMAP* tmpbmp = create_bitmap_ex(8,256,176);
 			clear_bitmap(tmpbmp);
 			ditherrectfill(tmpbmp, 0, 0, 255, 167,

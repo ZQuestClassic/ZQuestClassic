@@ -15,12 +15,15 @@
 extern bool saved;
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern SAMPLE templist[WAV_COUNT];
+extern bool sfx_templist;
 extern uint8_t customsfxflag[WAV_COUNT >> 3];
 extern char* sfx_string[WAV_COUNT];
 
 bool call_sfxdata_dialog(int32_t index)
 {
+	sfx_templist = true;
 	SFXDataDialog(index).show();
+	sfx_templist = false;
 	return true;
 }
 

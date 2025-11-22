@@ -92,6 +92,16 @@ int wrap(int x,int low,int high)
     return x;
 }
 
+byte zq_fix_ui_color(byte color)
+{
+	switch (color)
+	{
+		case BLACK: return 0xE0;
+		case WHITE: return 0xEF;
+		default: return color;
+	}
+}
+
 direction X_DIR(int32_t dir)
 {
 	dir = NORMAL_DIR(dir);

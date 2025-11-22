@@ -192,6 +192,8 @@ enum
 	
 	ZQKEY_SCREEN_NOTES,
 	ZQKEY_BROWSE_SCREEN_NOTES,
+	
+	ZQKEY_SAVE_MENUS,
 
 	// Note: when adding a new hotkey, categorize in proper group in `render_hotkeys.cpp`.
 	ZQKEY_MAX

@@ -38,17 +38,6 @@ extern bool dev_debug;
 extern bool dev_timestmp;
 #endif
 
-#define ZC_MIDI_DUNGEON                  0
-#define ZC_MIDI_ENDING                   1
-#define ZC_MIDI_GAMEOVER                 2
-#define ZC_MIDI_LEVEL9                   3
-#define ZC_MIDI_OVERWORLD                4
-#define ZC_MIDI_TITLE                    5
-#define ZC_MIDI_TRIFORCE                 6
-#define ZC_MIDI_COUNT                    7
-
-#define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
-
 #define MAX_IDLE      72000                                 // 20 minutes
 #define MAX_ACTIVE    72000                                 // 20 minutes
 
@@ -192,15 +181,6 @@ extern char SaveScreenText[7][32]; //(char *) "CONTINUE", (char *) "SAVE", (char
 					//DON'T SAVE, SAVE AND QUIT, SAVE, QUIT
 extern void SetSaveScreenSetting(int32_t indx, int32_t value);
 extern void ChangeSubscreenText(int32_t index, const char *f);
-INLINE void sfx(int32_t index,int32_t pan = 128)
-{
-	sfx(index,vbound(pan, 0, 255) ,false);
-}
-INLINE void sfx_no_repeat(int32_t index, int32_t pan = 128)
-{
-	if (!sfx_allocated(index))
-		sfx(index, vbound(pan, 0, 255), false, false);
-}
 
 bool isSideViewGravity(int32_t t = 0);
 bool isSideViewHero(int32_t t = 0);

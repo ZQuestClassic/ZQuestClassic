@@ -37,7 +37,7 @@ bool hasComboWizard(int32_t type)
 		//!Todo combo wizards -Em
 		// case cTRIGGERGENERIC: case cCSWITCH:
 		// case cSWITCHHOOK: case cCSWITCHBLOCK:
-		// case cSAVE: case cSAVE2:
+		case cSAVE: case cSAVE2:
 		case cCUTSCENETRIG: case cCUTSCENEEFFECT:
 		case cSIGNPOST:
 		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
@@ -370,9 +370,9 @@ void ComboWizardDialog::update(bool first)
 			break;
 		}
 		case cCUTSCENEEFFECT:
-		{
 			break;
-		}
+		case cSAVE: case cSAVE2:
+			break;
 	}
 }
 void ComboWizardDialog::endUpdate()
@@ -808,7 +808,13 @@ void ComboWizardDialog::endUpdate()
 			break;
 		}
 		case cCUTSCENEEFFECT:
+			break;
+		case cSAVE: case cSAVE2:
 		{
+			if (!(local_ref.usrflags & cflag1))
+				local_ref.attribytes[0] = 0;
+			if (!(local_ref.usrflags & cflag2))
+				local_ref.attribytes[1] = 0;
 			break;
 		}
 	}
@@ -955,6 +961,13 @@ void combo_default(newcombo& ref, bool typeonly)
 					SETFLAG(ref.usrflags, cflag2, false);
 					break;
 			}
+			break;
+		}
+		case cSAVE: case cSAVE2:
+		{
+			ref.attribytes[0] = 100;
+			ref.attribytes[1] = 100;
+			ref.usrflags |= (cflag1|cflag2);
 			break;
 		}
 	}
@@ -4516,6 +4529,78 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				)
 			));
 			if(g) col->add(g);
+			break;
+		}
+		case cSAVE: case cSAVE2:
+		{
+			byte& heal_hp = local_ref.attribytes[0];
+			byte& heal_mp = local_ref.attribytes[1];
+			byte& save_menu = local_ref.attribytes[2];
+			
+			if(!(local_ref.usrflags&cflag1))
+				heal_hp = 0;
+			if(!(local_ref.usrflags&cflag2))
+				heal_mp = 0;
+			if (save_menu > NUM_SAVE_MENUS)
+				save_menu = 0;
+			
+			lists[0] = GUI::ZCListData::savemenus(true, true, true);
+			
+			windowRow->add(Column(
+				Rows<3>(
+					Checkbox(text = "Heal HP to %", _EX_RBOX,
+						checked = local_ref.usrflags&cflag1,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_ref.usrflags, cflag1, state);
+							tfs[0]->setDisabled(!state);
+						}),
+					tfs[0] = TextField(
+						fitParent = true, minwidth = 8_em,
+						type = GUI::TextField::type::SWAP_BYTE,
+						low = 0, high = 100, val = heal_hp,
+						disabled = !(local_ref.usrflags&cflag1),
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							heal_hp = val;
+						}),
+					INFOBTN("Heals the player to the specified percentage of their HP, if their HP was less than that amount."),
+					Checkbox(text = "Heal MP to %", _EX_RBOX,
+						checked = local_ref.usrflags&cflag2,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_ref.usrflags, cflag2, state);
+							tfs[1]->setDisabled(!state);
+						}),
+					tfs[1] = TextField(
+						fitParent = true, minwidth = 8_em,
+						type = GUI::TextField::type::SWAP_BYTE,
+						low = 0, high = 100, val = heal_mp,
+						disabled = !(local_ref.usrflags&cflag2),
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							heal_mp = val;
+						}),
+					INFOBTN("Heals the player to the specified percentage of their MP, if their MP was less than that amount."),
+					Checkbox(text = "Default 'Save+Quit' Menu", _EX_RBOX, colSpan = 2,
+						checked = local_ref.type == cSAVE2,
+						onToggleFunc = [&](bool state)
+						{
+							local_ref.type = state ? cSAVE2 : cSAVE;
+						}),
+					INFOBTN("Determines which save menu to display, if 'Save Menu:' is set to [Default].")
+				),
+				Rows<3>(
+					Label(text = "Save Menu:", hAlign = 1.0),
+					DropDownList(data = lists[0],
+						fitParent = true, selectedValue = save_menu,
+						onSelectFunc = [&](int32_t val)
+						{
+							save_menu = val;
+						}),
+					INFOBTN("Which save menu to display when activated.")
+				)
+			));
 			break;
 		}
 		default: //Should be unreachable

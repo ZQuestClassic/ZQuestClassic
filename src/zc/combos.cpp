@@ -1719,7 +1719,11 @@ void trigger_save(newcombo const& cmb, mapscr* scr)
 		if(game->get_magic() < magic)
 			game->set_magic(magic);
 	}
-	save_game((scr->flags4&fSAVEROOM) != 0, save_type);
+	byte save_menu = cmb.attribytes[2]-1;
+	if (save_menu >= NUM_SAVE_MENUS || !QMisc.save_menus[save_menu].is_valid())
+		save_game((scr->flags4&fSAVEROOM) != 0, save_type);
+	else
+		QMisc.save_menus[save_menu].run();
 }
 
 static byte copycat_id = 0;

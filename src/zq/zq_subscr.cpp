@@ -1101,11 +1101,6 @@ const char *sso_specialtile[ssmstMAX]=
     "ssmstSSVINETILE", "ssmstMAGICMETER"
 };
 
-const char *sso_alignment[3]=
-{
-    "sstaLEFT", "sstaCENTER", "sstaRIGHT"
-};
-
 static NewMenu ss_edit_menu
 {
 	{ "&New Ins", onNewSubscreenObject },

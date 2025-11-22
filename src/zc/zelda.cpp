@@ -3363,6 +3363,11 @@ void game_loop()
 						{
 							replay_step_comment("hero died");
 							Quit = qGAMEOVER;
+							if (unsigned(QMisc.savemenu_game_over-1) < NUM_SAVE_MENUS && QMisc.save_menus[QMisc.savemenu_game_over-1].is_valid())
+							{
+								QMisc.save_menus[QMisc.savemenu_game_over-1].run();
+								// Quit should be changed to something else by this menu, always
+							}
 						}
 						
 						return;
@@ -4839,8 +4844,6 @@ reload_for_replay_file:
 					Quit = qCONT;
 				}
 				
-				skipcont = 0;
-				
 				if (get_qr(qr_OLD_SCRIPT_VOLUME))
 				{
 					//restore user volume settings
@@ -4910,6 +4913,7 @@ reload_for_replay_file:
 			}
 			break;
 		}
+		skipcont = 0;
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!
 		doClearTint();

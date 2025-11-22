@@ -1,0 +1,224 @@
+// Used with [save_menu::Flags].
+enum SaveMenuFlags
+{
+	SMENU_CONFIRM_A, // If checked, the A button can confirm, in addition to START.
+	SMENU_CANCEL_B, // If checked, the B button can cancel. (Does not work on 'Game Over' menu)
+	SMENU_DONT_KILL_MUSIC, // If checked, the menu opening will not change the music. ([save_menu::MIDI])
+	SMENU_REPEAT_BG, // If checked, the [save_menu::BGTile] will be repated to fill the screen
+};
+// Used with [save_menu::OptionFlags].
+@Bitflags("int")
+enum SaveMenuOptionFlags
+{
+	SMENU_OPT_EXIT     = 0x01, // When this option is selected, the game will be exited to the save select. [SMENU_OPT_RELOAD] takes priority if set.
+	SMENU_OPT_CONTINUE = 0x02, // When this option is selected, the player will 'Continue' from their continue point.  [SMENU_OPT_RELOAD] and [SMENU_OPT_EXIT] take priority if set.
+	SMENU_OPT_RELOAD   = 0x04, // When this option is selected, the game will be reloaded from the previous save.
+	SMENU_OPT_SAVE     = 0x08, // When this option is selected, the game will be saved.
+	SMENU_OPT_CANCEL   = 0x10, // When this option is selected, the save menu will close. (Does not work on 'Game Over' menu)
+};
+
+// Contains data related to Game Over / F6 / Save menus
+//
+// @zasm_ref REFSAVEMENU
+class save_menu
+{
+	// @delete
+	internal save_menu();
+
+	// Returns the ID of the menu.
+	//
+	// @zasm_var SAVEMENU_ID
+	internal const int ID;
+
+	// Runs the menu. Returns the selected index. If the menu is canceled via [SMENU_CANCEL_B], returns -1.
+	//
+	// @zasm
+	//   POP REFSAVEMENU
+	//   SAVEMENU_OPEN
+	internal int Open();
+
+	// Fills the buffer with the name of this save menu
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_GETNAME D2
+	internal void GetName(char32[] buffer);
+
+	// Sets the name of this save menu to the buffer contents.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_SETNAME D2
+	internal void SetName(char32[] buffer);
+
+	// The tile used by this save menu for the cursor
+	// 
+	// @zasm_var SAVEMENU_CURSORTILE
+	internal int CursorTile;
+
+	// The cset used by this save menu for the cursor
+	// 
+	// @zasm_var SAVEMENU_CURSORCSET
+	internal int CursorCSet;
+
+	// The color filling the background of the menu. Color 0 is NOT transparent here.
+	// 
+	// @zasm_var SAVEMENU_BGCOLOR
+	internal int BGColor;
+
+	// The upper-left tile used for the menu background. If 0, no tiles will be drawn (leaving only the [BGColor])
+	//
+	// @zasm_var SAVEMENU_BGTILE
+	internal int BGTile;
+
+	// The cset the [BGTile] is drawn in.
+	//
+	// @zasm_var SAVEMENU_BGCSET
+	internal int BGCSet;
+
+	// The number of tiles wide to draw the [BGTile]. Also see [SMENU_REPEAT_BG].
+	//
+	// @zasm_var SAVEMENU_BGTW
+	internal int BGTileWidth;
+
+	// The number of tiles tall to draw the [BGTile]. Also see [SMENU_REPEAT_BG].
+	//
+	// @zasm_var SAVEMENU_BGTH
+	internal int BGTileHeight;
+
+	// The SFX played when moving the cursor.
+	// 
+	// @zasm_var SAVEMENU_SFX_CURSOR
+	internal int SFXCursor;
+
+	// The SFX played when choosing an option.
+	// 
+	// @zasm_var SAVEMENU_SFX_CHOOSE
+	internal int SFXChoose;
+
+	// The space, in pixels, horizontally between the options and the cursor.
+	// 
+	// @zasm_var SAVEMENU_HSPACE
+	internal int HSpace;
+
+	// The space, in pixels, vertically between each option.
+	// 
+	// @zasm_var SAVEMENU_VSPACE
+	internal int VSpace;
+
+	// The X value of the options.
+	// 
+	// @zasm_var SAVEMENU_OPTX
+	internal int X;
+
+	// The Y value of the first option
+	// 
+	// @zasm_var SAVEMENU_OPTY
+	internal int Y;
+
+	// The alignment of the text within the textbox
+	// 
+	// @zasm_var SAVEMENU_TEXT_ALIGN
+	internal TextAlignment TextAlign;
+
+	// The alignment of the textbox relative to [X]
+	// 
+	// @zasm_var SAVEMENU_TEXT_BOX_ALIGN
+	internal TextAlignment TextBoxAlign;
+
+	// The duration, in frames, it takes to close the menu after an option is selected.
+	// 
+	// @zasm_var SAVEMENU_CLOSE_FRAMES
+	internal int CloseFrames;
+
+	// The rate, in frames, that the 'selected' option blinks while the menu is closing.
+	// 
+	// @zasm_var SAVEMENU_CLOSE_FLASH_RATE
+	internal int CloseFlashRate;
+
+	// The MIDI to play.
+	// 
+	// @zasm_var SAVEMENU_MIDI
+	internal int MIDI;
+
+	// The number of options currently in the list.
+	//
+	// @zasm_var SAVEMENU_NUM_OPTIONS
+	internal const int NumOptions;
+
+	// Deletes the option at [index].
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_REMOVE_OPT D2
+	internal void RemoveOption(int index);
+
+	// Adds a new option at [index]. Negative index adds at the end.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_ADD_OPT D2
+	internal void AddOption(int index = -1);
+
+	// Swaps the options at [index_1] and [index_2].
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_SWAP_OPT D2 D3
+	internal void SwapOptions(int index_1, int index_2);
+
+	// Fills the buffer with the string for option [index]
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_OPT_GET_STRING D2 D3
+	internal void GetString(int index, char32[] buffer);
+
+	// Sets the string for option [index] to the contents of the buffer
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFSAVEMENU
+	//   SAVEMENU_OPT_SET_STRING D2 D3
+	internal void SetString(int index, char32[] buffer);
+
+	// The flags for the whole menu.
+	//
+	// @index [enum SaveMenuFlags]
+	// @zasm_var SAVEMENU_FLAGS
+	internal bool Flags[];
+
+	// The [enum SaveMenuOptionFlags] for each option.
+	//
+	// @zasm_var SAVEMENU_OPT_FLAGS
+	internal SaveMenuOptionFlags OptionFlags[];
+
+	// The text colors for each option.
+	//
+	// @zasm_var SAVEMENU_OPT_COLOR_TEXT
+	internal int Colors[];
+
+	// The text colors for each option which are used when the option is selected.
+	//
+	// @zasm_var SAVEMENU_OPT_COLOR_PICKED
+	internal int PickedColors[];
+
+	// The Font IDs for each option.
+	//
+	// @zasm_var SAVEMENU_OPT_FONTS
+	internal int Fonts[];
+
+	// The generic frozen script for each option.
+	//
+	// @zasm_var SAVEMENU_OPT_FRZSCR
+	internal int FrozenScripts[];
+}

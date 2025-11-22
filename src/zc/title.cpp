@@ -1521,7 +1521,7 @@ void game_over(int32_t type)
 	
 	
 	if(Quit==qGAMEOVER)
-		jukebox(SaveScreenSettings[SAVESC_MIDI] + (ZC_MIDI_COUNT - 1));
+		jukebox(SaveScreenSettings[SAVESC_MIDI] + MIDIOFFSET_ZSCRIPT);
 		
 	Quit=0;
 	

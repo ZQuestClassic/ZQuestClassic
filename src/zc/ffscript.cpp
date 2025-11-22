@@ -42,9 +42,6 @@
 #include "zc/scripting/sram.h"
 #include "zc/scripting/string_utils.h"
 #include "zc/scripting/types.h"
-#include "zc/scripting/types/directory.h"
-#include "zc/scripting/types/file.h"
-#include "zc/scripting/types/websocket.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zc/zc_ffc.h"
@@ -2968,6 +2965,7 @@ static int get_ref(int arg)
 		case REFSUBSCREENPAGE: return ri->subscreenpageref;
 		case REFSUBSCREENWIDG: return ri->subscreenwidgref;
 		case REFWEBSOCKET: return ri->websocketref;
+		case REFSAVEMENU: return ri->savemenuref;
 
 		default: NOTREACHED();
 	}
@@ -5657,7 +5655,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case GETMIDI:
-			ret=(currmidi-(ZC_MIDI_COUNT-1))*10000;
+			ret=(currmidi-MIDIOFFSET_ZSCRIPT)*10000;
 			break;
 			
 		case CURDSCR:
@@ -8526,6 +8524,7 @@ int32_t get_register(int32_t arg)
 		case CLASS_THISKEY: ret = ri->thiskey; break;
 		case CLASS_THISKEY2: ret = ri->thiskey2; break;
 		case REFPALDATA: ret = ri->paldataref; break;
+		case REFSAVEMENU: ret = ri->savemenuref; break;
 		
 			
 		case SP:
@@ -15767,6 +15766,7 @@ void set_register(int32_t arg, int32_t value)
 		case CLASS_THISKEY: ri->thiskey = value; break;
 		case CLASS_THISKEY2: ri->thiskey2 = value; break;
 		case REFPALDATA: ri->paldataref = value; break;
+		case REFSAVEMENU: ri->savemenuref = value; break;
 	
 		//-------------------------------------------------------------------------------------------------
 
@@ -22344,7 +22344,7 @@ void do_sfx(const bool v)
 void do_sfx_ex(const bool restart)
 {
 	int32_t ID = SH::read_stack(ri->sp + 4) / 10000;
-	int32_t vol = vbound(SH::read_stack(ri->sp + 3), 0, 10000 * 100);
+	zfix vol = vbound(zslongToFix(SH::read_stack(ri->sp + 3)), 0_zf, 100_zf);
 	int32_t pan = vbound(SH::read_stack(ri->sp + 2)/10000 + 128, 0, 255);
 	int32_t freq = SH::read_stack(ri->sp + 1);
 	bool loop = SH::read_stack(ri->sp) / 10000;
@@ -23200,7 +23200,7 @@ void do_midi(bool v)
 	if(MIDI == 0)
 		music_stop();
 	else
-		jukebox(MIDI + (ZC_MIDI_COUNT - 1));
+		jukebox(MIDI + MIDIOFFSET_ZSCRIPT);
 }
 
 
@@ -27330,6 +27330,16 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				}
 				break;
 			//}
+			case LOADSAVEMENU:
+			{
+				auto val = get_register(sarg1)/10000;
+				if (unsigned(val-1) >= NUM_SAVE_MENUS)
+				{
+					Z_scripterrlog("Tried to load invalid save_menu index '%d'\n", val);
+				}
+				ri->savemenuref = SET_D(rEXP1, val);
+				break;
+			}
 			case LOADGENERICDATA:
 				FFCore.do_loadgenericdata(false); break;
 			case RUNGENFRZSCR:
@@ -29103,6 +29113,8 @@ void FFScript::runF6Engine()
 					f_Quit(qQUIT);
 			}
 		}
+		else if (unsigned(QMisc.savemenu_f6-1) < NUM_SAVE_MENUS && QMisc.save_menus[QMisc.savemenu_f6-1].is_valid())
+			QMisc.save_menus[QMisc.savemenu_f6-1].run();
 		else f_Quit(qQUIT);
 		zc_readkey(KEY_F6);
 		GameFlags &= ~GAMEFLAG_TRYQUIT;

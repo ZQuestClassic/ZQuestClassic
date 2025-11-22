@@ -14,6 +14,7 @@
 #include "zq/zq_files.h"
 #include "base/qrs.h"
 #include "base/mapscr.h"
+#include "zc_list_data.h"
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);
@@ -1941,7 +1942,9 @@ void QRDialog::reloadQRs()
 	memcpy(local_qrs, realqrs, QR_SZ);
 }
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
-	searchmode(false), setQRs(setQRs), realqrs(qrs), qrs_per_tab(qrs_per_tab), cur_tab(0), qr_subtabs()
+	searchmode(false), setQRs(setQRs), realqrs(qrs), qrs_per_tab(qrs_per_tab), cur_tab(0), qr_subtabs(),
+	save_gameover_menu(QMisc.savemenu_game_over), save_f6_menu(QMisc.savemenu_f6),
+	list_savemenus(GUI::ZCListData::savemenus(true, true, true))
 {
 	reloadQRs();
 }
@@ -2111,14 +2114,31 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 									text = std::to_string(map_count),
 									low = 1, high = 255
 								),
-								Button(width = 2_em, text = "?", hAlign = 1.0, onPressFunc = []()
-								{
-									InfoDialog("Map Count","The number of 'maps' available in the quest file. The higher this value is,"
-										" the larger your quest file will be, and the more memory it takes to keep your quest loaded;"
-										" so it is generally suggested to only set this to a number of maps you will actually be "
-										"making use of.\n\nIf you set this to a number lower than it is currently, maps in excess"
-										" of the count will be entirely deleted.").show();
-								})
+								INFOBTN_T("Map Count","The number of 'maps' available in the quest file. The higher this value is,"
+									" the larger your quest file will be, and the more memory it takes to keep your quest loaded;"
+									" so it is generally suggested to only set this to a number of maps you will actually be "
+									"making use of.\n\nIf you set this to a number lower than it is currently, maps in excess"
+									" of the count will be entirely deleted.")
+							),
+							Rows<3>(
+								Label(text = "F6 Menu:", hAlign = 1.0),
+								DropDownList(data = list_savemenus,
+									fitParent = true,
+									selectedValue = save_f6_menu,
+									onSelectFunc = [&](int32_t val)
+									{
+										save_f6_menu = val;
+									}),
+								INFOBTN("This Save Menu will be opened when F6 is pressed. The 'Default' menu requires no configuration."),
+								Label(text = "Game Over Menu:", hAlign = 1.0),
+								DropDownList(data = list_savemenus,
+									fitParent = true,
+									selectedValue = save_gameover_menu,
+									onSelectFunc = [&](int32_t val)
+									{
+										save_gameover_menu = val;
+									}),
+								INFOBTN("This Save Menu will be opened when the player dies. The 'Default' menu requires no configuration.")
 							)
 						)
 					),
@@ -2352,6 +2372,9 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 						}).show();
 				}
 				else update_map_count(new_map_count);
+				
+				QMisc.savemenu_game_over = save_gameover_menu;
+				QMisc.savemenu_f6 = save_f6_menu;
 			}
 		}
 		[[fallthrough]];

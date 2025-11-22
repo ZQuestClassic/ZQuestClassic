@@ -38,6 +38,9 @@ private:
 	size_t cur_tab;
 	size_t qr_subtabs[10];
 	
+	GUI::ListData list_savemenus;
+	byte save_f6_menu, save_gameover_menu;
+	
 	friend void call_qrsearch_dialog(std::function<void(byte*)> setQRs);
 };
 

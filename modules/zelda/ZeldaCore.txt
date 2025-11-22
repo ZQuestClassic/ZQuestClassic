@@ -61,6 +61,7 @@ src/zc/scripting/types/message.cpp
 src/zc/scripting/types/npc.cpp
 src/zc/scripting/types/npcdata.cpp
 src/zc/scripting/types/paldata.cpp
+src/zc/scripting/types/savemenu.cpp
 src/zc/scripting/types/screen.cpp
 src/zc/scripting/types/shopdata.cpp
 src/zc/scripting/types/sprite.cpp

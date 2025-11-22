@@ -12,6 +12,7 @@ static auto rti_root = RenderTreeItem("root");
 static auto rti_screen = LegacyBitmapRTI("screen");
 static bool screen_never_freeze;
 static bool center_root_rti = true;
+static vector<size_t> unfrozen_dialogs;
 
 RenderTreeItem& gui_mouse_target()
 {
@@ -109,9 +110,10 @@ static void configure_render_tree()
 	else
 		rti_screen.freeze = rti_dialogs.has_children();
 	int i = 0;
+	size_t unfrz_count = unfrozen_dialogs.empty() ? 0 : unfrozen_dialogs.back();
 	while (i < rti_dialogs.get_children().size())
 	{
-		rti_dialogs.get_children()[i]->freeze = i != rti_dialogs.get_children().size() - 1;
+		rti_dialogs.get_children()[i]->freeze = i < rti_dialogs.get_children().size() - 1 - unfrz_count;
 		i++;
 	}
 
@@ -141,6 +143,15 @@ void zq_hide_screen(bool hidden)
 void zq_set_screen_never_freeze(bool value)
 {
 	screen_never_freeze = value;
+}
+
+void zq_push_unfrozen_dialogs(size_t count)
+{
+	unfrozen_dialogs.push_back(count);
+}
+void zq_pop_unfrozen_dialogs()
+{
+	unfrozen_dialogs.pop_back();
 }
 
 void zq_freeze_all_rti(RenderTreeItem* rti)

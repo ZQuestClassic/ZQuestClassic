@@ -274,10 +274,6 @@ enum // custom negative counters
 	sscGENKEYMAGIC, sscGENKEYNOMAGIC, sscLEVKEYMAGIC, sscLEVKEYNOMAGIC,
 	sscANYKEYMAGIC, sscANYKEYNOMAGIC, sscMAXHP, sscMAXMP, sscNONE = -1
 };
-enum //subscreen text alignment
-{
-	sstaLEFT, sstaCENTER, sstaRIGHT, sstaMAX
-};
 
 //when to display an element
 #define sspUP                         0x01
