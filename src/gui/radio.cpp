@@ -44,6 +44,11 @@ bool Radio::getChecked()
 	return alDialog ? alDialog->flags&D_SELECTED : checked;
 }
 
+void Radio::setOnPressFunc(std::function<void(size_t)> newOnPressFunc)
+{
+	onPressFunc = std::move(newOnPressFunc);
+}
+
 void Radio::setProcSet(int32_t newProcSet)
 {
 	procset = newProcSet;
@@ -99,6 +104,8 @@ void Radio::calculateSize()
 int32_t Radio::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	if(event != geRADIO) return -1;
+	if (onPressFunc)
+		onPressFunc(index);
 	if(message >= 0)
 		sendMessage(message, (int32_t)index);
 	return -1;

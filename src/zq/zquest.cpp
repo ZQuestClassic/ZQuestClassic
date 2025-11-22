@@ -22672,254 +22672,14 @@ int32_t onZstringshelp()
     return D_O_K;
 }
 
-static DIALOG layerdata_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     16-12,   20+32,   288+1+24,  200+1-32-16,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Layer Data", NULL, NULL },
-    { jwin_button_proc,     170,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     90,   180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    // 3
-    { jwin_rtext_proc,       72,   88,    40,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Map:", NULL, NULL },
-    { jwin_rtext_proc,       72,   88+18,    48,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Screen:", NULL, NULL },
-    { jwin_rtext_proc,       72,   88+36,    56,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Transparent:", NULL, NULL },
-    { jwin_ctext_proc,       89,  76,   8,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "1", NULL, NULL },
-    { jwin_ctext_proc,       89+40,  76,   8,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "2", NULL, NULL },
-    { jwin_ctext_proc,       89+80,  76,   8,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "3", NULL, NULL },
-    { jwin_ctext_proc,       89+120,  76,   8,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "4", NULL, NULL },
-    { jwin_ctext_proc,       89+160,  76,   8,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "5", NULL, NULL },
-    { jwin_ctext_proc,       89+200,  76,   8,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "6", NULL, NULL },
-    
-    //12
-    { jwin_edit_proc,      76,   76+8,   32-6,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { d_hexedit_proc,      76,   76+18+8,   24-3,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,     76,   76+40+8,   17,   9,    vc(12),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    
-    { jwin_edit_proc,      76+40,   76+8,   32-6,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { d_hexedit_proc,      76+40,   76+18+8,   24-3,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,     76+40,  76+40+8,   17,   9,    vc(12),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    
-    { jwin_edit_proc,      76+80,   76+8,   32-6,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { d_hexedit_proc,      76+80,   76+18+8,   24-3,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,     76+80,  76+40+8,   17,   9,    vc(12),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    
-    { jwin_edit_proc,      76+120,   76+8,   32-6,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { d_hexedit_proc,      76+120,   76+18+8,   24-3,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,     76+120,  76+40+8,   17,   9,    vc(12),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    
-    { jwin_edit_proc,      76+160,   76+8,   32-6,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { d_hexedit_proc,      76+160,   76+18+8,   24-3,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,     76+160,  76+40+8,   17,   9,    vc(12),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    
-    { jwin_edit_proc,      76+200,   76+8,   32-6,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { d_hexedit_proc,      76+200,   76+18+8,   24-3,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,     76+200,  76+40+8,   17,   9,    vc(12),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    
-    //30
-    { jwin_button_proc,     76,  76+40+18+8,  30,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Auto", NULL, NULL },
-    { jwin_button_proc,     76+40,  76+40+18+8,  30,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Auto", NULL, NULL },
-    { jwin_button_proc,     76+80,  76+40+18+8,  30,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Auto", NULL, NULL },
-    { jwin_button_proc,     76+120,  76+40+18+8,  30,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Auto", NULL, NULL },
-    { jwin_button_proc,     76+160,  76+40+18+8,  30,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Auto", NULL, NULL },
-    { jwin_button_proc,     76+200,  76+40+18+8,  30,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Auto", NULL, NULL },
-    
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-    
-};
-
-int32_t edit_layers(mapscr* tempscr)
-{
-    char buf[6][2][8];
-    layerdata_dlg[0].dp2 = get_zc_font(font_lfont);
-    
-    for(int32_t x=0; x<6; x++)
-    {
-        sprintf(buf[x][0],"%d",tempscr->layermap[x]);
-        sprintf(buf[x][1],"%02X",tempscr->layerscreen[x]);
-    }
-    
-    for(int32_t x=0; x<6; x++)
-    {
-        for(int32_t y=0; y<2; y++)
-        {
-            layerdata_dlg[(x*3)+y+12].dp = buf[x][y];
-        }
-    }
-    
-    for(int32_t x=0; x<6; x++)
-    {
-        layerdata_dlg[(x*3)+2+12].flags = (tempscr->layeropacity[x]<255) ? D_SELECTED : 0;
-    }
-    
-    large_dialog(layerdata_dlg);
-        
-    int32_t ret=do_zqdialog(layerdata_dlg,0);
-    
-    if(ret>=2)
-    {
-        for(int32_t x=0; x<6; x++)
-        {
-        
-            tempscr->layermap[x]=atoi(buf[x][0]);
-            
-            if(tempscr->layermap[x]>map_count)
-            {
-                tempscr->layermap[x]=0;
-            }
-            
-            tempscr->layerscreen[x]=zc_xtoi(buf[x][1]);
-            
-            if(zc_xtoi(buf[x][1])>=MAPSCRS)
-            {
-                tempscr->layerscreen[x]=0;
-            }
-            
-            //      tempscr->layeropacity[x]=layerdata_dlg[(x*9)+8+19].flags & D_SELECTED ? 128:255;
-            tempscr->layeropacity[x]=layerdata_dlg[(x*3)+2+12].flags & D_SELECTED ? 128:255;
-        }
-        
-        //  } else if (ret>72&&ret<79) {
-        //    return (ret-72);
-    }
-    
-    return ret;
-}
-
-static DIALOG autolayer_dlg[] =
-{
-	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,        64,   32+48,   192+1,  184+1-64,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Autolayer Setup", NULL, NULL },
-	{ jwin_text_proc,       76,   56+48,   136,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Map for layer ?: ", NULL, NULL },
-	{ jwin_edit_proc,       212,  56+48,   32,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_check_proc,      76,   56+18+48,   153,   8,    vc(14),  vc(1),  0,       D_EXIT,          1,             0, (void *) "Only Blank Screens", NULL, NULL },
-	{ jwin_button_proc,     90,   188-12,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	
-	//5
-	{ jwin_button_proc,     170,  188-12,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onHelp, NULL, NULL },
-	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ jwin_check_proc,      76,   56+28+48,   153,   8,    vc(14),  vc(1),  0,       D_EXIT,          1,             0, (void *) "Only Blank Layers", NULL, NULL },
-	{ jwin_check_proc,      76,   56+38+48,   153,   8,    vc(14),  vc(1),  0,       D_EXIT,          1,             0, (void *) "Overwrite Layers", NULL, NULL },
-	
-	//10
-	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-enum
-{
-	autolyr_blankscreens,
-	autolyr_blanklayers,
-	autolyr_any
-};
-void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3])
-{
-	char tbuf[80],mlayer[80];
-	autolayer_dlg[0].dp2=get_zc_font(font_lfont);
-	sprintf(tbuf, "Map for layer %d: ", layer+1);
-	autolayer_dlg[1].dp=tbuf;
-	sprintf(mlayer, "%d", tempscr->layermap[layer]);
-	autolayer_dlg[2].dp=mlayer;
-	
-	large_dialog(autolayer_dlg);
-	int ret, sel = 8, fl = autolyr_blanklayers;
-	bool running = true;
-	do
-	{
-		SETFLAG(autolayer_dlg[3].flags, D_SELECTED, sel==3);
-		SETFLAG(autolayer_dlg[8].flags, D_SELECTED, sel==8);
-		SETFLAG(autolayer_dlg[9].flags, D_SELECTED, sel==9);
-		switch(ret=do_zqdialog(autolayer_dlg,0))
-		{
-			case 4: //OK
-			{
-				int32_t lmap=vbound(atoi(mlayer),0,Map.getMapCount());
-				al[layer][0]=lmap;
-				tempscr->layermap[layer]=lmap;
-				tempscr->layerscreen[layer]=Map.getCurrScr();
-				al[layer][1]=fl;
-				al[layer][2]=1;
-				running = false;
-				break;
-			}
-			case 0: case 5: //cancel
-				running = false;
-				break;
-			case 3:
-				sel = ret;
-				fl = autolyr_blankscreens;
-				break;
-			case 8:
-				sel = ret;
-				fl = autolyr_blanklayers;
-				break;
-			case 9:
-				sel = ret;
-				fl = autolyr_any;
-				break;
-		}
-	}
-	while(ret != 0 && ret != 4 && ret != 5);
-}
-
+void call_layer_dialog(int map, int scr);
 int32_t onLayers()
 {
-	mapscr tempscr=*Map.CurrScr();
-	int32_t al[6][3]; //autolayer[layer][0=map, 1=autolyr_ type, 2=bool go]
-	
-	for(int32_t i=0; i<6; i++)
-	{
-		al[i][0]=tempscr.layermap[i];
-		al[i][1]=0;
-		al[i][2]=0;
-	}
-	
-	int32_t ret;
-	
-	do
-	{
-		ret=edit_layers(&tempscr);
-		
-		if(ret>2)                                               //autolayer button
-		{
-			autolayer(&tempscr, ret-30, al);
-		}
-	}
-	while(ret>2);                                             //autolayer button
-	
-	if(ret==2)                                                //OK
-	{
-		saved=false;
-		TheMaps[Map.getCurrMap()*MAPSCRS+Map.getCurrScr()]=tempscr;
-		
-		for(int32_t i=0; i<6; i++)
-		{
-			int32_t tm=tempscr.layermap[i]-1;
-			int32_t ts=tempscr.layerscreen[i];
-			
-			if(al[i][2])
-			{
-				map_infos[Map.getCurrMap()].autolayers[i] = al[i][0];
-				for(int32_t j=0; j<128; j++)
-				{
-					auto& curmapscr = TheMaps[Map.getCurrMap()*MAPSCRS+j];
-					if(al[i][1] == autolyr_blankscreens && (curmapscr.valid&mVALID))
-						continue;
-					else if(al[i][1] == autolyr_blanklayers && curmapscr.layermap[i])
-						continue;
-					
-					curmapscr.layermap[i]=al[i][0];
-					curmapscr.layerscreen[i]=al[i][0]?j:0;
-				}
-			}
-		}
-	}
-	
-	// Check that the working layer wasn't just disabled
-	if(CurrentLayer>0 && tempscr.layermap[CurrentLayer-1]==0)
-		CurrentLayer=0;
-	
+	call_layer_dialog(Map.getCurrMap(), Map.getCurrScr());
+	if (CurrentLayer > 0 && Map.CurrScr()->layermap[CurrentLayer-1] == 0)
+		CurrentLayer = 0;
 	return D_O_K;
 }
-
 
 char *itoa(int32_t i)
 {
@@ -25187,7 +24947,6 @@ void quit_game2()
 void center_zquest_dialogs()
 {
     jwin_center_dialog(assignscript_dlg);
-    jwin_center_dialog(autolayer_dlg);
     center_zq_cset_dialogs();
     jwin_center_dialog(change_track_dlg);
     jwin_center_dialog(csetfix_dlg);
@@ -25199,7 +24958,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(editshop_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
-    jwin_center_dialog(layerdata_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);
     jwin_center_dialog(misccolors_dlg);

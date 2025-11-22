@@ -347,6 +347,7 @@ ZCGUI_BUILDER_START(Radio)
 	ZCGUI_ACCEPT_PROP(set, setProcSet, int32_t)
 	ZCGUI_ACCEPT_PROP(indx, setIndex, size_t)
 	ZCGUI_ACCEPT_PROP(onToggle, onToggle, Dialog::message)
+	ZCGUI_ACCEPT_PROP(onPressFunc, setOnPressFunc, std::function<void(size_t)>)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
