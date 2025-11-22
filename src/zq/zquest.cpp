@@ -9872,12 +9872,17 @@ void on_edit_cpane()
 			break;
 	}
 }
+void open_combo_pages(optional<int> cid)
+{
+	int cmb_id = cid ? *cid : 0;
+	combo_screen(cmb_id >> 8, cmb_id);
+}
 void on_cpane_page()
 {
 	switch(draw_mode)
 	{
 		case dm_normal:
-			combo_screen(Combo>>8,Combo);
+			open_combo_pages(Combo);
 			break;
 		case dm_alias:
 			call_alias_pages(combo_apos);
@@ -10903,6 +10908,10 @@ void domouse()
 									{
 										First[current_combolist] = scrollto_cmb(ffc.data);
 									} },
+								{ "Open Combo Page", [&]()
+									{
+										open_combo_pages(ffc.data);
+									} },
 								{ "Edit Combo", [&]()
 									{
 										edit_combo(ffc.data,true,ffc.cset);
@@ -10952,6 +10961,10 @@ void domouse()
 						{ "Scroll to Combo", [&]()
 							{
 								First[current_combolist] = scrollto_cmb(draw_mapscr->data[c]);
+							}, nullopt, !draw_mapscr },
+						{ "Open Combo Page", [&]()
+							{
+								open_combo_pages(draw_mapscr->data[c]);
 							}, nullopt, !draw_mapscr },
 						{ "Edit Combo", [&]()
 							{
