@@ -660,7 +660,7 @@ int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 
 	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
 	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0,
 	DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0,
-	ActiveLayerHighlight = 0, DragCenterOfSquares = 0;
+	ActiveLayerHighlight = 0, DragCenterOfSquares = 0, SmartFFCPlacement = 0;
 uint8_t InvalidBG = 0;
 bool NoHighlightLayer0 = false;
 // If true, uses "MapViewRTI" to draw editor screens. This allows for multiples palettes on the
@@ -10812,6 +10812,7 @@ void domouse()
 						
 						if(cx2 >= ffx && cx2 < ffx+(scr->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(scr->ffTileHeight(i)*16))
 						{
+							auto& ffc = scr->ffcs[i];
 							NewMenu rcmenu
 							{
 								{ "Copy FFC", [&](){Map.CopyFFC(active_visible_screen->screen, i);} },
@@ -10882,6 +10883,19 @@ void domouse()
 										Map.DoSetFFCCommand(Map.getCurrMap(), active_visible_screen->screen, i, set_ffc_data);
 
 										saved = false;
+									} },
+								{},
+								{ "Select Combo", [&]()
+									{
+										Combo = ffc.data;
+									} },
+								{ "Scroll to Combo", [&]()
+									{
+										First[current_combolist] = scrollto_cmb(ffc.data);
+									} },
+								{ "Edit Combo", [&]()
+									{
+										edit_combo(ffc.data,true,ffc.cset);
 									} },
 							};
 							rcmenu.pop(x, y);
@@ -10961,6 +10975,11 @@ void domouse()
 								tempdat.y = ((int((y-startyint)/mapscreen_single_scale)&(~0x0007)) % 176) * 10000;
 								tempdat.data = Combo;
 								tempdat.cset = CSet;
+								if (SmartFFCPlacement)
+								{
+									tempdat.layer = CurrentLayer;
+									SETFLAG(tempdat.flags, ffc_solid, (combobuf[Combo].walk & 0xF) == 0xF);
+								}
 								call_ffc_dialog(earliestfreeffc, tempdat, active_visible_screen->scr, active_visible_screen->screen);
 							} });
 						draw_rc_menu.add({ txt_ffc_paste, [&]()
@@ -23667,6 +23686,7 @@ int32_t main(int32_t argc,char **argv)
 	ViewLayer3BG = zc_get_config("zquest","layer3_bg",0);
 	ActiveLayerHighlight = zc_get_config("zquest","hl_active_lyr",0);
 	DragCenterOfSquares = zc_get_config("zquest","drag_squares_from_center",0);
+	SmartFFCPlacement = zc_get_config("zquest","smart_ffc_placement",0);
 	
 	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
 	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
