@@ -229,7 +229,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 
 			// Print the character (unless it's just a space).
 			if (it.character != " ")
-				textout_styled_aligned_ex(buf, workfont, it.character.c_str(), cursor_x, cursor_y, shdtype, sstaLEFT, msgcolour, shdcolor, -1);
+				textout_styled_aligned_ex(buf, workfont, it.character.c_str(), cursor_x, cursor_y, shdtype, ALIGN_LEFT, msgcolour, shdcolor, -1);
 
 			cursor_x += workfont->vtable->text_length(workfont, it.character.c_str());
 			if (it.character != " ")

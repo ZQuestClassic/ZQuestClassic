@@ -20884,7 +20884,7 @@ static bool putmsgchar(bool play_sfx)
 
 	// Print the character (unless it's just a space).
 	if (msg_it->character != " ")
-		textout_styled_aligned_ex(msg_txt_bmp_buf, msgfont, msg_it->character.c_str(), cursor_x, cursor_y, msg_shdtype, sstaLEFT, msgcolour, msg_shdcol, -1);
+		textout_styled_aligned_ex(msg_txt_bmp_buf, msgfont, msg_it->character.c_str(), cursor_x, cursor_y, msg_shdtype, ALIGN_LEFT, msgcolour, msg_shdcol, -1);
 
 	// Move the cursor.
 	cursor_x += msgfont->vtable->text_length(msgfont, msg_it->character.c_str());
