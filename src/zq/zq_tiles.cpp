@@ -3522,14 +3522,12 @@ void draw_grab_window()
 	font=oldfont;
 }
 
-void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t white, int32_t width, int32_t height, byte *newformat)
+void draw_grab_scr(int32_t tile, int32_t cs, byte *newtile,int32_t black, byte *newformat, BITMAP* screen3)
 {
-	width=width;
-	height=height;
-	white=white; // happy birthday compiler
 	
 	int32_t yofs=0;
 	//clear_to_color(screen2,bg);
+	clear_bitmap(screen3);
 	rectfill(screen2, 0, 0, 319, 159, black);
 	rectfill(screen2,0,162,319,239,jwin_pal[jcBOX]);
 	_allegro_hline(screen2, 0, 160, 319, jwin_pal[jcMEDLT]);
@@ -3822,25 +3820,24 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	int winh = 511;
 	int32_t mul = 2;
 	
-	yofs=16;
+	yofs = 0;
 	
-	stretch_blit(screen2,screen,0,0,320,240,screen_xofs,screen_yofs,640,480);
-	anim_hw_screen();
+	stretch_blit(screen2,screen3,0,0,320,240,0,0,640,480);
 	
 	// Suspend the current font while draw_text_button does its work
 	FONT* oldfont = font;
 	
 	font = get_zc_font(font_lfont_l);
 	
-	int txt_x = 8*mul;
-	int rbtn_x = 255*mul;
+	int txt_x = 4;
+	int rbtn_x = 512, lbtn_x = 236;
 	int max_fpath_wid = rbtn_x-2-txt_x;
 	int max_fpath_wid2 = max_fpath_wid-text_length(font,"... ");
 	// Interface
 	switch(imagetype)
 	{
 	case 0:
-		textprintf_ex(screen,font,txt_x,(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",imgstr[imagetype]);
+		textprintf_ex(screen3,font,txt_x,(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",imgstr[imagetype]);
 		break;
 		
 	case ftBMP:
@@ -3853,9 +3850,9 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 		// int text_h = text_height(font);
 		// static int grab_scale_tooltip_id = ttip_register_id();
 		// ttip_install(grab_scale_tooltip_id, "zoom with , and .", text_x, text_y, text_w, text_h, text_x, text_y - 40);
-		textprintf_ex(screen, font, text_x, text_y, jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "%s", text.c_str());
+		textprintf_ex(screen3, font, text_x, text_y, jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "%s", text.c_str());
 
-		draw_text_button(screen,117*mul,(192+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"Recolor",vc(1),vc(14),0,true);
+		draw_text_button(screen3,lbtn_x,(192+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"Recolor",vc(1),vc(14),0,true);
 		break;
 	}
 	
@@ -3865,29 +3862,29 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	case ftQSU:
 	case ftTIL:
 	case ftBIN:
-		textprintf_ex(screen,get_zc_font(font_lfont_l),txt_x,(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %d KB",imgstr[imagetype],imagesize>>10);
+		textprintf_ex(screen3,get_zc_font(font_lfont_l),txt_x,(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %d KB",imgstr[imagetype],imagesize>>10);
 		break;
 	}
 	
-	textprintf_ex(screen,font,txt_x,(168+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sel: %d %d",selx,sely);
-	textprintf_ex(screen,font,txt_x,(176+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"pos: %d %d",imagex,imagey);
+	textprintf_ex(screen3,font,txt_x,(168+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sel: %d %d",selx,sely);
+	textprintf_ex(screen3,font,txt_x,(176+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"pos: %d %d",imagex,imagey);
 	
 	if(bp==8)
-		textprintf_ex(screen,font,txt_x,(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"8-bit");
+		textprintf_ex(screen3,font,txt_x,(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"8-bit");
 	else
-		textprintf_ex(screen,font,txt_x,(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"cset: %d",cs);
-	textprintf_ex(screen,font,txt_x,(200+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"step: %d",grabmode);
+		textprintf_ex(screen3,font,txt_x,(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"cset: %d",cs);
+	textprintf_ex(screen3,font,txt_x,(200+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"step: %d",grabmode);
 	
 	if(imagetype==ftBIN)
 	{
-		textprintf_ex(screen,font,104*mul,(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"bp:  %d%s",bp,nesmode?" (NES)":"");
-		textprintf_ex(screen,font,104*mul,(200+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"ofs: %Xh",romofs);
-		textprintf_ex(screen,font,104*mul,(208+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"m: %d",romtilemode);
+		textprintf_ex(screen3,font,104*mul,(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"bp:  %d%s",bp,nesmode?" (NES)":"");
+		textprintf_ex(screen3,font,104*mul,(200+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"ofs: %Xh",romofs);
+		textprintf_ex(screen3,font,104*mul,(208+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"m: %d",romtilemode);
 	}
 	
 	int fpath_y = (224+yofs)*mul;
 	if(text_length(font,imagepath) <= max_fpath_wid)
-		textout_ex(screen,font,imagepath,txt_x,fpath_y,jwin_pal[jcTEXTFG],jwin_pal[jcBOX]);
+		textout_ex(screen3,font,imagepath,txt_x,fpath_y,jwin_pal[jcTEXTFG],jwin_pal[jcBOX]);
 	else
 	{
 		char buf[2052] = {0};
@@ -3910,7 +3907,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 			{
 				if(end) //No stored character, string ended
 				{
-					textout_ex(screen,font,ptr,txt_x,tmpy,jwin_pal[jcTEXTFG],jwin_pal[jcBOX]);
+					textout_ex(screen3,font,ptr,txt_x,tmpy,jwin_pal[jcTEXTFG],jwin_pal[jcBOX]);
 					break;
 				}
 				char t[5];
@@ -3918,7 +3915,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 				for(int q = 1; q < 5; ++q)
 					t[q] = it[q];
 				strcpy(it,"...");
-				textout_ex(screen,font,ptr,txt_x,tmpy,jwin_pal[jcTEXTFG],jwin_pal[jcBOX]);
+				textout_ex(screen3,font,ptr,txt_x,tmpy,jwin_pal[jcTEXTFG],jwin_pal[jcBOX]);
 				for(int q = 0; q < 5; ++q)
 					it[q] = t[q];
 				tmpy += tmph;
@@ -3932,13 +3929,11 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 			}
 		}
 	}
-	draw_text_button(screen,rbtn_x,(168+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"OK",vc(1),vc(14),0,true);
-	draw_text_button(screen,rbtn_x,(192+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"Cancel",vc(1),vc(14),0,true);
-	draw_text_button(screen,rbtn_x,(216+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"File",vc(1),vc(14),0,true);
-	draw_text_button(screen,117*mul,(166+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"Leech",vc(1),vc(14),0,true);
+	draw_text_button(screen3,rbtn_x,(168+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"OK",vc(1),vc(14),0,true);
+	draw_text_button(screen3,rbtn_x,(192+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"Cancel",vc(1),vc(14),0,true);
+	draw_text_button(screen3,rbtn_x,(216+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"File",vc(1),vc(14),0,true);
+	draw_text_button(screen3,lbtn_x,(166+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"Leech",vc(1),vc(14),0,true);
 	
-	//int32_t rectw = 16*mul;
-	//rect(screen,selx+screen_xofs,sely+screen_yofs,selx+screen_xofs+((width-1)*rectw)+rectw-1,sely+screen_yofs+((height-1)*rectw)+rectw-1,white);
 	SCRFIX();
 	font = oldfont;
 }
@@ -4793,14 +4788,14 @@ void grab_tile(int32_t tile,int32_t &cs)
 	int panel_yofs=0;
 	int bwidth = 61*1.5;
 	int bheight = 20*1.5;
-	int button_x = 255*2;
-	int grab_ok_button_y = 168*2 + 32;
-	int leech_button_x = 117*2;
-	int leech_button_y = 166*2 + 32;
-	int grab_cancel_button_y = 192*2 + 32;
-	int file_button_y = 216*2 + 32;
-	int rec_button_x = 117*2;
-	int rec_button_y = 192*2 + 32;
+	int button_x = 512 + 6;
+	int grab_ok_button_y = 168*2 + 32 - 7;
+	int leech_button_x = 117*2 + 7;
+	int leech_button_y = 166*2 + 32 - 7;
+	int grab_cancel_button_y = 192*2 + 32 - 7;
+	int file_button_y = 216*2 + 32 - 7;
+	int rec_button_x = 117*2 + 6;
+	int rec_button_y = 192*2 + 32 - 7;
 	
 	int screen_y1 = 24;
 	int screen_y2 = screen_y1+320-1;
@@ -4854,29 +4849,43 @@ void grab_tile(int32_t tile,int32_t &cs)
 	int jwin_pal2[jcMAX];
 	memcpy(jwin_pal2, jwin_pal, sizeof(int)*jcMAX);
 	
-	
 	if(imagebuf==NULL)
 		load_imagebuf();
 		
 	calc_cset_reduce_table(imagepal, cs);
 	calc_cset_reduce_table_8bit(imagepal);
 	draw_grab_window();
-	draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
+	draw_grab_scr(tile, cs, newtile[0], black, newformat, screen3);
 	grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
 	
+	auto do_anim = [&](bool redraw)
+		{
+			if (!(framecnt%8))
+				redraw = true;
+			if(redraw)
+			{
+				draw_grab_scr(tile, cs, newtile[0], black, newformat, screen3);
+				
+				if(framecnt&8)
+					rect(screen3, selx*2, sely*2,
+						selx*2+((selwidth-1)*32)+(32-1), sely*2+((selheight-1)*32)+(32-1), white);
+				
+				blit(screen3,screen,0,0,0+screen_xofs,0+screen_yofs,window_w-2*screen_xofs,window_h-2*screen_yofs);
+			}
+			anim_hw_screen();
+		};
 	while(gui_mouse_b()) rest(1);
 	
+	do_anim(true);
 	do
 	{
 		HANDLE_CLOSE_ZQDLG();
 		if(exiting_program) break;
 		//rest(4);
-		bool redraw=false;
+		bool redraw = false;
 		
 		if(keypressed())
 		{
-			redraw=true;
-			
 			switch(readkey()>>8)
 			{
 			case KEY_F:
@@ -5081,9 +5090,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 					calc_cset_reduce_table(imagepal, cs);
 				}
 				break;
-				
-			default:
-				redraw=false;
 			}
 			
 			clear_keybuf();
@@ -5092,8 +5098,10 @@ void grab_tile(int32_t tile,int32_t &cs)
 			
 			if(imagey<0) imagey=0;
 			
-			draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
 			grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
+			
+			do_anim(true);
+			continue;
 		}
 		
 		//boogie!
@@ -5167,22 +5175,14 @@ void grab_tile(int32_t tile,int32_t &cs)
 						}
 						
 						bool changed = (ox!=selx || oy!=sely || ow!=selwidth || oh!=selheight);
-						bool redraw = changed || !(framecnt%8);
 						
-						if(redraw)
-						{
-							draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
-							if(changed)
-								grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
-							if(framecnt&8)
-							{
-								static const int w = 32;
-								rect(screen,(selx*2)+screen_xofs,(sely*2)+screen_yofs,(selx*2)+screen_xofs+((selwidth-1)*w)+(w-1),(sely*2)+screen_yofs+((selheight-1)*w)+(w-1),white);
-							}
-						}
-						anim_hw_screen();
+						if(changed || !(framecnt%8))
+							grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
+						do_anim(changed);
 					}
 					while(gui_mouse_b());
+					font = oldfont;
+					continue;
 				}
 				else if(isinRect(x,y,button_x,grab_ok_button_y,button_x+bwidth,grab_ok_button_y+bheight))
 				{
@@ -5232,7 +5232,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 							recolor=rc4Bit;
 							calc_cset_reduce_table(imagepal, cs);
 						}
-						redraw=true;
 					}
 				}
 				else if(isinRect(x,y+panel_yofs,crect_x,crect_y,crect_x+(16),crect_y+crect_h-1))
@@ -5256,14 +5255,14 @@ void grab_tile(int32_t tile,int32_t &cs)
 					grabmask^=8;
 				}
 				
+				font = oldfont;
+				
 				if(regrab)
 				{
-					draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
 					grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
-					redraw=true;
+					do_anim(true);
+					continue;
 				}
-				
-				font = oldfont;
 			}
 		}
 		
@@ -5282,7 +5281,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 				load_imagebuf();
 				imagex=imagey=0;
 				calc_cset_reduce_table(imagepal, cs);
-				draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
 				grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
 			}
 			
@@ -5294,8 +5292,9 @@ void grab_tile(int32_t tile,int32_t &cs)
 			}
 			
 			clear_keybuf();
-			dofile=false;
-			redraw=true;
+			dofile = false;
+			do_anim(true);
+			continue;
 		}
 		
 		if(doleech)
@@ -5314,10 +5313,10 @@ void grab_tile(int32_t tile,int32_t &cs)
 				}
 				
 				clear_keybuf();
-				redraw=true;
+				redraw = true;
 			}
 			
-			doleech=false;
+			doleech = false;
 		}
 		
 		if(dopal)
@@ -5358,27 +5357,11 @@ void grab_tile(int32_t tile,int32_t &cs)
 			
 			zc_set_palette_range(pal?imagepal:RAMpal,0,255,false);
 			
-			dopal=false;
-			redraw=true;
+			dopal = false;
+			redraw = true;
 		}
 		
-		if (!(framecnt%8))
-			redraw = true;
-		if(redraw)
-		{
-			draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
-			stretch_blit(screen2,screen3,0, 0, zq_screen_w, zq_screen_h, 0, 0, zq_screen_w*2, zq_screen_h*2);
-				
-			int selxl = selx* 2;
-			int selyl = sely* 2;
-			int w = 32;
-			
-			if(framecnt&8)
-				rect(screen3,selxl,selyl,selxl+((selwidth-1)*w)+(w-1),selyl+((selheight-1)*w)+(w-1),white);
-			
-			blit(screen3,screen,selxl,selyl,selxl+screen_xofs,selyl+screen_yofs,selwidth*w,selheight*w);
-		}
-		anim_hw_screen();
+		do_anim(redraw);
 	}
 	while(!done);
 	
