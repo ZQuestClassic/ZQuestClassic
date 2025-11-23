@@ -181,7 +181,7 @@ bool SubscreenWizardDialog::finalize()
 				group_select_widget(txt);
 				txt->fontid = fontid;
 				txt->shadtype = shadtype;
-				txt->align = sstaRIGHT;
+				txt->align = ALIGN_RIGHT;
 				txt->text = tfs[4]->getText();
 				txt->c_text.type = misccolors[0][0];
 				txt->c_text.color = misccolors[0][1];
@@ -194,7 +194,7 @@ bool SubscreenWizardDialog::finalize()
 				group_select_widget(ctr);
 				ctr->fontid = fontid;
 				ctr->shadtype = shadtype;
-				ctr->align = sstaLEFT;
+				ctr->align = ALIGN_LEFT;
 				ctr->infchar = tfs[6]->getText().at(0);
 				ctr->mindigits = tfs[5]->getVal();
 				ctr->maxdigits = maxc;

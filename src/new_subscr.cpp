@@ -1982,9 +1982,9 @@ int16_t SW_Text::getX() const
 	auto tx = x+shadow_x(shadtype);
 	switch(align)
 	{
-		case sstaCENTER:
+		case ALIGN_CENTER:
 			return tx-getW()/2;
-		case sstaRIGHT:
+		case ALIGN_RIGHT:
 			return tx-getW();
 	}
 	return tx;
@@ -2225,9 +2225,9 @@ int16_t SW_Time::getX() const
 	auto tx = x+shadow_x(shadtype);
 	switch(align)
 	{
-		case sstaCENTER:
+		case ALIGN_CENTER:
 			return tx-getW()/2;
-		case sstaRIGHT:
+		case ALIGN_RIGHT:
 			return tx-getW();
 	}
 	return tx;
@@ -2593,9 +2593,9 @@ int16_t SW_Counter::getX() const
 	auto tx = x+shadow_x(shadtype);
 	switch(align)
 	{
-		case sstaCENTER:
+		case ALIGN_CENTER:
 			return tx-getW()/2;
-		case sstaRIGHT:
+		case ALIGN_RIGHT:
 			return tx-getW();
 	}
 	return tx;
@@ -2985,9 +2985,9 @@ int16_t SW_BtnCounter::getX() const
 	auto tx = x+shadow_x(shadtype);
 	switch(align)
 	{
-		case sstaCENTER:
+		case ALIGN_CENTER:
 			return tx-getW()/2;
-		case sstaRIGHT:
+		case ALIGN_RIGHT:
 			return tx-getW();
 	}
 	return tx;
@@ -3212,9 +3212,9 @@ int16_t SW_MMapTitle::getX() const
 		return x;
 	switch(align)
 	{
-		case sstaCENTER:
+		case ALIGN_CENTER:
 			return x-getW()/2;
-		case sstaRIGHT:
+		case ALIGN_RIGHT:
 			return x-getW();
 	}
 	return x;
@@ -5493,9 +5493,9 @@ int16_t SW_ItemCooldownText::getX() const
 	auto tx = x+shadow_x(shadtype);
 	switch(align)
 	{
-		case sstaCENTER:
+		case ALIGN_CENTER:
 			return tx-getW()/2;
-		case sstaRIGHT:
+		case ALIGN_RIGHT:
 			return tx-getW();
 	}
 	return tx;

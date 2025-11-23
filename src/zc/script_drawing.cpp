@@ -2145,7 +2145,7 @@ void do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 		if (width < 1) return; //SANITY -Em
         BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
         clear_bitmap(pbmp);
-		textout_styled_aligned_ex(pbmp, font, str->c_str(), 0, 0, textstyle, sstaLEFT, color, shadow_color, bg_color);
+		textout_styled_aligned_ex(pbmp, font, str->c_str(), 0, 0, textstyle, ALIGN_LEFT, color, shadow_color, bg_color);
         textout_ex(pbmp, font, str->c_str(), 0, 0, color, bg_color);
         if(format_type == 2)   // right-sided text
             x-=width;
@@ -5753,7 +5753,7 @@ void bmp_do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset,
         int32_t width=zc_min(text_length(font, str->c_str()), 512);
         BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
         clear_bitmap(pbmp);
-        textout_styled_aligned_ex(pbmp, font, str->c_str(), 0, 0, textstyle, sstaLEFT, color, shadow_color, bg_color);
+        textout_styled_aligned_ex(pbmp, font, str->c_str(), 0, 0, textstyle, ALIGN_LEFT, color, shadow_color, bg_color);
         if(format_type == 2)   // right-sided text
             x-=width;
         else if(format_type == 1)   // centered text

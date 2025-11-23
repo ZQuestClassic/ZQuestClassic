@@ -16396,7 +16396,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
 			{
-				auto val = vbound(value/10000,0,sstaMAX-1);
+				auto val = vbound(value/10000,0,ALIGN_MAX-1);
 				auto ty = widg->getType();
 				switch(ty)
 				{

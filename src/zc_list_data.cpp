@@ -1340,9 +1340,9 @@ GUI::ListData const& GUI::ZCListData::dmaptypes()
 
 static const GUI::ListData aligns
 {
-	{ "Left", 0 },
-	{ "Center", 1 },
-	{ "Right", 2 }
+	{ "Left", ALIGN_LEFT },
+	{ "Center", ALIGN_CENTER },
+	{ "Right", ALIGN_RIGHT },
 };
 
 GUI::ListData const& GUI::ZCListData::alignments()
