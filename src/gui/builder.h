@@ -10,6 +10,7 @@
 #include "gui/ditherprev.h"
 #include "gui/drop_down_list.h"
 #include "gui/frame.h"
+#include "gui/separator.h"
 #include "gui/grid.h"
 #include "gui/key.h"
 #include "gui/label.h"
@@ -115,6 +116,16 @@ inline std::shared_ptr<Label> makeLabel()
 inline std::shared_ptr<List> makeList()
 {
 	return std::make_shared<List>();
+}
+
+inline std::shared_ptr<Separator> makeHSeparator()
+{
+	return std::make_shared<Separator>(false);
+}
+
+inline std::shared_ptr<Separator> makeVSeparator()
+{
+	return std::make_shared<Separator>(true);
 }
 
 inline std::shared_ptr<TextField> makeTextField()
@@ -414,6 +425,13 @@ ZCGUI_BUILDER_START(List)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(List, List, makeList)
 
+
+ZCGUI_BUILDER_START(Separator)
+	ZCGUI_ACCEPT_PROP(color_1, setColor1, byte)
+	ZCGUI_ACCEPT_PROP(color_2, setColor2, byte)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Separator, HSeparator, makeHSeparator)
+ZCGUI_BUILDER_FUNCTION(Separator, VSeparator, makeVSeparator)
 
 ZCGUI_BUILDER_START(Grid)
     ZCGUI_ACCEPT_PROP(columnSpacing, setColumnSpacing, ::GUI::Size)

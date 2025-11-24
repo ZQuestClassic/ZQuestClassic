@@ -740,6 +740,7 @@ add_library(zcgui STATIC
 	src/gui/window.cpp
 	src/gui/slider.cpp
 	src/gui/ditherprev.cpp
+	src/gui/separator.cpp
 )
 target_link_libraries(zcgui PUBLIC allegro_with_legacy zcbase)
 target_include_directories(zcgui PRIVATE src)
