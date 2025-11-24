@@ -98,8 +98,10 @@ struct combo_trigger
 	word trig_group_val;
 	word trig_levelitems;
 	dword req_level_state, unreq_level_state;
-	bitstring req_global_state, unreq_global_state;
+	bitstring req_global_state, unreq_global_state, req_screen_state,
+		unreq_screen_state, req_screen_ex_state, unreq_screen_ex_state;
 	int16_t trigdmlevel = -1;
+	byte trigstatemap, trigstatescreen;
 	int16_t trigtint[3]; //r,g,b range [-255,255]
 	int16_t triglvlpalette = -1, trigbosspalette = -1;
 	int16_t trigquaketime = -1, trigwavytime = -1;

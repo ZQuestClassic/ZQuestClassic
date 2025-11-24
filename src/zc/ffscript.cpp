@@ -7901,6 +7901,24 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGREQSTATEMAP:
+		{
+			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
+			{
+				ret = trig->trigstatemap * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGREQSTATESCREEN:
+		{
+			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
+			{
+				ret = trig->trigstatescreen * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
 		case CMBTRIGTINTR:
 		{
 			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
@@ -15293,6 +15311,22 @@ void set_register(int32_t arg, int32_t value)
 			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
 			{
 				trig->trigdmlevel = vbound(value/10000, -1, MAXLEVELS-1);
+			}
+			break;
+		}
+		case CMBTRIGREQSTATEMAP:
+		{
+			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
+			{
+				trig->trigstatemap = vbound(value/10000, 0, map_count);
+			}
+			break;
+		}
+		case CMBTRIGREQSTATESCREEN:
+		{
+			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
+			{
+				trig->trigstatescreen = vbound(value/10000, 0, MAPSCRSNORMAL-1);
 			}
 			break;
 		}

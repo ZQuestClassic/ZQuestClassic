@@ -287,6 +287,7 @@ void setxmapflag_mi(int32_t mi, uint32_t flag);
 void unsetxmapflag(int32_t screen, uint32_t flag);
 void unsetxmapflag_mi(int32_t mi, uint32_t flag);
 bool getxmapflag(int32_t screen, uint32_t flag);
+bool getxmapflag(mapscr* scr, uint32_t flag);
 bool getxmapflag_mi(int32_t mi, uint32_t flag);
 
 void setxdoor_mi(uint mi, uint dir, uint ind, bool state = true);

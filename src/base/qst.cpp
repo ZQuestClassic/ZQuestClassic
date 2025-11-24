@@ -18545,6 +18545,21 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		if(!p_igetzf(&temp_trigger.trig_terminal_v, f))
 			return qe_invalid;
 	}
+	if (s_version >= 61)
+	{
+		if(!p_getbitstr(&temp_trigger.req_screen_state, f))
+			return qe_invalid;
+		if(!p_getbitstr(&temp_trigger.unreq_screen_state, f))
+			return qe_invalid;
+		if(!p_getbitstr(&temp_trigger.req_screen_ex_state, f))
+			return qe_invalid;
+		if(!p_getbitstr(&temp_trigger.unreq_screen_ex_state, f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.trigstatemap, f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.trigstatescreen, f))
+			return qe_invalid;
+	}
 	return 0;
 }
 
