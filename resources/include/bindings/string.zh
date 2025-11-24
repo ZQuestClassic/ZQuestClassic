@@ -1,0 +1,151 @@
+// Internal class for Strings.
+// Arrays of type 'char32[]' automatically cast to and from this type.
+//
+// @zasm_ref D0
+class string {
+	// Constructs a new, blank string.
+	//
+	// @zasm
+	//   ALLOCATEMEMV D2 1 0
+	//   REF_AUTORELEASE D2
+	internal string();
+	
+	// Copies the contents of 'other' into this string, replacing this string's contents entirely.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D2
+	//   STRINGCOPY D2 D0
+	internal void Assign(string other);
+	
+	// Returns a new string of 'b' concatenated to the end of 'a'
+	// 
+	// @zasm
+	//   POP D1
+	//   POP D2
+	//   ALLOCATEMEMV D0 1 0
+	//   REF_AUTORELEASE D0
+	//   STRINGCOPY D0 D2
+	//   STRCAT D2
+	//   SETR D2 D0
+	static internal operator string plus(string a, string b);
+	
+	// Appends the contents of 'b' at the end of 'a'.
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   STRCAT D2
+	static internal operator void plus_assign(string a, string b);
+	
+	// Returns a new string of 'str' repeated 'count' times
+	// 
+	// @zasm
+	//   POP D3
+	//   POP D0
+	//   ALLOCATEMEMV D2 1 0
+	//   REF_AUTORELEASE D2
+	//   STRINGCOPY D2 D0
+	//   STRMULTR D2 D3
+	static internal operator string times(string str, int count);
+	// Returns a new string of 'str' repeated 'count' times
+	// 
+	// @zasm
+	//   POP D0
+	//   POP D3
+	//   ALLOCATEMEMV D2 1 0
+	//   REF_AUTORELEASE D2
+	//   STRINGCOPY D2 D0
+	//   STRMULTR D2 D3
+	static internal operator string times(int count, string str);
+	// Alters the string 'str' to be itself repeated 'count' times
+	// 
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   STRMULTR D2 D3
+	static internal operator void times_assign(string str, int count);
+	
+	// Returns the character at index 'idx' of 'str'
+	//
+	// @zasm
+	//   POP D2
+	//   POP D0
+	//   READPODARRAYR D2 D2
+	static internal operator char32 index_get(string str, int idx);
+	
+	// Sets index 'idx' of 'str' to 'val'. Returns 'val'.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D0
+	//   WRITEPODARRAYRR D3 D2
+	static internal operator char32 index_set(string str, int idx, char32 val);
+	
+	// Appends the contents of 'other' at the end of this string.
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   STRCAT D2
+	internal void append(string other);
+	
+	// Returns a copy of the string.
+	//
+	// @zasm
+	//   POP D0
+	//   ALLOCATEMEMV D2 1 0
+	//   STRINGCOPY D2 D0
+	//   REF_AUTORELEASE D2
+	internal string Copy();
+
+	// The number of characters in the string (not including null-terminator)
+	//
+	// @zasm_read
+	//   POP D0
+	//   STRINGLENGTH D2 D0
+	internal const int Length;
+	
+	// The size of the array (including the null-terminator and beyond)
+	//
+	// @zasm_read
+	//   POP D0
+	//   ARRAYSIZE D0
+	internal const int Capacity;
+
+	// Grants 'Ownership' of the string to the currently running script.
+	//
+	// @zasm
+	//   POP D0
+	//   OWNARRAYR D0
+	internal void Own();
+
+	// Clears the string (becomes equal to "")
+	//
+	// @zasm
+	//   POP D0
+	//   RESIZEARRAYV D0 1
+	//   WRITEPODARRAYVV 0 0
+	internal void Clear();
+	
+	// Splits the string into multiple strings wherever 'delimiter' appears.
+	// If 'max_split' is > 0, the number of splits may not exceed max_split.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP D0
+	//   STRINGSPLIT D0 D2 D3
+	internal string[] Split(string delimiter, int max_split = 0);
+	
+	// Returns a substring of the string, starting at 'start_pos', 'length' long.
+	// If 'length' is -1, uses the rest of the string after 'start_pos'.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP D0
+	//   STRINGSUBSTR D0 D2 D3
+	internal string Substr(int start_pos, int length = -1);
+}

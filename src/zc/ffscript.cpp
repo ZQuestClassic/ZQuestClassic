@@ -1387,6 +1387,16 @@ bool& FFScript::waitdraw(ScriptType type, int index)
 	return get_script_engine_data(type, index).waitdraw;
 }
 
+static void do_autorelease(uint32_t id)
+{
+	if (id && !util::contains(script_object_autorelease_pool, id))
+	{
+		script_object_autorelease_pool.push_back(id);
+		if (auto object = get_script_object_checked(id))
+			object->ref_count++;
+	}
+}
+
 static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, int index)
 {
 	bool got_initialized = false;
@@ -17842,9 +17852,9 @@ void do_internal_stricmp()
 	ri->cmp_strcache = stricmp(strA.c_str(), strB.c_str());
 }
 
-void do_resize_array()
+void do_resize_array(const bool v)
 {
-	int32_t size = vbound(get_register(sarg2) / 10000, 0, 214748);
+	int32_t size = vbound(SH::get_arg(sarg2, v) / 10000, 0, 214748);
 	dword ptrval = get_register(sarg1);
 	ArrayManager am(ptrval);
 	am.resize(size);
@@ -24719,7 +24729,10 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				break;
 			
 			case RESIZEARRAYR:
-				do_resize_array();
+				do_resize_array(false);
+				break;
+			case RESIZEARRAYV:
+				do_resize_array(true);
 				break;
 			case OWNARRAYR:
 				do_own_array(get_register(sarg1), type, i);
@@ -24969,6 +24982,83 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case ITOA: FFCore.do_itoa(); break;
 			case ITOACAT: FFCore.do_itoacat(); break;
 			case STRCAT: FFCore.do_strcat(); break;
+			case STRMULTR:
+			{
+				int32_t arrayptr = get_register(sarg1);
+				string str;
+				ArrayH::getString(arrayptr, str);
+				std::ostringstream oss;
+				for (int q = get_register(sarg2) / 10000; q > 0; --q)
+					oss << str;
+				if(ArrayH::setArray(arrayptr, oss.str(), true) == SH::_Overflow)
+				{
+					scripting_log_error_with_context("Dest string parameter is too small and couldn't be resized! Size is: {}", str.size());
+					set_register(sarg1, 0);
+				}
+				break;
+			}
+			case STRINGSPLIT:
+			{
+				int32_t arrayptr = get_register(sarg1);
+				int32_t delimptr = get_register(sarg2);
+				int max_split = get_register(sarg3) / 10000;
+				
+				string s, delim;
+				ArrayH::getString(arrayptr, s);
+				ArrayH::getString(delimptr, delim);
+				
+				vector<string> res;
+				size_t pos = s.find(delim);
+				while(pos != string::npos)
+				{
+					string sub = s.substr(0, pos);
+					s.erase(0, pos + delim.size());
+					res.emplace_back(sub);
+					if (max_split > 0)
+						if (!--max_split)
+							break;
+					pos = s.find(delim);
+				}
+				if (pos == string::npos)
+					res.emplace_back(s);
+				
+				uint32_t id = allocatemem(res.size(), true, type, i, script_object_type::array);
+				do_autorelease(id);
+				ArrayManager am(id);
+				for (size_t q = 0; q < res.size(); ++q)
+				{
+					uint32_t sid = allocatemem(res[q].size(), true, type, i, script_object_type::none);
+					do_autorelease(sid);
+					am.set(q, sid);
+					ArrayH::setArray(sid, res[q], true);
+				}
+				SET_D(rEXP1, id);
+				break;
+			}
+			case STRINGSUBSTR:
+			{
+				int32_t arrayptr = get_register(sarg1);
+				int32_t start_pos = get_register(sarg2) / 10000;
+				int32_t length = get_register(sarg3) / 10000;
+				size_t substr_len = length < 0 ? string::npos : size_t(length);
+
+				string s;
+				ArrayH::getString(arrayptr, s);
+
+				if (start_pos < 0)
+					start_pos += s.size();
+				size_t pos = size_t(start_pos);
+				
+				if (pos > s.size())
+					s = "";
+				else s = s.substr(start_pos, substr_len);
+				
+				uint32_t sid = allocatemem(s.size(), true, type, i, script_object_type::none);
+				do_autorelease(sid);
+				ArrayH::setArray(sid, s, true);
+				SET_D(rEXP1, sid);
+				break;
+			}
 			case STRSPN: FFCore.do_strspn(); break;
 			case STRCHR: FFCore.do_strchr(); break;
 			case STRRCHR: FFCore.do_strrchr(); break;
@@ -27688,12 +27778,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case REF_AUTORELEASE:
 			{
 				uint32_t id = get_register(sarg1);
-				if (id && !util::contains(script_object_autorelease_pool, id))
-				{
-					script_object_autorelease_pool.push_back(id);
-					if (auto object = get_script_object_checked(id))
-						object->ref_count++;
-				}
+				do_autorelease(id);
 				break;
 			}
 			case REF_COUNT:
@@ -30060,9 +30145,9 @@ void FFScript::do_strcat()
 	//char str_c[2048];
 	//strcpy(str_c, strA.c_str());
 	string strC = strA + strB;
-	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr_a, strC, true) == SH::_Overflow)
 	{
-		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
+		scripting_log_error_with_context("Dest string parameter is too small and couldn't be resized! Size is: {}", strA.size());
 		set_register(sarg1, 0);
 	}
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
@@ -30226,8 +30311,8 @@ void FFScript::do_strcpy(const bool a, const bool b)
 
 	ArrayH::getString(arrayptr_a, strA);
 
-	if(ArrayH::setArray(arrayptr_b, strA) == SH::_Overflow)
-		scripting_log_error_with_context("Dest string parameter is too small. Size is: {}", strA.size());
+	if(ArrayH::setArray(arrayptr_b, strA, true) == SH::_Overflow)
+		scripting_log_error_with_context("Dest string parameter is too small and couldn't be resized! Size is: {}", strA.size());
 }
 void FFScript::do_arraycpy(const bool a, const bool b)
 {

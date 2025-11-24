@@ -1714,14 +1714,14 @@ std::optional<int32_t> ASTExprVarInitializer::getCompileTimeValue(
 bool ASTExprVarInitializer::valueIsArray(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	DataType const* type = getReadType(scope, errorHandler);
-	return type && type->isArray();
+	return type && (type->isArray() || (DataType::STRING && type->canCastTo(*DataType::STRING, scope)));
 }
 
 // ASTExprAssign
 
 ASTExprAssign::ASTExprAssign(ASTExpr* left, ASTExpr* right,
 							 LocationData const& location)
-	: ASTExpr(location), left(left), right(right) {}
+	: ASTExpr(location), left(left), right(right), override_fn(nullptr) {}
 
 void ASTExprAssign::execute(ASTVisitor& visitor, void* param)
 {
@@ -1732,6 +1732,40 @@ std::optional<int32_t> ASTExprAssign::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	return right ? right->getCompileTimeValue(errorHandler, scope) : std::nullopt;
+}
+
+#define SPECIAL_ASSIGN(ty_base, ty_assign, _override_name) \
+ASTExpr##ty_assign::ASTExpr##ty_assign(ASTExpr* left, ASTExpr* right, \
+							 LocationData const& location) \
+	: ASTExprAssign(left, right, location) {} \
+ \
+void ASTExpr##ty_assign::execute(ASTVisitor& visitor, void* param) \
+{ \
+	visitor.caseExpr##ty_assign(*this, param); \
+} \
+ \
+DataType const* ASTExpr##ty_assign::getReadType(Scope* scope, CompileErrorHandler* errorHandler) \
+{ \
+	if (override_fn) \
+		return override_fn->returnType; \
+	return ASTExpr##ty_base(left->clone(), right->clone()).getReadType(scope, errorHandler); \
+}
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+ASTExprBitNotAssign::ASTExprBitNotAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprAssign(left, right, location) {}
+
+void ASTExprBitNotAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprBitNotAssign(*this, param);
+}
+
+DataType const* ASTExprBitNotAssign::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return ASTExprBitAnd(left->clone(), new ASTExprBitNot(right->clone())).getReadType(scope, errorHandler);
 }
 
 // ASTExprIdentifier
@@ -1819,21 +1853,26 @@ bool ASTExprArrow::isTypeArrowNonUsrClass() const
 
 DataType const* ASTExprArrow::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	if(rtype) return rtype;
-	return readFunction ? readFunction->returnType : NULL;
+	if (rtype) return rtype;
+	if (readFunction) return readFunction->returnType;
+	if (u_datum) return &u_datum->type;
+	return NULL;
 }
 
 DataType const* ASTExprArrow::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	if(wtype) return wtype;
-	return writeFunction ? writeFunction->paramTypes.back() : NULL;
+	if (wtype) return wtype;
+	if (writeFunction) return writeFunction->paramTypes.back();
+	if (u_datum) return &u_datum->type;
+	return NULL;
 }
 
 // ASTExprIndex
 
 ASTExprIndex::ASTExprIndex(ASTExpr* array, ASTExpr* index,
 						   LocationData const& location)
-	: ASTExpr(location), array(array), index(index)
+	: ASTExpr(location), array(array), index(index),
+	override_read_fn(nullptr), override_write_fn(nullptr)
 {}
 
 void ASTExprIndex::execute(ASTVisitor& visitor, void* param)
@@ -1854,6 +1893,8 @@ bool ASTExprIndex::isConstant() const
 
 DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
+	if (override_read_fn)
+		return override_read_fn->returnType;
 	DataType const* type = array->getReadType(scope, errorHandler);
 	if (type && type->isArray())
 	{
@@ -1865,6 +1906,12 @@ DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* err
 
 DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
+	if (override_write_fn)
+	{
+		if (override_write_fn->paramTypes.size() < 3)
+			return NULL;
+		return override_write_fn->paramTypes[2];
+	}
 	DataType const* type = array->getWriteType(scope, errorHandler);
 	if (type && type->isArray())
 	{
@@ -1910,8 +1957,15 @@ DataType const* ASTExprCall::getWriteType(Scope* scope, CompileErrorHandler* err
 // ASTUnaryExpr
 
 ASTUnaryExpr::ASTUnaryExpr(LocationData const& location)
-	: ASTExpr(location)
+	: ASTExpr(location), override_fn(nullptr)
 {}
+
+DataType const* ASTUnaryExpr::getOverrideReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return nullptr;
+}
 
 // ASTExprDelete
 
@@ -2050,7 +2104,7 @@ DataType const* ASTExprCast::getReadType(Scope* scope, CompileErrorHandler* erro
 
 ASTBinaryExpr::ASTBinaryExpr(ASTExpr* left, ASTExpr* right,
 							 LocationData const& location)
-	: ASTExpr(location), left(left), right(right)
+	: ASTExpr(location), left(left), right(right), override_fn(nullptr)
 {}
 
 bool ASTBinaryExpr::isConstant() const
@@ -2066,6 +2120,12 @@ ASTLogExpr::ASTLogExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTLogExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return &DataType::BOOL;
+}
 
 // ASTExprAnd
 
@@ -2123,6 +2183,12 @@ ASTRelExpr::ASTRelExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTRelExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	return &DataType::BOOL;
+}
 
 // ASTExprGT
 
@@ -2220,7 +2286,7 @@ std::optional<int32_t> ASTExprLE::getCompileTimeValue(
 
 ASTExprEQ::ASTExprEQ(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
-	: ASTRelExpr(left, right, location)
+	: ASTRelExpr(left, right, location), strict(false)
 {}
 
 void ASTExprEQ::execute(ASTVisitor& visitor, void* param)
@@ -2243,7 +2309,7 @@ std::optional<int32_t> ASTExprEQ::getCompileTimeValue(
 
 ASTExprNE::ASTExprNE(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
-	: ASTRelExpr(left, right, location)
+	: ASTRelExpr(left, right, location), strict(false)
 {}
 
 void ASTExprNE::execute(ASTVisitor& visitor, void* param)
@@ -2314,6 +2380,21 @@ ASTAddExpr::ASTAddExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTAddExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	auto leftType = left->getReadType(scope, errorHandler);
+	auto rightType = right->getReadType(scope, errorHandler);
+	if (!leftType)
+		left->getReadType(scope, errorHandler);
+	if ((leftType && leftType->isBitflagsEnum()) || rightType->isBitflagsEnum())
+		return leftType;
+	if ((leftType && leftType->isLong()) || rightType->isLong())
+		return &DataType::LONG;
+	return &DataType::FLOAT;
+}
+
 
 // ASTExprPlus
 
@@ -2367,6 +2448,14 @@ ASTMultExpr::ASTMultExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTMultExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
+		return &DataType::LONG;
+	return &DataType::FLOAT;
+}
 
 // ASTExprTimes
 
@@ -2510,6 +2599,18 @@ ASTBitExpr::ASTBitExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTBitExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	auto leftType = left->getReadType(scope, errorHandler);
+	auto rightType = right->getReadType(scope, errorHandler);
+	if (leftType->isBitflagsEnum() || rightType->isBitflagsEnum())
+		return leftType;
+	if (leftType->isLong() || rightType->isLong())
+		return &DataType::LONG;
+	return &DataType::FLOAT;
+}
 
 // ASTExprBitAnd
 
@@ -2600,6 +2701,14 @@ ASTShiftExpr::ASTShiftExpr(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTBinaryExpr(left, right, location)
 {}
+DataType const* ASTShiftExpr::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	if (override_fn)
+		return override_fn->returnType;
+	if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
+		return &DataType::LONG;
+	return &DataType::FLOAT;
+}
 
 // ASTExprLShift
 
@@ -2849,9 +2958,11 @@ std::string ASTStringLiteral::asString() const
 	return "\"" + value + "\"";
 }
 
-DataTypeArray const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+DataType const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	return DataType::STRING;
+	if (DataType::STRING)
+		return DataType::STRING->getConstType();
+	return DataType::CHAR_ARRAY;
 }
 
 

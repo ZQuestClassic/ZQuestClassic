@@ -163,7 +163,7 @@ static constexpr script_command command_list[]=
 	{ "ISVALIDEWPN", ISVALIDEWPN, 1, { REG_RW }, 0, 0 },
 	{ "LOADEWEAPONR", LOADEWEAPONR, 1, { REG_R }, 0, 0 },
 	{ "LOADEWEAPONV", LOADEWEAPONV, 1, { NUM }, 0, 0 },
-	{ "ALLOCATEMEMR", ALLOCATEMEMR, 2, { REG_W, REG_R }, 0, 0 },
+	{ "ALLOCATEMEMR", ALLOCATEMEMR, 3, { REG_W, REG_R, NUM }, 0, 0 },
 	{ "ALLOCATEMEMV", ALLOCATEMEMV, 3, { REG_W, NUM, NUM }, 0, 0 },
 	{ "ALLOCATEGMEMV", ALLOCATEGMEMV, 3, { REG_W, NUM, NUM }, 0, 0 },
 	{ "DEALLOCATEMEMR", DEALLOCATEMEMR, 1, { REG_R }, 0, 0 },
@@ -865,6 +865,10 @@ static constexpr script_command command_list[]=
 	{ "COMBOD_GET_TRIGGER", COMBOD_GET_TRIGGER, 1, { REG_R }, 0, 0 },
 	{ "LOAD_INTERNAL_ARRAY", LOAD_INTERNAL_ARRAY, 2, { REG_W, NUM_REG }, 0, 0 },
 	{ "LOAD_INTERNAL_ARRAY_REF", LOAD_INTERNAL_ARRAY_REF, 3, { REG_W, NUM_REG, REG_R }, 0, 0 },
+	{ "RESIZEARRAYV", RESIZEARRAYV, 2, { REG_R, NUM }, 0, 0 },
+	{ "STRMULTR", STRMULTR, 2, { REG_RW, REG_R }, 0, 0 },
+	{ "STRINGSPLIT", STRINGSPLIT, 3, { REG_R, REG_R, REG_R }, 0, 0 },
+	{ "STRINGSUBSTR", STRINGSUBSTR, 3, { REG_R, REG_R, REG_R }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=
@@ -2861,7 +2865,6 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}};
 			return r;
 		}
-
 		case GETSCREENFLAGS:
 		case GRAPHICSGETPIXEL:
 		case ISSOLIDLAYER:
@@ -2974,6 +2977,8 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case WRAPRADIANS:
 		case ZCLASS_FREE:
 		case ZCLASS_READ:
+		case STRINGSUBSTR:
+		case STRINGSPLIT:
 		{
 			static T r = {{rEXP1, REG_W}};
 			return r;

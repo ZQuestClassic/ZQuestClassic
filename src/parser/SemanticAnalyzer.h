@@ -52,6 +52,14 @@ namespace ZScript
 		void caseExprConst(ASTExprConst& host, void* = NULL);
 		void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);
+		void handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, bool supports_bitflags);
+
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* = NULL);
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+		void caseExprBitNotAssign(ASTExprBitNotAssign& host, void* = NULL);
+
 		void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
 		void caseExprArrow(ASTExprArrow& host, void* = NULL);
 		void caseExprIndex(ASTExprIndex& host, void* = NULL);
@@ -104,12 +112,18 @@ namespace ZScript
 		////////////////////////////////////////////////////////////////
 		// Helper Functions.
 
-		void analyzeUnaryExpr(ASTUnaryExpr& host, ZScript::DataType const& type);
-		void analyzeIncrement(ASTUnaryExpr& host);
+		void analyzeUnaryExpr(ASTUnaryExpr& host, DataType const& type, string const& override_name, bool require_override, void* param = nullptr);
+		bool overrideBinaryExpr(ASTBinaryExpr& host, string const& override_name, bool require);
 		void analyzeBinaryExpr(
 				ASTBinaryExpr& host, ZScript::DataType const& leftType,
-				ZScript::DataType const& rightType);
-
+				ZScript::DataType const& rightType, string const& override_name, bool require_override);
+		bool checkBitflagError(AST& host, DataType const& leftType, DataType const& rightType);
+		
+		vector<Function*> best_functions_cast(vector<Function*>& base_funcs, vector<DataType const*> const& parameterTypes);
+		void best_functions_optparam(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);
+		void best_functions_namespace(vector<Function*>& bestFunctions);
+		void best_function_untyped(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes);
+		void best_function_error(AST& host, vector<Function*>& bestFunctions, FunctionSignature const& signature, string const& prefix);
 	};
 }	
 #endif

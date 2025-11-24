@@ -289,7 +289,8 @@ namespace ZScript
 		static DataTypeSimple LONG;
 		static DataTypeSimple BOOL;
 		static DataTypeSimple RGBDATA;
-		static const DataTypeArray* STRING;
+		static const DataTypeArray* CHAR_ARRAY;
+		static const DataTypeCustom* STRING;
 	};
 
 	bool operator==(DataType const&, DataType const&);

@@ -7,6 +7,9 @@
 #include "Types.h"
 #include "Scope.h"
 #include <fmt/ranges.h>
+#include "parser/BuildVisitors.h"
+#include "zasm/table.h"
+#include "zasm/serialize.h"
 
 
 using namespace ZScript;
@@ -666,6 +669,159 @@ void Function::alias(Function* func, bool force)
 		assert(ownedCode.empty());
 		assert(!(label || altlabel));
 	}
+}
+
+bool Function::initZASM(std::vector<std::string> const& zasm_lines, CompileErrorHandler* handler)
+{
+	int stack_change = numParams();
+	if (getClass() && !getClass()->internalRefVarString.empty() && !getFlag(FUNCFLAG_CONSTRUCTOR) && !getFlag(FUNCFLAG_DESTRUCTOR) && !getFlag(FUNCFLAG_STATIC))
+		stack_change += 1;
+
+	std::vector<std::shared_ptr<Opcode>> code;
+	for (auto& op_string : zasm_lines)
+	{
+		if (op_string.empty())
+			continue;
+
+		// Note: this does not support vec or str args.
+		std::vector<std::string> tokens;
+		util::split(op_string, tokens, ' ');
+
+		std::string command = tokens[0];
+		auto sc = get_script_command(command);
+		if (!sc)
+		{
+			handler->handleError(CompileError::BadInternal(node, fmt::format("Invalid zasm command `{}`", command)));
+			return false;
+		}
+
+		if (sc->args != tokens.size() - 1)
+		{
+			handler->handleError(CompileError::BadInternal(node, fmt::format("Wrong number of zasm args for command `{}`", command)));
+			return false;
+		}
+
+		for (int i = 1; i < tokens.size(); i++)
+		{
+			switch (sc->arg_type[i - 1])
+			{
+				case ARGTY::READ_REG:
+				case ARGTY::WRITE_REG:
+				case ARGTY::READWRITE_REG:
+				{
+					if (!get_script_variable(tokens[i]))
+					{
+						handler->handleError(CompileError::BadInternal(node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
+						return false;
+					}
+					break;
+				}
+				case ARGTY::LITERAL_REG:
+				{
+					if (tokens[i].empty() || tokens[i][0] != '@' || !get_script_variable(tokens[i].substr(1)))
+					{
+						handler->handleError(CompileError::BadInternal(node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
+						return false;
+					}
+					break;
+				}
+
+				case ARGTY::LITERAL:
+				{
+					try {
+						util::ffparse2(tokens[i], true);
+					} catch (std::exception ex) {
+						handler->handleError(CompileError::BadInternal(node, fmt::format("Invalid zasm arg `{}` in command `{}` ({})", tokens[i], command, ex.what())));
+						return false;
+					}
+					break;
+				}
+
+				case ARGTY::COMPARE_OP:
+				{
+					if (!parse_zasm_compare_arg(tokens[i].c_str()))
+					{
+						handler->handleError(CompileError::BadInternal(node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
+						return false;
+					}
+					break;
+				}
+
+				case ARGTY::UNUSED_REG:
+				default:
+				{
+					handler->handleError(CompileError::BadInternal(node, fmt::format("Unsupported zasm arg type in command `{}`", command)));
+					return false;
+				}
+			}
+		}
+
+		if (sc->command == POP)
+			stack_change -= 1;
+		else if (sc->command == PUSHR || sc->command == PUSHV)
+			stack_change += 1;
+		else if (sc->command == POPARGS)
+		{
+			int num = util::ffparse2(tokens[2]);
+			if (num >= 100)
+			{
+				handler->handleError(CompileError::BadInternal(node, fmt::format("Popping way too much, make sure to use '0.0001' syntax")));
+				return false;
+			}
+			stack_change -= util::ffparse2(tokens[2]);
+		}
+		else if (sc->command == PUSHARGSR || sc->command == PUSHARGSV)
+		{
+			int num = util::ffparse2(tokens[2]);
+			if (num >= 100)
+			{
+				handler->handleError(CompileError::BadInternal(node, fmt::format("Pushing way too much, make sure to use '0.0001' syntax")));
+				return false;
+			}
+			stack_change += util::ffparse2(tokens[2]);
+		}
+
+		// Optimizations in the compiler will look at the class of the code in functions,
+		// so do minimal parsing to cover that. For the rest, just do RawOpcode.
+		if (sc->command == POP)
+			addOpcode2(code, new OPopRegister(new VarArgument(StringToVar(tokens[1]))));
+		else if (sc->command == PUSHR)
+			addOpcode2(code, new OPushRegister(new VarArgument(StringToVar(tokens[1]))));
+		else if (sc->command == PUSHV)
+			addOpcode2(code, new OPushImmediate(new LiteralArgument(util::ffparse2(tokens[1]))));
+		else if (sc->command == TRACER)
+			addOpcode2(code, new OTraceRegister(new VarArgument(StringToVar(tokens[1]))));
+		else if (sc->command == SETR)
+		{
+			auto arg1 = new VarArgument(StringToVar(tokens[1]));
+			auto arg2 = new VarArgument(StringToVar(tokens[2]));
+			addOpcode2(code, new OSetRegister(arg1, arg2));
+		}
+		else if (sc->command == SETV)
+		{
+			auto arg1 = new VarArgument(StringToVar(tokens[1]));
+			auto arg2 = new LiteralArgument(util::ffparse2(tokens[2]));
+			addOpcode2(code, new OSetImmediate(arg1, arg2));
+		}
+		else
+			addOpcode2(code, new RawOpcode(op_string));
+	}
+
+	if (code.empty())
+	{
+		handler->handleError(CompileError::BadInternal(node, fmt::format("No @zasm provided for internal function `{}`", name)));
+		return false;
+	}
+
+	if (!getFlag(FUNCFLAG_VARARGS) && stack_change != 0)
+	{
+		handler->handleError(CompileError::BadInternal(node, fmt::format("Stack is not preserved - did you forget to POP the parameters?", name)));
+		return false;
+	}
+	
+	code.front()->setLabel(getLabel());
+	giveCode(code);
+	return true;
 }
 
 static void type_replace(DataType const** ptr, DataType const& to_repl, DataType const& new_type)

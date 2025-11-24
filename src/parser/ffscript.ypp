@@ -210,6 +210,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token REPEAT
 %token INLINE
 %token INTERNAL
+%token OPERATOR
 %token STATIC
 %token CONSTEXPR
 %left NEW
@@ -250,7 +251,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %left TIMES DIVIDE MODULO
 %left PLUS MINUS
 %left LSHIFT RSHIFT
-%left LE LT GE GT EQ NE
+%left LE LT GE GT EQ STRICT_EQ NE STRICT_NE
 %left BITAND BITXOR BITOR
 %left AND OR XOR
 %token ASSIGN
@@ -745,6 +746,17 @@ Function :
 			func->invalidMsg += " Constructors and destructors cannot be static.";
 		}
 		else func->setFlag(FUNCFLAG_STATIC);
+		$$ = func;
+	}
+	| OPERATOR Function
+	{
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if(func->getFlag(FUNCFLAG_OPERATOR))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `operator`.";
+		}
+		else func->setFlag(FUNCFLAG_OPERATOR);
 		$$ = func;
 	}
 	| INLINE Function
@@ -2188,8 +2200,18 @@ Expr_9 : Expr_8 {$$ = $1;}
 	;
 
 Expr_10 : Expr_9 {$$ = $1;}
+	// Strict Equality
+	| Expr_10 STRICT_EQ Expr_9 {
+		auto* cmp = new ASTExprEQ((ASTExpr*)$1, (ASTExpr*)$3, @$);
+		cmp->strict = true;
+		$$ = cmp;}
 	// Equality
 	| Expr_10 EQ Expr_9 {$$ = new ASTExprEQ((ASTExpr*)$1, (ASTExpr*)$3, @$);}
+	// Inequality
+	| Expr_10 STRICT_NE Expr_9 {
+		auto* cmp = new ASTExprNE((ASTExpr*)$1, (ASTExpr*)$3, @$);
+		cmp->strict = true;
+		$$ = cmp;}
 	// Inequality
 	| Expr_10 NE Expr_9 {$$ = new ASTExprNE((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Approximate Equality
@@ -2249,69 +2271,68 @@ Expr_18 : Expr_17 {$$ = $1;}
 	| Expr_17 PLUSASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprPlus(left->clone(), right, @3), @$);}
+		$$ = new ASTExprPlusAssign(left, right, @$);}
 	// Subtraction Assignment
 	| Expr_17 MINUSASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprMinus(left->clone(), right, @3), @$);}
+		$$ = new ASTExprMinusAssign(left, right, @$);}
 	// Multiplication Assignment
 	| Expr_17 TIMESASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprTimes(left->clone(), right, @3), @$);}
+		$$ = new ASTExprTimesAssign(left, right, @$);}
 	// Division Assignment
 	| Expr_17 DIVIDEASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprDivide(left->clone(), right, @3), @$);}
+		$$ = new ASTExprDivideAssign(left, right, @$);}
 	// Modulus Assignment
 	| Expr_17 MODULOASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprModulo(left->clone(), right, @3), @$);}
+		$$ = new ASTExprModuloAssign(left, right, @$);}
 	// Left Shift Assignment
 	| Expr_17 LSHIFTASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprLShift(left->clone(), right, @3), @$);}
+		$$ = new ASTExprLShiftAssign(left, right, @$);}
 	// Right Shift Assignment
 	| Expr_17 RSHIFTASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprRShift(left->clone(), right, @3), @$);}
+		$$ = new ASTExprRShiftAssign(left, right, @$);}
 	// Bitwise And Assignment
 	| Expr_17 BITANDASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprBitAnd(left->clone(), right, @3), @$);}
+		$$ = new ASTExprBitAndAssign(left, right, @$);}
 	// BitNot Assignment
 	// `a ~= b` == `a &= ~b` == `a = a & ~b`
 	| Expr_17 BITNOTASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), new ASTExprBitNot(right, @$), @3);
-		$$ = new ASTExprAssign(left, rval, @$);}
+		$$ = new ASTExprBitNotAssign(left, right, @$);}
 	// Bitwise Xor Assignment
 	| Expr_17 BITXORASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprBitXor(left->clone(), right, @3), @$);}
+		$$ = new ASTExprBitXorAssign(left, right, @$);}
 	// Bitwise Or Assignment
 	| Expr_17 BITORASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprBitOr(left->clone(), right, @3), @$);}
+		$$ = new ASTExprBitOrAssign(left, right, @$);}
 	// Logical And Assignment
 	| Expr_17 ANDASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprAnd(left->clone(), right, @3), @$);}
+		$$ = new ASTExprAndAssign(left, right, @$);}
 	// Logical Or Assignment
 	| Expr_17 ORASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		$$ = new ASTExprAssign(left, new ASTExprOr(left->clone(), right, @3), @$);}
+		$$ = new ASTExprOrAssign(left, right, @$);}
 		 ;
 
 Expression : Expr_18 {$$ = $1;};

@@ -549,6 +549,8 @@ namespace ZScript
 		void alias(Function* func, bool force = false);
 		bool is_aliased() const {return bool(aliased_func);}
 		
+		bool initZASM(std::vector<std::string> const& zasm_lines, CompileErrorHandler* handler);
+		
 		#define CONSTEXPR_CBACK_TY std::function<optional<int32_t>(vector<optional<int32_t>> const&, \
 			AST&, CompileErrorHandler*, Scope*)>
 		#define CONSTEXPR_CBACK_HEADER(...) [__VA_ARGS__](vector<optional<int32_t>> const& args, \

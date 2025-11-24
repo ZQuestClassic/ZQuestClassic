@@ -60,6 +60,14 @@ namespace ZScript
 		virtual void caseCustomDataTypeDef(ASTDataTypeDef& host, void* param);
 		// Expressions
 		virtual void caseExprAssign(ASTExprAssign &host, void *param);
+		bool handleSpecialAssignOverride(ASTExprAssign& host, void* param);
+
+#define SPECIAL_ASSIGN(_, ty_assign, _override_name) \
+virtual void caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param);
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+		virtual void caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param);
+		
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);
@@ -242,6 +250,9 @@ namespace ZScript
 		
 		void buildPreOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 		void buildPostOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
+		
+		bool unaryOpOverride(ASTUnaryExpr& host, void* param);
+		bool binaryOpOverride(ASTBinaryExpr& host, void* param);
 		
 		void push_param(bool varg = false);
 		optional<int> eatSetCompare();

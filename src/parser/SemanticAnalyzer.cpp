@@ -227,7 +227,7 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 	RecursiveVisitor::caseStmtSwitch(host);
 	if (breakRecursion(host)) return;
 	
-	checkCast(*host.key->getReadType(scope, this), host.isString ? static_cast<DataType const&>(*DataType::STRING) : DataType::FLOAT, &host);
+	checkCast(*host.key->getReadType(scope, this), host.isString ? static_cast<DataType const&>(*DataType::CHAR_ARRAY) : DataType::FLOAT, &host);
 }
 
 void SemanticAnalyzer::caseRange(ASTRange& host, void*)
@@ -925,6 +925,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		handleError(CompileError::BadVArgType(&host, paramTypes.back()->getName()));
 		return;
 	}
+	auto func_name = host.getName();
 	if(host.prototype)
 	{
 		//Check the default return
@@ -960,10 +961,87 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		if(breakRecursion(host)) return;
 	}
 	if(breakRecursion(host)) return;
+	
+	if (host.getFlag(FUNCFLAG_OPERATOR))
+	{
+		UserClass* user_class = nullptr;
+		if (ClassScope* cs = dynamic_cast<ClassScope*>(func_lives_in))
+			user_class = &cs->user_class;
+		
+		if (!host.getFlag(FUNCFLAG_STATIC) || !user_class)
+		{
+			handleError(CompileError::Error(&host, "Operator functions must be static class functions!"));
+			return;
+		}
+		static std::map<int, std::set<string>> operator_strings = {
+			{1, {
+				"pre_increment", "post_increment", "pre_decrement", "post_decrement",
+				"bit_not", "bool_not", "negate",
+			}},
+			{2, {
+				"plus", "minus", "times", "divide", "expn",
+				"modulo", "lshift", "rshift", "bit_and", "bit_xor", "bit_or",
+				"bool_and", "bool_or", "bool_xor",
+				"cmp_ge", "cmp_gt", "cmp_le", "cmp_lt",
+				"cmp_ne", "cmp_eq", "cmp_appx_eq",
+				
+#define SPECIAL_ASSIGN(_ty_base, _ty_assign, override_name) override_name,
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+				"bit_not_assign",
+				
+				"index_get"
+			}},
+			{3, {"index_set"}}
+		};
+		bool found = false;
+		for (auto [count, names] : operator_strings)
+		{
+			if (names.contains(func_name))
+			{
+				if (count != paramTypes.size())
+				{
+					handleError(CompileError::Error(&host, fmt::format("Invalid parameter count '{}' for operator '{}', expected '{}'", paramTypes.size(), func_name, count)));
+					return;
+				}
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			handleError(CompileError::Error(&host, fmt::format("Invalid operator function '{}'!", func_name)));
+			return;
+		}
+		if (func_name.ends_with("_assign"))
+		{
+			if (*paramTypes[0] != *user_class->getType())
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' first parameter must match it's class type.", func_name)));
+				return;
+			}
+		}
+		if (func_name.starts_with("post_"))
+		{
+			if (returnType.isVoid())
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' cannot return 'void'.", func_name)));
+				return;
+			}
+		}
+		if (func_name == "index_get" || func_name == "index_set")
+		{
+			if (*paramTypes[1] != DataType::FLOAT)
+			{
+				handleError(CompileError::Error(&host, fmt::format("Operator function '{}' must take 'int' index parameter", func_name)));
+				return;
+			}
+		}
+	}
 
 	// Add the function to the scope.
 	Function* function = func_lives_in->addFunction(
-			&returnType, host.getName(), paramTypes, paramNames, host.getFlags(), &host, this, extern_scope);
+			&returnType, func_name, paramTypes, paramNames, host.getFlags(), &host, this, extern_scope);
 	host.func = function;
 
 	if(breakRecursion(host)) return;
@@ -1176,15 +1254,15 @@ void SemanticAnalyzer::caseVarInitializer(ASTExprVarInitializer& host, void*)
 	}
 }
 
-void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
+void SemanticAnalyzer::handleSpecialAssign(ASTExprAssign& host, optional<string> override_name, bool supports_bitflags)
 {
-	visit(host.left.get(), paramWrite);
+	visit(host.left.get(), paramReadWrite);
 	if (breakRecursion(host)) return;
-	
-	visit(host.right.get(), paramRead);
-	if (breakRecursion(host)) return;	
 
-    DataType const* rtype = host.right->getReadType(scope, this);
+	visit(host.right.get(), paramRead);
+	if (breakRecursion(host)) return;
+
+	DataType const* rtype = host.right->getReadType(scope, this);
 	if (!rtype)
 	{
 		handleError(
@@ -1192,7 +1270,6 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 				host.right.get(), host.right->asString()));
 		return;
 	}
-    
 	DataType const* ltype = host.left->getWriteType(scope, this);
 	if (!ltype)
 	{
@@ -1201,13 +1278,101 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 				host.left.get(), host.left->asString()));
 		return;
 	}
-	
-	checkCast(*rtype, *ltype, &host);
-	if (breakRecursion(host)) return;	
-
-	if (ltype->isConstant())
+	else if (ltype->isConstant())
 		handleError(CompileError::LValConst(&host, host.left->asString()));
-	if (breakRecursion(host)) return;	
+	
+	bool skip_cast_check = false;
+	if (ASTExprIndex* idx = dynamic_cast<ASTExprIndex*>(host.left.get()))
+	{
+		DataType const* readty = idx->array->getReadType(scope,this);
+		
+		if (readty->isUsrClass())
+		{
+			UserClass* user_class = readty->getUsrClass();		
+			vector<DataType const*> param_types = {readty, &DataType::FLOAT, rtype};
+			vector<Function*> fns = lookupClassFuncs(*user_class, "index_set", param_types, scope, false, true);
+			std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+			fns = best_functions_cast(fns, param_types);
+			best_functions_optparam(fns, param_types);
+			best_function_untyped(fns, param_types);
+			
+			if (!fns.empty())
+			{
+				if (fns.size() == 1)
+				{
+					idx->override_write_fn = fns[0];
+				}
+				else
+				{
+					best_function_error(host, fns, FunctionSignature("index_set", param_types), "Operator Function");
+				}
+				skip_cast_check = true;
+			}
+		}
+	}
+	
+	if (override_name)
+	{
+		DataType const* left_readtype = host.left->getReadType(scope, this);
+		if (left_readtype->isUsrClass() || rtype->isUsrClass())
+		{
+			UserClass *left_class = left_readtype->getUsrClass(), *right_class = rtype->getUsrClass();
+			
+			vector<DataType const*> param_types = {left_readtype, rtype};
+			vector<Function*> fns;
+			if (left_class)
+			{
+				auto left_fns = lookupClassFuncs(*left_class, *override_name, param_types, scope, false, true);
+				fns.insert(fns.end(), left_fns.begin(), left_fns.end());
+			}
+			if (right_class && right_class != left_class)
+			{
+				auto right_fns = lookupClassFuncs(*right_class, *override_name, param_types, scope, false, true);
+				fns.insert(fns.end(), right_fns.begin(), right_fns.end());
+			}
+			//Remove any non-operator functions
+			std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+			fns = best_functions_cast(fns, param_types);
+			best_functions_optparam(fns, param_types);
+			best_function_untyped(fns, param_types);
+			
+			if (fns.size() == 1)
+			{
+				host.override_fn = fns[0];
+			}
+			else
+			{
+				best_function_error(host, fns, FunctionSignature(*override_name, param_types), "Operator Function");
+			}
+			return;
+		}
+	}
+
+	if (!skip_cast_check)
+	{
+		if (supports_bitflags && checkBitflagError(host, *ltype, *rtype))
+			return;
+		checkCast(*rtype, *ltype, &host);
+		if (breakRecursion(host)) return;
+	}
+
+	if (breakRecursion(host)) return;
+}
+void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
+{
+	handleSpecialAssign(host, nullopt, false);
+}
+
+#define SPECIAL_ASSIGN(ty_base, ty_assign, override_name) \
+void SemanticAnalyzer::caseExpr##ty_assign(ASTExpr##ty_assign& host, void* param) \
+{ \
+	handleSpecialAssign(host, override_name, ASTExpr##ty_base().supportsBitflags()); \
+}
+#include "special_assign.xtable"
+#undef SPECIAL_ASSIGN
+void SemanticAnalyzer::caseExprBitNotAssign(ASTExprBitNotAssign& host, void* param)
+{
+	handleSpecialAssign(host, "bit_not_assign", true);
 }
 
 void SemanticAnalyzer::caseExprIdentifier(
@@ -1308,7 +1473,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		{
 			reader = lookupGetter(host.leftClass->getScope(), host.right->getValue());
 		}
-
+		
 		host.readFunction = reader;
 		if (!host.readFunction)
 		{
@@ -1337,6 +1502,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	// Find write function.
 	if (param == paramWrite || param == paramReadWrite)
 	{
+		if (DataType const* wty = host.getWriteType(scope, this); wty && wty->isConstant())
+			return; // Let the parent caller handle throwing the error
 		Function* writer;
 		if (host.index)
 		{
@@ -1399,6 +1566,28 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	if(!(host.array->isTypeArrow()))
 	{
 		DataType const* readty = host.array->getReadType(scope,this);
+		
+		if (readty->isUsrClass())
+		{
+			UserClass* user_class = readty->getUsrClass();
+			vector<DataType const*> param_types = {readty, &DataType::FLOAT};
+			vector<Function*> fns = lookupClassFuncs(*user_class, "index_get", param_types, scope, false, true);
+			//Remove any non-operator functions
+			std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+			fns = best_functions_cast(fns, param_types);
+			best_functions_optparam(fns, param_types);
+			best_function_untyped(fns, param_types);
+			
+			if (!fns.empty())
+			{
+				if (fns.size() == 1)
+					host.override_read_fn = fns[0];
+				else
+					best_function_error(host, fns, FunctionSignature("index_get", param_types), "Operator Function");
+				return;
+			}
+		}
+		
 		DataType const* writety = host.array->getWriteType(scope,this);
 		auto ty = readty ? readty : writety;
 		if(!ty || !(ty->isArray() || ty->isUntyped()))
@@ -1419,6 +1608,235 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	}
 }
 
+vector<Function*> SemanticAnalyzer::best_functions_cast(vector<Function*>& base_funcs, vector<DataType const*> const& parameterTypes)
+{
+	vector<Function*> bestFunctions;
+	int32_t bestCastCount = parameterTypes.size() + 1;
+	for (vector<Function*>::iterator it = base_funcs.begin();
+		 it != base_funcs.end(); ++it)
+	{
+		// Count number of casts.
+		Function& function = **it;
+		int32_t castCount = 0;
+		size_t lowsize = zc_min(parameterTypes.size(), function.paramTypes.size());
+		for(size_t i = 0; i < lowsize; ++i)
+		{
+			DataType const& from = getNaiveType(*parameterTypes[i], scope);
+			DataType const& to = getNaiveType(*function.paramTypes[i], scope);
+			if (from == to) continue;
+			if (DataType::STRING &&
+				(((from == *DataType::STRING || from == *DataType::STRING->getConstType()) && to == *DataType::CHAR_ARRAY)
+				|| ((to == *DataType::STRING || to == *DataType::STRING->getConstType()) && from == *DataType::CHAR_ARRAY)))
+				continue;
+			++castCount;
+		}
+
+		// If this beats the record, clear results and keep it.
+		if (castCount < bestCastCount)
+		{
+			bestFunctions.clear();
+			bestFunctions.push_back(&function);
+			bestCastCount = castCount;
+		}
+
+		// If this just matches the record, append it.
+		else if (castCount == bestCastCount)
+			bestFunctions.push_back(&function);
+	}
+	return bestFunctions;
+}
+void SemanticAnalyzer::best_functions_optparam(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes)
+{
+	if(bestFunctions.size() > 1)
+	{
+		auto targSize = parameterTypes.size();
+		int32_t bestDiff = -1;
+		//Find the best (minimum) difference between the passed param count and function max param count
+		for(auto it = bestFunctions.begin(); it != bestFunctions.end(); ++it)
+		{
+			int32_t maxSize = (*it)->paramTypes.size();
+			int32_t diff = maxSize - targSize;
+			if(bestDiff < 0 || diff < bestDiff) bestDiff = diff;
+		}
+		//Remove any functions that don't share the minimum difference.
+		for(auto it = bestFunctions.begin(); it != bestFunctions.end();)
+		{
+			int32_t maxSize = (*it)->paramTypes.size();
+			int32_t diff = maxSize - targSize;
+			if(diff > bestDiff)
+				it = bestFunctions.erase(it);
+			else ++it;
+		}
+	}
+}
+void SemanticAnalyzer::best_functions_namespace(vector<Function*>& bestFunctions)
+{
+	if(bestFunctions.size() > 1)
+	{
+		std::map<Function*, Scope*> bestNSs;
+		std::map<Function*, Scope*> bestScripts;
+		for (vector<Function*>::const_iterator it = bestFunctions.begin();
+		     it != bestFunctions.end(); ++it)
+		{
+			Scope* ns = NULL;
+			Scope* scr = NULL;
+			for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
+			{
+				if(!scr && current->isScript())
+				{
+					scr = current;
+				}
+				if(current->isNamespace())
+				{
+					ns = current;
+					break;
+				}
+			}
+			bestNSs[*it] = ns;
+			bestScripts[*it] = scr;
+		}
+		Function* bestFound = NULL;
+		for(Scope* current = scope; current; current = current->getParent())
+		{
+			if(current->isScript())
+			{
+				for (vector<Function*>::const_iterator it = bestFunctions.begin();
+				     it != bestFunctions.end(); ++it)
+				{
+					if(current == bestScripts[*it])
+					{
+						if(bestFound)
+						{
+							bestFound = NULL;
+							current = NULL;
+							break;
+						}
+						else bestFound = *it;
+					}
+				}
+			}
+			else if(current->isNamespace())
+			{
+				for (vector<Function*>::const_iterator it = bestFunctions.begin();
+				     it != bestFunctions.end(); ++it)
+				{
+					if(current == bestNSs[*it])
+					{
+						if(bestFound)
+						{
+							bestFound = NULL;
+							current = NULL;
+							break;
+						}
+						else bestFound = *it;
+					}
+				}
+			}
+			if(!current) break;
+		}
+		if(bestFound) //Found a singular best; override the prior calculations, and salvage the call! -V
+		{
+			bestFunctions.clear();
+			bestFunctions.push_back(bestFound);
+		}
+	}
+}
+void SemanticAnalyzer::best_function_untyped(vector<Function*>& bestFunctions, vector<DataType const*> const& parameterTypes)
+{
+	if(bestFunctions.size() > 1)
+	{
+		vector<Function*> newBestFunctions = bestFunctions;
+		size_t maxsize = 0;
+		for(auto it = newBestFunctions.begin(); it != newBestFunctions.end(); ++it)
+		{
+			if(maxsize < (*it)->paramTypes.size())
+				maxsize = (*it)->paramTypes.size();
+		}
+		//Remove any strictly-less-specific functions
+		for(size_t p = 0; p < maxsize; ++p)
+		{
+			int flag = 0;
+			for(auto it = bestFunctions.begin(); flag != 3 && it != bestFunctions.end();++it)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() <= p)
+					continue;
+				bool ut = pty.at(p)->isUntyped();
+				if(ut) flag |= 1;
+				else flag |= 2;
+			}
+			if(flag != 3) continue;
+			for(auto it = newBestFunctions.begin(); it != newBestFunctions.end();)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() <= p)
+				{
+					++it;
+					continue;
+				}
+				bool ut = pty.at(p)->isUntyped();
+				if (ut) //untyped, keep
+				{
+					++it;
+					continue;
+				}
+				else if(parameterTypes.size() > p)
+				{
+					DataType const& from = getNaiveType(*parameterTypes[p], scope);
+					DataType const& to = getNaiveType(*pty[p], scope);
+					if(from == to) //Exact match, keep
+					{
+						++it;
+						continue;
+					}
+				}
+				//Not exact match, not untyped; junk it.
+				it = newBestFunctions.erase(it);
+				continue;
+			}
+			if(newBestFunctions.size() == 0)
+				break; //Nothing left to loop on
+		}
+		if(newBestFunctions.size() > 0) //Don't overwrite if eliminated all
+			bestFunctions = newBestFunctions;
+	}
+}
+void SemanticAnalyzer::best_function_error(AST& host, vector<Function*>& bestFunctions, FunctionSignature const& signature, string const& prefix)
+{
+	if (bestFunctions.size() == 0)
+	{
+		handleError(CompileError::NoFuncMatch(&host, prefix, signature.asString()));
+	}
+	else
+	{
+		// Sort to keep order same across platforms.
+		std::sort(bestFunctions.begin(), bestFunctions.end(), [](Function* a, Function* b) {
+			return a->id < b->id;
+		});
+
+		// Build list of function signatures.
+		ostringstream oss;
+		for (vector<Function*>::const_iterator it = bestFunctions.begin();
+			 it != bestFunctions.end(); ++it)
+		{
+			oss << "        ";
+			string namespacenames = "";
+			for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
+			{
+				if(!current->isNamespace()) continue;
+				NamespaceScope* ns = static_cast<NamespaceScope*>(current);
+				namespacenames = ns->namesp->getName() + "::" + namespacenames;
+			}
+			oss << namespacenames << (*it)->getSignature().asString() << "\n";
+		}
+		
+		handleError(
+				CompileError::TooFuncMatch(
+						&host,
+						fmt::format("{} {}", prefix, signature.asString()),
+						oss.str()));
+	}
+}
 void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 {
 	// Cast left.
@@ -1496,223 +1914,18 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope); //Never `using` arrow functions
 
 	// Find function with least number of casts.
-	vector<Function*> bestFunctions;
-	int32_t bestCastCount = parameterTypes.size() + 1;
-	for (vector<Function*>::iterator it = functions.begin();
-		 it != functions.end(); ++it)
-	{
-		// Count number of casts.
-		Function& function = **it;
-		int32_t castCount = 0;
-		size_t lowsize = zc_min(parameterTypes.size(), function.paramTypes.size());
-		for(size_t i = 0; i < lowsize; ++i)
-		{
-			DataType const& from = getNaiveType(*parameterTypes[i], scope);
-			DataType const& to = getNaiveType(*function.paramTypes[i], scope);
-			if (from == to) continue;
-			++castCount;
-		}
-
-		// If this beats the record, clear results and keep it.
-		if (castCount < bestCastCount)
-		{
-			bestFunctions.clear();
-			bestFunctions.push_back(&function);
-			bestCastCount = castCount;
-		}
-
-		// If this just matches the record, append it.
-		else if (castCount == bestCastCount)
-			bestFunctions.push_back(&function);
-	}
+	vector<Function*> bestFunctions = best_functions_cast(functions, parameterTypes);
 	// We may have failed, but let's check optional parameters first...
-	if(bestFunctions.size() > 1)
-	{
-		auto targSize = parameterTypes.size();
-		int32_t bestDiff = -1;
-		//Find the best (minimum) difference between the passed param count and function max param count
-		for(auto it = bestFunctions.begin(); it != bestFunctions.end(); ++it)
-		{
-			int32_t maxSize = (*it)->paramTypes.size();
-			int32_t diff = maxSize - targSize;
-			if(bestDiff < 0 || diff < bestDiff) bestDiff = diff;
-		}
-		//Remove any functions that don't share the minimum difference.
-		for(auto it = bestFunctions.begin(); it != bestFunctions.end();)
-		{
-			int32_t maxSize = (*it)->paramTypes.size();
-			int32_t diff = maxSize - targSize;
-			if(diff > bestDiff)
-				it = bestFunctions.erase(it);
-			else ++it;
-		}
-	}
+	best_functions_optparam(bestFunctions, parameterTypes);
 	// We may have failed, though namespaces may resolve the issue. Check for namespace closeness.
-	if(bestFunctions.size() > 1)
-	{
-		std::map<Function*, Scope*> bestNSs;
-		std::map<Function*, Scope*> bestScripts;
-		for (vector<Function*>::const_iterator it = bestFunctions.begin();
-		     it != bestFunctions.end(); ++it)
-		{
-			Scope* ns = NULL;
-			Scope* scr = NULL;
-			for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
-			{
-				if(!scr && current->isScript())
-				{
-					scr = current;
-				}
-				if(current->isNamespace())
-				{
-					ns = current;
-					break;
-				}
-			}
-			bestNSs[*it] = ns;
-			bestScripts[*it] = scr;
-		}
-		Function* bestFound = NULL;
-		for(Scope* current = scope; current; current = current->getParent())
-		{
-			if(current->isScript())
-			{
-				for (vector<Function*>::const_iterator it = bestFunctions.begin();
-				     it != bestFunctions.end(); ++it)
-				{
-					if(current == bestScripts[*it])
-					{
-						if(bestFound)
-						{
-							bestFound = NULL;
-							current = NULL;
-							break;
-						}
-						else bestFound = *it;
-					}
-				}
-			}
-			else if(current->isNamespace())
-			{
-				for (vector<Function*>::const_iterator it = bestFunctions.begin();
-				     it != bestFunctions.end(); ++it)
-				{
-					if(current == bestNSs[*it])
-					{
-						if(bestFound)
-						{
-							bestFound = NULL;
-							current = NULL;
-							break;
-						}
-						else bestFound = *it;
-					}
-				}
-			}
-			if(!current) break;
-		}
-		if(bestFound) //Found a singular best; override the prior calculations, and salvage the call! -V
-		{
-			bestFunctions.clear();
-			bestFunctions.push_back(bestFound);
-		}
-	}
+	best_functions_namespace(bestFunctions);
 	// We may have failed, but give higher priority to 'untyped' first...
-	if(bestFunctions.size() > 1)
-	{
-		vector<Function*> newBestFunctions = bestFunctions;
-		size_t maxsize = 0;
-		for(auto it = newBestFunctions.begin(); it != newBestFunctions.end(); ++it)
-		{
-			if(maxsize < (*it)->paramTypes.size())
-				maxsize = (*it)->paramTypes.size();
-		}
-		//Remove any strictly-less-specific functions
-		for(size_t p = 0; p < maxsize; ++p)
-		{
-			int flag = 0;
-			for(auto it = bestFunctions.begin(); flag != 3 && it != bestFunctions.end();++it)
-			{
-				auto& pty = (*it)->paramTypes;
-				if (pty.size() <= p)
-					continue;
-				bool ut = pty.at(p)->isUntyped();
-				if(ut) flag |= 1;
-				else flag |= 2;
-			}
-			if(flag != 3) continue;
-			for(auto it = newBestFunctions.begin(); it != newBestFunctions.end();)
-			{
-				auto& pty = (*it)->paramTypes;
-				if (pty.size() <= p)
-				{
-					++it;
-					continue;
-				}
-				bool ut = pty.at(p)->isUntyped();
-				if (ut) //untyped, keep
-				{
-					++it;
-					continue;
-				}
-				else if(parameterTypes.size() > p)
-				{
-					DataType const& from = getNaiveType(*parameterTypes[p], scope);
-					DataType const& to = getNaiveType(*pty[p], scope);
-					if(from == to) //Exact match, keep
-					{
-						++it;
-						continue;
-					}
-				}
-				//Not exact match, not untyped; junk it.
-				it = newBestFunctions.erase(it);
-				continue;
-			}
-			if(newBestFunctions.size() == 0)
-				break; //Nothing left to loop on
-		}
-		if(newBestFunctions.size() > 0) //Don't overwrite if eliminated all
-			bestFunctions = newBestFunctions;
-	}
+	best_function_untyped(bestFunctions, parameterTypes);
 	// We failed.
 	if (bestFunctions.size() != 1)
 	{
 		FunctionSignature signature(host.left->asString(), parameterTypes);
-		if (bestFunctions.size() == 0)
-		{
-			handleError(
-					CompileError::NoFuncMatch(&host, signature.asString()));
-		}
-		else
-		{
-			// Sort to keep order same across platforms.
-			std::sort(bestFunctions.begin(), bestFunctions.end(), [](Function* a, Function* b) {
-				return a->id < b->id;
-			});
-
-			// Build list of function signatures.
-			ostringstream oss;
-			for (vector<Function*>::const_iterator it = bestFunctions.begin();
-			     it != bestFunctions.end(); ++it)
-			{
-				oss << "        ";
-				string namespacenames = "";
-				for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
-				{
-					if(!current->isNamespace()) continue;
-					NamespaceScope* ns = static_cast<NamespaceScope*>(current);
-					namespacenames = ns->namesp->getName() + "::" + namespacenames;
-				}
-				oss << namespacenames << (*it)->getSignature().asString() << "\n";
-			}
-			
-			handleError(
-					CompileError::TooFuncMatch(
-							&host,
-							signature.asString(),
-							oss.str()));
-		}
+		best_function_error(host, bestFunctions, signature, "Function");
 		return;
 	}
 	
@@ -1764,7 +1977,7 @@ void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
 			host.done = true;
 		}
 	}
-	analyzeUnaryExpr(host, DataType::FLOAT);
+	analyzeUnaryExpr(host, DataType::FLOAT, "negate", true);
 }
 void SemanticAnalyzer::caseExprDelete(ASTExprDelete& host, void*)
 {
@@ -1780,27 +1993,29 @@ void SemanticAnalyzer::caseExprDelete(ASTExprDelete& host, void*)
 
 void SemanticAnalyzer::caseExprNot(ASTExprNot& host, void*)
 {
+	analyzeUnaryExpr(host, DataType::UNTYPED, "bool_not", false);
+	if (host.override_fn)
+		return; // if overridden, don't simplify duplicate nots
 	while(ASTExprNot* ptr = dynamic_cast<ASTExprNot*>(host.operand.get()))
 	{
 		host.invert();
 		host.operand.reset(ptr->operand.release());
 	}
-	analyzeUnaryExpr(host, DataType::UNTYPED);
 }
 
 void SemanticAnalyzer::caseExprBitNot(ASTExprBitNot& host, void*)
 {
-	analyzeUnaryExpr(host, DataType::FLOAT);
+	analyzeUnaryExpr(host, DataType::FLOAT, "bit_not", true);
 }
 
 void SemanticAnalyzer::caseExprIncrement(ASTExprIncrement& host, void*)
 {
-	analyzeIncrement(host);
+	analyzeUnaryExpr(host, DataType::FLOAT, host.is_pre ? "pre_increment" : "post_increment", true, paramReadWrite);
 }
 
 void SemanticAnalyzer::caseExprDecrement(ASTExprDecrement& host, void*)
 {
-	analyzeIncrement(host);
+	analyzeUnaryExpr(host, DataType::FLOAT, host.is_pre ? "pre_decrement" : "post_decrement", true, paramReadWrite);
 }
 
 void SemanticAnalyzer::caseExprCast(ASTExprCast& host, void* param)
@@ -1823,43 +2038,46 @@ void SemanticAnalyzer::caseExprCast(ASTExprCast& host, void* param)
 
 void SemanticAnalyzer::caseExprAnd(ASTExprAnd& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_and", false);
 }
 
 void SemanticAnalyzer::caseExprOr(ASTExprOr& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_or", false);
 }
 
 void SemanticAnalyzer::caseExprXOR(ASTExprXOR& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED, "bool_xor", false);
 }
 
 void SemanticAnalyzer::caseExprGT(ASTExprGT& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_gt", true);
 }
 
 void SemanticAnalyzer::caseExprGE(ASTExprGE& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_ge", true);
 }
 
 void SemanticAnalyzer::caseExprLT(ASTExprLT& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_lt", true);
 }
 
 void SemanticAnalyzer::caseExprLE(ASTExprLE& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_le", true);
 }
 
 void SemanticAnalyzer::caseExprEQ(ASTExprEQ& host, void*)
 {
 	RecursiveVisitor::caseExprEQ(host);
 	if (breakRecursion(host)) return;
+	
+	if (!host.strict && overrideBinaryExpr(host, "cmp_eq", false))
+		return;
 
 	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host, true);
 	if (breakRecursion(host)) return;
@@ -1869,6 +2087,9 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 {
 	RecursiveVisitor::caseExprNE(host);
 	if (breakRecursion(host)) return;
+	
+	if (!host.strict && overrideBinaryExpr(host, "cmp_ne", false))
+		return;
 
 	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host, true);
 	if (breakRecursion(host)) return;
@@ -1876,62 +2097,62 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 
 void SemanticAnalyzer::caseExprAppxEQ(ASTExprAppxEQ& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "cmp_appx_eq", true);
 }
 
 void SemanticAnalyzer::caseExprPlus(ASTExprPlus& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "plus", true);
 }
 
 void SemanticAnalyzer::caseExprMinus(ASTExprMinus& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "minus", true);
 }
 
 void SemanticAnalyzer::caseExprTimes(ASTExprTimes& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "times", true);
 }
 
 void SemanticAnalyzer::caseExprExpn(ASTExprExpn& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "expn", true);
 }
 
 void SemanticAnalyzer::caseExprDivide(ASTExprDivide& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "divide", true);
 }
 
 void SemanticAnalyzer::caseExprModulo(ASTExprModulo& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "modulo", true);
 }
 
 void SemanticAnalyzer::caseExprBitAnd(ASTExprBitAnd& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_and", true);
 }
 
 void SemanticAnalyzer::caseExprBitOr(ASTExprBitOr& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_or", true);
 }
 
 void SemanticAnalyzer::caseExprBitXor(ASTExprBitXor& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "bit_xor", true);
 }
 
 void SemanticAnalyzer::caseExprLShift(ASTExprLShift& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "lshift", true);
 }
 
 void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT, "rshift", true);
 }
 
 void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
@@ -2060,76 +2281,134 @@ void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 void SemanticAnalyzer::caseIsIncluded(ASTIsIncluded& host, void*)
 {}
 
-void SemanticAnalyzer::analyzeUnaryExpr(
-		ASTUnaryExpr& host, DataType const& type)
+void SemanticAnalyzer::analyzeUnaryExpr(ASTUnaryExpr& host, DataType const& type, string const& override_name, bool require_override, void* param)
 {
-	visit(host.operand.get());
+	visit(host.operand.get(), param);
 	if (breakRecursion(host)) return;
 	
-	checkCast(*host.operand->getReadType(scope, this), type, &host);
-	if (breakRecursion(host)) return;
-}
-
-void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
-{
-	visit(host.operand.get(), paramReadWrite);
-    if (breakRecursion(host)) return;
-
 	ASTExpr& operand = *host.operand;
 	DataType const& ty = *operand.getReadType(scope, this);
-    checkCast(ty, DataType::FLOAT, &host);
-    if (breakRecursion(host)) return;
-	if (ty.isConstant())
+	
+	if (ty.isUsrClass())
+	{
+		UserClass* user_class = ty.getUsrClass();
+		vector<DataType const*> param_types = {&ty};
+		vector<Function*> fns = lookupClassFuncs(*user_class, override_name, param_types, scope, false, true);
+		//Remove any non-operator functions
+		std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+		fns = best_functions_cast(fns, param_types);
+		best_functions_optparam(fns, param_types);
+		best_function_untyped(fns, param_types);
+		
+		if (require_override || !fns.empty())
+		{
+			if (fns.size() == 1)
+			{
+				host.override_fn = fns[0];
+			}
+			else
+			{
+				best_function_error(host, fns, FunctionSignature(override_name, param_types), "Operator Function");
+			}
+			return;
+		}
+	}
+	
+	checkCast(ty, type, &host);
+	if (breakRecursion(host)) return;
+	if (ty.isConstant() && (param == paramWrite || param == paramReadWrite))
 		handleError(CompileError::LValConst(&host, operand.asString()));
+}
+
+bool SemanticAnalyzer::overrideBinaryExpr(ASTBinaryExpr& host, string const& override_name, bool require)
+{
+	auto& left_type = *host.left->getReadType(scope, this);
+	auto& right_type = *host.right->getReadType(scope, this);
+
+	if (left_type.isUsrClass() || right_type.isUsrClass())
+	{
+		UserClass *left_class = left_type.getUsrClass(), *right_class = right_type.getUsrClass();
+		vector<DataType const*> param_types = {&left_type, &right_type};
+		vector<Function*> fns;
+		if (left_class)
+		{
+			auto left_fns = lookupClassFuncs(*left_class, override_name, param_types, scope, false, true);
+			fns.insert(fns.end(), left_fns.begin(), left_fns.end());
+		}
+		if (right_class && right_class != left_class)
+		{
+			auto right_fns = lookupClassFuncs(*right_class, override_name, param_types, scope, false, true);
+			fns.insert(fns.end(), right_fns.begin(), right_fns.end());
+		}
+		//Remove any non-operator functions
+		std::erase_if(fns, [](Function* func){return !func->getFlag(FUNCFLAG_OPERATOR);});
+		fns = best_functions_cast(fns, param_types);
+		best_functions_optparam(fns, param_types);
+		best_function_untyped(fns, param_types);
+		
+		if (fns.size() == 1)
+		{
+			host.override_fn = fns[0];
+		}
+		else if(require || fns.size() > 1)
+		{
+			best_function_error(host, fns, FunctionSignature(override_name, param_types), "Operator Function");
+		}
+		return true;
+	}
+	return false;
 }
 
 void SemanticAnalyzer::analyzeBinaryExpr(
 		ASTBinaryExpr& host, DataType const& leftType,
-		DataType const& rightType)
+		DataType const& rightType, string const& override_name, bool require_override)
 {
+	visit(host.left.get());
+	if (breakRecursion(host)) return;
+	visit(host.right.get());
+	if (breakRecursion(host)) return;
+	
+	if (overrideBinaryExpr(host, override_name, require_override))
+		return;
+	
 	if (!host.supportsBitflags())
 	{
-		visit(host.left.get());
-		if (breakRecursion(host)) return;
 		checkCast(*host.left->getReadType(scope, this), leftType, &host);
 		if (breakRecursion(host)) return;
 
-		visit(host.right.get());
-		if (breakRecursion(host)) return;
 		checkCast(*host.right->getReadType(scope, this), rightType, &host);
-		
 		return;
 	}
-
-	visit(host.left.get());
-	if (breakRecursion(host)) return;
-
 	auto leftTypeActual = host.left->getReadType(scope, this);
-	bool leftIsEnum = leftTypeActual->isEnum();
-	if (!leftIsEnum)
+	auto rightTypeActual = host.right->getReadType(scope, this);
+	
+	if (checkBitflagError(host, *leftTypeActual, *rightTypeActual))
+		return;
+
+	if (!leftTypeActual->isEnum())
 	{
 		checkCast(*leftTypeActual, leftType, &host);
 		if (breakRecursion(host)) return;
 	}
-
-	visit(host.right.get());
-	if (breakRecursion(host)) return;
-
-	auto rightTypeActual = host.right->getReadType(scope, this);
-	bool rightIsEnum = rightTypeActual->isEnum();
-	if (!rightIsEnum)
+	
+	if (!rightTypeActual->isEnum())
 	{
 		checkCast(*rightTypeActual, rightType, &host);
 		if (breakRecursion(host)) return;
 	}
+}
 
-	bool leftIsBitflags = leftTypeActual->isBitflagsEnum();
-	bool rightIsBitflags = rightTypeActual->isBitflagsEnum();
-	if ((leftIsEnum && rightIsEnum) && (leftIsBitflags || rightIsBitflags) && *leftTypeActual->getMutType() != *rightTypeActual->getMutType())
+bool SemanticAnalyzer::checkBitflagError(AST& host, DataType const& leftType, DataType const& rightType)
+{
+	if ((leftType.isEnum() && rightType.isEnum()) && (leftType.isBitflagsEnum() || rightType.isBitflagsEnum()))
 	{
-		handleError(CompileError::Error(&host, fmt::format("Binary operations on bitflags must be on the same type. Instead, got: {}, {}",
-			leftTypeActual->getMutType()->getName(), 
-			rightTypeActual->getMutType()->getName())));
-		return;
+		if (*leftType.getMutType() != *rightType.getMutType())
+		{
+			handleError(CompileError::Error(&host, fmt::format("Binary operations on bitflags must be on the same type. Instead, got: {}, {}",
+				leftType.getMutType()->getName(), 
+				rightType.getMutType()->getName())));
+			return true;
+		}
 	}
+	return false;
 }
