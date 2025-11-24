@@ -91,6 +91,7 @@ src/dialog/view_script_slots.cpp
 src/dialog/object_pages.cpp
 src/dialog/screen_notes.cpp
 
+src/dialog/undercombo_dlg.cpp
 
 ## End of ZQuest GUI module
 )

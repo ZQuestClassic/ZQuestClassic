@@ -462,6 +462,16 @@ mapscr* zmap::AbsoluteScr(int32_t map, int32_t scr)
 		return nullptr;
     return AbsoluteScr((map*MAPSCRS)+scr);
 }
+mapscr* zmap::AbsoluteScrMakeValid(int32_t map, int32_t screen)
+{
+	mapscr* scr = AbsoluteScr(map, screen);
+	if (scr && !(scr->valid&mVALID))
+	{
+		scr->valid |= mVALID;
+		setcolor(Color);
+	}
+	return scr;
+}
 void zmap::set_prvscr(int32_t map, int32_t scr)
 {
 	prvscr=TheMaps[(map*MAPSCRS)+scr];

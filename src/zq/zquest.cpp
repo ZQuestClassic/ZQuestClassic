@@ -12543,74 +12543,10 @@ int32_t onSecretCombo()
     return D_O_K;
 }
 
-static DIALOG under_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     72,   60,   176+1,120+1,vc(14),  vc(1),  0,       D_EXIT,     0,             0, NULL, NULL, NULL },
-    { jwin_text_proc,    115,  83,   20,   20,   vc(14),  vc(1),  0,       0,          0,             0, (void *) "Current", NULL, NULL },
-    { d_comboframe_proc, 122,  92,   20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_combo_proc,      124,  94,   16,   16,   0,       0,      0,       D_NOCLICK,  0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,    184,  83,   20,   20,   vc(14),  vc(1),  0,       0,          0,             0, (void *) "New", NULL, NULL },
-    { d_comboframe_proc, 182,  92,   20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_combo_proc,      184,  94,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,  90,   124,  61,   21,   vc(14),  vc(1),  's',     D_EXIT,     0,             0, (void *) "&Set", NULL, NULL },
-    { jwin_button_proc,  170,  124,  61,   21,   vc(14),  vc(1),  'c',     D_EXIT,     0,             0, (void *) "&Cancel", NULL, NULL },
-    { jwin_button_proc,  90,   152,  61,   21,   vc(14),  vc(1),  'a',     D_EXIT,     0,             0, (void *) "Set &All", NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    { d_timer_proc,      0,    0,    0,    0,    0,       0,      0,       0,          0,             0,         NULL, NULL, NULL },
-    { NULL,              0,    0,    0,    0,    0,       0,      0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
+void call_undercombo_dlg(int map, int screen);
 int32_t onUnderCombo()
 {
-	char titlebuf[64];
-	sprintf(titlebuf, "Under Combo (Layer %d)", CurrentLayer);
-	under_dlg[0].dp = titlebuf;
-	under_dlg[0].dp2 = get_zc_font(font_lfont);
-	mapscr* scr;
-	if(CurrentLayer==0)
-	{
-		scr=Map.CurrScr();
-	}
-	else
-	{
-		auto map=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-		auto screen=Map.CurrScr()->layerscreen[CurrentLayer-1];
-		scr = Map.AbsoluteScr(map,screen);
-	}
-	if(!scr) return D_O_K;
-	
-	under_dlg[3].d1=scr->undercombo;
-	under_dlg[3].fg=scr->undercset;
-	
-	under_dlg[6].d1=Combo;
-	under_dlg[6].fg=CSet;
-	
-	large_dialog(under_dlg);
-	// Doesn't place "New" and "Current" text too well
-	under_dlg[1].x=342;
-	under_dlg[4].x=438;
-	
-	int32_t ret = do_zqdialog(under_dlg,-1);
-	
-	if(ret==7)
-	{
-		mark_save_dirty();
-		scr->undercombo = under_dlg[6].d1;
-		scr->undercset = under_dlg[6].fg;
-	}
-	
-	if(ret==9 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
-	{
-		mark_save_dirty();
-		
-		for(int32_t i=0; i<128; i++)
-		{
-			Map.Scr(i)->undercombo = under_dlg[6].d1;
-			Map.Scr(i)->undercset = under_dlg[6].fg;
-		}
-	}
-	
+	call_undercombo_dlg(Map.getCurrMap(), Map.getCurrScr());
 	return D_O_K;
 }
 
@@ -27988,7 +27924,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(strlist_dlg);
     jwin_center_dialog(template_dlg);
     jwin_center_dialog(tp_dlg);
-    jwin_center_dialog(under_dlg);
     jwin_center_dialog(tilewarp_dlg);
     jwin_center_dialog(sidewarp_dlg);
     jwin_center_dialog(warpring_dlg);

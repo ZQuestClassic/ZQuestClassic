@@ -285,6 +285,7 @@ public:
     mapscr *Scr(int32_t scr);
     mapscr *AbsoluteScr(int32_t scr);
     mapscr *AbsoluteScr(int32_t map, int32_t scr);
+	mapscr* AbsoluteScrMakeValid(int32_t map, int32_t screen);
     int32_t  getCurrMap();
     bool isDark();
     void setCurrentView(int32_t map, int32_t scr);
