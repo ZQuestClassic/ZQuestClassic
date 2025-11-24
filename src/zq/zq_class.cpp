@@ -9677,6 +9677,18 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 125;
 	if(!p_iputzf(tmp_trig.trig_terminal_v, f))
 		return 126;
+	if(!p_putbitstr(tmp_trig.req_screen_state, f))
+		return 127;
+	if(!p_putbitstr(tmp_trig.unreq_screen_state, f))
+		return 128;
+	if(!p_putbitstr(tmp_trig.req_screen_ex_state, f))
+		return 129;
+	if(!p_putbitstr(tmp_trig.unreq_screen_ex_state, f))
+		return 130;
+	if(!p_putc(tmp_trig.trigstatemap, f))
+		return 131;
+	if(!p_putc(tmp_trig.trigstatescreen, f))
+		return 132;
 	return 0;
 }
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb)

@@ -1607,7 +1607,8 @@ bool getmapflag(int32_t screen, uint32_t flag)
 }
 bool getmapflag(mapscr* scr, uint32_t flag)
 {
-	return getmapflag(scr->screen, flag);
+	int mi = mapind(scr->map, scr->screen >= 0x80 ? home_screen : scr->screen);
+	return (game->maps[mi] & flag) != 0;
 }
 
 void setxmapflag(int32_t screen, uint32_t flag)
@@ -1715,6 +1716,11 @@ void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 bool getxmapflag(int32_t screen, uint32_t flag)
 {
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
+	return getxmapflag_mi(mi, flag);
+}
+bool getxmapflag(mapscr* scr, uint32_t flag)
+{
+	int mi = mapind(scr->map, scr->screen >= 0x80 ? home_screen : scr->screen);
 	return getxmapflag_mi(mi, flag);
 }
 bool getxmapflag_mi(int32_t mi, uint32_t flag)

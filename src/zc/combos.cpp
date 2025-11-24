@@ -2052,6 +2052,31 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		if(!check_dark_trigger_conditional(is_active_screen, scr, true))
 			return false;
 
+	mapscr* state_scr = scr;
+	if (trig.trigstatemap > 0)
+	{
+		if (trig.trigstatemap > map_count)
+		{
+			Z_error("Combo trigger expected map '%d', but map count is '%d'", trig.trigstatemap, map_count);
+			return false;
+		}
+		state_scr = &TheMaps[(trig.trigstatemap-1) * MAPSCRS + trig.trigstatescreen];
+	}
+	for (int q = 0; q < mMAXIND; ++q)
+	{
+		if(trig.req_screen_state.get(q) && !getmapflag(state_scr, 1 << q))
+			return false;
+		if(trig.unreq_screen_state.get(q) && getmapflag(state_scr, 1 << q))
+			return false;
+	}
+	for (int q = 0; q < 32; ++q)
+	{
+		if(trig.req_screen_ex_state.get(q) && !getxmapflag(state_scr, 1 << q))
+			return false;
+		if(trig.unreq_screen_ex_state.get(q) && getxmapflag(state_scr, 1 << q))
+			return false;
+	}
+
 	if (is_active_screen || trig.trigdmlevel > -1)
 	{
 		auto dmap_level = trig.trigdmlevel > -1 ? trig.trigdmlevel : dlevel;

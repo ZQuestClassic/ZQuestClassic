@@ -4,6 +4,7 @@
 #include "zinfo.h"
 #include "new_subscr.h"
 #include "qst.h"
+#include "zc_list_data.h"
 
 extern const char* icounter_str2[-(sscMIN + 1)];
 extern char *item_string[MAXITEMS];
@@ -402,6 +403,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 	}
 	
 	string dmlevel = trigdmlevel < 0 ? "current level" : ("level " + trigdmlevel);
+	string statescreen_str = trigstatemap <= 0 ? "current screen" : fmt::format("map {} screen {}", trigstatemap, trigstatescreen);
 	std::ostringstream litems;
 	string litem_str;
 	if (trig_levelitems)
@@ -528,7 +530,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 			TRIM_TRAILING_CHARS(state_str);
 			string s = count != 1 ? "s" : "";
 
-			conditions << indent << fmt::format("Level state{} {} enabled for {}\n", s, state_str, dmlevel);
+			conditions << indent << fmt::format("Level state{} [{}] enabled for {}\n", s, state_str, dmlevel);
 		}
 		if (unreq_level_state)
 		{
@@ -544,7 +546,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 			TRIM_TRAILING_CHARS(state_str);
 			string s = count != 1 ? "s" : "";
 
-			conditions << indent << fmt::format("Level state{} {} disabled for {}\n", s, state_str, dmlevel);
+			conditions << indent << fmt::format("Level state{} [{}] disabled for {}\n", s, state_str, dmlevel);
 		}
 		if (!req_global_state.empty())
 		{
@@ -560,7 +562,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 			TRIM_TRAILING_CHARS(state_str);
 			string s = count != 1 ? "s" : "";
 
-			conditions << indent << fmt::format("Global state{} {} enabled\n", s, state_str);
+			conditions << indent << fmt::format("Global state{} [{}] enabled\n", s, state_str);
 		}
 		if (!unreq_global_state.empty())
 		{
@@ -576,7 +578,73 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 			TRIM_TRAILING_CHARS(state_str);
 			string s = count != 1 ? "s" : "";
 
-			conditions << indent << fmt::format("Global state{} {} disabled\n", s, state_str);
+			conditions << indent << fmt::format("Global state{} [{}] disabled\n", s, state_str);
+		}
+		
+		auto state_list = GUI::ZCListData::screenstate();
+		if (!req_screen_state.empty())
+		{
+			states.str(""); // reset str
+			int count = 0;
+			for (int q = 0; q < mMAXIND; ++q)
+				if (req_screen_state.get(q))
+				{
+					++count;
+					states << state_list.getText(q) << ", ";
+				}
+			auto state_str = states.str();
+			TRIM_TRAILING_CHARS(state_str);
+			string s = count != 1 ? "s" : "";
+
+			conditions << indent << fmt::format("Screen state{} [{}] enabled for {}\n", s, state_str, statescreen_str);
+		}
+		if (!unreq_screen_state.empty())
+		{
+			states.str(""); // reset str
+			int count = 0;
+			for (int q = 0; q < mMAXIND; ++q)
+				if (unreq_screen_state.get(q))
+				{
+					++count;
+					states << state_list.getText(q) << ", ";
+				}
+			auto state_str = states.str();
+			TRIM_TRAILING_CHARS(state_str);
+			string s = count != 1 ? "s" : "";
+
+			conditions << indent << fmt::format("Screen state{} [{}] disabled for {}\n", s, state_str, statescreen_str);
+		}
+		if (!req_screen_ex_state.empty())
+		{
+			states.str(""); // reset str
+			int count = 0;
+			for (int q = 0; q < 32; ++q)
+				if (req_screen_ex_state.get(q))
+				{
+					++count;
+					states << q << ", ";
+				}
+			auto state_str = states.str();
+			TRIM_TRAILING_CHARS(state_str);
+			string s = count != 1 ? "s" : "";
+
+			conditions << indent << fmt::format("Screen ExState{} [{}] enabled for {}\n", s, state_str, statescreen_str);
+		}
+		if (!unreq_screen_ex_state.empty())
+		{
+			states.str(""); // reset str
+			int count = 0;
+			for (int q = 0; q < 32; ++q)
+				if (unreq_screen_ex_state.get(q))
+				{
+					++count;
+					states << q << ", ";
+				}
+			auto state_str = states.str();
+			TRIM_TRAILING_CHARS(state_str);
+			string s = count != 1 ? "s" : "";
+
+			conditions << indent << fmt::format("Screen ExState{} [{}] disabled for {}\n", s, state_str, statescreen_str);
 		}
 
 		if (trigctramnt)

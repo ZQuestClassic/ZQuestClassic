@@ -32,6 +32,30 @@ static ArrayRegistrar CMBTRIGUNREQGLOBALSTATE_registrar(CMBTRIGUNREQGLOBALSTATE,
 	return &impl;
 }());
 
+static ArrayRegistrar CMBTRIGREQSCRSTATE_registrar(CMBTRIGREQSCRSTATE, []{
+	static ScriptingArray_ObjectMemberBitstring<combo_trigger, &combo_trigger::req_screen_state, 256> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar CMBTRIGUNREQSCRSTATE_registrar(CMBTRIGUNREQSCRSTATE, []{
+	static ScriptingArray_ObjectMemberBitstring<combo_trigger, &combo_trigger::unreq_screen_state, 256> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar CMBTRIGREQSCREXSTATE_registrar(CMBTRIGREQSCREXSTATE, []{
+	static ScriptingArray_ObjectMemberBitstring<combo_trigger, &combo_trigger::req_screen_ex_state, 256> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar CMBTRIGUNREQSCREXSTATE_registrar(CMBTRIGUNREQSCREXSTATE, []{
+	static ScriptingArray_ObjectMemberBitstring<combo_trigger, &combo_trigger::unreq_screen_ex_state, 256> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar CMBTRIGGERREQPLAYERDIR_registrar(CMBTRIGGERREQPLAYERDIR, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<combo_trigger, &combo_trigger::req_player_dir, 4> impl;
 	impl.setMul10000(true);

@@ -357,12 +357,12 @@ class combotrigger {
 	// [TRIGFLAG_LITEM_INV_REQUIRE],
 	// [TRIGFLAG_LITEM_SET],
 	// [TRIGFLAG_LITEM_UNSET]
-	// flags.
+	// flags. See [DMapLvl].
 	//
 	// @zasm_var CMBTRIGLITEMS
 	internal int LItems;
 
-	// The 'Level' used by 'TrigLItems'.
+	// The 'Level' used by [LItems], [ReqLevelState], [UnreqLevelState].
 	//
 	// -1 represents the 'current level', otherwise a valid dmap level indicates
 	// that level.
@@ -393,6 +393,45 @@ class combotrigger {
 	// @length 256
 	// @zasm_var CMBTRIGUNREQGLOBALSTATE
 	internal bool UnreqGlobalState[];
+	
+	// Which of the screen states for this combo's screen are required to be ON for this trigger to activate
+	//
+	// @index [enum ScreenState]
+	// @zasm_var CMBTRIGREQSCRSTATE
+	internal bool ReqScreenState[];
+	
+	// Which of the screen states for this combo's screen are required to be OFF for this trigger to activate
+	//
+	// @index [enum ScreenState]
+	// @zasm_var CMBTRIGUNREQSCRSTATE
+	internal bool UnreqScreenState[];
+	
+	// Which of the 32 screen exstates for this combo's screen are required to be ON for this trigger to activate
+	//
+	// @length 32
+	// @zasm_var CMBTRIGREQSCREXSTATE
+	internal bool ReqScreenExState[];
+	
+	// Which of the 32 screen exstates for this combo's screen are required to be OFF for this trigger to activate
+	//
+	// @length 32
+	// @zasm_var CMBTRIGUNREQSCREXSTATE
+	internal bool UnreqScreenExState[];
+
+	// The 'Map' used by [ReqScreenState], [UnreqScreenState], [ReqScreenExState], [UnreqScreenExState].
+	//
+	// 0 represents the 'current map + screen', otherwise a valid map indicates that map.
+	//
+	// @zasm_var CMBTRIGREQSTATEMAP
+	internal int StateMap;
+
+	// The 'Screen' used by [ReqScreenState], [UnreqScreenState], [ReqScreenExState], [UnreqScreenExState].
+	//
+	// If [StateMap] is 0, this value is ignored (the 'current map + screen' is used).
+	// Otherwise, this screen on the [StateMap] will be used.
+	//
+	// @zasm_var CMBTRIGREQSTATESCREEN
+	internal int StateScreen;
 
 	// When triggered, the palette is tinted on the red channel by this amount. -255 to 255.
 	//

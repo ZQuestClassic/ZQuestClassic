@@ -2816,8 +2816,8 @@ enum ASM_DEFINE
 #define HEROFLICKERTRANSP       0x14B4
 #define GAME_SAVEMENU_F6        0x14B5
 #define GAME_SAVEMENU_GAMEOVER  0x14B6
-#define RESRVD_VAR_MOOSH17      0x14B7
-#define RESRVD_VAR_MOOSH18      0x14B8
+#define CMBTRIGREQSTATEMAP      0x14B7
+#define CMBTRIGREQSTATESCREEN   0x14B8
 #define RESRVD_VAR_MOOSH19      0x14B9
 #define RESRVD_VAR_MOOSH20      0x14BA
 #define RESRVD_VAR_MOOSH21      0x14BB
@@ -3345,6 +3345,10 @@ enum ASM_DEFINE
 #define SAVEMENU_BGCSET                0x1699
 #define SAVEMENU_BGTW                  0x169A
 #define SAVEMENU_BGTH                  0x169B
+#define CMBTRIGREQSCRSTATE             0x169C
+#define CMBTRIGUNREQSCRSTATE           0x169D
+#define CMBTRIGREQSCREXSTATE           0x169E
+#define CMBTRIGUNREQSCREXSTATE         0x169F
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

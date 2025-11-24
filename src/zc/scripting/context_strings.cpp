@@ -530,11 +530,15 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGGERREQPLAYERZ: return "combotrigger::ReqHeroZ";
 		case CMBTRIGREQITEM: return "combotrigger::ReqItem";
 		case CMBTRIGREQLVLSTATE: return "combotrigger::ReqLevelState[]";
+		case CMBTRIGREQSCREXSTATE: return "combotrigger::ReqScreenExState[]";
+		case CMBTRIGREQSCRSTATE: return "combotrigger::ReqScreenState[]";
 		case CMBTRIGSFX: return "combotrigger::SFX";
 		case CMBTRIGSHIELDJINX: return "combotrigger::ShieldJinx";
 		case CMBTRIGSPAWNENEMY: return "combotrigger::SpawnEnemy";
 		case CMBTRIGSPAWNITEM: return "combotrigger::SpawnItem";
 		case CMBTRIGITEMPICKUP: return "combotrigger::SpawnItemPickup";
+		case CMBTRIGREQSTATEMAP: return "combotrigger::StateMap";
+		case CMBTRIGREQSTATESCREEN: return "combotrigger::StateScreen";
 		case CMBTRIGSTUN: return "combotrigger::Stun";
 		case CMBTRIGSWORDJINX: return "combotrigger::SwordJinx";
 		case CMBTRIGGER_TERMINAL_VELOCITY: return "combotrigger::TerminalVelocity";
@@ -547,6 +551,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGGERTRIGSTR: return "combotrigger::TriggerString";
 		case CMBTRIGUNREQGLOBALSTATE: return "combotrigger::UnreqGlobalState[]";
 		case CMBTRIGUNREQLVLSTATE: return "combotrigger::UnreqLevelState[]";
+		case CMBTRIGUNREQSCREXSTATE: return "combotrigger::UnreqScreenExState[]";
+		case CMBTRIGUNREQSCRSTATE: return "combotrigger::UnreqScreenState[]";
 		case CMBTRIGWAVYTIME: return "combotrigger::WavyTimer";
 		case CMBTRIGWPNLEVEL: return "combotrigger::WeaponLevel";
 		case DIRECTORYSIZE: return "directory::Size";
