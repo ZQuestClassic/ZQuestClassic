@@ -583,7 +583,6 @@ int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c);
 void reset_pal_cycling();
 void cycle_palette();
 
-int32_t onZstringshelp();
 int32_t onHelp();
 int32_t onLayers();
 

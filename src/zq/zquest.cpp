@@ -673,7 +673,7 @@ int32_t fill_type=1;
 
 bool first_save=false;
 char *filepath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
-string helpstr, zstringshelpstr;
+string helpstr;
 
 ZCMUSIC *zcmusic = NULL;
 ZCMIXER *zcmixer = NULL;
@@ -822,7 +822,6 @@ static NewMenu export_250_menu
 static NewMenu zq_help_menu
 {
 	{ "&Editor Help", onHelp },
-	{ "&Strings Help", onZstringshelp },
 };
 
 static NewMenu export_graphics
@@ -19765,18 +19764,6 @@ int32_t onHelp()
     return D_O_K;
 }
 
-void doZstringshelp()
-{
-	do_box_edit(zstringshelpstr, "ZStrings Help", true, true);
-}
-
-int32_t onZstringshelp()
-{
-    restore_mouse();
-    doZstringshelp();
-    return D_O_K;
-}
-
 void call_layer_dialog(int map, int scr);
 int32_t onLayers()
 {
@@ -20500,7 +20487,6 @@ int32_t main(int32_t argc,char **argv)
 	Z_message("OK\n");
 
 	helpstr = util::read_text_file("docs/zquest.txt");
-	zstringshelpstr = util::read_text_file("docs/zstrings.txt");
 	
 	// loading data files...
 	
