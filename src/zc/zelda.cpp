@@ -208,8 +208,6 @@ bool doThrottle()
 
 int32_t onHelp()
 {
-    //  restore_mouse();
-    //  doHelp(vc(15),vc(0));
     return D_O_K;
 }
 int32_t d_dropdmaplist_proc(int32_t ,DIALOG *,int32_t)
@@ -236,8 +234,7 @@ const char *dmaplist(int32_t index, int32_t *list_size)
     *list_size=dmap_list_size;
     return NULL;
 }
-
-int32_t startdmapxy[6] = {0,0,0,0,0,0};
+ListData dmap_list(dmaplist, &font);
 
 int32_t curr_tb_page=0;
 

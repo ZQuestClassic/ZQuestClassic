@@ -217,7 +217,6 @@ void do_previewtext();
 bool do_slots(vector<shared_ptr<ZScript::Opcode>> const& zasm,
 	map<string, disassembled_script_data> &scripts, int assign_mode);
 
-int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
 
 int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_ffc=0;
@@ -364,63 +363,6 @@ char comboprev_buf[512] = {0};
 char comboprev_buf2[512] = {0};
 FONT* txfont;
 
-const char *roomtype_string[MAXROOMTYPES] =
-{
-	"(None)","Special Item","Pay for Info","Secret Money","Gamble",
-	"Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
-	"Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
-	"3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
-};
-
-const char *catchall_string[MAXROOMTYPES] =
-{
-	"Generic Catchall","Special Item","Info Type","Amount","Generic Catchall","Repair Fee","Generic Catchall","Generic Catchall","Generic Catchall","Shop Type",
-	"Shop Type","Price","Price","Generic Catchall","Warp Ring","Generic Catchall","Generic Catchall", "Generic Catchall", "Generic Catchall",
-	"Generic Catchall", "Price","Shop Type","Bottle Shop Type"
-};
-
-#define MAXPOOLCOMBOS MAXFAVORITECOMBOS
-
-struct cmbdat_pair
-{
-    int32_t data;
-    byte cset;
-    cmbdat_pair() { clear(); }
-    void clear()
-    {
-        data = -1;
-        cset = 0;
-    }
-    bool valid() const
-    {
-        return data > -1;
-    }
-};
-bool pool_dirty=true;
-cmbdat_pair pool_combos[MAXPOOLCOMBOS];
-static std::vector<byte> pool;
-
-bool pool_valid()
-{
-	if(pool_dirty)
-	{
-		pool.clear();
-		for(auto q = 0; q < MAXPOOLCOMBOS; ++q)
-		{
-			if(pool_combos[q].valid())
-				pool.push_back(q);
-		}
-		pool_dirty = false;
-	}
-	return pool.size() > 0;
-}
-cmbdat_pair const& get_pool_combo()
-{
-	if(!pool_valid()) return pool_combos[0];
-	auto ind = zc_rand(pool.size()-1);
-	return pool_combos[pool.at(ind)];
-}
-
 int32_t mouse_scroll_h;
 
 // 'mapscreen' refers to the area of the editor where the screen is drawn.
@@ -535,8 +477,7 @@ itemdata *itemsbuf;
 wpndata  *wpnsbuf;
 comboclass *combo_class_buf;
 guydata  *guysbuf;
-item_drop_object    item_drop_sets[MAXITEMDROPSETS];
-newcombo curr_combo;
+item_drop_object item_drop_sets[MAXITEMDROPSETS];
 midi_info Midi_Info;
 bool zq_showpal=false;
 bool is_compact = false;
@@ -620,14 +561,6 @@ int showHotkeys()
 	hotkeys_run();
 	return D_O_K;
 }
-
-typedef int32_t (*intF)();
-typedef struct command_pair
-{
-    char name[80];
-    int32_t flags;
-    intF command;
-} command_pair;
 
 extern map_and_screen map_page[MAX_MAPPAGE_BTNS];
 
@@ -7595,15 +7528,6 @@ void select_scr()
 		Map.pushCursorToHistory(prev_cursor);
 }
 
-void clear_cpool()
-{
-	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
-	{
-		pool_combos[i].clear();
-	}
-	pool_dirty = true;
-}
-
 bool select_favorite()
 {
     int32_t tempcb=ComboBrush;
@@ -11988,42 +11912,6 @@ int32_t onTemplate()
     return D_O_K;
 }
 
-int32_t d_sel_scombo_proc(int32_t msg, DIALOG *d, int32_t c)
-{
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
-    switch(msg)
-    {
-    case MSG_CLICK:
-        while(gui_mouse_b())
-        {
-            int32_t x = zc_min(zc_max(gui_mouse_x() - d->x,0)>>4, 15);
-            int32_t y = zc_min(zc_max(gui_mouse_y() - d->y,0)&0xF0, 160);
-            
-            if(x+y != d->d1)
-            {
-                d->d1 = x+y;
-                custom_vsync();
-                d_sel_scombo_proc(MSG_DRAW,d,0);
-            }
-        }
-        
-        break;
-        
-    case MSG_DRAW:
-    {
-        blit((BITMAP*)(d->dp),screen,0,0,d->x,d->y,d->w,d->h);
-        int32_t x = d->x + (((d->d1)&15)<<4);
-        int32_t y = d->y + ((d->d1)&0xF0);
-        rect(screen,x,y,x+15,y+15,vc(15));
-    }
-    break;
-    }
-    
-    return D_O_K;
-}
-
 static DIALOG cflag_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -12217,41 +12105,6 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
     
     return D_O_K;
 }
-
-/*int32_t d_scombo2_proc(int32_t msg, DIALOG *d, int32_t c)
-{
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
-  switch(msg)
-  {
-    case MSG_CLICK:
-    if (CHECK_CTRL_CMD)
-    {
-      select_scombo(d->d1);
-    }
-    else
-    {
-      select_scombo(d->d1);
-    }
-    d_scombo_proc(MSG_DRAW,d,0);
-    break;
-
-
-    case MSG_DRAW:
-    BITMAP *buf = create_bitmap_ex(8,16,16);
-    if(buf)
-    {
-      clear_bitmap(buf);
-      Map.draw_secret2(buf,d->d1);
-      blit(buf,screen,0,0,d->x,d->y,16,16);
-      destroy_bitmap(buf);
-    }
-    break;
-  }
-
-  return D_O_K;
-}*/
 
 int32_t onSecretF();
 
@@ -12751,17 +12604,6 @@ void build_bii_list(bool usenone)
     }
 }
 
-
-const char *itemlist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = bii_cnt;
-        return NULL;
-    }
-    
-    return bii[index].s;
-}
 const char *itemlist_num(int32_t index, int32_t *list_size)
 {
     if(index<0)
@@ -12774,62 +12616,6 @@ const char *itemlist_num(int32_t index, int32_t *list_size)
 		return bii[index].s;
     sprintf(biin_buf, "%s (%03d)", bii[index].s, bii[index].i);
     return biin_buf;
-}
-
-// disable items on dmaps stuff
-int32_t DI[MAXITEMS];
-int32_t nDI;
-
-void initDI(int32_t index)
-{
-    int32_t j=0;
-    
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        int32_t index1=bii[i].i; // true index of item in dmap's DI list
-        
-        if(DMaps[index].disableditems[index1])
-        {
-            DI[j]=i;
-            j++;
-        }
-    }
-    
-    nDI=j;
-    
-    for(int32_t i=j; i<MAXITEMS; i++) DI[j]=0;
-    
-    return;
-}
-
-void insertDI(int32_t id, int32_t index)
-{
-    int32_t trueid=bii[id].i;
-    DMaps[index].disableditems[trueid] |= 1; //bit set
-    initDI(index);
-    return;
-}
-
-void deleteDI(int32_t id, int32_t index)
-{
-    int32_t i=DI[id];
-    int32_t trueid=bii[i].i;
-    DMaps[index].disableditems[trueid] &= (~1); // bit clear
-    initDI(index);
-    return;
-}
-
-const char *DIlist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = nDI;
-        return NULL;
-    }
-    
-    int32_t i=DI[index];
-    return bii[i].s;
-    
 }
 
 weapon_struct biw[MAXWPNS];
@@ -12854,29 +12640,6 @@ void build_biw_list()
     }
 }
 
-const char *weaponlist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = biw_cnt;
-        return NULL;
-    }
-    
-    return biw[index].s;
-}
-const char *weaponlist_num(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = biw_cnt;
-        return NULL;
-    }
-	static char biwn_buf[64+6];
-	if(biw[index].i < 0)
-		return biw[index].s;
-    sprintf(biwn_buf, "%s (%03d)", biw[index].s, biw[index].i);
-    return biwn_buf;
-}
 int32_t writeoneweapon(PACKFILE *f, int32_t index)
 {
     dword section_version=V_WEAPONS;
@@ -13155,37 +12918,6 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
     return list_dlg[2].d1;
 }
 
-static char sfx_str_buf[42];
-
-const char *sfxlist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,WAV_COUNT-1);
-        sprintf(sfx_str_buf,"%d: %s",index, index ? sfx_string[index] : "(None)");
-        return sfx_str_buf;
-    }
-    
-    *list_size=WAV_COUNT;
-    return NULL;
-}
-
-static ListData sfx_list(sfxlist, &font);
-
-const char *screenscriptdroplist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = biscreens_cnt;
-        return NULL;
-    }
-    
-    return biscreens[index].first.c_str();
-}
-
-//droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData screenscript_list(screenscriptdroplist, &a4fonts[font_pfont]);
-
 int32_t onScreenScript()
 {
     call_screendata_dialog(7);
@@ -13197,20 +12929,6 @@ int32_t onScrData()
 	restore_mouse();
 	call_screendata_dialog();
 	return D_O_K;
-}
-
-const char *roomslist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        if(index>=MAXROOMTYPES)
-            index=MAXROOMTYPES-1;
-            
-        return roomtype_string[index];
-    }
-    
-    *list_size=MAXROOMTYPES;
-    return NULL;
 }
 
 static char number_str_buf[MIDI_TRACK_BUFFER_SIZE];
@@ -13247,32 +12965,6 @@ const char *dmaplist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-char *hexnumlist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,number_list_size-1);
-        sprintf(number_str_buf,"%X",index+(number_list_zero?0:1));
-        return number_str_buf;
-    }
-    
-    *list_size=number_list_size;
-    return NULL;
-}
-
-const char *maplist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,MAXMAPS-1);
-        sprintf(number_str_buf,"%d",index+1);
-        return number_str_buf;
-    }
-    
-    *list_size=MAXMAPS;
-    return NULL;
-}
-
 const char *gotomaplist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
@@ -13298,34 +12990,6 @@ const char *midilist(int32_t index, int32_t *list_size)
     *list_size=MAXCUSTOMMIDIS_ZQ;
     return NULL;
 }
-
-const char *custommidilist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,MAXCUSTOMMIDIS_ZQ-1);
-        sprintf(number_str_buf,"%3d - %s",index+(number_list_zero?0:1),customtunes[index].data?customtunes[index].title:"(Empty)");
-        return number_str_buf;
-    }
-    
-    *list_size=number_list_size;
-    return NULL;
-}
-
-const char *enhancedmusiclist(int32_t index, int32_t *list_size)
-{
-    index=index; //this is here to prevent unused parameter warnings
-    list_size=list_size; //this is here to prevent unused parameter warnings
-    /*if(index>=0)
-    {
-      bound(index,0,MAXMUSIC-1);
-      sprintf(number_str_buf,"%3d - %s",index+(number_list_zero?0:1),enhancedMusic[index].filename[0]?enhancedMusic[index].title:"(Empty)" );
-      return number_str_buf;
-    }
-    *list_size=number_list_size;*/
-    return NULL;
-}
-
 
 const char *levelnumlist(int32_t index, int32_t *list_size)
 {
@@ -13993,32 +13657,7 @@ int32_t onTriPieces()
     return D_O_K;
 }
 
-int32_t d_maptile_proc(int32_t msg,DIALOG *d,int32_t c);
 bool small_dmap=false;
-
-static DIALOG dmapmaps_dlg[] =
-{
-
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc, 4,    18,   313,  217,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Custom DMap Map Styles", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_button_proc,     93,   208,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     168,  208,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_ctext2_proc,      160,  38,    0,   8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Minimaps", NULL, NULL },
-    { d_ctext2_proc,      112,  46,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Without Map", NULL, NULL },
-    { d_ctext2_proc,      208,  46,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "With Map", NULL, NULL },
-    
-    { d_ctext2_proc,      162,  110,    0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Large Maps", NULL, NULL },
-    { d_ctext2_proc,      80,   118,    0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Without Map", NULL, NULL },
-    { d_ctext2_proc,      240,  118,    0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "With Map", NULL, NULL },
-    // 5
-    { d_maptile_proc,    72,   54,   80,   48,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_maptile_proc,    168,  54,   80,   48,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_maptile_proc,    8,    126,  144,  80,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_maptile_proc,    168,  126,  144,  80,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    // 11
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
 
 int32_t d_hexedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -14050,29 +13689,6 @@ void drawovergrid(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t color,in
     {
         rectfill(dest,x+dx,y,x+dx+2,y+2,color);
         grid<<=1;
-    }
-}
-
-void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t w, int32_t h, int32_t tw, int32_t th, int32_t *grid,int32_t fg,int32_t bg,int32_t div)
-{
-    //these are here to bypass compiler warnings about unused arguments
-    w=w;
-    tw=tw;
-    th=th;
-    
-    rectfill(dest,x,y,x+(8*8),y+(1*4),div);
-    
-    for(int32_t dy=0; dy<h; dy++)
-    {
-        for(int32_t dx=0; dx<64; dx+=8)
-        {
-            if(grid[0]&0x80)
-                rectfill(dest,x+dx,y,x+dx+6,y+2,fg);
-            else
-                rectfill(dest,x+dx,y,x+dx+6,y+2,bg);
-                
-            grid[0]<<=1;
-        }
     }
 }
 
@@ -14172,41 +13788,6 @@ void drawdmap_screen(int32_t x, int32_t y, int32_t w, int32_t h, int32_t dmap)
     
 }
 
-int32_t d_dmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-    if(msg==MSG_DRAW)
-    {
-        int32_t dmap = d->d1;
-        int32_t xy[6] = {44,92,128,100,128,110};
-        //int32_t *xy = (int32_t*)(d->dp3);
-        float temp_scale = 1.5;
-        
-        drawdmap(dmap);
-        
-        if(xy[0]>-1000&&xy[1]>-1000)
-        {
-            int32_t x = d->x+int32_t((xy[0]-2)*temp_scale);
-            int32_t y = d->y+int32_t((xy[1]-2)*temp_scale);
-            int32_t w = 84;
-            int32_t h = 52;
-            jwin_draw_frame(screen,x,y,w,h,FR_DEEP);
-            drawdmap_screen(x+2,y+2,w-4,h-4,dmap);
-        }
-        
-        if(xy[2]>-1000&&xy[3]>-1000)
-        {
-            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
-        }
-        
-        if(xy[4]>-1000&&xy[5]>-1000)
-        {
-            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
-        }
-    }
-    
-    return jwin_list_proc(msg,d,c);
-}
-
 int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     if(msg==MSG_DRAW)
@@ -14278,23 +13859,7 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 	al_restore_state(&old_state);
 }
 
-const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = bidmaps_cnt;
-        return NULL;
-    }
-    
-    return bidmaps[index].first.c_str();
-}
-
-static ListData dmapscript_list(dmapscriptdroplist, &a4fonts[font_pfont]);
-
-//int32_t selectdmapxy[6] = {90,142,164,150,164,160};
-int32_t selectdmapxy[6] = {44,92,128,100,128,110};
-
-static ListData dmap_list(dmaplist, &font);
+ListData dmap_list(dmaplist, &font);
 
 static dmap copiedDMap;
 static byte dmapcopied = 0;
@@ -14952,630 +14517,6 @@ int32_t readsomedmaps(PACKFILE *f)
 	return 1;
 }
 
-
-
-int32_t writeonedmap(PACKFILE *f, int32_t i)
-{
-    
-    dword section_version=V_DMAPS;
-	int32_t zversion = ZELDA_VERSION;
-	int32_t zbuild = VERSION_BUILD;
-	
-  
-    //section version info
-	if(!p_iputl(V_ZDMAP,f))
-	{
-		return 0;
-	}
-	if(!p_iputl(zversion,f))
-	{
-		return 0;
-	}
-	if(!p_iputl(zbuild,f))
-	{
-		return 0;
-	}
-	if(!p_iputw(section_version,f))
-	{
-		new_return(2);
-	}
-    
-	if(!write_deprecated_section_cversion(section_version, f))
-	{
-		new_return(3);
-	}
-    
-   
-        
-            if(!p_putc(DMaps[i].map,f))
-            {
-                new_return(6);
-            }
-            
-            if(!p_iputw(DMaps[i].level,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_putc(DMaps[i].xoff,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_putc(DMaps[i].compass,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_iputw(DMaps[i].color,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_putc(DMaps[i].midi,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_putc(DMaps[i].cont,f))
-            {
-                new_return(12);
-            }
-            
-            if(!p_putc(DMaps[i].type,f))
-            {
-                new_return(13);
-            }
-            
-            for(int32_t j=0; j<8; j++)
-            {
-                if(!p_putc(DMaps[i].grid[j],f))
-                {
-                    new_return(14);
-                }
-            }
-            
-            //16
-            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
-            {
-                new_return(15);
-            }
-            
-            if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
-            {
-                new_return(16);
-            }
-            
-            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
-            {
-                new_return(17);
-            }
-            
-            if(!p_iputl(DMaps[i].minimap_tile[0],f))
-            {
-                new_return(18);
-            }
-            
-            if(!p_putc(DMaps[i].minimap_cset[0],f))
-            {
-                new_return(19);
-            }
-            
-            if(!p_iputl(DMaps[i].minimap_tile[1],f))
-            {
-                new_return(20);
-            }
-            
-            if(!p_putc(DMaps[i].minimap_cset[1],f))
-            {
-                new_return(21);
-            }
-            
-            if(!p_iputl(DMaps[i].largemap_tile[0],f))
-            {
-                new_return(22);
-            }
-            
-            if(!p_putc(DMaps[i].largemap_cset[0],f))
-            {
-                new_return(23);
-            }
-            
-            if(!p_iputl(DMaps[i].largemap_tile[1],f))
-            {
-                new_return(24);
-            }
-            
-            if(!p_putc(DMaps[i].largemap_cset[1],f))
-            {
-                new_return(25);
-            }
-            
-            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
-            {
-                new_return(26);
-            }
-            
-            if(!p_putc(DMaps[i].tmusictrack,f))
-            {
-                new_return(25);
-            }
-            
-            if(!p_putc(DMaps[i].active_subscreen,f))
-            {
-                new_return(26);
-            }
-            
-            if(!p_putc(DMaps[i].passive_subscreen,f))
-            {
-                new_return(27);
-            }
-            
-            byte disabled[32];
-            memset(disabled,0,32);
-            
-            for(int32_t j=0; j<MAXITEMS; j++)
-            {
-                if(DMaps[i].disableditems[j])
-                {
-                    disabled[j/8] |= (1 << (j%8));
-                }
-            }
-            
-            if(!pfwrite(disabled,32,f))
-            {
-                new_return(28);
-            }
-            
-            if(!p_iputl(DMaps[i].flags,f))
-            {
-                new_return(29);
-            }
-	    if(!p_putc(DMaps[i].sideview,f))
-            {
-                new_return(30);
-            }
-	    if(!p_iputw(DMaps[i].script,f))
-            {
-                new_return(31);
-            }
-	    for ( int32_t q = 0; q < 8; q++ )
-	    {
-		if(!p_iputl(DMaps[i].initD[q],f))
-	        {
-			new_return(32);
-		}
-		    
-	    }
-	    for ( int32_t q = 0; q < 8; q++ )
-	    {
-		    for ( int32_t w = 0; w < 65; w++ )
-		    {
-			if (!p_putc(DMaps[i].initD_label[q][w],f))
-			{
-				new_return(33);
-			}
-		}
-	    }
-		if(!p_iputw(DMaps[i].active_sub_script,f))
-		{
-			new_return(34);
-		}
-		if(!p_iputw(DMaps[i].passive_sub_script,f))
-		{
-			new_return(35);
-		}
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			if(!p_iputl(DMaps[i].sub_initD[q],f))
-			{
-				new_return(36);
-			}
-		}
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			for(int32_t w = 0; w < 65; ++w)
-			{
-				if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
-				{
-					new_return(37);
-				}
-			}
-		}
-		if(!p_iputw(DMaps[i].onmap_script,f))
-		{
-			new_return(35);
-		}
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			if(!p_iputl(DMaps[i].onmap_initD[q],f))
-			{
-				new_return(36);
-			}
-		}
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			for(int32_t w = 0; w < 65; ++w)
-			{
-				if(!p_putc(DMaps[i].onmap_initD_label[q][w],f))
-				{
-					new_return(37);
-				}
-			}
-		}
-		if (!p_iputw(DMaps[i].mirrorDMap, f))
-		{
-			new_return(38);
-		}
-		if (!p_iputl(DMaps[i].tmusic_loop_start, f))
-		{
-			new_return(39);
-		}
-		if (!p_iputl(DMaps[i].tmusic_loop_end, f))
-		{
-			new_return(40);
-		}
-		if (!p_iputl(DMaps[i].tmusic_xfade_in, f))
-		{
-			new_return(41);
-		}
-		if (!p_iputl(DMaps[i].tmusic_xfade_out, f))
-		{
-			new_return(42);
-		}
-
-	return 1;
-}
-
-
-int32_t readonedmap(PACKFILE *f, int32_t index)
-{
-	dword section_version = 0;
-	int32_t zversion = 0;
-	int32_t zbuild = 0;
-	dmap tempdmap{};
-	int32_t datatype_version = 0;
-	int32_t first = 0;
-	int32_t last = 0;
-	int32_t max = 0;
-	int32_t count = 0;
-   
-	//char dmapstring[64]={0};
-	//section version info
-	if(!p_igetl(&datatype_version,f))
-	{
-		return 0;
-	}
-	if ( datatype_version < 0 )
-	{
-		if(!p_igetl(&zversion,f))
-		{
-			return 0;
-		}
-	}
-	else
-	{
-		zversion = datatype_version;
-	}
-	if(!p_igetl(&zbuild,f))
-	{
-		return 0;
-	}
-	
-	if(!p_igetw(&section_version,f))
-	{
-		return 0;
-	}
-    
-	if(!read_deprecated_section_cversion(f))
-	{
-		return 0;
-	}
-	al_trace("readonedmap section_version: %d\n", section_version);
-    
-	
-	if ( datatype_version < 0 )
-	{
-		if(!p_igetl(&max,f))
-		{
-			return 0;
-		}
-		if(!p_igetl(&first,f))
-		{
-			return 0;
-		}
-		if(!p_igetl(&last,f))
-		{
-			return 0;
-		}
-		if(!p_igetl(&count,f))
-		{
-			return 0;
-		}
-	}
-	if ( zversion > ZELDA_VERSION )
-	{
-		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
-		return 0;
-	}
-	else if (( section_version > V_DMAPS )) 
-	{
-		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d)\n", section_version);
-		return 0;
-	}
-	else
-	{
-		al_trace("Reading a .zdmap packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
-	}
-	//if(!pfread(&dmapstring, 64, f))
-	//{
-	//	return 0;
-	//}
-    
-    
-   
-        
-            if(!p_getc(&tempdmap.map,f))
-            {
-                return 0;
-            }
-            
-            if(!p_igetw(&tempdmap.level,f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.xoff,f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.compass,f))
-            {
-                return 0;
-            }
-            
-            if(!p_igetw(&tempdmap.color,f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.midi,f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.cont,f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.type,f))
-            {
-                return 0;
-            }
-            
-            for(int32_t j=0; j<8; j++)
-            {
-                if(!p_getc(&tempdmap.grid[j],f))
-                {
-                    return 0;
-		}
-            }
-            
-            //16
-            if(!pfread(&tempdmap.name,sizeof(DMaps[0].name),f))
-            {
-                return 0;
-            }
-
-			if (section_version<20)
-			{
-				char title[22];
-				if (!p_getstr(title, sizeof(title) - 1, f))
-				{
-					return 0;
-				}
-				tempdmap.title.assign(title);
-			}
-			else
-			{
-				if (!p_getwstr(&tempdmap.title, f))
-				{
-					return 0;
-				}
-			}
-
-            if(!pfread(&tempdmap.title,sizeof(DMaps[0].title),f))
-            {
-                return 0;
-            }
-            
-            if(!pfread(&tempdmap.intro,sizeof(DMaps[0].intro),f))
-            {
-                return 0;
-            }
-            
-            if(!p_igetl(&tempdmap.minimap_tile[0],f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.minimap_cset[0],f))
-            {
-                return 0;
-            }
-            
-            if(!p_igetl(&tempdmap.minimap_tile[1],f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.minimap_cset[1],f))
-            {
-                return 0;
-            }
-            
-            if(!p_igetl(&tempdmap.largemap_tile[0],f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.largemap_cset[0],f))
-            {
-                return 0;
-            }
-            
-            if(!p_igetl(&tempdmap.largemap_tile[1],f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.largemap_cset[1],f))
-            {
-                return 0;
-            }
-            
-            if(!pfread(&tempdmap.tmusic,sizeof(DMaps[0].tmusic),f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.tmusictrack,f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.active_subscreen,f))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.passive_subscreen,f))
-            {
-                return 0;
-            }
-            
-            byte disabled[32];
-	    memset(disabled,0,32);
-            
-            if(!pfread(&disabled, 32, f)) return 0;
-            
-            for(int32_t j=0; j<MAXITEMS; j++)
-            {
-                if(disabled[j/8] & (1 << (j%8))) tempdmap.disableditems[j]=1;
-                else tempdmap.disableditems[j]=0;
-            }
-	    
-            
-            if(!p_igetl(&tempdmap.flags,f))
-            {
-                return 0;
-            }
-		if ( zversion >= 0x255 )
-		{
-			if  ( section_version >= 14 )
-			{
-			    //2.55 starts here
-			    if(!p_getc(&tempdmap.sideview,f))
-			    {
-				return 0;
-			    }
-			    if(!p_igetw(&tempdmap.script,f))
-			    {
-				return 0;
-			    }
-			    for ( int32_t q = 0; q < 8; q++ )
-			    {
-				if(!p_igetl(&tempdmap.initD[q],f))
-				{
-					return 0;
-			    }
-				    
-			    }
-			    for ( int32_t q = 0; q < 8; q++ )
-			    {
-				    for ( int32_t w = 0; w < 65; w++ )
-				    {
-					if (!p_getc(&tempdmap.initD_label[q][w],f))
-					{
-						return 0;
-					}
-				}
-			    }
-				if(!p_igetw(&tempdmap.active_sub_script,f))
-				{
-					return 0;
-				}
-				if(!p_igetw(&tempdmap.passive_sub_script,f))
-				{
-					return 0;
-				}
-				for(int32_t q = 0; q < 8; ++q)
-				{
-					if(!p_igetl(&tempdmap.sub_initD[q],f))
-					{
-						return 0;
-					}
-				}	
-				for(int32_t q = 0; q < 8; ++q)
-				{
-					for(int32_t w = 0; w < 65; ++w)
-					{
-						if(!p_getc(&tempdmap.sub_initD_label[q][w],f))
-						{
-							return 0;
-						}
-					}
-				}
-				if(!p_igetw(&tempdmap.onmap_script,f))
-				{
-					return 0;
-				}
-				for(int32_t q = 0; q < 8; ++q)
-				{
-					if(!p_igetl(&tempdmap.onmap_initD[q],f))
-					{
-						return 0;
-					}
-				}	
-				for(int32_t q = 0; q < 8; ++q)
-				{
-					for(int32_t w = 0; w < 65; ++w)
-					{
-						if(!p_getc(&tempdmap.onmap_initD_label[q][w],f))
-						{
-							return 0;
-						}
-					}
-				}
-				if (!p_igetw(&tempdmap.mirrorDMap, f))
-				{
-					return 0;
-				}
-				if (!p_igetl(&tempdmap.tmusic_loop_start, f))
-				{
-					return 0;
-				}
-				if (!p_igetl(&tempdmap.tmusic_loop_end, f))
-				{
-					return 0;
-				}
-				if (!p_igetl(&tempdmap.tmusic_xfade_in, f))
-				{
-					return 0;
-				}
-				if (!p_igetl(&tempdmap.tmusic_xfade_out, f))
-				{
-					return 0;
-				}
-			}
-		}
-		DMaps[index] = tempdmap;
-       
-	return 1;
-}
-
 int32_t onDmaps()
 {
 	DMapListerDialog(0).show();
@@ -15594,66 +14535,6 @@ int32_t onMidis()
 	MidiListerDialog().show();
     return D_O_K;
 }
-
-static DIALOG editmusic_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     24,   20,   273,  189,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Music Specs", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    // 2
-    { jwin_text_proc,       56,   94-16,   48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Music:", NULL, NULL },
-    { jwin_text_proc,       104,  94-16,   48,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       56,   114,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       104,  114-4,  160,  16,   vc(12),  vc(1),  0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_text_proc,       56,   124-4+12,  56,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Volume:", NULL, NULL },
-    { jwin_edit_proc,       120,  124-4+12-4,  32,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    // 8
-    { jwin_check_proc,      176,  124+12-4,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Loop", NULL, NULL },
-    // 9
-    { jwin_button_proc,     50,   72-24,   57,   21,   vc(14),  vc(1),  'l',     D_EXIT,     0,             0, (void *) "&Load", NULL, NULL },
-    { jwin_iconbutton_proc, 116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_STOPSQUARE,    0, NULL, NULL, NULL },
-    { jwin_iconbutton_proc, 156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT,   0, NULL, NULL, NULL },
-    { jwin_iconbutton_proc, 196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT2,  0, NULL, NULL, NULL },
-    { jwin_iconbutton_proc, 236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT3,  0, NULL, NULL, NULL },
-    // 14
-    { jwin_text_proc,       56,   134+4+12,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Start:", NULL, NULL },
-    { jwin_edit_proc,       112,  134+12,  32,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       176,  134+12+4,  56,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Loop Start:", NULL, NULL },
-    { jwin_edit_proc,       240,  134+12,  40,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       176,  144+12+12,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Loop End:", NULL, NULL },
-    { jwin_edit_proc,       240,  144+12+12-4,  40,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
-    // 20
-    { jwin_text_proc,       176,  94-16,   48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Position:", NULL, NULL },
-    { jwin_text_proc,       217,  94-16,   32,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       176,  104-8,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Length:", NULL, NULL },
-    { jwin_text_proc,       216,  104-8,  32,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       56,   104-8,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Time:", NULL, NULL },
-    { jwin_text_proc,       104,  104-8,  32,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    // 26
-    { jwin_button_proc,     90,   160+12+12,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
-    { jwin_button_proc,     170,  160+12+12,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onHelp, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t d_musiclist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-    return jwin_list_proc(msg,d,c);
-}
-
-static ListData enhancedmusic_list(enhancedmusiclist, &font);
-
-static DIALOG selectmusic_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     24,   20,   273,  189,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select Enhanced Music", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { d_musiclist_proc,   31,   44,   164, (1+16)*8,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &enhancedmusic_list, NULL, NULL },
-    { jwin_button_proc,     90,   160+12+12,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  160+12+12,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_DEL, (void *) close_dlg, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
 
 const char *warptypelist(int32_t index, int32_t *list_size)
 {
@@ -17422,28 +16303,9 @@ int32_t onWarpRings()
     return D_O_K;
 }
 
-const char *enemy_viewer(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size=10;
-        
-        return NULL;
-    }
-    
-    int32_t guy=Map.CurrScr()->enemy[index];
-
-    if (guy == 0) return "(None)";
-    return guy>=eSTART ? guy_string[guy] : (char *) "(Guy - Do Not Use!)";
-}
-
 enemy_struct bie[eMAXGUYS];
 enemy_struct ce[100];
 int32_t enemy_type=0,bie_cnt=-1,ce_cnt;
-
-enemy_struct big[zqMAXGUYS];
-enemy_struct cg[100];
-int32_t guy_type=0,big_cnt=-1,cg_cnt;
 
 //Uses old_max_guys[] in zq_misc.cpp to define what are visible if bool hide is set true. -Z
 void build_bie_list(bool hide)
@@ -17563,20 +16425,6 @@ int32_t onEnemies()
 	return D_O_K;
 }
 
-char author[65],title[65],password[32];
-
-int32_t d_showedit_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-    int32_t ret = jwin_edit_proc(msg,d,c);
-    
-    if(msg==MSG_DRAW)
-    {
-        (d+1)->proc(MSG_DRAW,d+1,0);
-    }
-    
-    return ret;
-}
-
 int32_t onHeader()
 {
 	call_header_dlg();
@@ -17654,84 +16502,9 @@ int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 	return D_O_K;
 }
 
-int32_t d_maptile_proc(int32_t msg, DIALOG *d, int32_t)
-{
-    switch(msg)
-    {
-    case MSG_CLICK:
-        if(select_tile(d->d1,d->d2,1,d->fg,true, 0, true))
-		return D_REDRAW;
-	
-    case MSG_DRAW:
-    {
-        int32_t dw = d->w;
-        int32_t dh = d->h;
-        
-        if(d->dp2==(void*)1)
-        {
-            dw /= 2;
-            dh /= 2;
-        }
-        
-        BITMAP *buf = create_bitmap_ex(8,dw,dh);
-        
-        if(buf)
-        {
-            clear_bitmap(buf);
-            
-            for(int32_t y=0; y<dh; y+=16)
-                for(int32_t x=0; x<dw; x+=16)
-                {
-                    if(d->d1)
-                        puttile16(buf,d->d1+(y>>4)*20+(x>>4),x,y,d->fg,0);
-                }
-                
-            if(d->dp2==(void*)1)
-                stretch_blit(buf,screen,0,0,dw,dh,d->x-1,d->y-1,dw*2,dh*2);
-            else
-                blit(buf,screen,0,0,d->x,d->y,dw,dh);
-                
-            destroy_bitmap(buf);
-        }
-    }
-    }
-    
-    return D_O_K;
-}
-
 static int32_t last_combo=0;
 static int32_t last_cset=0;
 static combo_alias temp_aliases[MAXCOMBOALIASES];
-
-static char comboa_str_buf[32];
-
-int32_t d_comboalist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-    int32_t d1 = d->d1;
-    int32_t ret = jwin_droplist_proc(msg,d,c);
-    comboa_cnt = d->d1;
-    
-    if(d1!=d->d1)
-    {
-        set_comboaradio(temp_aliases[comboa_cnt].layermask);
-        return D_REDRAW;
-    }
-    
-    return ret;
-}
-
-const char *comboalist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,MAXCOMBOALIASES-1);
-        sprintf(comboa_str_buf,"%d",index);
-        return comboa_str_buf;
-    }
-    
-    *list_size=MAXCOMBOALIASES;
-    return NULL;
-}
 
 extern int32_t scheme[jcMAX];
 
@@ -18563,8 +17336,6 @@ int32_t d_comboacheck_proc(int32_t msg, DIALOG *d, int32_t c)
     return ret;
 }
 
-static ListData comboa_list(comboalist, &font);
-
 static DIALOG editcomboa_dlg[] =
 {
     /* (dialog proc)     (x)   (y)    (w)   (h)   (fg)      (bg)     (key)    (flags)       (d1)           (d2)      (dp) */
@@ -18724,827 +17495,10 @@ void call_calias_dlg(int index)
 	onEditComboAlias();
 }
 
-static char ffcombo_str_buf[MAXFFCS];
-static char fflink_str_buf[MAXFFCS];
-
-BITMAP* ffcur;
-
-const char *ffcombolist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,MAXFFCS-1);
-        sprintf(ffcombo_str_buf,"%d",index+1);
-        return ffcombo_str_buf;
-    }
-    
-    *list_size=MAXFFCS;
-    return NULL;
-}
-
-static ListData ffcombo_list(ffcombolist, &font);
-
 int32_t onSelectFFCombo()
 {
 	FFCListerDialog().show();
 	return D_O_K;
-}
-
-const char *globalscriptlist(int32_t index, int32_t *list_size);
-static ListData globalscript_list(globalscriptlist, &font);
-const char *playerscriptlist(int32_t index, int32_t *list_size);
-static ListData playerscript_list(playerscriptlist, &font);
-
-const char *ffscriptlist(int32_t index, int32_t *list_size);
-
-static ListData ffscript_list(ffscriptlist, &font);
-
-char *strip_decimals(char *string)
-{
-    int32_t len=(int32_t)strlen(string);
-    char *src=(char *)malloc(len+1);
-    char *tmpsrc=src;
-    memcpy(src,string,len+1);
-    memset(src,0,len+1);
-    
-    for(size_t i=0; string[i]&&i<=strlen(string); i++)
-    {
-        *tmpsrc=string[i];
-        
-        if(*tmpsrc=='.')
-        {
-            while(string[i+1]=='.'&&i<=strlen(string))
-            {
-                i++;
-            }
-        }
-        
-        tmpsrc++;
-    }
-    
-    memcpy(string,src,len);
-    free(src);
-    return string;
-}
-
-// Unused??? -L 6/6/11
-char *clean_numeric_string(char *string)
-{
-    bool found_sign=false;
-    bool found_decimal=false;
-    int32_t len=(int32_t)strlen(string);
-    char *src=(char *)malloc(len+1);
-    char *tmpsrc=src;
-    memcpy(src,string,len+1);
-    memset(src,0,len+1);
-    
-    // strip out non-numerical characters
-    for(size_t i=0; string[i]&&i<=strlen(string); i++)
-    {
-        *tmpsrc=string[i];
-        
-        if(*tmpsrc!='.'&&*tmpsrc!='-'&&*tmpsrc!='+'&&!isdigit(*tmpsrc))
-        {
-            while(*tmpsrc!='.'&&*tmpsrc!='-'&&*tmpsrc!='+'&&!isdigit(*tmpsrc))
-            {
-                i++;
-            }
-        }
-        
-        tmpsrc++;
-    }
-    
-    len=(int32_t)strlen(src);
-    char *src2=(char *)malloc(len+1);
-    tmpsrc=src2;
-    memcpy(src,src2,len+1);
-    memset(src2,0,len+1);
-    
-    // second purge
-    for(size_t i=0; src[i]&&i<=strlen(src); i++)
-    {
-        *tmpsrc=src[i];
-        
-        if(*tmpsrc=='-'||*tmpsrc=='+')
-        {
-            if(found_sign||found_decimal)
-            {
-                while(*tmpsrc=='-'||*tmpsrc=='+')
-                {
-                    i++;
-                }
-            }
-            
-            found_sign=true;
-        }
-        
-        if(*tmpsrc=='.')
-        {
-            if(found_decimal)
-            {
-                while(*tmpsrc=='.')
-                {
-                    i++;
-                }
-            }
-            
-            found_decimal=true;
-        }
-        
-        tmpsrc++;
-    }
-    
-    sprintf(string, "%s", src2);
-    free(src);
-    free(src2);
-    return string;
-}
-
-script_struct biglobal[NUMSCRIPTGLOBAL+1]; //global script
-int32_t biglobal_cnt = -1;
-script_struct biffs[NUMSCRIPTFFC]; //ff script
-int32_t biffs_cnt = -1;
-script_struct biitems[NUMSCRIPTITEM]; //item script
-int32_t biitems_cnt = -1;
-script_struct binpcs[NUMSCRIPTGUYS]; //npc script
-int32_t binpcs_cnt = -1;
-
-script_struct bilweapons[NUMSCRIPTWEAPONS]; //lweapon script
-int32_t bilweapons_cnt = -1;
-
-script_struct bieweapons[NUMSCRIPTWEAPONS]; //eweapon script
-int32_t bieweapons_cnt = -1;
-
-script_struct bihero[NUMSCRIPTHERO]; //link script
-int32_t bihero_cnt = -1;
-
-script_struct biscreens[NUMSCRIPTSCREEN]; //screen (screendata) script
-int32_t biscreens_cnt = -1;
-
-script_struct bidmaps[NUMSCRIPTSDMAP]; //dmap (dmapdata) script
-int32_t bidmaps_cnt = -1;
-
-script_struct biditemsprites[NUMSCRIPTSITEMSPRITE]; //dmap (dmapdata) script
-int32_t biitemsprites_cnt = -1;
-
-script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; //dmap (dmapdata) script
-int32_t bidcomboscripts_cnt = -1;
-//static char ffscript_str_buf[32];
-
-void build_biglobal_list()
-{
-    biglobal[0].first = "(None)";
-    biglobal[0].second = -1;
-    biglobal_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
-    {
-        if(globalmap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << globalmap[i].scriptname << " (" << i << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        biglobal[biglobal_cnt].first = ss.str();
-        biglobal[biglobal_cnt].second = i;
-        ++biglobal_cnt;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=biglobal_cnt; i<NUMSCRIPTGLOBAL; ++i)
-    {
-        biglobal[i].first="";
-        biglobal[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < biglobal_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < biglobal_cnt; j++)
-        {
-            if(stricmp(biglobal[i].first.c_str(),biglobal[j].first.c_str()) > 0 && strcmp(biglobal[j].first.c_str(),""))
-                zc_swap(biglobal[i],biglobal[j]);
-        }
-    }
-    
-    biglobal_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTGLOBAL+1; ++i)
-        if(biglobal[i].first.length() > 0)
-            biglobal_cnt = i+1;
-}
-
-void build_biffs_list()
-{
-    biffs[0].first = "(None)";
-    biffs[0].second = -1;
-    biffs_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTFFC - 1; i++)
-    {
-        if(ffcmap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << ffcmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        biffs[biffs_cnt].first = ss.str();
-        biffs[biffs_cnt].second = i;
-        biffs_cnt++;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=biffs_cnt; i<NUMSCRIPTFFC; i++)
-    {
-        biffs[i].first="";
-        biffs[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < biffs_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < biffs_cnt; j++)
-        {
-            if(stricmp(biffs[i].first.c_str(),biffs[j].first.c_str()) > 0 && strcmp(biffs[j].first.c_str(),""))
-                zc_swap(biffs[i],biffs[j]);
-        }
-    }
-    
-    biffs_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTFFC; i++)
-        if(biffs[i].first.length() > 0)
-            biffs_cnt = i+1;
-}
-
-//npc scripts
-void build_binpcs_list()
-{
-    binpcs[0].first = "(None)";
-    binpcs[0].second = -1;
-    binpcs_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTGUYS - 1; i++)
-    {
-        if(npcmap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << npcmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        binpcs[binpcs_cnt].first = ss.str();
-        binpcs[binpcs_cnt].second = i;
-        binpcs_cnt++;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=binpcs_cnt; i<NUMSCRIPTGUYS; i++)
-    {
-        binpcs[i].first="";
-        binpcs[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < binpcs_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < binpcs_cnt; j++)
-        {
-            if(stricmp(binpcs[i].first.c_str(),binpcs[j].first.c_str()) > 0 && strcmp(binpcs[j].first.c_str(),""))
-                zc_swap(binpcs[i],binpcs[j]);
-        }
-    }
-    
-    binpcs_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTGUYS; i++)
-        if(binpcs[i].first.length() > 0)
-            binpcs_cnt = i+1;
-}
-
-
-//lweapon scripts
-void build_bilweapons_list()
-{
-    bilweapons[0].first = "(None)";
-    bilweapons[0].second = -1;
-    bilweapons_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
-    {
-        if(lwpnmap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << lwpnmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        bilweapons[bilweapons_cnt].first = ss.str();
-        bilweapons[bilweapons_cnt].second = i;
-        bilweapons_cnt++;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=bilweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
-    {
-        bilweapons[i].first="";
-        bilweapons[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < bilweapons_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < bilweapons_cnt; j++)
-        {
-            if(stricmp(bilweapons[i].first.c_str(),bilweapons[j].first.c_str()) > 0 && strcmp(bilweapons[j].first.c_str(),""))
-                zc_swap(bilweapons[i],bilweapons[j]);
-        }
-    }
-    
-    bilweapons_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
-        if(bilweapons[i].first.length() > 0)
-            bilweapons_cnt = i+1;
-}
-
-//eweapon scripts
-void build_bieweapons_list()
-{
-    bieweapons[0].first = "(None)";
-    bieweapons[0].second = -1;
-    bieweapons_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
-    {
-        if(ewpnmap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << ewpnmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        bieweapons[bieweapons_cnt].first = ss.str();
-        bieweapons[bieweapons_cnt].second = i;
-        bieweapons_cnt++;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=bieweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
-    {
-        bieweapons[i].first="";
-        bieweapons[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < bieweapons_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < bieweapons_cnt; j++)
-        {
-            if(stricmp(bieweapons[i].first.c_str(),bieweapons[j].first.c_str()) > 0 && strcmp(bieweapons[j].first.c_str(),""))
-                zc_swap(bieweapons[i],bieweapons[j]);
-        }
-    }
-    
-    bieweapons_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
-        if(bieweapons[i].first.length() > 0)
-            bieweapons_cnt = i+1;
-}
-
-//player scripts
-void build_bihero_list()
-{
-    bihero[0].first = "(None)";
-    bihero[0].second = -1;
-    bihero_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTHERO - 1; i++)
-    {
-        if(playermap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << playermap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        bihero[bihero_cnt].first = ss.str();
-        bihero[bihero_cnt].second = i;
-        bihero_cnt++;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=bihero_cnt; i<NUMSCRIPTHERO; i++)
-    {
-        bihero[i].first="";
-        bihero[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < bihero_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < bihero_cnt; j++)
-        {
-            if(stricmp(bihero[i].first.c_str(),bihero[j].first.c_str()) > 0 && strcmp(bihero[j].first.c_str(),""))
-                zc_swap(bihero[i],bihero[j]);
-        }
-    }
-    
-    bihero_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTHERO; i++)
-        if(bihero[i].first.length() > 0)
-            bihero_cnt = i+1;
-}
-
-//dmap scripts
-void build_bidmaps_list()
-{
-    bidmaps[0].first = "(None)";
-    bidmaps[0].second = -1;
-    bidmaps_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTSDMAP - 1; i++)
-    {
-        if(dmapmap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << dmapmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        bidmaps[bidmaps_cnt].first = ss.str();
-        bidmaps[bidmaps_cnt].second = i;
-        bidmaps_cnt++;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=bidmaps_cnt; i<NUMSCRIPTSDMAP; i++)
-    {
-        bidmaps[i].first="";
-        bidmaps[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < bidmaps_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < bidmaps_cnt; j++)
-        {
-            if(stricmp(bidmaps[i].first.c_str(),bidmaps[j].first.c_str()) > 0 && strcmp(bidmaps[j].first.c_str(),""))
-                zc_swap(bidmaps[i],bidmaps[j]);
-        }
-    }
-    
-    bidmaps_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
-        if(bidmaps[i].first.length() > 0)
-            bidmaps_cnt = i+1;
-}
-
-//screen scripts
-void build_biscreens_list()
-{
-    biscreens[0].first = "(None)";
-    biscreens[0].second = -1;
-    biscreens_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTSCREEN - 1; i++)
-    {
-        if(screenmap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << screenmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        biscreens[biscreens_cnt].first = ss.str();
-        biscreens[biscreens_cnt].second = i;
-        biscreens_cnt++;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=biscreens_cnt; i<NUMSCRIPTSCREEN; i++)
-    {
-        biscreens[i].first="";
-        biscreens[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < biscreens_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < biscreens_cnt; j++)
-        {
-            if(stricmp(biscreens[i].first.c_str(),biscreens[j].first.c_str()) > 0 && strcmp(biscreens[j].first.c_str(),""))
-                zc_swap(biscreens[i],biscreens[j]);
-        }
-    }
-    
-    biscreens_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
-        if(biscreens[i].first.length() > 0)
-            biscreens_cnt = i+1;
-}
-
-//screen scripts
-void build_biitemsprites_list()
-{
-    biditemsprites[0].first = "(None)";
-    biditemsprites[0].second = -1;
-    biitemsprites_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE - 1; i++)
-    {
-        if(itemspritemap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << itemspritemap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        biditemsprites[biitemsprites_cnt].first = ss.str();
-        biditemsprites[biitemsprites_cnt].second = i;
-        biitemsprites_cnt++;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=biitemsprites_cnt; i<NUMSCRIPTSITEMSPRITE; i++)
-    {
-        biditemsprites[i].first="";
-        biditemsprites[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < biitemsprites_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < biitemsprites_cnt; j++)
-        {
-            if(stricmp(biditemsprites[i].first.c_str(),biditemsprites[j].first.c_str()) > 0 && strcmp(biditemsprites[j].first.c_str(),""))
-                zc_swap(biditemsprites[i],biditemsprites[j]);
-        }
-    }
-    
-    biitemsprites_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
-        if(biditemsprites[i].first.length() > 0)
-            biitemsprites_cnt = i+1;
-}
-
-void build_biitems_list()
-{
-    biitems[0].first = "(None)";
-    biitems[0].second = -1;
-    biitems_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTITEM - 1; i++, biitems_cnt++)
-    {
-        stringstream ss;
-        
-        if(!itemmap[i].isEmpty())
-            ss << itemmap[i].scriptname << " (" << i+1 << ")";
-            
-        biitems[biitems_cnt].first = ss.str();
-        biitems[biitems_cnt].second = i;
-    }
-    
-    for(int32_t i = 0; i < biitems_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < biitems_cnt; j++)
-        {
-            if(stricmp(biitems[i].first.c_str(), biitems[j].first.c_str()) > 0 && strcmp(biitems[j].first.c_str(),""))
-                zc_swap(biitems[i], biitems[j]);
-        }
-    }
-    
-    biitems_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTITEM; i++)
-        if(biitems[i].first.length() > 0)
-            biitems_cnt = i+1;
-}
-
-
-//dmap scripts
-void build_bidcomboscripts_list()
-{
-    bidcomboscripts[0].first = "(None)";
-    bidcomboscripts[0].second = -1;
-    bidcomboscripts_cnt = 1;
-    
-    for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA - 1; i++)
-    {
-        if(comboscriptmap[i].scriptname.length()==0)
-            continue;
-            
-        stringstream ss;
-        ss << comboscriptmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        bidcomboscripts[bidcomboscripts_cnt].first = ss.str();
-        bidcomboscripts[bidcomboscripts_cnt].second = i;
-        bidcomboscripts_cnt++;
-    }
-    
-    // Blank out the rest of the list
-    for(int32_t i=bidcomboscripts_cnt; i<NUMSCRIPTSCOMBODATA; i++)
-    {
-        bidcomboscripts[i].first="";
-        bidcomboscripts[i].second=-1;
-    }
-    
-    //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < bidcomboscripts_cnt - 1; i++)
-    {
-        for(int32_t j = i + 1; j < bidcomboscripts_cnt; j++)
-        {
-            if(stricmp(bidcomboscripts[i].first.c_str(),bidcomboscripts[j].first.c_str()) > 0 && strcmp(bidcomboscripts[j].first.c_str(),""))
-                zc_swap(bidcomboscripts[i],bidcomboscripts[j]);
-        }
-    }
-    
-    bidcomboscripts_cnt = 0;
-    
-    for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
-        if(bidcomboscripts[i].first.length() > 0)
-            bidcomboscripts_cnt = i+1;
-}
-
-
-const char *globalscriptlist(int32_t index, int32_t *list_size)
-{
-    if(index < 0)
-    {
-        *list_size = biglobal_cnt;
-        return NULL;
-    }
-    
-    return biglobal[index].first.c_str();
-}
-
-const char *ffscriptlist(int32_t index, int32_t *list_size)
-{
-    if(index < 0)
-    {
-        *list_size = biffs_cnt;
-        return NULL;
-    }
-    
-    return biffs[index].first.c_str();
-}
-
-const char *playerscriptlist(int32_t index, int32_t *list_size)
-{
-    if(index < 0)
-    {
-        *list_size = bihero_cnt;
-        return NULL;
-    }
-    
-    return bihero[index].first.c_str();
-}
-
-const char *lweaponscriptlist(int32_t index, int32_t *list_size)
-{
-    if(index < 0)
-    {
-        *list_size = bilweapons_cnt;
-        return NULL;
-    }
-    
-    return bilweapons[index].first.c_str();
-}
-
-const char *npcscriptlist(int32_t index, int32_t *list_size)
-{
-    if(index < 0)
-    {
-        *list_size = binpcs_cnt;
-        return NULL;
-    }
-    
-    return binpcs[index].first.c_str();
-}
-
-static char itemscript_str_buf[32];
-
-char *itemscriptlist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,255);
-        sprintf(itemscript_str_buf,"%d: %s",index, ffcmap[index-1].scriptname.c_str());
-        return itemscript_str_buf;
-    }
-    
-    *list_size=256;
-    return NULL;
-}
-
-static char ffscript_str_buf2[32];
-
-const char *ffscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,510);
-        
-        if(ffcmap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, ffcmap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(ffscript_str_buf2,"%d: %s",index+1, buf);
-        return ffscript_str_buf2;
-    }
-    
-    *list_size=511;
-    return NULL;
-}
-
-static char itemscript_str_buf2[32];
-
-const char *itemscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,254);
-        
-        if(itemmap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, itemmap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(itemscript_str_buf2,"%d: %s",index+1, buf);
-        return itemscript_str_buf2;
-    }
-    
-    *list_size=255;
-    return NULL;
-}
-
-
-static char comboscript_str_buf2[32];
-const char *comboscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,254);
-        
-        if(comboscriptmap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, comboscriptmap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(comboscript_str_buf2,"%d: %s",index+1, buf);
-        return comboscript_str_buf2;
-    }
-    
-    *list_size=255;
-    return NULL;
-}
-
-static char gscript_str_buf2[40];
-
-const char *gscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index >= 0)
-    {
-        bound(index,0,3);
-        
-        char buf[20];
-        
-        if(globalmap[index].scriptname == "")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, globalmap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        switch(index)
-        {
-            case GLOBAL_SCRIPT_INIT:
-                sprintf(gscript_str_buf2,"Initialization: %s", buf); break;
-            case GLOBAL_SCRIPT_GAME:
-                sprintf(gscript_str_buf2,"Active: %s", buf); break;
-            case GLOBAL_SCRIPT_END:
-                sprintf(gscript_str_buf2,"onExit: %s", buf); break;
-            case GLOBAL_SCRIPT_ONSAVELOAD:
-                sprintf(gscript_str_buf2,"onSaveLoad: %s", buf); break;
-            case GLOBAL_SCRIPT_ONLAUNCH:
-                sprintf(gscript_str_buf2,"onLaunch: %s", buf); break;
-            case GLOBAL_SCRIPT_ONCONTGAME:
-                sprintf(gscript_str_buf2,"onContGame: %s", buf); break;
-            case GLOBAL_SCRIPT_F6:
-                sprintf(gscript_str_buf2,"onF6Menu: %s", buf); break;
-            case GLOBAL_SCRIPT_ONSAVE:
-                sprintf(gscript_str_buf2,"onSave: %s", buf); break;
-        }
-            
-        return gscript_str_buf2;
-    }
-    
-    if(list_size != NULL)
-        *list_size=4;
-        
-    return NULL;
 }
 
 static int32_t as_ffc_list[] = { 4, 5, 6, -1};
@@ -20197,191 +18151,6 @@ string get_box_cfg_hdr(int num)
 		return "misc";
 	return qst_cfg_header_from_path(filepath);
 }
-
-//{ Start type-specific import dlgs
-static ListData ffscript_sel_dlg_list(ffscriptlist2, &font);
-static ListData itemscript_sel_dlg_list(itemscriptlist2, &font);
-static ListData comboscript_sel_dlg_list(comboscriptlist2, &font);
-static ListData gscript_sel_dlg_list(gscriptlist2, &font);
-static char npcscript_str_buf2[32];
-const char *npcscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,254);
-        
-        if(npcmap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, npcmap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(npcscript_str_buf2,"%d: %s",index+1, buf);
-        return npcscript_str_buf2;
-    }
-    
-    *list_size=(NUMSCRIPTGUYS-1);
-    return NULL;
-}
-static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
-static char lweaponscript_str_buf2[32];
-const char *lweaponscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,254);
-        
-        if(lwpnmap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, lwpnmap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(lweaponscript_str_buf2,"%d: %s",index+1, buf);
-        return lweaponscript_str_buf2;
-    }
-    
-    *list_size=(NUMSCRIPTWEAPONS-1);
-    return NULL;
-}
-static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
-static char eweaponscript_str_buf2[32];
-const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,254);
-        
-        if(ewpnmap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, ewpnmap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(eweaponscript_str_buf2,"%d: %s",index+1, buf);
-        return eweaponscript_str_buf2;
-    }
-    
-    *list_size=(NUMSCRIPTWEAPONS-1);
-    return NULL;
-}
-static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
-static char playerscript_str_buf2[32];
-const char *playerscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,3);
-        
-        if(playermap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, playermap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-	
-	if(index==0)
-            sprintf(playerscript_str_buf2,"Init: %s", buf);
-            
-        if(index==1)
-            sprintf(playerscript_str_buf2,"Active: %s", buf);
-	
-	if(index==2)
-            sprintf(playerscript_str_buf2,"Death: %s", buf);
-            
-        
-        //sprintf(playerscript_str_buf2,"%d: %s",index+1, buf);
-        return playerscript_str_buf2;
-    }
-    
-    *list_size=(NUMSCRIPTHERO-1);
-    return NULL;
-}
-static char itemspritescript_str_buf2[32];
-const char *itemspritescriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,254);
-        
-        if(itemspritemap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, itemspritemap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
-        return itemspritescript_str_buf2;
-    }
-    
-    *list_size=(NUMSCRIPTSITEMSPRITE-1);
-    return NULL;
-}
-static ListData playerscript_sel_dlg_list(playerscriptlist2, &font);
-static char dmapscript_str_buf2[32];
-const char *dmapscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,254);
-        
-        if(dmapmap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, dmapmap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(dmapscript_str_buf2,"%d: %s",index+1, buf);
-        return dmapscript_str_buf2;
-    }
-    
-    *list_size=(NUMSCRIPTSDMAP-1);
-    return NULL;
-}
-static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font);
-static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
-static char screenscript_str_buf2[32];
-const char *screenscriptlist2(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,254);
-        
-        if(screenmap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, screenmap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(screenscript_str_buf2,"%d: %s",index+1, buf);
-        return screenscript_str_buf2;
-    }
-    
-    *list_size=(NUMSCRIPTSCREEN-1);
-    return NULL;
-}
-static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
-//} End type-specific import dlgs
 
 void clear_map_states()
 {
@@ -21683,8 +19452,6 @@ auto_do_slots:
 		if(!assign_mode)
 			InfoDialog("Slots Assigned",buf).show();
 		kill_sfx();
-		build_biffs_list();
-		build_biitems_list();
 		retval = true;
 		goto exit_do_slots;
 	}
@@ -21835,12 +19602,6 @@ static DIALOG importzasm_dlg[] =
 	
     { NULL,                 0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL }
 };
-extern ListData itemscript_list;
-extern ListData itemspritescript_list;
-extern ListData lweaponscript_list;
-extern ListData npcscript_list;
-extern ListData eweaponscript_list;
-extern ListData comboscript_list;
 
 void center_zscript_dialogs()
 {
@@ -22160,12 +19921,6 @@ bool saveWAV(int32_t slot, const char *filename)
         return false;
     return !!ofs;
 } 
-
-int32_t onEditSFX(int32_t index)
-{
-	call_sfxdata_dialog(index);
-	return D_O_K;
-}
 
 int32_t onMapStyles()
 {
@@ -22488,7 +20243,7 @@ void cycle_palette()
 }
 
 
-void doHelp()
+static void doHelp()
 {
 	do_box_edit(helpstr, "ZQuest Help", true, true);
 }
@@ -22519,13 +20274,6 @@ int32_t onLayers()
 	if (CurrentLayer > 0 && Map.CurrScr()->layermap[CurrentLayer-1] == 0)
 		CurrentLayer = 0;
 	return D_O_K;
-}
-
-char *itoa(int32_t i)
-{
-    static char itoaret[500];
-    sprintf(itoaret, "%d", i);
-    return itoaret;
 }
 
 void fps_callback()
@@ -23400,10 +21148,8 @@ int32_t main(int32_t argc,char **argv)
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
 	{
 		favorite_combos[i]=-1;
-		pool_combos[i].clear();
 	}
 	FavoriteComboPage = 0;
-	pool_dirty = true;
 	
 	if(used_switch(argc,argv,"-d"))
 	{
@@ -24790,11 +22536,9 @@ void center_zquest_dialogs()
     center_zq_cset_dialogs();
     jwin_center_dialog(change_track_dlg);
     jwin_center_dialog(csetfix_dlg);
-    jwin_center_dialog(dmapmaps_dlg);
     center_zq_door_dialogs();
     jwin_center_dialog(editcomboa_dlg);
     jwin_center_dialog(editinfo_dlg);
-    jwin_center_dialog(editmusic_dlg);
     jwin_center_dialog(editshop_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(list_dlg);
@@ -24805,7 +22549,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(path_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
-    jwin_center_dialog(selectmusic_dlg);
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
     jwin_center_dialog(template_dlg);

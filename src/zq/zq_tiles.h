@@ -105,10 +105,8 @@ bool select_combo_3(int32_t &cmb,int32_t &cs);
 int32_t combo_screen(int32_t pg, int32_t tl);
 int32_t onCombos();
 
-int32_t d_ctile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c);
 
-int32_t click_d_ctile_proc();
 int32_t onCmb_dlg_h();
 int32_t onCmb_dlg_v();
 int32_t onCmb_dlg_r();
