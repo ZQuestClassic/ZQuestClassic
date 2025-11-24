@@ -2585,126 +2585,6 @@ bool edit_subscreen()
 	return dlg_ret == 1;
 }
 
-const char *allsubscrtype_str[30] =
-{
-	"Original (Top, Triforce)", "Original (Top, Map)",
-	"New Subscreen (Top, Triforce)", "New Subscreen (Top, Map)",
-	"Revision 2 (Top, Triforce)", "Revision 2 (Top, Map)",
-	"BS Zelda Original (Top, Triforce)", "BS Zelda Original (Top, Map)",
-	"BS Zelda Modified (Top, Triforce)", "BS Zelda Modified (Top, Map)",
-	"BS Zelda Enhanced (Top, Triforce)", "BS Zelda Enhanced (Top, Map)",
-	"BS Zelda Complete (Top, Triforce)", "BS Zelda Complete (Top, Map)",
-	"Zelda 3 (Top)",
-	"Original (Bottom, Magic)", "Original (Bottom, No Magic)",
-	"New Subscreen (Bottom, Magic)", "New Subscreen (Bottom, No Magic)",
-	"Revision 2 (Bottom, Magic)", "Revision 2 (Bottom, No Magic)",
-	"BS Zelda Original (Bottom, Magic)", "BS Zelda Original (Bottom, No Magic)",
-	"BS Zelda Modified (Bottom, Magic)", "BS Zelda Modified (Bottom, No Magic)",
-	"BS Zelda Enhanced (Bottom, Magic)", "BS Zelda Enhanced (Bottom, No Magic)",
-	"BS Zelda Complete (Bottom, Magic)", "BS Zelda Complete (Bottom, No Magic)",
-	"Zelda 3 (Bottom)"
-};
-
-const char *activesubscrtype_str[16] =
-{
-	"Blank",
-	"Original (Top, Triforce)", "Original (Top, Map)",
-	"New Subscreen (Top, Triforce)", "New Subscreen (Top, Map)",
-	"Revision 2 (Top, Triforce)", "Revision 2 (Top, Map)",
-	"BS Zelda Original (Top, Triforce)", "BS Zelda Original (Top, Map)",
-	"BS Zelda Modified (Top, Triforce)", "BS Zelda Modified (Top, Map)",
-	"BS Zelda Enhanced (Top, Triforce)", "BS Zelda Enhanced (Top, Map)",
-	"BS Zelda Complete (Top, Triforce)", "BS Zelda Complete (Top, Map)",
-	"Zelda 3 (Top)"
-};
-
-const char *activelist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = 16;
-		return NULL;
-	}
-	
-	return activesubscrtype_str[index];
-}
-
-const char *passivesubscrtype_str[16] =
-{
-	"Blank",
-	"Original (Bottom, Magic)", "Original (Bottom, No Magic)",
-	"New Subscreen (Bottom, Magic)", "New Subscreen (Bottom, No Magic)",
-	"Revision 2 (Bottom, Magic)", "Revision 2 (Bottom, No Magic)",
-	"BS Zelda Original (Bottom, Magic)", "BS Zelda Original (Bottom, No Magic)",
-	"BS Zelda Modified (Bottom, Magic)", "BS Zelda Modified (Bottom, No Magic)",
-	"BS Zelda Enhanced (Bottom, Magic)", "BS Zelda Enhanced (Bottom, No Magic)",
-	"BS Zelda Complete (Bottom, Magic)", "BS Zelda Complete (Bottom, No Magic)",
-	"Zelda 3 (Bottom)"
-};
-
-const char *passivelist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = 16;
-		return NULL;
-	}
-	
-	return passivesubscrtype_str[index];
-}
-
-const char *activepassive_str[sstMAX] =
-{
-	"Active", "Passive"
-};
-
-const char *activepassivelist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = sstMAX;
-		return NULL;
-	}
-	
-	return activepassive_str[index];
-}
-
-static ListData passive_list(passivelist, &font);
-static ListData active_list(activelist, &font);
-
-int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	int32_t tempd1=d->d1;
-	int32_t ret=jwin_droplist_proc(msg,d,c);
-	
-	if(tempd1!=d->d1)
-	{
-		(d+1)->dp=(d->d1)?(void*)&passive_list:(void*)&active_list;
-		object_message(d+1,MSG_START,0);
-		(d+1)->flags|=D_DIRTY;
-	}
-	
-	return ret;
-}
-
-static ListData activepassive_list(activepassivelist, &font);
-
-static DIALOG sstemplatelist_dlg[] =
-{
-	// (dialog proc)         (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-	{ jwin_win_proc,          0,    0,   265,  87,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "New Subscreen", NULL, NULL },
-	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ jwin_text_proc,         4,   28,     8,   8,   0,                  0,                0,       0,          0,             0, (void *) "Type:", NULL, NULL },
-	{ jwin_text_proc,         4,   46,     8,   8,   0,                  0,                0,       0,          0,             0, (void *) "Template:", NULL, NULL },
-	{ sstype_drop_proc,      33,   24,    72,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,         0,     0,             0, (void *) &activepassive_list, NULL, NULL },
-	{ jwin_droplist_proc,    50,   42,   211,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,         0,     0,             0, (void *) &active_list, NULL, NULL },
-	{ jwin_button_proc,      61,   62,    61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ jwin_button_proc,     142,   62,    61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-bool show_new_ss=true;
-
 void call_subscr_listedit_dlg();
 int32_t onEditSubscreens()
 {
@@ -2782,7 +2662,6 @@ void center_zq_subscreen_dialogs()
 {
     jwin_center_dialog(grid_dlg);
     jwin_center_dialog(sel_options_dlg);
-    jwin_center_dialog(sstemplatelist_dlg);
     jwin_center_dialog(subscreen_dlg);
 }
 

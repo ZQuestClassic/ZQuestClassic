@@ -7,13 +7,6 @@
 #include "base/initdata.h"
 #include "gamedata.h"
 
-extern const char *itype_names[itype_max];
-extern const char *itype_new_names[itype_max];
-
-int32_t d_line_proc(int32_t msg, DIALOG *d, int32_t c);
-int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t d_bombratio_proc(int32_t msg,DIALOG *d,int32_t c);
-extern TABPANEL init_tabs[];
 int32_t doInit(zinitdata *zinit, bool isZC);
 void resetItems(gamedata *data, zinitdata *zinit, bool freshquest);
 

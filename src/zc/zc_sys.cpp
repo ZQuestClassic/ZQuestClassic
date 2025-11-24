@@ -6029,7 +6029,7 @@ static DIALOG credits_dlg[] =
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
-static ListData dmap_list(dmaplist, &font);
+extern ListData dmap_list;
 
 static DIALOG goto_dlg[] =
 {

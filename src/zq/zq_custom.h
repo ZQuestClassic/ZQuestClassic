@@ -5,9 +5,6 @@
 
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
-int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c);
-void build_bief_list();
-void build_biea_list();
 
 struct list_data_struct
 {
@@ -16,7 +13,6 @@ struct list_data_struct
 };
 
 void test_item(itemdata test);
-void edit_itemdata(int32_t index);
 int32_t onCustomItems();
 
 enum { ws_2_frame, ws_3_frame, ws_max };

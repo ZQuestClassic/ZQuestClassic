@@ -31,9 +31,6 @@
 
 extern int32_t ex;
 extern void reset_itembuf(itemdata *item, int32_t id);
-extern const char *sfxlist(int32_t index, int32_t *list_size);
-// zq_subscr.cpp
-extern int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern int32_t biw_cnt;
 
@@ -41,63 +38,6 @@ extern int32_t biw_cnt;
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
-
-int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c);
-
-int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
-	
-	switch(msg)
-	{
-	case MSG_CLICK:
-	{
-		int32_t f = 0;
-		int32_t t = d->d1;
-		int32_t cs = d->d2;
-		
-		if((CHECK_CTRL_CMD)
-			? select_tile_2(t,f,1,cs,true)
-			: select_tile(t,f,1,cs,true))
-		{
-			d->d1 = t;
-			d->d2 = cs;
-			return D_REDRAW;
-		}
-	}
-	break;
-	
-	case MSG_DRAW:
-		d->w = 36;
-		d->h = 36;
-		
-		BITMAP *buf = create_bitmap_ex(8,20,20);
-		BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
-		
-		if(buf && bigbmp)
-		{
-			clear_bitmap(buf);
-			
-			if(d->d1)
-				overtile16(buf,d->d1,2,2,d->d2,0);
-				
-			stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->w-2, d->h-2);
-			destroy_bitmap(buf);
-			jwin_draw_frame(bigbmp,0,0,d->w,d->h,FR_DEEP);
-			blit(bigbmp,screen,0,0,d->x,d->y,d->w,d->h);
-			destroy_bitmap(bigbmp);
-		}
-		
-		//    text_mode(d->bg);
-		FONT *fonty = font;
-		textprintf_ex(screen,fonty,d->x+d->w,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile: %d",d->d1);
-		textprintf_ex(screen,fonty,d->x+d->w,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
-		break;
-	}
-	
-	return D_O_K;
-}
 
 void large_dialog(DIALOG *d)
 {
@@ -125,16 +65,12 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].x = int32_t(d[0].x + (xpc*double(d[0].w)));
 			
 			// Horizontally resize elements
-			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1))
-			{
-				d[i].x += (int32_t)(float(d[i].w)/4.f);
-			}
-			else if(d[i].proc == d_comboframe_proc)
+			if(d[i].proc == d_comboframe_proc)
 			{
 				d[i].w *= 2;
 				d[i].w -= 4;
 			}
-			else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc || d[i].proc == d_maptile_proc)
+			else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc)
 			{
 				d[i].w *= 2;
 			}
@@ -147,16 +83,11 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].y = int32_t(d[0].y + (ypc*double(d[0].h)));
 			
 			// Vertically resize elements
-			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1))
-			{
-			}
-			else if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc)
+			if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc)
 			{
 				d[i].h = int32_t((double)d[i].h*1.5);
 			}
-			else if(d[i].proc == jwin_droplist_proc || d[i].proc == d_ndroplist_proc || d[i].proc == d_idroplist_proc || d[i].proc == d_nidroplist_proc || d[i].proc == d_dropdmaplist_proc
-					|| d[i].proc == sstype_drop_proc
-					|| d[i].proc == d_comboalist_proc)
+			else if(d[i].proc == jwin_droplist_proc || d[i].proc == d_ndroplist_proc || d[i].proc == d_idroplist_proc || d[i].proc == d_nidroplist_proc || d[i].proc == d_dropdmaplist_proc)
 			{
 				d[i].y += int32_t((double)d[i].h*0.25);
 				d[i].h = int32_t((double)d[i].h*1.25);
@@ -166,7 +97,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 				d[i].h *= 2;
 				d[i].h -= 4;
 			}
-			else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc || d[i].proc == d_maptile_proc)
+			else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc)
 			{
 				d[i].h *= 2;
 			}
@@ -191,10 +122,9 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
-							&& d[i].proc != d_dropdmaplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
-							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc && d[i].proc != sstype_drop_proc
-							&& d[i].proc != d_comboalist_proc);
+		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc
+							&& d[i].proc != d_dropdmaplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
+							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc);
 							
 		if(bigfontproc && !d[i].dp2)
 		{
@@ -213,160 +143,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 	}
 	
 	jwin_center_dialog(d);
-}
-
-static ListData weapon_list(weaponlist_num, &a4fonts[font_pfont]);
-
-const char *defenselist(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		bound(index,0,edLAST-1);
-		
-		switch(index)
-		{
-			case 0:
-				return "(None)";
-
-			case edHALFDAMAGE:
-				return "1/2 Damage";
-
-			case edQUARTDAMAGE:
-				return "1/4 Damage";
-
-
-			case edSTUNONLY:
-				return "Stun";
-
-			case edSTUNORCHINK:
-				return "Stun Or Block";
-
-			case edSTUNORIGNORE:
-				return "Stun Or Ignore";
-
-			case edCHINKL1:
-				return "Block If < 1";
-
-			case edCHINKL2:
-				return "Block If < 2";
-
-			case edCHINKL4:
-				return "Block If < 4";
-
-			case edCHINKL6:
-				return "Block If < 6";
-
-			case edCHINKL8:
-				return "Block If < 8";
-
-
-
-			case edCHINK:
-				return "Block";
-
-			case edIGNOREL1:
-				return "Ignore If < 1";
-
-			case edIGNORE:
-				return "Ignore";
-
-
-
-
-			case ed1HKO:
-				return "One-Hit-Kill";
-
-			case edCHINKL10: //If damage is less than 10
-				return "Block if Power < 10";
-
-			case ed2x: //Double damage
-				return "Double Damage";
-			case ed3x: //Triple Damage
-				return "Triple Damage";
-			case ed4x: //4x damage
-				return "Quadruple Damage";
-
-			case edHEAL: //recover the weapon damage in HP
-				return "Enemy Gains HP = Damage";
-
-			case edTRIGGERSECRETS: //Triggers screen secrets. 
-				return "Trigger Screen Secrets";
-
-			case edSPLIT: 
-				return "Split";
-			case edREPLACE:
-				return "Transform";
-
-			case edSUMMON: 
-				return "Summon";
-
-			case edEXPLODESMALL: 
-				return "Bomb Explosion";
-
-			case edEXPLODELARGE: 
-				return "Superbomb Explosion";
-
-			case edEXPLODEHARMLESS: 
-				return "Harmless Explosion";
-
-			case edFREEZE: //Hit by ice.. 
-				return "Freeze Solid";
-				
-			case edSWITCH:
-				return "Switch w/ Hero";
-			default:
-				return "[reserved]";
-		}
-	}
-	
-	*list_size = edLAST;
-	return NULL;
-}
-
-static ListData defense_list(defenselist, &font);
-
-const char *itemscriptdroplist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = biitems_cnt;
-		return NULL;
-	}
-	
-	return biitems[index].first.c_str();
-}
-
-ListData itemscript_list(itemscriptdroplist, &a4fonts[font_pfont]);
-
-const char *itemspritescriptdroplist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = biitemsprites_cnt;
-		return NULL;
-	}
-	
-	return biditemsprites[index].first.c_str();
-}
-
-ListData itemspritescript_list(itemspritescriptdroplist, &a4fonts[font_pfont]);
-
-const char *lweaponscriptdroplist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = bilweapons_cnt;
-		return NULL;
-	}
-	
-	return bilweapons[index].first.c_str();
-}
-
-ListData lweaponscript_list(lweaponscriptdroplist, &a4fonts[font_pfont]);
-
-void edit_itemdata(int32_t index)
-{
-	call_item_editor(index);
 }
 
 int32_t readoneitem(PACKFILE *f, int32_t index)
@@ -1405,42 +1181,6 @@ int32_t onMiscSFX()
 	}).show();
 	return D_O_K;
 }
-
-list_data_struct bief[eeMAX];
-int32_t bief_cnt=-1;
-
-//do we still use this?
-const char *itemsetlist(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		bound(index,0,count_item_drop_sets()-1);
-		return item_drop_sets[index].name;
-		//  return itemset_string[index];
-	}
-	
-	*list_size=count_item_drop_sets();
-	return NULL;
-}
-
-list_data_struct biew[MAXWPNS];
-int32_t biew_cnt=-1;
-
-const char *npcscriptdroplist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = binpcs_cnt;
-		return NULL;
-	}
-	
-	return binpcs[index].first.c_str();
-}
-ListData npcscript_list(npcscriptdroplist, &font);
-
-static ListData itemset_list(itemsetlist, &font);
-
-static ListData sfx__list(sfxlist, &font);
 
 void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
 {

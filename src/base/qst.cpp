@@ -4503,7 +4503,7 @@ void clear_screen(mapscr *temp_scr)
 }
 
 // NOTE: when modifying this, you need to also update:
-//    readonedmap, readdmaps, and FFScript::read_dmaps
+//    readdmaps, and FFScript::read_dmaps
 // (and their associated write functions)
 int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps)
 {

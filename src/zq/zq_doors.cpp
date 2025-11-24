@@ -1470,14 +1470,6 @@ void reset_doorcomboset(int32_t index)
     memset(&DoorComboSets[index], 0, sizeof(DoorComboSet));
 }
 
-void init_doorcombosets()
-{
-    for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
-        reset_doorcomboset(i);
-        
-    door_combo_set_count=0;
-}
-
 int32_t onDoorCombos()
 {
     int32_t index=0;

@@ -77,9 +77,6 @@ enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, select
 BITMAP *selecting_pattern;
 int32_t selecting_x1, selecting_x2, selecting_y1, selecting_y2;
 
-extern int32_t bidcomboscripts_cnt;
-extern script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; 
-
 BITMAP *intersection_pattern;
 
 byte relational_template[48][4]=
@@ -11835,29 +11832,7 @@ int32_t onCombos()
 	return D_O_K;
 }
 
-int32_t d_ctile_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	//these are here to bypass compiler warnings about unused arguments
-	d=d;
-	c=c;
-	
-	if(msg==MSG_CLICK)
-	{
-		int32_t t=curr_combo.o_tile;
-		int32_t flip=curr_combo.flip;
-		
-		if(select_tile(t,flip,1,CSet,true,0,true))
-		{
-			curr_combo.tile=t;
-			curr_combo.o_tile=t;
-			curr_combo.flip=flip;
-			return D_REDRAW;
-		}
-	}
-	
-	return D_O_K;
-}
-
+static newcombo curr_combo;
 int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
@@ -11875,26 +11850,6 @@ int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c)
 	
 	return D_O_K;
 }
-
-int32_t click_d_ctile_proc()
-{
-	d_ctile_proc(MSG_CLICK,NULL,0);
-	return D_REDRAW;
-}
-
-int32_t click_d_combo_proc();
-
-const char *comboscriptdroplist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = bidcomboscripts_cnt;
-		return NULL;
-	}
-	
-	return bidcomboscripts[index].first.c_str();
-}
-ListData comboscript_list(comboscriptdroplist, &font);
 
 bool call_combo_editor(int32_t);
 bool edit_combo(int32_t c,bool freshen,int32_t cs)

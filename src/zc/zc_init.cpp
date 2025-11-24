@@ -52,10 +52,6 @@ int32_t onCheatConsole()
     return rval;
 }
 
-void onInitOK()
-{
-}
-
 // copyIntoZinit: worst kludge in all of ZC history? I've seen worse. ;) -Gleeok
 zinitdata *copyIntoZinit(gamedata *gdata)
 {

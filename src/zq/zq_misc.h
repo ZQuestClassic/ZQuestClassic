@@ -103,7 +103,6 @@ ALLEGRO_COLOR real_lc2(int pal);
 void refresh_pal();
 
 void domouse();
-void init_doorcombosets();
 
 int32_t onNew();
 int32_t onOpen();
@@ -151,7 +150,6 @@ int32_t onIncreaseCSet();
 int32_t onDecreaseCSet();
 
 int32_t  onHelp();
-void doHelp();
 
 int32_t onScrData();
 int32_t onGuy();
@@ -164,21 +162,10 @@ int32_t onWarp();
 int32_t onWarp2();
 int32_t onPath();
 int32_t onEnemies();
-int32_t onEnemyFlags();
 int32_t onUnderCombo();
 int32_t onSecretCombo();
 
 int32_t onHeader();
-int32_t onAnimationRules();
-int32_t onWeaponRules();
-int32_t onHeroRules();
-int32_t onComboRules();
-int32_t onItemRules();
-int32_t onEnemyRules();
-int32_t onFixesRules();
-int32_t onMiscRules();
-int32_t onCompatRules();
-int32_t onRules2();
 int32_t onCheats();
 int32_t onStrings();
 int32_t onDmaps();
@@ -189,7 +176,6 @@ int32_t onMidis();
 int32_t onShopTypes();
 int32_t onInfoTypes();
 int32_t onWarpRings();
-int32_t onWhistle();
 int32_t onMiscColors();
 int32_t onMapStyles();
 int32_t onDoorCombos();
@@ -258,9 +244,6 @@ int32_t onCustomItems();
 int32_t onCustomWpns();
 int32_t onCustomHero();
 int32_t onCustomGuys();
-
-int32_t onTest();
-int32_t onTestOptions();
 
 int32_t onOptions();
 
