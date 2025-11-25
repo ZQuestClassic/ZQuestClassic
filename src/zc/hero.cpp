@@ -14484,6 +14484,7 @@ bool HeroClass::pitfall()
 bool HeroClass::try_drown()
 {
 	if(ladderx || laddery) return false;
+	if (walk_through_walls) return false;
 	if(action == drowning || action == lavadrowning) return true;
 	int water = onWater(true);
 	if(!water) return false;
