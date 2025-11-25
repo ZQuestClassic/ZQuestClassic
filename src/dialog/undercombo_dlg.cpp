@@ -25,7 +25,8 @@ static void get_screens(mapscr& s, mapscr* screens[7])
 }
 
 UnderComboDialog::UnderComboDialog(int map, int screen):
-	map(map), screen(screen), mode(Mode::CHOOSE)
+	window(), map(map), screen(screen), lyr_widgets(), preview_idx(-1),
+	underc_idx(-1), overwrite_mode(false), whole_map(false)
 {
 	mapscr& base_screen = TheMaps[map * MAPSCRS + screen];
 	get_screens(base_screen, cur_screens);
@@ -71,36 +72,13 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 	using namespace GUI::Key;
 	using namespace GUI::Props;
 	
-	if (mode == Mode::CHOOSE)
-	{
-		return Window(
-			title = "Under Combos",
-			onClose = message::CANCEL,
-			Column(padding = 20_px, spacing = 8_px,
-				Button(text = "For Current Screen", fitParent = true,
-					onPressFunc = [&]()
-					{
-						mode = Mode::CURRENT_SCREEN;
-						refresh_dlg();
-					}),
-				Button(text = "For Whole Map", fitParent = true,
-					onPressFunc = [&]()
-					{
-						mode = Mode::WHOLE_MAP;
-						refresh_dlg();
-					}),
-				Button(text = "Cancel", fitParent = true, onClick = message::CANCEL)
-			)
-		);
-	}
-	bool current_screen = mode == Mode::CURRENT_SCREEN;
-	bool whole_map = mode == Mode::WHOLE_MAP;
-	
 	shared_ptr<GUI::Grid> g = Column();
 	
 	string layer_info = fmt::format("Undercombos for layers >0 are just the undercombos for the"
-		" layer screen that is currently assigned as that layer.{}",current_screen ?
-			"\nLayers that are not assigned a screen cannot be modified." : "");
+		" layer screen that is currently assigned as that layer.{}",
+			whole_map
+				? "\nUnchecked layers will be ignored.."
+				: "\nLayers that are not assigned a screen cannot be modified.");
 	
 	mapscr& base_screen = TheMaps[map * MAPSCRS + screen];
 	
@@ -111,28 +89,23 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 	{
 		if (layer > 0)
 			g->add(HSeparator());
-		shared_ptr<GUI::Grid> subg = GUI::Internal::makeRowsColumns(2, current_screen ? 3 : 3);
+		shared_ptr<GUI::Grid> subg = GUI::Internal::makeRowsColumns(2, whole_map ? 2 : 3);
 		subg->setHAlign(0.0);
 		
 		subg->add(Label(text = "Layer:", hAlign = 1.0));
 		subg->add(INFOBTN(layer_info));
-		if (current_screen)
+		if (!whole_map)
 		{
 			subg->add(Label(text = "Old Undercombo:", hAlign = 1.0));
 			subg->add(INFOBTN("The previously set undercombo"));
 		}
 		subg->add(Label(text = "Undercombo:", hAlign = 1.0));
-		subg->add(INFOBTN("The combo+cset set as the undercombo for the layer screen."));
-		if (whole_map)
-		{
-			subg->add(Label(text = "Enabled:", hAlign = 1.0));
-			subg->add(INFOBTN("If this layer's undercombo should be set for the whole map."));
-		}
-		
+		subg->add(INFOBTN("The combo+cset set as the undercombo for the layer screen."
+			"\nFirst box selects combo, second box shows animated preview of the combo."));
 		
 		for (int q = 0; q < 4 && layer < 7; ++layer)
 		{
-			if (current_screen && !layer_enabled[layer])
+			if (!whole_map && !layer_enabled[layer])
 				continue;
 			++q;
 			size_t idx = 0;
@@ -146,10 +119,22 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 			} \
 			while(false)
 			
-			ADD(Label(text = to_string(layer), colSpan = 2));
-			
-			if (current_screen)
+			if (whole_map)
 			{
+				ADD(Checkbox(colSpan = 2,
+					text = to_string(layer),
+					boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+					checked = layer_enabled[layer],
+					onToggleFunc = [&, layer](bool state)
+					{
+						layer_enabled[layer] = state;
+						refresh_layer(layer);
+					}
+				));
+			}
+			else
+			{
+				ADD(Label(text = to_string(layer), colSpan = 2));
 				ADD(DummyWidget());
 				if (mapscr* m = cur_screens[layer])
 				{
@@ -186,48 +171,61 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 			preview_idx = idx;
 			ADD(TileFrame());
 			
-			if (whole_map)
-			{
-				ADD(Checkbox(colSpan = 2,
-					checked = layer_enabled[layer],
-					onToggleFunc = [&, layer](bool state)
-					{
-						layer_enabled[layer] = state;
-						refresh_layer(layer);
-					}
-				));
-			}
-			
 			#undef ADD
 		}
 		g->add(subg);
 	}
 	
+	if (whole_map)
+	{
+		g->add(Row(
+			INFOBTN("If checked, all undercombos will be overwritten."
+				"\nIf unchecked, only undercombos set to combo 0 will be overwritten."),
+			Checkbox(text = "Overwrite", checked = overwrite_mode,
+				onToggleFunc = [&](bool state)
+				{
+					overwrite_mode = state;
+				})
+		));
+	}
+	
+	shared_ptr<GUI::Grid> btnrow = Row(vAlign = 1.0, spacing = 2_em);
+	btnrow->add(Button(
+		focused = true,
+		text = "OK",
+		minwidth = 90_px,
+		onClick = message::OK));
+	if (!whole_map)
+	{
+		btnrow->add(Button(
+			text = "For Whole Map",
+			minwidth = 90_px,
+			onPressFunc = [&]()
+			{
+				save_results();
+				whole_map = true;
+				refresh_dlg();
+			}));
+	}
+	btnrow->add(Button(
+		text = "Cancel",
+		minwidth = 90_px,
+		onClick = message::CANCEL)
+	);
+	
 	string window_info = layer_info;
 	if (whole_map)
 		window_info += "\nBase Screens that are 'invalid' (blued-out) will be ignored.";
 	window = Window(
-		title = current_screen
-			? fmt::format("Undercombos for Map {} Screen {}", map+1, screen)
-			: fmt::format("Undercombos for Whole Map {}", map+1),
+		title = whole_map
+			? fmt::format("Undercombos for Whole Map {}", map+1)
+			: fmt::format("Undercombos for Map {} Screen {}", map+1, screen),
 		info = window_info,
 		use_vsync = true,
 		onClose = message::CANCEL,
 		Column(
 			g,
-			Row(
-				vAlign = 1.0,
-				spacing = 2_em,
-				Button(
-					focused = true,
-					text = "OK",
-					minwidth = 90_px,
-					onClick = message::OK),
-				Button(
-					text = "Cancel",
-					minwidth = 90_px,
-					onClick = message::CANCEL)
-			)
+			btnrow
 		)
 	);
 	for (int layer = 0; layer < 7; ++layer)
@@ -235,53 +233,64 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 	return window;
 }
 
+bool UnderComboDialog::save_results()
+{
+	if (whole_map)
+	{
+		bool do_set_map = false;
+		AlertDialog("Are you sure?",
+			fmt::format("This will set undercombos for this entire map, and selected layers!\n{}",
+				overwrite_mode
+					? "All undercombos will be overwritten!"
+					: "Only blank undercombos (set to combo 0) will be overwritten."),
+			[&](bool ret,bool)
+			{
+				do_set_map = ret;
+			}).show();
+		if (!do_set_map) return false;
+		for (int scr = 0; scr < 0x80; ++scr)
+		{
+			mapscr& s = TheMaps[map * MAPSCRS + scr];
+			if (!(s.valid & mVALID))
+				continue;
+			mapscr* lyrs[7];
+			get_screens(s, lyrs);
+			for (int layer = 0; layer < 7; ++layer)
+			{
+				if (lyrs[layer])
+				{
+					if (overwrite_mode || !lyrs[layer]->undercombo)
+					{
+						lyrs[layer]->undercombo = undercombos[layer];
+						lyrs[layer]->undercset = undercsets[layer];
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int layer = 0; layer < 7; ++layer)
+		{
+			if (cur_screens[layer])
+			{
+				cur_screens[layer]->undercombo = undercombos[layer];
+				cur_screens[layer]->undercset = undercsets[layer];
+				if (layer > 0)
+					Map.AbsoluteScrMakeValid(cur_screens[0]->layermap[layer-1], cur_screens[0]->layerscreen[layer-1]);
+			}
+		}
+	}
+	saved = false;
+	return true;
+}
+
 bool UnderComboDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
 		case message::OK:
-			if (mode == Mode::CURRENT_SCREEN)
-			{
-				for (int layer = 0; layer < 7; ++layer)
-				{
-					if (cur_screens[layer])
-					{
-						cur_screens[layer]->undercombo = undercombos[layer];
-						cur_screens[layer]->undercset = undercsets[layer];
-						if (layer > 0)
-							Map.AbsoluteScrMakeValid(cur_screens[0]->layermap[layer-1], cur_screens[0]->layerscreen[layer-1]);
-					}
-				}
-			}
-			else if (mode == Mode::WHOLE_MAP)
-			{
-				bool do_set_map = false;
-				AlertDialog("Are you sure?",
-					"This will set undercombos for this entire map, and selected layers!",
-					[&](bool ret,bool)
-					{
-						do_set_map = ret;
-					}).show();
-				if (!do_set_map) return false;
-				for (int scr = 0; scr < 0x80; ++scr)
-				{
-					mapscr& s = TheMaps[map * MAPSCRS + scr];
-					if (!(s.valid & mVALID))
-						continue;
-					mapscr* lyrs[7];
-					get_screens(s, lyrs);
-					for (int layer = 0; layer < 7; ++layer)
-					{
-						if (lyrs[layer])
-						{
-							lyrs[layer]->undercombo = undercombos[layer];
-							lyrs[layer]->undercset = undercsets[layer];
-						}
-					}
-				}
-			}
-			saved = false;
-			return true;
+			return save_results();
 
 		case message::CANCEL:
 			return true;
