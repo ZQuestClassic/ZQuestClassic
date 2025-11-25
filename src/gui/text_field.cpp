@@ -521,7 +521,7 @@ void TextField::_updateBuf(size_t sz)
 	if(z) buffer[0] = 0;
 	maxLength = sz;
 	
-	setPreferredWidth(Size::pixels(isSwapType(true) ? 16 : 0)+Size::em(std::min(zc_max(sz+1, 4)*0.75, 20.0)));
+	setPreferredWidth(Size::pixels(isSwapType(true) ? 16 : 0)+Size::em(std::min(zc_max(sz+1, 4)*0.7, 20.0)));
 	if(alDialog)
 	{
 		alDialog->dp = buffer.get();

@@ -73,6 +73,8 @@ private:
 	mapscr* thescr;
 	int32_t screen;
 	int32_t ffind;
+	
+	int prev_cache_x, prev_cache_y;
 	GUI::ListData list_link, list_ffcscript;
 };
 
