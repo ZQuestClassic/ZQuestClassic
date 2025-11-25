@@ -68,11 +68,4 @@ private:
 
 }
 
-#define INFO_BUTTON(infotitle, infotext) \
-	Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?", \
-		onPressFunc = []() \
-		{ \
-			InfoDialog(infotitle,infotext).show(); \
-		}),
-
 #endif
