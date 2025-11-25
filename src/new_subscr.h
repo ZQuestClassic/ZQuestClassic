@@ -21,6 +21,8 @@ extern int subscr_item_clk, subscr_pg_clk;
 extern byte subscr_pg_from, subscr_pg_to;
 extern bool subscr_itemless, subscr_pg_animating;
 
+int subscr_active_height();
+
 void subscrpg_clear_animation();
 bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& parent);
 
