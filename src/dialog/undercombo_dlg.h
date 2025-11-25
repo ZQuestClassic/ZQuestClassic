@@ -22,6 +22,7 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 private:
 	void refresh_layer(int layer);
+	bool save_results();
 	shared_ptr<GUI::Window> window;
 	int map, screen;
 	
@@ -34,10 +35,6 @@ private:
 	
 	size_t preview_idx, underc_idx;
 	
-	enum class Mode
-	{
-		CHOOSE, CURRENT_SCREEN, WHOLE_MAP
-	};
-	Mode mode;
+	bool overwrite_mode, whole_map;
 };
 
