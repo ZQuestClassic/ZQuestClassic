@@ -471,10 +471,10 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			hei = 56;
 			break;
 		case sstACTIVE:
-			hei = 168 + (get_qr(qr_ACTIVE_SUB_IGNORE_8PX) || get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
+			hei = subscr_active_height();
 			break;
 		case sstMAP:
-			hei = 168 + (get_qr(qr_ACTIVE_SUB_IGNORE_8PX) || get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
+			hei = subscr_active_height();
 			break;
 		case sstOVERLAY:
 			hei = 224 + (get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
@@ -2337,11 +2337,11 @@ void update_subscr_dlg(bool start)
 				default:
 				case sstACTIVE:
 					strcpy(subscr_titlebuf,"Active Subscreen Editor");
-					hei = 168 + (get_qr(qr_ACTIVE_SUB_IGNORE_8PX) || get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
+					hei = subscr_active_height();
 					break;
 				case sstMAP:
 					strcpy(subscr_titlebuf,"Map Subscreen Editor");
-					hei = 168 + (get_qr(qr_ACTIVE_SUB_IGNORE_8PX) || get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
+					hei = subscr_active_height();
 					break;
 				case sstPASSIVE:
 					strcpy(subscr_titlebuf,"Passive Subscreen Editor");

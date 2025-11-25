@@ -688,6 +688,12 @@ int get_sub_dmap()
 	return get_currdmap();
 }
 
+#define SUBSCR_ACTIVE_WIDTH 256
+int subscr_active_height()
+{
+	return 168 + (get_qr(qr_ACTIVE_SUB_IGNORE_8PX) || get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
+}
+
 void subscrpg_clear_animation()
 {
 	subscr_pg_animating = false;
@@ -703,8 +709,6 @@ void subscrpg_clear_animation()
 	subscr_pg_bmp1 = subscr_pg_bmp2 = subscr_pg_subbmp = nullptr;
 }
 
-#define SUBSCR_ACTIVE_WIDTH 256
-#define SUBSCR_ACTIVE_HEIGHT 168
 bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& src, ZCSubscreen& dest)
 {
 	if(subscr_pg_animating)
@@ -721,9 +725,10 @@ bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZC
 	subscr_anim_map = &dest == new_subscreen_map;
 	if(transition.type != sstrINSTANT)
 	{
-		subscr_pg_bmp1 = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUBSCR_ACTIVE_HEIGHT);
-		subscr_pg_bmp2 = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUBSCR_ACTIVE_HEIGHT);
-		subscr_pg_subbmp = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUBSCR_ACTIVE_HEIGHT);
+		const auto SUB_HEIGHT = subscr_active_height();
+		subscr_pg_bmp1 = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUB_HEIGHT);
+		subscr_pg_bmp2 = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUB_HEIGHT);
+		subscr_pg_subbmp = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUB_HEIGHT);
 	}
 	return true;
 }
@@ -1171,8 +1176,9 @@ bool SubscrTransition::draw(BITMAP* dest, BITMAP* p1, BITMAP* p2, int dx, int dy
 {	//Returns true for failure/end of animation
 	if(type <= 0 || type >= sstrMAX)
 		return true; //invalid animation
+	const auto SUB_HEIGHT = subscr_active_height();
 	if(!subscr_pg_subbmp)
-		subscr_pg_subbmp = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUBSCR_ACTIVE_HEIGHT);
+		subscr_pg_subbmp = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUB_HEIGHT);
 	clear_bitmap(subscr_pg_subbmp);
 	switch(type)
 	{
@@ -1185,16 +1191,16 @@ bool SubscrTransition::draw(BITMAP* dest, BITMAP* p1, BITMAP* p2, int dx, int dy
 			switch(dir)
 			{
 				case up:
-					if(diff >= SUBSCR_ACTIVE_HEIGHT)
+					if(diff >= SUB_HEIGHT)
 						return true; //end of animation
 					y1 = -diff;
-					y2 = SUBSCR_ACTIVE_HEIGHT - diff;
+					y2 = SUB_HEIGHT - diff;
 					break;
 				case down:
-					if(diff >= SUBSCR_ACTIVE_HEIGHT)
+					if(diff >= SUB_HEIGHT)
 						return true; //end of animation
 					y1 = diff;
-					y2 = diff - SUBSCR_ACTIVE_HEIGHT;
+					y2 = diff - SUB_HEIGHT;
 					break;
 				case left:
 					if(diff >= SUBSCR_ACTIVE_WIDTH)
@@ -1209,8 +1215,8 @@ bool SubscrTransition::draw(BITMAP* dest, BITMAP* p1, BITMAP* p2, int dx, int dy
 					x2 = diff - SUBSCR_ACTIVE_WIDTH;
 					break;
 			}
-			blit(p1, subscr_pg_subbmp, 0, 0, x1, y1, SUBSCR_ACTIVE_WIDTH, SUBSCR_ACTIVE_HEIGHT);
-			blit(p2, subscr_pg_subbmp, 0, 0, x2, y2, SUBSCR_ACTIVE_WIDTH, SUBSCR_ACTIVE_HEIGHT);
+			blit(p1, subscr_pg_subbmp, 0, 0, x1, y1, SUBSCR_ACTIVE_WIDTH, SUB_HEIGHT);
+			blit(p2, subscr_pg_subbmp, 0, 0, x2, y2, SUBSCR_ACTIVE_WIDTH, SUB_HEIGHT);
 			break;
 		}
 		case sstrPIXEL:
@@ -1237,7 +1243,7 @@ bool SubscrTransition::draw(BITMAP* dest, BITMAP* p1, BITMAP* p2, int dx, int dy
 		default:
 			return true; //unrecognized animation type
 	}
-	blit(subscr_pg_subbmp, dest, 0, 0, dx, dy, SUBSCR_ACTIVE_WIDTH, SUBSCR_ACTIVE_HEIGHT);
+	blit(subscr_pg_subbmp, dest, 0, 0, dx, dy, SUBSCR_ACTIVE_WIDTH, SUB_HEIGHT);
 	return false;
 }
 void SubscrTransition::clear()
@@ -3696,7 +3702,7 @@ word SW_Clear::getH() const
 	switch(sub ? sub->sub_type : sstPASSIVE)
 	{
 		case sstACTIVE: case sstMAP:
-			hei = 168 + (get_qr(qr_ACTIVE_SUB_IGNORE_8PX) || get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
+			hei = subscr_active_height();
 			break;
 		case sstPASSIVE:
 			hei = 56;
