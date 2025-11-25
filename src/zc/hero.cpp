@@ -625,7 +625,7 @@ void HeroClass::go_respawn_point()
 	
 	if(cur_dmap != respawn_dmap || cur_screen != respawn_scr)
 	{
-		FFCore.warp_player(wtIWARP, respawn_dmap, respawn_scr-DMaps[cur_dmap].xoff,
+		FFCore.warp_player(wtIWARP, respawn_dmap, respawn_scr-DMaps[respawn_dmap].xoff,
 			-1, -1, 0, 0, warpFlagNOSTEPFORWARD, -1);
 	}
 }
