@@ -1696,6 +1696,7 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case SWITCHCMB: return "Hero->SwitchCombo()";
 		case WARPR: return "Hero->Warp()";
 		case LINKWARPEXR: return "Hero->WarpEx()";
+		case WARPEX: return "Hero->WarpEx()";
 		case HEROISFLICKERFRAME: return "Hero->isFlickerFrame()";
 		case IPOWERR: return "InvPow()";
 		case ISVALIDARRAY: return "IsValidArray()";

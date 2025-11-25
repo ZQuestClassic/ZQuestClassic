@@ -785,7 +785,7 @@ static constexpr script_command command_list[]=
 	{ "PLAYSOUNDEX", PLAYSOUNDEX, 0, {}, 0, 0 },
 	{ "GETSFXCOMPLETION", GETSFXCOMPLETION, 1, { REG_RW }, 0, 0 },
 	{ "ENHCROSSFADE", ENHCROSSFADE, 0, {}, 0, 0 },
-	// { "RESRVD_OP_MOOSH_08", RESRVD_OP_MOOSH_08, 0, {}, 0, 0 },
+	{ "WARPEX", WARPEX, 1, { NUM }, 0, 0 },
 	// { "RESRVD_OP_MOOSH_09", RESRVD_OP_MOOSH_09, 0, {}, 0, 0 },
 	// { "RESRVD_OP_MOOSH_10", RESRVD_OP_MOOSH_10, 0, {}, 0, 0 },
 	

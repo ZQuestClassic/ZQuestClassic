@@ -1434,7 +1434,7 @@ namespace Emily
 					m->TimedWarpTimer = 0;
 					m->Pattern = PATTERN_NO_SPAWNING;
 					//start Warp
-					Hero->WarpEx({WT_IWARP, SCRNSHOT_DMAP, scr, 0, 0, 0, 0, WARP_FLAG_SCRIPTDRAW});
+					Hero->WarpEx(WT_IWARP, SCRNSHOT_DMAP, scr, 0, 0, WARPEFFECT_NONE, 0, WARP_FLAG_SCRIPTDRAW);
 					Game->Suspend[susptLINK] = false;
 					int timeout = 60;
 					do
@@ -1486,7 +1486,7 @@ namespace Emily
 		dm->Offset = olddm[2];
 		dm->Type = olddm[3];
 		dm->Palette = olddm[4];
-		Hero->WarpEx({WT_IWARP, olddmap, oldscr, oldx, oldy, 0, 0, WARP_FLAG_SCRIPTDRAW});
+		Hero->WarpEx(WT_IWARP, olddmap, oldscr, oldx, oldy, WARPEFFECT_NONE, 0, WARP_FLAG_SCRIPTDRAW);
 		Hero->Invisible = false;
 		Hero->ItemJinx = 0;
 		Hero->SwordJinx = 0;
@@ -1568,7 +1568,7 @@ namespace Emily
 						m->TimedWarpTimer = 0;
 						m->Pattern = PATTERN_NO_SPAWNING;
 						//start Warp
-						Hero->WarpEx({WT_IWARP, SCRNSHOT_DMAP, scr, 0, 0, 0, 0, WARP_FLAG_SCRIPTDRAW});
+						Hero->WarpEx(WT_IWARP, SCRNSHOT_DMAP, scr, 0, 0, WARPEFFECT_NONE, 0, WARP_FLAG_SCRIPTDRAW);
 						Game->Suspend[susptLINK] = false;
 						int timeout = 60;
 						do
@@ -1621,7 +1621,7 @@ namespace Emily
 		dm->Offset = olddm[2];
 		dm->Type = olddm[3];
 		dm->Palette = olddm[4];
-		Hero->WarpEx({WT_IWARP, olddmap, oldscr, oldx, oldy, 0, 0, WARP_FLAG_SCRIPTDRAW});
+		Hero->WarpEx(WT_IWARP, olddmap, oldscr, oldx, oldy, WARPEFFECT_NONE, 0, WARP_FLAG_SCRIPTDRAW);
 		Hero->Invisible = false;
 		Hero->ItemJinx = 0;
 		Hero->SwordJinx = 0;

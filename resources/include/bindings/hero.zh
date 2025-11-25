@@ -84,6 +84,7 @@ enum WarpEffect
 @Bitflags("int")
 enum WarpBitflags
 {
+	WARP_FLAG_NONE                 = 0x000,
 	WARP_FLAG_SCRIPTDRAW           = 0x001,
 	WARP_FLAG_PLAYSOUNDS           = 0x002,
 	WARP_FLAG_FORCE_RESET_MUSIC    = 0x004,
@@ -154,7 +155,7 @@ class hero {
 	// The current *total* Hero Tile Modifier.
 	//
 	// @zasm_var LINKTILEMOD
-	internal int TileMod;
+	internal const int TileMod;
 
 	// @zasm_var LINKHELD
 	internal int HeldItem;
@@ -656,10 +657,41 @@ class hero {
 	//   WARPR D3 D2
 	internal void Warp(int dmap, int screen);
 
+	// Warps the player, with many options.
+	//
+	// Takes an array of parameters. The array should match one of the following patterns:
+	// - {type,dmap,screen,x,y,effect,sound,flags}
+	// - {type,dmap,screen,x,y,effect,sound,flags,forcedir}
+	//
+	// Where the parameters mean:
+	// - 'type' is a [WarpType].
+	// - 'dmap'/'screen' are the destination.
+	// - 'x'/'y' are the exact position to spawn at.
+	// -  - Alternatively, if 'x < 0', 'y' is a [WarpIndex], specifying which blue warp square to spawn at.
+	// -  - Alternatively, if 'x < 0' and 'y < 0', acts as a pitwarp.
+	// - 'effect' is a [WarpEffect].
+	// - 'sound' is an SFX to play.
+	// - 'flags' is a set of [WarpBitflags].
+	// - 'forcedir', if present, is a [Direction] for the player to face after the warp.
+	//
+	// @deprecated Use 'Hero->WarpEx()' (with different parameters) instead!
 	// @zasm
 	//   POP D2
 	//   LINKWARPEXR D2
 	internal void WarpEx(int[] ptr);
+	
+	// Warps the player, with many options.
+	//
+	// @param type, effect, flags: configure various settings of the warp
+	// @param dmap, screen: the destination of the warp
+	// @param x, y: The position to spawn at. If 'x < 0' and 'y < 0', acts as a pitwarp.
+	//              If 'x < 0' and 'y >= 0', y is a [WarpIndex] for a warp return square.
+	// @param sound: the sound to play
+	// @param forcedir: if >-1, the player is forced to face this [Direction] after the warp.
+	// @zasm
+	//   WARPEX 9
+	//   POPARGS D5 0.0009
+	internal void WarpEx(WarpType type, int dmap, int screen, int x, int y, WarpEffect effect, int sound, WarpBitflags flags, int forcedir = -1);
 
 	// Creates an explosion particle effect in mode 0, 1, or 2 of the sprite.
 	//
@@ -844,11 +876,6 @@ class hero {
 	// @zasm
 	//   HEROISFLICKERFRAME
 	internal bool isFlickerFrame();
-
-	// @zasm
-	//   POP D2
-	//   LINKWARPEXR D2
-	internal void Warp(int warp_id);
 
 	// Set the Hero's button items, with options for forcing them.
 	//
