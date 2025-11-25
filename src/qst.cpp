@@ -4397,81 +4397,20 @@ void clear_screen(mapscr *temp_scr)
 // NOTE: when modifying this, you need to also update:
 //    readonedmap, readdmaps, and FFScript::read_dmaps
 // (and their associated write functions)
-int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps)
+
+int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int index)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_dmaps);
-
-	word dmapstoread=0;
 	dmap tempDMap;
-	
-	int32_t dummy;
-	word s_version=0, s_cversion=0;
-	byte padding;
-
 	char legacy_title[22];
+	byte padding;
 	
 	if (!should_skip)
-	for(int32_t i=0; i<max_dmaps; i++)
 	{
-		DMaps[start_dmap + i].clear();
-		sprintf(legacy_title,"                    ");
-		sprintf(DMaps[start_dmap+i].intro,"                                                                        ");
-		DMaps[start_dmap+i].type |= dmCAVE;
+		DMaps[index].clear();
+		DMaps[index].type |= dmCAVE;
 	}
 	
-	if(!Header || Header->zelda_version > 0x192)
-	{
-		//section version info
-		if(!p_igetw(&s_version,f))
-		{
-			return qe_invalid;
-		}
-
-		if (s_version > V_DMAPS)
-			return qe_version;
-
-		FFCore.quest_format[vDMaps] = s_version;
-		
-		//al_trace("DMaps version %d\n", s_version);
-		
-		if(!p_igetw(&s_cversion,f))
-		{
-			return qe_invalid;
-		}
-		
-		//section size
-		if(!p_igetl(&dummy,f))
-		{
-			return qe_invalid;
-		}
-		
-		//finally...  section data
-		if(!p_igetw(&dmapstoread,f))
-		{
-			return qe_invalid;
-		}
-	}
-	else
-	{
-		if((Header->zelda_version < 0x192)||
-				((Header->zelda_version == 0x192)&&(Header->build<5)))
-		{
-			dmapstoread=32;
-		}
-		else if(s_version <= 4)
-		{
-			dmapstoread=OLDMAXDMAPS;
-		}
-		else
-		{
-			dmapstoread=MAXDMAPS;
-		}
-	}
-	
-	dmapstoread=zc_min(dmapstoread, max_dmaps);
-	dmapstoread=zc_min(dmapstoread, MAXDMAPS-start_dmap);
-	
-	for(int32_t i=start_dmap; i<dmapstoread+start_dmap; i++)
 	{
 		tempDMap.clear();
 		sprintf(legacy_title,"                    ");
@@ -4565,7 +4504,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			}
 			tempDMap.title.assign(legacy_title);
 			
-			if(i==0 && Header->zelda_version <= 0x190)
+			if(index==0 && Header->zelda_version <= 0x190)
 			{
 				tempDMap.cont = std::max((int)tempDMap.cont - tempDMap.xoff, 0);
 				tempDMap.compass = std::max((int)tempDMap.compass - tempDMap.xoff, 0);
@@ -4608,9 +4547,9 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			if(Header && ((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<152))))
 			{
 				if ((tempDMap.type & dmfTYPE) == dmOVERW) tempDMap.flags = dmfCAVES | dmf3STAIR | dmfWHIRLWIND | dmfGUYCAVES;
-				DMaps[i] = tempDMap;
+				DMaps[index] = tempDMap;
 				
-				continue;
+				return 0;
 			}
 			
 			if(Header && (Header->zelda_version < 0x193))
@@ -5026,8 +4965,75 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				for(int q = 0; q < 8; ++q)
 					tempDMap.initD[q] = 0;
 			}
-			DMaps[i] = tempDMap;
+			DMaps[index] = tempDMap;
 		}
+	}
+	return 0;
+}
+int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps)
+{
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_dmaps);
+
+	word dmapstoread=0;
+	
+	int32_t dummy;
+	word s_version=0, s_cversion=0;
+	byte padding;
+
+	if(!Header || Header->zelda_version > 0x192)
+	{
+		//section version info
+		if(!p_igetw(&s_version,f))
+		{
+			return qe_invalid;
+		}
+
+		if (s_version > V_DMAPS)
+			return qe_version;
+
+		FFCore.quest_format[vDMaps] = s_version;
+		
+		if(!p_igetw(&s_cversion,f))
+		{
+			return qe_invalid;
+		}
+		
+		//section size
+		if(!p_igetl(&dummy,f))
+		{
+			return qe_invalid;
+		}
+		
+		//finally...  section data
+		if(!p_igetw(&dmapstoread,f))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		if((Header->zelda_version < 0x192)||
+				((Header->zelda_version == 0x192)&&(Header->build<5)))
+		{
+			dmapstoread=32;
+		}
+		else if(s_version <= 4)
+		{
+			dmapstoread=OLDMAXDMAPS;
+		}
+		else
+		{
+			dmapstoread=MAXDMAPS;
+		}
+	}
+	
+	dmapstoread = zc_min(dmapstoread, max_dmaps);
+	dmapstoread = zc_min(dmapstoread, MAXDMAPS-start_dmap);
+	
+	for(int i = start_dmap; i < dmapstoread + start_dmap; ++i)
+	{
+		if (int ret = read_one_dmap(f, Header, s_version, i))
+			return ret;
 	}
 	
 	return 0;

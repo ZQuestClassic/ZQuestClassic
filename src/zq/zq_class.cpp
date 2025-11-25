@@ -7403,12 +7403,213 @@ int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
     new_return(0);
 }
 
-int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps)
+int32_t write_one_dmap(PACKFILE* f, int index)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    version=version;
-    build=build;
-    
+	DMaps[index].validate_subscreens();
+	
+	if(!p_putc(DMaps[index].map,f))
+	{
+		new_return(6);
+	}
+	
+	if(!p_iputw(DMaps[index].level,f))
+	{
+		new_return(7);
+	}
+	
+	if(!p_putc(DMaps[index].xoff,f))
+	{
+		new_return(8);
+	}
+	
+	if(!p_putc(DMaps[index].compass,f))
+	{
+		new_return(9);
+	}
+	
+	if(!p_iputw(DMaps[index].color,f))
+	{
+		new_return(10);
+	}
+	
+	if(!p_putc(DMaps[index].midi,f))
+	{
+		new_return(11);
+	}
+	
+	if(!p_putc(DMaps[index].cont,f))
+	{
+		new_return(12);
+	}
+	
+	if(!p_putc(DMaps[index].type,f))
+	{
+		new_return(13);
+	}
+	
+	for(int32_t j=0; j<8; j++)
+	{
+		if(!p_putc(DMaps[index].grid[j],f))
+		{
+			new_return(14);
+		}
+	}
+	
+	if(!pfwrite(&DMaps[index].name,sizeof(DMaps[0].name)-1,f))
+	{
+		new_return(15);
+	}
+	
+	if(!p_putwstr(DMaps[index].title,f))
+	{
+		new_return(16);
+	}
+	
+	if(!pfwrite(&DMaps[index].intro,sizeof(DMaps[0].intro)-1,f))
+	{
+		new_return(17);
+	}
+	
+	if(!p_iputl(DMaps[index].minimap_1_tile,f))
+	{
+		new_return(18);
+	}
+	
+	if(!p_putc(DMaps[index].minimap_1_cset,f))
+	{
+		new_return(19);
+	}
+	
+	if(!p_iputl(DMaps[index].minimap_2_tile,f))
+	{
+		new_return(20);
+	}
+	
+	if(!p_putc(DMaps[index].minimap_2_cset,f))
+	{
+		new_return(21);
+	}
+	
+	if(!p_iputl(DMaps[index].largemap_1_tile,f))
+	{
+		new_return(22);
+	}
+	
+	if(!p_putc(DMaps[index].largemap_1_cset,f))
+	{
+		new_return(23);
+	}
+	
+	if(!p_iputl(DMaps[index].largemap_2_tile,f))
+	{
+		new_return(24);
+	}
+	
+	if(!p_putc(DMaps[index].largemap_2_cset,f))
+	{
+		new_return(25);
+	}
+	
+	if(!pfwrite(&DMaps[index].tmusic,sizeof(DMaps[0].tmusic)-1,f))
+	{
+		new_return(26);
+	}
+	
+	if(!p_putc(DMaps[index].tmusictrack,f))
+	{
+		new_return(25);
+	}
+	
+	if(!p_putc(DMaps[index].active_subscreen,f))
+	{
+		new_return(26);
+	}
+	
+	if(!p_putc(DMaps[index].passive_subscreen,f))
+	{
+		new_return(27);
+	}
+	
+	byte disabled[32];
+	memset(disabled,0,32);
+	
+	for(int32_t j=0; j<MAXITEMS; j++)
+	{
+		if(DMaps[index].disableditems[j])
+		{
+			disabled[j/8] |= (1 << (j%8));
+		}
+	}
+	
+	if(!pfwrite(disabled,32,f))
+	{
+		new_return(28);
+	}
+	
+	if(!p_iputl(DMaps[index].flags,f))
+		new_return(29);
+	if(!p_putc(DMaps[index].sideview,f))
+		new_return(30);
+	if(!p_iputw(DMaps[index].script,f))
+		new_return(31);
+	for ( int32_t q = 0; q < 8; q++ )
+		if(!p_iputl(DMaps[index].initD[q],f))
+			new_return(32);
+	for ( int32_t q = 0; q < 8; q++ )
+		for ( int32_t w = 0; w < 65; w++ )
+			if (!p_putc(DMaps[index].initD_label[q][w],f))
+				new_return(33);
+	if(!p_iputw(DMaps[index].active_sub_script,f))
+		new_return(34);
+	if(!p_iputw(DMaps[index].passive_sub_script,f))
+		new_return(35);
+	for(int32_t q = 0; q < 8; ++q)
+		if(!p_iputl(DMaps[index].sub_initD[q],f))
+			new_return(36);
+	for(int32_t q = 0; q < 8; ++q)
+		for(int32_t w = 0; w < 65; ++w)
+			if(!p_putc(DMaps[index].sub_initD_label[q][w],f))
+				new_return(37);
+	if(!p_iputw(DMaps[index].onmap_script,f))
+		new_return(38);
+	for(int32_t q = 0; q < 8; ++q)
+		if(!p_iputl(DMaps[index].onmap_initD[q],f))
+			new_return(39);
+	for(int32_t q = 0; q < 8; ++q)
+		for(int32_t w = 0; w < 65; ++w)
+			if(!p_putc(DMaps[index].onmap_initD_label[q][w],f))
+				new_return(40);
+	if(!p_iputw(DMaps[index].mirrorDMap,f))
+		new_return(41);
+	if (!p_iputl(DMaps[index].tmusic_loop_start, f))
+		new_return(42);
+	if (!p_iputl(DMaps[index].tmusic_loop_end, f))
+		new_return(43);
+	if (!p_iputl(DMaps[index].tmusic_xfade_in, f))
+		new_return(44);
+	if (!p_iputl(DMaps[index].tmusic_xfade_out, f))
+		new_return(45);
+	if(!p_putc(DMaps[index].overlay_subscreen, f))
+		new_return(46);
+	if (!p_iputl(DMaps[index].intro_string_id, f))
+		new_return(47);
+
+	// Reserved for z3.
+	for(int32_t j=0; j<8; j++)
+	{
+		for(int32_t k=0; k<8; k++)
+		{
+			if(!p_putc(0,f))
+			{
+				new_return(48);
+			}
+		}
+	}
+
+	return 0;
+}
+int32_t writedmaps(PACKFILE *f, word, word, word start_dmap, word max_dmaps)
+{
     word dmap_count=count_dmaps();
     dword section_id=ID_DMAPS;
     dword section_version=V_DMAPS;
@@ -7455,262 +7656,11 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
         
         
         for(int32_t i=start_dmap; i<start_dmap+dmap_count; i++)
-        {
-			DMaps[i].validate_subscreens();
-			
-            if(!p_putc(DMaps[i].map,f))
-            {
-                new_return(6);
-            }
-            
-            if(!p_iputw(DMaps[i].level,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_putc(DMaps[i].xoff,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_putc(DMaps[i].compass,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_iputw(DMaps[i].color,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_putc(DMaps[i].midi,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_putc(DMaps[i].cont,f))
-            {
-                new_return(12);
-            }
-            
-            if(!p_putc(DMaps[i].type,f))
-            {
-                new_return(13);
-            }
-            
-            for(int32_t j=0; j<8; j++)
-            {
-                if(!p_putc(DMaps[i].grid[j],f))
-                {
-                    new_return(14);
-                }
-            }
-            
-            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name)-1,f))
-            {
-                new_return(15);
-            }
-            
-            if(!p_putwstr(DMaps[i].title,f))
-            {
-                new_return(16);
-            }
-            
-            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro)-1,f))
-            {
-                new_return(17);
-            }
-            
-            if(!p_iputl(DMaps[i].minimap_1_tile,f))
-            {
-                new_return(18);
-            }
-            
-            if(!p_putc(DMaps[i].minimap_1_cset,f))
-            {
-                new_return(19);
-            }
-            
-            if(!p_iputl(DMaps[i].minimap_2_tile,f))
-            {
-                new_return(20);
-            }
-            
-            if(!p_putc(DMaps[i].minimap_2_cset,f))
-            {
-                new_return(21);
-            }
-            
-            if(!p_iputl(DMaps[i].largemap_1_tile,f))
-            {
-                new_return(22);
-            }
-            
-            if(!p_putc(DMaps[i].largemap_1_cset,f))
-            {
-                new_return(23);
-            }
-            
-            if(!p_iputl(DMaps[i].largemap_2_tile,f))
-            {
-                new_return(24);
-            }
-            
-            if(!p_putc(DMaps[i].largemap_2_cset,f))
-            {
-                new_return(25);
-            }
-            
-            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic)-1,f))
-            {
-                new_return(26);
-            }
-            
-            if(!p_putc(DMaps[i].tmusictrack,f))
-            {
-                new_return(25);
-            }
-            
-            if(!p_putc(DMaps[i].active_subscreen,f))
-            {
-                new_return(26);
-            }
-            
-            if(!p_putc(DMaps[i].passive_subscreen,f))
-            {
-                new_return(27);
-            }
-            
-            byte disabled[32];
-            memset(disabled,0,32);
-            
-            for(int32_t j=0; j<MAXITEMS; j++)
-            {
-                if(DMaps[i].disableditems[j])
-                {
-                    disabled[j/8] |= (1 << (j%8));
-                }
-            }
-            
-            if(!pfwrite(disabled,32,f))
-            {
-                new_return(28);
-            }
-            
-            if(!p_iputl(DMaps[i].flags,f))
-            {
-                new_return(29);
-            }
-	    if(!p_putc(DMaps[i].sideview,f))
-            {
-                new_return(30);
-            }
-	    if(!p_iputw(DMaps[i].script,f))
-            {
-                new_return(31);
-            }
-	    for ( int32_t q = 0; q < 8; q++ )
-	    {
-		if(!p_iputl(DMaps[i].initD[q],f))
-	        {
-			new_return(32);
+		{
+			if (auto ret = write_one_dmap(f, i))
+				return ret;
 		}
-		    
-	    }
-	    for ( int32_t q = 0; q < 8; q++ )
-	    {
-		    for ( int32_t w = 0; w < 65; w++ )
-		    {
-			if (!p_putc(DMaps[i].initD_label[q][w],f))
-			{
-				new_return(33);
-			}
-		}
-	    }
-			if(!p_iputw(DMaps[i].active_sub_script,f))
-			{
-				new_return(34);
-			}
-			if(!p_iputw(DMaps[i].passive_sub_script,f))
-			{
-				new_return(35);
-			}
-			for(int32_t q = 0; q < 8; ++q)
-			{
-				if(!p_iputl(DMaps[i].sub_initD[q],f))
-				{
-					new_return(36);
-				}
-			}
-			for(int32_t q = 0; q < 8; ++q)
-			{
-				for(int32_t w = 0; w < 65; ++w)
-				{
-					if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
-					{
-						new_return(37);
-					}
-				}
-			}
-			if(!p_iputw(DMaps[i].onmap_script,f))
-			{
-				new_return(38);
-			}
-			for(int32_t q = 0; q < 8; ++q)
-			{
-				if(!p_iputl(DMaps[i].onmap_initD[q],f))
-				{
-					new_return(39);
-				}
-			}
-			for(int32_t q = 0; q < 8; ++q)
-			{
-				for(int32_t w = 0; w < 65; ++w)
-				{
-					if(!p_putc(DMaps[i].onmap_initD_label[q][w],f))
-					{
-						new_return(40);
-					}
-				}
-			}
-			if(!p_iputw(DMaps[i].mirrorDMap,f))
-			{
-				new_return(41);
-			}
-            if (!p_iputl(DMaps[i].tmusic_loop_start, f))
-            {
-                new_return(42);
-            }
-            if (!p_iputl(DMaps[i].tmusic_loop_end, f))
-            {
-                new_return(43);
-            }
-            if (!p_iputl(DMaps[i].tmusic_xfade_in, f))
-            {
-                new_return(44);
-            }
-            if (!p_iputl(DMaps[i].tmusic_xfade_out, f))
-            {
-                new_return(45);
-            }
-			if(!p_putc(DMaps[i].overlay_subscreen, f))
-				new_return(46);
-			if (!p_iputl(DMaps[i].intro_string_id, f))
-				new_return(47);
-
-			// Reserved for z3.
-			for(int32_t j=0; j<8; j++)
-			{
-				for(int32_t k=0; k<8; k++)
-				{
-					if(!p_putc(0,f))
-					{
-						new_return(48);
-					}
-				}
-			}
-		}
-        
+		
         if(writecycle==0)
         {
             section_size=writesize;

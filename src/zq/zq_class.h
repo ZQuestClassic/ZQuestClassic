@@ -413,6 +413,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build);
 
 int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, int32_t max_tiles);
 
+int32_t write_one_dmap(PACKFILE* f, int index);
 int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps);
 
 bool save_guys(const char *path);
