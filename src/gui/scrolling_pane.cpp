@@ -135,6 +135,11 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 					object_message(child, MSG_DRAW, 0);
 				}
 			}
+			else // needed for edge cases, such as the MSG_DRAW received after losing focus
+			{
+				for(size_t i = 1; i < sp->childrenEnd; ++i)
+					object_message(&sp->alDialog[i], MSG_DRAW, 0);
+			}
 			END_CLIP();
 			break;
 		}
