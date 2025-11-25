@@ -190,6 +190,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata = 0);
 int32_t readrules(PACKFILE *f, zquestheader *Header);
 int32_t readstrings(PACKFILE *f, zquestheader *Header);
 int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header);
+int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int index);
 int32_t readdmaps(PACKFILE *f, zquestheader *Header, word version, word build, word start_dmap, word max_dmaps);
 int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int32_t readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
