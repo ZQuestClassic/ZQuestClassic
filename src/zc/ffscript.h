@@ -877,7 +877,8 @@ int32_t do_create_bitmap();
 
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
-void do_warp_ex(const bool v);
+void do_warp_ex();
+void do_warp_ex_array();
 //FFScript();
 //static void init();
 

@@ -26675,7 +26675,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			
 			case LINKWARPEXR:
 			{
-				FFCore.do_warp_ex(false);
+				FFCore.do_warp_ex_array();
+				break;
+			}
+			case WARPEX:
+			{
+				FFCore.do_warp_ex();
 				break;
 			}
 			
@@ -28929,9 +28934,43 @@ void FFScript::Play_Level_Music()
 	}
 }
 
-void FFScript::do_warp_ex(bool v)
+static void warp_ex(int args[wexLast])
 {
-	int32_t zscript_array_ptr = SH::get_arg(sarg1, v);
+	if ( ((unsigned)args[1]) >= MAXDMAPS )
+		Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", args[1]);
+	else if ( ((unsigned)args[2]) >= MAPSCRS )
+		Z_scripterrlog("Invalid Screen Index (%d) passed to WarpEx(). Aborting.\n", args[2]);
+	else if ( map_screen_index(DMaps[args[1]].map, args[2] + DMaps[args[1]].xoff) >= (int32_t)TheMaps.size() )
+		Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");
+	else
+	{
+		if(get_qr(qr_OLD_BROKEN_WARPEX_MUSIC))
+		{
+			SETFLAG(args[wexFlags],warpFlagFORCECONTINUEMUSIC,args[wexFlags]&warpFlagFORCERESETMUSIC);
+			TOGGLEFLAG(args[wexFlags],warpFlagFORCERESETMUSIC);
+		}
+		memcpy(FFCore.warpex, args, sizeof(FFCore.warpex));
+		FFCore.warpex[wexActive] = 1;
+	}
+}
+
+void FFScript::do_warp_ex()
+{
+	int num_args = sarg1 / 10000;
+	if (num_args < 8 || unsigned(num_args) > wexActive)
+	{
+		scripting_log_error_with_context("Invalid parameter count %d!", num_args);
+		return;
+	}
+	int args[wexLast] = {0};
+	for (int q = 0; q < num_args; ++q)
+		args[q] = SH::read_stack(ri->sp + (num_args - q - 1)) / 10000;
+	warp_ex(args);
+}
+
+void FFScript::do_warp_ex_array()
+{
+	int32_t zscript_array_ptr = get_register(sarg1);
 	ArrayManager am(zscript_array_ptr);
 	if(am.invalid()) return;
 	int32_t zscript_array_size = am.size();
@@ -28940,39 +28979,11 @@ void FFScript::do_warp_ex(bool v)
 		case 8: // {int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags}
 		case 9: // {int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir}
 		{
-			int32_t tmpwarp[9]={0};
+			int args[wexLast] = {0};
 			for ( int32_t q = 0; q < 8; q++ )
-			{
-				tmpwarp[q] = (am.get(q)/10000);
-			}
-			tmpwarp[wexDir] = zscript_array_size < 9 ? -1 : (am.get(8)/10000);\
-			if ( ((unsigned)tmpwarp[1]) >= MAXDMAPS ) 
-			{
-				Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[1]);
-				return;
-			}
-			if ( ((unsigned)tmpwarp[2]) >= MAPSCRS ) 
-			{
-				Z_scripterrlog("Invalid Screen Index (%d) passed to WarpEx(). Aborting.\n", tmpwarp[2]);
-				return;
-			}
-			//Extra sanity guard.
-			if ( map_screen_index(DMaps[tmpwarp[1]].map, tmpwarp[2] + DMaps[tmpwarp[1]].xoff) >= (int32_t)TheMaps.size() )
-			{
-				Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");
-				return;
-			}
-			if(get_qr(qr_OLD_BROKEN_WARPEX_MUSIC))
-			{
-				SETFLAG(tmpwarp[wexFlags],warpFlagFORCECONTINUEMUSIC,tmpwarp[wexFlags]&warpFlagFORCERESETMUSIC);
-				TOGGLEFLAG(tmpwarp[wexFlags],warpFlagFORCERESETMUSIC);
-			}
-			//If we passed the sanity checks, populate the FFCore array and begin the action!
-			for ( int32_t q = 0; q < wexActive; q++ )
-			{
-				FFCore.warpex[q] = tmpwarp[q];
-			}
-			FFCore.warpex[wexActive] = 1;
+				args[q] = (am.get(q)/10000);
+			args[wexDir] = zscript_array_size < 9 ? -1 : (am.get(8)/10000);
+			warp_ex(args);
 			break;
 		}
 	
