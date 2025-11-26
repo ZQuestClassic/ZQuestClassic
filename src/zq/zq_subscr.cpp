@@ -33,7 +33,7 @@ extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 extern bool zq_ignore_item_ownership;
 bool zq_view_fullctr = false, zq_view_maxctr = false,
 	zq_view_noinf = false, zq_view_allinf = false;
-bool subscr_confirm_delete = true;
+bool subscr_confirm_delete = true, subscr_dupe_in_place = true;
 int zq_subscr_override_dmap = -1;
 
 int32_t curr_widg;
@@ -94,6 +94,7 @@ int32_t onGridSnapTop();
 int32_t onGridSnapMiddle();
 int32_t onGridSnapBottom();
 static int32_t onToggleConfDelete();
+static int32_t onToggleDuplicateInPlace();
 static int32_t onSetSubscrDmap();
 
 void subscr_properties(int indx)
@@ -220,8 +221,11 @@ int32_t onDuplicateWidget()
 			SubscrWidget* widg = pg[i]->clone();
 			if(!widg) continue;
 			
-            widg->x+=zc_max(zinit.ss_grid_x,8);
-            widg->y+=zc_max(zinit.ss_grid_y,8);
+			if (!subscr_dupe_in_place)
+			{
+				widg->x+=zc_max(zinit.ss_grid_x,8);
+				widg->y+=zc_max(zinit.ss_grid_y,8);
+			}
 			pg.push_back(widg);
         }
     }
@@ -1215,6 +1219,7 @@ static int32_t onSubscreenPageSettings()
 enum
 {
 	MENUID_SS_SETTINGS_DELETE,
+	MENUID_SS_SETTINGS_DUPEINPLACE,
 };
 static NewMenu ss_settings_menu
 {
@@ -1222,6 +1227,7 @@ static NewMenu ss_settings_menu
 	{ "Se&lection Settings", onSelectionOptions },
 	{ "&Mouse Settings", &ss_mouseset_menu },
 	{ "Confirm Delete", onToggleConfDelete, MENUID_SS_SETTINGS_DELETE },
+	{ "Duplicate In-Place", onToggleDuplicateInPlace, MENUID_SS_SETTINGS_DUPEINPLACE },
 };
 
 static TopMenu subscreen_menu
@@ -1973,6 +1979,13 @@ static int32_t onToggleConfDelete()
 	zc_set_config("editsubscr","confirm_delete",subscr_confirm_delete?1:0);
 	return D_O_K;
 }
+static int32_t onToggleDuplicateInPlace()
+{
+	subscr_dupe_in_place = !subscr_dupe_in_place;
+	ss_settings_menu.select_uid(MENUID_SS_SETTINGS_DUPEINPLACE, subscr_dupe_in_place);
+	zc_set_config("editsubscr","duplicate_in_place",subscr_dupe_in_place?1:0);
+	return D_O_K;
+}
 static int32_t onSetSubscrDmap()
 {
 	zq_subscr_override_dmap = vbound(getnumber("Preview DMap?",zq_subscr_override_dmap),-1,MAXDMAPS-1);
@@ -2475,6 +2488,7 @@ bool edit_subscreen()
 	zq_view_noinf = zc_get_config("editsubscr","show_no_infinites",0);
 	zq_view_allinf = zc_get_config("editsubscr","show_all_infinites",0);
 	subscr_confirm_delete = zc_get_config("editsubscr","confirm_delete",0);
+	subscr_dupe_in_place = zc_get_config("editsubscr","duplicate_in_place",0);
 	game = new gamedata();
 	game->set_time(0);
 	resetItems(game,&zinit,true);
@@ -2485,6 +2499,7 @@ bool edit_subscreen()
 	ss_view_menu.select_uid(MENUID_SS_VIEW_NO_INFINITE, zq_view_noinf);
 	ss_view_menu.select_uid(MENUID_SS_VIEW_ALL_INFINITE, zq_view_allinf);
 	ss_settings_menu.select_uid(MENUID_SS_SETTINGS_DELETE, subscr_confirm_delete);
+	ss_settings_menu.select_uid(MENUID_SS_SETTINGS_DUPEINPLACE, subscr_dupe_in_place);
 	subscreen_menu.borderless = true;
 	ss_mouseset_menu.select_only_uid(ssmouse_type);
 	
