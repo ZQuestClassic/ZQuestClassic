@@ -649,6 +649,8 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		{ qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING, "qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING" },
 		{ qr_MAP_BUTTON_CLOSES_SUBSCREEN, "qr_MAP_BUTTON_CLOSES_SUBSCREEN" },
 		{ qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE, "qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE" },
+		{ qr_ACTIVE_SUB_IGNORE_8PX, "qr_ACTIVE_SUB_IGNORE_8PX" },
+		{ qr_MIRROR_PRISM_FFCS, "qr_MIRROR_PRISM_FFCS" },
 	};
 	static std::map<std::string, std::string> qr_compat_names = {
 		{ "qr_WEAPONS_EXTRA_FRAME", qr_const_names[qr_WEAPONS_EXTRA_DEATH_FRAME]}

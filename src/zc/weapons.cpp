@@ -716,6 +716,8 @@ weapon::weapon(weapon const & other):
     clk2(other.clk2),			//int32_t
     misc2(other.misc2),			//int32_t
     ignorecombo(other.ignorecombo),	//int32_t
+    ignoreffc(other.ignoreffc),
+    fake_weapon(other.fake_weapon),
     isLit(other.isLit),			//bool		Does it light the screen?
     parentid(other.parentid),		//int32_t		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
     parentitem(other.parentitem),	//int32_t		Item that created it. -1 for none. 
@@ -996,7 +998,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	dir=zc_max(Dir,0);
 	clk=clk2=flip=misc=misc2=0;
 	frames=flash=wid=aframe=csclk=0;
-	ignorecombo=rpos_t::None;
+	ignorecombo = rpos_t::None;
+	ignoreffc = -1;
+	fake_weapon = false;
 	step=0;
 	dead=-1;
 	specialinfo = special;
@@ -5580,7 +5584,7 @@ bool weapon::animate(int32_t index)
 	return ret;
 }
 
-static void _reflect_helper(weapon* w, zfix newx, zfix newy, rpos_t cpos)
+static void _reflect_helper(weapon* w, zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos)
 {
 	switch(w->id)
 	{
@@ -5624,10 +5628,11 @@ static void _reflect_helper(weapon* w, zfix newx, zfix newy, rpos_t cpos)
 	w->convertType(true);
 	w->ignoreHero = false;
 	w->ignorecombo = cpos;
+	w->ignoreffc = ffcpos;
 	w->x = newx;
 	w->y = newy;
 }
-bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
+bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, int tdir)
 {
 	bool AngleReflect = (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) && !get_qr(qr_ANGULAR_REFLECT_BROKEN));
 	weapon *w = nullptr;
@@ -5651,7 +5656,7 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 	}
 	DCHECK(w);
 	
-	_reflect_helper(w, newx, newy, cpos);
+	_reflect_helper(w, newx, newy, cpos, ffcpos);
 	w->dir = tdir;
 	w->doAutoRotate(true);
 	
@@ -5780,7 +5785,7 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir)
 	}
 	return true;
 }
-bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mirror_cmb)
+bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, newcombo const& mirror_cmb)
 {
 	bool AngleReflect = (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) && !get_qr(qr_ANGULAR_REFLECT_BROKEN));
 	switch(mirror_cmb.type) // handle prisms
@@ -5791,7 +5796,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 			{
 				if(AngleReflect ? (tdir == 2) : (dir == (tdir^1)))
 					continue; // 3-way skips one direction
-				if(!_prism_dupe(newx, newy, cpos, tdir))
+				if(!_prism_dupe(newx, newy, cpos, ffcpos, tdir))
 					break;
 			}
 			dead = 0;
@@ -5801,7 +5806,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 		{
 			for(int tdir = 0; tdir < 4; ++tdir)
 			{
-				if(!_prism_dupe(newx, newy, cpos, tdir))
+				if(!_prism_dupe(newx, newy, cpos, ffcpos, tdir))
 					break;
 			}
 			dead = 0;
@@ -5842,7 +5847,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 	DCHECK(w);
 	
 	bool was_lw = w->isLWeapon;
-	_reflect_helper(w, newx, newy, cpos);
+	_reflect_helper(w, newx, newy, cpos, ffcpos);
 	if(!was_lw && w->isLWeapon)
 	{
 		Ewpns.remove(w);
@@ -6239,8 +6244,25 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mir
 	
 	return true;
 }
+
+static bool check_mirror_type(int ctype, bool can_duplicate)
+{
+	switch (ctype)
+	{
+		case cMIRROR:
+		case cMIRRORSLASH:
+		case cMIRRORBACKSLASH:
+		case cMIRRORNEW:
+			return true;
+		case cMAGICPRISM:
+		case cMAGICPRISM4:
+			return can_duplicate;
+	}
+	return false;
+}
 bool weapon::do_mirror() // returns true if animate needs to early-break
 {
+	if (fake_weapon) return false;
 	dword refl_flag = 0;
 	bool can_duplicate = true;
 	bool block_check = false;
@@ -6287,15 +6309,15 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 			break;
 	}
 	
-	zfix checkx=0, checky=0;
-	int32_t check_x_ofs=0, check_y_ofs=0;
+	zfix checkx = 0, checky = 0;
+	zfix check_x_ofs = 8, check_y_ofs = 8;
 	
 	if (get_qr(qr_MIRRORS_USE_WEAPON_CENTER))
 	{
-		checkx = (x+hxofs+(hit_width*0.5));
-		checky = (y+hyofs+(hit_height*0.5)-fakez);
-		check_x_ofs = x - (checkx-8);
-		check_y_ofs = y - (checky-8);
+		check_x_ofs = hxofs+(hit_width*0.5);
+		check_y_ofs = hyofs+(hit_height*0.5)-fakez;
+		checkx = x + check_x_ofs;
+		checky = y + check_y_ofs;
 	}
 	else
 	{
@@ -6336,34 +6358,65 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 			break;
 	}
 	
-	if (ignorecombo != rpos_t::None && ignorecombo == COMBOPOS_REGION_B(checkx, checky))
-		return ret_ignorecombo;
+	bool was_ignored = false, did_reflect = false;
 	
-	int32_t newx = TRUNCATE_TILE(posx) + check_x_ofs;
-	int32_t newy = TRUNCATE_TILE(posy) + check_y_ofs;
 	rpos_t cpos = COMBOPOS_REGION_B(checkx, checky);
-	
-	static const int refl_list[] = {cMIRROR, cMIRRORSLASH, cMIRRORBACKSLASH, cMAGICPRISM, cMAGICPRISM4, cMIRRORNEW};
-	
-	for(auto ctype : refl_list)
+	if (ignorecombo != rpos_t::None && ignorecombo == cpos)
+		was_ignored = true;
+	else
 	{
-		if(!can_duplicate && (ctype == cMAGICPRISM || ctype == cMAGICPRISM4))
-			continue;
+		int32_t newx = TRUNCATE_TILE(posx) + 8 - check_x_ofs;
+		int32_t newy = TRUNCATE_TILE(posy) + 8 - check_y_ofs;
+		
 		auto layer_count = get_qr(qr_MIRROR_PRISM_LAYERS) ? 7 : 1;
 		for(int q = 0; q < layer_count; ++q)
 		{
 			int cid = MAPCOMBO2(q-1,checkx,checky);
 			auto const& cmb = combobuf[cid];
-			if(cmb.type != ctype) continue;
+			if (!check_mirror_type(cmb.type, can_duplicate))
+				continue;
 			if(!cmb.attributes[0] || (cmb.attributes[0] & refl_flag))
 			{
-				if(!_mirror_refl(newx, newy, cpos, cmb))
+				if(!_mirror_refl(newx, newy, cpos, -1, cmb))
 					return ret_fail;
+				did_reflect = true;
 				break;
 			}
 		}
 	}
+	if (!did_reflect && get_qr(qr_MIRROR_PRISM_FFCS))
+	{
+		bool failed = false;
+		for_some_ffcs([&](const ffc_handle_t& ffc_handle)
+			{
+				if (!ffcIsAt(ffc_handle, checkx, checky))
+					return true;
+				if (ignoreffc != -1 && ignoreffc == ffc_handle.id)
+				{
+					was_ignored = true;
+					return true;
+				}
+				auto& cmb = ffc_handle.combo();
+				if (!check_mirror_type(cmb.type, can_duplicate))
+					return true;
+				if(!cmb.attributes[0] || (cmb.attributes[0] & refl_flag))
+				{
+					auto [nx, ny] = ffc_handle.center_xy();
+					nx -= check_x_ofs;
+					ny -= check_y_ofs;
+					if(!_mirror_refl(nx, ny, rpos_t::None, ffc_handle.id, cmb))
+						failed = true;
+					did_reflect = true;
+					return false;
+				}
+				return true;
+			});
+		if (failed)
+			return ret_fail;
+	}
 
+	if (was_ignored && !did_reflect)
+		return ret_ignorecombo;
 	if(block_check && blocked(0, 0))
 		dead=0;
 	return false;
@@ -7397,8 +7450,8 @@ void weapon::drawshadow(BITMAP* dest, bool translucent)
 void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe, int32_t parentid)
 {
     weapon temp((zfix)x,(zfix)y,(zfix)0,weapon_id,type,0,dir,-1,parentid,true);
-    temp.ignorecombo=COMBOPOS_REGION_B(dir==left?x+8:x, dir==up?y+8:y); // Lens hints can sometimes create real weapons without this
     temp.ignoreHero=true;
+    temp.fake_weapon = true;
     temp.yofs=0;
     temp.clk2=aclk;
     temp.aframe=aframe;
