@@ -385,7 +385,7 @@ bool EditMapSettingsDialog::handleMessage(const GUI::DialogMessage<message>& msg
 						Map.clearscr(q);
 			}
 			if (region_valid || dirty_screen_defaults)
-				saved = false;
+				mark_save_dirty();
 			return true;
 		}
 		case message::CANCEL:

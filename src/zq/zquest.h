@@ -174,7 +174,7 @@ extern double auto_save_time_diff;
 extern int32_t AutoSaveRetention;                               //how many autosaves of a quest to keep
 extern int32_t ImportMapBias;                                   //tells what has precedence on map importing
 extern int32_t BrushWidth, BrushHeight;
-extern bool quit,saved;
+extern bool quit, saved, autosaved;
 extern bool __debug;
 extern int32_t LayerMaskInt[7];
 extern int32_t CurrentLayer;
@@ -214,6 +214,7 @@ extern bool doorcombos_done, save_doorcombos;
 
 extern int32_t window_width, window_height;
 void set_last_timed_save(char const* buf);
+void mark_save_dirty();
 void loadlvlpal(int32_t level);
 
 bool get_debug();

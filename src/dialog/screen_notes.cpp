@@ -39,7 +39,7 @@ bool ScreenNotesInfo::edit()
 	{
 		update_blank();
 		scr->valid |= mVALID;
-		saved = false;
+		mark_save_dirty();
 		return true;
 	}
 	return false;

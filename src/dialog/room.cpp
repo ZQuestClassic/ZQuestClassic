@@ -3,7 +3,7 @@
 #include "info.h"
 #include <gui/builder.h>
 #include "base/qrs.h"
-extern bool saved;
+void mark_save_dirty();
 extern guydata *guysbuf;
 
 void call_room_dlg(mapscr* scr)
@@ -325,7 +325,7 @@ bool RoomDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 	case message::OK:
 		*base_mapref = local_mapref;
-		saved = false;
+		mark_save_dirty();
 		return true;
 
 	case message::CANCEL:

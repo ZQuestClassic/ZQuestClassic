@@ -10,7 +10,7 @@
 using std::string;
 using std::to_string;
 
-extern bool saved;
+void mark_save_dirty();
 
 void set_dlg_active(bool active)
 {
@@ -128,7 +128,7 @@ bool DoorSelDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::OK:
 		{
 			Map.FinishListCommand();
-			saved = false;
+			mark_save_dirty();
 			return true;
 		}
 		case message::CANCEL:

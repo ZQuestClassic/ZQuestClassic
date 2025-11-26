@@ -12,7 +12,7 @@ using std::string;
 using std::to_string;
 
 extern zctune* customtunes;
-extern bool saved;
+void mark_save_dirty();
 
 bool call_midi_editor(int32_t index)
 {
@@ -316,7 +316,7 @@ bool MidiEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				customtunes[index].data = local_midiref.data;
 			}
 
-			saved = false;
+			mark_save_dirty();
 		}
 		[[fallthrough]];
 	case message::CANCEL:

@@ -150,26 +150,26 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 			{
 				MsgStrings[msg_at_pos(index)].copyText(MsgStrings[zqstr_copysrc]);
 				strlist_dlg[2].flags |= D_DIRTY;
-				saved = false;
+				mark_save_dirty();
 			}, nullopt, no_pasting ? MFL_DIS : 0 },
 		{ "Paste", [&]()
 			{
 				//Overloaded assignment copies both
 				MsgStrings[msg_at_pos(index)] = MsgStrings[zqstr_copysrc];
 				strlist_dlg[2].flags|=D_DIRTY;
-				saved = false;
+				mark_save_dirty();
 			}, nullopt, no_pasting ? MFL_DIS : 0 },
 		{ "Adv. Paste", [&]()
 			{
 				string_advpaste(msg_at_pos(index));
 				strlist_dlg[2].flags|=D_DIRTY;
-				saved = false;
+				mark_save_dirty();
 			}, nullopt, no_pasting ? MFL_DIS : 0 },
 		{ "Adv. Paste to All", [&]()
 			{
 				string_advpaste(-1);
 				strlist_dlg[2].flags|=D_DIRTY;
-				saved = false;
+				mark_save_dirty();
 			}, nullopt, no_pasting ? MFL_DIS : 0 },
 		{},
 		{ "Set As Template", [&]()
@@ -517,7 +517,7 @@ int32_t onStrings()
 				(void)addtomsglist(MsgStrings[index].listpos+1);
 				
 				strlist_dlg[2].d1--;
-				saved=false;
+				mark_save_dirty();
 				break;
 			}
 			
@@ -550,7 +550,7 @@ int32_t onStrings()
 				(void)addtomsglist(MsgStrings[index].listpos-1);
 				
 				strlist_dlg[2].d1++;
-				saved=false;
+				mark_save_dirty();
 				break;
 			}
 			
@@ -601,7 +601,7 @@ int32_t onStrings()
 				//MsgStrings[index].listpos=diff;
 				//(void)addtomsglist(MsgStrings[index].listpos);
 				strlist_dlg[2].d1=diff;
-				saved=false;
+				mark_save_dirty();
 				break;
 			}
 			
@@ -626,7 +626,7 @@ int32_t onStrings()
 				
 				if(morex!=zinit.msg_more_x||morey!=zinit.msg_more_y||msgspeed!=zinit.msg_speed)
 				{
-					saved=false;
+					mark_save_dirty();
 				}
 				
 				break;
@@ -642,7 +642,7 @@ int32_t onStrings()
 
 				if (jwin_alert("Confirm Clear", "Clear this message string?", " ", shortbuf, "Yes", "No", 'y', 27, get_zc_font(font_lfont)) == 1)
 				{
-					saved = false;
+					mark_save_dirty();
 					word pos = MsgStrings[index].listpos;
 					memset((void*)(&MsgStrings[index]), 0, sizeof(MsgStr));
 					MsgStrings[index].x = 24;
@@ -674,7 +674,7 @@ int32_t onStrings()
 						++msg_count;
 						
 					MsgStrings[index]=MsgStrings[zqstr_copysrc];
-					saved = false;
+					mark_save_dirty();
 				}
 				
 				break;

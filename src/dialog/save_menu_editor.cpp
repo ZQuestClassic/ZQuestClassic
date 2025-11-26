@@ -434,7 +434,7 @@ bool SaveMenuDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 			dest_ref = local_ref;
-			saved = false;
+			mark_save_dirty();
 			return true;
 		case message::CANCEL:
 			return true;

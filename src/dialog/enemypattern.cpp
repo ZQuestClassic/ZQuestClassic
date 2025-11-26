@@ -6,7 +6,7 @@
 #include "zc_list_data.h"
 #include "zq/zq_class.h"
 
-extern bool saved;
+void mark_save_dirty();
 
 void call_enemypattern_dialog()
 {
@@ -70,7 +70,7 @@ bool EnemyPatternDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 	case message::OK:
 		thescr->pattern = byte(last_pattern);
-		saved = false;
+		mark_save_dirty();
 		[[fallthrough]];
 	case message::CANCEL:
 	default:

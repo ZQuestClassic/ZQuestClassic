@@ -13,7 +13,7 @@
 #include "defdata.h"
 #include "weap_data_editor.h"
 
-extern bool saved;
+void mark_save_dirty();
 extern guydata* guysbuf;
 extern itemdata* itemsbuf;
 extern int32_t CSet;
@@ -1690,7 +1690,7 @@ void EnemyEditorDialog::apply_enemy()
 	guysbuf[index] = local_guyref;
 	strncpy(guy_string[index], enemy_name.c_str(), 63);
 
-	saved = false;
+	mark_save_dirty();
 	edited = true;
 }
 

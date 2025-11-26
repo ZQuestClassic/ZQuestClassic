@@ -5,7 +5,7 @@
 #include "zc_list_data.h"
 #include "base/misctypes.h"
 
-extern bool saved;
+void mark_save_dirty();
 
 void call_bottle_dlg(int32_t index)
 {
@@ -193,7 +193,7 @@ bool BottleTypeDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 			memcpy(&sourceBottle, &tempBottle, sizeof(tempBottle));
-			saved = false;
+			mark_save_dirty();
 			return true;
 
 		case message::CANCEL:

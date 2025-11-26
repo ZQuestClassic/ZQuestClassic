@@ -1934,7 +1934,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 		default: return;
 	}
 	if(qrptr == quest_rules || !qrptr)
-		saved = false;
+		mark_save_dirty();
 }
 
 void QRDialog::reloadQRs()

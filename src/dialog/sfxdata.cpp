@@ -12,7 +12,7 @@
 #include <zalleg/zalleg.h>
 #include <fmt/format.h>
 
-extern bool saved;
+void mark_save_dirty();
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern SAMPLE templist[WAV_COUNT];
 extern bool sfx_templist;
@@ -217,7 +217,7 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		kill_sfx();
 		break;
 	case message::OK:
-		saved = false;
+		mark_save_dirty();
 		kill_sfx();
 		change_sfx(&customsfxdata[index], &templist[index]);
 		set_bit(customsfxflag, index - 1, customsfx);

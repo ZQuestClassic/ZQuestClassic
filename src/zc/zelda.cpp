@@ -96,7 +96,6 @@ extern char zc_aboutstr[80];
 
 int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0;
-bool saved = true;
 bool zqtesting_mode = false;
 bool test_mode_auto_restart = false;
 static std::string testingqst_name;
@@ -110,6 +109,8 @@ static bool replay_debug = false;
 extern CConsoleLoggerEx zscript_coloured_console;
 
 static zc_randgen drunk_rng;
+
+void mark_save_dirty(){}
 
 #include "init.h"
 #include <assert.h>

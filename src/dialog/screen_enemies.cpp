@@ -12,7 +12,7 @@
 #include <fmt/format.h>
 #include "zq/zquest.h"
 
-extern bool saved;
+void mark_save_dirty();
 extern char* guy_string[eMAXGUYS];
 
 using std::string;
@@ -257,7 +257,7 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			rerun_dlg = true;
 			last_enemy = scr_enemies->getSelectedIndex();
 		}
-		saved = false;
+		mark_save_dirty();
 		return true;
 	}
 	case message::CANCEL:
