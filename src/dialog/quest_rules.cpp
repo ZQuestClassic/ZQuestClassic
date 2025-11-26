@@ -303,6 +303,9 @@ static GUI::ListData comboRulesList
 		" item editor."},
 	{ "Mirror/Prism Combos Work On All Layers", qr_MIRROR_PRISM_LAYERS,
 		"Mirror and Prism combos work on any layer, instead of only layer 0." },
+	{ "Mirror/Prism Combos Work On FFCs", qr_MIRROR_PRISM_FFCS,
+		"Mirror and Prism combos work on FFCs."
+		" NOTE: This DOES NOT work for Light Beams, only weapons." },
 	{ "Combo Cycling On Layers", qr_CMBCYCLELAYERS, 
 		"Allows combos to combo cycle when placed on Layers 1-6." },
 	{ "Lesser Damage Combos Take Priority", qr_DMGCOMBOPRI, 

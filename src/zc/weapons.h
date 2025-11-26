@@ -33,8 +33,8 @@ private:
 	optional<byte> _handle_loadsprite(optional<byte> spr, bool isDummy = false, bool force = false);
 	optional<byte> _ewpn_sprite(int parentid) const;
 	
-	bool _prism_dupe(zfix newx, zfix newy, rpos_t cpos, int tdir);
-	bool _mirror_refl(zfix newx, zfix newy, rpos_t cpos, newcombo const& mirror_cmb);
+	bool _prism_dupe(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, int tdir);
+	bool _mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, newcombo const& mirror_cmb);
 public:
 	void load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr = nullptr);
     void setAngle(double angletoset);
@@ -46,6 +46,8 @@ public:
     // For fireballs, the first bit is the "boss fireball" flag.
     int32_t level;
 	rpos_t ignorecombo;
+	ffc_id_t ignoreffc;
+	bool fake_weapon;
     bool isLit; //if true, this weapon is providing light to the current screen
     int32_t parentid, //Enemy who created it
         parentitem; //Item which created it
