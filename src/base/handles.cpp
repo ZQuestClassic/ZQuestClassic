@@ -28,12 +28,12 @@ cpos_info& rpos_handle_t::info() const
 	return cpos_get(*this);
 }
 
-std::pair<int32_t, int32_t> rpos_handle_t::xy() const
+std::pair<zfix, zfix> rpos_handle_t::xy() const
 {
 	return COMBOXY_REGION(rpos);
 }
 
-std::pair<int32_t, int32_t> rpos_handle_t::center_xy() const
+std::pair<zfix, zfix> rpos_handle_t::center_xy() const
 {
 	auto [cx, cy] = xy();
 	return {cx + 8, cy + 8};
@@ -110,12 +110,12 @@ cpos_info& ffc_handle_t::info() const
 	return ffc->info;
 }
 
-std::pair<int32_t, int32_t> ffc_handle_t::xy() const
+std::pair<zfix, zfix> ffc_handle_t::xy() const
 {
 	return {ffc->x, ffc->y};
 }
 
-std::pair<int32_t, int32_t> ffc_handle_t::center_xy() const
+std::pair<zfix, zfix> ffc_handle_t::center_xy() const
 {
 	return {ffc->x + ffc->hit_width / 2, ffc->y + ffc->hit_height / 2};
 }
@@ -218,7 +218,7 @@ ty combined_handle_t::func() const \
 
 #define IMPL_COMBINED_HANDLE_SET(func, ty) IMPL_COMBINED_HANDLE_CALL_1(func, ty)
 
-typedef std::pair<int32_t, int32_t> int_pair;
+typedef std::pair<zfix, zfix> zfix_pair;
 
 bool combined_handle_t::is_rpos() const
 {
@@ -319,5 +319,5 @@ int32_t combined_handle_t::local_id() const
 }
 
 IMPL_COMBINED_HANDLE_GET(info, cpos_info&)
-IMPL_COMBINED_HANDLE_GET(xy, int_pair)
-IMPL_COMBINED_HANDLE_GET(center_xy, int_pair)
+IMPL_COMBINED_HANDLE_GET(xy, zfix_pair)
+IMPL_COMBINED_HANDLE_GET(center_xy, zfix_pair)
