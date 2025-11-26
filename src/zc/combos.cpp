@@ -488,6 +488,13 @@ void spawn_decoration(newcombo const& cmb, const combined_handle_t& handle)
 {
 	auto [x, y] = handle.xy();
 	auto [cx, cy] = handle.center_xy();
+	if (replay_version_check(0, 47))
+	{
+		x = x.getInt();
+		y = y.getInt();
+		cx = cx.getInt();
+		cy = cy.getInt();
+	}
 	spawn_decoration_xy(cmb, x, y, cx, cy);
 }
 
@@ -1947,6 +1954,13 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	auto& trig = cmb.triggers[idx];
 	auto [combo_x, combo_y] = comb_handle.xy();
 	auto [center_x, center_y] = comb_handle.center_xy();
+	if (replay_version_check(0, 47))
+	{
+		combo_x = combo_x.getInt();
+		combo_y = combo_y.getInt();
+		center_x = center_x.getInt();
+		center_y = center_y.getInt();
+	}
 	mapscr* scr = comb_handle.base_scr();
 	
 	bool is_active_screen = is_in_current_region(scr);
@@ -2134,6 +2148,13 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 	bool is_active_screen = is_in_current_region(scr);
 	auto [combo_x, combo_y] = handle.xy();
 	auto [center_x, center_y] = handle.center_xy();
+	if (replay_version_check(0, 47))
+	{
+		combo_x = combo_x.getInt();
+		combo_y = combo_y.getInt();
+		center_x = center_x.getInt();
+		center_y = center_y.getInt();
+	}
 	int screen = scr->screen;
 	if (is_active_screen)
 	{
@@ -2442,7 +2463,6 @@ bool do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t speci
 	int32_t cid = handle.data();
 	int32_t ocs = handle.cset();
 	auto [combo_x, combo_y] = handle.xy();
-	auto [center_x, center_y] = handle.center_xy();
 
 	mapscr* base_scr = handle.base_scr();
 	bool hasitem = false;
