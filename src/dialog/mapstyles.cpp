@@ -6,7 +6,6 @@
 #include "gui/builder.h"
 #include "base/misctypes.h"
 
-extern bool saved;
 extern miscQdata QMisc;
 
 bool call_mapstyles_dialog()

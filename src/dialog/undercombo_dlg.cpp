@@ -5,7 +5,7 @@
 #include "zc_list_data.h"
 #include "base/combo.h"
 
-extern bool saved;
+void mark_save_dirty();
 extern int32_t CSet;
 
 void call_undercombo_dlg(int map, int screen)
@@ -281,7 +281,7 @@ bool UnderComboDialog::save_results()
 			}
 		}
 	}
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 

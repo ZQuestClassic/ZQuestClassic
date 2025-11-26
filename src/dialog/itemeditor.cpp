@@ -12,7 +12,7 @@
 void reset_itembuf(itemdata *item, int32_t id);
 char *ordinal(int32_t num);
 extern zquestheader header;
-extern bool saved;
+void mark_save_dirty();
 extern char *item_string[];
 extern itemdata *itemsbuf;
 static bool _reset_default, _reload_editor;
@@ -2572,7 +2572,7 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 
 		case message::OK:
-			saved = false;
+			mark_save_dirty();
 			itemsbuf[index] = local_itemref;
 			strcpy(item_string[index], itemname.c_str());
 			return true;

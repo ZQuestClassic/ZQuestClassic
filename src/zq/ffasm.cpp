@@ -105,7 +105,7 @@ static const char* errstrbuf[] =
 };
 int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scriptstr, bool report_success)
 {
-	saved=false;
+	mark_save_dirty();
 	string buffer;
 	char combuf[SUBBUFSZ] = {0};
 	char arg1buf[SUBBUFSZ] = {0};

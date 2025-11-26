@@ -1164,7 +1164,7 @@ int32_t onMiscSprites()
 {
 	MiscSprsDialog(QMisc.sprites, 20, [](int32_t* newsprs)
 	{
-		saved = false;
+		mark_save_dirty();
 		for(auto q = 0; q < sprMAX; ++q)
 			QMisc.sprites[q] = byte(newsprs[q]);
 	}).show();
@@ -1175,7 +1175,7 @@ int32_t onMiscSFX()
 {
 	MiscSFXDialog(QMisc.miscsfx, 20, [](int32_t* newsfx)
 	{
-		saved = false;
+		mark_save_dirty();
 		for(auto q = 0; q < sfxMAX; ++q)
 			QMisc.miscsfx[q] = byte(newsfx[q]);
 	}).show();

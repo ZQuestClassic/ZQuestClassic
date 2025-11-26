@@ -519,7 +519,7 @@ bool FFCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				if(!m) return false; //cancelled
 			}
 			ffc.save(thescr, screen, ffind);
-			saved = false;
+			mark_save_dirty();
 			edited = true;
 			[[fallthrough]];
 		case message::CANCEL:

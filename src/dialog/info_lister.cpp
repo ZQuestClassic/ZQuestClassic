@@ -367,7 +367,7 @@ bool ItemListerDialog::paste()
 	if(copied_item_id == selected_val)
 		return false;
 	itemsbuf[selected_val] = itemsbuf[copied_item_id];
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 bool ItemListerDialog::adv_paste()
@@ -407,7 +407,7 @@ bool ItemListerDialog::adv_paste()
 	itemsbuf[selected_val].advpaste(itemsbuf[copied_item_id], pasteflags);
 	if(pasteflags.get(ITM_ADVP_NAME))
 		strcpy(item_string[selected_val], item_string[copied_item_id]);
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 int32_t readoneitem(PACKFILE *f, int32_t id);
@@ -443,7 +443,7 @@ bool ItemListerDialog::load()
 		InfoDialog("ZItem Error", "Could not load the specified item.").show();
 	}
 	pack_fclose(f);
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 
@@ -544,7 +544,7 @@ bool SpriteListerDialog::paste()
 	if(copied_sprite_id == selected_val)
 		return false;
 	wpnsbuf[selected_val] = wpnsbuf[copied_sprite_id];
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 int32_t readoneweapon(PACKFILE *f, int32_t id);
@@ -580,7 +580,7 @@ bool SpriteListerDialog::load()
 		InfoDialog("ZWpnSpr Error", "Could not load the specified sprite.").show();
 	}
 	pack_fclose(f);
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 
@@ -725,7 +725,7 @@ bool EnemyListerDialog::paste()
 	if (copied_enemy_id == selected_val)
 		return false;
 	guysbuf[selected_val] = guysbuf[copied_enemy_id];
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 int32_t readonenpc(PACKFILE* f, int32_t id);
@@ -761,7 +761,7 @@ bool EnemyListerDialog::load()
 		InfoDialog("ZNPC Error", "Could not load the specified npc.").show();
 	}
 	pack_fclose(f);
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 
@@ -901,7 +901,7 @@ bool DMapListerDialog::paste()
 	if (copied_dmap_id == selected_val)
 		return false;
 	DMaps[selected_val] = DMaps[copied_dmap_id];
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 

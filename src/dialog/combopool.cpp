@@ -8,7 +8,7 @@
 #include "zq/zq_tiles.h"
 #include <fmt/format.h>
 
-extern bool saved;
+void mark_save_dirty();
 combo_pool temp_cpool;
 combo_pool copy_cpool;
 static bool copied_cpool = false;
@@ -272,7 +272,7 @@ bool ComboPoolDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				temp_cpool.trim();
 				*retptr = temp_cpool;
-				saved = false;
+				mark_save_dirty();
 			}
 			return true;
 

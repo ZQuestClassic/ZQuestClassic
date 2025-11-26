@@ -2,7 +2,6 @@
 #include <gui/builder.h>
 
 extern ZCHEATS zcheats;
-extern bool saved;
 void call_cheats_dlg()
 {
 	CheatCodesDialog().show();

@@ -2576,7 +2576,7 @@ bool edit_subscreen()
 	if(dlg_ret==1)
 	{
 		subscr_edit.name = subscr_namebuf;
-		saved=false;
+		mark_save_dirty();
 	}
 	
 	delete game;

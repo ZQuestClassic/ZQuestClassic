@@ -4,7 +4,7 @@
 #include <gui/builder.h>
 
 extern zquestheader header;
-extern bool saved;
+void mark_save_dirty();
 void call_header_dlg()
 {
 	char alphastr[64] = {0};
@@ -15,7 +15,7 @@ void call_header_dlg()
 	HeaderDialog(header.getVerStr(), startvals,
 		[](std::string_view vals[4])
 		{
-			saved = false;
+			mark_save_dirty();
 
 			vals[0].copy(header.version, 16);
 			header.version[vals[0].size()] = 0;

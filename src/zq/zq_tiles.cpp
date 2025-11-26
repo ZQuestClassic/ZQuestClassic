@@ -2361,14 +2361,14 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				{
 					//if(CHECK_CTRL_CMD))
 					// {
-					//do_recolor(tile); redraw=true; saved=false;
+					//do_recolor(tile); redraw=true; mark_save_dirty();
 					// }
 					//else
 					// {
 					go_tiles();
 					rotate_tile(tile,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
 					redraw=true;
-					saved=false;
+					mark_save_dirty();
 					break;
 				}
 				
@@ -3210,7 +3210,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			newtilebuf[tile].data[i] = buf[i];
 		}
 		
-		saved=false;
+		mark_save_dirty();
 		
 		if(buf!=NULL)
 		{
@@ -4366,7 +4366,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	}
 	
 	go_tiles();
-	saved=false;
+	mark_save_dirty();
 	
 	for(int32_t ty=0; ty<height; ty++)                            //for every row
 	{
@@ -5353,7 +5353,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 	if(done==2)
 	{
 		go_tiles();
-		saved=false;
+		mark_save_dirty();
 			
 		for(int y=0; y<selheight; y++)
 		{
@@ -7272,7 +7272,7 @@ bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, 
 	
 	if(copied)
 	{
-		saved=false;
+		mark_save_dirty();
 	}
 	
 	return copied;
@@ -8003,7 +8003,7 @@ bool copy_tiles_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			tile2=tile;
 		}
 		
-		saved=false;
+		mark_save_dirty();
 	}
 	
 	return copied;
@@ -8023,7 +8023,7 @@ bool copy_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, boo
 			tile2=tile;
 		}
 		
-		saved=false;
+		mark_save_dirty();
 	}
 	
 	return copied;
@@ -8161,7 +8161,7 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 		
 		copy=-1;
 		tile2=tile;
-		saved=false;
+		mark_save_dirty();
 	}
 	else
 	{
@@ -8180,7 +8180,7 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 		
 		copy=-1;
 		tile2=tile;
-		saved=false;
+		mark_save_dirty();
 	}
 	
 	setup_combo_animations();
@@ -8210,7 +8210,7 @@ bool do_movecombo(combo_move_data const& cmd, ComboMoveUndo& on_undo, bool is_un
 	
 	setup_combo_animations();
 	setup_combo_animations2();
-	saved=false;
+	mark_save_dirty();
 	return true;
 }
 
@@ -8258,7 +8258,7 @@ void do_delete_tiles(int32_t firsttile, int32_t lasttile, bool rect_sel)
 				((TILECOL(t)>=TILECOL(firsttile)) &&
 				 (TILECOL(t)<=TILECOL(lasttile))))
 			reset_tile(newtilebuf, t, tf4Bit);
-	saved=false;
+	mark_save_dirty();
 	register_blank_tiles();
 }
 
@@ -8286,7 +8286,7 @@ void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 		do_delete_tiles(firsttile, lasttile, rect_sel);
 				
 		tile=tile2=zc_min(tile,tile2);
-		saved=false;
+		mark_save_dirty();
 		register_blank_tiles();
 	}
 }
@@ -8330,7 +8330,7 @@ void overlay_tile2(int32_t dest,int32_t src,int32_t cs,bool backwards)
 	}
 	
 	pack_tile(newtilebuf, buf,dest);
-	saved=false;
+	mark_save_dirty();
 }
 
 void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bool backwards, bool rect_sel)
@@ -8558,7 +8558,7 @@ static void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_s
 	if (skip_prompt || jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 	{
 		go_tiles();
-		saved=false;
+		mark_save_dirty();
 		
 		if(format == tf4Bit)
 		{
@@ -9159,7 +9159,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						case 2:  //ALT
 							if(is_rect)
 							{
-								saved=false;
+								mark_save_dirty();
 								go_slide_tiles(columns, rows, top, left);
 								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
@@ -9244,7 +9244,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						case 2:  //ALT
 							if(is_rect)
 							{
-								saved=false;
+								mark_save_dirty();
 								go_slide_tiles(columns, rows, top, left);
 								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
@@ -9337,7 +9337,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						case 2:  //ALT
 							if(is_rect)
 							{
-								saved=false;
+								mark_save_dirty();
 								go_slide_tiles(columns, rows, top, left);
 								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
@@ -9418,7 +9418,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						case 2:  //ALT
 							if(is_rect)
 							{
-								saved=false;
+								mark_save_dirty();
 								go_slide_tiles(columns, rows, top, left);
 								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
@@ -9528,15 +9528,16 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
 						{
 							mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(CHECK_CTRL_CMD), rect_sel);
-							saved=false;
+							mark_save_dirty();
 						}
 						else
 						{
-							saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(CHECK_CTRL_CMD));
+							if (overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(CHECK_CTRL_CMD)))
+								mark_save_dirty();
 							//overlay_tile(newtilebuf,tile,copy,cs,(CHECK_CTRL_CMD));
 						}
 						
-						saved=false;
+						mark_save_dirty();
 						redraw=true;
 					}
 					
@@ -9613,7 +9614,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					}
 					
 					redraw=true;
-					saved=false;
+					mark_save_dirty();
 					break;
 				
 				case KEY_SPACE:
@@ -9655,7 +9656,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					{
 						bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
 						go_tiles();
-						saved = !copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
+						if (copy_tiles(tile,tile2,copy,copycnt,rect_sel,false))
+							mark_save_dirty();
 					}
 					
 					redraw=true;
@@ -9670,7 +9672,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					{
 						go_tiles();
 						{
-							saved = !copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false);
+							if (copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false))
+								mark_save_dirty();
 						}
 					}
 					
@@ -9707,7 +9710,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 									if(copy_tiles(tile,tile2,copy,copycnt,false,true))
 									{
 										redraw=true;
-										saved=false;
+										mark_save_dirty();
 									}
 								}
 							}).show();
@@ -9770,7 +9773,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 										if(copy_tiles(tile,tile2,copy,copycnt,false,true))
 										{
 											redraw=true;
-											saved=false;
+											mark_save_dirty();
 										}
 									}
 								}).show();
@@ -9795,7 +9798,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 										if(copy_tiles(copy,tile2,tile,copycnt,false,true))
 										{
 											redraw=true;
-											saved=false;
+											mark_save_dirty();
 										}
 									}
 								}).show();
@@ -9812,7 +9815,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						{
 							go_tiles();
 							if(copy_tiles(tile,tile2,copy,copycnt,rect_sel,true))
-								saved=false;
+								mark_save_dirty();
 						}
 						else if(copy==-1)
 						{
@@ -9896,7 +9899,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					register_blank_tiles();
 					register_used_tiles();
 					redraw=true;
-					saved=false;
+					mark_save_dirty();
 					break;
 				}
 				
@@ -10212,12 +10215,12 @@ REDRAW:
 				{ "Paste", [&]()
 					{
 						bool b = copy_tiles(tile, tile2, copy, copycnt, rect_sel, false);
-						if(saved) saved = !b;
+						if (!b) mark_save_dirty();
 					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Move", [&]()
 					{
 						bool b = copy_tiles(tile, tile2, copy, copycnt, rect_sel, true);
-						if(saved) saved = !b;
+						if (!b) mark_save_dirty();
 					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Clear", [&]()
 					{
@@ -10242,12 +10245,12 @@ REDRAW:
 				{ "Scale", [&]()
 					{
 						bool b = scale_or_rotate_tiles(tile, tile2, cs, false);
-						if(saved) saved = !b;
+						if (!b) mark_save_dirty();
 					}, nullopt, type != 0 ? MFL_DIS : 0 },
 				{ "Angular Rotation", [&]()
 					{
 						bool b = scale_or_rotate_tiles(tile, tile2, cs, true);
-						if(saved) saved = !b;
+						if (!b) mark_save_dirty();
 					}, nullopt, type != 0 ? MFL_DIS : 0 },
 				{ "Color Depth", &select_tile_color_depth_menu },
 				{},
@@ -10318,7 +10321,7 @@ REDRAW:
 								{
 									go_tiles();
 									if(copy_tiles(copy, tile2, tile, copycnt, false, true))
-										saved = false;
+										mark_save_dirty();
 								}
 							}).show();
 						
@@ -10353,7 +10356,7 @@ REDRAW:
 								{
 									go_tiles();
 									if(copy_tiles(tile, tile2, copy, copycnt, false, true))
-										saved = false;
+										mark_save_dirty();
 								}
 							}).show();
 						
@@ -11287,14 +11290,14 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					combobuf[i].csets= (((w2& ~0x50)>>1 | (w2&0x50)<<1) & ~0x0F) | (w2 & 0x0F);
 				}
 				
-				saved=false;
+				mark_save_dirty();
 				break;
 				
 			case KEY_M:
 				if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
 				{
 					move_combos(tile,tile2,copy,copycnt);
-					saved=false;
+					mark_save_dirty();
 				}
 				break;
 				
@@ -11310,7 +11313,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						zc_swap(combobuf[copy+i],combobuf[tile+i]);
 					}
 					
-					saved=false;
+					mark_save_dirty();
 					setup_combo_animations();
 					setup_combo_animations2();
 				}
@@ -11323,7 +11326,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				{
 					if(advpaste(tile, tile2, copy))
 					{
-						saved=false;
+						mark_save_dirty();
 						copy=-1;
 					}
 					
@@ -11345,7 +11348,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						combobuf[i].csets= (((w2&0x30)<<2 | (w2& ~0x30)>>2) & ~0x0F) | (w2 & 0x0F);
 					}
 					
-					saved=false;
+					mark_save_dirty();
 				}
 				else
 				{
@@ -11353,7 +11356,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					copy_combos(tile,tile2,copy,copycnt,masscopy);
 					setup_combo_animations();
 					setup_combo_animations2();
-					saved=false;
+					mark_save_dirty();
 				}
 				break;
 			case KEY_R:
@@ -11364,7 +11367,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					combobuf[i].csets = rotate_cset(combobuf[i].csets);
 				}
 				
-				saved=false;
+				mark_save_dirty();
 				break;
 				
 			case KEY_I:
@@ -11391,7 +11394,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						move_combos(tile,tile2,copy, copycnt);
 						//don't allow the user to undo; quest combo references are incorrect -DD
 						go_combos();
-						saved=false;
+						mark_save_dirty();
 					}
 				}
 				else
@@ -11407,7 +11410,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					{
 						move_combos(copy,tile2,tile, copycnt);
 						go_combos();
-						saved=false;
+						mark_save_dirty();
 					}
 				}
 				
@@ -11439,7 +11442,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					}
 					
 					tile=tile2=zc_min(tile,tile2);
-					saved=false;
+					mark_save_dirty();
 					setup_combo_animations();
 					setup_combo_animations2();
 				}
@@ -11644,7 +11647,7 @@ REDRAW:
 						{
 							if(advpaste(tile, tile2, copy))
 							{
-								saved=false;
+								mark_save_dirty();
 								copy=-1;
 							}
 							return;
@@ -11656,13 +11659,13 @@ REDRAW:
 						copy_combos(tile,tile2,copy,copycnt,masscopy);
 						setup_combo_animations();
 						setup_combo_animations2();
-						saved=false;
+						mark_save_dirty();
 					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Adv. Paste", [&]()
 					{
 						if(advpaste(tile, tile2, copy))
 						{
-							saved=false;
+							mark_save_dirty();
 							copy=-1;
 						}
 					}, nullopt, copy < 0 ? MFL_DIS : 0 },
@@ -11671,7 +11674,7 @@ REDRAW:
 						if(copy!=zc_min(tile,tile2))
 						{
 							move_combos(tile,tile2,copy,copycnt);
-							saved=false;
+							mark_save_dirty();
 							setup_combo_animations();
 							setup_combo_animations2();
 						}
@@ -11689,7 +11692,7 @@ REDRAW:
 								zc_swap(combobuf[copy+i],combobuf[tile+i]);
 							}
 							
-							saved=false;
+							mark_save_dirty();
 							setup_combo_animations();
 							setup_combo_animations2();
 						}
@@ -11718,7 +11721,7 @@ REDRAW:
 								clear_combo(i);
 								
 							tile=tile2=zc_min(tile,tile2);
-							saved=false;
+							mark_save_dirty();
 						}
 					} },
 				{},
@@ -11761,7 +11764,7 @@ REDRAW:
 						
 						//don't allow the user to undo; quest combo references are incorrect -DD
 						go_combos();
-						saved = false;
+						mark_save_dirty();
 					} },
 				{ "Remove", [&]()
 					{
@@ -11797,7 +11800,7 @@ REDRAW:
 						
 						//don't allow the user to undo; quest combo references are incorrect -DD
 						go_combos();
-						saved = false;
+						mark_save_dirty();
 					} },
 				{},
 				{ "Locations", [&]()
@@ -11966,7 +11969,7 @@ int32_t onIcons()
 			if(QMisc.icons[i] != icon_dlg[i+2].d1)
 			{
 				QMisc.icons[i] = icon_dlg[i+2].d1;
-				saved=false;
+				mark_save_dirty();
 			}
 		}
 	}

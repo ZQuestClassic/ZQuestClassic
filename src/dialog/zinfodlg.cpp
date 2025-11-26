@@ -847,7 +847,7 @@ bool ZInfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::OK:
 			ZI.copyFrom(lzinfo);
 			header.external_zinfo = extzinf;
-			saved = false;
+			mark_save_dirty();
 			[[fallthrough]];
 		case message::CANCEL:
 			lzinfo.clear(); //ensure memory cleared

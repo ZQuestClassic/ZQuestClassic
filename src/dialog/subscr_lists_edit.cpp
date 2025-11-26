@@ -17,7 +17,7 @@
 
 extern ZCSubscreen subscr_edit;
 extern DIALOG *subscreen_dlg;
-extern bool saved;
+void mark_save_dirty();
 
 void delete_subscreen(size_t ind, byte ty);
 void do_edit_subscr(size_t ind, byte ty);
@@ -130,7 +130,7 @@ void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
 					if(newslot)
 						vec.emplace_back(vec[ci]); //copy constructor
 					else vec[si] = vec[ci];
-					saved=false;
+					mark_save_dirty();
 				}
 			}, nullopt, ci<0 },
 		{ "&Save", [&]()
@@ -150,7 +150,7 @@ void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
 					if(newslot)
 						vec.emplace_back(tmp); //copy constructor
 					else vec[si] = tmp;
-					saved=false;
+					mark_save_dirty();
 				}
 			} },
 	};

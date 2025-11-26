@@ -12,7 +12,7 @@
 #include <fmt/format.h>
 
 extern int32_t CSet; //is this needed with the hero sprites always using CSet 6
-extern bool saved;
+void mark_save_dirty();
 
 bool call_hero_editor()
 {
@@ -968,7 +968,7 @@ bool HeroEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	}
 	case message::OK:
 	{
-		saved = false;
+		mark_save_dirty();
 		set_qr(qr_LTTPCOLLISION, local_biglink ? 1 : 0);
 		set_qr(qr_LTTPWALK, local_lttpwalk ? 1 : 0);
 

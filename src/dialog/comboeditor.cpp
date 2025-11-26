@@ -15,7 +15,7 @@
 #include "base/combo.h"
 #include "weap_data_editor.h"
 
-extern bool saved;
+void mark_save_dirty();
 extern itemdata *itemsbuf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
@@ -3644,7 +3644,7 @@ void ComboEditorDialog::apply_combo()
 			trig.trigger_flags.set(TRIGFLAG_CMBTYPECAUSES, false);
 	}
 	combobuf[index] = local_comboref;
-	saved = false;
+	mark_save_dirty();
 	edited = true;
 }
 

@@ -466,7 +466,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					
 				zScript.clear();
 				updateLabels();
-				saved = false;
+				mark_save_dirty();
 			}
 			
 			if(!prompt_for_existing_file_compat("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
@@ -489,7 +489,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			
 			fclose(zscript);
-			saved = false;
+			mark_save_dirty();
 			updateLabels();
 			return false;
 		}

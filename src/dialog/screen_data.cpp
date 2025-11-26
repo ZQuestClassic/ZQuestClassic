@@ -787,7 +787,7 @@ bool ScreenDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::OK:
 			*thescr = local_scr;
 			zinit.screen_data[mapscrnum] = screen_misc_data;
-			saved = false;
+			mark_save_dirty();
 			[[fallthrough]];
 		case message::CANCEL:
 			return true;

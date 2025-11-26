@@ -631,7 +631,7 @@ double auto_save_time_diff = 0;
 int32_t AutoSaveRetention = 0;                                      //how many autosaves of a quest to keep
 int32_t ImportMapBias = 0;                                          //tells what has precedence on map importing
 int32_t BrushWidth=1, BrushHeight=1;
-bool saved=true;
+bool saved = true, autosaved = true;
 bool __debug=false;
 int32_t LayerMaskInt[7]={0};
 int32_t CurrentLayer=0;
@@ -699,6 +699,12 @@ void set_last_timed_save(char const* buf)
 		buf = nullptr;
 	}
 	zc_set_config("zquest","last_timed_save",buf);
+}
+
+void mark_save_dirty()
+{
+	saved = false;
+	autosaved = false;
 }
 
 void loadlvlpal(int32_t level);
@@ -1214,7 +1220,7 @@ int32_t onZScriptSettings()
 {
 	ScriptRulesDialog(quest_rules, 17, [](byte* newrules)
 	{
-		saved = false;
+		mark_save_dirty();
 		memcpy(quest_rules, newrules, QR_SZ);
 		unpack_qrs();
 	}).show();
@@ -1336,7 +1342,7 @@ int32_t onStrFix()
 				if(ret)
 				{
 					set_qr(qr_OLD_STRING_EDITOR_MARGINS, 0);
-					saved = false;
+					mark_save_dirty();
 				}
 			}).show();
 	}
@@ -1355,7 +1361,7 @@ int32_t onStrFix()
 						MsgStrings[q].h += 16;
 					}
 					set_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
-					saved = false;
+					mark_save_dirty();
 				}
 			}).show();
 	}
@@ -1453,7 +1459,7 @@ NewMenu view_menu
 
 void set_rules(byte* newrules)
 {
-	saved = false;
+	mark_save_dirty();
 	if(newrules != quest_rules)
 		memcpy(quest_rules, newrules, QR_SZ);
 	unpack_qrs();
@@ -1807,7 +1813,7 @@ int onScreenLPal(int lpal)
 		lpal_dsa();
 		return D_O_K;
 	}
-	saved=false;
+	mark_save_dirty();
 	Map.setcolor(lpal);
 	refresh(rSCRMAP);
 	return D_O_K;
@@ -2191,7 +2197,7 @@ void writesomecombos(const char *prompt,int32_t initialval)
 				else
 				{
 					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					saved=false;
+					mark_save_dirty();
 				}
 				pack_fclose(f);
 			}
@@ -2272,7 +2278,7 @@ void loadcombopack(const char *prompt,int32_t initialval)
 				else
 				{
 					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					saved=false;
+					mark_save_dirty();
 				}
 			}
 	
@@ -2369,7 +2375,7 @@ void writesomecombos_to(const char *prompt,int32_t initialval)
 				else
 				{
 					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					saved=false;
+					mark_save_dirty();
 				}
 				pack_fclose(f);
 			}
@@ -2441,7 +2447,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 		if(!prompt_for_new_file_compat("Export DMaps (.zdmap)","zdmap",NULL,datapath,false))
 		
 		
-		saved=false;
+		mark_save_dirty();
 	    
 		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 		if(f)
@@ -2600,7 +2606,7 @@ void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 				else
 				{
 					jwin_alert("ZALIAS File: Success!","Loaded the source combos to your combo alias table!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					saved=false;
+					mark_save_dirty();
 				}
 				pack_fclose(f);
 			}
@@ -2753,12 +2759,12 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 				else if ( ret == 1 )
 				{
 					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					saved=false;
+					mark_save_dirty();
 				}
 				else if ( ret == 2 )
 				{
 					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					saved=false;
+					mark_save_dirty();
 				}
 				pack_fclose(f);
 			}
@@ -3204,7 +3210,7 @@ int32_t onDelete()
 		Map.DoClearScreenCommand(screen);
 	}
     
-    saved=false;
+    mark_save_dirty();
     return D_O_K;
 }
 
@@ -3214,7 +3220,7 @@ int32_t onDeleteMap()
     {
         Map.clearmap(false);
         refresh(rALL);
-        saved=false;
+        mark_save_dirty();
     }
     
     return D_O_K;
@@ -3224,7 +3230,7 @@ int32_t onToggleDarkness()
 {
     Map.CurrScr()->flags^=4;
     refresh(rMAP+rMENU);
-    saved=false;
+    mark_save_dirty();
     return D_O_K;
 }
 
@@ -3256,7 +3262,7 @@ int32_t onDefault_Pals()
 {
     if(jwin_alert("Confirm Reset","Reset all palette data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
-        saved=false;
+        mark_save_dirty();
         
         if(!init_colordata(true, &header, &QMisc))
         {
@@ -3273,7 +3279,7 @@ int32_t onDefault_Combos()
 {
     if(jwin_alert("Confirm Reset","Reset combo data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
-        saved=false;
+        mark_save_dirty();
         
         if(!init_combos(true, &header))
         {
@@ -3290,7 +3296,7 @@ int32_t onDefault_Items()
 {
     if(jwin_alert("Confirm Reset","Reset all items?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
-        saved=false;
+        mark_save_dirty();
         reset_items(true, &header);
     }
     
@@ -3301,7 +3307,7 @@ int32_t onDefault_Weapons()
 {
     if(jwin_alert("Confirm Reset","Reset weapon/misc. sprite data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
-        saved=false;
+        mark_save_dirty();
         reset_wpns(true, &header);
     }
     
@@ -3312,7 +3318,7 @@ int32_t onDefault_Guys()
 {
     if(jwin_alert("Confirm Reset","Reset all enemy/NPC data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
-        saved=false;
+        mark_save_dirty();
         reset_guys();
     }
     
@@ -3324,7 +3330,7 @@ int32_t onDefault_Tiles()
 {
     if(jwin_alert("Confirm Reset","Reset all tiles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
-        saved=false;
+        mark_save_dirty();
         
         if(!init_tiles(true, &header))
         {
@@ -3343,7 +3349,7 @@ int32_t onDefault_SFX()
 {
 	if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
 	{
-		saved=false;
+		mark_save_dirty();
 		SAMPLE *temp_sample;
 		
 		for(int32_t i=1; i<WAV_COUNT; i++)
@@ -3366,7 +3372,7 @@ int32_t onDefault_MapStyles()
 {
     if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
-        saved=false;
+        mark_save_dirty();
         reset_mapstyles(true, &QMisc);
     }
     
@@ -8137,7 +8143,7 @@ void draw(bool justcset)
 	combo_pool const& pool = combo_pools[combo_pool_pos];
 	if(draw_mode == dm_cpool && !pool.valid())
 		return;
-    saved=false;
+    mark_save_dirty();
     
     refresh(rMAP+rSCRMAP);
 	ComboPosition last_pos = {-1, -1};
@@ -8381,7 +8387,7 @@ static void replace(ComboPosition start)
 	int targetcombo = scr->data[c];
 	int targetcset  = scr->cset[c];
 
-	saved = false;
+	mark_save_dirty();
 	Map.StartListCommand();
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
@@ -8444,7 +8450,7 @@ static void draw_block(ComboPosition start, int32_t w, int32_t h)
 	mapscr* scr = Map.Scr(start, CurrentLayer);
 	if (!scr) return;
 
-    saved = false;
+    mark_save_dirty();
     Map.StartListCommand();
     for (int32_t y=0; y < h && y < 11*Map.getViewSize(); y++)
         for (int32_t x=0; x < w && x < 16*Map.getViewSize(); x++)
@@ -8889,7 +8895,7 @@ finished:
     
     if(px2!=oldpx||py2!=oldpy)
     {
-        saved=false;
+        mark_save_dirty();
     }
     
     ComboBrush=tempcb;
@@ -8938,7 +8944,7 @@ void doflags()
 				Flag = cur_scr->sflag[c];
 			else
 			{
-				saved=false;
+				mark_save_dirty();
 				int tflag = Flag;
 				if(shift)
 					Flag = mfNONE;
@@ -9054,7 +9060,7 @@ static void moveffc(int i, int cx, int cy)
         set_ffc_data.x = ffx;
         set_ffc_data.y = ffy;
         Map.DoSetFFCCommand(Map.getCurrMap(), screen, i, set_ffc_data);
-        saved = false;
+        mark_save_dirty();
     }
 }
 
@@ -9290,7 +9296,7 @@ void flood()
 	if (!scr || !scr->is_valid())
 		return;
 
-	saved=false;
+	mark_save_dirty();
 
 	bool include_combos = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]);
 
@@ -9324,7 +9330,7 @@ void flood_flag()
 	if (!scr || !scr->is_valid())
 		return;
 
-	saved=false;
+	mark_save_dirty();
 
 	int num_combos_width = 16 * Map.getViewSize();
 	int num_combos_height = 11 * Map.getViewSize();
@@ -9358,7 +9364,7 @@ void fill_4()
 	if (draw_mode == dm_cpool || draw_mode == dm_auto
 		|| (scr->cset[c]!=CSet || (scr->data[c]!=Combo && !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
 	{
-		saved=false;
+		mark_save_dirty();
 
 		Map.StartListCommand();
 		if (draw_mode == dm_auto && (combo_autos[combo_auto_pos].getType() == AUTOCOMBO_FENCE ||
@@ -9385,7 +9391,7 @@ void fill_4_flag()
 	int flag = scr->sflag[pos.truncate()];
     if (flag != Flag)
     {
-        saved=false;
+        mark_save_dirty();
 
         Map.StartListCommand();
 		bool allow_diagonal = false;
@@ -9407,7 +9413,7 @@ void fill_8()
             (scr->data[c] != Combo &&
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
     {
-        saved=false;
+        mark_save_dirty();
 
         Map.StartListCommand();
 		bool allow_diagonal = true;
@@ -9427,7 +9433,7 @@ void fill_8_flag()
 	int flag = scr->sflag[pos.truncate()];
     if (flag != Flag)
     {
-        saved=false;
+        mark_save_dirty();
 
         Map.StartListCommand();
 		bool allow_diagonal = true;
@@ -9444,7 +9450,7 @@ void fill2_4()
 	if (!scr)
 		return;
     
-    saved=false;
+    mark_save_dirty();
 
     Map.StartListCommand();
     fill2(Combo, CSet, pos, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
@@ -9459,7 +9465,7 @@ void fill2_8()
 	if (!scr)
 		return;
     
-    saved=false;
+    mark_save_dirty();
 
     Map.StartListCommand();
     fill2(Combo, CSet, pos, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
@@ -9828,7 +9834,7 @@ void fav_rc_remove()
 {
 	favorite_combo_modes[_clicked_fav] = dm_normal;
 	favorite_combos[_clicked_fav] = -1;
-	saved = false;
+	mark_save_dirty();
 }
 void popup_favorites_rc(int f, int x, int y)
 {
@@ -10442,7 +10448,7 @@ void domouse()
 								favorite_combos[q] = -1;
 								favorite_combo_modes[q] = dm_normal;
 							}
-							saved = false;
+							mark_save_dirty();
 							refresh(rFAVORITES);
 						}
 					}).show();
@@ -10805,7 +10811,7 @@ void domouse()
 												.flags = ffc_none,
 												.initd = 0,
 											});
-											saved = false;
+											mark_save_dirty();
 										}
 									} },
 								{ "Snap to Grid", [&]()
@@ -10821,7 +10827,7 @@ void domouse()
 										set_ffc_data.y = newffy;
 										Map.DoSetFFCCommand(Map.getCurrMap(), active_visible_screen->screen, i, set_ffc_data);
 
-										saved = false;
+										mark_save_dirty();
 									} },
 								{},
 								{ "Select Combo", [&]()
@@ -11193,7 +11199,7 @@ void domouse()
 								{
 									favorite_combo_modes[fp] = dm_alias;
 									favorite_combos[fp] = combo_apos;
-									saved = false;
+									mark_save_dirty();
 								}
 								break;
 							case dm_cpool:
@@ -11201,7 +11207,7 @@ void domouse()
 								{
 									favorite_combo_modes[fp] = dm_cpool;
 									favorite_combos[fp] = combo_pool_pos;
-									saved = false;
+									mark_save_dirty();
 								}
 								break;
 							case dm_auto:
@@ -11209,7 +11215,7 @@ void domouse()
 								{
 									favorite_combo_modes[fp] = dm_auto;
 									favorite_combos[fp] = combo_auto_pos;
-									saved = false;
+									mark_save_dirty();
 								}
 								break;
 							default:
@@ -11222,7 +11228,7 @@ void domouse()
 									}
 									favorite_combo_modes[fp] = dm_normal;
 									favorite_combos[fp] = Combo;
-									saved = false;
+									mark_save_dirty();
 								}
 						}
 						
@@ -11246,7 +11252,7 @@ void domouse()
 						{
 							favorite_combo_modes[fp] = dm_normal;
 							favorite_combos[fp]=-1;
-							saved=false;
+							mark_save_dirty();
 						}
 						
 						custom_vsync();
@@ -11603,7 +11609,7 @@ int32_t onCSetFix()
 			}
 			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
 			if(!draw_mapscr) return;
-			saved=false;
+			mark_save_dirty();
 			Map.Ugo();
 
 			if(!(draw_mapscr->valid&mVALID))
@@ -11632,7 +11638,7 @@ int32_t onCSetFix()
         Map.FinishListCommand();
         
         refresh(rMAP);
-        saved = false;
+        mark_save_dirty();
     }
     
     return D_O_K;
@@ -11902,7 +11908,7 @@ int32_t onTemplate()
         
     if(do_zqdialog(template_dlg,-1)==5)
     {
-        saved=false;
+        mark_save_dirty();
 		int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
         Map.DoTemplateCommand((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg, screen);
         refresh(rMAP+rSCRMAP);
@@ -12461,7 +12467,7 @@ int32_t onSecretCombo()
     
     if(do_zqdialog(secret_dlg,3) == 2)
     {
-        saved = false;
+        mark_save_dirty();
         s->secretcombo[sBCANDLE] = secret_dlg[92].d1;
         s->secretcset[sBCANDLE] = secret_dlg[92].fg;
         s->secretflag[sBCANDLE] = secret_dlg[92].d2;
@@ -12833,7 +12839,7 @@ void seldata_rclick_func(int32_t index, int32_t x, int32_t y)
 		{ "Paste", "&v", [&]()
 			{
 				seldata_paste_func(seldata_copy, index);
-				saved = false;
+				mark_save_dirty();
 			}, 0, seldata_copy < 0 ? MFL_DIS : 0 },
 	};
 	rcmenu.pop(x, y);
@@ -13088,7 +13094,7 @@ bool mapcount_will_affect_layers(word newmapcount)
 void update_map_count(word newmapcount)
 {
 	if(map_count == newmapcount) return;
-	saved = false;
+	mark_save_dirty();
 	setMapCount2(newmapcount);
 	//Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
 	//if the user reduces the mapcount. -Z ( 23rd September, 2019 )
@@ -13274,13 +13280,13 @@ int32_t onItem()
 	{
 		if(lister_sel_val>=0)
 		{
-			saved = false;
+			mark_save_dirty();
 			Map.CurrScr()->item = lister_sel_val;
 			Map.CurrScr()->hasitem = true;
 		}
 		else
 		{
-			saved = false;
+			mark_save_dirty();
 			Map.CurrScr()->hasitem = false;
 		}
 	}
@@ -13306,7 +13312,7 @@ int32_t onEndString()
     
     if(ret>=0)
     {
-        saved=false;
+        mark_save_dirty();
         QMisc.endstring=msglistcache[ret];
     }
 
@@ -13353,7 +13359,7 @@ int32_t onScreenPalette()
 			if(ret == 3)
 			{
 				if(screen_pal_dlg[2].d1 != oldcol)
-					saved=false;
+					mark_save_dirty();
 				Map.setcolor(screen_pal_dlg[2].d1);
 			}
 			else
@@ -13385,7 +13391,7 @@ int32_t onDecScrPal()
     c = (c+511) % 512;
     Map.setcolor(c);
     refresh(rALL);
-	saved = false;
+	mark_save_dirty();
     return D_O_K;
 }
 
@@ -13401,7 +13407,7 @@ int32_t onIncScrPal()
     c = (c+1)%512;
     Map.setcolor(c);
     refresh(rALL);
-	saved = false;
+	mark_save_dirty();
     return D_O_K;
 }
 
@@ -13427,7 +13433,7 @@ int32_t onDecScrPal16()
     c = PalWrap( ( c-0x10 ), 0, 511 );
     Map.setcolor(c);
     refresh(rALL);
-	saved = false;
+	mark_save_dirty();
     return D_O_K;
 }
 
@@ -13443,7 +13449,7 @@ int32_t onIncScrPal16()
     c = PalWrap( ( c+0x10 ), 0, 511 );
     Map.setcolor(c);
     refresh(rALL);
-	saved = false;
+	mark_save_dirty();
     return D_O_K;
 }
 
@@ -13648,7 +13654,7 @@ int32_t onTriPieces()
         
     if(do_zqdialog(tp_dlg,-1) == 11)
     {
-        saved=false;
+        mark_save_dirty();
         
         for(int32_t i=0; i<8; i++)
             QMisc.triforce[i] = tp_dlg[i+3].d1;
@@ -14622,7 +14628,7 @@ struct tw_data
 	}
 	void save_scr(mapscr* scr)
 	{
-		saved=false;
+		mark_save_dirty();
 		scr->tilewarpoverlayflags = oflags;
 		scr->warpreturnc = scr->warpreturnc & 0xFF00;
 		for(int q = 0; q < 4; ++q)
@@ -14782,7 +14788,7 @@ struct sw_data
 	}
 	void save_scr(mapscr* scr)
 	{
-		saved=false;
+		mark_save_dirty();
 		scr->sidewarpoverlayflags = oflags;
 		scr->warpreturnc = scr->warpreturnc & 0x00FF;
 		for(int q = 0; q < 4; ++q)
@@ -15015,7 +15021,7 @@ int32_t onPath()
     
     if(ret==14)
     {
-        saved=false;
+        mark_save_dirty();
         
         for(int32_t i=0; i<4; i++)
             Map.CurrScr()->path[i] = path_dlg[i+8].d1;
@@ -15098,7 +15104,7 @@ void EditInfoType(int32_t index)
     
     if(ret==16)
     {
-        saved=false;
+        mark_save_dirty();
         QMisc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
         QMisc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
         QMisc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
@@ -15269,7 +15275,7 @@ void EditShopType(int32_t index)
     
     if(ret==16)
     {
-        saved=false;
+        mark_save_dirty();
         QMisc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
         QMisc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
         QMisc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
@@ -15553,7 +15559,7 @@ void EditItemDropSet(int32_t index)
     
     if(ret==2)
     {
-        saved=false;
+        mark_save_dirty();
         
         sprintf(item_drop_sets[index].name,"%s",itemdropsetname);
         
@@ -15651,7 +15657,7 @@ void EditWarpRingScr(int32_t ring,int32_t index)
 	
 	if(ret==5 || ret==6)
 	{
-		saved=false;
+		mark_save_dirty();
 		QMisc.warp[ring].dmap[index] = warpring_warp_dlg[3].d1;
 		QMisc.warp[ring].scr[index] = zc_xtoi(buf);
 	}
@@ -16989,7 +16995,7 @@ int32_t onEditComboAlias()
 	
 	if(ret==1)
 	{
-		saved=false;
+		mark_save_dirty();
 		
 		for(int32_t i=0; i<MAXCOMBOALIASES; i++)
 			combo_aliases[i] = temp_aliases[i];
@@ -17650,7 +17656,7 @@ int32_t onZScriptCompilerSettings()
 void doEditZScript()
 {
 	if(do_box_edit(zScript, "ZScript Buffer", false, false))
-        saved=false;
+        mark_save_dirty();
 }
 
 std::string qst_cfg_header_from_path(std::string path);
@@ -19683,7 +19689,7 @@ int32_t onMiscColors()
         
     if(do_zqdialog(misccolors_dlg,0)==52)
     {
-        saved=false;
+        mark_save_dirty();
         si = &(QMisc.colors.text);
         
         for(int32_t i=0; i<16; i++)
@@ -20809,7 +20815,7 @@ int32_t main(int32_t argc,char **argv)
 			{
 				strcpy(filepath,last_timed_save);
 				load_last_timed_save=true;
-				saved=false;
+				mark_save_dirty();
 			}
 			else
 			{
@@ -22443,26 +22449,30 @@ void check_autosave()
         
         if(auto_save_time_diff>AutoSaveInterval*60)
         {
-            MouseSprite::set(ZQM_NORMAL);
-			replace_extension(last_timed_save, filepath, "qt0", 2047);
-			set_last_timed_save(last_timed_save);
-            
-            if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD))
-            {
-                jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,get_zc_font(font_lfont));
-                time(&auto_save_time_start);
-                return;
+			if (!autosaved)
+			{
+				MouseSprite::set(ZQM_NORMAL);
+				replace_extension(last_timed_save, filepath, "qt0", 2047);
+				set_last_timed_save(last_timed_save);
+				
+				if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD))
+				{
+					jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,get_zc_font(font_lfont));
+					time(&auto_save_time_start);
+					return;
+				}
+				
+				int32_t ret = save_quest(last_timed_save, true);
+				
+				if(ret)
+				{
+					jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					set_last_timed_save(nullptr);
+				}
+				else autosaved = true;
+				
+				save_config_file();
             }
-            
-            int32_t ret = save_quest(last_timed_save, true);
-            
-            if(ret)
-            {
-                jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                set_last_timed_save(nullptr);
-            }
-            
-            save_config_file();
             time(&auto_save_time_start);
         }
     }
@@ -22490,7 +22500,7 @@ int32_t onQuickCompile()
 {
 	if(do_compile_and_slots(1,false))
 	{
-		saved = false;
+		mark_save_dirty();
 		InfoDialog("Quick Compile","Success!").show();
 	}
 	else
@@ -22503,7 +22513,7 @@ int32_t onSmartCompile()
 {
 	if(do_compile_and_slots(2,false))
 	{
-		saved = false;
+		mark_save_dirty();
 		InfoDialog("Smart Compile","Success!").show();
 	}
 	else
