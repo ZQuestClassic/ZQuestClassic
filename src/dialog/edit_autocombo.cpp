@@ -8,7 +8,7 @@
 #include "zq/zq_tiles.h"
 #include "dialog/alert.h"
 
-extern bool saved;
+void mark_save_dirty();
 combo_auto temp_autocombo;
 combo_auto copy_autocombo;
 static bool copied_autocombo;
@@ -1106,7 +1106,7 @@ bool AutoComboDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				temp_autocombo.updateValid();
 				*retptr = temp_autocombo;
-				saved = false;
+				mark_save_dirty();
 			}
 			return true;
 

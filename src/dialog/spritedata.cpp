@@ -4,7 +4,7 @@
 #include <gui/builder.h>
 #include "zc_list_data.h"
 
-extern bool saved;
+void mark_save_dirty();
 extern wpndata *wpnsbuf;
 extern char *weapon_string[];
 
@@ -213,7 +213,7 @@ bool SpriteDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::OK:
 			memcpy(&sourceSprite, &tempSprite, sizeof(tempSprite));
 			strcpy(weapon_string[index], localName);
-			saved = false;
+			mark_save_dirty();
 			return true;
 
 		case message::CANCEL:

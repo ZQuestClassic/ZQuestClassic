@@ -3028,7 +3028,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 {
 	// TODO: refactor to just take a script_data*
 	ASSERT(*script);
-	saved=false;
+	mark_save_dirty();
 	std::string buffer;
 	char combuf[SUBBUFSZ] = {0};
 	char arg1buf[SUBBUFSZ] = {0};
@@ -3511,7 +3511,7 @@ int32_t parse_script_string(script_data **script, std::string const& scriptstr, 
 {
 	// TODO: refactor to just take a script_data*
 	ASSERT(*script);
-	saved=false;
+	mark_save_dirty();
 	std::string buffer;
 	char combuf[SUBBUFSZ] = {0};
 	char arg1buf[SUBBUFSZ] = {0};

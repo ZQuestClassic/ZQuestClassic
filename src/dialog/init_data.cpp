@@ -14,7 +14,7 @@
 using std::map;
 using std::vector;
 
-extern bool saved;
+void mark_save_dirty();
 extern itemdata *itemsbuf;
 extern zcmodule moduledata;
 extern char *item_string[];
@@ -32,7 +32,7 @@ void call_init_dlg(zinitdata& sourcezinit, bool zc)
 	InitDataDialog(sourcezinit, zc,
 		[&sourcezinit](zinitdata const& other)
 		{
-			saved = false;
+			mark_save_dirty();
 			sourcezinit = other;
 		}).show();
 	if(tmpb != life_in_hearts)

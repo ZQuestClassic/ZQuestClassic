@@ -24,7 +24,7 @@ int32_t color_index=0, color_copy=-1;
 
 void get_cset(int32_t dataset,int32_t row,RGB *pal)
 {
-    saved=false;
+    mark_save_dirty();
     
     for(int32_t i=0; i<16; i++)
     {
@@ -651,7 +651,7 @@ bool edit_dataset(int32_t dataset)
 			break;
 		case 4: //OK
 			get_cset(dataset,14,RAMpal);
-			saved=false;
+			mark_save_dirty();
 			break;
 	}
 	
@@ -987,7 +987,7 @@ void edit_cycles(int32_t level)
         
     if(do_zqdialog(cycle_dlg,3,true)==2)
     {
-        saved=false;
+        mark_save_dirty();
         reset_pal_cycling();
         
         for(int32_t i=0; i<3; i++)
@@ -1109,7 +1109,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 						load_cset(pal,i,cset_first+i);
 						
 					zc_set_palette(pal);
-					saved=false;
+					mark_save_dirty();
 				}
 			}
 			GUI_EVENT(d, geCHANGE_SELECTION);
@@ -1185,7 +1185,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 							load_cset(pal,i,cset_first+i);
 							
 						zc_set_palette(pal);
-						saved=false;
+						mark_save_dirty();
 					}
 					
 					break;
@@ -1485,7 +1485,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 		set_pal();
 	}
 	
-	saved=false; //It's just easier this way :)
+	mark_save_dirty(); //It's just easier this way :)
 	//  gui_fg_color = vc(14);
 	//  gui_bg_color = vc(1);
 	

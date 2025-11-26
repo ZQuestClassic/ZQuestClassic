@@ -13,7 +13,6 @@
 #include "base/combo.h"
 #include "base/misctypes.h"
 
-extern bool saved;
 extern zcmodule moduledata;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;

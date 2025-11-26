@@ -26,5 +26,5 @@ int32_t onInit()
 
 void onInitOK()
 {
-    saved=false;
+    mark_save_dirty();
 }

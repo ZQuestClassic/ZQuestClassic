@@ -8,7 +8,7 @@
 #include <gui/builder.h>
 #include "zc_list_data.h"
 
-extern bool saved;
+void mark_save_dirty();
 extern char msgbuf[MSGBUF_SIZE];
 extern char namebuf[9];
 extern word msg_count;
@@ -371,7 +371,7 @@ bool StringEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				MsgStrings[msg_count].sfx = 18;
 				MsgStrings[msg_count].listpos = msg_count;
 			}
-			saved = false;
+			mark_save_dirty();
 		}
 		return true;
 

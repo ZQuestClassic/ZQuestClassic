@@ -4467,7 +4467,7 @@ void zmap::ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip
         undo_stack.push_back(command);
         CapCommandHistory();
     }
-    saved = false;
+    mark_save_dirty();
 }
 
 void zmap::UndoCommand()
@@ -4486,7 +4486,7 @@ void zmap::UndoCommand()
     command->undo();
     redo_stack.push(command);
     undo_stack.pop_back();
-    saved = false;
+    mark_save_dirty();
 }
 
 void zmap::RedoCommand()
@@ -4505,7 +4505,7 @@ void zmap::RedoCommand()
     command->execute();
     undo_stack.push_back(command);
     redo_stack.pop();
-    saved = false;
+    mark_save_dirty();
 }
 
 void zmap::ClearCommandHistory()
@@ -4743,7 +4743,7 @@ void zmap::Paste(const mapscr& copymapscr)
             rebuild_trans_table();
         }
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4753,7 +4753,7 @@ void zmap::PasteUnderCombo(const mapscr& copymapscr)
     {
         screens[currscr].undercombo = copymapscr.undercombo;
         screens[currscr].undercset = copymapscr.undercset;
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4768,7 +4768,7 @@ void zmap::PasteSecretCombos(const mapscr& copymapscr)
             screens[currscr].secretflag[i] = copymapscr.secretflag[i];
         }
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4784,7 +4784,7 @@ void zmap::PasteFFCombos(mapscr& copymapscr)
 			screens[currscr].ffcs[i].clear();
 		screens[currscr].ffcCountMarkDirty();
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4808,7 +4808,7 @@ void zmap::PasteWarps(const mapscr& copymapscr)
             screens[currscr].tilewarpoverlayflags = copymapscr.tilewarpoverlayflags;
         }
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4851,7 +4851,7 @@ void zmap::PasteScreenData(const mapscr& copymapscr)
         screens[currscr].stairx = copymapscr.stairx;
         screens[currscr].stairy = copymapscr.stairy;
         screens[currscr].timedwarptics = copymapscr.timedwarptics;
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4869,7 +4869,7 @@ void zmap::PasteWarpLocations(const mapscr& copymapscr)
             screens[currscr].warpreturny[i] = copymapscr.warpreturny[i];
         }
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4881,7 +4881,7 @@ void zmap::PasteDoors(const mapscr& copymapscr)
             screens[currscr].door[i] = copymapscr.door[i];
             
         screens[currscr].door_combo_set = copymapscr.door_combo_set;
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4896,7 +4896,7 @@ void zmap::PasteLayers(const mapscr& copymapscr)
             screens[currscr].layeropacity[i] = copymapscr.layeropacity[i];
         }
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4906,7 +4906,7 @@ void zmap::PasteRoom(const mapscr& copymapscr)
     {
         screens[currscr].room = copymapscr.room;
         screens[currscr].catchall = copymapscr.catchall;
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4920,7 +4920,7 @@ void zmap::PasteGuy(const mapscr& copymapscr)
 		SETFLAG(screens[currscr].roomflags,RFL_ALWAYS_GUY,copymapscr.roomflags&RFL_ALWAYS_GUY);
 		SETFLAG(screens[currscr].roomflags,RFL_GUYFIRES,copymapscr.roomflags&RFL_GUYFIRES);
 		screens[currscr].str = copymapscr.str;
-		saved=false;
+		mark_save_dirty();
 	}
 }
 
@@ -4940,7 +4940,7 @@ void zmap::PastePalette(const mapscr& copymapscr)
             rebuild_trans_table();
         }
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -4962,7 +4962,7 @@ void zmap::PasteAll(const mapscr& copymapscr)
             rebuild_trans_table();
         }
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -5002,7 +5002,7 @@ void zmap::PasteToAll(const mapscr& copymapscr)
             rebuild_trans_table();
         }
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -5032,7 +5032,7 @@ void zmap::PasteAllToAll(const mapscr& copymapscr)
             rebuild_trans_table();
         }
         
-        saved=false;
+        mark_save_dirty();
     }
 }
 
@@ -6576,7 +6576,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 			refresh(rALL);
 			refresh_pal();
 			set_rules(quest_rules);
-			saved = true;
+			saved = autosaved = true;
 			if(!(loading_file_new && zc_get_config("zquest","auto_filenew_bugfixes",1)))
 				popup_bugfix_dlg("dsa_compatrule");
 			
@@ -6664,7 +6664,8 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 			}
 			
 			set_window_title("ZC Editor - Untitled Quest");
-			first_save = saved = false;
+			first_save = false;
+			mark_save_dirty();
 			memset(filepath,0,255);
 			memset(temppath,0,255);
 		}

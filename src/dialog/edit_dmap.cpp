@@ -1139,7 +1139,7 @@ bool EditDMapDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		break;
 	case message::OK:
 		*thedmap = local_dmap;
-		saved = false;
+		mark_save_dirty();
 		[[fallthrough]];
 	case message::CANCEL:
 	default:

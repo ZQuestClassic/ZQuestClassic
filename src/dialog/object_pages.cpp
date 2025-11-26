@@ -12,7 +12,7 @@
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
 
-extern bool saved;
+void mark_save_dirty();
 extern int32_t zq_screen_w, zq_screen_h, TilePgCursorCol, CSet;
 extern uint8_t InvalidBG;
 
@@ -575,7 +575,7 @@ bool ObjectTemplate::try_paste()
 				do_copy(d,s);
 			});
 		}
-		saved = false;
+		mark_save_dirty();
 		if(!CHECK_CTRL_CMD)
 			copyind.reset();
 		return true;
@@ -611,7 +611,7 @@ bool ObjectTemplate::try_delete()
 			do_delete(s);
 		});
 		
-		saved = false;
+		mark_save_dirty();
 		return true;
 	}
 	return false;
@@ -935,7 +935,7 @@ void ComboPoolPageObj::restore_backup() const
 {
 	if(backup_cpool.empty())
 		return;
-	saved = false;
+	mark_save_dirty();
 	map<int,combo_pool> tmp;
 	for(auto [ind,cpool] : backup_cpool)
 	{
@@ -1023,7 +1023,7 @@ void AutoComboPageObj::restore_backup() const
 {
 	if(backup_autoc.empty())
 		return;
-	saved = false;
+	mark_save_dirty();
 	map<int,combo_auto> tmp;
 	for(auto [ind,autoc] : backup_autoc)
 	{
@@ -1110,7 +1110,7 @@ void AliasPageObj::restore_backup() const
 {
 	if(backup_alias.empty())
 		return;
-	saved = false;
+	mark_save_dirty();
 	map<int,combo_alias> tmp;
 	for(auto [ind,alias] : backup_alias)
 	{

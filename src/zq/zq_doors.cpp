@@ -22,7 +22,7 @@ extern zquestheader header;
 
 extern int32_t onHelp();
 extern int32_t jwin_pal[jcMAX];
-extern bool saved;
+void mark_save_dirty();
 
 word door_combo_set_count;
 
@@ -197,7 +197,7 @@ int32_t onDoors()
 					Map.DoPutDoorCommand(i,doors[i],dcs!=old_dcs);
 				Map.FinishListCommand();
 				done = true;
-				saved = false;
+				mark_save_dirty();
 				break;
 			}	
 			case 0:
@@ -1483,7 +1483,7 @@ int32_t edit_dcs(int32_t index)
             door_combo_set_count++;
         }
         
-        saved=false;
+        mark_save_dirty();
     }
     
     return D_O_K;
@@ -1586,16 +1586,16 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 				else if ( ret == 1 )
 				{
 					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					saved=false;
+					mark_save_dirty();
 				}
 				else if ( ret == 2 )
 				{
 					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					saved=false;
+					mark_save_dirty();
 				}
 				pack_fclose(f);
 				doorcombosetlist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
-				saved=false;
+				mark_save_dirty();
 			} },
 	};
 	rcmenu.pop(x, y);
@@ -1612,7 +1612,7 @@ int32_t doorcombosetlist_del()
     {
         if(jwin_alert("Confirm Delete","Delete this door combo set?",DoorComboSetNames[d].c_str(),NULL,"Yes","No",'y',27,get_zc_font(font_lfont))==1)
         {
-            saved=false;
+            mark_save_dirty();
             
             for(int32_t i=d; i<MAXDOORCOMBOSETS-1; i++)
             {

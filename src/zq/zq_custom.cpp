@@ -1503,7 +1503,7 @@ void edit_weapondata(int32_t index)
 	{
 		strcpy(weapon_string[index],name);
 		wpnsbuf[index] = test;
-		saved = false;
+		mark_save_dirty();
 	}*/
 	
 }
@@ -1537,7 +1537,7 @@ int32_t onMiscSprites()
 {
 	MiscSprsDialog(QMisc.sprites, 20, [](int32_t* newsprs)
 	{
-		saved = false;
+		mark_save_dirty();
 		for(auto q = 0; q < sprMAX; ++q)
 			QMisc.sprites[q] = byte(newsprs[q]);
 	}).show();
@@ -1548,7 +1548,7 @@ int32_t onMiscSFX()
 {
 	MiscSFXDialog(QMisc.miscsfx, 20, [](int32_t* newsfx)
 	{
-		saved = false;
+		mark_save_dirty();
 		for(auto q = 0; q < sfxMAX; ++q)
 			QMisc.miscsfx[q] = byte(newsfx[q]);
 	}).show();
@@ -5352,7 +5352,7 @@ void edit_enemydata(int32_t index)
 		{
 			strcpy(guy_string[index],name);
 			guysbuf[index] = test;
-			saved = false;
+			mark_save_dirty();
 		}
 		else if(ret==46)
 		{
@@ -6439,7 +6439,7 @@ void paste_enemy(int32_t index)
 		return;
 	guysbuf[bie[index].i]=guysbuf[copiedGuy];
 	elist_dlg[2].flags|=D_DIRTY;
-	saved=false;
+	mark_save_dirty();
 }
 void copy_enemy(int32_t index)
 {
@@ -6484,7 +6484,7 @@ void load_enemy(int32_t index)
 	
 	pack_fclose(f);
 	elist_dlg[2].flags|=D_DIRTY;
-	saved=false;
+	mark_save_dirty();
 }
 
 
@@ -6528,7 +6528,7 @@ int32_t onCustomEnemies()
 			if(copiedGuy>0 && index!=0)
 			{
 				guysbuf[index]=guysbuf[copiedGuy];
-				saved=false;
+				mark_save_dirty();
 			}
 		}
 		else
@@ -8903,7 +8903,7 @@ int32_t onCustomHero()
 
 		if (ret == 3)
 		{
-			saved = false;
+			mark_save_dirty();
 			set_qr(qr_LTTPCOLLISION, (herotile_dlg[181+8].flags & D_SELECTED) ? 1 : 0);
 			set_qr(qr_LTTPWALK, (herotile_dlg[184+8].flags & D_SELECTED) ? 1 : 0);
 			zinit.hero_swim_speed = (herotile_dlg[186+8].d1 == 0) ? 50 : 67;

@@ -20,7 +20,7 @@
 int32_t onSave();
 int32_t onSaveAs();
 extern char *filepath;
-extern bool saved, first_save;
+extern bool saved, autosaved, first_save;
 
 static int32_t test_start_dmap = 0, test_start_screen = 0, test_ret_sqr = 0, test_init_data_val = 0;
 static std::vector<std::string> test_init_data;
@@ -206,10 +206,11 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::CREATE_INIT_DATA:
 		{
 			zinitdata zinit_test = zinit;
-			bool old_saved = saved;
+			bool old_saved = saved, old_autosaved = autosaved;
 			// Only allow configuration for the same stuff visible in the cheat menu in the player.
 			doInit(&zinit_test, true);
 			saved = old_saved;
+			autosaved = old_autosaved;
 
 			std::string delta = serialize_init_data_delta(&zinit, &zinit_test);
 
@@ -238,9 +239,10 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				return false;
 			}
 
-			bool old_saved = saved;
+			bool old_saved = saved, old_autosaved = autosaved;
 			doInit(zinit_test, true);
 			saved = old_saved;
+			autosaved = old_autosaved;
 
 			std::string delta = serialize_init_data_delta(&zinit, zinit_test);
 			test_init_data[test_init_data_val - 1] = delta;

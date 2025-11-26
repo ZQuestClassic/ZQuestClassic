@@ -10,7 +10,6 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 
-extern bool saved;
 extern ListData dmap_list;
 extern bool sorted_fontdd;
 

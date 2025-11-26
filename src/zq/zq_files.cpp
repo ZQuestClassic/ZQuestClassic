@@ -47,7 +47,7 @@ int32_t NewQuestFile(std::string tileset_path)
     box_out("This may take a few moments.");
     box_eol();
     init_quest(tileset_path);
-    saved=true;
+    saved = autosaved = true;
     box_end(false);
     refresh(rALL);
     return D_O_K;
@@ -399,7 +399,7 @@ int32_t onSave()
     {
         sprintf(buf,"Saved %s",name);
         jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-        saved=true;
+        saved = autosaved = true;
         first_save=true;
         header.dirty_password=false;
     }
@@ -485,7 +485,7 @@ int32_t onSaveAs()
 		set_window_title(buf);
 		sprintf(buf,"Saved %s",name);
 		jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-		saved=true;
+		saved = autosaved = true;
 		first_save=true;
 		header.dirty_password=false;
 	}
@@ -516,13 +516,13 @@ int32_t open_quest(char const* path)
 	if(ret == qe_OK)
 	{
 		update_recent_quest(path);
-		saved = true;
+		saved = autosaved = true;
 		strcpy(filepath, path);
 		first_save=true;
 	}
 	else if(ret == qe_cancel)
 	{
-		saved = true;
+		saved = autosaved = true;
 		filepath[0]=0;
 	}
 	else
@@ -606,7 +606,7 @@ int32_t onRevert()
         
         if(!ret)
         {
-            saved = true;
+            saved = autosaved = true;
         }
         else
         {
@@ -694,7 +694,7 @@ int32_t onImport_Map()
     if(!prompt_for_existing_file_compat("Import Map (.map)","map",NULL,datapath,false))
         return D_O_K;
         
-    saved=false;
+    mark_save_dirty();
     int32_t ret=Map.load(temppath);
     
     if(ret)
@@ -845,7 +845,7 @@ int32_t onImport_DMaps()
 	}
 	pack_fclose(f);
    
-    saved=false;
+    mark_save_dirty();
 
     
     return D_O_K;
@@ -928,7 +928,7 @@ int32_t onImport_Comboaliaspack()
 				else
 				{
 					jwin_alert("ZALIAS File: Success!","Loaded the source combo aliases to your combo alias tables!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					saved=false;
+					mark_save_dirty();
 				}
 			}
 	
@@ -942,7 +942,7 @@ int32_t onImport_Pals()
     if(!prompt_for_existing_file_compat("Import Palettes (.zpl)","zpl",NULL,datapath,false))
         return D_O_K;
         
-    saved=false;
+    mark_save_dirty();
     
     if(!load_pals(temppath,0))
     {
@@ -983,7 +983,7 @@ int32_t onImport_Msgs()
     if(!prompt_for_existing_file_compat("Import String Table (.zqs)","zqs",NULL,datapath,false))
         return D_O_K;
         
-    saved=false;
+    mark_save_dirty();
     
     if(!load_msgstrs(temppath,0))
     {
@@ -1024,7 +1024,7 @@ int32_t onImport_StringsTSV()
     if(!prompt_for_existing_file_compat("Import Strings (.tsv)","tsv",NULL,datapath,false))
         return D_O_K;
         
-    saved=false;
+    mark_save_dirty();
     
     if(!load_strings_tsv(temppath))
     {
@@ -1135,7 +1135,7 @@ int32_t onImport_Tiles()
     if(!prompt_for_existing_file_compat("Import Tiles (.ztileset)","ztileset",NULL,datapath,false))
         return D_O_K;
         
-    saved=false;
+    mark_save_dirty();
     char name[256];
     extract_name(temppath,name,FILENAMEALL);
     PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
@@ -1284,7 +1284,7 @@ int32_t onImport_ZGP()
     if(!prompt_for_existing_file_compat("Import Graphics Pack (.zgp)","zgp",NULL,datapath,false))
         return D_O_K;
         
-    saved=false;
+    mark_save_dirty();
     
     if(!load_zgp(temppath))
     {

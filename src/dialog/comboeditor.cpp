@@ -13,7 +13,7 @@
 #include "zinfo.h"
 #include "base/combo.h"
 
-extern bool saved;
+void mark_save_dirty();
 extern zcmodule moduledata;
 extern comboclass *combo_class_buf;
 extern itemdata *itemsbuf;
@@ -3960,7 +3960,7 @@ void ComboEditorDialog::apply_combo()
 	if(!hasCTypeEffects(local_comboref.type))
 		local_comboref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
 	combobuf[index] = local_comboref;
-	saved = false;
+	mark_save_dirty();
 	edited = true;
 }
 

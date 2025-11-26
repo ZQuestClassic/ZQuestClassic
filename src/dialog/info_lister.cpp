@@ -273,9 +273,10 @@ bool ItemListerDialog::paste()
 	if(copied_item_id == selected_val)
 		return false;
 	itemsbuf[selected_val] = itemsbuf[copied_item_id];
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
+
 int32_t readoneitem(PACKFILE *f, int32_t id);
 int32_t writeoneitem(PACKFILE *f, int32_t id);
 void ItemListerDialog::save()
@@ -309,7 +310,7 @@ bool ItemListerDialog::load()
 		InfoDialog("ZItem Error", "Could not load the specified item.").show();
 	}
 	pack_fclose(f);
-	saved = false;
+	mark_save_dirty();
 	return true;
 }
 
@@ -336,4 +337,3 @@ void SubscrWidgListerDialog::update()
 	if(selected_val && unsigned(selected_val) < widgMAX)
 		widgInfo->setText(lister.findInfo(selected_val));
 }
-
