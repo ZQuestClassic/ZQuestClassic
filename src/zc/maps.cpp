@@ -7546,7 +7546,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 					if(togglegrid[pos]&(1<<lyr2)) continue;
 
 					mapscr* scr_2 = screen_handles[lyr2].scr;
-					if(!scr_2->data[pos]) //Don't increment empty space
+					if(!scr_2 || !scr_2->data[pos]) //Don't increment empty space
 						continue;
 					newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
 					if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK) && !(cmb.usrflags & cflag11)
