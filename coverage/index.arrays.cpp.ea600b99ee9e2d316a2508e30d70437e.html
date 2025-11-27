@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-11-21 07:35:34</td>
+      <td>2025-11-27 06:33:24</td>
     </tr>
   </table>
 </div>
@@ -73,14 +73,14 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l139">ArrayRegistrar::ArrayRegistrar(int, IScriptingArray*) (line 139)</a></td><td>called 137067 times, returned 137067 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l139">ArrayRegistrar::ArrayRegistrar(int, IScriptingArray*) (line 139)</a></td><td>called 141668 times, returned 141668 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l109">ZasmArrayManager::getElement(int, int, int) const (line 109)</a></td><td>called 461408239 times, returned 461408239 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l101">ZasmArrayManager::getSize(int, int) const (line 101)</a></td><td>called 1420 times, returned 1420 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l96">ZasmArrayManager::isRegistered(int) (line 96)</a></td><td>called 812942163 times, returned 812942163 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l90">ZasmArrayManager::registerArray(int, IScriptingArray*) (line 90)</a></td><td>called 142191 times, returned 142191 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l90">ZasmArrayManager::registerArray(int, IScriptingArray*) (line 90)</a></td><td>called 146804 times, returned 146804 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l117">ZasmArrayManager::setElement(int, int, int, int) (line 117)</a></td><td>called 18558147 times, returned 18558147 times</td><td>33.0%</td></tr>
     <tr><td><a href="#l149">zasm_array_get(int, int, int) (line 149)</a></td><td>called 461408239 times, returned 461408239 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l164">zasm_array_register(int, IScriptingArray*) (line 164)</a></td><td>called 5124 times, returned 5124 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l164">zasm_array_register(int, IScriptingArray*) (line 164)</a></td><td>called 5136 times, returned 5136 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l154">zasm_array_set(int, int, int, int) (line 154)</a></td><td>called 18558147 times, returned 18558147 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l144">zasm_array_size(int, int) (line 144)</a></td><td>called 1420 times, returned 1420 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l159">zasm_array_supports(int) (line 159)</a></td><td>called 812942163 times, returned 812942163 times</td><td>100.0%</td></tr>
@@ -725,7 +725,7 @@
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">142191</td>
+      <td class="linecount coveredLine">146804</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">registerArray</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">zasm_var</span><span class="p">,</span><span class="w"> </span><span class="n">IScriptingArray</span><span class="o">*</span><span class="w"> </span><span class="n">impl</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -746,14 +746,14 @@
       <td class="lineno"><a id="l93" href="#l93">93</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">142191</td>
+      <td class="linecount coveredLine">146804</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">m_arrays</span><span class="p">[</span><span class="n">zasm_var</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">impl</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l94" href="#l94">94</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">142191</td>
+      <td class="linecount coveredLine">146804</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -1096,7 +1096,7 @@
       <td class="lineno"><a id="l139" href="#l139">139</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">137067</td>
+      <td class="linecount coveredLine">141668</td>
       <td class="src coveredLine"><span class="n">ArrayRegistrar</span><span class="o">::</span><span class="n">ArrayRegistrar</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">zasm_var</span><span class="p">,</span><span class="w"> </span><span class="n">IScriptingArray</span><span class="o">*</span><span class="w"> </span><span class="n">arrayImpl</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1110,14 +1110,14 @@
       <td class="lineno"><a id="l141" href="#l141">141</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">137067</td>
+      <td class="linecount coveredLine">141668</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">g_arrayManager</span><span class="p">.</span><span class="n">registerArray</span><span class="p">(</span><span class="n">zasm_var</span><span class="p">,</span><span class="w"> </span><span class="n">arrayImpl</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l142" href="#l142">142</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">137067</td>
+      <td class="linecount coveredLine">141668</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -1271,7 +1271,7 @@
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5124</td>
+      <td class="linecount coveredLine">5136</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">zasm_array_register</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">zasm_var</span><span class="p">,</span><span class="w"> </span><span class="n">IScriptingArray</span><span class="o">*</span><span class="w"> </span><span class="n">impl</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1285,14 +1285,14 @@
       <td class="lineno"><a id="l166" href="#l166">166</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5124</td>
+      <td class="linecount coveredLine">5136</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">g_arrayManager</span><span class="p">.</span><span class="n">registerArray</span><span class="p">(</span><span class="n">zasm_var</span><span class="p">,</span><span class="w"> </span><span class="n">impl</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l167" href="#l167">167</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5124</td>
+      <td class="linecount coveredLine">5136</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

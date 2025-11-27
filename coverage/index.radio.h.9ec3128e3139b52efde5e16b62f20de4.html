@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-11-21 07:35:34</td>
+      <td>2025-11-27 06:33:24</td>
     </tr>
   </table>
 </div>
@@ -74,9 +74,9 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l30">GUI::Radio::getIndex() const (line 30)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l33">std::enable_if&lt;(std::is_enum_v&lt;ComboWizardDialog::message&gt;) || (std::is_integral_v&lt;ComboWizardDialog::message&gt;), void&gt;::type GUI::Radio::onToggle&lt;ComboWizardDialog::message&gt;(ComboWizardDialog::message) (line 33)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l33">std::enable_if&lt;(std::is_enum_v&lt;SubscreenWizardDialog::message&gt;) || (std::is_integral_v&lt;SubscreenWizardDialog::message&gt;), void&gt;::type GUI::Radio::onToggle&lt;SubscreenWizardDialog::message&gt;(SubscreenWizardDialog::message) (line 33)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l33">std::enable_if&lt;(std::is_enum_v&lt;int&gt;) || (std::is_integral_v&lt;int&gt;), void&gt;::type GUI::Radio::onToggle&lt;int&gt;(int) (line 33)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l35">std::enable_if&lt;(std::is_enum_v&lt;ComboWizardDialog::message&gt;) || (std::is_integral_v&lt;ComboWizardDialog::message&gt;), void&gt;::type GUI::Radio::onToggle&lt;ComboWizardDialog::message&gt;(ComboWizardDialog::message) (line 35)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l35">std::enable_if&lt;(std::is_enum_v&lt;SubscreenWizardDialog::message&gt;) || (std::is_integral_v&lt;SubscreenWizardDialog::message&gt;), void&gt;::type GUI::Radio::onToggle&lt;SubscreenWizardDialog::message&gt;(SubscreenWizardDialog::message) (line 35)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l35">std::enable_if&lt;(std::is_enum_v&lt;int&gt;) || (std::is_integral_v&lt;int&gt;), void&gt;::type GUI::Radio::onToggle&lt;int&gt;(int) (line 35)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
 
@@ -306,185 +306,206 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">template</span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setOnPressFunc</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnPressFunc</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">RequireMessage</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onToggle</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">m</span><span class="p">)</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="n">template</span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l35" href="#l35">35</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">static_cast</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">m</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">RequireMessage</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onToggle</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">m</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l37" href="#l37">37</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">static_cast</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">m</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l38" href="#l38">38</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l37" href="#l37">37</a></td>
+      <td class="lineno"><a id="l39" href="#l39">39</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="n">protected</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l38" href="#l38">38</a></td>
+      <td class="lineno"><a id="l40" href="#l40">40</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">message</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l39" href="#l39">39</a></td>
+      <td class="lineno"><a id="l41" href="#l41">41</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="n">private</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l40" href="#l40">40</a></td>
+      <td class="lineno"><a id="l42" href="#l42">42</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">checked</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l41" href="#l41">41</a></td>
+      <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l42" href="#l42">42</a></td>
+      <td class="lineno"><a id="l44" href="#l44">44</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">procset</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l43" href="#l43">43</a></td>
+      <td class="lineno"><a id="l45" href="#l45">45</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l44" href="#l44">44</a></td>
+      <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="n">DialogRef</span><span class="w"> </span><span class="n">alDialog</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l45" href="#l45">45</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l46" href="#l46">46</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">applyVisibility</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">visible</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">applyDisabled</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">dis</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onPressFunc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">realize</span><span class="p">(</span><span class="n">DialogRunner</span><span class="o">&amp;</span><span class="w"> </span><span class="n">runner</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">calculateSize</span><span class="p">()</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">applyVisibility</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">visible</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onEvent</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">MessageDispatcher</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sendMessage</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">applyDisabled</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">dis</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l51" href="#l51">51</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">applyFont</span><span class="p">(</span><span class="n">FONT</span><span class="o">*</span><span class="w"> </span><span class="n">newFont</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">realize</span><span class="p">(</span><span class="n">DialogRunner</span><span class="o">&amp;</span><span class="w"> </span><span class="n">runner</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">calculateSize</span><span class="p">()</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onEvent</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">MessageDispatcher</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sendMessage</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">}</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">applyFont</span><span class="p">(</span><span class="n">FONT</span><span class="o">*</span><span class="w"> </span><span class="n">newFont</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l58" href="#l58">58</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l59" href="#l59">59</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l60" href="#l60">60</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
