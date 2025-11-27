@@ -1390,14 +1390,10 @@ void put_flag(BITMAP* dest, int32_t x, int32_t y, int32_t flag)
 }
 void put_flags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag)
 {
-
 	newcombo const& c = combobuf[cmbdat];
 	
 	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
 	{
-		//    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
-		//    text_mode(-1);
-		//    textprintf_ex(dest,get_zc_font(font_sfont),x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
 		if(sflag)
 		{
 			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
@@ -1414,13 +1410,11 @@ void put_flags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 	if(flags&cCSET)
 	{
 		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-		//    text_mode(inv?vc(15):vc(0));
 		textprintf_ex(dest,get_zc_font(font_z3smallfont),x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
 	}
 	else if(flags&cCTYPE)
 	{
 		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-		//    text_mode(inv?vc(15):vc(0));
 		textprintf_ex(dest,get_zc_font(font_z3smallfont),x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
 	}
 }
@@ -2572,12 +2566,22 @@ void drawcombo(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset, in
 static void _zmap_drawlayer(BITMAP* dest, int32_t x, int32_t y, mapscr* md, int32_t flags, bool trans, bool over, bool dither, bool passflag = false)
 {
 	if(!md) return;
+
+	// These should only be drawn for the currently selected layer, not every layer.
+	SETFLAG(flags, cCSET, false);
+	SETFLAG(flags, cCTYPE, false);
+
 	for (int32_t i = 0; i < 176; i++)
 		drawcombo(dest, ((i&15)<<4)+x, (i&0xF0)+y, md->data[i], md->cset[i], flags, passflag ? md->sflag[i] : 0, over, trans, dither);
 }
 static void _zmap_drawlayer_ohead(BITMAP* dest, int32_t x, int32_t y, mapscr* md, int32_t flags, bool trans, bool dither)
 {
 	if(!md) return;
+
+	// These should only be drawn for the currently selected layer, not every layer.
+	SETFLAG(flags, cCSET, false);
+	SETFLAG(flags, cCTYPE, false);
+
 	for (int32_t i = 0; i < 176; i++)
 	{
 		int data = md->data[i];
@@ -2941,7 +2945,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 	}
 	
-	if(flags&cFLAGS)
+	if(flags&(cFLAGS|cCSET|cCTYPE))
 	{
 		if(LayerMaskInt[CurrentLayer]!=0)
 		{
@@ -3244,7 +3248,7 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 		}
 	}
 	
-	if(flags&cFLAGS)
+	if(flags&(cFLAGS|cCSET|cCTYPE))
 	{
 		if(LayerMaskInt[CurrentLayer]!=0)
 		{
@@ -3541,7 +3545,7 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 		}
 	}
 	
-	if(flags&cFLAGS)
+	if(flags&(cFLAGS|cCSET|cCTYPE))
 	{
 		if(LayerMaskInt[CurrentLayer]!=0)
 		{
@@ -3734,7 +3738,7 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 		}
 	}
 	
-	if(flags&cFLAGS)
+	if(flags&(cFLAGS|cCSET|cCTYPE))
 	{
 		if(LayerMaskInt[CurrentLayer]!=0)
 		{
