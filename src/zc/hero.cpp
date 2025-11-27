@@ -29139,7 +29139,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	set_clip_rect(framebuf, 0, playing_field_offset, 256, framebuf->h);
 
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
-		mapscr* base_scr = screen_handles[0].scr;
+		mapscr* base_scr = screen_handles[0].base_scr;
 		bool dark = is_new_screen ? is_dark(base_scr) : scrolling_is_dark(base_scr);
 		if (!dark)
 		{
@@ -29150,7 +29150,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	});
 
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
-		mapscr* base_scr = screen_handles[0].scr;
+		mapscr* base_scr = screen_handles[0].base_scr;
 
 		dither_offx = is_new_screen ? -new_region_offset_x : 0;
 		dither_offy = is_new_screen ? -new_region_offset_y : 0;
@@ -29921,7 +29921,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	bool draw_dark = false;
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
-		mapscr* base_scr = screen_handles[0].scr;
+		mapscr* base_scr = screen_handles[0].base_scr;
 		bool dark = is_new_screen ? is_dark(base_scr) : scrolling_is_dark(base_scr);
 		draw_dark |= dark;
 	});
@@ -30196,8 +30196,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		combotile_add_y = is_unsmooth_vertical_scrolling ? -3 : 0;
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			offy += playing_field_offset;
-			if (lenscheck(screen_handles[0].scr, 0))
-				putscr(screen_handles[0].scr, framebuf, offx, offy);
+			if (lenscheck(screen_handles[0].base_scr, 0))
+				putscr(screen_handles[0].base_scr, framebuf, offx, offy);
 		});
 		combotile_add_y = 0;
 
@@ -30249,7 +30249,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			offy += playing_field_offset;
-			putscrdoors(screen_handles[0].scr, framebuf, offx, offy);
+			putscrdoors(screen_handles[0].base_scr, framebuf, offx, offy);
 		});
 
 		if (!align_counter || scroll_counter) herostep();

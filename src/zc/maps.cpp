@@ -2485,7 +2485,7 @@ screen_handles_t create_screen_handles(mapscr* base_scr)
 
 bool remove_screenstatecombos2(const screen_handles_t& screen_handles, bool do_layers, int32_t what1, int32_t what2)
 {
-	mapscr* scr = screen_handles[0].scr;
+	mapscr* scr = screen_handles[0].base_scr;
 	bool didit=false;
 	
 	for(int32_t i=0; i<176; i++)
@@ -2541,7 +2541,7 @@ bool remove_screenstatecombos2(const screen_handles_t& screen_handles, bool do_l
 
 bool remove_xstatecombos(const screen_handles_t& screen_handles, byte xflag, bool triggers)
 {
-	int screen = screen_handles[0].scr->screen;
+	int screen = screen_handles[0].screen;
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
 	return remove_xstatecombos_mi(screen_handles, mi, xflag, triggers);
 }
@@ -2550,7 +2550,7 @@ bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, 
 	bool didit=false;
 	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
 
-	mapscr* s = screen_handles[0].scr;
+	mapscr* s = screen_handles[0].base_scr;
 	int screen = s->screen;
 	bool is_active_screen = is_in_current_region(s);
 
@@ -2636,7 +2636,7 @@ bool remove_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, uint d
 	bool didit=false;
 	if (!getxdoor_mi(mi, dir, ind)) return false;
 
-	mapscr* scr = screen_handles[0].scr;
+	mapscr* scr = screen_handles[0].base_scr;
 	int screen = scr->screen;
 	bool is_active_screen = is_in_current_region(scr);
 
@@ -2881,7 +2881,7 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high1
 
 void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment)
 {
-	mapscr* scr = screen_handles[0].scr;
+	mapscr* scr = screen_handles[0].base_scr;
 	int screen = scr->screen;
 
 	// TODO(replays): No real reason for "do_replay_comment" to exist - I just did not want to update many replays when fixing
@@ -3732,7 +3732,6 @@ static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_
 void do_ffc_layer(BITMAP* bmp, int32_t layer, const screen_handle_t& screen_handle, int32_t x, int32_t y)
 {
 	if(!show_ffcs) return;
-	mapscr* scr = screen_handle.scr;
 	mapscr* base_scr = screen_handle.base_scr;
 	
 	y += playing_field_offset;
@@ -4268,7 +4267,7 @@ void do_walkflags(const screen_handles_t& screen_handles, int32_t x, int32_t y)
 
 	start_info_bmp();
 
-	mapscr* scr = screen_handles[0].scr;
+	mapscr* scr = screen_handles[0].base_scr;
 	for(int32_t i=0; i<176; i++)
 	{
 		put_walkflags_a5(((i&15)<<4) + x, (i&0xF0) + y, scr->data[i], 0);
@@ -5325,7 +5324,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 
 	bool any_dark = false;
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-		mapscr* base_scr = screen_handles[0].scr;
+		mapscr* base_scr = screen_handles[0].base_scr;
 		any_dark |= is_dark(base_scr);
 	});
 	
@@ -5333,14 +5332,14 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	if(get_qr(qr_NEW_DARKROOM) && any_dark)
 	{
 		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-			mapscr* base_scr = screen_handles[0].scr;
+			mapscr* base_scr = screen_handles[0].base_scr;
 			calc_darkroom_combos(base_scr, offx, offy + playing_field_offset);
 			calc_darkroom_ffcs(base_scr, 0, playing_field_offset);
 		});
 		if(showhero)
 			Hero.calc_darkroom_hero(0, -playing_field_offset);
 		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
-			mapscr* base_scr = screen_handles[0].scr;
+			mapscr* base_scr = screen_handles[0].base_scr;
 			if (!is_dark(base_scr))
 			{
 				offy += playing_field_offset;
