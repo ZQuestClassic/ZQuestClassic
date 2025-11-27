@@ -1,4 +1,5 @@
 #include "zq/render.h"
+#include "base/pal_tables.h"
 #include "zq/render_tooltip.h"
 #include "base/render.h"
 #include "zconfig.h"
@@ -180,7 +181,7 @@ void render_zq()
 	configure_render_tree();
 	
 	al_set_target_backbuffer(all_get_display());
-	al_clear_to_color(al_map_rgb_f(0, 0, 0));
+	al_clear_to_color(al_map_rgb(RAMpal[0].r, RAMpal[0].g, RAMpal[0].b));
 	
 	render_tree_draw(&rti_root);
 	if (render_get_debug())
