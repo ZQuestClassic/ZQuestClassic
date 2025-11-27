@@ -1661,6 +1661,8 @@ static GUI::ListData weaponsRulesList
 	{ "Improved Autorotate", qr_BETTER_ENGINE_AUTOROTATE,
 		"If enabled, weapons set to 'auto-rotate' will apply the right-dir sprite when using UseSprite,"
 		" burn sprites, etc." },
+	{ "Weapons Better Screen Edge Hitbox", qr_WEAPON_BETTER_SCREEN_EDGE_HITBOX,
+		"If enabled, will not die from hitting the screen edge until they are actually offscreen fully." },
 	
 	//should maybe keep these last
 	{ "Scripted and Enemy Boomerangs Have Corrected, Non-Hardcoded Animation", qr_CORRECTED_EW_BRANG_ANIM,

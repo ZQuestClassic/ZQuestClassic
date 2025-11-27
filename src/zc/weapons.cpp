@@ -2975,12 +2975,29 @@ bool weapon::clip()
     int32_t d2=isdungeon(screen_spawned);
     int32_t nb1 = get_qr(qr_NOBORDER) ? 16 : 0;
     int32_t nb2 = get_qr(qr_NOBORDER) ? 8 : 0;
-
+	
+	if (get_qr(qr_WEAPON_BETTER_SCREEN_EDGE_HITBOX))
+	{
+		// true iff tile area and hitbox area are entirely out of viewport
+		return ((x + xofs + txsz*16 < viewport.left()
+			|| y + yofs + tysz*16 < viewport.top()
+			|| x + xofs > viewport.right()
+			|| y + yofs > viewport.bottom())
+			&& //tile area above, hitbox area below
+			(x + hxofs + hit_width < viewport.left()
+			|| y + hyofs + hit_height < viewport.top()
+			|| x + hxofs > viewport.right()
+			|| y + hyofs > viewport.bottom()));
+	}
+	
     if (id<wEnemyWeapons)
     {
         if (x+txsz*16<viewport.left()||y+tysz*16<viewport.top()||x>viewport.right()||y>viewport.bottom())
             return true;
     }
+	
+	if (x<0 || y<0 || x>world_w - 16 || y>world_h)
+		return true;
 
     if(id>wEnemyWeapons && id!=ewBrang)
     {
@@ -3068,9 +3085,6 @@ bool weapon::clip()
                 || (y>(world_h-8+nb2) && dir==down))
             return true;
     }
-    
-    if(x<0||y<0||x>world_w-16||y>world_h)
-        return true;
         
     return false;
 }
