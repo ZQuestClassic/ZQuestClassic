@@ -9165,6 +9165,24 @@ void draw_checkerboard(BITMAP* dest, int x, int y, int sz, optional<int> cb_sz, 
 	ditherrectfill(dest, x, y, x+sz-1, y+sz-1, vc(CheckerCol1), dithChecker, *cb_sz, ox, oy, vc(CheckerCol2));
 }
 
+void draw_static(BITMAP* dest, int x, int y, int w, int h)
+{
+	// Clip.
+	if (x < 0) { w += x; x = 0; }
+	if (y < 0) { h += y; y = 0; }
+	if (x + w > dest->w) w = dest->w - x;
+	if (y + h > dest->h) h = dest->h - y;
+	if (w <= 0 || h <= 0) return;
+
+	for(int32_t dy=0; dy<h; dy++)
+	{
+		for(int32_t dx=0; dx<w; dx++)
+		{
+			dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+		}
+	}
+}
+
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	// This use to be what kept 60fps, but now render_timer_wait handles that.

@@ -727,9 +727,7 @@ void ObjectTemplate::draw_null(BITMAP* dest, int x, int y, int w, int h) const
 			break;
 		}
 		case 1:
-			for(int dy = 0; dy < h; ++dy)
-				for(int dx = 0; dx < w; ++dx)
-					dest->line[dy+y][dx+x]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+			draw_static(dest, x, y, w, h);
 			break;
 		default:
 			for(int dy = 0; dy < h; ++dy)

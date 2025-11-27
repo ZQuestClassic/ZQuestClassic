@@ -5732,6 +5732,11 @@ static void draw_screenunit_map_screen(VisibleScreen visible_screen)
 	stretch_blit(mapscreenbmp, screen_bitmap, 0, 0, mapscreenbmp->w, mapscreenbmp->h, mapscreen_x + xoff, mapscreen_y + yoff, w, h);
 }
 
+static void draw_static_pos(const size_and_pos& sqr)
+{
+	draw_static(screen, sqr.x, sqr.y, sqr.w, sqr.h);
+}
+
 void draw_screenunit(int32_t unit, int32_t flags)
 {
 	FONT* tfont = font;
@@ -5776,13 +5781,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						}
 						else if (InvalidBG == 1)
 						{
-							for(int32_t dy=0; dy<sqr.h; dy++)
-							{
-								for(int32_t dx=0; dx<sqr.w; dx++)
-								{
-									screen->line[dy+sqr.y][dx+sqr.x]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-								}
-							}
+							draw_static_pos(sqr);
 						}
 						else
 						{
@@ -6722,13 +6721,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 					else if(InvalidBG == 1)
 					{
-						for(int32_t dy=0; dy<combo_preview2.w; dy++)
-						{
-							for(int32_t dx=0; dx<combo_preview2.w; dx++)
-							{
-								screen->line[dy+combo_preview2.y][dx+combo_preview2.x]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-							}
-						}
+						draw_static_pos(combo_preview2);
 					}
 					else
 					{
@@ -6797,13 +6790,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						}
 						else if(InvalidBG == 1)
 						{
-							for(int32_t dy=0; dy<sqr.h; dy++)
-							{
-								for(int32_t dx=0; dx<sqr.w; dx++)
-								{
-									screen->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-								}
-							}
+							draw_static_pos(sqr);
 						}
 						else
 						{

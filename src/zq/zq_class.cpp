@@ -11,6 +11,7 @@
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "dialog/info.h"
+#include "gui/jwin.h"
 #include "metadata/metadata.h"
 
 #include "base/qrs.h"
@@ -3771,13 +3772,7 @@ void zmap::drawstaticblock(BITMAP* dest,int32_t x,int32_t y)
 	}
 	else if(InvalidBG == 1)
     {
-        for(int32_t dy=0; dy<16; dy++)
-        {
-            for(int32_t dx=0; dx<16; dx++)
-            {
-                dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-            }
-        }
+		draw_static(dest, x, y, 16, 16);
     }
     else
     {
@@ -3797,13 +3792,7 @@ void zmap::drawstaticcolumn(BITMAP* dest,int32_t x,int32_t y)
 	}
     else if(InvalidBG == 1)
     {
-        for(int32_t dy=0; dy<176; dy++)
-        {
-            for(int32_t dx=0; dx<16; dx++)
-            {
-                dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-            }
-        }
+		draw_static(dest, x, y, 16, 176);
     }
     else
     {
@@ -3823,13 +3812,7 @@ void zmap::drawstaticrow(BITMAP* dest,int32_t x,int32_t y)
 	}
     else if(InvalidBG == 1)
     {
-        for(int32_t dy=0; dy<16; dy++)
-        {
-            for(int32_t dx=0; dx<256; dx++)
-            {
-                dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-            }
-        }
+		draw_static(dest, x, y, 256, 16);
     }
     else
     {

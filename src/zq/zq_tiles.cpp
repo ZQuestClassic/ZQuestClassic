@@ -5448,13 +5448,7 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, bool large, bool true_emp
 				}
 				else if(InvalidBG == 1)
 				{
-					for(int32_t dy=0; dy<=l+1; dy++)
-					{
-						for(int32_t dx=0; dx<=l+1; dx++)
-						{
-							dest->line[dy+(y)][dx+(x)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-						}
-					}
+					draw_static(dest, x, y, l+1, l+1);
 				}
 				else
 				{
@@ -5524,13 +5518,7 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 		}
 		else if(InvalidBG == 1)
 		{
-			for(int32_t dy=0; dy<16*mul; dy++)
-			{
-				for(int32_t dx=0; dx<16*mul; dx++)
-				{
-					screen2->line[(216*mul+yofs+dy)][36*mul+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-				}
-			}
+			draw_static(screen2, 36*mul, 216*mul+yofs, 16*mul, 16*mul);
 		}
 		else
 		{
@@ -5622,13 +5610,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 		}
 		else if(InvalidBG == 1)
 		{
-			for(int32_t dy=0; dy<16*mul; dy++)
-			{
-				for(int32_t dx=0; dx<16*mul; dx++)
-				{
-					screen2->line[216*mul+yofs+dy][124*mul+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-				}
-			}
+			draw_static(screen2, 124*mul, 216*mul+yofs, 16*mul, 16*mul);
 		}
 		else
 		{
@@ -10536,13 +10518,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		}
 		else if(InvalidBG == 1)
 		{
-			for(int32_t dy=0; dy<16*mul; dy++)
-			{
-				for(int32_t dx=0; dx<16*mul; dx++)
-				{
-					screen2->line[(216*mul)+yofs+dy][(31*mul)+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-				}
-			}
+			draw_static(screen2, 31*mul, 216*mul+yofs, 16*mul, 16*mul);
 		}
 		else
 		{
@@ -10592,13 +10568,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 			}
 			else if(InvalidBG == 1)
 			{
-				for(int32_t dy=0; dy<16*mul; dy++)
-				{
-					for(int32_t dx=0; dx<16*mul; dx++)
-					{
-						screen2->line[(216*mul)+yofs+dy][(136*mul)+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-					}
-				}
+				draw_static(screen2, 136*mul, 216*mul+yofs, 16*mul, 16*mul);
 			}
 			else
 			{
