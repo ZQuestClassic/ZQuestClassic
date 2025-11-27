@@ -1207,8 +1207,8 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	
 
 	int mi = mapind(map, screen);
-	clear_xdoors_mi(screen_handles, mi);
-	clear_xstatecombos_mi(screen_handles, mi);
+	clear_xdoors_mi(screen_handles, mi, true);
+	clear_xstatecombos_mi(screen_handles, mi, true);
 	
 	handle_screen_load_trigger(screen_handles);
 }
@@ -2890,7 +2890,11 @@ void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles,
 	if (replay_is_active() && do_replay_comment)
 		replay_step_comment(fmt::format("trigger secrets scr={}", from_active_screen && scr != special_warp_return_scr ? screen : cur_screen));
 
-	if (from_active_screen)
+	for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
+		trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_SECRETSTR);
+		}, ctrigSECRETS);
+	});
 	{
 		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
 			trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
@@ -2898,6 +2902,7 @@ void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles,
 			}, ctrigSECRETS);
 		});
 	}
+	// TODO: Triggers for ffc TRIGFLAG_SECRETSTR?
 
 	int32_t ft=0; //Flag trigger?
 	int32_t msflag=0; // Misc. secret flag
@@ -7495,10 +7500,9 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 		int lyr = rpos_handle.layer;
 		int pos = rpos_handle.pos;
 		newcombo const& cmb = combobuf[scr->data[pos]];
-		if(is_active_screen)
-			trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
-			}, ctrigSWITCHSTATE);
+		trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
+		}, ctrigSWITCHSTATE);
 		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32
 			&& !(cmb.usrflags & cflag11)) //global state
 		{
@@ -7611,17 +7615,14 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 		}
 	}
 	
-	if (is_active_screen)
+	int screen_index_offset = is_active_screen ? get_region_screen_offset(m->screen) : 0;
+	word c = m->numFFC();
+	for (int q = 0; q < c; ++q)
 	{
-		int screen_index_offset = get_region_screen_offset(m->screen);
-		word c = m->numFFC();
-		for (int q = 0; q < c; ++q)
-		{
-			auto ffc_handle = *m->getFFCHandle(q, screen_index_offset);
-			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
-			}, ctrigSWITCHSTATE);
-		}
+		auto ffc_handle = *m->getFFCHandle(q, screen_index_offset);
+		trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
+		}, ctrigSWITCHSTATE);
 	}
 }
 
@@ -7657,15 +7658,12 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 			int cid = scr->data[pos];
 			auto& mini_cmb = combo_cache.minis[cid];
 
-			if (is_active_screen)
+			if (mini_cmb.trigger_global_state)
 			{
-				if (mini_cmb.trigger_global_state)
-				{
-					auto rpos_handle = get_rpos_handle_for_screen(screen, lyr, pos);
-					trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-						return trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate];
-					}, ctrigSWITCHSTATE);
-				}
+				auto rpos_handle = get_rpos_handle_for_screen(screen, lyr, pos);
+				trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
+					return trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate];
+				}, ctrigSWITCHSTATE);
 			}
 
 			if (!mini_cmb.has_global_state)
@@ -7781,17 +7779,14 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 		}
 	}
 	
-	if(is_active_screen)
+	int screen_index_offset = is_active_screen ? get_region_screen_offset(screen) : 0;
+	word c = base_scr->numFFC();
+	for (int q = 0; q < c; ++q)
 	{
-		int screen_index_offset = get_region_screen_offset(screen);
-		word c = base_scr->numFFC();
-		for (int q = 0; q < c; ++q)
-		{
-			auto ffc_handle = *base_scr->getFFCHandle(q, screen_index_offset);
-			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate];
-			}, ctrigSWITCHSTATE);
-		}
+		auto ffc_handle = *base_scr->getFFCHandle(q, screen_index_offset);
+		trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_TRIGGLOBALSTATE) && states[trig.trig_gstate];
+		}, ctrigSWITCHSTATE);
 	}
 }
 void toggle_gswitches_load(const screen_handles_t& screen_handles)
