@@ -2924,14 +2924,15 @@ void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles,
 			return trig.trigger_flags.get(TRIGFLAG_SECRETSTR);
 		}, ctrigSECRETS);
 	});
+	int screen_index_offset = from_active_screen ? get_region_screen_offset(screen) : 0;
+	word c = scr->numFFC();
+	for (int q = 0; q < c; ++q)
 	{
-		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
-			trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_SECRETSTR);
-			}, ctrigSECRETS);
-		});
+		auto ffc_handle = *scr->getFFCHandle(q, screen_index_offset);
+		trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_SECRETSTR);
+		}, ctrigSECRETS);
 	}
-	// TODO: Triggers for ffc TRIGFLAG_SECRETSTR?
 
 	int32_t ft=0; //Flag trigger?
 	int32_t msflag=0; // Misc. secret flag
@@ -3045,7 +3046,6 @@ void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles,
 		}
 	}
 	
-	word c = scr->numFFC();
 	for(word i=0; i<c; i++) //FFC 'trigger flags'
 	{
 		if(single>=0) if(i+176!=single) continue;
