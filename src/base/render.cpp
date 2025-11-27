@@ -559,6 +559,7 @@ void LegacyBitmapRTI::render(bool)
 	{
 		all_set_transparent_palette_index(transparency_index);
 		all_render_a5_bitmap(a4_bitmap, bitmap);
+		all_set_transparent_palette_index(-1);
 		a4_bitmap_rendered_once = true;
 	}
 }
@@ -625,6 +626,7 @@ namespace MouseSprite
 		ALLEGRO_MOUSE_CURSOR* old_cursor = zc_mouse_sprites[index];
 		all_set_transparent_palette_index(0);
 		ALLEGRO_BITMAP* a5_mouse_sprite = all_get_a5_bitmap(spr);
+		all_set_transparent_palette_index(-1);
 		zc_mouse_sprites[index] = al_create_mouse_cursor(a5_mouse_sprite, xf, yf);
 		al_destroy_bitmap(a5_mouse_sprite);
 		

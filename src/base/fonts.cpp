@@ -200,6 +200,7 @@ ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
 	
 	all_set_transparent_palette_index(0);
 	ALLEGRO_BITMAP* a5bmp = all_get_a5_bitmap(bmp);
+	all_set_transparent_palette_index(-1);
 	
 	int ranges[] = {32, 126}; //space to tilde
 	ALLEGRO_FONT* a5font = al_grab_font_from_bitmap(a5bmp, 1, ranges);

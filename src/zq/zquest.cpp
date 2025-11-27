@@ -5840,6 +5840,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				get_root_rti()->add_child_before(rti_map_view, get_screen_rti());
 			}
 
+			// Since the screen renders over the map view when HQR is enabled, the screen rti needs to be transparent.
+			// But not if HQR is off, that would cause bugs when drawing color 0.
+			get_screen_rti()->transparency_index = HighQualityScreenRendering ? 0 : -1;
+
 			for (auto& vis_screen : visible_screens)
 			{
 				draw_screenunit_map_screen(vis_screen);

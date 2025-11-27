@@ -526,6 +526,7 @@ int a5_display_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
     
     all_set_transparent_palette_index(0);
     ALLEGRO_BITMAP* a5_mouse_sprite = all_get_a5_bitmap(sprite);
+    all_set_transparent_palette_index(-1);
     cursor = al_create_mouse_cursor(a5_mouse_sprite, xfocus, yfocus);
     a4_cursor_bitmaps[i] = sprite;
     a5_cursors[i] = cursor;

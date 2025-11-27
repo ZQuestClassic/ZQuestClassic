@@ -8,6 +8,7 @@ class MapViewRTI : public RenderTreeItem
 public:
 	MapViewRTI(): RenderTreeItem("map_view")
 	{
+		// transparency_index = 0;
 	}
 
 	int sw, sh, flags;
