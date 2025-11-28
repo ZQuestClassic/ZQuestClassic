@@ -223,6 +223,7 @@ bool LayerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					}
 				}
 				dest_ref = local_ref;
+				mark_save_dirty();
 			}
 			return true;
 		case message::CANCEL:
