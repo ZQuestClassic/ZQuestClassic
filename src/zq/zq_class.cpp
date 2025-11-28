@@ -5394,7 +5394,7 @@ void zmap::update_freeform_combos()
 
 void zmap::goto_dmapscr(int dmap, int scr)
 {
-	goto_mapscr(DMaps[dmap].map, scr);
+	goto_mapscr(DMaps[dmap].map, scr + DMaps[dmap].xoff);
 }
 void zmap::goto_mapscr(int map, int scr)
 {
