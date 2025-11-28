@@ -69,7 +69,7 @@ jobs:
       - name: Install cmake
         uses: jwlawson/actions-setup-cmake@v2
         with:
-          cmake-version: '3.31.6'
+          cmake-version: '3.31.10'
 
       # Install dependencies.
       - if: ${{ contains(inputs.runs-on, 'mac') }}
