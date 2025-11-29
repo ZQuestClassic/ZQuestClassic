@@ -76,7 +76,7 @@ const char* zs_formatter(const char* format, int32_t arg, int32_t mindig, dword 
 					argbuf[ind++] = '.';
 					for(int div = 1000; div > 0; div /= 10)
 						argbuf[ind++] = '0' + (arg/div)%10;
-					for(--ind; argbuf[ind]=='0' && argbuf[ind-1]!='-'; --ind)
+					for(--ind; argbuf[ind]=='0' && argbuf[ind-1]!='.'; --ind)
 					{
 						argbuf[ind] = 0;
 					}
