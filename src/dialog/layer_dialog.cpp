@@ -34,7 +34,7 @@ TextField( \
 	}), \
 TextField( \
 	type = GUI::TextField::type::SWAP_ZSINT_NO_DEC, \
-	low = 0, high = MAPSCRSNORMAL-1, \
+	low = 0, high = MAPSCRS-1, \
 	val = local_ref.layerscreen[lyr-1], swap_type = nswapHEX, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
