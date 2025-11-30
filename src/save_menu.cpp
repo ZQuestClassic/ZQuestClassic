@@ -37,6 +37,13 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 	Quit = 0;
 	
 	bool use_music = !(flags & SMENU_DONT_KILL_MUSIC);
+	bool stop_sounds = !(flags & SMENU_DONT_KILL_SFX);
+	
+	if (stop_sounds)
+	{
+		map_bkgsfx(false);
+		kill_sfx();
+	}
 	
 	auto was_playing = Playing;
 	Playing = false;
@@ -95,8 +102,13 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 	}
 	if (Quit)
 		skipcont = true;
-	else if (use_music)
-		playLevelMusic();
+	else
+	{
+		if (use_music)
+			playLevelMusic();
+		if (stop_sounds)
+			map_bkgsfx(true);
+	}
 	Playing = was_playing;
 #else
 	const int scale = 2;

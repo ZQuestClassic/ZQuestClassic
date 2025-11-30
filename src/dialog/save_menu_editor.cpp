@@ -361,7 +361,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 									}),
 								INFOBTN("The MIDI to play during the save menu. (Enhanced music is not yet supported)")
 							),
-							Rows_Columns<2, 4>(
+							Rows_Columns<2,3>(
 								Checkbox(text = "'A' chooses",
 									hAlign = 0.0,
 									checked = local_ref.flags & SMENU_CONFIRM_A,
@@ -378,6 +378,14 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 										SETFLAG(local_ref.flags, SMENU_CANCEL_B, state);
 									}),
 								INFOBTN("If checked, the 'B' button can be used to cancel out of the menu. (This does not work when being used as a 'Game Over' menu)"),
+								Checkbox(text = "Repeat Tile BG",
+									hAlign = 0.0,
+									checked = local_ref.flags & SMENU_REPEAT_BG,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.flags, SMENU_REPEAT_BG, state);
+									}),
+								INFOBTN("If checked, the 'Tile BG' will be repeated to fill the whole screen."),
 								Checkbox(text = "Don't Kill Music",
 									hAlign = 0.0,
 									checked = local_ref.flags & SMENU_DONT_KILL_MUSIC,
@@ -387,14 +395,15 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 										midi_ddl->setDisabled(state);
 									}),
 								INFOBTN("If checked, the music will not be killed by the menu. This means that the set 'MIDI' will be ignored as well."),
-								Checkbox(text = "Repeat Tile BG",
+								Checkbox(text = "Don't Kill SFX",
 									hAlign = 0.0,
-									checked = local_ref.flags & SMENU_REPEAT_BG,
+									checked = local_ref.flags & SMENU_DONT_KILL_SFX,
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_ref.flags, SMENU_REPEAT_BG, state);
+										SETFLAG(local_ref.flags, SMENU_DONT_KILL_SFX, state);
 									}),
-								INFOBTN("If checked, the 'Tile BG' will be repeated to fill the whole screen.")
+								INFOBTN("If checked, SFX will not be killed by the menu.")
+								
 							)
 						)
 					)

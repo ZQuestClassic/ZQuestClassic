@@ -5,6 +5,7 @@ enum SaveMenuFlags
 	SMENU_CANCEL_B, // If checked, the B button can cancel. (Does not work on 'Game Over' menu)
 	SMENU_DONT_KILL_MUSIC, // If checked, the menu opening will not change the music. ([save_menu::MIDI])
 	SMENU_REPEAT_BG, // If checked, the [save_menu::BGTile] will be repated to fill the screen
+	SMENU_DONT_KILL_SFX, // If checked, the menu opening will not stop SFX that are playing.
 };
 // Used with [save_menu::OptionFlags].
 @Bitflags("int")
