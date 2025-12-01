@@ -1062,6 +1062,9 @@ static GUI::ListData compatRulesList
 	{ "Active/Map Subscreens Always 168 Tall", qr_ACTIVE_SUB_IGNORE_8PX,
 		"If enabled, Active/Map subscrens will be 168 pixels tall, regardless of the 'Hide Bottom 8 Pixels' rule. The extra space will be filled with black."
 		"\nOtherwise, the Active/Map subscreen will match the height based on the 'Hide Bottom 8 Pixels' setting."},
+	{ "Screen Edge Flag Checks Ignore Changes", qr_BROKEN_SCREEN_EDGE_FLAG_CHECKS,
+		"If enabled, some flags will not be properly detected across screen transitions if they would be changed by an effect"
+		" such as triggers/secrets."},
 };
 
 static GUI::ListData enemiesRulesList
