@@ -12940,33 +12940,20 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 
 	// Set ZScriptVersion to the value encoded in the script's meta.ffscript_v.
 	// This is only updated when the scripts have been recompiled.
-	// They should all match each other.
+	// They should all match each other, but there may have been bugs causing this field
+	// to not always be set so take the largest one.
 	std::optional<word> zscript_version;
 	if (s_version >= 16)
 	{
 		for (auto script : read_scripts)
 		{
-			if (script->meta.ffscript_v == 0)
-			{
-				// These scripts were saved in a version prior to this field being set.
-				// See https://discord.com/channels/876899628556091432/1368485306394738718
-				zscript_version = 16;
-				break;
-			}
-			if (script->meta.ffscript_v > s_version)
-				break;
-
+			// Scripts with "0" were saved in a version prior to this field being set.
+			// See https://discord.com/channels/876899628556091432/1368485306394738718
+			word ffscript_v = script->meta.ffscript_v == 0 ? 16 : script->meta.ffscript_v;
 			if (!zscript_version.has_value())
-			{
-				zscript_version = script->meta.ffscript_v;
-				continue;
-			}
-
-			if (zscript_version.value() != script->meta.ffscript_v)
-			{
-				zscript_version.reset();
-				break;
-			}
+				zscript_version = ffscript_v;
+			else if (ffscript_v > zscript_version.value())
+				zscript_version = ffscript_v;
 		}
 
 		if (!zscript_version.has_value())
