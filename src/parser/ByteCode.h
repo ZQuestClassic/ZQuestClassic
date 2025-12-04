@@ -66,6 +66,7 @@ namespace ZScript {
 	typedef Opcode1<PUSHVARGV, LiteralArgument> OPushVargV;
 	typedef Opcode1<REF_AUTORELEASE, VarArgument> ORefAutorelease;
 	typedef Opcode1<REF_INC, LiteralArgument> ORefInc;
+	typedef Opcode1<REF_DEC, LiteralArgument> ORefDec;
 	typedef Opcode1<REF_REMOVE, LiteralArgument> ORefRemove;
 	typedef Opcode1<STARTDESTRUCTOR, StringArgument> ODestructor;
 	typedef Opcode1<TRACER, VarArgument> OTraceRegister;

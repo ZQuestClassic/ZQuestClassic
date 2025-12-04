@@ -27710,6 +27710,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			
 			case REF_INC:
 			{
+				if (sarg1 == -1)
+				{
+					script_object_ref_inc(ri->thiskey);
+					break;
+				}
+
 				int offset = GET_D(rSFRAME) + sarg1;
 				if (!ri->stack_pos_is_object.contains(offset))
 				{
@@ -27723,6 +27729,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case REF_DEC:
 			{
+				if (sarg1 == -1)
+				{
+					script_object_ref_dec(ri->thiskey);
+					break;
+				}
+
 				int offset = GET_D(rSFRAME) + sarg1;
 				if (!ri->stack_pos_is_object.contains(offset))
 				{

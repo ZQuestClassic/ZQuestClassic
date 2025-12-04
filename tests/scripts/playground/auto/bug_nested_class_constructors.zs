@@ -56,7 +56,8 @@ generic script bug_nested_class_constructors
 	{
 		Test::Init();
 
-		// auto o0 = new Outer0();
+		auto o0 = new Outer0();
+		Test::Assert(o0->b);
 
 		auto o1 = new Outer1();
 		Test::AssertEqual(o1->b->val, 123);

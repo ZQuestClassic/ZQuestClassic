@@ -36,9 +36,8 @@ class Person
 
 	void shakeHands(Person other)
 	{
-		// TODO: currently the implicit `this` variable does not retain a reference.
-		// Otherwise this would be 2.
-		Test::AssertEqual(RefCount(this), 1L, "RefCount(this)");
+		// `this` retains a reference, and so does the calling code that holds "other" in a variable.
+		Test::AssertEqual(RefCount(this), 2L, "RefCount(this)");
 		Test::AssertEqual(RefCount(other), 2L, "RefCount(other)");
 
 		lastPersonShookHandsWith = other;
@@ -192,19 +191,17 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		// TODO: currently does not work. The `this` variable is a bit special codegen-wise
-		// (I think the stack position may be wrong or invalid for it). See ScriptParser::generateOCode.
-		// printf("=== Test %d - custom object functions, called on loose object === \n", ++tests);
-		// {
-		// 	Person a = new Person();
-		// 	Person b = new Person();
-		//
-		// 	new Person()->waitThenShakeHands(b);
-		// 	check("RefCount(b)", RefCount(b), 1L);
-		//
-		// 	checkCountWithGC(1);
-		// }
-		// checkCountWithGC(0);
+		printf("=== Test %d - custom object functions, called on loose object === \n", ++tests);
+		{
+			Person a = new Person();
+			Person b = new Person();
+		
+			new Person()->waitThenShakeHands(b);
+			check("RefCount(b)", RefCount(b), 1L);
+		
+			checkCountWithGC(2);
+		}
+		checkCountWithGC(0);
 
 		printf("=== Test %d - randgen === \n", ++tests);
 		{
@@ -868,10 +865,7 @@ generic script garbage_collection
 		}
 		checkCountWithGC(1);
 
-		// This avoids cutting off the end of the replay when using --update, if you've
-		// modified how many times Waitframe is called.
-		while (frames < 100)
-			yield();
+		Test::End();
 	}
 
 	void usePerson1(Person person)

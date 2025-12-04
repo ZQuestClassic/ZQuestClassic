@@ -688,6 +688,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				}
 				if (!object_indices.empty())
 					addOpcode2(funccode, new OMarkTypeClass(new VectorArgument(object_indices)));
+
+				addOpcode2(funccode, new ORefInc(new LiteralArgument(-1))); // retain this
 				funccode.push_back(std::shared_ptr<Opcode>(new ONoOp(function.getAltLabel())));
 			}
 			else if(puc == puc_destruct)
@@ -698,8 +700,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			}
 			else
 			{
-				std::shared_ptr<Opcode> first(new ONoOp(function.getLabel()));
-				funccode.push_back(std::move(first));
+				addOpcode2(funccode, new ONoOp(function.getLabel()));
+				addOpcode2(funccode, new ORefInc(new LiteralArgument(-1))); // retain this
 			}
 			// Push 0s for the local variables.
 			for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
@@ -769,7 +771,12 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 				if (stackSize)
 					addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL), new LiteralArgument(stackSize)));
-				
+
+				if (puc == puc_construct)
+					addOpcode2(funccode, new ORefAutorelease(new VarArgument(CLASS_THISKEY)));
+				if (puc != puc_destruct)
+					addOpcode2(funccode, new ORefDec(new LiteralArgument(-1))); // release this
+
 				if (puc == puc_construct) //return val
 				{
 					addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));

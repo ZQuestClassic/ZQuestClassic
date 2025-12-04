@@ -98,14 +98,14 @@ WAITFRAME; InlineFunc[void Waitframe()] Body
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2000; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0129; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0132; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0001
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 5000; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0129; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0132; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0
@@ -142,21 +142,25 @@ WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
-SETV D2 0.0146; Func[Car Car::Car()] Body Start
+SETV D2 0.0152; Func[Car Car::Car()] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+REF_INC -0.0001
 SETR D4 SP2
 PUSHR CLASS_THISKEY2
 SETV D2 100
 ZCLASS_WRITE CLASS_THISKEY 0
 ZCLASS_READ CLASS_THISKEY 0; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Car Car::Car()] Body End
-SETV D2 0.0146; Func[Car Car::Car(int)] Body Start
+SETV D2 0.0152; Func[Car Car::Car(int)] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+REF_INC -0.0001
 SETR D4 SP2
 PUSHR CLASS_THISKEY2
 LOAD D2 0
@@ -168,6 +172,8 @@ ZCLASS_WRITE D3 0
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
 POP D5
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Car Car::Car(int)] Body End

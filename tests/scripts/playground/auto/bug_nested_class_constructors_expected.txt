@@ -17,9 +17,9 @@ stdout:
   "success": true,
   "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 19,
-    "symbols": 29,
-    "identifiers": 56,
+    "currentFileSymbols": 20,
+    "symbols": 32,
+    "identifiers": 62,
     "elided": true
   }
 }
@@ -77,18 +77,30 @@ COMPAREV D2 0
 GOTOCMP 52 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
 GOTO 44; while() #1 End
-CALLFUNC 0.0092; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0105; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHR REFGENERICDATA; void run() Body Start
-PUSHARGSV 0 0.0002
+PUSHARGSV 0 0.0003
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0099; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0136; UsrFunc[void Init(int)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0120; ClassFunc[Outer1 Outer1::Outer1()] Constructor Call
+CALLFUNC 0.0157; ClassFunc[Outer0 Outer0::Outer0()] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0.0002
+PUSHR D4
+LOAD D2 0.0002; UsrFunc[void Assert(InnerDefaultCtorNoFields)] Params Start
+ZCLASS_READ D2 0
+PUSHR D2; UsrFunc[void Assert(InnerDefaultCtorNoFields)] Params End
+CALLFUNC 0.0174; UsrFunc[void Assert(InnerDefaultCtorNoFields)] Call
+POP D4
+PUSHR CLASS_THISKEY
+PUSHR D4
+CALLFUNC 0.0187; ClassFunc[Outer1 Outer1::Outer1()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0001
@@ -98,11 +110,11 @@ ZCLASS_READ D2 0
 ZCLASS_READ D2 0
 PUSHR D2
 PUSHV 123; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0142; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0212; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0163; ClassFunc[Outer2 Outer2::Outer2()] Constructor Call
+CALLFUNC 0.0233; ClassFunc[Outer2 Outer2::Outer2()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0
@@ -112,9 +124,10 @@ ZCLASS_READ D2 0
 ZCLASS_READ D2 0
 PUSHR D2
 PUSHV 124; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0142; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0212; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-CALLFUNC 0.0092; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0105; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002
 REF_REMOVE 0.0001
 REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void End()] Body Start
@@ -124,6 +137,30 @@ PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void Fail(char32[])] Body Start
+MARK_TYPE_STACK 0.0001 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() #1 Test
+SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
+STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 130 ==; Test 'if'
+ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[])] Params Start AND if() #1 Body Start
+WRITEPODSTRING D2 "[Test] failed test: %s\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+GOTO 135; if() #1 Body End
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[])] Params Start AND if() #1 Else Start
+WRITEPODSTRING D2 "[Test] failed test\n"
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End AND if() #1 Else End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -137,7 +174,7 @@ LOAD D2 0; if() #8 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 118 ==; Test 'if'
+GOTOCMP 155 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -145,10 +182,41 @@ WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
+SETV D2 0; Func[Outer0 Outer0::Outer0()] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+ZCLASS_MARK_TYPE {0,0.0008}
+REF_INC -0.0001
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+SETV D2 0; ProtoFunc[InnerDefaultCtorNoFields InnerDefaultCtorNoFields::InnerDefaultCtorNoFields()] Set Destructor
+PUSHR CLASS_THISKEY
+ZCLASS_CONSTRUCT D2 {0}
+POP CLASS_THISKEY; ProtoFunc[InnerDefaultCtorNoFields InnerDefaultCtorNoFields::InnerDefaultCtorNoFields()] Default Construct
+ZCLASS_WRITE CLASS_THISKEY 0
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[Outer0 Outer0::Outer0()] Body End
+SETR D4 SP2; Func[void Assert(InnerDefaultCtorNoFields)] Body Start
+MARK_TYPE_STACK 0.0001 0
+REF_INC 0
+LOAD D2 0; unless() #10 Test
+COMPAREV D2 0
+GOTOCMP 184 !=; Test 'unless'
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #10 Body Start
+WRITEPODSTRING D2 ""
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0112; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #10 Body End
+REF_REMOVE 0
+POP D5
+RETURNFUNC; Func[void Assert(InnerDefaultCtorNoFields)] Body End
 SETV D2 0; Func[Outer1 Outer1::Outer1()] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
 ZCLASS_MARK_TYPE {0,0.0008}
+REF_INC -0.0001
 SETR D4 SP2
 PUSHR CLASS_THISKEY2
 SETV D2 0; ProtoFunc[InnerDefaultCtor InnerDefaultCtor::InnerDefaultCtor()] Set Destructor
@@ -164,19 +232,21 @@ ZCLASS_READ CLASS_THISKEY 0
 SETR D3 D2
 POP D2
 ZCLASS_WRITE D3 0
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Outer1 Outer1::Outer1()] Body End
 SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
-LOAD D2 0; if() #10 Test
+LOAD D2 0; if() #11 Test
 PUSHR D2
 LOAD D2 0.0001
 POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 161 ==; Test 'if'
-ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[])] Params Start AND if() #10 Body Start
+GOTOCMP 231 ==; Test 'if'
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[])] Params Start AND if() #11 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
 LOAD D2 0
@@ -185,18 +255,19 @@ LOAD D2 0.0001
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #10 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #11 Body End
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
 SETV D2 0; Func[Outer2 Outer2::Outer2()] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
 ZCLASS_MARK_TYPE {0,0.0008}
+REF_INC -0.0001
 SETR D4 SP2
 PUSHR CLASS_THISKEY2
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0186; ClassFunc[InnerUserCtor InnerUserCtor::InnerUserCtor()] Constructor Call
+CALLFUNC 0.0259; ClassFunc[InnerUserCtor InnerUserCtor::InnerUserCtor()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_WRITE CLASS_THISKEY 0
@@ -208,16 +279,21 @@ ZCLASS_READ CLASS_THISKEY 0
 SETR D3 D2
 POP D2
 ZCLASS_WRITE D3 0
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Outer2 Outer2::Outer2()] Body End
 SETV D2 0; Func[InnerUserCtor InnerUserCtor::InnerUserCtor()] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+REF_INC -0.0001
 SETR D4 SP2
 PUSHR CLASS_THISKEY2
 SETV D2 1
 ZCLASS_WRITE CLASS_THISKEY 0
+REF_AUTORELEASE CLASS_THISKEY
+REF_DEC -0.0001
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[InnerUserCtor InnerUserCtor::InnerUserCtor()] Body End
