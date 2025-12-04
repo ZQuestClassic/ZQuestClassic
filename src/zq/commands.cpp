@@ -774,7 +774,7 @@ static void do_compile_command(std::string path, int mode)
 		zq_exit(1);
 	}
 
-	success = do_compile_and_slots(1, false);
+	success = do_compile_and_slots(mode, false);
 	if (!success)
 	{
 		printf("Failed to compile\n");
