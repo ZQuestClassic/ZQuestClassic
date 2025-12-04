@@ -721,6 +721,9 @@ static RenderTreeItem* get_active_dialog(bool forTint = false)
 }
 void popup_zqdialog_start(string name, uint tagid, int x, int y, int w, int h, int transp)
 {
+	if (is_headless())
+		return;
+
 	if(w < 0) w = zq_screen_w;
 	if(h < 0) h = zq_screen_h;
 	if(!zqdialog_bg_bmp)
@@ -761,6 +764,9 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 }
 void popup_zqdialog_end()
 {
+	if (is_headless())
+		return;
+
 	bool closed = false;
 	if (active_dlg_rti)
 	{
