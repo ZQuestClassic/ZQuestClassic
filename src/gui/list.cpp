@@ -65,12 +65,12 @@ int32_t List::getSelectedValue() const
 {
 	if(alDialog && listData)
 	{
-		int32_t index = alDialog->d1;
+		int32_t index = vbound(alDialog->d1, 0, listData->size()-1);
 		return listData->getValue(index);
 	}
 	else if(selectedIndex > -1 && listData)
 	{
-		return listData->getValue(selectedIndex);
+		return listData->getValue(vbound(selectedIndex, 0, listData->size()-1));
 	}
 	else
 		return selectedValue;
