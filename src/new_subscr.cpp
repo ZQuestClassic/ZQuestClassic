@@ -1771,7 +1771,8 @@ bool SubscrWidget::check_conditions() const
 		return false;
 	if (!(req_maps.empty() || req_maps.contains(cur_map+1)))
 		return false;
-	if (!(req_screens.empty() || req_screens.contains(home_screen)))
+	auto target_screen = Hero.current_screen >= 0x80 ? home_screen : Hero.current_screen;
+	if (!(req_screens.empty() || req_screens.contains(target_screen)))
 		return false;
 	if(req_counter != crNONE && req_counter_cond_type != CONDTY_NONE)
 	{
@@ -1828,7 +1829,7 @@ bool SubscrWidget::check_conditions() const
 	if ((req_scrstate_map || req_scrstate_scr < 0) && (req_scrstate || req_exstate))
 	{
 		int m = req_scrstate_scr < 0 ? cur_map : req_scrstate_map;
-		int s = req_scrstate_scr < 0 ? home_screen : req_scrstate_scr;
+		int s = req_scrstate_scr < 0 ? target_screen : req_scrstate_scr;
 		if (m > 0 && unsigned(s) < MAPSCRSNORMAL)
 		{
 			bool invert = (genflags&SUBSCRFLAG_REQ_INVERT_SCRSTATE);
