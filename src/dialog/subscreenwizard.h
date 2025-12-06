@@ -17,13 +17,14 @@
 #include "zq/gui/misc_color_sel.h"
 #include "tilepicker.h"
 
-enum class subwizardtype{
+enum class subwizardtype : uint16_t {
 	SW_ITEM_GRID,
 	SW_COUNTER_BLOCK,
 	SW_MAP_TILEBLOCK,
 };
+#define NUM_SUBWIZARD_TYPES 3
 
-void call_subscreen_wizard(subwizardtype stype, int32_t x = 0, int32_t y = 0);
+void call_subscreen_wizard(subwizardtype stype, int32_t& x, int32_t& y);
 
 class SubscreenWizardDialog : public GUI::Dialog<SubscreenWizardDialog>
 {
@@ -38,9 +39,10 @@ public:
 
 private:
 	subwizardtype wizard_type;
+	size_t wizard_index;
 	std::string thelp, tyname;
 
-	int32_t basex, basey;
+	int32_t &basex, &basey;
 	int32_t flags;
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> tfs[10];
@@ -49,12 +51,6 @@ private:
 	std::shared_ptr<GUI::Radio> rset[10][10];
 	std::shared_ptr<GUI::SelTileSwatch> tswatches[10];
 	std::shared_ptr<GUI::MiscColorSel> misccolorsel[3];
-	
-	int tf_values[10];
-	int32_t misccolors[3][2];
-	bool cbvals[20];
-	size_t rs_sel[10];
-	size_t rs_sz[10];
 
 	GUI::ListData list_font, list_shadtype;
 
@@ -65,8 +61,8 @@ private:
 	
 	void updateTitle();
 
-	SubscreenWizardDialog(subwizardtype stype, int32_t x, int32_t y);
-	friend void call_subscreen_wizard(subwizardtype stype, int32_t x, int32_t y);
+	SubscreenWizardDialog(subwizardtype stype, int32_t& x, int32_t& y);
+	friend void call_subscreen_wizard(subwizardtype stype, int32_t& x, int32_t& y);
 };
 
 #endif

@@ -1856,8 +1856,7 @@ int32_t onDistributeBottom()
 
 int32_t onItemGrid()
 {
-	int32_t x = 0;
-	int32_t y = 0;
+	static int32_t x = 0, y = 0;
 	if (force_paste_xy)
 	{
 		x = force_paste_xy[0];
@@ -1868,8 +1867,7 @@ int32_t onItemGrid()
 }
 int32_t onCounterBlock()
 {
-	int32_t x = 0;
-	int32_t y = 0;
+	static int32_t x = 0, y = 0;
 	if (force_paste_xy)
 	{
 		x = force_paste_xy[0];
@@ -1880,7 +1878,7 @@ int32_t onCounterBlock()
 }
 int32_t onMapTileGrid()
 {
-	int32_t x = 0, y = 0;
+	static int32_t x = 0, y = 0;
 	if (force_paste_xy)
 	{
 		x = force_paste_xy[0];

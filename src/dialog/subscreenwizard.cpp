@@ -24,7 +24,7 @@ Frame( \
 extern bool sso_selection[MAXSUBSCREENITEMS];
 extern ZCSubscreen subscr_edit;
 
-void call_subscreen_wizard(subwizardtype stype, int32_t x, int32_t y)
+void call_subscreen_wizard(subwizardtype stype, int32_t& x, int32_t& y)
 {
 	SubscreenWizardDialog(stype, x, y).show();
 }
@@ -41,55 +41,62 @@ void group_select_widget(SubscrWidget* widg)
 	}
 }
 
-static int tileblock_size[2] = {5, 3};
-SubscreenWizardDialog::SubscreenWizardDialog(subwizardtype stype, int32_t x, int32_t y)
-	: wizard_type(stype), basex(x), basey(y), flags(0),
+static bool initialized[NUM_SUBWIZARD_TYPES] = {0};
+static int tf_values[NUM_SUBWIZARD_TYPES][8];
+static int32_t misccolors[NUM_SUBWIZARD_TYPES][3][2];
+static bool cbvals[NUM_SUBWIZARD_TYPES][2];
+static size_t rs_sel[NUM_SUBWIZARD_TYPES][1];
+static size_t rs_sz[NUM_SUBWIZARD_TYPES][1];
+SubscreenWizardDialog::SubscreenWizardDialog(subwizardtype stype, int32_t& x, int32_t& y)
+	: wizard_type(stype), wizard_index(size_t(stype)), basex(x), basey(y), flags(0),
 	list_font(GUI::ZCListData::fonts(false, true, true)),
 	list_shadtype(GUI::ZCListData::shadow_types())
 {
-	memset(rs_sz, 0, sizeof(rs_sz));
-	switch (stype)
+	if (!initialized[wizard_index]) // only set the first time you open the dialog
 	{
-		case subwizardtype::SW_ITEM_GRID:
-			rs_sz[0] = 4;
-			rs_sel[0] = 1;
-			break;
-		case subwizardtype::SW_MAP_TILEBLOCK:
+		memset(rs_sz[wizard_index], 0, sizeof(rs_sz[wizard_index]));
+		switch (stype)
 		{
-			tf_values[0] = 0;
-			tf_values[1] = basex;
-			tf_values[2] = basey;
-			tf_values[5] = 16;
-			tf_values[6] = 16;
-			tf_values[7] = 1;
-			tf_values[8] = 0;
-			tf_values[9] = -1;
-			cbvals[0] = true;
-			cbvals[1] = false;
-			rs_sz[0] = 4;
-			rs_sel[0] = 0;
-			break;
+			case subwizardtype::SW_ITEM_GRID:
+				rs_sz[wizard_index][0] = 4;
+				rs_sel[wizard_index][0] = 1;
+				break;
+			case subwizardtype::SW_MAP_TILEBLOCK:
+			{
+				tf_values[wizard_index][0] = 0;
+				tf_values[wizard_index][1] = 16;
+				tf_values[wizard_index][2] = 16;
+				tf_values[wizard_index][3] = 1;
+				tf_values[wizard_index][4] = 0;
+				tf_values[wizard_index][5] = -1;
+				cbvals[wizard_index][0] = true;
+				cbvals[wizard_index][1] = false;
+				rs_sz[wizard_index][0] = 4;
+				rs_sel[wizard_index][0] = 0;
+				break;
+			}
 		}
+		initialized[wizard_index] = true;
 	}
 }
 
 void SubscreenWizardDialog::setRadio(size_t rs, size_t ind)
 {
-	for (size_t q = 0; q < rs_sz[rs]; ++q)
+	for (size_t q = 0; q < rs_sz[wizard_index][rs]; ++q)
 	{
 		auto& radio = rset[rs][q];
 		radio->setChecked(ind == q);
 	}
-	rs_sel[rs] = ind;
+	rs_sel[wizard_index][rs] = ind;
 }
 size_t SubscreenWizardDialog::getRadio(size_t rs)
 {
-	for (size_t q = 0; q < rs_sz[rs]; ++q)
+	for (size_t q = 0; q < rs_sz[wizard_index][rs]; ++q)
 	{
 		if (rset[rs][q]->getChecked())
 			return q;
 	}
-	if (rs_sz[rs] > 0)
+	if (rs_sz[wizard_index][rs] > 0)
 		rset[rs][0]->setChecked(true);
 	return 0;
 }
@@ -99,8 +106,10 @@ struct TileBlockLayerData
 	vector<vector<TilePickerData>> tile_data;
 	bool you_are_here;
 	word required_litems;
-	dword required_scr_states;
+	dword required_scr_states, required_ex_states, required_lstate;
 	int16_t required_floor = -1, required_level = -1;
+	
+	bool invert_litem, any_litem, invert_scrstate, any_scrstate, invert_lstate, any_lstate;
 };
 
 static vector<TileBlockLayerData> tileblock_sets;
@@ -183,12 +192,12 @@ bool SubscreenWizardDialog::finalize()
 				txt->shadtype = shadtype;
 				txt->align = ALIGN_RIGHT;
 				txt->text = tfs[4]->getText();
-				txt->c_text.type = misccolors[0][0];
-				txt->c_text.color = misccolors[0][1];
-				txt->c_shadow.type = misccolors[1][0];
-				txt->c_shadow.color = misccolors[1][1];
-				txt->c_bg.type = misccolors[2][0];
-				txt->c_bg.color = misccolors[2][1];
+				txt->c_text.type = misccolors[wizard_index][0][0];
+				txt->c_text.color = misccolors[wizard_index][0][1];
+				txt->c_shadow.type = misccolors[wizard_index][1][0];
+				txt->c_shadow.color = misccolors[wizard_index][1][1];
+				txt->c_bg.type = misccolors[wizard_index][2][0];
+				txt->c_bg.color = misccolors[wizard_index][2][1];
 
 				SW_Counter* ctr = (SW_Counter*)create_new_widget_of(widgCOUNTER, x + 8 + dividerw, y + yoff, false);
 				group_select_widget(ctr);
@@ -200,12 +209,12 @@ bool SubscreenWizardDialog::finalize()
 				ctr->maxdigits = maxc;
 				if(cboxes[1]->getChecked())
 					ctr->flags |= SUBSCR_COUNTER_SHOW0;
-				ctr->c_text.type = misccolors[0][0];
-				ctr->c_text.color = misccolors[0][1];
-				ctr->c_shadow.type = misccolors[1][0];
-				ctr->c_shadow.color = misccolors[1][1];
-				ctr->c_bg.type = misccolors[2][0];
-				ctr->c_bg.color = misccolors[2][1];
+				ctr->c_text.type = misccolors[wizard_index][0][0];
+				ctr->c_text.color = misccolors[wizard_index][0][1];
+				ctr->c_shadow.type = misccolors[wizard_index][1][0];
+				ctr->c_shadow.color = misccolors[wizard_index][1][1];
+				ctr->c_bg.type = misccolors[wizard_index][2][0];
+				ctr->c_bg.color = misccolors[wizard_index][2][1];
 
 				if (cboxes[0]->getChecked())
 					x += width;
@@ -297,12 +306,21 @@ bool SubscreenWizardDialog::finalize()
 						SETFLAG(widg->flags, SUBSCR_TILEBL_OVERLAY, overlay);
 						SETFLAG(widg->flags, SUBSCR_TILEBL_TRANSP, transparent);
 						
+						SETFLAG(widg->genflags, SUBSCRFLAG_REQ_INVERT_LITEM, data.invert_litem);
+						SETFLAG(widg->genflags, SUBSCRFLAG_REQ_ANY_LITEM, data.any_litem);
+						SETFLAG(widg->genflags, SUBSCRFLAG_REQ_INVERT_SCRSTATE, data.invert_scrstate);
+						SETFLAG(widg->genflags, SUBSCRFLAG_REQ_ANY_SCRSTATE, data.any_scrstate);
+						SETFLAG(widg->genflags, SUBSCRFLAG_REQ_INVERT_LSTATE, data.invert_lstate);
+						SETFLAG(widg->genflags, SUBSCRFLAG_REQ_ANY_LSTATE, data.any_lstate);
+						
 						widg->req_litems = data.required_litems;
-						if (data.required_litems)
+						widg->req_lvlstate = data.required_lstate;
+						if (data.required_litems || data.required_lstate)
 							widg->req_litem_level = reqlvl;
 						
 						widg->req_scrstate = data.required_scr_states;
-						if (data.required_scr_states)
+						widg->req_exstate = data.required_ex_states;
+						if (data.required_scr_states || data.required_ex_states)
 						{
 							widg->req_scrstate_map = mapid;
 							widg->req_scrstate_scr = screen;
@@ -453,36 +471,36 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 						framed = true, frameText = "Connections",
 						rset[0][0] = Radio(
 							hAlign = 0.0,
-							checked = rs_sel[0] == 0,
+							checked = rs_sel[wizard_index][0] == 0,
 							text = "Non Selectable",
 							indx = 0,
 							onToggle = message::RSET0
 						),
-						INFOBTN("Items in this grid are non selectable."),
+						INFOBTN_VS("Items in this grid are non selectable.", 0_px),
 						rset[0][1] = Radio(
 							hAlign = 0.0,
-							checked = rs_sel[0] == 1,
+							checked = rs_sel[wizard_index][0] == 1,
 							text = "Loop L/R End to End",
 							indx = 1,
 							onToggle = message::RSET0
 						),
-						INFOBTN("Items in this grid will form a complete loop left to right going through every item.\nUse this if you plan to have L/R inventory shifting."),
+						INFOBTN_VS("Items in this grid will form a complete loop left to right going through every item.\nUse this if you plan to have L/R inventory shifting.", 0_px),
 						rset[0][2] = Radio(
 							hAlign = 0.0,
-							checked = rs_sel[0] == 2,
+							checked = rs_sel[wizard_index][0] == 2,
 							text = "Wrap At Sides",
 							indx = 2,
 							onToggle = message::RSET0
 						),
-						INFOBTN("Items in this grid will wrap to opposite ends when selecting off the edge.\nThis is not compatible with L/R inventory shifting."),
+						INFOBTN_VS("Items in this grid will wrap to opposite ends when selecting off the edge.\nThis is not compatible with L/R inventory shifting.", 0_px),
 						rset[0][3] = Radio(
 							hAlign = 0.0,
-							checked = rs_sel[0] == 3,
+							checked = rs_sel[wizard_index][0] == 3,
 							text = "No Wrapping",
 							indx = 3,
 							onToggle = message::RSET0
 						),
-						INFOBTN("Items in this grid will not connect to anything at the edges.\nThis is not compatible with L/R inventory shifting.")
+						INFOBTN_VS("Items in this grid will not connect to anything at the edges.\nThis is not compatible with L/R inventory shifting.", 0_px)
 					)
 				)
 			);
@@ -490,12 +508,12 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 		}
 		case subwizardtype::SW_COUNTER_BLOCK:
 		{
-			misccolors[0][0] = ssctMISC;
-			misccolors[0][1] = 0;
-			misccolors[1][0] = 0;
-			misccolors[1][1] = 0;
-			misccolors[2][0] = ssctSYSTEM;
-			misccolors[2][1] = -1;
+			misccolors[wizard_index][0][0] = ssctMISC;
+			misccolors[wizard_index][0][1] = 0;
+			misccolors[wizard_index][1][0] = 0;
+			misccolors[wizard_index][1][1] = 0;
+			misccolors[wizard_index][2][0] = ssctSYSTEM;
+			misccolors[wizard_index][2][1] = -1;
 			windowRow->add(
 				Rows<2>(
 					Column(
@@ -596,9 +614,9 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 						)
 					),
 					Rows<3>(
-						MISC_COLOR_SEL("Text Color", 1, misccolors[0][0], misccolors[0][1]),
-						MISC_COLOR_SEL("Shadow Color", 2, misccolors[1][0], misccolors[1][1]),
-						MISC_COLOR_SEL("Background Color", 3, misccolors[2][0], misccolors[2][1])
+						MISC_COLOR_SEL("Text Color", 1, misccolors[wizard_index][0][0], misccolors[wizard_index][0][1]),
+						MISC_COLOR_SEL("Shadow Color", 2, misccolors[wizard_index][1][0], misccolors[wizard_index][1][1]),
+						MISC_COLOR_SEL("Background Color", 3, misccolors[wizard_index][2][0], misccolors[wizard_index][2][1])
 					)
 				)
 			);
@@ -615,10 +633,10 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[1] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -15, high = 256, val = tf_values[1],
+								low = -15, high = 256, val = basex,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tf_values[1] = val;
+									basex = val;
 								}
 							),
 							INFOBTN("Sets the X-position of the top-left widget."),
@@ -627,10 +645,10 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[3] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = 16, val = tileblock_size[0],
+								low = 1, high = 16, val = tf_values[wizard_index][6],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tileblock_size[0] = val;
+									tf_values[wizard_index][6] = val;
 								}
 							),
 							INFOBTN("Sets the number of widgets in the grid along the X-axis"),
@@ -640,10 +658,10 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[2] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -15, high = 176, val = tf_values[2],
+								low = -15, high = 176, val = basey,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tf_values[2] = val;
+									basey = val;
 								}
 							),
 							INFOBTN("Sets the Y-position of the top-left widget."),
@@ -652,10 +670,10 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[4] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = 8, val = tileblock_size[1],
+								low = 1, high = 8, val = tf_values[wizard_index][6],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tileblock_size[1] = val;
+									tf_values[wizard_index][6] = val;
 								}
 							),
 							INFOBTN("Sets the number of widgets in the grid along the Y-axis"),
@@ -664,10 +682,10 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[7] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = map_count, val = tf_values[7],
+								low = 1, high = map_count, val = tf_values[wizard_index][3],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tf_values[7] = val;
+									tf_values[wizard_index][3] = val;
 								}
 							),
 							INFOBTN("Sets the Map to check for conditions"),
@@ -676,10 +694,10 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[5] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = 32, val = tf_values[5],
+								low = 1, high = 32, val = tf_values[wizard_index][1],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tf_values[5] = val;
+									tf_values[wizard_index][1] = val;
 								}
 							),
 							INFOBTN("Sets the space in pixels between each item in the grid on the X-axis"),
@@ -689,10 +707,10 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 								swap_type = nswapHEX,
-								low = 0, high = MAPSCRSNORMAL-1, val = tf_values[8],
+								low = 0, high = MAPSCRSNORMAL-1, val = tf_values[wizard_index][4],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tf_values[8] = val;
+									tf_values[wizard_index][4] = val;
 								}
 							),
 							INFOBTN("Sets the *top-left* Screen to check for conditions."
@@ -702,41 +720,41 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[6] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = 32, val = tf_values[6],
+								low = 1, high = 32, val = tf_values[wizard_index][2],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tf_values[6] = val;
+									tf_values[wizard_index][2] = val;
 								}
 							),
 							INFOBTN("Sets the space in pixels between each item in the grid on the Y-axis"),
 							
-							Label(text = "LItem Level:", hAlign = 1.0),
+							Label(text = "Target Level:", hAlign = 1.0),
 							tfs[9] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = MAXLEVELS-1, val = tf_values[9],
+								low = -1, high = MAXLEVELS-1, val = tf_values[wizard_index][5],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tf_values[9] = val;
+									tf_values[wizard_index][5] = val;
 								}
 							),
-							INFOBTN("Sets which 'level' level items are required for LItem conditions. '-1' represents 'current level'.")
+							INFOBTN("Sets which 'level' level items / states are required for LItem / LState conditions. '-1' represents 'current level'.")
 						),
 						Rows<2>(
 							INFOBTN("The state of the 'Overlay' box for each TileBlock."),
 							cboxes[0] = Checkbox(text = "Overlay", hAlign = 0.0,
-								checked = cbvals[0],
+								checked = cbvals[wizard_index][0],
 								onToggleFunc = [&](bool state)
 								{
-									cbvals[0] = state;
+									cbvals[wizard_index][0] = state;
 								}
 							),
 							INFOBTN("The state of the 'Transparent' box for each TileBlock."),
 							cboxes[1] = Checkbox(text = "Transparent", hAlign = 0.0,
-								checked = cbvals[1],
+								checked = cbvals[wizard_index][1],
 								onToggleFunc = [&](bool state)
 								{
-									cbvals[1] = state;
+									cbvals[wizard_index][1] = state;
 								}
 							)
 						)
@@ -747,10 +765,10 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[0] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 254, val = tf_values[0],
+								low = 0, high = 254, val = tf_values[wizard_index][0],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tf_values[0] = val;
+									tf_values[wizard_index][0] = val;
 								}
 							),
 							INFOBTN("The first selector position used by the grid. It will use as many positions in order as there are widgets, unless it's Non-Selectable.")
@@ -759,36 +777,36 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							framed = true, frameText = "Connections",
 							rset[0][0] = Radio(
 								hAlign = 0.0,
-								checked = rs_sel[0] == 0,
+								checked = rs_sel[wizard_index][0] == 0,
 								text = "Non Selectable",
 								indx = 0,
 								onToggle = message::RSET0
 							),
-							INFOBTN("Widgets in this grid are non selectable."),
+							INFOBTN_VS("Widgets in this grid are non selectable.", 0_px),
 							rset[0][1] = Radio(
 								hAlign = 0.0,
-								checked = rs_sel[0] == 1,
+								checked = rs_sel[wizard_index][0] == 1,
 								text = "Loop L/R End to End",
 								indx = 1,
 								onToggle = message::RSET0
 							),
-							INFOBTN("Widgets in this grid will form a complete loop left to right going through every item.\nUse this if you plan to have L/R inventory shifting."),
+							INFOBTN_VS("Widgets in this grid will form a complete loop left to right going through every item.\nUse this if you plan to have L/R inventory shifting.", 0_px),
 							rset[0][2] = Radio(
 								hAlign = 0.0,
-								checked = rs_sel[0] == 2,
+								checked = rs_sel[wizard_index][0] == 2,
 								text = "Wrap At Sides",
 								indx = 2,
 								onToggle = message::RSET0
 							),
-							INFOBTN("Widgets in this grid will wrap to opposite ends when selecting off the edge.\nThis is not compatible with L/R inventory shifting."),
+							INFOBTN_VS("Widgets in this grid will wrap to opposite ends when selecting off the edge.\nThis is not compatible with L/R inventory shifting.", 0_px),
 							rset[0][3] = Radio(
 								hAlign = 0.0,
-								checked = rs_sel[0] == 3,
+								checked = rs_sel[wizard_index][0] == 3,
 								text = "No Wrapping",
 								indx = 3,
 								onToggle = message::RSET0
 							),
-							INFOBTN("Widgets in this grid will not connect to anything at the edges.\nThis is not compatible with L/R inventory shifting.")
+							INFOBTN_VS("Widgets in this grid will not connect to anything at the edges.\nThis is not compatible with L/R inventory shifting.", 0_px)
 						)
 					),
 					tabs = TabPanel(colSpan = 2, ptr = &tab_ptrs[0])
@@ -798,29 +816,164 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 			size_t idx = 0;
 			for (; idx < tileblock_sets.size(); ++idx)
 			{
+				auto navgrid = Column(
+					Row(
+						Button(type = GUI::Button::type::ICON,
+							icon = BTNICON_ARROW_LEFT,
+							disabled = (idx <= 0),
+							width = btnsz, height = btnsz,
+							onPressFunc = [&, idx]()
+							{
+								zc_swap(tileblock_sets[idx], tileblock_sets[idx-1]);
+								--tab_ptrs[0];
+								refresh_dlg();
+							}),
+						Button(type = GUI::Button::type::ICON,
+							icon = BTNICON_TRASH,
+							width = btnsz, height = btnsz,
+							onPressFunc = [&, idx]()
+							{
+								bool doclear = false;
+								AlertDialog("Are you sure?",
+									"This layer of tile settings will be erased.",
+									[&](bool ret,bool)
+									{
+										doclear = ret;
+									}).show();
+								if (!doclear) return;
+								auto it = tileblock_sets.begin();
+								std::advance(it, idx);
+								tileblock_sets.erase(it);
+								if (idx > 0)
+									--tab_ptrs[0];
+								refresh_dlg();
+							}),
+						Button(type = GUI::Button::type::ICON,
+							icon = BTNICON_ARROW_RIGHT,
+							disabled = (idx >= tileblock_sets.size()-1),
+							width = btnsz, height = btnsz,
+							onPressFunc = [&, idx]()
+							{
+								zc_swap(tileblock_sets[idx], tileblock_sets[idx+1]);
+								++tab_ptrs[0];
+								refresh_dlg();
+							})
+					),
+					Rows<2>(
+						Button(text = "Copy",
+							onPressFunc = [&, idx]()
+							{
+								bool was_copied = copied_tileblock_set.has_value();
+								copied_tileblock_set = tileblock_sets[idx];
+								if (!was_copied)
+									refresh_dlg(); // un-disable paste buttons
+							}),
+						Button(text = "Paste",
+							disabled = !copied_tileblock_set,
+							onPressFunc = [&, idx]()
+							{
+								tileblock_sets[idx] = *copied_tileblock_set;
+								refresh_dlg();
+							})
+					)
+				);
 				tabs->add(TabRef(name = to_string(idx),
 					Row(
-						Rows<2>(
+						Rows<3>(
 							Button(text = "Edit Req LItems", fitParent = true, prefheight = 2.5_em,
 								onPressFunc = [&, idx]()
 								{
-									int32_t flags = tileblock_sets[idx].required_litems;
+									dword flags = tileblock_sets[idx].required_litems;
 									auto const litem_names = GUI::ZCCheckListData::level_items();
 									if(!call_checklist_dialog("Select 'Level Items'",litem_names,flags))
 										return;
 									tileblock_sets[idx].required_litems = (word)flags;
 								}),
 							INFOBTN("These level items are required for this layer of tile widgets to appear. (ex. 'only visible with map')"),
+							Frame(fitParent = true, padding = 0_px,
+								Rows<2>(vPadding = 0_px, rowSpacing = 0_px,
+									Checkbox(_EX_RBOX, text = "Invert", vPadding = 1_px,
+										checked = tileblock_sets[idx].invert_litem,
+										onToggleFunc = [&, idx](bool state)
+										{
+											tileblock_sets[idx].invert_litem = state;
+										}),
+									INFOBTN_VS("Invert the LItem requirement (ex. require having none instead of all)", 0_px),
+									Checkbox(_EX_RBOX, text = "Any", vPadding = 1_px,
+										checked = tileblock_sets[idx].any_litem,
+										onToggleFunc = [&, idx](bool state)
+										{
+											tileblock_sets[idx].any_litem = state;
+										}),
+									INFOBTN_VS("Make the LItem requirement looser (ex. require having any instead of all)", 0_px)
+								)
+							),
+							Button(text = "Edit Req LStates", fitParent = true, prefheight = 2.5_em,
+								onPressFunc = [&, idx]()
+								{
+									dword flags = tileblock_sets[idx].required_lstate;
+									auto const lstates = GUI::ZCCheckListData::level_states();
+									if(!call_checklist_dialog("Select 'Level States'", lstates, flags, 8))
+										return;
+									tileblock_sets[idx].required_lstate = flags;
+								}),
+							INFOBTN("These level states are required for this layer of tile widgets to appear. (ex. 'only visible with red switch up')"),
+							Frame(fitParent = true, padding = 0_px,
+								Rows<2>(vPadding = 0_px, rowSpacing = 0_px,
+									Checkbox(_EX_RBOX, text = "Invert", vPadding = 1_px,
+										checked = tileblock_sets[idx].invert_lstate,
+										onToggleFunc = [&, idx](bool state)
+										{
+											tileblock_sets[idx].invert_lstate = state;
+										}),
+									INFOBTN_VS("Invert the LevelState requirement (ex. require having none instead of all)", 0_px),
+									Checkbox(_EX_RBOX, text = "Any", vPadding = 1_px,
+										checked = tileblock_sets[idx].any_lstate,
+										onToggleFunc = [&, idx](bool state)
+										{
+											tileblock_sets[idx].any_lstate = state;
+										}),
+									INFOBTN_VS("Make the LevelState requirement looser (ex. require having any instead of all)", 0_px)
+								)
+							),
 							Button(text = "Edit Req Screen States", fitParent = true, prefheight = 2.5_em,
 								onPressFunc = [&, idx]()
 								{
-									int32_t flags = tileblock_sets[idx].required_scr_states;
+									dword flags = tileblock_sets[idx].required_scr_states;
 									auto const scrstate_names = GUI::ZCCheckListData::screen_state();
 									if(!call_checklist_dialog("Select 'Screen States'",scrstate_names,flags))
 										return;
-									tileblock_sets[idx].required_scr_states = (dword)flags;
+									tileblock_sets[idx].required_scr_states = flags;
 								}),
 							INFOBTN("These screen states are required on the matching screen for each tile widget of this layer for them to appear. (ex. 'visited this screen')"),
+							Frame(fitParent = true, padding = 0_px, rowSpan = 2,
+								Rows<2>(vPadding = 0_px, rowSpacing = 0_px,
+									Checkbox(_EX_RBOX, text = "Invert", vPadding = 1_px,
+										checked = tileblock_sets[idx].invert_scrstate,
+										onToggleFunc = [&, idx](bool state)
+										{
+											tileblock_sets[idx].invert_scrstate = state;
+										}),
+									INFOBTN_VS("Invert the Screen/Ex State requirement (ex. require having none instead of all)", 0_px),
+									Checkbox(_EX_RBOX, text = "Any", vPadding = 1_px,
+										checked = tileblock_sets[idx].any_scrstate,
+										onToggleFunc = [&, idx](bool state)
+										{
+											tileblock_sets[idx].any_scrstate = state;
+										}),
+									INFOBTN_VS("Make the Screen/Ex State requirement looser (ex. require having any instead of all)", 0_px)
+								)
+							),
+							Button(text = "Edit Req Screen ExStates", fitParent = true, prefheight = 2.5_em,
+								onPressFunc = [&, idx]()
+								{
+									dword flags = tileblock_sets[idx].required_ex_states;
+									auto const exstate_names = GUI::ZCCheckListData::ex_state();
+									if(!call_checklist_dialog("Select 'Ex States'",exstate_names,flags))
+										return;
+									tileblock_sets[idx].required_ex_states = flags;
+								}),
+							INFOBTN("These ex states are required on the matching screen for each tile widget of this layer for them to appear."),
 							Button(text = "Edit Tiles", fitParent = true, prefheight = 2.5_em,
 								onPressFunc = [&, idx]()
 								{
@@ -836,98 +989,40 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 								" The 'Width' and 'Height' should be set first, as the popup uses those"
 								" to determine how many tiles to display editors for.")
 						),
-						Rows<3>(
-							Label(text = "Require Floor:", hAlign = 1.0),
-							TextField(
-								fitParent = true, minwidth = 3_em,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = 255, val = tileblock_sets[idx].required_floor,
-								onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									tileblock_sets[idx].required_floor = val;
-								}
-							),
-							INFOBTN("If >-1, this layer of tiles will only be visible when the dmap the hero is currently on has a matching 'Floor' value"),
-							Label(text = "Require Level:", hAlign = 1.0),
-							TextField(
-								fitParent = true, minwidth = 3_em,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = MAXLEVELS-1, val = tileblock_sets[idx].required_level,
-								onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									tileblock_sets[idx].required_level = val;
-								}
-							),
-							INFOBTN("If >-1, this layer of tiles will only be visible when the dmap the hero is currently on has a matching 'Level' value"),
-							
-							Checkbox(_EX_RBOX, text = "Require Current Screen", colSpan = 2,
-								checked = tileblock_sets[idx].you_are_here,
-								onToggleFunc = [&, idx](bool state)
-								{
-									tileblock_sets[idx].you_are_here = state;
-								}
-							),
-							INFOBTN("This layer of tiles will only be visible when the hero is currently on the corresponding screen. (ex. 'you are here' highlight)")
-						),
 						Column(
-							Row(
-								Button(type = GUI::Button::type::ICON,
-									icon = BTNICON_ARROW_LEFT,
-									disabled = (idx <= 0),
-									width = btnsz, height = btnsz,
-									onPressFunc = [&, idx]()
+							Frame(hAlign = 1.0, navgrid),
+							Rows<3>(
+								Checkbox(_EX_RBOX, text = "Require Current Screen", colSpan = 2,
+									checked = tileblock_sets[idx].you_are_here,
+									onToggleFunc = [&, idx](bool state)
 									{
-										zc_swap(tileblock_sets[idx], tileblock_sets[idx-1]);
-										--tab_ptrs[0];
-										refresh_dlg();
-									}),
-								Button(type = GUI::Button::type::ICON,
-									icon = BTNICON_TRASH,
-									width = btnsz, height = btnsz,
-									onPressFunc = [&, idx]()
+										tileblock_sets[idx].you_are_here = state;
+									}
+								),
+								INFOBTN("This layer of tiles will only be visible when the hero is currently on the corresponding screen. (ex. 'you are here' highlight)"),
+								
+								Label(text = "Require Floor:", hAlign = 1.0),
+								TextField(
+									fitParent = true, minwidth = 3_em,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -1, high = 255, val = tileblock_sets[idx].required_floor,
+									onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										bool doclear = false;
-										AlertDialog("Are you sure?",
-											"This layer of tile settings will be erased.",
-											[&](bool ret,bool)
-											{
-												doclear = ret;
-											}).show();
-										if (!doclear) return;
-										auto it = tileblock_sets.begin();
-										std::advance(it, idx);
-										tileblock_sets.erase(it);
-										if (idx > 0)
-											--tab_ptrs[0];
-										refresh_dlg();
-									}),
-								Button(type = GUI::Button::type::ICON,
-									icon = BTNICON_ARROW_RIGHT,
-									disabled = (idx >= tileblock_sets.size()-1),
-									width = btnsz, height = btnsz,
-									onPressFunc = [&, idx]()
+										tileblock_sets[idx].required_floor = val;
+									}
+								),
+								INFOBTN("If >-1, this layer of tiles will only be visible when the dmap the hero is currently on has a matching 'Floor' value"),
+								Label(text = "Require Level:", hAlign = 1.0),
+								TextField(
+									fitParent = true, minwidth = 3_em,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -1, high = MAXLEVELS-1, val = tileblock_sets[idx].required_level,
+									onValChangedFunc = [&, idx](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										zc_swap(tileblock_sets[idx], tileblock_sets[idx+1]);
-										++tab_ptrs[0];
-										refresh_dlg();
-									})
-							),
-							Rows<2>(
-								Button(text = "Copy",
-									onPressFunc = [&, idx]()
-									{
-										bool was_copied = copied_tileblock_set.has_value();
-										copied_tileblock_set = tileblock_sets[idx];
-										if (!was_copied)
-											refresh_dlg(); // un-disable paste buttons
-									}),
-								Button(text = "Paste",
-									disabled = !copied_tileblock_set,
-									onPressFunc = [&, idx]()
-									{
-										tileblock_sets[idx] = *copied_tileblock_set;
-										refresh_dlg();
-									})
+										tileblock_sets[idx].required_level = val;
+									}
+								),
+								INFOBTN("If >-1, this layer of tiles will only be visible when the dmap the hero is currently on has a matching 'Level' value")
 							)
 						)
 					)
