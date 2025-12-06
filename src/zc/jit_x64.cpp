@@ -940,6 +940,14 @@ static void compile_command_interpreter(CompilationState& state, x86::Compiler& 
 	}
 }
 
+static bool _cpu_supports_sse41()
+{
+	const asmjit::CpuInfo& cpu = asmjit::CpuInfo::host();
+    return cpu.hasFeature(asmjit::CpuFeatures::X86::kSSE4_1);
+}
+
+static bool cpu_supports_sse41 = _cpu_supports_sse41();
+
 static bool command_is_compiled(int command)
 {
 	if (command_is_wait(command))
@@ -977,10 +985,8 @@ static bool command_is_compiled(int command)
 	case ANDV:
 	case CASTBOOLF:
 	case CASTBOOLI:
-	case CEILING:
 	case DIVR:
 	case DIVV:
-	case FLOOR:
 	case LOAD:
 	case LOADD:
 	case LOADI:
@@ -1012,6 +1018,11 @@ static bool command_is_compiled(int command)
 	case SUBV:
 	case SUBV2:
 		return true;
+
+	// These require SSE4.1
+	case CEILING:
+	case FLOOR:
+		return cpu_supports_sse41;
 	}
 
 	return false;
