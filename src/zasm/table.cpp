@@ -2853,8 +2853,6 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case LOAD:
 		case LOADD:
 		case MARK_TYPE_STACK:
-		case REF_DEC:
-		case REF_INC:
 		case REF_REMOVE:
 		case STORE:
 		case STORED:
@@ -2863,6 +2861,13 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case STORE_OBJECT:
 		{
 			static T r = {{rSFRAME, REG_R}};
+			return r;
+		}
+
+		case REF_DEC:
+		case REF_INC:
+		{
+			static T r = {{rSFRAME, REG_R}, {CLASS_THISKEY, REG_R}};
 			return r;
 		}
 
