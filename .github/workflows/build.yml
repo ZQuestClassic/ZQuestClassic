@@ -128,13 +128,13 @@ jobs:
         with:
           vcpkgGitCommitId: 120deac3062162151622ca4860575a33844ba10b
       - if: ${{ contains(inputs.runs-on, 'windows') }}
-        run: vcpkg install libogg libvorbis curl dumb openssl
+        run: vcpkg install libogg libvorbis curl openssl
 
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo apt-get update && sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libssl-dev libcurl4-openssl-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils libogg-dev libvorbis-dev libdumb1-dev
+        run: sudo apt-get update && sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libssl-dev libcurl4-openssl-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils libogg-dev libvorbis-dev
 
       - if: ${{ contains(inputs.runs-on, 'mac') }}
-        run: brew install ninja ccache dumb libogg libvorbis
+        run: brew install ninja ccache libogg libvorbis
 
       # Setup build cache via ccache.
       - name: ccache cache files

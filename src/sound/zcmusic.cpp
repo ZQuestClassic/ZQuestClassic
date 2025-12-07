@@ -29,19 +29,6 @@ using namespace util;
 using std::pair;
 using std::make_pair;
 
-#ifndef SOUND_LIBS_BUILT_FROM_SOURCE
-//short of fixing gme, these warnings will always be there...
-#pragma warning(disable:4512) //assignment operator could not be generated
-#pragma warning(disable:4100) //unreferenced formal parameter
-#include "Nsf_Emu.h"
-#include "Gbs_Emu.h"
-#include "Spc_Emu.h"
-#include "Vgm_Emu.h"
-#include "Gym_Emu.h"
-#pragma warning(default:4100)
-#pragma warning(default:4512)
-#endif
-
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif

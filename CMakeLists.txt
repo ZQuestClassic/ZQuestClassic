@@ -25,6 +25,7 @@ set(WANT_NFD TRUE CACHE BOOL "Include nativefiledialog")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(WANT_ZC_TESTS TRUE CACHE BOOL "Build tests")
+set(WANT_VENDORED_DUMB TRUE CACHE BOOL "Build the vendored library at third_party/dumb")
 set(JIT_BACKEND "default" CACHE STRING "One of: default, x64, wasm, none")
 set(ZC_VERSION "" CACHE STRING "Version string")
 set(ZC_OFFICIAL "" CACHE BOOL "Official build")
@@ -144,6 +145,8 @@ set(ZC_INSTALL_TARGETS "")
 #############################################################
 
 set(BUILD_SHARED_LIBS ON)
+
+add_subdirectory(third_party)
 
 # Local windows development is for some reason more finnicky to setup with the very latest
 # zlib/png. For now, use older versions locally.
@@ -762,30 +765,21 @@ target_link_libraries(zcbase PUBLIC zconsolelogger)
 # Sound Library
 #############################################################
 
-set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
+FetchContent_Declare(
+	gme_external
+	GIT_REPOSITORY https://github.com/libgme/game-music-emu
+	GIT_TAG        05a2aa29e8eae29316804fdd28ceaa96c74a1531
+	EXCLUDE_FROM_ALL
+)
+set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
+FetchContent_MakeAvailable(gme_external)
+add_library(gme_headers INTERFACE)
+target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
+target_link_libraries(gme_headers INTERFACE ${ZLIB_LIBRARIES})
+target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
-if(BUILD_SOUND_LIBS_FROM_SOURCE)
-	FetchContent_Declare(
-		gme_external
-		GIT_REPOSITORY https://github.com/libgme/game-music-emu
-		GIT_TAG        05a2aa29e8eae29316804fdd28ceaa96c74a1531
-		EXCLUDE_FROM_ALL
-	)
-	set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
-	FetchContent_MakeAvailable(gme_external)
-	add_library(gme_headers INTERFACE)
-	target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
-	target_link_libraries(gme_headers INTERFACE ${ZLIB_LIBRARIES})
-	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
-
-	set(SOUNDLIBS gme gme_headers)
-	list(APPEND ZC_INSTALL_TARGETS gme)
-endif()
-
-find_package(dumb QUIET)
-if(${DUMB_FOUND})
-	set_target_properties(dumb PROPERTIES FOLDER Sound)
-endif()
+set(SOUNDLIBS gme gme_headers)
+list(APPEND ZC_INSTALL_TARGETS gme)
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
@@ -797,11 +791,7 @@ set(ZCSOUNDSOURCES
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
-if(BUILD_SOUND_LIBS_FROM_SOURCE)
-	target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)
-else()
-	target_include_directories(zcsound PRIVATE include/dumb include/gme)
-endif()
+target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)
 
 #############################################################
 # Networking
