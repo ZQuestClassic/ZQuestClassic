@@ -26,6 +26,7 @@ set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(WANT_ZC_TESTS TRUE CACHE BOOL "Build tests")
 set(WANT_VENDORED_DUMB TRUE CACHE BOOL "Build the vendored library at third_party/dumb")
+set(WANT_VENDORED_LIBJPEG_TURBO TRUE CACHE BOOL "Build the vendored library at third_party/libjpeg_turbo")
 set(JIT_BACKEND "default" CACHE STRING "One of: default, x64, wasm, none")
 set(ZC_VERSION "" CACHE STRING "Version string")
 set(ZC_OFFICIAL "" CACHE BOOL "Official build")
@@ -294,24 +295,24 @@ FetchContent_Declare(
   GIT_TAG        97c84670907b2547f742924d571f2c617d557ed0
   EXCLUDE_FROM_ALL
 )
-FetchContent_GetProperties(allegro5)
-if(NOT allegro5_POPULATED)
-  FetchContent_Populate(allegro5)
-	option(WANT_TESTS "" OFF)
-	option(WANT_EXAMPLES "" OFF)
-	option(WANT_DEMO "" OFF)
-	option(WANT_DOCS "" OFF)
-	option(WANT_IMAGE_WEBP "" OFF)
-	option(WANT_OPUS "" OFF)
-	option(WANT_DUMB "" ON)
-	# We don't support FLAC.
-	option(WANT_FLAC "" OFF)
-	option(WANT_VIDEO "" OFF)
-  add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
-  # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
-  # so set it back to our value.
-  set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
+set(WANT_TESTS "" OFF CACHE BOOL "" FORCE)
+set(WANT_EXAMPLES "" OFF CACHE BOOL "" FORCE)
+set(WANT_DEMO "" OFF CACHE BOOL "" FORCE)
+set(WANT_DOCS "" OFF CACHE BOOL "" FORCE)
+set(WANT_IMAGE_WEBP "" OFF CACHE BOOL "" FORCE)
+if(WANT_VENDORED_LIBJPEG_TURBO)
+	set(WANT_NATIVE_IMAGE_LOADER OFF CACHE BOOL "" FORCE)
+else()
+	set(WANT_NATIVE_IMAGE_LOADER ON CACHE BOOL "" FORCE)
 endif()
+set(WANT_OPUS "" OFF CACHE BOOL "" FORCE)
+set(WANT_DUMB "" ON CACHE BOOL "" FORCE)
+set(WANT_FLAC "" OFF CACHE BOOL "" FORCE)
+set(WANT_VIDEO "" OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(allegro5)
+# Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
+# so set it back to our value.
+set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 
 # These include files are typically copied into the correct places via allegro's install
 # target, but we do it manually because we are compiling from source.
