@@ -204,3 +204,12 @@ if(WANT_VENDORED_LIBJPEG_TURBO)
 	set(JPEG_INCLUDE_DIRS "${JPEG_INCLUDE_DIR}" PARENT_SCOPE)
 	set(SUPPORT_JPEG 1 CACHE INTERNAL "Force jpeg support in Allegro")
 endif()
+
+# Remove once generally available in all compilers for c++ 20.
+add_library(fmt STATIC
+	fmt/src/format.cc
+)
+target_include_directories(fmt PUBLIC SYSTEM fmt/include)
+if(WIN32)
+	target_compile_options(fmt PUBLIC /utf-8)
+endif()
