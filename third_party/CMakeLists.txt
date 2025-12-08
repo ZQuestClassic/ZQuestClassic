@@ -93,7 +93,7 @@ if (WANT_VENDORED_DUMB)
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dumb/include>
 		$<INSTALL_INTERFACE:include/dumb>
 	)
-	install(TARGETS dumb EXPORT AllegroTargets)
+	install(TARGETS dumb EXPORT AllegroTargets EXCLUDE_FROM_ALL)
 	set_target_properties(dumb PROPERTIES POSITION_INDEPENDENT_CODE ON)
 	set_target_properties(dumb PROPERTIES FOLDER Sound)
 
@@ -195,7 +195,7 @@ if(WANT_VENDORED_LIBJPEG_TURBO)
 		$<INSTALL_INTERFACE:include/libjpeg>
 	)
 	set_target_properties(libjpeg_turbo PROPERTIES POSITION_INDEPENDENT_CODE ON)
-	install(TARGETS libjpeg_turbo EXPORT AllegroTargets)
+	install(TARGETS libjpeg_turbo EXPORT AllegroTargets EXCLUDE_FROM_ALL)
 
 	set(JPEG_FOUND TRUE PARENT_SCOPE)
 	set(JPEG_LIBRARIES libjpeg_turbo PARENT_SCOPE)
