@@ -29170,8 +29170,12 @@ void FFScript::runF6Engine()
 					f_Quit(qQUIT);
 			}
 		}
-		else if (unsigned(QMisc.savemenu_f6-1) < NUM_SAVE_MENUS && QMisc.save_menus[QMisc.savemenu_f6-1].is_valid())
-			QMisc.save_menus[QMisc.savemenu_f6-1].run();
+		else if (unsigned(QMisc.savemenu_f6 - 1) < NUM_SAVE_MENUS && QMisc.save_menus[QMisc.savemenu_f6 - 1].is_valid())
+		{
+			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
+			QMisc.save_menus[QMisc.savemenu_f6 - 1].run();
+			GameFlags &= ~GAMEFLAG_F6SCRIPT_ACTIVE;
+		}
 		else f_Quit(qQUIT);
 		zc_readkey(KEY_F6);
 		GameFlags &= ~GAMEFLAG_TRYQUIT;
