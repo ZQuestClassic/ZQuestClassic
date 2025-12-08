@@ -104,3 +104,103 @@ if (WANT_VENDORED_DUMB)
 	set(DUMB_INCLUDE_DIRS "${DUMB_INCLUDE_DIR}" PARENT_SCOPE)
 	set(SUPPORT_DUMB 1 CACHE INTERNAL "Force dumb support in Allegro")
 endif()
+
+if(WANT_VENDORED_LIBJPEG_TURBO)
+	add_library(libjpeg_turbo STATIC
+		libjpeg-turbo/src/jaricom.c
+		libjpeg-turbo/src/jcapimin.c
+		libjpeg-turbo/src/jcarith.c
+		libjpeg-turbo/src/jchuff.c
+		libjpeg-turbo/src/jcicc.c
+		libjpeg-turbo/src/jcinit.c
+		libjpeg-turbo/src/jcmarker.c
+		libjpeg-turbo/src/jcmaster.c
+		libjpeg-turbo/src/jcomapi.c
+		libjpeg-turbo/src/jcparam.c
+		libjpeg-turbo/src/jcphuff.c
+		libjpeg-turbo/src/jctrans.c
+		libjpeg-turbo/src/jdapimin.c
+		libjpeg-turbo/src/jdarith.c
+		libjpeg-turbo/src/jdatadst-tj.c
+		libjpeg-turbo/src/jdatadst.c
+		libjpeg-turbo/src/jdatasrc-tj.c
+		libjpeg-turbo/src/jdatasrc.c
+		libjpeg-turbo/src/jdhuff.c
+		libjpeg-turbo/src/jdicc.c
+		libjpeg-turbo/src/jdinput.c
+		libjpeg-turbo/src/jdmarker.c
+		libjpeg-turbo/src/jdmaster.c
+		libjpeg-turbo/src/jdphuff.c
+		libjpeg-turbo/src/jdtrans.c
+		libjpeg-turbo/src/jerror.c
+		libjpeg-turbo/src/jfdctflt.c
+		libjpeg-turbo/src/jmemmgr.c
+		libjpeg-turbo/src/jmemnobs.c
+		libjpeg-turbo/src/jpeg_nbits.c
+		libjpeg-turbo/src/transupp.c
+		libjpeg-turbo/src/turbojpeg.c
+
+		# 8 and 12 bit wrappers.
+		libjpeg-turbo/src/wrapper/jcapistd-12.c
+		libjpeg-turbo/src/wrapper/jcapistd-8.c
+		libjpeg-turbo/src/wrapper/jccoefct-12.c
+		libjpeg-turbo/src/wrapper/jccoefct-8.c
+		libjpeg-turbo/src/wrapper/jccolor-12.c
+		libjpeg-turbo/src/wrapper/jccolor-8.c
+		libjpeg-turbo/src/wrapper/jcdctmgr-12.c
+		libjpeg-turbo/src/wrapper/jcdctmgr-8.c
+		libjpeg-turbo/src/wrapper/jcmainct-12.c
+		libjpeg-turbo/src/wrapper/jcmainct-8.c
+		libjpeg-turbo/src/wrapper/jcprepct-12.c
+		libjpeg-turbo/src/wrapper/jcprepct-8.c
+		libjpeg-turbo/src/wrapper/jcsample-12.c
+		libjpeg-turbo/src/wrapper/jcsample-8.c
+		libjpeg-turbo/src/wrapper/jdapistd-12.c
+		libjpeg-turbo/src/wrapper/jdapistd-8.c
+		libjpeg-turbo/src/wrapper/jdcoefct-12.c
+		libjpeg-turbo/src/wrapper/jdcoefct-8.c
+		libjpeg-turbo/src/wrapper/jdcolor-12.c
+		libjpeg-turbo/src/wrapper/jdcolor-8.c
+		libjpeg-turbo/src/wrapper/jddctmgr-12.c
+		libjpeg-turbo/src/wrapper/jddctmgr-8.c
+		libjpeg-turbo/src/wrapper/jdmainct-12.c
+		libjpeg-turbo/src/wrapper/jdmainct-8.c
+		libjpeg-turbo/src/wrapper/jdmerge-12.c
+		libjpeg-turbo/src/wrapper/jdmerge-8.c
+		libjpeg-turbo/src/wrapper/jdpostct-12.c
+		libjpeg-turbo/src/wrapper/jdpostct-8.c
+		libjpeg-turbo/src/wrapper/jdsample-12.c
+		libjpeg-turbo/src/wrapper/jdsample-8.c
+		libjpeg-turbo/src/wrapper/jfdctfst-12.c
+		libjpeg-turbo/src/wrapper/jfdctfst-8.c
+		libjpeg-turbo/src/wrapper/jfdctint-12.c
+		libjpeg-turbo/src/wrapper/jfdctint-8.c
+		libjpeg-turbo/src/wrapper/jidctflt-12.c
+		libjpeg-turbo/src/wrapper/jidctflt-8.c
+		libjpeg-turbo/src/wrapper/jidctfst-12.c
+		libjpeg-turbo/src/wrapper/jidctfst-8.c
+		libjpeg-turbo/src/wrapper/jidctint-12.c
+		libjpeg-turbo/src/wrapper/jidctint-8.c
+		libjpeg-turbo/src/wrapper/jidctred-12.c
+		libjpeg-turbo/src/wrapper/jidctred-8.c
+		libjpeg-turbo/src/wrapper/jquant1-12.c
+		libjpeg-turbo/src/wrapper/jquant1-8.c
+		libjpeg-turbo/src/wrapper/jquant2-12.c
+		libjpeg-turbo/src/wrapper/jquant2-8.c
+		libjpeg-turbo/src/wrapper/jutils-12.c
+		libjpeg-turbo/src/wrapper/jutils-8.c
+	)
+	target_include_directories(libjpeg_turbo PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libjpeg_turbo/src>
+		$<INSTALL_INTERFACE:include/libjpeg>
+	)
+	set_target_properties(libjpeg_turbo PROPERTIES POSITION_INDEPENDENT_CODE ON)
+	install(TARGETS libjpeg_turbo EXPORT AllegroTargets)
+
+	set(JPEG_FOUND TRUE PARENT_SCOPE)
+	set(JPEG_LIBRARIES libjpeg_turbo PARENT_SCOPE)
+	set(JPEG_LIBRARY libjpeg_turbo PARENT_SCOPE)
+	set(JPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libjpeg-turbo/src" PARENT_SCOPE)
+	set(JPEG_INCLUDE_DIRS "${JPEG_INCLUDE_DIR}" PARENT_SCOPE)
+	set(SUPPORT_JPEG 1 CACHE INTERNAL "Force jpeg support in Allegro")
+endif()
