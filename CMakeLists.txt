@@ -457,9 +457,6 @@ if(MSVC)
 	# Build in parallel - speeds up the build on multicore machines.
 	add_compile_options(/MP)
 
-	# Require for fmt.
-	add_compile_options(/utf-8)
-
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")
@@ -575,12 +572,6 @@ list(APPEND IMAGELIBS al5img)
 #############################################################
 # Common libraries
 #############################################################
-
-# Remove once generally available in all compilers for c++ 20.
-add_library(fmt STATIC
-	third_party/fmt/src/format.cc
-)
-target_include_directories(fmt PUBLIC SYSTEM third_party/fmt/include)
 
 set(zcbase_sources
 	src/base/about.cpp
@@ -1056,11 +1047,7 @@ endif()
 if(CURL_FOUND AND WIN32)
 	message(STATUS "Using curl for zupdater")
 
-	target_link_libraries(zupdater PRIVATE CURL::libcurl)
-
-	# add_library(json INTERFACE third_party/json/json/json.h)
-	# target_include_directories(json INTERFACE third_party/json)
-	target_link_libraries(zupdater PRIVATE nlohmann_json::nlohmann_json)
+	target_link_libraries(zupdater PRIVATE CURL::libcurl nlohmann_json::nlohmann_json)
 
 	FetchContent_Declare(
 		miniz
