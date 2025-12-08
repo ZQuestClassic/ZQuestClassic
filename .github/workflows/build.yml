@@ -58,7 +58,7 @@ env:
   CCACHE_DIR: ${{ github.workspace }}/.ccache
   CCACHE_MAXSIZE: 400M
   CCACHE_SLOPPINESS: time_macros
-  TARGET: zplayer zeditor zscript zlauncher zupdater base_test_runner
+  TARGET: zplayer zeditor zscript zlauncher zupdater ${{ inputs.test-runner && 'base_test_runner' || '' }}
 
 jobs:
   build:
