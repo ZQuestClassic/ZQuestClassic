@@ -256,6 +256,8 @@ elseif(WIN32)
 	# So `--prefix` is always required to be set by the user on Windows.
 endif()
 
+get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
+list(REMOVE_ITEM CPACK_COMPONENTS_ALL BuildOnly)
 include(CPack)
 
 # Add custom target package_zc for convenience, so the packaging command can be shown in Visual Studio.
