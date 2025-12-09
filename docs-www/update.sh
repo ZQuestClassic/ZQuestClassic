@@ -6,6 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$SCRIPT_DIR/.."
 echo "Generating docs-www/sources/zscript ..."
+rm -fr "build/html"
 python scripts/generate_zscript_api_docs.py
 
 cd "$SCRIPT_DIR"
