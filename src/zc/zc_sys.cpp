@@ -63,6 +63,7 @@
 #include "zc/jit.h"
 #include "zc/zc_subscr.h"
 #include <fmt/format.h>
+#include "zconfig.h"
 #include "zconsole/ConsoleLogger.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
@@ -84,6 +85,20 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 static ALLEGRO_JOYSTICK* gamepad_dlg_cur_joystick;
 static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
+
+// TODO ! move me
+static char* guid_to_str(ALLEGRO_JOYSTICK_GUID guid)
+{
+	char *ret = (char*)malloc(33);
+	char *str = ret;
+	const char chars[] = "0123456789abcdef";
+	for (int i = 0; i < (int)sizeof(guid.val); i++) {
+		*str++ = chars[guid.val[i] >> 4];
+		*str++ = chars[guid.val[i] & 0xf];
+	}
+	*str = '\0';
+	return ret;
+}
 
 extern byte monochrome_console;
 
@@ -367,6 +382,80 @@ void load_default_cheatkeys()
 
 static bool loaded_game_configs;
 
+
+static void load_gamepad_configs(int joystick_index)
+{
+	if (al_get_num_joysticks() <= joystick_index)
+		return;
+
+	auto joystick = al_get_joystick(joystick_index); // TODO !
+	if (!joystick)
+		return;
+
+	char* guid_str = guid_to_str(al_get_joystick_guid(joystick));
+	std::string ctrl_sect = fmt::format("Gamepad-{}", guid_str);
+	zc_get_config(guid_str, "btn_a", "");
+	free(guid_str);
+	if (zc_cfg_defaulted && (al_get_joystick_type(joystick) | ALLEGRO_JOYSTICK_TYPE_GAMEPAD))
+	{
+		js_stick_1_x_stick = 0;
+		js_stick_1_x_axis = 0;
+		js_stick_1_x_offset = 0;
+		js_stick_1_y_stick = 0;
+		js_stick_1_y_axis = 1;
+		js_stick_1_y_offset = 0;
+		Abtn = 0;
+		Bbtn = 1;
+		// Xbtn = 1;
+
+		// int num_sticks = al_get_joystick_num_sticks(joystick);
+		// int selected_stick = 0;
+		// for (int i = 0; i < num_sticks; i++)
+		// {
+		// 	if (al_get_joystick_stick_flags(joystick, i) | ALLEGRO_JOYFLAG_DIGITAL)
+		// 	{
+		// 		selected_stick = i;
+		// 		analog_movement = true;
+		// 		break;
+		// 	}
+		// }
+
+		// js_stick_1_x_stick = selected_stick; // TODO ! why 2?
+		// js_stick_1_y_stick = selected_stick;
+
+		return;
+	}
+
+	js_stick_1_x_stick = zc_get_config(ctrl_sect.c_str(),"js_stick_1_x_stick",0);
+	js_stick_1_x_axis = zc_get_config(ctrl_sect.c_str(),"js_stick_1_x_axis",0);
+	js_stick_1_x_offset = zc_get_config(ctrl_sect.c_str(),"js_stick_1_x_offset",0) ? 128 : 0;
+	js_stick_1_y_stick = zc_get_config(ctrl_sect.c_str(),"js_stick_1_y_stick",0);
+	js_stick_1_y_axis = zc_get_config(ctrl_sect.c_str(),"js_stick_1_y_axis",1);
+	js_stick_1_y_offset = zc_get_config(ctrl_sect.c_str(),"js_stick_1_y_offset",0) ? 128 : 0;
+	js_stick_2_x_stick = zc_get_config(ctrl_sect.c_str(),"js_stick_2_x_stick",1);
+	js_stick_2_x_axis = zc_get_config(ctrl_sect.c_str(),"js_stick_2_x_axis",0);
+	js_stick_2_x_offset = zc_get_config(ctrl_sect.c_str(),"js_stick_2_x_offset",0) ? 128 : 0;
+	js_stick_2_y_stick = zc_get_config(ctrl_sect.c_str(),"js_stick_2_y_stick",1);
+	js_stick_2_y_axis = zc_get_config(ctrl_sect.c_str(),"js_stick_2_y_axis",1);
+
+	Abtn = zc_get_config(ctrl_sect.c_str(),"btn_a",2);
+	Bbtn = zc_get_config(ctrl_sect.c_str(),"btn_b",1);
+	Sbtn = zc_get_config(ctrl_sect.c_str(),"btn_s",10);
+	Mbtn = zc_get_config(ctrl_sect.c_str(),"btn_m",9);
+	Lbtn = zc_get_config(ctrl_sect.c_str(),"btn_l",5);
+	Rbtn = zc_get_config(ctrl_sect.c_str(),"btn_r",6);
+	Pbtn = zc_get_config(ctrl_sect.c_str(),"btn_p",12);
+	Exbtn1 = zc_get_config(ctrl_sect.c_str(),"btn_ex1",7);
+	Exbtn2 = zc_get_config(ctrl_sect.c_str(),"btn_ex2",8);
+	Exbtn3 = zc_get_config(ctrl_sect.c_str(),"btn_ex3",4);
+	Exbtn4 = zc_get_config(ctrl_sect.c_str(),"btn_ex4",3);
+
+	DUbtn = zc_get_config(ctrl_sect.c_str(),"btn_up",13);
+	DDbtn = zc_get_config(ctrl_sect.c_str(),"btn_down",14);
+	DLbtn = zc_get_config(ctrl_sect.c_str(),"btn_left",15);
+	DRbtn = zc_get_config(ctrl_sect.c_str(),"btn_right",16);
+}
+
 void load_game_configs()
 {
 	loaded_game_configs = true;
@@ -508,6 +597,8 @@ void load_game_configs()
 	use_save_indicator = zc_get_config(cfg_sect,"save_indicator",0);
 	zc_192b163_warp_compatibility = zc_get_config(cfg_sect,"zc_192b163_warp_compatibility",0);
 	SkipTitle = zc_get_config(cfg_sect,"skip_title",0);
+
+	load_gamepad_configs(joystick_index);
 }
 
 void save_control_configs(bool kb)
@@ -571,6 +662,45 @@ void save_control_configs(bool kb)
 		zc_set_config(ctrl_sect,"btn_left",DLbtn);
 		zc_set_config(ctrl_sect,"btn_right",DRbtn);
 	}
+}
+
+static void save_gamepad_control_configs()
+{
+	char* guid_str = guid_to_str(al_get_joystick_guid(gamepad_dlg_cur_joystick));
+	std::string ctrl_sect = fmt::format("Gamepad-{}", guid_str);
+	free(guid_str);
+
+	zc_set_config(ctrl_sect.c_str(),"joystick_index",joystick_index);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_1_x_stick",js_stick_1_x_stick);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_1_x_axis",js_stick_1_x_axis);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_1_y_stick",js_stick_1_y_stick);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_1_y_axis",js_stick_1_y_axis);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_2_x_stick",js_stick_2_x_stick);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_2_x_axis",js_stick_2_x_axis);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_2_y_stick",js_stick_2_y_stick);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_2_y_axis",js_stick_2_y_axis);
+	zc_set_config(ctrl_sect.c_str(),"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
+	zc_set_config(ctrl_sect.c_str(),"analog_movement",analog_movement);
+	
+	zc_set_config(ctrl_sect.c_str(),"btn_a",Abtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_b",Bbtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_s",Sbtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_m",Mbtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_l",Lbtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_r",Rbtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_p",Pbtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_ex1",Exbtn1);
+	zc_set_config(ctrl_sect.c_str(),"btn_ex2",Exbtn2);
+	zc_set_config(ctrl_sect.c_str(),"btn_ex3",Exbtn3);
+	zc_set_config(ctrl_sect.c_str(),"btn_ex4",Exbtn4);
+	
+	zc_set_config(ctrl_sect.c_str(),"btn_up",DUbtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_down",DDbtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_left",DLbtn);
+	zc_set_config(ctrl_sect.c_str(),"btn_right",DRbtn);
 }
 
 void save_cheatkeys()
@@ -5450,6 +5580,25 @@ static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c)
 	if(d2!=d->d2)
 	{
 		joystick_index = d->d2;
+		gamepad_dlg_cur_joystick = al_get_joystick(joystick_index);
+		if (!gamepad_dlg_cur_joystick)
+		{
+			InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+			return D_CLOSE;
+		}
+
+		// char* guid_str = guid_to_str(al_get_joystick_guid(gamepad_dlg_cur_joystick));
+		// zc_get_config(guid_str, "btn_a", "");
+		// free(guid_str);
+		// if (zc_cfg_defaulted)
+		// {
+		// 	// ...
+		// }
+		// else
+		// {
+		// }
+		load_gamepad_configs(joystick_index);
+
 		ret |= D_REDRAW_ALL;
 	}
 	
@@ -6590,7 +6739,7 @@ int32_t onGamepad()
 		}
 		js_stick_1_y_stick = js_stick_1_x_stick;
 		js_stick_2_y_stick = js_stick_2_x_stick;
-		save_control_configs(false);
+		save_gamepad_control_configs();
 	}
 	else //Cancel
 	{
