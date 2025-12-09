@@ -91,7 +91,10 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	{
 		Z_error_fatal("Failed to init allegro: %s\n%s\n", "install_mouse", allegro_error);
 	}
-	
+
+	if (id == App::zelda)
+		al_set_joystick_mappings("gamecontrollerdb.txt");
+
 	if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
 	{
 		Z_error_fatal("Failed to init allegro: %s\n%s\n", "install_joystick", allegro_error);
