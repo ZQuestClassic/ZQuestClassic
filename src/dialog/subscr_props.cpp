@@ -1930,7 +1930,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							width = btnsz, height = btnsz,
 							onPressFunc = [&]()
 							{
-								local_subref->req_owned_items.erase(cond_item_sels[CI_REQ]);
+								local_subref->req_owned_items.insert(cond_item_sels[CI_PICKED]);
 								updateConditions();
 							}),
 						Button(type = GUI::Button::type::ICON,
@@ -1938,7 +1938,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							width = btnsz, height = btnsz,
 							onPressFunc = [&]()
 							{
-								local_subref->req_owned_items.insert(cond_item_sels[CI_PICKED]);
+								local_subref->req_owned_items.erase(cond_item_sels[CI_REQ]);
 								updateConditions();
 							})
 					),
@@ -1948,7 +1948,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							width = btnsz, height = btnsz,
 							onPressFunc = [&]()
 							{
-								local_subref->req_unowned_items.erase(cond_item_sels[CI_REQ_NOT]);
+								local_subref->req_unowned_items.insert(cond_item_sels[CI_PICKED]);
 								updateConditions();
 							}),
 						Button(type = GUI::Button::type::ICON,
@@ -1956,7 +1956,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							width = btnsz, height = btnsz,
 							onPressFunc = [&]()
 							{
-								local_subref->req_unowned_items.insert(cond_item_sels[CI_PICKED]);
+								local_subref->req_unowned_items.erase(cond_item_sels[CI_REQ_NOT]);
 								updateConditions();
 							})
 					),
