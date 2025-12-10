@@ -2,7 +2,10 @@ import fs from 'node:fs/promises';
 import http from 'http';
 import mime from 'mime-types';
 import path from 'path';
+import {fileURLToPath} from 'url';
 
+const __dirname = path.posix.dirname(fileURLToPath(import.meta.url));
+const projectRootDir = path.posix.normalize(path.posix.join(__dirname, '..'));
 const hostname = 'localhost';
 const port = 8000;
 const rootDir = process.argv[2] || 'build_emscripten/Debug/packages/web';
@@ -52,6 +55,6 @@ server.listen(port, hostname, () => {
 	console.log(`Server running at http://${hostname}:${port}/`);
 	console.log(`root dir: ${rootDir}\n`);
 	console.log('tip: can access files from host filesystem via /host/...');
-	console.log('for example: http://localhost:8000/play/?test=/host/Users/connorclark/code/ZeldaClassic/tests/replays/playground/playground.qst&dmap=0&screen=0');
-	console.log('or:          http://localhost:8000/play/?assert=/host/Users/connorclark/code/ZeldaClassic/tests/replays/playground/circle.zplay');
+	console.log(`for example: http://localhost:8000/play/?test=/host${projectRootDir}/tests/replays/playground/playground.qst&dmap=0&screen=0`);
+	console.log(`or:          http://localhost:8000/play/?assert=/host${projectRootDir}/tests/replays/playground/circle.zplay`);
 });
