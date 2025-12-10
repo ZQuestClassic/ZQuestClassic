@@ -268,7 +268,7 @@ set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        97c84670907b2547f742924d571f2c617d557ed0
+  GIT_TAG        428e740370b21101e4a14f489c7a392148c0cd7c
   EXCLUDE_FROM_ALL
 )
 if(EMSCRIPTEN)
@@ -290,6 +290,7 @@ set(WANT_OPUS OFF CACHE BOOL "" FORCE)
 set(WANT_DUMB ON CACHE BOOL "" FORCE)
 set(WANT_FLAC OFF CACHE BOOL "" FORCE)
 set(WANT_VIDEO OFF CACHE BOOL "" FORCE)
+set(WANT_ALLOW_SSE "sse3" CACHE STRING "" FORCE)
 FetchContent_MakeAvailable(allegro5)
 # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
 # so set it back to our value.
