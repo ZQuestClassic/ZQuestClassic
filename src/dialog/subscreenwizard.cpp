@@ -163,7 +163,8 @@ void SubscreenWizardDialog::endUpdate()
 				ctr->fontid = fontid;
 				ctr->shadtype = shadtype;
 				ctr->align = sstaLEFT;
-				ctr->infchar = tfs[6]->getText().at(0);
+				std::string_view infchar_sv = tfs[6]->getText();
+				ctr->infchar = infchar_sv.empty() ? 'A' : infchar_sv.at(0);
 				ctr->mindigits = tfs[5]->getVal();
 				ctr->maxdigits = maxc;
 				if(cboxes[1]->getChecked())
