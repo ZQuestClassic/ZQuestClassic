@@ -743,15 +743,16 @@ void *_al_realloc(void *mem, size_t size)
  *  uses any user overloaded memory allocation system in use.
  *  The result of this function _must_ be freed with _AL_FREE().
  */
-char *_al_strdup(AL_CONST char *string)
-{
-   char *newstring = _AL_MALLOC(strlen(string) + 1);
+// local edit - allegro 5 includes this now.
+// char *_al_strdup(AL_CONST char *string)
+// {
+//    char *newstring = _AL_MALLOC(strlen(string) + 1);
 
-   if (newstring)
-      strcpy(newstring, string);
+//    if (newstring)
+//       strcpy(newstring, string);
 
-   return newstring;
-}
+//    return newstring;
+// }
 
 
 
