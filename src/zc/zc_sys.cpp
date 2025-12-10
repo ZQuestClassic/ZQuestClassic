@@ -404,8 +404,9 @@ static void load_gamepad_configs(int joystick_index)
 		js_stick_1_y_stick = 0;
 		js_stick_1_y_axis = 1;
 		js_stick_1_y_offset = 0;
-		Abtn = 0;
-		Bbtn = 1;
+		Bbtn = 0;
+		Abtn = 1;
+		// TODO ! how to run when first connected?
 		// Xbtn = 1;
 
 		// int num_sticks = al_get_joystick_num_sticks(joystick);
