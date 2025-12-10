@@ -295,33 +295,18 @@ FetchContent_MakeAvailable(allegro5)
 # so set it back to our value.
 set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 
-# These include files are typically copied into the correct places via allegro's install
-# target, but we do it manually because we are compiling from source.
-file(COPY ${allegro5_SOURCE_DIR}/addons/font/allegro5/allegro_font.h
-	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
-)
-file(COPY ${allegro5_SOURCE_DIR}/addons/primitives/allegro5/allegro_primitives.h
-	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
-)
-file(COPY ${allegro5_SOURCE_DIR}/addons/audio/allegro5/allegro_audio.h
-	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
-)
-file(COPY ${allegro5_SOURCE_DIR}/addons/audio/allegro5/internal/aintern_audio.h
-	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5/internal
-)
-file(COPY ${allegro5_SOURCE_DIR}/addons/image/allegro5/allegro_image.h
-	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
-)
-file(COPY ${allegro5_SOURCE_DIR}/addons/acodec/allegro5/allegro_acodec.h
-	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
-)
-file(COPY ${allegro5_SOURCE_DIR}/addons/native_dialog/allegro5/allegro_native_dialog.h
-	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+# Remove stale headers that were manually copied in previous versions.
+# TODO: delete this eventually.
+file(REMOVE 
+	"${allegro5_SOURCE_DIR}/include/allegro5/allegro_acodec.h"
+	"${allegro5_SOURCE_DIR}/include/allegro5/allegro_audio.h"
+	"${allegro5_SOURCE_DIR}/include/allegro5/allegro_font.h"
+	"${allegro5_SOURCE_DIR}/include/allegro5/allegro_image.h"
+	"${allegro5_SOURCE_DIR}/include/allegro5/allegro_native_dialog.h"
+	"${allegro5_SOURCE_DIR}/include/allegro5/allegro_primitives.h"
+	"${allegro5_SOURCE_DIR}/include/allegro5/internal/aintern_audio.h"
 )
 
-# TODO: figure out how to not use global includes for this
-include_directories(${allegro5_SOURCE_DIR}/include)
-include_directories(${allegro5_BINARY_DIR}/include)
 # Some performance problems with allegro legacy threaded event queues encouraged
 # NOT closing them on shutdown. This seemed to work ok on Windows and Mac, but on
 # Linux it totally prevents the program from closing.
@@ -332,14 +317,30 @@ if(LINUX AND NOT EMSCRIPTEN)
 endif()
 add_subdirectory(third_party/allegro_legacy EXCLUDE_FROM_ALL)
 
-add_library(allegro_with_legacy INTERFACE)
-target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
-target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/allegro_legacy/include ${CMAKE_CURRENT_BINARY_DIR}/third_party/allegro_legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_audio allegro_acodec allegro_main)
+add_library(allegro_headers INTERFACE)
+target_include_directories(allegro_headers INTERFACE
+	"${allegro5_SOURCE_DIR}/addons/acodec"
+	"${allegro5_SOURCE_DIR}/addons/audio"
+	"${allegro5_SOURCE_DIR}/addons/font"
+	"${allegro5_SOURCE_DIR}/addons/image"
+	"${allegro5_SOURCE_DIR}/addons/native_dialog"
+	"${allegro5_SOURCE_DIR}/addons/primitives"
+	"${allegro5_BINARY_DIR}/include"
+	"${allegro5_SOURCE_DIR}/include"
+)
 
+target_link_libraries(allegro-legacy PRIVATE allegro_headers)
+
+add_library(allegro_with_legacy INTERFACE)
+target_link_libraries(allegro_with_legacy INTERFACE allegro_headers allegro-legacy allegro_primitives allegro_font allegro_image allegro_audio allegro_acodec allegro_main)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
 endif()
+
+target_include_directories(allegro_with_legacy INTERFACE 
+	"${CMAKE_CURRENT_SOURCE_DIR}/third_party/allegro_legacy/include"
+	"${CMAKE_CURRENT_BINARY_DIR}/third_party/allegro_legacy/include"
+)
 
 get_target_property(ALLEGRO_LINK_LIBRARIES allegro_with_legacy INTERFACE_LINK_LIBRARIES)
 list(APPEND ZC_INSTALL_TARGETS allegro ${ALLEGRO_LINK_LIBRARIES})

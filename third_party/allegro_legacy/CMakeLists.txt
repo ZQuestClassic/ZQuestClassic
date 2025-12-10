@@ -581,7 +581,7 @@ if(ALLEGRO_LEGACY_WITH_MODULES)
 else()
     list(APPEND link_with ${PLATFORM_LIBS_NON_MODULES})
 endif()
-target_link_libraries(allegro-legacy ${link_with})
+target_link_libraries(allegro-legacy PUBLIC ${link_with})
 
 sanitize_cmake_link_flags(static_link_with ${link_with})
 set_target_properties(allegro-legacy
