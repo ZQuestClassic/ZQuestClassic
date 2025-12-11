@@ -142,7 +142,14 @@ void mapview_open(int flags, int sw, int sh, int bw, int bh)
 	rti_map_view->sh = sh;
 	rti_map_view->set_size(bw, bh);
 	rti_map_view->dirty = true;
-	get_root_rti()->add_child(rti_map_view);
+	
+	// Add to the back of the dialogs. This allows popups intended to show over the map to still be visible (such as the image failing to save)
+	// Adding directly to `rti_dialogs` causes `screen` to end up `nullptr` and crashes, so add to the last child of dialogs instead.
+	// Reload the tints first to ensure the last child is not `rti_tint`, otherwise the entire map vanishes on using the KEY_SPACE shortcut.
+	// `popup_zq_dialog_start()` should have been used before calling `mapview_open`, and `popup_zq_dialog_end()` should be called after `mapview_close()`.
+	reload_dialog_tint();
+	ASSERT(rti_dialogs.has_children());
+	rti_dialogs.get_children().back()->add_child(rti_map_view);
 	render_zq();
 }
 
