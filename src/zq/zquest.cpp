@@ -4452,8 +4452,10 @@ int32_t saveMapAsImage(ALLEGRO_BITMAP* bitmap)
     }
     while(num<99999 && exists(buf));
     
-	if (!al_save_bitmap(buf, bitmap))
-		InfoDialog("Error", "Failed to save map image").show();
+	if (num >= 99999)
+		InfoDialog("Error", "Failed to save map image! Max map images (99999) already exist!").show();
+	else if (!al_save_bitmap(buf, bitmap))
+		InfoDialog("Error", fmt::format("Failed to save map image\n'{}'.", buf)).show();
     
     return D_O_K;
 }
@@ -4475,8 +4477,8 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t& px2, int32_t& 
 	if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map(skipmenu) : load_the_pic(pictoview,pal)))
 	{
 		zc_set_palette(RAMpal);
-		popup_zqdialog_end();
 		mapview_close();
+		popup_zqdialog_end();
 		return D_O_K;
 	}
 
@@ -4498,8 +4500,8 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t& px2, int32_t& 
 	if(!buf)
 	{
 		jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-		popup_zqdialog_end();
 		mapview_close();
+		popup_zqdialog_end();
 		return D_O_K;
 	}
 
@@ -4539,6 +4541,8 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t& px2, int32_t& 
 	
 	do
 	{
+		HANDLE_CLOSE_ZQDLG();
+		if(exiting_program) break;
 		int w, h;
 		if (isviewingmap)
 		{
@@ -4780,7 +4784,6 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t& px2, int32_t& 
 				
 			case KEY_SPACE:
 				mapview_close();
-				// TODO: why is `load_the_map` rendering a black dialog?
 				if(isviewingmap ? load_the_map(skipmenu) : load_the_pic(pictoview,pal)==2)
 				{
 					done = true;
@@ -4805,11 +4808,11 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t& px2, int32_t& 
 	gui_fg_color = oldfgcolor;
 	gui_bg_color = oldbgcolor;
 	
-	popup_zqdialog_end();
 	position_mouse_z(0);
 	viewer_overlay_rti.remove();
 	set_center_root_rti(true);
 	mapview_close();
+	popup_zqdialog_end();
 	return D_O_K;
 }
 
@@ -4860,7 +4863,7 @@ int32_t load_the_map(bool skipmenu)
 	{
 		large_dialog(loadmap_dlg);
 
-		if (do_zqdialog(loadmap_dlg, 11) != 11)
+		if (do_zqdialog(loadmap_dlg, 11, true) != 11)
 		{
 			return 1;
 		}
