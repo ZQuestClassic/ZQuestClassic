@@ -66,14 +66,14 @@ static std::string get_exe_folder_path()
 	std::transform(ws.begin(), ws.end(), std::back_inserter(path), [](wchar_t c) { return (char)c; });
 	std::replace(path.begin(), path.end(), '\\', '/');
 #elif defined(ALLEGRO_MACOSX)
-	char buf[PATH_MAX];
+	char buf[PATH_MAX] = {0};
 	uint32_t length = PATH_MAX;
 	if (!_NSGetExecutablePath(buf, &length))
 		path = std::string(buf, length>0 ? length : 0);
 #elif defined(__EMSCRIPTEN__)
 	path = "";
 #else
-	char c[260];
+	char c[260] = {0};
 	int length = (int)readlink("/proc/self/exe", c, 260);
 	path = std::string(c, length>0 ? length : 0);
 #endif
