@@ -1,4 +1,43 @@
-if (WANT_VENDORED_DUMB)
+if(WANT_VENDORED_ZLIB)
+	add_library(zlib STATIC
+		zlib/src/adler32.c
+		zlib/src/compress.c
+		zlib/src/crc32.c
+		zlib/src/deflate.c
+		zlib/src/gzclose.c
+		zlib/src/gzlib.c
+		zlib/src/gzread.c
+		zlib/src/gzwrite.c
+		zlib/src/inffast.c
+		zlib/src/inflate.c
+		zlib/src/inftrees.c
+		zlib/src/trees.c
+		zlib/src/uncompr.c
+		zlib/src/zutil.c
+	)
+	target_include_directories(zlib PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/zlib/include>
+		$<INSTALL_INTERFACE:include/zlib>
+	)
+	target_compile_definitions(zlib PRIVATE
+		$<$<OR:$<CONFIG:Debug>,$<CONFIG:Asan>>:ZLIB_DEBUG>
+	)
+	if(UNIX)
+		target_compile_definitions(zlib PRIVATE HAVE_UNISTD_H)
+	endif()
+
+	install(TARGETS zlib EXPORT AllegroTargets COMPONENT BuildOnly EXCLUDE_FROM_ALL)
+	set_target_properties(zlib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+	set(ZLIB_FOUND TRUE CACHE BOOL "" FORCE)
+	set(ZLIB_LIBRARIES zlib CACHE STRING "" FORCE)
+	set(ZLIB_LIBRARY zlib CACHE STRING "" FORCE)
+	set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib/include" CACHE STRING "" FORCE)
+	set(ZLIB_INCLUDE_DIRS "${ZLIB_INCLUDE_DIR}" CACHE STRING "" FORCE)
+	add_library(ZLIB::ZLIB ALIAS zlib)
+endif()
+
+if(WANT_VENDORED_DUMB)
 	add_library(dumb STATIC
 		dumb/src/core/atexit.c
 		dumb/src/core/duhlen.c
