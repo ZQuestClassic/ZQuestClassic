@@ -35,7 +35,6 @@ EMCC_FLAGS=(
   -s USE_FREETYPE=1
   -s USE_VORBIS=1
   -s USE_OGG=1
-  -s USE_LIBJPEG=1
   -s USE_SDL=2
   -s USE_SDL_MIXER=2
   -s USE_LIBPNG=1
@@ -135,8 +134,6 @@ CMAKE_EXE_LINKER_FLAGS_DEBUG+=(
 embuilder build sdl2
 
 embuilder build libpng libpng-mt
-
-embuilder build libjpeg
 
 embuilder build ogg vorbis
 
