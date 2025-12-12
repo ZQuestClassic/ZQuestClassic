@@ -382,6 +382,12 @@ if(DEFINED ENV{CI} OR ZC_OFFICIAL)
 	if(NOT EMSCRIPTEN AND NOT "dumb.c" IN_LIST ALLEGRO_CODEC_SOURCES)
 		message(FATAL_ERROR "Missing support for DUMB")
 	endif()
+
+	get_target_property(ALLEGRO_AUDIO_SOURCES allegro_audio SOURCES)
+	message("${ALLEGRO_AUDIO_SOURCES}")
+	if(NOT EMSCRIPTEN AND LINUX AND NOT "pulseaudio.c" IN_LIST ALLEGRO_AUDIO_SOURCES)
+		message(FATAL_ERROR "Missing support for PulseAudio")
+	endif()
 endif()
 
 #############################################################

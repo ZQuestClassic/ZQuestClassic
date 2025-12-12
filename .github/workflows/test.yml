@@ -129,7 +129,7 @@ jobs:
             tar -xvzf ${{ needs.build.outputs.artifact-name }}/build.tar.gz -C build
             cp -r build/tmp-src/* src/
 
-      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libdumb1
+      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libpulse0
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
       # Note: Uses JIT by default, except for win32.

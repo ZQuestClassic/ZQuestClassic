@@ -142,14 +142,14 @@ You may instead wish to install it somewhere else. If so, set the `--prefix` opt
 
 ```sh
 sudo apt update
-sudo apt install python3-pip ninja-build libgtk-3-dev libasound2-dev libssl-dev libcurl4-openssl-dev libstdc++-12-dev
+sudo apt install python3-pip ninja-build libgtk-3-dev libasound2-dev libssl-dev libcurl4-openssl-dev libstdc++-12-dev libpulse-dev
 ```
 
 ### Ubuntu
 
 ```sh
 sudo apt update
-sudo apt install build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison
+sudo apt install build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison libpulse-dev
 ```
 
 Then before running, you need some additional packages installed:
