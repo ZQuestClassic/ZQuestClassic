@@ -25,6 +25,7 @@ set(WANT_NFD TRUE CACHE BOOL "Include nativefiledialog")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(WANT_ZC_TESTS TRUE CACHE BOOL "Build tests")
+set(WANT_VENDORED_ZLIB TRUE CACHE BOOL "Build the vendored library at third_party/zlib")
 set(WANT_VENDORED_DUMB TRUE CACHE BOOL "Build the vendored library at third_party/dumb")
 set(WANT_VENDORED_LIBJPEG_TURBO TRUE CACHE BOOL "Build the vendored library at third_party/libjpeg_turbo")
 set(JIT_BACKEND "default" CACHE STRING "One of: default, x64, wasm, none")
@@ -149,56 +150,7 @@ set(BUILD_SHARED_LIBS ON)
 
 add_subdirectory(third_party)
 
-# Local windows development is for some reason more finnicky to setup with the very latest
-# zlib/png. For now, use older versions locally.
-if(MSVC AND NOT (DEFINED ENV{CI} OR ZC_OFFICIAL) AND NOT ZLIB_LIBRARIES)
-	FetchContent_Declare(
-		zlib
-		GIT_REPOSITORY
-			https://github.com/Mizux/zlib.git
-		GIT_TAG
-			19d7d6b32ee3af4ed4bdec415f42f518c93b5025
-		EXCLUDE_FROM_ALL
-	)
-	FetchContent_MakeAvailable(zlib)
-
-	if(NOT ZLIB_LIBRARIES)
-		set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
-		set(ZLIB_LIBRARY ZLIB::ZLIB)
-		set(ZLIB_LIBRARIES ZLIB::ZLIB)
-	endif()
-
-	FetchContent_Declare(
-		png
-		GIT_REPOSITORY
-			https://github.com/glennrp/libpng.git
-		GIT_TAG
-			v1.6.38
-		EXCLUDE_FROM_ALL
-	)
-	set(PNG_BUILD_ZLIB ON CACHE BOOL "")
-	set(PNG_STATIC OFF CACHE BOOL "")
-	set(PNG_TESTS OFF CACHE BOOL "")
-	FetchContent_MakeAvailable(png)
-
-	if(NOT PNG_LIBRARIES)
-		set(PNG_LIBRARIES png)
-		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
-		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
-	endif()
-
-	list(APPEND ZC_INSTALL_TARGETS ${PNG_LIBRARIES})
-elseif(NOT EMSCRIPTEN)
-	FetchContent_Declare(
-		zlib
-		GIT_REPOSITORY
-			https://github.com/madler/zlib.git
-		GIT_TAG
-			v1.3.1
-		EXCLUDE_FROM_ALL
-	)
-	FetchContent_MakeAvailable(zlib)
-
+if(NOT EMSCRIPTEN)
 	FetchContent_Declare(
 		png
 		GIT_REPOSITORY
@@ -207,7 +159,6 @@ elseif(NOT EMSCRIPTEN)
 			v1.6.47
 		EXCLUDE_FROM_ALL
 	)
-	set(ZLIB_ROOT "${zlib_SOURCE_DIR}" CACHE INTERNAL "Root for the zlib library, used by libpng")
 	set(PNG_STATIC OFF CACHE INTERNAL BOOL "")
 	set(PNG_TESTS OFF CACHE INTERNAL BOOL "")
 	FetchContent_MakeAvailable(png)
@@ -218,7 +169,7 @@ elseif(NOT EMSCRIPTEN)
 		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
 	endif()
 
-	list(APPEND ZC_INSTALL_TARGETS ${ZLIB_LIBRARIES} ${PNG_LIBRARIES})
+	list(APPEND ZC_INSTALL_TARGETS ${PNG_LIBRARIES})
 endif()
 
 FetchContent_Declare(json
