@@ -1660,6 +1660,9 @@ GUI::ListData instructionRulesList
 	{ "Broken DrawInteger and DrawCharacter Scaling", qr_BROKENCHARINTDRAWING },
 	{ "'DrawCombo' ignores the 'frame' parameter", qr_DRAWCOMBO_IGNORES_FRAME,
 		"If checked, the 'DrawCombo' function will always treat the value of 'frame' as '-1'." },
+	{ "'DrawTile' tall draws wrap poorly", qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY,
+		"If checked, 'DrawTile' draws taller than 1 tile will wrap each tile to the next row,"
+		" instead of wrapping the entire block to the row after the block." },
 	{ "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES },
 	{ "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE },
 	{ "Don't allow overwriting hopping action", qr_NO_OVERWRITING_HOPPING },
@@ -1799,6 +1802,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
 				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
 				qr_OLD_BROKEN_WARPEX_MUSIC, qr_OLD_HERO_WARP_RETSQUARE, qr_DRAWCOMBO_IGNORES_FRAME,
+				qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY,
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);

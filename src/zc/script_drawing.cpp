@@ -1156,6 +1156,7 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
+	byte skiprows = get_qr(qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY) ? 0 : h-1;
     
     //don't scale if it's not safe to do so
     bool canscale = true;
@@ -1174,11 +1175,11 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         
         if(transparency) //transparency
         {
-            TileHelper::OverTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip);
+            TileHelper::OverTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip, skiprows);
         }
         else //no transparency
         {
-            TileHelper::OldPutTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip);
+            TileHelper::OldPutTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip, skiprows);
         }
         
         if(rotation != 0)
@@ -1267,16 +1268,16 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         if(transparency)
         {
             if(opacity<=127)
-                TileHelper::OverTileTranslucent(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, opacity);
+                TileHelper::OverTileTranslucent(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, opacity, skiprows);
             else
-                TileHelper::OverTile(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip);
+                TileHelper::OverTile(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, skiprows);
         }
         else
         {
             if(opacity<=127)
-                TileHelper::PutTileTranslucent(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, opacity);
+                TileHelper::PutTileTranslucent(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, opacity, skiprows);
             else
-                TileHelper::OldPutTile(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip);
+                TileHelper::OldPutTile(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, skiprows);
         }
     }
 }
@@ -1303,8 +1304,9 @@ void do_drawtilecloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yo
 	
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
+	byte skiprows = get_qr(qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY) ? 0 : h-1;
 	
-	TileHelper::OverTileCloaked(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, flip);
+	TileHelper::OverTileCloaked(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
 
 
@@ -4603,6 +4605,7 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
+	byte skiprows = get_qr(qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY) ? 0 : h-1;
     
     
     //don't scale if it's not safe to do so
@@ -4624,11 +4627,11 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
         
         if(transparency) //transparency
         {
-            TileHelper::OverTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip);
+            TileHelper::OverTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip, skiprows);
         }
         else //no transparency
         {
-            TileHelper::OldPutTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip);
+            TileHelper::OldPutTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip, skiprows);
         }
         
         if(rotation != 0)
@@ -4717,16 +4720,16 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
         if(transparency)
         {
             if(opacity<=127)
-                TileHelper::OverTileTranslucent(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, opacity);
+                TileHelper::OverTileTranslucent(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, opacity, skiprows);
             else
-                TileHelper::OverTile(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip);
+                TileHelper::OverTile(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, skiprows);
         }
         else
         {
             if(opacity<=127)
-                TileHelper::PutTileTranslucent(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, opacity);
+                TileHelper::PutTileTranslucent(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, opacity, skiprows);
             else
-                TileHelper::OldPutTile(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip);
+                TileHelper::OldPutTile(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, color, flip, skiprows);
         }
     }
 }
@@ -4763,10 +4766,11 @@ void bmp_do_drawtilecloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
+	byte skiprows = get_qr(qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY) ? 0 : h-1;
 		
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-	TileHelper::OverTileCloaked(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, flip);
+	TileHelper::OverTileCloaked(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
 
 

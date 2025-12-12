@@ -3471,6 +3471,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (tempheader.compareVer(2, 55, 13) < 0)
 	{
 		set_qr(qr_DRAWCOMBO_IGNORES_FRAME, 1);
+		set_qr(qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY, 1);
 	}
 
 	*Header = tempheader;
