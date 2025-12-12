@@ -1346,7 +1346,10 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     
     auto& c = GET_DRAWING_COMBO(cmb);
 	if(c.animflags & AF_EDITOR_ONLY) return;
-    int32_t tiletodraw = combo_tile(c, x1, y1);
+	int frame = sdci[13] / 10000;
+	if (get_qr(qr_DRAWCOMBO_IGNORES_FRAME))
+		frame = -1;
+    int32_t tiletodraw = combo_tile(c, x1, y1, frame);
     int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
     int32_t skiprows=c.skipanimy;
     
@@ -4807,7 +4810,11 @@ void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
     
     auto& c = GET_DRAWING_COMBO(cmb);
 	if(c.animflags & AF_EDITOR_ONLY) return;
-    int32_t tiletodraw = combo_tile(c, x1, y1);
+	int frame = sdci[13] / 10000;
+	if (get_qr(qr_DRAWCOMBO_IGNORES_FRAME))
+		frame = -1;
+    int32_t tiletodraw = combo_tile(c, x1, y1, frame);
+		
     int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
     int32_t skiprows=c.skipanimy;
     

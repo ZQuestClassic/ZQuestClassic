@@ -1328,7 +1328,7 @@ class screendata {
 	internal void DrawCombo(int layer, int x, int y, int combo, int w,
 							int h, int cset, int xscale = -1, int yscale = -1,
 							int rx = 0, int ry = 0, int rot_degrees = 0,
-							int frame = 0, int flip = 0, bool transparency = true,
+							int frame = -1, int flip = 0, bool transparency = true,
 							int opacity = OP_OPAQUE);
 
 	// As DrawCombo(), but draws with a cloaked effect.
