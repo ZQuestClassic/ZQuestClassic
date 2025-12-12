@@ -378,8 +378,7 @@ if(DEFINED ENV{CI} OR ZC_OFFICIAL)
 	if(NOT "mp3.c" IN_LIST ALLEGRO_CODEC_SOURCES)
 		message(FATAL_ERROR "Missing support for MP3")
 	endif()
-	# TODO: why not working for web build in CI?
-	if(NOT EMSCRIPTEN AND NOT "dumb.c" IN_LIST ALLEGRO_CODEC_SOURCES)
+	if(NOT "dumb.c" IN_LIST ALLEGRO_CODEC_SOURCES)
 		message(FATAL_ERROR "Missing support for DUMB")
 	endif()
 
