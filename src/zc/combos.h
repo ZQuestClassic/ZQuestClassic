@@ -238,22 +238,26 @@ namespace combo_caches
 
 	struct minicombo_drawing
 	{
+		int32_t o_tile;
 		int32_t tile;
 		byte csets;
 		byte flip;
 		byte type;
 		byte frames;
+		byte skipanim;
 		byte skipanimy;
 		byte animflags;
 
 		minicombo_drawing() = default;
 		minicombo_drawing(const newcombo& combo)
 		{
+			o_tile = combo.o_tile;
 			tile = combo.tile;
 			csets = combo.csets;
 			flip = combo.flip;
 			type = combo.type;
 			frames = combo.frames;
+			skipanim = combo.skipanim;
 			skipanimy = combo.skipanimy;
 			animflags = combo.animflags;
 		}

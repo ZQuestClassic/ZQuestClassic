@@ -3569,6 +3569,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE, 1);
 	if (compatrule_version < 96)
 		set_qr(qr_ACTIVE_SUB_IGNORE_8PX, 1);
+	if (compatrule_version < 97)
+		set_qr(qr_DRAWCOMBO_IGNORES_FRAME, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
