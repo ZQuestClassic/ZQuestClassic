@@ -24,15 +24,14 @@ def run_zc_command(binaries, args):
 
     args2 = []
     for arg in args:
-        arg = arg.replace('%zc', f'"{binaries["zc"]}"')
-        arg = arg.replace('%zq', f'"{binaries["zq"]}"')
-        arg = arg.replace('%zl', f'"{binaries["zl"]}"')
-        arg = arg.replace('%zs', f'"{binaries["zs"]}"')
+        arg = arg.replace('%zc', str(binaries["zc"]))
+        arg = arg.replace('%zq', str(binaries["zq"]))
+        arg = arg.replace('%zl', str(binaries["zl"]))
+        arg = arg.replace('%zs', str(binaries["zs"]))
         args2.append(arg)
 
     print(f'running command: {shlex.join(args2)}')
-    shell = True if platform.system() == 'Windows' else args2[0] != 'bash'
-    return subprocess.Popen(args2, cwd=cwd, shell=shell)
+    return subprocess.Popen(args2, cwd=cwd, shell=False)
 
 
 def find_path(dir: Path, one_of: list[str]):

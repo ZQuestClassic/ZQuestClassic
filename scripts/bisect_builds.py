@@ -88,7 +88,11 @@ def AskIsGoodBuild():
 
 def check_revision(revision: Revision):
     print(f'checking {revision}')
-    binaries = revision.binaries(args.platform)
+    try:
+        binaries = revision.binaries(args.platform)
+    except:
+        print('could not find binaries, skipping')
+        return 'u'
 
     if not binaries:
         answer = 'u'
