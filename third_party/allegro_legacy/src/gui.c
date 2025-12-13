@@ -2407,6 +2407,7 @@ int alert3(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST cha
    clear_keybuf();
 
    do {
+      rest(1);
    } while (gui_mouse_b());
 
    c = popup_dialog(alert_dialog, A_B1);

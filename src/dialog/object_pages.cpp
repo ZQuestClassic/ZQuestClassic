@@ -284,7 +284,7 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 	draw_info();
 	update_hw_screen();
 	
-	while(gui_mouse_b()) ;
+	while(gui_mouse_b()) rest(1);
 	int done = 0;
 	bool bdown = false;
 	

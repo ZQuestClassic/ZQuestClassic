@@ -2160,7 +2160,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	zc_set_palette(tpal);
 	draw_edit_scr(tile,flip,cs,oldtile, true);
 	anim_hw_screen();
-	while(gui_mouse_b()) ; // wait
+	while(gui_mouse_b()) rest(1);
 	
 	move_origin_x=-1;
 	move_origin_y=-1;
@@ -3198,7 +3198,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	unfloat_selection();
 	clear_selection_grid();
 	
-	while(gui_mouse_b()) ; // wait
+	while(gui_mouse_b()) rest(1);
 	
 	if(done==1)
 	{
@@ -4864,7 +4864,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 	draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
 	grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
 	
-	while(gui_mouse_b()) ; // wait
+	while(gui_mouse_b()) rest(1);
 	
 	do
 	{
@@ -8955,7 +8955,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	
 	go_tiles();
 	
-	while(gui_mouse_b()) ; // wait
+	while(gui_mouse_b()) rest(1);
 	
 	bool bdown=false;
 	
@@ -9924,7 +9924,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				}
 				else if(dclick_status == DCLICK_AGAIN)
 				{
-					while(gui_mouse_b()) ; // wait
+					while(gui_mouse_b()) rest(1);
 					
 					if(((y>>(5))*TILES_PER_ROW + (x>>(5)) + first)!=t)
 					{
@@ -10341,7 +10341,7 @@ REDRAW:
 	}
 	while(!done);
 	
-	while(gui_mouse_b()) ; // wait
+	while(gui_mouse_b()) rest(1);
 	
 	comeback();
 	register_blank_tiles();
@@ -10719,7 +10719,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	combo_info(cmb,tile2,cs,copy,copycnt,page,4);
 	anim_hw_screen();
 	
-	while(gui_mouse_b()) ; // wait
+	while(gui_mouse_b()) rest(1);
 	
 	bool bdown=false;
 	int otl = cmb, otl2 = tile2;
@@ -10860,7 +10860,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				}
 				else if(dclick_status == DCLICK_AGAIN)
 				{
-					while(gui_mouse_b()) ; // wait
+					while(gui_mouse_b()) rest(1);
 					
 					t2 = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
 					
@@ -10981,7 +10981,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	}
 	while(!done);
 	
-	while(gui_mouse_b()) ; // wait
+	while(gui_mouse_b()) rest(1);
 	
 	comeback();
 	setup_combo_animations();
@@ -11096,7 +11096,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	go_combos();
 	position_mouse_z(0);
 	
-	while(gui_mouse_b()) ; // wait
+	while(gui_mouse_b()) rest(1);
 	
 	bool bdown=false;
 	int otl = tile, otl2 = tile2;
@@ -11469,7 +11469,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				}
 				else if(dclick_status == DCLICK_AGAIN)
 				{
-					while(gui_mouse_b()) ; // wait
+					while(gui_mouse_b()) rest(1);
 					
 					t2 = ((x>>6)*52) + ((x>>4)&3) + ((y>>4)<<2);
 					
@@ -11799,7 +11799,7 @@ REDRAW:
 	}
 	while(!done);
 	
-	while(gui_mouse_b()) ; // wait
+	while(gui_mouse_b()) rest(1);
 	comeback();
 	setup_combo_animations();
 	setup_combo_animations2();

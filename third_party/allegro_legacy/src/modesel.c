@@ -635,7 +635,7 @@ int gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth, FILTER_F
 
    extd = color_depth ? TRUE : FALSE;
 
-   while (gui_mouse_b());
+   while (gui_mouse_b()) rest(1);
 
    what_dialog = extd ? gfx_mode_ex_dialog : gfx_mode_dialog;
 
