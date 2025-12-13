@@ -26,6 +26,7 @@ set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(WANT_ZC_TESTS TRUE CACHE BOOL "Build tests")
 set(WANT_VENDORED_ZLIB TRUE CACHE BOOL "Build the vendored library at third_party/zlib")
+set(WANT_VENDORED_LIBPNG TRUE CACHE BOOL "Build the vendored library at third_party/libpng")
 set(WANT_VENDORED_DUMB TRUE CACHE BOOL "Build the vendored library at third_party/dumb")
 set(WANT_VENDORED_LIBJPEG_TURBO TRUE CACHE BOOL "Build the vendored library at third_party/libjpeg_turbo")
 set(JIT_BACKEND "default" CACHE STRING "One of: default, x64, wasm, none")
@@ -149,28 +150,6 @@ set(ZC_INSTALL_TARGETS "")
 set(BUILD_SHARED_LIBS ON)
 
 add_subdirectory(third_party)
-
-if(NOT EMSCRIPTEN)
-	FetchContent_Declare(
-		png
-		GIT_REPOSITORY
-			https://github.com/pnggroup/libpng
-		GIT_TAG
-			v1.6.47
-		EXCLUDE_FROM_ALL
-	)
-	set(PNG_STATIC OFF CACHE INTERNAL BOOL "")
-	set(PNG_TESTS OFF CACHE INTERNAL BOOL "")
-	FetchContent_MakeAvailable(png)
-
-	if(NOT PNG_LIBRARIES)
-		set(PNG_LIBRARIES png_shared)
-		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
-		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
-	endif()
-
-	list(APPEND ZC_INSTALL_TARGETS ${PNG_LIBRARIES})
-endif()
 
 FetchContent_Declare(json
 	URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
@@ -502,13 +481,10 @@ add_library(alpng STATIC
 )
 target_link_libraries(alpng PUBLIC
 	allegro_with_legacy
-	${PNG_LIBRARIES}
+	PNG::PNG
 )
 target_include_directories(alpng PUBLIC
 	third_party/al_loadpng
-)
-target_include_directories(alpng PRIVATE
-	${PNG_INCLUDE_DIRS}
 )
 list(APPEND IMAGELIBS alpng)
 
