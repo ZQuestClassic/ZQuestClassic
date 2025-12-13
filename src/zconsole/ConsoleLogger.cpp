@@ -563,10 +563,8 @@ int32_t CConsoleLogger::Close(void)
 //////////////////////////////////////////////////////////////////////////
 inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 {
-#ifdef __EMSCRIPTEN__
-	::printf("%s", lpszText);
-#else
-	al_append_native_text_log(m_textlog, "%s", lpszText);
+#ifndef __EMSCRIPTEN__
+	if (m_textlog) al_append_native_text_log(m_textlog, "%s", lpszText);
 #endif
 	return 0;
 }
@@ -574,7 +572,7 @@ inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 bool CConsoleLogger::valid()
 {
 #ifdef __EMSCRIPTEN__
-	return 1;
+	return 0;
 #else
 	return m_textlog != NULL;
 #endif
@@ -595,10 +593,8 @@ int32_t CConsoleLogger::printf(const char *format,...)
 	
 	va_end(argList);
 	
-#ifdef __EMSCRIPTEN__
-	::printf("%s", tmp);
-#else
-	al_append_native_text_log(m_textlog, "%s", tmp);
+#ifndef __EMSCRIPTEN__
+	if (m_textlog) al_append_native_text_log(m_textlog, "%s", tmp);
 #endif
 	return ret;
 }
@@ -702,21 +698,16 @@ int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 	
 	va_end(argList);
 
-#ifdef __EMSCRIPTEN__
-	::printf("%s", tmp);
-#else
-	al_append_native_text_log(m_textlog, "%s", tmp);
+#ifndef __EMSCRIPTEN__
+	if (m_textlog) al_append_native_text_log(m_textlog, "%s", tmp);
 #endif
 	return ret;
 }
 int32_t CConsoleLoggerEx::safeprint(int32_t attributes,const char *str)
 {
 	int32_t sz = strlen(str);
-
-#ifdef __EMSCRIPTEN__
-	::printf("%s", str);
-#else
-	al_append_native_text_log(m_textlog, "%s", str);
+#ifndef __EMSCRIPTEN__
+	if (m_textlog) al_append_native_text_log(m_textlog, "%s", str);
 #endif
 	return sz;
 }
@@ -735,22 +726,17 @@ int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 	tmp[vbound(ret,0,1023)]=0;
 	
 	va_end(argList);
-	
-#ifdef __EMSCRIPTEN__
-	::printf("%s", tmp);
-#else
-	al_append_native_text_log(m_textlog, "%s", tmp);
+
+#ifndef __EMSCRIPTEN__
+	if (m_textlog) al_append_native_text_log(m_textlog, "%s", tmp);
 #endif
 	return ret;
 }
 int32_t CConsoleLoggerEx::safeprint(const char *str)
 {
 	int32_t sz = strlen(str);
-
-#ifdef __EMSCRIPTEN__
-	::printf("%s", str);
-#else
-	al_append_native_text_log(m_textlog, "%s", str);
+#ifndef __EMSCRIPTEN__
+	if (m_textlog) al_append_native_text_log(m_textlog, "%s", str);
 #endif
 	return sz;
 }

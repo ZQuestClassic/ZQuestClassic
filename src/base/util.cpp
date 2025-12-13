@@ -1125,7 +1125,10 @@ FILE * trace_file;
 
 int32_t zc_trace_handler(const char * msg)
 {
-    // printf("%s", msg);
+#ifndef _WIN32
+	printf("%s", msg);
+#endif
+
     if(trace_file == 0)
     {
         if (getenv("ALLEGRO_LEGACY_TRACE"))

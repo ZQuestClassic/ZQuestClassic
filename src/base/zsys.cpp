@@ -224,35 +224,29 @@ char datapwd[8]   = "longtan";
     va_start(ap, format);
     vsnprintf(buf, 256, format, ap);
     va_end(ap);
-    
-#if defined(ALLEGRO_MAXOSX)
-    printf("%s",buf);
-#endif
+
+    zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+	al_trace("%s",buf);
+	zapp_reporting_add_breadcrumb("error_fatal", buf);
 #ifndef __EMSCRIPTEN__
     if (!zscript_coloured_console.valid() && !is_headless())
     {
         al_show_native_message_box(all_get_display(), "ZQuest Classic: I AM ERROR", "", buf, NULL, ALLEGRO_MESSAGEBOX_ERROR);
     }
 #endif
-    zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
-	al_trace("%s",buf);
-	zapp_reporting_add_breadcrumb("error_fatal", buf);
     abort();
 }
 
 void Z_error(const char *format,...)
 {
     char buf[256];
-    
+
     va_list ap;
     va_start(ap, format);
     vsnprintf(buf, 256, format, ap);
     va_end(ap);
-    
-#if defined(ALLEGRO_MAXOSX)
-    printf("%s",buf);
-#endif
+
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
 	zapp_reporting_add_breadcrumb("error", buf);
@@ -262,15 +256,12 @@ void Z_error(const char *format,...)
 void Z_message(const char *format,...)
 {
     char buf[2048];
-    
+
     va_list ap;
     va_start(ap, format);
     vsnprintf(buf, 2048, format, ap);
     va_end(ap);
-    
-#if defined(ALLEGRO_MAXOSX)
-    printf("%s",buf);
-#endif
+
     al_trace("%s",buf);
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
