@@ -912,10 +912,12 @@ MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename
 	}
 	else
 	{
+		errno = 0;
 		FILE* f = fopen(filename, "rb");
 		if (!f) 
 		{
 			result.not_found = true;
+			Z_message("Unable to open file: %s - %s\n", filename, strerror(errno));
 			return result;
 		}
 		if (!fread(id, sizeof(char), sizeof(id)-1, f))
