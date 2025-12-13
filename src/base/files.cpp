@@ -94,12 +94,28 @@ enum class FileMode
 static std::optional<std::string> open_native_dialog_impl(FileMode mode, std::string initial_path, std::vector<nfdfilteritem_t> filters)
 {
 #ifdef _WIN32
-	// Note: on Windows the last folder used is always the initial path - see https://github.com/btzy/nativefiledialog-extended/issues/132#issuecomment-1993512443
-	// It also doesn't like paths of the form `./tilesets` (the leading `./`), and must be an absolute path if set ... for now lets just ignore this thing
-	// entirely on Windows.
-	// At least with NFD, there's no way to simply "open at this folder" due to this behavior.
-	fs::path current_path = fs::current_path();
-	std::string initial_path_str = current_path.string();
+	// Windows NFD requires absolute paths.
+	std::string initial_path_str;
+
+	if (initial_path.empty())
+	{
+		initial_path_str = fs::current_path().string();
+	}
+	else
+	{
+		try
+		{
+			// fs::weakly_canonical does two things:
+			// 1. Makes the path absolute (resolving against current_path)
+			// 2. Normalizes the path (removes "./", "../")
+			// It does not require the file to exist (unlike fs::canonical)
+			initial_path_str = fs::weakly_canonical(fs::path(initial_path)).string();
+		}
+		catch (const fs::filesystem_error&)
+		{
+			initial_path_str = fs::current_path().string();
+		}
+	}
 	const char* initial_path_ = initial_path_str.c_str();
 #else
 	const char* initial_path_ = initial_path.c_str();
