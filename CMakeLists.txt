@@ -58,7 +58,9 @@ find_program(PYTHON python3 python REQUIRED)
 if(MSVC)
 	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} /fsanitize=address /Zi" CACHE STRING "" FORCE)
 	set(CMAKE_C_FLAGS_ASAN "${CMAKE_C_FLAGS_DEBUG} /fsanitize=address /Zi" CACHE STRING "" FORCE)
-	set(CMAKE_EXE_LINKER_FLAGS_ASAN "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /fsanitize=address /Zi" CACHE STRING "" FORCE)
+	set(CMAKE_EXE_LINKER_FLAGS_ASAN "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /fsanitize=address /DEBUG" CACHE STRING "" FORCE)
+	set(CMAKE_SHARED_LINKER_FLAGS_ASAN "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /fsanitize=address /DEBUG" CACHE STRING "" FORCE)
+	set(CMAKE_MODULE_LINKER_FLAGS_ASAN "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} /fsanitize=address /DEBUG" CACHE STRING "" FORCE)
 else()
 	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
 	set(CMAKE_C_FLAGS_ASAN "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
@@ -1274,4 +1276,26 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 
 	# The sound system has a known memory issue, so for now set the default debugging args to disable sound.
 	set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_COMMAND_ARGUMENTS "$<$<CONFIG:ASAN>:-s>")
+endif()
+
+# Without this, the ASAN config on Windows won't place libcurl/zlib dlls in the right place.
+if(WIN32 AND (DEFINED VCPKG_TOOLCHAIN_FILE OR DEFINED VCPKG_TARGET_TRIPLET))
+	# Figure out where vcpkg put the debug dlls.
+	get_target_property(CURL_DEBUG_DLL CURL::libcurl IMPORTED_LOCATION_DEBUG)
+
+	# If the property returns the .lib (common on Windows), we need to swap extensions
+	# or just assume the standard vcpkg layout.
+	# Standard vcpkg layout is safest:
+	get_filename_component(VCPKG_DEBUG_BIN_DIR "${CURL_DEBUG_DLL}" DIRECTORY)
+
+	# Add a manual copy command for the Asan config.
+	foreach(target ${zc_targets})
+		add_custom_command(TARGET ${target} POST_BUILD
+			COMMAND $<$<CONFIG:Asan>:${CMAKE_COMMAND}> -E copy_if_different
+				"${VCPKG_DEBUG_BIN_DIR}/libcurl-d.dll"
+				"${VCPKG_DEBUG_BIN_DIR}/zlibd1.dll"
+				"$<TARGET_FILE_DIR:zplayer>"
+			COMMENT "Manually copying vcpkg Debug DLLs for Asan build"
+		)
+	endforeach()
 endif()
