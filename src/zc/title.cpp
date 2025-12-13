@@ -939,6 +939,7 @@ bool prompt_for_quest_path(std::string current_qstpath)
 	bool jump_to_file_select = false;
 	if (current_qstpath.empty())
 	{
+		sprintf(qstpath, "%s", qstdir);
 		jump_to_file_select = true;
 	}
 	else if (is_relative_filename(current_qstpath.c_str()))
