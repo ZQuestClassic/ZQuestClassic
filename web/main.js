@@ -447,7 +447,7 @@ async function renderQuestList() {
     if (quest.images.length > 0) setCurImage(quest.images[0]);
 
     const release = quest.releases[0];
-    const qsts = release.resources.filter(r => r.endsWith('.qst'));
+    const qsts = release.resources.filter(r => r.toLowerCase().endsWith('.qst'));
     for (const resource of qsts) {
       // Only set `name` query param, which doesn't do anything, when making a link for
       // a quest that only has a single qst file. Otherwise, to disambiguate use the entire
