@@ -35,6 +35,70 @@ if(WANT_VENDORED_ZLIB)
 	set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib/include" CACHE STRING "" FORCE)
 	set(ZLIB_INCLUDE_DIRS "${ZLIB_INCLUDE_DIR}" CACHE STRING "" FORCE)
 	add_library(ZLIB::ZLIB ALIAS zlib)
+else()
+	find_package(ZLIB REQUIRED)
+endif()
+
+if(WANT_VENDORED_LIBPNG)
+	configure_file(
+		"${CMAKE_CURRENT_SOURCE_DIR}/libpng/scripts/pnglibconf.h.prebuilt"
+		"${CMAKE_CURRENT_BINARY_DIR}/pnglibconf.h"
+		COPYONLY
+	)
+
+	add_library(png STATIC
+		libpng/src/png.c
+		libpng/src/pngerror.c
+		libpng/src/pngget.c
+		libpng/src/pngmem.c
+		libpng/src/pngpread.c
+		libpng/src/pngread.c
+		libpng/src/pngrio.c
+		libpng/src/pngrtran.c
+		libpng/src/pngrutil.c
+		libpng/src/pngset.c
+		libpng/src/pngtrans.c
+		libpng/src/pngwio.c
+		libpng/src/pngwrite.c
+		libpng/src/pngwtran.c
+		libpng/src/pngwutil.c
+	)
+	if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+		target_sources(png PRIVATE
+			libpng/src/intel/intel_init.c
+			libpng/src/intel/filter_sse2_intrinsics.c
+		)
+		target_compile_definitions(png PUBLIC PNG_INTEL_SSE)
+	elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm|ARM|aarch64|AARCH64)")
+		target_sources(png PRIVATE
+			libpng/src/arm/arm_init.c
+			libpng/src/arm/filter_neon_intrinsics.c
+			libpng/src/arm/palette_neon_intrinsics.c
+		)
+		target_compile_definitions(png PRIVATE PNG_ARM_NEON)
+	else()
+		message(FATAL_ERROR "Unsupported processor: ${CMAKE_SYSTEM_PROCESSOR}")
+	endif()
+	target_include_directories(png PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libpng/src>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+		$<INSTALL_INTERFACE:include/png>
+	)
+
+	target_link_libraries(png PUBLIC ZLIB::ZLIB)
+
+	install(TARGETS png EXPORT AllegroTargets COMPONENT BuildOnly EXCLUDE_FROM_ALL)
+	set_target_properties(png PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+	add_library(PNG::PNG ALIAS png)
+
+	set(PNG_FOUND TRUE CACHE BOOL "" FORCE)
+	set(PNG_LIBRARIES PNG::PNG CACHE STRING "" FORCE)
+	set(PNG_LIBRARY PNG::PNG CACHE STRING "" FORCE)
+	set(PNG_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/libpng/src;${CMAKE_CURRENT_BINARY_DIR}" CACHE STRING "" FORCE)
+	set(PNG_PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libpng/src" CACHE STRING "" FORCE)
+else()
+	find_package(PNG REQUIRED)
 endif()
 
 if(WANT_VENDORED_DUMB)
