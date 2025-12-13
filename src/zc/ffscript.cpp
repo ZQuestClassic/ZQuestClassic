@@ -28762,7 +28762,6 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	initIncludePaths();
 	//clearRunningItemScripts();
 	ScrollingScreensAll.clear();
 	memset(ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
@@ -29737,56 +29736,12 @@ void FFScript::do_eweapon_delete()
 
 void FFScript::updateIncludePaths()
 {
-	includePaths.clear();
-	int32_t pos = 0;
-	for ( int32_t q = 0; includePathString[pos]; ++q )
-	{
-		int32_t dest = 0;
-		char buf[2048] = {0};
-		while(includePathString[pos] != ';' && includePathString[pos])
-		{
-			buf[dest] = includePathString[pos];
-			++pos;
-			++dest;
-		}
-		++pos;
-		std::string str(buf);
-		includePaths.push_back(str);
-	}
+	// TODO: remove this from FFScript - must also remove ffscript.h being used in ./src/zq
 }
 
 void FFScript::initIncludePaths()
 {
-	memset(includePathString,0,sizeof(includePathString));
-	FILE* f = fopen("includepaths.txt", "r");
-	if(f)
-	{
-		int32_t pos = 0;
-		int32_t c;
-		do
-		{
-			c = fgetc(f);
-			if(c!=EOF) 
-				includePathString[pos++] = c;
-		}
-		while(c!=EOF && pos<MAX_INCLUDE_PATH_CHARS);
-		if(pos<MAX_INCLUDE_PATH_CHARS)
-			includePathString[pos] = '\0';
-		includePathString[MAX_INCLUDE_PATH_CHARS-1] = '\0';
-		fclose(f);
-	}
-	else strcpy(includePathString, "include/;headers/;scripts/;");
-	al_trace("Full path string is: ");
-	safe_al_trace(includePathString);
-	al_trace("\n");
-	updateIncludePaths();
-
-	for ( size_t q = 0; q < includePaths.size(); ++q )
-	{
-		al_trace("Include path %zu: ",q);
-		safe_al_trace(includePaths.at(q));
-		al_trace("\n");
-	}
+	// TODO: remove this from FFScript - must also remove ffscript.h being used in ./src/zq
 }
 
 bool FFScript::checkExtension(std::string &filename, const std::string &extension)
