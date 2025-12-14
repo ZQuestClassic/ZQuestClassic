@@ -992,9 +992,8 @@ bool prompt_for_quest_path(std::string current_qstpath)
 		
 		if (auto result = prompt_for_existing_file("Load Quest", "", list, qstpath))
 		{
-			std::string path = *result;
+			strcpy(qstpath, result->c_str());
 			chose_quest = true;
-			replace_extension(qstpath,path.data(),"qst",2047);
 			gamemode_dlg[2].dp = get_filename(qstpath);
 			
 			if(get_quest_info(&h,infostr)==0)
