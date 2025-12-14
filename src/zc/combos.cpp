@@ -1376,12 +1376,6 @@ bool trigger_stepfx(const combined_handle_t& handle, bool stepped)
 	int32_t thesfx = cmb.attribytes[0];
 	sfx_no_repeat(thesfx,pan(tx));
 
-	if (handle.is_rpos())
-	{
-		tx += 8;
-		ty += 8;
-	}
-
 	if ( cmb.usrflags&cflag1) //landmine
 	{
 		int32_t wpn = cmb.attribytes[1];
