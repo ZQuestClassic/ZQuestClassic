@@ -1675,11 +1675,11 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									width = 1.5_em, padding = 0_px, forceFitH = true,
 									text = "P", hAlign = 1.0, onPressFunc = [&]()
 									{
-										auto flags = local_ref.req_screen_state;
+										auto flags = local_ref.req_screen_ex_state;
 										auto& states = GUI::ZCCheckListData::ex_state();
 										if(!call_checklist_dialog("Select 'Req ExStates'",states,flags,8))
 											return;
-										local_ref.req_screen_state = flags;
+										local_ref.req_screen_ex_state = flags;
 									}
 								),
 								IBTN("These screen ExStates must be set for this trigger to activate."
@@ -1690,11 +1690,11 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									width = 1.5_em, padding = 0_px, forceFitH = true,
 									text = "P", hAlign = 1.0, onPressFunc = [&]()
 									{
-										auto flags = local_ref.unreq_screen_state;
+										auto flags = local_ref.unreq_screen_ex_state;
 										auto& states = GUI::ZCCheckListData::ex_state();
 										if(!call_checklist_dialog("Select 'Unreq ExStates'",states,flags,8))
 											return;
-										local_ref.unreq_screen_state = flags;
+										local_ref.unreq_screen_ex_state = flags;
 									}
 								),
 								IBTN("These screen ExStates must NOT be set for this trigger to activate."
