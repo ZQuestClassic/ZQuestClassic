@@ -1,4 +1,5 @@
 import os
+import shlex
 import shutil
 import subprocess
 import traceback
@@ -7,6 +8,7 @@ import zipfile
 from pathlib import Path
 
 import archives
+import boto3
 import git_helpers
 
 from archives import Revision
@@ -16,10 +18,10 @@ root_dir = script_dir.parent
 
 
 def run_command(args: list[str], **kwargs):
+    print(f'running command: {shlex.join(args)}')
     p = subprocess.run(args, capture_output=True, encoding='utf-8', **kwargs)
     if p.returncode != 0:
-        cmd = ' '.join(args)
-        raise Exception(f'Failed command {cmd}\n\n{p.stdout}')
+        raise Exception(f'Failed command\n\n{p.stdout}\n\n{p.stderr}')
 
 
 def local_build_error(revision: Revision):
@@ -95,59 +97,57 @@ def build_locally(revision: Revision, release_platform: str):
         return dest
 
     print(f'building locally: {revision}')
-    local_build_working_dir = root_dir / '.tmp/local_build_working_dir'
+    local_build_work_tree = root_dir / '.tmp/local_build_worktree'
 
     # Not sure this can be cherry-picked within this range, so just skip for now.
     if (
-        archives.get_release_commit_count('0f162d21d47cec49da6276120959be8393c4f80a')
+        archives.get_release_commit_count_main(
+            '0f162d21d47cec49da6276120959be8393c4f80a'
+        )
         <= revision.commit_count
-        < archives.get_release_commit_count('68fd510de75f14b57221e677c7b361df3dee493c')
+        < archives.get_release_commit_count_main(
+            '68fd510de75f14b57221e677c7b361df3dee493c'
+        )
     ):
         raise Exception('cannot build this range')
 
     # Don't know how to build before cmake.
-    if revision.commit_count < archives.get_release_commit_count(
+    if revision.commit_count < archives.get_release_commit_count_main(
         '43313872ea176fa01a015bc09b30cbb6ea638fde'
     ):
         raise Exception('cannot build makefile')
 
-    if not local_build_working_dir.exists():
-        local_build_working_dir.mkdir(parents=True)
-        print('cloning repo ... this will take awhile')
+    if not local_build_work_tree.exists():
+        print('creating git worktree')
         run_command(
             [
                 'git',
-                'clone',
-                'https://github.com/ZQuestClassic/ZQuestClassic.git',
-                local_build_working_dir,
+                'worktree',
+                'add',
+                str(local_build_work_tree),
             ]
         )
-    else:
-        run_command(['git', 'fetch'], cwd=local_build_working_dir)
 
-    run_command(f'git checkout -- .'.split(' '), cwd=local_build_working_dir)
-    run_command(f'git clean -fd'.split(' '), cwd=local_build_working_dir)
-    run_command(
-        f'git checkout -f {revision.tag}'.split(' '), cwd=local_build_working_dir
-    )
+    run_command(f'git clean -fd'.split(' '), cwd=local_build_work_tree)
+    run_command(f'git checkout -f {revision.tag}'.split(' '), cwd=local_build_work_tree)
 
     # TODO Before cmake, the makefile was garbage ...
-    if not (local_build_working_dir / 'CMakeLists.txt').exists():
+    if not (local_build_work_tree / 'CMakeLists.txt').exists():
         raise Exception('too old')
 
     supports_64bit = (
-        'libs/win32' not in (local_build_working_dir / 'CMakeLists.txt').read_text()
+        'libs/win32' not in (local_build_work_tree / 'CMakeLists.txt').read_text()
     )
     if not supports_64bit:
         if not release_platform == 'windows':
             raise Exception('unsupported')
 
     how_to_package = None
-    if (local_build_working_dir / 'packaging'):
-        how_to_package = 'cpack'
-    elif (local_build_working_dir / 'scripts/package.py').exists():
+    if (local_build_work_tree / 'packaging').exists():
+        how_to_package = 'install'
+    elif (local_build_work_tree / 'scripts/package.py').exists():
         how_to_package = 'package.py'
-    elif (local_build_working_dir / 'output/_auto/buildpack.bat').exists():
+    elif (local_build_work_tree / 'output/_auto/buildpack.bat').exists():
         how_to_package = 'bat'
     else:
         how_to_package = 'cp'
@@ -160,6 +160,8 @@ def build_locally(revision: Revision, release_platform: str):
         ('0a5842ebe', '90d7e592b', None),
         ('a4b44040c', 'd082c5719', None),
         ('0aa0553fe', '68b3edb52', 'src/parser/SemanticAnalyzer.cpp'),
+        ('6b5e98dd7', 'd2dfcb4f1', None),
+        ('7f540a3cc', 'd1d4fc3a9', None),
     ]
     for first_bad, fix_commit, file in fixups:
         if not git_helpers.is_ancestor(first_bad, revision.tag):
@@ -170,13 +172,13 @@ def build_locally(revision: Revision, release_platform: str):
         if file:
             run_command(
                 f'git show {fix_commit} -- {file} | git apply'.split(' '),
-                cwd=local_build_working_dir,
+                cwd=local_build_work_tree,
                 shell=True,
             )
         else:
             run_command(
                 f'git cherry-pick {fix_commit} -n -m1'.split(' '),
-                cwd=local_build_working_dir,
+                cwd=local_build_work_tree,
             )
 
     build_folder = 'build'
@@ -187,12 +189,12 @@ def build_locally(revision: Revision, release_platform: str):
         build_folder += '_win32'
 
     if release_platform == 'windows':
-        if revision.commit_count >= archives.get_release_commit_count(
+        if revision.commit_count >= archives.get_release_commit_count_main(
             '5432f8ca67bfe371ba7407838a73d455ea75131b'
         ):
             cmake_generator_args = ['-G', 'Visual Studio 17 2022']
             build_folder += '_vs2022'
-        elif revision.commit_count >= archives.get_release_commit_count(
+        elif revision.commit_count >= archives.get_release_commit_count_main(
             '7ab5d08254f22c3bc6d67ae3ccaafe1e664d59d4'
         ):
             cmake_generator_args = ['-G', 'Visual Studio 16 2019']
@@ -214,26 +216,31 @@ def build_locally(revision: Revision, release_platform: str):
         print(err)
         raise Exception(err)
 
-    if (local_build_working_dir / build_folder / 'Release').exists():
-        shutil.rmtree(local_build_working_dir / build_folder / 'Release')
+    if (local_build_work_tree / build_folder / 'Release').exists():
+        shutil.rmtree(local_build_work_tree / build_folder / 'Release')
 
     print('configuring ...')
+    (local_build_work_tree / build_folder / 'cmake_install.cmake').unlink(
+        missing_ok=True
+    )
     args = [
         'cmake',
+        '--fresh',
         '-B',
         build_folder,
         '-S',
         '.',
         '-DCMAKE_BUILD_TYPE=Release',
+        '-DWANT_GIT_HOOKS=OFF',
         *arch_args,
         *cmake_generator_args,
     ]
-    run_command(args, cwd=local_build_working_dir)
+    run_command(args, cwd=local_build_work_tree)
 
     try:
         run_command(
             'cp src/metadata/*.h.sig src/metadata/sigs/'.split(' '),
-            cwd=local_build_working_dir,
+            cwd=local_build_work_tree,
         )
     except:
         pass
@@ -247,21 +254,21 @@ def build_locally(revision: Revision, release_platform: str):
         'Release',
         '--parallel',
     ]
-    run_command(args, cwd=local_build_working_dir)
+    run_command(args, cwd=local_build_work_tree)
 
     print('packaging ...')
-    bat_script = local_build_working_dir / 'output/_auto/buildpack.bat'
+    bat_script = local_build_work_tree / 'output/_auto/buildpack.bat'
     if how_to_package == 'bat':
-        package_dir = local_build_working_dir / 'output/_auto/buildpack'
+        package_dir = local_build_work_tree / 'output/_auto/buildpack'
         if package_dir.exists():
             shutil.rmtree(package_dir)
             package_dir.mkdir()
         subprocess.check_call(
             f'echo N | "{bat_script}"',
-            cwd=local_build_working_dir / 'output/_auto',
+            cwd=local_build_work_tree / 'output/_auto',
             shell=True,
         )
-        for path in (local_build_working_dir / build_folder / 'Release').glob('*'):
+        for path in (local_build_work_tree / build_folder / 'Release').glob('*'):
             shutil.copyfile(path, package_dir / path.name)
     elif how_to_package == 'cp':
         package_dir = root_dir / '.tmp/local_build_package_dir'
@@ -273,37 +280,37 @@ def build_locally(revision: Revision, release_platform: str):
         cp_as_files = ['common', 'package', 'config']
 
         for name in cp_as_folder:
-            if (local_build_working_dir / 'output' / name).exists():
+            if (local_build_work_tree / 'output' / name).exists():
                 run_command(
                     f'cp -r output/{name} {package_dir}/{name}'.split(' '),
-                    cwd=local_build_working_dir,
+                    cwd=local_build_work_tree,
                 )
         for name in cp_as_files:
-            p = local_build_working_dir / 'output' / name
+            p = local_build_work_tree / 'output' / name
             if p.exists():
                 if p.is_dir():
                     run_command(
                         f'cp -r output/{name}/* {package_dir}'.split(' '),
-                        cwd=local_build_working_dir,
+                        cwd=local_build_work_tree,
                     )
                 else:
                     run_command(
                         f'cp output/{name} {package_dir}'.split(' '),
-                        cwd=local_build_working_dir,
+                        cwd=local_build_work_tree,
                     )
-        for path in (local_build_working_dir / build_folder / 'Release').glob('*'):
+        for path in (local_build_work_tree / build_folder / 'Release').glob('*'):
             if path.suffix in ['.dll', '.exe']:
                 shutil.copyfile(path, package_dir / path.name)
-        for path in local_build_working_dir.glob('bin/win32/*.dll'):
+        for path in local_build_work_tree.glob('bin/win32/*.dll'):
             if 'debug' not in path.name:
                 shutil.copyfile(path, package_dir / path.name)
-        for path in local_build_working_dir.glob('libs/win32/*.dll'):
+        for path in local_build_work_tree.glob('libs/win32/*.dll'):
             if 'debug' not in path.name:
                 shutil.copyfile(path, package_dir / path.name)
 
-        if 'win32/alleg44.lib' in (
-            local_build_working_dir / 'CMakeLists.txt'
-        ).read_text('utf-8'):
+        if 'win32/alleg44.lib' in (local_build_work_tree / 'CMakeLists.txt').read_text(
+            'utf-8'
+        ):
             need = 'alleg44.dll'
             rm(package_dir / 'alleg42.dll')
         else:
@@ -375,7 +382,9 @@ def build_locally(revision: Revision, release_platform: str):
                         raise Exception(
                             'could not find recent build to steal files from'
                         )
-                    rls_dir = archives.download(most_recent_rev, release_platform)
+                    rls_dir = archives.download_revision(
+                        most_recent_rev, release_platform
+                    )
                     shutil.copytree(
                         rls_dir / 'modules', package_dir / 'modules', dirs_exist_ok=True
                     )
@@ -403,14 +412,29 @@ def build_locally(revision: Revision, release_platform: str):
             '-t',
             'package',
         ]
-        run_command(args, cwd=local_build_working_dir)
-        package_dir = local_build_working_dir / build_folder / 'Release/packages/zc'
+        run_command(args, cwd=local_build_work_tree)
+        package_dir = local_build_work_tree / build_folder / 'Release/packages/zc'
+    elif how_to_package == 'install':
+        package_dir = local_build_work_tree / build_folder / 'Release/packages/zc'
+        if package_dir.exists():
+            shutil.rmtree(package_dir)
+        package_dir.mkdir(parents=True)
+        args = [
+            'cmake',
+            '--install',
+            build_folder,
+            '--config',
+            'Release',
+            '--prefix',
+            str(package_dir),
+        ]
+        run_command(args, cwd=local_build_work_tree)
     else:
         raise Exception('unknown package strategy: ' + how_to_package)
 
     placeholders = ['docs/shield_block_flags.txt']
 
-    if revision.commit_count < archives.get_release_commit_count(
+    if revision.commit_count < archives.get_release_commit_count_main(
         'a7bc1e8f88cd283c9d4dbba39520fe4f23295c59'
     ):
         placeholders.extend(['1st.qst', '2nd.qst', '3rd.qst', '4th.qst', '5th.qst'])
@@ -453,7 +477,12 @@ def build_locally(revision: Revision, release_platform: str):
     if try_folder.exists():
         shutil.rmtree(try_folder)
     shutil.copytree(package_dir, try_folder)
-    binaries = archives.create_binary_paths(try_folder, release_platform)
+    binaries = archives.create_binary_paths(
+        try_folder, release_platform, missing_ok=True
+    )
+    if not binaries['zc'] or not binaries['zq']:
+        raise Exception('missing binaries')
+
     kill_console = lambda: subprocess.run(
         ['taskkill', '/F', '/IM', 'ZConsole.exe'],
         stdout=subprocess.DEVNULL,
@@ -471,76 +500,71 @@ def backfill(release_platform: str):
     if release_platform != 'windows':
         raise Exception('not supported')
 
-    step = 20
-    last = None
-    skip_until = None
-    failures_in_row = 0
-    revs = archives.get_local_builds()
+    step = 10
+    revs = archives.get_revisions(
+        release_platform,
+        'main',
+        include_test_builds=True,
+        may_build_locally=True,
+        exclude_failed_local_builds=False,
+    )
     # Skip revisions without a modules folder for now.
     revs = [
         r
         for r in revs
         if r.commit_count
-        >= archives.get_release_commit_count('a7bc1e8f88cd283c9d4dbba39520fe4f23295c59')
+        >= archives.get_release_commit_count_main(
+            'a7bc1e8f88cd283c9d4dbba39520fe4f23295c59'
+        )
     ]
     # Skip the oldest commits for now.
     revs = [r for r in revs if r.commit_count >= 1605]
-    for rev in revs:
-        if not rev.is_local_build or has_built_locally(rev):
-            failures_in_row = 0
-            last = rev.commit_count
-            skip_until = None
-            continue
 
-        if skip_until != None:
-            if skip_until > rev.commit_count:
-                continue
-            skip_until = None
-
-        if last != None and rev.commit_count - last < step:
-            continue
-
-        if not local_build_error(rev):
-            try:
-                build_locally(rev)
-            except KeyboardInterrupt:
-                exit(1)
-            except Exception as e:
-                ex = "".join(traceback.format_exception_only(e)).strip()
-                print('FAIL', rev)
-                print(ex)
-                rev.dir().mkdir(exist_ok=True, parents=True)
-                (rev.dir() / 'error.txt').write_text(ex)
-
-        if local_build_error(rev):
-            failures_in_row += 1
-            skip_until = rev.commit_count + 5 * failures_in_row
-        else:
-            failures_in_row = 0
-            last = rev.commit_count
-
-    largest_gap = 0
-    largest_gap_revs = []
+    gaps = []
     last_rev = revs[0]
     for rev in revs:
         if has_built_locally(rev) or not rev.is_local_build:
             gap = rev.commit_count - last_rev.commit_count
-            if gap > largest_gap:
-                largest_gap = gap
-                largest_gap_revs = [last_rev, rev]
+            if gap > step:
+                middle = (
+                    last_rev.commit_count
+                    + (rev.commit_count - last_rev.commit_count) // 2
+                )
+                gaps.append((gap, middle, last_rev, rev))
             last_rev = rev
+    gaps.sort(key=lambda x: -x[0])
 
-    print('largest gap in revisions:')
-    print(largest_gap, largest_gap_revs)
-    for rev in revs:
-        if (
-            largest_gap_revs[0].commit_count
-            < rev.commit_count
-            < largest_gap_revs[1].commit_count
-        ):
-            error_path = local_build_error(rev)
-            if error_path:
-                print(error_path)
+    print('gaps:\n')
+    for size, middle, rev_1, rev_2 in gaps:
+        print(f'{size} {rev_1} {rev_2} middle: @{middle}')
+    print()
+
+    middles = []
+    for size, middle, rev_1, rev_2 in gaps:
+        middles.append(middle)
+    middles.sort()
+
+    print('building these commits:')
+    for middle in middles:
+        print(f'@{middle}')
+    print()
+
+    for middle in middles:
+        rev = next(r for r in revs if r.commit_count == middle)
+        if local_build_error(rev):
+            print(f'@{middle} had an error last time, skipping. Delete {rev.dir()} to try again')
+            continue
+
+        try:
+            build_locally(rev, release_platform)
+        except KeyboardInterrupt:
+            exit(1)
+        except Exception as e:
+            ex = "".join(traceback.format_exc()).strip()
+            print('FAIL', rev)
+            print(ex)
+            rev.dir().mkdir(exist_ok=True, parents=True)
+            (rev.dir() / 'error.txt').write_text(ex)
 
     local_archive_dir = root_dir / '.tmp/local_archives'
     print(f'zipping to .tmp/local_archives ...')
@@ -548,12 +572,15 @@ def backfill(release_platform: str):
         if not has_built_locally(rev):
             continue
 
-        print(rev)
-        package_dir = build_locally(rev)
+        package_dir = rev.dir()
         variant_name = (
             (package_dir / 'README_test_build_only.txt').read_text().splitlines()[1]
         )
         archive_path = local_archive_dir / rev.tag / f'{variant_name}.zip'
+        if archive_path.exists():
+            continue
+
+        print(rev)
         archive_path.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(archive_path, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
             for dirpath, dirnames, filenames in os.walk(package_dir):
@@ -561,3 +588,25 @@ def backfill(release_platform: str):
                     cur_filepath = os.path.join(dirpath, cur_filename)
                     rel_path = os.path.relpath(cur_filepath, package_dir)
                     zf.write(cur_filepath, arcname=rel_path)
+
+    bucket_name = 'zc-archives'
+    boto3.setup_default_session(profile_name='zc-archives')
+    s3 = boto3.resource(
+        's3',
+        region_name='nyc3',
+        endpoint_url='https://nyc3.digitaloceanspaces.com',
+    )
+    bucket = s3.Bucket(bucket_name)
+    all_keys = list(_.key for _ in bucket.objects.all())
+
+    print('uploading to s3 bucket ...')
+    for path in local_archive_dir.rglob('*.zip'):
+        key = path.relative_to(local_archive_dir).as_posix()
+        exists_in_bucket = key in all_keys
+        if not exists_in_bucket:
+            print(f'uploading {key}')
+            bucket.upload_file(
+                local_archive_dir / path,
+                key,
+                ExtraArgs={'ACL': 'public-read'},
+            )

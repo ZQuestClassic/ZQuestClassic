@@ -90,7 +90,8 @@ def check_revision(revision: Revision):
     print(f'checking {revision}')
     try:
         binaries = revision.binaries(args.platform)
-    except:
+    except Exception as e:
+        print(e)
         print('could not find binaries, skipping')
         return 'u'
 

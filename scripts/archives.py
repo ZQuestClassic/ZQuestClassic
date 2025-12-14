@@ -87,6 +87,10 @@ def get_release_commit_count(branch: str, sha: str):
     return commit_counts[sha]
 
 
+def get_release_commit_count_main(sha: str):
+    return get_release_commit_count('main', sha)
+
+
 @memory.cache
 def get_release_commit_count_of_tag(branch: str, tag: str):
     sha = git_helpers.rev_parse(tag)
@@ -191,6 +195,7 @@ def get_revisions(
     channel: str,
     include_test_builds=True,
     may_build_locally=False,
+    exclude_failed_local_builds=True,
 ):
     revisions: list[Revision] = []
 
@@ -265,38 +270,49 @@ def get_revisions(
 
     if may_build_locally:
         revisions = get_local_builds(branch, revisions)
-        revisions = [r for r in revisions if not _get_historical().local_build_error(r)]
+        if exclude_failed_local_builds:
+            revisions = [
+                r for r in revisions if not _get_historical().local_build_error(r)
+            ]
 
     revisions = [r for r in revisions if r.commit_count != -1]
     revisions.sort(key=lambda x: x.commit_count)
     return revisions
 
 
-def create_binary_paths(dir: Path, release_platform: str):
+def create_binary_paths(dir: Path, release_platform: str, missing_ok=False):
     binaries = {'dir': dir}
 
     if release_platform == 'mac':
         zc_app_path = next(dir.glob('*.app'))
         binaries['zc'] = common.find_path(
-            zc_app_path / 'Contents/Resources', ['zplayer', 'zelda']
+            zc_app_path / 'Contents/Resources', ['zplayer', 'zelda'], missing_ok
         )
         binaries['zq'] = common.find_path(
-            zc_app_path / 'Contents/Resources', ['zeditor', 'zquest']
+            zc_app_path / 'Contents/Resources', ['zeditor', 'zquest'], missing_ok
         )
         binaries['zl'] = zc_app_path / 'Contents/Resources/zlauncher'
         binaries['zs'] = common.find_path(
-            zc_app_path / 'Contents/Resources', ['zscript']
+            zc_app_path / 'Contents/Resources', ['zscript'], missing_ok
         )
     elif release_platform == 'windows':
-        binaries['zc'] = common.find_path(dir, ['zplayer.exe', 'zelda.exe'])
-        binaries['zq'] = common.find_path(dir, ['zeditor.exe', 'zquest.exe'])
+        binaries['zc'] = common.find_path(dir, ['zplayer.exe', 'zelda.exe'], missing_ok)
+        binaries['zq'] = common.find_path(
+            dir, ['zeditor.exe', 'zquest.exe'], missing_ok
+        )
         binaries['zl'] = dir / 'zlauncher.exe'
-        binaries['zs'] = common.find_path(dir, ['zscript.exe'])
+        binaries['zs'] = common.find_path(dir, ['zscript.exe'], missing_ok)
     elif release_platform == 'linux':
-        binaries['zc'] = common.find_path(dir, ['bin/zplayer', 'zplayer', 'zelda'])
-        binaries['zq'] = common.find_path(dir, ['bin/zeditor', 'zeditor', 'zquest'])
-        binaries['zl'] = common.find_path(dir, ['bin/zlauncher', 'zlauncher'])
-        binaries['zs'] = common.find_path(dir, ['bin/zscript', 'zscript'])
+        binaries['zc'] = common.find_path(
+            dir, ['bin/zplayer', 'zplayer', 'zelda'], missing_ok
+        )
+        binaries['zq'] = common.find_path(
+            dir, ['bin/zeditor', 'zeditor', 'zquest'], missing_ok
+        )
+        binaries['zl'] = common.find_path(
+            dir, ['bin/zlauncher', 'zlauncher'], missing_ok
+        )
+        binaries['zs'] = common.find_path(dir, ['bin/zscript', 'zscript'], missing_ok)
 
     return binaries
 
@@ -346,10 +362,10 @@ def download(tag_or_sha: Revision, release_platform: str):
     else:
         type = 'release'
     revision = Revision(tag_or_sha, -1, type)
-    return _download(revision, release_platform)
+    return download_revision(revision, release_platform)
 
 
-def _download(revision: Revision, release_platform: str):
+def download_revision(revision: Revision, release_platform: str):
     dest = revision.dir()
     if dest.exists() and list(dest.glob('*')):
         return dest
@@ -468,7 +484,7 @@ class CLI:
         run_cmd.add_argument('tag_or_sha')
         run_cmd.add_argument('command_args', nargs=argparse.REMAINDER, default='%zl')
 
-        backfill_cmd = subparsers.add_parser('backfill_local_builds')
+        backfill_cmd = subparsers.add_parser('backfill_local_builds', parents=[base])
 
         args = parser.parse_args()
         if not args.command:

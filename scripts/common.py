@@ -34,9 +34,10 @@ def run_zc_command(binaries, args):
     return subprocess.Popen(args2, cwd=cwd, shell=False)
 
 
-def find_path(dir: Path, one_of: list[str]):
+def find_path(dir: Path, one_of: list[str], missing_ok=False):
     for p in one_of:
         if (dir / p).exists():
             return dir / p
 
-    raise Exception(f'could not find one of {one_of} in {dir}')
+    if not missing_ok:
+        raise Exception(f'could not find one of {one_of} in {dir}')
