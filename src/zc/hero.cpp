@@ -1754,6 +1754,7 @@ void HeroClass::init()
 		delete lift_wpn;
 		lift_wpn = nullptr;
 	}
+	active_wind = nullptr;
 	clear_platform_ffc();
 	liftclk = 0;
 	tliftclk = 0;
@@ -6552,6 +6553,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 		reset_hookshot();
 		xofs=1000;
 		action=inwind; FFCore.setHeroAction(inwind);
+		active_wind = w;
 		dir = hdir;
 		if(w) w->dir = hdir;
 		spins = charging = attackclk = 0;
@@ -6724,8 +6726,8 @@ void HeroClass::checkhit()
 	
 	for(int32_t i=0; i<Lwpns.Count(); i++)
 	{
-		sprite *s = Lwpns.spr(i);
-		int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
+		weapon *s = (weapon*)Lwpns.spr(i);
+		int32_t itemid = s->parentitem;
 		//if ( itemdbuf[parentitem].flags&item_flags3 ) //can damage Hero
 		//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
 		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].type==itype_candle||itemsbuf[itemid].type==itype_book)&&(itemsbuf[itemid].flags & item_flag3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
@@ -6769,7 +6771,7 @@ void HeroClass::checkhit()
 						s = nullptr;
 					else
 					{
-						s = Lwpns.spr(hit);
+						s = (weapon*)Lwpns.spr(hit);
 						i = hit;
 					}
 				}
@@ -6870,7 +6872,7 @@ void HeroClass::checkhit()
 							s = nullptr;
 						else
 						{
-							s = Lwpns.spr(hit);
+							s = (weapon*)Lwpns.spr(hit);
 							i = hit;
 						}
 						w = (weapon*)s;
@@ -6925,7 +6927,7 @@ void HeroClass::checkhit()
 					s = nullptr;
 				else
 				{
-					s = Lwpns.spr(hit);
+					s = (weapon*)Lwpns.spr(hit);
 					i = hit;
 				}
 			}
@@ -6933,6 +6935,7 @@ void HeroClass::checkhit()
 			reset_hookshot();
 			xofs=1000;
 			action=inwind; FFCore.setHeroAction(inwind);
+			active_wind = s;
 			dir = hdir;
 			if(s) s->dir = hdir;
 			spins = charging = attackclk = 0;
@@ -6940,7 +6943,7 @@ void HeroClass::checkhit()
 			// In case Hero used two whistles in a row, summoning two whirlwinds,
 			// check which whistle's whirlwind picked him up so the correct
 			// warp ring will be used
-			int32_t whistle=s ? ((weapon*)s)->parentitem : -1;
+			int32_t whistle=s ? s->parentitem : -1;
 			
 			if(whistle>-1 && itemsbuf[whistle].type==itype_whistle)
 				whistleitem=whistle;
@@ -9720,6 +9723,9 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	
+	if (action != inwind)
+		active_wind = nullptr;
+	
 	bool isthissolid = false;
 	switch(action)
 	{
@@ -9855,9 +9861,18 @@ heroanimate_skip_liftwpn:;
 	}
 	case inwind:
 	{
-		int32_t i=Lwpns.idFirst(wWind);
+		int32_t i = Lwpns.idFirst(wWind);
+		weapon* wind = (weapon*)Lwpns.spr(i);
+		if (!get_qr(qr_BUGGY_MULTIPLE_WIND))
+			wind = active_wind;
 		
-		if(i<0)
+		if (wind)
+		{
+			x = wind->x;
+			y = wind->y;
+			dir = wind->dir;
+		}
+		else
 		{
 			bool exit=false;
 			
@@ -9882,13 +9897,6 @@ heroanimate_skip_liftwpn:;
 				if ( dontdraw < 2 ) dontdraw=0;
 				set_respawn_point();
 			}
-		}
-		else
-		{
-			auto wind = Lwpns.spr(i);
-			x = wind->x;
-			y = wind->y;
-			dir = wind->dir;
 		}
 	}
 	break;
@@ -26614,6 +26622,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			(zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true,1);
 		wind->screen_spawned = hero_scr->screen;
 		Lwpns.add(wind);
+		active_wind = wind;
 		whirlwind=255;
 		whistleitem=-1;
 	}
