@@ -82,7 +82,7 @@ static DIALOG file_selector[] =
     { fs_edit_proc,         16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,                      NULL, NULL  },
     { fs_elist_proc,        16,   154,  176,  16,   0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_elist__getter,  NULL, NULL },
     { fs_flist_proc,        16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_flist__getter,  NULL, NULL  },
-    { jwin_button_proc,     250,  160,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
+    { jwin_button_proc,     208,  70,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
     { fs_dlist_proc,        208,  46,   81,   52,   0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_dlist__getter,  NULL, NULL  },
     { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                      NULL, NULL  },
     
@@ -749,6 +749,7 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
 {
     int32_t font_w, font_h, hpad, vpad;
     char tmp[16];
+    FONT* font = a4fonts[font_lfont_l];
     
 #ifdef HAVE_DIR_LIST
     
@@ -798,10 +799,10 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     d[FS_TYPES].y   = d[FS_WIN].h-d[FS_TYPES].h-vpad;
     d[FS_FILES].h   = ((((d[FS_WIN].h - 2*vpad - d[FS_EDIT].y - d[FS_EDIT].h - (show_extlist?(d[FS_TYPES].h+vpad):0))-8)/font_h)*font_h)+8;
     d[FS_FILES].y   = (show_extlist?d[FS_TYPES].y:d[FS_WIN].h)-vpad-d[FS_FILES].h;
-    d[FS_EXPLORER].h = d[FS_OK].h;
-    d[FS_EXPLORER].y = d[FS_OK].y - vpad/2 - d[FS_OK].h;
-    d[FS_DISKS].y   = d[FS_FILES].y;
     d[FS_DISKS].h   = font_h+8;
+    d[FS_DISKS].y   = d[FS_EDIT].y + d[FS_EDIT].h + 4;
+    d[FS_EXPLORER].h = d[FS_OK].h;
+    d[FS_EXPLORER].y = d[FS_DISKS].y + d[FS_DISKS].h;
     d[FS_YIELD].y   = 0;
     
 #else
@@ -861,14 +862,11 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
  */
 void enlarge_file_selector(int32_t width, int32_t height)
 {
-    if(file_selector[0].d1==0)
-    {
-        stretch_dialog(file_selector, width, height, 1);
-    }
-    
+    stretch_dialog(file_selector, width, height, 1);
+    file_selector[0].d1 = 0;
+    large_dialog(file_selector);
+
     bool show_extlist = file_selector[FS_TYPES].proc != fs_dummy_proc;
-    
-	large_dialog(file_selector);
 	int32_t bottom =
 #ifndef HAVE_DIR_LIST
 		file_selector[FS_OK].y;
@@ -887,7 +885,10 @@ void enlarge_file_selector(int32_t width, int32_t height)
 #ifdef HAVE_DIR_LIST
 	file_selector[FS_DISKS].dp2=NULL;
 	file_selector[FS_DISKS].h=20;
+    file_selector[FS_DISKS].y = file_selector[FS_EDIT].y + file_selector[FS_EDIT].h + 5;
 	((ListData *)file_selector[FS_DISKS].dp)->font = &a4fonts[font_lfont_l];
+
+    file_selector[FS_EXPLORER].y = file_selector[FS_DISKS].y + file_selector[FS_DISKS].h + 5;
 #endif
 	
 	#define DIFF_VAL 30
@@ -980,7 +981,6 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     while(gui_mouse_b());
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
-	// Z_message("Calling enlarge_file_selector(%d,%d)\n", width, height);
     enlarge_file_selector(width, height);
     ret = do_zqdialog(file_selector, FS_EDIT);
     
