@@ -1573,6 +1573,7 @@ void HeroClass::init()
 		delete lift_wpn;
 		lift_wpn = nullptr;
 	}
+	active_wind = nullptr;
 	clear_platform_ffc();
 	liftclk = 0;
 	tliftclk = 0;
@@ -6476,6 +6477,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 		reset_hookshot();
 		xofs=1000;
 		action=inwind; FFCore.setHeroAction(inwind);
+		active_wind = w;
 		dir = hdir;
 		if(w) w->dir = hdir;
 		spins = charging = attackclk = 0;
@@ -6960,6 +6962,7 @@ void HeroClass::checkhit()
 			reset_hookshot();
 			xofs=1000;
 			action=inwind; FFCore.setHeroAction(inwind);
+			active_wind = (weapon*)s;
 			dir = hdir;
 			if(s) s->dir = hdir;
 			spins = charging = attackclk = 0;
@@ -9761,6 +9764,9 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	
+	if (action != inwind)
+		active_wind = nullptr;
+	
 	bool isthissolid = false;
 	switch(action)
 	{
@@ -9887,9 +9893,18 @@ heroanimate_skip_liftwpn:;
 	}
 	case inwind:
 	{
-		int32_t i=Lwpns.idFirst(wWind);
+		int32_t i = Lwpns.idFirst(wWind);
+		weapon* wind = (weapon*)Lwpns.spr(i);
+		if (!get_qr(qr_BUGGY_MULTIPLE_WIND))
+			wind = active_wind;
 		
-		if(i<0)
+		if (wind)
+		{
+			x = wind->x;
+			y = wind->y;
+			dir = wind->dir;
+		}
+		else
 		{
 			bool exit=false;
 			
@@ -9912,18 +9927,6 @@ heroanimate_skip_liftwpn:;
 				if ( dontdraw < 2 ) dontdraw=0;
 				set_respawn_point();
 			}
-		}
-		/*
-			  else if (((weapon*)Lwpns.spr(i))->dead==1)
-			  {
-				whirlwind=255;
-			  }
-		*/
-		else
-		{
-			x=Lwpns.spr(i)->x;
-			y=Lwpns.spr(i)->y;
-			dir=Lwpns.spr(i)->dir;
 		}
 	}
 	break;
@@ -26059,8 +26062,10 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			wrx=tmpscr->warpreturnx[0];
 		else wrx=tmpscr->warparrivalx;
 		
-		Lwpns.add(new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
-							 (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true,1));
+		auto wind = new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
+			 (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true,1);
+		Lwpns.add(wind);
+		active_wind = wind;
 		whirlwind=255;
 		whistleitem=-1;
 	}

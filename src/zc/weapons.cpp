@@ -1176,12 +1176,15 @@ void weapon::reset_wgrids()
 }
 weapon::~weapon()
 {
-	if(dragging > 0)
+	if (dragging > 0)
 	{
 		item* dragItem = (item*)items.spr(dragging);
-		if(dragItem)
+		if (dragItem)
 			dragItem->is_dragged = false;
 	}
+	if (Hero.active_wind == this)
+		Hero.active_wind = nullptr;
+	
 	FFCore.deallocateAllScriptOwned(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
 	cleanup_sfx();
 }
