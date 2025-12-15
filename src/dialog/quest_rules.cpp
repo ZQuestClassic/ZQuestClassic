@@ -1062,6 +1062,9 @@ static GUI::ListData compatRulesList
 	{ "Active/Map Subscreens Always 168 Tall", qr_ACTIVE_SUB_IGNORE_8PX,
 		"If enabled, Active/Map subscrens will be 168 pixels tall, regardless of the 'Hide Bottom 8 Pixels' rule. The extra space will be filled with black."
 		"\nOtherwise, the Active/Map subscreen will match the height based on the 'Hide Bottom 8 Pixels' setting."},
+	{ "Buggy Wind w/ multiple on-screen", qr_BUGGY_MULTIPLE_WIND,
+		"If multiple wind lweapons are on screen and the player is in one, the player will lose track"
+		" of which wind they are in, and teleport between them." }
 };
 
 static GUI::ListData enemiesRulesList

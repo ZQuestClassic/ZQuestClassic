@@ -323,6 +323,7 @@ public:
 	int32_t extra_jump_count;
 	
 	weapon* lift_wpn;
+	weapon* active_wind;
 	byte liftclk;
 	byte tliftclk;
 	zfix liftheight;

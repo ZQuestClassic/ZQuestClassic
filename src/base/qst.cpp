@@ -3574,6 +3574,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_DRAWCOMBO_IGNORES_FRAME, 1);
 		set_qr(qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY, 1);
 	}
+	if (compatrule_version < 98)
+		set_qr(qr_BUGGY_MULTIPLE_WIND, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
