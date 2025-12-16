@@ -14,12 +14,34 @@ const configuredMountPromise = new Promise(resolve => {
   configuredMountPromiseResolve = resolve;
 });
 
+async function verifyDirectoryHandle(handle) {
+  try {
+    for await (const entry of handle.values()) {
+      return true;
+    }
+
+    return true;
+  } catch (error) {
+    if (error.name === 'NotFoundError') {
+      console.log('Directory not found or no longer exists.');
+      return false;
+    } else {
+      console.error('An error occurred:', error);
+      return false;
+    }
+  }
+}
+
 export async function configureMount() {
   let type = new URLSearchParams(location.search).get('storage');
   if (type !== 'fs' && type !== 'idb') type = undefined;
 
   if (type === undefined) {
     attachedDirHandle = await kv.get('attached-dir');
+    // Handle might point to a deleted folder.
+    if (attachedDirHandle && !verifyDirectoryHandle(attachedDirHandle)) {
+      attachedDirHandle = null;
+    }
     if (!self.showDirectoryPicker || attachedDirHandle === false || !await requestPermission()) {
       type = 'idb';
       attachedDirHandle = null;
