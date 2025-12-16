@@ -2659,7 +2659,7 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 			}
 			resolved = resolved->getConstType();
 		}
-		if(resolved)
+		if(resolved && resolved->isResolved())
 		{
 			DataType* result = nullptr;
 			if(becomeArray)
