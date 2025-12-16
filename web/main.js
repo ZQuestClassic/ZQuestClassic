@@ -207,7 +207,7 @@ async function main() {
   const args = Module.arguments;
 
   let openPath = params.get('open');
-  if (openPath) {
+  if (openPath && !openPath.startsWith('https://')) {
     const manifest = await ZC.getQuestManifest();
     openPath = openPath.startsWith('/') ? openPath : `/${openPath}`;
     const m = (openPath.startsWith('/quests/') || openPath.startsWith('/tilesets/')) && openPath.match(/\/([^/]*\/[^/]*\/[^/]*)\/?(.*)?/);

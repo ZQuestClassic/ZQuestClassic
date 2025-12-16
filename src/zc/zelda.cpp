@@ -4575,16 +4575,24 @@ reload_for_replay_file:
 	int web_open_arg = used_switch(argc, argv, "-web-open");
 	if (web_open_arg)
 	{
-		std::string qstpath_to_load = (fs::current_path() / argv[web_open_arg + 1]).string();
+		std::string qstpath_to_load = argv[web_open_arg + 1];
 
-		std::string rel_qstpath = qstpath_to_load;
-		char temppath[2048];
-		memset(temppath, 0, 2048);
-		// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
-		std::string rel_dir = fmt::format("{}/", (fs::current_path() / fs::path(qstdir)).string());
-		zc_make_relative_filename(temppath, rel_dir.c_str(), qstpath_to_load.c_str(), 2047);
-		if (temppath[0] != 0)
-			rel_qstpath = temppath;
+		if (qstpath_to_load.starts_with("https://"))
+		{
+			qstpath_to_load = "/https:/" + qstpath_to_load.substr(6);
+		}
+		else
+		{
+			qstpath_to_load = (fs::current_path() / qstpath_to_load).string();
+
+			char temppath[2048];
+			memset(temppath, 0, 2048);
+			// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
+			std::string rel_dir = fmt::format("{}/", (fs::current_path() / fs::path(qstdir)).string());
+			zc_make_relative_filename(temppath, rel_dir.c_str(), qstpath_to_load.c_str(), 2047);
+			if (temppath[0] != 0)
+				qstpath_to_load = temppath;
+		}
 
 		std::string err;
 		if (!saves_load(err)) 
@@ -4594,7 +4602,7 @@ reload_for_replay_file:
 		int savecnt = saves_count();
 		for (int i = 0; i < savecnt; i++)
 		{
-			if (auto r = saves_get_slot(i); r && r.value()->header->quest && rel_qstpath == r.value()->header->qstpath)
+			if (auto r = saves_get_slot(i); r && r.value()->header->quest && qstpath_to_load == r.value()->header->qstpath)
 			{
 				if (save_index == -1)
 					save_index = i;
@@ -4608,7 +4616,7 @@ reload_for_replay_file:
 
 		if (save_index == -1)
 		{
-			load_qstpath = rel_qstpath;
+			load_qstpath = qstpath_to_load;
 		}
 		else
 		{

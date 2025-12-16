@@ -70,8 +70,10 @@ EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
     } catch {
     }
 
-	// /host is handled by webserver.mjs, for local development only.
-    const url = path.startsWith('/host') ? path : window.ZC.pathToUrl[path];
+	let url;
+	if (path.startsWith('/host')) url = path; // /host is handled by webserver.mjs, for local development only.
+	else if (path.startsWith('/https:/')) url = 'https://' + path.substring('/https:/'.length - 1);
+	else url = window.ZC.pathToUrl[path];
     if (!url) return;
 
     const data = await ZC.fetchAsByteArray(url);
@@ -97,6 +99,10 @@ bool em_is_lazy_file(std::string path) {
   path = (fs::current_path() / path).string();
 
   if (strncmp("/host/", path.c_str(), strlen("/host/")) == 0) {
+    return true;
+  }
+
+  if (strncmp("/https:/", path.c_str(), strlen("/https:/")) == 0) {
     return true;
   }
 
