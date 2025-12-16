@@ -20311,25 +20311,25 @@ int32_t FFScript::do_paldata_getrgb(user_paldata* pd, int32_t index, int32_t c)
 		if (unsigned(ind) >= PALDATA_NUM_COLORS)
 		{
 			scripting_log_error_with_context("Invalid color index ({}). Valid indices are 0-255.", ind);
-			return -10000;
+			return -1;
 		}
 		if (!get_bit(pd->colors_used, ind))
 		{
 			scripting_log_error_with_context("Tried to access unused color {}.", ind);
-			return -10000;
+			return -1;
 		}
 		switch (c)
 		{
 			case 0:
-				return pd->colors[ind].r * 10000;
+				return pd->colors[ind].r;
 			case 1:
-				return pd->colors[ind].g * 10000;
+				return pd->colors[ind].g;
 			case 2:
-				return pd->colors[ind].b * 10000;
+				return pd->colors[ind].b;
 		}
 	}
 
-	return -10000;
+	return -1;
 }
 
 void FFScript::do_paldata_setrgb(user_paldata* pd, int32_t index, int32_t val, int32_t c)
