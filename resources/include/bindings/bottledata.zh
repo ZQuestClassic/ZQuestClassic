@@ -8,6 +8,8 @@ enum BottleFlag
 	BTF_MAX
 };
 
+// Load with [Game->LoadBottleData]
+//
 // @zasm_ref REFBOTTLETYPE
 class bottledata {
 	// @delete

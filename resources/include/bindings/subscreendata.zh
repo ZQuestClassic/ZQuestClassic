@@ -328,6 +328,10 @@ enum // Flags for SUBWIDG_COUNTERPERCBAR
 	SUBW_COUNTERPERCBAR_NUMFLAGS
 };
 
+// Data for a specific subscreen. Use to read and modify engine subscreens.
+// Load for a subscreen of a specified type, via [Game->LoadASubData], [Game->LoadPSubData], [Game->LoadOSubData], or [Game->LoadMSubData]
+// Also loadable via [subscreenpage::SubData]
+//
 // @zasm_ref REFSUBSCREENDATA
 class subscreendata {
 	// @delete

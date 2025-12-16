@@ -6,6 +6,10 @@ enum MoveSubscreenSelectorBitflags
 	SUBSEL_FLAG_NEED_ITEM          = 0x02, // Skip widgets that currently have no equippable item.
 };
 
+// Data for a page of an engine subscreen. Some subscreen types only have one page.
+//
+// Load with [subscreendata::Pages] or [subscreenwidget::Page]
+// 
 // @zasm_ref REFSUBSCREENPAGE
 class subscreenpage {
 	// @delete

@@ -19,6 +19,8 @@ enum SaveMenuOptionFlags
 };
 
 // Contains data related to Game Over / F6 / Save menus
+// 
+// Load with [Game->LoadSaveMenu].
 //
 // @zasm_ref REFSAVEMENU
 class save_menu

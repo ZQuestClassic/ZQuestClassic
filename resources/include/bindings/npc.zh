@@ -262,6 +262,8 @@ enum NPCMoveStatus
 	NPCMS_PAUSED, NPCMS_SPEEDUP, NPCMS_NORMAL, NPCMS_SLOWDOWN
 };
 
+// Load with [Screen->NPCs], [Screen->LoadNPC], [eweapon::Parent], [Screen->CreateNPC]
+//
 // @zasm_ref REFNPC
 // @extends sprite
 class npc {

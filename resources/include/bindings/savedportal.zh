@@ -1,3 +1,7 @@
+// Data for a [portal] that is remembered in the save file for when you return to the screen.
+// 
+// Load with [Game->LoadSavedPortal], [Game->SavedPortals], or [Game->CreateSavedPortal]
+//
 // @zasm_ref REFSAVPORTAL
 class savedportal {
 	// @delete

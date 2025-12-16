@@ -1,3 +1,5 @@
+// Load with [Game->LoadBottleShopData]
+//
 // @zasm_ref REFBOTTLESHOP
 class bottleshopdata {
 	// @delete

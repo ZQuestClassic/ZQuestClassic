@@ -1,4 +1,6 @@
-// For randomly selecting an item. Load with [Game->LoadDropset].
+// For randomly selecting an item.
+// 
+// Load with [Game->LoadDropset].
 //
 // @zasm_ref REFDROPSETDATA
 class dropsetdata {

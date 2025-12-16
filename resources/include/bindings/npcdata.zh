@@ -198,7 +198,9 @@ enum NPCFade
 	NPCF_POOF
 };
 
-// Metadata for a specific npc type (not an instance of one). Load with [Game->LoadNPCData].
+// Metadata for a specific npc type (not an instance of one).
+// 
+// Load with [Game->LoadNPCData].
 //
 // @zasm_ref REFNPCDATA
 class npcdata {

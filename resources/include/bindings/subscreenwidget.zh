@@ -20,6 +20,10 @@ enum ConditionType
 	NUM_CONDTY
 };
 
+// An individual widget on an engine subscreen. What variables are available depends on the [subscreenwidget::Type].
+// 
+// Load with [subscreenpage::Widgets], [subscreenpage::GetWidget], [subscreenpage::FindWidget], or [subscreenpage::CreateWidget]
+//
 // @zasm_ref REFSUBSCREENWIDG
 class subscreenwidget {
 	// @delete
@@ -202,7 +206,7 @@ class subscreenwidget {
 	// The current map's index must be true in this array (or every index of
 	// this array must be false) for the widget to be active/visible.
 	//
-	// @length [Game::MapCount]
+	// @length [Game->MapCount]
 	//
 	// @zasm_var SUBWIDGREQ_MAP
 	internal bool RequiredMaps[];

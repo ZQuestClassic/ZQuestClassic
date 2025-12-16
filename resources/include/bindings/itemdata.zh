@@ -369,7 +369,9 @@ enum ItemScriptRunMode
 	ISCR_PERPETUAL,
 };
 
-// Metadata for a specific item type (not an instance of one). Load with [Game->LoadItemData].
+// Metadata for a specific item type (not an instance of one).
+// 
+// Load with [Game->LoadItemData].
 //
 // @zasm_ref REFITEMDATA
 class itemdata {

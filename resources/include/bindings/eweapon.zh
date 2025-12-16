@@ -28,7 +28,9 @@ enum EWeaponType
 	EW_SCRIPT10                    = 40,
 };
 
-// Weapons active on the screen from enemies. See [Screen->LoadEWeapon] and [Screen->CreateEWeapon].
+// Weapons active on the screen from enemies.
+// 
+// Load with [Screen->EWeapons], [Screen->LoadEWeapon], or [Screen->CreateEWeapon].
 //
 // @zasm_ref REFEWPN
 // @extends sprite

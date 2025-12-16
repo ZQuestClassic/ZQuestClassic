@@ -1,3 +1,7 @@
+// A portal that can warp the player.
+// 
+// Load with [Screen->Portals], [Screen->LoadPortal], [Screen->CreatePortal], [savedportal::Portal], or [savedportal::Generate]
+//
 // @zasm_ref REFPORTAL
 class portal {
 	// @delete

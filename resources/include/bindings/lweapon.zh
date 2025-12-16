@@ -43,7 +43,9 @@ enum LWeaponType
 	LW_REFFIRE2                    = 55,
 };
 
-// Weapons active on the screen from the hero. See [Screen->LoadLWeapon] and [Screen->CreateLWeapon].
+// Weapons active on the screen from the hero.
+//
+// Load with [Screen->LWeapons], [Screen->LoadLWeapon], or [Screen->CreateLWeapon].
 //
 // @zasm_ref REFLWPN
 // @extends sprite

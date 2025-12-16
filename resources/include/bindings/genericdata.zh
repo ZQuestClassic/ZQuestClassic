@@ -9,7 +9,9 @@ enum GenericScriptStateIndex
 	GENSCR_NUMST
 };
 
-// Represents a generic script. Load with [Game->LoadGenericData].
+// Represents a generic script.
+// 
+// Load with [Game->LoadGenericData].
 //
 // @zasm_ref REFGENERICDATA
 class genericdata {

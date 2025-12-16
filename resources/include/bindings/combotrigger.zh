@@ -167,6 +167,8 @@ enum ComboTriggerFlag
 	TRIGFLAG_MAX
 };
 
+// Load with [combodata::Triggers] or [combodata::GetTrigger]
+//
 // @zasm_ref REFCOMBOTRIGGER
 class combotrigger {
 	// @delete

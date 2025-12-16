@@ -36,6 +36,8 @@ enum ComboGeneralFlag
 	GENFLAG_MAX
 };
 
+// Load with [Game->LoadComboData], [mapdata::ComboData], [Screen->ComboData]
+//
 // @zasm_ref REFCOMBODATA
 class combodata {
 	// @delete

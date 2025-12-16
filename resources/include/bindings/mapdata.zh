@@ -187,7 +187,7 @@ enum ScreenState
 //
 // Modifications to temporary screens are lost when a new region is loaded.
 //
-// Load via:
+// Load with:
 //
 //   - [Game->LoadTempScreen] - the one that takes a screen and a layer parameter.
 //     Loads from the current region.
@@ -202,7 +202,7 @@ enum ScreenState
 // singular screen only read from the top-left screen (the origin screen) of the [Region].
 // This is exactly like how [Screen] works.
 //
-// Load via:
+// Load with:
 //
 //   - [Game->LoadTempScreen] - the one that takes just a layer
 //   - [Game->LoadScrollingScreen] - the one that takes just a layer
@@ -215,7 +215,7 @@ enum ScreenState
 // Modifications to canonical screens will not update any associated temporary screens
 // (until the next time the player loads that screen).
 //
-// Load via:
+// Load with:
 //
 //  - [Game->LoadMapData]
 //
