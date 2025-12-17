@@ -865,8 +865,8 @@ bool canPermSecret(int32_t dmap, int32_t screen)
 
 int32_t MAPCOMBO(int32_t x, int32_t y)
 {
-	x = vbound(x, 0, world_w-1);
-	y = vbound(y, 0, world_h-1);
+	if (!is_in_world_bounds(x, y))
+		return 0;
 	int pos = COMBOPOS(x%256, y%176);
 	mapscr* scr = get_scr_for_world_xy(x, y);
 	return scr->data[pos];

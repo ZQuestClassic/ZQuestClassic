@@ -8445,6 +8445,16 @@ eTektite::eTektite(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if (SIZEflags != 0) init_size_flags();;
 }
 
+static bool tek_combo_check(zfix tx, zfix ty)
+{
+	// tektites treat the world edge as a no-go zone if the combo next to the edge is a no-go zone
+	// otherwise, they'll do a separate bounce from the edge, which leads to a slightly different trajectory.
+	tx = vbound(tx, 0, world_w-1);
+	ty = vbound(ty, 0, world_h-1);
+	return COMBOTYPE(tx, ty) == cNOJUMPZONE || COMBOTYPE(tx, ty) == cNOENEMY ||
+		ispitfall(tx, ty) || MAPFLAG(tx, ty) == mfNOENEMY ||
+		MAPCOMBOFLAG(tx, ty) == mfNOENEMY;
+}
 bool eTektite::animate(int32_t index)
 {
 	if(switch_hooked) return enemy::animate(index);
@@ -8496,99 +8506,11 @@ bool eTektite::animate(int32_t index)
 		case 2:                                                 // in flight
 			move(step);
 			
-			if(step>0)                                            //going down
-			{
-				if(COMBOTYPE(x+8,y+16)==cNOJUMPZONE)
-				{
-					step=0-step;
-				}
-				else if(COMBOTYPE(x+8,y+16)==cNOENEMY)
-				{
-					step=0-step;
-				}
-				else if(ispitfall(x+8,y+16))
-				{
-					step=0-step;
-				}
-				else if(MAPFLAG(x+8,y+16)==mfNOENEMY)
-				{
-					step=0-step;
-				}
-				else if(MAPCOMBOFLAG(x+8,y+16)==mfNOENEMY)
-				{
-					step=0-step;
-				}
-			}
-			else if(step<0)
-			{
-				if(COMBOTYPE(x+8,y)==cNOJUMPZONE)
-				{
-					step=0-step;
-				}
-				else if(COMBOTYPE(x+8,y)==cNOENEMY)
-				{
-					step=0-step;
-				}
-				else if(ispitfall(x+8,y))
-				{
-					step=0-step;
-				}
-				else if(MAPFLAG(x+8,y)==mfNOENEMY)
-				{
-					step=0-step;
-				}
-				else if(MAPCOMBOFLAG(x+8,y)==mfNOENEMY)
-				{
-					step=0-step;
-				}
-			}
+			if (tek_combo_check(x + 8, y + (step > 0 ? 16 : 0)))
+				step = 0 - step;
 			
-			if(clk3==left)
-			{
-				if(COMBOTYPE(x,y+8)==cNOJUMPZONE)
-				{
-					clk3^=1;
-				}
-				else if(COMBOTYPE(x,y+8)==cNOENEMY)
-				{
-					clk3^=1;
-				}
-				else if(ispitfall(x,y+8))
-				{
-					clk3^=1;
-				}
-				else if(MAPFLAG(x,y+8)==mfNOENEMY)
-				{
-					clk3^=1;
-				}
-				else if(MAPCOMBOFLAG(x,y+8)==mfNOENEMY)
-				{
-					clk3^=1;
-				}
-			}
-			else
-			{
-				if(COMBOTYPE(x+16,y+8)==cNOJUMPZONE)
-				{
-					clk3^=1;
-				}
-				else if(COMBOTYPE(x+16,y+8)==cNOENEMY)
-				{
-					clk3^=1;
-				}
-				else if(ispitfall(x+16,y+8))
-				{
-					clk3^=1;
-				}
-				else if(MAPFLAG(x+16,y+8)==mfNOENEMY)
-				{
-					clk3^=1;
-				}
-				else if(MAPCOMBOFLAG(x+16,y+8)==mfNOENEMY)
-				{
-					clk3^=1;
-				}
-			}
+			if (tek_combo_check(x + (clk3 == left ? 0 : 16), y + 8))
+				clk3 ^= 1;
 			
 			--c;
 			
