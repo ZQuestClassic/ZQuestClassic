@@ -210,9 +210,8 @@ bool canPermSecret(int32_t dmap, int32_t scr)
 
 int32_t MAPCOMBO(int32_t x,int32_t y)
 {
-    //extend combos outwards if out of bounds -DD
-    x = vbound(x, 0, (16*16)-1);
-    y = vbound(y, 0, (11*16)-1);
+    if(x<0 || x>255 || y<0 || y>175)
+        return 0;
     int32_t combo = COMBOPOS(x,y);
     
     if(combo>175 || combo < 0)
