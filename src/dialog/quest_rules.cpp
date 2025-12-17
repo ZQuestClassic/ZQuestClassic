@@ -1064,7 +1064,9 @@ static GUI::ListData compatRulesList
 		"\nOtherwise, the Active/Map subscreen will match the height based on the 'Hide Bottom 8 Pixels' setting."},
 	{ "Buggy Wind w/ multiple on-screen", qr_BUGGY_MULTIPLE_WIND,
 		"If multiple wind lweapons are on screen and the player is in one, the player will lose track"
-		" of which wind they are in, and teleport between them." }
+		" of which wind they are in, and teleport between them." },
+	{ "No enemy death event for segmented enemy cores", qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES,
+		"If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts." }
 };
 
 static GUI::ListData enemiesRulesList

@@ -3576,6 +3576,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 	if (compatrule_version < 98)
 		set_qr(qr_BUGGY_MULTIPLE_WIND, 1);
+	if (compatrule_version < 99)
+		set_qr(qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
