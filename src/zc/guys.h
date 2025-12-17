@@ -170,6 +170,7 @@ public:
 	virtual void repair_shield() {}; // Overridden by types that can have shields
 	
 	bool can_pitfall(bool checkspawning = true);
+	bool death_event();
 	void try_death(bool force_kill = false);
 	 // returns true if next step is ok, false if there is something there
 	bool canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2, bool kb);

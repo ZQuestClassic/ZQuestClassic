@@ -4479,19 +4479,24 @@ bool enemy::can_pitfall(bool checkspawning)
 	}
 }
 //Handle death
+bool enemy::death_event()
+{
+	std::vector<int32_t> &ev = FFCore.eventData;
+	ev.clear();
+	ev.push_back(10000);
+	ev.push_back(getUID());
+	
+	throwGenScriptEvent(GENSCR_EVENT_ENEMY_DEATH);
+	bool is_still_dying = ev[0];
+	ev.clear();
+	return is_still_dying;
+}
 void enemy::try_death(bool force_kill)
 {
 	if(!dying && (force_kill || (hp<=0 && !immortal)))
 	{
-		std::vector<int32_t> &ev = FFCore.eventData;
-		ev.clear();
-		ev.push_back(10000);
-		ev.push_back(getUID());
-		
-		throwGenScriptEvent(GENSCR_EVENT_ENEMY_DEATH);
-		bool isSaved = !ev[0];
-		ev.clear();
-		if(isSaved) return;
+		if (!death_event())
+			return;
 		
 		if (itemguy && get_screen_state(screen_spawned).item_state == ScreenItemState::CarriedByEnemy)
 		{
@@ -13109,6 +13114,12 @@ bool eBigDig::animate(int32_t index)
 		break;
 		
 	case 2:
+		if (!get_qr(qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES) && !death_event())
+		{
+			// saved by script
+			misc = 0;
+			break;
+		}
 		for(int32_t i=0; i<dmisc5; i++)
 		{
 			addenemy(screen_spawned,x,y,dmisc1+0x1000,-15);
@@ -13678,6 +13689,8 @@ bool eMoldorm::animate(int32_t index)
 				leave_item();
 				
 			stop_bgsfx(index);
+			if (!get_qr(qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES))
+				death_event(); // can't cancel core death of segmented enemy
 			return true;
 		}
 	}
@@ -13989,6 +14002,8 @@ bool eLanmola::animate(int32_t index)
 				leave_item();
 				
 			stop_bgsfx(index);
+			if (!get_qr(qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES))
+				death_event(); // can't cancel core death of segmented enemy
 			return true;
 		}
 		
