@@ -17,6 +17,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/keyboard.h"
 #include "allegro/platform/ainta5.h"
 #include "allegro/platform/ala5.h"
 
@@ -92,16 +93,24 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
         al_wait_for_event(queue, &event);
 #endif
         {
+            // This helps for understanding how to make key press events for allegro 4:
+            // https://github.com/liballeg/allegro4/blob/master/src/win/wkeybd.c#L292
+            //
+            // event.keyboard.keycode (Allegro 5) -> KEY_X (Allegro 4 Scancode)
+            //    This represents the PHYSICAL KEY index.
+            //    Ex: ALLEGRO_KEY_Z (26) maps to KEY_Z. 
+            //    Used for checking key[] array, moving game characters (WASD), etc.
+            //
+            // event.keyboard.unichar
+            //    This represents the LOGICAL CHARACTER (ASCII/Unicode).
+            //    Ex: 'z' (122) or 'Z' (90).
+            //    Used for typing names, chat boxes, etc.
             switch(event.type)
             {
                 case ALLEGRO_EVENT_KEY_DOWN:
                 {
                     update_key_shifts(&event);
-                    if (event.keyboard.keycode >= ALLEGRO_KEY_MODIFIERS || event.keyboard.keycode == ALLEGRO_KEY_COMMAND)
-                    {
-                        if (event.keyboard.keycode != ALLEGRO_KEY_CAPSLOCK)
-                            _handle_key_press(0, a5_keyboard_keycode_map[event.keyboard.keycode]);
-                    }
+                    _handle_key_press(-1, a5_keyboard_keycode_map[event.keyboard.keycode]);
                     break;
                 }
                 case ALLEGRO_EVENT_KEY_UP:
@@ -116,9 +125,9 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     if(event.keyboard.unichar >= 0)
                     {
                         if ((ALLEGRO_KEYMOD_ALT & event.keyboard.modifiers) != 0) {
-                            _handle_key_press(0, event.keyboard.keycode);
+                            _handle_key_press(0, a5_keyboard_keycode_map[event.keyboard.keycode]);
                         } else {
-                            _handle_key_press(event.keyboard.unichar, event.keyboard.keycode);
+                            _handle_key_press(event.keyboard.unichar, a5_keyboard_keycode_map[event.keyboard.keycode]);
                         }
                     }
                     break;
@@ -129,8 +138,6 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
     al_destroy_event_queue(queue);
     return NULL;
 }
-
-#include <stdio.h>
 
 static int a5_keyboard_init(void)
 {
