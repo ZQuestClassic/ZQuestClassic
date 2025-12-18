@@ -5904,16 +5904,16 @@ void SW_CounterPercentBar::draw(BITMAP* dest, int32_t xofs, int32_t yofs, Subscr
 		word ys = word((perc * zfix(h)).getInt());
 		if(c1 > -1 && ys)
 			rectfill(dest, x2, y2, x2+w-1, y2+ys-1, c1);
-		if(c2 > -1)
-			rectfill(dest, x2, y2+ys, x2+w-1, y2+h-ys-1, c2);
+		if(c2 > -1 && ys < h)
+			rectfill(dest, x2, y2+ys, x2+w-1, y2+h-1, c2);
 	}
 	else
 	{
 		word xs = word((perc * zfix(w)).getInt());
 		if(c1 > -1 && xs)
 			rectfill(dest, x2, y2, x2+xs-1, y2+h-1, c1);
-		if(c2 > -1)
-			rectfill(dest, x2+xs, y2, x2+w-xs-1, y2+h-1, c2);
+		if(c2 > -1 && xs < w)
+			rectfill(dest, x2+xs, y2, x2+w-1, y2+h-1, c2);
 	}
 	
 	if(flags&SUBSCR_COUNTERPERCBAR_TRANSP)
