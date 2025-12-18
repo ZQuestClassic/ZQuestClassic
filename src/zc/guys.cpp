@@ -3784,16 +3784,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		else 
 		{
 			w->power = power = itemsbuf[parent_item].misc5;
-				
-			int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
-			
-			if(def <= 0) 
-			{
-				if ( def == -2 ) hp -= hp;
-				else hp -= power;
-				return def;
-			}
-			break;
+			goto takehit_default;
 		}
 		break;
 	}
@@ -3841,8 +3832,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		
 		wpnId = wSword;
 		power = game->get_hero_dmgmult()>>1;
-		goto fsparkle;
-		break;
+		goto takehit_default;
 		
 	case wBrang:
 	{
@@ -3919,7 +3909,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		power = game->get_hero_dmgmult();
 	}
 	
-fsparkle:
+takehit_default:
 
 	[[fallthrough]];
 	default:
