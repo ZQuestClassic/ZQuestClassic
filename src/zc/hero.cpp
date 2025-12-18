@@ -12036,7 +12036,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					return false;
 			}
 			
-			Lwpns.add(new weapon(x,y-fakez,z,wWhistle,0,0,dir,itemid,getUID(),false,0,1,0));
+			Lwpns.add(new weapon(x,y-fakez,z,wWhistle,0,0,-1,itemid,getUID(),false,0,1,0));
 			
 			if((whistleflag=trigger_secrets_if_flag(x,y,mfWHISTLE,get_qr(qr_PERMANENT_WHISTLE_SECRETS))))
 				didstuff |= did_whistle;
