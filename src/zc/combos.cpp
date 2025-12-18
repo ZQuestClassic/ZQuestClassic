@@ -1948,6 +1948,12 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	auto& trig = cmb.triggers[idx];
 	auto [combo_x, combo_y] = comb_handle.xy();
 	auto [center_x, center_y] = comb_handle.center_xy();
+	zfix hero_x = Hero.getX(), hero_y = Hero.getY();
+	if (FFCore.ScrollingData[SCROLLDATA_DIR] > -1) // properly handle scrolling positions
+	{
+		hero_x = FFCore.ScrollingData[SCROLLDATA_NEW_HERO_X];
+		hero_y = FFCore.ScrollingData[SCROLLDATA_NEW_HERO_Y];
+	}
 	if (replay_version_check(0, 47))
 	{
 		combo_x = combo_x.getInt();
@@ -1971,10 +1977,7 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	}
 	if(trig.trigprox) //Proximity requirement
 	{
-		zfix cx2 = combo_x + FFCore.ScrollingData[SCROLLDATA_NX];
-		zfix cy2 = combo_y + FFCore.ScrollingData[SCROLLDATA_NY];
-
-		word d = dist(Hero.getX(), Hero.getY(), cx2, cy2).getInt();
+		word d = dist(hero_x, hero_y, combo_x, combo_y).getInt();
 		if(trig.trigger_flags.get(TRIGFLAG_INVERTPROX)) //trigger outside the radius
 		{
 			if(d < trig.trigprox || !is_active_screen) //inside, cancel
@@ -2001,23 +2004,23 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_X_LE))
 		{
-			if(Hero.getX() > targ_x)
+			if(hero_x > targ_x)
 				return false;
 		}
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_X_GE))
 		{
-			if(Hero.getX() < targ_x)
+			if(hero_x < targ_x)
 				return false;
 		}
 		
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_Y_LE))
 		{
-			if(Hero.getY() > targ_y)
+			if(hero_y > targ_y)
 				return false;
 		}
 		if(trig.trigger_flags.get(TRIGFLAG_REQ_Y_GE))
 		{
-			if(Hero.getY() < targ_y)
+			if(hero_y < targ_y)
 				return false;
 		}
 		
