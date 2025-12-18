@@ -6674,7 +6674,8 @@ void HeroClass::checkhit()
 		}
 	}
 	
-	if(hclk>0 || inlikelike == 1 || action==inwind || action==drowning || action==lavadrowning || action==sidedrowning || inwallm || isDiving() || (action==hopping && hopclk<255))
+	if(hclk>0 || inlikelike == 1 || action==inwind || action==drowning || action==lavadrowning
+		|| action==sidedrowning || inwallm || isDiving() || (action==hopping && hopclk<255) || action==falling || fallclk)
 	{
 		return;
 	}
