@@ -496,7 +496,7 @@ void TextField::check_len(size_t min)
 	size_t s = std::max(min, maxLength);
 	if(ubound > lbound)
 	{
-		s = std::max(count_digits(lbound), count_digits(ubound));
+		s = std::max(count_digits(lbound), count_digits(ubound)) + 1;
 	}
 	_updateBuf(s);
 }
