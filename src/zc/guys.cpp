@@ -3755,13 +3755,10 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 			w->power = power = itemsbuf[parent_item].misc5;
 				
 			int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
-			
-			if(def <= 0) 
-			{
-				hp -= power;
+			if (def >= 0)
 				return def;
-			}
-			break;
+			hp -= power;
+			return def;
 		}
 		break;
 	}
