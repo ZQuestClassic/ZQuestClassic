@@ -58,9 +58,6 @@ export async function configureMount() {
     FS.mount(IDBFS, {}, '/local');
   }
   await ZC.fsSync(true);
-  if (!FS.analyzePath('/local/zc.cfg').exists) {
-    FS.writeFile('/local/zc.cfg', FS.readFile('/zc_web.cfg'));
-  }
   if (!FS.analyzePath('/local/zquest.cfg').exists) {
     FS.writeFile('/local/zquest.cfg', FS.readFile('/zquest_web.cfg'));
   }

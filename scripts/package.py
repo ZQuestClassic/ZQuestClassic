@@ -287,7 +287,6 @@ def do_web_packaging():
             'modules/classic/title_gfx.dat',
             'modules/classic/zelda.nsf',
             'sfx.dat',
-            'zc_web.cfg',
             'zc.png',
             'zquest_web.cfg',
         ],

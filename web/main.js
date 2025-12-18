@@ -154,6 +154,8 @@ async function main() {
   let readyToRunPromiseResolve;
   const readyToRunPromise = new Promise(resolve => readyToRunPromiseResolve = resolve);
 
+  await renderDefaultControls();
+
   // window.Module = await initModule({
   window.Module = Object.assign(Module, {
     arguments: [],
@@ -513,6 +515,32 @@ async function renderQuestList() {
   const qsQuestId = qsQuest ? qsQuest.match(/(quests\/purezc\/\d+)/)?.[0] : '';
   const initialSelectedQuest = (qsQuestId && quests.find(q => q.id == qsQuestId)) || quests.find(q => ['auto', true].includes(q.approval));
   if (initialSelectedQuest) showQuest(initialSelectedQuest);
+}
+
+async function renderDefaultControls() {
+  const layout = await navigator.keyboard.getLayoutMap();
+  const defaultControls = {
+    A: 'KeyZ', // Physical location: Bottom row, left key (US 'Z', German 'Y')
+    B: 'KeyX',
+    L: 'KeyQ',
+    R: 'KeyW',
+    Start: 'Enter',
+    Map: 'Space',
+    'Ex1 (X)': 'KeyA',
+    'Ex1 (Y)': 'KeyS',
+    Ex3: 'KeyD',
+    Ex4: 'KeyC',
+  };
+
+  const defaultControlsEl = document.querySelector('.default-controls');
+  defaultControlsEl.textContent = 'Default Keyboard Controls';
+
+  for (const [name, code] of Object.entries(defaultControls)) {
+    const el = createElement('div');
+    defaultControlsEl.append(el);
+    const label = await layout.get(code) ?? code.replace('Key', '');
+    el.textContent = `${name}: ${label}`;
+  }
 }
 
 function setupTouchControls() {
