@@ -10,7 +10,7 @@ import unittest
 
 from pathlib import Path
 
-from common import ReplayTestResults
+from replays import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -77,7 +77,7 @@ class TestReplays(unittest.TestCase):
         if not test_results_path.exists():
             print(output.stdout)
             raise Exception('could not find test_results.json')
-        self.assertEqual(output.returncode, 1)
+        self.assertEqual(output.returncode, 2, output.stdout)
 
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
         return ReplayTestResults(**test_results_json)

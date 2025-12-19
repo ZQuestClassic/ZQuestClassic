@@ -1,10 +1,6 @@
 # Given various test run results (either from local filesystem, or
-# downloaded from a GitHub Actiosn workflow run), generates an HTML report
+# downloaded from a GitHub Actions workflow run), generates an HTML report
 # presenting the snapshots frame-by-frame, and their differences.
-#
-# You must run a local web server for the HTML to work:
-#     cd tests/compare-report
-#     python -m http.server 8000
 
 import argparse
 import hashlib
@@ -16,18 +12,18 @@ import shutil
 
 from argparse import ArgumentTypeError
 from pathlib import Path
-from typing import List
 
 import intervaltree
 
-from common import (
-    ReplayTestResults,
-    RunResult,
-    extract_tars,
-    get_gha_artifacts_with_retry,
-)
 from github import Github
 from PIL import Image
+from replays import ReplayTestResults, RunResult
+
+script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
+
+os.sys.path.append(str((root_dir / 'scripts').absolute()))
+from github_helpers import extract_tars, get_gha_artifacts_with_retry
 
 
 def dir_path(path):
@@ -38,7 +34,7 @@ def dir_path(path):
 
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-out_dir = Path(f'{script_dir}/compare-report')
+default_out_dir = Path(f'{script_dir}/compare-report')
 is_ci = 'CI' in os.environ
 
 
@@ -77,7 +73,7 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
         print(f'{directory} has no snapshots')
 
     # Only process the last run of each replay.
-    replay_runs: List[RunResult] = []
+    replay_runs: list[RunResult] = []
     for runs in reversed(test_results.runs):
         for run in runs:
             if any(r for r in replay_runs if r.name == run.name):
@@ -112,8 +108,8 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
 # `directory` can include just one test run (a folder with test_results.json);
 # or many. For the latter, they will be grouped into a single test run per
 # platform (so that sharding does not generate multiple test runs).
-def collect_many_test_results_from_dir(directory: Path) -> List[ReplayTestResults]:
-    test_runs: List[ReplayTestResults] = []
+def collect_many_test_results_from_dir(directory: Path) -> list[ReplayTestResults]:
+    test_runs: list[ReplayTestResults] = []
 
     extract_tars(directory)
     for test_results_path in directory.rglob('test_results.json'):
@@ -140,12 +136,14 @@ def collect_many_test_results_from_dir(directory: Path) -> List[ReplayTestResult
 
 def collect_many_test_results_from_ci(
     gh: Github, repo: str, workflow_run_id: str
-) -> List[ReplayTestResults]:
+) -> list[ReplayTestResults]:
     workflow_dir = get_gha_artifacts_with_retry(gh, repo, workflow_run_id)
     return collect_many_test_results_from_dir(workflow_dir)
 
 
-def create_compare_report(test_runs: List[ReplayTestResults]):
+def create_compare_report(
+    test_runs: list[ReplayTestResults], out_dir: Path = default_out_dir
+):
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
@@ -181,7 +179,7 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
 
                 print('! replay_name', replay_name)
                 print('! replay_budget', replay_budget)
-                runs: List[RunResult] = []
+                runs: list[RunResult] = []
                 for test_results in test_runs:
                     for run in test_results.runs[0]:
                         if run.name == replay_name:
@@ -308,7 +306,7 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
     print(f'report written to {out_path}')
 
 
-# TODO use webserver.py
+# TODO use webserver.mjs
 def start_webserver():
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -316,7 +314,7 @@ def start_webserver():
         def do_GET(self):
             if self.path == '/':
                 self.path = '/index.html'
-            path = out_dir / self.path[1:]
+            path = default_out_dir / self.path[1:]
 
             file_to_open = None
             try:
@@ -346,7 +344,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--workflow_run', type=int, action='append')
     parser.add_argument('--local', type=dir_path, action='append')
+    parser.add_argument('--dest', type=dir_path, default=default_out_dir)
     parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
+    parser.add_argument('--start-server', action=argparse.BooleanOptionalAction)
     parser.add_argument('--token')
     args = parser.parse_args()
 
@@ -378,6 +378,6 @@ if __name__ == '__main__':
                 print(f' - {test_results.label}')
             all_test_runs.extend(test_runs)
 
-    create_compare_report(all_test_runs)
-    if not is_ci:
+    create_compare_report(all_test_runs, args.dest)
+    if not is_ci and args.start_server:
         start_webserver()
