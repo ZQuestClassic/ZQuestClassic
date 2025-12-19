@@ -653,7 +653,7 @@ class FFScript
     
 public:
 //FFScript();
-void init();
+void init(bool for_continue = false);
 void shutdown();
 
 
@@ -941,6 +941,7 @@ void initZScriptHeroScripts();
 void initZScriptItemScripts();
 
 void clear_script_engine_data();
+void clear_script_engine_data_for_continue();
 void reset_script_engine_data(ScriptType type, int index = 0);
 void clear_script_engine_data(ScriptType type, int index = 0);
 void clear_script_engine_data_of_type(ScriptType type);

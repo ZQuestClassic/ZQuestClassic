@@ -2325,7 +2325,7 @@ int32_t cont_game()
 	GameLoaded = true;
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
-	FFCore.init();
+	FFCore.init(true);
 	onload_gswitch_timers();
 	didpit=false;
 	Hero.unfreeze();
