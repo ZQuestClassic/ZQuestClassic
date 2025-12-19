@@ -22838,7 +22838,7 @@ void ZQ_ClearQuestPath()
 
 //FFCore
 
-void FFScript::init()
+void FFScript::init(bool for_continue)
 {
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	numscriptdraws = 0;

@@ -1325,6 +1325,17 @@ void FFScript::clear_script_engine_data()
 	scriptEngineDatas.clear();
 }
 
+void FFScript::clear_script_engine_data_for_continue()
+{
+	// Generic scripts should survive F6->Continue!
+	for (auto it = scriptEngineDatas.begin(); it != scriptEngineDatas.end();)
+	{
+		if (it->first.first == ScriptType::Generic)
+			++it;
+		else it = scriptEngineDatas.erase(it);
+	}
+}
+
 void FFScript::reset_script_engine_data(ScriptType type, int index)
 {
 	get_script_engine_data(type, index).reset();
@@ -28705,7 +28716,7 @@ int32_t FFScript::getHeroAction()
 	else return FF_hero_action; //everything else
 }
 
-void FFScript::init()
+void FFScript::init(bool for_continue)
 {
 	apply_qr_rules();
 	eventData.clear();
@@ -28767,7 +28778,9 @@ void FFScript::init()
 	memset(ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
 	ScrollingData[SCROLLDATA_DIR] = -1;
 	user_rng_init();
-	clear_script_engine_data();
+	if (for_continue)
+		clear_script_engine_data_for_continue();
+	else clear_script_engine_data();
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
 }
