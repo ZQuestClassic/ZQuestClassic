@@ -14257,7 +14257,7 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 	return -1;
 }
 
-static bool replay_compat_check_zc_version_2_55_11()
+static bool replay_compat_check_zc_version_2_55(int patch)
 {
 	if (!replay_is_active())
 		return false;
@@ -14269,7 +14269,7 @@ static bool replay_compat_check_zc_version_2_55_11()
 			return true; // Replays didn't exist at this point ... but whatever.
 		if (zc_version_created.major == 2 && zc_version_created.minor < 55)
 			return true; // Replays didn't exist at this point ... but whatever.
-		if (zc_version_created.major == 2 && zc_version_created.minor == 55 && zc_version_created.patch < 11)
+		if (zc_version_created.major == 2 && zc_version_created.minor == 55 && zc_version_created.patch < patch)
 			return true;
 	}
 
@@ -14278,7 +14278,7 @@ static bool replay_compat_check_zc_version_2_55_11()
 
 static bool replay_compat_pitslide_bug()
 {
-	if (replay_compat_check_zc_version_2_55_11())
+	if (replay_compat_check_zc_version_2_55(11))
 		return true;
 
 	return !replay_version_check(45);
@@ -14286,10 +14286,18 @@ static bool replay_compat_pitslide_bug()
 
 static bool replay_compat_held_items_only_held_always_bug()
 {
-	if (replay_compat_check_zc_version_2_55_11())
+	if (replay_compat_check_zc_version_2_55(11))
 		return true;
 
 	return !replay_version_check(44);
+}
+
+static bool replay_compat_old_movement_off_by_one()
+{
+	if (replay_compat_check_zc_version_2_55(12))
+		return true;
+
+	return !replay_version_check(48);
 }
 
 bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
@@ -16401,6 +16409,7 @@ void HeroClass::moveheroOld()
 		}
 		else
 		{
+			int tmp_x = replay_compat_old_movement_off_by_one() ? 16 : 15;
 			if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) && (holddir == -1 || holddir == up))
 			{
 				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls)
@@ -16439,9 +16448,9 @@ void HeroClass::moveheroOld()
 						info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
 						
 						if(x.getInt() & 7)
-							info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
+							info = info || walkflag(x+tmp_x,y+(bigHitbox?0:8)-z3step,1,up);
 						else
-							info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
+							info = info || walkflagMBlock(x+tmp_x, y+(bigHitbox?0:8)-z3step);
 							
 						execute(info);
 						
@@ -16453,9 +16462,9 @@ void HeroClass::moveheroOld()
 								info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
 								
 								if(x.getInt()&7)
-									info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
+									info = info || walkflag(x+tmp_x,y+(bigHitbox?0:8)-z3step,1,up);
 								else
-									info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
+									info = info || walkflagMBlock(x+tmp_x, y+(bigHitbox?0:8)-z3step);
 									
 								execute(info);
 								
@@ -16607,9 +16616,9 @@ void HeroClass::moveheroOld()
 						info = walkflag(x,y+15+z3step,2,down);
 						
 						if(x.getInt()&7)
-							info = info || walkflag(x+16,y+15+z3step,1,down);
+							info = info || walkflag(x+tmp_x,y+15+z3step,1,down);
 						else
-							info = info || walkflagMBlock(x+16, y+15+z3step);
+							info = info || walkflagMBlock(x+tmp_x, y+15+z3step);
 						
 						execute(info);
 						
@@ -16621,9 +16630,9 @@ void HeroClass::moveheroOld()
 								info = walkflag(x,y+15+z3step,2,down);
 								
 								if(x.getInt()&7)
-									info = info || walkflag(x+16,y+15+z3step,1,down);
+									info = info || walkflag(x+tmp_x,y+15+z3step,1,down);
 								else
-									info = info || walkflagMBlock(x+16, y+15+z3step);
+									info = info || walkflagMBlock(x+tmp_x, y+15+z3step);
 									
 								execute(info);
 								
