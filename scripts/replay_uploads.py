@@ -34,7 +34,7 @@
 #
 # To view a specific replay, run:
 #
-#   python tests/run_replay_tests.py $PWD/.tmp/replay_uploads/D2905F6A4976CBC02C3ACC92AD6CB12C/c4c21082-dc31-49e0-9f35-d18bfb87c841-updated.zplay --show
+#   python tests/run_replay_tests.py $PWD/.tmp/replay_uploads/D2905F6A4976CBC02C3ACC92AD6CB12C/c4c21082-dc31-49e0-9f35-d18bfb87c841-updated-main.zplay --show
 #
 # TODO: consider running in CI (see the "For example" above)
 
@@ -62,6 +62,10 @@ os.sys.path.append(str((root_dir / 'tests').absolute()))
 import replay_helpers
 
 from replays import ReplayTestResults
+
+channel = 'main'
+updated_suffx = f'-updated-{channel}.zplay'
+updated_suffix_no_ext = f'-updated-{channel}'
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument(
@@ -109,7 +113,7 @@ def prepare_and_get_replay_keys():
     get_qst_keys_by_hash = db.get_qst_keys_by_hash()
     all_keys = list(_.key for _ in bucket.objects.all())
     # Note: currently no plans to actual upload updated replays back to bucket.
-    original_keys = [key for key in all_keys if '-updated.zplay' not in key]
+    original_keys = [key for key in all_keys if updated_suffx not in key]
 
     print('All replays downloaded from the upload bucket\n')
     print(f'Directory: {replays_dir}')
@@ -157,13 +161,13 @@ def download_replay(key: str) -> Path:
 
 
 def get_updated_key(key: str):
-    return key.replace('.zplay', '-updated.zplay')
+    return key.replace('.zplay', updated_suffx)
 
 
 def init_updated_replay(key: str):
     original_replay_path = download_replay(key)
     updated_replay_path = original_replay_path.with_name(
-        original_replay_path.name.replace('.zplay', '-updated.zplay')
+        original_replay_path.name.replace('.zplay', updated_suffx)
     )
     if updated_replay_path.exists():
         return
@@ -295,8 +299,10 @@ def print_info():
 # Finds the most recent ZC version that can update the replay, does that update, and prints a
 # command to run to see a compare report against the current local build.
 def debug_replay(replay_path: Path):
-    if '-updated' not in replay_path.name:
-        replay_path = replay_path.with_stem(f'{replay_path.stem}-updated')
+    if updated_suffix_no_ext not in replay_path.name:
+        replay_path = replay_path.with_stem(
+            f'{replay_path.stem}{updated_suffix_no_ext}'
+        )
 
     replay_path = replays_dir / replay_path
     meta = replay_helpers.read_replay_meta(replay_path)
