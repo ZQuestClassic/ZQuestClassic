@@ -14147,6 +14147,11 @@ static bool replay_compat_hookshot_snap_player_bug()
 	return replay_compat_check_zc_version_2_55(12);
 }
 
+static bool replay_compat_old_movement_off_by_one()
+{
+	return replay_compat_check_zc_version_2_55(12);
+}
+
 bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
 {
 	pitfall();
@@ -16120,6 +16125,7 @@ void HeroClass::moveheroOld()
 		}
 		else
 		{
+			int tmp_x = replay_compat_old_movement_off_by_one() ? 16 : 15;
 			if(DrunkUp()&&(holddir==-1||holddir==up))
 			{
 				if(isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM) && !toogam)
@@ -16158,9 +16164,9 @@ void HeroClass::moveheroOld()
 						info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
 						
 						if(x.getInt() & 7)
-							info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
+							info = info || walkflag(x+tmp_x,y+(bigHitbox?0:8)-z3step,1,up);
 						else
-							info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
+							info = info || walkflagMBlock(x+tmp_x, y+(bigHitbox?0:8)-z3step);
 							
 						execute(info);
 						
@@ -16172,9 +16178,9 @@ void HeroClass::moveheroOld()
 								info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
 								
 								if(x.getInt()&7)
-									info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
+									info = info || walkflag(x+tmp_x,y+(bigHitbox?0:8)-z3step,1,up);
 								else
-									info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
+									info = info || walkflagMBlock(x+tmp_x, y+(bigHitbox?0:8)-z3step);
 									
 								execute(info);
 								
@@ -16326,9 +16332,9 @@ void HeroClass::moveheroOld()
 						info = walkflag(x,y+15+z3step,2,down);
 						
 						if(x.getInt()&7)
-							info = info || walkflag(x+16,y+15+z3step,1,down);
+							info = info || walkflag(x+tmp_x,y+15+z3step,1,down);
 						else
-							info = info || walkflagMBlock(x+16, y+15+z3step);
+							info = info || walkflagMBlock(x+tmp_x, y+15+z3step);
 						
 						execute(info);
 						
@@ -16340,9 +16346,9 @@ void HeroClass::moveheroOld()
 								info = walkflag(x,y+15+z3step,2,down);
 								
 								if(x.getInt()&7)
-									info = info || walkflag(x+16,y+15+z3step,1,down);
+									info = info || walkflag(x+tmp_x,y+15+z3step,1,down);
 								else
-									info = info || walkflagMBlock(x+16, y+15+z3step);
+									info = info || walkflagMBlock(x+tmp_x, y+15+z3step);
 									
 								execute(info);
 								
