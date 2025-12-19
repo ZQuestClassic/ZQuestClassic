@@ -42,7 +42,7 @@ jobs:
             config: RelWithDebInfo
             # For some reason, crucible_quest.zplay fails on frame 1492 but only on this build.
             extra-args: --max_duration 60 --frame=crucible_quest.zplay=1
-          - runs-on: macos-13
+          - runs-on: macos-15-intel
             arch: intel
             compiler: clang
             config: RelWithDebInfo
