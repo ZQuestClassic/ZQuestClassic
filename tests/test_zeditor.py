@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import unittest
+
 from pathlib import Path
 
 from common import ReplayTestResults
@@ -32,9 +33,13 @@ class TestZEditor(unittest.TestCase):
         if 'emscripten' in str(run_target.get_build_folder()):
             return
 
-        run_target.check_run('zeditor', [
-            '-test-zc', root_dir / 'tests',
-        ])
+        run_target.check_run(
+            'zeditor',
+            [
+                '-test-zc',
+                root_dir / 'tests',
+            ],
+        )
 
     def quick_assign(self, qst_path):
         log = run_target.get_build_folder() / 'allegro.log'
@@ -55,8 +60,10 @@ class TestZEditor(unittest.TestCase):
         args = [
             sys.executable,
             root_dir / 'tests/run_replay_tests.py',
-            '--build_folder', run_target.get_build_folder(),
-            '--test_results', output_dir,
+            '--build_folder',
+            run_target.get_build_folder(),
+            '--test_results',
+            output_dir,
             *args,
         ]
         shutil.rmtree(output_dir, ignore_errors=True)
@@ -75,7 +82,8 @@ class TestZEditor(unittest.TestCase):
                 failing_str = f'({run.name}) failure at frame {run.failing_frame}'
                 if run.unexpected_gfx_segments:
                     segments_str = [
-                        f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments]
+                        f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments
+                    ]
                     failing_str += ': ' + ', '.join(segments_str)
                 if run.exceptions:
                     failing_str += '\nExceptions:\n\t' + '\n\t'.join(run.exceptions)
@@ -89,12 +97,15 @@ class TestZEditor(unittest.TestCase):
 
     # Simply open the editor with the new quest template.
     def test_file_new(self):
-        run_target.check_run('zeditor', [
-            '-new',
-            '-headless',
-            '-s',
-            '-q',
-        ])
+        run_target.check_run(
+            'zeditor',
+            [
+                '-new',
+                '-headless',
+                '-s',
+                '-q',
+            ],
+        )
 
     # Resave some quests and assert their replays still pass, to make sure the loading/saving code is not introducing bugs.
     def test_save(self):
@@ -114,18 +125,29 @@ class TestZEditor(unittest.TestCase):
 
         for zplay_path, qst_path in test_cases:
             with self.subTest(msg=zplay_path):
-                load_qst_path = qst_path if qst_path.startswith('quests/') else root_dir / 'tests/replays' / qst_path
+                load_qst_path = (
+                    qst_path
+                    if qst_path.startswith('quests/')
+                    else root_dir / 'tests/replays' / qst_path
+                )
                 tmp_qst_dir = tmp_dir / f'resave-{zplay_path}'
                 tmp_qst_dir.mkdir(exist_ok=True)
                 tmp_qst_path = tmp_qst_dir / 'tmp.qst'
 
-                run_target.check_run('zeditor', [
-                    '-headless',
-                    '-s',
-                    '-copy-qst', load_qst_path, tmp_qst_path,
-                ])
+                run_target.check_run(
+                    'zeditor',
+                    [
+                        '-headless',
+                        '-s',
+                        '-copy-qst',
+                        load_qst_path,
+                        tmp_qst_path,
+                    ],
+                )
 
-                replay_content = (root_dir / 'tests/replays' / zplay_path).read_text('utf-8')
+                replay_content = (root_dir / 'tests/replays' / zplay_path).read_text(
+                    'utf-8'
+                )
                 replay_content = replay_content.replace(qst_path, 'tmp.qst')
                 replay_path = tmp_qst_dir / 'tmp.zplay'
                 replay_path.write_text(replay_content)
@@ -148,10 +170,15 @@ class TestZEditor(unittest.TestCase):
             str(root_dir / 'tests/scripts/newbie_boss'),
             str(root_dir / 'tests/scripts/compat'),
         ]
-        (run_target.get_build_folder() / 'includepaths.txt').write_text(';'.join(include_paths))
+        (run_target.get_build_folder() / 'includepaths.txt').write_text(
+            ';'.join(include_paths)
+        )
 
         test_cases = [
-            (root_dir / 'tests/replays/playground.qst', list((root_dir / 'tests/replays').glob('playground_*.zplay'))),
+            (
+                root_dir / 'tests/replays/playground.qst',
+                list((root_dir / 'tests/replays').glob('playground_*.zplay')),
+            ),
         ]
         for replay_path in (root_dir / 'tests/replays/scripting').glob('*.zplay'):
             # Somewhere between 2.53.1 and 2.55-alpha-1, simply resaving newbie_boss.qst
@@ -224,11 +251,17 @@ class TestZEditor(unittest.TestCase):
         ]
         run_target.check_run('zeditor', args)
         tsv = tsv_path.read_text().splitlines()
-        self.assertEqual(tsv[2], '  IT\'S DANGEROUS TO GO      ALONE! TAKE THIS.                           	0	0	0	0	0	24	32	192	24	18	1	0	0	0	8 8 0 8	0	0	0	0	1	1	0	0	6')
+        self.assertEqual(
+            tsv[2],
+            '  IT\'S DANGEROUS TO GO      ALONE! TAKE THIS.                           	0	0	0	0	0	24	32	192	24	18	1	0	0	0	8 8 0 8	0	0	0	0	1	1	0	0	6',
+        )
         self.assertEqual(len(tsv), 37)
 
     def test_package_export(self):
-        if 'emscripten' in str(run_target.get_build_folder()) or platform.system() != 'Windows':
+        if (
+            'emscripten' in str(run_target.get_build_folder())
+            or platform.system() != 'Windows'
+        ):
             raise unittest.SkipTest('unsupported platform')
 
         run_target.check_run(
@@ -243,9 +276,14 @@ class TestZEditor(unittest.TestCase):
         package_dir = run_target.get_build_folder() / 'packages/package-test'
         args_path: Path = package_dir / 'data/zc_args.txt'
         args_path.write_text(args_path.read_text() + ' -q -headless')
-        run_target.check_run('zplayer', [
-            '-package',
-        ], package_dir / 'data')
+        run_target.check_run(
+            'zplayer',
+            [
+                '-package',
+            ],
+            package_dir / 'data',
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -59,6 +59,7 @@ import shutil
 import subprocess
 import sys
 import time
+
 from argparse import ArgumentTypeError
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -67,6 +68,7 @@ from timeit import default_timer as timer
 from typing import List
 
 import cutie
+
 from common import (
     ReplayTestResults,
     RunResult,
@@ -123,7 +125,9 @@ def parse_result_txt_file(path: pathlib.Path):
         key, value = line.split(': ', 1)
         if key == 'unexpected_gfx_frames':
             value = [int(x) for x in value.split(', ')]
-        elif key == 'unexpected_gfx_segments' or key == 'unexpected_gfx_segments_limited':
+        elif (
+            key == 'unexpected_gfx_segments' or key == 'unexpected_gfx_segments_limited'
+        ):
             segments = []
             for pair in value.split(' '):
                 if '-' in pair:
@@ -204,64 +208,122 @@ class ReplayResultUpdatedHandler(FileSystemEventHandler):
                 self.callback(self)
 
 
-
 ASSERT_FAILED_EXIT_CODE = 120
 
 if os.name == 'nt':
     sys.stdout.reconfigure(encoding='utf-8')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--build_folder', type=dir_path, default='build/Release',
-    help='The folder containing the exe files', metavar='DIRECTORY')
-parser.add_argument('--build_type', default='Release',
-    help='How to treat the build, for purposes of timeouts and duration estimates')
-parser.add_argument('--test_results_folder', type=dir_path,
-    help='Where to save the replay test artifacts. By default, somewhere in .tmp')
-parser.add_argument('--filter', action='append', metavar='FILEPATH',
-    help='Specify a file to run, instead of running all. Can be supplied multiple times.')
-parser.add_argument('--max_duration', action='append', metavar='SECONDS',
-    help='The maximum time, in seconds, the replay will test for.')
-parser.add_argument('--throttle_fps', action='store_true',
-    help='Supply this to cap the replay\'s FPS')
-parser.add_argument('--retries', type=int, default=0,
-    help='The number of retries (default 0) to give each replay')
-parser.add_argument('-c', '--concurrency', type=int,
-    help='How many replays to run concurrently. If not value not provided, will be set based on the number of available CPU cores (unless --show or --no-headless is used, in which case the value will be set to 1).')
-parser.add_argument('--jit', action=argparse.BooleanOptionalAction, default=True,
-    help='Enables JIT compilation')
-parser.add_argument('--debugger', action=argparse.BooleanOptionalAction, default=is_ci,
-    help='Run in debugger (uses lldb)')
-parser.add_argument('--headless', action=argparse.BooleanOptionalAction, default=True,
-    help='Run without display or sound')
-parser.add_argument('--show', action=argparse.BooleanOptionalAction, default=False,
-    help='Alias for --no-headless and --throttle_fps')
+parser.add_argument(
+    '--build_folder',
+    type=dir_path,
+    default='build/Release',
+    help='The folder containing the exe files',
+    metavar='DIRECTORY',
+)
+parser.add_argument(
+    '--build_type',
+    default='Release',
+    help='How to treat the build, for purposes of timeouts and duration estimates',
+)
+parser.add_argument(
+    '--test_results_folder',
+    type=dir_path,
+    help='Where to save the replay test artifacts. By default, somewhere in .tmp',
+)
+parser.add_argument(
+    '--filter',
+    action='append',
+    metavar='FILEPATH',
+    help='Specify a file to run, instead of running all. Can be supplied multiple times.',
+)
+parser.add_argument(
+    '--max_duration',
+    action='append',
+    metavar='SECONDS',
+    help='The maximum time, in seconds, the replay will test for.',
+)
+parser.add_argument(
+    '--throttle_fps', action='store_true', help='Supply this to cap the replay\'s FPS'
+)
+parser.add_argument(
+    '--retries',
+    type=int,
+    default=0,
+    help='The number of retries (default 0) to give each replay',
+)
+parser.add_argument(
+    '-c',
+    '--concurrency',
+    type=int,
+    help='How many replays to run concurrently. If not value not provided, will be set based on the number of available CPU cores (unless --show or --no-headless is used, in which case the value will be set to 1).',
+)
+parser.add_argument(
+    '--jit',
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help='Enables JIT compilation',
+)
+parser.add_argument(
+    '--debugger',
+    action=argparse.BooleanOptionalAction,
+    default=is_ci,
+    help='Run in debugger (uses lldb)',
+)
+parser.add_argument(
+    '--headless',
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help='Run without display or sound',
+)
+parser.add_argument(
+    '--show',
+    action=argparse.BooleanOptionalAction,
+    default=False,
+    help='Alias for --no-headless and --throttle_fps',
+)
 parser.add_argument('--emoji', action=argparse.BooleanOptionalAction, default=True)
-parser.add_argument('--no_console', action='store_true',
-    help='Prevent the debug console from opening')
+parser.add_argument(
+    '--no_console', action='store_true', help='Prevent the debug console from opening'
+)
 
 
-mode_group = parser.add_argument_group('Mode','The playback mode')
+mode_group = parser.add_argument_group('Mode', 'The playback mode')
 exclgroup = mode_group.add_mutually_exclusive_group()
 
-exclgroup.add_argument('--replay', action='store_true',
-    help='Play back the replay, without updating or asserting.')
-exclgroup.add_argument('--update', action='store_true',
-    help='Update the replays, accepting any graphical changes (unless --frame is also set, see comment at top of run_replay_tests.py).')
-exclgroup.add_argument('--assert', dest='assertmode', action='store_true',
-    help='Play back the replays in assert mode. This is the default behavior if no mode is specified.')
+exclgroup.add_argument(
+    '--replay',
+    action='store_true',
+    help='Play back the replay, without updating or asserting.',
+)
+exclgroup.add_argument(
+    '--update',
+    action='store_true',
+    help='Update the replays, accepting any graphical changes (unless --frame is also set, see comment at top of run_replay_tests.py).',
+)
+exclgroup.add_argument(
+    '--assert',
+    dest='assertmode',
+    action='store_true',
+    help='Play back the replays in assert mode. This is the default behavior if no mode is specified.',
+)
 
-int_group = parser.add_argument_group('Internal','Use these only if you know what they do.')
+int_group = parser.add_argument_group(
+    'Internal', 'Use these only if you know what they do.'
+)
 
 int_group.add_argument('--snapshot', action='append')
 int_group.add_argument('--frame', action='append')
-int_group.add_argument('--ci', nargs='?',
-    help='Special arg meant for CI behaviors')
+int_group.add_argument('--ci', nargs='?', help='Special arg meant for CI behaviors')
 int_group.add_argument('--shard')
 int_group.add_argument('--print_shards', action='store_true')
 int_group.add_argument('--prune_test_results', action='store_true')
 
-parser.add_argument('replays', nargs='*',
-    help='If provided, will only run these replays rather than those in tests/replays')
+parser.add_argument(
+    'replays',
+    nargs='*',
+    help='If provided, will only run these replays rather than those in tests/replays',
+)
 
 args = parser.parse_args()
 
@@ -283,7 +345,7 @@ if args.update:
 elif args.replay:
     mode = 'replay'
 else:
-    args.assertmode = True #default true, not handled by argparse
+    args.assertmode = True  # default true, not handled by argparse
 
 if args.ci and '_' in args.ci:
     runs_on, arch = args.ci.split('_')
@@ -323,6 +385,7 @@ def group_arg(raw_values: List[str], allow_concat=False):
 def test_r(replay: str):
     return replays_dir / replay
 
+
 def test_expect_error(cb):
     try:
         cb()
@@ -330,22 +393,37 @@ def test_expect_error(cb):
         return
     raise Exception('expected error')
 
+
 if 'LAZY_TEST' in os.environ:
     assert group_arg([]) == ({}, None)
     assert group_arg(['1']) == ({}, '1')
     test_expect_error(lambda: group_arg(['1', '2']))
-    assert group_arg(['classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, None)
-    assert group_arg(['first_quest_layered/first_quest_layered_01_of_18.zplay=10']) == ({
-        test_r('first_quest_layered/first_quest_layered_01_of_18.zplay'): '10'
-    }, None)
-    assert group_arg(['1', 'classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, '1')
+    assert group_arg(['classic_1st.zplay=10']) == (
+        {test_r('classic_1st.zplay'): '10'},
+        None,
+    )
+    assert group_arg(['first_quest_layered/first_quest_layered_01_of_18.zplay=10']) == (
+        {test_r('first_quest_layered/first_quest_layered_01_of_18.zplay'): '10'},
+        None,
+    )
+    assert group_arg(['1', 'classic_1st.zplay=10']) == (
+        {test_r('classic_1st.zplay'): '10'},
+        '1',
+    )
     test_expect_error(lambda: group_arg(['1', 'no_exist.zplay=10']))
-    test_expect_error(lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20']))
-    assert group_arg(['3', 'classic_1st.zplay=10', 'classic_1st.zplay=20'], allow_concat=True) == ({test_r('classic_1st.zplay'): '10 20'}, '3')
-    assert group_arg(['3', 'classic_1st.zplay=10', 'credits.zplay=20']) == ({
-        test_r('classic_1st.zplay'): '10',
-        test_r('credits.zplay'): '20',
-    }, '3')
+    test_expect_error(
+        lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20'])
+    )
+    assert group_arg(
+        ['3', 'classic_1st.zplay=10', 'classic_1st.zplay=20'], allow_concat=True
+    ) == ({test_r('classic_1st.zplay'): '10 20'}, '3')
+    assert group_arg(['3', 'classic_1st.zplay=10', 'credits.zplay=20']) == (
+        {
+            test_r('classic_1st.zplay'): '10',
+            test_r('credits.zplay'): '20',
+        },
+        '3',
+    )
     print('LAZY_TEST done! exiting')
     exit(0)
 
@@ -363,6 +441,7 @@ def get_arg_for_replay(replay_file, grouped_arg, is_int=False):
 
 
 last_progress_str = None
+
 
 def print_progress_str(s: str):
     global last_progress_str
@@ -415,10 +494,17 @@ else:
 
 if is_web:
     print('starting webserver')
-    webserver_p = subprocess.Popen([
-        'python', root_dir / 'scripts/webserver.py',
-        '--dir', args.build_folder / 'packages/web',
-    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    webserver_p = subprocess.Popen(
+        [
+            'python',
+            root_dir / 'scripts/webserver.py',
+            '--dir',
+            args.build_folder / 'packages/web',
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
     while webserver_p.poll() == None:
         if 'Served by' in webserver_p.stdout.readline():
             break
@@ -508,7 +594,7 @@ def get_replay_qst(replay_path: pathlib.Path):
             if not line.startswith('M'):
                 break
 
-            _ , key, value = line.split(' ', 2)
+            _, key, value = line.split(' ', 2)
             if key == 'qst':
                 return value
 
@@ -530,7 +616,7 @@ def read_replay_meta(path: pathlib.Path):
             line = f.readline()
             if not line.startswith('M'):
                 break
-            _ , key, value = line.strip().split(' ', 2)
+            _, key, value = line.strip().split(' ', 2)
             meta[key] = value
     if not meta:
         raise Exception(f'invalid replay {path}')
@@ -550,11 +636,15 @@ def get_replay_data(file):
         if not last_step:
             raise Exception(f'no content found in {name}')
         if not re.match(r'^. \d+ ', last_step):
-            raise Exception(f'unexpected content found in {name}:\n  {last_step}\nAre you sure this is a zplay file?')
+            raise Exception(
+                f'unexpected content found in {name}:\n  {last_step}\nAre you sure this is a zplay file?'
+            )
         frames = int(last_step.split(' ')[1])
 
     if meta['qst'] == 'playground.qst' and meta['version'] != 'latest':
-        raise Exception(f'all playground.qst replays must set version to "latest": {file}')
+        raise Exception(
+            f'all playground.qst replays must set version to "latest": {file}'
+        )
 
     # Based on speed found on Windows 64-bit in CI. Should be manually updated occasionally.
     # NOTE: this are w/o any concurrency, so real numbers in CI today are expected to be lower. Maybe just remove this?
@@ -633,7 +723,9 @@ if args.shard and args.print_shards:
     format_template = "{: <5} {: <10} {: <20}"
     print(format_template.format('shard', 'dur (s)', 'replays'), '\n')
     for shard in get_shards(tests, num_shards):
-        total_duration = sum(get_replay_data(test)['estimated_duration'] for test in shard)
+        total_duration = sum(
+            get_replay_data(test)['estimated_duration'] for test in shard
+        )
         row = [
             str(ss),
             str(round(total_duration)),
@@ -650,7 +742,9 @@ if args.shard:
 
 if args.ci:
     total_frames = sum(get_replay_data(test)['frames'] for test in tests)
-    total_frames_limited = sum(get_replay_data(test)['frames_limited'] for test in tests)
+    total_frames_limited = sum(
+        get_replay_data(test)['frames_limited'] for test in tests
+    )
     frames_limited_ratio = total_frames_limited / total_frames
     if frames_limited_ratio < 1:
         print(f'\nframes limited: {frames_limited_ratio * 100:.2f}%')
@@ -664,6 +758,7 @@ class StartReplayArgs:
     replay_path: pathlib.Path
     output_dir: pathlib.Path
     frame: int
+
 
 class CLIPlayerInterface:
     p = None
@@ -681,19 +776,27 @@ class CLIPlayerInterface:
         if not exe_path.exists():
             exe_path = args.build_folder / ('zelda.exe' if os.name == 'nt' else 'zelda')
         if not exe_path.exists():
-            print(f'could not find executable at: {args.build_folder}\nYou may need to set the --build_folder arg (defaults to build/Release)')
+            print(
+                f'could not find executable at: {args.build_folder}\nYou may need to set the --build_folder arg (defaults to build/Release)'
+            )
             os._exit(1)
 
         exe_args = [
             exe_path.absolute(),
-            f'-{mode}', replay_path,
+            f'-{mode}',
+            replay_path,
             '-v1' if args.throttle_fps else '-v0',
             '-replay-exit-when-done',
-            '-replay-output-dir', output_dir,
+            '-replay-output-dir',
+            output_dir,
         ]
 
         if args.debugger:
-            exe_args = [sys.executable, root_dir / 'scripts/run_target.py', exe_path.stem] + exe_args[1:]
+            exe_args = [
+                sys.executable,
+                root_dir / 'scripts/run_target.py',
+                exe_path.stem,
+            ] + exe_args[1:]
 
         snapshot_arg = get_arg_for_replay(replay_path, grouped_snapshot_arg)
         if snapshot_arg is not None:
@@ -710,27 +813,29 @@ class CLIPlayerInterface:
             exe_args.append('-headless')
         elif is_mac_ci or is_linux_ci:
             exe_args.append('-s')
-        
+
         if args.no_console:
             exe_args.append('-no_console')
-        
+
         # Allegro seems to be using free'd memory when shutting down the sound system.
         # For now, just disable sound in CI or when using Asan/Coverage.
         if args.headless and (is_asan or is_coverage or is_ci or mode == 'assert'):
             exe_args.append('-s')
 
         allegro_log_path = output_dir / 'allegro.log'
-        self.p = subprocess.Popen(exe_args,
-                                  cwd=args.build_folder,
-                                  env={
-                                      **os.environ,
-                                      'ALLEGRO_LEGACY_TRACE': str(allegro_log_path),
-                                      'BUILD_FOLDER': str(args.build_folder.absolute()),
-                                  },
-                                  stdout=open(output_dir / 'stdout.txt', 'w'),
-                                  stderr=open(output_dir / 'stderr.txt', 'w'),
-                                  encoding='utf-8',
-                                  text=True)
+        self.p = subprocess.Popen(
+            exe_args,
+            cwd=args.build_folder,
+            env={
+                **os.environ,
+                'ALLEGRO_LEGACY_TRACE': str(allegro_log_path),
+                'BUILD_FOLDER': str(args.build_folder.absolute()),
+            },
+            stdout=open(output_dir / 'stdout.txt', 'w'),
+            stderr=open(output_dir / 'stderr.txt', 'w'),
+            encoding='utf-8',
+            text=True,
+        )
 
     def wait_for_finish(self):
         if not self.p:
@@ -787,15 +892,18 @@ class WebPlayerInterface:
             url += f'&v0'
 
         exe_args = [
-            'node', root_dir / 'web/tests/run_replay.js',
+            'node',
+            root_dir / 'web/tests/run_replay.js',
             'http://localhost:8000',
             output_dir,
             url,
         ]
 
-        self.p = subprocess.Popen(exe_args,
-                                  stdout=open(output_dir / 'stdout.txt', 'w'),
-                                  stderr=open(output_dir / 'stderr.txt', 'w'))
+        self.p = subprocess.Popen(
+            exe_args,
+            stdout=open(output_dir / 'stdout.txt', 'w'),
+            stderr=open(output_dir / 'stderr.txt', 'w'),
+        )
 
     def wait_for_finish(self):
         if not self.p:
@@ -823,9 +931,15 @@ class WebPlayerInterface:
         self.p.wait()
 
 
-def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunResult:
+def run_replay_test(
+    key: int, replay_file: pathlib.Path, output_dir: pathlib.Path
+) -> RunResult:
     name = get_replay_name(replay_file)
-    result = RunResult(name=name, directory=output_dir.relative_to(test_results_dir).as_posix(), path=str(replay_file))
+    result = RunResult(
+        name=name,
+        directory=output_dir.relative_to(test_results_dir).as_posix(),
+        path=str(replay_file),
+    )
     roundtrip_path = output_dir / f'{name}.roundtrip'
     allegro_log_path = output_dir / 'allegro.log'
     result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
@@ -879,16 +993,20 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
             watcher = ReplayResultUpdatedHandler(result_path, on_result_updated)
 
             start = timer()
-            player_interface.start_replay(StartReplayArgs(
-                replay_path=replay_file,
-                output_dir=output_dir,
-                frame=frame_arg,
-            ))
+            player_interface.start_replay(
+                StartReplayArgs(
+                    replay_path=replay_file,
+                    output_dir=output_dir,
+                    frame=frame_arg,
+                )
+            )
 
             # Wait for .zplay.result.txt creation.
             while True:
                 if do_timeout and timer() - start > timeout:
-                    raise ReplayTimeoutException('timed out waiting for replay to start')
+                    raise ReplayTimeoutException(
+                        'timed out waiting for replay to start'
+                    )
 
                 watcher.update_result()
                 if watcher.result:
@@ -898,7 +1016,9 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
                 if retcode != None:
                     watcher.update_result()
                     if not watcher.result:
-                        raise Exception(f'process finished before replay started, exit code: {retcode}')
+                        raise Exception(
+                            f'process finished before replay started, exit code: {retcode}'
+                        )
 
                 yield (key, 'status', result)
 
@@ -917,7 +1037,9 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
 
                 if do_timeout and timer() - watcher.modified_time > timeout:
                     last_frame = watcher.result['frame']
-                    raise ReplayTimeoutException(f'timed out, replay got stuck around frame {last_frame}')
+                    raise ReplayTimeoutException(
+                        f'timed out, replay got stuck around frame {last_frame}'
+                    )
 
                 yield (key, 'status', result)
 
@@ -926,9 +1048,15 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
 
             if not result.success:
                 result.failing_frame = watcher.result.get('failing_frame', None)
-                result.unexpected_gfx_frames = watcher.result.get('unexpected_gfx_frames', None)
-                result.unexpected_gfx_segments = watcher.result.get('unexpected_gfx_segments', None)
-                result.unexpected_gfx_segments_limited = watcher.result.get('unexpected_gfx_segments_limited', None)
+                result.unexpected_gfx_frames = watcher.result.get(
+                    'unexpected_gfx_frames', None
+                )
+                result.unexpected_gfx_segments = watcher.result.get(
+                    'unexpected_gfx_segments', None
+                )
+                result.unexpected_gfx_segments_limited = watcher.result.get(
+                    'unexpected_gfx_segments_limited', None
+                )
             else:
                 result.failing_frame = None
                 result.unexpected_gfx_frames = None
@@ -937,12 +1065,16 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
             exit_code = player_interface.get_exit_code()
             result.exit_code = exit_code
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
-                result.exceptions.append(f'replay failed with unexpected code {exit_code}')
+                result.exceptions.append(
+                    f'replay failed with unexpected code {exit_code}'
+                )
             # .zplay files are updated in-place, but lets also copy over to the test output folder.
             # This makes it easy to upload an archive of updated replays in CI.
             if mode == 'update' and watcher.result['changed']:
                 (test_results_dir / 'updated').mkdir(exist_ok=True)
-                shutil.copy2(replay_file, test_results_dir / 'updated' / replay_file.name)
+                shutil.copy2(
+                    replay_file, test_results_dir / 'updated' / replay_file.name
+                )
             break
         except ReplayTimeoutException as e:
             # Will try again.
@@ -998,10 +1130,10 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
     active_tests = []
     active_results = []
 
-    replay_finished = {get_replay_name(t):False for t in tests}
-    replay_log_names = {get_replay_name(t):get_replay_log_name(t) for t in tests}
+    replay_finished = {get_replay_name(t): False for t in tests}
+    replay_log_names = {get_replay_name(t): get_replay_log_name(t) for t in tests}
     longest_log_name_len = max(len(get_replay_log_name(test)) for test in tests)
-    estimates = {get_replay_name(t):get_replay_data(t) for t in tests}
+    estimates = {get_replay_name(t): get_replay_data(t) for t in tests}
     print_emoji = args.emoji
 
     use_curses = False
@@ -1009,12 +1141,15 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
         try:
             import atexit
             import curses
+
             use_curses = True
             # TODO: I can't figured out how to use emoji w/ curses.
             print_emoji = False
         except:
             if platform.system() == 'Windows':
-                print('for a better experience, install the "windows-curses" package via pip')
+                print(
+                    'for a better experience, install the "windows-curses" package via pip'
+                )
             pass
 
     def on_exit():
@@ -1040,8 +1175,13 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
                 heapq.heappush(threads, heapq.heappop(threads) + t)
             return max(threads)
 
-        frames_so_far = sum(r.frame for r in results if r.frame) + sum(r.frame for r in active_results if r.frame)
-        durs_so_far = (sum(r.duration for r in results if r.frame) + sum(r.duration for r in active_results if r.frame)) / 1000
+        frames_so_far = sum(r.frame for r in results if r.frame) + sum(
+            r.frame for r in active_results if r.frame
+        )
+        durs_so_far = (
+            sum(r.duration for r in results if r.frame)
+            + sum(r.duration for r in active_results if r.frame)
+        ) / 1000
         avg_fps = frames_so_far / durs_so_far if durs_so_far else 0
         avg_fps_established = frames_so_far > 5000 and avg_fps
         if not avg_fps_established:
@@ -1054,7 +1194,7 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
         for result in active_results:
             estimate = estimates[result.name]
             if result.frame and result.num_frames and result.fps:
-                if result.frame > 10000 or result.frame/result.num_frames > 0.1:
+                if result.frame > 10000 or result.frame / result.num_frames > 0.1:
                     # Some replays tend to get much slower as they go on (ex: hero_of_dreams),
                     # which results in the estimate crawling up before it comes back down.
                     # Maybe a memory leak?
@@ -1098,7 +1238,7 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
             return f'{eta} | {int(avg_fps)} fps'
         else:
             return eta
-    
+
     def get_status_msg(r: RunResult):
         if replay_finished[r.name]:
             if print_emoji:
@@ -1138,11 +1278,13 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
 
     def get_summary_msg():
         num_failing = len([r for r in results if not r.success])
-        return ' | '.join([
-            f'{len(results)}/{len(tests)}',
-            f'{num_failing} failing' if num_failing else 'OK',
-            get_eta(),
-        ])
+        return ' | '.join(
+            [
+                f'{len(results)}/{len(tests)}',
+                f'{num_failing} failing' if num_failing else 'OK',
+                get_eta(),
+            ]
+        )
 
     while pending_tests or active_tests:
         while pending_tests and len(active_tests) < concurrency:
@@ -1193,7 +1335,7 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
                         break
 
                 rows, cols = scr.getmaxyx()
-                lines = lines[:rows-1]
+                lines = lines[: rows - 1]
 
                 scr.erase()
                 if rows >= 1 and rows < 3 and cols < 40 and cols >= 15:
@@ -1203,7 +1345,7 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
                         symbol, color, text = msg
                         scr.addstr(i, 0, symbol, curses.color_pair(color))
                         scr.addstr(i, len(symbol), ' ' + text)
-                    scr.addstr(len(lines), 0, get_summary_msg()[:cols-1])
+                    scr.addstr(len(lines), 0, get_summary_msg()[: cols - 1])
                 scr.refresh()
 
                 sleep(0.5)
@@ -1240,8 +1382,12 @@ def prompt_for_gh_auth():
         token = os.environ[default_env_var]
     else:
         print(f'Default environment variable for token (${default_env_var}) not set')
-        print('Note: you can create a token here: https://github.com/settings/personal-access-tokens/new')
-        print('Necessary permissions are: Actions (read and write), Contents (read and write), Metadata (read)')
+        print(
+            'Note: you can create a token here: https://github.com/settings/personal-access-tokens/new'
+        )
+        print(
+            'Necessary permissions are: Actions (read and write), Contents (read and write), Metadata (read)'
+        )
         token = input('Enter a GitHub PAT token: ').strip()
         print()
 
@@ -1252,8 +1398,11 @@ def get_recent_release_tag(match: str):
     command = f'git describe --tags --abbrev=0 --match {match}'
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
 
+
 def prompt_to_create_compare_report():
-    if not cutie.prompt_yes_or_no('Would you like to generate a compare report?', default_is_yes=True):
+    if not cutie.prompt_yes_or_no(
+        'Would you like to generate a compare report?', default_is_yes=True
+    ):
         return
     print()
 
@@ -1268,12 +1417,14 @@ def prompt_to_create_compare_report():
     test_runs = []
 
     print('How should we get the baseline run?')
-    selected_index = cutie.select([
-        'Collect from disk',
-        'Run locally',
-        'Run new job in GitHub Actions (requires token)',
-        'Collect from finished job in GitHub Actions (requires token)',
-    ])
+    selected_index = cutie.select(
+        [
+            'Collect from disk',
+            'Run locally',
+            'Run new job in GitHub Actions (requires token)',
+            'Collect from finished job in GitHub Actions (requires token)',
+        ]
+    )
     print()
 
     local_baseline_dir = root_dir / '.tmp/local-baseline'
@@ -1286,20 +1437,21 @@ def prompt_to_create_compare_report():
         options.extend(gha_cache_dir.glob('*'))
         options.sort(key=os.path.getmtime, reverse=True)
         print('Select a folder to use for the baseline:')
-        selected_index = cutie.select(
-            [p.relative_to(root_dir) for p in options])
+        selected_index = cutie.select([p.relative_to(root_dir) for p in options])
         print()
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
         # most_recent_nightly = get_recent_release_tag('nightly-*')
         most_recent_stable = get_recent_release_tag('2.55.*')
         print('Select a release build to use: ')
-        selected_index = cutie.select([
-            # TODO
-            # 'Most recent passing build from CI (requires token)',
-            # f'Most recent nightly ({most_recent_nightly}) (requires token)',
-            f'Most recent stable ({most_recent_stable}) (requires token)',
-        ])
+        selected_index = cutie.select(
+            [
+                # TODO
+                # 'Most recent passing build from CI (requires token)',
+                # f'Most recent nightly ({most_recent_nightly}) (requires token)',
+                f'Most recent stable ({most_recent_stable}) (requires token)',
+            ]
+        )
         print()
 
         # if selected_index == 0:
@@ -1332,8 +1484,10 @@ def prompt_to_create_compare_report():
             sys.executable,
             str(root_dir / 'tests/run_replay_tests.py'),
             '--replay',
-            '--build_folder', str(build_dir),
-            '--test_results_folder', str(local_baseline_dir),
+            '--build_folder',
+            str(build_dir),
+            '--test_results_folder',
+            str(local_baseline_dir),
             '--retries=2',
             *get_args_for_collect_baseline_from_test_results([test_results_path]),
         ]
@@ -1346,13 +1500,19 @@ def prompt_to_create_compare_report():
         test_runs.extend(collect_many_test_results_from_dir(local_baseline_dir))
     elif selected_index == 2:
         gh, repo = prompt_for_gh_auth()
-        baseline_run_id = collect_baseline_from_test_results(gh, repo, '', [test_results_path])
+        baseline_run_id = collect_baseline_from_test_results(
+            gh, repo, '', [test_results_path]
+        )
         print(f'GitHub Actions job is done, the workflow run id is: {baseline_run_id}')
         test_runs.extend(collect_many_test_results_from_ci(gh, repo, baseline_run_id))
-        print('Note: now that you\'ve done this, this will be the first ".gha-cache-dir" option listed in the "Collect from disk" option')
+        print(
+            'Note: now that you\'ve done this, this will be the first ".gha-cache-dir" option listed in the "Collect from disk" option'
+        )
     elif selected_index == 3:
         gh, repo = prompt_for_gh_auth()
-        baseline_run_id = cutie.get_number('Enter a workflow run id: ', allow_float=False)
+        baseline_run_id = cutie.get_number(
+            'Enter a workflow run id: ', allow_float=False
+        )
         test_runs.extend(collect_many_test_results_from_ci(gh, repo, baseline_run_id))
 
     test_runs.extend(collect_many_test_results_from_dir(test_results_dir))
@@ -1361,7 +1521,9 @@ def prompt_to_create_compare_report():
     start_webserver()
 
 
-if test_results_dir.exists() and next(test_results_dir.rglob('test_results.json'), None):
+if test_results_dir.exists() and next(
+    test_results_dir.rglob('test_results.json'), None
+):
     test_results_path = next(test_results_dir.rglob('test_results.json'))
     print('found existing test results at provided path')
     if is_ci:
@@ -1380,7 +1542,9 @@ for i in range(args.retries + 1):
     if i == 0:
         tests_remaining = tests
     else:
-        tests_remaining = [replays_dir / r.name for r in test_results.runs[-1] if not r.success]
+        tests_remaining = [
+            replays_dir / r.name for r in test_results.runs[-1] if not r.success
+        ]
     if not tests_remaining:
         break
     if i != 0:
@@ -1448,12 +1612,26 @@ def is_known_failure_test(run: RunResult):
         return False
 
     ignore = False
-    if platform.system() == 'Windows' and run.name == 'the_deep/the_deep_4_of_6.zplay' and run.unexpected_gfx_segments == [[40853, 40971]]:
+    if (
+        platform.system() == 'Windows'
+        and run.name == 'the_deep/the_deep_4_of_6.zplay'
+        and run.unexpected_gfx_segments == [[40853, 40971]]
+    ):
         ignore = True
-    if platform.system() == 'Windows' and arch == 'win32' and run.name == 'enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_1_of_2.zplay':
+    if (
+        platform.system() == 'Windows'
+        and arch == 'win32'
+        and run.name
+        == 'enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_1_of_2.zplay'
+    ):
         if run.failing_frame == 135221:
             ignore = True
-    if platform.system() == 'Windows' and arch == 'win32' and run.name == 'enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_2_of_2.zplay':
+    if (
+        platform.system() == 'Windows'
+        and arch == 'win32'
+        and run.name
+        == 'enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_2_of_2.zplay'
+    ):
         if run.failing_frame == 31839:
             ignore = True
 
@@ -1476,6 +1654,7 @@ def should_consider_failure(run: RunResult):
         return True
 
     return False
+
 
 if is_web:
     webserver_p.kill()

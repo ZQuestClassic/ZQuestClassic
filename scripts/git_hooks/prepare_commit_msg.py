@@ -1,7 +1,9 @@
-import sys
 import subprocess
+import sys
+
 from pathlib import Path
-from common import valid_types, valid_scopes
+
+from common import valid_scopes, valid_types
 
 if len(sys.argv) != 2:
     exit(0)
@@ -9,7 +11,9 @@ if len(sys.argv) != 2:
 
 def get_comment_char():
     try:
-        return subprocess.check_output('git config core.commentchar', shell=True, encoding='utf-8').strip()
+        return subprocess.check_output(
+            'git config core.commentchar', shell=True, encoding='utf-8'
+        ).strip()
     except:
         return '#'
 
@@ -27,7 +31,8 @@ commit_msg += f'{comment_char} valid scopes   - '
 commit_msg += ', '.join(valid_scopes)
 
 changed_files = subprocess.check_output(
-    'git diff --cached --name-only --diff-filter=ACM', shell=True, encoding='utf-8').splitlines()
+    'git diff --cached --name-only --diff-filter=ACM', shell=True, encoding='utf-8'
+).splitlines()
 changed_files = [f.lower() for f in changed_files]
 suggested_types = []
 suggested_scopes = []

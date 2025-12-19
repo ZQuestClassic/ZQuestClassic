@@ -7,12 +7,14 @@ import shutil
 import subprocess
 import tarfile
 import zipfile
+
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import sleep
 from typing import Any, List, Literal, Optional, Tuple
 
 import requests
+
 from github import Github
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -37,7 +39,7 @@ class RunResult:
     unexpected_gfx_frames: List[int] = None
     unexpected_gfx_segments: List[Tuple[int, int]] = None
     unexpected_gfx_segments_limited: List[Tuple[int, int]] = None
-    exceptions: List[str] = field(default_factory=list) 
+    exceptions: List[str] = field(default_factory=list)
     # Only for compare report.
     snapshots: List[Any] = None
 
@@ -102,6 +104,7 @@ def download_artifact(gh, repo, artifact, dest):
     zip.extractall(dest)
     zip.close()
 
+
 def extract_tars(dir: Path):
     for tar_path in dir.rglob('*.tar'):
         print(f'extracting from {tar_path}')
@@ -110,6 +113,7 @@ def extract_tars(dir: Path):
             with tarfile.open(tar_path) as tar:
                 tar.extractall(path=extract_dir)
             tar_path.unlink()
+
 
 def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
     if not isinstance(run_id, int):
@@ -122,8 +126,7 @@ def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
 
     repo = gh.get_repo(repo_str)
     run = repo.get_workflow_run(run_id)
-    replay_artifacts = [
-        r for r in run.get_artifacts() if r.name.startswith('replays-')]
+    replay_artifacts = [r for r in run.get_artifacts() if r.name.startswith('replays-')]
     if not replay_artifacts:
         raise Exception(f'no replay artifacts found for run {run_id}')
 
@@ -164,6 +167,7 @@ def get_gha_artifacts_with_retry(gh: Github, repo_str: str, run_id: int) -> Path
             if i == NUM_TRIES - 1:
                 raise e
 
+
 # TODO: remove copy of these methods in bisect_builds.py
 def get_release_package_url(gh: Github, repo_str: str, channel: str, tag: str):
     repo = gh.get_repo(repo_str)
@@ -178,11 +182,15 @@ def get_release_package_url(gh: Github, repo_str: str, channel: str, tag: str):
             asset = assets[0]
         else:
             assets = [asset for asset in assets if 'windows' in asset.name]
-            asset = next((asset for asset in assets if 'x64' in asset.name), None) or \
-                next((asset for asset in assets if 'x86' in asset.name), None)
+            asset = next(
+                (asset for asset in assets if 'x64' in asset.name), None
+            ) or next((asset for asset in assets if 'x86' in asset.name), None)
     elif channel == 'linux':
-        asset = next(asset for asset in assets if asset.name.endswith(
-            '.tar.gz') or asset.name.endswith('.tgz'))
+        asset = next(
+            asset
+            for asset in assets
+            if asset.name.endswith('.tar.gz') or asset.name.endswith('.tgz')
+        )
 
     if not asset:
         raise Exception(f'could not find package url for {tag}')
@@ -213,12 +221,21 @@ def download_release(gh: Github, repo_str: str, channel: str, tag: str):
     r = requests.get(url)
     if channel == 'mac':
         (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
-        subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
-                              str(dest / 'zc-mounted'), str(dest / 'ZQuestClassic.dmg')], stdout=subprocess.DEVNULL)
+        subprocess.check_call(
+            [
+                'hdiutil',
+                'attach',
+                '-mountpoint',
+                str(dest / 'zc-mounted'),
+                str(dest / 'ZQuestClassic.dmg'),
+            ],
+            stdout=subprocess.DEVNULL,
+        )
         zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
         shutil.copytree(zc_app_path, dest / zc_app_path.name)
-        subprocess.check_call(['hdiutil', 'unmount', str(
-            dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
+        subprocess.check_call(
+            ['hdiutil', 'unmount', str(dest / 'zc-mounted')], stdout=subprocess.DEVNULL
+        )
         (dest / 'ZQuestClassic.dmg').unlink()
     elif url.endswith('.tar.gz'):
         tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')

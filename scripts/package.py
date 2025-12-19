@@ -1,38 +1,55 @@
 import argparse
 import os
-import shutil
 import platform
-import time
 import shutil
 import subprocess
 import sys
-from typing import List, Tuple
+import time
+
 from pathlib import Path
+from typing import List, Tuple
 
 system = platform.system()
 
 parser = argparse.ArgumentParser(
-    description='Packages the build binaries and necessary runtime files for distribution.')
-parser.add_argument('--build_folder',
-                    help='The location of the build folder. ex: build/Release')
+    description='Packages the build binaries and necessary runtime files for distribution.'
+)
+parser.add_argument(
+    '--build_folder', help='The location of the build folder. ex: build/Release'
+)
 parser.add_argument(
     '--package_folder',
     help='The location of the package folder. defaults to <build_folder>/packages/zc',
 )
-parser.add_argument('--extras', action='store_true',
-                    help='package the extras instead of the main package')
-parser.add_argument('--clean_first', action='store_true',
-                    help='Delete package folder before copying over files')
-parser.add_argument('--skip_binaries', action='store_true',
-                    help='Copy on the runtime resource files, not any of the program entrypoints or shared libraries')
-parser.add_argument('--copy_to_build_folder', action='store_true',
-                    help='Copy to the provided build folder instead of an isolated package folder')
-parser.add_argument('--keep_existing_files', action='store_true',
-                    help='Only copy files that do not yet exist at the destination. For local development')
-parser.add_argument('--skip_archive', action='store_true',
-                    help='Skip the compression step')
-parser.add_argument('--current_version',
-                    help='Used to name the changelog generated')
+parser.add_argument(
+    '--extras',
+    action='store_true',
+    help='package the extras instead of the main package',
+)
+parser.add_argument(
+    '--clean_first',
+    action='store_true',
+    help='Delete package folder before copying over files',
+)
+parser.add_argument(
+    '--skip_binaries',
+    action='store_true',
+    help='Copy on the runtime resource files, not any of the program entrypoints or shared libraries',
+)
+parser.add_argument(
+    '--copy_to_build_folder',
+    action='store_true',
+    help='Copy to the provided build folder instead of an isolated package folder',
+)
+parser.add_argument(
+    '--keep_existing_files',
+    action='store_true',
+    help='Only copy files that do not yet exist at the destination. For local development',
+)
+parser.add_argument(
+    '--skip_archive', action='store_true', help='Skip the compression step'
+)
+parser.add_argument('--current_version', help='Used to name the changelog generated')
 parser.add_argument('--cfg_os')
 args = parser.parse_args()
 
@@ -75,6 +92,7 @@ extras = [
     *glob(resources_dir, 'utilities/**/*'),
 ]
 
+
 def system_to_cfg_os(system: str):
     if system == 'Windows':
         return 'windows'
@@ -98,7 +116,8 @@ def preprocess_base_config(config_text: str, cfg_os: str):
         directives = [x.strip().lower() for x in directives_text.split(';')]
         for directive in directives:
             condition_text, directive_value = [
-                x.strip().lower() for x in directive.split('=')]
+                x.strip().lower() for x in directive.split('=')
+            ]
 
             should_negate = False
             if condition_text[0] == '!':
@@ -117,7 +136,11 @@ def preprocess_base_config(config_text: str, cfg_os: str):
     return '\n'.join(new_config_lines)
 
 
-def copy_files_to_package(files: List[Tuple[Path, Path]], dest_dir: Path, exclude_files: List[Tuple[Path, Path]] = None):
+def copy_files_to_package(
+    files: List[Tuple[Path, Path]],
+    dest_dir: Path,
+    exclude_files: List[Tuple[Path, Path]] = None,
+):
     if exclude_files:
         files = list(set(files) - set(exclude_files))
 
@@ -191,7 +214,9 @@ def collect_licenses(package_dir: Path):
         for file in files_to_copy:
             # Kinda big.
             if name == 'allegro_legacy' and file == 'AUTHORS':
-                (dir / file).write_text('https://github.com/NewCreature/Allegro-Legacy/blob/master/AUTHORS')
+                (dir / file).write_text(
+                    'https://github.com/NewCreature/Allegro-Legacy/blob/master/AUTHORS'
+                )
                 continue
 
             variants = [file]
@@ -205,8 +230,12 @@ def collect_licenses(package_dir: Path):
                 shutil.copy2(third_party_dir / file, dir / file)
 
 
-
-def do_packaging(package_dir: Path, files: List[Tuple[Path, Path]], exclude_files: List[Tuple[Path, Path]] = None, include_licenses=False):
+def do_packaging(
+    package_dir: Path,
+    files: List[Tuple[Path, Path]],
+    exclude_files: List[Tuple[Path, Path]] = None,
+    include_licenses=False,
+):
     prepare_package(package_dir)
     copy_files_to_package(files, package_dir, exclude_files=exclude_files)
     if include_licenses:
@@ -227,46 +256,57 @@ def do_web_packaging():
     all_files = glob(resources_dir, '**/*')
     ignore_files = [
         *extras,
-        *files(resources_dir, [
-            'docs/ghost',
-            'docs/tango',
-            'docs/ZScript_Additions.txt',
-        ]),
+        *files(
+            resources_dir,
+            [
+                'docs/ghost',
+                'docs/tango',
+                'docs/ZScript_Additions.txt',
+            ],
+        ),
         *glob(resources_dir, '**/*.pdf'),
     ]
 
-    zplayer_data_files = files(resources_dir, [
-        'allegro5.cfg',
-        'assets/cursor.bmp',
-        'assets/dungeon.mid',
-        'assets/ending.mid',
-        'assets/gameover.mid',
-        'assets/gui_pal.bmp',
-        'assets/level9.mid',
-        'assets/overworld.mid',
-        'assets/title.mid',
-        'assets/triforce.mid',
-        'base_config/zc.cfg',
-        'base_config/zcl.cfg',
-        'base_config/zquest.cfg',
-        'base_config/zscript.cfg',
-        'Classic.nsf',
-        'modules/classic.zmod',
-        'modules/classic/classic_fonts.dat',
-        'modules/classic/default.qst',
-        'modules/classic/title_gfx.dat',
-        'modules/classic/zelda.nsf',
-        'sfx.dat',
-        'zc_web.cfg',
-        'zc.png',
-        'zquest_web.cfg',
-    ])
-    zeditor_data_files = files(resources_dir, [
-        'docs/zquest.txt',
-        'docs/zstrings.txt',
-        'modules/classic/classic_zquest.dat',
-    ])
-    lazy_files = list(set(all_files) - set(zplayer_data_files) - set(zeditor_data_files))
+    zplayer_data_files = files(
+        resources_dir,
+        [
+            'allegro5.cfg',
+            'assets/cursor.bmp',
+            'assets/dungeon.mid',
+            'assets/ending.mid',
+            'assets/gameover.mid',
+            'assets/gui_pal.bmp',
+            'assets/level9.mid',
+            'assets/overworld.mid',
+            'assets/title.mid',
+            'assets/triforce.mid',
+            'base_config/zc.cfg',
+            'base_config/zcl.cfg',
+            'base_config/zquest.cfg',
+            'base_config/zscript.cfg',
+            'Classic.nsf',
+            'modules/classic.zmod',
+            'modules/classic/classic_fonts.dat',
+            'modules/classic/default.qst',
+            'modules/classic/title_gfx.dat',
+            'modules/classic/zelda.nsf',
+            'sfx.dat',
+            'zc_web.cfg',
+            'zc.png',
+            'zquest_web.cfg',
+        ],
+    )
+    zeditor_data_files = files(
+        resources_dir,
+        [
+            'docs/zquest.txt',
+            'docs/zstrings.txt',
+            'modules/classic/classic_zquest.dat',
+        ],
+    )
+    lazy_files = list(
+        set(all_files) - set(zplayer_data_files) - set(zeditor_data_files)
+    )
 
     for pkg in ['web_zplayer_data', 'web_zeditor_data', 'web_lazy_files']:
         f = packages_dir / pkg
@@ -275,48 +315,95 @@ def do_web_packaging():
 
     copy_files_to_package(zplayer_data_files, packages_dir / 'web_zplayer_data')
     copy_files_to_package(zeditor_data_files, packages_dir / 'web_zeditor_data')
-    copy_files_to_package(lazy_files, packages_dir / 'web_lazy_files', exclude_files=ignore_files)
+    copy_files_to_package(
+        lazy_files, packages_dir / 'web_lazy_files', exclude_files=ignore_files
+    )
     if 'ZC_PACKAGE_REPLAYS' in os.environ:
-        shutil.copytree(root_dir / 'tests/replays', packages_dir / 'web_lazy_files/test_replays')
+        shutil.copytree(
+            root_dir / 'tests/replays', packages_dir / 'web_lazy_files/test_replays'
+        )
 
     emcc_dir = Path(shutil.which('emcc')).parent
-    subprocess.check_call([
-        'python',
-        emcc_dir / 'tools/file_packager.py',
-        build_dir / 'zplayer.data',
-        '--no-node',
-        '--preload', f'{packages_dir}/web_zplayer_data@/',
-        '--preload', f'{root_dir}/timidity/zc.cfg@/etc/zc.cfg',
-        '--preload', f'{root_dir}/timidity/ultra.cfg@/etc/ultra.cfg',
-        '--preload', f'{root_dir}/timidity/ppl160.cfg@/etc/ppl160.cfg',
-        '--preload', f'{root_dir}/timidity/freepats.cfg@/etc/freepats.cfg',
-        '--preload', f'{root_dir}/timidity/soundfont-pats/oot.cfg@/etc/oot.cfg',
-        '--preload', f'{root_dir}/timidity/soundfont-pats/2MGM.cfg@/etc/2MGM.cfg',
-        '--use-preload-cache',
-        f'--js-output={build_dir / "zplayer.data.js"}',
-    ])
-    subprocess.check_call([
-        'python',
-        emcc_dir / 'tools/file_packager.py',
-        build_dir / 'zeditor.data',
-        '--no-node',
-        '--preload', f'{packages_dir}/web_zeditor_data@/',
-        '--use-preload-cache',
-        f'--js-output={build_dir / "zeditor.data.js"}',
-    ])
+    subprocess.check_call(
+        [
+            'python',
+            emcc_dir / 'tools/file_packager.py',
+            build_dir / 'zplayer.data',
+            '--no-node',
+            '--preload',
+            f'{packages_dir}/web_zplayer_data@/',
+            '--preload',
+            f'{root_dir}/timidity/zc.cfg@/etc/zc.cfg',
+            '--preload',
+            f'{root_dir}/timidity/ultra.cfg@/etc/ultra.cfg',
+            '--preload',
+            f'{root_dir}/timidity/ppl160.cfg@/etc/ppl160.cfg',
+            '--preload',
+            f'{root_dir}/timidity/freepats.cfg@/etc/freepats.cfg',
+            '--preload',
+            f'{root_dir}/timidity/soundfont-pats/oot.cfg@/etc/oot.cfg',
+            '--preload',
+            f'{root_dir}/timidity/soundfont-pats/2MGM.cfg@/etc/2MGM.cfg',
+            '--use-preload-cache',
+            f'--js-output={build_dir / "zplayer.data.js"}',
+        ]
+    )
+    subprocess.check_call(
+        [
+            'python',
+            emcc_dir / 'tools/file_packager.py',
+            build_dir / 'zeditor.data',
+            '--no-node',
+            '--preload',
+            f'{packages_dir}/web_zeditor_data@/',
+            '--use-preload-cache',
+            f'--js-output={build_dir / "zeditor.data.js"}',
+        ]
+    )
+
 
 if 'TEST' in os.environ:
     import unittest
 
     tc = unittest.TestCase()
-    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0', 'windows'), 'ignore_monitor_scale = 0')
-    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1', 'windows'), 'ignore_monitor_scale = 1')
-    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? !windows = 1', 'windows'), 'ignore_monitor_scale = 0')
-    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1', 'mac'), 'ignore_monitor_scale = 0')
-    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'mac'), 'ignore_monitor_scale = 2')
-    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'windows'), 'ignore_monitor_scale = 1')
-    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'linux'), 'ignore_monitor_scale = 0')
-    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = no #? windows = yes', 'windows'), 'ignore_monitor_scale = yes')
+    tc.assertEqual(
+        preprocess_base_config('ignore_monitor_scale = 0', 'windows'),
+        'ignore_monitor_scale = 0',
+    )
+    tc.assertEqual(
+        preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1', 'windows'),
+        'ignore_monitor_scale = 1',
+    )
+    tc.assertEqual(
+        preprocess_base_config('ignore_monitor_scale = 0 #? !windows = 1', 'windows'),
+        'ignore_monitor_scale = 0',
+    )
+    tc.assertEqual(
+        preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1', 'mac'),
+        'ignore_monitor_scale = 0',
+    )
+    tc.assertEqual(
+        preprocess_base_config(
+            'ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'mac'
+        ),
+        'ignore_monitor_scale = 2',
+    )
+    tc.assertEqual(
+        preprocess_base_config(
+            'ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'windows'
+        ),
+        'ignore_monitor_scale = 1',
+    )
+    tc.assertEqual(
+        preprocess_base_config(
+            'ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'linux'
+        ),
+        'ignore_monitor_scale = 0',
+    )
+    tc.assertEqual(
+        preprocess_base_config('ignore_monitor_scale = no #? windows = yes', 'windows'),
+        'ignore_monitor_scale = yes',
+    )
 elif args.extras:
     do_packaging(packages_dir / 'extras', extras)
 elif args.cfg_os == 'web':
@@ -332,17 +419,29 @@ else:
     try:
         current_version = args.current_version if args.current_version else 'nightly'
         last_stable = subprocess.check_output(
-            f'git describe --tags --abbrev=0 --match "2.55*" --exclude {current_version}', shell=True, encoding='utf-8').strip()
-        changelog = subprocess.check_output([
-            sys.executable, script_dir / 'generate_changelog.py',
-            '--from', last_stable,
-            '--to', 'HEAD',
-        ], encoding='utf-8').strip()
+            f'git describe --tags --abbrev=0 --match "2.55*" --exclude {current_version}',
+            shell=True,
+            encoding='utf-8',
+        ).strip()
+        changelog = subprocess.check_output(
+            [
+                sys.executable,
+                script_dir / 'generate_changelog.py',
+                '--from',
+                last_stable,
+                '--to',
+                'HEAD',
+            ],
+            encoding='utf-8',
+        ).strip()
         if 'nightly' in current_version:
             changelog_path = nightly_changelog_path
             changelog = f'Changes since {last_stable}\n\n{changelog}'
         else:
-            changelog_path = root_dir / f'changelogs/{time.strftime("%Y_%m_%d")}-{current_version}.txt'
+            changelog_path = (
+                root_dir
+                / f'changelogs/{time.strftime("%Y_%m_%d")}-{current_version}.txt'
+            )
     except Exception as e:
         changelog = None
         print(e)
@@ -360,16 +459,18 @@ else:
         exit(0)
 
     if not args.skip_binaries:
-        zc_files.extend([
-            binary_file(build_dir, 'zplayer'),
-            binary_file(build_dir, 'zeditor'),
-            binary_file(build_dir, 'zscript'),
-            binary_file(build_dir, 'zlauncher'),
-            binary_file(build_dir, 'zupdater'),
-            *(glob(build_dir, '*.dll') if system == 'Windows' else []),
-            *(glob(build_dir, '*.so*') if system == 'Linux' else []),
-            *(glob(build_dir, '*.dylib') if system == 'Darwin' else []),
-        ])
+        zc_files.extend(
+            [
+                binary_file(build_dir, 'zplayer'),
+                binary_file(build_dir, 'zeditor'),
+                binary_file(build_dir, 'zscript'),
+                binary_file(build_dir, 'zlauncher'),
+                binary_file(build_dir, 'zupdater'),
+                *(glob(build_dir, '*.dll') if system == 'Windows' else []),
+                *(glob(build_dir, '*.so*') if system == 'Linux' else []),
+                *(glob(build_dir, '*.dylib') if system == 'Darwin' else []),
+            ]
+        )
 
         if system == 'Windows':
             zc_files.append(binary_file(build_dir, 'zconsole'))

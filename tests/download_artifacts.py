@@ -1,8 +1,9 @@
 # Downloads artifacts from GitHub Actions.
 
 import argparse
-from github import Github
+
 from common import get_gha_artifacts
+from github import Github
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

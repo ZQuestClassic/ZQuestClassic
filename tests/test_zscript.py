@@ -10,13 +10,19 @@ import argparse
 import os
 import sys
 import unittest
+
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--update', action='store_true', default=False,
-                    help='Update ZASM snapshots')
-parser.add_argument('--output', action='store_true', default=False,
-                    help='Output diff logs to a subfolder')
+parser.add_argument(
+    '--update', action='store_true', default=False, help='Update ZASM snapshots'
+)
+parser.add_argument(
+    '--output',
+    action='store_true',
+    default=False,
+    help='Output diff logs to a subfolder',
+)
 parser.add_argument('unittest_args', nargs='*')
 args = parser.parse_args()
 
@@ -24,7 +30,7 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 test_scripts_dir = root_dir / 'tests/scripts'
 expected_dir = test_scripts_dir
-if args.output or args.update: #Clear old output
+if args.output or args.update:  # Clear old output
     for path in expected_dir.rglob('*_unexpected.txt'):
         os.remove(path)
 
@@ -45,9 +51,12 @@ class TestZScript(unittest.TestCase):
         zasm_path = run_target.get_build_folder() / 'out.zasm'
         zasm_path.unlink(missing_ok=True)
         args = [
-            '-input', script_path,
-            '-zasm', 'out.zasm',
-            '-include', ';'.join(include_paths),
+            '-input',
+            script_path,
+            '-zasm',
+            'out.zasm',
+            '-include',
+            ';'.join(include_paths),
             '-unlinked',
             '-delay_cassert',
         ]
@@ -59,8 +68,9 @@ class TestZScript(unittest.TestCase):
         zasm = zasm_path.read_text()
 
         # Remove metadata.
-        zasm = '\n'.join([l.strip() for l in zasm.splitlines()
-                         if not l.startswith('#')]).strip()
+        zasm = '\n'.join(
+            [l.strip() for l in zasm.splitlines() if not l.startswith('#')]
+        ).strip()
 
         return '\n'.join([stdout, zasm])
 
@@ -68,10 +78,14 @@ class TestZScript(unittest.TestCase):
         for script_path in test_scripts_dir.rglob('*.zs'):
             with self.subTest(msg=f'compile {script_path.name}'):
                 zasm = self.compile_script(script_path)
-                
+
                 script_subpath = script_path.relative_to(test_scripts_dir)
-                expected_path = expected_dir / script_subpath.with_name(f'{script_subpath.stem}_expected.txt')
-                unexpected_path = expected_dir / script_subpath.with_name(f'{script_subpath.stem}_unexpected.txt')
+                expected_path = expected_dir / script_subpath.with_name(
+                    f'{script_subpath.stem}_expected.txt'
+                )
+                unexpected_path = expected_dir / script_subpath.with_name(
+                    f'{script_subpath.stem}_unexpected.txt'
+                )
 
                 expected_zasm = None
                 if expected_path.exists():

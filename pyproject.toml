@@ -1,0 +1,7 @@
+[tool.black]
+skip-string-normalization = true
+
+[tool.isort]
+profile = 'black'
+lines_between_types = 1
+combine_as_imports = true

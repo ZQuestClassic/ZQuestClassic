@@ -3,16 +3,19 @@
 # test_results.json files to run just failures from run_replay_tests.py.
 
 import argparse
-from argparse import ArgumentTypeError
-import os
 import json
+import os
 import subprocess
+
+from argparse import ArgumentTypeError
+from pathlib import Path
 from time import sleep
 from typing import List
-from pathlib import Path
+
 import intervaltree
-from github import Github, GithubException, WorkflowRun, PaginatedList
-from common import get_gha_artifacts, extract_tars, ReplayTestResults
+
+from common import ReplayTestResults, extract_tars, get_gha_artifacts
+from github import Github, GithubException, PaginatedList, WorkflowRun
 from workflow_job import WorkflowJob
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -46,26 +49,43 @@ def find_baseline_commit(gh: Github, repo_str: str):
         )
 
         ignore_jobs = ['web', 'compare']
-        if all(job.conclusion == 'success' for job in jobs if job.name not in ignore_jobs):
+        if all(
+            job.conclusion == 'success' for job in jobs if job.name not in ignore_jobs
+        ):
             return True
 
         return False
 
     def is_ancestor(sha: str):
         print(f'checking if {sha} is ancestor...')
-        return subprocess.call([
-            'git', 'merge-base',
-            '--is-ancestor', sha, 'HEAD',
-        ]) == 0
+        return (
+            subprocess.call(
+                [
+                    'git',
+                    'merge-base',
+                    '--is-ancestor',
+                    sha,
+                    'HEAD',
+                ]
+            )
+            == 0
+        )
 
     repo = gh.get_repo(repo_str)
     ci_workflow = repo.get_workflow('ci.yml')
     main_runs = ci_workflow.get_runs()
     most_recent_ok = next(
-        (r for r in main_runs if is_passing_workflow_run(r) and is_ancestor(r.head_sha)), None)
+        (
+            r
+            for r in main_runs
+            if is_passing_workflow_run(r) and is_ancestor(r.head_sha)
+        ),
+        None,
+    )
     if not most_recent_ok:
         raise Exception(
-            'could not find recent successful workflow run to use as baseline')
+            'could not find recent successful workflow run to use as baseline'
+        )
 
     return create_compare_git_ref(gh, repo_str, most_recent_ok.head_sha)
 
@@ -89,12 +109,19 @@ def create_compare_git_ref(gh: Github, repo_str: str, sha: str):
     return dummy_branch
 
 
-def start_test_workflow_run(gh: Github, repo_str: str, branch: str, runs_on: str, arch: str, compiler: str, extra_args: List[str]):
+def start_test_workflow_run(
+    gh: Github,
+    repo_str: str,
+    branch: str,
+    runs_on: str,
+    arch: str,
+    compiler: str,
+    extra_args: List[str],
+):
     repo = gh.get_repo(repo_str)
     test_workflow = repo.get_workflow('test.yml')
 
-    existing_run_ids = [
-        w.id for w in test_workflow.get_runs(branch=branch)]
+    existing_run_ids = [w.id for w in test_workflow.get_runs(branch=branch)]
     inputs = {
         'runs-on': runs_on,
         'arch': arch,
@@ -150,7 +177,9 @@ def poll_workflow_run(gh: Github, repo_str: str, run_id: int):
 
 # Returns a list of args to give to `run_replay_tests.py`, to collect snapshots of the failing replay
 # tests provided by `test_results_paths`
-def get_args_for_collect_baseline_from_test_results(test_results_paths: List[Path]) -> List[str]:
+def get_args_for_collect_baseline_from_test_results(
+    test_results_paths: List[Path],
+) -> List[str]:
     failing_segments_by_replay = {}
     for path in test_results_paths:
         test_results_json = json.loads(path.read_text('utf-8'))
@@ -167,10 +196,14 @@ def get_args_for_collect_baseline_from_test_results(test_results_paths: List[Pat
             if run.name not in failing_segments_by_replay:
                 failing_segments_by_replay[run.name] = []
             # Capture the very first frame (this covers non-gfx failures).
-            failing_segments_by_replay[run.name].append([run.failing_frame, run.failing_frame])
+            failing_segments_by_replay[run.name].append(
+                [run.failing_frame, run.failing_frame]
+            )
             # ...and all unexpected gfx segments (but, the limited variant).
             if run.unexpected_gfx_segments_limited:
-                failing_segments_by_replay[run.name].extend(run.unexpected_gfx_segments_limited)
+                failing_segments_by_replay[run.name].extend(
+                    run.unexpected_gfx_segments_limited
+                )
 
     args = []
     for replay_name, failing_segments in failing_segments_by_replay.items():
@@ -196,23 +229,30 @@ def get_args_for_collect_baseline_from_test_results(test_results_paths: List[Pat
 # files, and dispatch and wait for a workflow run to finish using a baseline
 # commit.
 # Returns the workflow run id, after job finishes.
-def collect_baseline_from_test_results(gh: Github, repo: str, baseline_commit: str, test_results_paths: List[Path]) -> int:
+def collect_baseline_from_test_results(
+    gh: Github, repo: str, baseline_commit: str, test_results_paths: List[Path]
+) -> int:
     extra_args = get_args_for_collect_baseline_from_test_results(test_results_paths)
     if not baseline_commit:
         baseline_commit = find_baseline_commit(gh, repo)
 
     # For baseline purposes, only need to run on a single platform.
-    run_id = start_test_workflow_run(gh, repo,
-        baseline_commit, 'ubuntu-22.04', 'x64', 'clang', extra_args)
+    run_id = start_test_workflow_run(
+        gh, repo, baseline_commit, 'ubuntu-22.04', 'x64', 'clang', extra_args
+    )
     poll_workflow_run(gh, repo, run_id)
     print('run finished')
     return run_id
 
 
-def collect_baseline_from_failing_workflow_run(gh: Github, repo: str, baseline_commit: str, run_id: int):
+def collect_baseline_from_failing_workflow_run(
+    gh: Github, repo: str, baseline_commit: str, run_id: int
+):
     workflow_run_dir = get_gha_artifacts(gh, repo, run_id)
     test_results_paths = list(workflow_run_dir.rglob('test_results.json'))
-    return collect_baseline_from_test_results(gh, repo, baseline_commit, test_results_paths)
+    return collect_baseline_from_test_results(
+        gh, repo, baseline_commit, test_results_paths
+    )
 
 
 if __name__ == '__main__':
@@ -236,7 +276,8 @@ if __name__ == '__main__':
 
     if args.test_results is not None and args.failing_workflow_run is not None:
         raise ArgumentTypeError(
-            'can only choose one of --test_results or --failing_workflow_run')
+            'can only choose one of --test_results or --failing_workflow_run'
+        )
 
     if args.commit:
         commit = create_compare_git_ref(gh, args.repo, args.commit)
@@ -247,14 +288,17 @@ if __name__ == '__main__':
         test_results_paths = []
         if args.test_results.is_dir():
             extract_tars(args.test_results)
-            test_results_paths = list(
-                args.test_results.rglob('test_results.json'))
+            test_results_paths = list(args.test_results.rglob('test_results.json'))
         else:
             test_results_paths = [args.test_results]
-        baseline_run_id = collect_baseline_from_test_results(gh, args.repo, commit, test_results_paths)
+        baseline_run_id = collect_baseline_from_test_results(
+            gh, args.repo, commit, test_results_paths
+        )
         set_action_output('baseline_run_id', baseline_run_id)
     elif args.failing_workflow_run:
-        baseline_run_id = collect_baseline_from_failing_workflow_run(gh, args.repo, commit, args.failing_workflow_run)
+        baseline_run_id = collect_baseline_from_failing_workflow_run(
+            gh, args.repo, commit, args.failing_workflow_run
+        )
         set_action_output('baseline_run_id', baseline_run_id)
     else:
         extra_args = []
@@ -271,5 +315,6 @@ if __name__ == '__main__':
             compiler = 'clang'
 
         run_id = start_test_workflow_run(
-            gh, args.repo, commit, args.runs_on, args.arch, compiler, extra_args)
+            gh, args.repo, commit, args.runs_on, args.arch, compiler, extra_args
+        )
         poll_workflow_run(gh, args.repo, run_id)

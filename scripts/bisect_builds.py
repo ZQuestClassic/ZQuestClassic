@@ -10,36 +10,44 @@
 #   python scripts/bisect_builds.py --token $GH_PAT --download_release 2.55-alpha-109
 
 import argparse
-import os
 import io
-import subprocess
+import os
 import platform
-import requests
-import zipfile
-import tarfile
 import shutil
+import subprocess
+import tarfile
 import tempfile
+import zipfile
+
 from dataclasses import dataclass
-from joblib import Memory
-from typing import List, Optional
 from pathlib import Path
+from typing import List, Optional
+
+import requests
+
 from github import Github, WorkflowRun
+from joblib import Memory
+
 # from ..tests.common import download_artifact
 
-parser = argparse.ArgumentParser(
-    description='Runs a bisect using prebuild releases.')
+parser = argparse.ArgumentParser(description='Runs a bisect using prebuild releases.')
 parser.add_argument('--good')
 parser.add_argument('--bad')
 parser.add_argument('--token', required=True)
 parser.add_argument(
-    '--test_builds', action=argparse.BooleanOptionalAction, default=True)
+    '--test_builds', action=argparse.BooleanOptionalAction, default=True
+)
 parser.add_argument('--list_releases', action='store_true')
 parser.add_argument('--download_release')
 parser.add_argument('--channel')
-parser.add_argument('-c', '--command',
-                    help='command to run on each step. \'%%zc\' is replaced with the path to the player, \'%%zq\' is the editor, and \'%%zl\' is the launcher')
-parser.add_argument('--check_return_code',
-                    action=argparse.BooleanOptionalAction, default=False)
+parser.add_argument(
+    '-c',
+    '--command',
+    help='command to run on each step. \'%%zc\' is replaced with the path to the player, \'%%zq\' is the editor, and \'%%zl\' is the launcher',
+)
+parser.add_argument(
+    '--check_return_code', action=argparse.BooleanOptionalAction, default=False
+)
 
 args = parser.parse_args()
 
@@ -74,7 +82,9 @@ class Revision:
 
 @memory.cache
 def get_release_commit_count(tag: str):
-    return int(subprocess.check_output(['git', 'rev-list', '--count', tag], encoding='utf-8'))
+    return int(
+        subprocess.check_output(['git', 'rev-list', '--count', tag], encoding='utf-8')
+    )
 
 
 @memory.cache
@@ -97,7 +107,8 @@ def get_releases():
 
     # TODO maybe use: git tag --merged=main 'nightly*' '2.55-alpha-???' --sort=committerdate
     tags = subprocess.check_output(
-        ['git', '-P', 'tag', '--sort=committerdate', '--merged=main'], encoding='utf-8').splitlines()
+        ['git', '-P', 'tag', '--sort=committerdate', '--merged=main'], encoding='utf-8'
+    ).splitlines()
 
     for tag in tags:
         commit_count = get_release_commit_count(tag)
@@ -139,8 +150,7 @@ def get_test_builds(releases: List[Revision]):
         if not artifacts or any(a for a in artifacts if a.expired):
             continue
 
-        revisions.append(
-            Revision(run.head_sha, commit_count, workflow_run=run))
+        revisions.append(Revision(run.head_sha, commit_count, workflow_run=run))
 
     revisions.sort(key=lambda x: x.commit_count)
 
@@ -169,11 +179,15 @@ def get_release_package_url(tag):
             asset = assets[0]
         else:
             assets = [asset for asset in assets if 'windows' in asset.name]
-            asset = next((asset for asset in assets if 'x64' in asset.name), None) or \
-                next((asset for asset in assets if 'x86' in asset.name), None)
+            asset = next(
+                (asset for asset in assets if 'x64' in asset.name), None
+            ) or next((asset for asset in assets if 'x86' in asset.name), None)
     elif channel == 'linux':
-        asset = next(asset for asset in assets if asset.name.endswith(
-            '.tar.gz') or asset.name.endswith('.tgz'))
+        asset = next(
+            asset
+            for asset in assets
+            if asset.name.endswith('.tar.gz') or asset.name.endswith('.tgz')
+        )
 
     if not asset:
         raise Exception(f'could not find package url for {tag}')
@@ -193,12 +207,21 @@ def download_release(tag: str):
     r = requests.get(url)
     if channel == 'mac':
         (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
-        subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
-                              str(dest / 'zc-mounted'), str(dest / 'ZQuestClassic.dmg')], stdout=subprocess.DEVNULL)
+        subprocess.check_call(
+            [
+                'hdiutil',
+                'attach',
+                '-mountpoint',
+                str(dest / 'zc-mounted'),
+                str(dest / 'ZQuestClassic.dmg'),
+            ],
+            stdout=subprocess.DEVNULL,
+        )
         zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
         shutil.copytree(zc_app_path, dest / zc_app_path.name)
-        subprocess.check_call(['hdiutil', 'unmount', str(
-            dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
+        subprocess.check_call(
+            ['hdiutil', 'unmount', str(dest / 'zc-mounted')], stdout=subprocess.DEVNULL
+        )
         (dest / 'ZQuestClassic.dmg').unlink()
     elif url.endswith('.tar.gz'):
         tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')
@@ -252,23 +275,32 @@ def download_test_build(workflow_run: WorkflowRun):
             break
 
     if not found_artifact:
-        raise Exception(
-            f'could not find artifact for workflow run {workflow_run.id}')
+        raise Exception(f'could not find artifact for workflow run {workflow_run.id}')
 
     download_dir = tempfile.TemporaryDirectory()
-    download_artifact(gh, 'ZQuestClassic/ZQuestClassic',
-                      found_artifact, download_dir.name)
+    download_artifact(
+        gh, 'ZQuestClassic/ZQuestClassic', found_artifact, download_dir.name
+    )
     # Build artifacts have a single file, which is an archive.
     archive_path = next(Path(download_dir.name).glob('*'))
 
     if channel == 'mac':
         dmg_path = archive_path
-        subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
-                              str(dest / 'zc-mounted'), str(dmg_path)], stdout=subprocess.DEVNULL)
+        subprocess.check_call(
+            [
+                'hdiutil',
+                'attach',
+                '-mountpoint',
+                str(dest / 'zc-mounted'),
+                str(dmg_path),
+            ],
+            stdout=subprocess.DEVNULL,
+        )
         zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
         shutil.copytree(zc_app_path, dest / zc_app_path.name)
-        subprocess.check_call(['hdiutil', 'unmount', str(
-            dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
+        subprocess.check_call(
+            ['hdiutil', 'unmount', str(dest / 'zc-mounted')], stdout=subprocess.DEVNULL
+        )
         (dest / 'ZQuestClassic.dmg').unlink(missing_ok=True)
     elif archive_path.suffix.endswith('.tar.gz'):
         tf = tarfile.open(name=archive_path, mode='r')
@@ -299,8 +331,12 @@ def get_revision_binaries(revision: Revision):
     binaries = {'dir': dir}
     if channel == 'mac':
         zc_app_path = next(dir.glob('*.app'))
-        binaries['zc'] = find_path(zc_app_path / 'Contents/Resources', ['zplayer', 'zelda'])
-        binaries['zq'] = find_path(zc_app_path / 'Contents/Resources', ['zeditor', 'zquest'])
+        binaries['zc'] = find_path(
+            zc_app_path / 'Contents/Resources', ['zplayer', 'zelda']
+        )
+        binaries['zq'] = find_path(
+            zc_app_path / 'Contents/Resources', ['zeditor', 'zquest']
+        )
         binaries['zl'] = zc_app_path / 'Contents/MacOS/zlauncher'
     elif channel == 'windows':
         binaries['zc'] = find_path(dir, ['zplayer.exe', 'zelda.exe'])
@@ -316,8 +352,7 @@ def get_revision_binaries(revision: Revision):
 
 def AskIsGoodBuild():
     while True:
-        prompt = ('Revision is '
-                  '[(g)ood/(b)ad/(u)nknown/(q)uit]: ')
+        prompt = 'Revision is ' '[(g)ood/(b)ad/(u)nknown/(q)uit]: '
         response = input(prompt)
         if response in ('g', 'b', 'u', 'q'):
             return response
@@ -334,7 +369,7 @@ def run_bisect(revisions: List[Revision]):
     good_rev = tags.index(args.good)
     lower_rev = min(good_rev, bad_rev)
     upper_rev = max(good_rev, bad_rev)
-    revs = revisions[lower_rev:upper_rev+1]
+    revs = revisions[lower_rev : upper_rev + 1]
     lower = 0
     upper = len(revs) - 1
     pivot = upper // 2
@@ -346,6 +381,7 @@ def run_bisect(revisions: List[Revision]):
     while upper - lower > 1:
         if pivot in skipped:
             for i in range(0, upper - lower):
+
                 def check(k):
                     if k <= lower or k >= upper:
                         return False
@@ -371,13 +407,21 @@ def run_bisect(revisions: List[Revision]):
             min_str, max_str = 'good', 'bad'
         print(
             '=== Bisecting range [%s (%s), %s (%s)], '
-            'roughly %d steps left.' % (revs[lower].tag, min_str, revs[upper].tag,
-                                        max_str, int(upper - lower).bit_length()))
+            'roughly %d steps left.'
+            % (
+                revs[lower].tag,
+                min_str,
+                revs[upper].tag,
+                max_str,
+                int(upper - lower).bit_length(),
+            )
+        )
 
         lower_tag = revs[lower].tag
         upper_tag = revs[upper].tag
         print(
-            f'changelog of current range: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
+            f'changelog of current range: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}'
+        )
 
         print(f'checking {rev.tag}')
         binaries = get_revision_binaries(rev)
@@ -409,10 +453,14 @@ def run_bisect(revisions: List[Revision]):
             goods.append(pivot)
         elif answer == 'b':
             bads.append(pivot)
-        if (answer == 'g' and good_rev < bad_rev) or (answer == 'b' and bad_rev < good_rev):
+        if (answer == 'g' and good_rev < bad_rev) or (
+            answer == 'b' and bad_rev < good_rev
+        ):
             lower = pivot
             pivot = up_pivot
-        elif (answer == 'b' and good_rev < bad_rev) or (answer == 'g' and bad_rev < good_rev):
+        elif (answer == 'b' and good_rev < bad_rev) or (
+            answer == 'g' and bad_rev < good_rev
+        ):
             upper = pivot
             pivot = down_pivot
         elif answer == 'u':
@@ -420,10 +468,14 @@ def run_bisect(revisions: List[Revision]):
 
         rev = revs[pivot]
 
-    DONE_MESSAGE_GOOD_MIN = ('You are probably looking for a change made after %s ('
-                             'known good), but no later than %s (first known bad).')
-    DONE_MESSAGE_GOOD_MAX = ('You are probably looking for a change made after %s ('
-                             'known bad), but no later than %s (first known good).')
+    DONE_MESSAGE_GOOD_MIN = (
+        'You are probably looking for a change made after %s ('
+        'known good), but no later than %s (first known bad).'
+    )
+    DONE_MESSAGE_GOOD_MAX = (
+        'You are probably looking for a change made after %s ('
+        'known bad), but no later than %s (first known good).'
+    )
     print('bisect finished!\n')
 
     for i in range(lower, upper + 1):
@@ -445,7 +497,8 @@ def run_bisect(revisions: List[Revision]):
         print(DONE_MESSAGE_GOOD_MIN % (lower_tag, upper_tag))
 
     print(
-        f'changelog: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
+        f'changelog: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}'
+    )
 
 
 if args.download_release:

@@ -1,18 +1,21 @@
 import argparse
-from argparse import ArgumentTypeError
-from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
-from pathlib import Path
+import mimetypes
 import os
 import shutil
-import urllib.parse
-import mimetypes
 import subprocess
+import urllib.parse
+
+from argparse import ArgumentTypeError
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+
 
 def dir_path(path):
     if os.path.isdir(path):
         return Path(path)
     else:
         raise ArgumentTypeError(f'{path} is not a valid directory')
+
 
 def start_webserver(out_dir: Path):
     class Server(BaseHTTPRequestHandler):
@@ -51,4 +54,6 @@ if __name__ == '__main__':
 
     # Doesn't work so well - too many connection reset when running replays in parallel.
     # start_webserver(args.dir)
-    subprocess.check_call(['npx', '--prefer-offline', 'statikk', '--port', '8000', '--coi'], cwd=args.dir)
+    subprocess.check_call(
+        ['npx', '--prefer-offline', 'statikk', '--port', '8000', '--coi'], cwd=args.dir
+    )

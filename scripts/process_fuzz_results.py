@@ -1,8 +1,9 @@
 import argparse
-import os
-import subprocess
-import shutil
 import itertools
+import os
+import shutil
+import subprocess
+
 from pathlib import Path
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -20,7 +21,8 @@ else:
     state = []
 
 parser = argparse.ArgumentParser(
-    description='Runs each bad input found by AFL++ fuzzer, and saves stacktrace to disk')
+    description='Runs each bad input found by AFL++ fuzzer, and saves stacktrace to disk'
+)
 parser.add_argument('--fuzz_results_folder', default='.tmp/fuzz_results')
 parser.add_argument('--build_folder', default='build/Asan')
 
@@ -30,7 +32,9 @@ build_dir = args.build_folder
 results_dir = Path(args.fuzz_results_folder)
 
 i = 0
-for file in itertools.chain(results_dir.rglob('crashes/id:*'), results_dir.rglob('hangs/id:*')):
+for file in itertools.chain(
+    results_dir.rglob('crashes/id:*'), results_dir.rglob('hangs/id:*')
+):
     file = file.absolute()
     print(file)
     if str(file) in state:
@@ -39,9 +43,15 @@ for file in itertools.chain(results_dir.rglob('crashes/id:*'), results_dir.rglob
 
     timed_out = False
     try:
-        output = subprocess.run(['./zplayer', '-load-and-quit', file],
-                                env={**os.environ, 'CI': '1'}, timeout=5,
-                                cwd=build_dir, encoding='utf-8', stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        output = subprocess.run(
+            ['./zplayer', '-load-and-quit', file],
+            env={**os.environ, 'CI': '1'},
+            timeout=5,
+            cwd=build_dir,
+            encoding='utf-8',
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+        )
         if output.returncode >= 0:
             print('OK')
             state.append(str(file))
