@@ -47,7 +47,6 @@ enum Cheat
 	Last,
 };
 
-extern int32_t cheatkeys[Cheat::Last][2];
 Cheat cheat_from_string(std::string name);
 std::string cheat_to_string(Cheat cheat);
 std::string cheat_help(Cheat cheat);

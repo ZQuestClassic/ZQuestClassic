@@ -19,7 +19,6 @@ while(false)
 
 volatile int32_t lastfps = 0;
 volatile int32_t framecnt = 0;
-int32_t joystick_index = 0;
 int32_t readsize = 0, writesize = 0;
 int32_t zq_screen_w=LARGE_W;
 int32_t zq_screen_h=LARGE_H;
@@ -386,6 +385,9 @@ static void render_launcher()
 	al_flip_display();
 	al_restore_state(&oldstate);
 }
+
+void zq_push_unfrozen_dialogs(size_t){}
+void zq_pop_unfrozen_dialogs(){}
 
 bool update_hw_pal = false;
 void update_hw_screen()

@@ -359,6 +359,9 @@ void render_zc()
 	al_restore_state(&oldstate);
 }
 
+void zq_push_unfrozen_dialogs(size_t){}
+void zq_pop_unfrozen_dialogs(){}
+
 void clear_tooltip()
 {
 	

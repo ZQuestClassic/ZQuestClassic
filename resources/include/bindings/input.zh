@@ -236,7 +236,7 @@ class Input {
 	// @value [enum KeyCode]
 
 	// @zasm_var KEYBINDINGS
-	internal int KeyBindings[];
+	internal const int KeyBindings[];
 
 	// The state of the modifier keys.
 	//

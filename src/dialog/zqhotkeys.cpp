@@ -66,7 +66,7 @@ std::shared_ptr<GUI::Widget> ZQHotkeyDialog::view()
 			lbls[q][1].reset();
 			continue;
 		}
-		hotkeylist->add(Label(text = fmt::format("{} :",get_hotkey_name(q)), hAlign = 1.0));
+		hotkeylist->add(Label(text = fmt::format("{} :",name), hAlign = 1.0));
 		char const* txt = get_hotkey_helptext(q);
 		if(txt && txt[0])
 			hotkeylist->add(INFOBTN(txt));
@@ -80,17 +80,11 @@ std::shared_ptr<GUI::Widget> ZQHotkeyDialog::view()
 		}
 		else
 		{
-			hotkeylist->add(Button(text = "Bind", type = GUI::Button::type::BIND_HOTKEY, hotkey_ptr = &(zq_hotkeys[q]), hotkey_indx = 0, onClick = message::RELOAD));
-			hotkeylist->add(Button(text = "Clear", onClick = message::RELOAD,onPressFunc = [&,q]()
-			{
-				zq_hotkeys[q].setval(0,0,0);
-			}));
+			hotkeylist->add(Button(text = "Bind", type = GUI::Button::type::BIND_HOTKEY, bind_name = name, hotkey_ptr = &(zq_hotkeys[q]), hotkey_indx = 0, onClick = message::RELOAD));
+			hotkeylist->add(Button(text = "Clear", type = GUI::Button::type::BIND_HOTKEY_CLEAR, bind_name = name, hotkey_ptr = &(zq_hotkeys[q]), hotkey_indx = 0, onClick = message::RELOAD));
 			hotkeylist->add(lbls[q][0] = Label(minwidth = 5_em, textAlign = 1));
-			hotkeylist->add(Button(text = "Bind", type = GUI::Button::type::BIND_HOTKEY, hotkey_ptr = &(zq_hotkeys[q]), hotkey_indx = 1, onClick = message::RELOAD));
-			hotkeylist->add(Button(text = "Clear", onClick = message::RELOAD,onPressFunc = [&,q]()
-			{
-				zq_hotkeys[q].setval(1,0,0);
-			}));
+			hotkeylist->add(Button(text = "Bind", type = GUI::Button::type::BIND_HOTKEY, bind_name = name, hotkey_ptr = &(zq_hotkeys[q]), hotkey_indx = 1, onClick = message::RELOAD));
+			hotkeylist->add(Button(text = "Clear", type = GUI::Button::type::BIND_HOTKEY_CLEAR, bind_name = name, hotkey_ptr = &(zq_hotkeys[q]), hotkey_indx = 1, onClick = message::RELOAD));
 			hotkeylist->add(lbls[q][1] = Label(minwidth = 5_em, textAlign = 1));
 		}
 	}

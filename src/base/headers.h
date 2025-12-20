@@ -7,6 +7,7 @@
 #include <map>
 #include <set>
 #include <memory>
+#include <functional>
 #include "base/ints.h"
 #include "base/general.h"
 

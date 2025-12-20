@@ -127,22 +127,10 @@ struct KeyMapReplayStep : ReplayStep
 
 	static KeyMapReplayStep make(int frame)
 	{
-		KeyMapReplayStep step(frame, {
-			DUkey,
-			DDkey,
-			DLkey,
-			DRkey,
-			Akey,
-			Bkey,
-			Skey,
-			Lkey,
-			Rkey,
-			Pkey,
-			Exkey1,
-			Exkey2,
-			Exkey3,
-			Exkey4,
-		});
+		KeyMapReplayStep step(frame, {});
+		
+		for (int q = 0; q < KeyMapReplayStep::NumButtons; ++q)
+			step.button_keys[q] = active_control_scheme->keys[q];
 		return step;
 	}
 
@@ -164,20 +152,8 @@ struct KeyMapReplayStep : ReplayStep
 
 	void run()
 	{
-		DUkey = button_keys[0];
-		DDkey = button_keys[1];
-		DLkey = button_keys[2];
-		DRkey = button_keys[3];
-		Akey = button_keys[4];
-		Bkey = button_keys[5];
-		Skey = button_keys[6];
-		Lkey = button_keys[7];
-		Rkey = button_keys[8];
-		Pkey = button_keys[9];
-		Exkey1 = button_keys[10];
-		Exkey2 = button_keys[11];
-		Exkey3 = button_keys[12];
-		Exkey4 = button_keys[13];
+		for (int q = 0; q < KeyMapReplayStep::NumButtons; ++q)
+			replay_control_scheme.keys[q] = button_keys[q];
 	}
 
 	std::string print()
@@ -1213,6 +1189,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     time_started = std::chrono::steady_clock::now();
     time_started_system = std::chrono::system_clock::now();
     mode = mode_;
+	refresh_control_scheme();
     debug = false;
     sync_rng = false;
     did_attempt_input_during_replay = false;
@@ -1725,6 +1702,7 @@ void replay_stop(bool aborted)
     }
 
     mode = ReplayMode::Off;
+	refresh_control_scheme();
     frame_count = 0;
     replay_log.clear();
     rngs.clear();

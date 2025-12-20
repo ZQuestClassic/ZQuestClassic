@@ -9,6 +9,7 @@
 #include "base/zdefs.h"
 #include "base/initdata.h"
 #include "base/zc_array.h"
+#include "zc/control_scheme.h"
 #include "zc/zc_sys.h"
 #include "sfx.h"
 #include "sound/zcmusic.h"
@@ -305,14 +306,9 @@ extern dword light_wave_clk;
 extern int32_t newscr_clk,cur_dmap,fadeclk,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
 extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,whistleclk,pan_style;
-extern bool analog_movement;
-extern int32_t joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
+extern int32_t Quit;
 extern uint32_t GameFlags;
-extern int32_t js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
-extern int32_t js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
-extern int32_t js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
-extern int32_t js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
-extern int32_t DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
+extern int32_t ss_after, ss_speed, ss_density, ss_enable;
 extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk;
 // Stores zoras that are "killed" during clocks, so they can be restored after.
 // (screen, id)
