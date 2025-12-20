@@ -1546,7 +1546,7 @@ void game_over(int32_t type)
 
 	if (replay_version_check(7))
 	{
-		zc_readrawkey(Skey, true);
+		zc_readrawkey(active_control_scheme->keys[btnS], true);
 	}
 	else
 	{

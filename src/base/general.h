@@ -69,7 +69,10 @@ do { \
 	v = (v&~(fl))|(other&(fl)); \
 } while(false)
 
+// exclusive of high
 int wrap(int x,int low,int high);
+// inclusive
+double wrap_float(double x,double low,double high);
 
 //Script Counts
 #define NUMSCRIPTFFC               512

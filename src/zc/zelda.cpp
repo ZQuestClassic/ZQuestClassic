@@ -23,6 +23,7 @@
 #include "base/version.h"
 #include "base/zc_alleg.h"
 #include "base/misctypes.h"
+#include "control_scheme.h"
 
 #include <stdlib.h>
 
@@ -91,9 +92,6 @@ extern bool epilepsyFlashReduction;
 #endif
 extern char runningItemScripts[256];
 
-extern char zc_builddate[80];
-extern char zc_aboutstr[80];
-
 int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0;
 bool zqtesting_mode = false;
@@ -146,7 +144,6 @@ int32_t db=0;
 int32_t detail_int[10];                                         //temporary holder for things you want to detail
 int32_t lens_hint_item[MAXITEMS][2]= {{0,0},{0,0}};                            //aclk, aframe
 int32_t lens_hint_weapon[MAXWPNS][5] = {{0,0},{0,0}};                           //aclk, aframe, dir, x, y
-int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 int32_t strike_hint_counter=0;
 int32_t strike_hint_timer=0;
 int32_t strike_hint = 0;
@@ -318,14 +315,9 @@ direction scrolling_dir;
 int32_t newscr_clk=0,cur_dmap=0,fadeclk=-1,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = -1, Awpn = -1, Xwpn = -1, Ywpn = -1;
 int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,whistleclk = 0,pan_style = 0;
-bool analog_movement=true;
-int32_t joystick_index=0,Akey = 0,Bkey = 0,Skey = 0,Lkey = 0,Rkey = 0,Pkey = 0,Exkey1 = 0,Exkey2 = 0,Exkey3 = 0,Exkey4 = 0,Abtn = 0,Bbtn = 0,Sbtn = 0,Mbtn = 0,Lbtn = 0,Rbtn = 0,Pbtn = 0,Exbtn1 = 0,Exbtn2 = 0,Exbtn3 = 0,Exbtn4 = 0,Quit=0;
+int32_t Quit=0;
 uint32_t GameFlags=0;
-int32_t js_stick_1_x_stick = 0, js_stick_1_x_axis = 0, js_stick_1_x_offset = 0;
-int32_t js_stick_1_y_stick = 0, js_stick_1_y_axis = 0, js_stick_1_y_offset = 0;
-int32_t js_stick_2_x_stick = 0, js_stick_2_x_axis = 0, js_stick_2_x_offset = 0;
-int32_t js_stick_2_y_stick = 0, js_stick_2_y_axis = 0, js_stick_2_y_offset = 0;
-int32_t DUkey = 0, DDkey = 0, DLkey = 0, DRkey = 0, DUbtn = 0, DDbtn = 0, DLbtn = 0, DRbtn = 0, ss_after = 0, ss_speed = 0, ss_density = 0, ss_enable = 0;
+int32_t ss_after = 0, ss_speed = 0, ss_density = 0, ss_enable = 0;
 int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0;
 std::vector<std::pair<int32_t, int32_t>> clock_zoras;
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
@@ -1805,6 +1797,7 @@ int32_t init_game()
 		GameLoaded = false;
 		return 1;
 	}
+	update_quest_control_path(qstpath); // load quest-specific keybinds
 
 	flushItemCache();
 
@@ -4159,19 +4152,13 @@ int main(int argc, char **argv)
 	bool onlyInstance=true;
 	FFCore.clear_combo_scripts();
 
-	memset(zc_builddate,0,80);
-	memset(zc_aboutstr,0,80);
-
-	sprintf(zc_builddate,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-	sprintf(zc_aboutstr,"%s, Version %s", "ZQuest Classic Player", getVersionString());
-	
-
 	Z_title("ZC Launched: %s, %s","ZQuest Classic Player", getVersionString());
 	
 	if(!get_qst_buffers())
 	{
 		Z_error_fatal("Error");
 	}
+	load_control_schemes(); // initializes the control schemes
 
 	zplayer_handle_commands();
 
@@ -4733,6 +4720,7 @@ reload_for_replay_file:
 	
 	while(Quit!=qEXIT)
 	{
+		update_quest_control_path(""); // revert quest-specific keybinds, go back to general keybinds
 		// this is here to continually fix the keyboard repeat
 		set_keyboard_rate(250,33);
 		walk_through_walls = false;

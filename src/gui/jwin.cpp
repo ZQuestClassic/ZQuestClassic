@@ -22,7 +22,6 @@ using std::istringstream;
 
 void update_hw_screen();
 extern int32_t zq_screen_w, zq_screen_h;
-extern int32_t joystick_index;
 int CheckerCol1 = 7, CheckerCol2 = 8;
 
 int32_t abc_patternmatch = 1;

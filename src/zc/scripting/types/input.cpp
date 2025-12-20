@@ -171,7 +171,7 @@ static ArrayRegistrar JOYPADPRESS_registrar(JOYPADPRESS, []{
 	static ScriptingArray_GlobalComputed<bool> impl(
 		[](int) { return MAX_JOYSTICK_BUTTONS; },
 		[](int, int index) -> bool {
-			return joybtn(index);
+			return joybtn(active_control_scheme->joystick_index, index);
 		},
 		[](int, int, bool) {
 			return false;
@@ -186,47 +186,17 @@ static ArrayRegistrar KEYBINDINGS_registrar(KEYBINDINGS, []{
 	static ScriptingArray_GlobalComputed<int> impl(
 		[](int) { return 14; },
 		[](int, int index) {
-			switch (index) {
-				case 0: return DUkey;
-				case 1: return DDkey;
-				case 2: return DLkey;
-				case 3: return DRkey;
-				case 4: return Akey;
-				case 5: return Bkey;
-				case 6: return Skey;
-				case 7: return Lkey;
-				case 8: return Rkey;
-				case 9: return Pkey; /*map*/
-				case 10: return Exkey1;
-				case 11: return Exkey2;
-				case 12: return Exkey3;
-				case 13: return Exkey4;
-				default: NOTREACHED();
-			}
+			if (unsigned(index) < 14)
+				return active_control_scheme->keys[index];
+			NOTREACHED();
 		},
 		[](int, int index, int value) {
-			switch (index) {
-				case 0: DUkey = value; break;
-				case 1: DDkey = value; break;
-				case 2: DLkey = value; break;
-				case 3: DRkey = value; break;
-				case 4: Akey = value; break;
-				case 5: Bkey = value; break;
-				case 6: Skey = value; break;
-				case 7: Lkey = value; break;
-				case 8: Rkey = value; break;
-				case 9: Pkey = value; break;
-				case 10: Exkey1 = value; break;
-				case 11: Exkey2 = value; break;
-				case 12: Exkey3 = value; break;
-				case 13: Exkey4 = value; break;
-				default: NOTREACHED();
-			}
-
+			// read-only, scripts can't change the user's keybinds
 			return true;
 		}
 	);
 	impl.setMul10000(true);
+	impl.setReadOnly();
 	return &impl;
 }());
 

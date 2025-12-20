@@ -19,6 +19,7 @@ src/drawing.cpp
 src/zinfo.cpp
 src/zconfig.cpp
 src/zc/cheats.cpp
+src/zc/control_scheme.cpp
 src/zc/replay.cpp
 src/zc/render.cpp
 src/zc/frame_timings.cpp
